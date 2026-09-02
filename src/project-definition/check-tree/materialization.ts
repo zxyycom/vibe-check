@@ -15,6 +15,7 @@ function materializeCheck(check: ParsedCheck): Check {
   const dependsOn = materializeCollection(check.dependsOn);
   const enabledByFlags = check.enabledByFlags;
   const mutex = materializeCollection(check.mutex);
+  const observes = materializeCollection(check.observes);
   const visibility = check.visibility;
   const preflight = check.preflight;
   const scheduling = {
@@ -23,7 +24,8 @@ function materializeCheck(check: ParsedCheck): Check {
       : { admissionPriority: check.admissionPriority }),
     ...(dependsOn === undefined ? {} : { dependsOn }),
     ...(check.maxParallel === undefined ? {} : { maxParallel: check.maxParallel }),
-    ...(mutex === undefined ? {} : { mutex })
+    ...(mutex === undefined ? {} : { mutex }),
+    ...(observes === undefined ? {} : { observes })
   };
   if (
     check.definition === null ||

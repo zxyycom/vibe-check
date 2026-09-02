@@ -16,7 +16,7 @@ Entities:
 - `bun|src/project-run/output-directories.test.ts|Package Run output directories > accepts child, parent, and absolute directories in Definition and RunControls`
   Proves:
 
-- Recursive ordinary Checks normalize only the declared executable/container grammar. Exact scheduling collections use explicit `inherit`; scalar `maxParallel` and signed `admissionPriority` inherit the nearest explicit value, with priority omission and explicit `0` sharing canonical identity. Executable visibility is declarative identity, while container, malformed, retired or unknown declarations fail closed; trusted execution/parser functions remain outside declarative fingerprints.
+- Recursive ordinary Checks normalize only the declared executable/container grammar. Exact `dependsOn`, `observes`, and `mutex` scheduling collections use explicit `inherit` independently; scalar `maxParallel` and signed `admissionPriority` inherit the nearest explicit value, with priority omission and explicit `0` sharing canonical identity. Executable `enabledByFlags` and visibility are canonical declarative identity. The closed scheduler admission policy defaults to canonical `static`, accepts only exact `static` or `custom` callback authoring, fingerprints only its kind rather than caller callback identity, and rejects a thenable proposal when that callback runs. Container, malformed, retired or unknown declarations fail closed, and trusted execution/parser functions remain outside declarative fingerprints.
 - Canonical declarative data preserves ordinary authored values without retaining author-controlled prototypes or callback identity; an executable provider must retain its parser while containers and malformed parser declarations fail closed.
 - Definition and RunControls use one closed directory grammar for machine publication and diagnostic logging: child, parent and absolute targets are valid without output I/O; empty, U+0000 and unknown output keys remain configuration failures before callbacks run.
 
@@ -52,8 +52,8 @@ Entities:
 - `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
   Proves:
 
-- The public package uses the `@zxyycom/vibe-check` import specifier and exposes only the documented generic authoring/run/Finding-presentation/waiver/cache operations, one composable default project-file selection, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason/cache type roots.
-- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; it can enumerate its declared direct dependency outcomes through the callback-local `dependencies.list()` surface and still uses the producing parser for final data. The caller-keyed cache parser must synchronously return a non-thenable typed value, so an async parser is rejected in installed declarations. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
+- The public package uses the `@zxyycom/vibe-check` import specifier and exposes only the documented generic authoring/run/Finding-presentation/waiver/cache operations, the `defineAdmissionPolicy` inference helper, one composable default project-file selection, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason/cache/admission-policy type roots.
+- An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; it can declare `observes`, enumerate its direct settled outcome through the callback-local `dependencies.list()` surface, and still uses the producing parser for final data. It can author a custom admission policy over the readonly graph/candidate/capacity/runtime DTO and must synchronously return exact `select(taskId)` or `wait`; an async proposal is rejected in installed declarations. The caller-keyed cache parser must likewise synchronously return a non-thenable typed value. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
 
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
 
@@ -128,12 +128,9 @@ Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
-- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > finishes every sequential preflight before any author execution`
-- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > settles blocked preflights before graph admission without a started fact or duration`
-- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > settles already-cancelled preparations without invoking preflight`
-- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > reports cancellation raised by a preflight callback`
-- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > closes a fully settled preparation barrier as cancelled`
-- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > retains completed preflight messages when a later preflight cancels`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
+- `bun|src/project-run/check-execution/preflight-barrier.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
+- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > passes the invocation signal to admitted preflights and closes cancelled Check Tasks`
 - `bun|src/project-run/check-execution/preflight-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
@@ -141,5 +138,5 @@ Entities:
   Proves:
 - Completed, output failure, and execution-phase-cancelled final-snapshot `RunResult` values expose only accepted detached `{ checkId, level, code, message }` items. Invalid attachments and author results rejected by Record settlement expose no partial messages.
 - `checkMessages` preserves author order within each Check and canonical snapshot Check order across parallel settlement; disabling progress or a settled progress writer failure does not remove it.
-- The sequential preparation barrier receives the invocation signal; cooperative cancellation closes the existing execution phase as `cancelled` before preflight, after a preflight callback, when every Check settles during preparation, and when an earlier prepared Check has already emitted accepted messages.
+- Task-local preflight receives the invocation signal only after admission; cooperative cancellation closes the existing execution phase as `cancelled` without admitting pending author work.
 - A real Run preserves attention-Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor visibility.

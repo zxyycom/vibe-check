@@ -19,6 +19,38 @@ export function recordingLogger(observations: DiagnosticObservation[]): Diagnost
   });
 }
 
+/** Named phase clock keeps Scheduler timing fixtures readable without call-count arrays. */
+export function scriptedClock(initialMs = 0): Readonly<{
+  readonly advance: (phase: string, milliseconds: number) => void;
+  readonly now: () => number;
+  readonly reads: () => number;
+}> {
+  let currentMs = initialMs;
+  let reads = 0;
+  return Object.freeze({
+    advance: (phase, milliseconds) => {
+      assert.ok(phase.length > 0, "scripted clock phase must be named");
+      assert.ok(Number.isFinite(milliseconds) && milliseconds >= 0, "phase time must be finite");
+      currentMs += milliseconds;
+    },
+    now: () => {
+      reads += 1;
+      return currentMs;
+    },
+    reads: () => reads
+  });
+}
+
+export function schedulerSummary(
+  observations: readonly DiagnosticObservation[]
+): Readonly<Record<string, unknown>> {
+  const summaries = observations.filter((observation) => observation.event === "scheduler.summary");
+  assert.equal(summaries.length, 1, "expected exactly one scheduler summary");
+  const details = summaries[0]?.details;
+  if (!isRecord(details)) assert.fail("scheduler summary must have ordinary object details");
+  return details;
+}
+
 export function recordedSchedulerDecisions(
   observations: readonly DiagnosticObservation[]
 ): readonly SchedulerDecision[] {
@@ -43,7 +75,6 @@ interface SchedulerDecisionScenario {
   readonly isCancelled?: boolean;
   readonly maxParallel: number;
   readonly pendingTaskIds?: readonly string[];
-  readonly reservationTaskId?: string;
   readonly runningMutexes?: readonly string[];
   readonly runningTaskIds?: readonly string[];
   readonly settledTasks?: SchedulerSnapshot["settledTasks"];
@@ -73,7 +104,6 @@ export function decisionFor(graph: TaskGraph, input: SchedulerDecisionScenario):
       activeScopeIds: Object.freeze([...scenario.activeScopeIds]),
       graph: prepareTaskGraph(graph, scenario.maxParallel),
       pendingTaskIds: Object.freeze([...scenario.pendingTaskIds]),
-      reservationTaskId: scenario.reservationTaskId,
       runningMutexes: Object.freeze([...scenario.runningMutexes]),
       runningTaskIds: Object.freeze([...scenario.runningTaskIds]),
       settledTasks: Object.freeze([...scenario.settledTasks])
@@ -98,7 +128,6 @@ export function assertSchedulerDecisionCopiesSnapshotInputs(): void {
       isCancelled: false,
       maxParallel: 1,
       pendingTaskIds,
-      reservationTaskId: undefined,
       runningMutexes: [],
       runningTaskIds: ["first"],
       settledTasks: []
@@ -111,7 +140,6 @@ export function assertSchedulerDecisionCopiesSnapshotInputs(): void {
   assert.equal(Object.isFrozen(copiedDecision.trigger), true);
   assert.equal(Object.isFrozen(copiedDecision.capacity), true);
   assert.equal(Object.isFrozen(copiedDecision.blockers), true);
-  assert.equal(Object.isFrozen(copiedDecision.reservation), true);
 }
 
 /** Narrows a recorded decision while retaining an actionable assertion failure. */
@@ -150,10 +178,17 @@ function assertSchedulerDecisionContext(decision: SchedulerDecision): void {
     "rootCapacity",
     "scopeCapacity"
   ]);
-  assert.deepEqual(Object.keys(decision.reservation), ["taskId"]);
   assert.equal(Object.isFrozen(decision.capacity), true);
   assert.equal(Object.isFrozen(decision.blockers), true);
-  assert.equal(Object.isFrozen(decision.reservation), true);
+  assert.equal(Object.isFrozen(decision.graphIdentity), true);
+  assert.equal(Object.isFrozen(decision.graphIdentity.tasks), true);
+  assert.equal(Object.isFrozen(decision.graphIdentity.scopes), true);
+  if (decision.kind === "admit" || decision.kind === "await-running") {
+    assert.equal(Object.isFrozen(decision.candidates), true);
+    assert.equal(Object.isFrozen(decision.hardGuard), true);
+    assert.equal("reason" in decision, false);
+    assert.equal("reservation" in decision, false);
+  }
 }
 
 function assertNoUndefinedValue(value: unknown): void {

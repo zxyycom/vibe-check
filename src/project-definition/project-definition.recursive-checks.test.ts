@@ -22,6 +22,7 @@ describe("Project Definition", () => {
       displayName: "Parent check",
       dependsOn: ["prepare"],
       mutex: ["analysis"],
+      observes: ["release-status"],
       execution: passed,
       checks: [child]
     });
@@ -43,6 +44,8 @@ describe("Project Definition", () => {
     assert.equal(Object.hasOwn(normalized.checks[0]?.definition ?? {}, "recordTypes"), false);
     assert.deepEqual(normalized.checks[0]?.dependsOn, ["prepare"]);
     assert.deepEqual(normalized.checks[0]?.mutex, ["analysis"]);
+    assert.deepEqual(normalized.checks[0]?.observes, ["release-status"]);
+    assert.deepEqual(normalized.checks[1]?.observes, ["release-status"]);
     assert.equal(normalized.checks[0]?.maxParallel, 2);
     assert.equal(normalized.checks[1]?.maxParallel, 2);
     assert.equal(

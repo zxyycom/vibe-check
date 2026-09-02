@@ -9,7 +9,7 @@ export function summarizeSchedulerBlockers(
   let dependency = 0;
   let mutex = 0;
   for (const task of state.pendingTasks) {
-    if (hasUncompletedDependency(task.dependsOn, state.settlementKindByTaskId)) {
+    if (hasUnsatisfiedRelation(task, state.settledTasks)) {
       dependency += 1;
       continue;
     }
@@ -18,19 +18,24 @@ export function summarizeSchedulerBlockers(
   return Object.freeze({
     dependency,
     mutex,
-    rootCapacity: state.runningTaskIds.size >= state.maxParallel,
+    rootCapacity: state.runningTaskIds.length >= state.maxParallel,
     scopeCapacity:
       capacity.effectiveMaxParallel < state.maxParallel &&
-      state.runningTaskIds.size >= capacity.effectiveMaxParallel
+      state.runningTaskIds.length >= capacity.effectiveMaxParallel
   });
 }
 
-function hasUncompletedDependency(
-  dependencyIds: readonly string[],
-  settlementKindByTaskId: SchedulerInspection["settlementKindByTaskId"]
+function hasUnsatisfiedRelation(
+  task: SchedulerInspection["pendingTasks"][number],
+  settledTasks: SchedulerInspection["settledTasks"]
 ): boolean {
-  return dependencyIds.some(
-    (dependencyId) => settlementKindByTaskId.get(dependencyId) !== "completed"
+  return (
+    task.dependsOn.some(
+      (dependencyId) => settlementKindFor(settledTasks, dependencyId) !== "completed"
+    ) ||
+    task.observes.some(
+      (observationId) => settlementKindFor(settledTasks, observationId) === undefined
+    )
   );
 }
 
@@ -38,5 +43,12 @@ function hasRunningMutex(
   mutexNames: readonly string[],
   runningMutexes: SchedulerInspection["runningMutexes"]
 ): boolean {
-  return mutexNames.some((mutexName) => runningMutexes.has(mutexName));
+  return mutexNames.some((mutexName) => runningMutexes.includes(mutexName));
+}
+
+function settlementKindFor(
+  settledTasks: SchedulerInspection["settledTasks"],
+  taskId: string
+): SchedulerInspection["settledTasks"][number]["kind"] | undefined {
+  return settledTasks.find((task) => task.taskId === taskId)?.kind;
 }

@@ -59,11 +59,11 @@ const releaseInputs = defineCheck({
   }
 });
 
-// 一个 downstream policy：读取内置 Check 和 typed provider 的 final data。
+// 一个 downstream policy：观察内置 Check 和 typed provider 的 terminal outcome，再读取可用 final data。
 const releasePolicy = defineCheck({
   checkId: "example-release-policy",
   displayName: "Example release policy",
-  dependsOn: inherit({ add: [releaseInputs.checkId] }),
+  observes: inherit({ add: [releaseInputs.checkId] }),
   options: { minimumFileCount: 2 },
   visibility: "attention",
   execution({ dependencies, options, records }) {
@@ -151,7 +151,7 @@ const optionalDocumentation = defineCheck({
       : { status: "not-applicable", reason: { code: "documentation-disabled" } }
 });
 
-// block preflight 会在任何 Check execution 开始前把本 Check 结算为 unavailable。
+// block preflight 只阻止本 Check 的 execution，并将其结算为 unavailable；不相关的 Check 仍可并行。
 const externalReview = defineCheck({
   checkId: "example-external-review",
   displayName: "Example external review",
@@ -176,12 +176,12 @@ const externalReview = defineCheck({
   execution: () => ({ status: "passed", data: { reviewed: true } })
 });
 
-// 组织节点自身不产生 outcome；children 继承 packageManifest dependency 和并行预算。
+// 组织节点自身不产生 outcome；children 继承 packageManifest observation 和并行预算。
 const releaseWorkflow = defineCheck({
   checkId: "example-release-workflow",
   displayName: "Example release workflow",
   checks: [releaseInputs, releasePolicy, optionalDocumentation, externalReview],
-  dependsOn: [packageManifest.checkId],
+  observes: [packageManifest.checkId],
   maxParallel: 2
 });
 

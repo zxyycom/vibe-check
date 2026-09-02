@@ -11,7 +11,6 @@ export type SettledPreparationResolution = Readonly<{
   readonly kind: "settled";
   readonly check: SettledPreparationCheck;
   readonly outcome: CheckOutcome;
-  readonly phase: "control" | "preflight";
 }>;
 
 export function resolveFlagEnablement(
@@ -27,8 +26,7 @@ export function resolveFlagEnablement(
     outcome: Object.freeze({
       status: "not-applicable",
       reason: Object.freeze({ code: FLAG_CONDITION_NOT_MATCHED_CODE })
-    }),
-    phase: "control"
+    })
   });
 }
 
@@ -49,30 +47,11 @@ function matchesFlagEnablement(
   }
 }
 
-export function unavailablePreflightResolution(
-  input: Readonly<{
-    readonly check: NormalizedCheck;
-    readonly messages: readonly CheckMessage[];
-    readonly reasonCode: string;
-  }>
-): SettledPreparationResolution {
-  return settledResolution({
-    check: input.check,
-    messages: input.messages,
-    outcome: Object.freeze({
-      status: "unavailable",
-      reason: Object.freeze({ code: input.reasonCode })
-    }),
-    phase: "preflight"
-  });
-}
-
 function settledResolution(
   input: Readonly<{
     readonly check: NormalizedCheck;
     readonly messages: readonly CheckMessage[];
     readonly outcome: CheckOutcome;
-    readonly phase: "control" | "preflight";
   }>
 ): SettledPreparationResolution {
   return Object.freeze({
@@ -82,7 +61,6 @@ function settledResolution(
       messages: input.messages,
       visibility: input.check.visibility
     }),
-    outcome: input.outcome,
-    phase: input.phase
+    outcome: input.outcome
   });
 }

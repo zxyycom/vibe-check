@@ -6,6 +6,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   }),
   operations: Object.freeze({
     cacheJsonByKey: "cacheJsonByKey",
+    defineAdmissionPolicy: "defineAdmissionPolicy",
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",
     duplicateDetection: "duplicateDetection",
@@ -30,6 +31,10 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     parseMarkdownLinkValidationData: "parseMarkdownLinkValidationData"
   }),
   types: Object.freeze({
+    AdmissionPolicy: "AdmissionPolicy",
+    AdmissionPolicyContext: "AdmissionPolicyContext",
+    AdmissionPolicyMeasurement: "AdmissionPolicyMeasurement",
+    AdmissionProposal: "AdmissionProposal",
     CacheJsonByKeyOptions: "CacheJsonByKeyOptions",
     CacheJsonByKeyResult: "CacheJsonByKeyResult",
     Check: "Check",
@@ -99,6 +104,15 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     ReconcileFindingWaiversOptions: "ReconcileFindingWaiversOptions",
     RunControls: "RunControls",
     RunResult: "RunResult",
+    SchedulerDecisionMeasurementCumulative: "SchedulerDecisionMeasurementCumulative",
+    SchedulerGraphSnapshot: "SchedulerGraphSnapshot",
+    SchedulerMeasurementContext: "SchedulerMeasurementContext",
+    SchedulerMeasurementHook: "SchedulerMeasurementHook",
+    SchedulerMeasurementIntervalContribution: "SchedulerMeasurementIntervalContribution",
+    SchedulerMeasurementActionObservationInterval: "SchedulerMeasurementActionObservationInterval",
+    SchedulerMeasurementActionObservation: "SchedulerMeasurementActionObservation",
+    SchedulerMeasurementEffect: "SchedulerMeasurementEffect",
+    SchedulerRawMeasurement: "SchedulerRawMeasurement",
     SchedulerPolicy: "SchedulerPolicy"
   })
 } as const);

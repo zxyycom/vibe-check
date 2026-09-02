@@ -9,7 +9,6 @@ import {
   type CheckIdentity,
   type SettledCheckFacts
 } from "./execution-settlement.ts";
-import type { PreparedCheck } from "./preparation-barrier.ts";
 import type { CheckExecutionState, ResolvedCheckExecution } from "./resolved-checks.ts";
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
@@ -19,32 +18,47 @@ export function closeResolvedChecks(
   input: Readonly<{
     readonly allChecks: readonly NormalizedCheck[];
     readonly graphRun: Awaited<
-      ReturnType<typeof import("../task-scheduler/scheduler.ts").runTaskGraph<void>>
+      ReturnType<typeof import("../task-scheduler/scheduler.ts").runTaskGraph<boolean>>
     >;
-    readonly readyChecks: readonly PreparedCheck[];
     readonly state: CheckExecutionState;
   }>
 ): ResolvedCheckExecution {
   try {
     assertNoTaskEngineFailures(input.graphRun.settlements);
-    if (input.graphRun.cancelled) {
-      return closeCancelledExecution({
+    if (input.graphRun.admissionPolicyFault !== undefined) {
+      return closeAdmissionPolicyFailed({
         normalizedChecks: input.allChecks,
-        preparedChecks: input.readyChecks,
         state: input.state
       });
     }
-    assertEveryCheckClosed(input.readyChecks, input.graphRun.settlements);
+    if (input.graphRun.cancelled) {
+      return closeCancelledExecution({
+        normalizedChecks: input.allChecks,
+        state: input.state
+      });
+    }
+    assertEveryCheckClosed(input.allChecks, input.graphRun.settlements);
     return resolvedExecution("completed", input.state.session.freeze(), input.state);
   } catch (error) {
     throw trustedFailure(error);
   }
 }
 
+export function closeAdmissionPolicyFailed(
+  input: Readonly<{
+    readonly normalizedChecks: readonly NormalizedCheck[];
+    readonly state: CheckExecutionState;
+  }>
+): ResolvedCheckExecution {
+  input.state.session.closeUnresolvedAsCancelled();
+  const snapshot = input.state.session.freeze();
+  settleUnstartedCancelledChecks({ ...input, snapshot });
+  return resolvedExecution("admission-policy-failed", snapshot, input.state);
+}
+
 export function closeCancelledExecution(
   input: Readonly<{
     readonly normalizedChecks: readonly NormalizedCheck[];
-    readonly preparedChecks: readonly PreparedCheck[];
     readonly state: CheckExecutionState;
   }>
 ): ResolvedCheckExecution {
@@ -87,16 +101,12 @@ function resolvedExecution(
 function settleUnstartedCancelledChecks(
   input: Readonly<{
     readonly normalizedChecks: readonly NormalizedCheck[];
-    readonly preparedChecks: readonly PreparedCheck[];
     readonly snapshot: CoreSnapshot;
     readonly state: CheckExecutionState;
   }>
 ): void {
   const normalizedByCheckId = new Map(
     input.normalizedChecks.map((check) => [check.definition.checkId, check])
-  );
-  const preparedByCheckId = new Map(
-    input.preparedChecks.map((check) => [check.definition.checkId, check])
   );
   for (const check of input.snapshot.checks) {
     if (input.state.settledFactsByCheckId.has(check.checkId)) continue;
@@ -109,7 +119,7 @@ function settleUnstartedCancelledChecks(
     recordSettledCheck({
       check: checkIdentity(normalized),
       durationMs: null,
-      messages: preparedByCheckId.get(check.checkId)?.preflightMessages ?? EMPTY_MESSAGES,
+      messages: EMPTY_MESSAGES,
       outcome: check.outcome,
       phase: "execution",
       state: input.state
@@ -149,22 +159,47 @@ function checkRunSummaries(
   });
 }
 
-function assertNoTaskEngineFailures(settlements: readonly SettledTask<void>[]): void {
+/** Closes one Scheduler-blocked Check before a terminal observer may start. */
+export function settleBlockedDependent(
+  input: Readonly<{
+    readonly check: NormalizedCheck;
+    readonly dependencyIds: readonly string[];
+    readonly state: CheckExecutionState;
+  }>
+): void {
+  const scope = input.state.session.openCheckScope(input.check.definition.checkId);
+  const outcome = scope.settleProduct(
+    Object.freeze({
+      status: "unavailable" as const,
+      reason: Object.freeze({
+        code: "dependency-not-passed",
+        checkIds: Object.freeze([...input.dependencyIds])
+      })
+    })
+  );
+  recordSettledCheck({
+    check: checkIdentity(input.check),
+    durationMs: null,
+    messages: EMPTY_MESSAGES,
+    outcome,
+    phase: "dependency",
+    state: input.state
+  });
+}
+
+function assertNoTaskEngineFailures(settlements: readonly SettledTask<boolean>[]): void {
   for (const settled of settlements) {
     if (settled.settlement.kind === "failed") {
       throw new CheckExecutionInvariantFailure(
         "Task engine received an unexpected execution failure"
       );
     }
-    if (settled.settlement.kind === "blocked") {
-      throw new CheckExecutionInvariantFailure("Task engine blocked a Product Check");
-    }
   }
 }
 
 function assertEveryCheckClosed(
   checks: readonly NormalizedCheck[],
-  settlements: readonly SettledTask<void>[]
+  settlements: readonly SettledTask<boolean>[]
 ): void {
   if (settlements.some((settled) => settled.settlement.kind === "cancelled-before-start")) {
     throw new CheckExecutionInvariantFailure("Non-cancelled Task graph left a Check unstarted");

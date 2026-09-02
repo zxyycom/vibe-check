@@ -16,6 +16,7 @@ export function normalized(
     readonly dependsOn?: readonly string[];
     readonly displayName?: string;
     readonly maxParallel?: number;
+    readonly observes?: readonly string[];
     readonly preflight?: NormalizedCheck["preflight"];
   }> = {}
 ): NormalizedCheck {
@@ -27,6 +28,7 @@ export function normalized(
     execution,
     maxParallel: overrides.maxParallel ?? 1,
     mutex: [],
+    observes: overrides.observes ?? [],
     options: {},
     ...(overrides.preflight === undefined ? {} : { preflight: overrides.preflight }),
     visibility: "always"

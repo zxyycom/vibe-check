@@ -11,13 +11,13 @@ export function createCheckDependencies(
   input: Readonly<{
     readonly checkId: string;
     readonly diagnosticLogger: DiagnosticLogger | undefined;
-    readonly directDependencyIds: readonly string[];
+    readonly directRelationCheckIds: readonly string[];
     readonly session: CoreCheckSession;
   }>
 ): CheckDependencies {
   return Object.freeze({
     get: (dependencyId: string): DependencyReadResult => {
-      const result = readDependency(input.session, input.directDependencyIds, dependencyId);
+      const result = readDirectRelation(input.session, input.directRelationCheckIds, dependencyId);
       input.diagnosticLogger?.observe({
         event: "dependency.read",
         tags: diagnosticTags(`CHECK:${input.checkId}`, "EXECUTION", "DEPENDENCY-READ"),
@@ -26,32 +26,32 @@ export function createCheckDependencies(
       return result;
     },
     list: (): readonly DependencyObservation[] => {
-      const observations = listDirectDependencyObservations(
+      const observations = listDirectRelationObservations(
         input.session,
-        input.directDependencyIds
+        input.directRelationCheckIds
       );
       input.diagnosticLogger?.observe({
         event: "dependency.list",
         tags: diagnosticTags(`CHECK:${input.checkId}`, "EXECUTION", "DEPENDENCY-LIST"),
-        details: directDependencyListDetails(observations)
+        details: directRelationListDetails(observations)
       });
       return observations;
     }
   });
 }
 
-function listDirectDependencyObservations(
+function listDirectRelationObservations(
   session: CoreCheckSession,
-  directDependencyIds: readonly string[]
+  directRelationCheckIds: readonly string[]
 ): readonly DependencyObservation[] {
   return Object.freeze(
-    directDependencyIds.map((checkId) =>
+    directRelationCheckIds.map((checkId) =>
       Object.freeze({ checkId, outcome: session.readSettledCheckOutcome(checkId) })
     )
   );
 }
 
-function directDependencyListDetails(
+function directRelationListDetails(
   observations: readonly DependencyObservation[]
 ): Readonly<Record<string, unknown>> {
   return Object.freeze({
@@ -75,12 +75,12 @@ function dependencyReadDetails(
   });
 }
 
-function readDependency(
+function readDirectRelation(
   session: CoreCheckSession,
-  directDependencyIds: readonly string[],
+  directRelationCheckIds: readonly string[],
   checkId: string
 ): DependencyReadResult {
-  if (typeof checkId !== "string" || !directDependencyIds.includes(checkId)) {
+  if (typeof checkId !== "string" || !directRelationCheckIds.includes(checkId)) {
     return dependencyNotDeclared(checkId);
   }
   return dependencyReadResult(checkId, session.readSettledCheckOutcome(checkId));

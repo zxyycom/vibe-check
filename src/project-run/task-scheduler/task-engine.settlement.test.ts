@@ -56,6 +56,67 @@ describe("static task engine", () => {
     assert.equal(appliedBlock.trigger.kind, "task-settled");
   });
 
+  it("blocks unmet prerequisites while admitting terminal observers", async () => {
+    const calls: string[] = [];
+    const run = await runTaskGraph<boolean>({
+      graph: {
+        tasks: [
+          { id: "source" },
+          { id: "dependent", dependsOn: ["source"] },
+          { id: "observer", observes: ["source"] }
+        ]
+      },
+      maxParallel: 1,
+      isPrerequisiteSatisfied: (value) => value,
+      execute: (task) => {
+        calls.push(task.id);
+        return task.id !== "source";
+      }
+    });
+
+    assert.deepEqual(calls, ["source", "observer"]);
+    assert.deepEqual(settlementFor(run, "source"), {
+      kind: "prerequisite-unsatisfied",
+      value: false
+    });
+    assert.deepEqual(settlementFor(run, "dependent"), {
+      kind: "blocked",
+      dependencyIds: ["source"]
+    });
+    assert.deepEqual(settlementFor(run, "observer"), { kind: "completed", value: true });
+  });
+
+  it("starts from Product-owned terminal results without admitting those Tasks", async () => {
+    const calls: string[] = [];
+    const run = await runTaskGraph<boolean>({
+      graph: {
+        tasks: [
+          { id: "source" },
+          { id: "dependent", dependsOn: ["source"] },
+          { id: "observer", observes: ["source"] }
+        ]
+      },
+      initialTaskResults: [{ taskId: "source", value: false }],
+      maxParallel: 1,
+      isPrerequisiteSatisfied: (value) => value,
+      execute: (task) => {
+        calls.push(task.id);
+        return true;
+      }
+    });
+
+    assert.deepEqual(calls, ["observer"]);
+    assert.deepEqual(settlementFor(run, "source"), {
+      kind: "prerequisite-unsatisfied",
+      value: false
+    });
+    assert.deepEqual(settlementFor(run, "dependent"), {
+      kind: "blocked",
+      dependencyIds: ["source"]
+    });
+    assert.deepEqual(settlementFor(run, "observer"), { kind: "completed", value: true });
+  });
+
   it("stops new admission after abort while admitted work receives the same signal and drains", async () => {
     const controller = new AbortController();
     const started: string[] = [];
@@ -109,7 +170,6 @@ describe("static task engine", () => {
     if (appliedCancellationDrain?.kind !== "await-running") {
       assert.fail("expected cancellation drain decision");
     }
-    assert.equal(appliedCancellationDrain.reason, "cancellation-drain");
     assert.equal(appliedCancellationDrain.trigger.kind, "cancellation-applied");
     const cancellationComplete = cancellationDecisions[5];
     if (cancellationComplete?.kind !== "complete") {
@@ -125,7 +185,6 @@ describe("static task engine", () => {
     assert.equal(cancellation.kind, "cancel-pending");
     assert.deepEqual(cancellation.taskIds, ["pending"]);
     assert.equal(Object.isFrozen(cancellation.taskIds), true);
-    assert.deepEqual(cancellation.reservation, { taskId: null });
     assert.equal(cancellation.trigger.kind, "cancellation-observed");
 
     const cancellationDrain = decisionFor(graph, {
@@ -135,7 +194,6 @@ describe("static task engine", () => {
       runningTaskIds: ["started-one"]
     });
     assert.equal(cancellationDrain.kind, "await-running");
-    assert.equal(cancellationDrain.reason, "cancellation-drain");
 
     const complete = decisionFor(graph, { isCancelled: true, maxParallel: 2, pendingTaskIds: [] });
     assert.equal(complete.kind, "complete");

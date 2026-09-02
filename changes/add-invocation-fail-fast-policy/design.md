@@ -8,7 +8,7 @@
 - Check aggregation是可选 RunControls policy，只在全部 selected terminal outcomes形成后计算，不是执行期控制器。
 - author callback可能忽略 signal，Product不能安全抢占、回滚 Records或从普通 Error推断协作取消。
 - success dependency与outcome observation由独立 Change 负责；无论该 Change 是否先落地，fail-fast都只面向一次 invocation 中仍可admit的pending Checks，不改变direct relation本身。
-- admission priority、capacity reservation、mutex与`maxParallel`已经共同决定 ready Task选择；fail-fast必须在同一 Scheduler内形成唯一 cutoff。
+- admission priority、capacity hard guard、mutex与`maxParallel`已经共同约束下一运行选项；fail-fast必须在同一 Scheduler内形成唯一 cutoff。
 
 ## Goals / Non-Goals
 
@@ -52,7 +52,7 @@ trusted Check settlement
 ### Resulting Impacts
 
 - RunControls validation、Task scheduler cutoff、Check finalization、diagnostics、progress、aggregation和machine publication都会受影响。
-- cancellation Decision需要明确区分caller abort与outcome-triggered cutoff；priority/reservation Decision需要固定trigger观察与admission commit之间的竞态顺序。
+- cancellation Decision需要明确区分caller abort与outcome-triggered cutoff；priority与无状态 hard-guard Decision需要固定trigger观察与admission commit之间的竞态顺序。
 - Tests需要覆盖并发settlement、同tick admission、已启动drain、pending facts、dependency descendants、observers、outputs和disabled默认兼容性。
 - README/API只能在trigger和pending outcome闭合后公开，不能用“立即停止”暗示抢占running work。
 

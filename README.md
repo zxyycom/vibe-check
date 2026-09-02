@@ -135,24 +135,26 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | `checkId` | 在同一 Definition 中唯一的稳定标识；用于查找 outcome、Record、message 和 duration。 |
 | `displayName` | 进度和人读结果中显示的名称。 |
 | `execution(context)` | 执行检查并返回一个 terminal outcome。省略时，当前节点只用于组织子 `checks`。 |
-| `enabledByFlags` | 可选的 `{ flags, mode }`；根据声明的 flag 是否存在决定是否启用，条件不匹配时在 preflight 和 execution 前结算为 `not-applicable`。 |
-| `dependsOn` | 此 Check 要读取或等待的 direct Check IDs；可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
-| `admissionPriority` | 同一既有 ready 准入层级中的静态相对优先级；必须是安全整数，省略后继承最近的容器值，最终为 `0`。它不改变 Check tree 的声明顺序，也不越过依赖、mutex、并行上限或已建立的 capacity reservation。 |
+| `enabledByFlags` | 可选的 `{ flags, mode }`；条件不匹配时在任何 owning preflight / execution 前结算为 `not-applicable`，并作为未满足的 prerequisite 参与同一张图。 |
+| `dependsOn` | 必须先结算为 `passed` 的 direct prerequisite IDs；任一非 `passed` 都阻止本 Check 的 preflight 和 execution。可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
+| `observes` | 所列每个 direct Check 都只需先各自形成任意 terminal outcome 的 IDs；用于审计、汇总或基于 outcome 形成本 Check 的 policy，不把上游非 `passed` 当作本 Check 的 prerequisite；同样可用 `inherit({ add, remove })` 显式编辑继承值。 |
+| `admissionPriority` | 同一既有 ready 准入层级中的静态相对优先级；必须是安全整数，省略后继承最近的容器值，最终为 `0`。它是完整 Task graph 上的 metadata，不改变 Check tree 的声明顺序，也不越过依赖、mutex、并行上限或 cancellation/lifecycle hard guard。 |
 | `options` | 当前 Check 的配置；Run 会把准备后的只读副本交给 `context.options`。 |
 | `checks` | 可选的子 Check 列表，用于组织一组相关规则。 |
 
-`execution` 可以同步返回，也可以返回 `Promise`。它通过 `context` 读取当前 options、project root、flags、已声明依赖的数据、取消 signal，并可用 `records.report(...)` 保存不决定终态的补充事实。
+`execution` 可以同步返回，也可以返回 `Promise`。它通过 `context` 读取当前 options、project root、flags、两类 relation 授权的 direct outcome、取消 signal，并可用 `records.report(...)` 保存不决定终态的补充事实。
 
-`enabledByFlags.flags` 必须是非空 token 集合；`mode` 可以是 `all`、`any`、`none` 或 `not-all`。其中 `any` 表示至少一个声明 token 存在，不是“恰好一个”；`not-all` 表示至少一个声明 token 不存在。需要带值 flag、“恰好一个”或嵌套布尔条件时，Check 继续在 callback 中解释 `context.project.flags`。深入执行顺序与 settlement 见 [API 机制](docs/api-mechanics.md#一次-run-的生命周期)。
+`enabledByFlags.flags` 必须是非空 token 集合；`mode` 可以是 `all`、`any`、`none` 或 `not-all`。其中 `any` 表示至少一个声明 token 存在，不是“恰好一个”；`not-all` 表示至少一个声明 token 不存在。需要带值 flag、“恰好一个”或嵌套布尔条件时，Check 继续在 callback 中解释 `context.project.flags`。条件不匹配的 Check 保留 `not-applicable / flag-condition-not-matched` 事实；以它为 `dependsOn` 的 Check 会因 prerequisite 未通过而不启动，以它为 `observes` 的 Check 仍可读取该终态。深入执行顺序与 settlement 见 [API 机制](docs/api-mechanics.md#一次-run-的生命周期)。
 
 默认 progress 会把因 flag 条件未匹配而没有启动的 Checks 合成一个原因说明块，并在下面列出各自的
 `displayName`；完整 Check facts、最终计数和 machine output 不会被压缩或删除。完整分组条件与其它未启动状态的
 呈现边界见 [API 机制](docs/api-mechanics.md#outputs-与-runresult-边界)。
 
-需要读取一个已声明 direct dependency 的 final data 时，使用 `context.dependencies.get(checkId)`，并由 producing
-Check 的 `parseData` 恢复其业务类型。需要审计所有已声明 direct dependencies 时，使用零参数
+必须取得成功 provider data 才能开始工作时，使用 `dependsOn`，再以 `context.dependencies.get(checkId)` 读取 final data，并由 producing
+Check 的 `parseData` 恢复其业务类型。需要在所有 observed upstream 各自结算为任意 terminal outcome 后审计时，使用 `observes`，再用零参数
 `context.dependencies.list()`：它按 normalized effective direct ID 的稳定顺序返回冻结的 observation array；每项都是冻结的
-`{ checkId, outcome }`，`outcome` 保留 Core 已结算的完整四态，包含继承得到的直接声明。它不是全局已执行 Check 列表，
+`{ checkId, outcome }`，`outcome` 保留 Core 已结算的完整四态，包含两类 relation 分别继承后形成的 direct ID 并集。`get` 和 `list`
+都只授权这个并集；同一 ID 不能同时出现在两类 relation。它不是全局已执行 Check 列表，
 不包含 ambient executed、transitive 或未声明 Check，也不反映 scheduler history。consumer 只能根据这些只读事实形成自己
 Check 的 I/O、Records、messages 和 terminal result，不能重跑、修改或重新结算上游。完整示例与 parser 边界见
 [深入 API 机制的类型化依赖数据](./docs/api-mechanics.md#类型化依赖数据)。
@@ -182,9 +184,86 @@ Check-owned file、transcript 或独立 logger；完整边界见
 | `outputs.machinePublication.enabled` | `true` | 把 `run.json` 和 `records.ndjson` 写入 `artifacts/vibe-check`。 |
 | `outputs.diagnosticLogging.enabled` | `false` | 需要排障时写入 invocation-specific 日志。 |
 | `scheduler.maxParallel` | `4` | 限制最外层 Check 并行数。 |
+| `scheduler.admissionPolicy` | `{ kind: "static" }` | 每轮以完整静态图与当前事实重算的默认无状态准入 policy。 |
 
 `outputs` 和 `scheduler` 都可以只覆盖需要改变的 nested field；同一份 Definition 可以安全地传给多次 `run(...)`。
 machine publication 和 diagnostic logging 的 `directory` 在 Definition 与 RunControls 中使用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。相对值（包括 `..`）从本次 effective `projectRoot` 解析；绝对值直接作为明确 target。两项仍是独立 output，可以填写同一目录（machine 只拥有 `run.json` 与 `records.ndjson`，diagnostic logging 只创建 invocation-specific `.log`）。这不是 filesystem sandbox、目录清空或 containment 承诺；可移植的可重复 Definition 应优先使用相对目录，把 invocation-specific 的外部绝对 target 放进 `run(..., { outputs })`。
+
+### 自定义准入 policy
+
+当调用方需要利用完整 Task graph、后继关系或项目自己的静态成本模型时，可以设置
+`scheduler.admissionPolicy` 为 `custom`。`proposeAdmission(context)` 每轮只提出 `select(taskId)` 或 `wait`；
+context 是 detached、deep-frozen snapshot，Task metadata 是 topology 与 priority 的唯一来源。Scheduler 仍独占
+relation/mutex readiness、capacity、cancellation、Task 启动和结算的 hard guard，不能用 callback 绕过这些条件。
+
+callback 是调用方 trusted synchronous code；`defineAdmissionPolicy(...)` 只改善 TypeScript inference，inline 同形 object
+等价。Product 不 sandbox、timeout、isolate 或 lock callback；同一 Definition 的并行 Run 共享 closure，调用方必须保证它可重入。
+callback throw、thenable、malformed/illegal proposal 或不可 drain 的 `wait` 会停止新 admission、取消 pending、drain 已启动 work，
+并返回 `admission-policy-failed` execution diagnostic，绝不 fallback 到 static。它没有 reservation、policy wait reason、console/
+`checkMessages` attribution 或 policy timing telemetry contract。
+
+```ts
+import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+
+const executionOrder: string[] = [];
+
+const compile = defineCheck({
+  checkId: "compile",
+  displayName: "Compile",
+  execution() {
+    executionOrder.push("compile");
+    return { status: "passed", data: {} };
+  }
+});
+
+const publish = defineCheck({
+  admissionPriority: 10,
+  checkId: "publish",
+  dependsOn: [compile.checkId],
+  displayName: "Publish",
+  execution() {
+    executionOrder.push("publish");
+    return { status: "passed", data: {} };
+  }
+});
+
+const preferPublish = defineAdmissionPolicy({
+  kind: "custom",
+  proposeAdmission(context) {
+    const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
+    const publishCandidate = context.candidates.find(
+      (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
+    );
+    if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
+      return { kind: "select", taskId: publishCandidate.taskId };
+    }
+
+    const nextCandidate = context.candidates.find((candidate) => candidate.canAdmit);
+    return nextCandidate === undefined
+      ? { kind: "wait" }
+      : { kind: "select", taskId: nextCandidate.taskId };
+  }
+});
+
+const definition = defineConfig({
+  checks: [compile, publish],
+  outputs: {
+    diagnosticLogging: { enabled: false },
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
+  },
+  scheduler: {
+    admissionPolicy: preferPublish,
+    maxParallel: 1
+  }
+});
+
+const result = await run(definition);
+if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+if (executionOrder.join(",") !== "compile,publish") {
+  throw new Error(`Unexpected execution order: ${executionOrder.join(",")}`);
+}
+```
 
 ### 运行并读取结果
 
@@ -195,7 +274,7 @@ machine publication 和 diagnostic logging 的 `directory` 在 Definition 与 Ru
 1. 先读取 `RunResult.kind`，确认 invocation 是完整结算、配置错误、规划失败、输出失败、执行失败还是被取消。
 2. 对有 snapshot 的结果，按 `checkId` 查找 `snapshot.checks[].outcome`，再处理 `passed`、`failed`、`not-applicable` 或 `unavailable`。
 
-合法运行中，即使某项 Check 返回 `failed`，Run 仍可能是 `kind: "completed"`。如果 CI 需要因质量 Finding 退出非零状态，调用方必须像快速开始那样显式判断目标 outcome，或配置并读取 invocation-level aggregation。
+合法运行中，即使某项 Check 返回 `failed`，Run 仍可能是 `kind: "completed"`。若 custom admission policy 发生 fault，结果是 `kind: "execution"` 且 `diagnostic.code` 为 `admission-policy-failed`；它不是 Check outcome，也不含 partial snapshot。如果 CI 需要因质量 Finding 退出非零状态，调用方必须像快速开始那样显式判断目标 outcome，或配置并读取 invocation-level aggregation。
 
 ## 输出与进阶用法
 

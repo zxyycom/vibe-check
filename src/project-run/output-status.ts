@@ -14,6 +14,8 @@ export interface RunOutputStatuses {
   readonly machinePublication: RunOutputStatus;
   readonly progressRendering: RunOutputStatus;
   readonly diagnosticLogging: RunDiagnosticLoggingOutputStatus;
+  /** Scheduler measurement hooks are terminal side effects configured by the Definition. */
+  readonly measurementHooks: RunOutputStatus;
 }
 
 export interface OutputStatuses {
@@ -24,14 +26,17 @@ export interface OutputStatuses {
 
 export function createOutputStatuses(
   configuration: ProjectOutputs,
-  diagnosticLoggingFile: string | null
+  diagnosticLoggingFile: string | null,
+  measurementHooksEnabled: boolean
 ): OutputStatuses {
   const statuses: Record<keyof RunOutputStatuses, RunOutputStatus["status"]> = {
     machinePublication: initialStatus(configuration.machinePublication.enabled),
     progressRendering: initialStatus(configuration.progressRendering.enabled),
-    diagnosticLogging: initialStatus(configuration.diagnosticLogging.enabled)
+    diagnosticLogging: initialStatus(configuration.diagnosticLogging.enabled),
+    measurementHooks: initialStatus(measurementHooksEnabled)
   };
-  const enabled = (output: keyof RunOutputStatuses): boolean => configuration[output].enabled;
+  const enabled = (output: keyof RunOutputStatuses): boolean =>
+    output === "measurementHooks" ? measurementHooksEnabled : configuration[output].enabled;
   return Object.freeze({
     failed: (output: keyof RunOutputStatuses) => {
       if (enabled(output)) statuses[output] = "failed";
@@ -53,13 +58,22 @@ export function createOutputStatuses(
           enabled: configuration.diagnosticLogging.enabled,
           file: diagnosticLoggingFile,
           status: statuses.diagnosticLogging
+        }),
+        measurementHooks: Object.freeze({
+          enabled: measurementHooksEnabled,
+          status: statuses.measurementHooks
         })
       })
   });
 }
 
 export function failedOutput(statuses: RunOutputStatuses): keyof RunOutputStatuses | undefined {
-  for (const output of ["progressRendering", "machinePublication", "diagnosticLogging"] as const)
+  for (const output of [
+    "progressRendering",
+    "machinePublication",
+    "diagnosticLogging",
+    "measurementHooks"
+  ] as const)
     if (statuses[output].status === "failed") return output;
   return undefined;
 }

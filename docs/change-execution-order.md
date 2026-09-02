@@ -49,76 +49,50 @@
 
 ## 当前协调基线
 
-本节于 2026-09-01 在当前
-`codex/upgrade-jscpd-duplicate-detection-to-5-1-1` 分支审阅。该分支是已归档 jscpd 与 SCC scanner migration
-连续堆叠后的当前集成基线；它不表示这些结果已经合入 `main`，也不要求在继续下游 scanner Change 前先合入
-`main` 或重建 worktree。`upgrade-jscpd-duplicate-detection-to-5-1-1` 与
-`upgrade-scc-file-metrics-to-v4` 均已位于 `changes/archive/`，因此不再是 active scanner 轨道节点。当前成员、stage
-与任务状态仍以 `bun run change-plan -- list changes` 和目标 artifacts 为准；本节不冻结后续状态或代替实施验收。
+本节于 2026-09-02 按本次主线集成输入审阅：scanner 结果已经通过 `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91`
+合入，Scheduler 连续成果来自 `82da7ac6ec0bf29fe9cd95c56dc962a67758d0b4`。下列“已完成”只表示对应实现与
+Change archive 已进入本次集成结果；当前 active 成员、stage、任务和 Git 基线仍以 `change-plan` 查询为准。
 
 ### Scheduler 主线
 
-以下是硬依赖：
+以下基础均已完成并归档：
+
+1. [`require-passed-dependencies-and-observe-outcomes`](../changes/archive/require-passed-dependencies-and-observe-outcomes/proposal.md)：形成 passed prerequisite、terminal observation、task-local preflight 与 blocked settlement。
+2. [`extract-scheduler-admission-selection-policy`](../changes/archive/extract-scheduler-admission-selection-policy/proposal.md)：把候选选择从 Scheduler 状态机中分离，同时保留 hard guard。
+3. [`expose-custom-admission-selection-policy`](../changes/archive/expose-custom-admission-selection-policy/proposal.md)：公开受约束的 synchronous `select | wait` callback。
+4. [`add-scheduler-performance-diagnostics`](../changes/archive/add-scheduler-performance-diagnostics/proposal.md) 与 [`extend-scheduler-pressure-and-tail-diagnostics`](../changes/archive/extend-scheduler-pressure-and-tail-diagnostics/proposal.md)：形成 invocation-local 性能汇总、压力分解和 tail facts。
+5. [`add-scheduler-measurement-hooks`](../changes/archive/add-scheduler-measurement-hooks/proposal.md) 与 [`provide-decision-boundary-admission-measurement`](../changes/archive/provide-decision-boundary-admission-measurement/proposal.md)：把 terminal raw measurement 和 captured-prefix action observation 交给受约束 Hook / custom policy context。
+
+当前 Scheduler 主线只剩：
 
 ```text
-require-passed-dependencies-and-observe-outcomes
-                         |
-                         v
-extract-scheduler-admission-selection-policy
-                         |
-                         v
-expose-custom-admission-selection-policy
-                         |
-                         v
 schedule-checks-from-learned-durations
 ```
 
-- [`require-passed-dependencies-and-observe-outcomes`](../changes/require-passed-dependencies-and-observe-outcomes/proposal.md)
-  先固定成功前置、终态观测、task-local preflight 和 blocked settlement。
-- [`extract-scheduler-admission-selection-policy`](../changes/extract-scheduler-admission-selection-policy/proposal.md)
-  必须读取上述最终图语义，再建立私有 candidate、selector result 和 guard 边界。
-- [`expose-custom-admission-selection-policy`](../changes/expose-custom-admission-selection-policy/proposal.md)
-  必须复用已经合入的私有 guard，并使用最终 directed readiness vocabulary。
-- [`schedule-checks-from-learned-durations`](../changes/schedule-checks-from-learned-durations/proposal.md)
-  必须等前三项归档，并扩展已经形成的 closed public policy union，而不是建立第二套 Scheduler。
-
-[`add-scheduler-performance-diagnostics`](../changes/add-scheduler-performance-diagnostics/proposal.md) 是 learned
-policy 的验收前置：learned policy 验收需要它提供或同步提供 admission delay、slot utilization 和 tail 的同 workload
-证据。为减少共享 owner 冲突并正确分列 custom selector hook 耗时，当前推荐的完整合入顺序是：
-
-```text
-require-passed-dependencies-and-observe-outcomes
-  -> extract-scheduler-admission-selection-policy
-  -> expose-custom-admission-selection-policy
-  -> add-scheduler-performance-diagnostics
-  -> schedule-checks-from-learned-durations
-```
-
-这五项共同修改 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 和公共说明，
-不得在多个 worktree 中同时实施。Readiness 调查可以并行，但不得各自复制候选规则、图状态或时间 owner。
-如果 custom selector 先于 performance diagnostics 合入，启动 performance diagnostics 前必须同步其 Plan，使
-custom hook duration 与 Product Scheduler 自有耗时、diagnostic observation 耗时分别计量。
+该 Change 可以从上述集成结果开始 Readiness，但必须先重新审阅并刷新 Plan 基线；它仍需建立 priority/history 后继
+Decision、保存 static A/B baseline，并确认 fail-fast 与 named resource 两个 Draft 没有被误当作已经落地的 hard guard。
+它继续独占 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 与相关公共说明；不要与
+Scheduler 条件分支在不同 worktree 同时实施。
 
 ### Scheduler 条件分支
 
 | Change | 恢复条件 | 激活后的推荐位置 |
 | --- | --- | --- |
-| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 pending outcome 与 observer 规则 | `require-passed...` 后、performance diagnostics 前 |
-| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用基线证明 mutex 与 `maxParallel` 不足，并闭合有限进展 | `extract-scheduler...` 后、performance diagnostics 前 |
+| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 pending outcome 与 observer 规则 | 在当前 root/scope model 的 performance diagnostics 后；激活时先重审 cutoff、terminal summary 与 drain boundary |
+| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用基线证明 mutex 与 `maxParallel` 不足，并闭合有限进展 | 在当前 root/scope model 的 performance diagnostics 后；激活时先重审 named capacity denominator、hard-guard facts 与 interval boundary |
 
-两项仍为 Draft 时不占用实现 worktree，也不阻塞 Scheduler 主线。若任一项被激活，性能诊断需要在其合入后
-重新审阅 await reason、effective capacity 和 timing 投影。
+两项仍为 Draft 时不占用实现 worktree，也不阻塞 Scheduler 主线。若任一项被激活，性能诊断必须在其合入后重新审阅 Plan；不能把新 cutoff/resource facts 静默解释为现有 wait 或 effective capacity。
 
 ### Scanner 迁移轨道
 
-SCC v4 migration 已归档并从 active Change 集合移出。scanner migration 当前只剩一个 active implementation
-节点：[`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md)。
-它继续使用当前 `codex/upgrade-jscpd-duplicate-detection-to-5-1-1` 分支上的 SCC 归档结果作为集成基线；不以
-先合入 `main` 或新建下游 worktree 作为前置。
+[`upgrade-jscpd-duplicate-detection-to-5-1-1`](../changes/archive/upgrade-jscpd-duplicate-detection-to-5-1-1/proposal.md)
+与 [`upgrade-scc-file-metrics-to-v4`](../changes/archive/upgrade-scc-file-metrics-to-v4/proposal.md) 已归档并合入当前主线。
+scanner migration 当前只剩
+[`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md)；它必须先按
+当前 jscpd/SCC、package candidate、environment 和 lockfile 事实重审旧 Plan 基线，再决定是否满足自身 Resume Conditions。
 
-Lizard 迁移仍受其自身 Resume Conditions 与活动长期 Decision 约束，不能因它是轨道中唯一 active implementation
-节点就推断已经获得实施优先级。差分语料、provenance 和平台调查可以独立形成；实际依赖、lockfile、environment、
-candidate 和文档切换必须与当前分支上的 SCC 结果串行协调，避免重新引入共享 scanner owner 冲突。
+[`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 是独立 Draft，只判断
+SCC v4 是否值得扩张公共能力；它不改变当前 executable-only runtime，不阻塞 Lizard，也不授权实现。
 
 ### 可独立推进与证据轨道
 
@@ -127,7 +101,7 @@ candidate 和文档切换必须与当前分支上的 SCC 结果串行协调，�
 | [`surface-generic-finding-waivers`](../changes/surface-generic-finding-waivers/proposal.md) | 文档发现路径为主；收敛为 Plan 后可与 Scheduler 或 scanner 实现并行，合入时处理 README/configuration 小范围冲突 |
 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | Draft；先闭合只读 output facts 与 writable workspace/state owner，不直接实施 |
 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | Draft；可并行完成大型 corpus benchmark 和安全 payload 设计，persistent cache 实现不得假设 path-context Draft 已落地 |
-| [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) | Draft；从当前连续堆叠集成基线及已归档 SCC v4 evidence 出发，判断未来是否值得形成独立 public capability。它不扩张当前 public API、不授权 runtime 实现，也不阻塞 Lizard 或当前 scanner implementation。 |
+| [`adopt-node-execution-backend`](../changes/adopt-node-execution-backend/proposal.md) | Draft；先闭合 runtime Decision、Bun launcher、package candidate、Windows 与 Test Evidence 边界；其 package/runtime owner 较宽，形成 Plan 后必须重新检查与 scanner 或 Scheduler worktree 的共享文件 |
 
 Invocation path context 与 Markdown cache 只有在前者最终提供明确的 cross-run state capability 时才形成条件依赖；
 仅暴露 machine 或 diagnostic output path 不构成 cache directory。

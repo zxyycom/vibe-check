@@ -45,6 +45,8 @@ export type Invocation = Readonly<{
   readonly definition: ProjectDefinition;
   readonly definitionWarnings: readonly DefinitionWarning[];
   readonly diagnosticLogger: DiagnosticLogger;
+  /** Effective output selection, retained privately for enabled-only Scheduler diagnostics. */
+  readonly diagnosticLoggingEnabled: boolean;
   readonly outputConfiguration: ProjectDefinition["outputs"];
   readonly outputs: OutputStatuses;
   readonly invocationId: string;
@@ -156,7 +158,10 @@ async function executePlannedInvocation(
   return executePreparedInvocation(
     invocation,
     aggregation,
-    createProjectContext({ controls: invocation.controls, root: invocation.projectRoot })
+    createProjectContext({
+      controls: invocation.controls,
+      root: invocation.projectRoot
+    })
   );
 }
 async function executePreparedInvocation(
@@ -169,6 +174,9 @@ async function executePreparedInvocation(
   const executionStartedAt = invocation.clock.now();
   const executed = await executeChecks(invocation, project, invocation.clock);
   if (isExecutionRunResult(executed)) return executed;
+  if (executed.kind === "admission-policy-failed") {
+    return executionResult(invocation, "admission-policy-failed");
+  }
   invocation.progressRendering.final({
     counts: outcomeCounts(executed.snapshot),
     elapsedMs: elapsedSince(executionStartedAt, invocation.clock),
@@ -229,9 +237,25 @@ async function executeChecks(
 ): Promise<ResolvedCheckExecution | NonConfigurationRunResult> {
   try {
     return await executeResolvedChecks({
+      admissionPolicy: invocation.normalized.scheduler.admissionPolicy,
       checks: invocation.normalized.checks,
       clock,
       diagnosticLogger: invocation.diagnosticLogger,
+      schedulerPerformanceDiagnostics:
+        invocation.diagnosticLoggingEnabled ||
+        invocation.normalized.scheduler.measurementHooks.length > 0 ||
+        invocation.normalized.scheduler.admissionPolicy.kind === "custom"
+          ? Object.freeze({
+              clock,
+              declarativeFingerprint: invocation.declarativeFingerprint,
+              ...(invocation.diagnosticLoggingEnabled
+                ? { logger: invocation.diagnosticLogger }
+                : {})
+            })
+          : undefined,
+      schedulerMeasurementHooks: invocation.normalized.scheduler.measurementHooks,
+      onSchedulerMeasurementHookFailure: () => invocation.outputs.failed("measurementHooks"),
+      onSchedulerMeasurementHooksSettled: () => invocation.outputs.succeeded("measurementHooks"),
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
       lifecycle: invocation.progressRendering.lifecycle,
       project,
@@ -286,7 +310,10 @@ function planningResult(
 }
 function executionResult(
   invocation: Invocation,
-  code: Extract<RunDiagnostic["code"], "publication-model-failed" | "task-engine-failed">
+  code: Extract<
+    RunDiagnostic["code"],
+    "admission-policy-failed" | "publication-model-failed" | "task-engine-failed"
+  >
 ): NonConfigurationRunResult {
   return Object.freeze({
     kind: "execution",

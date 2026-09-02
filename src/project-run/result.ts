@@ -8,7 +8,11 @@ import type { CheckMessageLevel } from "../check/check.ts";
 import type { CoreSnapshot } from "../check-settlement/facts.ts";
 import type { RunOutputStatuses } from "./output-status.ts";
 export type RunDiagnostic = Readonly<{
-  readonly code: "task-graph-invalid" | "task-engine-failed" | "publication-model-failed";
+  readonly code:
+    | "admission-policy-failed"
+    | "task-graph-invalid"
+    | "task-engine-failed"
+    | "publication-model-failed";
 }>;
 export type CheckDuration = Readonly<{
   readonly checkId: string;
@@ -78,7 +82,8 @@ export type RunResult = Readonly<
         readonly code:
           | "machine-publication-failed"
           | "progress-rendering-failed"
-          | "diagnostic-logging-failed";
+          | "diagnostic-logging-failed"
+          | "scheduler-measurement-hooks-failed";
       }>;
       readonly outputs: RunOutputStatuses;
     } & RunResultFacts)
@@ -115,6 +120,8 @@ function outputDiagnosticCode(
       return "progress-rendering-failed";
     case "diagnosticLogging":
       return "diagnostic-logging-failed";
+    case "measurementHooks":
+      return "scheduler-measurement-hooks-failed";
   }
 }
 

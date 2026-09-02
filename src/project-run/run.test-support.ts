@@ -18,6 +18,7 @@ export function check(
     readonly execution?: CheckExecution;
     readonly maxParallel?: number;
     readonly mutex?: readonly string[];
+    readonly observes?: readonly string[];
   }> = {}
 ): Check {
   return {
@@ -27,7 +28,8 @@ export function check(
     ...(overrides.dependsOn === undefined ? {} : { dependsOn: overrides.dependsOn }),
     ...(overrides.enabledByFlags === undefined ? {} : { enabledByFlags: overrides.enabledByFlags }),
     ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel }),
-    ...(overrides.mutex === undefined ? {} : { mutex: overrides.mutex })
+    ...(overrides.mutex === undefined ? {} : { mutex: overrides.mutex }),
+    ...(overrides.observes === undefined ? {} : { observes: overrides.observes })
   };
 }
 
@@ -166,7 +168,7 @@ export async function assertUnavailableDependencyRead(): Promise<void> {
       check({ checkId: "unavailable", execution: unavailableSource }),
       check({
         checkId: "dependent",
-        dependsOn: ["unavailable"],
+        observes: ["unavailable"],
         execution: (context) => {
           dependentCalls += 1;
           read = context.dependencies.get("unavailable");

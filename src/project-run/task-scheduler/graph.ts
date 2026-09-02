@@ -1,10 +1,12 @@
 import { validatePreparedTaskGraph } from "./graph-validation.ts";
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 
 export interface TaskNode {
   readonly admissionPriority?: number;
   readonly id: string;
   readonly dependsOn?: readonly string[];
   readonly mutex?: readonly string[];
+  readonly observes?: readonly string[];
   readonly scopeId?: string;
 }
 
@@ -30,6 +32,7 @@ export interface PlannedTask {
   readonly id: string;
   readonly dependsOn: readonly string[];
   readonly mutex: readonly string[];
+  readonly observes: readonly string[];
   readonly scopeId: string | undefined;
 }
 
@@ -41,12 +44,21 @@ export interface PlannedTaskScope {
 }
 
 export interface PlannedTaskGraph {
+  /** Immutable public projection shared by every decision and terminal measurement in one run. */
+  readonly schedulerGraphSnapshot: SchedulerGraphSnapshot;
   readonly tasks: readonly PlannedTask[];
   readonly scopes: readonly PlannedTaskScope[];
 }
 
 const TASK_GRAPH_KEYS = ["tasks", "scopes"] as const;
-const TASK_NODE_KEYS = ["admissionPriority", "id", "dependsOn", "mutex", "scopeId"] as const;
+const TASK_NODE_KEYS = [
+  "admissionPriority",
+  "id",
+  "dependsOn",
+  "mutex",
+  "observes",
+  "scopeId"
+] as const;
 const TASK_SCOPE_KEYS = ["id", "maxParallel", "activationTaskIds", "terminalTaskId"] as const;
 
 /** Validates untrusted graph-shaped input without admitting it to scheduler execution. */
@@ -64,8 +76,39 @@ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): Plan
   validatePreparedTaskGraph({ rootMaxParallel, scopeById, scopes, taskById, tasks });
 
   return Object.freeze({
+    schedulerGraphSnapshot: schedulerGraphSnapshot(tasks, scopes),
     tasks: Object.freeze(tasks),
     scopes: Object.freeze(scopes)
+  });
+}
+
+function schedulerGraphSnapshot(
+  tasks: readonly PlannedTask[],
+  scopes: readonly PlannedTaskScope[]
+): SchedulerGraphSnapshot {
+  return Object.freeze({
+    scopes: Object.freeze(
+      scopes.map((scope) =>
+        Object.freeze({
+          activationTaskIds: Object.freeze([...scope.activationTaskIds]),
+          id: scope.id,
+          maxParallel: scope.maxParallel,
+          terminalTaskId: scope.terminalTaskId
+        })
+      )
+    ),
+    tasks: Object.freeze(
+      tasks.map((task) =>
+        Object.freeze({
+          admissionPriority: task.admissionPriority,
+          dependsOn: Object.freeze([...task.dependsOn]),
+          mutex: Object.freeze([...task.mutex]),
+          observes: Object.freeze([...task.observes]),
+          scopeId: task.scopeId ?? null,
+          taskId: task.id
+        })
+      )
+    )
   });
 }
 
@@ -91,6 +134,7 @@ function normalizeTasks(value: unknown): PlannedTask[] {
         id,
         dependsOn: Object.freeze(stringList(data.dependsOn, `task ${id}.dependsOn`)),
         mutex: Object.freeze(stringList(data.mutex, `task ${id}.mutex`)),
+        observes: Object.freeze(stringList(data.observes, `task ${id}.observes`)),
         scopeId
       })
     );

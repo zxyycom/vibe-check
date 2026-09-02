@@ -19,7 +19,7 @@ export async function assertInheritedDependencyList(): Promise<void> {
       {
         checkId: "inherited-list-container",
         displayName: "Inherited list container",
-        dependsOn: ["inherited-list-omega", "inherited-list-alpha"],
+        observes: ["inherited-list-omega", "inherited-list-alpha"],
         checks: [
           check({
             checkId: "inherited-list-dependent",

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
-import { prepareChecks } from "./preparation-barrier.ts";
+import { prepareCheck } from "./preflight.ts";
 import { executeResolvedChecks } from "./resolved-checks.ts";
 import {
   PROJECT,
@@ -14,28 +14,27 @@ import {
 } from "./resolved-checks.test-support.ts";
 
 describe("Package Run direct Check execution", () => {
-  it("settles already-cancelled preparations without invoking preflight", async () => {
+  it("passes the invocation signal to admitted preflights and closes cancelled Check Tasks", async () => {
     const observations: DiagnosticObservation[] = [];
-    await prepareChecks({
-      checks: [normalized(() => ({ status: "passed", data: {} }), { checkId: "skipped" })],
+    await prepareCheck({
+      check: normalized(() => ({ status: "passed", data: {} }), { checkId: "skipped" }),
       diagnosticLogger: recordingLogger(observations),
-      flags: [],
       signal: undefined
     });
     const controller = new AbortController();
     controller.abort();
-    const resolutions = await prepareChecks({
-      checks: [
-        normalized(() => ({ status: "passed", data: {} }), { checkId: "cancelled" }),
-        normalized(() => ({ status: "passed", data: {} }), { checkId: "also-cancelled" })
-      ],
-      diagnosticLogger: recordingLogger(observations),
-      flags: [],
-      signal: controller.signal
-    });
+    const resolutions = await Promise.all(
+      ["cancelled", "also-cancelled"].map((checkId) =>
+        prepareCheck({
+          check: normalized(() => ({ status: "passed", data: {} }), { checkId }),
+          diagnosticLogger: recordingLogger(observations),
+          signal: controller.signal
+        })
+      )
+    );
     assert.deepEqual(
       resolutions.map((resolution) => resolution.kind),
-      ["settled", "settled"]
+      ["blocked", "blocked"]
     );
     assert.deepEqual(
       observations.map((observation) => ({
@@ -71,32 +70,24 @@ describe("Package Run direct Check execution", () => {
       ),
       false
     );
-  });
-
-  it("reports cancellation raised by a preflight callback", async () => {
     const afterCallbackController = new AbortController();
     const afterCallbackOutput = { status: "success" as const, preparedOptions: { retained: true } };
     const afterCallbackObservations: DiagnosticObservation[] = [];
-    await prepareChecks({
-      checks: [
-        normalized(() => ({ status: "passed", data: {} }), {
-          checkId: "cancelled-after-callback",
-          preflight: () => {
-            afterCallbackController.abort();
-            return afterCallbackOutput;
-          }
-        })
-      ],
+    await prepareCheck({
+      check: normalized(() => ({ status: "passed", data: {} }), {
+        checkId: "cancelled-after-callback",
+        preflight: () => {
+          afterCallbackController.abort();
+          return afterCallbackOutput;
+        }
+      }),
       diagnosticLogger: recordingLogger(afterCallbackObservations),
-      flags: [],
       signal: afterCallbackController.signal
     });
     const afterCallbackDetails = diagnosticDetailsRecord(afterCallbackObservations[0]?.details);
     assert.equal(hasDiagnosticTags(afterCallbackObservations[0], "CANCELLED-AFTER-CALLBACK"), true);
     assert.equal(afterCallbackDetails.raw, afterCallbackOutput);
-  });
 
-  it("closes a fully settled preparation barrier as cancelled", async () => {
     const allBlockedController = new AbortController();
     const cooperativePreflightEntered = deferred<void>();
     let observedAllBlockedSignal: AbortSignal | undefined;
@@ -149,12 +140,10 @@ describe("Package Run direct Check execution", () => {
       allBlockedResult.snapshot.checks.map((check) => check.outcome),
       [
         { status: "unavailable", reason: { code: "execution-cancelled" } },
-        { status: "unavailable", reason: { code: "invalid-options" } }
+        { status: "unavailable", reason: { code: "execution-cancelled" } }
       ]
     );
-  });
 
-  it("retains completed preflight messages when a later preflight cancels", async () => {
     const partialReadyController = new AbortController();
     const deferredPreflight = deferred<{
       readonly status: "success";
@@ -209,13 +198,6 @@ describe("Package Run direct Check execution", () => {
       partialReadyResult.snapshot.checks.map((check) => check.outcome.status),
       ["unavailable", "unavailable"]
     );
-    assert.deepEqual(partialReadyResult.checkMessages, [
-      {
-        checkId: "ready",
-        level: "info",
-        code: "prepared",
-        message: "Prepared before cancellation"
-      }
-    ]);
+    assert.deepEqual(partialReadyResult.checkMessages, []);
   });
 });

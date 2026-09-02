@@ -30,8 +30,8 @@ ReadonlyArray<{
 - `message` 是到期或不可测量时展示的非空人读正文。
 - `mode` 省略时为 `advisory`；`enforcing` 使到期或不可测量的条目令所属 Check 失败。
 
-constructor 把输入固定为完整 options `{ entries, git: { executable: "git" } }`。所属 Check 的 preflight 在任何 Check
-execution 开始前验证 unknown、sparse、duplicate 或 malformed entries；失败时当前 Check 以
+constructor 把输入固定为完整 options `{ entries, git: { executable: "git" } }`。所属 Check 获 Scheduler admission 后，其 task-local
+preflight 在自身 execution 前验证 unknown、sparse、duplicate 或 malformed entries；失败时当前 Check 以
 `unavailable / invalid-options` 结算。
 
 ## 工作原理

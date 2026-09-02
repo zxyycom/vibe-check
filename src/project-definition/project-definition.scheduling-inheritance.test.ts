@@ -17,6 +17,7 @@ describe("Project Definition", () => {
       displayName: "Inherited check",
       dependsOn: inherit({ remove: ["legacy"], add: ["compile", "compile"] }),
       mutex: inherit({ add: ["compiler", "compiler"] }),
+      observes: inherit({ remove: ["legacy-observation"], add: ["audit", "audit"] }),
       execution: passed
     });
     const parent = {
@@ -24,12 +25,14 @@ describe("Project Definition", () => {
       displayName: "Analysis",
       dependsOn: ["legacy", "prepare"],
       mutex: ["shared"],
+      observes: ["legacy-observation", "release"],
       checks: [inherited]
     } satisfies Check;
     const checks = normalizeProjectDefinition(defineConfig({ checks: [parent] })).checks;
 
     assert.deepEqual(checks[0]?.dependsOn, ["compile", "prepare"]);
     assert.deepEqual(checks[0]?.mutex, ["compiler", "shared"]);
+    assert.deepEqual(checks[0]?.observes, ["audit", "release"]);
     assert.equal(
       validateProjectDefinition({
         ...defineConfig({}),

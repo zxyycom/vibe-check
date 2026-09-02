@@ -6,7 +6,7 @@
 
 Project Run当前在每个实际执行Check callback前后使用invocation-private monotonic clock，并在settlement后形成`RunResult.checkDurations`。该duration不包含graph-ready后的排队时间，但包含callback、Record validation和terminal settlement前的active execution，适合作为Task占用Product槽位的历史观测。
 
-当前static `admissionPriority`是Definition-owned signed integer，按nearest-explicit inheritance进入fingerprint和Task metadata。它只在reservation、tightening、constrained与ordinary层级内排序。本仓重复A/B evidence显示，手工把一个长Check提前并未稳定改善full wall time；自动策略需要估计完整downstream chain，而不是把“单项更长”直接等同于“先运行更优”。
+当前static `admissionPriority`是Definition-owned signed integer，按nearest-explicit inheritance进入fingerprint和Task metadata。它在无状态 static tightening/constrained/ordinary 算法的同轮比较中排序。本仓重复A/B evidence显示，手工把一个长Check提前并未稳定改善full wall time；自动策略需要估计完整downstream chain，而不是把“单项更长”直接等同于“先运行更优”。
 
 `cacheJsonByKey`只计算或读取一个caller已经完整定key的immutable JSON result，允许同key并发重复compute。Scheduler learning却需要读取旧样本、追加本轮duration、淘汰窗口外样本并再次发布，因此必须有独立的mutable-state owner；共用canonical JSON/atomic write低层helper可以评审，但不能把现有cache contract改名复用。
 
@@ -37,8 +37,8 @@ explicit Definition setting + effective project root
 - 不根据AST、文件hash、CPU/IO分类或外部监控自动发现workload identity。
 - 不缓存或跳过Check execution，不重放outcome、Records、messages或side effects。
 - 不提供deadline、preemption、在线强化学习、全局最优保证、remote/distributed history或跨项目共享模型。
-- 不在本 Change 中重新定义公共 custom selector；它复用独立 Change 的 closed policy union，且任何 selector 都不能读取 Scheduler mutable state。
-- 不用预测替代dependency、observation、mutex、capacity、reservation、fail-fast或final aggregation。
+- 不在本 Change 中重新定义公共 custom selector；它复用独立 Change 的 closed policy union与无状态 select/wait boundary，且任何 selector 都不能读取 Scheduler mutable state。
+- 不用预测替代dependency、observation、mutex、capacity、fail-fast或final aggregation。
 
 ## Decisions
 
@@ -58,7 +58,7 @@ scheduler: {
 }
 ```
 
-`admissionPolicy`省略时按`static-priority`执行并保持零历史I/O；显式static与省略形状必须得到同一canonical declarative representation。learned variant必须同时提供non-empty `stateDirectory`；相对路径从effective `projectRoot`解析，绝对路径直接使用。设置本身就是对该Product-owned state path的明确授权，不另设初始化命令、enable flag或每Check enrollment。
+`admissionPolicy` 省略时按当前 `{ kind: "static" }` 执行并保持零历史 I/O；显式 static 与省略形状必须得到同一 canonical declarative representation。learned variant 必须同时提供 non-empty `stateDirectory`；相对路径从 effective `projectRoot` 解析，绝对路径直接使用。设置本身就是对该 Product-owned state path 的明确授权，不另设初始化命令、enable flag 或每 Check enrollment。此扩展保留既有 `custom` callback 的 authoring、fingerprint 与 fault contract；它不把 learned history 暴露给该 callback，也不把 callback closure 变成 history state owner。
 
 state path进入closed Definition与declarative fingerprint。Product只拥有该目录内一个versioned scheduler-history文件；目录仍是调用方选择、可整体删除且不提供secret storage、sandbox或remote cache保证的本地状态。
 
@@ -120,12 +120,11 @@ success dependency与outcome observation都要求downstream等待upstream termin
 
 policy仍按以下顺序保证正确性和进展：
 
-1. 有效sticky reservation独占，直到准入、取消或失效。
-2. tightening scope优先；先按更严格effective cap，再按critical-path score、priority和既有ID tie-break。
-3. constrained continuation优先于ordinary；使用同样的score、priority和既有tie-break。
-4. ordinary ready按critical-path score、priority和canonical order。
+1. 每轮从同一immutable graph、prediction snapshot、candidate和runtime facts重算 tightening scope；先按更严格effective cap，再按critical-path score、priority和既有ID tie-break。
+2. 然后重算 constrained continuation；使用同样的score、priority和既有tie-break。
+3. 最后 ordinary ready按critical-path score、priority和canonical order。
 
-policy只比较Scheduler给出的候选并返回select/wait；不能准入的Task仍由硬约束排除或形成wait。该list-scheduling heuristic可在代表性graph降低makespan，但dependency、mutex、capacity、variance和未来执行时间不确定时不保证全局最优。
+policy读取Scheduler给出的relation/mutex eligible candidates和per-candidate capacity facts并返回select/wait；当前capacity不能准入的candidate不被预先移除，因而可形成可drain的wait。Scheduler在select后只守pending/readiness/mutex/capacity/lifecycle hard conditions，并对wait守drain；不保存或解释reservation/fairness/starvation state。该list-scheduling heuristic可在代表性graph降低makespan，但dependency、mutex、capacity、variance和未来执行时间不确定时不保证全局最优。
 
 #### 7. History I/O与执行失败隔离
 
@@ -147,7 +146,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 
 1. `extract-scheduler-admission-selection-policy`已归档并提供private select/wait contract；
 2. `expose-custom-admission-selection-policy`已归档并建立closed static/custom public union；
-3. `require-passed-dependencies-and-observe-outcomes`已闭合directed readiness graph；
+3. `separate-passed-dependencies-from-settled-observations` Decision 已闭合directed readiness graph；
 4. `add-scheduler-performance-diagnostics`已实施，或同一分支提供等价的slot/admission/tail A/B证据；
 5. 已审阅fail-fast和named resource当前状态，确认它们只改变cutoff、candidate legality或started samples；
 6. 已用successor Decision演进“静态priority且不基于history调权”的现行判断。
@@ -159,7 +158,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 - Definition新增policy union与Check override会改变declarative schema；省略与显式static必须规范化为同一snapshot。若新增canonical默认使fingerprint算法输入相对变更前发生变化，实施者必须显式重建对应baseline，而不是承诺旧digest不变。
 - preflight后history identity构造需要复用canonical data boundary，但不能把prepared options写入history或diagnostic。
 - history read发生在Scheduler前，write发生在已闭合execution facts后；两者时间可由Scheduler外层diagnostic观察，不得混入Check duration或Scheduler own time。
-- estimated critical path需要final graph提供downstream adjacency；不要在policy每次选择时重复遍历完整图，应在immutable snapshot构造时一次计算score。
+- estimated critical path需要final graph提供downstream adjacency；不要在policy每次选择时重复遍历完整图，应在immutable snapshot构造时一次计算score。policy仍接收完整 graph、relation/mutex eligible candidates 与 capacity facts；priority只存在于Task metadata，不设旁路输入。
 - Project Gate若采用learned mode，其state directory、忽略/清理policy和performance baseline需要由Gate owner维护；Product文档只说明通用state lifecycle。
 
 ## Risks / Trade-offs
@@ -168,7 +167,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 - arithmetic mean对重尾样本敏感；第一版同时输出p90但不把variance自动变成第二个score。只有跨项目证据证明需要置信区间后再演进模型。
 - required state directory增加明确配置，但避免默认偷偷写HOME或repository；这是一次项目级成本，不是per-Check成本。
 - diagnostic-only failure observation意味着未启用diagnostic的调用方不能程序化判断history health；第一版接受该边界以避免为优化状态扩大所有RunResult branches。
-- static与learned两种内置policy已经覆盖兼容和自动调度；公开任意strategy callback会放大不变量、安全和兼容面，因此留在非目标。
+- 本 Change 的 non-goal 是扩大或重定义既有 public `custom` callback：它继续是由相邻 Change 拥有的 trusted select/wait contract。`learned-critical-path` 是 Product-defined policy variant，不把 history、prediction snapshot 或持久状态管理能力暴露给 custom callback。
 
 ## Open Questions
 

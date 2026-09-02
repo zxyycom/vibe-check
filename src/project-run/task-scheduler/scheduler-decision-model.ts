@@ -1,6 +1,12 @@
 import type { PlannedTaskGraph } from "./graph.ts";
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 
-export type SchedulerSettlementKind = "completed" | "failed" | "blocked" | "cancelled-before-start";
+export type SchedulerSettlementKind =
+  | "completed"
+  | "prerequisite-unsatisfied"
+  | "failed"
+  | "blocked"
+  | "cancelled-before-start";
 
 export type SchedulerTrigger =
   | Readonly<{ readonly kind: "execution-started" }>
@@ -19,7 +25,6 @@ export interface SchedulerSnapshot {
   readonly isAbortRequested: boolean;
   readonly isCancelled: boolean;
   readonly pendingTaskIds: readonly string[];
-  readonly reservationTaskId: string | undefined;
   readonly runningMutexes: readonly string[];
   readonly runningTaskIds: readonly string[];
   readonly settledTasks: readonly Readonly<{
@@ -43,43 +48,43 @@ export interface SchedulerBlockerSummary {
   readonly scopeCapacity: boolean;
 }
 
-export interface SchedulerReservationContext {
-  readonly taskId: string | null;
+/** The sole public Scheduler graph DTO; task identity is always `taskId`. */
+export type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
+
+export interface SchedulerAdmissionCandidateFact {
+  readonly canAdmit: boolean;
+  readonly taskId: string;
 }
+
+export type SchedulerAdmissionProposal =
+  | Readonly<{ readonly kind: "select"; readonly taskId: string }>
+  | Readonly<{ readonly kind: "wait" }>;
+
+export type SchedulerAdmissionHardGuard =
+  | Readonly<{
+      readonly canAdmit: true;
+      readonly isCandidate: true;
+      readonly kind: "select";
+      readonly lifecycleOpen: true;
+      readonly taskId: string;
+    }>
+  | Readonly<{ readonly kind: "wait"; readonly runningCanDrain: true }>;
 
 export interface SchedulerDecisionContext {
   readonly blockers: SchedulerBlockerSummary;
   readonly capacity: SchedulerCapacity;
-  readonly reservation: SchedulerReservationContext;
+  readonly graphIdentity: SchedulerGraphSnapshot;
 }
-
-export type ReservationUpdate =
-  | Readonly<{ readonly kind: "unchanged" }>
-  | Readonly<{ readonly kind: "set"; readonly taskId: string }>
-  | Readonly<{ readonly kind: "clear" }>;
-
-export type SchedulerAdmissionReason =
-  | "reservation"
-  | "tightening-scope"
-  | "constrained-continuation"
-  | "canonical-order";
-
-export type SchedulerAwaitReason =
-  | "cancellation-drain"
-  | "dependency-or-mutex"
-  | "running-drain"
-  | "root-capacity"
-  | "active-scope-capacity"
-  | "reserved-tightening-scope";
 
 export type SchedulerDecision = SchedulerDecisionContext &
   (
     | Readonly<{
         readonly admissionPriority: number;
+        readonly candidates: readonly SchedulerAdmissionCandidateFact[];
         readonly eligibleCount: number;
+        readonly hardGuard: Extract<SchedulerAdmissionHardGuard, { readonly kind: "select" }>;
         readonly kind: "admit";
-        readonly reason: SchedulerAdmissionReason;
-        readonly reservationUpdate: ReservationUpdate;
+        readonly proposal: Extract<SchedulerAdmissionProposal, { readonly kind: "select" }>;
         readonly scopeToActivate: string | null;
         readonly taskId: string;
         readonly trigger: SchedulerTrigger;
@@ -91,10 +96,11 @@ export type SchedulerDecision = SchedulerDecisionContext &
         readonly trigger: SchedulerTrigger;
       }>
     | Readonly<{
+        readonly candidates: readonly SchedulerAdmissionCandidateFact[];
         readonly eligibleCount: number;
+        readonly hardGuard: Extract<SchedulerAdmissionHardGuard, { readonly kind: "wait" }>;
         readonly kind: "await-running";
-        readonly reason: SchedulerAwaitReason;
-        readonly reservationUpdate: ReservationUpdate;
+        readonly proposal: SchedulerAdmissionProposal | null;
         readonly trigger: SchedulerTrigger;
       }>
     | Readonly<{
@@ -108,18 +114,6 @@ export type SchedulerDecision = SchedulerDecisionContext &
         readonly trigger: SchedulerTrigger;
       }>
   );
-
-export function reservationUnchanged(): ReservationUpdate {
-  return Object.freeze({ kind: "unchanged" });
-}
-
-export function reservationSet(taskId: string): ReservationUpdate {
-  return Object.freeze({ kind: "set", taskId });
-}
-
-export function reservationClear(): ReservationUpdate {
-  return Object.freeze({ kind: "clear" });
-}
 
 export function freezeDecision(decision: SchedulerDecision): SchedulerDecision {
   const trigger = freezeTrigger(decision.trigger);

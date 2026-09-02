@@ -111,10 +111,23 @@ export type {
   CheckUnavailableReason,
   InheritableCheckCollection
 } from "./check/check.ts";
-export { defineConfig } from "./project-definition/project-definition.ts";
+export { defineAdmissionPolicy, defineConfig } from "./project-definition/project-definition.ts";
 export type {
+  AdmissionPolicy,
+  AdmissionPolicyContext,
+  AdmissionPolicyMeasurement,
+  AdmissionProposal,
   ProjectOutputs,
   ProjectDefinition,
+  SchedulerDecisionMeasurementCumulative,
+  SchedulerGraphSnapshot,
+  SchedulerMeasurementContext,
+  SchedulerMeasurementHook,
+  SchedulerMeasurementIntervalContribution,
+  SchedulerMeasurementActionObservationInterval,
+  SchedulerMeasurementActionObservation,
+  SchedulerMeasurementEffect,
+  SchedulerRawMeasurement,
   SchedulerPolicy
 } from "./project-definition/project-definition.ts";
 export type {

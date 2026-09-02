@@ -150,18 +150,18 @@ interface CheckRecordReporter {
   report(identity: RecordIdentityInput, data: object): void;
 }
 
-/** 读取已声明 dependency final data 时的失败原因。 */
+/** 读取已声明 direct relation final data 时的失败原因。 */
 export type DependencyReadError = Readonly<
   | {
-      /** 当前 Check 未声明所请求的 dependency ID。 */
+      /** 当前 Check 未声明所请求的 direct relation ID。 */
       readonly code: "dependency-not-declared";
-      /** 被拒绝的 dependency ID。 */
+      /** 被拒绝的 direct relation ID。 */
       readonly checkId: string;
     }
   | {
       /** 已声明 upstream 没有可读取的 final data。 */
       readonly code: "upstream-data-unavailable";
-      /** 没有 final data 的 direct dependency ID。 */
+      /** 没有 final data 的 direct relation ID。 */
       readonly checkId: string;
       /** 阻止 readback 的 upstream terminal status。 */
       readonly status: "not-applicable" | "unavailable";
@@ -171,9 +171,9 @@ export type DependencyReadError = Readonly<
 /** {@link CheckDependencies.get} 的受控 readback 结果。 */
 export type DependencyReadResult = Readonly<
   | {
-      /** 成功读取 direct dependency final data。 */
+      /** 成功读取 direct relation final data。 */
       readonly ok: true;
-      /** 被读取的 direct dependency ID。 */
+      /** 被读取的 direct relation ID。 */
       readonly checkId: string;
       /** upstream 已结算为 `passed` 或 `failed` 的 status。 */
       readonly status: "passed" | "failed";
@@ -181,36 +181,37 @@ export type DependencyReadResult = Readonly<
       readonly data: CanonicalJsonObject;
     }
   | {
-      /** dependency data 不可读取。 */
+      /** direct relation data 不可读取。 */
       readonly ok: false;
       /** 失败的授权或 upstream-data reason。 */
       readonly error: DependencyReadError;
     }
 >;
 
-/** 当前 Check 的一个已规范化直接 dependency 及其完整终态事实。 */
+/** 当前 Check 的一个已规范化直接 relation 及其完整终态事实。 */
 export type DependencyObservation = Readonly<{
-  /** 已规范化、稳定排序的 direct dependency ID。 */
+  /** 已规范化、稳定排序的 direct relation ID。 */
   readonly checkId: string;
   /** Core 已结算并冻结的四态 outcome。 */
   readonly outcome: CheckOutcome;
 }>;
 
-/** 当前 Check 的已规范化直接 dependencies 的 data reader。 */
+/** 当前 Check 的已规范化直接 relation outcomes 的 data reader。 */
 export interface CheckDependencies {
   /**
-   * 读取一个直接 dependency 的 canonical final data。
+   * 读取一个直接 relation 的 canonical final data。
    *
-   * @returns 已声明且为 `passed`/`failed` 的 dependency 返回其 data；未声明或没有 final data 时返回
-   * `ok: false`，不会授权 transitive dependency。
+   * @returns 已声明的 `dependsOn` 或 `observes` relation 且为 `passed`/`failed` 的 Check 返回其 data；
+   * 未声明或没有 final data 时返回 `ok: false`，不会授权 transitive Check。
    */
   get(checkId: string): DependencyReadResult;
 
   /**
-   * 枚举当前 Check 的全部已规范化 direct dependencies。
+   * 枚举当前 Check 的全部已规范化 direct relation outcomes。
    *
-   * @returns 按有效 dependency ID 稳定排序、深度冻结的 `{ checkId, outcome }` observations；只含当前
-   * Check 显式或继承得到的 direct dependencies，不暴露 scheduler 历史、transitive 或未声明 Check。
+   * @returns 按有效 direct relation ID 稳定排序、深度冻结的 `{ checkId, outcome }` observations；只含当前
+   * Check 显式或继承得到的 `dependsOn` / `observes` relation，不暴露 scheduler 历史、transitive 或未声明
+   * Check。
    */
   list(): readonly DependencyObservation[];
 }
@@ -229,7 +230,7 @@ export interface CheckProjectContext {
  * @typeParam Options - 此 Check preflight 后传给 execution 的 options shape。
  */
 export interface CheckExecutionContext<Options extends object> {
-  /** 读取当前 Check 的已声明 direct dependencies。 */
+  /** 读取当前 Check 的已声明 direct relations。 */
   readonly dependencies: CheckDependencies;
   /** 深度只读、canonical 的 invocation-local prepared Check options。 */
   readonly options: DeepReadonly<Options>;
@@ -324,8 +325,10 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   ): CheckResult | Promise<CheckResult>;
   /** 继承 scheduling context 的 child Checks，不会单独形成 container result。 */
   readonly checks?: readonly Check[];
-  /** 直接 prerequisite Check IDs，或对父 dependency collection 的显式 edit。 */
+  /** 必须全部 `passed` 才能开始当前 Check author work 的直接 prerequisite Check IDs。 */
   readonly dependsOn?: InheritableCheckCollection<string>;
+  /** 等待任意 terminal outcome 并授权当前 Check readback 的直接 observation Check IDs。 */
+  readonly observes?: InheritableCheckCollection<string>;
   /** 此 Check 及其 descendants 的最大并行预算。 */
   readonly maxParallel?: number;
   /** 同一 ready admission 层级中的静态优先级；省略时继承并最终规范化为 `0`。 */
@@ -358,9 +361,9 @@ type CheckPreflightField<AuthoredOptions extends object, PreparedOptions extends
  *
  * @typeParam AuthoredOptions - Definition 中的 declarative options shape。
  * @typeParam PreparedOptions - preflight 后 callback 接收的 invocation-local options shape。
- * @remarks Definition 只闭合 authored JSON options；preflight 在同一 Run 的所有 execution 前作为全局
- * barrier 执行。`PreparedOptions` 与 `AuthoredOptions` 不同时必须提供 preflight；同形时可以省略。它不进入
- * declarative fingerprint 或 machine output。
+ * @remarks Definition 只闭合 authored JSON options；每个 admitted Check 先在自身 Task lifecycle 内执行
+ * preflight，随后才执行 callback。`PreparedOptions` 与 `AuthoredOptions` 不同时必须提供 preflight；同形时可以
+ * 省略。它不进入 declarative fingerprint 或 machine output。
  */
 export type Check<
   AuthoredOptions extends object = object,
@@ -377,7 +380,7 @@ export type EmptyCheckOptions = Readonly<Record<never, never>>;
 type NonThenableData = Readonly<{ readonly then?: CanonicalJsonValue }>;
 
 /**
- * 将 canonical dependency data 还原为 provider final-data shape 的同步 parser。
+ * 将 canonical direct-relation data 还原为 provider final-data shape 的同步 parser。
  *
  * @typeParam FinalData - provider 在 `passed`/`failed` result 中声明的 final-data shape。
  * @remarks Product 不调用此 parser；provider 负责不受信任或跨版本 data 的业务验证。

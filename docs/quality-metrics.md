@@ -18,10 +18,11 @@ fact：
 | `not-applicable` | Check 有意没有 work；reason code 可省略，且不伪造 final data。      |
 | `unavailable`    | Product 无法给出正常结论；必须有 `reason.code`，且没有 final data。 |
 
-四种 outcome 都满足 dependency ordering：declared direct upstream settle 后，dependent Check 才可 admission。需要
-upstream data 的 callback 使用 Configuration 的 `dependencies.get` contract。本文只定义该读取的事实基础：
-`passed`/`failed` 有 canonical final data；`not-applicable`/`unavailable` 没有；Product 不为 ordinary upstream
-outcome 合成 `prerequisite-unavailable`。
+四种 outcome 都是 direct `observes` 的 terminal ordering facts；observer 在所有 direct observation 已结算后才可 admission。
+direct `dependsOn` 是更强的 passed prerequisite：任一 provider 为 `failed`、`not-applicable` 或 `unavailable` 时，Product 在 dependent
+preflight/execution 前将其结算为 `unavailable / dependency-not-passed`，带 direct non-passed `checkIds` 和 null duration。需要 upstream
+data 的 callback 使用 Configuration 的 `dependencies.get` contract；`passed`/`failed` 有 canonical final data，`not-applicable`/`unavailable`
+没有。Product 不伪造 provider final data，也不把 observer 的 terminal outcome 变成 prerequisite。
 
 callback 通过 Check-owned reporter 报告零个或多个 supplemental facts：
 

@@ -18,8 +18,12 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { threshold: 2, nested: { mode: "strict" } },
-          preflight: (options) => ({ status: "success", preparedOptions: options }),
+          preflight: (options) => ({
+            status: "success",
+            preparedOptions: options
+          }),
           dependsOn: ["prepare", "compile"],
+          observes: ["release", "audit"],
           execution: passed
         })
       ]
@@ -30,8 +34,12 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { nested: { mode: "strict" }, threshold: 2 },
-          preflight: (options) => ({ status: "success", preparedOptions: options }),
+          preflight: (options) => ({
+            status: "success",
+            preparedOptions: options
+          }),
           dependsOn: ["compile", "prepare", "compile"],
+          observes: ["audit", "release", "audit"],
           execution: async () => passed()
         })
       ]
@@ -41,6 +49,71 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(first).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(second).declarative)
     );
+
+    const withoutObserves = defineConfig({
+      checks: [
+        defineCheck({
+          checkId: "check",
+          displayName: "Check",
+          options: { threshold: 2, nested: { mode: "strict" } },
+          preflight: (options) => ({
+            status: "success",
+            preparedOptions: options
+          }),
+          dependsOn: ["prepare", "compile"],
+          execution: passed
+        })
+      ]
+    });
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(first).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(withoutObserves).declarative)
+    );
+
+    const firstCustomPolicy = defineConfig({
+      scheduler: {
+        admissionPolicy: {
+          kind: "custom",
+          proposeAdmission: () => ({ kind: "wait" })
+        }
+      }
+    });
+    const secondCustomPolicy = defineConfig({
+      scheduler: {
+        admissionPolicy: {
+          kind: "custom",
+          proposeAdmission: () => ({
+            kind: "select",
+            taskId: "different-closure"
+          })
+        }
+      }
+    });
+    const hooksOne = defineConfig({
+      scheduler: { measurementHooks: [() => undefined] }
+    });
+    const hooksTwo = defineConfig({
+      scheduler: { measurementHooks: [async () => undefined] }
+    });
+    const staticPolicy = defineConfig({
+      scheduler: { admissionPolicy: { kind: "static" } }
+    });
+    assert.equal(
+      createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(secondCustomPolicy).declarative)
+    );
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(staticPolicy).declarative)
+    );
+    assert.equal(
+      createDeclarativeFingerprint(normalizeProjectDefinition(hooksOne).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(hooksTwo).declarative)
+    );
+    assert.deepEqual(normalizeProjectDefinition(firstCustomPolicy).declarative.scheduler, {
+      admissionPolicy: { kind: "custom" },
+      maxParallel: 4
+    });
 
     const options = {};
     Object.defineProperty(options, "__proto__", {
@@ -55,7 +128,10 @@ describe("Project Definition", () => {
             displayName: "Own prototype key",
             execution: passed,
             options,
-            preflight: (preparedOptions) => ({ status: "success", preparedOptions })
+            preflight: (preparedOptions) => ({
+              status: "success",
+              preparedOptions
+            })
           }
         ]
       })

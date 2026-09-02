@@ -77,6 +77,8 @@ type CandidateFixtureEvidence = Readonly<{
   checkDurations: unknown;
   cacheComputations: unknown;
   changedFilesCalls: unknown;
+  blockedChangedFilesConsumer: unknown;
+  blockedChangedFilesConsumerCalls: unknown;
   firstCacheRead: unknown;
   secondCacheRead: unknown;
   changedFilesFromMachine: unknown;
@@ -136,6 +138,8 @@ function projectCandidateFixtureEvidence(
     checkDurations: evidence.checkDurations,
     cacheComputations: evidence.cacheComputations,
     changedFilesCalls: evidence.changedFilesCalls,
+    blockedChangedFilesConsumer: evidence.blockedChangedFilesConsumer,
+    blockedChangedFilesConsumerCalls: evidence.blockedChangedFilesConsumerCalls,
     firstCacheRead: evidence.firstCacheRead,
     secondCacheRead: evidence.secondCacheRead,
     changedFilesFromMachine: evidence.changedFilesFromMachine,
@@ -221,6 +225,14 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
     targetReadCount: 1
   });
   assert.equal(runEvidence.changedFilesCalls, 1);
+  assert.equal(runEvidence.blockedChangedFilesConsumerCalls, 0);
+  assert.deepEqual(runEvidence.blockedChangedFilesConsumer, {
+    status: "unavailable",
+    reason: {
+      checkIds: ["failed-changed-files"],
+      code: "dependency-not-passed"
+    }
+  });
   assert.deepEqual(runEvidence.changedFilesFromMachine, {
     files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
     version: 1
@@ -263,14 +275,18 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
       targetReadCount: 0
     }
   });
-  assert.deepEqual(runEvidence.firstChangedFilesConsumer, { fileCount: 2 });
+  assert.deepEqual(runEvidence.firstChangedFilesConsumer, {
+    fileCount: 1,
+    observedStatus: "failed"
+  });
   assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });
   assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
   assertDuplicateAndTerminalMessages(runEvidence.checkMessages);
-  assert.match(runEvidence.humanOutput, /total\s+8\s+checks/i);
+  assert.match(runEvidence.humanOutput, /total\s+10\s+checks/i);
   assert.match(runEvidence.humanOutput, /Checks:/);
-  assert.match(runEvidence.humanOutput, /\[1\/8\].*duplicate detection/i);
-  assert.match(runEvidence.humanOutput, /\[8\/8\].*Installed terminal note/i);
+  assert.match(runEvidence.humanOutput, /\[1\/10\].*duplicate detection/i);
+  assert.match(runEvidence.humanOutput, /\[7\/10\].*Blocked changed-files consumer/i);
+  assert.match(runEvidence.humanOutput, /\[10\/10\].*Installed terminal note/i);
   assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
   assert.match(runEvidence.humanOutput, /Execution summary:/);
   assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
@@ -279,12 +295,14 @@ function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateF
     "json-schema-validation",
     "markdown-link-validation",
     "changed-files",
+    "failed-changed-files",
     "first-changed-files-consumer",
     "second-changed-files-consumer",
     "installed-terminal-note"
   ]) {
     assertCanonicalExecutedDuration(runEvidence.checkDurations, checkId);
   }
+  assertUnavailableDependencyDuration(runEvidence.checkDurations, "blocked-changed-files-consumer");
 }
 
 function assertDuplicateAndTerminalMessages(value: unknown): void {
@@ -382,6 +400,17 @@ function assertCanonicalExecutedDuration(checkDurations: unknown, checkId: strin
   }
   assert.equal(Number.isFinite(duration.durationMs), true);
   assert.equal(duration.durationMs >= 0, true);
+}
+
+function assertUnavailableDependencyDuration(checkDurations: unknown, checkId: string): void {
+  if (!isUnknownArray(checkDurations)) {
+    throw new TypeError("isolated Run checkDurations must be an array");
+  }
+  const duration = checkDurations.find(
+    (candidate): candidate is Readonly<Record<string, unknown>> =>
+      isRecord(candidate) && candidate.checkId === checkId
+  );
+  assert.deepEqual(duration, { checkId, durationMs: null });
 }
 
 function readJsonRecord(path: string, description: string): Readonly<Record<string, unknown>> {

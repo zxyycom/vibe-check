@@ -48,7 +48,7 @@ describe("Project Run diagnostic logger observation formatting", () => {
       const log = readFileSync(join(root, "run.log"), "utf8");
       assert.match(log, /^#000001 \+00:00:00\.000 \[RUN\] \[SAFE\] safe a=\[true,2\] z="ready"\n/m);
       const schedulerRecord = observationText(log, "scheduler.decision");
-      assert.match(schedulerRecord, /reason="canonical-order"/);
+      assert.match(schedulerRecord, /proposal\.kind="select"/);
       assert.match(schedulerRecord, /trigger\.kind="execution-started"/);
       assert.doesNotMatch(schedulerRecord, /(?:^|[ │])kind="admit"/m);
       assert.doesNotMatch(schedulerRecord, /(?:^|[ │])taskId="compile"/m);
@@ -202,7 +202,7 @@ function observeDiagnosticFormattingExamples(
     tags: diagnosticTags("SCHEDULER", "ADMIT", "TASK:compile"),
     details: {
       kind: "admit",
-      reason: "canonical-order",
+      proposal: { kind: "select", taskId: "compile" },
       taskId: "compile",
       trigger: { kind: "execution-started" }
     }

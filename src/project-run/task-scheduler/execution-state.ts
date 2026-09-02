@@ -1,9 +1,17 @@
+import type { SchedulerMeasurementHook } from "../../project-definition/project-definition.ts";
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope, TaskGraph } from "./graph.ts";
+import {
+  staticAdmissionSelectionPolicy,
+  type AdmissionSelectionPolicy
+} from "./admission-selection-policy.ts";
 import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
+import type { AdmissionPolicyFaultCategory } from "./scheduler-admission-decision.ts";
+import type { SchedulerPerformanceDiagnosticsInput } from "./scheduler-performance-diagnostics.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
+  | { readonly kind: "prerequisite-unsatisfied"; readonly value: TResult }
   | { readonly kind: "failed"; readonly error: unknown }
   | { readonly kind: "blocked"; readonly dependencyIds: readonly string[] }
   | { readonly kind: "cancelled-before-start" }
@@ -18,21 +26,41 @@ export interface TaskExecutionContext {
   readonly signal: AbortSignal | undefined;
 }
 
+export interface InitialTaskResult<TResult> {
+  readonly taskId: string;
+  readonly value: TResult;
+}
+
 export interface TaskGraphRun<TResult> {
+  readonly admissionPolicyFault: AdmissionPolicyFaultCategory | undefined;
   readonly cancelled: boolean;
   /** One entry per static graph Task, in static graph order. */
   readonly settlements: readonly SettledTask<TResult>[];
 }
 
 export interface RunTaskGraphOptions<TResult> {
+  /** Product-private policy handoff; package consumers cannot author this through the public API. */
+  readonly admissionPolicy?: AdmissionSelectionPolicy;
   readonly diagnosticLogger?: DiagnosticLogger;
+  /** Explicit enabled-only handoff; no Scheduler behavior is inferred from a logger shape. */
+  readonly performanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
+  /** Runtime-only terminal consumers; their context is formed after Scheduler drain. */
+  readonly measurementHooks?: readonly SchedulerMeasurementHook[];
+  readonly onMeasurementHookFailure?: () => void;
+  readonly onMeasurementHooksSettled?: () => void;
   readonly graph: TaskGraph;
+  /** Product-private terminal results formed before Scheduler admission begins. */
+  readonly initialTaskResults?: readonly InitialTaskResult<TResult>[];
   readonly maxParallel: number;
   readonly signal?: AbortSignal;
   readonly execute: (
     task: PlannedTask,
     context: TaskExecutionContext
   ) => TResult | Promise<TResult>;
+  /** Maps a completed Task's opaque product value to prerequisite satisfaction. */
+  readonly isPrerequisiteSatisfied?: (value: TResult) => boolean;
+  /** Lets a product close a blocked Task before any terminal observer can be admitted. */
+  readonly onTaskBlocked?: (task: PlannedTask, dependencyIds: readonly string[]) => void;
 }
 
 export type RunningTaskCompletion<TResult> = Readonly<{
@@ -52,24 +80,31 @@ export interface RuntimeScope {
 }
 
 export interface SchedulerState<TResult> {
+  readonly admissionPolicy: AdmissionSelectionPolicy;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly graph: PlannedTaskGraph;
+  readonly isPrerequisiteSatisfied: RunTaskGraphOptions<TResult>["isPrerequisiteSatisfied"];
   readonly maxParallel: number;
   readonly signal: AbortSignal | undefined;
   readonly execute: RunTaskGraphOptions<TResult>["execute"];
+  readonly onTaskBlocked: RunTaskGraphOptions<TResult>["onTaskBlocked"];
   readonly pending: PlannedTask[];
   readonly runningById: Map<string, RunningTask<TResult>>;
   readonly runningMutexes: Set<string>;
   readonly settlementsByTaskId: Map<string, TaskSettlement<TResult>>;
   readonly scopesById: ReadonlyMap<string, RuntimeScope>;
-  reservationTaskId: string | undefined;
   isCancelled: boolean;
+  admissionPolicyFault: AdmissionPolicyFaultCategory | undefined;
 }
 
 export function createSchedulerState<TResult>(
   graph: PlannedTaskGraph,
   options: RunTaskGraphOptions<TResult>
 ): SchedulerState<TResult> {
+  const admissionPolicy = options.admissionPolicy ?? staticAdmissionSelectionPolicy;
+  if (!Object.isFrozen(admissionPolicy) || typeof admissionPolicy.decide !== "function") {
+    throw new TypeError("task engine admission policy must be a frozen policy value");
+  }
   const scopesById = new Map<string, RuntimeScope>();
   for (const scope of graph.scopes) {
     scopesById.set(scope.id, {
@@ -78,10 +113,13 @@ export function createSchedulerState<TResult>(
       isActive: false
     });
   }
-  return {
+  const state: SchedulerState<TResult> = {
+    admissionPolicy,
     diagnosticLogger: options.diagnosticLogger,
     graph,
+    isPrerequisiteSatisfied: options.isPrerequisiteSatisfied,
     maxParallel: options.maxParallel,
+    onTaskBlocked: options.onTaskBlocked,
     signal: options.signal,
     execute: options.execute,
     pending: [...graph.tasks],
@@ -89,9 +127,34 @@ export function createSchedulerState<TResult>(
     runningMutexes: new Set(),
     settlementsByTaskId: new Map(),
     scopesById,
-    reservationTaskId: undefined,
-    isCancelled: false
+    isCancelled: false,
+    admissionPolicyFault: undefined
   };
+  recordInitialTaskResults(state, options.initialTaskResults ?? []);
+  return state;
+}
+
+function recordInitialTaskResults<TResult>(
+  state: SchedulerState<TResult>,
+  initialTaskResults: readonly InitialTaskResult<TResult>[]
+): void {
+  for (const initial of initialTaskResults) {
+    const pendingIndex = state.pending.findIndex((task) => task.id === initial.taskId);
+    if (pendingIndex < 0) {
+      throw new TypeError(
+        `initial task result references unknown or duplicate task ${initial.taskId}`
+      );
+    }
+    const [task] = state.pending.splice(pendingIndex, 1);
+    if (task === undefined) {
+      throw new Error(`initial task ${initial.taskId} disappeared before settlement`);
+    }
+    const settlement: TaskSettlement<TResult> =
+      state.isPrerequisiteSatisfied?.(initial.value) === false
+        ? { kind: "prerequisite-unsatisfied", value: initial.value }
+        : { kind: "completed", value: initial.value };
+    recordSettlement(state, task, Object.freeze(settlement));
+  }
 }
 
 /** Projects mutable execution state into the pure scheduler-decision input. */
@@ -107,7 +170,6 @@ export function snapshotSchedulerState<TResult>(state: SchedulerState<TResult>):
     isCancelled: state.isCancelled,
     maxParallel: state.maxParallel,
     pendingTaskIds: Object.freeze(state.pending.map((task) => task.id)),
-    reservationTaskId: state.reservationTaskId,
     runningMutexes: Object.freeze([...state.runningMutexes]),
     runningTaskIds: Object.freeze([...state.runningById.keys()]),
     settledTasks: Object.freeze(
@@ -127,7 +189,6 @@ export function scopeForTask<TResult>(
 
 export function cancelPendingTasks<TResult>(state: SchedulerState<TResult>): void {
   state.isCancelled = true;
-  state.reservationTaskId = undefined;
   while (state.pending.length > 0) {
     const task = state.pending.shift();
     if (task === undefined) {

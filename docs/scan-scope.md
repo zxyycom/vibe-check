@@ -63,8 +63,8 @@ Git top-level 必须等于 child 自身 canonical path；普通目录即使替�
 遍历不得回到 parent repository。该规则只描述 current worktree collection。
 
 Package-provided Checks 的 exact file selection 只由各自的顶层 `options.files` 或 `codeAreas[id].files` 决定。
-项目自定义的 diff、baseline 或其它 comparison facts 是普通 Check data：producing Check 拥有来源、options 与 data shape，
-下游通过 direct `dependsOn` 读取；这些 facts 不会改写 package-provided Check 的 file selection。
+项目自定义的 diff、baseline 或其它 comparison facts 是普通 Check data：producing Check 拥有来源、options 与 data shape；
+下游需要成功 data 才能开始时通过 direct `dependsOn` 读取，需要在所有 observed upstream 各自结算后审计任意 terminal outcome 时通过 `observes` 读取。两者都不会改写 package-provided Check 的 file selection。
 
 ## Package-provided Check exact inputs
 

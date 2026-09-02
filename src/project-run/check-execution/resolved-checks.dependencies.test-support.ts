@@ -45,7 +45,7 @@ export async function assertDirectDependencyLists(): Promise<void> {
         },
         {
           checkId: "dependent",
-          dependsOn: [
+          observes: [
             "source-unavailable",
             "source-passed",
             "source-not-applicable",
@@ -64,15 +64,18 @@ export async function assertDirectDependencyLists(): Promise<void> {
   assert.equal(directOnly.kind, "completed");
   assert.deepEqual(observedList, [
     {
-      checkId: "source-unavailable",
-      outcome: { status: "unavailable", reason: { code: "source-unavailable" } }
+      checkId: "source-failed",
+      outcome: { status: "failed", data: { source: "failed" } }
     },
-    { checkId: "source-passed", outcome: { status: "passed", data: { source: "passed" } } },
     {
       checkId: "source-not-applicable",
       outcome: { status: "not-applicable", reason: { code: "not-needed" } }
     },
-    { checkId: "source-failed", outcome: { status: "failed", data: { source: "failed" } } }
+    { checkId: "source-passed", outcome: { status: "passed", data: { source: "passed" } } },
+    {
+      checkId: "source-unavailable",
+      outcome: { status: "unavailable", reason: { code: "source-unavailable" } }
+    }
   ]);
   assert.deepEqual(repeatedList, observedList);
   assertFrozenDependencyObservations(observedList);
@@ -96,19 +99,19 @@ export async function assertDirectDependencyLists(): Promise<void> {
       {
         count: 4,
         dependencyIds: [
-          "source-unavailable",
-          "source-passed",
+          "source-failed",
           "source-not-applicable",
-          "source-failed"
+          "source-passed",
+          "source-unavailable"
         ]
       },
       {
         count: 4,
         dependencyIds: [
-          "source-unavailable",
-          "source-passed",
+          "source-failed",
           "source-not-applicable",
-          "source-failed"
+          "source-passed",
+          "source-unavailable"
         ]
       }
     ]

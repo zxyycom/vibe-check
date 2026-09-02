@@ -5,8 +5,9 @@
 ```text
 调用方 → 项目 Run → Product run
                     ├─ Definition validation 与 canonical Check catalog
-                    ├─ invocation-wide Check preparation barrier
-                    ├─ ready Check direct execution
+                    ├─ invocation-wide flag control barrier
+                    ├─ Scheduler admission + task-local Check preflight
+                    ├─ Check direct execution / blocked-dependent settlement
                     └─ frozen Check facts → optional aggregation / publication / outputs / RunResult
 ```
 
@@ -39,7 +40,7 @@ ordinary Check contract。task scheduler 只是 Run 的 private child，不形�
 
 `defineConfig` 返回普通 Project Definition value。它的递归 `checks` tree 由普通 `Check` values 组成：
 `execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
-`dependsOn`、`mutex`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。
+`dependsOn`、`observes`、`mutex`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。
 
 完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Definition validation 在任何 execution、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical immutable JSON object，并 canonicalize scheduling collection。Definition 不识别 package-provided Check ID，也不解释其 option shape。
 
@@ -47,18 +48,42 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 
 ## Execution boundary
 
-Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、
-dependency/mutex admission、root budget、immutable task admission priority、cancellation 与 settlement。priority 只在既有 ready selection layer 内作静态 tie-break；engine 仍不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
+Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private static policy 是无状态纯决策；public custom policy 是同一无状态 select/wait boundary 上的 trusted synchronous callback。每个 admission cycle 都从 immutable 完整 graph、dynamic inspection、Scheduler 形成的 relation/mutex eligible candidates 及其 current capacity facts 重新计算，精确返回 `select(taskId)` 或 `wait`。priority 不另有 map/list 或旁路输入；public custom callback 收到的是该事实的 detached、deep-frozen ordinary projection，而不是 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
 
-完整静态 graph validation 后、Task admission 前，Run 按 Definition 顺序执行 invocation-wide preparation barrier。每个 Check 先处理 invocation cancellation，再判断 Definition 已规范化的 flag 条件；条件不匹配时，它在任何 owning preflight/execution 前结算为 `not-applicable` / `flag-condition-not-matched`。该 Check 不进入 scheduler、没有 started fact且 duration 为 `null`，但仍保留 Check fact 并允许 downstream admission。
+完整静态 graph validation 后、Task admission 前，Run 按 Definition 顺序执行 invocation-wide flag control barrier。每个 Check 先处理 invocation cancellation，再判断 Definition 已规范化的 flag 条件；条件不匹配时，它在任何 owning preflight/execution 前结算为 `not-applicable / flag-condition-not-matched`，没有 started fact且 duration 为 `null`。该终态作为同一张 Scheduler graph 的 initial non-passed settlement：`dependsOn` dependent 因此被阻断，`observes` consumer 仍可等待和读取；Run 不建立第二套依赖传播。
 
-尚未结算的 Check 再执行 ordinary preflight；未提供 `preflight` 时直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不进入 scheduler，也没有 started lifecycle fact；ready Check 才以 prepared/fallback options 进入 Task graph。barrier 属于 execution phase，但 invocation preparation 和 progress setup 可以先发生；它只保证任何 author Check execution、scanner 或其它 Check-local execution work 尚未开始。精确 flag 与 preflight 结果 grammar 见 [Configuration](configuration.md#flag-enabled-checks) 和 [Configuration](configuration.md#check-options-preflight)。
+Scheduler 仍拥有 readiness、mutex、capacity、cancellation、blocked settlement、状态转换、Task start、await 与 settlement。它只在 policy 后验证 selected Task 仍 pending、属于本轮 candidate、当前 capacity 可 admission 且未越过 lifecycle/cancellation cutoff；`wait` 只在 running work 能 drain 时有效。Scheduler 不解释 priority、公平、防饥饿或 wait 的理由，policy 也不启动、等待或结算 Task。static tightening/continuation 每轮重算，不保存 reservation、sticky target 或任何 Core-owned strategy state；engine 仍不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
+
+custom callback throw、thenable、malformed proposal、非法 select 或不可 drain `wait` 是 admission-policy fault：Scheduler 停止新 admission、按受控路径取消 pending Tasks 并 drain 已启动的 Task；Run 以 `admission-policy-failed` execution diagnostic 结束，绝不 fallback 到 static。diagnostic 只记录有界 fault category 和本轮 hard-guard facts，不保留 raw callback value、stack、caller data、policy wait reason、reservation、console/check-message attribution 或 policy timing/telemetry。
+
+effective diagnostic logging enabled、Definition 配置至少一个 `scheduler.measurementHooks`、或 admission policy 为 `custom` 时，Scheduler shell 才创建 invocation-local 一阶 measurement collector；它通过 private handoff 接收 clock 与 invocation 已有的 `declarativeFingerprint`。只有 static policy、diagnostic disabled 且 Hook list 为空时不创建 collector、也不读取额外 clock。每次**实际** custom callback 前，collector 先 flush 当前 open interval，再 append 已完成的 action observation，并创建 captured-prefix reader；同一 Run 只冻结一次 graph DTO。`measurementCount` 是该 context 的 end-count，`measurementAt(index)` 是同步 prefix getter，不返回 live array 或 history slice，故旧 context 不能看见后续 append。每条 observation 从 accepted `select`/`wait` 的 post-state 开始，到下一实际 custom callback 前结束，交接 interval 的 state observation 与期间 admitted/settled effects，而不声明 action causality。每个 interval 是 closed timing union：available 才携带数值 contribution，unavailable 只携带 reason，合法 zero span 与 timing fault 明确不同。此紧凑表示避免按决策数复制完整 graph/per-Task table或 history；完整 per-Task table 只属于 terminal raw measurement。Scheduler 在既有 admission、pending/running settlement、accepted wait 与 terminal boundary 采样，唯一拥有区间归属、mutex/capacity/admissible 分类、slot/capacity integral、accepted-wait accumulator、per-Task admission table、峰值和 tail active sequence；它不建立第二套 state、streaming event bus 或完整 boundary ledger。clock throw、non-finite/backward sample、invalid interval/integral 只令本次 raw timing unavailable，不改变 admission、cancellation、policy-fault drain 或 settlement。
+
+每个 raw terminal measurement 是 bounded immutable fact set：它保留 declarative fingerprint、离散 lifecycle facts、queue peaks，以及 timing 可用时的 shell/slot/capacity/accepted-wait accumulations、每个 admission-viable Task 的分类 delay table与 admission/settlement boundaries。它不包含 Task value、error、callback、clock、mutable collection、summary top-N、ratio、queue aggregate或 tail contributor projection。`scheduler.summary` 是加入统一 terminal delivery list 的内部默认 Hook 从该 raw fact set 计算的 human-only 二级 projection：它仍提供既有 top admission delay、queue total、utilization、tail contributor和 timing availability shape，且 writer failure保持 observational containment。
+
+`SchedulerPolicy.measurementHooks` 是有序 runtime-only caller callback list。Scheduler 只在停止新 admission 且全部
+started work 已 drain 后，创建一次递归冻结 context：它包含 canonical graph snapshot、admitted/settled
+kind-only execution observation 和 raw measurement。启用 diagnostic 时，internal default `scheduler.summary` Hook 与 caller Hooks 组成同一个 ordered delivery list并消费**同一 context object identity**；summary wrapper自行包含 projection/writer failure，shared runner只按各 delivery wrapper的 failure policy工作，不识别 summary identity。sync/async Hook 均逐个 await，Hook elapsed 不计入
+raw measurement；任一 caller Hook throw/reject 都不阻止后续 caller Hook，也不改写已经形成的 Scheduler/Check facts。
+
+只有非空 caller Hook list 才有 `measurementHooks` output。所有 caller Hooks 成功 settlement 时它为 `succeeded`；任一
+失败时它为 `failed`。在 Hook sequence 全部获得调用机会后，Run 按下列优先级结算：
+
+1. 若 Scheduler 正常完成（没有 cancellation 或 primary execution diagnostic）且 Hook output failed，返回保留完整
+   settled facts 的 `kind: "output"` / `scheduler-measurement-hooks-failed`。
+2. 若已经形成 cancellation、admission-policy fault 或其它 primary execution failure，保留既有 primary kind 与
+   diagnostic；Hook failure 只在 `outputs.measurementHooks.status` 中可见。
+
+pre-work/planning failure 没有 Scheduler context，因此不会调用 caller Hooks。summary writer failure 仍是受 containment 的
+diagnostic writer failure，不是 measurement Hook failure。Hook identity/source/closure 不进入 declarative fingerprint，且本能力
+不增加 hook ID/version/registry、machine/progress/Check facts、跨 invocation history、learned scheduling 或自动调参。
+
+Run 在完整 static graph validation 后把 preflight 放入已 admitted Check 的 task-local lifecycle；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal，并受该 Check 的 `dependsOn`、`observes`、mutex、capacity 与 priority 约束。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不调用 author callback，也没有 author execution started lifecycle fact；它的 non-passed outcome 仍会阻止自己的 `dependsOn` dependents。每个独立 ready task 的 preflight 可以并行，不能形成全局 barrier。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
 
 每个 executable Check 以 `{ dependencies, options, project, records, signal }` 执行自己的 callback。`project` 只携带 normalized root 与由 invocation controls 形成的 canonical `flags`；Check-owned file selection 与 cache configuration 保留在 owning Check options，共享领域事实通过声明的 direct dependencies 进入。Product 不替 package-provided Check 注入文件 scope 或领域 policy。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
 
-Product 将 ordinary throw、malformed result、Record misuse 和 cancellation 映射为 owning unavailable outcome。这个 execution boundary 将 author terminal result 与其 messages attachment 一起验证，再只把 stripped four-state result 交给 Check facts；只有 Check facts 接受该 result 后，detached author messages 才进入 private lifecycle feedback 和 final-snapshot `RunResult.checkMessages`。invalid attachment 不接受部分 author messages；Product 在静态 graph 校验后、任何 author preflight 或 execution 前安装一次 console router，并在各自 awaited async context 中隔离捕获；已捕获的 `console.*` 文本是独立受管 feedback，即使 callback 随后 throw 或返回 malformed result 仍会保留。四种 ordinary terminal status 都完成正常 dependency settlement；downstream 在 direct upstream settle 后运行，并通过 `dependencies.get(checkId)` 显式判断上游是否有可读 final data。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
+Product 将 ordinary throw、malformed result、Record misuse 和 cancellation 映射为 owning unavailable outcome。这个 execution boundary 将 author terminal result 与其 messages attachment 一起验证，再只把 stripped four-state result 交给 Check facts；只有 Check facts 接受该 result 后，detached author messages 才进入 private lifecycle feedback 和 final-snapshot `RunResult.checkMessages`。invalid attachment 不接受部分 author messages；Product 在静态 graph 校验后、任何 author preflight 或 execution 前安装一次 console router，并在各自 awaited async context 中隔离捕获；已捕获的 `console.*` 文本是独立受管 feedback，即使 callback 随后 throw 或返回 malformed result 仍会保留。`dependsOn` 只在每个 direct upstream `passed` 后允许 dependent 的 preflight/execution；全部 direct prerequisite terminal 后若任一非 `passed`，Product 以 `unavailable / dependency-not-passed`、稳定 direct blocker `checkIds`、null duration 结算 dependent，且不调用其 author work。`observes` 等待每个 direct upstream 各自形成任意四态 terminal outcome。两类 relation 的 normalized union 授权 `dependencies.get` / `list`，但同一 direct ID 不得双重声明。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
-Run 在 callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Check-facts settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`，并将受管 messages 按 canonical Check order、再按 preflight console、preflight author messages、execution console、terminal author messages 的顺序投影为 `RunResult.checkMessages`；duration 与 messages 都不进入 `CheckOutcome`、Record、Check facts 或 machine publication。resolved-Check execution owner 在 preparation barrier 前安装一次 async-context-aware console router，并在全部 Check 闭合后恢复；每个 author function 只拥有自己的 invocation-local buffer，context 外仍调用 host console，并发 Check 不共享 buffer。settlement 后 renderer 才写自己的 target stream。直接 `process.stdout` / `process.stderr` 写入和高容量 process output 仍必须进入项目自己拥有的 transcript（例如 Project Gate 的 `.log/`），不能与 progress stream 穿插。这类 transcript 不是 Product output，也不属于 machine output。
+Run 在 author callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Check-facts settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`，并将受管 messages 按 canonical Check order、再按 preflight console、preflight author messages、execution console、terminal author messages 的顺序投影为 `RunResult.checkMessages`；duration 与 messages 都不进入 `CheckOutcome`、Record、Check facts 或 machine publication。flag-control、preflight-blocked 与 prerequisite-blocked Check 都保留 `null` duration。resolved-Check execution owner 在 invocation flag control 和 task-local preflight/admission 前安装一次 async-context-aware console router，并在全部 Check 闭合后恢复；每个 author function 只拥有自己的 invocation-local buffer，context 外仍调用 host console，并发 Check 不共享 buffer。settlement 后 renderer 才写自己的 target stream。直接 `process.stdout` / `process.stderr` 写入和高容量 process output 仍必须进入项目自己拥有的 transcript（例如 Project Gate 的 `.log/`），不能与 progress stream 穿插。这类 transcript 不是 Product output，也不属于 machine output。
 
 ## Check facts
 
@@ -73,7 +98,7 @@ callback 只能通过自己的 reporter 提交 supplemental Record：`records.re
 
 Raw Check facts 始终可供 completed/output `RunResult` generic readback。只有 caller 显式提供 `RunControls.checkAggregation` 时，Run 才从选定 settled Check statuses 产生最小 `aggregate`；没有配置时该字段为 `null`。aggregation 不读取 Record data、definition warning、output status 或 presentation，也不替代项目的 raw facts。
 
-Run callback-local dependency view 只授权当前 Check 的 normalized effective direct dependency IDs。`dependencies.get(checkId)` 读取 Check-facts package-private settled Check seam：`passed` / `failed` 返回同一个 canonical final data 引用；`not-applicable` / `unavailable` 返回 closed read failure；未声明、transitive 或 malformed ID 不返回任何 upstream fact。Product 不调用 provider parser、不读取 supplemental Records，也不为 dependency reads 建立第二套 facts store。
+Run callback-local dependency view 只授权当前 Check 的 normalized effective `dependsOn ∪ observes` direct ID。`dependencies.get(checkId)` 读取 Check-facts package-private settled Check seam：`passed` / `failed` 返回同一个 canonical final data 引用；`not-applicable` / `unavailable` 返回 closed read failure；未声明、transitive 或 malformed ID 不返回任何 upstream fact。Product 不调用 provider parser、不读取 supplemental Records，也不为 dependency reads 建立第二套 facts store。
 
 ## Caller-keyed cache boundary
 
@@ -95,6 +120,8 @@ scanner protocol、candidate conversion、Record identity/data 与 unavailable v
 ## Output and downstream boundary
 
 Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。`diagnostic-logging/**` 只在 Product 已知事实形成处连续追加 invocation-local 人读材料；它不从 final snapshot 或 process transcript 重建过程，不进入 machine v4，也不向 Check callback 增加 logger。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
+
+其中 Scheduler terminal summary 也只是这条一次性人读时间线的一项 private observation；它不能成为 public result field、machine field、progress field、warning/autotune input 或可发现/可解析的 telemetry contract。
 
 每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 output result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary、accepted detached terminal-message readback 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Check-facts capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 

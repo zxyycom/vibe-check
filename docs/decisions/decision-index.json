@@ -6,7 +6,8 @@
   "sourceRevision": {
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
-      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:4b18315fe872612cbb5b20eabe6687e7507bea592c81d989a20bdcf3f2a8bb58",
+      "add-invocation-local-scheduler-performance-summary.md": "sha256:fc65bdb972882df0b2378cd702578505b9e5ee8056aeefe328bbc35739f22469",
+      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:52002e206bc59420239f9329f64282cef6697837ca4a01f13d85f590cd0e977a",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
@@ -19,7 +20,7 @@
       "author-package-markdown-at-published-paths.md": "sha256:24eb73622c39c142cf9e44ef4e15df200c16834217407a4ec7cdbd080e857d1d",
       "bind-external-programs-outside-check-semantics.md": "sha256:ba47ea8ed765a8df67e1e564715f2bbcc0db9fb18e0350cc5cebe754dc46d12d",
       "bind-project-gates-to-run-aggregation.md": "sha256:526b651624add03f1e7d304b425734db3ea132c8a48da3dce51824e1fcc73768",
-      "cancel-task-admission-and-drain-started-work.md": "sha256:25da36726129fc33ac5d88939b6277dbe7557c281c41586fee643af0d5f8d050",
+      "cancel-task-admission-and-drain-started-work.md": "sha256:7e09f6eaf3ce692124ef210207e58a6d25e11b51f0ff03a646afbf608ff0ab04",
       "carry-check-parallel-limit-in-task-scope.md": "sha256:63e43b5d90827e0b8f2728de317597266856d0a75118d305f0b99681020de56e",
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "centralize-project-gate-after-hook-configuration.md": "sha256:20bd7f463dc8863a31d58caeb4885725cca404aeda5dd60de26b12d9cb9fcad5",
@@ -35,7 +36,7 @@
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
       "confirm-package-contract-names-before-publication.md": "sha256:0b376a91dd7c07eba32d7febd8109535ce0eb6cbbfeeb059a5c9af641cdca4c1",
       "confirm-single-check-authoring-and-derivation-names-before-publication.md": "sha256:b71c4d780ddd0ee587d6a3c907c6b1ac9a216531b4424ecf64221a0501ed2ae4",
-      "consolidate-project-gate-run-evidence.md": "sha256:2ea8a12dc5062c94dd975a3fae2ea96e10e509ffd9a83befdc8c50187c400ce9",
+      "consolidate-project-gate-run-evidence.md": "sha256:ae7705d30f4eceab02e1e4f983cd6e4c5a5820bcaabe26fe94fa3572c3cb3487",
       "construct-duplicate-detection-from-defaulted-policy.md": "sha256:7b4e1e223ae4f2b5802b943f6a819aefc12ec459cd49274d048d8163da5389d1",
       "construct-function-metrics-from-defaulted-area-policy.md": "sha256:85e09451048af2fe1615f2c7d48bf92b9f0b7c83d12132295054283a8d96f4e3",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
@@ -54,7 +55,7 @@
       "drive-run-from-check-owned-inputs-and-explicit-providers.md": "sha256:504d28792a65a179cae6dadb5dfc4eb60e5c8ecc21310d4ba311658169bbe9d8",
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
-      "enumerate-normalized-direct-dependency-outcomes.md": "sha256:9d9e48c67add48999a1d98e1e874a84bc488bdcac3d8aab63e8836f16a55054d",
+      "enumerate-normalized-direct-dependency-outcomes.md": "sha256:1d0e5a30bee3ab73973a8c3f624ad8e6730fae975cda1d0a2967e98666fc0316",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
@@ -67,25 +68,31 @@
       "expose-built-in-check-values-alongside-config-and-run.md": "sha256:603ef962dcd37e4a0feea9cb6d45400420f95e02d1aa905bbfcac8982ee0888a",
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
+      "expose-invocation-local-scheduler-measurement-hooks.md": "sha256:6679160916dd07a45f0fe0cc69b3a9d9817d8e2cd552ecda04a4c336847d4e7b",
       "expose-markdown-link-finding-policy.md": "sha256:ab2134d56080e7bd28d92d20fd70290bbeca1f4a7cfd3ca79232b77d05561979",
       "expose-minimal-check-and-run-public-surface.md": "sha256:a730e502dd2d5a8ce9e287c38ddf299771f3def0eeee3db4be4dbdbfb760a2d4",
       "expose-ordinary-check-values-with-define-check.md": "sha256:80485201414c86f379d23c9f1ae6c49f296aa7df0e4c24e88cd0e385d6b7f304",
       "expose-recursive-check-authoring-and-run-surface.md": "sha256:0d3077d93f668ef8f65575632686a9eabf8c0b2d3967f7825d4a1f7dbd1cf860",
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
+      "expose-stateless-custom-admission-policy-to-callers.md": "sha256:6e63362aa8485a0edd4500c9e3d616c1d4c6c71ee17551251ec4f6d495e49307",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
+      "extend-invocation-local-scheduler-performance-summary.md": "sha256:9bfbd9e6da004b67fb79e0c8ef85f067e978eb782432deea944570817a0e1a49",
       "group-flag-disabled-checks-in-progress.md": "sha256:5646b0f05f279dbd44f768532af95e685af23457bccf5851d6c97137d6f075e6",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
-      "install-check-console-router-before-preflight.md": "sha256:ab3cfdf48feb9fa27daa8f6dc8fe178e90c50ceb3c11f483c1ea55f91a94a1c7",
+      "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
+      "install-check-console-router-before-preflight.md": "sha256:42c664c9280a794898fb3d04e1825ecaefb4e18e83d4bd5bee97eb41d8136abf",
       "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
+      "keep-console-router-through-task-local-check-lifecycle.md": "sha256:aa44178ce0b2ece953a710d2abe714c93fa51e3cdcddc10033a27be61dd8b352",
       "keep-decision-policies-closed-and-declarative.md": "sha256:65b1af21ed49134f11aec0cc23ddc5c7466e4728fa3b4d4c9fe1f4f650cc0e66",
       "keep-duplicate-detection-cache-check-owned.md": "sha256:6edbd78f7d5d539a9728120da82e500c2965764edaf165a3ed84d2e15fd9cca9",
       "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
       "keep-first-release-check-set-to-four-without-markdown-structure.md": "sha256:37954fc491b455fff1328c93322235e3f4ac648b24d21f6c7419e12f0d31965f",
       "keep-format-aware-check-capabilities-independent.md": "sha256:46e47f4c85fc1f5bfc575508885e2cf11ce1ee3e8145380ff01bd396e41a8e81",
+      "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:9c07be5fe5ce302d3d9c993ca62b2607520f35c0fd9b736db58b1936c1515168",
       "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:b482960bbdfb3d44e013bb3a5cc87f7c4e64f506e61b1466a83bfb91da484f52",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
@@ -112,17 +119,20 @@
       "make-package-lifecycle-gate-tests-explicit.md": "sha256:b5336353ff7c9dc1481e21d257eafed8ce8c69e3c06ac027b150907ebaba03d6",
       "match-change-detail-to-current-phase.md": "sha256:b853b650afb60ee93ff83acb57bf1d1ad83155e7d46ca9113ac03cd64b874bd7",
       "monitor-project-gate-performance-advisory.md": "sha256:5e6395c44272266e1e51bcd80a2ac35a5a422a97ac1b0c0faacc21526d4adb7b",
+      "observe-post-action-policy-measurement.md": "sha256:6498e88fe3031037298e35613adf36eecf2515a5703b491591bdb548458fa9da",
       "observe-repository-quality-checks-inside-project-gate.md": "sha256:c1b423b6d2e69c1c9ab2c8b23d2006fefc4aa6b44eec4c0ff3e6d339f2185084",
       "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:2968e8285b8a2be1ea9b93afd741477b63542fe9ca0b7332f347076451c515ed",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
-      "prepare-check-options-before-execution.md": "sha256:a756045f598a2d7d84b767c4c2d85053747a7aaea95fb57e815ce22fb7f2bb63",
+      "prepare-check-options-before-execution.md": "sha256:577d823f32c2ab8450d1bd065bbc2d4c093d5b7503323b185741389c03dd3066",
       "present-bounded-safe-finding-summaries.md": "sha256:3539716791dfc6042d91b2d6a9b415b4512f93de32ed76325d0670925a4f5b44",
+      "preserve-primary-run-failures-over-measurement-hook-output.md": "sha256:01dbc2b595e7c0438649b42614ef5c9318f6402f5996dfad89c7df0434f52055",
       "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:c5e3ce738dbf3d078674930a9db739f5f18df2d5770b66f40ae41056aefc426e",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
       "provide-caller-keyed-json-cache-without-run-caching.md": "sha256:a4202b9217e59872a9d2777688722d72bceeaa6dc5b2564b59bbefed0db74a73",
+      "provide-decision-boundary-admission-measurement.md": "sha256:ec0e8bb9d26c6d044cab874d60661f7a068f7225d86b4e4e42bfd7e79db6eae2",
       "provide-generic-bounded-finding-presentation.md": "sha256:bc7f7750493deb6340426e2f8cc9d5d0539c2ac224f83ac5867679be8052ec35",
       "provide-generic-finding-waiver-reconciliation.md": "sha256:8ecdc528c951af31c51674d42c05dc82db9f56844345cecb41307d7906a5cad5",
       "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
@@ -161,18 +171,22 @@
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:20e984e1752a4e6274d1541a36c9ad95576015756b4deee414cb104f43cbbc7a",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
-      "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:cef5887bc74826acf92706b19104624f5a18b297bbf18176e634e22ed3150e0b",
+      "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
+      "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
       "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:5508c2d38239de7ea0f1f280866809b23d811f190256fc286f973bec86cf6206",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:762ac2a9f3f6dd20cf274dd8df975a3e17771ef872a46f7e11ef785403784951",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
+      "separate-admission-policy-from-scheduler-state-machine.md": "sha256:8fb2972519574d3bceac5a1e4c8b2d173a6ce9f9e6cce91577ad4d93dd1f8d27",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
+      "separate-passed-dependencies-from-settled-observations.md": "sha256:2349cdb396874f0568717c181550eb55ad0f08ee6227e2024ad975366b01ddd5",
       "separate-settlement-run-progress-and-machine-owners.md": "sha256:93fa3b097ccdc6553c1e14e956203b9f014b014f6eb5356600e99f28d91eff4b",
       "separate-test-evidence-closure-from-execution.md": "sha256:fcbfebb67b3d35e79380ad0df224707212426763eb31b1991e24f5459f98f35b",
       "serialize-project-gate-documentation-materials-by-ownership.md": "sha256:c94a7deebfa1d65486ca0deecb47fc1577f785687bac574f62dd1da8d1760d73",
       "settle-check-execution-before-availability.md": "sha256:d4950c6d0c15d4a5dfd35a2c6ef7fd7c6528857b2107ed29ce8d7900a6d1895b",
+      "settle-non-passed-dependents-as-unavailable.md": "sha256:ebc1c03d5245cd4dd3ab6b93ab04b1470fc80122e0dc3e305502ced9f6f71c98",
       "share-finding-policy-across-area-quality-checks.md": "sha256:4cb66eeb5f71ed930ecb685a28bb332b53292eb3f004c3c40261406f6128d72b",
       "share-strict-json-document-boundary-between-json-checks.md": "sha256:4360670260b04a13c076a10645128b10f03b8b7692c9e63141da7bc043bddeb5",
       "ship-current-machine-contract-materials-in-the-package.md": "sha256:e556625a1028816a4bc7f19a9a27cdc5df0f0c06804fd1d004c0352cf6eb2636",
@@ -181,12 +195,14 @@
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
-      "support-multi-flag-check-enablement-strategies.md": "sha256:9fc673aecd1d18f81e44248235b414799346d3a539406eecdef95d863eced6d4",
+      "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
+      "treat-flag-control-settlements-as-scheduler-results.md": "sha256:13450bb383c00b1ece655416446f663fc615402b6237e9be40932d708c462324",
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:e2ded43206717fe2d7d5e73061b8693a0319e1cba35d8d58f118371f1365a13f",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-run-output-directories-as-explicit-trusted-targets.md": "sha256:8f01b9f9b6d5d19a93c6efdc9ebb919a063a3ae781da09b8d1880c1e726772bf",
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:d2651f0a630694e8828b67b88c87e57a34e6701cf3ada276e2b16d8ddeeee38a",
+      "unify-default-summary-with-terminal-measurement-hooks.md": "sha256:a0ea65a0722d0bf5b7d69e3c6c47a13df15061173ec6fbbb6c13821194f766b4",
       "use-bun-typescript-project-definition.md": "sha256:a4d6b9cdc62e8981cf6f90db1f7d86b5d93b998e6e25f30ca4ad189273cd058e",
       "use-check-owned-extractors-for-opaque-record-identities.md": "sha256:a9bbb2fd123e914ce0b7f720799e9ad8cdfc1aabc2c3d47354cd32f799b92509",
       "use-check-owned-file-overrides.md": "sha256:ff39a7a4352f42244a87cf202877bea87f16d1bab9910a2aee38b7b4f191b1d1",
@@ -212,7 +228,7 @@
       "use-fixed-semantic-config-version.md": "sha256:a5cc24fdb79c8bc237232eceb20949e92f61c75d2abf0bf297f7356bd7b22d53",
       "use-four-state-check-results-with-final-data.md": "sha256:95da95eeaf00296a6f99d3653b04e4e189b15b5dfb2c55c8fcb9851c804283f7",
       "use-generic-machine-v2-for-content-findings.md": "sha256:536a4765555159389dac22e2dd3452cd9e6537c354ede1e26df3a0fd2189e6cd",
-      "use-inherit-for-check-collection-edits.md": "sha256:455344353f62cd98173cd11bc21e40c1e5dc83e375a2b39ed1418dfce096cc50",
+      "use-inherit-for-check-collection-edits.md": "sha256:45bd43d8f709d52ec79c3368196c369f452128ddcfe3ef8188e160349a348ac7",
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
       "use-location-independent-finding-identities.md": "sha256:37bf8c411e93e953a1a9e46f68e719d4390dcab81ec728ba06e8f4e7e2eb91d7",
       "use-location-independent-record-identities.md": "sha256:132ee8c1dbd5502c33918b584098e8fa2f7af6dfaa05e51cf3e92e69c9d8a78c",
@@ -233,6 +249,7 @@
       "use-single-typescript-project-definition.md": "sha256:fd9e52f75b05e36c1e61fef77743df847c9a963ef6a670a5781c4260e27e12f7",
       "use-standalone-built-in-check-adjustment-functions.md": "sha256:964b791d0372a6b90b7138bd7724346714575daa6fdb02e5f06c125c9f0b590a",
       "use-standard-quality-record-stream.md": "sha256:d193d3ced5f5b523f81c48d9ae03c48a11dfbe74d114b37cdc6b702cd82fee4a",
+      "use-stateless-admission-policies-with-hard-scheduler-guards.md": "sha256:da53a04d3385755beb5bed48f501e4d9966bbf6e429d33e8f602c6913423163f",
       "use-static-check-task-plans-with-shared-scheduling.md": "sha256:f1c2e855642425f1eb965569659bd3d9469c88d2edde7176d0a33e6d07b8984c",
       "use-string-flags-for-project-run-controls.md": "sha256:78c9ad0ddf124571cd1041031ba2572a49336690f067933f1e7f0d351cb91146",
       "use-tags-for-decision-classification.md": "sha256:75a685e791a7d86804d227da9d8fd291870fa1ae60cd778cb45f78cfb2b34b44",
@@ -291,6 +308,35 @@
             "target": "replace-global-tool-effects-with-run-outputs.md"
           }
         ]
+      }
+    },
+    "add-invocation-local-scheduler-performance-summary.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/add-invocation-local-scheduler-performance-summary.md",
+        "title": "将 Scheduler 性能汇总限定为 invocation-local 人读诊断",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T16:13:40Z",
+        "purpose": "让一次 Scheduler 运行提供安全、可解释的性能汇总，而不扩大公共或自动化契约。",
+        "background": "人读诊断、Check 时长、优先级与 custom policy 已各有独立边界，新的汇总必须只补充 Scheduler 自有观察。",
+        "decision": "以 Scheduler shell 安全采样并输出一次人读 summary，保持计时失败与调度、公共结果和自动调优隔离。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "adopt-low-level-markdown-link-parser-architecture.md": {
@@ -706,16 +752,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "cancel-task-admission-and-drain-started-work.md",
+        "sourcePath": "archive/cancel-task-admission-and-drain-started-work.md",
         "title": "取消 Task admission 并收尾已启动工作",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-15T10:28:59Z",
         "purpose": "让一次 invocation 的取消在唯一 Task engine 停止新 admission，同时按普通 Task 语义收尾已启动工作并闭合 Check facts。",
@@ -1226,16 +1272,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "consolidate-project-gate-run-evidence.md",
+        "sourcePath": "archive/consolidate-project-gate-run-evidence.md",
         "title": "将 Gate Run 证据收敛为单次高信噪 invocation",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-29T10:03:43Z",
         "purpose": "让一次 Project Gate invocation 只保留影响其结论的执行证据，并使关联 Run diagnostic 可在测试 owner 内独立复核。",
@@ -1807,16 +1853,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "enumerate-normalized-direct-dependency-outcomes.md",
+        "sourcePath": "archive/enumerate-normalized-direct-dependency-outcomes.md",
         "title": "枚举已规范化的直接 dependency outcomes",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-31T15:38:59Z",
         "purpose": "让 downstream Check 能稳定批量读取全部已声明直接上游终态，而不依赖调度历史。",
@@ -2206,6 +2252,40 @@
         ]
       }
     },
+    "expose-invocation-local-scheduler-measurement-hooks.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/expose-invocation-local-scheduler-measurement-hooks.md",
+        "title": "将 Scheduler 性能测量交给 invocation-local Hook",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T01:22:44Z",
+        "purpose": "让调用方在不复制 Scheduler 生命周期的前提下消费安全的终态性能事实。",
+        "background": "现有 Scheduler summary 是启用日志时的私有人读投影，不能支持调用方的二级测量。",
+        "decision": "Scheduler 保留一阶测量并在 terminal drain 后交给有序 Hook，内置 summary 作为其中一个副作用。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "extend-invocation-local-scheduler-performance-summary.md"
+          }
+        ]
+      }
+    },
     "expose-markdown-link-finding-policy.md": {
       "keys": {
         "tag": [
@@ -2363,6 +2443,35 @@
         ]
       }
     },
+    "expose-stateless-custom-admission-policy-to-callers.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/expose-stateless-custom-admission-policy-to-callers.md",
+        "title": "向调用方公开无状态 custom admission policy",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T14:55:23Z",
+        "purpose": "让调用方以最小 trusted synchronous callback 表达无状态准入偏好，同时不取得 Scheduler 的状态机、执行或硬合法性所有权。",
+        "background": "完整 Graph 与无状态 select/wait 已是 private policy 边界；公开契约必须投影所需事实并明确 trusted callback 的故障收束。",
+        "decision": "采用 closed static/custom、冻结 context 与 select/wait；非法 policy 以 fatal fault 收束。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
     "expose-two-public-operations.md": {
       "keys": {
         "tag": [
@@ -2388,6 +2497,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "extend-invocation-local-scheduler-performance-summary.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/extend-invocation-local-scheduler-performance-summary.md",
+        "title": "扩展 invocation-local Scheduler 压力与尾段诊断",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T00:07:04Z",
+        "purpose": "让 Scheduler 人读汇总解释可准入队列压力与完成尾段，并以现有声明指纹支持同配置比较。",
+        "background": "现有汇总能显示总体延迟与尾段，却不能区分硬阻塞、可准入等待或识别尾段参与 Task。",
+        "decision": "在既有私有汇总内增加互斥压力积分、延迟分解、有界尾段参与项及 invocation 声明指纹。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "add-invocation-local-scheduler-performance-summary.md"
+          }
+        ]
       }
     },
     "group-flag-disabled-checks-in-progress.md": {
@@ -2478,10 +2621,10 @@
         "relations": []
       }
     },
-    "install-check-console-router-before-preflight.md": {
+    "inherit-depends-on-and-observes-independently.md": {
       "keys": {
         "tag": [
-          "product-contract"
+          "configuration"
         ],
         "status": [
           "active"
@@ -2491,9 +2634,41 @@
         ]
       },
       "state": {
-        "sourcePath": "install-check-console-router-before-preflight.md",
-        "title": "在 Check preflight 前一次安装 console router",
+        "sourcePath": "inherit-depends-on-and-observes-independently.md",
+        "title": "分别继承 dependsOn 与 observes relation",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:20Z",
+        "purpose": "让两种有向 Check relation 以同一闭合语法独立继承，而不混淆各自调度含义。",
+        "background": "dependsOn 已有 inherit collection grammar，新增 observes 必须继承同等编辑能力且保持 relation 边界。",
+        "decision": "dependsOn、observes 与 mutex 都使用唯一 inherit grammar；两个有向 relation 分别 canonicalize 并在 effective 层拒绝重叠。",
+        "tags": [
+          "configuration"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-inherit-for-check-collection-edits.md"
+          }
+        ]
+      }
+    },
+    "install-check-console-router-before-preflight.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/install-check-console-router-before-preflight.md",
+        "title": "在 Check preflight 前一次安装 console router",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-31T09:53:01Z",
         "purpose": "让一轮 resolved Check execution 在任何 author work 前建立唯一 console 路由，同时保持每项 Check 的异步归属隔离。",
@@ -2635,6 +2810,38 @@
           {
             "type": "替代",
             "target": "require-explicit-named-comparison-references.md"
+          }
+        ]
+      }
+    },
+    "keep-console-router-through-task-local-check-lifecycle.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-console-router-through-task-local-check-lifecycle.md",
+        "title": "在 task-local Check 生命周期中保持 console router",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:21Z",
+        "purpose": "让一次 Run 的 console capture 覆盖 task-local preflight 与 execution，而不依赖全局 preflight barrier。",
+        "background": "preflight 已移入各 Check Task；router 仍须在任何 author work 前建立并在全部 Check 闭合后恢复。",
+        "decision": "静态图校验后安装一次 router，覆盖每个获准入 Check 的 preflight/execution，直至 resolved Checks 全部结算。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "install-check-console-router-before-preflight.md"
           }
         ]
       }
@@ -2803,6 +3010,42 @@
           {
             "type": "重划",
             "target": "expand-format-aware-built-in-checks.md"
+          }
+        ]
+      }
+    },
+    "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md",
+        "title": "以无状态 Scheduler context 保持完整 Gate Run 证据",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T14:54:27Z",
+        "purpose": "让单次高信噪 Gate invocation 保留可独立复核的完整 Scheduler decision evidence，而不记录已删除的 reservation 状态。",
+        "background": "reservation 已从 Scheduler Core 移除；诊断必须解释本轮无状态 select 或 wait 及其 hard-guard facts，而不能保留退休字段。",
+        "decision": "保留单核心诊断边界，修订 Scheduler evidence 为无状态 hard-guard context。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "consolidate-project-gate-run-evidence.md"
           }
         ]
       }
@@ -3618,6 +3861,40 @@
         "relations": []
       }
     },
+    "observe-post-action-policy-measurement.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "observe-post-action-policy-measurement.md",
+        "title": "以 policy action 后状态观察修订准入 measurement",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T02:56:32Z",
+        "purpose": "让下一次 custom admission policy 读取上一 accepted action 之后完整且无因果主张的 Scheduler 一阶观察。",
+        "background": "归档前序 Decision 的单条 transition snapshot 归属 prior-state interval，无法表达 action 后状态。",
+        "decision": "采用 detached cumulative 与 captured-prefix reader，冻结 action observation 从 action post-state append。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "provide-decision-boundary-admission-measurement.md"
+          }
+        ]
+      }
+    },
     "observe-repository-quality-checks-inside-project-gate.md": {
       "keys": {
         "tag": [
@@ -3815,16 +4092,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "prepare-check-options-before-execution.md",
+        "sourcePath": "archive/prepare-check-options-before-execution.md",
         "title": "在执行前准备普通 Check options",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-26T05:00:24Z",
         "purpose": "让普通 Check 可选地在 invocation 内准备 options，并在任何 execution 前以统一 barrier 结算准备失败。",
@@ -3867,6 +4144,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "preserve-primary-run-failures-over-measurement-hook-output.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "preserve-primary-run-failures-over-measurement-hook-output.md",
+        "title": "保留主 Run failure 高于 measurement Hook output",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T01:50:13Z",
+        "purpose": "让 measurement Hook 副作用可见而不掩盖已形成的主 Run failure。",
+        "background": "Hook failure 已有 output status，但 cancellation 和 admission-policy failure 需要保留其主语义。",
+        "decision": "只让正常完成升级为 Hook output failure，主 execution failure 保持原 result。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "expose-invocation-local-scheduler-measurement-hooks.md"
+          }
+        ]
       }
     },
     "preserve-release-gate-readiness-with-invocation-creation-time.md": {
@@ -3965,6 +4276,40 @@
           {
             "type": "修订",
             "target": "keep-duplicate-detection-cache-check-owned.md"
+          }
+        ]
+      }
+    },
+    "provide-decision-boundary-admission-measurement.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/provide-decision-boundary-admission-measurement.md",
+        "title": "在 custom admission policy 前提供决策边界 measurement",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T02:34:22Z",
+        "purpose": "让无状态 custom policy 在每次调用前读取安全、冻结且已 flush 的 Scheduler 一阶事实。",
+        "background": "终态 measurement Hook 不提供 policy 决策时点的 occupancy 或上一已提交 lifecycle transition。",
+        "decision": "custom policy 获得有界 cumulative measurement 与最新 committed transition，Scheduler 仍独占采样和状态机。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "expose-stateless-custom-admission-policy-to-callers.md"
           }
         ]
       }
@@ -5167,16 +5512,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "retain-running-parallel-limits-and-order-ready-admission-by-priority.md",
+        "sourcePath": "archive/retain-running-parallel-limits-and-order-ready-admission-by-priority.md",
         "title": "保留运行期并行上限并按优先级选择 ready Task",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T04:56:52Z",
         "purpose": "在每个 Check Task 的运行期容量上限不变时，让作者能以静态优先级安排同一既有准入层级中的 ready Task。",
@@ -5225,6 +5570,40 @@
           {
             "type": "修订",
             "target": "provide-prepared-package-candidate-as-typed-check-data.md"
+          }
+        ]
+      }
+    },
+    "run-check-preflight-with-task-admission.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "run-check-preflight-with-task-admission.md",
+        "title": "在 Check Task 准入后执行 preflight",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:19Z",
+        "purpose": "让 preflight 与 execution 同受每个 Check 的调度、依赖和取消生命周期约束。",
+        "background": "全局 preflight barrier 会在 dependency readiness 前启动 dependent author work，并隐含 Definition 顺序。",
+        "decision": "每个 Check 在自身获准入后顺序执行 preflight 和 execution，不再建立全局 preflight barrier。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "prepare-check-options-before-execution.md"
           }
         ]
       }
@@ -5393,6 +5772,35 @@
         ]
       }
     },
+    "separate-admission-policy-from-scheduler-state-machine.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/separate-admission-policy-from-scheduler-state-machine.md",
+        "title": "将准入选择策略与 Scheduler 状态机分离",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T13:03:39Z",
+        "purpose": "让 Scheduler 在不放弃硬合法性和状态机责任的前提下，把候选选择交给可利用完整 Task graph 的私有纯策略。",
+        "background": "静态与学习型选择都需要动态事实及后继；图外 priority 或拓扑输入会形成双重事实来源。",
+        "decision": "私有 policy 以完整图和 inspection 选择或等待；priority 内置 Task，Scheduler guard 合法性并拥有状态机。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
     "separate-check-and-record-type-identities.md": {
       "keys": {
         "tag": [
@@ -5421,6 +5829,40 @@
           {
             "type": "替代",
             "target": "use-semantic-check-ids-in-quality-records.md"
+          }
+        ]
+      }
+    },
+    "separate-passed-dependencies-from-settled-observations.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "separate-passed-dependencies-from-settled-observations.md",
+        "title": "分离成功前置与已结算终态观测",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:18Z",
+        "purpose": "让默认依赖阻止未满足前置的作者工作，同时保留显式终态审计读取。",
+        "background": "当前 dependsOn 同时承担 settled wait 与 read authorization，导致非成功上游后仍会启动 dependent。",
+        "decision": "dependsOn 只表示 all-passed prerequisite；observes 单独等待所有终态，并与 dependsOn 共同构成直接读取授权。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "enumerate-normalized-direct-dependency-outcomes.md"
           }
         ]
       }
@@ -5554,6 +5996,38 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "settle-non-passed-dependents-as-unavailable.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "settle-non-passed-dependents-as-unavailable.md",
+        "title": "将未通过前置的 dependent 结算为 unavailable",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T10:43:22Z",
+        "purpose": "让未满足成功前置的 Check 不执行作者工作，并形成完整、可追溯的 Product outcome。",
+        "background": "现有 blocked 只传播 executor failure，Product finalizer 将 blocked Check 视为 invariant failure。",
+        "decision": "未满足 dependsOn 时，Product 将 private blocked 单次映射为 dependency-not-passed unavailable。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "cancel-task-admission-and-drain-started-work.md"
+          }
+        ]
       }
     },
     "share-finding-policy-across-area-quality-checks.md": {
@@ -5815,16 +6289,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "support-multi-flag-check-enablement-strategies.md",
+        "sourcePath": "archive/support-multi-flag-check-enablement-strategies.md",
         "title": "支持多 flag Check 启用策略",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T14:32:05Z",
         "purpose": "让 Check 用一个闭合声明表达全部、任一、全无或非全部 flag 条件。",
@@ -5838,6 +6312,42 @@
           {
             "type": "修订",
             "target": "use-string-flags-for-project-run-controls.md"
+          }
+        ]
+      }
+    },
+    "treat-flag-control-settlements-as-scheduler-results.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "dependency-policy",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "treat-flag-control-settlements-as-scheduler-results.md",
+        "title": "将 flag control 终态作为 Scheduler 初始结果",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T03:33:46Z",
+        "purpose": "保留统一 flag 判定的同时，让未启用 Check 遵守 passed prerequisite 与 terminal observation 语义。",
+        "background": "多 flag 决策形成时所有已结算上游都会放行 dependent；dependsOn 后来收敛为必须 passed，旧的放行结论已与当前图契约冲突。",
+        "decision": "flag 条件未匹配继续在 author work 前结算，并作为同一张 Scheduler 图的初始非通过结果阻断 dependsOn、放行 observes。",
+        "tags": [
+          "configuration",
+          "dependency-policy",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "support-multi-flag-check-enablement-strategies.md"
           }
         ]
       }
@@ -5988,6 +6498,40 @@
           "workflow-policy"
         ],
         "relations": []
+      }
+    },
+    "unify-default-summary-with-terminal-measurement-hooks.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "unify-default-summary-with-terminal-measurement-hooks.md",
+        "title": "将默认 Scheduler summary 统一为 terminal measurement Hook",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T02:34:23Z",
+        "purpose": "让内置 summary 与 caller measurement Hook 共享一条有序 terminal delivery 边界。",
+        "background": "现有 Scheduler 专门调用 summary，造成默认副作用与 caller Hook runner 的顺序和失败策略分离。",
+        "decision": "diagnostic-enabled summary 作为内部默认 Hook 加入统一 runner，并由自身包含 writer failure。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "expose-invocation-local-scheduler-measurement-hooks.md"
+          }
+        ]
       }
     },
     "use-bun-typescript-project-definition.md": {
@@ -6753,16 +7297,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-inherit-for-check-collection-edits.md",
+        "sourcePath": "archive/use-inherit-for-check-collection-edits.md",
         "title": "使用 inherit 编辑可继承 Check 集合",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-17T14:42:02Z",
         "purpose": "让 Check 的集合型调度字段通过固定的 inherit 表达式继承并编辑 parent effective collection。",
@@ -7363,6 +7907,46 @@
           {
             "type": "替代",
             "target": "use-generic-machine-v2-for-content-findings.md"
+          }
+        ]
+      }
+    },
+    "use-stateless-admission-policies-with-hard-scheduler-guards.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-stateless-admission-policies-with-hard-scheduler-guards.md",
+        "title": "使用无状态准入策略与 Scheduler 硬 guard",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T14:51:15Z",
+        "purpose": "让准入偏好以每轮重算的纯算法表达，同时由唯一 Scheduler 守住执行状态机与下一选项的硬合法性。",
+        "background": "reservation 把防饥饿记忆植入 Core，既与纯策略边界冲突，也与完整静态图上的有限进展模型重复。",
+        "decision": "归并既有策略分离和优先级/并行上限方向，删除 Core reservation，采用无状态 select/wait policy 与硬 Scheduler guard。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "separate-admission-policy-from-scheduler-state-machine.md"
+          },
+          {
+            "type": "归并",
+            "target": "retain-running-parallel-limits-and-order-ready-admission-by-priority.md"
           }
         ]
       }

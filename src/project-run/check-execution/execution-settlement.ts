@@ -84,7 +84,7 @@ export function recordSettledCheck(
     readonly durationMs: number | null;
     readonly messages: readonly CheckMessage[];
     readonly outcome: CheckOutcome;
-    readonly phase: "control" | "execution" | "preflight";
+    readonly phase: "control" | "dependency" | "execution" | "preflight";
     readonly state: CheckExecutionSettlementState;
   }>
 ): void {

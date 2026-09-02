@@ -99,6 +99,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "custom-admission-policy",
+    regionId: "custom-admission-policy",
+    sourcePath: "docs/examples/package-api/custom-admission-policy.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "readme",
+        headingPath: Object.freeze(["自定义 Check API", "自定义准入 policy"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "从完整静态图提出 custom admission"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "maintenance-reminders",
     regionId: "maintenance-reminders",
     sourcePath: "docs/examples/package-api/maintenance-reminders.ts",

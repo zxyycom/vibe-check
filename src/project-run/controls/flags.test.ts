@@ -65,7 +65,7 @@ async function assertFlagEnablementMode(
   const disabled = requireCompletedRun(await run(source, { flags: input.nonmatchingFlags }));
   assert.equal(preflightCalls, 1);
   assert.equal(controlledCalls, 1);
-  assert.equal(dependentCalls, 2);
+  assert.equal(dependentCalls, 1);
   assert.deepEqual(observedFlags, [Object.freeze([...new Set(input.matchingFlags)].sort())]);
   assert.deepEqual(
     enabled.snapshot.checks.find(({ checkId }) => checkId === "flag-controlled")?.outcome,
@@ -81,6 +81,13 @@ async function assertFlagEnablementMode(
   assert.deepEqual(
     disabled.checkDurations.find(({ checkId }) => checkId === "flag-controlled"),
     { checkId: "flag-controlled", durationMs: null }
+  );
+  assert.deepEqual(
+    disabled.snapshot.checks.find(({ checkId }) => checkId === "dependent")?.outcome,
+    {
+      status: "unavailable",
+      reason: { code: "dependency-not-passed", checkIds: ["flag-controlled"] }
+    }
   );
 }
 

@@ -48,11 +48,32 @@ describe("static task engine", () => {
       /task dependent depends on unknown task missing/
     );
     assert.throws(
+      () => validateTaskGraph({ tasks: [{ id: "observer", observes: ["missing"] }] }),
+      /task observer observes unknown task missing/
+    );
+    assert.throws(
+      () =>
+        validateTaskGraph({
+          tasks: [{ id: "source" }, { id: "overlap", dependsOn: ["source"], observes: ["source"] }]
+        }),
+      /cannot both depend on and observe task source/
+    );
+    assert.throws(
       () =>
         validateTaskGraph({
           tasks: [
             { id: "one", dependsOn: ["two"] },
             { id: "two", dependsOn: ["one"] }
+          ]
+        }),
+      /task dependency cycle includes/
+    );
+    assert.throws(
+      () =>
+        validateTaskGraph({
+          tasks: [
+            { id: "depends", dependsOn: ["observes"] },
+            { id: "observes", observes: ["depends"] }
           ]
         }),
       /task dependency cycle includes/
@@ -88,7 +109,27 @@ describe("static task engine", () => {
             }
           ]
         }),
-      /terminal task must depend on scoped task work/
+      /terminal task must relate to scoped task work/
+    );
+    assert.doesNotThrow(() =>
+      validateTaskGraph({
+        tasks: [
+          { id: "observed-work", scopeId: "observed-scope" },
+          {
+            id: "observed-terminal",
+            observes: ["observed-work"],
+            scopeId: "observed-scope"
+          }
+        ],
+        scopes: [
+          {
+            id: "observed-scope",
+            maxParallel: 1,
+            activationTaskIds: ["observed-work"],
+            terminalTaskId: "observed-terminal"
+          }
+        ]
+      })
     );
     await assert.rejects(
       () =>
