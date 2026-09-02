@@ -302,6 +302,73 @@ if (executionOrder.join(",") !== "compile,publish") {
 }
 ```
 
+### learned-critical-path 准入 policy
+
+当同一项目会反复运行，并希望在**不改变**依赖、mutex、parallel budget 或 cancellation 规则的前提下，按本地历史时长
+优先推进较长的后继路径时，设置 `scheduler.admissionPolicy` 为 `learned-critical-path`。`stateDirectory` 是 caller-owned
+local state：非空、不得含 U+0000；relative path 从每次 `run` 的 effective `projectRoot` 解析，absolute path 直接使用。
+它不是 sandbox、remote/cache service、锁、自动清理或 secret storage；请由项目自己选择可写、可删除且不含敏感路径成分的目录。
+
+首次 Run 没有 history 仍可正常完成；v1 以 cold weight `1` 开始。后续 Run 使用 state directory 中按 model version、Check ID、
+canonical authored options 与 effective flags 分桶的 digest-only local samples，当前实现优先同 identity 的 32-sample arithmetic mean、再用本次 Run 的 median prior，并最多保留
+4096 个最近更新的 identity。窗口也计算 nearest-rank `p90` 以公开当前模型；它不替代 mean 进入 score。以上窗口、统计、file
+envelope 和 heuristic 是当前优化实现说明，而非 storage/model compatibility commitment。`expectedDurationMs` 不是 v1 authoring
+field。missing、malformed、incompatible 或 read-failed state 形成 learned cold/project-prior model；无法构造 canonical
+prediction input，或 local setup、prediction 或 score table 时，该 invocation 回退 static selection；Scheduler 闭合后的 record/write
+failure 只丢失未来样本。它们只在启用时记录有界
+diagnostic，不改变本次质量结算，也不会向 Check facts、machine output 或 `RunResult` 增加 history 数据。完整状态流和算法边界见
+[深入 API 机制](./docs/api-mechanics.md#learned-critical-path-准入)。
+
+```ts
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+
+const executionOrder: string[] = [];
+
+function delayedCheck(checkId: string, delayMs: number) {
+  return defineCheck({
+    checkId,
+    displayName: checkId,
+    async execution() {
+      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
+      executionOrder.push(checkId);
+      return { status: "passed" as const, data: {} };
+    }
+  });
+}
+
+// 以明显高于常见本地计时抖动的时长差演示 learned 排序。
+const fast = delayedCheck("fast", 0);
+const slow = delayedCheck("slow", 250);
+const definition = defineConfig({
+  checks: [fast, slow],
+  outputs: {
+    diagnosticLogging: { enabled: false },
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
+  },
+  scheduler: {
+    admissionPolicy: {
+      kind: "learned-critical-path",
+      // 调用方拥有的本地目录相对 effective projectRoot 解析。
+      stateDirectory: ".vibe-check/scheduler-history"
+    },
+    maxParallel: 1
+  }
+});
+
+const first = await run(definition);
+const second = await run(definition);
+if (first.kind !== "completed" || second.kind !== "completed") {
+  throw new Error("Expected both learned-scheduling Runs to complete");
+}
+if (executionOrder.join(",") !== "fast,slow,slow,fast") {
+  throw new Error(`Unexpected learned scheduling order: ${executionOrder.join(",")}`);
+}
+```
+
+learned policy 先在同一 existing Scheduler selection layer 内比较 critical-path score；仅 score 相同时才使用已有
+`admissionPriority`，最后按 Task ID，不能越过任何 Scheduler hard guard。详见[深入 API 机制](./docs/api-mechanics.md#learned-critical-path-准入)。
+
 ### 运行并读取结果
 
 `run(definition, controls?)` 执行一次独立 invocation。常用 controls 包括 `projectRoot`、`flags`、`signal` 和仅对本次运行生效的 `outputs` overrides。

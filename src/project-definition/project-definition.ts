@@ -119,7 +119,7 @@ export interface NormalizedProjectDefinition {
   readonly checks: readonly NormalizedCheck[];
   readonly declarative: DeclarativeProjectSnapshot;
   readonly definitionWarnings: readonly DefinitionWarning[];
-  /** Runtime scheduler policy；custom callback 保留在此处，不进入 declarative snapshot。 */
+  /** Runtime scheduler policy；custom callback 与 learned local state 保留在此处。 */
   readonly scheduler: SchedulerPolicy;
 }
 const STATIC_ADMISSION_POLICY: AdmissionPolicy = Object.freeze({
@@ -130,13 +130,16 @@ type ExactAdmissionPolicy<T extends AdmissionPolicy> =
     ? T & Record<Exclude<keyof T, "kind">, never>
     : T extends Readonly<{ readonly kind: "custom" }>
       ? T & Record<Exclude<keyof T, "kind" | "proposeAdmission">, never>
-      : never;
+      : T extends Readonly<{ readonly kind: "learned-critical-path" }>
+        ? T & Record<Exclude<keyof T, "kind" | "stateDirectory">, never>
+        : never;
 
 /**
- * 为 custom admission policy 保留 callback/context 的 TypeScript inference，不创建额外运行语义。
+ * 保留 closed admission policy literal 的 TypeScript inference，不创建额外运行语义。
  *
- * @remarks inline `{ kind: "custom", proposeAdmission }` 与此 helper 的结果完全等价；callback 会在
- * Run 中以调用方 closure 同步调用，重叠 Run 的可重入性由调用方负责。
+ * @remarks inline policy 与此 helper 的结果完全等价。custom callback 会在 Run 中以调用方 closure
+ * 同步调用，重叠 Run 的可重入性由调用方负责；learned-critical-path 的 stateDirectory 在稍后的 Run
+ * 中从 effective projectRoot 解析。
  */
 export function defineAdmissionPolicy<const T extends AdmissionPolicy>(
   policy: ExactAdmissionPolicy<T>
@@ -225,21 +228,32 @@ function freezeDeclarativeSnapshot(
     checks: declarations,
     outputs: definition.outputs,
     scheduler: Object.freeze({
-      admissionPolicy: Object.freeze({
-        kind: definition.scheduler.admissionPolicy.kind
-      }),
+      admissionPolicy:
+        definition.scheduler.admissionPolicy.kind === "learned-critical-path"
+          ? Object.freeze({
+              kind: "learned-critical-path" as const,
+              stateDirectory: definition.scheduler.admissionPolicy.stateDirectory
+            })
+          : Object.freeze({ kind: definition.scheduler.admissionPolicy.kind }),
       maxParallel: definition.scheduler.maxParallel
     })
   });
 }
 function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
-  const admissionPolicy =
-    policy.admissionPolicy.kind === "static"
-      ? STATIC_ADMISSION_POLICY
-      : Object.freeze({
-          kind: "custom" as const,
-          proposeAdmission: policy.admissionPolicy.proposeAdmission
-        });
+  let admissionPolicy: AdmissionPolicy;
+  if (policy.admissionPolicy.kind === "static") {
+    admissionPolicy = STATIC_ADMISSION_POLICY;
+  } else if (policy.admissionPolicy.kind === "custom") {
+    admissionPolicy = Object.freeze({
+      kind: "custom" as const,
+      proposeAdmission: policy.admissionPolicy.proposeAdmission
+    });
+  } else {
+    admissionPolicy = Object.freeze({
+      kind: "learned-critical-path" as const,
+      stateDirectory: policy.admissionPolicy.stateDirectory
+    });
+  }
   return Object.freeze({
     admissionPolicy,
     maxParallel: policy.maxParallel,

@@ -13,6 +13,7 @@
       │ run: validate Definition + RunControls, then normalize the Check tree
       ▼
     declarative snapshot + fingerprint + complete static graph validation
+      │ learned policy only: local history load + frozen prediction/critical-path score
       │ invocation control barrier: cancellation + normalized flag conditions
       ▼
     initial control settlements + complete static Task graph
@@ -24,6 +25,7 @@
     author execution + terminal settlement
       ▼
     snapshot + messages + durations
+      │ learned policy only: post-closure local history record/write
       │ optional aggregation + enabled output completion
       ▼
     RunResult
@@ -34,10 +36,10 @@ Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，
 
 - `defineCheck(value)` 保留 literal `checkId`、options 和 typed-provider parser 的 TypeScript inference。它与同 shape 普通 Check object 具有相同 runtime 语义。
 - `defineConfig(value)` 形成带默认 `apiVersion`、outputs 和 scheduler policy 的 Project Definition。
-- `defineAdmissionPolicy(value)` 只保留 custom admission callback 的 inference；它与同形 inline policy value 等价。
+- `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom callback 的 inference；它与同形 inline policy value 等价。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
 
-fingerprint 使用 normalized declarative fields；preflight、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 只区分 `static` 或 `custom` kind，绝不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
+fingerprint 使用 normalized declarative fields；preflight、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static`、`custom` 与 `learned-critical-path`；后者包含 `stateDirectory`，custom 仍绝不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
 
 ### custom admission policy
 
@@ -69,6 +71,36 @@ admission-policy fault：Product 停止新 admission、取消 pending Tasks、dr
 `{ kind: "execution", diagnostic: { code: "admission-policy-failed" } }`；它不 fallback 到 static policy。启用 diagnostic logging
 时只记录有界 fault category 与 Scheduler hard-guard facts，不输出 raw thrown value、proposal、stack 或 caller data，也不建立 policy
 console capture、`checkMessages` ownership、timing telemetry、parser/schema 或稳定 event grammar。
+
+### learned-critical-path 准入
+
+`scheduler.admissionPolicy: { kind: "learned-critical-path", stateDirectory }` 是无 callback 的 opt-in local optimization。
+`stateDirectory` 必须是非空、无 U+0000 string；relative text 从 effective `projectRoot` 解析，absolute text 直接作为
+caller target。它是 Definition declarative identity，因此同目录的 State policy 与其它目录不能共享 fingerprint；它不是
+RunControls、output、remote store、sandbox、锁、清理或 secret-management capability。v1 不接受 `expectedDurationMs` 或其它
+Check-level duration grammar。
+
+在 author preflight/execution 前，Product 从该目录尝试读取一个 closed history envelope；不存在、malformed、版本不兼容或
+read failure 都只得到空 history，仍按 learned policy 的 cold/project prior 继续。每个 executable Task 的 identity 是 model version、Check ID、canonical authored options
+和 normalized effective flags 的 digest，state 只保存 digest 而不保存原 values。当前 implementation 对同 identity 使用最多
+32 个 admitted-to-settled duration samples 的 arithmetic mean 作为 `estimatedDurationMs`；同一有序窗口的 nearest-rank `p90`
+与 sample count 是当前内部 prediction statistics，但不参与 score。没有该 identity 时使用本次 Run 已知 estimates 的 median，若仍没有 prior 则
+用 cold `1`。它最多保留最近更新的 4096 identities。该 envelope、上限、statistics 和 heuristic 是当前实现描述，非跨版本
+storage/model compatibility promise，也不承诺跨版本、环境或 Run 得到相同顺序或性能结果。
+
+Product 用 frozen estimates 在完整 static graph 的 `dependsOn` 与 `observes` directed edges 上计算 score；pure Scheduler
+仍按现有 tightening、constrained-continuation 和 ordinary candidate layers运行，只在同一 layer 内按 score 降序选择。只有
+score 相同时才比较 existing effective `admissionPriority`，再按 canonical Task ID；relation、mutex、capacity、cancellation、
+Task start、settlement 和 drain hard guard 完全不变。history、estimate 和 score 不进入 custom callback context、Check
+context、Check/Record facts、machine output、progress 或 public `RunResult`。
+
+在 Scheduler 已停止 admission 并完成 started work drain 后，Product 才从 private terminal occupancy measurement 记录可用
+duration sample，随后以 same-directory temporary file / atomic replacement 尝试写回。unavailable timing 不产生 sample。failure 的
+分流按阶段固定：上述 history read 的空/无效结果仍形成 learned cold/project-prior prediction；无法形成 canonical prediction input，
+或 local setup、prediction 或 score-table construction 失败时，该 invocation 的 selection 回退为 static；Scheduler drain 后的
+record/write failure 只会丢失未来 Run 可用的优化样本。三类情况都只在启用 diagnostic logging 时形成有界 human diagnostic，不会改变
+invocation 的 quality result、`RunResult.kind`、output schema 或 machine bytes。本能力没有 parser、schema、event-stream、
+retention/discovery API 或 auto-tuning contract。
 
 ## options preflight 与 execution
 
@@ -331,6 +363,7 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 - 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
 - 启用的 diagnostic logging 在 preflight 前以该 instant 命名 UTC-compact log path，并按事实形成顺序记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 时间线。每个事件以序号、单调 elapsed、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。标签只突出 Run、Check、phase、Scheduler decision 和 outcome 等高频阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
 - Scheduler evidence 记录本轮 `select`/`wait` 与 hard-guard facts，不记录 policy wait reason、reservation/sticky target、公平/饥饿 state 或 policy timing telemetry。admission-policy fault 只记录有界 category，不能泄漏 callback 原值、stack 或 caller data。
+- learned-critical-path 在启用 diagnostic logging 时另记录有界的 local history read、prediction availability、selected admission、record/write observation；它不记录 raw authored options、effective flags、identity input、sample 或 local-state bytes。state I/O/prediction failure 仍只是 optimization observation，不改写 `RunResult`、Check facts、machine publication 或 output status。
 - effective diagnostic logging enabled 时，private Scheduler shell 在实际进入后于 normal、caller-cancelled 或 admission-policy-fault drain 的 terminal path，将有界 `scheduler.summary` internal default Hook 与 caller Hooks 交给同一 ordered runner。summary wrapper 自行包含 writer failure，Scheduler 不作 summary 特调。它分开记录 shell control path、decision observation、slot·ms/capacity ratio、accepted policy wait、admission queue pressure、admission delay 与 tail；clock/integral fault 明确形成 unavailable timing 而不伪造零值，合法 zero span 与之不同。各 projection 允许重叠，不能相加为 wall/CPU/thread/OS utilization；`proposal: null` 的被动 drain 不计 accepted wait。pre-work/planning failure 没有这条 summary，writer failure 也不改写 Run 结果。
 - broader graph-ready 只要求全部 directed relations settled；Queue pressure 使用更窄的 admission-viable pending universe：每个 `dependsOn` 必须 `completed`，每个 `observes` 必须 settled，且 Task 仍 pending。即将因 failed prerequisite 走 `settle-blocked` 的 graph-ready Task 不在其中。每个 sampled interval 按 mutex conflict → canonical `canAdmit` false → canonical `canAdmit` true 的顺序互斥分类为 mutex-blocked、capacity-blocked 或 admissible-pending，分别形成 `mutexBlockedTaskMs`、`capacityBlockedTaskMs`、`admissiblePendingTaskMs`；三者之和是 `admissionViablePendingTaskMs`。`peakAdmissionViablePendingTaskCount`、`peakMutexBlockedTaskCount`、`peakCapacityBlockedTaskCount` 与 `peakAdmissiblePendingTaskCount` 是可能来自不同 boundary 的离散峰值，分类峰值不能相加为同一时刻的 total，也不是 decision 计数。top-three `topAdmissionDelays` 中每项的 `mutexBlockedMs + capacityBlockedMs + admissiblePendingMs` 精确构成该项 `admissionDelayMs`；这些事实不推断 policy 的选择理由。
 - Tail active set 是最后一次 admission boundary 的逻辑 post-state snapshot，包含此前仍 running 的 Tasks 与新 admitted Task；`discrete.completionTailActiveTaskCount` 保留完整数量，`topCompletionTailContributors` 只保留其中 settlement delta 最大的三个 `{ taskId, settledAfterLastAdmissionMs }`。它解释 last-admission-to-terminal span 的活跃成员，不是 critical path；terminal control/observation 可能使 tail span 大于最大的 contributor delta。`declarativeFingerprint` 原样来自 invocation，只是 declarative-configuration matching signal；它覆盖 normalized declarative Definition，但不包含 `RunControls`、code/candidate/tool/runtime/host、terminal outcome 或 custom callback identity/source/closure。timing unavailable 仍精确保留 fingerprint、admitted count、accepted-wait count、max-running、last-settled Task ID、四个 queue peaks 与 tail active count，但省略不能证明的 task·ms、delay breakdown、tail delta 及其它 time-valued projection。

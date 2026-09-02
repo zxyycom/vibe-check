@@ -334,6 +334,11 @@ defineConfig({
   }
 });
 defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } });
+const learnedCriticalPathAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({
+  kind: "learned-critical-path",
+  stateDirectory: ".vibe-check/duration-state"
+});
+defineConfig({ scheduler: { admissionPolicy: learnedCriticalPathAdmissionPolicy } });
 defineConfig({});
 defineAdmissionPolicy({
   kind: "custom",
@@ -346,6 +351,18 @@ defineAdmissionPolicy({
   kind: "static",
   // @ts-expect-error admission policy authoring is a closed union.
   unsupported: true
+});
+defineAdmissionPolicy({
+  kind: "learned-critical-path",
+  stateDirectory: ".vibe-check/duration-state",
+  // @ts-expect-error admission policy authoring is a closed union.
+  unsupported: true
+});
+defineAdmissionPolicy({
+  kind: "learned-critical-path",
+  stateDirectory: ".vibe-check/duration-state",
+  // @ts-expect-error v1 derives duration predictions from local history rather than authored hints.
+  expectedDurationMs: 250
 });
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const reminder = maintenanceReminders([
@@ -444,6 +461,7 @@ void [
   changedFilesData,
   changedFilesConsumer,
   customAdmissionPolicy,
+  learnedCriticalPathAdmissionPolicy,
   inheritedCheckIds,
   observeFinalDurations,
   findingMessages,

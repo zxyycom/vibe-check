@@ -1,6 +1,6 @@
 # Design
 
-本设计把自动学习拆成Scheduler外的持久观测模型和Scheduler内的纯选择策略；项目只启用一个全局设置，Check逐项配置只作为可选估值覆盖。
+本设计把自动学习拆成 Scheduler 外的本地持久观测模型和 Scheduler 内的纯选择策略；项目只启用一个全局设置，第一版不要求或接受 Check 逐项手工估时。
 
 ## Context
 
@@ -61,15 +61,13 @@ scheduler: {
 
 `admissionPolicy` 省略时按当前 `{ kind: "static" }` 执行并保持零历史 I/O；显式 static 与省略形状必须得到同一 canonical declarative representation。learned variant 必须同时提供 non-empty `stateDirectory`；相对路径从 effective `projectRoot` 解析，绝对路径直接使用。设置本身就是对该 Product-owned state path 的明确授权，不另设初始化命令、enable flag 或每 Check enrollment。此扩展保留既有 `custom` callback 的 authoring、fingerprint 与 fault contract；它不把 learned history 暴露给该 callback，也不把 callback closure 变成 history state owner。
 
-state path进入closed Definition与declarative fingerprint。Product只拥有该目录内一个versioned scheduler-history文件；目录仍是调用方选择、可整体删除且不提供secret storage、sandbox或remote cache保证的本地状态。
+state path进入closed Definition与declarative fingerprint。Product只拥有该目录内一个versioned scheduler-history文件；目录仍是调用方选择、可整体删除且不提供secret storage、sandbox或remote cache保证的本地状态。第一版只承诺同一项目在相近运行环境中的本地重复使用，不承诺跨机器、distributed或共享CI history。
 
-#### 2. Per-Check override是例外，不是主路径
+#### 2. 第一版只自动学习，不提供 per-Check 手工估时
 
-executable Check可以声明`expectedDurationMs?: number`。字段必须是positive safe integer，不继承，container声明视为invalid；其单位是该 Check Task 从 Scheduler admission 到 settlement 的毫秒数，省略表示使用learned或prior estimate。它进入normalized declaration和fingerprint，但不进入Check options、execution context、Check/Record facts或machine publication。
+第一版不增加 `expectedDurationMs` 或等价 per-Check override。learned mode 为全部 executable Check 从历史或 project prior 自动形成内部时长 estimate；它不是 authored Check 字段。出现真实、稳定且无法由 model 适应的例外消费者后，再由独立 Change 评审带单位的 override、authoring owner、继承和 fingerprint 影响。
 
-在learned mode中，override是该Task duration estimate的最高来源。现有`admissionPriority`不再作为独立于预测的首要层级：只有critical-path score及既有cap tie-break相同时才按priority降序。需要纠正已知时长时使用带单位的override，不能靠扩大priority长期压制model。
-
-static mode继续完整保留现有priority行为，支持无持久状态、只运行一次或需要当前兼容语义的项目。dependency只表达必须等待的directed relation，不能用于伪造“希望更早”的性能偏好。
+现有 `admissionPriority` 保持独立的 immutable Task metadata、nearest-explicit inheritance 与 static mode 行为。learned mode 不修改、吸收或重新解释 priority；在每个既有 selection layer 内先比较 critical-path score，仅在分数相同时按 owning Task 的现有 effective priority 降序，再使用 canonical tie-break。dependency 只表达必须等待的 directed relation，不能用于伪造“希望更早”的性能偏好。
 
 #### 3. History identity在admission前形成
 
@@ -92,20 +90,19 @@ learned mode 必须启用既有 Scheduler measurement collector，即使 diagnos
 
 每个identity第一项真实样本在下一Run立即参与estimate。新样本append后只保留最后32项，因此一次异常值会作为真实观测参与有限窗口，但不会永久固定权重。history最多保存4096个identity series；超过上限时按内部observation sequence淘汰最久未更新series，避免Check ID或options长期变化造成无界文件。
 
-#### 5. Cold start使用明确prior
+#### 5. Cold start 使用明确 prior
 
-prediction snapshot按以下唯一顺序选择每项duration：
+prediction snapshot 按以下唯一顺序选择每项内部时长 estimate：
 
-| Source | Trigger | `estimatedDurationMs` |
+| Source | Trigger | 内部 `estimatedDurationMs` |
 | --- | --- | --- |
-| `override` | Check声明`expectedDurationMs` | authored value |
 | `learned` | 当前identity至少一个valid sample | 最近32项arithmetic mean |
-| `project-prior` | 当前identity无样本，但本轮其它Tasks有override/learned estimate | 这些estimate的中位数 |
-| `cold-start` | 本轮没有任何override/learned estimate | 常数`1` |
+| `project-prior` | 当前identity无样本，但本轮其它Tasks有learned estimate | 这些estimate的中位数 |
+| `cold-start` | 本轮没有任何learned estimate | 常数`1` |
 
-常数`1`只提供相同正权重，不声称Task需要1ms。所有Task都cold-start时，graph path length、priority tie-break和canonical order决定首轮；实际执行后下一轮使用真实样本。unknown Task永不被当成`0`或永久放到已知Tasks之后。
+`estimatedDurationMs` 是 immutable prediction snapshot 的内部字段，不是 public `expectedDurationMs` authoring 选项。常数 `1` 只提供相同正权重，不声称 Task 需要 1ms。所有 Task 都 cold-start 时，graph path length、priority tie-break 和 canonical order 决定首轮；实际执行后下一轮使用真实样本。unknown Task 永不被当成 `0` 或永久放到已知 Tasks 之后。
 
-snapshot包含model version、每Task source、sample count、mean、p90与estimate，并形成稳定digest。它在Scheduler启动前deep-freeze；同次Run的后续settlement不能修改本轮选择分数。
+snapshot包含model version、每Task source、sample count、mean、p90与estimate，并形成稳定digest。它在Scheduler启动前deep-freeze；同次Run的后续settlement不能修改本轮选择分数。当前窗口、统计和score算法在公共文档中直接说明，以便消费者理解与诊断，但不构成跨model version的兼容承诺，也不保证跨版本、环境或Run产生相同admission顺序。
 
 #### 6. Greedy critical-path是heuristic而非最优证明
 
@@ -121,17 +118,17 @@ success dependency与outcome observation都要求downstream等待upstream termin
 
 policy仍按以下顺序保证正确性和进展：
 
-1. 每轮从同一immutable graph、prediction snapshot、candidate和runtime facts重算 tightening scope；先按更严格effective cap，再按critical-path score、priority和既有ID tie-break。
-2. 然后重算 constrained continuation；使用同样的score、priority和既有tie-break。
-3. 最后 ordinary ready按critical-path score、priority和canonical order。
+1. 每轮从同一immutable graph、prediction snapshot、candidate和runtime facts重算 tightening scope；先按更严格effective cap，再按critical-path score、现有effective priority和既有ID tie-break。
+2. 然后重算 constrained continuation；使用同样的score、现有effective priority和既有tie-break。
+3. 最后 ordinary ready按critical-path score、现有effective priority和canonical order。
 
 policy读取Scheduler给出的relation/mutex eligible candidates和per-candidate capacity facts并返回select/wait；当前capacity不能准入的candidate不被预先移除，因而可形成可drain的wait。Scheduler在select后只守pending/readiness/mutex/capacity/lifecycle hard conditions，并对wait守drain；不保存或解释reservation/fairness/starvation state。该list-scheduling heuristic可在代表性graph降低makespan，但dependency、mutex、capacity、variance和未来执行时间不确定时不保证全局最优。
 
 #### 7. History I/O与执行失败隔离
 
-state directory内只使用一个固定文件名和versioned closed JSON envelope。读取顺序是missing、parse、schema/model validation；missing形成empty model，invalid或read failure也降级empty model并记录不同diagnostic status。历史不可信，不把malformed data直接传入policy。
+state directory内只使用一个固定文件名和versioned closed JSON envelope。读取顺序是missing、parse、schema/model validation；missing、invalid、不兼容model version或read failure形成empty learned model并记录不同diagnostic status。若canonical prediction input、local setup、prediction或score table不能形成，则只让该 invocation回退static selection。历史不可信，不把malformed data直接传入policy。该目录按本地cache-like状态使用；调用方可整体删除，第一版不提供跨机器、remote、distributed或共享CI保证。
 
-Run在Scheduler闭合并已取得terminal raw measurement与settlement kinds后，把本轮有效 Task intervals 合并到内存model，应用32-sample与总series上限，再在同目录写完整temporary file并atomic replace。write failure不回滚Check settlement、不重跑Tasks、不改变aggregate或Run result kind。并发invocation各自使用启动时snapshot；atomic replace保证文件完整，但last writer可能覆盖另一轮尚未合并的样本，这只降低统计质量，不影响正确性。
+Run在Scheduler闭合并已取得terminal raw measurement与settlement kinds后，把本轮有效 Task intervals 合并到内存model，应用32-sample与总series上限，再在同目录写完整temporary file并atomic replace。record/write failure不回滚Check settlement、不重跑Tasks、不改变aggregate或Run result kind，只丢失未来样本。并发invocation各自使用启动时snapshot；atomic replace保证文件完整，但last writer可能覆盖另一轮尚未合并的样本，这只降低统计质量，不影响正确性。
 
 `cacheJsonByKey`不提供read-modify-write、history merge或series enumeration，本Change不修改它。只有现有canonical snapshot或atomic file helper可在不扩大cache owner时机械复用。
 
@@ -141,7 +138,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 
 第一版不增加public `RunResult.schedulerLearning`、machine schema或progress字段。history failure是性能优化降级，不是质量事实；需要程序化监控的真实consumer出现后，再以独立Change评审结构化read/write observation，而不把diagnostic log承诺为稳定parser输入。
 
-#### 9. 实施顺序与长期Decision
+#### 9. 实施顺序与长期 Decision
 
 本Change在以下Readiness完成后实施：
 
@@ -150,13 +147,13 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 3. `separate-passed-dependencies-from-settled-observations` Decision 已闭合directed readiness graph；
 4. `add-scheduler-performance-diagnostics`已实施，或同一分支提供等价的slot/admission/tail A/B证据；
 5. 已审阅fail-fast和named resource当前状态，确认它们只改变cutoff、candidate legality或started samples；
-6. 已用successor Decision演进“静态priority且不基于history调权”的现行判断。
+6. 已建立 learned-history 专项 Decision，固定通用 package 能力、显式本地状态、无 per-Check 手工估时、现有 effective priority 同分语义、模型公开但非兼容承诺，以及 history failure 非质量结算边界。
 
-长期Decision采用static mode作为兼容默认、learned mode显式启用、priority在learned mode仅为同分tie-break、history I/O不改变质量结算。对齐只在实现、public docs与tests共同成为当前事实后标记。
+`learn-check-task-durations-for-critical-path-admission` 是上述长期方向的 owner；本 Change artifacts 是该方向的实施与验证计划。长期 Decision 采用 static mode 作为兼容默认、learned mode 通过 caller-managed local state directory 显式启用、不提供 per-Check 手工估时、现有 effective priority 在 learned mode 仅为同分 tie-break、当前模型公开说明但不承诺算法兼容，并且 history I/O 不改变质量结算。Decision 已在实现、public docs、direct/installed tests 与 Gate adoption 验收后标记为 `active + aligned`；该对齐不完成或归档本 Change，也不授予新的生命周期写入权限。
 
 ### Resulting Impacts
 
-- Definition新增policy union与Check override会改变declarative schema；省略与显式static必须规范化为同一snapshot。若新增canonical默认使fingerprint算法输入相对变更前发生变化，实施者必须显式重建对应baseline，而不是承诺旧digest不变。
+- Definition新增policy union会改变declarative schema；省略与显式static必须规范化为同一snapshot。第一版不修改Check authoring grammar。若新增canonical默认使fingerprint算法输入相对变更前发生变化，实施者必须显式重建对应baseline，而不是承诺旧digest不变。
 - admission前history identity构造需要复用Definition的canonical authored-options boundary，但不能调用preflight，也不能把authored/prepared options写入history或diagnostic。
 - history read发生在Scheduler前，write发生在已闭合execution facts后；两者时间可由Scheduler外层diagnostic观察，不得混入public Check duration或Scheduler Task active interval。learned mode启用既有 measurement collector，但不改变raw timestamp或public Hook contract。
 - estimated critical path需要final graph提供downstream adjacency；不要在policy每次选择时重复遍历完整图，应在immutable snapshot构造时一次计算score。policy仍接收完整 graph、relation/mutex eligible candidates 与 capacity facts；priority只存在于Task metadata，不设旁路输入。
@@ -164,7 +161,7 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 
 ## Risks / Trade-offs
 
-- 相同Check ID和authored options在preflight结果、不同硬件、toolchain、cache状态或外部输入下仍可能有不同时长；bounded rolling window提供适应性但不是workload identity证明。
+- 相同Check ID和authored options在preflight结果、不同硬件、toolchain、cache状态或外部输入下仍可能有不同时长；bounded rolling window提供适应性但不是workload identity证明。因此第一版state只面向同一项目的相近本地运行环境，不能把共享目录解释为跨机器可比模型。
 - arithmetic mean对重尾样本敏感；第一版同时输出p90但不把variance自动变成第二个score。只有跨项目证据证明需要置信区间后再演进模型。
 - required state directory增加明确配置，但避免默认偷偷写HOME或repository；这是一次项目级成本，不是per-Check成本。
 - diagnostic-only failure observation意味着未启用diagnostic的调用方不能程序化判断history health；第一版接受该边界以避免为优化状态扩大所有RunResult branches。
@@ -172,4 +169,17 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 
 ## Open Questions
 
-无阻塞问题。Plan采用“learned setting必须提供state directory”“learned mode下priority仅作同分tie-break”“第一版history failure只进入diagnostic”三个默认取舍；公共custom selector由相邻Change承接。若项目需要隐藏默认路径、hard priority override或public history health DTO，必须在实施任务1.1前明确修订本Plan与对应Decision，不能以局部代码例外加入。
+无阻塞问题。用户已确认：能力作为通用 package 功能交付而由本仓 Gate 独立决定是否采用；learned setting 必须提供 caller-managed local state directory；第一版不提供 per-Check 手工估时；现有 effective priority 仅在 critical-path 同分时保持自己的优先语义；当前模型公开说明但不作跨版本算法或顺序兼容承诺；history failure 第一版只进入 diagnostic。公共 custom selector 由相邻 Change 承接。若项目需要隐藏默认路径、hard priority override、per-Check estimate、public history health DTO 或跨机器/共享 CI history，必须建立新的明确方向，不能以局部代码例外加入。
+
+## Implementation Observations
+
+实现遵循本设计的 owner 链：Definition 规范化 `stateDirectory` 并把它纳入 declarative fingerprint；Run 在 author
+preflight 前从 effective `projectRoot` 解析目录、加载 closed history、建立 frozen prediction/score；pure Scheduler 只消费
+该 snapshot；所有 Task closure 后才从 terminal occupancy measurement 记录样本并 atomic replace。static 与 custom 保持原有
+authoring/fingerprint/fault 语义；history/model 既不进入 custom callback 或 Check context，也不扩张 Check/Record/machine/progress/
+`RunResult` public contract。
+
+当前实现的 32-sample arithmetic mean、nearest-rank p90、4096-series bound、median project prior 和 cold weight `1` 都由
+owner 文档公开以便理解与诊断，但不承诺模型、file envelope、admission order 或性能跨版本/环境兼容。最终实现、测试与 exact
+candidate 的 Gate A/B evidence 见 [`acceptance.md`](acceptance.md)；它确认本仓 Gate 采用 learned policy，同时保留原始
+local evidence 的位置、变体控制、排除样本和同环境限制，不能被解释成 package 的通用性能保证。

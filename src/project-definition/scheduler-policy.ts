@@ -43,6 +43,11 @@ export type AdmissionPolicy =
   | Readonly<{
       readonly kind: "custom";
       readonly proposeAdmission: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+    }>
+  | Readonly<{
+      /** 调用方管理的本地状态；relative path 在稍后的 Project Run 中从 effective projectRoot 解析。 */
+      readonly kind: "learned-critical-path";
+      readonly stateDirectory: string;
     }>;
 
 /** 定义级的 Check 调度预算与 admission policy。 */
@@ -277,8 +282,12 @@ export interface SchedulerPolicy {
 }
 
 export interface DeclarativeSchedulerPolicy {
-  readonly admissionPolicy: Readonly<{
-    readonly kind: AdmissionPolicy["kind"];
-  }>;
+  readonly admissionPolicy:
+    | Readonly<{ readonly kind: "static" }>
+    | Readonly<{ readonly kind: "custom" }>
+    | Readonly<{
+        readonly kind: "learned-critical-path";
+        readonly stateDirectory: string;
+      }>;
   readonly maxParallel: number;
 }

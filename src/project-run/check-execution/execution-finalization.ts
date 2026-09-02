@@ -1,6 +1,9 @@
 import type { CheckMessage } from "../../check/check.ts";
 import type { CoreSnapshot } from "../../check-settlement/facts.ts";
-import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
+import type {
+  NormalizedCheck,
+  SchedulerMeasurementContext
+} from "../../project-definition/project-definition.ts";
 import type { SettledTask } from "../task-scheduler/scheduler.ts";
 import type { CheckDuration, CheckRunMessage } from "../result.ts";
 import {
@@ -28,17 +31,24 @@ export function closeResolvedChecks(
     if (input.graphRun.admissionPolicyFault !== undefined) {
       return closeAdmissionPolicyFailed({
         normalizedChecks: input.allChecks,
-        state: input.state
+        state: input.state,
+        terminalSchedulerMeasurement: input.graphRun.terminalMeasurement
       });
     }
     if (input.graphRun.cancelled) {
       return closeCancelledExecution({
         normalizedChecks: input.allChecks,
-        state: input.state
+        state: input.state,
+        terminalSchedulerMeasurement: input.graphRun.terminalMeasurement
       });
     }
     assertEveryCheckClosed(input.allChecks, input.graphRun.settlements);
-    return resolvedExecution("completed", input.state.session.freeze(), input.state);
+    return resolvedExecution(
+      "completed",
+      input.state.session.freeze(),
+      input.state,
+      input.graphRun.terminalMeasurement
+    );
   } catch (error) {
     throw trustedFailure(error);
   }
@@ -48,24 +58,31 @@ export function closeAdmissionPolicyFailed(
   input: Readonly<{
     readonly normalizedChecks: readonly NormalizedCheck[];
     readonly state: CheckExecutionState;
+    readonly terminalSchedulerMeasurement?: SchedulerMeasurementContext;
   }>
 ): ResolvedCheckExecution {
   input.state.session.closeUnresolvedAsCancelled();
   const snapshot = input.state.session.freeze();
   settleUnstartedCancelledChecks({ ...input, snapshot });
-  return resolvedExecution("admission-policy-failed", snapshot, input.state);
+  return resolvedExecution(
+    "admission-policy-failed",
+    snapshot,
+    input.state,
+    input.terminalSchedulerMeasurement
+  );
 }
 
 export function closeCancelledExecution(
   input: Readonly<{
     readonly normalizedChecks: readonly NormalizedCheck[];
     readonly state: CheckExecutionState;
+    readonly terminalSchedulerMeasurement?: SchedulerMeasurementContext;
   }>
 ): ResolvedCheckExecution {
   input.state.session.closeUnresolvedAsCancelled();
   const snapshot = input.state.session.freeze();
   settleUnstartedCancelledChecks({ ...input, snapshot });
-  return resolvedExecution("cancelled", snapshot, input.state);
+  return resolvedExecution("cancelled", snapshot, input.state, input.terminalSchedulerMeasurement);
 }
 
 export function checkIdentity(
@@ -89,12 +106,14 @@ export function trustedFailure(error: unknown): CheckExecutionInvariantFailure {
 function resolvedExecution(
   kind: ResolvedCheckExecution["kind"],
   snapshot: CoreSnapshot,
-  state: CheckExecutionState
+  state: CheckExecutionState,
+  terminalSchedulerMeasurement: SchedulerMeasurementContext | undefined
 ): ResolvedCheckExecution {
   return Object.freeze({
     kind,
     ...checkRunSummaries(snapshot, state.settledFactsByCheckId),
-    snapshot
+    snapshot,
+    ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
   });
 }
 
@@ -145,7 +164,10 @@ function checkRunSummaries(
       throw new CheckExecutionInvariantFailure("Check settled facts are missing a Check");
     }
     checkDurations.push(
-      Object.freeze({ checkId: check.checkId, durationMs: settledFacts.durationMs })
+      Object.freeze({
+        checkId: check.checkId,
+        durationMs: settledFacts.durationMs
+      })
     );
     messages.push(
       ...settledFacts.messages.map((message) =>

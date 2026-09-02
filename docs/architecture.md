@@ -23,7 +23,8 @@
 - `src/project-definition/**` 拥有 Project Definition tree、defaults、validation、normalization 与 fingerprint；
 - `src/check-settlement/**` 拥有 terminal Check/Record facts、session、store 与 fact validation；
 - `src/project-run/**` 拥有 Run entry、invocation、aggregation、project context、completion/result，以及独立的
-  `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `task-scheduler/**` 子 owner；
+  `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**`、`scheduler-history/**` 与
+  `task-scheduler/**` 子 owner；
 - `src/machine-output/v4/**` 拥有从 Check facts 向 versioned machine artifacts 的 publication；
 - `src/cache/**` 拥有 caller-keyed canonical JSON object 的 identity、untrusted disk envelope、read/compute/write observation 与 atomic local publication；它不拥有 caller key correctness、payload domain 或 Check adoption；
 - `src/finding-waivers/**` 拥有按调用方语义 identity 对账 finding waiver 的公开纯函数；它不发布
@@ -50,13 +51,34 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 
 Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private static policy 是无状态纯决策；public custom policy 是同一无状态 select/wait boundary 上的 trusted synchronous callback。每个 admission cycle 都从 immutable 完整 graph、dynamic inspection、Scheduler 形成的 relation/mutex eligible candidates 及其 current capacity facts 重新计算，精确返回 `select(taskId)` 或 `wait`。priority 不另有 map/list 或旁路输入；public custom callback 收到的是该事实的 detached、deep-frozen ordinary projection，而不是 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
 
+`learned-critical-path` 只增加一条 invocation-owned 优化支路，其顺序固定为 **Definition → pre-admission local
+history load/prediction → pure Scheduler → post-closure history record/write**。Definition 仅闭合 kind 和
+`stateDirectory`；Run 在任何 author preflight 或 callback 前从 effective projectRoot 解析该 caller-managed local directory，
+把 closed local envelope 读成空或有效 history，并以 canonical Check ID、authored options、effective flags 与 model version
+的 digest 建立一次不可变 prediction 和 directed `dependsOn`/`observes` critical-path score table。这个阶段不调用 author
+work，score table 也不含 raw authored options、flags、Task callback、Record 或 Check data。当前 prediction 为每个 Task 保留
+source、sample count、mean、nearest-rank p90 与 `estimatedDurationMs`；只有后者进入 score。窗口为每 identity 32 个样本、全目录
+4096 个最近更新的 identity；这是当前模型说明，而非跨版本 storage、model、顺序或性能兼容承诺。pure Scheduler 继续独占所有
+legality hard guard；learned policy 只在既有 tightening、constrained-continuation、ordinary layers 内按 score 选择，只有 score
+相等时才读取 effective `admissionPriority`，最后才以 canonical Task ID 决定。所有 Task 已 closing/drain 后，Run 才从
+private terminal occupancy measurement 形成有界 samples 并经 same-directory atomic replacement 尝试写回。它不向 RunResult、
+Check/Record facts、machine publication、progress、callback context 或 public telemetry 交付 history/prediction/score。
+
+history 是 caller-owned、untrusted、cache-like local optimization state，而非 configuration、quality fact 或 durable public
+artifact：它只保留 digest identity、admitted-to-settled duration、settlement kind 与 observation sequence；不保留 raw options
+或 flags。当前实现的 32 samples/identity、4096 recent identities、mean → Run-median prior → cold `1` 和 envelope version
+是实现细节而非 compatibility guarantee。missing、malformed、incompatible 或 read failure 形成 empty learned model；无法形成
+canonical inputs，或 local setup、prediction 或 score-table construction 失败时才对该 invocation 使用 static selection；post-closure
+record/write failure 与 concurrent last-writer 只影响未来样本。它们只写入有界 diagnostic observation，不得改变已形成的 Check
+outcome、aggregation、machine bytes 或 `RunResult.kind`。
+
 完整静态 graph validation 后、Task admission 前，Run 先处理 invocation cancellation precedence；尚未取消时，再按 Definition 顺序执行 invocation-wide flag control。条件不匹配的 Check 在任何 owning preflight/execution 前结算为 `not-applicable / flag-condition-not-matched`，没有 started fact且 duration 为 `null`。它作为同一张 Scheduler graph 的 pre-admission non-passed Task result，不再由 Scheduler admission；`dependsOn` dependent 因此被阻断，`observes` consumer 仍可等待和读取。Run 不建立第二套依赖传播。
 
 Scheduler 仍拥有 readiness、mutex、capacity、cancellation、blocked settlement、状态转换、Task start、await 与 settlement。它只在 policy 后验证 selected Task 仍 pending、属于本轮 candidate、当前 capacity 可 admission 且未越过 lifecycle/cancellation cutoff；`wait` 只在 running work 能 drain 时有效。Scheduler 不解释 priority、公平、防饥饿或 wait 的理由，policy 也不启动、等待或结算 Task。static tightening/continuation 每轮重算，不保存 reservation、sticky target 或任何 Core-owned strategy state；engine 仍不解释 Record、scanner protocol、Check final data、Check terminal status 或 aggregation。
 
 custom callback throw、thenable、malformed proposal、非法 select 或不可 drain `wait` 是 admission-policy fault：Scheduler 停止新 admission、按受控路径取消 pending Tasks 并 drain 已启动的 Task；Run 以 `admission-policy-failed` execution diagnostic 结束，绝不 fallback 到 static。diagnostic 只记录有界 fault category 和本轮 hard-guard facts，不保留 raw callback value、stack、caller data、policy wait reason、reservation、console/check-message attribution 或 policy timing/telemetry。
 
-effective diagnostic logging enabled、Definition 配置至少一个 `scheduler.measurementHooks`、或 admission policy 为 `custom` 时，Scheduler shell 才创建 invocation-local 一阶 measurement collector；它通过 private handoff 接收 clock 与 invocation 已有的 `declarativeFingerprint`。只有 static policy、diagnostic disabled 且 Hook list 为空时不创建 collector、也不读取额外 clock。每次**实际** custom callback 前，collector 先 flush 当前 open interval，再 append 已完成的 action observation，并创建 captured-prefix reader；同一 Run 只冻结一次 graph DTO。`measurementCount` 是该 context 的 end-count，`measurementAt(index)` 是同步 prefix getter，不返回 live array 或 history slice，故旧 context 不能看见后续 append。每条 observation 从 accepted `select`/`wait` 的 post-state 开始，到下一实际 custom callback 前结束，交接 interval 的 state observation 与期间 admitted/settled effects，而不声明 action causality。每个 interval 是 closed timing union：available 才携带数值 contribution，unavailable 只携带 reason，合法 zero span 与 timing fault 明确不同。此紧凑表示避免按决策数复制完整 graph/per-Task table或 history；完整 per-Task table 只属于 terminal raw measurement。Scheduler 在既有 admission、pending/running settlement、accepted wait 与 terminal boundary 采样，唯一拥有区间归属、mutex/capacity/admissible 分类、slot/capacity integral、accepted-wait accumulator、per-Task admission table、峰值和 tail active sequence；它不建立第二套 state、streaming event bus 或完整 boundary ledger。clock throw、non-finite/backward sample、invalid interval/integral 只令本次 raw timing unavailable，不改变 admission、cancellation、policy-fault drain 或 settlement。
+effective diagnostic logging enabled、Definition 配置至少一个 `scheduler.measurementHooks`、或 admission policy 为 `custom` / `learned-critical-path` 时，Scheduler shell 才创建 invocation-local 一阶 measurement collector；它通过 private handoff 接收 clock 与 invocation 已有的 `declarativeFingerprint`。只有 static policy、diagnostic disabled 且 Hook list 为空时不创建 collector、也不读取额外 clock。每次**实际** custom callback 前，collector 先 flush 当前 open interval，再 append 已完成的 action observation，并创建 captured-prefix reader；同一 Run 只冻结一次 graph DTO。`measurementCount` 是该 context 的 end-count，`measurementAt(index)` 是同步 prefix getter，不返回 live array 或 history slice，故旧 context 不能看见后续 append。每条 observation 从 accepted `select`/`wait` 的 post-state 开始，到下一实际 custom callback 前结束，交接 interval 的 state observation 与期间 admitted/settled effects，而不声明 action causality。每个 interval 是 closed timing union：available 才携带数值 contribution，unavailable 只携带 reason，合法 zero span 与 timing fault 明确不同。此紧凑表示避免按决策数复制完整 graph/per-Task table或 history；完整 per-Task table 只属于 terminal raw measurement。Scheduler 在既有 admission、pending/running settlement、accepted wait 与 terminal boundary 采样，唯一拥有区间归属、mutex/capacity/admissible 分类、slot/capacity integral、accepted-wait accumulator、per-Task admission table、峰值和 tail active sequence；它不建立第二套 state、streaming event bus 或完整 boundary ledger。clock throw、non-finite/backward sample、invalid interval/integral 只令本次 raw timing unavailable，不改变 admission、cancellation、policy-fault drain 或 settlement。
 
 每个 raw terminal measurement 是 bounded immutable fact set：它保留 declarative fingerprint、离散 lifecycle facts、queue peaks，以及 timing 可用时的 shell/slot/capacity/accepted-wait accumulations、每个 admission-viable Task 的分类 delay table与 admission/settlement boundaries。它不包含 Task value、error、callback、clock、mutable collection、summary top-N、ratio、queue aggregate或 tail contributor projection。`scheduler.summary` 是加入统一 terminal delivery list 的内部默认 Hook 从该 raw fact set 计算的 human-only 二级 projection：它仍提供既有 top admission delay、queue total、utilization、tail contributor和 timing availability shape，且 writer failure保持 observational containment。
 

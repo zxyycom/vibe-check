@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -25,6 +25,7 @@ const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
 
 const cacheEvidence = await observeCacheReuse();
+const learnedSchedulingEvidence = await observeLearnedScheduling(projectRoot);
 
 const jsonCheck = jsonValidation();
 const parserEvidence = {
@@ -268,6 +269,7 @@ process.stdout.write(
       duplicateRecords,
       jsonSchemaData: settledFinalData(jsonSchemaCheck),
       jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
+      learnedScheduling: learnedSchedulingEvidence,
       markdownLinkData: settledFinalData(markdownLink),
       markdownLinkOutcome: markdownLink?.outcome.status ?? null
     })
@@ -301,4 +303,85 @@ async function observeCacheReuse() {
   } finally {
     await rm(directory, { force: true, recursive: true });
   }
+}
+
+async function observeLearnedScheduling(projectRoot) {
+  const fast = defineCheck({
+    checkId: "installed-learned-fast",
+    displayName: "Installed learned fast",
+    options: { marker: "installed-private-option" },
+    async execution() {
+      await delay(1);
+      return { status: "passed", data: {} };
+    }
+  });
+  const slow = defineCheck({
+    checkId: "installed-learned-slow",
+    displayName: "Installed learned slow",
+    options: { marker: "installed-private-option" },
+    async execution() {
+      await delay(20);
+      return { status: "passed", data: {} };
+    }
+  });
+  const definition = defineConfig({
+    checks: [fast, slow],
+    outputs: {
+      diagnosticLogging: { directory: "learned-diagnostics", enabled: true },
+      machinePublication: { directory: "learned-machine", enabled: true },
+      progressRendering: { enabled: false }
+    },
+    scheduler: {
+      admissionPolicy: {
+        kind: "learned-critical-path",
+        stateDirectory: "learned-state"
+      },
+      maxParallel: 1
+    }
+  });
+  const controls = {
+    flags: ["installed-private-flag"],
+    projectRoot
+  };
+  const first = await run(definition, controls);
+  const firstMachine = readLearnedMachine(projectRoot);
+  const firstDiagnostic = readLearnedDiagnostic(projectRoot, first);
+  const statePath = join(projectRoot, "learned-state", "scheduler-history.json");
+  const second = await run(definition, controls);
+  const secondMachine = readLearnedMachine(projectRoot);
+  const secondDiagnostic = readLearnedDiagnostic(projectRoot, second);
+  const history = readFileSync(statePath, "utf8");
+  return {
+    first: publicLearnedRunEvidence(first, firstMachine, firstDiagnostic),
+    history,
+    stateFileExists: existsSync(statePath),
+    second: publicLearnedRunEvidence(second, secondMachine, secondDiagnostic)
+  };
+}
+
+function publicLearnedRunEvidence(result, machine, diagnostic) {
+  return {
+    diagnostic,
+    kind: result.kind,
+    machineHasSchedulerHistory: Object.hasOwn(machine, "schedulerHistory"),
+    resultHasSchedulerHistory: Object.hasOwn(result, "schedulerHistory"),
+    resultHasSchedulerPrediction: Object.hasOwn(result, "schedulerPrediction"),
+    snapshotCheckIds:
+      result.kind === "completed" ? result.snapshot.checks.map((check) => check.checkId).sort() : []
+  };
+}
+
+function readLearnedMachine(projectRoot) {
+  return JSON.parse(readFileSync(join(projectRoot, "learned-machine", "run.json"), "utf8"));
+}
+
+function readLearnedDiagnostic(projectRoot, result) {
+  if (result.kind !== "completed") throw new Error(`Expected learned Run to complete: ${result.kind}`);
+  const path = result.outputs.diagnosticLogging.file;
+  if (path === null) throw new Error("Expected learned Run diagnostic file");
+  return readFileSync(join(projectRoot, path), "utf8");
+}
+
+function delay(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }

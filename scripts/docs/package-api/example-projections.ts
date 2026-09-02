@@ -113,6 +113,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "learned-critical-path",
+    regionId: "learned-critical-path",
+    sourcePath: "docs/examples/package-api/learned-critical-path.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "readme",
+        headingPath: Object.freeze(["自定义 Check API", "learned-critical-path 准入 policy"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "复用本地时长 history 的 critical-path 准入"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "maintenance-reminders",
     regionId: "maintenance-reminders",
     sourcePath: "docs/examples/package-api/maintenance-reminders.ts",

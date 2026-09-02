@@ -149,6 +149,18 @@ function parseAdmissionPolicy(value: unknown): AdmissionPolicy | undefined {
       proposeAdmission
     });
   }
+  if (data.kind === "learned-critical-path") {
+    const policy = exactKeys(data, ["kind", "stateDirectory"]);
+    const stateDirectory = policy?.stateDirectory;
+    if (
+      typeof stateDirectory !== "string" ||
+      stateDirectory.length === 0 ||
+      stateDirectory.includes("\0")
+    ) {
+      return undefined;
+    }
+    return Object.freeze({ kind: "learned-critical-path" as const, stateDirectory });
+  }
   return undefined;
 }
 

@@ -115,7 +115,10 @@ describe("Project Gate Definition", () => {
       progressRendering: { enabled: true }
     });
     assert.deepEqual(definition.scheduler, {
-      admissionPolicy: { kind: "static" },
+      admissionPolicy: {
+        kind: "learned-critical-path",
+        stateDirectory: ".cache/vibe-check/scheduler-history"
+      },
       maxParallel: 3,
       measurementHooks: []
     });

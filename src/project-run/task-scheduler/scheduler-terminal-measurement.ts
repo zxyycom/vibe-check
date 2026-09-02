@@ -15,7 +15,7 @@ export async function observeTerminalMeasurement<TResult>(
     readonly options: RunTaskGraphOptions<TResult>;
     readonly state: SchedulerState<TResult>;
   }>
-): Promise<void> {
+): Promise<SchedulerMeasurementContext> {
   input.diagnostics.completePendingActionObservation();
   const context = measurementContext(
     input.state,
@@ -52,6 +52,7 @@ export async function observeTerminalMeasurement<TResult>(
       // A success-reporting seam cannot revise terminal Scheduler facts either.
     }
   }
+  return context;
 }
 
 type TerminalMeasurementDelivery = Readonly<{

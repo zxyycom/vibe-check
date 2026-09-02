@@ -21,6 +21,7 @@ export type CandidateFixtureEvidence = Readonly<{
   kind: string;
   jsonSchemaData: unknown;
   jsonSchemaOutcome: string | null;
+  learnedScheduling: unknown;
   markdownLinkData: unknown;
   markdownLinkOutcome: string | null;
   machineSchemaVersion: unknown;
@@ -86,6 +87,7 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
     observedStatus: "failed"
   });
   assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });
+  assertLearnedScheduling(runEvidence.learnedScheduling);
   assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
   assertDuplicateAndTerminalMessages(runEvidence.checkMessages);
   assertHumanOutput(runEvidence.humanOutput);
@@ -102,6 +104,43 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
     assertCanonicalExecutedDuration(runEvidence.checkDurations, checkId);
   }
   assertUnavailableDependencyDuration(runEvidence.checkDurations, "blocked-changed-files-consumer");
+}
+
+function assertLearnedScheduling(value: unknown): void {
+  if (!isRecord(value))
+    throw new TypeError("isolated learned scheduling evidence must be an object");
+  assert.equal(value.stateFileExists, true);
+  const history = requiredString(value.history, "isolated learned scheduler history");
+  assert.match(history, /"series":\[/);
+  assert.doesNotMatch(history, /installed-private-option|installed-private-flag/);
+
+  for (const phase of ["first", "second"] as const) {
+    const learnedRun: unknown = value[phase];
+    if (!isRecord(learnedRun)) {
+      throw new TypeError(`isolated learned ${phase} Run evidence must be an object`);
+    }
+    assert.equal(learnedRun.kind, "completed");
+    assert.equal(learnedRun.machineHasSchedulerHistory, false);
+    assert.equal(learnedRun.resultHasSchedulerHistory, false);
+    assert.equal(learnedRun.resultHasSchedulerPrediction, false);
+    assert.deepEqual(learnedRun.snapshotCheckIds, [
+      "installed-learned-fast",
+      "installed-learned-slow"
+    ]);
+    const diagnostic = requiredString(
+      learnedRun.diagnostic,
+      `isolated learned ${phase} diagnostic`
+    );
+    assert.match(diagnostic, /scheduler\.history\.read/);
+    assert.match(diagnostic, /scheduler\.history\.write/);
+  }
+  const first = value.first;
+  const second = value.second;
+  if (!isRecord(first) || !isRecord(second)) {
+    throw new TypeError("isolated learned Run evidence is incomplete");
+  }
+  assert.match(requiredString(first.diagnostic, "isolated first learned diagnostic"), /MISSING/);
+  assert.match(requiredString(second.diagnostic, "isolated second learned diagnostic"), /LOADED/);
 }
 
 function assertParserEvidence(value: unknown): void {

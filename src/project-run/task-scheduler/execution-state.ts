@@ -1,4 +1,7 @@
-import type { SchedulerMeasurementHook } from "../../project-definition/project-definition.ts";
+import type {
+  SchedulerMeasurementContext,
+  SchedulerMeasurementHook
+} from "../../project-definition/project-definition.ts";
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope, TaskGraph } from "./graph.ts";
 import {
   staticAdmissionSelectionPolicy,
@@ -36,6 +39,8 @@ export interface TaskGraphRun<TResult> {
   readonly cancelled: boolean;
   /** One entry per static graph Task, in static graph order. */
   readonly settlements: readonly SettledTask<TResult>[];
+  /** Product-private terminal facts retained after terminal Hooks have been drained. */
+  readonly terminalMeasurement?: SchedulerMeasurementContext;
 }
 
 export interface RunTaskGraphOptions<TResult> {

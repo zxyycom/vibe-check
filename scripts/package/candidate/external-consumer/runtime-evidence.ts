@@ -137,6 +137,7 @@ function projectCandidateFixtureEvidence(
     machineSchemaVersion: evidence.machineSchemaVersion,
     jsonSchemaData: evidence.jsonSchemaData,
     jsonSchemaOutcome,
+    learnedScheduling: evidence.learnedScheduling,
     markdownLinkData: evidence.markdownLinkData,
     markdownLinkOutcome,
     parserEvidence: evidence.parserEvidence,

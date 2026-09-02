@@ -15,9 +15,8 @@ import { capacityFor } from "./scheduler-decision-inspection.ts";
 
 /** Adapts the public, trusted callback to the Scheduler's private pure policy seam. */
 export function admissionSelectionPolicyFor(
-  policy: AdmissionPolicy
-): AdmissionSelectionPolicy | undefined {
-  if (policy.kind === "static") return undefined;
+  policy: Extract<AdmissionPolicy, { readonly kind: "custom" }>
+): AdmissionSelectionPolicy {
   const customPolicy: AdmissionSelectionPolicy = Object.freeze({
     requiresMeasurement: true,
     decide: (input: AdmissionPolicyInput) => invokeCustomPolicy(policy.proposeAdmission, input)

@@ -108,7 +108,11 @@ export async function runTaskGraph<TResult>(
         else diagnostics.measureControlPath(() => applyBlockedSettlement(state, decision));
         diagnostics?.captureState(performanceState(state));
         diagnostics?.recordEffect(
-          Object.freeze({ kind: "settled", settlementKind: "blocked", taskId: decision.taskId })
+          Object.freeze({
+            kind: "settled",
+            settlementKind: "blocked",
+            taskId: decision.taskId
+          })
         );
         trigger = Object.freeze({
           kind: "blocked-settled",
@@ -122,7 +126,11 @@ export async function runTaskGraph<TResult>(
         diagnostics?.captureState(performanceState(state));
         for (const taskId of decision.taskIds) {
           diagnostics?.recordEffect(
-            Object.freeze({ kind: "settled", settlementKind: "cancelled-before-start", taskId })
+            Object.freeze({
+              kind: "settled",
+              settlementKind: "cancelled-before-start",
+              taskId
+            })
           );
         }
         trigger = Object.freeze({ kind: "cancellation-applied" });
@@ -156,8 +164,12 @@ export async function runTaskGraph<TResult>(
       case "complete": {
         if (diagnostics === undefined) return buildTaskGraphRun(state);
         const run = diagnostics.measureControlPath(() => buildTaskGraphRun(state));
-        await observeTerminalMeasurement({ diagnostics, options, state });
-        return run;
+        const terminalMeasurement = await observeTerminalMeasurement({
+          diagnostics,
+          options,
+          state
+        });
+        return Object.freeze({ ...run, terminalMeasurement });
       }
     }
   }

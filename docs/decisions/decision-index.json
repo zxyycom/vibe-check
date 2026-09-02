@@ -106,6 +106,7 @@
       "keep-sensitive-quality-record-material-ephemeral.md": "sha256:f89701e33cfb23c3cbebee397e0344e22a987c30a1bb3a6e16d1ee25f6e1128d",
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
+      "learn-check-task-durations-for-critical-path-admission.md": "sha256:bf0296ce00dd94a959a9c55f3ef184c9ad7bbd7a14118e2bd6cd16e8ffb3c953",
       "let-check-options-own-execution-dependencies.md": "sha256:52c7988876cb3db670036647d84c7670dc88fe48adbed036f580fa64c20b6f63",
       "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:24e543f8d4eaacba1caf1c0cb33a3e0091b225466e96dafb94e1a0c50220206f",
       "let-duplicate-detection-adapter-own-cli-protocol.md": "sha256:4dd7c33f9b0754e8efc83e9f486fc650d9e34c329d7a4a7216a565cb490e1eb5",
@@ -3451,6 +3452,37 @@
             "target": "use-complete-upstream-governance-skills.md"
           }
         ]
+      }
+    },
+    "learn-check-task-durations-for-critical-path-admission.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "learn-check-task-durations-for-critical-path-admission.md",
+        "title": "用本地 Check Task 时长历史估计准入关键路径",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T08:13:42Z",
+        "purpose": "让显式启用的调度策略从本地真实 Task 时长形成关键路径估计，同时不改变执行正确性或承诺固定算法。",
+        "background": "静态 priority 需要人工维护且不能表达完整下游路径，而 Scheduler 已能在不接管跨运行状态的前提下消费不可变预测。",
+        "decision": "交付显式本地 learned-critical-path 能力，保持 static 默认、现有 priority 同分语义和可演进的公开模型说明。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "let-check-options-own-execution-dependencies.md": {

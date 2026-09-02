@@ -11,7 +11,9 @@ import {
   type DiagnosticLogger
 } from "../diagnostic-logging/logger.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
-import { admissionSelectionPolicyFor } from "../task-scheduler/custom-admission-policy.ts";
+import { admissionSelectionPolicyFor as customAdmissionSelectionPolicyFor } from "../task-scheduler/custom-admission-policy.ts";
+import { learnedCriticalPathAdmissionSelectionPolicy } from "../task-scheduler/learned-critical-path-admission-policy.ts";
+import type { SchedulerCriticalPathSnapshot } from "../scheduler-history/critical-path.ts";
 import { runTaskGraph } from "../task-scheduler/scheduler.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/scheduler-performance-diagnostics.ts";
 import { executeCheckCallback } from "./callback.ts";
@@ -53,6 +55,8 @@ type ResolvedCheckExecutionFacts = Readonly<{
   readonly checkDurations: readonly import("../result.ts").CheckDuration[];
   readonly checkMessages: readonly import("../result.ts").CheckRunMessage[];
   readonly snapshot: import("../../check-settlement/facts.ts").CoreSnapshot;
+  /** Product-private terminal Scheduler facts; never projected into RunResult. */
+  readonly terminalSchedulerMeasurement?: import("../../project-definition/project-definition.ts").SchedulerMeasurementContext;
 }>;
 
 export type ResolvedCheckExecution =
@@ -67,6 +71,7 @@ export interface CheckExecutionState extends CheckExecutionSettlementState {
 interface ExecuteCheckInput extends CheckExecutionState {
   readonly check: NormalizedCheck;
   readonly clock: CheckExecutionClock;
+  readonly onAdmittedCheck: ((check: NormalizedCheck) => void) | undefined;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
 }
@@ -85,6 +90,10 @@ type ResolvedCheckExecutionInput = Readonly<{
   readonly onSchedulerMeasurementHookFailure?: () => void;
   readonly onSchedulerMeasurementHooksSettled?: () => void;
   readonly lifecycle?: CheckExecutionLifecycle;
+  /** Invocation-built learned score table; it is absent for static/custom execution. */
+  readonly learnedCriticalPath?: SchedulerCriticalPathSnapshot;
+  /** Invocation-owned bounded learned admission diagnostics. */
+  readonly onAdmittedCheck?: (check: NormalizedCheck) => void;
 }>;
 
 /**
@@ -123,10 +132,7 @@ async function executePreparedResolvedChecks(
   try {
     graphRun = await runTaskGraph<boolean>({
       graph: planStaticCheckGraph(input.checks),
-      admissionPolicy:
-        input.admissionPolicy === undefined
-          ? undefined
-          : admissionSelectionPolicyFor(input.admissionPolicy),
+      admissionPolicy: selectionPolicyFor(input),
       maxParallel: input.maxParallel,
       diagnosticLogger: input.diagnosticLogger,
       performanceDiagnostics: input.schedulerPerformanceDiagnostics,
@@ -135,7 +141,10 @@ async function executePreparedResolvedChecks(
       onMeasurementHooksSettled: input.onSchedulerMeasurementHooksSettled,
       preAdmissionTaskResults: Object.freeze(
         flagControlSettlements.map((settlement) =>
-          Object.freeze({ taskId: settlement.check.definition.checkId, value: false })
+          Object.freeze({
+            taskId: settlement.check.definition.checkId,
+            value: false
+          })
         )
       ),
       signal: input.signal,
@@ -156,6 +165,7 @@ async function executePreparedResolvedChecks(
           ...state,
           check,
           clock: input.clock ?? SYSTEM_MONOTONIC_CLOCK,
+          onAdmittedCheck: input.onAdmittedCheck,
           project: input.project,
           signal: context.signal ?? INERT_SIGNAL
         });
@@ -222,6 +232,7 @@ function settleBlockedPreflight(
 }
 
 async function executeAdmittedCheck(input: ExecuteCheckInput): Promise<boolean> {
+  observeAdmittedCheck(input);
   const preflight = await prepareCheck({
     check: input.check,
     diagnosticLogger: input.diagnosticLogger,
@@ -232,6 +243,26 @@ async function executeAdmittedCheck(input: ExecuteCheckInput): Promise<boolean> 
     return false;
   }
   return executeReadyCheck({ ...input, preflight });
+}
+
+function selectionPolicyFor(
+  input: ResolvedCheckExecutionInput
+): import("../task-scheduler/admission-selection-policy.ts").AdmissionSelectionPolicy | undefined {
+  const policy = input.admissionPolicy;
+  if (policy === undefined || policy.kind === "static") return undefined;
+  if (policy.kind === "custom") return customAdmissionSelectionPolicyFor(policy);
+  return input.learnedCriticalPath === undefined
+    ? undefined
+    : learnedCriticalPathAdmissionSelectionPolicy(input.learnedCriticalPath);
+}
+
+/** Diagnostic observation belongs to the invocation; it cannot revise admitted Task facts. */
+function observeAdmittedCheck(input: ExecuteCheckInput): void {
+  try {
+    input.onAdmittedCheck?.(input.check);
+  } catch {
+    // Learned diagnostic output is best-effort and has no execution consequence.
+  }
 }
 
 async function executeReadyCheck(

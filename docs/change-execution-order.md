@@ -63,35 +63,38 @@
 - 后续 flag-control 接入修复、内置 Finding waiver、重复检测比较域和仓库质量扫描范围调整。
 
 近期 flag-control 修复会影响 pre-admission Task 和 learned-duration 样本边界；质量扫描范围调整会影响旧 Gate
-性能基线。`schedule-checks-from-learned-durations` 开始实施前必须在 Readiness 中复核这些变化并重新采集 A/B
-baseline，不能只因其 Plan 仍合法而沿用旧测量。
+性能基线。`schedule-checks-from-learned-durations` 已在实施前的 Readiness 中复核这些变化并重新采集 A/B
+baseline，没有沿用旧测量。
 
 ### 当前推荐批次
 
 | 批次 | Change | 当前允许的工作 | 并行边界 |
 | --- | --- | --- | --- |
-| 1A：主实现 | [`schedule-checks-from-learned-durations`](../changes/schedule-checks-from-learned-durations/proposal.md) | 从 Readiness 连续推进到实现、A/B 验收和归档 | 独占 Scheduler、check-execution、diagnostic 与相关公共说明 |
+| 1A：已归档 Scheduler | [`schedule-checks-from-learned-durations`](../changes/archive/schedule-checks-from-learned-durations/proposal.md) | 实现、Decision 对齐和 Gate A/B adoption 均已完成；[`acceptance.md`](../changes/archive/schedule-checks-from-learned-durations/acceptance.md) 只作为形成时证据读取，后续行为调整须另立 Change | 不与条件 Scheduler Change 并行修改 shared Scheduler/check-execution/diagnostic owner |
 | 1B：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A 并行规划；不要同时修改 invocation runtime |
 | 1C：证据 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | 完成大型 corpus benchmark、安全 payload 和 limit 语义设计 | 不得假设 path-context Draft 已落地 |
 | 1D：条件证据 | [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md) | 仅在当前任务授权后重审 owner，准备 oracle、corpus、provenance 与性能证据 | 未闭合 Resume Conditions 前不修改生产 backend |
 
 第一批完成后按以下顺序继续：
 
-1. learned-duration Change 先形成可供后续工作继承的稳定实现提交；不要求先进入 `main`。其自身验收与归档仍按
-   Change 任务和当前授权完成。
+1. learned-duration Change 已提供稳定实现与 Gate adoption evidence，并在完成 Decision 对齐和 `18/18` tasks 后归档；
+   归档 artifact 只保留形成时上下文，当前行为继续由 runtime、配置、API 与 Decision owner 承接。
 2. invocation path context 达到 Plan 后再实现；若只暴露 machine/diagnostic effective paths，不构成 Markdown cache 的
    硬前置。只有它明确提供 cross-run state capability 时，Markdown cache 才依赖它。
 3. Markdown cache 在 benchmark 与安全 payload 证明收益后进入 Plan；其实现可以与 Lizard analyzer 的独立源码工作并行，
    但二者涉及的 package、Gate、Case 和公共文档改动必须分次合入并重新验证。
-4. learned scheduler 形成新诊断证据后，再判断 fail-fast 与 named capacity 是否值得激活。
+4. learned scheduler 已形成首轮诊断与 A/B evidence；只有新的真实 workload 证明独立收益时，才重新判断 fail-fast 与 named capacity 是否值得激活。
 5. Node execution backend 最后独占推进，避免重复迁移测试、candidate、Gate 和性能基线。若 Windows/Bun 问题已是当前
    发布阻塞，则反转此推荐顺序：先冻结其它实现，把 Node Change 提升为唯一主线。
 
 ### Scheduler 轨道
 
 Scheduler 的 passed dependency、terminal observation、admission policy、measurement Hook 与性能诊断基础均已归档并
-进入当前基线。该轨道当前唯一可实施主线是 `schedule-checks-from-learned-durations`；其 Plan 没有阻塞性开放问题，
-但仍须先完成 priority/history 后继 Decision、最新 static baseline 与 Test Evidence Readiness。
+进入当前基线。`schedule-checks-from-learned-durations` 已完成 Product implementation 和同 candidate、同 membership 的
+交错 A/B acceptance；central Gate 已采用 learned policy，完整数据和环境边界见其
+[`acceptance.md`](../changes/archive/schedule-checks-from-learned-durations/acceptance.md)。learned-history 专项 Decision 已在最终代码、
+文档、测试和 Gate 验收后标记为 `active + aligned`，对应 Change 已归档。该对齐只确认长期方向已经成为当前事实；
+归档 artifact 不再接受 lifecycle 写入。Scheduler 轨道当前没有第二个已授权的生产实现主线。
 
 以下两项仍是条件分支，不与 learned scheduler 并行实现：
 

@@ -131,11 +131,31 @@ duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一�
 嵌套布尔表达式或通用 predicate，也不定义 token vocabulary。需要这些复杂条件时，owning Check 在 callback 中解释
 `project.flags` 并返回领域适当的终态。
 
-`scheduler.admissionPolicy` 是 closed `static | custom` authoring field。省略与显式
-`{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 custom callback 的
+`scheduler.admissionPolicy` 是 closed `static | custom | learned-critical-path` authoring field。省略与显式
+`{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 literal 和 custom callback 的
 TypeScript inference，与同形 inline object 没有额外运行语义。custom policy 的
 `proposeAdmission(context)` 必须同步返回精确的 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`；异步
 Promise/thenable、reason、reservation、identity/version 或 composition fields 都不属于该 grammar。
+
+`{ kind: "learned-critical-path", stateDirectory }` 让 Product 在每次 Run 为该 Definition 使用 caller-managed
+local state。`stateDirectory` 是非空、不得含 U+0000 的字符串；relative text 在 invocation 的 effective
+`projectRoot` 解析，absolute text 直接作为 target。它不是 filesystem sandbox、清理、锁、remote store 或跨项目共享承诺；
+调用方负责目录可写性、retention 和不把 secrets 放进 path。该 policy 没有 `expectedDurationMs`、Check-level duration
+grammar 或可配置 model 参数。`stateDirectory` 是 declarative snapshot/fingerprint 的一部分；custom callback identity
+继续不进入 fingerprint。
+
+learned policy 在 author preflight/execution 前按 canonical Check ID、authored options、effective flags 与 model
+version 的 digest 查找本地时长样本，并将 immutable prediction/critical-path table 交给 private Scheduler selection。
+当前 v1 实现每个 identity 最多保留 32 个样本、全目录最多保留最近更新的 4096 个 identity；已知 identity 使用
+arithmetic mean，未知 Task 先使用本次 Run 已知 estimate 的 median，仍无 prior 时使用正的 cold-start weight `1`。同一窗口按
+nearest-rank 计算 `p90`，但不参与 score。以上数字、file envelope 和 selection heuristic 是
+当前优化实现说明，不是 public storage/model compatibility promise。
+missing、malformed、incompatible 或 read-failed state 只形成 empty learned model；无法形成 canonical inputs，或 local
+setup、prediction 或 score-table construction 失败时，该 invocation 才回退 static selection。Scheduler 闭合后的 record/write
+failure 与 concurrent last-writer 只影响未来样本；上述优化降级均不改变 quality result 或 public output。
+priority 只在 critical-path score 相同的既有 Scheduler selection layer 中作为 tie-breaker，绝不绕过 relation、mutex、
+capacity 或 cancellation hard guard。完整 pre-admission / post-closure state flow、privacy 与 failure containment 见
+[Architecture](architecture.md#execution-boundary) 和 [API mechanisms](api-mechanics.md#learned-critical-path-准入)。
 
 `scheduler.measurementHooks` 是可选的 readonly function array；省略时规范化为冻结空数组。validation 只接受
 exact function entries，normalization 复制并冻结列表。每个 callback 接收同一个递归冻结的

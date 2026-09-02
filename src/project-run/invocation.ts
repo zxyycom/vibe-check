@@ -1,4 +1,7 @@
+import { resolve } from "node:path";
+
 import type { CheckProjectContext } from "../check/check.ts";
+import { canonicalizeJsonObject, canonicalizeJsonValue } from "../data-boundary/canonical-data.ts";
 import {
   normalizeProjectDefinition,
   type DefinitionWarning,
@@ -32,12 +35,27 @@ import {
 } from "./result.ts";
 import {
   diagnosticTags,
+  summarizeDiagnosticValue,
   type DiagnosticLogger,
   type DiagnosticLoggerFactory
 } from "./diagnostic-logging/logger.ts";
 import { createInvocation } from "./invocation-creation.ts";
 import { elapsedSince, outcomeCounts } from "./invocation-progress.ts";
 import type { OutputStatuses } from "./output-status.ts";
+import {
+  createSchedulerCriticalPathSnapshot,
+  type SchedulerCriticalPathSnapshot,
+  criticalPathScoreForTask
+} from "./scheduler-history/critical-path.ts";
+import type { SchedulerHistoryModel } from "./scheduler-history/bounded-history.ts";
+import {
+  createSchedulerPredictionSnapshot,
+  predictionForTask,
+  type SchedulerPredictionInput,
+  type SchedulerPredictionSnapshot
+} from "./scheduler-history/prediction.ts";
+import { recordSchedulerHistory } from "./scheduler-history/recording.ts";
+import { loadSchedulerHistory, writeSchedulerHistory } from "./scheduler-history/storage.ts";
 export type Invocation = Readonly<{
   readonly clock: CheckExecutionClock;
   readonly controls: RunControls;
@@ -64,6 +82,13 @@ export interface RunInvocationDependencies {
   /** Test seam for the invocation's machine-readable wall-clock timestamp. */
   readonly wallClock?: Readonly<{ now(): Date }>;
 }
+
+type SchedulerLearning = Readonly<{
+  readonly criticalPath: SchedulerCriticalPathSnapshot;
+  readonly history: SchedulerHistoryModel;
+  readonly prediction: SchedulerPredictionSnapshot;
+  readonly stateDirectory: string;
+}>;
 export async function executeValidatedRun(
   definition: ProjectDefinition,
   controls: RunControls,
@@ -115,7 +140,10 @@ function observeInvocationStarted(
     details: {
       aggregation: aggregation ?? null,
       checkCount: invocation.normalized.checks.length,
-      flags: invocation.controls.flags ?? [],
+      flags:
+        invocation.normalized.scheduler.admissionPolicy.kind === "learned-critical-path"
+          ? summarizeDiagnosticValue(invocation.controls.flags ?? [])
+          : (invocation.controls.flags ?? []),
       invocationId: invocation.invocationId,
       outputs: invocation.outputConfiguration,
       scheduler: invocation.normalized.declarative.scheduler
@@ -170,10 +198,12 @@ async function executePreparedInvocation(
   project: CheckProjectContext
 ): Promise<NonConfigurationRunResult> {
   if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "planning");
+  const learning = await prepareSchedulerLearning(invocation);
   invocation.progressRendering.prepared(invocation.normalized.checks.length);
   const executionStartedAt = invocation.clock.now();
-  const executed = await executeChecks(invocation, project, invocation.clock);
+  const executed = await executeChecks(invocation, project, invocation.clock, learning);
   if (isExecutionRunResult(executed)) return executed;
+  await recordSchedulerLearning(invocation, learning, executed.terminalSchedulerMeasurement);
   if (executed.kind === "admission-policy-failed") {
     return executionResult(invocation, "admission-policy-failed");
   }
@@ -233,18 +263,28 @@ function cancelledBeforeExecution(
 async function executeChecks(
   invocation: Invocation,
   project: CheckProjectContext,
-  clock: CheckExecutionClock
+  clock: CheckExecutionClock,
+  learning: SchedulerLearning | undefined
 ): Promise<ResolvedCheckExecution | NonConfigurationRunResult> {
   try {
+    const learned =
+      invocation.normalized.scheduler.admissionPolicy.kind === "learned-critical-path";
     return await executeResolvedChecks({
       admissionPolicy: invocation.normalized.scheduler.admissionPolicy,
       checks: invocation.normalized.checks,
       clock,
       diagnosticLogger: invocation.diagnosticLogger,
+      ...(learning === undefined
+        ? {}
+        : {
+            learnedCriticalPath: learning.criticalPath,
+            onAdmittedCheck: (check) => observeLearnedAdmission(invocation, learning, check)
+          }),
       schedulerPerformanceDiagnostics:
         invocation.diagnosticLoggingEnabled ||
         invocation.normalized.scheduler.measurementHooks.length > 0 ||
-        invocation.normalized.scheduler.admissionPolicy.kind === "custom"
+        invocation.normalized.scheduler.admissionPolicy.kind === "custom" ||
+        learned
           ? Object.freeze({
               clock,
               declarativeFingerprint: invocation.declarativeFingerprint,
@@ -263,6 +303,169 @@ async function executeChecks(
     });
   } catch {
     return executionResult(invocation, "task-engine-failed");
+  }
+}
+
+/** Builds all learned model inputs before Scheduler admission and never invokes preflight. */
+async function prepareSchedulerLearning(
+  invocation: Invocation
+): Promise<SchedulerLearning | undefined> {
+  const policy = invocation.normalized.scheduler.admissionPolicy;
+  if (policy.kind === "static") return undefined;
+  if (policy.kind === "custom") return undefined;
+
+  const inputs = schedulerPredictionInputs(invocation);
+  if (inputs === undefined) {
+    observeSchedulerLearningDiagnostic(invocation, {
+      event: "scheduler.history.prediction-unavailable",
+      tags: diagnosticTags("SCHEDULER", "HISTORY", "PREDICTION_UNAVAILABLE"),
+      details: Object.freeze({ reason: "canonical-input-unavailable" })
+    });
+    return undefined;
+  }
+
+  try {
+    const stateDirectory = resolve(invocation.projectRoot, policy.stateDirectory);
+    const loaded = await loadSchedulerHistory(stateDirectory);
+    const prediction = createSchedulerPredictionSnapshot(loaded.history, inputs);
+    const graph = prepareTaskGraph(
+      planStaticCheckGraph(invocation.normalized.checks),
+      invocation.normalized.declarative.scheduler.maxParallel
+    );
+    const criticalPath = createSchedulerCriticalPathSnapshot(
+      graph.schedulerGraphSnapshot,
+      prediction
+    );
+    observeSchedulerLearningDiagnostic(invocation, {
+      event: "scheduler.history.read",
+      tags: diagnosticTags("SCHEDULER", "HISTORY", "READ", loaded.observation.toUpperCase()),
+      details: Object.freeze({
+        modelVersion: prediction.modelVersion,
+        predictionDigest: prediction.digest,
+        retainedSeriesCount: loaded.history.series.length
+      })
+    });
+    return Object.freeze({
+      criticalPath,
+      history: loaded.history,
+      prediction,
+      stateDirectory
+    });
+  } catch {
+    observeSchedulerLearningDiagnostic(invocation, {
+      event: "scheduler.history.prediction-unavailable",
+      tags: diagnosticTags("SCHEDULER", "HISTORY", "PREDICTION_UNAVAILABLE"),
+      details: Object.freeze({ reason: "history-setup-failed" })
+    });
+    return undefined;
+  }
+}
+
+function schedulerPredictionInputs(
+  invocation: Invocation
+): readonly SchedulerPredictionInput[] | undefined {
+  const flags = canonicalizeJsonValue(invocation.controls.flags ?? []);
+  if (flags === undefined) return undefined;
+  const inputs: SchedulerPredictionInput[] = [];
+  for (const check of invocation.normalized.checks) {
+    const authoredOptions = canonicalizeJsonObject(check.options);
+    if (authoredOptions === undefined) return undefined;
+    inputs.push(
+      Object.freeze({
+        authoredOptions,
+        checkId: check.definition.checkId,
+        flags,
+        taskId: check.definition.checkId
+      })
+    );
+  }
+  return Object.freeze(inputs);
+}
+
+function observeLearnedAdmission(
+  invocation: Invocation,
+  learning: SchedulerLearning,
+  check: NormalizedProjectDefinition["checks"][number]
+): void {
+  const taskId = check.definition.checkId;
+  const prediction = predictionForTask(learning.prediction, taskId);
+  const score = criticalPathScoreForTask(learning.criticalPath, taskId);
+  if (prediction === undefined || score === undefined) return;
+  observeSchedulerLearningDiagnostic(invocation, {
+    event: "scheduler.learned-admission",
+    tags: diagnosticTags("SCHEDULER", "LEARNED", "ADMISSION", `TASK:${taskId}`),
+    details: Object.freeze({
+      criticalPathScore: score,
+      estimatedDurationMs: prediction.estimatedDurationMs,
+      sampleCount: prediction.sampleCount,
+      source: prediction.source
+    })
+  });
+}
+
+/** Records only post-drain terminal facts; all local-state failure modes preserve the Run result. */
+async function recordSchedulerLearning(
+  invocation: Invocation,
+  learning: SchedulerLearning | undefined,
+  terminalMeasurement: ResolvedCheckExecution["terminalSchedulerMeasurement"]
+): Promise<void> {
+  if (learning === undefined) return;
+  if (terminalMeasurement === undefined) {
+    observeSchedulerLearningDiagnostic(invocation, {
+      event: "scheduler.history.recording-unavailable",
+      tags: diagnosticTags("SCHEDULER", "HISTORY", "RECORDING_UNAVAILABLE"),
+      details: Object.freeze({ reason: "terminal-measurement-unavailable" })
+    });
+    return;
+  }
+  try {
+    const recording = recordSchedulerHistory({
+      history: learning.history,
+      prediction: learning.prediction,
+      rawMeasurement: terminalMeasurement.rawMeasurement,
+      settledTasks: terminalMeasurement.execution.settledTasks
+    });
+    observeSchedulerLearningDiagnostic(invocation, {
+      event: "scheduler.history.recorded",
+      tags: diagnosticTags(
+        "SCHEDULER",
+        "HISTORY",
+        "RECORDED",
+        recording.observation.status.toUpperCase()
+      ),
+      details: Object.freeze({
+        acceptedSampleCount: recording.observation.acceptedSampleCount,
+        retainedSeriesCount: recording.observation.retainedSeriesCount
+      })
+    });
+    const writeObservation = await writeSchedulerHistory(
+      learning.stateDirectory,
+      recording.history
+    );
+    observeSchedulerLearningDiagnostic(invocation, {
+      event: "scheduler.history.write",
+      tags: diagnosticTags("SCHEDULER", "HISTORY", "WRITE", writeObservation.toUpperCase()),
+      details: Object.freeze({
+        retainedSeriesCount: recording.observation.retainedSeriesCount
+      })
+    });
+  } catch {
+    observeSchedulerLearningDiagnostic(invocation, {
+      event: "scheduler.history.recording-unavailable",
+      tags: diagnosticTags("SCHEDULER", "HISTORY", "RECORDING_UNAVAILABLE"),
+      details: Object.freeze({ reason: "history-recording-failed" })
+    });
+  }
+}
+
+function observeSchedulerLearningDiagnostic(
+  invocation: Invocation,
+  observation: Parameters<DiagnosticLogger["observe"]>[0]
+): void {
+  try {
+    invocation.diagnosticLogger.observe(observation);
+  } catch {
+    // Optimization diagnostics cannot revise lifecycle or quality facts.
   }
 }
 function planningResult(

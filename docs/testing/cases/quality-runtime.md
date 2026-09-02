@@ -277,3 +277,63 @@ Entities:
 - The last admission boundary's logical post-state active snapshot retains its complete discrete count and at most three settlement-delta contributors, including the newly admitted Task. These contributors explain the observed completion tail but do not claim dependency critical-path ownership. The invocation-owned declarative fingerprint remains only a declarative-configuration matching signal and does not identify RunControls, code/candidate/tool/runtime/host, terminal outcomes, or a custom callback.
 - Named scripted clock phases distinguish valid zero spans from invalid clock samples; timing failure retains the fingerprint, admitted and accepted-wait counts, max-running, last-settled Task ID, queue peaks, and tail active count without fabricating time. Only when the policy is static, diagnostics are disabled, and the caller Hook list is empty does Scheduler add no measurement collector or clock reads; a custom policy needs decision-boundary measurement even without terminal consumers. Summary writer failures cannot revise the settled Scheduler result.
 - Internal default summary Hook and each caller measurement Hook share one ordered terminal runner; the default wrapper contains writer failure before caller failure/output policy applies. Each caller measurement Hook receives the same recursively frozen terminal context after admission stops and started work drains. It exposes canonical graph, admitted/settled kind-only observations, and first-order raw measurement without Task values/errors/callbacks, summary top-N projections, mutable internals, or an interval event log. Sync/async Hooks run in configuration order and all settle; only an all-successful configured sequence marks its output succeeded, while throw/rejection continues later Hooks and marks it failed. A normal completion then becomes the facts-preserving `scheduler-measurement-hooks-failed` output result; cancellation and admission-policy failure retain their primary result/diagnostic with the Hook status still visible.
+
+## Case WB-RUNTIME-SCHEDULER-HISTORY-001: Local Scheduler history remains bounded and failure-contained
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
+- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > isolates missing, malformed, incompatible, failed, and concurrent local state`
+- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > evicts the oldest series and scores both dependency and observation downstream paths once`
+- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
+- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
+Proves:
+
+- The Product-private local history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, keeps at most 32 samples per identity and 4096 recently updated identities, and persists digest-only closed state through same-directory atomic replacement.
+- Missing, malformed, incompatible, and read-failed state forms an empty learned model; post-drain write failure and concurrent last-writer activity only reduce future samples. None exposes partial JSON or retains authored options and effective flags. The Architecture/API owner, not this Case, defines the distinct static fallback when prediction cannot be formed.
+
+## Case WB-RUNTIME-SCHEDULER-PREDICTION-001: Frozen duration predictions use a deterministic bounded prior
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
+- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > uses learned means before a median project prior and a cold-start fallback`
+Proves:
+
+- An identity derived from model version, Check ID, canonical authored options, and canonical effective flags yields a frozen digest-only prediction snapshot. Its learned estimates retain sample count, arithmetic mean, and nearest-rank p90 without retaining source options or flags.
+- The snapshot selects learned estimates first, then one median of the Run's learned estimates for unknown Tasks, and finally common positive cold-start weight `1`; unavailable timing does not revise it or create a sample.
+
+## Case WB-RUNTIME-SCHEDULER-CRITICAL-PATH-001: Directed readiness relations form one reverse critical-path score
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > evicts the oldest series and scores both dependency and observation downstream paths once`
+Proves:
+
+- Before admission, the immutable score table adds each Task estimate to the maximum direct downstream score across both `dependsOn` and `observes` relations; it is frozen and does not reinterpret Task priority or runtime capacity facts.
+
+## Case WB-RUNTIME-SCHEDULER-LEARNED-ADMISSION-001: Learned admission preserves generic Scheduler legality
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > uses score, effective priority, and canonical order within each existing selection layer`
+- `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > keeps the Scheduler capacity wait guard when the highest score cannot admit`
+- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
+Proves:
+
+- Learned scheduling captures its immutable prediction and critical-path score table before admission, then compares score descending only within the existing tightening, constrained-continuation, and ordinary layers; equal scores retain effective priority and canonical Task-ID order.
+- The pure policy returns `wait` for a capacity-blocked preferred Task, leaving relation, mutex, capacity, cancellation, and drain hard guards to the generic Scheduler. Terminal raw measurement is consumed privately after drain and is not added to `RunResult`.
+
+## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned optimization observations stay bounded and non-quality-bearing
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
+Proves:
+
+- Learned diagnostics report bounded read/write and selected-admission facts without raw authored options, effective flags, identity inputs, or samples. A local history write failure remains an optimization-only observation and preserves the completed quality result.

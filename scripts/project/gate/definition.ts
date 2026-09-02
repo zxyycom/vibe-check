@@ -436,7 +436,13 @@ export function createProjectGateDefinition(
       machinePublication: { enabled: false },
       progressRendering: { enabled: true }
     },
-    scheduler: { maxParallel: 3 }
+    scheduler: {
+      admissionPolicy: {
+        kind: "learned-critical-path",
+        stateDirectory: ".cache/vibe-check/scheduler-history"
+      },
+      maxParallel: 3
+    }
   });
 }
 

@@ -28,32 +28,32 @@ export interface ProjectGatePerformanceBaseline {
 }
 
 /**
- * Advisory baselines collected on 2026-09-01 with five interleaved, sequential
- * invocations per profile. The threshold is the greater of p90 * 1.25 and
+ * Advisory baselines collected on 2026-09-02 with five interleaved, sequential
+ * learned-critical-path invocations per profile. The threshold is the greater of p90 * 1.25 and
  * median * 1.5 so ordinary workstation noise remains non-blocking.
  */
 export const PROJECT_GATE_PERFORMANCE_BASELINES: readonly ProjectGatePerformanceBaseline[] =
   Object.freeze([
     {
-      medianMs: 8_558.9,
-      p90Ms: 9_179.6,
-      samplesMs: Object.freeze([9_179.6, 8_558.9, 8_214.5, 9_062.2, 8_539.2]),
-      thresholdMs: 12_839,
+      medianMs: 11_205.7,
+      p90Ms: 14_943.4,
+      samplesMs: Object.freeze([10_739.5, 12_186.6, 14_943.4, 11_205.7, 9_345.3]),
+      thresholdMs: 18_680,
       workload: Object.freeze({
         candidatePreparation: "reuse",
-        declarativeFingerprint: "35f41c18d236e833261e413f680747fd59e54a0cbd28d01057e99bccdd9dec2b",
+        declarativeFingerprint: "4a76afb8bedd38e01c3c4c5f9ddb716d49e3d0a5d4cb425059168cc8c9079141",
         profile: "required",
         runtime: Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" })
       })
     },
     {
-      medianMs: 13_888.5,
-      p90Ms: 15_516.6,
-      samplesMs: Object.freeze([15_516.6, 14_032.8, 13_831, 13_716.9, 13_888.5]),
-      thresholdMs: 20_833,
+      medianMs: 17_581.6,
+      p90Ms: 32_950.2,
+      samplesMs: Object.freeze([16_666.3, 16_435.8, 32_950.2, 18_262.4, 17_581.6]),
+      thresholdMs: 41_188,
       workload: Object.freeze({
         candidatePreparation: "reuse",
-        declarativeFingerprint: "35f41c18d236e833261e413f680747fd59e54a0cbd28d01057e99bccdd9dec2b",
+        declarativeFingerprint: "4a76afb8bedd38e01c3c4c5f9ddb716d49e3d0a5d4cb425059168cc8c9079141",
         profile: "full",
         runtime: Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" })
       })

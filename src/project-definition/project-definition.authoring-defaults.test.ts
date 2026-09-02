@@ -15,6 +15,7 @@ describe("Project Definition", () => {
     const definition = defineConfig({});
     assertDefinitionDefaults(definition);
     assertCustomAdmissionPolicy();
+    assertLearnedCriticalPathAdmissionPolicy();
     assertSchedulerValidation(definition);
     assertOutputDirectoryValidation(definition);
     assert.equal(Object.getPrototypeOf(definition), Object.prototype);
@@ -62,6 +63,17 @@ function assertCustomAdmissionPolicy(): void {
   }
 }
 
+function assertLearnedCriticalPathAdmissionPolicy(): void {
+  const policy = defineAdmissionPolicy({
+    kind: "learned-critical-path",
+    stateDirectory: ".vibe-check/duration-state"
+  });
+  const definition = defineConfig({ scheduler: { admissionPolicy: policy } });
+  assert.equal(definition.scheduler.admissionPolicy, policy);
+  assert.equal(validateProjectDefinition(definition).ok, true);
+  assert.deepEqual(normalizeProjectDefinition(definition).scheduler.admissionPolicy, policy);
+}
+
 function assertSchedulerValidation(definition: ProjectDefinition): void {
   assert.equal(
     validateProjectDefinition({ ...definition, scheduler: { maxParallel: 1 } }).ok,
@@ -72,6 +84,27 @@ function assertSchedulerValidation(definition: ProjectDefinition): void {
     { admissionPolicy: { kind: "custom" }, maxParallel: 1 },
     {
       admissionPolicy: { kind: "custom", proposeAdmission: 1 },
+      maxParallel: 1
+    },
+    { admissionPolicy: { kind: "learned-critical-path" }, maxParallel: 1 },
+    {
+      admissionPolicy: { kind: "learned-critical-path", stateDirectory: 1 },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: { kind: "learned-critical-path", stateDirectory: "" },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: { kind: "learned-critical-path", stateDirectory: "state\0directory" },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: {
+        kind: "learned-critical-path",
+        stateDirectory: "state-directory",
+        unexpected: true
+      },
       maxParallel: 1
     },
     { admissionPolicy: { kind: "unknown" }, maxParallel: 1 },
