@@ -2,7 +2,7 @@ import type { FindingPolicy } from "../code-quality-findings/policy.ts";
 import type { ResolvedFunctionMetricsLimits } from "./options.ts";
 
 export interface MetricValue {
-  readonly source: "lizard";
+  readonly source: "typescript-analyzer";
   readonly value: number | null;
 }
 

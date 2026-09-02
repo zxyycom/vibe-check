@@ -32,16 +32,15 @@ import {
   type FunctionInputRejectedCandidate,
   type FunctionRecordCandidate
 } from "./records.ts";
-import { isLizardTarget } from "./target-files.ts";
+import { isFunctionMetricsTarget } from "./target-files.ts";
 import type { FunctionMetricsFinalData } from "./final-data.ts";
 
 /** `function-metrics` whole-Check unavailable outcome 的稳定 reason code。 */
 export type FunctionMetricsUnavailableReasonCode =
+  | "analysis-failed"
   | "cancelled"
-  | "external-dependency-unavailable"
-  | "external-execution-failed"
-  | "external-result-invalid"
   | "invalid-options"
+  | "resource-limit-exceeded"
   | "source-unavailable";
 
 /** Default Check callback；一次扫描完整 area exact-input union。 */
@@ -75,7 +74,6 @@ async function executePreparedFunctionMetrics(
     return settleFunctionFindings(reconciliation, prepared.rejectedCandidates);
   }
   const measurement = await measureFunctionMetrics({
-    dependency: context.options.scanner,
     input: prepared.exactInput,
     signal: context.signal
   });
@@ -88,14 +86,14 @@ async function executePreparedFunctionMetrics(
   const analysis = analyzeFunctionMetrics(measurement.metrics);
   if (analysis === undefined) {
     return appendInputRejectedMessage(
-      unavailable("external-result-invalid"),
+      unavailable("analysis-failed"),
       prepared.rejectedCandidates.length
     );
   }
   const candidates = buildFunctionRecordCandidates(analysis, prepared.exactInput.areas);
   if (candidates === undefined) {
     return appendInputRejectedMessage(
-      unavailable("external-result-invalid"),
+      unavailable("analysis-failed"),
       prepared.rejectedCandidates.length
     );
   }
@@ -181,7 +179,7 @@ function collectAreaInputs(
   for (const [codeArea, policy] of orderedPolicies) {
     const selectedForArea = requireProjectFileSet(filesByArea, codeArea);
     for (const path of selectedForArea) selectedPaths.add(path);
-    const partition = partitionProjectFilesByEligibility(selectedForArea, isLizardTarget);
+    const partition = partitionProjectFilesByEligibility(selectedForArea, isFunctionMetricsTarget);
     for (const path of partition.rejectedPaths) {
       const matchingAreas = rejectedCodeAreasByPath.get(path) ?? [];
       matchingAreas.push(codeArea);
@@ -258,12 +256,12 @@ function directMeasurementFailure(
   switch (measurement.kind) {
     case "cancelled":
       return unavailable("cancelled");
-    case "execution-failed":
-      return unavailable("external-execution-failed");
-    case "invalid-result":
-      return unavailable("external-result-invalid");
-    case "unavailable":
-      return unavailable("external-dependency-unavailable");
+    case "analysis-failed":
+      return unavailable("analysis-failed");
+    case "resource-limit-exceeded":
+      return unavailable("resource-limit-exceeded");
+    case "source-unavailable":
+      return unavailable("source-unavailable");
   }
   const exhaustiveMeasurement: never = measurement;
   return exhaustiveMeasurement;
@@ -289,12 +287,10 @@ function unavailableMessage(code: FunctionMetricsUnavailableReasonCode): string 
       return "Function metrics was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate.";
     case "source-unavailable":
       return "Function metrics could not collect its configured project files; check the project root, file permissions, and selected file source.";
-    case "external-dependency-unavailable":
-      return "The configured Lizard command is unavailable or incompatible; install compatible Lizard 1.23.x or configure a compatible executable.";
-    case "external-execution-failed":
-      return "Lizard did not complete successfully; run the configured command directly and inspect its environment.";
-    case "external-result-invalid":
-      return "Lizard output could not form a trusted complete result; check the executable version and CSV compatibility.";
+    case "analysis-failed":
+      return "Function metrics analysis did not produce a complete trusted result; inspect the selected source and retry after correcting it.";
+    case "resource-limit-exceeded":
+      return "Function metrics input exceeds the per-file or aggregate analysis resource limit; narrow the selected files or reduce their size.";
   }
 }
 

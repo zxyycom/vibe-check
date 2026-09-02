@@ -10,9 +10,8 @@ import {
 import { PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS } from "../definition.ts";
 
 describe("repository quality Checks", () => {
-  it("uses the retained repository policy and mise-provided absolute scanner commands", () => {
+  it("uses the retained repository policy and binds only the mise-provided SCC command", () => {
     const checks = createRepositoryQualityChecks(PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS, {
-      lizard: "/tools/lizard",
       scc: "/tools/scc"
     });
 
@@ -38,7 +37,7 @@ describe("repository quality Checks", () => {
       source: "filesystem"
     });
     assert.equal(fileMetrics.options.scanner.executable, "/tools/scc");
-    assert.equal(functionMetrics.options.scanner.executable, "/tools/lizard");
+    assert.equal(Object.hasOwn(functionMetrics.options, "scanner"), false);
     assert.equal(
       functionMetrics.options.codeAreas["product-source"]?.findingPolicy,
       "non-blocking"
@@ -112,25 +111,21 @@ describe("repository quality Checks", () => {
     }
   });
 
-  it("substitutes an unavailable absolute command when mise bindings are missing or relative", () => {
+  it("substitutes an unavailable absolute SCC command without a function-metrics command", () => {
     const commands = repositoryQualityScannerCommands({
-      VIBE_CHECK_LIZARD_CMD: "lizard",
       VIBE_CHECK_SCC_CMD: undefined
     });
 
-    assert.equal(isAbsolute(commands.lizard), true);
     assert.equal(isAbsolute(commands.scc), true);
-    assert.notEqual(commands.lizard, "lizard");
     assert.notEqual(commands.scc, "scc");
+    assert.equal(Object.hasOwn(commands, "lizard"), false);
 
     const checks = createRepositoryQualityChecks(PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS, {
-      lizard: "lizard",
       scc: "scc"
     });
     assert.equal(isAbsolute(checks.fileMetrics.options.scanner.executable), true);
-    assert.equal(isAbsolute(checks.functionMetrics.options.scanner.executable), true);
     assert.notEqual(checks.fileMetrics.options.scanner.executable, "scc");
-    assert.notEqual(checks.functionMetrics.options.scanner.executable, "lizard");
+    assert.equal(Object.hasOwn(checks.functionMetrics.options, "scanner"), false);
   });
 });
 

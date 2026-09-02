@@ -1,16 +1,12 @@
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
+import { rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { assertOvermatchedFindingWaiverEvidence } from "../code-quality-findings/finding-waiver-evidence.test-support.ts";
 import { functionMetrics } from "./constructor.ts";
 import { executeFunctionMetrics } from "./execution.ts";
-import {
-  createExecutable,
-  createRoot,
-  execute,
-  STRICT_LIMITS
-} from "./constructor.test-support.ts";
+import { createRoot, execute } from "./constructor.test-support.ts";
 
 const SOURCE_FILES = {
   exclude: [],
@@ -23,6 +19,14 @@ const PARAMETER_IDENTITY = {
   path: "src/a.ts",
   startLine: 1
 } as const;
+const STRICT_LIMITS = {
+  codeLines: {
+    maximum: 1,
+    lowComplexityAllowance: { cyclomaticComplexityBelow: 1, maximum: 1 }
+  },
+  cyclomaticComplexity: { maximum: 1 },
+  parameters: { maximum: 4 }
+} as const;
 
 describe("functionMetrics finding waivers", () => {
   it("validates closed identity authoring without invoking hostile accessors", () =>
@@ -30,13 +34,12 @@ describe("functionMetrics finding waivers", () => {
 
   it("audits unused waivers only after forming a complete empty candidate set", async () => {
     await assertFunctionUnusedWaiverAudit();
-    await assertFunctionScannerFailureDoesNotAuditWaiver();
   });
 
   it("preserves applied and stale waiver evidence while settling only actionable metrics", async () => {
     const root = createRoot("vibe-check-function-waiver-");
     try {
-      const executable = createExecutable(root, functionScannerRows([functionRow()]));
+      writeFileSync(join(root, "src", "a.ts"), overLimitFunction(), "utf8");
       const check = functionMetrics({
         codeAreas: {
           source: {
@@ -51,47 +54,15 @@ describe("functionMetrics finding waivers", () => {
             identity: { ...PARAMETER_IDENTITY, functionName: "removed" },
             reason: "Stale function policy."
           }
-        ],
-        scanner: { executable }
+        ]
       });
       const observed = await execute(executeFunctionMetrics, check.options, root);
 
-      assert.deepEqual(observed.result, {
-        status: "failed",
-        data: { blockingFindingCount: 2, findingCount: 3 },
-        messages: [
-          {
-            code: "blocking-findings",
-            level: "error",
-            message:
-              "2 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-          },
-          {
-            code: "finding-detail",
-            level: "error",
-            message: "src/a.ts:1 a: cyclomatic-complexity 12 exceeds the 5 limit (areas: source)."
-          },
-          {
-            code: "finding-detail",
-            level: "error",
-            message: "src/a.ts:1 a: function-code-density 20 exceeds the 10 limit (areas: source)."
-          },
-          {
-            code: "finding-waived",
-            level: "info",
-            message:
-              "Function metric finding for src/a.ts:1 a parameter-count was waived: Generated adapter signature."
-          },
-          {
-            code: "unused-finding-waiver",
-            level: "warning",
-            message:
-              "Configured function-metrics finding waiver for src/a.ts:1 removed parameter-count matched no finding; remove it or update its identity. Reason: Stale function policy."
-          }
-        ]
-      });
-      assert.equal(observed.records.length, 4);
-      assert.deepEqual(observed.records[2]?.data, {
+      assert.equal(observed.result.status, "failed");
+      if (observed.result.status !== "failed") return;
+      assert.deepEqual(observed.result.data, { blockingFindingCount: 1, findingCount: 2 });
+      assert.equal(observed.records.length, 3);
+      assert.deepEqual(observed.records[1]?.data, {
         blocking: false,
         codeAreas: ["source"],
         functionName: "a",
@@ -99,10 +70,10 @@ describe("functionMetrics finding waivers", () => {
         metric: "parameter-count",
         path: "src/a.ts",
         startLine: 1,
-        value: 7,
+        value: 5,
         waiver: { reason: "Generated adapter signature." }
       });
-      assert.deepEqual(observed.records[3]?.data, {
+      assert.deepEqual(observed.records[2]?.data, {
         identity: { ...PARAMETER_IDENTITY, functionName: "removed" },
         kind: "finding-waiver-audit",
         matchCount: 0,
@@ -114,12 +85,13 @@ describe("functionMetrics finding waivers", () => {
     }
   });
 
-  it("keeps duplicate function identities actionable when a waiver overmatches", async () => {
+  it("keeps duplicate analyzer function identities actionable when a waiver overmatches", async () => {
     const root = createRoot("vibe-check-function-overmatched-waiver-");
     try {
-      const executable = createExecutable(
-        root,
-        functionScannerRows([functionRow(), functionRow()])
+      writeFileSync(
+        join(root, "src", "a.ts"),
+        `${overLimitFunction()} ${overLimitFunction()}`,
+        "utf8"
       );
       const check = functionMetrics({
         codeAreas: {
@@ -129,13 +101,12 @@ describe("functionMetrics finding waivers", () => {
             limits: STRICT_LIMITS
           }
         },
-        findingWaivers: [{ identity: PARAMETER_IDENTITY, reason: "Must not cover two functions." }],
-        scanner: { executable }
+        findingWaivers: [{ identity: PARAMETER_IDENTITY, reason: "Must not cover two functions." }]
       });
       const observed = await execute(executeFunctionMetrics, check.options, root);
       assert.equal(observed.result.status, "failed");
       if (observed.result.status !== "failed") return;
-      assert.deepEqual(observed.result.data, { blockingFindingCount: 6, findingCount: 6 });
+      assert.deepEqual(observed.result.data, { blockingFindingCount: 4, findingCount: 4 });
       assertOvermatchedFindingWaiverEvidence(observed, {
         identity: PARAMETER_IDENTITY,
         kind: "finding-waiver-audit",
@@ -184,37 +155,6 @@ function assertInvalidFunctionWaiverAuthoring(): void {
     );
   }
   assert.equal(getterReads, 0);
-}
-
-async function assertFunctionScannerFailureDoesNotAuditWaiver(): Promise<void> {
-  const root = createRoot("vibe-check-function-failed-scan-waiver-");
-  try {
-    const executable = createExecutable(
-      root,
-      "if (process.argv.includes('--version')) process.stdout.write('1.23.0\\n'); else process.exitCode = 2;"
-    );
-    const check = functionMetrics({
-      codeAreas: { source: { files: SOURCE_FILES } },
-      findingWaivers: [{ identity: PARAMETER_IDENTITY, reason: "Awaiting complete scan." }],
-      scanner: { executable }
-    });
-    const observed = await execute(executeFunctionMetrics, check.options, root);
-    assert.deepEqual(observed.result, {
-      status: "unavailable",
-      reason: { code: "external-execution-failed" },
-      messages: [
-        {
-          code: "external-execution-failed",
-          level: "error",
-          message:
-            "Lizard did not complete successfully; run the configured command directly and inspect its environment."
-        }
-      ]
-    });
-    assert.deepEqual(observed.records, []);
-  } finally {
-    rmSync(root, { recursive: true, force: true });
-  }
 }
 
 async function assertFunctionUnusedWaiverAudit(): Promise<void> {
@@ -277,19 +217,6 @@ async function assertInvalidResolvedFunctionWaivers(
   });
 }
 
-function functionScannerRows(rows: readonly string[]): string {
-  return [
-    "if (process.argv.includes('--version')) process.stdout.write('1.23.0\\n');",
-    `else process.stdout.write(${JSON.stringify(
-      [
-        "NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line",
-        ...rows,
-        ""
-      ].join("\n")
-    )});`
-  ].join("\n");
-}
-
-function functionRow(): string {
-  return "20,12,100,7,20,a@1-20@src/a.ts,src/a.ts,a,a (),1,20";
+function overLimitFunction(): string {
+  return "export function a(one: number, two: number, three: number, four: number, five: number) { if (one) return two; return three; }";
 }

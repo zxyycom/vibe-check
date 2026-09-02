@@ -11,7 +11,6 @@ import {
   type MarkdownLinkValidationOptions
 } from "@zxyycom/vibe-check";
 
-const MISE_LIZARD_COMMAND_ENV = "VIBE_CHECK_LIZARD_CMD";
 const MISE_SCC_COMMAND_ENV = "VIBE_CHECK_SCC_CMD";
 const unavailableScannerDirectory = resolve(
   ".cache",
@@ -22,7 +21,7 @@ const unavailableScannerDirectory = resolve(
 export interface RepositoryQualityCheckOptions {
   readonly duplicateDetection: DuplicateDetectionOptions;
   readonly fileMetrics: Omit<FileMetricsOptions, "scanner">;
-  readonly functionMetrics: Omit<FunctionMetricsOptions, "scanner">;
+  readonly functionMetrics: FunctionMetricsOptions;
   readonly markdownLinkValidation: MarkdownLinkValidationOptions;
 }
 
@@ -34,7 +33,6 @@ export interface RepositoryQualityChecks {
 }
 
 export interface RepositoryQualityScannerCommands {
-  readonly lizard: string;
   readonly scc: string;
 }
 
@@ -43,7 +41,6 @@ export function repositoryQualityScannerCommands(
   environment: NodeJS.ProcessEnv = process.env
 ): RepositoryQualityScannerCommands {
   return Object.freeze({
-    lizard: absoluteScannerCommand(environment[MISE_LIZARD_COMMAND_ENV], MISE_LIZARD_COMMAND_ENV),
     scc: absoluteScannerCommand(environment[MISE_SCC_COMMAND_ENV], MISE_SCC_COMMAND_ENV)
   });
 }
@@ -59,10 +56,7 @@ export function createRepositoryQualityChecks(
       ...options.fileMetrics,
       scanner: { executable: absoluteScannerCommand(scanners.scc, MISE_SCC_COMMAND_ENV) }
     }),
-    functionMetrics: functionMetrics({
-      ...options.functionMetrics,
-      scanner: { executable: absoluteScannerCommand(scanners.lizard, MISE_LIZARD_COMMAND_ENV) }
-    }),
+    functionMetrics: functionMetrics(options.functionMetrics),
     markdownLinkValidation: markdownLinkValidation(options.markdownLinkValidation)
   });
 }

@@ -27,16 +27,19 @@ Entities:
   Proves:
 - Each file-metrics area owns its file selection, code-line policy and effective finding policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking.
 
-## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function constructor owns area and finding policy
+## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function Check owns area, finding, and unavailable policy
 
 Owner: `docs/scanner-dependencies.md#check-owned-command-options`
 Entities:
 
-- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics constructor > materializes frozen defaults and rejects malformed closed policy`
-- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics cancellation > stops before scanner measurement when cancellation is observed after availability`
-- `bun|src/package-checks/function-metrics/constructor.area-findings.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics constructor > materializes frozen analyzer-owned defaults and rejects malformed closed policy`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics analyzer execution > runs from the Product-owned analyzer without an external scanner`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics analyzer execution > terminates an in-flight Worker before results or waiver audit`
+- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics analyzer execution > fails an over-limit exact input before records or waiver audit`
+- `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > yields during admission so cancellation prevents Worker startup, Records, and waiver audit`
+- `bun|src/package-checks/function-metrics/constructor.area-findings.test.ts|functionMetrics area findings > records complete analyzer evidence and fails only for effective blocking findings`
   Proves:
-- `functionMetrics(options?)` materializes a precise case-insensitive Lizard-supported include plus frozen non-blocking area defaults with NLOC `60`, low-complexity `180` below CC `6`, CC `12`, parameters `6`, and executable `lizard`; it rejects malformed authored input synchronously, retains defensive resolved preflight validation, and exposes the strict final-count parser. One Lizard scan receives only the accepted area exact-path union, overlapping areas use deterministic strict policy, all metric and rejection findings become local supplemental Records, and only effective blocking metric findings fail the Check. Blocking, non-blocking, input-rejection, cancellation, and other Check-owned unavailable outcomes carry safe actionable messages.
+- `functionMetrics(options?)` materializes frozen non-blocking defaults for the translated registry's exact include set, with NLOC `60`, low-complexity `180` below CC `6`, CC `12`, and parameters `6`; it synchronously rejects scanner-shaped and other unknown authored input, retains defensive resolved preflight validation, and exposes the strict final-count parser. The Check passes only its accepted deduplicated exact-path union to the Product-owned analyzer, applies deterministic strict area policy, and reports complete metric/rejection findings as local supplemental Records. Admission yields after at most `32 KiB`: cancellation before Worker startup returns a whole-Check unavailable outcome without a Worker, partial metric Records, or waiver audit; cancellation after one Worker starts terminates it before result formation with the same empty-Records/unaudited-waiver outcome. Resource failure also returns a whole-Check unavailable outcome.
 
 ## Case WB-SCANNER-DUPLICATE-CHECK-001: Duplicate default owns its command and Check-owned cache options
 
@@ -78,27 +81,21 @@ Entities:
 
 - The duplicate-detection-owned jscpd adapter distinguishes available findings from missing commands, unavailable tools, unidentifiable version provenance, nonzero execution, missing reports, and malformed reports. Package availability reports the actual version of its contained package bin; the repository/candidate/external-consumer release evidence separately verifies that this version agrees with the resolved manifest. Custom availability identifies its command without inferring repository provenance. An identifiable actual version is accepted without an exact runtime lock and partitions raw cache identity. A custom executable directly receives adapter-owned version and scan arguments, while no public worker or argument passthrough can alter that protocol. The adapter removes only a duplicate report `format`-matched path suffix before normalizing valid JSON and never accepts a partial trusted result.
 
-## Case AUX-LIZARD-ADAPTER-OUTCOMES-001: Lizard adapter preserves its private result boundary
+## Case AUX-FUNCTION-ANALYZER-ADAPTER-OUTCOMES-001: Product analyzer adapter preserves its whole-input boundary
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > classifies missing dependency commands as unavailable tools`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > classifies non-zero version exits with stderr as execution failures`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > classifies signal termination as execution failure`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > passes only exact paths and adapter-owned CSV arguments to the executable`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > rejects empty version provenance instead of accepting an unknown tool`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > accepts canonical supported 1.23 versions`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > rejects noncanonical version provenance without echoing it`
-- `bun|src/package-checks/function-metrics/lizard/scanner.test.ts|Lizard adapter command boundary > rejects unsupported canonical version provenance`
-- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics availability > fails aggregate and does not scan when version provenance is unsupported`
-- `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > keeps legitimate Lizard zero-function output successful`
-- `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > parses Lizard 1.23 function rows`
-- `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > rejects malformed Lizard rows without accepting partial output`
-- `bun|src/package-checks/function-metrics/lizard/parser.test.ts|quality scanner output parsing > rejects malformed or partial Lizard CSV headers instead of treating them as zero functions`
+- `bun|src/package-checks/function-metrics/analyzer-adapter.test.ts|functionMetrics Product analyzer adapter > passes all 27 reader families and 55 registered extensions through the exact-input Worker`
+- `bun|src/package-checks/function-metrics/analyzer-worker.test.ts|functionMetrics analyzer Worker > resolves from the source tree and turns a malformed request into a whole-request failure`
+- `bun|src/package-checks/function-metrics/measurement.encoding.test.ts|functionMetrics source-byte admission > matches Lizard 1.23 auto_read byte and newline observations`
+- `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > uses actual bytes for the 8 MiB per-file boundary and fails closed above it`
+- `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > fails the whole exact input when aggregate bytes exceed 64 MiB without sending a prefix`
+- `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > reports a missing admitted exact path as source-unavailable`
+- `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > maps a synchronous Worker postMessage failure to one whole analysis failure`
   Proves:
 
-- The function-metrics-owned Lizard adapter alone supplies version, exact-path and CSV arguments. It accepts only canonical `1.23.<patch>` version output with no leading-zero segment, fails unsupported or unrecognized provenance closed before scan without echoing unrecognized raw output, and lets aggregate policy observe that unavailable Check result. Legitimate zero-function and valid 1.23 CSV rows remain complete output; unavailable commands, failed probes, signal termination, malformed rows, or partial headers never publish a trusted prefix.
+- The function-metrics adapter passes parent-approved source text for exactly the selected paths to one Product-owned Worker; it does not delegate path discovery or file reading. Before analysis it mirrors Lizard 1.23 `auto_read` for valid initial BOM and universal newlines, preserves legal U+FFFD, and retries invalid/truncated UTF-8 bytes with the source fallback behavior. The Worker preserves all 27 reader families and 55 canonical extension observations in the checked-in Lizard 1.23 corpus, rejects malformed requests as a whole-request failure, and source-tree resolution is executable. A synchronous Worker `postMessage` failure maps once to `analysis-failed`, terminates that Worker, and cannot publish a metric prefix or a second settlement. Parent admission measures actual bytes, accepts exactly 8 MiB per file, rejects larger files or a total over 64 MiB before Worker analysis, and maps an exact-path read failure to `source-unavailable`; none publish a metric prefix.
 
 ## Case AUX-SCC-ADAPTER-OUTCOMES-001: scc adapter preserves its private result boundary
 

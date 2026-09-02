@@ -30,7 +30,6 @@ const MISE_TOOLS = [
   "pnpm",
   "uv",
   "go",
-  "pipx:lizard",
   "go:github.com/boyter/scc/v4",
   "npm:@colbymchenry/codegraph"
 ] as const;
@@ -71,10 +70,6 @@ function setupEnvironment(): void {
 function checkEnvironment(): void {
   runMiseCommand({ args: ["install", "--dry-run-code", "--locked", ...MISE_TOOLS] });
   runMiseCommand({ args: ["ls", "--current", ...MISE_TOOLS] });
-  runCommandInMise({
-    args: ["-m", "lizard", "--version"],
-    command: resolveLizardInterpreterPath()
-  });
   runCommandInMise({ args: ["--version"], command: resolveSccExecutablePath() });
   runCommandInMise({ args: ["run", "jscpd", "--version"], command: "bun" });
   runCommandInMise({ args: ["--version"], command: "codegraph" });
@@ -97,21 +92,6 @@ function trustRepositoryMiseConfig(): void {
   runMiseCommand({
     args: ["-C", dirname(REPO_ROOT), "trust", resolve(REPO_ROOT, "mise.toml")]
   });
-}
-
-function resolveLizardInterpreterPath(): string {
-  const lizardToolRoot = runMiseCommand({
-    args: ["where", "pipx:lizard"],
-    shouldCaptureOutput: true
-  }).trim();
-  if (!lizardToolRoot) {
-    throw new Error("mise where pipx:lizard returned no installation path");
-  }
-  return resolve(
-    lizardToolRoot,
-    "lizard",
-    process.platform === "win32" ? "Scripts/python.exe" : "bin/python"
-  );
 }
 
 function runCommandInMise({ args, command, shouldCaptureOutput }: RunCommandInMiseInput): string {
