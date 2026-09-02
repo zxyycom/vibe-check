@@ -1,145 +1,152 @@
 # Change 执行依赖与 Worktree 协调
 
-本文是同时推进多个 active Change 时的协调入口。它维护跨 Change 的硬前置、推荐合入顺序、
-共享 owner 冲突和 worktree 使用规则，让执行者能够从当前已确认的集成基线选择下一项工作。
+本文是同时推进多个 active Change 时的协调入口。它维护当前集成基线、跨 Change 前置关系、推荐合入顺序、
+共享 owner 冲突和 worktree 使用规则，供执行者判断“现在可以推进什么”和“哪些工作可以并行”。
 
-本文不是 active Change 清单、任务状态或实施授权。成员、stage、任务进度和 Git 距离以
-`bun run change-plan -- list changes` 及目标 `changes/<change>/` artifacts 为准；暂停原因和恢复条件
-仍由目标 Change 自身拥有。
+本文不拥有 Change 的 stage、任务状态、实施授权或恢复条件。成员与动态状态以
+`bun run change-plan -- list changes` 和目标 `changes/<change>/` artifacts 为准；本文与目标 artifacts 不一致时，
+先按当前事实更新本文，不得用协调摘要覆盖 Change 自身的约束。
 
 ## 使用步骤
 
-每次创建或恢复 worktree 前按以下顺序执行：
+每次创建或恢复 worktree 前依次执行：
 
-1. 运行 `bun run change-plan -- list changes`，确认目标仍是 active member，并检查 stage、任务进度和
-   Plan 距离。
-2. 读取目标 Change 的 `proposal.md`、`design.md` 和存在时的 `tasks.md`，确认本文中的依赖边仍符合其
-   当前 Outcome、开放问题和 Readiness。
-3. 确认所有硬前置已经合入当前集成分支；仅在另一 worktree 完成但尚未合入，不算前置已满足。
-4. 检查同一批 worktree 的共享 owner。硬依赖已经满足仍不代表适合并行修改同一模块。
-5. 从最新集成基线创建一个只负责一个 Change 的分支和 worktree。完成验收、归档与独立提交后再合入，
-   然后让下游 Change 重新核对 Plan 基线。若当前协调基线已明确指定连续堆叠分支，则该分支就是本轮下游的
-   集成基线；不得为了形式上回到 `main` 而重建 worktree 或丢弃已验收的前序结果。
+1. 运行 `bun run change-plan -- list changes`，确认目标仍是 active member，并读取其 stage、任务进度和 Plan 距离。
+2. 读取目标 Change 的 `proposal.md`、`design.md` 和存在时的 `tasks.md`，确认 Outcome、开放问题、Resume Conditions、
+   Readiness 与本文一致。
+3. 确认硬前置的实现提交已经包含在目标 worktree 的实施基线中。该基线可以是 `main`、集成分支或上游
+   Change 分支的稳定提交，不要求先合入 `main`。
+4. 检查同批 worktree 是否修改相同源码 owner、lockfile、Gate、Case 账本或稳定文档 owner；有重叠时默认串行合入。
+5. 从选定实施基线创建一个 Change 一个分支、一个活跃实现 worktree。存在硬依赖时，下游可以直接从上游实现提交
+   建立堆叠分支；上游变化后，下游同步基线并重新复核，不必等待 `main` 合并。
 
-如果本文与目标 Change artifacts 不一致，以目标 artifacts 和当前事实为准，并在继续实施前更新本文；
-不得用本文覆盖目标 Change 的暂停条件、任务或验收要求。
+## 选择规则
 
-## 选择下一项 Change
+按以下顺序选择下一项工作，不按目录名、stage 或任务数量猜测优先级：
 
-执行者应使用以下判定顺序，而不是按目录名、Plan stage 或任务数量猜测优先级：
+1. 排除 Resume Conditions、开放设计问题或实施授权尚未闭合的 Change。`stage=plan` 只表示计划可交接。
+2. 每条轨道只选择最早一个硬前置已进入当前实施基线的实现节点。
+3. 优先并行不同 owner 的工作；共享主要 owner 的 Change 即使没有硬依赖，也按推荐顺序串行。
+4. benchmark、corpus、provenance 和方案审阅可以提前，但不得依赖或写入尚未合入的短命契约。
+5. 无法证明实现可以并行时，只并行证据工作，并在首次合入后重新基线化后续实现。
 
-1. 排除仍有未闭合 Resume Conditions、开放设计问题或缺少实施授权的 Change；Plan stage 本身不表示可实施。
-2. 对每条轨道只选择最早一个尚未合入、且硬前置全部满足的节点。
-3. 并行候选优先来自不同轨道；候选修改相同主要源码 owner、lockfile 或稳定文档 owner 时按推荐顺序串行。
-4. 证据工作只有在不会写入短命中间契约时才可提前；调查完成不改变对应 Change 的 stage、授权或任务状态。
-5. 无法从本文和目标 artifacts 证明可以并行时，保守按串行处理，并先更新依赖判断。
-
-该流程的输出应是一个或多个“现在可以创建实现 worktree”的 Change ID，以及每个未选 Change 的硬前置、
-暂停条件或共享 owner 冲突。它不输出项目级业务优先级；业务优先级仍由当前用户请求决定。
+项目业务优先级仍由当前用户请求决定。本文只说明依赖、冲突和默认工程顺序。
 
 ## 关系定义
 
 | 关系 | 含义 | 执行要求 |
 | --- | --- | --- |
-| 硬前置 | 下游契约直接依赖上游形成的代码或语义 | 上游完成、归档并合入后才启动下游 Implementation |
-| 验收前置 | 下游可先设计或实现，但完成验收需要对应能力或等价证据 | 在下游验收前闭合；不得以未验证假设代替 |
-| 推荐顺序 | 没有直接语义依赖，但共享 owner 或后落地会造成明显返工 | 默认串行；只有拆出无重叠证据工作时才并行 |
-| 条件分支 | 仅在对应 Draft 满足恢复条件并获实施授权时进入主线 | 未激活时不阻塞其它 Change |
-| 独立轨道 | Outcome 与主要源码 owner 不重叠 | 可以并行，但合入前仍需基于最新集成分支验证 |
+| 硬前置 | 下游契约直接依赖上游代码或语义 | 上游所需契约已实现并形成稳定提交，且该提交进入下游实施基线后，才启动下游 Implementation |
+| 验收前置 | 下游可以先设计或实现，但验收需要对应能力或证据 | 验收前闭合，不得用假设替代 |
+| 推荐顺序 | 没有直接语义依赖，但共享 owner 或后落地会造成明显返工 | 默认串行；只并行不重叠的证据工作 |
+| 条件分支 | 只有恢复条件和实施授权成立时才进入主线 | 未激活时不占实现 worktree，也不阻塞其它 Change |
+| 独立轨道 | Outcome 与主要源码 owner 不重叠 | 可以并行；合入前仍需基于最新集成分支验证 |
+
+## 基线定义
+
+- **协调基线**：本文最近一次审阅 active Changes 和跨 Change 关系时使用的项目提交，只用于说明判断所依据的事实。
+- **实施基线**：某个 Change worktree 实际继承的提交。它可以来自 `main`、集成分支或上游 Change 分支，不要求已经
+  进入 `main`。
+- **稳定提交**：上游所需契约已经实现、能够被下游消费且可在 Git 中精确继承的提交。未提交 working tree、口头状态或
+  另一 worktree 中不可定位的临时字节，不构成实施基线。
+
+依赖链可以连续堆叠：下游从上游稳定提交建立分支，继续实现和验证；最终按依赖顺序合入目标主线。若上游随后修改
+下游正在消费的契约，下游必须同步新的上游提交并重跑受影响验证。是否要求上游先完成验收或归档，由目标 Change
+自身的 Readiness 和验收规则决定，不由“是否已进 main”代替。
 
 ## 当前协调基线
 
-本节于 2026-09-02 按主线集成提交 `714fcd48d76416a27fe813466ef1550a25ddedf7` 审阅；该提交已经包含
-scanner 集成提交 `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91`，以及此前位于
-`82da7ac6ec0bf29fe9cd95c56dc962a67758d0b4` 的 Scheduler 连续成果。下列“已完成”只表示对应实现与
-Change archive 已进入该主线基线；当前 active 成员、stage、任务和 Git 距离仍以 `change-plan` 查询为准。
+本节于 2026-09-02 按本地主线提交 `427f75b36490221542be2a6348637894e4f1786c` 审阅。该基线包含：
 
-### Scheduler 主线
+- `714fcd48d76416a27fe813466ef1550a25ddedf7` 中已集成的 Scheduler 依赖、策略、测量与性能诊断基础；
+- `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
+- 后续 flag-control 接入修复、内置 Finding waiver、重复检测比较域和仓库质量扫描范围调整。
 
-以下基础均已完成并归档：
+近期 flag-control 修复会影响 pre-admission Task 和 learned-duration 样本边界；质量扫描范围调整会影响旧 Gate
+性能基线。`schedule-checks-from-learned-durations` 开始实施前必须在 Readiness 中复核这些变化并重新采集 A/B
+baseline，不能只因其 Plan 仍合法而沿用旧测量。
 
-1. [`require-passed-dependencies-and-observe-outcomes`](../changes/archive/require-passed-dependencies-and-observe-outcomes/proposal.md)：形成 passed prerequisite、terminal observation、task-local preflight 与 blocked settlement。
-2. [`extract-scheduler-admission-selection-policy`](../changes/archive/extract-scheduler-admission-selection-policy/proposal.md)：把候选选择从 Scheduler 状态机中分离，同时保留 hard guard。
-3. [`expose-custom-admission-selection-policy`](../changes/archive/expose-custom-admission-selection-policy/proposal.md)：公开受约束的 synchronous `select | wait` callback。
-4. [`add-scheduler-performance-diagnostics`](../changes/archive/add-scheduler-performance-diagnostics/proposal.md) 与 [`extend-scheduler-pressure-and-tail-diagnostics`](../changes/archive/extend-scheduler-pressure-and-tail-diagnostics/proposal.md)：形成 invocation-local 性能汇总、压力分解和 tail facts。
-5. [`add-scheduler-measurement-hooks`](../changes/archive/add-scheduler-measurement-hooks/proposal.md) 与 [`provide-decision-boundary-admission-measurement`](../changes/archive/provide-decision-boundary-admission-measurement/proposal.md)：把 terminal raw measurement 和 captured-prefix action observation 交给受约束 Hook / custom policy context。
+### 当前推荐批次
 
-当前 Scheduler 主线只剩：
+| 批次 | Change | 当前允许的工作 | 并行边界 |
+| --- | --- | --- | --- |
+| 1A：主实现 | [`schedule-checks-from-learned-durations`](../changes/schedule-checks-from-learned-durations/proposal.md) | 从 Readiness 连续推进到实现、A/B 验收和归档 | 独占 Scheduler、check-execution、diagnostic 与相关公共说明 |
+| 1B：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A 并行规划；不要同时修改 invocation runtime |
+| 1C：证据 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | 完成大型 corpus benchmark、安全 payload 和 limit 语义设计 | 不得假设 path-context Draft 已落地 |
+| 1D：条件证据 | [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md) | 仅在当前任务授权后重审 owner，准备 oracle、corpus、provenance 与性能证据 | 未闭合 Resume Conditions 前不修改生产 backend |
 
-```text
-schedule-checks-from-learned-durations
-```
+第一批完成后按以下顺序继续：
 
-该 Change 的 Plan 基线已经刷新为上述 `714fcd4` 集成提交，可以从自身 Readiness 开始；它仍需建立 priority/history 后继
-Decision、保存 static A/B baseline，并确认 fail-fast 与 named resource 两个 Draft 没有被误当作已经落地的 hard guard。
-它继续独占 `src/project-run/task-scheduler/**`、`src/project-run/check-execution/**`、diagnostic 与相关公共说明；不要与
-Scheduler 条件分支在不同 worktree 同时实施。
+1. learned-duration Change 先形成可供后续工作继承的稳定实现提交；不要求先进入 `main`。其自身验收与归档仍按
+   Change 任务和当前授权完成。
+2. invocation path context 达到 Plan 后再实现；若只暴露 machine/diagnostic effective paths，不构成 Markdown cache 的
+   硬前置。只有它明确提供 cross-run state capability 时，Markdown cache 才依赖它。
+3. Markdown cache 在 benchmark 与安全 payload 证明收益后进入 Plan；其实现可以与 Lizard analyzer 的独立源码工作并行，
+   但二者涉及的 package、Gate、Case 和公共文档改动必须分次合入并重新验证。
+4. learned scheduler 形成新诊断证据后，再判断 fail-fast 与 named capacity 是否值得激活。
+5. Node execution backend 最后独占推进，避免重复迁移测试、candidate、Gate 和性能基线。若 Windows/Bun 问题已是当前
+   发布阻塞，则反转此推荐顺序：先冻结其它实现，把 Node Change 提升为唯一主线。
 
-### Scheduler 条件分支
+### Scheduler 轨道
 
-| Change | 恢复条件 | 激活后的推荐位置 |
+Scheduler 的 passed dependency、terminal observation、admission policy、measurement Hook 与性能诊断基础均已归档并
+进入当前基线。该轨道当前唯一可实施主线是 `schedule-checks-from-learned-durations`；其 Plan 没有阻塞性开放问题，
+但仍须先完成 priority/history 后继 Decision、最新 static baseline 与 Test Evidence Readiness。
+
+以下两项仍是条件分支，不与 learned scheduler 并行实现：
+
+| Change | 恢复条件 | 激活后的复核重点 |
 | --- | --- | --- |
-| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 pending outcome 与 observer 规则 | 在当前 root/scope model 的 performance diagnostics 后；激活时先重审 cutoff、terminal summary 与 drain boundary |
-| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用基线证明 mutex 与 `maxParallel` 不足，并闭合有限进展 | 在当前 root/scope model 的 performance diagnostics 后；激活时先重审 named capacity denominator、hard-guard facts 与 interval boundary |
+| [`add-invocation-fail-fast-policy`](../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 trigger、pending outcome 与 observer 规则 | cutoff、terminal summary、drain boundary 和未启动 Task 结算 |
+| [`add-named-resource-capacity`](../changes/add-named-resource-capacity/proposal.md) | 真实资源争用证明 `mutex` 与 `maxParallel` 不足，并闭合有限进展 | capacity denominator、atomic claims、hard-guard facts 与 interval boundary |
 
-两项仍为 Draft 时不占用实现 worktree，也不阻塞 Scheduler 主线。若任一项被激活，性能诊断必须在其合入后重新审阅 Plan；不能把新 cutoff/resource facts 静默解释为现有 wait 或 effective capacity。
+### Scanner 轨道
 
-### Scanner 迁移轨道
+jscpd 与 SCC 迁移已经完成。`replace-lizard-with-typescript-function-analyzers` 的 Plan 基线早于当前 scanner、package、
+environment 和 quality-scope 事实；实施前必须重审 27 readers、55 extensions、public options、license/provenance、
+candidate 与性能证据，并取得其 Resume Conditions 要求的明确优先级授权。
 
-[`upgrade-jscpd-duplicate-detection-to-5-1-1`](../changes/archive/upgrade-jscpd-duplicate-detection-to-5-1-1/proposal.md)
-与 [`upgrade-scc-file-metrics-to-v4`](../changes/archive/upgrade-scc-file-metrics-to-v4/proposal.md) 已归档并合入当前主线。
-scanner migration 当前只剩
-[`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md)；它必须先按
-当前 jscpd/SCC、package candidate、environment 和 lockfile 事实重审旧 Plan 基线，再决定是否满足自身 Resume Conditions。
+[`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
+consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。
 
-[`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 是独立 Draft，只判断
-SCC v4 是否值得扩张公共能力；它不改变当前 executable-only runtime，不阻塞 Lizard，也不授权实现。
+### Invocation path、Markdown cache 与 Node 轨道
 
-### 可独立推进与证据轨道
-
-| Change | 当前协调判断 |
-| --- | --- |
-| [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | Draft；先闭合只读 output facts 与 writable workspace/state owner，不直接实施 |
-| [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | Draft；可并行完成大型 corpus benchmark 和安全 payload 设计，persistent cache 实现不得假设 path-context Draft 已落地 |
-| [`adopt-node-execution-backend`](../changes/adopt-node-execution-backend/proposal.md) | Draft；先闭合 runtime Decision、Bun launcher、package candidate、Windows 与 Test Evidence 边界；其 package/runtime owner 较宽，形成 Plan 后必须重新检查与 scanner 或 Scheduler worktree 的共享文件 |
-
-Invocation path context 与 Markdown cache 只有在前者最终提供明确的 cross-run state capability 时才形成条件依赖；
-仅暴露 machine 或 diagnostic output path 不构成 cache directory。
+- `provide-invocation-path-context` 在 Plan 前必须区分只读 Product-owned output facts、per-invocation writable workspace 与
+  cross-run state。没有真实 writable consumer 时，不预置通用 path map、workspace 或 state registry。
+- `cache-markdown-link-safe-facts` 可以独立完成 benchmark、invocation memo 和安全 payload 设计。machine/diagnostic output
+  path 不是 cache directory；只有明确的 cross-run state owner 才形成依赖。
+- `adopt-node-execution-backend` 横跨 repository scripts、Test Evidence、package/candidate、Gate、lockfile、性能和 Windows
+  验收。默认等 Scheduler、scanner 和 cache 轨道稳定后独占实施；不能与其它生产 Change 共用实现批次。
 
 ### 暂停的能力方向
 
-以下 Change 不进入当前实现批次；Plan stage 也不表示恢复条件或实施授权已经满足：
+以下 Change 当前不进入实现批次：
 
-- [`add-html-link-validation`](../changes/add-html-link-validation/proposal.md)：等待真实 consumer、范围和 parser/corpus 证据。
-- [`add-network-link-validation`](../changes/add-network-link-validation/proposal.md)：等待安全输入 acquisition、显式授权和
-  SSRF/credential 边界闭合。
-- [`add-secret-detection`](../changes/add-secret-detection/proposal.md)：等待 detector precision/recall、provenance、泄漏和
-  resource evidence。
+- [`add-html-link-validation`](../changes/add-html-link-validation/proposal.md)：等待真实 consumer、source kinds、attributes 与 parser/corpus 证据。
+- [`add-network-link-validation`](../changes/add-network-link-validation/proposal.md)：等待真实 consumer、安全输入 acquisition、显式授权和 hermetic SSRF/redirect/DNS 证据；旧 Plan 必须先重新基线化。
+- [`add-secret-detection`](../changes/add-secret-detection/proposal.md)：等待 detector、license/provenance、representative corpus 和 leak-canary 证据；旧 Plan 必须先重新基线化。
 
 ## Worktree 与合入规则
 
-1. **默认一个 active Change 一个分支。** 分支使用 `codex/<change-name>`；已明确作为当前集成基线的连续堆叠分支可以
-   保留已验收、已归档的前序 Change。此时分支名只标识起始 Change，不要求为了名称或 `main` 重新建立下游 worktree。
-2. **一个 Change 一个活跃实现 worktree。** 不让两个执行者同时修改同一 Change 目录；Readiness 调查的外部临时材料
-   不得冒充已合入实现。
-3. **依赖按“已进入当前集成基线”判断。** 默认是合入目标集成分支；当前协调基线明确指定连续堆叠分支时，也可以是该
-   分支中已验收、已归档的前序结果。上游 worktree 测试通过或单独存在本地提交都不足以解除下游硬前置。
-4. **共享 owner 默认串行。** Scheduler 主线和 scanner 迁移分别在自己的轨道内串行；不同轨道才是优先并行单位。
-5. **下游重新基线化。** 上游进入当前集成基线后，下游先语义复核当前 Plan；需要刷新 `baseCommit` 时再运行
-   `bun run change-plan -- plan changes/<change>`，不能仅因 Git 距离非零机械刷新。
-6. **完成后独立归档提交。** 每项 Change 在成功标准、稳定 owner 和验证闭合后，取得归档授权并归档；归档与该项最终
-   实现作为可独立审阅的提交交付。
-7. **集成后再启动下一项。** 合入或按本文明确进入连续堆叠基线后，运行 Change、Decision 和目标验证入口；下一个
-   硬依赖 worktree 从该集成结果开始。
+1. **默认一个 active Change 一个分支。** 分支使用 `codex/<change-name>`。有硬依赖时，下游分支直接建立在上游
+   稳定提交之上；分支历史包含前序 Change 是正常的，不需要为了分支名称或等待 `main` 而重建 worktree。
+2. **一个 Change 一个活跃实现 worktree。** 不让两个执行者同时修改同一 Change 目录。
+3. **按下游实际继承的提交解除依赖。** 上游实现提交进入下游分支祖先链即可，不要求远端或 `main` 可见；只有
+   未提交 working tree、测试结果或未被下游继承的旁支提交，不足以解除依赖。
+4. **共享 owner 默认串行。** 不同轨道可以并行；package、Gate、Case、lockfile 或稳定文档的交叉改动分次合入。
+5. **先语义复核，再刷新 Plan。** Git 距离非零本身不要求机械重写 `baseCommit`；确认当前 Plan 仍成立后再运行 `plan`。
+6. **每项 Change 独立验收、归档和提交。** 归档必须有当前任务的明确授权。
+7. **堆叠分支按依赖顺序同步与合入。** 上游更新后，下游先同步并运行受影响验证；最终向目标主线合入时保持依赖
+   顺序，不把下游提交先于其上游引入。
 
 ## 维护与验证
 
-出现以下任一情况时更新本文：新增、移除或归档 Change；某项 Draft 进入 Plan；Outcome 或受影响 owner 改变；
-硬前置完成；条件分支被激活；实际冲突证明推荐轨道需要调整。
+出现以下任一情况时更新本文：active Change 新增、移除或归档；Draft 进入 Plan；Outcome、Resume Conditions 或主要
+owner 改变；硬前置完成；条件分支激活；实际冲突证明并行边界需要调整。
 
-更新流程：
+更新时：
 
 1. 运行 `bun run change-plan -- list changes` 和 `bun run change-plan -- check-all changes`。
-2. 读取所有发生变化的目标 artifacts，只更新受影响的依赖边、轨道和协调说明。
-3. 更新“当前协调基线”的日期和 Git 输入提交；不要复制任务完成数或 Plan 距离等 CLI 动态输出。
+2. 读取发生变化的目标 artifacts，只维护当前依赖、允许工作、轨道和合入顺序；不复制动态任务计数。
+3. 更新本节日期和输入提交；协调提交自身不需要作为它所审阅的输入基线。
 4. 运行 `bun run validate -- docs`、`bun run decisions -- check` 和 `git diff --check`。
