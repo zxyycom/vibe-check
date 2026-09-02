@@ -24,7 +24,19 @@ export type {
   TaskSettlement
 } from "./execution-state.ts";
 import { AdmissionPolicyFault } from "./scheduler-admission-decision.ts";
-import { SchedulerPerformanceDiagnostics } from "./scheduler-performance-diagnostics.ts";
+import {
+  canAdmit,
+  capacityFor,
+  inspectSnapshot,
+  isRelationEligible,
+  isRelationMutexEligible,
+  type SchedulerInspection
+} from "./scheduler-decision-inspection.ts";
+import {
+  SchedulerPerformanceDiagnostics,
+  type AdmissionViablePendingTask,
+  type SchedulerPerformanceState
+} from "./scheduler-performance-diagnostics.ts";
 
 export async function runTaskGraph<TResult>(
   options: RunTaskGraphOptions<TResult>
@@ -41,7 +53,6 @@ export async function runTaskGraph<TResult>(
   let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
 
   while (true) {
-    recordGraphReadiness(state, diagnostics);
     let decision: SchedulerDecision;
     try {
       decision =
@@ -73,7 +84,7 @@ export async function runTaskGraph<TResult>(
           trigger = Object.freeze({ kind: "cancellation-applied" });
           continue;
         }
-        diagnostics?.beforeAdmission(decision.taskId);
+        diagnostics?.beforeAdmission(decision.taskId, [...state.runningById.keys()]);
         if (diagnostics === undefined) applyAdmission(state, decision);
         else diagnostics.measureControlPath(() => applyAdmission(state, decision));
         diagnostics?.captureState(performanceState(state));
@@ -169,42 +180,30 @@ function observeSchedulerDiagnostic<TResult>(
   }
 }
 
-function recordGraphReadiness<TResult>(
-  state: SchedulerState<TResult>,
-  diagnostics: SchedulerPerformanceDiagnostics | undefined
-): void {
-  if (diagnostics === undefined) return;
-  const graphReadyTaskIds: string[] = [];
-  for (const task of state.pending) {
-    if (task.dependsOn.length === 0 && task.observes.length === 0) {
-      graphReadyTaskIds.push(task.id);
-      continue;
-    }
-    if (
-      [...task.dependsOn, ...task.observes].every((taskId) => state.settlementsByTaskId.has(taskId))
-    ) {
-      graphReadyTaskIds.push(task.id);
-    }
+function performanceState<TResult>(state: SchedulerState<TResult>): SchedulerPerformanceState {
+  const inspection = inspectSnapshot(snapshotSchedulerState(state));
+  const admissionViablePendingTasks: AdmissionViablePendingTask[] = [];
+  for (const task of inspection.pendingTasks) {
+    if (!isRelationEligible(task, inspection)) continue;
+    admissionViablePendingTasks.push(
+      Object.freeze({ kind: admissionViablePendingKind(task, inspection), taskId: task.id })
+    );
   }
-  diagnostics.recordGraphReady(graphReadyTaskIds);
+  const capacity = capacityFor(inspection);
+  return Object.freeze({
+    admissionViablePendingTasks: Object.freeze(admissionViablePendingTasks),
+    effectiveMaxParallel: capacity.effectiveMaxParallel,
+    rootMaxParallel: capacity.maxParallel,
+    running: capacity.running
+  });
 }
 
-function performanceState<TResult>(state: SchedulerState<TResult>): Readonly<{
-  readonly effectiveMaxParallel: number;
-  readonly rootMaxParallel: number;
-  readonly running: number;
-}> {
-  let effectiveMaxParallel = state.maxParallel;
-  for (const runtimeScope of state.scopesById.values()) {
-    if (runtimeScope.isActive) {
-      effectiveMaxParallel = Math.min(effectiveMaxParallel, runtimeScope.scope.maxParallel);
-    }
-  }
-  return Object.freeze({
-    effectiveMaxParallel,
-    rootMaxParallel: state.maxParallel,
-    running: state.runningById.size
-  });
+function admissionViablePendingKind(
+  task: PlannedTask,
+  inspection: SchedulerInspection
+): AdmissionViablePendingTask["kind"] {
+  if (!isRelationMutexEligible(task, inspection)) return "mutex-blocked";
+  return canAdmit(inspection, task) ? "admissible-pending" : "capacity-blocked";
 }
 
 function schedulerDecisionTags(decision: SchedulerDecision): readonly string[] {

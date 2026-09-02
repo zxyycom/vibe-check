@@ -12,11 +12,17 @@ import {
   waitFor
 } from "./task-engine.test-support.ts";
 
+const DECLARATIVE_FINGERPRINT = "scheduler-performance-fixture";
+
 function enabledDiagnostics(
   clock: ReturnType<typeof scriptedClock>,
   observations: DiagnosticObservation[]
 ) {
-  return Object.freeze({ clock, logger: recordingLogger(observations) });
+  return Object.freeze({
+    clock,
+    declarativeFingerprint: DECLARATIVE_FINGERPRINT,
+    logger: recordingLogger(observations)
+  });
 }
 
 function hasSchedulerDecision(
@@ -33,19 +39,129 @@ function hasSchedulerDecision(
   });
 }
 
+function hasSchedulerAdmission(
+  observations: readonly DiagnosticObservation[],
+  taskId: string
+): boolean {
+  return observations.some(
+    (observation) =>
+      observation.event === "scheduler.decision" &&
+      isRecord(observation.details) &&
+      Reflect.get(observation.details, "kind") === "admit" &&
+      Reflect.get(observation.details, "taskId") === taskId
+  );
+}
+
+function hasSchedulerSettlementTrigger(
+  observations: readonly DiagnosticObservation[],
+  taskId: string
+): boolean {
+  return observations.some((observation) => {
+    if (observation.event !== "scheduler.decision" || !isRecord(observation.details)) return false;
+    const trigger = Reflect.get(observation.details, "trigger");
+    return (
+      isRecord(trigger) &&
+      Reflect.get(trigger, "kind") === "task-settled" &&
+      Reflect.get(trigger, "taskId") === taskId
+    );
+  });
+}
+
 function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 function summaryDiscreteValue(
   summary: Readonly<Record<string, unknown>>,
-  key: "acceptedWaitCount"
+  key: "acceptedWaitCount" | "admittedCount" | "completionTailActiveTaskCount"
 ): unknown {
   const discrete = summary.discrete;
   if (discrete === null || typeof discrete !== "object" || Array.isArray(discrete)) {
     assert.fail("scheduler summary must retain discrete facts");
   }
   return Reflect.get(discrete, key);
+}
+
+async function mixedQueuePressureSummary(): Promise<Readonly<Record<string, unknown>>> {
+  const clock = scriptedClock();
+  const observations: DiagnosticObservation[] = [];
+  const releaseHolder = createDeferred<void>();
+  let acceptedMixedPressureWait = false;
+  const policy = admissionSelectionPolicyFor({
+    kind: "custom",
+    proposeAdmission: (context) => {
+      if (
+        !acceptedMixedPressureWait &&
+        context.candidates.some((candidate) => candidate.taskId === "b-capacity")
+      ) {
+        acceptedMixedPressureWait = true;
+        clock.advance("mixed queue pressure", 10);
+        return { kind: "wait" };
+      }
+      const candidate = context.candidates.find((item) => item.canAdmit);
+      return candidate === undefined
+        ? { kind: "wait" }
+        : { kind: "select", taskId: candidate.taskId };
+    }
+  });
+  if (policy === undefined) assert.fail("expected custom policy");
+  const running = runTaskGraph({
+    admissionPolicy: policy,
+    diagnosticLogger: recordingLogger(observations),
+    execute: async (task) => {
+      if (task.id === "holder") await releaseHolder.promise;
+      if (task.id === "y-failure") throw new Error("expected dependency failure");
+      return task.id;
+    },
+    graph: {
+      tasks: [
+        { id: "holder", mutex: ["shared"] },
+        { id: "gate" },
+        { dependsOn: ["gate"], id: "a-mutex", mutex: ["shared"] },
+        { dependsOn: ["gate"], id: "b-capacity", scopeId: "narrow" },
+        { dependsOn: ["gate"], id: "c-admissible" },
+        { dependsOn: ["gate"], id: "z-admissible" },
+        { dependsOn: ["gate"], id: "y-failure" },
+        { id: "observer", observes: ["holder"] },
+        { dependsOn: ["y-failure"], id: "failed-dependent" }
+      ],
+      scopes: [
+        {
+          activationTaskIds: ["b-capacity"],
+          id: "narrow",
+          maxParallel: 1,
+          terminalTaskId: "b-capacity"
+        }
+      ]
+    },
+    maxParallel: 2,
+    performanceDiagnostics: enabledDiagnostics(clock, observations)
+  });
+  await waitFor(() => hasSchedulerDecision(observations, "await-running", "wait"));
+  releaseHolder.resolve();
+  await running;
+  return schedulerSummary(observations);
+}
+
+async function postMutationProjectionSummary(): Promise<Readonly<Record<string, unknown>>> {
+  const clock = scriptedClock();
+  const observations: DiagnosticObservation[] = [];
+  await runTaskGraph({
+    diagnosticLogger: recordingLogger(observations),
+    execute: (task) => (task.id === "source" ? "unsatisfied" : task.id),
+    graph: {
+      tasks: [
+        { id: "source" },
+        { dependsOn: ["source"], id: "blocked" },
+        { id: "observer", observes: ["blocked"] }
+      ]
+    },
+    isPrerequisiteSatisfied: (value) => value !== "unsatisfied",
+    maxParallel: 1,
+    onTaskBlocked: () => clock.advance("blocked settlement projection install", 6),
+    performanceDiagnostics: enabledDiagnostics(clock, observations)
+  });
+  return schedulerSummary(observations);
 }
 
 describe("Scheduler performance diagnostics", () => {
@@ -80,7 +196,11 @@ describe("Scheduler performance diagnostics", () => {
       graph: { tasks: [{ id: "only" }] },
       maxParallel: 1,
       diagnosticLogger: logger,
-      performanceDiagnostics: Object.freeze({ clock, logger })
+      performanceDiagnostics: Object.freeze({
+        clock,
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT,
+        logger
+      })
     });
 
     const summary = schedulerSummary(observations);
@@ -91,8 +211,20 @@ describe("Scheduler performance diagnostics", () => {
     assert.equal(summary.effectiveCapacitySlotMs, 21);
     assert.equal(summary.rootSlotUtilization, 12 / 21);
     assert.equal(summary.effectiveSlotUtilization, 12 / 21);
+    assert.equal(summary.declarativeFingerprint, DECLARATIVE_FINGERPRINT);
     assert.deepEqual(summary.topAdmissionDelays, [
-      { admissionDelayMs: 7, taskActiveMs: 12, taskId: "only" }
+      {
+        admissiblePendingMs: 7,
+        admissionDelayMs: 7,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 12,
+        taskId: "only"
+      }
+    ]);
+    assert.equal(summary.completionTailMs, 14);
+    assert.deepEqual(summary.topCompletionTailContributors, [
+      { settledAfterLastAdmissionMs: 12, taskId: "only" }
     ]);
   });
 
@@ -109,9 +241,159 @@ describe("Scheduler performance diagnostics", () => {
 
     const summary = schedulerSummary(observations);
     assert.deepEqual(summary.topAdmissionDelays, [
-      { admissionDelayMs: 0, taskActiveMs: 0, taskId: "alpha" },
-      { admissionDelayMs: 0, taskActiveMs: 0, taskId: "beta" },
-      { admissionDelayMs: 0, taskActiveMs: 0, taskId: "delta" }
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 0,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "alpha"
+      },
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 0,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "beta"
+      },
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 0,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "delta"
+      }
+    ]);
+    assert.deepEqual(summary.topCompletionTailContributors, [
+      { settledAfterLastAdmissionMs: 0, taskId: "alpha" },
+      { settledAfterLastAdmissionMs: 0, taskId: "beta" },
+      { settledAfterLastAdmissionMs: 0, taskId: "delta" }
+    ]);
+
+    const pressureSummary = await mixedQueuePressureSummary();
+    assert.equal(pressureSummary.admissionViablePendingTaskMs, 50);
+    assert.equal(pressureSummary.mutexBlockedTaskMs, 10);
+    assert.equal(pressureSummary.capacityBlockedTaskMs, 10);
+    assert.equal(pressureSummary.admissiblePendingTaskMs, 30);
+    assert.equal(pressureSummary.peakAdmissionViablePendingTaskCount, 6);
+    assert.equal(pressureSummary.peakMutexBlockedTaskCount, 1);
+    assert.equal(pressureSummary.peakCapacityBlockedTaskCount, 4);
+    assert.equal(pressureSummary.peakAdmissiblePendingTaskCount, 6);
+    assert.equal(summaryDiscreteValue(pressureSummary, "admittedCount"), 8);
+    assert.deepEqual(pressureSummary.topAdmissionDelays, [
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 10,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 10,
+        taskActiveMs: 0,
+        taskId: "a-mutex"
+      },
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 10,
+        capacityBlockedMs: 10,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "b-capacity"
+      },
+      {
+        admissiblePendingMs: 10,
+        admissionDelayMs: 10,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "c-admissible"
+      }
+    ]);
+
+    const postMutationSummary = await postMutationProjectionSummary();
+    assert.equal(postMutationSummary.admissionViablePendingTaskMs, 6);
+    assert.equal(postMutationSummary.mutexBlockedTaskMs, 0);
+    assert.equal(postMutationSummary.capacityBlockedTaskMs, 0);
+    assert.equal(postMutationSummary.admissiblePendingTaskMs, 6);
+    assert.deepEqual(postMutationSummary.topAdmissionDelays, [
+      {
+        admissiblePendingMs: 6,
+        admissionDelayMs: 6,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "observer"
+      },
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 0,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "source"
+      }
+    ]);
+
+    const tailClock = scriptedClock();
+    const tailObservations: DiagnosticObservation[] = [];
+    const releaseEarly = createDeferred<void>();
+    const releaseAlpha = createDeferred<void>();
+    const releaseBeta = createDeferred<void>();
+    const releaseZeta = createDeferred<void>();
+    const releaseLate = createDeferred<void>();
+    const tailRunning = runTaskGraph({
+      diagnosticLogger: recordingLogger(tailObservations),
+      execute: async (task) => {
+        switch (task.id) {
+          case "early":
+            await releaseEarly.promise;
+            tailClock.advance("early settlement before last admission", 2);
+            break;
+          case "alpha":
+            await releaseAlpha.promise;
+            tailClock.advance("alpha tail settlement", 0);
+            break;
+          case "beta":
+            await releaseBeta.promise;
+            tailClock.advance("beta tail settlement", 1);
+            break;
+          case "zeta":
+            await releaseZeta.promise;
+            tailClock.advance("zeta tail settlement", 4);
+            break;
+          case "late":
+            await releaseLate.promise;
+            tailClock.advance("late tail settlement", 2);
+            break;
+          default:
+            assert.fail(`unexpected tail Task ${task.id}`);
+        }
+        return task.id;
+      },
+      graph: {
+        tasks: [{ id: "early" }, { id: "alpha" }, { id: "beta" }, { id: "zeta" }, { id: "late" }]
+      },
+      maxParallel: 4,
+      performanceDiagnostics: enabledDiagnostics(tailClock, tailObservations)
+    });
+    await waitFor(() => hasSchedulerDecision(tailObservations, "await-running", "wait"));
+    releaseEarly.resolve();
+    await waitFor(() => hasSchedulerAdmission(tailObservations, "late"));
+    releaseBeta.resolve();
+    await waitFor(() => hasSchedulerSettlementTrigger(tailObservations, "beta"));
+    releaseZeta.resolve();
+    await waitFor(() => hasSchedulerSettlementTrigger(tailObservations, "zeta"));
+    releaseAlpha.resolve();
+    await waitFor(() => hasSchedulerSettlementTrigger(tailObservations, "alpha"));
+    releaseLate.resolve();
+    await tailRunning;
+
+    const tailSummary = schedulerSummary(tailObservations);
+    assert.equal(tailSummary.completionTailMs, 7);
+    assert.equal(summaryDiscreteValue(tailSummary, "completionTailActiveTaskCount"), 4);
+    assert.deepEqual(tailSummary.topCompletionTailContributors, [
+      { settledAfterLastAdmissionMs: 7, taskId: "late" },
+      { settledAfterLastAdmissionMs: 5, taskId: "alpha" },
+      { settledAfterLastAdmissionMs: 5, taskId: "zeta" }
     ]);
   });
 
@@ -208,7 +490,11 @@ describe("Scheduler performance diagnostics", () => {
       },
       graph: { tasks: [{ id: "first" }, { id: "second" }] },
       maxParallel: 1,
-      performanceDiagnostics: Object.freeze({ clock, logger: recordingLogger(observations) })
+      performanceDiagnostics: Object.freeze({
+        clock,
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT,
+        logger: recordingLogger(observations)
+      })
     });
 
     await waitFor(() => hasSchedulerDecision(observations, "await-running", "wait"));
@@ -221,6 +507,26 @@ describe("Scheduler performance diagnostics", () => {
   });
 
   it("distinguishes a valid zero-span summary from unavailable timing and retains discrete facts", async () => {
+    const emptyClock = scriptedClock();
+    const emptyObservations: DiagnosticObservation[] = [];
+    await runTaskGraph({
+      diagnosticLogger: recordingLogger(emptyObservations),
+      execute: () => "unreachable",
+      graph: { tasks: [] },
+      maxParallel: 1,
+      performanceDiagnostics: enabledDiagnostics(emptyClock, emptyObservations)
+    });
+    const emptySummary = schedulerSummary(emptyObservations);
+    assert.equal(emptySummary.completionTailMs, null);
+    assert.deepEqual(emptySummary.topCompletionTailContributors, []);
+    assert.deepEqual(emptySummary.discrete, {
+      acceptedWaitCount: 0,
+      admittedCount: 0,
+      completionTailActiveTaskCount: 0,
+      lastSettledTaskId: null,
+      maxRunning: 0
+    });
+
     const zeroClock = scriptedClock();
     const zeroObservations: DiagnosticObservation[] = [];
     await runTaskGraph({
@@ -234,6 +540,10 @@ describe("Scheduler performance diagnostics", () => {
     assert.deepEqual(zeroSummary.timing, { availability: "available" });
     assert.equal(zeroSummary.schedulerSpanMs, 0);
     assert.equal(zeroSummary.taskSlotMs, 0);
+    assert.equal(zeroSummary.completionTailMs, 0);
+    assert.deepEqual(zeroSummary.topCompletionTailContributors, [
+      { settledAfterLastAdmissionMs: 0, taskId: "zero" }
+    ]);
 
     const faultObservations: DiagnosticObservation[] = [];
     await runTaskGraph({
@@ -243,6 +553,7 @@ describe("Scheduler performance diagnostics", () => {
       maxParallel: 1,
       performanceDiagnostics: Object.freeze({
         clock: Object.freeze({ now: () => Number.NaN }),
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT,
         logger: recordingLogger(faultObservations)
       })
     });
@@ -251,10 +562,18 @@ describe("Scheduler performance diagnostics", () => {
       availability: "unavailable",
       reason: "clock-non-finite"
     });
+    assert.equal(faultSummary.declarativeFingerprint, DECLARATIVE_FINGERPRINT);
+    assert.equal(faultSummary.peakAdmissionViablePendingTaskCount, 1);
+    assert.equal(faultSummary.peakMutexBlockedTaskCount, 0);
+    assert.equal(faultSummary.peakCapacityBlockedTaskCount, 0);
+    assert.equal(faultSummary.peakAdmissiblePendingTaskCount, 1);
     assert.equal("taskSlotMs" in faultSummary, false);
+    assert.equal("admissionViablePendingTaskMs" in faultSummary, false);
+    assert.equal("topCompletionTailContributors" in faultSummary, false);
     assert.deepEqual(faultSummary.discrete, {
       acceptedWaitCount: 0,
       admittedCount: 1,
+      completionTailActiveTaskCount: 1,
       lastSettledTaskId: "fault",
       maxRunning: 1
     });
@@ -272,7 +591,11 @@ describe("Scheduler performance diagnostics", () => {
       execute: () => "still-settled",
       graph: { tasks: [{ id: "writer" }] },
       maxParallel: 1,
-      performanceDiagnostics: Object.freeze({ clock: scriptedClock(), logger: failedWriter })
+      performanceDiagnostics: Object.freeze({
+        clock: scriptedClock(),
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT,
+        logger: failedWriter
+      })
     });
     assert.equal(run.settlements[0]?.settlement.kind, "completed");
   });
@@ -310,7 +633,11 @@ describe("Scheduler performance diagnostics terminal drains", () => {
       execute: () => "settled",
       graph: { tasks: [{ id: "started" }, { id: "cancelled" }] },
       maxParallel: 2,
-      performanceDiagnostics: Object.freeze({ clock, logger })
+      performanceDiagnostics: Object.freeze({
+        clock,
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT,
+        logger
+      })
     });
 
     assert.equal(policyDiagnosticAttempts, 1);
@@ -321,6 +648,16 @@ describe("Scheduler performance diagnostics terminal drains", () => {
     );
     const summary = schedulerSummary(observations);
     assert.equal(summary.schedulerControlPathMs, 0);
+    assert.deepEqual(summary.discrete, {
+      acceptedWaitCount: 0,
+      admittedCount: 1,
+      completionTailActiveTaskCount: 1,
+      lastSettledTaskId: "started",
+      maxRunning: 1
+    });
+    assert.deepEqual(summary.topCompletionTailContributors, [
+      { settledAfterLastAdmissionMs: 5, taskId: "started" }
+    ]);
   });
 
   it("emits exactly one summary after caller cancellation drains admitted work", async () => {
@@ -330,7 +667,11 @@ describe("Scheduler performance diagnostics terminal drains", () => {
     const release = createDeferred<void>();
     const running = runTaskGraph({
       diagnosticLogger: recordingLogger(observations),
-      execute: async () => release.promise,
+      execute: async () => {
+        await release.promise;
+        clock.advance("cancelled drain", 4);
+        return "settled";
+      },
       graph: { tasks: [{ id: "started" }, { id: "cancelled" }] },
       maxParallel: 1,
       performanceDiagnostics: enabledDiagnostics(clock, observations),
@@ -343,6 +684,16 @@ describe("Scheduler performance diagnostics terminal drains", () => {
     release.resolve();
     const run = await running;
     assert.equal(run.cancelled, true);
-    schedulerSummary(observations);
+    const summary = schedulerSummary(observations);
+    assert.deepEqual(summary.discrete, {
+      acceptedWaitCount: 1,
+      admittedCount: 1,
+      completionTailActiveTaskCount: 1,
+      lastSettledTaskId: "cancelled",
+      maxRunning: 1
+    });
+    assert.deepEqual(summary.topCompletionTailContributors, [
+      { settledAfterLastAdmissionMs: 4, taskId: "started" }
+    ]);
   });
 });

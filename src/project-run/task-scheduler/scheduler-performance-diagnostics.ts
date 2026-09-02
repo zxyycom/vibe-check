@@ -3,8 +3,11 @@ import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/log
 /** Explicit, enabled-only private handoff; the Scheduler never infers this from logger behavior. */
 export type SchedulerPerformanceDiagnosticsInput = Readonly<{
   readonly clock: Readonly<{ now(): number }>;
+  readonly declarativeFingerprint: string;
   readonly logger: DiagnosticLogger;
 }>;
+
+const TOP_TASK_LIMIT = 3;
 
 type TimingUnavailableReason =
   | "clock-threw"
@@ -18,12 +21,35 @@ type TimingAvailability =
   | Readonly<{ readonly availability: "unavailable"; readonly reason: TimingUnavailableReason }>;
 
 type AdmissionChronology = {
+  readonly admissionDelay: AdmissionDelayBreakdown;
   readonly admittedAt: number;
-  readonly graphReadyAt: number;
   settledAt: number | undefined;
 };
 
-type SchedulerPerformanceState = Readonly<{
+type AdmissionDelayBreakdown = Readonly<{
+  readonly admissiblePendingMs: number;
+  readonly capacityBlockedMs: number;
+  readonly mutexBlockedMs: number;
+}>;
+
+type MutableAdmissionDelayBreakdown = {
+  admissiblePendingMs: number;
+  capacityBlockedMs: number;
+  mutexBlockedMs: number;
+};
+
+type CompletionTailContributor = Readonly<{
+  readonly settledAfterLastAdmissionMs: number;
+  readonly taskId: string;
+}>;
+
+export type AdmissionViablePendingTask = Readonly<{
+  readonly kind: "admissible-pending" | "capacity-blocked" | "mutex-blocked";
+  readonly taskId: string;
+}>;
+
+export type SchedulerPerformanceState = Readonly<{
+  readonly admissionViablePendingTasks: readonly AdmissionViablePendingTask[];
   readonly effectiveMaxParallel: number;
   readonly rootMaxParallel: number;
   readonly running: number;
@@ -35,6 +61,7 @@ type SchedulerPerformanceState = Readonly<{
  */
 export class SchedulerPerformanceDiagnostics {
   readonly #clock: SchedulerPerformanceDiagnosticsInput["clock"];
+  readonly #declarativeFingerprint: string;
   readonly #logger: DiagnosticLogger;
   #lastBoundaryAt: number | undefined;
   #startedAt: number | undefined;
@@ -45,14 +72,22 @@ export class SchedulerPerformanceDiagnostics {
   #taskSlotMs = 0;
   #rootCapacitySlotMs = 0;
   #effectiveCapacitySlotMs = 0;
+  #mutexBlockedTaskMs = 0;
+  #capacityBlockedTaskMs = 0;
+  #admissiblePendingTaskMs = 0;
   #maxRunning = 0;
+  #peakAdmissionViablePendingTaskCount = 0;
+  #peakMutexBlockedTaskCount = 0;
+  #peakCapacityBlockedTaskCount = 0;
+  #peakAdmissiblePendingTaskCount = 0;
   #acceptedWaitStartedAt: number | undefined;
   #acceptedWaitMs = 0;
   #acceptedWaitCount = 0;
   #lastAdmissionAt: number | undefined;
   #lastSettledTaskId: string | undefined;
+  #completionTailActiveTaskIds: readonly string[] = Object.freeze([]);
   readonly #admittedTaskIds = new Set<string>();
-  readonly #graphReadyAtByTaskId = new Map<string, number>();
+  readonly #admissionDelayByTaskId = new Map<string, MutableAdmissionDelayBreakdown>();
   readonly #chronologyByTaskId = new Map<string, AdmissionChronology>();
 
   public constructor(
@@ -60,9 +95,11 @@ export class SchedulerPerformanceDiagnostics {
     initial: SchedulerPerformanceState
   ) {
     this.#clock = input.clock;
+    this.#declarativeFingerprint = input.declarativeFingerprint;
     this.#logger = input.logger;
     this.#lastState = initial;
     this.#maxRunning = initial.running;
+    this.#installPendingProjection(initial.admissionViablePendingTasks);
     const boundary = this.#sample();
     if (boundary !== undefined) {
       this.#lastBoundaryAt = boundary;
@@ -97,33 +134,23 @@ export class SchedulerPerformanceDiagnostics {
     }
   }
 
-  /** Records all Tasks that became graph-ready at one Scheduler state boundary. */
-  public recordGraphReady(taskIds: readonly string[]): void {
-    const newlyReadyTaskIds = taskIds.filter((taskId) => !this.#graphReadyAtByTaskId.has(taskId));
-    if (newlyReadyTaskIds.length === 0) return;
-    const boundary = this.#boundary();
-    if (boundary !== undefined) {
-      for (const taskId of newlyReadyTaskIds) {
-        this.#graphReadyAtByTaskId.set(taskId, boundary);
-      }
-    }
-  }
-
   /** Flushes the old state before admission changes the real Scheduler state. */
-  public beforeAdmission(taskId: string): void {
+  public beforeAdmission(taskId: string, runningTaskIds: readonly string[]): void {
     this.#admittedTaskIds.add(taskId);
+    this.#completionTailActiveTaskIds = Object.freeze([...runningTaskIds, taskId]);
     const boundary = this.#boundary();
     if (boundary === undefined) return;
-    const graphReadyAt = this.#graphReadyAtByTaskId.get(taskId);
-    if (graphReadyAt === undefined) {
+    const admissionDelay = this.#admissionDelayByTaskId.get(taskId);
+    if (admissionDelay === undefined) {
       this.#markUnavailable("integral-invalid");
       return;
     }
     this.#chronologyByTaskId.set(taskId, {
+      admissionDelay: Object.freeze({ ...admissionDelay }),
       admittedAt: boundary,
-      graphReadyAt,
       settledAt: undefined
     });
+    this.#admissionDelayByTaskId.delete(taskId);
     this.#lastAdmissionAt = boundary;
   }
 
@@ -162,6 +189,7 @@ export class SchedulerPerformanceDiagnostics {
   public captureState(state: SchedulerPerformanceState): void {
     this.#lastState = state;
     this.#maxRunning = Math.max(this.#maxRunning, state.running);
+    this.#installPendingProjection(state.admissionViablePendingTasks);
   }
 
   /** Terminal sampling flushes the final interval before emitting a one-shot summary. */
@@ -229,13 +257,31 @@ export class SchedulerPerformanceDiagnostics {
     const taskSlotMs = elapsedMs * state.running;
     const rootCapacitySlotMs = elapsedMs * state.rootMaxParallel;
     const effectiveCapacitySlotMs = elapsedMs * state.effectiveMaxParallel;
+    const mutexBlockedCount = pendingCount(state.admissionViablePendingTasks, "mutex-blocked");
+    const capacityBlockedCount = pendingCount(
+      state.admissionViablePendingTasks,
+      "capacity-blocked"
+    );
+    const admissiblePendingCount = pendingCount(
+      state.admissionViablePendingTasks,
+      "admissible-pending"
+    );
+    const mutexBlockedTaskMs = elapsedMs * mutexBlockedCount;
+    const capacityBlockedTaskMs = elapsedMs * capacityBlockedCount;
+    const admissiblePendingTaskMs = elapsedMs * admissiblePendingCount;
     if (
       !Number.isFinite(taskSlotMs) ||
       !Number.isFinite(rootCapacitySlotMs) ||
       !Number.isFinite(effectiveCapacitySlotMs) ||
+      !Number.isFinite(mutexBlockedTaskMs) ||
+      !Number.isFinite(capacityBlockedTaskMs) ||
+      !Number.isFinite(admissiblePendingTaskMs) ||
       taskSlotMs < 0 ||
       rootCapacitySlotMs < 0 ||
-      effectiveCapacitySlotMs < 0
+      effectiveCapacitySlotMs < 0 ||
+      mutexBlockedTaskMs < 0 ||
+      capacityBlockedTaskMs < 0 ||
+      admissiblePendingTaskMs < 0
     ) {
       this.#markUnavailable("integral-invalid");
       return;
@@ -243,12 +289,75 @@ export class SchedulerPerformanceDiagnostics {
     this.#taskSlotMs += taskSlotMs;
     this.#rootCapacitySlotMs += rootCapacitySlotMs;
     this.#effectiveCapacitySlotMs += effectiveCapacitySlotMs;
+    this.#mutexBlockedTaskMs += mutexBlockedTaskMs;
+    this.#capacityBlockedTaskMs += capacityBlockedTaskMs;
+    this.#admissiblePendingTaskMs += admissiblePendingTaskMs;
     if (
       !Number.isFinite(this.#taskSlotMs) ||
       !Number.isFinite(this.#rootCapacitySlotMs) ||
-      !Number.isFinite(this.#effectiveCapacitySlotMs)
+      !Number.isFinite(this.#effectiveCapacitySlotMs) ||
+      !Number.isFinite(this.#mutexBlockedTaskMs) ||
+      !Number.isFinite(this.#capacityBlockedTaskMs) ||
+      !Number.isFinite(this.#admissiblePendingTaskMs) ||
+      !Number.isFinite(this.#admissionViablePendingTaskMs())
     ) {
       this.#markUnavailable("integral-invalid");
+      return;
+    }
+    for (const pendingTask of state.admissionViablePendingTasks) {
+      const admissionDelay = this.#admissionDelayByTaskId.get(pendingTask.taskId);
+      if (admissionDelay === undefined) continue;
+      switch (pendingTask.kind) {
+        case "mutex-blocked":
+          admissionDelay.mutexBlockedMs += elapsedMs;
+          break;
+        case "capacity-blocked":
+          admissionDelay.capacityBlockedMs += elapsedMs;
+          break;
+        case "admissible-pending":
+          admissionDelay.admissiblePendingMs += elapsedMs;
+          break;
+        default: {
+          const exhaustiveKind: never = pendingTask.kind;
+          return exhaustiveKind;
+        }
+      }
+      if (
+        !Number.isFinite(admissionDelay.mutexBlockedMs) ||
+        !Number.isFinite(admissionDelay.capacityBlockedMs) ||
+        !Number.isFinite(admissionDelay.admissiblePendingMs)
+      ) {
+        this.#markUnavailable("integral-invalid");
+        return;
+      }
+    }
+  }
+
+  #installPendingProjection(pendingTasks: readonly AdmissionViablePendingTask[]): void {
+    this.#peakAdmissionViablePendingTaskCount = Math.max(
+      this.#peakAdmissionViablePendingTaskCount,
+      pendingTasks.length
+    );
+    this.#peakMutexBlockedTaskCount = Math.max(
+      this.#peakMutexBlockedTaskCount,
+      pendingCount(pendingTasks, "mutex-blocked")
+    );
+    this.#peakCapacityBlockedTaskCount = Math.max(
+      this.#peakCapacityBlockedTaskCount,
+      pendingCount(pendingTasks, "capacity-blocked")
+    );
+    this.#peakAdmissiblePendingTaskCount = Math.max(
+      this.#peakAdmissiblePendingTaskCount,
+      pendingCount(pendingTasks, "admissible-pending")
+    );
+    if (this.#timing.availability === "unavailable") return;
+    for (const pendingTask of pendingTasks) {
+      if (this.#admissionDelayByTaskId.has(pendingTask.taskId)) continue;
+      this.#admissionDelayByTaskId.set(pendingTask.taskId, {
+        admissiblePendingMs: 0,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0
+      });
     }
   }
 
@@ -274,11 +383,20 @@ export class SchedulerPerformanceDiagnostics {
     const discrete = Object.freeze({
       admittedCount: this.#admittedTaskIds.size,
       acceptedWaitCount: this.#acceptedWaitCount,
+      completionTailActiveTaskCount: this.#completionTailActiveTaskIds.length,
       lastSettledTaskId: this.#lastSettledTaskId ?? null,
       maxRunning: this.#maxRunning
     });
+    const alwaysAvailable = Object.freeze({
+      declarativeFingerprint: this.#declarativeFingerprint,
+      discrete,
+      peakAdmissionViablePendingTaskCount: this.#peakAdmissionViablePendingTaskCount,
+      peakMutexBlockedTaskCount: this.#peakMutexBlockedTaskCount,
+      peakCapacityBlockedTaskCount: this.#peakCapacityBlockedTaskCount,
+      peakAdmissiblePendingTaskCount: this.#peakAdmissiblePendingTaskCount
+    });
     if (this.#timing.availability === "unavailable" || endedAt === undefined) {
-      return Object.freeze({ discrete, timing: this.#timing });
+      return Object.freeze({ ...alwaysAvailable, timing: this.#timing });
     }
     const rootSlotUtilization = ratio(this.#taskSlotMs, this.#rootCapacitySlotMs);
     const effectiveSlotUtilization = ratio(this.#taskSlotMs, this.#effectiveCapacitySlotMs);
@@ -286,9 +404,13 @@ export class SchedulerPerformanceDiagnostics {
     const topAdmissionDelays = [...this.#chronologyByTaskId.entries()]
       .flatMap(([taskId, chronology]) => {
         if (chronology.settledAt === undefined) return [];
+        const admissionDelayMs = admissionDelayMsFor(chronology.admissionDelay);
         return [
           Object.freeze({
-            admissionDelayMs: chronology.admittedAt - chronology.graphReadyAt,
+            admissiblePendingMs: chronology.admissionDelay.admissiblePendingMs,
+            admissionDelayMs,
+            capacityBlockedMs: chronology.admissionDelay.capacityBlockedMs,
+            mutexBlockedMs: chronology.admissionDelay.mutexBlockedMs,
             taskActiveMs: chronology.settledAt - chronology.admittedAt,
             taskId
           })
@@ -296,13 +418,17 @@ export class SchedulerPerformanceDiagnostics {
       })
       .sort(
         (left, right) =>
-          right.admissionDelayMs - left.admissionDelayMs || left.taskId.localeCompare(right.taskId)
+          right.admissionDelayMs - left.admissionDelayMs || compareText(left.taskId, right.taskId)
       )
-      .slice(0, 3);
+      .slice(0, TOP_TASK_LIMIT);
+    const topCompletionTailContributors = this.#topCompletionTailContributors();
+    if (topCompletionTailContributors === undefined) {
+      return Object.freeze({ ...alwaysAvailable, timing: this.#timing });
+    }
     const completionTailMs =
       this.#lastAdmissionAt === undefined ? null : endedAt - this.#lastAdmissionAt;
     return Object.freeze({
-      discrete,
+      ...alwaysAvailable,
       timing: Object.freeze({ availability: "available" }),
       schedulerControlPathMs: this.#controlPathMs,
       schedulerDecisionObservationMs: this.#decisionObservationMs,
@@ -313,9 +439,42 @@ export class SchedulerPerformanceDiagnostics {
       rootSlotUtilization,
       effectiveSlotUtilization,
       acceptedWaitMs: this.#acceptedWaitMs,
+      admissionViablePendingTaskMs: this.#admissionViablePendingTaskMs(),
+      mutexBlockedTaskMs: this.#mutexBlockedTaskMs,
+      capacityBlockedTaskMs: this.#capacityBlockedTaskMs,
+      admissiblePendingTaskMs: this.#admissiblePendingTaskMs,
       topAdmissionDelays: Object.freeze(topAdmissionDelays),
-      completionTailMs
+      completionTailMs,
+      topCompletionTailContributors
     });
+  }
+
+  #topCompletionTailContributors(): readonly CompletionTailContributor[] | undefined {
+    if (this.#lastAdmissionAt === undefined) return Object.freeze([]);
+    const contributors: CompletionTailContributor[] = [];
+    for (const taskId of this.#completionTailActiveTaskIds) {
+      const settledAt = this.#chronologyByTaskId.get(taskId)?.settledAt;
+      if (settledAt === undefined) {
+        this.#markUnavailable("integral-invalid");
+        return undefined;
+      }
+      const settledAfterLastAdmissionMs = settledAt - this.#lastAdmissionAt;
+      if (!Number.isFinite(settledAfterLastAdmissionMs) || settledAfterLastAdmissionMs < 0) {
+        this.#markUnavailable("integral-invalid");
+        return undefined;
+      }
+      contributors.push(Object.freeze({ settledAfterLastAdmissionMs, taskId }));
+    }
+    contributors.sort(
+      (left, right) =>
+        right.settledAfterLastAdmissionMs - left.settledAfterLastAdmissionMs ||
+        compareText(left.taskId, right.taskId)
+    );
+    return Object.freeze(contributors.slice(0, TOP_TASK_LIMIT));
+  }
+
+  #admissionViablePendingTaskMs(): number {
+    return this.#mutexBlockedTaskMs + this.#capacityBlockedTaskMs + this.#admissiblePendingTaskMs;
   }
 }
 
@@ -323,4 +482,21 @@ function ratio(numerator: number, denominator: number): number | null {
   if (denominator === 0) return null;
   const value = numerator / denominator;
   return Number.isFinite(value) && value >= 0 && value <= 1 ? value : null;
+}
+
+function admissionDelayMsFor(breakdown: AdmissionDelayBreakdown): number {
+  return breakdown.mutexBlockedMs + breakdown.capacityBlockedMs + breakdown.admissiblePendingMs;
+}
+
+function pendingCount(
+  pendingTasks: readonly AdmissionViablePendingTask[],
+  kind: AdmissionViablePendingTask["kind"]
+): number {
+  return pendingTasks.filter((task) => task.kind === kind).length;
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }

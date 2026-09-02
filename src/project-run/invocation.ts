@@ -239,7 +239,11 @@ async function executeChecks(
       clock,
       diagnosticLogger: invocation.diagnosticLogger,
       schedulerPerformanceDiagnostics: invocation.diagnosticLoggingEnabled
-        ? Object.freeze({ clock, logger: invocation.diagnosticLogger })
+        ? Object.freeze({
+            clock,
+            declarativeFingerprint: invocation.declarativeFingerprint,
+            logger: invocation.diagnosticLogger
+          })
         : undefined,
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
       lifecycle: invocation.progressRendering.lifecycle,

@@ -7,7 +7,7 @@
 | 层级 | 位置与证明 |
 | --- | --- |
 | Definition/Check facts | `src/project-definition/**`、`src/check-settlement/**` 的共置 tests：recursive Check validation、native default composition、closed static/custom admission policy、callback-preserving fingerprint、direct callback result validation、terminal Check/Record facts。 |
-| Product Run/Output/Scheduler | `src/project-run/**`、`src/machine-output/v4/**`、`src/project-run/task-scheduler/**` 的共置 tests：Run controls、dependency/mutex/cancellation、Run diagnostics、publication invariants/outputs、stateless full-graph task admission、hard guard 与 admission-policy fault drain；enabled-only Scheduler summary 使用 named scripted clock 证明 flush-before-mutate、slot·ms/ratio、accepted wait、chronology/tail、zero-span 与 unavailable，不把重叠 projection 当作 wall/CPU 指标。 |
+| Product Run/Output/Scheduler | `src/project-run/**`、`src/machine-output/v4/**`、`src/project-run/task-scheduler/**` 的共置 tests：Run controls、dependency/mutex/cancellation、Run diagnostics、publication invariants/outputs、stateless full-graph task admission、hard guard 与 admission-policy fault drain；enabled-only Scheduler summary 使用 named scripted clock 证明 flush-before-mutate、slot·ms/ratio、accepted wait、互斥 queue pressure、admission-delay breakdown、last-admission tail snapshot、zero-span 与 unavailable，不把重叠 projection 当作 wall/CPU 指标。 |
 | Default adapters | `src/package-checks/**` 的共置 tests：Check-owned scanner options、exact scope、cache、availability/process/parser failure 与 supplemental Records。 |
 | Repository tooling | `scripts/**` 的共置 tests：process execution、repository-files、docs/package API、validation、package artifact/candidate、Project Gate 与 Test Evidence behavior。 |
 | Consumer and Gate | `scripts/project/**` private consumer 证明 exact candidate import、repository Gate binding；`scripts/validation/**` 独立验证 current v4 schema/example complete two-file set。 |
@@ -36,7 +36,7 @@ fail-closed validation；runtime Cases 覆盖 direct execution、outcome/reason�
 ownership、cancellation、stateless policy hard guard/fault drain 和 Run diagnostic；output Cases 覆盖 v4 bytes/schema、complete-set fingerprint、publication
 lifecycle 和独立 docs validation。
 
-Scheduler diagnostic Case 只证明 shell-owned human observation：scripted clock 要独立断言 timing unavailable 与有效 zero span、summary 的 single terminal attempt、writer containment、离散 facts 以及 capacity/wait/delay/tail 的可观察投影。formula 和 state-boundary tests 属于 Scheduler owner；logger formatting tests 只证明有界安全渲染，machine/public/progress tests 则证明 summary 不改变既有契约。future fail-fast 或 named-resource capacity 改变 capacity/hard guard 后，须重审该 Case 的 denominator、boundary 与 wait evidence。
+Scheduler diagnostic Case 只证明 shell-owned human observation：scripted clock 要独立断言 timing unavailable 与有效 zero span、summary 的 single terminal attempt、writer containment、declarative-configuration matching signal、离散 facts，以及 capacity/wait/queue/delay/tail 的可观察投影。queue tests 以同一个 admission-viable pending 集合证明 mutex、capacity、admissible 三类互斥 task·ms 与峰值；delay tests 证明三类 breakdown 构成完整 delay；tail tests 证明 last-admission post-state active count 与有界 contributors，而不把它们解释为 policy 原因或 critical path。formula 和 state-boundary tests 属于 Scheduler owner；logger formatting tests 只证明有界安全渲染，machine/public/progress tests 则证明 summary 不改变既有契约。future fail-fast 或 named-resource capacity 改变 capacity/hard guard 后，须重审该 Case 的 denominator、queue classification、boundary 与 wait evidence。
 
 ## 验证入口
 

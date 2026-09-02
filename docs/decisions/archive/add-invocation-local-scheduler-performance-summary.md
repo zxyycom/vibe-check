@@ -1,6 +1,6 @@
 ---
 title: 将 Scheduler 性能汇总限定为 invocation-local 人读诊断
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T16:13:40Z
 purpose: 让一次 Scheduler 运行提供安全、可解释的性能汇总，而不扩大公共或自动化契约。
@@ -14,7 +14,7 @@ relations: []
 
 ## 目的
 
-- 本记录是 active + aligned 的当前长期基线：其方向已成为当前事实；它仍不代替稳定 owner、源码与测试所承接的具体 runtime 证据，也不单独授予新的实施、验收或 lifecycle 变更授权。
+- 本记录保留基础 Scheduler summary 的形成时判断；它现已由 `extend-invocation-local-scheduler-performance-summary.md` 修订并归档，不再作为当前长期依据。当前 runtime 事实仍由稳定 owner、源码与测试承接。
 - 让维护者在同一次 invocation 的既有人读 diagnostic 中检查 Scheduler control path、Task slot/capacity 积分、准入等待和 drain tail，而不从逐次 decision 手工重建这些有界观察。
 - 保持该 summary 只服务人工诊断：不成为 public `RunResult`、Core/Check/Record facts、machine publication、progress、warning、autotune 或跨 invocation telemetry。
 

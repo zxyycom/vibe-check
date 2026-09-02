@@ -6,7 +6,7 @@
   "sourceRevision": {
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
-      "add-invocation-local-scheduler-performance-summary.md": "sha256:11f9d8bc5da087016d3a738e074a58de1121b509d4dff5add7382faf311a71e7",
+      "add-invocation-local-scheduler-performance-summary.md": "sha256:fc65bdb972882df0b2378cd702578505b9e5ee8056aeefe328bbc35739f22469",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:52002e206bc59420239f9329f64282cef6697837ca4a01f13d85f590cd0e977a",
@@ -75,6 +75,7 @@
       "expose-single-check-authoring-surface.md": "sha256:2cd707ac5b8d57f2b063237b1536631ab2666760a665f29637c4ad77883f18d6",
       "expose-stateless-custom-admission-policy-to-callers.md": "sha256:0a768b30ed2df7f7141b7e863218db14a0dfb2268b37fd14178cd8b0c421bc4d",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
+      "extend-invocation-local-scheduler-performance-summary.md": "sha256:86c0f48701a07ee4b82a34f7dcc529afd528a95821e8205fe7d237da8a3b461b",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
@@ -307,16 +308,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "add-invocation-local-scheduler-performance-summary.md",
+        "sourcePath": "archive/add-invocation-local-scheduler-performance-summary.md",
         "title": "将 Scheduler 性能汇总限定为 invocation-local 人读诊断",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T16:13:40Z",
         "purpose": "让一次 Scheduler 运行提供安全、可解释的性能汇总，而不扩大公共或自动化契约。",
@@ -2453,6 +2454,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "extend-invocation-local-scheduler-performance-summary.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "extend-invocation-local-scheduler-performance-summary.md",
+        "title": "扩展 invocation-local Scheduler 压力与尾段诊断",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T00:07:04Z",
+        "purpose": "让 Scheduler 人读汇总解释可准入队列压力与完成尾段，并以现有声明指纹支持同配置比较。",
+        "background": "现有汇总能显示总体延迟与尾段，却不能区分硬阻塞、可准入等待或识别尾段参与 Task。",
+        "decision": "在既有私有汇总内增加互斥压力积分、延迟分解、有界尾段参与项及 invocation 声明指纹。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "add-invocation-local-scheduler-performance-summary.md"
+          }
+        ]
       }
     },
     "hard-cut-legacy-tool-shaped-config.md": {

@@ -70,10 +70,14 @@ describe("Package Run diagnostic logging output", () => {
     );
 
     assert.equal(result.kind, "completed");
-    assert.equal(
-      observations.filter((observation) => observation.event === "scheduler.summary").length,
-      1
+    if (result.kind !== "completed") return;
+    const summaries = observations.filter(
+      (observation) => observation.event === "scheduler.summary"
     );
+    assert.equal(summaries.length, 1);
+    const details = summaries[0]?.details;
+    assert.ok(details !== null && typeof details === "object");
+    assert.equal(Reflect.get(details, "declarativeFingerprint"), result.declarativeFingerprint);
   });
 });
 

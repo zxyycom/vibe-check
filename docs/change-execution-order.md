@@ -48,8 +48,8 @@
 
 ## 当前协调基线
 
-本节于 2026-09-01 基于 Git `9c0171243136bf72888be60999b8d8e5fb1aba34` 与当次 Change 集合审阅；
-`require-passed-dependencies-and-observe-outcomes`、`extract-scheduler-admission-selection-policy` 与 `expose-custom-admission-selection-policy` 已完成、归档，当前集合保留 13 个 active Change。该提交只标识
+本节于 2026-09-02 基于 Git `4c459052b31d4587c38733c0367235d7bc10a678` 与当次 Change 集合审阅；
+`require-passed-dependencies-and-observe-outcomes`、`extract-scheduler-admission-selection-policy`、`expose-custom-admission-selection-policy` 与 `add-scheduler-performance-diagnostics` 已完成、归档，新增其后继后当前集合保留 13 个 active Change。该提交只标识
 本次依赖审阅的输入，不冻结后续 Change 状态，也不证明其它 Implementation 已完成。
 
 ### Scheduler 主线
@@ -66,19 +66,21 @@ proposal 只保留形成时实施语境；active 下游 Change 应以稳定 owne
 
 custom selector 已完成并归档：[`expose-custom-admission-selection-policy`](../changes/archive/expose-custom-admission-selection-policy/proposal.md)。其 active Decision 继续约束 custom callback 的 synchronous pure boundary；该 archived Change 不再作为 active worktree 或后续 Plan 的硬前置。
 
+Scheduler 基础性能汇总也已完成并归档：[`add-scheduler-performance-diagnostics`](../changes/archive/add-scheduler-performance-diagnostics/proposal.md)。它形成 enabled-only、invocation-local 的 slot/capacity、accepted wait、admission delay 与 completion-tail 人读 summary；archive 只保留形成时 Plan，当前字段与解释以稳定 owner、源码和测试为准。
+
 剩余 active Scheduler 主线为：
 
 ```text
-add-scheduler-performance-diagnostics
+extend-scheduler-pressure-and-tail-diagnostics
   -> schedule-checks-from-learned-durations
 ```
 
-[`add-scheduler-performance-diagnostics`](../changes/add-scheduler-performance-diagnostics/proposal.md) 是 learned policy 的验收前置：learned policy 验收需要它提供或同步提供 admission delay、slot utilization 和 tail 的 matching-workload 证据。performance diagnostics 当前只观察 root/scope capacity、无状态 selected/wait 与 hard-guard facts，且不建立 custom callback timing。
+[`extend-scheduler-pressure-and-tail-diagnostics`](../changes/extend-scheduler-pressure-and-tail-diagnostics/proposal.md) 在已归档 summary 上补齐 admission-viable queue pressure、admission-delay 事实分解、last-admission tail contributors 与 declarative workload signal。它是 learned policy 的验收前置：learned policy 验收需要 matching-workload 的 admission delay、slot utilization、queue pressure 和 tail 证据，而不能从 decision 次数或单个 last-settled Task 推断瓶颈。该后继仍不建立 custom callback timing、policy 原因或自动调优。
 
 因此推荐剩余 active Change 合入顺序为：
 
 ```text
-add-scheduler-performance-diagnostics
+extend-scheduler-pressure-and-tail-diagnostics
   -> schedule-checks-from-learned-durations
 ```
 
