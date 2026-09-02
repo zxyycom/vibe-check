@@ -1,44 +1,19 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import { executeMarkdownLinkValidation } from "./execution.ts";
 import { markdownLinkValidation } from "./default-check.ts";
 import { parseMarkdownLinkValidationData } from "./final-data.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
-import { execute } from "./default-check.test-support.ts";
-
-const MARKDOWN_FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.md", "**/*.markdown"]),
-  source: "filesystem" as const
-});
-
-const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({
-  files: MARKDOWN_FILES,
-  findingPolicy: "blocking",
-  requireExistingTargets: true,
-  validateSameDocumentAnchors: true,
-  validateCrossDocumentAnchors: true,
-  rootExternalTargetMode: "report",
-  requireNonEmptyDirectories: false,
-  limits: Object.freeze({
-    maxMarkdownBytes: 1_048_576,
-    maxOccurrences: 10_000,
-    maxTargetReads: 1_000
-  })
-});
-
-function createRoot(prefix: string): string {
-  const root = mkdtempSync(join(tmpdir(), prefix));
-  mkdirSync(join(root, "src"), { recursive: true });
-  writeFileSync(join(root, "src", "a.ts"), "export const a = 1;\n", "utf8");
-  writeFileSync(join(root, "src", "b.ts"), "export const b = 2;\n", "utf8");
-  return root;
-}
+import {
+  createMarkdownTestRoot,
+  execute,
+  MARKDOWN_FILES,
+  MARKDOWN_LINK_OPTIONS
+} from "./default-check.test-support.ts";
 
 describe("default Check direct callbacks", () => {
   it("materializes bounded Markdown Link defaults and rejects malformed resolved options", async () => {
@@ -125,7 +100,7 @@ describe("default Check direct callbacks", () => {
     ]) {
       assert.equal(validMarkdownLinkValidationOptions(options), false);
     }
-    const root = createRoot("vibe-check-invalid-markdown-link-");
+    const root = createMarkdownTestRoot("vibe-check-invalid-markdown-link-");
     const invalidDirectOptions = {
       ...MARKDOWN_LINK_OPTIONS,
       limits: { ...MARKDOWN_LINK_OPTIONS.limits }
@@ -154,7 +129,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("reports safe Markdown Link findings only after a complete traversal", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(
@@ -243,7 +218,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("reports a root-external target without persisting its path, fragment, or query", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-external-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-external-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(
@@ -308,7 +283,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("validates a direct Markdown target outside source scope without scanning its links", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-scope-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-scope-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       mkdirSync(join(root, "notes"), { recursive: true });
@@ -350,7 +325,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("returns unavailable without publishing an earlier Markdown Link finding", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-limit-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-limit-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(join(root, "docs", "a.md"), "[missing](missing.md)\n", "utf8");
@@ -384,7 +359,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("returns unavailable without publishing an earlier finding when target work reaches its limit", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-target-limit-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-target-limit-");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(join(root, "docs", "a.md"), "[missing](missing.md)\n", "utf8");
@@ -441,7 +416,7 @@ describe("default Check direct callbacks", () => {
     });
     assert.deepEqual(result.records, []);
 
-    const sourceRoot = createRoot("vibe-check-direct-markdown-link-source-limit-");
+    const sourceRoot = createMarkdownTestRoot("vibe-check-direct-markdown-link-source-limit-");
     try {
       mkdirSync(join(sourceRoot, "docs"), { recursive: true });
       writeFileSync(join(sourceRoot, "docs", "source.md"), "# Source\n", "utf8");
@@ -474,7 +449,7 @@ describe("default Check direct callbacks", () => {
   });
 
   it("returns unavailable before source collection when its Run signal is already cancelled", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-cancelled-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cancelled-");
     const controller = new AbortController();
     controller.abort();
     try {

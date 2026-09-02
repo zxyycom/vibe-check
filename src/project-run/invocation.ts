@@ -1,5 +1,4 @@
 import type { CheckProjectContext } from "../check/check.ts";
-import type { CoreSnapshot } from "../check-settlement/facts.ts";
 import {
   normalizeProjectDefinition,
   type DefinitionWarning,
@@ -37,6 +36,7 @@ import {
   type DiagnosticLoggerFactory
 } from "./diagnostic-logging/logger.ts";
 import { createInvocation } from "./invocation-creation.ts";
+import { elapsedSince, outcomeCounts } from "./invocation-progress.ts";
 import type { OutputStatuses } from "./output-status.ts";
 export type Invocation = Readonly<{
   readonly clock: CheckExecutionClock;
@@ -264,38 +264,6 @@ async function executeChecks(
   } catch {
     return executionResult(invocation, "task-engine-failed");
   }
-}
-function outcomeCounts(snapshot: CoreSnapshot): Readonly<{
-  readonly failed: number;
-  readonly notApplicable: number;
-  readonly passed: number;
-  readonly unavailable: number;
-}> {
-  let failed = 0,
-    notApplicable = 0,
-    passed = 0,
-    unavailable = 0;
-  for (const check of snapshot.checks) {
-    switch (check.outcome.status) {
-      case "passed":
-        passed += 1;
-        break;
-      case "failed":
-        failed += 1;
-        break;
-      case "not-applicable":
-        notApplicable += 1;
-        break;
-      case "unavailable":
-        unavailable += 1;
-        break;
-    }
-  }
-  return Object.freeze({ failed, notApplicable, passed, unavailable });
-}
-function elapsedSince(startedAt: number, clock: CheckExecutionClock): number {
-  const elapsed = clock.now() - startedAt;
-  return Number.isFinite(elapsed) && elapsed >= 0 ? elapsed : 0;
 }
 function planningResult(
   invocation: Invocation,

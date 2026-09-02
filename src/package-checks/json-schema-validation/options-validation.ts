@@ -1,27 +1,16 @@
 import {
-  hasExactPlainRecordKeys,
   snapshotClosedArray,
-  snapshotClosedRecord
+  snapshotClosedRecord,
+  snapshotExactClosedRecord
 } from "../../data-boundary/closed-values.ts";
+import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import type { ResolvedJsonSchemaValidationOptions } from "./options.ts";
-
-function exactRecord(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  const record = snapshotClosedRecord(value);
-  return record !== undefined && hasExactPlainRecordKeys(record, keys) ? record : undefined;
-}
-
-function positiveSafeInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
-}
 
 export function validJsonSchemaValidationOptions(
   candidateOptions: unknown
 ): candidateOptions is ResolvedJsonSchemaValidationOptions {
-  const options = exactRecord(candidateOptions, [
+  const options = snapshotExactClosedRecord(candidateOptions, [
     "files",
     "maximumBytes",
     "schemaIdentity",
@@ -32,7 +21,7 @@ export function validJsonSchemaValidationOptions(
   if (
     options === undefined ||
     !validProjectFileSelection(options.files) ||
-    !positiveSafeInteger(options.maximumBytes) ||
+    !isPositiveSafeInteger(options.maximumBytes) ||
     !validJsonSchemaIdentity(options.schemaIdentity) ||
     !validJsonSchemaReferenceResolution(options.referenceResolution)
   ) {
@@ -50,7 +39,7 @@ export function validJsonSchemaValidationOptions(
 }
 
 function validJsonSchemaIdentity(candidateIdentity: unknown): boolean {
-  const identity = exactRecord(candidateIdentity, ["mode"]);
+  const identity = snapshotExactClosedRecord(candidateIdentity, ["mode"]);
   return (
     identity !== undefined &&
     (identity.mode === "require-match" ||
@@ -65,11 +54,11 @@ function validJsonSchemaReferenceResolution(candidateResolution: unknown): boole
     return false;
   }
   if (referenceResolution.mode === "offline") {
-    return exactRecord(referenceResolution, ["mode"]) !== undefined;
+    return snapshotExactClosedRecord(referenceResolution, ["mode"]) !== undefined;
   }
   if (referenceResolution.mode !== "allowlisted") return false;
 
-  const allowlisted = exactRecord(referenceResolution, ["mode", "sources"]);
+  const allowlisted = snapshotExactClosedRecord(referenceResolution, ["mode", "sources"]);
   const sources = allowlisted === undefined ? undefined : snapshotClosedArray(allowlisted.sources);
   return sources !== undefined && sources.length > 0 && validJsonSchemaReferenceSources(sources);
 }
@@ -104,11 +93,11 @@ function validatedReferenceSource(sourceCandidate: unknown) {
 }
 
 function validBundledSource(source: Readonly<Record<string, unknown>>): boolean {
-  return exactRecord(source, ["kind", "catalog"])?.catalog === "json-schema-2020-12";
+  return snapshotExactClosedRecord(source, ["kind", "catalog"])?.catalog === "json-schema-2020-12";
 }
 
 function validatedHttpsSource(source: Readonly<Record<string, unknown>>) {
-  const httpsSource = exactRecord(source, ["kind", "id", "origin", "pathPrefix"]);
+  const httpsSource = snapshotExactClosedRecord(source, ["kind", "id", "origin", "pathPrefix"]);
   if (
     httpsSource === undefined ||
     !safeAbsoluteIdentifier(httpsSource.id) ||
@@ -124,7 +113,7 @@ function validatedSchemaRegistryIds(schemas: readonly unknown[]): ReadonlySet<st
   const declaredSchemaIds = new Set<string>();
   const schemaPaths = new Set<string>();
   for (const schemaCandidate of schemas) {
-    const schemaRecord = exactRecord(schemaCandidate, ["id", "path"]);
+    const schemaRecord = snapshotExactClosedRecord(schemaCandidate, ["id", "path"]);
     if (
       schemaRecord === undefined ||
       !safeAbsoluteIdentifier(schemaRecord.id) ||
@@ -147,7 +136,11 @@ function validJsonSchemaBindings(
   const bindingIds = new Set<string>();
   const bindingTargets = new Set<string>();
   for (const bindingCandidate of bindings) {
-    const bindingRecord = exactRecord(bindingCandidate, ["id", "instancePath", "schemaId"]);
+    const bindingRecord = snapshotExactClosedRecord(bindingCandidate, [
+      "id",
+      "instancePath",
+      "schemaId"
+    ]);
     if (
       bindingRecord === undefined ||
       !safeBindingId(bindingRecord.id) ||

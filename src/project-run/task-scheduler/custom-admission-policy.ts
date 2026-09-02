@@ -63,26 +63,42 @@ function admissionPolicyContext(input: AdmissionPolicyInput): AdmissionPolicyCon
 function validateProposal(value: unknown): AdmissionProposal {
   if (!isPlainRecord(value)) throw new AdmissionPolicyFault("malformed-proposal");
   try {
-    const keys = Reflect.ownKeys(value);
-    if (value.kind === "select") {
-      if (
-        keys.length !== 2 ||
-        !keys.includes("kind") ||
-        !keys.includes("taskId") ||
-        typeof value.taskId !== "string"
-      ) {
-        throw new AdmissionPolicyFault("malformed-proposal");
-      }
-      return Object.freeze({ kind: "select", taskId: value.taskId });
-    }
-    if (value.kind === "wait" && keys.length === 1 && keys[0] === "kind") {
-      return Object.freeze({ kind: "wait" });
-    }
+    return parseProposalRecord(value);
   } catch (error) {
     if (error instanceof AdmissionPolicyFault) throw error;
     throw new AdmissionPolicyFault("malformed-proposal");
   }
+}
+
+function parseProposalRecord(value: Record<string, unknown>): AdmissionProposal {
+  switch (value.kind) {
+    case "select":
+      return parseSelectProposal(value);
+    case "wait":
+      return parseWaitProposal(value);
+  }
   throw new AdmissionPolicyFault("malformed-proposal");
+}
+
+function parseSelectProposal(value: Record<string, unknown>): AdmissionProposal {
+  const keys = Reflect.ownKeys(value);
+  if (
+    keys.length !== 2 ||
+    !keys.includes("kind") ||
+    !keys.includes("taskId") ||
+    typeof value.taskId !== "string"
+  ) {
+    throw new AdmissionPolicyFault("malformed-proposal");
+  }
+  return Object.freeze({ kind: "select", taskId: value.taskId });
+}
+
+function parseWaitProposal(value: Record<string, unknown>): AdmissionProposal {
+  const keys = Reflect.ownKeys(value);
+  if (keys.length !== 1 || keys[0] !== "kind") {
+    throw new AdmissionPolicyFault("malformed-proposal");
+  }
+  return Object.freeze({ kind: "wait" });
 }
 
 function isPlainRecord(value: unknown): value is Record<string, unknown> {

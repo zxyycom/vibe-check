@@ -1,28 +1,20 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
 import {
-  isInheritedCheckCollection,
-  snapshotInheritedCheckCollection,
   type CheckVisibility,
   type CheckFlagEnablement,
   type CheckFlagEnablementMode,
   type CheckExecution,
-  type CheckPreflight,
-  type InheritedCheckCollection
+  type CheckPreflight
 } from "../../check/check.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { validateCheckDescriptor } from "../../check/descriptor-validation.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
+import { parseUniqueIdentifiers } from "./collection-authoring.ts";
+import { parseCheckScheduling, type ParsedCheckCollection } from "./scheduling-authoring.ts";
+
+export type { ParsedCheckCollection } from "./scheduling-authoring.ts";
 
 type TrustedDataParser = (this: void, ...parameters: never[]) => unknown;
-
-export type ParsedCheckCollection = Readonly<
-  | { readonly kind: "exact"; readonly values: readonly string[] }
-  | {
-      readonly kind: "inherit";
-      readonly add: readonly string[];
-      readonly remove: readonly string[];
-    }
->;
 
 export interface ParsedCheck {
   readonly admissionPriority: number | undefined;
@@ -133,7 +125,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
   if (enabledByFlags === undefined) return undefined;
   const checks = parseChildren(data, path, state);
   if (checks === undefined) return undefined;
-  const scheduling = parseScheduling(data);
+  const scheduling = parseCheckScheduling(data);
   if (scheduling === undefined) return undefined;
   const fields = parseCheckFields(data, enabledByFlags, execution, parseData, preflight);
   if (fields === undefined) return undefined;
@@ -279,7 +271,7 @@ function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | nu
   ) {
     return undefined;
   }
-  const flags = parseCollectionItems(control.flags);
+  const flags = parseUniqueIdentifiers(control.flags);
   if (flags === undefined) return undefined;
   const [firstFlag, ...remainingFlags] = [...flags].sort();
   if (firstFlag === undefined) return undefined;
@@ -308,76 +300,4 @@ function warnForMeaninglessCheck(
 ): void {
   if (fields.execution !== null || checks.length > 0) return;
   state.warnings.push(Object.freeze({ code: "meaningless-check", path, checkId: data.checkId }));
-}
-
-function parseScheduling(data: CheckAuthoringData):
-  | Readonly<{
-      readonly admissionPriority: number | undefined;
-      readonly dependsOn: ParsedCheckCollection | undefined;
-      readonly maxParallel: number | undefined;
-      readonly mutex: ParsedCheckCollection | undefined;
-      readonly observes: ParsedCheckCollection | undefined;
-    }>
-  | undefined {
-  const dependsOn = parseCollection(data, "dependsOn");
-  const mutex = parseCollection(data, "mutex");
-  const observes = parseCollection(data, "observes");
-  const admissionPriority = data.admissionPriority;
-  const maxParallel = data.maxParallel;
-  if (
-    dependsOn === null ||
-    mutex === null ||
-    observes === null ||
-    (admissionPriority !== undefined &&
-      (typeof admissionPriority !== "number" || !Number.isSafeInteger(admissionPriority))) ||
-    (maxParallel !== undefined &&
-      (typeof maxParallel !== "number" || !Number.isSafeInteger(maxParallel) || maxParallel <= 0))
-  )
-    return undefined;
-  return Object.freeze({
-    admissionPriority,
-    dependsOn: dependsOn ?? undefined,
-    maxParallel,
-    mutex: mutex ?? undefined,
-    observes: observes ?? undefined
-  });
-}
-
-function parseCollection(
-  data: CheckAuthoringData,
-  field: "dependsOn" | "mutex" | "observes"
-): ParsedCheckCollection | null | undefined {
-  if (!Object.hasOwn(data, field)) return undefined;
-  const value = data[field];
-  if (isInheritedCheckCollection(value)) return parseInheritedCollection(value);
-  const values = parseCollectionItems(value);
-  return values === undefined ? null : Object.freeze({ kind: "exact", values });
-}
-
-function parseInheritedCollection(
-  value: InheritedCheckCollection<unknown>
-): ParsedCheckCollection | null {
-  const data = snapshotInheritedCheckCollection(value);
-  if (data === undefined || !hasExactInheritedKeys(data)) return null;
-  const add = data.add === undefined ? Object.freeze([]) : parseCollectionItems(data.add);
-  const remove = data.remove === undefined ? Object.freeze([]) : parseCollectionItems(data.remove);
-  if (add === undefined || remove === undefined) return null;
-  return Object.freeze({ kind: "inherit", add, remove });
-}
-
-function hasExactInheritedKeys(data: Readonly<Record<string, unknown>>): boolean {
-  const keys = Object.keys(data);
-  return keys.length > 0 && keys.every((key) => key === "add" || key === "remove");
-}
-
-function parseCollectionItems(value: unknown): readonly string[] | undefined {
-  const items = snapshotClosedArray(value);
-  if (items === undefined) return undefined;
-  const values: string[] = [];
-  for (const item of items) {
-    const valid = typeof item === "string" && item.length > 0;
-    if (!valid) return undefined;
-    if (!values.includes(item)) values.push(item);
-  }
-  return Object.freeze(values);
 }

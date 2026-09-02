@@ -1,31 +1,17 @@
-import {
-  hasExactPlainRecordKeys,
-  snapshotClosedRecord
-} from "../../data-boundary/closed-values.ts";
+import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
+import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 
-function exactRecord(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  const record = snapshotClosedRecord(value);
-  return record !== undefined && hasExactPlainRecordKeys(record, keys) ? record : undefined;
-}
-
-function positiveSafeInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
-}
-
 function boundedPositiveSafeInteger(value: unknown, maximum: number): value is number {
-  return positiveSafeInteger(value) && value <= maximum;
+  return isPositiveSafeInteger(value) && value <= maximum;
 }
 
 export function validMarkdownLinkValidationOptions(
   value: unknown
 ): value is ResolvedMarkdownLinkValidationOptions {
-  const options = exactRecord(value, [
+  const options = snapshotExactClosedRecord(value, [
     "files",
     "findingPolicy",
     "requireExistingTargets",
@@ -62,7 +48,11 @@ function validRootExternalTargetMode(value: unknown): boolean {
 }
 
 function validMarkdownLinkLimits(value: unknown): boolean {
-  const limits = exactRecord(value, ["maxMarkdownBytes", "maxOccurrences", "maxTargetReads"]);
+  const limits = snapshotExactClosedRecord(value, [
+    "maxMarkdownBytes",
+    "maxOccurrences",
+    "maxTargetReads"
+  ]);
   return (
     limits !== undefined &&
     boundedPositiveSafeInteger(limits.maxMarkdownBytes, 16_777_216) &&

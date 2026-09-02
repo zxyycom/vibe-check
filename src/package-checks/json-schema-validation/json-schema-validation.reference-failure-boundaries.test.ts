@@ -3,7 +3,7 @@ import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
 
 import {
-  DEFAULT_FILES,
+  allowlistedOptions,
   runJsonSchemaValidation,
   strictSchema,
   temporaryRoot,
@@ -23,24 +23,7 @@ describe("JSON Schema validation default Check", () => {
         async () => new Response("not available", { status: 503 }),
         async () => {
           const observed = await runJsonSchemaValidation({
-            options: Object.freeze({
-              bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
-              files: DEFAULT_FILES,
-              maximumBytes: 1_048_576,
-              referenceResolution: {
-                mode: "allowlisted",
-                sources: [
-                  {
-                    id: "urn:vibe-check:source:schemas-example",
-                    kind: "https",
-                    origin: "https://schemas.example.test",
-                    pathPrefix: "/catalog/"
-                  }
-                ]
-              },
-              schemaIdentity: { mode: "require-match" },
-              schemas: [{ id: schemaId, path: "schema.json" }]
-            } as const),
+            options: allowlistedOptions(schemaId),
             root
           });
           assert.deepEqual(observed, {
@@ -80,24 +63,7 @@ describe("JSON Schema validation default Check", () => {
           }),
         async () => {
           const observed = await runJsonSchemaValidation({
-            options: Object.freeze({
-              bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
-              files: DEFAULT_FILES,
-              maximumBytes: 1_048_576,
-              referenceResolution: {
-                mode: "allowlisted",
-                sources: [
-                  {
-                    id: "urn:vibe-check:source:schemas-example",
-                    kind: "https",
-                    origin: "https://schemas.example.test",
-                    pathPrefix: "/catalog/"
-                  }
-                ]
-              },
-              schemaIdentity: { mode: "require-match" },
-              schemas: [{ id: schemaId, path: "schema.json" }]
-            } as const),
+            options: allowlistedOptions(schemaId),
             root
           });
           assert.deepEqual(

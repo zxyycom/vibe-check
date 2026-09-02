@@ -82,9 +82,14 @@ describe("Project Gate process Check", () => {
       );
       const execution = check.execution;
       if (execution === undefined) throw new Error("provider fixture must be executable");
-      const result = await execution({
+      const executionContext = () => ({
         dependencies: {
-          get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } }),
+          get: (checkId: string) => ({
+            ok: true as const,
+            checkId,
+            status: "passed" as const,
+            data: { version: 1 }
+          }),
           list: () => Object.freeze([])
         },
         options: check.options ?? {},
@@ -92,6 +97,7 @@ describe("Project Gate process Check", () => {
         records: { report: () => undefined },
         signal: new AbortController().signal
       });
+      const result = await execution(executionContext());
       assert.deepEqual(result, { status: "passed", data: { version: 1 } });
       assert.equal(validationCalls, 1);
       assert.deepEqual(events, [
@@ -104,19 +110,10 @@ describe("Project Gate process Check", () => {
       assert.match(readFileSync(join(root, "process", "fixture-command.log"), "utf8"), /status: 0/);
       validationShouldThrow = true;
       events.length = 0;
-      assert.deepEqual(
-        await execution({
-          dependencies: {
-            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } }),
-            list: () => Object.freeze([])
-          },
-          options: check.options ?? {},
-          project: { flags: [], root: process.cwd() },
-          records: { report: () => undefined },
-          signal: new AbortController().signal
-        }),
-        { status: "unavailable", reason: { code: "process-output-invalid" } }
-      );
+      assert.deepEqual(await execution(executionContext()), {
+        status: "unavailable",
+        reason: { code: "process-output-invalid" }
+      });
       assert.equal(validationCalls, 2);
       assert.deepEqual(events, [
         "startup-transcript",
@@ -131,19 +128,10 @@ describe("Project Gate process Check", () => {
       );
       validationShouldThrow = false;
       stdoutOutput = "not JSON";
-      assert.deepEqual(
-        await execution({
-          dependencies: {
-            get: (checkId) => ({ ok: true, checkId, status: "passed", data: { version: 1 } }),
-            list: () => Object.freeze([])
-          },
-          options: check.options ?? {},
-          project: { flags: [], root: process.cwd() },
-          records: { report: () => undefined },
-          signal: new AbortController().signal
-        }),
-        { status: "unavailable", reason: { code: "process-output-invalid" } }
-      );
+      assert.deepEqual(await execution(executionContext()), {
+        status: "unavailable",
+        reason: { code: "process-output-invalid" }
+      });
       assert.match(
         readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
         /--- stdout ---\nnot JSON/

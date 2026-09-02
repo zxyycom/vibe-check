@@ -1,16 +1,26 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { errorMessage } from "../../../error-message.ts";
 import { isPathWithin } from "../../../repository-files/paths.ts";
 import { isAcceptedPackageDependencyVersion } from "../../dependency-version.ts";
 import { CANDIDATE_DEPENDENCIES } from "../../package-contract.ts";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import type { ExternalConsumerMaterial } from "./material.ts";
+import {
+  assertCandidateRunEvidence,
+  type CandidateFixtureEvidence
+} from "./runtime-evidence-assertions.ts";
+import {
+  isRecord,
+  optionalOutcome,
+  parseJsonRecord,
+  readJsonRecord,
+  requiredString
+} from "./runtime-evidence-values.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -71,32 +81,6 @@ function runJscpdEngine(binPath: string): string {
   if (version === undefined) throw new TypeError("resolved jscpd engine returned no version");
   return version;
 }
-
-type CandidateFixtureEvidence = Readonly<{
-  checkMessages: unknown;
-  checkDurations: unknown;
-  cacheComputations: unknown;
-  changedFilesCalls: unknown;
-  blockedChangedFilesConsumer: unknown;
-  blockedChangedFilesConsumerCalls: unknown;
-  firstCacheRead: unknown;
-  secondCacheRead: unknown;
-  changedFilesFromMachine: unknown;
-  changedFilesFromRun: unknown;
-  duplicateData: unknown;
-  duplicateOutcome: string | null;
-  duplicateRecords: unknown;
-  firstChangedFilesConsumer: unknown;
-  humanOutput: string;
-  kind: string;
-  jsonSchemaData: unknown;
-  jsonSchemaOutcome: string | null;
-  markdownLinkData: unknown;
-  markdownLinkOutcome: string | null;
-  machineSchemaVersion: unknown;
-  parserEvidence: unknown;
-  secondChangedFilesConsumer: unknown;
-}>;
 
 function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidence {
   const output = candidateFixtureOutput(consumerDirectory);
@@ -179,266 +163,4 @@ function candidateFixtureOutput(consumerDirectory: string): Readonly<{
     ),
     humanOutput: result.stdout.slice(0, markerIndex)
   });
-}
-
-function optionalOutcome(value: unknown, description: string): string | null {
-  if (value !== null && typeof value !== "string")
-    throw new TypeError(`${description} must be a string or null`);
-  return value;
-}
-
-function assertCandidateRunEvidence(runEvidence: ReturnType<typeof runCandidateFixture>): void {
-  assert.equal(runEvidence.kind, "completed");
-  assert.equal(runEvidence.cacheComputations, 1);
-  assert.deepEqual(runEvidence.firstCacheRead, {
-    read: "miss",
-    source: "computed",
-    value: { count: 1 },
-    write: "stored"
-  });
-  assert.deepEqual(runEvidence.secondCacheRead, {
-    read: "hit",
-    source: "cache",
-    value: { count: 1 },
-    write: "not-attempted"
-  });
-  assert.equal(runEvidence.duplicateOutcome, "passed");
-  assert.deepEqual(runEvidence.duplicateData, { blockingFindingCount: 0, findingCount: 1 });
-  assertTrustedNonBlockingDuplicateRecord(runEvidence.duplicateRecords);
-  assert.equal(runEvidence.jsonSchemaOutcome, "passed");
-  assert.deepEqual(runEvidence.jsonSchemaData, {
-    bindingCount: 1,
-    blockedBindingCount: 0,
-    invalidBindingCount: 0,
-    issueCount: 0,
-    issuesTruncated: false,
-    reportedIssueCount: 0,
-    schemaCount: 1,
-    validBindingCount: 1
-  });
-  assert.equal(runEvidence.markdownLinkOutcome, "passed");
-  assert.deepEqual(runEvidence.markdownLinkData, {
-    findingCount: 0,
-    occurrenceCount: 1,
-    rejectedInputCount: 0,
-    sourceFileCount: 2,
-    targetReadCount: 1
-  });
-  assert.equal(runEvidence.changedFilesCalls, 1);
-  assert.equal(runEvidence.blockedChangedFilesConsumerCalls, 0);
-  assert.deepEqual(runEvidence.blockedChangedFilesConsumer, {
-    status: "unavailable",
-    reason: {
-      checkIds: ["failed-changed-files"],
-      code: "dependency-not-passed"
-    }
-  });
-  assert.deepEqual(runEvidence.changedFilesFromMachine, {
-    files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
-    version: 1
-  });
-  assert.deepEqual(runEvidence.changedFilesFromRun, runEvidence.changedFilesFromMachine);
-  assert.deepEqual(runEvidence.parserEvidence, {
-    attachedJson: {
-      invalidFileCount: 0,
-      issueCount: 0,
-      rejectedInputCount: 0,
-      scannedFileCount: 0,
-      validFileCount: 0
-    },
-    duplicate: { blockingFindingCount: 0, findingCount: 0 },
-    file: { blockingFindingCount: 0, findingCount: 0 },
-    function: { blockingFindingCount: 0, findingCount: 0 },
-    json: {
-      invalidFileCount: 0,
-      issueCount: 0,
-      rejectedInputCount: 0,
-      scannedFileCount: 0,
-      validFileCount: 0
-    },
-    jsonSchema: {
-      bindingCount: 0,
-      blockedBindingCount: 0,
-      invalidBindingCount: 0,
-      issueCount: 0,
-      issuesTruncated: false,
-      reportedIssueCount: 0,
-      schemaCount: 0,
-      validBindingCount: 0
-    },
-    maintenance: { entries: [] },
-    markdown: {
-      findingCount: 0,
-      occurrenceCount: 0,
-      rejectedInputCount: 0,
-      sourceFileCount: 0,
-      targetReadCount: 0
-    }
-  });
-  assert.deepEqual(runEvidence.firstChangedFilesConsumer, {
-    fileCount: 1,
-    observedStatus: "failed"
-  });
-  assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });
-  assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
-  assertDuplicateAndTerminalMessages(runEvidence.checkMessages);
-  assert.match(runEvidence.humanOutput, /total\s+10\s+checks/i);
-  assert.match(runEvidence.humanOutput, /Checks:/);
-  assert.match(runEvidence.humanOutput, /\[1\/10\].*duplicate detection/i);
-  assert.match(runEvidence.humanOutput, /\[7\/10\].*Blocked changed-files consumer/i);
-  assert.match(runEvidence.humanOutput, /\[10\/10\].*Installed terminal note/i);
-  assert.match(runEvidence.humanOutput, /\[info\] Installed candidate terminal message\./);
-  assert.match(runEvidence.humanOutput, /Execution summary:/);
-  assert.equal(runEvidence.humanOutput.includes("\u001B"), false);
-  for (const checkId of [
-    "duplicate-detection",
-    "json-schema-validation",
-    "markdown-link-validation",
-    "changed-files",
-    "failed-changed-files",
-    "first-changed-files-consumer",
-    "second-changed-files-consumer",
-    "installed-terminal-note"
-  ]) {
-    assertCanonicalExecutedDuration(runEvidence.checkDurations, checkId);
-  }
-  assertUnavailableDependencyDuration(runEvidence.checkDurations, "blocked-changed-files-consumer");
-}
-
-function assertDuplicateAndTerminalMessages(value: unknown): void {
-  if (!isUnknownArray(value)) throw new TypeError("isolated Run checkMessages must be an array");
-  assert.equal(value.length, 3);
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) &&
-        message.checkId === "duplicate-detection" &&
-        message.code === "non-blocking-findings"
-    ),
-    {
-      checkId: "duplicate-detection",
-      code: "non-blocking-findings",
-      level: "warning",
-      message:
-        "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-    }
-  );
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) &&
-        message.checkId === "duplicate-detection" &&
-        message.code === "finding-detail"
-    ),
-    {
-      checkId: "duplicate-detection",
-      code: "finding-detail",
-      level: "warning",
-      message:
-        "Duplicate fragment contains 80 tokens across 19 lines at duplicate-a.ts:1-19, duplicate-b.ts:1-19."
-    }
-  );
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) && message.checkId === "installed-terminal-note"
-    ),
-    {
-      checkId: "installed-terminal-note",
-      code: "installed-terminal-note",
-      level: "info",
-      message: "Installed candidate terminal message."
-    }
-  );
-}
-
-function assertTrustedNonBlockingDuplicateRecord(value: unknown): void {
-  if (!isUnknownArray(value)) {
-    throw new TypeError("isolated duplicate records must be an array");
-  }
-  assert.equal(value.length, 1);
-  const record = value[0];
-  if (!isRecord(record)) throw new TypeError("isolated duplicate record must be an object");
-  assert.equal(record.checkId, "duplicate-detection");
-  assert.match(
-    requiredString(record.id, "isolated duplicate record id"),
-    /^duplicate-fragment\/v1\/sha256:/
-  );
-  if (!isRecord(record.data))
-    throw new TypeError("isolated duplicate record data must be an object");
-  assert.equal(record.data.blocking, false);
-  assert.equal(hasFixtureDuplicateLocations(record.data.locations), true);
-}
-
-function hasFixtureDuplicateLocations(value: unknown): boolean {
-  if (!isUnknownArray(value) || value.length !== 2) return false;
-  if (
-    !value.every(
-      (location): location is Readonly<{ path: string }> =>
-        isRecord(location) && typeof location.path === "string"
-    )
-  ) {
-    return false;
-  }
-  const paths = value.map((location) => location.path).sort();
-  return paths[0] === "duplicate-a.ts" && paths[1] === "duplicate-b.ts";
-}
-
-function assertCanonicalExecutedDuration(checkDurations: unknown, checkId: string): void {
-  if (!isUnknownArray(checkDurations)) {
-    throw new TypeError("isolated Run checkDurations must be an array");
-  }
-  const duration = checkDurations.find(
-    (candidate): candidate is Readonly<Record<string, unknown>> =>
-      isRecord(candidate) && candidate.checkId === checkId
-  );
-  assert.notEqual(duration, undefined, `isolated Run duration is missing for ${checkId}`);
-  if (!isRecord(duration)) throw new TypeError("isolated Run duration must be an object");
-  assert.equal(duration.checkId, checkId);
-  if (typeof duration.durationMs !== "number") {
-    throw new TypeError("isolated Run durationMs must be a number");
-  }
-  assert.equal(Number.isFinite(duration.durationMs), true);
-  assert.equal(duration.durationMs >= 0, true);
-}
-
-function assertUnavailableDependencyDuration(checkDurations: unknown, checkId: string): void {
-  if (!isUnknownArray(checkDurations)) {
-    throw new TypeError("isolated Run checkDurations must be an array");
-  }
-  const duration = checkDurations.find(
-    (candidate): candidate is Readonly<Record<string, unknown>> =>
-      isRecord(candidate) && candidate.checkId === checkId
-  );
-  assert.deepEqual(duration, { checkId, durationMs: null });
-}
-
-function readJsonRecord(path: string, description: string): Readonly<Record<string, unknown>> {
-  return parseJsonRecord(readFileSync(path, "utf8"), description);
-}
-
-function parseJsonRecord(source: string, description: string): Readonly<Record<string, unknown>> {
-  let value: unknown;
-  try {
-    value = JSON.parse(source);
-  } catch (error: unknown) {
-    throw new Error(`${description} is not JSON: ${errorMessage(error)}`, { cause: error });
-  }
-  if (!isRecord(value)) throw new TypeError(`${description} must be an object`);
-  return value;
-}
-
-function requiredString(value: unknown, description: string): string {
-  if (typeof value !== "string" || value.length === 0) {
-    throw new TypeError(`${description} must be a non-empty string`);
-  }
-  return value;
-}
-
-function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isUnknownArray(value: unknown): value is readonly unknown[] {
-  return Array.isArray(value);
 }

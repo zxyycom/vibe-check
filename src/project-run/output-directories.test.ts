@@ -5,6 +5,7 @@ import { basename, join, relative, resolve } from "node:path";
 import { describe, it } from "node:test";
 
 import { defineConfig } from "../project-definition/project-definition.ts";
+import type { RunOutputStatuses } from "./output-status.ts";
 import { run } from "./run.ts";
 
 const CHECK = Object.freeze({
@@ -66,23 +67,7 @@ describe("Package Run output directories", () => {
 
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
-      assert.equal(result.outputs.machinePublication.status, "succeeded");
-      assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
-      assert.equal(
-        result.outputs.diagnosticLogging.file,
-        relative(
-          projectRoot,
-          join(outputDirectory, basename(result.outputs.diagnosticLogging.file ?? ""))
-        )
-      );
-      assert.equal(
-        existsSync(resolve(projectRoot, result.outputs.diagnosticLogging.file ?? "")),
-        true
-      );
-      assert.deepEqual(
-        readdirSync(outputDirectory).sort(),
-        [basename(result.outputs.diagnosticLogging.file ?? ""), "records.ndjson", "run.json"].sort()
-      );
+      assertSharedOutputDirectory(result.outputs, projectRoot, outputDirectory);
     } finally {
       rmSync(container, { recursive: true, force: true });
     }
@@ -114,25 +99,28 @@ describe("Package Run output directories", () => {
 
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
-      assert.equal(result.outputs.machinePublication.status, "succeeded");
-      assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
-      assert.equal(
-        result.outputs.diagnosticLogging.file,
-        relative(
-          projectRoot,
-          join(outputDirectory, basename(result.outputs.diagnosticLogging.file ?? ""))
-        )
-      );
-      assert.equal(
-        existsSync(resolve(projectRoot, result.outputs.diagnosticLogging.file ?? "")),
-        true
-      );
-      assert.deepEqual(
-        readdirSync(outputDirectory).sort(),
-        [basename(result.outputs.diagnosticLogging.file ?? ""), "records.ndjson", "run.json"].sort()
-      );
+      assertSharedOutputDirectory(result.outputs, projectRoot, outputDirectory);
     } finally {
       rmSync(container, { recursive: true, force: true });
     }
   });
 });
+
+function assertSharedOutputDirectory(
+  outputs: RunOutputStatuses,
+  projectRoot: string,
+  outputDirectory: string
+): void {
+  assert.equal(outputs.machinePublication.status, "succeeded");
+  assert.equal(outputs.diagnosticLogging.status, "succeeded");
+  const diagnosticFile = outputs.diagnosticLogging.file ?? "";
+  assert.equal(
+    diagnosticFile,
+    relative(projectRoot, join(outputDirectory, basename(diagnosticFile)))
+  );
+  assert.equal(existsSync(resolve(projectRoot, diagnosticFile)), true);
+  assert.deepEqual(
+    readdirSync(outputDirectory).sort(),
+    [basename(diagnosticFile), "records.ndjson", "run.json"].sort()
+  );
+}

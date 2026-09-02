@@ -134,70 +134,12 @@ describe("quality jscpd wrapper failure projection", () => {
 
   it("keeps real duplicate findings non-fatal and normalizes jscpd JSON", async () => {
     const tempDir = mkdtempSync(join(tmpdir(), "docnav-quality-jscpd-real-"));
-    const duplicateSource = [
-      "export function duplicatedExample(value: number): number {",
-      "  let total = value;",
-      "  total += 1;",
-      "  total += 2;",
-      "  total += 3;",
-      "  total += 4;",
-      "  total += 5;",
-      "  total += 6;",
-      "  total += 7;",
-      "  total += 8;",
-      "  total += 9;",
-      "  total += 10;",
-      "  return total;",
-      "}",
-      ""
-    ].join("\n");
-
+    const duplicateSource = duplicateFixtureSource();
     writeFileSync(join(tempDir, "a.ts"), duplicateSource, "utf8");
     writeFileSync(join(tempDir, "b.ts"), duplicateSource, "utf8");
 
     try {
-      const packageManifestPath = fileURLToPath(import.meta.resolve("jscpd/package.json"));
-      const declaredBinTarget = readJscpdBinTarget(packageManifestPath);
-      const packageManifest = JSON.parse(readFileSync(packageManifestPath, "utf8")) as unknown;
-      if (!isNonArrayRecord(packageManifest) || typeof packageManifest.version !== "string") {
-        assert.fail("installed jscpd manifest must declare its version");
-      }
-      assert.deepEqual(DEFAULT_JSCPD_COMMAND, { kind: "package" });
-      const resolvedCommand = resolveJscpdCommand(DEFAULT_JSCPD_COMMAND);
-      assert.equal(resolvedCommand.kind, "resolved");
-      if (resolvedCommand.kind === "resolved") {
-        assert.equal(resolvedCommand.command.executable, process.execPath);
-        assert.equal(resolvedCommand.command.scanPrefixArguments[0], declaredBinTarget);
-        assert.deepEqual(resolvedCommand.command.versionArguments, [
-          declaredBinTarget,
-          "--version"
-        ]);
-      }
-      const availability = await checkJscpd(tempDir, {
-        command: DEFAULT_JSCPD_COMMAND
-      });
-      assert.equal(availability.available, true);
-      assert.equal(availability.source, "package dependency");
-      if (availability.available) assert.equal(availability.version, packageManifest.version);
-
-      const result = scanWithJscpd({
-        files: ["a.ts", "b.ts"],
-        cwd: tempDir,
-        dependency: { command: DEFAULT_JSCPD_COMMAND },
-        minimumLines: 3,
-        minimumTokens: 20
-      });
-
-      assert.equal(result.ok, true);
-      if (result.ok) {
-        assert.equal(result.measurements.length, 1);
-        assert.equal(result.measurements[0].payload.locations.length, 2);
-        assert.deepEqual(
-          result.measurements[0].payload.locations.map((location) => location.path),
-          ["a.ts", "b.ts"]
-        );
-        assert.deepEqual(result.measurements[0].sourcePaths, ["a.ts", "b.ts"]);
-      }
+      await assertInstalledJscpdScan(tempDir);
     } finally {
       rmSync(tempDir, { recursive: true, force: true });
     }
@@ -229,6 +171,61 @@ describe("quality jscpd wrapper failure projection", () => {
     }
   });
 });
+
+function duplicateFixtureSource(): string {
+  return [
+    "export function duplicatedExample(value: number): number {",
+    "  let total = value;",
+    ...Array.from({ length: 10 }, (_, index) => `  total += ${index + 1};`),
+    "  return total;",
+    "}",
+    ""
+  ].join("\n");
+}
+
+async function assertInstalledJscpdScan(tempDir: string): Promise<void> {
+  const packageManifestPath = fileURLToPath(import.meta.resolve("jscpd/package.json"));
+  const declaredBinTarget = readJscpdBinTarget(packageManifestPath);
+  const packageManifest = JSON.parse(readFileSync(packageManifestPath, "utf8")) as unknown;
+  if (!isNonArrayRecord(packageManifest) || typeof packageManifest.version !== "string") {
+    assert.fail("installed jscpd manifest must declare its version");
+  }
+  assertResolvedPackageCommand(declaredBinTarget);
+  const availability = await checkJscpd(tempDir, { command: DEFAULT_JSCPD_COMMAND });
+  assert.equal(availability.available, true);
+  assert.equal(availability.source, "package dependency");
+  if (availability.available) assert.equal(availability.version, packageManifest.version);
+  assertNormalizedDuplicateScan(tempDir);
+}
+
+function assertResolvedPackageCommand(declaredBinTarget: string | null): void {
+  assert.deepEqual(DEFAULT_JSCPD_COMMAND, { kind: "package" });
+  const resolvedCommand = resolveJscpdCommand(DEFAULT_JSCPD_COMMAND);
+  assert.equal(resolvedCommand.kind, "resolved");
+  if (resolvedCommand.kind !== "resolved") return;
+  assert.equal(resolvedCommand.command.executable, process.execPath);
+  assert.equal(resolvedCommand.command.scanPrefixArguments[0], declaredBinTarget);
+  assert.deepEqual(resolvedCommand.command.versionArguments, [declaredBinTarget, "--version"]);
+}
+
+function assertNormalizedDuplicateScan(tempDir: string): void {
+  const result = scanWithJscpd({
+    files: ["a.ts", "b.ts"],
+    cwd: tempDir,
+    dependency: { command: DEFAULT_JSCPD_COMMAND },
+    minimumLines: 3,
+    minimumTokens: 20
+  });
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.measurements.length, 1);
+  assert.equal(result.measurements[0].payload.locations.length, 2);
+  assert.deepEqual(
+    result.measurements[0].payload.locations.map((location) => location.path),
+    ["a.ts", "b.ts"]
+  );
+  assert.deepEqual(result.measurements[0].sourcePaths, ["a.ts", "b.ts"]);
+}
 function createFakeJscpdToolConfig({
   reportJson,
   stdout,

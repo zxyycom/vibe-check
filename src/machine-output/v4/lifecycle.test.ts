@@ -53,14 +53,7 @@ describe("machine publication v4 lifecycle", () => {
         fs.writeFileSync = originalWrite;
       }
 
-      assert.equal(readFileSync(join(directory, "run.json"), "utf8"), "prior-run.json");
-      assert.equal(readFileSync(join(directory, "records.ndjson"), "utf8"), "prior-records.ndjson");
-      assertPreservedLegacyAndUnrelatedFiles(directory);
-      assert.deepEqual(
-        readdirSync(directory).filter((name) => name.startsWith(".vibe-check-publication-")),
-        []
-      );
-      assert.equal(existsSync(join(directory, "raw")), false);
+      assertUnchangedPublicationAfterFailure(directory);
     } finally {
       rmSync(directory, { force: true, recursive: true });
     }
@@ -85,14 +78,7 @@ describe("machine publication v4 lifecycle", () => {
         fs.renameSync = originalRename;
       }
 
-      assert.equal(readFileSync(join(directory, "run.json"), "utf8"), "prior-run.json");
-      assert.equal(readFileSync(join(directory, "records.ndjson"), "utf8"), "prior-records.ndjson");
-      assertPreservedLegacyAndUnrelatedFiles(directory);
-      assert.deepEqual(
-        readdirSync(directory).filter((name) => name.startsWith(".vibe-check-publication-")),
-        []
-      );
-      assert.equal(existsSync(join(directory, "raw")), false);
+      assertUnchangedPublicationAfterFailure(directory);
     } finally {
       rmSync(directory, { force: true, recursive: true });
     }
@@ -137,6 +123,21 @@ const LEGACY_AND_UNRELATED_NAMES = [
   "warnings.ndjson",
   "unrelated.json"
 ] as const;
+
+function assertPriorCanonicalArtifacts(directory: string): void {
+  assert.equal(readFileSync(join(directory, "run.json"), "utf8"), "prior-run.json");
+  assert.equal(readFileSync(join(directory, "records.ndjson"), "utf8"), "prior-records.ndjson");
+}
+
+function assertUnchangedPublicationAfterFailure(directory: string): void {
+  assertPriorCanonicalArtifacts(directory);
+  assertPreservedLegacyAndUnrelatedFiles(directory);
+  assert.deepEqual(
+    readdirSync(directory).filter((name) => name.startsWith(".vibe-check-publication-")),
+    []
+  );
+  assert.equal(existsSync(join(directory, "raw")), false);
+}
 
 function writeFixtureFiles(directory: string): void {
   for (const name of ["run.json", "records.ndjson", ...LEGACY_AND_UNRELATED_NAMES])

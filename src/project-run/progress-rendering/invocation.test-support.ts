@@ -5,6 +5,8 @@ import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { ProgressWriter } from "./renderer.ts";
 import type { ProgressRefreshScheduler } from "./presentation.ts";
 
+export { deferred } from "../execution-control.test-support.ts";
+
 export const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 export const DIAGNOSTIC_FILE =
   /^.+\/run-\d{8}T\d{6}\.\d{3}Z-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.log$/;
@@ -56,23 +58,6 @@ export function capturedProgressWriter(
     }
   };
   return { attempts, writes, writer };
-}
-
-export function deferred<T>(): Readonly<{
-  readonly promise: Promise<T>;
-  readonly resolve: (value: T) => void;
-}> {
-  let resolvePromise: ((value: T) => void) | undefined;
-  const promise = new Promise<T>((resolve) => {
-    resolvePromise = resolve;
-  });
-  return Object.freeze({
-    promise,
-    resolve: (value: T): void => {
-      if (resolvePromise === undefined) throw new Error("Deferred promise is not initialized");
-      resolvePromise(value);
-    }
-  });
 }
 
 export function capturedRefreshScheduler(): Readonly<{

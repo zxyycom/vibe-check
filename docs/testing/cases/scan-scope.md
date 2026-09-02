@@ -49,8 +49,8 @@ Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/function-metrics/target-files.test.ts|Lizard target files > selects every Lizard 1.23-supported extension case-insensitively and excludes fallback inputs`
-- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to Lizard`
-- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > does not start Lizard when every selected path is rejected`
+- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to Lizard`
+- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > does not start Lizard when every selected path is rejected`
 
 Proves:
 

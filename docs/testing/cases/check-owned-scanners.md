@@ -34,7 +34,7 @@ Entities:
 
 - `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics constructor > materializes frozen defaults and rejects malformed closed policy`
 - `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics cancellation > stops before scanner measurement when cancellation is observed after availability`
-- `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
+- `bun|src/package-checks/function-metrics/constructor.area-findings.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
   Proves:
 - `functionMetrics(options?)` materializes a precise case-insensitive Lizard-supported include plus frozen non-blocking area defaults with NLOC `60`, low-complexity `180` below CC `6`, CC `12`, parameters `6`, and executable `lizard`; it rejects malformed authored input synchronously, retains defensive resolved preflight validation, and exposes the strict final-count parser. One Lizard scan receives only the accepted area exact-path union, overlapping areas use deterministic strict policy, all metric and rejection findings become local supplemental Records, and only effective blocking metric findings fail the Check. Blocking, non-blocking, input-rejection, cancellation, and other Check-owned unavailable outcomes carry safe actionable messages.
 

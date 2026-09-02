@@ -58,63 +58,18 @@ describe("static task engine", () => {
 
   it("blocks unmet prerequisites while admitting terminal observers", async () => {
     const calls: string[] = [];
-    const run = await runTaskGraph<boolean>({
-      graph: {
-        tasks: [
-          { id: "source" },
-          { id: "dependent", dependsOn: ["source"] },
-          { id: "observer", observes: ["source"] }
-        ]
-      },
-      maxParallel: 1,
-      isPrerequisiteSatisfied: (value) => value,
-      execute: (task) => {
-        calls.push(task.id);
-        return task.id !== "source";
-      }
-    });
+    const run = await runPrerequisiteGraph(calls);
 
     assert.deepEqual(calls, ["source", "observer"]);
-    assert.deepEqual(settlementFor(run, "source"), {
-      kind: "prerequisite-unsatisfied",
-      value: false
-    });
-    assert.deepEqual(settlementFor(run, "dependent"), {
-      kind: "blocked",
-      dependencyIds: ["source"]
-    });
-    assert.deepEqual(settlementFor(run, "observer"), { kind: "completed", value: true });
+    assertPrerequisiteSettlements(run);
   });
 
   it("accepts Product-owned pre-admission results without admitting those Tasks", async () => {
     const calls: string[] = [];
-    const run = await runTaskGraph<boolean>({
-      graph: {
-        tasks: [
-          { id: "source" },
-          { id: "dependent", dependsOn: ["source"] },
-          { id: "observer", observes: ["source"] }
-        ]
-      },
-      preAdmissionTaskResults: [{ taskId: "source", value: false }],
-      maxParallel: 1,
-      isPrerequisiteSatisfied: (value) => value,
-      execute: (task) => {
-        calls.push(task.id);
-        return true;
-      }
-    });
+    const run = await runPrerequisiteGraph(calls, [{ taskId: "source", value: false }]);
 
     assert.deepEqual(calls, ["observer"]);
-    assert.deepEqual(settlementFor(run, "source"), {
-      kind: "prerequisite-unsatisfied",
-      value: false
-    });
-    assert.deepEqual(settlementFor(run, "dependent"), {
-      kind: "blocked",
-      dependencyIds: ["source"]
-    });
-    assert.deepEqual(settlementFor(run, "observer"), { kind: "completed", value: true });
+    assertPrerequisiteSettlements(run);
   });
 
   it("stops new admission after abort while admitted work receives the same signal and drains", async () => {
@@ -199,3 +154,44 @@ describe("static task engine", () => {
     assert.equal(complete.kind, "complete");
   });
 });
+
+const PREREQUISITE_GRAPH: TaskGraph = Object.freeze({
+  tasks: Object.freeze([
+    Object.freeze({ id: "source" }),
+    Object.freeze({ id: "dependent", dependsOn: Object.freeze(["source"]) }),
+    Object.freeze({ id: "observer", observes: Object.freeze(["source"]) })
+  ])
+});
+
+function runPrerequisiteGraph(
+  calls: string[],
+  preAdmissionTaskResults?: readonly Readonly<{
+    readonly taskId: string;
+    readonly value: boolean;
+  }>[]
+) {
+  return runTaskGraph<boolean>({
+    graph: PREREQUISITE_GRAPH,
+    execute: (task) => {
+      calls.push(task.id);
+      return task.id !== "source";
+    },
+    isPrerequisiteSatisfied: Boolean,
+    maxParallel: 1,
+    preAdmissionTaskResults
+  });
+}
+
+function assertPrerequisiteSettlements(
+  run: Awaited<ReturnType<typeof runPrerequisiteGraph>>
+): void {
+  assert.deepEqual(settlementFor(run, "source"), {
+    kind: "prerequisite-unsatisfied",
+    value: false
+  });
+  assert.deepEqual(settlementFor(run, "dependent"), {
+    kind: "blocked",
+    dependencyIds: ["source"]
+  });
+  assert.deepEqual(settlementFor(run, "observer"), { kind: "completed", value: true });
+}

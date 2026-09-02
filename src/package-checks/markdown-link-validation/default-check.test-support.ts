@@ -1,12 +1,11 @@
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
-import type {
-  CheckDependencies,
-  CheckExecution,
-  CheckExecutionContext,
-  CheckProjectContext,
-  CheckResult
-} from "../../check/check.ts";
+import type { CheckExecution, CheckResult } from "../../check/check.ts";
+import {
+  createTypeScriptSourceRoot,
+  executeCheck,
+  type ReportedCheckRecord
+} from "../check-execution.test-support.ts";
 
 const FILES = Object.freeze({
   exclude: Object.freeze([]),
@@ -14,20 +13,29 @@ const FILES = Object.freeze({
   source: "filesystem" as const
 });
 
-const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
-  get: (checkId: string) =>
-    Object.freeze({
-      ok: false,
-      error: Object.freeze({ code: "dependency-not-declared", checkId })
-    }),
-  list: () => Object.freeze([])
+export const MARKDOWN_FILES = Object.freeze({
+  exclude: Object.freeze([]),
+  include: Object.freeze(["**/*.md", "**/*.markdown"]),
+  source: "filesystem" as const
 });
 
-function project(root: string): CheckProjectContext {
-  return Object.freeze({
-    flags: Object.freeze([]),
-    root
-  });
+export const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({
+  files: MARKDOWN_FILES,
+  findingPolicy: "blocking",
+  requireExistingTargets: true,
+  validateSameDocumentAnchors: true,
+  validateCrossDocumentAnchors: true,
+  rootExternalTargetMode: "report",
+  requireNonEmptyDirectories: false,
+  limits: Object.freeze({
+    maxMarkdownBytes: 1_048_576,
+    maxOccurrences: 10_000,
+    maxTargetReads: 1_000
+  })
+});
+
+export function createMarkdownTestRoot(prefix: string): string {
+  return createTypeScriptSourceRoot(prefix);
 }
 
 export async function execute(
@@ -42,30 +50,11 @@ export async function execute(
     readonly result: CheckResult;
   }>
 > {
-  const records: ReportedRecord[] = [];
   const executionOptions: ResolvedMarkdownLinkValidationOptions = Object.freeze({
     ...options,
     files
   });
-  const context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions> = Object.freeze({
-    dependencies: NO_DEPENDENCIES,
-    options: executionOptions,
-    project: project(root),
-    records: Object.freeze({
-      report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
-        records.push(Object.freeze({ data, identity }));
-      }
-    }),
-    signal
-  });
-  const result = await callback(context);
-  return Object.freeze({
-    records: Object.freeze(records),
-    result
-  });
+  return executeCheck(callback, executionOptions, root, signal);
 }
 
-export interface ReportedRecord {
-  readonly data: object;
-  readonly identity: Readonly<{ readonly id: string }>;
-}
+export type ReportedRecord = ReportedCheckRecord;

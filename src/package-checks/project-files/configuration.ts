@@ -1,7 +1,8 @@
 import {
   hasRequiredAndOptionalRecordKeys,
   snapshotClosedArray,
-  snapshotClosedRecord
+  snapshotClosedRecord,
+  snapshotExactClosedRecord
 } from "../../data-boundary/closed-values.ts";
 
 export const PROJECT_FILE_SOURCES = Object.freeze(["filesystem", "git-worktree"] as const);
@@ -101,7 +102,7 @@ export function snapshotProjectFileSelection(
 }
 
 export function validProjectFileSelection(value: unknown): value is ProjectFileSelection {
-  const selection = exactRecord(value, ["exclude", "include", "source"]);
+  const selection = snapshotExactClosedRecord(value, ["exclude", "include", "source"]);
   return (
     selection !== undefined &&
     validStringArray(selection.exclude) &&
@@ -131,18 +132,6 @@ function validStringArray(value: unknown): boolean {
 
 function isString(value: unknown): value is string {
   return typeof value === "string";
-}
-
-function exactRecord(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  const record = snapshotClosedRecord(value);
-  return record !== undefined &&
-    Object.keys(record).length === keys.length &&
-    keys.every((key) => Object.hasOwn(record, key))
-    ? record
-    : undefined;
 }
 
 function deepFreeze<T>(value: T): T {

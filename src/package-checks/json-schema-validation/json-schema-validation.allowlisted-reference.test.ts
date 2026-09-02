@@ -2,10 +2,8 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
 
-import type { DeepReadonly } from "../../check/check.ts";
-import type { ResolvedJsonSchemaValidationOptions } from "./options.ts";
 import {
-  DEFAULT_FILES,
+  allowlistedOptions,
   requestUrl,
   runJsonSchemaValidation,
   strictSchema,
@@ -36,24 +34,7 @@ describe("JSON Schema validation default Check", () => {
           );
         },
         async () => {
-          const options: DeepReadonly<ResolvedJsonSchemaValidationOptions> = Object.freeze({
-            bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
-            files: DEFAULT_FILES,
-            maximumBytes: 1_048_576,
-            referenceResolution: {
-              mode: "allowlisted",
-              sources: [
-                {
-                  id: "urn:vibe-check:source:schemas-example",
-                  kind: "https",
-                  origin: "https://schemas.example.test",
-                  pathPrefix: "/catalog/"
-                }
-              ]
-            },
-            schemaIdentity: { mode: "require-match" },
-            schemas: [{ id: schemaId, path: "schema.json" }]
-          } as const);
+          const options = allowlistedOptions(schemaId);
           const observed = await runJsonSchemaValidation({ options, root });
           assert.deepEqual(observed.result, {
             status: "failed",

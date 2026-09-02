@@ -1,4 +1,6 @@
 import type { CheckMessage, CheckResult } from "../../check/check.ts";
+import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import { isNonEmptyString } from "../../data-boundary/value-shapes.ts";
 
 export const FINDING_POLICIES = Object.freeze(["blocking", "non-blocking"] as const);
 
@@ -30,6 +32,25 @@ export function resolveFindingPolicy(
 
 export function validFindingPolicy(value: unknown): value is FindingPolicy {
   return FINDING_POLICIES.some((policy) => policy === value);
+}
+
+/** Resolves the closed, non-empty named area map shared by code-quality Checks. */
+export function resolveCodeAreaPolicyMap<Area>(
+  value: unknown,
+  defaultArea: () => Area,
+  resolveArea: (candidate: unknown) => Area | undefined
+): Readonly<Record<string, Area>> | undefined {
+  if (value === undefined) return Object.freeze({ project: defaultArea() });
+  const areas = snapshotClosedRecord(value);
+  if (areas === undefined || Object.keys(areas).length === 0) return undefined;
+  const resolvedEntries: Array<readonly [string, Area]> = [];
+  for (const [areaId, candidate] of Object.entries(areas)) {
+    if (!isNonEmptyString(areaId)) return undefined;
+    const area = resolveArea(candidate);
+    if (area === undefined) return undefined;
+    resolvedEntries.push([areaId, area]);
+  }
+  return Object.freeze(Object.fromEntries(resolvedEntries));
 }
 
 export function isBlockingFinding(policies: readonly FindingPolicy[]): boolean {

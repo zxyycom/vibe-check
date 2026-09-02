@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check, CheckExecution } from "../../check/check.ts";
-import type { CheckExecutionClock } from "../check-execution/resolved-checks.ts";
+import { deferred, scriptedClock } from "../execution-control.test-support.ts";
 import type { ProgressWriter } from "./renderer.ts";
 import { executeValidatedRun } from "../invocation.ts";
 
@@ -22,34 +22,6 @@ function check(
     execution: overrides.execution,
     maxParallel: overrides.maxParallel
   };
-}
-
-function deferred<T>(): Readonly<{
-  readonly promise: Promise<T>;
-  readonly resolve: (value: T) => void;
-}> {
-  let resolvePromise: ((value: T) => void) | undefined;
-  const promise = new Promise<T>((resolve) => {
-    resolvePromise = resolve;
-  });
-  return Object.freeze({
-    promise,
-    resolve: (value: T): void => {
-      if (resolvePromise === undefined) throw new Error("Deferred promise is not initialized");
-      resolvePromise(value);
-    }
-  });
-}
-
-function scriptedClock(values: readonly number[]): CheckExecutionClock {
-  const remaining = [...values];
-  return Object.freeze({
-    now: (): number => {
-      const value = remaining.shift();
-      if (value === undefined) throw new Error("Test clock received too many reads");
-      return value;
-    }
-  });
 }
 
 function capturedProgressWriter() {

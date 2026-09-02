@@ -1,45 +1,19 @@
 import assert from "node:assert/strict";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import { executeMarkdownLinkValidation } from "./execution.ts";
-import { execute } from "./default-check.test-support.ts";
-
-const MARKDOWN_FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.md", "**/*.markdown"]),
-  source: "filesystem" as const
-});
-
-const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({
-  files: MARKDOWN_FILES,
-  findingPolicy: "blocking",
-  requireExistingTargets: true,
-  validateSameDocumentAnchors: true,
-  validateCrossDocumentAnchors: true,
-  rootExternalTargetMode: "report",
-  requireNonEmptyDirectories: false,
-  limits: Object.freeze({
-    maxMarkdownBytes: 1_048_576,
-    maxOccurrences: 10_000,
-    maxTargetReads: 1_000
-  })
-});
-
-function createRoot(prefix: string): string {
-  const root = mkdtempSync(join(tmpdir(), prefix));
-  mkdirSync(join(root, "src"), { recursive: true });
-  writeFileSync(join(root, "src", "a.ts"), "export const a = 1;\n", "utf8");
-  writeFileSync(join(root, "src", "b.ts"), "export const b = 2;\n", "utf8");
-  return root;
-}
+import {
+  createMarkdownTestRoot,
+  execute,
+  MARKDOWN_FILES,
+  MARKDOWN_LINK_OPTIONS
+} from "./default-check.test-support.ts";
 
 describe("Markdown Link input rejection", () => {
   it("is not applicable only when its file selection selects no path", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-empty-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-empty-");
     try {
       const result = await execute(
         executeMarkdownLinkValidation,
@@ -58,7 +32,7 @@ describe("Markdown Link input rejection", () => {
   });
 
   it("reports every selected non-Markdown path without making blocking policy fail", async () => {
-    const root = createRoot("vibe-check-direct-markdown-link-rejected-");
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-rejected-");
     try {
       const broadFiles = Object.freeze({
         exclude: Object.freeze([]),

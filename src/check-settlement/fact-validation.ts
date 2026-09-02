@@ -2,7 +2,13 @@ import { canonicalizeJsonObject } from "../data-boundary/canonical-data.ts";
 import type { CheckOutcome } from "../check/check.ts";
 import { validateCheckDescriptor } from "../check/descriptor-validation.ts";
 import type { CoreCheck, CoreRecord, CoreSnapshot } from "./facts.ts";
-import { snapshotClosedArray, snapshotClosedRecord } from "../data-boundary/closed-values.ts";
+import {
+  hasExactPlainRecordKeys,
+  hasRequiredAndOptionalRecordKeys,
+  snapshotClosedArray,
+  snapshotClosedRecord
+} from "../data-boundary/closed-values.ts";
+import { isClosedCheckReason } from "./reason-shape.ts";
 
 export interface ValidationIssue {
   readonly path: string;
@@ -22,7 +28,7 @@ export type ValidationResult<T> = Readonly<
 
 export function validateCoreSnapshot(value: unknown): ValidationResult<CoreSnapshot> {
   const snapshot = snapshotClosedRecord(value);
-  if (snapshot === undefined || !hasExactKeys(snapshot, ["checks", "records"])) {
+  if (snapshot === undefined || !hasExactPlainRecordKeys(snapshot, ["checks", "records"])) {
     return invalid("$", "Core snapshot must contain only checks and records");
   }
   const checksInput = snapshotClosedArray(snapshot.checks);
@@ -63,7 +69,10 @@ function validateChecks(values: readonly unknown[]): ValidationResult<readonly C
   let previousCheckId: string | undefined;
   for (const [index, value] of values.entries()) {
     const check = snapshotClosedRecord(value);
-    if (check === undefined || !hasExactKeys(check, ["checkId", "displayName", "outcome"])) {
+    if (
+      check === undefined ||
+      !hasExactPlainRecordKeys(check, ["checkId", "displayName", "outcome"])
+    ) {
       return invalid(`$.checks[${index}]`, "Core Check must be closed");
     }
     const definition = validateCheckDescriptor({
@@ -126,7 +135,7 @@ function validateRecordRow(
   ownerIds: ReadonlySet<string>
 ): ValidationResult<CoreRecord> {
   const record = snapshotClosedRecord(value);
-  if (record === undefined || !hasExactKeys(record, ["checkId", "id", "data"]))
+  if (record === undefined || !hasExactPlainRecordKeys(record, ["checkId", "id", "data"]))
     return invalid(`$.records[${index}]`, "Core Record must be closed");
   if (
     typeof record.checkId !== "string" ||
@@ -159,7 +168,7 @@ function validateFinalOutcome(
   path: string
 ): ValidationResult<CheckOutcome> {
   if (outcome.status === "passed" || outcome.status === "failed") {
-    if (!hasExactKeys(outcome, ["status", "data"]))
+    if (!hasExactPlainRecordKeys(outcome, ["status", "data"]))
       return invalid(path, "Final outcome is not closed");
     const data = canonicalizeJsonObject(outcome.data);
     return data === undefined
@@ -173,7 +182,12 @@ function validateNotApplicableOutcome(
   outcome: Readonly<Record<string, unknown>>,
   path: string
 ): ValidationResult<CheckOutcome> {
-  if (!hasOptionalKeys(outcome, ["status"], ["reason"]))
+  if (
+    !hasRequiredAndOptionalRecordKeys(outcome, {
+      optional: ["reason"],
+      required: ["status"]
+    })
+  )
     return invalid(path, "Not-applicable outcome is not closed");
   const reason = validateReason(outcome.reason, false);
   return reason === null
@@ -189,7 +203,7 @@ function validateUnavailableOutcome(
   outcome: Readonly<Record<string, unknown>>,
   path: string
 ): ValidationResult<CheckOutcome> {
-  if (!hasExactKeys(outcome, ["status", "reason"]))
+  if (!hasExactPlainRecordKeys(outcome, ["status", "reason"]))
     return invalid(path, "Unavailable outcome is not closed");
   const reason = validateReason(outcome.reason, true);
   return reason === null || reason === undefined
@@ -203,24 +217,18 @@ function validateReason(
 ): Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | null | undefined {
   if (value === undefined) return undefined;
   const reason = snapshotClosedRecord(value);
-  if (!isClosedReason(reason, allowCheckIds)) return null;
-  if (!hasOptionalKeys(reason, ["code"], allowCheckIds ? ["checkIds"] : [])) return null;
+  if (!isClosedCheckReason(reason, allowCheckIds)) return null;
+  if (
+    !hasRequiredAndOptionalRecordKeys(reason, {
+      optional: allowCheckIds ? ["checkIds"] : [],
+      required: ["code"]
+    })
+  )
+    return null;
   if (!Object.hasOwn(reason, "checkIds")) return Object.freeze({ code: reason.code });
   const normalizedCheckIds = normalizedReasonCheckIds(reason.checkIds, allowCheckIds);
   if (normalizedCheckIds === undefined) return null;
   return Object.freeze({ code: reason.code, checkIds: Object.freeze(normalizedCheckIds) });
-}
-
-function isClosedReason(
-  value: Readonly<Record<string, unknown>> | undefined,
-  allowCheckIds: boolean
-): value is Readonly<Record<string, unknown>> & Readonly<{ readonly code: string }> {
-  return (
-    value !== undefined &&
-    typeof value.code === "string" &&
-    value.code.length > 0 &&
-    hasOptionalKeys(value, ["code"], allowCheckIds ? ["checkIds"] : [])
-  );
 }
 
 function normalizedReasonCheckIds(
@@ -241,24 +249,6 @@ function normalizedReasonCheckIds(
     normalizedCheckIds.push(checkId);
   }
   return Object.freeze(normalizedCheckIds);
-}
-
-function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
-  return (
-    Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
-  );
-}
-
-function hasOptionalKeys(
-  value: Readonly<Record<string, unknown>>,
-  required: readonly string[],
-  optional: readonly string[]
-): boolean {
-  const supported = new Set([...required, ...optional]);
-  return (
-    required.every((key) => Object.hasOwn(value, key)) &&
-    Object.keys(value).every((key) => supported.has(key))
-  );
 }
 
 function accepted<T>(value: T): ValidationResult<T> {

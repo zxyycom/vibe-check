@@ -1,29 +1,13 @@
-import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import {
+  snapshotClosedRecord,
+  snapshotExactClosedRecord
+} from "../../data-boundary/closed-values.ts";
+import { isNonEmptyString, isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
 
-function exactRecord(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  const record = snapshotClosedRecord(value);
-  return record !== undefined &&
-    Object.keys(record).length === keys.length &&
-    keys.every((key) => Object.hasOwn(record, key))
-    ? record
-    : undefined;
-}
-
-function positiveSafeInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
-}
-
-function nonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0;
-}
-
 export function validResolvedDuplicateDetectionOptions(value: object): boolean {
-  const options = exactRecord(value, ["cache", "codeAreas", "scanner"]);
+  const options = snapshotExactClosedRecord(value, ["cache", "codeAreas", "scanner"]);
   return (
     options !== undefined &&
     validDuplicateCache(options.cache) &&
@@ -36,25 +20,25 @@ function validDuplicateCodeAreas(value: unknown): boolean {
   const areas = snapshotClosedRecord(value);
   if (areas === undefined || Object.keys(areas).length === 0) return false;
   return Object.entries(areas).every(([areaId, candidate]) => {
-    const area = exactRecord(candidate, [
+    const area = snapshotExactClosedRecord(candidate, [
       "files",
       "findingPolicy",
       "minimumLines",
       "minimumTokens"
     ]);
     return (
-      nonEmptyString(areaId) &&
+      isNonEmptyString(areaId) &&
       area !== undefined &&
       validProjectFileSelection(area.files) &&
       validFindingPolicy(area.findingPolicy) &&
-      positiveSafeInteger(area.minimumLines) &&
-      positiveSafeInteger(area.minimumTokens)
+      isPositiveSafeInteger(area.minimumLines) &&
+      isPositiveSafeInteger(area.minimumTokens)
     );
   });
 }
 
 function validDuplicateDetectionScanner(value: unknown): boolean {
-  const scanner = exactRecord(value, ["command"]);
+  const scanner = snapshotExactClosedRecord(value, ["command"]);
   return scanner !== undefined && validJscpdCommand(scanner.command);
 }
 
@@ -63,13 +47,13 @@ function validJscpdCommand(value: unknown): boolean {
   if (record?.kind === "package") {
     return Object.keys(record).length === 1;
   }
-  const command = exactRecord(value, ["executable", "kind"]);
-  return command?.kind === "custom" && nonEmptyString(command.executable);
+  const command = snapshotExactClosedRecord(value, ["executable", "kind"]);
+  return command?.kind === "custom" && isNonEmptyString(command.executable);
 }
 
 function validDuplicateCache(value: unknown): boolean {
-  const cache = exactRecord(value, ["directory", "enabled"]);
+  const cache = snapshotExactClosedRecord(value, ["directory", "enabled"]);
   return (
-    cache !== undefined && nonEmptyString(cache.directory) && typeof cache.enabled === "boolean"
+    cache !== undefined && isNonEmptyString(cache.directory) && typeof cache.enabled === "boolean"
   );
 }

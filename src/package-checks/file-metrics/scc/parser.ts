@@ -2,7 +2,7 @@ import type { ExactInputMeasurement } from "../../project-files/exact-input-meas
 import { errorMessage } from "../../host-environment/error-message.ts";
 import { normalizeScannerReportedPath } from "../../project-files/reported-path.ts";
 import type { FileMetric } from "../measurement-model.ts";
-import { parseCsvRows } from "./csv.ts";
+import { parseCsvRows } from "../../host-environment/csv.ts";
 
 export const SCC_VERSION = "4.0.0";
 export const SCC_VERSION_OUTPUT = `scc version ${SCC_VERSION}`;

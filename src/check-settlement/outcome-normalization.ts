@@ -1,6 +1,12 @@
 import type { CheckOutcome } from "../check/check.ts";
 import { canonicalizeJsonObject } from "../data-boundary/canonical-data.ts";
-import { snapshotClosedArray, snapshotClosedRecord } from "../data-boundary/closed-values.ts";
+import {
+  hasExactPlainRecordKeys,
+  hasRequiredAndOptionalRecordKeys,
+  snapshotClosedArray,
+  snapshotClosedRecord
+} from "../data-boundary/closed-values.ts";
+import { isClosedCheckReason } from "./reason-shape.ts";
 
 interface OutcomeNormalizationInput {
   readonly knownCheckIds: ReadonlySet<string>;
@@ -28,7 +34,7 @@ function normalizeFinalOutcome(
   outcome: Readonly<Record<string, unknown>>
 ): CheckOutcome | undefined {
   if (outcome.status !== "passed" && outcome.status !== "failed") return undefined;
-  if (!hasExactKeys(outcome, ["status", "data"])) return undefined;
+  if (!hasExactPlainRecordKeys(outcome, ["status", "data"])) return undefined;
   const data = canonicalizeJsonObject(outcome.data);
   return data === undefined ? undefined : Object.freeze({ status: outcome.status, data });
 }
@@ -37,7 +43,13 @@ function normalizeNotApplicableOutcome(
   outcome: Readonly<Record<string, unknown>>,
   knownCheckIds: ReadonlySet<string>
 ): CheckOutcome | undefined {
-  if (!hasOptionalKeys(outcome, ["status"], ["reason"])) return undefined;
+  if (
+    !hasRequiredAndOptionalRecordKeys(outcome, {
+      optional: ["reason"],
+      required: ["status"]
+    })
+  )
+    return undefined;
   if (outcome.reason === undefined) return Object.freeze({ status: "not-applicable" });
   const reason = normalizeReason(outcome.reason, false, knownCheckIds);
   return reason === undefined ? undefined : Object.freeze({ status: "not-applicable", reason });
@@ -48,7 +60,7 @@ function normalizeUnavailableOutcome(
   productOutcome: boolean,
   knownCheckIds: ReadonlySet<string>
 ): CheckOutcome | undefined {
-  if (!hasExactKeys(outcome, ["status", "reason"])) return undefined;
+  if (!hasExactPlainRecordKeys(outcome, ["status", "reason"])) return undefined;
   const reason = normalizeReason(outcome.reason, productOutcome, knownCheckIds);
   return reason === undefined ? undefined : Object.freeze({ status: "unavailable", reason });
 }
@@ -59,22 +71,10 @@ function normalizeReason(
   knownCheckIds: ReadonlySet<string>
 ): Readonly<{ readonly code: string; readonly checkIds?: readonly string[] }> | undefined {
   const reason = snapshotClosedRecord(value);
-  if (!isClosedSessionReason(reason, allowCheckIds)) return undefined;
+  if (!isClosedCheckReason(reason, allowCheckIds)) return undefined;
   if (!Object.hasOwn(reason, "checkIds")) return Object.freeze({ code: reason.code });
   const checkIds = normalizedSessionReasonCheckIds(reason.checkIds, allowCheckIds, knownCheckIds);
   return checkIds === undefined ? undefined : Object.freeze({ code: reason.code, checkIds });
-}
-
-function isClosedSessionReason(
-  value: Readonly<Record<string, unknown>> | undefined,
-  allowCheckIds: boolean
-): value is Readonly<Record<string, unknown>> & Readonly<{ readonly code: string }> {
-  return (
-    value !== undefined &&
-    typeof value.code === "string" &&
-    value.code.length > 0 &&
-    hasOptionalKeys(value, ["code"], allowCheckIds ? ["checkIds"] : [])
-  );
 }
 
 function normalizedSessionReasonCheckIds(
@@ -97,22 +97,4 @@ function normalizedSessionReasonCheckIds(
     checkIds.push(checkId);
   }
   return Object.freeze(checkIds);
-}
-
-function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
-  return (
-    Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
-  );
-}
-
-function hasOptionalKeys(
-  value: Readonly<Record<string, unknown>>,
-  required: readonly string[],
-  optional: readonly string[]
-): boolean {
-  const supported = new Set([...required, ...optional]);
-  return (
-    required.every((key) => Object.hasOwn(value, key)) &&
-    Object.keys(value).every((key) => supported.has(key))
-  );
 }

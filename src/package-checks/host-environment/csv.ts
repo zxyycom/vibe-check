@@ -1,5 +1,6 @@
 import { parse } from "csv-parse/sync";
 
+/** Parses untrusted scanner CSV into a complete matrix of strings. */
 export function parseCsvRows(csv: string): string[][] {
   const records: unknown = parse(csv, {
     bom: true,
@@ -7,11 +8,9 @@ export function parseCsvRows(csv: string): string[][] {
     skip_empty_lines: true,
     trim: true
   });
-
   if (!Array.isArray(records) || !records.every(isStringRow)) {
     throw new Error("CSV parser returned non-string rows");
   }
-
   return records;
 }
 

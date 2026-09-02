@@ -5,8 +5,8 @@ interface ChangedFilesData {
   readonly version: 1;
 }
 
-function _typeCheckTypedProviderData() {
-  const changedFiles = defineCheck({
+function changedFilesProvider(files: readonly string[] = []) {
+  return defineCheck({
     checkId: "changed-files",
     displayName: "Changed files",
     parseData(data): ChangedFilesData {
@@ -18,9 +18,13 @@ function _typeCheckTypedProviderData() {
         : { files: [], version: 1 };
     },
     execution(): CheckResult<ChangedFilesData> {
-      return { status: "passed", data: { files: ["src/index.ts"], version: 1 } };
+      return { status: "passed", data: { files, version: 1 } };
     }
   });
+}
+
+function _typeCheckTypedProviderData() {
+  const changedFiles = changedFilesProvider(["src/index.ts"]);
   const parsed: ChangedFilesData = changedFiles.parseData({ files: [], version: 1 });
   const canonicalIdentityParser: CheckDataParser = (data) => data;
   // @ts-expect-error the default parser contract rejects erased asynchronous returns.
@@ -31,21 +35,7 @@ function _typeCheckTypedProviderData() {
 }
 
 function _typeCheckProviderParserReuse() {
-  const changedFiles = defineCheck({
-    checkId: "changed-files",
-    displayName: "Changed files",
-    parseData(data): ChangedFilesData {
-      return data.version === 1 && Array.isArray(data.files)
-        ? {
-            files: data.files.filter((value): value is string => typeof value === "string"),
-            version: 1
-          }
-        : { files: [], version: 1 };
-    },
-    execution(): CheckResult<ChangedFilesData> {
-      return { status: "passed", data: { files: [], version: 1 } };
-    }
-  });
+  const changedFiles = changedFilesProvider();
   const variableParser = changedFiles.parseData;
   const variableProvider = defineCheck({
     checkId: "variable-provider",
@@ -67,21 +57,7 @@ function _typeCheckProviderParserReuse() {
 }
 
 function _typeCheckProviderOptionsAndComposition() {
-  const changedFiles = defineCheck({
-    checkId: "changed-files",
-    displayName: "Changed files",
-    parseData(data): ChangedFilesData {
-      return data.version === 1 && Array.isArray(data.files)
-        ? {
-            files: data.files.filter((value): value is string => typeof value === "string"),
-            version: 1
-          }
-        : { files: [], version: 1 };
-    },
-    execution(): CheckResult<ChangedFilesData> {
-      return { status: "passed", data: { files: [], version: 1 } };
-    }
-  });
+  const changedFiles = changedFilesProvider();
   const optionAware = defineCheck({
     checkId: "typed-options",
     displayName: "Typed options",

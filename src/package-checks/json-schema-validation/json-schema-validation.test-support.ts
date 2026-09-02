@@ -6,34 +6,16 @@ import type {
   JsonSchemaValidationOptions,
   ResolvedJsonSchemaValidationOptions
 } from "./options.ts";
-import type {
-  CheckDependencies,
-  CheckExecutionContext,
-  CheckResult,
-  DeepReadonly
-} from "../../check/check.ts";
+import type { CheckResult, DeepReadonly } from "../../check/check.ts";
 import { executeJsonSchemaValidation } from "./json-schema-validation.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
+import { executeCheck, type ReportedCheckRecord } from "../check-execution.test-support.ts";
 
 export const DEFAULT_FILES = Object.freeze({
   exclude: Object.freeze([]),
   include: Object.freeze(["**/*"]),
   source: "filesystem" as const
 });
-
-const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
-  get: (checkId: string) =>
-    Object.freeze({
-      ok: false,
-      error: Object.freeze({ code: "dependency-not-declared", checkId })
-    }),
-  list: () => Object.freeze([])
-});
-
-interface ObservedRecord {
-  readonly data: object;
-  readonly identity: Readonly<{ readonly id: string }>;
-}
 
 interface RunInput {
   readonly fileConfiguration?: ProjectFileSelection;
@@ -48,22 +30,14 @@ export async function runJsonSchemaValidation({
   root,
   signal = new AbortController().signal
 }: RunInput): Promise<
-  Readonly<{ readonly records: readonly ObservedRecord[]; readonly result: CheckResult }>
+  Readonly<{ readonly records: readonly ReportedCheckRecord[]; readonly result: CheckResult }>
 > {
-  const records: ObservedRecord[] = [];
-  const context: CheckExecutionContext<ResolvedJsonSchemaValidationOptions> = Object.freeze({
-    dependencies: NO_DEPENDENCIES,
-    options: Object.freeze({ ...options, files: fileConfiguration }),
-    project: Object.freeze({ flags: Object.freeze([]), root }),
-    records: Object.freeze({
-      report: (identity: Readonly<{ readonly id: string }>, data: object): void => {
-        records.push(Object.freeze({ data, identity }));
-      }
-    }),
+  return executeCheck(
+    executeJsonSchemaValidation,
+    Object.freeze({ ...options, files: fileConfiguration }),
+    root,
     signal
-  });
-  const result = await executeJsonSchemaValidation(context);
-  return Object.freeze({ records: Object.freeze(records), result });
+  );
 }
 
 export function temporaryRoot(): string {
@@ -93,6 +67,29 @@ export function offlineOptions(input: {
     schemaIdentity: input.schemaIdentity ?? Object.freeze({ mode: "require-match" as const }),
     schemas: input.schemas
   });
+}
+
+export function allowlistedOptions(
+  schemaId: string
+): DeepReadonly<ResolvedJsonSchemaValidationOptions> {
+  return Object.freeze({
+    bindings: [{ id: "instance", instancePath: "instance.json", schemaId }],
+    files: DEFAULT_FILES,
+    maximumBytes: 1_048_576,
+    referenceResolution: {
+      mode: "allowlisted",
+      sources: [
+        {
+          id: "urn:vibe-check:source:schemas-example",
+          kind: "https",
+          origin: "https://schemas.example.test",
+          pathPrefix: "/catalog/"
+        }
+      ]
+    },
+    schemaIdentity: { mode: "require-match" },
+    schemas: [{ id: schemaId, path: "schema.json" }]
+  } as const);
 }
 
 export async function withFetch<T>(

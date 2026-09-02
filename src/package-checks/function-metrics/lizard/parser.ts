@@ -1,7 +1,7 @@
 import type { FunctionMetric } from "../measurement-model.ts";
 import type { ExactInputMeasurement } from "../../project-files/exact-input-measurement.ts";
 import { errorMessage } from "../../host-environment/error-message.ts";
-import { parseCsvRows } from "./csv.ts";
+import { parseCsvRows } from "../../host-environment/csv.ts";
 import { normalizeScannerReportedPath } from "../../project-files/reported-path.ts";
 
 export type LizardParseResult =

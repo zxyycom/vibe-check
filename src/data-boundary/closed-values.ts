@@ -72,6 +72,15 @@ export function snapshotClosedRecord(
   }
 }
 
+/** Snapshots a closed plain record only when it has exactly the declared own keys. */
+export function snapshotExactClosedRecord(
+  value: unknown,
+  keys: readonly string[]
+): Readonly<Record<string, unknown>> | undefined {
+  const record = snapshotClosedRecord(value);
+  return record !== undefined && hasExactPlainRecordKeys(record, keys) ? record : undefined;
+}
+
 function closedArrayLength(shape: OwnDataShape): number | undefined {
   const descriptor = shape.descriptors.length;
   if (typeof descriptor?.value !== "number" || descriptor.enumerable !== false) return undefined;
@@ -123,4 +132,24 @@ export function hasRequiredAndOptionalRecordKeys(
     keys.required.every((key) => Object.hasOwn(value, key)) &&
     Object.keys(value).every((key) => supportedKeys.has(key))
   );
+}
+
+export interface ClosedPolicyRecordKeys {
+  readonly optional?: readonly string[];
+  readonly required?: readonly string[];
+}
+
+/** Snapshots an authoring record whose keys are limited to one required/optional policy. */
+export function snapshotClosedPolicyRecord(
+  value: unknown,
+  keys: ClosedPolicyRecordKeys
+): Readonly<Record<string, unknown>> | undefined {
+  const record = snapshotClosedRecord(value);
+  return record !== undefined &&
+    hasRequiredAndOptionalRecordKeys(record, {
+      optional: keys.optional ?? [],
+      required: keys.required ?? []
+    })
+    ? record
+    : undefined;
 }

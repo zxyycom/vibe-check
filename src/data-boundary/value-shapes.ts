@@ -13,3 +13,15 @@ export function isUnknownArray(value: unknown): value is unknown[] {
 export function isStringArray(value: unknown): value is string[] {
   return isUnknownArray(value) && value.every((item) => typeof item === "string");
 }
+
+export function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.length > 0;
+}
+
+export function isPositiveSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
+}
+
+export function isNonNegativeSafeInteger(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}

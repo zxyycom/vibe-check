@@ -4,6 +4,8 @@ import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logg
 import { executeResolvedChecks, type CheckExecutionClock } from "./resolved-checks.ts";
 import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 
+export { deferred, scriptedClock } from "../execution-control.test-support.ts";
+
 export const PROJECT = Object.freeze({
   flags: Object.freeze([]),
   root: "/project"
@@ -20,17 +22,24 @@ export function normalized(
     readonly preflight?: NormalizedCheck["preflight"];
   }> = {}
 ): NormalizedCheck {
-  const checkId = overrides.checkId ?? "direct-check";
+  const resolved = {
+    checkId: "direct-check",
+    dependsOn: [],
+    maxParallel: 1,
+    observes: [],
+    ...overrides
+  };
+  const displayName = resolved.displayName ?? resolved.checkId;
   return {
     admissionPriority: 0,
-    definition: { checkId, displayName: overrides.displayName ?? checkId },
-    dependsOn: overrides.dependsOn ?? [],
+    definition: { checkId: resolved.checkId, displayName },
+    dependsOn: resolved.dependsOn,
     execution,
-    maxParallel: overrides.maxParallel ?? 1,
+    maxParallel: resolved.maxParallel,
     mutex: [],
-    observes: overrides.observes ?? [],
+    observes: resolved.observes,
     options: {},
-    ...(overrides.preflight === undefined ? {} : { preflight: overrides.preflight }),
+    ...(resolved.preflight === undefined ? {} : { preflight: resolved.preflight }),
     visibility: "always"
   };
 }
@@ -81,34 +90,6 @@ export function hasDiagnosticTags(
 
 export function checkDiagnosticTag(observation: DiagnosticObservation): string | undefined {
   return observation.tags.find((tag) => tag.startsWith("CHECK:"));
-}
-
-export function scriptedClock(values: readonly number[]): CheckExecutionClock {
-  const remaining = [...values];
-  return Object.freeze({
-    now: (): number => {
-      const value = remaining.shift();
-      if (value === undefined) throw new Error("Test clock received too many reads");
-      return value;
-    }
-  });
-}
-
-export function deferred<T>(): Readonly<{
-  readonly promise: Promise<T>;
-  readonly resolve: (value: T) => void;
-}> {
-  let resolvePromise: ((value: T) => void) | undefined;
-  const promise = new Promise<T>((resolve) => {
-    resolvePromise = resolve;
-  });
-  return Object.freeze({
-    promise,
-    resolve: (value: T): void => {
-      if (resolvePromise === undefined) throw new Error("Deferred promise is unavailable");
-      resolvePromise(value);
-    }
-  });
 }
 
 export function outcomeFor(

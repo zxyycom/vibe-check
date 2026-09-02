@@ -329,8 +329,8 @@ Entities:
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > distinguishes full graph identities with identical Task IDs but different scheduler semantics`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > reuses one stable graph identity across scheduler decision evidence`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > uses priority only among dependency and mutex eligible ordinary ready tasks`
-- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > emits immutable root admission and mutex decisions`
-- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > emits root capacity and running-drain decisions`
+- `bun|src/project-run/task-scheduler/task-engine.admission-observation.test.ts|static task engine > emits immutable root admission and mutex decisions`
+- `bun|src/project-run/task-scheduler/task-engine.admission-observation.test.ts|static task engine > emits root capacity and running-drain decisions`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > recomputes tighter-scope selection after capacity becomes available`
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > orders constrained selectors by cap then priority without Scheduler policy state`
@@ -341,14 +341,14 @@ Entities:
 - `bun|src/project-run/task-scheduler/task-engine.settlement.test.ts|static task engine > stops new admission after abort while admitted work receives the same signal and drains`
 - `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > recomputes static select or wait from each frozen scheduler snapshot without reservation state`
 - `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > adapts custom select from a detached frozen full-graph context`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > preserves the caller closure across overlapping custom Runs without a Scheduler callback lock`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > shares one frozen graph while exposing only decision-boundary measurement scalars`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > commits a settled running-cohort interval before the next custom policy callback`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > retains custom action effects while unavailable clocks omit interval contributions`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > fails custom policy faults without fallback, cancels pending work, and drains admitted work`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > drains an admitted public Check before returning an admission policy fault`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > classifies every bounded custom fault without exposing callback values`
-- `bun|src/project-run/task-scheduler/task-engine.admission-policy.test.ts|task engine admission policy > returns the dedicated execution result for a custom callback failure`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts|task engine admission policy > preserves the caller closure across overlapping custom Runs without a Scheduler callback lock`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts|task engine admission policy > shares one frozen graph while exposing only decision-boundary measurement scalars`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts|task engine admission policy > commits a settled running-cohort interval before the next custom policy callback`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-measurement.test.ts|task engine admission policy > retains custom action effects while unavailable clocks omit interval contributions`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts|task engine admission policy > fails custom policy faults without fallback, cancels pending work, and drains admitted work`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts|task engine admission policy > drains an admitted public Check before returning an admission policy fault`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts|task engine admission policy > classifies every bounded custom fault without exposing callback values`
+- `bun|src/project-run/task-scheduler/task-engine.admission-policy-failures.test.ts|task engine admission policy > returns the dedicated execution result for a custom callback failure`
   Proves:
 
 - Engine 在任何 executor work 前验证静态 Task identity、`dependsOn` / `observes` union、scope membership、activation/terminal relation、cap 和 signed admission priority；它以一个 root budget 处理 relation readiness、mutex 与 generic scope cap。

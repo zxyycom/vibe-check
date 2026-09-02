@@ -1,4 +1,13 @@
-import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+import {
+  snapshotClosedArray,
+  snapshotClosedRecord,
+  snapshotExactClosedRecord
+} from "../../data-boundary/closed-values.ts";
+import {
+  isNonEmptyString,
+  isNonNegativeSafeInteger,
+  isPositiveSafeInteger
+} from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
 import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
@@ -8,7 +17,11 @@ import type { ResolvedFileMetricsOptions } from "./options.ts";
 export function isValidResolvedFileMetricsOptions(
   resolvedOptions: unknown
 ): resolvedOptions is ResolvedFileMetricsOptions {
-  const options = exactRecord(resolvedOptions, ["codeAreas", "findingWaivers", "scanner"]);
+  const options = snapshotExactClosedRecord(resolvedOptions, [
+    "codeAreas",
+    "findingWaivers",
+    "scanner"
+  ]);
   return (
     options !== undefined &&
     isValidCodeAreas(options.codeAreas) &&
@@ -22,9 +35,11 @@ function isValidFindingWaivers(value: unknown): boolean {
   if (waivers === undefined) return false;
   const identities = new Set<string>();
   for (const candidate of waivers) {
-    const waiver = exactRecord(candidate, ["identity", "reason"]);
+    const waiver = snapshotExactClosedRecord(candidate, ["identity", "reason"]);
     const identity =
-      waiver === undefined ? undefined : exactRecord(waiver.identity, ["metric", "path"]);
+      waiver === undefined
+        ? undefined
+        : snapshotExactClosedRecord(waiver.identity, ["metric", "path"]);
     if (
       waiver === undefined ||
       identity === undefined ||
@@ -50,7 +65,7 @@ function isValidCodeAreas(value: unknown): boolean {
 }
 
 function isValidCodeArea(value: unknown): boolean {
-  const area = exactRecord(value, ["codeLines", "files", "findingPolicy"]);
+  const area = snapshotExactClosedRecord(value, ["codeLines", "files", "findingPolicy"]);
   return (
     area !== undefined &&
     validProjectFileSelection(area.files) &&
@@ -60,9 +75,9 @@ function isValidCodeArea(value: unknown): boolean {
 }
 
 function isValidCodeLinePolicy(value: unknown): boolean {
-  const policy = exactRecord(value, ["lowDecisionTokenAllowance", "maximum"]);
+  const policy = snapshotExactClosedRecord(value, ["lowDecisionTokenAllowance", "maximum"]);
   if (policy === undefined || !isPositiveSafeInteger(policy.maximum)) return false;
-  const allowance = exactRecord(policy.lowDecisionTokenAllowance, [
+  const allowance = snapshotExactClosedRecord(policy.lowDecisionTokenAllowance, [
     "maximumCodeLines",
     "maximumDecisionTokens"
   ]);
@@ -75,30 +90,6 @@ function isValidCodeLinePolicy(value: unknown): boolean {
 }
 
 function isValidScanner(value: unknown): boolean {
-  const scanner = exactRecord(value, ["executable"]);
+  const scanner = snapshotExactClosedRecord(value, ["executable"]);
   return scanner !== undefined && isNonEmptyString(scanner.executable);
-}
-
-function exactRecord(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  const record = snapshotClosedRecord(value);
-  return record !== undefined &&
-    Object.keys(record).length === keys.length &&
-    keys.every((key) => Object.hasOwn(record, key))
-    ? record
-    : undefined;
-}
-
-function isPositiveSafeInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
-}
-
-function isNonNegativeSafeInteger(value: unknown): value is number {
-  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
-}
-
-function isNonEmptyString(value: unknown): value is string {
-  return typeof value === "string" && value.length > 0;
 }

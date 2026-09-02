@@ -254,19 +254,19 @@ Entities:
 
 - `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
 - `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > bounds top admission delays and breaks equal delays by Task ID`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > records an accepted explicit policy wait`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > excludes a passive running drain with a null proposal`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > contains terminal writer failures`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics terminal drains > contains a policy diagnostic writer failure while draining admitted work`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-waits.test.ts|Scheduler performance diagnostics > records an accepted explicit policy wait`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-waits.test.ts|Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-boundaries.test.ts|Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-waits.test.ts|Scheduler performance diagnostics > excludes a passive running drain with a null proposal`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-boundaries.test.ts|Scheduler performance diagnostics > contains terminal writer failures`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-terminal.test.ts|Scheduler performance diagnostics terminal drains > contains a policy diagnostic writer failure while draining admitted work`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-terminal.test.ts|Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > hands enabled diagnostics to the Scheduler for one terminal human summary`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > does not sample Scheduler diagnostics when diagnostic logging is disabled`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler measurement hooks > awaits ordered hooks over one immutable terminal context without exposing Task values`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler measurement hooks > continues after synchronous and asynchronous hook failures`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler measurement hooks > delivers the internal summary Hook before caller Hooks through one runner`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler measurement hooks > contains summary writer failure while preserving caller Hook failure delivery`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > awaits ordered hooks over one immutable terminal context without exposing Task values`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > continues after synchronous and asynchronous hook failures`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > delivers the internal summary Hook before caller Hooks through one runner`
+- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > contains summary writer failure while preserving caller Hook failure delivery`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > keeps settled facts while making Hook failures visible`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > marks all successfully settled configured Hooks as succeeded`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > preserves execution cancellation when a measurement Hook fails after drain`
