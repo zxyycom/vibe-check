@@ -22,6 +22,7 @@ export type CandidateFixtureEvidence = Readonly<{
   jsonSchemaData: unknown;
   jsonSchemaOutcome: string | null;
   markdownLinkData: unknown;
+  markdownLinkCacheEntryCount: unknown;
   markdownLinkOutcome: string | null;
   machineSchemaVersion: unknown;
   parserEvidence: unknown;
@@ -66,6 +67,7 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
     sourceFileCount: 2,
     targetReadCount: 1
   });
+  assert.equal(runEvidence.markdownLinkCacheEntryCount, 2);
   assert.equal(runEvidence.changedFilesCalls, 1);
   assert.equal(runEvidence.blockedChangedFilesConsumerCalls, 0);
   assert.deepEqual(runEvidence.blockedChangedFilesConsumer, {

@@ -138,6 +138,7 @@ function projectCandidateFixtureEvidence(
     jsonSchemaData: evidence.jsonSchemaData,
     jsonSchemaOutcome,
     markdownLinkData: evidence.markdownLinkData,
+    markdownLinkCacheEntryCount: evidence.markdownLinkCacheEntryCount,
     markdownLinkOutcome,
     parserEvidence: evidence.parserEvidence,
     secondChangedFilesConsumer: evidence.secondChangedFilesConsumer

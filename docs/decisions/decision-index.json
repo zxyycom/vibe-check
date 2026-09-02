@@ -55,6 +55,7 @@
       "drive-run-from-check-owned-execution-options.md": "sha256:8bd359b102f193f105529308ed39351c2fde59539c88b2de7f37f667b61142d0",
       "drive-run-from-check-owned-inputs-and-explicit-providers.md": "sha256:504d28792a65a179cae6dadb5dfc4eb60e5c8ecc21310d4ba311658169bbe9d8",
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
+      "enable-explicit-markdown-link-parse-cache.md": "sha256:a81d4c5e9b2224113be1eefed781f3a60e0360fff1aff67a3e711eaebff48571",
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
       "enumerate-normalized-direct-dependency-outcomes.md": "sha256:1d0e5a30bee3ab73973a8c3f624ad8e6730fae975cda1d0a2967e98666fc0316",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
@@ -1854,6 +1855,35 @@
             "target": "drive-product-execution-from-project-definition.md"
           }
         ]
+      }
+    },
+    "enable-explicit-markdown-link-parse-cache.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "enable-explicit-markdown-link-parse-cache.md",
+        "title": "以显式选项启用 Markdown Link parse cache",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T08:06:15Z",
+        "purpose": "让大型 Markdown corpus 以显式选项复用 parse facts，并保持本次 Check settlement facts。",
+        "background": "私有 workload 不可运行；repository-owned deterministic corpus 已通过 persistent 和 memo 采用门槛。调用方确认它仅为显式启用的性能工具。",
+        "decision": "采用默认关闭、调用方指定目录的 best-effort persistent parse cache 与 invocation-local target memo。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": []
       }
     },
     "enable-tool-effects-by-default.md": {

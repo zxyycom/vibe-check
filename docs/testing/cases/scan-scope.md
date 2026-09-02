@@ -92,10 +92,12 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > generates fresh GitHub-compatible slugs for ATX and Setext headings`
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > reports decoded UTF-16 source ranges with 1-based, end-exclusive positions`
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > returns immutable facts and a controlled failure for malformed decoded text`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > restores only closed immutable parser facts`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > invalidates entries written for a different parser-contract version`
   Proves:
 - Each eligible Markdown source yields only the documented Link occurrence grammar and heading facts; excluded Markdown forms and undefined references do not become target work.
 - A fresh GitHub-priority heading slugger and decoded UTF-16 navigation range make anchor facts source-local and reproducible.
-- Parser facts are immutable and malformed decoded input becomes a controlled failure rather than a partial source fact set.
+- Parser facts are immutable and malformed decoded input becomes a controlled failure rather than a partial source fact set. Link-private persistent projection accepts only bounded, closed immutable facts, and a different parser-contract version cannot supply stale facts.
 
 ## Case AUX-MARKDOWN-LINK-TARGET-001: Markdown Link resolves only bounded direct local targets
 
@@ -106,7 +108,9 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > resolves direct local files, directories, and same or cross-document anchors`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > gates lexical and symlink escapes before external work and accepts only strict file URIs`
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > allows explicit validate mode and enforces the per-invocation direct target limit`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > memoizes successful canonical Markdown targets without changing logical target limits`
+- `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > does not retain an unavailable Markdown target parse for a later occurrence`
   Proves:
 - Link reads only a contained source and then evaluates its direct file, directory, and anchor endpoint without recursively discovering target links.
 - Root-external lexical paths, escaping symlinks, and accepted host-native `file:///` targets honor `ignore`, `report`, and explicit bounded `validate`; unsupported remote/path forms and malformed local components do not become external work.
-- Same-document anchor facts do not consume target work, while direct endpoint validation is bounded once per occurrence and limit exhaustion remains a controlled failure.
+- Same-document anchor facts do not consume target work. A per-invocation memo can reuse only a successful canonical cross-document Markdown target snapshot, while every occurrence still independently consumes target work and limit exhaustion remains a controlled failure; unavailable targets are not retained.

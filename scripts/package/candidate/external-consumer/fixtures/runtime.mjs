@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -23,6 +23,7 @@ import {
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
+const markdownLinkCacheDirectory = join(projectRoot, ".vibe-check", "markdown-link-parse-cache");
 
 const cacheEvidence = await observeCacheReuse();
 
@@ -129,7 +130,10 @@ const firstChangedFilesConsumer = defineCheck({
     const parsedChangedFiles = failedChangedFiles.parseData(observation.outcome.data);
     return {
       status: "passed",
-      data: { fileCount: parsedChangedFiles.files.length, observedStatus: observation.outcome.status }
+      data: {
+        fileCount: parsedChangedFiles.files.length,
+        observedStatus: observation.outcome.status
+      }
     };
   }
 });
@@ -177,11 +181,11 @@ const result = await run(
             schemaId: "__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__"
           }
         ],
-        schemas: [
-          { id: "__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", path: "schema.json" }
-        ]
+        schemas: [{ id: "__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", path: "schema.json" }]
       }),
-      markdownLinkValidation(),
+      markdownLinkValidation({
+        cache: { enabled: true, directory: markdownLinkCacheDirectory }
+      }),
       changedFiles,
       failedChangedFiles,
       firstChangedFilesConsumer,
@@ -269,9 +273,16 @@ process.stdout.write(
       jsonSchemaData: settledFinalData(jsonSchemaCheck),
       jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
       markdownLinkData: settledFinalData(markdownLink),
+      markdownLinkCacheEntryCount: cacheEntryCount(markdownLinkCacheDirectory),
       markdownLinkOutcome: markdownLink?.outcome.status ?? null
     })
 );
+
+function cacheEntryCount(directory) {
+  return existsSync(directory)
+    ? readdirSync(directory).filter((entry) => entry.endsWith(".json")).length
+    : 0;
+}
 
 async function observeCacheReuse() {
   const directory = await mkdtemp(join(tmpdir(), "vibe-check-installed-cache-"));

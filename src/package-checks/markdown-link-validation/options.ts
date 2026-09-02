@@ -6,6 +6,14 @@ import type { FindingPolicy } from "../code-quality-findings/policy.ts";
 
 export type MarkdownRootExternalTargetMode = "ignore" | "report" | "validate";
 
+/** 调用方显式拥有的 Link-private parse-facts local cache policy。 */
+type MarkdownLinkValidationCacheOptions =
+  | Readonly<{ readonly enabled: false }>
+  | Readonly<{
+      readonly enabled: true;
+      readonly directory: string;
+    }>;
+
 /** 可省略的 Markdown validation work limits。 */
 export interface MarkdownLinkValidationLimitOptions {
   readonly maxMarkdownBytes?: number;
@@ -31,6 +39,11 @@ export interface MarkdownLinkValidationOptions {
   readonly requireNonEmptyDirectories?: boolean;
   /** 每次运行的 Markdown 内容、occurrence 和 direct target work 上限。 */
   readonly limits?: MarkdownLinkValidationLimitOptions;
+  /**
+   * 显式启用的、调用方拥有的 Link parse-facts persistent cache。省略时关闭；enabled directory 必须 absolute、可信且可删除，
+   * 其中可能保存 source-derived parse facts，且不提供 confidentiality 或 automatic cleanup。
+   */
+  readonly cache?: MarkdownLinkValidationCacheOptions;
 }
 
 /** `markdown-link-validation` execution 消费的完整、冻结 options。 */
@@ -42,6 +55,7 @@ export interface ResolvedMarkdownLinkValidationOptions {
   readonly validateCrossDocumentAnchors: boolean;
   readonly rootExternalTargetMode: MarkdownRootExternalTargetMode;
   readonly requireNonEmptyDirectories: boolean;
+  readonly cache: MarkdownLinkValidationCacheOptions;
   readonly limits: Readonly<{
     readonly maxMarkdownBytes: number;
     readonly maxOccurrences: number;

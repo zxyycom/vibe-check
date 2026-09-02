@@ -127,6 +127,12 @@ describe("public API inventory", () => {
       assert.equal(Object.hasOwn(packageCheck, "replace"), false);
       assert.equal(Object.hasOwn(packageCheck, "append"), false);
     }
+    assert.deepEqual(
+      markdownLinkValidation({
+        cache: { enabled: true, directory: "/tmp/vibe-check-markdown-link-cache" }
+      }).options.cache,
+      { enabled: true, directory: "/tmp/vibe-check-markdown-link-cache" }
+    );
 
     const packageEntrySource = readFileSync(
       fileURLToPath(new URL("../../src/index.ts", import.meta.url)),

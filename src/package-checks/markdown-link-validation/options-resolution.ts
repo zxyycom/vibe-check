@@ -1,5 +1,6 @@
 import { canonicalizeJsonObject } from "../../data-boundary/canonical-data.ts";
 import {
+  hasExactPlainRecordKeys,
   hasRequiredAndOptionalRecordKeys,
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
@@ -32,8 +33,15 @@ export function resolveMarkdownLinkValidationOptions(
   const limits = resolvedLimits(input.limits);
   const files = resolvedFiles(input.files);
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
-  if (limits === undefined || files === undefined || findingPolicy === undefined) return undefined;
-  const candidate = optionsCandidate(input, files, findingPolicy, limits);
+  const cache = resolvedCache(input.cache);
+  if (
+    limits === undefined ||
+    files === undefined ||
+    findingPolicy === undefined ||
+    cache === undefined
+  )
+    return undefined;
+  const candidate = optionsCandidate(input, files, findingPolicy, limits, cache);
   return candidate !== undefined && validMarkdownLinkValidationOptions(candidate)
     ? candidate
     : undefined;
@@ -43,7 +51,8 @@ function optionsCandidate(
   input: Readonly<Record<string, unknown>>,
   files: Exclude<ReturnType<typeof resolvedFiles>, undefined>,
   findingPolicy: Exclude<ReturnType<typeof resolveFindingPolicy>, undefined>,
-  limits: Readonly<Record<string, unknown>>
+  limits: Readonly<Record<string, unknown>>,
+  cache: ResolvedMarkdownLinkValidationOptions["cache"]
 ) {
   return canonicalizeJsonObject({
     files,
@@ -58,6 +67,7 @@ function optionsCandidate(
       input.rootExternalTargetMode === undefined ? "report" : input.rootExternalTargetMode,
     requireNonEmptyDirectories:
       input.requireNonEmptyDirectories === undefined ? false : input.requireNonEmptyDirectories,
+    cache,
     limits
   });
 }
@@ -76,11 +86,29 @@ function isMarkdownLinkValidationInput(
         "validateCrossDocumentAnchors",
         "rootExternalTargetMode",
         "requireNonEmptyDirectories",
+        "cache",
         "limits"
       ],
       required: []
     })
   );
+}
+
+function resolvedCache(value: unknown): ResolvedMarkdownLinkValidationOptions["cache"] | undefined {
+  if (value === undefined) return Object.freeze({ enabled: false as const });
+  const cache = snapshotClosedRecord(value);
+  if (cache === undefined) return undefined;
+  if (hasExactPlainRecordKeys(cache, ["enabled"]) && cache.enabled === false) {
+    return Object.freeze({ enabled: false as const });
+  }
+  if (
+    hasExactPlainRecordKeys(cache, ["enabled", "directory"]) &&
+    cache.enabled === true &&
+    typeof cache.directory === "string"
+  ) {
+    return Object.freeze({ enabled: true as const, directory: cache.directory });
+  }
+  return undefined;
 }
 
 function resolvedFiles(value: unknown) {

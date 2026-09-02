@@ -20,6 +20,7 @@ export const MARKDOWN_FILES = Object.freeze({
 });
 
 export const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({
+  cache: Object.freeze({ enabled: false }),
   files: MARKDOWN_FILES,
   findingPolicy: "blocking",
   requireExistingTargets: true,

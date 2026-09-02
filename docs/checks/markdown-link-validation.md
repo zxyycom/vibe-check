@@ -23,6 +23,9 @@ Definition `checks` 的普通 Check。
   validateCrossDocumentAnchors: true,
   rootExternalTargetMode: "report",
   requireNonEmptyDirectories: false,
+  cache: {
+    enabled: false
+  },
   limits: {
     maxMarkdownBytes: 1_048_576,
     maxOccurrences: 10_000,
@@ -48,6 +51,10 @@ path 会产生拒绝 Finding，而不是被静默过滤。
   lookup。
 - `rootExternalTargetMode` 为 `ignore | report | validate`；只有显式 `validate` 才授权 bounded root-external target I/O。
 - `requireNonEmptyDirectories` 启用时最多读取 direct directory 的一个 entry，不递归遍历。
+- `cache` 是闭合的 Link parse-facts performance-state branch。省略时，或显式写成
+  `{ enabled: false }` 时为默认关闭，且不访问 cache filesystem；disabled branch 不能带 `directory`。只有
+  `{ enabled: true, directory: "/absolute/caller-owned/path" }` 才启用，其中 `directory` 必须是非空、无 U+0000
+  的 host-absolute path。它不改变 source selection、target policy、Check ID 或 Finding policy。
 - `limits` 限制单文档 bytes、全部 semantic occurrences 与 direct target reads；constructor 会补齐该 branch 中省略的
   fields。`maxMarkdownBytes` 不得超过 `16_777_216`，`maxOccurrences` 不得超过 `100_000`，
   `maxTargetReads` 不得超过 `10_000`。
@@ -69,13 +76,37 @@ const documentationLinks = markdownLinkValidation({
 });
 ```
 
+### Parse-facts cache 的生命周期与可见性
+
+启用时，调用方拥有 `directory` 的选择、容量监控和删除。它是可删除的本地性能状态，不是输出目录，也没有默认位置；
+Product 不提供 TTL、LRU、quota、automatic cleanup、remote sharing 或 cross-process single-flight。
+
+cache entry 只复用由当前授权读取的 exact Markdown bytes 决定的 Link-private occurrences、headings 和 decoded source
+ranges。identity 组合 exact bytes 的 SHA-256、Link parser contract 和 payload version；版本升级使旧 entry 不命中而不自动删除。
+为了复用解析，entry 可能包含 raw link destination、heading slug、range，以及可从已知内容推断的 identity；因此
+它**不提供** confidentiality、secret protection 或 tamper resistance。不要为不愿复制到该 caller-owned local state 的
+Markdown 启用它。
+
+cache hit 只跳过同一 bytes 的 parse-facts computation。每次 invocation 仍重新收集 source、授权 source/target path、probe
+current endpoint state、应用 options、形成 Finding/Record 和结算 Check。miss、过期或 malformed payload、以及 read/write
+failure 都退化为 fresh parse；它们不新增 Check message、Record、final-data 或 machine field。
+
+取消会在 cache helper 前、miss computation 内和 helper await 后检查。若 cancellation 已在 immutable parse facts 交给
+atomic publication 后发生，该 entry 可以完成并留给未来的相同 bytes 使用；它不是 Check/settlement cache，取消的 invocation
+不会消费它来形成 Finding、Record、message、final-data 或 machine output。
+
 ## 工作原理
 
-Check 验证 options，收集 Markdown source paths，每份 source decode / parse 一次，再处理 supported inline、
-reference 与 autolink occurrences。完整 selected paths 先按 `.md` / `.markdown` suffix 分为 accepted/rejected，每个
+Check 验证 options，收集 Markdown source paths，再处理 supported inline、reference 与 autolink occurrences。完整 selected
+paths 先按 `.md` / `.markdown` suffix 分为 accepted/rejected，每个
 rejected path 产生 supplemental Record，只有 accepted path 成为 source。target file、directory 与 GitHub-priority heading
 anchor 按上面 policy 做 bounded validation；每个 link finding 产生另一种 supplemental Record。direct target 可以参与当前
 occurrence validation，source discovery 始终由 `files` selection 决定。
+
+一次 invocation 内，同一 canonical Markdown target 的成功 parsed headings 可以被多个 cross-document anchor occurrence
+复用。它只复用首次成功 snapshot：target 随后变化时，本次 invocation 继续使用该 snapshot；target failure 不被 memoize。每个
+occurrence 仍独立完成 destination classification、containment 与 endpoint probe，并且在 memo lookup 前消耗一个
+`maxTargetReads` 额度。因此 `targetReadCount` 和 limit 仍是 logical occurrence 计数，不是 physical file-read 计数。
 
 受支持 occurrence 包含 inline link/image、已定义的 full/collapsed/shortcut reference、explicit autolink 和选定的 GFM
 autolink literal。YAML front matter、code/fenced code、HTML attribute、普通 prose URL 与 undefined reference 不进入本
@@ -99,8 +130,9 @@ non-blocking link finding 附带同 code 的 warning message。正常 final data
 ```
 
 `occurrenceCount` 包含所有 parser-semantic occurrences，包括没有进入 local target validation 的项；
-`targetReadCount` 统计进入 direct endpoint validation 的 occurrence；`findingCount - rejectedInputCount` 是 normal link
-finding 数量并且不超过 `occurrenceCount`。每个 normal link finding 恰好形成一条 Record，data 恰为：
+`targetReadCount` 统计进入 direct endpoint validation 的 logical occurrence（包括 target-memo hit）；`findingCount -
+rejectedInputCount` 是 normal link finding 数量并且不超过 `occurrenceCount`。每个 normal link finding 恰好形成一条 Record，data
+恰为：
 
 ```ts
 {
@@ -156,18 +188,18 @@ blocking finding 的 `failed` outcome 携带 `invalid-local-links` error message
 selected path 数量为零时结算为 `not-applicable / no-eligible-input`。selected 非空但全部 rejected 时，不解析 source，直接以
 带 final data、Records 与 warning 的 `passed` 结算。`unavailable.reason.code` 使用以下受控值：
 
-| `reason.code` | 触发边界与调用方检查项 |
-| --- | --- |
-| `invalid-options` | constructor 返回后形成的 replacement options 不是完整 closed resolved shape；重新调用 `markdownLinkValidation(options)` 或恢复完整字段。 |
-| `project-root-unavailable` | project root 无法 canonicalize；检查路径存在性与访问权限。 |
-| `source-unavailable` | source collection、读取、decode 或 containment 失败；检查 source 与 file-selection 来源。 |
-| `source-too-large` | 某个 selected Markdown source 超过 `maxMarkdownBytes`。 |
-| `markdown-parse-failed` | selected source 无法形成完整 parser facts。 |
-| `invalid-local-destination` | local destination 无法按受支持的 path/URI grammar 安全解析。 |
-| `target-unavailable` | target containment probe、I/O、decode、parse 或 directory read 失败；Markdown anchor target 超过 `maxMarkdownBytes` 也属于此分支。 |
-| `occurrence-limit-exceeded` | semantic occurrence 总数超过 `maxOccurrences`。 |
-| `target-read-limit-exceeded` | direct endpoint validation work 超过 `maxTargetReads`。 |
-| `cancelled` | invocation signal 取消本 Check；不要把结果解释为 clean validation。 |
+| `reason.code`                | 触发边界与调用方检查项                                                                                                                   |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `invalid-options`            | constructor 返回后形成的 replacement options 不是完整 closed resolved shape；重新调用 `markdownLinkValidation(options)` 或恢复完整字段。 |
+| `project-root-unavailable`   | project root 无法 canonicalize；检查路径存在性与访问权限。                                                                               |
+| `source-unavailable`         | source collection、读取、decode 或 containment 失败；检查 source 与 file-selection 来源。                                                |
+| `source-too-large`           | 某个 selected Markdown source 超过 `maxMarkdownBytes`。                                                                                  |
+| `markdown-parse-failed`      | selected source 无法形成完整 parser facts。                                                                                              |
+| `invalid-local-destination`  | local destination 无法按受支持的 path/URI grammar 安全解析。                                                                             |
+| `target-unavailable`         | target containment probe、I/O、decode、parse 或 directory read 失败；Markdown anchor target 超过 `maxMarkdownBytes` 也属于此分支。       |
+| `occurrence-limit-exceeded`  | semantic occurrence 总数超过 `maxOccurrences`。                                                                                          |
+| `target-read-limit-exceeded` | direct endpoint validation work 超过 `maxTargetReads`。                                                                                  |
+| `cancelled`                  | invocation signal 取消本 Check；不要把结果解释为 clean validation。                                                                      |
 
 这些边界不发布 partial link-finding Records，也不提供 final data；若 selected classification 已完成，已发布的
 rejected-input Records 与对应 warning 仍保留。通用 preflight 语法见
@@ -176,9 +208,11 @@ rejected-input Records 与对应 warning 仍保留。通用 preflight 语法见
 ## I/O 与安全边界
 
 source I/O scope 只包含通过 `.md` / `.markdown` eligibility 的 accepted paths；rejected path 不读取内容。resolver I/O scope
-是本地 filesystem，HTTP、DNS、TLS 与 redirect request 数为零。默认 `report` mode 对 root-external
-target 形成 finding，显式 `validate` mode 授权 bounded read。published facts 排除 raw external absolute path、target
-bytes 与 remote credentials。
+是本地 filesystem，HTTP、DNS、TLS 与 redirect request 数为零。默认 `report` mode 对 root-external target 形成 finding，显式
+`validate` mode 授权 bounded read。published facts 排除 raw external absolute path、target bytes 与 remote credentials。
+
+启用 `cache` 会额外访问调用方指定 directory，并可能写入上文所列 source-derived parse facts；它不改变 published facts，
+也不把 cache directory 当作 security boundary。调用方应仅传入自己信任、可删除的 absolute directory。
 
 ## 最小用法
 
