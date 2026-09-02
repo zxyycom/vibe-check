@@ -6,11 +6,7 @@ import { collectProjectFiles } from "../project-files/collection.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import { appendCheckMessages } from "../../check/finding-presentation.ts";
-import {
-  createMarkdownLocalResolver,
-  type MarkdownLocalResolver,
-  type MarkdownSourceReadResult
-} from "./local-resolver.ts";
+import { createMarkdownLocalResolver, type MarkdownLocalResolver } from "./local-resolver.ts";
 import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
 import { markdownFindingMessages } from "./finding-messages.ts";
 import {
@@ -31,10 +27,6 @@ export const MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION = {
   checkId: "markdown-link-validation",
   displayName: "Markdown link validation"
 } as const;
-
-// Cache misses publish independent parse-facts entries. Keep their filesystem
-// work bounded while preserving source consumption and result order below.
-const CACHE_ENABLED_SOURCE_READ_AHEAD = 8;
 
 interface MarkdownLinkValidationRun {
   readonly options: ResolvedMarkdownLinkValidationOptions;
@@ -224,53 +216,17 @@ async function traverseMarkdownSources(
   run: MarkdownLinkValidationRun
 ): Promise<MarkdownLinkTraversal> {
   const candidates: MarkdownLinkRecordCandidate[] = [];
-  const sourceReads: Array<Promise<MarkdownSourceReadResult>> = [];
   let occurrenceCount = 0;
   let sourceFileCount = 0;
-  let nextSourceToRead = 0;
 
-  const beginSourceReads = (): void => {
-    const readAhead = run.options.cache.enabled ? CACHE_ENABLED_SOURCE_READ_AHEAD : 1;
-    while (
-      nextSourceToRead < sourcePaths.length &&
-      nextSourceToRead - sourceFileCount < readAhead
-    ) {
-      const sourcePath = sourcePaths[nextSourceToRead];
-      if (sourcePath === undefined) return;
-      sourceReads[nextSourceToRead] = run.resolver.readSource(
-        sourcePath,
-        run.options.limits.maxMarkdownBytes
-      );
-      nextSourceToRead += 1;
-    }
-  };
-  const settleStartedSourceReads = async (): Promise<void> => {
-    await Promise.allSettled(sourceReads);
-  };
-
-  beginSourceReads();
-
-  for (const [sourceIndex, sourcePath] of sourcePaths.entries()) {
-    const sourceRead = sourceReads[sourceIndex];
-    if (sourceRead === undefined) {
-      await settleStartedSourceReads();
-      return unavailableValidation("source-unavailable");
-    }
-    const sourceValidation = await validateMarkdownSource(
-      sourcePath,
-      occurrenceCount,
-      run,
-      sourceRead
-    );
-    if (sourceValidation.kind === "unavailable") {
-      await settleStartedSourceReads();
-      return sourceValidation;
-    }
+  // The Run's shared Scheduler owns cross-Check concurrency; this Check processes sources strictly in order.
+  for (const sourcePath of sourcePaths) {
+    const sourceValidation = await validateMarkdownSource(sourcePath, occurrenceCount, run);
+    if (sourceValidation.kind === "unavailable") return sourceValidation;
 
     candidates.push(...sourceValidation.candidates);
     occurrenceCount = sourceValidation.occurrenceCount;
     sourceFileCount += 1;
-    beginSourceReads();
   }
 
   return Object.freeze({
@@ -284,11 +240,10 @@ async function traverseMarkdownSources(
 async function validateMarkdownSource(
   sourcePath: string,
   occurrenceCountBeforeSource: number,
-  run: MarkdownLinkValidationRun,
-  pendingSourceRead: Promise<MarkdownSourceReadResult>
+  run: MarkdownLinkValidationRun
 ): Promise<MarkdownSourceValidation> {
   if (run.signal.aborted) return unavailableValidation("cancelled");
-  const sourceRead = await pendingSourceRead;
+  const sourceRead = await run.resolver.readSource(sourcePath, run.options.limits.maxMarkdownBytes);
   if (run.signal.aborted) return unavailableValidation("cancelled");
   if (!sourceRead.ok) return unavailableValidation(sourceRead.reason);
 
