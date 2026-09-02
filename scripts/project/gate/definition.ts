@@ -38,7 +38,6 @@ const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
 const packageAcceptanceTimeoutMs = 30_000;
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
-const bytePreservedHistoricalV2RunSchema = "docs/schemas/historical/v2/vibe-check-run.schema.json";
 const repositoryFileDefaults = {
   exclude: [
     "**/.git",
@@ -95,15 +94,6 @@ export const afterGate: ProjectGateAfterHook = (initialResult, context) =>
 export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
   duplicateDetection: {
     codeAreas: {
-      "docs-specs": {
-        files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, "docs/examples/**", "docs/schemas/**"],
-          include: ["docs/**/*.md", "changes/**/*.md"]
-        },
-        minimumLines: 3,
-        minimumTokens: 150
-      },
       "product-source": {
         files: { ...areaFileDefaults, include: ["src/**/*.ts"] },
         minimumLines: 3,
@@ -112,6 +102,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "schemas-examples": {
         files: {
           ...areaFileDefaults,
+          exclude: [...areaFileDefaults.exclude, "docs/schemas/historical/**"],
           include: ["docs/schemas/**", "docs/examples/**"]
         },
         minimumLines: 3,
@@ -150,7 +141,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       },
       "schemas-examples": {
         codeLines: repositoryFileCodeLines,
-        files: { ...areaFileDefaults, include: ["docs/schemas/**", "docs/examples/**"] }
+        files: {
+          ...areaFileDefaults,
+          exclude: [...areaFileDefaults.exclude, "docs/schemas/historical/**"],
+          include: ["docs/schemas/**", "docs/examples/**"]
+        }
       },
       "script-tooling": {
         codeLines: repositoryFileCodeLines,
@@ -161,13 +156,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         }
       }
     },
-    findingPolicy: "non-blocking",
-    findingWaivers: [
-      {
-        identity: { metric: "code-lines", path: bytePreservedHistoricalV2RunSchema },
-        reason: "Historical v2 schema bytes and URN must remain unchanged."
-      }
-    ]
+    findingPolicy: "non-blocking"
   },
   functionMetrics: {
     codeAreas: {

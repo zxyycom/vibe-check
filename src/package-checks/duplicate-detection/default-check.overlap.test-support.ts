@@ -9,17 +9,20 @@ import { DUPLICATE_DETAILS } from "./finding-messages.test-support.ts";
 import { parseDuplicateDetectionData } from "./final-data.ts";
 import { execute, FILES, scanner } from "./default-check.execution.test-support.ts";
 
-export function createOverlappingAreaCheck(root: string) {
+export function createCommonAreaCheck(root: string) {
   mkdirSync(join(root, "scripts"), { recursive: true });
   mkdirSync(join(root, "src"), { recursive: true });
   writeFileSync(join(root, "scripts", "b.ts"), "export const b = 2;\n", "utf8");
+  writeFileSync(join(root, "scripts", "isolated.ts"), "export const isolated = 2;\n", "utf8");
   writeFileSync(join(root, "src", "a.ts"), "export const a = 1;\n", "utf8");
+  writeFileSync(join(root, "src", "isolated.ts"), "export const isolated = 1;\n", "utf8");
   const scanCountPath = join(root, "scan-count.txt");
   const report = JSON.stringify({
     duplicates: [
       duplicateReportItem(120, 5, 8),
       duplicateReportItem(80, 20, 12),
-      duplicateReportItem(120, 40, 12)
+      duplicateReportItem(120, 40, 12),
+      duplicateReportItem(200, 60, 20, "src/isolated.ts", "scripts/isolated.ts")
     ]
   });
   const executable = scanner(
@@ -30,7 +33,7 @@ export function createOverlappingAreaCheck(root: string) {
       "if (process.argv.includes('--version')) process.stdout.write('jscpd 5.0.11\\n');",
       "else {",
       "  const config = JSON.parse(readFileSync(process.argv[process.argv.indexOf('--config') + 1], 'utf8'));",
-      `  if (config.minTokens !== 20 || config.minLines !== 3 || JSON.stringify(config.path) !== ${JSON.stringify(JSON.stringify([resolve(root, "scripts/b.ts"), resolve(root, "src/a.ts")]))}) process.exit(2);`,
+      `  if (config.minTokens !== 20 || config.minLines !== 3 || JSON.stringify(config.path) !== ${JSON.stringify(JSON.stringify([resolve(root, "scripts/b.ts"), resolve(root, "scripts/isolated.ts"), resolve(root, "src/a.ts"), resolve(root, "src/isolated.ts")]))}) process.exit(2);`,
       "  if (process.argv.includes('--workers')) process.exit(3);",
       `  const countPath = ${JSON.stringify(scanCountPath)};`,
       "  const count = existsSync(countPath) ? Number(readFileSync(countPath, 'utf8')) : 0;",
@@ -48,8 +51,8 @@ export function createOverlappingAreaCheck(root: string) {
       minimumTokens: 100
     },
     shared: {
-      files: FILES,
-      minimumLines: 5,
+      files: { ...FILES, include: ["scripts/b.ts", "src/a.ts"] },
+      minimumLines: 10,
       minimumTokens: 90
     },
     source: {
@@ -122,7 +125,7 @@ export function assertDefaultCheckComposition(): void {
   });
 }
 
-export async function assertInitialOverlappingAreaResult(
+export async function assertInitialCommonAreaResult(
   options: ReturnType<typeof duplicateDetection>["options"],
   root: string,
   scanCountPath: string
@@ -145,7 +148,7 @@ export async function assertInitialOverlappingAreaResult(
   assert.equal(result.records.length, 1);
   assert.deepEqual(result.records[0]?.data, {
     blocking: false,
-    codeAreas: ["scripts", "shared", "source"],
+    codeAreas: ["shared"],
     lineCount: 12,
     locations: [
       { endLine: 51, path: "scripts/b.ts", startLine: 40 },
@@ -156,23 +159,23 @@ export async function assertInitialOverlappingAreaResult(
   });
 }
 
-export async function assertReevaluatedOverlappingPolicies(
+export async function assertReevaluatedCommonAreaPolicies(
   options: ReturnType<typeof duplicateDetection>["options"],
   root: string,
   scanCountPath: string
 ): Promise<void> {
-  const blockingOverlap = await execute(
+  const blockingCommonArea = await execute(
     executeDuplicateDetection,
     {
       ...options,
       codeAreas: {
         ...options.codeAreas,
-        scripts: { ...options.codeAreas.scripts, findingPolicy: "blocking" }
+        shared: { ...options.codeAreas.shared, findingPolicy: "blocking" }
       }
     },
     root
   );
-  assert.deepEqual(blockingOverlap.result, {
+  assert.deepEqual(blockingCommonArea.result, {
     status: "failed",
     data: { blockingFindingCount: 1, findingCount: 1 },
     messages: [
@@ -185,7 +188,7 @@ export async function assertReevaluatedOverlappingPolicies(
       DUPLICATE_DETAILS.overlapError
     ]
   });
-  assert.equal(Reflect.get(blockingOverlap.records[0]?.data ?? {}, "blocking"), true);
+  assert.equal(Reflect.get(blockingCommonArea.records[0]?.data ?? {}, "blocking"), true);
   assert.equal(readFileSync(scanCountPath, "utf8"), "1");
   const stricter = await execute(
     executeDuplicateDetection,
@@ -193,7 +196,7 @@ export async function assertReevaluatedOverlappingPolicies(
       ...options,
       codeAreas: {
         ...options.codeAreas,
-        scripts: { ...options.codeAreas.scripts, minimumTokens: 130 }
+        shared: { ...options.codeAreas.shared, minimumTokens: 130 }
       }
     },
     root
@@ -206,15 +209,21 @@ export async function assertReevaluatedOverlappingPolicies(
   assert.equal(readFileSync(scanCountPath, "utf8"), "1");
 }
 
-function duplicateReportItem(tokens: number, startLine: number, lineCount: number): object {
+function duplicateReportItem(
+  tokens: number,
+  startLine: number,
+  lineCount: number,
+  firstPath = "src/a.ts",
+  secondPath = "scripts/b.ts"
+): object {
   return {
     firstFile: {
-      name: "src/a.ts",
+      name: firstPath,
       startLoc: { line: startLine },
       endLoc: { line: startLine + lineCount - 1 }
     },
     secondFile: {
-      name: "scripts/b.ts",
+      name: secondPath,
       startLoc: { line: startLine },
       endLoc: { line: startLine + lineCount - 1 }
     },

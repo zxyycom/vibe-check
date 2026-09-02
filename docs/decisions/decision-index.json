@@ -26,6 +26,7 @@
       "centralize-project-gate-after-hook-configuration.md": "sha256:20bd7f463dc8863a31d58caeb4885725cca404aeda5dd60de26b12d9cb9fcad5",
       "centralize-project-gate-definition-and-separate-adapters.md": "sha256:3342a6f2f6ef0023573441fc21d705e066a66721dbce40d9c80bc5612c32438b",
       "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
+      "compare-duplicates-only-within-common-code-areas.md": "sha256:3ed088dfdb503eacb6b9829c0cd359456a9279058fd957fdef58f5b1bf28a04a",
       "complete-first-release-check-set-before-publication.md": "sha256:3dcdf3e040f66bd1d469c4729a8d0234c1edc5d23558973a9f884c9722573405",
       "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
       "complete-first-release-check-set-without-markdown-structure.md": "sha256:98287aa77d20eec27c838c7923f1bc425ba117b80ccc545a84ae08914749469b",
@@ -58,6 +59,7 @@
       "enumerate-normalized-direct-dependency-outcomes.md": "sha256:1d0e5a30bee3ab73973a8c3f624ad8e6730fae975cda1d0a2967e98666fc0316",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
+      "exclude-historical-schemas-from-maintainability-metrics.md": "sha256:be9d6f8ef503e3adca5f9dd1b594c749d2812902a0dc7656625d1f5557ca8d50",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
@@ -100,6 +102,7 @@
       "keep-public-config-tool-neutral.md": "sha256:20f27b3206cc31de25e12f1f66c4f199ddeca3ec5cc5ba8d2c05108d119813f6",
       "keep-public-inventory-and-package-materials-tooling-owned.md": "sha256:c59ad47b081a0cce195830264a9c555b4966e6de042df57a2539a217c366d63b",
       "keep-record-field-shapes-at-the-type-boundary.md": "sha256:0fd2de21fab591cff48036b30e912a72370996dc995ebe68cd69dbe40971aab6",
+      "keep-repository-quality-findings-advisory-through-release.md": "sha256:9ad083b099355d44d78d0537de28e61bd829a0cb7498e4a87eac08de2d434f60",
       "keep-sensitive-quality-record-material-ephemeral.md": "sha256:f89701e33cfb23c3cbebee397e0344e22a987c30a1bb3a6e16d1ee25f6e1128d",
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
@@ -169,7 +172,7 @@
       "require-explicit-network-link-checking.md": "sha256:13ce5fb17aeff11aa29c6a5be15f66e28db8e54ba0d55ede5cb38dad57c47007",
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
-      "require-known-repository-quality-remediation-before-public-release.md": "sha256:20e984e1752a4e6274d1541a36c9ad95576015756b4deee414cb104f43cbbc7a",
+      "require-known-repository-quality-remediation-before-public-release.md": "sha256:d3f57d08bba36a5e22d4e4bccb41ef7bba506032c2d4d824dfb5ff721c77db8d",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
@@ -259,7 +262,7 @@
       "use-versioned-npm-package-release-unit.md": "sha256:aa8c724f18eb59548618ea92c475bd458de24c5731ea8b7e7b3dcbc452061fbc",
       "validate-ordinary-check-options-before-execution.md": "sha256:0e27a05f7cdaa53752a18c94dc7ca967441976d227f0197b7ea3ad49cedf9010",
       "vendor-foundation-as-repository-owned-script-tool.md": "sha256:e27d143593ef746b2217a29c91d8fea6a60a8d60fee7bd7f31737ca32f8a9551",
-      "waive-historical-v2-schema-file-metric-with-preserved-evidence.md": "sha256:392e8d4fdcb10ce2ff343136f0726dad619cd85d2207a60833fd5cb285d34fd5"
+      "waive-historical-v2-schema-file-metric-with-preserved-evidence.md": "sha256:15d9b02fd85887874c619b2660abedebd4c244b583ff3c60963ac0b74c57771b"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -930,6 +933,40 @@
           "workflow-policy"
         ],
         "relations": []
+      }
+    },
+    "compare-duplicates-only-within-common-code-areas.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "compare-duplicates-only-within-common-code-areas.md",
+        "title": "只在共同代码区域内形成重复 Finding",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T06:42:05Z",
+        "purpose": "让 duplicateDetection 的每个 area 成为实际比较边界，同时保留一次 scanner 执行。",
+        "background": "当前实现会把互斥 area 的文件合并比较，使独立 Product 与 scripts 区域产生跨边界 Finding。",
+        "decision": "scanner 继续扫描 exact-input 并集，但只有全部 location 共享至少一个 area 时才形成 Finding。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "let-each-duplicate-code-area-own-files-and-thresholds.md"
+          }
+        ]
       }
     },
     "complete-first-release-check-set-before-publication.md": {
@@ -1939,6 +1976,40 @@
           "workflow-policy"
         ],
         "relations": []
+      }
+    },
+    "exclude-historical-schemas-from-maintainability-metrics.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "exclude-historical-schemas-from-maintainability-metrics.md",
+        "title": "将历史 Schema 移出可维护性指标",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T06:42:06Z",
+        "purpose": "让不可改写的 historical Schema 保留完整性证据，但不产生无法通过维护动作消除的质量提示。",
+        "background": "历史 Schema 的 bytes 与 identity 必须保留，file 和 duplicate metrics 因此不能提供可行动整改。",
+        "decision": "仓库质量范围排除 historical Schema，显式 strict validation 继续拥有其完整性与兼容性证据。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "waive-historical-v2-schema-file-metric-with-preserved-evidence.md"
+          }
+        ]
       }
     },
     "exclude-undefined-markdown-references-from-link-check.md": {
@@ -3258,6 +3329,40 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "keep-repository-quality-findings-advisory-through-release.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-repository-quality-findings-advisory-through-release.md",
+        "title": "让仓库质量 Finding 在发布前仍为提示",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-02T06:42:07Z",
+        "purpose": "让同一 repository quality policy 在开发与发布验收中保持非阻断，不建立发布专用清零要求。",
+        "background": "已确认 file、function、duplicate 与 Markdown quality Finding 只提供维护提示，发布不改变其风险等级。",
+        "decision": "发布仍要求完整 Gate 与候选证据，但 non-blocking quality Finding 不成为额外发布阻断条件。",
+        "tags": [
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "require-known-repository-quality-remediation-before-public-release.md"
+          }
+        ]
       }
     },
     "keep-sensitive-quality-record-material-ephemeral.md": {
@@ -5452,16 +5557,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "require-known-repository-quality-remediation-before-public-release.md",
+        "sourcePath": "archive/require-known-repository-quality-remediation-before-public-release.md",
         "title": "公开发布前处置已知仓库质量 Findings",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T04:05:36Z",
         "purpose": "防止 Project Gate 的暂时 non-blocking repository-quality Checks 被误解为公开 package 已具备质量发布条件。",
@@ -8216,16 +8321,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "waive-historical-v2-schema-file-metric-with-preserved-evidence.md",
+        "sourcePath": "archive/waive-historical-v2-schema-file-metric-with-preserved-evidence.md",
         "title": "保留证据地豁免历史 v2 Schema 文件指标",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T17:34:10Z",
         "purpose": "让仓库 Gate 继续测量历史 v2 run schema，同时以精确身份和理由保留其不可重写约束。",

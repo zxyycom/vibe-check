@@ -91,6 +91,8 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 
 每个 `codeAreas[id]` 都是该区域文件范围、有效 finding policy 与行数/token 下限的单一事实源。上例的
 `scripts.exclude` 显式保留 common defaults 并追加测试文件；若只写 `["scripts/**/*.test.ts"]`，它会完整替换默认排除数组。
+Area 同时是比较边界：上例中只属于 `source` 的文件不会与只属于 `scripts` 的文件形成 Finding。若项目需要跨这两个目录
+比较，应另声明一个同时选中两类路径的 area，而不是依赖它们恰好进入同一次 scanner 调用。
 
 ### 精确豁免一个重复片段
 
@@ -151,18 +153,21 @@ finding。
 
 Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文件，再为各 `codeAreas[id].files` 应用自己的
 `include` / `exclude`，最后把全部路径去重成一个批准的精确范围。一个路径可同时属于多个 area；全部 exact paths 仍
-一次性交给 jscpd，因此同 area、跨 area 与重叠 area 文件都会互相比较：
+一次性交给 jscpd，但 raw scanner 候选只有在全部 location 至少共享一个 area 时才进入 Finding：
 
 1. jscpd 使用所有实际输入 area 中最低的 line 阈值和最低的 token 阈值取得完整候选。
-2. 每个 raw fragment 的 location path 必须属于本次完整 exact scope；任一路径越界都会拒绝整批 measurement。
-3. Check 按 location path 恢复它匹配的全部 areas。fragment 的 line count 和 token count 必须分别达到所有涉及 area
-   对应阈值中的最大值，才形成 finding。
-4. 完整可信 Finding candidates 形成后才执行 waiver reconciliation；source/scanner/cache failure 不伪造 audit。Applied
+2. 每个 raw fragment 的 location path 必须属于本次完整 exact scope，且完整 location ranges 必须互不相同；路径越界或
+   同一路径同一区间的自我匹配都会拒绝整批 measurement。
+3. Check 恢复每个 location 所属的 area IDs，并取所有 location 集合的交集。交集为空的 fragment 不形成 Finding、Record、
+   message 或 final count。
+4. 交集非空时，fragment 的 `codeAreas` 恰为稳定排序的共同 area IDs；line count 和 token count 必须分别达到这些共同 area
+   阈值中的最大值。
+5. 完整可信 Finding candidates 形成后才执行 waiver reconciliation；source/scanner/cache failure 不伪造 audit。Applied
    Finding 保留 Record，unused/overmatched authoring 形成独立 audit Record，然后 Check 按 actionable disposition 结算。
 
-例如 `source` 使用 line `3` / token `20`，`scripts` 使用 line `10` / token `100` 时，scanner 使用 line `3` /
-token `20` 取得候选；跨这两个 area 的 8-line / 120-token fragment 和 12-line / 80-token fragment 都会被过滤，只有
-同时达到 line `10` 与 token `100` 的 fragment 会保留。
+例如互斥的 `source` 与 `scripts` area 分别选中一个 location 时，两者没有共同 area，该 fragment 会被过滤。若另有
+`application` area 同时选中这两个 location，并使用 line `10` / token `100`，则只有同时达到这两个下限的 fragment 会以
+`codeAreas: ["application"]` 形成 Finding。
 
 cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命中 cache，当前 area annotation 与最终 policy filtering
 都走同一路径。只有 package/custom command identity、实际 jscpd 版本、当前 commit、完整 exact-input fingerprint 和实际
@@ -171,8 +176,8 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
 
 ## 效果与结果
 
-每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。若 fragment 涉及多个 areas，只要任一 effective
-`findingPolicy` 为 `blocking`，该 Record 的 `blocking` 就为 `true`。正常 final data 恰为
+每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。若 fragment 的共同 areas 多于一个，只要任一共同
+area 的 effective `findingPolicy` 为 `blocking`，该 Record 的 `blocking` 就为 `true`。正常 final data 恰为
 `{ findingCount, blockingFindingCount }`；前者是完整 duplicate Finding 数量，后者是仍 actionable 且 blocking 的数量。
 Waiver audit Records 不进入这两个计数。
 `blockingFindingCount > 0` 时 outcome 为 `failed`，否则为 `passed`，所以 passed outcome 可以携带 non-blocking Records。
@@ -238,7 +243,8 @@ identity 与 reason。
 
 ## I/O 与安全边界
 
-execution 启动一次本机 jscpd 调用；输入只包含各 `codeAreas[id].files` 批准的 exact paths 去重并集。显式配置
+execution 启动一次本机 jscpd 调用；输入只包含各 `codeAreas[id].files` 批准的 exact paths 去重并集。union 只优化 scanner
+执行，不扩大任何 area 的比较边界；共同 area 过滤仍在可信 raw result 上执行。显式配置
 `scanner.command.kind: "custom"` 表示项目授权执行其中的 executable；所有传入参数由 owning adapter 生成。该 Check
 不发起网络请求。
 

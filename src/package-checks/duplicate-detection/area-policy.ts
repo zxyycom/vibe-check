@@ -11,13 +11,16 @@ type PathPolicy = Readonly<{
   minimumTokens: number;
 }>;
 
-type AnnotatedFragment = Readonly<{
-  fragment: DuplicateCodeFragment;
-  requiredMinimumLines: number;
-  requiredMinimumTokens: number;
-}>;
+type FragmentAnnotation =
+  | Readonly<{
+      fragment: DuplicateCodeFragment;
+      kind: "comparable";
+      requiredMinimumLines: number;
+      requiredMinimumTokens: number;
+    }>
+  | Readonly<{ kind: "outside-common-area" }>;
 
-/** Restores every matching code area and applies the strictest involved policy. */
+/** Retains fragments whose locations share an area and applies its strictest policy. */
 export function applyDuplicateAreaPolicy(
   fragments: readonly DuplicateCodeFragment[],
   areas: readonly DuplicateDetectionAreaInput[]
@@ -28,6 +31,7 @@ export function applyDuplicateAreaPolicy(
     if (!isValidDuplicateFragment(fragment)) return undefined;
     const annotated = annotateFragment(fragment, policiesByPath);
     if (annotated === undefined) return undefined;
+    if (annotated.kind === "outside-common-area") continue;
     if (
       annotated.fragment.lineCount >= annotated.requiredMinimumLines &&
       annotated.fragment.tokenCount >= annotated.requiredMinimumTokens
@@ -63,9 +67,9 @@ function buildPathPolicies(
 function annotateFragment(
   fragment: DuplicateCodeFragment,
   policiesByPath: ReadonlyMap<string, readonly PathPolicy[]>
-): AnnotatedFragment | undefined {
+): FragmentAnnotation | undefined {
   const locations: DuplicateCodeLocation[] = [];
-  const involvedPolicies: PathPolicy[] = [];
+  let commonPolicies: readonly PathPolicy[] | undefined;
   for (const location of fragment.locations) {
     const pathPolicies = policiesByPath.get(location.path);
     if (pathPolicies === undefined || pathPolicies.length === 0) return undefined;
@@ -76,19 +80,26 @@ function annotateFragment(
         startLine: location.startLine
       })
     );
-    involvedPolicies.push(...pathPolicies);
+    commonPolicies =
+      commonPolicies === undefined
+        ? pathPolicies
+        : commonPolicies.filter((policy) =>
+            pathPolicies.some((candidate) => candidate.codeArea === policy.codeArea)
+          );
   }
-  if (involvedPolicies.length === 0) return undefined;
+  if (commonPolicies === undefined) return undefined;
+  if (commonPolicies.length === 0) return Object.freeze({ kind: "outside-common-area" });
 
   const annotatedFragment = Object.freeze({
     ...fragment,
-    codeAreas: Object.freeze(uniqueSorted(involvedPolicies.map((policy) => policy.codeArea))),
+    codeAreas: Object.freeze(uniqueSorted(commonPolicies.map((policy) => policy.codeArea))),
     locations: Object.freeze(locations)
   });
   return Object.freeze({
     fragment: annotatedFragment,
-    requiredMinimumLines: Math.max(...involvedPolicies.map((policy) => policy.minimumLines)),
-    requiredMinimumTokens: Math.max(...involvedPolicies.map((policy) => policy.minimumTokens))
+    kind: "comparable",
+    requiredMinimumLines: Math.max(...commonPolicies.map((policy) => policy.minimumLines)),
+    requiredMinimumTokens: Math.max(...commonPolicies.map((policy) => policy.minimumTokens))
   });
 }
 

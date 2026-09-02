@@ -1,6 +1,6 @@
 ---
 title: 公开发布前处置已知仓库质量 Findings
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:05:36Z
 purpose: 防止 Project Gate 的暂时 non-blocking repository-quality Checks 被误解为公开 package 已具备质量发布条件。

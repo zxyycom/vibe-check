@@ -1,6 +1,6 @@
 ---
 title: 保留证据地豁免历史 v2 Schema 文件指标
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T17:34:10Z
 purpose: 让仓库 Gate 继续测量历史 v2 run schema，同时以精确身份和理由保留其不可重写约束。

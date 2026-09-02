@@ -207,6 +207,15 @@ Package supporting、candidate/artifact acceptance、三个 external-consumer ac
 
 Gate 对四项使用 non-blocking finding policy：normal findings 保留完整 final data / Records，并由 owning Check 输出有上限的安全摘要；超过摘要上限时只追加精确 omitted count。scanner、source 或 parse failure 仍结算为 `unavailable`。完整 finding facts 以 machine Records 为准。
 
+repository-private scope 只让 TypeScript、current Schemas 和 examples 进入 `duplicate-detection`；Markdown 由 file metrics
+与 Markdown link validation 观察，不进入重复检测。`docs/schemas/historical/**` 不进入 duplicate/file maintainability
+metrics，但仍由显式 documentation contract 严格验证。repository defaults 还排除 `**/archive/**`；这是本项目配置，不是
+package 的公共默认值。
+
+同一 non-blocking Finding policy 适用于 required、full 和正式 release receipt 验证：发布前不要求 Finding 清零或逐项
+waiver。scanner/source/parse unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自
+owner 阻断。
+
 SCC 与 Lizard executable 只接受 mise 提供的绝对路径；缺失或相对 binding 不回退 ambient `PATH`，而让 owning Check 按 scanner failure 结算。scanner adapter 边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ### Process evidence

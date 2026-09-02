@@ -99,7 +99,6 @@ SCC v4 是否值得扩张公共能力；它不改变当前 executable-only runti
 
 | Change | 当前协调判断 |
 | --- | --- |
-| [`surface-generic-finding-waivers`](../changes/surface-generic-finding-waivers/proposal.md) | 文档发现路径为主；收敛为 Plan 后可与 Scheduler 或 scanner 实现并行，合入时处理 README/configuration 小范围冲突 |
 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | Draft；先闭合只读 output facts 与 writable workspace/state owner，不直接实施 |
 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | Draft；可并行完成大型 corpus benchmark 和安全 payload 设计，persistent cache 实现不得假设 path-context Draft 已落地 |
 | [`adopt-node-execution-backend`](../changes/adopt-node-execution-backend/proposal.md) | Draft；先闭合 runtime Decision、Bun launcher、package candidate、Windows 与 Test Evidence 边界；其 package/runtime owner 较宽，形成 Plan 后必须重新检查与 scanner 或 Scheduler worktree 的共享文件 |

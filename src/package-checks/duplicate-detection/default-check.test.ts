@@ -11,6 +11,7 @@ import { executeDuplicateDetection } from "./execution.ts";
 import { DUPLICATE_DETAILS } from "./finding-messages.test-support.ts";
 import {
   assertInvalidOptionsAreRejected,
+  assertSelfMatchedFragmentIsRejected,
   assertSourceAndCacheWriteFailures,
   CODE_AREAS,
   createRealDuplicateRoot,
@@ -20,9 +21,9 @@ import {
 } from "./default-check.execution.test-support.ts";
 import {
   assertDefaultCheckComposition,
-  assertInitialOverlappingAreaResult,
-  assertReevaluatedOverlappingPolicies,
-  createOverlappingAreaCheck
+  assertInitialCommonAreaResult,
+  assertReevaluatedCommonAreaPolicies,
+  createCommonAreaCheck
 } from "./default-check.overlap.test-support.ts";
 
 describe("default Check direct callbacks", () => {
@@ -68,6 +69,7 @@ describe("default Check direct callbacks", () => {
         tokenCount: 80
       });
       await assertSourceAndCacheWriteFailures(options, root);
+      await assertSelfMatchedFragmentIsRejected(options, root);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -116,12 +118,12 @@ describe("default Check direct callbacks", () => {
     }
   });
 
-  it("scans area-owned exact inputs once and applies the strictest overlapping area policy", async function appliesOverlappingAreaPolicyToOneScan() {
+  it("scans the exact-input union once and compares fragments only within common areas", async function appliesCommonAreaPolicyToOneScan() {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-cross-area-duplicate-"));
-    const { options, scanCountPath } = createOverlappingAreaCheck(root);
+    const { options, scanCountPath } = createCommonAreaCheck(root);
     try {
-      await assertInitialOverlappingAreaResult(options, root, scanCountPath);
-      await assertReevaluatedOverlappingPolicies(options, root, scanCountPath);
+      await assertInitialCommonAreaResult(options, root, scanCountPath);
+      await assertReevaluatedCommonAreaPolicies(options, root, scanCountPath);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

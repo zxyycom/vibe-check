@@ -73,8 +73,12 @@ owning Check 依据自己的 file selection 收集 candidates，并形成该工�
 `src/package-checks/project-files/exact-input-measurement.ts` 验证 exact membership。任一 out-of-set path 拒绝整批 conversion，不发布
 partial result。
 
-`duplicateDetection` 一次把完整 approved exact scope 交给 jscpd，使不同或重叠 code areas 可以互相比较。collection 继续用 project-relative slash paths 保存 exact-input identity；jscpd adapter 在项目根外临时 config 中把每个 approved path 按本次 project root 解析为平台原生绝对路径，避免 config 目录改变 scan target。report locations 再归一化为 project-relative identity 后才进入 exact-scope reconciliation。scanner 的 line/token 下界分别使用实际 input areas 的最低值；raw result 恢复每个 location 匹配的全部 areas 后，finding 的
-line/token 必须分别满足所有涉及 area 的最严格值。
+`duplicateDetection` 一次把完整 approved exact scope 交给 jscpd；这个 union 只复用 scanner，不扩大 code area 的比较边界。
+collection 继续用 project-relative slash paths 保存 exact-input identity；jscpd adapter 在项目根外临时 config 中把每个
+approved path 按本次 project root 解析为平台原生绝对路径，避免 config 目录改变 scan target。report locations 再归一化为
+project-relative identity 后才进入 exact-scope reconciliation。scanner 的 line/token 下界分别使用实际 input areas 的最低值；
+raw fragment 恢复每个 location 匹配的 areas 并取交集，只有存在共同 area 时才形成 Finding，其 line/token 分别满足全部
+共同 area 的最严格值。
 
 `fileMetrics` 同样一次把稳定去重的 area-path union 交给 SCC，并保存 collection 形成的 path membership。每个 file
 measurement 分别计算全部匹配 area 的普通或 low-decision-token maximum，以最小的最严格值结算；同一路径最多发布一条

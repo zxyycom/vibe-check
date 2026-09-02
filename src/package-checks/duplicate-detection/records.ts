@@ -151,8 +151,17 @@ export function isValidDuplicateFragment(fragment: DuplicateCodeFragment): boole
     Array.isArray(fragment.locations) &&
     fragment.locations.length >= 2 &&
     fragment.locations.every(isValidLocation) &&
+    locationsAreDistinct(fragment.locations) &&
     Array.isArray(fragment.codeAreas) &&
     fragment.codeAreas.every(nonEmptyString)
+  );
+}
+
+function locationsAreDistinct(locations: readonly DuplicateCodeLocation[]): boolean {
+  return locations.every((location, index) =>
+    locations
+      .slice(index + 1)
+      .every((other) => compareDuplicateFindingLocations(location, other) !== 0)
   );
 }
 

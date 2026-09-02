@@ -9,11 +9,11 @@ Entities:
 - `bun|src/package-checks/function-metrics/constructor.area-findings.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
 - `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to Lizard`
 - `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > does not start Lizard when every selected path is rejected`
-- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans area-owned exact inputs once and applies the strictest overlapping area policy`
+- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans the exact-input union once and compares fragments only within common areas`
 
 Proves:
 
-- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. A matching-area overlap is blocking when any effective area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and do not start Lizard when no accepted path remains. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages followed by at most ten Check-owned safe Finding summaries and an exact omitted-count message, without turning arbitrary Records into a generic warning or Gate channel.
+- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. File/function matching-area overlaps and duplicate common-area overlaps are blocking when any effective owning area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and do not start Lizard when no accepted path remains. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages followed by at most ten Check-owned safe Finding summaries and an exact omitted-count message, without turning arbitrary Records into a generic warning or Gate channel.
 
 ## Case ADD-FILE-METRICS-FINDING-WAIVER-001: File metrics publishes reconciled waiver evidence
 

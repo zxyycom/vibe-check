@@ -48,7 +48,7 @@ export type DuplicateDetectionFindingWaiver = FindingWaiver<DuplicateDetectionFi
 /** 重复代码区域可省略并由构造函数补齐的文件策略。 */
 export type DuplicateDetectionFileOptions = ProjectFileSelectionOptions;
 
-/** 可独立选择文件、阈值和 finding policy 的重复代码区域。 */
+/** 同时拥有文件选择、比较边界、阈值和 finding policy 的重复代码区域。 */
 export interface DuplicateDetectionCodeAreaOptions {
   /** 显式区域必须声明本字段；其中各子字段可省略并使用 package 默认值。 */
   readonly files: DuplicateDetectionFileOptions;

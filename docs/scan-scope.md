@@ -31,7 +31,8 @@ VCS/Product state、dependencies、build/generated、cache、coverage、log、te
 本节拥有完整公共 file-selection 基线；Check-specific defaults 由对应[随包 Check 指南](navigation.md#随包-check-指南)拥有。
 
 三个 metric constructor 都让每个 area 直接拥有 files 和自己的阈值，独立选择的 paths 可以重叠；duplicate area 使用
-line/token policy，file area 使用 file code-line policy，function area 使用 function limits 与 effective finding policy。
+line/token policy，并且只有一个 area 同时选中全部 fragment locations 时才拥有该比较；file area 使用 file code-line
+policy，function area 使用 function limits 与 effective finding policy。
 这些 code-area 模型都只服务 owning Check，不是 arbitrary Check 必须采用的公共领域模型，也不会由 Definition 按
 package-provided Check ID 解释。
 
@@ -79,9 +80,9 @@ Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-
 必须由对应 adapter 的协议判断，不能推断为 input rejection。
 
 - `duplicate-detection` 按来源枚举一次并从每个 `codeAreas[id].files` 形成路径，再把去重并集一次性交给 Check-local
-  jscpd adapter；
-  因此同 area、跨 area 与重叠 area paths 都可比较，结果再按 location 涉及的全部 area line/token policy 过滤。未被
-  任何 area 选择的 path 不属于 exact scope。
+  jscpd adapter。raw fragment 只有在全部 locations 的 area 集合存在非空交集时才形成 Finding；Record 只保留这些共同
+  area IDs，并按其最严格 line/token policy 过滤。互斥 area 不互相比较；需要跨目录比较时，项目声明一个同时选择这些
+  路径的 area。未被任何 area 选择的 path 不属于 exact scope。
 - `file-metrics` 按来源枚举一次并筛出每个 area 的路径，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按
   其全部实际 input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
 - `function-metrics` 的默认 include 与 Lizard 1.23.0 官方 reader extension table 来自同一 Check-local registry，并按大小写

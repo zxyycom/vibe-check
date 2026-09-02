@@ -163,6 +163,57 @@ export function duplicateScannerExecutable(root: string): string {
   return executable;
 }
 
+export async function assertSelfMatchedFragmentIsRejected(
+  options: ReturnType<typeof duplicateDetection>["options"],
+  root: string
+): Promise<void> {
+  const report = JSON.stringify({
+    duplicates: [
+      {
+        firstFile: { name: "src/a.ts", startLoc: { line: 10 }, endLoc: { line: 21 } },
+        secondFile: { name: "src/a.ts", startLoc: { line: 10 }, endLoc: { line: 21 } },
+        lines: 12,
+        tokens: 80
+      }
+    ]
+  });
+  const executable = scanner(
+    root,
+    [
+      "import { mkdirSync, writeFileSync } from 'node:fs';",
+      "import { join } from 'node:path';",
+      "if (process.argv.includes('--version')) process.stdout.write('jscpd 5.0.11\\n');",
+      "else {",
+      "  const output = process.argv[process.argv.indexOf('--output') + 1];",
+      "  mkdirSync(output, { recursive: true });",
+      `  writeFileSync(join(output, 'jscpd-report.json'), ${JSON.stringify(report)});`,
+      "}"
+    ].join("\n")
+  );
+  const result = await execute(
+    executeDuplicateDetection,
+    {
+      ...options,
+      cache: { ...options.cache, enabled: false },
+      scanner: { command: { executable, kind: "custom" } }
+    },
+    root
+  );
+  assert.deepEqual(result.result, {
+    status: "unavailable",
+    reason: { code: "external-result-invalid" },
+    messages: [
+      {
+        code: "external-result-invalid",
+        level: "error",
+        message:
+          "jscpd output could not form a trusted complete result; check command and report compatibility."
+      }
+    ]
+  });
+  assert.equal(result.records.length, 0);
+}
+
 export async function assertSourceAndCacheWriteFailures(
   options: ReturnType<typeof duplicateDetection>["options"],
   root: string

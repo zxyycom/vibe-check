@@ -48,29 +48,41 @@ describe("repository quality Checks", () => {
       "non-blocking"
     );
     assert.equal(duplicateDetection.options.codeAreas["script-tests"]?.minimumTokens, 100);
+    assert.equal(Object.hasOwn(duplicateDetection.options.codeAreas, "docs-specs"), false);
+    assert.equal(
+      Object.values(duplicateDetection.options.codeAreas).some((area) =>
+        selectsPath(area.files, "docs/checks/duplicate-detection.md")
+      ),
+      false
+    );
+    const duplicateSchemasExamples = duplicateDetection.options.codeAreas["schemas-examples"];
+    assert.ok(duplicateSchemasExamples);
+    assert.equal(
+      selectsPath(
+        duplicateSchemasExamples.files,
+        "docs/schemas/historical/v2/vibe-check-run.schema.json"
+      ),
+      false
+    );
+    assert.equal(
+      selectsPath(duplicateSchemasExamples.files, "docs/schemas/vibe-check-run.schema.json"),
+      true
+    );
     const schemasExamples = fileMetrics.options.codeAreas["schemas-examples"];
     assert.ok(schemasExamples);
     assert.deepEqual(schemasExamples.files.include, ["docs/schemas/**", "docs/examples/**"]);
     assert.equal(
       selectsPath(schemasExamples.files, "docs/schemas/historical/v2/vibe-check-run.schema.json"),
-      true
+      false
     );
     assert.equal(
       selectsPath(
         schemasExamples.files,
         "docs/schemas/historical/v2/vibe-check-record.schema.json"
       ),
-      true
+      false
     );
-    assert.deepEqual(fileMetrics.options.findingWaivers, [
-      {
-        identity: {
-          metric: "code-lines",
-          path: "docs/schemas/historical/v2/vibe-check-run.schema.json"
-        },
-        reason: "Historical v2 schema bytes and URN must remain unchanged."
-      }
-    ]);
+    assert.deepEqual(fileMetrics.options.findingWaivers, []);
     assert.equal(
       selectsPath(schemasExamples.files, "docs/schemas/vibe-check-run.schema.json"),
       true

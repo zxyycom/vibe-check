@@ -55,10 +55,10 @@ Owner: `docs/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > detects project-relative duplicates through the public Check and fails an explicit all aggregate`
-- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans area-owned exact inputs once and applies the strictest overlapping area policy`
+- `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans the exact-input union once and compares fragments only within common areas`
   Proves:
 
-- One jscpd scan receives the deduplicated approved exact-path union with the lowest effective line/token scanner thresholds and automatic worker policy. Project-relative paths remain the stable input identity but are resolved against the invocation project root for jscpd's project-external config; a real duplicate produces a trusted Record and fails an explicit blocking `all` aggregate rather than becoming an empty report. Each accepted raw fragment is annotated with every current matching area, retained only when it satisfies the strictest line and token thresholds, and marked blocking when any involved area is blocking. An unchanged raw cache hit is still re-evaluated under current thresholds and finding policies.
+- One jscpd scan receives the deduplicated approved exact-path union with the lowest effective line/token scanner thresholds and automatic worker policy. Project-relative paths remain the stable input identity but are resolved against the invocation project root for jscpd's project-external config; a real duplicate produces a trusted Record and fails an explicit blocking `all` aggregate rather than becoming an empty report. A raw fragment forms evidence only when every location shares at least one current area; its Record contains exactly those common areas and uses their strictest line/token and blocking policies. Mutually exclusive areas therefore produce no cross-boundary Finding, while an explicit shared area preserves comparison. An unchanged raw cache hit is re-evaluated under current area policy, and a scanner self-match with duplicate identical ranges is rejected as an invalid external result.
 
 ## Case AUX-JSCPD-ADAPTER-OUTCOMES-001: jscpd adapter preserves its private result boundary
 
