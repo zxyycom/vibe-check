@@ -56,10 +56,11 @@
 
 ## 当前协调基线
 
-本节于 2026-09-02 按本地主线提交 `0ec422cb1899ad6840e5b4a24a1cd70938c57e7f` 审阅。该基线包含：
+本节于 2026-09-02 按本工作树 `HEAD` 提交 `c239eab838594b46d2b1562fd35da936bf4f95f9` 审阅。该基线包含：
 
 - `714fcd48d76416a27fe813466ef1550a25ddedf7` 中已集成的 Scheduler 依赖、策略、测量与性能诊断基础；
 - `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
+- `0f317f2d492cade0bab187ba2c4ee9cbe28bebd9` 的 Lizard source-aligned analyzer hard cut，以及其后已进入同一基线的 runtime replacement、upstream advisory、package 与法律闭包；
 - 后续 flag-control 接入修复、内置 Finding waiver、重复检测比较域和仓库质量扫描范围调整。
 
 近期 flag-control 修复会影响 pre-admission Task 和 learned-duration 样本边界；质量扫描范围调整会影响旧 Gate
@@ -107,6 +108,17 @@ jscpd 与 SCC 迁移已经完成。`replace-lizard-with-typescript-function-anal
 以 explicit-only repository advisory 跟随 upstream，并已完成 source/provenance、resource、candidate/installed 与 required/full
 Gate 验收并归档；任何上游版本采用、性能预算或新增 extension body 都是独立 Change，
 不得把这次实现重新视为待授权的 backend 工作。
+
+当前优先的整理项是
+[`isolate-lizard-typescript-port-boundary`](../changes/isolate-lizard-typescript-port-boundary/proposal.md)。它以已归档 hard cut
+提交 `0f317f2d492cade0bab187ba2c4ee9cbe28bebd9` 为硬前置（该提交已是当前协调基线
+`c239eab838594b46d2b1562fd35da936bf4f95f9` 的祖先）。
+
+- **调度范围：** 只收口既有 source-aligned port、port façade、Product adapter、Product workflow 与 current evidence；不采用新 Lizard 版本，不改变支持语言或公开 API。
+- **实施门禁：** 仅可执行 Readiness 0.2–0.5。current evidence/legal owner relation 与最小 translated-only quality exception set 都闭合并写回 Plan 后，才可开始 Implementation。
+- **合入关系：** 可与不共享 owner 的工作并行；若同时修改 package、Gate、Case 或 stable docs owner，须分次串行合入并重新验证。
+
+边界定义、验收和任务证据由该 Change artifacts 承接；本节只保存调度摘要。
 
 [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
 consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。
