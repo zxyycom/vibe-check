@@ -22,7 +22,7 @@ export function duplicateDetection(
   const resolvedOptions = resolveDuplicateDetectionOptions(options);
   if (resolvedOptions === undefined) {
     throw new TypeError(
-      "duplicateDetection options are invalid; use the documented closed constructor policy"
+      "duplicateDetection options are invalid; use the documented closed constructor policy including exact finding waivers"
     );
   }
   return defineCheck({

@@ -5,6 +5,10 @@ import {
 } from "../../finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
+import {
+  reportFindingWaiverAudits,
+  reportReconciledCodeQualityFindingRecords
+} from "../code-quality-findings/finding-waiver-evidence.ts";
 import { appendCheckMessages } from "../../check/finding-presentation.ts";
 import { fileMetricFindingMessages } from "./finding-messages.ts";
 import { measureFileMetrics, type FileMeasurementResult } from "./measurement.ts";
@@ -63,17 +67,7 @@ export async function executeFileMetrics(
   });
   if (candidates === undefined) return unavailable("external-result-invalid");
   const reconciliation = reconcileFileMetricWaivers(candidates, context.options.findingWaivers);
-  for (const finding of reconciliation.findings) {
-    const data =
-      finding.disposition === "waived"
-        ? Object.freeze({
-            ...finding.finding.data,
-            blocking: false,
-            waiver: Object.freeze({ reason: finding.waiver.reason })
-          })
-        : finding.finding.data;
-    context.records.report({ id: finding.finding.id }, data);
-  }
+  reportReconciledCodeQualityFindingRecords(context, reconciliation);
   reportWaiverAuditRecords(context, reconciliation);
   const settlement = settleFindings(
     reconciliation.findings.map(({ disposition, finding }) => ({
@@ -116,10 +110,7 @@ function reportWaiverAuditRecords(
   context: CheckExecutionContext<ResolvedFileMetricsOptions>,
   reconciliation: FindingWaiverReconciliation<FileRecordCandidate>
 ): void {
-  for (const audit of reconciliation.waiverAudits) {
-    const record = fileMetricsWaiverAuditRecord(audit);
-    if (record !== undefined) context.records.report({ id: record.id }, record.data);
-  }
+  reportFindingWaiverAudits(context, reconciliation, fileMetricsWaiverAuditRecord);
 }
 
 function appendWaiverMessages(

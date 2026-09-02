@@ -2,10 +2,8 @@ import type { FileMetric } from "./measurement-model.ts";
 import type { FileMetricsFindingIdentity, ResolvedFileMetricsCodeAreaOptions } from "./options.ts";
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
 import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
-import type {
-  FindingWaiverAudit,
-  MaterializedFindingWaiver
-} from "../../finding-waivers/reconciliation.ts";
+import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { FindingWaiverRecordAudit } from "../code-quality-findings/finding-waiver-evidence.ts";
 import type {
   CanonicalJsonObject,
   CanonicalJsonValue
@@ -58,11 +56,8 @@ export interface FileRecordCandidate {
 
 /** 仅为未使用和过宽 waiver 构造补充 audit Record；正常 applied waiver 由 finding Record 自己保留。 */
 export function fileMetricsWaiverAuditRecord(
-  audit: FindingWaiverAudit
-):
-  | Readonly<{ readonly data: FileMetricsFindingWaiverAuditRecordData; readonly id: string }>
-  | undefined {
-  if (audit.status === "applied") return undefined;
+  audit: FindingWaiverRecordAudit
+): Readonly<{ readonly data: FileMetricsFindingWaiverAuditRecordData; readonly id: string }> {
   const identity = fileMetricsWaiverIdentity(audit.waiver);
   return Object.freeze({
     data: Object.freeze({

@@ -1,6 +1,11 @@
 import type { CheckMessage } from "../../check/check.ts";
 import { presentCheckFindings } from "../../check/finding-presentation.ts";
-import type { DuplicateDetectionRecordData, DuplicateRecordCandidate } from "./records.ts";
+import type {
+  FindingWaiverAudit,
+  FindingWaiverReconciliation
+} from "../../finding-waivers/reconciliation.ts";
+import type { DuplicateDetectionFindingLocation } from "./options.ts";
+import { duplicateDetectionWaiverIdentity, type DuplicateRecordCandidate } from "./records.ts";
 
 const PRESENTED_FINDING_LIMIT = 10;
 
@@ -15,7 +20,7 @@ export function duplicateFindingMessages(
       Object.freeze({
         code: "finding-detail",
         level: data.blocking ? ("error" as const) : ("warning" as const),
-        message: `Duplicate fragment contains ${data.tokenCount} tokens across ${data.lineCount} lines at ${duplicateLocations(data.locations)}.`
+        message: `Duplicate fragment contains ${data.tokenCount} tokens across ${data.lineCount} lines at ${duplicateLocationSummary(data.locations)}.`
       }),
     omittedMessage: ({ omittedCount, omittedFindings }) =>
       Object.freeze({
@@ -28,7 +33,39 @@ export function duplicateFindingMessages(
   });
 }
 
-function duplicateLocations(locations: DuplicateDetectionRecordData["locations"]): string {
+/** 将每项 duplicate-detection waiver audit 投影为可行动的 terminal message。 */
+export function duplicateWaiverMessages(
+  reconciliation: FindingWaiverReconciliation<DuplicateRecordCandidate>
+): readonly CheckMessage[] {
+  return Object.freeze(reconciliation.waiverAudits.map(duplicateWaiverMessage));
+}
+
+function duplicateWaiverMessage(audit: FindingWaiverAudit): CheckMessage {
+  const identity = duplicateDetectionWaiverIdentity(audit.waiver);
+  const subject = duplicateLocationSummary(identity.locations);
+  switch (audit.status) {
+    case "applied":
+      return Object.freeze({
+        code: "finding-waived",
+        level: "info",
+        message: `Duplicate finding at ${subject} was waived: ${audit.waiver.reason}`
+      });
+    case "unused":
+      return Object.freeze({
+        code: "unused-finding-waiver",
+        level: "warning",
+        message: `Configured duplicate-detection finding waiver at ${subject} matched no finding; remove it or update its identity. Reason: ${audit.waiver.reason}`
+      });
+    case "overmatched":
+      return Object.freeze({
+        code: "overmatched-finding-waiver",
+        level: "warning",
+        message: `Configured duplicate-detection finding waiver at ${subject} matched ${audit.matchCount} findings and was not applied; narrow its identity. Reason: ${audit.waiver.reason}`
+      });
+  }
+}
+
+function duplicateLocationSummary(locations: readonly DuplicateDetectionFindingLocation[]): string {
   const presented = locations
     .slice(0, 2)
     .map(({ endLine, path, startLine }) => `${path}:${startLine}-${endLine}`)

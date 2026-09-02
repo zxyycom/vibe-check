@@ -3,6 +3,7 @@ import type {
   ProjectFileSelectionOptions
 } from "../project-files/configuration.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
+import type { FindingWaiver } from "../../finding-waivers/reconciliation.ts";
 
 export type DuplicateDetectionScannerCommand =
   /** 使用随 `@zxyycom/vibe-check` 安装的 jscpd。 */
@@ -28,6 +29,22 @@ export interface DuplicateDetectionScannerOptions {
   readonly command?: DuplicateDetectionScannerCommand;
 }
 
+/** duplicate-detection identity 的 locations 数组中的一段 project-relative range。 */
+export interface DuplicateDetectionFindingLocation {
+  readonly endLine: number;
+  readonly path: string;
+  readonly startLine: number;
+}
+
+/** duplicate-detection 用于精确识别一条可豁免 finding 的稳定字段。 */
+export interface DuplicateDetectionFindingIdentity {
+  readonly locations: readonly DuplicateDetectionFindingLocation[];
+  readonly metric: "duplicate-tokens";
+}
+
+/** 一项 duplicate-detection finding 的声明式豁免。 */
+export type DuplicateDetectionFindingWaiver = FindingWaiver<DuplicateDetectionFindingIdentity>;
+
 /** 重复代码区域可省略并由构造函数补齐的文件策略。 */
 export type DuplicateDetectionFileOptions = ProjectFileSelectionOptions;
 
@@ -50,6 +67,8 @@ export interface DuplicateDetectionOptions {
   readonly cache?: DuplicateDetectionCacheOptions;
   /** 省略时为 `non-blocking`；区域可局部覆盖。 */
   readonly findingPolicy?: FindingPolicy;
+  /** 省略时没有豁免；identity 使用 Finding 发布的完整排序 location ranges。 */
+  readonly findingWaivers?: readonly DuplicateDetectionFindingWaiver[];
   readonly scanner?: DuplicateDetectionScannerOptions;
 }
 
@@ -57,6 +76,7 @@ export interface DuplicateDetectionOptions {
 export interface ResolvedDuplicateDetectionOptions {
   readonly cache: Readonly<{ readonly directory: string; readonly enabled: boolean }>;
   readonly codeAreas: Readonly<Record<string, ResolvedDuplicateDetectionCodeAreaOptions>>;
+  readonly findingWaivers: readonly DuplicateDetectionFindingWaiver[];
   readonly scanner: ResolvedDuplicateDetectionScannerOptions;
 }
 

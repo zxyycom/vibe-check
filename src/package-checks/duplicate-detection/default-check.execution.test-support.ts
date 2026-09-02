@@ -74,6 +74,21 @@ export async function assertInvalidOptionsAreRejected(
     { ...options, codeAreas: { source: { ...sourceArea, minimumTokens: 1.5 } } },
     { ...options, codeAreas: { source: { ...sourceArea, minimumLines: 0 } } },
     { ...options, codeAreas: { source: { ...sourceArea, findingPolicy: "warning" } } },
+    {
+      ...options,
+      findingWaivers: [
+        {
+          identity: {
+            locations: [
+              { endLine: 21, path: "src/a.ts", startLine: 10 },
+              { endLine: 31, path: "src/b.ts", startLine: 20 }
+            ],
+            metric: "duplicate-tokens"
+          },
+          reason: ""
+        }
+      ]
+    },
     { ...options, codeAreas: { source: { minimumLines: 3, minimumTokens: 50 } } },
     { ...options, codeAreas: { "": sourceArea } },
     { ...options, files: FILES },

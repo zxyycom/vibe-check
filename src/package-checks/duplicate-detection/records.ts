@@ -1,12 +1,23 @@
 import { createHash } from "node:crypto";
 
 import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
+import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { FindingWaiverRecordAudit } from "../code-quality-findings/finding-waiver-evidence.ts";
 import { isBlockingFinding, type FindingPolicy } from "../code-quality-findings/policy.ts";
+import {
+  compareDuplicateFindingLocations,
+  resolveDuplicateDetectionFindingIdentity
+} from "./finding-waiver-identity.ts";
 import type { DuplicateCodeFragment, DuplicateCodeLocation } from "./measurement-model.ts";
-import type { ResolvedDuplicateDetectionOptions } from "./options.ts";
+import type {
+  DuplicateDetectionFindingIdentity,
+  ResolvedDuplicateDetectionOptions
+} from "./options.ts";
+
+const FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX = "/finding-waiver-audit/";
 
 /** 一条可信重复片段 supplemental Record 的 data。 */
-export type DuplicateDetectionRecordData = Readonly<{
+export type DuplicateDetectionFindingRecordData = Readonly<{
   readonly blocking: boolean;
   readonly codeAreas: readonly string[];
   readonly lineCount: number;
@@ -17,11 +28,65 @@ export type DuplicateDetectionRecordData = Readonly<{
   }>[];
   readonly metric: "duplicate-tokens";
   readonly tokenCount: number;
+  /** 精确匹配 waiver 时保留理由，并令该 finding 不再参与 actionable settlement。 */
+  readonly waiver?: Readonly<{ readonly reason: string }>;
 }>;
 
+/** 未使用或过宽 duplicate-detection waiver 的 supplemental audit Record data。 */
+export type DuplicateDetectionFindingWaiverAuditRecordData = Readonly<{
+  readonly identity: DuplicateDetectionFindingIdentity;
+  readonly kind: "finding-waiver-audit";
+  readonly matchCount: number;
+  readonly reason: string;
+  readonly status: "overmatched" | "unused";
+}>;
+
+/** duplicateDetection 发布的 normal finding 或 waiver-audit Record data。 */
+export type DuplicateDetectionRecordData =
+  | DuplicateDetectionFindingRecordData
+  | DuplicateDetectionFindingWaiverAuditRecordData;
+
 export interface DuplicateRecordCandidate {
-  readonly data: DuplicateDetectionRecordData;
+  readonly data: DuplicateDetectionFindingRecordData;
   readonly id: string;
+}
+
+export function duplicateDetectionFindingIdentity(
+  candidate: DuplicateRecordCandidate
+): DuplicateDetectionFindingIdentity {
+  return Object.freeze({
+    locations: candidate.data.locations,
+    metric: candidate.data.metric
+  });
+}
+
+export function duplicateDetectionWaiverIdentity(
+  waiver: MaterializedFindingWaiver
+): DuplicateDetectionFindingIdentity {
+  const identity = resolveDuplicateDetectionFindingIdentity(waiver.identity);
+  if (identity === undefined) {
+    throw new TypeError("duplicateDetection waiver identity must retain sorted valid locations");
+  }
+  return identity;
+}
+
+/** 为一项未使用或过宽 waiver 构造 Check-owned audit Record。 */
+export function duplicateDetectionWaiverAuditRecord(audit: FindingWaiverRecordAudit): Readonly<{
+  readonly data: DuplicateDetectionFindingWaiverAuditRecordData;
+  readonly id: string;
+}> {
+  const identity = duplicateDetectionWaiverIdentity(audit.waiver);
+  const digest = createHash("sha256").update(canonicalJsonBytes(identity)).digest("hex");
+  return Object.freeze({
+    data: Object.freeze({
+      identity,
+      kind: "finding-waiver-audit",
+      matchCount: audit.matchCount,
+      reason: audit.waiver.reason,
+      status: audit.status
+    }),
+    id: `${FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX}sha256:${digest}`
+  });
 }
 
 /** Builds Check-owned supplemental facts without adding a Product record catalog. */
@@ -149,15 +214,7 @@ function duplicateFingerprint(fragment: DuplicateCodeFragment): string {
 }
 
 function sortedLocations(locations: readonly DuplicateCodeLocation[]): DuplicateCodeLocation[] {
-  return [...locations].sort((left, right) =>
-    compareText(locationSortKey(left), locationSortKey(right))
-  );
-}
-
-function locationSortKey(location: DuplicateCodeLocation): string {
-  const startLine = String(location.startLine).padStart(12, "0");
-  const endLine = String(location.endLine).padStart(12, "0");
-  return `${location.path}\u0000${startLine}\u0000${endLine}`;
+  return [...locations].sort(compareDuplicateFindingLocations);
 }
 
 function uniqueSorted(values: readonly string[]): string[] {

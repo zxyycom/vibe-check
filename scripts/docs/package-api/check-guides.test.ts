@@ -44,7 +44,7 @@ describe("package Check guides", () => {
         document.packagePath === "README.md"
           ? {
               ...document,
-              content: document.content.replace(
+              content: document.content.replaceAll(
                 "./docs/checks/duplicate-detection.md",
                 "./docs/checks/missing.md"
               )

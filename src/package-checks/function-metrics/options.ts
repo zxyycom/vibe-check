@@ -3,6 +3,7 @@ import type {
   ProjectFileSelectionOptions
 } from "../project-files/configuration.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
+import type { FindingWaiver } from "../../finding-waivers/reconciliation.ts";
 
 /** `functionMetrics` 构造函数可省略的文件选择策略。 */
 export type FunctionMetricsFileOptions = ProjectFileSelectionOptions;
@@ -45,12 +46,33 @@ export interface FunctionMetricsScannerOptions {
   readonly executable?: string;
 }
 
+/** function-metrics 可形成 Finding 的封闭 metric 名称。 */
+export type FunctionMetricsFindingMetric =
+  | "cyclomatic-complexity"
+  | "function-code-density"
+  | "parameter-count";
+
+/** function-metrics 用于精确识别一条可豁免 metric finding 的稳定字段。 */
+export interface FunctionMetricsFindingIdentity {
+  readonly functionName: string;
+  readonly metric: FunctionMetricsFindingMetric;
+  /** 已 normalized 的 project-root-relative slash path。 */
+  readonly path: string;
+  /** 该次 finding 中函数起始位置的一基行号；位置变化会让旧 waiver 进入 unused audit。 */
+  readonly startLine: number;
+}
+
+/** 一项 function-metrics metric finding 的声明式豁免。 */
+export type FunctionMetricsFindingWaiver = FindingWaiver<FunctionMetricsFindingIdentity>;
+
 /** `functionMetrics(options?)` 接受并补齐默认值的公开策略。 */
 export interface FunctionMetricsOptions {
   /** 省略时建立默认 `project` 区域；显式映射必须非空，且每个区域必须声明 `files`。 */
   readonly codeAreas?: Readonly<Record<string, FunctionMetricsCodeAreaOptions>>;
   /** 省略时为 `non-blocking`；区域可局部覆盖。 */
   readonly findingPolicy?: FindingPolicy;
+  /** 省略时没有豁免；只匹配 normal metric finding，不匹配 input rejection。 */
+  readonly findingWaivers?: readonly FunctionMetricsFindingWaiver[];
   /** 省略时使用 PATH 中的 `lizard`。 */
   readonly scanner?: FunctionMetricsScannerOptions;
 }
@@ -58,6 +80,7 @@ export interface FunctionMetricsOptions {
 /** 构造函数生成并由 Check preflight/execution 消费的完整 options。 */
 export interface ResolvedFunctionMetricsOptions {
   readonly codeAreas: Readonly<Record<string, ResolvedFunctionMetricsCodeAreaOptions>>;
+  readonly findingWaivers: readonly FunctionMetricsFindingWaiver[];
   readonly scanner: ResolvedFunctionMetricsScannerOptions;
 }
 

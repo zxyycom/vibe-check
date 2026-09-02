@@ -7,6 +7,7 @@
 本页是 package consumer 配置和读取 `duplicateDetection` 的主指南。`duplicateDetection(options?)` 使用带默认值的
 policy 构造一个普通 `duplicate-detection` Check。该 Check 用 jscpd 比较自己批准的项目文件，把满足行数与 token
 policy 的重复片段报告为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
+可选 waiver 在完整 duplicate Finding 集合形成后按排序 location ranges 对账，不会缩小 jscpd 输入或 cache evidence。
 
 默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5。发布 manifest 的当前兼容范围是
 `^5.1.1`（下界为 5.1.1、上界不含 v6）；repository lockfile 则固定本 Change 验证过的 5.1.1。项目无需选择版本、提供 executable 或复制默认 options：
@@ -19,7 +20,7 @@ const check = duplicateDetection();
 
 ## 参数与默认配置
 
-顶层 `cache`、`codeAreas`、`findingPolicy` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供
+顶层 `cache`、`codeAreas`、`findingPolicy`、`findingWaivers` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供
 `files` branch。无参调用物化成以下完整 Check options，调用方无需复制：
 
 ```ts
@@ -33,6 +34,7 @@ const check = duplicateDetection();
       minimumTokens: 100
     }
   },
+  findingWaivers: [],
   scanner: {
     command: { kind: "package" }
   }
@@ -49,6 +51,11 @@ const check = duplicateDetection();
 - `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。两者可分别省略并使用公开的
   `defaultProjectFileSelection`；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
+- `findingWaivers` 省略时为 `[]`。每项必须是 closed `{ identity, reason }`，reason 非空且 identity 唯一。identity 恰为
+  `{ metric: "duplicate-tokens", locations }`；`locations` 至少两项，必须逐项复制 Finding Record 中的完整
+  `{ path, startLine, endLine }`。数组先按 path 文本升序，再按 `startLine`、`endLine` 数值升序严格排序。path 是 normalized
+  project-root-relative slash path，line 是正安全整数且
+  `endLine >= startLine`；缺失、重复或乱序 location 都会被拒绝。
 - `minimumLines` 与 `minimumTokens` 可省略并分别使用 `4` 和 `100`，显式值必须是正安全整数。
 - `cache.directory` 省略时为 `.cache/vibe-check`，相对路径从 project root 解析；`cache.enabled` 省略时为 `true`。
 - `scanner.command` 省略时为 `{ kind: "package" }`。
@@ -84,6 +91,31 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 
 每个 `codeAreas[id]` 都是该区域文件范围、有效 finding policy 与行数/token 下限的单一事实源。上例的
 `scripts.exclude` 显式保留 common defaults 并追加测试文件；若只写 `["scripts/**/*.test.ts"]`，它会完整替换默认排除数组。
+
+### 精确豁免一个重复片段
+
+Waiver identity 使用 Finding 发布的完整排序 ranges；不要只写 path pair，也不要把 token/line counts 写入 identity：
+
+```ts
+const duplicates = duplicateDetection({
+  findingPolicy: "blocking",
+  findingWaivers: [
+    {
+      identity: {
+        metric: "duplicate-tokens",
+        locations: [
+          { path: "src/generated/a.ts", startLine: 10, endLine: 30 },
+          { path: "src/generated/b.ts", startLine: 15, endLine: 35 }
+        ]
+      },
+      reason: "两个生成目标在下一版模板迁移前必须保持镜像。"
+    }
+  ]
+});
+```
+
+匹配零条时是 `unused`；一条时是 `applied`；多条时是 `overmatched`，且不豁免任何片段。range 变化会让旧 waiver
+stale 并进入 audit，而不会误匹配同一文件组合中的另一个 fragment。
 
 ## 定制 jscpd executable
 
@@ -125,6 +157,8 @@ Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文�
 2. 每个 raw fragment 的 location path 必须属于本次完整 exact scope；任一路径越界都会拒绝整批 measurement。
 3. Check 按 location path 恢复它匹配的全部 areas。fragment 的 line count 和 token count 必须分别达到所有涉及 area
    对应阈值中的最大值，才形成 finding。
+4. 完整可信 Finding candidates 形成后才执行 waiver reconciliation；source/scanner/cache failure 不伪造 audit。Applied
+   Finding 保留 Record，unused/overmatched authoring 形成独立 audit Record，然后 Check 按 actionable disposition 结算。
 
 例如 `source` 使用 line `3` / token `20`，`scripts` 使用 line `10` / token `100` 时，scanner 使用 line `3` /
 token `20` 取得候选；跨这两个 area 的 8-line / 120-token fragment 和 12-line / 80-token fragment 都会被过滤，只有
@@ -139,7 +173,8 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
 
 每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。若 fragment 涉及多个 areas，只要任一 effective
 `findingPolicy` 为 `blocking`，该 Record 的 `blocking` 就为 `true`。正常 final data 恰为
-`{ findingCount, blockingFindingCount }`；前者等于 Records 数量，后者等于其中 `blocking: true` 的数量。
+`{ findingCount, blockingFindingCount }`；前者是完整 duplicate Finding 数量，后者是仍 actionable 且 blocking 的数量。
+Waiver audit Records 不进入这两个计数。
 `blockingFindingCount > 0` 时 outcome 为 `failed`，否则为 `passed`，所以 passed outcome 可以携带 non-blocking Records。
 
 每个 Record data 使用以下字段：
@@ -151,25 +186,44 @@ cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命�
   tokenCount: number,
   lineCount: number,
   codeAreas: string[],
-  locations: Array<{ path: string; startLine: number; endLine: number }>
+  locations: Array<{ path: string; startLine: number; endLine: number }>,
+  waiver?: { reason: string }
 }
 ```
 
+Applied Finding 增加 `waiver.reason` 并把 Record `blocking` 置为 `false`，其它事实不变。Unused/overmatched authoring 使用：
+
+```ts
+{
+  kind: "finding-waiver-audit",
+  identity: { metric: "duplicate-tokens", locations },
+  matchCount: number,
+  reason: string,
+  status: "unused" | "overmatched"
+}
+```
+
+每条 unused/overmatched audit 的 Record ID 是
+`/finding-waiver-audit/sha256:<canonical-identity-digest>`；该保留前缀与 normal duplicate Record ID domain 不相交。
+
 `failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 后，会按
-稳定 Record 顺序直接展示最多十条安全摘要；每条只包含 token/line counts 和最多两个项目相对 location，更多 location
+仍 actionable 的稳定 Finding 顺序直接展示最多十条安全摘要；每条只包含 token/line counts 和最多两个项目相对 location，更多 location
 只显示剩余数量。Finding 超过十条时再用 `findings-omitted` 说明未显示数量，完整集合仍从本 Check 的 Records 读取。由本
 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding 的 `passed` 与 `not-applicable` 不合成
-人为提示。
+人为提示。Applied waiver 另附 `finding-waived` info；unused/overmatched authoring 附 warning，并从 audit Record 保留完整
+identity 与 reason。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseDuplicateDetectionData(value)` 验证 final data。两者返回
 `DuplicateDetectionFinalData`，Record 与不可用原因可分别用 `DuplicateDetectionRecordData` 和
 `DuplicateDetectionUnavailableReasonCode` 标注；authoring / resolved options types 是 `DuplicateDetectionOptions` 与
-`ResolvedDuplicateDetectionOptions`。parser 只适用于 `passed` / `failed` data，shape 或计数不变量不匹配时抛出
+`ResolvedDuplicateDetectionOptions`，waiver authoring 可用 `DuplicateDetectionFindingLocation`、
+`DuplicateDetectionFindingIdentity` 与 `DuplicateDetectionFindingWaiver` 标注。parser 只适用于 `passed` / `failed` data，shape 或计数不变量不匹配时抛出
 `TypeError`。
 
 ## `not-applicable` 与 `unavailable`
 
-- 少于两个合格 exact inputs：`not-applicable / no-eligible-input`。
+- 少于两个合格 exact inputs：完整 Finding 集合确定为空，结果为 `not-applicable / no-eligible-input`，configured waiver
+  全部形成 `unused` audit。
 - constructor 后形成的 resolved options 不符合完整 shape：`unavailable / invalid-options`。
 - 所配置的 filesystem 或 git-worktree 来源无法形成候选快照：`unavailable / source-unavailable`。
 - package/custom command 缺失、version probe 失败或无法形成可识别版本 provenance：
@@ -177,6 +231,8 @@ Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message
 - 已启动 jscpd 但进程执行失败：`unavailable / external-execution-failed`。
 - cache 写入失败：`unavailable / cache-write-failed`。
 - report、fragment 或 exact-input membership 无法形成可信完整结果：`unavailable / external-result-invalid`。
+
+上述 `unavailable` 都发生在完整 Finding 集合形成前，因此不发布 applied/unused/overmatched waiver audit。
 
 通用 preflight 机制见 [options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
 

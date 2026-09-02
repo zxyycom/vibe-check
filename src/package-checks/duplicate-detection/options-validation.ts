@@ -5,13 +5,21 @@ import {
 import { isNonEmptyString, isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
+import { validResolvedFindingWaivers } from "../code-quality-findings/finding-waiver-authoring.ts";
+import { resolveDuplicateDetectionFindingIdentity } from "./finding-waiver-identity.ts";
 
 export function validResolvedDuplicateDetectionOptions(value: object): boolean {
-  const options = snapshotExactClosedRecord(value, ["cache", "codeAreas", "scanner"]);
+  const options = snapshotExactClosedRecord(value, [
+    "cache",
+    "codeAreas",
+    "findingWaivers",
+    "scanner"
+  ]);
   return (
     options !== undefined &&
     validDuplicateCache(options.cache) &&
     validDuplicateCodeAreas(options.codeAreas) &&
+    validResolvedFindingWaivers(options.findingWaivers, resolveDuplicateDetectionFindingIdentity) &&
     validDuplicateDetectionScanner(options.scanner)
   );
 }

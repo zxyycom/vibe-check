@@ -13,7 +13,9 @@ import {
   resolveFindingPolicy,
   type FindingPolicy
 } from "../code-quality-findings/policy.ts";
+import { resolveFindingWaiverAuthoring } from "../code-quality-findings/finding-waiver-authoring.ts";
 import { DEFAULT_JSCPD_COMMAND } from "./jscpd/command-resolution.ts";
+import { resolveDuplicateDetectionFindingIdentity } from "./finding-waiver-identity.ts";
 import type {
   DuplicateDetectionScannerCommand,
   ResolvedDuplicateDetectionCodeAreaOptions,
@@ -31,7 +33,7 @@ export function resolveDuplicateDetectionOptions(
   value: unknown
 ): ResolvedDuplicateDetectionOptions | undefined {
   const input = snapshotClosedPolicyRecord(value, {
-    optional: ["cache", "codeAreas", "findingPolicy", "scanner"]
+    optional: ["cache", "codeAreas", "findingPolicy", "findingWaivers", "scanner"]
   });
   if (input === undefined) return undefined;
 
@@ -39,10 +41,20 @@ export function resolveDuplicateDetectionOptions(
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
   if (findingPolicy === undefined) return undefined;
   const codeAreas = resolveCodeAreas(input.codeAreas, findingPolicy);
+  const findingWaivers = resolveFindingWaiverAuthoring(
+    input.findingWaivers,
+    resolveDuplicateDetectionFindingIdentity
+  );
   const scanner = resolveScanner(input.scanner);
-  if (cache === undefined || codeAreas === undefined || scanner === undefined) return undefined;
+  if (
+    cache === undefined ||
+    codeAreas === undefined ||
+    findingWaivers === undefined ||
+    scanner === undefined
+  )
+    return undefined;
 
-  const options = Object.freeze({ cache, codeAreas, scanner });
+  const options = Object.freeze({ cache, codeAreas, findingWaivers, scanner });
   return validResolvedDuplicateDetectionOptions(options) ? options : undefined;
 }
 

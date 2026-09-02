@@ -19,6 +19,12 @@ package surface 包含 `defineAdmissionPolicy`、`defineConfig`、`defineCheck`�
 value 与 invocation operation 各自保持其显式责任。仓库 private consumer 的 Definition 由
 [`scripts/project/gate/definition.ts`](../scripts/project/gate/definition.ts) 组装；下例只说明 Project Definition 的 authoring 形状，不是该 Gate Definition 的逐行副本。
 
+Finding waiver 分为两层 public authoring：`reconcileFindingWaivers(...)` 是任意 producer 可在完整 Finding 集合上调用的
+独立 helper；`fileMetrics`、`functionMetrics` 与 `duplicateDetection` 另外在自己的 options 中接受
+`findingWaivers`。三项 identity grammar、Records、messages 和 settlement 分别由对应 Check 指南拥有；其它 constructor
+没有因为 generic helper 存在而自动接受同名字段。完整 helper grammar 见
+[Finding waiver reconciliation](api-mechanics.md#finding-waiver-reconciliation)。
+
 ```ts
 import {
   defineCheck,

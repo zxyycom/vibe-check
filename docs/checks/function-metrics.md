@@ -6,7 +6,7 @@
 
 `functionMetrics(options?)` 构造一个普通 Check。它使用 Lizard 测量函数 NLOC、cyclomatic complexity 与参数数量，
 把超过 area limits 的结果保存为 supplemental Records，并让全局默认与 area override 共同决定 finding 是否阻断
-Check。阻断只改变最终 outcome；一次 invocation 仍扫描完整 exact scope 并保留后续 findings。
+Check。可选 waiver 在完整 metric Finding 集合形成后精确对账；阻断或 waiver 都不会缩小 scanner exact scope。
 
 ```ts
 import { functionMetrics } from "@zxyycom/vibe-check";
@@ -19,7 +19,7 @@ const check = functionMetrics();
 
 ## 参数与默认配置
 
-顶层 `findingPolicy`、`codeAreas` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供 `files` branch。
+顶层 `findingPolicy`、`findingWaivers`、`codeAreas` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供 `files` branch。
 `functionMetrics()` 按下表物化完整、冻结的 resolved options，调用方无需复制默认数组：
 
 | Resolved field | 无参默认值 |
@@ -31,6 +31,7 @@ const check = functionMetrics();
 | `codeAreas.project.limits.codeLines` | `{ maximum: 60, lowComplexityAllowance: { maximum: 180, cyclomaticComplexityBelow: 6 } }` |
 | `codeAreas.project.limits.cyclomaticComplexity` | `{ maximum: 12 }` |
 | `codeAreas.project.limits.parameters` | `{ maximum: 6 }` |
+| `findingWaivers` | `[]` |
 | `scanner` | `{ executable: "lizard" }` |
 
 需要核对当前完整 glob array 时，读取 `functionMetrics().options.codeAreas.project.files.include`；它与 runtime eligibility
@@ -40,6 +41,16 @@ predicate 来自同一 extension registry。source/exclude 沿用公开深冻结
 包含等于值的上限：measurement 必须严格大于 limit 才产生 finding。complexity 小于
 `cyclomaticComplexityBelow` 时，function NLOC 使用 allowance maximum；所有 limit 都必须是正安全整数，allowance
 maximum 不得小于普通 code-line maximum。
+
+`findingWaivers` 省略时为 `[]`。每项是 closed `{ identity, reason }`；reason 必须是非空 string，identity 必须唯一且
+恰为 `{ metric, path, functionName, startLine }`：
+
+- `metric` 是 `"cyclomatic-complexity" | "function-code-density" | "parameter-count"`。
+- `path` 是 normalized project-root-relative slash path，不接受 absolute path、反斜杠、空 segment、`.` 或 `..`。
+- `functionName` 是 Record 发布的非空稳定名称；anonymous/unknown scanner 名称在 Record 中归一为 `<anonymous>`。
+- `startLine` 是正安全整数。函数位置变化会让旧 authoring 形成 `unused` audit，而不会隐式匹配当前位置的另一个函数。
+
+Waiver 只匹配 normal metric Finding；不匹配固定 non-blocking 的 input-rejection Record。
 
 constructor 按字段补默认值。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`；filesystem 不解释
 `.gitignore`，git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。来源不可用时 Check 结算为
@@ -89,6 +100,32 @@ const metrics = functionMetrics({
 3. 任一 matching area 的 effective `findingPolicy` 为 `"blocking"` 时，该路径上的 finding 就是 blocking；这一判断不取决于
    哪个 area 提供了最小 limit。
 
+### 精确豁免一个函数指标
+
+下面的配置仍扫描 `src/generated/client.ts`，并保留超限 parameter Finding，只把这一条精确 identity 从 actionable
+settlement 中移除：
+
+```ts
+const metrics = functionMetrics({
+  findingPolicy: "blocking",
+  findingWaivers: [
+    {
+      identity: {
+        functionName: "createGeneratedClient",
+        metric: "parameter-count",
+        path: "src/generated/client.ts",
+        startLine: 12
+      },
+      reason: "生成器接口将在下一次 schema 迁移时收敛。"
+    }
+  ]
+});
+```
+
+匹配零条时 waiver 是 `unused`；匹配一条时是 `applied`；若 scanner facts 中同一 identity 匹配多条，则为
+`overmatched`，且相关 Finding 全部保持 actionable。不要把实际 value、limit 或 area 写入 identity；这些是会随测量与
+policy 变化的 Finding facts，不是 subject identity。
+
 ## 定制 Lizard executable
 
 public scanner policy 只选择直接接受 Lizard arguments 的 executable：
@@ -116,14 +153,16 @@ uv = "0.11.28"
 
 ## 工作原理
 
-1. constructor 关闭 input shape，补齐 files、limits、finding policy 与 scanner defaults，再冻结 resolved options。
+1. constructor 关闭 input shape，补齐 files、limits、finding policy、waivers 与 scanner defaults，再冻结 resolved options。
 2. execution 按文件来源分组，每种不同来源只枚举一次候选文件，再按各 area 的 `include` / `exclude` 形成完整 selected
    paths，并以 Lizard extension registry 分成 accepted/rejected。每个 rejected path 只产生一条 Record，并保留全部 matching
    area IDs；accepted paths 形成稳定去重的 exact-input 并集。
 3. accepted 并集非空时，Lizard adapter 对它执行一次 measurement；parser output 必须完整，且所有 source paths 必须属于
    本次 exact set，否则整批结果结算为 unavailable，不发布 partial Records。
-4. 可信 measurements 恢复全部 matching areas，按上一节的 overlap 规则计算 effective limit 与 blocking，再完整形成 Records
-   和 final counts，不因首个 finding 短路。
+4. 可信 measurements 恢复全部 matching areas，按上一节的 overlap 规则计算 effective limit 与 blocking，再形成完整
+   metric candidate 集合。只有这个集合形成后才执行 waiver reconciliation；measurement/source failure 不会伪造 unused audit。
+5. Check 保留所有 metric Finding Records，另发布 unused/overmatched audit，然后按 actionable disposition 形成 final counts、
+   messages 与 outcome，不因首个 finding 短路。
 
 ## 效果与结果
 
@@ -138,9 +177,27 @@ uv = "0.11.28"
   metric: "cyclomatic-complexity" | "function-code-density" | "parameter-count",
   path: string,
   startLine: number,
-  value: number
+  value: number,
+  waiver?: { reason: string }
 }
 ```
+
+精确 applied Finding 的 Record 增加 `waiver.reason` 并把 `blocking` 置为 `false`；原 metric、path、function、位置、value、
+limit 和 areas 都保留。`unused` 或 `overmatched` waiver 另外形成不计入 Finding counts 的 audit Record：
+
+```ts
+{
+  kind: "finding-waiver-audit",
+  identity: { metric, path, functionName, startLine },
+  matchCount: number,
+  reason: string,
+  status: "unused" | "overmatched"
+}
+```
+
+每条 unused/overmatched audit 的 Record ID 是
+`/finding-waiver-audit/sha256:<canonical-identity-digest>`；该保留前缀与 metric Finding 和 input-rejection Record ID domain
+都不相交。
 
 Record metric 与 measurement 的对应关系如下：
 
@@ -165,26 +222,30 @@ Record metric 与 measurement 的对应关系如下：
 `codeAreas` 是该 path 被选中的全部 area IDs，经去重和稳定排序。即使 area policy 为 blocking，这个 Finding 也固定
 non-blocking；它不包含函数或伪造 measurement。
 
-正常 final data 是 `{ findingCount, blockingFindingCount }`。`findingCount` 包含 metric 与 input-rejection Records，
-`blockingFindingCount` 只统计 effective blocking metric findings。后者大于零时 outcome 为 `failed`；只有 non-blocking
-findings 时 outcome 为 `passed`，Records 仍完整保留。
+正常 final data 是 `{ findingCount, blockingFindingCount }`。`findingCount` 包含全部 metric Finding（含 applied waiver）与
+input rejection，但不包含 waiver-audit Records；`blockingFindingCount` 只统计仍 actionable 的 effective blocking metric
+findings。后者大于零时 outcome 为 `failed`；只有 non-blocking 或 waived findings 时 outcome 为 `passed`，Records 仍完整保留。
 
 `failed` 的 `blocking-findings` message 与携带 non-blocking metric Records 的 `passed` 的 `non-blocking-findings` message
-之后，会按 metric finding、再按 input rejection 的稳定顺序直接展示最多十条安全摘要；metric 摘要包含项目相对 path、
+之后，会按仍 actionable 的 metric finding、再按 input rejection 的稳定顺序直接展示最多十条安全摘要；metric 摘要包含项目相对 path、
 start line、函数名、metric/value/limit 和 areas，rejection 摘要只包含项目相对 path 与 areas。有 rejected input 时仍先附
 `input-rejected` 数量 warning；Finding 超过十条时再用 `findings-omitted` 说明未显示数量，完整集合仍从 Records 读取。由本
 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；若 rejection Records 已发布，它们与对应 warning
-仍保留。零 finding 的 `passed` 与 `not-applicable` 不合成人为提示。
+仍保留。Applied waiver 另附 `finding-waived` info；unused/overmatched authoring 附 warning，并可从 audit Record 读取完整
+identity/reason。零 Finding 且没有 configured waiver 的 `passed` 与 `not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFunctionMetricsData(value)` 验证 final data。两者返回
 `FunctionMetricsFinalData`，Record 与不可用原因可分别用 `FunctionMetricsRecordData` 和
 `FunctionMetricsUnavailableReasonCode` 标注；authoring / resolved options types 是 `FunctionMetricsOptions` 与
-`ResolvedFunctionMetricsOptions`。parser 只适用于 `passed` / `failed` data，不匹配时抛出 `TypeError`。
+`ResolvedFunctionMetricsOptions`，waiver authoring 可用 `FunctionMetricsFindingIdentity`、`FunctionMetricsFindingMetric` 与
+`FunctionMetricsFindingWaiver` 标注。parser 只适用于 `passed` / `failed` data，不匹配时抛出 `TypeError`。
 
 ## `not-applicable` 与 `unavailable`
 
-所有 area 的 selected path 去重并集为空时结算为 `not-applicable / no-eligible-input`。selected 非空但全部被 extension
-registry 拒绝时，不启动 Lizard，直接以带 input-rejection Records、warning 和 final counts 的 `passed` 结算。其它无法形成
+所有 area 的 selected path 去重并集为空时结算为 `not-applicable / no-eligible-input`；configured waiver 仍全部形成
+`unused` audit。selected 非空但全部被 extension
+registry 拒绝时，完整 metric Finding 集合确定为空；Check 不启动 Lizard，并以 input-rejection Records、unused waiver
+audit、warning 和 final counts 的 `passed` 结算。其它无法形成
 可信 final data 的边界结算为 `unavailable`：
 
 | `reason.code` | 触发边界 | 调用方检查项 |
@@ -195,6 +256,9 @@ registry 拒绝时，不启动 Lizard，直接以带 input-rejection Records、w
 | `external-execution-failed` | Lizard scan 无法启动、被 signal 终止或返回非零状态 | 直接运行配置的 executable，检查 exact-path 与 `--csv` 调用 |
 | `external-result-invalid` | CSV、measurement、exact-scope 或 function metric 完整性校验失败 | 检查 wrapper 是否返回 Lizard 1.23-compatible CSV，且没有扩大输入 |
 | `cancelled` | invocation signal 在可观察的工作边界终止本 Check | 检查调用方取消原因；不要把该结果解释为 clean scan |
+
+表中的 `unavailable` 都发生在完整 metric Finding 集合形成前，因此不发布 applied/unused/overmatched waiver audit；已经发布的
+input-rejection evidence 仍按前述规则保留。
 
 constructor 自身会同步拒绝 unknown、malformed 或 incomplete input，并抛出 `TypeError`；表中的 `invalid-options` 用于
 constructor 返回后又被替换的 resolved options。通用 preflight 语法见

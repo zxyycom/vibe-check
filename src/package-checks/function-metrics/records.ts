@@ -1,14 +1,24 @@
+import { createHash } from "node:crypto";
+
 import {
   isStableFunctionName,
   type FunctionMetricAnalysis,
   type FunctionMetricInstance
 } from "./analysis.ts";
+import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
+import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
+import type { FindingWaiverRecordAudit } from "../code-quality-findings/finding-waiver-evidence.ts";
 import type { FunctionMetric, FunctionMetricsAreaInput } from "./measurement-model.ts";
-import type { ResolvedFunctionMetricsLimits } from "./options.ts";
+import type {
+  FunctionMetricsFindingIdentity,
+  FunctionMetricsFindingMetric,
+  ResolvedFunctionMetricsLimits
+} from "./options.ts";
+import { resolveFunctionMetricsFindingIdentity } from "./finding-waiver-identity.ts";
 
-type FunctionMetricName = "cyclomatic-complexity" | "function-code-density" | "parameter-count";
 const INPUT_REJECTED_RECORD_ID_PREFIX = "/input-rejected/";
+const FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX = "/finding-waiver-audit/";
 
 /** 一条超出函数 metric 上限的 supplemental Record data。 */
 export type FunctionMetricsFindingRecordData = Readonly<{
@@ -16,10 +26,21 @@ export type FunctionMetricsFindingRecordData = Readonly<{
   readonly codeAreas: readonly string[];
   readonly functionName: string;
   readonly limit: number;
-  readonly metric: FunctionMetricName;
+  readonly metric: FunctionMetricsFindingMetric;
   readonly path: string;
   readonly startLine: number;
   readonly value: number;
+  /** 精确匹配 waiver 时保留理由，并令该 finding 不再参与 actionable settlement。 */
+  readonly waiver?: Readonly<{ readonly reason: string }>;
+}>;
+
+/** 未使用或过宽 function-metrics waiver 的 supplemental audit Record data。 */
+export type FunctionMetricsFindingWaiverAuditRecordData = Readonly<{
+  readonly identity: FunctionMetricsFindingIdentity;
+  readonly kind: "finding-waiver-audit";
+  readonly matchCount: number;
+  readonly reason: string;
+  readonly status: "overmatched" | "unused";
 }>;
 
 /** 一条已被 files policy 选中、但不受 functionMetrics 支持的输入 Finding。 */
@@ -31,10 +52,11 @@ export type FunctionMetricsInputRejectedRecordData = Readonly<{
   readonly reason: "unsupported-file-type";
 }>;
 
-/** functionMetrics 发布的 metric 或 input-rejection Record data。 */
+/** functionMetrics 发布的 metric、input-rejection 或 finding-waiver audit Record data。 */
 export type FunctionMetricsRecordData =
   | FunctionMetricsFindingRecordData
-  | FunctionMetricsInputRejectedRecordData;
+  | FunctionMetricsInputRejectedRecordData
+  | FunctionMetricsFindingWaiverAuditRecordData;
 
 export interface FunctionRecordCandidate {
   readonly data: FunctionMetricsFindingRecordData;
@@ -84,11 +106,47 @@ interface FunctionMetricEvaluation {
   readonly codeAreas: readonly string[];
   readonly functionName: string;
   readonly limit: number;
-  readonly metric: FunctionMetricName;
+  readonly metric: FunctionMetricsFindingMetric;
   readonly path: string;
   readonly startLine: number;
   readonly subject: string;
   readonly value: number;
+}
+
+export function functionMetricsFindingIdentity(
+  candidate: FunctionRecordCandidate
+): FunctionMetricsFindingIdentity {
+  const { functionName, metric, path, startLine } = candidate.data;
+  return Object.freeze({ functionName, metric, path, startLine });
+}
+
+export function functionMetricsWaiverIdentity(
+  waiver: MaterializedFindingWaiver
+): FunctionMetricsFindingIdentity {
+  const identity = resolveFunctionMetricsFindingIdentity(waiver.identity);
+  if (identity === undefined) {
+    throw new TypeError("functionMetrics waiver identity must retain a valid metric subject");
+  }
+  return identity;
+}
+
+/** 为一项未使用或过宽 waiver 构造 Check-owned audit Record。 */
+export function functionMetricsWaiverAuditRecord(audit: FindingWaiverRecordAudit): Readonly<{
+  readonly data: FunctionMetricsFindingWaiverAuditRecordData;
+  readonly id: string;
+}> {
+  const identity = functionMetricsWaiverIdentity(audit.waiver);
+  const digest = createHash("sha256").update(canonicalJsonBytes(identity)).digest("hex");
+  return Object.freeze({
+    data: Object.freeze({
+      identity,
+      kind: "finding-waiver-audit",
+      matchCount: audit.matchCount,
+      reason: audit.waiver.reason,
+      status: audit.status
+    }),
+    id: `${FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX}sha256:${digest}`
+  });
 }
 
 /** 为每个超过 matching-area 最严格阈值的 metric 构造 supplemental fact。 */

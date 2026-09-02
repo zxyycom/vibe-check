@@ -1,6 +1,14 @@
 import type { CheckMessage } from "../../check/check.ts";
 import { presentCheckFindings } from "../../check/finding-presentation.ts";
-import type { FunctionInputRejectedCandidate, FunctionRecordCandidate } from "./records.ts";
+import type {
+  FindingWaiverAudit,
+  FindingWaiverReconciliation
+} from "../../finding-waivers/reconciliation.ts";
+import {
+  functionMetricsWaiverIdentity,
+  type FunctionInputRejectedCandidate,
+  type FunctionRecordCandidate
+} from "./records.ts";
 
 const PRESENTED_FINDING_LIMIT = 10;
 
@@ -36,4 +44,36 @@ export function functionFindingMessages(
         message: `${omittedCount} additional function metric finding(s) were not shown; inspect this Check's Records for the complete set.`
       })
   });
+}
+
+/** 将每项 function-metrics waiver audit 投影为可行动的 terminal message。 */
+export function functionWaiverMessages(
+  reconciliation: FindingWaiverReconciliation<FunctionRecordCandidate>
+): readonly CheckMessage[] {
+  return Object.freeze(reconciliation.waiverAudits.map(functionWaiverMessage));
+}
+
+function functionWaiverMessage(audit: FindingWaiverAudit): CheckMessage {
+  const identity = functionMetricsWaiverIdentity(audit.waiver);
+  const subject = `${identity.path}:${identity.startLine} ${identity.functionName} ${identity.metric}`;
+  switch (audit.status) {
+    case "applied":
+      return Object.freeze({
+        code: "finding-waived",
+        level: "info",
+        message: `Function metric finding for ${subject} was waived: ${audit.waiver.reason}`
+      });
+    case "unused":
+      return Object.freeze({
+        code: "unused-finding-waiver",
+        level: "warning",
+        message: `Configured function-metrics finding waiver for ${subject} matched no finding; remove it or update its identity. Reason: ${audit.waiver.reason}`
+      });
+    case "overmatched":
+      return Object.freeze({
+        code: "overmatched-finding-waiver",
+        level: "warning",
+        message: `Configured function-metrics finding waiver for ${subject} matched ${audit.matchCount} findings and was not applied; narrow its identity. Reason: ${audit.waiver.reason}`
+      });
+  }
 }

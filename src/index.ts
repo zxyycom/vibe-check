@@ -10,6 +10,9 @@ export { duplicateDetection } from "./package-checks/duplicate-detection/default
 export { parseDuplicateDetectionData } from "./package-checks/duplicate-detection/final-data.ts";
 export type { DuplicateDetectionFinalData } from "./package-checks/duplicate-detection/final-data.ts";
 export type {
+  DuplicateDetectionFindingIdentity,
+  DuplicateDetectionFindingLocation,
+  DuplicateDetectionFindingWaiver,
   DuplicateDetectionOptions,
   ResolvedDuplicateDetectionOptions
 } from "./package-checks/duplicate-detection/options.ts";
@@ -30,6 +33,9 @@ export { functionMetrics } from "./package-checks/function-metrics/constructor.t
 export { parseFunctionMetricsData } from "./package-checks/function-metrics/final-data.ts";
 export type { FunctionMetricsFinalData } from "./package-checks/function-metrics/final-data.ts";
 export type {
+  FunctionMetricsFindingIdentity,
+  FunctionMetricsFindingMetric,
+  FunctionMetricsFindingWaiver,
   FunctionMetricsOptions,
   ResolvedFunctionMetricsOptions
 } from "./package-checks/function-metrics/options.ts";

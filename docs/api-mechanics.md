@@ -190,6 +190,10 @@ deep-frozen 的 canonical materialization，因此调用方之后修改 authored
 finding disposition 和 waiver audit；它不发布 Record、message 或 terminal outcome。采用它的 Check 自己决定如何发布证据及
 如何结算 actionable finding。
 
+随包的 [`fileMetrics`](checks/file-metrics.md)、[`functionMetrics`](checks/function-metrics.md) 与
+[`duplicateDetection`](checks/duplicate-detection.md) 已在各自 options 中原生接入该 helper；它们共享上述 reconciliation，
+但 identity、Record、message 与 settlement 仍由各自指南拥有。其它随包 Check 没有自动获得 `findingWaivers` 字段。
+
 ## 递归组合与继承
 
 带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn`、`observes` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、passed prerequisites、terminal observations、mutexes、visibility、parallel budget 与 admission priority。

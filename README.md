@@ -122,6 +122,43 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 中明确完整明细的实际读取位置。helper 不定义 Finding shape，也不会替 Check 保存或发布完整 facts；详见
 [Finding presentation](./docs/api-mechanics.md#finding-presentation)。
 
+### Finding waiver：保留证据地对账已知 Finding
+
+`reconcileFindingWaivers(...)` 是 package root 的通用 helper，供自定义或随包 Finding 生产方在**完整**
+Finding 集合形成后，按调用方定义的结构化 identity 对账 waiver。它不会按 message 过滤、在扫描前排除输入或删除
+Finding；零次、一次和多次匹配分别形成 `unused`、`applied` 与 `overmatched` audit，过宽 identity 不会豁免任何
+Finding。
+
+```ts
+import { reconcileFindingWaivers } from "@zxyycom/vibe-check";
+
+const reconciled = reconcileFindingWaivers({
+  findings: [{ metric: "api-compatibility", symbol: "createClient" }],
+  identify: ({ metric, symbol }) => ({ metric, symbol }),
+  waivers: [
+    {
+      identity: { metric: "api-compatibility", symbol: "createClient" },
+      reason: "兼容窗口保留到下一个 major release。"
+    }
+  ]
+});
+```
+
+helper 只返回 disposition 与 audit；采用方仍拥有 Records、messages 和 terminal outcome。当前原生 option 覆盖如下：
+
+| 能力/Check | 当前入口 | identity owner |
+| --- | --- | --- |
+| 任意自定义 Finding producer | `reconcileFindingWaivers(...)` | 调用方的 `identify(finding)` |
+| [`fileMetrics`](./docs/checks/file-metrics.md) | `findingWaivers` | `{ metric: "code-lines", path }` |
+| [`functionMetrics`](./docs/checks/function-metrics.md) | `findingWaivers` | `{ metric, path, functionName, startLine }` |
+| [`duplicateDetection`](./docs/checks/duplicate-detection.md) | `findingWaivers` | `{ metric: "duplicate-tokens", locations }` |
+| 其它随包 Check | 暂无同名原生 option | 对应 Check 指南；不能据此推断自动支持 |
+
+三个内置指标型 Check（`fileMetrics`、`functionMetrics` 与 `duplicateDetection`，下称 metric trio）都在完整 metric Finding
+形成后对账，保留 applied Finding Record 与 reason，并把 stale/overbroad authoring 作为 audit evidence；各自完整 identity
+grammar 见上表链接到的 Check 指南。通用 grammar 与带 getter 等 hostile input 的拒绝边界见
+[深入 API 机制](./docs/api-mechanics.md#finding-waiver-reconciliation)。
+
 ## 自定义 Check API
 
 只使用随包 Check 时，可以跳过本节。需要表达项目自己的规则时，通常只需要定义 Check、组成 Definition、运行并读取结果；preflight、依赖调度、waiver 对账、聚合和取消等进阶能力放在[深入 API 机制](./docs/api-mechanics.md)中。

@@ -28,6 +28,34 @@ Entities:
 - `fileMetrics` accepts only its declared, normalized `{ metric, path }` waiver identity and non-empty reason. SCC still receives the complete eligible exact input set; waiver reconciliation starts only after its complete finding set is formed.
 - An applied waiver retains its finding Record and reason while excluding it from actionable settlement. An unused waiver remains observable as an audit Record and warning, including the known empty-input case; the audit Record ID is outside the normal finding-path domain.
 
+## Case ADD-FUNCTION-METRICS-FINDING-WAIVER-001: Function metrics reconciles precise metric subjects
+
+Owner: `docs/checks/function-metrics.md#functionmetrics`
+Entities:
+
+- `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > validates closed identity authoring without invoking hostile accessors`
+- `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > audits unused waivers only after forming a complete empty candidate set`
+- `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > preserves applied and stale waiver evidence while settling only actionable metrics`
+- `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > keeps duplicate function identities actionable when a waiver overmatches`
+
+Proves:
+- `functionMetrics` accepts only unique closed `{ metric, path, functionName, startLine }` identities with normalized paths, positive locations and non-empty reasons without reading hostile author accessors.
+- Configured waivers are audited as unused when a complete candidate set is known to be empty, but scanner failure before that boundary publishes no false audit. Applied findings retain their Record and reason but leave actionable/blocking settlement; stale authoring publishes an unused audit, and an identity matching multiple function instances remains fully actionable with an overmatched audit.
+
+## Case ADD-DUPLICATE-DETECTION-FINDING-WAIVER-001: Duplicate detection reconciles exact location sets
+
+Owner: `docs/checks/duplicate-detection.md#duplicatedetection`
+Entities:
+
+- `bun|src/package-checks/duplicate-detection/finding-waivers.test.ts|duplicateDetection finding waivers > validates sorted closed identity authoring without invoking hostile accessors`
+- `bun|src/package-checks/duplicate-detection/finding-waivers.test.ts|duplicateDetection finding waivers > audits unused waivers only after forming a complete empty candidate set`
+- `bun|src/package-checks/duplicate-detection/finding-waivers.test.ts|duplicateDetection finding waivers > preserves applied and stale waiver evidence while removing only exact duplicates from settlement`
+- `bun|src/package-checks/duplicate-detection/finding-waivers.test.ts|duplicateDetection finding waivers > keeps repeated duplicate identities actionable when a waiver overmatches`
+
+Proves:
+- `duplicateDetection` accepts only unique closed `{ metric, locations }` identities whose normalized project-relative ranges are complete, valid and strictly sorted by path and numeric lines, rejecting malformed or hostile authoring without accessor invocation.
+- Configured waivers are audited as unused when a complete candidate set is known to be empty, but scanner failure before that boundary publishes no false audit. An applied exact location set retains the duplicate Record and reason while leaving actionable/blocking settlement; stale and overmatched authoring publish audit evidence, and overmatched fragments remain fully actionable.
+
 ## Case ADD-JSON-VALIDATION-STRICT-DOCUMENT-001: Strict JSON document boundary normalizes document verdicts
 
 Owner: `docs/checks/json-validation.md#工作原理`

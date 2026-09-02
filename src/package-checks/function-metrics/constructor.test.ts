@@ -23,6 +23,7 @@ describe("functionMetrics constructor", () => {
       /functionMetrics final data/
     );
     assert.equal(check.options.scanner.executable, "lizard");
+    assert.deepEqual(check.options.findingWaivers, []);
     assert.equal(check.options.codeAreas.project?.findingPolicy, "non-blocking");
     assert.deepEqual(check.options.codeAreas.project?.limits, {
       codeLines: {

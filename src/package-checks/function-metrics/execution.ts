@@ -1,9 +1,17 @@
 import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
+import {
+  reconcileFindingWaivers,
+  type FindingWaiverReconciliation
+} from "../../finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
+import {
+  reportFindingWaiverAudits,
+  reportReconciledCodeQualityFindingRecords
+} from "../code-quality-findings/finding-waiver-evidence.ts";
 import { appendCheckMessages } from "../../check/finding-presentation.ts";
-import { functionFindingMessages } from "./finding-messages.ts";
+import { functionFindingMessages, functionWaiverMessages } from "./finding-messages.ts";
 import { analyzeFunctionMetrics } from "./analysis.ts";
 import { measureFunctionMetrics, type FunctionMeasurementResult } from "./measurement.ts";
 import type {
@@ -11,6 +19,7 @@ import type {
   FunctionMetricsExactInputSet
 } from "./measurement-model.ts";
 import type {
+  FunctionMetricsFindingWaiver,
   ResolvedFunctionMetricsCodeAreaOptions,
   ResolvedFunctionMetricsOptions
 } from "./options.ts";
@@ -18,6 +27,8 @@ import { validResolvedFunctionMetricsOptions } from "./options-validation.ts";
 import {
   buildFunctionInputRejectedCandidates,
   buildFunctionRecordCandidates,
+  functionMetricsFindingIdentity,
+  functionMetricsWaiverAuditRecord,
   type FunctionInputRejectedCandidate,
   type FunctionRecordCandidate
 } from "./records.ts";
@@ -55,11 +66,13 @@ async function executePreparedFunctionMetrics(
   prepared: PreparedFunctionInputs
 ): Promise<CheckResult<FunctionMetricsFinalData>> {
   if (prepared.selectedPathCount === 0) {
-    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+    return noEligibleFunctionInputResult(context);
   }
   reportInputRejections(context, prepared.rejectedCandidates);
   if (prepared.exactInput.approvedExactPaths.length === 0) {
-    return settleFunctionFindings([], prepared.rejectedCandidates);
+    const reconciliation = reconcileFunctionMetricWaivers([], context.options.findingWaivers);
+    reportFindingWaiverAudits(context, reconciliation, functionMetricsWaiverAuditRecord);
+    return settleFunctionFindings(reconciliation, prepared.rejectedCandidates);
   }
   const measurement = await measureFunctionMetrics({
     dependency: context.options.scanner,
@@ -86,10 +99,32 @@ async function executePreparedFunctionMetrics(
       prepared.rejectedCandidates.length
     );
   }
-  for (const candidate of candidates) {
-    context.records.report({ id: candidate.id }, candidate.data);
-  }
-  return settleFunctionFindings(candidates, prepared.rejectedCandidates);
+  const reconciliation = reconcileFunctionMetricWaivers(candidates, context.options.findingWaivers);
+  reportReconciledCodeQualityFindingRecords(context, reconciliation);
+  reportFindingWaiverAudits(context, reconciliation, functionMetricsWaiverAuditRecord);
+  return settleFunctionFindings(reconciliation, prepared.rejectedCandidates);
+}
+
+function noEligibleFunctionInputResult(
+  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>
+): CheckResult<FunctionMetricsFinalData> {
+  const reconciliation = reconcileFunctionMetricWaivers([], context.options.findingWaivers);
+  reportFindingWaiverAudits(context, reconciliation, functionMetricsWaiverAuditRecord);
+  return appendCheckMessages(
+    Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } }),
+    functionWaiverMessages(reconciliation)
+  );
+}
+
+function reconcileFunctionMetricWaivers(
+  candidates: readonly FunctionRecordCandidate[],
+  waivers: readonly FunctionMetricsFindingWaiver[]
+): FindingWaiverReconciliation<FunctionRecordCandidate> {
+  return reconcileFindingWaivers({
+    findings: candidates,
+    identify: functionMetricsFindingIdentity,
+    waivers
+  });
 }
 
 interface PreparedFunctionInputs {
@@ -179,19 +214,25 @@ function reportInputRejections(
 }
 
 function settleFunctionFindings(
-  metricCandidates: readonly FunctionRecordCandidate[],
+  reconciliation: FindingWaiverReconciliation<FunctionRecordCandidate>,
   rejectedCandidates: readonly FunctionInputRejectedCandidate[]
 ): CheckResult<FunctionMetricsFinalData> {
   const settlement = settleFindings([
-    ...metricCandidates.map((candidate) => ({
-      actionable: true,
-      blocking: candidate.data.blocking
+    ...reconciliation.findings.map((finding) => ({
+      actionable: finding.disposition !== "waived",
+      blocking: finding.finding.data.blocking
     })),
     ...rejectedCandidates.map(() => ({ actionable: false, blocking: false }))
   ]);
+  const actionableMetricCandidates = reconciliation.findings
+    .filter(({ disposition }) => disposition !== "waived")
+    .map(({ finding }) => finding);
   return appendCheckMessages(
-    appendInputRejectedMessage(settlement, rejectedCandidates.length),
-    functionFindingMessages([...metricCandidates, ...rejectedCandidates])
+    appendCheckMessages(
+      appendInputRejectedMessage(settlement, rejectedCandidates.length),
+      functionFindingMessages([...actionableMetricCandidates, ...rejectedCandidates])
+    ),
+    functionWaiverMessages(reconciliation)
   );
 }
 

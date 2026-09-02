@@ -15,7 +15,7 @@ const FUNCTION_METRICS_CHECK_DEFINITION = {
  *
  * @param options - 省略字段由 package 补齐；显式 files 数组完整替换对应字段的默认数组。
  * @returns 固定 `function-metrics` identity、完整冻结 options、preflight 与 execution。
- * @throws {TypeError} input 含未知字段、空 area、非法 finding policy、非法 limit 或空 executable 时抛出。
+ * @throws {TypeError} input 含未知字段、空 area、非法 finding policy/waiver、非法 limit 或空 executable 时抛出。
  */
 export function functionMetrics(
   options: FunctionMetricsOptions = {}
@@ -27,7 +27,7 @@ export function functionMetrics(
   const resolvedOptions = resolveFunctionMetricsOptions(options);
   if (resolvedOptions === undefined) {
     throw new TypeError(
-      "functionMetrics options must use the documented closed policy: a non-empty area map, recognized finding policies, positive safe-integer limits, and a non-empty scanner executable"
+      "functionMetrics options must use the documented closed policy: a non-empty area map, recognized finding policies and waivers, positive safe-integer limits, and a non-empty scanner executable"
     );
   }
   return defineCheck({

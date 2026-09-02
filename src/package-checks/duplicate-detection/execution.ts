@@ -1,20 +1,36 @@
 import { resolve } from "node:path";
 
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
+import {
+  reconcileFindingWaivers,
+  type FindingWaiverReconciliation
+} from "../../finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
+import {
+  reportFindingWaiverAudits,
+  reportReconciledCodeQualityFindingRecords
+} from "../code-quality-findings/finding-waiver-evidence.ts";
 import { appendCheckMessages } from "../../check/finding-presentation.ts";
-import { duplicateFindingMessages } from "./finding-messages.ts";
+import { duplicateFindingMessages, duplicateWaiverMessages } from "./finding-messages.ts";
 import { getGitSha } from "./project-revision.ts";
 import { measureDuplicateDetection, type DuplicateMeasurementResult } from "./measurement.ts";
 import type {
   DuplicateDetectionAreaInput,
   DuplicateDetectionExactInputSet
 } from "./measurement-model.ts";
-import type { ResolvedDuplicateDetectionOptions } from "./options.ts";
+import type {
+  DuplicateDetectionFindingWaiver,
+  ResolvedDuplicateDetectionOptions
+} from "./options.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
-import { buildDuplicateRecordCandidates } from "./records.ts";
+import {
+  buildDuplicateRecordCandidates,
+  duplicateDetectionFindingIdentity,
+  duplicateDetectionWaiverAuditRecord,
+  type DuplicateRecordCandidate
+} from "./records.ts";
 import type { DuplicateDetectionFinalData } from "./final-data.ts";
 
 export const DUPLICATE_DETECTION_CHECK_DEFINITION = {
@@ -45,7 +61,7 @@ export async function executeDuplicateDetection(
     return unavailable("source-unavailable");
   }
   if (exactInput.approvedExactPaths.length < 2) {
-    return Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } });
+    return noEligibleDuplicateInputResult(context);
   }
   const measurement = await measureDuplicateDetection({
     cache: context.options.cache,
@@ -58,14 +74,52 @@ export async function executeDuplicateDetection(
     context.options.codeAreas
   );
   if (candidates === undefined) return unavailable("external-result-invalid");
-  for (const candidate of candidates) {
-    context.records.report({ id: candidate.id }, candidate.data);
-  }
+  const reconciliation = reconcileDuplicateFindingWaivers(
+    candidates,
+    context.options.findingWaivers
+  );
+  reportReconciledCodeQualityFindingRecords(context, reconciliation);
+  reportFindingWaiverAudits(context, reconciliation, duplicateDetectionWaiverAuditRecord);
+  return settleDuplicateFindings(reconciliation);
+}
+
+function noEligibleDuplicateInputResult(
+  context: CheckExecutionContext<ResolvedDuplicateDetectionOptions>
+): CheckResult<DuplicateDetectionFinalData> {
+  const reconciliation = reconcileDuplicateFindingWaivers([], context.options.findingWaivers);
+  reportFindingWaiverAudits(context, reconciliation, duplicateDetectionWaiverAuditRecord);
   return appendCheckMessages(
-    settleFindings(
-      candidates.map((candidate) => ({ actionable: true, blocking: candidate.data.blocking }))
-    ),
-    duplicateFindingMessages(candidates)
+    Object.freeze({ status: "not-applicable", reason: { code: "no-eligible-input" } }),
+    duplicateWaiverMessages(reconciliation)
+  );
+}
+
+function reconcileDuplicateFindingWaivers(
+  candidates: readonly DuplicateRecordCandidate[],
+  waivers: readonly DuplicateDetectionFindingWaiver[]
+): FindingWaiverReconciliation<DuplicateRecordCandidate> {
+  return reconcileFindingWaivers({
+    findings: candidates,
+    identify: duplicateDetectionFindingIdentity,
+    waivers
+  });
+}
+
+function settleDuplicateFindings(
+  reconciliation: FindingWaiverReconciliation<DuplicateRecordCandidate>
+): CheckResult<DuplicateDetectionFinalData> {
+  const settlement = settleFindings(
+    reconciliation.findings.map((finding) => ({
+      actionable: finding.disposition !== "waived",
+      blocking: finding.finding.data.blocking
+    }))
+  );
+  const actionableCandidates = reconciliation.findings
+    .filter(({ disposition }) => disposition !== "waived")
+    .map(({ finding }) => finding);
+  return appendCheckMessages(
+    appendCheckMessages(settlement, duplicateFindingMessages(actionableCandidates)),
+    duplicateWaiverMessages(reconciliation)
   );
 }
 

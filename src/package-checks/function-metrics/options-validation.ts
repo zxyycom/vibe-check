@@ -5,15 +5,20 @@ import {
 import { isNonEmptyString, isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
+import { validResolvedFindingWaivers } from "../code-quality-findings/finding-waiver-authoring.ts";
+import { resolveFunctionMetricsFindingIdentity } from "./finding-waiver-identity.ts";
 import type { ResolvedFunctionMetricsOptions } from "./options.ts";
 
 /** 验证 constructor 已物化的完整 function-metrics options。 */
 export function validResolvedFunctionMetricsOptions(
   value: unknown
 ): value is ResolvedFunctionMetricsOptions {
-  const options = snapshotExactClosedRecord(value, ["codeAreas", "scanner"]);
+  const options = snapshotExactClosedRecord(value, ["codeAreas", "findingWaivers", "scanner"]);
   return (
-    options !== undefined && validCodeAreas(options.codeAreas) && validScanner(options.scanner)
+    options !== undefined &&
+    validCodeAreas(options.codeAreas) &&
+    validResolvedFindingWaivers(options.findingWaivers, resolveFunctionMetricsFindingIdentity) &&
+    validScanner(options.scanner)
   );
 }
 

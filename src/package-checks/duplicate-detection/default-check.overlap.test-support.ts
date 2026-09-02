@@ -90,6 +90,7 @@ export function assertDefaultCheckComposition(): void {
         minimumTokens: 100
       }
     },
+    findingWaivers: [],
     scanner: { command: { kind: "package" } }
   });
   assert.equal(Object.isFrozen(defaultCheck.options), true);
