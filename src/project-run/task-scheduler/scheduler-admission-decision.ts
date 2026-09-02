@@ -1,3 +1,4 @@
+import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import type {
   AdmissionCandidate,
   AdmissionPolicyDecision,
@@ -21,6 +22,8 @@ import type { SchedulerInspection } from "./scheduler-decision-inspection.ts";
 export interface SchedulerDecisionCycle {
   readonly context: SchedulerDecisionContext;
   readonly policy: AdmissionSelectionPolicy;
+  /** Invoked immediately before the private policy seam enters a custom callback. */
+  readonly measurement?: () => AdmissionPolicyContext["measurement"];
   readonly state: SchedulerInspection;
   readonly trigger: SchedulerTrigger;
 }
@@ -33,12 +36,15 @@ export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecisio
   );
   if (candidates.length === 0) return awaitDecision(cycle, candidates);
 
+  const measurement = cycle.measurement?.();
   const result = validatePolicyDecision(
     cycle.policy.decide(
       Object.freeze({
         candidates,
         graph: cycle.state.graph,
-        inspection: cycle.state
+        graphSnapshot: cycle.context.graphIdentity,
+        inspection: cycle.state,
+        ...(measurement === undefined ? {} : { measurement })
       })
     )
   );

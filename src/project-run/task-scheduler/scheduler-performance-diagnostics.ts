@@ -1,8 +1,15 @@
 import type {
+  AdmissionPolicyMeasurement,
   SchedulerMeasurementAdmission,
+  SchedulerMeasurementTiming,
   SchedulerMeasurementTimingFacts,
   SchedulerMeasurementTimingUnavailableReason,
-  SchedulerRawMeasurement
+  SchedulerMeasurementActionObservation,
+  SchedulerMeasurementEffect,
+  SchedulerMeasurementIntervalContribution,
+  SchedulerDecisionMeasurementCumulative,
+  SchedulerRawMeasurement,
+  SchedulerMeasurementHook
 } from "../../project-definition/project-definition.ts";
 import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 
@@ -14,13 +21,6 @@ export type SchedulerPerformanceDiagnosticsInput = Readonly<{
 }>;
 
 const TOP_TASK_LIMIT = 3;
-
-type TimingAvailability =
-  | Readonly<{ readonly availability: "available" }>
-  | Readonly<{
-      readonly availability: "unavailable";
-      readonly reason: SchedulerMeasurementTimingUnavailableReason;
-    }>;
 
 type AdmissionChronology = {
   readonly admissionDelay: AdmissionDelayBreakdown;
@@ -38,6 +38,16 @@ type MutableAdmissionDelayBreakdown = {
   admissiblePendingMs: number;
   capacityBlockedMs: number;
   mutexBlockedMs: number;
+};
+
+type AcceptedPolicyAction =
+  | Readonly<{ readonly kind: "select"; readonly taskId: string }>
+  | Readonly<{ readonly kind: "wait"; readonly taskId: null }>;
+
+type PendingPolicyAction = AcceptedPolicyAction & {
+  readonly baseline: SchedulerMeasurementIntervalContribution;
+  readonly effects: SchedulerMeasurementEffect[];
+  readonly sequence: number;
 };
 
 export type AdmissionViablePendingTask = Readonly<{
@@ -63,7 +73,7 @@ export class SchedulerPerformanceDiagnostics {
   #lastBoundaryAt: number | undefined;
   #startedAt: number | undefined;
   #lastState: SchedulerPerformanceState;
-  #timing: TimingAvailability = { availability: "available" };
+  #timing: SchedulerMeasurementTiming = Object.freeze({ availability: "available" });
   #controlPathMs = 0;
   #decisionObservationMs = 0;
   #taskSlotMs = 0;
@@ -85,6 +95,9 @@ export class SchedulerPerformanceDiagnostics {
   readonly #admittedTaskIds = new Set<string>();
   readonly #admissionDelayByTaskId = new Map<string, MutableAdmissionDelayBreakdown>();
   readonly #chronologyByTaskId = new Map<string, AdmissionChronology>();
+  #pendingAction: PendingPolicyAction | undefined;
+  #actionSequence = 0;
+  readonly #actionObservations: SchedulerMeasurementActionObservation[] = [];
 
   public constructor(
     input: SchedulerPerformanceDiagnosticsInput,
@@ -187,10 +200,135 @@ export class SchedulerPerformanceDiagnostics {
     this.#installPendingProjection(state.admissionViablePendingTasks);
   }
 
+  #cumulativeMeasurement(): SchedulerDecisionMeasurementCumulative {
+    const timing = this.#timing;
+    const facts = Object.freeze({
+      declarativeFingerprint: this.#declarativeFingerprint,
+      discrete: Object.freeze({
+        acceptedWaitCount: this.#acceptedWaitCount,
+        admittedCount: this.#admittedTaskIds.size,
+        maxRunning: this.#maxRunning
+      }),
+      peaks: Object.freeze({
+        admissionViablePendingTaskCount: this.#peakAdmissionViablePendingTaskCount,
+        admissiblePendingTaskCount: this.#peakAdmissiblePendingTaskCount,
+        capacityBlockedTaskCount: this.#peakCapacityBlockedTaskCount,
+        mutexBlockedTaskCount: this.#peakMutexBlockedTaskCount
+      })
+    });
+    if (timing.availability === "unavailable") {
+      return Object.freeze({
+        ...facts,
+        timing: Object.freeze({ availability: "unavailable" as const, reason: timing.reason })
+      });
+    }
+    return Object.freeze({
+      ...facts,
+      timing: Object.freeze({ availability: "available" as const }),
+      timingFacts: Object.freeze({
+        acceptedWaitMs: this.#acceptedWaitMs,
+        effectiveCapacitySlotMs: this.#effectiveCapacitySlotMs,
+        rootCapacitySlotMs: this.#rootCapacitySlotMs,
+        taskSlotMs: this.#taskSlotMs
+      })
+    });
+  }
+
   /** Finishes bounded first-order measurement before terminal side effects begin. */
   public rawMeasurement(): SchedulerRawMeasurement {
+    return this.#measurement(true);
+  }
+
+  /** Starts the observation interval only after an accepted select has reached post-action state. */
+  public beginSelectedPolicyAction(taskId: string): void {
+    this.#beginPolicyAction(Object.freeze({ kind: "select", taskId }));
+  }
+
+  /** Starts the observation interval only after an accepted wait has reached post-action state. */
+  public beginWaitPolicyAction(): void {
+    this.#beginPolicyAction(Object.freeze({ kind: "wait", taskId: null }));
+  }
+
+  #beginPolicyAction(action: AcceptedPolicyAction): void {
+    if (this.#pendingAction !== undefined) {
+      throw new Error("previous policy action was not observed before the next action");
+    }
+    const baseline = this.#totals();
+    const sequence = ++this.#actionSequence;
+    this.#pendingAction =
+      action.kind === "select"
+        ? { baseline, effects: [], kind: "select", sequence, taskId: action.taskId }
+        : { baseline, effects: [], kind: "wait", sequence, taskId: null };
+  }
+
+  /** Captures lifecycle changes since the accepted action without creating another policy callback. */
+  public recordEffect(effect: SchedulerMeasurementEffect): void {
+    this.#pendingAction?.effects.push(Object.freeze({ ...effect }));
+  }
+
+  /** Flushes and captures a reader whose prefix cannot observe future appends. */
+  public policyMeasurement(): AdmissionPolicyMeasurement {
+    this.#boundary();
+    this.#appendCompletedActionObservation();
+    const endCount = this.#actionObservations.length;
+    const measurementAt = Object.freeze((index: number) => this.#measurementAt(index, endCount));
+    return Object.freeze({
+      cumulative: this.#cumulativeMeasurement(),
+      measurementAt,
+      measurementCount: endCount
+    });
+  }
+
+  /** Completes the pending action at terminal drain even when no later callback reads it. */
+  public completePendingActionObservation(): void {
+    this.#boundary();
+    this.#appendCompletedActionObservation();
+  }
+
+  #appendCompletedActionObservation(): void {
+    const action = this.#pendingAction;
+    if (action === undefined) return;
+    this.#pendingAction = undefined;
+    const interval =
+      this.#timing.availability === "available"
+        ? Object.freeze({
+            availability: "available" as const,
+            contribution: subtractIntervalContribution(this.#totals(), action.baseline)
+          })
+        : Object.freeze({
+            availability: "unavailable" as const,
+            reason: this.#timing.reason
+          });
+    const observation =
+      action.kind === "select"
+        ? Object.freeze({
+            effects: Object.freeze([...action.effects]),
+            interval,
+            kind: "select" as const,
+            sequence: action.sequence,
+            taskId: action.taskId
+          })
+        : Object.freeze({
+            effects: Object.freeze([...action.effects]),
+            interval,
+            kind: "wait" as const,
+            sequence: action.sequence,
+            taskId: null
+          });
+    this.#actionObservations.push(observation);
+  }
+
+  #measurementAt(
+    index: number,
+    endCount: number
+  ): SchedulerMeasurementActionObservation | undefined {
+    if (!Number.isSafeInteger(index) || index < 0 || index >= endCount) return undefined;
+    return this.#actionObservations[index];
+  }
+
+  #measurement(terminal: boolean): SchedulerRawMeasurement {
     const endedAt = this.#boundary();
-    if (endedAt !== undefined) this.#closeAcceptedWait(endedAt);
+    if (terminal && endedAt !== undefined) this.#closeAcceptedWait(endedAt);
     const discrete = Object.freeze({
       acceptedWaitCount: this.#acceptedWaitCount,
       admittedCount: this.#admittedTaskIds.size,
@@ -210,7 +348,7 @@ export class SchedulerPerformanceDiagnostics {
         declarativeFingerprint: this.#declarativeFingerprint,
         discrete,
         peaks,
-        timing
+        timing: Object.freeze({ availability: "unavailable" as const, reason: timing.reason })
       });
     }
     if (endedAt === undefined) {
@@ -239,18 +377,21 @@ export class SchedulerPerformanceDiagnostics {
     return Object.freeze([...this.#admittedTaskIds]);
   }
 
-  /** Built-in human projection of raw measurement; writer failure remains observational. */
-  public observeSummary(rawMeasurement: SchedulerRawMeasurement): void {
-    if (this.#logger === undefined) return;
-    try {
-      this.#logger.observe({
-        event: "scheduler.summary",
-        tags: diagnosticTags("SCHEDULER", "SUMMARY"),
-        details: summaryFromMeasurement(rawMeasurement)
-      });
-    } catch {
-      // Summary emission cannot revise the Scheduler result or terminal drain.
-    }
+  /** Internal default terminal hook; it contains writer failure without runner special-casing. */
+  public defaultSummaryHook(): SchedulerMeasurementHook | undefined {
+    if (this.#logger === undefined) return undefined;
+    const logger = this.#logger;
+    return (context) => {
+      try {
+        logger.observe({
+          event: "scheduler.summary",
+          tags: diagnosticTags("SCHEDULER", "SUMMARY"),
+          details: summaryFromMeasurement(context.rawMeasurement)
+        });
+      } catch {
+        // Summary writer failure is contained by this hook, not the shared runner.
+      }
+    };
   }
 
   #admissionMeasurements(): SchedulerMeasurementAdmission[] {
@@ -439,6 +580,18 @@ export class SchedulerPerformanceDiagnostics {
     this.#acceptedWaitStartedAt = undefined;
   }
 
+  #totals(): SchedulerMeasurementIntervalContribution {
+    return Object.freeze({
+      admissiblePendingTaskMs: this.#admissiblePendingTaskMs,
+      acceptedWaitMs: this.#acceptedWaitMs,
+      capacityBlockedTaskMs: this.#capacityBlockedTaskMs,
+      effectiveCapacitySlotMs: this.#effectiveCapacitySlotMs,
+      mutexBlockedTaskMs: this.#mutexBlockedTaskMs,
+      rootCapacitySlotMs: this.#rootCapacitySlotMs,
+      taskSlotMs: this.#taskSlotMs
+    });
+  }
+
   #markUnavailable(reason: SchedulerMeasurementTimingUnavailableReason): void {
     if (this.#timing.availability === "available") {
       this.#timing = Object.freeze({ availability: "unavailable", reason });
@@ -448,6 +601,21 @@ export class SchedulerPerformanceDiagnostics {
   #admissionViablePendingTaskMs(): number {
     return this.#mutexBlockedTaskMs + this.#capacityBlockedTaskMs + this.#admissiblePendingTaskMs;
   }
+}
+
+function subtractIntervalContribution(
+  current: SchedulerMeasurementIntervalContribution,
+  prior: SchedulerMeasurementIntervalContribution
+): SchedulerMeasurementIntervalContribution {
+  return Object.freeze({
+    admissiblePendingTaskMs: current.admissiblePendingTaskMs - prior.admissiblePendingTaskMs,
+    acceptedWaitMs: current.acceptedWaitMs - prior.acceptedWaitMs,
+    capacityBlockedTaskMs: current.capacityBlockedTaskMs - prior.capacityBlockedTaskMs,
+    effectiveCapacitySlotMs: current.effectiveCapacitySlotMs - prior.effectiveCapacitySlotMs,
+    mutexBlockedTaskMs: current.mutexBlockedTaskMs - prior.mutexBlockedTaskMs,
+    rootCapacitySlotMs: current.rootCapacitySlotMs - prior.rootCapacitySlotMs,
+    taskSlotMs: current.taskSlotMs - prior.taskSlotMs
+  });
 }
 
 function summaryFromMeasurement(raw: SchedulerRawMeasurement): Readonly<Record<string, unknown>> {

@@ -71,18 +71,18 @@ Scheduler 基础性能汇总也已完成并归档：[`add-scheduler-performance-
 当前 active Scheduler measurement Change 是：
 
 ```text
-add-scheduler-measurement-hooks
+provide-decision-boundary-admission-measurement
   -> schedule-checks-from-learned-durations
 ```
 
 [`extend-scheduler-pressure-and-tail-diagnostics`](../changes/archive/extend-scheduler-pressure-and-tail-diagnostics/proposal.md) 已完成并归档：它在 private summary 中补齐 admission-viable queue pressure、admission-delay 事实分解、last-admission tail contributors 与 declarative workload signal。当前字段与解释由 stable owner、active Decision 和源码拥有，archive 只保留形成时 Plan。
 
-[`add-scheduler-measurement-hooks`](../changes/add-scheduler-measurement-hooks/proposal.md) 将同一 invocation 的 Scheduler-owned 一阶测量以有界 terminal context 交给 caller Hook，并把既有人读 summary 保留为内置二级副作用。它不建立 history、learned scheduling、policy reason 或自动调参；Hook failure 也不改变已形成的 primary Run failure。该 Change 与 learned-duration Change 共享 Scheduler/Run owner，推荐先收口 measurement Hook 的事实和 output-failure 边界，再开始下游方案；该顺序是共享 owner 的协调顺序，不把 Hook context 解释为跨 invocation history 或 learned-policy 的语义前置。
+[`provide-decision-boundary-admission-measurement`](../changes/provide-decision-boundary-admission-measurement/proposal.md) 在 custom policy 的每次实际 callback 前交接同一 Run 一次冻结的 graph、已 flush 的有界 cumulative 与 captured-prefix action-observation reader；reader 不返回 live array/history slice，完整 per-Task table 保留 terminal-only。observation 从 accepted action post-state 到下一实际 callback 前，是带 admitted/settled effects 的 state observation，不是 action causality；summary 是统一 terminal Hook delivery list 的自包含内部默认成员。它不建立 history、learned scheduling、storage、policy reason 或自动调参；Hook failure 也不改变已形成的 primary Run failure。该 Change 与 learned-duration Change 共享 Scheduler/Run owner，推荐先收口 decision-boundary measurement、Hook delivery 与 output-failure 边界，再开始下游方案；该顺序是共享 owner 的协调顺序，不把 Hook context 解释为跨 invocation history 或 learned-policy 的语义前置。
 
 因此推荐剩余 active Change 合入顺序为：
 
 ```text
-add-scheduler-measurement-hooks
+provide-decision-boundary-admission-measurement
   -> schedule-checks-from-learned-durations
 ```
 

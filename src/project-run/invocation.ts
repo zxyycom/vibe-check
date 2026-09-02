@@ -243,7 +243,8 @@ async function executeChecks(
       diagnosticLogger: invocation.diagnosticLogger,
       schedulerPerformanceDiagnostics:
         invocation.diagnosticLoggingEnabled ||
-        invocation.normalized.scheduler.measurementHooks.length > 0
+        invocation.normalized.scheduler.measurementHooks.length > 0 ||
+        invocation.normalized.scheduler.admissionPolicy.kind === "custom"
           ? Object.freeze({
               clock,
               declarativeFingerprint: invocation.declarativeFingerprint,

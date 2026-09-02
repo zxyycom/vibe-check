@@ -1,4 +1,5 @@
 import type { PlannedTaskGraph } from "./graph.ts";
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 
 export type SchedulerSettlementKind =
   | "completed"
@@ -47,23 +48,8 @@ export interface SchedulerBlockerSummary {
   readonly scopeCapacity: boolean;
 }
 
-/** A collision-free canonical projection of every scheduler-relevant graph field. */
-export interface SchedulerGraphIdentity {
-  readonly scopes: readonly Readonly<{
-    readonly activationTaskIds: readonly string[];
-    readonly id: string;
-    readonly maxParallel: number;
-    readonly terminalTaskId: string;
-  }>[];
-  readonly tasks: readonly Readonly<{
-    readonly admissionPriority: number;
-    readonly dependsOn: readonly string[];
-    readonly id: string;
-    readonly mutex: readonly string[];
-    readonly observes: readonly string[];
-    readonly scopeId: string | null;
-  }>[];
-}
+/** The sole public Scheduler graph DTO; task identity is always `taskId`. */
+export type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 
 export interface SchedulerAdmissionCandidateFact {
   readonly canAdmit: boolean;
@@ -87,7 +73,7 @@ export type SchedulerAdmissionHardGuard =
 export interface SchedulerDecisionContext {
   readonly blockers: SchedulerBlockerSummary;
   readonly capacity: SchedulerCapacity;
-  readonly graphIdentity: SchedulerGraphIdentity;
+  readonly graphIdentity: SchedulerGraphSnapshot;
 }
 
 export type SchedulerDecision = SchedulerDecisionContext &

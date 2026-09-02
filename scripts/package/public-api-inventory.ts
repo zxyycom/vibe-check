@@ -33,6 +33,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   types: Object.freeze({
     AdmissionPolicy: "AdmissionPolicy",
     AdmissionPolicyContext: "AdmissionPolicyContext",
+    AdmissionPolicyMeasurement: "AdmissionPolicyMeasurement",
     AdmissionProposal: "AdmissionProposal",
     CacheJsonByKeyOptions: "CacheJsonByKeyOptions",
     CacheJsonByKeyResult: "CacheJsonByKeyResult",
@@ -103,8 +104,14 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     ReconcileFindingWaiversOptions: "ReconcileFindingWaiversOptions",
     RunControls: "RunControls",
     RunResult: "RunResult",
+    SchedulerDecisionMeasurementCumulative: "SchedulerDecisionMeasurementCumulative",
+    SchedulerGraphSnapshot: "SchedulerGraphSnapshot",
     SchedulerMeasurementContext: "SchedulerMeasurementContext",
     SchedulerMeasurementHook: "SchedulerMeasurementHook",
+    SchedulerMeasurementIntervalContribution: "SchedulerMeasurementIntervalContribution",
+    SchedulerMeasurementActionObservationInterval: "SchedulerMeasurementActionObservationInterval",
+    SchedulerMeasurementActionObservation: "SchedulerMeasurementActionObservation",
+    SchedulerMeasurementEffect: "SchedulerMeasurementEffect",
     SchedulerRawMeasurement: "SchedulerRawMeasurement",
     SchedulerPolicy: "SchedulerPolicy"
   })

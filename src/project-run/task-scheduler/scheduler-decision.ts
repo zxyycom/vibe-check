@@ -1,4 +1,5 @@
 import type { AdmissionSelectionPolicy } from "./admission-selection-policy.ts";
+import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import { decideAdmission, type SchedulerDecisionCycle } from "./scheduler-admission-decision.ts";
 import {
@@ -28,13 +29,15 @@ export type {
 export function decideScheduler(
   snapshot: SchedulerSnapshot,
   trigger: SchedulerTrigger,
-  policy: AdmissionSelectionPolicy = staticAdmissionSelectionPolicy
+  policy: AdmissionSelectionPolicy = staticAdmissionSelectionPolicy,
+  measurement?: () => AdmissionPolicyContext["measurement"]
 ): SchedulerDecision {
   const state = inspectSnapshot(snapshot);
   const cycle: SchedulerDecisionCycle = Object.freeze({
-    context: decisionContext(state),
+    context: decisionContext(state, state.graph.schedulerGraphSnapshot),
     policy,
     state,
+    ...(measurement === undefined ? {} : { measurement }),
     trigger
   });
   const terminalDecision = decideTerminalSchedulerAction(cycle, snapshot);

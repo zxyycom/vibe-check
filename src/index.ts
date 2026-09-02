@@ -115,11 +115,18 @@ export { defineAdmissionPolicy, defineConfig } from "./project-definition/projec
 export type {
   AdmissionPolicy,
   AdmissionPolicyContext,
+  AdmissionPolicyMeasurement,
   AdmissionProposal,
   ProjectOutputs,
   ProjectDefinition,
+  SchedulerDecisionMeasurementCumulative,
+  SchedulerGraphSnapshot,
   SchedulerMeasurementContext,
   SchedulerMeasurementHook,
+  SchedulerMeasurementIntervalContribution,
+  SchedulerMeasurementActionObservationInterval,
+  SchedulerMeasurementActionObservation,
+  SchedulerMeasurementEffect,
   SchedulerRawMeasurement,
   SchedulerPolicy
 } from "./project-definition/project-definition.ts";

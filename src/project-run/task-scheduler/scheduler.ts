@@ -1,5 +1,7 @@
 import type {
+  AdmissionPolicyContext,
   SchedulerMeasurementContext,
+  SchedulerMeasurementHook,
   SchedulerRawMeasurement
 } from "../../project-definition/project-definition.ts";
 import { prepareTaskGraph, type PlannedTask } from "./graph.ts";
@@ -47,22 +49,32 @@ export async function runTaskGraph<TResult>(
 ): Promise<TaskGraphRun<TResult>> {
   const graph = prepareTaskGraph(options.graph, options.maxParallel);
   const state = createSchedulerState(graph, options);
+  const measurementInput =
+    options.performanceDiagnostics ??
+    (state.admissionPolicy.requiresMeasurement === true
+      ? Object.freeze({
+          clock: Object.freeze({ now: () => performance.now() }),
+          declarativeFingerprint: ""
+        })
+      : undefined);
   const diagnostics =
-    options.performanceDiagnostics === undefined
+    measurementInput === undefined
       ? undefined
-      : new SchedulerPerformanceDiagnostics(
-          options.performanceDiagnostics,
-          performanceState(state)
-        );
+      : new SchedulerPerformanceDiagnostics(measurementInput, performanceState(state));
   let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
 
   while (true) {
     let decision: SchedulerDecision;
     try {
+      const snapshot = snapshotSchedulerState(state);
+      const measurement =
+        state.admissionPolicy.requiresMeasurement === true
+          ? () => decisionBoundaryMeasurement(diagnostics)
+          : undefined;
       decision =
         diagnostics?.measureControlPath(() =>
-          decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy)
-        ) ?? decideScheduler(snapshotSchedulerState(state), trigger, state.admissionPolicy);
+          decideScheduler(snapshot, trigger, state.admissionPolicy, measurement)
+        ) ?? decideScheduler(snapshot, trigger, state.admissionPolicy, measurement);
     } catch (error) {
       if (!(error instanceof AdmissionPolicyFault)) throw error;
       diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
@@ -92,6 +104,10 @@ export async function runTaskGraph<TResult>(
         if (diagnostics === undefined) applyAdmission(state, decision);
         else diagnostics.measureControlPath(() => applyAdmission(state, decision));
         diagnostics?.captureState(performanceState(state));
+        if (state.admissionPolicy.requiresMeasurement === true) {
+          diagnostics?.beginSelectedPolicyAction(decision.taskId);
+          diagnostics?.recordEffect(Object.freeze({ kind: "admitted", taskId: decision.taskId }));
+        }
         trigger = Object.freeze({ kind: "admission-continued" });
         continue;
       case "settle-blocked":
@@ -99,6 +115,9 @@ export async function runTaskGraph<TResult>(
         if (diagnostics === undefined) applyBlockedSettlement(state, decision);
         else diagnostics.measureControlPath(() => applyBlockedSettlement(state, decision));
         diagnostics?.captureState(performanceState(state));
+        diagnostics?.recordEffect(
+          Object.freeze({ kind: "settled", settlementKind: "blocked", taskId: decision.taskId })
+        );
         trigger = Object.freeze({
           kind: "blocked-settled",
           taskId: decision.taskId
@@ -109,17 +128,32 @@ export async function runTaskGraph<TResult>(
         if (diagnostics === undefined) applyCancellation(state, decision);
         else diagnostics.measureControlPath(() => applyCancellation(state, decision));
         diagnostics?.captureState(performanceState(state));
+        for (const taskId of decision.taskIds) {
+          diagnostics?.recordEffect(
+            Object.freeze({ kind: "settled", settlementKind: "cancelled-before-start", taskId })
+          );
+        }
         trigger = Object.freeze({ kind: "cancellation-applied" });
         continue;
       case "await-running": {
         if (decision.proposal?.kind === "wait") {
           diagnostics?.beforeAcceptedWait();
+          if (state.admissionPolicy.requiresMeasurement === true) {
+            diagnostics?.beginWaitPolicyAction();
+          }
         }
         const completion = await nextRunningSettlement(state);
         diagnostics?.beforeRunningSettlement(completion.taskId);
         if (diagnostics === undefined) settleRunningTask(state, completion);
         else diagnostics.measureControlPath(() => settleRunningTask(state, completion));
         diagnostics?.captureState(performanceState(state));
+        diagnostics?.recordEffect(
+          Object.freeze({
+            kind: "settled",
+            settlementKind: completion.settlement.kind,
+            taskId: completion.taskId
+          })
+        );
         trigger = Object.freeze({
           kind: "task-settled",
           settlementKind: completion.settlement.kind,
@@ -187,6 +221,14 @@ function observeSchedulerDiagnostic<TResult>(
   }
 }
 
+function decisionBoundaryMeasurement(
+  diagnostics: SchedulerPerformanceDiagnostics | undefined
+): AdmissionPolicyContext["measurement"] {
+  if (diagnostics === undefined)
+    throw new Error("custom policy measurement collector is unavailable");
+  return diagnostics.policyMeasurement();
+}
+
 function performanceState<TResult>(state: SchedulerState<TResult>): SchedulerPerformanceState {
   const inspection = inspectSnapshot(snapshotSchedulerState(state));
   const admissionViablePendingTasks: AdmissionViablePendingTask[] = [];
@@ -231,36 +273,58 @@ async function observeTerminalMeasurement<TResult>(
     readonly state: SchedulerState<TResult>;
   }>
 ): Promise<void> {
-  const hooks = input.options.measurementHooks ?? [];
+  input.diagnostics.completePendingActionObservation();
   const context = measurementContext(
     input.state,
     input.diagnostics.admittedTaskIds(),
     input.diagnostics.rawMeasurement()
   );
-  input.diagnostics.observeSummary(context.rawMeasurement);
-  let hookFailed = false;
-  for (const hook of hooks) {
+  const callerHooks = input.options.measurementHooks ?? [];
+  let callerHookFailed = false;
+  const callerFailure = () => {
+    callerHookFailed = true;
+    observeSchedulerDiagnostic(input.state, {
+      event: "scheduler.measurement-hook-failed",
+      tags: diagnosticTags("SCHEDULER", "MEASUREMENT_HOOK_FAILED"),
+      details: Object.freeze({})
+    });
     try {
-      await hook(context);
+      input.options.onMeasurementHookFailure?.();
     } catch {
-      hookFailed = true;
-      observeSchedulerDiagnostic(input.state, {
-        event: "scheduler.measurement-hook-failed",
-        tags: diagnosticTags("SCHEDULER", "MEASUREMENT_HOOK_FAILED"),
-        details: Object.freeze({})
-      });
-      try {
-        input.options.onMeasurementHookFailure?.();
-      } catch {
-        // A failure-reporting seam cannot revise terminal Scheduler facts either.
-      }
+      // A failure-reporting seam cannot revise terminal Scheduler facts either.
     }
-  }
-  if (hooks.length > 0 && !hookFailed) {
+  };
+  const defaultHook = input.diagnostics.defaultSummaryHook();
+  const deliveries: readonly TerminalMeasurementDelivery[] = Object.freeze([
+    ...(defaultHook === undefined
+      ? []
+      : [Object.freeze({ hook: defaultHook, onFailure: () => undefined })]),
+    ...callerHooks.map((hook) => Object.freeze({ hook, onFailure: callerFailure }))
+  ]);
+  await deliverTerminalMeasurementHooks(deliveries, context);
+  if (callerHooks.length > 0 && !callerHookFailed) {
     try {
       input.options.onMeasurementHooksSettled?.();
     } catch {
       // A success-reporting seam cannot revise terminal Scheduler facts either.
+    }
+  }
+}
+
+type TerminalMeasurementDelivery = Readonly<{
+  readonly hook: SchedulerMeasurementHook;
+  readonly onFailure: () => void;
+}>;
+
+async function deliverTerminalMeasurementHooks(
+  deliveries: readonly TerminalMeasurementDelivery[],
+  context: SchedulerMeasurementContext
+): Promise<void> {
+  for (const delivery of deliveries) {
+    try {
+      await delivery.hook(context);
+    } catch {
+      delivery.onFailure();
     }
   }
 }
@@ -271,30 +335,7 @@ function measurementContext<TResult>(
   rawMeasurement: SchedulerRawMeasurement
 ): SchedulerMeasurementContext {
   return Object.freeze({
-    graph: Object.freeze({
-      scopes: Object.freeze(
-        state.graph.scopes.map((scope) =>
-          Object.freeze({
-            activationTaskIds: Object.freeze([...scope.activationTaskIds]),
-            id: scope.id,
-            maxParallel: scope.maxParallel,
-            terminalTaskId: scope.terminalTaskId
-          })
-        )
-      ),
-      tasks: Object.freeze(
-        state.graph.tasks.map((task) =>
-          Object.freeze({
-            admissionPriority: task.admissionPriority,
-            dependsOn: Object.freeze([...task.dependsOn]),
-            id: task.id,
-            mutex: Object.freeze([...task.mutex]),
-            observes: Object.freeze([...task.observes]),
-            scopeId: task.scopeId ?? null
-          })
-        )
-      )
-    }),
+    graph: state.graph.schedulerGraphSnapshot,
     execution: Object.freeze({
       admittedTaskIds: Object.freeze([...admittedTaskIds]),
       settledTasks: Object.freeze(

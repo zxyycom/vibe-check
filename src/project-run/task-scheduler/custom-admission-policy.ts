@@ -19,6 +19,7 @@ export function admissionSelectionPolicyFor(
 ): AdmissionSelectionPolicy | undefined {
   if (policy.kind === "static") return undefined;
   const customPolicy: AdmissionSelectionPolicy = Object.freeze({
+    requiresMeasurement: true,
     decide: (input: AdmissionPolicyInput) => invokeCustomPolicy(policy.proposeAdmission, input)
   });
   return customPolicy;
@@ -39,6 +40,8 @@ function invokeCustomPolicy(
 }
 
 function admissionPolicyContext(input: AdmissionPolicyInput): AdmissionPolicyContext {
+  if (input.measurement === undefined)
+    throw new Error("custom admission policy requires measurement");
   return deepFreeze({
     activeScopeIds: [...input.inspection.activeScopeIds],
     candidates: input.candidates.map((candidate) => ({
@@ -46,22 +49,8 @@ function admissionPolicyContext(input: AdmissionPolicyInput): AdmissionPolicyCon
       taskId: candidate.task.id
     })),
     capacity: capacityFor(input.inspection),
-    graph: {
-      scopes: input.graph.scopes.map((scope) => ({
-        activationTaskIds: [...scope.activationTaskIds],
-        id: scope.id,
-        maxParallel: scope.maxParallel,
-        terminalTaskId: scope.terminalTaskId
-      })),
-      tasks: input.graph.tasks.map((task) => ({
-        admissionPriority: task.admissionPriority,
-        dependsOn: [...task.dependsOn],
-        mutex: [...task.mutex],
-        observes: [...task.observes],
-        scopeId: task.scopeId ?? null,
-        taskId: task.id
-      }))
-    },
+    measurement: input.measurement,
+    graph: input.graphSnapshot,
     runningTaskIds: [...input.inspection.runningTaskIds],
     runtime: {
       abortRequested: input.inspection.isAbortRequested,

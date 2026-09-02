@@ -1,4 +1,5 @@
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 import { summarizeSchedulerBlockers } from "./scheduler-blocker-summary.ts";
 import type {
   SchedulerCapacity,
@@ -40,35 +41,15 @@ export function inspectSnapshot(snapshot: SchedulerSnapshot): SchedulerInspectio
   });
 }
 
-export function decisionContext(state: SchedulerInspection): SchedulerDecisionContext {
+export function decisionContext(
+  state: SchedulerInspection,
+  graphIdentity: SchedulerGraphSnapshot
+): SchedulerDecisionContext {
   const capacity = capacityFor(state);
   return Object.freeze({
     blockers: summarizeSchedulerBlockers(state, capacity),
     capacity,
-    graphIdentity: Object.freeze({
-      scopes: Object.freeze(
-        state.graph.scopes.map((scope) =>
-          Object.freeze({
-            activationTaskIds: Object.freeze([...scope.activationTaskIds]),
-            id: scope.id,
-            maxParallel: scope.maxParallel,
-            terminalTaskId: scope.terminalTaskId
-          })
-        )
-      ),
-      tasks: Object.freeze(
-        state.graph.tasks.map((task) =>
-          Object.freeze({
-            admissionPriority: task.admissionPriority,
-            dependsOn: Object.freeze([...task.dependsOn]),
-            id: task.id,
-            mutex: Object.freeze([...task.mutex]),
-            observes: Object.freeze([...task.observes]),
-            scopeId: task.scopeId ?? null
-          })
-        )
-      )
-    })
+    graphIdentity
   });
 }
 

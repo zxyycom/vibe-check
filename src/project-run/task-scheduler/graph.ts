@@ -1,4 +1,5 @@
 import { validatePreparedTaskGraph } from "./graph-validation.ts";
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 
 export interface TaskNode {
   readonly admissionPriority?: number;
@@ -43,6 +44,8 @@ export interface PlannedTaskScope {
 }
 
 export interface PlannedTaskGraph {
+  /** Immutable public projection shared by every decision and terminal measurement in one run. */
+  readonly schedulerGraphSnapshot: SchedulerGraphSnapshot;
   readonly tasks: readonly PlannedTask[];
   readonly scopes: readonly PlannedTaskScope[];
 }
@@ -73,8 +76,39 @@ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): Plan
   validatePreparedTaskGraph({ rootMaxParallel, scopeById, scopes, taskById, tasks });
 
   return Object.freeze({
+    schedulerGraphSnapshot: schedulerGraphSnapshot(tasks, scopes),
     tasks: Object.freeze(tasks),
     scopes: Object.freeze(scopes)
+  });
+}
+
+function schedulerGraphSnapshot(
+  tasks: readonly PlannedTask[],
+  scopes: readonly PlannedTaskScope[]
+): SchedulerGraphSnapshot {
+  return Object.freeze({
+    scopes: Object.freeze(
+      scopes.map((scope) =>
+        Object.freeze({
+          activationTaskIds: Object.freeze([...scope.activationTaskIds]),
+          id: scope.id,
+          maxParallel: scope.maxParallel,
+          terminalTaskId: scope.terminalTaskId
+        })
+      )
+    ),
+    tasks: Object.freeze(
+      tasks.map((task) =>
+        Object.freeze({
+          admissionPriority: task.admissionPriority,
+          dependsOn: Object.freeze([...task.dependsOn]),
+          mutex: Object.freeze([...task.mutex]),
+          observes: Object.freeze([...task.observes]),
+          scopeId: task.scopeId ?? null,
+          taskId: task.id
+        })
+      )
+    )
   });
 }
 

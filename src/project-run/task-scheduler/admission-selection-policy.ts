@@ -1,5 +1,9 @@
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
 import type { SchedulerInspection } from "./scheduler-decision-inspection.ts";
+import type {
+  AdmissionPolicyContext,
+  SchedulerGraphSnapshot
+} from "../../project-definition/project-definition.ts";
 
 export interface AdmissionCandidate {
   readonly canAdmit: boolean;
@@ -7,8 +11,11 @@ export interface AdmissionCandidate {
 }
 
 export interface AdmissionPolicyInput {
+  /** Scheduler-owned decision-boundary measurement, present only for custom policy. */
+  readonly measurement?: AdmissionPolicyContext["measurement"];
   readonly candidates: readonly AdmissionCandidate[];
   readonly graph: PlannedTaskGraph;
+  readonly graphSnapshot: SchedulerGraphSnapshot;
   readonly inspection: SchedulerInspection;
 }
 
@@ -18,6 +25,8 @@ export type AdmissionPolicyDecision =
 
 /** A Product-private pure admission policy; it receives no executor or mutable scheduler state. */
 export interface AdmissionSelectionPolicy {
+  /** Only custom policies require Scheduler sampling before every callback. */
+  readonly requiresMeasurement?: true;
   readonly decide: (input: AdmissionPolicyInput) => AdmissionPolicyDecision;
 }
 

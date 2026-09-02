@@ -770,6 +770,65 @@ describe("Scheduler measurement hooks", () => {
     assert.equal("value" in context.execution.settledTasks[0], false);
   });
 
+  it("delivers the internal summary Hook before caller Hooks through one runner", async () => {
+    const calls: string[] = [];
+    const logger = {
+      close: () => "succeeded" as const,
+      observe: (observation: DiagnosticObservation) => {
+        if (observation.event === "scheduler.summary") calls.push("summary");
+      }
+    };
+    await runTaskGraph({
+      execute: () => undefined,
+      graph: { tasks: [{ id: "task" }] },
+      maxParallel: 1,
+      performanceDiagnostics: Object.freeze({
+        clock: scriptedClock(),
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT,
+        logger
+      }),
+      measurementHooks: [
+        async () => {
+          await Promise.resolve();
+          calls.push("caller");
+        }
+      ]
+    });
+    assert.deepEqual(calls, ["summary", "caller"]);
+  });
+
+  it("contains summary writer failure while preserving caller Hook failure delivery", async () => {
+    let callerFailureCount = 0;
+    const calls: string[] = [];
+    const run = await runTaskGraph({
+      execute: () => undefined,
+      graph: { tasks: [{ id: "task" }] },
+      maxParallel: 1,
+      performanceDiagnostics: Object.freeze({
+        clock: scriptedClock(),
+        declarativeFingerprint: DECLARATIVE_FINGERPRINT,
+        logger: {
+          close: () => "succeeded" as const,
+          observe: () => {
+            throw new Error("summary writer failure");
+          }
+        }
+      }),
+      measurementHooks: [
+        () => {
+          calls.push("caller");
+          throw new Error("caller failure");
+        }
+      ],
+      onMeasurementHookFailure: () => {
+        callerFailureCount += 1;
+      }
+    });
+    assert.equal(run.admissionPolicyFault, undefined);
+    assert.deepEqual(calls, ["caller"]);
+    assert.equal(callerFailureCount, 1);
+  });
+
   it("continues after synchronous and asynchronous hook failures", async () => {
     const calls: string[] = [];
     let failures = 0;

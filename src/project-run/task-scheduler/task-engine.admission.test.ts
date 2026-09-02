@@ -65,11 +65,18 @@ describe("static task engine", () => {
     assert.deepEqual(rootAdmission.graphIdentity, {
       scopes: [],
       tasks: [
-        { admissionPriority: 0, dependsOn: [], id: "base", mutex: [], observes: [], scopeId: null },
+        {
+          admissionPriority: 0,
+          dependsOn: [],
+          taskId: "base",
+          mutex: [],
+          observes: [],
+          scopeId: null
+        },
         {
           admissionPriority: 0,
           dependsOn: ["base"],
-          id: "dependent",
+          taskId: "dependent",
           mutex: [],
           observes: [],
           scopeId: null
@@ -77,7 +84,7 @@ describe("static task engine", () => {
         {
           admissionPriority: 0,
           dependsOn: [],
-          id: "mutex-one",
+          taskId: "mutex-one",
           mutex: ["shared"],
           observes: [],
           scopeId: null
@@ -85,7 +92,7 @@ describe("static task engine", () => {
         {
           admissionPriority: 0,
           dependsOn: [],
-          id: "mutex-two",
+          taskId: "mutex-two",
           mutex: ["shared"],
           observes: [],
           scopeId: null
@@ -93,7 +100,7 @@ describe("static task engine", () => {
         {
           admissionPriority: 0,
           dependsOn: [],
-          id: "independent",
+          taskId: "independent",
           mutex: [],
           observes: [],
           scopeId: null
@@ -114,6 +121,26 @@ describe("static task engine", () => {
       lifecycleOpen: true,
       taskId: "base"
     });
+  });
+
+  it("reuses one stable graph identity across scheduler decision evidence", async () => {
+    const observations: DiagnosticObservation[] = [];
+    await runTaskGraph({
+      diagnosticLogger: recordingLogger(observations),
+      execute: () => undefined,
+      graph: { tasks: [{ id: "first" }, { id: "second" }] },
+      maxParallel: 2
+    });
+    const graphIdentities = observations
+      .filter((observation) => observation.event === "scheduler.decision")
+      .flatMap((observation) => {
+        const details = observation.details;
+        return details !== null && typeof details === "object" && "graphIdentity" in details
+          ? [details.graphIdentity]
+          : [];
+      });
+    assert.ok(graphIdentities.length > 1);
+    assert.equal(new Set(graphIdentities).size, 1);
   });
 
   it("distinguishes full graph identities with identical Task IDs but different scheduler semantics", () => {
@@ -153,8 +180,8 @@ describe("static task engine", () => {
     );
 
     assert.deepEqual(
-      baseline.graphIdentity.tasks.map((task) => task.id),
-      changed.graphIdentity.tasks.map((task) => task.id)
+      baseline.graphIdentity.tasks.map((task) => task.taskId),
+      changed.graphIdentity.tasks.map((task) => task.taskId)
     );
     assert.notDeepEqual(baseline.graphIdentity, changed.graphIdentity);
   });

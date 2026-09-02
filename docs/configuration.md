@@ -92,11 +92,7 @@ function 的 identity、source 与 closure 不进入 declarative snapshot/finger
 [Architecture](architecture.md#execution-boundary) 和 [API mechanisms](api-mechanics.md#outputs-与-runresult-边界)
 完整拥有。
 
-`AdmissionPolicyContext` 是每轮新建的 detached、deep-frozen ordinary data snapshot。它完整交接 canonical
-static graph 的 tasks、scopes 及每个 Task 的 relation arrays，且 topology 与 `admissionPriority` 只在 `graph.tasks` 的 Task metadata 中出现；动态
-部分只包含 relation/mutex candidates 的 `{ taskId, canAdmit }`、root/effective capacity、running/settled/active-scope IDs
-及 cancellation runtime facts。它不暴露 private Scheduler object、`Set`/`Map`、Check options/functions/data、Records、messages、
-logger、clock、signal 或 Task command。完整 callback 的 trusted、reentrancy、hard guard 与 fault 边界见
+`AdmissionPolicyContext` 是每次**实际** custom callback 新建的 detached、deep-frozen ordinary data snapshot。其 `graph` 是 invocation 内一次规范化、递归冻结后供所有 callback 共享的唯一 `SchedulerGraphSnapshot`；所有公开 Task identity 都是 `taskId`，topology 与 `admissionPriority` 只在 `graph.tasks` 的 Task metadata 中出现。动态部分包含 relation/mutex candidates 的 `{ taskId, canAdmit }`、root/effective capacity、running/settled/active-scope IDs、cancellation runtime facts，以及调用前已 flush 的 `measurement`。`measurement.cumulative` 只给有界累计 scalar/peak/discrete 事实，完整 per-Task table 只属于 terminal raw measurement；`measurementCount` 和 `measurementAt(index)` 是 context 创建时捕获的 invocation-local append-only frozen action-observation prefix reader。`measurementAt(index)` 是同步 getter，不返回 live array 或 per-round slice；index 不在 `[0, measurementCount)` 时返回 `undefined`，即使该 context 以后调用也不能读取后续 append。每条 observation 给出 accepted `select`/`wait` 的 sequence/kind/task identity、从其 post-action state 开始到下一次实际 custom callback 前结束的 occupancy interval，以及期间 admitted/settled effects。该 interval 是 closed union：`availability: "available"` 才含数值 `contribution`，`availability: "unavailable"` 只含 reason，绝不以全零伪造失效 timing；合法 zero span 仍是 available contribution。它不表达 action 因果、duration 或 critical path，也不暴露 private Scheduler object、`Set`/`Map`、Check options/functions/data、Records、messages、logger、clock、signal 或 Task command。完整 callback 的 trusted、reentrancy、hard guard 与 fault 边界见
 [深入 API 机制](api-mechanics.md#custom-admission-policy)。
 
 ### Check options preflight

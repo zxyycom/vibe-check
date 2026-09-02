@@ -1,6 +1,6 @@
 ---
 title: 向调用方公开无状态 custom admission policy
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T14:55:23Z
 purpose: 让调用方以最小 trusted synchronous callback 表达无状态准入偏好，同时不取得 Scheduler 的状态机、执行或硬合法性所有权。

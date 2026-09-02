@@ -1,3 +1,4 @@
+import type { SchedulerMeasurementHook } from "../../project-definition/project-definition.ts";
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope, TaskGraph } from "./graph.ts";
 import {
   staticAdmissionSelectionPolicy,
@@ -7,7 +8,6 @@ import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 import type { AdmissionPolicyFaultCategory } from "./scheduler-admission-decision.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "./scheduler-performance-diagnostics.ts";
-import type { SchedulerMeasurementHook } from "../../project-definition/project-definition.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
