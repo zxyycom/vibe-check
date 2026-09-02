@@ -26,7 +26,8 @@
     "package:build": "bun scripts/package/command.ts build",
     "package:verify": "bun scripts/package/command.ts verify",
     "package:release:prepare": "bun scripts/package/release/command.ts prepare",
-    "package:release:verify": "bun scripts/package/release/command.ts verify"
+    "package:release:verify": "bun scripts/package/release/command.ts verify",
+    "maintenance:lizard-upstream": "bun scripts/maintenance/lizard-upstream-advisory.ts"
   },
   "devDependencies": {
     "@ast-grep/cli": "0.45.0",
