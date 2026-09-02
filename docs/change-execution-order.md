@@ -56,7 +56,7 @@
 
 ## 当前协调基线
 
-本节于 2026-09-02 按本地主线提交 `427f75b36490221542be2a6348637894e4f1786c` 审阅。该基线包含：
+本节于 2026-09-02 按本地主线提交 `0ec422cb1899ad6840e5b4a24a1cd70938c57e7f` 审阅。该基线包含：
 
 - `714fcd48d76416a27fe813466ef1550a25ddedf7` 中已集成的 Scheduler 依赖、策略、测量与性能诊断基础；
 - `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
@@ -72,19 +72,16 @@ baseline，不能只因其 Plan 仍合法而沿用旧测量。
 | --- | --- | --- | --- |
 | 1A：主实现 | [`schedule-checks-from-learned-durations`](../changes/schedule-checks-from-learned-durations/proposal.md) | 从 Readiness 连续推进到实现、A/B 验收和归档 | 独占 Scheduler、check-execution、diagnostic 与相关公共说明 |
 | 1B：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A 并行规划；不要同时修改 invocation runtime |
-| 1C：证据 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | 完成大型 corpus benchmark、安全 payload 和 limit 语义设计 | 不得假设 path-context Draft 已落地 |
-| 1D：条件证据 | [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md) | 仅在当前任务授权后重审 owner，准备 oracle、corpus、provenance 与性能证据 | 未闭合 Resume Conditions 前不修改生产 backend |
+| 1C：条件证据 | [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md) | 仅在当前任务授权后重审 owner，准备 oracle、corpus、provenance 与性能证据 | 未闭合 Resume Conditions 前不修改生产 backend |
 
 第一批完成后按以下顺序继续：
 
 1. learned-duration Change 先形成可供后续工作继承的稳定实现提交；不要求先进入 `main`。其自身验收与归档仍按
    Change 任务和当前授权完成。
-2. invocation path context 达到 Plan 后再实现；若只暴露 machine/diagnostic effective paths，不构成 Markdown cache 的
-   硬前置。只有它明确提供 cross-run state capability 时，Markdown cache 才依赖它。
-3. Markdown cache 在 benchmark 与安全 payload 证明收益后进入 Plan；其实现可以与 Lizard analyzer 的独立源码工作并行，
-   但二者涉及的 package、Gate、Case 和公共文档改动必须分次合入并重新验证。
-4. learned scheduler 形成新诊断证据后，再判断 fail-fast 与 named capacity 是否值得激活。
-5. Node execution backend 最后独占推进，避免重复迁移测试、candidate、Gate 和性能基线。若 Windows/Bun 问题已是当前
+2. invocation path context 达到 Plan 后再实现；只读 machine/diagnostic effective paths、per-invocation workspace 与
+   cross-run state 继续按其自身真实 consumer 闭合，不从已归档 Change 恢复需求。
+3. learned scheduler 形成新诊断证据后，再判断 fail-fast 与 named capacity 是否值得激活。
+4. Node execution backend 最后独占推进，避免重复迁移测试、candidate、Gate 和性能基线。若 Windows/Bun 问题已是当前
    发布阻塞，则反转此推荐顺序：先冻结其它实现，把 Node Change 提升为唯一主线。
 
 ### Scheduler 轨道
@@ -109,12 +106,10 @@ candidate 与性能证据，并取得其 Resume Conditions 要求的明确优先
 [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
 consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。
 
-### Invocation path、Markdown cache 与 Node 轨道
+### Invocation path 与 Node 轨道
 
 - `provide-invocation-path-context` 在 Plan 前必须区分只读 Product-owned output facts、per-invocation writable workspace 与
   cross-run state。没有真实 writable consumer 时，不预置通用 path map、workspace 或 state registry。
-- `cache-markdown-link-safe-facts` 可以独立完成 benchmark、invocation memo 和安全 payload 设计。machine/diagnostic output
-  path 不是 cache directory；只有明确的 cross-run state owner 才形成依赖。
 - `adopt-node-execution-backend` 横跨 repository scripts、Test Evidence、package/candidate、Gate、lockfile、性能和 Windows
   验收。默认等 Scheduler、scanner 和 cache 轨道稳定后独占实施；不能与其它生产 Change 共用实现批次。
 
