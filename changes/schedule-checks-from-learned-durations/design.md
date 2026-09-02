@@ -14,11 +14,11 @@ Project Run当前在每个实际执行Check callback前后使用invocation-priva
 
 ```text
 explicit Definition setting + effective project root
-  -> preflight barrier
+  -> Definition normalization + invocation controls
   -> load and validate bounded duration history
   -> build immutable prediction snapshot
   -> pure admission-selection policy
-  -> execute and settle Checks with real active duration
+  -> task-local preflight, execute and settle Checks with real active duration
   -> update bounded history after Scheduler closure
 ```
 
@@ -70,18 +70,18 @@ executable Check可以声明`expectedDurationMs?: number`。字段必须是posit
 
 static mode继续完整保留现有priority行为，支持无持久状态、只运行一次或需要当前兼容语义的项目。dependency只表达必须等待的directed relation，不能用于伪造“希望更早”的性能偏好。
 
-#### 3. History identity在preflight后形成
+#### 3. History identity在admission前形成
 
-Scheduler history schema拥有独立model version。每项prepared Check的identity digest至少覆盖：
+Scheduler history schema拥有独立model version。每项normalized executable Check的identity digest至少覆盖：
 
 1. model version；
 2. stable Check ID；
-3. canonical prepared-options digest；
+3. canonical authored-options digest；
 4. canonical effective project flags。
 
-preflight function identity、任意外部文件和toolchain不能由Product可靠序列化或发现，不进入默认identity。若这些因素改变时长，rolling samples会逐步适应；存在稳定分桶需求后再评审显式identity hook，本Change不预置任意key callback。
+task-local preflight function identity、prepared options、任意外部文件和toolchain不能在admission前由Product可靠序列化或发现，不进入默认identity。若这些因素改变时长，rolling samples会逐步适应；存在稳定分桶需求后再评审显式identity hook，本Change不预置任意key callback，也不为取得prepared options恢复全局preflight barrier。
 
-history只保存digest、bounded numeric samples、对应outcome分类和内部observation sequence；不保存raw prepared options、flags、messages、Records或callback output。digest是本地identity，不宣称保密或content correctness。
+history只保存digest、bounded numeric samples、对应outcome分类和内部observation sequence；不保存raw authored/prepared options、flags、messages、Records或callback output。digest是本地identity，不宣称保密或content correctness。
 
 #### 4. 所有实际started duration都是事实样本
 
@@ -156,14 +156,14 @@ diagnostic logging启用时，新增有界事件说明：history read/write stat
 ### Resulting Impacts
 
 - Definition新增policy union与Check override会改变declarative schema；省略与显式static必须规范化为同一snapshot。若新增canonical默认使fingerprint算法输入相对变更前发生变化，实施者必须显式重建对应baseline，而不是承诺旧digest不变。
-- preflight后history identity构造需要复用canonical data boundary，但不能把prepared options写入history或diagnostic。
+- admission前history identity构造需要复用Definition的canonical authored-options boundary，但不能调用preflight，也不能把authored/prepared options写入history或diagnostic。
 - history read发生在Scheduler前，write发生在已闭合execution facts后；两者时间可由Scheduler外层diagnostic观察，不得混入Check duration或Scheduler own time。
 - estimated critical path需要final graph提供downstream adjacency；不要在policy每次选择时重复遍历完整图，应在immutable snapshot构造时一次计算score。policy仍接收完整 graph、relation/mutex eligible candidates 与 capacity facts；priority只存在于Task metadata，不设旁路输入。
 - Project Gate若采用learned mode，其state directory、忽略/清理policy和performance baseline需要由Gate owner维护；Product文档只说明通用state lifecycle。
 
 ## Risks / Trade-offs
 
-- 相同Check ID和prepared options在不同硬件、toolchain、cache状态或外部输入下仍可能有不同时长；bounded rolling window提供适应性但不是workload identity证明。
+- 相同Check ID和authored options在preflight结果、不同硬件、toolchain、cache状态或外部输入下仍可能有不同时长；bounded rolling window提供适应性但不是workload identity证明。
 - arithmetic mean对重尾样本敏感；第一版同时输出p90但不把variance自动变成第二个score。只有跨项目证据证明需要置信区间后再演进模型。
 - required state directory增加明确配置，但避免默认偷偷写HOME或repository；这是一次项目级成本，不是per-Check成本。
 - diagnostic-only failure observation意味着未启用diagnostic的调用方不能程序化判断history health；第一版接受该边界以避免为优化状态扩大所有RunResult branches。

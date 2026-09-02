@@ -22,7 +22,7 @@
 
 - 在 `expose-custom-admission-selection-policy` 已建立的 closed `static | custom` Definition admission-policy union 上增加 `learned-critical-path` variant：省略仍是当前 `{ kind: "static" }`，而既有 `custom` callback contract 不因本 Change 改写。learned variant 需要显式 `stateDirectory`；相对目录从 effective project root 解析，绝对目录直接使用；不存在隐藏的用户级或仓库级默认写入。
 - 为 executable Check 增加可选 positive safe-integer `expectedDurationMs`，不继承、不允许 container 声明。它覆盖该 Check 的 learned estimate并进入 normalized declaration/fingerprint；其它 Check 继续自动学习。
-- 在 preflight barrier 完成后、Scheduler 启动前，按 model version、Check ID、canonical prepared-options digest 与 canonical project flags 构造 history identity。历史文件不保存 raw options、flags 或 caller secret；这些输入只参与本地 digest。
+- 在完整 Definition normalization 后、Scheduler 启动前，按 model version、Check ID、canonical authored-options digest 与 canonical project flags 构造 history identity。task-local preflight 尚未发生，不参与 admission prediction identity；历史文件不保存 raw options、flags 或 caller secret，这些输入只参与本地 digest。
 - 将所有实际 started Check 的有效 monotonic active-duration measurement 作为事实样本，不按最终 status 删除；同时保留 outcome 分类供诊断。public duration 的 clock-anomaly fallback、preflight-blocked、dependency-blocked、fail-fast/cancel-before-start 与其它未启动 Check 不产生样本，admission delay 和 resource wait 不进入 execution-duration model。
 - 每个 identity 只保留最近 32 个真实样本；使用窗口 arithmetic mean 作为下一次 expected duration，并报告 sample count 与 p90。没有 identity 样本时使用当前模型内已有 Check estimates 的中位数；完全冷启动时所有 Check 使用同一常数 `1`。
 - 在 final directed readiness graph 上计算 `estimatedDurationMs + longest estimated downstream path`。learned policy 以无状态算法在当前 relation/mutex eligible candidates 与 capacity facts中作 select/wait；Scheduler 只守 selected next-option hard conditions 与 wait-drain，不保存或解释 fairness/starvation state。其余 selection preference按实现时确认的层级、critical-path score、`admissionPriority` 与 canonical tie-break组织。
@@ -32,7 +32,7 @@
 ### Resulting Impacts
 
 - `ProjectDefinition.scheduler`、Check authoring grammar、normalization、fingerprint、package declarations、Configuration/API 文档与 installed consumer需要新增 learned setting 和 optional override。
-- Check execution owner需要在 preflight 后组装 prediction identity，在 settlement 后把现有 duration/outcome交给 history owner；Task Scheduler只接收 immutable score snapshot，不执行 filesystem I/O或统计更新。
+- Run prediction owner需要在 admission 前从 normalized authored facts 组装 prediction identity，在 task-local execution settlement 后把现有 duration/outcome交给 history owner；Task Scheduler只接收 immutable score snapshot，不执行 filesystem I/O或统计更新。
 - `src/project-run/task-scheduler/**` 依赖 `extract-scheduler-admission-selection-policy` 的 private contract和`expose-custom-admission-selection-policy`的closed public union，并在 learned policy中计算graph bottom-level score；现有static policy保持默认。
 - history 是可变统计状态，不是 caller-keyed computation result；`src/cache/**` 与 `cacheJsonByKey` contract不修改、不迁移，也不获得 Scheduler或Run lifecycle capability。
 - `separate-passed-dependencies-from-settled-observations` Decision 必须先闭合 success dependency和outcome observation的 directed readiness edge；关键路径同时读取两者，但不把 outcome predicate变成预测输入。
@@ -59,7 +59,7 @@
 - [`docs/api-mechanics.md`](../../docs/api-mechanics.md)：跨运行学习、diagnostic可见性、failure fallback与cache边界。
 - [`docs/testing.md`](../../docs/testing.md)、`docs/testing/cases/**`：Definition、history、prediction、Scheduler与真实安装consumer证据。
 - `src/project-definition/**`、`src/check/**`：closed public grammar、normalization、fingerprint和declaration projection。
-- `src/project-run/check-execution/**`、`src/project-run/invocation.ts`：preflight后snapshot与settlement后history update。
+- `src/project-run/check-execution/**`、`src/project-run/invocation.ts`：admission前 authored-fact snapshot 与 settlement后 history update。
 - `src/project-run/task-scheduler/**`：learned critical-path policy与deterministic selection。
 - `src/project-run/scheduler-history/**` 或实施时确认的等价单一owner：versioned history parsing、bounded statistics与atomic publication。
 - `src/project-run/diagnostic-logging/**`：有界model/history observation。
