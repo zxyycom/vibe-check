@@ -1,6 +1,6 @@
 ---
 title: 将 Lizard 统一后置于 Check 产品基础
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-08-05T11:15:25Z
 purpose: 先建立新的 Check 产品运行边界，再重基线高风险且用户收益较低的 Lizard 迁移。

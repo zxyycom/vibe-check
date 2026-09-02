@@ -371,7 +371,7 @@
     "entries": {
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
-      "compare-lizard-and-scc-typescript-port-priority.md": "sha256:f36d2d03734cd988927ad44118c331f31787ee3f69d9ceaa111da921cbf9c7d8",
+      "compare-lizard-and-scc-typescript-port-priority.md": "sha256:2c18eb6094b1bd3028f930599b9a3d37af05f2103a2072513a5793d930a4ee3b",
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
       "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
       "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:f45a56559223f8c0d317013d7da4772bbf87838a714be580f44027f744803401",

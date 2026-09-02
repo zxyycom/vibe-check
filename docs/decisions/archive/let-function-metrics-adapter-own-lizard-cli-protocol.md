@@ -1,6 +1,6 @@
 ---
 title: 让函数指标 adapter 独占 Lizard CLI 协议
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T06:28:26Z
 purpose: 让 functionMetrics 只暴露 executable 选择，不把 Lizard version、CSV 和执行调优参数变成产品配置。

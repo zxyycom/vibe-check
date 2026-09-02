@@ -1,6 +1,6 @@
 ---
 title: 让函数指标输入范围与 Lizard 支持语言对齐
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T14:43:39Z
 purpose: 让 functionMetrics 对 Lizard 1.23.0 正式支持的源文件类型提供完整而受控的 exact-input eligibility。

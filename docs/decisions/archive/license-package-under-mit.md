@@ -1,6 +1,6 @@
 ---
 title: 使用 MIT 许可发布 Vibe Check package
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-14T05:52:51Z
 purpose: 让公开 package 的使用、分发和法律材料使用一个明确的开放源码许可边界。
