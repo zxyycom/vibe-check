@@ -3,6 +3,7 @@ import { describe, it } from "node:test";
 
 import {
   relativeEsmModuleSpecifiers,
+  rewriteFunctionMetricsWorkerUrl,
   rewriteRelativeEsmModuleExtensions
 } from "./esm-module-specifiers.ts";
 
@@ -25,6 +26,31 @@ describe("emitted ESM module specifiers", () => {
       "../re-export.mjs",
       "./dynamic.mjs"
     ]);
+
+    const workerSource = [
+      'const worker = new URL("./analyzer-worker.ts", import.meta.url).href;',
+      'const unrelatedUrl = new URL("./not-a-worker.ts", import.meta.url).href;',
+      'const ordinaryWorkerPath = "./analyzer-worker.ts";'
+    ].join("\n");
+    const rewrittenWorker = rewriteFunctionMetricsWorkerUrl({
+      fileName: "measurement.js",
+      source: workerSource
+    });
+    assert.match(rewrittenWorker, /new URL\("\.\/analyzer-worker\.mjs", import\.meta\.url\)\.href/);
+    assert.match(rewrittenWorker, /new URL\("\.\/not-a-worker\.ts", import\.meta\.url\)\.href/);
+    assert.match(rewrittenWorker, /ordinaryWorkerPath = "\.\/analyzer-worker\.ts"/);
+    assert.throws(
+      () => rewriteFunctionMetricsWorkerUrl({ fileName: "measurement.js", source: "export {};" }),
+      /must occur exactly once.*received 0/u
+    );
+    assert.throws(
+      () =>
+        rewriteFunctionMetricsWorkerUrl({
+          fileName: "measurement.js",
+          source: `${workerSource}\n${workerSource}`
+        }),
+      /must occur exactly once.*received 2/u
+    );
   });
 
   it("rejects malformed emitted JavaScript before artifact normalization", () => {

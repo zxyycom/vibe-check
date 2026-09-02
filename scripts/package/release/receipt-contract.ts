@@ -2,22 +2,21 @@ import { isAbsolute } from "node:path";
 
 import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
 import {
-  MOMOA_LICENSE_SHA256,
   PACKAGE_BUN_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
-  PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
   PACKAGE_REPOSITORY_MANIFEST_URL
 } from "../package-contract.ts";
+import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 import { isSha256Digest, isSha512Integrity } from "../pack.ts";
 import { isFullGitCommit, parseFormalReleaseVersion, parseReleaseTag } from "./identity.ts";
 
-const FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION = 1 as const;
+const FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION = 2 as const;
 
 export interface FormalReleaseReceipt {
   readonly schemaVersion: typeof FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION;
@@ -53,12 +52,10 @@ export interface FormalReleaseReceipt {
       readonly sha256: string;
     }>;
     readonly repository: typeof PACKAGE_REPOSITORY_MANIFEST_URL;
-    readonly thirdPartyLicenses: readonly [
-      Readonly<{
-        readonly path: typeof PACKAGE_MOMOA_LICENSE_PATH;
-        readonly sha256: typeof MOMOA_LICENSE_SHA256;
-      }>
-    ];
+    readonly legalMaterials: readonly Readonly<{
+      readonly path: string;
+      readonly sha256: string;
+    }>[];
   }>;
 }
 
@@ -155,9 +152,7 @@ function parseReleaseContract(value: unknown): FormalReleaseReceipt["contract"] 
     }),
     readme: Object.freeze({ path: PACKAGE_README_PATH, sha256: value.readme.sha256 }),
     repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-    thirdPartyLicenses: Object.freeze([
-      Object.freeze({ path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 })
-    ] as const)
+    legalMaterials: canonicalThirdPartyLegalMaterials()
   });
 }
 
@@ -175,7 +170,7 @@ function assertReleaseContract(value: unknown): asserts value is Readonly<
       "publish",
       "readme",
       "repository",
-      "thirdPartyLicenses"
+      "legalMaterials"
     ]) ||
     value.bunEngine !== PACKAGE_BUN_ENGINE ||
     value.license !== PACKAGE_LICENSE ||
@@ -189,7 +184,7 @@ function assertReleaseContract(value: unknown): asserts value is Readonly<
       registry: PACKAGE_PUBLISH_REGISTRY
     }) ||
     !isReadmeIdentity(value.readme) ||
-    !isThirdPartyLicenseIdentity(value.thirdPartyLicenses)
+    !isThirdPartyLegalMaterialIdentity(value.legalMaterials)
   ) {
     throw new TypeError("formal release receipt package contract is invalid");
   }
@@ -204,14 +199,21 @@ function isReadmeIdentity(value: unknown): value is Readonly<{ readonly sha256: 
   );
 }
 
-function isThirdPartyLicenseIdentity(value: unknown): boolean {
+function isThirdPartyLegalMaterialIdentity(value: unknown): boolean {
   return (
     Array.isArray(value) &&
-    value.length === 1 &&
-    hasExactStringRecord(value[0], {
-      path: PACKAGE_MOMOA_LICENSE_PATH,
-      sha256: MOMOA_LICENSE_SHA256
-    })
+    value.length === PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.length &&
+    PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.every((material, index) =>
+      hasExactStringRecord(value[index], { path: material.path, sha256: material.sha256 })
+    )
+  );
+}
+
+function canonicalThirdPartyLegalMaterials(): FormalReleaseReceipt["contract"]["legalMaterials"] {
+  return Object.freeze(
+    PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) =>
+      Object.freeze({ path: material.path, sha256: material.sha256 })
+    )
   );
 }
 

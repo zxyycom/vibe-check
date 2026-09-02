@@ -7,18 +7,17 @@ import { auditStagingRuntime } from "../artifact/staging-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import {
-  MOMOA_LICENSE_SHA256,
   PACKAGE_BUN_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
-  PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
   PACKAGE_REPOSITORY_MANIFEST_URL
 } from "../package-contract.ts";
+import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 import {
   fileMatchesSha256,
   fileMatchesSha512Integrity,
@@ -173,7 +172,7 @@ function createFormalReleaseReceipt(input: {
   readonly tag: string;
 }): FormalReleaseReceipt {
   return parseFormalReleaseReceipt({
-    schemaVersion: 1,
+    schemaVersion: 2,
     package: { name: PACKAGE_NAME, version: input.artifact.candidateVersion, tag: input.tag },
     source: {
       commit: input.sourceCommit,
@@ -196,7 +195,10 @@ function createFormalReleaseReceipt(input: {
         sha256: sha256File(join(input.artifact.stagingDirectory, PACKAGE_README_PATH))
       },
       repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-      thirdPartyLicenses: [{ path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 }]
+      legalMaterials: PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => ({
+        path: material.path,
+        sha256: material.sha256
+      }))
     }
   });
 }

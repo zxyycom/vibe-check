@@ -29,13 +29,13 @@ Entities:
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits documented public declarations`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > emits a readable ESM runtime layout and exact exports`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
-- `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the approved MIT, Bun host, repository, and public registry contract`
+- `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the approved SPDX, Bun host, repository, and public registry contract`
 - `bun|scripts/package/artifact/manifest.test.ts|generated package manifest rejects legal, host, publish, executable, and export drift`
   Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
-- The closed generated manifest uses the user-scoped `@zxyycom/vibe-check` identity and carries Vibe Check's exact MIT text and `zxyycom` notice, Bun `>=1.3.14`, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, or subpath export.
-- The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, and all four complete current artifact examples through staging and tar audit, including exact zero-byte NDJSON files and excluding historical material.
+- The closed generated manifest uses the user-scoped `@zxyycom/vibe-check` identity and carries the complete `MIT AND Apache-2.0 AND BSD-2-Clause` expression, Vibe Check's exact MIT text and `zxyycom` notice, Bun `>=1.3.14`, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, or subpath export.
+- The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, all four complete current artifact examples, exact Lizard/Pygments notice, license and provenance material, and the non-public emitted function-metrics Worker through staging and tar audit; it includes exact zero-byte NDJSON files and excludes historical or analyzer fixture material.
 
 ## Case AUX-PACKAGE-RELEASE-001: Formal release binds one clean source to one portable artifact receipt
 
@@ -50,7 +50,7 @@ Entities:
   Proves:
 
 - Formal preparation accepts only a positive canonical `0.0.x` and an explicit conservative tag, requires exact clean `HEAD`, and keeps release staging/receipt/compiler state distinct from the fingerprint local candidate while sharing only the versioned artifact root.
-- The versioned receipt uses repository-relative canonical paths, records the scoped package identity, and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/legal/README identities, version, and tag. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
+- The versioned receipt uses repository-relative canonical paths, records the scoped package identity, and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/README identities and the complete third-party legal-material inventory, version, and tag. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
 - The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one unmodified full Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable
@@ -62,7 +62,7 @@ Entities:
 - `bun|scripts/package/artifact/esm-module-specifiers.test.ts|emitted ESM module specifiers > rejects malformed emitted JavaScript before artifact normalization`
   Proves:
 
-- Artifact normalization rewrites every emitted relative ESM import form to a resolvable `.mjs` target without changing ordinary path strings, and rejects malformed emitted JavaScript before producing trusted output.
+- Artifact normalization rewrites every emitted relative ESM import form to a resolvable `.mjs` target without changing ordinary path strings. It additionally rewrites exactly one emitted `function-metrics` Worker source URL only in its measurement module, rejects zero/multiple compiler-shape matches, and rejects malformed emitted JavaScript before producing trusted output.
 
 ## Case AUX-PACKAGE-RUNTIME-SOURCE-MAPS-001: Packaged source maps match their emitted modules
 
@@ -98,7 +98,7 @@ Entities:
 - `bun|scripts/package/candidate/external-consumer/runtime.test.ts|external consumer runtime acceptance`
   Proves:
 
-- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies, proves that its resolved jscpd manifest, contained bin and actual engine version agree, and completes the supported package Run with the installed entry. This is release acceptance evidence for the installed candidate, not a claim that every Product Run requires the exact 5.1.1 engine. Its two duplicate fixture sources are the complete duplicate-detection exact scope and produce one trusted non-blocking `duplicate-detection` Record with passed final data containing one finding; it also imports all seven named final-data parsers and exercises both named and Check-attached parser paths. The installed public cache computes once, then returns a parser-backed digest-keyed hit without changing either Check execution settlement. The same installed Run proves that an `observes` consumer reads a failed provider outcome, a separate `dependsOn` consumer receives passed typed data, and a failed prerequisite produces `dependency-not-passed` with null duration without calling its dependent callback.
+- An ancestry-external consumer resolves the installed candidate's declared runtime tooling rather than repository or ancestor dependencies, proves that its resolved jscpd manifest, contained bin and actual engine version agree, and completes the supported package Run with the installed entry. This is release acceptance evidence for the installed candidate, not a claim that every Product Run requires the exact 5.1.1 engine. Its two duplicate fixture sources are the complete duplicate-detection exact scope and produce one trusted non-blocking `duplicate-detection` Record with passed final data containing one finding; it also imports all seven named final-data parsers and exercises both named and Check-attached parser paths. The same isolated Run imports and actually executes installed `functionMetrics` against a CCN `2` source under a maximum `1`, proving the one emitted Worker URL resolves to the shipped Worker and returns a trusted non-blocking Record without expanding public exports. The installed public cache computes once, then returns a parser-backed digest-keyed hit without changing either Check execution settlement. The same installed Run proves that an `observes` consumer reads a failed provider outcome, a separate `dependsOn` consumer receives passed typed data, and a failed prerequisite produces `dependency-not-passed` with null duration without calling its dependent callback.
 
 ## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
 
@@ -175,7 +175,16 @@ Entities:
 - `bun|scripts/validation/layout-characterization.test.ts|characterizes repository layout and dependency boundaries`
   Proves:
 
-- Workspace validation keeps the Product owner inventory closed, including the standalone `cache` owner, and rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package artifact entry other than `src/index.ts`.
+- Workspace validation keeps the Product owner inventory closed, including the standalone `cache` owner, and rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package compiler-root contract other than exactly public `src/index.ts` plus the internal function-metrics Worker root (which does not add a public entry).
+
+## Case AUX-DEVELOPMENT-QUALITY-TARGETS-001: Development quality commands exclude only generated analyzer oracle fixtures
+
+Owner: `docs/script-tooling.md#development-tooling`
+Entities:
+
+- `bun|scripts/development/quality-targets.test.ts|development quality target boundaries > excludes only generated function-analyzer oracle fixtures from product lint and format`
+  Proves:
+- Product lint and workspace format retain every normal `src` target while excluding only the checked-in generated function-analyzer oracle fixture directory.
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
 
@@ -187,8 +196,8 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete full selection for one explicit formal release receipt`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects ordinary Check entries without a command catalog or policy`
-- `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > uses the retained repository policy and mise-provided absolute scanner commands`
-- `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > substitutes an unavailable absolute command when mise bindings are missing or relative`
+- `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > uses the retained repository policy and binds only the mise-provided SCC command`
+- `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > derives required, full, and partial aggregates from the same entries`
   Proves:
 
@@ -399,3 +408,17 @@ Entities:
   Proves:
 
 - 已运行 child 超过显式 timeout 后终止，并保留 `error`、`SIGTERM`、`status: null` 与 `timedOut`，不被误判为普通失败或成功。
+
+## Case AUX-LIZARD-UPSTREAM-ADVISORY-001: Lizard upstream 查询保持显式、受限且非阻断
+
+Owner: `docs/maintenance-lizard-upstream-advisory.md#transport-and-result`
+Entities:
+
+- `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory reports the pinned version as current without ambient credentials`
+- `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory reports a stable newer release without changing anything`
+- `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory keeps HTTP, malformed, and oversized responses advisory`
+- `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory maps timeout and network failures to stable advisory results`
+  Proves:
+
+- 显式 maintenance lookup 只请求固定的 Lizard GitHub HTTPS release endpoint，禁用 credentials 与 redirects，并以 Lizard `1.23.0` 为 baseline；current release 产生 `no-update`，较高 stable release 只产生 `update-available`，不会修改 repository state。
+- HTTP、malformed、oversized、timeout、network 和 caller cancellation 都结算为稳定的 `unavailable` advisory code；它们不伪造“无更新”、不泄漏 transport error，也不形成默认 Gate 的阻断结论。

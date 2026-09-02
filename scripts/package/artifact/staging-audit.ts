@@ -5,6 +5,8 @@ import { collectFilePaths } from "../file-inventory.ts";
 import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
+  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
@@ -15,6 +17,11 @@ import {
   PACKAGE_TYPES_PATH,
   RUNTIME_EXPORTS
 } from "../package-contract.ts";
+import {
+  assertNoLegacyFunctionMetricsRuntime,
+  assertTranslatedAnalyzerLegalMaterials,
+  TRANSLATED_ANALYZER_LEGAL_MATERIALS
+} from "../legal-materials.ts";
 import { relativeEsmModuleSpecifiers } from "./esm-module-specifiers.ts";
 import { assertRuntimeSourceMapMatchesSource } from "./runtime-source-maps.ts";
 import {
@@ -32,7 +39,8 @@ const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_README_PATH,
-  PACKAGE_MOMOA_LICENSE_PATH
+  PACKAGE_MOMOA_LICENSE_PATH,
+  ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => material.path)
 ]);
 
 export function auditStagingRuntime(input: {
@@ -109,6 +117,14 @@ function assertStagingPublishedMaterials(input: {
   assertPackageMachineMaterials(stagingDirectory, expectedMachineMaterials);
   assertMomoaLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
   assertPackageLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_LICENSE_PATH)));
+  const files = stagingFilePaths(stagingDirectory);
+  const legalAccess = Object.freeze({
+    files,
+    hasFile: (packagePath: string) => existsSync(join(stagingDirectory, packagePath)),
+    readFile: (packagePath: string) => readFileSync(join(stagingDirectory, packagePath))
+  });
+  assertTranslatedAnalyzerLegalMaterials(legalAccess);
+  assertNoLegacyFunctionMetricsRuntime(legalAccess);
   assertJSDocExamplePayloads({
     declarationSources: collectFilePaths(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>
       path.endsWith(".d.ts")
@@ -134,6 +150,23 @@ function assertStagingRuntimeContract(
     throw new Error("candidate declarations must not use wildcard public exports");
   }
   assertReadableRuntimeLayout(stagingDirectory);
+  assertFunctionMetricsWorkerRuntime(stagingDirectory);
+}
+
+function assertFunctionMetricsWorkerRuntime(stagingDirectory: string): void {
+  const workerPath = join(stagingDirectory, PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH);
+  const measurementPath = join(stagingDirectory, PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH);
+  if (!existsSync(workerPath) || !existsSync(measurementPath)) {
+    throw new Error("candidate runtime is missing the emitted function-metrics Worker entry");
+  }
+  const measurement = readFileSync(measurementPath, "utf8");
+  const workerUrl = 'new URL("./analyzer-worker.mjs", import.meta.url)';
+  const occurrenceCount = measurement.split(workerUrl).length - 1;
+  if (occurrenceCount !== 1) {
+    throw new Error(
+      `candidate function-metrics runtime must resolve exactly one emitted Worker URL; received ${occurrenceCount}`
+    );
+  }
 }
 
 function assertStagingAllowlist(

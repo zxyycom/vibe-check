@@ -9,6 +9,12 @@ import {
   PACKAGE_README_PATH,
   PACKAGE_TYPES_PATH
 } from "../package-contract.ts";
+import {
+  assertNoLegacyFunctionMetricsRuntime,
+  assertTranslatedAnalyzerLegalMaterials,
+  PACKAGE_THIRD_PARTY_LEGAL_MATERIALS,
+  type PackagedLegalMaterialAccess
+} from "../legal-materials.ts";
 import { sha256File } from "../pack.ts";
 import {
   assertJSDocExamplePayloads,
@@ -80,9 +86,34 @@ function assertTarReadme(entries: readonly TarEntry[], expectedReadme: string): 
 
 function assertTarLegalMaterials(entries: readonly TarEntry[]): void {
   const packageLicense = requiredTarEntry(entries, `package/${PACKAGE_LICENSE_PATH}`);
-  const momoaLicense = requiredTarEntry(entries, `package/${PACKAGE_MOMOA_LICENSE_PATH}`);
   assertPackageLicenseContent(packageLicense.content);
-  assertMomoaLicenseContent(momoaLicense.content);
+  const legalAccess = tarPackageLegalMaterialAccess(entries);
+  assertMomoaLicenseContent(legalAccess.readFile(PACKAGE_MOMOA_LICENSE_PATH));
+  assertTranslatedAnalyzerLegalMaterials(legalAccess);
+  assertNoLegacyFunctionMetricsRuntime(legalAccess);
+}
+
+function tarPackageLegalMaterialAccess(entries: readonly TarEntry[]): PackagedLegalMaterialAccess {
+  const materials = new Map<string, Buffer>();
+  for (const entry of entries) {
+    if (!entry.path.startsWith("package/")) {
+      throw new Error(`candidate artifact entry is outside its package root: ${entry.path}`);
+    }
+    const packagePath = entry.path.slice("package/".length);
+    if (materials.has(packagePath)) {
+      throw new Error(`candidate artifact repeats a package entry: ${packagePath}`);
+    }
+    materials.set(packagePath, entry.content);
+  }
+  return Object.freeze({
+    files: Object.freeze([...materials.keys()].sort()),
+    hasFile: (packagePath: string) => materials.has(packagePath),
+    readFile: (packagePath: string) => {
+      const content = materials.get(packagePath);
+      if (content === undefined) throw new Error(`candidate artifact is missing ${packagePath}`);
+      return content;
+    }
+  });
 }
 
 function assertTarDeclarationExamples(
@@ -134,10 +165,12 @@ function assertManifestPackageEntries(entries: readonly TarEntry[]): void {
     !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_LICENSE_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_README_PATH}`) ||
-    !entries.some((entry) => entry.path === `package/${PACKAGE_MOMOA_LICENSE_PATH}`)
+    !PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.every((material) =>
+      entries.some((entry) => entry.path === `package/${material.path}`)
+    )
   ) {
     throw new Error(
-      "candidate artifact is missing its approved runtime, declarations, README, or legal entry"
+      "candidate artifact is missing its approved runtime, declarations, README, or legal material"
     );
   }
 }

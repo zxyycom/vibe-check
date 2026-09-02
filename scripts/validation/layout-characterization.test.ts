@@ -103,12 +103,30 @@ it("characterizes repository layout and dependency boundaries", () => {
         )
     },
     {
-      expected: "package-artifact-entry: expected src/index.ts",
+      expected:
+        "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots",
       mutate: (root) =>
         writeSource(
           root,
           "scripts/package/artifact/build.ts",
           'const entry = join(repositoryRoot, "src/project-definition/project-definition.ts");\nvoid entry;\n'
+        )
+    },
+    {
+      expected:
+        "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots",
+      mutate: (root) =>
+        writeSource(
+          root,
+          "scripts/package/package-contract.ts",
+          [
+            'export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH = "src/package-checks/function-metrics/analyzer-worker.ts";',
+            "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([",
+            '  "src/index.ts",',
+            "  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH,",
+            '  "src/package-checks/function-metrics/unapproved-worker.ts"',
+            "]);"
+          ].join("\n")
         )
     },
     {
@@ -140,7 +158,23 @@ function createTargetLayout(): string {
   writeSource(
     root,
     "scripts/package/artifact/build.ts",
-    'const entry = join(repositoryRoot, "src/index.ts");\nvoid entry;\n'
+    [
+      "const entries = PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS.map((sourcePath) =>",
+      "  join(repositoryRoot, sourcePath)",
+      ");",
+      "void entries;"
+    ].join("\n")
+  );
+  writeSource(
+    root,
+    "scripts/package/package-contract.ts",
+    [
+      'export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH = "src/package-checks/function-metrics/analyzer-worker.ts";',
+      "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([",
+      '  "src/index.ts",',
+      "  PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH",
+      "]);"
+    ].join("\n")
   );
   for (const path of [
     "scripts/project/gate/definition.test.ts",

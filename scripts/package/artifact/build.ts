@@ -4,15 +4,20 @@ import { basename, dirname, join, relative, sep } from "node:path";
 import { auditStagingRuntime } from "./staging-audit.ts";
 import { auditCandidateArtifact } from "./packed-tar-audit.ts";
 import type { ArtifactDocumentation } from "./documentation-audit.ts";
-import { rewriteRelativeEsmModuleExtensions } from "./esm-module-specifiers.ts";
+import {
+  rewriteFunctionMetricsWorkerUrl,
+  rewriteRelativeEsmModuleExtensions
+} from "./esm-module-specifiers.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
 import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
+  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SOURCE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
+  PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_SOURCE_DIRECTORY,
   PACKAGE_TARBALL_STEM,
@@ -22,6 +27,7 @@ import {
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "../pack.ts";
 import { normalizeRuntimeSourceMap } from "./runtime-source-maps.ts";
+import { TRANSLATED_ANALYZER_LEGAL_MATERIALS } from "../legal-materials.ts";
 
 export interface CandidateArtifact {
   readonly artifactPath: string;
@@ -100,7 +106,7 @@ export async function buildCandidateArtifact(input: {
       "--inlineSources",
       "--tsBuildInfoFile",
       tsBuildInfoPath,
-      join(repositoryRoot, "src/index.ts")
+      ...PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS.map((sourcePath) => join(repositoryRoot, sourcePath))
     ],
     cwd: repositoryRoot,
     phase: "emit readable runtime and declarations"
@@ -172,6 +178,20 @@ function copyLegalMaterials(input: {
   if (sha256File(destinationPath) !== MOMOA_LICENSE_SHA256) {
     throw new Error("candidate Momoa license material does not match the approved source text");
   }
+  for (const material of TRANSLATED_ANALYZER_LEGAL_MATERIALS) {
+    const source = join(input.repositoryRoot, material.path);
+    const destination = join(input.stagingDirectory, material.path);
+    if (!existsSync(source)) {
+      throw new Error(`candidate source is missing translated-analyzer legal material: ${source}`);
+    }
+    mkdirSync(dirname(destination), { recursive: true });
+    copyFileSync(source, destination);
+    if (sha256File(destination) !== material.sha256) {
+      throw new Error(
+        `candidate translated-analyzer legal material does not match its approved source text: ${material.path}`
+      );
+    }
+  }
 }
 
 /** Converts TypeScript's emitted .js module graph into the package's ESM .mjs tree. */
@@ -197,10 +217,16 @@ function normalizeEmittedModule(input: {
     throw new Error(`readable runtime module is missing its source map: ${input.javascriptPath}`);
   }
   const modulePath = `${input.javascriptPath.slice(0, -".js".length)}.mjs`;
-  const moduleSource = rewriteRelativeEsmModuleExtensions({
+  const staticModuleSource = rewriteRelativeEsmModuleExtensions({
     fileName: input.javascriptPath,
     source: readFileSync(input.javascriptPath, "utf8")
   });
+  const moduleSource = isEmittedFunctionMetricsMeasurement(input)
+    ? rewriteFunctionMetricsWorkerUrl({
+        fileName: input.javascriptPath,
+        source: staticModuleSource
+      })
+    : staticModuleSource;
   const normalizedModuleSource = rewriteLinkedSourceMapComment({
     javascriptPath: input.javascriptPath,
     modulePath,
@@ -216,6 +242,16 @@ function normalizeEmittedModule(input: {
   writeFileSync(`${modulePath}.map`, normalizedSourceMap, "utf8");
   rmSync(input.javascriptPath);
   rmSync(sourceMapPath);
+}
+
+function isEmittedFunctionMetricsMeasurement(input: {
+  readonly javascriptPath: string;
+  readonly stagingDirectory: string;
+}): boolean {
+  return (
+    relative(input.stagingDirectory, input.javascriptPath).split(sep).join("/") ===
+    `${PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH.slice(0, -".mjs".length)}.js`
+  );
 }
 
 function rewriteLinkedSourceMapComment(input: {

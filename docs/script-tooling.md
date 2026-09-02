@@ -23,6 +23,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/definition.ts` 集中拥有 Gate 配置，`gate/run.ts` 是唯一 process entry，`gate/checks/**` 与 `gate/runtime/**` 分别拥有 Check adapter 和 bound runtime mechanics。                                                                          |
 | `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                             |
 | `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                    |
+| `scripts/maintenance/**`                                 | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。                                                                                                                               |
 
 `src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。`scripts/project/package.json`
 从 exact installed `@zxyycom/vibe-check` candidate 消费该入口；`scripts/package/**` 只负责准备该 candidate，不能
@@ -42,6 +43,7 @@ scripts helper、环境状态或 process adapter。
 | formal package release    | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>`                   | `scripts/package/release/command.ts`      |
 | docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                           | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
 | governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>` | their named owners                        |
+| maintenance advisory      | `bun run maintenance:lizard-upstream`                                                                                                        | `scripts/maintenance/lizard-upstream-advisory.ts` |
 | Project Gate              | `bun run verify:vibe-check-workspace`；`bun run verify:vibe-check-workspace:required`；`bun run verify:vibe-check-workspace:full`             | `scripts/project/gate/run.ts`             |
 
 无 suffix 的 Project Gate 与 `:required` 都选择 required profile；`:full` 显式选择 full。scope、action
@@ -87,26 +89,33 @@ hook transcript 仍由该 client 决定。
 
 ## Package artifact 与 candidate
 
-`scripts/package/artifact/**` 从唯一 Product 入口 `src/index.ts` 构造 local candidate。artifact fingerprint
-同时绑定 Bun、锁定的 TypeScript emit/parser toolchain、Product source、package scripts 与文档输入。构建过程逐模块生成
-`dist/esm/**.mjs`，同时生成 `types/**.d.ts`、对应的源码映射，并复制 package 所属的 `src/**.ts` Product
-源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；`package.json` 的 `exports` 只开放根路径
-`"."`，因此物理存在的 `dist`、`types` 与 `src` 目录不是 consumer subpath API。
+`scripts/package/artifact/**` 从 public Product 入口 `src/index.ts` 与显式 internal Worker root
+`src/package-checks/function-metrics/analyzer-worker.ts` 构造 local candidate。artifact fingerprint 同时绑定这两个
+compiler root、Bun、锁定的 TypeScript emit/parser toolchain、Product source、package scripts 与文档输入。构建过程逐模块生成
+`dist/esm/**.mjs`，同时生成 `types/**.d.ts`、对应的源码映射，并复制 package 所属的非 test/fixture `src/**.ts`
+Product 源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；`package.json` 的 `exports` 只开放根路径
+`"."`，因此物理存在的 `dist`、`types` 与 `src` 目录不是 consumer subpath API。worker 不是额外 export：normalization
+只在 emitted `function-metrics/measurement.js` 中恰好一次将 `new URL("./analyzer-worker.ts", import.meta.url)` 改为
+`analyzer-worker.mjs`，任何数量或 compiler-shape drift 都拒绝产物，绝不 broad-rewrite ordinary URL strings。
 
 逐模块产物保留第三方 package imports；candidate manifest 必须声明完整且可审计的直接运行时依赖要求。依赖的行为 owner
 决定使用精确版本还是有界 semver range；candidate installation 必须验证实际解析版本满足声明，随后由实际 consumer
 execution 验证这份安装。package tooling 不替依赖 owner 推断额外兼容语义。
-local candidate 与 formal release 共用同一 closed generated manifest：user-scoped `@zxyycom/vibe-check`、唯一 root export、MIT、
-Bun `>=1.3.14`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
+local candidate 与 formal release 共用同一 closed generated manifest：user-scoped `@zxyycom/vibe-check`、唯一 root export、
+`MIT AND Apache-2.0 AND BSD-2-Clause`、Bun `>=1.3.14`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
 完整 production dependencies。manifest 不含 `private`、`bin`、lifecycle scripts、Node host 或 subpath export。
-仓库根 [`LICENSE`](../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还继续
-携带并精确核对实际复制进 tarball 的 Momoa third-party text。SPDX 字段不能替代两份 physical legal-material audit。
+仓库根 [`LICENSE`](../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还携带
+[`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)、`licenses/**` 中 Lizard 1.23 MIT、`lizard.py` Apache-2.0、Pygments
+2.18 BSD-2-Clause text 与 fixed-range provenance，以及 Momoa third-party text。staging、tarball 与 installed candidate 都逐字节
+核对这些 material、shipped source header→ledger→license closure、deferred bodies absent 与无 Python/Lizard/Pygments runtime
+dependency；Pygments/Lizard legal provenance text 本身不构成 runtime dependency。SPDX 字段不能替代 physical legal-material audit。
 artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package
 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
 它不从 repository source 或祖先依赖补偿不完整的 candidate。
 `candidate/external-consumer/**` 是 candidate 下级模块：它建立一次隔离安装及 typed material，并分别验证 types、
-documentation 与 runtime；父级 candidate lifecycle 不吸收这些验收职责。
+documentation 与 runtime；runtime evidence 从 installed root import 实际调用 `functionMetrics`，要求 CCN `2` 的 non-blocking
+finding，证明 emitted Worker URL 指向安装包内 worker 且 Worker 执行成功，而不扩大 public exports。父级 candidate lifecycle 不吸收这些验收职责。
 
 ### Local candidate lifecycle
 
@@ -199,13 +208,14 @@ Package supporting、candidate/artifact acceptance、三个 external-consumer ac
 - scheduler 的 root `maxParallel`、每个 Check 的 timeout 与 mutex 都在 `definition.ts` 声明。会改变 package lifecycle 的 Check 共享 lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。
 - 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 和 full 的 median，因此所有 Check 的 effective priority 都是 `0`。
 
-完整 tag 集合和可执行例子由 `--help` 输出；root package scripts 使用 mise-bound scanner commands 调用同一个 `run.ts`。
+完整 tag 集合和可执行例子由 `--help` 输出；root package scripts 经 `mise exec` 调用同一个 `run.ts`，
+Gate 只为 file metrics 读取 mise-bound SCC command。
 
 ### Direct repository-quality Checks
 
 `definition.ts` 直接声明 `duplicate-detection`、`file-metrics`、`function-metrics` 与 `markdown-link-validation` 的 repository-private options。它们是同一 Project Definition 中的普通 package Checks，不存在父 quality Check、嵌套 Run、第二份配置或独立 quality command。
 
-Gate 对四项使用 non-blocking finding policy：normal findings 保留完整 final data / Records，并由 owning Check 输出有上限的安全摘要；超过摘要上限时只追加精确 omitted count。scanner、source 或 parse failure 仍结算为 `unavailable`。完整 finding facts 以 machine Records 为准。
+Gate 对四项使用 non-blocking finding policy：normal findings 保留完整 final data / Records，并由 owning Check 输出有上限的安全摘要；超过摘要上限时只追加精确 omitted count。external-command、source、parse、内置分析或资源上限 failure 仍结算为 `unavailable`。完整 finding facts 以 machine Records 为准。
 
 repository-private scope 只让 TypeScript、current Schemas 和 examples 进入 `duplicate-detection`；Markdown 由 file metrics
 与 Markdown link validation 观察，不进入重复检测。`docs/schemas/historical/**` 不进入 duplicate/file maintainability
@@ -213,10 +223,10 @@ metrics，但仍由显式 documentation contract 严格验证。repository defau
 package 的公共默认值。
 
 同一 non-blocking Finding policy 适用于 required、full 和正式 release receipt 验证：发布前不要求 Finding 清零或逐项
-waiver。scanner/source/parse unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自
+waiver。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自
 owner 阻断。
 
-SCC 与 Lizard executable 只接受 mise 提供的绝对路径；缺失或相对 binding 不回退 ambient `PATH`，而让 owning Check 按 scanner failure 结算。scanner adapter 边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
+Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ### Process evidence
 

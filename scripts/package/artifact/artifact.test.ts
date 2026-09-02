@@ -6,7 +6,16 @@ import { fileURLToPath } from "node:url";
 import { after, describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
-import { RUNTIME_EXPORTS } from "../../package/package-contract.ts";
+import {
+  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
+  PACKAGE_LIZARD_APACHE_LICENSE_PATH,
+  PACKAGE_LIZARD_MIT_LICENSE_PATH,
+  PACKAGE_PYGMENTS_LICENSE_PATH,
+  PACKAGE_THIRD_PARTY_NOTICES_PATH,
+  PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
+  RUNTIME_EXPORTS
+} from "../../package/package-contract.ts";
 import {
   readGateArtifactAcceptanceInput,
   type ArtifactAcceptanceInput
@@ -105,7 +114,19 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     const { artifact } = await fixture();
     assert.equal(artifact.files.includes("package/dist/esm/index.mjs"), true);
     assert.equal(artifact.files.includes("package/dist/esm/index.mjs.map"), true);
+    assert.equal(
+      artifact.files.includes(`package/${PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH}`),
+      true
+    );
     assertReadableRuntimeLayout(artifact.stagingDirectory);
+    const measurement = readFileSync(
+      join(artifact.stagingDirectory, PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH),
+      "utf8"
+    );
+    assert.equal(
+      measurement.split('new URL("./analyzer-worker.mjs", import.meta.url)').length - 1,
+      1
+    );
     assert.equal(
       declaredRuntimeExports(join(artifact.stagingDirectory, "dist", "esm", "index.mjs")),
       JSON.stringify(RUNTIME_EXPORTS)
@@ -132,7 +153,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     });
   });
 
-  it("declares the approved MIT, Bun host, repository, and public registry contract", async () => {
+  it("declares the approved SPDX, Bun host, repository, and public registry contract", async () => {
     const { artifact } = await fixture();
     const manifest = candidateManifest(artifact.stagingDirectory);
     assert.equal(manifest.name, "@zxyycom/vibe-check");
@@ -141,7 +162,24 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       readFileSync(join(artifact.stagingDirectory, "LICENSE"), "utf8"),
       /^MIT License\n\nCopyright \(c\) 2026 zxyycom\n/u
     );
-    assert.equal(manifest.license, "MIT");
+    assert.equal(manifest.license, "MIT AND Apache-2.0 AND BSD-2-Clause");
+    for (const path of [
+      PACKAGE_THIRD_PARTY_NOTICES_PATH,
+      PACKAGE_LIZARD_MIT_LICENSE_PATH,
+      PACKAGE_LIZARD_APACHE_LICENSE_PATH,
+      PACKAGE_PYGMENTS_LICENSE_PATH,
+      PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH
+    ]) {
+      assert.equal(artifact.files.includes(`package/${path}`), true);
+    }
+    assert.match(
+      readFileSync(join(artifact.stagingDirectory, PACKAGE_THIRD_PARTY_NOTICES_PATH), "utf8"),
+      /19 Lizard concrete extension bodies and two extension-only support/u
+    );
+    assert.equal(
+      artifact.files.some((path) => path.includes("/analyzer/fixtures/lizard-1.23.0/")),
+      false
+    );
     assert.deepEqual(manifest.engines, { bun: ">=1.3.14" });
     assert.deepEqual(manifest.repository, {
       type: "git",

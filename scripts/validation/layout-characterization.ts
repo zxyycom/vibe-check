@@ -48,8 +48,16 @@ const PRIVATE_PROCESS_EXECUTION_FILES = new Set([
   "scripts/process-execution/result.ts",
   "scripts/process-execution/runner.ts"
 ]);
-const PACKAGE_ARTIFACT_ENTRY_SOURCE = new RegExp(
-  "join\\(\\s*repositoryRoot\\s*,\\s*[\"']src/index\\.ts[\"']\\s*\\)",
+const PACKAGE_ARTIFACT_COMPILER_ROOTS_SOURCE = new RegExp(
+  "export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS\\s*=\\s*Object\\.freeze\\(\\s*\\[\\s*[\"']src/index\\.ts[\"']\\s*,\\s*PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\\s*\\]\\s*\\)",
+  "u"
+);
+const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH_SOURCE = new RegExp(
+  "export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH\\s*=\\s*[\"']src/package-checks/function-metrics/analyzer-worker\\.ts[\"']",
+  "u"
+);
+const PACKAGE_ARTIFACT_COMPILER_ROOTS_USE = new RegExp(
+  "PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS\\.map\\(\\s*\\(sourcePath\\)\\s*=>\\s*join\\(\\s*repositoryRoot\\s*,\\s*sourcePath\\s*\\)\\s*\\)",
   "u"
 );
 const MODULE_BASENAME_SUFFIX = new RegExp("(?:\\.test-support|\\.test)?\\.ts$", "u");
@@ -234,9 +242,21 @@ function validatePackageArtifactEntry(root: string, violations: string[]): void 
     violations.push("package-artifact-entry: scripts/package/artifact/build.ts is missing");
     return;
   }
-  const source = readFileSync(buildPath, "utf8");
-  if (!PACKAGE_ARTIFACT_ENTRY_SOURCE.test(source)) {
-    violations.push("package-artifact-entry: expected src/index.ts");
+  const packageContractPath = join(root, "scripts/package/package-contract.ts");
+  if (!existsSync(packageContractPath)) {
+    violations.push("package-artifact-entry: scripts/package/package-contract.ts is missing");
+    return;
+  }
+  const buildSource = readFileSync(buildPath, "utf8");
+  const packageContractSource = readFileSync(packageContractPath, "utf8");
+  if (
+    !PACKAGE_ARTIFACT_COMPILER_ROOTS_USE.test(buildSource) ||
+    !PACKAGE_ARTIFACT_COMPILER_ROOTS_SOURCE.test(packageContractSource) ||
+    !PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH_SOURCE.test(packageContractSource)
+  ) {
+    violations.push(
+      "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots"
+    );
   }
 }
 
