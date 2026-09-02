@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import type { Check } from "../check/check.ts";
-import { validateMachinePublicationSetV4 } from "../machine-output/v4/validation.ts";
+import { readValidatedMachinePublication } from "../machine-output/v4/publication.test-support.ts";
 import { defineConfig } from "../project-definition/project-definition.ts";
 import { run } from "./run.ts";
 
@@ -114,18 +114,11 @@ function assertPublishedRunFacts(
 }
 
 function assertPublishedMachineFacts(root: string): void {
-  const runJson = readFileSync(join(root, "machine", "run.json"), "utf8");
-  const recordsNdjson = readFileSync(join(root, "machine", "records.ndjson"), "utf8");
-  const machine = validateMachinePublicationSetV4({
-    recordsNdjson: Buffer.from(recordsNdjson),
-    runJson: Buffer.from(runJson)
-  });
-  assert.equal(machine.ok, true, machine.ok ? "" : machine.diagnostic.message);
-  if (!machine.ok) return;
-  assert.equal(machine.value.run.schemaVersion, "vibe-check.run.v4");
-  assert.equal(machine.value.records[0]?.schemaVersion, "vibe-check.record.v4");
+  const { recordsNdjson, runJson, value } = readValidatedMachinePublication(root);
+  assert.equal(value.run.schemaVersion, "vibe-check.run.v4");
+  assert.equal(value.records[0]?.schemaVersion, "vibe-check.record.v4");
   assert.deepEqual(
-    machine.value.run.checks.map(({ checkId, outcome }) => [checkId, outcome.status]),
+    value.run.checks.map(({ checkId, outcome }) => [checkId, outcome.status]),
     [
       ["attention-support", "passed"],
       ["dependent", "passed"],
@@ -133,7 +126,7 @@ function assertPublishedMachineFacts(root: string): void {
     ]
   );
   assert.doesNotMatch(
-    `${runJson}${recordsNdjson}${JSON.stringify(machine.value)}`,
+    `${runJson}${recordsNdjson}${JSON.stringify(value)}`,
     /"(?:messages|visibility)"/
   );
 }

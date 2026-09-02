@@ -2,7 +2,11 @@ import { createHash } from "node:crypto";
 
 import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
 import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
-import type { FindingWaiverRecordAudit } from "../code-quality-findings/finding-waiver-evidence.ts";
+import {
+  buildHashedFindingWaiverAuditRecord,
+  type FindingWaiverAuditRecordData,
+  type FindingWaiverRecordAudit
+} from "../code-quality-findings/finding-waiver-evidence.ts";
 import { isBlockingFinding, type FindingPolicy } from "../code-quality-findings/policy.ts";
 import {
   compareDuplicateFindingLocations,
@@ -13,8 +17,6 @@ import type {
   DuplicateDetectionFindingIdentity,
   ResolvedDuplicateDetectionOptions
 } from "./options.ts";
-
-const FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX = "/finding-waiver-audit/";
 
 /** 一条可信重复片段 supplemental Record 的 data。 */
 export type DuplicateDetectionFindingRecordData = Readonly<{
@@ -33,13 +35,8 @@ export type DuplicateDetectionFindingRecordData = Readonly<{
 }>;
 
 /** 未使用或过宽 duplicate-detection waiver 的 supplemental audit Record data。 */
-export type DuplicateDetectionFindingWaiverAuditRecordData = Readonly<{
-  readonly identity: DuplicateDetectionFindingIdentity;
-  readonly kind: "finding-waiver-audit";
-  readonly matchCount: number;
-  readonly reason: string;
-  readonly status: "overmatched" | "unused";
-}>;
+export type DuplicateDetectionFindingWaiverAuditRecordData =
+  FindingWaiverAuditRecordData<DuplicateDetectionFindingIdentity>;
 
 /** duplicateDetection 发布的 normal finding 或 waiver-audit Record data。 */
 export type DuplicateDetectionRecordData =
@@ -76,17 +73,7 @@ export function duplicateDetectionWaiverAuditRecord(audit: FindingWaiverRecordAu
   readonly id: string;
 }> {
   const identity = duplicateDetectionWaiverIdentity(audit.waiver);
-  const digest = createHash("sha256").update(canonicalJsonBytes(identity)).digest("hex");
-  return Object.freeze({
-    data: Object.freeze({
-      identity,
-      kind: "finding-waiver-audit",
-      matchCount: audit.matchCount,
-      reason: audit.waiver.reason,
-      status: audit.status
-    }),
-    id: `${FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX}sha256:${digest}`
-  });
+  return buildHashedFindingWaiverAuditRecord(identity, audit);
 }
 
 /** Builds Check-owned supplemental facts without adding a Product record catalog. */

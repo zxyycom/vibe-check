@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { rmSync } from "node:fs";
 import { describe, it } from "node:test";
 
+import { assertOvermatchedFindingWaiverEvidence } from "../code-quality-findings/finding-waiver-evidence.test-support.ts";
 import { functionMetrics } from "./constructor.ts";
 import { executeFunctionMetrics } from "./execution.ts";
 import {
@@ -135,15 +136,7 @@ describe("functionMetrics finding waivers", () => {
       assert.equal(observed.result.status, "failed");
       if (observed.result.status !== "failed") return;
       assert.deepEqual(observed.result.data, { blockingFindingCount: 6, findingCount: 6 });
-      assert.equal(
-        observed.result.messages?.some(
-          ({ code, message }) =>
-            code === "overmatched-finding-waiver" && message.includes("matched 2 findings")
-        ),
-        true
-      );
-      assert.equal(observed.records.filter(({ data }) => Object.hasOwn(data, "waiver")).length, 0);
-      assert.deepEqual(observed.records.at(-1)?.data, {
+      assertOvermatchedFindingWaiverEvidence(observed, {
         identity: PARAMETER_IDENTITY,
         kind: "finding-waiver-audit",
         matchCount: 2,

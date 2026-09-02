@@ -1,14 +1,15 @@
-import { createHash } from "node:crypto";
-
 import {
   isStableFunctionName,
   type FunctionMetricAnalysis,
   type FunctionMetricInstance
 } from "./analysis.ts";
-import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
 import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
-import type { FindingWaiverRecordAudit } from "../code-quality-findings/finding-waiver-evidence.ts";
+import {
+  buildHashedFindingWaiverAuditRecord,
+  type FindingWaiverAuditRecordData,
+  type FindingWaiverRecordAudit
+} from "../code-quality-findings/finding-waiver-evidence.ts";
 import type { FunctionMetric, FunctionMetricsAreaInput } from "./measurement-model.ts";
 import type {
   FunctionMetricsFindingIdentity,
@@ -18,8 +19,6 @@ import type {
 import { resolveFunctionMetricsFindingIdentity } from "./finding-waiver-identity.ts";
 
 const INPUT_REJECTED_RECORD_ID_PREFIX = "/input-rejected/";
-const FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX = "/finding-waiver-audit/";
-
 /** 一条超出函数 metric 上限的 supplemental Record data。 */
 export type FunctionMetricsFindingRecordData = Readonly<{
   readonly blocking: boolean;
@@ -35,13 +34,8 @@ export type FunctionMetricsFindingRecordData = Readonly<{
 }>;
 
 /** 未使用或过宽 function-metrics waiver 的 supplemental audit Record data。 */
-export type FunctionMetricsFindingWaiverAuditRecordData = Readonly<{
-  readonly identity: FunctionMetricsFindingIdentity;
-  readonly kind: "finding-waiver-audit";
-  readonly matchCount: number;
-  readonly reason: string;
-  readonly status: "overmatched" | "unused";
-}>;
+export type FunctionMetricsFindingWaiverAuditRecordData =
+  FindingWaiverAuditRecordData<FunctionMetricsFindingIdentity>;
 
 /** 一条已被 files policy 选中、但不受 functionMetrics 支持的输入 Finding。 */
 export type FunctionMetricsInputRejectedRecordData = Readonly<{
@@ -136,17 +130,7 @@ export function functionMetricsWaiverAuditRecord(audit: FindingWaiverRecordAudit
   readonly id: string;
 }> {
   const identity = functionMetricsWaiverIdentity(audit.waiver);
-  const digest = createHash("sha256").update(canonicalJsonBytes(identity)).digest("hex");
-  return Object.freeze({
-    data: Object.freeze({
-      identity,
-      kind: "finding-waiver-audit",
-      matchCount: audit.matchCount,
-      reason: audit.waiver.reason,
-      status: audit.status
-    }),
-    id: `${FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX}sha256:${digest}`
-  });
+  return buildHashedFindingWaiverAuditRecord(identity, audit);
 }
 
 /** 为每个超过 matching-area 最严格阈值的 metric 构造 supplemental fact。 */

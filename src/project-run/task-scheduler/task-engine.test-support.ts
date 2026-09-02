@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import type { TaskGraph } from "./graph.ts";
 import { prepareTaskGraph } from "./graph.ts";
@@ -49,6 +50,23 @@ export function schedulerSummary(
   const details = summaries[0]?.details;
   if (!isRecord(details)) assert.fail("scheduler summary must have ordinary object details");
   return details;
+}
+
+/** Verifies the shared immutable graph boundary exposed by Scheduler contexts. */
+export function assertFrozenSchedulerGraphSnapshot(graph: SchedulerGraphSnapshot): void {
+  assert.equal(Object.isFrozen(graph), true);
+  assert.equal(Object.isFrozen(graph.tasks), true);
+  for (const task of graph.tasks) {
+    assert.equal(Object.isFrozen(task), true);
+    assert.equal(Object.isFrozen(task.dependsOn), true);
+    assert.equal(Object.isFrozen(task.mutex), true);
+    assert.equal(Object.isFrozen(task.observes), true);
+  }
+  assert.equal(Object.isFrozen(graph.scopes), true);
+  for (const scope of graph.scopes) {
+    assert.equal(Object.isFrozen(scope), true);
+    assert.equal(Object.isFrozen(scope.activationTaskIds), true);
+  }
 }
 
 export function recordedSchedulerDecisions(
@@ -180,9 +198,7 @@ function assertSchedulerDecisionContext(decision: SchedulerDecision): void {
   ]);
   assert.equal(Object.isFrozen(decision.capacity), true);
   assert.equal(Object.isFrozen(decision.blockers), true);
-  assert.equal(Object.isFrozen(decision.graphIdentity), true);
-  assert.equal(Object.isFrozen(decision.graphIdentity.tasks), true);
-  assert.equal(Object.isFrozen(decision.graphIdentity.scopes), true);
+  assertFrozenSchedulerGraphSnapshot(decision.graphIdentity);
   if (decision.kind === "admit" || decision.kind === "await-running") {
     assert.equal(Object.isFrozen(decision.candidates), true);
     assert.equal(Object.isFrozen(decision.hardGuard), true);

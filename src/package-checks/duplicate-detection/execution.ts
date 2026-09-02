@@ -147,7 +147,6 @@ function collectAreaInputs(
   rootDir: string,
   codeAreas: ResolvedDuplicateDetectionOptions["codeAreas"]
 ): readonly DuplicateDetectionAreaInput[] {
-  const areas: DuplicateDetectionAreaInput[] = [];
   const orderedPolicies = Object.entries(codeAreas).sort(([left], [right]) =>
     compareText(left, right)
   );
@@ -155,19 +154,21 @@ function collectAreaInputs(
     rootDir,
     Object.fromEntries(orderedPolicies.map(([areaId, policy]) => [areaId, policy.files]))
   );
-  for (const [codeArea, policy] of orderedPolicies) {
-    const approvedExactPaths = requireProjectFileSet(filesByArea, codeArea);
-    if (approvedExactPaths.length === 0) continue;
-    areas.push(
-      Object.freeze({
-        approvedExactPaths: Object.freeze(approvedExactPaths),
-        codeArea,
-        minimumLines: policy.minimumLines,
-        minimumTokens: policy.minimumTokens
-      })
-    );
-  }
-  return Object.freeze(areas);
+  return Object.freeze(
+    orderedPolicies.flatMap(([codeArea, policy]) => {
+      const approvedExactPaths = requireProjectFileSet(filesByArea, codeArea);
+      return approvedExactPaths.length === 0
+        ? []
+        : [
+            Object.freeze({
+              approvedExactPaths: Object.freeze(approvedExactPaths),
+              codeArea,
+              minimumLines: policy.minimumLines,
+              minimumTokens: policy.minimumTokens
+            })
+          ];
+    })
+  );
 }
 
 function uniqueSorted(values: readonly string[]): string[] {

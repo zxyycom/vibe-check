@@ -7,6 +7,7 @@ import { prepareTaskGraph } from "./graph.ts";
 import { decideScheduler, type SchedulerSnapshot } from "./scheduler-decision.ts";
 import { runTaskGraph } from "./scheduler.ts";
 import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
+import { assertFrozenSchedulerGraphSnapshot } from "./task-engine.test-support.ts";
 
 const EXECUTION_STARTED = Object.freeze({ kind: "execution-started" as const });
 
@@ -131,9 +132,7 @@ describe("task engine admission policy", () => {
     assert.deepEqual(context.capacity, { effectiveMaxParallel: 1, maxParallel: 1, running: 0 });
     assert.deepEqual(context.runtime, { abortRequested: false, cancelled: false });
     assert.equal(Object.isFrozen(context), true);
-    assert.equal(Object.isFrozen(context.graph), true);
-    assert.equal(Object.isFrozen(context.graph.tasks), true);
-    assert.equal(Object.isFrozen(context.graph.tasks[0]), true);
+    assertFrozenSchedulerGraphSnapshot(context.graph);
     assert.equal(Object.isFrozen(context.candidates), true);
     assert.equal(context.graph.tasks instanceof Map, false);
     assert.equal(context.candidates instanceof Set, false);

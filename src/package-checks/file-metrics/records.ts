@@ -3,7 +3,11 @@ import type { FileMetricsFindingIdentity, ResolvedFileMetricsCodeAreaOptions } f
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
 import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
 import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
-import type { FindingWaiverRecordAudit } from "../code-quality-findings/finding-waiver-evidence.ts";
+import {
+  buildFindingWaiverAuditRecordData,
+  type FindingWaiverAuditRecordData,
+  type FindingWaiverRecordAudit
+} from "../code-quality-findings/finding-waiver-evidence.ts";
 import type {
   CanonicalJsonObject,
   CanonicalJsonValue
@@ -36,13 +40,8 @@ export type FileMetricsFindingRecordData = Readonly<{
 }>;
 
 /** 未使用或过宽 file-metrics waiver 的 supplemental audit Record data。 */
-export type FileMetricsFindingWaiverAuditRecordData = Readonly<{
-  readonly identity: FileMetricsFindingIdentity;
-  readonly kind: "finding-waiver-audit";
-  readonly matchCount: number;
-  readonly reason: string;
-  readonly status: "overmatched" | "unused";
-}>;
+export type FileMetricsFindingWaiverAuditRecordData =
+  FindingWaiverAuditRecordData<FileMetricsFindingIdentity>;
 
 /** file-metrics 发布的 finding 或 waiver-audit supplemental Record data。 */
 export type FileMetricsRecordData =
@@ -60,13 +59,7 @@ export function fileMetricsWaiverAuditRecord(
 ): Readonly<{ readonly data: FileMetricsFindingWaiverAuditRecordData; readonly id: string }> {
   const identity = fileMetricsWaiverIdentity(audit.waiver);
   return Object.freeze({
-    data: Object.freeze({
-      identity,
-      kind: "finding-waiver-audit",
-      matchCount: audit.matchCount,
-      reason: audit.waiver.reason,
-      status: audit.status
-    }),
+    data: buildFindingWaiverAuditRecordData(identity, audit),
     id: `${FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX}${identity.path}`
   });
 }

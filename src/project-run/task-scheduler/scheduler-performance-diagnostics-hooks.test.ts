@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import type { SchedulerMeasurementContext } from "../../project-definition/project-definition.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { runTaskGraph } from "./scheduler.ts";
-import { scriptedClock } from "./task-engine.test-support.ts";
+import { assertFrozenSchedulerGraphSnapshot, scriptedClock } from "./task-engine.test-support.ts";
 import { DECLARATIVE_FINGERPRINT } from "./scheduler-performance-diagnostics.test-support.ts";
 
 describe("Scheduler measurement hooks", () => {
@@ -144,10 +144,7 @@ describe("Scheduler measurement hooks", () => {
 
 function assertTerminalMeasurementContext(context: SchedulerMeasurementContext): void {
   assert.equal(Object.isFrozen(context), true);
-  assert.equal(Object.isFrozen(context.graph), true);
-  assert.equal(Object.isFrozen(context.graph.tasks), true);
-  assert.equal(Object.isFrozen(context.graph.tasks[0]), true);
-  assert.equal(Object.isFrozen(context.graph.tasks[0]?.dependsOn), true);
+  assertFrozenSchedulerGraphSnapshot(context.graph);
   assert.equal(Object.isFrozen(context.execution), true);
   assert.equal(Object.isFrozen(context.execution.settledTasks), true);
   assert.equal(Object.isFrozen(context.execution.settledTasks[0]), true);

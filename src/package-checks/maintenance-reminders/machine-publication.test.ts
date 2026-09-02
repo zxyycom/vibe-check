@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
-import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { validateMachinePublicationSetV4 } from "../../machine-output/v4/validation.ts";
+import { readValidatedMachinePublication } from "../../machine-output/v4/publication.test-support.ts";
 import { run } from "../../project-run/run.ts";
 import { maintenanceReminders } from "./maintenance-reminders.ts";
 import {
@@ -68,22 +68,15 @@ describe("maintenance reminders", () => {
         }
       ]);
 
-      const runJson = readFileSync(join(root, "machine", "run.json"), "utf8");
-      const recordsNdjson = readFileSync(join(root, "machine", "records.ndjson"), "utf8");
-      const machine = validateMachinePublicationSetV4({
-        recordsNdjson: Buffer.from(recordsNdjson),
-        runJson: Buffer.from(runJson)
-      });
-      assert.equal(machine.ok, true, machine.ok ? "" : machine.diagnostic.message);
-      if (!machine.ok) return;
-      assert.deepEqual(machine.value.run.checks, [
+      const { recordsNdjson, runJson, value } = readValidatedMachinePublication(root);
+      assert.deepEqual(value.run.checks, [
         {
           checkId: "maintenance-reminders",
           displayName: "Maintenance reminders",
           outcome: completed.outcome
         }
       ]);
-      assert.deepEqual(machine.value.records, []);
+      assert.deepEqual(value.records, []);
       assert.doesNotMatch(
         runJson,
         /maintenance-reminder-due|Review published maintenance|messages|visibility/
