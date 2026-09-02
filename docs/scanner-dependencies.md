@@ -23,16 +23,19 @@ capability，以及 `src/package-checks/project-files/**` 的 exact-path members
 
 [随包 Check 指南](navigation.md#随包-check-指南)拥有各 Check 的初始 options。[Configuration](configuration.md#package-provided-check-composition)
 只拥有它们与普通 Project Definition 的组合边界。`fileMetrics` 与
-`functionMetrics` 的 public scanner 都只保留 executable；SCC adapter 固定 `--version` probe、`--by-file --format csv`
-与 exact paths，Lizard adapter 固定 `--version` probe、exact paths 与 `--csv`，并在 scan 前执行 [`functionMetrics` 指南拥有的 version output contract](checks/function-metrics.md#定制-lizard-executable)。两者都不允许参数透传扩大输入、改变
+`functionMetrics` 的 public scanner 都只保留 executable；SCC adapter 只接受精确 `scc version 4.0.0`，固定 `--version` probe、
+`--no-config --by-file --format csv` 与 exact paths，且将 SCC 3.7.0 或其它版本 fail closed 为 `unavailable`；Lizard adapter
+固定 `--version` probe、exact paths 与 `--csv`，并在 scan 前执行 [`functionMetrics` 指南拥有的 version output contract](checks/function-metrics.md#定制-lizard-executable)。两者都不允许参数透传扩大输入、改变
 parser contract 或把 tool tuning 变成产品配置。
 `duplicateDetection` 的 defaulted constructor input 与 custom 示例由
 [`duplicateDetection` 指南](checks/duplicate-detection.md#定制-jscpd-executable)定义；本页只拥有 constructor 形成的完整
 options 如何进入 private adapter：
 
 1. package command 从随 `@zxyycom/vibe-check` 安装的 `jscpd` manifest 解析相对 bin target，确认 target 仍位于该 package 目录，
-   再以 active Bun 执行。仓库 lockfile 固定当前验证基线 `5.0.11`，发布 package 以 `^5.0.11` 接受从该基线开始的同
-   major v5 版本；它不是 PATH discovery、environment override 或跨 Check backend。
+   再以 active Bun 执行。仓库 lockfile 固定当前验证基线 `5.1.1`，发布 package 以 `^5.1.1` 接受从该基线开始的同
+   major v5 版本。发布验收在 repository、candidate 与 external consumer 三条路径验证 manifest、contained bin 和实际
+   engine version 一致，避免把 wrapper 的 semver 声明误当作可执行 engine provenance。此验收不把每次 Product
+   availability probe 改成 exact-5.1.1 runtime gate；它不是 PATH discovery、environment override 或跨 Check backend。
 2. custom command 只使用已验证的 executable。adapter 固定执行 version probe，并拥有 exact-input config 与 JSON report
    output protocol；availability readback 将其 source 标为 `custom command`，不会猜测它来自 repository devDependency。
 3. adapter 不传 `--workers`，沿用 jscpd 自动 worker policy；没有真实 execution budget 或 profiling evidence 时，工具支持的

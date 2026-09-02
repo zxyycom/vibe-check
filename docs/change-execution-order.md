@@ -1,7 +1,7 @@
 # Change 执行依赖与 Worktree 协调
 
 本文是同时推进多个 active Change 时的协调入口。它维护跨 Change 的硬前置、推荐合入顺序、
-共享 owner 冲突和 worktree 使用规则，让执行者能够从最新主分支选择下一项工作。
+共享 owner 冲突和 worktree 使用规则，让执行者能够从当前已确认的集成基线选择下一项工作。
 
 本文不是 active Change 清单、任务状态或实施授权。成员、stage、任务进度和 Git 距离以
 `bun run change-plan -- list changes` 及目标 `changes/<change>/` artifacts 为准；暂停原因和恢复条件
@@ -17,8 +17,9 @@
    当前 Outcome、开放问题和 Readiness。
 3. 确认所有硬前置已经合入当前集成分支；仅在另一 worktree 完成但尚未合入，不算前置已满足。
 4. 检查同一批 worktree 的共享 owner。硬依赖已经满足仍不代表适合并行修改同一模块。
-5. 从最新集成分支创建一个只负责一个 Change 的分支和 worktree。完成验收、归档与独立提交后再合入，
-   然后让下游 Change 重新核对 Plan 基线。
+5. 从最新集成基线创建一个只负责一个 Change 的分支和 worktree。完成验收、归档与独立提交后再合入，
+   然后让下游 Change 重新核对 Plan 基线。若当前协调基线已明确指定连续堆叠分支，则该分支就是本轮下游的
+   集成基线；不得为了形式上回到 `main` 而重建 worktree 或丢弃已验收的前序结果。
 
 如果本文与目标 Change artifacts 不一致，以目标 artifacts 和当前事实为准，并在继续实施前更新本文；
 不得用本文覆盖目标 Change 的暂停条件、任务或验收要求。
@@ -48,9 +49,12 @@
 
 ## 当前协调基线
 
-本节于 2026-09-01 基于 Git `36a4fd933507a0ec38af4762c274ede78d1f04f0` 审阅；形成时
-`change-plan check-all` 报告 16 个 active Change 结构有效。该提交只标识本次依赖审阅的输入，不冻结后续
-Change 状态，也不证明任何 Implementation 已完成。
+本节于 2026-09-01 在当前
+`codex/upgrade-jscpd-duplicate-detection-to-5-1-1` 分支审阅。该分支是已归档 jscpd 与 SCC scanner migration
+连续堆叠后的当前集成基线；它不表示这些结果已经合入 `main`，也不要求在继续下游 scanner Change 前先合入
+`main` 或重建 worktree。`upgrade-jscpd-duplicate-detection-to-5-1-1` 与
+`upgrade-scc-file-metrics-to-v4` 均已位于 `changes/archive/`，因此不再是 active scanner 轨道节点。当前成员、stage
+与任务状态仍以 `bun run change-plan -- list changes` 和目标 artifacts 为准；本节不冻结后续状态或代替实施验收。
 
 ### Scheduler 主线
 
@@ -107,17 +111,14 @@ custom hook duration 与 Product Scheduler 自有耗时、diagnostic observation
 
 ### Scanner 迁移轨道
 
-以下三项没有硬语义依赖，但都会修改 package 或工具材料、scanner 文档、Case owner、环境或 Gate。默认按
-推荐顺序串行合入，避免并行维护 `package.json`、lockfile 和共享 scanner owner：
+SCC v4 migration 已归档并从 active Change 集合移出。scanner migration 当前只剩一个 active implementation
+节点：[`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md)。
+它继续使用当前 `codex/upgrade-jscpd-duplicate-detection-to-5-1-1` 分支上的 SCC 归档结果作为集成基线；不以
+先合入 `main` 或新建下游 worktree 作为前置。
 
-1. [`upgrade-jscpd-duplicate-detection-to-5-1-1`](../changes/upgrade-jscpd-duplicate-detection-to-5-1-1/proposal.md)
-2. [`upgrade-scc-file-metrics-to-v4`](../changes/upgrade-scc-file-metrics-to-v4/proposal.md)
-3. [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md)
-
-差分语料、provenance 和平台调查可以在独立 worktree 并行形成；实际依赖、lockfile、environment、candidate 和
-文档切换必须在前一项合入后重新基线化。Lizard 迁移还受其自身 Resume Conditions 与活动长期 Decision 约束，
-不能因排在本表中就推断已经获得实施优先级。当前把 jscpd 放在 SCC 前，是因为其 Plan 基线更新、目标更窄且
-直接排除已知 5.1.0 wrapper/engine 错配；把 Lizard 放在最后，是因为它的 owner 迁移最宽且仍受后置方向约束。
+Lizard 迁移仍受其自身 Resume Conditions 与活动长期 Decision 约束，不能因它是轨道中唯一 active implementation
+节点就推断已经获得实施优先级。差分语料、provenance 和平台调查可以独立形成；实际依赖、lockfile、environment、
+candidate 和文档切换必须与当前分支上的 SCC 结果串行协调，避免重新引入共享 scanner owner 冲突。
 
 ### 可独立推进与证据轨道
 
@@ -126,6 +127,7 @@ custom hook duration 与 Product Scheduler 自有耗时、diagnostic observation
 | [`surface-generic-finding-waivers`](../changes/surface-generic-finding-waivers/proposal.md) | 文档发现路径为主；收敛为 Plan 后可与 Scheduler 或 scanner 实现并行，合入时处理 README/configuration 小范围冲突 |
 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | Draft；先闭合只读 output facts 与 writable workspace/state owner，不直接实施 |
 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | Draft；可并行完成大型 corpus benchmark 和安全 payload 设计，persistent cache 实现不得假设 path-context Draft 已落地 |
+| [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) | Draft；从当前连续堆叠集成基线及已归档 SCC v4 evidence 出发，判断未来是否值得形成独立 public capability。它不扩张当前 public API、不授权 runtime 实现，也不阻塞 Lizard 或当前 scanner implementation。 |
 
 Invocation path context 与 Markdown cache 只有在前者最终提供明确的 cross-run state capability 时才形成条件依赖；
 仅暴露 machine 或 diagnostic output path 不构成 cache directory。
@@ -142,16 +144,19 @@ Invocation path context 与 Markdown cache 只有在前者最终提供明确的 
 
 ## Worktree 与合入规则
 
-1. **一个 Change 一个分支。** 分支使用 `codex/<change-name>`；同一分支不混入另一个 Change 的实现或归档。
+1. **默认一个 active Change 一个分支。** 分支使用 `codex/<change-name>`；已明确作为当前集成基线的连续堆叠分支可以
+   保留已验收、已归档的前序 Change。此时分支名只标识起始 Change，不要求为了名称或 `main` 重新建立下游 worktree。
 2. **一个 Change 一个活跃实现 worktree。** 不让两个执行者同时修改同一 Change 目录；Readiness 调查的外部临时材料
    不得冒充已合入实现。
-3. **依赖按“已合入”判断。** 上游 worktree 测试通过或存在本地提交都不足以解除下游硬前置。
+3. **依赖按“已进入当前集成基线”判断。** 默认是合入目标集成分支；当前协调基线明确指定连续堆叠分支时，也可以是该
+   分支中已验收、已归档的前序结果。上游 worktree 测试通过或单独存在本地提交都不足以解除下游硬前置。
 4. **共享 owner 默认串行。** Scheduler 主线和 scanner 迁移分别在自己的轨道内串行；不同轨道才是优先并行单位。
-5. **下游重新基线化。** 上游合入后，下游先语义复核当前 Plan；需要刷新 `baseCommit` 时再运行
+5. **下游重新基线化。** 上游进入当前集成基线后，下游先语义复核当前 Plan；需要刷新 `baseCommit` 时再运行
    `bun run change-plan -- plan changes/<change>`，不能仅因 Git 距离非零机械刷新。
 6. **完成后独立归档提交。** 每项 Change 在成功标准、稳定 owner 和验证闭合后，取得归档授权并归档；归档与该项最终
    实现作为可独立审阅的提交交付。
-7. **集成后再启动下一项。** 合入后运行 Change、Decision 和目标验证入口；下一个硬依赖 worktree 从该集成结果开始。
+7. **集成后再启动下一项。** 合入或按本文明确进入连续堆叠基线后，运行 Change、Decision 和目标验证入口；下一个
+   硬依赖 worktree 从该集成结果开始。
 
 ## 维护与验证
 

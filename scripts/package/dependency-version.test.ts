@@ -8,7 +8,7 @@ import {
 
 test("package dependency versions satisfy only their declared requirement", () => {
   const exact = { kind: "exact", version: "8.20.0" } as const;
-  const range = { kind: "range", range: "^5.0.11" } as const;
+  const range = { kind: "range", range: "^5.1.1" } as const;
 
   assert.equal(
     isAcceptedPackageDependencyVersion({ requirement: exact, resolvedVersion: "8.20.0" }),
@@ -19,8 +19,12 @@ test("package dependency versions satisfy only their declared requirement", () =
     false
   );
   assert.equal(
-    isAcceptedPackageDependencyVersion({ requirement: range, resolvedVersion: "5.0.11" }),
+    isAcceptedPackageDependencyVersion({ requirement: range, resolvedVersion: "5.1.1" }),
     true
+  );
+  assert.equal(
+    isAcceptedPackageDependencyVersion({ requirement: range, resolvedVersion: "5.1.0" }),
+    false
   );
   assert.equal(
     isAcceptedPackageDependencyVersion({ requirement: range, resolvedVersion: "5.9.0" }),
@@ -31,5 +35,5 @@ test("package dependency versions satisfy only their declared requirement", () =
     false
   );
   assert.equal(packageDependencyVersionRequirementText(exact), "8.20.0");
-  assert.equal(packageDependencyVersionRequirementText(range), "^5.0.11");
+  assert.equal(packageDependencyVersionRequirementText(range), "^5.1.1");
 });

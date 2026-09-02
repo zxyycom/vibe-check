@@ -1,6 +1,6 @@
 ---
 title: 让文件指标 adapter 独占 SCC CLI 协议
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T06:39:32Z
 purpose: 让 fileMetrics 只暴露 SCC executable 选择，不把版本探测、输出格式或参数透传变成产品配置。

@@ -109,7 +109,7 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | 你想检查什么 | 使用的导出 | 运行前提 |
 | --- | --- | --- |
 | 重复代码 | [`duplicateDetection(options?)`](./docs/checks/duplicate-detection.md) | package 使用随安装依赖提供的兼容 jscpd v5。 |
-| 文件代码行指标 | [`fileMetrics(options?)`](./docs/checks/file-metrics.md) | 环境中有兼容 SCC 3.7.0 输出契约的 `scc` command。 |
+| 文件代码行指标 | [`fileMetrics(options?)`](./docs/checks/file-metrics.md) | 环境中有兼容精确 SCC 4.0.0 输出契约的 `scc` command。 |
 | 函数规模、复杂度和参数数量 | [`functionMetrics(options?)`](./docs/checks/function-metrics.md) | 环境中有兼容 Lizard 1.23 输出契约的 `lizard` command。 |
 | JSON 语法和输入范围 | [`jsonValidation(options?)`](./docs/checks/json-validation.md) | 只读取本地文件，不执行 command 或网络请求。 |
 | JSON 与 Schema 的匹配关系 | [`jsonSchemaValidation(options?)`](./docs/checks/json-schema-validation.md) | 默认离线；只有显式允许的 HTTPS source 才会触发网络请求。 |

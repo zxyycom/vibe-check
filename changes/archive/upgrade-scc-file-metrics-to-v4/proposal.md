@@ -5,7 +5,7 @@
 
 ## Why
 
-仓库当前用 SCC 3.7.0 为 `fileMetrics` 生成逐文件 `Code` 与 `Complexity` measurement，并在
+本 Change 形成时，仓库用 SCC 3.7.0 为 `fileMetrics` 生成逐文件 `Code` 与 `Complexity` measurement，并在
 `mise.toml` 固定 `go:github.com/boyter/scc/v3`。SCC 4.0.0 已成为新的 stable major；它修正或扩展了
 Rust `?` complexity、Python docstring、C/C++/CUDA、TypeScript/JavaScript、diff/Patch 等语言识别和计数，
 同时把安装路径迁到 `/v4` 并提高 Go toolchain 要求。因此只替换版本号会把真实计量变化伪装成普通依赖维护，
@@ -14,7 +14,7 @@ Rust `?` complexity、Python docstring、C/C++/CUDA、TypeScript/JavaScript、di
 形成时调查及其证据边界见
 [`assess-scc-and-jscpd-upgrade-readiness`](../../docs/investigations/assess-scc-and-jscpd-upgrade-readiness.md)。
 当前 adapter ownership 与 public scanner 边界由
-[`let-file-metrics-adapter-own-cli-protocol`](../../docs/decisions/let-file-metrics-adapter-own-cli-protocol.md)持有。
+[`use-scc-v4-file-metrics-cli-protocol`](../../docs/decisions/use-scc-v4-file-metrics-cli-protocol.md)持有。
 
 ## Outcome
 
@@ -41,8 +41,9 @@ measurement 的版本或输出 fail closed。
 
 ### Resulting Impacts
 
-- `fileMetrics` 的 public TypeScript option shape 不变，但 `Code` 和 `Complexity` 数值可能发生一次有意的 baseline
-  迁移，repository threshold 或既有 fixture expectation 可能需要基于证据调整。
+- `fileMetrics` 的 public TypeScript option shape 不变。已完成的差分只确认 Rust `?` 的 `Complexity` 从 `0` 到 `1`；
+  `Code`、Provider/path、Record 与 finding 没有漂移。既有 threshold 和 fixture expectation 不变，且 threshold 继续是
+  area-owned 的非阻断观测策略。
 - repository dogfood 和开发环境改为解析 `/v4` SCC binary；旧 `/v3` tool installation 不再是充分环境。
 - 显式提供 custom executable 的 consumer 需要提供能通过 SCC 4.0.0 version probe 和 v4 CSV contract 的命令。
 - cache/backend identity 必须区分新版本；不得把 3.7.0 raw measurement 当成 4.0.0 结果复用。
@@ -55,8 +56,8 @@ Lizard、jscpd 或其它 Check。
 
 - project-owned install、environment management、version probe 与 actual invocation 都解析 SCC 4.0.0 `/v4`，并在
   候选环境中证明 Go 1.26.4 requirement 可重复满足。
-- differential corpus 覆盖仓库实际语言以及 v4 已知变化类别；每项 `Code`/`Complexity` 差异都有 intentional 或
-  regression 分类，未解释的漂移不能进入 migration。
+- differential corpus 覆盖仓库实际语言以及 v4 已知变化类别；每项 CSV/header、Provider/path、`Code`、`Complexity`、
+  Record 与 finding 差异都有 intentional 或 regression 分类，未解释的漂移不能进入 migration。
 - ambient user/project SCC config 不能改变 measurement；若采用 Product-owned config，其路径、内容、版本 identity
   与 precedence 均由测试证明，且 exact paths 不来自 config。
 - CSV header、row、Provider/path、empty input、timeout/cancellation、non-zero exit 与 malformed output 保持完整、
@@ -74,4 +75,4 @@ Lizard、jscpd 或其它 Check。
 - `docs/checks/file-metrics.md`
 - `docs/scanner-dependencies.md`
 - `docs/testing/cases/check-owned-scanners.md`
-- `docs/decisions/let-file-metrics-adapter-own-cli-protocol.md`
+- `docs/decisions/use-scc-v4-file-metrics-cli-protocol.md`

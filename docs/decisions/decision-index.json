@@ -101,7 +101,7 @@
       "let-duplicate-detection-adapter-own-cli-protocol.md": "sha256:4dd7c33f9b0754e8efc83e9f486fc650d9e34c329d7a4a7216a565cb490e1eb5",
       "let-each-check-own-file-selection.md": "sha256:d2c3009c71dc06f6602e3a29ad0f6ce2832590527624cffb0ebbb2229d87b764",
       "let-each-duplicate-code-area-own-files-and-thresholds.md": "sha256:a41eb7580c74a8eea28a88eff1937cfd500c3a12290cc3262c192657ed057144",
-      "let-file-metrics-adapter-own-cli-protocol.md": "sha256:2ead275a0161dbcba2ac5a04f4d6605ab770398d07c88f547f755708572377e8",
+      "let-file-metrics-adapter-own-cli-protocol.md": "sha256:57b7f88c79db3e65e302146ddf58c2c071cab81fd17c8cb4bd2db05dc13cfdf4",
       "let-file-metrics-areas-own-files-and-thresholds.md": "sha256:c0f4a48d3b8c5d23da72fbbee216da4dde3a428a1d875dc33933381c8c387278",
       "let-function-metrics-adapter-own-lizard-cli-protocol.md": "sha256:0a5c5b7c7a3ddeddf660793153e527854dc53235516fac1671bd8406318acf43",
       "license-package-under-mit.md": "sha256:d15d5030805e27139ff79d6c493f0297262854e37b25b3a60d5a389d83f59ecc",
@@ -182,7 +182,7 @@
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
       "support-multi-flag-check-enablement-strategies.md": "sha256:9fc673aecd1d18f81e44248235b414799346d3a539406eecdef95d863eced6d4",
-      "treat-jscpd-version-as-adapter-provenance.md": "sha256:4b5d97d7136fa1093e1830418725607f5823b61b54f544a8aea125ad207afc59",
+      "treat-jscpd-version-as-adapter-provenance.md": "sha256:e2ded43206717fe2d7d5e73061b8693a0319e1cba35d8d58f118371f1365a13f",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-run-output-directories-as-explicit-trusted-targets.md": "sha256:8f01b9f9b6d5d19a93c6efdc9ebb919a063a3ae781da09b8d1880c1e726772bf",
@@ -226,6 +226,7 @@
       "use-project-decision-records.md": "sha256:4e4a395ce2b91ce47bfbce284f5f8c8de749c2028fcb8ecaa83c09d312b2799e",
       "use-recursive-check-values-with-optional-execution.md": "sha256:0c602e74ab18fc111c681057bf146069f4b3049402d6ada6edf00caa9df3b473",
       "use-runtime-resolved-check-and-record-core.md": "sha256:b847d6f9fb1b4122e2b5d0671acf9ae37fab63b9081ce872fe0676920c38265f",
+      "use-scc-v4-file-metrics-cli-protocol.md": "sha256:d1247362ef64789f8d986980200b67479b333347f852be8b701a4bac3009af76",
       "use-semantic-check-ids-in-project-config.md": "sha256:6573b9ba86972941d7312cd41ebe3f4f259d62ab86cdccc5fc2e6f579ab9e1d5",
       "use-semantic-check-ids-in-quality-records.md": "sha256:7e30b6b103d2a28334ab73707d138be4b1fac6c7166857536f292e62017a2b4c",
       "use-semantic-test-case-closure.md": "sha256:171eb708a4b7b35559182224a3165e7bcfe83c82f1a0b6e5c87cad5a58d079cc",
@@ -3291,16 +3292,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "let-file-metrics-adapter-own-cli-protocol.md",
+        "sourcePath": "archive/let-file-metrics-adapter-own-cli-protocol.md",
         "title": "让文件指标 adapter 独占 SCC CLI 协议",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-28T06:39:32Z",
         "purpose": "让 fileMetrics 只暴露 SCC executable 选择，不把版本探测、输出格式或参数透传变成产品配置。",
@@ -7150,6 +7151,40 @@
           {
             "type": "替代",
             "target": "use-standard-quality-record-stream.md"
+          }
+        ]
+      }
+    },
+    "use-scc-v4-file-metrics-cli-protocol.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-scc-v4-file-metrics-cli-protocol.md",
+        "title": "让文件指标 adapter 固定 SCC v4 CLI 协议",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-01T13:33:54Z",
+        "purpose": "让 fileMetrics 以 SCC 4.0.0 的精确版本和可复现的私有 CLI 协议形成可信文件计量。",
+        "background": "SCC v4 改变安装 module、Go 基线和部分计量实现，并支持 ambient config discovery；旧的 v3 协议不能再证明相同 measurement 边界。",
+        "decision": "fileMetrics 只公开 executable；adapter 固定 SCC 4.0.0 和 --no-config，不保留 v3 fallback 或 public config。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "let-file-metrics-adapter-own-cli-protocol.md"
           }
         ]
       }

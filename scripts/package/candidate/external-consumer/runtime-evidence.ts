@@ -23,6 +23,7 @@ export function assertExternalConsumerRuntime(
   assert.equal(isPathWithin(repositoryRoot, jscpd.manifestPath), false);
   assert.equal(isPathWithin(material.consumerDirectory, jscpd.binPath), true);
   assert.equal(isPathWithin(repositoryRoot, jscpd.binPath), false);
+  assert.equal(runJscpdEngine(jscpd.binPath), jscpd.version);
   assert.equal(
     isAcceptedPackageDependencyVersion({
       requirement: { kind: "range", range: CANDIDATE_DEPENDENCIES.jscpd },
@@ -45,7 +46,13 @@ function resolveCandidateJscpd(candidateEntryPath: string): Readonly<{
   if (declaredBin === undefined) {
     throw new TypeError("resolved jscpd manifest does not declare a jscpd bin");
   }
-  const binPath = resolve(dirname(manifestPath), declaredBin);
+  const packageDirectory = dirname(manifestPath);
+  const binPath = resolve(packageDirectory, declaredBin);
+  assert.equal(
+    isPathWithin(packageDirectory, binPath),
+    true,
+    `resolved jscpd bin escapes its package directory: ${binPath}`
+  );
   assert.equal(existsSync(binPath), true, `resolved jscpd bin is missing at ${binPath}`);
   return Object.freeze({ binPath, manifestPath, version });
 }
@@ -54,6 +61,15 @@ function declaredJscpdBin(bin: unknown): string | undefined {
   if (typeof bin === "string") return bin;
   if (!isRecord(bin)) return undefined;
   return requiredString(bin.jscpd, "resolved jscpd bin target");
+}
+
+function runJscpdEngine(binPath: string): string {
+  const result = spawnSync(process.execPath, [binPath, "--version"], { encoding: "utf8" });
+  assert.equal(result.error, undefined, "resolved jscpd engine did not start");
+  assert.equal(result.status, 0, result.stderr);
+  const version = result.stdout.trim().match(/(?:jscpd|cpd)\s+([^\s]+)/iu)?.[1];
+  if (version === undefined) throw new TypeError("resolved jscpd engine returned no version");
+  return version;
 }
 
 type CandidateFixtureEvidence = Readonly<{

@@ -1,0 +1,228 @@
+{
+  "corpus": [
+    "c/branches.c",
+    "cuda/kernel.cu",
+    "cxx/branches.cpp",
+    "javascript/branches.js",
+    "patch/example.patch",
+    "python/docstrings.py",
+    "rust/question_complexity.rs",
+    "typescript/comments-and-branches.ts",
+    "typescript/path with space/space name.ts",
+    "typescript/threshold-finding.ts"
+  ],
+  "observations": {
+    "v3": {
+      "versionOutput": "scc version 3.7.0",
+      "csvHeader": "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC",
+      "rows": [
+        {
+          "language": "C",
+          "provider": "c/branches.c",
+          "filename": "c/branches.c",
+          "lines": 5,
+          "code": 4,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 1
+        },
+        {
+          "language": "Cuda",
+          "provider": "cuda/kernel.cu",
+          "filename": "cuda/kernel.cu",
+          "lines": 3,
+          "code": 3,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "C++",
+          "provider": "cxx/branches.cpp",
+          "filename": "cxx/branches.cpp",
+          "lines": 4,
+          "code": 3,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "JavaScript",
+          "provider": "javascript/branches.js",
+          "filename": "javascript/branches.js",
+          "lines": 4,
+          "code": 3,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 1
+        },
+        {
+          "language": "Patch",
+          "provider": "patch/example.patch",
+          "filename": "patch/example.patch",
+          "lines": 8,
+          "code": 8,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "Python",
+          "provider": "python/docstrings.py",
+          "filename": "python/docstrings.py",
+          "lines": 7,
+          "code": 4,
+          "comments": 2,
+          "blanks": 1,
+          "complexity": 1
+        },
+        {
+          "language": "Rust",
+          "provider": "rust/question_complexity.rs",
+          "filename": "rust/question_complexity.rs",
+          "lines": 4,
+          "code": 4,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "TypeScript",
+          "provider": "typescript/comments-and-branches.ts",
+          "filename": "typescript/comments-and-branches.ts",
+          "lines": 5,
+          "code": 4,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 2
+        },
+        {
+          "language": "TypeScript",
+          "provider": "typescript/path with space/space name.ts",
+          "filename": "typescript/path with space/space name.ts",
+          "lines": 1,
+          "code": 1,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "TypeScript",
+          "provider": "typescript/threshold-finding.ts",
+          "filename": "typescript/threshold-finding.ts",
+          "lines": 374,
+          "code": 374,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 740
+        }
+      ]
+    },
+    "v4": {
+      "versionOutput": "scc version 4.0.0",
+      "csvHeader": "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC",
+      "rows": [
+        {
+          "language": "C",
+          "provider": "c/branches.c",
+          "filename": "c/branches.c",
+          "lines": 5,
+          "code": 4,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 1
+        },
+        {
+          "language": "Cuda",
+          "provider": "cuda/kernel.cu",
+          "filename": "cuda/kernel.cu",
+          "lines": 3,
+          "code": 3,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "C++",
+          "provider": "cxx/branches.cpp",
+          "filename": "cxx/branches.cpp",
+          "lines": 4,
+          "code": 3,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "JavaScript",
+          "provider": "javascript/branches.js",
+          "filename": "javascript/branches.js",
+          "lines": 4,
+          "code": 3,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 1
+        },
+        {
+          "language": "Patch",
+          "provider": "patch/example.patch",
+          "filename": "patch/example.patch",
+          "lines": 8,
+          "code": 8,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "Python",
+          "provider": "python/docstrings.py",
+          "filename": "python/docstrings.py",
+          "lines": 7,
+          "code": 4,
+          "comments": 2,
+          "blanks": 1,
+          "complexity": 1
+        },
+        {
+          "language": "Rust",
+          "provider": "rust/question_complexity.rs",
+          "filename": "rust/question_complexity.rs",
+          "lines": 4,
+          "code": 4,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 1
+        },
+        {
+          "language": "TypeScript",
+          "provider": "typescript/comments-and-branches.ts",
+          "filename": "typescript/comments-and-branches.ts",
+          "lines": 5,
+          "code": 4,
+          "comments": 1,
+          "blanks": 0,
+          "complexity": 2
+        },
+        {
+          "language": "TypeScript",
+          "provider": "typescript/path with space/space name.ts",
+          "filename": "typescript/path with space/space name.ts",
+          "lines": 1,
+          "code": 1,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 0
+        },
+        {
+          "language": "TypeScript",
+          "provider": "typescript/threshold-finding.ts",
+          "filename": "typescript/threshold-finding.ts",
+          "lines": 374,
+          "code": 374,
+          "comments": 0,
+          "blanks": 0,
+          "complexity": 740
+        }
+      ]
+    }
+  }
+}

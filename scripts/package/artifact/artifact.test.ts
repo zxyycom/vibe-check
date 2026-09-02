@@ -120,7 +120,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       "csv-parse": "7.0.1",
       execa: "9.6.1",
       "github-slugger": "2.0.0",
-      jscpd: "^5.0.11",
+      jscpd: "^5.1.1",
       "mdast-util-from-markdown": "2.0.3",
       "mdast-util-frontmatter": "2.0.1",
       "mdast-util-gfm": "3.1.0",

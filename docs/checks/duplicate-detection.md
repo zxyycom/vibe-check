@@ -8,7 +8,8 @@
 policy 构造一个普通 `duplicate-detection` Check。该 Check 用 jscpd 比较自己批准的项目文件，把满足行数与 token
 policy 的重复片段报告为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
 
-默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5；项目无需选择版本、提供 executable 或复制默认 options：
+默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5。发布 manifest 的当前兼容范围是
+`^5.1.1`（下界为 5.1.1、上界不含 v6）；repository lockfile 则固定本 Change 验证过的 5.1.1。项目无需选择版本、提供 executable 或复制默认 options：
 
 ```ts
 import { duplicateDetection } from "@zxyycom/vibe-check";
@@ -108,8 +109,10 @@ provenance，不要求 custom command 等于 package 当前安装的版本。
 需要靠前置参数才能转发到 jscpd 的通用 runtime（例如 `node path/to/jscpd.js`）不是受支持的 custom command；应直接
 提供 jscpd executable 或一个已授权的专用 wrapper executable。
 
-默认 package command 使用安装包声明并由 package manager 解析的兼容 jscpd v5。package 或 custom command 的实际版本都会
-隔离 cache；command、config 或 report 不兼容时，Check fail closed 为 `unavailable`，不会把无法完成的扫描伪装成零
+默认 package command 使用安装包声明并由 package manager 解析的兼容 jscpd v5。repository、candidate 与
+external-consumer 的发布验收会验证 resolved manifest、contained bin 和实际 engine version 一致；这是发布证据，
+不把 package command 的每次 availability probe 变成 exact-5.1.1 runtime gate。package 或 custom command 的实际版本
+都会隔离 cache；command、config 或 report 不兼容时，Check fail closed 为 `unavailable`，不会把无法完成的扫描伪装成零
 finding。
 
 ## 工作原理

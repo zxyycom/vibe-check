@@ -1,0 +1,37 @@
+{
+  "environment": {
+    "host": "Linux x64/glibc",
+    "go": "go version go1.26.4 linux/amd64",
+    "v3Invocation": ["--by-file", "--format", "csv", "<exact paths...>"],
+    "v4Invocation": ["--no-config", "--by-file", "--format", "csv", "<exact paths...>"]
+  },
+  "csv": {
+    "classification": "intentional-compatible",
+    "detail": "Both versions emit the same ten-column by-file CSV header. v3 has no --no-config flag, so its controlled baseline was run from the checked-in corpus directory without an SCC config; v4 uses --no-config."
+  },
+  "providerAndPath": {
+    "classification": "intentional-compatible",
+    "detail": "All ten corpus paths retained their Provider and Filename identities, including the path containing spaces."
+  },
+  "code": {
+    "classification": "intentional-compatible",
+    "detail": "All corpus Code values are identical between 3.7.0 and 4.0.0."
+  },
+  "complexity": [
+    {
+      "path": "rust/question_complexity.rs",
+      "v3": 0,
+      "v4": 1,
+      "classification": "intentional-upstream-correction",
+      "detail": "SCC v4 counts Rust question-mark error propagation in Complexity; this is the upstream Rust ? complexity correction represented by the fixture."
+    }
+  ],
+  "recordsAndFindings": {
+    "classification": "intentional-compatible",
+    "detail": "The threshold-finding fixture remains 374 Code / 740 Complexity in both versions, so its code-line Record and non-blocking finding are unchanged. The Rust correction remains below the default low-decision threshold and produces no Record/finding drift."
+  },
+  "privateConfig": {
+    "adopted": false,
+    "detail": "The controlled v4 default has the required CSV/path/measurement contract. No remap, generated, ignore, or complexity override is necessary; creating an empty private config would add no stable product semantics."
+  }
+}

@@ -4,7 +4,7 @@ import { normalizeScannerReportedPath } from "../../project-files/reported-path.
 import type { FileMetric } from "../measurement-model.ts";
 import { parseCsvRows } from "./csv.ts";
 
-export const SCC_VERSION = "3.7.0";
+export const SCC_VERSION = "4.0.0";
 export const SCC_VERSION_OUTPUT = `scc version ${SCC_VERSION}`;
 export const SCC_BY_FILE_CSV_HEADER =
   "Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC";
@@ -49,13 +49,13 @@ interface SccRawRow {
 /**
  * 解析 scc CSV 输出。
  *
- * scc 3.7.0 `--by-file --format csv` 列：
+ * scc 4.0.0 `--no-config --by-file --format csv` 列：
  * Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC
  *
  * - Lines 包含所有行（code + comments + blanks）
  * - Code 是文件级代码行数，用于 code-line finding
  * - Complexity 是 scc complexitychecks token 命中数，用于 low-decision-token allowance，不是函数级 CC
- * - ULOC (Usable Lines of Code) 由 3.7.0 输出，但首期不进入稳定 metrics
+ * - ULOC (Usable Lines of Code) 由 4.0.0 输出，但首期不进入稳定 metrics
  */
 export function parseSccCSV(csv: string, cwd: string): SccScanResult {
   try {

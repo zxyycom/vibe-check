@@ -236,7 +236,7 @@ function writeAncestorJscpdFallback(temporaryRoot: string): void {
     `${JSON.stringify({
       bin: { jscpd: "./run-jscpd.js" },
       name: "jscpd",
-      version: "5.0.11"
+      version: "5.1.1"
     })}\n`,
     "utf8"
   );

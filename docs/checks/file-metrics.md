@@ -19,7 +19,7 @@ const check = fileMetrics();
 ```
 
 执行这个 Check 时，project runtime 需要让默认 `scc` command 可用，或在 `scanner.executable` 中选择项目已授权且
-兼容 SCC 3.7.0 version output 与 CSV contract 的 executable。
+精确 SCC 4.0.0 version output 与受支持 CSV contract 的 executable。
 
 ## 参数与默认配置
 
@@ -141,11 +141,12 @@ const customFileMetrics = fileMetrics({
 custom executable 必须直接接受 SCC CLI 参数。public scanner policy 只选择 executable；owning adapter 固定执行以下协议：
 
 - availability probe：`--version`
-- measurement：`--by-file --format csv <approved exact paths...>`
+- measurement：`--no-config --by-file --format csv <approved exact paths...>`
 - process timeout：由 adapter 固定，不属于项目策略
 
 需要 prefix arguments 的通用 runtime（例如 `node path/to/tool.js`）不是受支持的直接 command；项目应提供一个已授权的
-专用 wrapper executable。当前 adapter 只接受 SCC `3.7.0` 的 version output 与对应 CSV header contract。
+专用 wrapper executable。当前 adapter 只接受 SCC `4.0.0` 的 version output 与对应 CSV header contract。
+`--no-config` 隔离 `SCC_CONFIG_PATH` 与项目中的 ambient SCC config；adapter 不读取 consumer SCC 参数或 config。
 
 ### 安装兼容 SCC
 
@@ -153,12 +154,16 @@ custom executable 必须直接接受 SCC CLI 参数。public scanner policy 只�
 
 ```toml
 [tools]
-go = "1.25"
-"go:github.com/boyter/scc/v3" = { version = "v3.7.0", depends = ["go"] }
+go = "1.26.4"
+"go:github.com/boyter/scc/v4" = { version = "v4.0.0", depends = ["go"] }
 ```
 
 运行 `mise install` 后，用 `scc --version` 确认当前 project runtime 能解析到该命令。若项目使用其它安装方式，只要
-`scanner.executable` 指向已授权、直接接受上述协议并产生 SCC 3.7.0-compatible output 的 executable 即可。
+`scanner.executable` 指向已授权、直接接受上述协议并产生精确 SCC 4.0.0 version output 和受支持 CSV header 的 executable 即可。
+
+从 SCC 3.7.0 迁移的 custom command 会因 version probe 结算为 unavailable；这是有意的 hard cut，
+不存在 v3 fallback。SCC v4 的语言计量修正可能改变 `Code` 或 `Complexity`，但本 Check 的 threshold
+仍保持既有非阻断观测策略。
 
 ## 效果与结果
 

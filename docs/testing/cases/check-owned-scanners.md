@@ -76,7 +76,7 @@ Entities:
 - `bun|src/package-checks/duplicate-detection/jscpd/parser.test.ts|quality scanner output parsing > parses jscpd version and JSON output`
   Proves:
 
-- The duplicate-detection-owned jscpd adapter distinguishes available findings from missing commands, unavailable tools, unidentifiable version provenance, nonzero execution, missing reports, and malformed reports; availability identifies package dependency versus custom command without inferring repository provenance. An identifiable actual version is accepted without an exact runtime lock and partitions raw cache identity. A custom executable directly receives adapter-owned version and scan arguments, while no public worker or argument passthrough can alter that protocol. The adapter removes only a duplicate report `format`-matched path suffix before normalizing valid JSON and never accepts a partial trusted result.
+- The duplicate-detection-owned jscpd adapter distinguishes available findings from missing commands, unavailable tools, unidentifiable version provenance, nonzero execution, missing reports, and malformed reports. Package availability reports the actual version of its contained package bin; the repository/candidate/external-consumer release evidence separately verifies that this version agrees with the resolved manifest. Custom availability identifies its command without inferring repository provenance. An identifiable actual version is accepted without an exact runtime lock and partitions raw cache identity. A custom executable directly receives adapter-owned version and scan arguments, while no public worker or argument passthrough can alter that protocol. The adapter removes only a duplicate report `format`-matched path suffix before normalizing valid JSON and never accepts a partial trusted result.
 
 ## Case AUX-LIZARD-ADAPTER-OUTCOMES-001: Lizard adapter preserves its private result boundary
 
@@ -105,10 +105,19 @@ Entities:
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
-- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > rejects a successful scc invocation that produces no CSV header`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > sends --no-config and rejects a successful scc invocation that produces no CSV header`
 - `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty`
-- `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > parses scc 3.7 Provider paths and rejects unknown CSV headers`
+- `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > parses scc 4.0 Provider paths and rejects unknown CSV headers`
 - `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > rejects malformed scc rows without losing valid zero-file output`
   Proves:
 
-- The file-metrics-owned scc adapter skips invocation for empty exact input, accepts only the supported complete CSV shape, and preserves valid zero-file output while rejecting missing headers, unknown headers, or malformed rows.
+- The file-metrics-owned SCC 4.0 adapter skips invocation for empty exact input, always sends `--no-config` before its fixed by-file CSV protocol, accepts only the supported complete CSV shape, and preserves valid zero-file output while rejecting missing headers, unknown headers, or malformed rows.
+
+## Case AUX-SCC-V4-AVAILABILITY-001: SCC v4 exact executable contract
+
+Owner: `docs/scanner-dependencies.md#check-owned-command-options`
+Entities:
+
+- `bun|src/package-checks/file-metrics/scc/availability.test.ts|SCC availability > accepts only the SCC 4.0.0 executable contract`
+  Proves:
+- The file-metrics adapter accepts only exact `scc version 4.0.0`; a custom SCC 3.7.0 executable is an actionable contract error rather than a fallback measurement source.

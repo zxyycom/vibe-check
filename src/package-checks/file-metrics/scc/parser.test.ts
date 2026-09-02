@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import { SCC_BY_FILE_CSV_HEADER, parseSccCSV } from "./parser.ts";
 
 describe("quality scanner output parsing", () => {
-  it("parses scc 3.7 Provider paths and rejects unknown CSV headers", () => {
+  it("parses scc 4.0 Provider paths and rejects unknown CSV headers", () => {
     const csv = [
       SCC_BY_FILE_CSV_HEADER,
       "Rust,crates/docnav/src/lib.rs,lib.rs,120,90,20,10,17,4096,70",

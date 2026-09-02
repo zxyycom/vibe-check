@@ -166,9 +166,9 @@ describe("fileMetrics constructor and direct callback", () => {
       root,
       [
         "import { existsSync, readFileSync, writeFileSync } from 'node:fs';",
-        "if (process.argv.includes('--version')) process.stdout.write('scc version 3.7.0\\n');",
+        "if (process.argv.includes('--version')) process.stdout.write('scc version 4.0.0\\n');",
         "else {",
-        `  const expected = ${JSON.stringify(["--by-file", "--format", "csv", "scripts/b.ts", "src/a.ts"])};`,
+        `  const expected = ${JSON.stringify(["--no-config", "--by-file", "--format", "csv", "scripts/b.ts", "src/a.ts"])};`,
         "  if (JSON.stringify(process.argv.slice(2)) !== JSON.stringify(expected)) process.exit(2);",
         `  const countPath = ${JSON.stringify(scanCountPath)};`,
         "  const count = existsSync(countPath) ? Number(readFileSync(countPath, 'utf8')) : 0;",

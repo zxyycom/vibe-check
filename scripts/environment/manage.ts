@@ -31,7 +31,7 @@ const MISE_TOOLS = [
   "uv",
   "go",
   "pipx:lizard",
-  "go:github.com/boyter/scc/v3",
+  "go:github.com/boyter/scc/v4",
   "npm:@colbymchenry/codegraph"
 ] as const;
 
@@ -83,11 +83,11 @@ function checkEnvironment(): void {
 
 function resolveSccExecutablePath(): string {
   const sccToolRoot = runMiseCommand({
-    args: ["where", "go:github.com/boyter/scc/v3"],
+    args: ["where", "go:github.com/boyter/scc/v4"],
     shouldCaptureOutput: true
   }).trim();
   if (!sccToolRoot) {
-    throw new Error("mise where go:github.com/boyter/scc/v3 returned no installation path");
+    throw new Error("mise where go:github.com/boyter/scc/v4 returned no installation path");
   }
   return resolve(sccToolRoot, "bin", process.platform === "win32" ? "scc.exe" : "scc");
 }

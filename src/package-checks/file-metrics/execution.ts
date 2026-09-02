@@ -226,7 +226,7 @@ function unavailableMessage(code: FileMetricsUnavailableReasonCode): string {
     case "source-unavailable":
       return "File metrics could not collect its configured project files; check the project root, file permissions, and selected file source.";
     case "external-dependency-unavailable":
-      return "The configured SCC command is unavailable or incompatible; install SCC 3.7.0 or configure a compatible executable.";
+      return "The configured SCC command is unavailable or incompatible; install SCC 4.0.0 or configure a compatible executable.";
     case "external-execution-failed":
       return "SCC did not complete successfully; run the configured command directly and inspect its environment.";
     case "external-result-invalid":
