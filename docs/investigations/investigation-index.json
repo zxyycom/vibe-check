@@ -1,6 +1,36 @@
 {
   "definitionVersion": 6,
   "entries": {
+    "assess-admission-state-performance-and-selection-index.md": {
+      "keys": {
+        "formed-at": [
+          1788434108000
+        ],
+        "tag": [
+          "admission-scheduling",
+          "performance",
+          "scheduler",
+          "simulation"
+        ],
+        "text": [
+          "Admission state 性能与单一 selection index 评估",
+          "当前 immutable AdmissionGraph/AdmissionState 的实际性能与复杂度如何，单一 selection index 和逐条件筛选能否成为下一轮优化的核心？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T11:15:08+00:00",
+        "question": "当前 immutable AdmissionGraph/AdmissionState 的实际性能与复杂度如何，单一 selection index 和逐条件筛选能否成为下一轮优化的核心？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "admission-scheduling",
+          "performance",
+          "scheduler",
+          "simulation"
+        ],
+        "title": "Admission state 性能与单一 selection index 评估"
+      }
+    },
     "assess-scc-and-jscpd-upgrade-readiness.md": {
       "keys": {
         "formed-at": [
@@ -369,6 +399,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
+      "assess-admission-state-performance-and-selection-index.md": "sha256:789c863cd0319c6ff89af3e8046db6774e70ff60a0566ffd277fda6957c7d243",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
       "compare-lizard-and-scc-typescript-port-priority.md": "sha256:f36d2d03734cd988927ad44118c331f31787ee3f69d9ceaa111da921cbf9c7d8",
