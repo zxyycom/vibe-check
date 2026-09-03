@@ -224,10 +224,60 @@ describe("Markdown local resolver", () => {
       assert.equal(escapingResolver.targetReadCount, 1);
     });
   });
+
+  it("memoizes successful canonical Markdown targets without changing logical target limits", async () => {
+    await withFixture(async ({ root }) => {
+      await writeFixtureFile(root, "docs/source.md", "# Source\n");
+      await writeFixtureFile(root, "docs/target.md", "# One\n# Two\n");
+      const resolver = await createdResolver(root, 2);
+      const source = await readSource(resolver, "docs/source.md");
+
+      assert.deepEqual(
+        await resolver.resolve(requestFor(source, "target.md#one")),
+        validTarget("project-file", "docs/target.md", "one")
+      );
+      await writeFixtureFile(root, "docs/target.md", "# One\n");
+      assert.deepEqual(
+        await resolver.resolve(requestFor(source, "./target.md#two")),
+        validTarget("project-file", "docs/target.md", "two")
+      );
+      assert.equal(resolver.targetReadCount, 2);
+      assert.deepEqual(await resolver.resolve(requestFor(source, "target.md#one")), {
+        kind: "unavailable",
+        reason: "target-read-limit-exceeded"
+      });
+      assert.equal(resolver.targetReadCount, 2);
+    });
+  });
+
+  it("does not retain an unavailable Markdown target parse for a later occurrence", async () => {
+    await withFixture(async ({ root }) => {
+      await writeFixtureFile(root, "docs/source.md", "# Source\n");
+      await writeFixtureFile(root, "docs/target.md", "# This heading is too large\n");
+      const resolver = await createdResolver(root, 2);
+      const source = await readSource(resolver, "docs/source.md");
+
+      assert.deepEqual(
+        await resolver.resolve(requestFor(source, "target.md#found", { maxMarkdownBytes: 10 })),
+        { kind: "unavailable", reason: "target-unavailable" }
+      );
+      await writeFixtureFile(root, "docs/target.md", "# Found\n");
+      assert.deepEqual(
+        await resolver.resolve(requestFor(source, "target.md#found", { maxMarkdownBytes: 10 })),
+        validTarget("project-file", "docs/target.md", "found")
+      );
+      assert.equal(resolver.targetReadCount, 2);
+    });
+  });
 });
 
-async function createdResolver(root: string, maxTargetReads: number) {
-  const creation = await createMarkdownLocalResolver(root, maxTargetReads);
+async function createdResolver(
+  root: string,
+  maxTargetReads: number,
+  cache: Parameters<typeof createMarkdownLocalResolver>[2] = Object.freeze({ enabled: false }),
+  signal: AbortSignal = new AbortController().signal
+) {
+  const creation = await createMarkdownLocalResolver(root, maxTargetReads, cache, signal);
   assert.equal(creation.ok, true);
   if (!creation.ok) {
     assert.fail("expected resolver");

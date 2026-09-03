@@ -294,7 +294,9 @@ const definition: ProjectDefinition = defineConfig({
     }),
     fileMetrics(),
     functionMetrics(),
-    markdownLinkValidation(),
+    markdownLinkValidation({
+      cache: { enabled: true, directory: "/tmp/isolated-markdown-link-parse-cache" }
+    }),
     directCheck,
     changedFiles,
     changedFilesConsumer

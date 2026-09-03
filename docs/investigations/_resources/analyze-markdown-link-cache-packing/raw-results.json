@@ -1,0 +1,4339 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-09-03T08:34:54.513Z",
+  "command": "bun docs/investigations/_resources/analyze-markdown-link-cache-packing/benchmark.ts --output docs/investigations/_resources/analyze-markdown-link-cache-packing/raw-results.json",
+  "scope": "storage-mechanics microbenchmark only; it does not execute formal Markdown Link Check runtime and cannot establish end-to-end Check savings",
+  "measurement": {
+    "samplesPerScenario": 5,
+    "wallTime": "performance.now() covers only the serial lookup/publication interval; payload preparation, directory setup, warm prepopulation, and footprint accounting are outside the interval",
+    "cpu": "per-sample process.resourceUsage user+system deltas",
+    "processMaxRssBytes": "process.resourceUsage().maxRSS sampled after each scenario is a process-lifetime cumulative high-water, not per-sample memory, a delta, or timed-interval memory. It is retained only as diagnostic context and must not support memory or optimization conclusions."
+  },
+  "environment": {
+    "bun": "1.3.14",
+    "os": "linux",
+    "arch": "x64",
+    "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuCount": 6,
+    "tmpdir": "/tmp",
+    "statfs": {
+      "type": 61267,
+      "bsize": 4096,
+      "blocks": 263940717,
+      "bfree": 248840130,
+      "bavail": 235414262,
+      "files": 67108864,
+      "ffree": 62443125
+    }
+  },
+  "fixture": {
+    "seed": 1592639710,
+    "sourceCount": 1000,
+    "normalTargetCount": 160,
+    "totalMarkdownFiles": 1160,
+    "sizes": [
+      512,
+      2048,
+      8192
+    ],
+    "targetLinksPerSource": "deterministic 1..5",
+    "preparedPerEntryEnvelopeBytes": 976502,
+    "parserPayloadPreparation": "real parseMarkdownLinkFacts + projectMarkdownLinkParseFactsPayload, completed before any timed sample"
+  },
+  "algorithm": {
+    "common": "strictly serial await-based reads and publications; no background write; cold starts with empty application cache; warm scenarios prepopulate outside timing",
+    "packMapping": "for pack sizes >1, digest first 32 bits modulo ceil(1160 / requestedPackSize); pack size is expected rather than a hard cap",
+    "entryFiles": "packSize=1 is the current-style one digest JSON envelope per file",
+    "packFiles": "first selected digest for a file loads and JSON.parses the complete pack; requested entry only is restored with the current strict payload parser; misses are staged in memory and all dirty packs atomically publish before sample end",
+    "corruptionAssumption": "invalid/missing pack is a cache miss/fresh-parse fallback in a future product; this mechanics experiment throws rather than measuring recovery",
+    "concurrencyAssumption": "no concurrent writer is run. A future last-writer-wins pack design can lose a concurrently added entry and needs separate correctness/design work",
+    "growthAssumption": "content-digest entries accumulate; no TTL/LRU/quota/deletion is modeled. Incremental adds one new digest to its affected pack",
+    "memoryBoundary": "processMaxRssBytes is process-lifetime high-water diagnostic context, not per-sample/timed-interval memory and not an optimization result"
+  },
+  "scenarios": {
+    "cold-population": "empty lookup plus parse-independent payload publication for all 1,160 entries",
+    "warm-full-scan": "prewarmed full corpus; measures serial load/JSON parse and strict payload restoration",
+    "warm-partial-1": "prewarmed one selected guide; a pack implementation reads its entire containing pack",
+    "warm-partial-100": "prewarmed first 100 guides; a pack implementation reads every distinct containing pack",
+    "single-file-incremental": "prewarmed original corpus then one guide uses a new deterministic digest/payload; deferred affected-pack publication is timed"
+  },
+  "samples": [
+    {
+      "packSize": 1,
+      "scenario": "cold-population",
+      "repetition": 1,
+      "wallMs": 642.262872,
+      "cpuUserMicros": 204787,
+      "cpuSystemMicros": 502985,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 1160,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1160,
+        "temporaryWrites": 1160,
+        "temporaryWriteBytes": 976502,
+        "renames": 1160,
+        "publishedFiles": 1160
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "cold-population",
+      "repetition": 2,
+      "wallMs": 631.8603829999997,
+      "cpuUserMicros": 147941,
+      "cpuSystemMicros": 536714,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 1160,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1160,
+        "temporaryWrites": 1160,
+        "temporaryWriteBytes": 976502,
+        "renames": 1160,
+        "publishedFiles": 1160
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "cold-population",
+      "repetition": 3,
+      "wallMs": 661.3278300000002,
+      "cpuUserMicros": 175268,
+      "cpuSystemMicros": 533455,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 1160,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1160,
+        "temporaryWrites": 1160,
+        "temporaryWriteBytes": 976502,
+        "renames": 1160,
+        "publishedFiles": 1160
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "cold-population",
+      "repetition": 4,
+      "wallMs": 675.3688510000002,
+      "cpuUserMicros": 210519,
+      "cpuSystemMicros": 523790,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 1160,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1160,
+        "temporaryWrites": 1160,
+        "temporaryWriteBytes": 976502,
+        "renames": 1160,
+        "publishedFiles": 1160
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "cold-population",
+      "repetition": 5,
+      "wallMs": 664.626902,
+      "cpuUserMicros": 175009,
+      "cpuSystemMicros": 539314,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 1160,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1160,
+        "temporaryWrites": 1160,
+        "temporaryWriteBytes": 976502,
+        "renames": 1160,
+        "publishedFiles": 1160
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-full-scan",
+      "repetition": 1,
+      "wallMs": 217.07972900000004,
+      "cpuUserMicros": 163638,
+      "cpuSystemMicros": 120621,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 0,
+        "lookupReadBytes": 976502,
+        "jsonParses": 1160,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-full-scan",
+      "repetition": 2,
+      "wallMs": 209.27512399999978,
+      "cpuUserMicros": 127365,
+      "cpuSystemMicros": 119738,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 0,
+        "lookupReadBytes": 976502,
+        "jsonParses": 1160,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-full-scan",
+      "repetition": 3,
+      "wallMs": 208.8395560000008,
+      "cpuUserMicros": 101451,
+      "cpuSystemMicros": 130779,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 0,
+        "lookupReadBytes": 976502,
+        "jsonParses": 1160,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-full-scan",
+      "repetition": 4,
+      "wallMs": 219.6672010000002,
+      "cpuUserMicros": 114607,
+      "cpuSystemMicros": 148852,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 0,
+        "lookupReadBytes": 976502,
+        "jsonParses": 1160,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-full-scan",
+      "repetition": 5,
+      "wallMs": 207.88501200000064,
+      "cpuUserMicros": 114977,
+      "cpuSystemMicros": 116613,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 0,
+        "lookupReadBytes": 976502,
+        "jsonParses": 1160,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-1",
+      "repetition": 1,
+      "wallMs": 0.940243000000919,
+      "cpuUserMicros": 470,
+      "cpuSystemMicros": 849,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 579,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-1",
+      "repetition": 2,
+      "wallMs": 0.23566700000083074,
+      "cpuUserMicros": 86,
+      "cpuSystemMicros": 163,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 579,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-1",
+      "repetition": 3,
+      "wallMs": 0.22858400000041001,
+      "cpuUserMicros": 82,
+      "cpuSystemMicros": 160,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 579,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-1",
+      "repetition": 4,
+      "wallMs": 0.2903459999997722,
+      "cpuUserMicros": 101,
+      "cpuSystemMicros": 204,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 579,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-1",
+      "repetition": 5,
+      "wallMs": 0.2399249999980384,
+      "cpuUserMicros": 83,
+      "cpuSystemMicros": 172,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 579,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-100",
+      "repetition": 1,
+      "wallMs": 18.041281000001618,
+      "cpuUserMicros": 8023,
+      "cpuSystemMicros": 11680,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 100,
+        "lookupMisses": 0,
+        "lookupReadBytes": 93579,
+        "jsonParses": 100,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-100",
+      "repetition": 2,
+      "wallMs": 18.152776999999332,
+      "cpuUserMicros": 11642,
+      "cpuSystemMicros": 10177,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 100,
+        "lookupMisses": 0,
+        "lookupReadBytes": 93579,
+        "jsonParses": 100,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-100",
+      "repetition": 3,
+      "wallMs": 18.474668999999267,
+      "cpuUserMicros": 9345,
+      "cpuSystemMicros": 10324,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 100,
+        "lookupMisses": 0,
+        "lookupReadBytes": 93579,
+        "jsonParses": 100,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-100",
+      "repetition": 4,
+      "wallMs": 18.932324000001245,
+      "cpuUserMicros": 15357,
+      "cpuSystemMicros": 8656,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 100,
+        "lookupMisses": 0,
+        "lookupReadBytes": 93579,
+        "jsonParses": 100,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "warm-partial-100",
+      "repetition": 5,
+      "wallMs": 20.13584400000036,
+      "cpuUserMicros": 12920,
+      "cpuSystemMicros": 8672,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 100,
+        "lookupMisses": 0,
+        "lookupReadBytes": 93579,
+        "jsonParses": 100,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "single-file-incremental",
+      "repetition": 1,
+      "wallMs": 0.5941630000015721,
+      "cpuUserMicros": 179,
+      "cpuSystemMicros": 436,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 714,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1161,
+        "bytes": 977216,
+        "entries": 1161,
+        "nonEmptyPackCount": 1161,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "single-file-incremental",
+      "repetition": 2,
+      "wallMs": 0.7009709999983897,
+      "cpuUserMicros": 382,
+      "cpuSystemMicros": 947,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 714,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1161,
+        "bytes": 977216,
+        "entries": 1161,
+        "nonEmptyPackCount": 1161,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "single-file-incremental",
+      "repetition": 3,
+      "wallMs": 0.5716810000012629,
+      "cpuUserMicros": 168,
+      "cpuSystemMicros": 424,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 714,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1161,
+        "bytes": 977216,
+        "entries": 1161,
+        "nonEmptyPackCount": 1161,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "single-file-incremental",
+      "repetition": 4,
+      "wallMs": 1.665090999998938,
+      "cpuUserMicros": 2378,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 714,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1161,
+        "bytes": 977216,
+        "entries": 1161,
+        "nonEmptyPackCount": 1161,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 1,
+      "scenario": "single-file-incremental",
+      "repetition": 5,
+      "wallMs": 0.5571620000009716,
+      "cpuUserMicros": 164,
+      "cpuSystemMicros": 429,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 714,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1161,
+        "bytes": 977216,
+        "entries": 1161,
+        "nonEmptyPackCount": 1161,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "cold-population",
+      "repetition": 1,
+      "wallMs": 57.170469999997295,
+      "cpuUserMicros": 14970,
+      "cpuSystemMicros": 50034,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 73,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 73,
+        "temporaryWrites": 73,
+        "temporaryWriteBytes": 898968,
+        "renames": 73,
+        "publishedFiles": 73
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "cold-population",
+      "repetition": 2,
+      "wallMs": 53.825551000001724,
+      "cpuUserMicros": 23513,
+      "cpuSystemMicros": 37009,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 73,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 73,
+        "temporaryWrites": 73,
+        "temporaryWriteBytes": 898968,
+        "renames": 73,
+        "publishedFiles": 73
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "cold-population",
+      "repetition": 3,
+      "wallMs": 53.26508300000205,
+      "cpuUserMicros": 35175,
+      "cpuSystemMicros": 23605,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 73,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 73,
+        "temporaryWrites": 73,
+        "temporaryWriteBytes": 898968,
+        "renames": 73,
+        "publishedFiles": 73
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "cold-population",
+      "repetition": 4,
+      "wallMs": 54.29789999999775,
+      "cpuUserMicros": 11282,
+      "cpuSystemMicros": 47340,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 73,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 73,
+        "temporaryWrites": 73,
+        "temporaryWriteBytes": 898968,
+        "renames": 73,
+        "publishedFiles": 73
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "cold-population",
+      "repetition": 5,
+      "wallMs": 56.02561499999865,
+      "cpuUserMicros": 26529,
+      "cpuSystemMicros": 36356,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 73,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 73,
+        "temporaryWrites": 73,
+        "temporaryWriteBytes": 898968,
+        "renames": 73,
+        "publishedFiles": 73
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-full-scan",
+      "repetition": 1,
+      "wallMs": 46.59541399999944,
+      "cpuUserMicros": 34311,
+      "cpuSystemMicros": 17059,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 0,
+        "lookupReadBytes": 898968,
+        "jsonParses": 73,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-full-scan",
+      "repetition": 2,
+      "wallMs": 43.12085200000001,
+      "cpuUserMicros": 40895,
+      "cpuSystemMicros": 11877,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 0,
+        "lookupReadBytes": 898968,
+        "jsonParses": 73,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-full-scan",
+      "repetition": 3,
+      "wallMs": 43.46789699999863,
+      "cpuUserMicros": 42407,
+      "cpuSystemMicros": 11513,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 0,
+        "lookupReadBytes": 898968,
+        "jsonParses": 73,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-full-scan",
+      "repetition": 4,
+      "wallMs": 43.256884999998874,
+      "cpuUserMicros": 24293,
+      "cpuSystemMicros": 26275,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 0,
+        "lookupReadBytes": 898968,
+        "jsonParses": 73,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-full-scan",
+      "repetition": 5,
+      "wallMs": 45.73470400000224,
+      "cpuUserMicros": 66239,
+      "cpuSystemMicros": 6636,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 0,
+        "lookupReadBytes": 898968,
+        "jsonParses": 73,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-1",
+      "repetition": 1,
+      "wallMs": 0.2814929999985907,
+      "cpuUserMicros": 83,
+      "cpuSystemMicros": 212,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 7704,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-1",
+      "repetition": 2,
+      "wallMs": 0.3369349999993574,
+      "cpuUserMicros": 760,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 7704,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-1",
+      "repetition": 3,
+      "wallMs": 0.26268700000218814,
+      "cpuUserMicros": 77,
+      "cpuSystemMicros": 196,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 7704,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-1",
+      "repetition": 4,
+      "wallMs": 0.26457099999970524,
+      "cpuUserMicros": 78,
+      "cpuSystemMicros": 199,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 7704,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-1",
+      "repetition": 5,
+      "wallMs": 0.30616700000246055,
+      "cpuUserMicros": 310,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 7704,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-100",
+      "repetition": 1,
+      "wallMs": 15.321277999999438,
+      "cpuUserMicros": 9588,
+      "cpuSystemMicros": 8863,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 58,
+        "lookupMisses": 0,
+        "lookupReadBytes": 738090,
+        "jsonParses": 58,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-100",
+      "repetition": 2,
+      "wallMs": 14.517297000002145,
+      "cpuUserMicros": 5002,
+      "cpuSystemMicros": 10377,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 58,
+        "lookupMisses": 0,
+        "lookupReadBytes": 738090,
+        "jsonParses": 58,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-100",
+      "repetition": 3,
+      "wallMs": 13.959990999999718,
+      "cpuUserMicros": 13710,
+      "cpuSystemMicros": 2127,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 58,
+        "lookupMisses": 0,
+        "lookupReadBytes": 738090,
+        "jsonParses": 58,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-100",
+      "repetition": 4,
+      "wallMs": 15.920201000000816,
+      "cpuUserMicros": 4715,
+      "cpuSystemMicros": 13933,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 58,
+        "lookupMisses": 0,
+        "lookupReadBytes": 738090,
+        "jsonParses": 58,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "warm-partial-100",
+      "repetition": 5,
+      "wallMs": 15.34356299999854,
+      "cpuUserMicros": 495,
+      "cpuSystemMicros": 18391,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 58,
+        "lookupMisses": 0,
+        "lookupReadBytes": 738090,
+        "jsonParses": 58,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "single-file-incremental",
+      "repetition": 1,
+      "wallMs": 0.7520240000012564,
+      "cpuUserMicros": 221,
+      "cpuSystemMicros": 554,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 9731,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 10373,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 899610,
+        "entries": 1161,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "single-file-incremental",
+      "repetition": 2,
+      "wallMs": 0.7961880000002566,
+      "cpuUserMicros": 236,
+      "cpuSystemMicros": 588,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 9731,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 10373,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 899610,
+        "entries": 1161,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "single-file-incremental",
+      "repetition": 3,
+      "wallMs": 1.623319000002084,
+      "cpuUserMicros": 2354,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 9731,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 10373,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 899610,
+        "entries": 1161,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "single-file-incremental",
+      "repetition": 4,
+      "wallMs": 0.90830300000016,
+      "cpuUserMicros": 265,
+      "cpuSystemMicros": 660,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 9731,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 10373,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 899610,
+        "entries": 1161,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 16,
+      "scenario": "single-file-incremental",
+      "repetition": 5,
+      "wallMs": 2.2224950000018,
+      "cpuUserMicros": 866,
+      "cpuSystemMicros": 2152,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 9731,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 10373,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 899610,
+        "entries": 1161,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "cold-population",
+      "repetition": 1,
+      "wallMs": 22.02238799999759,
+      "cpuUserMicros": 17679,
+      "cpuSystemMicros": 5652,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 19,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 19,
+        "temporaryWrites": 19,
+        "temporaryWriteBytes": 894540,
+        "renames": 19,
+        "publishedFiles": 19
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "cold-population",
+      "repetition": 2,
+      "wallMs": 24.948591000000306,
+      "cpuUserMicros": 18725,
+      "cpuSystemMicros": 8242,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 19,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 19,
+        "temporaryWrites": 19,
+        "temporaryWriteBytes": 894540,
+        "renames": 19,
+        "publishedFiles": 19
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "cold-population",
+      "repetition": 3,
+      "wallMs": 26.629582000001392,
+      "cpuUserMicros": 13738,
+      "cpuSystemMicros": 15053,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 19,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 19,
+        "temporaryWrites": 19,
+        "temporaryWriteBytes": 894540,
+        "renames": 19,
+        "publishedFiles": 19
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "cold-population",
+      "repetition": 4,
+      "wallMs": 25.69847999999911,
+      "cpuUserMicros": 23138,
+      "cpuSystemMicros": 4481,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 19,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 19,
+        "temporaryWrites": 19,
+        "temporaryWriteBytes": 894540,
+        "renames": 19,
+        "publishedFiles": 19
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "cold-population",
+      "repetition": 5,
+      "wallMs": 22.44095400000151,
+      "cpuUserMicros": 13796,
+      "cpuSystemMicros": 13190,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 19,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 19,
+        "temporaryWrites": 19,
+        "temporaryWriteBytes": 894540,
+        "renames": 19,
+        "publishedFiles": 19
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-full-scan",
+      "repetition": 1,
+      "wallMs": 29.960454000000027,
+      "cpuUserMicros": 31170,
+      "cpuSystemMicros": 3002,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-full-scan",
+      "repetition": 2,
+      "wallMs": 34.64866600000096,
+      "cpuUserMicros": 37473,
+      "cpuSystemMicros": 6040,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-full-scan",
+      "repetition": 3,
+      "wallMs": 32.847052000000986,
+      "cpuUserMicros": 25879,
+      "cpuSystemMicros": 13353,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-full-scan",
+      "repetition": 4,
+      "wallMs": 31.159687999999733,
+      "cpuUserMicros": 20839,
+      "cpuSystemMicros": 15780,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-full-scan",
+      "repetition": 5,
+      "wallMs": 30.691961999997147,
+      "cpuUserMicros": 30056,
+      "cpuSystemMicros": 4566,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-1",
+      "repetition": 1,
+      "wallMs": 0.4999100000022736,
+      "cpuUserMicros": 149,
+      "cpuSystemMicros": 360,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 55439,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-1",
+      "repetition": 2,
+      "wallMs": 0.40217699999993783,
+      "cpuUserMicros": 121,
+      "cpuSystemMicros": 291,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 55439,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-1",
+      "repetition": 3,
+      "wallMs": 0.387178999997559,
+      "cpuUserMicros": 397,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 55439,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-1",
+      "repetition": 4,
+      "wallMs": 0.5146159999967495,
+      "cpuUserMicros": 156,
+      "cpuSystemMicros": 375,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 55439,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-1",
+      "repetition": 5,
+      "wallMs": 0.38113700000030803,
+      "cpuUserMicros": 116,
+      "cpuSystemMicros": 277,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 55439,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-100",
+      "repetition": 1,
+      "wallMs": 9.583127999998396,
+      "cpuUserMicros": 13026,
+      "cpuSystemMicros": 483,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-100",
+      "repetition": 2,
+      "wallMs": 9.439156000000366,
+      "cpuUserMicros": 3301,
+      "cpuSystemMicros": 6225,
+      "processMaxRssBytes": 151162880,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-100",
+      "repetition": 3,
+      "wallMs": 9.536080999998376,
+      "cpuUserMicros": 12948,
+      "cpuSystemMicros": 301,
+      "processMaxRssBytes": 152080384,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-100",
+      "repetition": 4,
+      "wallMs": 7.257320999997319,
+      "cpuUserMicros": 3911,
+      "cpuSystemMicros": 3412,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "warm-partial-100",
+      "repetition": 5,
+      "wallMs": 8.794754999998986,
+      "cpuUserMicros": 8286,
+      "cpuSystemMicros": 3657,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "single-file-incremental",
+      "repetition": 1,
+      "wallMs": 1.1158009999999194,
+      "cpuUserMicros": 342,
+      "cpuSystemMicros": 811,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 39185,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 39827,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 895182,
+        "entries": 1161,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "single-file-incremental",
+      "repetition": 2,
+      "wallMs": 0.8966629999995348,
+      "cpuUserMicros": 273,
+      "cpuSystemMicros": 648,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 39185,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 39827,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 895182,
+        "entries": 1161,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "single-file-incremental",
+      "repetition": 3,
+      "wallMs": 1.604137999998784,
+      "cpuUserMicros": 663,
+      "cpuSystemMicros": 1570,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 39185,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 39827,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 895182,
+        "entries": 1161,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "single-file-incremental",
+      "repetition": 4,
+      "wallMs": 0.9959170000001905,
+      "cpuUserMicros": 305,
+      "cpuSystemMicros": 721,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 39185,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 39827,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 895182,
+        "entries": 1161,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 64,
+      "scenario": "single-file-incremental",
+      "repetition": 5,
+      "wallMs": 1.5379249999969034,
+      "cpuUserMicros": 0,
+      "cpuSystemMicros": 2332,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 39185,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 39827,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 895182,
+        "entries": 1161,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "cold-population",
+      "repetition": 1,
+      "wallMs": 13.430147000002762,
+      "cpuUserMicros": 7641,
+      "cpuSystemMicros": 6411,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 5,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 5,
+        "temporaryWrites": 5,
+        "temporaryWriteBytes": 893392,
+        "renames": 5,
+        "publishedFiles": 5
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "cold-population",
+      "repetition": 2,
+      "wallMs": 13.505637999998726,
+      "cpuUserMicros": 12071,
+      "cpuSystemMicros": 2520,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 5,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 5,
+        "temporaryWrites": 5,
+        "temporaryWriteBytes": 893392,
+        "renames": 5,
+        "publishedFiles": 5
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "cold-population",
+      "repetition": 3,
+      "wallMs": 12.6648389999973,
+      "cpuUserMicros": 8622,
+      "cpuSystemMicros": 4463,
+      "processMaxRssBytes": 152342528,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 5,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 5,
+        "temporaryWrites": 5,
+        "temporaryWriteBytes": 893392,
+        "renames": 5,
+        "publishedFiles": 5
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "cold-population",
+      "repetition": 4,
+      "wallMs": 14.090425000002142,
+      "cpuUserMicros": 14777,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 152408064,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 5,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 5,
+        "temporaryWrites": 5,
+        "temporaryWriteBytes": 893392,
+        "renames": 5,
+        "publishedFiles": 5
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "cold-population",
+      "repetition": 5,
+      "wallMs": 13.825181000000157,
+      "cpuUserMicros": 9638,
+      "cpuSystemMicros": 5480,
+      "processMaxRssBytes": 152408064,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 5,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 5,
+        "temporaryWrites": 5,
+        "temporaryWriteBytes": 893392,
+        "renames": 5,
+        "publishedFiles": 5
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-full-scan",
+      "repetition": 1,
+      "wallMs": 26.27595199999996,
+      "cpuUserMicros": 33049,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 152408064,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-full-scan",
+      "repetition": 2,
+      "wallMs": 25.583622999998624,
+      "cpuUserMicros": 23327,
+      "cpuSystemMicros": 4854,
+      "processMaxRssBytes": 153227264,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-full-scan",
+      "repetition": 3,
+      "wallMs": 26.588568999999552,
+      "cpuUserMicros": 29690,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 153976832,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-full-scan",
+      "repetition": 4,
+      "wallMs": 27.38059499999872,
+      "cpuUserMicros": 35234,
+      "cpuSystemMicros": 2539,
+      "processMaxRssBytes": 156860416,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-full-scan",
+      "repetition": 5,
+      "wallMs": 27.865929999999935,
+      "cpuUserMicros": 31181,
+      "cpuSystemMicros": 3019,
+      "processMaxRssBytes": 158228480,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-1",
+      "repetition": 1,
+      "wallMs": 0.9367390000006708,
+      "cpuUserMicros": 281,
+      "cpuSystemMicros": 647,
+      "processMaxRssBytes": 159539200,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 189869,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-1",
+      "repetition": 2,
+      "wallMs": 0.6300699999992503,
+      "cpuUserMicros": 194,
+      "cpuSystemMicros": 447,
+      "processMaxRssBytes": 159932416,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 189869,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-1",
+      "repetition": 3,
+      "wallMs": 0.6196899999995367,
+      "cpuUserMicros": 191,
+      "cpuSystemMicros": 438,
+      "processMaxRssBytes": 160194560,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 189869,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-1",
+      "repetition": 4,
+      "wallMs": 0.6764909999983502,
+      "cpuUserMicros": 701,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 160194560,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 189869,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-1",
+      "repetition": 5,
+      "wallMs": 0.7582970000003115,
+      "cpuUserMicros": 768,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 160301056,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 189869,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-100",
+      "repetition": 1,
+      "wallMs": 6.96875,
+      "cpuUserMicros": 4321,
+      "cpuSystemMicros": 4388,
+      "processMaxRssBytes": 160432128,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-100",
+      "repetition": 2,
+      "wallMs": 5.061109999998735,
+      "cpuUserMicros": 5117,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 160563200,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-100",
+      "repetition": 3,
+      "wallMs": 10.298705999997765,
+      "cpuUserMicros": 24349,
+      "cpuSystemMicros": 1393,
+      "processMaxRssBytes": 160956416,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-100",
+      "repetition": 4,
+      "wallMs": 6.944043999999849,
+      "cpuUserMicros": 9631,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "warm-partial-100",
+      "repetition": 5,
+      "wallMs": 5.226071000000957,
+      "cpuUserMicros": 5250,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "single-file-incremental",
+      "repetition": 1,
+      "wallMs": 3.235194999997475,
+      "cpuUserMicros": 4079,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 160219,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 160861,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 894034,
+        "entries": 1161,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 219,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "single-file-incremental",
+      "repetition": 2,
+      "wallMs": 2.2111619999996037,
+      "cpuUserMicros": 952,
+      "cpuSystemMicros": 1261,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 160219,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 160861,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 894034,
+        "entries": 1161,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 219,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "single-file-incremental",
+      "repetition": 3,
+      "wallMs": 2.0908810000000813,
+      "cpuUserMicros": 0,
+      "cpuSystemMicros": 2127,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 160219,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 160861,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 894034,
+        "entries": 1161,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 219,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "single-file-incremental",
+      "repetition": 4,
+      "wallMs": 3.5882910000000265,
+      "cpuUserMicros": 1429,
+      "cpuSystemMicros": 3219,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 160219,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 160861,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 894034,
+        "entries": 1161,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 219,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": 256,
+      "scenario": "single-file-incremental",
+      "repetition": 5,
+      "wallMs": 2.0777450000023236,
+      "cpuUserMicros": 2082,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 160219,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 160861,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 894034,
+        "entries": 1161,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 219,
+        "maxEntriesPerPack": 250
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "cold-population",
+      "repetition": 1,
+      "wallMs": 11.101183999999193,
+      "cpuUserMicros": 8779,
+      "cpuSystemMicros": 4834,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893064,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "cold-population",
+      "repetition": 2,
+      "wallMs": 10.63773399999991,
+      "cpuUserMicros": 5834,
+      "cpuSystemMicros": 6735,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893064,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "cold-population",
+      "repetition": 3,
+      "wallMs": 9.487982999999076,
+      "cpuUserMicros": 9147,
+      "cpuSystemMicros": 380,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893064,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "cold-population",
+      "repetition": 4,
+      "wallMs": 9.488972999999532,
+      "cpuUserMicros": 2374,
+      "cpuSystemMicros": 7174,
+      "processMaxRssBytes": 161349632,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893064,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "cold-population",
+      "repetition": 5,
+      "wallMs": 11.659722000000329,
+      "cpuUserMicros": 11715,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 162492416,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893064,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-full-scan",
+      "repetition": 1,
+      "wallMs": 26.0745190000016,
+      "cpuUserMicros": 31785,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 163803136,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-full-scan",
+      "repetition": 2,
+      "wallMs": 26.157443000000058,
+      "cpuUserMicros": 27147,
+      "cpuSystemMicros": 2558,
+      "processMaxRssBytes": 163803136,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-full-scan",
+      "repetition": 3,
+      "wallMs": 27.10851900000125,
+      "cpuUserMicros": 30617,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 163803136,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-full-scan",
+      "repetition": 4,
+      "wallMs": 27.24132699999973,
+      "cpuUserMicros": 33061,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 163803136,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-full-scan",
+      "repetition": 5,
+      "wallMs": 26.735677000000578,
+      "cpuUserMicros": 29362,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 163803136,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-1",
+      "repetition": 1,
+      "wallMs": 2.8351029999976163,
+      "cpuUserMicros": 2851,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 163803136,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-1",
+      "repetition": 2,
+      "wallMs": 2.4685320000025968,
+      "cpuUserMicros": 2483,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 164130816,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-1",
+      "repetition": 3,
+      "wallMs": 2.926673000001756,
+      "cpuUserMicros": 2938,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 167649280,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-1",
+      "repetition": 4,
+      "wallMs": 3.6825910000006843,
+      "cpuUserMicros": 4466,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 168697856,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-1",
+      "repetition": 5,
+      "wallMs": 3.664541999998619,
+      "cpuUserMicros": 4439,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 169615360,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-100",
+      "repetition": 1,
+      "wallMs": 4.916916999998648,
+      "cpuUserMicros": 4945,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 169877504,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-100",
+      "repetition": 2,
+      "wallMs": 4.249338000001444,
+      "cpuUserMicros": 4260,
+      "cpuSystemMicros": 8,
+      "processMaxRssBytes": 170401792,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-100",
+      "repetition": 3,
+      "wallMs": 9.721389999998792,
+      "cpuUserMicros": 13818,
+      "cpuSystemMicros": 9334,
+      "processMaxRssBytes": 171057152,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-100",
+      "repetition": 4,
+      "wallMs": 4.483210999998846,
+      "cpuUserMicros": 4333,
+      "cpuSystemMicros": 167,
+      "processMaxRssBytes": 171225088,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "warm-partial-100",
+      "repetition": 5,
+      "wallMs": 4.5805229999969015,
+      "cpuUserMicros": 4365,
+      "cpuSystemMicros": 234,
+      "processMaxRssBytes": 171487232,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "single-file-incremental",
+      "repetition": 1,
+      "wallMs": 7.551317000001291,
+      "cpuUserMicros": 4170,
+      "cpuSystemMicros": 4071,
+      "processMaxRssBytes": 172273664,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893706,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893706,
+        "entries": 1161,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1161,
+        "maxEntriesPerPack": 1161
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "single-file-incremental",
+      "repetition": 2,
+      "wallMs": 8.05833899999925,
+      "cpuUserMicros": 4329,
+      "cpuSystemMicros": 4413,
+      "processMaxRssBytes": 172929024,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893706,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893706,
+        "entries": 1161,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1161,
+        "maxEntriesPerPack": 1161
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "single-file-incremental",
+      "repetition": 3,
+      "wallMs": 9.854416999998648,
+      "cpuUserMicros": 21158,
+      "cpuSystemMicros": 760,
+      "processMaxRssBytes": 173322240,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893706,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893706,
+        "entries": 1161,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1161,
+        "maxEntriesPerPack": 1161
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "single-file-incremental",
+      "repetition": 4,
+      "wallMs": 8.09276200000022,
+      "cpuUserMicros": 8859,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 174227456,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893706,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893706,
+        "entries": 1161,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1161,
+        "maxEntriesPerPack": 1161
+      }
+    },
+    {
+      "packSize": "all",
+      "scenario": "single-file-incremental",
+      "repetition": 5,
+      "wallMs": 6.689768000000186,
+      "cpuUserMicros": 6715,
+      "cpuSystemMicros": 0,
+      "processMaxRssBytes": 174358528,
+      "counters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893706,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893706,
+        "entries": 1161,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1161,
+        "maxEntriesPerPack": 1161
+      }
+    }
+  ],
+  "summaries": {
+    "1:cold-population": {
+      "sampleCount": 5,
+      "medianWallMs": 661.3278300000002,
+      "madWallMs": 14.041021,
+      "medianCpuMicros": 708723,
+      "medianCounters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 1160,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1160,
+        "temporaryWrites": 1160,
+        "temporaryWriteBytes": 976502,
+        "renames": 1160,
+        "publishedFiles": 1160
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    "1:warm-full-scan": {
+      "sampleCount": 5,
+      "medianWallMs": 209.27512399999978,
+      "madWallMs": 1.3901119999991352,
+      "medianCpuMicros": 247103,
+      "medianCounters": {
+        "lookupReadAttempts": 1160,
+        "lookupMisses": 0,
+        "lookupReadBytes": 976502,
+        "jsonParses": 1160,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    "1:warm-partial-1": {
+      "sampleCount": 5,
+      "medianWallMs": 0.2399249999980384,
+      "madWallMs": 0.011340999997628387,
+      "medianCpuMicros": 255,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 579,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    "1:warm-partial-100": {
+      "sampleCount": 5,
+      "medianWallMs": 18.474668999999267,
+      "madWallMs": 0.4333879999976489,
+      "medianCpuMicros": 21592,
+      "medianCounters": {
+        "lookupReadAttempts": 100,
+        "lookupMisses": 0,
+        "lookupReadBytes": 93579,
+        "jsonParses": 100,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1160,
+        "bytes": 976502,
+        "entries": 1160,
+        "nonEmptyPackCount": 1160,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    "1:single-file-incremental": {
+      "sampleCount": 5,
+      "medianWallMs": 0.5941630000015721,
+      "madWallMs": 0.03700100000060047,
+      "medianCpuMicros": 615,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 714,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1161,
+        "bytes": 977216,
+        "entries": 1161,
+        "nonEmptyPackCount": 1161,
+        "minEntriesPerPack": 1,
+        "maxEntriesPerPack": 1
+      }
+    },
+    "16:cold-population": {
+      "sampleCount": 5,
+      "medianWallMs": 54.29789999999775,
+      "madWallMs": 1.0328169999957026,
+      "medianCpuMicros": 60522,
+      "medianCounters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 73,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 73,
+        "temporaryWrites": 73,
+        "temporaryWriteBytes": 898968,
+        "renames": 73,
+        "publishedFiles": 73
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    "16:warm-full-scan": {
+      "sampleCount": 5,
+      "medianWallMs": 43.46789699999863,
+      "madWallMs": 0.3470449999986158,
+      "medianCpuMicros": 52772,
+      "medianCounters": {
+        "lookupReadAttempts": 73,
+        "lookupMisses": 0,
+        "lookupReadBytes": 898968,
+        "jsonParses": 73,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    "16:warm-partial-1": {
+      "sampleCount": 5,
+      "medianWallMs": 0.2814929999985907,
+      "madWallMs": 0.018805999996402534,
+      "medianCpuMicros": 295,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 7704,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    "16:warm-partial-100": {
+      "sampleCount": 5,
+      "medianWallMs": 15.321277999999438,
+      "madWallMs": 0.5989230000013777,
+      "medianCpuMicros": 18451,
+      "medianCounters": {
+        "lookupReadAttempts": 58,
+        "lookupMisses": 0,
+        "lookupReadBytes": 738090,
+        "jsonParses": 58,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 898968,
+        "entries": 1160,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    "16:single-file-incremental": {
+      "sampleCount": 5,
+      "medianWallMs": 0.90830300000016,
+      "madWallMs": 0.1562789999989036,
+      "medianCpuMicros": 925,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 9731,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 10373,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 73,
+        "bytes": 899610,
+        "entries": 1161,
+        "nonEmptyPackCount": 73,
+        "minEntriesPerPack": 8,
+        "maxEntriesPerPack": 27
+      }
+    },
+    "64:cold-population": {
+      "sampleCount": 5,
+      "medianWallMs": 24.948591000000306,
+      "madWallMs": 1.680991000001086,
+      "medianCpuMicros": 26986,
+      "medianCounters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 19,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 19,
+        "temporaryWrites": 19,
+        "temporaryWriteBytes": 894540,
+        "renames": 19,
+        "publishedFiles": 19
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    "64:warm-full-scan": {
+      "sampleCount": 5,
+      "medianWallMs": 31.159687999999733,
+      "madWallMs": 1.1992339999997057,
+      "medianCpuMicros": 36619,
+      "medianCounters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    "64:warm-partial-1": {
+      "sampleCount": 5,
+      "medianWallMs": 0.40217699999993783,
+      "madWallMs": 0.0210399999996298,
+      "medianCpuMicros": 412,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 55439,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    "64:warm-partial-100": {
+      "sampleCount": 5,
+      "medianWallMs": 9.439156000000366,
+      "madWallMs": 0.1439719999980298,
+      "medianCpuMicros": 11943,
+      "medianCounters": {
+        "lookupReadAttempts": 19,
+        "lookupMisses": 0,
+        "lookupReadBytes": 894540,
+        "jsonParses": 19,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 894540,
+        "entries": 1160,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    "64:single-file-incremental": {
+      "sampleCount": 5,
+      "medianWallMs": 1.1158009999999194,
+      "madWallMs": 0.21913800000038464,
+      "medianCpuMicros": 1153,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 39185,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 39827,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 19,
+        "bytes": 895182,
+        "entries": 1161,
+        "nonEmptyPackCount": 19,
+        "minEntriesPerPack": 41,
+        "maxEntriesPerPack": 78
+      }
+    },
+    "256:cold-population": {
+      "sampleCount": 5,
+      "medianWallMs": 13.505637999998726,
+      "madWallMs": 0.3195430000014312,
+      "medianCpuMicros": 14591,
+      "medianCounters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 5,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 5,
+        "temporaryWrites": 5,
+        "temporaryWriteBytes": 893392,
+        "renames": 5,
+        "publishedFiles": 5
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    "256:warm-full-scan": {
+      "sampleCount": 5,
+      "medianWallMs": 26.588568999999552,
+      "madWallMs": 0.7920259999991686,
+      "medianCpuMicros": 33049,
+      "medianCounters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    "256:warm-partial-1": {
+      "sampleCount": 5,
+      "medianWallMs": 0.6764909999983502,
+      "madWallMs": 0.056800999998813495,
+      "medianCpuMicros": 701,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 189869,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    "256:warm-partial-100": {
+      "sampleCount": 5,
+      "medianWallMs": 6.944043999999849,
+      "madWallMs": 1.7179729999988922,
+      "medianCpuMicros": 8709,
+      "medianCounters": {
+        "lookupReadAttempts": 5,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893392,
+        "jsonParses": 5,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 893392,
+        "entries": 1160,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 218,
+        "maxEntriesPerPack": 250
+      }
+    },
+    "256:single-file-incremental": {
+      "sampleCount": 5,
+      "medianWallMs": 2.2111619999996037,
+      "madWallMs": 0.13341699999728007,
+      "medianCpuMicros": 2213,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 160219,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 160861,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 5,
+        "bytes": 894034,
+        "entries": 1161,
+        "nonEmptyPackCount": 5,
+        "minEntriesPerPack": 219,
+        "maxEntriesPerPack": 250
+      }
+    },
+    "all:cold-population": {
+      "sampleCount": 5,
+      "medianWallMs": 10.63773399999991,
+      "madWallMs": 1.0219880000004196,
+      "medianCpuMicros": 11715,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 1,
+        "lookupReadBytes": 0,
+        "jsonParses": 0,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893064,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    "all:warm-full-scan": {
+      "sampleCount": 5,
+      "medianWallMs": 26.735677000000578,
+      "madWallMs": 0.5056499999991502,
+      "medianCpuMicros": 30617,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1160,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    "all:warm-partial-1": {
+      "sampleCount": 5,
+      "medianWallMs": 2.926673000001756,
+      "madWallMs": 0.45814099999915925,
+      "medianCpuMicros": 2938,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 1,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    "all:warm-partial-100": {
+      "sampleCount": 5,
+      "medianWallMs": 4.5805229999969015,
+      "madWallMs": 0.3311849999954575,
+      "medianCpuMicros": 4599,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 100,
+        "mkdirCalls": 0,
+        "temporaryWrites": 0,
+        "temporaryWriteBytes": 0,
+        "renames": 0,
+        "publishedFiles": 0
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893064,
+        "entries": 1160,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1160,
+        "maxEntriesPerPack": 1160
+      }
+    },
+    "all:single-file-incremental": {
+      "sampleCount": 5,
+      "medianWallMs": 8.05833899999925,
+      "madWallMs": 0.5070219999979599,
+      "medianCpuMicros": 8742,
+      "medianCounters": {
+        "lookupReadAttempts": 1,
+        "lookupMisses": 0,
+        "lookupReadBytes": 893064,
+        "jsonParses": 1,
+        "restoredEntries": 0,
+        "mkdirCalls": 1,
+        "temporaryWrites": 1,
+        "temporaryWriteBytes": 893706,
+        "renames": 1,
+        "publishedFiles": 1
+      },
+      "footprint": {
+        "fileCount": 1,
+        "bytes": 893706,
+        "entries": 1161,
+        "nonEmptyPackCount": 1,
+        "minEntriesPerPack": 1161,
+        "maxEntriesPerPack": 1161
+      }
+    }
+  }
+}

@@ -79,7 +79,7 @@ baseline，没有沿用旧测量。
 | 1C：Admission simulation Plan 已归档 | [已归档的 `provide-admission-strategy-simulation`](../changes/archive/provide-admission-strategy-simulation/proposal.md) | standalone 与 callback 的 immutable `AdmissionGraph` / `AdmissionState` 已在同一 private compiled machine、pure core state/reducer 与 canonical effects 上完成实施/验证；归档 Plan 只保留形成时 provenance，稳定 public contract 由 runtime、Architecture、Configuration、API mechanics 和 active + aligned [Decision](decisions/provide-immutable-admission-graph-state.md)承接。 | 已交付 custom lifecycle 仍是 stable baseline；algorithm 可复用 private core/test harness，但不依赖 simulation public contract，也不与 archived Plan 混合实现。 |
 | 1D：Scheduler 算法 Plan | [`optimize-learned-admission-strategy`](../changes/optimize-learned-admission-strategy/proposal.md) | 已收敛为 strict baseline 与唯一 same-layer admissible-first 候选的可证伪比较；当前 seam 已可作为稳定基线。当前按自身 Readiness 冻结 corpus、prediction provenance、A/B data contract 与门槛；未满足本 Change 的 evidence gates 与单独授权前不得切换生产策略 | 固定 duration prediction 输入，不与 model/statistics 优化混跑；scope unsafe-backfill witness 一旦出现 protected-delay 退化即 not-adopt；可共享 private kernel/test harness，但不得依赖 1C 的 public contract |
 | 1E：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A–1D 并行规划；不要同时修改 invocation runtime |
-| 1F：证据 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | 完成大型 corpus benchmark、安全 payload 和 limit 语义设计 | 不得假设 path-context Draft 已落地 |
+| 1F：Markdown 缓存已交付 | [已归档的 `cache-markdown-link-safe-facts`](../changes/archive/cache-markdown-link-safe-facts/proposal.md) | 显式 parse-facts cache、严格串行语义、单文件 JSONL packing 与性能证据均已交付并归档 | 后续缓存演进建立独立 Change，不从 archive 恢复实施授权 |
 | 1G：条件证据 | [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md) | 仅在当前任务授权后重审 owner，准备 oracle、corpus、provenance 与性能证据 | 未闭合 Resume Conditions 前不修改生产 backend |
 
 ## 条件分支重新基线矩阵
@@ -102,10 +102,10 @@ Scheduler 相关 Change 的合入协调：
 3. Simulation 与 algorithm Change 保持各自的 contract、evidence gate 和实施授权。Simulation 已完成自身 Plan 的 implementation/verification；后继 Change 修改 shared owner 时仍以已交付 custom lifecycle 与 current simulation contract 为 stable baseline 串行集成，Simulation 不是该 lifecycle 的语义前置。
 4. admission simulation 已为当前 custom `decide` lifecycle 提供同型 lookahead，但不与已归档的 custom lifecycle Change 合并。它以一次 graph compile 的 private machine、pure core state/reducer 与 canonical effects 使 real shell 和 simulation facade 同源；稳定 public contract、consumer evidence 与 performance evidence 由各自 current owner 承接。算法 Change 仅可共享该 private machine/test harness，不能把 simulation public API 当作算法实施前置；其自身仍须闭合独立的 corpus、evidence gate 和对齐判断。
 5. 算法 Change 在固定 prediction input 上比较 strict baseline 与候选；它可从包含当前 seam 的稳定提交开始，但生产 strategy 切换仍须满足算法 Change 自己的 evidence gates 与单独授权。
-6. invocation path context 达到 Plan 后再实现；若只暴露 machine/diagnostic effective paths，不构成 Markdown cache 的
-   硬前置。只有它明确提供 cross-run state capability 时，Markdown cache 才依赖它。
-7. Markdown cache 在 benchmark 与安全 payload 证明收益后进入 Plan；其实现可以与 Lizard analyzer 的独立源码工作并行，
-   但二者涉及的 package、Gate、Case 和公共文档改动必须分次合入并重新验证。
+6. invocation path context 达到 Plan 后再实现；已归档的 Markdown cache 没有依赖该 Draft，也没有预先建立通用
+   cross-run state owner。
+7. Markdown cache 已完成 benchmark、安全 payload、严格串行实现与单文件 JSONL packing。后续演进必须建立独立
+   Change，并重新证明与当时 invocation path、package、Gate、Case 和公共文档事实兼容。
 8. learned scheduler 已形成首轮诊断与 A/B evidence；只有新的真实 workload 证明独立收益时，才重新判断 fail-fast 与 named capacity 是否值得激活。若二者先实施，任何后继 simulation Change 必须复核它们对 catalog、reason、settlement 和 hard guard 的影响。
 9. Node execution backend 最后独占推进，避免重复迁移测试、candidate、Gate 和性能基线。若 Windows/Bun 问题已是当前
    发布阻塞，则反转此推荐顺序：先冻结其它实现，把 Node Change 提升为唯一主线。
@@ -137,8 +137,8 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 
 - `provide-invocation-path-context` 在 Plan 前必须区分只读 Product-owned output facts、per-invocation writable workspace 与
   cross-run state。没有真实 writable consumer 时，不预置通用 path map、workspace 或 state registry。
-- `cache-markdown-link-safe-facts` 可以独立完成 benchmark、invocation memo 和安全 payload 设计。machine/diagnostic output
-  path 不是 cache directory；只有明确的 cross-run state owner 才形成依赖。
+- [已归档的 `cache-markdown-link-safe-facts`](../changes/archive/cache-markdown-link-safe-facts/proposal.md) 已交付显式
+  parse-facts cache；machine/diagnostic output path 没有因此成为 cache directory，项目也没有建立通用 cross-run state owner。
 - `adopt-node-execution-backend` 横跨 repository scripts、Test Evidence、package/candidate、Gate、lockfile、性能和 Windows
   验收。默认等 Scheduler、scanner 和 cache 轨道稳定后独占实施；不能与其它生产 Change 共用实现批次。
 

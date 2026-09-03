@@ -1,6 +1,51 @@
 {
   "definitionVersion": 6,
   "entries": {
+    "analyze-markdown-link-cache-packing.md": {
+      "keys": {
+        "formed-at": [
+          1788423509000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "cache-design",
+          "markdown-link-validation",
+          "performance",
+          "storage-mechanics"
+        ],
+        "text": [
+          "Markdown Link 缓存合并前性能分析",
+          "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T08:18:29+00:00",
+        "question": "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？",
+        "relations": [
+          {
+            "target": "evaluate-markdown-link-serial-io-optimization.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "analyze-markdown-link-cache-packing/README.md",
+          "analyze-markdown-link-cache-packing/benchmark.ts",
+          "analyze-markdown-link-cache-packing/cache-syscall-stage-profile.ts",
+          "analyze-markdown-link-cache-packing/direct-cache-api-profile-results.json",
+          "analyze-markdown-link-cache-packing/direct-cache-api-profile.ts",
+          "analyze-markdown-link-cache-packing/raw-results.json"
+        ],
+        "tags": [
+          "cache-design",
+          "markdown-link-validation",
+          "performance",
+          "storage-mechanics"
+        ],
+        "title": "Markdown Link 缓存合并前性能分析"
+      }
+    },
     "assess-admission-state-performance-and-selection-index.md": {
       "keys": {
         "formed-at": [
@@ -221,6 +266,46 @@
         "title": "Bun 冷启动下 Project Gate candidate 导入失败调查"
       }
     },
+    "evaluate-markdown-link-serial-io-optimization.md": {
+      "keys": {
+        "formed-at": [
+          1788420423000
+        ],
+        "relation-type": [
+          "复查"
+        ],
+        "tag": [
+          "markdown-link-validation",
+          "performance",
+          "serial-io"
+        ],
+        "text": [
+          "Markdown Link 严格串行 I/O 优化复查",
+          "在相同 1,000 source / 160 target 严格串行 workload 中，最终的 Markdown Link parse-facts cache 优化相对 cfe715d 基线实际改变了什么；是否通过 cold gate，并保持了哪些语义边界？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T07:27:03+00:00",
+        "question": "在相同 1,000 source / 160 target 严格串行 workload 中，最终的 Markdown Link parse-facts cache 优化相对 cfe715d 基线实际改变了什么；是否通过 cold gate，并保持了哪些语义边界？",
+        "relations": [
+          {
+            "target": "measure-markdown-link-serial-cache-overhead.md",
+            "type": "复查"
+          }
+        ],
+        "resourceIds": [
+          "evaluate-markdown-link-serial-io-optimization/after-final-hit-utf8.json",
+          "evaluate-markdown-link-serial-io-optimization/before-old-cfe715d.json",
+          "evaluate-markdown-link-serial-io-optimization/candidate.patch"
+        ],
+        "tags": [
+          "markdown-link-validation",
+          "performance",
+          "serial-io"
+        ],
+        "title": "Markdown Link 严格串行 I/O 优化复查"
+      }
+    },
     "evaluate-persistent-data-structure-libraries-for-admission-core.md": {
       "keys": {
         "formed-at": [
@@ -310,6 +395,34 @@
           "implementation-libraries"
         ],
         "title": "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
+      }
+    },
+    "measure-markdown-link-serial-cache-overhead.md": {
+      "keys": {
+        "formed-at": [
+          1788418556000
+        ],
+        "tag": [
+          "markdown-link-validation",
+          "performance",
+          "serial-io"
+        ],
+        "text": [
+          "Markdown Link 严格串行 cache 开销测量",
+          "在不跳过 source bytes 且 source I/O 严格串行的 Markdown Link validation 中，当前 explicit parse-facts cache 的可复现基线是什么；哪些低风险解释与实施边界应由后续 before/after 证据检验？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T06:55:56+00:00",
+        "question": "在不跳过 source bytes 且 source I/O 严格串行的 Markdown Link validation 中，当前 explicit parse-facts cache 的可复现基线是什么；哪些低风险解释与实施边界应由后续 before/after 证据检验？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "markdown-link-validation",
+          "performance",
+          "serial-io"
+        ],
+        "title": "Markdown Link 严格串行 cache 开销测量"
       }
     },
     "pattern-matching-and-state-modeling-libraries.md": {
@@ -442,6 +555,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
+      "analyze-markdown-link-cache-packing.md": "sha256:ce5c994f17a338005e2f7e13bbd48cec8eef2cb2624f7d331e31f5dc2d7435b7",
       "assess-admission-state-performance-and-selection-index.md": "sha256:98061f900a651bf14b5c024f4c897236276ce991c53b2551d897fc06719d76fd",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
@@ -449,9 +563,11 @@
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
       "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
       "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:f45a56559223f8c0d317013d7da4772bbf87838a714be580f44027f744803401",
+      "evaluate-markdown-link-serial-io-optimization.md": "sha256:8c749ead3a22883a056318d560e8554393ffbf474898fc48c12eb7622e7ef41e",
       "evaluate-persistent-data-structure-libraries-for-admission-core.md": "sha256:85d43d2f8b07c22faa1e0a368f0273db6c8cce9a7b0dae7ae7987a75d8493e9c",
       "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
       "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
+      "measure-markdown-link-serial-cache-overhead.md": "sha256:f5dd58142e34e02cc2b33f89fd103add3f8a571c90f354586600f960c2520ab4",
       "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
       "recheck-json-dependency-and-zero-dependency-path.md": "sha256:6967e3e64bb9ed78eb4bf93f95a96d068bdf50d35e4d4ab6aaf840a7e81937c6",
       "result-and-option-libraries.md": "sha256:2a7660ba472520806deddbbca80b76f3c4f9410baf74984039e1f20bda92b623",

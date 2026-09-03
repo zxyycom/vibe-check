@@ -112,9 +112,24 @@ async function prepareMarkdownTraversal(
   if (context.signal.aborted) return result(unavailable("cancelled"));
   const created = await createMarkdownLocalResolver(
     context.project.root,
-    context.options.limits.maxTargetReads
+    context.options.limits.maxTargetReads,
+    context.options.cache,
+    context.signal
   );
   if (!created.ok) return result(unavailable(created.reason));
+  let prepared: PreparedMarkdownTraversal;
+  try {
+    prepared = await prepareCreatedMarkdownTraversal(context, created.resolver);
+  } finally {
+    await created.resolver.finalize();
+  }
+  return context.signal.aborted ? result(unavailable("cancelled")) : prepared;
+}
+
+async function prepareCreatedMarkdownTraversal(
+  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>,
+  resolver: MarkdownLocalResolver
+): Promise<PreparedMarkdownTraversal> {
   if (context.signal.aborted) return result(unavailable("cancelled"));
   const sourceDiscovery = discoverMarkdownSourcePaths(context.project, context.options.files);
   if (sourceDiscovery.kind === "unavailable") return result(unavailable(sourceDiscovery.reason));
@@ -122,7 +137,7 @@ async function prepareMarkdownTraversal(
   if (context.signal.aborted) return result(unavailable("cancelled"));
   reportRejectedInputs(context, sourceDiscovery.rejectedPaths);
   const traversal = await traverseMarkdownSources(sourceDiscovery.sourcePaths, {
-    resolver: created.resolver,
+    resolver,
     options: context.options,
     signal: context.signal
   });
@@ -142,7 +157,7 @@ async function prepareMarkdownTraversal(
   return Object.freeze({
     kind: "traversal",
     rejectedPaths: sourceDiscovery.rejectedPaths,
-    resolver: created.resolver,
+    resolver,
     traversal
   });
 }
@@ -217,6 +232,7 @@ async function traverseMarkdownSources(
   let occurrenceCount = 0;
   let sourceFileCount = 0;
 
+  // The Run's shared Scheduler owns cross-Check concurrency; this Check processes sources strictly in order.
   for (const sourcePath of sourcePaths) {
     const sourceValidation = await validateMarkdownSource(sourcePath, occurrenceCount, run);
     if (sourceValidation.kind === "unavailable") return sourceValidation;

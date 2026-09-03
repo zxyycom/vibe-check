@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "scope": "Direct current-cache API and isolated syscall-stage profiles; not a formal Check or packed-cache benchmark.",
+  "sourceFiles": {
+    "cache-only-842b-7": "/tmp/profile-cacheonly-842b-7.jsonl",
+    "cache-syscall-stages": "/tmp/profile-cache-syscall-stages.jsonl",
+    "parse-cache-5": "/tmp/profile-parsecache-5.jsonl",
+    "fresh-parse-9": "/tmp/profile-fresh-9.jsonl"
+  },
+  "profiles": {
+    "cache-only-842b-7": [
+      {
+        "label": "cache-only-cold",
+        "round": 0,
+        "ms": 709.838401,
+        "perEntryMs": 0.6119296560344827,
+        "entries": 1160,
+        "bytes": 975560
+      },
+      {
+        "label": "cache-only-cold",
+        "round": 1,
+        "ms": 742.4085389999999,
+        "perEntryMs": 0.6400073612068965,
+        "entries": 1160,
+        "bytes": 975560
+      },
+      {
+        "label": "cache-only-cold",
+        "round": 2,
+        "ms": 755.7214280000001,
+        "perEntryMs": 0.6514839896551725,
+        "entries": 1160,
+        "bytes": 975560
+      },
+      {
+        "label": "cache-only-cold",
+        "round": 3,
+        "ms": 875.769323,
+        "perEntryMs": 0.7549735543103449,
+        "entries": 1160,
+        "bytes": 975560
+      },
+      {
+        "label": "cache-only-cold",
+        "round": 4,
+        "ms": 728.5227939999995,
+        "perEntryMs": 0.62803689137931,
+        "entries": 1160,
+        "bytes": 975560
+      },
+      {
+        "label": "cache-only-cold",
+        "round": 5,
+        "ms": 756.96558,
+        "perEntryMs": 0.6525565344827586,
+        "entries": 1160,
+        "bytes": 975560
+      },
+      {
+        "label": "cache-only-cold",
+        "round": 6,
+        "ms": 758.5038460000005,
+        "perEntryMs": 0.6538826258620695,
+        "entries": 1160,
+        "bytes": 975560
+      },
+      {
+        "label": "cache-only-warm",
+        "rounds": 7,
+        "allMs": [
+          186.20628000000033,
+          177.6503700000003,
+          182.49782700000014,
+          181.6398339999996,
+          177.1543069999998,
+          180.99936200000047,
+          197.9373969999997
+        ],
+        "medianMs": 181.6398339999996,
+        "rangeMs": "177.15-197.94",
+        "perEntryMedianMs": 0.1565860637931031
+      }
+    ],
+    "cache-syscall-stages": [
+      {
+        "label": "readFile-missing",
+        "count": 1160,
+        "rounds": 9,
+        "allMs": [
+          138.828772,
+          135.958137,
+          129.71644099999997,
+          128.75968700000004,
+          131.33948400000008,
+          129.25131,
+          128.13407500000005,
+          128.425296,
+          128.82791300000008
+        ],
+        "medianMs": 129.25131,
+        "perEntryMedianMs": 0.11142354310344826,
+        "minMs": 128.13407500000005,
+        "maxMs": 138.828772
+      },
+      {
+        "label": "mkdir-existing-recursive",
+        "count": 1160,
+        "rounds": 9,
+        "allMs": [
+          124.01152200000001,
+          120.55175899999995,
+          119.44102799999996,
+          117.25363700000003,
+          117.67580599999997,
+          120.20117500000015,
+          118.23744199999987,
+          115.65748800000028,
+          117.99886500000002
+        ],
+        "medianMs": 118.23744199999987,
+        "perEntryMedianMs": 0.10192882931034472,
+        "minMs": 115.65748800000028,
+        "maxMs": 124.01152200000001
+      },
+      {
+        "label": "writeFile-exclusive-842B",
+        "count": 1160,
+        "rounds": 9,
+        "allMs": [
+          200.195064,
+          193.87923199999977,
+          195.9372870000002,
+          196.38745100000006,
+          197.85966099999996,
+          195.28712799999994,
+          196.4613159999999,
+          196.82629199999974,
+          193.0660630000002
+        ],
+        "medianMs": 196.38745100000006,
+        "perEntryMedianMs": 0.16929952672413798,
+        "minMs": 193.0660630000002,
+        "maxMs": 200.195064
+      },
+      {
+        "label": "rename-842B",
+        "count": 1160,
+        "rounds": 9,
+        "allMs": [
+          141.76089599999978,
+          142.059389,
+          140.91744000000017,
+          140.62152100000003,
+          137.46578600000066,
+          140.98279900000034,
+          137.84050500000012,
+          136.69776199999978,
+          130.70150600000034
+        ],
+        "medianMs": 140.62152100000003,
+        "perEntryMedianMs": 0.12122544913793105,
+        "minMs": 130.70150600000034,
+        "maxMs": 142.059389
+      },
+      {
+        "label": "writeFile-plus-rename-842B",
+        "count": 1160,
+        "rounds": 9,
+        "allMs": [
+          328.4538300000004,
+          335.66471100000035,
+          344.1331190000001,
+          342.2789780000003,
+          346.9594450000004,
+          345.171280999999,
+          343.00005899999996,
+          335.1131119999991,
+          358.88165200000003
+        ],
+        "medianMs": 343.00005899999996,
+        "perEntryMedianMs": 0.29568970603448275,
+        "minMs": 328.4538300000004,
+        "maxMs": 358.88165200000003
+      }
+    ],
+    "parse-cache-5": [
+      {
+        "label": "parse-cache-cold",
+        "round": 0,
+        "ms": 1836.273163,
+        "perEntryMs": 1.5829941060344828,
+        "entries": 1160,
+        "bytes": 673285
+      },
+      {
+        "label": "parse-cache-cold",
+        "round": 1,
+        "ms": 1708.808106,
+        "perEntryMs": 1.4731104362068965,
+        "entries": 1160,
+        "bytes": 673285
+      },
+      {
+        "label": "parse-cache-cold",
+        "round": 2,
+        "ms": 2220.8456909999995,
+        "perEntryMs": 1.9145221474137928,
+        "entries": 1160,
+        "bytes": 673285
+      },
+      {
+        "label": "parse-cache-cold",
+        "round": 3,
+        "ms": 1684.4114149999996,
+        "perEntryMs": 1.4520788060344825,
+        "entries": 1160,
+        "bytes": 673285
+      },
+      {
+        "label": "parse-cache-cold",
+        "round": 4,
+        "ms": 1630.9500110000008,
+        "perEntryMs": 1.4059913887931041,
+        "entries": 1160,
+        "bytes": 673285
+      },
+      {
+        "label": "parse-cache-warm",
+        "rounds": 5,
+        "allMs": [
+          230.77489799999967,
+          258.5697250000012,
+          240.67097099999955,
+          219.01900399999977,
+          216.6726039999994
+        ],
+        "medianMs": 230.77489799999967,
+        "rangeMs": "216.67-258.57",
+        "perEntryMedianMs": 0.1989438775862066
+      }
+    ],
+    "fresh-parse-9": [
+      {
+        "label": "fresh-parse",
+        "rounds": 9,
+        "allMs": [
+          886.934084,
+          780.9077910000001,
+          781.9141109999998,
+          811.5053459999999,
+          791.4182960000003,
+          809.3405409999996,
+          799.6108910000003,
+          822.8923669999995,
+          817.0410550000006
+        ],
+        "medianMs": 809.3405409999996,
+        "rangeMs": "780.91-886.93",
+        "perEntryMedianMs": 0.6977073629310341
+      }
+    ]
+  },
+  "derivedSummary": {
+    "cacheOnlyColdSevenSampleMedian": {
+      "sampleCount": 7,
+      "wallMs": 755.7214280000001,
+      "method": "median of the raw cache-only-cold records; no individual round is selected as representative."
+    },
+    "historicalFormalColdGapComparison": {
+      "historicalFormalEnabledMs": 3838.407209,
+      "historicalFormalDisabledMs": 2858.916841,
+      "historicalGapMs": 979.4903679999998,
+      "directMedianPercentOfHistoricalGap": 77.15455431614824,
+      "boundary": "Cross-benchmark order-of-magnitude comparison only; it is not causal attribution and does not replace the formal Check measurement."
+    },
+    "independentSyscallStageComparison": {
+      "includedStageMediansMs": {
+        "readFile-missing": 129.25131,
+        "mkdir-existing-recursive": 118.23744199999987,
+        "writeFile-exclusive-842B": 196.38745100000006,
+        "rename-842B": 140.62152100000003
+      },
+      "sumMs": 584.497724,
+      "percentOfDirectMedian": 77.34301322470903,
+      "boundary": "Stages come from a separate profile/run; their sum is explanatory context, not a causal decomposition of the direct profile."
+    }
+  }
+}

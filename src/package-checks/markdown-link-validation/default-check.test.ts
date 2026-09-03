@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
+import {
+  createDeclarativeFingerprint,
+  defineConfig,
+  normalizeProjectDefinition
+} from "../../project-definition/project-definition.ts";
 import { executeMarkdownLinkValidation } from "./execution.ts";
 import { markdownLinkValidation } from "./default-check.ts";
 import { parseMarkdownLinkValidationData } from "./final-data.ts";
@@ -24,6 +29,8 @@ describe("default Check direct callbacks", () => {
       "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
     ]);
     assert.equal(defaultCheck.options.requireExistingTargets, true);
+    assert.deepEqual(defaultCheck.options.cache, { enabled: false });
+    assert.equal(Object.isFrozen(defaultCheck.options.cache), true);
     assert.deepEqual(
       markdownLinkValidation({
         files: { include: ["docs/**/*.md"] },
@@ -31,6 +38,7 @@ describe("default Check direct callbacks", () => {
         rootExternalTargetMode: "ignore"
       }).options,
       {
+        cache: { enabled: false },
         files: {
           exclude: defaultCheck.options.files.exclude,
           include: ["docs/**/*.md"],
@@ -49,6 +57,12 @@ describe("default Check direct callbacks", () => {
         validateSameDocumentAnchors: true
       }
     );
+    const cacheDirectory = join(tmpdir(), "vibe-check-markdown-link-cache-options");
+    const disabledFingerprint = declarativeFingerprint(markdownLinkValidation());
+    const enabledFingerprint = declarativeFingerprint(
+      markdownLinkValidation({ cache: { enabled: true, directory: cacheDirectory } })
+    );
+    assert.notEqual(disabledFingerprint, enabledFingerprint);
     assert.throws(
       () => Reflect.apply(markdownLinkValidation, undefined, [{ unknown: true }]),
       /documented closed policy/
@@ -96,6 +110,10 @@ describe("default Check direct callbacks", () => {
         files: { excludeDirs: [], generatedFiles: [], include: ["**/*"] }
       },
       { ...MARKDOWN_LINK_OPTIONS, findingPolicy: "not-a-policy" },
+      { ...MARKDOWN_LINK_OPTIONS, cache: { enabled: false, directory: cacheDirectory } },
+      { ...MARKDOWN_LINK_OPTIONS, cache: { enabled: true } },
+      { ...MARKDOWN_LINK_OPTIONS, cache: { enabled: true, directory: "relative-cache" } },
+      { ...MARKDOWN_LINK_OPTIONS, cache: { enabled: true, directory: "\0cache" } },
       { ...MARKDOWN_LINK_OPTIONS, unexpected: true }
     ]) {
       assert.equal(validMarkdownLinkValidationOptions(options), false);
@@ -217,6 +235,116 @@ describe("default Check direct callbacks", () => {
     }
   });
 
+  it("uses an explicit parse-facts cache only as best-effort state", async () => {
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-");
+    const cacheDirectory = join(root, "cache-state");
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(join(root, "docs", "guide.md"), "[missing](missing.md)\n", "utf8");
+      const disabled = await execute(
+        executeMarkdownLinkValidation,
+        { ...MARKDOWN_LINK_OPTIONS, cache: Object.freeze({ enabled: false }) },
+        root,
+        MARKDOWN_FILES
+      );
+      assert.equal(existsSync(cacheDirectory), false);
+
+      const enabledOptions = {
+        ...MARKDOWN_LINK_OPTIONS,
+        cache: Object.freeze({ enabled: true as const, directory: cacheDirectory })
+      };
+      const first = await execute(
+        executeMarkdownLinkValidation,
+        enabledOptions,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(first, disabled);
+      const entries = readdirSync(cacheDirectory);
+      assert.deepEqual(entries, ["markdown-link-parse-facts-v1.jsonl"]);
+
+      const hit = await execute(
+        executeMarkdownLinkValidation,
+        enabledOptions,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(hit, disabled);
+
+      const entry = entries[0];
+      if (entry === undefined) assert.fail("expected a persisted Markdown Link cache file");
+      writeFileSync(join(cacheDirectory, entry), '{"hostile":true}\n', "utf8");
+      const invalidPayload = await execute(
+        executeMarkdownLinkValidation,
+        enabledOptions,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(invalidPayload, disabled);
+
+      const unavailableCacheDirectory = join(root, "cache-state-file");
+      writeFileSync(unavailableCacheDirectory, "not a directory", "utf8");
+      const unavailableStorage = await execute(
+        executeMarkdownLinkValidation,
+        {
+          ...MARKDOWN_LINK_OPTIONS,
+          cache: Object.freeze({ enabled: true as const, directory: unavailableCacheDirectory })
+        },
+        root,
+        MARKDOWN_FILES
+      );
+      assert.deepEqual(unavailableStorage, disabled);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("invalidates source and direct-target parse facts by exact content bytes", async () => {
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-identity-");
+    const cacheDirectory = join(root, "cache-state");
+    const enabledOptions = {
+      ...MARKDOWN_LINK_OPTIONS,
+      cache: Object.freeze({ enabled: true as const, directory: cacheDirectory })
+    };
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(join(root, "docs", "guide.md"), "[target](target.md#old)\n", "utf8");
+      writeFileSync(join(root, "docs", "target.md"), "# Old\n", "utf8");
+
+      const first = await execute(
+        executeMarkdownLinkValidation,
+        enabledOptions,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.equal(first.result.status, "passed");
+
+      writeFileSync(join(root, "docs", "target.md"), "# New\n", "utf8");
+      const staleTarget = await execute(
+        executeMarkdownLinkValidation,
+        enabledOptions,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.equal(staleTarget.result.status, "failed");
+
+      writeFileSync(join(root, "docs", "guide.md"), "[target](target.md#new)\n", "utf8");
+      const refreshedSource = await execute(
+        executeMarkdownLinkValidation,
+        enabledOptions,
+        root,
+        MARKDOWN_FILES
+      );
+      assert.equal(refreshedSource.result.status, "passed");
+      assert.equal(
+        readJsonlLines(join(cacheDirectory, "markdown-link-parse-facts-v1.jsonl")).length,
+        4
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("reports a root-external target without persisting its path, fragment, or query", async () => {
     const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-external-");
     try {
@@ -326,6 +454,7 @@ describe("default Check direct callbacks", () => {
 
   it("returns unavailable without publishing an earlier Markdown Link finding", async () => {
     const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-limit-");
+    const cacheDirectory = join(root, "cache-state");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(join(root, "docs", "a.md"), "[missing](missing.md)\n", "utf8");
@@ -335,6 +464,7 @@ describe("default Check direct callbacks", () => {
         executeMarkdownLinkValidation,
         {
           ...MARKDOWN_LINK_OPTIONS,
+          cache: Object.freeze({ enabled: true as const, directory: cacheDirectory }),
           limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxOccurrences: 1 }
         },
         root,
@@ -353,6 +483,7 @@ describe("default Check direct callbacks", () => {
         ]
       });
       assert.deepEqual(result.records, []);
+      assert.deepEqual(readdirSync(cacheDirectory), ["markdown-link-parse-facts-v1.jsonl"]);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -450,15 +581,65 @@ describe("default Check direct callbacks", () => {
 
   it("returns unavailable before source collection when its Run signal is already cancelled", async () => {
     const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cancelled-");
+    const cacheDirectory = join(root, "cache-state");
     const controller = new AbortController();
     controller.abort();
     try {
       const result = await execute(
         executeMarkdownLinkValidation,
-        MARKDOWN_LINK_OPTIONS,
+        {
+          ...MARKDOWN_LINK_OPTIONS,
+          cache: Object.freeze({ enabled: true as const, directory: cacheDirectory })
+        },
         root,
         MARKDOWN_FILES,
         controller.signal
+      );
+      assert.deepEqual(result.result, {
+        status: "unavailable",
+        reason: { code: "cancelled" },
+        messages: [
+          {
+            code: "cancelled",
+            level: "error",
+            message:
+              "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+          }
+        ]
+      });
+      assert.deepEqual(result.records, []);
+      assert.equal(existsSync(cacheDirectory), false);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("does not start parse-facts publication after cancellation without reporting stale findings", async () => {
+    const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-cancelled-");
+    const cacheDirectory = join(root, "cache-state");
+    const controller = new AbortController();
+    try {
+      mkdirSync(join(root, "docs"), { recursive: true });
+      writeFileSync(join(root, "docs", "guide.md"), "[missing](missing.md)\n", "utf8");
+
+      const result = await execute(
+        executeMarkdownLinkValidation,
+        {
+          ...MARKDOWN_LINK_OPTIONS,
+          cache: Object.freeze({ enabled: true as const, directory: cacheDirectory })
+        },
+        root,
+        MARKDOWN_FILES,
+        abortWhenCacheDirectoryIsPublished(controller, cacheDirectory)
+      );
+
+      assert.equal(controller.signal.aborted, true);
+      assert.equal(existsSync(cacheDirectory), true);
+      assert.equal(
+        readdirSync(cacheDirectory).filter(
+          (entry) => entry === "markdown-link-parse-facts-v1.jsonl"
+        ).length,
+        0
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
@@ -478,3 +659,28 @@ describe("default Check direct callbacks", () => {
     }
   });
 });
+
+function declarativeFingerprint(check: ReturnType<typeof markdownLinkValidation>): string {
+  return createDeclarativeFingerprint(
+    normalizeProjectDefinition(defineConfig({ checks: [check] })).declarative
+  );
+}
+
+/** Converts the exact cache-publication race into a deterministic real AbortSignal test. */
+function abortWhenCacheDirectoryIsPublished(
+  controller: AbortController,
+  cacheDirectory: string
+): AbortSignal {
+  return new Proxy(controller.signal, {
+    get(target, property): unknown {
+      if (property === "aborted" && existsSync(cacheDirectory)) controller.abort();
+      return Reflect.get(target, property, target) as unknown;
+    }
+  });
+}
+
+function readJsonlLines(filePath: string): string[] {
+  return readFileSync(filePath, "utf8")
+    .split("\n")
+    .filter((line) => line !== "");
+}

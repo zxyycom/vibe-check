@@ -24,6 +24,7 @@ export type CandidateFixtureEvidence = Readonly<{
   jsonSchemaOutcome: string | null;
   learnedScheduling: unknown;
   markdownLinkData: unknown;
+  markdownLinkCacheJsonl: unknown;
   markdownLinkOutcome: string | null;
   machineSchemaVersion: unknown;
   parserEvidence: unknown;
@@ -68,6 +69,11 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
     rejectedInputCount: 0,
     sourceFileCount: 2,
     targetReadCount: 1
+  });
+  assert.deepEqual(runEvidence.markdownLinkCacheJsonl, {
+    completeLineCount: 2,
+    entries: ["markdown-link-parse-facts-v1.jsonl"],
+    hasUnterminatedTail: false
   });
   assert.equal(runEvidence.changedFilesCalls, 1);
   assert.equal(runEvidence.blockedChangedFilesConsumerCalls, 0);

@@ -113,10 +113,14 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | 函数规模、复杂度和参数数量 | [`functionMetrics(options?)`](./docs/checks/function-metrics.md) | 环境中有兼容 Lizard 1.23 输出契约的 `lizard` command。 |
 | JSON 语法和输入范围 | [`jsonValidation(options?)`](./docs/checks/json-validation.md) | 只读取本地文件，不执行 command 或网络请求。 |
 | JSON 与 Schema 的匹配关系 | [`jsonSchemaValidation(options?)`](./docs/checks/json-schema-validation.md) | 默认离线；只有显式允许的 HTTPS source 才会触发网络请求。 |
-| 本地 Markdown 链接与锚点 | [`markdownLinkValidation(options?)`](./docs/checks/markdown-link-validation.md) | 只读取 policy 允许的本地路径，不执行 command 或网络请求。 |
+| 本地 Markdown 链接与锚点 | [`markdownLinkValidation(options?)`](./docs/checks/markdown-link-validation.md) | 只读取 policy 允许的本地路径，不执行 command 或网络请求；parse-facts cache 默认关闭，启用时由调用方提供 trusted、可删除的 absolute directory。 |
 | 基于 Git 历史的维护提醒 | [`maintenanceReminders(entries)`](./docs/checks/maintenance-reminders.md) | 项目根目录是 Git repository，且环境可以执行 `git`。 |
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
+
+`markdownLinkValidation` 的 cache 只是 opt-in local performance state：它可能保存 source-derived link destination、heading
+slug 与 range，不提供 confidentiality 或 automatic cleanup。调用方只有在接受这项 material 并拥有目录生命周期时，才传入
+`cache: { enabled: true, directory: "/absolute/removable/cache" }`；完整 option、failure 与 memo boundary 见其 Check guide。
 
 自定义 Check 可用 `presentCheckFindings(...)` 生成有界摘要：Check 自己设置显示上限、选择安全字段，并在超限 hook
 中明确完整明细的实际读取位置。helper 不定义 Finding shape，也不会替 Check 保存或发布完整 facts；详见

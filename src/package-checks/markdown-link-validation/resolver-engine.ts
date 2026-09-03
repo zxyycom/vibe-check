@@ -1,7 +1,8 @@
 import { opendir } from "node:fs/promises";
 import path from "node:path";
 
-import { parseMarkdownLinkFacts } from "./markdown-parser.ts";
+import type { MarkdownLinkParseResult, ParsedMarkdownLinkFacts } from "./markdown-parser.ts";
+import { MarkdownLinkParseFactsSession } from "./parse-facts-cache.ts";
 import {
   directoryTarget,
   fileTargetDescriptor,
@@ -25,27 +26,44 @@ import {
   type MarkdownLocalResolutionRequest,
   type MarkdownLocalResolver,
   type MarkdownSafeTargetDescriptor,
-  type MarkdownSourceReadResult
+  type MarkdownSourceReadResult,
+  type EndpointProbe
 } from "./local-resolution.ts";
+import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 
 export class LinkLocalResolver implements MarkdownLocalResolver {
   #targetReadCount = 0;
   readonly #canonicalProjectRoot: string;
+  readonly #parseFactsCache: MarkdownLinkParseFactsSession;
   readonly #maxTargetReads: number;
+  readonly #signal: AbortSignal;
+  readonly #targetFactMemo = new Map<string, Promise<ParsedMarkdownLinkFacts | undefined>>();
 
-  constructor(canonicalProjectRoot: string, maxTargetReads: number) {
+  constructor(
+    canonicalProjectRoot: string,
+    maxTargetReads: number,
+    cache: ResolvedMarkdownLinkValidationOptions["cache"],
+    signal: AbortSignal
+  ) {
     this.#canonicalProjectRoot = canonicalProjectRoot;
     this.#maxTargetReads = maxTargetReads;
+    this.#parseFactsCache = new MarkdownLinkParseFactsSession(cache);
+    this.#signal = signal;
   }
 
   get targetReadCount(): number {
     return this.#targetReadCount;
   }
 
+  finalize(): Promise<void> {
+    return this.#parseFactsCache.finalize(this.#signal);
+  }
+
   async readSource(
     rootRelativePath: string,
     maxMarkdownBytes: number
   ): Promise<MarkdownSourceReadResult> {
+    if (this.#signal.aborted) return sourceUnavailable();
     if (!isRootRelativePath(this.#canonicalProjectRoot, rootRelativePath)) {
       return sourceUnavailable();
     }
@@ -67,14 +85,8 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
         : sourceUnavailable();
     }
 
-    let markdown: string;
-    try {
-      markdown = new TextDecoder("utf-8", { fatal: true }).decode(sourceBytes.bytes);
-    } catch {
-      return sourceUnavailable();
-    }
-
-    const parsed = parseMarkdownLinkFacts(markdown);
+    const parsed = await this.#parseMarkdownBytes(sourceBytes.bytes);
+    if (this.#signal.aborted || parsed === undefined) return sourceUnavailable();
     if (!parsed.ok) {
       return Object.freeze({ ok: false as const, reason: "markdown-parse-failed" as const });
     }
@@ -89,6 +101,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
   }
 
   async resolve(request: MarkdownLocalResolutionRequest): Promise<MarkdownLocalResolution> {
+    if (this.#signal.aborted) return unavailable("target-unavailable");
     const destination = parseLocalDestination(request.rawDestination);
     if (destination === "not-local") {
       return Object.freeze({ kind: "not-local" as const });
@@ -148,6 +161,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
       return unavailable("target-read-limit-exceeded");
     }
     return this.resolveEndpoint(
+      rootProbe.endpoint ?? (await probeEndpoint(rootProbe.absolutePath)),
       rootProbe.absolutePath,
       fragment,
       request,
@@ -169,16 +183,22 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     if (!this.beginTargetValidation()) {
       return unavailable("target-read-limit-exceeded");
     }
-    return this.resolveEndpoint(targetPath, fragment, request, outsideProjectRootTarget());
+    return this.resolveEndpoint(
+      await probeEndpoint(targetPath),
+      targetPath,
+      fragment,
+      request,
+      outsideProjectRootTarget()
+    );
   }
 
   async resolveEndpoint(
+    endpoint: EndpointProbe,
     targetPath: string,
     fragment: string | null,
     request: MarkdownLocalResolutionRequest,
     target: MarkdownSafeTargetDescriptor
   ): Promise<MarkdownLocalResolution> {
-    const endpoint = await probeEndpoint(targetPath);
     if (endpoint.kind === "missing") {
       return request.requireExistingTargets ? finding("missing-target", target) : valid(target);
     }
@@ -208,21 +228,10 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
       return finding("anchor-target-not-markdown", target);
     }
 
-    const targetMarkdown = await readRegularFile(targetPath, request.maxMarkdownBytes);
-    if (!targetMarkdown.ok) {
-      return unavailable("target-unavailable");
-    }
-    let decodedTarget: string;
-    try {
-      decodedTarget = new TextDecoder("utf-8", { fatal: true }).decode(targetMarkdown.bytes);
-    } catch {
-      return unavailable("target-unavailable");
-    }
-    const parsedTarget = parseMarkdownLinkFacts(decodedTarget);
-    if (!parsedTarget.ok) {
-      return unavailable("target-unavailable");
-    }
-    return anchorResolution(parsedTarget.facts.headings, fragment, target);
+    const facts = await this.#targetFacts(targetPath, request.maxMarkdownBytes);
+    return facts === undefined
+      ? unavailable("target-unavailable")
+      : anchorResolution(facts.headings, fragment, target);
   }
 
   async resolveDirectory(
@@ -231,6 +240,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     request: MarkdownLocalResolutionRequest,
     target: MarkdownSafeTargetDescriptor
   ): Promise<MarkdownLocalResolution> {
+    if (this.#signal.aborted) return unavailable("target-unavailable");
     if (fragment !== null) {
       return finding("anchor-on-directory", target);
     }
@@ -257,6 +267,40 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     }
     this.#targetReadCount += 1;
     return true;
+  }
+
+  async #targetFacts(
+    targetPath: string,
+    maxMarkdownBytes: number
+  ): Promise<ParsedMarkdownLinkFacts | undefined> {
+    if (this.#signal.aborted) return undefined;
+    const key = JSON.stringify([targetPath, maxMarkdownBytes]);
+    const existing = this.#targetFactMemo.get(key);
+    if (existing !== undefined) return existing;
+
+    const pending = this.#readTargetFacts(targetPath, maxMarkdownBytes);
+    this.#targetFactMemo.set(key, pending);
+    const facts = await pending;
+    if (facts === undefined && this.#targetFactMemo.get(key) === pending) {
+      this.#targetFactMemo.delete(key);
+    }
+    return facts;
+  }
+
+  async #readTargetFacts(
+    targetPath: string,
+    maxMarkdownBytes: number
+  ): Promise<ParsedMarkdownLinkFacts | undefined> {
+    const targetMarkdown = await readRegularFile(targetPath, maxMarkdownBytes);
+    if (!targetMarkdown.ok || this.#signal.aborted) return undefined;
+    const parsed = await this.#parseMarkdownBytes(targetMarkdown.bytes);
+    return this.#signal.aborted || parsed === undefined || !parsed.ok ? undefined : parsed.facts;
+  }
+
+  async #parseMarkdownBytes(bytes: Uint8Array): Promise<MarkdownLinkParseResult | undefined> {
+    if (this.#signal.aborted) return undefined;
+    const parsed = await this.#parseFactsCache.parse(bytes, this.#signal);
+    return this.#signal.aborted ? undefined : parsed;
   }
 
   resolveSameDocument(

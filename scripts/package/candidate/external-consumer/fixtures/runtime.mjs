@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -24,6 +24,8 @@ import {
 
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
+const markdownLinkCacheDirectory = join(projectRoot, ".vibe-check", "markdown-link-parse-cache");
+const MARKDOWN_LINK_CACHE_FILE = "markdown-link-parse-facts-v1.jsonl";
 
 const cacheEvidence = await observeCacheReuse();
 const learnedSchedulingEvidence = await observeLearnedScheduling(projectRoot);
@@ -132,7 +134,10 @@ const firstChangedFilesConsumer = defineCheck({
     const parsedChangedFiles = failedChangedFiles.parseData(observation.outcome.data);
     return {
       status: "passed",
-      data: { fileCount: parsedChangedFiles.files.length, observedStatus: observation.outcome.status }
+      data: {
+        fileCount: parsedChangedFiles.files.length,
+        observedStatus: observation.outcome.status
+      }
     };
   }
 });
@@ -180,11 +185,11 @@ const result = await run(
             schemaId: "__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__"
           }
         ],
-        schemas: [
-          { id: "__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", path: "schema.json" }
-        ]
+        schemas: [{ id: "__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", path: "schema.json" }]
       }),
-      markdownLinkValidation(),
+      markdownLinkValidation({
+        cache: { enabled: true, directory: markdownLinkCacheDirectory }
+      }),
       changedFiles,
       failedChangedFiles,
       firstChangedFilesConsumer,
@@ -274,9 +279,29 @@ process.stdout.write(
       learnedScheduling: learnedSchedulingEvidence,
       admissionSimulation: admissionSimulationEvidence,
       markdownLinkData: settledFinalData(markdownLink),
+      markdownLinkCacheJsonl: markdownLinkCacheJsonlEvidence(markdownLinkCacheDirectory),
       markdownLinkOutcome: markdownLink?.outcome.status ?? null
     })
 );
+
+function markdownLinkCacheJsonlEvidence(directory) {
+  if (!existsSync(directory)) {
+    return { completeLineCount: 0, entries: [], hasUnterminatedTail: false };
+  }
+  const entries = readdirSync(directory).sort();
+  const filePath = join(directory, MARKDOWN_LINK_CACHE_FILE);
+  if (!existsSync(filePath)) {
+    return { completeLineCount: 0, entries, hasUnterminatedTail: false };
+  }
+  const contents = readFileSync(filePath, "utf8");
+  const completeLines = contents.split("\n").slice(0, -1);
+  for (const line of completeLines) JSON.parse(line);
+  return {
+    completeLineCount: completeLines.length,
+    entries,
+    hasUnterminatedTail: !contents.endsWith("\n")
+  };
+}
 
 async function observeCacheReuse() {
   const directory = await mkdtemp(join(tmpdir(), "vibe-check-installed-cache-"));

@@ -1,0 +1,1987 @@
+{
+  "schemaVersion": 2,
+  "command": "bun changes/cache-markdown-link-safe-facts/evidence/benchmark.ts --output changes/cache-markdown-link-safe-facts/evidence/results/latest.json",
+  "generatedAtUtc": "2026-09-03T07:09:53.628Z",
+  "environment": {
+    "bun": "1.3.14",
+    "os": "linux",
+    "arch": "x64",
+    "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuCount": 6,
+    "node": "v24.3.0"
+  },
+  "fixture": {
+    "seed": 1592639710,
+    "sourceCount": 1000,
+    "normalTargetCount": 160,
+    "highReuseTargetCount": 8,
+    "totalMarkdownFiles": {
+      "normal": 1160,
+      "highReuse": 1008
+    },
+    "sizes": [
+      512,
+      2048,
+      8192
+    ],
+    "targetLinksPerSource": "deterministic 1..5",
+    "mutation": "each incremental repetition copies the deterministic seed, prewarms its own cache, then appends one heading to guides/guide-0500.md"
+  },
+  "storage": {
+    "temporaryFixtureRoot": "/tmp/vibe-check-link-cache-evidence-qRa3hL",
+    "tmpdir": "/tmp",
+    "statfs": {
+      "bsize": 4096,
+      "blocks": 263940717,
+      "bavail": 235609340,
+      "bfree": 249035208,
+      "files": 67108864,
+      "ffree": 62557297,
+      "type": 61267
+    }
+  },
+  "measurement": {
+    "samplesPerGroup": 5,
+    "coldDefinition": "application cache directory empty; operating-system page cache is not forcibly dropped",
+    "cpu": "per-sample process.resourceUsage user+system deltas",
+    "memory": "process.resourceUsage maxRSS; cumulative process peak, reported as max observed rather than a per-sample isolated peak",
+    "counters": "The retest invokes formal runtime only. Its public/direct Check envelope does not expose physical I/O or parser counters; cache entry footprint and full timing are measured here, while direct resolver tests prove successful canonical-target memo reuse without changing logical counts."
+  },
+  "samples": [
+    {
+      "group": "public-run-observation-normal",
+      "mode": "public-observation",
+      "repetition": 1,
+      "order": "observation",
+      "wallMs": 4157.621274,
+      "cpuUserMicros": 2773649,
+      "cpuSystemMicros": 2119323,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "aggregate": null,
+        "checks": [
+          {
+            "checkId": "markdown-link-validation",
+            "outcome": {
+              "status": "passed",
+              "data": {
+                "findingCount": 0,
+                "occurrenceCount": 2955,
+                "rejectedInputCount": 0,
+                "sourceFileCount": 1160,
+                "targetReadCount": 2955
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": "public-run-observation-normal",
+      "mode": "public-observation",
+      "repetition": 2,
+      "order": "observation",
+      "wallMs": 3355.4112539999996,
+      "cpuUserMicros": 2055794,
+      "cpuSystemMicros": 1755549,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "aggregate": null,
+        "checks": [
+          {
+            "checkId": "markdown-link-validation",
+            "outcome": {
+              "status": "passed",
+              "data": {
+                "findingCount": 0,
+                "occurrenceCount": 2955,
+                "rejectedInputCount": 0,
+                "sourceFileCount": 1160,
+                "targetReadCount": 2955
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": "public-run-observation-normal",
+      "mode": "public-observation",
+      "repetition": 3,
+      "order": "observation",
+      "wallMs": 3120.8226750000013,
+      "cpuUserMicros": 1826380,
+      "cpuSystemMicros": 1694774,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "aggregate": null,
+        "checks": [
+          {
+            "checkId": "markdown-link-validation",
+            "outcome": {
+              "status": "passed",
+              "data": {
+                "findingCount": 0,
+                "occurrenceCount": 2955,
+                "rejectedInputCount": 0,
+                "sourceFileCount": 1160,
+                "targetReadCount": 2955
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": "public-run-observation-normal",
+      "mode": "public-observation",
+      "repetition": 4,
+      "order": "observation",
+      "wallMs": 3069.0770729999986,
+      "cpuUserMicros": 1719660,
+      "cpuSystemMicros": 1662987,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "aggregate": null,
+        "checks": [
+          {
+            "checkId": "markdown-link-validation",
+            "outcome": {
+              "status": "passed",
+              "data": {
+                "findingCount": 0,
+                "occurrenceCount": 2955,
+                "rejectedInputCount": 0,
+                "sourceFileCount": 1160,
+                "targetReadCount": 2955
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": "public-run-observation-normal",
+      "mode": "public-observation",
+      "repetition": 5,
+      "order": "observation",
+      "wallMs": 3172.921425999999,
+      "cpuUserMicros": 1708189,
+      "cpuSystemMicros": 1756290,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "aggregate": null,
+        "checks": [
+          {
+            "checkId": "markdown-link-validation",
+            "outcome": {
+              "status": "passed",
+              "data": {
+                "findingCount": 0,
+                "occurrenceCount": 2955,
+                "rejectedInputCount": 0,
+                "sourceFileCount": 1160,
+                "targetReadCount": 2955
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "group": "cold-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 3048.94657,
+      "cpuUserMicros": 1659905,
+      "cpuSystemMicros": 1731615,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 4182.191555000001,
+      "cpuUserMicros": 2083110,
+      "cpuSystemMicros": 2606812,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 4225.976526999999,
+      "cpuUserMicros": 2031321,
+      "cpuSystemMicros": 2627179,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 3060.352285000001,
+      "cpuUserMicros": 1589545,
+      "cpuSystemMicros": 1776589,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 3086.6350440000024,
+      "cpuUserMicros": 1587219,
+      "cpuSystemMicros": 1803188,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 4229.2454450000005,
+      "cpuUserMicros": 2212267,
+      "cpuSystemMicros": 2453965,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 4208.010077999999,
+      "cpuUserMicros": 2129402,
+      "cpuSystemMicros": 2502498,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 3089.7989420000013,
+      "cpuUserMicros": 1686350,
+      "cpuSystemMicros": 1684707,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 3210.5043970000042,
+      "cpuUserMicros": 1620167,
+      "cpuSystemMicros": 1838238,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "cold-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 4463.178950000001,
+      "cpuUserMicros": 2408585,
+      "cpuSystemMicros": 2545119,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 3607.542526999998,
+      "cpuUserMicros": 1978747,
+      "cpuSystemMicros": 1950313,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 2559.4442259999996,
+      "cpuUserMicros": 936976,
+      "cpuSystemMicros": 1882071,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 2481.660938000001,
+      "cpuUserMicros": 890817,
+      "cpuSystemMicros": 1846683,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 3272.161481000003,
+      "cpuUserMicros": 1831987,
+      "cpuSystemMicros": 1713860,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 3488.7305960000085,
+      "cpuUserMicros": 1924193,
+      "cpuSystemMicros": 1847833,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 2494.999199999991,
+      "cpuUserMicros": 825423,
+      "cpuSystemMicros": 1908464,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 2538.1444829999964,
+      "cpuUserMicros": 798536,
+      "cpuSystemMicros": 1973656,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 3601.6735009999975,
+      "cpuUserMicros": 2132890,
+      "cpuSystemMicros": 1749762,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 3265.325920000003,
+      "cpuUserMicros": 1616080,
+      "cpuSystemMicros": 1905232,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "warm-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 2462.1517410000088,
+      "cpuUserMicros": 870317,
+      "cpuSystemMicros": 1838403,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 976502,
+        "entries": 1160,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 3425.4990389999875,
+      "cpuUserMicros": 1839795,
+      "cpuSystemMicros": 1863440,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 2457.20726000001,
+      "cpuUserMicros": 837579,
+      "cpuSystemMicros": 1866517,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 977216,
+        "entries": 1161,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 2630.991950999989,
+      "cpuUserMicros": 889473,
+      "cpuSystemMicros": 1941690,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 977216,
+        "entries": 1161,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 3528.5342640000017,
+      "cpuUserMicros": 1978626,
+      "cpuSystemMicros": 1854529,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 3246.9940100000094,
+      "cpuUserMicros": 1817001,
+      "cpuSystemMicros": 1686293,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 2431.094842999999,
+      "cpuUserMicros": 840859,
+      "cpuSystemMicros": 1801670,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 977216,
+        "entries": 1161,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 2475.2722760000033,
+      "cpuUserMicros": 842165,
+      "cpuSystemMicros": 1852229,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 977216,
+        "entries": 1161,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 3239.645973999999,
+      "cpuUserMicros": 1755092,
+      "cpuSystemMicros": 1765618,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 3166.394773999986,
+      "cpuUserMicros": 1685716,
+      "cpuSystemMicros": 1735654,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "incremental-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 2622.8426650000038,
+      "cpuUserMicros": 905051,
+      "cpuSystemMicros": 1968877,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 977216,
+        "entries": 1161,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 2955,
+          "targetReadCount": 2955,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-control",
+      "mode": "formal-disabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 3116.4443449999962,
+      "cpuUserMicros": 1631485,
+      "cpuSystemMicros": 1744359,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 3210.4793309999804,
+      "cpuUserMicros": 1733364,
+      "cpuSystemMicros": 1750526,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 1,
+      "order": "baseline-first",
+      "wallMs": 4031.2447410000023,
+      "cpuUserMicros": 2021978,
+      "cpuSystemMicros": 2348892,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 924191,
+        "entries": 1008,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-control",
+      "mode": "formal-disabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 2853.4477170000027,
+      "cpuUserMicros": 1485785,
+      "cpuSystemMicros": 1582512,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 3885.741347000003,
+      "cpuUserMicros": 2061102,
+      "cpuSystemMicros": 2148267,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 924191,
+        "entries": 1008,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 2,
+      "order": "candidate-first",
+      "wallMs": 3001.7834809999913,
+      "cpuUserMicros": 1680576,
+      "cpuSystemMicros": 1572555,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-control",
+      "mode": "formal-disabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 3268.06814399999,
+      "cpuUserMicros": 1832334,
+      "cpuSystemMicros": 1690850,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 3229.419672000018,
+      "cpuUserMicros": 1769295,
+      "cpuSystemMicros": 1731923,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 3,
+      "order": "baseline-first",
+      "wallMs": 4055.6201059999876,
+      "cpuUserMicros": 2077243,
+      "cpuSystemMicros": 2322864,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 924191,
+        "entries": 1008,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-control",
+      "mode": "formal-disabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 2961.4646309999807,
+      "cpuUserMicros": 1693564,
+      "cpuSystemMicros": 1503587,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 3927.11415400001,
+      "cpuUserMicros": 2068779,
+      "cpuSystemMicros": 2193767,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 924191,
+        "entries": 1008,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 4,
+      "order": "candidate-first",
+      "wallMs": 3097.8059880000073,
+      "cpuUserMicros": 1792019,
+      "cpuSystemMicros": 1542132,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-control",
+      "mode": "formal-disabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 3054.6324519999907,
+      "cpuUserMicros": 1718584,
+      "cpuSystemMicros": 1582366,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-baseline",
+      "mode": "formal-disabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 2969.572736000002,
+      "cpuUserMicros": 1639145,
+      "cpuSystemMicros": 1565324,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": null,
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    },
+    {
+      "group": "high-reuse-gate-candidate",
+      "mode": "formal-enabled",
+      "repetition": 5,
+      "order": "baseline-first",
+      "wallMs": 3994.638461000024,
+      "cpuUserMicros": 2094104,
+      "cpuSystemMicros": 2236133,
+      "maxRssBytes": 997027840,
+      "counters": null,
+      "cache": {
+        "hits": 0,
+        "misses": 0,
+        "writes": 0,
+        "rejectedPayloads": 0,
+        "bytes": 924191,
+        "entries": 1008,
+        "sourceHits": 0,
+        "targetHits": 0,
+        "sourceMisses": 0,
+        "targetMisses": 0,
+        "sourceWrites": 0,
+        "targetWrites": 0
+      },
+      "publicOutcome": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1008,
+          "occurrenceCount": 3016,
+          "targetReadCount": 3016,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      }
+    }
+  ],
+  "summaries": {
+    "public-run-observation-normal": {
+      "sequence": [
+        "public-observation",
+        "public-observation",
+        "public-observation",
+        "public-observation",
+        "public-observation"
+      ],
+      "wallMs": [
+        4157.621274,
+        3355.4112539999996,
+        3120.8226750000013,
+        3069.0770729999986,
+        3172.921425999999
+      ],
+      "medianWallMs": 3172.921425999999,
+      "madWallMs": 103.84435300000041,
+      "medianCpuMicros": 3521154,
+      "maxObservedRssBytes": 997027840
+    },
+    "cold-gate-baseline": {
+      "sequence": [
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled"
+      ],
+      "wallMs": [
+        3048.94657,
+        3060.352285000001,
+        3086.6350440000024,
+        3089.7989420000013,
+        3210.5043970000042
+      ],
+      "medianWallMs": 3086.6350440000024,
+      "madWallMs": 26.282759000001533,
+      "medianCpuMicros": 3390407,
+      "maxObservedRssBytes": 997027840
+    },
+    "cold-gate-candidate": {
+      "sequence": [
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled"
+      ],
+      "wallMs": [
+        4182.191555000001,
+        4225.976526999999,
+        4229.2454450000005,
+        4208.010077999999,
+        4463.178950000001
+      ],
+      "medianWallMs": 4225.976526999999,
+      "madWallMs": 17.966448999999557,
+      "medianCpuMicros": 4666232,
+      "maxObservedRssBytes": 997027840
+    },
+    "warm-gate-baseline": {
+      "sequence": [
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled"
+      ],
+      "wallMs": [
+        3607.542526999998,
+        3272.161481000003,
+        3488.7305960000085,
+        3601.6735009999975,
+        3265.325920000003
+      ],
+      "medianWallMs": 3488.7305960000085,
+      "madWallMs": 118.81193099998927,
+      "medianCpuMicros": 3772026,
+      "maxObservedRssBytes": 997027840
+    },
+    "warm-gate-candidate": {
+      "sequence": [
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled"
+      ],
+      "wallMs": [
+        2559.4442259999996,
+        2481.660938000001,
+        2494.999199999991,
+        2538.1444829999964,
+        2462.1517410000088
+      ],
+      "medianWallMs": 2494.999199999991,
+      "madWallMs": 32.84745899998234,
+      "medianCpuMicros": 2737500,
+      "maxObservedRssBytes": 997027840
+    },
+    "incremental-gate-baseline": {
+      "sequence": [
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled"
+      ],
+      "wallMs": [
+        3425.4990389999875,
+        3528.5342640000017,
+        3246.9940100000094,
+        3239.645973999999,
+        3166.394773999986
+      ],
+      "medianWallMs": 3246.9940100000094,
+      "madWallMs": 80.59923600002367,
+      "medianCpuMicros": 3520710,
+      "maxObservedRssBytes": 997027840
+    },
+    "incremental-gate-candidate": {
+      "sequence": [
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled"
+      ],
+      "wallMs": [
+        2457.20726000001,
+        2630.991950999989,
+        2431.094842999999,
+        2475.2722760000033,
+        2622.8426650000038
+      ],
+      "medianWallMs": 2475.2722760000033,
+      "madWallMs": 44.177433000004385,
+      "medianCpuMicros": 2704096,
+      "maxObservedRssBytes": 997027840
+    },
+    "high-reuse-control": {
+      "sequence": [
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled"
+      ],
+      "wallMs": [
+        3116.4443449999962,
+        2853.4477170000027,
+        3268.06814399999,
+        2961.4646309999807,
+        3054.6324519999907
+      ],
+      "medianWallMs": 3054.6324519999907,
+      "madWallMs": 93.16782100001001,
+      "medianCpuMicros": 3300950,
+      "maxObservedRssBytes": 997027840
+    },
+    "high-reuse-gate-baseline": {
+      "sequence": [
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled",
+        "formal-disabled"
+      ],
+      "wallMs": [
+        3210.4793309999804,
+        3001.7834809999913,
+        3229.419672000018,
+        3097.8059880000073,
+        2969.572736000002
+      ],
+      "medianWallMs": 3097.8059880000073,
+      "madWallMs": 112.6733429999731,
+      "medianCpuMicros": 3334151,
+      "maxObservedRssBytes": 997027840
+    },
+    "high-reuse-gate-candidate": {
+      "sequence": [
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled",
+        "formal-enabled"
+      ],
+      "wallMs": [
+        4031.2447410000023,
+        3885.741347000003,
+        4055.6201059999876,
+        3927.11415400001,
+        3994.638461000024
+      ],
+      "medianWallMs": 3994.638461000024,
+      "madWallMs": 60.981644999963464,
+      "medianCpuMicros": 4330237,
+      "maxObservedRssBytes": 997027840
+    }
+  },
+  "comparisons": {
+    "gateComparator": "same direct executeMarkdownLinkValidation envelope in formal runtime; public-run observations are not divided into candidate timings",
+    "coldRegressionPercent": 36.91208927387515,
+    "warmImprovementPercent": 28.484039356302738,
+    "warmSavedMs": 993.7313960000174,
+    "incrementalImprovementPercent": 23.767266943618537,
+    "incrementalSavedMs": 771.7217340000061,
+    "highReuseEnabledMedianCacheEntries": 1008,
+    "physicalReadParseCounterBoundary": "Formal runtime does not expose physical read/parse counters. The direct resolver test exercises real target memo reuse and verifies unchanged logical targetReadCount; this benchmark does not represent an uninstrumented counter as a measured reduction."
+  },
+  "semantic": {
+    "resultRecordOrderParity": true,
+    "baseline": {
+      "status": "passed",
+      "data": {
+        "sourceFileCount": 1160,
+        "occurrenceCount": 2955,
+        "targetReadCount": 2955,
+        "findingCount": 0,
+        "rejectedInputCount": 0
+      },
+      "messages": [],
+      "records": []
+    },
+    "prototype": {
+      "status": "passed",
+      "data": {
+        "sourceFileCount": 1160,
+        "occurrenceCount": 2955,
+        "targetReadCount": 2955,
+        "findingCount": 0,
+        "rejectedInputCount": 0
+      },
+      "messages": [],
+      "records": []
+    },
+    "logicalTargetLimitParity": true,
+    "limitBaseline": {
+      "status": "unavailable",
+      "reason": "target-read-limit-exceeded",
+      "messages": [
+        {
+          "code": "target-read-limit-exceeded",
+          "level": "error",
+          "message": "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit."
+        }
+      ],
+      "records": []
+    },
+    "limitPrototype": {
+      "status": "unavailable",
+      "reason": "target-read-limit-exceeded",
+      "messages": [
+        {
+          "code": "target-read-limit-exceeded",
+          "level": "error",
+          "message": "Markdown link validation exceeded maxTargetReads; narrow the source selection or raise the bounded limit."
+        }
+      ],
+      "records": []
+    },
+    "cancellationParity": true,
+    "cancellationBaseline": {
+      "status": "unavailable",
+      "reason": "cancelled",
+      "messages": [
+        {
+          "code": "cancelled",
+          "level": "error",
+          "message": "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+        }
+      ],
+      "records": []
+    },
+    "cancellationPrototype": {
+      "status": "unavailable",
+      "reason": "cancelled",
+      "messages": [
+        {
+          "code": "cancelled",
+          "level": "error",
+          "message": "Markdown link validation was cancelled before it could form a complete result; inspect the caller's cancellation reason and retry if appropriate."
+        }
+      ],
+      "records": []
+    },
+    "sourceTooLargeParity": true,
+    "tooLargeBaseline": {
+      "status": "unavailable",
+      "reason": "source-too-large",
+      "messages": [
+        {
+          "code": "source-too-large",
+          "level": "error",
+          "message": "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit."
+        }
+      ],
+      "records": []
+    },
+    "tooLargePrototype": {
+      "status": "unavailable",
+      "reason": "source-too-large",
+      "messages": [
+        {
+          "code": "source-too-large",
+          "level": "error",
+          "message": "A selected Markdown source exceeds maxMarkdownBytes; narrow the file selection or raise the bounded limit."
+        }
+      ],
+      "records": []
+    },
+    "targetUnavailableParity": true,
+    "targetUnavailableBaseline": {
+      "status": "unavailable",
+      "reason": "target-unavailable",
+      "messages": [
+        {
+          "code": "target-unavailable",
+          "level": "error",
+          "message": "A local Markdown target could not be probed or read safely; check the target path, permissions, size, and encoding."
+        }
+      ],
+      "records": []
+    },
+    "targetUnavailablePrototype": {
+      "status": "unavailable",
+      "reason": "target-unavailable",
+      "messages": [
+        {
+          "code": "target-unavailable",
+          "level": "error",
+          "message": "A local Markdown target could not be probed or read safely; check the target path, permissions, size, and encoding."
+        }
+      ],
+      "records": []
+    },
+    "memoTargetFailureNotRetained": true,
+    "nonemptyFindingMessageRecordParity": true,
+    "findingBaseline": {
+      "status": "failed",
+      "data": {
+        "sourceFileCount": 1,
+        "occurrenceCount": 1,
+        "targetReadCount": 1,
+        "findingCount": 1,
+        "rejectedInputCount": 0
+      },
+      "messages": [
+        {
+          "code": "invalid-local-links",
+          "level": "error",
+          "message": "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
+        },
+        {
+          "code": "finding-detail",
+          "level": "error",
+          "message": "broken.md:3:1 link: missing-target."
+        }
+      ],
+      "records": [
+        {
+          "identity": {
+            "id": "source:broken.md:occurrence:1:reason:missing-target"
+          },
+          "data": {
+            "reason": "missing-target",
+            "occurrenceKind": "link",
+            "sourcePath": "broken.md",
+            "range": {
+              "start": {
+                "line": 3,
+                "column": 1
+              },
+              "end": {
+                "line": 3,
+                "column": 27
+              }
+            },
+            "target": {
+              "kind": "project-path",
+              "path": "missing.md",
+              "fragment": "nope"
+            }
+          }
+        }
+      ]
+    },
+    "findingPrototype": {
+      "status": "failed",
+      "data": {
+        "sourceFileCount": 1,
+        "occurrenceCount": 1,
+        "targetReadCount": 1,
+        "findingCount": 1,
+        "rejectedInputCount": 0
+      },
+      "messages": [
+        {
+          "code": "invalid-local-links",
+          "level": "error",
+          "message": "1 local Markdown link finding(s) require attention; inspect this Check's Records for source ranges, targets, and reasons."
+        },
+        {
+          "code": "finding-detail",
+          "level": "error",
+          "message": "broken.md:3:1 link: missing-target."
+        }
+      ],
+      "records": [
+        {
+          "identity": {
+            "id": "source:broken.md:occurrence:1:reason:missing-target"
+          },
+          "data": {
+            "reason": "missing-target",
+            "occurrenceKind": "link",
+            "sourcePath": "broken.md",
+            "range": {
+              "start": {
+                "line": 3,
+                "column": 1
+              },
+              "end": {
+                "line": 3,
+                "column": 27
+              }
+            },
+            "target": {
+              "kind": "project-path",
+              "path": "missing.md",
+              "fragment": "nope"
+            }
+          }
+        }
+      ]
+    },
+    "cacheInvalidPayloadFallsBackWithParity": true,
+    "cacheIoFailureFallsBackWithParity": true,
+    "exactByteMutationMissesOldCacheAndPreservesSettlement": true,
+    "strictHostilePayloadsRejected": true,
+    "parserVersionInvalidatesEntry": true,
+    "boundary": "Parity compares status/reason/final data/messages/record identity+data+order. Pre-abort is deterministic; no Product seam exists to inject a stable mid-I/O abort. Source-too-large and target-unavailable remain Product-owned failure branches not altered by this prototype."
+  }
+}

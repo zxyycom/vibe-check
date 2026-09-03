@@ -140,6 +140,7 @@ function projectCandidateFixtureEvidence(
     jsonSchemaOutcome,
     learnedScheduling: evidence.learnedScheduling,
     markdownLinkData: evidence.markdownLinkData,
+    markdownLinkCacheJsonl: evidence.markdownLinkCacheJsonl,
     markdownLinkOutcome,
     parserEvidence: evidence.parserEvidence,
     secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
