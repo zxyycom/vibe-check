@@ -2,7 +2,7 @@
 
 ## Status and boundary
 
-这是本轮在**当前 live-policy 环境**观察到的 before baseline，不是 frozen prediction A/B、不是候选收益、不是跨主机 budget，也不证明任何候选可采用。当前 live-policy 的重复采集会更新 gitignored local learned history；因此这些数字在每次实际算法比较前都必须更新，且若 1A seam、fail-fast 或 named capacity 先落地，也必须重新采集。
+这是本轮在**当前 live-policy 环境**观察到的 before baseline，不是 frozen prediction A/B、不是候选收益、不是跨主机 budget，也不证明任何候选可采用。当前 live-policy 的重复采集会更新 gitignored local learned history；因此这些数字在每次实际算法比较前都必须更新，且若当前 private seam、fail-fast 或 named capacity 发生改变，也必须重新采集。
 
 本记录没有声称 no-record/isolated state，也没有将现有 local learned history 作为可重放实验输入。未来 A/B 必须另行冻结 prediction，并以 no-record 或 isolated state 防止 variant 相互污染。它也不是 durable/replayable evidence：本次 raw logs 已删除，不能从本记录恢复完整 trace、membership、outcome、candidate receipt 或 outer-wall sample。
 
@@ -51,4 +51,4 @@ The scheduler summary is diagnostic evidence. It is not public telemetry, does n
 
 ## Re-capture trigger
 
-Before freezing candidate evidence, update this document for the actual comparison environment and, only if deterministic adopt path remains open, run the two formal `bun run verify` commands through the script runner in the fixed sequence. Retain raw logs, formal outer wall, exact reused installed candidate/receipt, script base/variant bytes/hash, base/variant tracked-diff fingerprint, complete experimental custom Definition fingerprint, graph/membership/outcome fingerprints, frozen prediction/score provenance, state isolation/no-record method, ordered trace, scheduler summary, and each pair's timing; restore only when current script bytes match expected variant bytes, then verify base hash, otherwise fail and retain the scene. Re-capture instead of reusing this baseline whenever the candidate, runtime/host, live policy, duration prediction preparation, scheduler/capacity facts, profile membership, 1A seam, fail-fast, or named-capacity state differs.
+Before freezing candidate evidence, update this document for the actual comparison environment and, only if deterministic adopt path remains open, run the two formal `bun run verify` commands through the script runner in the fixed sequence. Retain raw logs, formal outer wall, exact reused installed candidate/receipt, script base/variant bytes/hash, base/variant tracked-diff fingerprint, complete experimental custom Definition fingerprint, graph/membership/outcome fingerprints, frozen prediction/score provenance, state isolation/no-record method, ordered trace, scheduler summary, and each pair's timing; restore only when current script bytes match expected variant bytes, then verify base hash, otherwise fail and retain the scene. Re-capture instead of reusing this baseline whenever the candidate, runtime/host, live policy, duration prediction preparation, scheduler/capacity facts, profile membership, current private seam, fail-fast, or named-capacity state differs.

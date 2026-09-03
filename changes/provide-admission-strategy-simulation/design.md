@@ -15,7 +15,7 @@
 
 ### Change relationships
 
-- `separate-duration-learning-from-admission-strategy` 是行为等价的 private provider lifecycle/model-algorithm 解耦 Plan，不交付本 Change 的 machine。两者有 task-scheduler/invocation owner 重叠，推荐 simulation 在 1A 稳定提交后串行实施并继承基线；这不是语义硬依赖。
+- 当前 private provider lifecycle/model-algorithm seam 是行为等价的稳定实现，不交付本 Change 的 machine；其 current owners 由 runtime、Architecture、API mechanics 与 active+aligned lifecycle Decision 承接。两者有 task-scheduler/invocation owner 重叠，推荐 simulation 从包含该 seam 的稳定提交串行实施并继承基线；这不是语义硬依赖。
 - `support-invocation-scoped-custom-admission-strategies` 评审 outer custom lifecycle。本 Change 自己闭合 decision-time facade/context 的 Definition normalization、fingerprint 与 compatibility；custom lifecycle 只闭合 outer `prepare`/`complete` authoring shape、其 normalization/fingerprint 与 failure/output。两者不合并 public contract，也不把 `prepare`/`complete` 放入 machine core。
 - `optimize-learned-admission-strategy` 可共享 future private machine 或 deterministic harness，但不能依赖本 Change 的 public simulation SDK；算法证据也不能替代 public compatibility 或 simulation performance evidence。
 - `add-invocation-fail-fast-policy`、`add-named-resource-capacity` 若先实施，会改变 settlement、capacity 与 hard-guard facts。simulation 实施前必须按它们的实际状态复核 transition、catalog 和 reason completeness。
