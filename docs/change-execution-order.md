@@ -58,21 +58,20 @@
 
 ## 当前协调基线
 
-本节于 2026-09-03 按当前工作树提交 `50c7264d41da970bd9cb4867d33e8ada7931de09`、当前 active Change artifacts 与 Decision 状态审阅。该基线包含：
+本节于 2026-09-03 按本地集成分支提交 `9491be07bb5d12f11ee9972f1a1857837a236a29`、当前 active Change
+artifacts 与 Decision 状态审阅。该提交在既有 `main` 基线上按依赖顺序包含：
 
-- `714fcd48d76416a27fe813466ef1550a25ddedf7` 中已集成的 Scheduler 依赖、策略、测量与性能诊断基础；
-- `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
-- 后续 flag-control 接入修复、内置 Finding waiver、重复检测比较域和仓库质量扫描范围调整；
-- `fa0993d78eddfb6bac351f9e0a592d7dd3c5ea2d` 中已交付并归档的 learned duration model 与 greedy
-  critical-path admission，以及 central Gate adoption；
-- `a9c70597532d5dccebaf1e19f1ec14df00c79eaf` 中已交付并归档的 Markdown Link parse-facts cache、
+- 截至 `f2ad74c5a390335fd16d63a30a2b174a066e91c8` 的 Scheduler 栈：依赖/观测、策略抽取、自定义 lifecycle、
+  simulation、learned duration model、critical-path admission、选择优化与 central Gate adoption；
+- 合并提交 `fad3004a2b8e2251d186d8f9d2b1350e02d13304` 中已交付并归档的 Markdown Link parse-facts cache、
   严格串行优化和单文件 JSONL packing；
-- `e8f9ccb3fa7c248a797d0ac54abb9faa8a50b26a` 中已交付并归档的 Lizard TypeScript analyzer hard cut、
-  1.24.0 同步、私有 port 边界、reader fast path 和 selected extensions。
+- 合并提交 `1c6aca890586eb8ada3151935713739330f288e8` 中已交付并归档的 TypeScript Function Analyzer hard cut、
+  Lizard 1.24.0 source alignment、私有 port、reader fast path 和 selected extensions；
+- 合并提交 `9491be07bb5d12f11ee9972f1a1857837a236a29` 中已交付并归档的 Secret Detection、受限 no-follow
+  input acquisition、通用 Finding waiver 接入和 Secretlint 随包材料。
 
-近期 flag-control 修复会影响 pre-admission Task 和 learned-duration 样本边界；质量扫描范围调整会影响旧 Gate
-性能基线。`schedule-checks-from-learned-durations` 已在实施前的 Readiness 中复核这些变化并重新采集 A/B
-baseline，没有沿用旧测量。
+以上能力已经进入同一稳定集成祖先链。下游 worktree 可以直接从该提交或其后继稳定提交建立，不需要等待它先进入
+`main`；若继续使用更早的实施基线，必须先同步并重新核对目标 Change 的 Readiness 与验收证据。
 
 ### 当前推荐批次
 
