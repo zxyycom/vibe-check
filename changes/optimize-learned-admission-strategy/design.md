@@ -1,67 +1,61 @@
 # Design
 
-本设计把 admission 算法优化定义为固定 learned duration model 输入的独立实验与采用决策；它依赖先行 [`separate-duration-learning-from-admission-strategy`](../separate-duration-learning-from-admission-strategy/proposal.md)，在进入 Plan 前仍需闭合 workload、候选算法和验收阈值。本文只支持后续设计与取舍，不授予生产策略实施权限。
+本设计定义一个可证伪的 private algorithm comparison：先固定 strict baseline、唯一候选、corpus 与接受门槛，再决定 adopt 或 not-adopt；当前仍不授权 production wiring。
 
 ## Context
 
-- 当前实现和行为 owner 位于 `src/project-run/task-scheduler/**`、`docs/architecture.md` 与 `docs/api-mechanics.md`；`learn-check-task-durations-for-critical-path-admission` Decision 规定 static 默认、显式本地 learned mode、effective priority 同分语义、模型可演进及 history failure 不改变质量结算。
-- 当前 estimate 来自同一 identity 最近 32 项 admitted-to-settled duration 的 arithmetic mean；未知 Task 使用本轮 learned estimates 的 median，完全 cold start 使用共同正权重 `1`。这些输入属于 duration model，不在本 Change 中调整。
-- 当前 score 为 `estimate(task) + max(score(direct downstream), 0)`，downstream 包含 `dependsOn` 与 `observes`。每个 invocation 的 prediction 和 score snapshot 在 admission 前冻结。
-- 当前 policy 保留 tightening、constrained continuation 与 ordinary 三个 selection layer；同层先比较 critical-path score，再比较 effective `admissionPriority` 和 canonical ID。最高候选本轮 `canAdmit=false` 时可以返回可 drain 的 `wait`。
-- 已归档 `schedule-checks-from-learned-durations` 只保存当前算法的形成时实现与 Gate A/B 证据，不能作为本 Change 的新实施授权或直接复用的新 candidate baseline。
+- 现行 `learned-critical-path` 实现位于 `src/project-run/task-scheduler/learned-critical-path-admission-policy.ts`。strict baseline 的 first nonempty layer 固定为 tightening、constrained continuation、ordinary；constrained comparator 为 scope cap 升序 → score 降序 → priority 降序 → Task ID 升序 → scope ID 升序 → Task ID 升序（最后一项是现实现 duplicate Task-ID fallback；unique Task ID 时不可达），ordinary 为 score 降序 → priority 降序 → Task ID 升序。每层只检查第一名；其 `canAdmit=false` 即提出 `wait`。
+- Scheduler 先按 relation/mutex 建立 candidates，后以 `canAdmit`、lifecycle 和 running-drain 验证 select/wait。policy input 没有 running remaining duration、硬 duration bound 或 reservation；prediction 是 point estimate，不是执行时长承诺。因此 nontrivial backfill 不能保证不延迟 protected preferred Task。
+- [`learn-check-task-durations-for-critical-path-admission`](../../docs/decisions/learn-check-task-durations-for-critical-path-admission.md) 已确认：static 默认、learned 为显式 local repeat-run capability、没有 `expectedDurationMs`，priority 仅为 score 同分 tie-break；模型细节可观察但不承诺固定兼容 order/performance。
+- [`use-stateless-admission-policies-with-hard-scheduler-guards`](../../docs/decisions/use-stateless-admission-policies-with-hard-scheduler-guards.md) 已确认 policy 无状态且 Scheduler 独占 hard guards。不得为本实验引入 reservation 或另一个状态机。
+- [`docs/change-execution-order.md`](../../docs/change-execution-order.md) 将本 Change 列为 1D：可先冻结证据；production strategy implementation 硬依赖 1A `separate-duration-learning-from-admission-strategy` 的 stable seam。simulation public API 非依赖。fail-fast 与 named capacity 仍是 Draft 条件分支，若先落地则 rebaseline。
 
 ## Goals / Non-Goals
 
 **Goals**
 
-- 在同一 graph、duration prediction 和动态 Scheduler facts 上独立运行或模拟 baseline 与候选 admission strategy，使算法差异成为唯一主要实验变量。
-- 先检验 capacity-aware backfill：最高 critical-path 候选暂时不可 admission 时，判断能否选择较低分且当前可 admission 的 Task，而不破坏 scope 收紧、有限进展或高分 Task 的可启动时机。
-- 用包含 dependency、observation、scope capacity、mutex、并行短 Task、长 downstream chain 和时长波动的 workload 证明正确性与性能边界。
-- 保持算法为 deterministic pure selection；Scheduler 继续独占 hard guards、Task lifecycle、等待和 settlement。
-- 为候选采用和不采用都提供明确出口，不因已经投入实验而强制替换当前算法。
+- 将 strict baseline 和唯一候选隔离在同一 private comparison harness，并由可回滚的 Change-local script/evidence custom adapter 捕获 Gate variant，使 algorithm 是唯一 variant。
+- 在不声称 safety guarantee 的前提下，定量暴露 same-layer backfill 的 benefit 与 protected-delay risk，并只按预注册门槛采用。
+- 用 deterministic trace facts 证明 layer/comparator、hard guard、terminal outcome、failure/blocked/cancel 与有限进展；用同 host 交错 Gate 对比检验真实 profile。
 
 **Non-Goals**
 
-- 不同时修改 history identity、sample window、mean/project prior/cold-start 规则、storage schema 或 recording lifecycle。
-- 不在本 Draft 中承诺公开任意算法 callback、通用 optimizer framework、跨机器 history 或固定跨版本 admission 顺序。
-- 不以单次 wall time、单一 Gate topology 或 synthetic graph 的局部胜出证明全局最优。
-- 不在缺少收益证据时引入整数规划、无界搜索、抢占、运行时迁移或新的外部依赖。
+- 不改 production runtime、production policy、public API、registry、state/history/model/statistics、clock 或 reservation，直到 adopt 后另获授权；private comparison harness、其 direct tests、script/evidence custom adapter、temporary runner 和 evidence 可在本 Plan 产生，但不得成为无独立价值的候选专用抽象。没有 public config/env switch、hidden env/runtime selector 或 registry；runner 不临时改 `src/**` 或 package inputs。
+- 不新增 `expectedDurationMs`；不把 priority 升为 override；不把模型或 order 细节升为兼容承诺。
+- 不把 Gate advisory threshold、跨机器 wall milliseconds、单次运行或 simulation public API 当作 acceptance 证据或预算。
+- 不把 fail-fast/named-capacity Draft 设为本实验 feature；它们若改变环境，只触发 rebaseline。
 
 ## Decisions
 
 ### Intended Change
 
-1. **先行依赖**：只有 `separate-duration-learning-from-admission-strategy` 已提供行为等价的 private duration-model/strategy seam，并且当前 baseline 可通过同一 seam 重放时，本 Change 才能进入算法实施。
-2. **固定实验轴**：每组比较复用相同的 immutable graph、duration prediction snapshot、initial Scheduler state 和 scripted settlement/timing input；duration estimator 与 persistence 不作为候选变量。
-3. **baseline**：保留当前 strict greedy bottom-level critical-path policy，包括 selection-layer 顺序、score、priority 和 ID tie-break，以及最高候选不可 admission 时的现有 wait 行为。
-4. **首个候选**：设计 capacity-aware backfill。候选只能从 Scheduler 已给出的 relation/mutex eligible candidates 中选择，并必须定义何时 backfill 不会推迟受保护的高分候选；不能用绕过 `canAdmit`、scope 或 hard guard 获得表面并行度。
-5. **后续候选门禁**：只有 workload 证据指出独立问题时，才依次评估 uncertainty-aware ranking、downstream unlock impact、contention-aware score 或 bounded lookahead。每个候选必须声明新增输入、状态、时间复杂度、确定性和有限进展义务；不建立空的通用算法注册表。
-6. **采用出口**：先冻结 corpus、样本协议和阈值，再生成候选结果。候选未同时通过行为等价边界、算法正确性和性能门槛时，生产配置继续使用 baseline，并记录不采用理由。
-7. **公共契约**：实验先保持 private。若胜出算法仍属于 critical-path greedy 家族，可在当前非算法兼容承诺内评审替换；若不再以 critical path 为核心，或两个算法都需要由 consumer 稳定选择，则另行评审 public kind、兼容映射和 fingerprint，不能把新语义静默放入旧名称。
+1. **Strict baseline is executable, not descriptive.** Harness 原样实现 current first-nonempty layer/comparator；baseline 在所选 layer 的 comparator 第一名 `canAdmit=false` 时立即返回 `wait`。
+2. **Exactly one candidate.** `same-layer admissible-first backfill` 先找到 strict baseline 会选的 first nonempty layer并按同一 comparator 排序。首选可 admission 时选择首选；否则在该同层 ordered list 中取第一个 `canAdmit`；没有则 `wait`。不得检查较低 layer、改变 comparator、利用外部状态，或改变 Scheduler validation。
+3. **Private before production.** Candidate 先只存在于 private comparison harness。scope unsafe-backfill witness 一旦显示 protected admission delay 退化，即 mandatory not-adopt 并停止后续 Gate candidate sampling；此候选不能保证 non-delay，Plan 不预判它会 adopt。只有 deterministic adopt path 仍开放、1A seam 已验收、corpus/A-B gates 全通过且获得 production-wiring authorization，才可将其接入 production。失败、缺证据或无授权都保持 strict baseline，交付 not-adopt。
+4. **Frozen comparison inputs.** 每一 corpus/Gate pair 固定 graph identity、prediction snapshot digest、prediction-derived critical-path score table及其来源/provenance、initial state、settlement/timing script、candidate receipt/version/input fingerprint、profile membership 与 expected terminal facts。两个 custom callback 只读同一 frozen score table，不使用或更新 live history。comparison 使用 no-record mode；若不可用，使用 each-variant isolated state with identical frozen prediction，不允许记录污染后续 variant。
+5. **Script custom adapter and safe capture, not production wiring.** production learned binding 保持 strict。comparison-only adapter/score fixture 位于 script/evidence owner，且用 deterministic corpus 逐 trace 对照 private strict/candidate harness，证明没有重写 Scheduler legality；未来 private production candidate 也必须对同一 oracle。runner 只能在目标 Change 独占 worktree 运行：启动时记录 `scripts/project/gate/definition.ts`（及必要的一条 direct assertion）的 base bytes/hash 和预期 variant bytes/hash；两个 variant 都临时将 central Gate Definition 设为现有 `{ kind: "custom", proposeAdmission }`，strict callback 按 current first-layer/comparator/first-only wait，candidate callback 按 same-layer admissible-first。现有 public custom context 提供 graph、`candidates.canAdmit`、capacity、activeScope 和 running facts，足以作这两个 callback projection；adapter 仍只是逐 trace 对照 private harness 的 evidence projection，不成为 Product algorithm owner。restore 前当前 bytes 非预期 variant bytes/hash 时 fail 并保留现场；只有匹配才在 `finally` 原子恢复 base bytes 并验证 hash。绝不以 `git reset`/`git restore` 覆盖共享工作，不改 `src/**` 或 package inputs。每个 sample 记录 script base/variant bytes/hash、base/variant tracked-diff fingerprint、完整 experimental custom Definition fingerprint、exact reused installed package candidate/receipt 和 raw log。callback identity 不进 fingerprint，所以两 custom variants 应有相同 experimental custom fingerprint；它不同于 production learned fingerprint，不能作最终 fingerprint。
+6. **Corpus and assertions.** 每项 corpus 由 task-scheduler harness owner 保存 serialized input、prediction digest、variant decision trace、admission/settlement timing trace 和 terminal summary。详细清单在 `tasks.md`；任何 trace/membership/outcome/fingerprint mismatch 均使该 sample 无效而非静默丢弃。
+7. **A/B protocol.** 只有 deterministic adopt path 仍开放才执行 runner。required/full 的每个 variant 各 warm-up 一次并排除。严格采五组：奇数组（1、3、5）为 baseline-required→candidate-required→baseline-full→candidate-full；偶数组（2、4）为 candidate-required→baseline-required→candidate-full→baseline-full。每组内的唯一顺序固定，避免 profile 漂移全归因一个 variant。正式 `bun run verify:vibe-check-workspace:required|full` 的 outer wall 是 primary；`elapsed-to-initial-result` 与 Scheduler metrics 仅作 attribution。两个 variants 都是 custom，承受同一 per-decision measurement overhead；因此 custom 与 production learned 的绝对成本不可混同，而两 variant 的 outer-wall delta 可比较。Gate 由 installed package central Scheduler 调 callback；reused package candidate 内的 nested consumer 在两 variant 相同，A/B 主要测 central Gate Scheduler。保存 raw logs/trace/membership/outcome/fingerprint/summary；variant only changes algorithm。adopt 后另 build candidate 并做 learned production full installed-consumer 验收。
+8. **Pre-registration.** 在任何 candidate result 前冻结 designated benefit、protected cases、measurement extraction、outlier/exclusion rule 与 timing threshold。所有 correctness/hard guard/terminal facts 必须 pass；designated benefit 至少一项改善；每个预注册 protected case 的 protected admission delay 不得高于 strict baseline。Gate primary endpoint 是 matching formal-command outer wall：each profile candidate paired median ≤ baseline，至少一个 profile ≥5% improvement，至少 4/5 pairs candidate 不差，candidate nearest-rank p95 ≤ 105% of baseline。`elapsed-to-initial-result` 与 Scheduler metrics只解释 observed deltas，不替代主指标；advisory threshold不是 budget。same-host pure decision/control cost 不得出现未解释的复杂度或明显回归；如需要数值界，Readiness 以 strict per-decision/control baseline、candidate-count/input-size 与 repeat method 为依据，在收集 candidate result 前冻结推导和阈值。
+9. **Conditional rebaseline.** `add-invocation-fail-fast-policy` 或 `add-named-resource-capacity` 先落地、1A seam 与 frozen input 不等价、candidate preparation changes，都会废弃当前 corpus timing comparison并要求重新采集；simulation public API 不构成依赖。
 
 ### Resulting Impacts
 
-- `src/project-run/task-scheduler/**` 需要让 baseline 与候选消费同一 private strategy input，并为 select/wait、tie-break、scope layer 和 backfill 边界提供直接测试；算法不得读取 history file 或可变 learning session。
-- benchmark/evidence owner 需要保存 workload graph、固定 prediction、settlement script、candidate、环境、运行顺序、原始样本和排除项。真实 Gate A/B 与 synthetic deterministic scheduling evidence 证明不同义务，不能互相替代。
-- 性能判断至少需要区分 makespan、关键链 admission delay、空闲 slot/capacity utilization、accepted wait 和 tail；指标定义与阈值必须在候选结果形成前固定。
-- 若策略改变 diagnostic 中可见的 selection/wait 序列，只能更新现有有界 observation；不得新增第二个 machine/public result 协议来解释算法。
-- 若最终方向改变当前长期策略或 public mode 含义，需要通过新的 Decision 演进现有 learned-admission Decision；Change artifact 不直接改写已对齐记录的语义。
-- `add-invocation-fail-fast-policy` 与 `add-named-resource-capacity` 会改变候选集合、capacity 或进展条件；本 Change 进入 Plan 前必须根据它们的实际状态确认并行边界和结果归因。
+- **Task-scheduler owner:** 提供 private harness，保留 strict behavior，新增候选只在 comparison boundary。direct test traces必须证明提名、hard-guard accepted/rejected behavior、terminal status和有限进展，不能让 harness 绕过 Scheduler。
+- **Duration-model/provider owner:** 形成 provenance-addressable frozen prediction，并为 comparison 提供 no-record 或 isolated state；该 owner 不调整 predicted values以帮助候选。
+- **Gate/evidence owner:** 仅在 deterministic adopt path 仍开放时，用 Change-local script runner 对同一个 exact reused installed candidate/receipt 按唯一五组顺序执行 two-profile AB/BA；runner只切换 experimental custom Definition script bytes，且仅在 current bytes 匹配预期 variant 时原子恢复 base/hash，否则 fail 并保留现场。以 formal outer wall 判断、以 initial/Scheduler metrics 归因，并保存每次原始目录、script bytes/hash、base/variant diff fingerprint、完整 experimental custom Definition fingerprint而非只保存 aggregate；membership/outcomes/fingerprints 不匹配时报告不可比较。
+- **No-adopt impact:** harness、direct tests、adapter、runner 和 evidence 可能已经产生；not-adopt 不改 production runtime、public API 或 Decision，移除没有独立价值的 adapter/runner/candidate code/abstraction/wiring，并保存可复核 evidence。仅当 neutral harness 能独立证明 strict baseline/hard guard 且无多余抽象时保留。
+- **Decision owner:** 当前 Decision 继续拥有 long-lived public/compatibility rules；adopt 不自动修改 Decision。只有 proposed production semantics越过既有边界时再创建/演进 Decision。
+- **Conditional owners:** fail-fast/named-capacity 仍不在 corpus；若它们成为当前事实，算法证据 owner 必须先 rebaseline capacity/contention/protected-delay evidence。
 
 ## Risks / Trade-offs
 
-- backfill 可以减少当前空闲，但也可能占用高分 Task 即将需要的 capacity，反而增加关键链 tail；“当前可 admission”不足以证明“不会延迟关键任务”。
-- synthetic graph 容易稳定复现算法差异，却可能遗漏真实工具时长波动；真实 Gate 能证明仓库收益，却只有少量 topology。采用判断需要两类证据。
-- uncertainty、contention 和 lookahead 会增加策略输入与复杂度；没有独立 workload 证据时把它们一次组合，会再次失去归因并建立不必要抽象。
-- 当前模型只给 point estimate，sample count 与 p90 是诊断事实；让算法消费它们会改变 duration model 与 strategy 的最小公约数，必须由候选需求和测试证明。
-- admission 算法是启发式；成功标准应要求代表性 workload 改善和无回归，而不是无法兑现的全局最优证明。
+- same-layer admissible-first 可能填补当前空闲，却也可能占用随后需要的 capacity；没有 remaining-time bound/reservation 就不能把某个 trace 的未退化推广为 safety guarantee。
+- strict baseline 的 `wait` 是现有 policy preference 而不是 Scheduler fault；候选的 `select` 仍会被 existing hard guard 复核。吞吐改善不能抵消 hard-guard、terminal或 protected-delay退化。
+- rolling local history会污染比较；因此 no-record 或 isolated-state 和 frozen prediction digest 是 validity 条件，不是可选诊断。
+- Gate timing受 host/tool/cache 影响。same-host paired distributions支持当前接受判断，但不是跨机预算，checked-in advisory threshold也不是此 Change 的 budget。
+- 1A 未验收时，任何直接 production wiring 都会把 lifecycle refactor 与 algorithm effect 混淆；此阶段只允许 evidence preparation。
 
 ## Open Questions
 
-1. 哪些真实或可复现 workload 构成采用 corpus，除本仓 required/full Gate 外是否需要第二种 consumer topology？
-2. 每个 profile 的样本数、交错顺序、warm/cold history、允许波动、主要指标和“不得退化”阈值分别是什么？
-3. capacity-aware backfill 如何定义受保护候选和安全窗口：只看当前 `canAdmit`，还是需要受限 reservation/预计释放事实？
-4. 首轮是否只比较 strict baseline 与一个 backfill candidate，还是已有证据要求同时加入其它候选？
-5. 是否需要专门的 deterministic scheduler simulator，还是现有 task-engine tests 与真实 Project Run harness 已足以重放固定输入？
-6. 若候选胜出，算法仍能否诚实使用 `learned-critical-path` 名称；若不能，兼容配置和 fingerprint 由哪个后继 Change 承接？
-7. 哪些结果会要求建立或演进长期 Decision，哪些只属于当前实现可自由优化的非兼容模型细节？
+无阻塞范围或方案的开放问题。Readiness 中尚未完成的工作是冻结 corpus fixtures、prediction provenance、same-host control-cost measurement definition以及确认 1A stable seam 是否已进入实施基线；在这些任务未完成前，不进入 Implementation 或 production wiring。
