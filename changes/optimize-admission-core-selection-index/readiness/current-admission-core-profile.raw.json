@@ -1,0 +1,248 @@
+{
+  "command": "bun changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts",
+  "coverage": {
+    "required": {
+      "realPaths": [
+        "real-static-unused-public-state",
+        "real-custom-unused-public-state",
+        "real-learned-unused-public-state"
+      ],
+      "operations": [
+        "scheduler-candidates",
+        "catalog",
+        "validate-selection",
+        "select",
+        "settle",
+        "fork"
+      ],
+      "taskCounts": [
+        64,
+        256,
+        1024,
+        4096
+      ],
+      "topologies": [
+        "independent",
+        "layered",
+        "mutex",
+        "scope",
+        "high-fanout"
+      ],
+      "forcedBlockSettlement": true
+    },
+    "scenarioIds": [
+      "profile-independent-t1024-d16-catalog",
+      "profile-independent-t1024-d16-scheduler-candidates"
+    ]
+  },
+  "environment": {
+    "bunVersion": "1.3.14",
+    "cpu": [
+      {
+        "times": {
+          "user": 8041510,
+          "nice": 660,
+          "sys": 6258890,
+          "idle": 188585200,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8341100,
+          "nice": 420,
+          "sys": 6075140,
+          "idle": 188656600,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8173180,
+          "nice": 3500,
+          "sys": 6300610,
+          "idle": 188432210,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8332020,
+          "nice": 730,
+          "sys": 6096300,
+          "idle": 188663030,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8190620,
+          "nice": 0,
+          "sys": 6290280,
+          "idle": 188455170,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8303310,
+          "nice": 3640,
+          "sys": 6071220,
+          "idle": 188707600,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      }
+    ],
+    "os": {
+      "architecture": "x64",
+      "platform": "linux",
+      "release": "6.18.33.2-microsoft-standard-WSL2",
+      "totalMemoryBytes": 8327917568,
+      "type": "Linux"
+    }
+  },
+  "fixtureSeed": 20260903,
+  "generatedAt": "2026-09-03T11:53:27.273Z",
+  "gitCommit": "ac493c24ecddca377f1576c6bbf343723895c588",
+  "measurement": {
+    "cpu": "process.cpuUsage() per batch",
+    "heap": "process.memoryUsage().heapUsed delta without forced GC; proxy only",
+    "mode": "profile",
+    "warmupSamples": 2,
+    "measuredSamples": 5,
+    "wall": "performance.now() elapsed milliseconds per batch"
+  },
+  "scenarios": [
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "profile-independent-t1024-d16-catalog",
+      "iterationsPerSample": 16,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 91.399,
+          "cpuUserMs": 646.922,
+          "heapDeltaBytes": 115027,
+          "wallMs": 718.6519310000003
+        },
+        {
+          "cpuSystemMs": 41.246,
+          "cpuUserMs": 679.719,
+          "heapDeltaBytes": 0,
+          "wallMs": 703.4683069999996
+        },
+        {
+          "cpuSystemMs": 81.002,
+          "cpuUserMs": 672.336,
+          "heapDeltaBytes": 108040,
+          "wallMs": 732.3299090000005
+        },
+        {
+          "cpuSystemMs": 61.592,
+          "cpuUserMs": 680.171,
+          "heapDeltaBytes": 0,
+          "wallMs": 722.3130540000002
+        },
+        {
+          "cpuSystemMs": 60.381,
+          "cpuUserMs": 726.733,
+          "heapDeltaBytes": 109120,
+          "wallMs": 764.1778650000006
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 61.592,
+          "p95": 91.399
+        },
+        "cpuUserMs": {
+          "p50": 679.719,
+          "p95": 726.733
+        },
+        "heapDeltaBytes": {
+          "p50": 108040,
+          "p95": 115027
+        },
+        "wallMs": {
+          "p50": 722.3130540000002,
+          "p95": 764.1778650000006
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "profile-independent-t1024-d16-scheduler-candidates",
+      "iterationsPerSample": 16,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 64.537,
+          "cpuUserMs": 666.031,
+          "heapDeltaBytes": 0,
+          "wallMs": 712.4989770000002
+        },
+        {
+          "cpuSystemMs": 36.058,
+          "cpuUserMs": 693.736,
+          "heapDeltaBytes": 161504,
+          "wallMs": 711.0359239999998
+        },
+        {
+          "cpuSystemMs": 48.159,
+          "cpuUserMs": 692.682,
+          "heapDeltaBytes": 0,
+          "wallMs": 722.7764729999999
+        },
+        {
+          "cpuSystemMs": 61.257,
+          "cpuUserMs": 685.601,
+          "heapDeltaBytes": 163504,
+          "wallMs": 726.0897170000007
+        },
+        {
+          "cpuSystemMs": 73.453,
+          "cpuUserMs": 661.466,
+          "heapDeltaBytes": 0,
+          "wallMs": 714.9570530000001
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 61.257,
+          "p95": 73.453
+        },
+        "cpuUserMs": {
+          "p50": 685.601,
+          "p95": 693.736
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 163504
+        },
+        "wallMs": {
+          "p50": 714.9570530000001,
+          "p95": 726.0897170000007
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    }
+  ],
+  "sink": 227584
+}

@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Before evidence for optimize-admission-core-selection-index. It measures the current shipped runtime only; it does not alter src/** or claim an after result.",
+  "command": "bun changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts",
+  "profileCommand": "bun --cpu-prof-md --cpu-prof-dir changes/optimize-admission-core-selection-index/readiness/profiles --cpu-prof-name current-admission-core.cpu.md changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts --profile",
+  "heapProfileCommand": "bun --heap-prof-md --heap-prof-dir changes/optimize-admission-core-selection-index/readiness/profiles --heap-prof-name current-admission-core.heap.md changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts --profile",
+  "seed": 20260903,
+  "profile": {
+    "warmupSamples": 2,
+    "measuredSamples": 5,
+    "iterationsPerSample": {
+      "64": 16,
+      "256": 8,
+      "1024": 2,
+      "4096": 1
+    },
+    "depthTransitions": [0, 16, 48],
+    "profiledWorkload": "1024-task independent graph at 16 immutable transitions; 16 catalog and 16 Scheduler-candidate batches",
+    "scalingBoundary": "4096-task independent rows use D=0 only; high-fanout forced-block rows intentionally stop at T=256 (B=255) because current closure is the path under investigation. The attempted current-runtime T=4096,D=48 catalog/candidate cross-product exceeded the bounded measurement window before completion; the 64/256 rows retain D=0/16/48 and 1024 retains D=0/16."
+  },
+  "requiredCoverage": {
+    "realPaths": [
+      "real-static-unused-public-state",
+      "real-custom-unused-public-state",
+      "real-learned-unused-public-state"
+    ],
+    "operations": [
+      "scheduler-candidates",
+      "catalog",
+      "validate-selection",
+      "select",
+      "settle",
+      "fork"
+    ],
+    "taskCounts": [64, 256, 1024, 4096],
+    "topologies": ["independent", "layered", "mutex", "scope", "high-fanout"],
+    "forcedBlockSettlement": true
+  },
+  "measurement": {
+    "wall": "performance.now() elapsed milliseconds for one batch; p50/p95 are quantiles over measured batches.",
+    "cpu": "process.cpuUsage() delta per batch, recorded as user/system milliseconds.",
+    "heap": "process.memoryUsage().heapUsed delta around a batch without forced GC; a live-heap proxy, not allocation or retained-size evidence.",
+    "cpuProfile": "Bun --cpu-prof-md sampling profile of the named representative current-runtime workload; percentages identify sampled CPU time, not deterministic attribution."
+  }
+}
