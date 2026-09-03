@@ -1,0 +1,304 @@
+{
+  "method": {
+    "capture": "At /tmp, proxied global RegExp before dynamic import of reader-registry; called every registered Reader.generateTokens (PHP used <?php ?> to enter its inner CodeReader). finalPatternChars is the runtime RegExp source string length. This observes dynamic combined patterns, not every static RegExp literal.",
+    "source": "src/package-checks/function-metrics/analyzer/reader-registry.ts; CodeReader.generateTokens; all 27 registered readers."
+  },
+  "sharedContract": {
+    "combinedReaders": 26,
+    "readerLocalLexerReaders": [
+      "ErlangReader"
+    ],
+    "finalFlags": [
+      "g",
+      "m",
+      "s",
+      "u"
+    ],
+    "caseInsensitiveFinalFlags": [
+      "FortranReader",
+      "StReader"
+    ],
+    "globalIteration": "CodeReader uses sourceCode.matchAll(tokenPattern), reads match[0] and match.index, wraps them as TokenMatch text/startOffset; zero-length progress is not accepted.",
+    "semanticFeatures": [
+      "positive lookahead in base generic-type alternative, hence all 26 final combined patterns",
+      "additional negative lookahead: CLike raw string, Python triple strings, PHP code-block boundary",
+      "Unicode properties in the base word/whitespace alternatives; Erlang sticky identifier patterns also use Unicode properties",
+      "named capture and named backreference in PHP tokenizer addition; PHP outer code-block pattern also has captures and negative lookahead",
+      "inline source (?i) accepted for Fortran/ST then normalized into final i flag",
+      "Erlang regexes use sticky y with Unicode u and reader-controlled lastIndex; its manual scanner also advances code points",
+      "all token positions used by CodeReader are JavaScript UTF-16 offsets"
+    ]
+  },
+  "readers": [
+    {
+      "reader": "CLikeReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 461,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "JavaReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 461,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "CSharpReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 470,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "JavaScriptReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 393,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "PythonReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 444,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "ObjCReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 461,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "TTCNReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 407,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "RubyReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 536,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "PHPReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 437,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "SwiftReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 380,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "ScalaReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 358,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "GDScriptReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 444,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "GoReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 366,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "LuaReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 403,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "RustReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 369,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "TypeScriptReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 393,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "FortranReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 643,
+      "finalFlags": "gmsui",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": true,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "KotlinReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 385,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "SolidityReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 358,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "ErlangReader",
+      "tokenizer": "reader-local Pygments-compatible lexer",
+      "finalPatternChars": null,
+      "finalFlags": null,
+      "requiresPositiveLookahead": false,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "Erlang does not call CodeReader.generateTokens; it has reader-local sticky Unicode RegExps plus manual scanning."
+    },
+    {
+      "reader": "ZigReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 358,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "TSXReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 512,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "VueReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 409,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "PerlReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 366,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "StReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 465,
+      "finalFlags": "gmsui",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": true,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "RReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 402,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    },
+    {
+      "reader": "PLSQLReader",
+      "tokenizer": "CodeReader combined RegExp",
+      "finalPatternChars": 367,
+      "finalFlags": "gmsu",
+      "requiresPositiveLookahead": true,
+      "requiresUnicodeProperties": true,
+      "requiresCaseInsensitive": false,
+      "notes": "shares base combined pattern; all matches consume at least one UTF-16 code unit"
+    }
+  ]
+}

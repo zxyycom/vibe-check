@@ -76,6 +76,88 @@
         "title": "Admission state 性能与单一 selection index 评估"
       }
     },
+    "assess-lizard-extension-adoption-value.md": {
+      "keys": {
+        "formed-at": [
+          1788399250000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "metric-policy",
+          "source-alignment",
+          "upstream-release"
+        ],
+        "text": [
+          "Lizard optional extensions 对 Vibe Check 的采用价值评估",
+          "当前被裁切或延期的 Lizard optional extensions 中，哪些有加回 Vibe Check 的意义，哪些不应恢复，以及为什么？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T01:34:10Z",
+        "question": "当前被裁切或延期的 Lizard optional extensions 中，哪些有加回 Vibe Check 的意义，哪些不应恢复，以及为什么？",
+        "relations": [
+          {
+            "target": "assess-lizard-upstream-release-and-branch-delta.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "assess-lizard-extension-adoption-value/lizard-1.23.0-provenance.json"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "metric-policy",
+          "source-alignment",
+          "upstream-release"
+        ],
+        "title": "Lizard optional extensions 对 Vibe Check 的采用价值评估"
+      }
+    },
+    "assess-lizard-upstream-release-and-branch-delta.md": {
+      "keys": {
+        "formed-at": [
+          1788397711000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "dependency-upgrades",
+          "function-metrics",
+          "lizard",
+          "release-provenance",
+          "upstream-release"
+        ],
+        "text": [
+          "Lizard 上游正式版本与发布线差异核验",
+          "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T01:08:31Z",
+        "question": "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？",
+        "relations": [
+          {
+            "target": "compare-lizard-and-scc-typescript-port-priority.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "dependency-upgrades",
+          "function-metrics",
+          "lizard",
+          "release-provenance",
+          "upstream-release"
+        ],
+        "title": "Lizard 上游正式版本与发布线差异核验"
+      }
+    },
     "assess-scc-and-jscpd-upgrade-readiness.md": {
       "keys": {
         "formed-at": [
@@ -164,6 +246,132 @@
           "typescript-migration"
         ],
         "title": "Lizard 与 SCC 的 TypeScript 迁移优先级比较"
+      }
+    },
+    "compare-lizard-python-typescript-performance.md": {
+      "keys": {
+        "formed-at": [
+          1788414917000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment"
+        ],
+        "text": [
+          "Lizard Python 与 TypeScript analyzer 性能对照",
+          "固定 Lizard 1.24、输出相等和已声明 Linux scope 下的 Python/Lizard、TypeScript port 与 historical Product 性能证据是否授权优化？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T05:55:17Z",
+        "question": "固定 Lizard 1.24、输出相等和已声明 Linux scope 下的 Python/Lizard、TypeScript port 与 historical Product 性能证据是否授权优化？",
+        "relations": [
+          {
+            "target": "compare-lizard-and-scc-typescript-port-priority.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "compare-lizard-python-typescript-performance/a-historical-product-full/evidence.json",
+          "compare-lizard-python-typescript-performance/a-historical-product-full/historical-product-request.json",
+          "compare-lizard-python-typescript-performance/a-historical-product-full/summary.md",
+          "compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/evidence.json",
+          "compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/historical-product-request.json",
+          "compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/summary.md",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/evidence.json",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/representative-batch-request.json",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/summary.md",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/tiny-cold-start-request.json",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/evidence.json",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/summary.md",
+          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json",
+          "compare-lizard-python-typescript-performance/c-current-product-full/current-decomposition-request.json",
+          "compare-lizard-python-typescript-performance/c-current-product-full/evidence.json",
+          "compare-lizard-python-typescript-performance/c-current-product-full/summary.md"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment"
+        ],
+        "title": "Lizard Python 与 TypeScript analyzer 性能对照"
+      }
+    },
+    "compare-lizard-regex-backends-and-analyzer-cost-allocation.md": {
+      "keys": {
+        "formed-at": [
+          1788434770000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "backend",
+          "function-metrics",
+          "lizard",
+          "performance",
+          "regex",
+          "source-alignment",
+          "typescript",
+          "wasm"
+        ],
+        "text": [
+          "Lizard regex 后端与 analyzer 成本分配对比",
+          "在真实 TypeScript Lizard workload 上，正则/token generation 对 Python 与 TypeScript 性能差距可作何种有边界的比例判断；WASM、npm/native 和 CLI regex 后端分别有什么实际接入成本与继续调查价值？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T11:26:10+00:00",
+        "question": "在真实 TypeScript Lizard workload 上，正则/token generation 对 Python 与 TypeScript 性能差距可作何种有边界的比例判断；WASM、npm/native 和 CLI regex 后端分别有什么实际接入成本与继续调查价值？",
+        "relations": [
+          {
+            "target": "explain-cpython-jsc-lizard-regex-performance-gap.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/evidence.json",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-abba.py",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-driver.ts",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-summary.json",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-abba.py",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-smoke.ts",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-native-probe.mjs",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-onigasm-probe.mjs",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-probe.mjs",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-re2-probe.mjs",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-summary.json",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw-summary.json",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw.ts",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-cost.json",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-probe.ts",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/provenance.json",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/python-stage-breakdown.py",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-abba.py",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-bun.ts",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-python.py",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.json",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.mjs",
+          "compare-lizard-regex-backends-and-analyzer-cost-allocation/typescript-stage-breakdown.ts"
+        ],
+        "tags": [
+          "backend",
+          "function-metrics",
+          "lizard",
+          "performance",
+          "regex",
+          "source-alignment",
+          "typescript",
+          "wasm"
+        ],
+        "title": "Lizard regex 后端与 analyzer 成本分配对比"
       }
     },
     "compare-minimal-json-duplicate-key-candidates.md": {
@@ -266,6 +474,136 @@
         "title": "Bun 冷启动下 Project Gate candidate 导入失败调查"
       }
     },
+    "diagnose-lizard-real-typescript-analyzer-hot-path.md": {
+      "keys": {
+        "formed-at": [
+          1788425325000
+        ],
+        "relation-type": [
+          "归并"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "profiling",
+          "source-alignment",
+          "typescript"
+        ],
+        "text": [
+          "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？",
+          "真实 TypeScript Lizard analyzer 慢路径诊断"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T08:48:45+00:00",
+        "question": "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？",
+        "relations": [
+          {
+            "target": "diagnose-lizard-typescript-port-performance-gap.md",
+            "type": "归并"
+          },
+          {
+            "target": "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md",
+            "type": "归并"
+          }
+        ],
+        "resourceIds": [
+          "diagnose-lizard-real-typescript-analyzer-hot-path/provenance.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/python-cprofile-tottime.txt",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-driver.py",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-evidence.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache-driver.py",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-driver.py",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-measurement.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-base-tokenizer.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.md",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-cpu-profile-run.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-counterfactual.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-driver.ts",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-fastpath-count.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-ordered-resolver-counterfactual.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-profile-driver.ts",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-reader-only.jsonl",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction-driver.ts",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-count.json",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-driver.ts",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-timings.jsonl",
+          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-tokenizer-only.jsonl"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "profiling",
+          "source-alignment",
+          "typescript"
+        ],
+        "title": "真实 TypeScript Lizard analyzer 慢路径诊断"
+      }
+    },
+    "diagnose-lizard-typescript-port-performance-gap.md": {
+      "keys": {
+        "formed-at": [
+          1788416549000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "profiling",
+          "source-alignment"
+        ],
+        "text": [
+          "TypeScript Lizard port 性能差距根因",
+          "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T06:22:29Z",
+        "question": "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？",
+        "relations": [
+          {
+            "target": "compare-lizard-python-typescript-performance.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-abba.json",
+          "diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-experiment.ts",
+          "diagnose-lizard-typescript-port-performance-gap/python-full-warm-cache.json",
+          "diagnose-lizard-typescript-port-performance-gap/python-profile-observations.json",
+          "diagnose-lizard-typescript-port-performance-gap/python-reader-selection-microbenchmark.jsonl",
+          "diagnose-lizard-typescript-port-performance-gap/python-runtime-native-probe.json",
+          "diagnose-lizard-typescript-port-performance-gap/python-selected-profile-stats.txt",
+          "diagnose-lizard-typescript-port-performance-gap/python-selection.json",
+          "diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json",
+          "diagnose-lizard-typescript-port-performance-gap/reader-selection-microbenchmark.jsonl",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-bun.json",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-entry.ts",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-method.md",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.md",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-selection.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-stage-profile.json"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "profiling",
+          "source-alignment"
+        ],
+        "title": "TypeScript Lizard port 性能差距根因"
+      }
+    },
     "evaluate-markdown-link-serial-io-optimization.md": {
       "keys": {
         "formed-at": [
@@ -349,6 +687,70 @@
         "title": "Admission core 持久数据结构库评估"
       }
     },
+    "explain-cpython-jsc-lizard-regex-performance-gap.md": {
+      "keys": {
+        "formed-at": [
+          1788428703000
+        ],
+        "relation-type": [
+          "归并"
+        ],
+        "tag": [
+          "cpython",
+          "function-metrics",
+          "javascriptcore",
+          "lizard",
+          "performance",
+          "regex",
+          "source-alignment",
+          "typescript"
+        ],
+        "text": [
+          "CPython 与 JavaScriptCore 执行 Lizard tokenizer 正则的性能差距解释",
+          "在真实 TypeScript source 产生相同 raw token 与 UTF-16 offset 的前提下，为什么 upstream Python Lizard 的正则扫描明显快于 Bun 上的 TypeScript port，当前证据能把原因定位到哪一层？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T09:45:03+00:00",
+        "question": "在真实 TypeScript source 产生相同 raw token 与 UTF-16 offset 的前提下，为什么 upstream Python Lizard 的正则扫描明显快于 Bun 上的 TypeScript port，当前证据能把原因定位到哪一层？",
+        "relations": [
+          {
+            "target": "diagnose-lizard-real-typescript-analyzer-hot-path.md",
+            "type": "归并"
+          },
+          {
+            "target": "survey-lizard-host-acceleration-candidates.md",
+            "type": "归并"
+          }
+        ],
+        "resourceIds": [
+          "explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-ablation.ts",
+          "explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-output-guards.ts",
+          "explain-cpython-jsc-lizard-regex-performance-gap/bun-generic-stage-control.ts",
+          "explain-cpython-jsc-lizard-regex-performance-gap/bun-raw-reuse.ts",
+          "explain-cpython-jsc-lizard-regex-performance-gap/bun-symmetric-raw.ts",
+          "explain-cpython-jsc-lizard-regex-performance-gap/bun-synthetic-controls.ts",
+          "explain-cpython-jsc-lizard-regex-performance-gap/evidence.json",
+          "explain-cpython-jsc-lizard-regex-performance-gap/provenance.json",
+          "explain-cpython-jsc-lizard-regex-performance-gap/python-feature-ablation.py",
+          "explain-cpython-jsc-lizard-regex-performance-gap/python-generic-stage-control.py",
+          "explain-cpython-jsc-lizard-regex-performance-gap/python-raw.py",
+          "explain-cpython-jsc-lizard-regex-performance-gap/python-symmetric-raw.py",
+          "explain-cpython-jsc-lizard-regex-performance-gap/typescript-token-pattern.json"
+        ],
+        "tags": [
+          "cpython",
+          "function-metrics",
+          "javascriptcore",
+          "lizard",
+          "performance",
+          "regex",
+          "source-alignment",
+          "typescript"
+        ],
+        "title": "CPython 与 JavaScriptCore 执行 Lizard tokenizer 正则的性能差距解释"
+      }
+    },
     "functional-utilities-and-data-structures.md": {
       "keys": {
         "formed-at": [
@@ -371,6 +773,48 @@
           "implementation-libraries"
         ],
         "title": "采用 Remeda 与 Mnemonist，保留原生集合默认"
+      }
+    },
+    "investigate-fortran-lizard-performance-hotspot.md": {
+      "keys": {
+        "formed-at": [
+          1788422386000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "fortran",
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment"
+        ],
+        "text": [
+          "固定 Lizard 1.24 Fortran 语料性能热点轻量复核",
+          "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T07:59:46Z",
+        "question": "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？",
+        "relations": [
+          {
+            "target": "diagnose-lizard-typescript-port-performance-gap.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "investigate-fortran-lizard-performance-hotspot/fortran-family-evidence.json"
+        ],
+        "tags": [
+          "fortran",
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment"
+        ],
+        "title": "固定 Lizard 1.24 Fortran 语料性能热点轻量复核"
       }
     },
     "markdown-link-validation-library-strategy.md": {
@@ -483,6 +927,98 @@
         "title": "依赖实际加载面与零依赖严格 grammar 路径"
       }
     },
+    "remeasure-function-metrics-product-reader-fast-path.md": {
+      "keys": {
+        "formed-at": [
+          1788423008000
+        ],
+        "relation-type": [
+          "复查"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "product-runtime",
+          "verification"
+        ],
+        "text": [
+          "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
+          "复测 reader fast path 的完整 functionMetrics Product 路径"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T08:10:08Z",
+        "question": "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
+        "relations": [
+          {
+            "target": "verify-lizard-reader-resolution-fast-path.md",
+            "type": "复查"
+          }
+        ],
+        "resourceIds": [
+          "remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json",
+          "remeasure-function-metrics-product-reader-fast-path/evidence.json",
+          "remeasure-function-metrics-product-reader-fast-path/product-driver.ts",
+          "remeasure-function-metrics-product-reader-fast-path/run-benchmark.py",
+          "remeasure-function-metrics-product-reader-fast-path/summary.json"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "product-runtime",
+          "verification"
+        ],
+        "title": "复测 reader fast path 的完整 functionMetrics Product 路径"
+      }
+    },
+    "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md": {
+      "keys": {
+        "formed-at": [
+          1788424069000
+        ],
+        "relation-type": [
+          "复查"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment",
+          "typescript"
+        ],
+        "text": [
+          "在同一批真实仓库 TypeScript Product 源、同一已解码 source 和相同 canonical 输出前置条件下，当前 TypeScript Lizard port 与 upstream Python Lizard 1.24 的 analyzer-only warmed-operation 性能如何比较，历史 Product 与 analyzer 数值为何同量级？",
+          "真实 TypeScript Product 源上的 Lizard Python 与 TypeScript analyzer 复测"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T08:27:49Z",
+        "question": "在同一批真实仓库 TypeScript Product 源、同一已解码 source 和相同 canonical 输出前置条件下，当前 TypeScript Lizard port 与 upstream Python Lizard 1.24 的 analyzer-only warmed-operation 性能如何比较，历史 Product 与 analyzer 数值为何同量级？",
+        "relations": [
+          {
+            "target": "compare-lizard-python-typescript-performance.md",
+            "type": "复查"
+          }
+        ],
+        "resourceIds": [
+          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/corpus-manifest.json",
+          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/evidence.json",
+          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/preflight-canonical-metrics.json",
+          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/run-benchmark.py"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment",
+          "typescript"
+        ],
+        "title": "真实 TypeScript Product 源上的 Lizard Python 与 TypeScript analyzer 复测"
+      }
+    },
     "result-and-option-libraries.md": {
       "keys": {
         "formed-at": [
@@ -530,6 +1066,96 @@
         ],
         "title": "Record schema authoring 的框架选择、替代项与互操作边界"
       }
+    },
+    "survey-lizard-host-acceleration-candidates.md": {
+      "keys": {
+        "formed-at": [
+          1788428309000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "regex",
+          "source-alignment",
+          "typescript"
+        ],
+        "text": [
+          "Lizard analyzer 宿主加速候选调查",
+          "在 source alignment 约束可观察 Lizard analyzer 语义、而非 JavaScript 原语的前提下，哪些 regex/lexer 与其它宿主实现候选值得继续验证；它们在 27-reader 覆盖、Bun Worker、打包和性能证据上分别处于什么状态？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T09:38:29+00:00",
+        "question": "在 source alignment 约束可观察 Lizard analyzer 语义、而非 JavaScript 原语的前提下，哪些 regex/lexer 与其它宿主实现候选值得继续验证；它们在 27-reader 覆盖、Bun Worker、打包和性能证据上分别处于什么状态？",
+        "relations": [
+          {
+            "target": "diagnose-lizard-real-typescript-analyzer-hot-path.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "survey-lizard-host-acceleration-candidates/candidate-probes.json",
+          "survey-lizard-host-acceleration-candidates/oniguruma-compile-inventory.json",
+          "survey-lizard-host-acceleration-candidates/oniguruma-real-typescript-raw-scan.json",
+          "survey-lizard-host-acceleration-candidates/regex-feature-inventory.json"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "regex",
+          "source-alignment",
+          "typescript"
+        ],
+        "title": "Lizard analyzer 宿主加速候选调查"
+      }
+    },
+    "verify-lizard-reader-resolution-fast-path.md": {
+      "keys": {
+        "formed-at": [
+          1788420882000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment",
+          "verification"
+        ],
+        "text": [
+          "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
+          "验证 Lizard reader-resolution fast path 性能"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T07:34:42Z",
+        "question": "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
+        "relations": [
+          {
+            "target": "diagnose-lizard-typescript-port-performance-gap.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "verify-lizard-reader-resolution-fast-path/facade-acceptance.json",
+          "verify-lizard-reader-resolution-fast-path/facade-acceptance.ts"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment",
+          "verification"
+        ],
+        "title": "验证 Lizard reader-resolution fast path 性能"
+      }
     }
   },
   "keyDefinitions": [
@@ -557,21 +1183,33 @@
     "entries": {
       "analyze-markdown-link-cache-packing.md": "sha256:ce5c994f17a338005e2f7e13bbd48cec8eef2cb2624f7d331e31f5dc2d7435b7",
       "assess-admission-state-performance-and-selection-index.md": "sha256:98061f900a651bf14b5c024f4c897236276ce991c53b2551d897fc06719d76fd",
+      "assess-lizard-extension-adoption-value.md": "sha256:8f3100dedd8fa993782d68c5d05eb219fd6a38da64877c73e979d3c028589db3",
+      "assess-lizard-upstream-release-and-branch-delta.md": "sha256:9f8d6857d7fb8b9614830d028aa81054bca11326a4fb25ad1601b3a4c258f5ee",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
-      "compare-lizard-and-scc-typescript-port-priority.md": "sha256:f36d2d03734cd988927ad44118c331f31787ee3f69d9ceaa111da921cbf9c7d8",
+      "compare-lizard-and-scc-typescript-port-priority.md": "sha256:2c18eb6094b1bd3028f930599b9a3d37af05f2103a2072513a5793d930a4ee3b",
+      "compare-lizard-python-typescript-performance.md": "sha256:61fcf72ac86ff84a586d106681d4de85c67f82bd38521b62770cc126fe3faebb",
+      "compare-lizard-regex-backends-and-analyzer-cost-allocation.md": "sha256:09a6215d2e9e347cc433598310b42ccfc337dc5c59fac61c893d30f1b6d3fa20",
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
       "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
       "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:f45a56559223f8c0d317013d7da4772bbf87838a714be580f44027f744803401",
+      "diagnose-lizard-real-typescript-analyzer-hot-path.md": "sha256:480cfb264b2265c7e878beaed75d272bb512451f6cfd7403d03e8095eeea1ced",
+      "diagnose-lizard-typescript-port-performance-gap.md": "sha256:ab60210fb4001d659e3e2e26b878f3af3b7f6e5fd8b7da17ef7d8fc164d4c9dd",
       "evaluate-markdown-link-serial-io-optimization.md": "sha256:8c749ead3a22883a056318d560e8554393ffbf474898fc48c12eb7622e7ef41e",
       "evaluate-persistent-data-structure-libraries-for-admission-core.md": "sha256:85d43d2f8b07c22faa1e0a368f0273db6c8cce9a7b0dae7ae7987a75d8493e9c",
+      "explain-cpython-jsc-lizard-regex-performance-gap.md": "sha256:49e4d854ac63ccac6466e8b28eeee51cfc33bedce736e7b72e2dc585b0306b27",
       "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
+      "investigate-fortran-lizard-performance-hotspot.md": "sha256:9c6666a687ea7131230c33fb8e9052d92e43bcd0db9c491a642861c53b414116",
       "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
       "measure-markdown-link-serial-cache-overhead.md": "sha256:f5dd58142e34e02cc2b33f89fd103add3f8a571c90f354586600f960c2520ab4",
       "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
       "recheck-json-dependency-and-zero-dependency-path.md": "sha256:6967e3e64bb9ed78eb4bf93f95a96d068bdf50d35e4d4ab6aaf840a7e81937c6",
+      "remeasure-function-metrics-product-reader-fast-path.md": "sha256:93a6e21f8056ca5e1302720209508725d19101ed7c14a406372420b2cddd6854",
+      "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md": "sha256:dfca0606ed628a4baf3c18b073d6441c6b5dfa5f373db89de4b0fd1eb97abdd7",
       "result-and-option-libraries.md": "sha256:2a7660ba472520806deddbbca80b76f3c4f9410baf74984039e1f20bda92b623",
-      "schema-validation-and-static-inference.md": "sha256:5dabe147f87f8778cf0c37a03c7b58790611f7476b103b6c188ce0ac3c9bf4fb"
+      "schema-validation-and-static-inference.md": "sha256:5dabe147f87f8778cf0c37a03c7b58790611f7476b103b6c188ce0ac3c9bf4fb",
+      "survey-lizard-host-acceleration-candidates.md": "sha256:6ce0fe5e13dc0c1df84f1c52c3d5cd9ca3a6c001dc0af5fbf86c53eb0cd4206b",
+      "verify-lizard-reader-resolution-fast-path.md": "sha256:ce2058ab3039313d29c60355f0c9e8ab611d2a26b583fe5696c7d0aa3dfbde52"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

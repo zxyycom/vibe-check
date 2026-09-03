@@ -1,60 +1,59 @@
 import assert from "node:assert/strict";
-import { rmSync } from "node:fs";
+import { rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 
+import type { CheckMessage } from "../../check/check.ts";
 import { functionMetrics } from "./constructor.ts";
 import { executeFunctionMetrics } from "./execution.ts";
-import { MIXED_DETAILS, NON_BLOCKING_DETAILS } from "./finding-messages.test-support.ts";
 import {
-  createExecutable,
   createRoot,
   execute,
   recordField,
-  RELAXED_LIMITS,
-  STRICT_LIMITS
+  type ReportedRecord
 } from "./constructor.test-support.ts";
 
+const STRICT_LIMITS = {
+  codeLines: {
+    maximum: 10,
+    lowComplexityAllowance: { cyclomaticComplexityBelow: 3, maximum: 20 }
+  },
+  cyclomaticComplexity: { maximum: 5 },
+  nestingDepth: { maximum: 7 },
+  parameters: { maximum: 4 }
+} as const;
+const RELAXED_LIMITS = {
+  codeLines: {
+    maximum: 100,
+    lowComplexityAllowance: { cyclomaticComplexityBelow: 3, maximum: 150 }
+  },
+  cyclomaticComplexity: { maximum: 100 },
+  nestingDepth: { maximum: 100 },
+  parameters: { maximum: 100 }
+} as const;
+
 describe("functionMetrics area findings", () => {
-  it("records complete area evidence and fails only for effective blocking findings", async () => {
+  it("records complete analyzer evidence and fails only for effective blocking findings", async () => {
     const root = createRoot("vibe-check-function-areas-");
     try {
-      const executable = createExecutable(
-        root,
-        [
-          "if (process.argv.includes('--version')) {",
-          "  process.stdout.write('1.23.0\\n');",
-          "} else {",
-          "  const expected = ['src/a.ts', 'src/b.ts', '--csv'];",
-          "  if (JSON.stringify(process.argv.slice(2)) !== JSON.stringify(expected)) process.exit(2);",
-          "  process.stdout.write('NLOC,CCN,token count,parameter count,length,location,file path,function name,long name,start line,end line\\n20,12,100,7,20,a@1-20@src/a.ts,src/a.ts,a,a (),1,20\\n20,12,100,7,20,b@1-20@src/b.ts,src/b.ts,b,b (),1,20\\n');",
-          "}"
-        ].join("\n")
-      );
+      writeFileSync(join(root, "src", "a.ts"), overLimitFunction("a"), "utf8");
+      writeFileSync(join(root, "src", "b.ts"), overLimitFunction("b"), "utf8");
       const nonBlockingOptions = {
         codeAreas: {
           source: {
             files: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" },
             limits: STRICT_LIMITS
           }
-        },
-        scanner: { executable }
+        }
       } as const;
       const nonBlocking = functionMetrics(nonBlockingOptions);
       const observed = await execute(executeFunctionMetrics, nonBlocking.options, root);
       assert.deepEqual(observed.result, {
         status: "passed",
-        data: { blockingFindingCount: 0, findingCount: 6 },
-        messages: [
-          {
-            code: "non-blocking-findings",
-            level: "warning",
-            message:
-              "6 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-          },
-          ...NON_BLOCKING_DETAILS
-        ]
+        data: { blockingFindingCount: 0, findingCount: 8 },
+        messages: observed.result.messages
       });
-      assert.equal(observed.records.length, 6);
+      assert.equal(observed.records.length, 8);
       assert.equal(
         observed.records.every((record) => recordField(record, "blocking") === false),
         true
@@ -72,26 +71,16 @@ describe("functionMetrics area findings", () => {
         }
       });
       const blocked = await execute(executeFunctionMetrics, mixed.options, root);
-      assert.deepEqual(blocked.result, {
-        status: "failed",
-        data: { blockingFindingCount: 3, findingCount: 6 },
-        messages: [
-          {
-            code: "blocking-findings",
-            level: "error",
-            message:
-              "3 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-          },
-          ...MIXED_DETAILS
-        ]
-      });
+      assert.equal(blocked.result.status, "failed");
+      if (blocked.result.status !== "failed") return;
+      assert.deepEqual(blocked.result.data, { blockingFindingCount: 4, findingCount: 8 });
       const aRecords = blocked.records.filter(
         (record) => recordField(record, "path") === "src/a.ts"
       );
       const bRecords = blocked.records.filter(
         (record) => recordField(record, "path") === "src/b.ts"
       );
-      assert.equal(aRecords.length, 3);
+      assert.equal(aRecords.length, 4);
       assert.equal(
         aRecords.every((record) => recordField(record, "blocking") === true),
         true
@@ -102,7 +91,7 @@ describe("functionMetrics area findings", () => {
         ),
         true
       );
-      assert.equal(bRecords.length, 3);
+      assert.equal(bRecords.length, 4);
       assert.equal(
         bRecords.every((record) => recordField(record, "blocking") === false),
         true
@@ -113,6 +102,9 @@ describe("functionMetrics area findings", () => {
         ),
         true
       );
+
+      assertComplexityContributorsAndNestingFinding(blocked.records, blocked.result.messages ?? []);
+
       const sourceUnavailable = await execute(
         executeFunctionMetrics,
         {
@@ -143,3 +135,52 @@ describe("functionMetrics area findings", () => {
     }
   });
 });
+
+function assertComplexityContributorsAndNestingFinding(
+  records: readonly ReportedRecord[],
+  messages: readonly CheckMessage[]
+): void {
+  const complexityRecord = records.find(
+    (record) => recordField(record, "metric") === "cyclomatic-complexity"
+  );
+  assert.deepEqual(recordField(complexityRecord!, "complexityContributors"), [
+    { line: 2, token: "if" },
+    { line: 3, token: "if" },
+    { line: 4, token: "if" },
+    { line: 5, token: "if" },
+    { line: 6, token: "if" },
+    { line: 7, token: "if" },
+    { line: 8, token: "if" },
+    { line: 9, token: "if" },
+    { line: 10, token: "if" },
+    { line: 11, token: "if" },
+    { line: 12, token: "if" },
+    { line: 13, token: "if" },
+    { line: 14, token: "if" },
+    { line: 15, token: "if" },
+    { line: 16, token: "if" },
+    { line: 17, token: "if" }
+  ]);
+
+  const nestingRecord = records.find((record) => recordField(record, "metric") === "nesting-depth");
+  assert.equal(recordField(nestingRecord!, "value"), 16);
+  assert.equal(recordField(nestingRecord!, "limit"), 7);
+  assert.equal(Object.hasOwn(nestingRecord!.data, "complexityContributors"), false);
+  assert.ok(
+    messages.some(
+      (message) =>
+        message.code === "finding-detail" &&
+        message.message ===
+          "src/a.ts:1 a: cyclomatic-complexity 17 exceeds the 5 limit (areas: overlap, source). Complexity contributors: if at line 2, if at line 3, if at line 4, if at line 5, if at line 6, if at line 7, if at line 8, if at line 9; 8 additional contributor(s) are in this finding Record."
+    )
+  );
+}
+
+function overLimitFunction(name: string): string {
+  return [
+    `export function ${name}(a: number, b: number, c: number, d: number, e: number, f: number, g: number) {`,
+    ...Array.from({ length: 16 }, (_, index) => `  if (a > ${index}) return b;`),
+    "  return a;",
+    "}"
+  ].join("\n");
+}

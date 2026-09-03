@@ -85,10 +85,10 @@ Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-
   路径的 area。未被任何 area 选择的 path 不属于 exact scope。
 - `file-metrics` 按来源枚举一次并筛出每个 area 的路径，把稳定去重并集一次性交给 Check-local SCC adapter；每个结果按
   其全部实际 input areas 中最严格的有效 code-line maximum 结算，同一路径最多产生一条 finding。
-- `function-metrics` 的默认 include 与 Lizard 1.23.0 官方 reader extension table 来自同一 Check-local registry，并按大小写
-  不敏感语义匹配。execution 对每个 area 的 selected paths 分类；accepted 稳定去重并集一次性交给 Lizard，rejected path
-  只发布一条 Record，并保留其全部稳定排序 area IDs。未被 table 识别的文件不传给 Lizard，避免其 C-like fallback 将非代码
-  文本当作 source。每个 measurement 恢复全部 matching areas，各 metric 使用适用 maximum 的最小值；任一 matching area
+- `function-metrics` 的默认 include 与内置 TypeScript analyzer 的 reader registry 来自同一 Check-local registry。它注册
+  55 个大小写不敏感 suffix；execution 对每个 area 的 selected paths 分类，accepted 稳定去重并集一次交给内置 analyzer，
+  rejected path 只发布一条 Record，并保留其全部稳定排序 area IDs。未被 registry 识别的文件不进入分析，避免 fallback 将
+  非代码文本当作 source。每个 measurement 恢复全部 matching areas，各 metric 使用适用 maximum 的最小值；任一 matching area
   blocking 时 metric finding blocking，同一 metric 最多产生一条 finding；input rejection 始终 non-blocking。
 - `json-validation` 的默认 include 是 `**/*.json`。execution 对 selected candidates 使用 case-sensitive
   `path.endsWith(".json")`；`.JSON` 与其它类型成为 rejected input，不进入 document read。

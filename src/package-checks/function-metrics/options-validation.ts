@@ -13,12 +13,11 @@ import type { ResolvedFunctionMetricsOptions } from "./options.ts";
 export function validResolvedFunctionMetricsOptions(
   value: unknown
 ): value is ResolvedFunctionMetricsOptions {
-  const options = snapshotExactClosedRecord(value, ["codeAreas", "findingWaivers", "scanner"]);
+  const options = snapshotExactClosedRecord(value, ["codeAreas", "findingWaivers"]);
   return (
     options !== undefined &&
     validCodeAreas(options.codeAreas) &&
-    validResolvedFindingWaivers(options.findingWaivers, resolveFunctionMetricsFindingIdentity) &&
-    validScanner(options.scanner)
+    validResolvedFindingWaivers(options.findingWaivers, resolveFunctionMetricsFindingIdentity)
   );
 }
 
@@ -41,17 +40,21 @@ function validLimits(value: unknown): boolean {
   const limits = snapshotExactClosedRecord(value, [
     "codeLines",
     "cyclomaticComplexity",
+    "nestingDepth",
     "parameters"
   ]);
   if (limits === undefined) return false;
   const codeLineLimits = codeLineLimitsFrom(limits.codeLines);
   const cyclomaticComplexity = maximumLimitFrom(limits.cyclomaticComplexity);
+  const nestingDepth = maximumLimitFrom(limits.nestingDepth);
   const parameters = maximumLimitFrom(limits.parameters);
   return (
     codeLineLimits !== undefined &&
     cyclomaticComplexity !== undefined &&
+    nestingDepth !== undefined &&
     parameters !== undefined &&
     isPositiveSafeInteger(cyclomaticComplexity.maximum) &&
+    isPositiveSafeInteger(nestingDepth.maximum) &&
     isPositiveSafeInteger(parameters.maximum)
   );
 }
@@ -74,9 +77,4 @@ function codeLineLimitsFrom(value: unknown): Readonly<Record<string, unknown>> |
 
 function maximumLimitFrom(value: unknown): Readonly<Record<string, unknown>> | undefined {
   return snapshotExactClosedRecord(value, ["maximum"]);
-}
-
-function validScanner(value: unknown): boolean {
-  const scanner = snapshotExactClosedRecord(value, ["executable"]);
-  return scanner !== undefined && isNonEmptyString(scanner.executable);
 }

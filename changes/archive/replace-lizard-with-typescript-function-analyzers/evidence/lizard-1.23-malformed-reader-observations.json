@@ -1,0 +1,511 @@
+{
+  "extensionCount": 55,
+  "fixtures": [
+    {
+      "canonicalExtension": "c",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/malformed.c",
+      "kind": "unterminated-brace-nesting",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/malformed.c",
+        "--csv"
+      ],
+      "readerClass": "CLikeReader",
+      "readerId": "c-like",
+      "sourceSha256": "816a714fe518693db67599813a0158d2736bcedf98ec467c14679ee1597ce0fd"
+    },
+    {
+      "canonicalExtension": "java",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/malformed.java",
+      "kind": "unterminated-string-literal",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/malformed.java",
+          "functionName": "Sample::broken",
+          "length": 1,
+          "longName": "Sample::broken()",
+          "nloc": 1,
+          "parameterCount": 0,
+          "startLine": 1,
+          "tokenCount": 9
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/malformed.java",
+        "--csv"
+      ],
+      "readerClass": "JavaReader",
+      "readerId": "java",
+      "sourceSha256": "1c11570b5bac8d00bec69652e92c8684242efd1e80985025d93e6de5872d4b75"
+    },
+    {
+      "canonicalExtension": "cs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/malformed.cs",
+      "kind": "unterminated-block-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/malformed.cs",
+        "--csv"
+      ],
+      "readerClass": "CSharpReader",
+      "readerId": "csharp",
+      "sourceSha256": "ba37dc0278e5c50f366f1c423f6b7260fbe82c8bf4611053dcde5d204b8f38c3"
+    },
+    {
+      "canonicalExtension": "js",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/malformed.js",
+      "kind": "unterminated-template-literal",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/malformed.js",
+          "functionName": "broken",
+          "length": 1,
+          "longName": "broken ( value )",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1,
+          "tokenCount": 11
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/malformed.js",
+        "--csv"
+      ],
+      "readerClass": "JavaScriptReader",
+      "readerId": "javascript",
+      "sourceSha256": "53b14c0160706b3402d32610461be34357e149b294211a310a61a89e1d0e21e3"
+    },
+    {
+      "canonicalExtension": "py",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/malformed.py",
+      "kind": "unterminated-declaration-bracket",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/malformed.py",
+        "--csv"
+      ],
+      "readerClass": "PythonReader",
+      "readerId": "python",
+      "sourceSha256": "da274a2620512c3dd411048013e226a268346fbd1550336ec834aae858d63199"
+    },
+    {
+      "canonicalExtension": "m",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/malformed.m",
+      "kind": "unterminated-block-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/malformed.m",
+        "--csv"
+      ],
+      "readerClass": "ObjCReader",
+      "readerId": "objc",
+      "sourceSha256": "ba022de96df842c170b9fbc35f486b47f60f61d3775b42f697ab7ddc7e6f94ad"
+    },
+    {
+      "canonicalExtension": "ttcn",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/malformed.ttcn",
+      "kind": "unterminated-function-nesting",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/malformed.ttcn",
+        "--csv"
+      ],
+      "readerClass": "TTCNReader",
+      "readerId": "ttcn",
+      "sourceSha256": "476c6a81dcad716005708b9fe0ca2b37957b2b9282f1b2d2b8ce7b3188dc9f3a"
+    },
+    {
+      "canonicalExtension": "rb",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/malformed.rb",
+      "kind": "unterminated-string-literal",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/malformed.rb",
+        "--csv"
+      ],
+      "readerClass": "RubyReader",
+      "readerId": "ruby",
+      "sourceSha256": "a279b8de5aee4f9bfbbacf01b34c56f668a8bd4194b74e52519ff9b7cc62333e"
+    },
+    {
+      "canonicalExtension": "php",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/malformed.php",
+      "kind": "unterminated-block-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/malformed.php",
+        "--csv"
+      ],
+      "readerClass": "PHPReader",
+      "readerId": "php",
+      "sourceSha256": "8320e917d5d2cd5e0fe6cbb7b8b5d2d84f861cea915ae609dcf402d6ec912891"
+    },
+    {
+      "canonicalExtension": "swift",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/malformed.swift",
+      "kind": "unterminated-string-literal",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/malformed.swift",
+        "--csv"
+      ],
+      "readerClass": "SwiftReader",
+      "readerId": "swift",
+      "sourceSha256": "c328c4f879b7c0c06a5175bb496fe703019769913b92fe32be9cdff23d35dc15"
+    },
+    {
+      "canonicalExtension": "scala",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/malformed.scala",
+      "kind": "unterminated-block-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/malformed.scala",
+        "--csv"
+      ],
+      "readerClass": "ScalaReader",
+      "readerId": "scala",
+      "sourceSha256": "48c0dc4c12308fef09d5feef7a2a23fb8179e78543f36bfab37a8222390b186c"
+    },
+    {
+      "canonicalExtension": "gd",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/malformed.gd",
+      "kind": "unterminated-triple-string",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/malformed.gd",
+          "functionName": "broken",
+          "length": 2,
+          "longName": "broken( value )",
+          "nloc": 2,
+          "parameterCount": 1,
+          "startLine": 1,
+          "tokenCount": 8
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/malformed.gd",
+        "--csv"
+      ],
+      "readerClass": "GDScriptReader",
+      "readerId": "gdscript",
+      "sourceSha256": "1b0c2ac95aef221281e9e23f262a65239744c1589fee8280749e6eb4b4ee738b"
+    },
+    {
+      "canonicalExtension": "go",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/malformed.go",
+      "kind": "unterminated-block-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/malformed.go",
+        "--csv"
+      ],
+      "readerClass": "GoReader",
+      "readerId": "go",
+      "sourceSha256": "8bee65e327922c786016fdd12cc7575442be91958a7be7fe2b25e6e887c5ed6d"
+    },
+    {
+      "canonicalExtension": "lua",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/malformed.lua",
+      "kind": "unterminated-long-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/malformed.lua",
+        "--csv"
+      ],
+      "readerClass": "LuaReader",
+      "readerId": "lua",
+      "sourceSha256": "a707a0850336160659f3448062cb7924976025b6a8ce4c3fa559dfbc5c34be71"
+    },
+    {
+      "canonicalExtension": "rs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/malformed.rs",
+      "kind": "unterminated-block-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/malformed.rs",
+        "--csv"
+      ],
+      "readerClass": "RustReader",
+      "readerId": "rust",
+      "sourceSha256": "4db8284289234e1ac3b1a8903760e5f341e8feaa58cbcf83ef40210b4f0467bf"
+    },
+    {
+      "canonicalExtension": "ts",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/malformed.ts",
+      "kind": "unterminated-expression-bracket",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/malformed.ts",
+          "functionName": "broken",
+          "length": 1,
+          "longName": "broken ( value )",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1,
+          "tokenCount": 10
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/malformed.ts",
+        "--csv"
+      ],
+      "readerClass": "TypeScriptReader",
+      "readerId": "typescript",
+      "sourceSha256": "3b3f9aec0aa2c3c0eec4edf282ae4f527b320b2bcce4ff8a3817689fb9ab65af"
+    },
+    {
+      "canonicalExtension": "f90",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/malformed.f90",
+      "kind": "missing-end-if-and-function",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/malformed.f90",
+        "--csv"
+      ],
+      "readerClass": "FortranReader",
+      "readerId": "fortran",
+      "sourceSha256": "fc09ead3f33f2626db4a42a7d6cca70f773d5caf10e87ed0fed3bf5aa83230f8"
+    },
+    {
+      "canonicalExtension": "kt",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/malformed.kt",
+      "kind": "unterminated-string-literal",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/malformed.kt",
+        "--csv"
+      ],
+      "readerClass": "KotlinReader",
+      "readerId": "kotlin",
+      "sourceSha256": "c501fdc942884c3593a4100278098e4cb57d38c6016ddcb2de9e719fe1a8c4eb"
+    },
+    {
+      "canonicalExtension": "sol",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/malformed.sol",
+      "kind": "unterminated-block-comment",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/malformed.sol",
+        "--csv"
+      ],
+      "readerClass": "SolidityReader",
+      "readerId": "solidity",
+      "sourceSha256": "f522a84adc7d681c27a75899166f17cf6da1d221f4ca9d87198678d8ae97c4fc"
+    },
+    {
+      "canonicalExtension": "erl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/malformed.erl",
+      "kind": "unterminated-case-expression",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/malformed.erl",
+          "functionName": "broken",
+          "length": 1,
+          "longName": "broken( Value )",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1,
+          "tokenCount": 11
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/malformed.erl",
+        "--csv"
+      ],
+      "readerClass": "ErlangReader",
+      "readerId": "erlang",
+      "sourceSha256": "ef8a97955239af70d5dd8d596420d632168aac54c0708a2586a42d3d05c4b17e"
+    },
+    {
+      "canonicalExtension": "zig",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/malformed.zig",
+      "kind": "unterminated-string-literal",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/malformed.zig",
+        "--csv"
+      ],
+      "readerClass": "ZigReader",
+      "readerId": "zig",
+      "sourceSha256": "91b11bb4412a75af356c2794aa7b015a865e6478add0e3879023df9cd238a01e"
+    },
+    {
+      "canonicalExtension": "tsx",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/malformed.tsx",
+      "kind": "unterminated-jsx-expression",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/malformed.tsx",
+          "functionName": "Broken",
+          "length": 1,
+          "longName": "Broken ( value )",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1,
+          "tokenCount": 11
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/malformed.tsx",
+        "--csv"
+      ],
+      "readerClass": "TSXReader",
+      "readerId": "tsx",
+      "sourceSha256": "407ec72c0ba7d9c446d139636569b3b5dbf85c1de3e4404d88bbb518bc20e63b"
+    },
+    {
+      "canonicalExtension": "vue",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/malformed.vue",
+      "kind": "unterminated-script-string",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/malformed.vue",
+          "functionName": "broken",
+          "length": 1,
+          "longName": "broken ( value )",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1,
+          "tokenCount": 7
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/malformed.vue",
+        "--csv"
+      ],
+      "readerClass": "VueReader",
+      "readerId": "vue",
+      "sourceSha256": "50083ba12802d25fadc905729b9791ffb3ed6b0adb3de2ccf30708d250476ff4"
+    },
+    {
+      "canonicalExtension": "pl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/malformed.pl",
+      "kind": "unterminated-block-nesting",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/malformed.pl",
+        "--csv"
+      ],
+      "readerClass": "PerlReader",
+      "readerId": "perl",
+      "sourceSha256": "ac037ad14c5c72673496c5ee147fb8d9df00e67dbb697d0509b088b5de7161ac"
+    },
+    {
+      "canonicalExtension": "st",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/malformed.st",
+      "kind": "missing-end-if-and-function",
+      "measurements": [
+        {
+          "ccn": 1,
+          "endLine": 2,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/malformed.st",
+          "functionName": "broken",
+          "length": 2,
+          "longName": "broken",
+          "nloc": 2,
+          "parameterCount": 0,
+          "startLine": 1,
+          "tokenCount": 9
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/malformed.st",
+        "--csv"
+      ],
+      "readerClass": "StReader",
+      "readerId": "st",
+      "sourceSha256": "489ef963a0b6cc6f952770c3700810d94de7ac2a49a466131a4c2f28ca30eb92"
+    },
+    {
+      "canonicalExtension": "r",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/malformed.r",
+      "kind": "unterminated-brace-nesting",
+      "measurements": [
+        {
+          "ccn": 2,
+          "endLine": 1,
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/malformed.r",
+          "functionName": "broken",
+          "length": 1,
+          "longName": "broken( value value)",
+          "nloc": 1,
+          "parameterCount": 1,
+          "startLine": 1,
+          "tokenCount": 14
+        }
+      ],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/malformed.r",
+        "--csv"
+      ],
+      "readerClass": "RReader",
+      "readerId": "r",
+      "sourceSha256": "ec6ce2dc47cb36a87066275f1640eb02854ede0baf8184b04d041e5538c11269"
+    },
+    {
+      "canonicalExtension": "sql",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/malformed.sql",
+      "kind": "missing-end-if-and-function",
+      "measurements": [],
+      "oracleCommand": [
+        "lizard",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/malformed.sql",
+        "--csv"
+      ],
+      "readerClass": "PLSQLReader",
+      "readerId": "plsql",
+      "sourceSha256": "ad32130551be085e3d2cacb8ebc8389e260411f395a72f73b3552c9944338697"
+    }
+  ],
+  "oracle": {
+    "command": [
+      "lizard",
+      "--version"
+    ],
+    "output": "1.23.0",
+    "revision": "06284ec87c1966fee4ddbf3f068ccf89b987b0f8",
+    "tag": "1.23.0"
+  },
+  "readerCount": 27,
+  "schemaVersion": 1
+}

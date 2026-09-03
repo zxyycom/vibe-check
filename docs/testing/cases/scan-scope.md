@@ -43,19 +43,19 @@ Entities:
 - 一个 named-selection 调用可从同一 source snapshot 形成多个稳定 file sets，且不会增加 config 之外的 hidden exclusions。
 - Check-owned eligibility partition 按 selected 顺序只评估每个 path 一次，并把它恰好保留在 accepted 或 rejected 一侧；结果与两侧数组均冻结。
 
-## Case ADD-FUNCTION-METRICS-LIZARD-SCOPE-001: Function metrics selects exactly Lizard-supported source inputs
+## Case ADD-FUNCTION-METRICS-LIZARD-SCOPE-001: Function metrics selects exactly translated analyzer inputs
 
 Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
-- `bun|src/package-checks/function-metrics/target-files.test.ts|Lizard target files > selects every Lizard 1.23-supported extension case-insensitively and excludes fallback inputs`
-- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to Lizard`
-- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > does not start Lizard when every selected path is rejected`
+- `bun|src/package-checks/function-metrics/target-files.test.ts|functionMetrics analyzer target files > selects every adapter-provided extension case-insensitively and excludes unsupported paths`
+- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to the analyzer`
+- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > does not create analyzer metric records when every selected path is rejected`
 
 Proves:
 
-- function-metrics derives precise default globs and runtime acceptance from every extension supported by Lizard 1.23.0's official language readers, using the same case-insensitive semantics.
-- Explicitly selected unsupported Markdown, JSON, YAML or extensionless inputs each produce one area-aware rejection Record instead of reaching Lizard's C-like fallback; all-rejected input completes without starting Lizard.
+- function-metrics derives precise default globs and runtime acceptance from the Product adapter's fixed translated-port capability: 27 readers and 55 canonical extension spellings, using case-insensitive semantics without a fallback reader. This Product capability is independent of the root provenance inventory and of Gate quality exceptions.
+- Explicitly selected unsupported Markdown, JSON, YAML or extensionless inputs each produce one area-aware rejection Record instead of reaching the analyzer; all-rejected input completes without analyzer metric Records.
 
 ## Case ADD-JSON-VALIDATION-SCOPE-001: JSON eligibility is an exact subset of its Check-owned file selection
 

@@ -1,0 +1,3 @@
+function readerSample(in integer value) return integer { if (value > 0) { return 1; } return 0; }
+
+

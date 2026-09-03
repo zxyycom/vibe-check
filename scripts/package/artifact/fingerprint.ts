@@ -8,11 +8,13 @@ import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-invento
 import {
   CANDIDATE_DEPENDENCIES,
   PACKAGE_LICENSE_SOURCE_PATH,
+  PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS,
   PACKAGE_THIRD_PARTY_LICENSES
 } from "../package-contract.ts";
 import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
 import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../../docs/machine-artifacts/package-materials.ts";
+import { TRANSLATED_ANALYZER_LEGAL_MATERIALS } from "../legal-materials.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-api/example-projections.ts",
@@ -37,13 +39,15 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
   hash.update(`bun=${bunVersion()}\0`);
   hash.update(`artifact-toolchain=${JSON.stringify(artifactToolchainVersions())}\0`);
   hash.update(`candidate-dependencies=${JSON.stringify(CANDIDATE_DEPENDENCIES)}\0`);
+  hash.update(`runtime-compiler-roots=${JSON.stringify(PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS)}\0`);
 
   const inputFiles = [
     ...collectRuntimeSourceFilePaths(join(repositoryRoot, "src")),
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
     join(repositoryRoot, PACKAGE_LICENSE_SOURCE_PATH),
-    ...PACKAGE_THIRD_PARTY_LICENSES.map((license) => join(repositoryRoot, license.sourcePath))
+    ...PACKAGE_THIRD_PARTY_LICENSES.map((license) => join(repositoryRoot, license.sourcePath)),
+    ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => join(repositoryRoot, material.path))
   ].sort();
   for (const filePath of inputFiles) {
     const relativePath = relative(repositoryRoot, filePath).split(sep).join("/");

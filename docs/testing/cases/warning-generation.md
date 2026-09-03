@@ -6,14 +6,14 @@ Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-input
 Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
-- `bun|src/package-checks/function-metrics/constructor.area-findings.test.ts|functionMetrics area findings > records complete area evidence and fails only for effective blocking findings`
-- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to Lizard`
-- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > does not start Lizard when every selected path is rejected`
+- `bun|src/package-checks/function-metrics/constructor.area-findings.test.ts|functionMetrics area findings > records complete analyzer evidence and fails only for effective blocking findings`
+- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to the analyzer`
+- `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > does not create analyzer metric records when every selected path is rejected`
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > scans the exact-input union once and compares fragments only within common areas`
 
 Proves:
 
-- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. File/function matching-area overlaps and duplicate common-area overlaps are blocking when any effective owning area policy is blocking; non-blocking Records remain visible in a passed result, and scanning/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and do not start Lizard when no accepted path remains. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages followed by at most ten Check-owned safe Finding summaries and an exact omitted-count message, without turning arbitrary Records into a generic warning or Gate channel.
+- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. File/function matching-area overlaps and duplicate common-area overlaps are blocking when any effective owning area policy is blocking; non-blocking Records remain visible in a passed result, and measurement/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and create no analyzer metric Records when no accepted path remains. A function CCN Record alone retains its complete ordered contributor list, while the independent nesting-depth Record retains no contributor attachment; its area limit participates in the same strictest/blocking settlement. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages followed by at most ten Check-owned safe Finding summaries and an exact omitted-count message; CCN detail itself displays at most eight contributors and its exact Record remainder, without turning arbitrary Records into a generic warning or Gate channel.
 
 ## Case ADD-FILE-METRICS-FINDING-WAIVER-001: File metrics publishes reconciled waiver evidence
 
@@ -36,11 +36,12 @@ Entities:
 - `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > validates closed identity authoring without invoking hostile accessors`
 - `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > audits unused waivers only after forming a complete empty candidate set`
 - `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > preserves applied and stale waiver evidence while settling only actionable metrics`
-- `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > keeps duplicate function identities actionable when a waiver overmatches`
+- `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > keeps duplicate analyzer function identities actionable when a waiver overmatches`
 
 Proves:
-- `functionMetrics` accepts only unique closed `{ metric, path, functionName, startLine }` identities with normalized paths, positive locations and non-empty reasons without reading hostile author accessors.
-- Configured waivers are audited as unused when a complete candidate set is known to be empty, but scanner failure before that boundary publishes no false audit. Applied findings retain their Record and reason but leave actionable/blocking settlement; stale authoring publishes an unused audit, and an identity matching multiple function instances remains fully actionable with an overmatched audit.
+
+- `functionMetrics` accepts only unique closed `{ metric, path, functionName, startLine }` identities with normalized paths, positive locations and non-empty reasons without reading hostile author accessors, including its independent `nesting-depth` metric.
+- Configured waivers are audited as unused when a complete candidate set is known to be empty, but source, analysis, cancellation, or resource failure before that boundary publishes no false audit. Applied findings retain their Record and reason but leave actionable/blocking settlement; stale authoring publishes an unused audit, and an identity matching multiple function instances remains fully actionable with an overmatched audit.
 
 ## Case ADD-DUPLICATE-DETECTION-FINDING-WAIVER-001: Duplicate detection reconciles exact location sets
 
@@ -53,6 +54,7 @@ Entities:
 - `bun|src/package-checks/duplicate-detection/finding-waivers.test.ts|duplicateDetection finding waivers > keeps repeated duplicate identities actionable when a waiver overmatches`
 
 Proves:
+
 - `duplicateDetection` accepts only unique closed `{ metric, locations }` identities whose normalized project-relative ranges are complete, valid and strictly sorted by path and numeric lines, rejecting malformed or hostile authoring without accessor invocation.
 - Configured waivers are audited as unused when a complete candidate set is known to be empty, but scanner failure before that boundary publishes no false audit. An applied exact location set retains the duplicate Record and reason while leaving actionable/blocking settlement; stale and overmatched authoring publish audit evidence, and overmatched fragments remain fully actionable.
 

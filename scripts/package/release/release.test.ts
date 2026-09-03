@@ -8,6 +8,7 @@ import { isNonArrayRecord } from "../../value-guards.ts";
 import { processFailureFromResult, runProcessSync } from "../../process-execution/execution.ts";
 import { packageCandidatePaths } from "../build-contract.ts";
 import { sha256File } from "../pack.ts";
+import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 import { parseFormalReleaseVersion, parseReleaseTag } from "./identity.ts";
 import { createFormalReleasePaths } from "./paths.ts";
 import {
@@ -58,6 +59,13 @@ describe("formal package release", () => {
       assert.equal(receipt.artifact.path, "build/artifacts/zxyycom-vibe-check-0.0.1.tgz");
       assert.equal(receipt.staging.path, "build/release-package");
       assert.match(receipt.artifact.integrity, /^sha512-/u);
+      assert.deepEqual(
+        receipt.contract.legalMaterials,
+        PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => ({
+          path: material.path,
+          sha256: material.sha256
+        }))
+      );
       const source = readFileSync(paths.receiptPath, "utf8");
       assert.equal(source.includes(root), false);
       assert.doesNotMatch(source, /consumer|credential|token|npmrc/iu);

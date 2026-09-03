@@ -1,0 +1,195 @@
+[
+  {
+    "reader": "CLikeReader",
+    "jsFinalPatternChars": 461,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "JavaReader",
+    "jsFinalPatternChars": 461,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "CSharpReader",
+    "jsFinalPatternChars": 470,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "JavaScriptReader",
+    "jsFinalPatternChars": 393,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "PythonReader",
+    "jsFinalPatternChars": 444,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "ObjCReader",
+    "jsFinalPatternChars": 461,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "TTCNReader",
+    "jsFinalPatternChars": 407,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "RubyReader",
+    "jsFinalPatternChars": 536,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "PHPReader",
+    "jsFinalPatternChars": 437,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "SwiftReader",
+    "jsFinalPatternChars": 380,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "ScalaReader",
+    "jsFinalPatternChars": 358,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "GDScriptReader",
+    "jsFinalPatternChars": 444,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "GoReader",
+    "jsFinalPatternChars": 366,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "LuaReader",
+    "jsFinalPatternChars": 403,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "RustReader",
+    "jsFinalPatternChars": 369,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "TypeScriptReader",
+    "jsFinalPatternChars": 393,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "FortranReader",
+    "jsFinalPatternChars": 643,
+    "flags": "gmsui",
+    "prefix": "(?m)(?i)",
+    "status": "compiled"
+  },
+  {
+    "reader": "KotlinReader",
+    "jsFinalPatternChars": 385,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "SolidityReader",
+    "jsFinalPatternChars": 358,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "ErlangReader",
+    "tokenizer": "reader-local"
+  },
+  {
+    "reader": "ZigReader",
+    "jsFinalPatternChars": 358,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "TSXReader",
+    "jsFinalPatternChars": 512,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "VueReader",
+    "jsFinalPatternChars": 409,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "PerlReader",
+    "jsFinalPatternChars": 366,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "StReader",
+    "jsFinalPatternChars": 465,
+    "flags": "gmsui",
+    "prefix": "(?m)(?i)",
+    "status": "compiled"
+  },
+  {
+    "reader": "RReader",
+    "jsFinalPatternChars": 402,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "PLSQLReader",
+    "jsFinalPatternChars": 367,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  },
+  {
+    "reader": "PHP_CODE_BLOCK_PATTERN",
+    "jsFinalPatternChars": 36,
+    "flags": "gmsu",
+    "prefix": "(?m)",
+    "status": "compiled"
+  }
+]

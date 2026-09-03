@@ -1,0 +1,2 @@
+function broken(value)
+  --[[ open

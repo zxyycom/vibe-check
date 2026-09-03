@@ -8,6 +8,8 @@ import { isNonArrayRecord } from "../../value-guards.ts";
 import { createFullReleaseAcceptanceInvocation, runFormalReleaseCommand } from "./command.ts";
 import { parseFormalReleaseReceipt } from "./receipt.ts";
 import { sha256File } from "../pack.ts";
+import { PACKAGE_LICENSE } from "../package-contract.ts";
+import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 
 test("formal release root commands require closed inputs and bind verification to one full-Gate receipt", async () => {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-release-command-"));
@@ -107,7 +109,7 @@ test("formal release root commands require closed inputs and bind verification t
 
 function formalReleaseReceiptFixture(): unknown {
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     package: { name: "@zxyycom/vibe-check", version: "0.0.1", tag: "latest" },
     source: { commit: "b".repeat(40), inputFingerprint: "a".repeat(64) },
     artifact: {
@@ -119,7 +121,7 @@ function formalReleaseReceiptFixture(): unknown {
     staging: { path: "build/release-package" },
     contract: {
       bunEngine: ">=1.3.14",
-      license: "MIT",
+      license: PACKAGE_LICENSE,
       ownLicense: {
         path: "LICENSE",
         sha256: "2c005fcd357a0fd2f0136a9cbb3b80645ace42b186368c8ffe144b2912bb107a"
@@ -127,16 +129,10 @@ function formalReleaseReceiptFixture(): unknown {
       publish: { access: "public", registry: "https://registry.npmjs.org/" },
       readme: { path: "README.md", sha256: "d".repeat(64) },
       repository: "git+https://github.com/zxyycom/vibe-check.git",
-      thirdPartyLicenses: [
-        {
-          path: "third-party-licenses/immutable-5.1.9-LICENSE",
-          sha256: "784fd7232e106901065a329b285ff9ba9ad98ff08ac1932b45b53a0b954974c5"
-        },
-        {
-          path: "third-party-licenses/momoa-3.3.12-LICENSE",
-          sha256: "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
-        }
-      ]
+      legalMaterials: PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => ({
+        path: material.path,
+        sha256: material.sha256
+      }))
     }
   };
 }

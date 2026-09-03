@@ -4,5 +4,9 @@
     "rootDir": "src",
     "tsBuildInfoFile": ".cache/typescript/product.tsbuildinfo"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": [
+    "scripts/project/node_modules",
+    "src/package-checks/function-metrics/analyzer/fixtures"
+  ]
 }

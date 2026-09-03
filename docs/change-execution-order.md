@@ -64,7 +64,11 @@
 - `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
 - 后续 flag-control 接入修复、内置 Finding waiver、重复检测比较域和仓库质量扫描范围调整；
 - `fa0993d78eddfb6bac351f9e0a592d7dd3c5ea2d` 中已交付并归档的 learned duration model 与 greedy
-  critical-path admission，以及 central Gate adoption。
+  critical-path admission，以及 central Gate adoption；
+- `a9c70597532d5dccebaf1e19f1ec14df00c79eaf` 中已交付并归档的 Markdown Link parse-facts cache、
+  严格串行优化和单文件 JSONL packing；
+- `e8f9ccb3fa7c248a797d0ac54abb9faa8a50b26a` 中已交付并归档的 Lizard TypeScript analyzer hard cut、
+  1.24.0 同步、私有 port 边界、reader fast path 和 selected extensions。
 
 近期 flag-control 修复会影响 pre-admission Task 和 learned-duration 样本边界；质量扫描范围调整会影响旧 Gate
 性能基线。`schedule-checks-from-learned-durations` 已在实施前的 Readiness 中复核这些变化并重新采集 A/B
@@ -80,7 +84,7 @@ baseline，没有沿用旧测量。
 | 1D：Scheduler 算法 Plan | [`optimize-learned-admission-strategy`](../changes/optimize-learned-admission-strategy/proposal.md) | 已收敛为 strict baseline 与唯一 same-layer admissible-first 候选的可证伪比较；当前 seam 已可作为稳定基线。当前按自身 Readiness 冻结 corpus、prediction provenance、A/B data contract 与门槛；未满足本 Change 的 evidence gates 与单独授权前不得切换生产策略 | 固定 duration prediction 输入，不与 model/statistics 优化混跑；scope unsafe-backfill witness 一旦出现 protected-delay 退化即 not-adopt；可共享 private kernel/test harness，但不得依赖 1C 的 public contract |
 | 1E：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A–1D 并行规划；不要同时修改 invocation runtime |
 | 1F：Markdown 缓存已交付 | [已归档的 `cache-markdown-link-safe-facts`](../changes/archive/cache-markdown-link-safe-facts/proposal.md) | 显式 parse-facts cache、严格串行语义、单文件 JSONL packing 与性能证据均已交付并归档 | 后续缓存演进建立独立 Change，不从 archive 恢复实施授权 |
-| 1G：条件证据 | [`replace-lizard-with-typescript-function-analyzers`](../changes/replace-lizard-with-typescript-function-analyzers/proposal.md) | 仅在当前任务授权后重审 owner，准备 oracle、corpus、provenance 与性能证据 | 未闭合 Resume Conditions 前不修改生产 backend |
+| 1G：Lizard analyzer 已交付 | [已归档的 `replace-lizard-with-typescript-function-analyzers`](../changes/archive/replace-lizard-with-typescript-function-analyzers/proposal.md) | source-aligned hard cut、1.24.0 同步、私有 port、性能证据、reader fast path 与 selected extensions 均已交付并归档 | 后续 upstream 同步、性能优化或 extension adoption 各自建立独立 Change |
 
 ## 条件分支重新基线矩阵
 
@@ -126,9 +130,14 @@ Draft/Plan 的存在都不表示已经取得实施授权。
 
 ### Scanner 轨道
 
-jscpd 与 SCC 迁移已经完成。`replace-lizard-with-typescript-function-analyzers` 的 Plan 基线早于当前 scanner、package、
-environment 和 quality-scope 事实；实施前必须重审 27 readers、55 extensions、public options、license/provenance、
-candidate 与性能证据，并取得其 Resume Conditions 要求的明确优先级授权。
+jscpd 与 SCC 迁移已经完成。`functionMetrics` 也已完成 source-aligned hard cut：不再使用 Python/Lizard runtime 或
+public `scanner.executable`，保持 27 readers/55 suffixes，并已私有采用 `complextags` 与 nesting-depth；其余 optional
+bodies 与 Halstead 继续 deferred。source-aligned port 只经私有 façade 和 Product adapter 接入，package 保留完整
+provenance、notice 与许可证，explicit-only repository advisory 只提示 upstream stable release。
+
+已归档的 1.24.0 同步、性能比较、reader-resolution 优化与 selected-extension adoption 只保存形成时证据。任何上游版本
+采用、性能预算、core hotspot 调查或其它 extension body 都使用独立 Change，不得把归档结果恢复为实施授权，也不得
+把 analyzer-only benchmark 外推为完整 Product regression。
 
 [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
 consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。

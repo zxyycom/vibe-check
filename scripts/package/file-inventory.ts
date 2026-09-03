@@ -30,6 +30,8 @@ export function collectRuntimeSourceFilePaths(sourceRoot: string): readonly stri
       relativePath.endsWith(".ts") &&
       !relativePath.endsWith(".test.ts") &&
       !relativePath.endsWith(".test-support.ts") &&
-      !relativePath.endsWith("bun-test.d.ts")
+      !relativePath.endsWith("bun-test.d.ts") &&
+      !relativePath.startsWith("fixtures/") &&
+      !relativePath.includes("/fixtures/")
   );
 }

@@ -9,6 +9,7 @@ import {
   defineCheck,
   defineConfig,
   duplicateDetection,
+  functionMetrics,
   jsonSchemaValidation,
   jsonValidation,
   markdownLinkValidation,
@@ -85,6 +86,15 @@ const terminalNote = defineCheck({
       }
     ]
   })
+});
+
+const installedFunctionMetrics = functionMetrics({
+  codeAreas: {
+    worker: {
+      files: { include: ["function-metrics.ts"] },
+      limits: { cyclomaticComplexity: { maximum: 1 } }
+    }
+  }
 });
 
 let changedFilesCalls = 0;
@@ -176,6 +186,7 @@ const result = await run(
           }
         }
       }),
+      installedFunctionMetrics,
       jsonCheck,
       jsonSchemaValidation({
         bindings: [
@@ -211,6 +222,14 @@ const duplicate =
 const duplicateRecords =
   result.kind === "completed"
     ? result.snapshot.records.filter((record) => record.checkId === "duplicate-detection")
+    : null;
+const functionMetricsCheck =
+  result.kind === "completed"
+    ? result.snapshot.checks.find((check) => check.checkId === installedFunctionMetrics.checkId)
+    : undefined;
+const functionMetricsRecords =
+  result.kind === "completed"
+    ? result.snapshot.records.filter((record) => record.checkId === installedFunctionMetrics.checkId)
     : null;
 const jsonSchemaCheck =
   result.kind === "completed"
@@ -274,6 +293,9 @@ process.stdout.write(
       duplicateData: settledFinalData(duplicate),
       duplicateOutcome: duplicate?.outcome.status ?? null,
       duplicateRecords,
+      functionMetricsData: settledFinalData(functionMetricsCheck),
+      functionMetricsOutcome: functionMetricsCheck?.outcome.status ?? null,
+      functionMetricsRecords,
       jsonSchemaData: settledFinalData(jsonSchemaCheck),
       jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
       learnedScheduling: learnedSchedulingEvidence,

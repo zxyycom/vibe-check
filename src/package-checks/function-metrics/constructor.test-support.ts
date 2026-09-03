@@ -1,6 +1,3 @@
-import { chmodSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-
 import {
   createTypeScriptSourceRoot,
   executeCheck,
@@ -16,13 +13,6 @@ export function recordField(record: ReportedRecord, key: string): unknown {
 
 export function createRoot(prefix: string): string {
   return createTypeScriptSourceRoot(prefix);
-}
-
-export function createExecutable(root: string, source: string): string {
-  const path = join(root, "fake-lizard");
-  writeFileSync(path, `#!${process.execPath}\n${source}`, "utf8");
-  chmodSync(path, 0o755);
-  return path;
 }
 
 export const STRICT_LIMITS = {

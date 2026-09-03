@@ -1,0 +1,105 @@
+{
+  "runtime": {
+    "bun": "1.3.14",
+    "rg": "15.2.0, PCRE2 10.45 JIT available"
+  },
+  "scope": "Each sample writes 254 decoded JS source strings to a fresh temp directory, spawns rg with PCRE2/multiline/JSON, decodes/parses output, maps every per-file UTF-8 byte start to JS UTF-16, and hashes matched text plus offsets. It does not enter CodeReader macro grouping, readers, processors, Worker or Product.",
+  "expected": {
+    "count": 296074,
+    "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+  },
+  "median": {
+    "materializeMs": 11.054288000000042,
+    "scanAndReconstructMs": 291.79621299999985,
+    "cleanupMs": 3.294916000000285,
+    "totalMs": 306.24178300000017,
+    "stdoutBytes": 16052458,
+    "rssAfterBytes": 307863552
+  },
+  "samples": [
+    {
+      "materializeMs": 11.645173999999997,
+      "scanAndReconstructMs": 348.307894,
+      "cleanupMs": 3.5024329999999964,
+      "totalMs": 363.474837,
+      "stdoutBytes": 16052455,
+      "guard": {
+        "count": 296074,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "rssAfterBytes": 321019904
+    },
+    {
+      "materializeMs": 12.00262900000007,
+      "scanAndReconstructMs": 319.67293099999995,
+      "cleanupMs": 3.8369820000000345,
+      "totalMs": 335.5214789999999,
+      "stdoutBytes": 16052468,
+      "guard": {
+        "count": 296074,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "rssAfterBytes": 269811712
+    },
+    {
+      "materializeMs": 10.960942999999816,
+      "scanAndReconstructMs": 291.79621299999985,
+      "cleanupMs": 3.474097000000029,
+      "totalMs": 306.24178300000017,
+      "stdoutBytes": 16052461,
+      "guard": {
+        "count": 296074,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "rssAfterBytes": 305012736
+    },
+    {
+      "materializeMs": 10.681076000000076,
+      "scanAndReconstructMs": 291.20392800000013,
+      "cleanupMs": 3.2688579999999092,
+      "totalMs": 305.161016,
+      "stdoutBytes": 16052454,
+      "guard": {
+        "count": 296074,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "rssAfterBytes": 304918528
+    },
+    {
+      "materializeMs": 11.02787000000012,
+      "scanAndReconstructMs": 288.9220320000002,
+      "cleanupMs": 3.2801690000001145,
+      "totalMs": 303.23687399999994,
+      "stdoutBytes": 16052459,
+      "guard": {
+        "count": 296074,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "rssAfterBytes": 307863552
+    },
+    {
+      "materializeMs": 11.054288000000042,
+      "scanAndReconstructMs": 281.54244800000015,
+      "cleanupMs": 3.2807200000002013,
+      "totalMs": 295.8841980000002,
+      "stdoutBytes": 16052452,
+      "guard": {
+        "count": 296074,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "rssAfterBytes": 335429632
+    },
+    {
+      "materializeMs": 11.77946400000019,
+      "scanAndReconstructMs": 306.01325700000007,
+      "cleanupMs": 3.294916000000285,
+      "totalMs": 321.0951719999998,
+      "stdoutBytes": 16052458,
+      "guard": {
+        "count": 296074,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "rssAfterBytes": 340131840
+    }
+  ]
+}

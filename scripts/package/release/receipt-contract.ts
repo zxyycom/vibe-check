@@ -6,17 +6,17 @@ import {
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
-  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
   PACKAGE_REPOSITORY_MANIFEST_URL
 } from "../package-contract.ts";
+import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 import { isSha256Digest, isSha512Integrity } from "../pack.ts";
 import { isFullGitCommit, parseFormalReleaseVersion, parseReleaseTag } from "./identity.ts";
 
-const FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION = 1 as const;
+const FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION = 2 as const;
 
 export interface FormalReleaseReceipt {
   readonly schemaVersion: typeof FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION;
@@ -52,7 +52,7 @@ export interface FormalReleaseReceipt {
       readonly sha256: string;
     }>;
     readonly repository: typeof PACKAGE_REPOSITORY_MANIFEST_URL;
-    readonly thirdPartyLicenses: readonly Readonly<{
+    readonly legalMaterials: readonly Readonly<{
       readonly path: string;
       readonly sha256: string;
     }>[];
@@ -152,11 +152,7 @@ function parseReleaseContract(value: unknown): FormalReleaseReceipt["contract"] 
     }),
     readme: Object.freeze({ path: PACKAGE_README_PATH, sha256: value.readme.sha256 }),
     repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-    thirdPartyLicenses: Object.freeze(
-      PACKAGE_THIRD_PARTY_LICENSES.map((license) =>
-        Object.freeze({ path: license.path, sha256: license.sha256 })
-      )
-    )
+    legalMaterials: canonicalThirdPartyLegalMaterials()
   });
 }
 
@@ -174,7 +170,7 @@ function assertReleaseContract(value: unknown): asserts value is Readonly<
       "publish",
       "readme",
       "repository",
-      "thirdPartyLicenses"
+      "legalMaterials"
     ]) ||
     value.bunEngine !== PACKAGE_BUN_ENGINE ||
     value.license !== PACKAGE_LICENSE ||
@@ -188,7 +184,7 @@ function assertReleaseContract(value: unknown): asserts value is Readonly<
       registry: PACKAGE_PUBLISH_REGISTRY
     }) ||
     !isReadmeIdentity(value.readme) ||
-    !isThirdPartyLicenseIdentity(value.thirdPartyLicenses)
+    !isThirdPartyLegalMaterialIdentity(value.legalMaterials)
   ) {
     throw new TypeError("formal release receipt package contract is invalid");
   }
@@ -203,17 +199,21 @@ function isReadmeIdentity(value: unknown): value is Readonly<{ readonly sha256: 
   );
 }
 
-function isThirdPartyLicenseIdentity(value: unknown): boolean {
+function isThirdPartyLegalMaterialIdentity(value: unknown): boolean {
   return (
     Array.isArray(value) &&
-    value.length === PACKAGE_THIRD_PARTY_LICENSES.length &&
-    value.every((license, index) => {
-      const expected = PACKAGE_THIRD_PARTY_LICENSES[index];
-      return (
-        expected !== undefined &&
-        hasExactStringRecord(license, { path: expected.path, sha256: expected.sha256 })
-      );
-    })
+    value.length === PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.length &&
+    PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.every((material, index) =>
+      hasExactStringRecord(value[index], { path: material.path, sha256: material.sha256 })
+    )
+  );
+}
+
+function canonicalThirdPartyLegalMaterials(): FormalReleaseReceipt["contract"]["legalMaterials"] {
+  return Object.freeze(
+    PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) =>
+      Object.freeze({ path: material.path, sha256: material.sha256 })
+    )
   );
 }
 

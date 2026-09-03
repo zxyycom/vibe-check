@@ -11,13 +11,13 @@ import {
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
-  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
   PACKAGE_REPOSITORY_MANIFEST_URL
 } from "../package-contract.ts";
+import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 import {
   fileMatchesSha256,
   fileMatchesSha512Integrity,
@@ -172,7 +172,7 @@ function createFormalReleaseReceipt(input: {
   readonly tag: string;
 }): FormalReleaseReceipt {
   return parseFormalReleaseReceipt({
-    schemaVersion: 1,
+    schemaVersion: 2,
     package: { name: PACKAGE_NAME, version: input.artifact.candidateVersion, tag: input.tag },
     source: {
       commit: input.sourceCommit,
@@ -195,9 +195,9 @@ function createFormalReleaseReceipt(input: {
         sha256: sha256File(join(input.artifact.stagingDirectory, PACKAGE_README_PATH))
       },
       repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-      thirdPartyLicenses: PACKAGE_THIRD_PARTY_LICENSES.map((license) => ({
-        path: license.path,
-        sha256: license.sha256
+      legalMaterials: PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => ({
+        path: material.path,
+        sha256: material.sha256
       }))
     }
   });

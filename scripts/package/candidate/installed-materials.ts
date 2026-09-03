@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative, sep } from "node:path";
 
 import { errorMessage } from "../../error-message.ts";
 import {
@@ -15,6 +15,10 @@ import {
   PACKAGE_TYPES_DIRECTORY
 } from "../package-contract.ts";
 import { collectFilePaths } from "../file-inventory.ts";
+import {
+  assertNoLegacyFunctionMetricsRuntime,
+  assertTranslatedAnalyzerLegalMaterials
+} from "../legal-materials.ts";
 
 export function assertInstalledCandidateMaterials(input: {
   readonly packageDirectory: string;
@@ -36,6 +40,16 @@ function assertInstalledLegalMaterials(packageDirectory: string): void {
     for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
       assertThirdPartyLicenseContent(readFileSync(join(packageDirectory, license.path)), license);
     }
+    const files = collectFilePaths(packageDirectory, () => true).map((path) =>
+      relative(packageDirectory, path).split(sep).join("/")
+    );
+    const legalAccess = Object.freeze({
+      files,
+      hasFile: (packagePath: string) => existsSync(join(packageDirectory, packagePath)),
+      readFile: (packagePath: string) => readFileSync(join(packageDirectory, packagePath))
+    });
+    assertTranslatedAnalyzerLegalMaterials(legalAccess);
+    assertNoLegacyFunctionMetricsRuntime(legalAccess);
   } catch (error: unknown) {
     throw new Error(
       `installed candidate legal material validation failed: ${errorMessage(error)}`,

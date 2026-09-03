@@ -23,6 +23,11 @@ const INPUT_REJECTED_RECORD_ID_PREFIX = "/input-rejected/";
 export type FunctionMetricsFindingRecordData = Readonly<{
   readonly blocking: boolean;
   readonly codeAreas: readonly string[];
+  /** Complete source-ordered CCN contributors; present only for CCN findings. */
+  readonly complexityContributors?: readonly Readonly<{
+    readonly line: number;
+    readonly token: string;
+  }>[];
   readonly functionName: string;
   readonly limit: number;
   readonly metric: FunctionMetricsFindingMetric;
@@ -98,6 +103,7 @@ interface FunctionPolicyContext {
 interface FunctionMetricEvaluation {
   readonly blocking: boolean;
   readonly codeAreas: readonly string[];
+  readonly complexityContributors?: FunctionMetric["complexityContributors"];
   readonly functionName: string;
   readonly limit: number;
   readonly metric: FunctionMetricsFindingMetric;
@@ -190,6 +196,7 @@ function metricEvaluations(
   if (complexityEvaluation !== null) evaluations.push(complexityEvaluation);
   evaluations.push(
     codeLinesMetricEvaluation(instance, policyContext, matchingAreas),
+    nestingDepthMetricEvaluation(instance, policyContext, matchingAreas),
     parameterMetricEvaluation(instance, policyContext, matchingAreas)
   );
   return evaluations;
@@ -218,9 +225,23 @@ function complexityMetricEvaluation(
   if (value === null) return null;
   return {
     ...sharedMetricEvaluation(instance, policyContext),
+    complexityContributors: instance.metric.complexityContributors,
     limit: Math.min(...matchingAreas.map((area) => area.limits.cyclomaticComplexity.maximum)),
     metric: "cyclomatic-complexity",
     value
+  };
+}
+
+function nestingDepthMetricEvaluation(
+  instance: FunctionMetricInstance,
+  policyContext: FunctionPolicyContext,
+  matchingAreas: MatchingFunctionMetricAreas
+): FunctionMetricEvaluation {
+  return {
+    ...sharedMetricEvaluation(instance, policyContext),
+    limit: Math.min(...matchingAreas.map((area) => area.limits.nestingDepth.maximum)),
+    metric: "nesting-depth",
+    value: instance.metric.nestingDepth.value
   };
 }
 
@@ -263,6 +284,9 @@ function appendFindingCandidate(
       data: Object.freeze({
         blocking: evaluation.blocking,
         codeAreas: evaluation.codeAreas,
+        ...(evaluation.complexityContributors === undefined
+          ? {}
+          : { complexityContributors: evaluation.complexityContributors }),
         functionName: evaluation.functionName,
         limit: evaluation.limit,
         metric: evaluation.metric,

@@ -24,6 +24,10 @@ export interface FunctionMetricsLimitOptions {
     /** 省略时为 `12`。 */
     readonly maximum?: number;
   }>;
+  readonly nestingDepth?: Readonly<{
+    /** 省略时为 `7`。 */
+    readonly maximum?: number;
+  }>;
   readonly parameters?: Readonly<{
     /** 省略时为 `6`。 */
     readonly maximum?: number;
@@ -40,16 +44,11 @@ export interface FunctionMetricsCodeAreaOptions {
   readonly limits?: FunctionMetricsLimitOptions;
 }
 
-/** `functionMetrics` 构造函数可省略的 Lizard 可执行文件策略。 */
-export interface FunctionMetricsScannerOptions {
-  /** 省略时为 `lizard`；显式命令必须直接接受 adapter 拥有的 Lizard 参数。 */
-  readonly executable?: string;
-}
-
 /** function-metrics 可形成 Finding 的封闭 metric 名称。 */
 export type FunctionMetricsFindingMetric =
   | "cyclomatic-complexity"
   | "function-code-density"
+  | "nesting-depth"
   | "parameter-count";
 
 /** function-metrics 用于精确识别一条可豁免 metric finding 的稳定字段。 */
@@ -73,15 +72,12 @@ export interface FunctionMetricsOptions {
   readonly findingPolicy?: FindingPolicy;
   /** 省略时没有豁免；只匹配 normal metric finding，不匹配 input rejection。 */
   readonly findingWaivers?: readonly FunctionMetricsFindingWaiver[];
-  /** 省略时使用 PATH 中的 `lizard`。 */
-  readonly scanner?: FunctionMetricsScannerOptions;
 }
 
 /** 构造函数生成并由 Check preflight/execution 消费的完整 options。 */
 export interface ResolvedFunctionMetricsOptions {
   readonly codeAreas: Readonly<Record<string, ResolvedFunctionMetricsCodeAreaOptions>>;
   readonly findingWaivers: readonly FunctionMetricsFindingWaiver[];
-  readonly scanner: ResolvedFunctionMetricsScannerOptions;
 }
 
 export interface ResolvedFunctionMetricsCodeAreaOptions {
@@ -99,9 +95,6 @@ export interface ResolvedFunctionMetricsLimits {
     }>;
   }>;
   readonly cyclomaticComplexity: Readonly<{ readonly maximum: number }>;
+  readonly nestingDepth: Readonly<{ readonly maximum: number }>;
   readonly parameters: Readonly<{ readonly maximum: number }>;
-}
-
-export interface ResolvedFunctionMetricsScannerOptions {
-  readonly executable: string;
 }

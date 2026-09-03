@@ -1,0 +1,2742 @@
+{
+  "schemaVersion": 1,
+  "oracle": {
+    "tag": "1.24.0",
+    "revision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "version": "1.24.0",
+    "versionCommand": [
+      "lizard",
+      "--version"
+    ],
+    "generationCommand": [
+      "PYTHONPATH=.",
+      "python",
+      "-c",
+      "from lizard import FileAnalyzer, get_extensions; FileAnalyzer(get_extensions(['complextags', 'nd'])).analyze_source_code(fixture_name, source_text)"
+    ],
+    "executionBoundary": "The observations come from the fixed-tag in-memory FileAnalyzer lifecycle used by upstream extension tests. The source checkout and Python environment are generation-only inputs; Product runtime and committed verification do not invoke Python, access a checkout, or access the network.",
+    "extensionOrder": [
+      "lizardcomplextags",
+      "lizardnd"
+    ],
+    "extensionSources": [
+      {
+        "sourcePath": "lizard_ext/lizardcomplextags.py",
+        "sourceRange": "lines 1-25"
+      },
+      {
+        "sourcePath": "lizard_ext/lizardnd.py",
+        "sourceRange": "lines 1-215"
+      }
+    ]
+  },
+  "readerCount": 27,
+  "normalFixtureCount": 56,
+  "normalSuffixCount": 55,
+  "edgeReaderCount": 27,
+  "malformedReaderCount": 27,
+  "fixtureCount": 110,
+  "fixtures": [
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/edge.c",
+      "kind": "edge",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "c",
+      "sourceSha256": "f3e6dbb8e027342c982e53facd58e51bd3a51edd785f94a3fa2b879eb05733c8",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/malformed.c",
+      "kind": "unterminated-brace-nesting",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "c",
+      "sourceSha256": "816a714fe518693db67599813a0158d2736bcedf98ec467c14679ee1597ce0fd",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.c",
+      "kind": "normal",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "c",
+      "sourceSha256": "ac1b918e2d4c96bf21e2334983a0039f16a57858bb5123f424a52c7ab2673c8d",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.cc",
+      "kind": "normal",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "cc",
+      "sourceSha256": "ac1b918e2d4c96bf21e2334983a0039f16a57858bb5123f424a52c7ab2673c8d",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.cpp",
+      "kind": "normal",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "cpp",
+      "sourceSha256": "ac1b918e2d4c96bf21e2334983a0039f16a57858bb5123f424a52c7ab2673c8d",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.cxx",
+      "kind": "normal",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "cxx",
+      "sourceSha256": "ac1b918e2d4c96bf21e2334983a0039f16a57858bb5123f424a52c7ab2673c8d",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.h",
+      "kind": "normal",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "h",
+      "sourceSha256": "ac1b918e2d4c96bf21e2334983a0039f16a57858bb5123f424a52c7ab2673c8d",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.hpp",
+      "kind": "normal",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "canonicalExtension": "hpp",
+      "sourceSha256": "ac1b918e2d4c96bf21e2334983a0039f16a57858bb5123f424a52c7ab2673c8d",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/edge.cs",
+      "kind": "edge",
+      "readerId": "csharp",
+      "readerClass": "CSharpReader",
+      "canonicalExtension": "cs",
+      "sourceSha256": "67bfa78e4ca594641abef4f8886d63a2c4d4a823fb652bc78a3a33a594a9b0c9",
+      "measurements": [
+        {
+          "functionName": "Sample::ReaderSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/malformed.cs",
+      "kind": "unterminated-block-comment",
+      "readerId": "csharp",
+      "readerClass": "CSharpReader",
+      "canonicalExtension": "cs",
+      "sourceSha256": "ba37dc0278e5c50f366f1c423f6b7260fbe82c8bf4611053dcde5d204b8f38c3",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/normal.cs",
+      "kind": "normal",
+      "readerId": "csharp",
+      "readerClass": "CSharpReader",
+      "canonicalExtension": "cs",
+      "sourceSha256": "925f029846dacae5882f773b3928b02ca76a24a978d2db47fbd7be9ea6f8735c",
+      "measurements": [
+        {
+          "functionName": "Sample::ReaderSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/edge.erl",
+      "kind": "edge",
+      "readerId": "erlang",
+      "readerClass": "ErlangReader",
+      "canonicalExtension": "erl",
+      "sourceSha256": "43754a2e648bead17c17088fec5c3e92406c152f6cbbc7036cd4b17d08efb10b",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/malformed.erl",
+      "kind": "unterminated-case-expression",
+      "readerId": "erlang",
+      "readerClass": "ErlangReader",
+      "canonicalExtension": "erl",
+      "sourceSha256": "ef8a97955239af70d5dd8d596420d632168aac54c0708a2586a42d3d05c4b17e",
+      "measurements": [
+        {
+          "functionName": "broken",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.erl",
+      "kind": "normal",
+      "readerId": "erlang",
+      "readerClass": "ErlangReader",
+      "canonicalExtension": "erl",
+      "sourceSha256": "0501d55e72df7a6eb6ea70d35c2bf6af69dabc260bd8ad98da8f1a99174b07ed",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.es",
+      "kind": "normal",
+      "readerId": "erlang",
+      "readerClass": "ErlangReader",
+      "canonicalExtension": "es",
+      "sourceSha256": "0501d55e72df7a6eb6ea70d35c2bf6af69dabc260bd8ad98da8f1a99174b07ed",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.escript",
+      "kind": "normal",
+      "readerId": "erlang",
+      "readerClass": "ErlangReader",
+      "canonicalExtension": "escript",
+      "sourceSha256": "0501d55e72df7a6eb6ea70d35c2bf6af69dabc260bd8ad98da8f1a99174b07ed",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.hrl",
+      "kind": "normal",
+      "readerId": "erlang",
+      "readerClass": "ErlangReader",
+      "canonicalExtension": "hrl",
+      "sourceSha256": "0501d55e72df7a6eb6ea70d35c2bf6af69dabc260bd8ad98da8f1a99174b07ed",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/edge.f70",
+      "kind": "edge",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f70",
+      "sourceSha256": "86e5d0a73c05980a017be9d2d8aab216aa6d58276330aa8ba6396f62b9370723",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/malformed.f90",
+      "kind": "missing-end-if-and-function",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f90",
+      "sourceSha256": "fc09ead3f33f2626db4a42a7d6cca70f773d5caf10e87ed0fed3bf5aa83230f8",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f03",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f03",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f08",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f08",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f70",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f70",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f90",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f90",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f95",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "f95",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.for",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "for",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.fpp",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "fpp",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.ftn",
+      "kind": "normal",
+      "readerId": "fortran",
+      "readerClass": "FortranReader",
+      "canonicalExtension": "ftn",
+      "sourceSha256": "2050c5f9d1ab5cf657671721243a9d9176049c16469bd1cc0222367f8237571e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 8,
+          "nloc": 8,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/edge.gd",
+      "kind": "edge",
+      "readerId": "gdscript",
+      "readerClass": "GDScriptReader",
+      "canonicalExtension": "gd",
+      "sourceSha256": "a41e6eb4b4a3a92099aff3438efb660b35a2a435f71d7a32a69ae92c6665de0d",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/malformed.gd",
+      "kind": "unterminated-triple-string",
+      "readerId": "gdscript",
+      "readerClass": "GDScriptReader",
+      "canonicalExtension": "gd",
+      "sourceSha256": "1b0c2ac95aef221281e9e23f262a65239744c1589fee8280749e6eb4b4ee738b",
+      "measurements": [
+        {
+          "functionName": "broken",
+          "startLine": 1,
+          "endLine": 2,
+          "nloc": 2,
+          "ccn": 1,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/normal.gd",
+      "kind": "normal",
+      "readerId": "gdscript",
+      "readerClass": "GDScriptReader",
+      "canonicalExtension": "gd",
+      "sourceSha256": "7a01f556636b85f57ccf8b1b799d4709ce11dab2e3b39759642d330d56507c8a",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/edge.go",
+      "kind": "edge",
+      "readerId": "go",
+      "readerClass": "GoReader",
+      "canonicalExtension": "go",
+      "sourceSha256": "94d05e6f2ce110c93ca9744997746b96f9d73f1e8350fce4d9285e84f1a396f2",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 2,
+          "endLine": 2,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/malformed.go",
+      "kind": "unterminated-block-comment",
+      "readerId": "go",
+      "readerClass": "GoReader",
+      "canonicalExtension": "go",
+      "sourceSha256": "8bee65e327922c786016fdd12cc7575442be91958a7be7fe2b25e6e887c5ed6d",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/normal.go",
+      "kind": "normal",
+      "readerId": "go",
+      "readerClass": "GoReader",
+      "canonicalExtension": "go",
+      "sourceSha256": "f33215ba8f98dc801501588a6cc744a976696616bc5d7df1b6b89dc4cc165425",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 2,
+          "endLine": 2,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/edge.java",
+      "kind": "edge",
+      "readerId": "java",
+      "readerClass": "JavaReader",
+      "canonicalExtension": "java",
+      "sourceSha256": "b5898dcc24eaac8250f132ab2e4149cd1a2eaf5af66201b493f052c5045362a4",
+      "measurements": [
+        {
+          "functionName": "Sample::readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/malformed.java",
+      "kind": "unterminated-string-literal",
+      "readerId": "java",
+      "readerClass": "JavaReader",
+      "canonicalExtension": "java",
+      "sourceSha256": "1c11570b5bac8d00bec69652e92c8684242efd1e80985025d93e6de5872d4b75",
+      "measurements": [
+        {
+          "functionName": "Sample::broken",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 1,
+          "parameterCount": 0,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/normal.java",
+      "kind": "normal",
+      "readerId": "java",
+      "readerClass": "JavaReader",
+      "canonicalExtension": "java",
+      "sourceSha256": "621b0ed55bab21120a3abb0a67ae533b0733583f584ef6d061b412f28135f1b4",
+      "measurements": [
+        {
+          "functionName": "Sample::readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/edge.js",
+      "kind": "edge",
+      "readerId": "javascript",
+      "readerClass": "JavaScriptReader",
+      "canonicalExtension": "js",
+      "sourceSha256": "6a4a9d00349788d18ed125fe4a669aa682e93a10758be40e6fe7060afc1d5135",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/malformed.js",
+      "kind": "unterminated-template-literal",
+      "readerId": "javascript",
+      "readerClass": "JavaScriptReader",
+      "canonicalExtension": "js",
+      "sourceSha256": "53b14c0160706b3402d32610461be34357e149b294211a310a61a89e1d0e21e3",
+      "measurements": [
+        {
+          "functionName": "broken",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 1,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/normal.cjs",
+      "kind": "normal",
+      "readerId": "javascript",
+      "readerClass": "JavaScriptReader",
+      "canonicalExtension": "cjs",
+      "sourceSha256": "ef545a6b77c11dc74c7b56ccd481d70b105d0fae24f7e0ec7158bff6c7bfd8cd",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/normal.js",
+      "kind": "normal",
+      "readerId": "javascript",
+      "readerClass": "JavaScriptReader",
+      "canonicalExtension": "js",
+      "sourceSha256": "ef545a6b77c11dc74c7b56ccd481d70b105d0fae24f7e0ec7158bff6c7bfd8cd",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/normal.mjs",
+      "kind": "normal",
+      "readerId": "javascript",
+      "readerClass": "JavaScriptReader",
+      "canonicalExtension": "mjs",
+      "sourceSha256": "ef545a6b77c11dc74c7b56ccd481d70b105d0fae24f7e0ec7158bff6c7bfd8cd",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/edge.kt",
+      "kind": "edge",
+      "readerId": "kotlin",
+      "readerClass": "KotlinReader",
+      "canonicalExtension": "kt",
+      "sourceSha256": "4caef50eedee608f5bf059705e4ab23d421766ff64f38deae10c1dd832a477b2",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/malformed.kt",
+      "kind": "unterminated-string-literal",
+      "readerId": "kotlin",
+      "readerClass": "KotlinReader",
+      "canonicalExtension": "kt",
+      "sourceSha256": "c501fdc942884c3593a4100278098e4cb57d38c6016ddcb2de9e719fe1a8c4eb",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/normal.kt",
+      "kind": "normal",
+      "readerId": "kotlin",
+      "readerClass": "KotlinReader",
+      "canonicalExtension": "kt",
+      "sourceSha256": "4ae8a341caa389a7ed2a342ba3fe7e88f56be64ddfd6ec9cbf399f2782b59f42",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/normal.kts",
+      "kind": "normal",
+      "readerId": "kotlin",
+      "readerClass": "KotlinReader",
+      "canonicalExtension": "kts",
+      "sourceSha256": "4ae8a341caa389a7ed2a342ba3fe7e88f56be64ddfd6ec9cbf399f2782b59f42",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/edge.lua",
+      "kind": "edge",
+      "readerId": "lua",
+      "readerClass": "LuaReader",
+      "canonicalExtension": "lua",
+      "sourceSha256": "c656c6c2bd0934b2f03139c1e5dc33af30d9d74c78b60d0eaeb4cd114610885b",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/malformed.lua",
+      "kind": "unterminated-long-comment",
+      "readerId": "lua",
+      "readerClass": "LuaReader",
+      "canonicalExtension": "lua",
+      "sourceSha256": "a707a0850336160659f3448062cb7924976025b6a8ce4c3fa559dfbc5c34be71",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/normal.lua",
+      "kind": "normal",
+      "readerId": "lua",
+      "readerClass": "LuaReader",
+      "canonicalExtension": "lua",
+      "sourceSha256": "5d3d16e61b4c3229e0625671d29bc50f230307eb229ba4f68f1aa64c6726d2cb",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/edge.m",
+      "kind": "edge",
+      "readerId": "objc",
+      "readerClass": "ObjCReader",
+      "canonicalExtension": "m",
+      "sourceSha256": "bc9a6cdcf48558c0ec6c893acff04cd0af0ba14f803ab3c74b40b7d97321a2d3",
+      "measurements": [
+        {
+          "functionName": "readerSample:",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 0,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/malformed.m",
+      "kind": "unterminated-block-comment",
+      "readerId": "objc",
+      "readerClass": "ObjCReader",
+      "canonicalExtension": "m",
+      "sourceSha256": "ba022de96df842c170b9fbc35f486b47f60f61d3775b42f697ab7ddc7e6f94ad",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/normal.m",
+      "kind": "normal",
+      "readerId": "objc",
+      "readerClass": "ObjCReader",
+      "canonicalExtension": "m",
+      "sourceSha256": "06e43e02cbb2d3d592404c656d1d508e3b09c84688f318bceef721e6a0a0cef6",
+      "measurements": [
+        {
+          "functionName": "readerSample:",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 0,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/normal.mm",
+      "kind": "normal",
+      "readerId": "objc",
+      "readerClass": "ObjCReader",
+      "canonicalExtension": "mm",
+      "sourceSha256": "06e43e02cbb2d3d592404c656d1d508e3b09c84688f318bceef721e6a0a0cef6",
+      "measurements": [
+        {
+          "functionName": "readerSample:",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 0,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/edge.pl",
+      "kind": "edge",
+      "readerId": "perl",
+      "readerClass": "PerlReader",
+      "canonicalExtension": "pl",
+      "sourceSha256": "1fe0326ae0fffa5bb9e7b14766f233fa0bfe615d8147af7ff418c56a215d1833",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 0,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/malformed.pl",
+      "kind": "unterminated-block-nesting",
+      "readerId": "perl",
+      "readerClass": "PerlReader",
+      "canonicalExtension": "pl",
+      "sourceSha256": "ac037ad14c5c72673496c5ee147fb8d9df00e67dbb697d0509b088b5de7161ac",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/normal.pl",
+      "kind": "normal",
+      "readerId": "perl",
+      "readerClass": "PerlReader",
+      "canonicalExtension": "pl",
+      "sourceSha256": "d55f7465ead38ab78a717ef89a6e11e8985e2356b2edae434929c866343a4c2e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 0,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/normal.pm",
+      "kind": "normal",
+      "readerId": "perl",
+      "readerClass": "PerlReader",
+      "canonicalExtension": "pm",
+      "sourceSha256": "d55f7465ead38ab78a717ef89a6e11e8985e2356b2edae434929c866343a4c2e",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 0,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/edge.php",
+      "kind": "edge",
+      "readerId": "php",
+      "readerClass": "PHPReader",
+      "canonicalExtension": "php",
+      "sourceSha256": "49e70ccc9e901426f5a56c2171c5aa038d5069b962eb24dbe4b9381dc3b04f30",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 2,
+          "endLine": 2,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/malformed.php",
+      "kind": "unterminated-block-comment",
+      "readerId": "php",
+      "readerClass": "PHPReader",
+      "canonicalExtension": "php",
+      "sourceSha256": "8320e917d5d2cd5e0fe6cbb7b8b5d2d84f861cea915ae609dcf402d6ec912891",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/normal.php",
+      "kind": "normal",
+      "readerId": "php",
+      "readerClass": "PHPReader",
+      "canonicalExtension": "php",
+      "sourceSha256": "cd9dc370c4ce5dc4bb4748b5be5b40140f06a1832958cb1bd2d5afbf1875703b",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 2,
+          "endLine": 2,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/edge.sql",
+      "kind": "edge",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "sql",
+      "sourceSha256": "3930585a3519a99b4db0ae241be6ab00de5adfedab7ae186b347b03224b23688",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 2,
+          "endLine": 6,
+          "nloc": 5,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/malformed.sql",
+      "kind": "missing-end-if-and-function",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "sql",
+      "sourceSha256": "ad32130551be085e3d2cacb8ebc8389e260411f395a72f73b3552c9944338697",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pck",
+      "kind": "normal",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "pck",
+      "sourceSha256": "f4139224e97d8b4677a204f8abe28a6f739f424c4ab4ccd946e846314c33d325",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 2,
+          "endLine": 6,
+          "nloc": 5,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pkb",
+      "kind": "normal",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "pkb",
+      "sourceSha256": "f4139224e97d8b4677a204f8abe28a6f739f424c4ab4ccd946e846314c33d325",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 2,
+          "endLine": 6,
+          "nloc": 5,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pks",
+      "kind": "normal",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "pks",
+      "sourceSha256": "f4139224e97d8b4677a204f8abe28a6f739f424c4ab4ccd946e846314c33d325",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 2,
+          "endLine": 6,
+          "nloc": 5,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.plb",
+      "kind": "normal",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "plb",
+      "sourceSha256": "f4139224e97d8b4677a204f8abe28a6f739f424c4ab4ccd946e846314c33d325",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 2,
+          "endLine": 6,
+          "nloc": 5,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pls",
+      "kind": "normal",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "pls",
+      "sourceSha256": "f4139224e97d8b4677a204f8abe28a6f739f424c4ab4ccd946e846314c33d325",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 2,
+          "endLine": 6,
+          "nloc": 5,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.sql",
+      "kind": "normal",
+      "readerId": "plsql",
+      "readerClass": "PLSQLReader",
+      "canonicalExtension": "sql",
+      "sourceSha256": "f4139224e97d8b4677a204f8abe28a6f739f424c4ab4ccd946e846314c33d325",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 2,
+          "endLine": 6,
+          "nloc": 5,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/edge.py",
+      "kind": "edge",
+      "readerId": "python",
+      "readerClass": "PythonReader",
+      "canonicalExtension": "py",
+      "sourceSha256": "e5360f4bc89ddca6c6ad32e7117fd6477ccd535aebd38f6892928a3fc73af0e8",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/malformed.py",
+      "kind": "unterminated-declaration-bracket",
+      "readerId": "python",
+      "readerClass": "PythonReader",
+      "canonicalExtension": "py",
+      "sourceSha256": "da274a2620512c3dd411048013e226a268346fbd1550336ec834aae858d63199",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/normal.py",
+      "kind": "normal",
+      "readerId": "python",
+      "readerClass": "PythonReader",
+      "canonicalExtension": "py",
+      "sourceSha256": "dec72be0235c0fb143d01c7fcdb682bdab2340e530004d5d7dda3a759aab8c04",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/edge.r",
+      "kind": "edge",
+      "readerId": "r",
+      "readerClass": "RReader",
+      "canonicalExtension": "r",
+      "sourceSha256": "82958ad0727ba32f8eef34c829d4b4cd9a188b579212e375498f730856a070de",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/malformed.r",
+      "kind": "unterminated-brace-nesting",
+      "readerId": "r",
+      "readerClass": "RReader",
+      "canonicalExtension": "r",
+      "sourceSha256": "ec6ce2dc47cb36a87066275f1640eb02854ede0baf8184b04d041e5538c11269",
+      "measurements": [
+        {
+          "functionName": "broken",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/normal.R",
+      "kind": "normal",
+      "readerId": "r",
+      "readerClass": "RReader",
+      "canonicalExtension": "r",
+      "sourceSha256": "7c4fc71e64db52e89b9ddc7c463c26d738a76f66a6f99b13d379ab55c1078453",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/normal.r",
+      "kind": "normal",
+      "readerId": "r",
+      "readerClass": "RReader",
+      "canonicalExtension": "r",
+      "sourceSha256": "7c4fc71e64db52e89b9ddc7c463c26d738a76f66a6f99b13d379ab55c1078453",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/edge.rb",
+      "kind": "edge",
+      "readerId": "ruby",
+      "readerClass": "RubyReader",
+      "canonicalExtension": "rb",
+      "sourceSha256": "4b3411e4a5e9f9c12727879ad73e549febe1a365046ef6ae1389a75de8c3fe9b",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 6,
+          "nloc": 6,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/malformed.rb",
+      "kind": "unterminated-string-literal",
+      "readerId": "ruby",
+      "readerClass": "RubyReader",
+      "canonicalExtension": "rb",
+      "sourceSha256": "a279b8de5aee4f9bfbbacf01b34c56f668a8bd4194b74e52519ff9b7cc62333e",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/normal.rb",
+      "kind": "normal",
+      "readerId": "ruby",
+      "readerClass": "RubyReader",
+      "canonicalExtension": "rb",
+      "sourceSha256": "374363d32ca46f3c4ec21472b1456e3c6ec1a93a9e046c3b30c356e4d22771b9",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 6,
+          "nloc": 6,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/edge.rs",
+      "kind": "edge",
+      "readerId": "rust",
+      "readerClass": "RustReader",
+      "canonicalExtension": "rs",
+      "sourceSha256": "c25b3eba9df92381600df8a146a3b524718585adea7ca9aa811dce95fdff3e3b",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/malformed.rs",
+      "kind": "unterminated-block-comment",
+      "readerId": "rust",
+      "readerClass": "RustReader",
+      "canonicalExtension": "rs",
+      "sourceSha256": "4db8284289234e1ac3b1a8903760e5f341e8feaa58cbcf83ef40210b4f0467bf",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/normal.rs",
+      "kind": "normal",
+      "readerId": "rust",
+      "readerClass": "RustReader",
+      "canonicalExtension": "rs",
+      "sourceSha256": "43b621fb5f50945c3f34aafddcfb2016ffcec3b7d538a08c8dfcb9ec7ebdce5c",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/edge.scala",
+      "kind": "edge",
+      "readerId": "scala",
+      "readerClass": "ScalaReader",
+      "canonicalExtension": "scala",
+      "sourceSha256": "b3f7b304b39a88eb5a1bc19e8770d840a67d7bbf20869b5a92ce2b8ac76e0980",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/malformed.scala",
+      "kind": "unterminated-block-comment",
+      "readerId": "scala",
+      "readerClass": "ScalaReader",
+      "canonicalExtension": "scala",
+      "sourceSha256": "48c0dc4c12308fef09d5feef7a2a23fb8179e78543f36bfab37a8222390b186c",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/normal.scala",
+      "kind": "normal",
+      "readerId": "scala",
+      "readerClass": "ScalaReader",
+      "canonicalExtension": "scala",
+      "sourceSha256": "4683c4df5a64f66b37a3bc60643fd98d9df7bf8a4cbf335a30d552faf33aecda",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 4,
+          "nloc": 4,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/edge.sol",
+      "kind": "edge",
+      "readerId": "solidity",
+      "readerClass": "SolidityReader",
+      "canonicalExtension": "sol",
+      "sourceSha256": "93fa0c83e854195f04953e5ff37de11041cd0a3f2b4c47336024764d805d8d6c",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/malformed.sol",
+      "kind": "unterminated-block-comment",
+      "readerId": "solidity",
+      "readerClass": "SolidityReader",
+      "canonicalExtension": "sol",
+      "sourceSha256": "f522a84adc7d681c27a75899166f17cf6da1d221f4ca9d87198678d8ae97c4fc",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/normal.sol",
+      "kind": "normal",
+      "readerId": "solidity",
+      "readerClass": "SolidityReader",
+      "canonicalExtension": "sol",
+      "sourceSha256": "fb2791ed76be3bb147cac0d489952c8f2e053a44876ec4d60fdea9f02002e352",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/edge.st",
+      "kind": "edge",
+      "readerId": "st",
+      "readerClass": "StReader",
+      "canonicalExtension": "st",
+      "sourceSha256": "c8f1d8dca3b45846c9e0213f4b8e9fa862dc7e3a13f792e9be18e98fba00ad14",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 2,
+          "nloc": 2,
+          "ccn": 1,
+          "parameterCount": 0,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/malformed.st",
+      "kind": "missing-end-if-and-function",
+      "readerId": "st",
+      "readerClass": "StReader",
+      "canonicalExtension": "st",
+      "sourceSha256": "489ef963a0b6cc6f952770c3700810d94de7ac2a49a466131a4c2f28ca30eb92",
+      "measurements": [
+        {
+          "functionName": "broken",
+          "startLine": 1,
+          "endLine": 2,
+          "nloc": 2,
+          "ccn": 1,
+          "parameterCount": 0,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/normal.st",
+      "kind": "normal",
+      "readerId": "st",
+      "readerClass": "StReader",
+      "canonicalExtension": "st",
+      "sourceSha256": "ba74815b9d7f964a6675021f1f0aa53eb0543d0ba831efe054d28f9490d858e8",
+      "measurements": [
+        {
+          "functionName": "reader_sample",
+          "startLine": 1,
+          "endLine": 2,
+          "nloc": 2,
+          "ccn": 1,
+          "parameterCount": 0,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/edge.swift",
+      "kind": "edge",
+      "readerId": "swift",
+      "readerClass": "SwiftReader",
+      "canonicalExtension": "swift",
+      "sourceSha256": "21ecc7bed554002905c77b980ac61f346cb0eba008f16d763cd606754ffb7df6",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/malformed.swift",
+      "kind": "unterminated-string-literal",
+      "readerId": "swift",
+      "readerClass": "SwiftReader",
+      "canonicalExtension": "swift",
+      "sourceSha256": "c328c4f879b7c0c06a5175bb496fe703019769913b92fe32be9cdff23d35dc15",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/normal.swift",
+      "kind": "normal",
+      "readerId": "swift",
+      "readerClass": "SwiftReader",
+      "canonicalExtension": "swift",
+      "sourceSha256": "d76f0031c819c77696b09b66e98a1596bd6dffa698476bac3393af0c8df4d91d",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/edge.tsx",
+      "kind": "edge",
+      "readerId": "tsx",
+      "readerClass": "TSXReader",
+      "canonicalExtension": "tsx",
+      "sourceSha256": "fe177c37ac6966718bbc8e19c11998c68314b3cf9e4c88d3212d38fc5cb2ade6",
+      "measurements": [
+        {
+          "functionName": "ReaderSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/malformed.tsx",
+      "kind": "unterminated-jsx-expression",
+      "readerId": "tsx",
+      "readerClass": "TSXReader",
+      "canonicalExtension": "tsx",
+      "sourceSha256": "407ec72c0ba7d9c446d139636569b3b5dbf85c1de3e4404d88bbb518bc20e63b",
+      "measurements": [
+        {
+          "functionName": "Broken",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 1,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/normal.jsx",
+      "kind": "normal",
+      "readerId": "tsx",
+      "readerClass": "TSXReader",
+      "canonicalExtension": "jsx",
+      "sourceSha256": "403358fec04a9686b858444bf151f49e328adb9a5b64e8620f49c565325dd7a5",
+      "measurements": [
+        {
+          "functionName": "ReaderSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/normal.tsx",
+      "kind": "normal",
+      "readerId": "tsx",
+      "readerClass": "TSXReader",
+      "canonicalExtension": "tsx",
+      "sourceSha256": "403358fec04a9686b858444bf151f49e328adb9a5b64e8620f49c565325dd7a5",
+      "measurements": [
+        {
+          "functionName": "ReaderSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/edge.ttcn",
+      "kind": "edge",
+      "readerId": "ttcn",
+      "readerClass": "TTCNReader",
+      "canonicalExtension": "ttcn",
+      "sourceSha256": "713570a800972eb2ad816c7a04cf9b96e79007af3f126912c76052b7b65f715c",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/malformed.ttcn",
+      "kind": "unterminated-function-nesting",
+      "readerId": "ttcn",
+      "readerClass": "TTCNReader",
+      "canonicalExtension": "ttcn",
+      "sourceSha256": "476c6a81dcad716005708b9fe0ca2b37957b2b9282f1b2d2b8ce7b3188dc9f3a",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/normal.ttcn",
+      "kind": "normal",
+      "readerId": "ttcn",
+      "readerClass": "TTCNReader",
+      "canonicalExtension": "ttcn",
+      "sourceSha256": "ade94b2ed4235ff7c1761a06aa19227a2c3c56c571a48ac629f008f235e6d63c",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/normal.ttcnpp",
+      "kind": "normal",
+      "readerId": "ttcn",
+      "readerClass": "TTCNReader",
+      "canonicalExtension": "ttcnpp",
+      "sourceSha256": "ade94b2ed4235ff7c1761a06aa19227a2c3c56c571a48ac629f008f235e6d63c",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/edge.ts",
+      "kind": "edge",
+      "readerId": "typescript",
+      "readerClass": "TypeScriptReader",
+      "canonicalExtension": "ts",
+      "sourceSha256": "dd31dd3625650aff52735c7086da358905f422c195f5a036e550b9eb58855650",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/malformed.ts",
+      "kind": "unterminated-expression-bracket",
+      "readerId": "typescript",
+      "readerClass": "TypeScriptReader",
+      "canonicalExtension": "ts",
+      "sourceSha256": "3b3f9aec0aa2c3c0eec4edf282ae4f527b320b2bcce4ff8a3817689fb9ab65af",
+      "measurements": [
+        {
+          "functionName": "broken",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 1,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/normal.ts",
+      "kind": "normal",
+      "readerId": "typescript",
+      "readerClass": "TypeScriptReader",
+      "canonicalExtension": "ts",
+      "sourceSha256": "932b8c5f25e7df1f82c77d7e9ae8a9e8348c94996f060cf593c7f8ff3f2bc409",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/edge.vue",
+      "kind": "edge",
+      "readerId": "vue",
+      "readerClass": "VueReader",
+      "canonicalExtension": "vue",
+      "sourceSha256": "3144c0ef7020834041f8b742ef0b47986205e5d0b2efc6f3cb22a864b898b346",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/malformed.vue",
+      "kind": "unterminated-script-string",
+      "readerId": "vue",
+      "readerClass": "VueReader",
+      "canonicalExtension": "vue",
+      "sourceSha256": "50083ba12802d25fadc905729b9791ffb3ed6b0adb3de2ccf30708d250476ff4",
+      "measurements": [
+        {
+          "functionName": "broken",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 1,
+          "parameterCount": 1,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/normal.vue",
+      "kind": "normal",
+      "readerId": "vue",
+      "readerClass": "VueReader",
+      "canonicalExtension": "vue",
+      "sourceSha256": "47eba28198ddd47b1e1f55cd396670f6588d85715819b47fd23363aba9a606eb",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/edge.zig",
+      "kind": "edge",
+      "readerId": "zig",
+      "readerClass": "ZigReader",
+      "canonicalExtension": "zig",
+      "sourceSha256": "3e1a9cd79ac5459297ca3f8451f4e44545bfd6a57f041686e2c46181e02225cf",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/malformed.zig",
+      "kind": "unterminated-string-literal",
+      "readerId": "zig",
+      "readerClass": "ZigReader",
+      "canonicalExtension": "zig",
+      "sourceSha256": "91b11bb4412a75af356c2794aa7b015a865e6478add0e3879023df9cd238a01e",
+      "measurements": []
+    },
+    {
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/normal.zig",
+      "kind": "normal",
+      "readerId": "zig",
+      "readerClass": "ZigReader",
+      "canonicalExtension": "zig",
+      "sourceSha256": "675428e49b30a69fb290205c3145fc7809e965d3774620aa5d17882f0089cda7",
+      "measurements": [
+        {
+          "functionName": "readerSample",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "semanticCaseCount": 10,
+  "semanticCases": [
+    {
+      "id": "no-nesting",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int no_nesting(){ return 0; }",
+      "sourceSha256": "f3d83a3bead138789d7512d228389d3518ac05966c54929f4c42d9d848d2f8f2",
+      "measurements": [
+        {
+          "functionName": "no_nesting",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 1,
+          "parameterCount": 0,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "id": "single-if",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int single_if(int a){ if (a) { return 1; } return 0; }",
+      "sourceSha256": "99aaccab4224015b625b9e42d58ab5603bc32ee0052761c14d52bc6e963ee2e5",
+      "measurements": [
+        {
+          "functionName": "single_if",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 1,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "else-if-chain",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int chain(int a, int b, int c){ if (a) { return 1; } else if (b) { return 2; } else if (c) { return 3; } return 0; }",
+      "sourceSha256": "98cc22f4a257b1a867637bc3c4fecdf97b71c66328193c64b5785f01a0b3228e",
+      "measurements": [
+        {
+          "functionName": "chain",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 4,
+          "parameterCount": 3,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            },
+            {
+              "token": "if",
+              "line": 1
+            },
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ternary",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int ternary(int a, int b, int c){ return a ? b : c; }",
+      "sourceSha256": "1b8ece4d1cb7964d9f5192b7e5a65eaa8fd72da87461ab98a33e26fdfd1b9bfd",
+      "measurements": [
+        {
+          "functionName": "ternary",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 3,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "?",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "condition-first-and-subsequent-logical-operators",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int logicals(int a, int b, int c, int d, int e){ if (a && b || c && d || e) { return 1; } return 0; }",
+      "sourceSha256": "86276e79e0949c52f4796d72062e7f522eb9db03f0b54fce09bc8120853bd6ec",
+      "measurements": [
+        {
+          "functionName": "logicals",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 6,
+          "parameterCount": 5,
+          "maxNestingDepth": 2,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            },
+            {
+              "token": "&&",
+              "line": 1
+            },
+            {
+              "token": "||",
+              "line": 1
+            },
+            {
+              "token": "&&",
+              "line": 1
+            },
+            {
+              "token": "||",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "logical-operator-outside-condition",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int outside(int a, int b){ a && b; return a; }",
+      "sourceSha256": "4ea27e542148017c5120b7920940b27195d322603dc37e124d6ea31def2315ec",
+      "measurements": [
+        {
+          "functionName": "outside",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 2,
+          "parameterCount": 2,
+          "maxNestingDepth": 1,
+          "complexityContributors": [
+            {
+              "token": "&&",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bracket-and-unbracketed-closure",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int closure(int a, int b){ if (a) { if (b) { return 1; } } if (a) if (b) return 2; return 0; }",
+      "sourceSha256": "9ad540817e8c7aba1433c3c795414bbb76b383c18ef6ed596985888832d290d9",
+      "measurements": [
+        {
+          "functionName": "closure",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 5,
+          "parameterCount": 2,
+          "maxNestingDepth": 2,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            },
+            {
+              "token": "if",
+              "line": 1
+            },
+            {
+              "token": "if",
+              "line": 1
+            },
+            {
+              "token": "if",
+              "line": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "function-reset",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int first(int a, int b){ if (a && b) { return 1; } return 0; }\nint second(){ return 0; }",
+      "sourceSha256": "50924c2fed0498ad9232fa7f291c527fd46c4b354d96b516b73dbfb76bad0d83",
+      "measurements": [
+        {
+          "functionName": "first",
+          "startLine": 1,
+          "endLine": 1,
+          "nloc": 1,
+          "ccn": 3,
+          "parameterCount": 2,
+          "maxNestingDepth": 2,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 1
+            },
+            {
+              "token": "&&",
+              "line": 1
+            }
+          ]
+        },
+        {
+          "functionName": "second",
+          "startLine": 2,
+          "endLine": 2,
+          "nloc": 1,
+          "ccn": 1,
+          "parameterCount": 0,
+          "maxNestingDepth": 0,
+          "complexityContributors": []
+        }
+      ]
+    },
+    {
+      "id": "complex-tags-source-order-and-lines",
+      "canonicalExtension": "c",
+      "readerId": "c-like",
+      "readerClass": "CLikeReader",
+      "source": "int tags(int a, int b, int c){\n  if (a && b || c) {\n    return a ? b : c;\n  }\n  return 0;\n}",
+      "sourceSha256": "d6b6206e1ce149ede5a32793b9687938c6b9167b87dd0efb41505dc6f08395b6",
+      "measurements": [
+        {
+          "functionName": "tags",
+          "startLine": 1,
+          "endLine": 6,
+          "nloc": 6,
+          "ccn": 5,
+          "parameterCount": 3,
+          "maxNestingDepth": 3,
+          "complexityContributors": [
+            {
+              "token": "if",
+              "line": 2
+            },
+            {
+              "token": "&&",
+              "line": 2
+            },
+            {
+              "token": "||",
+              "line": 2
+            },
+            {
+              "token": "?",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "indent-closure",
+      "canonicalExtension": "st",
+      "readerId": "st",
+      "readerClass": "StReader",
+      "source": "FUNCTION_BLOCK sample\nIF a THEN\n  IF b THEN\n    x := 1;\n  END_IF;\nEND_IF;\nEND_FUNCTION_BLOCK",
+      "sourceSha256": "5f9f324fe878582b175e580408bdbd04df2f9a309a75cc9ec1fc0742f620b57c",
+      "measurements": [
+        {
+          "functionName": "sample",
+          "startLine": 1,
+          "endLine": 7,
+          "nloc": 7,
+          "ccn": 3,
+          "parameterCount": 0,
+          "maxNestingDepth": 2,
+          "complexityContributors": [
+            {
+              "token": "IF",
+              "line": 2
+            },
+            {
+              "token": "IF",
+              "line": 3
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -14,6 +14,51 @@ export function rewriteRelativeEsmModuleExtensions(input: {
   return rewriteModuleSpecifierTokens(input.source, relativeJavaScriptSpecifierRanges(input));
 }
 
+/**
+ * Rewrites the one source-tree Worker URL only after its separately emitted Worker root exists.
+ *
+ * This deliberately does not normalize ordinary `new URL(...)` values: package runtime code may
+ * carry URLs with source-level semantics. The artifact builder invokes it only for emitted
+ * `function-metrics/measurement.js` and it rejects any compiler-shape drift instead of guessing.
+ */
+export function rewriteFunctionMetricsWorkerUrl(input: {
+  readonly fileName: string;
+  readonly source: string;
+}): string {
+  assertValidEmittedJavaScript(input);
+  const sourceFile = ts.createSourceFile(
+    input.fileName,
+    input.source,
+    ts.ScriptTarget.Latest,
+    false,
+    ts.ScriptKind.JS
+  );
+  const matches: ModuleSpecifierRange[] = [];
+  const visit = (node: ts.Node): void => {
+    if (isFunctionMetricsWorkerUrl(node)) {
+      const specifier = node.arguments?.[0];
+      if (specifier === undefined || !ts.isStringLiteral(specifier)) {
+        throw new Error(`emitted Worker URL has no string specifier: ${input.fileName}`);
+      }
+      matches.push(
+        Object.freeze({
+          end: specifier.end,
+          start: specifier.getStart(sourceFile),
+          text: specifier.text
+        })
+      );
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  if (matches.length !== 1) {
+    throw new Error(
+      `emitted function-metrics Worker URL must occur exactly once: ${input.fileName}; received ${matches.length}`
+    );
+  }
+  return replaceModuleSpecifierToken(input.source, matches[0], "./analyzer-worker.mjs");
+}
+
 function relativeJavaScriptSpecifierRanges(input: {
   readonly fileName: string;
   readonly source: string;
@@ -34,9 +79,12 @@ function rewriteModuleSpecifierTokens(
   return rewritten;
 }
 
-function replaceModuleSpecifierToken(source: string, specifier: ModuleSpecifierRange): string {
-  const mjsSpecifier = `${specifier.text.slice(0, -".js".length)}.mjs`;
-  return `${source.slice(0, specifier.start)}${JSON.stringify(mjsSpecifier)}${source.slice(specifier.end)}`;
+function replaceModuleSpecifierToken(
+  source: string,
+  specifier: ModuleSpecifierRange,
+  replacement = `${specifier.text.slice(0, -".js".length)}.mjs`
+): string {
+  return `${source.slice(0, specifier.start)}${JSON.stringify(replacement)}${source.slice(specifier.end)}`;
 }
 
 /** Returns every relative ESM static, re-export, and dynamic module specifier in a source file. */
@@ -112,6 +160,28 @@ function esmModuleSpecifier(node: ts.Node): ts.StringLiteral | undefined {
     return node.arguments[0];
   }
   return undefined;
+}
+
+function isFunctionMetricsWorkerUrl(node: ts.Node): node is ts.NewExpression {
+  if (
+    !ts.isNewExpression(node) ||
+    !ts.isIdentifier(node.expression) ||
+    node.expression.text !== "URL" ||
+    node.arguments === undefined ||
+    node.arguments.length !== 2
+  ) {
+    return false;
+  }
+  const [specifier, base] = node.arguments;
+  return (
+    ts.isStringLiteral(specifier) &&
+    specifier.text === "./analyzer-worker.ts" &&
+    ts.isPropertyAccessExpression(base) &&
+    ts.isMetaProperty(base.expression) &&
+    base.expression.keywordToken === ts.SyntaxKind.ImportKeyword &&
+    base.expression.name.text === "meta" &&
+    base.name.text === "url"
+  );
 }
 
 function isRelativeSpecifier(specifier: string): boolean {

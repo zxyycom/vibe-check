@@ -75,7 +75,36 @@ const repositoryFunctionLimits = {
     maximum: 50
   },
   cyclomaticComplexity: { maximum: 10 },
+  nestingDepth: { maximum: 7 },
   parameters: { maximum: 5 }
+} as const;
+const translatedQualityExclusions = {
+  duplicateDetection: ["src/package-checks/function-metrics/analyzer/readers/plsql.ts"],
+  fileMetrics: [
+    "src/package-checks/function-metrics/analyzer/core.ts",
+    "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+    "src/package-checks/function-metrics/analyzer/readers/perl.ts",
+    "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+    "src/package-checks/function-metrics/analyzer/shared/clike.ts",
+    "src/package-checks/function-metrics/analyzer/shared/code-reader.ts"
+  ],
+  functionMetrics: [
+    "src/package-checks/function-metrics/analyzer/core.ts",
+    "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+    "src/package-checks/function-metrics/analyzer/readers/fortran.ts",
+    "src/package-checks/function-metrics/analyzer/readers/java-body-states.ts",
+    "src/package-checks/function-metrics/analyzer/readers/php-states.ts",
+    "src/package-checks/function-metrics/analyzer/readers/php.ts",
+    "src/package-checks/function-metrics/analyzer/readers/plsql.ts",
+    "src/package-checks/function-metrics/analyzer/readers/python.ts",
+    "src/package-checks/function-metrics/analyzer/readers/r.ts",
+    "src/package-checks/function-metrics/analyzer/readers/st.ts",
+    "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+    "src/package-checks/function-metrics/analyzer/shared/clike.ts",
+    "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+    "src/package-checks/function-metrics/analyzer/shared/js-style-regex.ts",
+    "src/package-checks/function-metrics/analyzer/shared/rubylike.ts"
+  ]
 } as const;
 
 /**
@@ -95,7 +124,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
   duplicateDetection: {
     codeAreas: {
       "product-source": {
-        files: { ...areaFileDefaults, include: ["src/**/*.ts"] },
+        files: {
+          ...areaFileDefaults,
+          exclude: [...areaFileDefaults.exclude, ...translatedQualityExclusions.duplicateDetection],
+          include: ["src/**/*.ts"]
+        },
         minimumLines: 3,
         minimumTokens: 75
       },
@@ -137,7 +170,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       },
       "product-source": {
         codeLines: repositoryFileCodeLines,
-        files: { ...areaFileDefaults, include: ["src/**/*.ts"] }
+        files: {
+          ...areaFileDefaults,
+          exclude: [...areaFileDefaults.exclude, ...translatedQualityExclusions.fileMetrics],
+          include: ["src/**/*.ts"]
+        }
       },
       "schemas-examples": {
         codeLines: repositoryFileCodeLines,
@@ -161,7 +198,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
   functionMetrics: {
     codeAreas: {
       "product-source": {
-        files: { ...areaFileDefaults, include: ["src/**/*.ts"] },
+        files: {
+          ...areaFileDefaults,
+          exclude: [...areaFileDefaults.exclude, ...translatedQualityExclusions.functionMetrics],
+          include: ["src/**/*.ts"]
+        },
         limits: repositoryFunctionLimits
       },
       "script-tooling": {

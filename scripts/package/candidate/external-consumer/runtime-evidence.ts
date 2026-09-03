@@ -1,13 +1,17 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { isPathWithin } from "../../../repository-files/paths.ts";
 import { isAcceptedPackageDependencyVersion } from "../../dependency-version.ts";
-import { CANDIDATE_DEPENDENCIES } from "../../package-contract.ts";
+import {
+  CANDIDATE_DEPENDENCIES,
+  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH
+} from "../../package-contract.ts";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import type { ExternalConsumerMaterial } from "./material.ts";
 import {
@@ -28,6 +32,7 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../.
 export function assertExternalConsumerRuntime(
   material: Pick<ExternalConsumerMaterial, "consumerDirectory" | "resolvedEntryPath">
 ): void {
+  assertInstalledFunctionMetricsWorker(material.resolvedEntryPath);
   const jscpd = resolveCandidateJscpd(material.resolvedEntryPath);
   assert.equal(isPathWithin(material.consumerDirectory, jscpd.manifestPath), true);
   assert.equal(isPathWithin(repositoryRoot, jscpd.manifestPath), false);
@@ -87,6 +92,10 @@ function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidenc
   const evidence = output.evidence;
   const kind = requiredString(evidence.kind, "isolated Run kind");
   const duplicateOutcome = optionalOutcome(evidence.duplicateOutcome, "isolated duplicate outcome");
+  const functionMetricsOutcome = optionalOutcome(
+    evidence.functionMetricsOutcome,
+    "isolated function metrics outcome"
+  );
   const jsonSchemaOutcome = optionalOutcome(
     evidence.jsonSchemaOutcome,
     "isolated JSON Schema outcome"
@@ -100,6 +109,7 @@ function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidenc
     humanOutput: output.humanOutput,
     kind,
     duplicateOutcome,
+    functionMetricsOutcome,
     jsonSchemaOutcome,
     markdownLinkOutcome
   });
@@ -111,12 +121,20 @@ function projectCandidateFixtureEvidence(
     readonly humanOutput: string;
     readonly kind: string;
     readonly duplicateOutcome: string | null;
+    readonly functionMetricsOutcome: string | null;
     readonly jsonSchemaOutcome: string | null;
     readonly markdownLinkOutcome: string | null;
   }>
 ): CandidateFixtureEvidence {
-  const { evidence, humanOutput, kind, duplicateOutcome, jsonSchemaOutcome, markdownLinkOutcome } =
-    input;
+  const {
+    evidence,
+    humanOutput,
+    kind,
+    duplicateOutcome,
+    functionMetricsOutcome,
+    jsonSchemaOutcome,
+    markdownLinkOutcome
+  } = input;
   return Object.freeze({
     admissionSimulation: evidence.admissionSimulation,
     checkMessages: evidence.checkMessages,
@@ -133,6 +151,9 @@ function projectCandidateFixtureEvidence(
     duplicateOutcome,
     duplicateRecords: evidence.duplicateRecords,
     firstChangedFilesConsumer: evidence.firstChangedFilesConsumer,
+    functionMetricsData: evidence.functionMetricsData,
+    functionMetricsOutcome,
+    functionMetricsRecords: evidence.functionMetricsRecords,
     humanOutput: humanOutput,
     kind,
     machineSchemaVersion: evidence.machineSchemaVersion,
@@ -145,6 +166,23 @@ function projectCandidateFixtureEvidence(
     parserEvidence: evidence.parserEvidence,
     secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
   });
+}
+
+function assertInstalledFunctionMetricsWorker(resolvedEntryPath: string): void {
+  const packageDirectory = dirname(resolvedEntryPath);
+  const measurementPath = resolve(
+    packageDirectory,
+    PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH
+  );
+  const workerPath = resolve(packageDirectory, PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH);
+  assert.equal(existsSync(measurementPath), true, "installed function-metrics module is missing");
+  assert.equal(existsSync(workerPath), true, "installed function-metrics Worker entry is missing");
+  const workerUrl = 'new URL("./analyzer-worker.mjs", import.meta.url)';
+  assert.equal(
+    readFileSync(measurementPath, "utf8").split(workerUrl).length - 1,
+    1,
+    "installed function-metrics module does not resolve exactly one shipped Worker URL"
+  );
 }
 
 function candidateFixtureOutput(consumerDirectory: string): Readonly<{

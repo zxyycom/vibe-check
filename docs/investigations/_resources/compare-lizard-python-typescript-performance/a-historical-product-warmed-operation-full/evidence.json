@@ -1,0 +1,1332 @@
+{
+  "identity": {
+    "benchmarkId": "compare-lizard-python-typescript-performance",
+    "driverSnapshotDigest": "5f47276e5973d147d3c5b740d5e287e94b606ea64a8bbfe6a659a4dc99d4e1cd",
+    "dirty": "M changes/compare-lizard-python-typescript-performance/design.md\n M changes/compare-lizard-python-typescript-performance/proposal.md\n M changes/compare-lizard-python-typescript-performance/tasks.md\n M docs/investigations/investigation-index.json\n M docs/script-tooling.md\n M docs/testing/cases/repository-tooling.md\n?? docs/investigations/_resources/compare-lizard-python-typescript-performance/\n?? docs/investigations/compare-lizard-python-typescript-performance.md\n?? scripts/development/lizard-performance/\n?? src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts\n?? src/package-checks/function-metrics/measurement-performance-harness.test-support.ts\n?? src/package-checks/function-metrics/measurement-performance-worker.test-support.ts",
+    "head": "05df567e5154440a39f4f2e7bd06b4e76d4c2055",
+    "manifestDigest": "bad853f4f94379ab0e6471cfbb54aded1aa23be09118c02e2ee51e2dd10d707d",
+    "sourceDigest": "cdf4a7b3a3f549447c2eab46d118402c2d2f0ca66680371f8fa8aa4fbe109521",
+    "worktree": "/home/dev/.codex/worktrees/d20e/vibe-check"
+  },
+  "layers": [
+    {
+      "layer": "A historical Product end-to-end",
+      "preflight": {
+        "currentDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+        "equal": true,
+        "historicalDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+        "historicalParent": "853b30eaaa1a0545edf24b3622a5245d16c94a63",
+        "historicalScannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+        "historicalWorktreeHead": "853b30eaaa1a0545edf24b3622a5245d16c94a63",
+        "lizard123Version": "1.23.0",
+        "lizard123": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard"
+      },
+      "samples": [
+        {
+          "block": 1,
+          "condition": "historical-python-product",
+          "observedWallMs": 619.45453,
+          "operationWallMs": 182.590984,
+          "ordinal": 1,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 181514240,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 228.47299999999998,
+              "unit": "bytes",
+              "userCpuMs": 700.136
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 1,
+          "condition": "current-typescript-product",
+          "observedWallMs": 429.792905,
+          "operationWallMs": 91.68898300000001,
+          "ordinal": 2,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 194818048,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 198.748,
+              "unit": "bytes",
+              "userCpuMs": 596.244
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 1,
+          "condition": "current-typescript-product",
+          "observedWallMs": 410.681363,
+          "operationWallMs": 85.49858499999999,
+          "ordinal": 3,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 200048640,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 229.24,
+              "unit": "bytes",
+              "userCpuMs": 533.5759999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 1,
+          "condition": "historical-python-product",
+          "observedWallMs": 618.036725,
+          "operationWallMs": 184.70742099999995,
+          "ordinal": 4,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 178872320,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 221.405,
+              "unit": "bytes",
+              "userCpuMs": 712.776
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 2,
+          "condition": "current-typescript-product",
+          "observedWallMs": 416.086396,
+          "operationWallMs": 84.84195300000005,
+          "ordinal": 5,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 193978368,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 158.54999999999998,
+              "unit": "bytes",
+              "userCpuMs": 609.81
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 2,
+          "condition": "historical-python-product",
+          "observedWallMs": 632.719017,
+          "operationWallMs": 189.637383,
+          "ordinal": 6,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 183279616,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 229.111,
+              "unit": "bytes",
+              "userCpuMs": 742.05
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 2,
+          "condition": "historical-python-product",
+          "observedWallMs": 630.492041,
+          "operationWallMs": 186.43808299999995,
+          "ordinal": 7,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 181469184,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 245.71499999999997,
+              "unit": "bytes",
+              "userCpuMs": 728.0569999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 2,
+          "condition": "current-typescript-product",
+          "observedWallMs": 412.439497,
+          "operationWallMs": 86.01677899999999,
+          "ordinal": 8,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 188129280,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 205.32699999999997,
+              "unit": "bytes",
+              "userCpuMs": 536.3639999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 3,
+          "condition": "historical-python-product",
+          "observedWallMs": 616.581581,
+          "operationWallMs": 180.617611,
+          "ordinal": 9,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 185028608,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 164.40099999999998,
+              "unit": "bytes",
+              "userCpuMs": 787.459
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 3,
+          "condition": "current-typescript-product",
+          "observedWallMs": 416.773258,
+          "operationWallMs": 83.20619599999998,
+          "ordinal": 10,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 187600896,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 176.37699999999998,
+              "unit": "bytes",
+              "userCpuMs": 562.203
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 3,
+          "condition": "current-typescript-product",
+          "observedWallMs": 415.211812,
+          "operationWallMs": 85.36764899999997,
+          "ordinal": 11,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 188821504,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 184.03300000000002,
+              "unit": "bytes",
+              "userCpuMs": 548.2669999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 3,
+          "condition": "historical-python-product",
+          "observedWallMs": 626.892029,
+          "operationWallMs": 189.59977299999997,
+          "ordinal": 12,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 184733696,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 236.152,
+              "unit": "bytes",
+              "userCpuMs": 734.1999999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 4,
+          "condition": "current-typescript-product",
+          "observedWallMs": 422.271857,
+          "operationWallMs": 83.73037199999999,
+          "ordinal": 13,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 191729664,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 211.037,
+              "unit": "bytes",
+              "userCpuMs": 554.4899999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 4,
+          "condition": "historical-python-product",
+          "observedWallMs": 748.330729,
+          "operationWallMs": 294.248369,
+          "ordinal": 14,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 178864128,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 330.30899999999997,
+              "unit": "bytes",
+              "userCpuMs": 742.42
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 4,
+          "condition": "historical-python-product",
+          "observedWallMs": 736.531413,
+          "operationWallMs": 181.9596570000001,
+          "ordinal": 15,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 186793984,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 351.131,
+              "unit": "bytes",
+              "userCpuMs": 779.814
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 4,
+          "condition": "current-typescript-product",
+          "observedWallMs": 414.581499,
+          "operationWallMs": 82.87127400000003,
+          "ordinal": 16,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 187785216,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 164.45299999999997,
+              "unit": "bytes",
+              "userCpuMs": 581.602
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 5,
+          "condition": "historical-python-product",
+          "observedWallMs": 757.844246,
+          "operationWallMs": 184.84247200000004,
+          "ordinal": 17,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 177963008,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 344.22700000000003,
+              "unit": "bytes",
+              "userCpuMs": 735.5039999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 5,
+          "condition": "current-typescript-product",
+          "observedWallMs": 415.260242,
+          "operationWallMs": 81.818668,
+          "ordinal": 18,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 184643584,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 148.042,
+              "unit": "bytes",
+              "userCpuMs": 588.059
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 5,
+          "condition": "current-typescript-product",
+          "observedWallMs": 622.518703,
+          "operationWallMs": 103.29864400000002,
+          "ordinal": 19,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 184123392,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 380.809,
+              "unit": "bytes",
+              "userCpuMs": 636.033
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 5,
+          "condition": "historical-python-product",
+          "observedWallMs": 752.876411,
+          "operationWallMs": 203.41644900000006,
+          "ordinal": 20,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 179802112,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 371.90599999999995,
+              "unit": "bytes",
+              "userCpuMs": 716.8319999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 6,
+          "condition": "current-typescript-product",
+          "observedWallMs": 411.184195,
+          "operationWallMs": 85.13743699999998,
+          "ordinal": 21,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 191549440,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 137.856,
+              "unit": "bytes",
+              "userCpuMs": 600.082
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 6,
+          "condition": "historical-python-product",
+          "observedWallMs": 626.02948,
+          "operationWallMs": 184.73363900000004,
+          "ordinal": 22,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 181121024,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 232.16299999999998,
+              "unit": "bytes",
+              "userCpuMs": 704.7399999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 6,
+          "condition": "historical-python-product",
+          "observedWallMs": 629.308315,
+          "operationWallMs": 189.20351400000004,
+          "ordinal": 23,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 180015104,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 205.85199999999998,
+              "unit": "bytes",
+              "userCpuMs": 738.9319999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 6,
+          "condition": "current-typescript-product",
+          "observedWallMs": 416.343452,
+          "operationWallMs": 83.72599199999996,
+          "ordinal": 24,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 190865408,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 162.13400000000001,
+              "unit": "bytes",
+              "userCpuMs": 583.6819999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 7,
+          "condition": "historical-python-product",
+          "observedWallMs": 620.903413,
+          "operationWallMs": 185.54851100000002,
+          "ordinal": 25,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 183508992,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 245.71599999999998,
+              "unit": "bytes",
+              "userCpuMs": 686.472
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 7,
+          "condition": "current-typescript-product",
+          "observedWallMs": 405.099218,
+          "operationWallMs": 84.85840300000001,
+          "ordinal": 26,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 192847872,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 154.766,
+              "unit": "bytes",
+              "userCpuMs": 599.225
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 7,
+          "condition": "current-typescript-product",
+          "observedWallMs": 413.508538,
+          "operationWallMs": 81.43849999999998,
+          "ordinal": 27,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 187133952,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 162.951,
+              "unit": "bytes",
+              "userCpuMs": 580.266
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 7,
+          "condition": "historical-python-product",
+          "observedWallMs": 610.467387,
+          "operationWallMs": 184.32258500000006,
+          "ordinal": 28,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 179011584,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 176.99499999999998,
+              "unit": "bytes",
+              "userCpuMs": 743.6199999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 8,
+          "condition": "current-typescript-product",
+          "observedWallMs": 418.490832,
+          "operationWallMs": 94.05857099999997,
+          "ordinal": 29,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 192798720,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 171.78,
+              "unit": "bytes",
+              "userCpuMs": 599.2339999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 8,
+          "condition": "historical-python-product",
+          "observedWallMs": 622.140724,
+          "operationWallMs": 186.18131299999993,
+          "ordinal": 30,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 181051392,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 188.773,
+              "unit": "bytes",
+              "userCpuMs": 743.3989999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 8,
+          "condition": "historical-python-product",
+          "observedWallMs": 627.572546,
+          "operationWallMs": 181.48806199999996,
+          "ordinal": 31,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 181489664,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 234.204,
+              "unit": "bytes",
+              "userCpuMs": 708.9519999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 8,
+          "condition": "current-typescript-product",
+          "observedWallMs": 417.634683,
+          "operationWallMs": 90.58149000000003,
+          "ordinal": 32,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 197181440,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 200.56,
+              "unit": "bytes",
+              "userCpuMs": 593.495
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 9,
+          "condition": "historical-python-product",
+          "observedWallMs": 613.317834,
+          "operationWallMs": 181.32514100000003,
+          "ordinal": 33,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 185204736,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 205.988,
+              "unit": "bytes",
+              "userCpuMs": 741.828
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 9,
+          "condition": "current-typescript-product",
+          "observedWallMs": 410.849911,
+          "operationWallMs": 85.28841599999998,
+          "ordinal": 34,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 193355776,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 177.816,
+              "unit": "bytes",
+              "userCpuMs": 581.9449999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 9,
+          "condition": "current-typescript-product",
+          "observedWallMs": 411.825911,
+          "operationWallMs": 86.62059899999997,
+          "ordinal": 35,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 187494400,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 170.35999999999999,
+              "unit": "bytes",
+              "userCpuMs": 574.471
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 9,
+          "condition": "historical-python-product",
+          "observedWallMs": 693.870458,
+          "operationWallMs": 212.35127300000005,
+          "ordinal": 36,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 183902208,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 242.629,
+              "unit": "bytes",
+              "userCpuMs": 797.531
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 10,
+          "condition": "current-typescript-product",
+          "observedWallMs": 485.409433,
+          "operationWallMs": 99.52835099999999,
+          "ordinal": 37,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 194674688,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 231.402,
+              "unit": "bytes",
+              "userCpuMs": 681.35
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 10,
+          "condition": "historical-python-product",
+          "observedWallMs": 627.69766,
+          "operationWallMs": 181.49017599999996,
+          "ordinal": 38,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 183205888,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 277.866,
+              "unit": "bytes",
+              "userCpuMs": 716.0559999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 10,
+          "condition": "historical-python-product",
+          "observedWallMs": 622.457519,
+          "operationWallMs": 184.2231,
+          "ordinal": 39,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 182370304,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 231.83299999999997,
+              "unit": "bytes",
+              "userCpuMs": 721.9989999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 10,
+          "condition": "current-typescript-product",
+          "observedWallMs": 425.316484,
+          "operationWallMs": 88.48571399999997,
+          "ordinal": 40,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 195440640,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 163.492,
+              "unit": "bytes",
+              "userCpuMs": 618.0799999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 11,
+          "condition": "historical-python-product",
+          "observedWallMs": 616.903157,
+          "operationWallMs": 184.88618000000002,
+          "ordinal": 41,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 185274368,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 180.855,
+              "unit": "bytes",
+              "userCpuMs": 751.676
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 11,
+          "condition": "current-typescript-product",
+          "observedWallMs": 425.360206,
+          "operationWallMs": 85.17783000000003,
+          "ordinal": 42,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 185208832,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 189.81099999999998,
+              "unit": "bytes",
+              "userCpuMs": 573.23
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 11,
+          "condition": "current-typescript-product",
+          "observedWallMs": 425.522999,
+          "operationWallMs": 88.62282299999998,
+          "ordinal": 43,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 192155648,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 166.23399999999998,
+              "unit": "bytes",
+              "userCpuMs": 634.011
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 11,
+          "condition": "historical-python-product",
+          "observedWallMs": 678.683049,
+          "operationWallMs": 185.55596199999997,
+          "ordinal": 44,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 182976512,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 281.07,
+              "unit": "bytes",
+              "userCpuMs": 748.725
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 12,
+          "condition": "current-typescript-product",
+          "observedWallMs": 410.541477,
+          "operationWallMs": 85.14180199999998,
+          "ordinal": 45,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 193548288,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 169.656,
+              "unit": "bytes",
+              "userCpuMs": 589.7589999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 12,
+          "condition": "historical-python-product",
+          "observedWallMs": 624.634734,
+          "operationWallMs": 188.44781300000005,
+          "ordinal": 46,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 183386112,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 279.995,
+              "unit": "bytes",
+              "userCpuMs": 665.285
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 12,
+          "condition": "historical-python-product",
+          "observedWallMs": 622.786254,
+          "operationWallMs": 185.74019599999997,
+          "ordinal": 47,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 180482048,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 228.765,
+              "unit": "bytes",
+              "userCpuMs": 722.722
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 12,
+          "condition": "current-typescript-product",
+          "observedWallMs": 422.323548,
+          "operationWallMs": 87.50708800000001,
+          "ordinal": 48,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 196198400,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 211.26899999999998,
+              "unit": "bytes",
+              "userCpuMs": 568.507
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 13,
+          "condition": "historical-python-product",
+          "observedWallMs": 681.79221,
+          "operationWallMs": 203.23673399999996,
+          "ordinal": 49,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 183668736,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 209.369,
+              "unit": "bytes",
+              "userCpuMs": 822.073
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 13,
+          "condition": "current-typescript-product",
+          "observedWallMs": 442.921713,
+          "operationWallMs": 88.62264700000003,
+          "ordinal": 50,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 193761280,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 126.192,
+              "unit": "bytes",
+              "userCpuMs": 675.737
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 13,
+          "condition": "current-typescript-product",
+          "observedWallMs": 443.280938,
+          "operationWallMs": 87.553674,
+          "ordinal": 51,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 190406656,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 146.87699999999998,
+              "unit": "bytes",
+              "userCpuMs": 649.8199999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 13,
+          "condition": "historical-python-product",
+          "observedWallMs": 737.999048,
+          "operationWallMs": 202.61453899999998,
+          "ordinal": 52,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 186564608,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 308.73699999999997,
+              "unit": "bytes",
+              "userCpuMs": 800.251
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 14,
+          "condition": "current-typescript-product",
+          "observedWallMs": 452.144092,
+          "operationWallMs": 92.70279800000003,
+          "ordinal": 53,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 200855552,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 144.396,
+              "unit": "bytes",
+              "userCpuMs": 684.852
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 14,
+          "condition": "historical-python-product",
+          "observedWallMs": 1017.96698,
+          "operationWallMs": 251.159404,
+          "ordinal": 54,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 178884608,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 220.60399999999998,
+              "unit": "bytes",
+              "userCpuMs": 948.0569999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 14,
+          "condition": "historical-python-product",
+          "observedWallMs": 663.2969,
+          "operationWallMs": 194.31743099999994,
+          "ordinal": 55,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 181116928,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 161.684,
+              "unit": "bytes",
+              "userCpuMs": 831.161
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 14,
+          "condition": "current-typescript-product",
+          "observedWallMs": 443.273435,
+          "operationWallMs": 91.12680699999999,
+          "ordinal": 56,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 194265088,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 181.969,
+              "unit": "bytes",
+              "userCpuMs": 622.082
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 15,
+          "condition": "historical-python-product",
+          "observedWallMs": 704.579782,
+          "operationWallMs": 201.214828,
+          "ordinal": 57,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 185864192,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 186.395,
+              "unit": "bytes",
+              "userCpuMs": 882.809
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 15,
+          "condition": "current-typescript-product",
+          "observedWallMs": 465.153985,
+          "operationWallMs": 96.83257600000002,
+          "ordinal": 58,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 197357568,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 169.60999999999999,
+              "unit": "bytes",
+              "userCpuMs": 662.289
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 15,
+          "condition": "current-typescript-product",
+          "observedWallMs": 436.605962,
+          "operationWallMs": 93.66813399999995,
+          "ordinal": 59,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 187912192,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 160.332,
+              "unit": "bytes",
+              "userCpuMs": 632.8929999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        },
+        {
+          "block": 15,
+          "condition": "historical-python-product",
+          "observedWallMs": 714.414858,
+          "operationWallMs": 242.72607999999997,
+          "ordinal": 60,
+          "outputDigest": "58465d0c049f56dfc4bcdcc2915b528c080f95c50639b638437e60ad49410026",
+          "scannerExecutable": "/home/dev/.local/share/mise/installs/pipx-lizard/1.23.0/lizard/bin/lizard",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 184504320,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 268.412,
+              "unit": "bytes",
+              "userCpuMs": 814.6279999999999
+            }
+          },
+          "status": "complete",
+          "stderr": ""
+        }
+      ],
+      "conclusion": "typescript-faster",
+      "pairedRatio": {
+        "ci95": [
+          2.1318350847691256,
+          2.282973291421618
+        ],
+        "leftCondition": "historical-python-product",
+        "ratios": [
+          2.0741673581567195,
+          2.20106249964084,
+          2.1957073667449425,
+          2.7778006091881533,
+          2.1092128354588073,
+          2.214354529299159,
+          2.2246193115394255,
+          1.9914671988960302,
+          2.282973291421618,
+          1.9484471023947083,
+          2.1318350847691256,
+          2.1674818316287205,
+          2.3037049752376157,
+          2.4035939608474077,
+          2.320499798154551
+        ],
+        "rightCondition": "current-typescript-product",
+        "statisticWallScope": "counted-operation"
+      },
+      "statistics": {
+        "left": {
+          "condition": "historical-python-product",
+          "iqr": 15.071684749999974,
+          "max": 294.248369,
+          "median": 185.96075449999995,
+          "min": 180.617611,
+          "outliers": [
+            242.72607999999997,
+            251.159404,
+            294.248369
+          ],
+          "p90": 215.38875370000008
+        },
+        "right": {
+          "condition": "current-typescript-product",
+          "iqr": 6.062316249999995,
+          "max": 103.29864400000002,
+          "median": 86.31868899999998,
+          "min": 81.43849999999998,
+          "outliers": [
+            103.29864400000002
+          ],
+          "p90": 94.33597149999997
+        }
+      },
+      "resourceComparison": "not-comparable: supervisor CPU/RSS are whole-target session diagnostics; RSS is max single-process only.",
+      "status": "comparable-wall-only",
+      "temperature": "warmed-operation"
+    }
+  ],
+  "machine": {
+    "arch": "x64",
+    "bun": "1.3.14",
+    "platform": "linux",
+    "supervisorPython": "Python 3.14.7"
+  },
+  "mode": "full",
+  "temperature": "warmed-operation",
+  "protocol": {
+    "abbaBlocks": 15,
+    "cold": "Each counted sample is a fresh direct-child target process after untimed equality preflight.",
+    "warm": "Each counted operation follows one uncounted same-process analysis. RSS remains a whole target/session diagnostic, not a per-operation peak.",
+    "practicalEquivalenceBand": [
+      0.95,
+      1.05
+    ],
+    "resource": "CPU is Linux wait4 target plus reaped descendants; RSS is max single process RSS, never a tree aggregate."
+  }
+}

@@ -152,10 +152,6 @@ url = "https://nodejs.org/dist/v24.18.0/node-v24.18.0-win-x64.zip"
 version = "1.5.0"
 backend = "npm:@colbymchenry/codegraph"
 
-[[tools."pipx:lizard"]]
-version = "1.23.0"
-backend = "pipx:lizard"
-
 [[tools.pnpm]]
 version = "11.1.3"
 backend = "aqua:pnpm/pnpm"

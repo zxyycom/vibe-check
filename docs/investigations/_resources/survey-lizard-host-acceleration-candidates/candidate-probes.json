@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "bun": "1.3.14",
+    "nodeCompatibilityVersion": "v24.3.0",
+    "platform": "Linux x64"
+  },
+  "packagesInstalledOnlyInTmp": {
+    "re2-wasm": {
+      "version": "1.0.2",
+      "license": "Apache-2.0",
+      "wasmBytes": 858542
+    },
+    "@stephen-riley/pcre2-wasm": {
+      "version": "1.2.4",
+      "license": "MIT",
+      "wasmBytes": 587702
+    },
+    "vscode-oniguruma": {
+      "version": "2.0.1",
+      "license": "MIT",
+      "wasmBytes": 473151
+    }
+  },
+  "results": {
+    "re2-wasm": {
+      "representative": "current TypeScript final combined pattern (393 chars, gmsu)",
+      "status": "rejected at compile",
+      "observedError": "invalid perl operator: (?=",
+      "meaning": "The shared positive lookahead makes direct RE2 replacement incompatible for all 26 CodeReader combined patterns; PHP also has a negative lookahead."
+    },
+    "@stephen-riley/pcre2-wasm": {
+      "representative": "init under Bun 1.3.14 and Node compatibility runtime v24.3.0",
+      "status": "initialization failed before compile",
+      "observedError": "Failed to parse URL from /tmp/lizard-regex-probe/node_modules/@stephen-riley/pcre2-wasm/dist/libpcre2.wasm",
+      "meaning": "This package API could not be evaluated as a Bun-ready candidate; it must not be treated as a PCRE2-engine benchmark."
+    },
+    "vscode-oniguruma": {
+      "compileInventory": "26 current-source-captured CodeReader final combined patterns plus PHP outer pattern all compiled after explicit JS-to-Oniguruma flag mapping: prepend (?m) for JS dotAll and (?i) for the two i readers.",
+      "apiBoundary": "The installed release exports and declares createOnigScanner(patterns) only; its internal scanner constructor accepts configuration but the public factory does not forward it, so mapping has to be represented in the pattern. createOnigString/scanner both require dispose()."
+    }
+  }
+}

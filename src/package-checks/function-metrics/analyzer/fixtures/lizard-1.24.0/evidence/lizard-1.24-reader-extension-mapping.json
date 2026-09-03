@@ -1,0 +1,228 @@
+{
+  "extensionCount": 55,
+  "oracle": {
+    "revision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "tag": "1.24.0",
+    "versionCommand": ["lizard", "--version"]
+  },
+  "readerCount": 27,
+  "readers": [
+    {
+      "extensions": ["c", "cpp", "cc", "cxx", "h", "hpp"],
+      "readerClass": "CLikeReader",
+      "readerId": "c-like",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/shared/clike.ts",
+      "upstreamExtensionSpellings": ["c", "cpp", "cc", "cxx", "h", "hpp"],
+      "upstreamPath": "lizard_languages/clike.py"
+    },
+    {
+      "extensions": ["java"],
+      "readerClass": "JavaReader",
+      "readerId": "java",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/java.ts",
+      "upstreamExtensionSpellings": ["java"],
+      "upstreamPath": "lizard_languages/java.py"
+    },
+    {
+      "extensions": ["cs"],
+      "readerClass": "CSharpReader",
+      "readerId": "csharp",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/csharp.ts",
+      "upstreamExtensionSpellings": ["cs"],
+      "upstreamPath": "lizard_languages/csharp.py"
+    },
+    {
+      "extensions": ["js", "cjs", "mjs"],
+      "readerClass": "JavaScriptReader",
+      "readerId": "javascript",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/javascript.ts",
+      "upstreamExtensionSpellings": ["js", "cjs", "mjs"],
+      "upstreamPath": "lizard_languages/javascript.py"
+    },
+    {
+      "extensions": ["py"],
+      "readerClass": "PythonReader",
+      "readerId": "python",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/python.ts",
+      "upstreamExtensionSpellings": ["py"],
+      "upstreamPath": "lizard_languages/python.py"
+    },
+    {
+      "extensions": ["m", "mm"],
+      "readerClass": "ObjCReader",
+      "readerId": "objc",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/objc.ts",
+      "upstreamExtensionSpellings": ["m", "mm"],
+      "upstreamPath": "lizard_languages/objc.py"
+    },
+    {
+      "extensions": ["ttcn", "ttcnpp"],
+      "readerClass": "TTCNReader",
+      "readerId": "ttcn",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/ttcn.ts",
+      "upstreamExtensionSpellings": ["ttcn", "ttcnpp"],
+      "upstreamPath": "lizard_languages/ttcn.py"
+    },
+    {
+      "extensions": ["rb"],
+      "readerClass": "RubyReader",
+      "readerId": "ruby",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/ruby.ts",
+      "upstreamExtensionSpellings": ["rb"],
+      "upstreamPath": "lizard_languages/ruby.py"
+    },
+    {
+      "extensions": ["php"],
+      "readerClass": "PHPReader",
+      "readerId": "php",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/php.ts",
+      "upstreamExtensionSpellings": ["php"],
+      "upstreamPath": "lizard_languages/php.py"
+    },
+    {
+      "extensions": ["swift"],
+      "readerClass": "SwiftReader",
+      "readerId": "swift",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/swift.ts",
+      "upstreamExtensionSpellings": ["swift"],
+      "upstreamPath": "lizard_languages/swift.py"
+    },
+    {
+      "extensions": ["scala"],
+      "readerClass": "ScalaReader",
+      "readerId": "scala",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/scala.ts",
+      "upstreamExtensionSpellings": ["scala"],
+      "upstreamPath": "lizard_languages/scala.py"
+    },
+    {
+      "extensions": ["gd"],
+      "readerClass": "GDScriptReader",
+      "readerId": "gdscript",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/gdscript.ts",
+      "upstreamExtensionSpellings": ["gd"],
+      "upstreamPath": "lizard_languages/gdscript.py"
+    },
+    {
+      "extensions": ["go"],
+      "readerClass": "GoReader",
+      "readerId": "go",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/go.ts",
+      "upstreamExtensionSpellings": ["go"],
+      "upstreamPath": "lizard_languages/go.py"
+    },
+    {
+      "extensions": ["lua"],
+      "readerClass": "LuaReader",
+      "readerId": "lua",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/lua.ts",
+      "upstreamExtensionSpellings": ["lua"],
+      "upstreamPath": "lizard_languages/lua.py"
+    },
+    {
+      "extensions": ["rs"],
+      "readerClass": "RustReader",
+      "readerId": "rust",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/rust.ts",
+      "upstreamExtensionSpellings": ["rs"],
+      "upstreamPath": "lizard_languages/rust.py"
+    },
+    {
+      "extensions": ["ts"],
+      "readerClass": "TypeScriptReader",
+      "readerId": "typescript",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "upstreamExtensionSpellings": ["ts"],
+      "upstreamPath": "lizard_languages/typescript.py"
+    },
+    {
+      "extensions": ["f70", "f90", "f95", "f03", "f08", "f", "for", "ftn", "fpp"],
+      "readerClass": "FortranReader",
+      "readerId": "fortran",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/fortran.ts",
+      "upstreamExtensionSpellings": ["f70", "f90", "f95", "f03", "f08", "f", "for", "ftn", "fpp"],
+      "upstreamPath": "lizard_languages/fortran.py"
+    },
+    {
+      "extensions": ["kt", "kts"],
+      "readerClass": "KotlinReader",
+      "readerId": "kotlin",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/kotlin.ts",
+      "upstreamExtensionSpellings": ["kt", "kts"],
+      "upstreamPath": "lizard_languages/kotlin.py"
+    },
+    {
+      "extensions": ["sol"],
+      "readerClass": "SolidityReader",
+      "readerId": "solidity",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/solidity.ts",
+      "upstreamExtensionSpellings": ["sol"],
+      "upstreamPath": "lizard_languages/solidity.py"
+    },
+    {
+      "extensions": ["erl", "hrl", "es", "escript"],
+      "readerClass": "ErlangReader",
+      "readerId": "erlang",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+      "upstreamExtensionSpellings": ["erl", "hrl", "es", "escript"],
+      "upstreamPath": "lizard_languages/erlang.py"
+    },
+    {
+      "extensions": ["zig"],
+      "readerClass": "ZigReader",
+      "readerId": "zig",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/zig.ts",
+      "upstreamExtensionSpellings": ["zig"],
+      "upstreamPath": "lizard_languages/zig.py"
+    },
+    {
+      "extensions": ["tsx", "jsx"],
+      "readerClass": "TSXReader",
+      "readerId": "tsx",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "upstreamExtensionSpellings": ["tsx", "jsx"],
+      "upstreamPath": "lizard_languages/tsx.py"
+    },
+    {
+      "extensions": ["vue"],
+      "readerClass": "VueReader",
+      "readerId": "vue",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/vue.ts",
+      "upstreamExtensionSpellings": ["vue"],
+      "upstreamPath": "lizard_languages/vue.py"
+    },
+    {
+      "extensions": ["pl", "pm"],
+      "readerClass": "PerlReader",
+      "readerId": "perl",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/perl.ts",
+      "upstreamExtensionSpellings": ["pl", "pm"],
+      "upstreamPath": "lizard_languages/perl.py"
+    },
+    {
+      "extensions": ["st"],
+      "readerClass": "StReader",
+      "readerId": "st",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/st.ts",
+      "upstreamExtensionSpellings": ["st"],
+      "upstreamPath": "lizard_languages/st.py"
+    },
+    {
+      "extensions": ["r"],
+      "readerClass": "RReader",
+      "readerId": "r",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/r.ts",
+      "upstreamExtensionSpellings": ["r", "R"],
+      "upstreamPath": "lizard_languages/r.py"
+    },
+    {
+      "extensions": ["sql", "pks", "pkb", "pls", "plb", "pck"],
+      "readerClass": "PLSQLReader",
+      "readerId": "plsql",
+      "targetOwner": "src/package-checks/function-metrics/analyzer/readers/plsql.ts",
+      "upstreamExtensionSpellings": ["sql", "pks", "pkb", "pls", "plb", "pck"],
+      "upstreamPath": "lizard_languages/plsql.py"
+    }
+  ],
+  "schemaVersion": 1
+}

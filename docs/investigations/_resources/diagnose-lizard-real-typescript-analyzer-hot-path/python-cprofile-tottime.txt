@@ -1,0 +1,137 @@
+         6185868 function calls (5857560 primitive calls) in 1.295 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+504948/178531    0.122    0.000    0.311    0.000 code_reader.py:48(__call__)
+   296242    0.115    0.000    0.188    0.000 code_reader.py:142(_generate_tokens)
+   298734    0.091    0.000    0.326    0.000 typescript.py:65(generate_tokens)
+   178785    0.086    0.000    0.815    0.000 code_reader.py:208(__call__)
+   178785    0.081    0.000    0.345    0.000 lizard.py:560(line_counter)
+      254    0.074    0.000    0.433    0.002 js_style_regex_expression.py:9(generate_tokens_with_regex)
+   122360    0.073    0.000    0.118    0.000 typescript.py:158(_state_global)
+   748613    0.067    0.000    0.067    0.000 {method 'startswith' of 'str' objects}
+   211252    0.064    0.000    0.225    0.000 lizard.py:538(comment_counter)
+   211125    0.050    0.000    0.087    0.000 clike.py:17(get_comment_from_token)
+   211379    0.049    0.000    0.073    0.000 lizard.py:535(<genexpr>)
+   296074    0.035    0.000    0.064    0.000 code_reader.py:137(create_token)
+   178785    0.032    0.000    0.408    0.000 lizard.py:584(condition_counter)
+   178785    0.031    0.000    0.376    0.000 lizard.py:576(token_counter)
+   298478    0.030    0.000    0.030    0.000 {method 'group' of 're.Match' objects}
+   295156    0.024    0.000    0.024    0.000 {method 'isspace' of 'str' objects}
+   308617    0.020    0.000    0.020    0.000 {method 'append' of 'list' objects}
+   178531    0.020    0.000    0.020    0.000 lizard.py:484(add_nloc)
+   178531    0.019    0.000    0.019    0.000 {method 'count' of 'str' objects}
+      254    0.017    0.000    1.283    0.005 lizard.py:613(analyze_source_code)
+   311891    0.017    0.000    0.017    0.000 {built-in method builtins.isinstance}
+   313069    0.016    0.000    0.016    0.000 {built-in method builtins.len}
+    16554    0.013    0.000    0.029    0.000 typescript.py:503(_dec)
+   178531    0.010    0.000    0.010    0.000 code_reader.py:228(process_token)
+    15519    0.009    0.000    0.012    0.000 typescript.py:138(__init__)
+57840/55949    0.007    0.000    0.026    0.000 code_reader.py:29(next)
+    19184    0.005    0.000    0.007    0.000 code_reader.py:43(sub_state)
+    19438    0.005    0.000    0.005    0.000 code_reader.py:17(__init__)
+     2408    0.005    0.000    0.005    0.000 {method 'search' of 're.Pattern' objects}
+    17518    0.004    0.000    0.006    0.000 code_reader.py:39(statemachine_return)
+     3919    0.004    0.000    0.010    0.000 typescript.py:598(_consume_type_annotation)
+     7267    0.004    0.000    0.006    0.000 __init__.py:280(_compile)
+     9251    0.004    0.000    0.005    0.000 lizard.py:364(add_to_long_name)
+    25718    0.003    0.000    0.005    0.000 typescript.py:455(_pop_function_from_stack)
+    30288    0.003    0.000    0.003    0.000 {method 'replace' of 'str' objects}
+     2787    0.003    0.000    0.007    0.000 typescript.py:412(read_object)
+     4228    0.003    0.000    0.020    0.000 typescript.py:472(_function)
+    29194    0.003    0.000    0.003    0.000 {method 'isalpha' of 'str' objects}
+     2389    0.003    0.000    0.009    0.000 lizard.py:490(try_new_function)
+     4064    0.003    0.000    0.011    0.000 code_reader.py:128(match_filename)
+    19186    0.003    0.000    0.003    0.000 {built-in method builtins.getattr}
+     5132    0.003    0.000    0.005    0.000 lizard.py:370(add_parameter)
+     3919    0.003    0.000    0.004    0.000 typescript.py:608(__init__)
+        1    0.002    0.002    1.295    1.295 run.py:33(normal)
+     7465    0.002    0.000    0.008    0.000 {method 'join' of 'str' objects}
+     9103    0.002    0.000    0.002    0.000 typescript.py:499(_field)
+     3296    0.002    0.000    0.003    0.000 typescript.py:68(split_template_literal)
+     4064    0.002    0.000    0.007    0.000 code_reader.py:130(compile_file_extension_re)
+     7167    0.002    0.000    0.004    0.000 lizard.py:466(__getattr__)
+     4566    0.002    0.000    0.003    0.000 code_reader.py:67(read_until_matching_brackets)
+     6604    0.002    0.000    0.002    0.000 {method 'translate' of 'str' objects}
+     6604    0.002    0.000    0.004    0.000 __init__.py:255(escape)
+     2643    0.002    0.000    0.002    0.000 lizard.py:310(__init__)
+      254    0.002    0.000    0.013    0.000 __init__.py:64(get_reader_for)
+     2322    0.002    0.000    0.004    0.000 typescript.py:426(_expecting_condition_and_statement_block)
+     4132    0.002    0.000    0.002    0.000 {method 'match' of 're.Pattern' objects}
+    15575    0.002    0.000    0.002    0.000 typescript.py:153(statemachine_before_return)
+     6531    0.001    0.000    0.003    0.000 typescript.py:618(_state_simple_type)
+     2222    0.001    0.000    0.009    0.000 lizard.py:344(parameters)
+     2389    0.001    0.000    0.002    0.000 lizard.py:412(with_namespace)
+     2380    0.001    0.000    0.002    0.000 lizard.py:521(end_of_function)
+     2644    0.001    0.000    0.004    0.000 typescript.py:440(_expecting_statement_or_block)
+     6858    0.001    0.000    0.005    0.000 code_reader.py:166(<genexpr>)
+     4079    0.001    0.000    0.003    0.000 typescript.py:183(handle_type_alias)
+     2072    0.001    0.000    0.013    0.000 typescript.py:531(_expecting_func_opening_bracket)
+     7977    0.001    0.000    0.001    0.000 {method 'isalnum' of 'str' objects}
+     2389    0.001    0.000    0.003    0.000 lizard.py:497(confirm_new_function)
+      254    0.001    0.000    0.003    0.000 code_reader.py:135(generate_tokens)
+     5132    0.001    0.000    0.006    0.000 lizard.py:518(parameter)
+      508    0.001    0.000    0.002    0.000 enum.py:1550(__or__)
+     2389    0.001    0.000    0.014    0.000 lizard.py:505(push_new_function)
+     2408    0.001    0.000    0.007    0.000 __init__.py:174(search)
+     4826    0.001    0.000    0.006    0.000 __init__.py:226(compile)
+     4318    0.001    0.000    0.001    0.000 enum.py:202(__get__)
+     2389    0.001    0.000    0.013    0.000 lizard.py:501(restart_new_function)
+     2222    0.001    0.000    0.010    0.000 lizard.py:342(<lambda>)
+     4119    0.001    0.000    0.003    0.000 lizard.py:512(add_to_long_function_name)
+     2389    0.001    0.000    0.015    0.000 typescript.py:449(_push_function_to_stack)
+     7417    0.001    0.000    0.001    0.000 typescript.py:235(skip_interface)
+     5836    0.001    0.000    0.001    0.000 {method 'get' of 'dict' objects}
+     1054    0.001    0.000    0.002    0.000 typescript.py:559(collect)
+     2651    0.001    0.000    0.001    0.000 typescript.py:413(callback)
+     2197    0.001    0.000    0.003    0.000 typescript.py:612(_state_global)
+     2230    0.001    0.000    0.001    0.000 typescript.py:427(callback)
+     1270    0.001    0.000    0.001    0.000 copy.py:61(copy)
+     2222    0.001    0.000    0.004    0.000 typescript.py:601(callback)
+      254    0.001    0.000    0.001    0.000 code_reader.py:104(_build_conditions)
+      254    0.001    0.000    0.002    0.000 code_reader.py:115(__init__)
+      254    0.001    0.000    0.001    0.000 lizard.py:455(__init__)
+     2389    0.000    0.000    0.001    0.000 lizard.py:437(current_nesting_level)
+     4683    0.000    0.000    0.000    0.000 typescript.py:551(_state_template_literal)
+      254    0.000    0.000    0.000    0.000 {method 'finditer' of 're.Pattern' objects}
+      254    0.000    0.000    0.003    0.000 typescript.py:61(__init__)
+     1524    0.000    0.000    0.001    0.000 enum.py:1543(_get_value)
+     4318    0.000    0.000    0.000    0.000 enum.py:1291(value)
+     4346    0.000    0.000    0.000    0.000 lizard.py:509(add_condition)
+     2380    0.000    0.000    0.000    0.000 {method 'pop' of 'list' objects}
+      851    0.000    0.000    0.000    0.000 {method 'splitlines' of 'str' objects}
+     1424    0.000    0.000    0.000    0.000 typescript.py:441(callback)
+      508    0.000    0.000    0.001    0.000 enum.py:720(__call__)
+     3908    0.000    0.000    0.000    0.000 {method 'endswith' of 'str' objects}
+      254    0.000    0.000    0.000    0.000 {built-in method _functools.reduce}
+      604    0.000    0.000    0.004    0.000 typescript.py:461(_arrow_function)
+      319    0.000    0.000    0.001    0.000 typescript.py:574(_to_camel_case)
+     2389    0.000    0.000    0.000    0.000 lizard.py:422(start_new_function_nesting)
+     1270    0.000    0.000    0.000    0.000 {method 'copy' of 'set' objects}
+      254    0.000    0.000    0.000    0.000 code_reader.py:199(<genexpr>)
+      254    0.000    0.000    0.000    0.000 {method 'sub' of 're.Pattern' objects}
+      254    0.000    0.000    0.000    0.000 lizard.py:532(preprocessing)
+      254    0.000    0.000    0.000    0.000 {method 'findall' of 're.Pattern' objects}
+      508    0.000    0.000    0.000    0.000 enum.py:1128(__new__)
+      254    0.000    0.000    0.000    0.000 __init__.py:32(languages)
+      652    0.000    0.000    0.000    0.000 {method 'find' of 'str' objects}
+      319    0.000    0.000    0.001    0.000 typescript.py:555(_collect_computed_name)
+      815    0.000    0.000    0.000    0.000 typescript.py:588(consume)
+      973    0.000    0.000    0.000    0.000 {method 'strip' of 'str' objects}
+     2197    0.000    0.000    0.000    0.000 code_reader.py:61(statemachine_before_return)
+      254    0.000    0.000    0.000    0.000 {built-in method builtins.hasattr}
+      356    0.000    0.000    0.000    0.000 typescript.py:635(_state_generic_type)
+      207    0.000    0.000    0.000    0.000 typescript.py:583(_consume_generic_type_params)
+      254    0.000    0.000    0.000    0.000 lizard.py:383(__init__)
+      254    0.000    0.000    0.000    0.000 code_reader.py:200(<genexpr>)
+      202    0.000    0.000    0.000    0.000 typescript.py:639(_function_type_annotation)
+      150    0.000    0.000    0.000    0.000 {method 'split' of 'str' objects}
+      150    0.000    0.000    0.000    0.000 {method 'lower' of 'str' objects}
+       33    0.000    0.000    0.000    0.000 __init__.py:164(match)
+      254    0.000    0.000    0.000    0.000 lizard.py:408(__init__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+      150    0.000    0.000    0.000    0.000 typescript.py:581(<genexpr>)
+      254    0.000    0.000    0.000    0.000 code_reader.py:225(eof)
+       21    0.000    0.000    0.000    0.000 typescript.py:631(_inline_type_annotation)
+        7    0.000    0.000    0.000    0.000 {method 'extend' of 'list' objects}

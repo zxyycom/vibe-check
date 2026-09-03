@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "formedAt": "2026-09-03T09:45:03+00:00",
+  "workspace": {
+    "root": "/home/dev/.codex/worktrees/d20e/vibe-check",
+    "head": "49b57cbf99747d516c4d95390b5d01ffb2f2b40d",
+    "headTree": "c4812449ad73fb208b066c397d024c09f219e4c3",
+    "note": "HEAD/tree are consolidation-time identity. Temporary benchmark outputs did not embed them at execution time, so they do not independently prove the exact worktree identity used for every run.",
+    "sources": {
+      "src/package-checks/function-metrics/analyzer/shared/code-reader.ts": "571bd9622d64d750296e1637a39527a0fe5ba9d9779512e2be60da287d9ae86e",
+      "src/package-checks/function-metrics/analyzer/readers/typescript.ts": "340ec37de2f9eabe147d0ebef8fff115cb0f61a100b640dcb8975b1c896bcbe0"
+    }
+  },
+  "upstream": {
+    "repository": "https://github.com/terryyin/lizard",
+    "version": "1.24.0",
+    "commit": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "localCheckout": "/tmp/vibe-lizard-1.24.0-308b1c3",
+    "lizard_languages/code_reader.py": "0e7381e9f3161efd733f0ae9a718101ac4fc285438c69b98b69bfe281f9002cc"
+  },
+  "runtime": {
+    "bun": "1.3.14",
+    "cpythonAnalyzerAlignedControls": "3.12.13",
+    "cpythonSymmetricRawControl": "3.12.13",
+    "cpythonSymmetricRawSupportingObservation": "3.14.7"
+  },
+  "corpus": {
+    "owner": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+    "sha256": "71029f6bf4f38e14f9ebae4923822dda751b9a2101da68fab8bde6f882c90a4d",
+    "files": 254,
+    "utf8Bytes": 1138778
+  },
+  "temporaryExecutionArtifacts": {
+    "vibe-regex-abba.json": "3b3aadf979ceb286e3dccebdb1d928029f2dd0c51291b5e28ea8114f49959fb0",
+    "vibe-regex-reuse-ablation.ts": "720ac1cd764dc584ded99c3af7315aa7417a3e62e86be2cdc866516e10c95629",
+    "vibe-regex-first-1.json": "6f8947a9071d02f069a5a308c2c035129c682923e5ac1c44429a02bb68e72e63",
+    "vibe-regex-first-2.json": "794728bbb8c04f05e7a0fe2a5f786a6b7567272034a480dba820e997edfd5676",
+    "vibe-regex-first-3.json": "d464f3ea4b6315a36763e1d3f1396615563ddc92db96327f63e6effa1804c484",
+    "vibe-regex-first-4.json": "ae4dd28bd5f4507faa1722ee60bd37c46c6d26f28e3d1079075a6500ee00e987",
+    "vibe-python-re-raw-3.12.json": "46a61469ae45811944d91130d08d61b7f74ed87d252a4f5011d26a2441ef7c9e",
+    "vibe-python-re-raw.py": "c9795f65d1487896b3a85623afb8984dffa5cefe283519feedfd75d805b8d2b2",
+    "vibe-regex-pipeline.json": "a4b1a1604f17e331933477488411a32583026cdd913eec0746d032d980bf3933",
+    "vibe-regex-pipeline.ts": "68c697cf57f8802338223eb96d3277f01710b392aa698ae5cb7185db02e069f2",
+    "vibe-regex-feature-ablation.json": "5829915b8c3ef915c9d998a6890d48d607c29e86e8aae9b69af2922110cac97f",
+    "vibe-regex-feature-ablation.ts": "cac9a09a5d4f176dbd0a586fa8ae635b44205fe2891691f48225c25145c04a52",
+    "vibe-python-re-ablation-3.12.json": "e83ca6ee6cdf7571119c4b6c35a99ef930134d13f8585b77adce1cdd423f4ce1",
+    "vibe-python-re-ablation.py": "913af29b8afa16b1e60e1da1a1f154fd91d7f1c3e6979daa7a901ae8ef63785a",
+    "vibe-bun-generic-stage-control.json": "9583b550dae47c0f463a3ae4049626e5451b04b1c01eabaa2f8823efa6187e47",
+    "vibe-bun-generic-stage-control.ts": "77569a91386b427d7dc608a7943b45860630756423da905ae8932dc924636cd6",
+    "vibe-python-generic-stage-control-3.12.json": "59f64531ee0f6fa0ff26ce7397695c698d833cec766fd9bbd1e6e560a9078c7b",
+    "vibe-python-generic-stage-control.py": "6fbf8c3dec93f8e937ca0e197ff141189c531c60161c59576a274fdfee5ea3a5",
+    "vibe-bun-feature-output-guards.json": "f24314386a80db3e8b99129a4dce81a8987f7cfe085bd1be5b10ca791a696fc8",
+    "vibe-bun-feature-output-guards.ts": "d6d9d4c6856c9b617f67034d64552a08dd657fb0732296c8b53827fe6c9ada2a",
+    "vibe-bun-symmetric.json": "18d110bacf286b1523c8fd28eba4e9d13c59c676de36c55d2a4d5205cf4cbe71",
+    "vibe-bun-python-symmetric.ts": "6f392c1f413316e9a690ce04989016a303656c0e69bb80c9668f86536fb97542",
+    "vibe-python-symmetric.json": "2d2365b8fb0a07b27efeabefd7e69c880e2f0c58d20ac9ecb75117c91c157507",
+    "vibe-python-symmetric.py": "69fdc2f69aaab1ef99fe76769cf2087c438e7a809f67475c04b3d2d71074d2b5",
+    "vibe-bun-regexp-synthetic.json": "04fc41958e773d91bf86f5a45399c6fee5853dd19b4dd134847f47666fa70974",
+    "vibe-bun-regexp-synthetic.ts": "d67fadc4a0a08a7a40cea7c4063b0dcd12822291d06e4da42053281f97c5803b",
+    "vibe-jsc-jit-toggle.jsonl": "938d5eaa4d33be52e01112cb2eda96c2115fe2f72138ac110afde835fa0e2aae",
+    "vibe-jsc-toggle-reverse.jsonl": "c15ee303be015ff48968d2425e694fca8a80a1ccd0ce0d9fd47955a2bce0bcb6",
+    "vibe-jsc-jit-toggle.ts": "487607dedd1bc7a84a157b9527e918739c5edbd83401f25b34fc0e2a727a0870",
+    "vibe-jsc-regexp-dump.ts": "1c231a574c128342323a3966e2df0b2bdf804bd3ae0e4bcb7c76b17d9c72b930",
+    "capture-pattern.json": "b57e1e1b93ef15ce4d9e2d99643c7150aa89d69c25c0a2ae3b282bceb6f2150e",
+    "vibe-python-symmetric-3.12.json": "2181fa8aa40089abc964aa301ac3cc8cd5a60ac28763e460072d300209b47402"
+  },
+  "retainedResources": {
+    "bun-feature-ablation.ts": "99c0fbb121346c6dc21149a6f283339fffe76dc4c89f7bed5c708b10e91efbe5",
+    "bun-feature-output-guards.ts": "18034927a36a798cdb137f7345e7458351852e1477d7ad40eb92984436f9ee88",
+    "bun-generic-stage-control.ts": "f67e4ca61df0c81c3d35214931928d959d19c127004608ecf5bc4a240b36e8b5",
+    "bun-raw-reuse.ts": "6a617d2d349bba2b3a277682c6146cce5dfa2cde897ffbebd2672f4010496919",
+    "bun-symmetric-raw.ts": "6f26b8e0e1b9e285955f0808e470f03fca914fd705a1a64bb162d9a6dc5293c9",
+    "bun-synthetic-controls.ts": "4c2f69f32b2e91a799cf0a0dd9f04a0f3f8ee4ef89092177fe18b12713f42cc8",
+    "evidence.json": "7eb24c6252c90988a1921d25d721d87acbbf93b685b2956ee799eb0dfc8bb6cc",
+    "python-feature-ablation.py": "33a81a7a7f5d7f3e1cc1bb76811bda625dd6d854898bd75a928744f295e06b5f",
+    "python-generic-stage-control.py": "bd74a0a8b809b0334e3067707cfe4ab37402aa53d0869e70315581225cab3726",
+    "python-raw.py": "47191b17c38d5e1922b536c1a366bee579a1e4ff451f027f509f44f5d4d8e642",
+    "python-symmetric-raw.py": "3389fc780674446c4c28772acd73ff2c8adae99821d6c16eea3425e97c6293c5",
+    "typescript-token-pattern.json": "70533aa7b5de51063f60029dec7ac33a79339e51419ac1ab2e5f49dce40de392"
+  },
+  "driverNormalization": "Retained drivers preserve the execution algorithms but replace the formed-time absolute worktree path and /tmp captured-pattern path with process.cwd()/Path.cwd() and the retained typescript-token-pattern.json. Raw execution-time driver hashes remain above.",
+  "primarySources": [
+    "https://github.com/python/cpython/blob/v3.12.13/Lib/re/__init__.py#L219-L224",
+    "https://github.com/python/cpython/blob/v3.12.13/Lib/re/__init__.py#L271-L329",
+    "https://github.com/python/cpython/blob/v3.12.13/Modules/_sre/sre.c#L692-L711",
+    "https://github.com/python/cpython/blob/v3.12.13/Modules/_sre/sre.c#L2834-L2902",
+    "https://github.com/oven-sh/bun/blob/bun-v1.3.14/scripts/build/deps/webkit.ts#L1-L6",
+    "https://github.com/oven-sh/WebKit/blob/5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b/Source/JavaScriptCore/runtime/RegExp.cpp#L207-L294",
+    "https://github.com/oven-sh/WebKit/blob/5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b/Source/JavaScriptCore/runtime/RegExpInlines.h#L103-L203",
+    "https://github.com/oven-sh/WebKit/blob/5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b/Source/JavaScriptCore/runtime/RegExpCache.cpp#L41-L93",
+    "https://github.com/oven-sh/WebKit/blob/5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b/Source/JavaScriptCore/runtime/StringPrototype.cpp#L1509-L1544",
+    "https://github.com/oven-sh/WebKit/blob/5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b/Source/JavaScriptCore/runtime/JSRegExpStringIterator.cpp#L67-L172"
+  ]
+}

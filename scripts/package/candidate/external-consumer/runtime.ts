@@ -8,6 +8,7 @@ export function writeExternalConsumerRuntimeFixture(consumerDirectory: string): 
   writeFileSync(join(consumerDirectory, "run-fixture.mjs"), runFixture(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-a.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-b.ts"), duplicateSource(), "utf8");
+  writeFileSync(join(consumerDirectory, "function-metrics.ts"), functionMetricsSource(), "utf8");
   writeFileSync(
     join(consumerDirectory, "schema.json"),
     `${JSON.stringify({
@@ -57,6 +58,14 @@ function duplicateSource(): string {
   total += 14;
   total += 15;
   return total;
+}
+`;
+}
+
+function functionMetricsSource(): string {
+  return `export function workerProof(value: number): number {
+  if (value > 0) return value;
+  return -value;
 }
 `;
 }

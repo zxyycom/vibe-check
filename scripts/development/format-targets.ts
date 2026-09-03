@@ -1,3 +1,6 @@
+export const GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES =
+  "src/package-checks/function-metrics/analyzer/fixtures/**";
+
 export const workspaceFormatTargets = [
   ".codex/config.toml",
   ".oxlintrc.json",
@@ -13,5 +16,6 @@ export const workspaceFormatTargets = [
   "tsconfig.product.json",
   "vibe-check.code-workspace",
   "src/**/*.ts",
+  `!${GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES}`,
   "scripts/**/*.ts"
 ] as const;

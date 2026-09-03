@@ -18,6 +18,9 @@ export type CandidateFixtureEvidence = Readonly<{
   duplicateOutcome: string | null;
   duplicateRecords: unknown;
   firstChangedFilesConsumer: unknown;
+  functionMetricsData: unknown;
+  functionMetricsOutcome: string | null;
+  functionMetricsRecords: unknown;
   humanOutput: string;
   kind: string;
   jsonSchemaData: unknown;
@@ -51,6 +54,9 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
   assert.equal(runEvidence.duplicateOutcome, "passed");
   assert.deepEqual(runEvidence.duplicateData, { blockingFindingCount: 0, findingCount: 1 });
   assertTrustedNonBlockingDuplicateRecord(runEvidence.duplicateRecords);
+  assert.equal(runEvidence.functionMetricsOutcome, "passed");
+  assert.deepEqual(runEvidence.functionMetricsData, { blockingFindingCount: 0, findingCount: 1 });
+  assertTrustedNonBlockingFunctionMetricsRecord(runEvidence.functionMetricsRecords);
   assert.equal(runEvidence.jsonSchemaOutcome, "passed");
   assert.deepEqual(runEvidence.jsonSchemaData, {
     bindingCount: 1,
@@ -101,6 +107,7 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
   assertHumanOutput(runEvidence.humanOutput);
   for (const checkId of [
     "duplicate-detection",
+    "function-metrics",
     "json-schema-validation",
     "markdown-link-validation",
     "changed-files",
@@ -220,11 +227,12 @@ function assertParserEvidence(value: unknown): void {
 }
 
 function assertHumanOutput(output: string): void {
-  assert.match(output, /total\s+10\s+checks/i);
+  assert.match(output, /total\s+11\s+checks/i);
   assert.match(output, /Checks:/);
-  assert.match(output, /\[1\/10\].*duplicate detection/i);
-  assert.match(output, /\[7\/10\].*Blocked changed-files consumer/i);
-  assert.match(output, /\[10\/10\].*Installed terminal note/i);
+  assert.match(output, /\[1\/11\].*duplicate detection/i);
+  assert.match(output, /\[2\/11\].*Function metrics/i);
+  assert.match(output, /\[8\/11\].*Blocked changed-files consumer/i);
+  assert.match(output, /\[11\/11\].*Installed terminal note/i);
   assert.match(output, /\[info\] Installed candidate terminal message\./);
   assert.match(output, /Execution summary:/);
   assert.equal(output.includes("\u001B"), false);
@@ -232,7 +240,37 @@ function assertHumanOutput(output: string): void {
 
 function assertDuplicateAndTerminalMessages(value: unknown): void {
   if (!isUnknownArray(value)) throw new TypeError("isolated Run checkMessages must be an array");
-  assert.equal(value.length, 3);
+  assert.equal(value.length, 5);
+  assert.deepEqual(
+    value.find(
+      (message): message is Readonly<Record<string, unknown>> =>
+        isRecord(message) &&
+        message.checkId === "function-metrics" &&
+        message.code === "non-blocking-findings"
+    ),
+    {
+      checkId: "function-metrics",
+      code: "non-blocking-findings",
+      level: "warning",
+      message:
+        "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
+    }
+  );
+  assert.deepEqual(
+    value.find(
+      (message): message is Readonly<Record<string, unknown>> =>
+        isRecord(message) &&
+        message.checkId === "function-metrics" &&
+        message.code === "finding-detail"
+    ),
+    {
+      checkId: "function-metrics",
+      code: "finding-detail",
+      level: "warning",
+      message:
+        "function-metrics.ts:1 workerProof: cyclomatic-complexity 2 exceeds the 1 limit (areas: worker). Complexity contributors: if at line 2."
+    }
+  );
   assert.deepEqual(
     value.find(
       (message): message is Readonly<Record<string, unknown>> =>
@@ -292,6 +330,29 @@ function assertTrustedNonBlockingDuplicateRecord(value: unknown): void {
   }
   assert.equal(record.data.blocking, false);
   assert.equal(hasFixtureDuplicateLocations(record.data.locations), true);
+}
+
+function assertTrustedNonBlockingFunctionMetricsRecord(value: unknown): void {
+  if (!isUnknownArray(value))
+    throw new TypeError("isolated function-metrics records must be an array");
+  assert.equal(value.length, 1);
+  const record = value[0];
+  if (!isRecord(record)) throw new TypeError("isolated function-metrics record must be an object");
+  assert.equal(record.checkId, "function-metrics");
+  if (!isRecord(record.data)) {
+    throw new TypeError("isolated function-metrics record data must be an object");
+  }
+  assert.deepEqual(record.data, {
+    blocking: false,
+    codeAreas: ["worker"],
+    complexityContributors: [{ line: 2, token: "if" }],
+    functionName: "workerProof",
+    limit: 1,
+    metric: "cyclomatic-complexity",
+    path: "function-metrics.ts",
+    startLine: 1,
+    value: 2
+  });
 }
 
 function hasFixtureDuplicateLocations(value: unknown): boolean {
