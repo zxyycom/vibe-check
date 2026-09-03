@@ -7,6 +7,7 @@
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
       "add-invocation-local-scheduler-performance-summary.md": "sha256:fc65bdb972882df0b2378cd702578505b9e5ee8056aeefe328bbc35739f22469",
+      "adopt-invocation-scoped-custom-admission-strategy-authoring.md": "sha256:a2f7fbc0c50d5927d4f6f49a9be82e83b25defda1e3f26826ebe817a8d5ce1ae",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:52002e206bc59420239f9329f64282cef6697837ca4a01f13d85f590cd0e977a",
@@ -79,13 +80,14 @@
       "expose-stateless-custom-admission-policy-to-callers.md": "sha256:6e63362aa8485a0edd4500c9e3d616c1d4c6c71ee17551251ec4f6d495e49307",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "extend-invocation-local-scheduler-performance-summary.md": "sha256:9bfbd9e6da004b67fb79e0c8ef85f067e978eb782432deea944570817a0e1a49",
+      "extend-measurement-hook-output-to-prepared-complete.md": "sha256:e29f4acec161e45f89360c55a7f39f4cc91c3ad349f1d8117a3fd5dd547802af",
       "group-flag-disabled-checks-in-progress.md": "sha256:dbd74b6a814ab87e204de01e948970a5284a6021e44cf35ee95f5f7dd967f458",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
       "install-check-console-router-before-preflight.md": "sha256:42c664c9280a794898fb3d04e1825ecaefb4e18e83d4bd5bee97eb41d8136abf",
       "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
-      "introduce-invocation-scoped-admission-strategy-lifecycle.md": "sha256:4e16a13c26130a35d4d8feb85bf7942522f1b7adb49311b34adc2eb48771097d",
+      "introduce-invocation-scoped-admission-strategy-lifecycle.md": "sha256:c5fd0ed1deb8aa164fcd18192549ca0910c11f348d5f09a0b34af0ca66bbbfdf",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
@@ -133,7 +135,7 @@
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:577d823f32c2ab8450d1bd065bbc2d4c093d5b7503323b185741389c03dd3066",
       "present-bounded-safe-finding-summaries.md": "sha256:3539716791dfc6042d91b2d6a9b415b4512f93de32ed76325d0670925a4f5b44",
-      "preserve-primary-run-failures-over-measurement-hook-output.md": "sha256:01dbc2b595e7c0438649b42614ef5c9318f6402f5996dfad89c7df0434f52055",
+      "preserve-primary-run-failures-over-measurement-hook-output.md": "sha256:8769f43e0f5cdff34c765a9313009ebcfa9ab676d0a59078d675e5164100c4d7",
       "preserve-release-gate-readiness-with-invocation-creation-time.md": "sha256:c5e3ce738dbf3d078674930a9db739f5f18df2d5770b66f40ae41056aefc426e",
       "project-executable-checks-into-validated-task-graph.md": "sha256:4e14e495582b34b098a4dbbb5ed872b7928db57b7cf7e44a9bae33347d58cee2",
       "provide-caller-keyed-json-cache-without-run-caching.md": "sha256:a4202b9217e59872a9d2777688722d72bceeaa6dc5b2564b59bbefed0db74a73",
@@ -176,6 +178,7 @@
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:d3f57d08bba36a5e22d4e4bccb41ef7bba506032c2d4d824dfb5ff721c77db8d",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
+      "retain-private-invocation-admission-strategy-lifecycle.md": "sha256:e4fa4f38bfd0080c7256563a5a861e71d65f846870e11a6470bef368d3f56231",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
@@ -342,6 +345,42 @@
           "workflow-policy"
         ],
         "relations": []
+      }
+    },
+    "adopt-invocation-scoped-custom-admission-strategy-authoring.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "adopt-invocation-scoped-custom-admission-strategy-authoring.md",
+        "title": "采用 invocation-scoped custom admission strategy authoring",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-09-03T05:59:31Z",
+        "purpose": "让 custom 准入作者以 simple 或 prepared 两种明确形态表达一次 Run 的同步选择和可选 completion，而不扩大 Scheduler 的控制或状态边界。",
+        "background": "当前 public callback 只有 proposeAdmission；private lifecycle 与 terminal output 各由独立 Decision 承接。",
+        "decision": "采用 simple/prepared public grammar、Invocation-owned preparation/completion 和无兼容 authoring migration。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "introduce-invocation-scoped-admission-strategy-lifecycle.md"
+          }
+        ]
       }
     },
     "adopt-low-level-markdown-link-parser-architecture.md": {
@@ -2606,6 +2645,40 @@
         ]
       }
     },
+    "extend-measurement-hook-output-to-prepared-complete.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "extend-measurement-hook-output-to-prepared-complete.md",
+        "title": "将 prepared complete 纳入 measurement Hook output",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-09-03T06:15:21Z",
+        "purpose": "让 generic Hooks 与 prepared complete 共用 terminal pipeline，并保留既有 RunResult output。",
+        "background": "现有 output 只覆盖 generic Hook；complete 必须纳入同一 failure 语义而不改名。",
+        "decision": "保留 outputs.measurementHooks 和现有 diagnostic，并将 prepared complete 纳入 aggregate。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "preserve-primary-run-failures-over-measurement-hook-output.md"
+          }
+        ]
+      }
+    },
     "group-flag-disabled-checks-in-progress.md": {
       "keys": {
         "tag": [
@@ -2802,16 +2875,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "introduce-invocation-scoped-admission-strategy-lifecycle.md",
+        "sourcePath": "archive/introduce-invocation-scoped-admission-strategy-lifecycle.md",
         "title": "以 invocation 策略生命周期包装纯准入选择",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-03T04:24:05Z",
         "purpose": "让每次 Run 的策略准备、纯准入选择和终态性能处理各有唯一边界，同时保持 Scheduler 对执行状态机与硬合法性的唯一责任。",
@@ -4327,16 +4400,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "preserve-primary-run-failures-over-measurement-hook-output.md",
+        "sourcePath": "archive/preserve-primary-run-failures-over-measurement-hook-output.md",
         "title": "保留主 Run failure 高于 measurement Hook output",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-02T01:50:13Z",
         "purpose": "让 measurement Hook 副作用可见而不掩盖已形成的主 Run failure。",
@@ -5676,6 +5749,42 @@
           {
             "type": "修订",
             "target": "treat-run-output-directories-as-explicit-trusted-targets.md"
+          }
+        ]
+      }
+    },
+    "retain-private-invocation-admission-strategy-lifecycle.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "retain-private-invocation-admission-strategy-lifecycle.md",
+        "title": "保留私有 invocation 准入策略生命周期",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T06:15:11Z",
+        "purpose": "让现行 static、custom 与 learned 准入策略在 Invocation 内完成私有准备、同步选择与终态记录，同时保持 Scheduler 的唯一执行责任。",
+        "background": "现行 private lifecycle、measurement demand 与 Scheduler execution boundary 需要共同 owner。",
+        "decision": "保留 private provider lifecycle、measurement demand、learned state 与 Scheduler hard guards。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "拆分",
+            "target": "introduce-invocation-scoped-admission-strategy-lifecycle.md"
           }
         ]
       }

@@ -1,26 +1,51 @@
 # Proposal
 
-本 Draft 评审是否以及如何让 package consumer 定义 invocation-scoped custom admission strategy 的 `prepare → decide → complete` 生命周期；它依赖已验证的 private lifecycle seam，但不在 Draft 阶段改变现有 public callback contract。
+本 Plan 的 Outcome 是让 package consumer 以一个 invocation-scoped custom strategy 完成一次 Run 的准入选择，并把它的 completion 纳入现有 terminal measurement output。
 
 ## Why
 
-当前 public custom admission policy 只有每轮同步 `proposeAdmission(context)`，终态副作用另由 `scheduler.measurementHooks` 配置。它能安全地把 Scheduler 的纯 `select | wait` boundary 暴露给调用方，却不能让一个 custom strategy 在 graph ready 后异步准备 invocation-local model，或在 terminal measurement sealed 后以同一策略实例提交学习状态。
-
-private learned strategy 已需要这三个阶段，但直接把其内部 provider 公开会泄漏 history/storage、Scheduler implementation 或过宽 context，也会混淆当前 custom callback fault 与 measurement-hook output failure。需要独立评审最小公共契约、兼容路径和失败语义，而不能将它们作为 private owner 解耦的附带改动。
+**当前事实：** public custom authoring 只有同步 `proposeAdmission(context)`；Invocation 已有私有 provider lifecycle，而 generic `scheduler.measurementHooks` 与私有 `complete` 分属两个终态交付路径。调用方无法以一个可验证的 public contract 表达异步准备、Run-local `decide` 与终态提交。
 
 ## Outcome
 
-在先行 private lifecycle seam 已验收后，项目拥有一份可执行的 public-contract Plan 或明确的不采用结论：
+实现后，package consumer 可选择两种 custom strategy：simple strategy 直接同步 `decide`；prepared strategy 通过异步 `prepare` 形成该 Run 独有的 `decide` 与可选 `complete`。Invocation 管理 `prepare` 和 `complete`，Scheduler 继续只消费同步、result-only 的 `select | wait` policy，并独占 graph legality、hard guards 与 Task execution。
 
-- 若采用，custom author 可以为一次 Run 定义 `prepare once → decide 0..N → complete once`，而 Scheduler 仍只消费同步、受 hard guards 验证的 `decide`。
-- public prepare/decide/complete contexts、terminal measurement visibility、错误与 output status、cancellation/policy-fault delivery、fingerprint/compatibility均有最小且可验证的定义。
-- 若不采用，继续保留 `proposeAdmission` 加独立 `measurementHooks`，并说明它为何足以覆盖真实 consumer。
+当 Scheduler 形成 sealed terminal measurement 时，它运行既有 internal summary 与 configured generic measurement Hooks runner；Invocation/orchestration 在该 runner 返回后交付 prepared `complete`，并将同一 sequence 结算到既有 `outputs.measurementHooks`。该 field 继续作为唯一 aggregate output，并保留既有 diagnostic、primary-result precedence、sealed Task/Check facts 与 machine v4。
 
-## Change Boundary
+## Scope
 
-本 Draft 的唯一 contract owner 是 public custom admission authoring（`src/project-definition/scheduler-policy.ts`、public export 与相邻 consumer documentation）；invocation 只是在候选被采用后运行该 contract，Scheduler 继续唯一拥有 hard guards 和真实执行状态机。
+### Intended Change
 
-- **进入 Plan 的全部前置**：当前 runtime 的 private seam 已进入实施基线；它由 Architecture、API mechanics 与 active+aligned lifecycle Decision 承接。仍须有至少一个真实 consumer 证明现有 `proposeAdmission` 加独立 `measurementHooks` 不足，并闭合 public shape、prepare/complete context、failure/output/cancellation/overlap matrix、Definition normalization/fingerprint、installed-consumer evidence，以及必要的 Decision 演进。未满足任一项时保持 Draft，且不得创建 tasks 或修改 runtime。
-- **依赖 / 非依赖**：当前 private seam 是已满足的实施基线，不把已归档 Change artifact 作为当前 contract owner。simulation 不是本 Change 的语义或 public-contract 前置：它独占 decision-time facade/context 及其 Definition normalization/fingerprint/compatibility，而本 Draft 独占 outer `prepare`/`complete` authoring shape、其 normalization/fingerprint 与 failure/output。若二者都采用，custom contract 必须复用当前已接受的 decision DTO 或 simulation 已稳定的 DTO，不重定义同一 vocabulary；推荐 simulation → custom 的实施顺序只为减少共享 public-owner 返工，不构成硬依赖。invocation path context 也不是默认前置，除非真实 consumer 明确需要其 owner 提供的已授权 writable/cross-Run capability。
-- **公共 / 私有**：当前公开且稳定的是 trusted synchronous `proposeAdmission(context) → select | wait` 与独立 `measurementHooks`。private provider、collector metadata、history/storage、score、clock 和 mutable engine state 都不公开；`prepare`/`complete` 只是待审候选，不是已承诺 API。不会新增 `expectedDurationMs`，也不会更改 `admissionPriority` 仅作策略自身排序后的同分 tie-break 语义。
-- **Plan / 验收出口**：Plan 必须能选择“采用最小 contract”或“有证据地不采用”；若采用，验证必须覆盖 public compatibility、terminal/failure matrix、per-Run isolation、installed consumer 与 Scheduler hard-guard preservation。模型细节可以可观察，不能仅因可见而成为兼容承诺。
+- 公开 closed custom strategy grammar：`simple` 提供同步 `decide`；`prepared` 提供 async-capable `prepare`，并返回该 Run 的 `decide` 与可选 `complete`。`prepare` 读取 frozen graph-ready facts，`decide` 复用 `AdmissionPolicyContext`，`complete` 读取 sealed `SchedulerMeasurementContext`。
+- 由 Invocation 为每个 graph-ready Run 解析 strategy、执行一次 `prepare` 并保存 Run-local closure；它将唯一的 frozen synchronous policy 交给 Scheduler。
+- 建立 `Scheduler seal → Scheduler internal summary + configured generic measurement Hooks → Invocation prepared complete → aggregate` 的 terminal delivery：generic runner 返回后才调用 `complete`，并以同一个 `outputs.measurementHooks` 结算全体实际 participant。
+- 同步完成 public TypeScript definition、exact runtime validation、normalization、declarative snapshot/fingerprint、exports、documentation、installed-consumer fixture、runtime tests、Test Evidence 与 workspace evidence。
+
+### Resulting Impacts
+
+- Project Definition、public declaration 和 fingerprint 共同表达 strategy kind，运行时只保留 callback runtime state，不把 callback identity、source 或 closure 写入 declarative snapshot。
+- Invocation、provider、terminal measurement delivery 和 RunResult mapping 共同形成 per-Run lifecycle、一次 terminal delivery 及其 failure precedence；Scheduler 的执行状态机和 hard guards 保持单一 owner。
+- API/configuration/architecture docs、README/JSDoc/examples、package candidate 与 Test Evidence 共同提供 public contract 和消费者可核对证据；`docs/output.md` 仅核对 machine boundary。
+
+### Compatibility and boundaries
+
+- public custom authoring 采用 simple/prepared 两种 shape；旧 `proposeAdmission` 是 breaking migration 的唯一兼容边界，validation、normalization、declaration、docs 和 installed-consumer acceptance 一致执行该边界。
+- callback 是 trusted host code：Product 通过 frozen context 和 result-only handoff 限定 Product surface，不提供 state、filesystem、persistence、clock、logger、mutable Scheduler state 或 Task command。
+- Simulation 可独立、增量地扩展 context object；它不是本 Plan 的依赖。machine v4、schema version、algorithm Change 与 generic persistence/model API 均不在本 Plan 范围。
+
+## Success Criteria
+
+1. public definition、runtime validation、normalization、declaration projection 和 installed-consumer fixture 共同接受两种 strategy form，并以同一 compatibility boundary 验收已退休 authoring form、unknown field 和 async/thenable `decide`。
+2. 每个 graph-ready Run 各自完成 strategy preparation；overlapping Runs 的 returned closure 相互隔离，Scheduler 只收到 frozen synchronous policy 并保留现有 hard guards。
+3. sealed terminal context 触发唯一、可排序的 side-effect pipeline：Scheduler 的 generic runner 让所有 configured observers 先获得调用机会，Invocation 随后最多一次交付 prepared `complete`；没有 sealed context 时 field 以其 enabled 条件保留 `not-run`。
+4. preparation、decision、pre-terminal engine、terminal side-effect、cancellation 与 normal completion 都按确定的 failure matrix 形成结果；`complete` 或 generic Hook failure 仅影响既有 aggregate output，并保留 sealed facts 与 primary-result precedence。
+5. stable owner documentation、public declarations、runtime/tests、Test Evidence、installed consumer 以及 required/full workspace verification 提供可复核证据；两个 active + unaligned future Decisions 仅在这些内容成为 current fact 后才可对齐。
+
+## Affected Owners
+
+- `docs/architecture.md#private-admission-strategy-lifecycle`、`docs/configuration.md`、`docs/api-mechanics.md#outputs-与-runresult-边界`：稳定事实、public contract、RunResult output 和事实/目标边界；`docs/output.md` 只核对 machine boundary。
+- `src/project-definition/scheduler-policy.ts`、`src/project-definition/project-definition.ts`、validation/fingerprint owner、`src/index.ts`：authoring grammar、normalization、declaration 与 fingerprint。
+- `src/project-run/admission-strategy-provider/**`、`src/project-run/invocation.ts`、`src/project-run/task-scheduler/scheduler-terminal-measurement.ts`：Invocation lifecycle、terminal delivery、Scheduler handoff 与 output mapping。
+- `docs/testing.md`、`docs/testing/case-maintenance.md`、`docs/testing/cases/quality-runtime.md` 与相邻 runtime tests：行为证明和 Case closure。
+- `scripts/package/candidate/external-consumer/type-acceptance.ts`、package docs/examples 和 build verification：installed-consumer public declaration evidence。
+- [Authoring Decision](../../docs/decisions/adopt-invocation-scoped-custom-admission-strategy-authoring.md)、[measurement Hook output Decision](../../docs/decisions/extend-measurement-hook-output-to-prepared-complete.md)、[Change coordination](../../docs/change-execution-order.md)：长期方向、合入冲突和阶段协调。

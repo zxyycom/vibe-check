@@ -1,64 +1,138 @@
 # Design
 
-本 Draft 将“为 custom callback 增加几个 hook”视为一项 public lifecycle contract，而不是把 private learned provider 或 Scheduler internals 直接暴露给消费者；在范围、failure 和兼容性闭合前不创建 `tasks.md`。
+本设计以 public custom strategy 的 Run 数据流、terminal output contract 和 failure matrix 落实 Proposal 的 Outcome；实现前后分别由 current owner 与本 Plan 的交付证据确认事实。
 
 ## Context
 
-- 当前 custom public API 是 trusted、synchronous `proposeAdmission(context)`：每次实际 Scheduler callback 接收 detached/deep-frozen graph、dynamic candidate/capacity/runtime facts 和 bounded measurement prefix，并精确返回 `select(taskId)` 或 `wait`；Product不sandbox或限制其自身closure/reentrancy/host-side effect，但不提供imperative Scheduler capability。
-- Scheduler 对 throw、thenable、malformed/illegal proposal执行 admission-policy fault：停止新 admission、取消 pending、drain started work，并以受限 execution diagnostic结束；它不 fallback 到 static。
-- `scheduler.measurementHooks` 是独立的 terminal side effect，已有独立 output status 和 failure delivery；Product 不把它与 custom policy 绑定为同一策略实例。调用方可以在两个分别 author 的 callback 中手工共享 closure，但其组合与生命周期属于调用方，不是 Product contract。
-- 当前 runtime 的 private seam 已验收 effective strategy 的 conditional terminal completion 和 Scheduler-only decide handoff；其 current owners 是 [`Architecture`](../../docs/architecture.md#private-admission-strategy-lifecycle)、[`API mechanics`](../../docs/api-mechanics.md#learned-critical-path-准入) 与 lifecycle Decision。已归档 Change 只保留形成时证据，不开放或预设 public surface。
-- [`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 当前为 `active + aligned`：它确认 private outer lifecycle / inner pure-policy 分层，仍不闭合 public grammar、context 或 complete/failure 语义；本 Draft 的开放问题必须独立闭合。
+| 范围 | 当前实现 | 本 Plan 的目标契约 |
+| --- | --- | --- |
+| public authoring | custom policy 使用同步 `proposeAdmission(context)`；callback 不进入 declarative fingerprint。 | custom policy 使用 simple 或 prepared strategy；strategy kind 进入 declarative fingerprint，callback identity/source/closure 留在 runtime state。 |
+| Invocation 与 Scheduler | private provider 在 graph ready 后形成 frozen `AdmissionSelectionPolicy`；Scheduler 同步 `decide` 并拥有 execution state machine。 | Invocation 为每个 Run 管理 public `prepare`/`complete`；Scheduler 继续只接收 frozen synchronous policy 并拥有 execution state machine。 |
+| terminal delivery | Scheduler terminal runner 交付 internal summary 和 generic measurement Hooks；Invocation 随后单独调用 private `complete`。 | Scheduler 继续运行 existing summary/generic Hook runner；Invocation/orchestration 在其返回后调用 prepared `complete`，并统一结算既有 `outputs.measurementHooks` aggregate。 |
+
+稳定 owner：Scheduler 拥有 graph legality、relation/mutex/capacity/cancellation、Task start/settlement/drain、raw measurement seal 及 existing summary/generic Hook runner；Invocation/orchestration 拥有 strategy lifecycle、跨该 runner 的 sequence 与 aggregate mapping；terminal context 是 frozen graph、kind-only execution 与 raw measurement 的 DTO。
 
 ## Goals / Non-Goals
 
-**Goals**
+### Goals
 
-- 评审一个最小、可公开声明和 installed-consumer 验收的 invocation-scoped custom strategy lifecycle。
-- 保持 Scheduler-facing decision 同步、result-only `select | wait`，并保留 Scheduler hard guards 与 fault classification；不把当前custom trusted callback误升级为Product可强制的pure contract。
-- 明确 prepare、decision measurement、complete terminal context的时间边界，特别是 complete 仅看到已 sealed terminal facts。
-- 分别定义 public lifecycle failure、现有 policy fault、existing measurement-hook failure、cancellation和overlapping Runs的兼容与可观察结果。
+- 让 simple 和 prepared 成为清晰、可验证的 public custom strategy forms，并使 TypeScript、runtime validation、normalization、fingerprint 和 package declaration 表达同一 contract。
+- 为每个 Run 建立独立的 prepared closure，以同步 result-only `decide` 接入现有 Scheduler hard guards。
+- 使 sealed terminal facts 通过一条 ordered side-effect pipeline 交付，并由既有 `outputs.measurementHooks` 结算参与状态和 failure。
+- 为 preparation、decision、terminal delivery、primary result 与 overlap 提供唯一 owner 和可测试的结果矩阵。
 
-**Non-Goals**
+### Non-Goals and boundaries
 
-- 不公开 duration history、state-directory storage、critical-path score、logger、clock、private Scheduler object或 mutable engine state。
-- 不预建策略 registry、generic learning/model API、event bus、per-Task online-learning hook、background worker、任意 filesystem capability或 automatic persistence。
-- 不将 custom lifecycle 与现有 `measurementHooks` 静默合并，不把 asynchronous decide 交给 Scheduler，不把 callback side effect误称为 sandbox。
-- 不在本 Draft 修改 public Definition、schema、fingerprint、package declaration、runtime、tests或稳定 documentation。
+- public authoring 只有 simple/prepared 两种 form；`proposeAdmission` migration、async/thenable `decide` 和 unknown authoring fields 的 acceptance 集中在 public compatibility validation 与 consumer evidence。
+- trusted host callback 自行持有 host capability；Product context 不扩展为 state directory、filesystem/persistence service、clock、logger、mutable Scheduler inspection 或 imperative Task control。
+- Simulation、algorithm/preset research、registry、generic model API 和 machine v4/schema revision 不属于本 Plan。`docs/output.md` 只验证 machine boundary，RunResult output 继续由 API mechanics、types 与 package documentation owner 承接。
 
 ## Decisions
 
 ### Intended Change
 
-尚未采用具体 public shape。若进入 Plan，候选必须同时满足以下固定边界：
+#### Public contract and declarative representation
 
-1. **生命周期**：effective custom strategy 对每个 Run 只 prepare 一次，prepare完成后 Scheduler 才开始 measurement；Scheduler在 measurement lifecycle 内调用同步 decide 零至多次；停止 admission、drain并 seal terminal measurement后最多一次调用 complete。complete不能重启调度或改变terminal facts。
-2. **责任层**：public strategy lifecycle由 invocation运行；consumer 视角只 author synchronous result-only decide，private adapter 负责把它形成完整 frozen `AdmissionSelectionPolicy` 并保留/决定 private measurement requirements。Scheduler只接收该完整 private policy，不接触prepare/complete；author不能伪造 `requiresMeasurement`、collector、clock、prefix或action-attribution metadata。prepare/complete可作为未来候选承载明确副作用；当前及候选decide不允许thenable、不能逃逸hard guard验证，但不以此限制custom作者自身closure/host-side effect。
-3. **数据方向**：同一 Run 的 complete数据不能影响既已发生的decide。若consumer需要跨Run learning，必须通过它已经被授权的store/capability与下一次prepare，而不是通过共享global closure；是否提供任何 Product path/state capability由独立 owner和真实consumer决定。
-4. **最小公约数**：prepare只获得 graph-ready和稳定 invocation facts；decide继续获得现有、bounded Scheduler decision DTO；complete只获得已 sealed terminal execution/measurement facts。private adapter 的 measurement requirement metadata不投影为public model field，author也不能伪造它。不得为了统一三个阶段而暴露所有内部输入或泛化 DTO。
-5. **兼容性**：必须比较保留现有 `{ kind: "custom", proposeAdmission }`、新增显式 strategy kind、或带弃用周期的适配层。callback identity仍不得进入declarative fingerprint；任何新 authoring shape、normalization或fingerprint语义都必须由对应 public owner验证。
-6. **失败与输出**：必须明确 prepare failure是否阻止Scheduler、complete failure如何影响Run result/output status、policy fault/cancellation是否仍delivery complete，以及与多个现有measurementHooks的顺序和独立失败归属。不得把未决语义默认为learned private fallback。
+```ts
+type CustomAdmissionStrategy =
+  | Readonly<{
+      readonly kind: "simple";
+      readonly decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+    }>
+  | Readonly<{
+      readonly kind: "prepared";
+      readonly prepare: (
+        this: void,
+        context: CustomAdmissionPreparationContext,
+      ) => PreparedCustomAdmissionStrategy | Promise<PreparedCustomAdmissionStrategy>;
+    }>;
+
+type PreparedCustomAdmissionStrategy = Readonly<{
+  readonly decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+  readonly complete?: (
+    this: void,
+    context: SchedulerMeasurementContext,
+  ) => void | Promise<void>;
+}>;
+
+type CustomAdmissionPreparationContext = Readonly<{
+  readonly graph: SchedulerGraphSnapshot;
+}>;
+
+// AdmissionPolicy custom branch
+Readonly<{ readonly kind: "custom"; readonly strategy: CustomAdmissionStrategy }>;
+```
+
+`CustomAdmissionPreparationContext.graph` 是 frozen graph-ready fact；`AdmissionPolicyContext` 仍是 exact decision DTO；`SchedulerMeasurementContext` 仍是 sealed terminal DTO。exact validation、normalization 和 declaration projection 共同验证 own-key/function shape。outer policy/strategy frozen 后，declarative snapshot 只记录 `{ kind: "custom", strategy: { kind: "simple" | "prepared" } }`。
+
+#### Per-Run strategy lifecycle and Scheduler handoff
+
+```text
+static graph validation
+  → Invocation resolves strategy for this Run
+  → simple closure | await prepared prepare(graph-ready context)
+  → frozen synchronous AdmissionSelectionPolicy.decide
+  → Scheduler decides, enforces guards, starts/settles/drains Tasks
+  → Scheduler seals terminal measurement when a terminal context exists
+```
+
+simple strategy 形成委托其 `decide` 的 Run-local closure。prepared strategy 在每个 graph-ready、未在 pre-work/planning cancel 的 Invocation 中执行一次 `prepare`，并只使用该次返回的 object；overlapping Runs 的 closure 与 Product-owned mutable state 相互隔离。Scheduler-facing `decide` 始终同步且 result-only。trusted callback 可使用调用方 closure 已捕获的 host capability；Product 通过上述 DTO 和 handoff 保持执行边界。
+
+#### Terminal measurement side-effect pipeline
+
+只有 Scheduler seal 出 terminal context 时，跨 owner 的 coordinator 形成以下 single semantic pipeline：
+
+```text
+sealed terminal measurement
+  → Scheduler: internal default summary + configured generic measurement Hooks
+  → Invocation/orchestration: prepared complete for this Run, once when present
+  → Invocation/orchestration: aggregate outputs.measurementHooks status and Run output mapping
+```
+
+Scheduler 在 sealed context 上运行既有 summary/generic Hook runner；它返回后，Invocation/orchestration 才交付该 Run 的 prepared `complete`，再结算 aggregate。internal summary writer 留在其 containment wrapper，generic runner 保持配置顺序并让全部 generic Hooks 获得调用机会。
+
+`outputs.measurementHooks` 的 closed state 由实际 participants 决定：
+
+| 条件 | `enabled` / `status` |
+| --- | --- |
+| Definition 的 generic Hook list 非空，或 successful prepared result 实际包含 `complete` | `enabled: true`。 |
+| 两者均无 | `enabled: false`（`disabled`）。 |
+| enabled Run 没有形成 sealed terminal sequence | `not-run`。 |
+| terminal sequence 形成，且全部实际 generic Hooks 与 `complete`（如存在）成功 | `succeeded`。 |
+| terminal sequence 形成，任一 actual generic Hook 或 `complete` throw/reject | `failed`。 |
+
+因此，prepare failure 且没有 generic Hooks 时为 `disabled`；prepare failure 且存在 generic Hooks 时为 enabled/`not-run`。没有 generic Hooks 且 successful prepared result 没有 `complete` 时为 `disabled`；没有 generic Hooks、prepared result 包含 `complete`、但随后没有 sealed context 时为 enabled/`not-run`。
+
+#### Failure matrix
+
+| 触发点 | owner 与处理 | 可观察结果 |
+| --- | --- | --- |
+| `prepare` throw/reject | Invocation 在 Scheduler start 前结束该 Run。 | primary `execution` diagnostic `admission-strategy-preparation-failed`；没有 terminal context 或 completion delivery；output state 按 generic Hook list 决定 `disabled` 或 enabled/`not-run`。 |
+| `decide` throw、thenable、malformed proposal、非法 `select` 或 undrainable `wait` | Scheduler 执行既有 policy-fault handling：停止新 admission、cancel pending、drain started work。 | `admission-policy-failed`；drain 后若 seal 出 context，prepared `complete` 交付一次。 |
+| pre-terminal task-engine failure | task engine 形成 primary execution result。 | 不生成 terminal context；enabled output 保持 `not-run`。 |
+| generic Hook 或 `complete` throw/reject | Scheduler generic runner 保证之后的 generic Hooks 获得调用机会；Invocation/orchestration 汇总 failure。 | `outputs.measurementHooks.status: "failed"`；normal completed Run 映射为 facts-preserving `kind: "output"` / `scheduler-measurement-hooks-failed`。 |
+| cancellation 或其他 primary execution result | Run result mapping 保留已选择的 primary outcome。 | aggregate status 可见 terminal side-effect failure；sealed Task/Check/aggregation facts 保持原值。 |
+| normal terminal sequence | all participants settle successfully。 | `outputs.measurementHooks.status: "succeeded"`，并保留 normal result。 |
+
+#### Documentation and evidence contract
+
+Stable owner docs 在实施前标明 current fact 与 Plan contract，实施后以落地行为替换目标说明。package docs、JSDoc、examples 和 installed-consumer fixture 展示两种 strategy form、frozen context、trusted-host boundary、terminal order 与 RunResult field。runtime tests 与 Test Evidence 分别证明 public grammar、hard guards、lifecycle order、failure facts 和 package surface。
 
 ### Resulting Impacts
 
-- 该契约若采用，会影响 public project Definition/normalization/fingerprint、package declarations、invocation lifecycle、Scheduler policy adapter、output status、API/configuration/architecture/testing docs、installed consumer与Test Evidence。
-- 当前 private lifecycle seam 已满足 implementation prerequisite。本 Change 仍是 Draft：只有真实 consumer 证明现有 API 不足，并闭合 public shape、context、failure/output/cancellation/overlap、fingerprint、installed-consumer evidence 与必要 Decision 后，才可创建 implementation tasks 或修改运行时。
-- 可能需要演进当前 stateless-custom-policy 和 measurement related长期 Decision；本 Draft 不修改它们。只有候选契约改变稳定责任、兼容或failure边界时，先按 Decision owner闭合。
-- 与 `provide-invocation-path-context` 只有条件关系：纯 lifecycle 不需要新的 path；只有确认custom prepare/complete需要Product-provided writable workspace或cross-Run state capability时，再由path Change和真实consumer决定硬前置与owner。
+| owner | 必须交付的结果 | 主要证据 |
+| --- | --- | --- |
+| public scheduler policy、Project Definition、fingerprint、exports | definition、exact validation、normalization 和 declaration 对同一 strategy grammar 达成一致。 | targeted type/runtime tests、declaration projection、installed-consumer type acceptance。 |
+| provider、Invocation、terminal measurement、RunResult mapping | per-Run preparation、single terminal sequence、aggregate status 和 primary-result mapping 使用明确 handoff。 | lifecycle/terminal tests 与 failure matrix assertions。 |
+| stable documentation、package material、Test Evidence | public contract、runtime facts 和 Case ownership 一致且可定位。 | docs validation、Case closure、package candidate evidence。 |
+| shared Scheduler/public API owners | 以 stable private seam 为 implementation baseline，并按协调顺序处理交叉 owner。 | Change coordination review 与 required/full workspace verification。 |
 
 ## Risks / Trade-offs
 
-- 把 private provider逐字公开会冻结学习与诊断内部结构；过度抽象又会建立没有真实consumer的框架。public context必须以consumer实际义务为最小公约数。
-- complete failure若混同admission-policy fault或measurementHooks output，会改变既有Run result与failure containment；需要专门的兼容matrix和终态测试。
-- prepare可有I/O，若对graph-ready、measurement start、cancellation和overlap没有明确顺序，consumer会得到不可重放的行为；必须把时序和per-Run isolation写入contract。
-- 任何“提供stateDirectory”的捷径都会把filesystem权限和persistence责任偷渡入Scheduler API；它必须另有caller-authorized owner。
+- authoring replacement 需要在一次 implementation 中同步 public declaration、validation、documentation 与 installed-consumer evidence；分散变更会造成 consumer contract 不一致。
+- terminal delivery 重构跨越 Scheduler 与 Invocation owner；sequence 的责任划分和 sealed snapshot 保留必须由 targeted behavior tests 审计。
+- preparation context 保持最小化能维护 Product control boundary；需要外部 capability 的 consumer 通过 trusted closure 持有它。
 
 ## Open Questions
 
-1. 是否存在不能由现有 `proposeAdmission` 加独立 `measurementHooks` 完成的真实 consumer；其最小 prepare、terminal commit和persistence需求分别是什么？
-2. public shape应是新 `kind`、兼容旧 callback的union，还是显式breaking replacement；迁移期、schema和fingerprint如何定义？
-3. prepare context是否需要 project/invocation path事实，还是仅 graph、canonical flags、signal等稳定数据足够？任何writable store应由谁授权？
-4. complete应看到哪些sealed terminal facts：完整raw measurement、精简observation、settlements，还是更窄projection？哪些数据会泄漏Check/private执行信息？
-5. prepare失败、complete失败、cancelled Run和admission-policy fault分别是否调用complete，并如何映射到existing result/output status？
-6. custom strategy complete与现有多个 `scheduler.measurementHooks` 的确定顺序、并发与failure isolation是什么；是否保留两者独立？
-7. 哪些候选结论需要新增或演进Decision，哪些可由公共contract Change独立完成？
+无。public grammar、compatibility boundary、context minimum、terminal order、existing output mapping、failure matrix、Simulation non-dependency 与 Decision lifecycle 已确认；局部 naming 或 module placement 仅可在保持这些契约的前提下选择。

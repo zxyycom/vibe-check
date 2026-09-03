@@ -58,7 +58,7 @@
 
 ## 当前协调基线
 
-本节于 2026-09-03 按当前工作树提交 `2828a7970ad6a24fdf977dd5597feb78ccf81c0a` 与当前 active Change artifacts 审阅。该基线包含：
+本节于 2026-09-03 按当前工作树提交 `50c7264d41da970bd9cb4867d33e8ada7931de09`、当前 active Change artifacts 与 Decision 状态审阅。该基线包含：
 
 - `714fcd48d76416a27fe813466ef1550a25ddedf7` 中已集成的 Scheduler 依赖、策略、测量与性能诊断基础；
 - `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
@@ -74,8 +74,8 @@ baseline，没有沿用旧测量。
 
 | 批次 | Change | 当前允许的工作 | 并行边界 |
 | --- | --- | --- | --- |
-| 1A：已归档 Scheduler lifecycle 实现 | [形成时 archive](../changes/archive/separate-duration-learning-from-admission-strategy/proposal.md) | **已归档**：17/17、correctness review 与 required/full Gate 是形成时完成证据。当前 lifecycle seam 由 [Architecture](architecture.md#private-admission-strategy-lifecycle)、[API mechanics](api-mechanics.md#learned-critical-path-准入) 与 [active+aligned Decision](decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 承接；后继只从其稳定实现提交建立基线 | duration-model、task-scheduler、provider、resolved-checks 与 invocation 的当前 owner/边界以 runtime 与上述 current owners 为准；archive 不再是当前规范或授权来源 |
-| 1B：Custom lifecycle Draft | [`support-invocation-scoped-custom-admission-strategies`](../changes/support-invocation-scoped-custom-admission-strategies/proposal.md) | 当前 private seam 已是稳定基线；仍须调查真实 consumer、outer prepare/complete、failure/output、compatibility 与 fingerprint，未满足自身 Plan 前置时不得写 runtime 或 tasks | 继承包含当前 seam 的稳定提交；若 simulation 也被采用，推荐 simulation → custom 以复用 stable decision-time DTO，但不是语义硬依赖 |
+| 1A：私有 lifecycle 基线 | [active + aligned private lifecycle Decision](decisions/retain-private-invocation-admission-strategy-lifecycle.md) | 当前 stable baseline 是 Invocation-private provider lifecycle 与 Scheduler execution boundary；runtime、Architecture 和 API mechanics 是 current owner。形成时 archive 只保留 provenance。 | duration-model、task-scheduler、provider、resolved-checks 与 invocation 的 current owner 以 stable owner 为准；本行不授予新的 implementation 工作。 |
+| 1B：Custom lifecycle Plan | [`support-invocation-scoped-custom-admission-strategies`](../changes/support-invocation-scoped-custom-admission-strategies/proposal.md) | 处于 Plan：按其 Readiness 实施 public custom authoring、Invocation lifecycle、terminal output aggregation 与 consumer/Test Evidence；每项工作仍须有当前授权。 | 唯一 hard prerequisite 是包含 stable private seam 的 commit。与 Simulation/algorithm 共享 project-definition、invocation、terminal delivery、RunResult output、Case 和 docs owner 时默认串行集成；Simulation 只可独立、增量地提供 context object。 |
 | 1C：Admission simulation Draft | [`provide-admission-strategy-simulation`](../changes/provide-admission-strategy-simulation/proposal.md) | 调查 decision-time inspect/catalog/validator/next-boundary legality、branch transition、caller-specified settlement、compatibility、Decision alignment；Plan 前必须建立 compile/catalog/validation/branch/fanout/search 与 real static/custom/learned path 的可复现性能 baseline，不得写 runtime 或 tasks | simulation 建立 single compiled machine + pure core state/reducer + canonical effects，real shell 与 simulation facade 同源；因 task-scheduler/invocation owner 重叠，推荐从包含当前 seam 的稳定提交串行并继承基线，但不是语义硬依赖；若 custom lifecycle 也被采用，推荐 simulation → custom 以避免重复定义 DTO，仍不与 1B 合并 |
 | 1D：Scheduler 算法 Plan | [`optimize-learned-admission-strategy`](../changes/optimize-learned-admission-strategy/proposal.md) | 已收敛为 strict baseline 与唯一 same-layer admissible-first 候选的可证伪比较；当前 seam 已可作为稳定基线。当前按自身 Readiness 冻结 corpus、prediction provenance、A/B data contract 与门槛；未满足本 Change 的 evidence gates 与单独授权前不得切换生产策略 | 固定 duration prediction 输入，不与 model/statistics 优化混跑；scope unsafe-backfill witness 一旦出现 protected-delay 退化即 not-adopt；可共享 private kernel/test harness，但不得依赖 1C 的 public contract |
 | 1E：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A–1D 并行规划；不要同时修改 invocation runtime |
@@ -93,16 +93,14 @@ baseline，没有沿用旧测量。
 | 仅 named capacity | capacity denominator、atomic claim/release、catalog/validator reason、scope/mutex interaction、fanout/search 和 real hot path baseline | capacity contention、backfill safety、utilization/critical-chain delay与结果归因；重采受影响 workload | named capacity 只是 `maxParallel` 的别名或不影响选择合法性 |
 | 两者都已落地或随后变化 | 以上两行的并集；重新确认 shared core、real shell 与 simulation facade 同 trace | 以上两行的并集；冻结新 corpus 后才比较 baseline/candidate | 可只复用旧 numeric threshold、旧 trace 或旧原因词汇 |
 
-simulation 在切为 Plan 前必须完成表中适用的正式 baseline；algorithm 在冻结候选结果前必须完成其适用的 corpus rebaseline。custom lifecycle 只有在其 public output/failure 或 consumer DTO 实际受影响时才重审相应 compatibility matrix。
+simulation 在切为 Plan 前必须完成表中适用的正式 baseline；algorithm 在冻结候选结果前必须完成其适用的 corpus rebaseline。custom lifecycle Plan 不依赖 simulation；只有后续进入其实施基线的 simulation、fail-fast或named-capacity事实实际改变 current decision context、terminal owner或consumer DTO时，才重审相应 matrix。
 
-第一批完成后按以下顺序继续：
+Scheduler 相关 Change 的合入协调：
 
-1. learned-duration Change 已提供稳定实现与 Gate adoption evidence，并在完成 Decision 对齐和 `18/18` tasks 后归档；
-   归档 artifact 只保留形成时上下文，当前行为继续由 runtime、配置、API 与 Decision owner 承接。
-2. 已归档的 `separate-duration-learning-from-admission-strategy` 形成时完成了 duration model 与 pure admission algorithm 解耦，并以 provider 驱动的 `prepare once → private admissionPolicy.decide 0..N`、现有per-decision/terminal measurement requirement矩阵、以及仅在 existing terminal sequence/context 返回且既有terminal Hook delivery后的一次 `complete`，连同 trace、history bytes 与 public results 证明行为等价。当前事实只由 runtime、Architecture、API mechanics 与 active+aligned lifecycle Decision 承接；后继以包含该实现的稳定提交为基线，并在该实现边界变化时重跑受影响验证。
-3. custom lifecycle Draft 可提前审阅真实 consumer，并继承包含当前 seam 的稳定提交；它与算法 Change
-   都会消费该 seam。二者若同时修改 invocation、Scheduler adapter、公共 API 或同一 Case/document owner，默认串行合入。
-4. admission simulation Draft 可服务现有 custom callback 的 lookahead，也可供未来 decide lifecycle 使用；但它不与 custom lifecycle Draft 合并，并自行建立一次 graph compile 的 private machine、pure core state/reducer 与 canonical effects，使 real shell 和 simulation facade 同源。它因 task-scheduler/invocation owner 重叠而推荐从包含当前 seam 的稳定提交串行、继承该提交的基线；这不是语义硬依赖，当前 lifecycle seam 也不替代 simulation 自己的 consumer、contract 与性能设计。算法 Change 仅可共享该 private machine/test harness，不能把 simulation public API 当作算法实施前置。进入 Plan 前还须以可复现 compile/catalog/validation/branch/fanout/search 与 real static/custom/learned path baseline 闭合性能设计，并审阅现有 Decision 对 public branchable simulator 的对齐或后继记录需要。
+1. 1A 的 stable private seam 是后继 Change 的 implementation baseline；当前生命周期事实由 runtime、Architecture、API mechanics 与 private lifecycle Decision 承接。
+2. 1B 可从包含该 baseline 的 stable commit 开始。其 Plan 内的 public contract、terminal output 和证据要求只由 1B artifacts 与两个 active + unaligned Decisions 承接；machine contract 保持既有 owner。
+3. Simulation 与 algorithm Change 保持各自的 contract、evidence gate 和实施授权。它们在修改 shared owner 时与 1B 串行集成；Simulation 不是 1B 的语义前置。
+4. admission simulation Draft 可服务现有 custom callback 的 lookahead，也可供未来 decide lifecycle 使用；但它不与 custom lifecycle Plan 合并，并自行建立一次 graph compile 的 private machine、pure core state/reducer 与 canonical effects，使 real shell 和 simulation facade 同源。它因 task-scheduler/invocation owner 重叠而推荐从包含当前 seam 的稳定提交串行、继承该提交的基线；这不是语义硬依赖，当前 lifecycle seam 也不替代 simulation 自己的 consumer、contract 与性能设计。算法 Change 仅可共享该 private machine/test harness，不能把 simulation public API 当作算法实施前置。进入 Plan 前还须以可复现 compile/catalog/validation/branch/fanout/search 与 real static/custom/learned path baseline 闭合性能设计，并审阅现有 Decision 对 public branchable simulator 的对齐或后继记录需要。
 5. 算法 Change 在固定 prediction input 上比较 strict baseline 与候选；它可从包含当前 seam 的稳定提交开始，但生产 strategy 切换仍须满足算法 Change 自己的 evidence gates 与单独授权。
 6. invocation path context 达到 Plan 后再实现；若只暴露 machine/diagnostic effective paths，不构成 Markdown cache 的
    硬前置。只有它明确提供 cross-run state capability 时，Markdown cache 才依赖它。
@@ -114,14 +112,9 @@ simulation 在切为 Plan 前必须完成表中适用的正式 baseline；algori
 
 ### Scheduler 轨道
 
-Scheduler 的 passed dependency、terminal observation、admission policy、measurement Hook 与性能诊断基础均已归档并
-进入当前基线。`schedule-checks-from-learned-durations` 已完成 Product implementation 和同 candidate、同 membership 的
-交错 A/B acceptance；central Gate 已采用 learned policy，完整数据和环境边界见其
-[`acceptance.md`](../changes/archive/schedule-checks-from-learned-durations/acceptance.md)。learned-history 专项 Decision 已在最终代码、
-文档、测试和 Gate 验收后标记为 `active + aligned`，对应 Change 已归档。该对齐只确认长期方向已经成为当前事实；
-归档 artifact 不再接受 lifecycle 写入。Scheduler 轨道当前没有第二个已授权的生产实现主线。
+Scheduler 轨道的 current baseline 由 runtime、Architecture、API mechanics 与 [active + aligned private lifecycle Decision](decisions/retain-private-invocation-admission-strategy-lifecycle.md)承接。archive 与既有 Gate evidence 只提供形成时 provenance；它们不扩展当前 implementation authorization。
 
-当前 Scheduler 轨道包含一个已归档的 lifecycle 实现、一个 active Plan 与两个相关 Draft。归档 Change 的形成时 17/17、correctness review 与 required/full Gate 只说明其历史完成；当前 private provider lifecycle/owner 由 runtime、Architecture、API mechanics 与 active+aligned lifecycle Decision 承接。`support-invocation-scoped-custom-admission-strategies` 只评审公共 custom lifecycle；private seam 是既有基线，但它仍须先证明真实 consumer 并闭合自己的 public contract，才可进入 Plan/Implementation。`provide-admission-strategy-simulation` 评审由 Scheduler snapshot 支持的 public catalog、per-task validator、wait/complete next-boundary legality 与 branchable select/settle simulation，并要求把一次 graph compile 的 private machine、pure core state/reducer 和 canonical effects 作为 real shell 与 simulation facade 的唯一 shared owner；进入 Plan 前还必须建立可复现的 compile/catalog/validation/branch/fanout/search 与 real static/custom/learned path baseline。它因 owner 重叠推荐继承包含当前 seam 的稳定提交、串行实施，但不语义依赖 archived Change。`optimize-learned-admission-strategy` 只规划固定 model input 的算法比较；它可以消费该稳定基线，但生产实现仍须满足自己的 evidence gates 与单独授权。simulation 可服务现有及 future custom decide，但不与 lifecycle Draft 合并；算法可共享 private machine/test harness，不能依赖其 public contract。
+`support-invocation-scoped-custom-admission-strategies` 是 public lifecycle Plan。它以 stable private seam 为唯一 hard prerequisite；两个 active + unaligned Decisions 承接 public direction。与 `provide-admission-strategy-simulation`、`optimize-learned-admission-strategy` 发生 project-definition、Invocation、terminal delivery、RunResult output、Case 或 docs owner 冲突时，默认串行集成。Simulation 和 algorithm 的 contract、evidence 与 authorization 保持独立。
 Draft/Plan 的存在都不表示已经取得实施授权。
 
 以下两项仍是条件分支，不与 learned scheduler 并行实现：

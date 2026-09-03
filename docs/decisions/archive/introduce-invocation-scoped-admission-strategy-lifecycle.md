@@ -1,6 +1,6 @@
 ---
 title: 以 invocation 策略生命周期包装纯准入选择
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-03T04:24:05Z
 purpose: 让每次 Run 的策略准备、纯准入选择和终态性能处理各有唯一边界，同时保持 Scheduler 对执行状态机与硬合法性的唯一责任。

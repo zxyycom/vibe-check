@@ -1,6 +1,6 @@
 ---
 title: 保留主 Run failure 高于 measurement Hook output
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T01:50:13Z
 purpose: 让 measurement Hook 副作用可见而不掩盖已形成的主 Run failure。
