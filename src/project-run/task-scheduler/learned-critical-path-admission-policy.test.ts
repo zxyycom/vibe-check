@@ -2,12 +2,34 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { prepareTaskGraph } from "./graph.ts";
-import { learnedCriticalPathAdmissionSelectionPolicy } from "./learned-critical-path-admission-policy.ts";
+import {
+  createLearnedCriticalPathAdmission,
+  learnedCriticalPathAdmissionSelectionPolicy
+} from "./learned-critical-path-admission-policy.ts";
 import { decideScheduler, type SchedulerSnapshot } from "./scheduler-decision.ts";
 
 const EXECUTION_STARTED = Object.freeze({ kind: "execution-started" as const });
 
 describe("learned critical-path task engine", () => {
+  it("forms one frozen ranking and complete policy from immutable graph and prediction", () => {
+    const graph = prepareTaskGraph({
+      tasks: [{ id: "source" }, { dependsOn: ["source"], id: "downstream" }]
+    });
+    const admission = createLearnedCriticalPathAdmission(graph.schedulerGraphSnapshot, {
+      predictions: Object.freeze([
+        Object.freeze({ estimatedDurationMs: 2, taskId: "source" }),
+        Object.freeze({ estimatedDurationMs: 5, taskId: "downstream" })
+      ])
+    });
+
+    assert.equal(Object.isFrozen(admission), true);
+    assert.equal(Object.isFrozen(admission.admissionPolicy), true);
+    assert.deepEqual(admission.criticalPath.scores, [
+      { criticalPathScore: 7, taskId: "source" },
+      { criticalPathScore: 5, taskId: "downstream" }
+    ]);
+  });
+
   it("uses score, effective priority, and canonical order within each existing selection layer", () => {
     const graph = prepareTaskGraph(
       {

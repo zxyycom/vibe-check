@@ -42,7 +42,7 @@
 ## Affected Owners
 
 - `src/project-run/task-scheduler/**`：private selection/comparison harness、hard guards、deterministic traces 与 direct tests。
-- `src/project-run/scheduler-history/**`（1A 后的 duration-model owner）：frozen prediction provenance 与 isolated/no-record comparison preparation；不改变 model。
+- `src/project-run/scheduler-duration-model/**`（1A 已验收后的 duration-model owner）：frozen prediction provenance 与 isolated/no-record comparison preparation；不改变 model。
 - `scripts/project/gate/**` 与 Change-local evidence runner：experimental custom Definition adapter/frozen score fixture、exact reused installed candidate/receipt、required/full profile execution、script-byte capture/restoration、raw evidence preservation；不把 advisory Gate threshold 当 budget。
-- [`docs/decisions/learn-check-task-durations-for-critical-path-admission.md`](../../docs/decisions/learn-check-task-durations-for-critical-path-admission.md) 与 [`docs/decisions/use-stateless-admission-policies-with-hard-scheduler-guards.md`](../../docs/decisions/use-stateless-admission-policies-with-hard-scheduler-guards.md)：现有长期边界；本 Change 不修改 Decision，若最终改变稳定策略语义才另行演进。
+- [`docs/decisions/learn-check-task-durations-for-critical-path-admission.md`](../../docs/decisions/learn-check-task-durations-for-critical-path-admission.md) 与 [`docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md)：当前 `active + aligned` 的长期边界；后者确认 private outer lifecycle / Scheduler-facing pure policy 的分层及 Scheduler hard guards。本 Change 不修改 Decision；若最终改变稳定策略语义才另行演进。
 - [`docs/change-execution-order.md`](../../docs/change-execution-order.md)：1D 的 coordination 说明；不替代本 Change 的 1A hard Readiness。

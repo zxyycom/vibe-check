@@ -1,6 +1,6 @@
 ---
 title: 使用无状态准入策略与 Scheduler 硬 guard
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T14:51:15Z
 purpose: 让准入偏好以每轮重算的纯算法表达，同时由唯一 Scheduler 守住执行状态机与下一选项的硬合法性。

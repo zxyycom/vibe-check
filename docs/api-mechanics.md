@@ -13,7 +13,8 @@
       │ run: validate Definition + RunControls, then normalize the Check tree
       ▼
     declarative snapshot + fingerprint + complete static graph validation
-      │ learned policy only: local history load + frozen prediction/critical-path score
+      │ if not cancelled before execution: private effective strategy prepares once
+      │   (duration prediction + frozen selection policy when learned)
       │ invocation control barrier: cancellation + normalized flag conditions
       ▼
     initial control settlements + complete static Task graph
@@ -25,12 +26,18 @@
     author execution + terminal settlement
       ▼
     snapshot + messages + durations
-      │ learned policy only: post-closure local history record/write
+      │ terminal measurement Hooks settle; if terminal context exists, prepared strategy completes once
       │ optional aggregation + enabled output completion
       ▼
     RunResult
 
 Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，再处理 invocation cancellation precedence，并按 Definition 顺序完成 invocation flag control。flag 条件不匹配的 Check 先结算为 `not-applicable / flag-condition-not-matched`，并作为同一张 Scheduler graph 的 pre-admission non-passed Task result；它不会再次 admission，其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。其余 Check 被 Scheduler admission 后在自己的 task 中执行 preflight，随后才执行 author callback；没有互相约束的 preflight 可以并行。Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
+
+这里的 private strategy lifecycle 不能扩大 public authoring contract：Invocation 在 graph ready 后对 effective strategy 调用一次
+`prepare`，Scheduler 只接收其完整 frozen policy 并同步 `decide` 零次或多次；Scheduler 停止 admission、drain、seal terminal
+measurement 并完成既有 Hooks 后，只有 resolved execution 返回 terminal context，Invocation 才调用一次 `complete`。normal、
+cancelled 和 admission-policy-failed Run 只要返回该 context 都遵循这个顺序；pre-terminal task-engine failure 不调用
+`complete`。`complete` 的数据只能成为后续 Run 的 preparation input，不能回流到同一 Run 的 decision。
 
 ## Definition 与 invocation 的责任
 
@@ -55,7 +62,8 @@ inspection 的别名，也不带 `Set`/`Map`、Check options/functions/data、Re
 
 callback 是调用方 trusted synchronous code。Product 不 sandbox、timeout、isolate 或为它建立全局 lock；同一 Definition 的
 overlapping Runs 共享 caller closure，因此 closure reentrancy 由调用方负责。冻结 context 保护 Product data，不限制 caller
-自己的 host-side effects。
+自己的 host-side effects。它在 private implementation 中可适配为一次 prepared strategy 的 no-op prepare/complete，
+但不会因此获得任何新的 public lifecycle callback 或 context。
 
 Scheduler 在 callback 前形成 candidate，在 callback 后只守下一运行选项的 hard guard：selected Task 必须仍 pending、是当前
 relation/mutex candidate、当前 capacity 可 admission 且未越过 lifecycle/cancellation cutoff；`wait` 必须有 running work 能推进下一
@@ -75,6 +83,12 @@ console capture、`checkMessages` ownership、timing telemetry、parser/schema �
 ### learned-critical-path 准入
 
 `scheduler.admissionPolicy: { kind: "learned-critical-path", stateDirectory }` 是无 callback 的 opt-in local optimization。
+每次 Run 在完整 static graph 就绪后，由 invocation 的 private effective strategy 一次 prepare：duration model 读取 local
+history 并形成 immutable prediction，pure critical-path algorithm 形成 frozen Scheduler-facing `select|wait` policy。Scheduler
+只消费该 private policy；它不接触 prepare/complete，调用方也不获得 lifecycle、provider 或 model API。正常、取消和
+admission-policy-failed Run 若形成 terminal measurement context，会先完成既有 terminal Hook delivery，再由 invocation 一次
+complete；该 commit 只为后续 Run prepare 提供输入，不能修改同一 Run 已经作出的 selection。
+
 `stateDirectory` 必须是非空、无 U+0000 string；relative text 从 effective `projectRoot` 解析，absolute text 直接作为
 caller target。它是 Definition declarative identity，因此同目录的 State policy 与其它目录不能共享 fingerprint；它不是
 RunControls、output、remote store、sandbox、锁、清理或 secret-management capability。v1 不接受 `expectedDurationMs` 或其它
@@ -94,8 +108,8 @@ score 相同时才比较 existing effective `admissionPriority`，再按 canonic
 Task start、settlement 和 drain hard guard 完全不变。history、estimate 和 score 不进入 custom callback context、Check
 context、Check/Record facts、machine output、progress 或 public `RunResult`。
 
-在 Scheduler 已停止 admission 并完成 started work drain 后，Product 才从 private terminal occupancy measurement 记录可用
-duration sample，随后以 same-directory temporary file / atomic replacement 尝试写回。unavailable timing 不产生 sample。failure 的
+在 Scheduler 已停止 admission、完成 started work drain、seal terminal measurement 并交付既有 terminal Hooks 后，Product 才从
+private terminal occupancy measurement 记录可用 duration sample，随后以 same-directory temporary file / atomic replacement 尝试写回。unavailable timing 不产生 sample。failure 的
 分流按阶段固定：上述 history read 的空/无效结果仍形成 learned cold/project-prior prediction；无法形成 canonical prediction input，
 或 local setup、prediction 或 score-table construction 失败时，该 invocation 的 selection 回退为 static；Scheduler drain 后的
 record/write failure 只会丢失未来 Run 可用的优化样本。三类情况都只在启用 diagnostic logging 时形成有界 human diagnostic，不会改变

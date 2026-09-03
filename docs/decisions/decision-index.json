@@ -85,6 +85,7 @@
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
       "install-check-console-router-before-preflight.md": "sha256:42c664c9280a794898fb3d04e1825ecaefb4e18e83d4bd5bee97eb41d8136abf",
       "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
+      "introduce-invocation-scoped-admission-strategy-lifecycle.md": "sha256:4e16a13c26130a35d4d8feb85bf7942522f1b7adb49311b34adc2eb48771097d",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
@@ -253,7 +254,7 @@
       "use-single-typescript-project-definition.md": "sha256:fd9e52f75b05e36c1e61fef77743df847c9a963ef6a670a5781c4260e27e12f7",
       "use-standalone-built-in-check-adjustment-functions.md": "sha256:964b791d0372a6b90b7138bd7724346714575daa6fdb02e5f06c125c9f0b590a",
       "use-standard-quality-record-stream.md": "sha256:d193d3ced5f5b523f81c48d9ae03c48a11dfbe74d114b37cdc6b702cd82fee4a",
-      "use-stateless-admission-policies-with-hard-scheduler-guards.md": "sha256:da53a04d3385755beb5bed48f501e4d9966bbf6e429d33e8f602c6913423163f",
+      "use-stateless-admission-policies-with-hard-scheduler-guards.md": "sha256:45e2fe47f88ad901797576f50ce3405b00237aea5caebb3331bc37176c71ae6c",
       "use-static-check-task-plans-with-shared-scheduling.md": "sha256:f1c2e855642425f1eb965569659bd3d9469c88d2edde7176d0a33e6d07b8984c",
       "use-string-flags-for-project-run-controls.md": "sha256:78c9ad0ddf124571cd1041031ba2572a49336690f067933f1e7f0d351cb91146",
       "use-tags-for-decision-classification.md": "sha256:75a685e791a7d86804d227da9d8fd291870fa1ae60cd778cb45f78cfb2b34b44",
@@ -2789,6 +2790,42 @@
           {
             "type": "修订",
             "target": "vendor-foundation-as-repository-owned-script-tool.md"
+          }
+        ]
+      }
+    },
+    "introduce-invocation-scoped-admission-strategy-lifecycle.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "introduce-invocation-scoped-admission-strategy-lifecycle.md",
+        "title": "以 invocation 策略生命周期包装纯准入选择",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T04:24:05Z",
+        "purpose": "让每次 Run 的策略准备、纯准入选择和终态性能处理各有唯一边界，同时保持 Scheduler 对执行状态机与硬合法性的唯一责任。",
+        "background": "现有 Decision 将外层策略生命周期与 Scheduler-facing policy 一并拒绝，导致 learned history 组合边界混合且不能准确表达其跨 Run 数据流。",
+        "decision": "采用 invocation-scoped strategy lifecycle，并保持 Scheduler policy 为同步纯 select 或 wait 投影。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-stateless-admission-policies-with-hard-scheduler-guards.md"
           }
         ]
       }
@@ -8056,16 +8093,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-stateless-admission-policies-with-hard-scheduler-guards.md",
+        "sourcePath": "archive/use-stateless-admission-policies-with-hard-scheduler-guards.md",
         "title": "使用无状态准入策略与 Scheduler 硬 guard",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T14:51:15Z",
         "purpose": "让准入偏好以每轮重算的纯算法表达，同时由唯一 Scheduler 守住执行状态机与下一选项的硬合法性。",

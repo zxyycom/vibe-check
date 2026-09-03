@@ -8,11 +8,11 @@
 
 - [`docs/architecture.md`](../../docs/architecture.md) 规定 learned mode 的时序为 pre-admission history load/prediction、pure Scheduler、post-closure history record/write；history 是 caller-managed、untrusted optimization state，不是 quality fact 或 public result。
 - 两条 aligned Scheduler Decision 仍拥有 history 位于 Scheduler 外、immutable prediction、synchronous/stateless/pure `select | wait` 与 Scheduler hard-guard 边界；它们不是本 Plan 可改写的 lifecycle owner。
-- 当前 `scheduler-history/**` 已拥有 bounded history、prediction、recording 和 storage，但也含 graph-derived `critical-path.ts`；`invocation.ts` 的 `SchedulerLearning` 混合 history、prediction、score 与 state directory，且 invocation 手工安排 prepare/create/record。
+- Plan baseline 的 `scheduler-history/**` 拥有 bounded history、prediction、recording 和 storage，但也含 graph-derived `critical-path.ts`；`invocation.ts` 的 `SchedulerLearning` 混合 history、prediction、score 与 state directory，且 invocation 手工安排 prepare/create/record。
 - 当前 public union、normalization 与 declarative fingerprint 保持 `{ kind: "learned-critical-path", stateDirectory }`；custom 仍是 synchronous `proposeAdmission` 加独立 terminal `measurementHooks`。本 Plan 不修改这些 public contracts。
-- [`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 当前是 candidate，不是已经生效的 stable fact。它只提出 future outer strategy lifecycle / inner pure policy 分层，不闭合 public grammar、context 或 failure contract；本 Plan 的 Implementation 前须先将其建立为 `active + unaligned`，验收后才按实现事实评审是否 aligned。
+- [`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 现为 `active + aligned` 的 stable direction：它确认 private outer strategy lifecycle / inner Scheduler-facing pure policy 的分层；它不闭合或开放 public custom grammar、context、failure 或 compatibility contract。
 
-本 Plan 的消费任务是：不从归档或对话推断时，也能明确知道谁实例化一次策略、谁作多轮 decision、谁在终态提交，以及 complete 的数据能流向哪里。上文列出的 `scheduler-history/**`、`SchedulerLearning` 与当前 handoff 是**当前** owner；下表定义的是本 Change 完成后的 **intended post-change owner topology**，不是现有目录存在性的断言。
+本 Plan 的消费任务是：不从归档或对话推断时，也能明确知道谁实例化一次策略、谁作多轮 decision、谁在终态提交，以及 complete 的数据能流向哪里。上文的 `scheduler-history/**`、`SchedulerLearning` 与手工 handoff 是**Plan baseline** owner；下表记录本 Change 已实现的 **post-change owner topology**。当前稳定事实由相应的产品架构文档拥有。
 
 | Owner | 输入 | 输出 | 不得承担 |
 | --- | --- | --- | --- |
@@ -120,9 +120,9 @@ invocation 的唯一职责是：在 graph ready 后 resolve effective private pr
 
 锁定 deterministic prediction digest、score table、admission trace、terminal facts、diagnostic category/facts 和 history JSON bytes；不锁定 human diagnostic line format、timestamp、wall time、absolute temp path 或 import path。若现有证据没有直接证明上述生命周期，先在旧 composition 下补齐同一输入的 proof，再迁移。
 
-#### 6. Candidate Decision 与 public custom lifecycle
+#### 6. Lifecycle Decision 与 public custom lifecycle
 
-[`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 目前仅是 candidate。它提出 outer strategy lifecycle 与 inner Scheduler-facing pure policy 的未来分层，不是已生效事实，也不闭合 public grammar、context、failure 或 compatibility。实施本 Plan 前，Decision owner 必须将其建立为 `active + unaligned`；本 Plan 验收后才按实际结果评审 alignment。既有 aligned Decisions继续拥有 history、pure policy 与 hard-guard 边界。
+[`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 现在是 `active + aligned`。其方向是 private outer strategy lifecycle 与 inner Scheduler-facing pure policy 的分层；它不闭合 public grammar、context、failure 或 compatibility。既有 aligned Decisions 继续拥有 history、pure policy 与 hard-guard 边界。
 
 [`support-invocation-scoped-custom-admission-strategies`](../support-invocation-scoped-custom-admission-strategies/proposal.md) 才评审 custom author 是否可获得 `prepare → decide → complete`，以及 public context、failure/output、compatibility 和 fingerprint。它依赖本 Plan 的 private seam 已被验证，但不反向要求本 Plan 先确定 public API。
 
@@ -145,4 +145,4 @@ invocation 的唯一职责是：在 graph ready 后 resolve effective private pr
 
 ## Open Questions
 
-无。已确认的当前行为等价边界是：prepare 是 effective strategy 每 Run 一次实例化，Product-owned static/learned decide 是 Scheduler measurement 内同步纯选择，custom仍是trusted synchronous result-only callback；prepared private requirement与既有outputs/Hooks保持plain static/custom/learned ready/learned fallback的collector矩阵。只有 `executeResolvedChecks` 返回 terminal sequence/context 的 normal、cancelled、admission-policy-failed Run 才在既有 terminal Hook delivery后一次 complete，task-engine/pre-terminal failure 不 complete。static/custom no-op completion不改变既有collector/clock启用。public custom lifecycle仍属后继 Draft。Implementation 前只需按已创建的candidate Decision建立 `active + unaligned`，验收后再按事实评审alignment。
+无。已确认的当前行为等价边界是：prepare 是 effective strategy 每 Run 一次实例化，Product-owned static/learned decide 是 Scheduler measurement 内同步纯选择，custom仍是trusted synchronous result-only callback；prepared private requirement与既有outputs/Hooks保持plain static/custom/learned ready/learned fallback的collector矩阵。只有 `executeResolvedChecks` 返回 terminal sequence/context 的 normal、cancelled、admission-policy-failed Run 才在既有 terminal Hook delivery后一次 complete，task-engine/pre-terminal failure 不 complete。static/custom no-op completion不改变既有collector/clock启用。lifecycle Decision 已为 `active + aligned`；public custom lifecycle仍属后继 Draft。

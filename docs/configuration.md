@@ -370,7 +370,7 @@ selection 在执行前拒绝 unknown、duplicate 或 non-normalized Check ID。�
 snapshot 或 preflight prepared/fallback；`project` 只含 normalized root 与 flags；Check-specific 输入、file selection、
 领域 policy 和 cache 仍由 owning Check options 承接。需要成功 provider data 的 consumer 用 `dependsOn`；需要四态 outcome
 审计的 consumer 用 `observes`。两者的 direct union 都可由 `dependencies.get` 显式判断 data 可用性，或由 `dependencies.list()`
-稳定枚举；二者都不授予 transitive、未声明或 scheduler-history access。
+稳定枚举；二者都不授予 transitive、未声明或 scheduler-duration-model access。
 
 invalid Definition、controls 或 aggregation selection 在 author work 前返回 configuration result。ordinary callback throw、
 malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、

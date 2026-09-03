@@ -283,9 +283,9 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
-- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > isolates missing, malformed, incompatible, failed, and concurrent local state`
-- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > evicts the oldest series and scores both dependency and observation downstream paths once`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > isolates missing, malformed, incompatible, failed, and concurrent local state`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > evicts the oldest series by observation sequence`
 - `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
 - `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
 Proves:
@@ -298,8 +298,8 @@ Proves:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
-- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > uses learned means before a median project prior and a cold-start fallback`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > uses learned means before a median project prior and a cold-start fallback`
 Proves:
 
 - An identity derived from model version, Check ID, canonical authored options, and canonical effective flags yields a frozen digest-only prediction snapshot. Its learned estimates retain sample count, arithmetic mean, and nearest-rank p90 without retaining source options or flags.
@@ -310,7 +310,7 @@ Proves:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/scheduler-history/scheduler-history.test.ts|scheduler history and prediction > evicts the oldest series and scores both dependency and observation downstream paths once`
+- `bun|src/project-run/task-scheduler/critical-path-ranking.test.ts|critical-path ranking > scores both dependency and observation downstream paths once`
 Proves:
 
 - Before admission, the immutable score table adds each Task estimate to the maximum direct downstream score across both `dependsOn` and `observes` relations; it is frozen and does not reinterpret Task priority or runtime capacity facts.
@@ -320,12 +320,13 @@ Proves:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
+- `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > forms one frozen ranking and complete policy from immutable graph and prediction`
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > uses score, effective priority, and canonical order within each existing selection layer`
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > keeps the Scheduler capacity wait guard when the highest score cannot admit`
 - `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
 Proves:
 
-- Learned scheduling captures its immutable prediction and critical-path score table before admission, then compares score descending only within the existing tightening, constrained-continuation, and ordinary layers; equal scores retain effective priority and canonical Task-ID order.
+- Learned scheduling captures its immutable graph/prediction into one frozen critical-path score table and complete Scheduler policy before admission, then compares score descending only within the existing tightening, constrained-continuation, and ordinary layers; equal scores retain effective priority and canonical Task-ID order.
 - The pure policy returns `wait` for a capacity-blocked preferred Task, leaving relation, mutex, capacity, cancellation, and drain hard guards to the generic Scheduler. Terminal raw measurement is consumed privately after drain and is not added to `RunResult`.
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned optimization observations stay bounded and non-quality-bearing
@@ -337,3 +338,23 @@ Entities:
 Proves:
 
 - Learned diagnostics report bounded read/write and selected-admission facts without raw authored options, effective flags, identity inputs, or samples. A local history write failure remains an optimization-only observation and preserves the completed quality result.
+
+## Case WB-RUNTIME-ADMISSION-STRATEGY-LIFECYCLE-001: Prepared strategies complete only after terminal delivery
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/admission-strategy-provider/provider.test.ts|admission strategy provider > prepares one closed static, custom, or learned-fallback policy without widening public configuration`
+- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal Hooks on normal execution`
+- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when cancellation drains started work`
+- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when an admission policy fault drains`
+- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > does not complete when pre-terminal task-engine setup fails`
+- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps prepared policy closures independent across overlapping Runs`
+- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > prepares before admission and records only after terminal measurement Hooks settle`
+- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > records a cancelled Run only after its terminal measurement Hook settles`
+Proves:
+
+- A normal, cancelled, or admission-policy-failed Run prepares exactly once, calls a synchronous policy decision zero or more times, and completes exactly once only after admission stops, started work drains, and terminal measurement Hooks settle; pre-terminal task-engine failure has no complete delivery.
+- Overlapping Runs receive distinct prepared policy closures, so a terminal complete can affect only that Run's prepared state.
+- A learned strategy prepares its immutable prediction before its Scheduler decisions and only records its terminal sample after terminal delivery; the terminal Hook cannot observe that Run's history write.
+- Static, custom, learned-ready, and learned-static-fallback preparation each yield one closed frozen private policy. Plain static alone has no terminal measurement demand; custom retains its per-decision measurement metadata and terminal demand; both learned-ready and learned-static-fallback retain terminal demand. This is private collector resolution, not a public configuration field or custom lifecycle API.

@@ -5,8 +5,6 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import type { SchedulerRawMeasurement } from "../../project-definition/project-definition.ts";
-import type { SchedulerSettlementKind } from "../task-scheduler/scheduler-decision.ts";
-import { createSchedulerCriticalPathSnapshot, criticalPathScoreForTask } from "./critical-path.ts";
 import {
   createSchedulerHistoryIdentity,
   createSchedulerPredictionSnapshot,
@@ -14,7 +12,8 @@ import {
 } from "./prediction.ts";
 import {
   MAX_SCHEDULER_HISTORY_SERIES,
-  SCHEDULER_HISTORY_ENVELOPE_VERSION
+  SCHEDULER_HISTORY_ENVELOPE_VERSION,
+  type SchedulerDurationSettlementKind
 } from "./bounded-history.ts";
 import { recordSchedulerHistory } from "./recording.ts";
 import { loadSchedulerHistory, schedulerHistoryPath, writeSchedulerHistory } from "./storage.ts";
@@ -112,7 +111,7 @@ function unavailableMeasurement(): SchedulerRawMeasurement {
   });
 }
 
-function settled(taskId: string, kind: SchedulerSettlementKind = "completed") {
+function settled(taskId: string, kind: SchedulerDurationSettlementKind = "completed") {
   return Object.freeze({ kind, taskId });
 }
 
@@ -120,7 +119,7 @@ function recordOneSample(input: {
   readonly durationMs: number;
   readonly history: Awaited<ReturnType<typeof loadSchedulerHistory>>["history"];
   readonly prediction: ReturnType<typeof createSchedulerPredictionSnapshot>;
-  readonly settlementKind?: SchedulerSettlementKind;
+  readonly settlementKind?: SchedulerDurationSettlementKind;
   readonly taskId?: string;
 }) {
   const taskId = input.taskId ?? "check";
@@ -330,7 +329,7 @@ describe("scheduler history and prediction", () => {
     });
   });
 
-  it("evicts the oldest series and scores both dependency and observation downstream paths once", async () => {
+  it("evicts the oldest series by observation sequence", async () => {
     await withStateDirectory(async (directory) => {
       const ids = Array.from(
         { length: MAX_SCHEDULER_HISTORY_SERIES + 1 },
@@ -358,57 +357,6 @@ describe("scheduler history and prediction", () => {
         ),
         false
       );
-
-      const graph = Object.freeze({
-        scopes: Object.freeze([]),
-        tasks: Object.freeze([
-          Object.freeze({
-            admissionPriority: 0,
-            dependsOn: Object.freeze([]),
-            mutex: Object.freeze([]),
-            observes: Object.freeze([]),
-            scopeId: null,
-            taskId: "source"
-          }),
-          Object.freeze({
-            admissionPriority: 0,
-            dependsOn: Object.freeze(["source"]),
-            mutex: Object.freeze([]),
-            observes: Object.freeze([]),
-            scopeId: null,
-            taskId: "dependency"
-          }),
-          Object.freeze({
-            admissionPriority: 0,
-            dependsOn: Object.freeze([]),
-            mutex: Object.freeze([]),
-            observes: Object.freeze(["source"]),
-            scopeId: null,
-            taskId: "observer"
-          })
-        ])
-      });
-      const scoreInputs = predictionInputs(["source", "dependency", "observer"]);
-      const scoreHistory = recordSchedulerHistory({
-        history: initial.history,
-        prediction: createSchedulerPredictionSnapshot(initial.history, scoreInputs),
-        rawMeasurement: availableMeasurement([
-          { admittedAtMonotonicMs: 0, settledAtMonotonicMs: 2, taskId: "source" },
-          { admittedAtMonotonicMs: 0, settledAtMonotonicMs: 5, taskId: "dependency" },
-          { admittedAtMonotonicMs: 0, settledAtMonotonicMs: 7, taskId: "observer" }
-        ]),
-        settledTasks: [settled("source"), settled("dependency"), settled("observer")]
-      }).history;
-      const scorePrediction = createSchedulerPredictionSnapshot(scoreHistory, scoreInputs);
-      const score = createSchedulerCriticalPathSnapshot(graph, scorePrediction);
-      assert.deepEqual(score.scores, [
-        { criticalPathScore: 9, taskId: "source" },
-        { criticalPathScore: 5, taskId: "dependency" },
-        { criticalPathScore: 7, taskId: "observer" }
-      ]);
-      assert.equal(criticalPathScoreForTask(score, "source"), 9);
-      assert.equal(Object.isFrozen(score), true);
-      assert.equal(Object.isFrozen(score.scores), true);
     });
   });
 });

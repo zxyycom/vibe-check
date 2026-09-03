@@ -1,10 +1,10 @@
 import type { SchedulerRawMeasurement } from "../../project-definition/project-definition.ts";
-import type { SchedulerSettlementKind } from "../task-scheduler/scheduler-decision.ts";
 import {
   freezeSchedulerHistoryModel,
   isBoundedDurationMs,
   MAX_SCHEDULER_HISTORY_SAMPLES_PER_SERIES,
   MAX_SCHEDULER_HISTORY_SERIES,
+  type SchedulerDurationSettlementKind,
   type SchedulerHistoryModel,
   type SchedulerHistorySeries
 } from "./bounded-history.ts";
@@ -33,7 +33,7 @@ export function recordSchedulerHistory(input: {
   readonly prediction: SchedulerPredictionSnapshot;
   readonly rawMeasurement: SchedulerRawMeasurement;
   readonly settledTasks: readonly Readonly<{
-    readonly kind: SchedulerSettlementKind;
+    readonly kind: SchedulerDurationSettlementKind;
     readonly taskId: string;
   }>[];
 }): SchedulerHistoryRecording {
@@ -97,7 +97,7 @@ export function recordSchedulerHistory(input: {
 type AdmissionSample = Readonly<{
   readonly durationMs: number;
   readonly identityDigest: string;
-  readonly settlementKind: SchedulerSettlementKind;
+  readonly settlementKind: SchedulerDurationSettlementKind;
 }>;
 
 function sampleForAdmission(
@@ -107,7 +107,7 @@ function sampleForAdmission(
     readonly taskId: string;
   }>,
   prediction: SchedulerPredictionSnapshot,
-  settledByTaskId: ReadonlyMap<string, SchedulerSettlementKind>
+  settledByTaskId: ReadonlyMap<string, SchedulerDurationSettlementKind>
 ): AdmissionSample | undefined {
   if (
     admission.admittedAtMonotonicMs === null ||

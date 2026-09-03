@@ -1,7 +1,9 @@
 import {
+  createSchedulerCriticalPathSnapshot,
   criticalPathScoreForTask,
+  type SchedulerCriticalPathPredictionSnapshot,
   type SchedulerCriticalPathSnapshot
-} from "../scheduler-history/critical-path.ts";
+} from "./critical-path-ranking.ts";
 import type {
   AdmissionCandidate,
   AdmissionPolicyDecision,
@@ -9,6 +11,24 @@ import type {
   AdmissionSelectionPolicy
 } from "./admission-selection-policy.ts";
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
+import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
+
+export interface LearnedCriticalPathAdmission {
+  readonly admissionPolicy: AdmissionSelectionPolicy;
+  readonly criticalPath: SchedulerCriticalPathSnapshot;
+}
+
+/** Forms one immutable score snapshot and its complete frozen Scheduler-facing policy. */
+export function createLearnedCriticalPathAdmission(
+  graph: SchedulerGraphSnapshot,
+  prediction: SchedulerCriticalPathPredictionSnapshot
+): LearnedCriticalPathAdmission {
+  const criticalPath = createSchedulerCriticalPathSnapshot(graph, prediction);
+  return Object.freeze({
+    admissionPolicy: learnedCriticalPathAdmissionSelectionPolicy(criticalPath),
+    criticalPath
+  });
+}
 
 /**
  * Selects from the existing tightening, constrained-continuation, and ordinary
@@ -128,10 +148,14 @@ function activationScopeFor(
   task: PlannedTask
 ): PlannedTaskScope | undefined {
   const scope = scopeForTask(input.graph, task);
-  return scope?.activationTaskIds.includes(task.id) === true &&
-    !input.inspection.activeScopeIds.includes(scope.id)
-    ? scope
-    : undefined;
+  if (
+    scope === undefined ||
+    !scope.activationTaskIds.includes(task.id) ||
+    input.inspection.activeScopeIds.includes(scope.id)
+  ) {
+    return undefined;
+  }
+  return scope;
 }
 
 function scopeForTask(graph: PlannedTaskGraph, task: PlannedTask): PlannedTaskScope | undefined {

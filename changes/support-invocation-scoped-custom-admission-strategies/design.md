@@ -7,8 +7,8 @@
 - 当前 custom public API 是 trusted、synchronous `proposeAdmission(context)`：每次实际 Scheduler callback 接收 detached/deep-frozen graph、dynamic candidate/capacity/runtime facts 和 bounded measurement prefix，并精确返回 `select(taskId)` 或 `wait`；Product不sandbox或限制其自身closure/reentrancy/host-side effect，但不提供imperative Scheduler capability。
 - Scheduler 对 throw、thenable、malformed/illegal proposal执行 admission-policy fault：停止新 admission、取消 pending、drain started work，并以受限 execution diagnostic结束；它不 fallback 到 static。
 - `scheduler.measurementHooks` 是独立的 terminal side effect，已有独立 output status 和 failure delivery；Product 不把它与 custom policy 绑定为同一策略实例。调用方可以在两个分别 author 的 callback 中手工共享 closure，但其组合与生命周期属于调用方，不是 Product contract。
-- [`separate-duration-learning-from-admission-strategy`](../separate-duration-learning-from-admission-strategy/proposal.md) 将先在 private scope验证 effective strategy 的 conditional terminal completion 和 Scheduler-only decide handoff。该 Change 完成并进入稳定实施基线前，本 Draft 不得实现或假设 public surface。
-- [`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 当前仅为 candidate：它只提出 future outer lifecycle / inner pure-policy 分层，不闭合 public grammar、context 或 complete/failure 语义；本 Draft 的开放问题仍须独立闭合。
+- [`separate-duration-learning-from-admission-strategy`](../separate-duration-learning-from-admission-strategy/proposal.md) 已在 private scope验收 effective strategy 的 conditional terminal completion 和 Scheduler-only decide handoff（17/17 tasks、correctness review 与 required/full Gate 通过，active Plan 尚未归档）。这提供稳定 private seam，不开放或预设 public surface。
+- [`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 当前为 `active + aligned`：它确认 private outer lifecycle / inner pure-policy 分层，仍不闭合 public grammar、context 或 complete/failure 语义；本 Draft 的开放问题必须独立闭合。
 
 ## Goals / Non-Goals
 
@@ -42,7 +42,7 @@
 ### Resulting Impacts
 
 - 该契约若采用，会影响 public project Definition/normalization/fingerprint、package declarations、invocation lifecycle、Scheduler policy adapter、output status、API/configuration/architecture/testing docs、installed consumer与Test Evidence。
-- `separate-duration-learning-from-admission-strategy` 是 implementation hard prerequisite：本 Change 可以继续审阅 public contract，但不得在其 private lifecycle seam 验收前创建 implementation tasks或修改运行时。
+- `separate-duration-learning-from-admission-strategy` 的 private lifecycle seam 已满足 implementation prerequisite。本 Change 仍是 Draft：只有真实 consumer 证明现有 API 不足，并闭合 public shape、context、failure/output/cancellation/overlap、fingerprint、installed-consumer evidence 与必要 Decision 后，才可创建 implementation tasks 或修改运行时。
 - 可能需要演进当前 stateless-custom-policy 和 measurement related长期 Decision；本 Draft 不修改它们。只有候选契约改变稳定责任、兼容或failure边界时，先按 Decision owner闭合。
 - 与 `provide-invocation-path-context` 只有条件关系：纯 lifecycle 不需要新的 path；只有确认custom prepare/complete需要Product-provided writable workspace或cross-Run state capability时，再由path Change和真实consumer决定硬前置与owner。
 

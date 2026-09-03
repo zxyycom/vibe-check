@@ -1,5 +1,12 @@
 import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
-import { predictionForTask, type SchedulerPredictionSnapshot } from "./prediction.ts";
+
+/** The pure ranking algorithm only needs immutable estimated durations keyed by Task ID. */
+export interface SchedulerCriticalPathPredictionSnapshot {
+  readonly predictions: readonly Readonly<{
+    readonly estimatedDurationMs: number;
+    readonly taskId: string;
+  }>[];
+}
 
 export interface SchedulerCriticalPathScore {
   readonly criticalPathScore: number;
@@ -14,7 +21,7 @@ export interface SchedulerCriticalPathSnapshot {
 /** Computes directed dependsOn + observes downstream scores once before Scheduler admission. */
 export function createSchedulerCriticalPathSnapshot(
   graph: SchedulerGraphSnapshot,
-  prediction: SchedulerPredictionSnapshot
+  prediction: SchedulerCriticalPathPredictionSnapshot
 ): SchedulerCriticalPathSnapshot {
   const downstreamByTaskId = new Map<string, Set<string>>();
   for (const task of graph.tasks) downstreamByTaskId.set(task.taskId, new Set<string>());
@@ -34,7 +41,7 @@ export function createSchedulerCriticalPathSnapshot(
     const existing = scoreByTaskId.get(taskId);
     if (existing !== undefined) return existing;
     if (visitingTaskIds.has(taskId)) throw new TypeError("critical path graph must be acyclic");
-    const taskPrediction = predictionForTask(prediction, taskId);
+    const taskPrediction = prediction.predictions.find((entry) => entry.taskId === taskId);
     if (taskPrediction === undefined)
       throw new TypeError(`critical path prediction missing task ${taskId}`);
     visitingTaskIds.add(taskId);

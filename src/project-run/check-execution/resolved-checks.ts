@@ -1,6 +1,5 @@
 import type { CheckMessage, CheckProjectContext } from "../../check/check.ts";
 import type {
-  AdmissionPolicy,
   NormalizedCheck,
   SchedulerMeasurementHook
 } from "../../project-definition/project-definition.ts";
@@ -11,9 +10,7 @@ import {
   type DiagnosticLogger
 } from "../diagnostic-logging/logger.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
-import { admissionSelectionPolicyFor as customAdmissionSelectionPolicyFor } from "../task-scheduler/custom-admission-policy.ts";
-import { learnedCriticalPathAdmissionSelectionPolicy } from "../task-scheduler/learned-critical-path-admission-policy.ts";
-import type { SchedulerCriticalPathSnapshot } from "../scheduler-history/critical-path.ts";
+import type { AdmissionSelectionPolicy } from "../task-scheduler/admission-selection-policy.ts";
 import { runTaskGraph } from "../task-scheduler/scheduler.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/scheduler-performance-diagnostics.ts";
 import { executeCheckCallback } from "./callback.ts";
@@ -77,7 +74,8 @@ interface ExecuteCheckInput extends CheckExecutionState {
 }
 
 type ResolvedCheckExecutionInput = Readonly<{
-  readonly admissionPolicy?: AdmissionPolicy;
+  /** Complete prepared private policy handoff; public policy dispatch stays outside execution. */
+  readonly admissionPolicy?: AdmissionSelectionPolicy;
   readonly checks: readonly NormalizedCheck[];
   readonly maxParallel: number;
   readonly project: CheckProjectContext;
@@ -90,9 +88,7 @@ type ResolvedCheckExecutionInput = Readonly<{
   readonly onSchedulerMeasurementHookFailure?: () => void;
   readonly onSchedulerMeasurementHooksSettled?: () => void;
   readonly lifecycle?: CheckExecutionLifecycle;
-  /** Invocation-built learned score table; it is absent for static/custom execution. */
-  readonly learnedCriticalPath?: SchedulerCriticalPathSnapshot;
-  /** Invocation-owned bounded learned admission diagnostics. */
+  /** Provider-owned bounded learned admission diagnostics, delivered by invocation. */
   readonly onAdmittedCheck?: (check: NormalizedCheck) => void;
 }>;
 
@@ -132,7 +128,7 @@ async function executePreparedResolvedChecks(
   try {
     graphRun = await runTaskGraph<boolean>({
       graph: planStaticCheckGraph(input.checks),
-      admissionPolicy: selectionPolicyFor(input),
+      admissionPolicy: input.admissionPolicy,
       maxParallel: input.maxParallel,
       diagnosticLogger: input.diagnosticLogger,
       performanceDiagnostics: input.schedulerPerformanceDiagnostics,
@@ -243,17 +239,6 @@ async function executeAdmittedCheck(input: ExecuteCheckInput): Promise<boolean> 
     return false;
   }
   return executeReadyCheck({ ...input, preflight });
-}
-
-function selectionPolicyFor(
-  input: ResolvedCheckExecutionInput
-): import("../task-scheduler/admission-selection-policy.ts").AdmissionSelectionPolicy | undefined {
-  const policy = input.admissionPolicy;
-  if (policy === undefined || policy.kind === "static") return undefined;
-  if (policy.kind === "custom") return customAdmissionSelectionPolicyFor(policy);
-  return input.learnedCriticalPath === undefined
-    ? undefined
-    : learnedCriticalPathAdmissionSelectionPolicy(input.learnedCriticalPath);
 }
 
 /** Diagnostic observation belongs to the invocation; it cannot revise admitted Task facts. */

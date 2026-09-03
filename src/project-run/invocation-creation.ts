@@ -59,6 +59,7 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
   );
 
   return Object.freeze({
+    admissionStrategyProviderFactory: input.dependencies.admissionStrategyProviderFactory,
     clock,
     controls: input.controls,
     declarativeFingerprint: createDeclarativeFingerprint(input.normalized.declarative),

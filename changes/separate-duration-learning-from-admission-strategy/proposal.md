@@ -1,16 +1,16 @@
 # Proposal
 
-本 Change 在不改变公共配置、调度算法或 Run 结果的前提下，将跨 Run 的 duration model 与纯 critical-path 算法保留为两个 private owner，并由一个 invocation-scoped strategy provider 将它们组合为严格的 `prepare → decide → complete` 生命周期。
+本 Change 已在不改变公共配置、调度算法或 Run 结果的前提下，将跨 Run 的 duration model 与纯 critical-path 算法分离为两个 private owner，并由一个 invocation-scoped strategy provider 将它们组合为严格的 `prepare → decide → complete` 生命周期。
 
 ## Why
 
-当前实现虽然已按 `history load/prediction → pure Scheduler → history record/write` 运行，但 private 组合仍分散在 invocation、history owner 和 `resolved-checks`：`scheduler-history/critical-path.ts` 包含图算法，`SchedulerLearning` 混合 history、prediction、score 与 state directory，而 invocation 手工分别准备、创建并记录。这样 duration 学习和 admission 算法无法独立演进，也没有一个能明确表达一次 effective strategy 生命周期的 owner。
+Plan baseline 虽已按 `history load/prediction → pure Scheduler → history record/write` 运行，但 private 组合分散在 invocation、history owner 和 `resolved-checks`：`scheduler-history/critical-path.ts` 包含图算法，`SchedulerLearning` 混合 history、prediction、score 与 state directory，而 invocation 手工分别准备、创建并记录。这样 duration 学习和 admission 算法无法独立演进，也没有一个能明确表达一次 effective strategy 生命周期的 owner。
 
 已对齐的长期方向要求跨 Run history 位于 Scheduler 外、Scheduler 只消费 immutable prediction 与同步纯 `select | wait` 决策，并由 Scheduler 独占 hard guards。本 Change 只重组 private ownership 和调用边界，以当前可观察行为为等价基线。
 
 ## Outcome
 
-完成后，每次 Project Run 都通过一个已解析的 private strategy provider 运行以下生命周期：
+当前每次 Project Run 都通过一个已解析的 private strategy provider 运行以下生命周期：
 
 ```text
 graph ready
@@ -61,21 +61,21 @@ graph ready
 
 ## Affected Owners
 
-- **当前 → 完成后 `src/project-run/invocation.ts`**：当前持有混合 `SchedulerLearning` 和手工 prepare/create/record；完成后只负责 effective provider resolution、生命周期运行、failure containment 与 diagnostic presentation。
-- **当前 `src/project-run/scheduler-history/**` → 完成后 `src/project-run/scheduler-duration-model/**`**：当前混合 history/prediction/recording 与 graph-derived ranking；完成后只承担 history identity、prediction、prepare/record capability、bounded model 和 storage。
-- **完成后新建或相邻 private provider owner**（`src/project-run/admission-strategy/**` 只是候选目录名）：closed provider dispatch、prepared strategy lifecycle 与 learned composition；不成为 registry 或 public API。
-- **当前并完成后 `src/project-run/task-scheduler/**`**：完成后承接 critical-path ranking、pure admission decision 与 Scheduler hard-guard handoff；它不接触 duration history I/O。
-- **当前 → 完成后 `src/project-run/check-execution/resolved-checks.ts`**：完成后只向 Scheduler hand off prepared strategy 的完整 frozen private `AdmissionSelectionPolicy`，不接触 provider lifecycle。
+- **Plan baseline `src/project-run/invocation.ts` → 当前 `src/project-run/invocation.ts`**：baseline 混合 `SchedulerLearning` 和手工 prepare/create/record；当前只负责 effective provider resolution、生命周期运行、failure containment 与 diagnostic presentation。
+- **Plan baseline `src/project-run/scheduler-history/**` → 当前 `src/project-run/scheduler-duration-model/**`**：baseline 混合 history/prediction/recording 与 graph-derived ranking；当前只承担 history identity、prediction、prepare/record capability、bounded model 和 storage。
+- **当前 `src/project-run/admission-strategy-provider/**`**：closed provider dispatch、prepared strategy lifecycle 与 learned composition；不成为 registry 或 public API。
+- **当前 `src/project-run/task-scheduler/**`**：承接 critical-path ranking、pure admission decision 与 Scheduler hard-guard handoff；它不接触 duration history I/O。
+- **Plan baseline → 当前 `src/project-run/check-execution/resolved-checks.ts`**：当前只向 Scheduler hand off prepared strategy 的完整 frozen private `AdmissionSelectionPolicy`，不接触 provider lifecycle。
 - `docs/architecture.md`、`docs/api-mechanics.md`、`docs/configuration.md`、`docs/testing.md` 与 `docs/testing/cases/**`：private lifecycle、owner、public/non-public boundary 和行为证据。
-- [`docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md)：当前仅为 candidate，拥有未来 outer strategy lifecycle / inner pure policy 分层方向；实施前必须建立为 `active + unaligned`，验收后再按事实评审 alignment。既有 aligned Decisions 仍拥有 history、pure policy 与 Scheduler hard-guard 边界。
+- [`docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md)：现为 `active + aligned`，拥有 invocation 外层 strategy lifecycle 与 Scheduler-facing pure policy 的分层方向；它不开放 public custom lifecycle。既有 aligned Decisions 仍拥有 history、pure policy 与 Scheduler hard-guard 边界。
 - `changes/optimize-learned-admission-strategy/**`、`changes/support-invocation-scoped-custom-admission-strategies/**`：本 Change 的两个后继 Draft；不参与本 Change 验收。
 
 ## Change Boundary
 
-本 Proposal 是本 Change 的临时范围 owner。**当前** stable owner 是 `src/project-run/invocation.ts` 中混合的 `SchedulerLearning` 与手工 lifecycle、`src/project-run/scheduler-history/**` 中混合的 history/prediction/critical-path，以及 `resolved-checks.ts` 的 policy handoff；`task-scheduler/**` 继续拥有 Scheduler hard guards。**完成后**，预期由 `scheduler-duration-model/**` 承担 duration model、`task-scheduler/**` 承担 pure ranking/selection、一个新建或相邻 private provider owner 承担 prepared-strategy composition，而 invocation 成为它们的唯一 lifecycle 集成 owner。`src/project-run/admission-strategy/**` 只是候选目录名，不是当前 stable owner。
+本 Proposal 是本 Change 的临时范围 owner。**Plan baseline** 是 `src/project-run/invocation.ts` 中混合的 `SchedulerLearning` 与手工 lifecycle、`src/project-run/scheduler-history/**` 中混合的 history/prediction/critical-path，以及 `resolved-checks.ts` 的 policy handoff；`task-scheduler/**` 已拥有 Scheduler hard guards。**当前**由 `scheduler-duration-model/**` 承担 duration model、`task-scheduler/**` 承担 pure ranking/selection、`admission-strategy-provider/**` 承担 prepared-strategy composition，而 invocation 是它们的唯一 lifecycle 集成 owner。
 
-- **唯一 Outcome owner**：完成后 invocation 是一次 effective strategy 生命周期的唯一集成 owner；它只编排 `prepare → decide* → complete`，不拥有模型或算法。
-- **硬前置与进入 Implementation 的条件**：本 Change 已是 Plan；在开始其 Implementation 前，Decision owner 必须把 candidate `introduce-invocation-scoped-admission-strategy-lifecycle` 建立为 `active + unaligned`，并完成 `tasks.md` 的 Readiness oracle。该条件不是“该 Decision 已 aligned”的断言，也不授权本次变更修改 Decision。
+- **唯一 Outcome owner**：当前 invocation 是一次 effective strategy 生命周期的唯一集成 owner；它只编排 `prepare → decide* → complete`，不拥有模型或算法。
+- **生命周期 Decision 状态**：Implementation 前，Decision owner 已将 `introduce-invocation-scoped-admission-strategy-lifecycle` 建立为 `active + unaligned`，并完成 `tasks.md` 的 Readiness oracle；本 Change 验收后，Decision owner 已按实现事实标记为 `active + aligned`。该演进记录确认当前 private lifecycle 边界，不开放 public custom lifecycle。
 - **与其它三个 Change 的关系**：`support-invocation-scoped-custom-admission-strategies` 的 Plan/Implementation 硬依赖本 Change 已验收的稳定 lifecycle seam；`optimize-learned-admission-strategy` 的生产策略实施也硬依赖该 seam。`provide-admission-strategy-simulation` 不依赖本 Change 的语义或 public contract；两者仅因共享 Scheduler/invocation owner 推荐串行、继承稳定提交。任何推荐合入顺序都是 worktree 协调，不改变各自 Outcome。
 - **承诺边界**：只重组 private owner 与等价调用边界。现有 public learned/static/custom grammar、fingerprint、`stateDirectory`、measurement Hooks 和 result contracts 不变；不新增 `expectedDurationMs`、public model DTO、registry 或 custom lifecycle。当前模型细节仍可由既有文档/diagnostic 观察，但不因此成为跨版本兼容承诺。
 - **验证出口**：以同输入的 prediction/digest、score、trace、terminal facts、diagnostic 分类与 history bytes 等价，加上 lifecycle 顺序和 public-consumer/Gate 验证为完成证据；算法收益不是本 Change 的成功主张。

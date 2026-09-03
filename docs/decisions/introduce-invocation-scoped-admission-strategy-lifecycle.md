@@ -1,8 +1,8 @@
 ---
 title: 以 invocation 策略生命周期包装纯准入选择
-status: candidate
-alignment: null
-createdAt: null
+status: active
+alignment: aligned
+createdAt: 2026-09-03T04:24:05Z
 purpose: 让每次 Run 的策略准备、纯准入选择和终态性能处理各有唯一边界，同时保持 Scheduler 对执行状态机与硬合法性的唯一责任。
 background: 现有 Decision 将外层策略生命周期与 Scheduler-facing policy 一并拒绝，导致 learned history 组合边界混合且不能准确表达其跨 Run 数据流。
 decision: 采用 invocation-scoped strategy lifecycle，并保持 Scheduler policy 为同步纯 select 或 wait 投影。

@@ -1,5 +1,3 @@
-import type { SchedulerSettlementKind } from "../task-scheduler/scheduler-decision.ts";
-
 export const SCHEDULER_HISTORY_ENVELOPE_VERSION = "scheduler-history-envelope-v1";
 export const SCHEDULER_HISTORY_FILE_NAME = "scheduler-history.json";
 export const SCHEDULER_HISTORY_MODEL_VERSION = "scheduler-duration-model-v1";
@@ -9,10 +7,18 @@ export const MAX_SCHEDULER_HISTORY_SERIES = 4_096;
 /** Bound persisted task-active durations so aggregates remain exact safe integers. */
 export const MAX_SCHEDULER_HISTORY_DURATION_MS = 2_147_483_647;
 
+/** Persisted terminal kind vocabulary; duration storage does not depend on Scheduler ownership. */
+export type SchedulerDurationSettlementKind =
+  | "completed"
+  | "prerequisite-unsatisfied"
+  | "failed"
+  | "blocked"
+  | "cancelled-before-start";
+
 export interface SchedulerHistorySample {
   readonly durationMs: number;
   readonly observationSequence: number;
-  readonly settlementKind: SchedulerSettlementKind;
+  readonly settlementKind: SchedulerDurationSettlementKind;
 }
 
 export interface SchedulerHistorySeries {
@@ -70,7 +76,9 @@ export function isSchedulerHistoryIdentityDigest(value: unknown): value is strin
   return typeof value === "string" && /^sha256:[0-9a-f]{64}$/.test(value);
 }
 
-export function isSchedulerSettlementKind(value: unknown): value is SchedulerSettlementKind {
+export function isSchedulerSettlementKind(
+  value: unknown
+): value is SchedulerDurationSettlementKind {
   return (
     value === "completed" ||
     value === "prerequisite-unsatisfied" ||
