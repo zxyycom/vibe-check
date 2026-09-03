@@ -1,41 +1,50 @@
 # Proposal
 
-本 Draft 评审一套 public immutable admission graph/state 协议：独立调用方可以从静态图创建初始状态，custom strategy 可以从真实 decision boundary 读取同一种状态；两者都通过同一私有调度 core 查询和产生 successor，而不执行或改写真实 Run。
+本 Plan 将 standalone simulation 和 live custom lookahead 交付为一个 public immutable `AdmissionGraph` / `AdmissionState` 协议；它共享 real Scheduler 的 private compiled reducer/effects，不执行或改写真实 Run。
 
 ## Why
 
-当前 `AdmissionPolicyContext` 只提供本轮 `select | wait` 所需的部分 snapshot。调用方不能从一个 Scheduler-owned surface 完成以下工作：
+当前 `AdmissionPolicyContext` 只有当轮选择所需的局部 snapshot。调用方不能从同一 Scheduler-owned surface 列出所有 pending 和 primary blocker、验证单项 Task、从相同 predecessor 推演不同 select/settle branch，或从静态图离线探索。自行重建 relation、mutex、capacity、scope 和 forced-block 规则会制造第二套调度语义；另建 simulator 也会漂移。
 
-- 列出 selectable、其余 pending 及其不可选原因，并同时读取 running、settled、capacity 和 scope；
-- 独立验证某个 Task 在当前状态是否可选；
-- 从同一状态分别选择 A 或 B，再显式结算 running Task，以比较后续 boundary；
-- 脱离真实 Run，从静态图构造初始状态并进行确定性测试或搜索。
-
-调用方若自行重建 relation、mutex、capacity、scope 和 forced-block 规则，会形成第二套调度语义。另写一个只服务模拟的 Scheduler 也会产生同样问题。真实执行与非执行探索需要共享一次 graph compile、legality、state transition 和 canonical effects；差异只在 shell 是否执行 effects。
-
-公共能力不应直接暴露 mutable Scheduler、内部 indexes、execution ledger 或 reducer 表示。它应公开 frozen opaque graph/state handle、只读查询和返回新状态的 transition。保留旧状态即可形成分支，不需要 setter 或深拷贝 `copy()`。
-
-搜索型调用方可能保留大量分支并反复读取 catalog。若每个 successor 全量复制 graph、pending/running/settled collection，或每次 getter 都重新构造完整 DTO，该公共能力会成为算法瓶颈。因此进入 Plan 前必须先建立分支 CPU、allocation 和 retained-heap baseline。
+公共 capability 又不能暴露 mutable Scheduler 或让 hypothetical state 成为 reservation/Task control。real shell 必须继续拥有 Task/Promise、signal、diagnostics、measurement、actual result/error、policy fault 和 hard revalidation。该边界以及 successor representation 会进入长期兼容/性能空间，因此需要一个可实施的跨 owner Plan。
 
 ## Outcome
 
-本 Change 结束时，项目拥有一份可执行的 public admission graph/state Plan，并满足以下结果：
+实现完成后，package consumer 可以通过 `createAdmissionGraph({ graph, maxParallel })` 获得一个 immutable initial `AdmissionState`，custom admission callback 可以从 `AdmissionPolicyContext.admissionState` 获得同一种 current-boundary state。调用方以 frozen inspection/catalog/read-only validation 和 `select` / binary `settle` 获得 hypothetical successor；保留 predecessor 即形成分支，不能写回或控制真实 Scheduler。
 
-- `createAdmissionGraph({ graph, maxParallel })` 验证并编译一次静态调度输入，返回 public `AdmissionGraph`；`graph.initialState()` 返回初始 `AdmissionState`。`SchedulerGraphSnapshot` 当前不包含 root `maxParallel`，所以该值作为独立静态输入传入。
-- `AdmissionPolicyContext.admissionState` 提供真实 decision boundary 对应的 `AdmissionState`。独立初始入口与 context-bound 入口使用相同 public state contract 和相同私有 compiled machine/reducer。
-- `AdmissionState` 是 frozen opaque handle。它通过 inspection/catalog getter、single-task validator、`select(taskId)` 和 `settle(taskId, "satisfied" | "unsatisfied")` 暴露调度语义；transition 返回 typed accepted/rejected result，accepted result 携带 successor，predecessor 始终不变。
-- 同一 predecessor 可产生多个 successor；保留 predecessor 引用就是保留分支，不提供 `copy()`、setter、任意中途 state 导入、序列化/恢复或真实 Run 写回。
-- public inspection 明确 selectable、带一个 deterministic primary reason 的其余 pending、running、scheduler-relevant settled outcome、root/effective capacity、derived scope lifecycle，以及当前 next boundary `select | wait | complete`。`complete` 是状态，不是 caller action。
-- 私有 compiled machine、pure reducer 和 canonical effects 是 real shell 与 public handle 的唯一 legality/transition owner。real shell 继续独占 policy 调用、Task/Promise、signal、diagnostics、measurement、settlement value/error 和 `RunResult`，并在 callback 后执行 hard revalidation。
-- v1 不公开 cancel、internal effects、batch/replay、state hash、global interning/cache 或完整 Check outcome。上述能力只有出现独立 consumer 和证据时才另行评审。
-- Plan 前建立可复现 benchmark/baseline，覆盖 compile、未使用 public state 时的 real hot path、getter/catalog、single validation、select/settle、从同一 predecessor 大量分支、高 fanout 和 retained heap；数值门槛只从该 baseline 形成。
+real shell 和 public handle 共享一次 static compile、immutable dynamic node、pure reducer 与 canonical effects；shell 仍执行 effects 和 callback-return hard guards。exact DTO/rejection/order/trace semantics、two consumer evidence、representation benchmark 和 implementation/verification tasks 都已在本 Plan 固化。
 
-## Change Boundary
+## Scope
 
-- **公共语义 owner**：`AdmissionGraph` 表达一次验证后的静态 admission model；`AdmissionState` 表达一个不可变调度分支。它们公开稳定查询、action 和 typed result，不公开内部 storage、indexes、reducer、effect stream 或 execution ledger。Change 名称中的 simulation 表示使用场景，不要求 public 类型以 Simulator 命名。
-- **共享 core owner**：`src/project-run/task-scheduler/**` 的 private compiled machine、pure state transition 和 canonical effects 是唯一 legality/transition 来源。real execution shell 执行 effects；public state handle 只返回假设 successor。
-- **v1 action boundary**：public action 只有 hypothetical `select` 与 running-task `settle`；`wait`/`complete` 由 inspection 的 next boundary 表达。`settle` 只接受 scheduler-relevant `satisfied | unsatisfied`。普通非法 action 返回 rejection 并保留原状态，不以异常表达。
-- **兼容边界**：standalone factory 不新增 Project Definition 配置，也不改变 declarative fingerprint。`AdmissionPolicyContext` 增加 state handle，public exports/docs/installed-consumer evidence 必须同步；真实 Scheduler 继续 hard revalidate，state 不是 reservation 或 Task control capability。
-- **进入 Plan 的前置**：用真实 lookahead 与 deterministic-test consumer 验证 public contract；建立新的 simulation/public-state Decision；完成 shared-core trace oracle 设计；采集可复现 CPU、allocation、heap 与 real-path baseline。baseline 前不选择复杂 persistent structure，不冻结数值预算，不创建 tasks，不切换为 Plan。
-- **依赖边界**：已归档 custom lifecycle 是 current authoring baseline，但不是本 Change 的组成部分。算法 Change 可以复用 private core/test harness，却不依赖 public state API。fail-fast 或 named capacity 若先落地，必须重新审阅 state、reason、transition 和 benchmark matrix。
-- **非目标**：不新增 `expectedDurationMs`、public strategy registry、第二种 graph semantics、通用 graph executor、默认算法替换或 priority 规则；策略仍先按自身算法排序，`admissionPriority` 只在该策略同分后 tie-break。
+### Intended Change
+
+- 在 `src/project-run/task-scheduler/**` 提取 private compiled admission graph、immutable dynamic node、pure reducer、canonical effects、real-shell effect application和 trace harness，作为唯一 legality/transition owner。
+- 新增 public `AdmissionGraphInput`、`AdmissionGraph`、opaque `AdmissionState`、inspection/catalog/reason/result DTO、`createAdmissionGraph`，并将同型 state 增加到 `AdmissionPolicyContext`；不增加 Definition configuration 或 fingerprint input。
+- 限定 v1 public actions 为 hypothetical `select(taskId)` 与 `settle(taskId, "satisfied" | "unsatisfied")`；`wait`/`complete` 是 inspection boundary，不是 caller actions；cancel/effects/executor/state storage 保持 private。
+- 同步 public declarations/export/JSDoc、current owner docs/examples/package projection、installed-consumer evidence、scheduler tests/Test Evidence 与 reproducible performance evidence。
+
+### Resulting Impacts
+
+- 现有 imperative scheduler decision/inspection/mutation 需要收敛，确保 public state 与 real execution 不复制 relation/mutex/capacity/scope/forced-block logic；real shell 的 Task/Promise/signal/diagnostic/measurement/RunResult responsibility 不变。
+- callback context 新增 additive public field，要求 exact DTO validation、deep frozen/opaque behavior、hard revalidation、simple/prepared compatibility和 installed package contract evidence。
+- binary public settlement需要明确与 current `completed` / `prerequisite-unsatisfied` / `failed` / forced `blocked` / private cancellation lifecycle 的映射，且 trace oracle 覆盖它们而不扩大 public action surface。
+- representation changes public branching cost but not public storage. Parent+delta is selected by current evidence; benchmark remains executable and no cross-host timing number becomes a required gate。
+- 本 Change 与 fail-fast/named-capacity/runtime owner 是串行交接关系：若它们先改变 current Scheduler facts，实施者需按本 Plan 重新基线、更新 contract/trace/benchmark，而非隐式叠加。
+
+## Success Criteria
+
+- [ ] standalone factory 与 context-bound state have exactly one public type/DTO/action contract; every returned public object is frozen/opaque and accepted successor does not mutate predecessor.
+- [ ] catalog partitions all pending Tasks in canonical order; arbitrary-ID validation has its dedicated closed rejection union and the same precedence/rejection as `select`; next boundary, scope lifecycle and binary settlement mapping match this Plan.
+- [ ] public transitions and real shell are shown by the shared trace oracle to have the same legality, effects and state projection across relation, mutex, root/scope capacity, forced block, wait/complete and private cancellation paths.
+- [ ] standalone branching and live custom lookahead are proven by direct current tests/installed consumer evidence; a callback lookahead cannot reserve/start/settle a real Task and its returned proposal remains hard-revalidated.
+- [ ] static/custom/learned real runs that do not read `admissionState` do not construct public catalog/search state; implementation benchmarks preserve the recorded matrix and justify any private representation deviation.
+- [ ] public exports, type/docs/examples, test evidence, validation and required workspace assurance are current; the unaligned Decision is marked aligned only after that complete direction is verified.
+
+## Affected Owners
+
+- `src/project-run/task-scheduler/**` and Scheduler behavior/tests: compiled graph, reducer, effects, shell, trace and performance.
+- `src/project-definition/scheduler-policy.ts`, `src/project-definition/project-definition.ts`, `src/index.ts`: public API, exact context/type/export boundary.
+- `docs/architecture.md`, `docs/configuration.md`, `docs/api-mechanics.md`, package API projection/examples and installed consumer acceptance: stable public semantics and non-control boundary.
+- `docs/testing.md`, `docs/testing/cases/**`, `test-evidence-review`: current test entities and semantic cases once tests change.
+- `docs/decisions/provide-immutable-admission-graph-state.md`: future long-term direction, currently active + unaligned.
+- `changes/provide-admission-strategy-simulation/readiness/**`: reproducible readiness/implementation benchmark and consumer evidence; not a Product runtime owner.

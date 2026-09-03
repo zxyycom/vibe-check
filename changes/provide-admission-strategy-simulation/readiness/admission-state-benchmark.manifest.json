@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Plan-readiness baseline for the proposed immutable AdmissionGraph/AdmissionState. It compares representation prototypes, not a product implementation.",
+  "command": "bun changes/provide-admission-strategy-simulation/readiness/admission-state-benchmark.ts",
+  "seed": 20260903,
+  "profile": {
+    "warmupSamples": 5,
+    "measuredSamples": 17,
+    "realRunIterationsPerSample": 4,
+    "prototypeIterationsPerSample": 64,
+    "catalogIterationsPerSample": 8,
+    "validationIterationsPerSample": 512,
+    "samePredecessorForksPerSample": 512,
+    "searchDepth": 7
+  },
+  "fixtures": {
+    "realPath": "96-task acyclic mixed-relation graph; root capacity 8; no standalone graph/state is instantiated.",
+    "prototype": "256-task deterministic DAG with 16-task layers; root capacity 8.",
+    "highFanout": "one root plus 255 direct dependents; root settles unsatisfied before catalog/validation.",
+    "branchSearch": "a binary-ready selection tree to depth 7; retained DFS/BFS frontier is intentionally kept live for heap observation."
+  },
+  "representations": [
+    "full-clone-map-set",
+    "parent-delta",
+    "dense-id-chunked-cow"
+  ],
+  "requiredTimedScenarios": [
+    "compile",
+    "real-static-unused-state-hot-path",
+    "real-custom-unused-state-hot-path",
+    "real-learned-unused-state-hot-path",
+    "inspection",
+    "catalog-cold",
+    "catalog-warm",
+    "repeated-validate",
+    "select-settle",
+    "same-predecessor-fork",
+    "high-fanout"
+  ],
+  "requiredRetainedHeapScenarios": [
+    "dfs-retained-branches",
+    "bfs-retained-branches"
+  ],
+  "measurement": {
+    "wall": "performance.now() elapsed milliseconds per batch; p50/p95 over measured samples.",
+    "cpu": "process.cpuUsage() delta per batch; user/system milliseconds are reported separately.",
+    "allocationProxy": "process.memoryUsage().heapUsed delta around each batch without forcing GC. This is a live-heap proxy, not an allocation counter.",
+    "retainedHeap": "if Bun.gc is available, force GC before and after retaining live branch arrays, then record heapUsed delta; otherwise mark unavailable. This is process-wide and noisy, not a precise object-retention profiler."
+  }
+}

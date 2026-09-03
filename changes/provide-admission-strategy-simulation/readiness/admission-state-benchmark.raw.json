@@ -1,0 +1,3449 @@
+{
+  "schemaVersion": 1,
+  "command": "bun changes/provide-admission-strategy-simulation/readiness/admission-state-benchmark.ts",
+  "generatedAt": "2026-09-03T09:14:26.170Z",
+  "environment": {
+    "bunVersion": "1.3.14",
+    "cpu": [
+      {
+        "times": {
+          "user": 7132340,
+          "nice": 660,
+          "sys": 5572830,
+          "idle": 180819890,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 7308820,
+          "nice": 420,
+          "sys": 5349850,
+          "idle": 181038620,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 7206810,
+          "nice": 3500,
+          "sys": 5593070,
+          "idle": 180743910,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 7293150,
+          "nice": 730,
+          "sys": 5360740,
+          "idle": 181063450,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 7181390,
+          "nice": 0,
+          "sys": 5563880,
+          "idle": 180827640,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 7291480,
+          "nice": 3640,
+          "sys": 5333350,
+          "idle": 181076590,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      }
+    ],
+    "os": {
+      "architecture": "x64",
+      "platform": "linux",
+      "release": "6.18.33.2-microsoft-standard-WSL2",
+      "totalMemoryBytes": 8327917568,
+      "type": "Linux"
+    },
+    "pid": 3813104
+  },
+  "fixtureSeed": 20260903,
+  "fixtureDescriptions": {
+    "realPath": "96-task acyclic mixed-relation graph; root capacity 8; no standalone graph/state is instantiated.",
+    "prototype": "256-task deterministic DAG with 16-task layers; root capacity 8.",
+    "highFanout": "one root plus 255 direct dependents; root settles unsatisfied before catalog/validation.",
+    "branchSearch": "a binary-ready selection tree to depth 7; retained DFS/BFS frontier is intentionally kept live for heap observation."
+  },
+  "measurement": {
+    "allocation": "heapUsed delta around each batch without forced GC; proxy only",
+    "retainedHeap": "Bun.gc(true) before/after live retained branches when available; process-wide advisory observation",
+    "warmupSamples": 5,
+    "measuredSamples": 17
+  },
+  "publicStateInstantiatedByRealBaseline": false,
+  "scenarios": [
+    {
+      "id": "compile",
+      "iterationsPerSample": 64,
+      "representation": "current-real-shell",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 224971,
+          "cpuSystemMs": 3.743,
+          "cpuUserMs": 11.208,
+          "wallMs": 13.985940999999997
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 126120,
+          "cpuSystemMs": 0.499,
+          "cpuUserMs": 13.349,
+          "wallMs": 11.999503000000004
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 10.749,
+          "wallMs": 10.742310000000003
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 220144,
+          "cpuSystemMs": 0.106,
+          "cpuUserMs": 12.551,
+          "wallMs": 11.860385000000008
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.598,
+          "cpuUserMs": 10.533,
+          "wallMs": 10.135743999999988
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 120524,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 13.771,
+          "wallMs": 12.990252999999996
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 14.504,
+          "wallMs": 12.884867000000014
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 235508,
+          "cpuSystemMs": 3.938,
+          "cpuUserMs": 10.708,
+          "wallMs": 13.784757000000013
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.049,
+          "cpuUserMs": 11.928,
+          "wallMs": 10.69682499999999
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 113852,
+          "cpuSystemMs": 0.088,
+          "cpuUserMs": 12.184,
+          "wallMs": 11.458578999999986
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 210608,
+          "cpuSystemMs": 0.252,
+          "cpuUserMs": 13.213,
+          "wallMs": 12.42930100000001
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.36,
+          "cpuUserMs": 14.018,
+          "wallMs": 11.22274200000001
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 136580,
+          "cpuSystemMs": 0.547,
+          "cpuUserMs": 15.412,
+          "wallMs": 13.420459999999991
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 4.236,
+          "cpuUserMs": 13.466,
+          "wallMs": 11.417102
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 241344,
+          "cpuSystemMs": 0.447,
+          "cpuUserMs": 14.951,
+          "wallMs": 13.028142000000003
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 3.616,
+          "cpuUserMs": 9.44,
+          "wallMs": 13.04873600000002
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 121664,
+          "cpuSystemMs": 4.487,
+          "cpuUserMs": 10.798,
+          "wallMs": 14.404592999999977
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 120524,
+          "p95": 241344
+        },
+        "cpuSystemMs": {
+          "p50": 0.447,
+          "p95": 4.487
+        },
+        "cpuUserMs": {
+          "p50": 12.551,
+          "p95": 15.412
+        },
+        "wallMs": {
+          "p50": 12.429,
+          "p95": 14.405
+        }
+      }
+    },
+    {
+      "id": "real-static-unused-state-hot-path",
+      "iterationsPerSample": 4,
+      "representation": "current-real-shell",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 736349,
+          "cpuSystemMs": 7.447,
+          "cpuUserMs": 90.992,
+          "wallMs": 86.67717299999993
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 573108,
+          "cpuSystemMs": 0.252,
+          "cpuUserMs": 97.767,
+          "wallMs": 87.11615300000005
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 508476,
+          "cpuSystemMs": 8.18,
+          "cpuUserMs": 85.734,
+          "wallMs": 84.18261200000006
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 416444,
+          "cpuSystemMs": 0.349,
+          "cpuUserMs": 95.387,
+          "wallMs": 83.97294099999999
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 958816,
+          "cpuSystemMs": 11.687,
+          "cpuUserMs": 76.82,
+          "wallMs": 84.23279400000001
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 453040,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 95.778,
+          "wallMs": 89.48825800000009
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 594196,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 107.747,
+          "wallMs": 87.66474300000004
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 407596,
+          "cpuSystemMs": 3.349,
+          "cpuUserMs": 115.648,
+          "wallMs": 87.33965899999998
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 729896,
+          "cpuSystemMs": 12.118,
+          "cpuUserMs": 86.796,
+          "wallMs": 92.30333500000006
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 436464,
+          "cpuSystemMs": 7.552,
+          "cpuUserMs": 82.747,
+          "wallMs": 86.31047999999987
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 536736,
+          "cpuSystemMs": 8.046,
+          "cpuUserMs": 88.596,
+          "wallMs": 87.3770790000001
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 417088,
+          "cpuSystemMs": 4.282,
+          "cpuUserMs": 91.115,
+          "wallMs": 90.43666800000005
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 747908,
+          "cpuSystemMs": 4.057,
+          "cpuUserMs": 96.466,
+          "wallMs": 88.1336040000001
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 455324,
+          "cpuSystemMs": 0.479,
+          "cpuUserMs": 93.708,
+          "wallMs": 85.35155000000009
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 595008,
+          "cpuSystemMs": 0.345,
+          "cpuUserMs": 96.405,
+          "wallMs": 80.94362799999976
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 527992,
+          "cpuSystemMs": 4.465,
+          "cpuUserMs": 90.262,
+          "wallMs": 83.81713200000013
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 723860,
+          "cpuSystemMs": 7.839,
+          "cpuUserMs": 89.8,
+          "wallMs": 84.09448599999996
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 536736,
+          "p95": 958816
+        },
+        "cpuSystemMs": {
+          "p50": 4.282,
+          "p95": 12.118
+        },
+        "cpuUserMs": {
+          "p50": 91.115,
+          "p95": 115.648
+        },
+        "wallMs": {
+          "p50": 86.677,
+          "p95": 92.303
+        }
+      }
+    },
+    {
+      "id": "real-custom-unused-state-hot-path",
+      "iterationsPerSample": 4,
+      "representation": "current-real-shell",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 1841120,
+          "cpuSystemMs": 35.033,
+          "cpuUserMs": 149.676,
+          "wallMs": 170.40443400000004
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1874000,
+          "cpuSystemMs": 23.076,
+          "cpuUserMs": 158.462,
+          "wallMs": 159.98615700000028
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1931480,
+          "cpuSystemMs": 11.659,
+          "cpuUserMs": 179.954,
+          "wallMs": 160.00983799999995
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1608884,
+          "cpuSystemMs": 27.735,
+          "cpuUserMs": 146.243,
+          "wallMs": 160.31682199999977
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1644908,
+          "cpuSystemMs": 12.594,
+          "cpuUserMs": 166.029,
+          "wallMs": 166.63121100000035
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1667232,
+          "cpuSystemMs": 23.725,
+          "cpuUserMs": 153.662,
+          "wallMs": 167.686287
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1602560,
+          "cpuSystemMs": 12.081,
+          "cpuUserMs": 164.619,
+          "wallMs": 168.05636699999923
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1774836,
+          "cpuSystemMs": 12.857,
+          "cpuUserMs": 188.738,
+          "wallMs": 165.70891099999972
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1884468,
+          "cpuSystemMs": 20.719,
+          "cpuUserMs": 167.67,
+          "wallMs": 171.11304000000018
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1913544,
+          "cpuSystemMs": 9.022,
+          "cpuUserMs": 170.687,
+          "wallMs": 163.5439290000004
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1842244,
+          "cpuSystemMs": 12.953,
+          "cpuUserMs": 170.164,
+          "wallMs": 163.13185500000054
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1869904,
+          "cpuSystemMs": 19.742,
+          "cpuUserMs": 157.15,
+          "wallMs": 159.88772399999925
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 2034532,
+          "cpuSystemMs": 12.317,
+          "cpuUserMs": 167.431,
+          "wallMs": 169.00817299999926
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1568852,
+          "cpuSystemMs": 28.487,
+          "cpuUserMs": 168.758,
+          "wallMs": 166.70092000000022
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1616764,
+          "cpuSystemMs": 20.021,
+          "cpuUserMs": 180.139,
+          "wallMs": 182.4077870000001
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1614112,
+          "cpuSystemMs": 0.383,
+          "cpuUserMs": 172.574,
+          "wallMs": 159.20870900000045
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 1674872,
+          "cpuSystemMs": 24.558,
+          "cpuUserMs": 165.511,
+          "wallMs": 167.01136000000042
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 1774836,
+          "p95": 2034532
+        },
+        "cpuSystemMs": {
+          "p50": 19.742,
+          "p95": 35.033
+        },
+        "cpuUserMs": {
+          "p50": 167.431,
+          "p95": 188.738
+        },
+        "wallMs": {
+          "p50": 166.631,
+          "p95": 182.408
+        }
+      }
+    },
+    {
+      "id": "real-learned-unused-state-hot-path",
+      "iterationsPerSample": 4,
+      "representation": "current-real-shell",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 952560,
+          "cpuSystemMs": 19.942,
+          "cpuUserMs": 87.116,
+          "wallMs": 96.61211000000003
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 430316,
+          "cpuSystemMs": 4.039,
+          "cpuUserMs": 92.523,
+          "wallMs": 92.3162110000003
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 582640,
+          "cpuSystemMs": 8.357,
+          "cpuUserMs": 91.669,
+          "wallMs": 96.35405100000025
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 520488,
+          "cpuSystemMs": 8.42,
+          "cpuUserMs": 96.753,
+          "wallMs": 90.36795299999994
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 864380,
+          "cpuSystemMs": 4.14,
+          "cpuUserMs": 89.619,
+          "wallMs": 88.80486000000019
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 590008,
+          "cpuSystemMs": 7.581,
+          "cpuUserMs": 91.712,
+          "wallMs": 91.62284900000031
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 499752,
+          "cpuSystemMs": 15.553,
+          "cpuUserMs": 99.22,
+          "wallMs": 91.44458200000008
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 449860,
+          "cpuSystemMs": 11.719,
+          "cpuUserMs": 81.035,
+          "wallMs": 88.08984199999941
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 867776,
+          "cpuSystemMs": 15.847,
+          "cpuUserMs": 82.284,
+          "wallMs": 93.70391399999971
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 600696,
+          "cpuSystemMs": 4.412,
+          "cpuUserMs": 88.265,
+          "wallMs": 90.82196500000009
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 309008,
+          "cpuSystemMs": 12.474,
+          "cpuUserMs": 84.691,
+          "wallMs": 92.92355300000054
+        },
+        {
+          "allocationProxyHeapDeltaBytes": -62337411,
+          "cpuSystemMs": 23.922,
+          "cpuUserMs": 74.751,
+          "wallMs": 89.86535800000001
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 453652,
+          "cpuSystemMs": 4.041,
+          "cpuUserMs": 84.531,
+          "wallMs": 84.53627599999982
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 762272,
+          "cpuSystemMs": 0.34,
+          "cpuUserMs": 99.69,
+          "wallMs": 95.56108399999994
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 453084,
+          "cpuSystemMs": 16.285,
+          "cpuUserMs": 82.584,
+          "wallMs": 90.68603100000018
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 951584,
+          "cpuSystemMs": 4.274,
+          "cpuUserMs": 90.915,
+          "wallMs": 91.19840299999942
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 798768,
+          "cpuSystemMs": 4.423,
+          "cpuUserMs": 100.492,
+          "wallMs": 100.57180200000039
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 582640,
+          "p95": 952560
+        },
+        "cpuSystemMs": {
+          "p50": 8.357,
+          "p95": 23.922
+        },
+        "cpuUserMs": {
+          "p50": 89.619,
+          "p95": 100.492
+        },
+        "wallMs": {
+          "p50": 91.445,
+          "p95": 100.572
+        }
+      }
+    },
+    {
+      "id": "inspection",
+      "iterationsPerSample": 64,
+      "representation": "full-clone-map-set",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.03,
+          "wallMs": 0.030427000000599946
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.037,
+          "wallMs": 0.03868200000033539
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.022,
+          "wallMs": 0.0233539999999266
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.025,
+          "cpuUserMs": 0.26,
+          "wallMs": 0.02558699999917735
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.009,
+          "wallMs": 0.008095000000139407
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.030457000000751577
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.009,
+          "wallMs": 0.008715999999367341
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.008,
+          "wallMs": 0.00792399999954796
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.018,
+          "wallMs": 0.01958600000034494
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.008,
+          "wallMs": 0.007663999999749649
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.006,
+          "wallMs": 0.006752000000233238
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "wallMs": 0.008275000000139698
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.006,
+          "wallMs": 0.005680999999640335
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.006,
+          "wallMs": 0.005881000000044878
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.034,
+          "wallMs": 0.035355999999410415
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.017,
+          "wallMs": 0.017573000000083994
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.014,
+          "wallMs": 0.013935999999375781
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.001,
+          "p95": 0.025
+        },
+        "cpuUserMs": {
+          "p50": 0.014,
+          "p95": 0.26
+        },
+        "wallMs": {
+          "p50": 0.014,
+          "p95": 0.039
+        }
+      }
+    },
+    {
+      "id": "catalog-cold",
+      "iterationsPerSample": 8,
+      "representation": "full-clone-map-set",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.019,
+          "cpuUserMs": 0.189,
+          "wallMs": 0.20538099999976112
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.02,
+          "cpuUserMs": 0.2,
+          "wallMs": 0.21661200000016834
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.02,
+          "cpuUserMs": 0.203,
+          "wallMs": 0.22105000000010477
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.019,
+          "cpuUserMs": 0.189,
+          "wallMs": 0.20583199999964563
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.023,
+          "cpuUserMs": 0.232,
+          "wallMs": 0.25288000000000466
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.018,
+          "cpuUserMs": 0.179,
+          "wallMs": 0.1965040000004592
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.017,
+          "cpuUserMs": 0.175,
+          "wallMs": 0.19142600000031962
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.018,
+          "cpuUserMs": 0.187,
+          "wallMs": 0.20425900000009278
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.017,
+          "cpuUserMs": 0.173,
+          "wallMs": 0.18867099999988568
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.018,
+          "cpuUserMs": 0.185,
+          "wallMs": 0.2029870000005758
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.018,
+          "cpuUserMs": 0.185,
+          "wallMs": 0.2025759999996808
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.018,
+          "cpuUserMs": 0.18,
+          "wallMs": 0.1970659999997224
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.016,
+          "cpuUserMs": 0.171,
+          "wallMs": 0.18634600000041246
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.23,
+          "cpuUserMs": 2.331,
+          "wallMs": 0.21170299999994313
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 5.35,
+          "wallMs": 0.1995310000002064
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.199,
+          "wallMs": 0.19757699999991019
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.191,
+          "wallMs": 0.19023400000060064
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.018,
+          "p95": 0.23
+        },
+        "cpuUserMs": {
+          "p50": 0.189,
+          "p95": 5.35
+        },
+        "wallMs": {
+          "p50": 0.203,
+          "p95": 0.253
+        }
+      }
+    },
+    {
+      "id": "catalog-warm",
+      "iterationsPerSample": 8,
+      "representation": "full-clone-map-set",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.162,
+          "wallMs": 0.16081799999938085
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.177,
+          "wallMs": 0.17556599999988975
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.165,
+          "wallMs": 0.1632129999998142
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.158,
+          "wallMs": 0.1570819999997184
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 2.55,
+          "wallMs": 0.15705199999956676
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.916,
+          "wallMs": 0.15717200000017328
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.187,
+          "wallMs": 0.18670599999950355
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.161,
+          "wallMs": 0.16036699999949633
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.189,
+          "wallMs": 0.18765799999982846
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.073,
+          "cpuUserMs": 3.592,
+          "wallMs": 0.2309480000003532
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.021,
+          "cpuUserMs": 0.213,
+          "wallMs": 0.23091899999963061
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.261,
+          "wallMs": 0.2583489999997255
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.236,
+          "wallMs": 0.23394399999961024
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.194,
+          "wallMs": 0.19319799999993847
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.15,
+          "wallMs": 0.14902600000004895
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.218,
+          "wallMs": 0.21631200000047102
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.255,
+          "wallMs": 0.2523780000001352
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.073
+        },
+        "cpuUserMs": {
+          "p50": 0.194,
+          "p95": 3.592
+        },
+        "wallMs": {
+          "p50": 0.187,
+          "p95": 0.258
+        }
+      }
+    },
+    {
+      "id": "repeated-validate",
+      "iterationsPerSample": 512,
+      "representation": "full-clone-map-set",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.038,
+          "wallMs": 0.03709900000012567
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.059,
+          "wallMs": 0.05705599999964761
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.036,
+          "wallMs": 0.034483999999793014
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.035,
+          "wallMs": 0.03415299999960553
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.034,
+          "wallMs": 0.0333119999995688
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.032,
+          "wallMs": 0.03164900000047055
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.041,
+          "wallMs": 0.04016500000034284
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.471,
+          "wallMs": 0.04017500000009022
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.027,
+          "wallMs": 0.02640900000005786
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.038,
+          "wallMs": 0.03730900000027759
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.028362999999444582
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.028694000000541564
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "wallMs": 0.02899399999932939
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.025,
+          "wallMs": 0.024244999999609718
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.027,
+          "wallMs": 0.02664900000036141
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.026,
+          "wallMs": 0.025016999999934342
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.031,
+          "wallMs": 0.029654999999365828
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.032,
+          "p95": 0.471
+        },
+        "wallMs": {
+          "p50": 0.032,
+          "p95": 0.057
+        }
+      }
+    },
+    {
+      "id": "select-settle",
+      "iterationsPerSample": 64,
+      "representation": "full-clone-map-set",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.008,
+          "cpuUserMs": 0.09,
+          "wallMs": 0.09780200000022887
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.015,
+          "cpuUserMs": 0.158,
+          "wallMs": 0.13262599999961822
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.008,
+          "cpuUserMs": 0.083,
+          "wallMs": 0.09026700000049459
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.01,
+          "cpuUserMs": 0.093,
+          "wallMs": 0.10134800000014366
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.007,
+          "cpuUserMs": 0.075,
+          "wallMs": 0.08200200000010227
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.01,
+          "cpuUserMs": 0.099,
+          "wallMs": 0.10785000000032596
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.127,
+          "wallMs": 0.1252730000005613
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.097,
+          "wallMs": 0.0958279999995284
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.086,
+          "wallMs": 0.08522799999991548
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.121,
+          "wallMs": 0.12041299999964394
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.094,
+          "wallMs": 0.0926820000004227
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.095,
+          "wallMs": 0.09411399999953574
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.089,
+          "wallMs": 0.08889499999986583
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.1,
+          "wallMs": 0.0988630000001649
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.09,
+          "wallMs": 0.08978599999954895
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.091,
+          "wallMs": 0.0901770000000397
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.083,
+          "wallMs": 0.08219300000018848
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.015
+        },
+        "cpuUserMs": {
+          "p50": 0.093,
+          "p95": 0.158
+        },
+        "wallMs": {
+          "p50": 0.094,
+          "p95": 0.133
+        }
+      }
+    },
+    {
+      "id": "same-predecessor-fork",
+      "iterationsPerSample": 512,
+      "representation": "full-clone-map-set",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 635985,
+          "cpuSystemMs": 0.123,
+          "cpuUserMs": 1.954,
+          "wallMs": 1.1181559999995443
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.008,
+          "cpuUserMs": 0.079,
+          "wallMs": 0.08544799999981478
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.034,
+          "cpuUserMs": 0.339,
+          "wallMs": 0.10256000000026688
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.012,
+          "cpuUserMs": 0.119,
+          "wallMs": 0.1297599999998056
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.008,
+          "cpuUserMs": 0.077,
+          "wallMs": 0.083625000000211
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.007,
+          "cpuUserMs": 0.076,
+          "wallMs": 0.08295400000042719
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.458,
+          "wallMs": 0.09385399999973743
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.076,
+          "wallMs": 0.07472899999993388
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.085,
+          "wallMs": 0.08346500000061496
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.088,
+          "wallMs": 0.08693099999982223
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.078,
+          "wallMs": 0.07741399999940768
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.081,
+          "wallMs": 0.08050899999943795
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.08,
+          "wallMs": 0.08004799999980605
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.08,
+          "wallMs": 0.07962799999950221
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.102,
+          "wallMs": 0.10068700000010722
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.077,
+          "wallMs": 0.07634200000029523
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.079,
+          "wallMs": 0.0784060000005411
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 635985
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.123
+        },
+        "cpuUserMs": {
+          "p50": 0.08,
+          "p95": 1.954
+        },
+        "wallMs": {
+          "p50": 0.083,
+          "p95": 1.118
+        }
+      }
+    },
+    {
+      "id": "high-fanout",
+      "iterationsPerSample": 64,
+      "representation": "full-clone-map-set",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 7.005,
+          "wallMs": 1.1709429999991698
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 4.549,
+          "wallMs": 1.1446740000001228
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.052,
+          "cpuUserMs": 0.96,
+          "wallMs": 1.0103750000007494
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.159,
+          "wallMs": 1.156926999999996
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.104,
+          "wallMs": 1.1021559999999226
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.071,
+          "wallMs": 1.0697460000001229
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.047,
+          "cpuUserMs": 1.088,
+          "wallMs": 1.1333830000003218
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.132,
+          "wallMs": 1.1301680000005945
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.044,
+          "wallMs": 1.0426060000008874
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.08,
+          "wallMs": 1.0786219999999958
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 1.081,
+          "cpuUserMs": 0,
+          "wallMs": 1.0785820000000967
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 1.056,
+          "cpuUserMs": 0,
+          "wallMs": 1.054576999999881
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 397158,
+          "cpuSystemMs": 1.578,
+          "cpuUserMs": 2.152,
+          "wallMs": 2.798319999999876
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.091,
+          "cpuUserMs": 0.92,
+          "wallMs": 1.008056000000579
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.088,
+          "cpuUserMs": 0.891,
+          "wallMs": 0.9773939999995491
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.084,
+          "cpuUserMs": 0.846,
+          "wallMs": 0.928023000000394
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.946,
+          "wallMs": 0.9439119999997274
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 397158
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 1.578
+        },
+        "cpuUserMs": {
+          "p50": 1.071,
+          "p95": 7.005
+        },
+        "wallMs": {
+          "p50": 1.079,
+          "p95": 2.798
+        }
+      }
+    },
+    {
+      "id": "inspection",
+      "iterationsPerSample": 64,
+      "representation": "parent-delta",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.017,
+          "wallMs": 0.013866000000234635
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.007,
+          "wallMs": 0.0067930000004707836
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.007,
+          "wallMs": 0.005208999999922526
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.012,
+          "wallMs": 0.009919000000081724
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "wallMs": 0.006612000000131957
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "wallMs": 0.00921699999980774
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.019,
+          "wallMs": 0.01736200000050303
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.013,
+          "wallMs": 0.011542000000190455
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "wallMs": 0.00928699999985838
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.005,
+          "wallMs": 0.0039770000003045425
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "wallMs": 0.009537999999338354
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.004,
+          "wallMs": 0.0036170000003039604
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.005,
+          "wallMs": 0.004447999999683816
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.005,
+          "wallMs": 0.004087999999683234
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.006,
+          "wallMs": 0.004649000000426895
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "wallMs": 0.00701299999946059
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.006,
+          "wallMs": 0.004938999999467342
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.008,
+          "p95": 0.03
+        },
+        "wallMs": {
+          "p50": 0.007,
+          "p95": 0.017
+        }
+      }
+    },
+    {
+      "id": "catalog-cold",
+      "iterationsPerSample": 8,
+      "representation": "parent-delta",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.204,
+          "wallMs": 0.20095300000048155
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.247,
+          "wallMs": 0.24495500000011816
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 1.406,
+          "cpuUserMs": 0,
+          "wallMs": 0.22020900000006804
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.201,
+          "cpuUserMs": 0,
+          "wallMs": 0.20051199999943492
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.204,
+          "cpuUserMs": 0,
+          "wallMs": 0.20277700000042387
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.486,
+          "cpuUserMs": 0,
+          "wallMs": 0.4828459999998813
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.341,
+          "cpuUserMs": 0,
+          "wallMs": 0.33960100000058446
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.154,
+          "cpuUserMs": 0.236,
+          "wallMs": 0.38874200000009296
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.057,
+          "cpuUserMs": 0.569,
+          "wallMs": 0.37259199999971315
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.031,
+          "cpuUserMs": 0.314,
+          "wallMs": 0.34419900000011694
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.031,
+          "cpuUserMs": 0.312,
+          "wallMs": 0.3424960000002102
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.322,
+          "cpuUserMs": 3.234,
+          "wallMs": 0.38249999999970896
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.029,
+          "cpuUserMs": 0.292,
+          "wallMs": 0.32022500000039145
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 4.369,
+          "wallMs": 0.38469399999939924
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.34,
+          "wallMs": 0.3383379999995668
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.189,
+          "wallMs": 0.31399299999975483
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.316,
+          "wallMs": 0.31451399999969
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.031,
+          "p95": 1.406
+        },
+        "cpuUserMs": {
+          "p50": 0.292,
+          "p95": 4.369
+        },
+        "wallMs": {
+          "p50": 0.338,
+          "p95": 0.483
+        }
+      }
+    },
+    {
+      "id": "catalog-warm",
+      "iterationsPerSample": 8,
+      "representation": "parent-delta",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.026,
+          "cpuUserMs": 0.258,
+          "wallMs": 0.28298500000073545
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.025,
+          "cpuUserMs": 0.258,
+          "wallMs": 0.28312499999992724
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.053,
+          "cpuUserMs": 0.534,
+          "wallMs": 0.28292599999986123
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.566,
+          "cpuUserMs": 0,
+          "wallMs": 0.3269669999999678
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.314,
+          "cpuUserMs": 0,
+          "wallMs": 0.31320099999993545
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 1.195,
+          "cpuUserMs": 0,
+          "wallMs": 0.3557309999996505
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.289,
+          "cpuUserMs": 0,
+          "wallMs": 0.2879339999999502
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.319,
+          "cpuUserMs": 0,
+          "wallMs": 0.3173190000006798
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.385,
+          "cpuUserMs": 0,
+          "wallMs": 0.37949399999979505
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.328,
+          "cpuUserMs": 0.151,
+          "wallMs": 0.4767050000000381
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.03,
+          "cpuUserMs": 0.309,
+          "wallMs": 0.3371559999995952
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.014,
+          "cpuUserMs": 0.144,
+          "wallMs": 0.1578929999996035
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.016,
+          "cpuUserMs": 0.167,
+          "wallMs": 0.18292999999994208
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.014,
+          "cpuUserMs": 0.138,
+          "wallMs": 0.15176100000007864
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.015,
+          "cpuUserMs": 0.155,
+          "wallMs": 0.16838300000017625
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.014,
+          "cpuUserMs": 0.141,
+          "wallMs": 0.15431699999953707
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.014,
+          "cpuUserMs": 0.138,
+          "wallMs": 0.15110999999978958
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.03,
+          "p95": 1.195
+        },
+        "cpuUserMs": {
+          "p50": 0.141,
+          "p95": 0.534
+        },
+        "wallMs": {
+          "p50": 0.283,
+          "p95": 0.477
+        }
+      }
+    },
+    {
+      "id": "repeated-validate",
+      "iterationsPerSample": 512,
+      "representation": "parent-delta",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.036,
+          "wallMs": 0.035015000000385044
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.035,
+          "wallMs": 0.03478499999982887
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.034,
+          "wallMs": 0.03283099999953265
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.035,
+          "wallMs": 0.033862000000226544
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.034,
+          "wallMs": 0.0338530000008177
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.537,
+          "wallMs": 0.06191500000022643
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.038,
+          "wallMs": 0.03638699999919481
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.058,
+          "wallMs": 0.05622399999992922
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.028443000000152097
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.028303000000050815
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.028212999999595922
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.033,
+          "wallMs": 0.032189999999900465
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "wallMs": 0.02850300000045536
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.032,
+          "wallMs": 0.03178900000057183
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "wallMs": 0.02865300000030402
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.422,
+          "wallMs": 0.02865399999973306
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.041,
+          "wallMs": 0.04056499999933294
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.034,
+          "p95": 0.537
+        },
+        "wallMs": {
+          "p50": 0.033,
+          "p95": 0.062
+        }
+      }
+    },
+    {
+      "id": "select-settle",
+      "iterationsPerSample": 64,
+      "representation": "parent-delta",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.021,
+          "wallMs": 0.019445999999334163
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.019526000000041677
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.021,
+          "wallMs": 0.019865999999638007
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.0197360000001936
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.045,
+          "wallMs": 0.043760999999904016
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.035,
+          "wallMs": 0.033712999999806925
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.023,
+          "wallMs": 0.022853000000395696
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.024,
+          "wallMs": 0.02335300000049756
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.01886500000000524
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.019487000000481203
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.023,
+          "wallMs": 0.02143999999952939
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.019,
+          "wallMs": 0.0184239999998681
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.019064999999500287
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.026,
+          "wallMs": 0.025147000000288244
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.022,
+          "wallMs": 0.021400000000539876
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.484,
+          "wallMs": 0.028542999999444874
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.019325999999637133
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.021,
+          "p95": 0.484
+        },
+        "wallMs": {
+          "p50": 0.02,
+          "p95": 0.044
+        }
+      }
+    },
+    {
+      "id": "same-predecessor-fork",
+      "iterationsPerSample": 512,
+      "representation": "parent-delta",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.07,
+          "wallMs": 0.06823699999949895
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.039,
+          "wallMs": 0.03727900000012596
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.036,
+          "wallMs": 0.03798000000006141
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.030557000000044354
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.028,
+          "wallMs": 0.030686999999488762
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.028,
+          "wallMs": 0.029865999999856285
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.028,
+          "wallMs": 0.030165999999553605
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.031006999999590334
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.030617000000347616
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.028,
+          "wallMs": 0.030275999999503256
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.030165999999553605
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.028,
+          "wallMs": 0.030337000000145053
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.031388000000333705
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.029,
+          "wallMs": 0.030407000000195694
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.027,
+          "wallMs": 0.028623000000152388
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.03,
+          "wallMs": 0.03191900000001624
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.027,
+          "wallMs": 0.029623999999785156
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.003,
+          "p95": 0.004
+        },
+        "cpuUserMs": {
+          "p50": 0.029,
+          "p95": 0.07
+        },
+        "wallMs": {
+          "p50": 0.031,
+          "p95": 0.068
+        }
+      }
+    },
+    {
+      "id": "high-fanout",
+      "iterationsPerSample": 64,
+      "representation": "parent-delta",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.257,
+          "wallMs": 1.1856109999998807
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.044,
+          "wallMs": 1.0420640000002095
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.221,
+          "wallMs": 1.2165290000002642
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.558,
+          "wallMs": 1.5551359999999477
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.694,
+          "wallMs": 0.9070429999992484
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.629,
+          "wallMs": 0.9145880000005491
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.893,
+          "wallMs": 0.8914940000004208
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.839,
+          "wallMs": 0.83757500000047
+        },
+        {
+          "allocationProxyHeapDeltaBytes": -4702300,
+          "cpuSystemMs": 2.859,
+          "cpuUserMs": 0,
+          "wallMs": 2.0555759999997463
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.409,
+          "cpuUserMs": 0.445,
+          "wallMs": 0.8525319999998828
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.076,
+          "cpuUserMs": 0.762,
+          "wallMs": 0.8364929999997912
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.077,
+          "cpuUserMs": 0.768,
+          "wallMs": 0.8425740000002406
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.866,
+          "wallMs": 0.8647460000001956
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.867,
+          "wallMs": 0.8648060000004989
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.846,
+          "wallMs": 0.8448889999999665
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.871,
+          "wallMs": 0.86984399999983
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.04,
+          "cpuUserMs": 0.869,
+          "wallMs": 0.9057920000004742
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 2.859
+        },
+        "cpuUserMs": {
+          "p50": 0.869,
+          "p95": 3.257
+        },
+        "wallMs": {
+          "p50": 0.891,
+          "p95": 2.056
+        }
+      }
+    },
+    {
+      "id": "inspection",
+      "iterationsPerSample": 64,
+      "representation": "dense-id-chunked-cow",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.031,
+          "wallMs": 0.0318489999999656
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.005,
+          "cpuUserMs": 0.043,
+          "wallMs": 0.045815000000402506
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.022,
+          "wallMs": 0.023754000000735687
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.015,
+          "wallMs": 0.01613999999972293
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.021340000000236614
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.043,
+          "wallMs": 0.046186000000489
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.021,
+          "wallMs": 0.021270000000185973
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.015,
+          "wallMs": 0.014958000000660832
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.023,
+          "wallMs": 0.024545000000216532
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.017,
+          "wallMs": 0.0173320000003514
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.02,
+          "wallMs": 0.02114900000015041
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.014,
+          "wallMs": 0.014616999999816471
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.012,
+          "wallMs": 0.012954000000718224
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.013,
+          "wallMs": 0.013004000000364613
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.011,
+          "wallMs": 0.011951999999837426
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.015,
+          "wallMs": 0.015609000000040396
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.016,
+          "wallMs": 0.01679100000001199
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.002,
+          "p95": 0.005
+        },
+        "cpuUserMs": {
+          "p50": 0.017,
+          "p95": 0.043
+        },
+        "wallMs": {
+          "p50": 0.017,
+          "p95": 0.046
+        }
+      }
+    },
+    {
+      "id": "catalog-cold",
+      "iterationsPerSample": 8,
+      "representation": "dense-id-chunked-cow",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.785,
+          "wallMs": 0.32935100000031525
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.147,
+          "wallMs": 0.3149149999999281
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.34,
+          "wallMs": 0.33807699999943
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.294,
+          "wallMs": 0.29323500000009517
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.284,
+          "wallMs": 0.28280499999982567
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.282,
+          "wallMs": 0.28080099999988306
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.016,
+          "cpuUserMs": 0.265,
+          "wallMs": 0.2793089999995573
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.03,
+          "cpuUserMs": 0.291,
+          "wallMs": 0.31949299999996583
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.066,
+          "cpuUserMs": 0.648,
+          "wallMs": 0.30529700000079174
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.028,
+          "cpuUserMs": 0.277,
+          "wallMs": 0.30437500000061846
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.297,
+          "cpuUserMs": 2.942,
+          "wallMs": 0.28020999999989726
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.244,
+          "wallMs": 0.2942560000001322
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.281,
+          "wallMs": 0.28072099999917555
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.024,
+          "wallMs": 0.28547900000012305
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.437,
+          "wallMs": 0.43402599999990343
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.606,
+          "wallMs": 0.29841399999986606
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.268,
+          "wallMs": 0.2673960000001898
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.297
+        },
+        "cpuUserMs": {
+          "p50": 0.34,
+          "p95": 3.244
+        },
+        "wallMs": {
+          "p50": 0.294,
+          "p95": 0.434
+        }
+      }
+    },
+    {
+      "id": "catalog-warm",
+      "iterationsPerSample": 8,
+      "representation": "dense-id-chunked-cow",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.206,
+          "wallMs": 0.20419899999978952
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.182,
+          "wallMs": 0.18106600000010076
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.186,
+          "wallMs": 0.18494400000054156
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.183,
+          "wallMs": 0.18157700000028854
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.229,
+          "wallMs": 0.2274520000000848
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.189,
+          "wallMs": 0.1879189999999653
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.185,
+          "wallMs": 0.18426199999976234
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.19,
+          "wallMs": 0.18913100000008853
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.201,
+          "wallMs": 0.1991200000002209
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.187,
+          "wallMs": 0.18593499999951746
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.182,
+          "wallMs": 0.180634999999711
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.181,
+          "wallMs": 0.18006400000012945
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.186,
+          "wallMs": 0.18523299999924348
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.183,
+          "wallMs": 0.1818169999996826
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.183,
+          "wallMs": 0.18199800000002142
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.182,
+          "wallMs": 0.18136599999979808
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.188,
+          "wallMs": 0.18652600000041275
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.186,
+          "p95": 0.229
+        },
+        "wallMs": {
+          "p50": 0.185,
+          "p95": 0.227
+        }
+      }
+    },
+    {
+      "id": "repeated-validate",
+      "iterationsPerSample": 512,
+      "representation": "dense-id-chunked-cow",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.07,
+          "wallMs": 0.06860800000049494
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.057,
+          "wallMs": 0.05622399999992922
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.052,
+          "wallMs": 0.05030299999998533
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.05,
+          "wallMs": 0.048950999999760825
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.049,
+          "wallMs": 0.04863999999997759
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.052,
+          "wallMs": 0.05090399999971851
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.05,
+          "wallMs": 0.048990999999659834
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.049,
+          "wallMs": 0.04827000000022963
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.047,
+          "wallMs": 0.04679699999996956
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.052,
+          "wallMs": 0.05067400000007183
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.049,
+          "wallMs": 0.04791899999963789
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.051,
+          "wallMs": 0.049602000000049884
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.048,
+          "wallMs": 0.04759800000010728
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.052,
+          "wallMs": 0.0509940000001734
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.049,
+          "wallMs": 0.04828999999972439
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.05,
+          "wallMs": 0.04867000000012922
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.05,
+          "cpuUserMs": 0,
+          "wallMs": 0.049070999999457854
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.05
+        },
+        "cpuUserMs": {
+          "p50": 0.05,
+          "p95": 0.07
+        },
+        "wallMs": {
+          "p50": 0.049,
+          "p95": 0.069
+        }
+      }
+    },
+    {
+      "id": "select-settle",
+      "iterationsPerSample": 64,
+      "representation": "dense-id-chunked-cow",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.093,
+          "cpuUserMs": 0,
+          "wallMs": 0.09197000000040134
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.092,
+          "cpuUserMs": 0,
+          "wallMs": 0.09072899999955553
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.09,
+          "cpuUserMs": 0,
+          "wallMs": 0.08959699999923032
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.116,
+          "cpuUserMs": 0,
+          "wallMs": 0.11441199999990204
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.093,
+          "cpuUserMs": 0,
+          "wallMs": 0.09183000000030006
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.094,
+          "cpuUserMs": 0,
+          "wallMs": 0.0937739999999394
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.09,
+          "cpuUserMs": 0,
+          "wallMs": 0.08929600000010396
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.114,
+          "cpuUserMs": 0,
+          "wallMs": 0.11310000000048603
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.094,
+          "cpuUserMs": 0,
+          "wallMs": 0.09294300000055955
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.09,
+          "cpuUserMs": 0,
+          "wallMs": 0.0897369999993316
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.09,
+          "cpuUserMs": 0,
+          "wallMs": 0.0896759999995993
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.09,
+          "cpuUserMs": 0,
+          "wallMs": 0.08972699999958422
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.092,
+          "cpuUserMs": 0,
+          "wallMs": 0.09180100000048697
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.088,
+          "cpuUserMs": 0,
+          "wallMs": 0.08698100000037812
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.091,
+          "cpuUserMs": 0,
+          "wallMs": 0.09018699999978708
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.088,
+          "cpuUserMs": 0,
+          "wallMs": 0.08765299999959097
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.092,
+          "cpuUserMs": 0,
+          "wallMs": 0.09114899999985937
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.092,
+          "p95": 0.116
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.091,
+          "p95": 0.114
+        }
+      }
+    },
+    {
+      "id": "same-predecessor-fork",
+      "iterationsPerSample": 512,
+      "representation": "dense-id-chunked-cow",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.106,
+          "cpuUserMs": 1.048,
+          "wallMs": 0.3906349999997474
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.031,
+          "cpuUserMs": 0.307,
+          "wallMs": 0.33622400000058406
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.033,
+          "cpuUserMs": 0.327,
+          "wallMs": 0.35894699999971635
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.031,
+          "cpuUserMs": 0.312,
+          "wallMs": 0.3427270000001954
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.033,
+          "cpuUserMs": 0.328,
+          "wallMs": 0.3590060000005906
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.03,
+          "cpuUserMs": 0.304,
+          "wallMs": 0.33409000000028755
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.037,
+          "cpuUserMs": 0.364,
+          "wallMs": 0.3989000000001397
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.031,
+          "cpuUserMs": 0.309,
+          "wallMs": 0.33967000000029657
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0.031,
+          "cpuUserMs": 0.302,
+          "wallMs": 0.3323770000006334
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.744,
+          "wallMs": 0.4434739999996964
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.344,
+          "wallMs": 0.343127000000095
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.601,
+          "wallMs": 0.6049830000001748
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.53,
+          "wallMs": 0.5280899999997928
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.35,
+          "wallMs": 0.3484969999999521
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.355,
+          "wallMs": 0.3525740000004589
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.339,
+          "wallMs": 0.33875799999987066
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.358,
+          "wallMs": 0.3563909999993484
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0.03,
+          "p95": 0.106
+        },
+        "cpuUserMs": {
+          "p50": 0.344,
+          "p95": 3.744
+        },
+        "wallMs": {
+          "p50": 0.353,
+          "p95": 0.605
+        }
+      }
+    },
+    {
+      "id": "high-fanout",
+      "iterationsPerSample": 64,
+      "representation": "dense-id-chunked-cow",
+      "samples": [
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.497,
+          "wallMs": 1.493412000000717
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.657,
+          "wallMs": 1.6534090000004653
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.69,
+          "wallMs": 1.6864980000000287
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.663,
+          "wallMs": 1.6605120000003808
+        },
+        {
+          "allocationProxyHeapDeltaBytes": -204267,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.641,
+          "wallMs": 2.7264930000001186
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.494,
+          "wallMs": 1.4915179999998145
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.499,
+          "wallMs": 1.4975400000002992
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.598,
+          "wallMs": 1.5956109999997352
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.499,
+          "wallMs": 1.4969590000000608
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.44,
+          "wallMs": 1.4377290000002176
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.419,
+          "wallMs": 1.4175710000008621
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.587,
+          "wallMs": 1.5844090000000506
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.818,
+          "wallMs": 1.4538889999994353
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.49,
+          "wallMs": 1.4871830000001864
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.596,
+          "wallMs": 1.593667999999525
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.473,
+          "wallMs": 1.471932000000379
+        },
+        {
+          "allocationProxyHeapDeltaBytes": 0,
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.484,
+          "wallMs": 1.482281000000512
+        }
+      ],
+      "stats": {
+        "allocationProxyHeapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 1.499,
+          "p95": 3.641
+        },
+        "wallMs": {
+          "p50": 1.497,
+          "p95": 2.726
+        }
+      }
+    }
+  ],
+  "retainedHeap": [
+    {
+      "id": "dfs-retained-branches",
+      "representation": "full-clone-map-set",
+      "retainedBranchCount": 255,
+      "retainedHeapDeltaBytes": 0,
+      "status": "observed"
+    },
+    {
+      "id": "bfs-retained-branches",
+      "representation": "full-clone-map-set",
+      "retainedBranchCount": 255,
+      "retainedHeapDeltaBytes": 0,
+      "status": "observed"
+    },
+    {
+      "id": "dfs-retained-branches",
+      "representation": "parent-delta",
+      "retainedBranchCount": 255,
+      "retainedHeapDeltaBytes": 0,
+      "status": "observed"
+    },
+    {
+      "id": "bfs-retained-branches",
+      "representation": "parent-delta",
+      "retainedBranchCount": 255,
+      "retainedHeapDeltaBytes": 0,
+      "status": "observed"
+    },
+    {
+      "id": "dfs-retained-branches",
+      "representation": "dense-id-chunked-cow",
+      "retainedBranchCount": 255,
+      "retainedHeapDeltaBytes": 0,
+      "status": "observed"
+    },
+    {
+      "id": "bfs-retained-branches",
+      "representation": "dense-id-chunked-cow",
+      "retainedBranchCount": 255,
+      "retainedHeapDeltaBytes": 0,
+      "status": "observed"
+    }
+  ],
+  "representationP50P95WallMs": {
+    "full-clone-map-set": {
+      "inspection": {
+        "p50": 0.014,
+        "p95": 0.039
+      },
+      "catalog-cold": {
+        "p50": 0.203,
+        "p95": 0.253
+      },
+      "catalog-warm": {
+        "p50": 0.187,
+        "p95": 0.258
+      },
+      "repeated-validate": {
+        "p50": 0.032,
+        "p95": 0.057
+      },
+      "select-settle": {
+        "p50": 0.094,
+        "p95": 0.133
+      },
+      "same-predecessor-fork": {
+        "p50": 0.083,
+        "p95": 1.118
+      },
+      "high-fanout": {
+        "p50": 1.079,
+        "p95": 2.798
+      }
+    },
+    "parent-delta": {
+      "inspection": {
+        "p50": 0.007,
+        "p95": 0.017
+      },
+      "catalog-cold": {
+        "p50": 0.338,
+        "p95": 0.483
+      },
+      "catalog-warm": {
+        "p50": 0.283,
+        "p95": 0.477
+      },
+      "repeated-validate": {
+        "p50": 0.033,
+        "p95": 0.062
+      },
+      "select-settle": {
+        "p50": 0.02,
+        "p95": 0.044
+      },
+      "same-predecessor-fork": {
+        "p50": 0.031,
+        "p95": 0.068
+      },
+      "high-fanout": {
+        "p50": 0.891,
+        "p95": 2.056
+      }
+    },
+    "dense-id-chunked-cow": {
+      "inspection": {
+        "p50": 0.017,
+        "p95": 0.046
+      },
+      "catalog-cold": {
+        "p50": 0.294,
+        "p95": 0.434
+      },
+      "catalog-warm": {
+        "p50": 0.185,
+        "p95": 0.227
+      },
+      "repeated-validate": {
+        "p50": 0.049,
+        "p95": 0.069
+      },
+      "select-settle": {
+        "p50": 0.091,
+        "p95": 0.114
+      },
+      "same-predecessor-fork": {
+        "p50": 0.353,
+        "p95": 0.605
+      },
+      "high-fanout": {
+        "p50": 1.497,
+        "p95": 2.726
+      }
+    }
+  },
+  "coverage": {
+    "timedScenarioIds": [
+      "compile",
+      "real-static-unused-state-hot-path",
+      "real-custom-unused-state-hot-path",
+      "real-learned-unused-state-hot-path",
+      "inspection",
+      "catalog-cold",
+      "catalog-warm",
+      "repeated-validate",
+      "select-settle",
+      "same-predecessor-fork",
+      "high-fanout",
+      "inspection",
+      "catalog-cold",
+      "catalog-warm",
+      "repeated-validate",
+      "select-settle",
+      "same-predecessor-fork",
+      "high-fanout",
+      "inspection",
+      "catalog-cold",
+      "catalog-warm",
+      "repeated-validate",
+      "select-settle",
+      "same-predecessor-fork",
+      "high-fanout"
+    ],
+    "retainedHeapScenarioIds": [
+      "dfs-retained-branches",
+      "bfs-retained-branches",
+      "dfs-retained-branches",
+      "bfs-retained-branches",
+      "dfs-retained-branches",
+      "bfs-retained-branches"
+    ]
+  },
+  "sink": 236041
+}
