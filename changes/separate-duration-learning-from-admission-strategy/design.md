@@ -1,188 +1,148 @@
 # Design
 
-本 Plan 以“有状态 Scheduler duration model + 无状态 learned admission strategy factory”重组当前实现；下文固定 owner、数据流、private contract 和行为等价出口，使实施者无需从已归档 Change 或对话恢复设计。
+本 Plan 用一个 invocation-scoped private strategy provider 组合“有状态 duration model”和“纯 learned critical-path algorithm”：`prepare` 每 Run 一次、`decide` 为 `0..N` 次纯选择；只有现有 execution 返回 terminal sequence/context 时才在既有 terminal Hook delivery 后一次 `complete`。invocation 运行该生命周期而不拥有学习实现。
 
 ## Context
 
-现行稳定 owner 已确认以下事实：
+现行稳定 owner 已确认：
 
-- [`docs/architecture.md`](../../docs/architecture.md) 规定 `learned-critical-path` 的运行顺序为 Definition → pre-admission local history load/prediction → pure Scheduler → post-closure history record/write；history 是 caller-managed、untrusted、cache-like optimization state，不是 quality fact 或 public result。
-- [`learn-check-task-durations-for-critical-path-admission`](../../docs/decisions/learn-check-task-durations-for-critical-path-admission.md) 规定跨 Run history 位于 Scheduler 外，并只向 Scheduler 交付 immutable prediction；同一 selection layer 内先比较 estimated downstream critical-path score，再比较 effective `admissionPriority` 与 canonical task ID。
-- [`use-stateless-admission-policies-with-hard-scheduler-guards`](../../docs/decisions/use-stateless-admission-policies-with-hard-scheduler-guards.md) 规定 private admission policy 是 synchronous、stateless、pure `select | wait` decision；Scheduler 独占 relation、mutex、capacity、cancellation、lifecycle guards、Task start 和 settlement。
-- 当前 `src/project-run/scheduler-history/**` 已拥有 bounded history、prediction、recording 和 storage，但也包含 graph-derived `critical-path.ts`。`src/project-run/invocation.ts` 的 `SchedulerLearning` 同时保存 history、prediction、critical-path score 与 state directory；`resolved-checks.ts` 再根据 public policy kind 和该混合值构造 private policy。
-- 当前 public authoring union、normalization 和 declarative fingerprint 已固定 `{ kind: "learned-critical-path", stateDirectory }`。已归档 [`schedule-checks-from-learned-durations`](../archive/schedule-checks-from-learned-durations/proposal.md) 只保存形成时证据，不是当前行为 owner 或本 Plan 的实施说明。
+- [`docs/architecture.md`](../../docs/architecture.md) 规定 learned mode 的时序为 pre-admission history load/prediction、pure Scheduler、post-closure history record/write；history 是 caller-managed、untrusted optimization state，不是 quality fact 或 public result。
+- 两条 aligned Scheduler Decision 仍拥有 history 位于 Scheduler 外、immutable prediction、synchronous/stateless/pure `select | wait` 与 Scheduler hard-guard 边界；它们不是本 Plan 可改写的 lifecycle owner。
+- 当前 `scheduler-history/**` 已拥有 bounded history、prediction、recording 和 storage，但也含 graph-derived `critical-path.ts`；`invocation.ts` 的 `SchedulerLearning` 混合 history、prediction、score 与 state directory，且 invocation 手工安排 prepare/create/record。
+- 当前 public union、normalization 与 declarative fingerprint 保持 `{ kind: "learned-critical-path", stateDirectory }`；custom 仍是 synchronous `proposeAdmission` 加独立 terminal `measurementHooks`。本 Plan 不修改这些 public contracts。
+- [`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 当前是 candidate，不是已经生效的 stable fact。它只提出 future outer strategy lifecycle / inner pure policy 分层，不闭合 public grammar、context 或 failure contract；本 Plan 的 Implementation 前须先将其建立为 `active + unaligned`，验收后才按实现事实评审是否 aligned。
 
-本 Plan 的 AI 消费任务是：在不改变任何调度语义的前提下，将上述职责迁入两个可独立理解和测试的 private owner。事实、责任和禁止依赖如下：
+本 Plan 的消费任务是：不从归档或对话推断时，也能明确知道谁实例化一次策略、谁作多轮 decision、谁在终态提交，以及 complete 的数据能流向哪里。上文列出的 `scheduler-history/**`、`SchedulerLearning` 与当前 handoff 是**当前** owner；下表定义的是本 Change 完成后的 **intended post-change owner topology**，不是现有目录存在性的断言。
 
 | Owner | 输入 | 输出 | 不得承担 |
 | --- | --- | --- | --- |
-| Scheduler duration model | canonical prediction inputs、caller-authorized state directory、terminal raw measurement | immutable prediction、bounded read/record observation、post-drain record capability | graph ranking、candidate selection、Task lifecycle、public result |
-| Learned admission strategy | immutable `SchedulerGraphSnapshot`、duration prediction、每轮 `AdmissionPolicyInput` | immutable score snapshot、pure `select \| wait` policy | filesystem、history schema、sample update、logger、跨 Run state |
-| Invocation | normalized policy、controls、两个 private owner 的结果 | prepare → strategy → execute → record 顺序与 diagnostic presentation | 重算统计或解释 Scheduler legality |
-| Resolved Check execution | 已形成的 private selection policy、normalized Checks | terminal Check/Scheduler facts | public policy dispatch、history、prediction、critical-path construction |
-| Task Scheduler | graph、dynamic inspection、private policy proposal | accepted admission、wait、settlement | history I/O、模型训练、policy intent 或性能最优解释 |
+| Scheduler duration model | canonical prediction input、state capability、terminal measurement | prediction、read/record observation、record capability | graph ranking、candidate selection、Task lifecycle |
+| Critical-path algorithm | immutable graph、prediction、decision DTO | score snapshot、frozen private policy whose decide is synchronous/pure | filesystem、history schema、sample update、logger、cross-Run state |
+| Private strategy provider | effective policy、graph、model/algorithm owner | prepared strategy with full frozen `admissionPolicy` and closed terminal-measurement requirement | Scheduler hard guards、public generic registry |
+| Invocation | normalized policy、provider、Run controls、existing outputs/Hooks | lifecycle sequencing plus collector condition | learning/statistics/score implementation、public requirement field |
+| Resolved Check execution / Scheduler | prepared strategy's private `admissionPolicy`、dynamic Scheduler facts | admission, wait, settlement, terminal measurement | provider lifecycle, history I/O, model training |
 
 ## Goals / Non-Goals
 
 **Goals**
 
-- 让跨 Run 有状态 duration model 和 invocation 内 pure admission strategy 各有唯一、可从目录和命名恢复的 owner。
-- 让 invocation 局部连续呈现 prepare、strategy creation、execute 和 post-drain record 的顺序、fallback 与提交点。
-- 将 critical-path score 与 learned comparator 一起归 Task Scheduler strategy owner。
-- 让 `resolved-checks` 只接收 private `AdmissionSelectionPolicy`，不再认识 public policy kind 或 learned model internals。
-- 以当前实现为 oracle，保持配置、fingerprint、prediction、score、admission、diagnostic、settlement 和 storage 行为等价。
-- 为后继算法 Change 提供固定 prediction input，而不预先建立 public composition 或 generic strategy framework。
+- 分离 duration model 和 pure algorithm 的唯一 private owner，并以 provider 承接它们的 invocation-scoped composition。
+- 固定有效策略每 Run 一次 `prepare`、Scheduler 内 `0..N` 次同步、result-only `decide`；仅在现有 terminal sequence/context 返回、measurement seal 和既有 terminal Hook delivery 后一次 `complete`。
+- 用 prepared private requirement 加既有 outputs/Hooks 保持现有 measurement 启用矩阵：plain static 无额外 requirement；custom 保留 per-decision + terminal；learned ready/static-fallback 保留 terminal；logging/configured Hooks 独立启用。static无duration-model I/O且不因此额外读取clock。
+- 让 `resolved-checks` 仅 hand off private `AdmissionSelectionPolicy`，保留 Scheduler hard-guard owner。
+- 以当前实现为 oracle 保持配置、fingerprint、prediction、score、admission、diagnostic、settlement 与 storage 行为等价。
+- 为算法 Draft 提供固定 prediction seam，同时为 public custom lifecycle Draft 提供私有生命周期的已验证实现基础。
 
 **Non-Goals**
 
 - 不改变 public `AdmissionPolicy` union、Definition validation、normalized snapshot、fingerprint 或 `stateDirectory` 解释。
-- 不改变 32-sample window、4096-series bound、identity digest、mean、median project prior、cold `1`、p90、history envelope、model version 或 atomic write。
-- 不改变 critical-path formula、selection layers、`canAdmit`/`wait` 行为、priority/ID tie-break、measurement trigger、diagnostic facts 或 static fallback。
-- 不增加 backfill、lookahead、variance/risk weighting、全局优化器、policy-owned mutable state、public model DTO、per-Check estimate 或第二种 configurable algorithm。
-- 不建立 `strategies/` registry、generic `PerformanceModel` interface、算法注册协议或公共 model/algorithm 组合矩阵。
+- 不将现有 custom callback 迁为 provider，不合并或改变 `measurementHooks`，也不公开 prepare/complete context。
+- 不改变 sample window、statistics、history envelope/model version、critical-path formula、selection layers、priority/ID tie-break、measurement trigger 或 fallback。
+- 不增加 backfill、lookahead、可变 policy state、public model DTO、per-Check estimate、策略 registry、generic `PerformanceModel` 或算法注册协议。
 
 ## Decisions
 
 ### Intended Change
 
-#### 1. Duration model 使用显式 prepared capability
+#### 1. Provider 是每次 Run 的策略实例化边界
 
-实现采用一个 closed preparation result，而不是继续用 `SchedulerLearning | undefined` 混合 model 与 strategy：
-
-```ts
-type SchedulerDurationModelPreparation =
-  | Readonly<{
-      readonly kind: "ready";
-      readonly model: PreparedSchedulerDurationModel;
-    }>
-  | Readonly<{
-      readonly kind: "static-fallback";
-      readonly reason: "canonical-input-unavailable" | "history-setup-failed";
-    }>;
-
-interface PreparedSchedulerDurationModel {
-  readonly prediction: SchedulerPredictionSnapshot;
-  readonly readObservation: SchedulerDurationModelReadObservation;
-  readonly recordTerminalMeasurement: (
-    input: SchedulerDurationModelRecordInput
-  ) => Promise<SchedulerDurationModelRecordObservation>;
-}
-```
-
-`prepareSchedulerDurationModel(...)` 只在 normalized policy 为 learned mode 时调用。它拥有 canonical prediction input、state-directory resolution、untrusted history load 和 prediction build：
-
-- missing、malformed、incompatible 或 read-failed history 返回 `ready`，其中 prediction 使用 empty learned model；`readObservation` 保留当前有界分类。
-- canonical input 无法形成，或 local setup/prediction 无法完成时返回 `static-fallback`；reason 只承接现有两种 bounded diagnostic category。
-- `recordTerminalMeasurement` 只捕获 loaded bounded model、prediction identity mapping、resolved state directory 和写入所需 capability；它不得捕获 raw authored options、flags、Check callbacks/results 或 Scheduler mutable state。
-- record capability 只在 Scheduler 已停止 admission 且 started work 已 drain 后调用，并返回有界 recording/write observation；invocation 继续负责把 observation 投影为当前 human diagnostic。
-
-该对象拥有真实的 prepare/record 生命周期，不是只转发参数的 wrapper。最终命名可以按相邻类型作局部调整，但不得退回混合 strategy score 的 aggregate，也不得用 `undefined` 合并“非 learned mode”和“learned prepare fallback”两种状态。
-
-#### 2. Duration model 使用独立模块 owner
-
-目标模块为：
-
-```text
-src/project-run/scheduler-duration-model/
-  bounded-history.ts
-  prediction.ts
-  preparation.ts
-  recording.ts
-  storage.ts
-  scheduler-duration-model.test.ts
-```
-
-现有 `scheduler-history/**` 中的 history、prediction、recording、storage 和对应测试迁入该目录；`preparation.ts` 拥有上一节的 prepared capability。目录名使用 `scheduler-duration-model`，以区别公开 `RunResult.checkDurations` 和其它执行计时，同时表达该 owner 不只是文件存储。
-
-不建立 barrel。文件继续按具体职责直接导入。若测试按证明责任需要拆成 preparation 与 persistence 两个文件，可以在实施时拆分并同步 Case；不得只因行数或迁移阶段增加测试 wrapper。
-
-#### 3. Strategy factory 同时交付 pure policy 与只读 score
-
-`critical-path.ts` 从 history 目录迁到 Task Scheduler owner，并以 `critical-path-ranking.ts` 表达 graph-derived ranking 职责。strategy factory 使用以下 private shape：
+新增一个 closed、product-private provider dispatch，而不是让 invocation 手工理解 learned model 的各部分：
 
 ```ts
-interface PreparedLearnedCriticalPathStrategy {
+interface PreparedAdmissionStrategy {
+  /** Frozen full private contract; Scheduler receives this, never lifecycle hooks. */
   readonly admissionPolicy: AdmissionSelectionPolicy;
-  readonly criticalPath: SchedulerCriticalPathSnapshot;
+  /** Closed private requirement, resolved by invocation with existing outputs/Hooks. */
+  readonly requiresTerminalMeasurement: boolean;
+  readonly complete: (context: AdmissionStrategyCompleteContext) => void | Promise<void>;
 }
 
-function prepareLearnedCriticalPathStrategy(
-  input: Readonly<{
-    readonly graph: SchedulerGraphSnapshot;
-    readonly prediction: SchedulerPredictionSnapshot;
-  }>
-): PreparedLearnedCriticalPathStrategy;
+interface PrivateAdmissionStrategyProvider {
+  prepare(
+    context: AdmissionStrategyPrepareContext
+  ): PreparedAdmissionStrategy | Promise<PreparedAdmissionStrategy>;
+}
 ```
 
-factory 接收 invocation 已按现有 `planStaticCheckGraph → prepareTaskGraph` 路径形成的 immutable `SchedulerGraphSnapshot`；它不接收或重建 history identity。factory 先创建一次 score snapshot，再返回封闭该 snapshot 的 pure `AdmissionSelectionPolicy`。`criticalPath` 只供 invocation 在既有 admitted-Check diagnostic 中查询 score；不得让 logger 或 diagnostic callback进入 policy。
+这是 private closed dispatch，不是面向消费者的 registry 或 generic extension protocol。每次 effective strategy 只产生一个新的 prepared instance；并发 Run 不共享 closure。`admissionPolicy` 必须是完整 frozen private policy，而非裸 `decide`：它保留现有 per-decision measurement requirement metadata，特别是 custom adapter 的 `requiresMeasurement: true`、decision-boundary prefix reader与 accepted action interval attribution。`requiresTerminalMeasurement` 是另一个最小、closed private requirement；invocation 将它与既有 diagnostic logging/configured measurementHooks 合并，按当前条件启用collector/clock。矩阵固定为 plain static `false`、custom `true`、learned ready `true`、learned static-fallback `true`；logging/Hooks不依赖这些值而独立启用。static/custom provider 的 no-op completion 不请求、创建或伪造额外 terminal measurement：它们只消费已有 handoff，不能为了统一接口全局开启collector。现有 custom adapter 仍只包装 trusted synchronous callback，保留其 closure、reentrancy和host-side-effect边界；它不获得新的 public lifecycle。
 
-本 Change 保留当前重复 graph validation/preparation 次数，不顺带建立新的 shared prepared-graph lifecycle；消除该重复如果具有独立收益，应另行证明。这样可避免 graph owner 调整与 model/strategy 解耦混在同一行为等价 Change。
+prepare context 只含本次 Run 已稳定的图、normalized/effective strategy 所需的稳定 facts、已授权 capability 和 cancellation signal；不含 dynamic candidates、running/settled state 或未来 measurement。返回对象可以以 closure 保存本次准备得到的 immutable prediction、score、历史快照和算法参数，但 `decide` 不得通过隐藏可变状态改变选择结果。
 
-#### 4. Invocation 是唯一组合点
-
-invocation 按以下顺序组合：
+#### 2. 生命周期和测量边界严格固定
 
 ```text
-normalized policy dispatch
-  ├─ static  → no private policy; Scheduler 使用现有 static default
-  ├─ custom  → 现有 custom adapter 形成 private policy
-  └─ learned → prepare duration model
-                 ├─ static-fallback → no private policy
-                 └─ ready → prepare learned strategy
-                              ↓
-executeResolvedChecks(private policy)
-  ↓
-if learned model ready: recordTerminalMeasurement(terminal raw measurement)
+graph ready
+  → provider.prepare(context)                         once
+  → Invocation combines prepared terminal requirement with existing outputs/Hooks
+  → Scheduler receives prepared.admissionPolicy
+      → policy.decide(context)                         0..N, synchronous/result-only
+  → Scheduler stops new admission, drains, seals measurement
+  → existing Scheduler terminal measurement Hooks deliver
+  → executeResolvedChecks returns terminal sequence/context?
+      yes → prepared.complete(terminalContext)       once
+      no  → no complete delivery
 ```
 
-invocation 保留：
+- `prepare` 可异步读取或验证 caller-managed history，并在 Scheduler measurement 开始前完成；它不选择 Task 或读取 Scheduler dynamic facts。
+- Product-owned static/learned `admissionPolicy.decide` 只读取 immutable prepared data 与本轮 Scheduler DTO，精确返回 `select | wait`。现有 custom callback仍为trusted synchronous result-only callback，可使用自己的closure、reentrancy和host-side effect；Product不提供imperative Scheduler capability。Scheduler只消费完整 frozen policy，继续验证提案并拥有所有hard guards；它不接触prepare/complete。full policy上的per-decision measurement metadata必须逐项原样hand off。
+- `complete` 只在 `executeResolvedChecks` 已返回 terminal sequence/context 时调用一次，且一定晚于 Scheduler 已停止 admission、drain、terminal measurement seal 与既有 terminal measurement Hook delivery；normal、cancelled 与 admission-policy-failed 若返回该 context 都 delivery，task-engine/pre-terminal failure 不返回它就不 delivery。它可异步记录学习样本或清理 provider resource，但不得再次调度、修改 terminal facts 或触发 decide。
+- `prepare` 与 delivery 后的 `complete` 耗时不计入 Scheduler performance measurement。provider 只消费既有 terminal handoff。invocation 以 `admissionPolicy` 的既有per-decision requirement、`requiresTerminalMeasurement` 与独立 diagnostic logging/configured measurementHooks形成collector condition：plain static不因provider启用，custom保留per-decision+terminal，learned ready/static-fallback保留terminal；no-op completion不得为统一接口全局启用collector或读取clock。prepare failure、static fallback 和 complete recording/write failure继续映射到当前有界诊断/结果路径。
 
-- normalized public policy dispatch；
-- model/strategy prepare 的调用顺序；
-- learned admission diagnostic 对 prediction source/sample/estimate 与 score 的组合；
-- record observation 的 human diagnostic presentation；
-- prepare fallback 和 post-drain failure containment。
+complete 不可能影响同一 Run 先前的 decision。唯一允许的数据流是：
 
-`resolved-checks` 的输入改为 optional private `AdmissionSelectionPolicy`。它删除 public `AdmissionPolicy`、custom adapter、duration model 和 critical-path imports，不根据 policy kind 选择策略；Task Scheduler 缺省 policy 时继续使用现有 static implementation。
+```text
+Run N complete → caller-owned persistent store → Run N+1 prepare → immutable closure → Run N+1 decide
+```
 
-#### 5. 行为等价 oracle 固定为可观察事实
+#### 3. 两个内部 owner通过 learned provider组合
 
-实现前先以当前 tests/fixtures 固定以下 reference：
+`src/project-run/scheduler-duration-model/**` 拥有 history、prediction、preparation、recording 和 storage。其 preparation result 继续为 closed `ready | static-fallback`：history missing/malformed/incompatible/read-failed 仍形成 empty learned model；canonical input/setup 失败才为现有 static fallback。ready value 捕获 prediction identity、history snapshot 和终态 record capability，但不捕获 raw authored options、flags、Check data 或 Scheduler mutable state。
 
-1. 相同 Definition、controls、project root 和 history bytes 得到相同 history identity、prediction values/digest 和 serialized history envelope。
-2. score 继续由 `dependsOn ∪ observes` graph 按 `estimatedDurationMs + max(downstreamScore)` 一次形成。
-3. tightening、constrained continuation、ordinary layer 顺序不变；同层 score、effective priority、canonical ID comparator 不变。
-4. 最高 rank candidate 的 `canAdmit=false` 仍产生可 drain `wait`，不执行 backfill。
-5. static/default 不进入 duration-model I/O；custom throw/thenable/malformed proposal 仍使用现有 admission-policy fault path，绝不 static fallback。
-6. learned empty history、prepare static fallback、post-drain record/write failure 保持三种不同分类，且都不扩张 Check/Record、aggregate、machine publication 或 `RunResult`。
+`critical-path.ts` 移入 `task-scheduler/**`（例如 `critical-path-ranking.ts`）。纯 factory 接收 immutable `SchedulerGraphSnapshot` 与 `SchedulerPredictionSnapshot`，一次形成 score snapshot 和封闭该 snapshot 的完整 frozen `AdmissionSelectionPolicy`；其 decide 不接触 history I/O 或 cross-Run mutation。
 
-锁定内容包括 deterministic prediction digest、score table、admission decision/trace、terminal facts、bounded diagnostic event category/facts 和 history JSON bytes。human diagnostic 的行格式、monotonic timestamp、wall time、绝对临时路径和文件 import path 不是等价 oracle。
+learned provider 的 `prepare` 调用 duration-model preparation；`ready` 时调用 pure factory 并形成 prepared strategy，`static-fallback` 时形成静态 prepared strategy。prepared learned strategy 的 `complete` 使用已封闭 terminal context 调用 duration-model record capability。admitted-check diagnostic 所需的只读 score lookup 保持 provider 私有的 observability companion，不能进入 Scheduler policy 或成为第四个 lifecycle hook。
 
-若现有测试没有直接覆盖某项，先在旧 composition 下增加或提炼 fixture，再进行迁移；迁移前后不得用两套测试输入。原生 test node 的增加、移动或修改按 Test Evidence owner 更新 Case ledger。
+#### 4. Invocation 仅运行生命周期
 
-#### 6. 本 Change 不建立或演进长期 Decision
+invocation 的唯一职责是：在 graph ready 后 resolve effective private provider，await 一次 prepare，将 policy保留的per-decision requirement、prepared `requiresTerminalMeasurement`与既有diagnostic logging/configured measurementHooks合并为当前collector condition，再将 `prepared.admissionPolicy`（而不是裸 decide）hand off 给 `resolved-checks`；只有后者返回既有 terminal sequence/context，才在其既有 terminal measurement Hooks 已 delivery 后 await 一次 complete，并把 provider observations 投影为现有 human diagnostic。没有该 handoff 的 task-engine/pre-terminal failure 不调用 complete。invocation 不单独调用 duration-model prepare、critical-path factory 或 record capability，也不计算 score/statistics。
 
-现有两条 active + aligned Decision 已完整规定 Scheduler 外 history、immutable prediction、pure stateless policy 和 hard-guard owner。本 Change 只对齐 private implementation ownership，不改变 public、算法、失败或兼容方向，因此无需新增或演进 Decision。
+`resolved-checks` 只接收 optional full frozen private `AdmissionSelectionPolicy`；它不导入 public `AdmissionPolicy`、duration model、provider lifecycle 或 critical-path snapshot。Scheduler 缺省 policy 仍是 static implementation。现有 custom fault、trusted callback closure/reentrancy/side-effect boundary与 private `requiresMeasurement`/decision-boundary measurement behavior必须仍在 Scheduler 的 policy adapter boundary形成，不能被invocation提前执行、剥离metadata或降级为static。terminal requirement只由prepared/provider private handoff提供，不能从public kind散落推断。
 
-如果实施发现必须公开 model/strategy composition、改变 selection order/fallback/history contract，或建立可供多个算法稳定消费的新扩展协议，应停止本 Change 的行为等价实施，先通过新的 Decision 和重新规划承接；不能在本 Plan 中暗中扩张。
+#### 5. 等价 oracle 与直接生命周期证明
+
+实现前以当前 fixtures 固定：
+
+1. 相同 Definition、controls、project root 和 history bytes 得到相同 history identity、prediction values/digest、serialized envelope 与 score。
+2. `dependsOn ∪ observes` score formula、selection layers、priority/ID tie-break、不可 admission 的最高候选所产生的 drainable wait 均不变。
+3. 返回 terminal sequence/context 的 normal、cancelled、admission-policy-failed Run 的 `prepare once → decide 0..N → complete once` 调用顺序；complete 观察到的 terminal measurement 已封闭且既有 Hooks 已 delivery。task-engine/pre-terminal failure 无 complete，且同一 Run 无 complete-to-decide 回流。
+4. requirement matrix逐项等价：plain static无额外measurement；custom完整 private policy保留 `requiresMeasurement: true`、decision-boundary prefix、accepted action interval attribution及prepared terminal requirement；learned ready/static-fallback均保留terminal requirement；diagnostic logging/configured Hooks独立启用collector。static/default不I/O且no-op completion不全局启用collector/clock。custom仍保留trusted closure/reentrancy/host-side-effect边界，throw/thenable/malformed proposal继续走admission-policy fault，绝不static fallback。
+5. learned empty history、prepare static fallback 与已 delivery complete 的 record/write failure 仍为不同分类，不扩张 Check/Record、aggregate、machine publication 或 `RunResult`。
+
+锁定 deterministic prediction digest、score table、admission trace、terminal facts、diagnostic category/facts 和 history JSON bytes；不锁定 human diagnostic line format、timestamp、wall time、absolute temp path 或 import path。若现有证据没有直接证明上述生命周期，先在旧 composition 下补齐同一输入的 proof，再迁移。
+
+#### 6. Candidate Decision 与 public custom lifecycle
+
+[`introduce-invocation-scoped-admission-strategy-lifecycle`](../../docs/decisions/introduce-invocation-scoped-admission-strategy-lifecycle.md) 目前仅是 candidate。它提出 outer strategy lifecycle 与 inner Scheduler-facing pure policy 的未来分层，不是已生效事实，也不闭合 public grammar、context、failure 或 compatibility。实施本 Plan 前，Decision owner 必须将其建立为 `active + unaligned`；本 Plan 验收后才按实际结果评审 alignment。既有 aligned Decisions继续拥有 history、pure policy 与 hard-guard 边界。
+
+[`support-invocation-scoped-custom-admission-strategies`](../support-invocation-scoped-custom-admission-strategies/proposal.md) 才评审 custom author 是否可获得 `prepare → decide → complete`，以及 public context、failure/output、compatibility 和 fingerprint。它依赖本 Plan 的 private seam 已被验证，但不反向要求本 Plan 先确定 public API。
 
 ### Resulting Impacts
 
-- 源码移动必须让 dependency direction 可由 imports 验证：`scheduler-duration-model/**` 不导入 `task-scheduler/**`；strategy 可以依赖 prediction type/value，但不依赖 history、preparation、recording 或 storage。
-- `invocation.ts` 将删除 `SchedulerLearning`，分别持有 prepared duration model 与 prepared strategy；局部命名必须区分跨 Run model capability 和本次 Run strategy result。
-- `resolved-checks.ts` 的 private input 收敛后，static/custom/learned 均通过同一 optional `AdmissionSelectionPolicy` 进入 Scheduler；public policy fault mapping仍由现有 adapter和Scheduler边界证明。
-- critical-path tests 迁入 Task Scheduler证明域；history/prediction/persistence tests 留在 duration model证明域；invocation integration继续证明三阶段failure分流和第二次Run读取history。
-- architecture、API mechanics和testing owner需要说明两个private owner及唯一composition point；configuration只保留public行为摘要，不复制private TypeScript shape。
-- 后继算法 Draft 保持 draft；它只能在本 Change完成并验收后派生算法实施tasks。
+- imports 必须验证：duration-model 不导入 task-scheduler；pure critical-path algorithm 不导入 history/preparation/recording/storage；provider 是二者的唯一组合者；invocation 不导入 learning implementation。
+- `SchedulerLearning` 删除。每个 Run 的 provider/prepared instance、immutable closure 和 terminal commit点以局部控制流和测试可恢复。
+- static、custom、learned 经同一 prepared strategy 的完整 frozen `admissionPolicy` handoff进入Scheduler；invocation以closed `requiresTerminalMeasurement`和既有outputs/Hooks形成collector condition。不把lifecycle挤入`AdmissionSelectionPolicy`或Scheduler，也不丢失/公开per-decision/terminal measurement requirements，或因no-op completion扩张现有collector/clock启用。
+- critical-path tests 属于 Task Scheduler；history/prediction/persistence tests 属于 duration model；provider/invocation integration证明 hook顺序、failure分流、并发隔离和第二次Run读取history。
+- architecture/API/testing 文档说明 private lifecycle与public未变；configuration只保留现有 custom/learned authoring行为，不承诺 private TypeScript shape。
+- 后继算法和 public custom Draft 均不得在本 Plan 实施中提前改写源码或公共契约。
 
 ## Risks / Trade-offs
 
-- prepared capability如果捕获过多 invocation state，会把分离后的owner重新耦合；类型和测试必须限制其输入、输出与diagnostic observation。
-- 移动 critical-path ranking 时若graph snapshot来源、task顺序或freeze发生变化，可能悄然改变score或tie-break；必须使用同一graph输入做迁移前后对照。
-- `resolved-checks` 接收已形成policy后，custom adapter的构造位置会移动；custom policy fault仍必须由原Scheduler调用边界处理，不能在invocation提前调用或捕获。
-- 行为等价要求暂时保留head-of-line wait和重复graph preparation；这是隔离算法/性能变化的有意取舍，不代表它们是最终最优设计。
-- 目录迁移会造成较大Git rename diff和Case路径调整；它只表达owner变化，不能顺带重写统计、算法或测试语义。
+- provider 若暴露或捕获过多 invocation state，会重新耦合 owner；prepared closure只能保存 immutable model/algorithm data，动态 facts必须经 decide context传入。
+- provider 如果被做成泛化 registry，会在没有真实第二个 consumer前扩大契约；本 Plan 保持 closed private dispatch。
+- complete 的异常、cancellation 和 policy fault时机若没有精确测试，可能改变现有 failure containment；必须先以当前行为建立每个终态分支的 oracle。
+- 迁移 graph ranking 时若 graph input、task order或freeze变化，会悄然改变score/tie-break；必须在同一graph输入上对照。
+- 行为等价有意保留 head-of-line wait和现有重复 graph preparation；它们不是性能优化结论。
 
 ## Open Questions
 
-无。Draft 中会改变 Plan 形状的问题已按以下方式闭合：prepare 使用显式 `ready | static-fallback` 与 prepared record capability；模块命名为 `scheduler-duration-model`；strategy factory 消费当前 immutable `SchedulerGraphSnapshot` 并交付 policy + score snapshot；等价 oracle只锁定确定性行为事实；现有长期 Decisions保持不变。若实施需要越过这些选择，必须返回 Draft或建立后继 Decision，而不是局部变更范围。
+无。已确认的当前行为等价边界是：prepare 是 effective strategy 每 Run 一次实例化，Product-owned static/learned decide 是 Scheduler measurement 内同步纯选择，custom仍是trusted synchronous result-only callback；prepared private requirement与既有outputs/Hooks保持plain static/custom/learned ready/learned fallback的collector矩阵。只有 `executeResolvedChecks` 返回 terminal sequence/context 的 normal、cancelled、admission-policy-failed Run 才在既有 terminal Hook delivery后一次 complete，task-engine/pre-terminal failure 不 complete。static/custom no-op completion不改变既有collector/clock启用。public custom lifecycle仍属后继 Draft。Implementation 前只需按已创建的candidate Decision建立 `active + unaligned`，验收后再按事实评审alignment。
