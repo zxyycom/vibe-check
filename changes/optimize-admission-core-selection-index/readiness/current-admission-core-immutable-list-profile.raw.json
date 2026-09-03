@@ -1,0 +1,291 @@
+{
+  "command": "bun changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts",
+  "coverage": {
+    "required": {
+      "realPaths": [
+        "real-static-unused-public-state",
+        "real-custom-unused-public-state",
+        "real-learned-unused-public-state"
+      ],
+      "operations": [
+        "scheduler-candidates",
+        "catalog",
+        "validate-selection",
+        "select",
+        "settle",
+        "fork"
+      ],
+      "taskCounts": [
+        64,
+        256,
+        1024,
+        4096
+      ],
+      "topologies": [
+        "independent",
+        "layered",
+        "mutex",
+        "scope",
+        "high-fanout"
+      ],
+      "forcedBlockSettlement": true
+    },
+    "scenarioIds": [
+      "profile-independent-t1024-d16-catalog",
+      "profile-independent-t1024-d16-scheduler-candidates"
+    ]
+  },
+  "environment": {
+    "bunVersion": "1.3.14",
+    "cpu": [
+      {
+        "times": {
+          "user": 8734950,
+          "nice": 660,
+          "sys": 6664460,
+          "idle": 196550510,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 9118260,
+          "nice": 420,
+          "sys": 6467120,
+          "idle": 196561860,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8888290,
+          "nice": 3500,
+          "sys": 6707290,
+          "idle": 196373180,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 9077190,
+          "nice": 730,
+          "sys": 6485550,
+          "idle": 196603450,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8918320,
+          "nice": 0,
+          "sys": 6698050,
+          "idle": 196387100,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 9027760,
+          "nice": 3640,
+          "sys": 6468960,
+          "idle": 196658790,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      }
+    ],
+    "os": {
+      "architecture": "x64",
+      "platform": "linux",
+      "release": "6.18.33.2-microsoft-standard-WSL2",
+      "totalMemoryBytes": 8327917568,
+      "type": "Linux"
+    }
+  },
+  "fixtureSeed": 20260903,
+  "generatedAt": "2026-09-03T14:26:49.676Z",
+  "representation": "immutable-list",
+  "selectedImplementation": {
+    "forcedFrontier": "project-owned persistent leftist max-heap",
+    "reverseIndexesAndCounters": "native frozen arrays, Map, Set, and immutable dense counter stores",
+    "vector": "immutable@5.1.9 List"
+  },
+  "sourceFingerprint": {
+    "algorithm": "sha256",
+    "files": [
+      "package.json",
+      "pnpm-lock.yaml",
+      "src/project-run/task-scheduler/admission-core-compiled-graph.ts",
+      "src/project-run/task-scheduler/admission-core.ts"
+    ],
+    "sha256": "44dbcaa035d2a709c4be85be4f83f1a54d6b1d9b36f2c3572830002440080635"
+  },
+  "retention": {
+    "bfs": {
+      "available": true,
+      "cacheOrIndexCreationCount": 65,
+      "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+      "retainedHeapBytes": 0,
+      "retainedStateCount": 65,
+      "traversal": "bfs"
+    },
+    "persistentVector": {
+      "library": "immutable@5.1.9",
+      "predecessorStatus": "pending",
+      "statusStoreIsImmutableList": true,
+      "successorStatus": "running",
+      "successorStoreChanged": true
+    },
+    "gcMethod": "Bun.gc(true) before construction and after strong branch retention",
+    "dfs": {
+      "available": true,
+      "cacheOrIndexCreationCount": 65,
+      "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+      "retainedHeapBytes": 0,
+      "retainedStateCount": 65,
+      "traversal": "dfs"
+    }
+  },
+  "gitCommit": "963425f5e5457b5cac4b33b120ba49d652134ebe",
+  "measurement": {
+    "cpu": "process.cpuUsage() per batch",
+    "heap": "process.memoryUsage().heapUsed delta without forced GC; proxy only",
+    "mode": "profile",
+    "representation": "immutable-list",
+    "warmupSamples": 2,
+    "measuredSamples": 5,
+    "wall": "performance.now() elapsed milliseconds per batch"
+  },
+  "scenarios": [
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "profile-independent-t1024-d16-catalog",
+      "iterationsPerSample": 16,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 4.17,
+          "cpuUserMs": 0.044,
+          "heapDeltaBytes": 0,
+          "wallMs": 4.135175000000004
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 3.965,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.9461350000000266
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.925,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.912271999999973
+        },
+        {
+          "cpuSystemMs": 4.257,
+          "cpuUserMs": 0.61,
+          "heapDeltaBytes": 0,
+          "wallMs": 4.577627000000007
+        },
+        {
+          "cpuSystemMs": 4.297,
+          "cpuUserMs": 0.363,
+          "heapDeltaBytes": 0,
+          "wallMs": 4.453305999999998
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 4.17,
+          "p95": 4.297
+        },
+        "cpuUserMs": {
+          "p50": 0.61,
+          "p95": 3.965
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 4.135175000000004,
+          "p95": 4.577627000000007
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "profile-independent-t1024-d16-scheduler-candidates",
+      "iterationsPerSample": 16,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.013,
+          "cpuUserMs": 3.943,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.8904609999999593
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.794,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.779886000000033
+        },
+        {
+          "cpuSystemMs": 3.917,
+          "cpuUserMs": 0.004,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.908635000000004
+        },
+        {
+          "cpuSystemMs": 7.669,
+          "cpuUserMs": 0.003,
+          "heapDeltaBytes": 0,
+          "wallMs": 7.657844000000011
+        },
+        {
+          "cpuSystemMs": 3.799,
+          "cpuUserMs": 6.209,
+          "heapDeltaBytes": 343040,
+          "wallMs": 8.851292
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 3.799,
+          "p95": 7.669
+        },
+        "cpuUserMs": {
+          "p50": 3.794,
+          "p95": 6.209
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 343040
+        },
+        "wallMs": {
+          "p50": 3.908635000000004,
+          "p95": 8.851292
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    }
+  ],
+  "sink": 259362
+}

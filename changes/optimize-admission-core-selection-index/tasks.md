@@ -1,36 +1,30 @@
 # Tasks
 
-按 current correctness oracle、A/B/C representation gate、private reducer implementation 与同形 after verification推进；完成 checkbox 只记录已实际执行的工作。
+本清单记录已完成工作及其可核对结果；当前 shipping implementation 是下列选定的单一路径。
 
 ## Readiness
 
-- [x] 0.1 Re-run and preserve the current before baseline in `readiness/current-admission-core-baseline.{raw.json,summary.md}`; verify its manifest records commit, seed, environment, warmup/samples, p50/p95, CPU and heap-proxy method.
-- [x] 0.2 Capture and inspect `Bun --cpu-prof-md` (and an advisory `--heap-prof-md` observation) for the named representative current workload; record sampled hot frames and non-causal boundary in readiness notes.
-- [x] 0.3 Run benchmark scenario closure and audit that static/custom/learned unused-state, catalog/validate/select/settle/fork/candidates, T=64/256/1024/4096, multiple D, independent/layered/mutex/scope/high-fanout and B forced settle are present; retain the documented 4096-depth limit.
-- [x] 0.4 Persist `readiness/current-admission-core-semantic-oracle.before.json` with the executable oracle before any representation gate; include primary reason/payload/order, a same-pending-target competing-blocker trace that clears `dependsOn → observes → mutex → active scope → root` while retaining exact scope-before-root payloads at the same global running count, plus the inactive-scope activating-candidate gate, candidate order/canAdmit, select/settle/effect trace, forced IDs/order/effect projections, legacy snapshot, callback hard guard and cancellation.
-- [ ] 0.5 Before selecting a representation, make A, B and C each execute the same complete semantic workload and compare each candidate against the persisted oracle. Timing output must not waive an item-level oracle mismatch.
-- [ ] 0.6 For the A/B/C gate, retain equivalent DFS and BFS branch arrays; record retained-state count, per-state index/cache creation and lifetime, and comparable GC/heap method. Use `Bun.gc(true)` before construction and after retaining strong references when available; otherwise mark retained rows unavailable and do not use them to select.
-- [ ] 0.7 Read current `admission-core`, `scheduler`, policy adapters, graph validation, direct tests and active Decisions again immediately before implementation; identify every import/export and Case owner actually changed.
+- [x] 0.1 Preserve the read-only before baseline/profile/oracle and record their command, seed, environment, warm-up/sample and comparison boundary.
+- [x] 0.2 Exercise A parent+delta, B chunked-COW and C full-clone as full-semantic temporary prototypes before selection; preserve their exact oracle, matrix and retained-branch artifacts as formation provenance.
+- [x] 0.3 Read the persistent-collection investigation. Its formation conclusion did not immediately add a dependency; satisfy its later full-product oracle/workload/retention/package acceptance condition before shipping `immutable@5.1.9`.
+- [x] 0.4 Select the final one-path `Immutable.List` implementation, remove production A/C switches, and make the Change harness reject `--representation`.
+- [x] 0.5 Recompute selected semantic, matrix, profile, retention and comparison evidence under the current source fingerprint rather than reusing the historical chunked-COW fingerprint or measurements.
 
 ## Implementation
 
-- [ ] 1.1 Add private compiled task-slot/public-order/reverse-dependency/reverse-observation/mutex/scope indexes without changing graph validation or public graph/state DTOs; preserve every duplicate relation/mutex occurrence and original declaration order.
-- [ ] 1.2 Implement development-only A, B and C full-semantic candidate paths/instrumentation necessary for the gate; each must cover legacy seed, reducer transitions, forced effects, Scheduler candidate/hard guard and lazy public projection rather than a simplified data-structure microbenchmark.
-- [ ] 1.3 Apply the gate go/no-go/revise rule, document comparable A/B/C results and select no shipped representation until oracle, full workload and retained branch/cache evidence justify it; revise this Plan if none qualifies.
-- [ ] 1.4 Integrate only the gate-selected immutable representation into the shared core reducer; remove repeated parent-chain task status resolution while preserving branch/predecessor immutability and legacy Scheduler snapshot seeding.
-- [ ] 1.5 Incrementally maintain relation/observation blockers, held mutex facts and stage-local eligibility so validate/select/catalog/Scheduler candidates read one semantic index with existing primary-reason precedence, duplicate payload semantics and frozen payload shapes.
-- [ ] 1.6 Implement global `runningTotal` root/scope capacity gates and lifecycle/activation facts. Active or activating scope selects a cap for every candidate, including scope-outside/unscoped; no per-scope running count may affect the gate, and `(maxParallel, scopeId)` scope-before-root ordering remains exact.
-- [ ] 1.7 Replace repeated forced-block graph scans with an occurrence-aware persistent canonical-order reverse-dependency queue; preserve B cascade, duplicate declaration-order dependency IDs, effect order and immutable effect-state sequence.
-- [ ] 1.8 Route Scheduler candidate projection and post-synchronous-custom-callback hard revalidation through the shared core index/reducer; retain Scheduler-only execution, cancellation, diagnostics, measurement and effect replay ownership.
-- [ ] 1.9 Add/update narrow core, Scheduler and public-state tests for precedence/catalog order/laziness, duplicate non-lexical relation/mutex payloads, duplicate forced dependency IDs, active scope blocking inside/outside/unscoped candidates, scope-before-root payload, callback revalidation, legacy seeds, branching and forced cascade/effect-state order; update Case mappings only for actual test entity/body changes.
-- [ ] 1.10 Extend the Change-owned benchmark to run the selected after state with the exact before matrix and distinguish cold legacy-seed index resolution, normal incremental successor, lazy DTO, cache lifetime and retained branches.
+- [x] 1.1 Compile private task slots/public order plus duplicate-preserving reverse dependency, observation, mutex occurrence and scope indexes in `admission-core-compiled-graph.ts`; do not change public graph/state DTOs.
+- [x] 1.2 Store dynamic statuses and dense counters in `immutable@5.1.9` `List` values within one immutable selection index per state. Preserve predecessor branches and legacy Scheduler snapshot seeding without a parent-chain selection fallback or full-state clone.
+- [x] 1.3 Use shared payload-free blockers for Scheduler candidates and inspection next boundary; build public duplicate/sorted relation or mutex payloads only for catalog, validate and rejected select.
+- [x] 1.4 Incrementally maintain dependency/observation/mutex facts and additive legacy-vs-dynamic mutex blocking. Preserve global `runningTotal`, active/activating scope selection and scope-before-root precedence.
+- [x] 1.5 Retain the semantic-specific persistent leftist max-heap for forced blocks. Push/pop path-copy heap spines; preserve reverse task-slot priority, root→80→80 cascade, duplicate dependency IDs and effect/effect-state order.
+- [x] 1.6 Keep catalog DTO creation lazy, Scheduler as effect/execution/measurement owner, and the post-custom-callback hard guard routed through the shared reducer/index.
+- [x] 1.7 Add/update narrow behavior tests and Case mapping for precedence, legacy mutex additivity, branch/scope immutability, forced frontier/effect-state order, catalog laziness and selected implementation naming.
+- [x] 1.8 Add exact runtime dependency/package contract/lockfile and approved Immutable MIT license material; audit artifact, installed candidate and release-receipt legal paths.
 
 ## Verification
 
-- [ ] 2.1 Run affected Bun tests; when test nodes/bodies/Cases change, run `bun run test-evidence -- check --root .` before and after and audit Case/Proves continuity.
-- [ ] 2.2 Run `current-admission-core-semantic-oracle.ts --compare` against the persisted before JSON for every candidate and the selected integration; review item-level mismatch before any performance result.
-- [ ] 2.3 Run A/B/C and selected before/after benchmark/profile with identical command, fixture, seed, warmup, samples and runtime; report batch and derived-per-operation p50/p95, CPU, heap proxy, forced B, retained DFS/BFS state/cache observations and unavailable GC conditions without unsupported budget claims.
-- [ ] 2.4 Assert benchmark scenario closure plus explicit behavior comparisons for public rejection reason/order, candidate order/canAdmit, catalog laziness, Scheduler hard guard, global-running scope/root capacity including outside/unscoped candidates, effect order and duplicate forced dependency IDs.
-- [ ] 2.5 Verify one private index per immutable state, no eager public catalog DTO, no parent-chain selection fallback, no per-scope capacity gate, and no duplicate/order collapse in compiled reverse indexes or public payload materialization.
-- [ ] 2.6 Run changed-owner typecheck/lint and relevant docs validation; run `bun run decisions -- check` and `bun run change-plan -- check changes/optimize-admission-core-selection-index`.
-- [ ] 2.7 Run `bun run verify:vibe-check-workspace:required` because shared scheduler/runtime behavior crosses multiple product owners; report any full Gate or package-consumer verification intentionally not run.
+- [x] 2.1 Run the selected semantic oracle against the read-only before JSON and write `current-admission-core-semantic-oracle.immutable-list.after.json`; exact `oracle` equality passed, including the selected-only legacy-mutex extension.
+- [x] 2.2 Run the selected 79-row matrix and selected CPU/heap profile with seed `20260903`, 2 warm-ups and 5 samples; retain the CPU/profile data plus only process-level heap summaries, intentionally not the non-attributable raw heap dump. 77 scenario identities share the before matrix; legacy-seed and forced-cascade are selected-only observations.
+- [x] 2.3 Record retained DFS/BFS branches through `Bun.gc(true)`, actual Immutable.List predecessor/successor storage, B=63/255 forced rows, root→80→80 B=160 cascade and bounded historical List-vs-chunked-COW context without treating heap proxies or historical rows as budgets.
+- [x] 2.4 Run affected and full `src` tests, test-evidence check, format, typecheck, lint, docs validation, investigation/Decision/Change checks, and the required/full Project Gates after final evidence/document edits.
+- [x] 2.5 Review the final diff: before artifacts are unchanged, only the selected harness path remains, the runtime dependency/license material is complete, and this Change task creates no Investigation, Decision, archive, or commit.

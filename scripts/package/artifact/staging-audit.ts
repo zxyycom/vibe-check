@@ -6,7 +6,7 @@ import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
   PACKAGE_LICENSE_PATH,
-  PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_RUNTIME_ENTRY_PATH,
@@ -19,7 +19,7 @@ import { relativeEsmModuleSpecifiers } from "./esm-module-specifiers.ts";
 import { assertRuntimeSourceMapMatchesSource } from "./runtime-source-maps.ts";
 import {
   assertJSDocExamplePayloads,
-  assertMomoaLicenseContent,
+  assertThirdPartyLicenseContent,
   assertPackageLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
@@ -32,7 +32,7 @@ const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_README_PATH,
-  PACKAGE_MOMOA_LICENSE_PATH
+  ...PACKAGE_THIRD_PARTY_LICENSES.map((license) => license.path)
 ]);
 
 export function auditStagingRuntime(input: {
@@ -107,7 +107,9 @@ function assertStagingPublishedMaterials(input: {
   });
   assertPackageDocumentation(stagingDirectory, expectedDocuments);
   assertPackageMachineMaterials(stagingDirectory, expectedMachineMaterials);
-  assertMomoaLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
+  for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
+    assertThirdPartyLicenseContent(readFileSync(join(stagingDirectory, license.path)), license);
+  }
   assertPackageLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_LICENSE_PATH)));
   assertJSDocExamplePayloads({
     declarationSources: collectFilePaths(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>

@@ -17,6 +17,9 @@ importers:
       github-slugger:
         specifier: 2.0.0
         version: 2.0.0
+      immutable:
+        specifier: 5.1.9
+        version: 5.1.9
       mdast-util-from-markdown:
         specifier: 2.0.3
         version: 2.0.3
@@ -571,6 +574,9 @@ packages:
   human-signals@8.0.1:
     resolution: {integrity: sha512-eKCa6bwnJhvxj14kZk5NCPc6Hb6BdsU9DZcOnmQKSnO1VKrfV0zCvtttPZUsBvjmNDn8rpcJfpwSYnHBjc95MQ==}
     engines: {node: '>=18.18.0'}
+
+  immutable@5.1.9:
+    resolution: {integrity: sha512-m8nVez3rwrgmWxtLMt1ZYXB2Lv7OKYn/disyxAlSDYAlKSlFoPPfIAmAM/M5xqL4m4C/wAPw7S2/CNaUii1Hxg==}
 
   is-plain-obj@4.1.0:
     resolution: {integrity: sha512-+Pgi+vMuUNkJyExiMBt5IlFoMyKnr5zhJ4Uspz58WOhBF5QoIZkFyNHIbBAtHwzVAgk5RtndVNsDRN61/mmDqg==}
@@ -1206,6 +1212,8 @@ snapshots:
   github-slugger@2.0.0: {}
 
   human-signals@8.0.1: {}
+
+  immutable@5.1.9: {}
 
   is-plain-obj@4.1.0: {}
 

@@ -129,6 +129,10 @@ function formalReleaseReceiptFixture(): unknown {
       repository: "git+https://github.com/zxyycom/vibe-check.git",
       thirdPartyLicenses: [
         {
+          path: "third-party-licenses/immutable-5.1.9-LICENSE",
+          sha256: "784fd7232e106901065a329b285ff9ba9ad98ff08ac1932b45b53a0b954974c5"
+        },
+        {
           path: "third-party-licenses/momoa-3.3.12-LICENSE",
           sha256: "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
         }

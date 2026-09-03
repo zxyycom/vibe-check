@@ -4,14 +4,14 @@ import { join } from "node:path";
 import { errorMessage } from "../../error-message.ts";
 import {
   assertJSDocExamplePayloads,
-  assertMomoaLicenseContent,
+  assertThirdPartyLicenseContent,
   assertPackageLicenseContent
 } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import {
   PACKAGE_LICENSE_PATH,
-  PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_TYPES_DIRECTORY
 } from "../package-contract.ts";
 import { collectFilePaths } from "../file-inventory.ts";
@@ -33,7 +33,9 @@ export function assertInstalledCandidateMaterials(input: {
 function assertInstalledLegalMaterials(packageDirectory: string): void {
   try {
     assertPackageLicenseContent(readFileSync(join(packageDirectory, PACKAGE_LICENSE_PATH)));
-    assertMomoaLicenseContent(readFileSync(join(packageDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
+    for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
+      assertThirdPartyLicenseContent(readFileSync(join(packageDirectory, license.path)), license);
+    }
   } catch (error: unknown) {
     throw new Error(
       `installed candidate legal material validation failed: ${errorMessage(error)}`,

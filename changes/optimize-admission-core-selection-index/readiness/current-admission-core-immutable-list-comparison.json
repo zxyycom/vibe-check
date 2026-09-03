@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Final selected immutable-list comparison and retained-branch evidence. This is a persisted formation-to-shipping record, not a runtime representation selector or cross-host performance budget.",
+  "selected": {
+    "artifact": "current-admission-core-immutable-list-baseline.raw.json",
+    "gitCommit": "963425f5e5457b5cac4b33b120ba49d652134ebe",
+    "representation": "immutable-list",
+    "sourceFingerprint": {
+      "algorithm": "sha256",
+      "files": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "src/project-run/task-scheduler/admission-core-compiled-graph.ts",
+        "src/project-run/task-scheduler/admission-core.ts"
+      ],
+      "sha256": "44dbcaa035d2a709c4be85be4f83f1a54d6b1d9b36f2c3572830002440080635"
+    },
+    "implementation": {
+      "forcedFrontier": "project-owned persistent leftist max-heap",
+      "reverseIndexesAndCounters": "native frozen arrays, Map, Set, and immutable dense counter stores",
+      "vector": "immutable@5.1.9 List"
+    }
+  },
+  "semanticOracle": {
+    "beforeArtifact": "current-admission-core-semantic-oracle.before.json",
+    "selectedAfterArtifact": "current-admission-core-semantic-oracle.immutable-list.after.json",
+    "result": "exact oracle equality; comparison deliberately excludes provenance and selected source fingerprint fields"
+  },
+  "beforeComparison": {
+    "beforeArtifact": "current-admission-core-baseline.raw.json",
+    "sharedScenarioRows": 77,
+    "selectedOnlyScenarioRows": [
+      "independent-t256-legacy-seed-index",
+      "forced-cascade-t161-layered-forced-cascade-settle"
+    ],
+    "wallP50": {
+      "lowerThanBeforeRows": 74,
+      "higherThanBeforeRows": 3,
+      "medianSelectedOverBeforeRatio": 0.07558165954748561,
+      "highestSelectedOverBeforeRatio": [
+        "mutex-t256-d16-fork",
+        2.0298586698520333
+      ]
+    }
+  },
+  "priorChunkedCowFormationComparison": {
+    "artifact": "current-admission-core-chunked-cow-baseline.raw.json",
+    "representation": "chunked-cow",
+    "historicalSourceFingerprint": {
+      "algorithm": "sha256",
+      "method": "git diff -- src/project-run/task-scheduler/admission-core.ts",
+      "sha256": "3baba349f3add9e1349bc855188dde7b259a5caf991ebb85534423e585146df9"
+    },
+    "comparability": "Same Change-owned fixture schema, seed, warmup/sample counts and process-local method; different uncommitted product source and retired representation. Directional formation observation only, never a rerunnable shipping option or release budget.",
+    "sharedScenarioRows": 79,
+    "wallP50": {
+      "selectedLowerThanHistoricChunkedRows": 79,
+      "selectedHigherThanHistoricChunkedRows": 0,
+      "medianSelectedOverHistoricChunkedRatio": 0.42394014991863455,
+      "highestSelectedOverHistoricChunkedRatio": [
+        "independent-t64-d48-scheduler-candidates",
+        0.9795250911323181
+      ]
+    }
+  },
+  "retainedBranches": {
+    "method": "Bun.gc(true) before construction and after all retained branches remain strongly reachable",
+    "selected": {
+      "bfs": {
+        "available": true,
+        "cacheOrIndexCreationCount": 65,
+        "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+        "retainedHeapBytes": 0,
+        "retainedStateCount": 65,
+        "traversal": "bfs"
+      },
+      "persistentVector": {
+        "library": "immutable@5.1.9",
+        "predecessorStatus": "pending",
+        "statusStoreIsImmutableList": true,
+        "successorStatus": "running",
+        "successorStoreChanged": true
+      },
+      "gcMethod": "Bun.gc(true) before construction and after strong branch retention",
+      "dfs": {
+        "available": true,
+        "cacheOrIndexCreationCount": 65,
+        "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+        "retainedHeapBytes": 0,
+        "retainedStateCount": 65,
+        "traversal": "dfs"
+      }
+    },
+    "historicChunkedCow": {
+      "bfs": {
+        "available": true,
+        "cacheOrIndexCreationCount": 65,
+        "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+        "retainedHeapBytes": 0,
+        "retainedStateCount": 65,
+        "traversal": "bfs"
+      },
+      "chunkedPathCopy": {
+        "available": true,
+        "changedRoot": true,
+        "chunkLeafSize": 64,
+        "pathDepth": 3,
+        "untouchedOppositeHalfShared": true
+      },
+      "gcMethod": "Bun.gc(true) before construction and after strong branch retention",
+      "dfs": {
+        "available": true,
+        "cacheOrIndexCreationCount": 65,
+        "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+        "retainedHeapBytes": 0,
+        "retainedStateCount": 65,
+        "traversal": "dfs"
+      }
+    },
+    "boundary": "Process-wide retainedHeapBytes is noisy and not used as allocation or retained-byte evidence."
+  },
+  "keyRows": [
+    {
+      "id": "real-mixed-real-static-unused-public-state",
+      "before": {
+        "wallP50Ms": 82.72862099999998,
+        "wallP95Ms": 86.32723999999996,
+        "cpuUserP50Ms": 89.337,
+        "heapDeltaProxyP50Bytes": 367996
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 41.85896399999996,
+        "wallP95Ms": 44.63525200000004,
+        "cpuUserP50Ms": 52.535,
+        "heapDeltaProxyP50Bytes": 483500
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 38.72483900000003,
+        "wallP95Ms": 41.68080800000001,
+        "cpuUserP50Ms": 54.769,
+        "heapDeltaProxyP50Bytes": 517760
+      }
+    },
+    {
+      "id": "real-mixed-real-custom-unused-public-state",
+      "before": {
+        "wallP50Ms": 213.122797,
+        "wallP95Ms": 220.738785,
+        "cpuUserP50Ms": 230.768,
+        "heapDeltaProxyP50Bytes": 1296298
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 82.61218499999995,
+        "wallP95Ms": 83.04562800000008,
+        "cpuUserP50Ms": 89.871,
+        "heapDeltaProxyP50Bytes": 1508161
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 73.47630500000002,
+        "wallP95Ms": 83.40045400000008,
+        "cpuUserP50Ms": 86.887,
+        "heapDeltaProxyP50Bytes": 1549896
+      }
+    },
+    {
+      "id": "real-mixed-real-learned-unused-public-state",
+      "before": {
+        "wallP50Ms": 85.4078440000003,
+        "wallP95Ms": 86.5283029999996,
+        "cpuUserP50Ms": 88.301,
+        "heapDeltaProxyP50Bytes": 304076
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 46.846555999999964,
+        "wallP95Ms": 55.30472899999995,
+        "cpuUserP50Ms": 50.686,
+        "heapDeltaProxyP50Bytes": 453948
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 35.464155999999775,
+        "wallP95Ms": 36.36446000000001,
+        "cpuUserP50Ms": 39.785,
+        "heapDeltaProxyP50Bytes": 439868
+      }
+    },
+    {
+      "id": "independent-t256-d48-scheduler-candidates",
+      "before": {
+        "wallP50Ms": 45.97393699999975,
+        "wallP95Ms": 47.40516299999945,
+        "cpuUserP50Ms": 45.155,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 0.7835319999999228,
+        "wallP95Ms": 0.9823860000001332,
+        "cpuUserP50Ms": 0.76,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 0.48551099999986036,
+        "wallP95Ms": 2.308616000000029,
+        "cpuUserP50Ms": 0.424,
+        "heapDeltaProxyP50Bytes": 0
+      }
+    },
+    {
+      "id": "independent-t256-d48-catalog",
+      "before": {
+        "wallP50Ms": 90.85327099999995,
+        "wallP95Ms": 94.93036200000006,
+        "cpuUserP50Ms": 90.963,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 2.05246800000009,
+        "wallP95Ms": 5.483658999999989,
+        "cpuUserP50Ms": 2.067,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 0.8150429999998323,
+        "wallP95Ms": 1.029931999999917,
+        "cpuUserP50Ms": 0.011,
+        "heapDeltaProxyP50Bytes": 0
+      }
+    },
+    {
+      "id": "independent-t1024-d16-scheduler-candidates",
+      "before": {
+        "wallP50Ms": 83.39387500000066,
+        "wallP95Ms": 86.56893899999977,
+        "cpuUserP50Ms": 83.408,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 0.712532999999894,
+        "wallP95Ms": 0.9364879999998266,
+        "cpuUserP50Ms": 0,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 0.5741659999998774,
+        "wallP95Ms": 0.6481529999998656,
+        "cpuUserP50Ms": 0.498,
+        "heapDeltaProxyP50Bytes": 0
+      }
+    },
+    {
+      "id": "independent-t1024-d16-catalog",
+      "before": {
+        "wallP50Ms": 166.3931190000003,
+        "wallP95Ms": 168.73106700000062,
+        "cpuUserP50Ms": 166.665,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 1.1695910000003096,
+        "wallP95Ms": 1.5817660000002434,
+        "cpuUserP50Ms": 1.191,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 0.9307779999999184,
+        "wallP95Ms": 1.040141000000176,
+        "cpuUserP50Ms": 0.941,
+        "heapDeltaProxyP50Bytes": 0
+      }
+    },
+    {
+      "id": "high-fanout-t256-forced-block-settle",
+      "before": {
+        "wallP50Ms": 54.77132399999937,
+        "wallP95Ms": 56.03962100000081,
+        "cpuUserP50Ms": 55.462,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "historicChunkedCow": {
+        "wallP50Ms": 32.019285999999965,
+        "wallP95Ms": 38.43850999999995,
+        "cpuUserP50Ms": 43.072,
+        "heapDeltaProxyP50Bytes": 770204
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 6.70247100000006,
+        "wallP95Ms": 7.944475000000011,
+        "cpuUserP50Ms": 7.506,
+        "heapDeltaProxyP50Bytes": 0
+      }
+    },
+    {
+      "id": "independent-t256-legacy-seed-index",
+      "before": null,
+      "historicChunkedCow": {
+        "wallP50Ms": 2.885997000000316,
+        "wallP95Ms": 4.546338999999989,
+        "cpuUserP50Ms": 2.825,
+        "heapDeltaProxyP50Bytes": 0
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 1.6860090000000127,
+        "wallP95Ms": 3.318580000000111,
+        "cpuUserP50Ms": 1.76,
+        "heapDeltaProxyP50Bytes": 0
+      }
+    },
+    {
+      "id": "forced-cascade-t161-layered-forced-cascade-settle",
+      "before": null,
+      "historicChunkedCow": {
+        "wallP50Ms": 72.84092700000019,
+        "wallP95Ms": 78.03913499999999,
+        "cpuUserP50Ms": 66.711,
+        "heapDeltaProxyP50Bytes": 6861168
+      },
+      "selectedImmutableList": {
+        "wallP50Ms": 56.53713299999981,
+        "wallP95Ms": 59.41335100000015,
+        "cpuUserP50Ms": 56.459,
+        "heapDeltaProxyP50Bytes": 3526672
+      }
+    }
+  ],
+  "heapProfileObservation": {
+    "rawArtifacts": "intentionally not retained; each Bun --heap-prof-md output is a process-wide snapshot with no admission-state attribution",
+    "historicChunkedCow": {
+      "totalHeapBytes": 10593593,
+      "totalObjects": 59232,
+      "totalEdges": 208250,
+      "gcRoots": 1748,
+      "topHierarchy": "GlobalObject, ModuleLoader and ModuleRecord/module runtime dominated the retained hierarchy"
+    },
+    "selectedImmutableList": {
+      "totalHeapBytes": 10928659,
+      "totalObjects": 61620,
+      "totalEdges": 217954,
+      "gcRoots": 1827,
+      "topHierarchy": "GlobalObject, ModuleLoader and ModuleRecord/module runtime dominated the retained hierarchy"
+    },
+    "boundary": "These totals are process-level observations only; they are not allocation, branch-retention, selection-index, or catalog-DTO measurements.",
+    "command": "bun --heap-prof-md --heap-prof-dir changes/optimize-admission-core-selection-index/readiness/profiles --heap-prof-name current-admission-core-immutable-list.heap-profile.txt changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts --profile"
+  }
+}

@@ -1,3 +1,4 @@
+import { List } from "immutable";
 import type {
   AdmissionCatalog,
   AdmissionGraph,
@@ -18,6 +19,13 @@ import {
   type TaskGraph
 } from "./graph.ts";
 import type { SchedulerSettlementKind, SchedulerSnapshot } from "./scheduler-decision-model.ts";
+import {
+  compilePreparedAdmissionGraph,
+  type CompiledAdmissionGraph
+} from "./admission-core-compiled-graph.ts";
+
+export { compilePreparedAdmissionGraph } from "./admission-core-compiled-graph.ts";
+export type { CompiledAdmissionGraph } from "./admission-core-compiled-graph.ts";
 
 type CoreTaskStatus =
   | Readonly<{ readonly kind: "pending" }>
@@ -35,28 +43,10 @@ export type AdmissionCoreEffect =
       readonly taskId: string;
     }>;
 
-/** One immutable parent+delta node. Only the changed Task state belongs to a successor. */
-interface AdmissionCoreNode {
-  readonly activatedScopeId: string | undefined;
-  readonly changedStatus: CoreTaskStatus | undefined;
-  readonly changedTaskId: string | undefined;
-  readonly parent: AdmissionCoreNode | undefined;
-}
-
-/** The private static index and immutable dynamic node shared by public and shell paths. */
 export interface AdmissionCoreState {
   readonly compiled: CompiledAdmissionGraph;
-  readonly legacyActiveScopeIds: readonly string[] | undefined;
-  readonly legacyRunningMutexes: readonly string[] | undefined;
-  readonly node: AdmissionCoreNode;
-}
-
-export interface CompiledAdmissionGraph {
-  readonly graph: PlannedTaskGraph;
-  readonly maxParallel: number;
-  readonly scopesById: ReadonlyMap<string, PlannedTaskGraph["scopes"][number]>;
-  readonly taskById: ReadonlyMap<string, PlannedTask>;
-  readonly taskIdsInPublicOrder: readonly string[];
+  /** One private index drives every selection projection and transition. */
+  readonly selection: AdmissionSelectionIndex;
 }
 
 export interface AdmissionCoreTransition {
@@ -74,22 +64,38 @@ export interface AdmissionCoreSelection {
 const PENDING: CoreTaskStatus = Object.freeze({ kind: "pending" });
 const ABSENT: CoreTaskStatus = Object.freeze({ kind: "absent" });
 const ACCEPTED_SELECTION: AdmissionSelectionValidation = Object.freeze({ accepted: true });
+/** Immutable.List is the persistent indexed backing for every dense selection counter. */
+type PersistentIndexedStore<T> = Readonly<{
+  readonly values: List<T>;
+}>;
 
-/** Compiles a Scheduler-owned normalized graph once for an actual scheduler invocation. */
-export function compilePreparedAdmissionGraph(
-  graph: PlannedTaskGraph,
-  maxParallel: number
-): CompiledAdmissionGraph {
-  if (!Number.isSafeInteger(maxParallel) || maxParallel <= 0) {
-    throw new TypeError("task engine maxParallel must be a positive safe integer");
-  }
-  return Object.freeze({
-    graph,
-    maxParallel,
-    scopesById: new Map(graph.scopes.map((scope) => [scope.id, scope] as const)),
-    taskById: new Map(graph.tasks.map((task) => [task.id, task] as const)),
-    taskIdsInPublicOrder: Object.freeze(graph.tasks.map((task) => task.id).sort(compareText))
-  });
+type NumberStore = PersistentIndexedStore<number>;
+type StatusStore = PersistentIndexedStore<CoreTaskStatus>;
+
+/** Persistent leftist max-heap: task slots are the canonical forced-effect priority. */
+type ForcedTaskQueue =
+  | undefined
+  | Readonly<{
+      readonly left: ForcedTaskQueue;
+      readonly rank: number;
+      readonly right: ForcedTaskQueue;
+      readonly taskSlot: number;
+    }>;
+
+interface AdmissionSelectionIndex {
+  readonly activeScopeSlots: readonly number[];
+  readonly activeScopes: NumberStore;
+  readonly forcedQueue: ForcedTaskQueue;
+  readonly legacyRunningMutexes: readonly string[] | undefined;
+  readonly mutexHolders: NumberStore;
+  /** Per-task reverse-mutex occurrence count; candidate sieving never builds mutex payloads. */
+  readonly heldMutexBlockers: NumberStore;
+  readonly nonCompletedDependencies: NumberStore;
+  readonly pendingObservations: NumberStore;
+  readonly pendingDependencies: NumberStore;
+  readonly remainingTaskCount: number;
+  readonly runningTotal: number;
+  readonly statuses: StatusStore;
 }
 
 /** 在 exact boundary validation 和一次 static compile 后创建 standalone public factory。 */
@@ -105,7 +111,7 @@ export function createAdmissionGraph(input: AdmissionGraphInput): AdmissionGraph
 export function createInitialAdmissionCoreState(
   compiled: CompiledAdmissionGraph
 ): AdmissionCoreState {
-  return freezeCoreState(compiled, createNode(undefined, undefined, undefined, undefined));
+  return freezeCoreState(compiled, initialSelectionFor(compiled));
 }
 
 /** Seeds the private core from a shell snapshot without exposing a mutable shell view. */
@@ -113,27 +119,29 @@ export function createAdmissionCoreFromSchedulerSnapshot(
   compiled: CompiledAdmissionGraph,
   snapshot: SchedulerSnapshot
 ): AdmissionCoreState {
-  let node = createNode(undefined, undefined, undefined, undefined);
+  const statuses = compiled.graph.tasks.map(() => PENDING);
   const presentTaskIds = new Set([
     ...snapshot.pendingTaskIds,
     ...snapshot.runningTaskIds,
     ...snapshot.settledTasks.map((task) => task.taskId)
   ]);
-  for (const task of compiled.graph.tasks) {
-    if (!presentTaskIds.has(task.id)) node = createNode(node, task.id, ABSENT, undefined);
+  for (const [slot, task] of compiled.graph.tasks.entries()) {
+    if (!presentTaskIds.has(task.id)) statuses[slot] = ABSENT;
   }
   for (const taskId of snapshot.runningTaskIds) {
-    node = createNode(node, taskId, Object.freeze({ kind: "running" }), undefined);
+    const slot = compiled.taskSlotsById.get(taskId);
+    if (slot !== undefined) statuses[slot] = Object.freeze({ kind: "running" });
   }
   for (const settled of snapshot.settledTasks) {
-    node = createNode(
-      node,
-      settled.taskId,
-      Object.freeze({ kind: "settled", settlementKind: settled.kind }),
-      undefined
-    );
+    const slot = compiled.taskSlotsById.get(settled.taskId);
+    if (slot !== undefined) {
+      statuses[slot] = Object.freeze({ kind: "settled", settlementKind: settled.kind });
+    }
   }
-  return freezeCoreState(compiled, node, snapshot.activeScopeIds, snapshot.runningMutexes);
+  return freezeCoreState(
+    compiled,
+    selectionForSeed(compiled, statuses, snapshot.activeScopeIds, snapshot.runningMutexes)
+  );
 }
 
 /** The canonical select action used by both the public opaque handle and the real shell. */
@@ -146,7 +154,8 @@ export function selectAdmissionCore(
 > {
   const validation = validateAdmissionCoreSelection(state, taskId);
   if (!validation.accepted) return Object.freeze({ accepted: false, reason: validation.reason });
-  const next = withSelectedTaskStatus(state, taskId, Object.freeze({ kind: "running" }));
+  const taskSlot = requiredTaskSlot(state, taskId);
+  const next = withSelectedTaskStatus(state, taskSlot, Object.freeze({ kind: "running" }));
   return Object.freeze({
     accepted: true,
     transition: freezeTransition(next, [Object.freeze({ kind: "admitted", taskId })], [next])
@@ -190,11 +199,11 @@ export function settleRunningAdmissionCore(
   if (isCoreComplete(state)) {
     return Object.freeze({ accepted: false, reason: Object.freeze({ kind: "state-complete" }) });
   }
-  const task = state.compiled.taskById.get(taskId);
-  if (task === undefined) {
+  const taskSlot = state.compiled.taskSlotsById.get(taskId);
+  if (taskSlot === undefined) {
     return Object.freeze({ accepted: false, reason: Object.freeze({ kind: "unknown-task" }) });
   }
-  const status = taskStatusFor(state, taskId);
+  const status = statusFor(state, taskSlot);
   if (status.kind !== "running") {
     return Object.freeze({
       accepted: false,
@@ -204,7 +213,11 @@ export function settleRunningAdmissionCore(
       })
     });
   }
-  const settled = withTaskStatus(state, taskId, Object.freeze({ kind: "settled", settlementKind }));
+  const settled = withTaskStatus(
+    state,
+    taskSlot,
+    Object.freeze({ kind: "settled", settlementKind })
+  );
   const directEffect = Object.freeze({ kind: "settled" as const, settlementKind, taskId });
   return Object.freeze({
     accepted: true,
@@ -217,11 +230,11 @@ export function cancelPendingAdmissionCore(state: AdmissionCoreState): Admission
   let next = state;
   const effects: AdmissionCoreEffect[] = [];
   const effectStates: AdmissionCoreState[] = [];
-  for (const task of state.compiled.graph.tasks) {
-    if (taskStatusFor(next, task.id).kind !== "pending") continue;
+  for (const [slot, task] of state.compiled.graph.tasks.entries()) {
+    if (statusFor(next, slot).kind !== "pending") continue;
     next = withTaskStatus(
       next,
-      task.id,
+      slot,
       Object.freeze({ kind: "settled", settlementKind: "cancelled-before-start" })
     );
     effects.push(
@@ -244,9 +257,9 @@ export function validateAdmissionCoreSelection(
   if (isCoreComplete(state)) {
     return rejectedValidation(Object.freeze({ kind: "state-complete" }));
   }
-  const task = state.compiled.taskById.get(taskId);
-  if (task === undefined) return rejectedValidation(Object.freeze({ kind: "unknown-task" }));
-  const status = taskStatusFor(state, taskId);
+  const taskSlot = state.compiled.taskSlotsById.get(taskId);
+  if (taskSlot === undefined) return rejectedValidation(Object.freeze({ kind: "unknown-task" }));
+  const status = statusFor(state, taskSlot);
   if (status.kind !== "pending") {
     return rejectedValidation(
       Object.freeze({
@@ -255,7 +268,7 @@ export function validateAdmissionCoreSelection(
       })
     );
   }
-  const reason = selectionRejectionForPendingTask(state, task);
+  const reason = selectionRejectionForPendingTask(state, taskSlot);
   return reason === undefined ? ACCEPTED_SELECTION : rejectedValidation(reason);
 }
 
@@ -264,16 +277,10 @@ export function admissionCandidatesForCore(
   state: AdmissionCoreState
 ): readonly AdmissionCoreSelection[] {
   const candidates: AdmissionCoreSelection[] = [];
-  for (const task of state.compiled.graph.tasks) {
-    if (taskStatusFor(state, task.id).kind !== "pending") continue;
-    const reason = relationOrMutexRejectionFor(state, task);
-    if (reason !== undefined) continue;
-    candidates.push(
-      Object.freeze({
-        canAdmit: capacityRejectionFor(state, task) === undefined,
-        task
-      })
-    );
+  for (const [taskSlot, task] of state.compiled.graph.tasks.entries()) {
+    if (statusFor(state, taskSlot).kind !== "pending") continue;
+    if (blockerStageFor(state, taskSlot) !== undefined) continue;
+    candidates.push(Object.freeze({ canAdmit: hasCapacityForPendingTask(state, taskSlot), task }));
   }
   return Object.freeze(candidates);
 }
@@ -296,8 +303,8 @@ export function schedulerInspectionForCore(state: AdmissionCoreState): Readonly<
   const runningTaskIds: string[] = [];
   const runningMutexes = new Set<string>();
   const settledTasks: { kind: SchedulerSettlementKind; taskId: string }[] = [];
-  for (const task of state.compiled.graph.tasks) {
-    const status = taskStatusFor(state, task.id);
+  for (const [taskSlot, task] of state.compiled.graph.tasks.entries()) {
+    const status = statusFor(state, taskSlot);
     if (status.kind === "pending") pendingTasks.push(task);
     if (status.kind === "running") {
       runningTaskIds.push(task.id);
@@ -319,14 +326,12 @@ export function schedulerInspectionForCore(state: AdmissionCoreState): Readonly<
 }
 
 export function scopeToActivateForCore(state: AdmissionCoreState, taskId: string): string | null {
-  const task = state.compiled.taskById.get(taskId);
-  if (task?.scopeId === undefined) return null;
-  const scope = state.compiled.scopesById.get(task.scopeId);
-  return scope !== undefined &&
-    isScopeInactive(state, scope.id) &&
-    scope.activationTaskIds.includes(taskId)
-    ? scope.id
-    : null;
+  const taskSlot = state.compiled.taskSlotsById.get(taskId);
+  if (taskSlot === undefined) return null;
+  const scopeSlot = state.compiled.taskScopeSlots[taskSlot];
+  if (scopeSlot === undefined || !isScopeInactive(state, scopeSlot)) return null;
+  const scope = requiredScope(state, scopeSlot);
+  return state.compiled.taskActivatesScope[taskSlot] === true ? scope.id : null;
 }
 
 /** Constructs the frozen opaque public wrapper. Projection work remains lazy until its getter is read. */
@@ -337,10 +342,7 @@ export function admissionStateForCore(core: AdmissionCoreState): AdmissionState 
   ): AdmissionTransitionResult {
     const selection = selectAdmissionCore(core, taskId);
     return selection.accepted
-      ? Object.freeze({
-          accepted: true,
-          state: admissionStateForCore(selection.transition.state)
-        })
+      ? Object.freeze({ accepted: true, state: admissionStateForCore(selection.transition.state) })
       : Object.freeze({ accepted: false, reason: selection.reason });
   });
   const settle = Object.freeze(function settle(
@@ -350,10 +352,7 @@ export function admissionStateForCore(core: AdmissionCoreState): AdmissionState 
   ): AdmissionTransitionResult {
     const settlement = settleAdmissionCore(core, taskId, outcome);
     return settlement.accepted
-      ? Object.freeze({
-          accepted: true,
-          state: admissionStateForCore(settlement.transition.state)
-        })
+      ? Object.freeze({ accepted: true, state: admissionStateForCore(settlement.transition.state) })
       : Object.freeze({ accepted: false, reason: settlement.reason });
   });
   const validateSelection = Object.freeze(function validateSelection(
@@ -374,7 +373,6 @@ export function admissionStateForCore(core: AdmissionCoreState): AdmissionState 
     validateSelection
   } satisfies AdmissionState);
 }
-
 function compileAdmissionGraphInput(input: AdmissionGraphInput): CompiledAdmissionGraph {
   const data = exactRecord(input, "admission graph input", ["graph", "maxParallel"]);
   const maxParallel = data.maxParallel;
@@ -497,10 +495,10 @@ function stringArray(value: unknown, label: string): readonly string[] {
 function catalogForCore(state: AdmissionCoreState): AdmissionCatalog {
   const selectableTaskIds: string[] = [];
   const nonSelectableTasks: { reason: AdmissionSelectionRejectionReason; taskId: string }[] = [];
-  for (const taskId of state.compiled.taskIdsInPublicOrder) {
-    if (taskStatusFor(state, taskId).kind !== "pending") continue;
-    const task = requiredTask(state, taskId);
-    const reason = selectionRejectionForPendingTask(state, task);
+  for (const taskSlot of state.compiled.taskSlotsInPublicOrder) {
+    if (statusFor(state, taskSlot).kind !== "pending") continue;
+    const reason = selectionRejectionForPendingTask(state, taskSlot);
+    const taskId = requiredTask(state, taskSlot).id;
     if (reason === undefined) selectableTaskIds.push(taskId);
     else nonSelectableTasks.push(Object.freeze({ reason, taskId }));
   }
@@ -513,33 +511,37 @@ function catalogForCore(state: AdmissionCoreState): AdmissionCatalog {
 function inspectionForCore(state: AdmissionCoreState): AdmissionInspection {
   const runningTaskIds: string[] = [];
   const settledTasks: { outcome: AdmissionSettlementOutcome; taskId: string }[] = [];
-  for (const taskId of state.compiled.taskIdsInPublicOrder) {
-    const status = taskStatusFor(state, taskId);
-    if (status.kind === "running") runningTaskIds.push(taskId);
+  for (const taskSlot of state.compiled.taskSlotsInPublicOrder) {
+    const task = requiredTask(state, taskSlot);
+    const status = statusFor(state, taskSlot);
+    if (status.kind === "running") runningTaskIds.push(task.id);
     if (status.kind === "settled") {
       const outcome = publicOutcomeForSettlement(status.settlementKind);
-      if (outcome !== undefined) settledTasks.push(Object.freeze({ outcome, taskId }));
+      if (outcome !== undefined) settledTasks.push(Object.freeze({ outcome, taskId: task.id }));
     }
   }
-  const capacity = Object.freeze({
-    effectiveMaxParallel: effectiveMaxParallelFor(state),
-    maxParallel: state.compiled.maxParallel,
-    running: runningTaskIds.length
-  });
+  const selection = state.selection;
   const hasSelectablePending = state.compiled.graph.tasks.some(
-    (task) =>
-      taskStatusFor(state, task.id).kind === "pending" &&
-      selectionRejectionForPendingTask(state, task) === undefined
+    (_, taskSlot) =>
+      statusFor(state, taskSlot).kind === "pending" &&
+      isAdmissionEligibleForPendingTask(state, taskSlot)
   );
   return Object.freeze({
-    capacity,
-    nextBoundary: nextBoundaryFor(hasSelectablePending, runningTaskIds.length),
+    capacity: Object.freeze({
+      effectiveMaxParallel: effectiveMaxParallelFor(state),
+      maxParallel: state.compiled.maxParallel,
+      running: selection.runningTotal
+    }),
+    nextBoundary: nextBoundaryFor(hasSelectablePending, selection.runningTotal),
     runningTaskIds: Object.freeze(runningTaskIds),
     scopes: Object.freeze(
       [...state.compiled.graph.scopes]
         .sort((left, right) => compareText(left.id, right.id))
         .map((scope) =>
-          Object.freeze({ lifecycle: scopeLifecycleFor(state, scope.id), scopeId: scope.id })
+          Object.freeze({
+            lifecycle: scopeLifecycleFor(state, requiredScopeSlot(state, scope.id)),
+            scopeId: scope.id
+          })
         )
     ),
     settledTasks: Object.freeze(settledTasks)
@@ -557,39 +559,77 @@ function nextBoundaryFor(
 
 function selectionRejectionForPendingTask(
   state: AdmissionCoreState,
-  task: PlannedTask
+  taskSlot: number
 ): AdmissionSelectionRejectionReason | undefined {
-  return relationOrMutexRejectionFor(state, task) ?? capacityRejectionFor(state, task);
+  const stage = blockerStageFor(state, taskSlot);
+  return stage === undefined
+    ? capacityRejectionFor(state, taskSlot)
+    : blockerPayloadFor(state, taskSlot, stage);
 }
 
-function relationOrMutexRejectionFor(
+type PendingBlockerStage = "depends-on-pending" | "mutex-held" | "observes-pending";
+
+/**
+ * Candidate scheduling uses only compiled, state-local counts. It intentionally
+ * does not build public rejection arrays for every pending task.
+ */
+function blockerStageFor(
   state: AdmissionCoreState,
-  task: PlannedTask
-): AdmissionSelectionRejectionReason | undefined {
-  const pendingDependencies = task.dependsOn.filter(
-    (taskId) => taskStatusFor(state, taskId).kind !== "settled"
-  );
-  if (pendingDependencies.length > 0) {
-    return Object.freeze({ kind: "depends-on-pending", taskIds: sorted(pendingDependencies) });
+  taskSlot: number
+): PendingBlockerStage | undefined {
+  const selection = state.selection;
+  if (numberFor(selection.pendingDependencies, taskSlot) > 0) return "depends-on-pending";
+  if (numberFor(selection.pendingObservations, taskSlot) > 0) return "observes-pending";
+  return numberFor(selection.heldMutexBlockers, taskSlot) > 0 ? "mutex-held" : undefined;
+}
+
+/** Public catalog/validation/select rejection payloads retain declared duplicates and lexical order. */
+function blockerPayloadFor(
+  state: AdmissionCoreState,
+  taskSlot: number,
+  stage: PendingBlockerStage
+): AdmissionSelectionRejectionReason {
+  const task = requiredTask(state, taskSlot);
+  if (stage === "depends-on-pending") {
+    const pendingDependencies = task.dependsOn.filter((taskId) => {
+      const dependencySlot = requiredTaskSlot(state, taskId);
+      return statusFor(state, dependencySlot).kind !== "settled";
+    });
+    return Object.freeze({ kind: stage, taskIds: sorted(pendingDependencies) });
   }
-  const pendingObservations = task.observes.filter(
-    (taskId) => taskStatusFor(state, taskId).kind !== "settled"
-  );
-  if (pendingObservations.length > 0) {
-    return Object.freeze({ kind: "observes-pending", taskIds: sorted(pendingObservations) });
+  if (stage === "observes-pending") {
+    const pendingObservations = task.observes.filter((taskId) => {
+      const observationSlot = requiredTaskSlot(state, taskId);
+      return statusFor(state, observationSlot).kind !== "settled";
+    });
+    return Object.freeze({ kind: stage, taskIds: sorted(pendingObservations) });
   }
   const heldMutexes = task.mutex.filter((mutexId) => isMutexHeld(state, mutexId));
-  return heldMutexes.length === 0
-    ? undefined
-    : Object.freeze({ kind: "mutex-held", mutexIds: sorted(heldMutexes) });
+  return Object.freeze({ kind: stage, mutexIds: sorted(heldMutexes) });
+}
+
+/** Shared payload-free selection predicate for candidates and inspection next-boundary. */
+function isAdmissionEligibleForPendingTask(state: AdmissionCoreState, taskSlot: number): boolean {
+  return (
+    blockerStageFor(state, taskSlot) === undefined && hasCapacityForPendingTask(state, taskSlot)
+  );
+}
+
+function hasCapacityForPendingTask(state: AdmissionCoreState, taskSlot: number): boolean {
+  const selection = state.selection;
+  return (
+    scopeCapacityBlockerFor(state, taskSlot, selection.runningTotal) === undefined &&
+    selection.runningTotal < state.compiled.maxParallel
+  );
 }
 
 function capacityRejectionFor(
   state: AdmissionCoreState,
-  task: PlannedTask
+  taskSlot: number
 ): AdmissionSelectionRejectionReason | undefined {
-  const running = runningCount(state);
-  const scope = scopeCapacityBlockerFor(state, task, running);
+  const selection = state.selection;
+  const running = selection.runningTotal;
+  const scope = scopeCapacityBlockerFor(state, taskSlot, running);
   if (scope !== undefined) {
     return Object.freeze({
       kind: "scope-capacity-reached",
@@ -607,26 +647,39 @@ function capacityRejectionFor(
     : undefined;
 }
 
+/**
+ * Scope capacity deliberately compares every candidate with global runningTotal.
+ * The sorted active-scope root makes the steady-state query O(1), while an
+ * activating candidate participates as one additional exact scope fact.
+ */
 function scopeCapacityBlockerFor(
   state: AdmissionCoreState,
-  task: PlannedTask,
+  taskSlot: number,
   running: number
 ): PlannedTaskGraph["scopes"][number] | undefined {
-  const scopes = activeScopesFor(state);
-  const taskScope =
-    task.scopeId === undefined ? undefined : state.compiled.scopesById.get(task.scopeId);
+  const selection = state.selection;
+  let selectedScopeSlot: number | undefined = selection.activeScopeSlots[0];
   if (
-    taskScope !== undefined &&
-    isScopeInactive(state, taskScope.id) &&
-    taskScope.activationTaskIds.includes(task.id)
+    selectedScopeSlot !== undefined &&
+    requiredScope(state, selectedScopeSlot).maxParallel > running
   ) {
-    scopes.push(taskScope);
+    selectedScopeSlot = undefined;
   }
-  return scopes
-    .filter((scope) => running >= scope.maxParallel)
-    .sort(
-      (left, right) => left.maxParallel - right.maxParallel || compareText(left.id, right.id)
-    )[0];
+  const taskScopeSlot = state.compiled.taskScopeSlots[taskSlot];
+  if (
+    taskScopeSlot !== undefined &&
+    isScopeInactive(state, taskScopeSlot) &&
+    state.compiled.taskActivatesScope[taskSlot] === true &&
+    requiredScope(state, taskScopeSlot).maxParallel <= running
+  ) {
+    if (
+      selectedScopeSlot === undefined ||
+      compareScopeCapacity(state, taskScopeSlot, selectedScopeSlot) < 0
+    ) {
+      selectedScopeSlot = taskScopeSlot;
+    }
+  }
+  return selectedScopeSlot === undefined ? undefined : requiredScope(state, selectedScopeSlot);
 }
 
 function reconcileForcedBlocks(
@@ -638,164 +691,499 @@ function reconcileForcedBlocks(
   const effects = [...initialEffects];
   const effectStates = [...initialEffectStates];
   while (true) {
-    const blocked = forcedBlockedTaskFor(next);
-    if (blocked === undefined) return freezeTransition(next, effects, effectStates);
+    const forcedTaskSlot = nextForcedTask(next);
+    if (forcedTaskSlot === undefined) return freezeTransition(next, effects, effectStates);
+    const task = requiredTask(next, forcedTaskSlot);
+    const dependencyIds = task.dependsOn.filter((taskId) => {
+      const status = statusFor(next, requiredTaskSlot(next, taskId));
+      return status.kind === "settled" && status.settlementKind !== "completed";
+    });
     next = withTaskStatus(
-      next,
-      blocked.task.id,
+      withoutForcedTask(next),
+      forcedTaskSlot,
       Object.freeze({ kind: "settled", settlementKind: "blocked" })
     );
     effects.push(
       Object.freeze({
-        dependencyIds: Object.freeze([...blocked.dependencyIds]),
+        dependencyIds: Object.freeze(dependencyIds),
         kind: "settled",
         settlementKind: "blocked",
-        taskId: blocked.task.id
+        taskId: task.id
       })
     );
     effectStates.push(next);
   }
 }
 
-function forcedBlockedTaskFor(
-  state: AdmissionCoreState
-): Readonly<{ readonly dependencyIds: readonly string[]; readonly task: PlannedTask }> | undefined {
-  for (let index = state.compiled.graph.tasks.length - 1; index >= 0; index -= 1) {
-    const task = state.compiled.graph.tasks[index];
-    if (task === undefined || taskStatusFor(state, task.id).kind !== "pending") continue;
-    const settlements = task.dependsOn.map(
-      (taskId) => [taskId, taskStatusFor(state, taskId)] as const
-    );
-    if (settlements.some(([, status]) => status.kind !== "settled")) continue;
-    const dependencyIds = settlements.flatMap(([taskId, status]) =>
-      status.kind === "settled" && status.settlementKind !== "completed" ? [taskId] : []
-    );
-    if (dependencyIds.length > 0)
-      return Object.freeze({ dependencyIds: Object.freeze(dependencyIds), task });
-  }
-  return undefined;
+/** The leftist root is always the greatest declared task slot, without re-sorting a frontier. */
+function nextForcedTask(state: AdmissionCoreState): number | undefined {
+  return state.selection.forcedQueue?.taskSlot;
+}
+
+function withoutForcedTask(state: AdmissionCoreState): AdmissionCoreState {
+  const selection = state.selection;
+  const root = selection.forcedQueue;
+  if (root === undefined) return state;
+  return freezeCoreState(
+    state.compiled,
+    freezeSelectionIndex({
+      ...selection,
+      forcedQueue: mergeForcedTaskQueues(root.left, root.right)
+    })
+  );
 }
 
 function activeScopesFor(state: AdmissionCoreState): PlannedTaskGraph["scopes"][number][] {
-  return state.compiled.graph.scopes.filter(
-    (scope) => scopeLifecycleFor(state, scope.id) === "active"
-  );
+  return state.selection.activeScopeSlots.map((slot) => requiredScope(state, slot));
 }
 
 function scopeLifecycleFor(
   state: AdmissionCoreState,
-  scopeId: string
+  scopeSlot: number
 ): "inactive" | "active" | "closed" {
-  const scope = state.compiled.scopesById.get(scopeId);
-  if (scope === undefined) throw new Error(`admission core scope is unknown: ${scopeId}`);
-  if (taskStatusFor(state, scope.terminalTaskId).kind === "settled") return "closed";
-  return scopeWasActivated(state, scope.id) ? "active" : "inactive";
+  const scope = requiredScope(state, scopeSlot);
+  if (statusFor(state, requiredTaskSlot(state, scope.terminalTaskId)).kind === "settled")
+    return "closed";
+  return numberFor(state.selection.activeScopes, scopeSlot) > 0 ? "active" : "inactive";
 }
 
-function scopeWasActivated(state: AdmissionCoreState, scopeId: string): boolean {
-  if (state.legacyActiveScopeIds?.includes(scopeId) === true) return true;
-  for (
-    let node: AdmissionCoreNode | undefined = state.node;
-    node !== undefined;
-    node = node.parent
-  ) {
-    if (node.activatedScopeId === scopeId) return true;
-  }
-  return false;
-}
-
-function isScopeInactive(state: AdmissionCoreState, scopeId: string): boolean {
-  return scopeLifecycleFor(state, scopeId) === "inactive";
+function isScopeInactive(state: AdmissionCoreState, scopeSlot: number): boolean {
+  return scopeLifecycleFor(state, scopeSlot) === "inactive";
 }
 
 function effectiveMaxParallelFor(state: AdmissionCoreState): number {
-  return activeScopesFor(state).reduce(
-    (effective, scope) => Math.min(effective, scope.maxParallel),
-    state.compiled.maxParallel
-  );
+  const selection = state.selection;
+  const constrainedScope = selection.activeScopeSlots[0];
+  return constrainedScope === undefined
+    ? state.compiled.maxParallel
+    : Math.min(state.compiled.maxParallel, requiredScope(state, constrainedScope).maxParallel);
 }
 
 function isMutexHeld(state: AdmissionCoreState, mutexId: string): boolean {
-  if (state.legacyRunningMutexes?.includes(mutexId) === true) return true;
-  return state.compiled.graph.tasks.some(
-    (task) => task.mutex.includes(mutexId) && taskStatusFor(state, task.id).kind === "running"
-  );
-}
-
-function runningCount(state: AdmissionCoreState): number {
-  return state.compiled.graph.tasks.filter(
-    (task) => taskStatusFor(state, task.id).kind === "running"
-  ).length;
+  const selection = state.selection;
+  if (selection.legacyRunningMutexes?.includes(mutexId) === true) return true;
+  const mutexSlot = state.compiled.mutexSlotById.get(mutexId);
+  return mutexSlot !== undefined && numberFor(selection.mutexHolders, mutexSlot) > 0;
 }
 
 function isCoreComplete(state: AdmissionCoreState): boolean {
-  return state.compiled.graph.tasks.every((task) => {
-    const status = taskStatusFor(state, task.id);
-    return status.kind !== "pending" && status.kind !== "running";
-  });
+  return state.selection.remainingTaskCount === 0;
 }
 
-function taskStatusFor(state: AdmissionCoreState, taskId: string): CoreTaskStatus {
-  for (
-    let node: AdmissionCoreNode | undefined = state.node;
-    node !== undefined;
-    node = node.parent
-  ) {
-    if (node.changedTaskId === taskId && node.changedStatus !== undefined)
-      return node.changedStatus;
-  }
-  return PENDING;
+function statusFor(state: AdmissionCoreState, taskSlot: number): CoreTaskStatus {
+  return statusForSelection(state.selection, taskSlot);
 }
 
 function withTaskStatus(
   state: AdmissionCoreState,
-  taskId: string,
+  taskSlot: number,
   status: CoreTaskStatus
 ): AdmissionCoreState {
   return freezeCoreState(
     state.compiled,
-    createNode(state.node, taskId, status, undefined),
-    state.legacyActiveScopeIds,
-    state.legacyRunningMutexes
+    transitionSelection(state.compiled, state.selection, taskSlot, status, undefined)
   );
 }
 
 function withSelectedTaskStatus(
   state: AdmissionCoreState,
-  taskId: string,
+  taskSlot: number,
   status: CoreTaskStatus
 ): AdmissionCoreState {
+  const scopeSlot = state.compiled.taskScopeSlots[taskSlot];
+  const activatedScopeSlot =
+    scopeSlot !== undefined &&
+    isScopeInactive(state, scopeSlot) &&
+    state.compiled.taskActivatesScope[taskSlot] === true
+      ? scopeSlot
+      : undefined;
   return freezeCoreState(
     state.compiled,
-    createNode(state.node, taskId, status, scopeToActivateForCore(state, taskId) ?? undefined),
-    state.legacyActiveScopeIds,
-    state.legacyRunningMutexes
+    transitionSelection(state.compiled, state.selection, taskSlot, status, activatedScopeSlot)
   );
 }
 
-function createNode(
-  parent: AdmissionCoreNode | undefined,
-  changedTaskId: string | undefined,
-  changedStatus: CoreTaskStatus | undefined,
-  activatedScopeId: string | undefined
-): AdmissionCoreNode {
-  return Object.freeze({ activatedScopeId, changedStatus, changedTaskId, parent });
+function initialSelectionFor(compiled: CompiledAdmissionGraph): AdmissionSelectionIndex {
+  return selectionForSeed(
+    compiled,
+    compiled.graph.tasks.map(() => PENDING),
+    undefined,
+    undefined
+  );
+}
+
+function selectionForSeed(
+  compiled: CompiledAdmissionGraph,
+  statuses: readonly CoreTaskStatus[],
+  activeScopeIds: readonly string[] | undefined,
+  legacyRunningMutexes: readonly string[] | undefined
+): AdmissionSelectionIndex {
+  const activeScopeSlots = activeScopeIds
+    ?.map((scopeId) => compiled.scopeSlotById.get(scopeId))
+    .filter((slot): slot is number => slot !== undefined);
+  return buildSemanticSelection(
+    compiled,
+    persistentStatuses(statuses),
+    activeScopeSlots,
+    legacyRunningMutexes
+  );
+}
+
+function transitionSelection(
+  compiled: CompiledAdmissionGraph,
+  selection: AdmissionSelectionIndex,
+  taskSlot: number,
+  status: CoreTaskStatus,
+  activatedScopeSlot: number | undefined
+): AdmissionSelectionIndex {
+  return transitionIndexedSelection(compiled, selection, taskSlot, status, activatedScopeSlot);
+}
+
+/** Dense task IDs, persistent indexed updates, and reverse-neighbor counter deltas. */
+function transitionIndexedSelection(
+  compiled: CompiledAdmissionGraph,
+  selection: AdmissionSelectionIndex,
+  taskSlot: number,
+  status: CoreTaskStatus,
+  activatedScopeSlot: number | undefined
+): AdmissionSelectionIndex {
+  const previous = statusForSelection(selection, taskSlot);
+  const statuses = withStatusAt(selection.statuses, taskSlot, status);
+  let runningTotal = selection.runningTotal;
+  let remainingTaskCount = selection.remainingTaskCount;
+  let mutexHolders = selection.mutexHolders;
+  let heldMutexBlockers = selection.heldMutexBlockers;
+  if (previous.kind === "pending" && status.kind === "running") {
+    runningTotal += 1;
+    mutexHolders = withNumberDeltas(
+      mutexHolders,
+      compiled.taskMutexSlots[taskSlot].map((mutexSlot) => [mutexSlot, 1] as const)
+    );
+    heldMutexBlockers = withNumberDeltas(
+      heldMutexBlockers,
+      mutexBlockerDeltasFor(compiled, taskSlot, 1)
+    );
+  }
+  if (previous.kind === "running" && status.kind === "settled") {
+    runningTotal -= 1;
+    remainingTaskCount -= 1;
+    mutexHolders = withNumberDeltas(
+      mutexHolders,
+      compiled.taskMutexSlots[taskSlot].map((mutexSlot) => [mutexSlot, -1] as const)
+    );
+    heldMutexBlockers = withNumberDeltas(
+      heldMutexBlockers,
+      mutexBlockerDeltasFor(compiled, taskSlot, -1)
+    );
+  }
+  if (previous.kind === "pending" && status.kind === "settled") remainingTaskCount -= 1;
+
+  let pendingDependencies = selection.pendingDependencies;
+  let nonCompletedDependencies = selection.nonCompletedDependencies;
+  let pendingObservations = selection.pendingObservations;
+  let forcedQueue = selection.forcedQueue;
+  if (previous.kind !== "settled" && status.kind === "settled") {
+    const dependencyDeltas = compiled.relationIndexes.reverseDependencies[taskSlot].map(
+      (dependentSlot) => [dependentSlot, -1] as const
+    );
+    pendingDependencies = withNumberDeltas(pendingDependencies, dependencyDeltas);
+    if (status.settlementKind !== "completed") {
+      nonCompletedDependencies = withNumberDeltas(
+        nonCompletedDependencies,
+        compiled.relationIndexes.reverseDependencies[taskSlot].map(
+          (dependentSlot) => [dependentSlot, 1] as const
+        )
+      );
+    }
+    pendingObservations = withNumberDeltas(
+      pendingObservations,
+      compiled.relationIndexes.reverseObservations[taskSlot].map(
+        (observerSlot) => [observerSlot, -1] as const
+      )
+    );
+    const readyForced = new Set<number>();
+    for (const dependentSlot of compiled.relationIndexes.reverseDependencies[taskSlot]) {
+      if (
+        statusForStore(statuses, dependentSlot).kind === "pending" &&
+        numberFor(pendingDependencies, dependentSlot) === 0 &&
+        numberFor(nonCompletedDependencies, dependentSlot) > 0
+      ) {
+        readyForced.add(dependentSlot);
+      }
+    }
+    forcedQueue = enqueueForcedTaskSlots(forcedQueue, readyForced);
+  }
+  let activeScopes = selection.activeScopes;
+  let activeScopeSlots = selection.activeScopeSlots;
+  if (activatedScopeSlot !== undefined && numberFor(activeScopes, activatedScopeSlot) === 0) {
+    activeScopes = withNumberDeltas(activeScopes, [[activatedScopeSlot, 1]]);
+    activeScopeSlots = insertActiveScopeSlot(compiled, activeScopeSlots, activatedScopeSlot);
+  }
+  if (previous.kind !== "settled" && status.kind === "settled") {
+    for (const scopeSlot of compiled.scopeSlotsByTerminalTaskSlot[taskSlot]) {
+      activeScopeSlots = Object.freeze(
+        activeScopeSlots.filter((candidate) => candidate !== scopeSlot)
+      );
+    }
+  }
+  return freezeSelectionIndex({
+    activeScopeSlots,
+    activeScopes,
+    forcedQueue,
+    legacyRunningMutexes: selection.legacyRunningMutexes,
+    mutexHolders,
+    heldMutexBlockers,
+    nonCompletedDependencies,
+    pendingDependencies,
+    pendingObservations,
+    remainingTaskCount,
+    runningTotal,
+    statuses
+  });
+}
+
+function buildSemanticSelection(
+  compiled: CompiledAdmissionGraph,
+  statuses: StatusStore,
+  initialActiveScopeSlots: readonly number[] | undefined,
+  legacyRunningMutexes: readonly string[] | undefined
+): AdmissionSelectionIndex {
+  const pendingDependencies: number[] = [];
+  const nonCompletedDependencies: number[] = [];
+  const pendingObservations: number[] = [];
+  const mutexHolders = Array.from({ length: compiled.mutexSlotById.size }, () => 0);
+  const heldMutexBlockers = compiled.graph.tasks.map(() => 0);
+  const activeScopes = Array.from({ length: compiled.graph.scopes.length }, () => 0);
+  for (const scopeSlot of initialActiveScopeSlots ?? []) activeScopes[scopeSlot] = 1;
+  let remainingTaskCount = 0;
+  let runningTotal = 0;
+  for (const [taskSlot, task] of compiled.graph.tasks.entries()) {
+    const status = statusForStore(statuses, taskSlot);
+    if (status.kind === "pending" || status.kind === "running") remainingTaskCount += 1;
+    if (status.kind === "running") {
+      runningTotal += 1;
+      for (const mutexSlot of compiled.taskMutexSlots[taskSlot]) mutexHolders[mutexSlot] += 1;
+    }
+    let pendingDependencyCount = 0;
+    let nonCompletedDependencyCount = 0;
+    for (const dependencyId of task.dependsOn) {
+      const dependency = statusForStore(
+        statuses,
+        requiredTaskSlotForCompiled(compiled, dependencyId)
+      );
+      if (dependency.kind !== "settled") pendingDependencyCount += 1;
+      else if (dependency.settlementKind !== "completed") nonCompletedDependencyCount += 1;
+    }
+    pendingDependencies.push(pendingDependencyCount);
+    nonCompletedDependencies.push(nonCompletedDependencyCount);
+    let pendingObservationCount = 0;
+    for (const observationId of task.observes) {
+      if (
+        statusForStore(statuses, requiredTaskSlotForCompiled(compiled, observationId)).kind !==
+        "settled"
+      ) {
+        pendingObservationCount += 1;
+      }
+    }
+    pendingObservations.push(pendingObservationCount);
+  }
+  const legacyHeldMutexes = new Set(legacyRunningMutexes);
+  for (const [taskSlot, task] of compiled.graph.tasks.entries()) {
+    for (const [mutexOccurrence, mutexSlot] of compiled.taskMutexSlots[taskSlot].entries()) {
+      // Dynamic holder occurrences and legacy snapshot mutexes are separate additive sources.
+      heldMutexBlockers[taskSlot] += mutexHolders[mutexSlot];
+      if (legacyHeldMutexes.has(task.mutex[mutexOccurrence])) heldMutexBlockers[taskSlot] += 1;
+    }
+  }
+  const activeScopeSlots = sortedActiveScopeSlots(
+    compiled,
+    activeScopes
+      .map((active, scopeSlot) => (active > 0 ? scopeSlot : undefined))
+      .filter((scopeSlot): scopeSlot is number => scopeSlot !== undefined)
+      .filter(
+        (scopeSlot) =>
+          statusForStore(
+            statuses,
+            requiredTaskSlotForCompiled(
+              compiled,
+              requiredScopeForCompiled(compiled, scopeSlot).terminalTaskId
+            )
+          ).kind !== "settled"
+      )
+  );
+  const forcedQueue = forcedQueueFromTaskSlots(
+    compiled.graph.tasks
+      .map((_, taskSlot) => taskSlot)
+      .filter(
+        (taskSlot) =>
+          statusForStore(statuses, taskSlot).kind === "pending" &&
+          pendingDependencies[taskSlot] === 0 &&
+          (nonCompletedDependencies[taskSlot] ?? 0) > 0
+      )
+  );
+  return freezeSelectionIndex({
+    activeScopeSlots,
+    activeScopes: persistentNumbersFor(activeScopes),
+    forcedQueue,
+    legacyRunningMutexes:
+      legacyRunningMutexes === undefined ? undefined : Object.freeze([...legacyRunningMutexes]),
+    mutexHolders: persistentNumbersFor(mutexHolders),
+    heldMutexBlockers: persistentNumbersFor(heldMutexBlockers),
+    nonCompletedDependencies: persistentNumbersFor(nonCompletedDependencies),
+    pendingDependencies: persistentNumbersFor(pendingDependencies),
+    pendingObservations: persistentNumbersFor(pendingObservations),
+    remainingTaskCount,
+    runningTotal,
+    statuses
+  });
+}
+
+function insertActiveScopeSlot(
+  compiled: CompiledAdmissionGraph,
+  slots: readonly number[],
+  next: number
+): readonly number[] {
+  if (slots.includes(next)) return slots;
+  return Object.freeze(sortedActiveScopeSlots(compiled, [...slots, next]));
+}
+
+function sortedActiveScopeSlots(
+  compiled: CompiledAdmissionGraph,
+  slots: readonly number[]
+): readonly number[] {
+  return Object.freeze(
+    [...slots].sort((left, right) => compareScopeCapacityForCompiled(compiled, left, right))
+  );
+}
+
+function compareScopeCapacity(state: AdmissionCoreState, left: number, right: number): number {
+  return compareScopeCapacityForCompiled(state.compiled, left, right);
+}
+
+function compareScopeCapacityForCompiled(
+  compiled: CompiledAdmissionGraph,
+  left: number,
+  right: number
+): number {
+  const leftScope = requiredScopeForCompiled(compiled, left);
+  const rightScope = requiredScopeForCompiled(compiled, right);
+  return leftScope.maxParallel - rightScope.maxParallel || compareText(leftScope.id, rightScope.id);
+}
+
+function forcedQueueRank(queue: ForcedTaskQueue): number {
+  return queue?.rank ?? 0;
+}
+
+/** Merges by task slot; only the right spine is copied and retained branches stay shared. */
+function mergeForcedTaskQueues(left: ForcedTaskQueue, right: ForcedTaskQueue): ForcedTaskQueue {
+  if (left === undefined) return right;
+  if (right === undefined) return left;
+  if (left.taskSlot < right.taskSlot) return mergeForcedTaskQueues(right, left);
+  const mergedRight = mergeForcedTaskQueues(left.right, right);
+  const nextLeft =
+    forcedQueueRank(left.left) >= forcedQueueRank(mergedRight) ? left.left : mergedRight;
+  const nextRight = nextLeft === left.left ? mergedRight : left.left;
+  return Object.freeze({
+    left: nextLeft,
+    rank: forcedQueueRank(nextRight) + 1,
+    right: nextRight,
+    taskSlot: left.taskSlot
+  });
+}
+
+function forcedQueueWithTask(queue: ForcedTaskQueue, taskSlot: number): ForcedTaskQueue {
+  return mergeForcedTaskQueues(
+    queue,
+    Object.freeze({ left: undefined, rank: 1, right: undefined, taskSlot })
+  );
+}
+
+function forcedQueueFromTaskSlots(taskSlots: readonly number[]): ForcedTaskQueue {
+  let queue: ForcedTaskQueue;
+  for (const taskSlot of taskSlots) queue = forcedQueueWithTask(queue, taskSlot);
+  return queue;
+}
+
+/** Additions are newly-ready reverse dependents, so no extant frontier is copied or sorted. */
+function enqueueForcedTaskSlots(
+  existing: ForcedTaskQueue,
+  additions: ReadonlySet<number>
+): ForcedTaskQueue {
+  let queue = existing;
+  for (const taskSlot of additions) queue = forcedQueueWithTask(queue, taskSlot);
+  return queue;
+}
+
+function persistentStatuses(values: readonly CoreTaskStatus[]): StatusStore {
+  return Object.freeze({ values: List(values) });
+}
+
+function persistentNumbersFor(values: readonly number[]): NumberStore {
+  return Object.freeze({ values: List(values) });
+}
+
+function statusForSelection(selection: AdmissionSelectionIndex, taskSlot: number): CoreTaskStatus {
+  return statusForStore(selection.statuses, taskSlot);
+}
+
+function statusForStore(store: StatusStore, taskSlot: number): CoreTaskStatus {
+  const value = store.values.get(taskSlot);
+  if (value === undefined) throw new Error(`admission core task slot is unknown: ${taskSlot}`);
+  return value;
+}
+
+function withStatusAt(store: StatusStore, taskSlot: number, value: CoreTaskStatus): StatusStore {
+  if (taskSlot < 0 || taskSlot >= store.values.size)
+    throw new Error(`admission core task slot is unknown: ${taskSlot}`);
+  return Object.freeze({ values: store.values.set(taskSlot, value) });
+}
+
+function numberFor(store: NumberStore, slot: number): number {
+  const value = store.values.get(slot);
+  if (value === undefined) throw new Error(`admission core index slot is unknown: ${slot}`);
+  return value;
+}
+
+function withNumberDeltas(
+  store: NumberStore,
+  deltas: readonly (readonly [number, number])[]
+): NumberStore {
+  if (deltas.length === 0) return store;
+  const aggregated = new Map<number, number>();
+  for (const [slot, delta] of deltas) aggregated.set(slot, (aggregated.get(slot) ?? 0) + delta);
+  let values = store.values;
+  for (const [slot, delta] of aggregated) {
+    const current = values.get(slot);
+    if (current === undefined) throw new Error(`admission core index slot is unknown: ${slot}`);
+    values = values.set(slot, current + delta);
+  }
+  return Object.freeze({ values });
+}
+
+function mutexBlockerDeltasFor(
+  compiled: CompiledAdmissionGraph,
+  taskSlot: number,
+  delta: 1 | -1
+): readonly (readonly [number, number])[] {
+  const deltas: [number, number][] = [];
+  for (const mutexSlot of compiled.taskMutexSlots[taskSlot]) {
+    for (const blockedTaskSlot of compiled.relationIndexes.reverseMutexOccurrences[mutexSlot] ??
+      []) {
+      deltas.push([blockedTaskSlot, delta]);
+    }
+  }
+  return deltas;
 }
 
 function freezeCoreState(
   compiled: CompiledAdmissionGraph,
-  node: AdmissionCoreNode,
-  legacyActiveScopeIds?: readonly string[],
-  legacyRunningMutexes?: readonly string[]
+  selection: AdmissionSelectionIndex
 ): AdmissionCoreState {
-  return Object.freeze({
-    compiled,
-    legacyActiveScopeIds:
-      legacyActiveScopeIds === undefined ? undefined : Object.freeze([...legacyActiveScopeIds]),
-    legacyRunningMutexes:
-      legacyRunningMutexes === undefined ? undefined : Object.freeze([...legacyRunningMutexes]),
-    node
-  });
+  return Object.freeze({ compiled, selection });
+}
+
+function freezeSelectionIndex(selection: AdmissionSelectionIndex): AdmissionSelectionIndex {
+  return Object.freeze(selection);
 }
 
 function freezeTransition(
@@ -834,10 +1222,46 @@ function publicOutcomeForSettlement(
   }
 }
 
-function requiredTask(state: AdmissionCoreState, taskId: string): PlannedTask {
-  const task = state.compiled.taskById.get(taskId);
-  if (task === undefined) throw new Error(`admission core task is unknown: ${taskId}`);
+function requiredTask(state: AdmissionCoreState, taskSlot: number): PlannedTask {
+  return requiredTaskForCompiled(state.compiled, taskSlot);
+}
+
+function requiredTaskForCompiled(compiled: CompiledAdmissionGraph, taskSlot: number): PlannedTask {
+  const task = compiled.graph.tasks[taskSlot];
+  if (task === undefined) throw new Error(`admission core task slot is unknown: ${taskSlot}`);
   return task;
+}
+
+function requiredTaskSlot(state: AdmissionCoreState, taskId: string): number {
+  return requiredTaskSlotForCompiled(state.compiled, taskId);
+}
+
+function requiredTaskSlotForCompiled(compiled: CompiledAdmissionGraph, taskId: string): number {
+  const taskSlot = compiled.taskSlotsById.get(taskId);
+  if (taskSlot === undefined) throw new Error(`admission core task is unknown: ${taskId}`);
+  return taskSlot;
+}
+
+function requiredScope(
+  state: AdmissionCoreState,
+  scopeSlot: number
+): PlannedTaskGraph["scopes"][number] {
+  return requiredScopeForCompiled(state.compiled, scopeSlot);
+}
+
+function requiredScopeForCompiled(
+  compiled: CompiledAdmissionGraph,
+  scopeSlot: number
+): PlannedTaskGraph["scopes"][number] {
+  const scope = compiled.graph.scopes[scopeSlot];
+  if (scope === undefined) throw new Error(`admission core scope slot is unknown: ${scopeSlot}`);
+  return scope;
+}
+
+function requiredScopeSlot(state: AdmissionCoreState, scopeId: string): number {
+  const scopeSlot = state.compiled.scopeSlotById.get(scopeId);
+  if (scopeSlot === undefined) throw new Error(`admission core scope is unknown: ${scopeId}`);
+  return scopeSlot;
 }
 
 function sorted(values: readonly string[]): readonly string[] {

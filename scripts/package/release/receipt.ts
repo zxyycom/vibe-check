@@ -7,12 +7,11 @@ import { auditStagingRuntime } from "../artifact/staging-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import {
-  MOMOA_LICENSE_SHA256,
   PACKAGE_BUN_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
-  PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
@@ -196,7 +195,10 @@ function createFormalReleaseReceipt(input: {
         sha256: sha256File(join(input.artifact.stagingDirectory, PACKAGE_README_PATH))
       },
       repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-      thirdPartyLicenses: [{ path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 }]
+      thirdPartyLicenses: PACKAGE_THIRD_PARTY_LICENSES.map((license) => ({
+        path: license.path,
+        sha256: license.sha256
+      }))
     }
   });
 }

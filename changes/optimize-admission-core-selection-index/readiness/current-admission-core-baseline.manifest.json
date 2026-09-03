@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "purpose": "Before evidence for optimize-admission-core-selection-index. It measures the current shipped runtime only; it does not alter src/** or claim an after result.",
+  "purpose": "Selected immutable-list after evidence for optimize-admission-core-selection-index. It never overwrites the read-only before artifacts and reruns only the selected shipping implementation.",
   "command": "bun changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts",
-  "profileCommand": "bun --cpu-prof-md --cpu-prof-dir changes/optimize-admission-core-selection-index/readiness/profiles --cpu-prof-name current-admission-core.cpu.md changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts --profile",
-  "heapProfileCommand": "bun --heap-prof-md --heap-prof-dir changes/optimize-admission-core-selection-index/readiness/profiles --heap-prof-name current-admission-core.heap.md changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts --profile",
+  "profileCommand": "bun --cpu-prof-md --cpu-prof-dir changes/optimize-admission-core-selection-index/readiness/profiles --cpu-prof-name current-admission-core-immutable-list.cpu.md changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts --profile",
+  "heapProfileCommand": "bun --heap-prof-md --heap-prof-dir changes/optimize-admission-core-selection-index/readiness/profiles --heap-prof-name current-admission-core-immutable-list.heap-profile.txt changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts --profile",
   "seed": 20260903,
   "profile": {
     "warmupSamples": 2,
@@ -14,8 +14,12 @@
       "1024": 2,
       "4096": 1
     },
-    "depthTransitions": [0, 16, 48],
-    "profiledWorkload": "1024-task independent graph at 16 immutable transitions; 16 catalog and 16 Scheduler-candidate batches",
+    "depthTransitions": [
+      0,
+      16,
+      48
+    ],
+    "profiledWorkload": "1024-task independent graph at 16 immutable transitions; 16 catalog and 16 Scheduler-candidate batches on the selected immutable@5.1.9 List implementation",
     "scalingBoundary": "4096-task independent rows use D=0 only; high-fanout forced-block rows intentionally stop at T=256 (B=255) because current closure is the path under investigation. The attempted current-runtime T=4096,D=48 catalog/candidate cross-product exceeded the bounded measurement window before completion; the 64/256 rows retain D=0/16/48 and 1024 retains D=0/16."
   },
   "requiredCoverage": {
@@ -32,8 +36,19 @@
       "settle",
       "fork"
     ],
-    "taskCounts": [64, 256, 1024, 4096],
-    "topologies": ["independent", "layered", "mutex", "scope", "high-fanout"],
+    "taskCounts": [
+      64,
+      256,
+      1024,
+      4096
+    ],
+    "topologies": [
+      "independent",
+      "layered",
+      "mutex",
+      "scope",
+      "high-fanout"
+    ],
     "forcedBlockSettlement": true
   },
   "measurement": {
@@ -41,5 +56,43 @@
     "cpu": "process.cpuUsage() delta per batch, recorded as user/system milliseconds.",
     "heap": "process.memoryUsage().heapUsed delta around a batch without forced GC; a live-heap proxy, not allocation or retained-size evidence.",
     "cpuProfile": "Bun --cpu-prof-md sampling profile of the named representative current-runtime workload; percentages identify sampled CPU time, not deterministic attribution."
+  },
+  "beforeArtifacts": {
+    "baseline": "current-admission-core-baseline.raw.json",
+    "profile": "current-admission-core-profile.raw.json",
+    "status": "read-only; selected execution writes current-admission-core-immutable-list-* artifacts"
+  },
+  "selectedImplementation": {
+    "representation": "immutable-list",
+    "vector": "immutable@5.1.9 List",
+    "forcedFrontier": "project-owned persistent leftist max-heap",
+    "reverseIndexesAndCounters": "native frozen arrays, Map, Set, and immutable dense counter stores",
+    "representationOption": "none; --representation is rejected"
+  },
+  "comparisonScope": {
+    "sharedBeforeScenarioRows": 77,
+    "selectedOnlyScenarioRows": [
+      "independent-t256-legacy-seed-index",
+      "forced-cascade-t161-layered-forced-cascade-settle"
+    ],
+    "historicalCandidates": "parent-delta, chunked-cow and full-clone artifacts are formation evidence only; no candidate path remains runnable"
+  },
+  "heapProfileObservation": {
+    "rawArtifacts": "intentionally not retained; each Bun --heap-prof-md output is a process-wide snapshot with no admission-state attribution",
+    "historicChunkedCow": {
+      "totalHeapBytes": 10593593,
+      "totalObjects": 59232,
+      "totalEdges": 208250,
+      "gcRoots": 1748,
+      "topHierarchy": "GlobalObject, ModuleLoader and ModuleRecord/module runtime dominated the retained hierarchy"
+    },
+    "selectedImmutableList": {
+      "totalHeapBytes": 10928659,
+      "totalObjects": 61620,
+      "totalEdges": 217954,
+      "gcRoots": 1827,
+      "topHierarchy": "GlobalObject, ModuleLoader and ModuleRecord/module runtime dominated the retained hierarchy"
+    },
+    "boundary": "These totals are process-level observations only; they are not allocation, branch-retention, selection-index, or catalog-DTO measurements."
   }
 }

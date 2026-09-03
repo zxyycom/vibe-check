@@ -1,0 +1,4893 @@
+{
+  "command": "bun changes/optimize-admission-core-selection-index/readiness/current-admission-core-baseline.ts",
+  "coverage": {
+    "required": {
+      "realPaths": [
+        "real-static-unused-public-state",
+        "real-custom-unused-public-state",
+        "real-learned-unused-public-state"
+      ],
+      "operations": [
+        "scheduler-candidates",
+        "catalog",
+        "validate-selection",
+        "select",
+        "settle",
+        "fork"
+      ],
+      "taskCounts": [
+        64,
+        256,
+        1024,
+        4096
+      ],
+      "topologies": [
+        "independent",
+        "layered",
+        "mutex",
+        "scope",
+        "high-fanout"
+      ],
+      "forcedBlockSettlement": true
+    },
+    "scenarioIds": [
+      "real-mixed-real-static-unused-public-state",
+      "real-mixed-real-custom-unused-public-state",
+      "real-mixed-real-learned-unused-public-state",
+      "independent-t64-d0-scheduler-candidates",
+      "independent-t64-d0-catalog",
+      "independent-t64-d0-validate-selection",
+      "independent-t64-d0-select",
+      "independent-t64-d0-settle",
+      "independent-t64-d0-fork",
+      "independent-t64-d16-scheduler-candidates",
+      "independent-t64-d16-catalog",
+      "independent-t64-d16-validate-selection",
+      "independent-t64-d16-select",
+      "independent-t64-d16-settle",
+      "independent-t64-d16-fork",
+      "independent-t64-d48-scheduler-candidates",
+      "independent-t64-d48-catalog",
+      "independent-t64-d48-validate-selection",
+      "independent-t64-d48-select",
+      "independent-t64-d48-settle",
+      "independent-t64-d48-fork",
+      "high-fanout-t64-forced-block-settle",
+      "independent-t256-d0-scheduler-candidates",
+      "independent-t256-d0-catalog",
+      "independent-t256-d0-validate-selection",
+      "independent-t256-d0-select",
+      "independent-t256-d0-settle",
+      "independent-t256-d0-fork",
+      "independent-t256-d16-scheduler-candidates",
+      "independent-t256-d16-catalog",
+      "independent-t256-d16-validate-selection",
+      "independent-t256-d16-select",
+      "independent-t256-d16-settle",
+      "independent-t256-d16-fork",
+      "independent-t256-d48-scheduler-candidates",
+      "independent-t256-d48-catalog",
+      "independent-t256-d48-validate-selection",
+      "independent-t256-d48-select",
+      "independent-t256-d48-settle",
+      "independent-t256-d48-fork",
+      "high-fanout-t256-forced-block-settle",
+      "independent-t1024-d0-scheduler-candidates",
+      "independent-t1024-d0-catalog",
+      "independent-t1024-d0-validate-selection",
+      "independent-t1024-d0-select",
+      "independent-t1024-d0-settle",
+      "independent-t1024-d0-fork",
+      "independent-t1024-d16-scheduler-candidates",
+      "independent-t1024-d16-catalog",
+      "independent-t1024-d16-validate-selection",
+      "independent-t1024-d16-select",
+      "independent-t1024-d16-settle",
+      "independent-t1024-d16-fork",
+      "independent-t4096-d0-scheduler-candidates",
+      "independent-t4096-d0-catalog",
+      "independent-t4096-d0-validate-selection",
+      "independent-t4096-d0-select",
+      "independent-t4096-d0-settle",
+      "independent-t4096-d0-fork",
+      "layered-t256-d16-scheduler-candidates",
+      "layered-t256-d16-catalog",
+      "layered-t256-d16-validate-selection",
+      "layered-t256-d16-select",
+      "layered-t256-d16-settle",
+      "layered-t256-d16-fork",
+      "mutex-t256-d16-scheduler-candidates",
+      "mutex-t256-d16-catalog",
+      "mutex-t256-d16-validate-selection",
+      "mutex-t256-d16-select",
+      "mutex-t256-d16-settle",
+      "mutex-t256-d16-fork",
+      "scope-t256-d16-scheduler-candidates",
+      "scope-t256-d16-catalog",
+      "scope-t256-d16-validate-selection",
+      "scope-t256-d16-select",
+      "scope-t256-d16-settle",
+      "scope-t256-d16-fork",
+      "independent-t256-legacy-seed-index",
+      "forced-cascade-t161-layered-forced-cascade-settle"
+    ]
+  },
+  "environment": {
+    "bunVersion": "1.3.14",
+    "cpu": [
+      {
+        "times": {
+          "user": 8502720,
+          "nice": 660,
+          "sys": 6512780,
+          "idle": 193714280,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8892470,
+          "nice": 420,
+          "sys": 6325140,
+          "idle": 193705290,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8650210,
+          "nice": 3500,
+          "sys": 6554960,
+          "idle": 193542020,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8833840,
+          "nice": 730,
+          "sys": 6341860,
+          "idle": 193761150,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8685390,
+          "nice": 0,
+          "sys": 6547580,
+          "idle": 193546810,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      },
+      {
+        "times": {
+          "user": 8794420,
+          "nice": 3640,
+          "sys": 6328440,
+          "idle": 193804840,
+          "irq": 0
+        },
+        "model": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+        "speed": 0
+      }
+    ],
+    "os": {
+      "architecture": "x64",
+      "platform": "linux",
+      "release": "6.18.33.2-microsoft-standard-WSL2",
+      "totalMemoryBytes": 8327917568,
+      "type": "Linux"
+    }
+  },
+  "fixtureSeed": 20260903,
+  "generatedAt": "2026-09-03T13:32:27.200Z",
+  "representation": "parent-delta",
+  "retention": {
+    "bfs": {
+      "available": true,
+      "cacheOrIndexCreationCount": 65,
+      "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+      "retainedHeapBytes": -16377772,
+      "retainedStateCount": 65,
+      "traversal": "bfs"
+    },
+    "chunkedPathCopy": {
+      "available": false,
+      "reason": "path-copy shape applies only to the selected chunked-cow representation"
+    },
+    "gcMethod": "Bun.gc(true) before construction and after strong branch retention",
+    "dfs": {
+      "available": true,
+      "cacheOrIndexCreationCount": 65,
+      "indexLifetime": "all recorded indices/caches remained strongly reachable through post-retention Bun.gc(true)",
+      "retainedHeapBytes": 11157840,
+      "retainedStateCount": 65,
+      "traversal": "dfs"
+    }
+  },
+  "gitCommit": "14007b38f5e55aa81ab490eff7741596da34bcd1",
+  "measurement": {
+    "cpu": "process.cpuUsage() per batch",
+    "heap": "process.memoryUsage().heapUsed delta without forced GC; proxy only",
+    "mode": "baseline",
+    "representation": "parent-delta",
+    "warmupSamples": 2,
+    "measuredSamples": 5,
+    "wall": "performance.now() elapsed milliseconds per batch"
+  },
+  "scenarios": [
+    {
+      "depthTransitions": null,
+      "forcedBlockedCount": null,
+      "id": "real-mixed-real-static-unused-public-state",
+      "iterationsPerSample": 2,
+      "operation": "real-static-unused-public-state",
+      "samples": [
+        {
+          "cpuSystemMs": 174.769,
+          "cpuUserMs": 3895.144,
+          "heapDeltaBytes": 18912887,
+          "wallMs": 3940.623002999999
+        },
+        {
+          "cpuSystemMs": 251.444,
+          "cpuUserMs": 4028.813,
+          "heapDeltaBytes": -36951861,
+          "wallMs": 4043.873386000001
+        },
+        {
+          "cpuSystemMs": 200.759,
+          "cpuUserMs": 3993.12,
+          "heapDeltaBytes": 20791104,
+          "wallMs": 4016.996696000002
+        },
+        {
+          "cpuSystemMs": 256.94,
+          "cpuUserMs": 3898.705,
+          "heapDeltaBytes": -21088391,
+          "wallMs": 3980.5990040000033
+        },
+        {
+          "cpuSystemMs": 185.772,
+          "cpuUserMs": 4011.204,
+          "heapDeltaBytes": 20415660,
+          "wallMs": 4015.479084999999
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 200.759,
+          "p95": 256.94
+        },
+        "cpuUserMs": {
+          "p50": 3993.12,
+          "p95": 4028.813
+        },
+        "heapDeltaBytes": {
+          "p50": 18912887,
+          "p95": 20791104
+        },
+        "wallMs": {
+          "p50": 4015.479084999999,
+          "p95": 4043.873386000001
+        }
+      },
+      "taskCount": 96,
+      "topology": "real-mixed"
+    },
+    {
+      "depthTransitions": null,
+      "forcedBlockedCount": null,
+      "id": "real-mixed-real-custom-unused-public-state",
+      "iterationsPerSample": 2,
+      "operation": "real-custom-unused-public-state",
+      "samples": [
+        {
+          "cpuSystemMs": 297.552,
+          "cpuUserMs": 4150.435,
+          "heapDeltaBytes": -21017269,
+          "wallMs": 4240.185298999997
+        },
+        {
+          "cpuSystemMs": 250.765,
+          "cpuUserMs": 4261.043,
+          "heapDeltaBytes": 20918117,
+          "wallMs": 4321.629709000001
+        },
+        {
+          "cpuSystemMs": 270.998,
+          "cpuUserMs": 4480.248,
+          "heapDeltaBytes": -20819976,
+          "wallMs": 4929.191905
+        },
+        {
+          "cpuSystemMs": 157.713,
+          "cpuUserMs": 5536.258,
+          "heapDeltaBytes": -14028177,
+          "wallMs": 8947.542795000001
+        },
+        {
+          "cpuSystemMs": 290.221,
+          "cpuUserMs": 4861.849,
+          "heapDeltaBytes": 23846781,
+          "wallMs": 6337.565755999996
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 270.998,
+          "p95": 297.552
+        },
+        "cpuUserMs": {
+          "p50": 4480.248,
+          "p95": 5536.258
+        },
+        "heapDeltaBytes": {
+          "p50": -14028177,
+          "p95": 23846781
+        },
+        "wallMs": {
+          "p50": 4929.191905,
+          "p95": 8947.542795000001
+        }
+      },
+      "taskCount": 96,
+      "topology": "real-mixed"
+    },
+    {
+      "depthTransitions": null,
+      "forcedBlockedCount": null,
+      "id": "real-mixed-real-learned-unused-public-state",
+      "iterationsPerSample": 2,
+      "operation": "real-learned-unused-public-state",
+      "samples": [
+        {
+          "cpuSystemMs": 207.718,
+          "cpuUserMs": 3983.36,
+          "heapDeltaBytes": -20584369,
+          "wallMs": 4008.3950979999936
+        },
+        {
+          "cpuSystemMs": 250.999,
+          "cpuUserMs": 4094.033,
+          "heapDeltaBytes": -13881436,
+          "wallMs": 4159.197008999996
+        },
+        {
+          "cpuSystemMs": 258.889,
+          "cpuUserMs": 4200.15,
+          "heapDeltaBytes": 23378082,
+          "wallMs": 4233.79552900001
+        },
+        {
+          "cpuSystemMs": 256.534,
+          "cpuUserMs": 3889.463,
+          "heapDeltaBytes": -10240923,
+          "wallMs": 3953.6411459999945
+        },
+        {
+          "cpuSystemMs": 296.495,
+          "cpuUserMs": 4205.202,
+          "heapDeltaBytes": 20346203,
+          "wallMs": 4327.357178000006
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 256.534,
+          "p95": 296.495
+        },
+        "cpuUserMs": {
+          "p50": 4094.033,
+          "p95": 4205.202
+        },
+        "heapDeltaBytes": {
+          "p50": -10240923,
+          "p95": 23378082
+        },
+        "wallMs": {
+          "p50": 4159.197008999996,
+          "p95": 4327.357178000006
+        }
+      },
+      "taskCount": 96,
+      "topology": "real-mixed"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d0-scheduler-candidates",
+      "iterationsPerSample": 16,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.027,
+          "cpuUserMs": 0.428,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.3984690000070259
+        },
+        {
+          "cpuSystemMs": 0.02,
+          "cpuUserMs": 0.329,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.3390789999975823
+        },
+        {
+          "cpuSystemMs": 0.019,
+          "cpuUserMs": 0.305,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.3143639999907464
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.504,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.4921239999966929
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.399,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.3886309999943478
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.019,
+          "p95": 0.027
+        },
+        "cpuUserMs": {
+          "p50": 0.399,
+          "p95": 0.504
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.3886309999943478,
+          "p95": 0.4921239999966929
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d0-catalog",
+      "iterationsPerSample": 16,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.58,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.556112000005669
+        },
+        {
+          "cpuSystemMs": 0.005,
+          "cpuUserMs": 0.852,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5948650000063935
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 4.528,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6446859999996377
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.517,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.507502000007662
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 2.365,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5461139999970328
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.005
+        },
+        "cpuUserMs": {
+          "p50": 0.852,
+          "p95": 4.528
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.556112000005669,
+          "p95": 0.6446859999996377
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d0-validate-selection",
+      "iterationsPerSample": 16,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.056,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03594699999666773
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.014,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005048999999416992
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0019040000042878091
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.002003999994485639
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0017230000084964558
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.001
+        },
+        "cpuUserMs": {
+          "p50": 0.01,
+          "p95": 0.056
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.002003999994485639,
+          "p95": 0.03594699999666773
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d0-select",
+      "iterationsPerSample": 16,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0.01,
+          "cpuUserMs": 0.162,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.11625599999388214
+        },
+        {
+          "cpuSystemMs": 0.005,
+          "cpuUserMs": 0.069,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.06464000001142267
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.056,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05105399999592919
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.056,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.051265000001876615
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.05,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.044843000010587275
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.004,
+          "p95": 0.01
+        },
+        "cpuUserMs": {
+          "p50": 0.056,
+          "p95": 0.162
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.051265000001876615,
+          "p95": 0.11625599999388214
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d0-settle",
+      "iterationsPerSample": 16,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 4.142,
+          "cpuUserMs": 3.365,
+          "heapDeltaBytes": 563477,
+          "wallMs": 5.656981000007363
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 3.405,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.3918260000064038
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.5,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.48704199999338
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.25,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.236496999990777
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.277,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.2650009999924805
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 4.142
+        },
+        "cpuUserMs": {
+          "p50": 3.365,
+          "p95": 3.5
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 563477
+        },
+        "wallMs": {
+          "p50": 3.3918260000064038,
+          "p95": 5.656981000007363
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d0-fork",
+      "iterationsPerSample": 16,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.29,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.16610799999034498
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.055,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04619599999568891
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.054,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.046346000002813525
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.056,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04830900000524707
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.082,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.07474900000670459
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.056,
+          "p95": 0.29
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.04830900000524707,
+          "p95": 0.16610799999034498
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d16-scheduler-candidates",
+      "iterationsPerSample": 16,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.325,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.272385000003851
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.264,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.25604500000190455
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.297,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.2878950000012992
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.568,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.33747699999366887
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.331,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.31870200000412297
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.325,
+          "p95": 0.568
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.2878950000012992,
+          "p95": 0.33747699999366887
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d16-catalog",
+      "iterationsPerSample": 16,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.496,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.46924099999887403
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.447,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.43837299999722745
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.548,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5397620000003371
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.526,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5161080000107177
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.743,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.48458999999274965
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.526,
+          "p95": 1.743
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.48458999999274965,
+          "p95": 0.5397620000003371
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d16-validate-selection",
+      "iterationsPerSample": 16,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.012,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.002123999991454184
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0018529999942984432
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0019029999966733158
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0017629999929340556
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0017329999973298982
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.01,
+          "p95": 0.012
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0018529999942984432,
+          "p95": 0.002123999991454184
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d16-select",
+      "iterationsPerSample": 16,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.298,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.058477999991737306
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.058,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05036399999517016
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.056,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.047839000006206334
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.052,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.044292000005953014
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.045,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03643799999554176
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.056,
+          "p95": 0.298
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.047839000006206334,
+          "p95": 0.058477999991737306
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d16-settle",
+      "iterationsPerSample": 16,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 16.331,
+          "heapDeltaBytes": 0,
+          "wallMs": 16.275350000010803
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 18.279,
+          "heapDeltaBytes": 21408,
+          "wallMs": 17.177565000005416
+        },
+        {
+          "cpuSystemMs": 0.076,
+          "cpuUserMs": 18.475,
+          "heapDeltaBytes": 45651,
+          "wallMs": 17.380661000002874
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 18.889,
+          "heapDeltaBytes": 51987,
+          "wallMs": 18.137186000007205
+        },
+        {
+          "cpuSystemMs": 0.051,
+          "cpuUserMs": 17.838,
+          "heapDeltaBytes": 67539,
+          "wallMs": 17.18864599999506
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.002,
+          "p95": 0.076
+        },
+        "cpuUserMs": {
+          "p50": 18.279,
+          "p95": 18.889
+        },
+        "heapDeltaBytes": {
+          "p50": 45651,
+          "p95": 67539
+        },
+        "wallMs": {
+          "p50": 17.18864599999506,
+          "p95": 18.137186000007205
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d16-fork",
+      "iterationsPerSample": 16,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.069,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05449100000259932
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.057,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05229799999506213
+        },
+        {
+          "cpuSystemMs": 0.005,
+          "cpuUserMs": 0.072,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.06670399999711663
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.047,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04139699999359436
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.065,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0604520000051707
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.004,
+          "p95": 0.005
+        },
+        "cpuUserMs": {
+          "p50": 0.065,
+          "p95": 0.072
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.05449100000259932,
+          "p95": 0.06670399999711663
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d48-scheduler-candidates",
+      "iterationsPerSample": 16,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.041,
+          "cpuUserMs": 0.662,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.2715840000018943
+        },
+        {
+          "cpuSystemMs": 0.012,
+          "cpuUserMs": 0.199,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.1992900000041118
+        },
+        {
+          "cpuSystemMs": 0.011,
+          "cpuUserMs": 0.19,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.19315899998764507
+        },
+        {
+          "cpuSystemMs": 0.011,
+          "cpuUserMs": 0.173,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.17506500000308733
+        },
+        {
+          "cpuSystemMs": 0.01,
+          "cpuUserMs": 0.169,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.17129800000111572
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.011,
+          "p95": 0.041
+        },
+        "cpuUserMs": {
+          "p50": 0.19,
+          "p95": 0.662
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.19315899998764507,
+          "p95": 0.2715840000018943
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d48-catalog",
+      "iterationsPerSample": 16,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0.029,
+          "cpuUserMs": 0.467,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.4000030000024708
+        },
+        {
+          "cpuSystemMs": 0.019,
+          "cpuUserMs": 0.305,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.3145340000046417
+        },
+        {
+          "cpuSystemMs": 0.018,
+          "cpuUserMs": 0.292,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.30270200000086334
+        },
+        {
+          "cpuSystemMs": 0.024,
+          "cpuUserMs": 0.382,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.3961750000016764
+        },
+        {
+          "cpuSystemMs": 0.02,
+          "cpuUserMs": 0.325,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.33525200000440236
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.02,
+          "p95": 0.029
+        },
+        "cpuUserMs": {
+          "p50": 0.325,
+          "p95": 0.467
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.33525200000440236,
+          "p95": 0.4000030000024708
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d48-validate-selection",
+      "iterationsPerSample": 16,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0.044,
+          "cpuUserMs": 0.005,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02843199999188073
+        },
+        {
+          "cpuSystemMs": 0.012,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0034269999887328595
+        },
+        {
+          "cpuSystemMs": 0.078,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.016600999995716847
+        },
+        {
+          "cpuSystemMs": 0.009,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.001301999989664182
+        },
+        {
+          "cpuSystemMs": 0.009,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0013029999972786754
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.012,
+          "p95": 0.078
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0.005
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0034269999887328595,
+          "p95": 0.02843199999188073
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d48-select",
+      "iterationsPerSample": 16,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0.139,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.10011600000143517
+        },
+        {
+          "cpuSystemMs": 0.109,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.09861300000920892
+        },
+        {
+          "cpuSystemMs": 0.059,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05050399999890942
+        },
+        {
+          "cpuSystemMs": 0.053,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04542399999627378
+        },
+        {
+          "cpuSystemMs": 0.045,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03671800000302028
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.059,
+          "p95": 0.139
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.05050399999890942,
+          "p95": 0.10011600000143517
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d48-settle",
+      "iterationsPerSample": 16,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 16.16,
+          "cpuUserMs": 50.898,
+          "heapDeltaBytes": 105334,
+          "wallMs": 49.63822800001071
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 45.815,
+          "heapDeltaBytes": 112502,
+          "wallMs": 44.335846000001766
+        },
+        {
+          "cpuSystemMs": 11.743,
+          "cpuUserMs": 38.105,
+          "heapDeltaBytes": 107622,
+          "wallMs": 47.77478799999517
+        },
+        {
+          "cpuSystemMs": 0.288,
+          "cpuUserMs": 48.631,
+          "heapDeltaBytes": 110774,
+          "wallMs": 46.944359000000986
+        },
+        {
+          "cpuSystemMs": 0.079,
+          "cpuUserMs": 53.221,
+          "heapDeltaBytes": 104710,
+          "wallMs": 49.28986900000018
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.288,
+          "p95": 16.16
+        },
+        "cpuUserMs": {
+          "p50": 48.631,
+          "p95": 53.221
+        },
+        "heapDeltaBytes": {
+          "p50": 107622,
+          "p95": 112502
+        },
+        "wallMs": {
+          "p50": 47.77478799999517,
+          "p95": 49.63822800001071
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t64-d48-fork",
+      "iterationsPerSample": 16,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0.007,
+          "cpuUserMs": 0.119,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.1075589999963995
+        },
+        {
+          "cpuSystemMs": 0.014,
+          "cpuUserMs": 0.222,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.08131100000173319
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.047,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04183800000464544
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.051,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04526400000031572
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.046,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.040975999989314005
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.003,
+          "p95": 0.014
+        },
+        "cpuUserMs": {
+          "p50": 0.051,
+          "p95": 0.222
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.04526400000031572,
+          "p95": 0.1075589999963995
+        }
+      },
+      "taskCount": 64,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 2,
+      "forcedBlockedCount": 63,
+      "id": "high-fanout-t64-forced-block-settle",
+      "iterationsPerSample": 16,
+      "operation": "forced-block-settle",
+      "samples": [
+        {
+          "cpuSystemMs": 4.006,
+          "cpuUserMs": 20.163,
+          "heapDeltaBytes": 342052,
+          "wallMs": 20.056916999994428
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 27.038,
+          "heapDeltaBytes": 322520,
+          "wallMs": 20.803845999995247
+        },
+        {
+          "cpuSystemMs": 0.134,
+          "cpuUserMs": 19.038,
+          "heapDeltaBytes": 0,
+          "wallMs": 19.154583999988972
+        },
+        {
+          "cpuSystemMs": 3.88,
+          "cpuUserMs": 22.089,
+          "heapDeltaBytes": 319224,
+          "wallMs": 22.271810999998706
+        },
+        {
+          "cpuSystemMs": 3.899,
+          "cpuUserMs": 38.39,
+          "heapDeltaBytes": 313772,
+          "wallMs": 22.198034000000916
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 3.88,
+          "p95": 4.006
+        },
+        "cpuUserMs": {
+          "p50": 22.089,
+          "p95": 38.39
+        },
+        "heapDeltaBytes": {
+          "p50": 319224,
+          "p95": 342052
+        },
+        "wallMs": {
+          "p50": 20.803845999995247,
+          "p95": 22.271810999998706
+        }
+      },
+      "taskCount": 64,
+      "topology": "high-fanout"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d0-scheduler-candidates",
+      "iterationsPerSample": 8,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.04,
+          "cpuUserMs": 0.655,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6349990000016987
+        },
+        {
+          "cpuSystemMs": 0.037,
+          "cpuUserMs": 0.604,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6300000000046566
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.668,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6562679999915417
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.687,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6746019999991404
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.624,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6131080000050133
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.001,
+          "p95": 0.04
+        },
+        "cpuUserMs": {
+          "p50": 0.655,
+          "p95": 0.687
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.6349990000016987,
+          "p95": 0.6746019999991404
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d0-catalog",
+      "iterationsPerSample": 8,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 2.761,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.1154309999983525
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.155,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.1427309999999125
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.361,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.021416000003228
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.989315999991959
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.018,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.0071389999939129
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.002
+        },
+        "cpuUserMs": {
+          "p50": 1.155,
+          "p95": 3.361
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 1.021416000003228,
+          "p95": 1.1427309999999125
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d0-validate-selection",
+      "iterationsPerSample": 8,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.054,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0014720000035595149
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007809999951859936
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007310000073630363
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007509999995818362
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007320000004256144
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.009,
+          "p95": 0.054
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0007509999995818362,
+          "p95": 0.0014720000035595149
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d0-select",
+      "iterationsPerSample": 8,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.031,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.022501999992528
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.021810999998706393
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.048,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03976299999339972
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.403,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.01942599999892991
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02164999999513384
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.031,
+          "p95": 0.403
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.021810999998706393,
+          "p95": 0.03976299999339972
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d0-settle",
+      "iterationsPerSample": 8,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 6.334,
+          "heapDeltaBytes": 0,
+          "wallMs": 6.273945000008098
+        },
+        {
+          "cpuSystemMs": 0.052,
+          "cpuUserMs": 6.482,
+          "heapDeltaBytes": 0,
+          "wallMs": 6.518089000004693
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 6.707,
+          "heapDeltaBytes": 0,
+          "wallMs": 6.69140100000368
+        },
+        {
+          "cpuSystemMs": 0.011,
+          "cpuUserMs": 9.4,
+          "heapDeltaBytes": 149473,
+          "wallMs": 8.390161999996053
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 5.43,
+          "heapDeltaBytes": 0,
+          "wallMs": 5.415282000001753
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.002,
+          "p95": 0.052
+        },
+        "cpuUserMs": {
+          "p50": 6.482,
+          "p95": 9.4
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 149473
+        },
+        "wallMs": {
+          "p50": 6.518089000004693,
+          "p95": 8.390161999996053
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d0-fork",
+      "iterationsPerSample": 8,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.05,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03618700000515673
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.033,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.024385999990045093
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.032,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.023935000004712492
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.12,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.11144700000295416
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.021028999995905906
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.033,
+          "p95": 0.12
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.024385999990045093,
+          "p95": 0.11144700000295416
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d16-scheduler-candidates",
+      "iterationsPerSample": 8,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.037,
+          "cpuUserMs": 0.606,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5858270000026096
+        },
+        {
+          "cpuSystemMs": 0.031,
+          "cpuUserMs": 0.489,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.509676000001491
+        },
+        {
+          "cpuSystemMs": 0.035,
+          "cpuUserMs": 0.56,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5852260000101523
+        },
+        {
+          "cpuSystemMs": 0.03,
+          "cpuUserMs": 0.493,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5139239999989513
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.769,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.7590290000080131
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.031,
+          "p95": 0.037
+        },
+        "cpuUserMs": {
+          "p50": 0.56,
+          "p95": 0.769
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.5852260000101523,
+          "p95": 0.7590290000080131
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d16-catalog",
+      "iterationsPerSample": 8,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.325,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.2899150000012014
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.174,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.162427999995998
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.145,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.133614000005764
+        },
+        {
+          "cpuSystemMs": 0.013,
+          "cpuUserMs": 1.189,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.1900190000014845
+        },
+        {
+          "cpuSystemMs": 1.174,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.1609649999882095
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 1.174
+        },
+        "cpuUserMs": {
+          "p50": 1.174,
+          "p95": 1.325
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 1.162427999995998,
+          "p95": 1.2899150000012014
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d16-validate-selection",
+      "iterationsPerSample": 8,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0.015,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0022640000097453594
+        },
+        {
+          "cpuSystemMs": 0.011,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0018940000009024516
+        },
+        {
+          "cpuSystemMs": 0.01,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0011919999960809946
+        },
+        {
+          "cpuSystemMs": 0.009,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.001081999987945892
+        },
+        {
+          "cpuSystemMs": 0.01,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0010620000102790073
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.01,
+          "p95": 0.015
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0011919999960809946,
+          "p95": 0.0022640000097453594
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d16-select",
+      "iterationsPerSample": 8,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0.078,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.06569199998921249
+        },
+        {
+          "cpuSystemMs": 0.069,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05904999999620486
+        },
+        {
+          "cpuSystemMs": 0.086,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.07594100000278559
+        },
+        {
+          "cpuSystemMs": 0.036,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.026819000006071292
+        },
+        {
+          "cpuSystemMs": 0.034,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.026269000009051524
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.069,
+          "p95": 0.086
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.05904999999620486,
+          "p95": 0.07594100000278559
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d16-settle",
+      "iterationsPerSample": 8,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 4.001,
+          "cpuUserMs": 32.05,
+          "heapDeltaBytes": 178467,
+          "wallMs": 34.749832000001334
+        },
+        {
+          "cpuSystemMs": 4.102,
+          "cpuUserMs": 33.696,
+          "heapDeltaBytes": 398611,
+          "wallMs": 35.66130500000145
+        },
+        {
+          "cpuSystemMs": 16,
+          "cpuUserMs": 36.235,
+          "heapDeltaBytes": 336470,
+          "wallMs": 39.69269699999131
+        },
+        {
+          "cpuSystemMs": 0.125,
+          "cpuUserMs": 33.996,
+          "heapDeltaBytes": 163443,
+          "wallMs": 33.25439600000391
+        },
+        {
+          "cpuSystemMs": 7.616,
+          "cpuUserMs": 29.857,
+          "heapDeltaBytes": 447558,
+          "wallMs": 35.30655600001046
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 4.102,
+          "p95": 16
+        },
+        "cpuUserMs": {
+          "p50": 33.696,
+          "p95": 36.235
+        },
+        "heapDeltaBytes": {
+          "p50": 336470,
+          "p95": 447558
+        },
+        "wallMs": {
+          "p50": 35.30655600001046,
+          "p95": 39.69269699999131
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d16-fork",
+      "iterationsPerSample": 8,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.038,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.026550000009592623
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.034,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02817200000572484
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.043,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.036477999994531274
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.072,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04099599999608472
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.07,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04984199999307748
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.002,
+          "p95": 0.004
+        },
+        "cpuUserMs": {
+          "p50": 0.043,
+          "p95": 0.072
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.036477999994531274,
+          "p95": 0.04984199999307748
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d48-scheduler-candidates",
+      "iterationsPerSample": 8,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.041,
+          "cpuUserMs": 0.663,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6499570000014501
+        },
+        {
+          "cpuSystemMs": 0.028,
+          "cpuUserMs": 0.451,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.4682489999977406
+        },
+        {
+          "cpuSystemMs": 0.03,
+          "cpuUserMs": 0.496,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.4892879999970319
+        },
+        {
+          "cpuSystemMs": 0.027,
+          "cpuUserMs": 0.435,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.45325099999899976
+        },
+        {
+          "cpuSystemMs": 0.029,
+          "cpuUserMs": 0.465,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.4813730000023497
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.029,
+          "p95": 0.041
+        },
+        "cpuUserMs": {
+          "p50": 0.465,
+          "p95": 0.663
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.4813730000023497,
+          "p95": 0.6499570000014501
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d48-catalog",
+      "iterationsPerSample": 8,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.806,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.781211000008625
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 1.444,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.7911989999993239
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.846,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8360219999885885
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.777,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.7679150000039954
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.755,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.7462249999953201
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.004
+        },
+        "cpuUserMs": {
+          "p50": 0.806,
+          "p95": 1.444
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.781211000008625,
+          "p95": 0.8360219999885885
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d48-validate-selection",
+      "iterationsPerSample": 8,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0013630000030389056
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007719999994151294
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007320000004256144
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.016,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0018940000009024516
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0008010000019567087
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.009,
+          "p95": 0.016
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0008010000019567087,
+          "p95": 0.0018940000009024516
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d48-select",
+      "iterationsPerSample": 8,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.044,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02449600001273211
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0222009999997681
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.031,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02255199999490287
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.035,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.027430999994976446
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.028,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.019776000001002103
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.031,
+          "p95": 0.044
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.02255199999490287,
+          "p95": 0.027430999994976446
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d48-settle",
+      "iterationsPerSample": 8,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 8.03,
+          "cpuUserMs": 92.516,
+          "heapDeltaBytes": 680601,
+          "wallMs": 96.6766709999938
+        },
+        {
+          "cpuSystemMs": 3.876,
+          "cpuUserMs": 109.94,
+          "heapDeltaBytes": 762732,
+          "wallMs": 109.94467700000678
+        },
+        {
+          "cpuSystemMs": 0.314,
+          "cpuUserMs": 101.04,
+          "heapDeltaBytes": 774268,
+          "wallMs": 96.91226699999243
+        },
+        {
+          "cpuSystemMs": 11.504,
+          "cpuUserMs": 96.003,
+          "heapDeltaBytes": 748844,
+          "wallMs": 103.67081000001053
+        },
+        {
+          "cpuSystemMs": 15.859,
+          "cpuUserMs": 89.844,
+          "heapDeltaBytes": 748890,
+          "wallMs": 101.6017770000035
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 8.03,
+          "p95": 15.859
+        },
+        "cpuUserMs": {
+          "p50": 96.003,
+          "p95": 109.94
+        },
+        "heapDeltaBytes": {
+          "p50": 748890,
+          "p95": 774268
+        },
+        "wallMs": {
+          "p50": 101.6017770000035,
+          "p95": 109.94467700000678
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 48,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-d48-fork",
+      "iterationsPerSample": 8,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0.005,
+          "cpuUserMs": 0.088,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05284800000663381
+        },
+        {
+          "cpuSystemMs": 0.007,
+          "cpuUserMs": 0.12,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.11412100000598002
+        },
+        {
+          "cpuSystemMs": 0.005,
+          "cpuUserMs": 0.073,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.05996100000629667
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.058,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.047699000002467074
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.072,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.06110400000761729
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.005,
+          "p95": 0.007
+        },
+        "cpuUserMs": {
+          "p50": 0.073,
+          "p95": 0.12
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.05996100000629667,
+          "p95": 0.11412100000598002
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 2,
+      "forcedBlockedCount": 255,
+      "id": "high-fanout-t256-forced-block-settle",
+      "iterationsPerSample": 8,
+      "operation": "forced-block-settle",
+      "samples": [
+        {
+          "cpuSystemMs": 7.717,
+          "cpuUserMs": 135.395,
+          "heapDeltaBytes": -11064395,
+          "wallMs": 112.96355099999346
+        },
+        {
+          "cpuSystemMs": 11.509,
+          "cpuUserMs": 148.076,
+          "heapDeltaBytes": -3271444,
+          "wallMs": 108.08133000000089
+        },
+        {
+          "cpuSystemMs": 8.449,
+          "cpuUserMs": 103.308,
+          "heapDeltaBytes": 14305680,
+          "wallMs": 102.709176999997
+        },
+        {
+          "cpuSystemMs": 16.214,
+          "cpuUserMs": 107.581,
+          "heapDeltaBytes": -15911508,
+          "wallMs": 104.60518500000762
+        },
+        {
+          "cpuSystemMs": 18.98,
+          "cpuUserMs": 107.66,
+          "heapDeltaBytes": 15836736,
+          "wallMs": 109.31333799999265
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 11.509,
+          "p95": 18.98
+        },
+        "cpuUserMs": {
+          "p50": 107.66,
+          "p95": 148.076
+        },
+        "heapDeltaBytes": {
+          "p50": -3271444,
+          "p95": 15836736
+        },
+        "wallMs": {
+          "p50": 108.08133000000089,
+          "p95": 112.96355099999346
+        }
+      },
+      "taskCount": 256,
+      "topology": "high-fanout"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d0-scheduler-candidates",
+      "iterationsPerSample": 2,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.059,
+          "cpuUserMs": 0.959,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.9656519999989541
+        },
+        {
+          "cpuSystemMs": 0.051,
+          "cpuUserMs": 0.821,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8616400000028079
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.092,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.081437000000733
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.825,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8125890000083018
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.733,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.723943999997573
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.059
+        },
+        "cpuUserMs": {
+          "p50": 0.825,
+          "p95": 1.092
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.8616400000028079,
+          "p95": 1.081437000000733
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d0-catalog",
+      "iterationsPerSample": 2,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.456,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.400710000001709
+        },
+        {
+          "cpuSystemMs": 0.039,
+          "cpuUserMs": 1.219,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.244409999999334
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.179,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.1675779999932274
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.088,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.0769690000015544
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.152,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.1411380000063218
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.039
+        },
+        "cpuUserMs": {
+          "p50": 1.179,
+          "p95": 1.456
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 1.1675779999932274,
+          "p95": 1.400710000001709
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d0-validate-selection",
+      "iterationsPerSample": 2,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.011,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.001372000013361685
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.00027099999715574086
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0002499999973224476
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.00026000000070780516
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0002610000083222985
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.008,
+          "p95": 0.011
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0002610000083222985,
+          "p95": 0.001372000013361685
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d0-select",
+      "iterationsPerSample": 2,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.017,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.009648000006563962
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.014,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005480000007082708
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.013,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0051700000040000305
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.014,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005981000009342097
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.015,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.007433999999193475
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.014,
+          "p95": 0.017
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.005981000009342097,
+          "p95": 0.009648000006563962
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d0-settle",
+      "iterationsPerSample": 2,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 0.148,
+          "cpuUserMs": 10.366,
+          "heapDeltaBytes": 0,
+          "wallMs": 9.298348999989685
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 8.016,
+          "heapDeltaBytes": 0,
+          "wallMs": 8.003366000004462
+        },
+        {
+          "cpuSystemMs": 0.025,
+          "cpuUserMs": 12.391,
+          "heapDeltaBytes": 1312770,
+          "wallMs": 11.332747999986168
+        },
+        {
+          "cpuSystemMs": 0.026,
+          "cpuUserMs": 8.397,
+          "heapDeltaBytes": 0,
+          "wallMs": 8.406912999998895
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 5.327,
+          "heapDeltaBytes": 0,
+          "wallMs": 5.313492999994196
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.025,
+          "p95": 0.148
+        },
+        "cpuUserMs": {
+          "p50": 8.397,
+          "p95": 12.391
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 1312770
+        },
+        "wallMs": {
+          "p50": 8.406912999998895,
+          "p95": 11.332747999986168
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d0-fork",
+      "iterationsPerSample": 2,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.024,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.01318399999581743
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.014,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.006080999999539927
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.014,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005751000004238449
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.013,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005490000010468066
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.014,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005871000001206994
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.014,
+          "p95": 0.024
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.005871000001206994,
+          "p95": 0.01318399999581743
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d16-scheduler-candidates",
+      "iterationsPerSample": 2,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.043,
+          "cpuUserMs": 0.693,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.671065999995335
+        },
+        {
+          "cpuSystemMs": 0.034,
+          "cpuUserMs": 0.534,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5578959999984363
+        },
+        {
+          "cpuSystemMs": 0.033,
+          "cpuUserMs": 0.522,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5452820000064094
+        },
+        {
+          "cpuSystemMs": 0.034,
+          "cpuUserMs": 0.536,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5585570000112057
+        },
+        {
+          "cpuSystemMs": 0.032,
+          "cpuUserMs": 0.505,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5275890000048093
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.034,
+          "p95": 0.043
+        },
+        "cpuUserMs": {
+          "p50": 0.534,
+          "p95": 0.693
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.5578959999984363,
+          "p95": 0.671065999995335
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d16-catalog",
+      "iterationsPerSample": 2,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.991,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.9659030000038911
+        },
+        {
+          "cpuSystemMs": 0.011,
+          "cpuUserMs": 1.002,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.0022609999869019
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 1.212,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.200286999999662
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.903,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8937489999952959
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.846,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8380749999923864
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.011
+        },
+        "cpuUserMs": {
+          "p50": 0.991,
+          "p95": 1.212
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.9659030000038911,
+          "p95": 1.200286999999662
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d16-validate-selection",
+      "iterationsPerSample": 2,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0012620000052265823
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.000291000003926456
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0002810000005410984
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0002700000040931627
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.01,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.00046099998871795833
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.008,
+          "p95": 0.01
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.000291000003926456,
+          "p95": 0.0012620000052265823
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d16-select",
+      "iterationsPerSample": 2,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.009357000002637506
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.016,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.007784000001265667
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.014,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.006021000008331612
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.013,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005890999993425794
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.025,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.016570000007050112
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.016,
+          "p95": 0.03
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.007784000001265667,
+          "p95": 0.016570000007050112
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d16-settle",
+      "iterationsPerSample": 2,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 38.62,
+          "heapDeltaBytes": 1028720,
+          "wallMs": 37.4026959999901
+        },
+        {
+          "cpuSystemMs": 0.013,
+          "cpuUserMs": 37.521,
+          "heapDeltaBytes": 2009492,
+          "wallMs": 35.69019900000421
+        },
+        {
+          "cpuSystemMs": 4.151,
+          "cpuUserMs": 38.453,
+          "heapDeltaBytes": 2025893,
+          "wallMs": 38.020584999991115
+        },
+        {
+          "cpuSystemMs": 0.158,
+          "cpuUserMs": 38.499,
+          "heapDeltaBytes": 1728435,
+          "wallMs": 36.736771000010776
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 35.546,
+          "heapDeltaBytes": 1128835,
+          "wallMs": 34.47804799998994
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.013,
+          "p95": 4.151
+        },
+        "cpuUserMs": {
+          "p50": 38.453,
+          "p95": 38.62
+        },
+        "heapDeltaBytes": {
+          "p50": 1728435,
+          "p95": 2025893
+        },
+        "wallMs": {
+          "p50": 36.736771000010776,
+          "p95": 38.020584999991115
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "independent-t1024-d16-fork",
+      "iterationsPerSample": 2,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.024,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.013454999992973171
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.017,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.00892599999497179
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.017,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.008175000009941868
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.013,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005360000010114163
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.015,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0068029999965801835
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.017,
+          "p95": 0.024
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.008175000009941868,
+          "p95": 0.013454999992973171
+        }
+      },
+      "taskCount": 1024,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t4096-d0-scheduler-candidates",
+      "iterationsPerSample": 1,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 3.083,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.0282609999994747
+        },
+        {
+          "cpuSystemMs": 2.968,
+          "cpuUserMs": 0.005,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.9606449999992037
+        },
+        {
+          "cpuSystemMs": 1.105,
+          "cpuUserMs": 18.743,
+          "heapDeltaBytes": 0,
+          "wallMs": 5.685643000004347
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 19.258,
+          "heapDeltaBytes": 0,
+          "wallMs": 7.814816000012797
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 4.493,
+          "heapDeltaBytes": 0,
+          "wallMs": 4.480093999998644
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.002,
+          "p95": 2.968
+        },
+        "cpuUserMs": {
+          "p50": 4.493,
+          "p95": 19.258
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 4.480093999998644,
+          "p95": 7.814816000012797
+        }
+      },
+      "taskCount": 4096,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t4096-d0-catalog",
+      "iterationsPerSample": 1,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0.143,
+          "cpuUserMs": 6.278,
+          "heapDeltaBytes": 0,
+          "wallMs": 6.3560230000002775
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 5.229,
+          "heapDeltaBytes": 0,
+          "wallMs": 5.216342999992776
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 4.66,
+          "heapDeltaBytes": 0,
+          "wallMs": 4.646931000010227
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 5.08,
+          "heapDeltaBytes": 0,
+          "wallMs": 5.0732220000063535
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 4.787,
+          "heapDeltaBytes": 0,
+          "wallMs": 4.773490999999922
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.143
+        },
+        "cpuUserMs": {
+          "p50": 5.08,
+          "p95": 6.278
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 5.0732220000063535,
+          "p95": 6.3560230000002775
+        }
+      },
+      "taskCount": 4096,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t4096-d0-validate-selection",
+      "iterationsPerSample": 1,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.01,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0011319999903207645
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0002099999983329326
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0002099999983329326
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0002099999983329326
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.00019999999494757503
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.001,
+          "p95": 0.001
+        },
+        "cpuUserMs": {
+          "p50": 0.008,
+          "p95": 0.01
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0002099999983329326,
+          "p95": 0.0011319999903207645
+        }
+      },
+      "taskCount": 4096,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t4096-d0-select",
+      "iterationsPerSample": 1,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.016,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.008756000010180287
+        },
+        {
+          "cpuSystemMs": 0.022,
+          "cpuUserMs": 0.004,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0038770000101067126
+        },
+        {
+          "cpuSystemMs": 0.012,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0033359999943058938
+        },
+        {
+          "cpuSystemMs": 0.011,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0033359999943058938
+        },
+        {
+          "cpuSystemMs": 0.013,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005590000000665896
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.012,
+          "p95": 0.022
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0.016
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0038770000101067126,
+          "p95": 0.008756000010180287
+        }
+      },
+      "taskCount": 4096,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t4096-d0-settle",
+      "iterationsPerSample": 1,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 4.164,
+          "cpuUserMs": 18.638,
+          "heapDeltaBytes": 0,
+          "wallMs": 22.744007000001147
+        },
+        {
+          "cpuSystemMs": 0.013,
+          "cpuUserMs": 24.194,
+          "heapDeltaBytes": 1337712,
+          "wallMs": 23.41866999999911
+        },
+        {
+          "cpuSystemMs": 3.996,
+          "cpuUserMs": 15.98,
+          "heapDeltaBytes": 0,
+          "wallMs": 19.957121999992523
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 27.156,
+          "heapDeltaBytes": 6380514,
+          "wallMs": 24.478887999997823
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 21.622,
+          "heapDeltaBytes": 0,
+          "wallMs": 21.60769900000014
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.013,
+          "p95": 4.164
+        },
+        "cpuUserMs": {
+          "p50": 21.622,
+          "p95": 27.156
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 6380514
+        },
+        "wallMs": {
+          "p50": 22.744007000001147,
+          "p95": 24.478887999997823
+        }
+      },
+      "taskCount": 4096,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 0,
+      "forcedBlockedCount": null,
+      "id": "independent-t4096-d0-fork",
+      "iterationsPerSample": 1,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.021,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.011721999995643273
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.012,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.004197999995085411
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.013,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.005028999992646277
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.011,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.003396000000066124
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.011,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0026849999994738027
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.012,
+          "p95": 0.021
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.004197999995085411,
+          "p95": 0.011721999995643273
+        }
+      },
+      "taskCount": 4096,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "layered-t256-d16-scheduler-candidates",
+      "iterationsPerSample": 8,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.013,
+          "cpuUserMs": 0.198,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.14602099999319762
+        },
+        {
+          "cpuSystemMs": 0.008,
+          "cpuUserMs": 0.138,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.13818699998955708
+        },
+        {
+          "cpuSystemMs": 0.008,
+          "cpuUserMs": 0.137,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.1379060000035679
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.199,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.18844899999385234
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.174,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.16463600000133738
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.008,
+          "p95": 0.013
+        },
+        "cpuUserMs": {
+          "p50": 0.174,
+          "p95": 0.199
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.14602099999319762,
+          "p95": 0.18844899999385234
+        }
+      },
+      "taskCount": 256,
+      "topology": "layered"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "layered-t256-d16-catalog",
+      "iterationsPerSample": 8,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.519,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.469691000005696
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.408,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.395202000014251
+        },
+        {
+          "cpuSystemMs": 3.806,
+          "cpuUserMs": 0.005,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.798681000000215
+        },
+        {
+          "cpuSystemMs": 0.045,
+          "cpuUserMs": 3.782,
+          "heapDeltaBytes": 0,
+          "wallMs": 3.81079299999692
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 7.821,
+          "heapDeltaBytes": 386996,
+          "wallMs": 6.446125000002212
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 3.806
+        },
+        "cpuUserMs": {
+          "p50": 3.519,
+          "p95": 7.821
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 386996
+        },
+        "wallMs": {
+          "p50": 3.798681000000215,
+          "p95": 6.446125000002212
+        }
+      },
+      "taskCount": 256,
+      "topology": "layered"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "layered-t256-d16-validate-selection",
+      "iterationsPerSample": 8,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.011,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0008720000041648746
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.013,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0048390000010840595
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.018,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007120000082068145
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.011,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0016529999993508682
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.008,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007119999936548993
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.001
+        },
+        "cpuUserMs": {
+          "p50": 0.011,
+          "p95": 0.018
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0008720000041648746,
+          "p95": 0.0048390000010840595
+        }
+      },
+      "taskCount": 256,
+      "topology": "layered"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "layered-t256-d16-select",
+      "iterationsPerSample": 8,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.029,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.020808000001125038
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02424500000779517
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.027,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.020868999999947846
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.023262999995495193
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.037,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.031648000003769994
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.002,
+          "p95": 0.003
+        },
+        "cpuUserMs": {
+          "p50": 0.03,
+          "p95": 0.037
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.023262999995495193,
+          "p95": 0.031648000003769994
+        }
+      },
+      "taskCount": 256,
+      "topology": "layered"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "layered-t256-d16-settle",
+      "iterationsPerSample": 8,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 0.099,
+          "cpuUserMs": 41.554,
+          "heapDeltaBytes": 221203,
+          "wallMs": 40.99968300000182
+        },
+        {
+          "cpuSystemMs": 4.046,
+          "cpuUserMs": 44.759,
+          "heapDeltaBytes": 294259,
+          "wallMs": 45.11698600000818
+        },
+        {
+          "cpuSystemMs": 0.03,
+          "cpuUserMs": 40.447,
+          "heapDeltaBytes": 203427,
+          "wallMs": 38.97992300000624
+        },
+        {
+          "cpuSystemMs": 4.458,
+          "cpuUserMs": 47.285,
+          "heapDeltaBytes": 198583,
+          "wallMs": 42.64002000000619
+        },
+        {
+          "cpuSystemMs": 4.037,
+          "cpuUserMs": 36.612,
+          "heapDeltaBytes": 196707,
+          "wallMs": 39.52210999999079
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 4.037,
+          "p95": 4.458
+        },
+        "cpuUserMs": {
+          "p50": 41.554,
+          "p95": 47.285
+        },
+        "heapDeltaBytes": {
+          "p50": 203427,
+          "p95": 294259
+        },
+        "wallMs": {
+          "p50": 40.99968300000182,
+          "p95": 45.11698600000818
+        }
+      },
+      "taskCount": 256,
+      "topology": "layered"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "layered-t256-d16-fork",
+      "iterationsPerSample": 8,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.046,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0378599999967264
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.04,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03510499998810701
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.04,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03495499999553431
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.026,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.020587999999406748
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.031,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.025596999999834225
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.003,
+          "p95": 0.003
+        },
+        "cpuUserMs": {
+          "p50": 0.04,
+          "p95": 0.046
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.03495499999553431,
+          "p95": 0.0378599999967264
+        }
+      },
+      "taskCount": 256,
+      "topology": "layered"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "mutex-t256-d16-scheduler-candidates",
+      "iterationsPerSample": 8,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.034,
+          "cpuUserMs": 0.529,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5059590000018943
+        },
+        {
+          "cpuSystemMs": 0.033,
+          "cpuUserMs": 0.519,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.5421760000026552
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.626,
+          "heapDeltaBytes": 553155,
+          "wallMs": 2.2524759999942034
+        },
+        {
+          "cpuSystemMs": 0.018,
+          "cpuUserMs": 0.613,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6201509999955306
+        },
+        {
+          "cpuSystemMs": 0.036,
+          "cpuUserMs": 0.575,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6002789999911329
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.033,
+          "p95": 0.036
+        },
+        "cpuUserMs": {
+          "p50": 0.575,
+          "p95": 3.626
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 553155
+        },
+        "wallMs": {
+          "p50": 0.6002789999911329,
+          "p95": 2.2524759999942034
+        }
+      },
+      "taskCount": 256,
+      "topology": "mutex"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "mutex-t256-d16-catalog",
+      "iterationsPerSample": 8,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 0.876,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8547060000128113
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.862,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8513800000073388
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.85,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8400589999946533
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.856,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8459300000104122
+        },
+        {
+          "cpuSystemMs": 0.021,
+          "cpuUserMs": 0.819,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.8302410000032978
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.021
+        },
+        "cpuUserMs": {
+          "p50": 0.856,
+          "p95": 0.876
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.8459300000104122,
+          "p95": 0.8547060000128113
+        }
+      },
+      "taskCount": 256,
+      "topology": "mutex"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "mutex-t256-d16-validate-selection",
+      "iterationsPerSample": 8,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0.011,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0014229999942472205
+        },
+        {
+          "cpuSystemMs": 0.009,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007109999860404059
+        },
+        {
+          "cpuSystemMs": 0.009,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007110000005923212
+        },
+        {
+          "cpuSystemMs": 0.009,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0007110000005923212
+        },
+        {
+          "cpuSystemMs": 0.009,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.000702000004821457
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.009,
+          "p95": 0.011
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0007110000005923212,
+          "p95": 0.0014229999942472205
+        }
+      },
+      "taskCount": 256,
+      "topology": "mutex"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "mutex-t256-d16-select",
+      "iterationsPerSample": 8,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0.035,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02533699999912642
+        },
+        {
+          "cpuSystemMs": 0.04,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03160899999784306
+        },
+        {
+          "cpuSystemMs": 0.037,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.028703999996650964
+        },
+        {
+          "cpuSystemMs": 0.035,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.026518999991822056
+        },
+        {
+          "cpuSystemMs": 0.03,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.022251000002142973
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.035,
+          "p95": 0.04
+        },
+        "cpuUserMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.026518999991822056,
+          "p95": 0.03160899999784306
+        }
+      },
+      "taskCount": 256,
+      "topology": "mutex"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "mutex-t256-d16-settle",
+      "iterationsPerSample": 8,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 7.754,
+          "cpuUserMs": 32.178,
+          "heapDeltaBytes": 180083,
+          "wallMs": 39.32426399999531
+        },
+        {
+          "cpuSystemMs": 0.103,
+          "cpuUserMs": 41.592,
+          "heapDeltaBytes": 197763,
+          "wallMs": 40.67948599999363
+        },
+        {
+          "cpuSystemMs": 0.033,
+          "cpuUserMs": 40.49,
+          "heapDeltaBytes": 288771,
+          "wallMs": 38.945853999990504
+        },
+        {
+          "cpuSystemMs": 4.037,
+          "cpuUserMs": 36.612,
+          "heapDeltaBytes": 178979,
+          "wallMs": 39.75850799999898
+        },
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 46.08,
+          "heapDeltaBytes": 348726,
+          "wallMs": 43.876874000008684
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.103,
+          "p95": 7.754
+        },
+        "cpuUserMs": {
+          "p50": 40.49,
+          "p95": 46.08
+        },
+        "heapDeltaBytes": {
+          "p50": 197763,
+          "p95": 348726
+        },
+        "wallMs": {
+          "p50": 39.75850799999898,
+          "p95": 43.876874000008684
+        }
+      },
+      "taskCount": 256,
+      "topology": "mutex"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "mutex-t256-d16-fork",
+      "iterationsPerSample": 8,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.05,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03759900000295602
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.035,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.027089999988675117
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.043,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.034142999997129664
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.032,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02329299999109935
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.03,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02172999999311287
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.035,
+          "p95": 0.05
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.027089999988675117,
+          "p95": 0.03759900000295602
+        }
+      },
+      "taskCount": 256,
+      "topology": "mutex"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "scope-t256-d16-scheduler-candidates",
+      "iterationsPerSample": 8,
+      "operation": "scheduler-candidates",
+      "samples": [
+        {
+          "cpuSystemMs": 0.049,
+          "cpuUserMs": 0.77,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.765320000005886
+        },
+        {
+          "cpuSystemMs": 0.046,
+          "cpuUserMs": 0.729,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.7538290000084089
+        },
+        {
+          "cpuSystemMs": 2.85,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.7394829999975627
+        },
+        {
+          "cpuSystemMs": 0.765,
+          "cpuUserMs": 0,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.7560129999910714
+        },
+        {
+          "cpuSystemMs": 0.103,
+          "cpuUserMs": 0.575,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.6696630000078585
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.103,
+          "p95": 2.85
+        },
+        "cpuUserMs": {
+          "p50": 0.575,
+          "p95": 0.77
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.7538290000084089,
+          "p95": 0.765320000005886
+        }
+      },
+      "taskCount": 256,
+      "topology": "scope"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "scope-t256-d16-catalog",
+      "iterationsPerSample": 8,
+      "operation": "catalog",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 2.095,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.057338999991771
+        },
+        {
+          "cpuSystemMs": 0.092,
+          "cpuUserMs": 3.338,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.9736339999944903
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 7.108,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.901068999999552
+        },
+        {
+          "cpuSystemMs": 0.07,
+          "cpuUserMs": 1.966,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.0258800000010524
+        },
+        {
+          "cpuSystemMs": 0.064,
+          "cpuUserMs": 4.995,
+          "heapDeltaBytes": 0,
+          "wallMs": 1.8974719999969238
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.064,
+          "p95": 0.092
+        },
+        "cpuUserMs": {
+          "p50": 3.338,
+          "p95": 7.108
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 1.9736339999944903,
+          "p95": 2.057338999991771
+        }
+      },
+      "taskCount": 256,
+      "topology": "scope"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "scope-t256-d16-validate-selection",
+      "iterationsPerSample": 8,
+      "operation": "validate-selection",
+      "samples": [
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.011,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.002214000007370487
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0012120000028517097
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.001233000002685003
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0012220000062370673
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 0.009,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.0012120000028517097
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0
+        },
+        "cpuUserMs": {
+          "p50": 0.009,
+          "p95": 0.011
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.0012220000062370673,
+          "p95": 0.002214000007370487
+        }
+      },
+      "taskCount": 256,
+      "topology": "scope"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "scope-t256-d16-select",
+      "iterationsPerSample": 8,
+      "operation": "select",
+      "samples": [
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.029,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02270200000202749
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.032,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.026228999995510094
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.029,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.023203000004286878
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.031,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.02505599999858532
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.028,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.021439999996800907
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.002,
+          "p95": 0.002
+        },
+        "cpuUserMs": {
+          "p50": 0.029,
+          "p95": 0.032
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.023203000004286878,
+          "p95": 0.026228999995510094
+        }
+      },
+      "taskCount": 256,
+      "topology": "scope"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "scope-t256-d16-settle",
+      "iterationsPerSample": 8,
+      "operation": "settle",
+      "samples": [
+        {
+          "cpuSystemMs": 0.001,
+          "cpuUserMs": 39.987,
+          "heapDeltaBytes": 156627,
+          "wallMs": 38.72547199999099
+        },
+        {
+          "cpuSystemMs": 0.146,
+          "cpuUserMs": 42.285,
+          "heapDeltaBytes": 245667,
+          "wallMs": 40.48740500000713
+        },
+        {
+          "cpuSystemMs": 0.075,
+          "cpuUserMs": 41.157,
+          "heapDeltaBytes": 156515,
+          "wallMs": 40.4537180000043
+        },
+        {
+          "cpuSystemMs": 7.498,
+          "cpuUserMs": 40.117,
+          "heapDeltaBytes": 153843,
+          "wallMs": 45.190671999996994
+        },
+        {
+          "cpuSystemMs": 4.059,
+          "cpuUserMs": 36.953,
+          "heapDeltaBytes": 151075,
+          "wallMs": 39.93813500000397
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.146,
+          "p95": 7.498
+        },
+        "cpuUserMs": {
+          "p50": 40.117,
+          "p95": 42.285
+        },
+        "heapDeltaBytes": {
+          "p50": 156515,
+          "p95": 245667
+        },
+        "wallMs": {
+          "p50": 40.4537180000043,
+          "p95": 45.190671999996994
+        }
+      },
+      "taskCount": 256,
+      "topology": "scope"
+    },
+    {
+      "depthTransitions": 16,
+      "forcedBlockedCount": null,
+      "id": "scope-t256-d16-fork",
+      "iterationsPerSample": 8,
+      "operation": "fork",
+      "samples": [
+        {
+          "cpuSystemMs": 0.006,
+          "cpuUserMs": 0.1,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.060993000006419607
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.056,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04973299999255687
+        },
+        {
+          "cpuSystemMs": 0.004,
+          "cpuUserMs": 0.049,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04304000000411179
+        },
+        {
+          "cpuSystemMs": 0.003,
+          "cpuUserMs": 0.048,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.04069500000332482
+        },
+        {
+          "cpuSystemMs": 0.002,
+          "cpuUserMs": 0.039,
+          "heapDeltaBytes": 0,
+          "wallMs": 0.03207000000111293
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0.004,
+          "p95": 0.006
+        },
+        "cpuUserMs": {
+          "p50": 0.049,
+          "p95": 0.1
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 0.04304000000411179,
+          "p95": 0.060993000006419607
+        }
+      },
+      "taskCount": 256,
+      "topology": "scope"
+    },
+    {
+      "depthTransitions": null,
+      "forcedBlockedCount": null,
+      "id": "independent-t256-legacy-seed-index",
+      "iterationsPerSample": 8,
+      "operation": "legacy-seed-index",
+      "samples": [
+        {
+          "cpuSystemMs": 0.163,
+          "cpuUserMs": 2.59,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.7000819999957457
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 2.997,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.9856119999894872
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 3.063,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.9978549999941606
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 2.676,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.6636140000046
+        },
+        {
+          "cpuSystemMs": 0,
+          "cpuUserMs": 2.677,
+          "heapDeltaBytes": 0,
+          "wallMs": 2.6611790000024484
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 0,
+          "p95": 0.163
+        },
+        "cpuUserMs": {
+          "p50": 2.677,
+          "p95": 3.063
+        },
+        "heapDeltaBytes": {
+          "p50": 0,
+          "p95": 0
+        },
+        "wallMs": {
+          "p50": 2.7000819999957457,
+          "p95": 2.9978549999941606
+        }
+      },
+      "taskCount": 256,
+      "topology": "independent"
+    },
+    {
+      "depthTransitions": 2,
+      "forcedBlockedCount": 160,
+      "id": "forced-cascade-t161-layered-forced-cascade-settle",
+      "iterationsPerSample": 8,
+      "operation": "layered-forced-cascade-settle",
+      "samples": [
+        {
+          "cpuSystemMs": 16.537,
+          "cpuUserMs": 144.481,
+          "heapDeltaBytes": -10619030,
+          "wallMs": 136.8748990000022
+        },
+        {
+          "cpuSystemMs": 11.863,
+          "cpuUserMs": 133.874,
+          "heapDeltaBytes": -11058944,
+          "wallMs": 124.93343199999072
+        },
+        {
+          "cpuSystemMs": 4.444,
+          "cpuUserMs": 130.937,
+          "heapDeltaBytes": 15780720,
+          "wallMs": 123.82413100000122
+        },
+        {
+          "cpuSystemMs": 12.663,
+          "cpuUserMs": 142.4,
+          "heapDeltaBytes": -17621708,
+          "wallMs": 132.38658799999394
+        },
+        {
+          "cpuSystemMs": 4.372,
+          "cpuUserMs": 133.812,
+          "heapDeltaBytes": 14224140,
+          "wallMs": 126.06839899999613
+        }
+      ],
+      "stats": {
+        "cpuSystemMs": {
+          "p50": 11.863,
+          "p95": 16.537
+        },
+        "cpuUserMs": {
+          "p50": 133.874,
+          "p95": 144.481
+        },
+        "heapDeltaBytes": {
+          "p50": -10619030,
+          "p95": 15780720
+        },
+        "wallMs": {
+          "p50": 126.06839899999613,
+          "p95": 136.8748990000022
+        }
+      },
+      "taskCount": 161,
+      "topology": "forced-cascade"
+    }
+  ],
+  "sink": 386398
+}

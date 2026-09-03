@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { MOMOA_LICENSE_SHA256, PACKAGE_LICENSE_SHA256 } from "./package-contract.ts";
+import { PACKAGE_LICENSE_SHA256 } from "./package-contract.ts";
 
 export function assertJSDocExamplePayloads(input: {
   readonly declarationSources: readonly string[];
@@ -19,10 +19,15 @@ export function assertJSDocExamplePayloads(input: {
   }
 }
 
-export function assertMomoaLicenseContent(content: Buffer): void {
+export function assertThirdPartyLicenseContent(
+  content: Buffer,
+  license: Readonly<{ readonly packageName: string; readonly sha256: string }>
+): void {
   const sha256 = createHash("sha256").update(content).digest("hex");
-  if (sha256 !== MOMOA_LICENSE_SHA256) {
-    throw new Error("candidate Momoa license material does not match the approved source text");
+  if (sha256 !== license.sha256) {
+    throw new Error(
+      `candidate ${license.packageName} license material does not match the approved source text`
+    );
   }
 }
 

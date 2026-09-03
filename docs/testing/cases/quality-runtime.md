@@ -210,12 +210,15 @@ Entities:
 
 - `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > validates exact input and returns frozen opaque branching successors`
 - `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > uses canonical catalog order, dedicated validation reasons, binary settlements, and scope lifecycle`
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > keeps duplicate blocker payloads and global active-scope capacity for every candidate`
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > admission core settles in the selected implementation`
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > keeps persistent forced-frontier priority and closed scope roots across a 80-by-80 cascade`
 - `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > traces public and private binary/failed/cancellation transitions through one reducer`
 - `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > replays canonical failed and forced effects through shell diagnostics and measurement`
 - `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > supplies callback lookahead without reserving or starting a real Task`
 Proves:
 - The standalone and callback seeds expose one frozen opaque state contract. Its canonical catalog, inspection, validation precedence, binary settlement, forced block and scope lifecycle return successors without mutating a retained predecessor.
-- The private trace invokes the same reducer for public and real-only failed/cancellation actions. An instrumented real Scheduler replays each canonical effect against its corresponding immutable core state; custom policy measurements, diagnostics, and terminal last-settled facts retain the direct-then-forced order. Callback lookahead cannot start, reserve, settle or otherwise control real Task lifecycle, whose callback proposal remains Scheduler-hard-revalidated.
+- The private trace invokes the same reducer for public and real-only failed/cancellation actions. An instrumented real Scheduler replays each canonical effect against its corresponding immutable core state; legacy snapshot mutex facts remain additive with dynamic holders through their settlement, and an 80-by-80 failed cascade keeps every newly ready child in descending declared-slot frontier order and retains a frozen closed-scope root. Custom policy measurements, diagnostics, and terminal last-settled facts retain the direct-then-forced order. Callback lookahead cannot start, reserve, settle or otherwise control real Task lifecycle, whose callback proposal remains Scheduler-hard-revalidated.
 
 ## Case AUX-MARKDOWN-LINK-OUTCOMES-001: Markdown Link settles safe complete outcomes
 

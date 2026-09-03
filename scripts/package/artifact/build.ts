@@ -11,13 +11,11 @@ import {
   PACKAGE_ENTRY_SOURCE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SOURCE_PATH,
-  PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_SOURCE_DIRECTORY,
   PACKAGE_TARBALL_STEM,
-  MOMOA_LICENSE_SHA256,
-  MOMOA_LICENSE_SOURCE_PATH
+  PACKAGE_THIRD_PARTY_LICENSES
 } from "../package-contract.ts";
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "../pack.ts";
@@ -162,15 +160,21 @@ function copyLegalMaterials(input: {
   }
   copyFileSync(packageLicenseSource, join(input.stagingDirectory, PACKAGE_LICENSE_PATH));
 
-  const sourcePath = join(input.repositoryRoot, MOMOA_LICENSE_SOURCE_PATH);
-  const destinationPath = join(input.stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH);
-  if (!existsSync(sourcePath)) {
-    throw new Error(`candidate source is missing Momoa license material: ${sourcePath}`);
-  }
-  mkdirSync(dirname(destinationPath), { recursive: true });
-  copyFileSync(sourcePath, destinationPath);
-  if (sha256File(destinationPath) !== MOMOA_LICENSE_SHA256) {
-    throw new Error("candidate Momoa license material does not match the approved source text");
+  for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
+    const sourcePath = join(input.repositoryRoot, license.sourcePath);
+    const destinationPath = join(input.stagingDirectory, license.path);
+    if (!existsSync(sourcePath)) {
+      throw new Error(
+        `candidate source is missing ${license.packageName} license material: ${sourcePath}`
+      );
+    }
+    mkdirSync(dirname(destinationPath), { recursive: true });
+    copyFileSync(sourcePath, destinationPath);
+    if (sha256File(destinationPath) !== license.sha256) {
+      throw new Error(
+        `candidate ${license.packageName} license material does not match the approved source text`
+      );
+    }
   }
 }
 

@@ -2,12 +2,11 @@ import { isAbsolute } from "node:path";
 
 import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
 import {
-  MOMOA_LICENSE_SHA256,
   PACKAGE_BUN_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
-  PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
@@ -53,12 +52,10 @@ export interface FormalReleaseReceipt {
       readonly sha256: string;
     }>;
     readonly repository: typeof PACKAGE_REPOSITORY_MANIFEST_URL;
-    readonly thirdPartyLicenses: readonly [
-      Readonly<{
-        readonly path: typeof PACKAGE_MOMOA_LICENSE_PATH;
-        readonly sha256: typeof MOMOA_LICENSE_SHA256;
-      }>
-    ];
+    readonly thirdPartyLicenses: readonly Readonly<{
+      readonly path: string;
+      readonly sha256: string;
+    }>[];
   }>;
 }
 
@@ -155,9 +152,11 @@ function parseReleaseContract(value: unknown): FormalReleaseReceipt["contract"] 
     }),
     readme: Object.freeze({ path: PACKAGE_README_PATH, sha256: value.readme.sha256 }),
     repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-    thirdPartyLicenses: Object.freeze([
-      Object.freeze({ path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 })
-    ] as const)
+    thirdPartyLicenses: Object.freeze(
+      PACKAGE_THIRD_PARTY_LICENSES.map((license) =>
+        Object.freeze({ path: license.path, sha256: license.sha256 })
+      )
+    )
   });
 }
 
@@ -207,10 +206,13 @@ function isReadmeIdentity(value: unknown): value is Readonly<{ readonly sha256: 
 function isThirdPartyLicenseIdentity(value: unknown): boolean {
   return (
     Array.isArray(value) &&
-    value.length === 1 &&
-    hasExactStringRecord(value[0], {
-      path: PACKAGE_MOMOA_LICENSE_PATH,
-      sha256: MOMOA_LICENSE_SHA256
+    value.length === PACKAGE_THIRD_PARTY_LICENSES.length &&
+    value.every((license, index) => {
+      const expected = PACKAGE_THIRD_PARTY_LICENSES[index];
+      return (
+        expected !== undefined &&
+        hasExactStringRecord(license, { path: expected.path, sha256: expected.sha256 })
+      );
     })
   );
 }
