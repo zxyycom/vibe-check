@@ -257,8 +257,11 @@ describe("Scheduler measurement Hook output", () => {
         scheduler: {
           admissionPolicy: {
             kind: "custom",
-            proposeAdmission: () => {
-              throw new Error("policy failure");
+            strategy: {
+              kind: "simple",
+              decide: () => {
+                throw new Error("policy failure");
+              }
             }
           },
           measurementHooks: [() => Promise.reject(new Error("measurement failure"))]

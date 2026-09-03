@@ -6,6 +6,7 @@ import {
   type ProjectDefinitionDiagnostic,
   type ProjectDefinitionValidationResult,
   type AdmissionPolicy,
+  type CustomAdmissionStrategy,
   type SchedulerMeasurementHook,
   type SchedulerPolicy
 } from "./project-definition.ts";
@@ -117,9 +118,7 @@ function parseScheduler(value: unknown): SchedulerPolicy | undefined {
     : undefined;
 }
 
-function parseMeasurementHooks(
-  value: unknown
-): readonly import("./project-definition.ts").SchedulerMeasurementHook[] | undefined {
+function parseMeasurementHooks(value: unknown): readonly SchedulerMeasurementHook[] | undefined {
   if (value === undefined) return Object.freeze([]);
   if (!Array.isArray(value)) return undefined;
   const hooks: SchedulerMeasurementHook[] = [];
@@ -137,48 +136,78 @@ function isMeasurementHook(value: unknown): value is SchedulerMeasurementHook {
 function parseAdmissionPolicy(value: unknown): AdmissionPolicy | undefined {
   const data = snapshotClosedRecord(value);
   if (data === undefined || typeof data.kind !== "string") return undefined;
-  if (data.kind === "static") {
-    return exactKeys(data, ["kind"]) === undefined ? undefined : Object.freeze({ kind: "static" });
-  }
-  if (data.kind === "custom") {
-    const policy = exactKeys(data, ["kind", "proposeAdmission"]);
-    const proposeAdmission = policy?.proposeAdmission;
-    if (!isCustomAdmissionCallback(proposeAdmission)) return undefined;
-    return Object.freeze({
-      kind: "custom",
-      proposeAdmission
-    });
-  }
-  if (data.kind === "learned-critical-path") {
-    const policy = exactKeys(data, ["kind", "stateDirectory"]);
-    const stateDirectory = policy?.stateDirectory;
-    if (
-      typeof stateDirectory !== "string" ||
-      stateDirectory.length === 0 ||
-      stateDirectory.includes("\0")
-    ) {
-      return undefined;
-    }
-    return Object.freeze({ kind: "learned-critical-path" as const, stateDirectory });
+  switch (data.kind) {
+    case "static":
+      return parseStaticAdmissionPolicy(data);
+    case "custom":
+      return parseCustomAdmissionPolicy(data);
+    case "learned-critical-path":
+      return parseLearnedCriticalPathAdmissionPolicy(data);
   }
   return undefined;
 }
 
-function isCustomAdmissionCallback(
+function parseStaticAdmissionPolicy(
+  policy: Readonly<Record<string, unknown>>
+): Extract<AdmissionPolicy, { readonly kind: "static" }> | undefined {
+  return hasExactKeys(policy, ["kind"]) ? Object.freeze({ kind: "static" }) : undefined;
+}
+
+function parseCustomAdmissionPolicy(
+  policy: Readonly<Record<string, unknown>>
+): Extract<AdmissionPolicy, { readonly kind: "custom" }> | undefined {
+  if (!hasExactKeys(policy, ["kind", "strategy"])) return undefined;
+  const strategy = parseCustomAdmissionStrategy(policy.strategy);
+  return strategy === undefined ? undefined : Object.freeze({ kind: "custom", strategy });
+}
+
+function parseLearnedCriticalPathAdmissionPolicy(
+  policy: Readonly<Record<string, unknown>>
+): Extract<AdmissionPolicy, { readonly kind: "learned-critical-path" }> | undefined {
+  if (!hasExactKeys(policy, ["kind", "stateDirectory"])) return undefined;
+  const stateDirectory = policy.stateDirectory;
+  if (
+    typeof stateDirectory !== "string" ||
+    stateDirectory.length === 0 ||
+    stateDirectory.includes("\0")
+  ) {
+    return undefined;
+  }
+  return Object.freeze({ kind: "learned-critical-path" as const, stateDirectory });
+}
+
+function parseCustomAdmissionStrategy(value: unknown): CustomAdmissionStrategy | undefined {
+  const strategy = snapshotClosedRecord(value);
+  if (strategy === undefined || typeof strategy.kind !== "string") return undefined;
+  if (strategy.kind === "simple") {
+    if (!hasExactKeys(strategy, ["kind", "decide"])) return undefined;
+    if (!isSimpleCustomDecision(strategy.decide)) return undefined;
+    return Object.freeze({ kind: "simple" as const, decide: strategy.decide });
+  }
+  if (strategy.kind === "prepared") {
+    if (!hasExactKeys(strategy, ["kind", "prepare"])) return undefined;
+    if (!isPreparedCustomPreparation(strategy.prepare)) return undefined;
+    return Object.freeze({ kind: "prepared" as const, prepare: strategy.prepare });
+  }
+  return undefined;
+}
+
+function isSimpleCustomDecision(
   value: unknown
-): value is Extract<AdmissionPolicy, { readonly kind: "custom" }>["proposeAdmission"] {
+): value is Extract<CustomAdmissionStrategy, { readonly kind: "simple" }>["decide"] {
   return typeof value === "function";
 }
 
-function exactKeys(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  const data = snapshotClosedRecord(value);
-  if (data === undefined) return undefined;
-  return Object.keys(data).length === keys.length && keys.every((key) => Object.hasOwn(data, key))
-    ? data
-    : undefined;
+function isPreparedCustomPreparation(
+  value: unknown
+): value is Extract<CustomAdmissionStrategy, { readonly kind: "prepared" }>["prepare"] {
+  return typeof value === "function";
+}
+
+function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
+  return (
+    Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
+  );
 }
 
 function invalidDefinition(path: string): ProjectDefinitionValidationResult {

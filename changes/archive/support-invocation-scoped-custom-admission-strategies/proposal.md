@@ -4,7 +4,7 @@
 
 ## Why
 
-**当前事实：** public custom authoring 只有同步 `proposeAdmission(context)`；Invocation 已有私有 provider lifecycle，而 generic `scheduler.measurementHooks` 与私有 `complete` 分属两个终态交付路径。调用方无法以一个可验证的 public contract 表达异步准备、Run-local `decide` 与终态提交。
+**实施前基线（不是现行 public contract）：** public custom authoring 只有同步 `proposeAdmission(context)`；Invocation 已有私有 provider lifecycle，而 generic `scheduler.measurementHooks` 与私有 `complete` 分属两个终态交付路径。调用方无法以一个可验证的 public contract 表达异步准备、Run-local `decide` 与终态提交。
 
 ## Outcome
 
@@ -29,7 +29,7 @@
 
 ### Compatibility and boundaries
 
-- public custom authoring 采用 simple/prepared 两种 shape；旧 `proposeAdmission` 是 breaking migration 的唯一兼容边界，validation、normalization、declaration、docs 和 installed-consumer acceptance 一致执行该边界。
+- public custom authoring 只采用 simple/prepared 两种 shape；retired `proposeAdmission` 是 hard-cut compatibility boundary，validation、normalization、declaration、docs 和 installed-consumer acceptance 一致执行该 boundary。
 - callback 是 trusted host code：Product 通过 frozen context 和 result-only handoff 限定 Product surface，不提供 state、filesystem、persistence、clock、logger、mutable Scheduler state 或 Task command。
 - Simulation 可独立、增量地扩展 context object；它不是本 Plan 的依赖。machine v4、schema version、algorithm Change 与 generic persistence/model API 均不在本 Plan 范围。
 

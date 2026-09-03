@@ -41,6 +41,9 @@ export type {
   AdmissionPolicyContext,
   AdmissionPolicyMeasurement,
   AdmissionProposal,
+  CustomAdmissionPreparationContext,
+  CustomAdmissionStrategy,
+  PreparedCustomAdmissionStrategy,
   SchedulerDecisionMeasurementCumulative,
   SchedulerGraphSnapshot,
   SchedulerMeasurementActionObservation,
@@ -59,7 +62,10 @@ export type {
 } from "./scheduler-policy.ts";
 import type {
   AdmissionPolicy,
+  CustomAdmissionStrategy,
+  CustomAdmissionPreparationContext,
   DeclarativeSchedulerPolicy,
+  PreparedCustomAdmissionStrategy,
   SchedulerPolicy
 } from "./scheduler-policy.ts";
 
@@ -129,17 +135,46 @@ type ExactAdmissionPolicy<T extends AdmissionPolicy> =
   T extends Readonly<{ readonly kind: "static" }>
     ? T & Record<Exclude<keyof T, "kind">, never>
     : T extends Readonly<{ readonly kind: "custom" }>
-      ? T & Record<Exclude<keyof T, "kind" | "proposeAdmission">, never>
+      ? T &
+          Record<Exclude<keyof T, "kind" | "strategy">, never> &
+          Readonly<{
+            readonly strategy: ExactCustomAdmissionStrategy<T["strategy"]>;
+          }>
       : T extends Readonly<{ readonly kind: "learned-critical-path" }>
         ? T & Record<Exclude<keyof T, "kind" | "stateDirectory">, never>
         : never;
 
+type ExactCustomAdmissionStrategy<T extends CustomAdmissionStrategy> =
+  T extends Readonly<{ readonly kind: "simple" }>
+    ? T & Record<Exclude<keyof T, "kind" | "decide">, never>
+    : T extends Readonly<{ readonly kind: "prepared" }>
+      ? T &
+          Record<Exclude<keyof T, "kind" | "prepare">, never> &
+          Readonly<{ readonly prepare: ExactCustomPreparation<T["prepare"]> }>
+      : never;
+
+type ExactCustomPreparation<T> = T extends (
+  this: void,
+  context: CustomAdmissionPreparationContext
+) => infer Result
+  ? (this: void, context: CustomAdmissionPreparationContext) => ExactCustomPreparationResult<Result>
+  : never;
+
+type ExactCustomPreparationResult<T> =
+  T extends Promise<unknown>
+    ? Promise<ExactPreparedCustomAdmissionStrategy<Awaited<T>>>
+    : ExactPreparedCustomAdmissionStrategy<T>;
+
+type ExactPreparedCustomAdmissionStrategy<T> = T extends PreparedCustomAdmissionStrategy
+  ? T & Record<Exclude<keyof T, "decide" | "complete">, never>
+  : never;
+
 /**
  * 保留 closed admission policy literal 的 TypeScript inference，不创建额外运行语义。
  *
- * @remarks inline policy 与此 helper 的结果完全等价。custom callback 会在 Run 中以调用方 closure
- * 同步调用，重叠 Run 的可重入性由调用方负责；learned-critical-path 的 stateDirectory 在稍后的 Run
- * 中从 effective projectRoot 解析。
+ * @remarks inline policy 与此 helper 的结果完全等价。custom simple `decide` 同步运行；prepared
+ * strategy 为每个 graph-ready Run 解析独立 closure，调用方负责其 trusted host callback 的可重入性。
+ * learned-critical-path 的 stateDirectory 在稍后的 Run 中从 effective projectRoot 解析。
  */
 export function defineAdmissionPolicy<const T extends AdmissionPolicy>(
   policy: ExactAdmissionPolicy<T>
@@ -228,16 +263,28 @@ function freezeDeclarativeSnapshot(
     checks: declarations,
     outputs: definition.outputs,
     scheduler: Object.freeze({
-      admissionPolicy:
-        definition.scheduler.admissionPolicy.kind === "learned-critical-path"
-          ? Object.freeze({
-              kind: "learned-critical-path" as const,
-              stateDirectory: definition.scheduler.admissionPolicy.stateDirectory
-            })
-          : Object.freeze({ kind: definition.scheduler.admissionPolicy.kind }),
+      admissionPolicy: declarativeAdmissionPolicy(definition.scheduler.admissionPolicy),
       maxParallel: definition.scheduler.maxParallel
     })
   });
+}
+
+function declarativeAdmissionPolicy(
+  policy: AdmissionPolicy
+): DeclarativeSchedulerPolicy["admissionPolicy"] {
+  if (policy.kind === "learned-critical-path") {
+    return Object.freeze({
+      kind: "learned-critical-path" as const,
+      stateDirectory: policy.stateDirectory
+    });
+  }
+  if (policy.kind === "custom") {
+    return Object.freeze({
+      kind: "custom" as const,
+      strategy: Object.freeze({ kind: policy.strategy.kind })
+    });
+  }
+  return Object.freeze({ kind: "static" as const });
 }
 function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
   let admissionPolicy: AdmissionPolicy;
@@ -246,7 +293,7 @@ function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
   } else if (policy.admissionPolicy.kind === "custom") {
     admissionPolicy = Object.freeze({
       kind: "custom" as const,
-      proposeAdmission: policy.admissionPolicy.proposeAdmission
+      strategy: Object.freeze({ ...policy.admissionPolicy.strategy })
     });
   } else {
     admissionPolicy = Object.freeze({

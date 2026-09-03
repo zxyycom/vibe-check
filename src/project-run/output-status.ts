@@ -19,6 +19,8 @@ export interface RunOutputStatuses {
 }
 
 export interface OutputStatuses {
+  /** Enables a runtime-only terminal participant after successful preparation. */
+  readonly enableMeasurementHooks: () => void;
   readonly failed: (output: keyof RunOutputStatuses) => void;
   readonly succeeded: (output: keyof RunOutputStatuses) => void;
   readonly value: () => RunOutputStatuses;
@@ -27,8 +29,9 @@ export interface OutputStatuses {
 export function createOutputStatuses(
   configuration: ProjectOutputs,
   diagnosticLoggingFile: string | null,
-  measurementHooksEnabled: boolean
+  initialMeasurementHooksEnabled: boolean
 ): OutputStatuses {
+  let measurementHooksEnabled = initialMeasurementHooksEnabled;
   const statuses: Record<keyof RunOutputStatuses, RunOutputStatus["status"]> = {
     machinePublication: initialStatus(configuration.machinePublication.enabled),
     progressRendering: initialStatus(configuration.progressRendering.enabled),
@@ -38,11 +41,16 @@ export function createOutputStatuses(
   const enabled = (output: keyof RunOutputStatuses): boolean =>
     output === "measurementHooks" ? measurementHooksEnabled : configuration[output].enabled;
   return Object.freeze({
+    enableMeasurementHooks: () => {
+      if (measurementHooksEnabled) return;
+      measurementHooksEnabled = true;
+      statuses.measurementHooks = "not-run";
+    },
     failed: (output: keyof RunOutputStatuses) => {
       if (enabled(output)) statuses[output] = "failed";
     },
     succeeded: (output: keyof RunOutputStatuses) => {
-      if (enabled(output)) statuses[output] = "succeeded";
+      if (enabled(output) && statuses[output] !== "failed") statuses[output] = "succeeded";
     },
     value: () =>
       Object.freeze({

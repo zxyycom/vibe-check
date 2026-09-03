@@ -10,6 +10,15 @@ import type {
 import { staticAdmissionSelectionPolicy } from "./task-scheduler/admission-selection-policy.ts";
 import { AdmissionPolicyFault } from "./task-scheduler/scheduler-admission-decision.ts";
 import { executeValidatedRun } from "./invocation.ts";
+import {
+  assertOrdered,
+  assertMeasurementOutputParticipants,
+  assertPublicCompletionFailurePreservesPrimaryResult,
+  assertPublicPreparationFailure,
+  assertPublicPreparedClosuresStayIsolated,
+  assertPublicPreparedStrategyRunsOnce,
+  deferred
+} from "./invocation-custom-admission-strategy-lifecycle.test-support.ts";
 
 const PASSED = Object.freeze({ data: Object.freeze({}), status: "passed" as const });
 
@@ -99,6 +108,51 @@ describe("Package Run admission strategy lifecycle", () => {
     assert.deepEqual(events, ["prepare"]);
   });
 
+  it("keeps a prepared completion output enabled but not-run without a sealed context", async () => {
+    const events: string[] = [];
+    const malformedPolicy: AdmissionSelectionPolicy = Object.freeze({
+      get decide(): AdmissionSelectionPolicy["decide"] {
+        throw new Error("policy setup failed");
+      }
+    });
+    const result = await executeValidatedRun(
+      defineConfig({
+        checks: [check("check", () => PASSED)],
+        outputs: {
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        }
+      }),
+      {},
+      [],
+      {
+        admissionStrategyProviderFactory: () =>
+          Object.freeze({
+            prepare: async () =>
+              Object.freeze({
+                admissionPolicy: malformedPolicy,
+                completion: Object.freeze({
+                  kind: "measurement-hook" as const,
+                  complete: () => {
+                    events.push("complete");
+                  }
+                }),
+                observeAdmittedTask: undefined,
+                requiresTerminalMeasurement: true
+              })
+          })
+      }
+    );
+
+    assert.equal(result.kind, "execution");
+    assert.equal(
+      result.kind === "execution" ? result.diagnostic.code : undefined,
+      "task-engine-failed"
+    );
+    assert.deepEqual(events, []);
+    assert.deepEqual(result.outputs.measurementHooks, { enabled: true, status: "not-run" });
+  });
+
   it("keeps prepared policy closures independent across overlapping Runs", async () => {
     const release = deferred<void>();
     const bothStarted = deferred<void>();
@@ -130,9 +184,12 @@ describe("Package Run admission strategy lifecycle", () => {
                   return staticAdmissionSelectionPolicy.decide(input);
                 }
               }),
-              complete: async () => {
-                events.push(`complete-${preparedId}`);
-              },
+              completion: Object.freeze({
+                kind: "internal" as const,
+                complete: async () => {
+                  events.push(`complete-${preparedId}`);
+                }
+              }),
               observeAdmittedTask: undefined,
               requiresTerminalMeasurement: true
             })
@@ -158,6 +215,17 @@ describe("Package Run admission strategy lifecycle", () => {
       "decide-2"
     ]);
   });
+
+  it("runs a public prepared strategy once and completes after generic terminal Hooks", async () =>
+    assertPublicPreparedStrategyRunsOnce());
+  it("keeps public prepared closures isolated across overlapping Runs", async () =>
+    assertPublicPreparedClosuresStayIsolated());
+  it("fails public preparation before Scheduler start and preserves its output boundary", async () =>
+    assertPublicPreparationFailure());
+  it("aggregates public completion failures without rewriting a sealed primary result", async () =>
+    assertPublicCompletionFailurePreservesPrimaryResult());
+  it("enables measurement output only for generic Hooks or an actual prepared completion", async () =>
+    assertMeasurementOutputParticipants());
 });
 
 function runWithPreparedStrategy(
@@ -173,10 +241,13 @@ function runWithPreparedStrategy(
         prepare: async () =>
           Object.freeze({
             admissionPolicy,
-            complete: async () => {
-              assert.ok(events.includes("terminal-hook"));
-              events.push("complete");
-            },
+            completion: Object.freeze({
+              kind: "internal" as const,
+              complete: async () => {
+                assert.ok(events.includes("terminal-hook"));
+                events.push("complete");
+              }
+            }),
             observeAdmittedTask: undefined,
             requiresTerminalMeasurement: true
           })
@@ -210,27 +281,4 @@ function recordingPolicy(events: string[]): AdmissionSelectionPolicy {
       return staticAdmissionSelectionPolicy.decide(input);
     }
   });
-}
-
-function assertOrdered(input: {
-  readonly events: readonly string[];
-  readonly required: readonly string[];
-}): void {
-  let priorIndex = -1;
-  for (const event of input.required) {
-    const index = input.events.indexOf(event, priorIndex + 1);
-    assert.ok(
-      index >= 0,
-      `expected ${event} after ${input.events.slice(priorIndex + 1).join(", ")}`
-    );
-    priorIndex = index;
-  }
-}
-
-function deferred<T>() {
-  let resolve!: (value: T | PromiseLike<T>) => void;
-  const promise = new Promise<T>((resolvePromise) => {
-    resolve = resolvePromise;
-  });
-  return Object.freeze({ promise, resolve });
 }

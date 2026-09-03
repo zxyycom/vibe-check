@@ -19,17 +19,13 @@ import {
 describe("task engine admission policy", () => {
   it("preserves the caller closure across overlapping custom Runs without a Scheduler callback lock", async () => {
     let callbackCalls = 0;
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: (context) => {
-        callbackCalls += 1;
-        const candidate = context.candidates.find((item) => item.canAdmit);
-        return candidate === undefined
-          ? { kind: "wait" }
-          : { kind: "select", taskId: candidate.taskId };
-      }
+    const policy = admissionSelectionPolicyFor((context) => {
+      callbackCalls += 1;
+      const candidate = context.candidates.find((item) => item.canAdmit);
+      return candidate === undefined
+        ? { kind: "wait" }
+        : { kind: "select", taskId: candidate.taskId };
     });
-    if (policy === undefined) assert.fail("expected custom policy adapter");
 
     await Promise.all([
       runTaskGraph({
@@ -53,14 +49,10 @@ describe("task engine admission policy", () => {
     const started = createDeferred<void>();
     const calls: string[] = [];
     let proposals = 0;
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: () => {
-        proposals += 1;
-        return proposals === 1 ? { kind: "select", taskId: "started" } : malformedWaitProposal();
-      }
+    const policy = admissionSelectionPolicyFor(() => {
+      proposals += 1;
+      return proposals === 1 ? { kind: "select", taskId: "started" } : malformedWaitProposal();
     });
-    if (policy === undefined) assert.fail("expected custom policy adapter");
 
     const running = runTaskGraph({
       admissionPolicy: policy,
@@ -97,25 +89,25 @@ describe("task engine admission policy", () => {
         | "malformed-proposal"
         | "non-candidate-select"
         | "undrainable-wait";
-      readonly proposeAdmission: () => AdmissionProposal;
+      readonly decide: () => AdmissionProposal;
     }>[] = [
       {
         category: "callback-threw",
-        proposeAdmission: () => {
+        decide: () => {
           throw new Error("secret");
         }
       },
-      { category: "thenable-proposal", proposeAdmission: thenableWaitProposal },
-      { category: "malformed-proposal", proposeAdmission: malformedWaitProposal },
+      { category: "thenable-proposal", decide: thenableWaitProposal },
+      { category: "malformed-proposal", decide: malformedWaitProposal },
       {
         category: "non-candidate-select",
-        proposeAdmission: () => ({ kind: "select", taskId: "missing" })
+        decide: () => ({ kind: "select", taskId: "missing" })
       },
-      { category: "undrainable-wait", proposeAdmission: () => ({ kind: "wait" }) }
+      { category: "undrainable-wait", decide: () => ({ kind: "wait" }) }
     ];
 
     for (const fault of immediateFaults) {
-      const graphRun = await runWithCustomProposal(fault.proposeAdmission, {
+      const graphRun = await runWithCustomProposal(fault.decide, {
         tasks: [{ id: "pending" }]
       });
       assert.equal(graphRun.admissionPolicyFault, fault.category);
@@ -146,15 +138,11 @@ describe("task engine admission policy", () => {
     assert.equal(lifecycleRun.admissionPolicyFault, "lifecycle-invalid-select");
 
     const observations: DiagnosticObservation[] = [];
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: () => {
-        const proposal: AdmissionProposal = { kind: "wait" };
-        Reflect.set(proposal, "raw", { caller: "secret" });
-        return proposal;
-      }
+    const policy = admissionSelectionPolicyFor(() => {
+      const proposal: AdmissionProposal = { kind: "wait" };
+      Reflect.set(proposal, "raw", { caller: "secret" });
+      return proposal;
     });
-    if (policy === undefined) assert.fail("expected custom policy adapter");
     await runTaskGraph({
       admissionPolicy: policy,
       diagnosticLogger: recordingLogger(observations),
@@ -205,11 +193,14 @@ describe("task engine admission policy", () => {
         scheduler: {
           admissionPolicy: {
             kind: "custom",
-            proposeAdmission: () => {
-              proposals += 1;
-              return proposals === 1
-                ? { kind: "select", taskId: "started" }
-                : malformedWaitProposal();
+            strategy: {
+              kind: "simple",
+              decide: () => {
+                proposals += 1;
+                return proposals === 1
+                  ? { kind: "select", taskId: "started" }
+                  : malformedWaitProposal();
+              }
             }
           },
           maxParallel: 2
@@ -267,8 +258,11 @@ describe("task engine admission policy", () => {
         scheduler: {
           admissionPolicy: {
             kind: "custom",
-            proposeAdmission: () => {
-              throw new Error("caller detail must not escape");
+            strategy: {
+              kind: "simple",
+              decide: () => {
+                throw new Error("caller detail must not escape");
+              }
             }
           },
           maxParallel: 1

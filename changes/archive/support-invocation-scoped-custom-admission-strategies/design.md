@@ -1,10 +1,10 @@
 # Design
 
-本设计以 public custom strategy 的 Run 数据流、terminal output contract 和 failure matrix 落实 Proposal 的 Outcome；实现前后分别由 current owner 与本 Plan 的交付证据确认事实。
+本设计以 public custom strategy 的 Run 数据流、terminal output contract 和 failure matrix 落实 Proposal 的 Outcome。现行稳定事实由对应 owner 承接；下表的实施前基线只解释本 Plan 的变更边界。
 
 ## Context
 
-| 范围 | 当前实现 | 本 Plan 的目标契约 |
+| 范围 | 实施前基线 | 本 Plan 交付的契约 |
 | --- | --- | --- |
 | public authoring | custom policy 使用同步 `proposeAdmission(context)`；callback 不进入 declarative fingerprint。 | custom policy 使用 simple 或 prepared strategy；strategy kind 进入 declarative fingerprint，callback identity/source/closure 留在 runtime state。 |
 | Invocation 与 Scheduler | private provider 在 graph ready 后形成 frozen `AdmissionSelectionPolicy`；Scheduler 同步 `decide` 并拥有 execution state machine。 | Invocation 为每个 Run 管理 public `prepare`/`complete`；Scheduler 继续只接收 frozen synchronous policy 并拥有 execution state machine。 |
@@ -23,7 +23,7 @@
 
 ### Non-Goals and boundaries
 
-- public authoring 只有 simple/prepared 两种 form；`proposeAdmission` migration、async/thenable `decide` 和 unknown authoring fields 的 acceptance 集中在 public compatibility validation 与 consumer evidence。
+- public authoring 只有 simple/prepared 两种 form；compatibility hard cut 拒绝 retired `proposeAdmission`、async/thenable `decide` 和 unknown authoring fields，并由 public validation 与 consumer evidence 证明。
 - trusted host callback 自行持有 host capability；Product context 不扩展为 state directory、filesystem/persistence service、clock、logger、mutable Scheduler inspection 或 imperative Task control。
 - Simulation、algorithm/preset research、registry、generic model API 和 machine v4/schema revision 不属于本 Plan。`docs/output.md` 只验证 machine boundary，RunResult output 继续由 API mechanics、types 与 package documentation owner 承接。
 

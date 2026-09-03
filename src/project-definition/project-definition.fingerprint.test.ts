@@ -74,7 +74,7 @@ describe("Project Definition", () => {
       scheduler: {
         admissionPolicy: {
           kind: "custom",
-          proposeAdmission: () => ({ kind: "wait" })
+          strategy: { kind: "simple", decide: () => ({ kind: "wait" }) }
         }
       }
     });
@@ -82,10 +82,24 @@ describe("Project Definition", () => {
       scheduler: {
         admissionPolicy: {
           kind: "custom",
-          proposeAdmission: () => ({
-            kind: "select",
-            taskId: "different-closure"
-          })
+          strategy: {
+            kind: "simple",
+            decide: () => ({
+              kind: "select",
+              taskId: "different-closure"
+            })
+          }
+        }
+      }
+    });
+    const preparedCustomPolicy = defineConfig({
+      scheduler: {
+        admissionPolicy: {
+          kind: "custom",
+          strategy: {
+            kind: "prepared",
+            prepare: () => ({ decide: () => ({ kind: "wait" as const }) })
+          }
         }
       }
     });
@@ -122,6 +136,10 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(staticPolicy).declarative)
     );
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(preparedCustomPolicy).declarative)
+    );
     assert.equal(
       createDeclarativeFingerprint(normalizeProjectDefinition(hooksOne).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(hooksTwo).declarative)
@@ -138,7 +156,11 @@ describe("Project Definition", () => {
       maxParallel: 4
     });
     assert.deepEqual(normalizeProjectDefinition(firstCustomPolicy).declarative.scheduler, {
-      admissionPolicy: { kind: "custom" },
+      admissionPolicy: { kind: "custom", strategy: { kind: "simple" } },
+      maxParallel: 4
+    });
+    assert.deepEqual(normalizeProjectDefinition(preparedCustomPolicy).declarative.scheduler, {
+      admissionPolicy: { kind: "custom", strategy: { kind: "prepared" } },
       maxParallel: 4
     });
 

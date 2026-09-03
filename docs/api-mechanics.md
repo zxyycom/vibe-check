@@ -43,42 +43,54 @@ cancelled 和 admission-policy-failed Run 只要返回该 context 都遵循这�
 
 - `defineCheck(value)` 保留 literal `checkId`、options 和 typed-provider parser 的 TypeScript inference。它与同 shape 普通 Check object 具有相同 runtime 语义。
 - `defineConfig(value)` 形成带默认 `apiVersion`、outputs 和 scheduler policy 的 Project Definition。
-- `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom callback 的 inference；它与同形 inline policy value 等价。
+- `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom strategy 的 inference；它与同形 inline policy value 等价。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
 
 fingerprint 使用 normalized declarative fields；preflight、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static`、`custom` 与 `learned-critical-path`；后者包含 `stateDirectory`，custom 仍绝不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
 
 ### custom admission policy
 
-`scheduler.admissionPolicy` 省略时与 `{ kind: "static" }` 相同。custom value 以同步
-`proposeAdmission(context)` 表达调用方知道、但 Product 不能统一解释的准入偏好；它每轮只返回
-`{ kind: "select", taskId }` 或 `{ kind: "wait" }`，没有 reason、reservation、history、identity/version、registry 或 composition
-协议。`defineAdmissionPolicy(...)` 只改善该 callback 的 TypeScript inference，inline object 与 helper 的运行语义完全相同。
+`scheduler.admissionPolicy` 省略时与 `{ kind: "static" }` 相同。custom 只有两种 exact authoring form：
 
-每次 callback 获得独立、deep-frozen 的 `AdmissionPolicyContext`：`graph` 以 canonical arrays 提供完整 normalized tasks、scopes
-及每个 Task 的 relation arrays，Task metadata 是 topology 和 `admissionPriority` 的唯一来源；该 `SchedulerGraphSnapshot` 在 invocation 内一次冻结并由所有 callback 共享。dynamic facts 包含 relation/mutex candidates 的
-`{ taskId, canAdmit }`、capacity、running/settled/active-scope IDs、最小 cancellation runtime 状态以及决策边界 measurement。它不是 private Scheduler
-inspection 的别名，也不带 `Set`/`Map`、Check options/functions/data、Records、messages、logger、clock、signal 或 Task capability。
+- `{ kind: "custom", strategy: { kind: "simple", decide(context) } }`：每个 admission cycle 直接使用同步 `decide`；
+- `{ kind: "custom", strategy: { kind: "prepared", prepare({ graph }) } }`：每个 graph-ready Run async-capable
+  `prepare` 一次，并返回该 Run 的 `{ decide, complete? }`。
 
-callback 是调用方 trusted synchronous code。Product 不 sandbox、timeout、isolate 或为它建立全局 lock；同一 Definition 的
-overlapping Runs 共享 caller closure，因此 closure reentrancy 由调用方负责。冻结 context 保护 Product data，不限制 caller
-自己的 host-side effects。它在 private implementation 中可适配为一次 prepared strategy 的 no-op prepare/complete，
-但不会因此获得任何新的 public lifecycle callback 或 context。
+simple 的 `decide` 和 prepared 返回对象的 `decide` 都必须同步返回精确
+`{ kind: "select", taskId }` 或 `{ kind: "wait" }`。`defineAdmissionPolicy(...)` 只改善这些 literal 的 TypeScript
+inference，inline object 与 helper 的运行语义完全相同。declarative snapshot/fingerprint 记录 custom 的 strategy kind，
+但不记录 callback identity、source 或 closure。Compatibility hard cut 只接受这两种 form：retired
+`proposeAdmission`、unknown authoring fields 和 thenable `decide` 都不构成合法 authoring。
 
-Scheduler 在 callback 前形成 candidate，在 callback 后只守下一运行选项的 hard guard：selected Task 必须仍 pending、是当前
-relation/mutex candidate、当前 capacity 可 admission 且未越过 lifecycle/cancellation cutoff；`wait` 必须有 running work 能推进下一
-snapshot。它不重新判断 policy 是否公平、是否饥饿、是否应选择另一个 candidate 或等待的理由，并独占 readiness、mutex、capacity、
-cancellation、Task start、await、blocked settlement 与 terminal settlement。
+Invocation 在静态图 ready 且未于 pre-work/planning 取消后，解析该 Run 的 custom strategy。simple 立即形成 Run-local
+selection closure；prepared 恰好调用一次 `prepare(Object.freeze({ graph }))`，其 return 或 resolved exact
+`{ decide, complete? }` 也只属于该 Run。重叠 Runs 不共享 returned object 或 closure。成功准备后，Scheduler 只接收 frozen
+synchronous `decide`；有 sealed terminal context 时，Invocation 在 generic terminal Hooks 返回后至多一次交付 optional
+`complete`。
 
-custom callback 在每次**实际**调用前获得共享、deep-frozen `SchedulerGraphSnapshot` 与 `measurement`：同一 Run 的 graph 只冻结一次，Scheduler 先 flush current open occupancy interval。`cumulative` 只投影 bounded scalar/discrete/peak facts，完整 per-Task table 只属于 terminal raw measurement。`measurementCount` 与 `measurementAt(index)` 构成一次 callback 创建时捕获 end-count 的 synchronous reader：它只返回 index 落在该 immutable prefix 内的 invocation-local append-only frozen action observation，越界返回 `undefined`；它不是 live array 或 per-round slice，因此旧 context 以后调用也不能看到后续 append。每条 observation 描述 accepted `select`/`wait` 的 identity、从其 post-action state 到下一次实际 custom callback 前的 occupancy interval，以及期间 bounded admitted/settled effects；interval 是 state observation，不声明该 action 造成 effects。其 interval 是 closed union：available timing 才包含数值 contribution，unavailable timing 只含 closed reason；所以合法 zero span 是 available zero，而 clock/integral fault 不会被伪造成全零 interval。它不含 actionDuration、causedBy、criticalPath、CPU归因或完整 ledger。连续 select 的第二轮因此能读取首次 select/admission，即使 elapsed 为零；wait 后 settlement 的下一轮仍读取 wait 和完整 running-cohort interval。
+每次实际 decide 都收到独立、deep-frozen 的 `AdmissionPolicyContext`：`graph` 以 canonical arrays 提供完整 normalized tasks、
+scopes 及每个 Task 的 relation arrays，Task metadata 是 topology 和 `admissionPriority` 的唯一来源；该
+`SchedulerGraphSnapshot` 在 invocation 内一次冻结并由所有 decision context 共享。dynamic facts 提供 relation/mutex
+candidates 的 `{ taskId, canAdmit }`、capacity、running/settled/active-scope IDs、最小 cancellation runtime 状态以及
+决策边界 measurement。完整 Scheduler state、Check data、Records、messages 与 Task control 保持在 Product owner 内。
 
-即使启用 Scheduler human diagnostics，custom callback 仍不获得 clock、logger、mutable accumulator 或 per-policy timing telemetry；这些 imperative observation 只属于 Scheduler shell，不能成为 callback context、public telemetry 或 policy result。
+callback 是调用方 trusted host code。调用方 closure 保有自己的 host capability；Vibe Check 只提供 frozen context 和
+result-only handoff，不把 Scheduler inspection 或 Task command 变成 custom strategy API。Scheduler 在 callback 后独占
+readiness、mutex、capacity、cancellation、Task start/await/settlement，以及 selected Task 仍 pending、属于本轮 candidate 和
+`wait` 可 drain 的验证。
 
-throw、thenable proposal、malformed proposal、non-candidate/capacity/lifecycle-invalid select 或 undrainable wait 都是 fatal
-admission-policy fault：Product 停止新 admission、取消 pending Tasks、drain 已启动 Task，并返回
-`{ kind: "execution", diagnostic: { code: "admission-policy-failed" } }`；它不 fallback 到 static policy。启用 diagnostic logging
-时只记录有界 fault category 与 Scheduler hard-guard facts，不输出 raw thrown value、proposal、stack 或 caller data，也不建立 policy
-console capture、`checkMessages` ownership、timing telemetry、parser/schema 或稳定 event grammar。
+custom callback 在每次**实际**调用前获得 shared graph 和已 flush 的 `measurement`。`cumulative` 投影 bounded
+scalar/discrete/peak facts，完整 per-Task table 只属于 terminal raw measurement；`measurementCount` 与
+`measurementAt(index)` 是 context 创建时捕获 end-count 的 synchronous reader。available timing 才包含数值 contribution；
+合法 zero span 仍是 available，而 clock/integral fault 形成 unavailable timing。该 observation 描述 action 后 state，
+不把时段解释为 action causality、critical path 或 CPU 归因。
+
+| 触发点 | owner 与处理 | 对调用方可见的结果 |
+| --- | --- | --- |
+| prepared `prepare` throw/reject 或不能形成 exact closure | Invocation 在 Scheduler start 前结束该 Run。 | `kind: "execution"` / `admission-strategy-preparation-failed`；没有 complete delivery。`outputs.measurementHooks` 仍只由 configured generic Hooks 决定是 disabled 或 enabled/`not-run`。 |
+| `decide` throw、thenable、malformed proposal、illegal `select` 或 undrainable `wait` | Scheduler 停止新 admission、取消 pending，并 drain 已启动 Task。 | `kind: "execution"` / `admission-policy-failed`；若 drain seal 出 context，prepared `complete` 仍在 generic Hooks 后交付。 |
+| pre-terminal task-engine failure | task engine 形成 primary execution result。 | 没有 sealed context 或 complete delivery；已 enabled 的 measurement output 保持 `not-run`。 |
+| generic Hook 或 public `complete` throw/reject | Scheduler 让余下 generic Hooks 获得调用机会；Invocation 汇总 terminal participant settlement。 | `outputs.measurementHooks.status` 为 `failed`；正常 completed Run 映射为保留 sealed facts 的 `kind: "output"` / `scheduler-measurement-hooks-failed`，已有 primary outcome 不被覆盖。 |
 
 ### learned-critical-path 准入
 
@@ -392,11 +404,21 @@ Definition outputs 提供 diagnostic logging、machine publication 与 progress 
 `path.relative(projectRoot, resolvedFile)` 的预先计算 readback。root 外 target 因此可含 `..`；跨卷时平台可以返回绝对路径。实际 filename 始终是 invocation-specific `run-<UTC 紧凑时间>-<UUID>.log`。无效 Definition、controls 或 aggregation selection 直接返回
 configuration diagnostic，不创建诊断日志。
 
-`outputs.measurementHooks` 的形状为 `{ enabled, status }`，使用同一 closed status set。它仅在 normalized
-`scheduler.measurementHooks` 为非空时 enabled，并在终态 Hook sequence 前保持 `not-run`；没有 configured Hook 时为
-`disabled`。pre-work/planning failure 没有 Scheduler terminal sequence，故 enabled Hook output 仍可为 `not-run`。
-在有 terminal sequence 的路径，所有 caller Hooks 成功 settlement 后为 `succeeded`；任一 caller Hook throw/reject 后为
-`failed`，但其余 Hook 仍按顺序获得调用机会。内置 `scheduler.summary` writer 不属于此 output。
+`outputs.measurementHooks` 的形状为 `{ enabled, status }`，使用同一 closed status set。其 authority、participant 和
+readback 如下；内置 `scheduler.summary` writer 不属于此 output。
+
+| 条件 | `enabled` / `status` |
+| --- | --- |
+| normalized `scheduler.measurementHooks` 非空，或 successful prepared custom result 实际含 `complete` | `enabled: true`。 |
+| 两者都没有 | `enabled: false`，`status: "disabled"`。 |
+| enabled Run 没有 sealed terminal sequence | `status: "not-run"`。prepare failure 因此在无 generic Hooks 时 disabled、有 generic Hooks 时 enabled/`not-run`。 |
+| sealed sequence 中，actual generic Hooks 与 optional public `complete` 全部成功 | `status: "succeeded"`。 |
+| sealed sequence 中任一 generic Hook 或 complete throw/reject | `status: "failed"`；后续 complete success 不会覆盖已记录的 generic failure。 |
+
+Scheduler 按配置顺序让所有 generic Hooks 获得调用机会；Invocation 随后才调用 public complete，并汇总这些实际
+participants 的 settlement。仅当 primary Run 正常完成时，measurement-hook failure 才把结果映射为保留 facts 的
+`kind: "output"` / `scheduler-measurement-hooks-failed`；cancellation 或 execution diagnostic 保持原有 primary result，
+failure 仍在该 output status 可见。
 
 diagnostic logging 只服务当前人工诊断：它没有 parser、schema/version、跨版本格式兼容、`latest`、retention 或跨 invocation
 discovery contract，也不替代 Check final data、Record、terminal message 或 Check/process adapter 自有的 transcript。logging
@@ -422,7 +444,7 @@ progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM
 | 分支                                              | 可用 facts 与处理方式                                                                                                                                                                                                                                                                                                                   |
 | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `completed`                                       | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。                                                                                                                                                                                                                          |
-| `output`                                          | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。`scheduler-measurement-hooks-failed` 只在正常 completion 且 measurement Hooks 是按 output 顺序选中的第一个 failed output 时出现；所有 caller Hooks 已获调用机会且至少一个 throw/reject。已有 cancellation 或 execution failure 时主 result 保留，Hook failure 仅表现为 `outputs.measurementHooks.status: "failed"`。 |
+| `output`                                          | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。`scheduler-measurement-hooks-failed` 只在正常 completion 且 measurement Hooks 是按 output 顺序选中的第一个 failed output 时出现；所有 configured generic Hooks 已获调用机会，且至少一个 generic Hook 或 public prepared `complete` throw/reject。已有 cancellation 或 execution failure 时主 result 保留，Hook failure 仅表现为 `outputs.measurementHooks.status: "failed"`。 |
 | `cancelled` / `phase: "execution"`                | 取消时关闭的 snapshot、durations 与 messages；按 cancellation result 处理。                                                                                                                                                                                                                                                             |
 | `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。                                                                                                                                                                                                                                                                          |
 | `configuration`                                   | Definition、controls 或 aggregation selection diagnostic；project callback 执行数为零。                                                                                                                                                                                                                                                 |

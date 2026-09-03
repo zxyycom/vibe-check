@@ -8,9 +8,10 @@ import {
 import type { CheckAggregation, RunControls } from "./controls/contract.ts";
 import {
   createAdmissionStrategyProvider,
-  type AdmissionStrategyProviderFactory,
-  type PreparedAdmissionStrategy
+  type AdmissionStrategyProviderFactory
 } from "./admission-strategy-provider/provider.ts";
+import { AdmissionStrategyPreparationFailure } from "./admission-strategy-provider/custom-strategy-preparation.ts";
+import type { PreparedAdmissionStrategy } from "./admission-strategy-provider/prepared-admission-strategy.ts";
 import { prepareTaskGraph } from "./task-scheduler/graph.ts";
 import { aggregateCheckOutcomes, validateCheckAggregationSelection } from "./aggregation.ts";
 import {
@@ -184,12 +185,27 @@ async function executePreparedInvocation(
   project: CheckProjectContext
 ): Promise<NonConfigurationRunResult> {
   if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "planning");
-  const preparedStrategy = await prepareAdmissionStrategy(invocation);
+  let preparedStrategy: PreparedAdmissionStrategy;
+  try {
+    preparedStrategy = await prepareAdmissionStrategy(invocation);
+  } catch (error) {
+    if (error instanceof AdmissionStrategyPreparationFailure) {
+      return executionResult(invocation, "admission-strategy-preparation-failed");
+    }
+    throw error;
+  }
+  if (preparedStrategy.completion.kind === "measurement-hook") {
+    invocation.outputs.enableMeasurementHooks();
+  }
   invocation.progressRendering.prepared(invocation.normalized.checks.length);
   const executionStartedAt = invocation.clock.now();
   const executed = await executeChecks(invocation, project, invocation.clock, preparedStrategy);
   if (isExecutionRunResult(executed)) return executed;
-  await completeAdmissionStrategyAfterTerminalMeasurement(preparedStrategy, executed);
+  await completeAdmissionStrategyAfterTerminalMeasurement(
+    preparedStrategy,
+    executed,
+    invocation.outputs
+  );
   return finalizeResolvedCheckExecution({
     aggregation,
     executed,
@@ -222,11 +238,28 @@ async function prepareAdmissionStrategy(
 /** The prepared provider closes only after Scheduler terminal measurement and Hooks have settled. */
 async function completeAdmissionStrategyAfterTerminalMeasurement(
   preparedStrategy: PreparedAdmissionStrategy,
-  executed: ResolvedCheckExecution
+  executed: ResolvedCheckExecution,
+  outputs: OutputStatuses
 ): Promise<void> {
   const terminalMeasurement = executed.terminalSchedulerMeasurement;
-  if (terminalMeasurement !== undefined) {
-    await preparedStrategy.complete(Object.freeze({ terminalMeasurement }));
+  if (terminalMeasurement === undefined) return;
+  switch (preparedStrategy.completion.kind) {
+    case "none":
+      return;
+    case "internal":
+      try {
+        await preparedStrategy.completion.complete(Object.freeze({ terminalMeasurement }));
+      } catch {
+        // Private learned lifecycle cannot revise sealed execution or public output facts.
+      }
+      return;
+    case "measurement-hook":
+      try {
+        await preparedStrategy.completion.complete(terminalMeasurement);
+        outputs.succeeded("measurementHooks");
+      } catch {
+        outputs.failed("measurementHooks");
+      }
   }
 }
 
@@ -366,7 +399,10 @@ function executionResult(
   invocation: Invocation,
   code: Extract<
     RunDiagnostic["code"],
-    "admission-policy-failed" | "publication-model-failed" | "task-engine-failed"
+    | "admission-policy-failed"
+    | "admission-strategy-preparation-failed"
+    | "publication-model-failed"
+    | "task-engine-failed"
   >
 ): NonConfigurationRunResult {
   return Object.freeze({

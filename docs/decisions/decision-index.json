@@ -7,7 +7,7 @@
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
       "add-invocation-local-scheduler-performance-summary.md": "sha256:fc65bdb972882df0b2378cd702578505b9e5ee8056aeefe328bbc35739f22469",
-      "adopt-invocation-scoped-custom-admission-strategy-authoring.md": "sha256:a2f7fbc0c50d5927d4f6f49a9be82e83b25defda1e3f26826ebe817a8d5ce1ae",
+      "adopt-invocation-scoped-custom-admission-strategy-authoring.md": "sha256:a77e0d796cc4c6ef87f6caa29575140b3e9dcc2214016c79abd88e38bcb22261",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:52002e206bc59420239f9329f64282cef6697837ca4a01f13d85f590cd0e977a",
@@ -80,7 +80,7 @@
       "expose-stateless-custom-admission-policy-to-callers.md": "sha256:6e63362aa8485a0edd4500c9e3d616c1d4c6c71ee17551251ec4f6d495e49307",
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "extend-invocation-local-scheduler-performance-summary.md": "sha256:9bfbd9e6da004b67fb79e0c8ef85f067e978eb782432deea944570817a0e1a49",
-      "extend-measurement-hook-output-to-prepared-complete.md": "sha256:e29f4acec161e45f89360c55a7f39f4cc91c3ad349f1d8117a3fd5dd547802af",
+      "extend-measurement-hook-output-to-prepared-complete.md": "sha256:d0eab54f22897ec1fa25076afafc493bd7391e79145ce4e22c45141e3a2e0c52",
       "group-flag-disabled-checks-in-progress.md": "sha256:dbd74b6a814ab87e204de01e948970a5284a6021e44cf35ee95f5f7dd967f458",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
@@ -178,7 +178,7 @@
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:d3f57d08bba36a5e22d4e4bccb41ef7bba506032c2d4d824dfb5ff721c77db8d",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
-      "retain-private-invocation-admission-strategy-lifecycle.md": "sha256:e4fa4f38bfd0080c7256563a5a861e71d65f846870e11a6470bef368d3f56231",
+      "retain-private-invocation-admission-strategy-lifecycle.md": "sha256:20e1ad76e1eaded574bfd26306d899c58dec10dca5b132ed01a4b2c601e467b6",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
@@ -358,17 +358,17 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "adopt-invocation-scoped-custom-admission-strategy-authoring.md",
         "title": "采用 invocation-scoped custom admission strategy authoring",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-09-03T05:59:31Z",
         "purpose": "让 custom 准入作者以 simple 或 prepared 两种明确形态表达一次 Run 的同步选择和可选 completion，而不扩大 Scheduler 的控制或状态边界。",
-        "background": "当前 public callback 只有 proposeAdmission；private lifecycle 与 terminal output 各由独立 Decision 承接。",
+        "background": "本记录建立前，public callback 只有 proposeAdmission；private lifecycle 与 terminal output 各由独立 Decision 承接。",
         "decision": "采用 simple/prepared public grammar、Invocation-owned preparation/completion 和无兼容 authoring migration。",
         "tags": [
           "configuration",
@@ -2655,17 +2655,17 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "extend-measurement-hook-output-to-prepared-complete.md",
         "title": "将 prepared complete 纳入 measurement Hook output",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-09-03T06:15:21Z",
         "purpose": "让 generic Hooks 与 prepared complete 共用 terminal pipeline，并保留既有 RunResult output。",
-        "background": "现有 output 只覆盖 generic Hook；complete 必须纳入同一 failure 语义而不改名。",
+        "background": "本 Decision 建立前，output 只覆盖 generic Hook；complete 必须纳入同一 failure 语义而不改名。",
         "decision": "保留 outputs.measurementHooks 和现有 diagnostic，并将 prepared complete 纳入 aggregate。",
         "tags": [
           "product-contract",
@@ -5773,8 +5773,8 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-09-03T06:15:11Z",
-        "purpose": "让现行 static、custom 与 learned 准入策略在 Invocation 内完成私有准备、同步选择与终态记录，同时保持 Scheduler 的唯一执行责任。",
-        "background": "现行 private lifecycle、measurement demand 与 Scheduler execution boundary 需要共同 owner。",
+        "purpose": "让 static、custom 与 learned 准入策略在 Invocation 内完成私有准备、同步选择与终态记录，同时保持 Scheduler 的唯一执行责任。",
+        "background": "private lifecycle、measurement demand 与 Scheduler execution boundary 需要共同 owner。",
         "decision": "保留 private provider lifecycle、measurement demand、learned state 与 Scheduler hard guards。",
         "tags": [
           "configuration",

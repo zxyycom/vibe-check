@@ -43,11 +43,14 @@ function assertDefinitionDefaults(definition: ProjectDefinition): void {
 function assertCustomAdmissionPolicy(): void {
   const policy = defineAdmissionPolicy({
     kind: "custom",
-    proposeAdmission(context) {
-      const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
-      return candidate === undefined
-        ? { kind: "wait" as const }
-        : { kind: "select" as const, taskId: candidate.taskId };
+    strategy: {
+      kind: "simple",
+      decide(context) {
+        const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
+        return candidate === undefined
+          ? { kind: "wait" as const }
+          : { kind: "select" as const, taskId: candidate.taskId };
+      }
     }
   });
   const customDefinition = defineConfig({ scheduler: { admissionPolicy: policy } });
@@ -56,11 +59,30 @@ function assertCustomAdmissionPolicy(): void {
   const normalized = normalizeProjectDefinition(customDefinition);
   assert.equal(normalized.scheduler.admissionPolicy.kind, "custom");
   if (normalized.scheduler.admissionPolicy.kind === "custom") {
+    assert.equal(normalized.scheduler.admissionPolicy.strategy.kind, "simple");
     assert.equal(
-      normalized.scheduler.admissionPolicy.proposeAdmission,
-      Reflect.get(policy, "proposeAdmission")
+      normalized.scheduler.admissionPolicy.strategy.kind === "simple" &&
+        normalized.scheduler.admissionPolicy.strategy.decide,
+      Reflect.get(Reflect.get(policy, "strategy"), "decide")
     );
+    assert.equal(Object.isFrozen(normalized.scheduler.admissionPolicy.strategy), true);
   }
+  const prepared = defineConfig({
+    scheduler: {
+      admissionPolicy: {
+        kind: "custom",
+        strategy: {
+          kind: "prepared",
+          prepare: async () => ({ decide: () => ({ kind: "wait" as const }) })
+        }
+      }
+    }
+  });
+  assert.equal(validateProjectDefinition(prepared).ok, true);
+  assert.deepEqual(normalizeProjectDefinition(prepared).declarative.scheduler.admissionPolicy, {
+    kind: "custom",
+    strategy: { kind: "prepared" }
+  });
 }
 
 function assertLearnedCriticalPathAdmissionPolicy(): void {
@@ -83,7 +105,33 @@ function assertSchedulerValidation(definition: ProjectDefinition): void {
     { admissionPolicy: { kind: "static", extra: true }, maxParallel: 1 },
     { admissionPolicy: { kind: "custom" }, maxParallel: 1 },
     {
-      admissionPolicy: { kind: "custom", proposeAdmission: 1 },
+      admissionPolicy: { kind: "custom", proposeAdmission: () => ({ kind: "wait" }) },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: { kind: "custom", strategy: { kind: "simple", decide: 1 } },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: {
+        kind: "custom",
+        strategy: { kind: "simple", decide: () => ({ kind: "wait" }), unexpected: true }
+      },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: {
+        kind: "custom",
+        strategy: { kind: "prepared", prepare: 1 }
+      },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: {
+        kind: "custom",
+        strategy: { kind: "prepared", prepare: () => ({ decide: () => ({ kind: "wait" }) }) },
+        unexpected: true
+      },
       maxParallel: 1
     },
     { admissionPolicy: { kind: "learned-critical-path" }, maxParallel: 1 },

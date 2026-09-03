@@ -3,8 +3,7 @@ import { resolve } from "node:path";
 import type {
   AdmissionPolicy,
   NormalizedCheck,
-  SchedulerGraphSnapshot,
-  SchedulerMeasurementContext
+  SchedulerGraphSnapshot
 } from "../../project-definition/project-definition.ts";
 import {
   canonicalizeJsonObject,
@@ -21,29 +20,16 @@ import {
   criticalPathScoreForTask,
   type SchedulerCriticalPathSnapshot
 } from "../task-scheduler/critical-path-ranking.ts";
-import { admissionSelectionPolicyFor } from "../task-scheduler/custom-admission-policy.ts";
 import {
   createLearnedCriticalPathAdmission,
   type LearnedCriticalPathAdmission
 } from "../task-scheduler/learned-critical-path-admission-policy.ts";
-import {
-  staticAdmissionSelectionPolicy,
-  type AdmissionSelectionPolicy
-} from "../task-scheduler/admission-selection-policy.ts";
-
-export interface AdmissionStrategyCompleteContext {
-  readonly terminalMeasurement: SchedulerMeasurementContext;
-}
-
-export interface PreparedAdmissionStrategy {
-  /** The complete frozen policy handoff consumed by resolved Check execution and Scheduler. */
-  readonly admissionPolicy: AdmissionSelectionPolicy;
-  /** Closed provider demand merged with output and policy measurement requirements by invocation. */
-  readonly requiresTerminalMeasurement: boolean;
-  /** Provider-private learned admission observation, kept out of Scheduler policy input. */
-  readonly observeAdmittedTask: ((taskId: string) => void) | undefined;
-  readonly complete: (context: AdmissionStrategyCompleteContext) => Promise<void>;
-}
+import { staticAdmissionSelectionPolicy } from "../task-scheduler/admission-selection-policy.ts";
+import { prepareCustomAdmissionStrategy } from "./custom-strategy-preparation.ts";
+import type {
+  InternalAdmissionStrategyCompleteContext,
+  PreparedAdmissionStrategy
+} from "./prepared-admission-strategy.ts";
 
 export interface PrivateAdmissionStrategyProvider {
   prepare: () => Promise<PreparedAdmissionStrategy>;
@@ -73,7 +59,7 @@ export function createAdmissionStrategyProvider(
         case "static":
           return staticPreparedStrategy(false);
         case "custom":
-          return customPreparedStrategy(input.admissionPolicy);
+          return prepareCustomAdmissionStrategy(input.admissionPolicy, input.graph);
         case "learned-critical-path":
           return prepareLearnedCriticalPathStrategy({
             ...input,
@@ -87,20 +73,9 @@ export function createAdmissionStrategyProvider(
 function staticPreparedStrategy(requiresTerminalMeasurement: boolean): PreparedAdmissionStrategy {
   return Object.freeze({
     admissionPolicy: staticAdmissionSelectionPolicy,
-    complete: async () => undefined,
+    completion: Object.freeze({ kind: "none" as const }),
     observeAdmittedTask: undefined,
     requiresTerminalMeasurement
-  });
-}
-
-function customPreparedStrategy(
-  policy: Extract<AdmissionPolicy, { readonly kind: "custom" }>
-): PreparedAdmissionStrategy {
-  return Object.freeze({
-    admissionPolicy: admissionSelectionPolicyFor(policy),
-    complete: async () => undefined,
-    observeAdmittedTask: undefined,
-    requiresTerminalMeasurement: true
   });
 }
 
@@ -152,36 +127,39 @@ async function prepareLearnedCriticalPathStrategy(
   });
   return Object.freeze({
     admissionPolicy: learnedAdmission.admissionPolicy,
-    complete: async (context: AdmissionStrategyCompleteContext) => {
-      const recorded = await durationModel.record(context.terminalMeasurement);
-      if (recorded.kind === "failed") {
-        observeRecordingUnavailable(input, "history-recording-failed");
-        return;
+    completion: Object.freeze({
+      kind: "internal" as const,
+      complete: async (context: InternalAdmissionStrategyCompleteContext) => {
+        const recorded = await durationModel.record(context.terminalMeasurement);
+        if (recorded.kind === "failed") {
+          observeRecordingUnavailable(input, "history-recording-failed");
+          return;
+        }
+        observeDiagnostic(input, {
+          event: "scheduler.history.recorded",
+          tags: diagnosticTags(
+            "SCHEDULER",
+            "HISTORY",
+            "RECORDED",
+            recorded.recording.status.toUpperCase()
+          ),
+          details: Object.freeze({
+            acceptedSampleCount: recorded.recording.acceptedSampleCount,
+            retainedSeriesCount: recorded.recording.retainedSeriesCount
+          })
+        });
+        observeDiagnostic(input, {
+          event: "scheduler.history.write",
+          tags: diagnosticTags(
+            "SCHEDULER",
+            "HISTORY",
+            "WRITE",
+            recorded.writeObservation.toUpperCase()
+          ),
+          details: Object.freeze({ retainedSeriesCount: recorded.recording.retainedSeriesCount })
+        });
       }
-      observeDiagnostic(input, {
-        event: "scheduler.history.recorded",
-        tags: diagnosticTags(
-          "SCHEDULER",
-          "HISTORY",
-          "RECORDED",
-          recorded.recording.status.toUpperCase()
-        ),
-        details: Object.freeze({
-          acceptedSampleCount: recorded.recording.acceptedSampleCount,
-          retainedSeriesCount: recorded.recording.retainedSeriesCount
-        })
-      });
-      observeDiagnostic(input, {
-        event: "scheduler.history.write",
-        tags: diagnosticTags(
-          "SCHEDULER",
-          "HISTORY",
-          "WRITE",
-          recorded.writeObservation.toUpperCase()
-        ),
-        details: Object.freeze({ retainedSeriesCount: recorded.recording.retainedSeriesCount })
-      });
-    },
+    }),
     observeAdmittedTask: (taskId: string) =>
       observeLearnedAdmission(
         input,

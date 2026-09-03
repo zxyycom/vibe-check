@@ -23,12 +23,16 @@ describe("admission strategy provider", () => {
     const customPrepared = await providerFor({
       policy: {
         kind: "custom",
-        proposeAdmission: () => ({ kind: "wait" as const })
+        strategy: {
+          kind: "simple",
+          decide: () => ({ kind: "wait" as const })
+        }
       }
     }).prepare();
     assert.equal(Object.isFrozen(customPrepared.admissionPolicy), true);
     assert.equal(customPrepared.admissionPolicy.requiresMeasurement, true);
-    assert.equal(customPrepared.requiresTerminalMeasurement, true);
+    assert.equal(customPrepared.requiresTerminalMeasurement, false);
+    assert.equal(customPrepared.completion.kind, "none");
 
     const observations: string[] = [];
     const learnedFallback = await providerFor({

@@ -54,22 +54,18 @@ describe("task engine admission policy", () => {
   it("adapts custom select from a detached frozen full-graph context", async () => {
     let received: AdmissionPolicyContext | undefined;
     const selected: string[] = [];
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: (context) => {
-        if (received === undefined) received = context;
-        const admissible = context.candidates.find((candidate) => candidate.canAdmit);
-        if (admissible === undefined) return { kind: "wait" };
-        return {
-          kind: "select",
-          taskId:
-            context.candidates.find(
-              (candidate) => candidate.canAdmit && candidate.taskId === "second"
-            )?.taskId ?? admissible.taskId
-        };
-      }
+    const policy = admissionSelectionPolicyFor((context) => {
+      if (received === undefined) received = context;
+      const admissible = context.candidates.find((candidate) => candidate.canAdmit);
+      if (admissible === undefined) return { kind: "wait" };
+      return {
+        kind: "select",
+        taskId:
+          context.candidates.find(
+            (candidate) => candidate.canAdmit && candidate.taskId === "second"
+          )?.taskId ?? admissible.taskId
+      };
     });
-    if (policy === undefined) assert.fail("expected custom policy adapter");
 
     const graph = {
       tasks: [

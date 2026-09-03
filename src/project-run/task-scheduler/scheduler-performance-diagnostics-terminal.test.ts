@@ -22,15 +22,11 @@ describe("Scheduler performance diagnostics terminal drains", () => {
     const observations: DiagnosticObservation[] = [];
     let policyDiagnosticAttempts = 0;
     let calls = 0;
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: () => {
-        calls += 1;
-        if (calls === 1) return { kind: "select", taskId: "started" };
-        throw new Error("policy fault");
-      }
+    const policy = admissionSelectionPolicyFor(() => {
+      calls += 1;
+      if (calls === 1) return { kind: "select", taskId: "started" };
+      throw new Error("policy fault");
     });
-    if (policy === undefined) assert.fail("expected custom policy");
     const logger: DiagnosticLogger = Object.freeze({
       close: () => "failed" as const,
       observe: (observation: DiagnosticObservation) => {

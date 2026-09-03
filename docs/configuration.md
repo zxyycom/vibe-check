@@ -132,10 +132,19 @@ duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一�
 `project.flags` 并返回领域适当的终态。
 
 `scheduler.admissionPolicy` 是 closed `static | custom | learned-critical-path` authoring field。省略与显式
-`{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 literal 和 custom callback 的
-TypeScript inference，与同形 inline object 没有额外运行语义。custom policy 的
-`proposeAdmission(context)` 必须同步返回精确的 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`；异步
-Promise/thenable、reason、reservation、identity/version 或 composition fields 都不属于该 grammar。
+`{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 literal inference，与同形
+inline object 没有额外运行语义。custom branch 是 `{ kind: "custom", strategy }`，其中：
+
+- simple strategy 为 `{ kind: "simple", decide(context) }`；
+- prepared strategy 为 `{ kind: "prepared", prepare({ graph }) }`，它可 return 或 resolve 当前 Run 的
+  `{ decide(context), complete? }`；
+- 两种 `decide` 都同步返回精确 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`。
+
+exact validation 以这个 closed grammar 作为 compatibility hard cut：retired `proposeAdmission`、unknown authoring fields
+与 async/thenable `decide` 都被拒绝。prepare throw/reject 或 malformed prepared result 在 Scheduler 启动前映射为
+`admission-strategy-preparation-failed`。strategy kind 进入 declarative snapshot/fingerprint；callback
+identity/source/closure 不进入。调用顺序、冻结 context 和 output/result matrix 由
+[API mechanisms](api-mechanics.md#custom-admission-policy) 完整拥有。
 
 `{ kind: "learned-critical-path", stateDirectory }` 让 Product 在每次 Run 为该 Definition 使用 caller-managed
 local state。`stateDirectory` 是非空、不得含 U+0000 的字符串；relative text 在 invocation 的 effective
@@ -164,8 +173,9 @@ admitted/settled kind observation 与 Scheduler-owned raw measurement；它不�
 mutable Scheduler 或完整 interval history。
 
 这是一项 Definition-owned runtime callback，而不是可由 `RunControls.outputs` 配置、覆盖或注入的 output。Hook
-function 的 identity、source 与 closure 不进入 declarative snapshot/fingerprint；只有非空 configured list 才启用
-`outputs.measurementHooks`。终态调用顺序、context 形成、status 与主 Run failure 的优先级由
+function 的 identity、source 与 closure 不进入 declarative snapshot/fingerprint；nonempty configured list 或 successful
+prepared result 实际包含 `complete` 才启用 `outputs.measurementHooks`。终态调用顺序、context 形成、closed status 与主 Run
+failure 的优先级由
 [Architecture](architecture.md#execution-boundary) 和 [API mechanisms](api-mechanics.md#outputs-与-runresult-边界)
 完整拥有。
 

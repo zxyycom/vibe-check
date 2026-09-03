@@ -1,10 +1,10 @@
 ---
 title: 将 prepared complete 纳入 measurement Hook output
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-03T06:15:21Z
 purpose: 让 generic Hooks 与 prepared complete 共用 terminal pipeline，并保留既有 RunResult output。
-background: 现有 output 只覆盖 generic Hook；complete 必须纳入同一 failure 语义而不改名。
+background: 本 Decision 建立前，output 只覆盖 generic Hook；complete 必须纳入同一 failure 语义而不改名。
 decision: 保留 outputs.measurementHooks 和现有 diagnostic，并将 prepared complete 纳入 aggregate。
 tags:
   - product-contract
@@ -20,8 +20,8 @@ relations:
 
 ## 背景
 
-- 当前 terminal measurement runner 在 Scheduler seal 后构造 frozen context，先运行 internal default summary，再按配置顺序运行 `scheduler.measurementHooks`；每个 generic Hook 都获得调用机会。
-- 现有 `outputs.measurementHooks` 对 generic Hook list 投影 `enabled`、`not-run`、`succeeded` 与 `failed`，并以 `scheduler-measurement-hooks-failed` 表达 normal completion 后的 caller output failure。summary writer 的 failure 留在 internal containment wrapper。
+- 本 Decision 建立时，terminal measurement runner 在 Scheduler seal 后构造 frozen context，先运行 internal default summary，再按配置顺序运行 `scheduler.measurementHooks`；每个 generic Hook 都获得调用机会。
+- 本 Decision 建立前，`outputs.measurementHooks` 只对 generic Hook list 投影 `enabled`、`not-run`、`succeeded` 与 `failed`，并以 `scheduler-measurement-hooks-failed` 表达 normal completion 后的 caller output failure。summary writer 的 failure 留在 internal containment wrapper。
 - prepared `complete` 需要在 sealed context 存在时参与这一 output contract；其 lifecycle input 由 custom authoring Decision 定义。
 
 ## 决策

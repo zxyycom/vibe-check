@@ -49,7 +49,7 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 
 ## Execution boundary
 
-Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private static policy 是无状态纯决策；public custom policy 是同一无状态 select/wait boundary 上的 trusted synchronous callback。每个 admission cycle 都从 immutable 完整 graph、dynamic inspection、Scheduler 形成的 relation/mutex eligible candidates 及其 current capacity facts 重新计算，精确返回 `select(taskId)` 或 `wait`。priority 不另有 map/list 或旁路输入；public custom callback 收到的是该事实的 detached、deep-frozen ordinary projection，而不是 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
+Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private static policy 是无状态纯决策；public custom policy 是 invocation-scoped `simple | prepared` strategy。simple 直接形成同步 select/wait closure；prepared 在 graph ready 后为每个 Run 一次 `prepare({ graph })`，只把该次返回的同步 `decide` 交给 Scheduler。priority 不另有 map/list 或旁路输入；public callbacks 收到 frozen result-only DTO，而不是 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
 
 `learned-critical-path` 只增加一条 invocation-owned 优化支路。完整静态 graph 就绪后，invocation 解析一个
 Product-private effective strategy provider，并恰好一次 `prepare`：duration model 从 caller-managed local state 形成 immutable
@@ -60,36 +60,38 @@ selection，critical-path algorithm 不读取 history、filesystem 或跨 Run st
 
 ### Private admission-strategy lifecycle
 
-下列是 graph 已验证且未在 pre-work / planning 阶段取消的 Run 的 private 生命周期。`prepare`、prepared strategy、
-terminal requirement 和 `complete` 都不是 public API；public custom authoring 仍只有同步 `proposeAdmission(context)`。
+下列生命周期适用于 graph 已验证且未在 pre-work / planning 阶段取消的 Run。public custom authoring 为
+simple/prepared strategy；private learned provider lifecycle 仍封装在同一 Invocation owner 内，不能成为 public
+state/model API。
 
 ```text
-Invocation: graph ready → resolve provider → prepare once
+Invocation: graph ready → simple closure | await prepared prepare once | private learned prepare once
                                         │
                                         ▼
-Scheduler: receives prepared frozen policy → decide 0..N times → stops admission → drains
+Scheduler: receives frozen synchronous policy → decide 0..N times → stops admission → drains
                                         │
                                         ▼
-Scheduler: seals terminal measurement → delivers internal summary and caller Hooks
+Scheduler: seals terminal measurement → internal summary → configured generic Hooks
                                         │
-                         terminal context returned? ── no → no complete delivery
+                         terminal context returned? ── no → no completion delivery
                                         │ yes
                                         ▼
-Invocation: prepared.complete once → caller-owned store → a later Run may prepare from it
+Invocation: public prepared complete once → aggregate output; private learned complete stays contained
 ```
 
-| Boundary | Sole owner | Required handoff / prohibition |
+| Boundary | Sole owner | Handoff and authority |
 | --- | --- | --- |
-| Strategy preparation and terminal commit | Invocation | Resolves one effective private provider and awaits `prepare` once; it calls `complete` once only when resolved Check execution returns terminal context. A pre-terminal task-engine failure has no `complete` delivery. |
-| Admission decisions and hard legality | Scheduler | Receives only the prepared, frozen private policy; it invokes synchronous `decide` zero or more times and alone validates relation, mutex, capacity, cancellation, and drain guards. It never receives lifecycle hooks. |
-| Terminal measurement and existing Hook delivery | Scheduler | Stops admission, drains started work, seals terminal facts, then delivers the existing internal summary and caller Hooks before returning terminal context. |
-| Cross-Run learning | Duration-model / provider | A learned `complete` may record sealed terminal occupancy data in caller-managed storage. Only a later Run's `prepare` can read it; it cannot revise an earlier decision in the same Run. |
+| Public/private strategy preparation and completion | Invocation | It resolves one Run-local strategy. Public prepare failure stops before Scheduler with `admission-strategy-preparation-failed`; a public complete runs at most once after Scheduler returns a sealed context. Private learned completion remains contained. |
+| Admission decisions and hard legality | Scheduler | Receives only a frozen synchronous policy, invokes `decide` zero or more times, and alone validates relation, mutex, capacity, cancellation and drain guards. It never receives prepare or complete. |
+| Terminal measurement and generic Hook delivery | Scheduler | Stops admission, drains started work, seals facts, then delivers its diagnostic-enabled internal summary and every configured generic Hook before returning context. |
+| Public aggregate mapping | Invocation | After Scheduler returns, it runs public complete and maps actual generic Hook/complete settlement to existing `outputs.measurementHooks`, without changing sealed primary facts. |
+| Cross-Run learning | Duration-model / provider | A learned internal complete may record sealed occupancy only for a later Run's private prepare. |
 
-Invocation creates the measurement collector only when existing diagnostic logging, configured measurement Hooks, the prepared policy's
-per-decision `requiresMeasurement`, or the prepared strategy's closed terminal demand requires it. Thus plain static has no extra
-collector/clock read; custom retains its per-decision measurement and terminal demand; learned ready and learned static-fallback retain
-terminal demand. The no-op `complete` of static/custom does not itself create a collector or duration-model I/O merely to satisfy a common private shape.
-history/prediction/score do not enter `RunResult`, Check/Record facts, machine publication, progress, callback context, or public telemetry.
+Invocation creates the measurement collector only when diagnostic logging, configured generic measurement Hooks, a policy's
+per-decision `requiresMeasurement`, or a terminal-demanding prepared strategy requires it. Plain static has no extra collector/
+clock read. simple custom retains per-decision measurement; prepared custom with complete and learned ready/fallback retain terminal
+demand. No no-op completion is invented merely to satisfy a common shape. history/prediction/score do not enter `RunResult`,
+Check/Record facts, machine publication, progress, callback context or public telemetry.
 
 history 是 caller-owned、untrusted、cache-like local optimization state，而非 configuration、quality fact 或 durable public
 artifact：它只保留 digest identity、admitted-to-settled duration、settlement kind 与 observation sequence；不保留 raw options
@@ -105,18 +107,23 @@ Scheduler 仍拥有 readiness、mutex、capacity、cancellation、blocked settle
 
 custom callback throw、thenable、malformed proposal、非法 select 或不可 drain `wait` 是 admission-policy fault：Scheduler 停止新 admission、按受控路径取消 pending Tasks 并 drain 已启动的 Task；Run 以 `admission-policy-failed` execution diagnostic 结束，绝不 fallback 到 static。diagnostic 只记录有界 fault category 和本轮 hard-guard facts，不保留 raw callback value、stack、caller data、policy wait reason、reservation、console/check-message attribution 或 policy timing/telemetry。
 
-effective diagnostic logging enabled、Definition 配置至少一个 `scheduler.measurementHooks`、prepared private policy 的既有 per-decision `requiresMeasurement`，或 prepared strategy 的 closed terminal demand 任一成立时，Scheduler shell 才创建 invocation-local 一阶 measurement collector；它通过 private handoff 接收 clock 与 invocation 已有的 `declarativeFingerprint`。plain static 的这些条件都不成立时不创建 collector、也不读取额外 clock；custom 保留 per-decision measurement，learned ready 与 static fallback 通过 terminal demand 取得 sealed terminal facts。每次**实际** custom callback 前，collector 先 flush 当前 open interval，再 append 已完成的 action observation，并创建 captured-prefix reader；同一 Run 只冻结一次 graph DTO。`measurementCount` 是该 context 的 end-count，`measurementAt(index)` 是同步 prefix getter，不返回 live array 或 history slice，故旧 context 不能看见后续 append。每条 observation 从 accepted `select`/`wait` 的 post-state 开始，到下一实际 custom callback 前结束，交接 interval 的 state observation 与期间 admitted/settled effects，而不声明 action causality。每个 interval 是 closed timing union：available 才携带数值 contribution，unavailable 只携带 reason，合法 zero span 与 timing fault 明确不同。此紧凑表示避免按决策数复制完整 graph/per-Task table或 history；完整 per-Task table 只属于 terminal raw measurement。Scheduler 在既有 admission、pending/running settlement、accepted wait 与 terminal boundary 采样，唯一拥有区间归属、mutex/capacity/admissible 分类、slot/capacity integral、accepted-wait accumulator、per-Task admission table、峰值和 tail active sequence；它不建立第二套 state、streaming event bus 或完整 boundary ledger。clock throw、non-finite/backward sample、invalid interval/integral 只令本次 raw timing unavailable，不改变 admission、cancellation、policy-fault drain 或 settlement。
+effective diagnostic logging enabled、Definition 配置至少一个 `scheduler.measurementHooks`、custom `decide` 的 per-decision measurement，或 prepared strategy 的 terminal demand 任一成立时，Scheduler shell 才创建 invocation-local 一阶 measurement collector；它通过 private handoff 接收 clock 与 invocation 已有的 `declarativeFingerprint`。plain static 的这些条件都不成立时不创建 collector、也不读取额外 clock；带 complete 的 prepared custom 与 learned ready/static fallback 通过 terminal demand 取得 sealed terminal facts。每次**实际** custom callback 前，collector 先 flush 当前 open interval，再 append 已完成的 action observation，并创建 captured-prefix reader；同一 Run 只冻结一次 graph DTO。`measurementCount` 是该 context 的 end-count，`measurementAt(index)` 是同步 prefix getter，不返回 live array 或 history slice，故旧 context 不能看见后续 append。每条 observation 从 accepted `select`/`wait` 的 post-state 开始，到下一实际 custom callback 前结束，交接 interval 的 state observation 与期间 admitted/settled effects，而不声明 action causality。每个 interval 是 closed timing union：available 才携带数值 contribution，unavailable 只携带 reason，合法 zero span 与 timing fault 明确不同。此紧凑表示避免按决策数复制完整 graph/per-Task table或 history；完整 per-Task table 只属于 terminal raw measurement。Scheduler 在既有 admission、pending/running settlement、accepted wait 与 terminal boundary 采样，唯一拥有区间归属、mutex/capacity/admissible 分类、slot/capacity integral、accepted-wait accumulator、per-Task admission table、峰值和 tail active sequence；它不建立第二套 state、streaming event bus 或完整 boundary ledger。clock throw、non-finite/backward sample、invalid interval/integral 只令本次 raw timing unavailable，不改变 admission、cancellation、policy-fault drain 或 settlement。
 
 每个 raw terminal measurement 是 bounded immutable fact set：它保留 declarative fingerprint、离散 lifecycle facts、queue peaks，以及 timing 可用时的 shell/slot/capacity/accepted-wait accumulations、每个 admission-viable Task 的分类 delay table与 admission/settlement boundaries。它不包含 Task value、error、callback、clock、mutable collection、summary top-N、ratio、queue aggregate或 tail contributor projection。`scheduler.summary` 是加入统一 terminal delivery list 的内部默认 Hook 从该 raw fact set 计算的 human-only 二级 projection：它仍提供既有 top admission delay、queue total、utilization、tail contributor和 timing availability shape，且 writer failure保持 observational containment。
 
 `SchedulerPolicy.measurementHooks` 是有序 runtime-only caller callback list。Scheduler 只在停止新 admission 且全部
 started work 已 drain 后，创建一次递归冻结 context：它包含 canonical graph snapshot、admitted/settled
-kind-only execution observation 和 raw measurement。随后 invocation 才可将这份已封闭且完成既有 Hook delivery 的 context
-交给 prepared private strategy complete；Scheduler 本身不接触 prepare 或 complete。启用 diagnostic 时，internal default `scheduler.summary` Hook 与 caller Hooks 组成同一个 ordered delivery list并消费**同一 context object identity**；summary wrapper自行包含 projection/writer failure，shared runner只按各 delivery wrapper的 failure policy工作，不识别 summary identity。sync/async Hook 均逐个 await，Hook elapsed 不计入
-raw measurement；任一 caller Hook throw/reject 都不阻止后续 caller Hook，也不改写已经形成的 Scheduler/Check facts。
+kind-only execution observation 和 raw measurement。随后 Invocation 才可将这份已封闭且完成既有 Hook delivery 的 context
+交给 public prepared `complete`（或 contained private learned completion）；Scheduler 本身不接触 prepare
+或 complete。启用 diagnostic 时，internal default `scheduler.summary` Hook 与 caller Hooks 组成同一个 ordered delivery list
+并消费**同一 context object identity**；summary wrapper 自行包含 projection/writer failure，shared runner 只按各 delivery
+wrapper 的 failure policy 工作，不识别 summary identity。sync/async Hook 均逐个 await，Hook elapsed 不计入 raw measurement；
+任一 caller Hook throw/reject 都不阻止后续 caller Hook，也不改写已经形成的 Scheduler/Check facts。
 
-只有非空 caller Hook list 才有 `measurementHooks` output。所有 caller Hooks 成功 settlement 时它为 `succeeded`；任一
-失败时它为 `failed`。在 Hook sequence 全部获得调用机会后，Run 按下列优先级结算：
+nonempty caller Hook list 或 successful prepared result 实际含 public `complete` 时才有 `measurementHooks` output。terminal
+sequence 中，generic Hooks 全部获得调用机会后 Invocation 才至多一次调用 complete；所有实际 participants 成功为
+`succeeded`，任一 generic Hook 或 complete 失败为 `failed`，而成功 complete 不会覆盖已记录的 generic failure。没有 sealed
+context 的 enabled Run 保持 `not-run`。在 sequence 全部交付后，Run 按下列优先级结算：
 
 1. 若 Scheduler 正常完成（没有 cancellation 或 primary execution diagnostic）且 Hook output failed，返回保留完整
    settled facts 的 `kind: "output"` / `scheduler-measurement-hooks-failed`。

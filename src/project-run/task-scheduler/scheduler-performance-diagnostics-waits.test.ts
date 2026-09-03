@@ -24,18 +24,14 @@ describe("Scheduler performance diagnostics", () => {
     const observations: DiagnosticObservation[] = [];
     const release = createDeferred<void>();
     let proposals = 0;
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: (context) => {
-        proposals += 1;
-        if (proposals === 1) return { kind: "select", taskId: "first" };
-        if (proposals === 2) return { kind: "wait" };
-        const candidate = context.candidates.find((item) => item.canAdmit);
-        if (candidate === undefined) throw new Error("expected second Task to be admissible");
-        return { kind: "select", taskId: candidate.taskId };
-      }
+    const policy = admissionSelectionPolicyFor((context) => {
+      proposals += 1;
+      if (proposals === 1) return { kind: "select", taskId: "first" };
+      if (proposals === 2) return { kind: "wait" };
+      const candidate = context.candidates.find((item) => item.canAdmit);
+      if (candidate === undefined) throw new Error("expected second Task to be admissible");
+      return { kind: "select", taskId: candidate.taskId };
     });
-    if (policy === undefined) assert.fail("expected custom policy");
 
     const running = runTaskGraph({
       admissionPolicy: policy,
@@ -94,16 +90,12 @@ describe("Scheduler performance diagnostics", () => {
     const observations: DiagnosticObservation[] = [];
     const release = createDeferred<void>();
     let proposals = 0;
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: () => {
-        proposals += 1;
-        if (proposals === 1) return { kind: "select", taskId: "first" };
-        timingFaulted = true;
-        return { kind: "wait" };
-      }
+    const policy = admissionSelectionPolicyFor(() => {
+      proposals += 1;
+      if (proposals === 1) return { kind: "select", taskId: "first" };
+      timingFaulted = true;
+      return { kind: "wait" };
     });
-    if (policy === undefined) assert.fail("expected custom policy");
 
     const running = runTaskGraph({
       admissionPolicy: policy,

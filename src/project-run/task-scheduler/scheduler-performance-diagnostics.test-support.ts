@@ -86,24 +86,20 @@ export async function mixedQueuePressureSummary(): Promise<Readonly<Record<strin
   const observations: DiagnosticObservation[] = [];
   const releaseHolder = createDeferred<void>();
   let acceptedMixedPressureWait = false;
-  const policy = admissionSelectionPolicyFor({
-    kind: "custom",
-    proposeAdmission: (context) => {
-      if (
-        !acceptedMixedPressureWait &&
-        context.candidates.some((candidate) => candidate.taskId === "b-capacity")
-      ) {
-        acceptedMixedPressureWait = true;
-        clock.advance("mixed queue pressure", 10);
-        return { kind: "wait" };
-      }
-      const candidate = context.candidates.find((item) => item.canAdmit);
-      return candidate === undefined
-        ? { kind: "wait" }
-        : { kind: "select", taskId: candidate.taskId };
+  const policy = admissionSelectionPolicyFor((context) => {
+    if (
+      !acceptedMixedPressureWait &&
+      context.candidates.some((candidate) => candidate.taskId === "b-capacity")
+    ) {
+      acceptedMixedPressureWait = true;
+      clock.advance("mixed queue pressure", 10);
+      return { kind: "wait" };
     }
+    const candidate = context.candidates.find((item) => item.canAdmit);
+    return candidate === undefined
+      ? { kind: "wait" }
+      : { kind: "select", taskId: candidate.taskId };
   });
-  if (policy === undefined) assert.fail("expected custom policy");
   const running = runTaskGraph({
     admissionPolicy: policy,
     diagnosticLogger: recordingLogger(observations),

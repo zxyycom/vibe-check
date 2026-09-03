@@ -1,10 +1,10 @@
 ---
 title: 采用 invocation-scoped custom admission strategy authoring
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-03T05:59:31Z
 purpose: 让 custom 准入作者以 simple 或 prepared 两种明确形态表达一次 Run 的同步选择和可选 completion，而不扩大 Scheduler 的控制或状态边界。
-background: 当前 public callback 只有 proposeAdmission；private lifecycle 与 terminal output 各由独立 Decision 承接。
+background: 本记录建立前，public callback 只有 proposeAdmission；private lifecycle 与 terminal output 各由独立 Decision 承接。
 decision: 采用 simple/prepared public grammar、Invocation-owned preparation/completion 和无兼容 authoring migration。
 tags:
   - configuration
@@ -21,7 +21,7 @@ relations:
 
 ## 背景
 
-- 当前 public custom branch 是同步 `proposeAdmission(context) → select | wait`，且 callback identity 不进入 declarative fingerprint。
+- 本 Decision 建立前，public custom branch 是同步 `proposeAdmission(context) → select | wait`，且 callback identity 不进入 declarative fingerprint。
 - public authoring 需要表达一次性异步准备、Run-local `decide` 和可选 terminal completion；这些 callback 的 lifecycle 应由 Invocation 管理，而 Scheduler 保持 result-only selection seam。
 - terminal pipeline 的顺序、aggregate output 与 failure precedence 由独立 Decision 承接；本记录只定义 prepared authoring 所需的 callback presence、input 和 lifecycle owner。
 

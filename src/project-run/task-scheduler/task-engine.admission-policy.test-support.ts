@@ -8,15 +8,11 @@ import { admissionSelectionPolicyFor } from "./custom-admission-policy.ts";
 import { runTaskGraph } from "./scheduler.ts";
 
 export function runWithCustomProposal(
-  proposeAdmission: () => AdmissionProposal,
+  decide: () => AdmissionProposal,
   graph: { readonly tasks: readonly { readonly id: string }[] },
   signal?: AbortSignal
 ) {
-  const policy = admissionSelectionPolicyFor({
-    kind: "custom",
-    proposeAdmission
-  });
-  if (policy === undefined) assert.fail("expected custom policy adapter");
+  const policy = admissionSelectionPolicyFor(decide);
   return runTaskGraph({
     admissionPolicy: policy,
     execute: () => undefined,

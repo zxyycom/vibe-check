@@ -10,6 +10,7 @@ import type { RunOutputStatuses } from "./output-status.ts";
 export type RunDiagnostic = Readonly<{
   readonly code:
     | "admission-policy-failed"
+    | "admission-strategy-preparation-failed"
     | "task-graph-invalid"
     | "task-engine-failed"
     | "publication-model-failed";

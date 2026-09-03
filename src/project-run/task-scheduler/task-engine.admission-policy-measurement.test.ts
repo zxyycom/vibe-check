@@ -14,11 +14,7 @@ describe("task engine admission policy", () => {
   it("shares one frozen graph while exposing only decision-boundary measurement scalars", async () => {
     const contexts: AdmissionPolicyContext[] = [];
     let terminalTiming: unknown;
-    const policy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: measurementRecordingProposal(contexts)
-    });
-    if (policy === undefined) assert.fail("expected custom policy adapter");
+    const policy = admissionSelectionPolicyFor(measurementRecordingProposal(contexts));
 
     await runTaskGraph({
       admissionPolicy: policy,
@@ -45,7 +41,6 @@ describe("task engine admission policy", () => {
     const release = createDeferred<void>();
     const contexts: AdmissionPolicyContext[] = [];
     const policy = recordingAdmissionPolicy(contexts);
-    if (policy === undefined) assert.fail("expected custom policy adapter");
 
     const settled = runTaskGraph({
       admissionPolicy: policy,
@@ -111,7 +106,6 @@ describe("task engine admission policy", () => {
       let samples = 0;
       const contexts: AdmissionPolicyContext[] = [];
       const policy = recordingAdmissionPolicy(contexts);
-      if (policy === undefined) assert.fail("expected custom policy adapter");
 
       await runTaskGraph({
         admissionPolicy: policy,
@@ -146,14 +140,11 @@ describe("task engine admission policy", () => {
 });
 
 function recordingAdmissionPolicy(contexts: AdmissionPolicyContext[]) {
-  return admissionSelectionPolicyFor({
-    kind: "custom",
-    proposeAdmission: (context) => {
-      contexts.push(context);
-      const candidate = context.candidates.find((item) => item.canAdmit);
-      return candidate === undefined
-        ? { kind: "wait" }
-        : { kind: "select", taskId: candidate.taskId };
-    }
+  return admissionSelectionPolicyFor((context) => {
+    contexts.push(context);
+    const candidate = context.candidates.find((item) => item.canAdmit);
+    return candidate === undefined
+      ? { kind: "wait" }
+      : { kind: "select", taskId: candidate.taskId };
   });
 }

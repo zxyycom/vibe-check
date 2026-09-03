@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import * as ts from "typescript";
 
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
+import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admission-strategy-type-acceptance.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -298,55 +299,13 @@ const definition: ProjectDefinition = defineConfig({
     changedFilesConsumer
   ]
 });
-const customAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({
-  kind: "custom",
-  proposeAdmission(context): AdmissionProposal {
-    const firstTask = context.graph.tasks[0];
-    const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
-    const capacity = context.capacity.effectiveMaxParallel;
-    const runtime = context.runtime.abortRequested || context.runtime.cancelled;
-    void [
-      firstTask?.admissionPriority,
-      context.graph.scopes,
-      context.activeScopeIds,
-      context.runningTaskIds,
-      context.settledTaskIds,
-      capacity,
-      runtime
-    ];
-    return candidate === undefined
-      ? { kind: "wait" }
-      : { kind: "select", taskId: candidate.taskId };
-  }
-});
-defineConfig({ scheduler: { admissionPolicy: customAdmissionPolicy } });
-defineConfig({
-  scheduler: {
-    admissionPolicy: {
-      kind: "custom",
-      proposeAdmission: (context) => {
-        const candidate = context.candidates[0];
-        return candidate === undefined
-          ? { kind: "wait" as const }
-          : { kind: "select" as const, taskId: candidate.taskId };
-      }
-    }
-  }
-});
-defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } });
+${CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE}
 const learnedCriticalPathAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({
   kind: "learned-critical-path",
   stateDirectory: ".vibe-check/duration-state"
 });
 defineConfig({ scheduler: { admissionPolicy: learnedCriticalPathAdmissionPolicy } });
 defineConfig({});
-defineAdmissionPolicy({
-  kind: "custom",
-  // @ts-expect-error admission policies must synchronously return an exact proposal.
-  async proposeAdmission() {
-    return { kind: "wait" };
-  }
-});
 defineAdmissionPolicy({
   kind: "static",
   // @ts-expect-error admission policy authoring is a closed union.
@@ -461,6 +420,7 @@ void [
   changedFilesData,
   changedFilesConsumer,
   customAdmissionPolicy,
+  preparedCustomAdmissionPolicy,
   learnedCriticalPathAdmissionPolicy,
   inheritedCheckIds,
   observeFinalDurations,

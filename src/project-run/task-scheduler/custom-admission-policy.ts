@@ -1,5 +1,4 @@
 import type {
-  AdmissionPolicy,
   AdmissionPolicyContext,
   AdmissionProposal
 } from "../../project-definition/project-definition.ts";
@@ -15,22 +14,21 @@ import { capacityFor } from "./scheduler-decision-inspection.ts";
 
 /** Adapts the public, trusted callback to the Scheduler's private pure policy seam. */
 export function admissionSelectionPolicyFor(
-  policy: Extract<AdmissionPolicy, { readonly kind: "custom" }>
+  decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal
 ): AdmissionSelectionPolicy {
-  const customPolicy: AdmissionSelectionPolicy = Object.freeze({
+  return Object.freeze({
     requiresMeasurement: true,
-    decide: (input: AdmissionPolicyInput) => invokeCustomPolicy(policy.proposeAdmission, input)
+    decide: (input: AdmissionPolicyInput) => invokeCustomPolicy(decide, input)
   });
-  return customPolicy;
 }
 
 function invokeCustomPolicy(
-  proposeAdmission: Extract<AdmissionPolicy, { readonly kind: "custom" }>["proposeAdmission"],
+  decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal,
   input: AdmissionPolicyInput
 ): AdmissionProposal {
   let proposal: unknown;
   try {
-    proposal = proposeAdmission(admissionPolicyContext(input));
+    proposal = decide(admissionPolicyContext(input));
   } catch {
     throw new AdmissionPolicyFault("callback-threw");
   }

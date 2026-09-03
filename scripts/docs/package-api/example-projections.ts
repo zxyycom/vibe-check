@@ -113,6 +113,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "prepared-custom-admission-policy",
+    regionId: "prepared-custom-admission-policy",
+    sourcePath: "docs/examples/package-api/prepared-custom-admission-policy.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "readme",
+        headingPath: Object.freeze(["自定义 Check API", "已准备的 custom strategy"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "为一次 Run 准备 custom admission"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "learned-critical-path",
     regionId: "learned-critical-path",
     sourcePath: "docs/examples/package-api/learned-critical-path.ts",

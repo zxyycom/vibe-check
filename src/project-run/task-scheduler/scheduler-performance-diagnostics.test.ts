@@ -26,17 +26,13 @@ describe("Scheduler performance diagnostics", () => {
   it("keeps control-path and decision observation separate while integrating real running slots", async () => {
     const clock = scriptedClock();
     const observations: DiagnosticObservation[] = [];
-    const customPolicy = admissionSelectionPolicyFor({
-      kind: "custom",
-      proposeAdmission: (context) => {
-        clock.advance("custom-selection", 5);
-        const candidate = context.candidates.find((item) => item.canAdmit);
-        return candidate === undefined
-          ? { kind: "wait" }
-          : { kind: "select", taskId: candidate.taskId };
-      }
+    const customPolicy = admissionSelectionPolicyFor((context) => {
+      clock.advance("custom-selection", 5);
+      const candidate = context.candidates.find((item) => item.canAdmit);
+      return candidate === undefined
+        ? { kind: "wait" }
+        : { kind: "select", taskId: candidate.taskId };
     });
-    if (customPolicy === undefined) assert.fail("expected custom policy");
     const logger: DiagnosticLogger = Object.freeze({
       close: () => "disabled" as const,
       observe: (observation: DiagnosticObservation) => {

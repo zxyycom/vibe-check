@@ -37,12 +37,40 @@ export interface AdmissionPolicyContext {
   }>;
 }
 
-/** Definition authoring 的 closed admission policy；custom callback 必须同步返回 {@link AdmissionProposal}。 */
+/** custom prepared strategy 在 graph ready 后读取的最小只读事实。 */
+export interface CustomAdmissionPreparationContext {
+  /** 已规范化、递归冻结的完整静态调度图。 */
+  readonly graph: SchedulerGraphSnapshot;
+}
+
+/** prepared custom strategy 为当前 Run 返回的同步选择与可选 terminal completion。 */
+export interface PreparedCustomAdmissionStrategy {
+  /** Scheduler 每轮同步调用；不得返回 Promise 或 thenable。 */
+  readonly decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+  /** Scheduler 的 generic Hooks 完成后，才以 sealed terminal context 调用一次。 */
+  readonly complete?: (this: void, context: SchedulerMeasurementContext) => void | Promise<void>;
+}
+
+/** custom 的 closed authoring grammar。 */
+export type CustomAdmissionStrategy =
+  | Readonly<{
+      readonly kind: "simple";
+      readonly decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+    }>
+  | Readonly<{
+      readonly kind: "prepared";
+      readonly prepare: (
+        this: void,
+        context: CustomAdmissionPreparationContext
+      ) => PreparedCustomAdmissionStrategy | Promise<PreparedCustomAdmissionStrategy>;
+    }>;
+
+/** Definition authoring 的 closed admission policy。 */
 export type AdmissionPolicy =
   | Readonly<{ readonly kind: "static" }>
   | Readonly<{
       readonly kind: "custom";
-      readonly proposeAdmission: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
+      readonly strategy: CustomAdmissionStrategy;
     }>
   | Readonly<{
       /** 调用方管理的本地状态；relative path 在稍后的 Project Run 中从 effective projectRoot 解析。 */
@@ -284,7 +312,10 @@ export interface SchedulerPolicy {
 export interface DeclarativeSchedulerPolicy {
   readonly admissionPolicy:
     | Readonly<{ readonly kind: "static" }>
-    | Readonly<{ readonly kind: "custom" }>
+    | Readonly<{
+        readonly kind: "custom";
+        readonly strategy: Readonly<{ readonly kind: "simple" | "prepared" }>;
+      }>
     | Readonly<{
         readonly kind: "learned-critical-path";
         readonly stateDirectory: string;

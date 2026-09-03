@@ -25,19 +25,22 @@ const publish = defineCheck({
 
 const preferPublish = defineAdmissionPolicy({
   kind: "custom",
-  proposeAdmission(context) {
-    const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
-    const publishCandidate = context.candidates.find(
-      (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
-    );
-    if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
-      return { kind: "select", taskId: publishCandidate.taskId };
-    }
+  strategy: {
+    kind: "simple",
+    decide(context) {
+      const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
+      const publishCandidate = context.candidates.find(
+        (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
+      );
+      if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
+        return { kind: "select", taskId: publishCandidate.taskId };
+      }
 
-    const nextCandidate = context.candidates.find((candidate) => candidate.canAdmit);
-    return nextCandidate === undefined
-      ? { kind: "wait" }
-      : { kind: "select", taskId: nextCandidate.taskId };
+      const nextCandidate = context.candidates.find((candidate) => candidate.canAdmit);
+      return nextCandidate === undefined
+        ? { kind: "wait" }
+        : { kind: "select", taskId: nextCandidate.taskId };
+    }
   }
 });
 

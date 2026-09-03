@@ -228,16 +228,22 @@ machine publication 和 diagnostic logging 的 `directory` 在 Definition 与 Ru
 
 ### 自定义准入 policy
 
-当调用方需要利用完整 Task graph、后继关系或项目自己的静态成本模型时，可以设置
-`scheduler.admissionPolicy` 为 `custom`。`proposeAdmission(context)` 每轮只提出 `select(taskId)` 或 `wait`；
-context 是 detached、deep-frozen snapshot，Task metadata 是 topology 与 priority 的唯一来源。Scheduler 仍独占
-relation/mutex readiness、capacity、cancellation、Task 启动和结算的 hard guard，不能用 callback 绕过这些条件。
+当调用方要根据完整 Task graph 和当前准入事实选择下一项 Task 时，设置
+`scheduler.admissionPolicy` 为 `custom`。现行 public contract 有两种 strategy：`simple` 直接提供同步
+`decide(context)`；需要为**本次 Run**异步准备选择 closure 或处理 sealed terminal measurement 时，使用下文的
+`prepared`。两个 `decide` 都只能提出 `select(taskId)` 或 `wait`。它收到 detached、deep-frozen 的 decision DTO；Task
+metadata 是 topology 与 priority 的唯一来源。
 
-callback 是调用方 trusted synchronous code；`defineAdmissionPolicy(...)` 只改善 TypeScript inference，inline 同形 object
-等价。Product 不 sandbox、timeout、isolate 或 lock callback；同一 Definition 的并行 Run 共享 closure，调用方必须保证它可重入。
-callback throw、thenable、malformed/illegal proposal 或不可 drain 的 `wait` 会停止新 admission、取消 pending、drain 已启动 work，
-并返回 `admission-policy-failed` execution diagnostic，绝不 fallback 到 static。它没有 reservation、policy wait reason、console/
-`checkMessages` attribution 或 policy timing telemetry contract。
+Scheduler 仍独占 relation/mutex readiness、capacity、cancellation、Task 启动和结算的 hard guard。callback 是调用方
+trusted host code：closure 可使用调用方自己持有的 capability；Vibe Check 只传入 frozen DTO 并接收 result-only proposal，
+不会把 Scheduler state 或 Task control 转交给 strategy。`defineAdmissionPolicy(...)` 只改善 TypeScript inference，inline
+同形 object 等价。
+
+失败分流按 callback 阶段固定：simple/prepared 的 `decide` throw、thenable、malformed/illegal proposal 或不可 drain 的
+`wait` 形成 `admission-policy-failed`，Scheduler 停止新 admission、取消 pending 并 drain 已启动 work；prepared 的
+`prepare` throw、reject 或不能形成精确 closure 时，在 Scheduler 启动前形成
+`admission-strategy-preparation-failed`。完整的终态 output 状态和 primary-result 优先级见
+[深入 API 机制](./docs/api-mechanics.md#outputs-与-runresult-边界)。
 
 ```ts
 import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
@@ -266,19 +272,22 @@ const publish = defineCheck({
 
 const preferPublish = defineAdmissionPolicy({
   kind: "custom",
-  proposeAdmission(context) {
-    const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
-    const publishCandidate = context.candidates.find(
-      (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
-    );
-    if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
-      return { kind: "select", taskId: publishCandidate.taskId };
-    }
+  strategy: {
+    kind: "simple",
+    decide(context) {
+      const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
+      const publishCandidate = context.candidates.find(
+        (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
+      );
+      if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
+        return { kind: "select", taskId: publishCandidate.taskId };
+      }
 
-    const nextCandidate = context.candidates.find((candidate) => candidate.canAdmit);
-    return nextCandidate === undefined
-      ? { kind: "wait" }
-      : { kind: "select", taskId: nextCandidate.taskId };
+      const nextCandidate = context.candidates.find((candidate) => candidate.canAdmit);
+      return nextCandidate === undefined
+        ? { kind: "wait" }
+        : { kind: "select", taskId: nextCandidate.taskId };
+    }
   }
 });
 
@@ -300,6 +309,78 @@ if (result.kind !== "completed") throw new Error(`Run did not complete: ${result
 if (executionOrder.join(",") !== "compile,publish") {
   throw new Error(`Unexpected execution order: ${executionOrder.join(",")}`);
 }
+```
+
+### 已准备的 custom strategy
+
+当一次 Run 需要在 graph ready 后异步形成选择 closure，或需要在 sealed terminal measurement 上收尾时，使用
+`strategy.kind: "prepared"`。其成功调用顺序是：
+
+1. Invocation 对每个 graph-ready Run 一次调用 `prepare({ graph })`，得到只属于该 Run 的 `{ decide, complete? }`。
+2. Scheduler 同步调用 returned `decide`，并独占所有 admission hard guard 与 Task lifecycle。
+3. Scheduler seal terminal context 后，先运行启用的 internal summary 和所有 configured generic
+   `scheduler.measurementHooks`。
+4. Invocation 随后至多一次调用 optional `complete(context)`，并将实际 generic Hook/complete 的 settlement 写入既有
+   `outputs.measurementHooks`。
+
+`prepare` 的 public input 只有 frozen graph-ready facts；`complete` 的 public input 是 frozen
+`SchedulerMeasurementContext`。调用方把需要的 host capability 捕获在 closure 中；Product 保留 state、logger、clock 和
+Scheduler/Task control 的 owner。每个重叠 Run 都使用自己的 returned closure。prepare 失败会在 Scheduler 启动前形成
+`admission-strategy-preparation-failed`；complete throw/reject 会令 `outputs.measurementHooks` 为 failed，但不会改写已经
+sealed 的 primary facts。
+
+```ts
+import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+
+const events: string[] = [];
+const check = defineCheck({
+  checkId: "check",
+  displayName: "Check",
+  execution: () => ({ status: "passed" as const, data: {} })
+});
+
+const strategy = defineAdmissionPolicy({
+  kind: "custom",
+  strategy: {
+    kind: "prepared",
+    async prepare({ graph }) {
+      const taskIds = new Set(graph.tasks.map((task) => task.taskId));
+      await Promise.resolve();
+      return {
+        decide(context) {
+          const candidate = context.candidates.find(
+            ({ taskId, canAdmit }) => canAdmit && taskIds.has(taskId)
+          );
+          return candidate === undefined
+            ? { kind: "wait" as const }
+            : { kind: "select" as const, taskId: candidate.taskId };
+        },
+        complete(terminal) {
+          if (!Object.isFrozen(terminal) || terminal.execution.settledTasks.length !== 1) {
+            throw new Error("Expected one sealed terminal measurement");
+          }
+          events.push("complete");
+        }
+      };
+    }
+  }
+});
+
+const result = await run(
+  defineConfig({
+    checks: [check],
+    outputs: {
+      diagnosticLogging: { enabled: false },
+      machinePublication: { enabled: false },
+      progressRendering: { enabled: false }
+    },
+    scheduler: { admissionPolicy: strategy }
+  })
+);
+if (result.kind !== "completed" || result.outputs.measurementHooks.status !== "succeeded") {
+  throw new Error(`Run did not complete its prepared strategy: ${result.kind}`);
+}
+if (events.join(",") !== "complete") throw new Error("Prepared completion was not delivered");
 ```
 
 ### learned-critical-path 准入 policy
