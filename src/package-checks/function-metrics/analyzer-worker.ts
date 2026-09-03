@@ -1,10 +1,8 @@
-import { analyzeSourceCode } from "./analyzer/core.ts";
-import { getReaderFor } from "./analyzer/reader-registry.ts";
+import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";
 import type {
   FunctionMetricsAnalysisWorkerRequest,
   FunctionMetricsAnalysisWorkerResponse
 } from "./analyzer-worker-contract.ts";
-import type { FunctionMetric } from "./measurement-model.ts";
 
 self.onmessage = (event: MessageEvent<unknown>) => {
   postMessage(analyzeWorkerRequest(event.data));
@@ -13,33 +11,7 @@ self.onmessage = (event: MessageEvent<unknown>) => {
 
 function analyzeWorkerRequest(value: unknown): FunctionMetricsAnalysisWorkerResponse {
   if (!isWorkerRequest(value)) return Object.freeze({ kind: "analysis-failed" });
-  try {
-    const metrics: FunctionMetric[] = [];
-    for (const file of value.files) {
-      const reader = getReaderFor(file.path);
-      if (reader === undefined) return Object.freeze({ kind: "analysis-failed" });
-      const analysis = analyzeSourceCode(file.path, file.source, reader);
-      for (const functionInfo of analysis.functionList) {
-        metrics.push(
-          Object.freeze({
-            cyclomaticComplexity: Object.freeze({
-              source: "typescript-analyzer" as const,
-              value: functionInfo.cyclomaticComplexity
-            }),
-            endLine: functionInfo.endLine,
-            file: file.path,
-            lines: functionInfo.nloc,
-            name: functionInfo.name,
-            parameterCount: functionInfo.parameterCount,
-            startLine: functionInfo.startLine
-          })
-        );
-      }
-    }
-    return Object.freeze({ kind: "complete", metrics: Object.freeze(metrics) });
-  } catch {
-    return Object.freeze({ kind: "analysis-failed" });
-  }
+  return analyzeFunctionMetricsSources(value);
 }
 
 function isWorkerRequest(value: unknown): value is FunctionMetricsAnalysisWorkerRequest {

@@ -48,13 +48,13 @@ Entities:
 Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
 Entities:
 
-- `bun|src/package-checks/function-metrics/target-files.test.ts|functionMetrics analyzer target files > selects every translated registry extension case-insensitively and excludes unsupported paths`
+- `bun|src/package-checks/function-metrics/target-files.test.ts|functionMetrics analyzer target files > selects every adapter-provided extension case-insensitively and excludes unsupported paths`
 - `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to the analyzer`
 - `bun|src/package-checks/function-metrics/constructor.input-rejection.test.ts|functionMetrics area findings > does not create analyzer metric records when every selected path is rejected`
 
 Proves:
 
-- function-metrics derives precise default globs and runtime acceptance from the translated registry's 27 readers and 55 canonical extension spellings, using case-insensitive semantics without a fallback reader.
+- function-metrics derives precise default globs and runtime acceptance from the Product adapter's fixed translated-port capability: 27 readers and 55 canonical extension spellings, using case-insensitive semantics without a fallback reader. This Product capability is independent of the root provenance inventory and of Gate quality exceptions.
 - Explicitly selected unsupported Markdown, JSON, YAML or extensionless inputs each produce one area-aware rejection Record instead of reaching the analyzer; all-rejected input completes without analyzer metric Records.
 
 ## Case ADD-JSON-VALIDATION-SCOPE-001: JSON eligibility is an exact subset of its Check-owned file selection

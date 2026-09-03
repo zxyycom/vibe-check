@@ -1,15 +1,9 @@
-import { getReaderFor, languages } from "./analyzer/reader-registry.ts";
+import {
+  FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS,
+  isFunctionMetricsAnalyzerSourceSupported
+} from "./analyzer-adapter.ts";
 
-/** Product-owned analyzer registry extensions drive both default selection and admission. */
-const FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS = Object.freeze([
-  ...new Map(
-    languages().flatMap((reader) =>
-      reader.ext.map((extension) => [extension.toLowerCase(), extension] as const)
-    )
-  ).values()
-]);
-
-/** functionMetrics default files.include uses the analyzer's case-insensitive suffix set. */
+/** functionMetrics default files.include uses the adapter's case-insensitive suffix capability. */
 export const FUNCTION_METRICS_SUPPORTED_FILE_GLOBS = Object.freeze(
   FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS.map(
     (extension) => `**/*.${caseInsensitiveExtensionPattern(extension)}`
@@ -18,7 +12,7 @@ export const FUNCTION_METRICS_SUPPORTED_FILE_GLOBS = Object.freeze(
 
 /** Whether an exact project-relative path has a translated analyzer reader. */
 export function isFunctionMetricsTarget(filePath: string): boolean {
-  return getReaderFor(filePath) !== undefined;
+  return isFunctionMetricsAnalyzerSourceSupported(filePath);
 }
 
 function caseInsensitiveExtensionPattern(extension: string): string {

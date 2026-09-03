@@ -17,7 +17,12 @@ tool-native failure、measurement conversion 与相邻 tests。它们可复用
 `src/package-checks/host-environment/**` 的 process/error capability，以及
 `src/package-checks/project-files/**` 的 exact-path membership；这些真实共同不变量不建立共享 backend
 interface。`functionMetrics` 的 reader registry、tokenization 与分析状态同样保持在自己的 analyzer owner，
-不把 analyzer internals 公开为可替换插件或 command protocol。
+不把 analyzer internals 公开为可替换插件或 command protocol。`analyzer/port-facade.ts` 是 analyzer
+目录唯一面向目录外生产代码的 Check-private entry；port 外仅 `analyzer-adapter.ts` 可消费它。实际链固定为
+measurement → Worker → Product adapter → port façade → source-aligned internals：measurement 保留 exact-path
+I/O、decode、资源与取消，Worker 只验证 transport 并调用 adapter，adapter 独占 Product support/error 与
+`FunctionMetric` mapping。translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check
+与 tests 仍按普通项目规则审查。它们均不形成 public export、scanner protocol 或可替换 backend。
 
 ## Check-owned command options
 
@@ -85,5 +90,5 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 ## Verification
 
 external adapter tests 证明 command、availability、parser 与 tool-specific failure；对应 Check integration tests
-证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 reader registry 和
-source analysis，function-metrics integration tests 证明 analyzer 到 Check result 的映射。
+证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、current evidence 的 42/37/81/792 identity closure 和 archive-read guard；adapter/Worker tests
+证明私有调用链与 whole-input mapping，function-metrics integration tests 证明 adapter 到 Check result 的映射。

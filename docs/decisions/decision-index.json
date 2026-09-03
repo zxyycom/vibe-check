@@ -85,7 +85,7 @@
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
       "install-check-console-router-before-preflight.md": "sha256:42c664c9280a794898fb3d04e1825ecaefb4e18e83d4bd5bee97eb41d8136abf",
       "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
-      "isolate-lizard-port-behind-check-private-interface.md": "sha256:bccefac88a92232ba476e4fbb6d65fa5bd35bb7355e0b6bb697f47444739caa9",
+      "isolate-lizard-port-behind-check-private-interface.md": "sha256:b20bc9bf2941d3c01836808373d3f2356d5ee6d26844cc18f812bdefbf093e66",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
@@ -2807,14 +2807,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "isolate-lizard-port-behind-check-private-interface.md",
         "title": "以私有接口隔离 Lizard source-aligned port",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-09-02T16:33:21Z",
         "purpose": "让翻译的 Lizard port 可独立同步上游，并在唯一私有 port façade 外保持 Product Check 责任清晰。",
         "background": "现有 analyzer 已完成 runtime hard cut，却仍有 Worker 与文件选择直接读取 port internals，混合了翻译和 Product 责任。",

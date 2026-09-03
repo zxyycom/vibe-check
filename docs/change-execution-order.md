@@ -75,6 +75,7 @@ baseline，不能只因其 Plan 仍合法而沿用旧测量。
 | 1B：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A 并行规划；不要同时修改 invocation runtime |
 | 1C：证据 | [`cache-markdown-link-safe-facts`](../changes/cache-markdown-link-safe-facts/proposal.md) | 完成大型 corpus benchmark、安全 payload 和 limit 语义设计 | 不得假设 path-context Draft 已落地 |
 | 1D：已验收并归档 | [`replace-lizard-with-typescript-function-analyzers`](../changes/archive/replace-lizard-with-typescript-function-analyzers/proposal.md) | source-aligned analyzer、package/legal closure 与 required/full Gate 已完成，Change 已归档 | 后续 upstream 采用建立独立 Change，且不得把本次 local candidate 作为版本政策 |
+| 1E：已验收并归档 | [`isolate-lizard-typescript-port-boundary`](../changes/archive/isolate-lizard-typescript-port-boundary/proposal.md) | façade/adapter 私有边界、current evidence、双层质量规则与 required/full Gate 已完成，Change 已归档 | 后续 upstream 采用保持 source-aligned port 与 Product adapter 分层 |
 
 第一批完成后按以下顺序继续：
 
@@ -109,16 +110,10 @@ jscpd 与 SCC 迁移已经完成。`replace-lizard-with-typescript-function-anal
 Gate 验收并归档；任何上游版本采用、性能预算或新增 extension body 都是独立 Change，
 不得把这次实现重新视为待授权的 backend 工作。
 
-当前优先的整理项是
-[`isolate-lizard-typescript-port-boundary`](../changes/isolate-lizard-typescript-port-boundary/proposal.md)。它以已归档 hard cut
-提交 `0f317f2d492cade0bab187ba2c4ee9cbe28bebd9` 为硬前置（该提交已是当前协调基线
-`c239eab838594b46d2b1562fd35da936bf4f95f9` 的祖先）。
-
-- **调度范围：** 只收口既有 source-aligned port、port façade、Product adapter、Product workflow 与 current evidence；不采用新 Lizard 版本，不改变支持语言或公开 API。
-- **实施门禁：** 仅可执行 Readiness 0.2–0.5。current evidence/legal owner relation 与最小 translated-only quality exception set 都闭合并写回 Plan 后，才可开始 Implementation。
-- **合入关系：** 可与不共享 owner 的工作并行；若同时修改 package、Gate、Case 或 stable docs owner，须分次串行合入并重新验证。
-
-边界定义、验收和任务证据由该 Change artifacts 承接；本节只保存调度摘要。
+[`isolate-lizard-typescript-port-boundary`](../changes/archive/isolate-lizard-typescript-port-boundary/proposal.md)
+也已完成并归档：source-aligned port 只经私有 façade 和 Product adapter 接入，current evidence 不再读取 archive，
+translated-only quality 例外具有精确 provenance/header 证明，且 package public surface 不变。Scanner 轨道当前没有
+active 实施优先项；采用新 Lizard 版本、实现 extension body 或改变 façade contract 时分别建立独立 Change。
 
 [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
 consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。

@@ -1,16 +1,17 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
-import { measureFunctionMetrics } from "./measurement.ts";
+import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const oracle = parseOracleObservations(
   JSON.parse(
     readFileSync(
       new URL(
-        "../../../changes/archive/replace-lizard-with-typescript-function-analyzers/evidence/lizard-1.23-oracle-observations.json",
+        "./analyzer/fixtures/lizard-1.23.0/evidence/lizard-1.23-oracle-observations.json",
         import.meta.url
       ),
       "utf8"
@@ -19,18 +20,18 @@ const oracle = parseOracleObservations(
 );
 
 describe("functionMetrics Product analyzer adapter", () => {
-  it("passes all 27 reader families and 55 registered extensions through the exact-input Worker", async () => {
+  it("maps all 27 reader families and 55 registered extensions from supplied source", () => {
     const normalFixtures = oracle.fixtures.filter(({ fixture }) => fixture.includes("/normal."));
     assert.equal(normalFixtures.length, 55);
     assert.equal(new Set(normalFixtures.map(({ fixture }) => fixture.split(".").at(-1))).size, 55);
 
-    const result = await measureFunctionMetrics({
-      input: {
-        approvedExactPaths: normalFixtures.map(({ fixture }) => fixture),
-        areas: [],
-        rootDir: repositoryRoot
-      },
-      signal: new AbortController().signal
+    const result = analyzeFunctionMetricsSources({
+      files: normalFixtures.map(({ fixture }) =>
+        Object.freeze({
+          path: fixture,
+          source: readFileSync(resolve(repositoryRoot, fixture), "utf8")
+        })
+      )
     });
 
     assert.equal(result.kind, "complete");
@@ -48,6 +49,21 @@ describe("functionMetrics Product analyzer adapter", () => {
           startLine: measurement.startLine
         }))
       )
+    );
+  });
+
+  it("fails the complete input when any supplied source has no translated reader", () => {
+    assert.deepEqual(
+      analyzeFunctionMetricsSources({
+        files: [
+          {
+            path: "source/supported.ts",
+            source: "export function supported() { return 1; }"
+          },
+          { path: "source/unsupported.md", source: "# unsupported" }
+        ]
+      }),
+      { kind: "analysis-failed" }
     );
   });
 });

@@ -9,7 +9,7 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import { getReaderFor, languages } from "./reader-registry.ts";
+import { get_reader_for, languages } from "./reader-registry.ts";
 
 test("reader registry retains the 27-reader Lizard source order", () => {
   assert.deepEqual(
@@ -54,18 +54,18 @@ test("reader registry dispatches every canonical suffix case-insensitively and l
 
   assert.deepEqual([...canonicalDispatch.entries()], expectedCanonicalDispatch);
   for (const [suffix, expectedReader] of expectedCanonicalDispatch) {
-    assert.equal(getReaderFor(`source.${suffix}`)?.name, expectedReader);
-    assert.equal(getReaderFor(`source.${suffix.toUpperCase()}`)?.name, expectedReader);
+    assert.equal(get_reader_for(`source.${suffix}`)?.name, expectedReader);
+    assert.equal(get_reader_for(`source.${suffix.toUpperCase()}`)?.name, expectedReader);
   }
-  assert.equal(getReaderFor("source.unknown"), undefined);
-  assert.equal(getReaderFor("source"), undefined);
+  assert.equal(get_reader_for("source.unknown"), undefined);
+  assert.equal(get_reader_for("source"), undefined);
 });
 
 test("reader registry merges R/r only at case-insensitive dispatch while retaining source reader metadata", () => {
   const rReader = languages().find((reader) => reader.name === "RReader");
   assert.deepEqual(rReader?.ext, ["r", "R"]);
-  assert.equal(getReaderFor("source.r"), rReader);
-  assert.equal(getReaderFor("source.R"), rReader);
+  assert.equal(get_reader_for("source.r"), rReader);
+  assert.equal(get_reader_for("source.R"), rReader);
 });
 
 const expectedCanonicalDispatch: readonly [string, string][] = [

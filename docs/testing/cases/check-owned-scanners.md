@@ -86,8 +86,9 @@ Entities:
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
-- `bun|src/package-checks/function-metrics/analyzer-adapter.test.ts|functionMetrics Product analyzer adapter > passes all 27 reader families and 55 registered extensions through the exact-input Worker`
-- `bun|src/package-checks/function-metrics/analyzer-worker.test.ts|functionMetrics analyzer Worker > resolves from the source tree and turns a malformed request into a whole-request failure`
+- `bun|src/package-checks/function-metrics/analyzer-adapter.test.ts|functionMetrics Product analyzer adapter > maps all 27 reader families and 55 registered extensions from supplied source`
+- `bun|src/package-checks/function-metrics/analyzer-adapter.test.ts|functionMetrics Product analyzer adapter > fails the complete input when any supplied source has no translated reader`
+- `bun|src/package-checks/function-metrics/analyzer-worker.test.ts|functionMetrics analyzer Worker > resolves the Product adapter from the source tree and rejects malformed transport`
 - `bun|src/package-checks/function-metrics/measurement.encoding.test.ts|functionMetrics source-byte admission > matches Lizard 1.23 auto_read byte and newline observations`
 - `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > uses actual bytes for the 8 MiB per-file boundary and fails closed above it`
 - `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > fails the whole exact input when aggregate bytes exceed 64 MiB without sending a prefix`
@@ -95,7 +96,7 @@ Entities:
 - `bun|src/package-checks/function-metrics/measurement.resource.test.ts|functionMetrics resource admission > maps a synchronous Worker postMessage failure to one whole analysis failure`
   Proves:
 
-- The function-metrics adapter passes parent-approved source text for exactly the selected paths to one Product-owned Worker; it does not delegate path discovery or file reading. Before analysis it mirrors Lizard 1.23 `auto_read` for valid initial BOM and universal newlines, preserves legal U+FFFD, and retries invalid/truncated UTF-8 bytes with the source fallback behavior. The Worker preserves all 27 reader families and 55 canonical extension observations in the checked-in Lizard 1.23 corpus, rejects malformed requests as a whole-request failure, and source-tree resolution is executable. A synchronous Worker `postMessage` failure maps once to `analysis-failed`, terminates that Worker, and cannot publish a metric prefix or a second settlement. Parent admission measures actual bytes, accepts exactly 8 MiB per file, rejects larger files or a total over 64 MiB before Worker analysis, and maps an exact-path read failure to `source-unavailable`; none publish a metric prefix.
+- Parent admission passes parent-approved source text for exactly the selected paths to one Product-owned Worker; it does not delegate path discovery or file reading. The Worker validates transport then resolves the Product adapter from the source tree; the adapter is the port façade's only production consumer and maps all 27 reader families and 55 canonical extension observations from supplied source through the Check-private port. Any unsupported supplied source or malformed transport fails the complete request, never publishing a metric prefix. Before analysis admission mirrors Lizard 1.23 `auto_read` for valid initial BOM and universal newlines, preserves legal U+FFFD, and retries invalid/truncated UTF-8 bytes with the source fallback behavior. A synchronous Worker `postMessage` failure maps once to `analysis-failed`, terminates that Worker, and cannot publish a metric prefix or a second settlement. Parent admission measures actual bytes, accepts exactly 8 MiB per file, rejects larger files or a total over 64 MiB before Worker analysis, and maps an exact-path read failure to `source-unavailable`; none publish a metric prefix.
 
 ## Case AUX-SCC-ADAPTER-OUTCOMES-001: scc adapter preserves its private result boundary
 

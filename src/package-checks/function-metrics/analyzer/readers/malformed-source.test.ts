@@ -12,18 +12,18 @@ import { fileURLToPath } from "node:url";
 import test from "node:test";
 
 import { analyzeSourceCode, type FunctionInfo } from "../core.ts";
-import { getReaderFor, languages } from "../reader-registry.ts";
+import { get_reader_for, languages } from "../reader-registry.ts";
 
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../");
+const evidenceRoot = resolve(
+  dirname(fileURLToPath(import.meta.url)),
+  "../fixtures/lizard-1.23.0/evidence"
+);
 const malformedOracle = parseMalformedOracle(
-  readJson(
-    "changes/archive/replace-lizard-with-typescript-function-analyzers/evidence/lizard-1.23-malformed-reader-observations.json"
-  )
+  readJson(resolve(evidenceRoot, "lizard-1.23-malformed-reader-observations.json"))
 );
 const readerExtensionMapping = parseReaderExtensionMapping(
-  readJson(
-    "changes/archive/replace-lizard-with-typescript-function-analyzers/evidence/lizard-1.23-reader-extension-mapping.json"
-  )
+  readJson(resolve(evidenceRoot, "lizard-1.23-reader-extension-mapping.json"))
 );
 
 test("every source-order reader preserves Lizard 1.23 malformed-source whole-file observations", () => {
@@ -67,7 +67,7 @@ test("every source-order reader preserves Lizard 1.23 malformed-source whole-fil
         .includes(observation.canonicalExtension),
       `${observation.readerClass} must own ${observation.canonicalExtension}`
     );
-    assert.equal(getReaderFor(observation.fixture), reader);
+    assert.equal(get_reader_for(observation.fixture), reader);
 
     const sourceCode = readFileSync(resolve(workspaceRoot, observation.fixture), "utf8");
     assert.equal(sha256(sourceCode), observation.sourceSha256);
@@ -81,7 +81,7 @@ test("every source-order reader preserves Lizard 1.23 malformed-source whole-fil
 });
 
 function readJson(path: string): unknown {
-  return JSON.parse(readFileSync(resolve(workspaceRoot, path), "utf8"));
+  return JSON.parse(readFileSync(path, "utf8"));
 }
 
 function sha256(value: string): string {

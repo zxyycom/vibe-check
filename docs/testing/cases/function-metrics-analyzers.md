@@ -1,5 +1,16 @@
 # function-metrics-analyzers
 
+## Case FM-ANALYZER-PORT-FACADE-001: Check-private port façade exposes only supplied-source Lizard analysis
+
+Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Entities:
+
+- `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > provides case-insensitive suffix capability and supplied-source Lizard-domain analysis`
+Proves:
+
+- The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result.
+- This Case does not prove Product admission, filesystem I/O, cancellation, Worker transport, `FunctionMetric` mapping, public export, or a replaceable analyzer interface.
+
 ## Case FM-ANALYZER-READERS-A-001: Fortran、Structured Text 与 Erlang reader 保持 Lizard 1.23 可观察语义
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
@@ -46,7 +57,7 @@ Proves:
 - 每个 Lizard 1.23 source-order reader 都有一个确定的、reader-state-targeted malformed/incomplete fixture；固定 exact-source oracle 与 TypeScript in-memory analyzer 对每项完整函数列表（含 NLOC、CCN、token、parameters、long name、顺序和 range）产生相同结果，或同为完整空列表。
 - 该测试同时以 canonical mapping 锁定 27 个 reader identity、source order 和 55 个 case-insensitive suffix；它不把 malformed source 的语法有效性公开为 Product contract，也不代替 Worker protocol、cancellation 或 resource 边界测试。
 
-## Case FM-ANALYZER-SOURCE-IDENTITY-001: translated reader/shared structure retains fixed Lizard 1.23 identities
+## Case FM-ANALYZER-SOURCE-IDENTITY-001: translated port structure retains fixed Lizard 1.23 identities
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
@@ -55,6 +66,6 @@ Entities:
 
 Proves:
 
-- Checked-in source-to-target identity evidence closes every translated `lizard_languages/**` provenance range (33 ranges, 72 classes, 687 listed module/class/member definitions). The AST test verifies every named definition at its TypeScript target or an explicitly named, narrow host seam.
-- Source lifecycle class, field, and callback identities cannot silently disappear. The manifest is static verification evidence only: it does not create a runtime registry, reflection surface, or Product plugin API.
+- Current source-to-target identity evidence uses the root provenance inventory as its only machine-readable mapping and fail-closes all 42 translated source/range references and all 37 translated targets (including the extension-protocol additional target). The AST test verifies 81 class identities and 792 named symbol/seam mappings at their TypeScript target or an explicitly named, narrow host seam.
+- Source lifecycle class, field, and callback identities cannot silently disappear, and current `src` tests cannot read archived Change evidence. The manifest is static verification evidence only: it does not create a runtime registry, reflection surface, or Product plugin API.
 - This Case does not prove oracle semantic parity, deferred extension-body implementation, or Product adapter integration.

@@ -58,7 +58,8 @@ format 选项，`scripts/development/format-targets.ts` 拥有显式 format targ
 只检查它们。
 
 修改 lint rule、format option 或目标范围时，修改相应配置或 development owner；不要在 package、子目录或
-文档复制同义规则表或 target list。实现原则仍以[编码规范](coding-style.md)为准。
+文档复制同义规则表或 target list。development lint、format 与 typecheck 对适用 `src` 保持完整普通输入，均不为
+source-aligned function-metrics port 增加 translated-only 排除。实现原则仍以[编码规范](coding-style.md)为准。
 
 ### Local post-commit auto-push
 
@@ -91,7 +92,9 @@ hook transcript 仍由该 client 决定。
 
 `scripts/package/artifact/**` 从 public Product 入口 `src/index.ts` 与显式 internal Worker root
 `src/package-checks/function-metrics/analyzer-worker.ts` 构造 local candidate。artifact fingerprint 同时绑定这两个
-compiler root、Bun、锁定的 TypeScript emit/parser toolchain、Product source、package scripts 与文档输入。构建过程逐模块生成
+compiler root、Bun、锁定的 TypeScript emit/parser toolchain、Product source、package scripts 与文档输入。Worker、
+Product adapter 与 Lizard port façade都不是 package export 或 consumer subpath；它们仅作为内部 runtime material 保持所需的
+Worker execution shape。构建过程逐模块生成
 `dist/esm/**.mjs`，同时生成 `types/**.d.ts`、对应的源码映射，并复制 package 所属的非 test/fixture `src/**.ts`
 Product 源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；`package.json` 的 `exports` 只开放根路径
 `"."`，因此物理存在的 `dist`、`types` 与 `src` 目录不是 consumer subpath API。worker 不是额外 export：normalization
@@ -226,7 +229,13 @@ package 的公共默认值。
 waiver。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自
 owner 阻断。
 
-Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
+Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。三个 metrics Check 对已证实的
+source-aligned translated target 保留唯一最小 Gate exception ledger：`definition.ts` 精确硬编码 14 个
+provenance-qualified path、20 个 rule-path instance（duplicate 1、file-metrics 6、function-metrics 13）。配置测试读取根
+`licenses/lizard-1.23.0-provenance.json` 并校验每项排除 target 的 source header，对遗漏、非 translated target 或 header
+漂移 fail closed；它验证硬编码 selection，而非在 runtime 从 ledger 导出。它不排除 `extensions/protocol.ts`、手写 port façade、
+adapter、Worker、Check、tests 或其它非翻译 Product source，也不影响 lint、format、typecheck、identity/deviation、import-boundary
+或行为测试。边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ### Process evidence
 

@@ -82,8 +82,3 @@ export function get_reader_for(filename: string): RegisteredReader | undefined {
   }
   return undefined;
 }
-
-/** Existing Product-facing host spelling; it delegates to the source-named implementation. */
-export function getReaderFor(filename: string): RegisteredReader | undefined {
-  return get_reader_for(filename);
-}

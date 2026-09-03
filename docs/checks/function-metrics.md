@@ -7,7 +7,16 @@
 `functionMetrics` 是 ordinary Check，评估每个函数的 NLOC、cyclomatic complexity（CCN）与 parameter count。
 它在 Product 内使用内置 TypeScript analyzer；不调用 Lizard、不会解析 `PATH`、不接受 executable，也不发起网络请求。
 reader registry 固定支持 55 个大小写不敏感 suffix，行为以已检入的 Lizard 1.23.0 翻译基线校准；这项 provenance 不构成
-运行时依赖。上游更新只可通过显式 `bun run maintenance:lizard-upstream` advisory 查询，不进入默认 Project Gate。
+运行时依赖。source-aligned port 的唯一目录外生产入口是 Check-private `analyzer/port-facade.ts`，仅由
+`analyzer-adapter.ts` 消费；adapter、Worker 与 port 都不是 public API 或 package subpath。
+当前 oracle、malformed、reader mapping、identity 和 deviation evidence 位于
+`src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/evidence/`，而
+`licenses/lizard-1.23.0-provenance.json` 是唯一 source/range、hash、SPDX 与 translated-target mapping。
+identity test 从 root mapping fail-closed 地验证 42 个 source/range、37 个 targets、81 个 classes 与 792 个
+symbol/host-seam mappings；evidence 不参与 Product runtime 或 package payload。上游更新只可通过显式
+`bun run maintenance:lizard-upstream` advisory 查询，不进入默认 Project Gate；采用新 revision 或改变 translated
+source boundary 时，必须先更新根 provenance，再同步 current evidence 与 source-alignment review，不能把 archive、
+临时 clone 或网络请求作为运行时输入。
 
 ## 参数与默认配置
 

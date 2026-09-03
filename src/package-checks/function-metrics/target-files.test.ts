@@ -2,18 +2,12 @@ import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
 import { matchesAnyConfigGlob } from "../project-files/config-glob.ts";
-import { languages } from "./analyzer/reader-registry.ts";
+import { FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS } from "./analyzer-adapter.ts";
 import { FUNCTION_METRICS_SUPPORTED_FILE_GLOBS, isFunctionMetricsTarget } from "./target-files.ts";
 
 describe("functionMetrics analyzer target files", () => {
-  it("selects every translated registry extension case-insensitively and excludes unsupported paths", () => {
-    const extensions = [
-      ...new Map(
-        languages().flatMap((reader) =>
-          reader.ext.map((extension) => [extension.toLowerCase(), extension] as const)
-        )
-      ).values()
-    ];
+  it("selects every adapter-provided extension case-insensitively and excludes unsupported paths", () => {
+    const extensions = FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS;
     const supported = extensions.map((extension) => `source/example.${extension}`);
     const files = [
       ...supported,
@@ -28,7 +22,6 @@ describe("functionMetrics analyzer target files", () => {
       "ts"
     ];
 
-    assert.equal(languages().length, 27);
     assert.equal(extensions.length, 55);
     assert.deepEqual(files.filter(isFunctionMetricsTarget), [
       ...supported,
