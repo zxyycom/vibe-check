@@ -174,7 +174,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     }
     assert.match(
       readFileSync(join(artifact.stagingDirectory, PACKAGE_THIRD_PARTY_NOTICES_PATH), "utf8"),
-      /22 Lizard concrete extension bodies \(the 19 legacy bodies plus three new Halstead modules\) and two extension-only support/u
+      /20 remaining Lizard concrete extension bodies \(the 19 legacy bodies plus\s+the `lizardhalstead` entry body\) and two extension-only Halstead support modules/u
     );
     assert.equal(
       artifact.files.some((path) => path.includes("/analyzer/fixtures/")),

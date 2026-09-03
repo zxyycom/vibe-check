@@ -995,7 +995,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "assess-lizard-extension-adoption-value.md": "sha256:18af248120c9474f0376ff257c62dccbf0a8722940fc309030c9327f1fe0193d",
+      "assess-lizard-extension-adoption-value.md": "sha256:8f3100dedd8fa993782d68c5d05eb219fd6a38da64877c73e979d3c028589db3",
       "assess-lizard-upstream-release-and-branch-delta.md": "sha256:9f8d6857d7fb8b9614830d028aa81054bca11326a4fb25ad1601b3a4c258f5ee",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",

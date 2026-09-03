@@ -7,10 +7,12 @@ import type {
 import {
   functionMetricsWaiverIdentity,
   type FunctionInputRejectedCandidate,
+  type FunctionMetricsFindingRecordData,
   type FunctionRecordCandidate
 } from "./records.ts";
 
 const PRESENTED_FINDING_LIMIT = 10;
+const PRESENTED_COMPLEXITY_CONTRIBUTOR_LIMIT = 8;
 
 type FunctionFindingCandidate = FunctionRecordCandidate | FunctionInputRejectedCandidate;
 
@@ -32,7 +34,7 @@ export function functionFindingMessages(
       return Object.freeze({
         code: "finding-detail",
         level: data.blocking ? ("error" as const) : ("warning" as const),
-        message: `${data.path}:${data.startLine} ${data.functionName}: ${data.metric} ${data.value} exceeds the ${data.limit} limit (areas: ${data.codeAreas.join(", ")}).`
+        message: `${data.path}:${data.startLine} ${data.functionName}: ${data.metric} ${data.value} exceeds the ${data.limit} limit (areas: ${data.codeAreas.join(", ")}).${complexityContributorMessage(data)}`
       });
     },
     omittedMessage: ({ omittedCount, omittedFindings }) =>
@@ -44,6 +46,20 @@ export function functionFindingMessages(
         message: `${omittedCount} additional function metric finding(s) were not shown; inspect this Check's Records for the complete set.`
       })
   });
+}
+
+function complexityContributorMessage(data: FunctionMetricsFindingRecordData): string {
+  if (data.metric !== "cyclomatic-complexity" || data.complexityContributors === undefined)
+    return "";
+  const shown = data.complexityContributors.slice(0, PRESENTED_COMPLEXITY_CONTRIBUTOR_LIMIT);
+  if (shown.length === 0) return "";
+  const displayedContributors = shown
+    .map((contributor) => `${contributor.token} at line ${contributor.line}`)
+    .join(", ");
+  const omittedCount = data.complexityContributors.length - shown.length;
+  return omittedCount === 0
+    ? ` Complexity contributors: ${displayedContributors}.`
+    : ` Complexity contributors: ${displayedContributors}; ${omittedCount} additional contributor(s) are in this finding Record.`;
 }
 
 /** 将每项 function-metrics waiver audit 投影为可行动的 terminal message。 */

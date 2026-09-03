@@ -56,7 +56,7 @@
 
 ## 当前协调基线
 
-本节于 2026-09-03 按本工作树 `HEAD` 提交 `5ff3149e689ad0cef789956bfab0de2baa8adf5a` 审阅。该基线包含：
+本节于 2026-09-03 按本工作树 `HEAD` 提交 `02423f0220483b4fe9c733a95f21242e8b0c89f3` 审阅。该基线包含：
 
 - `714fcd48d76416a27fe813466ef1550a25ddedf7` 中已集成的 Scheduler 依赖、策略、测量与性能诊断基础；
 - `bc69ab625abeaee3c52505a31dfb2b9d8e6c7b91` 中已集成的 jscpd 与 SCC scanner 迁移；
@@ -108,10 +108,10 @@ Scheduler 的 passed dependency、terminal observation、admission policy、meas
 ### Scanner 轨道
 
 jscpd 与 SCC 迁移已经完成。`replace-lizard-with-typescript-function-analyzers` 已完成 source-aligned hard cut：
-`functionMetrics` 不再使用 Python/Lizard runtime 或 public `scanner.executable`，保持 27 readers/55 extensions，
-以 explicit-only repository advisory 跟随 upstream，并已完成 source/provenance、resource、candidate/installed 与 required/full
-Gate 验收并归档；任何上游版本采用、性能预算或新增 extension body 都是独立 Change，
-不得把这次实现重新视为待授权的 backend 工作。
+`functionMetrics` 不再使用 Python/Lizard runtime 或 public `scanner.executable`，保持 27 readers/55 suffixes，
+并已私有采用 `complextags` 与 ND；其余 17 个 optional bodies 与 Halstead 继续 deferred。explicit-only
+repository advisory 只提示 upstream stable release。任何上游版本采用、性能预算或其它 extension body
+都使用独立 Change，不得把已归档实现重新视为待授权的 backend 工作。
 
 [`isolate-lizard-typescript-port-boundary`](../changes/archive/isolate-lizard-typescript-port-boundary/proposal.md)
 也已完成并归档：source-aligned port 只经私有 façade 和 Product adapter 接入，current evidence 不再读取 archive，
@@ -120,11 +120,14 @@ translated-only quality 例外具有精确 provenance/header 证明，且 packag
 | Change | Stage | 当前允许的工作 | 顺序与并行边界 |
 | --- | --- | --- | --- |
 | [`sync-lizard-typescript-port-to-1-24-0`](../changes/archive/sync-lizard-typescript-port-to-1-24-0/proposal.md) | archived | 已完成固定 `1.24.0` source-aligned baseline、reader/protocol parity、current evidence、provenance/legal 与 exact Gate exception ledger；`lizard.py` range ledger 已区分 excluded CLI/discovery/extension-help/main diff 与 translated-range re-anchoring，未把行号变化表述为 translated behavior diff | scanner 的 upstream-baseline 已稳定为正式 tag，未带入 `master` 的 5 个未发布 commits；19 个 legacy bodies 与 Halstead 三文件均保持 deferred。 |
-| [`adopt-selected-lizard-extensions`](../changes/adopt-selected-lizard-extensions/proposal.md) | active Draft | 收集真实 consumer、候选、语言/threshold/performance 与 closed Product contract 的选择证据；若结论为 `none`，可不扩张完成 | 可与 sync 并行进行**选择证据**，但不占 runtime implementation worktree。任何具体 capability 的 runtime implementation 和 acceptance 都硬依赖完整 Change 名 `sync-lizard-typescript-port-to-1-24-0` 的 1.24 stable commit 已进入其实施基线；不公开 extension mechanism，且不阻塞 sync。 |
+| [`adopt-selected-lizard-extensions`](../changes/archive/adopt-selected-lizard-extensions/proposal.md) | archived | 已私有翻译并采用 `complextags` 与 ND：前者只解释 CCN Finding，后者以默认 `7` 的 closed metric 交付；source/oracle、Product contract、性能观察与 required/full Gate 已闭合 | 组合仅经私有 port façade 与 Product adapter，不公开 extension mechanism。其余 bodies 的任何 adoption 仍需新的独立 Change。 |
 | [`compare-lizard-python-typescript-performance`](../changes/archive/compare-lizard-python-typescript-performance/proposal.md) | archived | 已建立可重复 comparative benchmark、分层 profile 与观察性 evidence；不再拥有当前优化任务 | analyzer-only 差距已由后续 Investigation 定位；历史 Change 不建立跨主机 timing hard Gate。 |
 | [`optimize-lizard-reader-resolution`](../changes/archive/optimize-lizard-reader-resolution/proposal.md) | archived | 已完成 private façade 的 source-order-derived reader fast path、原 registry fallback、current deviation 与正式 ABBA evidence | 该归档结果不授权改写 translated registry/core、采用 extension body 或切换 Product runtime。 |
 
-`sync-lizard-typescript-port-to-1-24-0`、性能比较与 reader-resolution 优化均已独立完成并归档；已验收 fast path 只处理手写 façade seam，并保持 translated body 零修改。后续可继续收敛 adoption 的消费者选择；只有选择一个具体 closed capability 且获得当时实施授权后，`adopt-selected-lizard-extensions` 才从包含 1.24 stable baseline 与已验收 façade boundary 的提交建立实施基线。真实 Product corpus 复测与任何 core hotspot 调查也必须保持独立证据边界；同步、性能优化与 extension adoption 不得混合为一次上游同步、隐式 core 优化或自动 Product 扩张。
+`sync-lizard-typescript-port-to-1-24-0`、性能比较、reader-resolution 优化与 selected-extension adoption 均已独立完成并归档。
+已验收 fast path 只处理手写 façade seam；selected pair 仍保持 source-aligned port 与 Product adapter 分层。真实
+Product corpus 复测、任何 core hotspot 调查或其它 optional body adoption 必须保持独立证据与 Change 边界；
+上游同步、性能优化与 extension adoption 不得合并为隐式 core 优化或自动 Product 扩张。
 
 [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
 consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。

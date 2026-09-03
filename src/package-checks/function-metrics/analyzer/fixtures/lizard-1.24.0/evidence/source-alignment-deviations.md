@@ -10,15 +10,15 @@ path 与 upstream revision 的唯一 machine-readable owner 是
 `lizard-1.24-source-identity.json` 必须恰好引用 root inventory 中 `status: "translated"` 的每个
 source/range。`source-identity.test.ts` 以这一个 filtered set 为准，要求：
 
-1. 44 个 translated source/range reference 无缺失、无额外项、无重复项；
+1. 46 个 translated source/range reference 无缺失、无额外项、无重复项；
 2. 每个 reference 至少有一个 AST-verifiable source symbol 或 named host seam；
-3. root inventory 推导出的全部 39 个 target 都被验证：每项 primary target 加上
-   `additionalTargetPaths`，其中 extension protocol 是 additional target；
-4. 这些 entries 共同闭合 81 个 class identity 与 796 个 symbol/host-seam mapping；
+3. root inventory 推导出的全部 41 个 target 都被验证：每项 primary target 加上
+   `additionalTargetPaths`，其中 extension protocol 与 ND typed host 是 additional target；
+4. 这些 entries 共同闭合 83 个 class identity 与 820 个 symbol/host-seam mapping；
 5. manifest 不得携带 hash、SPDX 或 target-path ledger，并且 current `src/**/*.ts` 不得读取
    archived Change 输入。
 
-因此本文件不重新列出 44 个 range 或 39 个 path；增加、删除或重定向 translated scope 只能先改变
+因此本文件不重新列出 46 个 range 或 41 个 path；增加、删除或重定向 translated scope 只能先改变
 root inventory，并使上述 exact-set check 失败直到 current identity evidence 同步。
 
 ## Mapping vocabulary
@@ -26,8 +26,8 @@ root inventory，并使上述 exact-set check 失败直到 current identity evid
 每一项 non-direct mapping 都在 identity manifest 中有具体 `reason`。以下 vocabulary 说明它们的
 稳定边界：
 
-| Mapping                       | Host adjustment and boundary                                                                                                              |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 映射 | host 调整与边界 |
+| --- | --- |
 | `python-constructor`          | Python `__init__` 由 TypeScript constructor 表示；不会引入反射或 second lifecycle。                                                       |
 | `source-name-host-alias`      | 已存在的 typed host spelling 与 source spelling 共用一个 analyzer-internal storage/callback。                                             |
 | `inherited-source-storage`    | Python inherited field 在其定义的 translated parent storage 中验证，不复制派生 class state。                                              |
@@ -53,6 +53,12 @@ root inventory，并使上述 exact-set check 失败直到 current identity evid
 - `extension_base` 保留 `ExtensionBase.__call__` 和 inherited context state。protocol 是同一 root
   provenance entry 的 additional target：它承接 TypeScript 特有的 descriptor/special-call resolution，
   同时仍从 `ExtensionBase` 的 source call lifecycle 获得 identity seam。
+- `lizardcomplextags` 保留 upstream processor 的 source-order token/current-line append 行为；完整 contributor
+  sequence 留在 private port facts，Product 何时投影该事实不属于 translated body。
+- `lizardnd` 保留 upstream processor、threshold metadata 和 `check_loop_brackets`。Python import-time
+  `patch`/`patch_append_method` 没有被翻译为可变 extension framework：`FileInfoBuilder` 的 17 个 named
+  members 与 `FunctionInfo` 的 typed construction/field initialization 是窄的 host seam，并由 identity
+  manifest 逐 member AST 验证。它不引入 public loader、reflection 或任意 class patch capability。
 
 ## Reader/shared boundaries
 

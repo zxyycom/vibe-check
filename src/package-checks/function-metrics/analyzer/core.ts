@@ -1,10 +1,11 @@
 /**
  * Derived from terryyin/lizard 1.24.0.
- * Source: lizard.py (Nesting through FileAnalyzer, analyze_files,
+ * Sources: lizard.py (Nesting through FileAnalyzer, analyze_files,
  * map_files_to_analyzer, OutputScheme, get_extensions lifecycle hooks, and
- * condition_counter).
+ * condition_counter); lizard_ext/lizardnd.py (typed FileInfoBuilder and
+ * FunctionInfo host lifecycle seam).
  * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
- * SPDX-License-Identifier: Apache-2.0
+ * SPDX-License-Identifier: Apache-2.0 AND MIT
  * Modified: translated to the product-owned TypeScript in-memory analyzer.
  * File discovery, reader selection, CLI argument parsing, and report rendering
  * remain outside this module's explicitly in-memory boundary.
@@ -56,6 +57,11 @@ export interface AnalyzerReader {
   readonly parallelStates: readonly unknown[];
   readonly parallel_states: readonly unknown[];
   readonly context: FileInfoBuilder;
+  /** Optional source reader attributes consumed by lizardnd.py. */
+  readonly loops?: readonly string[] | ReadonlySet<string>;
+  readonly bracket?: string;
+  readonly loop_indicator?: string;
+  readonly indent_indicator?: string;
   __call__(tokens: TokenStream, reader: AnalyzerReader): TokenStream;
   getCommentFromToken(token: string): string | undefined;
   process(tokens: TokenStream): TokenStream;
@@ -138,6 +144,16 @@ export class FunctionInfo extends Nesting {
   public fanOut = 0;
   public generalFanOut = 0;
   public maxNestingDepth = 0;
+  /** Source lizardcomplextags.py storage; absent until its processor observes a token. */
+  public complexTags: [string, number][] | undefined;
+  /** Source lizardnd.py's per-function mutable processor state. */
+  public nestingDepth = 0;
+  public hiddenBracket = 0;
+  public bracketLoop = false;
+  public inCondition = false;
+  public conditionDepth = 0;
+  public logicalOperatorAdded = false;
+  public prevWasElse = false;
   public forgivenMetrics = new Set<string>();
 
   public constructor(name: string, filename: string, startLine = 0, ccn = 1) {
@@ -240,6 +256,70 @@ export class FunctionInfo extends Nesting {
 
   public set max_nesting_depth(value: number) {
     this.maxNestingDepth = value;
+  }
+
+  public get complex_tags(): [string, number][] | undefined {
+    return this.complexTags;
+  }
+
+  public set complex_tags(value: [string, number][] | undefined) {
+    this.complexTags = value;
+  }
+
+  public get nesting_depth(): number {
+    return this.nestingDepth;
+  }
+
+  public set nesting_depth(value: number) {
+    this.nestingDepth = value;
+  }
+
+  public get hidden_bracket(): number {
+    return this.hiddenBracket;
+  }
+
+  public set hidden_bracket(value: number) {
+    this.hiddenBracket = value;
+  }
+
+  public get bracket_loop(): boolean {
+    return this.bracketLoop;
+  }
+
+  public set bracket_loop(value: boolean) {
+    this.bracketLoop = value;
+  }
+
+  public get in_condition(): boolean {
+    return this.inCondition;
+  }
+
+  public set in_condition(value: boolean) {
+    this.inCondition = value;
+  }
+
+  public get condition_depth(): number {
+    return this.conditionDepth;
+  }
+
+  public set condition_depth(value: number) {
+    this.conditionDepth = value;
+  }
+
+  public get logical_operator_added(): boolean {
+    return this.logicalOperatorAdded;
+  }
+
+  public set logical_operator_added(value: boolean) {
+    this.logicalOperatorAdded = value;
+  }
+
+  public get prev_was_else(): boolean {
+    return this.prevWasElse;
+  }
+
+  public set prev_was_else(value: boolean) {
+    this.prevWasElse = value;
   }
 
   public get forgiven_metrics(): Set<string> {
@@ -966,6 +1046,154 @@ export class FileInfoBuilder {
 
   public add_condition(increment = 1): void {
     this.addCondition(increment);
+  }
+
+  /** Source lizardnd.py's monkey-patched FileInfoBuilder method surface. */
+  public addNdCondition(increment = 1): number {
+    this.currentFunction.nestingDepth += increment;
+    const nestingDepth = this.currentFunction.nestingDepth;
+    if (this.currentFunction.maxNestingDepth < nestingDepth) {
+      this.currentFunction.maxNestingDepth = nestingDepth;
+    }
+    return nestingDepth;
+  }
+
+  public add_nd_condition(increment = 1): number {
+    return this.addNdCondition(increment);
+  }
+
+  public resetNdComplexity(): void {
+    this.currentFunction.nestingDepth = 0;
+    this.currentFunction.hiddenBracket = 0;
+    this.currentFunction.bracketLoop = false;
+    this.currentFunction.prevWasElse = false;
+    this.resetConditionTracking();
+  }
+
+  public reset_nd_complexity(): void {
+    this.resetNdComplexity();
+  }
+
+  public addHiddenBracketCondition(increment = 1): void {
+    this.currentFunction.hiddenBracket += increment;
+  }
+
+  public add_hidden_bracket_condition(increment = 1): void {
+    this.addHiddenBracketCondition(increment);
+  }
+
+  public getHiddenBracket(): number {
+    return this.currentFunction.hiddenBracket;
+  }
+
+  public get_hidden_bracket(): number {
+    return this.getHiddenBracket();
+  }
+
+  public loopBracketStatus(): void {
+    this.currentFunction.bracketLoop = !this.currentFunction.bracketLoop;
+  }
+
+  public loop_bracket_status(): void {
+    this.loopBracketStatus();
+  }
+
+  public getLoopStatus(): boolean {
+    return this.currentFunction.bracketLoop;
+  }
+
+  public get_loop_status(): boolean {
+    return this.getLoopStatus();
+  }
+
+  public setInCondition(inCondition: boolean): void {
+    this.currentFunction.inCondition = inCondition;
+  }
+
+  public set_in_condition(inCondition: boolean): void {
+    this.setInCondition(inCondition);
+  }
+
+  public getInCondition(): boolean {
+    return this.currentFunction.inCondition;
+  }
+
+  public get_in_condition(): boolean {
+    return this.getInCondition();
+  }
+
+  public incrementConditionDepth(): void {
+    this.currentFunction.conditionDepth += 1;
+  }
+
+  public increment_condition_depth(): void {
+    this.incrementConditionDepth();
+  }
+
+  public decrementConditionDepth(): void {
+    if (this.currentFunction.conditionDepth > 0) this.currentFunction.conditionDepth -= 1;
+  }
+
+  public decrement_condition_depth(): void {
+    this.decrementConditionDepth();
+  }
+
+  public getConditionDepth(): number {
+    return this.currentFunction.conditionDepth;
+  }
+
+  public get_condition_depth(): number {
+    return this.getConditionDepth();
+  }
+
+  public resetConditionTracking(): void {
+    this.currentFunction.inCondition = false;
+    this.currentFunction.conditionDepth = 0;
+    this.currentFunction.logicalOperatorAdded = false;
+  }
+
+  public reset_condition_tracking(): void {
+    this.resetConditionTracking();
+  }
+
+  public setLogicalOperatorAdded(added: boolean): void {
+    this.currentFunction.logicalOperatorAdded = added;
+  }
+
+  public set_logical_operator_added(added: boolean): void {
+    this.setLogicalOperatorAdded(added);
+  }
+
+  public getLogicalOperatorAdded(): boolean {
+    return this.currentFunction.logicalOperatorAdded;
+  }
+
+  public get_logical_operator_added(): boolean {
+    return this.getLogicalOperatorAdded();
+  }
+
+  public setPrevWasElse(value: boolean): void {
+    this.currentFunction.prevWasElse = value;
+  }
+
+  public set_prev_was_else(value: boolean): void {
+    this.setPrevWasElse(value);
+  }
+
+  public getPrevWasElse(): boolean {
+    return this.currentFunction.prevWasElse;
+  }
+
+  public get_prev_was_else(): boolean {
+    return this.getPrevWasElse();
+  }
+
+  public clearPrevWasElse(): void {
+    this.currentFunction.prevWasElse = false;
+  }
+
+  public clear_prev_was_else(): void {
+    this.clearPrevWasElse();
   }
 
   public addToLongFunctionName(appended: string): void {

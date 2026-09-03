@@ -1,6 +1,6 @@
 ---
 title: 以仓库提示持续跟随 Lizard 支持语言与 analyzer 修复
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T08:10:11Z
 purpose: 让产品自有 function analyzer 及时发现 Lizard 稳定版变化，同时由显式 Change 决定何时采用。

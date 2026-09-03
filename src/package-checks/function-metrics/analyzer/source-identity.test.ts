@@ -35,10 +35,10 @@ const MAPPING_VOCABULARY = new Set([
   "field-initializer-host-seam"
 ]);
 const FIXED_IDENTITY_COUNTS = {
-  classes: 81,
-  entries: 44,
-  symbols: 796,
-  targets: 39
+  classes: 83,
+  entries: 46,
+  symbols: 820,
+  targets: 41
 } as const;
 const FIXED_UPSTREAM = {
   project: "terryyin/lizard",
@@ -394,10 +394,22 @@ function assertTargetSeam(
   );
   const targetPath = targetPathForRole(provenanceEntry, targetSeam.targetRole);
   const target = sourceFile(targetPath, sourceFiles);
-  assert.ok(
-    hasModuleFunction(target, targetSeam.target.symbol),
-    `${sourceKey}:${targetSeam.sourceName} is missing target seam ${targetPath}:${targetSeam.target.symbol}`
-  );
+  if (targetSeam.target.className === undefined) {
+    assert.ok(
+      hasModuleFunction(target, targetSeam.target.symbol),
+      `${sourceKey}:${targetSeam.sourceName} is missing target seam ${targetPath}:${targetSeam.target.symbol}`
+    );
+  } else {
+    const targetClass = findClass(target, targetSeam.target.className);
+    assert.ok(
+      targetClass,
+      `${sourceKey}:${targetSeam.sourceName} targets missing ${targetPath}:${targetSeam.target.className}`
+    );
+    assert.ok(
+      hasClassMember(targetClass, targetSeam.target),
+      `${sourceKey}:${targetSeam.sourceName} is missing target seam ${targetPath}:${targetSeam.target.className}.${targetSeam.target.symbol}`
+    );
+  }
   verifiedTargetPaths.add(targetPath);
   return 1;
 }

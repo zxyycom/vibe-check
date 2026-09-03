@@ -21,7 +21,8 @@ interface。`functionMetrics` 的 reader registry、tokenization 与分析状态
 目录唯一面向目录外生产代码的 Check-private entry；port 外仅 `analyzer-adapter.ts` 可消费它。实际链固定为
 measurement → Worker → Product adapter → port façade → source-aligned internals：measurement 保留 exact-path
 I/O、decode、资源与取消，Worker 只验证 transport 并调用 adapter，adapter 独占 Product support/error 与
-`FunctionMetric` mapping。translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check
+`FunctionMetric` mapping。固定 analyzer facts 在此边界映射为 CCN contributor 和 nesting-depth value；它们由 Check 的
+closed area limits、Finding/waiver/Record policy 消费，而不是形成可配置 analyzer、extension list 或 plugin protocol。translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check
 与 tests 仍按普通项目规则审查。它们均不形成 public export、scanner protocol 或可替换 backend。
 手写 façade 拥有仅 host 使用的 reader-resolution seam，供 capability 与 analysis 共用；它保持 registry
 selection 与 unsupported-input boundary，未覆盖的输入继续交给 source-aligned registry。该 seam 不构成 scanner
@@ -36,7 +37,8 @@ protocol 或 consumer setting，且不改变 root provenance 或 source identity
   `--no-config --by-file --format csv` exact-path protocol；不允许 arguments passthrough。
 - `duplicateDetection.scanner` 由其指南定义 package/custom command 的完整 policy；adapter 拥有 version
   probe、exact-input config、JSON report 与 worker policy。
-- `functionMetrics` 的公开 options 只有 `codeAreas`、`findingPolicy` 与 `findingWaivers`；没有 scanner、
+- `functionMetrics` 的公开 options 只有 `codeAreas`、`findingPolicy` 与 `findingWaivers`；每个 area 的 closed `limits` 包含
+  NLOC、CCN、nesting depth 与 parameter maximum。没有 scanner、
   executable、command 或 environment override。它的内置 analyzer 使用固定 reader registry，资源上限和
   unavailable result 由 [`functionMetrics` 指南](checks/function-metrics.md)定义。
 
@@ -93,5 +95,5 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 ## Verification
 
 external adapter tests 证明 command、availability、parser 与 tool-specific failure；对应 Check integration tests
-证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、current evidence 的 44/39/81/796 identity closure 和 archive-read guard；adapter/Worker tests
+证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、current evidence 的 46/41/83/820 identity closure 和 archive-read guard；adapter/Worker tests
 证明私有调用链与 whole-input mapping，function-metrics integration tests 证明 adapter 到 Check result 的映射。

@@ -1,6 +1,6 @@
 ---
 title: 以产品自有 TypeScript 分析器完整替换 Lizard runtime
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T08:10:10Z
 purpose: 让 functionMetrics 在保持完整函数测量能力的同时移除 Python、Lizard command 与公开 executable 配置。

@@ -5,6 +5,7 @@
  */
 
 import { analyzeSourceCode } from "./core.ts";
+import { getExtensions } from "./extensions/registry.ts";
 import { get_reader_for, languages, type RegisteredReader } from "./reader-registry.ts";
 
 /** A supplied in-memory source accepted by the Lizard-domain façade. */
@@ -15,14 +16,19 @@ export interface LizardSourceInput {
 
 /** The Lizard function fields needed by the private Product adapter. */
 export interface LizardFunctionInfo {
+  readonly complex_tags: readonly LizardComplexityTag[];
   readonly cyclomatic_complexity: number;
   readonly end_line: number;
   readonly filename: string;
   readonly name: string;
   readonly nloc: number;
   readonly parameter_count: number;
+  readonly max_nesting_depth: number;
   readonly start_line: number;
 }
+
+/** One source-ordered `[token, line]` contributor from lizardcomplextags.py. */
+export type LizardComplexityTag = readonly [token: string, line: number];
 
 /** In-memory Lizard analysis for one supplied source file. */
 export interface LizardSourceAnalysis {
@@ -46,6 +52,7 @@ const LIZARD_READER_BY_ASCII_SUFFIX: ReadonlyMap<string, RegisteredReader> = rea
 
 /** The source-order suffix set, deduplicated by the registry's case-insensitive matching. */
 const LIZARD_SOURCE_EXTENSIONS = Object.freeze([...extensionByCanonicalSuffix.values()]);
+const SELECTED_EXTENSION_PROCESSORS = Object.freeze(getExtensions(["complextags", "nd"]));
 
 /** Returns the fixed source-order suffix capability of the translated Lizard readers. */
 export function lizardSourceExtensions(): readonly string[] {
@@ -66,17 +73,28 @@ export function analyzeLizardSource(input: LizardSourceInput): LizardSourceAnaly
   const reader = resolveLizardReader(input.filename);
   if (reader === undefined) return undefined;
 
-  const fileInformation = analyzeSourceCode(input.filename, input.sourceCode, reader);
+  const fileInformation = analyzeSourceCode(
+    input.filename,
+    input.sourceCode,
+    reader,
+    SELECTED_EXTENSION_PROCESSORS
+  );
   return Object.freeze({
     function_list: Object.freeze(
       fileInformation.function_list.map((functionInfo) =>
         Object.freeze({
+          complex_tags: Object.freeze(
+            (functionInfo.complex_tags ?? []).map(([token, line]) =>
+              Object.freeze([token, line] as LizardComplexityTag)
+            )
+          ),
           cyclomatic_complexity: functionInfo.cyclomatic_complexity,
           end_line: functionInfo.end_line,
           filename: functionInfo.filename,
           name: functionInfo.name,
           nloc: functionInfo.nloc,
           parameter_count: functionInfo.parameter_count,
+          max_nesting_depth: functionInfo.max_nesting_depth,
           start_line: functionInfo.start_line
         })
       )

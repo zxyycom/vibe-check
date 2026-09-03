@@ -8,10 +8,12 @@
  */
 
 import { DEFAULT_TOKEN_PROCESSORS, type AnalyzerProcessor } from "../core.ts";
+import { LizardExtension as ComplexTagsExtension } from "./lizardcomplextags.ts";
+import { LizardExtension as NestingDepthExtension } from "./lizardnd.ts";
 import type { ExtensionInput, RegisteredLizardExtension } from "./protocol.ts";
 import { extensionMetadata } from "./protocol.ts";
 
-export type ExtensionBodyStatus = "deferred-extension-body";
+export type ExtensionBodyStatus = "deferred-extension-body" | "translated";
 
 /** One known upstream extension module whose body has not yet been translated. */
 export interface ExtensionRegistration {
@@ -38,7 +40,7 @@ export class DeferredExtensionBodyError extends Error {
 /** All 19 upstream Lizard extension bodies in the current translation scope. */
 export const EXTENSION_REGISTRATIONS: readonly ExtensionRegistration[] = Object.freeze([
   deferred("boolcount"),
-  deferred("complextags"),
+  translated("complextags"),
   deferred("cpre"),
   deferred("dependencycount"),
   deferred("dumpcomments"),
@@ -50,7 +52,7 @@ export const EXTENSION_REGISTRATIONS: readonly ExtensionRegistration[] = Object.
   deferred("io"),
   deferred("mccabe"),
   deferred("modified"),
-  deferred("nd"),
+  translated("nd"),
   deferred("nonstrict"),
   deferred("ns"),
   deferred("outside"),
@@ -93,19 +95,39 @@ function deferred(name: string): ExtensionRegistration {
   };
 }
 
+function translated(name: "complextags" | "nd"): ExtensionRegistration {
+  return {
+    name,
+    sourcePath: `lizard_ext/lizard${name}.py`,
+    status: "translated"
+  };
+}
+
 function resolveExtension(extensionInput: ExtensionInput): RegisteredLizardExtension {
   if (typeof extensionInput === "string") return loadNamedExtension(extensionInput);
   return extensionInput;
 }
 
-function loadNamedExtension(name: string): never {
+function loadNamedExtension(name: string): RegisteredLizardExtension {
   const registration = EXTENSION_REGISTRATIONS.find(
     (candidate) => candidate.name === name.toLowerCase()
   );
   if (registration === undefined) {
     throw new Error(`Unknown Lizard extension '${name}'.`);
   }
+  if (registration.status === "translated") return translatedExtension(registration.name);
   throw new DeferredExtensionBodyError(registration);
+}
+
+function translatedExtension(name: string): RegisteredLizardExtension {
+  switch (name) {
+    case "complextags":
+      return new ComplexTagsExtension();
+    case "nd":
+      return new NestingDepthExtension();
+    default:
+      throw new Error(`Translated Lizard extension '${name}' has no body.`);
+  }
 }
 
 function insertAtOrderingIndex(

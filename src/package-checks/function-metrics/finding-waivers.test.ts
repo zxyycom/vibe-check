@@ -6,7 +6,7 @@ import { describe, it } from "node:test";
 import { assertOvermatchedFindingWaiverEvidence } from "../code-quality-findings/finding-waiver-evidence.test-support.ts";
 import { functionMetrics } from "./constructor.ts";
 import { executeFunctionMetrics } from "./execution.ts";
-import { createRoot, execute } from "./constructor.test-support.ts";
+import { createRoot, execute, type ReportedRecord } from "./constructor.test-support.ts";
 
 const SOURCE_FILES = {
   exclude: [],
@@ -19,12 +19,19 @@ const PARAMETER_IDENTITY = {
   path: "src/a.ts",
   startLine: 1
 } as const;
+const NESTING_DEPTH_IDENTITY = {
+  functionName: "a",
+  metric: "nesting-depth",
+  path: "src/a.ts",
+  startLine: 1
+} as const;
 const STRICT_LIMITS = {
   codeLines: {
     maximum: 1,
     lowComplexityAllowance: { cyclomaticComplexityBelow: 1, maximum: 1 }
   },
   cyclomaticComplexity: { maximum: 1 },
+  nestingDepth: { maximum: 1 },
   parameters: { maximum: 4 }
 } as const;
 
@@ -50,6 +57,7 @@ describe("functionMetrics finding waivers", () => {
         },
         findingWaivers: [
           { identity: PARAMETER_IDENTITY, reason: "Generated adapter signature." },
+          { identity: NESTING_DEPTH_IDENTITY, reason: "Legacy nesting is intentional." },
           {
             identity: { ...PARAMETER_IDENTITY, functionName: "removed" },
             reason: "Stale function policy."
@@ -60,9 +68,20 @@ describe("functionMetrics finding waivers", () => {
 
       assert.equal(observed.result.status, "failed");
       if (observed.result.status !== "failed") return;
-      assert.deepEqual(observed.result.data, { blockingFindingCount: 1, findingCount: 2 });
-      assert.equal(observed.records.length, 3);
-      assert.deepEqual(observed.records[1]?.data, {
+      assert.deepEqual(observed.result.data, { blockingFindingCount: 1, findingCount: 3 });
+      assert.equal(observed.records.length, 4);
+      assert.deepEqual(findingRecord(observed.records, "nesting-depth"), {
+        blocking: false,
+        codeAreas: ["source"],
+        functionName: "a",
+        limit: 1,
+        metric: "nesting-depth",
+        path: "src/a.ts",
+        startLine: 1,
+        value: 2,
+        waiver: { reason: "Legacy nesting is intentional." }
+      });
+      assert.deepEqual(findingRecord(observed.records, "parameter-count"), {
         blocking: false,
         codeAreas: ["source"],
         functionName: "a",
@@ -73,7 +92,7 @@ describe("functionMetrics finding waivers", () => {
         value: 5,
         waiver: { reason: "Generated adapter signature." }
       });
-      assert.deepEqual(observed.records[2]?.data, {
+      assert.deepEqual(observed.records.at(-1)?.data, {
         identity: { ...PARAMETER_IDENTITY, functionName: "removed" },
         kind: "finding-waiver-audit",
         matchCount: 0,
@@ -106,7 +125,7 @@ describe("functionMetrics finding waivers", () => {
       const observed = await execute(executeFunctionMetrics, check.options, root);
       assert.equal(observed.result.status, "failed");
       if (observed.result.status !== "failed") return;
-      assert.deepEqual(observed.result.data, { blockingFindingCount: 4, findingCount: 4 });
+      assert.deepEqual(observed.result.data, { blockingFindingCount: 6, findingCount: 6 });
       assertOvermatchedFindingWaiverEvidence(observed, {
         identity: PARAMETER_IDENTITY,
         kind: "finding-waiver-audit",
@@ -218,5 +237,14 @@ async function assertInvalidResolvedFunctionWaivers(
 }
 
 function overLimitFunction(): string {
-  return "export function a(one: number, two: number, three: number, four: number, five: number) { if (one) return two; return three; }";
+  return "export function a(one: number, two: number, three: number, four: number, five: number) { if (one) { if (two) return three; } return four; }";
+}
+
+function findingRecord(records: readonly ReportedRecord[], metric: string): unknown {
+  return records.find(
+    (record) =>
+      typeof record.data === "object" &&
+      record.data !== null &&
+      Reflect.get(record.data, "metric") === metric
+  )?.data;
 }

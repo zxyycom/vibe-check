@@ -7,9 +7,11 @@ Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > provides case-insensitive suffix capability and supplied-source Lizard-domain analysis`
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > matches source-order registry resolution for fast paths and explicit fallbacks`
+- `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > matches the fixed-tag selected-extension corpus across every reader fixture and semantic case`
 Proves:
 
-- The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result. Its 27-reader/56-entry source-order coverage differentially compares both façade APIs and fixture analysis with `get_reader_for`, including `R/r` canonical deduplication, mixed case, multi-dot and slash/backslash paths.
+- The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result. It privately composes the selected `complextags` and `nd` processors, retaining each function's complete source-ordered `[token, line]` contributors and maximum nesting depth. Its 27-reader/56-entry source-order coverage differentially compares both façade APIs and fixture analysis with `get_reader_for`, including `R/r` canonical deduplication, mixed case, multi-dot and slash/backslash paths.
+- Fixed-tag observations cover all 110 normal/edge/malformed reader fixtures and ten direct extension semantic cases, including contributor order/line, `else if`, ternary, first/subsequent logical operators, bracket/indent closure and per-function reset.
 - ASCII fast-path hits and misses, plus Unicode prefix/suffix and folds, every JavaScript line terminator, no suffix and unknown suffix all observably agree with the registry result through the façade APIs.
 - This Case does not prove Product admission, filesystem I/O, cancellation, Worker transport, `FunctionMetric` mapping, public export, or a replaceable analyzer interface.
 
@@ -34,7 +36,8 @@ Entities:
 - `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|internal extensions preserve default processor order plus object/class ordering_index registration`
 - `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|internal extension hooks retain FUNCTION_INFO, set_args, cross_file_process, print_result, and silent order`
 - `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|ExtensionBase receives reader context and can decorate nesting before reader states consume a brace`
-- `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|every unported extension body is classified and named loading fails explicitly`
+- `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|only selected extension bodies resolve internally; all remaining bodies stay deferred`
+- `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|selected nesting-depth set_args retains Python positional and keyword argument semantics`
 - `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|Lizard static extension hooks resolve after instance lookup with a wordcount-style class`
 - `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|extension descriptor lookup gives subclass statics MRO priority and same-instance members priority`
 - `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|extension call lookup ignores instance-own __call__ while ordinary hooks use it`
@@ -44,8 +47,8 @@ Entities:
 
 Proves:
 
-- Core/internal extension protocol preserves default processor order, direct instance/class registration with Python-compatible ordering indexes, instance-then-static wordcount-style hook resolution, extension metadata and lifecycle hooks, and ExtensionBase context/state handoff. Descriptor/ordering fidelity additionally preserves subclass-static MRO priority before inherited instance metadata, same-instance-member priority, the source's special direct-call lookup that ignores an instance-own `__call__` while ordinary hooks use it, exact non-safe-integer `list.insert` clamping, and invalid subclass static metadata shadowing rather than fallback.
-- The 19 deferred extension bodies remain explicitly named and fail closed when loaded; this Case does not prove a deferred body’s implementation, reader fidelity, registry enablement, Product integration, or hard cut.
+- Core/internal extension protocol preserves default processor order, direct instance/class registration with Python-compatible ordering indexes, instance-then-static wordcount-style hook resolution, extension metadata and lifecycle hooks, and ExtensionBase context/state handoff. Descriptor/ordering fidelity additionally preserves subclass-static MRO priority before inherited instance metadata, same-instance-member priority, the source's special direct-call lookup that ignores an instance-own `__call__` while ordinary hooks use it, exact non-safe-integer `list.insert` clamping, invalid subclass static metadata shadowing rather than fallback, and selected ND `set_args` positional flags plus typed `help`/`type=int`/`dest`/`default` keywords.
+- Only `complextags` and `nd` resolve through the analyzer-internal named registry; the other 17 explicitly named extension bodies remain deferred and fail closed when loaded. This Case does not prove selected-body reader fidelity, Product integration, or hard cut.
 
 ## Case FM-ANALYZER-MALFORMED-DIFFERENTIAL-001: source-order readers retain complete malformed-source observations
 
@@ -68,6 +71,6 @@ Entities:
 
 Proves:
 
-- Current source-to-target identity evidence uses the root provenance inventory as its only machine-readable mapping and fail-closes all 44 translated source/range references and all 39 translated targets (including the extension-protocol additional target). The AST test verifies 81 class identities and 796 named symbol/seam mappings at their TypeScript target or an explicitly named, narrow host seam.
+- Current source-to-target identity evidence uses the root provenance inventory as its only machine-readable mapping and fail-closes all 46 translated source/range references and all 41 translated targets (including the extension-protocol and ND typed-host additional targets). The AST test verifies 83 class identities and 820 named symbol/seam mappings at their TypeScript target or an explicitly named, narrow host seam.
 - Source lifecycle class, field, and callback identities cannot silently disappear, and current `src` tests cannot read archived Change evidence. The manifest is static verification evidence only: it does not create a runtime registry, reflection surface, or Product plugin API.
 - This Case does not prove oracle semantic parity, deferred extension-body implementation, or Product adapter integration.

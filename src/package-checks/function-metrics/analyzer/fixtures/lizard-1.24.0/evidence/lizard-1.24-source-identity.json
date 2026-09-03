@@ -15,10 +15,10 @@
     "field-initializer-host-seam"
   ],
   "counts": {
-    "entries": 44,
-    "targets": 39,
-    "classes": 81,
-    "symbols": 796
+    "classes": 83,
+    "entries": 46,
+    "symbols": 820,
+    "targets": 41
   },
   "entries": [
     {
@@ -7634,6 +7634,267 @@
           "targetRole": "additional",
           "mapping": "call-signature-host-seam",
           "reason": "The protocol module invokes the retained source call hook after descriptor resolution, preserving the in-memory token lifecycle across object and class registrations."
+        }
+      ]
+    },
+    {
+      "sourcePath": "lizard_ext/lizardcomplextags.py",
+      "sourceRange": "lines 1-25",
+      "moduleFunctions": [],
+      "moduleFields": [],
+      "classes": [
+        {
+          "sourceName": "LizardExtension",
+          "targetName": "LizardExtension",
+          "methods": [
+            {
+              "sourceName": "__call__",
+              "target": {
+                "symbol": "__call__"
+              },
+              "mapping": "direct"
+            }
+          ],
+          "classFields": [],
+          "instanceFields": []
+        }
+      ]
+    },
+    {
+      "sourcePath": "lizard_ext/lizardnd.py",
+      "sourceRange": "lines 1-215",
+      "moduleFunctions": [
+        {
+          "sourceName": "check_loop_brackets",
+          "target": {
+            "symbol": "check_loop_brackets"
+          },
+          "mapping": "direct"
+        }
+      ],
+      "moduleFields": [
+        {
+          "sourceName": "DEFAULT_ND_THRESHOLD",
+          "target": {
+            "symbol": "DEFAULT_ND_THRESHOLD"
+          },
+          "mapping": "direct"
+        }
+      ],
+      "classes": [
+        {
+          "sourceName": "LizardExtension",
+          "targetName": "LizardExtension",
+          "methods": [
+            {
+              "sourceName": "set_args",
+              "target": {
+                "symbol": "set_args",
+                "static": true
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "__call__",
+              "target": {
+                "symbol": "__call__"
+              },
+              "mapping": "direct"
+            }
+          ],
+          "classFields": [
+            {
+              "sourceName": "FUNCTION_INFO",
+              "target": {
+                "symbol": "FUNCTION_INFO",
+                "static": true
+              },
+              "mapping": "direct"
+            }
+          ],
+          "instanceFields": []
+        }
+      ],
+      "targetSeams": [
+        {
+          "sourceName": "NDFileInfoAddition.add_nd_condition",
+          "target": {
+            "symbol": "add_nd_condition",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.reset_nd_complexity",
+          "target": {
+            "symbol": "reset_nd_complexity",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.add_hidden_bracket_condition",
+          "target": {
+            "symbol": "add_hidden_bracket_condition",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.get_hidden_bracket",
+          "target": {
+            "symbol": "get_hidden_bracket",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.loop_bracket_status",
+          "target": {
+            "symbol": "loop_bracket_status",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.get_loop_status",
+          "target": {
+            "symbol": "get_loop_status",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.set_in_condition",
+          "target": {
+            "symbol": "set_in_condition",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.get_in_condition",
+          "target": {
+            "symbol": "get_in_condition",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.increment_condition_depth",
+          "target": {
+            "symbol": "increment_condition_depth",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.decrement_condition_depth",
+          "target": {
+            "symbol": "decrement_condition_depth",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.get_condition_depth",
+          "target": {
+            "symbol": "get_condition_depth",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.reset_condition_tracking",
+          "target": {
+            "symbol": "reset_condition_tracking",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.set_logical_operator_added",
+          "target": {
+            "symbol": "set_logical_operator_added",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.get_logical_operator_added",
+          "target": {
+            "symbol": "get_logical_operator_added",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.set_prev_was_else",
+          "target": {
+            "symbol": "set_prev_was_else",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.get_prev_was_else",
+          "target": {
+            "symbol": "get_prev_was_else",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "NDFileInfoAddition.clear_prev_was_else",
+          "target": {
+            "symbol": "clear_prev_was_else",
+            "className": "FileInfoBuilder"
+          },
+          "targetRole": "additional",
+          "mapping": "dynamic-attribute-host-seam",
+          "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
+        },
+        {
+          "sourceName": "_init_nesting_depth_data",
+          "target": {
+            "symbol": "constructor",
+            "className": "FunctionInfo"
+          },
+          "targetRole": "additional",
+          "mapping": "field-initializer-host-seam",
+          "reason": "The source appended FunctionInfo initializer is represented by typed per-function construction and field initializers in core.ts."
         }
       ]
     }

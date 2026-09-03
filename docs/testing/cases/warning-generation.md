@@ -13,7 +13,7 @@ Entities:
 
 Proves:
 
-- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. File/function matching-area overlaps and duplicate common-area overlaps are blocking when any effective owning area policy is blocking; non-blocking Records remain visible in a passed result, and measurement/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and create no analyzer metric Records when no accepted path remains. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages followed by at most ten Check-owned safe Finding summaries and an exact omitted-count message, without turning arbitrary Records into a generic warning or Gate channel.
+- The three area-based code-quality Checks publish every trusted finding as a Check-local Record with explicit blocking state and return parser-validated `{ findingCount, blockingFindingCount }` final data. File/function matching-area overlaps and duplicate common-area overlaps are blocking when any effective owning area policy is blocking; non-blocking Records remain visible in a passed result, and measurement/conversion does not short-circuit. Function input rejections remain non-blocking even under blocking area policy, retain every matching area, count as findings, and create no analyzer metric Records when no accepted path remains. A function CCN Record alone retains its complete ordered contributor list, while the independent nesting-depth Record retains no contributor attachment; its area limit participates in the same strictest/blocking settlement. Blocking, non-blocking, and input-rejection outcomes attach separate actionable messages followed by at most ten Check-owned safe Finding summaries and an exact omitted-count message; CCN detail itself displays at most eight contributors and its exact Record remainder, without turning arbitrary Records into a generic warning or Gate channel.
 
 ## Case ADD-FILE-METRICS-FINDING-WAIVER-001: File metrics publishes reconciled waiver evidence
 
@@ -40,7 +40,7 @@ Entities:
 
 Proves:
 
-- `functionMetrics` accepts only unique closed `{ metric, path, functionName, startLine }` identities with normalized paths, positive locations and non-empty reasons without reading hostile author accessors.
+- `functionMetrics` accepts only unique closed `{ metric, path, functionName, startLine }` identities with normalized paths, positive locations and non-empty reasons without reading hostile author accessors, including its independent `nesting-depth` metric.
 - Configured waivers are audited as unused when a complete candidate set is known to be empty, but source, analysis, cancellation, or resource failure before that boundary publishes no false audit. Applied findings retain their Record and reason but leave actionable/blocking settlement; stale authoring publishes an unused audit, and an identity matching multiple function instances remains fully actionable with an overmatched audit.
 
 ## Case ADD-DUPLICATE-DETECTION-FINDING-WAIVER-001: Duplicate detection reconciles exact location sets

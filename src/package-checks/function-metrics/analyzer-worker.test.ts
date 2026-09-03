@@ -17,11 +17,13 @@ describe("functionMetrics analyzer Worker", () => {
         kind: "complete",
         metrics: [
           {
+            complexityContributors: [{ line: 2, token: "if" }],
             cyclomaticComplexity: { source: "typescript-analyzer", value: 2 },
             endLine: 4,
             file: "src/sample.ts",
             lines: 4,
             name: "classify",
+            nestingDepth: { source: "typescript-analyzer", value: 1 },
             parameterCount: 1,
             startLine: 1
           }

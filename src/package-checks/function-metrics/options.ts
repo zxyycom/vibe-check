@@ -24,6 +24,10 @@ export interface FunctionMetricsLimitOptions {
     /** 省略时为 `12`。 */
     readonly maximum?: number;
   }>;
+  readonly nestingDepth?: Readonly<{
+    /** 省略时为 `7`。 */
+    readonly maximum?: number;
+  }>;
   readonly parameters?: Readonly<{
     /** 省略时为 `6`。 */
     readonly maximum?: number;
@@ -44,6 +48,7 @@ export interface FunctionMetricsCodeAreaOptions {
 export type FunctionMetricsFindingMetric =
   | "cyclomatic-complexity"
   | "function-code-density"
+  | "nesting-depth"
   | "parameter-count";
 
 /** function-metrics 用于精确识别一条可豁免 metric finding 的稳定字段。 */
@@ -90,5 +95,6 @@ export interface ResolvedFunctionMetricsLimits {
     }>;
   }>;
   readonly cyclomaticComplexity: Readonly<{ readonly maximum: number }>;
+  readonly nestingDepth: Readonly<{ readonly maximum: number }>;
   readonly parameters: Readonly<{ readonly maximum: number }>;
 }

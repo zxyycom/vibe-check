@@ -19,9 +19,18 @@ export interface FunctionInfoDefinition {
 /** The source-aligned FUNCTION_INFO mapping owned by one extension. */
 export type FunctionInfoDefinitions = Readonly<Record<string, FunctionInfoDefinition>>;
 
+/** Python `argparse.add_argument` keyword options used by translated bodies. */
+export interface ExtensionArgumentKeywordOptions {
+  readonly default?: number;
+  readonly dest?: string;
+  readonly help?: string;
+  /** The source `type=int` conversion contract. */
+  readonly type?: "int";
+}
+
 /** The minimal internal parser seam consumed by source set_args hooks. */
 export interface ExtensionArgumentRegistrar {
-  add_argument(...arguments_: unknown[]): void;
+  add_argument(...arguments_: readonly (string | ExtensionArgumentKeywordOptions)[]): void;
 }
 
 /** A source-aligned extension token processor. */

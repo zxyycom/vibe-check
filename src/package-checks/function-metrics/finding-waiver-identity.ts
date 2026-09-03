@@ -30,6 +30,7 @@ function isFunctionMetricsFindingMetric(value: unknown): value is FunctionMetric
   return (
     value === "cyclomatic-complexity" ||
     value === "function-code-density" ||
+    value === "nesting-depth" ||
     value === "parameter-count"
   );
 }

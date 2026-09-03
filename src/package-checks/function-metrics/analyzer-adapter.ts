@@ -63,6 +63,9 @@ function analysisFailed(): FunctionMetricsAnalyzerResult {
 
 function toFunctionMetric(filePath: string, functionInfo: LizardFunctionInfo): FunctionMetric {
   return Object.freeze({
+    complexityContributors: Object.freeze(
+      functionInfo.complex_tags.map(([token, line]) => Object.freeze({ line, token }))
+    ),
     cyclomaticComplexity: Object.freeze({
       source: "typescript-analyzer" as const,
       value: functionInfo.cyclomatic_complexity
@@ -71,6 +74,10 @@ function toFunctionMetric(filePath: string, functionInfo: LizardFunctionInfo): F
     file: filePath,
     lines: functionInfo.nloc,
     name: functionInfo.name,
+    nestingDepth: Object.freeze({
+      source: "typescript-analyzer" as const,
+      value: functionInfo.max_nesting_depth
+    }),
     parameterCount: functionInfo.parameter_count,
     startLine: functionInfo.start_line
   });

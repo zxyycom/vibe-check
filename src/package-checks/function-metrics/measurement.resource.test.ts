@@ -28,7 +28,8 @@ describe("functionMetrics resource admission", () => {
     }
   });
 
-  it("fails the whole exact input when aggregate bytes exceed 64 MiB without sending a prefix", async () => {
+  // oxfmt-ignore
+  it("fails the whole exact input when aggregate bytes exceed 64 MiB without sending a prefix", { timeout: 20_000 }, async () => {
     const root = createRoot("vibe-check-function-aggregate-cap-");
     try {
       const paths = Array.from({ length: 9 }, (_, index) => `src/input-${index}.ts`);

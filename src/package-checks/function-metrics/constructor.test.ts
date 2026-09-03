@@ -30,6 +30,7 @@ describe("functionMetrics constructor", () => {
         maximum: 60
       },
       cyclomaticComplexity: { maximum: 12 },
+      nestingDepth: { maximum: 7 },
       parameters: { maximum: 6 }
     });
     assert.equal(Object.isFrozen(check.options), true);
@@ -46,6 +47,8 @@ describe("functionMetrics constructor", () => {
       { codeAreas: { "": { files: {} } } },
       { codeAreas: { source: { files: {}, limits: { parameters: { maximum: 0 } } } } },
       { codeAreas: { source: { files: {}, limits: { parameters: { maximum: 1.5 } } } } },
+      { codeAreas: { source: { files: {}, limits: { nestingDepth: { maximum: 0 } } } } },
+      { codeAreas: { source: { files: {}, limits: { nestingDepth: { maximum: 1.5 } } } } },
       {
         codeAreas: {
           source: {

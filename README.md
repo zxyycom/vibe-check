@@ -110,7 +110,7 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | --- | --- | --- |
 | 重复代码 | [`duplicateDetection(options?)`](./docs/checks/duplicate-detection.md) | package 使用随安装依赖提供的兼容 jscpd v5。 |
 | 文件代码行指标 | [`fileMetrics(options?)`](./docs/checks/file-metrics.md) | 环境中有兼容精确 SCC 4.0.0 输出契约的 `scc` command。 |
-| 函数规模、复杂度和参数数量 | [`functionMetrics(options?)`](./docs/checks/function-metrics.md) | 内置 TypeScript analyzer；支持 55 个 suffix，不执行外部 command。 |
+| 函数规模、复杂度、最大嵌套和参数数量 | [`functionMetrics(options?)`](./docs/checks/function-metrics.md) | 内置 TypeScript analyzer；支持 55 个 suffix，不执行外部 command。 |
 | JSON 语法和输入范围 | [`jsonValidation(options?)`](./docs/checks/json-validation.md) | 只读取本地文件，不执行 command 或网络请求。 |
 | JSON 与 Schema 的匹配关系 | [`jsonSchemaValidation(options?)`](./docs/checks/json-schema-validation.md) | 默认离线；只有显式允许的 HTTPS source 才会触发网络请求。 |
 | 本地 Markdown 链接与锚点 | [`markdownLinkValidation(options?)`](./docs/checks/markdown-link-validation.md) | 只读取 policy 允许的本地路径，不执行 command 或网络请求。 |

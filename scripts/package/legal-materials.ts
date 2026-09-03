@@ -28,7 +28,7 @@ const SPDX_LICENSES = Object.freeze(["Apache-2.0", "BSD-2-Clause", "MIT"] as con
 const SPDX_LICENSE_SET: ReadonlySet<string> = new Set(SPDX_LICENSES);
 const SOURCE_RANGE_PATTERN = /^lines ([1-9][0-9]*)-([1-9][0-9]*)$/u;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
-const DEFERRED_EXTENSION_BODY_COUNT = 22;
+const DEFERRED_EXTENSION_BODY_COUNT = 20;
 const DEFERRED_EXTENSION_SUPPORT_COUNT = 2;
 
 export interface PackagedLegalMaterial {
@@ -264,7 +264,7 @@ function assertProvenanceStatusCounts(entries: readonly ProvenanceEntry[]): void
   const counts = new Map<string, number>();
   for (const entry of entries) counts.set(entry.status, (counts.get(entry.status) ?? 0) + 1);
   if (
-    counts.get("translated") !== 44 ||
+    counts.get("translated") !== 46 ||
     counts.get("deferred-extension-body") !==
       DEFERRED_EXTENSION_BODY_COUNT + DEFERRED_EXTENSION_SUPPORT_COUNT ||
     counts.get("excluded-entry-surface") !== 16
@@ -285,7 +285,7 @@ function collectTranslatedTargets(
       sourcesByTarget.set(targetPath, sources);
     }
   }
-  if (sourcesByTarget.size === 39) {
+  if (sourcesByTarget.size === 41) {
     return new Map(
       [...sourcesByTarget].map(([targetPath, entries]) => [targetPath, Object.freeze(entries)])
     );
@@ -377,7 +377,9 @@ function assertNoticeSummarizesFixedSources(source: Buffer): void {
     "Apache-2.0",
     "Pygments 2.18.0",
     "BSD-2-Clause",
-    "22 Lizard concrete extension bodies (the 19 legacy bodies plus three new Halstead modules) and two extension-only support",
+    "20 remaining Lizard concrete extension bodies",
+    "`lizardhalstead` entry body",
+    "two extension-only Halstead support modules",
     PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
     PACKAGE_MOMOA_LICENSE_PATH
   ]) {

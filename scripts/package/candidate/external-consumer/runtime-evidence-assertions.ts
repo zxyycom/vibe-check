@@ -193,7 +193,7 @@ function assertDuplicateAndTerminalMessages(value: unknown): void {
       code: "finding-detail",
       level: "warning",
       message:
-        "function-metrics.ts:1 workerProof: cyclomatic-complexity 2 exceeds the 1 limit (areas: worker)."
+        "function-metrics.ts:1 workerProof: cyclomatic-complexity 2 exceeds the 1 limit (areas: worker). Complexity contributors: if at line 2."
     }
   );
   assert.deepEqual(
@@ -270,6 +270,7 @@ function assertTrustedNonBlockingFunctionMetricsRecord(value: unknown): void {
   assert.deepEqual(record.data, {
     blocking: false,
     codeAreas: ["worker"],
+    complexityContributors: [{ line: 2, token: "if" }],
     functionName: "workerProof",
     limit: 1,
     metric: "cyclomatic-complexity",

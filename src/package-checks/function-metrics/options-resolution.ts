@@ -25,6 +25,7 @@ const DEFAULT_CODE_LINE_MAXIMUM = 60;
 const DEFAULT_LOW_COMPLEXITY_CODE_LINE_MAXIMUM = 180;
 const DEFAULT_LOW_COMPLEXITY_BELOW = 6;
 const DEFAULT_CYCLOMATIC_COMPLEXITY_MAXIMUM = 12;
+const DEFAULT_NESTING_DEPTH_MAXIMUM = 7;
 const DEFAULT_PARAMETER_MAXIMUM = 6;
 const DEFAULT_FILES = Object.freeze({
   exclude: defaultProjectFileSelection.exclude,
@@ -93,7 +94,7 @@ function resolveCodeArea(
 function resolveLimits(value: unknown): ResolvedFunctionMetricsLimits | undefined {
   if (value === undefined) return defaultLimits();
   const limits = snapshotClosedPolicyRecord(value, {
-    optional: ["codeLines", "cyclomaticComplexity", "parameters"]
+    optional: ["codeLines", "cyclomaticComplexity", "nestingDepth", "parameters"]
   });
   if (limits === undefined) return undefined;
   const codeLines = resolveCodeLineLimits(limits.codeLines);
@@ -101,11 +102,17 @@ function resolveLimits(value: unknown): ResolvedFunctionMetricsLimits | undefine
     limits.cyclomaticComplexity,
     DEFAULT_CYCLOMATIC_COMPLEXITY_MAXIMUM
   );
+  const nestingDepth = resolveMaximum(limits.nestingDepth, DEFAULT_NESTING_DEPTH_MAXIMUM);
   const parameters = resolveMaximum(limits.parameters, DEFAULT_PARAMETER_MAXIMUM);
-  if (codeLines === undefined || cyclomaticComplexity === undefined || parameters === undefined) {
+  if (
+    codeLines === undefined ||
+    cyclomaticComplexity === undefined ||
+    nestingDepth === undefined ||
+    parameters === undefined
+  ) {
     return undefined;
   }
-  return Object.freeze({ codeLines, cyclomaticComplexity, parameters });
+  return Object.freeze({ codeLines, cyclomaticComplexity, nestingDepth, parameters });
 }
 
 function resolveCodeLineLimits(
@@ -166,6 +173,7 @@ function defaultLimits(): ResolvedFunctionMetricsLimits {
       maximum: DEFAULT_CODE_LINE_MAXIMUM
     }),
     cyclomaticComplexity: Object.freeze({ maximum: DEFAULT_CYCLOMATIC_COMPLEXITY_MAXIMUM }),
+    nestingDepth: Object.freeze({ maximum: DEFAULT_NESTING_DEPTH_MAXIMUM }),
     parameters: Object.freeze({ maximum: DEFAULT_PARAMETER_MAXIMUM })
   });
 }

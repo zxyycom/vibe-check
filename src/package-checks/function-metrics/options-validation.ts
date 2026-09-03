@@ -40,17 +40,21 @@ function validLimits(value: unknown): boolean {
   const limits = snapshotExactClosedRecord(value, [
     "codeLines",
     "cyclomaticComplexity",
+    "nestingDepth",
     "parameters"
   ]);
   if (limits === undefined) return false;
   const codeLineLimits = codeLineLimitsFrom(limits.codeLines);
   const cyclomaticComplexity = maximumLimitFrom(limits.cyclomaticComplexity);
+  const nestingDepth = maximumLimitFrom(limits.nestingDepth);
   const parameters = maximumLimitFrom(limits.parameters);
   return (
     codeLineLimits !== undefined &&
     cyclomaticComplexity !== undefined &&
+    nestingDepth !== undefined &&
     parameters !== undefined &&
     isPositiveSafeInteger(cyclomaticComplexity.maximum) &&
+    isPositiveSafeInteger(nestingDepth.maximum) &&
     isPositiveSafeInteger(parameters.maximum)
   );
 }

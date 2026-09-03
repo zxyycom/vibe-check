@@ -25,6 +25,7 @@ import {
 } from "../core.ts";
 import { CLikeReader } from "../shared/clike.ts";
 import { ExtensionBase } from "./extension-base.ts";
+import { DEFAULT_ND_THRESHOLD, LizardExtension as NestingDepthExtension } from "./lizardnd.ts";
 import { DeferredExtensionBodyError, EXTENSION_REGISTRATIONS, getExtensions } from "./registry.ts";
 import {
   extensionMetadata,
@@ -320,12 +321,21 @@ test("ExtensionBase receives reader context and can decorate nesting before read
   );
 });
 
-test("every unported extension body is classified and named loading fails explicitly", () => {
+test("only selected extension bodies resolve internally; all remaining bodies stay deferred", () => {
   assert.equal(EXTENSION_REGISTRATIONS.length, 19);
   assert.ok(
     EXTENSION_REGISTRATIONS.every(
-      (registration) => registration.status === "deferred-extension-body"
+      (registration) =>
+        registration.status === "deferred-extension-body" ||
+        registration.name === "complextags" ||
+        registration.name === "nd"
     )
+  );
+  assert.deepEqual(
+    getExtensions(["complextags", "ND"])
+      .slice(5)
+      .map((extension) => extension.constructor.name),
+    ["LizardExtension", "LizardExtension"]
   );
   assert.throws(
     () => getExtensions(["NS"]),
@@ -335,6 +345,34 @@ test("every unported extension body is classified and named loading fails explic
       error.sourcePath === "lizard_ext/lizardns.py"
   );
   assert.throws(() => getExtensions(["not-a-lizard-extension"]), /Unknown Lizard extension/u);
+});
+
+test("selected nesting-depth set_args retains Python positional and keyword argument semantics", () => {
+  const calls: unknown[][] = [];
+  const parser: ExtensionArgumentRegistrar = {
+    add_argument(...arguments_: unknown[]): void {
+      calls.push(arguments_);
+    }
+  };
+
+  NestingDepthExtension.set_args(parser);
+
+  assert.deepEqual(calls, [
+    [
+      "-N",
+      "--ND",
+      {
+        default: DEFAULT_ND_THRESHOLD,
+        dest: "ND",
+        help:
+          "Threshold for nesting depth number\n" +
+          "            warning. The default value is 7.\n" +
+          "            Functions with ND bigger than it will generate warning\n" +
+          "            ",
+        type: "int"
+      }
+    ]
+  ]);
 });
 
 class AppendedExtension implements LizardExtension {

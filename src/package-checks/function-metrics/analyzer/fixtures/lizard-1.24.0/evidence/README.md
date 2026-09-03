@@ -10,7 +10,7 @@ fidelity、reader 和 adapter 测试；不是 Product 运行时输入，也不�
 - [`licenses/lizard-1.24.0-provenance.json`](../../../../../../../licenses/lizard-1.24.0-provenance.json)
   是唯一 machine-readable upstream source/range、hash、SPDX 与 translated target inventory。所有
   upstream revision、license 和 target-path 判断从那里读取。
-- 该 root inventory 完整分类 84 个上游 records：44 个 `translated`、24 个
+- 该 root inventory 完整分类 84 个上游 records：46 个 `translated`、22 个
   `deferred-extension-body` 与 16 个 `excluded-entry-surface`。这些分类是 ledger 事实；本目录只为
   translated closure 提供 current evidence，不能据此把 deferred 或 excluded record 解释为 Product capability。
 - 本目录只拥有 current oracle observations、reader mapping、symbol identity 与人读 deviation
@@ -20,16 +20,17 @@ fidelity、reader 和 adapter 测试；不是 Product 运行时输入，也不�
 
 ## Current materials
 
-| Material                                         | Continuous consumer / purpose                                                                                       |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| 材料 | 持续消费者与用途 |
+| --- | --- |
 | `lizard-1.24-oracle-observations.json`           | `analyzer-adapter.test.ts` 的 normal/edge source observations。                                                     |
 | `lizard-1.24-malformed-reader-observations.json` | `readers/malformed-source.test.ts` 的 27 个 reader-targeted malformed observations。                                |
 | `lizard-1.24-reader-extension-mapping.json`      | malformed differential test 的 source-order reader 与 canonical suffix mapping。                                    |
-| `lizard-1.24-source-identity.json`               | `source-identity.test.ts` 的 44 translated source/range references、81 class identities、796 symbol/seam mappings。 |
+| `lizard-1.24-source-identity.json`               | `source-identity.test.ts` 的 46 translated source/range references、83 class identities、820 symbol/seam mappings。 |
+| `lizard-1.24-selected-extension-observations.json` | `complextags` + `nd` adoption 的 fixed-tag oracle：110 个 current normal/edge/malformed fixtures 与 10 个专项语义输入。它是 translated-body parity test 的 expected-data owner，不是 Product runtime input。 |
 | `source-alignment-deviations.md`                 | 非 direct host seam、source-alignment 边界和 future upstream-sync review 的人读说明。                               |
 
-`source-identity.test.ts` 以 root inventory 为唯一对照，fail-closed 地检查 exact 44 source/range set、39 个
-translated targets（包括 extension protocol additional target）、81 个 class identity 与 796 个 symbol/host-seam
+`source-identity.test.ts` 以 root inventory 为唯一对照，fail-closed 地检查 exact 46 source/range set、41 个
+translated targets（包括 extension protocol 与 ND typed-host additional target）、83 个 class identity 与 820 个 symbol/host-seam
 mappings。它也扫描 current `src/**/*.ts`，拒绝 archived-Change evidence path。
 
 ## Fixed-tag oracle generation
@@ -40,6 +41,15 @@ mappings。它也扫描 current `src/**/*.ts`，拒绝 archived-Change evidence 
 Product dependency。`lizard-1.24-oracle-observations.json` 覆盖 55 个 normal suffix fixture 和 27 个
 edge fixture（82 个总计），`lizard-1.24-malformed-reader-observations.json` 覆盖按 source-order 的 27
 个 malformed fixture；两者都记录 tag、revision、版本输出和每个 fixture 的命令形状。
+
+`lizard-1.24-selected-extension-observations.json` 以同一 fixed tag 的 in-memory
+`FileAnalyzer(get_extensions(['complextags', 'nd']))` lifecycle 生成。它覆盖 56 个 normal fixture
+（55 个 canonical suffix；`.r`/`.R` 是同一大小写不敏感 suffix）、27 个 edge fixture、27 个
+malformed fixture，以及 `else if`、ternary、condition 内第一和后续 `&&`/`||`、condition 外逻辑
+operator、bracket/indent closure、per-function reset 和 contributor token/line/source-order 的专项
+输入。其 committed generation command、tag/revision/version、extension order 和 execution boundary
+均在 JSON 的 `oracle` 对象中；临时 checkout 与 Python/Pygments 环境只用于形成 observations，既非
+Product input，也不是 committed verification 前提。
 
 ## Verification
 

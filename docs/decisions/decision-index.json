@@ -8,6 +8,7 @@
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
       "add-invocation-local-scheduler-performance-summary.md": "sha256:fc65bdb972882df0b2378cd702578505b9e5ee8056aeefe328bbc35739f22469",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
+      "adopt-selected-lizard-extensions-in-product-owned-analyzer.md": "sha256:aa0208b9be73d91de01bd4e5cb560bac6a7b8d64d88644d605600ee9c4a6fc02",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:b7b41d2500be71ca7afe8e717881286d33651caac4ff4be7bcfc154031b95710",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
@@ -96,6 +97,7 @@
       "keep-first-release-check-set-to-four-without-markdown-structure.md": "sha256:37954fc491b455fff1328c93322235e3f4ac648b24d21f6c7419e12f0d31965f",
       "keep-format-aware-check-capabilities-independent.md": "sha256:46e47f4c85fc1f5bfc575508885e2cf11ce1ee3e8145380ff01bd396e41a8e81",
       "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:9c07be5fe5ce302d3d9c993ca62b2607520f35c0fd9b736db58b1936c1515168",
+      "keep-lizard-advisory-explicit-with-selected-extension-adoption.md": "sha256:0fe00c2c9fb94d8eb98201c51b3cab03b93957ce249a380168592b317a5b89b9",
       "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:b482960bbdfb3d44e013bb3a5cc87f7c4e64f506e61b1466a83bfb91da484f52",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
@@ -166,7 +168,7 @@
       "release-one-versioned-npm-product-unit.md": "sha256:e2ef341a200e9f743b2351f376cdc74eb899d78691286970ffe477fc865029ac",
       "remove-unconsumed-option-capability.md": "sha256:d9c25f4d9086f43513bfccbf7ae616935e1301a2f1b162aee56fc2f6b1b5d6f7",
       "replace-global-tool-effects-with-run-outputs.md": "sha256:c38862f6dcc06d266d1e0019b88381789bac04664bdbdac1246014d0f24a9e1b",
-      "replace-lizard-runtime-with-product-owned-typescript-analyzers.md": "sha256:673a8a8920cec7804a3dfdb1711ec32d73b88fe428e5da8e29dddd1c9f8d3e4f",
+      "replace-lizard-runtime-with-product-owned-typescript-analyzers.md": "sha256:6174ebe75ac824c462f6fa3ec42d06154b12c2b6810f0253cb33829054c29419",
       "report-check-owned-record-data-with-local-identities.md": "sha256:eb679fdc79a2d06ebce2de536643760c36977e7c0410a22170749b72c523a7d8",
       "report-per-check-duration-without-changing-check-facts.md": "sha256:551a6d1fc51ee89b4369b44cbc5ebefbb5f269cd48a881a85e893c6421db709b",
       "require-check-owned-network-authorization.md": "sha256:aac8d0a8b853264dc340636a7badd75d25aeeb052ee7b6058c4a1135af7d753f",
@@ -203,7 +205,7 @@
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
       "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
-      "track-lizard-supported-languages-with-upstream-advisory.md": "sha256:de1da66b22ac6f9fab5ae3e35e7d044ce4d6c731b370827cba6b7d8b93e77f22",
+      "track-lizard-supported-languages-with-upstream-advisory.md": "sha256:17ce134e21a7bc17c17bb9e57f81edb0faf027f72a198acb1459410d9d16d0c9",
       "treat-flag-control-settlements-as-scheduler-results.md": "sha256:82c224445e6f3669831841c61391a70ff407cab3caa3b57b6c6c61c969e1a920",
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:e2ded43206717fe2d7d5e73061b8693a0319e1cba35d8d58f118371f1365a13f",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
@@ -375,6 +377,44 @@
           "product-contract"
         ],
         "relations": []
+      }
+    },
+    "adopt-selected-lizard-extensions-in-product-owned-analyzer.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "dependency-policy",
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "adopt-selected-lizard-extensions-in-product-owned-analyzer.md",
+        "title": "在产品自有 analyzer 中私有采用指定 Lizard 扩展",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T14:38:08Z",
+        "purpose": "保持 Lizard TypeScript hard cut 与完整支持范围，并以闭合 Product contract 私有采用 complextags+ND。",
+        "background": "原 hard-cut Decision 将 19 项 legacy bodies 均 deferred；已授权的 selected pair 需要改变该长期 extension boundary。",
+        "decision": "1.24 仅私有采用 complextags+ND；其余 17 项和 Halstead 继续 deferred；维持 hard cut 和无 public extension mechanism。",
+        "tags": [
+          "configuration",
+          "dependency-policy",
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "replace-lizard-runtime-with-product-owned-typescript-analyzers.md"
+          }
+        ]
       }
     },
     "aggregate-all-eligible-project-gate-check-statuses.md": {
@@ -3158,6 +3198,44 @@
         ]
       }
     },
+    "keep-lizard-advisory-explicit-with-selected-extension-adoption.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-lizard-advisory-explicit-with-selected-extension-adoption.md",
+        "title": "在采用指定扩展时保持 Lizard advisory 显式",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T14:38:09Z",
+        "purpose": "让 upstream maintenance advisory 持续只提示稳定版，并把 selected extension adoption 保持为独立、显式的 Product 决策。",
+        "background": "原 advisory Decision 以 19 项 deferred 为 1.24 baseline；selected pair 只更新 count，不扩大 advisory owner。",
+        "decision": "advisory 继续 explicit-only 且不自动采用；仅 complextags+ND 可由独立 Change 私有采用，其余 17 项和 Halstead 保持 deferred。",
+        "tags": [
+          "configuration",
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "track-lizard-supported-languages-with-upstream-advisory.md"
+          }
+        ]
+      }
+    },
     "keep-package-machine-docs-consumer-focused.md": {
       "keys": {
         "tag": [
@@ -5388,16 +5466,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "replace-lizard-runtime-with-product-owned-typescript-analyzers.md",
+        "sourcePath": "archive/replace-lizard-runtime-with-product-owned-typescript-analyzers.md",
         "title": "以产品自有 TypeScript 分析器完整替换 Lizard runtime",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-02T08:10:10Z",
         "purpose": "让 functionMetrics 在保持完整函数测量能力的同时移除 Python、Lizard command 与公开 executable 配置。",
@@ -6578,16 +6656,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "track-lizard-supported-languages-with-upstream-advisory.md",
+        "sourcePath": "archive/track-lizard-supported-languages-with-upstream-advisory.md",
         "title": "以仓库提示持续跟随 Lizard 支持语言与 analyzer 修复",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-02T08:10:11Z",
         "purpose": "让产品自有 function analyzer 及时发现 Lizard 稳定版变化，同时由显式 Change 决定何时采用。",

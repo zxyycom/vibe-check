@@ -669,10 +669,10 @@
       "range": "lines 1-25",
       "sha256": "cf826ccfc1cdc5b65784346e51e56735f82de59bf8158116da444f3b81b71771",
       "spdx": "MIT",
-      "status": "deferred-extension-body",
-      "boundary": "Concrete optional extension body lizardcomplextags is deferred; the complete internal protocol remains translated.",
-      "implementationEvidence": "deferred by approved range boundary; no concrete extension body is translated",
-      "verification": "future extension Change must add source-range corpus and fidelity review",
+      "status": "translated",
+      "boundary": "Check-private token processor that records source-order complexity contributor token/current-line pairs. Product projection remains outside the port.",
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts retains the source LizardExtension processor; core.ts/function façade hold only the necessary private facts.",
+      "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle and port-façade parity tests",
       "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts"
     },
     {
@@ -801,11 +801,14 @@
       "range": "lines 1-215",
       "sha256": "fe8f8b03608e83844b3eea1c9fa27443eb8df031dd489162ec79ea7b2c2e96e6",
       "spdx": "MIT",
-      "status": "deferred-extension-body",
-      "boundary": "Concrete optional extension body lizardnd is deferred; the complete internal protocol remains translated.",
-      "implementationEvidence": "deferred by approved range boundary; no concrete extension body is translated",
-      "verification": "future extension Change must add source-range corpus and fidelity review",
-      "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts"
+      "status": "translated",
+      "boundary": "Check-private maximum nesting-depth processor. The source import-time FileInfoBuilder/FunctionInfo monkey patches are narrowed to typed core.ts host members; no extension loader or Product plugin surface is exposed.",
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts retains the processor, threshold, metadata and bracket helper; core.ts hosts the typed per-function and FileInfoBuilder lifecycle seam.",
+      "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle, typed-host-seam and port-façade parity tests",
+      "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
+      "additionalTargetPaths": [
+        "src/package-checks/function-metrics/analyzer/core.ts"
+      ]
     },
     {
       "sourcePath": "lizard_ext/lizardnonstrict.py",

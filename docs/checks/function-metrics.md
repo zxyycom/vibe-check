@@ -4,9 +4,9 @@
 
 ## 用途
 
-`functionMetrics` 是 ordinary Check，评估每个函数的 NLOC、cyclomatic complexity（CCN）与 parameter count。
+`functionMetrics` 是普通 Check，评估每个函数的 NLOC、cyclomatic complexity（CCN）、最大 nesting depth 与 parameter count。
 它在 Product 内使用内置 TypeScript analyzer；不调用 Lizard、不会解析 `PATH`、不接受 executable，也不发起网络请求。
-reader registry 固定支持 27 个 readers 和 55 个大小写不敏感 suffix，行为以已检入的 Lizard 1.24.0 翻译基线校准；这项 provenance 不构成
+reader registry 固定支持 27 个 reader 和 55 个大小写不敏感 suffix，行为以已检入的 Lizard 1.24.0 翻译基线校准；这项 provenance 不构成
 运行时依赖。source-aligned port 的唯一目录外生产入口是 Check-private `analyzer/port-facade.ts`，仅由
 `analyzer-adapter.ts` 消费；adapter、Worker 与 port 都不是 public API 或 package subpath。
 手写 façade 拥有仅 host 使用的 reader-resolution seam，供 capability 与 supplied-source analysis 共用；它保持
@@ -15,7 +15,7 @@ supported-filename contract。
 当前 oracle、malformed、reader mapping、identity 和 deviation evidence 位于
 `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/`，而
 `licenses/lizard-1.24.0-provenance.json` 是唯一 source/range、hash、SPDX 与 translated-target mapping。
-identity test 从 root mapping fail-closed 地验证 44 个 translated source/range、39 个 translated targets、81 个 classes 与 796 个
+identity test 从 root mapping fail-closed 地验证 46 个 translated source/range、41 个 translated targets、83 个 classes 与 820 个
 symbol/host-seam mappings；evidence 不参与 Product runtime 或 package payload。上游更新只可通过显式
 `bun run maintenance:lizard-upstream` advisory 查询，不进入默认 Project Gate；采用新 revision 或改变 translated
 source boundary 时，必须先更新根 provenance，再同步 current evidence 与 source-alignment review，不能把 archive、
@@ -35,6 +35,7 @@ command 或环境变量不是公开 API；传入未知字段会让 constructor �
 | 普通 NLOC maximum | `60` |
 | 低复杂度 NLOC allowance | CCN `< 6` 时 `180` |
 | CCN maximum | `12` |
+| 最大 nesting depth | `7` |
 | parameter maximum | `6` |
 
 每次 analysis 还受独立的输入资源上限约束：单个 source file 最大 `8 MiB`，本次 invocation 的 accepted
@@ -59,6 +60,7 @@ const metrics = functionMetrics({
       findingPolicy: "blocking",
       limits: {
         cyclomaticComplexity: { maximum: 10 },
+        nestingDepth: { maximum: 6 },
         parameters: { maximum: 5 }
       }
     }
@@ -98,9 +100,15 @@ accepted paths 被一次性交给内置 analyzer，且只能是这次 invocation
 
 ## 效果与结果
 
-可信 analysis 后，Check 为超过 NLOC、CCN 或 parameter limit 的函数形成 finding；每个 Record 保留函数名、
-metric、value、effective limit、path、start line 和全部 matching area IDs。finding policy 决定 metric finding
+可信 analysis 后，Check 为超过 NLOC、CCN、最大 nesting depth 或 parameter limit 的函数形成 finding；每个 Record 保留函数名、
+metric、value、effective limit、path、start line 和全部 matching area IDs。CCN Record 另外保留完整、source-order 的
+`complexityContributors`（每项是 `{ token, line }`）；它解释哪些固定 reader condition token 在哪一行贡献了该 CCN，
+但不会自行形成 Finding、limit 或 waiver identity。其它 metric Record 不带该字段。人类 CCN 摘要最多显示前八项 contributor，余数明确提示仍在同一 Finding Record 中。finding policy 决定 metric finding
 是否使 Check `failed`；non-blocking finding 仍保留 final data、Records 与安全摘要。input rejection 始终 non-blocking。
+
+最大 nesting depth 是独立的 `nesting-depth` Finding metric，其每个 area 的 `limits.nestingDepth.maximum` 必须是正安全整数；
+路径匹配多个 area 时取最严格 maximum，并沿用既有 blocking 与 waiver 规则。它计算控制结构 nesting，也把 ternary `?`、条件中的第一个 `&&` 或 `||` 纳入深度；同一 condition 后续 logical operator 不再额外增加深度，`else if` 不增加一层。
+该定义适用于内置 reader registry 支持的输入，不是“纯大括号深度”的替代名称。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFunctionMetricsData(value)` 验证 final data。
 公开类型包括 `FunctionMetricsOptions`、`ResolvedFunctionMetricsOptions`、`FunctionMetricsFindingIdentity`、
@@ -139,6 +147,6 @@ const result = await run(defineConfig({ checks: [functionMetrics()] }));
 
 ## 适用边界
 
-该 Check 只评估函数级 NLOC、CCN 与 parameter policy。文件级 code-line policy 由
+该 Check 只评估函数级 NLOC、CCN、最大 nesting depth 与 parameter policy。文件级 code-line policy 由
 [`fileMetrics`](file-metrics.md)评估，重复片段由
 [`duplicateDetection`](duplicate-detection.md)报告；`functionMetrics` 不格式化、拆分或修改 source files。

@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";
+import type { FunctionMetric } from "./measurement-model.ts";
 
 const repositoryRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const oracle = parseOracleObservations(
@@ -20,7 +21,7 @@ const oracle = parseOracleObservations(
 );
 
 describe("functionMetrics Product analyzer adapter", () => {
-  it("maps all 27 reader families and 55 registered extensions from supplied source", () => {
+  it("maps all 27 reader families and 55 registered suffixes from supplied source", () => {
     const normalFixtures = oracle.fixtures.filter(({ fixture }) => fixture.includes("/normal."));
     const edgeFixtures = oracle.fixtures.filter(({ fixture }) => fixture.includes("/edge."));
     assert.equal(oracle.oracle.tag, "1.24.0");
@@ -31,6 +32,46 @@ describe("functionMetrics Product analyzer adapter", () => {
 
     assertOracleMeasurements(normalFixtures);
     assertOracleMeasurements(edgeFixtures);
+  });
+
+  it("maps fixed complexity contributors and nesting depth from the private port", () => {
+    assert.deepEqual(
+      analyzeFunctionMetricsSources({
+        files: [
+          {
+            path: "source/nested.ts",
+            source:
+              "export function nested(a:boolean,b:boolean,c:boolean,d:boolean,e:boolean,f:boolean,g:boolean,h:boolean,i:boolean) { if (a) { if (b) { if (c) { if (d) { if (e) { if (f) { if (g) { if (h) { if (i) return 1; } } } } } } } } return 0; }"
+          }
+        ]
+      }),
+      {
+        kind: "complete",
+        metrics: [
+          {
+            complexityContributors: [
+              { line: 1, token: "if" },
+              { line: 1, token: "if" },
+              { line: 1, token: "if" },
+              { line: 1, token: "if" },
+              { line: 1, token: "if" },
+              { line: 1, token: "if" },
+              { line: 1, token: "if" },
+              { line: 1, token: "if" },
+              { line: 1, token: "if" }
+            ],
+            cyclomaticComplexity: { source: "typescript-analyzer", value: 10 },
+            endLine: 1,
+            file: "source/nested.ts",
+            lines: 1,
+            name: "nested",
+            nestingDepth: { source: "typescript-analyzer", value: 9 },
+            parameterCount: 9,
+            startLine: 1
+          }
+        ]
+      }
+    );
   });
 
   it("fails the complete input when any supplied source has no translated reader", () => {
@@ -83,7 +124,7 @@ function assertOracleMeasurements(fixtures: readonly OracleFixture[]): void {
   assert.equal(result.kind, "complete");
   if (result.kind !== "complete") return;
   assert.deepEqual(
-    result.metrics,
+    result.metrics.map(coreMetric),
     fixtures.flatMap(({ measurements }) =>
       measurements.map((measurement) => ({
         cyclomaticComplexity: { source: "typescript-analyzer", value: measurement.ccn },
@@ -96,6 +137,18 @@ function assertOracleMeasurements(fixtures: readonly OracleFixture[]): void {
       }))
     )
   );
+}
+
+function coreMetric(metric: FunctionMetric) {
+  return {
+    cyclomaticComplexity: metric.cyclomaticComplexity,
+    endLine: metric.endLine,
+    file: metric.file,
+    lines: metric.lines,
+    name: metric.name,
+    parameterCount: metric.parameterCount,
+    startLine: metric.startLine
+  };
 }
 
 function parseOracleObservations(value: unknown): OracleObservations {

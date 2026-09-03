@@ -171,6 +171,7 @@ describe("repository quality Checks", () => {
           maximum: 50
         },
         cyclomaticComplexity: { maximum: 10 },
+        nestingDepth: { maximum: 7 },
         parameters: { maximum: 5 }
       });
     }

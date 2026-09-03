@@ -9,7 +9,8 @@ target paths, SPDX identifiers, translation/deferment status, and verification b
 
 - Upstream project: `terryyin/lizard`
 - Fixed tag and revision: `1.24.0` / `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`
-- The translated language readers, shared reader components, registry, and extension protocol retain
+- The translated language readers, shared reader components, registry, extension protocol, and selected
+  `lizardcomplextags` / `lizardnd` extension bodies retain
   the Lizard distribution's MIT terms. The complete fixed-tag text is
   [`licenses/Lizard-1.24.0-MIT.txt`](licenses/Lizard-1.24.0-MIT.txt).
 - Translated ranges from `lizard.py` retain that file's Apache-2.0 terms. The complete Apache-2.0 text
@@ -19,7 +20,10 @@ target paths, SPDX identifiers, translation/deferment status, and verification b
 - Every shipped translated target identifies its source, fixed revision, SPDX expression, and modified
   status in its leading header. The provenance inventory binds that header to the exact source range.
 
-The inventory also records exactly 22 Lizard concrete extension bodies (the 19 legacy bodies plus three new Halstead modules) and two extension-only support modules as `deferred-extension-body`. They are not shipped as translated source or runtime modules, are not registered by default, and the recorded paths must not be interpreted as included implementation.
+The inventory records exactly 20 remaining Lizard concrete extension bodies (the 19 legacy bodies plus
+the `lizardhalstead` entry body) and two extension-only Halstead support modules as
+`deferred-extension-body`. They are not shipped as translated source or runtime modules, are not
+registered by default, and the recorded paths must not be interpreted as included implementation.
 
 ## Pygments 2.18.0 Erlang lexer
 
