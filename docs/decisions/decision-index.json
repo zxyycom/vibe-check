@@ -7,6 +7,7 @@
     "entries": {
       "add-ephemeral-project-run-diagnostic-logging.md": "sha256:35c98e8d472e8e8feaf87cd189651e76620998f3879d118216bde04cb7c5b22c",
       "add-invocation-local-scheduler-performance-summary.md": "sha256:fc65bdb972882df0b2378cd702578505b9e5ee8056aeefe328bbc35739f22469",
+      "add-secret-detection-to-package-check-contract.md": "sha256:e896eff80c7c343833289902daa348a323e92e23d56049547a345eeec622a931",
       "adopt-invocation-scoped-custom-admission-strategy-authoring.md": "sha256:a77e0d796cc4c6ef87f6caa29575140b3e9dcc2214016c79abd88e38bcb22261",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
       "adopt-selected-lizard-extensions-in-product-owned-analyzer.md": "sha256:aa0208b9be73d91de01bd4e5cb560bac6a7b8d64d88644d605600ee9c4a6fc02",
@@ -149,7 +150,7 @@
       "provide-generic-bounded-finding-presentation.md": "sha256:bc7f7750493deb6340426e2f8cc9d5d0539c2ac224f83ac5867679be8052ec35",
       "provide-generic-finding-waiver-reconciliation.md": "sha256:8ecdc528c951af31c51674d42c05dc82db9f56844345cecb41307d7906a5cad5",
       "provide-immutable-admission-graph-state.md": "sha256:45fa349119087c41b95a7435a06efa3134bec6f6029f2e21bc426eacd8f8c9d3",
-      "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
+      "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:d0ed73ac5d68c68862f6e0063dbfd2e25db0872ef9e52f54e060a1697e8183a2",
       "provide-prepared-package-candidate-as-typed-check-data.md": "sha256:ad8dbac1973b41f8de9b244f2439b6917336955adeac9f6cc725dcd24c888d38",
       "provide-product-owned-check-progress.md": "sha256:75eafea7bbed4a4dce2e7557eedc42edd094cb4c848c38e26272102ccf641652",
       "provide-product-progress-with-check-console-capture.md": "sha256:dcb8f2169d643ec6f90885a2e380e76ce60b9e3f0aed5376192900cbcf0afa3c",
@@ -355,6 +356,40 @@
           "workflow-policy"
         ],
         "relations": []
+      }
+    },
+    "add-secret-detection-to-package-check-contract.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "add-secret-detection-to-package-check-contract.md",
+        "title": "将安全秘密检测纳入随包 Check 契约",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T11:55:10Z",
+        "purpose": "把安全、显式范围的秘密检测作为第八项随包 ordinary Check 纳入公共构造、解析和材料验收契约。",
+        "background": "现有七项 Check 契约未覆盖必填 files、私有原始材料边界和安全 Finding waiver 的秘密检测能力。",
+        "decision": "secretDetection 要求显式 files、固定高置信规则和受限本地内存，并以安全 identity 使用通用 waiver 对账。",
+        "tags": [
+          "configuration",
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "provide-package-check-functions-parsers-and-actionable-messages.md"
+          }
+        ]
       }
     },
     "adopt-invocation-scoped-custom-admission-strategy-authoring.md": {
@@ -4878,16 +4913,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "provide-package-check-functions-parsers-and-actionable-messages.md",
+        "sourcePath": "archive/provide-package-check-functions-parsers-and-actionable-messages.md",
         "title": "为随包 Check 提供构造函数、解析器与可行动消息",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-28T15:05:29Z",
         "purpose": "让每项随包 Check 都通过类型化函数构造，并为其最终数据和可处理失败提供直接消费入口。",

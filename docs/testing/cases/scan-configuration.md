@@ -52,7 +52,7 @@ Entities:
 - `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
   Proves:
 
-- The public package uses the `@zxyycom/vibe-check` import specifier and exposes only the documented generic authoring/run/Finding-presentation/waiver/cache/admission-simulation operations, the `defineAdmissionPolicy` inference helper, one composable default project-file selection, seven package-provided Check functions, seven named final-data parsers, and their required authoring/resolved/final/Record/reason/cache/admission-policy/admission-state type roots.
+- The public package uses the `@zxyycom/vibe-check` import specifier and exposes only the documented generic authoring/run/Finding-presentation/waiver/cache/admission-simulation operations, the `defineAdmissionPolicy` inference helper, one composable default project-file selection, eight package-provided Check functions, eight named final-data parsers, and their required authoring/resolved/final/Record/reason/cache/admission-policy/admission-state type roots.
 - An ancestry-external TypeScript consumer imports and typechecks that public surface and declaration documentation without casts or manual dependency-read generics; it can declare `observes`, enumerate its direct settled outcome through the callback-local `dependencies.list()` surface, and still uses the producing parser for final data. It can create standalone immutable admission graph branches and read the same callback `admissionState`, while the closed strategy result remains only `select(taskId)` or `wait`. It can author a simple or prepared custom strategy over frozen graph/decision/terminal DTOs: `decide` must synchronously return exact `select(taskId)` or `wait`, prepared may asynchronously form its Run-local closure and optional complete, and retired `proposeAdmission` plus unknown nested fields are rejected in installed declarations. It can also author learned-critical-path with its local state directory; v1 `expectedDurationMs` remains rejected. The caller-keyed cache parser must likewise synchronously return a non-thenable typed value. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
 
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
@@ -140,3 +140,13 @@ Entities:
 - `checkMessages` preserves author order within each Check and canonical snapshot Check order across parallel settlement; disabling progress or a settled progress writer failure does not remove it.
 - Task-local preflight receives the invocation signal only after admission; cooperative cancellation closes the existing execution phase as `cancelled` without admitting pending author work.
 - A real Run preserves attention-Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor visibility.
+
+## Case ADD-SECRET-DETECTION-AUTHORING-001: Secret detection requires an explicit closed files policy
+
+Owner: `docs/checks/secret-detection.md#参数与默认配置`
+Entities:
+
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > requires a complete explicit files policy and publishes the public parser`
+
+Proves:
+- `secretDetection` rejects missing or partial files authoring, freezes only its closed resource/waiver options, and exposes a parser that verifies the five safe final-count invariants.

@@ -687,6 +687,36 @@
         "title": "Admission core 持久数据结构库评估"
       }
     },
+    "evaluate-secret-detection-library-candidates.md": {
+      "keys": {
+        "formed-at": [
+          1788433808000
+        ],
+        "tag": [
+          "bun",
+          "implementation-libraries",
+          "secret-detection",
+          "security"
+        ],
+        "text": [
+          "哪个现成 detector 能在 Bun-hosted 随包 Check 中只处理显式声明文件，并在不传播 raw secret 或其派生值的前提下支持可审计的高置信检测？",
+          "显式文件范围 Secret Detection 库候选评估"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T11:10:08+00:00",
+        "question": "哪个现成 detector 能在 Bun-hosted 随包 Check 中只处理显式声明文件，并在不传播 raw secret 或其派生值的前提下支持可审计的高置信检测？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "bun",
+          "implementation-libraries",
+          "secret-detection",
+          "security"
+        ],
+        "title": "显式文件范围 Secret Detection 库候选评估"
+      }
+    },
     "explain-cpython-jsc-lizard-regex-performance-gap.md": {
       "keys": {
         "formed-at": [
@@ -1197,6 +1227,7 @@
       "diagnose-lizard-typescript-port-performance-gap.md": "sha256:ab60210fb4001d659e3e2e26b878f3af3b7f6e5fd8b7da17ef7d8fc164d4c9dd",
       "evaluate-markdown-link-serial-io-optimization.md": "sha256:8c749ead3a22883a056318d560e8554393ffbf474898fc48c12eb7622e7ef41e",
       "evaluate-persistent-data-structure-libraries-for-admission-core.md": "sha256:85d43d2f8b07c22faa1e0a368f0273db6c8cce9a7b0dae7ae7987a75d8493e9c",
+      "evaluate-secret-detection-library-candidates.md": "sha256:57d39379139f56d6b9874f0443263ed2412ce1d60292366862d61427b494df2a",
       "explain-cpython-jsc-lizard-regex-performance-gap.md": "sha256:49e4d854ac63ccac6466e8b28eeee51cfc33bedce736e7b72e2dc585b0306b27",
       "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
       "investigate-fortran-lizard-performance-hotspot.md": "sha256:9c6666a687ea7131230c33fb8e9052d92e43bcd0db9c491a642861c53b414116",

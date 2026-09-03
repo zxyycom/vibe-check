@@ -41,6 +41,17 @@ export type {
 } from "./package-checks/function-metrics/options.ts";
 export type { FunctionMetricsUnavailableReasonCode } from "./package-checks/function-metrics/execution.ts";
 export type { FunctionMetricsRecordData } from "./package-checks/function-metrics/records.ts";
+export { secretDetection } from "./package-checks/secret-detection/default-check.ts";
+export { parseSecretDetectionData } from "./package-checks/secret-detection/final-data.ts";
+export type { SecretDetectionFinalData } from "./package-checks/secret-detection/final-data.ts";
+export type {
+  ResolvedSecretDetectionOptions,
+  SecretDetectionFindingIdentity,
+  SecretDetectionFindingWaiver,
+  SecretDetectionOptions
+} from "./package-checks/secret-detection/options.ts";
+export type { SecretDetectionUnavailableReasonCode } from "./package-checks/secret-detection/execution.ts";
+export type { SecretDetectionRecordData } from "./package-checks/secret-detection/records.ts";
 export { jsonSchemaValidation } from "./package-checks/json-schema-validation/default-check.ts";
 export { parseJsonSchemaValidationData } from "./package-checks/json-schema-validation/final-data.ts";
 export type { JsonSchemaValidationFinalData } from "./package-checks/json-schema-validation/final-data.ts";

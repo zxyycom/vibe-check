@@ -157,7 +157,10 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 
 - [`add-html-link-validation`](../changes/add-html-link-validation/proposal.md)：等待真实 consumer、source kinds、attributes 与 parser/corpus 证据。
 - [`add-network-link-validation`](../changes/add-network-link-validation/proposal.md)：等待真实 consumer、安全输入 acquisition、显式授权和 hermetic SSRF/redirect/DNS 证据；旧 Plan 必须先重新基线化。
-- [`add-secret-detection`](../changes/add-secret-detection/proposal.md)：等待 detector、license/provenance、representative corpus 和 leak-canary 证据；旧 Plan 必须先重新基线化。
+
+### 已完成并归档
+
+- [`add-secret-detection`](../changes/archive/add-secret-detection/proposal.md)：已完成随包、显式 file scope 与通用 Finding waiver 的 production implementation 并归档；固定 Secretlint rule/license/provenance、bounded no-follow input read、representative corpus、package/candidate、长期 Decision 与 leak-canary evidence 均已闭合，归档时 `tasks.md` 为 12/12。它不进入其它 Change 的实现批次。
 
 ## Worktree 与合入规则
 

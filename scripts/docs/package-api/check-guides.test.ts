@@ -15,7 +15,7 @@ describe("package Check guides", () => {
   it("requires one README-linked guide for every package-provided Check function", () => {
     const rendered = renderPackageApiDocumentation({ repositoryRoot });
     const documents = collectPackageDocumentation(repositoryRoot, rendered.markdownDocuments);
-    assert.equal(PACKAGE_CHECK_GUIDES.length, 7);
+    assert.equal(PACKAGE_CHECK_GUIDES.length, 8);
     assert.deepEqual(documents.map((document) => document.packagePath).sort(), [
       "docs/api-mechanics.md",
       "docs/checks/duplicate-detection.md",
@@ -24,7 +24,8 @@ describe("package Check guides", () => {
       "docs/checks/json-schema-validation.md",
       "docs/checks/json-validation.md",
       "docs/checks/maintenance-reminders.md",
-      "docs/checks/markdown-link-validation.md"
+      "docs/checks/markdown-link-validation.md",
+      "docs/checks/secret-detection.md"
     ]);
     assert.equal(
       documents.some((document) => document.packagePath.endsWith("index.md")),

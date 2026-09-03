@@ -20,6 +20,8 @@ import {
   parseJsonValidationData,
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
+  parseSecretDetectionData,
+  secretDetection,
   run
 } from "@zxyycom/vibe-check";
 
@@ -68,7 +70,17 @@ const parserEvidence = {
     rejectedInputCount: 0,
     sourceFileCount: 0,
     targetReadCount: 0
-  })
+  }),
+  secret: parseSecretDetectionData({
+    coverageGapCount: 0,
+    findingCount: 0,
+    scannedFileCount: 0,
+    selectedFileCount: 0,
+    waivedFindingCount: 0
+  }),
+  secretCheckId: secretDetection({
+    files: { exclude: [], include: ["package.json"], source: "filesystem" }
+  }).checkId
 };
 
 const terminalNote = defineCheck({

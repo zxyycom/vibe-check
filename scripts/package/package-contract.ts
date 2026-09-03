@@ -20,6 +20,8 @@ export const JSCPD_VERSION_RANGE = "^5.1.1";
 
 export const CANDIDATE_DEPENDENCIES = Object.freeze({
   "@humanwhocodes/momoa": "3.3.12",
+  "@secretlint/core": "13.0.5",
+  "@secretlint/secretlint-rule-privatekey": "13.0.5",
   [AJV_PACKAGE_NAME]: "8.20.0",
   "csv-parse": "7.0.1",
   execa: "9.6.1",
@@ -47,6 +49,7 @@ export const PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH =
 export const PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH =
   "dist/esm/package-checks/function-metrics/measurement.mjs";
 export const PACKAGE_MOMOA_LICENSE_PATH = "third-party-licenses/momoa-3.3.12-LICENSE";
+export const PACKAGE_SECRETLINT_LICENSE_PATH = "third-party-licenses/secretlint-13.0.5-MIT-LICENSE";
 export const PACKAGE_README_PATH = "README.md";
 export const PACKAGE_RUNTIME_DIRECTORY = `${PACKAGE_DISTRIBUTION_DIRECTORY}/esm`;
 export const PACKAGE_RUNTIME_ENTRY_PATH = `${PACKAGE_RUNTIME_DIRECTORY}/index.mjs`;
@@ -102,6 +105,10 @@ export const MOMOA_LICENSE_SHA256 =
   "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4";
 export const MOMOA_LICENSE_SOURCE_PATH =
   "scripts/package/artifact/third-party-licenses/momoa-3.3.12-LICENSE";
+export const SECRETLINT_LICENSE_SHA256 =
+  "e52f20f13c0107521b01a47e7b7adbee09ff72289299fbb500375cdd8311cc83";
+export const SECRETLINT_LICENSE_SOURCE_PATH =
+  "scripts/package/artifact/third-party-licenses/secretlint-13.0.5-MIT-LICENSE";
 
 /** Third-party texts that must ship with every candidate and formal receipt. */
 export const PACKAGE_THIRD_PARTY_LICENSES = Object.freeze([
@@ -116,6 +123,12 @@ export const PACKAGE_THIRD_PARTY_LICENSES = Object.freeze([
     path: PACKAGE_MOMOA_LICENSE_PATH,
     sha256: MOMOA_LICENSE_SHA256,
     sourcePath: MOMOA_LICENSE_SOURCE_PATH
+  }),
+  Object.freeze({
+    packageName: "Secretlint",
+    path: PACKAGE_SECRETLINT_LICENSE_PATH,
+    sha256: SECRETLINT_LICENSE_SHA256,
+    sourcePath: SECRETLINT_LICENSE_SOURCE_PATH
   })
 ]);
 

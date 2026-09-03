@@ -271,9 +271,9 @@ deep-frozen 的 canonical materialization，因此调用方之后修改 authored
 finding disposition 和 waiver audit；它不发布 Record、message 或 terminal outcome。采用它的 Check 自己决定如何发布证据及
 如何结算 actionable finding。
 
-随包的 [`fileMetrics`](checks/file-metrics.md)、[`functionMetrics`](checks/function-metrics.md) 与
-[`duplicateDetection`](checks/duplicate-detection.md) 已在各自 options 中原生接入该 helper；它们共享上述 reconciliation，
-但 identity、Record、message 与 settlement 仍由各自指南拥有。其它随包 Check 没有自动获得 `findingWaivers` 字段。
+随包的 [`fileMetrics`](checks/file-metrics.md)、[`functionMetrics`](checks/function-metrics.md)、
+[`duplicateDetection`](checks/duplicate-detection.md) 与 [`secretDetection`](checks/secret-detection.md) 已在各自 options 中原生接入该 helper；它们共享上述 reconciliation，
+但 identity、Record、message 与 settlement 仍由各自指南拥有。其它随包 Check 没有自动获得 `findingWaivers` 字段；尤其 `secretDetection` 的 waiver 只能匹配其不含敏感值的安全 identity，不能豁免 coverage gap 或 unavailable。
 
 ## 递归组合与继承
 
@@ -342,7 +342,7 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-dependency reader 为两类 relation union 中、具有 `passed` / `failed` final data 的 direct provider 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。上例的 `dependsOn` 已保证 callback 只在 provider `passed` 后开始，因此它不会把 upstream `failed` 继续传播为自己的结果；`!read.ok` 仍保留为 boundary defense。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用它恢复 provider data。七个随包 Check 都提供 `parseData` 和同实现的 package-root parser；名称与类型见各自指南。
+dependency reader 为两类 relation union 中、具有 `passed` / `failed` final data 的 direct provider 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。上例的 `dependsOn` 已保证 callback 只在 provider `passed` 后开始，因此它不会把 upstream `failed` 继续传播为自己的结果；`!read.ok` 仍保留为 boundary defense。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用它恢复 provider data。八个随包 Check 都提供 `parseData` 和同实现的 package-root parser；名称与类型见各自指南。
 
 ### 批量审计 direct outcomes
 

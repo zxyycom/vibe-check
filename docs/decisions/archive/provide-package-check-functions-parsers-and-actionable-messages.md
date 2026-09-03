@@ -1,6 +1,6 @@
 ---
 title: 为随包 Check 提供构造函数、解析器与可行动消息
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T15:05:29Z
 purpose: 让每项随包 Check 都通过类型化函数构造，并为其最终数据和可处理失败提供直接消费入口。

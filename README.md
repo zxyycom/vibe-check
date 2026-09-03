@@ -104,7 +104,7 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 
 ## 随包提供的 Check
 
-如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execution`。除 `maintenanceReminders(entries)` 必须接收提醒条目外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。
+如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execution`。除 `maintenanceReminders(entries)` 与 `secretDetection({ files })` 有必填输入外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。
 
 | 你想检查什么 | 使用的导出 | 运行前提 |
 | --- | --- | --- |
@@ -115,6 +115,7 @@ if (first.source !== "computed" || second.source !== "cache" || measurements !==
 | JSON 与 Schema 的匹配关系 | [`jsonSchemaValidation(options?)`](./docs/checks/json-schema-validation.md) | 默认离线；只有显式允许的 HTTPS source 才会触发网络请求。 |
 | 本地 Markdown 链接与锚点 | [`markdownLinkValidation(options?)`](./docs/checks/markdown-link-validation.md) | 只读取 policy 允许的本地路径，不执行 command 或网络请求；parse-facts cache 默认关闭，启用时由调用方提供 trusted、可删除的 absolute directory。 |
 | 基于 Git 历史的维护提醒 | [`maintenanceReminders(entries)`](./docs/checks/maintenance-reminders.md) | 项目根目录是 Git repository，且环境可以执行 `git`。 |
+| 高置信 PEM private key | [`secretDetection({ files })`](./docs/checks/secret-detection.md) | 只读取显式 files policy 选择的本地文本；随包 Secretlint rule 不执行 command 或网络请求。 |
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
 

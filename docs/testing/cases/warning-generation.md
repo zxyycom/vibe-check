@@ -130,3 +130,17 @@ Entities:
   Proves:
 
 - One Check-level root identity mode governs every configured schema without exposing document IDs. Scope or schema-document failures block their dependent bindings rather than inventing keyword results, and zero bindings settle as `not-applicable` without document work.
+
+## Case ADD-SECRET-DETECTION-FINDING-SETTLEMENT-001: Secret detection publishes safe findings and waiver audits
+
+Owner: `docs/checks/secret-detection.md#效果与结果`
+Entities:
+
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > reconciles safe waiver identities and audits unused and overmatched authoring`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > keeps the safe finding identity when the detected value or line moves`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > returns unavailable rather than a partial result after cancellation or detector protocol failure`
+
+Proves:
+- Secret finding identity uses only rule, path, structural class and ordinal; applied waiver retains a safe finding Record, while unused and overmatched waiver authoring remains observable and does not silently settle actionable findings.
+- Replacing the detected private-key value or moving it to another line changes the safe location evidence but not the rule/path/structure/ordinal identity.
+- Cancellation and detector protocol failure settle unavailable without final data or raw detector material.

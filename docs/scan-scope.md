@@ -97,6 +97,7 @@ Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-
   out-of-selection declaration 形成安全的 `out-of-scope` domain issue，zero bindings 是 `not-applicable`。
 - `markdown-link-validation` 的默认 include 用大小写不敏感 glob 精准选择 `.md` 与 `.markdown`。execution 以相同 suffix
   语义分类 selected candidates；rejected input 不成为 source，direct target 也不成为新的 source input 或递归发现 links。
+- `secret-detection` 不派生 supported extension 或普通 input rejection。它只消费自己的必填完整 `files` selection；在受支持 POSIX runtime 以 final-leaf `O_NOFOLLOW` descriptor 打开、regular-file/size 检查和 bounded read 拒绝 symlink/non-regular input，且在 detector 前将每个 selected path 结算为 bounded text input、deterministic `coverage-gap` 或 whole-Check unavailable。所有成功 read 的 raw bytes 都消耗 total-byte budget；NUL、invalid UTF-8、文件/总 byte 和文件数上限都不是 clean 或可豁免 input。adapter 只接收 accepted exact project-relative text path，不能收到 root 或重新发现输入。
 
 分类不会改变本次 invocation 使用的文件来源，也不会把 rejected path 交给 scanner、document reader 或 Markdown parser。
 
