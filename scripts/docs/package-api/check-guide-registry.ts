@@ -40,5 +40,10 @@ export const PACKAGE_CHECK_GUIDES = Object.freeze([
     checkId: "maintenance-reminders",
     exportName: "maintenanceReminders",
     sourcePath: "docs/checks/maintenance-reminders.md"
+  }),
+  Object.freeze({
+    checkId: "secret-detection",
+    exportName: "secretDetection",
+    sourcePath: "docs/checks/secret-detection.md"
   })
 ] satisfies readonly PackageCheckGuide[]);

@@ -110,3 +110,20 @@ Entities:
 - Link reads only a contained source and then evaluates its direct file, directory, and anchor endpoint without recursively discovering target links.
 - Root-external lexical paths, escaping symlinks, and accepted host-native `file:///` targets honor `ignore`, `report`, and explicit bounded `validate`; unsupported remote/path forms and malformed local components do not become external work.
 - Same-document anchor facts do not consume target work, while direct endpoint validation is bounded once per occurrence and limit exhaustion remains a controlled failure.
+
+## Case ADD-SECRET-DETECTION-SCOPE-001: Secret detection retains only exact bounded text coverage
+
+Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
+Entities:
+
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > uses only exact approved files and projects findings without canary material`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > keeps synthetic canary material out of completed Run facts and published outputs`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > fails closed for deterministic coverage gaps without treating them as waived findings`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > accounts for non-text reads in the total budget and applies the selected-file limit`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > uses a no-follow descriptor so an exact root-escaping symlink is unavailable without Records`
+
+Proves:
+- Secret detection reads and detects only its explicit selected paths; excluded paths are never rediscovered or reported.
+- NUL, invalid UTF-8, and bounded resource gaps remain explicit failed coverage facts rather than clean or waived inputs.
+- Every successfully read raw byte, including a later non-text gap, consumes the total byte budget; file-count and remaining-total exhaustion stop detector work with explicit coverage facts.
+- A selected symlink cannot make the Check read beyond its project-root path: a no-follow descriptor makes the whole Check unavailable without partial Records, and synthetic canary material is absent from Run facts, machine publication, Records stream, and diagnostic output.

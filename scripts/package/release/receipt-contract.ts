@@ -8,11 +8,13 @@ import {
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
   PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_SECRETLINT_LICENSE_PATH,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
-  PACKAGE_REPOSITORY_MANIFEST_URL
+  PACKAGE_REPOSITORY_MANIFEST_URL,
+  SECRETLINT_LICENSE_SHA256
 } from "../package-contract.ts";
 import { isSha256Digest, isSha512Integrity } from "../pack.ts";
 import { isFullGitCommit, parseFormalReleaseVersion, parseReleaseTag } from "./identity.ts";
@@ -57,6 +59,10 @@ export interface FormalReleaseReceipt {
       Readonly<{
         readonly path: typeof PACKAGE_MOMOA_LICENSE_PATH;
         readonly sha256: typeof MOMOA_LICENSE_SHA256;
+      }>,
+      Readonly<{
+        readonly path: typeof PACKAGE_SECRETLINT_LICENSE_PATH;
+        readonly sha256: typeof SECRETLINT_LICENSE_SHA256;
       }>
     ];
   }>;
@@ -156,7 +162,8 @@ function parseReleaseContract(value: unknown): FormalReleaseReceipt["contract"] 
     readme: Object.freeze({ path: PACKAGE_README_PATH, sha256: value.readme.sha256 }),
     repository: PACKAGE_REPOSITORY_MANIFEST_URL,
     thirdPartyLicenses: Object.freeze([
-      Object.freeze({ path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 })
+      Object.freeze({ path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 }),
+      Object.freeze({ path: PACKAGE_SECRETLINT_LICENSE_PATH, sha256: SECRETLINT_LICENSE_SHA256 })
     ] as const)
   });
 }
@@ -207,10 +214,14 @@ function isReadmeIdentity(value: unknown): value is Readonly<{ readonly sha256: 
 function isThirdPartyLicenseIdentity(value: unknown): boolean {
   return (
     Array.isArray(value) &&
-    value.length === 1 &&
+    value.length === 2 &&
     hasExactStringRecord(value[0], {
       path: PACKAGE_MOMOA_LICENSE_PATH,
       sha256: MOMOA_LICENSE_SHA256
+    }) &&
+    hasExactStringRecord(value[1], {
+      path: PACKAGE_SECRETLINT_LICENSE_PATH,
+      sha256: SECRETLINT_LICENSE_SHA256
     })
   );
 }

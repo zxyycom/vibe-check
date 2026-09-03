@@ -14,14 +14,14 @@ scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自
 
 package surface 包含 `defineAdmissionPolicy`、`defineConfig`、`defineCheck`、`inherit`、`run`，六个可补齐默认值的 Check constructors
 `duplicateDetection(options?)`、`fileMetrics(options?)`、`functionMetrics(options?)`、`jsonValidation(options?)`、
-`jsonSchemaValidation(options?)`、`markdownLinkValidation(options?)`，以及 `maintenanceReminders(entries)`。六个 constructor
-与 `maintenanceReminders` 返回 ordinary Check object，不引入第二种 execution model；其余 authoring helper、Definition
+`jsonSchemaValidation(options?)`、`markdownLinkValidation(options?)`，以及必填输入的 `secretDetection({ files })` 与
+`maintenanceReminders(entries)`。八项函数都返回 ordinary Check object，不引入第二种 execution model；其余 authoring helper、Definition
 value 与 invocation operation 各自保持其显式责任。仓库 private consumer 的 Definition 由
 [`scripts/project/gate/definition.ts`](../scripts/project/gate/definition.ts) 组装；下例只说明 Project Definition 的 authoring 形状，不是该 Gate Definition 的逐行副本。
 
 Finding waiver 分为两层 public authoring：`reconcileFindingWaivers(...)` 是任意 producer 可在完整 Finding 集合上调用的
-独立 helper；`fileMetrics`、`functionMetrics` 与 `duplicateDetection` 另外在自己的 options 中接受
-`findingWaivers`。三项 identity grammar、Records、messages 和 settlement 分别由对应 Check 指南拥有；其它 constructor
+独立 helper；`fileMetrics`、`functionMetrics`、`duplicateDetection` 与 `secretDetection` 另外在自己的 options 中接受
+`findingWaivers`。四项 identity grammar、Records、messages 和 settlement 分别由对应 Check 指南拥有；其它 constructor
 没有因为 generic helper 存在而自动接受同名字段。完整 helper grammar 见
 [Finding waiver reconciliation](api-mechanics.md#finding-waiver-reconciliation)。
 
@@ -307,13 +307,13 @@ The declaration order of `checks` is not execution order. After validation, Prod
 本节只拥有随包 Check 与 Project Definition 的共同组合边界。每项 Check 的 consumer options、默认值、领域校验、结果、
 Records、不可用原因和定制依赖用法由[随包 Check 指南](navigation.md#随包-check-指南)中的对应 owner 完整表达。
 
-七个函数都返回 ordinary executable `Check`，Product core 不注册或特殊解释这些 Check ID。前六个 constructor 接受
+八个函数都返回 ordinary executable `Check`，Product core 不注册或特殊解释这些 Check ID。前六个 constructor 接受
 可省略的 authoring policy、同步拒绝未知或非法输入，并产生完整、冻结的 resolved options；
-`maintenanceReminders(entries)` 要求调用方显式提供提醒政策。若调用方在 constructor 后用原生对象组合替换完整
+`secretDetection({ files })` 要求完整显式 files policy，`maintenanceReminders(entries)` 要求显式提醒政策。若调用方在 constructor 后用原生对象组合替换完整
 `options`，owning Check 的 preflight 仍负责拒绝缺失、未知或非法 resolved shape；Definition 只保存 canonical authored
 JSON，不把领域错误提升为整个 Definition 的 configuration failure。
 
-六个读取文件的 constructor 共用 package root 导出的深冻结 `defaultProjectFileSelection` 作为可组合基线，但各 Check
+六个读取文件的 defaulted constructor 共用 package root 导出的深冻结 `defaultProjectFileSelection` 作为可组合基线；`secretDetection` 则要求 caller 提供完整 explicit selection，但各 Check
 仍拥有自己的精准 include、领域字段和 exact-input eligibility。公共文件选择、默认排除和原生组合方式见
 [Project files and Check exact inputs](scan-scope.md#check-owned-file-selection)；每项 Check 的 resolved 默认值只见对应指南。
 scanner executable、command marker 和 adapter protocol 由 owning Check 及

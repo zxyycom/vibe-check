@@ -131,6 +131,10 @@ function formalReleaseReceiptFixture(): unknown {
         {
           path: "third-party-licenses/momoa-3.3.12-LICENSE",
           sha256: "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        },
+        {
+          path: "third-party-licenses/secretlint-13.0.5-MIT-LICENSE",
+          sha256: "e52f20f13c0107521b01a47e7b7adbee09ff72289299fbb500375cdd8311cc83"
         }
       ]
     }

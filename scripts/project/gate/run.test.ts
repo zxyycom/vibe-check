@@ -106,6 +106,7 @@ const expectedCheckIds = [
   "tests-product-function-metrics",
   "tests-product-json",
   "tests-product-markdown-links",
+  "tests-product-secret-detection",
   "tests-product-supporting-checks",
   "tests-product-runtime",
   "tests-scripts-project",

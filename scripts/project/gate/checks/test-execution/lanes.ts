@@ -30,6 +30,7 @@ export const PROJECT_GATE_TEST_LANE_NAMES = [
   "productFunctionMetrics",
   "productJsonChecks",
   "productMarkdownLinks",
+  "productSecretDetection",
   "productRuntime",
   "productSupportingChecks",
   "scriptsProject",
@@ -48,6 +49,7 @@ type ProductPackageTestLaneName = Extract<
   | "productFunctionMetrics"
   | "productJsonChecks"
   | "productMarkdownLinks"
+  | "productSecretDetection"
   | "productSupportingChecks"
 >;
 
@@ -75,6 +77,10 @@ const PRODUCT_PACKAGE_TEST_LANES = Object.freeze([
   Object.freeze({
     lane: "productMarkdownLinks",
     prefixes: Object.freeze(["src/package-checks/markdown-link-validation/"])
+  }),
+  Object.freeze({
+    lane: "productSecretDetection",
+    prefixes: Object.freeze(["src/package-checks/secret-detection/"])
   }),
   Object.freeze({
     lane: "productSupportingChecks",
@@ -143,6 +149,7 @@ function emptyTestLaneFiles(): Record<ProjectGateTestLaneName, string[]> {
     productFunctionMetrics: [],
     productJsonChecks: [],
     productMarkdownLinks: [],
+    productSecretDetection: [],
     productRuntime: [],
     productSupportingChecks: [],
     scriptsProject: [],
@@ -167,6 +174,7 @@ function freezeTestLanes(
     productFunctionMetrics: Object.freeze([...laneFiles.productFunctionMetrics]),
     productJsonChecks: Object.freeze([...laneFiles.productJsonChecks]),
     productMarkdownLinks: Object.freeze([...laneFiles.productMarkdownLinks]),
+    productSecretDetection: Object.freeze([...laneFiles.productSecretDetection]),
     productRuntime: Object.freeze([...laneFiles.productRuntime]),
     productSupportingChecks: Object.freeze([...laneFiles.productSupportingChecks]),
     scriptsProject: Object.freeze([...laneFiles.scriptsProject]),

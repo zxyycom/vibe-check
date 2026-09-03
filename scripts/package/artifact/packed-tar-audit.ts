@@ -6,6 +6,7 @@ import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_SECRETLINT_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_TYPES_PATH
 } from "../package-contract.ts";
@@ -14,6 +15,7 @@ import {
   assertJSDocExamplePayloads,
   assertMomoaLicenseContent,
   assertPackageLicenseContent,
+  assertSecretlintLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
@@ -81,8 +83,10 @@ function assertTarReadme(entries: readonly TarEntry[], expectedReadme: string): 
 function assertTarLegalMaterials(entries: readonly TarEntry[]): void {
   const packageLicense = requiredTarEntry(entries, `package/${PACKAGE_LICENSE_PATH}`);
   const momoaLicense = requiredTarEntry(entries, `package/${PACKAGE_MOMOA_LICENSE_PATH}`);
+  const secretlintLicense = requiredTarEntry(entries, `package/${PACKAGE_SECRETLINT_LICENSE_PATH}`);
   assertPackageLicenseContent(packageLicense.content);
   assertMomoaLicenseContent(momoaLicense.content);
+  assertSecretlintLicenseContent(secretlintLicense.content);
 }
 
 function assertTarDeclarationExamples(
@@ -134,7 +138,8 @@ function assertManifestPackageEntries(entries: readonly TarEntry[]): void {
     !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_LICENSE_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_README_PATH}`) ||
-    !entries.some((entry) => entry.path === `package/${PACKAGE_MOMOA_LICENSE_PATH}`)
+    !entries.some((entry) => entry.path === `package/${PACKAGE_MOMOA_LICENSE_PATH}`) ||
+    !entries.some((entry) => entry.path === `package/${PACKAGE_SECRETLINT_LICENSE_PATH}`)
   ) {
     throw new Error(
       "candidate artifact is missing its approved runtime, declarations, README, or legal entry"

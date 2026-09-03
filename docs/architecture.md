@@ -108,8 +108,8 @@ cache directory 是 caller-trusted disposable local state。atomic temporary pub
 
 ## Package-provided Checks and exact inputs
 
-七个 package-provided exports 都从同一普通 Check 基础构造并返回 ordinary Check values；除
-`maintenanceReminders(entries)` 外，其余六个 constructors 接收可省略 authoring policy、补齐完整 resolved options。它们
+八个 package-provided exports 都从同一普通 Check 基础构造并返回 ordinary Check values；除
+`maintenanceReminders(entries)` 与 `secretDetection({ files })` 外，其余六个 constructors 接收可省略 authoring policy、补齐完整 resolved options。它们
 因为随 package 提供而方便使用，但不获得 Definition/Check facts 特权。每项 Check 完整拥有自己的
 options type、runtime validation、execution、领域 measurement/finding model 与 documentation。三个基于 area 的代码质量
 Check 只在 package-checks 内共享 `blocking | non-blocking` policy、重叠区域合并和 Finding 计数；各 Check 继续拥有阈值、

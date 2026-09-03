@@ -263,6 +263,12 @@ const PROJECT_GATE_TEST_CHECKS = defineProjectGateTestChecks([
     tags: ["product", "tests"]
   },
   {
+    checkId: "tests-product-secret-detection",
+    displayName: "Bun Product secret detection tests",
+    lane: "productSecretDetection",
+    tags: ["product", "tests"]
+  },
+  {
     checkId: "tests-product-supporting-checks",
     displayName: "Bun Product supporting Check tests",
     lane: "productSupportingChecks",

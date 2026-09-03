@@ -49,6 +49,8 @@
   },
   "dependencies": {
     "@humanwhocodes/momoa": "3.3.12",
+    "@secretlint/core": "13.0.5",
+    "@secretlint/secretlint-rule-privatekey": "13.0.5",
     "ajv": "8.20.0",
     "github-slugger": "2.0.0",
     "mdast-util-from-markdown": "2.0.3",

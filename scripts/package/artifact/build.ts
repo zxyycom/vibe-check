@@ -12,12 +12,15 @@ import {
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SOURCE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_SECRETLINT_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_SOURCE_DIRECTORY,
   PACKAGE_TARBALL_STEM,
   MOMOA_LICENSE_SHA256,
-  MOMOA_LICENSE_SOURCE_PATH
+  MOMOA_LICENSE_SOURCE_PATH,
+  SECRETLINT_LICENSE_SHA256,
+  SECRETLINT_LICENSE_SOURCE_PATH
 } from "../package-contract.ts";
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "../pack.ts";
@@ -171,6 +174,18 @@ function copyLegalMaterials(input: {
   copyFileSync(sourcePath, destinationPath);
   if (sha256File(destinationPath) !== MOMOA_LICENSE_SHA256) {
     throw new Error("candidate Momoa license material does not match the approved source text");
+  }
+
+  const secretlintSource = join(input.repositoryRoot, SECRETLINT_LICENSE_SOURCE_PATH);
+  const secretlintDestination = join(input.stagingDirectory, PACKAGE_SECRETLINT_LICENSE_PATH);
+  if (!existsSync(secretlintSource)) {
+    throw new Error(`candidate source is missing Secretlint license material: ${secretlintSource}`);
+  }
+  copyFileSync(secretlintSource, secretlintDestination);
+  if (sha256File(secretlintDestination) !== SECRETLINT_LICENSE_SHA256) {
+    throw new Error(
+      "candidate Secretlint license material does not match the approved source text"
+    );
   }
 }
 

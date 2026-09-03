@@ -7,6 +7,7 @@ import {
   PACKAGE_ENTRY_SOURCE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_SECRETLINT_LICENSE_PATH,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_RUNTIME_ENTRY_PATH,
@@ -21,6 +22,7 @@ import {
   assertJSDocExamplePayloads,
   assertMomoaLicenseContent,
   assertPackageLicenseContent,
+  assertSecretlintLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
@@ -32,7 +34,8 @@ const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_README_PATH,
-  PACKAGE_MOMOA_LICENSE_PATH
+  PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_SECRETLINT_LICENSE_PATH
 ]);
 
 export function auditStagingRuntime(input: {
@@ -108,6 +111,9 @@ function assertStagingPublishedMaterials(input: {
   assertPackageDocumentation(stagingDirectory, expectedDocuments);
   assertPackageMachineMaterials(stagingDirectory, expectedMachineMaterials);
   assertMomoaLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_MOMOA_LICENSE_PATH)));
+  assertSecretlintLicenseContent(
+    readFileSync(join(stagingDirectory, PACKAGE_SECRETLINT_LICENSE_PATH))
+  );
   assertPackageLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_LICENSE_PATH)));
   assertJSDocExamplePayloads({
     declarationSources: collectFilePaths(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>

@@ -19,7 +19,8 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     markdownLinkValidation: "markdownLinkValidation",
     presentCheckFindings: "presentCheckFindings",
     reconcileFindingWaivers: "reconcileFindingWaivers",
-    run: "run"
+    run: "run",
+    secretDetection: "secretDetection"
   }),
   parsers: Object.freeze({
     parseDuplicateDetectionData: "parseDuplicateDetectionData",
@@ -28,7 +29,8 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     parseJsonSchemaValidationData: "parseJsonSchemaValidationData",
     parseJsonValidationData: "parseJsonValidationData",
     parseMaintenanceRemindersData: "parseMaintenanceRemindersData",
-    parseMarkdownLinkValidationData: "parseMarkdownLinkValidationData"
+    parseMarkdownLinkValidationData: "parseMarkdownLinkValidationData",
+    parseSecretDetectionData: "parseSecretDetectionData"
   }),
   types: Object.freeze({
     AdmissionPolicy: "AdmissionPolicy",
@@ -119,6 +121,13 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     SchedulerMeasurementActionObservation: "SchedulerMeasurementActionObservation",
     SchedulerMeasurementEffect: "SchedulerMeasurementEffect",
     SchedulerRawMeasurement: "SchedulerRawMeasurement",
-    SchedulerPolicy: "SchedulerPolicy"
+    SchedulerPolicy: "SchedulerPolicy",
+    ResolvedSecretDetectionOptions: "ResolvedSecretDetectionOptions",
+    SecretDetectionFinalData: "SecretDetectionFinalData",
+    SecretDetectionFindingIdentity: "SecretDetectionFindingIdentity",
+    SecretDetectionFindingWaiver: "SecretDetectionFindingWaiver",
+    SecretDetectionOptions: "SecretDetectionOptions",
+    SecretDetectionRecordData: "SecretDetectionRecordData",
+    SecretDetectionUnavailableReasonCode: "SecretDetectionUnavailableReasonCode"
   })
 } as const);

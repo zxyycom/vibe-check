@@ -44,7 +44,7 @@ facts。
 `src/project-run/**` 的 completed/output results 提供 canonical Check/Record readback；final-snapshot result 另提供已经
 接受的 terminal-message readback。自定义 Check 的 business parser、field schema 与 sensitive-content policy 属于
 consumer/provider，不由 Product registry、catalog、extractor 或 presentation fallback 提供。package-provided Check 是
-provider 自己拥有该责任的具体实例：七项都附带并从 package root 导出自己的 final-data parser，但仍不形成 generic
+provider 自己拥有该责任的具体实例：八项都附带并从 package root 导出自己的 final-data parser，但仍不形成 generic
 registry 或 machine artifact reader。
 
 ## Package-provided ordinary Checks and exact inputs

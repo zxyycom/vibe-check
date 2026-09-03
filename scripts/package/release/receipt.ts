@@ -13,11 +13,13 @@ import {
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
   PACKAGE_MOMOA_LICENSE_PATH,
+  PACKAGE_SECRETLINT_LICENSE_PATH,
   PACKAGE_NAME,
   PACKAGE_PUBLISH_ACCESS,
   PACKAGE_PUBLISH_REGISTRY,
   PACKAGE_README_PATH,
-  PACKAGE_REPOSITORY_MANIFEST_URL
+  PACKAGE_REPOSITORY_MANIFEST_URL,
+  SECRETLINT_LICENSE_SHA256
 } from "../package-contract.ts";
 import {
   fileMatchesSha256,
@@ -196,7 +198,10 @@ function createFormalReleaseReceipt(input: {
         sha256: sha256File(join(input.artifact.stagingDirectory, PACKAGE_README_PATH))
       },
       repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-      thirdPartyLicenses: [{ path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 }]
+      thirdPartyLicenses: [
+        { path: PACKAGE_MOMOA_LICENSE_PATH, sha256: MOMOA_LICENSE_SHA256 },
+        { path: PACKAGE_SECRETLINT_LICENSE_PATH, sha256: SECRETLINT_LICENSE_SHA256 }
+      ]
     }
   });
 }

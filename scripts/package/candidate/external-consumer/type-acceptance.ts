@@ -171,6 +171,8 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   parseMarkdownLinkValidationData,
   presentCheckFindings,
   run,
+  secretDetection,
+  parseSecretDetectionData,
 __VIBE_CHECK_PUBLIC_TYPE_IMPORTS__
 } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
 
@@ -278,6 +280,17 @@ const changedFilesConsumer = defineCheck({
   }
 });
 
+const secretCheck = secretDetection({
+  files: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" }
+});
+const secretData: SecretDetectionFinalData = parseSecretDetectionData({
+  coverageGapCount: 0,
+  findingCount: 0,
+  scannedFileCount: 0,
+  selectedFileCount: 0,
+  waivedFindingCount: 0
+});
+
 const definition: ProjectDefinition = defineConfig({
   checks: [
     duplicateDetection({
@@ -293,6 +306,7 @@ const definition: ProjectDefinition = defineConfig({
     fileMetrics(),
     functionMetrics(),
     markdownLinkValidation(),
+    secretCheck,
     directCheck,
     changedFiles,
     changedFilesConsumer
@@ -436,6 +450,9 @@ void [
   maintenanceReminders,
   jsonSchemaValidation,
   jsonValidation,
+  secretCheck,
+  secretData,
+  parseSecretDetectionData,
   run,
   aggregation,
   attentionCheck,

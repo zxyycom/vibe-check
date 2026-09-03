@@ -8,7 +8,8 @@ import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-invento
 import {
   CANDIDATE_DEPENDENCIES,
   MOMOA_LICENSE_SOURCE_PATH,
-  PACKAGE_LICENSE_SOURCE_PATH
+  PACKAGE_LICENSE_SOURCE_PATH,
+  SECRETLINT_LICENSE_SOURCE_PATH
 } from "../package-contract.ts";
 import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
@@ -43,7 +44,8 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
     join(repositoryRoot, PACKAGE_LICENSE_SOURCE_PATH),
-    join(repositoryRoot, MOMOA_LICENSE_SOURCE_PATH)
+    join(repositoryRoot, MOMOA_LICENSE_SOURCE_PATH),
+    join(repositoryRoot, SECRETLINT_LICENSE_SOURCE_PATH)
   ].sort();
   for (const filePath of inputFiles) {
     const relativePath = relative(repositoryRoot, filePath).split(sep).join("/");
