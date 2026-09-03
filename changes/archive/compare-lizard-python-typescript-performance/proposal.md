@@ -1,6 +1,6 @@
 # Proposal
 
-建立仅供开发与验证使用的可重复性能对照，以有可审计边界的证据回答历史 Python/Lizard 路径是否可能比当前 TypeScript analyzer 更快；本 Plan 不实施或执行基准。
+建立仅供开发与验证使用的可重复性能对照，以有可审计边界的证据回答历史 Python/Lizard 路径和当前 TypeScript port 在明确 scope 下各自的 wall-time 表现；本 Plan 只实施 developer-only workflow 与调查 evidence，**不实施任何 Product 或 source-aligned port 优化**。
 
 ## Why
 
@@ -10,7 +10,7 @@
 
 ## Outcome
 
-完成后，仓库拥有一个不进入 Product、package 或默认 Project Gate 的开发/验证专用比较工具与 workload manifest。它会以原始样本、环境和可比性状态，分别报告历史 Product end-to-end、固定 Lizard 1.24 analyzer-only、以及当前 Product 分解三个对照层；结果能够有条件地回答 Python/Lizard 是否在某一明确层和环境中更快，或明确说明该问题尚不可比较。
+完成后，仓库拥有一个不进入 Product、package 或默认 Project Gate 的开发/验证专用比较工具与 workload manifest。它会以原始样本、环境和可比性状态，分别报告历史 Product end-to-end、固定 Lizard 1.24 analyzer-only、以及当前 Product 分解三个对照层；结果能够按明确层、workload、temperature 与环境回答 Python/Lizard 或 TypeScript 哪一侧更快，或明确说明该问题尚不可比较；它不产生跨层的单一语言结论，也不构成优化授权。
 
 ## Scope
 
@@ -22,7 +22,7 @@
 - 对比恰好三个层次，而不是生成单一“Python vs TypeScript”数值：
   1. historical Product end-to-end：`d356dcb^` 对 current `HEAD` 的真实产品 invocation；它反映迁移影响，但必须标识 1.23→1.24、public/configuration、decode/I/O 与 subprocess/Worker 边界差异；
   2. fixed Lizard 1.24 analyzer-only：固定源码和 canonical metrics 下的 Python Lizard 1.24 API 与当前 TypeScript private port façade；它隔离 analyzer/runtime，且不把 façade 变成 public API 或一般 backend contract；
-  3. current Product decomposition：current exact-path read/decode、Worker startup/transfer、adapter/analysis 以及总测量，用相同 request/result 证明各阶段可加总的边界，定位差距但不伪装成与历史 Product 的等价替代。
+  3. current Product decomposition：current exact-path read/decode、Worker startup/transfer、adapter/analysis 以及总测量，把 normal Product total 与明确 scope 的 overlapping diagnostics 分开记录；只有同一 Worker 的 roundtrip/内部分析可作机械差分，不能伪装成与历史 Product 的等价替代。
 - 只在可复原的、隔离的 historical worktree/toolchain 中运行旧 Product；若 historical dependency、platform、command 或 output 无法复原，则记录原因并保留 analyzer-only 或 current-only evidence，同时禁止以代理结果声称 historical Product end-to-end 结论。
 
 ### Resulting Impacts
@@ -30,9 +30,9 @@
 - `scripts/development/**`、其 root workflow documentation 和可能的 validation/package inventory guard 需要共同证明 benchmark 是显式开发入口且没有被 package、Product 或默认 Gate 吸收。
 - `src/package-checks/function-metrics/analyzer/**` 的 private boundary需要一个仅由开发 benchmark 启动的、非 package/非生产 harness，或其他经 layout policy 验证的等价方案；生产 consumers 仍只能是 adapter，不能为 scripts/public API 放开 façade import。
 - historical Product evidence 需要从 `d356dcb^` 恢复其 Python/Lizard 版本和 `lizard/scanner.ts` + `parser.ts` protocol；其输出须 canonicalize 后再与 current 层比较。历史的 1.23 事实不升级为当前运行时依赖。
-- fixed 1.24 analyzer-only 层需要单独锁定 Python Lizard 1.24 provenance，且只使用两个实现共同支持、可固定的输入；它不能由 1.23 end-to-end result、upstream oracle 或 archive observation 代替。
+- fixed 1.24 analyzer-only 层需要单独锁定 Python Lizard 1.24 provenance，且分别使用 tiny startup 与 27 reader-family representative fixture normal+edge representative batch 等两个实现共同支持、可固定的输入；它不能由 1.23 end-to-end result、upstream oracle 或 archive observation 代替。
 - measurement capability 不是普适事实：process-tree CPU/peak RSS 的实现、单位和不可用条件必须逐平台记录。两个 condition 的 CPU 或 RSS scope 不同、或 parent/child scope 未经验证时，只保留各自诊断值并将对应资源比较标为 `not-comparable`。旧 Change 的 resource spike/maxRSS 是设计输入，不是 comparative baseline、budget 或验收门槛。
-- 结果是 developer evidence，不新增 performance SLO、merge blocker、默认 Gate warning/error、worker pool、cache、fallback、subprocess/CSV 或 Python/Lizard Product runtime。
+- 结果是 developer evidence，不新增 performance SLO、merge blocker、默认 Gate warning/error、worker pool、cache、fallback、subprocess/CSV 或 Python/Lizard Product runtime；具体结果、范围翻转与“不授权优化”的结论由 Investigation Report 拥有。
 
 ## Success Criteria
 
@@ -40,7 +40,7 @@
 - fixed 1.24 analyzer-only 的每个计时 condition 都在 canonical output equality 后才有统计结果；historical Product end-to-end 的 output/contract mismatch 被保留并阻止该 workload 的 cross-path claim。
 - 结果以预注册规则明确区分 `python-faster`、`typescript-faster`、`no-material-stable-difference`、`inconclusive` 与 `not-comparable`：速度方向必须由配对 ratio 的 95% bootstrap confidence interval 完全越过 5% practical-equivalence band 且 p90 同向支持；不对未测语言、输入、版本或产品层作泛化结论。
 - Product exports、`functionMetrics` options/outcomes、default Project Gate aggregate/observation、package payload 和 production import policy 经目标验证保持不变；Python/Lizard、subprocess、CSV 和 fallback 不回到 Product runtime。
-- 所有 timing 均为 evidence/observation，不作为 Gate blocker；如未来需要预算或 policy，另行以测量证据和授权决定。
+- 所有 timing 均为 evidence/observation，不作为 Gate blocker或优化授权；如未来需要预算、policy 或 core 变更，另行以 profile、before/after evidence 和授权决定。
 
 ## Affected Owners
 
@@ -50,3 +50,7 @@
 - `scripts/validation/layout-characterization.ts`、package candidate/inventory owner：开发 benchmark harness 不泄漏到 package 或扩张 import boundary 的验证。
 - `scripts/project/gate/runtime/performance-observation.ts`、`performance-baseline.ts`：现有 Gate timing 是可比 workload 的 advisory observation；本 Change 不改变它。
 - `changes/archive/replace-lizard-with-typescript-function-analyzers/`：仅作为形成时 resource/maxRSS observation 和 hard-cut history，不能作为 current baseline 或 runtime input。
+
+## 当前实施授权补充
+
+本 Change 先完成性能调查并建立正式 Investigation Report。未经独立授权，不得修改 source-aligned `src/package-checks/function-metrics/analyzer/**` 的 core、readers、shared 或 protocol；benchmark-only seam 如在 analyzer root，必须为明确的 `.test-support.ts` 开发证据文件。只有 raw evidence 直接指向 Product-owned 外围 read/decode、Worker lifecycle/transfer、adapter 或 measurement glue 时，才可在本 Change 实施最小修复，并以前后相同 manifest/host/protocol重新采样。若 profile 指向 translated core，只在报告记录 profile、source-alignment/provenance risk、候选方向和未授权边界，留待独立 Decision/Change。

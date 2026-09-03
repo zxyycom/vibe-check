@@ -1,0 +1,1069 @@
+{
+  "identity": {
+    "benchmarkId": "compare-lizard-python-typescript-performance",
+    "driverSnapshotDigest": "5f47276e5973d147d3c5b740d5e287e94b606ea64a8bbfe6a659a4dc99d4e1cd",
+    "dirty": "M changes/compare-lizard-python-typescript-performance/design.md\n M changes/compare-lizard-python-typescript-performance/proposal.md\n M changes/compare-lizard-python-typescript-performance/tasks.md\n M docs/investigations/investigation-index.json\n M docs/script-tooling.md\n M docs/testing/cases/repository-tooling.md\n?? docs/investigations/_resources/compare-lizard-python-typescript-performance/\n?? docs/investigations/compare-lizard-python-typescript-performance.md\n?? scripts/development/lizard-performance/\n?? src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts\n?? src/package-checks/function-metrics/measurement-performance-harness.test-support.ts\n?? src/package-checks/function-metrics/measurement-performance-worker.test-support.ts",
+    "head": "05df567e5154440a39f4f2e7bd06b4e76d4c2055",
+    "manifestDigest": "bad853f4f94379ab0e6471cfbb54aded1aa23be09118c02e2ee51e2dd10d707d",
+    "sourceDigest": "cdf4a7b3a3f549447c2eab46d118402c2d2f0ca66680371f8fa8aa4fbe109521",
+    "worktree": "/home/dev/.codex/worktrees/d20e/vibe-check"
+  },
+  "layers": [
+    {
+      "layer": "C current Product decomposition",
+      "preflight": {
+        "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+        "directPortFacadeHarnessMs": 6.096886999999999,
+        "stages": {
+          "adapterMappingMs": null,
+          "readDecodeMs": 0.11035500000000553,
+          "totalProductMeasurementMs": 35.072271,
+          "workerAdapterAndPortAnalysisMs": 7.045097,
+          "workerRoundtripMs": 21.647190000000002,
+          "workerStartTransferOverheadEstimateMs": 14.602093000000002
+        }
+      },
+      "samples": [
+        {
+          "ordinal": 1,
+          "observedWallMs": 86.623964,
+          "operationWallMs": 35.408463,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66777088,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 60.696999999999996,
+              "unit": "bytes",
+              "userCpuMs": 60.696999999999996
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06922800000000251,
+            "totalProductMeasurementMs": 35.408463,
+            "workerAdapterAndPortAnalysisMs": 7.190076000000001,
+            "workerRoundtripMs": 24.392560000000003,
+            "workerStartTransferOverheadEstimateMs": 17.202484000000002,
+            "directPortFacadeHarnessMs": 5.874634
+          }
+        },
+        {
+          "ordinal": 2,
+          "observedWallMs": 65.269012,
+          "operationWallMs": 24.62581,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66949120,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 24.277,
+              "unit": "bytes",
+              "userCpuMs": 68.785
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07001999999999953,
+            "totalProductMeasurementMs": 24.62581,
+            "workerAdapterAndPortAnalysisMs": 5.54383,
+            "workerRoundtripMs": 15.765286000000003,
+            "workerStartTransferOverheadEstimateMs": 10.221456000000003,
+            "directPortFacadeHarnessMs": 5.600133000000003
+          }
+        },
+        {
+          "ordinal": 3,
+          "observedWallMs": 64.674059,
+          "operationWallMs": 22.683422999999998,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66469888,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 29.929,
+              "unit": "bytes",
+              "userCpuMs": 68.411
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06546100000000621,
+            "totalProductMeasurementMs": 22.683422999999998,
+            "workerAdapterAndPortAnalysisMs": 5.933051000000001,
+            "workerRoundtripMs": 18.165228,
+            "workerStartTransferOverheadEstimateMs": 12.232176999999998,
+            "directPortFacadeHarnessMs": 7.330397000000001
+          }
+        },
+        {
+          "ordinal": 4,
+          "observedWallMs": 66.667948,
+          "operationWallMs": 23.975732,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66478080,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 25.631999999999998,
+              "unit": "bytes",
+              "userCpuMs": 73.23599999999999
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.11336000000000013,
+            "totalProductMeasurementMs": 23.975732,
+            "workerAdapterAndPortAnalysisMs": 5.472025999999998,
+            "workerRoundtripMs": 16.912953,
+            "workerStartTransferOverheadEstimateMs": 11.440927000000004,
+            "directPortFacadeHarnessMs": 6.298981999999999
+          }
+        },
+        {
+          "ordinal": 5,
+          "observedWallMs": 64.807758,
+          "operationWallMs": 23.954867000000004,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66363392,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 32.391999999999996,
+              "unit": "bytes",
+              "userCpuMs": 64.785
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.0899870000000007,
+            "totalProductMeasurementMs": 23.954867000000004,
+            "workerAdapterAndPortAnalysisMs": 5.187548,
+            "workerRoundtripMs": 15.898871,
+            "workerStartTransferOverheadEstimateMs": 10.711323,
+            "directPortFacadeHarnessMs": 6.170724
+          }
+        },
+        {
+          "ordinal": 6,
+          "observedWallMs": 64.937236,
+          "operationWallMs": 23.582993000000002,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67629056,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 18.755000000000003,
+              "unit": "bytes",
+              "userCpuMs": 79.709
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07159300000000002,
+            "totalProductMeasurementMs": 23.582993000000002,
+            "workerAdapterAndPortAnalysisMs": 5.456898000000001,
+            "workerRoundtripMs": 17.300875000000005,
+            "workerStartTransferOverheadEstimateMs": 11.843977000000004,
+            "directPortFacadeHarnessMs": 6.302188000000001
+          }
+        },
+        {
+          "ordinal": 7,
+          "observedWallMs": 61.475894,
+          "operationWallMs": 20.761718000000002,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 68227072,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 35.276,
+              "unit": "bytes",
+              "userCpuMs": 55.43299999999999
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07392700000000474,
+            "totalProductMeasurementMs": 20.761718000000002,
+            "workerAdapterAndPortAnalysisMs": 6.195009000000001,
+            "workerRoundtripMs": 16.312238999999998,
+            "workerStartTransferOverheadEstimateMs": 10.117229999999998,
+            "directPortFacadeHarnessMs": 6.208203000000001
+          }
+        },
+        {
+          "ordinal": 8,
+          "observedWallMs": 63.670887,
+          "operationWallMs": 23.001565,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66666496,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 44.017,
+              "unit": "bytes",
+              "userCpuMs": 51.352999999999994
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.08374600000000498,
+            "totalProductMeasurementMs": 23.001565,
+            "workerAdapterAndPortAnalysisMs": 5.1855150000000005,
+            "workerRoundtripMs": 15.766836999999995,
+            "workerStartTransferOverheadEstimateMs": 10.581321999999995,
+            "directPortFacadeHarnessMs": 5.965222999999998
+          }
+        },
+        {
+          "ordinal": 9,
+          "observedWallMs": 64.186974,
+          "operationWallMs": 23.285905000000003,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67485696,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 30.778,
+              "unit": "bytes",
+              "userCpuMs": 65.40400000000001
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.09821199999999664,
+            "totalProductMeasurementMs": 23.285905000000003,
+            "workerAdapterAndPortAnalysisMs": 5.792001000000001,
+            "workerRoundtripMs": 16.395560000000003,
+            "workerStartTransferOverheadEstimateMs": 10.603559000000002,
+            "directPortFacadeHarnessMs": 5.6686119999999995
+          }
+        },
+        {
+          "ordinal": 10,
+          "observedWallMs": 66.693067,
+          "operationWallMs": 22.937340999999996,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66785280,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 31.591,
+              "unit": "bytes",
+              "userCpuMs": 66.69200000000001
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.09814200000000284,
+            "totalProductMeasurementMs": 22.937340999999996,
+            "workerAdapterAndPortAnalysisMs": 5.356653,
+            "workerRoundtripMs": 15.409974999999996,
+            "workerStartTransferOverheadEstimateMs": 10.053321999999996,
+            "directPortFacadeHarnessMs": 6.485327999999999
+          }
+        },
+        {
+          "ordinal": 11,
+          "observedWallMs": 61.292601,
+          "operationWallMs": 22.303137,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66596864,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 22.886,
+              "unit": "bytes",
+              "userCpuMs": 68.65899999999999
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06928800000000024,
+            "totalProductMeasurementMs": 22.303137,
+            "workerAdapterAndPortAnalysisMs": 5.510797,
+            "workerRoundtripMs": 15.984952,
+            "workerStartTransferOverheadEstimateMs": 10.474155,
+            "directPortFacadeHarnessMs": 6.386192000000001
+          }
+        },
+        {
+          "ordinal": 12,
+          "observedWallMs": 65.461623,
+          "operationWallMs": 23.190208,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67514368,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 35.776999999999994,
+              "unit": "bytes",
+              "userCpuMs": 62.608999999999995
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.0668940000000049,
+            "totalProductMeasurementMs": 23.190208,
+            "workerAdapterAndPortAnalysisMs": 5.095528999999999,
+            "workerRoundtripMs": 16.317801000000003,
+            "workerStartTransferOverheadEstimateMs": 11.222272000000004,
+            "directPortFacadeHarnessMs": 6.327166999999999
+          }
+        },
+        {
+          "ordinal": 13,
+          "observedWallMs": 67.892051,
+          "operationWallMs": 24.203693,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66654208,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 33.766999999999996,
+              "unit": "bytes",
+              "userCpuMs": 67.535
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.08671100000000109,
+            "totalProductMeasurementMs": 24.203693,
+            "workerAdapterAndPortAnalysisMs": 6.173249,
+            "workerRoundtripMs": 17.374029,
+            "workerStartTransferOverheadEstimateMs": 11.20078,
+            "directPortFacadeHarnessMs": 6.191602999999997
+          }
+        },
+        {
+          "ordinal": 14,
+          "observedWallMs": 64.793219,
+          "operationWallMs": 23.225068999999998,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66826240,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 22.553,
+              "unit": "bytes",
+              "userCpuMs": 75.178
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07754400000000317,
+            "totalProductMeasurementMs": 23.225068999999998,
+            "workerAdapterAndPortAnalysisMs": 5.508303999999999,
+            "workerRoundtripMs": 16.408327999999997,
+            "workerStartTransferOverheadEstimateMs": 10.900023999999998,
+            "directPortFacadeHarnessMs": 7.600999000000002
+          }
+        },
+        {
+          "ordinal": 15,
+          "observedWallMs": 63.01006,
+          "operationWallMs": 22.791103,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66416640,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 17.705,
+              "unit": "bytes",
+              "userCpuMs": 77.902
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06795600000000235,
+            "totalProductMeasurementMs": 22.791103,
+            "workerAdapterAndPortAnalysisMs": 5.595226,
+            "workerRoundtripMs": 16.994922000000003,
+            "workerStartTransferOverheadEstimateMs": 11.399696000000002,
+            "directPortFacadeHarnessMs": 6.4298249999999975
+          }
+        },
+        {
+          "ordinal": 16,
+          "observedWallMs": 65.733807,
+          "operationWallMs": 22.876744000000002,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67112960,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 41.504,
+              "unit": "bytes",
+              "userCpuMs": 55.339
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07252499999999884,
+            "totalProductMeasurementMs": 22.876744000000002,
+            "workerAdapterAndPortAnalysisMs": 5.791274999999999,
+            "workerRoundtripMs": 16.936785999999998,
+            "workerStartTransferOverheadEstimateMs": 11.145510999999999,
+            "directPortFacadeHarnessMs": 5.762264000000002
+          }
+        },
+        {
+          "ordinal": 17,
+          "observedWallMs": 69.198366,
+          "operationWallMs": 24.974068,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67051520,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 23.182,
+              "unit": "bytes",
+              "userCpuMs": 78.82000000000001
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.0936930000000018,
+            "totalProductMeasurementMs": 24.974068,
+            "workerAdapterAndPortAnalysisMs": 5.649754999999999,
+            "workerRoundtripMs": 17.055309,
+            "workerStartTransferOverheadEstimateMs": 11.405554000000002,
+            "directPortFacadeHarnessMs": 5.803653000000001
+          }
+        },
+        {
+          "ordinal": 18,
+          "observedWallMs": 65.378232,
+          "operationWallMs": 23.627483000000005,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67571712,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 34.672999999999995,
+              "unit": "bytes",
+              "userCpuMs": 61.64
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07824500000000256,
+            "totalProductMeasurementMs": 23.627483000000005,
+            "workerAdapterAndPortAnalysisMs": 5.281799000000001,
+            "workerRoundtripMs": 17.000993,
+            "workerStartTransferOverheadEstimateMs": 11.719194,
+            "directPortFacadeHarnessMs": 7.259613000000002
+          }
+        },
+        {
+          "ordinal": 19,
+          "observedWallMs": 62.338327,
+          "operationWallMs": 22.678571,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67112960,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 30.613,
+              "unit": "bytes",
+              "userCpuMs": 61.226
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06925799999999782,
+            "totalProductMeasurementMs": 22.678571,
+            "workerAdapterAndPortAnalysisMs": 5.196365,
+            "workerRoundtripMs": 15.580132000000006,
+            "workerStartTransferOverheadEstimateMs": 10.383767000000006,
+            "directPortFacadeHarnessMs": 5.9864619999999995
+          }
+        },
+        {
+          "ordinal": 20,
+          "observedWallMs": 70.014911,
+          "operationWallMs": 24.036715,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67805184,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 42.452999999999996,
+              "unit": "bytes",
+              "userCpuMs": 63.68
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.10242999999999824,
+            "totalProductMeasurementMs": 24.036715,
+            "workerAdapterAndPortAnalysisMs": 5.412777999999999,
+            "workerRoundtripMs": 17.696239999999996,
+            "workerStartTransferOverheadEstimateMs": 12.283461999999997,
+            "directPortFacadeHarnessMs": 6.548185
+          }
+        },
+        {
+          "ordinal": 21,
+          "observedWallMs": 65.529655,
+          "operationWallMs": 23.388583999999998,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67571712,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 40.186,
+              "unit": "bytes",
+              "userCpuMs": 56.260999999999996
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06990000000000407,
+            "totalProductMeasurementMs": 23.388583999999998,
+            "workerAdapterAndPortAnalysisMs": 5.241999999999999,
+            "workerRoundtripMs": 16.258326999999994,
+            "workerStartTransferOverheadEstimateMs": 11.016326999999995,
+            "directPortFacadeHarnessMs": 6.5837910000000015
+          }
+        },
+        {
+          "ordinal": 22,
+          "observedWallMs": 64.006311,
+          "operationWallMs": 23.116008,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67751936,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 29.134,
+              "unit": "bytes",
+              "userCpuMs": 67.98
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.08995699999999829,
+            "totalProductMeasurementMs": 23.116008,
+            "workerAdapterAndPortAnalysisMs": 5.5689779999999995,
+            "workerRoundtripMs": 16.880113,
+            "workerStartTransferOverheadEstimateMs": 11.311135000000002,
+            "directPortFacadeHarnessMs": 5.821645999999998
+          }
+        },
+        {
+          "ordinal": 23,
+          "observedWallMs": 63.913146,
+          "operationWallMs": 24.350258000000004,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67129344,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 38.836999999999996,
+              "unit": "bytes",
+              "userCpuMs": 60.413
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.13520099999999502,
+            "totalProductMeasurementMs": 24.350258000000004,
+            "workerAdapterAndPortAnalysisMs": 5.242050000000001,
+            "workerRoundtripMs": 15.587665999999999,
+            "workerStartTransferOverheadEstimateMs": 10.345615999999998,
+            "directPortFacadeHarnessMs": 5.866448999999999
+          }
+        },
+        {
+          "ordinal": 24,
+          "observedWallMs": 64.695778,
+          "operationWallMs": 22.3301,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67235840,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 34.967999999999996,
+              "unit": "bytes",
+              "userCpuMs": 59.445
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06294699999999409,
+            "totalProductMeasurementMs": 22.3301,
+            "workerAdapterAndPortAnalysisMs": 5.238688999999999,
+            "workerRoundtripMs": 16.664673,
+            "workerStartTransferOverheadEstimateMs": 11.425984000000001,
+            "directPortFacadeHarnessMs": 5.925989999999999
+          }
+        },
+        {
+          "ordinal": 25,
+          "observedWallMs": 69.481863,
+          "operationWallMs": 26.497024000000003,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66850816,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 30.436999999999998,
+              "unit": "bytes",
+              "userCpuMs": 73.919
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.08387599999999651,
+            "totalProductMeasurementMs": 26.497024000000003,
+            "workerAdapterAndPortAnalysisMs": 5.357353999999999,
+            "workerRoundtripMs": 17.41305,
+            "workerStartTransferOverheadEstimateMs": 12.055696,
+            "directPortFacadeHarnessMs": 5.736939
+          }
+        },
+        {
+          "ordinal": 26,
+          "observedWallMs": 67.432067,
+          "operationWallMs": 22.876745,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67297280,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 45.68,
+              "unit": "bytes",
+              "userCpuMs": 57.1
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07284500000000094,
+            "totalProductMeasurementMs": 22.876745,
+            "workerAdapterAndPortAnalysisMs": 7.633329,
+            "workerRoundtripMs": 18.381667999999998,
+            "workerStartTransferOverheadEstimateMs": 10.748338999999998,
+            "directPortFacadeHarnessMs": 6.221578999999998
+          }
+        },
+        {
+          "ordinal": 27,
+          "observedWallMs": 64.239264,
+          "operationWallMs": 22.466049999999996,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 66822144,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 52.049,
+              "unit": "bytes",
+              "userCpuMs": 44.613
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06806699999999921,
+            "totalProductMeasurementMs": 22.466049999999996,
+            "workerAdapterAndPortAnalysisMs": 6.527128000000001,
+            "workerRoundtripMs": 16.816516999999997,
+            "workerStartTransferOverheadEstimateMs": 10.289388999999996,
+            "directPortFacadeHarnessMs": 6.617442999999998
+          }
+        },
+        {
+          "ordinal": 28,
+          "observedWallMs": 64.817031,
+          "operationWallMs": 25.038232999999998,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67293184,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 34.711,
+              "unit": "bytes",
+              "userCpuMs": 65.566
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.06998000000000104,
+            "totalProductMeasurementMs": 25.038232999999998,
+            "workerAdapterAndPortAnalysisMs": 6.735493,
+            "workerRoundtripMs": 18.797192000000003,
+            "workerStartTransferOverheadEstimateMs": 12.061699000000003,
+            "directPortFacadeHarnessMs": 6.813895000000002
+          }
+        },
+        {
+          "ordinal": 29,
+          "observedWallMs": 70.246257,
+          "operationWallMs": 24.648328000000003,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67235840,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 45.107,
+              "unit": "bytes",
+              "userCpuMs": 60.142999999999994
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07177300000000031,
+            "totalProductMeasurementMs": 24.648328000000003,
+            "workerAdapterAndPortAnalysisMs": 7.583709000000001,
+            "workerRoundtripMs": 17.876632999999998,
+            "workerStartTransferOverheadEstimateMs": 10.292923999999998,
+            "directPortFacadeHarnessMs": 6.2042670000000015
+          }
+        },
+        {
+          "ordinal": 30,
+          "observedWallMs": 67.048193,
+          "operationWallMs": 22.864812000000004,
+          "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+          "sessionDiagnostics": {
+            "resource": {
+              "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+              "peakRssBytes": 67047424,
+              "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+              "systemCpuMs": 41.162,
+              "unit": "bytes",
+              "userCpuMs": 59.87199999999999
+            }
+          },
+          "stageScopes": {
+            "adapterMappingMs": "not isolated: Product adapter invokes the port in one call; no inferred mapping attribution is reported",
+            "readDecodeMs": "independent exact path read/decode diagnostic",
+            "totalProductMeasurementMs": "normal Product measurement; it overlaps all independent diagnostics",
+            "workerAdapterAndPortAnalysisMs": "inside one benchmark-only Worker; includes production adapter mapping and port analysis",
+            "workerRoundtripMs": "one benchmark-only Worker lifecycle, message transfer, adapter, and port analysis",
+            "workerStartTransferOverheadEstimateMs": "max(0, workerRoundtripMs - workerAdapterAndPortAnalysisMs) from the same Worker operation",
+            "directPortFacadeHarnessMs": "separate process operation diagnostic; it includes port-facade output mapping and is not additive"
+          },
+          "stages": {
+            "adapterMappingMs": null,
+            "readDecodeMs": 0.07867600000000152,
+            "totalProductMeasurementMs": 22.864812000000004,
+            "workerAdapterAndPortAnalysisMs": 6.632032999999998,
+            "workerRoundtripMs": 18.319478000000004,
+            "workerStartTransferOverheadEstimateMs": 11.687445000000006,
+            "directPortFacadeHarnessMs": 6.499245999999999
+          }
+        }
+      ],
+      "status": "current-only; no historical equivalence claim"
+    }
+  ],
+  "machine": {
+    "arch": "x64",
+    "bun": "1.3.14",
+    "platform": "linux",
+    "supervisorPython": "Python 3.14.7"
+  },
+  "mode": "full",
+  "temperature": "cold",
+  "protocol": {
+    "abbaBlocks": 15,
+    "cold": "Each counted sample is a fresh direct-child target process after untimed equality preflight.",
+    "warm": "not run",
+    "practicalEquivalenceBand": [
+      0.95,
+      1.05
+    ],
+    "resource": "CPU is Linux wait4 target plus reaped descendants; RSS is max single process RSS, never a tree aggregate."
+  }
+}

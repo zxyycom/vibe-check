@@ -1,0 +1,2601 @@
+{
+  "identity": {
+    "benchmarkId": "compare-lizard-python-typescript-performance",
+    "driverSnapshotDigest": "5f47276e5973d147d3c5b740d5e287e94b606ea64a8bbfe6a659a4dc99d4e1cd",
+    "dirty": "M changes/compare-lizard-python-typescript-performance/design.md\n M changes/compare-lizard-python-typescript-performance/proposal.md\n M changes/compare-lizard-python-typescript-performance/tasks.md\n M docs/investigations/investigation-index.json\n M docs/script-tooling.md\n M docs/testing/cases/repository-tooling.md\n?? docs/investigations/_resources/compare-lizard-python-typescript-performance/\n?? docs/investigations/compare-lizard-python-typescript-performance.md\n?? scripts/development/lizard-performance/\n?? src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts\n?? src/package-checks/function-metrics/measurement-performance-harness.test-support.ts\n?? src/package-checks/function-metrics/measurement-performance-worker.test-support.ts",
+    "head": "05df567e5154440a39f4f2e7bd06b4e76d4c2055",
+    "manifestDigest": "bad853f4f94379ab0e6471cfbb54aded1aa23be09118c02e2ee51e2dd10d707d",
+    "sourceDigest": "cdf4a7b3a3f549447c2eab46d118402c2d2f0ca66680371f8fa8aa4fbe109521",
+    "worktree": "/home/dev/.codex/worktrees/d20e/vibe-check"
+  },
+  "layers": [
+    {
+      "layer": "B fixed Lizard 1.24 analyzer-only",
+      "provision": {
+        "lizardSourceCommit": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+        "lizardSourcePathAtFormation": "/tmp/vibe-lizard-1.24.0-308b1c3",
+        "provisionedPythonPathAtFormation": "/tmp/vibe-check-lizard-1.24-cyD46y/bin/python",
+        "pygments": {
+          "lizardModule": "/tmp/vibe-lizard-1.24.0-308b1c3/lizard.py",
+          "lizardVersion": "1.24.0",
+          "pygmentsVersion": "2.18.0",
+          "pygmentsRecordSha256": "78fe6f417de498e3cd94fb837cc63536340e398b2f5d1c1149de8e34ab250a41",
+          "pythonExecutable": "/tmp/vibe-check-lizard-1.24-cyD46y/bin/python",
+          "pythonVersion": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]"
+        },
+        "runtimeDisposition": "ephemeral task-owned venv was provisioned before samples and deleted after this B layer; it is not a retained reproduction resource.",
+        "uvVersion": "uv 0.12.3 (x86_64-unknown-linux-musl)"
+      },
+      "status": "comparable-wall-only",
+      "temperature": "warmed-operation",
+      "workloads": [
+        {
+          "workload": "tiny-cold-start",
+          "input": {
+            "byteCount": 160,
+            "fileCount": 2,
+            "sourceDigest": "4be65378c840b3f143b251fd3a1a4b2a413e6bddcc652923a64d1a475c78f6ba"
+          },
+          "preflight": {
+            "equal": true,
+            "pythonDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+            "typescriptDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+            "pythonVersion": "1.24.0"
+          },
+          "samples": [
+            {
+              "block": 1,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 54.673277,
+              "operationWallMs": 0.139088,
+              "ordinal": 1,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22638592,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.504,
+                  "unit": "bytes",
+                  "userCpuMs": 45.028999999999996
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 1,
+              "condition": "typescript-port",
+              "observedWallMs": 32.98269,
+              "operationWallMs": 0.7723129999999969,
+              "ordinal": 2,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55275520,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.639,
+                  "unit": "bytes",
+                  "userCpuMs": 27.494999999999997
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 1,
+              "condition": "typescript-port",
+              "observedWallMs": 34.418714,
+              "operationWallMs": 0.9757110000000004,
+              "ordinal": 3,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 54751232,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 18.66,
+                  "unit": "bytes",
+                  "userCpuMs": 32.654999999999994
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 1,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 53.519134,
+              "operationWallMs": 0.183771,
+              "ordinal": 4,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22495232,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.731,
+                  "unit": "bytes",
+                  "userCpuMs": 42.519999999999996
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "typescript-port",
+              "observedWallMs": 33.111512,
+              "operationWallMs": 1.004254000000003,
+              "ordinal": 5,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55128064,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.510999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 41.315
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 57.994906,
+              "operationWallMs": 0.133107,
+              "ordinal": 6,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22560768,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 20.468999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 36.844
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 58.872986,
+              "operationWallMs": 0.133869,
+              "ordinal": 7,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22544384,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.710999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 39.279
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "typescript-port",
+              "observedWallMs": 34.599297,
+              "operationWallMs": 1.0509609999999974,
+              "ordinal": 8,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55005184,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 18.531,
+                  "unit": "bytes",
+                  "userCpuMs": 33.355999999999995
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 54.57748,
+              "operationWallMs": 0.131624,
+              "ordinal": 9,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22478848,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.7669999999999995,
+                  "unit": "bytes",
+                  "userCpuMs": 42.72
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "typescript-port",
+              "observedWallMs": 33.837518,
+              "operationWallMs": 0.7939429999999987,
+              "ordinal": 10,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55668736,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 12.024999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 36.074999999999996
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "typescript-port",
+              "observedWallMs": 36.774849,
+              "operationWallMs": 0.7970499999999987,
+              "ordinal": 11,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 54947840,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 27.666,
+                  "unit": "bytes",
+                  "userCpuMs": 27.666
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 60.106177,
+              "operationWallMs": 0.130432,
+              "ordinal": 12,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22495232,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.009,
+                  "unit": "bytes",
+                  "userCpuMs": 41.274
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "typescript-port",
+              "observedWallMs": 33.623021,
+              "operationWallMs": 0.8413010000000014,
+              "ordinal": 13,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55070720,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 13.583,
+                  "unit": "bytes",
+                  "userCpuMs": 38.032
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 55.309831,
+              "operationWallMs": 0.135711,
+              "ordinal": 14,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22478848,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 8.4,
+                  "unit": "bytes",
+                  "userCpuMs": 46.20399999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 55.751124,
+              "operationWallMs": 0.137004,
+              "ordinal": 15,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22630400,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 26.259999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 26.259999999999998
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "typescript-port",
+              "observedWallMs": 34.309265,
+              "operationWallMs": 0.8868359999999988,
+              "ordinal": 16,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 54939648,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.057,
+                  "unit": "bytes",
+                  "userCpuMs": 31.761999999999997
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 54.531994,
+              "operationWallMs": 0.134189,
+              "ordinal": 17,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22548480,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 12.427999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 41.428
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "typescript-port",
+              "observedWallMs": 33.214541,
+              "operationWallMs": 0.8427340000000001,
+              "ordinal": 18,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55001088,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.118,
+                  "unit": "bytes",
+                  "userCpuMs": 33.259
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "typescript-port",
+              "observedWallMs": 33.218929,
+              "operationWallMs": 0.8238090000000007,
+              "ordinal": 19,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55136256,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 0,
+                  "unit": "bytes",
+                  "userCpuMs": 47.714
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 55.196544,
+              "operationWallMs": 0.13462,
+              "ordinal": 20,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22548480,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.502,
+                  "unit": "bytes",
+                  "userCpuMs": 35.104
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "typescript-port",
+              "observedWallMs": 34.156422,
+              "operationWallMs": 0.8011569999999999,
+              "ordinal": 21,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55332864,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 28.137999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 24.621000000000002
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 58.107205,
+              "operationWallMs": 0.132947,
+              "ordinal": 22,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22540288,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.092999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 41.506
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 54.42375,
+              "operationWallMs": 0.131514,
+              "ordinal": 23,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22421504,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.318999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 38.299
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "typescript-port",
+              "observedWallMs": 32.558183,
+              "operationWallMs": 0.8802730000000025,
+              "ordinal": 24,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55123968,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 18.36,
+                  "unit": "bytes",
+                  "userCpuMs": 32.129999999999995
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 56.8801,
+              "operationWallMs": 0.137144,
+              "ordinal": 25,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22491136,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 14.95,
+                  "unit": "bytes",
+                  "userCpuMs": 41.111999999999995
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "typescript-port",
+              "observedWallMs": 32.76655,
+              "operationWallMs": 0.7897359999999978,
+              "ordinal": 26,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55271424,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 12.488,
+                  "unit": "bytes",
+                  "userCpuMs": 37.464
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "typescript-port",
+              "observedWallMs": 32.504093,
+              "operationWallMs": 0.8434160000000013,
+              "ordinal": 27,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 54665216,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 9.290999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 41.809
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 57.038464,
+              "operationWallMs": 0.12898,
+              "ordinal": 28,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22515712,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 14.965,
+                  "unit": "bytes",
+                  "userCpuMs": 41.154999999999994
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "typescript-port",
+              "observedWallMs": 33.125956,
+              "operationWallMs": 0.8965059999999987,
+              "ordinal": 29,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55513088,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 18.04,
+                  "unit": "bytes",
+                  "userCpuMs": 31.57
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 55.851649,
+              "operationWallMs": 0.130362,
+              "ordinal": 30,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22548480,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.741999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 39.357
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 56.284406,
+              "operationWallMs": 0.139589,
+              "ordinal": 31,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22536192,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 27.254,
+                  "unit": "bytes",
+                  "userCpuMs": 27.254
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "typescript-port",
+              "observedWallMs": 32.53448,
+              "operationWallMs": 1.0268580000000007,
+              "ordinal": 32,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55128064,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 29.496,
+                  "unit": "bytes",
+                  "userCpuMs": 19.663999999999998
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 58.999563,
+              "operationWallMs": 0.136584,
+              "ordinal": 33,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22536192,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.539,
+                  "unit": "bytes",
+                  "userCpuMs": 42.732
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "typescript-port",
+              "observedWallMs": 36.570313,
+              "operationWallMs": 1.1889270000000032,
+              "ordinal": 34,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55201792,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 14.338,
+                  "unit": "bytes",
+                  "userCpuMs": 43.015
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "typescript-port",
+              "observedWallMs": 41.593727,
+              "operationWallMs": 1.1193269999999984,
+              "ordinal": 35,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55005184,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 24.326999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 38.923
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 60.097703,
+              "operationWallMs": 0.186767,
+              "ordinal": 36,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22638592,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.313,
+                  "unit": "bytes",
+                  "userCpuMs": 38.626
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "typescript-port",
+              "observedWallMs": 36.416124,
+              "operationWallMs": 0.649556000000004,
+              "ordinal": 37,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 54882304,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 16.564,
+                  "unit": "bytes",
+                  "userCpuMs": 37.269999999999996
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 62.10622,
+              "operationWallMs": 0.158104,
+              "ordinal": 38,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22544384,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.371999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 46.116
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 61.211611,
+              "operationWallMs": 0.132316,
+              "ordinal": 39,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22536192,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 18.877,
+                  "unit": "bytes",
+                  "userCpuMs": 41.529999999999994
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "typescript-port",
+              "observedWallMs": 34.170293,
+              "operationWallMs": 0.8080200000000026,
+              "ordinal": 40,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55394304,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 12.438999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 37.31699999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 58.577019,
+              "operationWallMs": 0.186216,
+              "ordinal": 41,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22548480,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 3.993,
+                  "unit": "bytes",
+                  "userCpuMs": 51.913999999999994
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "typescript-port",
+              "observedWallMs": 35.483202,
+              "operationWallMs": 1.2423459999999977,
+              "ordinal": 42,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55398400,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 27.156999999999996,
+                  "unit": "bytes",
+                  "userCpuMs": 27.156999999999996
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "typescript-port",
+              "observedWallMs": 37.448852,
+              "operationWallMs": 0.8859339999999989,
+              "ordinal": 43,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55603200,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 25.325,
+                  "unit": "bytes",
+                  "userCpuMs": 30.39
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 56.906939,
+              "operationWallMs": 0.176207,
+              "ordinal": 44,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22638592,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 18.734,
+                  "unit": "bytes",
+                  "userCpuMs": 37.468999999999994
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "typescript-port",
+              "observedWallMs": 33.972368,
+              "operationWallMs": 0.8356910000000006,
+              "ordinal": 45,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 54738944,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 3.8629999999999995,
+                  "unit": "bytes",
+                  "userCpuMs": 46.36
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 55.353506,
+              "operationWallMs": 0.128158,
+              "ordinal": 46,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22495232,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.768,
+                  "unit": "bytes",
+                  "userCpuMs": 46.61
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 58.973885,
+              "operationWallMs": 0.18309,
+              "ordinal": 47,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22552576,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.743,
+                  "unit": "bytes",
+                  "userCpuMs": 35.538
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "typescript-port",
+              "observedWallMs": 32.703321,
+              "operationWallMs": 0.8355509999999988,
+              "ordinal": 48,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55312384,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 24.531999999999996,
+                  "unit": "bytes",
+                  "userCpuMs": 24.531999999999996
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 57.866438,
+              "operationWallMs": 0.171949,
+              "ordinal": 49,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22638592,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 11.405999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 41.823
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "typescript-port",
+              "observedWallMs": 33.868235,
+              "operationWallMs": 0.8213849999999994,
+              "ordinal": 50,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55066624,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.924999999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 29.887999999999998
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "typescript-port",
+              "observedWallMs": 35.952273,
+              "operationWallMs": 1.1148340000000019,
+              "ordinal": 51,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55078912,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 24.243,
+                  "unit": "bytes",
+                  "userCpuMs": 31.169999999999998
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 61.844551,
+              "operationWallMs": 0.133267,
+              "ordinal": 52,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22511616,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.635,
+                  "unit": "bytes",
+                  "userCpuMs": 49.63
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "typescript-port",
+              "observedWallMs": 33.935019,
+              "operationWallMs": 0.833317000000001,
+              "ordinal": 53,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55324672,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 18.095,
+                  "unit": "bytes",
+                  "userCpuMs": 31.667
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 61.370551,
+              "operationWallMs": 0.135812,
+              "ordinal": 54,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22495232,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 22.682,
+                  "unit": "bytes",
+                  "userCpuMs": 37.803999999999995
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 59.284762,
+              "operationWallMs": 0.227001,
+              "ordinal": 55,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22421504,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 11.709999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 46.84199999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "typescript-port",
+              "observedWallMs": 36.50116,
+              "operationWallMs": 0.8671690000000041,
+              "ordinal": 56,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55136256,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 37.742,
+                  "unit": "bytes",
+                  "userCpuMs": 16.774
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 60.728202,
+              "operationWallMs": 0.138016,
+              "ordinal": 57,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22548480,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 11.573,
+                  "unit": "bytes",
+                  "userCpuMs": 46.294999999999995
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "typescript-port",
+              "observedWallMs": 34.078435,
+              "operationWallMs": 0.795066000000002,
+              "ordinal": 58,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 54964224,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 17.922,
+                  "unit": "bytes",
+                  "userCpuMs": 33.283
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "typescript-port",
+              "observedWallMs": 34.002592,
+              "operationWallMs": 0.8916550000000001,
+              "ordinal": 59,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 55275520,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 28.849999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 20.607
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 56.649431,
+              "operationWallMs": 0.132476,
+              "ordinal": 60,
+              "outputDigest": "11ef66c0dd52afbf46123c17344f0ef080519899cb83a05e96f34bc061d3dfe0",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 22503424,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.786,
+                  "unit": "bytes",
+                  "userCpuMs": 46.71699999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            }
+          ],
+          "conclusion": "python-faster",
+          "pairedRatio": {
+            "ci95": [
+              0.15745547193680995,
+              0.17266253298794088
+            ],
+            "leftCondition": "python-lizard-1.24",
+            "ratios": [
+              0.1841730359832186,
+              0.1299347670301241,
+              0.1647108369992883,
+              0.15786170498369573,
+              0.16130756199026552,
+              0.15745547193680995,
+              0.16296251058545788,
+              0.14059481663509718,
+              0.13845029973492973,
+              0.19964491628723616,
+              0.17266253298794088,
+              0.1833140822154119,
+              0.15819132054940502,
+              0.206550364012714,
+              0.16059547562512613
+            ],
+            "rightCondition": "typescript-port",
+            "statisticWallScope": "counted-operation"
+          },
+          "statistics": {
+            "left": {
+              "condition": "python-lizard-1.24",
+              "iqr": 0.02088149999999997,
+              "max": 0.227001,
+              "median": 0.13576149999999998,
+              "min": 0.128158,
+              "outliers": [
+                0.186216,
+                0.186767,
+                0.227001
+              ],
+              "p90": 0.1840155
+            },
+            "right": {
+              "condition": "typescript-port",
+              "iqr": 0.1445484999999982,
+              "max": 1.2423459999999977,
+              "median": 0.8430750000000007,
+              "min": 0.649556000000004,
+              "outliers": [
+                1.1889270000000032,
+                1.2423459999999977
+              ],
+              "p90": 1.1152833000000015
+            }
+          },
+          "resourceComparison": "not-comparable: supervisor CPU/RSS are whole-target session diagnostics; RSS is max single-process only.",
+          "status": "comparable-wall-only",
+          "temperature": "warmed-operation"
+        },
+        {
+          "workload": "representative-batch",
+          "input": {
+            "byteCount": 316160,
+            "fileCount": 3456,
+            "sourceDigest": "80673dc8987ce31597b18b59c6174c889715e52b8eda52e8ada1f6dd51f2016d"
+          },
+          "preflight": {
+            "equal": true,
+            "pythonDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+            "typescriptDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+            "pythonVersion": "1.24.0"
+          },
+          "samples": [
+            {
+              "block": 1,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 742.759311,
+              "operationWallMs": 306.57335,
+              "ordinal": 1,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27754496,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 36.013,
+                  "unit": "bytes",
+                  "userCpuMs": 700.272
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 1,
+              "condition": "typescript-port",
+              "observedWallMs": 1503.90356,
+              "operationWallMs": 634.902803,
+              "ordinal": 2,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 142897152,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 353.09799999999996,
+                  "unit": "bytes",
+                  "userCpuMs": 1804.7230000000002
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 1,
+              "condition": "typescript-port",
+              "observedWallMs": 1544.651103,
+              "operationWallMs": 649.19447,
+              "ordinal": 3,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141406208,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 319.106,
+                  "unit": "bytes",
+                  "userCpuMs": 1854.0489999999998
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 1,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 616.365966,
+              "operationWallMs": 265.801914,
+              "ordinal": 4,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27639808,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 39.887,
+                  "unit": "bytes",
+                  "userCpuMs": 574.3739999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "typescript-port",
+              "observedWallMs": 1431.566083,
+              "operationWallMs": 632.923815,
+              "ordinal": 5,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 140947456,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 349.23099999999994,
+                  "unit": "bytes",
+                  "userCpuMs": 1675.5240000000001
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 614.247704,
+              "operationWallMs": 261.021777,
+              "ordinal": 6,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27848704,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 23.941999999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 586.58
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 610.895133,
+              "operationWallMs": 262.32635,
+              "ordinal": 7,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27779072,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 23.897,
+                  "unit": "bytes",
+                  "userCpuMs": 581.499
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 2,
+              "condition": "typescript-port",
+              "observedWallMs": 1435.153421,
+              "operationWallMs": 627.715155,
+              "ordinal": 8,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 145096704,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 302.058,
+                  "unit": "bytes",
+                  "userCpuMs": 1722.551
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 610.271451,
+              "operationWallMs": 261.996996,
+              "ordinal": 9,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27844608,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.878,
+                  "unit": "bytes",
+                  "userCpuMs": 588.4
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "typescript-port",
+              "observedWallMs": 1456.402194,
+              "operationWallMs": 628.2699439999999,
+              "ordinal": 10,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 148553728,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 347.56199999999995,
+                  "unit": "bytes",
+                  "userCpuMs": 1733.907
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "typescript-port",
+              "observedWallMs": 1444.890282,
+              "operationWallMs": 626.907977,
+              "ordinal": 11,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141393920,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 353.759,
+                  "unit": "bytes",
+                  "userCpuMs": 1709.177
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 3,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 621.972855,
+              "operationWallMs": 271.345561,
+              "ordinal": 12,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27844608,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 11.967,
+                  "unit": "bytes",
+                  "userCpuMs": 606.352
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "typescript-port",
+              "observedWallMs": 1430.291079,
+              "operationWallMs": 611.82162,
+              "ordinal": 13,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 151511040,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 240.999,
+                  "unit": "bytes",
+                  "userCpuMs": 1842.22
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 623.09227,
+              "operationWallMs": 276.266284,
+              "ordinal": 14,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27729920,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.941999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 601.842
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 606.111611,
+              "operationWallMs": 261.482371,
+              "ordinal": 15,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27779072,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.911999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 584.777
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 4,
+              "condition": "typescript-port",
+              "observedWallMs": 1466.693418,
+              "operationWallMs": 638.320939,
+              "ordinal": 16,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141045760,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 326.561,
+                  "unit": "bytes",
+                  "userCpuMs": 1752.2820000000002
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 613.003082,
+              "operationWallMs": 262.94629,
+              "ordinal": 17,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27832320,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.965999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 591.0099999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "typescript-port",
+              "observedWallMs": 1447.06853,
+              "operationWallMs": 631.047185,
+              "ordinal": 18,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141631488,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 322.818,
+                  "unit": "bytes",
+                  "userCpuMs": 1724.424
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "typescript-port",
+              "observedWallMs": 1455.081272,
+              "operationWallMs": 633.4951199999999,
+              "ordinal": 19,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 144752640,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 310.959,
+                  "unit": "bytes",
+                  "userCpuMs": 1744.606
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 5,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 612.404274,
+              "operationWallMs": 267.166944,
+              "ordinal": 20,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27779072,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.910999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 592.716
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "typescript-port",
+              "observedWallMs": 1441.5044,
+              "operationWallMs": 631.482838,
+              "ordinal": 21,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 142680064,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 360.30899999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 1668.388
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 611.97614,
+              "operationWallMs": 263.381801,
+              "ordinal": 22,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27635712,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 23.861,
+                  "unit": "bytes",
+                  "userCpuMs": 584.6139999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 611.390622,
+              "operationWallMs": 264.460643,
+              "ordinal": 23,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27901952,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.877,
+                  "unit": "bytes",
+                  "userCpuMs": 588.3689999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 6,
+              "condition": "typescript-port",
+              "observedWallMs": 1507.518215,
+              "operationWallMs": 682.672476,
+              "ordinal": 24,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 140918784,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 363.736,
+                  "unit": "bytes",
+                  "userCpuMs": 1749.978
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 636.819785,
+              "operationWallMs": 266.423836,
+              "ordinal": 25,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27635712,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 23.913,
+                  "unit": "bytes",
+                  "userCpuMs": 609.792
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "typescript-port",
+              "observedWallMs": 1663.800132,
+              "operationWallMs": 805.7230430000001,
+              "ordinal": 26,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 147083264,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 400.54,
+                  "unit": "bytes",
+                  "userCpuMs": 1914.582
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "typescript-port",
+              "observedWallMs": 1764.862814,
+              "operationWallMs": 735.170166,
+              "ordinal": 27,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 140521472,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 392.705,
+                  "unit": "bytes",
+                  "userCpuMs": 2083.742
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 7,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 618.548702,
+              "operationWallMs": 262.159372,
+              "ordinal": 28,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27901952,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 27.977999999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 587.5519999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "typescript-port",
+              "observedWallMs": 1433.728775,
+              "operationWallMs": 624.2490640000001,
+              "ordinal": 29,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 140480512,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 382.72599999999994,
+                  "unit": "bytes",
+                  "userCpuMs": 1629.547
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 612.018491,
+              "operationWallMs": 262.547754,
+              "ordinal": 30,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27910144,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 31.828999999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 576.9179999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 615.493116,
+              "operationWallMs": 261.932972,
+              "ordinal": 31,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27836416,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 11.979999999999999,
+                  "unit": "bytes",
+                  "userCpuMs": 599.0360000000001
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 8,
+              "condition": "typescript-port",
+              "observedWallMs": 1463.993402,
+              "operationWallMs": 631.5179159999999,
+              "ordinal": 32,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 148840448,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 362.52299999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 1715.943
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 605.628069,
+              "operationWallMs": 260.035297,
+              "ordinal": 33,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27639808,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.988,
+                  "unit": "bytes",
+                  "userCpuMs": 579.6709999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "typescript-port",
+              "observedWallMs": 1449.952592,
+              "operationWallMs": 641.6949660000001,
+              "ordinal": 34,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141983744,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 338.19,
+                  "unit": "bytes",
+                  "userCpuMs": 1722.78
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "typescript-port",
+              "observedWallMs": 1465.810214,
+              "operationWallMs": 637.0008349999999,
+              "ordinal": 35,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141066240,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 297.636,
+                  "unit": "bytes",
+                  "userCpuMs": 1753.203
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 9,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 617.010768,
+              "operationWallMs": 268.080555,
+              "ordinal": 36,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27832320,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 31.955,
+                  "unit": "bytes",
+                  "userCpuMs": 583.1919999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "typescript-port",
+              "observedWallMs": 1443.246993,
+              "operationWallMs": 633.073195,
+              "ordinal": 37,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 143151104,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 300.77,
+                  "unit": "bytes",
+                  "userCpuMs": 1751.058
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 613.344626,
+              "operationWallMs": 261.668458,
+              "ordinal": 38,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27869184,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 23.927,
+                  "unit": "bytes",
+                  "userCpuMs": 586.2109999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 603.235499,
+              "operationWallMs": 262.208063,
+              "ordinal": 39,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27852800,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.934999999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 585.625
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 10,
+              "condition": "typescript-port",
+              "observedWallMs": 1460.359018,
+              "operationWallMs": 620.62073,
+              "ordinal": 40,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141103104,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 287.92400000000004,
+                  "unit": "bytes",
+                  "userCpuMs": 1767.533
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 607.745031,
+              "operationWallMs": 261.399293,
+              "ordinal": 41,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27910144,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 7.988,
+                  "unit": "bytes",
+                  "userCpuMs": 595.136
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "typescript-port",
+              "observedWallMs": 1485.683107,
+              "operationWallMs": 644.232925,
+              "ordinal": 42,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141717504,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 254.98399999999998,
+                  "unit": "bytes",
+                  "userCpuMs": 1828.716
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "typescript-port",
+              "observedWallMs": 1463.351512,
+              "operationWallMs": 636.0143210000001,
+              "ordinal": 43,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 140951552,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 360.15799999999996,
+                  "unit": "bytes",
+                  "userCpuMs": 1705.804
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 11,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 612.670489,
+              "operationWallMs": 268.069561,
+              "ordinal": 44,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27586560,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 23.802999999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 583.18
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "typescript-port",
+              "observedWallMs": 1470.769982,
+              "operationWallMs": 640.887906,
+              "ordinal": 45,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 145747968,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 335.673,
+                  "unit": "bytes",
+                  "userCpuMs": 1760.237
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 621.085349,
+              "operationWallMs": 268.664294,
+              "ordinal": 46,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27779072,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.97,
+                  "unit": "bytes",
+                  "userCpuMs": 599.128
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 613.846297,
+              "operationWallMs": 264.716526,
+              "ordinal": 47,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27774976,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 11.951,
+                  "unit": "bytes",
+                  "userCpuMs": 597.554
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 12,
+              "condition": "typescript-port",
+              "observedWallMs": 1438.906278,
+              "operationWallMs": 626.676074,
+              "ordinal": 48,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 140763136,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 332.16999999999996,
+                  "unit": "bytes",
+                  "userCpuMs": 1705.962
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 615.433878,
+              "operationWallMs": 261.293415,
+              "ordinal": 49,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27910144,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 27.892,
+                  "unit": "bytes",
+                  "userCpuMs": 585.7379999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "typescript-port",
+              "observedWallMs": 1506.672392,
+              "operationWallMs": 691.8281509999999,
+              "ordinal": 50,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 142262272,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 322.502,
+                  "unit": "bytes",
+                  "userCpuMs": 1788.049
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "typescript-port",
+              "observedWallMs": 1422.099266,
+              "operationWallMs": 616.5155269999999,
+              "ordinal": 51,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 144412672,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 315.854,
+                  "unit": "bytes",
+                  "userCpuMs": 1692.654
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 13,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 601.69424,
+              "operationWallMs": 260.132207,
+              "ordinal": 52,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27832320,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 35.997,
+                  "unit": "bytes",
+                  "userCpuMs": 563.958
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "typescript-port",
+              "observedWallMs": 1415.651219,
+              "operationWallMs": 610.334815,
+              "ordinal": 53,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141496320,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 318.104,
+                  "unit": "bytes",
+                  "userCpuMs": 1681.9759999999999
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 616.179185,
+              "operationWallMs": 273.436926,
+              "ordinal": 54,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27652096,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 12.024,
+                  "unit": "bytes",
+                  "userCpuMs": 601.237
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 602.272312,
+              "operationWallMs": 260.678072,
+              "ordinal": 55,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27848704,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 20.022,
+                  "unit": "bytes",
+                  "userCpuMs": 580.665
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 14,
+              "condition": "typescript-port",
+              "observedWallMs": 1415.63521,
+              "operationWallMs": 610.084722,
+              "ordinal": 56,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 141578240,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 330.538,
+                  "unit": "bytes",
+                  "userCpuMs": 1656.674
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 593.14336,
+              "operationWallMs": 257.139143,
+              "ordinal": 57,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27836416,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 15.92,
+                  "unit": "bytes",
+                  "userCpuMs": 573.124
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "typescript-port",
+              "observedWallMs": 1395.510523,
+              "operationWallMs": 603.0201690000001,
+              "ordinal": 58,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 146059264,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 334.416,
+                  "unit": "bytes",
+                  "userCpuMs": 1632.2679999999998
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "typescript-port",
+              "observedWallMs": 1472.842536,
+              "operationWallMs": 624.946499,
+              "ordinal": 59,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 143896576,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 391.551,
+                  "unit": "bytes",
+                  "userCpuMs": 1698.0520000000001
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            },
+            {
+              "block": 15,
+              "condition": "python-lizard-1.24",
+              "observedWallMs": 605.957901,
+              "operationWallMs": 258.948322,
+              "ordinal": 60,
+              "outputDigest": "cdb07113214d24a7526318363223f730c7358be9dac2a66e4d648eef6e0b4b7d",
+              "sessionDiagnostics": {
+                "resource": {
+                  "cpuScope": "target-process-plus-reaped-descendants; Linux wait4",
+                  "peakRssBytes": 27684864,
+                  "peakRssScope": "max-single-process-rss; Linux wait4 ru_maxrss KiB; not tree aggregate",
+                  "systemCpuMs": 19.892999999999997,
+                  "unit": "bytes",
+                  "userCpuMs": 580.898
+                }
+              },
+              "status": "complete",
+              "stderr": ""
+            }
+          ],
+          "conclusion": "python-faster",
+          "pairedRatio": {
+            "ci95": [
+              0.41296618471696594,
+              0.4248488789456847
+            ],
+            "leftCondition": "python-lizard-1.24",
+            "ratios": [
+              0.44463661547078653,
+              0.4151473821364292,
+              0.4248488789456847,
+              0.43008390959724613,
+              0.4192010207121311,
+              0.4019633283043277,
+              0.34338585632286506,
+              0.41766439211660256,
+              0.41296618471696594,
+              0.41788675574977024,
+              0.4135433582610434,
+              0.4208069540172221,
+              0.399199667573502,
+              0.43752380270984065,
+              0.420342504820574
+            ],
+            "rightCondition": "typescript-port",
+            "statisticWallScope": "counted-operation"
+          },
+          "statistics": {
+            "left": {
+              "condition": "python-lizard-1.24",
+              "iqr": 5.561104499999942,
+              "max": 306.57335,
+              "median": 262.437052,
+              "min": 257.139143,
+              "outliers": [
+                276.266284,
+                306.57335
+              ],
+              "p90": 271.5546975
+            },
+            "right": {
+              "condition": "typescript-port",
+              "iqr": 14.867271500000015,
+              "max": 805.7230430000001,
+              "median": 632.2208655,
+              "min": 603.0201690000001,
+              "outliers": [
+                603.0201690000001,
+                682.672476,
+                691.8281509999999,
+                735.170166,
+                805.7230430000001
+              ],
+              "p90": 683.5880435
+            }
+          },
+          "resourceComparison": "not-comparable: supervisor CPU/RSS are whole-target session diagnostics; RSS is max single-process only.",
+          "status": "comparable-wall-only",
+          "temperature": "warmed-operation"
+        }
+      ]
+    }
+  ],
+  "machine": {
+    "arch": "x64",
+    "bun": "1.3.14",
+    "platform": "linux",
+    "supervisorPython": "Python 3.14.7"
+  },
+  "mode": "full",
+  "temperature": "warmed-operation",
+  "protocol": {
+    "abbaBlocks": 15,
+    "cold": "Each counted sample is a fresh direct-child target process after untimed equality preflight.",
+    "warm": "Each counted operation follows one uncounted same-process analysis. RSS remains a whole target/session diagnostic, not a per-operation peak.",
+    "practicalEquivalenceBand": [
+      0.95,
+      1.05
+    ],
+    "resource": "CPU is Linux wait4 target plus reaped descendants; RSS is max single process RSS, never a tree aggregate."
+  }
+}
