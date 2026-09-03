@@ -1,0 +1,443 @@
+{
+  "schemaVersion": 1,
+  "projectNodeEngineRange": ">=24 <25",
+  "executionEnvironment": {
+    "orchestrator": "mise exec -- python3",
+    "nodeExecutable": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node",
+    "nodeVersion": "v24.18.0",
+    "v8": "13.6.233.17-node.50",
+    "bun": "1.3.14"
+  },
+  "engineControl": {
+    "schemaVersion": 1,
+    "formedAt": "2026-09-03T12:26:19Z",
+    "protocol": "Each fresh Node/Bun child imports the same TS driver and source port, verifies an exact mode preflight, runs one uncounted same-process warmup, times a second operation, then validates its output outside the timer. In matcher mode the exact SHA-256 raw (text, UTF-16 start) digest runs both before and after the operation; operationMs times only fields (text.length + match.index), never SHA. Token/full guards likewise hash after the timer. 8 per-mode ABBA/BAAB blocks; child observedWall includes runtime startup/TS stripping/import, operationMs does not.",
+    "input": {
+      "request": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+      "requestSha256": "71029f6bf4f38e14f9ebae4923822dda751b9a2101da68fab8bde6f882c90a4d"
+    },
+    "environment": {
+      "python": "3.14.7",
+      "platform": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+      "cpuCount": 6
+    },
+    "results": {
+      "matcher": {
+        "perRuntime": {
+          "node": {
+            "operation": {
+              "n": 16,
+              "medianMs": 12.58445949999998,
+              "p10Ms": 12.348021500000002,
+              "p90Ms": 13.372342000000003,
+              "minMs": 12.159084999999948,
+              "maxMs": 21.727471000000037
+            },
+            "observedWall": {
+              "n": 16,
+              "medianMs": 356.552281,
+              "p10Ms": 346.906741,
+              "p90Ms": 373.5769155,
+              "minMs": 338.004751,
+              "maxMs": 381.545739
+            },
+            "runtimeIdentity": {
+              "engine": "v8",
+              "node": "v24.18.0",
+              "v8": "13.6.233.17-node.50"
+            },
+            "preflight": {
+              "count": 296074,
+              "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e",
+              "fieldSum": 1390525889,
+              "exact": true
+            }
+          },
+          "bun": {
+            "operation": {
+              "n": 16,
+              "medianMs": 439.3797229999999,
+              "p10Ms": 431.48026100000027,
+              "p90Ms": 445.1265735000002,
+              "minMs": 430.2444499999999,
+              "maxMs": 473.4868509999999
+            },
+            "observedWall": {
+              "n": 16,
+              "medianMs": 2931.5101985,
+              "p10Ms": 2899.440401,
+              "p90Ms": 2957.7799299999997,
+              "minMs": 2862.429945,
+              "maxMs": 2965.606542
+            },
+            "runtimeIdentity": {
+              "bun": "1.3.14",
+              "engine": "jsc",
+              "nodeCompatibility": "v24.3.0"
+            },
+            "preflight": {
+              "count": 296074,
+              "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e",
+              "fieldSum": 1390525889,
+              "exact": true
+            }
+          }
+        },
+        "paired": [
+          {
+            "block": 1,
+            "nodeGeomeanMs": 12.59177274375552,
+            "bunGeomeanMs": 441.8145142505143,
+            "nodeDividedByBun": 0.02850013373851233
+          },
+          {
+            "block": 2,
+            "nodeGeomeanMs": 13.040794948710369,
+            "bunGeomeanMs": 438.1482980646478,
+            "nodeDividedByBun": 0.029763427146272354
+          },
+          {
+            "block": 3,
+            "nodeGeomeanMs": 12.355621614005269,
+            "bunGeomeanMs": 437.653366396286,
+            "nodeDividedByBun": 0.028231524221425754
+          },
+          {
+            "block": 4,
+            "nodeGeomeanMs": 12.974138393177027,
+            "bunGeomeanMs": 458.79855824667874,
+            "nodeDividedByBun": 0.028278507331754344
+          },
+          {
+            "block": 5,
+            "nodeGeomeanMs": 12.495184452057023,
+            "bunGeomeanMs": 442.83203493001866,
+            "nodeDividedByBun": 0.028216532378990272
+          },
+          {
+            "block": 6,
+            "nodeGeomeanMs": 12.436370819592351,
+            "bunGeomeanMs": 437.5251100710741,
+            "nodeDividedByBun": 0.028424359044380596
+          },
+          {
+            "block": 7,
+            "nodeGeomeanMs": 17.015228066668822,
+            "bunGeomeanMs": 433.25872555251505,
+            "nodeDividedByBun": 0.039272672569883225
+          },
+          {
+            "block": 8,
+            "nodeGeomeanMs": 12.795888151200067,
+            "bunGeomeanMs": 433.53265194120456,
+            "nodeDividedByBun": 0.029515396577177392
+          }
+        ],
+        "pairedNodeDividedByBunMedian": 0.028462246391446462
+      },
+      "tokens": {
+        "perRuntime": {
+          "node": {
+            "operation": {
+              "n": 16,
+              "medianMs": 69.26525499999997,
+              "p10Ms": 66.09552599999998,
+              "p90Ms": 74.03840600000001,
+              "minMs": 62.67411699999997,
+              "maxMs": 107.57726500000001
+            },
+            "observedWall": {
+              "n": 16,
+              "medianMs": 434.4054215,
+              "p10Ms": 427.907709,
+              "p90Ms": 452.01365,
+              "minMs": 427.046671,
+              "maxMs": 730.519565
+            },
+            "runtimeIdentity": {
+              "engine": "v8",
+              "node": "v24.18.0",
+              "v8": "13.6.233.17-node.50"
+            },
+            "preflight": {
+              "count": 295156,
+              "chars": 1127427,
+              "digest": "a3a71bd5022b4d6b9f15d2bd24b4947ff9e3c61d7395794be82042b3635fff98",
+              "exact": true
+            }
+          },
+          "bun": {
+            "operation": {
+              "n": 16,
+              "medianMs": 489.318084,
+              "p10Ms": 476.54741649999994,
+              "p90Ms": 504.22612449999997,
+              "minMs": 473.6455780000001,
+              "maxMs": 598.429314
+            },
+            "observedWall": {
+              "n": 16,
+              "medianMs": 1861.6190705,
+              "p10Ms": 1828.742045,
+              "p90Ms": 1897.260491,
+              "minMs": 1811.818309,
+              "maxMs": 2086.808359
+            },
+            "runtimeIdentity": {
+              "bun": "1.3.14",
+              "engine": "jsc",
+              "nodeCompatibility": "v24.3.0"
+            },
+            "preflight": {
+              "count": 295156,
+              "chars": 1127427,
+              "digest": "a3a71bd5022b4d6b9f15d2bd24b4947ff9e3c61d7395794be82042b3635fff98",
+              "exact": true
+            }
+          }
+        },
+        "paired": [
+          {
+            "block": 1,
+            "nodeGeomeanMs": 82.11157100646658,
+            "bunGeomeanMs": 534.4544096218553,
+            "nodeDividedByBun": 0.15363624946899268
+          },
+          {
+            "block": 2,
+            "nodeGeomeanMs": 74.03660849761484,
+            "bunGeomeanMs": 488.0628991265443,
+            "nodeDividedByBun": 0.15169480948073194
+          },
+          {
+            "block": 3,
+            "nodeGeomeanMs": 67.21576852457711,
+            "bunGeomeanMs": 491.55402961661866,
+            "nodeDividedByBun": 0.1367413640714149
+          },
+          {
+            "block": 4,
+            "nodeGeomeanMs": 68.16943262553423,
+            "bunGeomeanMs": 480.10853849771735,
+            "nodeDividedByBun": 0.14198754481401155
+          },
+          {
+            "block": 5,
+            "nodeGeomeanMs": 69.37416490495944,
+            "bunGeomeanMs": 482.08111984027056,
+            "nodeDividedByBun": 0.14390558362448502
+          },
+          {
+            "block": 6,
+            "nodeGeomeanMs": 68.94162681602518,
+            "bunGeomeanMs": 489.1685782063813,
+            "nodeDividedByBun": 0.1409363354220568
+          },
+          {
+            "block": 7,
+            "nodeGeomeanMs": 70.28013572427655,
+            "bunGeomeanMs": 495.35026947322575,
+            "nodeDividedByBun": 0.14187967596952175
+          },
+          {
+            "block": 8,
+            "nodeGeomeanMs": 67.6759837943013,
+            "bunGeomeanMs": 504.19470639198806,
+            "nodeDividedByBun": 0.13422589118118658
+          }
+        ],
+        "pairedNodeDividedByBunMedian": 0.14193361039176666
+      },
+      "full": {
+        "perRuntime": {
+          "node": {
+            "operation": {
+              "n": 16,
+              "medianMs": 128.7949535,
+              "p10Ms": 123.66537299999999,
+              "p90Ms": 133.4682135,
+              "minMs": 122.47337200000004,
+              "maxMs": 142.62226200000003
+            },
+            "observedWall": {
+              "n": 16,
+              "medianMs": 560.0384690000001,
+              "p10Ms": 549.5316565,
+              "p90Ms": 583.2952640000001,
+              "minMs": 544.964213,
+              "maxMs": 641.936035
+            },
+            "runtimeIdentity": {
+              "engine": "v8",
+              "node": "v24.18.0",
+              "v8": "13.6.233.17-node.50"
+            },
+            "preflight": {
+              "count": 2222,
+              "digest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+              "exact": true
+            }
+          },
+          "bun": {
+            "operation": {
+              "n": 16,
+              "medianMs": 636.8494640000001,
+              "p10Ms": 625.6331210000001,
+              "p90Ms": 664.6807655,
+              "minMs": 621.4716470000001,
+              "maxMs": 689.0816560000001
+            },
+            "observedWall": {
+              "n": 16,
+              "medianMs": 2065.4872725,
+              "p10Ms": 2022.2890985,
+              "p90Ms": 2101.9306885,
+              "minMs": 2020.92661,
+              "maxMs": 2339.111771
+            },
+            "runtimeIdentity": {
+              "bun": "1.3.14",
+              "engine": "jsc",
+              "nodeCompatibility": "v24.3.0"
+            },
+            "preflight": {
+              "count": 2222,
+              "digest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+              "exact": true
+            }
+          }
+        },
+        "paired": [
+          {
+            "block": 1,
+            "nodeGeomeanMs": 130.44744184670233,
+            "bunGeomeanMs": 659.2739456628683,
+            "nodeDividedByBun": 0.1978653072897393
+          },
+          {
+            "block": 2,
+            "nodeGeomeanMs": 131.64275807808414,
+            "bunGeomeanMs": 625.6000496220564,
+            "nodeDividedByBun": 0.21042638688665938
+          },
+          {
+            "block": 3,
+            "nodeGeomeanMs": 126.92983429756144,
+            "bunGeomeanMs": 643.9948037073788,
+            "nodeDividedByBun": 0.1970976063267063
+          },
+          {
+            "block": 4,
+            "nodeGeomeanMs": 125.37705963260377,
+            "bunGeomeanMs": 629.6196734954401,
+            "nodeDividedByBun": 0.1991314199833557
+          },
+          {
+            "block": 5,
+            "nodeGeomeanMs": 129.00884310413116,
+            "bunGeomeanMs": 646.2714635452747,
+            "nodeDividedByBun": 0.19962020664880153
+          },
+          {
+            "block": 6,
+            "nodeGeomeanMs": 123.66535950503518,
+            "bunGeomeanMs": 646.2393223506149,
+            "nodeDividedByBun": 0.19136155171619373
+          },
+          {
+            "block": 7,
+            "nodeGeomeanMs": 132.0589106715147,
+            "bunGeomeanMs": 640.0370971082443,
+            "nodeDividedByBun": 0.20633008815921905
+          },
+          {
+            "block": 8,
+            "nodeGeomeanMs": 134.7982368580812,
+            "bunGeomeanMs": 648.6693138705683,
+            "nodeDividedByBun": 0.20780732798002843
+          }
+        ],
+        "pairedNodeDividedByBunMedian": 0.19937581331607862
+      }
+    },
+    "driverSha256": "c14eb5d7a17b24eb49434ac866c1b9191cd8bfef6383e14f274680c64c05f240"
+  },
+  "importControl": {
+    "protocol": "8 fresh-process ABBA/BAAB blocks. Parent wall surrounds only process start, loading/evaluating the identical two TypeScript analyzer modules, JSON ready output and exit; it is not an in-process operation or Product startup.",
+    "perRuntime": {
+      "node": {
+        "summary": {
+          "n": 16,
+          "medianMs": 99.1977795,
+          "p10Ms": 96.62611100000001,
+          "p90Ms": 105.78869900000001,
+          "minMs": 96.253686,
+          "maxMs": 112.542619
+        },
+        "identity": {
+          "engine": "v8",
+          "node": "v24.18.0",
+          "v8": "13.6.233.17-node.50"
+        }
+      },
+      "bun": {
+        "summary": {
+          "n": 16,
+          "medianMs": 26.3439785,
+          "p10Ms": 25.0512235,
+          "p90Ms": 27.39215,
+          "minMs": 24.85744,
+          "maxMs": 29.376488
+        },
+        "identity": {
+          "engine": "jsc",
+          "bun": "1.3.14",
+          "nodeCompatibility": "v24.3.0"
+        }
+      }
+    },
+    "pairedNodeDividedByBunMedian": 3.8100668302997844
+  },
+  "nodeTypeScriptAdmission": {
+    "positive": {
+      "command": "mise exec -- node node-bun-engine-driver.ts matcher <request>",
+      "result": {
+        "mode": "matcher",
+        "operationMs": 13.26712299999997,
+        "preflight": {
+          "count": 296074,
+          "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e",
+          "fieldSum": 1390525889,
+          "exact": true
+        },
+        "runtime": {
+          "engine": "v8",
+          "node": "v24.18.0",
+          "v8": "13.6.233.17-node.50"
+        }
+      },
+      "meaning": "Node 24 default type stripping directly runs the same TS source driver and validates the raw matcher exact guard."
+    },
+    "negative": {
+      "command": "mise exec -- node --no-experimental-strip-types node-bun-engine-driver.ts matcher <request>",
+      "exitCode": 1,
+      "stderrSha256": "b5e62a274377e8f13bd3be086f8c954ede4fd05edadee3ab60fce3055a6d7dfe",
+      "result": "ERR_UNKNOWN_FILE_EXTENSION for .ts",
+      "meaning": "The positive direct run relies on Node 24 default type stripping; this is an admission fact, not Product support evidence."
+    },
+    "existingHarness": {
+      "command": "mise exec -- node src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts <request>",
+      "result": "completed without error and emitted 2,222 metrics; exact canonical guard is established by the same-driver full control, not by this harness smoke alone"
+    }
+  },
+  "rawArtifacts": {
+    "engineAbbaPath": "/tmp/lizard-node24-bun-engine-abba-portable.json",
+    "engineAbbaSha256": "0e90dacf3392ff80afdf9f098f36bcb96a68267a1ee75d8c5462effead0e30a8",
+    "importAbbaPath": "/tmp/lizard-node24-bun-import-abba-portable.json",
+    "importAbbaSha256": "4f8d3345add2aee4679c58e3de93420c7eb584430076bf843e78aba41c51a011",
+    "admissionPath": "/tmp/lizard-node24-relative-driver-admission.json",
+    "admissionSha256": "47bd87a3a1db19bd718f836e098916b0b0b2df9d0eaf40f1ad7c08148803ca90",
+    "noStripStderrPath": "/tmp/lizard-node24-relative-driver-no-strip.stderr",
+    "noStripStderrSha256": "b5e62a274377e8f13bd3be086f8c954ede4fd05edadee3ab60fce3055a6d7dfe"
+  }
+}

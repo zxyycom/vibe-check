@@ -128,6 +128,7 @@
       "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:2968e8285b8a2be1ea9b93afd741477b63542fe9ca0b7332f347076451c515ed",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
+      "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md": "sha256:5d16e1818f3e5aea9a78f62f6ac57b9a02bb8ed139a020a469dfbb68c9984d71",
       "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:577d823f32c2ab8450d1bd065bbc2d4c093d5b7503323b185741389c03dd3066",
@@ -4163,6 +4164,39 @@
             "target": "use-single-typescript-project-definition.md"
           }
         ]
+      }
+    },
+    "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md": {
+      "keys": {
+        "tag": [
+          "dependency-policy",
+          "performance",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "unaligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md",
+        "title": "允许 Lizard port 使用证据闭合的宿主原语优化",
+        "status": "active",
+        "alignment": "unaligned",
+        "createdAt": "2026-09-03T09:06:06Z",
+        "purpose": "将 source alignment 约束在可观察分析语义，而不把 JavaScript 内建原语误作不可替换的上游契约。",
+        "background": "真实 TypeScript 语料已将主要热点定位到 Bun 上的组合正则扫描，底层库可能在不改变 analyzer 语义时改善执行成本。",
+        "decision": "允许私有 Lizard port 以经过兼容性、parity、打包和性能验证的实现或依赖替换宿主原语，并将差异显式纳入 deviation evidence。",
+        "tags": [
+          "dependency-policy",
+          "performance",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "post-process-project-gate-with-owned-context.md": {

@@ -1,0 +1,104 @@
+{
+  "reMaxCache": 512,
+  "cacheBeforeFirst": 0,
+  "first": {
+    "ms": 292.23661,
+    "trueCompiles": 21,
+    "cacheAfter": 21,
+    "patterns": [
+      {
+        "pattern": ".*\\.(c|cpp|cc|cxx|h|hpp)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(java)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(cs)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(js|cjs|mjs)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(py)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(m|mm)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(ttcn|ttcnpp)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(rb)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(php)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(swift)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(scala)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(gd)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(go)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(lua)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(rs)$",
+        "flags": 2
+      },
+      {
+        "pattern": ".*\\.(ts)$",
+        "flags": 2
+      },
+      {
+        "pattern": "\\/(\\S*?[^\\s\\\\]\\/)+?(igm)*",
+        "flags": 0
+      },
+      {
+        "pattern": "\\(\\?[aiLmsux]+\\)",
+        "flags": 0
+      },
+      {
+        "pattern": "(?:\\/\\*.*?\\*\\/|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?)|`.*?`|(?:\\d+\\')+\\d+|0x(?:[0-9A-Fa-f]+\\')+[0-9A-Fa-f]+|0b(?:[01]+\\')+[01]+|\\w",
+        "flags": 24
+      },
+      {
+        "pattern": "(\\w+)(\\s=.*)?(\\s:.*)?$",
+        "flags": 0
+      },
+      {
+        "pattern": "^[igm]+$",
+        "flags": 0
+      }
+    ],
+    "digest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6"
+  },
+  "second": {
+    "ms": 281.31079,
+    "trueCompiles": 0,
+    "cacheAfter": 21,
+    "patterns": [],
+    "digest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6"
+  },
+  "metrics": 2222
+}

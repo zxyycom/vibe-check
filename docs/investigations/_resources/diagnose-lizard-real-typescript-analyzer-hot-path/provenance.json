@@ -1,0 +1,176 @@
+{
+  "consolidationTimeTargetIdentity": {
+    "capturedAt": "2026-09-03T08:48:45+00:00",
+    "gitHead": "49b57cbf99747d516c4d95390b5d01ffb2f2b40d",
+    "gitTree": "c4812449ad73fb208b066c397d024c09f219e4c3",
+    "sourceSha256": {
+      "src/package-checks/function-metrics/analyzer/port-facade.ts": "26e302c377b39cc68374404ebcdd539e84d6002bfa821231b92a98c1918b0c1b",
+      "src/package-checks/function-metrics/analyzer/core.ts": "2bcc83752ceb4bb20a798f8026cfa539da49ab7c6dc6f1cf31f0c7e68177bba1",
+      "src/package-checks/function-metrics/analyzer/shared/code-reader.ts": "571bd9622d64d750296e1637a39527a0fe5ba9d9779512e2be60da287d9ae86e",
+      "src/package-checks/function-metrics/analyzer/readers/typescript.ts": "340ec37de2f9eabe147d0ebef8fff115cb0f61a100b640dcb8975b1c896bcbe0"
+    },
+    "limitation": "This identifies the worktree while this consolidated report was assembled. The copied raw evidence does not embed a Git HEAD, Git tree, or source-file hashes at execution time, so it cannot retroactively prove that the profile/counterfactual commands ran against this exact identity."
+  },
+  "formedFrom": {
+    "typescriptRawDirectory": "/tmp/vibe-lizard-real-ts-profile-20260903",
+    "pythonRawDirectory": "/tmp/vibe-check-python-lizard-real-ts-profile",
+    "copiedAt": "2026-09-03",
+    "copiedFiles": [
+      {
+        "path": "python-cprofile-tottime.txt",
+        "sha256": "9ae6457e6d069305d2ac25cfd0164a3738f61c27f8a9e803f3674de6c04169cc",
+        "bytes": 10655,
+        "normalization": "Removed two trailing blank lines while preserving every cProfile row."
+      },
+      {
+        "path": "python-profile-driver.py",
+        "sha256": "3a6cbb7b95250c4cf6cbfc87b509f41e0d4d33f424518bf0fb502284dc3e1e4f",
+        "bytes": 9299
+      },
+      {
+        "path": "python-profile-evidence.json",
+        "sha256": "027d6f80ed1a73fb21579aefad7d6d999652e97cb7775488b1c43d1cfeb4e0e8",
+        "bytes": 14900
+      },
+      {
+        "path": "python-regexp-cache-driver.py",
+        "sha256": "3d2b03c95c314542c9e6fb0dc2554def795141aa5881d5605355eeb716e391c9",
+        "bytes": 1776
+      },
+      {
+        "path": "python-regexp-cache.json",
+        "sha256": "3906acb7fcd4296df9614e0fa642de9029a7891246f26f6139d9f2df1b853dc4",
+        "bytes": 2107
+      },
+      {
+        "path": "python-stage-driver.py",
+        "sha256": "1d0fd9666d0c975b407f0a898e7c12857d1f4210b55c766ac4bfb3d6e9ac5dee",
+        "bytes": 4253
+      },
+      {
+        "path": "python-stage-measurement.json",
+        "sha256": "9f5c7203063abe991f6e98f7a7f4829fdc445aa77be5b232f1a790e4e669d25e",
+        "bytes": 3194
+      },
+      {
+        "path": "typescript-base-tokenizer.json",
+        "sha256": "e9499c421e7782f207fe2badd7fa02f5d7c4e9a77a066097121bb255f2599ec5",
+        "bytes": 337
+      },
+      {
+        "path": "typescript-bun-cpu-profile.md",
+        "sha256": "fe6b431ec3e7da672de4ad8deedbefec3199ae69e6f1440770838de1634b1c3c",
+        "bytes": 184265
+      },
+      {
+        "path": "typescript-cpu-profile-run.json",
+        "sha256": "fa2fcaf0a42e11d9cb04c33202ff92c5dbe318ed7dc38b8128bc79c8ee2fbc77",
+        "bytes": 137
+      },
+      {
+        "path": "typescript-facade-direct-counterfactual.json",
+        "sha256": "280a3d324e10928810553c72932096601e92f9acf4b239ae84567adf7fafd28a",
+        "bytes": 1351
+      },
+      {
+        "path": "typescript-facade-direct-driver.ts",
+        "sha256": "ee3347d6150a7f018ca046b18b2e6b2e58e671220502ce7018822f42ef810b3a",
+        "bytes": 4967
+      },
+      {
+        "path": "typescript-fastpath-count.json",
+        "sha256": "26161287cdb42df3a4222170b601ac163f60bf76cde3c43d1dea2c3d4328e655",
+        "bytes": 166
+      },
+      {
+        "path": "typescript-ordered-resolver-counterfactual.json",
+        "sha256": "9d79c0d8614f88e91200c1b9a807b3aaa2206ba2b5bc460c6bf83a6b7691dcf5",
+        "bytes": 1337
+      },
+      {
+        "path": "typescript-profile-driver.ts",
+        "sha256": "a41db3c82dd3f7c4c3dff826a31f893d7a8c4348e27dd1c70930366ea75c6910",
+        "bytes": 5549
+      },
+      {
+        "path": "typescript-reader-only.jsonl",
+        "sha256": "ae8b4a9acdc0de550ace7acd5b7244071645f58f0d095aaddea613092ebbde64",
+        "bytes": 230
+      },
+      {
+        "path": "typescript-regexp-construction-driver.ts",
+        "sha256": "26980e5bd5e6307a8c30f12005afe330f98836f5e2a9218067085b7f7af3abaa",
+        "bytes": 1591
+      },
+      {
+        "path": "typescript-regexp-construction.json",
+        "sha256": "161cd99b6e7746897be43e600548b99cc5133266dba19b85165d6d27a1bc88a6",
+        "bytes": 509
+      },
+      {
+        "path": "typescript-regexp-count.json",
+        "sha256": "5c49876e6ea88650fdda4f0699bb089d55f3c00a0b87506f1e754cb63162a647",
+        "bytes": 153
+      },
+      {
+        "path": "typescript-stage-driver.ts",
+        "sha256": "289d76184c00ce060967a3f85d80e0d7fc4f7203c84fa3ba02ab5410d792f766",
+        "bytes": 4919
+      },
+      {
+        "path": "typescript-stage-timings.jsonl",
+        "sha256": "a52afd93e3427cf6a5cd08afbf61eb70bcef070cbbd1212e029277a7e0ba9792",
+        "bytes": 2125
+      },
+      {
+        "path": "typescript-tokenizer-only.jsonl",
+        "sha256": "754012dad780de2e9e2affe7fff80e2c39b8719095f52c44af45edcf2b376ad7",
+        "bytes": 315
+      }
+    ]
+  },
+  "notCopiedToAvoidDuplication": {
+    "reason": "The request and canonical metric outputs are already owned by the direct predecessor report; this report links to that report for their byte-verified inputs and canonical-output evidence.",
+    "predecessorResources": [
+      {
+        "path": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+        "sha256": "71029f6bf4f38e14f9ebae4923822dda751b9a2101da68fab8bde6f882c90a4d",
+        "bytes": 1203838
+      },
+      {
+        "path": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/corpus-manifest.json",
+        "sha256": "0a2d8a99c26859f46601f475a901aa5fd3c5003885873de9aa062d8ea49ffd5f",
+        "bytes": 47744
+      },
+      {
+        "path": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/preflight-canonical-metrics.json",
+        "sha256": "98a8a05143432159b65f6a426f6d374f3d79fe42006b8633edbbde224ff252d1",
+        "bytes": 993925
+      },
+      {
+        "path": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/evidence.json",
+        "sha256": "32dc7c869f9ee97550aecc77b0bff3ff6858dc099abb8e3a2a7fcb41a39014e4",
+        "bytes": 46058
+      },
+      {
+        "path": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/run-benchmark.py",
+        "sha256": "f2f3a3c2db5a7c3802b4f940effa2db6ed2b83faed2e349d7bdeec7f5acbe106",
+        "bytes": 8720
+      }
+    ]
+  },
+  "omittedRawFiles": [
+    {
+      "path": "/tmp/vibe-lizard-real-ts-profile-20260903/bun-facade.cpuprofile.cpuprofile",
+      "reason": "The human-readable CPU-profile rendering is copied; the binary sampling profile is omitted to keep the resource set minimal."
+    },
+    {
+      "path": "/tmp/vibe-check-python-lizard-real-ts-profile/normal-second-operation.pstats",
+      "reason": "The relevant cProfile tottime ranking is copied; the Python-specific binary stats are omitted."
+    },
+    {
+      "path": "/tmp/vibe-check-python-lizard-real-ts-profile/__pycache__/profile.cpython-312.pyc",
+      "reason": "Generated bytecode is not evidence."
+    }
+  ]
+}

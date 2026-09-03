@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "worktreeHead": "49b57cbf99747d516c4d95390b5d01ffb2f2b40d",
+  "measurementRuntimes": {
+    "bun": "1.3.14",
+    "cpython": "3.12.13",
+    "node": "v24.18.0",
+    "nodeV8": "13.6.233.17-node.50"
+  },
+  "synthesisHost": {
+    "python": "3.14.7"
+  },
+  "inputTemporaryReports": [
+    {
+      "path": "/tmp/lizard-py-ts-stage-breakdown.md",
+      "sha256": "a8a5799dc1ce622d7636ca728a72566f9ec999313d8a730fa973a3649870caf1"
+    },
+    {
+      "path": "/tmp/lizard-oniguruma-integration-cost.md",
+      "sha256": "e89260e4d1cce60c630d4b153745165139162d66eeb70aec600dd7eed6008d68"
+    },
+    {
+      "path": "/tmp/lizard-regex-backend-cli-survey.md",
+      "sha256": "7e4fc2ff04bac9b2879573412d12d56481eff698b9e1872b7cca0ba3308aab1a"
+    },
+    {
+      "path": "/tmp/lizard-regex-npm-second-pass.md",
+      "sha256": "834e4ca034bf93b51773567c95700e935dd09a97d602d01db9ad089829df20e2"
+    }
+  ],
+  "inputTemporaryArtifacts": [
+    {
+      "path": "/tmp/lizard-node24-bun-engine-abba-portable.json",
+      "sha256": "0e90dacf3392ff80afdf9f098f36bcb96a68267a1ee75d8c5462effead0e30a8"
+    },
+    {
+      "path": "/tmp/lizard-node24-bun-import-abba-portable.json",
+      "sha256": "4f8d3345add2aee4679c58e3de93420c7eb584430076bf843e78aba41c51a011"
+    },
+    {
+      "path": "/tmp/lizard-node24-relative-driver-admission.json",
+      "sha256": "47bd87a3a1db19bd718f836e098916b0b0b2df9d0eaf40f1ad7c08148803ca90"
+    },
+    {
+      "path": "/tmp/lizard-node24-relative-driver-no-strip.stderr",
+      "sha256": "b5e62a274377e8f13bd3be086f8c954ede4fd05edadee3ab60fce3055a6d7dfe"
+    }
+  ],
+  "resourceFiles": {
+    "evidence.json": "4a6bd4b3e7f2389a9e3b54b609e7cad035a7355cab29b627d4ae76ada70e67a1",
+    "node-bun-engine-abba.py": "fce8ec4f0349bec9bf96cec7eb18484dc2b40c3bee8ac7d2e520b8222372a891",
+    "node-bun-engine-driver.ts": "c14eb5d7a17b24eb49434ac866c1b9191cd8bfef6383e14f274680c64c05f240",
+    "node-bun-engine-summary.json": "560429c7f318a7898c80a40a26128bd160e1effad16170a04ed6a36a7253afe9",
+    "node-bun-import-abba.py": "3b119a9b7ca267d87d7627b7ca9545356507557d0dfac970fd8bc05072f078a6",
+    "node-bun-import-smoke.ts": "ea73aa17194cab437b271f4f5384c68e981eaf5574ebad0aa47c277ae01640e3",
+    "npm-regex-second-pass-native-probe.mjs": "c7230609d48d1047ce83336b4c38bb76255a99de898b4111ba7b84a093f9aaad",
+    "npm-regex-second-pass-onigasm-probe.mjs": "61f10583f8a06a2cbcc9447cce6d28a7c98fbc11423c72b62026dc84b3c47b36",
+    "npm-regex-second-pass-probe.mjs": "fc73f938a42c8fe4019e800268afd2e4202f2a8145a279f970ecc1379096e953",
+    "npm-regex-second-pass-re2-probe.mjs": "cda4c7386c3f09d4ddb51f97b4d508f13e1367264ff01b3217b05d335da43209",
+    "npm-regex-second-pass-summary.json": "8cb18ddc1a4f063f4863333a22389a3f96a6f31b9725264658fdd9ef17cb9c56",
+    "oniguruma-cold-raw-summary.json": "155aa4646e8f100a078522a6eb8f7786454e91305dedc27a70916e7913945e6a",
+    "oniguruma-cold-raw.ts": "2b1c782856a29c3e344c8a6c56aaefcda75d7fc6a51246ecf5c53042782f077c",
+    "oniguruma-integration-cost.json": "52f14f7f9b26a6615e9c5718a2d226e9e980d882955036ac48426655ed2e1731",
+    "oniguruma-integration-probe.ts": "7647176372c6cf41398a93c5449447820633d03e2dc8bf67a80f7d99e3a56da6",
+    "python-stage-breakdown.py": "b5df7bdc1edbecc7d6ff54b353aaf35e5f8a8762cdd9ac2d48a3003b58d81dd0",
+    "raw-token-abba.py": "5bd4f42f7c4d5fc3582d46f21a445513ed74362f48bfd1e19667af40a3343b2a",
+    "raw-token-bun.ts": "6a8a186249f9d7e6f6ccbdfd6fd7890206d066e37246d25d4be59f48b5516563",
+    "raw-token-python.py": "dba768db678e800c5292eb7dd65a0ca6edcda5e7f4f5350990b819acea021a23",
+    "rg-cli-bounded-control.json": "0041811deb638b77d4450c42155acd0db65be58a9f61a8ec1194b21813803b5c",
+    "rg-cli-bounded-control.mjs": "fc7e021b0ba15d38d27b73795291dacb09bafd92850b23cc67759754c5a3ea8d",
+    "typescript-stage-breakdown.ts": "bc0234864b8feb00a1cf0368994914f726161d808f3f2ad2a0475aedc37e2378"
+  }
+}

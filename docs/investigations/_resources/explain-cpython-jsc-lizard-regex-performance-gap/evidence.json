@@ -1,0 +1,2123 @@
+{
+  "schemaVersion": 1,
+  "formedAt": "2026-09-03T09:45:03+00:00",
+  "description": "Raw rows and guards retained from the CPython/JavaScriptCore Lizard tokenizer diagnosis. Each child object preserves its execution-time protocol.",
+  "corpus": {
+    "requestOwner": "docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+    "requestSha256": "71029f6bf4f38e14f9ebae4923822dda751b9a2101da68fab8bde6f882c90a4d",
+    "files": 254,
+    "utf8Bytes": 1138778
+  },
+  "bunRawScanner": {
+    "protocol": "all variants raw-scan the exact current TypeScriptReader combined source-aligned pattern; all validate identical raw token text+UTF-16 start digest. Each variant warmed once, then three cyclic orders.",
+    "bun": "1.3.14",
+    "patternChars": 393,
+    "flags": "gmsu",
+    "corpus": {
+      "files": 254,
+      "utf8Bytes": 1138778
+    },
+    "guard": {
+      "count": 296074,
+      "chars": 1126244,
+      "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+    },
+    "summary": {
+      "matchAllNew": {
+        "n": 3,
+        "medianMs": 502.96927499999947,
+        "p90Ms": 506.9578701999992,
+        "samplesMs": [445.52621100000033, 507.9550189999991, 502.96927499999947]
+      },
+      "matchAllReused": {
+        "n": 3,
+        "medianMs": 474.9386190000005,
+        "p90Ms": 502.5392814000006,
+        "samplesMs": [463.3436039999997, 509.43944700000065, 474.9386190000005]
+      },
+      "execNew": {
+        "n": 3,
+        "medianMs": 492.5925069999994,
+        "p90Ms": 532.7293702,
+        "samplesMs": [542.763586, 491.6271919999999, 492.5925069999994]
+      },
+      "execReused": {
+        "n": 3,
+        "medianMs": 494.83655700000054,
+        "p90Ms": 513.7220874000002,
+        "samplesMs": [494.83655700000054, 518.4434700000002, 493.14465799999925]
+      },
+      "stickyNew": {
+        "n": 3,
+        "medianMs": 507.4695920000013,
+        "p90Ms": 571.7010391999996,
+        "samplesMs": [587.7589009999992, 507.4695920000013, 490.501295]
+      }
+    },
+    "rows": [
+      {
+        "block": 1,
+        "variant": "matchAllNew",
+        "ms": 445.52621100000033
+      },
+      {
+        "block": 1,
+        "variant": "matchAllReused",
+        "ms": 463.3436039999997
+      },
+      {
+        "block": 1,
+        "variant": "execNew",
+        "ms": 542.763586
+      },
+      {
+        "block": 1,
+        "variant": "execReused",
+        "ms": 494.83655700000054
+      },
+      {
+        "block": 1,
+        "variant": "stickyNew",
+        "ms": 587.7589009999992
+      },
+      {
+        "block": 2,
+        "variant": "matchAllReused",
+        "ms": 509.43944700000065
+      },
+      {
+        "block": 2,
+        "variant": "execNew",
+        "ms": 491.6271919999999
+      },
+      {
+        "block": 2,
+        "variant": "execReused",
+        "ms": 518.4434700000002
+      },
+      {
+        "block": 2,
+        "variant": "stickyNew",
+        "ms": 507.4695920000013
+      },
+      {
+        "block": 2,
+        "variant": "matchAllNew",
+        "ms": 507.9550189999991
+      },
+      {
+        "block": 3,
+        "variant": "execNew",
+        "ms": 492.5925069999994
+      },
+      {
+        "block": 3,
+        "variant": "execReused",
+        "ms": 493.14465799999925
+      },
+      {
+        "block": 3,
+        "variant": "stickyNew",
+        "ms": 490.501295
+      },
+      {
+        "block": 3,
+        "variant": "matchAllNew",
+        "ms": 502.96927499999947
+      },
+      {
+        "block": 3,
+        "variant": "matchAllReused",
+        "ms": 474.9386190000005
+      }
+    ]
+  },
+  "bunFirstExecutionObservations": [
+    {
+      "protocol": "fresh Bun process; no scanner warmup before firstReused; then same operation; then per-file new operation twice. This cannot force JSC internal compiled-regexp cache eviction, so it measures first execution in this process, not a proven compilation-only delta.",
+      "bun": "1.3.14",
+      "patternChars": 393,
+      "flags": "gmsu",
+      "corpus": {
+        "files": 254,
+        "utf8Bytes": 1138778
+      },
+      "guard": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "firstUseMs": {
+        "firstReused": 478.3631749999995,
+        "secondReused": 487.3654630000001,
+        "firstNew": 517.6679250000007,
+        "secondNew": 475.06083599999965
+      }
+    },
+    {
+      "protocol": "fresh Bun process; no scanner warmup before firstReused; then same operation; then per-file new operation twice. This cannot force JSC internal compiled-regexp cache eviction, so it measures first execution in this process, not a proven compilation-only delta.",
+      "bun": "1.3.14",
+      "patternChars": 393,
+      "flags": "gmsu",
+      "corpus": {
+        "files": 254,
+        "utf8Bytes": 1138778
+      },
+      "guard": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "firstUseMs": {
+        "firstReused": 501.17249100000026,
+        "secondReused": 449.0389519999999,
+        "firstNew": 452.87956099999974,
+        "secondNew": 443.4546449999998
+      }
+    },
+    {
+      "protocol": "fresh Bun process; no scanner warmup before firstReused; then same operation; then per-file new operation twice. This cannot force JSC internal compiled-regexp cache eviction, so it measures first execution in this process, not a proven compilation-only delta.",
+      "bun": "1.3.14",
+      "patternChars": 393,
+      "flags": "gmsu",
+      "corpus": {
+        "files": 254,
+        "utf8Bytes": 1138778
+      },
+      "guard": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "firstUseMs": {
+        "firstReused": 462.2465579999998,
+        "secondReused": 444.171147,
+        "firstNew": 436.18420100000003,
+        "secondNew": 433.1431250000005
+      }
+    },
+    {
+      "protocol": "fresh Bun process; no scanner warmup before firstReused; then same operation; then per-file new operation twice. This cannot force JSC internal compiled-regexp cache eviction, so it measures first execution in this process, not a proven compilation-only delta.",
+      "bun": "1.3.14",
+      "patternChars": 393,
+      "flags": "gmsu",
+      "corpus": {
+        "files": 254,
+        "utf8Bytes": 1138778
+      },
+      "guard": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "firstUseMs": {
+        "firstReused": 518.0443910000004,
+        "secondReused": 494.26881200000025,
+        "firstNew": 450.9394910000001,
+        "secondNew": 435.7950919999994
+      }
+    }
+  ],
+  "pythonRawScanner": {
+    "protocol": "Python raw upstream-pattern scan on same decoded 254-file request. All variants are semantically identical in Python. Guard hashes text plus converted UTF-16 start offsets, outside timing. re.finditer(pattern string, flags) and re.compile(pattern,flags) use CPython re cache after initial compile; compiledFinditer is explicit reuse.",
+    "python": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]",
+    "implementation": "CPython",
+    "patternChars": 365,
+    "flags": "MS",
+    "corpus": {
+      "files": 254,
+      "utf8Bytes": 1138778
+    },
+    "guard": {
+      "count": 296074,
+      "chars": 1126244,
+      "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+    },
+    "summary": {
+      "compiledFinditer": {
+        "n": 5,
+        "medianMs": 44.237857,
+        "samplesMs": [44.237857, 44.357144, 44.399243, 42.523021, 41.735259]
+      },
+      "reFinditerCache": {
+        "n": 5,
+        "medianMs": 44.520177,
+        "samplesMs": [45.544789, 44.520177, 44.528657, 41.823794, 42.735064]
+      },
+      "compileEachCache": {
+        "n": 5,
+        "medianMs": 43.945463,
+        "samplesMs": [44.517103, 43.945463, 45.058216, 42.006813, 42.415714]
+      }
+    },
+    "rows": [
+      {
+        "block": 1,
+        "variant": "compiledFinditer",
+        "ms": 44.237857
+      },
+      {
+        "block": 1,
+        "variant": "reFinditerCache",
+        "ms": 45.544789
+      },
+      {
+        "block": 1,
+        "variant": "compileEachCache",
+        "ms": 44.517103
+      },
+      {
+        "block": 2,
+        "variant": "reFinditerCache",
+        "ms": 44.520177
+      },
+      {
+        "block": 2,
+        "variant": "compileEachCache",
+        "ms": 43.945463
+      },
+      {
+        "block": 2,
+        "variant": "compiledFinditer",
+        "ms": 44.357144
+      },
+      {
+        "block": 3,
+        "variant": "compileEachCache",
+        "ms": 45.058216
+      },
+      {
+        "block": 3,
+        "variant": "compiledFinditer",
+        "ms": 44.399243
+      },
+      {
+        "block": 3,
+        "variant": "reFinditerCache",
+        "ms": 44.528657
+      },
+      {
+        "block": 4,
+        "variant": "compiledFinditer",
+        "ms": 42.523021
+      },
+      {
+        "block": 4,
+        "variant": "reFinditerCache",
+        "ms": 41.823794
+      },
+      {
+        "block": 4,
+        "variant": "compileEachCache",
+        "ms": 42.006813
+      },
+      {
+        "block": 5,
+        "variant": "reFinditerCache",
+        "ms": 42.735064
+      },
+      {
+        "block": 5,
+        "variant": "compileEachCache",
+        "ms": 42.415714
+      },
+      {
+        "block": 5,
+        "variant": "compiledFinditer",
+        "ms": 41.735259
+      }
+    ]
+  },
+  "bunFeatureAblation": {
+    "protocol": "Feature ablations execute exact same corpus via fresh gmsu RegExp+exec/file after one warmup each. Except current, variants intentionally change token semantics and often match count; they are diagnostic cost probes only, NOT candidate implementations or parity evidence.",
+    "bun": "1.3.14",
+    "summary": {
+      "current": {
+        "patternChars": 393,
+        "medianMs": 435.3141085,
+        "samplesMs": [435.57891299999983, 440.86810499999956, 431.5575439999993, 435.0493040000001],
+        "rawCount": 296074,
+        "rawChars": 1126244
+      },
+      "asciiWord": {
+        "patternChars": 392,
+        "medianMs": 440.8513204999995,
+        "samplesMs": [431.63358900000003, 446.8958869999997, 450.6741159999983, 434.8067539999993],
+        "rawCount": 296074,
+        "rawChars": 1126244
+      },
+      "noGenericLookahead": {
+        "patternChars": 339,
+        "medianMs": 314.7411954999998,
+        "samplesMs": [316.88584800000035, 311.0637050000005, 316.8249500000002, 312.6574409999994],
+        "rawCount": 296074,
+        "rawChars": 1126244
+      },
+      "noBlockComment": {
+        "patternChars": 386,
+        "medianMs": 646.3775719999994,
+        "samplesMs": [647.5434939999996, 652.0628120000001, 639.3756479999993, 645.2116499999993],
+        "rawCount": 308371,
+        "rawChars": 1126244
+      },
+      "noQuotedStrings": {
+        "patternChars": 356,
+        "medianMs": 209.80480049999915,
+        "samplesMs": [215.74050799999986, 207.1515359999994, 206.93188999999984, 212.4580649999989],
+        "rawCount": 320413,
+        "rawChars": 1126244
+      },
+      "noLargeSymbols": {
+        "patternChars": 301,
+        "medianMs": 407.8384165000002,
+        "samplesMs": [413.73351999999977, 405.844865, 397.35695999999916, 409.8319680000004],
+        "rawCount": 303106,
+        "rawChars": 1126244
+      },
+      "asciiWord_noGeneric": {
+        "patternChars": 338,
+        "medianMs": 319.7813024999996,
+        "samplesMs": [322.41569900000013, 320.1892549999993, 309.8443699999989, 319.37334999999985],
+        "rawCount": 296074,
+        "rawChars": 1126244
+      }
+    },
+    "rows": [
+      {
+        "variant": "current",
+        "ms": 435.57891299999983,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord",
+        "ms": 431.63358900000003,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noGenericLookahead",
+        "ms": 316.88584800000035,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noBlockComment",
+        "ms": 647.5434939999996,
+        "count": 308371,
+        "chars": 1126244
+      },
+      {
+        "variant": "noQuotedStrings",
+        "ms": 215.74050799999986,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "variant": "noLargeSymbols",
+        "ms": 413.73351999999977,
+        "count": 303106,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord_noGeneric",
+        "ms": 322.41569900000013,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord",
+        "ms": 446.8958869999997,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noGenericLookahead",
+        "ms": 311.0637050000005,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noBlockComment",
+        "ms": 652.0628120000001,
+        "count": 308371,
+        "chars": 1126244
+      },
+      {
+        "variant": "noQuotedStrings",
+        "ms": 207.1515359999994,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "variant": "noLargeSymbols",
+        "ms": 405.844865,
+        "count": 303106,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord_noGeneric",
+        "ms": 320.1892549999993,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "current",
+        "ms": 440.86810499999956,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noGenericLookahead",
+        "ms": 316.8249500000002,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noBlockComment",
+        "ms": 639.3756479999993,
+        "count": 308371,
+        "chars": 1126244
+      },
+      {
+        "variant": "noQuotedStrings",
+        "ms": 206.93188999999984,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "variant": "noLargeSymbols",
+        "ms": 397.35695999999916,
+        "count": 303106,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord_noGeneric",
+        "ms": 309.8443699999989,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "current",
+        "ms": 431.5575439999993,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord",
+        "ms": 450.6741159999983,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noBlockComment",
+        "ms": 645.2116499999993,
+        "count": 308371,
+        "chars": 1126244
+      },
+      {
+        "variant": "noQuotedStrings",
+        "ms": 212.4580649999989,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "variant": "noLargeSymbols",
+        "ms": 409.8319680000004,
+        "count": 303106,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord_noGeneric",
+        "ms": 319.37334999999985,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "current",
+        "ms": 435.0493040000001,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "asciiWord",
+        "ms": 434.8067539999993,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "variant": "noGenericLookahead",
+        "ms": 312.6574409999994,
+        "count": 296074,
+        "chars": 1126244
+      }
+    ]
+  },
+  "pythonFeatureAblation": {
+    "protocol": "CPython raw pattern ablation; same decoded request; variants except current deliberately alter regex semantics. Guard hashes text plus converted UTF-16 start and is excluded from timing. One warmup/variant then 8 cyclic orders.",
+    "python": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]",
+    "implementation": "CPython",
+    "summary": {
+      "current": {
+        "patternChars": 362,
+        "medianMs": 63.7435595,
+        "samplesMs": [
+          63.664402, 63.691704, 65.999458, 63.362475, 64.564235, 62.873343, 63.795415, 64.305012
+        ],
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "asciiWord": {
+        "patternChars": 372,
+        "medianMs": 63.151706000000004,
+        "samplesMs": [
+          62.695406, 61.942846, 63.258519, 62.461091, 63.889681, 63.414629, 63.044893, 64.521364
+        ],
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "noGeneric": {
+        "patternChars": 308,
+        "medianMs": 62.979059500000005,
+        "samplesMs": [
+          62.632045, 63.784626, 63.046005, 63.555118, 64.382546, 62.912114, 62.316823, 62.396717
+        ],
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "noQuotedStrings": {
+        "patternChars": 325,
+        "medianMs": 67.0568885,
+        "samplesMs": [
+          67.984402, 66.57375, 67.033624, 67.287024, 66.439874, 67.799942, 67.080153, 66.512228
+        ],
+        "count": 320413,
+        "chars": 1126244,
+        "digest": "47c048850fb55ed51de13a72ec71c35026c0e2914d648829600049c3acbb659a"
+      }
+    },
+    "rows": [
+      {
+        "block": 1,
+        "variant": "current",
+        "ms": 63.664402,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 1,
+        "variant": "asciiWord",
+        "ms": 62.695406,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 1,
+        "variant": "noGeneric",
+        "ms": 62.632045,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 1,
+        "variant": "noQuotedStrings",
+        "ms": 67.984402,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 2,
+        "variant": "asciiWord",
+        "ms": 61.942846,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 2,
+        "variant": "noGeneric",
+        "ms": 63.784626,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 2,
+        "variant": "noQuotedStrings",
+        "ms": 66.57375,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 2,
+        "variant": "current",
+        "ms": 63.691704,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 3,
+        "variant": "noGeneric",
+        "ms": 63.046005,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 3,
+        "variant": "noQuotedStrings",
+        "ms": 67.033624,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 3,
+        "variant": "current",
+        "ms": 65.999458,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 3,
+        "variant": "asciiWord",
+        "ms": 63.258519,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 4,
+        "variant": "noQuotedStrings",
+        "ms": 67.287024,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 4,
+        "variant": "current",
+        "ms": 63.362475,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 4,
+        "variant": "asciiWord",
+        "ms": 62.461091,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 4,
+        "variant": "noGeneric",
+        "ms": 63.555118,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 5,
+        "variant": "current",
+        "ms": 64.564235,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 5,
+        "variant": "asciiWord",
+        "ms": 63.889681,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 5,
+        "variant": "noGeneric",
+        "ms": 64.382546,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 5,
+        "variant": "noQuotedStrings",
+        "ms": 66.439874,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 6,
+        "variant": "asciiWord",
+        "ms": 63.414629,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 6,
+        "variant": "noGeneric",
+        "ms": 62.912114,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 6,
+        "variant": "noQuotedStrings",
+        "ms": 67.799942,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 6,
+        "variant": "current",
+        "ms": 62.873343,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 7,
+        "variant": "noGeneric",
+        "ms": 62.316823,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 7,
+        "variant": "noQuotedStrings",
+        "ms": 67.080153,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 7,
+        "variant": "current",
+        "ms": 63.795415,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 7,
+        "variant": "asciiWord",
+        "ms": 63.044893,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 8,
+        "variant": "noQuotedStrings",
+        "ms": 66.512228,
+        "count": 320413,
+        "chars": 1126244
+      },
+      {
+        "block": 8,
+        "variant": "current",
+        "ms": 64.305012,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 8,
+        "variant": "asciiWord",
+        "ms": 64.521364,
+        "count": 296074,
+        "chars": 1126244
+      },
+      {
+        "block": 8,
+        "variant": "noGeneric",
+        "ms": 62.396717,
+        "count": 296074,
+        "chars": 1126244
+      }
+    ]
+  },
+  "bunGenericStageControl": {
+    "protocol": "Bun exact-output stage control. Both conditions guard identical raw text+UTF-16 starts. staged runs the generic branch only when scanner position is < and otherwise uses a sticky no-generic main regex. This is a diagnostic control, not a proposed replacement.",
+    "bun": "1.3.14",
+    "guard": {
+      "count": 296074,
+      "chars": 1126244,
+      "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+    },
+    "combined": {
+      "medianMs": 451.0967370000003,
+      "samplesMs": [
+        436.2806270000001, 430.8605269999998, 431.98306999999977, 434.77491999999984,
+        433.2324609999996, 453.21580900000026, 510.7844989999994, 504.6233540000003,
+        467.55073000000084, 460.3765230000008, 465.01179599999887, 448.97766500000034
+      ]
+    },
+    "stagedAtLt": {
+      "medianMs": 328.9741050000007,
+      "samplesMs": [
+        319.73227199999974, 314.64977499999986, 315.2137459999999, 314.70612399999936,
+        321.31108999999924, 353.3825339999994, 404.0554910000001, 330.29985600000055,
+        331.34837399999924, 333.3679490000013, 359.4866459999994, 327.64835400000084
+      ]
+    },
+    "stagedDividedByCombinedMedian": 0.7292761796235304,
+    "rows": [
+      {
+        "block": 1,
+        "variant": "stagedAtLt",
+        "ms": 319.73227199999974
+      },
+      {
+        "block": 1,
+        "variant": "combined",
+        "ms": 436.2806270000001
+      },
+      {
+        "block": 2,
+        "variant": "combined",
+        "ms": 430.8605269999998
+      },
+      {
+        "block": 2,
+        "variant": "stagedAtLt",
+        "ms": 314.64977499999986
+      },
+      {
+        "block": 3,
+        "variant": "stagedAtLt",
+        "ms": 315.2137459999999
+      },
+      {
+        "block": 3,
+        "variant": "combined",
+        "ms": 431.98306999999977
+      },
+      {
+        "block": 4,
+        "variant": "combined",
+        "ms": 434.77491999999984
+      },
+      {
+        "block": 4,
+        "variant": "stagedAtLt",
+        "ms": 314.70612399999936
+      },
+      {
+        "block": 5,
+        "variant": "stagedAtLt",
+        "ms": 321.31108999999924
+      },
+      {
+        "block": 5,
+        "variant": "combined",
+        "ms": 433.2324609999996
+      },
+      {
+        "block": 6,
+        "variant": "combined",
+        "ms": 453.21580900000026
+      },
+      {
+        "block": 6,
+        "variant": "stagedAtLt",
+        "ms": 353.3825339999994
+      },
+      {
+        "block": 7,
+        "variant": "stagedAtLt",
+        "ms": 404.0554910000001
+      },
+      {
+        "block": 7,
+        "variant": "combined",
+        "ms": 510.7844989999994
+      },
+      {
+        "block": 8,
+        "variant": "combined",
+        "ms": 504.6233540000003
+      },
+      {
+        "block": 8,
+        "variant": "stagedAtLt",
+        "ms": 330.29985600000055
+      },
+      {
+        "block": 9,
+        "variant": "stagedAtLt",
+        "ms": 331.34837399999924
+      },
+      {
+        "block": 9,
+        "variant": "combined",
+        "ms": 467.55073000000084
+      },
+      {
+        "block": 10,
+        "variant": "combined",
+        "ms": 460.3765230000008
+      },
+      {
+        "block": 10,
+        "variant": "stagedAtLt",
+        "ms": 333.3679490000013
+      },
+      {
+        "block": 11,
+        "variant": "stagedAtLt",
+        "ms": 359.4866459999994
+      },
+      {
+        "block": 11,
+        "variant": "combined",
+        "ms": 465.01179599999887
+      },
+      {
+        "block": 12,
+        "variant": "combined",
+        "ms": 448.97766500000034
+      },
+      {
+        "block": 12,
+        "variant": "stagedAtLt",
+        "ms": 327.64835400000084
+      }
+    ]
+  },
+  "pythonGenericStageControl": {
+    "protocol": "CPython exact-output stage control: generic regex invoked only at scanner position <; otherwise no-generic main uses re.match at current position. Same guard is text+converted UTF-16 start. Diagnostic control only.",
+    "python": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]",
+    "guard": {
+      "count": 296074,
+      "chars": 1126244,
+      "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+    },
+    "combined": {
+      "medianMs": 47.054836,
+      "samplesMs": [
+        46.540637, 47.016862, 47.093582, 46.767, 48.529769, 47.09281, 48.135238, 48.425048,
+        46.760084, 47.388259, 46.795142, 46.972249
+      ]
+    },
+    "stagedAtLt": {
+      "medianMs": 67.4787025,
+      "samplesMs": [
+        68.231554, 70.048523, 67.294961, 67.16489, 67.936092, 67.308487, 67.306262, 67.321104,
+        67.615482, 67.540277, 67.858727, 67.417128
+      ]
+    },
+    "stagedDividedByCombinedMedian": 1.4340439418384117,
+    "rows": [
+      {
+        "block": 1,
+        "variant": "stagedAtLt",
+        "ms": 68.231554
+      },
+      {
+        "block": 1,
+        "variant": "combined",
+        "ms": 46.540637
+      },
+      {
+        "block": 2,
+        "variant": "combined",
+        "ms": 47.016862
+      },
+      {
+        "block": 2,
+        "variant": "stagedAtLt",
+        "ms": 70.048523
+      },
+      {
+        "block": 3,
+        "variant": "stagedAtLt",
+        "ms": 67.294961
+      },
+      {
+        "block": 3,
+        "variant": "combined",
+        "ms": 47.093582
+      },
+      {
+        "block": 4,
+        "variant": "combined",
+        "ms": 46.767
+      },
+      {
+        "block": 4,
+        "variant": "stagedAtLt",
+        "ms": 67.16489
+      },
+      {
+        "block": 5,
+        "variant": "stagedAtLt",
+        "ms": 67.936092
+      },
+      {
+        "block": 5,
+        "variant": "combined",
+        "ms": 48.529769
+      },
+      {
+        "block": 6,
+        "variant": "combined",
+        "ms": 47.09281
+      },
+      {
+        "block": 6,
+        "variant": "stagedAtLt",
+        "ms": 67.308487
+      },
+      {
+        "block": 7,
+        "variant": "stagedAtLt",
+        "ms": 67.306262
+      },
+      {
+        "block": 7,
+        "variant": "combined",
+        "ms": 48.135238
+      },
+      {
+        "block": 8,
+        "variant": "combined",
+        "ms": 48.425048
+      },
+      {
+        "block": 8,
+        "variant": "stagedAtLt",
+        "ms": 67.321104
+      },
+      {
+        "block": 9,
+        "variant": "stagedAtLt",
+        "ms": 67.615482
+      },
+      {
+        "block": 9,
+        "variant": "combined",
+        "ms": 46.760084
+      },
+      {
+        "block": 10,
+        "variant": "combined",
+        "ms": 47.388259
+      },
+      {
+        "block": 10,
+        "variant": "stagedAtLt",
+        "ms": 67.540277
+      },
+      {
+        "block": 11,
+        "variant": "stagedAtLt",
+        "ms": 67.858727
+      },
+      {
+        "block": 11,
+        "variant": "combined",
+        "ms": 46.795142
+      },
+      {
+        "block": 12,
+        "variant": "combined",
+        "ms": 46.972249
+      },
+      {
+        "block": 12,
+        "variant": "stagedAtLt",
+        "ms": 67.417128
+      }
+    ]
+  },
+  "bunGeneratorControl": {
+    "protocol": "Same decoded corpus. Timed operation drains the actual generators and counts yielded tokens only; SHA guards are preflight and excluded. This measures CodeReader generator + TokenMatch + macro logic versus TypeScript wrapper/template split. It does not include reader state-machine processors.",
+    "bun": "1.3.14",
+    "corpus": {
+      "files": 254,
+      "utf8Bytes": 1138778
+    },
+    "guards": {
+      "codeDefault": {
+        "n": 295988,
+        "c": 1126244,
+        "digest": "ac802ea0fe69c1c6a6d0e668546bc786c8386da148a831320b99d8240c5afd6f"
+      },
+      "codeExplicitGroup": {
+        "n": 295988,
+        "c": 1126244,
+        "digest": "ac802ea0fe69c1c6a6d0e668546bc786c8386da148a831320b99d8240c5afd6f"
+      },
+      "typeScriptDefault": {
+        "n": 295156,
+        "c": 1127427,
+        "digest": "a3a71bd5022b4d6b9f15d2bd24b4947ff9e3c61d7395794be82042b3635fff98"
+      },
+      "typeScriptExplicitGroup": {
+        "n": 295156,
+        "c": 1127427,
+        "digest": "a3a71bd5022b4d6b9f15d2bd24b4947ff9e3c61d7395794be82042b3635fff98"
+      }
+    },
+    "summary": {
+      "codeDefault": {
+        "medianMs": 455.47680950000085,
+        "samplesMs": [451.93069900000046, 479.3988569999992, 459.02292000000125, 449.6577390000002]
+      },
+      "codeExplicitGroup": {
+        "medianMs": 455.5999155000004,
+        "samplesMs": [460.73447000000033, 457.6607009999998, 444.1417000000001, 453.539130000001]
+      },
+      "typeScriptDefault": {
+        "medianMs": 479.34795600000007,
+        "samplesMs": [485.9200099999998, 481.95155799999975, 474.49959899999885, 476.7443540000004]
+      },
+      "typeScriptExplicitGroup": {
+        "medianMs": 485.7201420000001,
+        "samplesMs": [499.66096300000027, 515.4293019999996, 471.779321, 469.98015699999996]
+      }
+    },
+    "rows": [
+      {
+        "block": 1,
+        "variant": "codeDefault",
+        "ms": 451.93069900000046
+      },
+      {
+        "block": 1,
+        "variant": "codeExplicitGroup",
+        "ms": 460.73447000000033
+      },
+      {
+        "block": 1,
+        "variant": "typeScriptDefault",
+        "ms": 485.9200099999998
+      },
+      {
+        "block": 1,
+        "variant": "typeScriptExplicitGroup",
+        "ms": 499.66096300000027
+      },
+      {
+        "block": 2,
+        "variant": "codeExplicitGroup",
+        "ms": 457.6607009999998
+      },
+      {
+        "block": 2,
+        "variant": "typeScriptDefault",
+        "ms": 481.95155799999975
+      },
+      {
+        "block": 2,
+        "variant": "typeScriptExplicitGroup",
+        "ms": 515.4293019999996
+      },
+      {
+        "block": 2,
+        "variant": "codeDefault",
+        "ms": 479.3988569999992
+      },
+      {
+        "block": 3,
+        "variant": "typeScriptDefault",
+        "ms": 474.49959899999885
+      },
+      {
+        "block": 3,
+        "variant": "typeScriptExplicitGroup",
+        "ms": 471.779321
+      },
+      {
+        "block": 3,
+        "variant": "codeDefault",
+        "ms": 459.02292000000125
+      },
+      {
+        "block": 3,
+        "variant": "codeExplicitGroup",
+        "ms": 444.1417000000001
+      },
+      {
+        "block": 4,
+        "variant": "typeScriptExplicitGroup",
+        "ms": 469.98015699999996
+      },
+      {
+        "block": 4,
+        "variant": "codeDefault",
+        "ms": 449.6577390000002
+      },
+      {
+        "block": 4,
+        "variant": "codeExplicitGroup",
+        "ms": 453.539130000001
+      },
+      {
+        "block": 4,
+        "variant": "typeScriptDefault",
+        "ms": 476.7443540000004
+      }
+    ]
+  },
+  "bunFeatureOutputGuards": {
+    "protocol": "Untimed Bun output guard for current, no-generic, and ASCII-word variants on the same decoded corpus.",
+    "bun": "1.3.14",
+    "genericMatches": 0,
+    "guards": {
+      "current": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "noGeneric": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "asciiWord": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      }
+    }
+  },
+  "symmetricRaw": {
+    "bun": {
+      "runtime": {
+        "bun": "1.3.14"
+      },
+      "protocol": "new exact current RegExp/file + exec; guard preflight hashes raw text+UTF16 start but is excluded; countOnly does only loop counter; fields does m[0].length + m.index.",
+      "guard": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "summary": {
+        "countOnly": {
+          "medianMs": 438.4459804999999,
+          "samplesMs": [
+            446.28483400000005, 442.81163400000014, 437.1631789999997, 427.28730600000017,
+            422.0598570000002, 439.72878200000014, 426.56773599999997, 470.34663099999943,
+            482.57110400000056, 494.9919690000006, 423.4599330000001, 429.95348899999954
+          ]
+        },
+        "fields": {
+          "medianMs": 434.3449035000001,
+          "samplesMs": [
+            432.39680299999986, 432.53263400000014, 435.41391299999987, 425.30054999999993,
+            438.7586919999994, 437.6002490000001, 429.55915600000026, 442.5778130000008,
+            453.0888009999999, 452.93818199999987, 433.27589400000033, 431.35713300000134
+          ]
+        }
+      },
+      "rows": [
+        {
+          "block": 1,
+          "variant": "fields",
+          "ms": 432.39680299999986
+        },
+        {
+          "block": 1,
+          "variant": "countOnly",
+          "ms": 446.28483400000005
+        },
+        {
+          "block": 2,
+          "variant": "countOnly",
+          "ms": 442.81163400000014
+        },
+        {
+          "block": 2,
+          "variant": "fields",
+          "ms": 432.53263400000014
+        },
+        {
+          "block": 3,
+          "variant": "fields",
+          "ms": 435.41391299999987
+        },
+        {
+          "block": 3,
+          "variant": "countOnly",
+          "ms": 437.1631789999997
+        },
+        {
+          "block": 4,
+          "variant": "countOnly",
+          "ms": 427.28730600000017
+        },
+        {
+          "block": 4,
+          "variant": "fields",
+          "ms": 425.30054999999993
+        },
+        {
+          "block": 5,
+          "variant": "fields",
+          "ms": 438.7586919999994
+        },
+        {
+          "block": 5,
+          "variant": "countOnly",
+          "ms": 422.0598570000002
+        },
+        {
+          "block": 6,
+          "variant": "countOnly",
+          "ms": 439.72878200000014
+        },
+        {
+          "block": 6,
+          "variant": "fields",
+          "ms": 437.6002490000001
+        },
+        {
+          "block": 7,
+          "variant": "fields",
+          "ms": 429.55915600000026
+        },
+        {
+          "block": 7,
+          "variant": "countOnly",
+          "ms": 426.56773599999997
+        },
+        {
+          "block": 8,
+          "variant": "countOnly",
+          "ms": 470.34663099999943
+        },
+        {
+          "block": 8,
+          "variant": "fields",
+          "ms": 442.5778130000008
+        },
+        {
+          "block": 9,
+          "variant": "fields",
+          "ms": 453.0888009999999
+        },
+        {
+          "block": 9,
+          "variant": "countOnly",
+          "ms": 482.57110400000056
+        },
+        {
+          "block": 10,
+          "variant": "countOnly",
+          "ms": 494.9919690000006
+        },
+        {
+          "block": 10,
+          "variant": "fields",
+          "ms": 452.93818199999987
+        },
+        {
+          "block": 11,
+          "variant": "fields",
+          "ms": 433.27589400000033
+        },
+        {
+          "block": 11,
+          "variant": "countOnly",
+          "ms": 423.4599330000001
+        },
+        {
+          "block": 12,
+          "variant": "countOnly",
+          "ms": 429.95348899999954
+        },
+        {
+          "block": 12,
+          "variant": "fields",
+          "ms": 431.35713300000134
+        }
+      ]
+    },
+    "python": {
+      "runtime": {
+        "python": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]"
+      },
+      "protocol": "compiled upstream pattern + finditer; guard preflight hashes raw text+convertedUTF16 start but excluded; countOnly loop counter; fields len(m.group())+m.start().",
+      "guard": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "summary": {
+        "countOnly": {
+          "medianMs": 42.487139,
+          "samplesMs": [
+            42.738989, 43.817239, 42.167478, 42.354808, 43.645701, 42.149725, 42.003765, 42.535534,
+            43.105422, 42.759169, 42.340101, 42.438744
+          ]
+        },
+        "fields": {
+          "medianMs": 56.285188000000005,
+          "samplesMs": [
+            56.060715, 56.303796, 56.594043, 56.283807, 58.003794, 56.243154, 56.632596, 55.937261,
+            57.266708, 56.286569, 56.268875, 55.723855
+          ]
+        }
+      },
+      "rows": [
+        {
+          "block": 1,
+          "variant": "fields",
+          "ms": 56.060715
+        },
+        {
+          "block": 1,
+          "variant": "countOnly",
+          "ms": 42.738989
+        },
+        {
+          "block": 2,
+          "variant": "countOnly",
+          "ms": 43.817239
+        },
+        {
+          "block": 2,
+          "variant": "fields",
+          "ms": 56.303796
+        },
+        {
+          "block": 3,
+          "variant": "fields",
+          "ms": 56.594043
+        },
+        {
+          "block": 3,
+          "variant": "countOnly",
+          "ms": 42.167478
+        },
+        {
+          "block": 4,
+          "variant": "countOnly",
+          "ms": 42.354808
+        },
+        {
+          "block": 4,
+          "variant": "fields",
+          "ms": 56.283807
+        },
+        {
+          "block": 5,
+          "variant": "fields",
+          "ms": 58.003794
+        },
+        {
+          "block": 5,
+          "variant": "countOnly",
+          "ms": 43.645701
+        },
+        {
+          "block": 6,
+          "variant": "countOnly",
+          "ms": 42.149725
+        },
+        {
+          "block": 6,
+          "variant": "fields",
+          "ms": 56.243154
+        },
+        {
+          "block": 7,
+          "variant": "fields",
+          "ms": 56.632596
+        },
+        {
+          "block": 7,
+          "variant": "countOnly",
+          "ms": 42.003765
+        },
+        {
+          "block": 8,
+          "variant": "countOnly",
+          "ms": 42.535534
+        },
+        {
+          "block": 8,
+          "variant": "fields",
+          "ms": 55.937261
+        },
+        {
+          "block": 9,
+          "variant": "fields",
+          "ms": 57.266708
+        },
+        {
+          "block": 9,
+          "variant": "countOnly",
+          "ms": 43.105422
+        },
+        {
+          "block": 10,
+          "variant": "countOnly",
+          "ms": 42.759169
+        },
+        {
+          "block": 10,
+          "variant": "fields",
+          "ms": 56.286569
+        },
+        {
+          "block": 11,
+          "variant": "fields",
+          "ms": 56.268875
+        },
+        {
+          "block": 11,
+          "variant": "countOnly",
+          "ms": 42.340101
+        },
+        {
+          "block": 12,
+          "variant": "countOnly",
+          "ms": 42.438744
+        },
+        {
+          "block": 12,
+          "variant": "fields",
+          "ms": 55.723855
+        }
+      ]
+    },
+    "python314SupportingObservation": {
+      "runtime": {
+        "python": "3.14.7 (main, Aug  7 2026, 02:26:00) [Clang 22.1.3 ]"
+      },
+      "protocol": "compiled upstream pattern + finditer; guard preflight hashes raw text+convertedUTF16 start but excluded; countOnly loop counter; fields len(m.group())+m.start().",
+      "guard": {
+        "count": 296074,
+        "chars": 1126244,
+        "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+      },
+      "summary": {
+        "countOnly": {
+          "medianMs": 42.9689635,
+          "samplesMs": [
+            43.88093, 46.69843, 42.658954, 42.054821, 42.50667, 42.236129, 43.315932, 42.225547,
+            43.629596, 42.972274, 42.993341, 42.965653
+          ]
+        },
+        "fields": {
+          "medianMs": 54.479127500000004,
+          "samplesMs": [
+            56.63195, 55.576219, 55.807156, 54.2946, 55.15689, 54.153738, 54.67168, 53.944299,
+            54.279011, 54.469194, 54.489061, 53.784443
+          ]
+        }
+      },
+      "rows": [
+        {
+          "block": 1,
+          "variant": "fields",
+          "ms": 56.63195
+        },
+        {
+          "block": 1,
+          "variant": "countOnly",
+          "ms": 43.88093
+        },
+        {
+          "block": 2,
+          "variant": "countOnly",
+          "ms": 46.69843
+        },
+        {
+          "block": 2,
+          "variant": "fields",
+          "ms": 55.576219
+        },
+        {
+          "block": 3,
+          "variant": "fields",
+          "ms": 55.807156
+        },
+        {
+          "block": 3,
+          "variant": "countOnly",
+          "ms": 42.658954
+        },
+        {
+          "block": 4,
+          "variant": "countOnly",
+          "ms": 42.054821
+        },
+        {
+          "block": 4,
+          "variant": "fields",
+          "ms": 54.2946
+        },
+        {
+          "block": 5,
+          "variant": "fields",
+          "ms": 55.15689
+        },
+        {
+          "block": 5,
+          "variant": "countOnly",
+          "ms": 42.50667
+        },
+        {
+          "block": 6,
+          "variant": "countOnly",
+          "ms": 42.236129
+        },
+        {
+          "block": 6,
+          "variant": "fields",
+          "ms": 54.153738
+        },
+        {
+          "block": 7,
+          "variant": "fields",
+          "ms": 54.67168
+        },
+        {
+          "block": 7,
+          "variant": "countOnly",
+          "ms": 43.315932
+        },
+        {
+          "block": 8,
+          "variant": "countOnly",
+          "ms": 42.225547
+        },
+        {
+          "block": 8,
+          "variant": "fields",
+          "ms": 53.944299
+        },
+        {
+          "block": 9,
+          "variant": "fields",
+          "ms": 54.279011
+        },
+        {
+          "block": 9,
+          "variant": "countOnly",
+          "ms": 43.629596
+        },
+        {
+          "block": 10,
+          "variant": "countOnly",
+          "ms": 42.972274
+        },
+        {
+          "block": 10,
+          "variant": "fields",
+          "ms": 54.469194
+        },
+        {
+          "block": 11,
+          "variant": "fields",
+          "ms": 54.489061
+        },
+        {
+          "block": 11,
+          "variant": "countOnly",
+          "ms": 42.993341
+        },
+        {
+          "block": 12,
+          "variant": "countOnly",
+          "ms": 42.965653
+        },
+        {
+          "block": 12,
+          "variant": "fields",
+          "ms": 53.784443
+        }
+      ]
+    }
+  },
+  "bunSyntheticControls": {
+    "protocol": "Synthetic diagnostic only: preserve 254-file lengths/total UTF-16 char count, but not real-language semantics. noLt has zero <; manyLtFail contains repeated < but no ? or >, so generic lookahead cannot succeed. New RegExp+exec/file, one warm/pattern, then 12 alternating pairs.",
+    "bun": "1.3.14",
+    "out": {
+      "noLt": {
+        "chars": 1126244,
+        "current": {
+          "medianMs": 89.64518899999996,
+          "sampleMs": [
+            88.26399099999998, 97.024631, 91.39424999999994, 89.23479400000008, 87.08355600000004,
+            87.3107070000001, 91.81104700000014, 95.09640200000013, 87.52684299999987,
+            89.85283800000002, 89.4375399999999, 94.43806200000017
+          ],
+          "raw": 437906
+        },
+        "noGeneric": {
+          "medianMs": 84.61562000000004,
+          "sampleMs": [
+            83.00316599999996, 93.08946099999997, 83.68345, 83.69707400000004, 94.01108099999999,
+            83.90715399999999, 82.99924699999997, 85.32408600000008, 97.21139100000005,
+            92.31506300000001, 82.77124500000014, 85.73162899999988
+          ],
+          "raw": 437906
+        },
+        "ratio": 0.9438947136359997,
+        "rows": [
+          {
+            "block": 1,
+            "variant": "noGeneric",
+            "ms": 83.00316599999996,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 1,
+            "variant": "current",
+            "ms": 88.26399099999998,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 2,
+            "variant": "current",
+            "ms": 97.024631,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 2,
+            "variant": "noGeneric",
+            "ms": 93.08946099999997,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 3,
+            "variant": "noGeneric",
+            "ms": 83.68345,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 3,
+            "variant": "current",
+            "ms": 91.39424999999994,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 4,
+            "variant": "current",
+            "ms": 89.23479400000008,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 4,
+            "variant": "noGeneric",
+            "ms": 83.69707400000004,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 5,
+            "variant": "noGeneric",
+            "ms": 94.01108099999999,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 5,
+            "variant": "current",
+            "ms": 87.08355600000004,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 6,
+            "variant": "current",
+            "ms": 87.3107070000001,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 6,
+            "variant": "noGeneric",
+            "ms": 83.90715399999999,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 7,
+            "variant": "noGeneric",
+            "ms": 82.99924699999997,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 7,
+            "variant": "current",
+            "ms": 91.81104700000014,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 8,
+            "variant": "current",
+            "ms": 95.09640200000013,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 8,
+            "variant": "noGeneric",
+            "ms": 85.32408600000008,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 9,
+            "variant": "noGeneric",
+            "ms": 97.21139100000005,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 9,
+            "variant": "current",
+            "ms": 87.52684299999987,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 10,
+            "variant": "current",
+            "ms": 89.85283800000002,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 10,
+            "variant": "noGeneric",
+            "ms": 92.31506300000001,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 11,
+            "variant": "noGeneric",
+            "ms": 82.77124500000014,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 11,
+            "variant": "current",
+            "ms": 89.4375399999999,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 12,
+            "variant": "current",
+            "ms": 94.43806200000017,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 12,
+            "variant": "noGeneric",
+            "ms": 85.73162899999988,
+            "n": 437906,
+            "c": 1126244
+          }
+        ]
+      },
+      "manyLtFail": {
+        "chars": 1126244,
+        "current": {
+          "medianMs": 101.92060649999985,
+          "sampleMs": [
+            107.12735500000008, 101.27776999999969, 101.05814299999975, 106.33212300000014,
+            101.25120100000004, 109.82300200000009, 103.68957, 99.50680200000033, 104.8884909999997,
+            97.7815529999998, 99.16218600000047, 102.563443
+          ],
+          "raw": 437906
+        },
+        "noGeneric": {
+          "medianMs": 89.99532950000003,
+          "sampleMs": [
+            97.42134199999964, 86.14595000000008, 91.38952199999994, 88.85204699999986,
+            99.96462400000019, 85.79121499999974, 93.2075890000001, 90.30391099999997,
+            89.68674800000008, 102.46943199999987, 89.62453100000039, 84.17396600000029
+          ],
+          "raw": 437906
+        },
+        "ratio": 0.8829944462702953,
+        "rows": [
+          {
+            "block": 1,
+            "variant": "noGeneric",
+            "ms": 97.42134199999964,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 1,
+            "variant": "current",
+            "ms": 107.12735500000008,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 2,
+            "variant": "current",
+            "ms": 101.27776999999969,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 2,
+            "variant": "noGeneric",
+            "ms": 86.14595000000008,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 3,
+            "variant": "noGeneric",
+            "ms": 91.38952199999994,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 3,
+            "variant": "current",
+            "ms": 101.05814299999975,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 4,
+            "variant": "current",
+            "ms": 106.33212300000014,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 4,
+            "variant": "noGeneric",
+            "ms": 88.85204699999986,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 5,
+            "variant": "noGeneric",
+            "ms": 99.96462400000019,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 5,
+            "variant": "current",
+            "ms": 101.25120100000004,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 6,
+            "variant": "current",
+            "ms": 109.82300200000009,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 6,
+            "variant": "noGeneric",
+            "ms": 85.79121499999974,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 7,
+            "variant": "noGeneric",
+            "ms": 93.2075890000001,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 7,
+            "variant": "current",
+            "ms": 103.68957,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 8,
+            "variant": "current",
+            "ms": 99.50680200000033,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 8,
+            "variant": "noGeneric",
+            "ms": 90.30391099999997,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 9,
+            "variant": "noGeneric",
+            "ms": 89.68674800000008,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 9,
+            "variant": "current",
+            "ms": 104.8884909999997,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 10,
+            "variant": "current",
+            "ms": 97.7815529999998,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 10,
+            "variant": "noGeneric",
+            "ms": 102.46943199999987,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 11,
+            "variant": "noGeneric",
+            "ms": 89.62453100000039,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 11,
+            "variant": "current",
+            "ms": 99.16218600000047,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 12,
+            "variant": "current",
+            "ms": 102.563443,
+            "n": 437906,
+            "c": 1126244
+          },
+          {
+            "block": 12,
+            "variant": "noGeneric",
+            "ms": 84.17396600000029,
+            "n": 437906,
+            "c": 1126244
+          }
+        ]
+      }
+    }
+  },
+  "jscDiagnosticAttempt": {
+    "description": "JSC_dumpRegExpDisassembly/JSC_traceRegExpJITExecution produced no engine diagnostic output for true, 1, false, or 0. JSC_useRegExpJIT true/false timing overlapped across forward/reverse process order and the setting could not be audited; no conclusion about actual JIT or bytecode execution is supported.",
+    "dumpStdoutBytes": 106,
+    "dumpStderrBytes": 0,
+    "forwardTimingFileSha256": "938d5eaa4d33be52e01112cb2eda96c2115fe2f72138ac110afde835fa0e2aae",
+    "reverseTimingFileSha256": "c15ee303be015ff48968d2425e694fca8a80a1ccd0ce0d9fd47955a2bce0bcb6"
+  }
+}

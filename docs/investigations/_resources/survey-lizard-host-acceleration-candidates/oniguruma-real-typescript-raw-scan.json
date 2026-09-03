@@ -1,0 +1,74 @@
+{
+  "environment": {
+    "bun": "1.3.14",
+    "node": "v24.3.0"
+  },
+  "files": 254,
+  "patternChars": 393,
+  "flags": "gmsu",
+  "guard": {
+    "count": 296074,
+    "digest": "0c7a6e46b17eb063577c48b9e1d7b2daf07af27528cc3ef9250be8f83867703b"
+  },
+  "rows": [
+    {
+      "block": 1,
+      "name": "onig",
+      "ms": 214.15596700000003
+    },
+    {
+      "block": 1,
+      "name": "native",
+      "ms": 615.1376210000001
+    },
+    {
+      "block": 2,
+      "name": "native",
+      "ms": 589.926741
+    },
+    {
+      "block": 2,
+      "name": "onig",
+      "ms": 214.46860000000015
+    },
+    {
+      "block": 3,
+      "name": "onig",
+      "ms": 203.21035699999993
+    },
+    {
+      "block": 3,
+      "name": "native",
+      "ms": 603.3177000000001
+    },
+    {
+      "block": 4,
+      "name": "native",
+      "ms": 634.4717479999999
+    },
+    {
+      "block": 4,
+      "name": "onig",
+      "ms": 208.83559000000014
+    },
+    {
+      "block": 5,
+      "name": "onig",
+      "ms": 203.51218999999946
+    },
+    {
+      "block": 5,
+      "name": "native",
+      "ms": 597.4872599999999
+    }
+  ],
+  "native": {
+    "medianMs": 603.3177000000001
+  },
+  "onig": {
+    "medianMs": 208.83559000000014
+  },
+  "wasmBytes": 473151,
+  "sourceUtf16CodeUnits": 1126244,
+  "measurementScope": "Raw generic TypeScript combined-pattern scan only; no CodeReader macro grouping, TypeScript template splitting, reader states, processors, metrics, Worker or Product layers."
+}

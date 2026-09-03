@@ -19,6 +19,15 @@ relations:
 
 被比较的 before 是 `e2bad655dde89d07c48413fae4c6167746e10708`；after 是其直接子提交 `dd9635d05ddbeb7b0c821ded527b43e298648a38`。该实现变化只在 hand-written `analyzer/port-facade.ts` 引入安全 filename 的 reader-resolution fast path；本轮未修改 Product runtime、未切换工作区 revision，也未修改任何 analyzer core/readers/shared/protocol。
 
+### 当前阅读导航（不属于形成时证据）
+
+- **本报告的 evidence owner：**两相邻 revision 在真实仓库 TypeScript corpus 上，从 public `src/index.ts` 发起的完整 `functionMetrics` warmed-operation Product 测量，以及 snapshot equality guard；raw rows/manifest 由本报告资源拥有。
+- **直接前序：**frontmatter 的 `复查 → verify-lizard-reader-resolution-fast-path.md`；该前序是 fixed synthetic analyzer scope 的验收，本报告只复查其变更在完整 Product layer 的表现。
+- **已确认 / 推断 / 未知：**所有计数样本 output 等价和本轮 wall observations 已确认；小幅下降是否是稳定实现收益仍是推断未闭合，Product stage 的因果占比未知。
+- **不能比较或相减：**本报告完整 Product time 不可与 direct analyzer、tokenizer 或旧 synthetic batch 的时间相减；它包含 read/decode、Worker、adapter、Records 与 settlement，且本轮不证明 cold/session/resource 指标。
+- **形成时建议（不是当前状态）：**若要据此作性能决策，需在明确 consumer corpus、稳定 host 条件和预定义统计阈值下复查；本报告不授权继续改 core、Worker、I/O 或 settlement。
+- **当前状态 owner：**本轮已停止进一步性能实现；本报告不触发新的 Product 性能复查。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+
 ## 调查目的
 
 1. 在 fixed、可核验输入上确认 before/after 的完整 Product snapshot 没有漂移。

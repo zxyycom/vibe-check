@@ -1,0 +1,221 @@
+{
+  "identity": {
+    "request": "/home/dev/.codex/worktrees/d20e/vibe-check/docs/investigations/_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+    "requestSha256": "71029f6bf4f38e14f9ebae4923822dda751b9a2101da68fab8bde6f882c90a4d",
+    "upstream": "/tmp/vibe-lizard-1.24.0-308b1c3",
+    "upstreamCommit": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "pythonVersion": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]",
+    "pythonExecutable": "/tmp/lizard-1.24-venv/bin/python",
+    "lizardVersion": "1.24.0",
+    "lizardModule": "/tmp/vibe-lizard-1.24.0-308b1c3/lizard.py",
+    "pygmentsVersion": "2.18.0",
+    "scriptSha256": "3a6cbb7b95250c4cf6cbfc87b509f41e0d4d33f424518bf0fb502284dc3e1e4f"
+  },
+  "scope": {
+    "input": "same 254 decoded .ts source strings",
+    "metrics": 2222,
+    "canonicalDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+    "timerIncludes": "reader selection, analyzer, function-metric projection",
+    "timerExcludes": "request JSON parse, file read/decode, process startup; direct pre-resolved excludes selection",
+    "normalOperationMs": 321.538817,
+    "preResolvedDirectOperationMs": 350.257483,
+    "instrumentedNormalOperationMs": 370.519205
+  },
+  "outputGuard": {
+    "normalDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+    "preResolvedDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+    "instrumentedDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+    "equal": true
+  },
+  "readerSelection": {
+    "getReaderCalls": 254,
+    "getReaderNs": 6555169,
+    "matchFilenameCalls": 4064,
+    "matchFilenameNs": 5412735,
+    "regexCompileApiCalls": 4826,
+    "regexCompileApiNs": 2379205,
+    "trueCompilerCalls": 0,
+    "trueCompilerNs": 0
+  },
+  "readerDistribution": {
+    "readerClasses": 27,
+    "allTs": true,
+    "firstMatchPositions": [
+      16
+    ],
+    "firstFive": [
+      {
+        "path": "src/cache/cache-json-by-key.ts",
+        "firstMatchPosition": 16,
+        "allMatchPositions": [
+          16
+        ],
+        "reader": "TypeScriptReader"
+      },
+      {
+        "path": "src/check-settlement/fact-validation.ts",
+        "firstMatchPosition": 16,
+        "allMatchPositions": [
+          16
+        ],
+        "reader": "TypeScriptReader"
+      },
+      {
+        "path": "src/check-settlement/facts.ts",
+        "firstMatchPosition": 16,
+        "allMatchPositions": [
+          16
+        ],
+        "reader": "TypeScriptReader"
+      },
+      {
+        "path": "src/check-settlement/outcome-normalization.ts",
+        "firstMatchPosition": 16,
+        "allMatchPositions": [
+          16
+        ],
+        "reader": "TypeScriptReader"
+      },
+      {
+        "path": "src/check-settlement/reason-shape.ts",
+        "firstMatchPosition": 16,
+        "allMatchPositions": [
+          16
+        ],
+        "reader": "TypeScriptReader"
+      }
+    ]
+  },
+  "cProfileGroups": {
+    "readerSelection": {
+      "functionEntries": 3,
+      "primitiveCalls": 8382,
+      "totalCalls": 8382,
+      "inlineSeconds": 0.006355178,
+      "cumulativeSeconds": 0.031817247,
+      "functions": [
+        "<code object compile_file_extension_re at 0x7e4ae20530f0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 130>",
+        "<code object get_reader_for at 0x7e4ae2086120, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/__init__.py\", line 64>",
+        "<code object match_filename at 0x7e4ae2087330, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 128>"
+      ]
+    },
+    "regexPythonApi": {
+      "functionEntries": 5,
+      "primitiveCalls": 21138,
+      "totalCalls": 21138,
+      "inlineSeconds": 0.007477367,
+      "cumulativeSeconds": 0.022862963,
+      "functions": [
+        "<code object _compile at 0x258d3be0, file \"/home/dev/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py\", line 280>",
+        "<code object escape at 0x7e4ae2236590, file \"/home/dev/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py\", line 255>",
+        "<code object match at 0x7e4ae224ea30, file \"/home/dev/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py\", line 164>",
+        "<code object search at 0x7e4ae224f630, file \"/home/dev/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py\", line 174>",
+        "<code object compile at 0x7e4ae2269fb0, file \"/home/dev/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/re/__init__.py\", line 226>"
+      ]
+    },
+    "tokenGeneration": {
+      "functionEntries": 5,
+      "primitiveCalls": 891558,
+      "totalCalls": 891558,
+      "inlineSeconds": 0.314864721,
+      "cumulativeSeconds": 1.014173078,
+      "functions": [
+        "<code object _generate_tokens at 0x25a9edf0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 142>",
+        "<code object generate_tokens at 0x25a9f080, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 135>",
+        "<code object generate_tokens_with_regex at 0x25be30b0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/js_style_regex_expression.py\", line 9>",
+        "<code object generate_tokens at 0x7e4ae1cd07b0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 65>",
+        "<code object create_token at 0x7e4ae1ed4030, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 137>"
+      ]
+    },
+    "processors": {
+      "functionEntries": 4,
+      "primitiveCalls": 747607,
+      "totalCalls": 747607,
+      "inlineSeconds": 0.20790535500000001,
+      "cumulativeSeconds": 1.353392282,
+      "functions": [
+        "<code object comment_counter at 0x25a9e4f0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard.py\", line 538>",
+        "<code object condition_counter at 0x7e4ae2052330, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard.py\", line 584>",
+        "<code object token_counter at 0x7e4ae217e8b0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard.py\", line 576>",
+        "<code object line_counter at 0x7e4ae21e1c30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard.py\", line 560>"
+      ]
+    },
+    "stateMachine": {
+      "functionEntries": 54,
+      "primitiveCalls": 1144854,
+      "totalCalls": 1473162,
+      "inlineSeconds": 0.499314085,
+      "cumulativeSeconds": 1.9976702860000002,
+      "functions": [
+        "<code object split_template_literal at 0x25bbbc30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 68>",
+        "<code object handle_type_alias at 0x25bc3b90, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 183>",
+        "<code object _function at 0x25be1080, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 472>",
+        "<code object _dec at 0x25be2d30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 503>",
+        "<code object generate_tokens_with_regex at 0x25be30b0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/js_style_regex_expression.py\", line 9>",
+        "<code object _state_global at 0x25bea310, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 158>",
+        "<code object _expecting_func_opening_bracket at 0x25beb120, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 531>",
+        "<code object __init__ at 0x25d81be0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 115>",
+        "<code object __init__ at 0x7e4ae1cc41b0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 138>",
+        "<code object _expecting_condition_and_statement_block at 0x7e4ae1cc4930, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 426>",
+        "<code object _inline_type_annotation at 0x7e4ae1cee010, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 631>",
+        "<code object _state_generic_type at 0x7e4ae1cee100, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 635>",
+        "<code object _function_type_annotation at 0x7e4ae1cee1f0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 639>",
+        "<code object __init__ at 0x7e4ae1d099b0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 61>",
+        "<code object _field at 0x7e4ae1d09ac0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 499>",
+        "<code object _state_template_literal at 0x7e4ae1d09bd0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 551>",
+        "<code object callback at 0x7e4ae1d09ce0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 601>",
+        "<code object _pop_function_from_stack at 0x7e4ae1d190d0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 455>",
+        "<code object _consume_type_annotation at 0x7e4ae1d19200, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 598>",
+        "<code object statemachine_before_return at 0x7e4ae1d20f30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 153>",
+        "<code object callback at 0x7e4ae1d21130, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 413>",
+        "<code object callback at 0x7e4ae1d21230, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 427>",
+        "<code object callback at 0x7e4ae1d21330, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 441>",
+        "<code object _collect_computed_name at 0x7e4ae1d21430, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 555>",
+        "<code object <genexpr> at 0x7e4ae1d21530, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 581>",
+        "<code object _consume_generic_type_params at 0x7e4ae1d21630, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 583>",
+        "<code object __init__ at 0x7e4ae1d21730, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 608>",
+        "<code object _to_camel_case at 0x7e4ae1d5c030, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 574>",
+        "<code object _state_simple_type at 0x7e4ae1e12170, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 618>",
+        "<code object _expecting_statement_or_block at 0x7e4ae1e17e00, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 440>",
+        "<code object collect at 0x7e4ae1e1de30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 559>",
+        "<code object _arrow_function at 0x7e4ae1e27b50, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 461>",
+        "<code object skip_interface at 0x7e4ae1e99f70, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 235>",
+        "<code object _push_function_to_stack at 0x7e4ae1e9a1f0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 449>",
+        "<code object consume at 0x7e4ae1e9a330, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 588>",
+        "<code object _state_global at 0x7e4ae1e9a470, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 612>",
+        "<code object <genexpr> at 0x7e4ae1ed4210, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 199>",
+        "<code object <genexpr> at 0x7e4ae1ed4300, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 200>",
+        "<code object read_object at 0x7e4ae1eec9f0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/typescript.py\", line 412>",
+        "<code object __init__ at 0x7e4ae1feb8a0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 17>",
+        "<code object __call__ at 0x7e4ae2055a30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 208>",
+        "<code object languages at 0x7e4ae205c030, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/__init__.py\", line 32>",
+        "<code object next at 0x7e4ae206be10, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 29>",
+        "<code object _build_conditions at 0x7e4ae2079de0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 104>",
+        "<code object get_reader_for at 0x7e4ae2086120, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/__init__.py\", line 64>",
+        "<code object <genexpr> at 0x7e4ae2087440, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 166>",
+        "<code object statemachine_return at 0x7e4ae208bc30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 39>",
+        "<code object __call__ at 0x7e4ae2096740, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 48>",
+        "<code object get_comment_from_token at 0x7e4ae2098a50, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/clike.py\", line 17>",
+        "<code object sub_state at 0x7e4ae209ad30, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 43>",
+        "<code object statemachine_before_return at 0x7e4ae20ae0b0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 61>",
+        "<code object eof at 0x7e4ae20ae180, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 225>",
+        "<code object process_token at 0x7e4ae20ae250, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 228>",
+        "<code object read_until_matching_brackets at 0x7e4ae21e1df0, file \"/tmp/vibe-lizard-1.24.0-308b1c3/lizard_languages/code_reader.py\", line 67>"
+      ]
+    },
+    "canonicalMapping": {
+      "functionEntries": 1,
+      "primitiveCalls": 1,
+      "totalCalls": 1,
+      "inlineSeconds": 0.002273212,
+      "cumulativeSeconds": 1.2953126750000001,
+      "functions": [
+        "<code object normal at 0x7e4ae24189e0, file \"/tmp/vibe-check-python-lizard-real-ts-profile/run.py\", line 33>"
+      ]
+    }
+  },
+  "notes": {
+    "regexTrueCompileDefinition": "calls to CPython re._compiler.compile while running the timed second operation; API calls to re.compile may be cache hits",
+    "overlap": "cProfile group cumulative time overlaps across generator pipeline and must not be summed into wall time"
+  }
+}

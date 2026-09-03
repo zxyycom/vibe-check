@@ -29,6 +29,15 @@ relations:
 
 A 的 mise pin 未提供 bit-for-bit Python/Pygments/PathSpec provenance。因此 A 是已核对的 historical Product + Lizard 1.23 CLI contract reconstruction，**不是**完整 historical Python environment reproduction。
 
+### 当前阅读导航（不属于形成时证据）
+
+- **本报告的 evidence owner：**A historical Product、B fixed-1.24 analyzer-only、C current Product decomposition 的 workload、计时规则、output admission 与形成时解释；机器样本由本报告的随附资源拥有。
+- **直接前序：**frontmatter 的 `补充 → compare-lizard-and-scc-typescript-port-priority.md`；它只补足此前缺少的正式性能证据，并不把该前序改写为本报告的 measurement owner。
+- **已确认 / 推断 / 未知：**已确认的 output guard 与 wall-time 分类见“已确认的输出前置条件”和“wall-time 观察”；因果归属仍未知，故“后续实施边界”不是优化授权。
+- **不能比较或相减：**A、B、C 的数值不得横向相减、相加或用一层的方向解释另一层；尤其 C stage 记录有重叠，CPU/RSS 与 long-lived session 也不在可比范围。
+- **形成时建议（不是当前状态）：**若要选择优化层，先用与目标层相同的 workload/profile 取得因果证据；本报告本身只提供该调查入口，不授权改动。
+- **当前状态 owner：**本轮已停止进一步性能实现；本报告的形成时调查入口不应触发新工作。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+
 ## 调查目的
 
 本轮形成可复核的 evidence，以回答下列问题，而不是选择优化方案：

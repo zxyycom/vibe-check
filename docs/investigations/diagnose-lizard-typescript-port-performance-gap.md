@@ -26,6 +26,15 @@ relations:
 - **实施建议（非授权）：**“推荐实施顺序”只规定若另行获批时应先验证什么；它不允许直接修改任何实现。
 - **明确禁止越界：**本报告不授权修改 `reader-registry.ts`、`CodeReader.matchFilename`、translated core/readers/shared/protocol 或 Product admission。即使 fast path 位于手写 façade，也属于 analyzer port 的 deviation；它必须保留完整 filename 语义和对未证明安全输入的原 registry fallback，并先取得独立 Change/Decision、deviation ledger 和 parity 证据。
 
+### 当前阅读导航（不属于形成时证据）
+
+- **本报告的 evidence owner：**fixed Lizard 1.24、27 reader-family representative batch 上的调用边界审计、runtime 筛查、profile、dispatch 反事实与形成时优先级；逐项观测由本报告资源拥有。
+- **直接前序：**frontmatter 的 `补充 → compare-lizard-python-typescript-performance.md`；先从该报告恢复 B analyzer-only 的对照协议，不能把其 historical Product 数字当成本报告 profile 的基线。
+- **已确认 / 推断 / 未知：**“已证结论”和“已证热点”是本轮确认；suffix-index/preselected-reader 的回收方向及 family 排名只是探索性推断；未隔离的 core、runtime 内部原因和任意 filename 等价性仍未知。
+- **不能比较或相减：**sampling inclusive time、独立 family warmed observations、dispatch microbenchmark 与正式 ABBA wall samples 不是同一计时实验；不得相加为总差距或相减得到其他阶段成本。
+- **形成时建议（不是当前状态）：**在独立 Change/Decision 中先验证带 registry fallback 的 façade resolver；若要触及 translated tokenizer/core，先另开 scoped Investigation，而不是从本报告直接实施。
+- **当前状态 owner：**本轮已停止进一步性能实现；这里的 façade/core 建议仅保存形成时路径，不应创建 Change。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+
 ## 调查目的
 
 1. 核对 B analyzer-only 计时是否包含文件读取、字符解码、JSON decode、Worker 或 Product adapter。

@@ -1,0 +1,1292 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "fixed-lizard-1.24-analyzer-only-real-typescript-corpus",
+  "formedAt": "2026-09-03T08:26:26Z",
+  "status": "comparable-wall-only",
+  "identity": {
+    "worktreeHead": "49b57cbf99747d516c4d95390b5d01ffb2f2b40d",
+    "worktreeStatus": "",
+    "upstreamLizardCommit": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "upstreamLizardSourcePathAtFormation": "/tmp/vibe-lizard-1.24.0-308b1c3",
+    "pythonDriver": {
+      "path": "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+      "sha256": "3fbc156bcf9a6a53fd6d2d180710dfdd164b6763c33ff050c187b7c16426d586"
+    },
+    "typescriptHarness": {
+      "path": "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+      "sha256": "fc3e5276f5b6485b70fe854573c6379799e86386692b609a4b740fbf67123d7d"
+    },
+    "runner": {
+      "path": "run-benchmark.py",
+      "sha256": "f2f3a3c2db5a7c3802b4f940effa2db6ed2b83faed2e349d7bdeec7f5acbe106"
+    },
+    "request": {
+      "path": "request.json",
+      "sha256": "71029f6bf4f38e14f9ebae4923822dda751b9a2101da68fab8bde6f882c90a4d",
+      "bytes": 1203838
+    },
+    "corpusManifest": {
+      "path": "corpus-manifest.json",
+      "sha256": "0a2d8a99c26859f46601f475a901aa5fd3c5003885873de9aa062d8ea49ffd5f",
+      "manifestSha256": "f34a3bf3c1aba272c572298e54056166814c33023381d00cf193099366eb5449"
+    }
+  },
+  "environment": {
+    "bunVersion": "1.3.14",
+    "python": {
+      "pythonVersion": "3.12.13 (main, Jun 23 2026, 15:18:55) [Clang 22.1.3 ]",
+      "pythonExecutable": "/tmp/lizard-1.24-venv/bin/python",
+      "lizardModule": "/tmp/vibe-lizard-1.24.0-308b1c3/lizard.py",
+      "lizardVersion": "1.24.0",
+      "pygmentsVersion": "2.18.0"
+    },
+    "kernel": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "machine": "x86_64",
+    "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuCount": 6
+  },
+  "protocol": {
+    "input": "same already-decoded UTF-8 source strings from request.json; normal analyzer reader selection and Product-consumed canonical metric mapping",
+    "excluded": "file discovery, read/decode, JSON/request parsing, process startup from operationWallMs, Worker transport, Product adapter, finding/settlement and Product snapshot",
+    "corpus": {
+      "classification": "254 tracked, non-test, non-fixture, non-test-support real repository TypeScript Product source files; port-facade drift excluded",
+      "fileCount": 254,
+      "sourceBytes": 1138778,
+      "sourceDigest": "4d30a5f5ed3b824be46ce6e98613e15b1eef045667663e251f1693b494452c32"
+    },
+    "temperature": "each fresh target performs one uncounted same-process analysis; operationWallMs surrounds the second analyzer-only operation",
+    "schedule": "15 blocks; odd ABBA and even BAAB; two samples per side per block; 30 samples per condition",
+    "equalityGuard": "canonical metrics sort file,startLine,endLine,name,nloc,ccn,parameterCount; preflight plus every counted sample must match Python preflight digest; IQR outliers are retained"
+  },
+  "preflight": {
+    "status": "equal",
+    "python": {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 354.890975,
+      "observedWallMs": 453.013949,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": ""
+    },
+    "typescript": {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 880.80064,
+      "observedWallMs": 940.174972,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": ""
+    }
+  },
+  "samples": [
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 314.066891,
+      "observedWallMs": 738.461519,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 1,
+      "ordinal": 1,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 887.0262759999998,
+      "observedWallMs": 1965.549231,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 1,
+      "ordinal": 2,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 768.959797,
+      "observedWallMs": 1775.064462,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 1,
+      "ordinal": 3,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 337.80583,
+      "observedWallMs": 750.214031,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 1,
+      "ordinal": 4,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 692.532051,
+      "observedWallMs": 1554.876192,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 2,
+      "ordinal": 5,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 303.036718,
+      "observedWallMs": 677.940736,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 2,
+      "ordinal": 6,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 305.378247,
+      "observedWallMs": 704.075118,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 2,
+      "ordinal": 7,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 735.0504229999999,
+      "observedWallMs": 1610.672297,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 2,
+      "ordinal": 8,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 319.152404,
+      "observedWallMs": 741.603789,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 3,
+      "ordinal": 9,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 812.490983,
+      "observedWallMs": 1724.524232,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 3,
+      "ordinal": 10,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 722.7577290000002,
+      "observedWallMs": 1627.016261,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 3,
+      "ordinal": 11,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 346.558085,
+      "observedWallMs": 861.347926,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 3,
+      "ordinal": 12,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 811.6945219999999,
+      "observedWallMs": 1715.838703,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 4,
+      "ordinal": 13,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 337.952569,
+      "observedWallMs": 770.577653,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 4,
+      "ordinal": 14,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 308.715111,
+      "observedWallMs": 734.310309,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 4,
+      "ordinal": 15,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 698.911108,
+      "observedWallMs": 1540.028599,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 4,
+      "ordinal": 16,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 292.46653,
+      "observedWallMs": 667.794426,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 5,
+      "ordinal": 17,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 742.513719,
+      "observedWallMs": 1591.48276,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 5,
+      "ordinal": 18,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 674.726673,
+      "observedWallMs": 1504.737703,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 5,
+      "ordinal": 19,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 294.244642,
+      "observedWallMs": 685.831762,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 5,
+      "ordinal": 20,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 692.26614,
+      "observedWallMs": 1510.60308,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 6,
+      "ordinal": 21,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 307.288272,
+      "observedWallMs": 675.086922,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 6,
+      "ordinal": 22,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 290.077244,
+      "observedWallMs": 673.373119,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 6,
+      "ordinal": 23,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 668.670104,
+      "observedWallMs": 1471.461493,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 6,
+      "ordinal": 24,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 293.374236,
+      "observedWallMs": 669.663765,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 7,
+      "ordinal": 25,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 667.563869,
+      "observedWallMs": 1463.312774,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 7,
+      "ordinal": 26,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 660.0205060000001,
+      "observedWallMs": 1462.699483,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 7,
+      "ordinal": 27,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 285.710823,
+      "observedWallMs": 646.660006,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 7,
+      "ordinal": 28,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 684.995626,
+      "observedWallMs": 1476.023797,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 8,
+      "ordinal": 29,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 279.349663,
+      "observedWallMs": 642.263459,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 8,
+      "ordinal": 30,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 278.257085,
+      "observedWallMs": 626.3616,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 8,
+      "ordinal": 31,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 790.4919359999999,
+      "observedWallMs": 1584.856289,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 8,
+      "ordinal": 32,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 528.472659,
+      "observedWallMs": 1082.05241,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 9,
+      "ordinal": 33,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 1211.588494,
+      "observedWallMs": 3920.577899,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 9,
+      "ordinal": 34,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 1102.3562899999997,
+      "observedWallMs": 2827.486625,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 9,
+      "ordinal": 35,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 400.021398,
+      "observedWallMs": 831.716267,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 9,
+      "ordinal": 36,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 849.238301,
+      "observedWallMs": 1849.24507,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 10,
+      "ordinal": 37,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 297.925967,
+      "observedWallMs": 727.765269,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 10,
+      "ordinal": 38,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 309.451852,
+      "observedWallMs": 694.734741,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 10,
+      "ordinal": 39,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 880.47853,
+      "observedWallMs": 1873.412839,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 10,
+      "ordinal": 40,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 448.379725,
+      "observedWallMs": 1477.488352,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 11,
+      "ordinal": 41,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 1143.0947499999997,
+      "observedWallMs": 2455.188838,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 11,
+      "ordinal": 42,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 724.301078,
+      "observedWallMs": 1729.527173,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 11,
+      "ordinal": 43,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 296.333441,
+      "observedWallMs": 678.581831,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 11,
+      "ordinal": 44,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 694.260385,
+      "observedWallMs": 1501.362127,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 12,
+      "ordinal": 45,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 286.438863,
+      "observedWallMs": 657.842416,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 12,
+      "ordinal": 46,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 417.455524,
+      "observedWallMs": 797.745855,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 12,
+      "ordinal": 47,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 694.402159,
+      "observedWallMs": 2176.125995,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 12,
+      "ordinal": 48,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 330.46738,
+      "observedWallMs": 752.445431,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 13,
+      "ordinal": 49,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 629.711542,
+      "observedWallMs": 1449.208226,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 13,
+      "ordinal": 50,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 643.270175,
+      "observedWallMs": 1407.691693,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 13,
+      "ordinal": 51,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 280.974409,
+      "observedWallMs": 634.084228,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 13,
+      "ordinal": 52,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 707.4591939999999,
+      "observedWallMs": 1480.458291,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 14,
+      "ordinal": 53,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 279.384711,
+      "observedWallMs": 661.411123,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 14,
+      "ordinal": 54,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 291.412236,
+      "observedWallMs": 643.868991,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 14,
+      "ordinal": 55,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 732.1223659999999,
+      "observedWallMs": 1589.239484,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 14,
+      "ordinal": 56,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 307.05327,
+      "observedWallMs": 688.360247,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 15,
+      "ordinal": 57,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 669.7726140000001,
+      "observedWallMs": 1527.316526,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 15,
+      "ordinal": 58,
+      "status": "complete"
+    },
+    {
+      "condition": "typescript-port",
+      "command": [
+        "bun",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 639.516289,
+      "observedWallMs": 1451.593656,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 15,
+      "ordinal": 59,
+      "status": "complete"
+    },
+    {
+      "condition": "python-lizard-1.24",
+      "command": [
+        "env",
+        "PYTHONPATH=/tmp/vibe-lizard-1.24.0-308b1c3",
+        "/tmp/lizard-1.24-venv/bin/python",
+        "/home/dev/.codex/worktrees/d20e/vibe-check/scripts/development/lizard-performance/python-driver.py",
+        "--warmup",
+        "/tmp/lizard-python-ts-real-typescript-20260903/request.json"
+      ],
+      "operationWallMs": 279.265115,
+      "observedWallMs": 630.853195,
+      "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+      "metricCount": 2222,
+      "stderr": "",
+      "block": 15,
+      "ordinal": 60,
+      "status": "complete"
+    }
+  ],
+  "statistics": {
+    "operationWallMs": {
+      "python": {
+        "count": 30,
+        "median": 304.20748249999997,
+        "p90": 401.7648106,
+        "min": 278.257085,
+        "max": 528.472659
+      },
+      "typescript": {
+        "count": 30,
+        "median": 715.1084615,
+        "p90": 908.5592774,
+        "min": 629.711542,
+        "max": 1211.588494
+      }
+    },
+    "pairedBlocks": [
+      {
+        "block": 1,
+        "pythonGeometricMeanMs": 325.72016638485024,
+        "typescriptGeometricMeanMs": 825.8859153216174,
+        "pythonDividedByTypescript": 0.39438881368743034
+      },
+      {
+        "block": 2,
+        "pythonGeometricMeanMs": 304.2052296057274,
+        "typescriptGeometricMeanMs": 713.4745805062767,
+        "pythonDividedByTypescript": 0.42637150350873815
+      },
+      {
+        "block": 3,
+        "pythonGeometricMeanMs": 332.57306859303316,
+        "typescriptGeometricMeanMs": 766.3120367748752,
+        "pythonDividedByTypescript": 0.43399170655430463
+      },
+      {
+        "block": 4,
+        "pythonGeometricMeanMs": 323.0031963488444,
+        "typescriptGeometricMeanMs": 753.1947409060623,
+        "pythonDividedByTypescript": 0.42884420031967413
+      },
+      {
+        "block": 5,
+        "pythonGeometricMeanMs": 293.35423879131565,
+        "typescriptGeometricMeanMs": 707.8091630360029,
+        "pythonDividedByTypescript": 0.4144538586262892
+      },
+      {
+        "block": 6,
+        "pythonGeometricMeanMs": 298.5587631527207,
+        "typescriptGeometricMeanMs": 680.3658367595176,
+        "pythonDividedByTypescript": 0.4388209210719812
+      },
+      {
+        "block": 7,
+        "pythonGeometricMeanMs": 289.5171746452293,
+        "typescriptGeometricMeanMs": 663.7814720257697,
+        "pythonDividedByTypescript": 0.4361633863651884
+      },
+      {
+        "block": 8,
+        "pythonGeometricMeanMs": 278.8028387985179,
+        "typescriptGeometricMeanMs": 735.8556370296227,
+        "pythonDividedByTypescript": 0.3788825209302492
+      },
+      {
+        "block": 9,
+        "pythonGeometricMeanMs": 459.78296168731316,
+        "typescriptGeometricMeanMs": 1155.6825676856631,
+        "pythonDividedByTypescript": 0.3978453725472916
+      },
+      {
+        "block": 10,
+        "pythonGeometricMeanMs": 303.63422443301886,
+        "typescriptGeometricMeanMs": 864.7173473940358,
+        "pythonDividedByTypescript": 0.351136964405848
+      },
+      {
+        "block": 11,
+        "pythonGeometricMeanMs": 364.51324637642966,
+        "typescriptGeometricMeanMs": 909.9146991235718,
+        "pythonDividedByTypescript": 0.40060155828620875
+      },
+      {
+        "block": 12,
+        "pythonGeometricMeanMs": 345.79688495940684,
+        "typescriptGeometricMeanMs": 694.3312683814343,
+        "pythonDividedByTypescript": 0.49802867983390553
+      },
+      {
+        "block": 13,
+        "pythonGeometricMeanMs": 304.7177001575038,
+        "typescriptGeometricMeanMs": 636.4547539470971,
+        "pythonDividedByTypescript": 0.47877354716535336
+      },
+      {
+        "block": 14,
+        "pythonGeometricMeanMs": 285.33510708765544,
+        "typescriptGeometricMeanMs": 719.6851387653721,
+        "pythonDividedByTypescript": 0.39647213999326286
+      },
+      {
+        "block": 15,
+        "pythonGeometricMeanMs": 292.82975729538833,
+        "typescriptGeometricMeanMs": 654.4696299898945,
+        "pythonDividedByTypescript": 0.44743062760591323
+      }
+    ],
+    "pythonDividedByTypescript": {
+      "median": 0.42637150350873815,
+      "p90": 0.46623637934157725,
+      "bootstrapMedian95": [
+        0.3978453725472916,
+        0.4388209210719812
+      ]
+    }
+  }
+}

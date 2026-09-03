@@ -17,6 +17,15 @@ relations:
 
 用户确认 ST 与 Ruby 暂不调查，并明确 Fortran 也不是主要优化目标；本轮因此不扩展 tokenizer、逐 regex 或反事实实现，只把已有性能调查中的 Fortran 观察收敛为一个可复核的轻量结论。调查形成时仓库为 `dd9635d05ddb`；没有修改 Product、port façade、reader registry、translated core/readers/shared 或测试。
 
+### 当前阅读导航（不属于形成时证据）
+
+- **本报告的 evidence owner：**fixed Lizard 1.24 Fortran normal/edge fixture 的 pre-resolved direct in-memory reader/core 观察，以及它对可修改层级的轻量判断；输入与摘录由本报告资源拥有。
+- **直接前序：**frontmatter 的 `补充 → diagnose-lizard-typescript-port-performance-gap.md`；该前序拥有 27-family 的筛选和 profile 排序，本报告只缩小到 Fortran，不复写其整体语言结论。
+- **已确认 / 推断 / 未知：**Fortran slice 的 direct-core 差距和不存在 façade-only 修复点已确认；tokenizer/setup 是后续检查顺序只是有限推断；各 core 阶段的可回收比例仍未知。
+- **不能比较或相减：**该 128-file、顺序 warmed、pre-resolved reader 观察不是跨 runtime ABBA，不能与 27-family totals、真实 TypeScript、raw-scan 或 Product 数字相加、相减或外推。
+- **形成时建议（不是当前状态）：**当前不实施；仅在出现 Fortran-heavy consumer workload、明确 budget 或新的 source-alignment 授权后，以 token stream 和同一 corpus 重开 scoped core Investigation。
+- **当前状态 owner：**本轮 Lizard 性能实现已停止；该 Fortran 形成时条件不触发新调查。当前关闭状态由[最新综合调查](compare-lizard-regex-backends-and-analyzer-cost-allocation.md)拥有。
+
 ## 调查目的
 
 确定既有 fixed Lizard 1.24 Fortran family observation 的准确适用范围，判断热点是否落在可独立修改的 façade/adapter 层，以及在缺少真实 Fortran workload 或性能预算时是否应进入实施。

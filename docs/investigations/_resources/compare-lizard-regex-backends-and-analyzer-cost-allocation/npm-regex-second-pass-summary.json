@@ -1,0 +1,83 @@
+{
+  "scope": "Second npm registry/GitHub primary-source sweep; /tmp only; no repository file/lockfile altered.",
+  "environment": {
+    "bun": "1.3.14",
+    "node": "v24.3.0",
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "workload": {
+    "pattern": "current TypeScript combined tokenizer",
+    "patternChars": 393,
+    "flags": "gmsu",
+    "files": 254,
+    "utf16Units": 1126244,
+    "guard": {
+      "count": 296074,
+      "digest": "47aeb09352ba3a1e0cbe1c3bfb8e8262974bfe38103a74345163376c759d460e"
+    }
+  },
+  "outcomes": [
+    {
+      "package": "pcre2-wasm@10.47.5",
+      "engine": "PCRE2 WebAssembly (embedded binary)",
+      "importInitCompileMs": [7.777093, 11.814802, 3.121161],
+      "fullRawParity": true,
+      "offset": "wrapper exposes JS character index; exact UTF-16 guard passed",
+      "warmMedianMs": {
+        "matchAll": 2842.376177,
+        "iterator": 7757.127758
+      },
+      "delivery": "571123 unpacked bytes; no external wasm asset; explicit destroy",
+      "decision": "exclude: substantially slower than the separately measured native control using the same raw corpus/guard/field-consumption protocol; per-subject UTF-8 copy and match bridge are unallocated integration-overhead candidates"
+    },
+    {
+      "package": "@ofjansen/pcre2-wasm@1.4.0",
+      "engine": "PCRE2 WebAssembly",
+      "importInit": "failed before init",
+      "error": "ReferenceError: document is not defined at dist/libpcre2.js:57",
+      "delivery": "406336 unpacked bytes but package manifest lists wasm while tarball has no .wasm",
+      "decision": "exclude wrapper"
+    },
+    {
+      "package": "pcre2-wasm-universal@1.0.0",
+      "engine": "PCRE2 WebAssembly",
+      "importInit": "init completes; compile fails",
+      "error": "unknown property name after \\P or \\p (current pattern's \\p{White_Space})",
+      "delivery": "641535 unpacked bytes; external 587702-byte wasm; explicit destroy",
+      "decision": "exclude wrapper"
+    },
+    {
+      "package": "onigasm@2.2.5",
+      "engine": "Oniguruma WebAssembly",
+      "fullRawParity": true,
+      "warmMedianMs": 465.815379,
+      "initMs": 6.619647,
+      "delivery": "565820 unpacked bytes; external 468274-byte wasm; no public deterministic scanner/string disposal; module-global LRU",
+      "decision": "exclude: slower than current vscode-oniguruma result and stale release"
+    },
+    {
+      "package": "@adguard/re2-wasm@1.2.1",
+      "engine": "RE2 WebAssembly",
+      "compile": "failed",
+      "error": "invalid perl operator: (?=",
+      "delivery": "892736-byte wasm",
+      "decision": "exclude semantic mismatch"
+    },
+    {
+      "package": "re2js@2.8.6",
+      "engine": "pure JS RE2 port",
+      "compile": "failed",
+      "error": "invalid or unsupported Perl syntax: `(?=`",
+      "decision": "exclude semantic mismatch; not an external high-performance engine"
+    }
+  ],
+  "conclusion": "The newly found modern PCRE2 package completes the capability/parity probe but is not competitive on the required raw stream. No candidate in this second sweep changes the existing conclusion: vscode-oniguruma remains the only candidate worth a full 27-reader/full-analyzer experiment. This is not an adoption decision.",
+  "nativeComparableProtocol": {
+    "runtime": {
+      "bun": "1.3.14"
+    },
+    "samplesMs": [661.7923899999998, 666.936287, 688.4849379999999],
+    "medianMs": 666.936287
+  }
+}

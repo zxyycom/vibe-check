@@ -1,0 +1,112 @@
+{
+  "protocol": "one Python 3.12.13 process; same decoded request; both warmed once; 12 ABBA/BAAB blocks, 24 samples each; normal uses upstream analyze_source_code; direct is byte-for-byte pipeline after pre-resolved upstream reader class. All results guard 2222 metric digest.",
+  "outputDigest": "29ff7a0e1535889e4055dd04989e70c6f925d08d745509b24f202744d5735ec6",
+  "normalAnalyzeOnlyMs": {
+    "n": 24,
+    "medianMs": 286.5423305,
+    "p10Ms": 278.922815,
+    "p90Ms": 292.543059,
+    "minMs": 275.133405,
+    "maxMs": 306.203026
+  },
+  "preResolvedDirectAnalyzeOnlyMs": {
+    "n": 24,
+    "medianMs": 281.66038849999995,
+    "p10Ms": 276.513624,
+    "p90Ms": 289.825045,
+    "minMs": 273.806358,
+    "maxMs": 298.87237
+  },
+  "blocks": [
+    {
+      "block": 1,
+      "normalGeomeanMs": 290.3521873215533,
+      "directGeomeanMs": 298.0489481973123,
+      "directDividedByNormal": 1.0265083619543571
+    },
+    {
+      "block": 2,
+      "normalGeomeanMs": 282.966979870225,
+      "directGeomeanMs": 280.6481852844929,
+      "directDividedByNormal": 0.9918054234215048
+    },
+    {
+      "block": 3,
+      "normalGeomeanMs": 296.30606796172583,
+      "directGeomeanMs": 285.5747323748703,
+      "directDividedByNormal": 0.9637829368103197
+    },
+    {
+      "block": 4,
+      "normalGeomeanMs": 293.0125200298525,
+      "directGeomeanMs": 289.22567114886596,
+      "directDividedByNormal": 0.98707615333092
+    },
+    {
+      "block": 5,
+      "normalGeomeanMs": 291.146132759492,
+      "directGeomeanMs": 282.66594654753345,
+      "directDividedByNormal": 0.9708730934133211
+    },
+    {
+      "block": 6,
+      "normalGeomeanMs": 287.58863359529323,
+      "directGeomeanMs": 280.0755064238543,
+      "directDividedByNormal": 0.9738754377128418
+    },
+    {
+      "block": 7,
+      "normalGeomeanMs": 283.9403050978785,
+      "directGeomeanMs": 279.75233289985846,
+      "directDividedByNormal": 0.9852505187786694
+    },
+    {
+      "block": 8,
+      "normalGeomeanMs": 284.84825068664406,
+      "directGeomeanMs": 280.2650314742167,
+      "directDividedByNormal": 0.9839099618783712
+    },
+    {
+      "block": 9,
+      "normalGeomeanMs": 279.9574852430407,
+      "directGeomeanMs": 279.77946592768586,
+      "directDividedByNormal": 0.9993641201798898
+    },
+    {
+      "block": 10,
+      "normalGeomeanMs": 287.2154808308112,
+      "directGeomeanMs": 281.23370071148616,
+      "directDividedByNormal": 0.9791731974125424
+    },
+    {
+      "block": 11,
+      "normalGeomeanMs": 284.1014227029093,
+      "directGeomeanMs": 277.5267810643163,
+      "directDividedByNormal": 0.976858117864942
+    },
+    {
+      "block": 12,
+      "normalGeomeanMs": 281.543485492638,
+      "directGeomeanMs": 284.30653295419575,
+      "directDividedByNormal": 1.0098139278794642
+    }
+  ],
+  "directDividedByNormalMedian": 0.9845802403285203,
+  "mappingOnlyMs": {
+    "n": 100,
+    "medianMs": 4.747152,
+    "p10Ms": 4.382796,
+    "p90Ms": 5.243072,
+    "minMs": 4.26716,
+    "maxMs": 6.251455
+  },
+  "mappingWithCanonicalSortDigestMs": {
+    "n": 100,
+    "medianMs": 6.5697595,
+    "p10Ms": 6.145357,
+    "p90Ms": 7.185577,
+    "minMs": 5.853454,
+    "maxMs": 8.222795
+  },
+  "sourceBytes": 1138778
+}
