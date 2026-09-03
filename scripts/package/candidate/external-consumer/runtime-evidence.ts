@@ -118,6 +118,7 @@ function projectCandidateFixtureEvidence(
   const { evidence, humanOutput, kind, duplicateOutcome, jsonSchemaOutcome, markdownLinkOutcome } =
     input;
   return Object.freeze({
+    admissionSimulation: evidence.admissionSimulation,
     checkMessages: evidence.checkMessages,
     checkDurations: evidence.checkDurations,
     cacheComputations: evidence.cacheComputations,

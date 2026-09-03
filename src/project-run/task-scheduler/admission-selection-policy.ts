@@ -1,4 +1,5 @@
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
+import type { AdmissionCoreState } from "./admission-core.ts";
 import type { SchedulerInspection } from "./scheduler-decision-inspection.ts";
 import type {
   AdmissionPolicyContext,
@@ -11,6 +12,8 @@ export interface AdmissionCandidate {
 }
 
 export interface AdmissionPolicyInput {
+  /** Shared immutable core at this decision boundary; only custom context projects its public handle. */
+  readonly admissionCore: AdmissionCoreState;
   /** Scheduler-owned decision-boundary measurement, present only for custom policy. */
   readonly measurement?: AdmissionPolicyContext["measurement"];
   readonly candidates: readonly AdmissionCandidate[];

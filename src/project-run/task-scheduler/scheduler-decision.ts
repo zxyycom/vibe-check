@@ -2,17 +2,20 @@ import type { AdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
 import { staticAdmissionSelectionPolicy } from "./admission-selection-policy.ts";
 import { decideAdmission, type SchedulerDecisionCycle } from "./scheduler-admission-decision.ts";
-import {
-  decisionContext,
-  inspectSnapshot,
-  selectBlockedTask
-} from "./scheduler-decision-inspection.ts";
+import { decisionContext } from "./scheduler-decision-inspection.ts";
 import { freezeDecision } from "./scheduler-decision-model.ts";
 import type {
   SchedulerDecision,
   SchedulerSnapshot,
   SchedulerTrigger
 } from "./scheduler-decision-model.ts";
+import {
+  compilePreparedAdmissionGraph,
+  createAdmissionCoreFromSchedulerSnapshot,
+  reconcileAdmissionCore,
+  schedulerInspectionForCore,
+  type AdmissionCoreState
+} from "./admission-core.ts";
 
 export type {
   SchedulerDecision,
@@ -30,10 +33,45 @@ export function decideScheduler(
   snapshot: SchedulerSnapshot,
   trigger: SchedulerTrigger,
   policy: AdmissionSelectionPolicy = staticAdmissionSelectionPolicy,
-  measurement?: () => AdmissionPolicyContext["measurement"]
+  measurement?: () => AdmissionPolicyContext["measurement"],
+  admissionCore?: AdmissionCoreState
 ): SchedulerDecision {
-  const state = inspectSnapshot(snapshot);
+  const core =
+    admissionCore ??
+    createAdmissionCoreFromSchedulerSnapshot(
+      compilePreparedAdmissionGraph(snapshot.graph, snapshot.maxParallel),
+      snapshot
+    );
+  if (admissionCore === undefined) {
+    const reconciliation = reconcileAdmissionCore(core);
+    const forced = reconciliation.effects.find(
+      (effect) => effect.kind === "settled" && effect.settlementKind === "blocked"
+    );
+    if (forced?.kind === "settled" && forced.settlementKind === "blocked") {
+      return freezeDecision({
+        ...decisionContext(
+          Object.freeze({
+            ...schedulerInspectionForCore(core),
+            isAbortRequested: snapshot.isAbortRequested,
+            isCancelled: snapshot.isCancelled
+          }),
+          core.compiled.graph.schedulerGraphSnapshot
+        ),
+        dependencyIds: forced.dependencyIds ?? [],
+        kind: "settle-blocked",
+        taskId: forced.taskId,
+        trigger
+      });
+    }
+  }
+  const coreInspection = schedulerInspectionForCore(core);
+  const state = Object.freeze({
+    ...coreInspection,
+    isAbortRequested: snapshot.isAbortRequested,
+    isCancelled: snapshot.isCancelled
+  });
   const cycle: SchedulerDecisionCycle = Object.freeze({
+    admissionCore: core,
     context: decisionContext(state, state.graph.schedulerGraphSnapshot),
     policy,
     state,
@@ -42,17 +80,6 @@ export function decideScheduler(
   });
   const terminalDecision = decideTerminalSchedulerAction(cycle, snapshot);
   if (terminalDecision !== undefined) return terminalDecision;
-
-  const blocked = selectBlockedTask(state);
-  if (blocked !== undefined) {
-    return freezeDecision({
-      ...cycle.context,
-      dependencyIds: blocked.dependencyIds,
-      kind: "settle-blocked",
-      taskId: blocked.task.id,
-      trigger
-    });
-  }
 
   return decideAdmission(cycle);
 }

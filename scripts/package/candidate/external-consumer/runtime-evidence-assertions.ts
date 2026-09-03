@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { isRecord, isUnknownArray, requiredString } from "./runtime-evidence-values.ts";
 
 export type CandidateFixtureEvidence = Readonly<{
+  admissionSimulation: unknown;
   checkMessages: unknown;
   checkDurations: unknown;
   cacheComputations: unknown;
@@ -32,6 +33,7 @@ export type CandidateFixtureEvidence = Readonly<{
 /** Verifies the package behaviors observed from the isolated consumer fixture. */
 export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence): void {
   assert.equal(runEvidence.kind, "completed");
+  assertAdmissionSimulation(runEvidence.admissionSimulation);
   assert.equal(runEvidence.cacheComputations, 1);
   assert.deepEqual(runEvidence.firstCacheRead, {
     read: "miss",
@@ -104,6 +106,34 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
     assertCanonicalExecutedDuration(runEvidence.checkDurations, checkId);
   }
   assertUnavailableDependencyDuration(runEvidence.checkDurations, "blocked-changed-files-consumer");
+}
+
+function assertAdmissionSimulation(value: unknown): void {
+  if (!isRecord(value))
+    throw new TypeError("isolated admission simulation evidence must be an object");
+  assert.deepEqual(value.standalone, {
+    branchRunningTaskIds: ["independent"],
+    initialSourceSelectable: true,
+    methodsFrozen: {
+      initialState: true,
+      select: true,
+      settle: true,
+      validateSelection: true
+    },
+    settledTaskIds: ["source"]
+  });
+  assert.deepEqual(value.callback, {
+    customRunKind: "completed",
+    lookaheadSelected: true,
+    lookaheadSettled: true,
+    started: ["installed-simulation-first", "installed-simulation-second"]
+  });
+  assert.deepEqual(value.hardGuard, {
+    callbackCount: 1,
+    diagnostic: "admission-policy-failed",
+    executionCount: 0,
+    kind: "execution"
+  });
 }
 
 function assertLearnedScheduling(value: unknown): void {

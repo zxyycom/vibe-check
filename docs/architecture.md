@@ -49,7 +49,16 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 
 ## Execution boundary
 
-Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private static policy 是无状态纯决策；public custom policy 是 invocation-scoped `simple | prepared` strategy。simple 直接形成同步 select/wait closure；prepared 在 graph ready 后为每个 Run 一次 `prepare({ graph })`，只把该次返回的同步 `decide` 交给 Scheduler。priority 不另有 map/list 或旁路输入；public callbacks 收到 frozen result-only DTO，而不是 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
+Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private static policy 是无状态纯决策；public custom policy 是 invocation-scoped `simple | prepared` strategy。simple 直接形成同步 select/wait closure；prepared 在 graph ready 后为每个 Run 一次 `prepare({ graph })`，只把该次返回的同步 `decide` 交给 Scheduler。priority 不另有 map/list 或旁路输入；public callbacks 收到 frozen context，并以 result-only proposal 回交 Scheduler，而不是取得 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
+
+standalone `createAdmissionGraph` 与 custom callback 的 `admissionState` 共享 Scheduler-private compiled graph、immutable
+parent+delta dynamic node、pure reducer 和 canonical effects。前者从独立 static input 形成 initial state；后者只在实际 callback
+boundary 提供同型 live seed。两者都只公开 frozen inspection/catalog/validation 与 hypothetical `select` / binary `settle`
+successor。
+
+real shell 仍独占 Task/Promise、signal、diagnostic、measurement、actual value/error 与 `RunResult`，并只应用 reducer effects
+后执行既有 callback-return hard guards。public state 不是 cancellation、executor、effect stream、state storage 或 reservation
+capability；static/custom/learned Run 未读取 `admissionState` 时不构造 public catalog/search projection。
 
 `learned-critical-path` 只增加一条 invocation-owned 优化支路。完整静态 graph 就绪后，invocation 解析一个
 Product-private effective strategy provider，并恰好一次 `prepare`：duration model 从 caller-managed local state 形成 immutable

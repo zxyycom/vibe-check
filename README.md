@@ -232,11 +232,13 @@ machine publication 和 diagnostic logging 的 `directory` 在 Definition 与 Ru
 `scheduler.admissionPolicy` 为 `custom`。现行 public contract 有两种 strategy：`simple` 直接提供同步
 `decide(context)`；需要为**本次 Run**异步准备选择 closure 或处理 sealed terminal measurement 时，使用下文的
 `prepared`。两个 `decide` 都只能提出 `select(taskId)` 或 `wait`。它收到 detached、deep-frozen 的 decision DTO；Task
-metadata 是 topology 与 priority 的唯一来源。
+metadata 是 topology 与 priority 的唯一来源。需要比较假设分支时，callback 可从 `context.admissionState` 读取与下文
+standalone `AdmissionGraph` 相同的 immutable state contract；其中的 `select` / `settle` 只产生 hypothetical successor，
+不会为真实 Run 预留、启动或结算 Task。
 
 Scheduler 仍独占 relation/mutex readiness、capacity、cancellation、Task 启动和结算的 hard guard。callback 是调用方
-trusted host code：closure 可使用调用方自己持有的 capability；Vibe Check 只传入 frozen DTO 并接收 result-only proposal，
-不会把 Scheduler state 或 Task control 转交给 strategy。`defineAdmissionPolicy(...)` 只改善 TypeScript inference，inline
+trusted host code：closure 可使用调用方自己持有的 capability；Vibe Check 传入 frozen context 并接收 result-only proposal，
+但不暴露 mutable/private Scheduler state 或真实 Task control。`defineAdmissionPolicy(...)` 只改善 TypeScript inference，inline
 同形 object 等价。
 
 失败分流按 callback 阶段固定：simple/prepared 的 `decide` throw、thenable、malformed/illegal proposal 或不可 drain 的
@@ -308,6 +310,56 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 if (executionOrder.join(",") !== "compile,publish") {
   throw new Error(`Unexpected execution order: ${executionOrder.join(",")}`);
+}
+```
+
+### 模拟 AdmissionGraph
+
+`createAdmissionGraph({ graph, maxParallel })` 对独立的静态 Scheduler graph 执行 validation/compile，返回可形成
+immutable `AdmissionState` 的 `AdmissionGraph` handle；它不运行 Check。`catalog`、`inspection` 与
+`validateSelection(taskId)` 只读取假设边界；`select(taskId)` 和 `settle(taskId, "satisfied" | "unsatisfied")` 返回
+successor，保留原 state 即可比较分支。所有 DTO、transition result 与 handle 都是 frozen。
+
+这个 public state 只表达 hypothetical admission：没有 Task、Promise、signal、取消、reservation、执行结果或 effect stream，
+也不会写回真实 Run。完整 rejection precedence、binary settlement 与 live callback seed 的边界由
+[深入 API 机制](./docs/api-mechanics.md#admissiongraph-simulation)拥有。
+
+```ts
+import { createAdmissionGraph } from "@zxyycom/vibe-check";
+
+const graph = createAdmissionGraph({
+  graph: {
+    scopes: [],
+    tasks: [
+      {
+        admissionPriority: 0,
+        dependsOn: [],
+        mutex: [],
+        observes: [],
+        scopeId: null,
+        taskId: "compile"
+      },
+      {
+        admissionPriority: 0,
+        dependsOn: ["compile"],
+        mutex: [],
+        observes: [],
+        scopeId: null,
+        taskId: "publish"
+      }
+    ]
+  },
+  maxParallel: 1
+});
+
+const initial = graph.initialState();
+const compile = initial.select("compile");
+if (!compile.accepted) throw new Error(`Cannot select compile: ${compile.reason.kind}`);
+
+// Retaining `initial` and the successor forms two independent hypothetical branches.
+const completed = compile.state.settle("compile", "satisfied");
+if (!completed.accepted || !completed.state.catalog.selectableTaskIds.includes("publish")) {
+  throw new Error("Expected publish to become selectable after hypothetical completion");
 }
 ```
 

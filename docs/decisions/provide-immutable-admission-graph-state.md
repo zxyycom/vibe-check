@@ -1,7 +1,7 @@
 ---
 title: 提供不可变 AdmissionGraph 与 AdmissionState
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-03T09:09:30Z
 purpose: 让 standalone 与 callback 共用 immutable 调度状态协议而不取得 Scheduler 控制能力。
 background: 现有 callback 缺少可分支完整状态；重建 relation/capacity/transition 会复制语义，而 real Scheduler 必须保留 control boundary。

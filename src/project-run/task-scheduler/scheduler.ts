@@ -5,10 +5,13 @@ import {
   type SchedulerDecision,
   type SchedulerTrigger
 } from "./scheduler-decision.ts";
+import { decisionContext } from "./scheduler-decision-inspection.ts";
+import { freezeDecision } from "./scheduler-decision-model.ts";
 import {
   createSchedulerState,
   snapshotSchedulerState,
   type RunTaskGraphOptions,
+  type SchedulerState,
   type TaskGraphRun
 } from "./execution-state.ts";
 export type {
@@ -31,10 +34,20 @@ import {
   applyAdmissionPolicyFault,
   applyBlockedSettlement,
   applyCancellation,
+  applyForcedBlockedSettlement,
   buildTaskGraphRun,
   nextRunningSettlement,
   settleRunningTask
 } from "./scheduler-task-lifecycle.ts";
+import {
+  cancelPendingAdmissionCore,
+  reconcileAdmissionCore,
+  schedulerInspectionForCore,
+  selectAdmissionCore,
+  settleRunningAdmissionCore,
+  type AdmissionCoreEffect,
+  type AdmissionCoreState
+} from "./admission-core.ts";
 
 export async function runTaskGraph<TResult>(
   options: RunTaskGraphOptions<TResult>
@@ -53,6 +66,14 @@ export async function runTaskGraph<TResult>(
     measurementInput === undefined
       ? undefined
       : new SchedulerPerformanceDiagnostics(measurementInput, performanceState(state));
+  const initialReconciliation = reconcileAdmissionCore(state.admissionCore);
+  replayCoreForcedBlocks(
+    state,
+    initialReconciliation.effects,
+    initialReconciliation.effectStates,
+    diagnostics,
+    triggerForInitialReconciliation()
+  );
   let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
 
   while (true) {
@@ -65,10 +86,19 @@ export async function runTaskGraph<TResult>(
           : undefined;
       decision =
         diagnostics?.measureControlPath(() =>
-          decideScheduler(snapshot, trigger, state.admissionPolicy, measurement)
-        ) ?? decideScheduler(snapshot, trigger, state.admissionPolicy, measurement);
+          decideScheduler(
+            snapshot,
+            trigger,
+            state.admissionPolicy,
+            measurement,
+            state.admissionCore
+          )
+        ) ??
+        decideScheduler(snapshot, trigger, state.admissionPolicy, measurement, state.admissionCore);
     } catch (error) {
       if (!(error instanceof AdmissionPolicyFault)) throw error;
+      const cancellation = cancelPendingAdmissionCore(state.admissionCore);
+      state.admissionCore = cancellation.state;
       diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
       if (diagnostics === undefined) applyAdmissionPolicyFault(state, error);
       else diagnostics.measureControlPath(() => applyAdmissionPolicyFault(state, error));
@@ -80,8 +110,10 @@ export async function runTaskGraph<TResult>(
     observeSchedulerDecision(state, decision, diagnostics);
 
     switch (decision.kind) {
-      case "admit":
+      case "admit": {
         if (state.signal?.aborted === true) {
+          const cancellation = cancelPendingAdmissionCore(state.admissionCore);
+          state.admissionCore = cancellation.state;
           diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
           const lifecycleFault = new AdmissionPolicyFault("lifecycle-invalid-select");
           if (diagnostics === undefined) applyAdmissionPolicyFault(state, lifecycleFault);
@@ -92,6 +124,15 @@ export async function runTaskGraph<TResult>(
           trigger = Object.freeze({ kind: "cancellation-applied" });
           continue;
         }
+        const selection = selectAdmissionCore(state.admissionCore, decision.taskId);
+        if (!selection.accepted) {
+          throw new Error("shared admission core rejected a Scheduler hard-guarded selection");
+        }
+        const admissionEffect = selection.transition.effects[0];
+        if (admissionEffect === undefined) {
+          throw new Error("shared admission core omitted a Scheduler admission effect");
+        }
+        state.admissionCore = selection.transition.state;
         diagnostics?.beforeAdmission(decision.taskId, [...state.runningById.keys()]);
         if (diagnostics === undefined) applyAdmission(state, decision);
         else diagnostics.measureControlPath(() => applyAdmission(state, decision));
@@ -100,8 +141,10 @@ export async function runTaskGraph<TResult>(
           diagnostics?.beginSelectedPolicyAction(decision.taskId);
           diagnostics?.recordEffect(Object.freeze({ kind: "admitted", taskId: decision.taskId }));
         }
+        observeAdmissionCoreEffect(state, admissionEffect);
         trigger = Object.freeze({ kind: "admission-continued" });
         continue;
+      }
       case "settle-blocked":
         diagnostics?.beforePendingSettlement([decision.taskId]);
         if (diagnostics === undefined) applyBlockedSettlement(state, decision);
@@ -120,6 +163,7 @@ export async function runTaskGraph<TResult>(
         });
         continue;
       case "cancel-pending":
+        state.admissionCore = cancelPendingAdmissionCore(state.admissionCore).state;
         diagnostics?.beforePendingSettlement(decision.taskIds);
         if (diagnostics === undefined) applyCancellation(state, decision);
         else diagnostics.measureControlPath(() => applyCancellation(state, decision));
@@ -146,10 +190,44 @@ export async function runTaskGraph<TResult>(
         diagnostics?.beforeRunningSettlement(completion.taskId);
         if (diagnostics === undefined) settleRunningTask(state, completion);
         else diagnostics.measureControlPath(() => settleRunningTask(state, completion));
+        const settlementKind = completion.settlement.kind;
+        if (
+          settlementKind !== "completed" &&
+          settlementKind !== "prerequisite-unsatisfied" &&
+          settlementKind !== "failed"
+        ) {
+          throw new Error("running Task completed with a non-running settlement kind");
+        }
+        const transition = settleRunningAdmissionCore(
+          state.admissionCore,
+          completion.taskId,
+          settlementKind
+        );
+        if (!transition.accepted) {
+          throw new Error("shared admission core rejected a Scheduler running settlement");
+        }
+        const directEffect = transition.transition.effects[0];
+        const directState = transition.transition.effectStates[0];
+        if (directEffect === undefined || directState === undefined) {
+          throw new Error("shared admission core omitted a Scheduler running settlement effect");
+        }
+        state.admissionCore = directState;
         diagnostics?.captureState(performanceState(state));
         diagnostics?.recordEffect(
           Object.freeze({
             kind: "settled",
+            settlementKind: completion.settlement.kind,
+            taskId: completion.taskId
+          })
+        );
+        observeAdmissionCoreEffect(state, directEffect);
+        replayCoreForcedBlocks(
+          state,
+          transition.transition.effects.slice(1),
+          transition.transition.effectStates.slice(1),
+          diagnostics,
+          Object.freeze({
+            kind: "task-settled",
             settlementKind: completion.settlement.kind,
             taskId: completion.taskId
           })
@@ -173,6 +251,68 @@ export async function runTaskGraph<TResult>(
       }
     }
   }
+}
+
+function replayCoreForcedBlocks<TResult>(
+  state: SchedulerState<TResult>,
+  effects: readonly AdmissionCoreEffect[],
+  effectStates: readonly AdmissionCoreState[],
+  diagnostics: SchedulerPerformanceDiagnostics | undefined,
+  trigger: SchedulerTrigger
+): void {
+  if (effects.length !== effectStates.length) {
+    throw new Error("shared admission core effect replay has no matching immutable post-state");
+  }
+  for (const [index, effect] of effects.entries()) {
+    if (effect.kind !== "settled" || effect.settlementKind !== "blocked") {
+      throw new Error("shared admission core forced-block replay received a non-blocked effect");
+    }
+    const effectState = effectStates[index];
+    if (effectState === undefined) {
+      throw new Error("shared admission core forced block has no immutable post-state");
+    }
+    diagnostics?.beforePendingSettlement([effect.taskId]);
+    state.admissionCore = effectState;
+    applyForcedBlockedSettlement(state, effect.taskId, effect.dependencyIds ?? []);
+    diagnostics?.captureState(performanceState(state));
+    diagnostics?.recordEffect(
+      Object.freeze({ kind: "settled", settlementKind: "blocked", taskId: effect.taskId })
+    );
+    if (diagnostics !== undefined || state.diagnosticLogger !== undefined) {
+      const inspection = schedulerInspectionForCore(state.admissionCore);
+      observeSchedulerDecision(
+        state,
+        freezeDecision({
+          ...decisionContext(
+            Object.freeze({
+              ...inspection,
+              isAbortRequested: state.signal?.aborted === true,
+              isCancelled: state.isCancelled
+            }),
+            state.admissionCore.compiled.graph.schedulerGraphSnapshot
+          ),
+          dependencyIds: effect.dependencyIds ?? [],
+          kind: "settle-blocked",
+          taskId: effect.taskId,
+          trigger
+        }),
+        diagnostics
+      );
+    }
+    observeAdmissionCoreEffect(state, effect);
+  }
+}
+
+function observeAdmissionCoreEffect<TResult>(
+  state: SchedulerState<TResult>,
+  effect: AdmissionCoreEffect
+): void {
+  if (state.onAdmissionCoreEffect === undefined) return;
+  state.onAdmissionCoreEffect(Object.freeze({ effect, state: state.admissionCore }));
+}
+
+function triggerForInitialReconciliation(): SchedulerTrigger {
+  return Object.freeze({ kind: "execution-started" });
 }
 
 function decisionBoundaryMeasurement(

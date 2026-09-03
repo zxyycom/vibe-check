@@ -11,6 +11,7 @@ import {
   type AdmissionPolicyFaultCategory
 } from "./scheduler-admission-decision.ts";
 import { capacityFor } from "./scheduler-decision-inspection.ts";
+import { admissionStateForCore } from "./admission-core.ts";
 
 /** Adapts the public, trusted callback to the Scheduler's private pure policy seam. */
 export function admissionSelectionPolicyFor(
@@ -41,6 +42,7 @@ function admissionPolicyContext(input: AdmissionPolicyInput): AdmissionPolicyCon
     throw new Error("custom admission policy requires measurement");
   return deepFreeze({
     activeScopeIds: [...input.inspection.activeScopeIds],
+    admissionState: admissionStateForCore(input.admissionCore),
     candidates: input.candidates.map((candidate) => ({
       canAdmit: candidate.canAdmit,
       taskId: candidate.task.id

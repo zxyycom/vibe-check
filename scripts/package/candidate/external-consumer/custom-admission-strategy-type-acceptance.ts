@@ -8,6 +8,8 @@ export const CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE = String.raw`const
       const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
       const capacity = context.capacity.effectiveMaxParallel;
       const runtime = context.runtime.abortRequested || context.runtime.cancelled;
+      const liveState: AdmissionState = context.admissionState;
+      const lookahead = liveState.validateSelection(firstTask?.taskId ?? "missing");
       void [
         firstTask?.admissionPriority,
         context.graph.scopes,
@@ -15,7 +17,8 @@ export const CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE = String.raw`const
         context.runningTaskIds,
         context.settledTaskIds,
         capacity,
-        runtime
+        runtime,
+        lookahead
       ];
       return candidate === undefined
         ? { kind: "wait" }
@@ -55,7 +58,49 @@ const preparedStrategy: PreparedCustomAdmissionStrategy = {
 };
 const preparationContext = (context: CustomAdmissionPreparationContext): SchedulerGraphSnapshot =>
   context.graph;
-void [strategy, preparedStrategy, preparationContext];
+const simulation: AdmissionGraph = createAdmissionGraph({
+  graph: {
+    scopes: [],
+    tasks: [
+      {
+        admissionPriority: 0,
+        dependsOn: [],
+        mutex: [],
+        observes: [],
+        scopeId: null,
+        taskId: "simulated"
+      }
+    ]
+  },
+  maxParallel: 1
+});
+const simulatedState: AdmissionState = simulation.initialState();
+const simulationInput: AdmissionGraphInput = {
+  graph: {
+    scopes: [],
+    tasks: [
+      {
+        admissionPriority: 0,
+        dependsOn: [],
+        mutex: [],
+        observes: [],
+        scopeId: null,
+        taskId: "simulated-input"
+      }
+    ]
+  },
+  maxParallel: 1
+};
+const selectedSimulation: AdmissionTransitionResult = simulatedState.select("simulated");
+const validation: AdmissionSelectionValidation = simulatedState.validateSelection("simulated");
+void [
+  strategy,
+  preparedStrategy,
+  preparationContext,
+  simulationInput,
+  selectedSimulation,
+  validation
+];
 defineConfig({ scheduler: { admissionPolicy: customAdmissionPolicy } });
 defineConfig({ scheduler: { admissionPolicy: preparedCustomAdmissionPolicy } });
 defineConfig({

@@ -6,6 +6,7 @@ import { prepareTaskGraph, type TaskGraph } from "../../../src/project-run/task-
 import { runTaskGraph } from "../../../src/project-run/task-scheduler/scheduler.ts";
 import { admissionSelectionPolicyFor } from "../../../src/project-run/task-scheduler/custom-admission-policy.ts";
 import { createLearnedCriticalPathAdmission } from "../../../src/project-run/task-scheduler/learned-critical-path-admission-policy.ts";
+import { createAdmissionGraph, type AdmissionState } from "../../../src/index.ts";
 
 const here = dirname(new URL(import.meta.url).pathname);
 const manifestPath = resolve(here, "admission-state-benchmark.manifest.json");
@@ -16,6 +17,10 @@ const sink = { value: 0 };
 
 type Status = 0 | 1 | 2 | 3;
 type RepresentationName = "full-clone-map-set" | "parent-delta" | "dense-id-chunked-cow";
+type MeasuredRepresentation =
+  | RepresentationName
+  | "current-real-shell"
+  | "implementation-parent-delta";
 type ScenarioSample = Readonly<{
   readonly allocationProxyHeapDeltaBytes: number;
   readonly cpuSystemMs: number;
@@ -25,7 +30,7 @@ type ScenarioSample = Readonly<{
 type ScenarioResult = Readonly<{
   readonly id: string;
   readonly iterationsPerSample: number;
-  readonly representation: RepresentationName | "current-real-shell";
+  readonly representation: MeasuredRepresentation;
   readonly samples: readonly ScenarioSample[];
   readonly stats: Readonly<{
     readonly allocationProxyHeapDeltaBytes: Quantiles;
@@ -125,7 +130,8 @@ function compilePrototype(graph: TaskGraph, maxParallel: number): CompiledFixtur
   const dependencyIdsByIndex = graph.tasks.map((task) =>
     (task.dependsOn ?? []).map((taskId) => {
       const index = indexById.get(taskId);
-      if (index === undefined) throw new Error(`benchmark fixture references missing task ${taskId}`);
+      if (index === undefined)
+        throw new Error(`benchmark fixture references missing task ${taskId}`);
       return index;
     })
   );
@@ -138,15 +144,23 @@ function compilePrototype(graph: TaskGraph, maxParallel: number): CompiledFixtur
 }
 
 function fullClonePrototype(graph: CompiledFixture): Prototype<FullCloneState> {
-  const initial: FullCloneState = Object.freeze({ running: 0, runningIds: new Set(), statuses: new Map() });
-  const statusFor = (state: FullCloneState, taskIndex: number): Status => state.statuses.get(taskIndex) ?? 0;
+  const initial: FullCloneState = Object.freeze({
+    running: 0,
+    runningIds: new Set(),
+    statuses: new Map()
+  });
+  const statusFor = (state: FullCloneState, taskIndex: number): Status =>
+    state.statuses.get(taskIndex) ?? 0;
   const validate = (state: FullCloneState, taskIndex: number): boolean =>
     statusFor(state, taskIndex) === 0 &&
     state.running < graph.maxParallel &&
-    graph.dependencyIdsByIndex[taskIndex]?.every((dependency) => statusFor(state, dependency) === 2) === true;
+    graph.dependencyIdsByIndex[taskIndex]?.every(
+      (dependency) => statusFor(state, dependency) === 2
+    ) === true;
   return {
     initial,
-    catalog: (state) => graph.idByIndex.reduce((count, _, index) => count + Number(validate(state, index)), 0),
+    catalog: (state) =>
+      graph.idByIndex.reduce((count, _, index) => count + Number(validate(state, index)), 0),
     inspect: (state) => state.running + state.statuses.size + state.runningIds.size,
     select: (state, taskIndex) => {
       if (!validate(state, taskIndex)) return undefined;
@@ -186,15 +200,26 @@ function parentDeltaPrototype(graph: CompiledFixture): Prototype<ParentDeltaStat
   const validate = (state: ParentDeltaState, taskIndex: number): boolean =>
     statusFor(state, taskIndex) === 0 &&
     state.running < graph.maxParallel &&
-    graph.dependencyIdsByIndex[taskIndex]?.every((dependency) => statusFor(state, dependency) === 2) === true;
-  const transition = (state: ParentDeltaState, taskIndex: number, status: Status, running: number) =>
-    Object.freeze({ parent: state, running, status, taskIndex });
+    graph.dependencyIdsByIndex[taskIndex]?.every(
+      (dependency) => statusFor(state, dependency) === 2
+    ) === true;
+  const transition = (
+    state: ParentDeltaState,
+    taskIndex: number,
+    status: Status,
+    running: number
+  ) => Object.freeze({ parent: state, running, status, taskIndex });
   return {
     initial,
-    catalog: (state) => graph.idByIndex.reduce((count, _, index) => count + Number(validate(state, index)), 0),
+    catalog: (state) =>
+      graph.idByIndex.reduce((count, _, index) => count + Number(validate(state, index)), 0),
     inspect: (state) => {
       let nodeCount = 0;
-      for (let cursor: ParentDeltaState | undefined = state; cursor !== undefined; cursor = cursor.parent)
+      for (
+        let cursor: ParentDeltaState | undefined = state;
+        cursor !== undefined;
+        cursor = cursor.parent
+      )
         nodeCount += 1;
       return state.running + nodeCount;
     },
@@ -212,7 +237,10 @@ function denseCowPrototype(graph: CompiledFixture): Prototype<DenseCowState> {
   const chunkSize = 64;
   const initial: DenseCowState = Object.freeze({
     chunks: Object.freeze(
-      Array.from({ length: Math.ceil(graph.idByIndex.length / chunkSize) }, () => new Uint8Array(chunkSize))
+      Array.from(
+        { length: Math.ceil(graph.idByIndex.length / chunkSize) },
+        () => new Uint8Array(chunkSize)
+      )
     ),
     running: 0
   });
@@ -221,7 +249,9 @@ function denseCowPrototype(graph: CompiledFixture): Prototype<DenseCowState> {
   const validate = (state: DenseCowState, taskIndex: number): boolean =>
     statusFor(state, taskIndex) === 0 &&
     state.running < graph.maxParallel &&
-    graph.dependencyIdsByIndex[taskIndex]?.every((dependency) => statusFor(state, dependency) === 2) === true;
+    graph.dependencyIdsByIndex[taskIndex]?.every(
+      (dependency) => statusFor(state, dependency) === 2
+    ) === true;
   const transition = (state: DenseCowState, taskIndex: number, status: Status, running: number) => {
     const chunkIndex = Math.floor(taskIndex / chunkSize);
     const chunks = state.chunks.slice();
@@ -232,7 +262,8 @@ function denseCowPrototype(graph: CompiledFixture): Prototype<DenseCowState> {
   };
   return {
     initial,
-    catalog: (state) => graph.idByIndex.reduce((count, _, index) => count + Number(validate(state, index)), 0),
+    catalog: (state) =>
+      graph.idByIndex.reduce((count, _, index) => count + Number(validate(state, index)), 0),
     inspect: (state) => state.running + state.chunks.length,
     select: (state, taskIndex) =>
       validate(state, taskIndex) ? transition(state, taskIndex, 1, state.running + 1) : undefined,
@@ -249,7 +280,11 @@ function requireSuccess<T>(value: T | undefined, action: string): T {
   return value;
 }
 
-function runnableIndex<S extends PrototypeState>(model: Prototype<S>, state: S, preferred: number): number {
+function runnableIndex<S extends PrototypeState>(
+  model: Prototype<S>,
+  state: S,
+  preferred: number
+): number {
   if (model.validate(state, preferred)) return preferred;
   for (let index = 0; index < 256; index += 1) if (model.validate(state, index)) return index;
   throw new Error("prototype fixture became undrainable");
@@ -308,19 +343,23 @@ async function sampleAsync(operation: () => Promise<void>): Promise<ScenarioSamp
 
 function scenarioSync(
   id: string,
-  representation: RepresentationName,
+  representation: MeasuredRepresentation,
   iterationsPerSample: number,
   operation: () => void
 ): ScenarioResult {
   for (let index = 0; index < manifest.profile.warmupSamples; index += 1) operation();
-  const samples = Array.from({ length: manifest.profile.measuredSamples }, () => sampleSync(operation));
+  const samples = Array.from({ length: manifest.profile.measuredSamples }, () =>
+    sampleSync(operation)
+  );
   return Object.freeze({
     id,
     iterationsPerSample,
     representation,
     samples: Object.freeze(samples),
     stats: Object.freeze({
-      allocationProxyHeapDeltaBytes: quantiles(samples.map((sample) => sample.allocationProxyHeapDeltaBytes)),
+      allocationProxyHeapDeltaBytes: quantiles(
+        samples.map((sample) => sample.allocationProxyHeapDeltaBytes)
+      ),
       cpuSystemMs: quantiles(samples.map((sample) => sample.cpuSystemMs)),
       cpuUserMs: quantiles(samples.map((sample) => sample.cpuUserMs)),
       wallMs: quantiles(samples.map((sample) => sample.wallMs))
@@ -343,7 +382,9 @@ async function scenarioAsync(
     representation: "current-real-shell",
     samples: Object.freeze(samples),
     stats: Object.freeze({
-      allocationProxyHeapDeltaBytes: quantiles(samples.map((sample) => sample.allocationProxyHeapDeltaBytes)),
+      allocationProxyHeapDeltaBytes: quantiles(
+        samples.map((sample) => sample.allocationProxyHeapDeltaBytes)
+      ),
       cpuSystemMs: quantiles(samples.map((sample) => sample.cpuSystemMs)),
       cpuUserMs: quantiles(samples.map((sample) => sample.cpuUserMs)),
       wallMs: quantiles(samples.map((sample) => sample.wallMs))
@@ -362,7 +403,8 @@ async function runRealPath(
     graph,
     maxParallel
   });
-  if (result.settlements.length !== graph.tasks.length) throw new Error("real path did not settle fixture");
+  if (result.settlements.length !== graph.tasks.length)
+    throw new Error("real path did not settle fixture");
 }
 
 function retainedHeap<S extends PrototypeState>(
@@ -372,10 +414,16 @@ function retainedHeap<S extends PrototypeState>(
 ): Readonly<Record<string, unknown>> {
   const gc = (Bun as unknown as { gc?: (full?: boolean) => void }).gc;
   if (typeof gc !== "function")
-    return Object.freeze({ id, representation, status: "unavailable", reason: "Bun.gc is unavailable" });
+    return Object.freeze({
+      id,
+      representation,
+      status: "unavailable",
+      reason: "Bun.gc is unavailable"
+    });
   gc(true);
   const before = process.memoryUsage().heapUsed;
-  const retained = id === "dfs-retained-branches" ? retainDepthFirst(model) : retainBreadthFirst(model);
+  const retained =
+    id === "dfs-retained-branches" ? retainDepthFirst(model) : retainBreadthFirst(model);
   gc(true);
   const after = process.memoryUsage().heapUsed;
   sink.value += retained.length;
@@ -434,24 +482,39 @@ function runPrototypeScenarios<S extends PrototypeState>(
     })
   );
   scenarios.push(
-    scenarioSync("catalog-cold", representation, manifest.profile.catalogIterationsPerSample, () => {
-      for (let index = 0; index < manifest.profile.catalogIterationsPerSample; index += 1)
-        sink.value += model.catalog(settledState(model));
-    })
+    scenarioSync(
+      "catalog-cold",
+      representation,
+      manifest.profile.catalogIterationsPerSample,
+      () => {
+        for (let index = 0; index < manifest.profile.catalogIterationsPerSample; index += 1)
+          sink.value += model.catalog(settledState(model));
+      }
+    )
   );
   scenarios.push(
-    scenarioSync("catalog-warm", representation, manifest.profile.catalogIterationsPerSample, () => {
-      const state = settledState(model);
-      for (let index = 0; index < manifest.profile.catalogIterationsPerSample; index += 1)
-        sink.value += model.catalog(state);
-    })
+    scenarioSync(
+      "catalog-warm",
+      representation,
+      manifest.profile.catalogIterationsPerSample,
+      () => {
+        const state = settledState(model);
+        for (let index = 0; index < manifest.profile.catalogIterationsPerSample; index += 1)
+          sink.value += model.catalog(state);
+      }
+    )
   );
   scenarios.push(
-    scenarioSync("repeated-validate", representation, manifest.profile.validationIterationsPerSample, () => {
-      const state = settledState(model);
-      for (let index = 0; index < manifest.profile.validationIterationsPerSample; index += 1)
-        sink.value += Number(model.validate(state, (index + 16) % graph.idByIndex.length));
-    })
+    scenarioSync(
+      "repeated-validate",
+      representation,
+      manifest.profile.validationIterationsPerSample,
+      () => {
+        const state = settledState(model);
+        for (let index = 0; index < manifest.profile.validationIterationsPerSample; index += 1)
+          sink.value += Number(model.validate(state, (index + 16) % graph.idByIndex.length));
+      }
+    )
   );
   scenarios.push(
     scenarioSync("select-settle", representation, genericIterations, () => {
@@ -459,24 +522,37 @@ function runPrototypeScenarios<S extends PrototypeState>(
       for (let index = 0; index < genericIterations; index += 1) {
         const taskIndex = runnableIndex(model, state, index % graph.idByIndex.length);
         const running = requireSuccess(model.select(state, taskIndex), "select-settle select");
-        state = requireSuccess(model.settle(running, taskIndex, "satisfied"), "select-settle settle");
+        state = requireSuccess(
+          model.settle(running, taskIndex, "satisfied"),
+          "select-settle settle"
+        );
       }
       sink.value += model.inspect(state);
     })
   );
   scenarios.push(
-    scenarioSync("same-predecessor-fork", representation, manifest.profile.samePredecessorForksPerSample, () => {
-      const predecessor = model.initial;
-      const successors: S[] = [];
-      for (let index = 0; index < manifest.profile.samePredecessorForksPerSample; index += 1)
-        successors.push(requireSuccess(model.select(predecessor, index % 8), "same-predecessor fork"));
-      sink.value += successors.length;
-    })
+    scenarioSync(
+      "same-predecessor-fork",
+      representation,
+      manifest.profile.samePredecessorForksPerSample,
+      () => {
+        const predecessor = model.initial;
+        const successors: S[] = [];
+        for (let index = 0; index < manifest.profile.samePredecessorForksPerSample; index += 1)
+          successors.push(
+            requireSuccess(model.select(predecessor, index % 8), "same-predecessor fork")
+          );
+        sink.value += successors.length;
+      }
+    )
   );
   scenarios.push(
     scenarioSync("high-fanout", representation, genericIterations, () => {
       const root = requireSuccess(fanoutModel.select(fanoutModel.initial, 0), "fanout root select");
-      const blocked = requireSuccess(fanoutModel.settle(root, 0, "unsatisfied"), "fanout root settle");
+      const blocked = requireSuccess(
+        fanoutModel.settle(root, 0, "unsatisfied"),
+        "fanout root settle"
+      );
       for (let index = 0; index < genericIterations; index += 1) {
         sink.value += fanoutModel.catalog(blocked);
         sink.value += Number(fanoutModel.validate(blocked, 1 + (index % 255)));
@@ -497,23 +573,233 @@ function summaryMarkdown(
         `| ${result.representation} | ${result.id} | ${result.iterationsPerSample} | ${result.stats.wallMs.p50} | ${result.stats.wallMs.p95} | ${result.stats.cpuUserMs.p50} | ${result.stats.allocationProxyHeapDeltaBytes.p50} |`
     )
     .join("\n");
-  return `# Admission-state benchmark summary\n\n` +
+  return (
+    `# Admission-state benchmark summary\n\n` +
     `- Command: \`${manifest.command}\`\n` +
     `- Fixture seed: \`${manifest.seed}\`; warmup/measured samples: ${manifest.profile.warmupSamples}/${manifest.profile.measuredSamples}.\n` +
-    `- This is readiness evidence only. The three representations are prototype labs; the current real paths are baselines and do not instantiate the proposed public state.\n` +
+    `- The three named representations remain readiness prototypes. Implementation rows exercise the shipped parent+delta public state; real static/custom/learned rows verify their unused-state path.\n` +
+    `- The implementation fixed-depth setup is timed separately. Inspection, warm catalog, repeated validation, and high-fanout rows reuse prebuilt immutable states so their timed operation excludes state construction.\n` +
     `- Allocation is a \`heapUsed\` delta proxy, not an allocation counter. Retained heap is process-wide, GC-dependent and advisory.\n\n` +
     `## Results\n\n` +
     `| Representation | Scenario | Iterations/sample | wall p50 ms | wall p95 ms | CPU user p50 ms | heap-delta proxy p50 bytes |\n` +
     `| --- | --- | ---: | ---: | ---: | ---: | ---: |\n${rows}\n\n` +
     `## Retained heap observation\n\n\`\`\`json\n${JSON.stringify(retained, null, 2)}\n\`\`\`\n\n` +
     `## Representation decision\n\n${choice}\n\n` +
-    `The raw samples, environment, fixture descriptions, method and limitations are in [admission-state-benchmark.raw.json](admission-state-benchmark.raw.json) and [admission-state-benchmark.manifest.json](admission-state-benchmark.manifest.json).\n`;
+    `The raw samples, environment, fixture descriptions, method and limitations are in [admission-state-benchmark.raw.json](admission-state-benchmark.raw.json) and [admission-state-benchmark.manifest.json](admission-state-benchmark.manifest.json).\n`
+  );
+}
+
+function acceptedPublicState(result: ReturnType<AdmissionState["select"]>): AdmissionState {
+  if (!result.accepted)
+    throw new Error(`public benchmark transition rejected: ${result.reason.kind}`);
+  return result.state;
+}
+
+function publicStateAfterSettlements(
+  graph: ReturnType<typeof createAdmissionGraph>
+): AdmissionState {
+  let state = graph.initialState();
+  for (let index = 0; index < 8; index += 1) {
+    const taskId = state.catalog.selectableTaskIds[0];
+    if (taskId === undefined) throw new Error("public benchmark fixture became undrainable");
+    state = acceptedPublicState(state.select(taskId));
+    state = acceptedPublicState(state.settle(taskId, "satisfied"));
+  }
+  return state;
+}
+
+function runImplementationScenarios(
+  graph: ReturnType<typeof createAdmissionGraph>,
+  fanout: ReturnType<typeof createAdmissionGraph>
+): readonly ScenarioResult[] {
+  const genericIterations = manifest.profile.prototypeIterationsPerSample;
+  const fixedDepthState = publicStateAfterSettlements(graph);
+  const fixedDepthTaskIds = fixedDepthState.catalog.selectableTaskIds;
+  if (fixedDepthTaskIds.length === 0) {
+    throw new Error("public benchmark fixed-depth state has no selectable Task");
+  }
+  const fanoutRoot = acceptedPublicState(fanout.initialState().select("root"));
+  const fanoutBlocked = acceptedPublicState(fanoutRoot.settle("root", "unsatisfied"));
+  const scenarios: ScenarioResult[] = [];
+  scenarios.push(
+    scenarioSync(
+      "fixed-depth-state-setup",
+      "implementation-parent-delta",
+      genericIterations,
+      () => {
+        for (let index = 0; index < genericIterations; index += 1) {
+          const state = publicStateAfterSettlements(graph);
+          sink.value += Number(Object.isFrozen(state));
+        }
+      }
+    )
+  );
+  scenarios.push(
+    scenarioSync("inspection", "implementation-parent-delta", genericIterations, () => {
+      for (let index = 0; index < genericIterations; index += 1)
+        sink.value += fixedDepthState.inspection.runningTaskIds.length;
+    })
+  );
+  scenarios.push(
+    scenarioSync(
+      "catalog-cold",
+      "implementation-parent-delta",
+      manifest.profile.catalogIterationsPerSample,
+      () => {
+        for (let index = 0; index < manifest.profile.catalogIterationsPerSample; index += 1)
+          sink.value += graph.initialState().catalog.selectableTaskIds.length;
+      }
+    )
+  );
+  scenarios.push(
+    scenarioSync(
+      "catalog-warm",
+      "implementation-parent-delta",
+      manifest.profile.catalogIterationsPerSample,
+      () => {
+        for (let index = 0; index < manifest.profile.catalogIterationsPerSample; index += 1)
+          sink.value += fixedDepthState.catalog.selectableTaskIds.length;
+      }
+    )
+  );
+  scenarios.push(
+    scenarioSync(
+      "repeated-validate",
+      "implementation-parent-delta",
+      manifest.profile.validationIterationsPerSample,
+      () => {
+        for (let index = 0; index < manifest.profile.validationIterationsPerSample; index += 1)
+          sink.value += Number(
+            fixedDepthState.validateSelection(
+              fixedDepthTaskIds[index % fixedDepthTaskIds.length] ?? "missing"
+            ).accepted
+          );
+      }
+    )
+  );
+  scenarios.push(
+    scenarioSync("select-settle", "implementation-parent-delta", genericIterations, () => {
+      let state = graph.initialState();
+      for (let index = 0; index < genericIterations; index += 1) {
+        const taskId = state.catalog.selectableTaskIds[0];
+        if (taskId === undefined)
+          throw new Error("public benchmark select-settle became undrainable");
+        state = acceptedPublicState(state.select(taskId));
+        state = acceptedPublicState(state.settle(taskId, "satisfied"));
+      }
+      sink.value += state.inspection.settledTasks.length;
+    })
+  );
+  scenarios.push(
+    scenarioSync(
+      "same-predecessor-fork",
+      "implementation-parent-delta",
+      manifest.profile.samePredecessorForksPerSample,
+      () => {
+        const predecessor = graph.initialState();
+        const taskIds = predecessor.catalog.selectableTaskIds.slice(0, 8);
+        const branches: AdmissionState[] = [];
+        for (let index = 0; index < manifest.profile.samePredecessorForksPerSample; index += 1) {
+          const taskId = taskIds[index % taskIds.length];
+          if (taskId === undefined) throw new Error("public benchmark lacks branch task");
+          branches.push(acceptedPublicState(predecessor.select(taskId)));
+        }
+        sink.value += branches.length;
+      }
+    )
+  );
+  scenarios.push(
+    scenarioSync("high-fanout", "implementation-parent-delta", genericIterations, () => {
+      for (let index = 0; index < genericIterations; index += 1) {
+        sink.value += fanoutBlocked.catalog.nonSelectableTasks.length;
+        sink.value += Number(
+          fanoutBlocked.validateSelection(`dependent-${String(index % 255).padStart(3, "0")}`)
+            .accepted
+        );
+      }
+    })
+  );
+  return Object.freeze(scenarios);
+}
+
+function retainedImplementationHeap(
+  id: "dfs-retained-branches" | "bfs-retained-branches",
+  graph: ReturnType<typeof createAdmissionGraph>
+): Readonly<Record<string, unknown>> {
+  const gc = (Bun as unknown as { gc?: (full?: boolean) => void }).gc;
+  if (typeof gc !== "function") {
+    return Object.freeze({
+      id,
+      reason: "Bun.gc is unavailable",
+      representation: "implementation-parent-delta",
+      status: "unavailable"
+    });
+  }
+  gc(true);
+  const before = process.memoryUsage().heapUsed;
+  const retained =
+    id === "dfs-retained-branches"
+      ? retainImplementationDepthFirst(graph)
+      : retainImplementationBreadthFirst(graph);
+  gc(true);
+  const after = process.memoryUsage().heapUsed;
+  sink.value += retained.length;
+  return Object.freeze({
+    id,
+    representation: "implementation-parent-delta",
+    retainedBranchCount: retained.length,
+    retainedHeapDeltaBytes: after - before,
+    status: "observed"
+  });
+}
+
+function retainImplementationDepthFirst(
+  graph: ReturnType<typeof createAdmissionGraph>
+): AdmissionState[] {
+  const retained: AdmissionState[] = [];
+  const visit = (state: AdmissionState, depth: number): void => {
+    retained.push(state);
+    if (depth === manifest.profile.searchDepth) return;
+    for (const taskId of state.catalog.selectableTaskIds.slice(0, 2)) {
+      const running = acceptedPublicState(state.select(taskId));
+      visit(acceptedPublicState(running.settle(taskId, "satisfied")), depth + 1);
+    }
+  };
+  visit(graph.initialState(), 0);
+  return retained;
+}
+
+function retainImplementationBreadthFirst(
+  graph: ReturnType<typeof createAdmissionGraph>
+): AdmissionState[] {
+  let frontier: AdmissionState[] = [graph.initialState()];
+  const retained: AdmissionState[] = [...frontier];
+  for (let depth = 0; depth < manifest.profile.searchDepth; depth += 1) {
+    const next: AdmissionState[] = [];
+    for (const state of frontier) {
+      for (const taskId of state.catalog.selectableTaskIds.slice(0, 2)) {
+        const running = acceptedPublicState(state.select(taskId));
+        next.push(acceptedPublicState(running.settle(taskId, "satisfied")));
+      }
+    }
+    retained.push(...next);
+    frontier = next;
+  }
+  return retained;
 }
 
 const realGraph = createLayeredGraph(96, 12);
 const prototypeGraph = compilePrototype(createLayeredGraph(256, 16), 8);
 const fanoutGraph = compilePrototype(createHighFanoutGraph(), 8);
 const plannedRealGraph = prepareTaskGraph(realGraph, 8);
+const implementationGraph = createAdmissionGraph({
+  graph: prepareTaskGraph(createLayeredGraph(256, 16), 8).schedulerGraphSnapshot,
+  maxParallel: 8
+});
+const implementationFanoutGraph = createAdmissionGraph({
+  graph: prepareTaskGraph(createHighFanoutGraph(), 8).schedulerGraphSnapshot,
+  maxParallel: 8
+});
 const learnedPolicy = createLearnedCriticalPathAdmission(
   plannedRealGraph.schedulerGraphSnapshot,
   Object.freeze({
@@ -533,46 +819,77 @@ const customPolicy = admissionSelectionPolicyFor((context) => {
 
 const scenarios: ScenarioResult[] = [];
 scenarios.push(
-  scenarioSync("compile", "current-real-shell", manifest.profile.prototypeIterationsPerSample, () => {
-    for (let index = 0; index < manifest.profile.prototypeIterationsPerSample; index += 1)
-      sink.value += prepareTaskGraph(realGraph, 8).tasks.length;
-  })
+  scenarioSync(
+    "compile",
+    "current-real-shell",
+    manifest.profile.prototypeIterationsPerSample,
+    () => {
+      for (let index = 0; index < manifest.profile.prototypeIterationsPerSample; index += 1)
+        sink.value += prepareTaskGraph(realGraph, 8).tasks.length;
+    }
+  )
 );
 scenarios.push(
-  await scenarioAsync("real-static-unused-state-hot-path", manifest.profile.realRunIterationsPerSample, async () => {
-    for (let index = 0; index < manifest.profile.realRunIterationsPerSample; index += 1)
-      await runRealPath(realGraph, 8, undefined);
-  })
+  await scenarioAsync(
+    "real-static-unused-state-hot-path",
+    manifest.profile.realRunIterationsPerSample,
+    async () => {
+      for (let index = 0; index < manifest.profile.realRunIterationsPerSample; index += 1)
+        await runRealPath(realGraph, 8, undefined);
+    }
+  )
 );
 scenarios.push(
-  await scenarioAsync("real-custom-unused-state-hot-path", manifest.profile.realRunIterationsPerSample, async () => {
-    for (let index = 0; index < manifest.profile.realRunIterationsPerSample; index += 1)
-      await runRealPath(realGraph, 8, customPolicy);
-  })
+  await scenarioAsync(
+    "real-custom-unused-state-hot-path",
+    manifest.profile.realRunIterationsPerSample,
+    async () => {
+      for (let index = 0; index < manifest.profile.realRunIterationsPerSample; index += 1)
+        await runRealPath(realGraph, 8, customPolicy);
+    }
+  )
 );
 scenarios.push(
-  await scenarioAsync("real-learned-unused-state-hot-path", manifest.profile.realRunIterationsPerSample, async () => {
-    for (let index = 0; index < manifest.profile.realRunIterationsPerSample; index += 1)
-      await runRealPath(realGraph, 8, learnedPolicy);
-  })
+  await scenarioAsync(
+    "real-learned-unused-state-hot-path",
+    manifest.profile.realRunIterationsPerSample,
+    async () => {
+      for (let index = 0; index < manifest.profile.realRunIterationsPerSample; index += 1)
+        await runRealPath(realGraph, 8, learnedPolicy);
+    }
+  )
 );
+scenarios.push(...runImplementationScenarios(implementationGraph, implementationFanoutGraph));
 
 const factories: readonly Readonly<{
   readonly create: (graph: CompiledFixture) => Prototype<PrototypeState>;
   readonly representation: RepresentationName;
 }>[] = [
-  { create: fullClonePrototype as (graph: CompiledFixture) => Prototype<PrototypeState>, representation: "full-clone-map-set" },
-  { create: parentDeltaPrototype as (graph: CompiledFixture) => Prototype<PrototypeState>, representation: "parent-delta" },
-  { create: denseCowPrototype as (graph: CompiledFixture) => Prototype<PrototypeState>, representation: "dense-id-chunked-cow" }
+  {
+    create: fullClonePrototype as (graph: CompiledFixture) => Prototype<PrototypeState>,
+    representation: "full-clone-map-set"
+  },
+  {
+    create: parentDeltaPrototype as (graph: CompiledFixture) => Prototype<PrototypeState>,
+    representation: "parent-delta"
+  },
+  {
+    create: denseCowPrototype as (graph: CompiledFixture) => Prototype<PrototypeState>,
+    representation: "dense-id-chunked-cow"
+  }
 ];
 const retained: Readonly<Record<string, unknown>>[] = [];
 for (const entry of factories) {
   const model = entry.create(prototypeGraph);
   const fanoutModel = entry.create(fanoutGraph);
-  scenarios.push(...runPrototypeScenarios(entry.representation, model, prototypeGraph, fanoutModel));
+  scenarios.push(
+    ...runPrototypeScenarios(entry.representation, model, prototypeGraph, fanoutModel)
+  );
   retained.push(retainedHeap(entry.representation, "dfs-retained-branches", model));
   retained.push(retainedHeap(entry.representation, "bfs-retained-branches", model));
 }
+retained.push(retainedImplementationHeap("dfs-retained-branches", implementationGraph));
+retained.push(retainedImplementationHeap("bfs-retained-branches", implementationGraph));
 
 const representationRows = Object.fromEntries(
   factories.map((entry) => [
@@ -585,7 +902,7 @@ const representationRows = Object.fromEntries(
   ])
 );
 const decision =
-  "The Plan selects `parent+delta` as the simplest representation that satisfies immutable predecessor retention and successor-only branching. The lab shows the expected catalog/validation depth cost, so the implementation task must retain the same workloads and may introduce a private bounded compaction only if implementation measurements demonstrate it is needed. Dense chunked COW remains the explicit fallback; full-clone Map/Set is rejected for successor transitions because it copies the whole dynamic collection.";
+  "The Plan retains `parent+delta` as the simplest representation that satisfies immutable predecessor retention and successor-only branching. The separately timed fixed-depth setup and target-operation rows do not establish parent-chain lookup as a dominant cost, so they do not justify private compaction or a dense fallback. Dense chunked COW remains an evidence-gated fallback; full-clone Map/Set remains rejected because successor transitions copy the whole dynamic collection.";
 const raw = Object.freeze({
   schemaVersion: 1,
   command: manifest.command,
@@ -593,17 +910,27 @@ const raw = Object.freeze({
   environment: Object.freeze({
     bunVersion: Bun.version,
     cpu: cpus(),
-    os: Object.freeze({ architecture: process.arch, platform: platform(), release: release(), totalMemoryBytes: totalmem(), type: type() }),
+    os: Object.freeze({
+      architecture: process.arch,
+      platform: platform(),
+      release: release(),
+      totalMemoryBytes: totalmem(),
+      type: type()
+    }),
     pid: process.pid
   }),
   fixtureSeed: manifest.seed,
   fixtureDescriptions: manifest.fixtures,
   measurement: Object.freeze({
     allocation: "heapUsed delta around each batch without forced GC; proxy only",
-    retainedHeap: "Bun.gc(true) before/after live retained branches when available; process-wide advisory observation",
+    implementationTargetOperations:
+      "fixed-depth setup is measured separately; inspection, warm catalog, repeated validation, and high-fanout reuse prebuilt immutable states",
+    retainedHeap:
+      "Bun.gc(true) before/after live retained branches when available; process-wide advisory observation",
     warmupSamples: manifest.profile.warmupSamples,
     measuredSamples: manifest.profile.measuredSamples
   }),
+  implementationPublicStateMeasured: true,
   publicStateInstantiatedByRealBaseline: false,
   scenarios: Object.freeze(scenarios),
   retainedHeap: Object.freeze(retained),

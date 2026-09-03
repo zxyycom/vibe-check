@@ -5,11 +5,6 @@ import type {
   AdmissionSelectionPolicy
 } from "./admission-selection-policy.ts";
 import {
-  activationScopeFor,
-  canAdmit,
-  isRelationMutexEligible
-} from "./scheduler-decision-inspection.ts";
-import {
   freezeDecision,
   type SchedulerAdmissionCandidateFact,
   type SchedulerAdmissionHardGuard,
@@ -18,8 +13,14 @@ import {
   type SchedulerTrigger
 } from "./scheduler-decision-model.ts";
 import type { SchedulerInspection } from "./scheduler-decision-inspection.ts";
+import {
+  admissionCandidatesForCore,
+  scopeToActivateForCore,
+  type AdmissionCoreState
+} from "./admission-core.ts";
 
 export interface SchedulerDecisionCycle {
+  readonly admissionCore: AdmissionCoreState;
   readonly context: SchedulerDecisionContext;
   readonly policy: AdmissionSelectionPolicy;
   /** Invoked immediately before the private policy seam enters a custom callback. */
@@ -30,9 +31,9 @@ export interface SchedulerDecisionCycle {
 
 export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecision {
   const candidates = Object.freeze(
-    cycle.state.pendingTasks
-      .filter((task) => isRelationMutexEligible(task, cycle.state))
-      .map((task) => Object.freeze({ canAdmit: canAdmit(cycle.state, task), task }))
+    admissionCandidatesForCore(cycle.admissionCore).map((candidate) =>
+      Object.freeze({ canAdmit: candidate.canAdmit, task: candidate.task })
+    )
   );
   if (candidates.length === 0) return awaitDecision(cycle, candidates);
 
@@ -40,6 +41,7 @@ export function decideAdmission(cycle: SchedulerDecisionCycle): SchedulerDecisio
   const result = validatePolicyDecision(
     cycle.policy.decide(
       Object.freeze({
+        admissionCore: cycle.admissionCore,
         candidates,
         graph: cycle.state.graph,
         graphSnapshot: cycle.context.graphIdentity,
@@ -73,7 +75,7 @@ function admitDecision(
     hardGuard: selectHardGuard(candidate.task.id),
     kind: "admit",
     proposal: result,
-    scopeToActivate: activationScopeFor(cycle.state, candidate.task)?.id ?? null,
+    scopeToActivate: scopeToActivateForCore(cycle.admissionCore, candidate.task.id),
     taskId: candidate.task.id,
     trigger: cycle.trigger
   });

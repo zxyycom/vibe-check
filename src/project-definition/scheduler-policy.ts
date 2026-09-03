@@ -3,6 +3,119 @@ export type AdmissionProposal =
   | Readonly<{ readonly kind: "select"; readonly taskId: string }>
   | Readonly<{ readonly kind: "wait" }>;
 
+/** 独立模拟 immutable Scheduler admission graph 的 exact input。 */
+export interface AdmissionGraphInput {
+  readonly graph: SchedulerGraphSnapshot;
+  readonly maxParallel: number;
+}
+
+/** 一次假设性 Task settlement 的公开二值结果；它不是 Task execution result。 */
+export type AdmissionSettlementOutcome = "satisfied" | "unsatisfied";
+
+/** 可从同一静态图形成 independent initial states 的 standalone handle。 */
+export interface AdmissionGraph {
+  /** 从同一已验证 graph 形成一个新的全 pending immutable state。 */
+  initialState(this: void): AdmissionState;
+}
+
+/** 不可变且 opaque 的 hypothetical admission boundary。 */
+export interface AdmissionState {
+  /** 当前 dynamic admission facts；读取不会控制真实 Scheduler。 */
+  readonly inspection: AdmissionInspection;
+  /** 当前 pending Task 的可选性分区；按 canonical taskId 顺序输出。 */
+  readonly catalog: AdmissionCatalog;
+  /** 只模拟一次 admission，不启动、预检或执行 Task。 */
+  select(this: void, taskId: string): AdmissionTransitionResult;
+  /** 只模拟一个当前 running Task 的二值结算。 */
+  settle(
+    this: void,
+    taskId: string,
+    outcome: AdmissionSettlementOutcome
+  ): AdmissionTransitionResult;
+  /** 不构造 catalog 的单 Task select legality query。 */
+  validateSelection(this: void, taskId: string): AdmissionSelectionValidation;
+}
+
+/** 当前 immutable state 的公开动态 inspection。 */
+export interface AdmissionInspection {
+  readonly capacity: Readonly<{
+    readonly effectiveMaxParallel: number;
+    readonly maxParallel: number;
+    readonly running: number;
+  }>;
+  readonly nextBoundary: "select" | "wait" | "complete";
+  readonly runningTaskIds: readonly string[];
+  readonly scopes: readonly AdmissionScopeLifecycle[];
+  readonly settledTasks: readonly AdmissionSettledTask[];
+}
+
+/** 一个静态 scope 的推导 lifecycle。 */
+export interface AdmissionScopeLifecycle {
+  readonly lifecycle: "inactive" | "active" | "closed";
+  readonly scopeId: string;
+}
+
+/** 可公开映射为 binary outcome 的 Task settlement。 */
+export interface AdmissionSettledTask {
+  readonly outcome: AdmissionSettlementOutcome;
+  readonly taskId: string;
+}
+
+/** 所有 pending Task 的 canonical selectable/non-selectable partition。 */
+export interface AdmissionCatalog {
+  readonly nonSelectableTasks: readonly AdmissionNonSelectableTask[];
+  readonly selectableTaskIds: readonly string[];
+}
+
+/** catalog 中一个 pending Task 的 primary non-selection reason。 */
+export interface AdmissionNonSelectableTask {
+  readonly reason: AdmissionSelectionRejectionReason;
+  readonly taskId: string;
+}
+
+/** pending Task 因当前 admission legality 不可 select 的 closed reason。 */
+export type AdmissionSelectionRejectionReason =
+  | Readonly<{ readonly kind: "depends-on-pending"; readonly taskIds: readonly string[] }>
+  | Readonly<{ readonly kind: "mutex-held"; readonly mutexIds: readonly string[] }>
+  | Readonly<{
+      readonly kind: "root-capacity-reached";
+      readonly maxParallel: number;
+      readonly running: number;
+    }>
+  | Readonly<{
+      readonly kind: "scope-capacity-reached";
+      readonly maxParallel: number;
+      readonly running: number;
+      readonly scopeId: string;
+    }>
+  | Readonly<{ readonly kind: "observes-pending"; readonly taskIds: readonly string[] }>;
+
+/** validateSelection/select 共同使用的完整 selection validation failure surface。 */
+export type AdmissionSelectionValidationRejectionReason =
+  | AdmissionSelectionRejectionReason
+  | Readonly<{ readonly kind: "not-pending"; readonly status: "running" | "settled" }>
+  | Readonly<{ readonly kind: "state-complete" }>
+  | Readonly<{ readonly kind: "unknown-task" }>;
+
+/** select 或 settle 公开 transition 的完整 rejection surface。 */
+export type AdmissionRejectionReason =
+  | AdmissionSelectionValidationRejectionReason
+  | Readonly<{ readonly kind: "invalid-settlement-outcome" }>
+  | Readonly<{ readonly kind: "not-running"; readonly status: "pending" | "settled" }>;
+
+/** 任意 taskId 的只读 selection validation result。 */
+export type AdmissionSelectionValidation =
+  | Readonly<{ readonly accepted: true }>
+  | Readonly<{
+      readonly accepted: false;
+      readonly reason: AdmissionSelectionValidationRejectionReason;
+    }>;
+
+/** accepted successor 或 closed rejection 的 immutable transition result。 */
+export type AdmissionTransitionResult =
+  | Readonly<{ readonly accepted: true; readonly state: AdmissionState }>
+  | Readonly<{ readonly accepted: false; readonly reason: AdmissionRejectionReason }>;
+
 /**
  * 自定义准入 policy 每轮获得的不可变普通数据快照。
  *
@@ -11,6 +124,8 @@ export type AdmissionProposal =
 export interface AdmissionPolicyContext {
   /** 已规范化的完整静态调度图；Task metadata 是拓扑和 priority 的唯一来源。 */
   readonly graph: SchedulerGraphSnapshot;
+  /** 当前 real decision boundary 的同型假设状态；不能 reservation 或控制 Task。 */
+  readonly admissionState: AdmissionState;
   /** 已满足 relation/mutex 条件的 pending Task 及其本轮 capacity 可准入性。 */
   readonly candidates: readonly Readonly<{
     readonly canAdmit: boolean;

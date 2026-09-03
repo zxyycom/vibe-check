@@ -151,6 +151,7 @@ function publicImports(): string {
 
 const PUBLIC_IMPORTS_TEMPLATE = `import {
   cacheJsonByKey,
+  createAdmissionGraph,
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,

@@ -75,7 +75,7 @@ candidates 的 `{ taskId, canAdmit }`、capacity、running/settled/active-scope 
 决策边界 measurement。完整 Scheduler state、Check data、Records、messages 与 Task control 保持在 Product owner 内。
 
 callback 是调用方 trusted host code。调用方 closure 保有自己的 host capability；Vibe Check 只提供 frozen context 和
-result-only handoff，不把 Scheduler inspection 或 Task command 变成 custom strategy API。Scheduler 在 callback 后独占
+result-only handoff，不把 private Scheduler inspection 或真实 Task command 变成 custom strategy API。Scheduler 在 callback 后独占
 readiness、mutex、capacity、cancellation、Task start/await/settlement，以及 selected Task 仍 pending、属于本轮 candidate 和
 `wait` 可 drain 的验证。
 
@@ -84,6 +84,29 @@ scalar/discrete/peak facts，完整 per-Task table 只属于 terminal raw measur
 `measurementAt(index)` 是 context 创建时捕获 end-count 的 synchronous reader。available timing 才包含数值 contribution；
 合法 zero span 仍是 available，而 clock/integral fault 形成 unavailable timing。该 observation 描述 action 后 state，
 不把时段解释为 action causality、critical path 或 CPU 归因。
+
+### AdmissionGraph simulation
+
+`createAdmissionGraph({ graph, maxParallel })` exact-validates its input record, validates the supplied
+`SchedulerGraphSnapshot` and positive safe-integer root cap, then compiles one private graph for the returned `AdmissionGraph`
+handle. `initialState()` creates an immutable standalone seed; each actual custom callback receives the same `AdmissionState`
+contract as its live `context.admissionState` seed.
+
+state 的 `catalog` 将所有 pending Task 按 Unicode `taskId` 顺序分为 selectable IDs 或一个 primary rejection；`inspection` 同样
+使用 canonical order。`validateSelection` 不构造 catalog，且与 `select` 使用相同 precedence：complete、unknown、not-pending、
+depends-on-pending、observes-pending、mutex-held、scope-capacity-reached、root-capacity-reached。`settle` 先拒绝非二值 outcome，
+再检查 complete、unknown 和 non-running。
+
+accepted `select` 只产生 hypothetical running successor；binary `settle` 释放其 mutex/capacity，并把 direct unsatisfied
+dependent 以 private forced-block microsteps 结算到下一 public boundary。`completed` 是 satisfied，现有
+`prerequisite-unsatisfied` 与 `failed` 是 unsatisfied；private blocked/cancelled settlements 不进入 public settled list。
+scope 在 activation Task 开始后 active，并在 terminal Task 结算后 closed。所有 handles、results 与 DTO 都 frozen；state
+没有 constructor、serialization、cancel/effect/executor action 或 mutable storage。
+
+live seed 的 branch 从不 reservation 或启动真实 Task；callback 仍只能返回原有 exact proposal，Scheduler 在返回后重新执行
+lifecycle、candidate、capacity 与 cancellation hard guard。static/custom/learned path 未读取 `admissionState` 时不构造 public
+catalog/search projection；private compiled graph、parent+delta node、reducer/effects 和 real shell 共同承接 transition，
+Task/Promise/signal/diagnostic/measurement/RunResult 仍只属于 real shell。
 
 | 触发点 | owner 与处理 | 对调用方可见的结果 |
 | --- | --- | --- |

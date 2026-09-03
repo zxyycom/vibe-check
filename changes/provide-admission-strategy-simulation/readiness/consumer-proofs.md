@@ -1,6 +1,6 @@
 # Admission-state consumer proofs
 
-This readiness evidence proves that the proposed public protocol has two distinct consumers. It does **not** claim that the current Product exports the protocol: the implementation tasks must turn both scenarios into current scheduler and installed-package consumer evidence.
+This readiness artifact records why the proposed public protocol has two distinct consumers. At capture time it did **not** claim that the Product exported the protocol; it is not current contract or installed-package evidence. The current stable contract belongs to [`README.md`](../../../README.md) and [`docs/api-mechanics.md`](../../../docs/api-mechanics.md), while tasks 1.5/1.6 record the direct runtime and installed-consumer proof required by this Change.
 
 ## Standalone branching consumer
 

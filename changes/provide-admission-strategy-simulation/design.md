@@ -2,20 +2,25 @@
 
 本 Plan 以一个 public immutable `AdmissionGraph` / `AdmissionState` 协议交付 standalone simulation 与 live custom lookahead；两种 seed 和 real execution shell 共用一个 private compiled reducer/effect core，而不把 Scheduler control capability 暴露给调用方。
 
+本文拥有本 Change 的 Intended Change、形成时推理和 readiness evidence；当前稳定 public contract 由
+[`README.md`](../../README.md)、[`docs/configuration.md`](../../docs/configuration.md)、[`docs/api-mechanics.md`](../../docs/api-mechanics.md)
+和 [`docs/architecture.md`](../../docs/architecture.md) 承接。Plan-time snapshot 不覆盖那些 owner，也不因 implementation task
+勾选而改变 `provide-immutable-admission-graph-state.md` 的 active + unaligned 状态。
+
 ## Context
 
-### Current facts and long-term direction
+### Readiness-capture facts and long-term direction
 
 - `SchedulerGraphSnapshot` 是当前唯一公开静态 graph DTO，含 Task topology、mutex、priority 和 scope，但 root `maxParallel` 不在该 DTO 中。因此 standalone factory 必须接收 `{ graph, maxParallel }`，且在一次 exact validation/compile 后才形成 `AdmissionGraph`。
-- current `AdmissionPolicyContext` 是 detached/deep-frozen callback snapshot，只有 relation/mutex candidates、capacity、active/running/settled IDs、runtime cancellation facts 和 measurement prefix；它不能列出完整 pending catalog、验证一个 Task、保留 predecessor，或产生 hypothetical successor。current `decideScheduler` 则把 immutable snapshot 映射到 private action，real shell 维护 pending/running/mutex/scope/settlement 与 Task/Promise lifecycle。
+- At readiness capture, `AdmissionPolicyContext` 是 detached/deep-frozen callback snapshot，只有 relation/mutex candidates、capacity、active/running/settled IDs、runtime cancellation facts 和 measurement prefix；它不能列出完整 pending catalog、验证一个 Task、保留 predecessor，或产生 hypothetical successor。`decideScheduler` 则把 immutable snapshot 映射到 private action，real shell 维护 pending/running/mutex/scope/settlement 与 Task/Promise lifecycle。
 - `dependsOn` 只有 upstream settlement `completed` 时满足；`observes` 在 upstream 有任意 terminal settlement 时满足。direct `dependsOn` 已全部 terminal 且至少一项非 `completed` 的 pending Task 当前以 forced `settle-blocked` microstep 结算，而不是传给 policy。relation/mutex viable candidates 才出现；capacity remains a candidate fact.
 - aligned Decision `adopt-invocation-scoped-custom-admission-strategy-authoring.md` continues to own closed simple/prepared authoring and result-only callback handoff. Aligned Decision `retain-private-invocation-admission-strategy-lifecycle.md` continues to own private provider/measurement/history lifecycle and Scheduler hard guards. The new Decision below does not revise either: public state is a new capability, not their prerequisite.
-- `provide-immutable-admission-graph-state.md` is **active + unaligned**. It confirms the future direction: two same-type seeds, opaque successor-only state, private compiled reducer/effects, non-authoritative boundary, and no public cancellation/executor/storage format. It remains unaligned until all runtime, declarations, documentation, tests and installed consumer evidence are current.
+- `provide-immutable-admission-graph-state.md` is **active + unaligned**. It records the long-term direction—two same-type seeds, opaque successor-only state, private compiled reducer/effects, non-authoritative boundary, and no public cancellation/executor/storage format—but does not itself certify current runtime/docs/tests or grant alignment authority.
 - `optimize-learned-admission-strategy` is independent: it may later reuse the private compiled graph and deterministic harness, but no algorithm selection/default change is part of this Change. `add-invocation-fail-fast-policy` and `add-named-resource-capacity` may change current lifecycle/capacity/reason facts. If either lands before implementation starts, the implementer must re-run the exact trace and benchmark matrix against that current owner before changing this Plan or runtime.
 
 ### Readiness evidence
 
-`readiness/consumer-proofs.md` records two materially distinct consumers: a standalone retained-predecessor branch comparison and a live custom callback that reads a hypothetical successor but returns only existing `AdmissionProposal`. It explicitly does not claim a current public API exists; implementation must convert both into direct evidence.
+`readiness/consumer-proofs.md` records two materially distinct consumers: a standalone retained-predecessor branch comparison and a live custom callback that reads a hypothetical successor but returns only existing `AdmissionProposal`. At readiness capture it did not claim a current public API; it remains the rationale for the two consumers, while tasks 1.5/1.6 and the stable docs own their current implementation evidence/contract.
 
 `readiness/admission-state-benchmark.manifest.json` fixes the command, Bun profile, seed, fixtures, methods and limitations. Running:
 
@@ -27,7 +32,7 @@ generated `readiness/admission-state-benchmark.raw.json` and `readiness/admissio
 
 The baseline covers current real `runTaskGraph` compile plus static/custom/learned unused-state hot paths; public state is explicitly not instantiated in those real runs. It also compares full-clone Map/Set, parent+delta and dense ID + 64-cell chunked COW across inspection, cold/warm catalog, repeated validation, select/settle, same-predecessor forks, DFS/BFS retained branches and high fanout.
 
-On this advisory host, parent+delta has the lowest transition/fork medians (`select/settle` 0.020 ms/64, same-predecessor fork 0.031 ms/512) and the lowest high-fanout median (0.891 ms/64), while its catalog cost is higher than full clone (warm 0.283 vs 0.187 ms/8). Dense COW is slower for same-predecessor forks (0.353 ms/512) and full clone violates the required no-full-collection successor transition. `heapUsed` retained deltas are all zero at this scale, so they are **not** evidence of zero retained objects. No numeric gate/budget is adopted.
+At readiness capture, the prototype parent+delta had the lowest transition/fork medians (`select/settle` 0.020 ms/64, same-predecessor fork 0.031 ms/512) and the lowest high-fanout median (0.891 ms/64), while its catalog cost was higher than full clone (warm 0.283 vs 0.187 ms/8). Dense COW was slower for same-predecessor forks (0.353 ms/512) and full clone violated the required no-full-collection successor transition. This snapshot selected the initial direction only: `heapUsed` retained deltas were all zero at this scale, which was **not** evidence of zero retained objects; no numeric gate/budget was adopted. The implementation-run measurements are recorded separately in the readiness summary.
 
 ### Shared-core boundary
 
@@ -261,4 +266,4 @@ Implementation updates `src/project-definition/scheduler-policy.ts`, its exact v
 
 ## Open Questions
 
-无阻塞性开放问题。当前 Plan deliberately does not freeze a cross-host numeric performance budget or a compaction threshold; those are implementation measurements, not missing API/architecture decisions. If fail-fast or named capacity becomes current before implementation, rebaseline/review is a required implementation task rather than permission to silently extend this contract.
+无阻塞性开放问题。当前 Plan deliberately does not freeze a cross-host numeric performance budget or a compaction threshold; those are implementation measurements, not missing API/architecture decisions. If fail-fast or named capacity becomes current before the final Change review, rebaseline/review is required rather than permission to silently extend this contract.

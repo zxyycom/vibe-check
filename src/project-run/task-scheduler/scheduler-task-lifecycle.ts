@@ -41,13 +41,22 @@ export function applyBlockedSettlement<TResult>(
   state: SchedulerState<TResult>,
   decision: Extract<SchedulerDecision, { readonly kind: "settle-blocked" }>
 ): void {
-  const task = takePendingTask(state, decision.taskId, "blocked settlement");
+  applyForcedBlockedSettlement(state, decision.taskId, decision.dependencyIds);
+}
+
+/** Applies one canonical private forced-block effect after the shared reducer selected it. */
+export function applyForcedBlockedSettlement<TResult>(
+  state: SchedulerState<TResult>,
+  taskId: string,
+  dependencyIds: readonly string[]
+): void {
+  const task = takePendingTask(state, taskId, "blocked settlement");
   recordSettlement(
     state,
     task,
-    Object.freeze({ kind: "blocked", dependencyIds: decision.dependencyIds })
+    Object.freeze({ kind: "blocked", dependencyIds: Object.freeze([...dependencyIds]) })
   );
-  state.onTaskBlocked?.(task, decision.dependencyIds);
+  state.onTaskBlocked?.(task, dependencyIds);
 }
 
 export function applyCancellation<TResult>(

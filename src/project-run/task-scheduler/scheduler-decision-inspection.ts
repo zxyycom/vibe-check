@@ -1,11 +1,10 @@
-import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
+import type { PlannedTask, PlannedTaskGraph } from "./graph.ts";
 import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 import { summarizeSchedulerBlockers } from "./scheduler-blocker-summary.ts";
 import type {
   SchedulerCapacity,
   SchedulerDecisionContext,
-  SchedulerSettlementKind,
-  SchedulerSnapshot
+  SchedulerSettlementKind
 } from "./scheduler-decision-model.ts";
 
 export interface SchedulerInspection {
@@ -23,24 +22,6 @@ export interface SchedulerInspection {
   }>[];
 }
 
-export function inspectSnapshot(snapshot: SchedulerSnapshot): SchedulerInspection {
-  const tasksById = new Map(snapshot.graph.tasks.map((task) => [task.id, task] as const));
-  const pendingTasks = snapshot.pendingTaskIds.map((taskId) => pendingTaskFor(taskId, tasksById));
-  return Object.freeze({
-    activeScopeIds: Object.freeze([...snapshot.activeScopeIds]),
-    graph: snapshot.graph,
-    isAbortRequested: snapshot.isAbortRequested,
-    isCancelled: snapshot.isCancelled,
-    maxParallel: snapshot.maxParallel,
-    pendingTasks: Object.freeze(pendingTasks),
-    runningMutexes: Object.freeze([...snapshot.runningMutexes]),
-    runningTaskIds: Object.freeze([...snapshot.runningTaskIds]),
-    settledTasks: Object.freeze(
-      snapshot.settledTasks.map(({ taskId, kind }) => Object.freeze({ kind, taskId }))
-    )
-  });
-}
-
 export function decisionContext(
   state: SchedulerInspection,
   graphIdentity: SchedulerGraphSnapshot
@@ -51,71 +32,6 @@ export function decisionContext(
     capacity,
     graphIdentity
   });
-}
-
-export function selectBlockedTask(
-  state: SchedulerInspection
-): Readonly<{ readonly dependencyIds: readonly string[]; readonly task: PlannedTask }> | undefined {
-  for (let index = state.pendingTasks.length - 1; index >= 0; index -= 1) {
-    const task = state.pendingTasks[index];
-    const dependencyIds = blockingDependencyIds(task, state.settledTasks);
-    if (dependencyIds !== undefined)
-      return Object.freeze({ dependencyIds: Object.freeze(dependencyIds), task });
-  }
-  return undefined;
-}
-
-export function isRelationMutexEligible(task: PlannedTask, state: SchedulerInspection): boolean {
-  return (
-    isRelationEligible(task, state) &&
-    task.mutex.every((mutex) => !state.runningMutexes.includes(mutex))
-  );
-}
-
-export function isRelationEligible(task: PlannedTask, state: SchedulerInspection): boolean {
-  return (
-    task.dependsOn.every(
-      (dependencyId) => settlementKindFor(state.settledTasks, dependencyId) === "completed"
-    ) &&
-    task.observes.every(
-      (observationId) => settlementKindFor(state.settledTasks, observationId) !== undefined
-    )
-  );
-}
-
-export function canAdmit(state: SchedulerInspection, task: PlannedTask): boolean {
-  return state.runningTaskIds.length < prospectiveMaxParallel(state, task);
-}
-
-export function activationScopeFor(
-  state: SchedulerInspection,
-  task: PlannedTask
-): PlannedTaskScope | undefined {
-  const scope = scopeForTask(state, task);
-  return scope?.activationTaskIds.includes(task.id) === true &&
-    !state.activeScopeIds.includes(scope.id)
-    ? scope
-    : undefined;
-}
-
-function pendingTaskFor(taskId: string, tasksById: ReadonlyMap<string, PlannedTask>): PlannedTask {
-  const task = tasksById.get(taskId);
-  if (task === undefined) throw new Error(`scheduler snapshot has unknown pending task ${taskId}`);
-  return task;
-}
-
-function blockingDependencyIds(
-  task: PlannedTask,
-  settledTasks: SchedulerInspection["settledTasks"]
-): string[] | undefined {
-  const settlementKinds = task.dependsOn.map(
-    (dependencyId) => [dependencyId, settlementKindFor(settledTasks, dependencyId)] as const
-  );
-  if (settlementKinds.some(([, kind]) => kind === undefined)) return undefined;
-  const dependencyIds = settlementKinds.flatMap(([dependencyId, kind]) =>
-    kind === "completed" ? [] : [dependencyId]
-  );
-  return dependencyIds.length === 0 ? undefined : dependencyIds;
 }
 
 export function capacityFor(state: SchedulerInspection): SchedulerCapacity {
@@ -132,24 +48,4 @@ function effectiveMaxParallelFor(state: SchedulerInspection): number {
     if (state.activeScopeIds.includes(scope.id)) effective = Math.min(effective, scope.maxParallel);
   }
   return effective;
-}
-
-function prospectiveMaxParallel(state: SchedulerInspection, task: PlannedTask): number {
-  const scope = activationScopeFor(state, task);
-  return scope === undefined
-    ? effectiveMaxParallelFor(state)
-    : Math.min(effectiveMaxParallelFor(state), scope.maxParallel);
-}
-
-function scopeForTask(state: SchedulerInspection, task: PlannedTask): PlannedTaskScope | undefined {
-  return task.scopeId === undefined
-    ? undefined
-    : state.graph.scopes.find((scope) => scope.id === task.scopeId);
-}
-
-function settlementKindFor(
-  settledTasks: SchedulerInspection["settledTasks"],
-  taskId: string
-): SchedulerSettlementKind | undefined {
-  return settledTasks.find((task) => task.taskId === taskId)?.kind;
 }

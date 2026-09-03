@@ -203,6 +203,20 @@ Entities:
   Proves:
 - A frozen snapshot contains canonical `checks` and `records` only. The package-private settled Check seam reuses the same canonical final-data reference that the frozen snapshot projects; policy, publication, callbacks, scanner payloads, and scheduler state are not a third fact source.
 
+## Case WB-RUNTIME-ADMISSION-GRAPH-001: Immutable AdmissionGraph shares Scheduler legality without control capability
+
+Owner: `docs/api-mechanics.md#admissiongraph-simulation`
+Entities:
+
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > validates exact input and returns frozen opaque branching successors`
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > uses canonical catalog order, dedicated validation reasons, binary settlements, and scope lifecycle`
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > traces public and private binary/failed/cancellation transitions through one reducer`
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > replays canonical failed and forced effects through shell diagnostics and measurement`
+- `bun|src/project-run/task-scheduler/admission-core.test.ts|immutable admission graph > supplies callback lookahead without reserving or starting a real Task`
+Proves:
+- The standalone and callback seeds expose one frozen opaque state contract. Its canonical catalog, inspection, validation precedence, binary settlement, forced block and scope lifecycle return successors without mutating a retained predecessor.
+- The private trace invokes the same reducer for public and real-only failed/cancellation actions. An instrumented real Scheduler replays each canonical effect against its corresponding immutable core state; custom policy measurements, diagnostics, and terminal last-settled facts retain the direct-then-forced order. Callback lookahead cannot start, reserve, settle or otherwise control real Task lifecycle, whose callback proposal remains Scheduler-hard-revalidated.
+
 ## Case AUX-MARKDOWN-LINK-OUTCOMES-001: Markdown Link settles safe complete outcomes
 
 Owner: `docs/checks/markdown-link-validation.md#效果与结果`

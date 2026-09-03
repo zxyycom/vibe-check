@@ -5,6 +5,7 @@ import { join } from "node:path";
 
 import {
   cacheJsonByKey,
+  createAdmissionGraph,
   defineCheck,
   defineConfig,
   duplicateDetection,
@@ -26,6 +27,7 @@ if (projectRoot === undefined) throw new Error("fixture project root is required
 
 const cacheEvidence = await observeCacheReuse();
 const learnedSchedulingEvidence = await observeLearnedScheduling(projectRoot);
+const admissionSimulationEvidence = await observeAdmissionSimulation(projectRoot);
 
 const jsonCheck = jsonValidation();
 const parserEvidence = {
@@ -270,6 +272,7 @@ process.stdout.write(
       jsonSchemaData: settledFinalData(jsonSchemaCheck),
       jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
       learnedScheduling: learnedSchedulingEvidence,
+      admissionSimulation: admissionSimulationEvidence,
       markdownLinkData: settledFinalData(markdownLink),
       markdownLinkOutcome: markdownLink?.outcome.status ?? null
     })
@@ -303,6 +306,156 @@ async function observeCacheReuse() {
   } finally {
     await rm(directory, { force: true, recursive: true });
   }
+}
+
+async function observeAdmissionSimulation(projectRoot) {
+  const simulation = createAdmissionGraph({
+    graph: {
+      scopes: [],
+      tasks: [
+        admissionSimulationTask("source"),
+        admissionSimulationTask("dependent", ["source"]),
+        admissionSimulationTask("independent")
+      ]
+    },
+    maxParallel: 2
+  });
+  const initial = simulation.initialState();
+  const selectedSource = initial.select("source");
+  if (!selectedSource.accepted) throw new Error("installed standalone source selection was rejected");
+  const settledSource = selectedSource.state.settle("source", "unsatisfied");
+  if (!settledSource.accepted) throw new Error("installed standalone source settlement was rejected");
+  const independentBranch = initial.select("independent");
+  if (!independentBranch.accepted) throw new Error("installed standalone branch selection was rejected");
+
+  const started = [];
+  let lookaheadSettled = false;
+  let lookaheadSelected = false;
+  const first = defineCheck({
+    checkId: "installed-simulation-first",
+    displayName: "Installed simulation first",
+    execution: () => {
+      started.push("installed-simulation-first");
+      return { status: "passed", data: {} };
+    }
+  });
+  const second = defineCheck({
+    checkId: "installed-simulation-second",
+    displayName: "Installed simulation second",
+    execution: () => {
+      started.push("installed-simulation-second");
+      return { status: "passed", data: {} };
+    }
+  });
+  const customRun = await run(
+    defineConfig({
+      checks: [first, second],
+      outputs: {
+        machinePublication: { enabled: false },
+        progressRendering: { enabled: false }
+      },
+      scheduler: {
+        admissionPolicy: {
+          kind: "custom",
+          strategy: {
+            kind: "simple",
+            decide(context) {
+              if (!lookaheadSelected) {
+                const selected = context.admissionState.select(second.checkId);
+                if (!selected.accepted) throw new Error("installed callback lookahead was rejected");
+                lookaheadSelected = true;
+                const settled = selected.state.settle(second.checkId, "satisfied");
+                if (!settled.accepted) throw new Error("installed callback branch settlement was rejected");
+                lookaheadSettled = true;
+              }
+              const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
+              return candidate === undefined
+                ? { kind: "wait" }
+                : { kind: "select", taskId: candidate.taskId };
+            }
+          }
+        },
+        maxParallel: 1
+      }
+    }),
+    { projectRoot }
+  );
+
+  const controller = new AbortController();
+  let hardGuardCallbackCount = 0;
+  let hardGuardExecutionCount = 0;
+  const guarded = defineCheck({
+    checkId: "installed-simulation-guarded",
+    displayName: "Installed simulation guarded",
+    execution: () => {
+      hardGuardExecutionCount += 1;
+      return { status: "passed", data: {} };
+    }
+  });
+  const hardGuardRun = await run(
+    defineConfig({
+      checks: [guarded],
+      outputs: {
+        machinePublication: { enabled: false },
+        progressRendering: { enabled: false }
+      },
+      scheduler: {
+        admissionPolicy: {
+          kind: "custom",
+          strategy: {
+            kind: "simple",
+            decide(context) {
+              hardGuardCallbackCount += 1;
+              if (!context.admissionState.validateSelection(guarded.checkId).accepted) {
+                throw new Error("installed hard-guard callback did not receive an admissible task");
+              }
+              controller.abort();
+              return { kind: "select", taskId: guarded.checkId };
+            }
+          }
+        },
+        maxParallel: 1
+      }
+    }),
+    { projectRoot, signal: controller.signal }
+  );
+
+  return Object.freeze({
+    callback: Object.freeze({
+      customRunKind: customRun.kind,
+      lookaheadSelected,
+      lookaheadSettled,
+      started: Object.freeze([...started])
+    }),
+    hardGuard: Object.freeze({
+      callbackCount: hardGuardCallbackCount,
+      diagnostic: hardGuardRun.kind === "execution" ? hardGuardRun.diagnostic.code : null,
+      executionCount: hardGuardExecutionCount,
+      kind: hardGuardRun.kind
+    }),
+    standalone: Object.freeze({
+      branchRunningTaskIds: independentBranch.state.inspection.runningTaskIds,
+      initialSourceSelectable: initial.validateSelection("source").accepted,
+      methodsFrozen: Object.freeze({
+        initialState: Object.isFrozen(simulation.initialState),
+        select: Object.isFrozen(initial.select),
+        settle: Object.isFrozen(initial.settle),
+        validateSelection: Object.isFrozen(initial.validateSelection)
+      }),
+      settledTaskIds: settledSource.state.inspection.settledTasks.map(({ taskId }) => taskId)
+    })
+  });
+}
+
+function admissionSimulationTask(taskId, dependsOn = []) {
+  return {
+    admissionPriority: 0,
+    dependsOn,
+    mutex: [],
+    observes: [],
+    scopeId: null,
+    taskId
+  };
 }
 
 async function observeLearnedScheduling(projectRoot) {

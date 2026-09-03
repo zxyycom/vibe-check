@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "purpose": "Plan-readiness baseline for the proposed immutable AdmissionGraph/AdmissionState. It compares representation prototypes, not a product implementation.",
+  "purpose": "Plan-readiness and implementation observation for immutable AdmissionGraph/AdmissionState. It retains representation prototypes, measures fixed-depth public state setup separately, and times shipped parent+delta target operations without setup inside their timed callbacks.",
   "command": "bun changes/provide-admission-strategy-simulation/readiness/admission-state-benchmark.ts",
   "seed": 20260903,
   "profile": {
@@ -17,7 +17,8 @@
     "realPath": "96-task acyclic mixed-relation graph; root capacity 8; no standalone graph/state is instantiated.",
     "prototype": "256-task deterministic DAG with 16-task layers; root capacity 8.",
     "highFanout": "one root plus 255 direct dependents; root settles unsatisfied before catalog/validation.",
-    "branchSearch": "a binary-ready selection tree to depth 7; retained DFS/BFS frontier is intentionally kept live for heap observation."
+    "branchSearch": "a binary-ready selection tree to depth 7; retained DFS/BFS frontier is intentionally kept live for heap observation.",
+    "implementationFixedDepth": "a shipped public state after eight select/settle successors; setup is separately timed before reusable inspection, warm catalog, and repeated-validation target rows."
   },
   "representations": [
     "full-clone-map-set",
@@ -29,6 +30,7 @@
     "real-static-unused-state-hot-path",
     "real-custom-unused-state-hot-path",
     "real-learned-unused-state-hot-path",
+    "fixed-depth-state-setup",
     "inspection",
     "catalog-cold",
     "catalog-warm",

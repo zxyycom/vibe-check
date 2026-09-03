@@ -142,7 +142,7 @@
       "provide-decision-boundary-admission-measurement.md": "sha256:ec0e8bb9d26c6d044cab874d60661f7a068f7225d86b4e4e42bfd7e79db6eae2",
       "provide-generic-bounded-finding-presentation.md": "sha256:bc7f7750493deb6340426e2f8cc9d5d0539c2ac224f83ac5867679be8052ec35",
       "provide-generic-finding-waiver-reconciliation.md": "sha256:8ecdc528c951af31c51674d42c05dc82db9f56844345cecb41307d7906a5cad5",
-      "provide-immutable-admission-graph-state.md": "sha256:4f41a29bb051d3c4cc7ab6fc0c562b68d3bc0f500704bbc2b1c8aac39dcb0167",
+      "provide-immutable-admission-graph-state.md": "sha256:45fa349119087c41b95a7435a06efa3134bec6f6029f2e21bc426eacd8f8c9d3",
       "provide-package-check-functions-parsers-and-actionable-messages.md": "sha256:ca1071c916c98709162418f5941de601d0c4469dfcb0abc162aac39ab3760626",
       "provide-prepared-package-candidate-as-typed-check-data.md": "sha256:ad8dbac1973b41f8de9b244f2439b6917336955adeac9f6cc725dcd24c888d38",
       "provide-product-owned-check-progress.md": "sha256:75eafea7bbed4a4dce2e7557eedc42edd094cb4c848c38e26272102ccf641652",
@@ -4638,14 +4638,14 @@
           "active"
         ],
         "alignment": [
-          "unaligned"
+          "aligned"
         ]
       },
       "state": {
         "sourcePath": "provide-immutable-admission-graph-state.md",
         "title": "提供不可变 AdmissionGraph 与 AdmissionState",
         "status": "active",
-        "alignment": "unaligned",
+        "alignment": "aligned",
         "createdAt": "2026-09-03T09:09:30Z",
         "purpose": "让 standalone 与 callback 共用 immutable 调度状态协议而不取得 Scheduler 控制能力。",
         "background": "现有 callback 缺少可分支完整状态；重建 relation/capacity/transition 会复制语义，而 real Scheduler 必须保留 control boundary。",

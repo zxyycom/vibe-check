@@ -118,11 +118,26 @@ export type {
   InheritableCheckCollection
 } from "./check/check.ts";
 export { defineAdmissionPolicy, defineConfig } from "./project-definition/project-definition.ts";
+export { createAdmissionGraph } from "./project-run/task-scheduler/admission-core.ts";
 export type {
   AdmissionPolicy,
   AdmissionPolicyContext,
   AdmissionPolicyMeasurement,
   AdmissionProposal,
+  AdmissionCatalog,
+  AdmissionGraph,
+  AdmissionGraphInput,
+  AdmissionInspection,
+  AdmissionNonSelectableTask,
+  AdmissionRejectionReason,
+  AdmissionScopeLifecycle,
+  AdmissionSelectionRejectionReason,
+  AdmissionSelectionValidation,
+  AdmissionSelectionValidationRejectionReason,
+  AdmissionSettlementOutcome,
+  AdmissionSettledTask,
+  AdmissionState,
+  AdmissionTransitionResult,
   CustomAdmissionPreparationContext,
   CustomAdmissionStrategy,
   PreparedCustomAdmissionStrategy,

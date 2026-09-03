@@ -2,9 +2,14 @@
 
 本 Plan 将 standalone simulation 和 live custom lookahead 交付为一个 public immutable `AdmissionGraph` / `AdmissionState` 协议；它共享 real Scheduler 的 private compiled reducer/effects，不执行或改写真实 Run。
 
+本文只拥有本 Change 的预期结果和形成时理由；当前 package contract 由
+[`README.md`](../../README.md)、[`docs/configuration.md`](../../docs/configuration.md)、[`docs/api-mechanics.md`](../../docs/api-mechanics.md)
+和 [`docs/architecture.md`](../../docs/architecture.md) 拥有。下文的 readiness-time 问题陈述不是对当前实现的重复声明，
+也不改变 active + unaligned Decision 的状态。
+
 ## Why
 
-当前 `AdmissionPolicyContext` 只有当轮选择所需的局部 snapshot。调用方不能从同一 Scheduler-owned surface 列出所有 pending 和 primary blocker、验证单项 Task、从相同 predecessor 推演不同 select/settle branch，或从静态图离线探索。自行重建 relation、mutex、capacity、scope 和 forced-block 规则会制造第二套调度语义；另建 simulator 也会漂移。
+在本 Plan 的 readiness capture 时，`AdmissionPolicyContext` 只有当轮选择所需的局部 snapshot。调用方不能从同一 Scheduler-owned surface 列出所有 pending 和 primary blocker、验证单项 Task、从相同 predecessor 推演不同 select/settle branch，或从静态图离线探索。自行重建 relation、mutex、capacity、scope 和 forced-block 规则会制造第二套调度语义；另建 simulator 也会漂移。
 
 公共 capability 又不能暴露 mutable Scheduler 或让 hypothetical state 成为 reservation/Task control。real shell 必须继续拥有 Task/Promise、signal、diagnostics、measurement、actual result/error、policy fault 和 hard revalidation。该边界以及 successor representation 会进入长期兼容/性能空间，因此需要一个可实施的跨 owner Plan。
 
@@ -33,12 +38,12 @@ real shell 和 public handle 共享一次 static compile、immutable dynamic nod
 
 ## Success Criteria
 
-- [ ] standalone factory 与 context-bound state have exactly one public type/DTO/action contract; every returned public object is frozen/opaque and accepted successor does not mutate predecessor.
-- [ ] catalog partitions all pending Tasks in canonical order; arbitrary-ID validation has its dedicated closed rejection union and the same precedence/rejection as `select`; next boundary, scope lifecycle and binary settlement mapping match this Plan.
-- [ ] public transitions and real shell are shown by the shared trace oracle to have the same legality, effects and state projection across relation, mutex, root/scope capacity, forced block, wait/complete and private cancellation paths.
-- [ ] standalone branching and live custom lookahead are proven by direct current tests/installed consumer evidence; a callback lookahead cannot reserve/start/settle a real Task and its returned proposal remains hard-revalidated.
-- [ ] static/custom/learned real runs that do not read `admissionState` do not construct public catalog/search state; implementation benchmarks preserve the recorded matrix and justify any private representation deviation.
-- [ ] public exports, type/docs/examples, test evidence, validation and required workspace assurance are current; the unaligned Decision is marked aligned only after that complete direction is verified.
+- [x] standalone factory 与 context-bound state have exactly one public type/DTO/action contract; every returned public object is frozen/opaque and accepted successor does not mutate predecessor.
+- [x] catalog partitions all pending Tasks in canonical order; arbitrary-ID validation has its dedicated closed rejection union and the same precedence/rejection as `select`; next boundary, scope lifecycle and binary settlement mapping match this Plan.
+- [x] public transitions and real shell are shown by the shared trace oracle to have the same legality, effects and state projection across relation, mutex, root/scope capacity, forced block, wait/complete and private cancellation paths.
+- [x] standalone branching and live custom lookahead are proven by direct current tests/installed consumer evidence; a callback lookahead cannot reserve/start/settle a real Task and its returned proposal remains hard-revalidated.
+- [x] static/custom/learned real runs that do not read `admissionState` do not construct public catalog/search state; implementation benchmarks preserve the recorded matrix and justify any private representation deviation.
+- [x] public exports, type/docs/examples, test evidence, validation and required workspace assurance are current; the unaligned Decision is marked aligned only after that complete direction is verified.
 
 ## Affected Owners
 
@@ -46,5 +51,5 @@ real shell 和 public handle 共享一次 static compile、immutable dynamic nod
 - `src/project-definition/scheduler-policy.ts`, `src/project-definition/project-definition.ts`, `src/index.ts`: public API, exact context/type/export boundary.
 - `docs/architecture.md`, `docs/configuration.md`, `docs/api-mechanics.md`, package API projection/examples and installed consumer acceptance: stable public semantics and non-control boundary.
 - `docs/testing.md`, `docs/testing/cases/**`, `test-evidence-review`: current test entities and semantic cases once tests change.
-- `docs/decisions/provide-immutable-admission-graph-state.md`: future long-term direction, currently active + unaligned.
+- `docs/decisions/provide-immutable-admission-graph-state.md`: active + unaligned long-term direction；它约束本 Change 的选择，但不是当前 stable contract owner。
 - `changes/provide-admission-strategy-simulation/readiness/**`: reproducible readiness/implementation benchmark and consumer evidence; not a Product runtime owner.

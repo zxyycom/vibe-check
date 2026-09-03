@@ -11,6 +11,13 @@ import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 import type { AdmissionPolicyFaultCategory } from "./scheduler-admission-decision.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "./scheduler-performance-diagnostics.ts";
+import {
+  compilePreparedAdmissionGraph,
+  createAdmissionCoreFromSchedulerSnapshot,
+  createInitialAdmissionCoreState,
+  type AdmissionCoreEffect,
+  type AdmissionCoreState
+} from "./admission-core.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }
@@ -34,6 +41,12 @@ export interface PreAdmissionTaskResult<TResult> {
   readonly value: TResult;
 }
 
+/** Product-private effect hook used to prove that the real shell replays the shared core. */
+export interface SchedulerAdmissionCoreEffect {
+  readonly effect: AdmissionCoreEffect;
+  readonly state: AdmissionCoreState;
+}
+
 export interface TaskGraphRun<TResult> {
   readonly admissionPolicyFault: AdmissionPolicyFaultCategory | undefined;
   readonly cancelled: boolean;
@@ -53,6 +66,8 @@ export interface RunTaskGraphOptions<TResult> {
   readonly measurementHooks?: readonly SchedulerMeasurementHook[];
   readonly onMeasurementHookFailure?: () => void;
   readonly onMeasurementHooksSettled?: () => void;
+  /** Product-private test observer; no package consumer can supply this through `run`. */
+  readonly onAdmissionCoreEffect?: (effect: SchedulerAdmissionCoreEffect) => void;
   readonly graph: TaskGraph;
   /** Product-private Task results formed without Scheduler admission in the current Run. */
   readonly preAdmissionTaskResults?: readonly PreAdmissionTaskResult<TResult>[];
@@ -85,6 +100,8 @@ export interface RuntimeScope {
 }
 
 export interface SchedulerState<TResult> {
+  /** The shared immutable legality/transition state; Task and Promise ownership remains below. */
+  admissionCore: AdmissionCoreState;
   readonly admissionPolicy: AdmissionSelectionPolicy;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly graph: PlannedTaskGraph;
@@ -93,6 +110,7 @@ export interface SchedulerState<TResult> {
   readonly signal: AbortSignal | undefined;
   readonly execute: RunTaskGraphOptions<TResult>["execute"];
   readonly onTaskBlocked: RunTaskGraphOptions<TResult>["onTaskBlocked"];
+  readonly onAdmissionCoreEffect: RunTaskGraphOptions<TResult>["onAdmissionCoreEffect"];
   readonly pending: PlannedTask[];
   readonly runningById: Map<string, RunningTask<TResult>>;
   readonly runningMutexes: Set<string>;
@@ -118,13 +136,16 @@ export function createSchedulerState<TResult>(
       isActive: false
     });
   }
+  const compiledAdmissionGraph = compilePreparedAdmissionGraph(graph, options.maxParallel);
   const state: SchedulerState<TResult> = {
+    admissionCore: createInitialAdmissionCoreState(compiledAdmissionGraph),
     admissionPolicy,
     diagnosticLogger: options.diagnosticLogger,
     graph,
     isPrerequisiteSatisfied: options.isPrerequisiteSatisfied,
     maxParallel: options.maxParallel,
     onTaskBlocked: options.onTaskBlocked,
+    onAdmissionCoreEffect: options.onAdmissionCoreEffect,
     signal: options.signal,
     execute: options.execute,
     pending: [...graph.tasks],
@@ -136,6 +157,10 @@ export function createSchedulerState<TResult>(
     admissionPolicyFault: undefined
   };
   recordPreAdmissionTaskResults(state, options.preAdmissionTaskResults ?? []);
+  state.admissionCore = createAdmissionCoreFromSchedulerSnapshot(
+    compiledAdmissionGraph,
+    snapshotSchedulerState(state)
+  );
   return state;
 }
 
