@@ -1,6 +1,46 @@
 {
   "definitionVersion": 6,
   "entries": {
+    "assess-lizard-upstream-release-and-branch-delta.md": {
+      "keys": {
+        "formed-at": [
+          1788397711000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "dependency-upgrades",
+          "function-metrics",
+          "lizard",
+          "release-provenance",
+          "upstream-release"
+        ],
+        "text": [
+          "Lizard 上游正式版本与发布线差异核验",
+          "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T01:08:31Z",
+        "question": "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？",
+        "relations": [
+          {
+            "target": "compare-lizard-and-scc-typescript-port-priority.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "dependency-upgrades",
+          "function-metrics",
+          "lizard",
+          "release-provenance",
+          "upstream-release"
+        ],
+        "title": "Lizard 上游正式版本与发布线差异核验"
+      }
+    },
     "assess-scc-and-jscpd-upgrade-readiness.md": {
       "keys": {
         "formed-at": [
@@ -369,6 +409,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
+      "assess-lizard-upstream-release-and-branch-delta.md": "sha256:9f8d6857d7fb8b9614830d028aa81054bca11326a4fb25ad1601b3a4c258f5ee",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
       "compare-lizard-and-scc-typescript-port-priority.md": "sha256:2c18eb6094b1bd3028f930599b9a3d37af05f2103a2072513a5793d930a4ee3b",
