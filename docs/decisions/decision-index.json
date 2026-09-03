@@ -210,6 +210,7 @@
       "treat-run-output-directories-as-explicit-trusted-targets.md": "sha256:8f01b9f9b6d5d19a93c6efdc9ebb919a063a3ae781da09b8d1880c1e726772bf",
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:d2651f0a630694e8828b67b88c87e57a34e6701cf3ada276e2b16d8ddeeee38a",
       "unify-default-summary-with-terminal-measurement-hooks.md": "sha256:a0ea65a0722d0bf5b7d69e3c6c47a13df15061173ec6fbbb6c13821194f766b4",
+      "use-a-verified-fast-path-for-lizard-reader-resolution.md": "sha256:b4dbea919fa19d15780db4302fc20b3f76cf40b30db21a0dc612f5a63e323c5b",
       "use-bun-typescript-project-definition.md": "sha256:a4d6b9cdc62e8981cf6f90db1f7d86b5d93b998e6e25f30ca4ad189273cd058e",
       "use-check-owned-extractors-for-opaque-record-identities.md": "sha256:a9bbb2fd123e914ce0b7f720799e9ad8cdfc1aabc2c3d47354cd32f799b92509",
       "use-check-owned-file-overrides.md": "sha256:ff39a7a4352f42244a87cf202877bea87f16d1bab9910a2aee38b7b4f191b1d1",
@@ -6788,6 +6789,39 @@
             "target": "expose-invocation-local-scheduler-measurement-hooks.md"
           }
         ]
+      }
+    },
+    "use-a-verified-fast-path-for-lizard-reader-resolution.md": {
+      "keys": {
+        "tag": [
+          "dependency-policy",
+          "performance",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-a-verified-fast-path-for-lizard-reader-resolution.md",
+        "title": "在 Lizard 私有 façade 使用可验证且可回退的 reader 快速解析",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T07:15:30Z",
+        "purpose": "消除常规文件上的重复有序正则选择，同时保持翻译主体、异常文件名语义与 Product 边界。",
+        "background": "Lizard 上游逐 reader 正则选择在 Bun 批量分析中成为首要热点，而翻译主体必须继续便于逐版本同步。",
+        "decision": "只在手写私有 façade 为已证明安全的完整文件名建立 source-order-derived 快速路径，其余输入回退上游对齐 registry。",
+        "tags": [
+          "dependency-policy",
+          "performance",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "use-bun-typescript-project-definition.md": {

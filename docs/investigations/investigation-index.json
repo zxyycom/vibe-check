@@ -329,6 +329,66 @@
         "title": "Bun 冷启动下 Project Gate candidate 导入失败调查"
       }
     },
+    "diagnose-lizard-typescript-port-performance-gap.md": {
+      "keys": {
+        "formed-at": [
+          1788416549000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "profiling",
+          "source-alignment"
+        ],
+        "text": [
+          "TypeScript Lizard port 性能差距根因",
+          "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T06:22:29Z",
+        "question": "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？",
+        "relations": [
+          {
+            "target": "compare-lizard-python-typescript-performance.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-abba.json",
+          "diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-experiment.ts",
+          "diagnose-lizard-typescript-port-performance-gap/python-full-warm-cache.json",
+          "diagnose-lizard-typescript-port-performance-gap/python-profile-observations.json",
+          "diagnose-lizard-typescript-port-performance-gap/python-reader-selection-microbenchmark.jsonl",
+          "diagnose-lizard-typescript-port-performance-gap/python-runtime-native-probe.json",
+          "diagnose-lizard-typescript-port-performance-gap/python-selected-profile-stats.txt",
+          "diagnose-lizard-typescript-port-performance-gap/python-selection.json",
+          "diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json",
+          "diagnose-lizard-typescript-port-performance-gap/reader-selection-microbenchmark.jsonl",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-bun.json",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-entry.ts",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-method.md",
+          "diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.md",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-selection.json",
+          "diagnose-lizard-typescript-port-performance-gap/typescript-stage-profile.json"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "profiling",
+          "source-alignment"
+        ],
+        "title": "TypeScript Lizard port 性能差距根因"
+      }
+    },
     "functional-utilities-and-data-structures.md": {
       "keys": {
         "formed-at": [
@@ -482,6 +542,49 @@
         ],
         "title": "Record schema authoring 的框架选择、替代项与互操作边界"
       }
+    },
+    "verify-lizard-reader-resolution-fast-path.md": {
+      "keys": {
+        "formed-at": [
+          1788420882000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment",
+          "verification"
+        ],
+        "text": [
+          "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
+          "验证 Lizard reader-resolution fast path 性能"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T07:34:42Z",
+        "question": "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
+        "relations": [
+          {
+            "target": "diagnose-lizard-typescript-port-performance-gap.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "verify-lizard-reader-resolution-fast-path/facade-acceptance.json",
+          "verify-lizard-reader-resolution-fast-path/facade-acceptance.ts"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment",
+          "verification"
+        ],
+        "title": "验证 Lizard reader-resolution fast path 性能"
+      }
     }
   },
   "keyDefinitions": [
@@ -516,12 +619,14 @@
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
       "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
       "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:f45a56559223f8c0d317013d7da4772bbf87838a714be580f44027f744803401",
+      "diagnose-lizard-typescript-port-performance-gap.md": "sha256:c10b856a61c998509b3cbc81bbe008086fa55fdae306db0956e9fb9a4da96edb",
       "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
       "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
       "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
       "recheck-json-dependency-and-zero-dependency-path.md": "sha256:6967e3e64bb9ed78eb4bf93f95a96d068bdf50d35e4d4ab6aaf840a7e81937c6",
       "result-and-option-libraries.md": "sha256:2a7660ba472520806deddbbca80b76f3c4f9410baf74984039e1f20bda92b623",
-      "schema-validation-and-static-inference.md": "sha256:5dabe147f87f8778cf0c37a03c7b58790611f7476b103b6c188ce0ac3c9bf4fb"
+      "schema-validation-and-static-inference.md": "sha256:5dabe147f87f8778cf0c37a03c7b58790611f7476b103b6c188ce0ac3c9bf4fb",
+      "verify-lizard-reader-resolution-fast-path.md": "sha256:ce2058ab3039313d29c60355f0c9e8ab611d2a26b583fe5696c7d0aa3dfbde52"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

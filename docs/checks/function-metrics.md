@@ -9,6 +9,9 @@
 reader registry 固定支持 27 个 readers 和 55 个大小写不敏感 suffix，行为以已检入的 Lizard 1.24.0 翻译基线校准；这项 provenance 不构成
 运行时依赖。source-aligned port 的唯一目录外生产入口是 Check-private `analyzer/port-facade.ts`，仅由
 `analyzer-adapter.ts` 消费；adapter、Worker 与 port 都不是 public API 或 package subpath。
+手写 façade 拥有仅 host 使用的 reader-resolution seam，供 capability 与 supplied-source analysis 共用；它保持
+registry selection 与 unsupported-input boundary，未覆盖的输入继续交给 source-aligned registry。该 seam 不是 public API、option 或额外的
+supported-filename contract。
 当前 oracle、malformed、reader mapping、identity 和 deviation evidence 位于
 `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/`，而
 `licenses/lizard-1.24.0-provenance.json` 是唯一 source/range、hash、SPDX 与 translated-target mapping。

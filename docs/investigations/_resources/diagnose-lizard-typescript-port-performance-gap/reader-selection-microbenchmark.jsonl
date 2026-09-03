@@ -1,0 +1,3 @@
+{"name":"baseline-new-RegExp-per-attempt","checksum":215040,"medianMs":234.416157,"p90Ms":239.48623800000001,"minMs":230.21399699999984,"maxMs":244.05908499999987}
+{"name":"compiled-once-per-reader","checksum":215040,"medianMs":226.91266200000064,"p90Ms":228.8409869999996,"minMs":223.25938900000074,"maxMs":234.90339200000017}
+{"name":"suffix-map","checksum":215040,"medianMs":0.23770000000149594,"p90Ms":0.6120649999993475,"minMs":0.2055610000006709,"maxMs":1.7690910000001168}

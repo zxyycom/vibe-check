@@ -6,9 +6,11 @@ Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > provides case-insensitive suffix capability and supplied-source Lizard-domain analysis`
+- `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > matches source-order registry resolution for fast paths and explicit fallbacks`
 Proves:
 
-- The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result.
+- The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result. Its 27-reader/56-entry source-order coverage differentially compares both façade APIs and fixture analysis with `get_reader_for`, including `R/r` canonical deduplication, mixed case, multi-dot and slash/backslash paths.
+- ASCII fast-path hits and misses, plus Unicode prefix/suffix and folds, every JavaScript line terminator, no suffix and unknown suffix all observably agree with the registry result through the façade APIs.
 - This Case does not prove Product admission, filesystem I/O, cancellation, Worker transport, `FunctionMetric` mapping, public export, or a replaceable analyzer interface.
 
 ## Case FM-ANALYZER-READERS-A-001: Fortran、Structured Text 与 Erlang reader 保持 Lizard 1.24 可观察语义

@@ -1,0 +1,2 @@
+{"name": "python-get-reader-for", "checksum": 215040, "medianMs": 26.807859999999998, "p90Ms": 27.596424, "minMs": 26.198288, "maxMs": 28.25151}
+{"name": "python-suffix-map", "checksum": 215040, "medianMs": 0.328395, "p90Ms": 0.3448, "minMs": 0.325895, "maxMs": 0.855744}

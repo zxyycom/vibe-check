@@ -23,6 +23,9 @@ measurement → Worker → Product adapter → port façade → source-aligned i
 I/O、decode、资源与取消，Worker 只验证 transport 并调用 adapter，adapter 独占 Product support/error 与
 `FunctionMetric` mapping。translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check
 与 tests 仍按普通项目规则审查。它们均不形成 public export、scanner protocol 或可替换 backend。
+手写 façade 拥有仅 host 使用的 reader-resolution seam，供 capability 与 analysis 共用；它保持 registry
+selection 与 unsupported-input boundary，未覆盖的输入继续交给 source-aligned registry。该 seam 不构成 scanner
+protocol 或 consumer setting，且不改变 root provenance 或 source identity。
 
 ## Check-owned command options
 

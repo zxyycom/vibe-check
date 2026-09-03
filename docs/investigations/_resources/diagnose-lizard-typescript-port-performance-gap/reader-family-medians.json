@@ -1,0 +1,307 @@
+{
+  "method": {
+    "scope": "pre-resolved reader, direct in-memory core; 15 sequential warmed observations per runtime/family",
+    "python": "3.12.13, Lizard 1.24.0 at 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec, Pygments 2.18.0",
+    "typescript": "Bun 1.3.14, current HEAD e2bad655dde89d07c48413fae4c6167746e10708",
+    "warning": "exploratory hotspot ranking only; not cross-runtime ABBA or formal before/after evidence"
+  },
+  "families": [
+    {
+      "family": "c-like",
+      "files": 128,
+      "bytes": 9344,
+      "pythonMedianMs": 7.640402,
+      "pythonP90Ms": 10.508626,
+      "typescriptMedianMs": 6.297549000000004,
+      "typescriptP90Ms": 15.492292999999961,
+      "medianGapMs": -1.3428529999999963,
+      "typescriptOverPythonMedianRatio": 0.8242431484626076
+    },
+    {
+      "family": "csharp",
+      "files": 128,
+      "bytes": 11392,
+      "pythonMedianMs": 8.78161,
+      "pythonP90Ms": 11.929872,
+      "typescriptMedianMs": 8.135311000000002,
+      "typescriptP90Ms": 10.63150399999995,
+      "medianGapMs": -0.6462989999999991,
+      "typescriptOverPythonMedianRatio": 0.9264031310887184
+    },
+    {
+      "family": "erlang",
+      "files": 128,
+      "bytes": 7552,
+      "pythonMedianMs": 7.603203,
+      "pythonP90Ms": 8.53347,
+      "typescriptMedianMs": 3.934033999999997,
+      "typescriptP90Ms": 7.8696879999999965,
+      "medianGapMs": -3.669169000000003,
+      "typescriptOverPythonMedianRatio": 0.5174179881820855
+    },
+    {
+      "family": "fortran",
+      "files": 128,
+      "bytes": 20864,
+      "pythonMedianMs": 10.760102,
+      "pythonP90Ms": 11.967616,
+      "typescriptMedianMs": 74.28222000000005,
+      "typescriptP90Ms": 83.4138660000001,
+      "medianGapMs": 63.52211800000005,
+      "typescriptOverPythonMedianRatio": 6.9034866026363
+    },
+    {
+      "family": "gdscript",
+      "files": 128,
+      "bytes": 9728,
+      "pythonMedianMs": 4.981376,
+      "pythonP90Ms": 5.841462,
+      "typescriptMedianMs": 13.094927000000098,
+      "typescriptP90Ms": 18.727390999999898,
+      "medianGapMs": 8.113551000000097,
+      "typescriptOverPythonMedianRatio": 2.6287770688259826
+    },
+    {
+      "family": "go",
+      "files": 128,
+      "bytes": 11392,
+      "pythonMedianMs": 5.093154,
+      "pythonP90Ms": 5.563858,
+      "typescriptMedianMs": 8.196673999999803,
+      "typescriptP90Ms": 13.209333000000242,
+      "medianGapMs": 3.1035199999998024,
+      "typescriptOverPythonMedianRatio": 1.60935129784016
+    },
+    {
+      "family": "java",
+      "files": 128,
+      "bytes": 11392,
+      "pythonMedianMs": 10.26283,
+      "pythonP90Ms": 10.43033,
+      "typescriptMedianMs": 12.908449999999903,
+      "typescriptP90Ms": 25.768310999999812,
+      "medianGapMs": 2.6456199999999033,
+      "typescriptOverPythonMedianRatio": 1.2577865949255618
+    },
+    {
+      "family": "javascript",
+      "files": 128,
+      "bytes": 9344,
+      "pythonMedianMs": 5.786451,
+      "pythonP90Ms": 6.020373,
+      "typescriptMedianMs": 6.631970999999794,
+      "typescriptP90Ms": 10.717559000000165,
+      "medianGapMs": 0.8455199999997944,
+      "typescriptOverPythonMedianRatio": 1.1461206532293793
+    },
+    {
+      "family": "kotlin",
+      "files": 128,
+      "bytes": 9856,
+      "pythonMedianMs": 7.564832,
+      "pythonP90Ms": 23.370731,
+      "typescriptMedianMs": 6.890850000000228,
+      "typescriptP90Ms": 9.684640999999829,
+      "medianGapMs": -0.6739819999997723,
+      "typescriptOverPythonMedianRatio": 0.9109058866079548
+    },
+    {
+      "family": "lua",
+      "files": 128,
+      "bytes": 10112,
+      "pythonMedianMs": 6.429845,
+      "pythonP90Ms": 8.346493,
+      "typescriptMedianMs": 5.337922999999591,
+      "typescriptP90Ms": 7.71712000000025,
+      "medianGapMs": -1.0919220000004088,
+      "typescriptOverPythonMedianRatio": 0.8301791100717967
+    },
+    {
+      "family": "objc",
+      "files": 128,
+      "bytes": 9600,
+      "pythonMedianMs": 7.607651,
+      "pythonP90Ms": 8.630309,
+      "typescriptMedianMs": 8.303454999999758,
+      "typescriptP90Ms": 12.005860000000212,
+      "medianGapMs": 0.6958039999997583,
+      "typescriptOverPythonMedianRatio": 1.0914610830596407
+    },
+    {
+      "family": "perl",
+      "files": 128,
+      "bytes": 10368,
+      "pythonMedianMs": 5.734064,
+      "pythonP90Ms": 7.367567,
+      "typescriptMedianMs": 5.550872999999683,
+      "typescriptP90Ms": 6.278874000000087,
+      "medianGapMs": -0.18319100000031696,
+      "typescriptOverPythonMedianRatio": 0.9680521528883673
+    },
+    {
+      "family": "php",
+      "files": 128,
+      "bytes": 10368,
+      "pythonMedianMs": 4.927474,
+      "pythonP90Ms": 6.424034,
+      "typescriptMedianMs": 6.378760000000057,
+      "typescriptP90Ms": 8.9714570000001,
+      "medianGapMs": 1.4512860000000565,
+      "typescriptOverPythonMedianRatio": 1.2945294079684757
+    },
+    {
+      "family": "plsql",
+      "files": 128,
+      "bytes": 23808,
+      "pythonMedianMs": 11.604812,
+      "pythonP90Ms": 19.016212,
+      "typescriptMedianMs": 10.618027999999867,
+      "typescriptP90Ms": 15.338696000000255,
+      "medianGapMs": -0.9867840000001333,
+      "typescriptOverPythonMedianRatio": 0.9149676875420185
+    },
+    {
+      "family": "python",
+      "files": 128,
+      "bytes": 9600,
+      "pythonMedianMs": 6.137712,
+      "pythonP90Ms": 12.839555,
+      "typescriptMedianMs": 13.171451000000161,
+      "typescriptP90Ms": 17.443166999999903,
+      "medianGapMs": 7.033739000000161,
+      "typescriptOverPythonMedianRatio": 2.1459871365746976
+    },
+    {
+      "family": "r",
+      "files": 128,
+      "bytes": 9984,
+      "pythonMedianMs": 8.566831,
+      "pythonP90Ms": 19.419355,
+      "typescriptMedianMs": 5.734890000000178,
+      "typescriptP90Ms": 10.318790999999692,
+      "medianGapMs": -2.831940999999823,
+      "typescriptOverPythonMedianRatio": 0.669429570864673
+    },
+    {
+      "family": "ruby",
+      "files": 128,
+      "bytes": 8704,
+      "pythonMedianMs": 6.513208,
+      "pythonP90Ms": 7.5648,
+      "typescriptMedianMs": 18.33125800000016,
+      "typescriptP90Ms": 23.401818000000276,
+      "medianGapMs": 11.818050000000163,
+      "typescriptOverPythonMedianRatio": 2.814474526224276
+    },
+    {
+      "family": "rust",
+      "files": 128,
+      "bytes": 8960,
+      "pythonMedianMs": 5.156331,
+      "pythonP90Ms": 5.572133,
+      "typescriptMedianMs": 5.7634780000007595,
+      "typescriptP90Ms": 7.9933880000007775,
+      "medianGapMs": 0.6071470000007597,
+      "typescriptOverPythonMedianRatio": 1.117747871500251
+    },
+    {
+      "family": "scala",
+      "files": 128,
+      "bytes": 10240,
+      "pythonMedianMs": 5.415352,
+      "pythonP90Ms": 5.662961,
+      "typescriptMedianMs": 5.70175399999971,
+      "typescriptP90Ms": 8.664452999999412,
+      "medianGapMs": 0.2864019999997094,
+      "typescriptOverPythonMedianRatio": 1.0528870514787791
+    },
+    {
+      "family": "solidity",
+      "files": 128,
+      "bytes": 16000,
+      "pythonMedianMs": 6.593839,
+      "pythonP90Ms": 8.473318,
+      "typescriptMedianMs": 7.556066000000101,
+      "typescriptP90Ms": 11.677934999999707,
+      "medianGapMs": 0.9622270000001008,
+      "typescriptOverPythonMedianRatio": 1.1459281914526729
+    },
+    {
+      "family": "st",
+      "files": 128,
+      "bytes": 18560,
+      "pythonMedianMs": 6.623685,
+      "pythonP90Ms": 7.422147,
+      "typescriptMedianMs": 30.55411599999934,
+      "typescriptP90Ms": 32.34215300000051,
+      "medianGapMs": 23.930430999999338,
+      "typescriptOverPythonMedianRatio": 4.612857646461047
+    },
+    {
+      "family": "swift",
+      "files": 128,
+      "bytes": 10240,
+      "pythonMedianMs": 7.228598,
+      "pythonP90Ms": 7.600038,
+      "typescriptMedianMs": 6.673296999999366,
+      "typescriptP90Ms": 8.856493000000228,
+      "medianGapMs": -0.5553010000006342,
+      "typescriptOverPythonMedianRatio": 0.9231799859390943
+    },
+    {
+      "family": "tsx",
+      "files": 128,
+      "bytes": 13952,
+      "pythonMedianMs": 8.783454,
+      "pythonP90Ms": 9.412361,
+      "typescriptMedianMs": 9.450331000000006,
+      "typescriptP90Ms": 11.69482700000026,
+      "medianGapMs": 0.6668770000000048,
+      "typescriptOverPythonMedianRatio": 1.0759242320845541
+    },
+    {
+      "family": "ttcn",
+      "files": 128,
+      "bytes": 12672,
+      "pythonMedianMs": 7.286223,
+      "pythonP90Ms": 7.510217,
+      "typescriptMedianMs": 8.47260499999993,
+      "typescriptP90Ms": 10.339933000000201,
+      "medianGapMs": 1.1863819999999308,
+      "typescriptOverPythonMedianRatio": 1.1628253760555958
+    },
+    {
+      "family": "typescript",
+      "files": 128,
+      "bytes": 11392,
+      "pythonMedianMs": 6.80434,
+      "pythonP90Ms": 7.091833,
+      "typescriptMedianMs": 7.662422999999762,
+      "typescriptP90Ms": 10.910286999999698,
+      "medianGapMs": 0.8580829999997626,
+      "typescriptOverPythonMedianRatio": 1.126108189772963
+    },
+    {
+      "family": "vue",
+      "files": 128,
+      "bytes": 11520,
+      "pythonMedianMs": 7.090371,
+      "pythonP90Ms": 8.089906,
+      "typescriptMedianMs": 7.177633000000242,
+      "typescriptP90Ms": 9.624249999999847,
+      "medianGapMs": 0.08726200000024154,
+      "typescriptOverPythonMedianRatio": 1.012307113407781
+    },
+    {
+      "family": "zig",
+      "files": 128,
+      "bytes": 9216,
+      "pythonMedianMs": 5.57083,
+      "pythonP90Ms": 7.449924,
+      "typescriptMedianMs": 7.574429000000237,
+      "typescriptP90Ms": 9.766898999999285,
+      "medianGapMs": 2.0035990000002366,
+      "typescriptOverPythonMedianRatio": 1.3596589736179774
+    }
+  ]
+}

@@ -61,6 +61,13 @@ reader state、source aliases、Python constructor、state receiver binding、Ru
 source regex/whitespace behavior 的差异，均在 manifest 中逐项指向可解析的 translated AST member并给出
 reason。它们不扩大为 scanner、filesystem、public parser 或 runtime plugin contract。
 
+## Private façade reader-resolution seam
+
+手写 `analyzer/port-facade.ts` 拥有仅 host 使用的 private reader-resolution seam，供 capability 与
+supplied-source analysis 共用。它保持当前 registry selection 与 unsupported-input boundary；未由该 seam
+覆盖的输入仍交给 source-aligned registry。该 seam 不是 translated member、public contract、scanner
+protocol 或 consumer setting，且不改变 root provenance inventory 或 source-identity mapping。
+
 ## Review trigger
 
 当 root provenance 的 translated record、`additionalTargetPaths`、Lizard revision，或任何 source-aligned
@@ -68,3 +75,6 @@ member/host seam 改变时，必须复审本文件和 identity manifest。无关
 或 package work 不得借此重排 translated code；反之，不能以 source alignment 为由跳过 lint、format、typecheck、
 reader/adapter behavior、license/provenance 或 package-artifact verification。Gate quality exception 的精确硬编码
 selection 另由 `scripts/project/gate/definition.ts` 拥有，并由 provenance/header test 验证；本 evidence 不导出该 selection。
+
+仅 private façade reader-resolution seam 改变时，复审本说明和 façade differential evidence 即可；它本身
+不要求修改 root provenance 或 identity manifest。
