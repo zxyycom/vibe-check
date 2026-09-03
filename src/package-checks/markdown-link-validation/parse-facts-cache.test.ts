@@ -69,7 +69,6 @@ describe("Markdown Link parse-facts cache", () => {
       });
 
       const parsed = await parseMarkdownLinkFactsWithCache(
-        markdown,
         bytes,
         Object.freeze({ enabled: true as const, directory }),
         new AbortController().signal
@@ -85,6 +84,52 @@ describe("Markdown Link parse-facts cache", () => {
       assert.equal((await readdir(directory)).filter((entry) => entry.endsWith(".json")).length, 2);
     } finally {
       await rm(directory, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects cached facts when the exact source bytes are not valid UTF-8", async () => {
+    const directory = await mkdtemp(
+      path.join(tmpdir(), "vibe-check-markdown-link-cache-fatal-utf8-")
+    );
+    const missDirectory = await mkdtemp(
+      path.join(tmpdir(), "vibe-check-markdown-link-cache-fatal-utf8-miss-")
+    );
+    const invalidUtf8 = new Uint8Array([0xc3]);
+    try {
+      await cacheJsonByKey({
+        compute: () => projectMarkdownLinkParseFactsPayload(parserFacts("# Cached\n")),
+        directory,
+        key: createHash("sha256").update(invalidUtf8).digest("hex"),
+        namespace: "markdown-link-parse-facts",
+        parse: parseMarkdownLinkParseFactsPayload,
+        version: `1:${MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION}`
+      });
+      const cachedInvalidUtf8 = await parseMarkdownLinkFactsWithCache(
+        invalidUtf8,
+        Object.freeze({ enabled: true as const, directory }),
+        new AbortController().signal
+      );
+      assert.equal(cachedInvalidUtf8, undefined);
+      assert.equal(
+        await parseMarkdownLinkFactsWithCache(
+          invalidUtf8,
+          Object.freeze({ enabled: false }),
+          new AbortController().signal
+        ),
+        undefined
+      );
+      assert.equal(
+        await parseMarkdownLinkFactsWithCache(
+          invalidUtf8,
+          Object.freeze({ enabled: true as const, directory: missDirectory }),
+          new AbortController().signal
+        ),
+        undefined
+      );
+      assert.equal((await readdir(directory)).filter((entry) => entry.endsWith(".json")).length, 1);
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+      await rm(missDirectory, { recursive: true, force: true });
     }
   });
 });

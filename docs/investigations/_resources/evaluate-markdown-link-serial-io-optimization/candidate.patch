@@ -1,0 +1,233 @@
+diff --git a/src/cache/cache-json-by-key.ts b/src/cache/cache-json-by-key.ts
+index 489a56b..ecee077 100644
+--- a/src/cache/cache-json-by-key.ts
++++ b/src/cache/cache-json-by-key.ts
+@@ -266,8 +266,9 @@ async function publishCacheEntry<T extends object>(
+-    if (!isConcurrentTargetConflict(error)) return false;
+-    const concurrent = await readCacheEntry({
+-      identityDigest: input.identityDigest,
+-      parse: input.parse,
+-      targetPath: input.targetPath
+-    });
+-    return concurrent.hit;
+-  } finally {
++    if (isConcurrentTargetConflict(error)) {
++      const concurrent = await readCacheEntry({
++        identityDigest: input.identityDigest,
++        parse: input.parse,
++        targetPath: input.targetPath
++      });
++      await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
++      return concurrent.hit;
++    }
+@@ -274,0 +276 @@ async function publishCacheEntry<T extends object>(
++    return false;
+diff --git a/src/package-checks/markdown-link-validation/filesystem-probes.ts b/src/package-checks/markdown-link-validation/filesystem-probes.ts
+index b623e52..88e8d3d 100644
+--- a/src/package-checks/markdown-link-validation/filesystem-probes.ts
++++ b/src/package-checks/markdown-link-validation/filesystem-probes.ts
+@@ -8,0 +9 @@ import {
++  type ExistingEndpointProbe,
+@@ -40,0 +42,7 @@ export async function probeRootContainedPath(
++      if (pendingSegments.length === 0) {
++        return Object.freeze({
++          kind: "contained" as const,
++          absolutePath: currentPath,
++          endpoint: endpointFromStatus(status)
++        });
++      }
+@@ -75,10 +83 @@ export async function probeEndpoint(targetPath: string): Promise<EndpointProbe>
+-  if (status.isSymbolicLink()) {
+-    return Object.freeze({ kind: "unavailable" as const });
+-  }
+-  if (status.isDirectory()) {
+-    return Object.freeze({ kind: "directory" as const });
+-  }
+-  if (status.isFile()) {
+-    return Object.freeze({ kind: "file" as const });
+-  }
+-  return Object.freeze({ kind: "unsupported" as const });
++  return endpointFromStatus(status);
+@@ -127,0 +127,13 @@ async function readBoundedBytes(
++
++function endpointFromStatus(status: Awaited<ReturnType<typeof lstat>>): ExistingEndpointProbe {
++  if (status.isSymbolicLink()) {
++    return Object.freeze({ kind: "unavailable" as const });
++  }
++  if (status.isDirectory()) {
++    return Object.freeze({ kind: "directory" as const });
++  }
++  if (status.isFile()) {
++    return Object.freeze({ kind: "file" as const });
++  }
++  return Object.freeze({ kind: "unsupported" as const });
++}
+diff --git a/src/package-checks/markdown-link-validation/local-resolution.ts b/src/package-checks/markdown-link-validation/local-resolution.ts
+index b99ab3d..fbdb30a 100644
+--- a/src/package-checks/markdown-link-validation/local-resolution.ts
++++ b/src/package-checks/markdown-link-validation/local-resolution.ts
+@@ -85,5 +84,0 @@ interface ParsedLocalDestination {
+-interface RootContainedPath {
+-  readonly kind: "contained" | "missing";
+-  readonly absolutePath: string;
+-}
+-
+@@ -91 +86,10 @@ type RootProbe =
+-  | RootContainedPath
++  | Readonly<{
++      readonly kind: "contained";
++      readonly absolutePath: string;
++      /** The final component observation is present when containment walked it. */
++      readonly endpoint?: ExistingEndpointProbe;
++    }>
++  | Readonly<{
++      readonly kind: "missing";
++      readonly absolutePath: string;
++    }>
+@@ -95,3 +99,5 @@ type RootProbe =
+-type EndpointProbe =
+-  | Readonly<{ readonly kind: "missing" }>
+-  | Readonly<{ readonly kind: "directory" | "file" | "unsupported" | "unavailable" }>;
++type EndpointProbe = Readonly<{ readonly kind: "missing" }> | ExistingEndpointProbe;
++
++type ExistingEndpointProbe = Readonly<{
++  readonly kind: "directory" | "file" | "unsupported" | "unavailable";
++}>;
+@@ -304,0 +311 @@ export type {
++  ExistingEndpointProbe,
+diff --git a/src/package-checks/markdown-link-validation/parse-facts-cache.test.ts b/src/package-checks/markdown-link-validation/parse-facts-cache.test.ts
+index 8d01537..00a3a32 100644
+--- a/src/package-checks/markdown-link-validation/parse-facts-cache.test.ts
++++ b/src/package-checks/markdown-link-validation/parse-facts-cache.test.ts
+@@ -72 +71,0 @@ describe("Markdown Link parse-facts cache", () => {
+-        markdown,
+@@ -89,0 +89,46 @@ describe("Markdown Link parse-facts cache", () => {
++
++  it("rejects cached facts when the exact source bytes are not valid UTF-8", async () => {
++    const directory = await mkdtemp(
++      path.join(tmpdir(), "vibe-check-markdown-link-cache-fatal-utf8-")
++    );
++    const missDirectory = await mkdtemp(
++      path.join(tmpdir(), "vibe-check-markdown-link-cache-fatal-utf8-miss-")
++    );
++    const invalidUtf8 = new Uint8Array([0xc3]);
++    try {
++      await cacheJsonByKey({
++        compute: () => projectMarkdownLinkParseFactsPayload(parserFacts("# Cached\n")),
++        directory,
++        key: createHash("sha256").update(invalidUtf8).digest("hex"),
++        namespace: "markdown-link-parse-facts",
++        parse: parseMarkdownLinkParseFactsPayload,
++        version: `1:${MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION}`
++      });
++      const cachedInvalidUtf8 = await parseMarkdownLinkFactsWithCache(
++        invalidUtf8,
++        Object.freeze({ enabled: true as const, directory }),
++        new AbortController().signal
++      );
++      assert.equal(cachedInvalidUtf8, undefined);
++      assert.equal(
++        await parseMarkdownLinkFactsWithCache(
++          invalidUtf8,
++          Object.freeze({ enabled: false }),
++          new AbortController().signal
++        ),
++        undefined
++      );
++      assert.equal(
++        await parseMarkdownLinkFactsWithCache(
++          invalidUtf8,
++          Object.freeze({ enabled: true as const, directory: missDirectory }),
++          new AbortController().signal
++        ),
++        undefined
++      );
++      assert.equal((await readdir(directory)).filter((entry) => entry.endsWith(".json")).length, 1);
++    } finally {
++      await rm(directory, { recursive: true, force: true });
++      await rm(missDirectory, { recursive: true, force: true });
++    }
++  });
+diff --git a/src/package-checks/markdown-link-validation/parse-facts-cache.ts b/src/package-checks/markdown-link-validation/parse-facts-cache.ts
+index 26c6940..ad04764 100644
+--- a/src/package-checks/markdown-link-validation/parse-facts-cache.ts
++++ b/src/package-checks/markdown-link-validation/parse-facts-cache.ts
+@@ -1,0 +2 @@ import { createHash } from "node:crypto";
++import { isUtf8 } from "node:buffer";
+@@ -41 +41,0 @@ export async function parseMarkdownLinkFactsWithCache(
+-  markdown: string,
+@@ -47 +47,19 @@ export async function parseMarkdownLinkFactsWithCache(
+-  if (!cache.enabled) return parseMarkdownLinkFacts(markdown);
++  let decodedMarkdown: string | undefined;
++  const parseFresh = (): MarkdownLinkParseResult | undefined => {
++    if (decodedMarkdown === undefined) {
++      try {
++        decodedMarkdown = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
++      } catch {
++        return undefined;
++      }
++    }
++    return parseMarkdownLinkFacts(decodedMarkdown);
++  };
++  if (!cache.enabled) return parseFresh();
++  const parseCachedPayload = (payload: unknown): ParsedMarkdownLinkFacts => {
++    // Cache hits can skip decoding and parsing, but never the source-byte UTF-8 boundary.
++    if (decodedMarkdown === undefined && !isUtf8(bytes)) {
++      throw new TypeError("Markdown Link cached facts require valid UTF-8 source bytes");
++    }
++    return parseMarkdownLinkParseFactsPayload(payload);
++  };
+@@ -50,2 +68,2 @@ export async function parseMarkdownLinkFactsWithCache(
+-  const parseFresh = (): MarkdownLinkParseResult => {
+-    fresh ??= parseMarkdownLinkFacts(markdown);
++  const parseFreshForCache = (): MarkdownLinkParseResult | undefined => {
++    fresh ??= parseFresh();
+@@ -59,2 +77,2 @@ export async function parseMarkdownLinkFactsWithCache(
+-        const parsed = parseFresh();
+-        if (!parsed.ok) throw CACHE_COMPUTE_PARSE_FAILURE;
++        const parsed = parseFreshForCache();
++        if (parsed === undefined || !parsed.ok) throw CACHE_COMPUTE_PARSE_FAILURE;
+@@ -68 +86 @@ export async function parseMarkdownLinkFactsWithCache(
+-      parse: parseMarkdownLinkParseFactsPayload,
++      parse: parseCachedPayload,
+@@ -75 +93 @@ export async function parseMarkdownLinkFactsWithCache(
+-    return signal.aborted ? undefined : parseFresh();
++    return signal.aborted ? undefined : parseFreshForCache();
+diff --git a/src/package-checks/markdown-link-validation/resolver-engine.ts b/src/package-checks/markdown-link-validation/resolver-engine.ts
+index 951c151..d72f440 100644
+--- a/src/package-checks/markdown-link-validation/resolver-engine.ts
++++ b/src/package-checks/markdown-link-validation/resolver-engine.ts
+@@ -29 +29,2 @@ import {
+-  type MarkdownSourceReadResult
++  type MarkdownSourceReadResult,
++  type EndpointProbe
+@@ -158,0 +160 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
++      rootProbe.endpoint ?? (await probeEndpoint(rootProbe.absolutePath)),
+@@ -180 +182,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
+-    return this.resolveEndpoint(targetPath, fragment, request, outsideProjectRootTarget());
++    return this.resolveEndpoint(
++      await probeEndpoint(targetPath),
++      targetPath,
++      fragment,
++      request,
++      outsideProjectRootTarget()
++    );
+@@ -183,0 +192 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
++    endpoint: EndpointProbe,
+@@ -189 +197,0 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
+-    const endpoint = await probeEndpoint(targetPath);
+@@ -290,13 +298 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
+-    let markdown: string;
+-    try {
+-      markdown = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+-    } catch {
+-      return undefined;
+-    }
+-    if (this.#signal.aborted) return undefined;
+-    const parsed = await parseMarkdownLinkFactsWithCache(
+-      markdown,
+-      bytes,
+-      this.#cache,
+-      this.#signal
+-    );
++    const parsed = await parseMarkdownLinkFactsWithCache(bytes, this.#cache, this.#signal);

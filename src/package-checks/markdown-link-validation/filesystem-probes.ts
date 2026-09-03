@@ -6,6 +6,7 @@ import {
   isNotFound,
   isWithinRoot,
   relativeSegments,
+  type ExistingEndpointProbe,
   type EndpointProbe,
   type RootProbe
 } from "./local-resolution.ts";
@@ -38,6 +39,13 @@ export async function probeRootContainedPath(
     }
     if (!status.isSymbolicLink()) {
       currentPath = nextPath;
+      if (pendingSegments.length === 0) {
+        return Object.freeze({
+          kind: "contained" as const,
+          absolutePath: currentPath,
+          endpoint: endpointFromStatus(status)
+        });
+      }
       continue;
     }
     if (symlinkHops >= 40) {
@@ -72,16 +80,7 @@ export async function probeEndpoint(targetPath: string): Promise<EndpointProbe> 
       ? Object.freeze({ kind: "missing" as const })
       : Object.freeze({ kind: "unavailable" as const });
   }
-  if (status.isSymbolicLink()) {
-    return Object.freeze({ kind: "unavailable" as const });
-  }
-  if (status.isDirectory()) {
-    return Object.freeze({ kind: "directory" as const });
-  }
-  if (status.isFile()) {
-    return Object.freeze({ kind: "file" as const });
-  }
-  return Object.freeze({ kind: "unsupported" as const });
+  return endpointFromStatus(status);
 }
 
 export async function readRegularFile(
@@ -124,4 +123,17 @@ async function readBoundedBytes(
     offset += result.bytesRead;
   }
   return offset > maxBytes ? null : bytes.slice(0, offset);
+}
+
+function endpointFromStatus(status: Awaited<ReturnType<typeof lstat>>): ExistingEndpointProbe {
+  if (status.isSymbolicLink()) {
+    return Object.freeze({ kind: "unavailable" as const });
+  }
+  if (status.isDirectory()) {
+    return Object.freeze({ kind: "directory" as const });
+  }
+  if (status.isFile()) {
+    return Object.freeze({ kind: "file" as const });
+  }
+  return Object.freeze({ kind: "unsupported" as const });
 }

@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { isUtf8 } from "node:buffer";
 
 import { cacheJsonByKey } from "../../cache/cache-json-by-key.ts";
 import {
@@ -38,17 +39,34 @@ type MarkdownLinkParseFactsPayload = Readonly<{
  * optimization: malformed or unavailable storage falls back to a fresh parse.
  */
 export async function parseMarkdownLinkFactsWithCache(
-  markdown: string,
   bytes: Uint8Array,
   cache: ResolvedMarkdownLinkValidationOptions["cache"],
   signal: AbortSignal
 ): Promise<MarkdownLinkParseResult | undefined> {
   if (signal.aborted) return undefined;
-  if (!cache.enabled) return parseMarkdownLinkFacts(markdown);
+  let decodedMarkdown: string | undefined;
+  const parseFresh = (): MarkdownLinkParseResult | undefined => {
+    if (decodedMarkdown === undefined) {
+      try {
+        decodedMarkdown = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+      } catch {
+        return undefined;
+      }
+    }
+    return parseMarkdownLinkFacts(decodedMarkdown);
+  };
+  if (!cache.enabled) return parseFresh();
+  const parseCachedPayload = (payload: unknown): ParsedMarkdownLinkFacts => {
+    // Cache hits can skip decoding and parsing, but never the source-byte UTF-8 boundary.
+    if (decodedMarkdown === undefined && !isUtf8(bytes)) {
+      throw new TypeError("Markdown Link cached facts require valid UTF-8 source bytes");
+    }
+    return parseMarkdownLinkParseFactsPayload(payload);
+  };
 
   let fresh: MarkdownLinkParseResult | undefined;
-  const parseFresh = (): MarkdownLinkParseResult => {
-    fresh ??= parseMarkdownLinkFacts(markdown);
+  const parseFreshForCache = (): MarkdownLinkParseResult | undefined => {
+    fresh ??= parseFresh();
     return fresh;
   };
   try {
@@ -56,8 +74,8 @@ export async function parseMarkdownLinkFactsWithCache(
     const cached = await cacheJsonByKey<ParsedMarkdownLinkFacts>({
       compute: () => {
         if (signal.aborted) throw CACHE_COMPUTE_ABORTED;
-        const parsed = parseFresh();
-        if (!parsed.ok) throw CACHE_COMPUTE_PARSE_FAILURE;
+        const parsed = parseFreshForCache();
+        if (parsed === undefined || !parsed.ok) throw CACHE_COMPUTE_PARSE_FAILURE;
         // A cancellation observed after parse must not begin a new publication.
         if (signal.aborted) throw CACHE_COMPUTE_ABORTED;
         return projectMarkdownLinkParseFactsPayload(parsed.facts);
@@ -65,14 +83,14 @@ export async function parseMarkdownLinkFactsWithCache(
       directory: cache.directory,
       key: markdownBytesDigest(bytes),
       namespace: CACHE_NAMESPACE,
-      parse: parseMarkdownLinkParseFactsPayload,
+      parse: parseCachedPayload,
       version: `${CACHE_PAYLOAD_VERSION}:${MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION}`
     });
     // Publication may already have completed, but a cancelled Check never consumes these facts.
     if (signal.aborted) return undefined;
     return Object.freeze({ ok: true as const, facts: cached.value });
   } catch {
-    return signal.aborted ? undefined : parseFresh();
+    return signal.aborted ? undefined : parseFreshForCache();
   }
 }
 

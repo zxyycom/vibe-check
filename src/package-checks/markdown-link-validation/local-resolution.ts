@@ -82,19 +82,25 @@ interface ParsedLocalDestination {
   readonly isAbsolute: boolean;
 }
 
-interface RootContainedPath {
-  readonly kind: "contained" | "missing";
-  readonly absolutePath: string;
-}
-
 type RootProbe =
-  | RootContainedPath
+  | Readonly<{
+      readonly kind: "contained";
+      readonly absolutePath: string;
+      /** The final component observation is present when containment walked it. */
+      readonly endpoint?: ExistingEndpointProbe;
+    }>
+  | Readonly<{
+      readonly kind: "missing";
+      readonly absolutePath: string;
+    }>
   | Readonly<{ readonly kind: "outside" }>
   | Readonly<{ readonly kind: "unavailable" }>;
 
-type EndpointProbe =
-  | Readonly<{ readonly kind: "missing" }>
-  | Readonly<{ readonly kind: "directory" | "file" | "unsupported" | "unavailable" }>;
+type EndpointProbe = Readonly<{ readonly kind: "missing" }> | ExistingEndpointProbe;
+
+type ExistingEndpointProbe = Readonly<{
+  readonly kind: "directory" | "file" | "unsupported" | "unavailable";
+}>;
 
 export function parseLocalDestination(
   rawDestination: string
@@ -302,5 +308,6 @@ export type {
   MarkdownSourceReadFailureReason,
   RootProbe,
   EndpointProbe,
+  ExistingEndpointProbe,
   RootExternalTargetMode
 };

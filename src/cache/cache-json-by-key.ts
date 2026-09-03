@@ -263,15 +263,17 @@ async function publishCacheEntry<T extends object>(
     await fs.rename(temporaryPath, input.targetPath);
     return true;
   } catch (error: unknown) {
-    if (!isConcurrentTargetConflict(error)) return false;
-    const concurrent = await readCacheEntry({
-      identityDigest: input.identityDigest,
-      parse: input.parse,
-      targetPath: input.targetPath
-    });
-    return concurrent.hit;
-  } finally {
+    if (isConcurrentTargetConflict(error)) {
+      const concurrent = await readCacheEntry({
+        identityDigest: input.identityDigest,
+        parse: input.parse,
+        targetPath: input.targetPath
+      });
+      await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
+      return concurrent.hit;
+    }
     await fs.rm(temporaryPath, { force: true }).catch(() => undefined);
+    return false;
   }
 }
 

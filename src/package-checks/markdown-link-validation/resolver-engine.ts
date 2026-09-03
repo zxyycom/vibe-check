@@ -26,7 +26,8 @@ import {
   type MarkdownLocalResolutionRequest,
   type MarkdownLocalResolver,
   type MarkdownSafeTargetDescriptor,
-  type MarkdownSourceReadResult
+  type MarkdownSourceReadResult,
+  type EndpointProbe
 } from "./local-resolution.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 
@@ -156,6 +157,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
       return unavailable("target-read-limit-exceeded");
     }
     return this.resolveEndpoint(
+      rootProbe.endpoint ?? (await probeEndpoint(rootProbe.absolutePath)),
       rootProbe.absolutePath,
       fragment,
       request,
@@ -177,16 +179,22 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     if (!this.beginTargetValidation()) {
       return unavailable("target-read-limit-exceeded");
     }
-    return this.resolveEndpoint(targetPath, fragment, request, outsideProjectRootTarget());
+    return this.resolveEndpoint(
+      await probeEndpoint(targetPath),
+      targetPath,
+      fragment,
+      request,
+      outsideProjectRootTarget()
+    );
   }
 
   async resolveEndpoint(
+    endpoint: EndpointProbe,
     targetPath: string,
     fragment: string | null,
     request: MarkdownLocalResolutionRequest,
     target: MarkdownSafeTargetDescriptor
   ): Promise<MarkdownLocalResolution> {
-    const endpoint = await probeEndpoint(targetPath);
     if (endpoint.kind === "missing") {
       return request.requireExistingTargets ? finding("missing-target", target) : valid(target);
     }
@@ -287,19 +295,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
 
   async #parseMarkdownBytes(bytes: Uint8Array): Promise<MarkdownLinkParseResult | undefined> {
     if (this.#signal.aborted) return undefined;
-    let markdown: string;
-    try {
-      markdown = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-    } catch {
-      return undefined;
-    }
-    if (this.#signal.aborted) return undefined;
-    const parsed = await parseMarkdownLinkFactsWithCache(
-      markdown,
-      bytes,
-      this.#cache,
-      this.#signal
-    );
+    const parsed = await parseMarkdownLinkFactsWithCache(bytes, this.#cache, this.#signal);
     return this.#signal.aborted ? undefined : parsed;
   }
 
