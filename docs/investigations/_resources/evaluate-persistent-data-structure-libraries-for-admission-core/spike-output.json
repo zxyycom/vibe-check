@@ -1,0 +1,56 @@
+{
+  "environment": {
+    "bunVersion": "1.3.14",
+    "platform": "linux",
+    "runtime": "Bun"
+  },
+  "workload": {
+    "branchCount": 64,
+    "forcedAdditionsPerBranch": 80,
+    "measuredSamples": 15,
+    "repeatsPerSample": 8,
+    "taskCount": 4096,
+    "transitions": 512,
+    "warmupSamples": 5
+  },
+  "semantics": {
+    "currentChunkVector": "predecessor remains readable after a 4096-slot point update",
+    "currentLeftistQueue": "max pop preserves predecessor; equal slots are retained by the raw heap but actual admission enqueue deduplicates ready slots",
+    "mnemonist": "mutable; cannot represent an immutable predecessor",
+    "rimbuList": "predecessor remains readable after updateAt",
+    "rimbuSortedSet": "max/remove is persistent; equal values deduplicate, matching the admission core ready-slot Set before enqueue",
+    "thirdPartyPriorityQueue": "mutable; cannot represent an immutable predecessor"
+  },
+  "benchmarks": [
+    {
+      "checksum": 209372125,
+      "name": "vector/current-derived-64-slot-chunk-tree",
+      "p50Ms": 63.53664500000002,
+      "p95Ms": 70.36364700000001
+    },
+    {
+      "checksum": 209372125,
+      "name": "vector/immutable-js-list",
+      "p50Ms": 9.946973999999955,
+      "p95Ms": 16.088735999999926
+    },
+    {
+      "checksum": 209372125,
+      "name": "vector/rimbu-list",
+      "p50Ms": 10.627206999999999,
+      "p95Ms": 15.50011900000004
+    },
+    {
+      "checksum": 33271875,
+      "name": "frontier/current-derived-leftist-max-heap",
+      "p50Ms": 19.295614000000114,
+      "p95Ms": 25.648269000000028
+    },
+    {
+      "checksum": 33271875,
+      "name": "frontier/rimbu-sorted-set-max-remove",
+      "p50Ms": 53.60428200000024,
+      "p95Ms": 59.96023799999989
+    }
+  ]
+}

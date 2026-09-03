@@ -1,0 +1,427 @@
+{
+  "observedAt": "2026-09-03T13:52:58Z",
+  "collectionMethod": "Official npm registry/version endpoints, npm download-count API, and GitHub repository/commit/release APIs. Download and star counts are adoption signals only.",
+  "candidates": [
+    {
+      "package": "mnemonist",
+      "observedVersion": "0.40.4",
+      "npmPublishedAt": "2026-04-30T09:48:25.984Z",
+      "license": "MIT",
+      "packageFormat": {
+        "type": null,
+        "module": "./index.mjs",
+        "main": "./index.js",
+        "types": "./index.d.ts",
+        "sideEffects": false,
+        "exports": {
+          ".": {
+            "types": "./index.d.ts",
+            "require": "./index.js",
+            "import": "./index.mjs"
+          },
+          "./*": {
+            "types": "./*.d.ts",
+            "require": "./*.js"
+          },
+          "./*.js": {
+            "types": "./*.d.ts",
+            "require": "./*.js"
+          }
+        },
+        "engines": null,
+        "productionDependencies": [
+          "obliterator"
+        ],
+        "unpackedSizeBytes": 384122,
+        "fileCount": 104
+      },
+      "adoptionSignals": {
+        "npmDownloads": 62977178,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 2434,
+        "defaultBranchPushedAt": "2026-04-30T09:45:20Z",
+        "latestDefaultBranchCommitAt": "2026-04-30T09:44:49Z",
+        "latestDefaultBranchCommitSha": "1f2c752049eb3439f3987310391ae5e123e97dfe"
+      },
+      "latestGitHubRelease": {
+        "tag": "0.40.4",
+        "publishedAt": "2026-04-30T09:45:21Z"
+      },
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/mnemonist/0.40.4",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/mnemonist",
+        "gitHubRepository": "https://github.com/Yomguithereal/mnemonist",
+        "gitHubRepositoryApi": "https://api.github.com/repos/Yomguithereal/mnemonist",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/Yomguithereal/mnemonist/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/Yomguithereal/mnemonist/releases/latest"
+      }
+    },
+    {
+      "package": "immutable",
+      "observedVersion": "5.1.9",
+      "npmPublishedAt": "2026-06-29T21:58:01.086Z",
+      "license": "MIT",
+      "packageFormat": {
+        "type": null,
+        "module": "dist/immutable.es.js",
+        "main": "dist/immutable.js",
+        "types": "dist/immutable.d.ts",
+        "sideEffects": null,
+        "exports": null,
+        "engines": null,
+        "productionDependencies": [],
+        "unpackedSizeBytes": 726090,
+        "fileCount": 8
+      },
+      "adoptionSignals": {
+        "npmDownloads": 175107327,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 33035,
+        "defaultBranchPushedAt": "2026-09-03T00:12:21Z",
+        "latestDefaultBranchCommitAt": "2026-09-02T20:04:10Z",
+        "latestDefaultBranchCommitSha": "686b8baf1dc825419f5ded2968b48e3432644aff"
+      },
+      "latestGitHubRelease": null,
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/immutable/5.1.9",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/immutable",
+        "gitHubRepository": "https://github.com/immutable-js/immutable-js",
+        "gitHubRepositoryApi": "https://api.github.com/repos/immutable-js/immutable-js",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/immutable-js/immutable-js/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/immutable-js/immutable-js/releases/latest"
+      }
+    },
+    {
+      "package": "@rimbu/list",
+      "observedVersion": "2.1.10",
+      "npmPublishedAt": "2026-01-20T21:12:26.853Z",
+      "license": "MIT",
+      "packageFormat": {
+        "type": "module",
+        "module": "./dist/esm/main/index.mjs",
+        "main": "./dist/cjs/main/index.cjs",
+        "types": "./dist/cjs/main/index.d.cts",
+        "sideEffects": null,
+        "exports": {
+          ".": {
+            "import": {
+              "types": "./dist/esm/main/index.d.mts",
+              "default": "./dist/esm/main/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/main/index.d.cts",
+              "default": "./dist/cjs/main/index.cjs"
+            }
+          },
+          "./custom": {
+            "import": {
+              "types": "./dist/esm/custom/index.d.mts",
+              "default": "./dist/esm/custom/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/custom/index.d.cts",
+              "default": "./dist/cjs/custom/index.cjs"
+            }
+          }
+        },
+        "engines": null,
+        "productionDependencies": [
+          "@rimbu/base",
+          "@rimbu/collection-types",
+          "@rimbu/common",
+          "@rimbu/stream",
+          "tslib"
+        ],
+        "unpackedSizeBytes": 923263,
+        "fileCount": 186
+      },
+      "adoptionSignals": {
+        "npmDownloads": 21943,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 143,
+        "defaultBranchPushedAt": "2026-08-28T09:16:05Z",
+        "latestDefaultBranchCommitAt": "2026-01-19T21:01:24Z",
+        "latestDefaultBranchCommitSha": "deba9bad7177bd4a47378465ae645b9bcc0cf938"
+      },
+      "latestGitHubRelease": {
+        "tag": "1.3.0",
+        "publishedAt": "2026-01-21T10:50:10Z"
+      },
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/%40rimbu%2Flist/2.1.10",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/%40rimbu%2Flist",
+        "gitHubRepository": "https://github.com/rimbu-org/rimbu",
+        "gitHubRepositoryApi": "https://api.github.com/repos/rimbu-org/rimbu",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/rimbu-org/rimbu/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/rimbu-org/rimbu/releases/latest"
+      }
+    },
+    {
+      "package": "@rimbu/sorted",
+      "observedVersion": "2.1.10",
+      "npmPublishedAt": "2026-01-20T21:12:28.995Z",
+      "license": "MIT",
+      "packageFormat": {
+        "type": "module",
+        "module": "./dist/esm/main/index.mjs",
+        "main": "./dist/cjs/main/index.cjs",
+        "types": "./dist/cjs/main/index.d.cts",
+        "sideEffects": null,
+        "exports": {
+          ".": {
+            "import": {
+              "types": "./dist/esm/main/index.d.mts",
+              "default": "./dist/esm/main/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/main/index.d.cts",
+              "default": "./dist/cjs/main/index.cjs"
+            }
+          },
+          "./common": {
+            "import": {
+              "types": "./dist/esm/common/index.d.mts",
+              "default": "./dist/esm/common/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/common/index.d.cts",
+              "default": "./dist/cjs/common/index.cjs"
+            }
+          },
+          "./map": {
+            "import": {
+              "types": "./dist/esm/map/index.d.mts",
+              "default": "./dist/esm/map/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/map/index.d.cts",
+              "default": "./dist/cjs/map/index.cjs"
+            }
+          },
+          "./map-custom": {
+            "import": {
+              "types": "./dist/esm/map-custom/index.d.mts",
+              "default": "./dist/esm/map-custom/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/map-custom/index.d.cts",
+              "default": "./dist/cjs/map-custom/index.cjs"
+            }
+          },
+          "./set": {
+            "import": {
+              "types": "./dist/esm/set/index.d.mts",
+              "default": "./dist/esm/set/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/set/index.d.cts",
+              "default": "./dist/cjs/set/index.cjs"
+            }
+          },
+          "./set-custom": {
+            "import": {
+              "types": "./dist/esm/set-custom/index.d.mts",
+              "default": "./dist/esm/set-custom/index.mjs"
+            },
+            "require": {
+              "types": "./dist/cjs/set-custom/index.d.cts",
+              "default": "./dist/cjs/set-custom/index.cjs"
+            }
+          }
+        },
+        "engines": null,
+        "productionDependencies": [
+          "@rimbu/base",
+          "@rimbu/collection-types",
+          "@rimbu/common",
+          "@rimbu/stream",
+          "tslib"
+        ],
+        "unpackedSizeBytes": 759688,
+        "fileCount": 134
+      },
+      "adoptionSignals": {
+        "npmDownloads": 20365,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 143,
+        "defaultBranchPushedAt": "2026-08-28T09:16:05Z",
+        "latestDefaultBranchCommitAt": "2026-01-19T21:01:24Z",
+        "latestDefaultBranchCommitSha": "deba9bad7177bd4a47378465ae645b9bcc0cf938"
+      },
+      "latestGitHubRelease": {
+        "tag": "1.3.0",
+        "publishedAt": "2026-01-21T10:50:10Z"
+      },
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/%40rimbu%2Fsorted/2.1.10",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/%40rimbu%2Fsorted",
+        "gitHubRepository": "https://github.com/rimbu-org/rimbu",
+        "gitHubRepositoryApi": "https://api.github.com/repos/rimbu-org/rimbu",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/rimbu-org/rimbu/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/rimbu-org/rimbu/releases/latest"
+      }
+    },
+    {
+      "package": "@datastructures-js/priority-queue",
+      "observedVersion": "6.4.0",
+      "npmPublishedAt": "2026-07-30T07:35:54.837Z",
+      "license": "MIT",
+      "packageFormat": {
+        "type": null,
+        "module": null,
+        "main": "index.js",
+        "types": "index.d.ts",
+        "sideEffects": null,
+        "exports": null,
+        "engines": null,
+        "productionDependencies": [
+          "@datastructures-js/heap"
+        ],
+        "unpackedSizeBytes": 15204,
+        "fileCount": 12
+      },
+      "adoptionSignals": {
+        "npmDownloads": 1301038,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 682,
+        "defaultBranchPushedAt": "2026-07-30T07:33:07Z",
+        "latestDefaultBranchCommitAt": "2026-07-30T07:33:00Z",
+        "latestDefaultBranchCommitSha": "01b6c67ac5c1a8a863f3d4f5c9958e78bf74850b"
+      },
+      "latestGitHubRelease": {
+        "tag": "v6.3.5",
+        "publishedAt": "2025-10-13T05:34:04Z"
+      },
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/%40datastructures-js%2Fpriority-queue/6.4.0",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/%40datastructures-js%2Fpriority-queue",
+        "gitHubRepository": "https://github.com/datastructures-js/priority-queue",
+        "gitHubRepositoryApi": "https://api.github.com/repos/datastructures-js/priority-queue",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/datastructures-js/priority-queue/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/datastructures-js/priority-queue/releases/latest"
+      }
+    },
+    {
+      "package": "functional-red-black-tree",
+      "observedVersion": "1.0.1",
+      "npmPublishedAt": "2014-09-29T16:05:12.335Z",
+      "license": "MIT",
+      "packageFormat": {
+        "type": null,
+        "module": null,
+        "main": "rbtree.js",
+        "types": null,
+        "sideEffects": null,
+        "exports": null,
+        "engines": null,
+        "productionDependencies": [],
+        "unpackedSizeBytes": null,
+        "fileCount": null
+      },
+      "adoptionSignals": {
+        "npmDownloads": 75286493,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 387,
+        "defaultBranchPushedAt": "2023-08-13T11:16:45Z",
+        "latestDefaultBranchCommitAt": "2018-11-05T06:41:31Z",
+        "latestDefaultBranchCommitSha": "d4d3566e35706d420dbd46cb0ba9b2f757522967"
+      },
+      "latestGitHubRelease": null,
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/functional-red-black-tree/1.0.1",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/functional-red-black-tree",
+        "gitHubRepository": "https://github.com/mikolalysenko/functional-red-black-tree",
+        "gitHubRepositoryApi": "https://api.github.com/repos/mikolalysenko/functional-red-black-tree",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/mikolalysenko/functional-red-black-tree/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/mikolalysenko/functional-red-black-tree/releases/latest"
+      }
+    },
+    {
+      "package": "persistent-vector",
+      "observedVersion": "0.0.8",
+      "npmPublishedAt": "2017-02-12T20:25:55.529Z",
+      "license": "MIT",
+      "packageFormat": {
+        "type": null,
+        "module": null,
+        "main": "./lib/index.js",
+        "types": null,
+        "sideEffects": null,
+        "exports": null,
+        "engines": null,
+        "productionDependencies": [],
+        "unpackedSizeBytes": null,
+        "fileCount": null
+      },
+      "adoptionSignals": {
+        "npmDownloads": 9,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 0,
+        "defaultBranchPushedAt": "2017-02-12T20:29:56Z",
+        "latestDefaultBranchCommitAt": "2017-02-12T20:28:56Z",
+        "latestDefaultBranchCommitSha": "ce788823480ce8c657b441a44129394c993194af"
+      },
+      "latestGitHubRelease": null,
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/persistent-vector/0.0.8",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/persistent-vector",
+        "gitHubRepository": "https://github.com/wshager/js-persistent-vector",
+        "gitHubRepositoryApi": "https://api.github.com/repos/wshager/js-persistent-vector",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/wshager/js-persistent-vector/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/wshager/js-persistent-vector/releases/latest"
+      }
+    },
+    {
+      "package": "@prelude/rb-tree",
+      "observedVersion": "1.0.1",
+      "npmPublishedAt": "2026-08-23T11:15:01.120Z",
+      "license": "CC0-1.0",
+      "packageFormat": {
+        "type": "module",
+        "module": "./mjs/index.js",
+        "main": null,
+        "types": "./mjs/index.d.ts",
+        "sideEffects": null,
+        "exports": {
+          ".": {
+            "types": "./mjs/index.d.ts",
+            "import": "./mjs/index.js"
+          },
+          "./bag": {
+            "types": "./mjs/bag.d.ts",
+            "import": "./mjs/bag.js"
+          },
+          "./map": {
+            "types": "./mjs/map.d.ts",
+            "import": "./mjs/map.js"
+          }
+        },
+        "engines": {
+          "node": ">=22"
+        },
+        "productionDependencies": [
+          "@prelude/cmp"
+        ],
+        "unpackedSizeBytes": 68420,
+        "fileCount": 39
+      },
+      "adoptionSignals": {
+        "npmDownloads": 355,
+        "npmDownloadsPeriod": "2026-08-04:2026-09-02",
+        "gitHubStars": 1,
+        "defaultBranchPushedAt": "2026-08-23T12:29:14Z",
+        "latestDefaultBranchCommitAt": "2026-08-23T12:29:12Z",
+        "latestDefaultBranchCommitSha": "b6725345b8eedce95faba146669883d2c4fea1a5"
+      },
+      "latestGitHubRelease": null,
+      "sourceUrls": {
+        "npmVersionManifest": "https://registry.npmjs.org/%40prelude%2Frb-tree/1.0.1",
+        "npmDownloadCount": "https://api.npmjs.org/downloads/point/2026-08-04:2026-09-02/%40prelude%2Frb-tree",
+        "gitHubRepository": "https://github.com/mirek/prelude",
+        "gitHubRepositoryApi": "https://api.github.com/repos/mirek/prelude",
+        "gitHubLatestCommitApi": "https://api.github.com/repos/mirek/prelude/commits?per_page=1",
+        "gitHubLatestReleaseApi": "https://api.github.com/repos/mirek/prelude/releases/latest"
+      }
+    }
+  ]
+}

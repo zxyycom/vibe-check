@@ -221,6 +221,49 @@
         "title": "Bun 冷启动下 Project Gate candidate 导入失败调查"
       }
     },
+    "evaluate-persistent-data-structure-libraries-for-admission-core.md": {
+      "keys": {
+        "formed-at": [
+          1788443578000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "admission-scheduling",
+          "implementation-libraries",
+          "performance",
+          "persistent-data-structures"
+        ],
+        "text": [
+          "Admission core 持久数据结构库评估",
+          "在 optimize-admission-core-selection-index 的 immutable admission state 中，成熟库能否替代 persistent indexed vector、max-priority frontier 与密集 reverse-index/counter，且是否值得进入 Vibe Check 的 public runtime candidate？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T13:52:58Z",
+        "question": "在 optimize-admission-core-selection-index 的 immutable admission state 中，成熟库能否替代 persistent indexed vector、max-priority frontier 与密集 reverse-index/counter，且是否值得进入 Vibe Check 的 public runtime candidate？",
+        "relations": [
+          {
+            "target": "functional-utilities-and-data-structures.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json",
+          "evaluate-persistent-data-structure-libraries-for-admission-core/spike-reproduction.md",
+          "evaluate-persistent-data-structure-libraries-for-admission-core/spike.ts",
+          "evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json"
+        ],
+        "tags": [
+          "admission-scheduling",
+          "implementation-libraries",
+          "performance",
+          "persistent-data-structures"
+        ],
+        "title": "Admission core 持久数据结构库评估"
+      }
+    },
     "functional-utilities-and-data-structures.md": {
       "keys": {
         "formed-at": [
@@ -406,6 +449,7 @@
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
       "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
       "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:f45a56559223f8c0d317013d7da4772bbf87838a714be580f44027f744803401",
+      "evaluate-persistent-data-structure-libraries-for-admission-core.md": "sha256:85d43d2f8b07c22faa1e0a368f0273db6c8cce9a7b0dae7ae7987a75d8493e9c",
       "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
       "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
       "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
