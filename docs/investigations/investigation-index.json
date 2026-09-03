@@ -399,7 +399,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
-      "assess-admission-state-performance-and-selection-index.md": "sha256:789c863cd0319c6ff89af3e8046db6774e70ff60a0566ffd277fda6957c7d243",
+      "assess-admission-state-performance-and-selection-index.md": "sha256:98061f900a651bf14b5c024f4c897236276ce991c53b2551d897fc06719d76fd",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
       "compare-lizard-and-scc-typescript-port-priority.md": "sha256:f36d2d03734cd988927ad44118c331f31787ee3f69d9ceaa111da921cbf9c7d8",
