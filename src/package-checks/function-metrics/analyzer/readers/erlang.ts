@@ -1,8 +1,8 @@
 /**
- * Derived from terryyin/lizard 1.23.0.
+ * Derived from terryyin/lizard 1.24.0.
  * Sources: lizard_languages/erlang.py (MIT) and Pygments 2.18.0
  * pygments/lexers/erlang.py (BSD-2-Clause).
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT AND BSD-2-Clause
  * Modified: translated to the product-owned TypeScript analyzer with a
  * reader-local Pygments-compatible lexer and no Python/Pygments runtime.

@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 
 import { decodeLizardAutoRead } from "./measurement.ts";
 
-const LIZARD_123_AUTO_READ_OBSERVATIONS = [
+const LIZARD_124_AUTO_READ_OBSERVATIONS = [
   {
     bytes: "efbbbf64656620666f6f28293a0a20202020706173730a",
     expected: "def foo():\n    pass\n",
@@ -42,8 +42,8 @@ const LIZARD_123_AUTO_READ_OBSERVATIONS = [
 ] as const;
 
 describe("functionMetrics source-byte admission", () => {
-  it("matches Lizard 1.23 auto_read byte and newline observations", () => {
-    for (const observation of LIZARD_123_AUTO_READ_OBSERVATIONS) {
+  it("matches Lizard 1.24 auto_read byte and newline observations", () => {
+    for (const observation of LIZARD_124_AUTO_READ_OBSERVATIONS) {
       assert.equal(
         decodeLizardAutoRead(Buffer.from(observation.bytes, "hex")),
         observation.expected,

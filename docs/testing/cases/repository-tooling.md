@@ -415,11 +415,11 @@ Entities:
 Owner: `docs/maintenance-lizard-upstream-advisory.md#transport-and-result`
 Entities:
 
-- `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory reports the pinned version as current without ambient credentials`
+- `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory reports the pinned 1.24 baseline as current without ambient credentials`
 - `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory reports a stable newer release without changing anything`
 - `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory keeps HTTP, malformed, and oversized responses advisory`
 - `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory maps timeout and network failures to stable advisory results`
   Proves:
 
-- 显式 maintenance lookup 只请求固定的 Lizard GitHub HTTPS release endpoint，禁用 credentials 与 redirects，并以 Lizard `1.23.0` 为 baseline；current release 产生 `no-update`，较高 stable release 只产生 `update-available`，不会修改 repository state。
+- 显式 maintenance lookup 只请求固定的 Lizard GitHub HTTPS release endpoint，禁用 credentials 与 redirects，并以 Lizard `1.24.0` 为 baseline；current release 产生 `no-update`，较高 stable release 只产生 `update-available`，不会修改 repository state。
 - HTTP、malformed、oversized、timeout、network 和 caller cancellation 都结算为稳定的 `unavailable` advisory code；它们不伪造“无更新”、不泄漏 transport error，也不形成默认 Gate 的阻断结论。

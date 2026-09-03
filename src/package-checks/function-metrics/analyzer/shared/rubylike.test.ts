@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.23.0 tests.
+ * Derived from terryyin/lizard 1.24.0 tests.
  * Sources: lizard_languages/code_reader.py and lizard_languages/rubylike.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: source-derived subclass state and keyword dispatch coverage.
  */

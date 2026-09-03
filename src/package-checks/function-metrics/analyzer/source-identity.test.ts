@@ -1,5 +1,5 @@
 /**
- * Source-identity evidence for the Lizard 1.23.0 source-aligned port.
+ * Source-identity evidence for the Lizard 1.24.0 source-aligned port.
  * The root provenance inventory owns source hashes, SPDX, and target paths;
  * this fixture only names symbols and explicit host seams to verify.
  */
@@ -14,11 +14,11 @@ import * as ts from "typescript";
 const WORKSPACE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const EVIDENCE_ROOT = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "fixtures/lizard-1.23.0/evidence"
+  "fixtures/lizard-1.24.0/evidence"
 );
-const IDENTITY_MANIFEST_PATH = resolve(EVIDENCE_ROOT, "lizard-1.23-source-identity.json");
-const PROVENANCE_PATH = resolve(WORKSPACE_ROOT, "licenses/lizard-1.23.0-provenance.json");
-const PROVENANCE_RELATIVE_PATH = "licenses/lizard-1.23.0-provenance.json";
+const IDENTITY_MANIFEST_PATH = resolve(EVIDENCE_ROOT, "lizard-1.24-source-identity.json");
+const PROVENANCE_PATH = resolve(WORKSPACE_ROOT, "licenses/lizard-1.24.0-provenance.json");
+const PROVENANCE_RELATIVE_PATH = "licenses/lizard-1.24.0-provenance.json";
 const CURRENT_SOURCE_ROOT = resolve(WORKSPACE_ROOT, "src");
 const ARCHIVED_CHANGE_PATH_SEGMENT = ["changes", "archive"].join("/");
 
@@ -36,14 +36,14 @@ const MAPPING_VOCABULARY = new Set([
 ]);
 const FIXED_IDENTITY_COUNTS = {
   classes: 81,
-  entries: 42,
-  symbols: 792,
-  targets: 37
+  entries: 44,
+  symbols: 796,
+  targets: 39
 } as const;
 const FIXED_UPSTREAM = {
   project: "terryyin/lizard",
-  revision: "06284ec87c1966fee4ddbf3f068ccf89b987b0f8",
-  tag: "1.23.0"
+  revision: "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+  tag: "1.24.0"
 } as const;
 const FIXED_STATUS_VOCABULARY = [
   "deferred-extension-body",
@@ -547,10 +547,17 @@ function assertNonEmptyString(value: unknown, label: string): asserts value is s
 }
 
 function findClass(source: ts.SourceFile, name: string): ts.ClassDeclaration | undefined {
-  return source.statements.find(
-    (statement): statement is ts.ClassDeclaration =>
-      ts.isClassDeclaration(statement) && statement.name?.text === name
-  );
+  let matchingClass: ts.ClassDeclaration | undefined;
+  const visit = (node: ts.Node): void => {
+    if (matchingClass) return;
+    if (ts.isClassDeclaration(node) && node.name?.text === name) {
+      matchingClass = node;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return matchingClass;
 }
 
 function hasModuleFunction(source: ts.SourceFile, name: string): boolean {

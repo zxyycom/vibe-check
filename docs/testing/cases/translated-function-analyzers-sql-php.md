@@ -1,6 +1,6 @@
 # translated-function-analyzers-sql-php
 
-## Case FM-ANALYZER-READERS-F-001: PHP 与 PL/SQL reader 保持 Lizard 1.23 直接函数指标
+## Case FM-ANALYZER-READERS-F-001: PHP 与 PL/SQL reader 保持 Lizard 1.24 直接函数指标
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
@@ -11,11 +11,11 @@ Entities:
 
 Proves:
 
-- PHP 的 `php` 和 PL/SQL 的六个当前 suffix 对 Lizard 1.23 normal/edge oracle fixture 给出相同 function name、range、NLOC、CCN 与 parameter count。
+- PHP 的 `php` 和 PL/SQL 的六个当前 suffix 对 Lizard 1.24 normal/edge oracle fixture 给出相同 function name、range、NLOC、CCN 与 parameter count。
 - PHP 保留 code-block tokenizer、namespace/use 的 source state、class/trait 方法、closure assignment、arrow-function omission 和 condition 的直接观察；PL/SQL 保留 package、procedure/function/trigger、nested declaration、exception、compound END、loop/control-flow 和 parameter 形状。
 - 这些实体仅证明显式 reader 的 in-memory 行为；reader registry、Check integration、资源/取消约束和 Lizard runtime hard cut 仍是独立边界。
 
-## Case FM-ANALYZER-READER-REGISTRY-001: reader registry 保持 Lizard 1.23 顺序与 suffix 选择
+## Case FM-ANALYZER-READER-REGISTRY-001: reader registry 保持 Lizard 1.24 顺序与 suffix 选择
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:

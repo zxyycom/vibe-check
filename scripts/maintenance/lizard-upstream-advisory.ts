@@ -1,4 +1,4 @@
-export const LIZARD_BASELINE_VERSION = "1.23.0";
+export const LIZARD_BASELINE_VERSION = "1.24.0";
 export const LIZARD_RELEASE_API_URL =
   "https://api.github.com/repos/terryyin/lizard/releases/latest";
 export const LIZARD_UPSTREAM_TIMEOUT_MS = 5_000;

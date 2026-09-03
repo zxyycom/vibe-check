@@ -11,7 +11,7 @@ const oracle = parseOracleObservations(
   JSON.parse(
     readFileSync(
       new URL(
-        "./analyzer/fixtures/lizard-1.23.0/evidence/lizard-1.23-oracle-observations.json",
+        "./analyzer/fixtures/lizard-1.24.0/evidence/lizard-1.24-oracle-observations.json",
         import.meta.url
       ),
       "utf8"
@@ -22,34 +22,15 @@ const oracle = parseOracleObservations(
 describe("functionMetrics Product analyzer adapter", () => {
   it("maps all 27 reader families and 55 registered extensions from supplied source", () => {
     const normalFixtures = oracle.fixtures.filter(({ fixture }) => fixture.includes("/normal."));
+    const edgeFixtures = oracle.fixtures.filter(({ fixture }) => fixture.includes("/edge."));
+    assert.equal(oracle.oracle.tag, "1.24.0");
+    assert.equal(oracle.oracle.revision, "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec");
     assert.equal(normalFixtures.length, 55);
     assert.equal(new Set(normalFixtures.map(({ fixture }) => fixture.split(".").at(-1))).size, 55);
+    assert.equal(edgeFixtures.length, 27);
 
-    const result = analyzeFunctionMetricsSources({
-      files: normalFixtures.map(({ fixture }) =>
-        Object.freeze({
-          path: fixture,
-          source: readFileSync(resolve(repositoryRoot, fixture), "utf8")
-        })
-      )
-    });
-
-    assert.equal(result.kind, "complete");
-    if (result.kind !== "complete") return;
-    assert.deepEqual(
-      result.metrics,
-      normalFixtures.flatMap(({ measurements }) =>
-        measurements.map((measurement) => ({
-          cyclomaticComplexity: { source: "typescript-analyzer", value: measurement.ccn },
-          endLine: measurement.endLine,
-          file: measurement.file,
-          lines: measurement.nloc,
-          name: measurement.functionName,
-          parameterCount: measurement.parameterCount,
-          startLine: measurement.startLine
-        }))
-      )
-    );
+    assertOracleMeasurements(normalFixtures);
+    assertOracleMeasurements(edgeFixtures);
   });
 
   it("fails the complete input when any supplied source has no translated reader", () => {
@@ -69,19 +50,53 @@ describe("functionMetrics Product analyzer adapter", () => {
 });
 
 type OracleObservations = Readonly<{
-  readonly fixtures: readonly Readonly<{
-    readonly fixture: string;
-    readonly measurements: readonly Readonly<{
-      readonly ccn: number;
-      readonly endLine: number;
-      readonly file: string;
-      readonly functionName: string;
-      readonly nloc: number;
-      readonly parameterCount: number;
-      readonly startLine: number;
-    }>[];
+  readonly fixtures: readonly OracleFixture[];
+  readonly oracle: Readonly<{
+    readonly revision: string;
+    readonly tag: string;
+  }>;
+}>;
+
+type OracleFixture = Readonly<{
+  readonly fixture: string;
+  readonly measurements: readonly Readonly<{
+    readonly ccn: number;
+    readonly endLine: number;
+    readonly file: string;
+    readonly functionName: string;
+    readonly nloc: number;
+    readonly parameterCount: number;
+    readonly startLine: number;
   }>[];
 }>;
+
+function assertOracleMeasurements(fixtures: readonly OracleFixture[]): void {
+  const result = analyzeFunctionMetricsSources({
+    files: fixtures.map(({ fixture }) =>
+      Object.freeze({
+        path: fixture,
+        source: readFileSync(resolve(repositoryRoot, fixture), "utf8")
+      })
+    )
+  });
+
+  assert.equal(result.kind, "complete");
+  if (result.kind !== "complete") return;
+  assert.deepEqual(
+    result.metrics,
+    fixtures.flatMap(({ measurements }) =>
+      measurements.map((measurement) => ({
+        cyclomaticComplexity: { source: "typescript-analyzer", value: measurement.ccn },
+        endLine: measurement.endLine,
+        file: measurement.file,
+        lines: measurement.nloc,
+        name: measurement.functionName,
+        parameterCount: measurement.parameterCount,
+        startLine: measurement.startLine
+      }))
+    )
+  );
+}
 
 function parseOracleObservations(value: unknown): OracleObservations {
   if (!isOracleObservations(value))
@@ -90,10 +105,17 @@ function parseOracleObservations(value: unknown): OracleObservations {
 }
 
 function isOracleObservations(value: unknown): value is OracleObservations {
-  return isRecord(value) && Array.isArray(value.fixtures) && value.fixtures.every(isOracleFixture);
+  return (
+    isRecord(value) &&
+    Array.isArray(value.fixtures) &&
+    value.fixtures.every(isOracleFixture) &&
+    isRecord(value.oracle) &&
+    typeof value.oracle.revision === "string" &&
+    typeof value.oracle.tag === "string"
+  );
 }
 
-function isOracleFixture(value: unknown): boolean {
+function isOracleFixture(value: unknown): value is OracleFixture {
   return (
     isRecord(value) &&
     typeof value.fixture === "string" &&

@@ -9,7 +9,7 @@ import { JavaScriptReader } from "./javascript.ts";
 
 const fixtureDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.23.0/javascript"
+  "../fixtures/lizard-1.24.0/javascript"
 );
 
 test("JavaScript reader preserves every suffix, regex/template tokens, class methods, and arrows", () => {

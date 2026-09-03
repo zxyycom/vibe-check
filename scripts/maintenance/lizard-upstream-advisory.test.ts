@@ -7,20 +7,20 @@ import {
   LIZARD_RELEASE_MAX_BYTES
 } from "./lizard-upstream-advisory.ts";
 
-test("Lizard upstream advisory reports the pinned version as current without ambient credentials", async () => {
+test("Lizard upstream advisory reports the pinned 1.24 baseline as current without ambient credentials", async () => {
   let request: RequestInit | undefined;
   const result = await checkLizardUpstream({
     fetch: async (_input, init) => {
       request = init;
-      return jsonResponse({ tag_name: "v1.23.0" });
+      return jsonResponse({ tag_name: "v1.24.0" });
     }
   });
 
   assert.deepEqual(result, {
-    baselineVersion: "1.23.0",
+    baselineVersion: "1.24.0",
     code: "lizard-upstream-no-update",
     kind: "no-update",
-    latestVersion: "1.23.0"
+    latestVersion: "1.24.0"
   });
   assert.equal(
     LIZARD_RELEASE_API_URL,
@@ -35,14 +35,14 @@ test("Lizard upstream advisory reports the pinned version as current without amb
 
 test("Lizard upstream advisory reports a stable newer release without changing anything", async () => {
   const result = await checkLizardUpstream({
-    fetch: async () => jsonResponse({ tag_name: "1.24.0" })
+    fetch: async () => jsonResponse({ tag_name: "1.25.0" })
   });
 
   assert.deepEqual(result, {
-    baselineVersion: "1.23.0",
+    baselineVersion: "1.24.0",
     code: "lizard-upstream-update-available",
     kind: "update-available",
-    latestVersion: "1.24.0"
+    latestVersion: "1.25.0"
   });
 });
 

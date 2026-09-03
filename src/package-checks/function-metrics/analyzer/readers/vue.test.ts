@@ -9,7 +9,7 @@ import { VueReader } from "./vue.ts";
 
 const fixtureDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.23.0/vue"
+  "../fixtures/lizard-1.24.0/vue"
 );
 
 test("Vue reader preserves fixtures and script-only function boundaries, order, metrics, and ranges", () => {

@@ -116,10 +116,10 @@ translated-only quality 例外具有精确 provenance/header 证明，且 packag
 
 | Change | Stage | 当前允许的工作 | 顺序与并行边界 |
 | --- | --- | --- | --- |
-| [`sync-lizard-typescript-port-to-1-24-0`](../changes/sync-lizard-typescript-port-to-1-24-0/proposal.md) | active Draft | 收敛正式 `1.24.0` source-aligned baseline、reader/protocol parity、current evidence、provenance/legal 与 exact Gate exception ledger；`lizard.py` 完整 range ledger 须区分 excluded CLI/discovery/extension-help/main diff 与 translated-range re-anchoring，不主张 translated behavior 已改变；进入 Plan 或实施仍需当时授权 | scanner 的独立 upstream-baseline 主线；不依赖 extension adoption。仅采用正式 tag，不带入 `master` 的 5 个未发布 commits；19 个 legacy bodies 与 Halstead 三文件均保持 deferred。 |
+| [`sync-lizard-typescript-port-to-1-24-0`](../changes/archive/sync-lizard-typescript-port-to-1-24-0/proposal.md) | archived | 已完成固定 `1.24.0` source-aligned baseline、reader/protocol parity、current evidence、provenance/legal 与 exact Gate exception ledger；`lizard.py` range ledger 已区分 excluded CLI/discovery/extension-help/main diff 与 translated-range re-anchoring，未把行号变化表述为 translated behavior diff | scanner 的 upstream-baseline 已稳定为正式 tag，未带入 `master` 的 5 个未发布 commits；19 个 legacy bodies 与 Halstead 三文件均保持 deferred。 |
 | [`adopt-selected-lizard-extensions`](../changes/adopt-selected-lizard-extensions/proposal.md) | active Draft | 收集真实 consumer、候选、语言/threshold/performance 与 closed Product contract 的选择证据；若结论为 `none`，可不扩张完成 | 可与 sync 并行进行**选择证据**，但不占 runtime implementation worktree。任何具体 capability 的 runtime implementation 和 acceptance 都硬依赖完整 Change 名 `sync-lizard-typescript-port-to-1-24-0` 的 1.24 stable commit 已进入其实施基线；不公开 extension mechanism，且不阻塞 sync。 |
 
-推荐顺序是先独立推进并稳定提交完整 Change 名 `sync-lizard-typescript-port-to-1-24-0`；同时或随后收敛 adoption 的消费者选择。只有选择一个具体 closed capability 且获得当时实施授权后，`adopt-selected-lizard-extensions` 才从该 1.24 stable commit 建立实施基线。两项 Change 不得混合为一次上游同步或自动 Product 扩张。
+`sync-lizard-typescript-port-to-1-24-0` 已独立完成并归档。后续可收敛 adoption 的消费者选择；只有选择一个具体 closed capability 且获得当时实施授权后，`adopt-selected-lizard-extensions` 才从包含该归档结果的 1.24 stable commit 建立实施基线。两项 Change 不得混合为一次上游同步或自动 Product 扩张。
 
 [`decide-file-metrics-public-scc-expansion`](../changes/decide-file-metrics-public-scc-expansion/proposal.md) 只评审是否存在新的
 consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不占实现 worktree；它不阻塞 Lizard 迁移。

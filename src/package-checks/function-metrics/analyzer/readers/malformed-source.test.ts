@@ -1,5 +1,5 @@
 /**
- * Lizard 1.23.0 malformed-source differential observations.
+ * Lizard 1.24.0 malformed-source differential observations.
  * The checked-in corpus is generated only by the pinned upstream oracle;
  * this test executes the Product-owned in-memory port against that corpus.
  */
@@ -17,24 +17,24 @@ import { get_reader_for, languages } from "../reader-registry.ts";
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../");
 const evidenceRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.23.0/evidence"
+  "../fixtures/lizard-1.24.0/evidence"
 );
 const malformedOracle = parseMalformedOracle(
-  readJson(resolve(evidenceRoot, "lizard-1.23-malformed-reader-observations.json"))
+  readJson(resolve(evidenceRoot, "lizard-1.24-malformed-reader-observations.json"))
 );
 const readerExtensionMapping = parseReaderExtensionMapping(
-  readJson(resolve(evidenceRoot, "lizard-1.23-reader-extension-mapping.json"))
+  readJson(resolve(evidenceRoot, "lizard-1.24-reader-extension-mapping.json"))
 );
 
-test("every source-order reader preserves Lizard 1.23 malformed-source whole-file observations", () => {
+test("every source-order reader preserves Lizard 1.24 malformed-source whole-file observations", () => {
   const registry = languages();
   const registrySignature = registry.map((reader) => ({
     extensions: [...new Set(reader.ext.map((extension) => extension.toLowerCase()))],
     readerClass: reader.name
   }));
 
-  assert.equal(malformedOracle.oracle.tag, "1.23.0");
-  assert.equal(malformedOracle.oracle.revision, "06284ec87c1966fee4ddbf3f068ccf89b987b0f8");
+  assert.equal(malformedOracle.oracle.tag, "1.24.0");
+  assert.equal(malformedOracle.oracle.revision, "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec");
   assert.equal(malformedOracle.readerCount, 27);
   assert.equal(malformedOracle.extensionCount, 55);
   assert.equal(malformedOracle.fixtures.length, malformedOracle.readerCount);

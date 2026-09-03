@@ -11,7 +11,7 @@ Proves:
 - The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result.
 - This Case does not prove Product admission, filesystem I/O, cancellation, Worker transport, `FunctionMetric` mapping, public export, or a replaceable analyzer interface.
 
-## Case FM-ANALYZER-READERS-A-001: Fortran、Structured Text 与 Erlang reader 保持 Lizard 1.23 可观察语义
+## Case FM-ANALYZER-READERS-A-001: Fortran、Structured Text 与 Erlang reader 保持 Lizard 1.24 可观察语义
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
@@ -21,10 +21,10 @@ Entities:
 - `bun|src/package-checks/function-metrics/analyzer/readers/erlang.test.ts|Erlang reader preserves every suffix, comments, branches, guards, nested fun, and macro complexity`
   Proves:
 
-- Fortran 的九个当前 suffix与 Structured Text 的 `st` 对 Lizard 1.23 normal/edge corpus 给出相同 function name、range、NLOC、CCN 与 parameter count；Fortran 同时保留 fixed/free form 边界。Erlang 的四个 suffix、comment、guard、case branch、nested `fun` 与 `?` macro 由当前 direct reader corpus 覆盖。
+- Fortran 的九个当前 suffix与 Structured Text 的 `st` 对 Lizard 1.24 normal/edge corpus 给出相同 function name、range、NLOC、CCN 与 parameter count；Fortran 同时保留 fixed/free form 边界。Erlang 的四个 suffix、comment、guard、case branch、nested `fun` 与 `?` macro 由当前 direct reader corpus 覆盖。
 - Erlang reader-local lexer 直接翻译 Lizard MIT 与 Pygments 2.18.0 BSD-2-Clause 的覆盖范围，不引入 Python/Pygments runtime；已通过四个 fixed-tag suffix fixture、source/adversarial function-metrics observations、七条 Pygments 2.18 token-and-metrics rules 与 exact lexer probe。该 Case 仍不证明 package legal materials、Product integration 或 hard cut。
 
-## Case FM-ANALYZER-EXTENSION-PROTOCOL-001: internal extension protocol keeps the Lizard 1.23 lifecycle closed
+## Case FM-ANALYZER-EXTENSION-PROTOCOL-001: internal extension protocol keeps the Lizard 1.24 lifecycle closed
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
@@ -50,14 +50,14 @@ Proves:
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
-- `bun|src/package-checks/function-metrics/analyzer/readers/malformed-source.test.ts|every source-order reader preserves Lizard 1.23 malformed-source whole-file observations`
+- `bun|src/package-checks/function-metrics/analyzer/readers/malformed-source.test.ts|every source-order reader preserves Lizard 1.24 malformed-source whole-file observations`
 
 Proves:
 
-- 每个 Lizard 1.23 source-order reader 都有一个确定的、reader-state-targeted malformed/incomplete fixture；固定 exact-source oracle 与 TypeScript in-memory analyzer 对每项完整函数列表（含 NLOC、CCN、token、parameters、long name、顺序和 range）产生相同结果，或同为完整空列表。
+- 每个 Lizard 1.24 source-order reader 都有一个确定的、reader-state-targeted malformed/incomplete fixture；固定 exact-source oracle 与 TypeScript in-memory analyzer 对每项完整函数列表（含 NLOC、CCN、token、parameters、long name、顺序和 range）产生相同结果，或同为完整空列表。
 - 该测试同时以 canonical mapping 锁定 27 个 reader identity、source order 和 55 个 case-insensitive suffix；它不把 malformed source 的语法有效性公开为 Product contract，也不代替 Worker protocol、cancellation 或 resource 边界测试。
 
-## Case FM-ANALYZER-SOURCE-IDENTITY-001: translated port structure retains fixed Lizard 1.23 identities
+## Case FM-ANALYZER-SOURCE-IDENTITY-001: translated port structure retains fixed Lizard 1.24 identities
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
@@ -66,6 +66,6 @@ Entities:
 
 Proves:
 
-- Current source-to-target identity evidence uses the root provenance inventory as its only machine-readable mapping and fail-closes all 42 translated source/range references and all 37 translated targets (including the extension-protocol additional target). The AST test verifies 81 class identities and 792 named symbol/seam mappings at their TypeScript target or an explicitly named, narrow host seam.
+- Current source-to-target identity evidence uses the root provenance inventory as its only machine-readable mapping and fail-closes all 44 translated source/range references and all 39 translated targets (including the extension-protocol additional target). The AST test verifies 81 class identities and 796 named symbol/seam mappings at their TypeScript target or an explicitly named, narrow host seam.
 - Source lifecycle class, field, and callback identities cannot silently disappear, and current `src` tests cannot read archived Change evidence. The manifest is static verification evidence only: it does not create a runtime registry, reflection surface, or Product plugin API.
 - This Case does not prove oracle semantic parity, deferred extension-body implementation, or Product adapter integration.

@@ -9,7 +9,7 @@ import { TSXReader } from "./tsx.ts";
 
 const fixtureDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.23.0/tsx"
+  "../fixtures/lizard-1.24.0/tsx"
 );
 
 test("TSX reader preserves every suffix, JSX nesting and attributes, typed component arrows, and ranges", () => {

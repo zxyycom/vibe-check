@@ -119,6 +119,8 @@ describe("repository quality Checks", () => {
           "src/package-checks/function-metrics/analyzer/core.ts",
           "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
           "src/package-checks/function-metrics/analyzer/readers/fortran.ts",
+          "src/package-checks/function-metrics/analyzer/readers/java-body-states.ts",
+          "src/package-checks/function-metrics/analyzer/readers/php-states.ts",
           "src/package-checks/function-metrics/analyzer/readers/php.ts",
           "src/package-checks/function-metrics/analyzer/readers/plsql.ts",
           "src/package-checks/function-metrics/analyzer/readers/python.ts",
@@ -135,8 +137,8 @@ describe("repository quality Checks", () => {
     const exceptionPaths = Object.values(productQualitySelections).flatMap((files) =>
       translatedQualityExclusions(files)
     );
-    assert.equal(exceptionPaths.length, 20);
-    assert.equal(new Set(exceptionPaths).size, 14);
+    assert.equal(exceptionPaths.length, 22);
+    assert.equal(new Set(exceptionPaths).size, 16);
     const provenance = readTranslatedProvenance();
     for (const path of exceptionPaths) {
       const target = provenance.targets.get(path);
@@ -248,7 +250,7 @@ type TranslatedProvenance = Readonly<{
 
 function readTranslatedProvenance(): TranslatedProvenance {
   const provenance = JSON.parse(
-    readFileSync(resolve(process.cwd(), "licenses/lizard-1.23.0-provenance.json"), "utf8")
+    readFileSync(resolve(process.cwd(), "licenses/lizard-1.24.0-provenance.json"), "utf8")
   ) as unknown;
   assert.ok(isRecord(provenance));
   assert.ok(isRecord(provenance.upstream));

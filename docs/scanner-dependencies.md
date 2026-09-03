@@ -90,5 +90,5 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 ## Verification
 
 external adapter tests 证明 command、availability、parser 与 tool-specific failure；对应 Check integration tests
-证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、current evidence 的 42/37/81/792 identity closure 和 archive-read guard；adapter/Worker tests
+证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、current evidence 的 44/39/81/796 identity closure 和 archive-read guard；adapter/Worker tests
 证明私有调用链与 whole-input mapping，function-metrics integration tests 证明 adapter 到 Check result 的映射。

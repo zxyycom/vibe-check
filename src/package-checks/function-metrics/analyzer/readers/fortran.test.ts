@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.23.0 tests.
+ * Derived from terryyin/lizard 1.24.0 tests.
  * Sources: test/test_languages/testFortran.py and lizard_languages/fortran.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: direct source-observation reader parity coverage.
  */
@@ -17,7 +17,7 @@ import { FortranReader } from "./fortran.ts";
 
 const fixtureDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.23.0/fortran"
+  "../fixtures/lizard-1.24.0/fortran"
 );
 
 test("Fortran reader preserves every registered suffix, edge fixture, and fixed/free form metrics", () => {

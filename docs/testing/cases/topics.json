@@ -39,27 +39,27 @@
     },
     {
       "id": "function-metrics-analyzers",
-      "description": "Lizard 1.23 reader 翻译的 tokenizer、函数边界、NLOC、CCN、参数与扩展名 parity 证据。"
+      "description": "Lizard 1.24 reader 翻译的 tokenizer、函数边界、NLOC、CCN、参数与扩展名 parity 证据。"
     },
     {
       "id": "translated-function-analyzers-script",
-      "description": "Lizard 1.23 script reader 翻译及其共享 in-memory primitive 的直接行为证据。"
+      "description": "Lizard 1.24 script reader 翻译及其共享 in-memory primitive 的直接行为证据。"
     },
     {
       "id": "translated-function-analyzers-typescript",
-      "description": "Lizard 1.23 TypeScript、JavaScript、TSX/JSX 与 Vue reader 的可观察指标 parity 证据。"
+      "description": "Lizard 1.24 TypeScript、JavaScript、TSX/JSX 与 Vue reader 的可观察指标 parity 证据。"
     },
     {
       "id": "translated-function-analyzers-clike",
-      "description": "Lizard 1.23 C-like reader 翻译与共享 CLikeReader 的直接行为证据。"
+      "description": "Lizard 1.24 C-like reader 翻译与共享 CLikeReader 的直接行为证据。"
     },
     {
       "id": "translated-function-analyzers-golike",
-      "description": "Lizard 1.23 Go、Rust、Scala、Solidity、Zig、Swift 与 Kotlin reader 翻译及共享 Go-like state 的完整直接行为证据。"
+      "description": "Lizard 1.24 Go、Rust、Scala、Solidity、Zig、Swift 与 Kotlin reader 翻译及共享 Go-like state 的完整直接行为证据。"
     },
     {
       "id": "translated-function-analyzers-sql-php",
-      "description": "Lizard 1.23 PHP、PL/SQL reader、ordered reader registry 与其必要 CLike override seam 的直接行为证据。"
+      "description": "Lizard 1.24 PHP、PL/SQL reader、ordered reader registry 与其必要 CLike override seam 的直接行为证据。"
     }
   ]
 }

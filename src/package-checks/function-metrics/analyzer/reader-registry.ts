@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.23.0.
+ * Derived from terryyin/lizard 1.24.0.
  * Source: lizard_languages/__init__.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: translated to an analyzer-internal ordered reader registry. Product
  * admission and fallback policy remain outside this module.

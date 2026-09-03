@@ -32,7 +32,7 @@ test("Go-like readers preserve every oracle suffix and edge fixture", () => {
   }
 });
 
-test("Go-like readers preserve all Lizard 1.23 upstream language scenarios", () => {
+test("Go-like readers preserve all Lizard 1.24 upstream language scenarios", () => {
   for (const { extension, expected, Reader, sourceCode } of upstreamCases) {
     assert.deepEqual(measurements(analyze(sourceCode, extension, Reader)), expected);
   }
@@ -803,7 +803,7 @@ const upstreamCases: readonly UpstreamCase[] = [
   }
 ];
 
-const fixtureRoot = "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0";
+const fixtureRoot = "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0";
 const readers: readonly [string, string, ReaderConstructor, readonly Measurement[]][] = [
   [
     "go",

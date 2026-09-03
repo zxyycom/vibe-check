@@ -3,12 +3,12 @@
   "fixtures": [
     {
       "canonicalExtension": "c",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/malformed.c",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/malformed.c",
       "kind": "unterminated-brace-nesting",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/c-like/malformed.c",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/malformed.c",
         "--csv"
       ],
       "readerClass": "CLikeReader",
@@ -17,13 +17,13 @@
     },
     {
       "canonicalExtension": "java",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/malformed.java",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/malformed.java",
       "kind": "unterminated-string-literal",
       "measurements": [
         {
           "ccn": 1,
           "endLine": 1,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/malformed.java",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/malformed.java",
           "functionName": "Sample::broken",
           "length": 1,
           "longName": "Sample::broken()",
@@ -35,7 +35,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/java/malformed.java",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/malformed.java",
         "--csv"
       ],
       "readerClass": "JavaReader",
@@ -44,12 +44,12 @@
     },
     {
       "canonicalExtension": "cs",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/malformed.cs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/malformed.cs",
       "kind": "unterminated-block-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/csharp/malformed.cs",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/malformed.cs",
         "--csv"
       ],
       "readerClass": "CSharpReader",
@@ -58,13 +58,13 @@
     },
     {
       "canonicalExtension": "js",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/malformed.js",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/malformed.js",
       "kind": "unterminated-template-literal",
       "measurements": [
         {
           "ccn": 1,
           "endLine": 1,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/malformed.js",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/malformed.js",
           "functionName": "broken",
           "length": 1,
           "longName": "broken ( value )",
@@ -76,7 +76,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/javascript/malformed.js",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/malformed.js",
         "--csv"
       ],
       "readerClass": "JavaScriptReader",
@@ -85,12 +85,12 @@
     },
     {
       "canonicalExtension": "py",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/malformed.py",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/malformed.py",
       "kind": "unterminated-declaration-bracket",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/python/malformed.py",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/malformed.py",
         "--csv"
       ],
       "readerClass": "PythonReader",
@@ -99,12 +99,12 @@
     },
     {
       "canonicalExtension": "m",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/malformed.m",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/malformed.m",
       "kind": "unterminated-block-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/objc/malformed.m",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/malformed.m",
         "--csv"
       ],
       "readerClass": "ObjCReader",
@@ -113,12 +113,12 @@
     },
     {
       "canonicalExtension": "ttcn",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/malformed.ttcn",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/malformed.ttcn",
       "kind": "unterminated-function-nesting",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ttcn/malformed.ttcn",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/malformed.ttcn",
         "--csv"
       ],
       "readerClass": "TTCNReader",
@@ -127,12 +127,12 @@
     },
     {
       "canonicalExtension": "rb",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/malformed.rb",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/malformed.rb",
       "kind": "unterminated-string-literal",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/ruby/malformed.rb",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/malformed.rb",
         "--csv"
       ],
       "readerClass": "RubyReader",
@@ -141,12 +141,12 @@
     },
     {
       "canonicalExtension": "php",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/malformed.php",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/malformed.php",
       "kind": "unterminated-block-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/php/malformed.php",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/malformed.php",
         "--csv"
       ],
       "readerClass": "PHPReader",
@@ -155,12 +155,12 @@
     },
     {
       "canonicalExtension": "swift",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/malformed.swift",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/malformed.swift",
       "kind": "unterminated-string-literal",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/swift/malformed.swift",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/malformed.swift",
         "--csv"
       ],
       "readerClass": "SwiftReader",
@@ -169,12 +169,12 @@
     },
     {
       "canonicalExtension": "scala",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/malformed.scala",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/malformed.scala",
       "kind": "unterminated-block-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/scala/malformed.scala",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/malformed.scala",
         "--csv"
       ],
       "readerClass": "ScalaReader",
@@ -183,13 +183,13 @@
     },
     {
       "canonicalExtension": "gd",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/malformed.gd",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/malformed.gd",
       "kind": "unterminated-triple-string",
       "measurements": [
         {
           "ccn": 1,
           "endLine": 2,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/malformed.gd",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/malformed.gd",
           "functionName": "broken",
           "length": 2,
           "longName": "broken( value )",
@@ -201,7 +201,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/gdscript/malformed.gd",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/malformed.gd",
         "--csv"
       ],
       "readerClass": "GDScriptReader",
@@ -210,12 +210,12 @@
     },
     {
       "canonicalExtension": "go",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/malformed.go",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/malformed.go",
       "kind": "unterminated-block-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/go/malformed.go",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/malformed.go",
         "--csv"
       ],
       "readerClass": "GoReader",
@@ -224,12 +224,12 @@
     },
     {
       "canonicalExtension": "lua",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/malformed.lua",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/malformed.lua",
       "kind": "unterminated-long-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/lua/malformed.lua",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/malformed.lua",
         "--csv"
       ],
       "readerClass": "LuaReader",
@@ -238,12 +238,12 @@
     },
     {
       "canonicalExtension": "rs",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/malformed.rs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/malformed.rs",
       "kind": "unterminated-block-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/rust/malformed.rs",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/malformed.rs",
         "--csv"
       ],
       "readerClass": "RustReader",
@@ -252,13 +252,13 @@
     },
     {
       "canonicalExtension": "ts",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/malformed.ts",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/malformed.ts",
       "kind": "unterminated-expression-bracket",
       "measurements": [
         {
           "ccn": 1,
           "endLine": 1,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/malformed.ts",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/malformed.ts",
           "functionName": "broken",
           "length": 1,
           "longName": "broken ( value )",
@@ -270,7 +270,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/typescript/malformed.ts",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/malformed.ts",
         "--csv"
       ],
       "readerClass": "TypeScriptReader",
@@ -279,12 +279,12 @@
     },
     {
       "canonicalExtension": "f90",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/malformed.f90",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/malformed.f90",
       "kind": "missing-end-if-and-function",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/fortran/malformed.f90",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/malformed.f90",
         "--csv"
       ],
       "readerClass": "FortranReader",
@@ -293,12 +293,12 @@
     },
     {
       "canonicalExtension": "kt",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/malformed.kt",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/malformed.kt",
       "kind": "unterminated-string-literal",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/kotlin/malformed.kt",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/malformed.kt",
         "--csv"
       ],
       "readerClass": "KotlinReader",
@@ -307,12 +307,12 @@
     },
     {
       "canonicalExtension": "sol",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/malformed.sol",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/malformed.sol",
       "kind": "unterminated-block-comment",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/solidity/malformed.sol",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/malformed.sol",
         "--csv"
       ],
       "readerClass": "SolidityReader",
@@ -321,13 +321,13 @@
     },
     {
       "canonicalExtension": "erl",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/malformed.erl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/malformed.erl",
       "kind": "unterminated-case-expression",
       "measurements": [
         {
           "ccn": 2,
           "endLine": 1,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/malformed.erl",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/malformed.erl",
           "functionName": "broken",
           "length": 1,
           "longName": "broken( Value )",
@@ -339,7 +339,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/erlang/malformed.erl",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/malformed.erl",
         "--csv"
       ],
       "readerClass": "ErlangReader",
@@ -348,12 +348,12 @@
     },
     {
       "canonicalExtension": "zig",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/malformed.zig",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/malformed.zig",
       "kind": "unterminated-string-literal",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/zig/malformed.zig",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/malformed.zig",
         "--csv"
       ],
       "readerClass": "ZigReader",
@@ -362,13 +362,13 @@
     },
     {
       "canonicalExtension": "tsx",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/malformed.tsx",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/malformed.tsx",
       "kind": "unterminated-jsx-expression",
       "measurements": [
         {
           "ccn": 1,
           "endLine": 1,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/malformed.tsx",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/malformed.tsx",
           "functionName": "Broken",
           "length": 1,
           "longName": "Broken ( value )",
@@ -380,7 +380,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/tsx/malformed.tsx",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/malformed.tsx",
         "--csv"
       ],
       "readerClass": "TSXReader",
@@ -389,13 +389,13 @@
     },
     {
       "canonicalExtension": "vue",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/malformed.vue",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/malformed.vue",
       "kind": "unterminated-script-string",
       "measurements": [
         {
           "ccn": 1,
           "endLine": 1,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/malformed.vue",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/malformed.vue",
           "functionName": "broken",
           "length": 1,
           "longName": "broken ( value )",
@@ -407,7 +407,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/vue/malformed.vue",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/malformed.vue",
         "--csv"
       ],
       "readerClass": "VueReader",
@@ -416,12 +416,12 @@
     },
     {
       "canonicalExtension": "pl",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/malformed.pl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/malformed.pl",
       "kind": "unterminated-block-nesting",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/perl/malformed.pl",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/malformed.pl",
         "--csv"
       ],
       "readerClass": "PerlReader",
@@ -430,13 +430,13 @@
     },
     {
       "canonicalExtension": "st",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/malformed.st",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/malformed.st",
       "kind": "missing-end-if-and-function",
       "measurements": [
         {
           "ccn": 1,
           "endLine": 2,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/malformed.st",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/malformed.st",
           "functionName": "broken",
           "length": 2,
           "longName": "broken",
@@ -448,7 +448,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/st/malformed.st",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/malformed.st",
         "--csv"
       ],
       "readerClass": "StReader",
@@ -457,13 +457,13 @@
     },
     {
       "canonicalExtension": "r",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/malformed.r",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/malformed.r",
       "kind": "unterminated-brace-nesting",
       "measurements": [
         {
           "ccn": 2,
           "endLine": 1,
-          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/malformed.r",
+          "file": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/malformed.r",
           "functionName": "broken",
           "length": 1,
           "longName": "broken( value value)",
@@ -475,7 +475,7 @@
       ],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/r/malformed.r",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/malformed.r",
         "--csv"
       ],
       "readerClass": "RReader",
@@ -484,12 +484,12 @@
     },
     {
       "canonicalExtension": "sql",
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/malformed.sql",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/malformed.sql",
       "kind": "missing-end-if-and-function",
       "measurements": [],
       "oracleCommand": [
         "lizard",
-        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.23.0/plsql/malformed.sql",
+        "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/malformed.sql",
         "--csv"
       ],
       "readerClass": "PLSQLReader",
@@ -498,10 +498,13 @@
     }
   ],
   "oracle": {
-    "command": ["lizard", "--version"],
-    "output": "1.23.0",
-    "revision": "06284ec87c1966fee4ddbf3f068ccf89b987b0f8",
-    "tag": "1.23.0"
+    "command": [
+      "lizard",
+      "--version"
+    ],
+    "output": "1.24.0",
+    "revision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "tag": "1.24.0"
   },
   "readerCount": 27,
   "schemaVersion": 1

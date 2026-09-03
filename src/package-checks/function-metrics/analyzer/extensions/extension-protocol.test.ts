@@ -1,8 +1,8 @@
 /**
- * Derived from terryyin/lizard 1.23.0 tests.
+ * Derived from terryyin/lizard 1.24.0 tests.
  * Sources: test/testExtension.py, test/testCPreprocessorExtension.py,
  * lizard_ext/extension_base.py, and lizard_ext/lizardwordcount.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: focused internal extension-protocol parity coverage.
  */

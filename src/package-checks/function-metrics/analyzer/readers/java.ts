@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.23.0.
+ * Derived from terryyin/lizard 1.24.0.
  * Source: lizard_languages/java.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: translated to TypeScript while retaining Java's source-derived
  * C-like state overrides, record handling and nested class lifecycle.
@@ -9,6 +9,67 @@
 
 import type { FileInfoBuilder } from "../core.ts";
 import { CLikeNestingStackStates, CLikeReader, CLikeStates } from "../shared/clike.ts";
+import { createJavaBodyStates } from "./java-body-states.ts";
+
+const JAVA_CLASS_MODIFIERS = new Set([
+  "public",
+  "private",
+  "protected",
+  "static",
+  "final",
+  "strictfp",
+  "abstract",
+  "synchronized",
+  "native",
+  "default",
+  "transient",
+  "volatile",
+  "sealed",
+  "non-sealed"
+]);
+const JAVA_TYPE_KEYWORDS = new Set([
+  "void",
+  "boolean",
+  "byte",
+  "char",
+  "short",
+  "int",
+  "long",
+  "float",
+  "double",
+  "var"
+]);
+export const JAVA_BRACE_COUNT: Readonly<Record<string, number>> = { "{": 1, "}": -1 };
+const JAVA_STATEMENT_KEYWORDS = new Set([
+  "if",
+  "else",
+  "for",
+  "while",
+  "do",
+  "switch",
+  "catch",
+  "try",
+  "finally",
+  "synchronized",
+  "return",
+  "throw",
+  "assert",
+  "break",
+  "continue",
+  "instanceof"
+]);
+
+function javaRecordBeginsTypeDeclaration(
+  lastToken: string | undefined,
+  afterUnqualifiedAnnotation: boolean
+): boolean {
+  if (afterUnqualifiedAnnotation || lastToken === undefined) return true;
+  if (JAVA_TYPE_KEYWORDS.has(lastToken) || lastToken === "]" || lastToken === ">") return false;
+  if (/^(?:_|\$|\{)/u.test(lastToken)) return false;
+  if (/^\p{Ll}/u.test(lastToken) && JAVA_CLASS_MODIFIERS.has(lastToken)) return true;
+  if (/^\p{Lu}/u.test(lastToken)) return false;
+  return ["{", "}", ";", ")", "@"].includes(lastToken);
+}
 
 /** Java reader with source-specific declaration and nested-class states. */
 export class JavaReader extends CLikeReader {
@@ -22,21 +83,15 @@ export class JavaReader extends CLikeReader {
 }
 
 /** Direct translation of lizard_languages.java.JavaStates. */
-class JavaStates extends CLikeStates {
+export class JavaStates extends CLikeStates {
   protected class_name: string | undefined;
   protected is_record = false;
-  private in_record_constructor = false;
+  protected in_record_constructor = false;
   protected in_method_body = false;
-  private handling_dot_class = false;
-  private handling_method_ref = false;
-
-  public constructor(context: FileInfoBuilder) {
-    super(context);
-  }
-
-  public override statemachine_clone(): JavaStates {
-    return new JavaStates(this.context);
-  }
+  protected handling_dot_class = false;
+  protected handling_method_ref = false;
+  protected _java_after_unqualified_annotation = false;
+  protected _new_generic_depth = 0;
 
   protected _consume_java_expression_tokens(token: string): boolean {
     if (token === "::") {
@@ -65,7 +120,7 @@ class JavaStates extends CLikeStates {
   protected override _state_imp(token: string): void {
     this.in_method_body = true;
     this.subState(
-      new JavaFunctionBodyStates(this.context),
+      new JavaFunctionBodyStates(this.context, true),
       () => {
         this.in_method_body = false;
         this.next(this.globalState);
@@ -86,8 +141,9 @@ class JavaStates extends CLikeStates {
     }
   }
 
-  protected _try_start_a_class(token: string): boolean {
+  protected _try_start_a_class(token: string, afterUnqualifiedAnnotation = false): boolean {
     if (token === "class" || token === "enum") {
+      this._java_after_unqualified_annotation = false;
       this.class_name = undefined;
       this.is_record = false;
       this.in_record_constructor = false;
@@ -96,7 +152,15 @@ class JavaStates extends CLikeStates {
     }
     if (token === "record") {
       if (this.in_method_body) return false;
-      this.next(this._state_after_record_keyword);
+      if (!javaRecordBeginsTypeDeclaration(this.lastToken, afterUnqualifiedAnnotation)) {
+        this._java_after_unqualified_annotation = false;
+        return false;
+      }
+      this._java_after_unqualified_annotation = false;
+      this.class_name = undefined;
+      this.is_record = true;
+      this.in_record_constructor = false;
+      this.next(this._state_class_declaration);
       return true;
     }
     return false;
@@ -104,42 +168,34 @@ class JavaStates extends CLikeStates {
 
   public override _state_global(token: string): void {
     if (this._consume_java_expression_tokens(token)) return;
+    const useAfterAnnotation = this._java_after_unqualified_annotation;
+    if (token !== "record") this._java_after_unqualified_annotation = false;
     if (token === "@") {
       this.next(this._state_decorator);
       return;
     }
-    if (this._try_start_a_class(token)) return;
+    if (this._try_start_a_class(token, useAfterAnnotation)) return;
+    if (JAVA_STATEMENT_KEYWORDS.has(token)) return;
     if (!this.in_record_constructor) super._state_global(token);
   }
 
-  private readonly _state_decorator = (_token: string): void => {
+  protected readonly _state_decorator = (_token: string): void => {
     this.next(this._state_post_decorator);
   };
 
-  private readonly _state_annotation_arguments = (token: string): void => {
+  protected readonly _state_annotation_arguments = (token: string): void => {
     this.readInsideBracketsThen("()", token, this.ignoreJavaToken, this.globalState);
   };
 
-  private readonly _state_post_decorator = (token: string): void => {
+  protected readonly _state_post_decorator = (token: string): void => {
     if (token === ".") {
       this.next(this._state_decorator);
     } else if (token === "(") {
       this.next(this._state_annotation_arguments, token);
     } else {
-      this.next(this.globalState, token);
+      this._java_after_unqualified_annotation = true;
+      this.next(this.globalState);
     }
-  };
-
-  private readonly _state_after_record_keyword = (token: string): void => {
-    if (isAlphabetic(token) || token.startsWith("_")) {
-      this.class_name = undefined;
-      this.is_record = true;
-      this.in_record_constructor = false;
-      this.next(this._state_class_declaration, token);
-      return;
-    }
-    this.try_new_function("record");
-    this.consume(token);
   };
 
   private readonly _state_class_declaration = (token: string): void => {
@@ -151,7 +207,7 @@ class JavaStates extends CLikeStates {
       );
     } else if (token === "(") {
       this.next(this._state_record_parameters);
-    } else if (isAlphabetic(token) && this.class_name === undefined) {
+    } else if (/^\p{L}/u.test(token) && this.class_name === undefined) {
       this.class_name = token;
     }
   };
@@ -175,115 +231,40 @@ class JavaStates extends CLikeStates {
     }
   };
 
-  private readonly ignoreJavaToken = (_token: string): void => {};
-}
-
-/** Direct translation of lizard_languages.java.JavaFunctionBodyStates. */
-class JavaFunctionBodyStates extends JavaStates {
-  private ignore_tokens = false;
-
-  public constructor(context: FileInfoBuilder) {
-    super(context);
-    this.in_method_body = true;
-  }
-
-  public override _state_global(token: string): void {
-    this.readInsideBracketsThen("{}", token, this.stateInsideBraces, this._state_dummy);
-  }
-
-  private readonly stateInsideBraces = (token: string): void => {
-    this.readInsideBracketsThen("()", token, this.stateFunctionBody, this._state_dummy);
-  };
-
-  private readonly stateFunctionBody = (token: string): void => {
-    if (this._consume_java_expression_tokens(token)) return;
-    if (this.ignore_tokens) {
-      this.ignore_tokens = false;
-      return;
-    }
-    if (token === "new") {
-      this.next(this._state_new);
-    } else {
-      if (this._try_start_a_class(token)) return;
-      if (this.bracketCount === 0) this.returnFromState();
-    }
-  };
-
-  private readonly _state_dummy = (_token: string): void => {};
-
-  private readonly _state_new = (_token: string): void => {
+  protected readonly _state_new = (_token: string): void => {
+    this._new_generic_depth = 0;
     this.next(this._state_new_parameters);
   };
 
-  private readonly _state_new_parameters = (token: string): void => {
+  protected readonly _state_new_parameters = (token: string): void => {
+    if (this._new_generic_depth > 0 || token.startsWith("<")) {
+      this._new_generic_depth += countCharacters(token, "<") - countCharacters(token, ">");
+      return;
+    }
     if (token === "(") {
-      this.subState(new JavaFunctionBodyStates(this.context), undefined, token);
-    } else if (token === "{") {
+      this.subState(new JavaFunctionBodyStates(this.context, false), undefined, token);
+      return;
+    }
+    if (token === "{") {
       this.subState(
         new JavaClassBodyStates("(anonymous)", false, this.context),
         () => this.next(this.globalState),
         token
       );
-    } else {
-      this.next(this.globalState, token);
+      return;
     }
+    if (token === "." || /^\p{L}/u.test(token) || token.startsWith("_")) return;
+    this.next(this.globalState, token);
   };
+
+  private readonly ignoreJavaToken = (_token: string): void => {};
 }
 
-/** Direct translation of lizard_languages.java.JavaClassBodyStates. */
-class JavaClassBodyStates extends JavaStates {
-  private _after_static_keyword = false;
-  private _body_brace_depth = 0;
+const { JavaClassBodyStates, JavaFunctionBodyStates } = createJavaBodyStates(
+  JavaStates,
+  JAVA_BRACE_COUNT
+);
 
-  public constructor(class_name: string | undefined, is_record: boolean, context: FileInfoBuilder) {
-    super(context);
-    this.class_name = class_name;
-    this.is_record = is_record;
-  }
-
-  private _handle_class_body_brace(token: string): boolean {
-    if (token === "{") {
-      if (this.lastToken !== undefined) this._body_brace_depth += 1;
-      return false;
-    }
-    if (token === "}") {
-      if (this._body_brace_depth > 0) {
-        this._body_brace_depth -= 1;
-        return false;
-      }
-      return true;
-    }
-    return false;
-  }
-
-  public override _state_global(token: string): void {
-    if (this._after_static_keyword) {
-      this._after_static_keyword = false;
-      if (token === "{") {
-        this.subState(new JavaFunctionBodyStates(this.context), () => {}, token);
-        return;
-      }
-      super._state_global("static");
-      super._state_global(token);
-      if (this._handle_class_body_brace(token)) this.returnFromState();
-      return;
-    }
-
-    if (token === "static") {
-      this._after_static_keyword = true;
-      return;
-    }
-
-    if (token === "{" && ["{", "}", ";"].includes(this.lastToken ?? "")) {
-      this.subState(new JavaFunctionBodyStates(this.context), () => {}, token);
-      return;
-    }
-
-    super._state_global(token);
-    if (this._handle_class_body_brace(token)) this.returnFromState();
-  }
-}
-
-function isAlphabetic(token: string): boolean {
-  return /^\p{L}/u.test(token);
+function countCharacters(value: string, character: string): number {
+  return value.split(character).length - 1;
 }

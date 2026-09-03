@@ -1,6 +1,6 @@
 # Lizard upstream advisory
 
-此仓库维护命令显式查询 Lizard 的 GitHub stable release，并将其与首轮 analyzer baseline `1.23.0` 比较；它只提示维护者，不修改代码、依赖、Decision 或支持范围。
+此仓库维护命令显式查询 Lizard 的 GitHub stable release，并将其与当前 analyzer baseline `1.24.0` 比较；它只提示维护者，不修改代码、依赖、Decision 或支持范围。
 
 ## Run
 
@@ -16,7 +16,7 @@ bun run maintenance:lizard-upstream
 
 标准输出为一个 JSON advisory：
 
-- `no-update` / `lizard-upstream-no-update`：latest stable release 不高于 `1.23.0`。
+- `no-update` / `lizard-upstream-no-update`：latest stable release 不高于 `1.24.0`。
 - `update-available` / `lizard-upstream-update-available`：发现更高 stable release；维护者需建立独立 Change 后才可采用。
 - `unavailable`：`cancelled`、`timeout`、`network-error`、`http-error`、`response-too-large` 或 `response-invalid` 之一。它不伪造“无更新”，也不产生自动重试或阻断性结果。
 

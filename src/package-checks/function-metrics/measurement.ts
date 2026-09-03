@@ -107,7 +107,7 @@ async function readBoundedSource(
 }
 
 /**
- * Product-owned replacement for Lizard 1.23 `auto_open.auto_read` at the
+ * Product-owned replacement for Lizard 1.24 `auto_open.auto_read` at the
  * admitted-source boundary. A valid initial UTF-8 BOM is `utf-8-sig` and text
  * newlines are universal; a decoding failure retries the complete byte sequence
  * with Python's `errors="ignore"`, which deliberately retains an initial BOM

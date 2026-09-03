@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.23.0 tests.
+ * Derived from terryyin/lizard 1.24.0 tests.
  * Sources: test/test_languages/testPHP.py and test/test_languages/testPLSQL.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: direct fixture and high-risk reader parity coverage.
  */
@@ -16,7 +16,7 @@ import { analyzeSourceCode, type FunctionInfo, type ReaderConstructor } from "..
 import { PHPReader } from "./php.ts";
 import { PLSQLReader } from "./plsql.ts";
 
-const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.23.0");
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.0");
 
 test("PHP and PL/SQL readers preserve every checked-in suffix and edge fixture", () => {
   for (const fixture of ["normal.php", "edge.php"]) {
@@ -65,6 +65,24 @@ $arrow = fn($value) => $value;
       measurement("Carrier::(anonymous)", 10, 10, 1, 1, 1)
     ]
   );
+
+  for (const sourceCode of [
+    "<?php function f() { return $x ?? ''; } ?>",
+    "<?php function f() { $x ??= 5; } ?>",
+    "<?php function f() { return $obj?->name; } ?>",
+    "<?php function f() { return $a ?: 'n'; } ?>"
+  ]) {
+    const [functionInfo] = analyze("question-operator.php", sourceCode, PHPReader);
+    assert.equal(functionInfo?.maxNestingDepth, 0);
+    assert.equal(functionInfo?.cyclomaticComplexity, 1);
+  }
+  assert.deepEqual(
+    [...PHPReader.generateTokens("<?php $x ??= $obj?->value ?? $fallback ?: 'default'; ?>")].filter(
+      (token) => token.includes("?")
+    ),
+    ["??=", "?->", "??", "?:"]
+  );
+  assert.ok([...PHPReader.generateTokens("<?php $value ? 'yes' : 'no'; ?>")].includes("?"));
 });
 
 test("PL/SQL preserves package procedures/functions/nesting/exception/control flow/parameters and triggers", () => {

@@ -1,6 +1,6 @@
 # translated-function-analyzers-clike
 
-## Case FM-ANALYZER-READERS-D-001: translated C-like readers preserve Lizard 1.23 direct function facts
+## Case FM-ANALYZER-READERS-D-001: translated C-like readers preserve Lizard 1.24 direct function facts
 
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
@@ -15,6 +15,6 @@ Entities:
 
 Proves:
 
-- The existing shared CLikeReader preserves every current C/C++ suffix and its normal/edge Lizard 1.23 oracle facts without a redundant concrete wrapper.
+- The existing shared CLikeReader preserves every current C/C++ suffix and its normal/edge Lizard 1.24 oracle facts without a redundant concrete wrapper.
 - Java, C#, Objective-C, and TTCN reader-local translations preserve all checked-in suffix/edge observations and their class qualification, annotations/generic declaration, expression-bodied member, Objective-C selector, and TTCN testcase naming behavior. Java further retains record/compact-constructor exclusion, local/anonymous/static class state, Java expression token skipping and old-C parameter transitions; C# retains primary-constructor exclusion, ordinary constructor qualification and its full condition categories; Objective-C retains typedef suppression and multi-selector long names; TTCN retains C-like macro preprocessing, function/testcase/control names, `runs on`/return signatures and its special tokenizer annotations.
 - These entities prove direct in-memory reader behavior only. Reader registry selection, Check integration, cancellation/resource enforcement, and removal of the Lizard runtime remain separately owned boundaries.

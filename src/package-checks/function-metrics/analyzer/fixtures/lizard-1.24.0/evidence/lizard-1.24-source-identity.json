@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "provenancePath": "licenses/lizard-1.23.0-provenance.json",
+  "provenancePath": "licenses/lizard-1.24.0-provenance.json",
   "scope": "Every root-provenance entry whose status is translated; module definitions plus class identities, class fields, instance fields, callbacks, and named host seams only. Local variables remain out of scope.",
   "mappingVocabulary": [
     "direct",
@@ -15,10 +15,10 @@
     "field-initializer-host-seam"
   ],
   "counts": {
-    "entries": 42,
-    "targets": 37,
+    "entries": 44,
+    "targets": 39,
     "classes": 81,
-    "symbols": 792
+    "symbols": 796
   },
   "entries": [
     {
@@ -38,7 +38,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 280-583",
+      "sourceRange": "lines 287-590",
       "moduleFunctions": [
         {
           "sourceName": "preprocessing",
@@ -709,7 +709,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 607-620",
+      "sourceRange": "lines 614-627",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -732,7 +732,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 623-625",
+      "sourceRange": "lines 630-632",
       "moduleFunctions": [
         {
           "sourceName": "map_files_to_analyzer",
@@ -747,7 +747,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 681-788",
+      "sourceRange": "lines 688-795",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -873,7 +873,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 1012-1022",
+      "sourceRange": "lines 1045-1055",
       "moduleFunctions": [
         {
           "sourceName": "parse_args",
@@ -889,7 +889,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 1081-1102",
+      "sourceRange": "lines 1114-1135",
       "moduleFunctions": [
         {
           "sourceName": "get_extensions",
@@ -904,7 +904,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 1155-1158",
+      "sourceRange": "lines 1189-1192",
       "moduleFunctions": [
         {
           "sourceName": "print_extension_results",
@@ -2408,140 +2408,10 @@
     },
     {
       "sourcePath": "lizard_languages/java.py",
-      "sourceRange": "lines 1-252",
+      "sourceRange": "lines 1-225",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
-        {
-          "sourceName": "JavaClassBodyStates",
-          "targetName": "JavaClassBodyStates",
-          "methods": [
-            {
-              "sourceName": "__init__",
-              "target": {
-                "symbol": "constructor"
-              },
-              "mapping": "python-constructor",
-              "reason": "Python initializer is represented by the TypeScript class constructor."
-            },
-            {
-              "sourceName": "_handle_class_body_brace",
-              "target": {
-                "symbol": "_handle_class_body_brace"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_global",
-              "target": {
-                "symbol": "_state_global"
-              },
-              "mapping": "direct"
-            }
-          ],
-          "classFields": [],
-          "instanceFields": [
-            {
-              "sourceName": "_after_static_keyword",
-              "target": {
-                "symbol": "_after_static_keyword",
-                "static": false
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_body_brace_depth",
-              "target": {
-                "symbol": "_body_brace_depth",
-                "static": false
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "class_name",
-              "target": {
-                "symbol": "class_name",
-                "className": "JavaStates",
-                "static": false
-              },
-              "mapping": "inherited-source-storage",
-              "reason": "The source assignment is inherited storage owned by the translated parent state class."
-            },
-            {
-              "sourceName": "is_record",
-              "target": {
-                "symbol": "is_record",
-                "className": "JavaStates",
-                "static": false
-              },
-              "mapping": "inherited-source-storage",
-              "reason": "The source assignment is inherited storage owned by the translated parent state class."
-            }
-          ]
-        },
-        {
-          "sourceName": "JavaFunctionBodyStates",
-          "targetName": "JavaFunctionBodyStates",
-          "methods": [
-            {
-              "sourceName": "__init__",
-              "target": {
-                "symbol": "constructor"
-              },
-              "mapping": "python-constructor",
-              "reason": "Python initializer is represented by the TypeScript class constructor."
-            },
-            {
-              "sourceName": "_state_dummy",
-              "target": {
-                "symbol": "_state_dummy"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_global",
-              "target": {
-                "symbol": "_state_global"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_new",
-              "target": {
-                "symbol": "_state_new"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_new_parameters",
-              "target": {
-                "symbol": "_state_new_parameters"
-              },
-              "mapping": "direct"
-            }
-          ],
-          "classFields": [],
-          "instanceFields": [
-            {
-              "sourceName": "ignore_tokens",
-              "target": {
-                "symbol": "ignore_tokens",
-                "static": false
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "in_method_body",
-              "target": {
-                "symbol": "in_method_body",
-                "className": "JavaStates",
-                "static": false
-              },
-              "mapping": "inherited-source-storage",
-              "reason": "The source assignment is inherited storage owned by the translated parent state class."
-            }
-          ]
-        },
         {
           "sourceName": "JavaReader",
           "targetName": "JavaReader",
@@ -2598,57 +2468,20 @@
             {
               "sourceName": "__init__",
               "target": {
-                "symbol": "constructor"
+                "symbol": "constructor",
+                "className": "CLikeStates",
+                "provenance": {
+                  "sourcePath": "lizard_languages/clike.py",
+                  "sourceRange": "lines 1-400"
+                }
               },
-              "mapping": "python-constructor",
-              "reason": "Python initializer is represented by the TypeScript class constructor."
+              "mapping": "inherited-source-storage",
+              "reason": "The source initializer is represented by inherited CLikeStates constructor storage in the TypeScript state hierarchy."
             },
             {
               "sourceName": "_consume_java_expression_tokens",
               "target": {
                 "symbol": "_consume_java_expression_tokens"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_after_record_keyword",
-              "target": {
-                "symbol": "_state_after_record_keyword"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_annotation_arguments",
-              "target": {
-                "symbol": "_state_annotation_arguments"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_class_declaration",
-              "target": {
-                "symbol": "_state_class_declaration"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_decorator",
-              "target": {
-                "symbol": "_state_decorator"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_global",
-              "target": {
-                "symbol": "_state_global"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "_state_imp",
-              "target": {
-                "symbol": "_state_imp"
               },
               "mapping": "direct"
             },
@@ -2660,9 +2493,65 @@
               "mapping": "direct"
             },
             {
+              "sourceName": "_state_imp",
+              "target": {
+                "symbol": "_state_imp"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "try_new_function",
+              "target": {
+                "symbol": "try_new_function"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_try_start_a_class",
+              "target": {
+                "symbol": "_try_start_a_class"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_state_global",
+              "target": {
+                "symbol": "_state_global"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_state_decorator",
+              "target": {
+                "symbol": "_state_decorator"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_state_annotation_arguments",
+              "target": {
+                "symbol": "_state_annotation_arguments"
+              },
+              "mapping": "direct"
+            },
+            {
               "sourceName": "_state_post_decorator",
               "target": {
                 "symbol": "_state_post_decorator"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_state_class_declaration",
+              "target": {
+                "symbol": "_state_class_declaration"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_state_record_parameters",
+              "target": {
+                "symbol": "_state_record_parameters"
               },
               "mapping": "direct"
             },
@@ -2681,23 +2570,16 @@
               "mapping": "direct"
             },
             {
-              "sourceName": "_state_record_parameters",
+              "sourceName": "_state_new",
               "target": {
-                "symbol": "_state_record_parameters"
+                "symbol": "_state_new"
               },
               "mapping": "direct"
             },
             {
-              "sourceName": "_try_start_a_class",
+              "sourceName": "_state_new_parameters",
               "target": {
-                "symbol": "_try_start_a_class"
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "try_new_function",
-              "target": {
-                "symbol": "try_new_function"
+                "symbol": "_state_new_parameters"
               },
               "mapping": "direct"
             }
@@ -2727,6 +2609,30 @@
               "mapping": "direct"
             },
             {
+              "sourceName": "is_record",
+              "target": {
+                "symbol": "is_record",
+                "static": false
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "in_record_constructor",
+              "target": {
+                "symbol": "in_record_constructor",
+                "static": false
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "in_method_body",
+              "target": {
+                "symbol": "in_method_body",
+                "static": false
+              },
+              "mapping": "direct"
+            },
+            {
               "sourceName": "handling_dot_class",
               "target": {
                 "symbol": "handling_dot_class",
@@ -2743,25 +2649,162 @@
               "mapping": "direct"
             },
             {
-              "sourceName": "in_method_body",
+              "sourceName": "_java_after_unqualified_annotation",
               "target": {
-                "symbol": "in_method_body",
+                "symbol": "_java_after_unqualified_annotation",
                 "static": false
               },
               "mapping": "direct"
             },
             {
-              "sourceName": "in_record_constructor",
+              "sourceName": "_new_generic_depth",
               "target": {
-                "symbol": "in_record_constructor",
+                "symbol": "_new_generic_depth",
                 "static": false
               },
               "mapping": "direct"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sourcePath": "lizard_languages/java_body_states.py",
+      "sourceRange": "lines 1-102",
+      "moduleFunctions": [],
+      "moduleFields": [],
+      "classes": [
+        {
+          "sourceName": "JavaFunctionBodyStates",
+          "targetName": "JavaFunctionBodyStates",
+          "methods": [
+            {
+              "sourceName": "__init__",
+              "target": {
+                "symbol": "constructor"
+              },
+              "mapping": "python-constructor",
+              "reason": "Python initializer is represented by the TypeScript class constructor."
+            },
+            {
+              "sourceName": "_state_global",
+              "target": {
+                "symbol": "_state_global"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_state_dummy",
+              "target": {
+                "symbol": "_state_dummy"
+              },
+              "mapping": "direct"
+            }
+          ],
+          "classFields": [],
+          "instanceFields": [
+            {
+              "sourceName": "in_method_body",
+              "target": {
+                "symbol": "in_method_body",
+                "className": "JavaStates",
+                "static": false,
+                "provenance": {
+                  "sourcePath": "lizard_languages/java.py",
+                  "sourceRange": "lines 1-225"
+                }
+              },
+              "mapping": "inherited-source-storage",
+              "reason": "The source assignment is inherited storage owned by the translated parent state class."
+            },
+            {
+              "sourceName": "ignore_tokens",
+              "target": {
+                "symbol": "ignore_tokens",
+                "static": false
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_exit_with_brace_depth",
+              "target": {
+                "symbol": "_exit_with_brace_depth",
+                "static": false
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_java_block_brace",
+              "target": {
+                "symbol": "_java_block_brace",
+                "static": false
+              },
+              "mapping": "direct"
+            }
+          ]
+        },
+        {
+          "sourceName": "JavaClassBodyStates",
+          "targetName": "JavaClassBodyStates",
+          "methods": [
+            {
+              "sourceName": "__init__",
+              "target": {
+                "symbol": "constructor"
+              },
+              "mapping": "python-constructor",
+              "reason": "Python initializer is represented by the TypeScript class constructor."
+            },
+            {
+              "sourceName": "_state_global",
+              "target": {
+                "symbol": "_state_global"
+              },
+              "mapping": "direct"
+            }
+          ],
+          "classFields": [],
+          "instanceFields": [
+            {
+              "sourceName": "class_name",
+              "target": {
+                "symbol": "class_name",
+                "className": "JavaStates",
+                "static": false,
+                "provenance": {
+                  "sourcePath": "lizard_languages/java.py",
+                  "sourceRange": "lines 1-225"
+                }
+              },
+              "mapping": "inherited-source-storage",
+              "reason": "The source assignment is inherited storage owned by the translated parent state class."
             },
             {
               "sourceName": "is_record",
               "target": {
                 "symbol": "is_record",
+                "className": "JavaStates",
+                "static": false,
+                "provenance": {
+                  "sourcePath": "lizard_languages/java.py",
+                  "sourceRange": "lines 1-225"
+                }
+              },
+              "mapping": "inherited-source-storage",
+              "reason": "The source assignment is inherited storage owned by the translated parent state class."
+            },
+            {
+              "sourceName": "_after_static_keyword",
+              "target": {
+                "symbol": "_after_static_keyword",
+                "static": false
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_class_body_brace",
+              "target": {
+                "symbol": "_class_body_brace",
                 "static": false
               },
               "mapping": "direct"
@@ -3155,7 +3198,7 @@
     },
     {
       "sourcePath": "lizard_languages/objc.py",
-      "sourceRange": "lines 1-73",
+      "sourceRange": "lines 1-86",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -3635,7 +3678,109 @@
     },
     {
       "sourcePath": "lizard_languages/php.py",
-      "sourceRange": "lines 1-272",
+      "sourceRange": "lines 1-46",
+      "moduleFunctions": [],
+      "moduleFields": [],
+      "classes": [
+        {
+          "sourceName": "PHPReader",
+          "targetName": "PHPReader",
+          "methods": [
+            {
+              "sourceName": "__init__",
+              "target": {
+                "symbol": "constructor"
+              },
+              "mapping": "python-constructor",
+              "reason": "Python initializer is represented by the TypeScript class constructor."
+            },
+            {
+              "sourceName": "generate_tokens",
+              "target": {
+                "symbol": "generateTokens",
+                "static": true
+              },
+              "mapping": "source-name-host-alias",
+              "reason": "The fixed AnalyzerReader TypeScript host surface uses generateTokens; CodeReader.generate_tokens delegates to that same subclass storage."
+            }
+          ],
+          "classFields": [
+            {
+              "sourceName": "_case_keywords",
+              "target": {
+                "symbol": "caseKeywords",
+                "static": true
+              },
+              "mapping": "source-name-host-alias",
+              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
+            },
+            {
+              "sourceName": "_control_flow_keywords",
+              "target": {
+                "symbol": "controlFlowKeywords",
+                "static": true
+              },
+              "mapping": "source-name-host-alias",
+              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
+            },
+            {
+              "sourceName": "_logical_operators",
+              "target": {
+                "symbol": "logicalOperators",
+                "static": true
+              },
+              "mapping": "source-name-host-alias",
+              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
+            },
+            {
+              "sourceName": "_ternary_operators",
+              "target": {
+                "symbol": "ternaryOperators",
+                "static": true
+              },
+              "mapping": "source-name-host-alias",
+              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
+            },
+            {
+              "sourceName": "ext",
+              "target": {
+                "symbol": "ext",
+                "static": true
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "language_names",
+              "target": {
+                "symbol": "languageNames",
+                "static": true
+              },
+              "mapping": "source-name-host-alias",
+              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
+            }
+          ],
+          "instanceFields": [
+            {
+              "sourceName": "parallel_states",
+              "target": {
+                "symbol": "parallelStates",
+                "className": "CodeReader",
+                "static": false,
+                "provenance": {
+                  "sourcePath": "lizard_languages/code_reader.py",
+                  "sourceRange": "lines 1-238"
+                }
+              },
+              "mapping": "inherited-source-storage",
+              "reason": "The source field is inherited from CodeReader and remains one shared reader storage slot."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sourcePath": "lizard_languages/php_states.py",
+      "sourceRange": "lines 1-235",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -3891,100 +4036,6 @@
                 "static": false
               },
               "mapping": "direct"
-            }
-          ]
-        },
-        {
-          "sourceName": "PHPReader",
-          "targetName": "PHPReader",
-          "methods": [
-            {
-              "sourceName": "__init__",
-              "target": {
-                "symbol": "constructor"
-              },
-              "mapping": "python-constructor",
-              "reason": "Python initializer is represented by the TypeScript class constructor."
-            },
-            {
-              "sourceName": "generate_tokens",
-              "target": {
-                "symbol": "generateTokens",
-                "static": true
-              },
-              "mapping": "source-name-host-alias",
-              "reason": "The fixed AnalyzerReader TypeScript host surface uses generateTokens; CodeReader.generate_tokens delegates to that same subclass storage."
-            }
-          ],
-          "classFields": [
-            {
-              "sourceName": "_case_keywords",
-              "target": {
-                "symbol": "caseKeywords",
-                "static": true
-              },
-              "mapping": "source-name-host-alias",
-              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
-            },
-            {
-              "sourceName": "_control_flow_keywords",
-              "target": {
-                "symbol": "controlFlowKeywords",
-                "static": true
-              },
-              "mapping": "source-name-host-alias",
-              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
-            },
-            {
-              "sourceName": "_logical_operators",
-              "target": {
-                "symbol": "logicalOperators",
-                "static": true
-              },
-              "mapping": "source-name-host-alias",
-              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
-            },
-            {
-              "sourceName": "_ternary_operators",
-              "target": {
-                "symbol": "ternaryOperators",
-                "static": true
-              },
-              "mapping": "source-name-host-alias",
-              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
-            },
-            {
-              "sourceName": "ext",
-              "target": {
-                "symbol": "ext",
-                "static": true
-              },
-              "mapping": "direct"
-            },
-            {
-              "sourceName": "language_names",
-              "target": {
-                "symbol": "languageNames",
-                "static": true
-              },
-              "mapping": "source-name-host-alias",
-              "reason": "The TypeScript reader definition uses one camel-case storage field; CodeReader exposes the source spelling as a static single-storage alias."
-            }
-          ],
-          "instanceFields": [
-            {
-              "sourceName": "parallel_states",
-              "target": {
-                "symbol": "parallelStates",
-                "className": "CodeReader",
-                "static": false,
-                "provenance": {
-                  "sourcePath": "lizard_languages/code_reader.py",
-                  "sourceRange": "lines 1-238"
-                }
-              },
-              "mapping": "inherited-source-storage",
-              "reason": "The source field is inherited from CodeReader and remains one shared reader storage slot."
             }
           ]
         }
@@ -4298,7 +4349,7 @@
     },
     {
       "sourcePath": "lizard_languages/python.py",
-      "sourceRange": "lines 1-261",
+      "sourceRange": "lines 1-393",
       "moduleFunctions": [
         {
           "sourceName": "count_spaces",
@@ -7158,7 +7209,7 @@
     },
     {
       "sourcePath": "lizard_languages/golike.py",
-      "sourceRange": "lines 1-84",
+      "sourceRange": "lines 1-93",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -7209,9 +7260,9 @@
               "mapping": "direct"
             },
             {
-              "sourceName": "_generalize",
+              "sourceName": "_skip_type_parameters",
               "target": {
-                "symbol": "_generalize"
+                "symbol": "_skip_type_parameters"
               },
               "mapping": "direct"
             },
@@ -7275,6 +7326,22 @@
               },
               "mapping": "inherited-source-storage",
               "reason": "The source state field is inherited from CodeStateMachine and retains its source-spelled alias or storage there."
+            },
+            {
+              "sourceName": "_type_param_open",
+              "target": {
+                "symbol": "_type_param_open",
+                "static": false
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_type_param_close",
+              "target": {
+                "symbol": "_type_param_close",
+                "static": false
+              },
+              "mapping": "direct"
             }
           ]
         }
@@ -7469,7 +7536,7 @@
     },
     {
       "sourcePath": "lizard_languages/script_language.py",
-      "sourceRange": "lines 1-31",
+      "sourceRange": "lines 1-34",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [

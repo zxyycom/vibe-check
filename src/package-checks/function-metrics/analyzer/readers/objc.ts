@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.23.0.
+ * Derived from terryyin/lizard 1.24.0.
  * Source: lizard_languages/objc.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: translated to TypeScript while retaining Objective-C's CLikeStates
  * declaration override, selector lifecycle and typedef suppression.
@@ -27,6 +27,8 @@ export class ObjCReader extends CLikeReader {
 
 /** Direct translation of lizard_languages.objc.ObjCStates. */
 class ObjCStates extends CLikeStates {
+  private _objc_param_paren_depth = 0;
+
   public override statemachine_clone(): ObjCStates {
     return new ObjCStates(this.context);
   }
@@ -65,6 +67,7 @@ class ObjCStates extends CLikeStates {
 
   private readonly _state_objc_dec = (token: string): void => {
     if (token === "(") {
+      this._objc_param_paren_depth = 0;
       this.next(this._state_objc_param_type);
       this.context.addToLongFunctionName(token);
     } else if (token === ",") {
@@ -78,7 +81,15 @@ class ObjCStates extends CLikeStates {
   };
 
   private readonly _state_objc_param_type = (token: string): void => {
-    if (token === ")") this.next(this._state_objc_param);
+    if (token === "(") {
+      this._objc_param_paren_depth += 1;
+    } else if (token === ")") {
+      if (this._objc_param_paren_depth > 0) {
+        this._objc_param_paren_depth -= 1;
+      } else {
+        this.next(this._state_objc_param);
+      }
+    }
     this.context.addToLongFunctionName(` ${token}`);
   };
 

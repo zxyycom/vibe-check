@@ -11,7 +11,7 @@ import { JavaReader } from "./java.ts";
 import { ObjCReader } from "./objc.ts";
 import { TTCNReader } from "./ttcn.ts";
 
-const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.23.0");
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.0");
 
 test("C-like shared reader preserves every C and C++ suffix plus the edge oracle", () => {
   for (const suffix of ["c", "cpp", "cc", "cxx", "h", "hpp"]) {
@@ -121,6 +121,27 @@ test("Java retains annotations, records, local and anonymous classes, static blo
       sourceCode:
         'class Processor { void process() { List<String> names = Arrays.asList("Alice"); names.forEach(System.out::println); Class<?> type = String.class; } }',
       expected: [{ ccn: 1, name: "Processor::process", parameterCount: 0 }]
+    },
+    {
+      sourceCode:
+        "class T { private ThreadLocal<Long> value = new ThreadLocal<Long>() { @Override protected Long initialValue() { return 0L; } }; void realMethod() {} }",
+      expected: [
+        { ccn: 1, name: "(anonymous)::initialValue", parameterCount: 0 },
+        { ccn: 1, name: "T::realMethod", parameterCount: 0 }
+      ]
+    },
+    {
+      sourceCode:
+        'class LizardTest { private String[] values = {}; static { if (true) {} } private String record; @Transactional public void test1() { if (ready) {} for (;;) {} } private String record(String name) { if (name.equals("a")) {} for (;;) {} return ""; } }',
+      expected: [
+        { ccn: 3, name: "LizardTest::test1", parameterCount: 0 },
+        { ccn: 3, name: "LizardTest::record", parameterCount: 1 }
+      ]
+    },
+    {
+      sourceCode:
+        "class A { static { if (x) {} while (x) {} for (;;) {} switch (x) {} synchronized (lock) {} try {} catch (Exception e) {} } void m() {} }",
+      expected: [{ ccn: 1, name: "A::m", parameterCount: 0 }]
     }
   ];
 
@@ -197,6 +218,25 @@ test("Objective-C retains C-like declarations, selectors, typedef skipping, and 
           parameterCount: 0
         },
         { ccn: 2, name: "classMethod", parameterCount: 0 }
+      ]
+    },
+    {
+      sourceCode: `@implementation TestLizard
++ (UIImage *)sgb_imageWithSize:(CGSize)size drawBlock:(void (^)(CGContextRef context))drawBlock {
+ if (!drawBlock) return nil;
+ return nil;
+}
+- (void)runWithCallback:(int (*)(int))cb { return; }
+@end`,
+      expected: [
+        {
+          ccn: 2,
+          endLine: 5,
+          name: "sgb_imageWithSize: drawBlock:",
+          parameterCount: 0,
+          startLine: 2
+        },
+        { ccn: 1, name: "runWithCallback:", parameterCount: 0 }
       ]
     }
   ];
@@ -304,9 +344,11 @@ function compactMeasurements(
 ): readonly CompactMeasurement[] {
   return functions.map((functionInfo, index) => ({
     ccn: functionInfo.cyclomaticComplexity,
+    ...(expected[index]?.endLine === undefined ? {} : { endLine: functionInfo.endLine }),
     ...(expected[index]?.longName === undefined ? {} : { longName: functionInfo.longName }),
     name: functionInfo.name,
-    parameterCount: functionInfo.parameterCount
+    parameterCount: functionInfo.parameterCount,
+    ...(expected[index]?.startLine === undefined ? {} : { startLine: functionInfo.startLine })
   }));
 }
 
@@ -321,9 +363,11 @@ type FunctionMeasurement = Readonly<{
 
 type CompactMeasurement = Readonly<{
   readonly ccn: number;
+  readonly endLine?: number;
   readonly longName?: string;
   readonly name: string;
   readonly parameterCount: number;
+  readonly startLine?: number;
 }>;
 
 type ReaderCase = Readonly<{

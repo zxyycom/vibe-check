@@ -174,10 +174,10 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     }
     assert.match(
       readFileSync(join(artifact.stagingDirectory, PACKAGE_THIRD_PARTY_NOTICES_PATH), "utf8"),
-      /19 Lizard concrete extension bodies and two extension-only support/u
+      /22 Lizard concrete extension bodies \(the 19 legacy bodies plus three new Halstead modules\) and two extension-only support/u
     );
     assert.equal(
-      artifact.files.some((path) => path.includes("/analyzer/fixtures/lizard-1.23.0/")),
+      artifact.files.some((path) => path.includes("/analyzer/fixtures/")),
       false
     );
     assert.deepEqual(manifest.engines, { bun: ">=1.3.14" });

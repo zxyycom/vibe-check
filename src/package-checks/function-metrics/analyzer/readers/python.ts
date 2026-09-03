@@ -1,13 +1,18 @@
 /**
- * Derived from terryyin/lizard 1.23.0.
+ * Derived from terryyin/lizard 1.24.0.
  * Source: lizard_languages/python.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: translated to TypeScript for the product-owned analyzer.
  */
 
 import type { FileInfoBuilder, TokenStream } from "../core.ts";
-import { CodeReader, CodeStateMachine, isPythonWhitespace } from "../shared/code-reader.ts";
+import {
+  CodeReader,
+  CodeStateMachine,
+  isPythonWhitespace,
+  type TokenFactory
+} from "../shared/code-reader.ts";
 import { ScriptLanguageMixIn } from "../shared/script-language.ts";
 
 const SOURCE_SOFT_KEYWORD_VARIABLE_NEXT = new Set([
@@ -108,11 +113,136 @@ export class PythonReader extends CodeReader {
     this.parallelStates = [new PythonStates(context, this)];
   }
 
-  public static override generateTokens(sourceCode: string): Generator<string> {
-    return ScriptLanguageMixIn.generate_common_tokens(
+  /** str/bytes f-string prefixes, excluding bare bytes/raw strings. */
+  public static readonly _FSTRING_PREFIXES = new Set(["f", "rf", "fr", "bf", "fb"]);
+
+  public static override generateTokens(
+    sourceCode: string,
+    addition = "",
+    tokenFactory?: TokenFactory
+  ): Generator<string> {
+    const tokens = CodeReader.generateTokens(
       sourceCode,
-      String.raw`|(?:"""(?:\.|[^"]|"(?!"")|""(?!"))*""")|(?:'''(?:\.|[^']|'(?!'')|''(?!'))*''')`
+      String.raw`|#[^\n]*|(?:"""(?:\.|[^"]|"(?!"")|""(?!"))*""")|(?:'''(?:\.|[^']|'(?!'')|''(?!'))*''')` +
+        addition,
+      tokenFactory
     );
+    return PythonReader._expand_fstring_interpolations(tokens, tokenFactory);
+  }
+
+  /** Re-tokenize f-string expressions so their control flow reaches the reader. */
+  private static *_expand_fstring_interpolations(
+    tokens: TokenStream,
+    tokenFactory?: TokenFactory
+  ): Generator<string> {
+    let prefix: string | undefined;
+    for (const token of tokens) {
+      if (prefix !== undefined) {
+        const held = prefix;
+        prefix = undefined;
+        if (token.startsWith('"') || token.startsWith("'")) {
+          yield held;
+          yield* PythonReader._tokenize_fstring_body(token, tokenFactory);
+          continue;
+        }
+        yield held;
+      }
+      if (PythonReader._FSTRING_PREFIXES.has(token.toLowerCase())) {
+        prefix = token;
+        continue;
+      }
+      yield token;
+    }
+    if (prefix !== undefined) yield prefix;
+  }
+
+  /** Advance beyond one quoted literal while scanning an f-string expression. */
+  private static _skip_quoted_literal(body: string, position: number): number {
+    const length = body.length;
+    let currentPosition = position;
+    const tripleQuote = body.slice(currentPosition, currentPosition + 3);
+    if (currentPosition + 2 < length && (tripleQuote === '"""' || tripleQuote === "'''")) {
+      currentPosition += 3;
+      while (currentPosition < length) {
+        if (body.slice(currentPosition, currentPosition + 3) === tripleQuote) {
+          return currentPosition + 3;
+        }
+        if (body[currentPosition] === "\\") {
+          currentPosition += 2;
+          continue;
+        }
+        currentPosition += 1;
+      }
+      return length;
+    }
+    if (body[currentPosition] === '"' || body[currentPosition] === "'") {
+      const quote = body[currentPosition];
+      currentPosition += 1;
+      while (currentPosition < length) {
+        if (body[currentPosition] === "\\") {
+          currentPosition += 2;
+          continue;
+        }
+        if (body[currentPosition] === quote) return currentPosition + 1;
+        currentPosition += 1;
+      }
+      return length;
+    }
+    return currentPosition;
+  }
+
+  /** Find the matching brace of an interpolation while honoring quoted literals. */
+  private static _find_interpolation_end(body: string, start: number): number {
+    let depth = 1;
+    let position = start + 1;
+    while (position < body.length && depth > 0) {
+      if (body[position] === '"' || body[position] === "'") {
+        position = PythonReader._skip_quoted_literal(body, position);
+        continue;
+      }
+      if (body[position] === "{") depth += 1;
+      else if (body[position] === "}") depth -= 1;
+      position += 1;
+    }
+    return position;
+  }
+
+  /** Preserve literal chunks and recursively tokenize each f-string expression. */
+  private static *_tokenize_fstring_body(
+    token: string,
+    tokenFactory?: TokenFactory
+  ): Generator<string> {
+    const quote = token.startsWith('"""') || token.startsWith("'''") ? token.slice(0, 3) : token[0];
+    const body = token.slice(quote.length, -quote.length);
+    let literal = "";
+    let produced = false;
+    let position = 0;
+    while (position < body.length) {
+      const doubledBrace = body.slice(position, position + 2);
+      if (doubledBrace === "{{" || doubledBrace === "}}") {
+        literal += body[position];
+        position += 2;
+        continue;
+      }
+      if (body[position] === "{") {
+        const end = PythonReader._find_interpolation_end(body, position);
+        if (literal) {
+          yield `${quote}${literal}${quote}`;
+          literal = "";
+        }
+        yield* PythonReader.generateTokens(body.slice(position + 1, end - 1), "", tokenFactory);
+        produced = true;
+        position = end;
+        continue;
+      }
+      literal += body[position];
+      position += 1;
+    }
+    if (!produced) {
+      yield token;
+      return;
+    }
+    if (literal) yield `${quote}${literal}${quote}`;
   }
 
   public *preprocess(tokens: TokenStream): Generator<string> {

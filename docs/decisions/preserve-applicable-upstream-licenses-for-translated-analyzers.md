@@ -4,7 +4,7 @@ status: active
 alignment: aligned
 createdAt: 2026-09-02T08:10:12Z
 purpose: 让忠实翻译 Lizard 的代码可随 MIT 产品发布，同时准确携带衍生部分的来源、修改和许可材料。
-background: 产品 owner 允许直接翻译；Lizard 1.23/Pygments provenance 与独立 legal inventory 已由 package/Gate 验证。
+background: 产品 owner 允许直接翻译；Lizard 1.24/Pygments provenance 与独立 legal inventory 已由 package/Gate 验证。
 decision: 原创部分继续使用 MIT，翻译或衍生 analyzer 按逐文件 provenance 保留 upstream 条款并进入独立 legal inventory。
 tags:
   - dependency-policy
@@ -24,7 +24,7 @@ relations:
 ## 背景
 
 - 实施前 package manifest、root `LICENSE` 和发布验收只表达 Vibe Check 的 MIT 许可；当前 source tree 与 package legal inventory 形成 `THIRD_PARTY_NOTICES.md`、`licenses/**`、source headers 与 provenance closure，并已通过 candidate/installed 和 workspace Gate 验证。每次运行的 candidate 标识仍只属于 Change evidence，不是本记录的长期事实。
-- Lizard 1.23 distribution 顶层许可说明适用于未另行说明的部分，而核心 `lizard.py` 具有 Apache-2.0 file header；固定 Pygments 2.18.0 ErlangLexer 来源为 BSD-2-Clause。接近上游结构和表达的 TypeScript 翻译因此具有逐文件而非单一来源的 provenance。
+- Lizard 1.24 distribution 顶层许可说明适用于未另行说明的部分，而核心 `lizard.py` 具有 Apache-2.0 file header；固定 Pygments 2.18.0 ErlangLexer 来源为 BSD-2-Clause。接近上游结构和表达的 TypeScript 翻译因此具有逐文件而非单一来源的 provenance。
 - Apache-2.0 redistribution 对适用衍生部分要求提供 license、标明修改、保留有关声明，并在上游存在 NOTICE 时携带相应 attribution；仅写“来源于 Lizard”不能替代这些材料。
 
 ## 决策

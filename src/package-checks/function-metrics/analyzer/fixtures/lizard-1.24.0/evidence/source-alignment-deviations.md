@@ -1,24 +1,24 @@
-# Lizard 1.23 source-alignment deviations
+# Lizard 1.24 source-alignment deviations
 
-本文件解释当前 TypeScript host 为保留 Lizard 1.23 translated scope 所作的窄调整。它是人读
+本文件解释当前 TypeScript host 为保留 Lizard 1.24 translated scope 所作的窄调整。它是人读
 fidelity evidence，而非第二份 provenance ledger：source/range、hash、SPDX、translated target
 path 与 upstream revision 的唯一 machine-readable owner 是
-[`licenses/lizard-1.23.0-provenance.json`](../../../../../../../licenses/lizard-1.23.0-provenance.json)。
+[`licenses/lizard-1.24.0-provenance.json`](../../../../../../../licenses/lizard-1.24.0-provenance.json)。
 
 ## Closure rule
 
-`lizard-1.23-source-identity.json` 必须恰好引用 root inventory 中 `status: "translated"` 的每个
+`lizard-1.24-source-identity.json` 必须恰好引用 root inventory 中 `status: "translated"` 的每个
 source/range。`source-identity.test.ts` 以这一个 filtered set 为准，要求：
 
-1. 42 个 translated source/range reference 无缺失、无额外项、无重复项；
+1. 44 个 translated source/range reference 无缺失、无额外项、无重复项；
 2. 每个 reference 至少有一个 AST-verifiable source symbol 或 named host seam；
-3. root inventory 推导出的全部 37 个 target 都被验证：每项 primary target 加上
+3. root inventory 推导出的全部 39 个 target 都被验证：每项 primary target 加上
    `additionalTargetPaths`，其中 extension protocol 是 additional target；
-4. 这些 entries 共同闭合 81 个 class identity 与 792 个 symbol/host-seam mapping；
+4. 这些 entries 共同闭合 81 个 class identity 与 796 个 symbol/host-seam mapping；
 5. manifest 不得携带 hash、SPDX 或 target-path ledger，并且 current `src/**/*.ts` 不得读取
    archived Change 输入。
 
-因此本文件不重新列出 42 个 range 或 37 个 path；增加、删除或重定向 translated scope 只能先改变
+因此本文件不重新列出 44 个 range 或 39 个 path；增加、删除或重定向 translated scope 只能先改变
 root inventory，并使上述 exact-set check 失败直到 current identity evidence 同步。
 
 ## Mapping vocabulary
@@ -56,7 +56,7 @@ root inventory，并使上述 exact-set check 失败直到 current identity evid
 
 ## Reader/shared boundaries
 
-33 个 `lizard_languages/**` translated source/range 延续既有逐 symbol identity mapping。涉及 inherited
+35 个 `lizard_languages/**` translated source/range 延续既有逐 symbol identity mapping。1.24 将 Java body states 与 PHP state machine 分别拆到 `java_body_states.py` 和 `php_states.py`；对应的 TypeScript targets 保持在各自 reader-internal module，Java factory 中的嵌套 state classes仍按 source class/member identity 递归验证，避免 ESM 初始化循环而不退回单一大 reader 文件。涉及 inherited
 reader state、source aliases、Python constructor、state receiver binding、Ruby token representation及
 source regex/whitespace behavior 的差异，均在 manifest 中逐项指向可解析的 translated AST member并给出
 reason。它们不扩大为 scanner、filesystem、public parser 或 runtime plugin contract。

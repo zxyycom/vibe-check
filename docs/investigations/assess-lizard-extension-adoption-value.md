@@ -39,7 +39,7 @@ Vibe Check 已以 Lizard `1.23.0` 为 source-aligned baseline 完成 `functionMe
 ### 检查对象、版本与方法
 
 - **仓库 current owner。** 阅读 [`functionMetrics` contract](../checks/function-metrics.md)、[`scanner dependency` owner](../scanner-dependencies.md)、`src/package-checks/function-metrics/{options,measurement-model,records,final-data,execution,analyzer-adapter}.ts`、port façade/adapter，以及 [TypeScript hard-cut Decision](../decisions/replace-lizard-runtime-with-product-owned-typescript-analyzers.md)、[private-port Decision](../decisions/isolate-lizard-port-behind-check-private-interface.md)、[upstream advisory Decision](../decisions/track-lizard-supported-languages-with-upstream-advisory.md)。这确认了公开 metric、Finding、waiver、Record/final-data、scanner 和 port owner 的实际边界。
-- **1.23 provenance。** 阅读唯一 machine-readable [`licenses/lizard-1.23.0-provenance.json`](../../licenses/lizard-1.23.0-provenance.json) 与 analyzer fixture mapping。它有 21 个 deferred `lizard_ext` 文件：`default_ordered_dict.py` 只被 deferred `duplicate` 使用，`keywords.py` 只被 deferred `wordcount` 使用；二者是依赖，不是 concrete extension body，故下文表格不把它们再算一项。
+- **1.23 provenance。** 阅读形成时唯一 machine-readable [`licenses/lizard-1.23.0-provenance.json`](./_resources/assess-lizard-extension-adoption-value/lizard-1.23.0-provenance.json) 与 analyzer fixture mapping。该随附资源只保存本报告的形成时依据，不是当前 1.24 baseline 的 ledger 或 current-evidence owner。它有 21 个 deferred `lizard_ext` 文件：`default_ordered_dict.py` 只被 deferred `duplicate` 使用，`keywords.py` 只被 deferred `wordcount` 使用；二者是依赖，不是 concrete extension body，故下文表格不把它们再算一项。
 - **官方一手 source/test。** 对工作区外只读 clone 的官方 tag [`1.23.0`](https://github.com/terryyin/lizard/tree/1.23.0) 和 [`1.24.0`](https://github.com/terryyin/lizard/tree/1.24.0) 运行 `git diff --name-status 1.23.0 1.24.0 -- lizard_ext`、`git ls-tree` 与逐文件行计数；交叉读取官方 [`lizard_ext` tree](https://github.com/terryyin/lizard/tree/1.24.0/lizard_ext)、[`1.24.0 CHANGELOG`](https://github.com/terryyin/lizard/blob/1.24.0/CHANGELOG.md) 和官方 [`test/` tree](https://github.com/terryyin/lizard/tree/1.24.0/test)。专门测试包括 `testHalstead.py`、`testNestingDepth.py`、`testNestedStructures.py`、`testMcCabe.py`、`testFunctionExitCount.py`、`testFunctionGotoCount.py`、`testFunctionStatementCount.py`、`testFunctionDependencyCount.py`、`testCPreprocessorExtension.py`、`testCOutsideComplexity.py`、`testAssertionExtension.py` 和 `test_extensions/**`；存在上游测试不等于存在 Vibe Check consumer 或 Product contract。
 
 ### 已确认 source inventory
@@ -136,3 +136,7 @@ Vibe Check 已以 Lizard `1.23.0` 为 source-aligned baseline 完成 `functionMe
 - **重新调查条件：** 出现具体 consumer/threshold、产品决定重定义 CCN、`sync-lizard-typescript-port-to-1-24-0` 更新 baseline、Lizard 发布含 extension 变化的新正式版本，或 owner 改变 worker/DTO/Finding architecture 时，应重新做一轮报告或在授权 Change 中复核。
 
 本报告形成时的实际动作仅为记录调查认识；它没有恢复 extension、变更 Product behavior、建立 Decision 或向外部系统写入。后续 Change 的创建、状态和授权由其各自 artifacts 与当前任务另行承接。
+
+## 随附资源
+
+- [形成时 Lizard 1.23.0 provenance ledger](./_resources/assess-lizard-extension-adoption-value/lizard-1.23.0-provenance.json)

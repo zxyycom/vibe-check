@@ -108,7 +108,7 @@ local candidate 与 formal release 共用同一 closed generated manifest：user
 `MIT AND Apache-2.0 AND BSD-2-Clause`、Bun `>=1.3.14`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
 完整 production dependencies。manifest 不含 `private`、`bin`、lifecycle scripts、Node host 或 subpath export。
 仓库根 [`LICENSE`](../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还携带
-[`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)、`licenses/**` 中 Lizard 1.23 MIT、`lizard.py` Apache-2.0、Pygments
+[`THIRD_PARTY_NOTICES.md`](../THIRD_PARTY_NOTICES.md)、`licenses/**` 中 Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments
 2.18 BSD-2-Clause text 与 fixed-range provenance，以及 Momoa third-party text。staging、tarball 与 installed candidate 都逐字节
 核对这些 material、shipped source header→ledger→license closure、deferred bodies absent 与无 Python/Lizard/Pygments runtime
 dependency；Pygments/Lizard legal provenance text 本身不构成 runtime dependency。SPDX 字段不能替代 physical legal-material audit。
@@ -230,9 +230,9 @@ waiver。external-command/source/parse/analysis unavailable、其它 failed Chec
 owner 阻断。
 
 Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。三个 metrics Check 对已证实的
-source-aligned translated target 保留唯一最小 Gate exception ledger：`definition.ts` 精确硬编码 14 个
-provenance-qualified path、20 个 rule-path instance（duplicate 1、file-metrics 6、function-metrics 13）。配置测试读取根
-`licenses/lizard-1.23.0-provenance.json` 并校验每项排除 target 的 source header，对遗漏、非 translated target 或 header
+source-aligned translated target 保留唯一最小 Gate exception ledger：`definition.ts` 精确硬编码 16 个
+provenance-qualified path、22 个 rule-path instance（duplicate 1、file-metrics 6、function-metrics 15）。配置测试读取根
+`licenses/lizard-1.24.0-provenance.json` 并校验每项排除 target 的 source header，对遗漏、非 translated target 或 header
 漂移 fail closed；它验证硬编码 selection，而非在 runtime 从 ledger 导出。它不排除 `extensions/protocol.ts`、手写 port façade、
 adapter、Worker、Check、tests 或其它非翻译 Product source，也不影响 lint、format、typecheck、identity/deviation、import-boundary
 或行为测试。边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。

@@ -91,6 +91,8 @@ const translatedQualityExclusions = {
     "src/package-checks/function-metrics/analyzer/core.ts",
     "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
     "src/package-checks/function-metrics/analyzer/readers/fortran.ts",
+    "src/package-checks/function-metrics/analyzer/readers/java-body-states.ts",
+    "src/package-checks/function-metrics/analyzer/readers/php-states.ts",
     "src/package-checks/function-metrics/analyzer/readers/php.ts",
     "src/package-checks/function-metrics/analyzer/readers/plsql.ts",
     "src/package-checks/function-metrics/analyzer/readers/python.ts",

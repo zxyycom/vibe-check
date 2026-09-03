@@ -1,9 +1,9 @@
 /**
- * Derived from terryyin/lizard 1.23.0 tests.
+ * Derived from terryyin/lizard 1.24.0 tests.
  * Sources: lizard_languages/golike.py, lizard_languages/go.py,
  * lizard_languages/rust.py, lizard_languages/scala.py,
  * lizard_languages/solidity.py, and lizard_languages/kotlin.py.
- * Upstream revision: 06284ec87c1966fee4ddbf3f068ccf89b987b0f8.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
  * SPDX-License-Identifier: MIT
  * Modified: focused shared Go-like keyword-dispatch parity coverage.
  */
@@ -50,6 +50,22 @@ test("Go-like shared states retain Go func behavior and resolve every source-der
           startLine: 1
         }
       ]
+    );
+  }
+
+  for (const [sourceCode, name, parameterCount] of [
+    ["func Map[T any](x T) T { return x }", "Map", 1],
+    ["func Reduce[T any, U any](xs []T, acc U) U { return acc }", "Reduce", 2],
+    ["func Clone[S ~[]E, E any](s S) S { return s }", "Clone", 1],
+    ["func (r *Box) Get[T any](x T) T { return x }", "Get", 1]
+  ] as const) {
+    const file = analyzeSourceCode("generic.go", sourceCode, GoReader);
+    assert.deepEqual(
+      file.functionList.map((functionInfo) => ({
+        name: functionInfo.name,
+        parameterCount: functionInfo.parameterCount
+      })),
+      [{ name, parameterCount }]
     );
   }
 });

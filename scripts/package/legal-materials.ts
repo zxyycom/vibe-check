@@ -15,10 +15,10 @@ import {
   PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_SHA256
 } from "./package-contract.ts";
 
-const LIZARD_REVISION = "06284ec87c1966fee4ddbf3f068ccf89b987b0f8";
+const LIZARD_REVISION = "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec";
 const PYGMENTS_ERLANG_PATH = "pygments/lexers/erlang.py";
 const PYGMENTS_ERLANG_RANGE = "lines 22-146";
-const TRANSLATED_SOURCE_HEADER = "Derived from terryyin/lizard 1.23.0.";
+const TRANSLATED_SOURCE_HEADER = "Derived from terryyin/lizard 1.24.0.";
 const PROVENANCE_STATUSES = Object.freeze([
   "translated",
   "deferred-extension-body",
@@ -28,7 +28,7 @@ const SPDX_LICENSES = Object.freeze(["Apache-2.0", "BSD-2-Clause", "MIT"] as con
 const SPDX_LICENSE_SET: ReadonlySet<string> = new Set(SPDX_LICENSES);
 const SOURCE_RANGE_PATTERN = /^lines ([1-9][0-9]*)-([1-9][0-9]*)$/u;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
-const DEFERRED_EXTENSION_BODY_COUNT = 19;
+const DEFERRED_EXTENSION_BODY_COUNT = 22;
 const DEFERRED_EXTENSION_SUPPORT_COUNT = 2;
 
 export interface PackagedLegalMaterial {
@@ -172,11 +172,11 @@ function parseProvenanceInventory(source: Buffer): ProvenanceInventory {
     value.schemaVersion !== 2 ||
     !isRecord(value.upstream) ||
     value.upstream.project !== "terryyin/lizard" ||
-    value.upstream.tag !== "1.23.0" ||
+    value.upstream.tag !== "1.24.0" ||
     value.upstream.revision !== LIZARD_REVISION ||
     !sameStrings(value.statusVocabulary, PROVENANCE_STATUSES) ||
     !Array.isArray(value.files) ||
-    value.files.length !== 79 ||
+    value.files.length !== 84 ||
     !Array.isArray(value.supplementalSources) ||
     value.supplementalSources.length !== 1
   ) {
@@ -264,7 +264,7 @@ function assertProvenanceStatusCounts(entries: readonly ProvenanceEntry[]): void
   const counts = new Map<string, number>();
   for (const entry of entries) counts.set(entry.status, (counts.get(entry.status) ?? 0) + 1);
   if (
-    counts.get("translated") !== 42 ||
+    counts.get("translated") !== 44 ||
     counts.get("deferred-extension-body") !==
       DEFERRED_EXTENSION_BODY_COUNT + DEFERRED_EXTENSION_SUPPORT_COUNT ||
     counts.get("excluded-entry-surface") !== 16
@@ -285,7 +285,7 @@ function collectTranslatedTargets(
       sourcesByTarget.set(targetPath, sources);
     }
   }
-  if (sourcesByTarget.size === 37) {
+  if (sourcesByTarget.size === 39) {
     return new Map(
       [...sourcesByTarget].map(([targetPath, entries]) => [targetPath, Object.freeze(entries)])
     );
@@ -373,11 +373,11 @@ function assertNoticeSummarizesFixedSources(source: Buffer): void {
   const notice = source.toString("utf8");
   for (const requiredText of [
     LIZARD_REVISION,
-    "Lizard 1.23.0",
+    "Lizard 1.24.0",
     "Apache-2.0",
     "Pygments 2.18.0",
     "BSD-2-Clause",
-    "19 Lizard concrete extension bodies and two extension-only support",
+    "22 Lizard concrete extension bodies (the 19 legacy bodies plus three new Halstead modules) and two extension-only support",
     PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
     PACKAGE_MOMOA_LICENSE_PATH
   ]) {

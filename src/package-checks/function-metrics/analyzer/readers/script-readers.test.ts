@@ -1,3 +1,11 @@
+/**
+ * Derived from terryyin/lizard 1.24.0 tests.
+ * Sources: test/test_languages/testPython.py and related script-language tests.
+ * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * SPDX-License-Identifier: MIT
+ * Modified: direct fixture and high-risk reader parity coverage.
+ */
+
 import { strict as assert } from "node:assert";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -12,7 +20,7 @@ import { PythonReader } from "./python.ts";
 import { RReader } from "./r.ts";
 import { RubyReader } from "./ruby.ts";
 
-const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.23.0");
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.0");
 
 test("script readers preserve every registered suffix and normal/edge oracle fixture", () => {
   for (const fixture of ["normal.py", "edge.py"])
@@ -159,6 +167,33 @@ test("Python source groups preserve soft keywords, triple strings, indentation, 
       { ccn: 1, endLine: 10, name: "top", nloc: 2, parameterCount: 0, startLine: 9 }
     ]
   );
+
+  for (const [sourceCode, expectedCcn] of [
+    ["def f(items):\n    return f\"{', '.join([x for x in items])}\"\n", 2],
+    ["def f(cond):\n    return f\"{'a' if cond else 'b'}\"\n", 2],
+    ['def f(a, b):\n    return rf"{a and b or a}"\n', 3],
+    ["def f(items):\n    return bf\"{b'x' if items else b''}\"\n", 2],
+    ['def f(items):\n    return f"""{\', \'.join([x for x in items])}"""\n', 2],
+    ["def f(x):\n    return f\"{x or '}'}\"\n", 2],
+    ['def f():\n    return f"{{ keep this if you can }}"\n', 1],
+    ['def f(x):\n    return f"{x:.2f}"\n', 1],
+    ["def f(items):\n    return f\"{f'{[x for x in items]}'}\"\n", 2]
+  ] as const) {
+    assert.equal(
+      measurements(analyze("f-string.py", sourceCode, PythonReader))[0]?.ccn,
+      expectedCcn
+    );
+  }
+  assert.equal(
+    measurements(
+      analyze(
+        "comment-physical-line.py",
+        "def f(value):\n    # a comment ending in a backslash\\\\\n    if value:\n        return value\n    return None\n",
+        PythonReader
+      )
+    )[0]?.ccn,
+    2
+  );
 });
 
 test("GDScript source group preserves func inheritance and elif complexity", () => {
@@ -195,6 +230,10 @@ test("Ruby and Lua source groups preserve tokenizer offsets, nested blocks, and 
   assert.deepEqual(
     [...LuaReader.generateTokens("a --this is a comment\n")],
     ["a", " ", "--this is a comment", "\n"]
+  );
+  assert.deepEqual(
+    [...RubyReader.generateTokens("# comment ending in a backslash\\\nif value")],
+    ["# comment ending in a backslash\\", "\n", "if", " ", "value"]
   );
   assert.deepEqual(
     measurements(
