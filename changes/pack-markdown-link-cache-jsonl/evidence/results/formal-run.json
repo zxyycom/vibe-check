@@ -1,0 +1,1667 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-09-03T10:14:45.773Z",
+  "command": "bun changes/pack-markdown-link-cache-jsonl/evidence/benchmark.ts --output changes/pack-markdown-link-cache-jsonl/evidence/results/formal-run.json",
+  "environment": {
+    "bun": "1.3.14",
+    "node": "v24.3.0",
+    "os": "linux",
+    "arch": "x64",
+    "cpu": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuCount": 6
+  },
+  "candidateSources": [
+    {
+      "path": "src/package-checks/markdown-link-validation/execution.ts",
+      "sha256": "2c22831127cc083f2f87a80e77e2a0e972f7e6edf7d4f87c71a76d681bff9df5"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/local-resolver.ts",
+      "sha256": "3ac27ed9a108837a2f331b46801585b45f12ea0070122990725019fdbed22f05"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/resolver-engine.ts",
+      "sha256": "ba511f8b0f204306828db8445328c2cfbc5368b7fd9285ca3ae4f409f862544f"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/parse-facts-cache.ts",
+      "sha256": "82358c04f3042e23967b9317650b56c62afa79de1b7b050717b96bc1c06b6f25"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/options.ts",
+      "sha256": "3f55288f10bfdc32f7f49030854c0c21581d9a8521ba1a0a78d5ed7a3ccbbabd"
+    },
+    {
+      "path": "src/package-checks/markdown-link-validation/default-check.ts",
+      "sha256": "94c71f19c7d6d9fc3d57b63bda9f02352a8478a5733c31532193d6d8672be7d8"
+    }
+  ],
+  "fixture": {
+    "seed": "0x5eedc0de",
+    "sourceCount": 1000,
+    "targetCount": 160,
+    "totalMarkdownFiles": 1160,
+    "sourceBodyBytes": [512, 2048, 8192],
+    "linksPerSource": "deterministic 1..5",
+    "incrementalMutation": "append one heading to guides/guide-0500.md after that pair's enabled prewarm"
+  },
+  "protocol": {
+    "directCheck": "executeMarkdownLinkValidation",
+    "strictSerial": "Every direct invocation is awaited before the next; the harness starts no concurrent source or cache work.",
+    "interleaving": "Five pairs per workload alternate disabled-first, enabled-first, disabled-first, enabled-first, disabled-first.",
+    "cold": "Each enabled sample receives its own empty application cache directory; operating-system page cache is not forcibly dropped.",
+    "warm": "Each pair owns a cache populated by one unmeasured enabled invocation before its pair.",
+    "singleFileIncremental": "Each pair copies the deterministic seed, prewarms its own cache, then mutates exactly one source before its pair.",
+    "semanticParity": "Each pair compares status, reason, final data, messages, and ordered record identity/data from the direct Check envelope.",
+    "cpu": "process.resourceUsage user + system CPU deltas per sample.",
+    "processMaxRssBoundary": "process.resourceUsage maxRSS is cumulative for this Bun process; max observed values are reported, not isolated per-sample peaks.",
+    "cacheFootprint": "The cache metric is the current single markdown-link-parse-facts-v1.jsonl file's bytes and complete newline count after an enabled invocation."
+  },
+  "samples": [
+    {
+      "workload": "cold",
+      "mode": "disabled",
+      "repetition": 1,
+      "pairOrder": "disabled-first",
+      "ordinal": 1,
+      "wallMs": 5532.987776,
+      "cpuUserMicros": 2877412,
+      "cpuSystemMicros": 869240,
+      "cpuTotalMicros": 3746652,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "enabled",
+      "repetition": 1,
+      "pairOrder": "disabled-first",
+      "ordinal": 2,
+      "wallMs": 4599.676863999999,
+      "cpuUserMicros": 2393567,
+      "cpuSystemMicros": 771559,
+      "cpuTotalMicros": 3165126,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "enabled",
+      "repetition": 2,
+      "pairOrder": "enabled-first",
+      "ordinal": 3,
+      "wallMs": 4248.448710000001,
+      "cpuUserMicros": 2396645,
+      "cpuSystemMicros": 904272,
+      "cpuTotalMicros": 3300917,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "disabled",
+      "repetition": 2,
+      "pairOrder": "enabled-first",
+      "ordinal": 4,
+      "wallMs": 4415.016856000002,
+      "cpuUserMicros": 2269008,
+      "cpuSystemMicros": 1041281,
+      "cpuTotalMicros": 3310289,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "disabled",
+      "repetition": 3,
+      "pairOrder": "disabled-first",
+      "ordinal": 5,
+      "wallMs": 3521.9453600000015,
+      "cpuUserMicros": 2146252,
+      "cpuSystemMicros": 1733918,
+      "cpuTotalMicros": 3880170,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "enabled",
+      "repetition": 3,
+      "pairOrder": "disabled-first",
+      "ordinal": 6,
+      "wallMs": 3587.650604999999,
+      "cpuUserMicros": 2351266,
+      "cpuSystemMicros": 1693246,
+      "cpuTotalMicros": 4044512,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "enabled",
+      "repetition": 4,
+      "pairOrder": "enabled-first",
+      "ordinal": 7,
+      "wallMs": 3490.829633999998,
+      "cpuUserMicros": 2092122,
+      "cpuSystemMicros": 1812024,
+      "cpuTotalMicros": 3904146,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "disabled",
+      "repetition": 4,
+      "pairOrder": "enabled-first",
+      "ordinal": 8,
+      "wallMs": 3294.5896059999977,
+      "cpuUserMicros": 2012339,
+      "cpuSystemMicros": 1605582,
+      "cpuTotalMicros": 3617921,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "disabled",
+      "repetition": 5,
+      "pairOrder": "disabled-first",
+      "ordinal": 9,
+      "wallMs": 3632.8514309999955,
+      "cpuUserMicros": 2337275,
+      "cpuSystemMicros": 1718919,
+      "cpuTotalMicros": 4056194,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "mode": "enabled",
+      "repetition": 5,
+      "pairOrder": "disabled-first",
+      "ordinal": 10,
+      "wallMs": 3425.5102430000043,
+      "cpuUserMicros": 2097446,
+      "cpuSystemMicros": 1608730,
+      "cpuTotalMicros": 3706176,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "prewarm",
+      "repetition": 1,
+      "pairOrder": "verification",
+      "ordinal": 11,
+      "wallMs": 3038.7208299999984,
+      "cpuUserMicros": 1850890,
+      "cpuSystemMicros": 1504986,
+      "cpuTotalMicros": 3355876,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "disabled",
+      "repetition": 1,
+      "pairOrder": "disabled-first",
+      "ordinal": 12,
+      "wallMs": 2924.4392639999933,
+      "cpuUserMicros": 1677824,
+      "cpuSystemMicros": 1561727,
+      "cpuTotalMicros": 3239551,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "enabled",
+      "repetition": 1,
+      "pairOrder": "disabled-first",
+      "ordinal": 13,
+      "wallMs": 1814.454165999996,
+      "cpuUserMicros": 648661,
+      "cpuSystemMicros": 1419238,
+      "cpuTotalMicros": 2067899,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "prewarm",
+      "repetition": 2,
+      "pairOrder": "verification",
+      "ordinal": 14,
+      "wallMs": 2917.0036529999998,
+      "cpuUserMicros": 1662157,
+      "cpuSystemMicros": 1524182,
+      "cpuTotalMicros": 3186339,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "enabled",
+      "repetition": 2,
+      "pairOrder": "enabled-first",
+      "ordinal": 15,
+      "wallMs": 1825.5950650000013,
+      "cpuUserMicros": 751675,
+      "cpuSystemMicros": 1353048,
+      "cpuTotalMicros": 2104723,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "disabled",
+      "repetition": 2,
+      "pairOrder": "enabled-first",
+      "ordinal": 16,
+      "wallMs": 2891.6972529999985,
+      "cpuUserMicros": 1557257,
+      "cpuSystemMicros": 1557855,
+      "cpuTotalMicros": 3115112,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "prewarm",
+      "repetition": 3,
+      "pairOrder": "verification",
+      "ordinal": 17,
+      "wallMs": 3035.1691250000003,
+      "cpuUserMicros": 1725816,
+      "cpuSystemMicros": 1578253,
+      "cpuTotalMicros": 3304069,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "disabled",
+      "repetition": 3,
+      "pairOrder": "disabled-first",
+      "ordinal": 18,
+      "wallMs": 2890.345558000001,
+      "cpuUserMicros": 1580456,
+      "cpuSystemMicros": 1536349,
+      "cpuTotalMicros": 3116805,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "enabled",
+      "repetition": 3,
+      "pairOrder": "disabled-first",
+      "ordinal": 19,
+      "wallMs": 1888.8126489999995,
+      "cpuUserMicros": 552183,
+      "cpuSystemMicros": 1546344,
+      "cpuTotalMicros": 2098527,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "prewarm",
+      "repetition": 4,
+      "pairOrder": "verification",
+      "ordinal": 20,
+      "wallMs": 2934.8182650000017,
+      "cpuUserMicros": 1683643,
+      "cpuSystemMicros": 1524582,
+      "cpuTotalMicros": 3208225,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "enabled",
+      "repetition": 4,
+      "pairOrder": "enabled-first",
+      "ordinal": 21,
+      "wallMs": 1853.176707999999,
+      "cpuUserMicros": 570549,
+      "cpuSystemMicros": 1507838,
+      "cpuTotalMicros": 2078387,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "disabled",
+      "repetition": 4,
+      "pairOrder": "enabled-first",
+      "ordinal": 22,
+      "wallMs": 2831.44191400001,
+      "cpuUserMicros": 1600662,
+      "cpuSystemMicros": 1463597,
+      "cpuTotalMicros": 3064259,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "prewarm",
+      "repetition": 5,
+      "pairOrder": "verification",
+      "ordinal": 23,
+      "wallMs": 2906.6773790000007,
+      "cpuUserMicros": 1547110,
+      "cpuSystemMicros": 1608355,
+      "cpuTotalMicros": 3155465,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "disabled",
+      "repetition": 5,
+      "pairOrder": "disabled-first",
+      "ordinal": 24,
+      "wallMs": 2807.5740899999946,
+      "cpuUserMicros": 1636528,
+      "cpuSystemMicros": 1404390,
+      "cpuTotalMicros": 3040918,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "mode": "enabled",
+      "repetition": 5,
+      "pairOrder": "disabled-first",
+      "ordinal": 25,
+      "wallMs": 1828.8288650000031,
+      "cpuUserMicros": 627070,
+      "cpuSystemMicros": 1383808,
+      "cpuTotalMicros": 2010878,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "prewarm",
+      "repetition": 1,
+      "pairOrder": "verification",
+      "ordinal": 26,
+      "wallMs": 2903.375555999999,
+      "cpuUserMicros": 1672123,
+      "cpuSystemMicros": 1487363,
+      "cpuTotalMicros": 3159486,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "disabled",
+      "repetition": 1,
+      "pairOrder": "disabled-first",
+      "ordinal": 27,
+      "wallMs": 2846.5132779999985,
+      "cpuUserMicros": 1543166,
+      "cpuSystemMicros": 1532475,
+      "cpuTotalMicros": 3075641,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "enabled",
+      "repetition": 1,
+      "pairOrder": "disabled-first",
+      "ordinal": 28,
+      "wallMs": 1787.4446739999985,
+      "cpuUserMicros": 591144,
+      "cpuSystemMicros": 1385533,
+      "cpuTotalMicros": 1976677,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1104047,
+        "newlineTerminatedEntries": 1161
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "prewarm",
+      "repetition": 2,
+      "pairOrder": "verification",
+      "ordinal": 29,
+      "wallMs": 2963.9313829999883,
+      "cpuUserMicros": 1737694,
+      "cpuSystemMicros": 1520114,
+      "cpuTotalMicros": 3257808,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "enabled",
+      "repetition": 2,
+      "pairOrder": "enabled-first",
+      "ordinal": 30,
+      "wallMs": 1845.4221930000058,
+      "cpuUserMicros": 571173,
+      "cpuSystemMicros": 1450696,
+      "cpuTotalMicros": 2021869,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1104047,
+        "newlineTerminatedEntries": 1161
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "disabled",
+      "repetition": 2,
+      "pairOrder": "enabled-first",
+      "ordinal": 31,
+      "wallMs": 3049.0327430000034,
+      "cpuUserMicros": 1652140,
+      "cpuSystemMicros": 1570429,
+      "cpuTotalMicros": 3222569,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "prewarm",
+      "repetition": 3,
+      "pairOrder": "verification",
+      "ordinal": 32,
+      "wallMs": 2911.4967679999972,
+      "cpuUserMicros": 1749580,
+      "cpuSystemMicros": 1420161,
+      "cpuTotalMicros": 3169741,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "disabled",
+      "repetition": 3,
+      "pairOrder": "disabled-first",
+      "ordinal": 33,
+      "wallMs": 2732.6768729999894,
+      "cpuUserMicros": 1413023,
+      "cpuSystemMicros": 1536822,
+      "cpuTotalMicros": 2949845,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "enabled",
+      "repetition": 3,
+      "pairOrder": "disabled-first",
+      "ordinal": 34,
+      "wallMs": 1788.6116260000126,
+      "cpuUserMicros": 530523,
+      "cpuSystemMicros": 1439280,
+      "cpuTotalMicros": 1969803,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1104047,
+        "newlineTerminatedEntries": 1161
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "prewarm",
+      "repetition": 4,
+      "pairOrder": "verification",
+      "ordinal": 35,
+      "wallMs": 5406.49214100001,
+      "cpuUserMicros": 1994851,
+      "cpuSystemMicros": 1012507,
+      "cpuTotalMicros": 3007358,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "enabled",
+      "repetition": 4,
+      "pairOrder": "enabled-first",
+      "ordinal": 36,
+      "wallMs": 1925.3691920000128,
+      "cpuUserMicros": 367172,
+      "cpuSystemMicros": 390427,
+      "cpuTotalMicros": 757599,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1104047,
+        "newlineTerminatedEntries": 1161
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "disabled",
+      "repetition": 4,
+      "pairOrder": "enabled-first",
+      "ordinal": 37,
+      "wallMs": 4574.52393000001,
+      "cpuUserMicros": 2112250,
+      "cpuSystemMicros": 748078,
+      "cpuTotalMicros": 2860328,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "prewarm",
+      "repetition": 5,
+      "pairOrder": "verification",
+      "ordinal": 38,
+      "wallMs": 4335.820502000002,
+      "cpuUserMicros": 2013510,
+      "cpuSystemMicros": 923785,
+      "cpuTotalMicros": 2937295,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1102893,
+        "newlineTerminatedEntries": 1160
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "disabled",
+      "repetition": 5,
+      "pairOrder": "disabled-first",
+      "ordinal": 39,
+      "wallMs": 2851.099362000008,
+      "cpuUserMicros": 1583456,
+      "cpuSystemMicros": 1520810,
+      "cpuTotalMicros": 3104266,
+      "processMaxRssBytes": 1028415488,
+      "cache": null,
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "mode": "enabled",
+      "repetition": 5,
+      "pairOrder": "disabled-first",
+      "ordinal": 40,
+      "wallMs": 1827.9639210000023,
+      "cpuUserMicros": 643483,
+      "cpuSystemMicros": 1385519,
+      "cpuTotalMicros": 2029002,
+      "processMaxRssBytes": 1028415488,
+      "cache": {
+        "file": "markdown-link-parse-facts-v1.jsonl",
+        "exists": true,
+        "bytes": 1104047,
+        "newlineTerminatedEntries": 1161
+      },
+      "semantic": {
+        "status": "passed",
+        "data": {
+          "sourceFileCount": 1160,
+          "occurrenceCount": 3023,
+          "targetReadCount": 3023,
+          "findingCount": 0,
+          "rejectedInputCount": 0
+        },
+        "messages": [],
+        "records": []
+      },
+      "semanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    }
+  ],
+  "pairs": [
+    {
+      "workload": "cold",
+      "repetition": 1,
+      "order": "disabled-first",
+      "disabledOrdinal": 1,
+      "enabledOrdinal": 2,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "repetition": 2,
+      "order": "enabled-first",
+      "disabledOrdinal": 4,
+      "enabledOrdinal": 3,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "repetition": 3,
+      "order": "disabled-first",
+      "disabledOrdinal": 5,
+      "enabledOrdinal": 6,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "repetition": 4,
+      "order": "enabled-first",
+      "disabledOrdinal": 8,
+      "enabledOrdinal": 7,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "cold",
+      "repetition": 5,
+      "order": "disabled-first",
+      "disabledOrdinal": 9,
+      "enabledOrdinal": 10,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "repetition": 1,
+      "order": "disabled-first",
+      "disabledOrdinal": 12,
+      "enabledOrdinal": 13,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "repetition": 2,
+      "order": "enabled-first",
+      "disabledOrdinal": 16,
+      "enabledOrdinal": 15,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "repetition": 3,
+      "order": "disabled-first",
+      "disabledOrdinal": 18,
+      "enabledOrdinal": 19,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "repetition": 4,
+      "order": "enabled-first",
+      "disabledOrdinal": 22,
+      "enabledOrdinal": 21,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "warm",
+      "repetition": 5,
+      "order": "disabled-first",
+      "disabledOrdinal": 24,
+      "enabledOrdinal": 25,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "repetition": 1,
+      "order": "disabled-first",
+      "disabledOrdinal": 27,
+      "enabledOrdinal": 28,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "repetition": 2,
+      "order": "enabled-first",
+      "disabledOrdinal": 31,
+      "enabledOrdinal": 30,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "repetition": 3,
+      "order": "disabled-first",
+      "disabledOrdinal": 33,
+      "enabledOrdinal": 34,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "repetition": 4,
+      "order": "enabled-first",
+      "disabledOrdinal": 37,
+      "enabledOrdinal": 36,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    },
+    {
+      "workload": "single-file-incremental",
+      "repetition": 5,
+      "order": "disabled-first",
+      "disabledOrdinal": 39,
+      "enabledOrdinal": 40,
+      "semanticParity": true,
+      "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+      "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+    }
+  ],
+  "summaries": {
+    "cold": {
+      "disabled": {
+        "count": 5,
+        "wallMs": [
+          5532.987776, 4415.016856000002, 3521.9453600000015, 3294.5896059999977, 3632.8514309999955
+        ],
+        "medianWallMs": 3632.8514309999955,
+        "madWallMs": 338.26182499999777,
+        "cpuTotalMicros": [3746652, 3310289, 3880170, 3617921, 4056194],
+        "medianCpuTotalMicros": 3746652,
+        "madCpuTotalMicros": 133518,
+        "maxObservedProcessMaxRssBytes": 1028415488,
+        "cacheBytes": [0, 0, 0, 0, 0],
+        "medianCacheBytes": 0,
+        "cacheFile": "markdown-link-parse-facts-v1.jsonl"
+      },
+      "enabled": {
+        "count": 5,
+        "wallMs": [
+          4599.676863999999, 4248.448710000001, 3587.650604999999, 3490.829633999998,
+          3425.5102430000043
+        ],
+        "medianWallMs": 3587.650604999999,
+        "madWallMs": 162.14036199999464,
+        "cpuTotalMicros": [3165126, 3300917, 4044512, 3904146, 3706176],
+        "medianCpuTotalMicros": 3706176,
+        "madCpuTotalMicros": 338336,
+        "maxObservedProcessMaxRssBytes": 1028415488,
+        "cacheBytes": [1102893, 1102893, 1102893, 1102893, 1102893],
+        "medianCacheBytes": 1102893,
+        "cacheFile": "markdown-link-parse-facts-v1.jsonl"
+      }
+    },
+    "warm": {
+      "disabled": {
+        "count": 5,
+        "wallMs": [
+          2924.4392639999933, 2891.6972529999985, 2890.345558000001, 2831.44191400001,
+          2807.5740899999946
+        ],
+        "medianWallMs": 2890.345558000001,
+        "madWallMs": 34.09370599999238,
+        "cpuTotalMicros": [3239551, 3115112, 3116805, 3064259, 3040918],
+        "medianCpuTotalMicros": 3115112,
+        "madCpuTotalMicros": 50853,
+        "maxObservedProcessMaxRssBytes": 1028415488,
+        "cacheBytes": [0, 0, 0, 0, 0],
+        "medianCacheBytes": 0,
+        "cacheFile": "markdown-link-parse-facts-v1.jsonl"
+      },
+      "enabled": {
+        "count": 5,
+        "wallMs": [
+          1814.454165999996, 1825.5950650000013, 1888.8126489999995, 1853.176707999999,
+          1828.8288650000031
+        ],
+        "medianWallMs": 1828.8288650000031,
+        "madWallMs": 14.37469900000724,
+        "cpuTotalMicros": [2067899, 2104723, 2098527, 2078387, 2010878],
+        "medianCpuTotalMicros": 2078387,
+        "madCpuTotalMicros": 20140,
+        "maxObservedProcessMaxRssBytes": 1028415488,
+        "cacheBytes": [1102893, 1102893, 1102893, 1102893, 1102893],
+        "medianCacheBytes": 1102893,
+        "cacheFile": "markdown-link-parse-facts-v1.jsonl"
+      }
+    },
+    "singleFileIncremental": {
+      "disabled": {
+        "count": 5,
+        "wallMs": [
+          2846.5132779999985, 3049.0327430000034, 2732.6768729999894, 4574.52393000001,
+          2851.099362000008
+        ],
+        "medianWallMs": 2851.099362000008,
+        "madWallMs": 118.42248900001869,
+        "cpuTotalMicros": [3075641, 3222569, 2949845, 2860328, 3104266],
+        "medianCpuTotalMicros": 3075641,
+        "madCpuTotalMicros": 125796,
+        "maxObservedProcessMaxRssBytes": 1028415488,
+        "cacheBytes": [0, 0, 0, 0, 0],
+        "medianCacheBytes": 0,
+        "cacheFile": "markdown-link-parse-facts-v1.jsonl"
+      },
+      "enabled": {
+        "count": 5,
+        "wallMs": [
+          1787.4446739999985, 1845.4221930000058, 1788.6116260000126, 1925.3691920000128,
+          1827.9639210000023
+        ],
+        "medianWallMs": 1827.9639210000023,
+        "madWallMs": 39.35229499998968,
+        "cpuTotalMicros": [1976677, 2021869, 1969803, 757599, 2029002],
+        "medianCpuTotalMicros": 1976677,
+        "madCpuTotalMicros": 45192,
+        "maxObservedProcessMaxRssBytes": 1028415488,
+        "cacheBytes": [1104047, 1104047, 1104047, 1104047, 1104047],
+        "medianCacheBytes": 1104047,
+        "cacheFile": "markdown-link-parse-facts-v1.jsonl"
+      }
+    }
+  },
+  "acceptance": {
+    "cold": {
+      "disabledMedianWallMs": 3632.8514309999955,
+      "enabledMedianWallMs": 3587.650604999999,
+      "enabledRelativeRegressionPercent": -1.2442244572482997,
+      "threshold": "enabled relative regression <= 5%",
+      "passed": true
+    },
+    "warm": {
+      "disabledMedianWallMs": 2890.345558000001,
+      "enabledMedianWallMs": 1828.8288650000031,
+      "enabledRelativeImprovementPercent": 36.72629004728844,
+      "savedMs": 1061.5166929999978,
+      "threshold": "improvement >= 20% and saved >= 100 ms",
+      "passed": true
+    },
+    "singleFileIncremental": {
+      "disabledMedianWallMs": 2851.099362000008,
+      "enabledMedianWallMs": 1827.9639210000023,
+      "enabledRelativeImprovementPercent": 35.885646590804534,
+      "savedMs": 1023.1354410000058,
+      "threshold": "improvement >= 20% and saved >= 100 ms",
+      "passed": true
+    }
+  },
+  "semanticParity": {
+    "allPairsPassed": true,
+    "pairs": [
+      {
+        "workload": "cold",
+        "repetition": 1,
+        "order": "disabled-first",
+        "disabledOrdinal": 1,
+        "enabledOrdinal": 2,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "cold",
+        "repetition": 2,
+        "order": "enabled-first",
+        "disabledOrdinal": 4,
+        "enabledOrdinal": 3,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "cold",
+        "repetition": 3,
+        "order": "disabled-first",
+        "disabledOrdinal": 5,
+        "enabledOrdinal": 6,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "cold",
+        "repetition": 4,
+        "order": "enabled-first",
+        "disabledOrdinal": 8,
+        "enabledOrdinal": 7,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "cold",
+        "repetition": 5,
+        "order": "disabled-first",
+        "disabledOrdinal": 9,
+        "enabledOrdinal": 10,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "warm",
+        "repetition": 1,
+        "order": "disabled-first",
+        "disabledOrdinal": 12,
+        "enabledOrdinal": 13,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "warm",
+        "repetition": 2,
+        "order": "enabled-first",
+        "disabledOrdinal": 16,
+        "enabledOrdinal": 15,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "warm",
+        "repetition": 3,
+        "order": "disabled-first",
+        "disabledOrdinal": 18,
+        "enabledOrdinal": 19,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "warm",
+        "repetition": 4,
+        "order": "enabled-first",
+        "disabledOrdinal": 22,
+        "enabledOrdinal": 21,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "warm",
+        "repetition": 5,
+        "order": "disabled-first",
+        "disabledOrdinal": 24,
+        "enabledOrdinal": 25,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "single-file-incremental",
+        "repetition": 1,
+        "order": "disabled-first",
+        "disabledOrdinal": 27,
+        "enabledOrdinal": 28,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "single-file-incremental",
+        "repetition": 2,
+        "order": "enabled-first",
+        "disabledOrdinal": 31,
+        "enabledOrdinal": 30,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "single-file-incremental",
+        "repetition": 3,
+        "order": "disabled-first",
+        "disabledOrdinal": 33,
+        "enabledOrdinal": 34,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "single-file-incremental",
+        "repetition": 4,
+        "order": "enabled-first",
+        "disabledOrdinal": 37,
+        "enabledOrdinal": 36,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      },
+      {
+        "workload": "single-file-incremental",
+        "repetition": 5,
+        "order": "disabled-first",
+        "disabledOrdinal": 39,
+        "enabledOrdinal": 40,
+        "semanticParity": true,
+        "disabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388",
+        "enabledSemanticDigestSha256": "837acd89da48848c75cbbbf8352355c6b9ae38f81d0996a98a8a719f4bad0388"
+      }
+    ]
+  },
+  "comparisonBoundary": {
+    "currentPairedBaseline": "Within this run, default-disabled is the strict-serial no-persistent-cache comparator and enabled is the current single-JSONL append implementation.",
+    "historicalPerEntryBaseline": "The archived per-entry strict-serial result is audit context only. It comes from a different revision/run and is not combined with these medians or treated as causal before/after proof.",
+    "storageOnly": "Storage-only measurements are excluded from all acceptance calculations."
+  }
+}
