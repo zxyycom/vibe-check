@@ -1,6 +1,51 @@
 {
   "definitionVersion": 6,
   "entries": {
+    "analyze-markdown-link-cache-packing.md": {
+      "keys": {
+        "formed-at": [
+          1788423509000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "cache-design",
+          "markdown-link-validation",
+          "performance",
+          "storage-mechanics"
+        ],
+        "text": [
+          "Markdown Link 缓存合并前性能分析",
+          "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T08:18:29+00:00",
+        "question": "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？",
+        "relations": [
+          {
+            "target": "evaluate-markdown-link-serial-io-optimization.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "analyze-markdown-link-cache-packing/README.md",
+          "analyze-markdown-link-cache-packing/benchmark.ts",
+          "analyze-markdown-link-cache-packing/cache-syscall-stage-profile.ts",
+          "analyze-markdown-link-cache-packing/direct-cache-api-profile-results.json",
+          "analyze-markdown-link-cache-packing/direct-cache-api-profile.ts",
+          "analyze-markdown-link-cache-packing/raw-results.json"
+        ],
+        "tags": [
+          "cache-design",
+          "markdown-link-validation",
+          "performance",
+          "storage-mechanics"
+        ],
+        "title": "Markdown Link 缓存合并前性能分析"
+      }
+    },
     "assess-scc-and-jscpd-upgrade-readiness.md": {
       "keys": {
         "formed-at": [
@@ -437,6 +482,7 @@
   "schemaVersion": 3,
   "sourceRevision": {
     "entries": {
+      "analyze-markdown-link-cache-packing.md": "sha256:ce5c994f17a338005e2f7e13bbd48cec8eef2cb2624f7d331e31f5dc2d7435b7",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
       "compare-lizard-and-scc-typescript-port-priority.md": "sha256:f36d2d03734cd988927ad44118c331f31787ee3f69d9ceaa111da921cbf9c7d8",
