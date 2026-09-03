@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
@@ -260,8 +260,8 @@ describe("default Check direct callbacks", () => {
         MARKDOWN_FILES
       );
       assert.deepEqual(first, disabled);
-      const entries = readdirSync(cacheDirectory).filter((entry) => entry.endsWith(".json"));
-      assert.equal(entries.length, 1);
+      const entries = readdirSync(cacheDirectory);
+      assert.deepEqual(entries, ["markdown-link-parse-facts-v1.jsonl"]);
 
       const hit = await execute(
         executeMarkdownLinkValidation,
@@ -272,8 +272,8 @@ describe("default Check direct callbacks", () => {
       assert.deepEqual(hit, disabled);
 
       const entry = entries[0];
-      if (entry === undefined) assert.fail("expected a persisted Markdown Link cache entry");
-      writeFileSync(join(cacheDirectory, entry), '{"hostile":true}', "utf8");
+      if (entry === undefined) assert.fail("expected a persisted Markdown Link cache file");
+      writeFileSync(join(cacheDirectory, entry), '{"hostile":true}\n', "utf8");
       const invalidPayload = await execute(
         executeMarkdownLinkValidation,
         enabledOptions,
@@ -337,7 +337,7 @@ describe("default Check direct callbacks", () => {
       );
       assert.equal(refreshedSource.result.status, "passed");
       assert.equal(
-        readdirSync(cacheDirectory).filter((entry) => entry.endsWith(".json")).length,
+        readJsonlLines(join(cacheDirectory, "markdown-link-parse-facts-v1.jsonl")).length,
         4
       );
     } finally {
@@ -454,6 +454,7 @@ describe("default Check direct callbacks", () => {
 
   it("returns unavailable without publishing an earlier Markdown Link finding", async () => {
     const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-limit-");
+    const cacheDirectory = join(root, "cache-state");
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       writeFileSync(join(root, "docs", "a.md"), "[missing](missing.md)\n", "utf8");
@@ -463,6 +464,7 @@ describe("default Check direct callbacks", () => {
         executeMarkdownLinkValidation,
         {
           ...MARKDOWN_LINK_OPTIONS,
+          cache: Object.freeze({ enabled: true as const, directory: cacheDirectory }),
           limits: { ...MARKDOWN_LINK_OPTIONS.limits, maxOccurrences: 1 }
         },
         root,
@@ -481,6 +483,7 @@ describe("default Check direct callbacks", () => {
         ]
       });
       assert.deepEqual(result.records, []);
+      assert.deepEqual(readdirSync(cacheDirectory), ["markdown-link-parse-facts-v1.jsonl"]);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -611,7 +614,7 @@ describe("default Check direct callbacks", () => {
     }
   });
 
-  it("cancels after parse-facts publication without reporting stale findings", async () => {
+  it("does not start parse-facts publication after cancellation without reporting stale findings", async () => {
     const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-cache-cancelled-");
     const cacheDirectory = join(root, "cache-state");
     const controller = new AbortController();
@@ -633,8 +636,10 @@ describe("default Check direct callbacks", () => {
       assert.equal(controller.signal.aborted, true);
       assert.equal(existsSync(cacheDirectory), true);
       assert.equal(
-        readdirSync(cacheDirectory).filter((entry) => entry.endsWith(".json")).length,
-        1
+        readdirSync(cacheDirectory).filter(
+          (entry) => entry === "markdown-link-parse-facts-v1.jsonl"
+        ).length,
+        0
       );
       assert.deepEqual(result.result, {
         status: "unavailable",
@@ -672,4 +677,10 @@ function abortWhenCacheDirectoryIsPublished(
       return Reflect.get(target, property, target) as unknown;
     }
   });
+}
+
+function readJsonlLines(filePath: string): string[] {
+  return readFileSync(filePath, "utf8")
+    .split("\n")
+    .filter((line) => line !== "");
 }

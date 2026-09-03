@@ -94,11 +94,13 @@ Entities:
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > returns immutable facts and a controlled failure for malformed decoded text`
 - `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > restores only closed immutable parser facts`
 - `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > invalidates entries written for a different parser-contract version`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > awaits the append once publication has started despite later cancellation`
+- `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > ignores malformed, unknown, and unterminated lines while last valid identity wins`
 - `bun|src/package-checks/markdown-link-validation/parse-facts-cache.test.ts|Markdown Link parse-facts cache > rejects cached facts when the exact source bytes are not valid UTF-8`
   Proves:
 - Each eligible Markdown source yields only the documented Link occurrence grammar and heading facts; excluded Markdown forms and undefined references do not become target work.
 - A fresh GitHub-priority heading slugger and decoded UTF-16 navigation range make anchor facts source-local and reproducible.
-- Parser facts are immutable and malformed decoded input becomes a controlled failure rather than a partial source fact set. Link-private persistent projection accepts only bounded, closed immutable facts; a different parser-contract version cannot supply stale facts, and a forged exact-byte cache hit cannot bypass the fatal UTF-8 boundary.
+- Parser facts are immutable and malformed decoded input becomes a controlled failure rather than a partial source fact set. Link-private JSONL state accepts only bounded, closed immutable current-version envelopes; malformed, unknown, and unterminated lines are ignored, duplicate valid identities use the final valid facts, repeated fresh identities reuse the invocation-local dirty facts before one publication, publication already committed to append completes despite later cancellation, and a forged exact-byte cache hit cannot bypass the fatal UTF-8 boundary.
 
 ## Case AUX-MARKDOWN-LINK-TARGET-001: Markdown Link resolves only bounded direct local targets
 

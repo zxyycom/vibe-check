@@ -40,8 +40,9 @@ export interface MarkdownLinkValidationOptions {
   /** 每次运行的 Markdown 内容、occurrence 和 direct target work 上限。 */
   readonly limits?: MarkdownLinkValidationLimitOptions;
   /**
-   * 显式启用的、调用方拥有的 Link parse-facts persistent cache。省略时关闭；enabled directory 必须 absolute、可信且可删除，
-   * 其中可能保存 source-derived parse facts，且不提供 confidentiality 或 automatic cleanup。
+   * 显式启用的、调用方拥有的 Link parse-facts persistent cache。省略时关闭；enabled directory 必须 absolute、可信且可删除。
+   * 本 Check 只在其中使用 `markdown-link-parse-facts-v1.jsonl` 保存 source-derived facts；调用方负责容量和删除，且不提供
+   * confidentiality、automatic cleanup、concurrency 或 durability guarantees。cache 不可用时 fresh-parse，Check 结果不变。
    */
   readonly cache?: MarkdownLinkValidationCacheOptions;
 }

@@ -24,6 +24,7 @@ import {
 const projectRoot = process.argv[2];
 if (projectRoot === undefined) throw new Error("fixture project root is required");
 const markdownLinkCacheDirectory = join(projectRoot, ".vibe-check", "markdown-link-parse-cache");
+const MARKDOWN_LINK_CACHE_FILE = "markdown-link-parse-facts-v1.jsonl";
 
 const cacheEvidence = await observeCacheReuse();
 
@@ -273,15 +274,28 @@ process.stdout.write(
       jsonSchemaData: settledFinalData(jsonSchemaCheck),
       jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
       markdownLinkData: settledFinalData(markdownLink),
-      markdownLinkCacheEntryCount: cacheEntryCount(markdownLinkCacheDirectory),
+      markdownLinkCacheJsonl: markdownLinkCacheJsonlEvidence(markdownLinkCacheDirectory),
       markdownLinkOutcome: markdownLink?.outcome.status ?? null
     })
 );
 
-function cacheEntryCount(directory) {
-  return existsSync(directory)
-    ? readdirSync(directory).filter((entry) => entry.endsWith(".json")).length
-    : 0;
+function markdownLinkCacheJsonlEvidence(directory) {
+  if (!existsSync(directory)) {
+    return { completeLineCount: 0, entries: [], hasUnterminatedTail: false };
+  }
+  const entries = readdirSync(directory).sort();
+  const filePath = join(directory, MARKDOWN_LINK_CACHE_FILE);
+  if (!existsSync(filePath)) {
+    return { completeLineCount: 0, entries, hasUnterminatedTail: false };
+  }
+  const contents = readFileSync(filePath, "utf8");
+  const completeLines = contents.split("\n").slice(0, -1);
+  for (const line of completeLines) JSON.parse(line);
+  return {
+    completeLineCount: completeLines.length,
+    entries,
+    hasUnterminatedTail: !contents.endsWith("\n")
+  };
 }
 
 async function observeCacheReuse() {

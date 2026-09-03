@@ -1,11 +1,13 @@
-import { createHash } from "node:crypto";
 import { isUtf8 } from "node:buffer";
+import { createHash } from "node:crypto";
+import { appendFile, mkdir, readFile } from "node:fs/promises";
+import path from "node:path";
 
-import { cacheJsonByKey } from "../../cache/cache-json-by-key.ts";
 import {
   snapshotClosedArray,
   snapshotExactClosedRecord
 } from "../../data-boundary/closed-values.ts";
+import { canonicalJsonText } from "../../data-boundary/canonical-data.ts";
 import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import {
   parseMarkdownLinkFacts,
@@ -18,15 +20,14 @@ import {
 } from "./markdown-parser.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 
-const CACHE_NAMESPACE = "markdown-link-parse-facts";
+const CACHE_FILE_NAME = "markdown-link-parse-facts-v1.jsonl";
+const CACHE_FORMAT_VERSION = "markdown-link-parse-facts-jsonl-v1";
 const CACHE_PAYLOAD_VERSION = "1";
 /** Version the resolver memo and persistent identity share when parser facts change. */
 export const MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION =
   "mdast-gfm-frontmatter-github-slug-v1";
 const MAX_FACTS_PER_DOCUMENT = 100_000;
 const MAX_FACT_STRING_LENGTH = 16_777_216;
-const CACHE_COMPUTE_ABORTED = Symbol("markdown-link-cache-compute-aborted");
-const CACHE_COMPUTE_PARSE_FAILURE = Symbol("markdown-link-cache-compute-parse-failure");
 
 type MarkdownLinkParseFactsPayload = Readonly<{
   readonly occurrences: readonly MarkdownLinkOccurrence[];
@@ -34,64 +35,172 @@ type MarkdownLinkParseFactsPayload = Readonly<{
 }>;
 
 /**
- * Reuses Link-private parse facts by exact UTF-8 source bytes when the caller has
- * explicitly enabled its own persistent cache directory. Cache state is only an
- * optimization: malformed or unavailable storage falls back to a fresh parse.
+ * Link-private state for one resolver invocation's parse-facts cache lifecycle.
+ * It restores at most once, collects successful fresh facts by identity, and
+ * publishes at the execution terminal boundary.
  */
-export async function parseMarkdownLinkFactsWithCache(
-  bytes: Uint8Array,
-  cache: ResolvedMarkdownLinkValidationOptions["cache"],
-  signal: AbortSignal
-): Promise<MarkdownLinkParseResult | undefined> {
-  if (signal.aborted) return undefined;
-  let decodedMarkdown: string | undefined;
-  const parseFresh = (): MarkdownLinkParseResult | undefined => {
-    if (decodedMarkdown === undefined) {
-      try {
-        decodedMarkdown = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
-      } catch {
-        return undefined;
-      }
-    }
-    return parseMarkdownLinkFacts(decodedMarkdown);
-  };
-  if (!cache.enabled) return parseFresh();
-  const parseCachedPayload = (payload: unknown): ParsedMarkdownLinkFacts => {
-    // Cache hits can skip decoding and parsing, but never the source-byte UTF-8 boundary.
-    if (decodedMarkdown === undefined && !isUtf8(bytes)) {
-      throw new TypeError("Markdown Link cached facts require valid UTF-8 source bytes");
-    }
-    return parseMarkdownLinkParseFactsPayload(payload);
-  };
+export class MarkdownLinkParseFactsSession {
+  readonly #cache: ResolvedMarkdownLinkValidationOptions["cache"];
+  readonly #restored = new Map<string, ParsedMarkdownLinkFacts>();
+  readonly #dirty = new Map<string, ParsedMarkdownLinkFacts>();
+  #initialRead: Promise<void> | undefined;
+  #canPublish = true;
+  #needsPartialTailIsolation = false;
+  #finalization: Promise<void> | undefined;
 
-  let fresh: MarkdownLinkParseResult | undefined;
-  const parseFreshForCache = (): MarkdownLinkParseResult | undefined => {
-    fresh ??= parseFresh();
-    return fresh;
-  };
-  try {
-    if (signal.aborted) return undefined;
-    const cached = await cacheJsonByKey<ParsedMarkdownLinkFacts>({
-      compute: () => {
-        if (signal.aborted) throw CACHE_COMPUTE_ABORTED;
-        const parsed = parseFreshForCache();
-        if (parsed === undefined || !parsed.ok) throw CACHE_COMPUTE_PARSE_FAILURE;
-        // A cancellation observed after parse must not begin a new publication.
-        if (signal.aborted) throw CACHE_COMPUTE_ABORTED;
-        return projectMarkdownLinkParseFactsPayload(parsed.facts);
-      },
-      directory: cache.directory,
-      key: markdownBytesDigest(bytes),
-      namespace: CACHE_NAMESPACE,
-      parse: parseCachedPayload,
-      version: `${CACHE_PAYLOAD_VERSION}:${MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION}`
-    });
-    // Publication may already have completed, but a cancelled Check never consumes these facts.
-    if (signal.aborted) return undefined;
-    return Object.freeze({ ok: true as const, facts: cached.value });
-  } catch {
-    return signal.aborted ? undefined : parseFreshForCache();
+  constructor(cache: ResolvedMarkdownLinkValidationOptions["cache"]) {
+    this.#cache = cache;
   }
+
+  async parse(
+    bytes: Uint8Array,
+    signal: AbortSignal
+  ): Promise<MarkdownLinkParseResult | undefined> {
+    if (signal.aborted) return undefined;
+    // Hits must still validate the current authorized bytes, but need not decode them.
+    if (!isUtf8(bytes)) return undefined;
+    if (!this.#cache.enabled) {
+      const markdown = decodeMarkdownBytes(bytes);
+      return markdown === undefined || signal.aborted
+        ? undefined
+        : parseMarkdownLinkFacts(markdown);
+    }
+
+    await this.#restoreOnce();
+    if (signal.aborted) return undefined;
+    const identityDigest = markdownBytesDigest(bytes);
+    const restored = this.#restored.get(identityDigest);
+    if (restored !== undefined) return Object.freeze({ ok: true as const, facts: restored });
+    const dirty = this.#dirty.get(identityDigest);
+    if (dirty !== undefined) return Object.freeze({ ok: true as const, facts: dirty });
+
+    const markdown = decodeMarkdownBytes(bytes);
+    if (markdown === undefined || signal.aborted) return undefined;
+    const parsed = parseMarkdownLinkFacts(markdown);
+    if (!parsed.ok || signal.aborted) return parsed.ok ? undefined : parsed;
+    this.#dirty.set(identityDigest, parsed.facts);
+    return parsed;
+  }
+
+  finalize(signal: AbortSignal): Promise<void> {
+    this.#finalization ??= this.#publish(signal);
+    return this.#finalization;
+  }
+
+  async #restoreOnce(): Promise<void> {
+    this.#initialRead ??= this.#restore();
+    await this.#initialRead;
+  }
+
+  async #restore(): Promise<void> {
+    if (!this.#cache.enabled) return;
+    let contents: Uint8Array;
+    try {
+      contents = await readFile(cacheFilePath(this.#cache.directory));
+    } catch (error) {
+      if (isMissingFile(error)) return;
+      this.#canPublish = false;
+      return;
+    }
+
+    this.#needsPartialTailIsolation =
+      contents.length > 0 && contents[contents.length - 1] !== "\n".charCodeAt(0);
+    let text: string;
+    try {
+      text = new TextDecoder("utf-8", { fatal: true }).decode(contents);
+    } catch {
+      this.#canPublish = false;
+      return;
+    }
+    const lastNewline = text.lastIndexOf("\n");
+    if (lastNewline < 0) return;
+    for (const line of text.slice(0, lastNewline).split("\n")) {
+      const restored = parseCacheEnvelope(line);
+      if (restored !== undefined) this.#restored.set(restored.identityDigest, restored.facts);
+    }
+  }
+
+  async #publish(signal: AbortSignal): Promise<void> {
+    if (signal.aborted || !this.#cache.enabled || !this.#canPublish || this.#dirty.size === 0)
+      return;
+    try {
+      await mkdir(this.#cache.directory, { recursive: true });
+      if (signal.aborted) return;
+      const block = `${this.#needsPartialTailIsolation ? "\n" : ""}${[...this.#dirty.entries()]
+        .map(([identityDigest, facts]) => cacheEnvelopeLine(identityDigest, facts))
+        .join("")}`;
+      // appendFile both creates a missing file and appends the invocation's one complete block.
+      await appendFile(cacheFilePath(this.#cache.directory), block);
+    } catch {
+      // Cache publication is best effort and never changes Check settlement.
+    }
+  }
+}
+
+function decodeMarkdownBytes(bytes: Uint8Array): string | undefined {
+  try {
+    return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+  } catch {
+    return undefined;
+  }
+}
+
+function cacheFilePath(directory: string): string {
+  return path.join(directory, CACHE_FILE_NAME);
+}
+
+function isMissingFile(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as Readonly<{ readonly code?: unknown }>).code === "ENOENT"
+  );
+}
+
+function cacheEnvelopeLine(identityDigest: string, facts: ParsedMarkdownLinkFacts): string {
+  return `${canonicalJsonText({
+    cacheFormatVersion: CACHE_FORMAT_VERSION,
+    identityDigest,
+    parserContractVersion: MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION,
+    payloadVersion: CACHE_PAYLOAD_VERSION,
+    payload: projectMarkdownLinkParseFactsPayload(facts)
+  })}\n`;
+}
+
+function parseCacheEnvelope(
+  line: string
+):
+  | Readonly<{ readonly identityDigest: string; readonly facts: ParsedMarkdownLinkFacts }>
+  | undefined {
+  try {
+    const envelope = snapshotExactClosedRecord(JSON.parse(line), [
+      "cacheFormatVersion",
+      "identityDigest",
+      "parserContractVersion",
+      "payloadVersion",
+      "payload"
+    ]);
+    if (
+      envelope === undefined ||
+      envelope.cacheFormatVersion !== CACHE_FORMAT_VERSION ||
+      !validIdentityDigest(envelope.identityDigest) ||
+      envelope.parserContractVersion !== MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION ||
+      envelope.payloadVersion !== CACHE_PAYLOAD_VERSION
+    ) {
+      return undefined;
+    }
+    return Object.freeze({
+      identityDigest: envelope.identityDigest,
+      facts: parseMarkdownLinkParseFactsPayload(envelope.payload)
+    });
+  } catch {
+    return undefined;
+  }
+}
+
+function validIdentityDigest(value: unknown): value is string {
+  return typeof value === "string" && /^[a-f0-9]{64}$/u.test(value);
 }
 
 /** Converts parser-owned immutable facts to the closed persistent JSON payload. */

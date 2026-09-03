@@ -2,7 +2,7 @@ import { opendir } from "node:fs/promises";
 import path from "node:path";
 
 import type { MarkdownLinkParseResult, ParsedMarkdownLinkFacts } from "./markdown-parser.ts";
-import { parseMarkdownLinkFactsWithCache } from "./parse-facts-cache.ts";
+import { MarkdownLinkParseFactsSession } from "./parse-facts-cache.ts";
 import {
   directoryTarget,
   fileTargetDescriptor,
@@ -34,7 +34,7 @@ import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 export class LinkLocalResolver implements MarkdownLocalResolver {
   #targetReadCount = 0;
   readonly #canonicalProjectRoot: string;
-  readonly #cache: ResolvedMarkdownLinkValidationOptions["cache"];
+  readonly #parseFactsCache: MarkdownLinkParseFactsSession;
   readonly #maxTargetReads: number;
   readonly #signal: AbortSignal;
   readonly #targetFactMemo = new Map<string, Promise<ParsedMarkdownLinkFacts | undefined>>();
@@ -47,12 +47,16 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
   ) {
     this.#canonicalProjectRoot = canonicalProjectRoot;
     this.#maxTargetReads = maxTargetReads;
-    this.#cache = cache;
+    this.#parseFactsCache = new MarkdownLinkParseFactsSession(cache);
     this.#signal = signal;
   }
 
   get targetReadCount(): number {
     return this.#targetReadCount;
+  }
+
+  finalize(): Promise<void> {
+    return this.#parseFactsCache.finalize(this.#signal);
   }
 
   async readSource(
@@ -295,7 +299,7 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
 
   async #parseMarkdownBytes(bytes: Uint8Array): Promise<MarkdownLinkParseResult | undefined> {
     if (this.#signal.aborted) return undefined;
-    const parsed = await parseMarkdownLinkFactsWithCache(bytes, this.#cache, this.#signal);
+    const parsed = await this.#parseFactsCache.parse(bytes, this.#signal);
     return this.#signal.aborted ? undefined : parsed;
   }
 

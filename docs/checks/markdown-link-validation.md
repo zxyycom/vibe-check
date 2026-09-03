@@ -78,22 +78,38 @@ const documentationLinks = markdownLinkValidation({
 
 ### Parse-facts cache 的生命周期与可见性
 
-启用时，调用方拥有 `directory` 的选择、容量监控和删除。它是可删除的本地性能状态，不是输出目录，也没有默认位置；
-Product 不提供 TTL、LRU、quota、automatic cleanup、remote sharing 或 cross-process single-flight。
+#### 状态所有权与安全边界
 
-cache entry 只复用由当前授权读取的 exact Markdown bytes 决定的 Link-private occurrences、headings 和 decoded source
-ranges。identity 组合 exact bytes 的 SHA-256、Link parser contract 和 payload version；版本升级使旧 entry 不命中而不自动删除。
-为了复用解析，entry 可能包含 raw link destination、heading slug、range，以及可从已知内容推断的 identity；因此
-它**不提供** confidentiality、secret protection 或 tamper resistance。不要为不愿复制到该 caller-owned local state 的
-Markdown 启用它。
+启用时，调用方拥有 `directory` 的选择、容量监控和删除。Product 只为这个 Markdown Link Check 在其中使用
+`<directory>/markdown-link-parse-facts-v1.jsonl`：它是可删除的本地性能状态，不是输出目录，也没有默认位置。既有
+per-entry `.json` state 被忽略，不迁移、不删除。该文件可能保存 source-derived parse facts；它**不提供**
+confidentiality、secret protection 或 tamper resistance。不要为不愿复制到 caller-owned local state 的 Markdown 启用它。
 
-cache hit 只跳过同一 bytes 的 parse-facts computation。每次 invocation 仍重新收集 source、授权 source/target path、probe
-current endpoint state、应用 options、形成 Finding/Record 和结算 Check。miss、过期或 malformed payload、以及 read/write
-failure 都退化为 fresh parse；它们不新增 Check message、Record、final-data 或 machine field。
+#### 恢复与命中
 
-取消会在 cache helper 前、miss computation 内和 helper await 后检查。若 cancellation 已在 immutable parse facts 交给
-atomic publication 后发生，该 entry 可以完成并留给未来的相同 bytes 使用；它不是 Check/settlement cache，取消的 invocation
-不会消费它来形成 Finding、Record、message、final-data 或 machine output。
+每个启用 cache 的 invocation 首次使用 cache 时，严格串行读取这一整个 JSONL file 一次，并从完整且可用的 lines 恢复本次
+invocation 的 Map。每个 source 或 target 在命中前仍先按当前授权读取 exact Markdown bytes，并通过 fatal UTF-8
+boundary；只有 exact bytes 的 SHA-256、Link parser contract 和 payload version 都匹配时，才复用 Link-private
+occurrences、headings 和 decoded source ranges。命中只跳过 parse-facts computation；每次 invocation 仍重新收集 source、
+授权 source/target path、probe current endpoint state、应用 options、形成 Finding/Record 和结算 Check。
+
+#### Publication、取消与 failure fallback
+
+fresh parse 的成功 facts 先留在本次 invocation。其 terminal boundary 在返回前最多一次严格串行、awaited 地将 dirty facts
+append 到该 file；若 signal 在 publication 开始前已取消，则不开始 publication；一旦开始，取消仍等待该 append，不启动
+background write。malformed、unknown-version 或未以 newline 终止的 line 被忽略；同一 identity 的多个有效 line 以最后一个
+有效 line 为准。whole file unreadable、单个 line 不可用，以及 read/parse/write failure 都只降低 cache availability：受影响
+facts fresh-parse 或 miss，不新增或改变 Check message、Record、final data、machine field 或 terminal status。
+
+#### 未提供的保证
+
+Product 不提供 lock、merge、fsync/durability、atomicity、concurrency、TTL、LRU、quota、automatic cleanup、remote sharing
+或 cross-process single-flight。跨进程干扰可能留下 invalid 或 duplicate line，并在以后降级为 miss；调用方继续负责容量监控和
+删除该 directory state。cache 不是 Check/settlement cache：取消的 invocation 不会用它形成 Finding、Record、message、
+final-data 或 machine output。
+
+本页拥有 consumer contract，不拥有单次 benchmark 的通过结论；当前 formal runtime observation、raw samples 和历史比较边界见
+`changes/pack-markdown-link-cache-jsonl/evidence/`。
 
 ## 工作原理
 

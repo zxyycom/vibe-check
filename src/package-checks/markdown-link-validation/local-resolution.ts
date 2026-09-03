@@ -33,6 +33,7 @@ interface MarkdownLinkSource {
 interface MarkdownLocalResolver {
   readSource(rootRelativePath: string, maxMarkdownBytes: number): Promise<MarkdownSourceReadResult>;
   resolve(request: MarkdownLocalResolutionRequest): Promise<MarkdownLocalResolution>;
+  finalize(): Promise<void>;
   readonly targetReadCount: number;
 }
 

@@ -117,6 +117,19 @@ async function prepareMarkdownTraversal(
     context.signal
   );
   if (!created.ok) return result(unavailable(created.reason));
+  let prepared: PreparedMarkdownTraversal;
+  try {
+    prepared = await prepareCreatedMarkdownTraversal(context, created.resolver);
+  } finally {
+    await created.resolver.finalize();
+  }
+  return context.signal.aborted ? result(unavailable("cancelled")) : prepared;
+}
+
+async function prepareCreatedMarkdownTraversal(
+  context: CheckExecutionContext<ResolvedMarkdownLinkValidationOptions>,
+  resolver: MarkdownLocalResolver
+): Promise<PreparedMarkdownTraversal> {
   if (context.signal.aborted) return result(unavailable("cancelled"));
   const sourceDiscovery = discoverMarkdownSourcePaths(context.project, context.options.files);
   if (sourceDiscovery.kind === "unavailable") return result(unavailable(sourceDiscovery.reason));
@@ -124,7 +137,7 @@ async function prepareMarkdownTraversal(
   if (context.signal.aborted) return result(unavailable("cancelled"));
   reportRejectedInputs(context, sourceDiscovery.rejectedPaths);
   const traversal = await traverseMarkdownSources(sourceDiscovery.sourcePaths, {
-    resolver: created.resolver,
+    resolver,
     options: context.options,
     signal: context.signal
   });
@@ -144,7 +157,7 @@ async function prepareMarkdownTraversal(
   return Object.freeze({
     kind: "traversal",
     rejectedPaths: sourceDiscovery.rejectedPaths,
-    resolver: created.resolver,
+    resolver,
     traversal
   });
 }
