@@ -1,0 +1,154 @@
+{
+  "before": {
+    "count": 30,
+    "medianMs": 4799.245237499999,
+    "p90Ms": 7660.072720900001,
+    "minMs": 4393.248448999999,
+    "maxMs": 9210.967561000001,
+    "q1Ms": 4568.5091325,
+    "q3Ms": 5134.777959999999,
+    "iqrOutlierOrdinals": [
+      23,
+      31,
+      49,
+      52,
+      54,
+      55,
+      60
+    ]
+  },
+  "after": {
+    "count": 30,
+    "medianMs": 4636.526367499999,
+    "p90Ms": 5532.268553900003,
+    "minMs": 4400.663348,
+    "maxMs": 8568.568767,
+    "q1Ms": 4530.365554000001,
+    "q3Ms": 4847.22439425,
+    "iqrOutlierOrdinals": [
+      50,
+      51,
+      56,
+      59
+    ]
+  },
+  "afterMedianChangePercent": -3.3905095894779302,
+  "pairedBlocks": {
+    "count": 15,
+    "medianBeforeOverAfterRatio": 1.0285621002385095,
+    "medianDeltaMs": 133.75149565615538,
+    "positiveDeltaBlocks": 10,
+    "all": [
+      {
+        "block": 1,
+        "beforeGeometricMeanMs": 4789.787081354062,
+        "afterGeometricMeanMs": 4595.917295856852,
+        "beforeOverAfterRatio": 1.0421830448672305,
+        "deltaMs": 193.8697854972097
+      },
+      {
+        "block": 2,
+        "beforeGeometricMeanMs": 4838.810243594539,
+        "afterGeometricMeanMs": 4595.722538425802,
+        "beforeOverAfterRatio": 1.05289433884144,
+        "deltaMs": 243.08770516873756
+      },
+      {
+        "block": 3,
+        "beforeGeometricMeanMs": 4547.565585807532,
+        "afterGeometricMeanMs": 4578.533219047233,
+        "beforeOverAfterRatio": 0.9932363419116692,
+        "deltaMs": -30.967633239700262
+      },
+      {
+        "block": 4,
+        "beforeGeometricMeanMs": 4816.58274893429,
+        "afterGeometricMeanMs": 4682.831253278135,
+        "beforeOverAfterRatio": 1.0285621002385095,
+        "deltaMs": 133.75149565615538
+      },
+      {
+        "block": 5,
+        "beforeGeometricMeanMs": 4701.10939576405,
+        "afterGeometricMeanMs": 4951.4744807181905,
+        "beforeOverAfterRatio": 0.9494362566283838,
+        "deltaMs": -250.3650849541409
+      },
+      {
+        "block": 6,
+        "beforeGeometricMeanMs": 6900.456879762728,
+        "afterGeometricMeanMs": 4502.355806173741,
+        "beforeOverAfterRatio": 1.5326325099186189,
+        "deltaMs": 2398.1010735889868
+      },
+      {
+        "block": 7,
+        "beforeGeometricMeanMs": 4607.570801026948,
+        "afterGeometricMeanMs": 4786.363199603895,
+        "beforeOverAfterRatio": 0.9626454593768097,
+        "deltaMs": -178.79239857694665
+      },
+      {
+        "block": 8,
+        "beforeGeometricMeanMs": 5449.313589463317,
+        "afterGeometricMeanMs": 4739.984159148884,
+        "beforeOverAfterRatio": 1.1496480592546539,
+        "deltaMs": 709.329430314433
+      },
+      {
+        "block": 9,
+        "beforeGeometricMeanMs": 4657.638437256116,
+        "afterGeometricMeanMs": 4589.807027607825,
+        "beforeOverAfterRatio": 1.0147787062158131,
+        "deltaMs": 67.8314096482909
+      },
+      {
+        "block": 10,
+        "beforeGeometricMeanMs": 4693.7168500501275,
+        "afterGeometricMeanMs": 4461.48790030812,
+        "beforeOverAfterRatio": 1.0520519062095786,
+        "deltaMs": 232.2289497420079
+      },
+      {
+        "block": 11,
+        "beforeGeometricMeanMs": 4511.81968343236,
+        "afterGeometricMeanMs": 4613.533878661053,
+        "beforeOverAfterRatio": 0.9779530837089653,
+        "deltaMs": -101.71419522869292
+      },
+      {
+        "block": 12,
+        "beforeGeometricMeanMs": 4605.129271746859,
+        "afterGeometricMeanMs": 4569.501526735649,
+        "beforeOverAfterRatio": 1.0077968559158488,
+        "deltaMs": 35.6277450112093
+      },
+      {
+        "block": 13,
+        "beforeGeometricMeanMs": 6852.512241762604,
+        "afterGeometricMeanMs": 7062.164072910038,
+        "beforeOverAfterRatio": 0.9703133729288953,
+        "deltaMs": -209.65183114743377
+      },
+      {
+        "block": 14,
+        "beforeGeometricMeanMs": 6884.78854927005,
+        "afterGeometricMeanMs": 6279.136472913939,
+        "beforeOverAfterRatio": 1.0964546763665177,
+        "deltaMs": 605.6520763561111
+      },
+      {
+        "block": 15,
+        "beforeGeometricMeanMs": 6100.297500069898,
+        "afterGeometricMeanMs": 5290.166826719758,
+        "beforeOverAfterRatio": 1.1531389651566948,
+        "deltaMs": 810.1306733501397
+      }
+    ]
+  },
+  "equality": {
+    "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+    "allCountedSamplesSameDigest": true,
+    "recordCount": 3686
+  }
+}

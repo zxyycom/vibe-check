@@ -1,0 +1,23 @@
+{
+  "evidenceSource": "docs/investigations/_resources/diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json",
+  "method": "pre-resolved reader, direct in-memory core; 15 sequential warmed observations per runtime/family; exploratory hotspot ranking, not cross-runtime ABBA",
+  "corpus": {
+    "upstreamLizardCommit": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "inputs": [
+      "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f",
+      "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/edge.f70"
+    ],
+    "replications": 64,
+    "files": 128,
+    "sourceBytes": 20864
+  },
+  "observations": {
+    "python": "CPython 3.12.13 with Lizard 1.24.0",
+    "typescript": "Bun 1.3.14",
+    "pythonMedianMs": 10.760102,
+    "typescriptMedianMs": 74.28222000000005,
+    "medianGapMs": 63.52211800000005,
+    "typescriptOverPythonMedianRatio": 6.9034866026363
+  },
+  "scopeBoundary": "Reader selection was pre-resolved, so the numbers exclude port-facade/registry dispatch but retain FortranReader, shared tokenization, default processors, and in-memory core state processing."
+}

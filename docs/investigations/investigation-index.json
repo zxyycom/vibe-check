@@ -413,6 +413,48 @@
         "title": "采用 Remeda 与 Mnemonist，保留原生集合默认"
       }
     },
+    "investigate-fortran-lizard-performance-hotspot.md": {
+      "keys": {
+        "formed-at": [
+          1788422386000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "fortran",
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment"
+        ],
+        "text": [
+          "固定 Lizard 1.24 Fortran 语料性能热点轻量复核",
+          "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T07:59:46Z",
+        "question": "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？",
+        "relations": [
+          {
+            "target": "diagnose-lizard-typescript-port-performance-gap.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [
+          "investigate-fortran-lizard-performance-hotspot/fortran-family-evidence.json"
+        ],
+        "tags": [
+          "fortran",
+          "function-metrics",
+          "lizard",
+          "performance",
+          "source-alignment"
+        ],
+        "title": "固定 Lizard 1.24 Fortran 语料性能热点轻量复核"
+      }
+    },
     "markdown-link-validation-library-strategy.md": {
       "keys": {
         "formed-at": [
@@ -493,6 +535,52 @@
           "json-validation"
         ],
         "title": "依赖实际加载面与零依赖严格 grammar 路径"
+      }
+    },
+    "remeasure-function-metrics-product-reader-fast-path.md": {
+      "keys": {
+        "formed-at": [
+          1788423008000
+        ],
+        "relation-type": [
+          "复查"
+        ],
+        "tag": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "product-runtime",
+          "verification"
+        ],
+        "text": [
+          "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
+          "复测 reader fast path 的完整 functionMetrics Product 路径"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-03T08:10:08Z",
+        "question": "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
+        "relations": [
+          {
+            "target": "verify-lizard-reader-resolution-fast-path.md",
+            "type": "复查"
+          }
+        ],
+        "resourceIds": [
+          "remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json",
+          "remeasure-function-metrics-product-reader-fast-path/evidence.json",
+          "remeasure-function-metrics-product-reader-fast-path/product-driver.ts",
+          "remeasure-function-metrics-product-reader-fast-path/run-benchmark.py",
+          "remeasure-function-metrics-product-reader-fast-path/summary.json"
+        ],
+        "tags": [
+          "function-metrics",
+          "lizard",
+          "performance",
+          "product-runtime",
+          "verification"
+        ],
+        "title": "复测 reader fast path 的完整 functionMetrics Product 路径"
       }
     },
     "result-and-option-libraries.md": {
@@ -621,9 +709,11 @@
       "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:f45a56559223f8c0d317013d7da4772bbf87838a714be580f44027f744803401",
       "diagnose-lizard-typescript-port-performance-gap.md": "sha256:c10b856a61c998509b3cbc81bbe008086fa55fdae306db0956e9fb9a4da96edb",
       "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
+      "investigate-fortran-lizard-performance-hotspot.md": "sha256:9cb0b3e5866019769cf1790d426ba77f4de6596754289bec757d6df6d0a058ac",
       "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
       "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
       "recheck-json-dependency-and-zero-dependency-path.md": "sha256:6967e3e64bb9ed78eb4bf93f95a96d068bdf50d35e4d4ab6aaf840a7e81937c6",
+      "remeasure-function-metrics-product-reader-fast-path.md": "sha256:3d73544de2fc56df1c1c1fa7d566e3bb5d61462c7f70d0484652f0eecef2c80d",
       "result-and-option-libraries.md": "sha256:2a7660ba472520806deddbbca80b76f3c4f9410baf74984039e1f20bda92b623",
       "schema-validation-and-static-inference.md": "sha256:5dabe147f87f8778cf0c37a03c7b58790611f7476b103b6c188ce0ac3c9bf4fb",
       "verify-lizard-reader-resolution-fast-path.md": "sha256:ce2058ab3039313d29c60355f0c9e8ab611d2a26b583fe5696c7d0aa3dfbde52"

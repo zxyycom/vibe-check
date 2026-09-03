@@ -1,0 +1,1087 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "full-product-function-metrics-adjacent-revision-remeasure",
+  "formedAt": "2026-09-03T08:08:57Z",
+  "identity": {
+    "beforeRevision": "e2bad655dde89d07c48413fae4c6167746e10708",
+    "afterRevision": "dd9635d05ddbeb7b0c821ded527b43e298648a38",
+    "beforeTree": "4053ff74c8a8f06ba7e5fa6f73cb1162d25b49f3",
+    "afterTree": "47a67ce780f60cb449921156c30c190e2997c010",
+    "driverSha256": "919d58e8cf4e32b374a33b378ed2102d02650ed1f42cb4e800b3d06ed2d1e653",
+    "corpusManifestSha256": "f34a3bf3c1aba272c572298e54056166814c33023381d00cf193099366eb5449"
+  },
+  "environment": {
+    "bunVersion": "1.3.14",
+    "kernel": "Linux-6.18.33.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+    "machine": "x86_64",
+    "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuCount": 6
+  },
+  "protocol": {
+    "corpusRootRevision": "e2bad65dde89d07c48413fae4c6167746e10708",
+    "corpusClassification": "real tracked repository Product runtime source, not synthetic representative fixtures",
+    "corpusPathCount": 254,
+    "timingScope": "fresh Bun target with one uncounted same-process complete Product warmup; operationWallMs surrounds a second public Product run",
+    "includedPath": "defineConfig/functionMetrics/run -> explicit path collection/admission -> bounded read/decode -> Worker -> Product adapter -> port facade -> analysis -> finding records -> settlement snapshot",
+    "schedule": "15 blocks; odd ABBA and even BAAB; two samples per condition per block",
+    "equalityGuard": "preflight and every counted sample require exact JSON.stringify(snapshot) SHA-256 equality against before preflight",
+    "preflight": {
+      "before": {
+        "condition": "before-original-facade",
+        "operationWallMs": 4700.462159,
+        "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+        "summary": {
+          "topLevelKeys": [
+            "checks",
+            "records"
+          ],
+          "checkCount": 1,
+          "recordCount": 3686
+        },
+        "block": 0,
+        "ordinal": 0,
+        "observedWallMs": 9876.133491,
+        "stderr": ""
+      },
+      "after": {
+        "condition": "after-reader-fast-path",
+        "operationWallMs": 4428.5981170000005,
+        "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+        "summary": {
+          "topLevelKeys": [
+            "checks",
+            "records"
+          ],
+          "checkCount": 1,
+          "recordCount": 3686
+        },
+        "block": 0,
+        "ordinal": 0,
+        "observedWallMs": 8972.009306,
+        "stderr": ""
+      }
+    }
+  },
+  "samples": [
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 5021.899566000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 1,
+      "ordinal": 1,
+      "observedWallMs": 9578.923713,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4602.498742000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 1,
+      "ordinal": 2,
+      "observedWallMs": 9196.578628,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4589.345261,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 1,
+      "ordinal": 3,
+      "observedWallMs": 9120.710936,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4568.402849,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 1,
+      "ordinal": 4,
+      "observedWallMs": 9200.282537,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4552.002766,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 2,
+      "ordinal": 5,
+      "observedWallMs": 9157.233885,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4797.638642,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 2,
+      "ordinal": 6,
+      "observedWallMs": 9447.991609,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4880.3351649999995,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 2,
+      "ordinal": 7,
+      "observedWallMs": 10135.354707,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4639.862217999999,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 2,
+      "ordinal": 8,
+      "observedWallMs": 9308.470845,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4553.035897000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 3,
+      "ordinal": 9,
+      "observedWallMs": 9456.447105,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4703.559055,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 3,
+      "ordinal": 10,
+      "observedWallMs": 9234.946592,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4456.830709,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 3,
+      "ordinal": 11,
+      "observedWallMs": 9034.663855,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4542.101847,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 3,
+      "ordinal": 12,
+      "observedWallMs": 9184.162607,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4926.649722000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 4,
+      "ordinal": 13,
+      "observedWallMs": 9450.861834,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4780.585562,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 4,
+      "ordinal": 14,
+      "observedWallMs": 9677.484735,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4852.85099,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 4,
+      "ordinal": 15,
+      "observedWallMs": 9459.165716,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4451.079290000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 4,
+      "ordinal": 16,
+      "observedWallMs": 9228.894939,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4393.248448999999,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 5,
+      "ordinal": 17,
+      "observedWallMs": 8886.103367,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 5214.467678,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 5,
+      "ordinal": 18,
+      "observedWallMs": 9836.560318,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4701.745422,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 5,
+      "ordinal": 19,
+      "observedWallMs": 10291.92147,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 5030.543983,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 5,
+      "ordinal": 20,
+      "observedWallMs": 9874.700248,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4493.465193999999,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 6,
+      "ordinal": 21,
+      "observedWallMs": 9192.399149,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 5169.522618999999,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 6,
+      "ordinal": 22,
+      "observedWallMs": 10399.281081,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 9210.967561000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 6,
+      "ordinal": 23,
+      "observedWallMs": 21096.172019,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4511.2640089999995,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 6,
+      "ordinal": 24,
+      "observedWallMs": 9125.330119,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4568.827983,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 7,
+      "ordinal": 25,
+      "observedWallMs": 9426.709674,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4734.769178,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 7,
+      "ordinal": 26,
+      "observedWallMs": 9354.646564,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4838.5194329999995,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 7,
+      "ordinal": 27,
+      "observedWallMs": 9604.726259,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4646.642151000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 7,
+      "ordinal": 28,
+      "observedWallMs": 9675.87142,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4632.343491,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 8,
+      "ordinal": 29,
+      "observedWallMs": 9442.31916,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4578.163462,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 8,
+      "ordinal": 30,
+      "observedWallMs": 9296.024181,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 6486.229433,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 8,
+      "ordinal": 31,
+      "observedWallMs": 11711.734707,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4850.126048,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 8,
+      "ordinal": 32,
+      "observedWallMs": 9945.162058,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4800.851833,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 9,
+      "ordinal": 33,
+      "observedWallMs": 9723.444959,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4669.1543280000005,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 9,
+      "ordinal": 34,
+      "observedWallMs": 9526.324768,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4511.80815,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 9,
+      "ordinal": 35,
+      "observedWallMs": 9226.941945,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4518.697216,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 9,
+      "ordinal": 36,
+      "observedWallMs": 9266.622022,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4523.153150000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 10,
+      "ordinal": 37,
+      "observedWallMs": 9056.363859,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4908.171995,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 10,
+      "ordinal": 38,
+      "observedWallMs": 9537.277403,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4488.631998,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 10,
+      "ordinal": 39,
+      "observedWallMs": 9152.595461,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4400.663348,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 10,
+      "ordinal": 40,
+      "observedWallMs": 8900.354485,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4575.909082000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 11,
+      "ordinal": 41,
+      "observedWallMs": 9097.40143,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4593.960635,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 11,
+      "ordinal": 42,
+      "observedWallMs": 9227.226519,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4633.190516999999,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 11,
+      "ordinal": 43,
+      "observedWallMs": 9275.872771,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4448.627909999999,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 11,
+      "ordinal": 44,
+      "observedWallMs": 9068.936051,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4675.866286,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 12,
+      "ordinal": 45,
+      "observedWallMs": 9261.363775,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4684.554214,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 12,
+      "ordinal": 46,
+      "observedWallMs": 9494.241825,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4527.050951,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 12,
+      "ordinal": 47,
+      "observedWallMs": 9379.354782,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4465.556311,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 12,
+      "ordinal": 48,
+      "observedWallMs": 8928.291315,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 7715.622378000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 13,
+      "ordinal": 49,
+      "observedWallMs": 13238.464718,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 7495.646828999999,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 13,
+      "ordinal": 50,
+      "observedWallMs": 13034.305891,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 6653.750174000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 13,
+      "ordinal": 51,
+      "observedWallMs": 13458.560483,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 6085.954149,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 13,
+      "ordinal": 52,
+      "observedWallMs": 11106.156201,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 4601.416633,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 14,
+      "ordinal": 53,
+      "observedWallMs": 9515.895428,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 6190.411336,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 14,
+      "ordinal": 54,
+      "observedWallMs": 10881.299947,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 7657.053917,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 14,
+      "ordinal": 55,
+      "observedWallMs": 12336.331493,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 8568.568767,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 14,
+      "ordinal": 56,
+      "observedWallMs": 17563.060899,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 4840.9598399999995,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 15,
+      "ordinal": 57,
+      "observedWallMs": 9731.682543,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 5175.226941000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 15,
+      "ordinal": 58,
+      "observedWallMs": 9878.913042,
+      "stderr": ""
+    },
+    {
+      "condition": "after-reader-fast-path",
+      "operationWallMs": 5407.659485000001,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 15,
+      "ordinal": 59,
+      "observedWallMs": 10670.315798,
+      "stderr": ""
+    },
+    {
+      "condition": "before-original-facade",
+      "operationWallMs": 7687.241956,
+      "snapshotDigest": "12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc",
+      "summary": {
+        "topLevelKeys": [
+          "checks",
+          "records"
+        ],
+        "checkCount": 1,
+        "recordCount": 3686
+      },
+      "block": 15,
+      "ordinal": 60,
+      "observedWallMs": 12684.172733,
+      "stderr": ""
+    }
+  ]
+}
