@@ -11,6 +11,17 @@ import {
   type RootProbe
 } from "./local-resolution.ts";
 
+interface RootContainedPathProbeState {
+  readonly currentPath: string;
+  readonly pendingSegments: readonly string[];
+  readonly symlinkHops: number;
+}
+
+type RootContainedPathProbeAdvance = RootProbe | RootContainedPathProbeState;
+type RootContainedPathStatus =
+  | RootProbe
+  | Readonly<{ readonly kind: "status"; readonly status: Awaited<ReturnType<typeof lstat>> }>;
+
 export async function probeRootContainedPath(
   canonicalProjectRoot: string,
   candidatePath: string
@@ -18,57 +29,91 @@ export async function probeRootContainedPath(
   if (!isWithinRoot(canonicalProjectRoot, candidatePath)) {
     return Object.freeze({ kind: "outside" as const });
   }
-  let pendingSegments = relativeSegments(canonicalProjectRoot, candidatePath);
-  let currentPath = canonicalProjectRoot;
-  let symlinkHops = 0;
+  let state: RootContainedPathProbeState = {
+    currentPath: canonicalProjectRoot,
+    pendingSegments: relativeSegments(canonicalProjectRoot, candidatePath),
+    symlinkHops: 0
+  };
 
-  while (pendingSegments.length > 0) {
-    const segment = pendingSegments.shift();
-    if (segment === undefined) {
-      return Object.freeze({ kind: "unavailable" as const });
-    }
-    const nextPath = path.join(currentPath, segment);
-    let status: Awaited<ReturnType<typeof lstat>>;
-    try {
-      status = await lstat(nextPath);
-    } catch (error: unknown) {
-      if (isNotFound(error)) {
-        return Object.freeze({ kind: "missing" as const, absolutePath: nextPath });
-      }
-      return Object.freeze({ kind: "unavailable" as const });
-    }
-    if (!status.isSymbolicLink()) {
-      currentPath = nextPath;
-      if (pendingSegments.length === 0) {
-        return Object.freeze({
-          kind: "contained" as const,
-          absolutePath: currentPath,
-          endpoint: endpointFromStatus(status)
-        });
-      }
-      continue;
-    }
-    if (symlinkHops >= 40) {
-      return Object.freeze({ kind: "unavailable" as const });
-    }
-    symlinkHops += 1;
-    let linkDestination: string;
-    try {
-      linkDestination = path.resolve(path.dirname(nextPath), await readlink(nextPath));
-    } catch {
-      return Object.freeze({ kind: "unavailable" as const });
-    }
-    if (!isWithinRoot(canonicalProjectRoot, linkDestination)) {
-      return Object.freeze({ kind: "outside" as const });
-    }
-    pendingSegments = [
-      ...relativeSegments(canonicalProjectRoot, linkDestination),
-      ...pendingSegments
-    ];
-    currentPath = canonicalProjectRoot;
+  while (state.pendingSegments.length > 0) {
+    const advance = await advanceRootContainedPathProbe(canonicalProjectRoot, state);
+    if (!isRootContainedPathProbeState(advance)) return advance;
+    state = advance;
   }
 
-  return Object.freeze({ kind: "contained" as const, absolutePath: currentPath });
+  return Object.freeze({ kind: "contained" as const, absolutePath: state.currentPath });
+}
+
+function isRootContainedPathProbeState(
+  value: RootContainedPathProbeAdvance
+): value is RootContainedPathProbeState {
+  return "currentPath" in value;
+}
+
+async function advanceRootContainedPathProbe(
+  canonicalProjectRoot: string,
+  state: RootContainedPathProbeState
+): Promise<RootContainedPathProbeAdvance> {
+  const [segment, ...remainingSegments] = state.pendingSegments;
+  if (segment === undefined) return Object.freeze({ kind: "unavailable" as const });
+  const nextPath = path.join(state.currentPath, segment);
+  const pathStatus = await rootContainedPathStatus(nextPath);
+  if (pathStatus.kind !== "status") return pathStatus;
+  if (!pathStatus.status.isSymbolicLink()) {
+    return remainingSegments.length === 0
+      ? Object.freeze({
+          kind: "contained" as const,
+          absolutePath: nextPath,
+          endpoint: endpointFromStatus(pathStatus.status)
+        })
+      : Object.freeze({
+          currentPath: nextPath,
+          pendingSegments: remainingSegments,
+          symlinkHops: state.symlinkHops
+        });
+  }
+  return advanceThroughContainedSymlink(
+    canonicalProjectRoot,
+    nextPath,
+    remainingSegments,
+    state.symlinkHops
+  );
+}
+
+async function rootContainedPathStatus(nextPath: string): Promise<RootContainedPathStatus> {
+  try {
+    return Object.freeze({ kind: "status" as const, status: await lstat(nextPath) });
+  } catch (error: unknown) {
+    return isNotFound(error)
+      ? Object.freeze({ kind: "missing" as const, absolutePath: nextPath })
+      : Object.freeze({ kind: "unavailable" as const });
+  }
+}
+
+async function advanceThroughContainedSymlink(
+  canonicalProjectRoot: string,
+  linkPath: string,
+  remainingSegments: readonly string[],
+  symlinkHops: number
+): Promise<RootContainedPathProbeAdvance> {
+  if (symlinkHops >= 40) return Object.freeze({ kind: "unavailable" as const });
+  let linkDestination: string;
+  try {
+    linkDestination = path.resolve(path.dirname(linkPath), await readlink(linkPath));
+  } catch {
+    return Object.freeze({ kind: "unavailable" as const });
+  }
+  if (!isWithinRoot(canonicalProjectRoot, linkDestination)) {
+    return Object.freeze({ kind: "outside" as const });
+  }
+  return Object.freeze({
+    currentPath: canonicalProjectRoot,
+    pendingSegments: [
+      ...relativeSegments(canonicalProjectRoot, linkDestination),
+      ...remainingSegments
+    ],
+    symlinkHops: symlinkHops + 1
+  });
 }
 
 export async function probeEndpoint(targetPath: string): Promise<EndpointProbe> {

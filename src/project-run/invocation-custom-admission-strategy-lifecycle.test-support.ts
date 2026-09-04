@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 
+import { assertEventsInOrder } from "./invocation-event-order.test-support.ts";
+
 import type { Check } from "../check/check.ts";
 import {
   defineConfig,
@@ -53,7 +55,7 @@ export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
   );
 
   assert.equal(result.kind, "completed");
-  assertOrdered({ events, required: ["prepare", "decide", "generic", "complete"] });
+  assertEventsInOrder({ events, required: ["prepare", "decide", "generic", "complete"] });
   assert.equal(events.filter((event) => event === "prepare").length, 1);
   assert.equal(events.filter((event) => event === "complete").length, 1);
   assert.deepEqual(result.outputs.measurementHooks, { enabled: true, status: "succeeded" });
@@ -201,7 +203,7 @@ export async function assertPublicCompletionFailurePreservesPrimaryResult(): Pro
     result.kind === "execution" ? result.diagnostic.code : undefined,
     "admission-policy-failed"
   );
-  assertOrdered({ events, required: ["decide", "generic", "complete"] });
+  assertEventsInOrder({ events, required: ["decide", "generic", "complete"] });
   assert.deepEqual(result.outputs.measurementHooks, { enabled: true, status: "failed" });
 }
 
@@ -288,20 +290,7 @@ function check(checkId: string, execution: Check["execution"]): Check {
   return { checkId, displayName: checkId, execution };
 }
 
-export function assertOrdered(input: {
-  readonly events: readonly string[];
-  readonly required: readonly string[];
-}): void {
-  let priorIndex = -1;
-  for (const event of input.required) {
-    const index = input.events.indexOf(event, priorIndex + 1);
-    assert.ok(
-      index >= 0,
-      `expected ${event} after ${input.events.slice(priorIndex + 1).join(", ")}`
-    );
-    priorIndex = index;
-  }
-}
+export { assertEventsInOrder as assertOrdered } from "./invocation-event-order.test-support.ts";
 
 export function deferred<T>() {
   let resolve!: (value: T | PromiseLike<T>) => void;

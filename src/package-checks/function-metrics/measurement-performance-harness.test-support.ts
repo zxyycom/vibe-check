@@ -5,9 +5,13 @@
 import { readFileSync } from "node:fs";
 
 import { decodeLizardAutoRead, measureFunctionMetrics } from "./measurement.ts";
+import {
+  parseMeasurementPerformanceSources,
+  type MeasurementPerformanceSource
+} from "./measurement-performance-source-dto.test-support.ts";
 
 interface Request {
-  readonly files: readonly { readonly path: string; readonly source: string }[];
+  readonly files: readonly MeasurementPerformanceSource[];
   readonly rootDir: string;
 }
 
@@ -95,7 +99,7 @@ export async function runCurrentProductForPerformanceBenchmark(request: Request)
 }
 
 async function analyzeInOneShotWorker(
-  files: readonly { readonly path: string; readonly source: string }[]
+  files: readonly MeasurementPerformanceSource[]
 ): Promise<WorkerResponse & Readonly<{ readonly roundtripMs: number }>> {
   let worker: Worker;
   try {
@@ -148,20 +152,15 @@ if (import.meta.main) {
 }
 
 function parseRequest(value: unknown): Request {
-  if (!isRecord(value) || !Array.isArray(value.files) || !value.files.every(isSource))
+  if (!isRecord(value)) throw new Error("invalid development benchmark request");
+  const files = parseMeasurementPerformanceSources(value.files);
+  if (files === undefined || typeof value.rootDir !== "string") {
     throw new Error("invalid development benchmark request");
-  const rootDir = value.rootDir;
-  if (typeof rootDir !== "string") throw new Error("invalid development benchmark request");
+  }
   return Object.freeze({
-    files: Object.freeze(
-      value.files.map((file) => Object.freeze({ path: file.path, source: file.source }))
-    ),
-    rootDir
+    files,
+    rootDir: value.rootDir
   });
-}
-
-function isSource(value: unknown): value is { readonly path: string; readonly source: string } {
-  return isRecord(value) && typeof value.path === "string" && typeof value.source === "string";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

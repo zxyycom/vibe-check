@@ -1,20 +1,17 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
+import { snapshotClosedArray } from "../../data-boundary/closed-values.ts";
 import {
-  type CheckVisibility,
-  type CheckFlagEnablement,
-  type CheckFlagEnablementMode,
-  type CheckExecution,
-  type CheckPreflight
-} from "../../check/check.ts";
-import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
-import { validateCheckDescriptor } from "../../check/descriptor-validation.ts";
-import { snapshotJsonObject } from "../../check/options-snapshot.ts";
-import { parseUniqueIdentifiers } from "./collection-authoring.ts";
+  parseCheckAuthoringData,
+  parseCheckFieldPrelude,
+  parseCheckFields,
+  type CheckAuthoringData,
+  type ParsedCheckFields,
+  type ParsedCheckFieldPrelude,
+  type TrustedDataParser
+} from "./check-fields-authoring.ts";
 import { parseCheckScheduling, type ParsedCheckCollection } from "./scheduling-authoring.ts";
 
 export type { ParsedCheckCollection } from "./scheduling-authoring.ts";
-
-type TrustedDataParser = (this: void, ...parameters: never[]) => unknown;
 
 export interface ParsedCheck {
   readonly admissionPriority: number | undefined;
@@ -23,16 +20,16 @@ export interface ParsedCheck {
   readonly definition: CheckDescriptor | null;
   readonly dependsOn: ParsedCheckCollection | undefined;
   readonly displayName: string;
-  readonly enabledByFlags: CheckFlagEnablement | null;
-  readonly execution: CheckExecution | null;
+  readonly enabledByFlags: ParsedCheckFieldPrelude["enabledByFlags"];
+  readonly execution: ParsedCheckFieldPrelude["execution"];
   readonly maxParallel: number | undefined;
   readonly mutex: ParsedCheckCollection | undefined;
   readonly observes: ParsedCheckCollection | undefined;
   readonly options: object | null;
   readonly path: string;
   readonly parseData: TrustedDataParser | null;
-  readonly preflight: CheckPreflight | null;
-  readonly visibility: CheckVisibility | null;
+  readonly preflight: ParsedCheckFieldPrelude["preflight"];
+  readonly visibility: ParsedCheckFields["visibility"];
 }
 
 export interface ParsedCheckTree {
@@ -49,55 +46,6 @@ export interface MeaninglessCheckWarning {
 interface ParseState {
   readonly warnings: MeaninglessCheckWarning[];
 }
-
-interface CheckAuthoringData extends Readonly<Record<string, unknown>> {
-  readonly checkId: string;
-  readonly displayName: string;
-}
-
-interface ParsedCheckFields {
-  readonly definition: CheckDescriptor | null;
-  readonly enabledByFlags: CheckFlagEnablement | null;
-  readonly execution: CheckExecution | null;
-  readonly options: object | null;
-  readonly parseData: TrustedDataParser | null;
-  readonly preflight: CheckPreflight | null;
-  readonly visibility: CheckVisibility | null;
-}
-
-interface ParsedFlagEnablementControl extends Readonly<Record<string, unknown>> {
-  readonly flags: unknown;
-  readonly mode: CheckFlagEnablementMode;
-  readonly propagateDependsOn?: true;
-}
-
-const CHECK_KEYS = [
-  "admissionPriority",
-  "checkId",
-  "checks",
-  "dependsOn",
-  "displayName",
-  "enabledByFlags",
-  "execution",
-  "maxParallel",
-  "mutex",
-  "options",
-  "observes",
-  "parseData",
-  "preflight",
-  "visibility"
-] as const;
-const FLAG_ENABLEMENT_KEYS = ["flags", "mode", "propagateDependsOn"] as const;
-
-const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
-  definition: null,
-  enabledByFlags: null,
-  execution: null,
-  options: null,
-  parseData: null,
-  preflight: null,
-  visibility: null
-});
 
 /**
  * Parses only the closed recursive authoring grammar. Execution callbacks are
@@ -120,24 +68,17 @@ export function parseCheckTreeAuthoring(value: unknown): ParsedCheckTree | undef
 }
 
 function parseCheck(value: unknown, path: string, state: ParseState): ParsedCheck | undefined {
-  const data = parseCheckData(value);
+  const data = parseCheckAuthoringData(value);
   if (data === undefined) return undefined;
-  const execution = parseExecution(data);
-  if (execution === undefined) return undefined;
-  const parseData = parseDataParser(data);
-  if (parseData === undefined) return undefined;
-  const preflight = parsePreflight(data);
-  if (preflight === undefined) return undefined;
-  const enabledByFlags = parseEnabledByFlags(data);
-  if (enabledByFlags === undefined) return undefined;
+  const prelude = parseCheckFieldPrelude(data);
+  if (prelude === undefined) return undefined;
   const checks = parseChildren(data, path, state);
   if (checks === undefined) return undefined;
   const scheduling = parseCheckScheduling(data);
   if (scheduling === undefined) return undefined;
-  const fields = parseCheckFields(data, enabledByFlags, execution, parseData, preflight);
+  const fields = parseCheckFields(data, prelude);
   if (fields === undefined) return undefined;
   warnForMeaninglessCheck(data, checks, fields, path, state);
-
   return Object.freeze({
     admissionPriority: scheduling.admissionPriority,
     checkId: data.checkId,
@@ -158,49 +99,6 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
   });
 }
 
-function parseCheckData(value: unknown): CheckAuthoringData | undefined {
-  const data = snapshotClosedRecord(value);
-  if (data === undefined) return undefined;
-  return hasValidCheckIdentity(data) ? data : undefined;
-}
-
-function hasValidCheckIdentity(
-  data: Readonly<Record<string, unknown>>
-): data is CheckAuthoringData {
-  return (
-    hasOnlyCheckKeys(data) &&
-    typeof data.checkId === "string" &&
-    data.checkId.length > 0 &&
-    typeof data.displayName === "string" &&
-    data.displayName.length > 0
-  );
-}
-
-function hasOnlyCheckKeys(data: Readonly<Record<string, unknown>>): boolean {
-  return Object.keys(data).every((key) => CHECK_KEYS.some((checkKey) => checkKey === key));
-}
-
-function parseExecution(data: CheckAuthoringData): CheckExecution | null | undefined {
-  if (!Object.hasOwn(data, "execution")) return null;
-  return isTrustedFunction<CheckExecution>(data.execution) ? data.execution : undefined;
-}
-
-function parseDataParser(data: CheckAuthoringData): TrustedDataParser | null | undefined {
-  if (!Object.hasOwn(data, "parseData") || data.parseData === undefined) return null;
-  return isTrustedFunction<TrustedDataParser>(data.parseData) ? data.parseData : undefined;
-}
-
-function parsePreflight(data: CheckAuthoringData): CheckPreflight | null | undefined {
-  if (!Object.hasOwn(data, "preflight")) return null;
-  return isTrustedFunction<CheckPreflight>(data.preflight) ? data.preflight : undefined;
-}
-
-function isTrustedFunction<FunctionType extends (...parameters: never[]) => unknown>(
-  value: unknown
-): value is FunctionType {
-  return typeof value === "function";
-}
-
 function parseChildren(
   data: CheckAuthoringData,
   path: string,
@@ -216,109 +114,6 @@ function parseChildren(
     checks.push(check);
   }
   return Object.freeze(checks);
-}
-
-function parseDefinition(data: CheckAuthoringData): CheckDescriptor | undefined {
-  const definition = validateCheckDescriptor({
-    checkId: data.checkId,
-    displayName: data.displayName
-  });
-  return definition.ok ? definition.value : undefined;
-}
-
-function parseOptions(data: CheckAuthoringData): object | undefined {
-  if (!Object.hasOwn(data, "options")) return Object.freeze({});
-  const options = snapshotClosedRecord(data.options);
-  if (options === undefined) return undefined;
-  return snapshotJsonObject(options);
-}
-
-function parseCheckFields(
-  data: CheckAuthoringData,
-  enabledByFlags: CheckFlagEnablement | null,
-  execution: CheckExecution | null,
-  parseData: TrustedDataParser | null,
-  preflight: CheckPreflight | null
-): ParsedCheckFields | undefined {
-  if (execution === null) {
-    return Object.hasOwn(data, "options") ||
-      Object.hasOwn(data, "enabledByFlags") ||
-      Object.hasOwn(data, "visibility") ||
-      parseData !== null ||
-      preflight !== null
-      ? undefined
-      : CONTAINER_CHECK_FIELDS;
-  }
-  const definition = parseDefinition(data);
-  if (definition === undefined) return undefined;
-  const options = parseOptions(data);
-  if (options === undefined) return undefined;
-  const visibility = parseVisibility(data);
-  if (visibility === undefined) return undefined;
-  return Object.freeze({
-    definition,
-    enabledByFlags,
-    execution,
-    options,
-    parseData,
-    preflight,
-    visibility
-  });
-}
-
-function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | null | undefined {
-  if (!Object.hasOwn(data, "enabledByFlags")) return null;
-  const control = parseFlagEnablementControl(data.enabledByFlags);
-  if (control === undefined) return undefined;
-  const flags = parseUniqueIdentifiers(control.flags);
-  if (flags === undefined) return undefined;
-  return canonicalFlagEnablement(control, flags);
-}
-
-function parseFlagEnablementControl(value: unknown): ParsedFlagEnablementControl | undefined {
-  const control = snapshotClosedRecord(value);
-  if (control === undefined || !hasOnlyFlagEnablementKeys(control)) return undefined;
-  return hasFlagEnablementFields(control) ? control : undefined;
-}
-
-function hasFlagEnablementFields(
-  control: Readonly<Record<string, unknown>>
-): control is ParsedFlagEnablementControl {
-  if (!Object.hasOwn(control, "flags") || !Object.hasOwn(control, "mode")) return false;
-  if (!isCheckFlagEnablementMode(control.mode)) return false;
-  return !Object.hasOwn(control, "propagateDependsOn") || control.propagateDependsOn === true;
-}
-
-function canonicalFlagEnablement(
-  control: ParsedFlagEnablementControl,
-  flags: readonly string[]
-): CheckFlagEnablement | undefined {
-  const [firstFlag, ...remainingFlags] = [...flags].sort();
-  if (firstFlag === undefined) return undefined;
-  const canonicalFlags: [string, ...string[]] = [firstFlag, ...remainingFlags];
-  return Object.freeze({
-    flags: Object.freeze(canonicalFlags),
-    mode: control.mode,
-    ...(control.propagateDependsOn === true ? { propagateDependsOn: true as const } : {})
-  });
-}
-
-function hasOnlyFlagEnablementKeys(control: Readonly<Record<string, unknown>>): boolean {
-  return Object.keys(control).every((key) =>
-    FLAG_ENABLEMENT_KEYS.some((allowed) => allowed === key)
-  );
-}
-
-function isCheckFlagEnablementMode(value: unknown): value is CheckFlagEnablementMode {
-  return value === "all" || value === "any" || value === "none" || value === "not-all";
-}
-
-function parseVisibility(data: CheckAuthoringData): CheckVisibility | undefined {
-  if (!Object.hasOwn(data, "visibility")) return "always";
-  const visibility = data.visibility;
-  return visibility === undefined || visibility === "always" || visibility === "attention"
-    ? (visibility ?? "always")
-    : undefined;
 }
 
 function warnForMeaninglessCheck(

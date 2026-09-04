@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+
+import { assertEventsInOrder } from "./invocation-event-order.test-support.ts";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -137,7 +139,7 @@ describe("Package Run learned Scheduler admission", () => {
 
       assert.equal(result.kind, "completed");
       assert.equal(historyVisibleToTerminalHook, false);
-      assertOrdered({
+      assertEventsInOrder({
         events,
         required: [
           "scheduler.history.read",
@@ -186,7 +188,7 @@ describe("Package Run learned Scheduler admission", () => {
       );
 
       assert.equal(result.kind, "cancelled");
-      assertOrdered({
+      assertEventsInOrder({
         events,
         required: [
           "scheduler.history.read",
@@ -264,21 +266,6 @@ function historyLifecycleDiagnosticLogger(events: string[]): DiagnosticLogger {
       }
     }
   });
-}
-
-function assertOrdered(input: {
-  readonly events: readonly string[];
-  readonly required: readonly string[];
-}): void {
-  let priorIndex = -1;
-  for (const event of input.required) {
-    const index = input.events.indexOf(event, priorIndex + 1);
-    assert.ok(
-      index >= 0,
-      `expected ${event} after ${input.events.slice(priorIndex + 1).join(", ")}`
-    );
-    priorIndex = index;
-  }
 }
 
 function delay(milliseconds: number): Promise<void> {

@@ -99,12 +99,25 @@ export function selectionFlags(selection: ProjectGateSelection): readonly string
 
 /** Reconstructs the adapter-owned selection from Product's opaque frozen flags. */
 export function selectionFromFlags(flags: readonly string[]): ProjectGateSelection | undefined {
-  if (flags.length === 1 && flags[0] === PROJECT_GATE_REQUIRED_FLAG)
-    return Object.freeze({ kind: "required" });
-  if (flags.length === 1 && flags[0] === PROJECT_GATE_ALL_FLAG)
-    return Object.freeze({ kind: "all" });
-  if (flags.length === 0 || new Set(flags).size !== flags.length) return undefined;
+  const exclusiveSelection = selectionForExclusiveFlag(flags);
+  if (exclusiveSelection !== undefined) return exclusiveSelection;
+  if (!hasDistinctFocusedFlags(flags)) return undefined;
 
+  return focusedSelectionFromFlags(flags);
+}
+
+function selectionForExclusiveFlag(flags: readonly string[]): ProjectGateSelection | undefined {
+  if (flags.length !== 1) return undefined;
+  if (flags[0] === PROJECT_GATE_REQUIRED_FLAG) return Object.freeze({ kind: "required" });
+  if (flags[0] === PROJECT_GATE_ALL_FLAG) return Object.freeze({ kind: "all" });
+  return undefined;
+}
+
+function hasDistinctFocusedFlags(flags: readonly string[]): boolean {
+  return flags.length > 0 && new Set(flags).size === flags.length;
+}
+
+function focusedSelectionFromFlags(flags: readonly string[]): ProjectGateSelection | undefined {
   const presets: ProjectGatePreset[] = [];
   for (const flag of flags) {
     if (!flag.startsWith(PROJECT_GATE_PRESET_FLAG_PREFIX)) return undefined;

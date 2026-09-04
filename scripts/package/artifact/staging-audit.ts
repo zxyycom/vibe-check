@@ -1,12 +1,10 @@
 import { existsSync, readFileSync } from "node:fs";
-import { basename, dirname, join, relative, resolve, sep } from "node:path";
+import { join, relative, sep } from "node:path";
 
 import { collectFilePaths } from "../file-inventory.ts";
 import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
-  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
-  PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_README_PATH,
@@ -22,8 +20,7 @@ import {
   assertTranslatedAnalyzerLegalMaterials,
   TRANSLATED_ANALYZER_LEGAL_MATERIALS
 } from "../legal-materials.ts";
-import { relativeEsmModuleSpecifiers } from "./esm-module-specifiers.ts";
-import { assertRuntimeSourceMapMatchesSource } from "./runtime-source-maps.ts";
+import { assertReadableStagingRuntimeLayout } from "./staging-runtime-layout.ts";
 import {
   assertJSDocExamplePayloads,
   assertThirdPartyLicenseContent,
@@ -151,24 +148,7 @@ function assertStagingRuntimeContract(
   if (typesSource.includes("export *")) {
     throw new Error("candidate declarations must not use wildcard public exports");
   }
-  assertReadableRuntimeLayout(stagingDirectory);
-  assertFunctionMetricsWorkerRuntime(stagingDirectory);
-}
-
-function assertFunctionMetricsWorkerRuntime(stagingDirectory: string): void {
-  const workerPath = join(stagingDirectory, PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH);
-  const measurementPath = join(stagingDirectory, PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH);
-  if (!existsSync(workerPath) || !existsSync(measurementPath)) {
-    throw new Error("candidate runtime is missing the emitted function-metrics Worker entry");
-  }
-  const measurement = readFileSync(measurementPath, "utf8");
-  const workerUrl = 'new URL("./analyzer-worker.mjs", import.meta.url)';
-  const occurrenceCount = measurement.split(workerUrl).length - 1;
-  if (occurrenceCount !== 1) {
-    throw new Error(
-      `candidate function-metrics runtime must resolve exactly one emitted Worker URL; received ${occurrenceCount}`
-    );
-  }
+  assertReadableStagingRuntimeLayout(stagingDirectory);
 }
 
 function assertStagingAllowlist(
@@ -234,31 +214,6 @@ function assertPackageMachineMaterials(
   }
 }
 
-function assertReadableRuntimeLayout(stagingDirectory: string): void {
-  const runtimeDirectory = join(stagingDirectory, PACKAGE_RUNTIME_DIRECTORY);
-  const runtimeFiles = collectFilePaths(runtimeDirectory, () => true);
-  const modules = runtimeFiles.filter((path) => path.endsWith(".mjs"));
-  if (modules.length === 0) {
-    throw new Error("candidate staging is missing its readable ESM module tree");
-  }
-  if (runtimeFiles.some((path) => path.endsWith(".js") || path.endsWith(".js.map"))) {
-    throw new Error("candidate readable ESM module tree must not retain .js runtime artifacts");
-  }
-  for (const modulePath of modules) {
-    const sourceMapPath = `${modulePath}.map`;
-    if (!existsSync(sourceMapPath)) {
-      throw new Error(`candidate ESM module is missing a source map: ${modulePath}`);
-    }
-    const moduleSource = readFileSync(modulePath, "utf8");
-    const sourceMapFileName = `${basename(modulePath)}.map`;
-    if (!moduleSource.includes(`sourceMappingURL=${sourceMapFileName}`)) {
-      throw new Error(`candidate ESM module does not link its source map: ${modulePath}`);
-    }
-    assertRelativeModuleReferencesResolve({ modulePath, moduleSource });
-    assertRuntimeSourceMapMatchesSource({ sourceMapPath, stagingDirectory });
-  }
-}
-
 function declaredRuntimeExports(runtimeEntrySource: string): readonly string[] {
   const exports: string[] = [];
   const declaration = /export\s*\{([^}]+)\}\s*from\s*["']\.\//g;
@@ -272,28 +227,6 @@ function declaredRuntimeExports(runtimeEntrySource: string): readonly string[] {
     }
   }
   return Object.freeze(exports.sort());
-}
-
-function assertRelativeModuleReferencesResolve(input: {
-  readonly modulePath: string;
-  readonly moduleSource: string;
-}): void {
-  for (const specifier of relativeEsmModuleSpecifiers({
-    fileName: input.modulePath,
-    source: input.moduleSource
-  })) {
-    if (!specifier.endsWith(".mjs")) {
-      throw new Error(
-        `candidate ESM module uses a non-.mjs relative specifier ${specifier}: ${input.modulePath}`
-      );
-    }
-    const targetPath = resolve(dirname(input.modulePath), specifier);
-    if (!existsSync(targetPath)) {
-      throw new Error(
-        `candidate ESM module reference does not resolve ${specifier}: ${input.modulePath}`
-      );
-    }
-  }
 }
 
 function assertPackageDocumentation(

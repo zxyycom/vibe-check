@@ -230,18 +230,18 @@ Proves:
 Owner: `docs/checks/markdown-link-validation.md#效果与结果`
 Entities:
 
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > reports safe Markdown Link findings only after a complete traversal`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > uses an explicit parse-facts cache only as best-effort state`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > invalidates source and direct-target parse facts by exact content bytes`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > reports a root-external target without persisting its path, fragment, or query`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > validates a direct Markdown target outside source scope without scanning its links`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier Markdown Link finding`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier finding when target work reaches its limit`
+- `bun|src/package-checks/markdown-link-validation/execution-outcomes.test.ts|default Check direct callbacks > reports safe Markdown Link findings only after a complete traversal`
+- `bun|src/package-checks/markdown-link-validation/cache-behavior.test.ts|default Check direct callbacks > uses an explicit parse-facts cache only as best-effort state`
+- `bun|src/package-checks/markdown-link-validation/cache-behavior.test.ts|default Check direct callbacks > invalidates source and direct-target parse facts by exact content bytes`
+- `bun|src/package-checks/markdown-link-validation/execution-outcomes.test.ts|default Check direct callbacks > reports a root-external target without persisting its path, fragment, or query`
+- `bun|src/package-checks/markdown-link-validation/execution-outcomes.test.ts|default Check direct callbacks > validates a direct Markdown target outside source scope without scanning its links`
+- `bun|src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier Markdown Link finding`
+- `bun|src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts|default Check direct callbacks > returns unavailable without publishing an earlier finding when target work reaches its limit`
 - `bun|src/package-checks/markdown-link-validation/input-rejection.test.ts|Markdown Link input rejection > is not applicable only when its file selection selects no path`
 - `bun|src/package-checks/markdown-link-validation/input-rejection.test.ts|Markdown Link input rejection > reports every selected non-Markdown path without making blocking policy fail`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
-- `bun|src/package-checks/markdown-link-validation/default-check.test.ts|default Check direct callbacks > does not start parse-facts publication after cancellation without reporting stale findings`
+- `bun|src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts|default Check direct callbacks > returns unavailable when project root cannot be canonicalized before source discovery`
+- `bun|src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts|default Check direct callbacks > returns unavailable before source collection when its Run signal is already cancelled`
+- `bun|src/package-checks/markdown-link-validation/unavailable-outcomes.test.ts|default Check direct callbacks > does not start parse-facts publication after cancellation without reporting stale findings`
   Proves:
 - A completed traversal publishes only the documented safe local-reference Record projection and parser-validated exact final counts; root-external findings retain no destination material. The omitted finding policy defaults to non-blocking and retains the Records/final data in a passed outcome with an actionable warning, while explicit blocking retains the same evidence and settles failed with an actionable error. Enabled parse-facts cache hit, miss, hostile JSONL line, storage failure, and exact-byte source/target invalidation preserve the same Check settlement and do not create cache output facts. Cancellation before source work or before terminal publication remains unavailable with no link-finding Record. Completed normal/rejected findings additionally project at most ten Check-owned summaries plus an exact omitted count; those summaries retain source navigation and closed reason while never copying the unsafe destination.
 - Every selected non-Markdown path publishes a fixed non-blocking rejection Record, contributes to the separate rejection and total finding counts, and cannot be made blocking by Link policy. All-rejected input is passed with a warning; only zero selected paths are not applicable.

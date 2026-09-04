@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 
+import {
+  assertCanonicalExecutedDuration,
+  assertUnavailableDependencyDuration
+} from "./runtime-evidence-durations.ts";
+import { assertDuplicateAndTerminalMessages } from "./runtime-evidence-messages.ts";
 import { isRecord, isUnknownArray, requiredString } from "./runtime-evidence-values.ts";
 
 export type CandidateFixtureEvidence = Readonly<{
@@ -246,83 +251,6 @@ function assertHumanOutput(output: string): void {
   assert.equal(output.includes("\u001B"), false);
 }
 
-function assertDuplicateAndTerminalMessages(value: unknown): void {
-  if (!isUnknownArray(value)) throw new TypeError("isolated Run checkMessages must be an array");
-  assert.equal(value.length, 5);
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) &&
-        message.checkId === "function-metrics" &&
-        message.code === "non-blocking-findings"
-    ),
-    {
-      checkId: "function-metrics",
-      code: "non-blocking-findings",
-      level: "warning",
-      message:
-        "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-    }
-  );
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) &&
-        message.checkId === "function-metrics" &&
-        message.code === "finding-detail"
-    ),
-    {
-      checkId: "function-metrics",
-      code: "finding-detail",
-      level: "warning",
-      message:
-        "function-metrics.ts:1 workerProof: cyclomatic-complexity 2 exceeds the 1 limit (areas: worker). Complexity contributors: if at line 2."
-    }
-  );
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) &&
-        message.checkId === "duplicate-detection" &&
-        message.code === "non-blocking-findings"
-    ),
-    {
-      checkId: "duplicate-detection",
-      code: "non-blocking-findings",
-      level: "warning",
-      message:
-        "1 non-blocking finding(s) were recorded; inspect this Check's Records for affected paths and measurements, then update the code or policy."
-    }
-  );
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) &&
-        message.checkId === "duplicate-detection" &&
-        message.code === "finding-detail"
-    ),
-    {
-      checkId: "duplicate-detection",
-      code: "finding-detail",
-      level: "warning",
-      message:
-        "Duplicate fragment contains 80 tokens across 19 lines at duplicate-a.ts:1-19, duplicate-b.ts:1-19."
-    }
-  );
-  assert.deepEqual(
-    value.find(
-      (message): message is Readonly<Record<string, unknown>> =>
-        isRecord(message) && message.checkId === "installed-terminal-note"
-    ),
-    {
-      checkId: "installed-terminal-note",
-      code: "installed-terminal-note",
-      level: "info",
-      message: "Installed candidate terminal message."
-    }
-  );
-}
-
 function assertTrustedNonBlockingDuplicateRecord(value: unknown): void {
   if (!isUnknownArray(value)) throw new TypeError("isolated duplicate records must be an array");
   assert.equal(value.length, 1);
@@ -375,33 +303,4 @@ function hasFixtureDuplicateLocations(value: unknown): boolean {
   }
   const paths = value.map((location) => location.path).sort();
   return paths[0] === "duplicate-a.ts" && paths[1] === "duplicate-b.ts";
-}
-
-function assertCanonicalExecutedDuration(checkDurations: unknown, checkId: string): void {
-  if (!isUnknownArray(checkDurations)) {
-    throw new TypeError("isolated Run checkDurations must be an array");
-  }
-  const duration = checkDurations.find(
-    (candidate): candidate is Readonly<Record<string, unknown>> =>
-      isRecord(candidate) && candidate.checkId === checkId
-  );
-  assert.notEqual(duration, undefined, `isolated Run duration is missing for ${checkId}`);
-  if (!isRecord(duration)) throw new TypeError("isolated Run duration must be an object");
-  assert.equal(duration.checkId, checkId);
-  if (typeof duration.durationMs !== "number") {
-    throw new TypeError("isolated Run durationMs must be a number");
-  }
-  assert.equal(Number.isFinite(duration.durationMs), true);
-  assert.equal(duration.durationMs >= 0, true);
-}
-
-function assertUnavailableDependencyDuration(checkDurations: unknown, checkId: string): void {
-  if (!isUnknownArray(checkDurations)) {
-    throw new TypeError("isolated Run checkDurations must be an array");
-  }
-  const duration = checkDurations.find(
-    (candidate): candidate is Readonly<Record<string, unknown>> =>
-      isRecord(candidate) && candidate.checkId === checkId
-  );
-  assert.deepEqual(duration, { checkId, durationMs: null });
 }

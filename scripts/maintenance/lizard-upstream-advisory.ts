@@ -68,32 +68,7 @@ export async function checkLizardUpstream(
       redirect: "error",
       signal: requestSignal.signal
     });
-    if (!response.ok) return unavailable("lizard-upstream-http-error");
-
-    const body = await readResponseBody(response, requestSignal.signal);
-    if (body.kind === "too-large") return unavailable("lizard-upstream-response-too-large");
-    if (body.kind === "invalid") return unavailable("lizard-upstream-response-invalid");
-
-    const release = parseReleaseResponse(body.text);
-    if (!release) return unavailable("lizard-upstream-response-invalid");
-
-    const latestVersion = parseVersion(release.tagName);
-    if (!latestVersion) return unavailable("lizard-upstream-response-invalid");
-
-    const latestVersionText = formatVersion(latestVersion);
-    return compareVersions(latestVersion, baselineVersion()) > 0
-      ? {
-          baselineVersion: LIZARD_BASELINE_VERSION,
-          code: "lizard-upstream-update-available",
-          kind: "update-available",
-          latestVersion: latestVersionText
-        }
-      : {
-          baselineVersion: LIZARD_BASELINE_VERSION,
-          code: "lizard-upstream-no-update",
-          kind: "no-update",
-          latestVersion: latestVersionText
-        };
+    return await advisoryFromReleaseResponse(response, requestSignal.signal);
   } catch {
     if (requestSignal.timedOut()) return unavailable("lizard-upstream-timeout");
     if (options.signal?.aborted) return unavailable("lizard-upstream-cancelled");
@@ -101,6 +76,52 @@ export async function checkLizardUpstream(
   } finally {
     requestSignal.dispose();
   }
+}
+
+async function advisoryFromReleaseResponse(
+  response: Response,
+  signal: AbortSignal
+): Promise<LizardUpstreamAdvisory> {
+  if (!response.ok) return unavailable("lizard-upstream-http-error");
+  const body = await readResponseBody(response, signal);
+  if (body.kind !== "text") return unavailableForResponseBody(body);
+  return advisoryFromReleaseText(body.text);
+}
+
+function unavailableForResponseBody(
+  body: Exclude<ResponseReadResult, { readonly kind: "text" }>
+): LizardUpstreamAdvisory {
+  return unavailable(
+    body.kind === "too-large"
+      ? "lizard-upstream-response-too-large"
+      : "lizard-upstream-response-invalid"
+  );
+}
+
+function advisoryFromReleaseText(text: string): LizardUpstreamAdvisory {
+  const release = parseReleaseResponse(text);
+  if (!release) return unavailable("lizard-upstream-response-invalid");
+  const latestVersion = parseVersion(release.tagName);
+  if (!latestVersion) return unavailable("lizard-upstream-response-invalid");
+  return availableAdvisory(latestVersion);
+}
+
+function availableAdvisory(latestVersion: Version): LizardUpstreamAdvisory {
+  const latestVersionText = formatVersion(latestVersion);
+  if (compareVersions(latestVersion, baselineVersion()) > 0) {
+    return {
+      baselineVersion: LIZARD_BASELINE_VERSION,
+      code: "lizard-upstream-update-available",
+      kind: "update-available",
+      latestVersion: latestVersionText
+    };
+  }
+  return {
+    baselineVersion: LIZARD_BASELINE_VERSION,
+    code: "lizard-upstream-no-update",
+    kind: "no-update",
+    latestVersion: latestVersionText
+  };
 }
 
 function unavailable(code: LizardUpstreamUnavailableCode): LizardUpstreamAdvisory {

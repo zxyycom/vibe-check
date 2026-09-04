@@ -40,8 +40,7 @@ describe("functionMetrics Product analyzer adapter", () => {
         files: [
           {
             path: "source/nested.ts",
-            source:
-              "export function nested(a:boolean,b:boolean,c:boolean,d:boolean,e:boolean,f:boolean,g:boolean,h:boolean,i:boolean) { if (a) { if (b) { if (c) { if (d) { if (e) { if (f) { if (g) { if (h) { if (i) return 1; } } } } } } } } return 0; }"
+            source: nestedFunctionSource(9)
           }
         ]
       }),
@@ -49,17 +48,7 @@ describe("functionMetrics Product analyzer adapter", () => {
         kind: "complete",
         metrics: [
           {
-            complexityContributors: [
-              { line: 1, token: "if" },
-              { line: 1, token: "if" },
-              { line: 1, token: "if" },
-              { line: 1, token: "if" },
-              { line: 1, token: "if" },
-              { line: 1, token: "if" },
-              { line: 1, token: "if" },
-              { line: 1, token: "if" },
-              { line: 1, token: "if" }
-            ],
+            complexityContributors: fixedIfContributors(9),
             cyclomaticComplexity: { source: "typescript-analyzer", value: 10 },
             endLine: 1,
             file: "source/nested.ts",
@@ -192,4 +181,15 @@ function isOracleMeasurement(value: unknown): boolean {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
+}
+
+function nestedFunctionSource(conditionCount: number): string {
+  const conditions = Array.from({ length: conditionCount }, (_, index) => `condition${index}`);
+  const parameters = conditions.map((condition) => `${condition}:boolean`).join(",");
+  const guards = conditions.map((condition) => `if (${condition}) {`).join(" ");
+  return `export function nested(${parameters}) { ${guards} return 1; ${"}".repeat(conditionCount)} return 0; }`;
+}
+
+function fixedIfContributors(count: number) {
+  return Array.from({ length: count }, () => ({ line: 1, token: "if" }));
 }

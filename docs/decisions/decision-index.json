@@ -195,6 +195,7 @@
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:d3f57d08bba36a5e22d4e4bccb41ef7bba506032c2d4d824dfb5ff721c77db8d",
+      "require-selected-repository-quality-remediation-in-active-cleanup-changes.md": "sha256:0a83155aee75c2c04ecb6433b8b21ec412a675e2ded3ea05129ec5e74a6eeb34",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
       "retain-private-invocation-admission-strategy-lifecycle.md": "sha256:20e1ad76e1eaded574bfd26306d899c58dec10dca5b132ed01a4b2c601e467b6",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
@@ -6355,6 +6356,35 @@
         "tags": [
           "product-contract",
           "product-priority"
+        ],
+        "relations": []
+      }
+    },
+    "require-selected-repository-quality-remediation-in-active-cleanup-changes.md": {
+      "keys": {
+        "tag": [
+          "repository-automation",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "require-selected-repository-quality-remediation-in-active-cleanup-changes.md",
+        "title": "将活动质量清理中的已选记录作为必需修复",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T15:20:40Z",
+        "purpose": "区分 Gate 的 advisory 聚合与已启动清理 Change 对其选定质量记录的必需处置。",
+        "background": "仓库质量 Finding 保持 non-blocking，但已授权清理不能以微小超限、waiver 或任意排除代替已选记录的修复。",
+        "decision": "活动质量清理 Change 必须消除其明确纳入范围的每条记录，并逐条列出未豁免的延期记录；Gate advisory 状态不降低该 Change 的验收要求。",
+        "tags": [
+          "repository-automation",
+          "workflow-policy"
         ],
         "relations": []
       }

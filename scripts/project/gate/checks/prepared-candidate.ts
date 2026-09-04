@@ -122,19 +122,37 @@ function assertPreparedCandidateIdentityScalars(
   readonly sha256: string;
   readonly stagingDirectory: string;
 }> {
-  if (
-    value.schemaVersion !== PREPARED_CANDIDATE_DATA_VERSION ||
-    !nonEmptyString(value.artifactPath) ||
-    !nonEmptyString(value.candidateVersion) ||
-    !nonEmptyString(value.consumerDirectory) ||
-    !nonEmptyString(value.installedPackageDirectory) ||
-    !nonEmptyString(value.resolvedEntryPath) ||
-    !nonEmptyString(value.stagingDirectory) ||
-    !isSha256Digest(value.inputFingerprint) ||
-    !isSha256Digest(value.sha256)
-  ) {
+  if (!hasPreparedCandidateIdentityScalars(value)) {
     throw new TypeError("prepared candidate data has an invalid shape");
   }
+}
+
+function hasPreparedCandidateIdentityScalars(value: Readonly<Record<string, unknown>>): boolean {
+  return (
+    hasExpectedPreparedCandidateSchemaVersion(value) &&
+    hasNonEmptyPreparedCandidateIdentityText(value) &&
+    isSha256Digest(value.inputFingerprint) &&
+    isSha256Digest(value.sha256)
+  );
+}
+
+function hasExpectedPreparedCandidateSchemaVersion(
+  value: Readonly<Record<string, unknown>>
+): boolean {
+  return value.schemaVersion === PREPARED_CANDIDATE_DATA_VERSION;
+}
+
+function hasNonEmptyPreparedCandidateIdentityText(
+  value: Readonly<Record<string, unknown>>
+): boolean {
+  return [
+    value.artifactPath,
+    value.candidateVersion,
+    value.consumerDirectory,
+    value.installedPackageDirectory,
+    value.resolvedEntryPath,
+    value.stagingDirectory
+  ].every(nonEmptyString);
 }
 
 function parsePreparedCandidateFiles(value: unknown): readonly string[] {

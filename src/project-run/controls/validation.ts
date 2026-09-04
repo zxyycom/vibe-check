@@ -19,6 +19,16 @@ const UNAVAILABLE_HANDLING = ["propagate", "fail", "exclude"] as const;
 const NOT_APPLICABLE_HANDLING = ["exclude", "pass", "fail"] as const;
 const EMPTY_AGGREGATION_RESULTS = ["passed", "failed", "not-applicable"] as const;
 
+interface ParsedRunControlFields {
+  readonly checkAggregation: CheckAggregation | undefined;
+  readonly checkArtifactBaseDirectory: string | undefined;
+  readonly flags: readonly string[];
+  readonly outputs: RunControls["outputs"] | undefined;
+  readonly progressLogFile: string | undefined;
+  readonly projectRoot: string | undefined;
+  readonly signal: AbortSignal | undefined;
+}
+
 export function validateRunControls(value: unknown = {}): RunControlValidationResult<RunControls> {
   try {
     return validateRunControlsValue(value);
@@ -30,41 +40,61 @@ export function validateRunControls(value: unknown = {}): RunControlValidationRe
 function validateRunControlsValue(value: unknown): RunControlValidationResult<RunControls> {
   const data = exactControlRecord(value);
   if (!data.ok) return data;
+  const fields = parseRunControlFields(data.value);
+  if (!fields.ok) return fields;
+  return Object.freeze({ ok: true, value: runControlsFromFields(fields.value) });
+}
+
+function parseRunControlFields(
+  data: Readonly<Record<string, unknown>>
+): RunControlValidationResult<ParsedRunControlFields> {
   const checkArtifactBaseDirectory = optionalControl(
-    data.value.checkArtifactBaseDirectory,
+    data.checkArtifactBaseDirectory,
     parseOutputDirectory,
     "controls.checkArtifactBaseDirectory"
   );
   if (!checkArtifactBaseDirectory.ok) return checkArtifactBaseDirectory;
   const progressLogFile = optionalControl(
-    data.value.progressLogFile,
+    data.progressLogFile,
     parseOutputDirectory,
     "controls.progressLogFile"
   );
   if (!progressLogFile.ok) return progressLogFile;
-  const flags = parseFlags(data.value.flags);
+  const flags = parseFlags(data.flags);
   if (!flags.ok) return flags;
-  const checkAggregation = parseOptionalCheckAggregation(data.value.checkAggregation);
+  const checkAggregation = parseOptionalCheckAggregation(data.checkAggregation);
   if (!checkAggregation.ok) return checkAggregation;
-  const outputs = optionalControl(data.value.outputs, parseOutputsOverride, "controls.outputs");
+  const outputs = optionalControl(data.outputs, parseOutputsOverride, "controls.outputs");
   if (!outputs.ok) return outputs;
-  const projectRoot = optionalControl(data.value.projectRoot, parseString, "controls.projectRoot");
+  const projectRoot = optionalControl(data.projectRoot, parseString, "controls.projectRoot");
   if (!projectRoot.ok) return projectRoot;
-  const signal = optionalControl(data.value.signal, parseAbortSignal, "controls.signal");
+  const signal = optionalControl(data.signal, parseAbortSignal, "controls.signal");
   if (!signal.ok) return signal;
   return Object.freeze({
     ok: true,
     value: Object.freeze({
-      ...(checkArtifactBaseDirectory.value === undefined
-        ? {}
-        : { checkArtifactBaseDirectory: checkArtifactBaseDirectory.value }),
-      ...(checkAggregation.value === undefined ? {} : { checkAggregation: checkAggregation.value }),
-      ...(outputs.value === undefined ? {} : { outputs: outputs.value }),
-      ...(progressLogFile.value === undefined ? {} : { progressLogFile: progressLogFile.value }),
+      checkAggregation: checkAggregation.value,
+      checkArtifactBaseDirectory: checkArtifactBaseDirectory.value,
       flags: flags.value,
-      ...(projectRoot.value === undefined ? {} : { projectRoot: projectRoot.value }),
-      ...(signal.value === undefined ? {} : { signal: signal.value })
+      outputs: outputs.value,
+      progressLogFile: progressLogFile.value,
+      projectRoot: projectRoot.value,
+      signal: signal.value
     })
+  });
+}
+
+function runControlsFromFields(fields: ParsedRunControlFields): RunControls {
+  return Object.freeze({
+    ...(fields.checkArtifactBaseDirectory === undefined
+      ? {}
+      : { checkArtifactBaseDirectory: fields.checkArtifactBaseDirectory }),
+    ...(fields.checkAggregation === undefined ? {} : { checkAggregation: fields.checkAggregation }),
+    ...(fields.outputs === undefined ? {} : { outputs: fields.outputs }),
+    ...(fields.progressLogFile === undefined ? {} : { progressLogFile: fields.progressLogFile }),
+    flags: fields.flags,
+    ...(fields.projectRoot === undefined ? {} : { projectRoot: fields.projectRoot }),
+    ...(fields.signal === undefined ? {} : { signal: fields.signal })
   });
 }
 

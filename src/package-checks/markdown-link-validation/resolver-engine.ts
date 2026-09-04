@@ -10,23 +10,20 @@ import {
   projectTarget
 } from "./target-descriptor.ts";
 import { probeEndpoint, probeRootContainedPath, readRegularFile } from "./filesystem-probes.ts";
+import { readRootContainedMarkdownSource } from "./source-reader.ts";
 import {
   anchorResolution,
   finding,
   isMarkdownPath,
-  isRootRelativePath,
   isWithinRoot,
   parseLocalDestination,
   sameRootRelativePath,
-  sourceUnavailable,
-  toSlashPath,
   unavailable,
   valid,
   type MarkdownLocalResolution,
   type MarkdownLocalResolutionRequest,
   type MarkdownLocalResolver,
   type MarkdownSafeTargetDescriptor,
-  type MarkdownSourceReadResult,
   type EndpointProbe
 } from "./local-resolution.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
@@ -59,44 +56,13 @@ export class LinkLocalResolver implements MarkdownLocalResolver {
     return this.#parseFactsCache.finalize(this.#signal);
   }
 
-  async readSource(
-    rootRelativePath: string,
-    maxMarkdownBytes: number
-  ): Promise<MarkdownSourceReadResult> {
-    if (this.#signal.aborted) return sourceUnavailable();
-    if (!isRootRelativePath(this.#canonicalProjectRoot, rootRelativePath)) {
-      return sourceUnavailable();
-    }
-
-    const sourcePath = path.resolve(this.#canonicalProjectRoot, rootRelativePath);
-    const rootProbe = await probeRootContainedPath(this.#canonicalProjectRoot, sourcePath);
-    if (
-      rootProbe.kind === "outside" ||
-      rootProbe.kind === "unavailable" ||
-      rootProbe.kind === "missing"
-    ) {
-      return sourceUnavailable();
-    }
-
-    const sourceBytes = await readRegularFile(rootProbe.absolutePath, maxMarkdownBytes);
-    if (!sourceBytes.ok) {
-      return sourceBytes.reason === "too-large"
-        ? Object.freeze({ ok: false as const, reason: "source-too-large" as const })
-        : sourceUnavailable();
-    }
-
-    const parsed = await this.#parseMarkdownBytes(sourceBytes.bytes);
-    if (this.#signal.aborted || parsed === undefined) return sourceUnavailable();
-    if (!parsed.ok) {
-      return Object.freeze({ ok: false as const, reason: "markdown-parse-failed" as const });
-    }
-
-    return Object.freeze({
-      ok: true as const,
-      source: Object.freeze({
-        path: toSlashPath(path.relative(this.#canonicalProjectRoot, sourcePath)),
-        facts: parsed.facts
-      })
+  readSource(rootRelativePath: string, maxMarkdownBytes: number) {
+    return readRootContainedMarkdownSource({
+      canonicalProjectRoot: this.#canonicalProjectRoot,
+      maxMarkdownBytes,
+      parseMarkdownBytes: (bytes) => this.#parseMarkdownBytes(bytes),
+      rootRelativePath,
+      signal: this.#signal
     });
   }
 

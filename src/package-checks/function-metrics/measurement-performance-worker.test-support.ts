@@ -1,5 +1,6 @@
 /** Development-only Worker timing seam; it is not a Product Worker protocol. */
 import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";
+import { parseMeasurementPerformanceSources } from "./measurement-performance-source-dto.test-support.ts";
 
 self.onmessage = (event: MessageEvent<unknown>): void => {
   const files = filesFrom(event.data);
@@ -22,16 +23,7 @@ self.onmessage = (event: MessageEvent<unknown>): void => {
 function filesFrom(
   value: unknown
 ): readonly { readonly path: string; readonly source: string }[] | undefined {
-  if (!isRecord(value) || !Array.isArray(value.files)) return undefined;
-  const files = value.files;
-  if (!files.every(isSource)) return undefined;
-  return Object.freeze(
-    files.map((file) => Object.freeze({ path: file.path, source: file.source }))
-  );
-}
-
-function isSource(value: unknown): value is { readonly path: string; readonly source: string } {
-  return isRecord(value) && typeof value.path === "string" && typeof value.source === "string";
+  return isRecord(value) ? parseMeasurementPerformanceSources(value.files) : undefined;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

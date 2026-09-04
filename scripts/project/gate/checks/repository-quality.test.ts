@@ -56,6 +56,23 @@ describe("repository quality Checks", () => {
       ),
       false
     );
+    const docsSpecs = fileMetrics.options.codeAreas["docs-specs"];
+    assert.ok(docsSpecs);
+    assert.equal(
+      selectsPath(
+        docsSpecs.files,
+        "docs/investigations/_resources/diagnose-lizard/typescript-cpu-profile.md"
+      ),
+      false
+    );
+    assert.equal(selectsPath(docsSpecs.files, "docs/investigations/diagnose-lizard.md"), true);
+    assert.equal(
+      selectsPath(
+        markdownLinkValidation.options.files,
+        "docs/investigations/_resources/diagnose-lizard/typescript-cpu-profile.md"
+      ),
+      true
+    );
     const duplicateSchemasExamples = duplicateDetection.options.codeAreas["schemas-examples"];
     assert.ok(duplicateSchemasExamples);
     assert.equal(

@@ -83,17 +83,17 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > presents enabled Package Run progress through the injected plain writer`
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > tees final progress while retaining canonical Check durations in RunResult`
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > keeps terminal progress when its selected file target cannot be opened`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > does not create or write a progress writer when Package Run progress is disabled`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > contains progress writer failures while preserving completed Check facts`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > contains a Record preview write failure while retaining accepted Check and Record facts`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > previews only accepted Records when Record misuse settles its Check unavailable`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > schedules one 5-second TTY heartbeat and cancels it after the last Check settles`
+- `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > does not create or write a progress writer when Package Run progress is disabled`
+- `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains progress writer failures while preserving completed Check facts`
+- `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains a Record preview write failure while retaining accepted Check and Record facts`
+- `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > previews only accepted Records when Record misuse settles its Check unavailable`
+- `bun|src/project-run/progress-rendering/invocation-progress-heartbeat.test.ts|Package Run progress rendering outputs > schedules one 5-second TTY heartbeat and cancels it after the last Check settles`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps an execution failure distinct when progress presentation has failed`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
 - `bun|src/project-run/progress-rendering/default-outputs.test.ts|Package Run default outputs > keeps default progress and publication outputs independently successful`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps execution cancellation distinct when progress presentation has failed`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > contains a TTY rewrite failure without leaving Check or Record facts open`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > renders accepted attention Records while retaining complete Records and messages in final facts`
+- `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains a TTY rewrite failure without leaving Check or Record facts open`
+- `bun|src/project-run/progress-rendering/invocation-progress-record-previews.test.ts|Package Run progress rendering outputs > renders accepted attention Records while retaining complete Records and messages in final facts`
 - `bun|src/project-run/progress-rendering/renderer-formatting-records.test.ts|Package Run progress Record and message previews > renders independent bounded Record and message previews without changing their source facts`
 - `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > continues output publication after a progress writer failure`
 - `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > returns output facts when machine publication alone fails`

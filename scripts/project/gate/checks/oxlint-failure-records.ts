@@ -129,14 +129,10 @@ function primaryLocation(
 function labelLocation(
   value: unknown
 ): Readonly<{ readonly column: number; readonly line: number }> | undefined {
-  if (
-    !isRecord(value) ||
-    !hasRequiredKnownKeys(value, ["span"], OXLINT_LABEL_KEYS) ||
-    !isRecord(value.span)
-  )
-    return undefined;
-  if (!hasExactKeys(value.span, OXLINT_SPAN_KEYS)) return undefined;
-  const { column, length, line, offset } = value.span;
+  if (!isRecord(value)) return undefined;
+  const span = labelSpan(value);
+  if (span === undefined) return undefined;
+  const { column, length, line, offset } = span;
   if (
     (Object.hasOwn(value, "label") && typeof value.label !== "string") ||
     !positiveInteger(column) ||
@@ -147,6 +143,17 @@ function labelLocation(
     return undefined;
   }
   return Object.freeze({ column, line });
+}
+
+function labelSpan(
+  value: Readonly<Record<string, unknown>>
+): Readonly<Record<string, unknown>> | undefined {
+  if (!hasRequiredKnownKeys(value, ["span"], OXLINT_LABEL_KEYS)) {
+    return undefined;
+  }
+  return isRecord(value.span) && hasExactKeys(value.span, OXLINT_SPAN_KEYS)
+    ? value.span
+    : undefined;
 }
 
 function inLintScope(path: string, scope: LintScope): boolean {

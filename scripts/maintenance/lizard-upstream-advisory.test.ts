@@ -76,6 +76,16 @@ test("Lizard upstream advisory maps timeout and network failures to stable advis
   const network = await checkLizardUpstream({
     fetch: async () => Promise.reject(new Error("offline"))
   });
+  const bodyReadFailure = await checkLizardUpstream({
+    fetch: async () =>
+      new Response(
+        new ReadableStream({
+          pull(controller) {
+            controller.error(new Error("response body failed"));
+          }
+        })
+      )
+  });
   const cancellation = new AbortController();
   cancellation.abort();
   const cancelled = await checkLizardUpstream({
@@ -87,9 +97,11 @@ test("Lizard upstream advisory maps timeout and network failures to stable advis
 
   assert.equal(timeout.code, "lizard-upstream-timeout");
   assert.equal(network.code, "lizard-upstream-network-error");
+  assert.equal(bodyReadFailure.code, "lizard-upstream-network-error");
   assert.equal(cancelled.code, "lizard-upstream-cancelled");
   assert.equal(timeout.kind, "unavailable");
   assert.equal(network.kind, "unavailable");
+  assert.equal(bodyReadFailure.kind, "unavailable");
   assert.equal(cancelled.kind, "unavailable");
 });
 

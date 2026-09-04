@@ -126,7 +126,12 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         codeLines: repositoryFileCodeLines,
         files: {
           ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, "docs/examples/**", "docs/schemas/**"],
+          exclude: [
+            ...areaFileDefaults.exclude,
+            "docs/examples/**",
+            "docs/investigations/_resources/**",
+            "docs/schemas/**"
+          ],
           include: ["docs/**/*.md", "changes/**/*.md"]
         }
       },

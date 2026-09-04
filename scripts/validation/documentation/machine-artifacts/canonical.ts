@@ -33,12 +33,9 @@ function digest(text: string): string {
 }
 
 function serializeCanonicalJson(value: unknown, ancestors: Set<object>): string | undefined {
-  if (value === null) return "null";
-  if (typeof value === "boolean" || typeof value === "string") return JSON.stringify(value);
-  if (typeof value === "number") {
-    return Number.isFinite(value) ? JSON.stringify(Object.is(value, -0) ? 0 : value) : undefined;
-  }
-  if (typeof value !== "object") return undefined;
+  const primitive = serializeCanonicalPrimitive(value);
+  if (primitive !== undefined) return primitive;
+  if (value === null || typeof value !== "object") return undefined;
   if (ancestors.has(value)) return undefined;
   ancestors.add(value);
   try {
@@ -48,6 +45,13 @@ function serializeCanonicalJson(value: unknown, ancestors: Set<object>): string 
   } finally {
     ancestors.delete(value);
   }
+}
+
+function serializeCanonicalPrimitive(value: unknown): string | undefined {
+  if (value === null) return "null";
+  if (typeof value === "boolean" || typeof value === "string") return JSON.stringify(value);
+  if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
+  return JSON.stringify(Object.is(value, -0) ? 0 : value);
 }
 
 function serializeArray(value: readonly unknown[], ancestors: Set<object>): string | undefined {

@@ -163,24 +163,34 @@ function esmModuleSpecifier(node: ts.Node): ts.StringLiteral | undefined {
 }
 
 function isFunctionMetricsWorkerUrl(node: ts.Node): node is ts.NewExpression {
-  if (
-    !ts.isNewExpression(node) ||
-    !ts.isIdentifier(node.expression) ||
-    node.expression.text !== "URL" ||
-    node.arguments === undefined ||
-    node.arguments.length !== 2
-  ) {
-    return false;
-  }
+  if (!isTwoArgumentUrlConstruction(node)) return false;
   const [specifier, base] = node.arguments;
+  return isAnalyzerWorkerSpecifier(specifier) && isImportMetaUrl(base);
+}
+
+function isTwoArgumentUrlConstruction(node: ts.Node): node is ts.NewExpression & {
+  readonly arguments: readonly [ts.Expression, ts.Expression];
+} {
   return (
-    ts.isStringLiteral(specifier) &&
-    specifier.text === "./analyzer-worker.ts" &&
-    ts.isPropertyAccessExpression(base) &&
-    ts.isMetaProperty(base.expression) &&
-    base.expression.keywordToken === ts.SyntaxKind.ImportKeyword &&
-    base.expression.name.text === "meta" &&
-    base.name.text === "url"
+    ts.isNewExpression(node) &&
+    ts.isIdentifier(node.expression) &&
+    node.expression.text === "URL" &&
+    node.arguments !== undefined &&
+    node.arguments.length === 2
+  );
+}
+
+function isAnalyzerWorkerSpecifier(value: ts.Expression): value is ts.StringLiteral {
+  return ts.isStringLiteral(value) && value.text === "./analyzer-worker.ts";
+}
+
+function isImportMetaUrl(value: ts.Expression): boolean {
+  return (
+    ts.isPropertyAccessExpression(value) &&
+    ts.isMetaProperty(value.expression) &&
+    value.expression.keywordToken === ts.SyntaxKind.ImportKeyword &&
+    value.expression.name.text === "meta" &&
+    value.name.text === "url"
   );
 }
 
