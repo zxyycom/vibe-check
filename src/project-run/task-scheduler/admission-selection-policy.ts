@@ -1,5 +1,10 @@
-import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
+import type { PlannedTask, PlannedTaskGraph } from "./graph.ts";
 import type { AdmissionCoreState } from "./admission-core.ts";
+import {
+  isConstrainedScopeContinuation,
+  scopeForTask,
+  tighteningScopeForTask
+} from "./admission-scope-layers.ts";
 import type { SchedulerInspection } from "./scheduler-decision-inspection.ts";
 import type {
   AdmissionPolicyContext,
@@ -55,7 +60,10 @@ function proposalFor(candidate: AdmissionCandidate): AdmissionPolicyDecision {
 
 function selectTighteningCandidate(input: AdmissionPolicyInput): AdmissionCandidate | undefined {
   return input.candidates
-    .filter((candidate) => activatesTighteningScope(input, candidate.task))
+    .filter(
+      (candidate) =>
+        tighteningScopeForTask(input.graph, input.inspection, candidate.task) !== undefined
+    )
     .sort((left, right) => compareConstrainedCandidates(input, left, right))[0];
 }
 
@@ -63,7 +71,9 @@ function selectConstrainedContinuation(
   input: AdmissionPolicyInput
 ): AdmissionCandidate | undefined {
   return input.candidates
-    .filter((candidate) => isConstrainedContinuation(input, candidate.task))
+    .filter((candidate) =>
+      isConstrainedScopeContinuation(input.graph, input.inspection, candidate.task)
+    )
     .sort((left, right) => compareConstrainedCandidates(input, left, right))[0];
 }
 
@@ -76,20 +86,6 @@ function selectOrdinaryReadyCandidate(
     (selected, candidate) =>
       candidate.task.admissionPriority > selected.task.admissionPriority ? candidate : selected,
     first
-  );
-}
-
-function activatesTighteningScope(input: AdmissionPolicyInput, task: PlannedTask): boolean {
-  const scope = activationScopeFor(input, task);
-  return scope !== undefined && scope.maxParallel < input.inspection.maxParallel;
-}
-
-function isConstrainedContinuation(input: AdmissionPolicyInput, task: PlannedTask): boolean {
-  const scope = scopeForTask(input.graph, task);
-  return (
-    scope !== undefined &&
-    input.inspection.activeScopeIds.includes(scope.id) &&
-    scope.maxParallel < input.inspection.maxParallel
   );
 }
 
@@ -109,23 +105,6 @@ function compareConstrainedCandidates(
     compareText(leftScope.id, rightScope.id) ||
     compareText(left.task.id, right.task.id)
   );
-}
-
-function activationScopeFor(
-  input: AdmissionPolicyInput,
-  task: PlannedTask
-): PlannedTaskScope | undefined {
-  const scope = scopeForTask(input.graph, task);
-  return scope?.activationTaskIds.includes(task.id) === true &&
-    !input.inspection.activeScopeIds.includes(scope.id)
-    ? scope
-    : undefined;
-}
-
-function scopeForTask(graph: PlannedTaskGraph, task: PlannedTask): PlannedTaskScope | undefined {
-  return task.scopeId === undefined
-    ? undefined
-    : graph.scopes.find((scope) => scope.id === task.scopeId);
 }
 
 function compareText(left: string, right: string): number {
