@@ -24,15 +24,23 @@ interface FunctionMeasurementInput {
   readonly signal: AbortSignal;
 }
 
+interface FunctionMeasurementDependencies {
+  readonly yieldAdmission: () => Promise<void>;
+}
+
+const DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES: FunctionMeasurementDependencies = Object.freeze({
+  yieldAdmission: yieldAdmissionToTimer
+});
+
 /**
  * The Check parent admits exactly its selected sources and bounds their bytes;
  * one Worker only analyzes those source texts and never discovers or reads paths.
  */
-export async function measureFunctionMetrics({
-  input,
-  signal
-}: FunctionMeasurementInput): Promise<FunctionMeasurementResult> {
-  const admitted = await readExactFunctionSources(input, signal);
+export async function measureFunctionMetrics(
+  { input, signal }: FunctionMeasurementInput,
+  dependencies: FunctionMeasurementDependencies = DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES
+): Promise<FunctionMeasurementResult> {
+  const admitted = await readExactFunctionSources(input, signal, dependencies.yieldAdmission);
   if (admitted.kind !== "complete") return admitted;
   if (signal.aborted) return Object.freeze({ kind: "cancelled" });
   return analyzeAdmittedSources(admitted.request, input.approvedExactPaths, signal);
@@ -40,7 +48,8 @@ export async function measureFunctionMetrics({
 
 async function readExactFunctionSources(
   input: FunctionMetricsExactInputSet,
-  signal: AbortSignal
+  signal: AbortSignal,
+  yieldAdmission: () => Promise<void>
 ): Promise<
   | Readonly<{ readonly kind: "cancelled" }>
   | Readonly<{ readonly kind: "complete"; readonly request: FunctionMetricsAnalysisWorkerRequest }>
@@ -51,7 +60,12 @@ async function readExactFunctionSources(
   const files: FunctionMetricsAnalysisWorkerRequest["files"][number][] = [];
   for (const path of input.approvedExactPaths) {
     if (signal.aborted) return Object.freeze({ kind: "cancelled" });
-    const source = await readBoundedSource(resolve(input.rootDir, path), aggregateBytes, signal);
+    const source = await readBoundedSource(
+      resolve(input.rootDir, path),
+      aggregateBytes,
+      signal,
+      yieldAdmission
+    );
     if (source.kind !== "complete") return source;
     aggregateBytes += source.byteLength;
     files.push(Object.freeze({ path, source: source.source }));
@@ -65,7 +79,8 @@ async function readExactFunctionSources(
 async function readBoundedSource(
   absolutePath: string,
   aggregateBytes: number,
-  signal: AbortSignal
+  signal: AbortSignal,
+  yieldAdmission: () => Promise<void>
 ): Promise<
   | Readonly<{ readonly kind: "cancelled" }>
   | Readonly<{ readonly kind: "complete"; readonly byteLength: number; readonly source: string }>
@@ -92,7 +107,7 @@ async function readBoundedSource(
       }
       chunks.push(Buffer.from(chunk.subarray(0, bytesRead)));
       if (signal.aborted) return Object.freeze({ kind: "cancelled" });
-      await new Promise<void>((resolveYield) => setTimeout(resolveYield, 0));
+      await yieldAdmission();
     }
     return Object.freeze({
       kind: "complete",
@@ -104,6 +119,10 @@ async function readBoundedSource(
   } finally {
     closeSync(descriptor);
   }
+}
+
+function yieldAdmissionToTimer(): Promise<void> {
+  return new Promise<void>((resolveYield) => setTimeout(resolveYield, 0));
 }
 
 /**

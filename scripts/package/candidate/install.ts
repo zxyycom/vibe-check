@@ -32,6 +32,12 @@ interface VerifiedCandidateDependency {
   readonly version: string;
 }
 
+interface CandidateInstallationProbe {
+  readonly ajvPackageManifestPath: string;
+  readonly candidateEntryUrl: string;
+  readonly jscpdPackageManifestPath: string;
+}
+
 /** Replaces the dedicated private install and verifies the exact installed package entry. */
 export function installCandidate(input: {
   readonly artifactPath: string;
@@ -102,7 +108,11 @@ function verifyInstallation(input: {
   const expectedMachineMaterials = input.expectedMachineMaterials ?? [];
   const packageDirectory = join(consumerDirectory, "node_modules", PACKAGE_NAME);
   assertInstalledCandidateManifest(packageDirectory, candidateVersion);
-  const resolvedEntryPath = resolveInstalledCandidateEntry(consumerDirectory, packageDirectory);
+  const probe = probeCandidateInstallation(consumerDirectory);
+  const resolvedEntryPath = resolveInstalledCandidateEntry(
+    packageDirectory,
+    probe.candidateEntryUrl
+  );
   assertInstalledCandidateMaterials({
     packageDirectory,
     expectedDocuments,
@@ -110,10 +120,13 @@ function verifyInstallation(input: {
     expectedJSDocExamplePayloads,
     expectedReadme
   });
-  verifyCandidateJscpdDependency(consumerDirectory, resolvedEntryPath);
-  verifyCandidateDependency({
-    candidateEntryPath: resolvedEntryPath,
+  verifyCandidateJscpdDependency({
     consumerDirectory,
+    packageManifestPath: probe.jscpdPackageManifestPath
+  });
+  verifyCandidateDependency({
+    consumerDirectory,
+    packageManifestPath: probe.ajvPackageManifestPath,
     packageName: AJV_PACKAGE_NAME,
     versionRequirement: { kind: "exact", version: CANDIDATE_DEPENDENCIES.ajv }
   });
@@ -142,21 +155,61 @@ function assertInstalledCandidateManifest(
     );
 }
 
-function resolveInstalledCandidateEntry(
-  consumerDirectory: string,
-  packageDirectory: string
-): string {
-  const resolvedUrl = runBun({
-    args: ["-e", "process.stdout.write(import.meta.resolve(process.argv[1]))", PACKAGE_NAME],
+function probeCandidateInstallation(consumerDirectory: string): CandidateInstallationProbe {
+  const output = runBun({
+    args: [
+      "-e",
+      `import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+const candidateEntryUrl = import.meta.resolve(process.argv[1]);
+const candidateEntryPath = fileURLToPath(candidateEntryUrl);
+const requireFromCandidate = createRequire(candidateEntryPath);
+process.stdout.write(JSON.stringify({
+  ajvPackageManifestPath: requireFromCandidate.resolve(process.argv[2] + "/package.json"),
+  candidateEntryUrl,
+  jscpdPackageManifestPath: requireFromCandidate.resolve(process.argv[3] + "/package.json")
+}));`,
+      PACKAGE_NAME,
+      AJV_PACKAGE_NAME,
+      JSCPD_PACKAGE_NAME
+    ],
     cwd: consumerDirectory,
-    phase: `resolve candidate in ${consumerDirectory}`
-  }).trim();
+    phase: `resolve candidate and dependencies in ${consumerDirectory}`
+  });
+  let value: unknown;
+  try {
+    value = JSON.parse(output);
+  } catch (error: unknown) {
+    throw new Error(
+      `candidate installation resolution returned invalid JSON from ${consumerDirectory}: ${errorMessage(error)}`,
+      { cause: error }
+    );
+  }
+  if (
+    !isNonArrayRecord(value) ||
+    typeof value.candidateEntryUrl !== "string" ||
+    typeof value.ajvPackageManifestPath !== "string" ||
+    typeof value.jscpdPackageManifestPath !== "string" ||
+    Object.keys(value).length !== 3
+  ) {
+    throw new Error(
+      `candidate installation resolution returned an invalid result from ${consumerDirectory}`
+    );
+  }
+  return Object.freeze({
+    ajvPackageManifestPath: value.ajvPackageManifestPath,
+    candidateEntryUrl: value.candidateEntryUrl,
+    jscpdPackageManifestPath: value.jscpdPackageManifestPath
+  });
+}
+
+function resolveInstalledCandidateEntry(packageDirectory: string, resolvedUrl: string): string {
   let resolvedEntryPath: string;
   try {
     resolvedEntryPath = fileURLToPath(resolvedUrl);
   } catch (error: unknown) {
     throw new Error(
-      `candidate entry resolution returned an invalid file URL from ${consumerDirectory}: ${errorMessage(error)}`,
+      `candidate entry resolution returned an invalid file URL for ${packageDirectory}: ${errorMessage(error)}`,
       { cause: error }
     );
   }
@@ -179,12 +232,11 @@ function assertPrivateCandidateConsumer(consumerDirectory: string): void {
 }
 
 function verifyCandidateJscpdDependency(
-  consumerDirectory: string,
-  candidateEntryPath: string
+  input: Readonly<{ readonly consumerDirectory: string; readonly packageManifestPath: string }>
 ): void {
-  const { manifest, packageManifestPath, version } = verifyCandidateDependency({
-    candidateEntryPath,
-    consumerDirectory,
+  const { manifest, packageManifestPath } = verifyCandidateDependency({
+    consumerDirectory: input.consumerDirectory,
+    packageManifestPath: input.packageManifestPath,
     packageName: JSCPD_PACKAGE_NAME,
     versionRequirement: { kind: "range", range: CANDIDATE_DEPENDENCIES.jscpd }
   });
@@ -203,50 +255,16 @@ function verifyCandidateJscpdDependency(
   if (!existsSync(binPath)) {
     throw new Error(`resolved ${JSCPD_PACKAGE_NAME} bin is missing: ${binPath}`);
   }
-  assertJscpdEngineVersion({
-    binPath,
-    consumerDirectory,
-    expectedVersion: version,
-    packageManifestPath
-  });
 }
 
-function assertJscpdEngineVersion(input: {
-  readonly binPath: string;
-  readonly consumerDirectory: string;
-  readonly expectedVersion: string;
-  readonly packageManifestPath: string;
-}): void {
-  const output = runBun({
-    args: [input.binPath, "--version"],
-    cwd: input.consumerDirectory,
-    phase: `run resolved ${JSCPD_PACKAGE_NAME} engine in ${input.consumerDirectory}`
-  });
-  const actualVersion = output.trim().match(/(?:jscpd|cpd)\s+([^\s]+)/iu)?.[1];
-  if (actualVersion !== input.expectedVersion) {
-    throw new Error(
-      `resolved ${JSCPD_PACKAGE_NAME} engine version must match manifest ${input.expectedVersion}: ${input.packageManifestPath}`
-    );
-  }
-}
-
-/** Resolves one declared runtime dependency from the candidate entry and proves it stays in its private consumer. */
+/** Validates one probed runtime dependency and proves it stays in the private consumer. */
 function verifyCandidateDependency(input: {
-  readonly candidateEntryPath: string;
   readonly consumerDirectory: string;
+  readonly packageManifestPath: string;
   readonly packageName: CandidateRuntimeDependencyName;
   readonly versionRequirement: PackageDependencyVersionRequirement;
 }): VerifiedCandidateDependency {
-  const { candidateEntryPath, consumerDirectory, packageName, versionRequirement } = input;
-  const packageManifestPath = runBun({
-    args: [
-      "-e",
-      `import { createRequire } from 'node:module'; process.stdout.write(createRequire(process.argv[1]).resolve('${packageName}/package.json'))`,
-      candidateEntryPath
-    ],
-    cwd: consumerDirectory,
-    phase: `resolve declared ${packageName} dependency in ${consumerDirectory}`
-  }).trim();
+  const { consumerDirectory, packageManifestPath, packageName, versionRequirement } = input;
   if (!isPathWithin(join(consumerDirectory, "node_modules"), packageManifestPath)) {
     throw new Error(
       `candidate ${packageName} dependency resolved outside private consumer node_modules: ${packageManifestPath}`

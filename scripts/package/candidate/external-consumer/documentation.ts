@@ -52,8 +52,7 @@ export function assertExternalConsumerDocumentation(material: ExternalConsumerMa
       `installed package machine material differs: ${materialFile.packagePath}`
     );
   }
-  runDocumentationExamples(material.consumerDirectory);
-  runMachineDefinitionExample(material);
+  runDocumentationAcceptance(material);
 }
 
 function packageApiExampleSourcePaths(): readonly string[] {
@@ -62,44 +61,74 @@ function packageApiExampleSourcePaths(): readonly string[] {
   );
 }
 
-function runDocumentationExamples(consumerDirectory: string): void {
-  const runtimeSourcePaths = new Set<string>(
-    PACKAGE_API_EXAMPLE_PROJECTIONS.filter((projection) => projection.evidence === "runtime").map(
-      (projection) => projection.sourcePath
-    )
+function runtimeDocumentationExampleSourcePaths(): readonly string[] {
+  return Object.freeze(
+    [
+      ...new Set(
+        PACKAGE_API_EXAMPLE_PROJECTIONS.filter(
+          (projection) => projection.evidence === "runtime"
+        ).map((projection) => projection.sourcePath)
+      )
+    ].sort()
   );
-  for (const sourcePath of packageApiExampleSourcePaths()) {
-    if (!runtimeSourcePaths.has(sourcePath)) continue;
-    const result = spawnSync(process.execPath, [sourcePath], {
-      cwd: consumerDirectory,
-      encoding: "utf8"
-    });
-    assertExternalConsumerCommandSucceeded(result, `isolated documentation example ${sourcePath}`);
-  }
 }
 
-function runMachineDefinitionExample(material: ExternalConsumerMaterial): void {
+function runDocumentationAcceptance(material: ExternalConsumerMaterial): void {
   const definitionPath = join(
     material.installedPackageDirectory,
     "docs/examples/artifacts/mixed-outcomes/definition.ts"
   );
   const result = spawnSync(
     process.execPath,
-    ["-e", machineDefinitionRunnerSource(), definitionPath],
+    [
+      "-e",
+      documentationAcceptanceRunnerSource(),
+      JSON.stringify(runtimeDocumentationExampleSourcePaths()),
+      definitionPath
+    ],
     { cwd: material.consumerDirectory, encoding: "utf8" }
   );
-  assertExternalConsumerCommandSucceeded(result, "isolated machine Definition example");
+  assertExternalConsumerCommandSucceeded(
+    result,
+    "batched documentation examples and machine Definition"
+  );
 }
 
-function machineDefinitionRunnerSource(): string {
+function documentationAcceptanceRunnerSource(): string {
   return `import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { run } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
 
-const definitionPath = process.argv[1];
-const definition = (await import(definitionPath)).default;
+const runtimeSourcePaths = JSON.parse(process.argv[1] ?? "null");
+if (
+  !Array.isArray(runtimeSourcePaths) ||
+  runtimeSourcePaths.some((sourcePath) => typeof sourcePath !== "string" || sourcePath.length === 0)
+) {
+  throw new TypeError("Documentation acceptance requires a JSON array of source paths");
+}
+for (const sourcePath of runtimeSourcePaths) {
+  try {
+    await import(pathToFileURL(resolve(sourcePath)).href);
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(\`Documentation example failed (\${sourcePath}): \${detail}\`);
+  }
+}
+
+const definitionPath = process.argv[2];
+if (typeof definitionPath !== "string" || definitionPath.length === 0) {
+  throw new TypeError("Documentation acceptance requires a machine Definition path");
+}
+let definition;
+try {
+  definition = (await import(pathToFileURL(definitionPath).href)).default;
+} catch (error) {
+  const detail = error instanceof Error ? error.message : String(error);
+  throw new Error(\`Machine Definition import failed (\${definitionPath}): \${detail}\`);
+}
 const result = await run(definition);
 if (result.kind !== "completed") throw new Error(\`Machine Definition did not complete: \${result.kind}\`);
 if (result.outputs.machinePublication.status !== "succeeded") {

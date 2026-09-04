@@ -96,7 +96,6 @@ const expectedCheckIds = [
   "prepared-package-candidate",
   "prepared-external-package-consumer",
   "tests-package-supporting",
-  "tests-package-candidate",
   "tests-package-artifact",
   "tests-package-consumer-types",
   "tests-package-consumer-docs",

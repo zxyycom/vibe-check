@@ -39,7 +39,7 @@ scripts helper、环境状态或 process adapter。
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | environment               | `bun run env:setup`；`bun run env:check`                                                                                                      | `scripts/environment/manage.ts`           |
 | development               | `bun run format [-- check]`；`bun run lint [-- product \| scripts]`；`bun run typecheck [-- product \| scripts]`；`bun run test`              | `scripts/development/**`                |
-| package candidate         | `bun run package:status`；`bun run package:build`；`bun run package:verify`                                                                   | `scripts/package/command.ts`              |
+| package candidate         | `bun run package:status`；`bun run package:build`；`bun run package:verify`；显式物理集成 `bun run package:candidate:integration`              | `scripts/package/command.ts` 与 `scripts/package/candidate/integration-command.ts` |
 | formal package release    | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>`                   | `scripts/package/release/command.ts`      |
 | docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                           | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
 | governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>` | their named owners                        |
@@ -142,10 +142,17 @@ dependency；Pygments/Lizard legal provenance text 本身不构成 runtime depen
 artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package
 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
-它不从 repository source 或祖先依赖补偿不完整的 candidate。
+它不从 repository source 或祖先依赖补偿不完整的 candidate。安装后的责任按以下边界闭合：
+
+1. 一个 child 一次解析 candidate 根入口与两项声明依赖；
+2. parent 核对路径 containment、manifest version 和 jscpd bin；
+3. 实际 jscpd execution 由随后消费同一安装的 Product / external runtime 验收，preparation 不为同一事实重复启动多个 probe。
+
 `candidate/external-consumer/**` 是 candidate 下级模块：它建立一次隔离安装及 typed material，并分别验证 types、
 documentation 与 runtime；runtime evidence 从 installed root import 实际调用 `functionMetrics`，要求 CCN `2` 的 non-blocking
-finding，证明 emitted Worker URL 指向安装包内 worker 且 Worker 执行成功，而不扩大 public exports。父级 candidate lifecycle 不吸收这些验收职责。
+finding，证明 emitted Worker URL 指向安装包内 worker 且 Worker 执行成功，而不扩大 public exports。Types acceptance
+用一次真实 `tsgo` consumer typecheck 覆盖 public imports、examples 与 Definition，并直接核对 installed declaration owner
+的相邻 JSDoc；它不为同一 declaration graph 构造第二个 LanguageService program。父级 candidate lifecycle 不吸收这些验收职责。
 
 ### Local candidate lifecycle
 
@@ -158,8 +165,11 @@ unpacked package build evidence，`build/artifacts/` 保存 versioned `.tgz`。`
 `package:status` 只读地报告 candidate version、`current`/`stale` freshness、unpacked path、tarball path 和经验证的
 installed entry；stale 时另报告 required preparation action，并以非零退出提示 `package:build`，不静默复用或修复。
 `package:build` 执行既有 prepare 的 `reuse`/`reinstall`/`rebuild` 选择和相应 audit，明确分别报告完成后的 current state 与
-performed action；`package:verify` 直接运行 full Project Gate，复用 candidate lifecycle、artifact 与 external-consumer
-package acceptance，而不建立平行 acceptance。
+performed action；`package:verify` 直接运行 full Project Gate。Gate root 在 Product Run 前完成或复用这一份 exact preparation，
+full 内的 artifact 与 external-consumer acceptance 只消费其 typed evidence，不再另建 detached cold candidate。
+`package:candidate:integration` 是默认 test profile 之外的显式物理 target：它在 30 秒进程硬限制内以 test-local state 证明一次
+cold build/install/reuse，并覆盖以下边界：build staging 仍由 artifact acceptance 审计、installed documentation drift 会失败、
+missing dependency 触发 reinstall、malformed receipt 触发 rebuild。Routine full 不运行该显式 target。
 
 Candidate preparation 先执行不修改文件系统的状态判断，再根据结果执行动作：
 
@@ -226,7 +236,7 @@ scripts/project/gate/
 
 `checks/test-execution/lanes.ts` 将 Test Evidence 已知的 Bun test files 投影为互斥且非空的 execution lanes；每个文件必须恰好属于一个 lane，未知 Product owner 在启动测试前失败。lane 只拥有测试文件分区，不能隐藏 Gate Check 配置；lane 到 Check ID、显示名、tags、candidate input、mutex 与 timeout 的完整映射位于 `definition.ts`。
 
-Package supporting、candidate/artifact acceptance、三个 external-consumer acceptance、各 Product Check owner、Product runtime、Project tooling、Test Evidence、validation 与 ordinary scripts 分别结算。external-consumer provider 是独立 Check，不伪装成 test lane。
+Package supporting、artifact acceptance、三个 external-consumer acceptance、各 Product Check owner、Product runtime、Project tooling、Test Evidence、validation 与 ordinary scripts 分别结算。快速 candidate contract 属于 package supporting；显式 `candidate.integration.ts` 不符合 routine profile 的 `*.test.ts` 身份，因此不由该 profile 发现，其正式入口是 `package:candidate:integration`。External-consumer provider 是独立 Check，不伪装成 test lane。
 
 ### Profiles and scheduling
 
@@ -235,7 +245,7 @@ Package supporting、candidate/artifact acceptance、三个 external-consumer ac
 - required 默认不选择 `package-tests`；显式 enable 后选择。full 选择所有未禁用的 package acceptance Checks。
 - 两个 profile 都选择四个 `quality` Checks。禁用 tag 时对应 Check 保留 `not-applicable` fact。
 - 所有 eligible Check status 进入同一个 `all` aggregate：必须全部 `passed`；`failed` 使 aggregate failed，`unavailable` propagate，`not-applicable` fail，空 selection failed。findings、messages、Records 与 final data 不直接参与 aggregate。
-- scheduler 的 root `maxParallel`、每个 Check 的 timeout 与 mutex 都在 `definition.ts` 声明。会改变 package lifecycle 的 Check 共享 lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。
+- scheduler 的 root `maxParallel`、每个 Check 的 timeout 与 mutex 都在 `definition.ts` 声明。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。root 并发上限不因本次优化改变。
 - 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 和 full 的 median，因此所有 Check 的 effective priority 都是 `0`。
 
 完整 tag 集合和可执行例子由 `--help` 输出；root package scripts 经 `mise exec` 调用同一个 `run.ts`，
@@ -258,9 +268,10 @@ owner 阻断。
 
 Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。三个 metrics Check 的
 `product-source` area 都排除 `src/package-checks/function-metrics/analyzer/**`：该目录由 source-aligned port owner 整体维护，不生成
-repository duplicate、file 或 function-metric Finding。配置测试必须证明三项使用同一 glob、目录内代表路径未被选择，而
-目录外的 Product adapter、Worker、measurement 与 Check 仍被选择。该范围不从 provenance ledger 动态生成，也不改变 package
-Check 的公共默认 selection。
+repository duplicate、file 或 function-metric Finding。除此共同边界外，Function metrics 还排除 Product `*.test.ts` 与
+`*.test-support.ts`。该差异只移除测试函数的复杂度与密度 Finding；duplicate detection 与 file metrics 仍选择这些测试文件，
+以保留重复代码和超长文件对使用体验的证据。配置测试必须同时证明这项差异、共同 analyzer exclusion，以及目录外 Product
+implementation 仍被三项选择。该范围不从 provenance ledger 动态生成，也不改变 package Check 的公共默认 selection。
 
 整目录 metrics 排除不影响 analyzer 的 lint、format、typecheck、source identity、oracle/parity、deviation、provenance/license、
 import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
@@ -323,7 +334,8 @@ current machine schemas 位于 `docs/schemas/`，唯一 artifact example 位于
 `scripts/docs/machine-artifacts/package-materials.ts` 是随 package 发布的 machine material 精确 registry：它只包含
 `docs/output.md`、current v4 run / Record schemas 与这一组 Definition/output materials，并按原始 bytes 读取。package build、
 packed tar audit、candidate reuse、installed package audit 与 ancestry-external consumer acceptance 都比较同一 registry 的精确
-bytes；installed consumer typecheck 直接检查 Definition，documentation acceptance 还用 candidate runtime 执行它并核对
+bytes；installed consumer typecheck 直接检查 Definition，documentation acceptance 用一个 consumer-owned Bun child 按确定顺序
+执行全部 runtime examples 和 machine Definition。Example 或 Definition import 失败时，错误保留对应 source identity；执行成功后再核对
 documented built-in/custom facts、RunResult messages 与 machine publication。legacy schemas、historical examples、generator sources 与 validation scripts 不进入
 package。
 

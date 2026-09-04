@@ -2,7 +2,6 @@ import { resolveBunTestFiles } from "../../../../test-evidence/discovery/bun-fil
 import { loadSupportedRunnerProfile } from "../../../../test-evidence/profile.ts";
 
 const PACKAGE_ARTIFACT_TEST_FILE = "scripts/package/artifact/artifact.test.ts";
-const PACKAGE_CANDIDATE_TEST_FILE = "scripts/package/candidate/candidate.test.ts";
 const PACKAGE_CONSUMER_TYPES_TEST_FILE =
   "scripts/package/candidate/external-consumer/type-acceptance.test.ts";
 const PACKAGE_CONSUMER_DOCS_TEST_FILE =
@@ -12,7 +11,6 @@ const PACKAGE_CONSUMER_RUNTIME_TEST_FILE =
 
 const PACKAGE_TEST_LANES = new Map<string, ProjectGateTestLaneName>([
   [PACKAGE_ARTIFACT_TEST_FILE, "packageArtifact"],
-  [PACKAGE_CANDIDATE_TEST_FILE, "packageCandidate"],
   [PACKAGE_CONSUMER_TYPES_TEST_FILE, "packageConsumerTypes"],
   [PACKAGE_CONSUMER_DOCS_TEST_FILE, "packageConsumerDocs"],
   [PACKAGE_CONSUMER_RUNTIME_TEST_FILE, "packageConsumerRuntime"]
@@ -20,7 +18,6 @@ const PACKAGE_TEST_LANES = new Map<string, ProjectGateTestLaneName>([
 
 export const PROJECT_GATE_TEST_LANE_NAMES = [
   "packageArtifact",
-  "packageCandidate",
   "packageConsumerDocs",
   "packageConsumerRuntime",
   "packageConsumerTypes",
@@ -139,7 +136,6 @@ function productPackageTestLane(file: string): ProductPackageTestLaneName {
 function emptyTestLaneFiles(): Record<ProjectGateTestLaneName, string[]> {
   return {
     packageArtifact: [],
-    packageCandidate: [],
     packageConsumerDocs: [],
     packageConsumerRuntime: [],
     packageConsumerTypes: [],
@@ -164,7 +160,6 @@ function freezeTestLanes(
 ): ProjectGateTestLanes {
   return Object.freeze({
     packageArtifact: Object.freeze([...laneFiles.packageArtifact]),
-    packageCandidate: Object.freeze([...laneFiles.packageCandidate]),
     packageConsumerDocs: Object.freeze([...laneFiles.packageConsumerDocs]),
     packageConsumerRuntime: Object.freeze([...laneFiles.packageConsumerRuntime]),
     packageConsumerTypes: Object.freeze([...laneFiles.packageConsumerTypes]),

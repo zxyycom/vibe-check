@@ -46,7 +46,6 @@ const expectedCheckIds = [
   "prepared-package-candidate",
   "prepared-external-package-consumer",
   "tests-package-supporting",
-  "tests-package-candidate",
   "tests-package-artifact",
   "tests-package-consumer-types",
   "tests-package-consumer-docs",
@@ -87,7 +86,6 @@ const qualityCheckIds: ReadonlySet<string> = new Set([
 const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "prepared-external-package-consumer",
   "tests-package-artifact",
-  "tests-package-candidate",
   "tests-package-consumer-types",
   "tests-package-consumer-docs",
   "tests-package-consumer-runtime"
@@ -206,7 +204,6 @@ describe("Project Gate Definition", () => {
       ["tests-scripts-tooling", expectedTestLanes.scriptsTooling],
       ["tests-package-supporting", expectedTestLanes.packageSupporting],
       ["tests-package-artifact", expectedTestLanes.packageArtifact],
-      ["tests-package-candidate", expectedTestLanes.packageCandidate],
       ["tests-package-consumer-types", expectedTestLanes.packageConsumerTypes],
       ["tests-package-consumer-docs", expectedTestLanes.packageConsumerDocs],
       ["tests-package-consumer-runtime", expectedTestLanes.packageConsumerRuntime]
@@ -222,10 +219,10 @@ describe("Project Gate Definition", () => {
         packageAcceptanceCheckIds.has(checkId) ? 30_000 : undefined
       );
     }
-    for (const checkId of ["tests-package-candidate", "prepared-external-package-consumer"]) {
-      const entry = entries.find(({ check }) => check.checkId === checkId);
-      assert.deepEqual(entry?.check.mutex, ["project-gate-package-lifecycle"]);
-    }
+    const packageLifecycleEntry = entries.find(
+      ({ check }) => check.checkId === "prepared-external-package-consumer"
+    );
+    assert.deepEqual(packageLifecycleEntry?.check.mutex, ["project-gate-package-lifecycle"]);
     assert.equal(
       entries.find(({ check }) => check.checkId === "tests-package-artifact")?.check.mutex,
       undefined
@@ -417,7 +414,6 @@ describe("Project Gate Definition", () => {
       for (const packageCheckId of [
         "prepared-external-package-consumer",
         "tests-package-artifact",
-        "tests-package-candidate",
         "tests-package-consumer-types",
         "tests-package-consumer-docs",
         "tests-package-consumer-runtime"

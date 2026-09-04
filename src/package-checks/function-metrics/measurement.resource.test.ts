@@ -154,8 +154,11 @@ describe("functionMetrics resource admission", () => {
 });
 
 function measure(rootDir: string, approvedExactPaths: readonly string[]) {
-  return measureFunctionMetrics({
-    input: { approvedExactPaths, areas: [], rootDir },
-    signal: new AbortController().signal
-  });
+  return measureFunctionMetrics(
+    {
+      input: { approvedExactPaths, areas: [], rootDir },
+      signal: new AbortController().signal
+    },
+    { yieldAdmission: () => Promise.resolve() }
+  );
 }

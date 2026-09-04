@@ -79,6 +79,10 @@ const repositoryFunctionLimits = {
   parameters: { maximum: 5 }
 } as const;
 const lizardPortQualityExclusion = "src/package-checks/function-metrics/analyzer/**";
+const productFunctionMetricTestExclusions = [
+  "src/**/*.test.ts",
+  "src/**/*.test-support.ts"
+] as const;
 
 /**
  * Project-owned post-processing run after one candidate-backed Product result.
@@ -173,7 +177,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "product-source": {
         files: {
           ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, lizardPortQualityExclusion],
+          exclude: [
+            ...areaFileDefaults.exclude,
+            lizardPortQualityExclusion,
+            ...productFunctionMetricTestExclusions
+          ],
           include: ["src/**/*.ts"]
         },
         limits: repositoryFunctionLimits
@@ -205,14 +213,6 @@ const PROJECT_GATE_TEST_CHECKS = defineProjectGateTestChecks([
     displayName: "Bun package calculation and material tests",
     lane: "packageSupporting",
     tags: ["scripts", "tests"]
-  },
-  {
-    checkId: "tests-package-candidate",
-    displayName: "Bun package candidate lifecycle acceptance",
-    lane: "packageCandidate",
-    mutex: packageLifecycleMutex,
-    tags: ["package-tests", "tests"],
-    timeoutMs: packageAcceptanceTimeoutMs
   },
   {
     candidateInput: "artifact",

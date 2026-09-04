@@ -3,26 +3,27 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import * as ts from "typescript";
 
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admission-strategy-type-acceptance.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
+import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const tsgoPath = resolve(repositoryRoot, "node_modules/@typescript/native-preview/bin/tsgo.js");
+const defineCheckDeclarationPath = `${PACKAGE_TYPES_DIRECTORY}/check/check.d.ts`;
+const runDeclarationPath = `${PACKAGE_TYPES_DIRECTORY}/project-run/run.d.ts`;
 
-/** Writes declaration and QuickInfo fixtures contributed by type acceptance. */
+/** Writes declaration fixtures contributed by type acceptance. */
 export function writeExternalConsumerTypesFixture(consumerDirectory: string): void {
   writeFileSync(join(consumerDirectory, "tsconfig.json"), typecheckConfig(), "utf8");
   writeFileSync(join(consumerDirectory, "public-imports.ts"), publicImports(), "utf8");
-  writeFileSync(join(consumerDirectory, "hover-fixture.ts"), hoverFixture(), "utf8");
 }
 
-/** Runs the public declaration import and QuickInfo acceptance against one installed consumer. */
+/** Runs public typechecking and audits the installed declaration documentation. */
 export function assertExternalConsumerTypes(consumerDirectory: string): void {
   typecheckPublicImports(consumerDirectory);
-  assertInstalledDeclarationQuickInfo(consumerDirectory);
+  assertInstalledDeclarationDocumentation(consumerDirectory);
 }
 
 function typecheckPublicImports(consumerDirectory: string): void {
@@ -34,74 +35,55 @@ function typecheckPublicImports(consumerDirectory: string): void {
   assertExternalConsumerCommandSucceeded(result, "isolated public-import typecheck");
 }
 
-function assertInstalledDeclarationQuickInfo(consumerDirectory: string): void {
-  const fixturePath = join(consumerDirectory, "hover-fixture.ts");
-  const fixtureSource = readFileSync(fixturePath, "utf8");
-  const service = ts.createLanguageService({
-    fileExists: (path) => ts.sys.fileExists(path),
-    getCompilationSettings: () => ({
-      module: ts.ModuleKind.NodeNext,
-      moduleResolution: ts.ModuleResolutionKind.NodeNext,
-      strict: true,
-      target: ts.ScriptTarget.ESNext,
-      verbatimModuleSyntax: true
-    }),
-    getCurrentDirectory: () => consumerDirectory,
-    getDefaultLibFileName: (options) => ts.getDefaultLibFilePath(options),
-    getScriptFileNames: () => [fixturePath],
-    getScriptSnapshot: (filePath) => {
-      const source = ts.sys.readFile(filePath);
-      return source === undefined ? undefined : ts.ScriptSnapshot.fromString(source);
-    },
-    getScriptVersion: () => "1",
-    readDirectory: (...args) => ts.sys.readDirectory(...args),
-    readFile: (path) => ts.sys.readFile(path)
+function assertInstalledDeclarationDocumentation(consumerDirectory: string): void {
+  const packageDirectory = join(
+    consumerDirectory,
+    "node_modules",
+    CURRENT_PUBLIC_CONTRACT.packageImport
+  );
+  const defineCheckDocs = readAdjacentDeclarationDocumentation({
+    declarationMarker: `export declare function ${CURRENT_PUBLIC_CONTRACT.operations.defineCheck}`,
+    declarationPath: join(packageDirectory, defineCheckDeclarationPath)
   });
-  try {
-    const defineCheckInfo = quickInfoText(service, fixturePath, fixtureSource, "defineCheck({");
-    assert.match(defineCheckInfo.documentation, /定义一个 Check/);
-    assert.match(defineCheckInfo.tags, /@remarks 此函数负责 authoring inference/);
-    assert.match(defineCheckInfo.tags, /run.*负责 Project Definition validation/);
-    assert.match(
-      defineCheckInfo.tags,
-      /@example 定义带 options、Records 与 messages 的自定义 Check/
+  assert.match(defineCheckDocs, /定义一个 Check/);
+  assert.match(defineCheckDocs, /@remarks 此函数负责 authoring inference/);
+  assert.match(defineCheckDocs, /run.*负责 Project Definition validation/);
+  assert.match(defineCheckDocs, /@example 定义带 options、Records 与 messages 的自定义 Check/);
+
+  const runDocs = readAdjacentDeclarationDocumentation({
+    declarationMarker: `export declare function ${CURRENT_PUBLIC_CONTRACT.operations.run}`,
+    declarationPath: join(packageDirectory, runDeclarationPath)
+  });
+  assert.match(runDocs, /在调用方的 Bun runtime 中执行/);
+  assert.match(runDocs, /@remarks.*validation/su);
+  assert.match(runDocs, /@param definition/);
+  assert.match(runDocs, /@returns/);
+}
+
+function readAdjacentDeclarationDocumentation(input: {
+  readonly declarationMarker: string;
+  readonly declarationPath: string;
+}): string {
+  const source = readFileSync(input.declarationPath, "utf8");
+  const declarationStart = source.indexOf(input.declarationMarker);
+  if (declarationStart === -1) {
+    throw new Error(
+      `installed declaration is missing ${input.declarationMarker}: ${input.declarationPath}`
     );
-
-    const runInfo = quickInfoText(service, fixturePath, fixtureSource, "run(definition)");
-    assert.match(runInfo.documentation, /在调用方的 Bun runtime 中执行/);
-    assert.match(runInfo.tags, /@remarks.*validation/);
-    assert.match(runInfo.tags, /@param definition/);
-    assert.match(runInfo.tags, /@returns/);
-  } finally {
-    service.dispose();
   }
-}
-
-function quickInfoText(
-  service: ts.LanguageService,
-  fixturePath: string,
-  fixtureSource: string,
-  usage: string
-): Readonly<{ readonly documentation: string; readonly tags: string }> {
-  const position = fixtureSource.indexOf(usage);
-  assert.notEqual(position, -1, `hover fixture is missing ${usage}`);
-  const info = quickInfoAtUsage(service, fixturePath, position, usage);
-  return Object.freeze({
-    documentation: ts.displayPartsToString(info.documentation),
-    tags: quickInfoTags(info.tags)
-  });
-}
-
-function quickInfoAtUsage(
-  service: ts.LanguageService,
-  fixturePath: string,
-  position: number,
-  usage: string
-): ts.QuickInfo {
-  const info = service.getQuickInfoAtPosition(fixturePath, position);
-  assert.notEqual(info, undefined, `LanguageService did not return QuickInfo for ${usage}`);
-  if (info === undefined) throw new Error(`LanguageService did not return QuickInfo for ${usage}`);
-  return info;
+  const commentEnd = source.lastIndexOf("*/", declarationStart);
+  if (commentEnd === -1) {
+    throw new Error(`installed declaration is missing closed JSDoc: ${input.declarationPath}`);
+  }
+  const commentStart = source.lastIndexOf("/**", commentEnd);
+  if (commentStart === -1) {
+    throw new Error(`installed declaration is missing JSDoc start: ${input.declarationPath}`);
+  }
+  const sourceBetweenCommentAndDeclaration = source.slice(commentEnd + 2, declarationStart);
+  if (sourceBetweenCommentAndDeclaration.trim().length > 0) {
+    throw new Error(`installed declaration JSDoc is not adjacent: ${input.declarationPath}`);
+  }
+  return source.slice(commentStart, commentEnd + 2);
 }
 
 function typecheckConfig(): string {
@@ -124,19 +106,6 @@ function typecheckConfig(): string {
     null,
     2
   )}\n`;
-}
-
-function hoverFixture(): string {
-  return `import { defineCheck, defineConfig, run } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
-
-const documentedCheck = defineCheck({
-  checkId: "hover-fixture",
-  displayName: "Hover fixture",
-  execution: () => ({ status: "passed", data: {} })
-});
-const definition = defineConfig({ checks: [documentedCheck] });
-await run(definition);
-`;
 }
 
 const PUBLIC_TYPE_IMPORTS_MARKER = "__VIBE_CHECK_PUBLIC_TYPE_IMPORTS__";
@@ -450,14 +419,3 @@ void [
   result
 ];
 `;
-
-function quickInfoTags(tags: readonly ts.JSDocTagInfo[] | undefined): string {
-  return (
-    tags
-      ?.map(
-        (tag) =>
-          `@${tag.name}${tag.text === undefined ? "" : ` ${ts.displayPartsToString(tag.text)}`}`
-      )
-      .join("\n") ?? ""
-  );
-}

@@ -119,6 +119,29 @@ describe("repository quality Checks", () => {
         assert.equal(selectsPath(files, path), true, `${path} must remain selected`);
       }
     }
+    for (const path of retainedProductTestPaths) {
+      assert.equal(
+        selectsPath(duplicateDetection.options.codeAreas["product-source"].files, path),
+        true,
+        `${path} must remain selected for duplicate detection`
+      );
+      assert.equal(
+        selectsPath(fileMetrics.options.codeAreas["product-source"].files, path),
+        true,
+        `${path} must remain selected for file metrics`
+      );
+      assert.equal(
+        selectsPath(functionMetrics.options.codeAreas["product-source"].files, path),
+        false,
+        `${path} must stay outside function metrics`
+      );
+    }
+    assert.deepEqual(
+      functionMetrics.options.codeAreas["product-source"].files.exclude.filter((path) =>
+        path.startsWith("src/**/")
+      ),
+      ["src/**/*.test.ts", "src/**/*.test-support.ts"]
+    );
     for (const area of Object.values(fileMetrics.options.codeAreas)) {
       assert.deepEqual(area.codeLines, {
         lowDecisionTokenAllowance: {
@@ -184,6 +207,10 @@ const retainedProductBoundaryPaths = [
   "src/package-checks/function-metrics/target-files.ts",
   "src/package-checks/function-metrics/measurement.ts",
   "src/package-checks/function-metrics/execution.ts"
+] as const;
+const retainedProductTestPaths = [
+  "src/run.test.ts",
+  "src/package-checks/function-metrics/constructor.test-support.ts"
 ] as const;
 
 function lizardPortQualityExclusions(
