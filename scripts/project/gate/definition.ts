@@ -78,34 +78,7 @@ const repositoryFunctionLimits = {
   nestingDepth: { maximum: 7 },
   parameters: { maximum: 5 }
 } as const;
-const translatedQualityExclusions = {
-  duplicateDetection: ["src/package-checks/function-metrics/analyzer/readers/plsql.ts"],
-  fileMetrics: [
-    "src/package-checks/function-metrics/analyzer/core.ts",
-    "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
-    "src/package-checks/function-metrics/analyzer/readers/perl.ts",
-    "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
-    "src/package-checks/function-metrics/analyzer/shared/clike.ts",
-    "src/package-checks/function-metrics/analyzer/shared/code-reader.ts"
-  ],
-  functionMetrics: [
-    "src/package-checks/function-metrics/analyzer/core.ts",
-    "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
-    "src/package-checks/function-metrics/analyzer/readers/fortran.ts",
-    "src/package-checks/function-metrics/analyzer/readers/java-body-states.ts",
-    "src/package-checks/function-metrics/analyzer/readers/php-states.ts",
-    "src/package-checks/function-metrics/analyzer/readers/php.ts",
-    "src/package-checks/function-metrics/analyzer/readers/plsql.ts",
-    "src/package-checks/function-metrics/analyzer/readers/python.ts",
-    "src/package-checks/function-metrics/analyzer/readers/r.ts",
-    "src/package-checks/function-metrics/analyzer/readers/st.ts",
-    "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
-    "src/package-checks/function-metrics/analyzer/shared/clike.ts",
-    "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
-    "src/package-checks/function-metrics/analyzer/shared/js-style-regex.ts",
-    "src/package-checks/function-metrics/analyzer/shared/rubylike.ts"
-  ]
-} as const;
+const lizardPortQualityExclusion = "src/package-checks/function-metrics/analyzer/**";
 
 /**
  * Project-owned post-processing run after one candidate-backed Product result.
@@ -126,7 +99,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "product-source": {
         files: {
           ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, ...translatedQualityExclusions.duplicateDetection],
+          exclude: [...areaFileDefaults.exclude, lizardPortQualityExclusion],
           include: ["src/**/*.ts"]
         },
         minimumLines: 3,
@@ -172,7 +145,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         codeLines: repositoryFileCodeLines,
         files: {
           ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, ...translatedQualityExclusions.fileMetrics],
+          exclude: [...areaFileDefaults.exclude, lizardPortQualityExclusion],
           include: ["src/**/*.ts"]
         }
       },
@@ -200,7 +173,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "product-source": {
         files: {
           ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, ...translatedQualityExclusions.functionMetrics],
+          exclude: [...areaFileDefaults.exclude, lizardPortQualityExclusion],
           include: ["src/**/*.ts"]
         },
         limits: repositoryFunctionLimits

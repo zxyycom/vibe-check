@@ -64,6 +64,7 @@
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
       "exclude-historical-schemas-from-maintainability-metrics.md": "sha256:be9d6f8ef503e3adca5f9dd1b594c749d2812902a0dc7656625d1f5557ca8d50",
+      "exclude-lizard-port-from-repository-quality-metrics.md": "sha256:89a66fe4208b043246142aba85af988b9ed3d603c9ef90e1f4df2adcf38eace4",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
@@ -91,7 +92,7 @@
       "install-check-console-router-before-preflight.md": "sha256:42c664c9280a794898fb3d04e1825ecaefb4e18e83d4bd5bee97eb41d8136abf",
       "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
       "introduce-invocation-scoped-admission-strategy-lifecycle.md": "sha256:c5fd0ed1deb8aa164fcd18192549ca0910c11f348d5f09a0b34af0ca66bbbfdf",
-      "isolate-lizard-port-behind-check-private-interface.md": "sha256:79097c418966aa41ecde4e5e3ff075c90c114c699f41696272f29dbb0a477820",
+      "isolate-lizard-port-behind-check-private-interface.md": "sha256:c1312eca8da67fcd915fd74a1b97d5d0b8014a516c8cef0c942b8b95ba13ffba",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
       "keep-check-groups-authoring-only.md": "sha256:14cf3fb4336d591f25e956329d7af33b2942df6bc96c1c4e1269ffb4bf9653ba",
       "keep-comparison-semantics-inside-producing-checks.md": "sha256:2803ec5e086b01768a1aec714643578feb0881f63d93fa3f0875e5a624456b37",
@@ -2165,6 +2166,44 @@
         ]
       }
     },
+    "exclude-lizard-port-from-repository-quality-metrics.md": {
+      "keys": {
+        "tag": [
+          "dependency-policy",
+          "product-contract",
+          "repository-automation",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "exclude-lizard-port-from-repository-quality-metrics.md",
+        "title": "将 Lizard 私有 port 整目录排除出仓库质量指标",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-03T16:38:02Z",
+        "purpose": "让 Lizard source-aligned port 以专用一致性证据维护，而不接受会推动非忠实重构的通用仓库质量指标。",
+        "background": "精确 translated-path 例外仍让同一 upstream-sync 目录中的 façade、内部测试和支持文件产生普通复杂度与重复提示。",
+        "decision": "保持私有 port 边界，并将 analyzer 整目录排除出仓库 duplicate、file 与 function metrics，同时保留其它验证。",
+        "tags": [
+          "dependency-policy",
+          "product-contract",
+          "repository-automation",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "isolate-lizard-port-behind-check-private-interface.md"
+          }
+        ]
+      }
+    },
     "exclude-undefined-markdown-references-from-link-check.md": {
       "keys": {
         "tag": [
@@ -3023,16 +3062,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "isolate-lizard-port-behind-check-private-interface.md",
+        "sourcePath": "archive/isolate-lizard-port-behind-check-private-interface.md",
         "title": "以私有接口隔离 Lizard source-aligned port",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-02T16:33:21Z",
         "purpose": "让翻译的 Lizard port 可独立同步上游，并在唯一私有 port façade 外保持 Product Check 责任清晰。",

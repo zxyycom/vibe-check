@@ -1,6 +1,6 @@
 ---
 title: 以私有接口隔离 Lizard source-aligned port
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T16:33:21Z
 purpose: 让翻译的 Lizard port 可独立同步上游，并在唯一私有 port façade 外保持 Product Check 责任清晰。
