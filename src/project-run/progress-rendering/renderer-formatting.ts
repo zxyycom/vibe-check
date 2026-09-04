@@ -92,6 +92,11 @@ export function formatFinalSummary(
     `  not applicable: ${input.counts.notApplicable}`,
     `  unavailable: ${input.counts.unavailable}`,
     `  elapsed: ${formatDuration(input.elapsedMs)}`,
+    "  check durations:",
+    ...input.checkDurations.map(
+      ({ checkId, durationMs }) =>
+        `    - ${escapeTerminalText(checkId)}: ${durationMs === null ? "null" : formatDuration(durationMs)}`
+    ),
     ""
   ].join("\n");
 }

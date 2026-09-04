@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 
 import {
   assertCapturedContext,
+  assertCheckArtifactPathContext,
   assertDirectRunResult,
   runWithCapturedContext
 } from "./run.test-support.ts";
@@ -16,6 +17,7 @@ describe("Package Run", () => {
       const { received, result } = await runWithCapturedContext(root);
       assertCapturedContext(received, root);
       assertDirectRunResult(result);
+      await assertCheckArtifactPathContext(root);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

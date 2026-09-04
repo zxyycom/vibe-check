@@ -72,17 +72,40 @@ export function assertFrozenSchedulerGraphSnapshot(graph: SchedulerGraphSnapshot
 export function recordedSchedulerDecisions(
   observations: readonly DiagnosticObservation[]
 ): readonly SchedulerDecision[] {
-  assert.ok(observations.length > 0, "expected scheduler decisions to be observed");
+  const graphObservations = observations.filter(
+    (observation) => observation.event === "scheduler.graph"
+  );
+  assert.equal(graphObservations.length, 1, "expected exactly one scheduler graph observation");
+  const graphDetails = graphObservations[0]?.details;
+  if (
+    !isRecord(graphDetails) ||
+    !isRecord(graphDetails.graph) ||
+    typeof graphDetails.graphFingerprint !== "string"
+  ) {
+    assert.fail("scheduler graph observation must retain one full graph and fingerprint");
+  }
+  /* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- The Scheduler test seam emits this exact frozen public DTO and checks its object boundary before reusing existing decision assertions. */
+  const graph = graphDetails.graph as unknown as SchedulerGraphSnapshot;
+  const graphFingerprint = graphDetails.graphFingerprint;
+  const decisionObservations = observations.filter(
+    (observation) => observation.event === "scheduler.decision"
+  );
+  assert.ok(decisionObservations.length > 0, "expected scheduler decisions to be observed");
   const decisions: SchedulerDecision[] = [];
-  for (const observation of observations) {
-    assert.equal(observation.tags[0], "SCHEDULER");
-    assert.equal(observation.event, "scheduler.decision");
+  for (const observation of decisionObservations) {
     assertNoUndefinedValue(observation.details);
-    if (!isSchedulerDecision(observation.details)) {
+    if (!isSchedulerDecisionDetails(observation.details)) {
       assert.fail("scheduler observation did not contain a SchedulerDecision");
     }
-    assertSchedulerDecisionContext(observation.details);
-    decisions.push(observation.details);
+    assert.equal("graphIdentity" in observation.details, false);
+    assert.equal(observation.details.graphFingerprint, graphFingerprint);
+    /* oxlint-disable-next-line typescript/no-unsafe-type-assertion -- The test reattaches the just-validated graph solely to reuse existing typed Scheduler decision assertions. */
+    const decision = Object.freeze({
+      ...observation.details,
+      graphIdentity: graph
+    }) as SchedulerDecision;
+    assertSchedulerDecisionContext(decision);
+    decisions.push(decision);
   }
   return Object.freeze(decisions);
 }
@@ -217,9 +240,11 @@ function assertNoUndefinedValue(value: unknown): void {
   for (const item of Object.values(value)) assertNoUndefinedValue(item);
 }
 
-function isSchedulerDecision(value: unknown): value is SchedulerDecision {
-  if (!isRecord(value)) return false;
-  const kind = value["kind"];
+function isSchedulerDecisionDetails(
+  value: unknown
+): value is Readonly<Record<string, unknown>> & Readonly<{ readonly kind: string }> {
+  if (!isRecord(value) || typeof value.graphFingerprint !== "string") return false;
+  const kind = value.kind;
   return (
     kind === "admit" ||
     kind === "await-running" ||

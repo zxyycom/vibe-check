@@ -12,7 +12,6 @@ import {
 
 test("external consumer provider binds typed output to invocation provenance", () => {
   const check = createExternalConsumerMaterialCheck({
-    invocationLogDirectory: "/tmp/vibe-check-project-gate",
     lease: createExternalConsumerMaterialLease(),
     preparedCandidateCheckId: "prepared-package-candidate",
     timeoutMs: 30_000

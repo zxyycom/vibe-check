@@ -230,8 +230,12 @@ export interface CheckProjectContext {
  * @typeParam Options - 此 Check preflight 后传给 execution 的 options shape。
  */
 export interface CheckExecutionContext<Options extends object> {
+  /** 当前 Check 的 absolute invocation artifact directory；caller 未授予时为 `null`。 */
+  readonly artifactDirectory: string | null;
   /** 读取当前 Check 的已声明 direct relations。 */
   readonly dependencies: CheckDependencies;
+  /** 同一次 invocation 内由 Product 统一提供的 identity。 */
+  readonly invocationId: string;
   /** 深度只读、canonical 的 invocation-local prepared Check options。 */
   readonly options: DeepReadonly<Options>;
   /** 已规范化的项目根与 flags。 */

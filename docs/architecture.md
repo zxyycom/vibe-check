@@ -145,7 +145,18 @@ diagnostic writer failure，不是 measurement Hook failure。Hook identity/sour
 
 Run 在完整 static graph validation 后把 preflight 放入已 admitted Check 的 task-local lifecycle；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal，并受该 Check 的 `dependsOn`、`observes`、mutex、capacity 与 priority 约束。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不调用 author callback，也没有 author execution started lifecycle fact；它的 non-passed outcome 仍会阻止自己的 `dependsOn` dependents。每个独立 ready task 的 preflight 可以并行，不能形成全局 barrier。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
 
-每个 executable Check 以 `{ dependencies, options, project, records, signal }` 执行自己的 callback。`project` 只携带 normalized root 与由 invocation controls 形成的 canonical `flags`；Check-owned file selection 与 cache configuration 保留在 owning Check options，共享领域事实通过声明的 direct dependencies 进入。Product 不替 package-provided Check 注入文件 scope 或领域 policy。callback 拥有 scanner invocation 或其它项目工作，并以 `passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` / `failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
+Invocation creation 在任何 author work 前一次解析并冻结 effective absolute project root、enabled output target 和可选
+Check artifact base；completion 与 callback assembly 只消费这份 private path representation，不再次解释 caller directory text。
+它不吸收 scheduler history、Check cache、package candidate 或 external-tool workspace 等 cross-Run / owner-local state。
+
+每个 executable Check 以 `{ artifactDirectory, dependencies, invocationId, options, project, records, signal }` 执行自己的
+callback。`project` 只携带 normalized root 与由 invocation controls 形成的 canonical `flags`，`invocationId` 关联同次 callback；
+`artifactDirectory` 仅在 caller 提供 invocation-only `checkArtifactBaseDirectory` 时，为当前 stable Check ID 给出确定性的
+absolute directory，否则为 `null`。Check 不能据此读取 artifact base、拼接 sibling namespace 或取得 Product output target。
+Check-owned file selection 与 cache configuration 继续保留在 owning Check options，共享领域事实通过声明的 direct dependencies
+进入。Product 不替 package-provided Check 注入文件 scope 或领域 policy。callback 拥有 scanner invocation 或其它项目工作，并以
+`passed(data)`、`failed(data)`、`not-applicable(reason?)` 或 `unavailable(reason)` 返回自己的 terminal result。`passed` /
+`failed` 的 data 是该 Check 的唯一主结果；没有领域数据时 Check 返回 `{}`。`not-applicable` 和 `unavailable` 不伪造 final data。
 
 Product 将 ordinary throw、malformed result、Record misuse 和 cancellation 映射为 owning unavailable outcome。这个 execution boundary 将 author terminal result 与其 messages attachment 一起验证，再只把 stripped four-state result 交给 Check facts；只有 Check facts 接受该 result 后，detached author messages 才进入 private lifecycle feedback 和 final-snapshot `RunResult.checkMessages`。invalid attachment 不接受部分 author messages；Product 在静态 graph 校验后、任何 author preflight 或 execution 前安装一次 console router，并在各自 awaited async context 中隔离捕获；已捕获的 `console.*` 文本是独立受管 feedback，即使 callback 随后 throw 或返回 malformed result 仍会保留。`dependsOn` 只在每个 direct upstream `passed` 后允许 dependent 的 preflight/execution；全部 direct prerequisite terminal 后若任一非 `passed`，Product 以 `unavailable / dependency-not-passed`、稳定 direct blocker `checkIds`、null duration 结算 dependent，且不调用其 author work。`observes` 等待每个 direct upstream 各自形成任意四态 terminal outcome。两类 relation 的 normalized union 授权 `dependencies.get` / `list`，但同一 direct ID 不得双重声明。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
@@ -185,9 +196,9 @@ scanner protocol、candidate conversion、Record identity/data 与 unavailable v
 
 ## Output and downstream boundary
 
-Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。`diagnostic-logging/**` 只在 Product 已知事实形成处连续追加 invocation-local 人读材料；它不从 final snapshot 或 process transcript 重建过程，不进入 machine v4，也不向 Check callback 增加 logger。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
+Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。`diagnostic-logging/**` 只在 Product 已知事实形成处连续追加 invocation-local 人读材料；它显式拥有 `core`、`scheduler` 和只在 learned policy 生效时启用的 `learnedAdmission` 三个 channel。每个 channel 使用 owner-first filename 和同一 invocation suffix；router 在委托 channel 前赋予全局 sequence、monotonic elapsed 和 invocation ID，并分别收敛 setup/write/close failure。它不从 final snapshot 或 process transcript 重建过程，不进入 machine v4，也不向 Check callback 增加 logger。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
 
-其中 Scheduler terminal summary 也只是这条一次性人读时间线的一项 private observation；它不能成为 public result field、machine field、progress field、warning/autotune input 或可发现/可解析的 telemetry contract。
+Scheduler graph 只在 scheduler channel 记录一次完整 snapshot；随后的 decision 只携带同一 graph fingerprint 和动态 facts，不重复 graph。Scheduler terminal summary 也只是该 channel 的一次性 private observation；它不能成为 public result field、machine field、progress field、warning/autotune input 或可发现/可解析的 telemetry contract。
 
 每个 structured `RunResult` 都包含 definition warning。configuration、planning、cancellation、execution、completion 与 output result 是不同 outcome；run-level diagnostic code 只能取 documented result vocabulary。带 final snapshot 的 result 还携带 canonical per-Check duration summary、accepted detached terminal-message readback 与 optional aggregate。public inventory 只暴露 authoring/run value 与 type，绝不暴露 Check-facts capability、scanner adapter、task-engine internal、callback slot 或 lifecycle renderer/stream/clock handoff。
 
@@ -195,4 +206,4 @@ Publication 创建一个 validated machine v4 model，再从它投影 `run.json`
 
 项目 callback 在调用方的 Bun runtime 中执行。Product 不序列化 callback、不重启 module、不创建 whole-invocation worker，也不保证隔离 `process.exit`、infinite synchronous loop、global mutation 或 non-cooperative work。Product source 不 import `scripts/**`、docs、fixture 或 toolkit code。
 
-Repository Gate 单向地从 exact installed `@zxyycom/vibe-check` public entry 导入 `run`。Gate adapter 为每次 invocation 创建并拥有其 directory，再只通过本次 Run Controls 将 Product diagnostic output 定向到根级 core log；Gate transcript 与 machine files 同样位于根级，Check-owned process transcripts 位于 `process/` 子目录。测试只使用并清理自己的 fixture directory。Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Check-facts 或 Check settlement capability。
+Repository Gate 单向地从 exact installed `@zxyycom/vibe-check` public entry 导入 `run`。candidate preparation 和 exact entry verification 完成后，Gate adapter 为本次 invocation 创建并拥有 evidence root；它只通过同一次 `RunControls` 把 Product diagnostic directory 定向到该 root、machine publisher 定向到 `machine/`、progress tee 定向到 `progress.log`，并把 `checks/` 作为 Check artifact base。Gate 自己只拥有 `gate.log`；Product channels、machine pair 与 Check-owned process artifacts 各自保持 owner namespace，Gate 不解析它们重建结果。测试只使用并清理自己的 fixture directory。Workspace tooling 可以使用它拥有的 generic infrastructure，但不能获得 Product Check-facts 或 Check settlement capability。

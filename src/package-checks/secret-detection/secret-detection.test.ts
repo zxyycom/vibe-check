@@ -142,7 +142,7 @@ describe("secretDetection", () => {
       if (result.kind !== "completed") return;
       assert.equal(result.outputs.machinePublication.status, "succeeded");
       assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
-      const diagnosticFile = result.outputs.diagnosticLogging.file;
+      const diagnosticFile = result.outputs.diagnosticLogging.channels.core.file;
       assertNoCanaryMaterial(
         [
           JSON.stringify(result),

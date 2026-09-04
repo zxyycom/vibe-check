@@ -156,7 +156,6 @@ describe("Project Gate entries, root binding, and controls", () => {
   it("keeps the explicit assurance identities and current selection metadata closed", () => {
     const entries = createProjectGateEntries({
       externalConsumerLease: createExternalConsumerMaterialLease(),
-      invocationLogDirectory: "/tmp/project-gate-logs",
       preparedCandidate: prepared
     });
     const expectedIds = new Set(expectedCheckIds);
@@ -565,7 +564,8 @@ describe("Project Gate adapter closure", () => {
             complete: (completion: ProjectGateTranscriptCompletion) => {
               transcriptCompletion = completion;
               return "succeeded" as const;
-            }
+            },
+            writeGateMessage: () => undefined
           });
         }
       });
@@ -624,7 +624,8 @@ describe("Project Gate adapter closure", () => {
             complete: (completion: ProjectGateTranscriptCompletion) => {
               transcriptCompletion = completion;
               return "failed" as const;
-            }
+            },
+            writeGateMessage: () => undefined
           })
       });
 
@@ -820,7 +821,8 @@ function runProjectGateWithoutTranscript(
   return runProjectGate(arguments_, {
     startTranscript: () =>
       Object.freeze({
-        complete: () => "succeeded" as const
+        complete: () => "succeeded" as const,
+        writeGateMessage: () => undefined
       }),
     ...stepOverrides
   });

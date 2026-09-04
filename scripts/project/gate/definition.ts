@@ -1,10 +1,15 @@
-import { dirname, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { workspaceFormatInvocation } from "../../development/format.ts";
 import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";
-import { defineConfig, type CheckAggregation, type ProjectDefinition } from "@zxyycom/vibe-check";
+import {
+  defineConfig,
+  type CheckAggregation,
+  type ProjectDefinition,
+  type RunControls
+} from "@zxyycom/vibe-check";
 
 import type { ProjectGateAfterHook } from "./runtime/after-gate.ts";
 import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
@@ -88,7 +93,6 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
   const preparedCandidate = createPreparedCandidateCheck(runtime.preparedCandidate);
   const repositoryQuality = createProjectGateRepositoryQualityChecks();
   const externalConsumer = createExternalConsumerMaterialCheck({
-    invocationLogDirectory: runtime.invocationLogDirectory,
     lease: runtime.externalConsumerLease,
     preparedCandidateCheckId: preparedCandidate.checkId,
     timeoutMs: packageAcceptanceTimeoutMs
@@ -99,47 +103,44 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       checkId: "typecheck-product",
       displayName: "TypeScript product typecheck and import boundary",
       presets: ["typecheck"],
-      required: true,
-      runtime
+      required: true
     }),
     createProjectGateProcessEntry({
       invocation: lintInvocation("product"),
       checkId: "lint-product",
       displayName: "TypeScript product lint",
       presets: ["lint"],
-      required: true,
-      runtime
+      required: true
     }),
     createProjectGateProcessEntry({
       invocation: typecheckInvocation("scripts"),
       checkId: "typecheck-scripts",
       displayName: "TypeScript script typecheck",
       presets: ["typecheck"],
-      required: true,
-      runtime
+      required: true
     }),
     createProjectGateProcessEntry({
       invocation: lintInvocation("scripts"),
       checkId: "lint-scripts",
       displayName: "TypeScript script lint",
       presets: ["lint"],
-      required: true,
-      runtime
+      required: true
     }),
     createProjectGateProcessEntry({
       invocation: workspaceFormatInvocation("check"),
       checkId: "format-check",
       displayName: "Source format",
       presets: [],
-      required: true,
-      runtime
+      required: true
     }),
-    createProjectGateCommonEntry({ check: preparedCandidate, presets: [], required: true }),
     createProjectGateCommonEntry({
-      check: Object.freeze({
-        ...externalConsumer,
-        mutex: Object.freeze([...packageLifecycleMutex])
-      }),
+      check: preparedCandidate,
+      presets: [],
+      required: true
+    }),
+    createProjectGateCommonEntry({
+      check: externalConsumer,
+      mutex: packageLifecycleMutex,
       presets: [],
       required: false
     }),
@@ -148,8 +149,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       externalConsumer,
       lanes: testLanes,
       preparedCandidate,
-      repositoryRoot,
-      runtime
+      repositoryRoot
     }),
     createProjectGateCommonEntry({
       check: repositoryQuality.duplicateDetection,
@@ -220,17 +220,20 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       required: true
     }),
     createProjectGateCommonEntry({
-      check: createTestEvidenceRuleTestsCheck(runtime.invocationLogDirectory),
+      check: createTestEvidenceRuleTestsCheck(),
       presets: ["test"],
       required: true
     }),
     createProjectGateProcessEntry({
-      invocation: { args: ["diff", "--check"], command: "git", cwd: repositoryRoot },
+      invocation: {
+        args: ["diff", "--check"],
+        command: "git",
+        cwd: repositoryRoot
+      },
       checkId: "git-diff-whitespace",
       displayName: "Git diff whitespace",
       presets: [],
-      required: true,
-      runtime
+      required: true
     })
   ]);
 }
@@ -246,18 +249,30 @@ export function createProjectGateDefinition(
   });
 }
 
-/** Publishes standard machine facts beside the Gate diagnostic log for this invocation. */
+/** Projects the Product-owned output directories for this exact Gate invocation root. */
 export function projectGateOutputOverrides(invocationLogDirectory: string) {
-  const directory = relative(repositoryRoot, invocationLogDirectory);
+  const diagnosticDirectory = relative(repositoryRoot, invocationLogDirectory);
+  const machineDirectory = relative(repositoryRoot, join(invocationLogDirectory, "machine"));
   return Object.freeze({
     diagnosticLogging: {
       ...PROJECT_GATE_RUN_CONFIG.invocationOutputs.diagnosticLogging,
-      directory
+      directory: diagnosticDirectory
     },
     machinePublication: {
       ...PROJECT_GATE_RUN_CONFIG.invocationOutputs.machinePublication,
-      directory
+      directory: machineDirectory
     }
+  });
+}
+
+/** Grants Product only the invocation-local paths owned by its output and executable Check boundaries. */
+export function projectGateInvocationOutputControls(
+  invocationLogDirectory: string
+): Pick<RunControls, "checkArtifactBaseDirectory" | "outputs" | "progressLogFile"> {
+  return Object.freeze({
+    checkArtifactBaseDirectory: join(invocationLogDirectory, "checks"),
+    outputs: projectGateOutputOverrides(invocationLogDirectory),
+    progressLogFile: join(invocationLogDirectory, "progress.log")
   });
 }
 

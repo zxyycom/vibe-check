@@ -4,7 +4,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { createDiagnosticLogger, diagnosticTags, summarizeDiagnosticValue } from "./logger.ts";
+import {
+  createDiagnosticLogger,
+  createDiagnosticLoggingRouter,
+  diagnosticTags,
+  summarizeDiagnosticValue,
+  type DiagnosticObservation
+} from "./logger.ts";
 
 describe("Project Run diagnostic logger detail safety", () => {
   it("rejects descriptor-unsafe details without invoking author hooks", () => {
@@ -77,6 +83,101 @@ describe("Project Run diagnostic logger observation formatting", () => {
 });
 
 describe("Project Run diagnostic logger", () => {
+  it("correlates explicit owner channels with one invocation-wide sequence", () => {
+    const observations: DiagnosticObservation[] = [];
+    let now = 0;
+    const router = createDiagnosticLoggingRouter({
+      clock: { now: () => ++now },
+      coreFile: "core.log",
+      factory: () =>
+        Object.freeze({
+          close: () => "succeeded" as const,
+          observe: (observation: DiagnosticObservation) => observations.push(observation)
+        }),
+      invocationId: "invocation/v1:test",
+      learnedAdmissionFile: "learned-admission.log",
+      schedulerFile: "scheduler.log"
+    });
+
+    router.core.observe({ event: "run.started", tags: diagnosticTags("RUN", "STARTED") });
+    router.scheduler.observe({ event: "scheduler.graph", tags: diagnosticTags("GRAPH") });
+    router.learnedAdmission.observe({
+      event: "scheduler.history.prediction-unavailable",
+      tags: diagnosticTags("HISTORY", "PREDICTION_UNAVAILABLE")
+    });
+
+    assert.deepEqual(
+      observations.map((observation) => observation.correlation),
+      [
+        { elapsedMs: 1, invocationId: "invocation/v1:test", sequence: 1 },
+        { elapsedMs: 2, invocationId: "invocation/v1:test", sequence: 2 },
+        { elapsedMs: 3, invocationId: "invocation/v1:test", sequence: 3 }
+      ]
+    );
+    assert.deepEqual(router.close(), {
+      core: "succeeded",
+      learnedAdmission: "succeeded",
+      scheduler: "succeeded"
+    });
+  });
+
+  it("contains setup and close failure of one owner channel", () => {
+    const setupObservations: DiagnosticObservation[] = [];
+    const setupFailure = createDiagnosticLoggingRouter({
+      clock: { now: () => 0 },
+      coreFile: "core.log",
+      factory: ({ file }) => {
+        if (file === "scheduler.log") throw new Error("scheduler setup failed");
+        return Object.freeze({
+          close: () => "succeeded" as const,
+          observe: (observation: DiagnosticObservation) => setupObservations.push(observation)
+        });
+      },
+      invocationId: "invocation/v1:setup-failure",
+      learnedAdmissionFile: null,
+      schedulerFile: "scheduler.log"
+    });
+    setupFailure.core.observe({ event: "run.started", tags: diagnosticTags("RUN", "STARTED") });
+    setupFailure.scheduler.observe({ event: "scheduler.graph", tags: diagnosticTags("GRAPH") });
+    assert.deepEqual(setupFailure.close(), {
+      core: "succeeded",
+      learnedAdmission: "disabled",
+      scheduler: "failed"
+    });
+    assert.deepEqual(
+      setupObservations.map((observation) => observation.event),
+      ["run.started"]
+    );
+
+    const closeObservations: DiagnosticObservation[] = [];
+    const closeFailure = createDiagnosticLoggingRouter({
+      clock: { now: () => 0 },
+      coreFile: "core.log",
+      factory: ({ file }) =>
+        Object.freeze({
+          close: () => {
+            if (file === "scheduler.log") throw new Error("scheduler close failed");
+            return "succeeded" as const;
+          },
+          observe: (observation: DiagnosticObservation) => closeObservations.push(observation)
+        }),
+      invocationId: "invocation/v1:close-failure",
+      learnedAdmissionFile: null,
+      schedulerFile: "scheduler.log"
+    });
+    closeFailure.core.observe({ event: "run.started", tags: diagnosticTags("RUN", "STARTED") });
+    closeFailure.scheduler.observe({ event: "scheduler.graph", tags: diagnosticTags("GRAPH") });
+    assert.deepEqual(closeFailure.close(), {
+      core: "succeeded",
+      learnedAdmission: "disabled",
+      scheduler: "failed"
+    });
+    assert.deepEqual(
+      closeObservations.map((observation) => observation.event),
+      ["run.started", "scheduler.graph"]
+    );
+  });
+
   it("summarizes descriptor-safe normal values without rendering their full lifecycle payload", () => {
     assert.deepEqual(summarizeDiagnosticValue({ files: ["a", "b"], ready: true }), {
       availability: "available",

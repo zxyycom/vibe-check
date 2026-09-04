@@ -183,8 +183,10 @@ describe("Package Run direct Check execution", () => {
       )?.details,
       {
         durationMs: null,
-        messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
-        reason: { code: "invalid-options" }
+        messageCount: 1,
+        phase: "preflight",
+        reasonCode: "invalid-options",
+        status: "unavailable"
       }
     );
   });

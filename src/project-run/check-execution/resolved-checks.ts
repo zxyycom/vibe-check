@@ -14,6 +14,7 @@ import type { AdmissionSelectionPolicy } from "../task-scheduler/admission-selec
 import { runTaskGraph } from "../task-scheduler/scheduler.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/scheduler-performance-diagnostics.ts";
 import { executeCheckCallback } from "./callback.ts";
+import { artifactDirectoryForCheck, type ResolvedInvocationPaths } from "../invocation-paths.ts";
 import { runWithCheckConsoleRouter } from "./console-capture.ts";
 import { createCheckDependencies } from "./dependencies.ts";
 import {
@@ -41,6 +42,7 @@ import {
 
 const INERT_SIGNAL = new AbortController().signal;
 const NO_CHECK_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
+const DIRECT_EXECUTION_INVOCATION_ID = "invocation/v1:direct-check-execution";
 const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({
   now: () => performance.now()
 });
@@ -69,6 +71,8 @@ interface ExecuteCheckInput extends CheckExecutionState {
   readonly check: NormalizedCheck;
   readonly clock: CheckExecutionClock;
   readonly onAdmittedCheck: ((check: NormalizedCheck) => void) | undefined;
+  readonly invocationId: string;
+  readonly paths: ResolvedInvocationPaths | undefined;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal;
 }
@@ -78,10 +82,17 @@ type ResolvedCheckExecutionInput = Readonly<{
   readonly admissionPolicy?: AdmissionSelectionPolicy;
   readonly checks: readonly NormalizedCheck[];
   readonly maxParallel: number;
+  /** Product invocation identity；private direct-execution tests 使用稳定 fallback。 */
+  readonly invocationId?: string;
+  /** 冻结的 invocation paths；仅 private direct-execution tests 可以省略。 */
+  readonly paths?: ResolvedInvocationPaths;
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal | undefined;
   readonly clock?: CheckExecutionClock;
+  /** Core-owner Check lifecycle channel. */
   readonly diagnosticLogger?: DiagnosticLogger;
+  /** Scheduler-owner decision and summary channel. */
+  readonly schedulerDiagnosticLogger?: DiagnosticLogger;
   /** Explicit enabled-only diagnostics handoff from the invocation output owner. */
   readonly schedulerPerformanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
   readonly schedulerMeasurementHooks?: readonly SchedulerMeasurementHook[];
@@ -130,7 +141,7 @@ async function executePreparedResolvedChecks(
       graph: planStaticCheckGraph(input.checks),
       admissionPolicy: input.admissionPolicy,
       maxParallel: input.maxParallel,
-      diagnosticLogger: input.diagnosticLogger,
+      diagnosticLogger: input.schedulerDiagnosticLogger ?? input.diagnosticLogger,
       performanceDiagnostics: input.schedulerPerformanceDiagnostics,
       measurementHooks: input.schedulerMeasurementHooks,
       onMeasurementHookFailure: input.onSchedulerMeasurementHookFailure,
@@ -162,6 +173,8 @@ async function executePreparedResolvedChecks(
           check,
           clock: input.clock ?? SYSTEM_MONOTONIC_CLOCK,
           onAdmittedCheck: input.onAdmittedCheck,
+          invocationId: input.invocationId ?? DIRECT_EXECUTION_INVOCATION_ID,
+          paths: input.paths,
           project: input.project,
           signal: context.signal ?? INERT_SIGNAL
         });
@@ -269,6 +282,8 @@ async function executeReadyCheck(
   emitStarted(input.lifecycle, identity);
   const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
+    artifactDirectory:
+      input.paths === undefined ? null : artifactDirectoryForCheck(input.paths, checkId),
     check,
     dependencies: createCheckDependencies({
       checkId,
@@ -277,6 +292,7 @@ async function executeReadyCheck(
       session: input.session
     }),
     diagnosticLogger: input.diagnosticLogger,
+    invocationId: input.invocationId,
     project: input.project,
     scope,
     signal: input.signal

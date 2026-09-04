@@ -19,12 +19,12 @@ export interface ProcessTranscriptStep {
 export function writeProcessTranscript(
   input: Readonly<{
     readonly checkId: string;
-    readonly invocationLogDirectory: string;
+    readonly artifactDirectory: string;
     readonly steps: readonly ProcessTranscriptStep[];
     readonly writeTextFile?: typeof writeTextFile;
   }>
 ): string {
-  const logPath = processTranscriptPath(input.invocationLogDirectory, input.checkId);
+  const logPath = processTranscriptPath(input.artifactDirectory);
   mkdirSync(dirname(logPath), { recursive: true });
   (input.writeTextFile ?? writeTextFile)({
     content: [`check: ${input.checkId}`, ...input.steps.map(transcriptStep)].join("\n\n"),
@@ -37,12 +37,12 @@ export function writeProcessTranscript(
 export function writeProcessStartupTranscript(
   input: Readonly<{
     readonly definition: ProcessCheckDescriptor;
-    readonly invocationLogDirectory: string;
+    readonly artifactDirectory: string;
     readonly writeTextFile: typeof writeTextFile;
   }>
 ): void {
   const { definition } = input;
-  const logPath = processTranscriptPath(input.invocationLogDirectory, definition.checkId);
+  const logPath = processTranscriptPath(input.artifactDirectory);
   mkdirSync(dirname(logPath), { recursive: true });
   const command = [definition.command, ...definition.args].map(commandToken).join(" ");
   input.writeTextFile({
@@ -58,13 +58,13 @@ export function writeProcessStartupTranscript(
   });
 }
 
-export function processTranscriptPath(invocationLogDirectory: string, checkId: string): string {
-  return join(invocationLogDirectory, "process", `${checkId}.log`);
+export function processTranscriptPath(artifactDirectory: string): string {
+  return join(artifactDirectory, "process.log");
 }
 
 /** Returns the invocation-relative reference shown by Check messages and Records. */
 export function processTranscriptReference(logPath: string): string {
-  return `process/${basename(logPath)}`;
+  return `checks/${basename(dirname(logPath))}/${basename(logPath)}`;
 }
 
 /** Produces the standard failure Record and presentation-safe terminal message. */

@@ -1,10 +1,19 @@
 import { snapshotClosedArray } from "../../data-boundary/closed-values.ts";
+import { isOutputDirectory } from "../../project-definition/output-validation.ts";
 import { isNonArrayRecord, isUnknownArray } from "../../data-boundary/value-shapes.ts";
 import { parseOutputsOverride } from "./outputs-override-validation.ts";
 import type { RunControlDiagnostic, RunControlValidationResult } from "./validation-result.ts";
 import type { CheckAggregation, RunControls } from "./contract.ts";
 
-const RUN_CONTROL_KEYS = ["checkAggregation", "outputs", "flags", "projectRoot", "signal"] as const;
+const RUN_CONTROL_KEYS = [
+  "checkArtifactBaseDirectory",
+  "checkAggregation",
+  "progressLogFile",
+  "outputs",
+  "flags",
+  "projectRoot",
+  "signal"
+] as const;
 const CHECK_AGGREGATION_MODES = ["all", "any"] as const;
 const UNAVAILABLE_HANDLING = ["propagate", "fail", "exclude"] as const;
 const NOT_APPLICABLE_HANDLING = ["exclude", "pass", "fail"] as const;
@@ -21,6 +30,18 @@ export function validateRunControls(value: unknown = {}): RunControlValidationRe
 function validateRunControlsValue(value: unknown): RunControlValidationResult<RunControls> {
   const data = exactControlRecord(value);
   if (!data.ok) return data;
+  const checkArtifactBaseDirectory = optionalControl(
+    data.value.checkArtifactBaseDirectory,
+    parseOutputDirectory,
+    "controls.checkArtifactBaseDirectory"
+  );
+  if (!checkArtifactBaseDirectory.ok) return checkArtifactBaseDirectory;
+  const progressLogFile = optionalControl(
+    data.value.progressLogFile,
+    parseOutputDirectory,
+    "controls.progressLogFile"
+  );
+  if (!progressLogFile.ok) return progressLogFile;
   const flags = parseFlags(data.value.flags);
   if (!flags.ok) return flags;
   const checkAggregation = parseOptionalCheckAggregation(data.value.checkAggregation);
@@ -34,8 +55,12 @@ function validateRunControlsValue(value: unknown): RunControlValidationResult<Ru
   return Object.freeze({
     ok: true,
     value: Object.freeze({
+      ...(checkArtifactBaseDirectory.value === undefined
+        ? {}
+        : { checkArtifactBaseDirectory: checkArtifactBaseDirectory.value }),
       ...(checkAggregation.value === undefined ? {} : { checkAggregation: checkAggregation.value }),
       ...(outputs.value === undefined ? {} : { outputs: outputs.value }),
+      ...(progressLogFile.value === undefined ? {} : { progressLogFile: progressLogFile.value }),
       flags: flags.value,
       ...(projectRoot.value === undefined ? {} : { projectRoot: projectRoot.value }),
       ...(signal.value === undefined ? {} : { signal: signal.value })
@@ -159,6 +184,10 @@ function parseAbortSignal(value: unknown): AbortSignal | undefined {
 
 function parseString(value: unknown): string | undefined {
   return typeof value === "string" ? value : undefined;
+}
+
+function parseOutputDirectory(value: unknown): string | undefined {
+  return typeof value === "string" && isOutputDirectory(value) ? value : undefined;
 }
 
 function invalidControls(path: string): RunControlValidationResult<never> {

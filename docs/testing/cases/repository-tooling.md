@@ -208,28 +208,28 @@ Entities:
 - Required 默认不选择 artifact、external-consumer provider 与 types/docs/runtime consumer Checks；prepared candidate typed provider 和快速 package-supporting contracts 仍在 required 中。只有 `--all` 纳入 package acceptance；未选择 Check 保留 Product 的 `flag-condition-not-matched` fact，aggregate 只消费同次 selection 的 eligible identities。启动 summary 明确 required、focused 或 all 及 package acceptance 是否选择。
 - Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine `--test` preset。
 
-## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate co-locates the Product diagnostic log
+## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate 将 Product owner outputs 放入 invocation namespaces
 
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/runtime/bound-run.test.ts|binds the Product diagnostic log and standard machine facts to the Gate invocation directory`
+- `bun|scripts/project/gate/runtime/bound-run.test.ts|binds owner-specific Product outputs and Check artifacts to the Gate invocation directory`
   Proves:
 
-- Gate output overrides colocate Product diagnostic logging and standard machine publication in one deterministic, test-owned invocation directory. The isolated fixture runs one synthetic Check rather than scanning the current repository; it proves exactly one core log plus paired `run.json` and `records.ndjson`, then removes only its own `.log/project-gate-tests/output-override-*` directory. It does not inspect, clean, or infer facts from pre-existing `.log/project-run` inventory, create a quality-only report, or establish a Gate performance budget.
+- Gate controls map one deterministic, test-owned invocation root to Product diagnostics at the root, `progress.log`, `checks/` artifact base and `machine/` publication. The isolated fixture runs one synthetic Check rather than scanning the current repository; it proves core/scheduler channel readback and files, learned disabled state, and the paired `machine/run.json` / `machine/records.ndjson` facts while proving root-level machine files, old `process/` and disabled progress output do not appear. It then removes only its own `.log/project-gate-tests/output-override-*` directory. It does not inspect, clean, or infer facts from pre-existing `.log/project-run` inventory, create a quality-only report, or establish a Gate performance budget.
 
 ## Case AUX-PROJECT-GATE-TRANSCRIPT-001: Project Gate 保存并闭合外层运行过程
 
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/runtime/transcript.test.ts|Project Gate transcript > tees tagged plain output, records final Gate facts, and restores process and console writers`
+- `bun|scripts/project/gate/runtime/transcript.test.ts|Project Gate transcript > records only Gate-owned messages and final facts without patching terminal writers`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > reports the invocation directory when Gate transcript setup fails`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > post-processes one initial Gate result before reporting the final exit`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when the Gate transcript cannot be completed`
   Proves:
 
-- invocation-local `gate.log` 将 console 与 direct process stdout/stderr 原内容继续送到原 terminal writers，并以 `[STDOUT]` / `[STDERR]` 保存去除 TTY controls 的 plain lines；关闭时写入 `[GATE]` 标记的 invocation directory、最终 result 与 exit status，随后恢复被接管的 console/stream writers，重复关闭不会伪装成功。
+- invocation-local `gate.log` 只保存显式写入的 Gate adapter / afterGate message 与 `[GATE]` 标记的 invocation directory、最终 result 和 exit status；建立和关闭都不会 patch console 或 process stream writer，Product progress 与 Check presentation 保持 terminal-only，重复关闭不会伪装成功。
 - transcript 消费 afterGate 处理后的唯一 result 及其 exit mapping，而不是初步结果或另一套聚合；directory 已创建但 transcript 无法建立时不启动 Product Run 并显示该 directory，已开始的 transcript 无法完整关闭时 fail closed 为 unavailable，只在终端报告 unavailable result 并保留 directory 供检查。
 
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
@@ -241,8 +241,8 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
   Proves:
 
-- Native operations 直接形成 passed/failed/unavailable Check facts；validation failure 保留安全的 diagnostic code/count Record，并用 terminal message 指向对应 focused root command，不暴露 raw diagnostics，也不会在 `process/` 创建空 transcript。
-- Test Evidence rule validation 向真实 ast-grep 步骤传递 cancellation，在 `process/test-evidence-rule-tests.log` 保留已发生的 version/rule-test process evidence，并区分 nonzero、version mismatch 和 unavailable 结果。
+- Native operations 直接形成 passed/failed/unavailable Check facts；validation failure 保留安全的 diagnostic code/count Record，并用 terminal message 指向对应 focused root command，不暴露 raw diagnostics，也不会创建空 Check artifact。
+- Test Evidence rule validation 向真实 ast-grep 步骤传递 cancellation，只在自身 `checks/test-evidence-rule-tests/process.log` 保留已发生的 version/rule-test process evidence，并区分 nonzero、version mismatch 和 unavailable 结果。
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
 
@@ -259,7 +259,7 @@ Entities:
 - `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > maps a settled cancellation fact to transcript evidence and unavailable`
   Proves:
 
-- eligible command 只有在零退出并写入包含 stdout/stderr 的 `process/<check-id>.log` 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。失败 message 与 Record 使用同一 invocation-relative `process/<check-id>.log` reference，而不暴露 invocation absolute path。
+- eligible command 只有在零退出并写入自身 artifact 的 `checks/<encoded-check-id>/process.log` 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。未授予 `artifactDirectory` 时不得启动 child，且以 `transcript-unavailable` 结算。失败 message 与 Record 使用同一 invocation-relative `checks/<encoded-check-id>/process.log` reference，而不暴露 invocation absolute path。
 - Dependency-backed process 只读取声明的 direct provider，要求 upstream passed，经 provider parser 恢复 data 后才派生无冲突 environment；unreadable、failed 或 malformed data 不启动 child process。
 - A typed-success process publishes its typed final data only after a zero exit and a successfully written settled transcript. It then closed-parses stdout and validates it against its typed dependency; malformed stdout or invalid parsed/provenance data settles `unavailable / process-output-invalid`, never a passed result.
 - 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 invocation-relative transcript reference，不复制 child output、完整路径、command、credential URL 或 digest。
@@ -335,7 +335,7 @@ Entities:
 - `bun|src/project-run/check-execution/plan.test.ts|Check execution plan > projects normalized admission priority into the static task graph`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > respects one root budget for dependency order and named mutex execution`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > distinguishes full graph identities with identical Task IDs but different scheduler semantics`
-- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > reuses one stable graph identity across scheduler decision evidence`
+- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > records one graph and references its fingerprint from every scheduler decision`
 - `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > uses priority only among dependency and mutex eligible ordinary ready tasks`
 - `bun|src/project-run/task-scheduler/task-engine.admission-observation.test.ts|static task engine > emits immutable root admission and mutex decisions`
 - `bun|src/project-run/task-scheduler/task-engine.admission-observation.test.ts|static task engine > emits root capacity and running-drain decisions`

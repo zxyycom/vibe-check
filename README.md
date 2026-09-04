@@ -224,7 +224,7 @@ Check-owned file、transcript 或独立 logger；完整边界见
 | --- | --- | --- |
 | `outputs.progressRendering.enabled` | `true` | 在终端呈现 Check 生命周期与汇总。 |
 | `outputs.machinePublication.enabled` | `true` | 把 `run.json` 和 `records.ndjson` 写入 `artifacts/vibe-check`。 |
-| `outputs.diagnosticLogging.enabled` | `false` | 需要排障时写入 invocation-specific 日志。 |
+| `outputs.diagnosticLogging.enabled` | `false` | 需要排障时按 Product owner 写入 invocation-specific core、scheduler，以及仅 learned policy 使用的 learned-admission 日志。 |
 | `scheduler.maxParallel` | `4` | 限制最外层 Check 并行数。 |
 | `scheduler.admissionPolicy` | `{ kind: "static" }` | 每轮以完整静态图与当前事实重算的默认无状态准入 policy。 |
 
@@ -509,7 +509,10 @@ learned policy 先在同一 existing Scheduler selection layer 内比较 critica
 
 ### 运行并读取结果
 
-`run(definition, controls?)` 执行一次独立 invocation。常用 controls 包括 `projectRoot`、`flags`、`signal` 和仅对本次运行生效的 `outputs` overrides。
+`run(definition, controls?)` 执行一次独立 invocation。常用 controls 包括 `projectRoot`、`flags`、`signal`、
+`checkArtifactBaseDirectory`、`progressLogFile` 和仅对本次运行生效的 `outputs` overrides。`progressLogFile` 是本次 Run 的可选 transcript target，仍会保留终端呈现。需要让某个 Check 写 invocation-local artifact 时，
+调用方显式设置 base；callback 只会得到自己的 absolute `artifactDirectory`（未设置时为 `null`），不会得到 sibling Check、
+machine、diagnostic 或跨 Run state 的路径。
 
 读取结果时分两层判断：
 

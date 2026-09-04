@@ -28,7 +28,7 @@ export async function observeTerminalMeasurement<TResult>(
     callerHookFailed = true;
     observeSchedulerDiagnostic(input.state, {
       event: "scheduler.measurement-hook-failed",
-      tags: diagnosticTags("SCHEDULER", "MEASUREMENT_HOOK_FAILED"),
+      tags: diagnosticTags("MEASUREMENT_HOOK_FAILED"),
       details: Object.freeze({})
     });
     try {

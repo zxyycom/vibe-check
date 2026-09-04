@@ -5,6 +5,7 @@ export interface ProgressWriter {
   readonly color: boolean;
   readonly isTTY: boolean;
   readonly term: string | undefined;
+  close?(): void;
   write(content: string): void;
 }
 
@@ -35,6 +36,11 @@ export type ProgressFeedback = Readonly<
       readonly execution: "cancelled" | "completed";
       readonly counts: ProgressOutcomeCounts;
       readonly elapsedMs: number;
+      /** Ordered full summary; `null` means that Check never executed. */
+      readonly checkDurations: readonly Readonly<{
+        readonly checkId: string;
+        readonly durationMs: number | null;
+      }>[];
     }
 >;
 

@@ -1,6 +1,10 @@
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 /** 单次 run 调用的闭合上下文与 output override；Project Definition 保持为 authored input。 */
 export interface RunControls {
+  /** caller 为当前 Run 选择的 progress log exact target；省略时只写 terminal。 */
+  readonly progressLogFile?: string;
+  /** caller 选择的 Check-owned invocation artifact base；省略时不授予 artifact capability。 */
+  readonly checkArtifactBaseDirectory?: string;
   readonly checkAggregation?: CheckAggregation;
   /** 仅为本次调用覆盖 Run-owned outputs。 */
   readonly outputs?: Partial<{

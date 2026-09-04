@@ -46,7 +46,6 @@ const defaultDependencies: TestEvidenceRuleTestsCheckDependencies = Object.freez
 
 /** Owns the two ast-grep process steps as one transcript-backed ordinary Check. */
 export function createTestEvidenceRuleTestsCheck(
-  invocationLogDirectory: string,
   dependencies: TestEvidenceRuleTestsCheckDependencies = defaultDependencies
 ): Check {
   return defineCheck({
@@ -62,7 +61,11 @@ export function createTestEvidenceRuleTestsCheck(
       );
       if (typeof execution === "string") return unavailable(execution);
 
-      const transcript = writeRuleTestTranscript(execution, invocationLogDirectory, dependencies);
+      const transcript = writeRuleTestTranscript(
+        execution,
+        context.artifactDirectory,
+        dependencies
+      );
       if (!transcript.ok) return unavailable(UNAVAILABLE_REASON_CODE.transcriptUnavailable);
 
       if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
@@ -78,7 +81,10 @@ async function executeRuleTestWorkflow(
 ): Promise<RuleTestExecution | UnavailableReasonCode> {
   try {
     const invocations = dependencies.ruleTestInvocations(workspaceRoot);
-    const result = await dependencies.runRuleTests({ cancelSignal, workspaceRoot });
+    const result = await dependencies.runRuleTests({
+      cancelSignal,
+      workspaceRoot
+    });
     return { invocations, result };
   } catch {
     return UNAVAILABLE_REASON_CODE.processUnavailable;
@@ -87,15 +93,16 @@ async function executeRuleTestWorkflow(
 
 function writeRuleTestTranscript(
   execution: RuleTestExecution,
-  invocationLogDirectory: string,
+  artifactDirectory: string | null,
   dependencies: TestEvidenceRuleTestsCheckDependencies
 ): TranscriptWriteResult {
+  if (artifactDirectory === null) return { ok: false };
   try {
     return {
       ok: true,
       path: dependencies.writeTranscript({
+        artifactDirectory,
         checkId: "test-evidence-rule-tests",
-        invocationLogDirectory,
         steps: ruleTestTranscriptSteps(execution)
       })
     };

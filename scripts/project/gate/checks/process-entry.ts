@@ -14,7 +14,6 @@ import type { ExternalConsumerMaterialLease } from "./external-consumer-material
 /** Runtime material bound to one Project Gate invocation. */
 export interface ProjectGateRuntime {
   readonly externalConsumerLease: ExternalConsumerMaterialLease;
-  readonly invocationLogDirectory: string;
   readonly preparedCandidate: PreparedPackageCandidate;
 }
 
@@ -28,21 +27,11 @@ export function createProjectGateProcessEntry<Data extends object = object>(
     readonly mutex?: readonly string[];
     readonly presets: readonly ProjectGatePreset[];
     readonly required: boolean;
-    readonly runtime: ProjectGateRuntime;
     readonly timeoutMs?: number;
   }>
 ): ProjectGateEntry {
-  const {
-    checkId,
-    dataDependency,
-    displayName,
-    invocation,
-    mutex,
-    presets,
-    required,
-    runtime,
-    timeoutMs
-  } = input;
+  const { checkId, dataDependency, displayName, invocation, mutex, presets, required, timeoutMs } =
+    input;
   const descriptor = {
     args: invocation.args,
     checkId,
@@ -54,12 +43,8 @@ export function createProjectGateProcessEntry<Data extends object = object>(
   };
   const check =
     dataDependency === undefined
-      ? createProcessCheck(descriptor, runtime.invocationLogDirectory)
-      : createProcessCheckWithDataDependency(
-          descriptor,
-          runtime.invocationLogDirectory,
-          dataDependency
-        );
+      ? createProcessCheck(descriptor)
+      : createProcessCheckWithDataDependency(descriptor, dataDependency);
   return Object.freeze({
     check:
       mutex === undefined ? check : Object.freeze({ ...check, mutex: Object.freeze([...mutex]) }),

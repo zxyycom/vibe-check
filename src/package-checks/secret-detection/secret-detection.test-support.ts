@@ -51,7 +51,9 @@ export function runSecretDetection(
     ...overrides
   });
   const context: CheckExecutionContext<ResolvedSecretDetectionOptions> = Object.freeze({
+    artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
+    invocationId: "invocation/v1:direct-check-test",
     options,
     project: Object.freeze({ flags: Object.freeze([]), root }),
     records: Object.freeze({
@@ -76,7 +78,9 @@ export function settleDuplicateSafeFindings(
 ): SecretDetectionExecution {
   const records: ObservedRecord[] = [];
   const context: CheckExecutionContext<ResolvedSecretDetectionOptions> = Object.freeze({
+    artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
+    invocationId: "invocation/v1:direct-check-test",
     options: Object.freeze({
       files: EXPLICIT_FILES,
       findingWaivers: Object.freeze([{ identity, reason: "A unique finding only." }]),

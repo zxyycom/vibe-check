@@ -37,16 +37,27 @@ describe("prepared package candidate Check", () => {
         schemaVersion: 3
       });
       assert.throws(
-        () => parseProjectGatePreparedCandidateData({ ...outcome.data, unexpected: true }),
+        () =>
+          parseProjectGatePreparedCandidateData({
+            ...outcome.data,
+            unexpected: true
+          }),
         /invalid shape/
       );
       assert.throws(
         () =>
-          parseProjectGatePreparedCandidateData({ ...outcome.data, artifactPath: "relative.tgz" }),
+          parseProjectGatePreparedCandidateData({
+            ...outcome.data,
+            artifactPath: "relative.tgz"
+          }),
         /must be absolute/
       );
       assert.throws(
-        () => parseProjectGatePreparedCandidateData({ ...outcome.data, files: [""] }),
+        () =>
+          parseProjectGatePreparedCandidateData({
+            ...outcome.data,
+            files: [""]
+          }),
         /invalid shape/
       );
       assert.throws(
@@ -140,6 +151,7 @@ async function invokeCheck(
   const execution = check.execution;
   if (execution === undefined) throw new Error("fixture Check must be executable");
   return execution({
+    artifactDirectory: null,
     dependencies: {
       get: (checkId) => ({
         ok: false,
@@ -147,6 +159,7 @@ async function invokeCheck(
       }),
       list: () => Object.freeze([])
     },
+    invocationId: "invocation/v1:fixture-prepared-candidate",
     options: {},
     project: { flags: [], root: process.cwd() },
     records: { report: () => undefined },

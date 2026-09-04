@@ -8,6 +8,7 @@ import type {
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { CoreInvariantFailure, type TrustedCheckScope } from "../../check-settlement/session.ts";
 import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
+import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { invokeWithCapturedConsole } from "./console-capture.ts";
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
@@ -28,9 +29,11 @@ export type CallbackExecution = Readonly<
 >;
 
 interface CheckCallbackInput {
+  readonly artifactDirectory: string | null;
   readonly check: NormalizedCheck;
   readonly dependencies: CheckDependencies;
   readonly diagnosticLogger?: DiagnosticLogger;
+  readonly invocationId: string;
   readonly project: CheckProjectContext;
   readonly scope: TrustedCheckScope;
   readonly signal: AbortSignal;
@@ -45,12 +48,14 @@ interface CheckReporterLifecycle {
 export async function executeCheckCallback(input: CheckCallbackInput): Promise<CallbackExecution> {
   const checkId = input.check.definition.checkId;
   const checkTags = diagnosticTags(`CHECK:${checkId}`, "EXECUTION");
-  const reporter = createCheckReporter(input.scope, input.diagnosticLogger, checkTags);
+  const reporter = createCheckReporter(input.scope, input.diagnosticLogger, checkTags, checkId);
   let result: CallbackExecution;
   let consoleMessages = EMPTY_MESSAGES;
   try {
     const context = Object.freeze({
+      artifactDirectory: input.artifactDirectory,
       dependencies: input.dependencies,
+      invocationId: input.invocationId,
       options: input.check.options,
       project: input.project,
       records: reporter.records,
@@ -94,7 +99,8 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
 function createCheckReporter(
   scope: TrustedCheckScope,
   diagnosticLogger: DiagnosticLogger | undefined,
-  checkTags: readonly string[]
+  checkTags: readonly string[],
+  checkId: string
 ): CheckReporterLifecycle {
   let isOpen = true;
   return Object.freeze({
@@ -108,7 +114,7 @@ function createCheckReporter(
         diagnosticLogger?.observe({
           event: "record.reported",
           tags: diagnosticTags(...checkTags, "RECORD", result.toUpperCase()),
-          details: { data, identity, result }
+          details: recordDiagnosticDetails(checkId, identity, result)
         });
       }
     })
@@ -121,4 +127,22 @@ function productResult(code: string, consoleMessages: readonly CheckMessage[]): 
     source: "product",
     result: Object.freeze({ status: "unavailable", reason: Object.freeze({ code }) })
   });
+}
+
+function recordDiagnosticDetails(
+  checkId: string,
+  identity: unknown,
+  result: "committed" | "rejected"
+): Readonly<Record<string, unknown>> {
+  const record = snapshotClosedRecord(identity);
+  const recordId =
+    record !== undefined &&
+    Object.keys(record).length === 1 &&
+    Object.hasOwn(record, "id") &&
+    typeof record.id === "string"
+      ? record.id
+      : null;
+  return result === "committed"
+    ? Object.freeze({ checkId, recordId, result })
+    : Object.freeze({ checkId, rejectionCategory: "record-invalid-or-conflict", result });
 }

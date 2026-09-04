@@ -162,7 +162,10 @@ describe("Package Run direct Check execution", () => {
           tags: ["CHECK:pending", "EXECUTION", "FINISHED", "UNAVAILABLE"],
           details: {
             durationMs: null,
-            reason: { code: "execution-cancelled" }
+            messageCount: 0,
+            phase: "execution",
+            reasonCode: "execution-cancelled",
+            status: "unavailable"
           }
         }
       ]

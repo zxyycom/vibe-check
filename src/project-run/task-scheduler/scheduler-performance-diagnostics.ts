@@ -148,7 +148,7 @@ export class SchedulerPerformanceDiagnostics {
       try {
         logger.observe({
           event: "scheduler.summary",
-          tags: diagnosticTags("SCHEDULER", "SUMMARY"),
+          tags: diagnosticTags("SUMMARY"),
           details: summaryFromSchedulerMeasurement(context.rawMeasurement)
         });
       } catch {

@@ -397,6 +397,8 @@ upstream facts.
 
 - `projectRoot` 决定项目相对路径的解析根。
 - `flags` 成为 callback 可读的 normalized project context。
+- `checkArtifactBaseDirectory` 是可选、invocation-only 的 Check artifact base；它使用非空且无 U+0000 的受信任 directory grammar，relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target。它不进入 Definition fingerprint，不创建 output status，也不授予 Check 读取 base、sibling directory、machine/diagnostic output 或 cross-Run state 的能力；没有配置时 callback 的 `artifactDirectory` 为 `null`。
+- `progressLogFile` 是可选、invocation-only 的 terminal-progress tee target，使用同一非空且无 U+0000 target grammar；它不会改变 Definition outputs、Definition fingerprint 或 Check callback capability。
 - `signal` 供 preflight 与 execution 协作取消；取消结果记录对应 phase。
 - `outputs` 覆盖本次 diagnostic logging、machine publication 或 progress rendering。
 - `checkAggregation` 选择 `checks`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。
@@ -410,22 +412,25 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 default；RunControls 可以只覆盖当前调用需要的部分。`scheduler.measurementHooks` 不属于这组三项配置：它是 Definition-owned terminal side effect，不能由 RunControls 注入或覆盖。machine publication 与 diagnostic logging 各自的 `directory` 都是受信任调用方选择的非空、无 U+0000 target：relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target；没有 containment 或 sandbox 语义，两个 output 也不因同目录而合并。configuration 成功后的职责如下：
 
 - 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
-- 启用的 diagnostic logging 在 preflight 前以该 instant 命名 UTC-compact log path，并按事实形成顺序记录 Product core 已知的 invocation、planning、scheduler、handoff 与 output 时间线。每个事件以序号、单调 elapsed、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。标签只突出 Run、Check、phase、Scheduler decision 和 outcome 等高频阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
-- Scheduler evidence 记录本轮 `select`/`wait` 与 hard-guard facts，不记录 policy wait reason、reservation/sticky target、公平/饥饿 state 或 policy timing telemetry。admission-policy fault 只记录有界 category，不能泄漏 callback 原值、stack 或 caller data。
-- learned-critical-path 在启用 diagnostic logging 时另记录有界的 local history read、prediction availability、selected admission、record/write observation；它不记录 raw authored options、effective flags、identity input、sample 或 local-state bytes。state I/O/prediction failure 仍只是 optimization observation，不改写 `RunResult`、Check facts、machine publication 或 output status。
+- 启用的 diagnostic logging 在 preflight 前以同一 instant 和 UUID 形成 owner-first `core-<suffix>.log`、`scheduler-<suffix>.log`，以及只对 learned-critical-path 生效的 `learned-admission-<suffix>.log`。它不是通用 event bus：三个 explicit owner channel 分别写自身事实，router 在每次委托前赋予跨 channel 的 sequence、monotonic elapsed 和 invocation ID。每个事件以这些 correlation fields、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。owner 已由 filename 表达，行标签只突出 Run、Check、phase、decision 和 outcome 等阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
+- Scheduler channel 先记录一次完整 graph 和 SHA-256 fingerprint；每个 decision 仅引用该 fingerprint 并保留本轮 `select`/`wait`、hard-guard 和其它动态 facts，不重复 graph。它不记录 policy wait reason、reservation/sticky target、公平/饥饿 state 或 policy timing telemetry。admission-policy fault 只记录有界 category，不能泄漏 callback 原值、stack 或 caller data。
+- learned-critical-path 在启用 diagnostic logging 时在 learned-admission channel 记录有界的 local history read、prediction availability、selected admission、record/write observation；它不记录 raw authored options、effective flags、identity input、sample 或 local-state bytes。static/custom policy 不创建该 file；history unavailable 仍保留 enabled channel 并记录有界 history-read availability。state I/O/prediction failure 仍只是 optimization observation，不改写 `RunResult`、Check facts 或 machine publication。
 - effective diagnostic logging enabled 时，private Scheduler shell 在实际进入后于 normal、caller-cancelled 或 admission-policy-fault drain 的 terminal path，将有界 `scheduler.summary` internal default Hook 与 caller Hooks 交给同一 ordered runner。summary wrapper 自行包含 writer failure，Scheduler 不作 summary 特调。它分开记录 shell control path、decision observation、slot·ms/capacity ratio、accepted policy wait、admission queue pressure、admission delay 与 tail；clock/integral fault 明确形成 unavailable timing 而不伪造零值，合法 zero span 与之不同。各 projection 允许重叠，不能相加为 wall/CPU/thread/OS utilization；`proposal: null` 的被动 drain 不计 accepted wait。pre-work/planning failure 没有这条 summary，writer failure 也不改写 Run 结果。
 - broader graph-ready 只要求全部 directed relations settled；Queue pressure 使用更窄的 admission-viable pending universe：每个 `dependsOn` 必须 `completed`，每个 `observes` 必须 settled，且 Task 仍 pending。即将因 failed prerequisite 走 `settle-blocked` 的 graph-ready Task 不在其中。每个 sampled interval 按 mutex conflict → canonical `canAdmit` false → canonical `canAdmit` true 的顺序互斥分类为 mutex-blocked、capacity-blocked 或 admissible-pending，分别形成 `mutexBlockedTaskMs`、`capacityBlockedTaskMs`、`admissiblePendingTaskMs`；三者之和是 `admissionViablePendingTaskMs`。`peakAdmissionViablePendingTaskCount`、`peakMutexBlockedTaskCount`、`peakCapacityBlockedTaskCount` 与 `peakAdmissiblePendingTaskCount` 是可能来自不同 boundary 的离散峰值，分类峰值不能相加为同一时刻的 total，也不是 decision 计数。top-three `topAdmissionDelays` 中每项的 `mutexBlockedMs + capacityBlockedMs + admissiblePendingMs` 精确构成该项 `admissionDelayMs`；这些事实不推断 policy 的选择理由。
 - Tail active set 是最后一次 admission boundary 的逻辑 post-state snapshot，包含此前仍 running 的 Tasks 与新 admitted Task；`discrete.completionTailActiveTaskCount` 保留完整数量，`topCompletionTailContributors` 只保留其中 settlement delta 最大的三个 `{ taskId, settledAfterLastAdmissionMs }`。它解释 last-admission-to-terminal span 的活跃成员，不是 critical path；terminal control/observation 可能使 tail span 大于最大的 contributor delta。`declarativeFingerprint` 原样来自 invocation，只是 declarative-configuration matching signal；它覆盖 normalized declarative Definition，但不包含 `RunControls`、code/candidate/tool/runtime/host、terminal outcome 或 custom callback identity/source/closure。timing unavailable 仍精确保留 fingerprint、admitted count、accepted-wait count、max-running、last-settled Task ID、四个 queue peaks 与 tail active count，但省略不能证明的 task·ms、delay breakdown、tail delta 及其它 time-valued projection。
 - 启用的 machine publication 将同一个 instant 投影为 `run.json` 的 `invocation.timestamp`，所以 timestamp 不是 publication 完成时间；两项同时启用时，日志文件名与 machine timestamp 必须共享该一次捕获。
-- progress rendering 呈现人读 lifecycle。machine publication、progress rendering、diagnostic logging 与 configured measurement hooks 都由 Run 调度，并分别保留 status；measurement hooks 不因它们与前三项一同 readback 而成为 `outputs` configuration。
+- progress rendering 呈现人读 lifecycle；final feedback 总是逐项呈现 canonical `checkDurations`，包括 `null`。若 caller 提供 `progressLogFile`，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 标记 progress output failed，但不得吞掉 terminal。machine publication、progress rendering、diagnostic logging 与 configured measurement hooks 都由 Run 调度，并分别保留 status；measurement hooks 不因它们与前三项一同 readback 而成为 `outputs` configuration。
 
 这些 diagnostic 行不建立可解析 schema。Run 结束前最后一条可写 diagnostic event 是 `run.terminal-before-log-close`：它只证明 terminal fact 已写入、logger close 尚未确认，随后才尝试关闭日志。
 
 只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。此时
-`outputs.diagnosticLogging` 的形状为 `{ enabled, status, file }`，其中 `status` 是
-`"disabled" | "not-run" | "succeeded" | "failed"`；禁用时 `file` 为 `null`，启用时即使文件创建失败也保留
-`path.relative(projectRoot, resolvedFile)` 的预先计算 readback。root 外 target 因此可含 `..`；跨卷时平台可以返回绝对路径。实际 filename 始终是 invocation-specific `run-<UTC 紧凑时间>-<UUID>.log`。无效 Definition、controls 或 aggregation selection 直接返回
-configuration diagnostic，不创建诊断日志。
+`outputs.diagnosticLogging` 的形状为 `{ enabled, status, channels }`；`channels` 是显式
+`core`、`scheduler`、`learnedAdmission` map，每项为 `{ enabled, status, file }`，且 `status` 都使用
+`"disabled" | "not-run" | "succeeded" | "failed"`。aggregate `status` 在任一 enabled channel failed 时为
+`failed`，仅全部 enabled channel succeeded 时为 `succeeded`。禁用 channel 的 `file` 为 `null`；已启用 channel 即使文件创建失败也保留
+`path.relative(projectRoot, resolvedFile)` 的预先计算 readback。root 外 target 因此可含 `..`；跨卷时平台可以返回绝对路径。static/custom
+Run 的 learned-admission channel 是 disabled，learned Run 即使 history unavailable 仍可启用它。无效 Definition、controls 或 aggregation
+selection 直接返回 configuration diagnostic，不创建诊断日志。
 
 `outputs.measurementHooks` 的形状为 `{ enabled, status }`，使用同一 closed status set。其 authority、participant 和
 readback 如下；内置 `scheduler.summary` writer 不属于此 output。
@@ -445,7 +450,7 @@ failure 仍在该 output status 可见。
 
 diagnostic logging 只服务当前人工诊断：它没有 parser、schema/version、跨版本格式兼容、`latest`、retention 或跨 invocation
 discovery contract，也不替代 Check final data、Record、terminal message 或 Check/process adapter 自有的 transcript。logging
-failure 只把该 output 标为 failed，不改写已形成的 Check/Record facts，也不阻断 progress rendering 或 machine publication 的
+单个 channel 的 setup/write/close failure 只令该 channel 与 aggregate diagnostic output 为 failed，不改写已形成的 Check/Record facts，也不阻断其它 channel、progress rendering 或 machine publication 的
 闭合。多个 output 都失败时，`RunResult.outputs` 保留每项 status；仅当 primary Run 已正常完成时，`kind: "output"` 依次选择
 progress rendering、machine publication、diagnostic logging、measurement hooks 的第一个 failed output。故
 `scheduler-measurement-hooks-failed` 表示 Hook output failed 且没有更高优先级的 output failure 被选作 diagnostic；它不覆盖
@@ -454,7 +459,7 @@ cancellation 或 execution diagnostic。diagnostic logging 不进入 machine v4�
 
 因此 `scheduler.summary` 不进入 `RunResult`、Check/Record facts、machine v4、progress、warning、autotune 或任何 public API；它不获得 parser/schema/version、跨 invocation discovery 或 retention contract，也不是 CPU、memory、thread、process 等 OS telemetry。以后若 fail-fast 或 named-resource capacity 改变 Scheduler capacity/hard guard，必须重新审阅 summary 的 capacity denominator、queue classification、boundary 与 wait 解释，而不是静默重用旧 projection。
 
-progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled presentation。invocation flag control barrier 结束时，因 `enabledByFlags` 未匹配而没有启动的 Checks 不逐项呈现完整 settled row；renderer 写一个原因说明块，并按 Definition 顺序列出这些 Checks 的 `displayName`。该分组只识别 Product 形成的 `not-applicable / flag-condition-not-matched`、`durationMs: null` 且无 messages 的事实；preflight failure、dependency blocking、cancellation、其它 `not-applicable` / `unavailable` 和带 messages 的 Check 仍各自呈现。`visibility: "attention"` 继续只隐藏无 author/captured messages 的 passed settled row。两种压缩都不改变 accounting ordinal、outcome、Records、machine output、dependency、aggregation 或 `RunResult`；accepted author message 与 captured console code 都保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
+progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled presentation。每个 final summary 还以 canonical Check order 列出每项 duration（未执行项为 `null`）；可选 `progressLogFile` 仅镜像这份终端 presentation。invocation flag control barrier 结束时，因 `enabledByFlags` 未匹配而没有启动的 Checks 不逐项呈现完整 settled row；renderer 写一个原因说明块，并按 Definition 顺序列出这些 Checks 的 `displayName`。该分组只识别 Product 形成的 `not-applicable / flag-condition-not-matched`、`durationMs: null` 且无 messages 的事实；preflight failure、dependency blocking、cancellation、其它 `not-applicable` / `unavailable` 和带 messages 的 Check 仍各自呈现。`visibility: "attention"` 继续只隐藏无 author/captured messages 的 passed settled row。两种压缩都不改变 accounting ordinal、outcome、Records、machine output、dependency、aggregation 或 `RunResult`；accepted author message 与 captured console code 都保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
 
 ```text
   The following 2 checks did not run because the run flags did not match their conditions:

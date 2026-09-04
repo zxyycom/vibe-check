@@ -232,7 +232,24 @@ options、scanner protocol、test file partition 和 execution mechanics 留在�
 package public entry 构造 Project Definition，并验证该 entry 与 prepared candidate 相同。直接从源码静态导入
 package implementation 会绕过这个 candidate 边界，因此不允许。
 
-每次 invocation 在 `.log/project-gate/<invocation-id>/` 写入 `gate.log`、一个 Product diagnostic log、标准 `run.json` / `records.ndjson`，以及已启动外部命令的 `process/<check-id>.log`。这些都是本次运行的本地 evidence；不存在 `latest`、retention、quality-only report 或跨 invocation 合并协议。machine files 必须按 [Output](output.md) 的完整二文件集合读取。
+每次 invocation 先在 `.log/project-gate/<invocation-id>/` 创建 exact evidence root；candidate preparation 仍发生在此之前。bound Run 只把这一次已创建 root 映射为 Product controls，不在 Product 内再建立一层目录：`diagnosticLogging.directory` 为 root、`machinePublication.directory` 为 `machine/`、`progressLogFile` 为 `progress.log`，并只授予 executable Check `checks/` artifact base。因此布局固定为：
+
+```text
+<invocation>/
+├── gate.log
+├── progress.log
+├── core-<utc-compact>-<product-uuid>.log
+├── scheduler-<utc-compact>-<product-uuid>.log
+├── learned-admission-<utc-compact>-<product-uuid>.log  # 仅 learned policy
+├── machine/
+│   ├── run.json
+│   └── records.ndjson
+└── checks/
+    └── <encoded-check-id>/
+        └── process.log
+```
+
+这三个 Product filename 共享创建时刻和 Product UUID；其每条 diagnostic observation 还带 Product invocation ID、全局 sequence 与 monotonic elapsed。Gate evidence root 只提供这一次 Gate invocation 的共同目录，不把 Gate、progress 和 Product writer 伪装为同一 writer 或同一 event sequence。所有文件都是本次运行的本地 evidence；不存在 `latest`、retention、quality-only report、根级 `run.json` / `records.ndjson`、旧 `process/<check-id>.log` 或跨 invocation 合并协议。machine files 必须按 [Output](output.md) 的完整二文件集合读取。
 
 ### Prepared candidate data
 
@@ -294,9 +311,9 @@ import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](s
 
 ### Process evidence
 
-Native docs、Decision Records 与 Test Evidence Checks 不创建单进程 transcript。外部 command Check 必须在启动 child 前写入 running transcript，并在结算后将同一路径改写为 command、stdout/stderr、exit/signal/timeout 与安全 error summary；startup 写入失败时不得启动 child。
+Native docs、Decision Records 与 Test Evidence Checks 不创建单进程 transcript。每个外部 command Check 只从自己的 `CheckExecutionContext.artifactDirectory` 读取其路径能力；未授予该目录时以 `transcript-unavailable` fail closed。已授予目录时，它在启动 child 前写入 `checks/<encoded-check-id>/process.log` 的 running transcript，并在结算后将同一路径改写为 command、stdout/stderr、exit/signal/timeout 与安全 error summary；startup 写入失败时不得启动 child。process 与 ast-grep rule-test Check 不从 Gate Definition closure 或 invocation root 获取路径，也不能写 sibling Check artifact。
 
-Check message 和 failure Record 只引用 invocation-relative transcript path。terminal message 不复制 child output、绝对路径、command arguments、credential URL 或 digest。配置了 timeout 且 facade 明确报告超时时结算为 `process-timeout`；不能可靠分类的 process/log/parse 边界 fail closed 为 `unavailable`。Product diagnostic log、Gate transcript 与 child transcript 各自记录不同层次，不互相解析或复制。
+Check message 和 failure Record 只引用 `checks/<encoded-check-id>/process.log`。terminal message 不复制 child output、绝对路径、command arguments、credential URL 或 digest。配置了 timeout 且 facade 明确报告超时时结算为 `process-timeout`；不能可靠分类的 process/log/parse 边界 fail closed 为 `unavailable`。Product diagnostic channel、Gate transcript、progress transcript 与 child transcript 各自记录不同层次，不互相解析或复制。
 
 ### Gate result post-processing and exits
 
@@ -306,7 +323,7 @@ Check message 和 failure Record 只引用 invocation-relative transcript path�
 
 Hook 必须返回闭合的 `{ status, messages }`，且不能改写 context 或 RunResult；抛错或返回非法 shape 时 fail closed 为 `unavailable`。最终 `passed`、`failed`、`unavailable` 分别映射 exit `0`、`1`、`2`。参数、candidate、import、entry identity、log setup 或 execution boundary 在形成初步结果前失败时也映射为 `2`。
 
-`gate.log` 从 transcript 成功建立后开始，将 Gate stdout/stderr 同步送往终端并保存为 plain tagged lines。成功关闭时追加 invocation directory、唯一最终 result 与 exit；关闭失败时即使 Product Run 已结算，也返回 `unavailable` / exit `2`。Gate 不解析 Product log、machine files 或 child transcripts 来重建结果。
+`gate.log` 从 transcript 成功建立后只写 Gate adapter 的 candidate/selection/aggregation/execution messages、`afterGate` final messages 及唯一 final directory/result/exit；它不 patch `console`、`process.stdout` 或 `process.stderr`，也不复制 Product progress、Check presentation 或 child output。Product progress 继续直接输出 terminal，并仅由 Product progress owner tee 到 `progress.log`。成功关闭时追加 invocation directory、唯一最终 result 与 exit；关闭失败时即使 Product Run 已结算，也返回 `unavailable` / exit `2`。Gate 不解析 Product log、machine files、progress log 或 child transcripts 来重建结果。
 
 ## Documentation, validation, and package material
 

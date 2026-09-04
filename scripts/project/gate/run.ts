@@ -86,7 +86,10 @@ export async function runProjectGate(
   arguments_: readonly string[] = process.argv.slice(2),
   stepOverrides: Partial<ProjectGateSteps> = {}
 ): Promise<ProjectGateExitStatus> {
-  const steps: ProjectGateSteps = Object.freeze({ ...defaultSteps, ...stepOverrides });
+  const steps: ProjectGateSteps = Object.freeze({
+    ...defaultSteps,
+    ...stepOverrides
+  });
   const parsed = parseProjectGateInvocationArguments(arguments_);
   if (!parsed.ok) {
     console.error(`project gate argument error: ${parsed.error}`);
@@ -141,10 +144,24 @@ export async function runProjectGate(
   let exitStatus: ProjectGateExitStatus;
   let transcriptStatus: "failed" | "succeeded";
   try {
-    console.log(`project gate candidate: ${prepared.candidateVersion}`);
-    console.log(`project gate candidate source: ${parsed.candidateInput.kind}`);
-    console.log(`project gate selection: ${projectGateSelectionSummary(parsed.selection)}`);
-    console.log(
+    reportGateAdapterMessage(
+      transcript,
+      "info",
+      `project gate candidate: ${prepared.candidateVersion}`
+    );
+    reportGateAdapterMessage(
+      transcript,
+      "info",
+      `project gate candidate source: ${parsed.candidateInput.kind}`
+    );
+    reportGateAdapterMessage(
+      transcript,
+      "info",
+      `project gate selection: ${projectGateSelectionSummary(parsed.selection)}`
+    );
+    reportGateAdapterMessage(
+      transcript,
+      "info",
       "project gate aggregation: mode=all over eligible Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
     );
     const runResult = await runModule.run({
@@ -165,10 +182,14 @@ export async function runProjectGate(
       productRunStartedAtMs
     });
     finalResult = await applyAfterGate(runModule.afterGate, initialResult, context);
-    reportProjectGateMessages(finalResult.messages);
+    reportProjectGateMessages(finalResult.messages, transcript);
   } catch (error: unknown) {
     finalResult = createProjectGateResult("unavailable");
-    console.error(`project gate execution failed: ${errorMessage(error)}`);
+    reportGateAdapterMessage(
+      transcript,
+      "error",
+      `project gate execution failed: ${errorMessage(error)}`
+    );
   } finally {
     exitStatus = projectGateExitStatus(finalResult);
     transcriptStatus = completeProjectGateTranscript(transcript, {
@@ -278,19 +299,25 @@ function createProjectGateContext(
   });
 }
 
-function reportProjectGateMessages(messages: readonly ProjectGateMessage[]): void {
+function reportProjectGateMessages(
+  messages: readonly ProjectGateMessage[],
+  transcript: ProjectGateTranscript
+): void {
   for (const message of messages) {
     const text = `project gate ${message.level} [${message.code}]: ${message.message}`;
-    if (message.level === "error") {
-      console.error(text);
-      continue;
-    }
-    if (message.level === "warning") {
-      console.warn(text);
-      continue;
-    }
-    console.log(text);
+    reportGateAdapterMessage(transcript, message.level, text);
   }
+}
+
+function reportGateAdapterMessage(
+  transcript: ProjectGateTranscript,
+  level: ProjectGateMessage["level"],
+  text: string
+): void {
+  transcript.writeGateMessage({ level, text });
+  if (level === "error") return console.error(text);
+  if (level === "warning") return console.warn(text);
+  console.log(text);
 }
 
 if (import.meta.main) {

@@ -7,21 +7,29 @@ import { describe, it } from "node:test";
 import { startProjectGateTranscript } from "./transcript.ts";
 
 describe("Project Gate transcript", () => {
-  it("tees tagged plain output, records final Gate facts, and restores process and console writers", () => {
+  it("records only Gate-owned messages and final facts without patching terminal writers", () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-gate-transcript-"));
     const capture = captureProcessWrites();
-    const consoleCapture = captureConsoleWrites();
     try {
       const capturedStdoutDescriptor = ownWriteDescriptor(process.stdout);
       const capturedStderrDescriptor = ownWriteDescriptor(process.stderr);
       const capturedConsoleDescriptors = consoleMethodDescriptors();
       const transcript = startProjectGateTranscript(root);
 
-      console.log("visible Gate stdout");
-      console.warn("visible Gate warning");
-      process.stdout.write("\u001B[31mvisible stdout\u001B[0m\n");
-      process.stderr.write("visible stderr");
-      process.stdout.write("next stdout\n");
+      assert.deepEqual(ownWriteDescriptor(process.stdout), capturedStdoutDescriptor);
+      assert.deepEqual(ownWriteDescriptor(process.stderr), capturedStderrDescriptor);
+      assert.deepEqual(consoleMethodDescriptors(), capturedConsoleDescriptors);
+
+      transcript.writeGateMessage({
+        level: "info",
+        text: "project gate candidate: fixture"
+      });
+      transcript.writeGateMessage({
+        level: "warning",
+        text: "project gate warning [fixture]: retained"
+      });
+      process.stdout.write("Product progress remains terminal-only\n");
+      process.stderr.write("Check presentation remains terminal-only\n");
 
       assert.equal(
         transcript.complete({
@@ -34,63 +42,31 @@ describe("Project Gate transcript", () => {
       assert.deepEqual(ownWriteDescriptor(process.stdout), capturedStdoutDescriptor);
       assert.deepEqual(ownWriteDescriptor(process.stderr), capturedStderrDescriptor);
       assert.deepEqual(consoleMethodDescriptors(), capturedConsoleDescriptors);
-      assert.deepEqual(consoleCapture.logs, ["visible Gate stdout"]);
-      assert.deepEqual(consoleCapture.warnings, ["visible Gate warning"]);
-      assert.equal(capture.stdout, "\u001B[31mvisible stdout\u001B[0m\nnext stdout\n");
-      assert.equal(capture.stderr, "visible stderr");
+      assert.equal(capture.stdout, "Product progress remains terminal-only\n");
+      assert.equal(capture.stderr, "Check presentation remains terminal-only\n");
 
       const source = readFileSync(join(root, "gate.log"), "utf8");
-      assert.match(source, /^\[STDOUT] visible Gate stdout$/m);
-      assert.match(source, /^\[STDERR] visible Gate warning$/m);
-      assert.match(source, /^\[STDOUT] visible stdout$/m);
-      assert.match(source, /^\[STDERR] visible stderr$/m);
-      assert.match(source, /^\[STDOUT] next stdout$/m);
+      assert.match(source, /^\[GATE] \[INFO] project gate candidate: fixture$/m);
+      assert.match(source, /^\[GATE] \[WARNING] project gate warning \[fixture]: retained$/m);
       assert.match(source, /^\[GATE] \[RESULT:PASSED] project gate result: passed$/m);
       assert.match(source, /^\[GATE] \[EXIT:0] project gate exit status: 0$/m);
-      assert.equal(source.includes("\u001B"), false);
+      assert.equal(source.includes("Product progress remains terminal-only"), false);
+      assert.equal(source.includes("Check presentation remains terminal-only"), false);
       assert.equal(
-        transcript.complete({ exitStatus: 0, invocationLogDirectory: root, result: "passed" }),
+        transcript.complete({
+          exitStatus: 0,
+          invocationLogDirectory: root,
+          result: "passed"
+        }),
         "failed"
       );
     } finally {
-      consoleCapture.restore();
       capture.restore();
       rmSync(root, { force: true, recursive: true });
     }
     assert.equal(existsSync(root), false);
   });
 });
-
-function captureConsoleWrites(): Readonly<{
-  readonly logs: readonly string[];
-  readonly warnings: readonly string[];
-  restore(): void;
-}> {
-  const descriptors = consoleMethodDescriptors();
-  const logs: string[] = [];
-  const warnings: string[] = [];
-  Object.defineProperty(console, "log", {
-    ...descriptors.log,
-    value: (...values: unknown[]): void => {
-      logs.push(values.map(String).join(" "));
-    }
-  });
-  Object.defineProperty(console, "warn", {
-    ...descriptors.warn,
-    value: (...values: unknown[]): void => {
-      warnings.push(values.map(String).join(" "));
-    }
-  });
-  return Object.freeze({
-    logs,
-    restore: (): void => {
-      for (const method of ["error", "log", "warn"] as const) {
-        Object.defineProperty(console, method, descriptors[method]);
-      }
-    },
-    warnings
-  });
-}
 
 function consoleMethodDescriptors(): Readonly<
   Record<"error" | "log" | "warn", PropertyDescriptor>

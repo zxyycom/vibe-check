@@ -54,7 +54,7 @@ describe("Package Run diagnostic logging output", () => {
         result.snapshot.checks.map((settledCheck) => settledCheck.outcome.status),
         ["unavailable", "unavailable"]
       );
-      const file = result.outputs.diagnosticLogging.file;
+      const file = result.outputs.diagnosticLogging.channels.core.file;
       assert.ok(file);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
       assert.match(diagnosticLog, /record\.reported/);

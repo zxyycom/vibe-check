@@ -26,11 +26,16 @@ describe("Package Run diagnostic logging output", () => {
 
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
-      const file = result.outputs.diagnosticLogging.file;
+      const file = result.outputs.diagnosticLogging.channels.core.file;
       assert.ok(file);
-      assert.match(file, /^diagnostic\/run-20260830T123456\.789Z-/);
+      assert.match(file, /^diagnostic\/core-20260830T123456\.789Z-/);
+      assert.equal(result.outputs.diagnosticLogging.channels.scheduler.status, "succeeded");
+      assert.match(
+        result.outputs.diagnosticLogging.channels.scheduler.file ?? "",
+        /^diagnostic\/scheduler-20260830T123456\.789Z-/
+      );
       const diagnosticLog = readFileSync(join(root, file), "utf8");
-      assert.equal([...diagnosticLog.matchAll(/\[RUN\] \[STARTED\] run\.started /g)].length, 1);
+      assert.equal([...diagnosticLog.matchAll(/\[RUN\] \[STARTED\].*run\.started /g)].length, 1);
       assert.match(diagnosticLog, /aggregation=null/);
       assert.match(diagnosticLog, /checkCount=70/);
       assert.match(diagnosticLog, /flags=\[\]/);

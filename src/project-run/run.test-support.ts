@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { basename, resolve as resolvePath } from "node:path";
 import {
   type Check,
   type CheckExecution,
@@ -76,11 +77,27 @@ export async function assertInvalidRunControlsAndDefinition(calls: () => number)
   const unknownOutputKey = await run(source, {
     outputs: { diagnosticLogging: { directory: "diagnostic", unexpected: true } }
   });
+  const invalidCheckArtifactDirectory = await run(source, { checkArtifactBaseDirectory: "" });
+  const nulCheckArtifactDirectory = await run(source, { checkArtifactBaseDirectory: "checks\0" });
+  const invalidProgressLogFile = await run(source, { progressLogFile: "" });
+  const nulProgressLogFile = await run(source, { progressLogFile: "progress\0.log" });
   const invalidDefinition = await run({ ...source, unexpected: true }, {});
   assertInvalidControl(unknown, "controls.changedFiles", "unknown-key");
   assertInvalidControl(emptyDirectory, "controls.outputs", "invalid-value");
   assertInvalidControl(nulDirectory, "controls.outputs", "invalid-value");
   assertInvalidControl(unknownOutputKey, "controls.outputs", "invalid-value");
+  assertInvalidControl(invalidProgressLogFile, "controls.progressLogFile", "invalid-value");
+  assertInvalidControl(nulProgressLogFile, "controls.progressLogFile", "invalid-value");
+  assertInvalidControl(
+    invalidCheckArtifactDirectory,
+    "controls.checkArtifactBaseDirectory",
+    "invalid-value"
+  );
+  assertInvalidControl(
+    nulCheckArtifactDirectory,
+    "controls.checkArtifactBaseDirectory",
+    "invalid-value"
+  );
   assert.equal(invalidDefinition.kind, "configuration");
 }
 
@@ -120,9 +137,11 @@ export async function runWithCapturedContext(root: string) {
     check({
       execution: (context) => {
         received = {
+          artifactDirectory: context.artifactDirectory,
           contextFrozen: Object.isFrozen(context),
           dependencyRead: context.dependencies.get("missing"),
           dependenciesFrozen: Object.isFrozen(context.dependencies),
+          invocationId: context.invocationId,
           options: context.options,
           projectKeys: Object.keys(context.project).sort(),
           root: context.project.root,
@@ -145,6 +164,8 @@ export function assertCapturedContext(received: CapturedContext | undefined, roo
   assert.equal(received?.dependenciesFrozen, true);
   assert.deepEqual(received?.options, {});
   assert.deepEqual(received?.projectKeys, ["flags", "root"]);
+  assert.equal(received?.artifactDirectory, null);
+  assert.match(received?.invocationId ?? "", /^invocation\/v1:/);
   assert.equal(received?.root, root);
   assert.equal(received?.signal.aborted, false);
 }
@@ -215,10 +236,94 @@ export async function assertInheritedDependencyRead(): Promise<void> {
     assert.equal(inheritedRead.data, outcome.data);
 }
 
+export async function assertCheckArtifactPathContext(root: string): Promise<void> {
+  const observations: CapturedArtifactContext[] = [];
+  const checkIds = ["artifact/path", "artifact?path", "x".repeat(4_096)] as const;
+  const source = definition(
+    checkIds.map((checkId) =>
+      check({
+        checkId,
+        execution: (context) => {
+          observations.push(
+            Object.freeze({
+              artifactDirectory: context.artifactDirectory,
+              contextKeys: Object.keys(context).sort(),
+              invocationId: context.invocationId,
+              project: context.project
+            })
+          );
+          return PASSED;
+        }
+      })
+    )
+  );
+
+  const withoutArtifacts = await run(source, { projectRoot: root });
+  assert.equal(withoutArtifacts.kind, "completed");
+  if (withoutArtifacts.kind !== "completed") return;
+  assert.equal(observations.length, checkIds.length);
+  assert(observations.every(({ artifactDirectory }) => artifactDirectory === null));
+  const withoutArtifactInvocationIds = new Set(
+    observations.map(({ invocationId }) => invocationId)
+  );
+  assert.equal(withoutArtifactInvocationIds.size, 1);
+
+  observations.length = 0;
+  const withArtifacts = await run(source, {
+    checkArtifactBaseDirectory: "artifacts/checks",
+    flags: ["beta", "alpha", "beta"],
+    projectRoot: root
+  });
+  assert.equal(withArtifacts.kind, "completed");
+  if (withArtifacts.kind !== "completed") return;
+  assert.equal(withArtifacts.declarativeFingerprint, withoutArtifacts.declarativeFingerprint);
+  assert.equal(observations.length, checkIds.length);
+
+  const expectedArtifactBaseDirectory = resolvePath(root, "artifacts/checks");
+  const invocationIds = new Set(observations.map(({ invocationId }) => invocationId));
+  assert.equal(invocationIds.size, 1);
+  assert.notEqual([...invocationIds][0], [...withoutArtifactInvocationIds][0]);
+  assert.deepEqual(
+    observations.map(({ project }) => project),
+    observations.map(() => Object.freeze({ flags: ["alpha", "beta"], root }))
+  );
+  for (const observation of observations) {
+    assert.equal(Object.isFrozen(observation.project), true);
+    assert.deepEqual(observation.contextKeys, [
+      "artifactDirectory",
+      "dependencies",
+      "invocationId",
+      "options",
+      "project",
+      "records",
+      "signal"
+    ]);
+    assert.notEqual(observation.artifactDirectory, null);
+    if (observation.artifactDirectory === null) continue;
+    assert.equal(resolvePath(observation.artifactDirectory, ".."), expectedArtifactBaseDirectory);
+    const component = basename(observation.artifactDirectory);
+    assert.match(component, /^check-[A-Za-z0-9_-]+$/);
+    assert.ok(Buffer.byteLength(component, "utf8") < 255);
+  }
+  assert.equal(
+    new Set(observations.map(({ artifactDirectory }) => artifactDirectory)).size,
+    checkIds.length
+  );
+}
+
+type CapturedArtifactContext = Readonly<{
+  readonly artifactDirectory: string | null;
+  readonly contextKeys: readonly string[];
+  readonly invocationId: string;
+  readonly project: Readonly<{ readonly flags: readonly string[]; readonly root: string }>;
+}>;
+
 type CapturedContext = Readonly<{
+  readonly artifactDirectory: string | null;
   readonly contextFrozen: boolean;
   readonly dependenciesFrozen: boolean;
   readonly dependencyRead: DependencyReadResult;
+  readonly invocationId: string;
   readonly options: object;
   readonly projectKeys: readonly string[];
   readonly root: string;

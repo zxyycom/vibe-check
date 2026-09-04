@@ -26,6 +26,7 @@ import { SchedulerPerformanceDiagnostics } from "./scheduler-performance-diagnos
 import {
   observeAdmissionPolicyFault,
   observeSchedulerDecision,
+  observeSchedulerGraph,
   performanceState
 } from "./scheduler-observation.ts";
 import { observeTerminalMeasurement } from "./scheduler-terminal-measurement.ts";
@@ -54,6 +55,7 @@ export async function runTaskGraph<TResult>(
 ): Promise<TaskGraphRun<TResult>> {
   const graph = prepareTaskGraph(options.graph, options.maxParallel);
   const state = createSchedulerState(graph, options);
+  observeSchedulerGraph(state);
   const measurementInput =
     options.performanceDiagnostics ??
     (state.admissionPolicy.requiresMeasurement === true

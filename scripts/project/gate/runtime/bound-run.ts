@@ -10,7 +10,7 @@ import {
   createProjectGateDefinition,
   createProjectGateEntries,
   projectGateAggregation,
-  projectGateOutputOverrides
+  projectGateInvocationOutputControls
 } from "../definition.ts";
 import { createExternalConsumerMaterialLease } from "../checks/external-consumer-material.ts";
 
@@ -35,14 +35,13 @@ export async function run(controls: ProjectGateRunControls): Promise<RunResult> 
   const externalConsumerLease = createExternalConsumerMaterialLease();
   const entries = createProjectGateEntries({
     externalConsumerLease,
-    invocationLogDirectory: controls.invocationLogDirectory,
     preparedCandidate: controls.preparedCandidate
   });
   try {
     return await packageRun(createProjectGateDefinition(entries), {
       checkAggregation: projectGateAggregation(entries, selection),
+      ...projectGateInvocationOutputControls(controls.invocationLogDirectory),
       flags: controls.flags,
-      outputs: projectGateOutputOverrides(controls.invocationLogDirectory),
       projectRoot: repositoryRoot,
       signal: controls.signal
     });

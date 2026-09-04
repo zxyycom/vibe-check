@@ -75,12 +75,18 @@ describe("Package Run learned Scheduler admission", () => {
       );
 
       assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      assert.equal(result.outputs.diagnosticLogging.channels.learnedAdmission.enabled, true);
+      assert.equal(result.outputs.diagnosticLogging.channels.learnedAdmission.status, "succeeded");
       const learning = observations.filter(
         (observation) =>
           observation.event.startsWith("scheduler.history.") ||
           observation.event === "scheduler.learned-admission"
       );
-      assert.ok(learning.some((observation) => observation.event === "scheduler.history.read"));
+      const historyRead = learning.find(
+        (observation) => observation.event === "scheduler.history.read"
+      );
+      assert.ok(historyRead?.tags.includes("FAILED"));
       assert.equal(
         learning.filter((observation) => observation.event === "scheduler.learned-admission")
           .length,

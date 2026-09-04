@@ -311,7 +311,7 @@ Entities:
 Proves:
 
 - The Product-private local history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, keeps at most 32 samples per identity and 4096 recently updated identities, and persists digest-only closed state through same-directory atomic replacement.
-- Missing, malformed, incompatible, and read-failed state forms an empty learned model; post-drain write failure and concurrent last-writer activity only reduce future samples. None exposes partial JSON or retains authored options and effective flags. The Architecture/API owner, not this Case, defines the distinct static fallback when prediction cannot be formed.
+- Missing, malformed, incompatible, and read-failed state forms an empty learned model; post-drain write failure and concurrent last-writer activity only reduce future samples. None exposes partial JSON or retains authored options and effective flags. A learned Run keeps its enabled learned-admission diagnostic channel when history is unavailable and records bounded history-read availability evidence; static/custom runs leave that channel disabled. The Architecture/API owner, not this Case, defines the distinct static fallback when prediction cannot be formed.
 
 ## Case WB-RUNTIME-SCHEDULER-PREDICTION-001: Frozen duration predictions use a deterministic bounded prior
 

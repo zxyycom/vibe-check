@@ -1,6 +1,6 @@
 ---
 title: 按人工检查目的组织 Project Run 与 Gate 诊断
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T10:20:40Z
 purpose: 让维护者从同一次 invocation 快速筛选 core 时间线、Gate 外层过程与子进程输出。

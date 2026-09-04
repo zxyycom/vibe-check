@@ -53,7 +53,6 @@ export function createExternalConsumerMaterialLease(): ExternalConsumerMaterialL
 /** Runs the cancellable external installation adapter and publishes its closed typed result. */
 export function createExternalConsumerMaterialCheck(
   input: Readonly<{
-    readonly invocationLogDirectory: string;
     readonly lease: ExternalConsumerMaterialLease;
     readonly preparedCandidateCheckId: string;
     readonly timeoutMs: number;
@@ -68,7 +67,6 @@ export function createExternalConsumerMaterialCheck(
       displayName: "Prepared external package consumer",
       timeoutMs: input.timeoutMs
     },
-    input.invocationLogDirectory,
     providerDependency(input.preparedCandidateCheckId, input.lease),
     {
       fromStdout(stdout): unknown {

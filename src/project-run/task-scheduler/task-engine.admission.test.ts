@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+
+import { isRecord } from "../../data-boundary/value-shapes.ts";
 import { describe, it } from "node:test";
 
 import { runTaskGraph } from "./scheduler.ts";
@@ -117,7 +119,7 @@ describe("static task engine", () => {
     });
   });
 
-  it("reuses one stable graph identity across scheduler decision evidence", async () => {
+  it("records one graph and references its fingerprint from every scheduler decision", async () => {
     const observations: DiagnosticObservation[] = [];
     await runTaskGraph({
       diagnosticLogger: recordingLogger(observations),
@@ -125,16 +127,21 @@ describe("static task engine", () => {
       graph: { tasks: [{ id: "first" }, { id: "second" }] },
       maxParallel: 2
     });
-    const graphIdentities = observations
-      .filter((observation) => observation.event === "scheduler.decision")
-      .flatMap((observation) => {
-        const details = observation.details;
-        return details !== null && typeof details === "object" && "graphIdentity" in details
-          ? [details.graphIdentity]
-          : [];
-      });
-    assert.ok(graphIdentities.length > 1);
-    assert.equal(new Set(graphIdentities).size, 1);
+    const graphs = observations.filter((observation) => observation.event === "scheduler.graph");
+    assert.equal(graphs.length, 1);
+    const graphDetails = graphs[0]?.details;
+    assert.ok(isRecord(graphDetails));
+    const fingerprint = graphDetails.graphFingerprint;
+    assert.equal(typeof fingerprint, "string");
+    const decisions = observations.filter(
+      (observation) => observation.event === "scheduler.decision"
+    );
+    assert.ok(decisions.length > 1);
+    for (const decision of decisions) {
+      assert.ok(isRecord(decision.details));
+      assert.equal(decision.details.graphFingerprint, fingerprint);
+      assert.equal("graphIdentity" in decision.details, false);
+    }
   });
 
   it("distinguishes full graph identities with identical Task IDs but different scheduler semantics", () => {

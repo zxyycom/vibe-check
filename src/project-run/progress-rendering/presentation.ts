@@ -1,3 +1,6 @@
+import { closeSync, mkdirSync, openSync, writeSync } from "node:fs";
+import { dirname } from "node:path";
+
 import type {
   CheckExecutionLifecycle,
   CheckSettledFact,
@@ -13,11 +16,17 @@ import {
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 import type { OutputStatuses } from "../output-status.ts";
 export interface ProgressRendering {
+  /** Closes only an already-created file tee; it never creates a writer after pre-work termination. */
+  readonly close: () => void;
   readonly final: (input: ProgressFinalFeedback) => void;
   readonly lifecycle: CheckExecutionLifecycle;
   readonly prepared: (totalChecks: number) => void;
 }
 export interface ProgressFinalFeedback {
+  readonly checkDurations: readonly Readonly<{
+    readonly checkId: string;
+    readonly durationMs: number | null;
+  }>[];
   readonly counts: ProgressOutcomeCounts;
   readonly elapsedMs: number;
   readonly execution: "cancelled" | "completed";
@@ -34,6 +43,8 @@ export interface ProgressRefreshScheduler {
 
 export interface ProgressRenderingDependencies {
   readonly clock?: ProgressClock;
+  /** Caller-owned exact progress transcript target for this invocation; `null` keeps terminal-only output. */
+  readonly file?: string | null;
   readonly refreshScheduler?: ProgressRefreshScheduler;
   readonly writerFactory?: ProgressWriterFactory;
 }
@@ -48,21 +59,23 @@ const defaultProgressRefreshScheduler: ProgressRefreshScheduler = Object.freeze(
   }
 });
 
-/** Owns progress writer lifecycle and rendering; failed writers are permanently muted. */
+/** Owns terminal progress and its optional file tee; terminal output survives a file-only failure. */
 export function createProgressRendering(
   configuration: ProjectOutputs["progressRendering"],
   statuses: OutputStatuses,
   dependencies: ProgressRenderingDependencies = {}
 ): ProgressRendering {
   if (!configuration.enabled) return inertProgressRendering();
-  let failed = false;
+  let terminalFailed = false;
+  let closed = false;
   const runningCheckIds = new Set<string>();
   let renderer: ReturnType<typeof createProgressRenderer> | undefined;
+  let writer: ProgressWriter | undefined;
   let refreshSchedule: ProgressRefreshSchedule | undefined;
 
-  const failRendering = (): void => {
-    if (failed) return;
-    failed = true;
+  const failTerminalRendering = (): void => {
+    if (terminalFailed) return;
+    terminalFailed = true;
     const activeSchedule = refreshSchedule;
     refreshSchedule = undefined;
     try {
@@ -79,38 +92,43 @@ export function createProgressRendering(
     try {
       activeSchedule?.cancel();
     } catch {
-      failRendering();
+      failTerminalRendering();
     }
   };
 
+  const createRenderer = (): ReturnType<typeof createProgressRenderer> => {
+    if (renderer !== undefined) return renderer;
+    writer = createProgressTee({
+      file: dependencies.file ?? null,
+      onFileFailure: () => statuses.failed("progressRendering"),
+      terminal: (dependencies.writerFactory ?? defaultProgressWriter)()
+    });
+    renderer = createProgressRenderer(writer, dependencies.clock);
+    return renderer;
+  };
+
   const render = (feedback: ProgressFeedback): void => {
-    if (failed) return;
+    if (terminalFailed) return;
     try {
-      renderer ??= createProgressRenderer(
-        (dependencies.writerFactory ?? defaultProgressWriter)(),
-        dependencies.clock
-      );
-      renderer.render(feedback);
-      if (feedback.kind === "final") {
-        statuses.succeeded("progressRendering");
-      }
+      createRenderer().render(feedback);
+      if (feedback.kind === "final") statuses.succeeded("progressRendering");
     } catch {
-      failRendering();
+      failTerminalRendering();
     }
   };
 
   const refresh = (): void => {
-    if (failed) return;
+    if (terminalFailed) return;
     try {
       renderer?.refresh();
     } catch {
-      failRendering();
+      failTerminalRendering();
     }
   };
 
   const startRefresh = (): void => {
     if (
-      failed ||
+      terminalFailed ||
       refreshSchedule !== undefined ||
       runningCheckIds.size === 0 ||
       renderer?.refreshesRunningRegion !== true
@@ -123,11 +141,25 @@ export function createProgressRendering(
         PROGRESS_REFRESH_INTERVAL_MS
       );
     } catch {
-      failRendering();
+      failTerminalRendering();
+    }
+  };
+
+  const close = (): void => {
+    if (closed) return;
+    closed = true;
+    stopRefresh();
+    if (writer === undefined) return;
+    try {
+      writer.close?.();
+    } catch {
+      // A terminal writer close is an output failure; a tee contains file-only failures itself.
+      statuses.failed("progressRendering");
     }
   };
 
   return Object.freeze({
+    close,
     prepared: (totalChecks: number) => render(Object.freeze({ kind: "prepared", totalChecks })),
     lifecycle: Object.freeze({
       flagControlCompleted: () => render(Object.freeze({ kind: "flag-control-completed" })),
@@ -158,12 +190,14 @@ export function createProgressRendering(
       stopRefresh();
       render(
         Object.freeze({
-          kind: "final",
+          checkDurations: input.checkDurations,
           counts: input.counts,
           elapsedMs: input.elapsedMs,
-          execution: input.execution
+          execution: input.execution,
+          kind: "final"
         })
       );
+      close();
     }
   });
 }
@@ -174,6 +208,7 @@ function inertProgressRendering(): ProgressRendering {
     started: (_fact: CheckStartedFact): void => undefined
   });
   return Object.freeze({
+    close: (): void => undefined,
     prepared: (_totalChecks: number): void => undefined,
     lifecycle,
     final: (_input: ProgressFinalFeedback): void => undefined
@@ -188,4 +223,63 @@ function defaultProgressWriter(): ProgressWriter {
       process.stdout.write(content);
     }
   });
+}
+
+function createProgressTee(
+  input: Readonly<{
+    readonly file: string | null;
+    readonly onFileFailure: () => void;
+    readonly terminal: ProgressWriter;
+  }>
+): ProgressWriter {
+  if (input.file === null) return input.terminal;
+  let descriptor: number | undefined;
+  let fileFailed = false;
+  let closed = false;
+  const failFile = (): void => {
+    if (fileFailed) return;
+    fileFailed = true;
+    input.onFileFailure();
+  };
+  try {
+    mkdirSync(dirname(input.file), { recursive: true });
+    descriptor = openSync(input.file, "wx");
+  } catch {
+    failFile();
+  }
+  return Object.freeze({
+    close: (): void => {
+      if (closed) return;
+      closed = true;
+      if (descriptor === undefined) return;
+      try {
+        closeSync(descriptor);
+      } catch {
+        failFile();
+      }
+      descriptor = undefined;
+    },
+    color: input.terminal.color,
+    isTTY: input.terminal.isTTY,
+    term: input.terminal.term,
+    write: (content: string): void => {
+      input.terminal.write(content);
+      if (fileFailed || descriptor === undefined) return;
+      try {
+        writeFileBuffer(descriptor, content);
+      } catch {
+        failFile();
+      }
+    }
+  });
+}
+
+function writeFileBuffer(descriptor: number, content: string): void {
+  const bytes = Buffer.from(content, "utf8");
+  let offset = 0;
+  while (offset < bytes.length) {
+    const written = writeSync(descriptor, bytes, offset, bytes.length - offset, null);
+    if (written <= 0) throw new Error("Progress log append made no progress");
+    offset += written;
+  }
 }

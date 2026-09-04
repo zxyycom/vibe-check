@@ -27,6 +27,7 @@ import {
 } from "./progress-rendering/presentation.ts";
 import { completeInvocation, finalizeInvocation, type CoreExecution } from "./completion.ts";
 import { createProjectContext } from "./project-context.ts";
+import type { ResolvedInvocationPaths } from "./invocation-paths.ts";
 import {
   executionCancellation,
   isCancelled,
@@ -39,8 +40,8 @@ import {
 import {
   diagnosticTags,
   summarizeDiagnosticValue,
-  type DiagnosticLogger,
-  type DiagnosticLoggerFactory
+  type DiagnosticLoggerFactory,
+  type DiagnosticLoggingRouter
 } from "./diagnostic-logging/logger.ts";
 import { createInvocation } from "./invocation-creation.ts";
 import { elapsedSince, outcomeCounts } from "./invocation-progress.ts";
@@ -53,15 +54,16 @@ export type Invocation = Readonly<{
   readonly declarativeFingerprint: string;
   readonly definition: ProjectDefinition;
   readonly definitionWarnings: readonly DefinitionWarning[];
-  readonly diagnosticLogger: DiagnosticLogger;
+  readonly diagnosticLogging: DiagnosticLoggingRouter;
   /** Effective output selection, retained privately for enabled-only Scheduler diagnostics. */
   readonly diagnosticLoggingEnabled: boolean;
   readonly outputConfiguration: ProjectDefinition["outputs"];
   readonly outputs: OutputStatuses;
   readonly invocationId: string;
   readonly normalized: NormalizedProjectDefinition;
+  /** 本次 invocation 冻结的 Product-private output 与 Check artifact paths。 */
+  readonly paths: ResolvedInvocationPaths;
   readonly progressRendering: ProgressRendering;
-  readonly projectRoot: string;
   /** Immutable UTC instant captured for enabled diagnostic or machine output, otherwise `null`. */
   readonly startedAtUtc: string | null;
 }>;
@@ -121,7 +123,7 @@ function observeInvocationStarted(
   invocation: Invocation,
   aggregation: CheckAggregation | undefined
 ): void {
-  invocation.diagnosticLogger.observe({
+  invocation.diagnosticLogging.core.observe({
     event: "run.started",
     tags: diagnosticTags("RUN", "STARTED"),
     details: {
@@ -131,7 +133,6 @@ function observeInvocationStarted(
         invocation.normalized.scheduler.admissionPolicy.kind === "learned-critical-path"
           ? summarizeDiagnosticValue(invocation.controls.flags ?? [])
           : (invocation.controls.flags ?? []),
-      invocationId: invocation.invocationId,
       outputs: invocation.outputConfiguration,
       scheduler: invocation.normalized.declarative.scheduler
     }
@@ -144,7 +145,7 @@ function validateTaskGraph(invocation: Invocation): boolean {
       planStaticCheckGraph(invocation.normalized.checks),
       invocation.normalized.declarative.scheduler.maxParallel
     );
-    invocation.diagnosticLogger.observe({
+    invocation.diagnosticLogging.core.observe({
       event: "run.planning.succeeded",
       tags: diagnosticTags("RUN", "PLANNING", "SUCCEEDED"),
       details: {
@@ -154,7 +155,7 @@ function validateTaskGraph(invocation: Invocation): boolean {
     });
     return true;
   } catch {
-    invocation.diagnosticLogger.observe({
+    invocation.diagnosticLogging.core.observe({
       event: "run.planning.failed",
       tags: diagnosticTags("RUN", "PLANNING", "FAILED"),
       details: {
@@ -173,10 +174,7 @@ async function executePlannedInvocation(
   return executePreparedInvocation(
     invocation,
     aggregation,
-    createProjectContext({
-      controls: invocation.controls,
-      root: invocation.projectRoot
-    })
+    createProjectContext({ controls: invocation.controls, paths: invocation.paths })
   );
 }
 async function executePreparedInvocation(
@@ -229,8 +227,9 @@ async function prepareAdmissionStrategy(
     checks: invocation.normalized.checks,
     flags: invocation.controls.flags ?? [],
     graph: graph.schedulerGraphSnapshot,
-    observeDiagnostic: (observation) => invocation.diagnosticLogger.observe(observation),
-    projectRoot: invocation.projectRoot
+    observeDiagnostic: (observation) =>
+      invocation.diagnosticLogging.learnedAdmission.observe(observation),
+    projectRoot: invocation.paths.projectRoot
   });
   return provider.prepare();
 }
@@ -276,6 +275,7 @@ function finalizeResolvedCheckExecution(input: {
   }
   invocation.progressRendering.final({
     counts: outcomeCounts(executed.snapshot),
+    checkDurations: executed.checkDurations,
     elapsedMs: elapsedSince(input.executionStartedAt, invocation.clock),
     execution: executed.kind
   });
@@ -289,7 +289,7 @@ function finalizeCancelledExecution(
   invocation: Invocation,
   executed: Extract<ResolvedCheckExecution, { readonly kind: "cancelled" }>
 ): NonConfigurationRunResult {
-  invocation.diagnosticLogger.observe({
+  invocation.diagnosticLogging.core.observe({
     event: "run.execution.cancelled",
     tags: diagnosticTags("RUN", "EXECUTION", "CANCELLED"),
     details: { checkCount: executed.snapshot.checks.length }
@@ -311,7 +311,7 @@ function finalizeCompletedExecution(
 ): NonConfigurationRunResult {
   const aggregate =
     aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation);
-  invocation.diagnosticLogger.observe({
+  invocation.diagnosticLogging.core.observe({
     event: "run.aggregation.completed",
     tags: diagnosticTags("RUN", "AGGREGATION", "COMPLETED"),
     details: { aggregate, selection: aggregation ?? null }
@@ -329,7 +329,7 @@ function cancelledBeforeExecution(
   invocation: Invocation,
   phase: "pre-work" | "planning"
 ): NonConfigurationRunResult {
-  invocation.diagnosticLogger.observe({
+  invocation.diagnosticLogging.core.observe({
     event: "run.cancelled",
     tags: diagnosticTags("RUN", "CANCELLED"),
     details: { phase }
@@ -359,14 +359,19 @@ async function executeChecks(
       ? Object.freeze({
           clock,
           declarativeFingerprint: invocation.declarativeFingerprint,
-          ...(invocation.diagnosticLoggingEnabled ? { logger: invocation.diagnosticLogger } : {})
+          ...(invocation.diagnosticLoggingEnabled
+            ? { logger: invocation.diagnosticLogging.scheduler }
+            : {})
         })
       : undefined;
     return await executeResolvedChecks({
       admissionPolicy: preparedStrategy.admissionPolicy,
       checks: invocation.normalized.checks,
       clock,
-      diagnosticLogger: invocation.diagnosticLogger,
+      diagnosticLogger: invocation.diagnosticLogging.core,
+      ...(invocation.diagnosticLoggingEnabled
+        ? { schedulerDiagnosticLogger: invocation.diagnosticLogging.scheduler }
+        : {}),
       ...(observeAdmittedTask === undefined
         ? {}
         : { onAdmittedCheck: (check) => observeAdmittedTask(check.definition.checkId) }),
@@ -375,7 +380,9 @@ async function executeChecks(
       onSchedulerMeasurementHookFailure: () => invocation.outputs.failed("measurementHooks"),
       onSchedulerMeasurementHooksSettled: () => invocation.outputs.succeeded("measurementHooks"),
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
+      invocationId: invocation.invocationId,
       lifecycle: invocation.progressRendering.lifecycle,
+      paths: invocation.paths,
       project,
       signal: invocation.controls.signal
     });

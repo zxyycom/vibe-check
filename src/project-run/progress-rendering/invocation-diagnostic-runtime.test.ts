@@ -39,7 +39,7 @@ describe("Package Run diagnostic logging output", () => {
     assert.equal(result.kind, "execution");
     if (result.kind !== "execution") return;
     assert.deepEqual(result.diagnostic, { code: "task-engine-failed" });
-    assert.equal(closeCalls, 1);
+    assert.equal(closeCalls, 2);
     assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
   });
 });
@@ -104,14 +104,8 @@ describe("Package Run diagnostic logging output", () => {
             return 0;
           }
         }),
-        diagnosticLoggerFactory: (input) => {
-          assert.equal(input.enabled, false);
-          return Object.freeze({
-            close: () => "disabled" as const,
-            observe: (observation: DiagnosticObservation) => {
-              observations.push(observation);
-            }
-          });
+        diagnosticLoggerFactory: () => {
+          throw new Error("disabled diagnostic logging must not construct a writer");
         }
       }
     );

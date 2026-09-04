@@ -11,6 +11,7 @@ describe("Package Run progress terminal formatting", () => {
     zeroRenderer.render({ kind: "prepared", totalChecks: 0 });
     zeroRenderer.render({
       kind: "final",
+      checkDurations: [],
       counts: { failed: 0, notApplicable: 0, passed: 0, unavailable: 0 },
       elapsedMs: 0,
       execution: "completed"
@@ -18,7 +19,7 @@ describe("Package Run progress terminal formatting", () => {
 
     assert.deepEqual(zero.writes, [
       "Vibe Check\ntotal 0 checks\n\nChecks:\n",
-      "\nExecution summary:\n  execution: completed\n  total checks: 0\n  passed: 0\n  failed: 0\n  not applicable: 0\n  unavailable: 0\n  elapsed: 0ms\n"
+      "\nExecution summary:\n  execution: completed\n  total checks: 0\n  passed: 0\n  failed: 0\n  not applicable: 0\n  unavailable: 0\n  elapsed: 0ms\n  check durations:\n"
     ]);
 
     const completed = createWriter({ isTTY: true });
@@ -30,6 +31,7 @@ describe("Package Run progress terminal formatting", () => {
     renderer.render(settled("first", "First", { status: "passed", data: {} }, 1));
     renderer.render({
       kind: "final",
+      checkDurations: [],
       counts: { failed: 0, notApplicable: 0, passed: 2, unavailable: 0 },
       elapsedMs: 2,
       execution: "completed"
@@ -38,7 +40,7 @@ describe("Package Run progress terminal formatting", () => {
     assert.equal(completed.writes.filter((write) => write === "\u001B[1A\u001B[2K").length, 4);
     assert.deepEqual(completed.writes.slice(-2), [
       "  [2/2] First | passed | 1ms\n",
-      "\nExecution summary:\n  execution: completed\n  total checks: 2\n  passed: 2\n  failed: 0\n  not applicable: 0\n  unavailable: 0\n  elapsed: 2ms\n"
+      "\nExecution summary:\n  execution: completed\n  total checks: 2\n  passed: 2\n  failed: 0\n  not applicable: 0\n  unavailable: 0\n  elapsed: 2ms\n  check durations:\n"
     ]);
     assert.equal(completed.writes.at(-1)?.includes("running"), false);
     assert.deepEqual(visibleTerminalScreen(completed.writes), [
@@ -56,7 +58,8 @@ describe("Package Run progress terminal formatting", () => {
       "  failed: 0",
       "  not applicable: 0",
       "  unavailable: 0",
-      "  elapsed: 2ms"
+      "  elapsed: 2ms",
+      "  check durations:"
     ]);
     assert.equal(
       visibleTerminalScreen(completed.writes).some((row) => row.includes("running")),

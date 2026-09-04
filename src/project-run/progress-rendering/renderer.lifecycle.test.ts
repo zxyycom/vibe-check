@@ -49,6 +49,7 @@ describe("Package Run progress lifecycle presentation", () => {
       renderer.render(settled("links", "Network links", { status: "passed", data: {} }, 2_500));
       renderer.render({
         kind: "final",
+        checkDurations: [],
         counts: { ...COUNTS, failed: 0, notApplicable: 0, unavailable: 0 },
         elapsedMs: 2_500,
         execution: "completed"
@@ -57,7 +58,7 @@ describe("Package Run progress lifecycle presentation", () => {
       assert.deepEqual(output.writes, [
         "Vibe Check\ntotal 1 checks\n\nChecks:\n",
         "  [1/1] Network links | passed | 2.5s\n",
-        "\nExecution summary:\n  execution: completed\n  total checks: 1\n  passed: 1\n  failed: 0\n  not applicable: 0\n  unavailable: 0\n  elapsed: 2.5s\n"
+        "\nExecution summary:\n  execution: completed\n  total checks: 1\n  passed: 1\n  failed: 0\n  not applicable: 0\n  unavailable: 0\n  elapsed: 2.5s\n  check durations:\n"
       ]);
       assert.equal(output.writes.join("").includes("\u001B"), false);
     }
@@ -172,6 +173,7 @@ describe("Package Run progress lifecycle presentation", () => {
     );
     renderer.render({
       kind: "final",
+      checkDurations: [],
       counts: { failed: 1, notApplicable: 1, passed: 2, unavailable: 1 },
       elapsedMs: 5,
       execution: "completed"

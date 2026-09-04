@@ -21,7 +21,7 @@ import {
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
 } from "../../../../package/candidate/external-consumer/input.ts";
-import { createProjectGateProcessEntry, type ProjectGateRuntime } from "../process-entry.ts";
+import { createProjectGateProcessEntry } from "../process-entry.ts";
 import {
   parseProjectGatePreparedCandidateData,
   type ProjectGatePreparedCandidateData
@@ -53,7 +53,6 @@ export function createProjectGateTestEntries(
     readonly lanes: ProjectGateTestLanes;
     readonly preparedCandidate: Check;
     readonly repositoryRoot: string;
-    readonly runtime: ProjectGateRuntime;
   }>
 ): readonly ProjectGateEntry[] {
   return Object.freeze(
@@ -63,8 +62,7 @@ export function createProjectGateTestEntries(
         externalConsumer: input.externalConsumer,
         files: input.lanes[definition.lane],
         preparedCandidate: input.preparedCandidate,
-        repositoryRoot: input.repositoryRoot,
-        runtime: input.runtime
+        repositoryRoot: input.repositoryRoot
       })
     )
   );
@@ -98,9 +96,8 @@ function createProjectGateTestEntry(input: {
   readonly files: readonly string[];
   readonly preparedCandidate: Check;
   readonly repositoryRoot: string;
-  readonly runtime: ProjectGateRuntime;
 }): ProjectGateEntry {
-  const { definition, externalConsumer, files, preparedCandidate, repositoryRoot, runtime } = input;
+  const { definition, externalConsumer, files, preparedCandidate, repositoryRoot } = input;
   const processEntry = {
     checkId: definition.checkId,
     displayName: definition.displayName,
@@ -108,7 +105,6 @@ function createProjectGateTestEntry(input: {
     ...(definition.mutex === undefined ? {} : { mutex: definition.mutex }),
     presets: definition.presets,
     required: definition.required,
-    runtime,
     ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };
   if (definition.candidateInput === undefined) return createProjectGateProcessEntry(processEntry);

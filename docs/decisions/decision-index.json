@@ -103,7 +103,8 @@
       "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
       "keep-first-release-check-set-to-four-without-markdown-structure.md": "sha256:37954fc491b455fff1328c93322235e3f4ac648b24d21f6c7419e12f0d31965f",
       "keep-format-aware-check-capabilities-independent.md": "sha256:46e47f4c85fc1f5bfc575508885e2cf11ce1ee3e8145380ff01bd396e41a8e81",
-      "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:e7a3c64e559a57b31d3dbbdb6dd7a173b9e6a39233c81233947254583fcd1cf6",
+      "keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context.md": "sha256:06ed5f7eb9c938d07b4f0c6430c5818efd750b2f936771033b1a596167b7444d",
+      "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:ea2fe0c0ceee7de690f037bc0517084d3c12af4c349f3aaac7085dbf1b216ca1",
       "keep-lizard-advisory-explicit-with-selected-extension-adoption.md": "sha256:f3c835c80ff507ae59a168e671d3f5f86f6fd2c7fbb934699f9bfd0b262f00c2",
       "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:b482960bbdfb3d44e013bb3a5cc87f7c4e64f506e61b1466a83bfb91da484f52",
@@ -135,7 +136,8 @@
       "monitor-project-gate-performance-advisory.md": "sha256:5e6395c44272266e1e51bcd80a2ac35a5a422a97ac1b0c0faacc21526d4adb7b",
       "observe-post-action-policy-measurement.md": "sha256:6498e88fe3031037298e35613adf36eecf2515a5703b491591bdb548458fa9da",
       "observe-repository-quality-checks-inside-project-gate.md": "sha256:c1b423b6d2e69c1c9ab2c8b23d2006fefc4aa6b44eec4c0ff3e6d339f2185084",
-      "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:1de67057db8611b3dde1e414c6005b61efe463ceeda61bceedee440bb2b53541",
+      "organize-owner-aware-project-run-and-gate-diagnostics.md": "sha256:8285f1911c8ba0cfc4d92ab032aeec78d7e09cb0cacb402bffe898885a0b9f67",
+      "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:82f2d663a946d3157f404b782a0de86240ff3537dce52aec71cc9447f501447f",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
       "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md": "sha256:d5683d0aec3724775875ff9d551589489159d0ce8c1c735d10d07e801c5a2d56",
@@ -162,7 +164,8 @@
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:b12df18e821e1faf4a5bc62a7f55d285adead370cab22d8478c49b2fc27abb53",
       "publish-invocation-creation-time-without-execution-telemetry.md": "sha256:dd0b0d8631379eb31ff7cda58d4bfa662da7e22e245885240c7ac62b14dd9d92",
       "publish-invocation-creation-timestamp-without-check-telemetry.md": "sha256:07f76379cade1144f1bc2dca91fda7fa403f5867607fd3b644c3831c732573e4",
-      "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:0c5c22b2bc4015a694c78478ade7f0135b6a0ad6f3b4584e09a73daf11ccb0d4",
+      "publish-project-gate-machine-facts-in-machine-namespace.md": "sha256:b0569ebfbda1a5a836853639ed5bdea0e2aafc48471bb897653606ede1e54ad7",
+      "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:daa7e106cd218de23c4f76a8f1a7e82af04032e45baeaf2df733ff3d330d385e",
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
       "publish-unscoped-vibe-check-publicly.md": "sha256:bb71c40ed12471c8769a34a64304aca6a75ada1422aec329921b59dd8b2b4386",
       "publish-user-scoped-vibe-check-publicly.md": "sha256:e27ee857bfd31ac3c25a12f2d0c264a2762cbb045974ed6c56d9d9c5b9e6bc39",
@@ -3412,7 +3415,7 @@
         ]
       }
     },
-    "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": {
+    "keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context.md": {
       "keys": {
         "tag": [
           "configuration",
@@ -3427,9 +3430,45 @@
         ]
       },
       "state": {
-        "sourcePath": "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md",
-        "title": "以无状态 Scheduler context 保持完整 Gate Run 证据",
+        "sourcePath": "keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context.md",
+        "title": "以 owner-scoped Scheduler context 保持完整 Gate Run 证据",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T06:54:14Z",
+        "purpose": "让单次 Gate invocation 在 Scheduler owner channel 内保留完整且可复核的动态 decision evidence，同时删除无独立证明价值的重复 payload。",
+        "background": "每个 decision 重复 immutable graph 主导诊断体积；单核心“event 自包含”要求阻碍按 owner 拆分和去重。",
+        "decision": "每次 Run 的 scheduler channel 记录一次 graph/fingerprint，decision 引用它并保留动态 admission facts。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md"
+          }
+        ]
+      }
+    },
+    "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/keep-gate-run-evidence-complete-with-stateless-scheduler-context.md",
+        "title": "以无状态 Scheduler context 保持完整 Gate Run 证据",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T14:54:27Z",
         "purpose": "让单次高信噪 Gate invocation 保留可独立复核的完整 Scheduler decision evidence，而不记录已删除的 reservation 状态。",
@@ -4430,7 +4469,7 @@
         ]
       }
     },
-    "organize-project-run-and-gate-diagnostics-for-human-inspection.md": {
+    "organize-owner-aware-project-run-and-gate-diagnostics.md": {
       "keys": {
         "tag": [
           "configuration",
@@ -4445,9 +4484,45 @@
         ]
       },
       "state": {
-        "sourcePath": "organize-project-run-and-gate-diagnostics-for-human-inspection.md",
-        "title": "按人工检查目的组织 Project Run 与 Gate 诊断",
+        "sourcePath": "organize-owner-aware-project-run-and-gate-diagnostics.md",
+        "title": "以 owner-aware channel 组织 Project Run 与 Gate 诊断",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T06:54:13Z",
+        "purpose": "让维护者按输出 owner 检查同一次 invocation，而不再从混合 transcript 或单一 Product log 中筛选事实。",
+        "background": "单一 core log 与全局 Gate transcript 混合多个 owner，无法准确归因 writer failure，并重复保存 progress、message 与 Gate 过程。",
+        "decision": "按 owner channel 与 namespace 组织 evidence，以 identity、sequence、elapsed 关联跨 owner 过程。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "organize-project-run-and-gate-diagnostics-for-human-inspection.md"
+          }
+        ]
+      }
+    },
+    "organize-project-run-and-gate-diagnostics-for-human-inspection.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/organize-project-run-and-gate-diagnostics-for-human-inspection.md",
+        "title": "按人工检查目的组织 Project Run 与 Gate 诊断",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T10:20:40Z",
         "purpose": "让维护者从同一次 invocation 快速筛选 core 时间线、Gate 外层过程与子进程输出。",
@@ -5289,7 +5364,7 @@
         ]
       }
     },
-    "publish-project-gate-machine-facts-with-invocation-evidence.md": {
+    "publish-project-gate-machine-facts-in-machine-namespace.md": {
       "keys": {
         "tag": [
           "configuration",
@@ -5303,9 +5378,43 @@
         ]
       },
       "state": {
-        "sourcePath": "publish-project-gate-machine-facts-with-invocation-evidence.md",
-        "title": "将 Project Gate machine facts 写入 invocation evidence",
+        "sourcePath": "publish-project-gate-machine-facts-in-machine-namespace.md",
+        "title": "将 Project Gate machine facts 发布到 machine namespace",
         "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T06:54:15Z",
+        "purpose": "让 Gate invocation evidence 中的 machine facts 保持既有 canonical atomic ownership，同时与其它输出 owner 的路径边界直接可辨。",
+        "background": "Gate target 与其它 artifacts 平铺；新 layout 用独立 machine namespace，目录移动不改变 schema 或 publisher。",
+        "decision": "Gate 将既有 v4 canonical pair 发布到 invocation `machine/`，字节、schema、原子性与 failure semantics 不变。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "publish-project-gate-machine-facts-with-invocation-evidence.md"
+          }
+        ]
+      }
+    },
+    "publish-project-gate-machine-facts-with-invocation-evidence.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/publish-project-gate-machine-facts-with-invocation-evidence.md",
+        "title": "将 Project Gate machine facts 写入 invocation evidence",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-29T15:40:19Z",
         "purpose": "让 Gate 中的 Check final data 与 Records 在进程结束后仍可直接检查，而不建立质量专用报告器。",

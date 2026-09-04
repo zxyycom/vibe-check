@@ -78,10 +78,12 @@ describe("maintenance reminders", () => {
       const controller = new AbortController();
       controller.abort();
       const context: CheckExecutionContext<MaintenanceReminderOptions> = {
+        artifactDirectory: null,
         dependencies: {
           get: () => ({ ok: false, error: { code: "dependency-not-declared", checkId: "" } }),
           list: () => Object.freeze([])
         },
+        invocationId: "invocation/v1:direct-check-test",
         options: check.options,
         project: {
           flags: [],

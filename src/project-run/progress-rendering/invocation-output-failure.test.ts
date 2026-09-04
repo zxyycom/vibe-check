@@ -41,12 +41,12 @@ describe("Package Run output failure composition", () => {
       assert.equal(result.outputs.progressRendering.status, "failed");
       assert.equal(result.outputs.machinePublication.status, "succeeded");
       assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
-      assert.match(result.outputs.diagnosticLogging.file ?? "", DIAGNOSTIC_FILE);
+      assert.match(result.outputs.diagnosticLogging.channels.core.file ?? "", DIAGNOSTIC_FILE);
       assert.match(
-        result.outputs.diagnosticLogging.file ?? "",
-        /^diagnostic\/run-20260830T123456\.789Z-/
+        result.outputs.diagnosticLogging.channels.core.file ?? "",
+        /^diagnostic\/core-20260830T123456\.789Z-/
       );
-      assertProgressFailureArtifacts(root, result.outputs.diagnosticLogging.file);
+      assertProgressFailureArtifacts(root, result.outputs.diagnosticLogging.channels.core.file);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -97,7 +97,7 @@ describe("Package Run output failure composition", () => {
       assert.equal(result.outputs.progressRendering.status, "failed");
       assert.equal(result.outputs.machinePublication.status, "failed");
       assert.equal(result.outputs.diagnosticLogging.status, "failed");
-      assert.match(result.outputs.diagnosticLogging.file ?? "", DIAGNOSTIC_FILE);
+      assert.match(result.outputs.diagnosticLogging.channels.core.file ?? "", DIAGNOSTIC_FILE);
       assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -110,11 +110,20 @@ function assertProgressFailureArtifacts(root: string, diagnosticFile: string | n
   const diagnosticLog = readFileSync(join(root, diagnosticFile ?? ""), "utf8");
   assert.match(
     diagnosticLog,
-    /^#000001 \+\d{2}:\d{2}:\d{2}\.\d{3} \[RUN\] \[STARTED\] run\.started /
+    /^#000001 \+\d{2}:\d{2}:\d{2}\.\d{3} \[RUN\] \[STARTED\](?: invocationId="[^"]+")? run\.started /
   );
-  assert.match(diagnosticLog, /\[RUN\] \[PLANNING\] \[SUCCEEDED\] run\.planning\.succeeded/);
-  assert.match(diagnosticLog, /\[RUN\] \[AGGREGATION\] \[COMPLETED\] run\.aggregation\.completed/);
-  assert.match(diagnosticLog, /\[RUN\] \[TERMINAL\] \[OUTPUT\] run\.terminal-before-log-close/);
+  assert.match(
+    diagnosticLog,
+    /\[RUN\] \[PLANNING\] \[SUCCEEDED\](?: invocationId="[^"]+")? run\.planning\.succeeded/
+  );
+  assert.match(
+    diagnosticLog,
+    /\[RUN\] \[AGGREGATION\] \[COMPLETED\](?: invocationId="[^"]+")? run\.aggregation\.completed/
+  );
+  assert.match(
+    diagnosticLog,
+    /\[RUN\] \[TERMINAL\] \[OUTPUT\](?: invocationId="[^"]+")? run\.terminal-before-log-close/
+  );
   assert.match(diagnosticLog, /diagnosticLogging="close-not-yet-confirmed"/);
   assert.doesNotMatch(diagnosticLog, /"diagnosticLogging":\{"enabled":true,"status":"not-run"\}/);
   assert.match(diagnosticLog, /outputs\.machinePublication\.enabled=true/);

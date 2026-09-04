@@ -1,6 +1,6 @@
 ---
 title: 将 Project Gate machine facts 写入 invocation evidence
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:40:19Z
 purpose: 让 Gate 中的 Check final data 与 Records 在进程结束后仍可直接检查，而不建立质量专用报告器。

@@ -9,11 +9,12 @@ export { deferred } from "../execution-control.test-support.ts";
 
 export const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 export const DIAGNOSTIC_FILE =
-  /^.+\/run-\d{8}T\d{6}\.\d{3}Z-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.log$/;
+  /^.+\/(?:core|scheduler|learned-admission)-\d{8}T\d{6}\.\d{3}Z-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.log$/;
 
 export function check(
   overrides: Readonly<{
     readonly checkId?: string;
+    readonly enabledByFlags?: Check["enabledByFlags"];
     readonly execution?: CheckExecution;
     readonly maxParallel?: number;
   }> = {}
@@ -22,6 +23,7 @@ export function check(
     checkId: overrides.checkId ?? "custom",
     displayName: overrides.checkId ?? "Custom",
     execution: overrides.execution ?? (() => PASSED),
+    ...(overrides.enabledByFlags === undefined ? {} : { enabledByFlags: overrides.enabledByFlags }),
     ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel })
   };
 }

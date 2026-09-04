@@ -66,7 +66,9 @@ function runJsonValidation({
 }: RunJsonValidationInput): JsonValidationExecution {
   const records: ObservedRecord[] = [];
   const context: CheckExecutionContext<ResolvedJsonValidationOptions> = Object.freeze({
+    artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
+    invocationId: "invocation/v1:direct-check-test",
     options: Object.freeze({ ...options, files: fileConfiguration }),
     project: createProjectContext(root),
     records: Object.freeze({

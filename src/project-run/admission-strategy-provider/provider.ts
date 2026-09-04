@@ -113,12 +113,7 @@ async function prepareLearnedCriticalPathStrategy(
 
   observeDiagnostic(input, {
     event: "scheduler.history.read",
-    tags: diagnosticTags(
-      "SCHEDULER",
-      "HISTORY",
-      "READ",
-      durationModel.readObservation.toUpperCase()
-    ),
+    tags: diagnosticTags("HISTORY", "READ", durationModel.readObservation.toUpperCase()),
     details: Object.freeze({
       modelVersion: durationModel.prediction.modelVersion,
       predictionDigest: durationModel.prediction.digest,
@@ -137,12 +132,7 @@ async function prepareLearnedCriticalPathStrategy(
         }
         observeDiagnostic(input, {
           event: "scheduler.history.recorded",
-          tags: diagnosticTags(
-            "SCHEDULER",
-            "HISTORY",
-            "RECORDED",
-            recorded.recording.status.toUpperCase()
-          ),
+          tags: diagnosticTags("HISTORY", "RECORDED", recorded.recording.status.toUpperCase()),
           details: Object.freeze({
             acceptedSampleCount: recorded.recording.acceptedSampleCount,
             retainedSeriesCount: recorded.recording.retainedSeriesCount
@@ -150,12 +140,7 @@ async function prepareLearnedCriticalPathStrategy(
         });
         observeDiagnostic(input, {
           event: "scheduler.history.write",
-          tags: diagnosticTags(
-            "SCHEDULER",
-            "HISTORY",
-            "WRITE",
-            recorded.writeObservation.toUpperCase()
-          ),
+          tags: diagnosticTags("HISTORY", "WRITE", recorded.writeObservation.toUpperCase()),
           details: Object.freeze({ retainedSeriesCount: recorded.recording.retainedSeriesCount })
         });
       }
@@ -205,7 +190,7 @@ function observeLearnedAdmission(
   if (taskPrediction === undefined || score === undefined) return;
   observeDiagnostic(input, {
     event: "scheduler.learned-admission",
-    tags: diagnosticTags("SCHEDULER", "LEARNED", "ADMISSION", `TASK:${taskId}`),
+    tags: diagnosticTags("LEARNED", "ADMISSION", `TASK:${taskId}`),
     details: Object.freeze({
       criticalPathScore: score,
       estimatedDurationMs: taskPrediction.estimatedDurationMs,
@@ -221,7 +206,7 @@ function observePredictionUnavailable(
 ): void {
   observeDiagnostic(input, {
     event: "scheduler.history.prediction-unavailable",
-    tags: diagnosticTags("SCHEDULER", "HISTORY", "PREDICTION_UNAVAILABLE"),
+    tags: diagnosticTags("HISTORY", "PREDICTION_UNAVAILABLE"),
     details: Object.freeze({ reason })
   });
 }
@@ -232,7 +217,7 @@ function observeRecordingUnavailable(
 ): void {
   observeDiagnostic(input, {
     event: "scheduler.history.recording-unavailable",
-    tags: diagnosticTags("SCHEDULER", "HISTORY", "RECORDING_UNAVAILABLE"),
+    tags: diagnosticTags("HISTORY", "RECORDING_UNAVAILABLE"),
     details: Object.freeze({ reason })
   });
 }

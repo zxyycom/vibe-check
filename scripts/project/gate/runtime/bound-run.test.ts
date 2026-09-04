@@ -7,7 +7,11 @@ import { fileURLToPath } from "node:url";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import { afterGate as definitionAfterGate, projectGateOutputOverrides } from "../definition.ts";
+import {
+  afterGate as definitionAfterGate,
+  projectGateInvocationOutputControls,
+  projectGateOutputOverrides
+} from "../definition.ts";
 import { afterGate, run as runProjectGate } from "./bound-run.ts";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
@@ -21,7 +25,7 @@ it("projects the central afterGate configuration with candidate-bound run", () =
 
 // Keep the test-name literal on its registration line so Test Evidence locations agree.
 // prettier-ignore
-it("binds the Product diagnostic log and standard machine facts to the Gate invocation directory", async () => {
+it("binds owner-specific Product outputs and Check artifacts to the Gate invocation directory", async () => {
   const testLogRoot = join(repositoryRoot, ".log", "project-gate-tests");
   mkdirSync(testLogRoot, { recursive: true });
   const invocationLogDirectory = mkdtempSync(join(testLogRoot, "output-override-"));
@@ -38,7 +42,7 @@ it("binds the Product diagnostic log and standard machine facts to the Gate invo
         outputs: { progressRendering: { enabled: false } }
       }),
       {
-        outputs: projectGateOutputOverrides(invocationLogDirectory),
+        ...projectGateInvocationOutputControls(invocationLogDirectory),
         projectRoot: repositoryRoot
       }
     );
@@ -48,6 +52,9 @@ it("binds the Product diagnostic log and standard machine facts to the Gate invo
     assert.equal(result.outputs.machinePublication.enabled, true);
     assert.equal(result.outputs.diagnosticLogging.status, "succeeded");
     assert.equal(result.outputs.machinePublication.status, "succeeded");
+    assert.equal(result.outputs.diagnosticLogging.channels.core.status, "succeeded");
+    assert.equal(result.outputs.diagnosticLogging.channels.scheduler.status, "succeeded");
+    assert.equal(result.outputs.diagnosticLogging.channels.learnedAdmission.status, "disabled");
     assert.equal(result.outputs.progressRendering.status, "disabled");
     assert.deepEqual(projectGateOutputOverrides(invocationLogDirectory), {
       diagnosticLogging: {
@@ -55,20 +62,34 @@ it("binds the Product diagnostic log and standard machine facts to the Gate invo
         enabled: true
       },
       machinePublication: {
-        directory: relative(repositoryRoot, invocationLogDirectory),
+        directory: relative(repositoryRoot, join(invocationLogDirectory, "machine")),
         enabled: true
       }
     });
+    assert.deepEqual(projectGateInvocationOutputControls(invocationLogDirectory), {
+      checkArtifactBaseDirectory: join(invocationLogDirectory, "checks"),
+      outputs: projectGateOutputOverrides(invocationLogDirectory),
+      progressLogFile: join(invocationLogDirectory, "progress.log")
+    });
 
-    const diagnosticFile = result.outputs.diagnosticLogging.file;
-    assert.notEqual(diagnosticFile, null);
-    if (diagnosticFile === null) throw new Error("enabled Gate logging must expose its file");
-    assert.equal(existsSync(join(repositoryRoot, diagnosticFile)), true);
-    assert.equal(existsSync(join(invocationLogDirectory, "run.json")), true);
-    assert.equal(existsSync(join(invocationLogDirectory, "records.ndjson")), true);
+    const diagnosticFiles = result.outputs.diagnosticLogging.channels;
+    const coreFile = diagnosticFiles.core.file;
+    const schedulerFile = diagnosticFiles.scheduler.file;
+    assert.notEqual(coreFile, null);
+    assert.notEqual(schedulerFile, null);
+    if (coreFile === null || schedulerFile === null)
+      throw new Error("enabled Gate diagnostics must expose core and scheduler channels");
+    assert.equal(existsSync(join(repositoryRoot, coreFile)), true);
+    assert.equal(existsSync(join(repositoryRoot, schedulerFile)), true);
+    assert.equal(existsSync(join(invocationLogDirectory, "machine", "run.json")), true);
+    assert.equal(existsSync(join(invocationLogDirectory, "machine", "records.ndjson")), true);
+    assert.equal(existsSync(join(invocationLogDirectory, "run.json")), false);
+    assert.equal(existsSync(join(invocationLogDirectory, "records.ndjson")), false);
+    assert.equal(existsSync(join(invocationLogDirectory, "process")), false);
+    assert.equal(existsSync(join(invocationLogDirectory, "progress.log")), false);
 
     const publishedRun: unknown = JSON.parse(
-      readFileSync(join(invocationLogDirectory, "run.json"), "utf8")
+      readFileSync(join(invocationLogDirectory, "machine", "run.json"), "utf8")
     );
     assert.equal(isNonArrayRecord(publishedRun), true);
     if (!isNonArrayRecord(publishedRun))
@@ -81,9 +102,10 @@ it("binds the Product diagnostic log and standard machine facts to the Gate invo
       ["fixture-output-override"]
     );
     assert.deepEqual(diagnosticFileInventory(invocationLogDirectory), [
-      "records.ndjson",
-      relative(invocationLogDirectory, join(repositoryRoot, diagnosticFile)),
-      "run.json"
+      relative(invocationLogDirectory, join(repositoryRoot, coreFile)),
+      "machine/records.ndjson",
+      "machine/run.json",
+      relative(invocationLogDirectory, join(repositoryRoot, schedulerFile))
     ]);
   } finally {
     rmSync(invocationLogDirectory, { force: true, recursive: true });

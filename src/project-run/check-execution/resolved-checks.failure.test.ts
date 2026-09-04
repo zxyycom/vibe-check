@@ -42,8 +42,12 @@ async function assertDuplicateRecordConflict(): Promise<void> {
       .filter((observation) => observation.event === "record.reported")
       .map((observation) => observation.details),
     [
-      { identity: { id: "retained" }, data: { value: true }, result: "committed" },
-      { identity: { id: "retained" }, data: { value: false }, result: "rejected" }
+      { checkId: "direct-check", recordId: "retained", result: "committed" },
+      {
+        checkId: "direct-check",
+        rejectionCategory: "record-invalid-or-conflict",
+        result: "rejected"
+      }
     ]
   );
   assert.deepEqual(
@@ -236,11 +240,13 @@ async function assertTrustedInvariantFaultEscapes(): Promise<void> {
   await assert.rejects(
     () =>
       executeCheckCallback({
+        artifactDirectory: null,
         check: normalized((context) => {
           context.dependencies.get("source");
           return { status: "passed", data: {} };
         }),
         dependencies: throwingDependencies,
+        invocationId: "invocation/v1:direct-check-execution",
         project: PROJECT,
         scope: createCoreCheckSession([
           { definition: { checkId: "direct-check", displayName: "direct-check" } }

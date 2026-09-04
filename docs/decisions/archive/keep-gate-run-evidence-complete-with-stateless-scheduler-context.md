@@ -1,6 +1,6 @@
 ---
 title: 以无状态 Scheduler context 保持完整 Gate Run 证据
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T14:54:27Z
 purpose: 让单次高信噪 Gate invocation 保留可独立复核的完整 Scheduler decision evidence，而不记录已删除的 reservation 状态。

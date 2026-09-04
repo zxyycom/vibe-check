@@ -37,7 +37,9 @@ export async function executeCheck<Options extends object>(
 > {
   const records: ReportedCheckRecord[] = [];
   const context: CheckExecutionContext<Options> = Object.freeze({
+    artifactDirectory: null,
     dependencies: NO_DEPENDENCIES,
+    invocationId: "invocation/v1:direct-check-test",
     options,
     project: Object.freeze({ flags: Object.freeze([]), root }),
     records: Object.freeze({

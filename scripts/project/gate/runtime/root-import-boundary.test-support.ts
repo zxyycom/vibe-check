@@ -42,7 +42,10 @@ const status: unknown = await invokeProjectGateRoot([], {
     candidatePrepared = true;
     return preparedCandidate;
   },
-  startTranscript: () => ({ complete: () => "succeeded" })
+  startTranscript: () => ({
+    complete: () => "succeeded",
+    writeGateMessage: () => undefined
+  })
 });
 
 if (status !== 0)

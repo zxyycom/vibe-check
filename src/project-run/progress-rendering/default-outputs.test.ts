@@ -49,8 +49,12 @@ describe("Package Run default outputs", () => {
       assert.equal(result.outputs.progressRendering.status, "succeeded");
       assert.equal(result.outputs.machinePublication.status, "succeeded");
       assert.deepEqual(result.outputs.diagnosticLogging, {
+        channels: {
+          core: { enabled: false, file: null, status: "disabled" },
+          learnedAdmission: { enabled: false, file: null, status: "disabled" },
+          scheduler: { enabled: false, file: null, status: "disabled" }
+        },
         enabled: false,
-        file: null,
         status: "disabled"
       });
       assert.equal(

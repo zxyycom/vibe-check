@@ -1,5 +1,4 @@
 import { randomUUID } from "node:crypto";
-import { relative, resolve } from "node:path";
 
 import {
   createDeclarativeFingerprint,
@@ -10,13 +9,12 @@ import {
 import type { RunControls } from "./controls/contract.ts";
 import {
   createDiagnosticLogger,
-  type DiagnosticLogger,
-  type DiagnosticLoggerFactory,
-  type DiagnosticObservation
+  createDiagnosticLoggingRouter
 } from "./diagnostic-logging/logger.ts";
 import type { Invocation, RunInvocationDependencies } from "./invocation.ts";
 import { createOutputStatuses } from "./output-status.ts";
 import { effectiveOutputs } from "./output-configuration.ts";
+import { resolveInvocationPaths } from "./invocation-paths.ts";
 import { createProgressRendering } from "./progress-rendering/presentation.ts";
 
 const SYSTEM_MONOTONIC_CLOCK: Invocation["clock"] = Object.freeze({
@@ -35,28 +33,36 @@ export interface InvocationCreationInput {
 export function createInvocation(input: InvocationCreationInput): Invocation {
   const outputConfiguration = effectiveOutputs(input.definition, input.controls);
   const clock = input.dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK;
-  const projectRoot = resolve(input.controls.projectRoot ?? process.cwd());
+  const diagnosticLoggingEnabled = outputConfiguration.diagnosticLogging.enabled;
+  const learnedAdmissionEnabled =
+    input.normalized.scheduler.admissionPolicy.kind === "learned-critical-path";
   const startedAtUtc = captureOutputCreationTimestamp(outputConfiguration, input.dependencies);
   const identity = createInvocationIdentity();
-  const diagnosticLoggingFile = resolveDiagnosticLoggingFile({
-    identity,
+  const paths = resolveInvocationPaths({
+    checkArtifactBaseDirectory: input.controls.checkArtifactBaseDirectory,
+    checkIds: input.normalized.checks.map((check) => check.definition.checkId),
+    diagnosticLogSuffix: diagnosticLoggingEnabled
+      ? diagnosticLogSuffix(requireStartedAtUtc(startedAtUtc), identity.uuid)
+      : undefined,
+    learnedAdmissionEnabled,
     outputConfiguration,
-    projectRoot,
-    startedAtUtc
+    progressLogFile: input.controls.progressLogFile,
+    projectRoot: input.controls.projectRoot ?? process.cwd()
   });
   const outputs = createOutputStatuses(
     outputConfiguration,
-    diagnosticLoggingFile,
+    paths.diagnosticLoggingReadbackFiles,
+    learnedAdmissionEnabled,
     input.normalized.scheduler.measurementHooks.length > 0
   );
-  const diagnosticLogger = createDiagnosticLoggerSafely(
-    input.dependencies.diagnosticLoggerFactory ?? createDiagnosticLogger,
-    {
-      clock,
-      enabled: outputConfiguration.diagnosticLogging.enabled,
-      file: diagnosticLoggingFile === null ? null : resolve(projectRoot, diagnosticLoggingFile)
-    }
-  );
+  const diagnosticLogging = createDiagnosticLoggingRouter({
+    clock,
+    coreFile: paths.diagnosticLoggingFiles.core,
+    factory: input.dependencies.diagnosticLoggerFactory ?? createDiagnosticLogger,
+    invocationId: identity.id,
+    learnedAdmissionFile: paths.diagnosticLoggingFiles.learnedAdmission,
+    schedulerFile: paths.diagnosticLoggingFiles.scheduler
+  });
 
   return Object.freeze({
     admissionStrategyProviderFactory: input.dependencies.admissionStrategyProviderFactory,
@@ -65,18 +71,19 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
     declarativeFingerprint: createDeclarativeFingerprint(input.normalized.declarative),
     definition: input.definition,
     definitionWarnings: Object.freeze([...input.definitionWarnings]),
-    diagnosticLogger,
-    diagnosticLoggingEnabled: outputConfiguration.diagnosticLogging.enabled,
+    diagnosticLogging,
+    diagnosticLoggingEnabled,
     outputConfiguration,
     outputs,
     invocationId: identity.id,
+    paths,
     normalized: input.normalized,
     progressRendering: createProgressRendering(outputConfiguration.progressRendering, outputs, {
       clock,
       refreshScheduler: input.dependencies.progressRefreshScheduler,
-      writerFactory: input.dependencies.progressWriterFactory
+      writerFactory: input.dependencies.progressWriterFactory,
+      file: paths.progressLogFile
     }),
-    projectRoot,
     startedAtUtc
   });
 }
@@ -101,66 +108,9 @@ function createInvocationIdentity(): Readonly<{
   return Object.freeze({ id: `invocation/v1:${uuid}`, uuid });
 }
 
-function resolveDiagnosticLoggingFile(
-  input: Readonly<{
-    readonly identity: Readonly<{ readonly uuid: string }>;
-    readonly outputConfiguration: ProjectDefinition["outputs"];
-    readonly projectRoot: string;
-    readonly startedAtUtc: string | null;
-  }>
-): string | null {
-  if (!input.outputConfiguration.diagnosticLogging.enabled) return null;
-  return relative(
-    input.projectRoot,
-    resolve(
-      input.projectRoot,
-      input.outputConfiguration.diagnosticLogging.directory,
-      diagnosticLogFileName(requireStartedAtUtc(input.startedAtUtc), input.identity.uuid)
-    )
-  );
-}
-
-function createDiagnosticLoggerSafely(
-  factory: DiagnosticLoggerFactory,
-  input: Parameters<DiagnosticLoggerFactory>[0]
-): DiagnosticLogger {
-  let delegate: DiagnosticLogger;
-  try {
-    delegate = factory(input);
-  } catch {
-    return failedDiagnosticLogger();
-  }
-  let failed = false;
-  return Object.freeze({
-    close: () => {
-      try {
-        const status = delegate.close();
-        return failed ? "failed" : status;
-      } catch {
-        return "failed";
-      }
-    },
-    observe: (observation: DiagnosticObservation) => {
-      if (failed) return;
-      try {
-        delegate.observe(observation);
-      } catch {
-        failed = true;
-      }
-    }
-  });
-}
-
-function failedDiagnosticLogger(): DiagnosticLogger {
-  return Object.freeze({
-    close: () => "failed" as const,
-    observe: () => undefined
-  });
-}
-
-function diagnosticLogFileName(startedAtUtc: string, invocationUuid: string): string {
+function diagnosticLogSuffix(startedAtUtc: string, invocationUuid: string): string {
   const compactUtc = startedAtUtc.replaceAll("-", "").replaceAll(":", "");
-  return `run-${compactUtc}-${invocationUuid}.log`;
+  return `${compactUtc}-${invocationUuid}`;
 }
 
 function requireStartedAtUtc(startedAtUtc: string | null): string {

@@ -32,7 +32,6 @@ describe("Project Gate process Check", () => {
     try {
       const check = createProcessCheckWithDataDependencyAndSuccessData(
         definition,
-        root,
         {
           checkId: "fixture-provider",
           environment: () => ({}),
@@ -83,6 +82,7 @@ describe("Project Gate process Check", () => {
       const execution = check.execution;
       if (execution === undefined) throw new Error("provider fixture must be executable");
       const executionContext = () => ({
+        artifactDirectory: fixtureArtifactDirectory(root),
         dependencies: {
           get: (checkId: string) => ({
             ok: true as const,
@@ -92,6 +92,7 @@ describe("Project Gate process Check", () => {
           }),
           list: () => Object.freeze([])
         },
+        invocationId: "invocation/v1:fixture-process",
         options: check.options ?? {},
         project: { flags: [], root: process.cwd() },
         records: { report: () => undefined },
@@ -107,7 +108,10 @@ describe("Project Gate process Check", () => {
         "parse-data",
         "validate-dependency"
       ]);
-      assert.match(readFileSync(join(root, "process", "fixture-command.log"), "utf8"), /status: 0/);
+      assert.match(
+        readFileSync(join(fixtureArtifactDirectory(root), "process.log"), "utf8"),
+        /status: 0/
+      );
       validationShouldThrow = true;
       events.length = 0;
       assert.deepEqual(await execution(executionContext()), {
@@ -123,7 +127,7 @@ describe("Project Gate process Check", () => {
         "validate-dependency"
       ]);
       assert.match(
-        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
+        readFileSync(join(fixtureArtifactDirectory(root), "process.log"), "utf8"),
         /--- stdout ---\n\{"version":1\}/
       );
       validationShouldThrow = false;
@@ -133,7 +137,7 @@ describe("Project Gate process Check", () => {
         reason: { code: "process-output-invalid" }
       });
       assert.match(
-        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
+        readFileSync(join(fixtureArtifactDirectory(root), "process.log"), "utf8"),
         /--- stdout ---\nnot JSON/
       );
     } finally {
@@ -144,23 +148,26 @@ describe("Project Gate process Check", () => {
   it("writes one complete transcript and passes only a zero command exit", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
-      const check = createProcessCheck(
-        {
-          ...definition,
-          args: [
-            "-e",
-            "if (process.env.PATH === undefined || process.env.PROJECT_GATE_OVERRIDE_FIXTURE !== 'override') process.exit(3);process.stdout.write('out');process.stderr.write('err')"
-          ],
-          environment: { PROJECT_GATE_OVERRIDE_FIXTURE: "override" }
-        },
-        root
-      );
+      const check = createProcessCheck({
+        ...definition,
+        args: [
+          "-e",
+          "if (process.env.PATH === undefined || process.env.PROJECT_GATE_OVERRIDE_FIXTURE !== 'override') process.exit(3);process.stdout.write('out');process.stderr.write('err')"
+        ],
+        environment: { PROJECT_GATE_OVERRIDE_FIXTURE: "override" }
+      });
       const records: ReportedRecord[] = [];
-      const outcome = await invoke(check, records);
+      const outcome = await invoke(
+        check,
+        records,
+        undefined,
+        undefined,
+        fixtureArtifactDirectory(root)
+      );
 
       assert.deepEqual(outcome, { status: "passed", data: { exitCode: 0 } });
       assert.deepEqual(records, []);
-      const transcript = readFileSync(join(root, "process", "fixture-command.log"), "utf8");
+      const transcript = readFileSync(join(fixtureArtifactDirectory(root), "process.log"), "utf8");
       assert.match(transcript, /--- stdout ---\nout/);
       assert.match(transcript, /--- stderr ---\nerr/);
     } finally {
@@ -170,22 +177,29 @@ describe("Project Gate process Check", () => {
 
   it("writes a running transcript before process start and replaces it after settlement", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
-    const transcriptPath = join(root, "process", "fixture-command.log");
+    const transcriptPath = join(fixtureArtifactDirectory(root), "process.log");
     let startupTranscript = "";
     try {
       const check = createProcessCheck(
         { ...definition, args: ["fixture-argument"], timeoutMs: 30_000 },
-        root,
         {
           runProcess: async (): Promise<ProcessResult> => {
             startupTranscript = readFileSync(transcriptPath, "utf8");
-            return { signal: null, status: 0, stderr: "settled stderr", stdout: "settled stdout" };
+            return {
+              signal: null,
+              status: 0,
+              stderr: "settled stderr",
+              stdout: "settled stdout"
+            };
           },
           writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
         }
       );
 
-      assert.deepEqual(await invoke(check, []), { status: "passed", data: { exitCode: 0 } });
+      assert.deepEqual(
+        await invoke(check, [], undefined, undefined, fixtureArtifactDirectory(root)),
+        { status: "passed", data: { exitCode: 0 } }
+      );
       assert.match(startupTranscript, /step: command/);
       assert.match(startupTranscript, /status: running/);
       assert.match(startupTranscript, /timeout: 30s/);
@@ -208,7 +222,6 @@ describe("Project Gate process Check", () => {
     try {
       const check = createProcessCheckWithDataDependency(
         definition,
-        root,
         {
           checkId: "fixture-provider",
           parseData(data: unknown): Readonly<{ readonly version: 1 }> {
@@ -243,7 +256,9 @@ describe("Project Gate process Check", () => {
       if (execution === undefined) throw new Error("dependent fixture Check must be executable");
       const invokeDependency = (get: Parameters<typeof execution>[0]["dependencies"]["get"]) =>
         execution({
+          artifactDirectory: fixtureArtifactDirectory(root),
           dependencies: { get, list: () => Object.freeze([]) },
+          invocationId: "invocation/v1:fixture-process",
           options: check.options ?? {},
           project: { flags: [], root: process.cwd() },
           records: { report: () => undefined },
@@ -292,7 +307,11 @@ describe("Project Gate process Check", () => {
       assert.deepEqual(
         await invokeDependency((checkId) => ({
           ok: false,
-          error: { code: "upstream-data-unavailable", checkId, status: "unavailable" }
+          error: {
+            code: "upstream-data-unavailable",
+            checkId,
+            status: "unavailable"
+          }
         })),
         { status: "unavailable", reason: { code: "dependency-unavailable" } }
       );
@@ -305,18 +324,21 @@ describe("Project Gate process Check", () => {
   it("reports a safe failure Record and command-failed message for nonzero exit without copying child output", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
-      const check = createProcessCheck(
-        {
-          ...definition,
-          args: [
-            "-e",
-            "process.stdout.write('secret output https://user:token@example.test');process.stderr.write('secret error digest:deadbeef');process.exit(7)"
-          ]
-        },
-        root
-      );
+      const check = createProcessCheck({
+        ...definition,
+        args: [
+          "-e",
+          "process.stdout.write('secret output https://user:token@example.test');process.stderr.write('secret error digest:deadbeef');process.exit(7)"
+        ]
+      });
       const records: ReportedRecord[] = [];
-      const outcome = await invoke(check, records);
+      const outcome = await invoke(
+        check,
+        records,
+        undefined,
+        undefined,
+        fixtureArtifactDirectory(root)
+      );
 
       assert.deepEqual(outcome, {
         status: "failed",
@@ -326,7 +348,7 @@ describe("Project Gate process Check", () => {
             level: "error",
             code: "command-failed",
             message:
-              "Command exited with code 7; signal: none; transcript: process/fixture-command.log."
+              "Command exited with code 7; signal: none; transcript: checks/fixture-command/process.log."
           }
         ]
       });
@@ -335,14 +357,14 @@ describe("Project Gate process Check", () => {
           data: {
             command: process.execPath,
             exitCode: 7,
-            log: "process/fixture-command.log",
+            log: "checks/fixture-command/process.log",
             signal: "none"
           },
           identity: { id: "command-failure" }
         }
       ]);
       assert.match(
-        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
+        readFileSync(join(fixtureArtifactDirectory(root), "process.log"), "utf8"),
         /secret output/
       );
       const renderedMessage =
@@ -354,7 +376,7 @@ describe("Project Gate process Check", () => {
       assert.equal(renderedMessage?.includes(root), false);
       assert.equal(renderedMessage?.includes(process.execPath), false);
 
-      const productCheck = createProcessCheck(definition, root, {
+      const productCheck = createProcessCheck(definition, {
         runProcess: async (): Promise<ProcessResult> => ({
           signal: null,
           status: 7,
@@ -372,32 +394,44 @@ describe("Project Gate process Check", () => {
               progressRendering: { enabled: true }
             }
           }),
-          { flags: ["project-gate:profile=required"] }
+          {
+            checkArtifactBaseDirectory: join(root, "checks"),
+            flags: ["project-gate:profile=required"]
+          }
         )
       );
 
       assert.equal(productRun.result.kind, "completed");
       if (productRun.result.kind !== "completed") return;
-      assert.deepEqual(productRun.result.checkMessages, [
-        {
-          checkId: "fixture-command",
-          level: "error",
-          code: "command-failed",
-          message:
-            "Command exited with code 7; signal: none; transcript: process/fixture-command.log."
-        }
-      ]);
-      assert.match(
-        productRun.output,
-        /^ {2}\[1\/1] Fixture command \| failed \| \d+(?:\.\d+)?(?:ms|s)\n {4}\[error] Command exited with code 7; signal: none; transcript: process\/fixture-command\.log\.$/m
-      );
       const record = productRun.result.snapshot.records[0];
       assert.equal(record?.checkId, "fixture-command");
       assert.equal(record?.id, "command-failure");
       assert.equal(record?.data.command, process.execPath);
       assert.equal(record?.data.exitCode, 7);
-      assert.equal(record?.data.log, "process/fixture-command.log");
       assert.equal(record?.data.signal, "none");
+      const transcriptReference = record?.data.log;
+      assert.equal(typeof transcriptReference, "string");
+      if (typeof transcriptReference !== "string")
+        throw new Error("Product Check artifact reference must be a string");
+      assert.match(transcriptReference, /^checks\/[^/]+\/process\.log$/);
+      assert.equal(existsSync(join(root, transcriptReference)), true);
+
+      assert.equal(productRun.result.checkMessages.length, 1);
+      const message = productRun.result.checkMessages[0];
+      assert.equal(message?.checkId, "fixture-command");
+      assert.equal(message?.level, "error");
+      assert.equal(message?.code, "command-failed");
+      assert.equal(
+        message?.message,
+        `Command exited with code 7; signal: none; transcript: ${transcriptReference}.`
+      );
+      assert.match(
+        productRun.output,
+        new RegExp(
+          `^ {2}\\[1/1] Fixture command \\| failed \\| \\d+(?:\\.\\d+)?(?:ms|s)\\n {4}\\[error] Command exited with code 7; signal: none; transcript: ${escapeRegularExpression(transcriptReference)}\\.$`,
+          "m"
+        )
+      );
       const presented = `${productRun.output}\n${JSON.stringify(productRun.result.checkMessages)}`;
       for (const secret of [
         "secret output",
@@ -435,8 +469,11 @@ describe("Project Gate process Check", () => {
     };
     try {
       const configured = await invoke(
-        createProcessCheck({ ...definition, timeoutMs: 30_000 }, root, dependencies),
-        []
+        createProcessCheck({ ...definition, timeoutMs: 30_000 }, dependencies),
+        [],
+        undefined,
+        undefined,
+        fixtureArtifactDirectory(root)
       );
 
       assert.equal(observedTimeoutMs, 30_000);
@@ -447,16 +484,23 @@ describe("Project Gate process Check", () => {
           {
             level: "error",
             code: "command-timeout",
-            message: "Command exceeded its 30s timeout; transcript: process/fixture-command.log."
+            message:
+              "Command exceeded its 30s timeout; transcript: checks/fixture-command/process.log."
           }
         ]
       });
       assert.match(
-        readFileSync(join(root, "process", "fixture-command.log"), "utf8"),
+        readFileSync(join(fixtureArtifactDirectory(root), "process.log"), "utf8"),
         /timed-out: yes/
       );
 
-      const unconfigured = await invoke(createProcessCheck(definition, root, dependencies), []);
+      const unconfigured = await invoke(
+        createProcessCheck(definition, dependencies),
+        [],
+        undefined,
+        undefined,
+        fixtureArtifactDirectory(root)
+      );
       assert.equal(observedTimeoutMs, undefined);
       assert.deepEqual(unconfigured, {
         status: "unavailable",
@@ -470,11 +514,28 @@ describe("Project Gate process Check", () => {
   it("avoids starting cancelled work and maps process/log boundaries to unavailable", async () => {
     const scenarios: readonly ProcessScenario[] = [
       {
+        name: "artifact directory disabled",
+        artifactDirectoryDisabled: true,
+        definition,
+        flags: ["project-gate:profile=required"],
+        expected: {
+          status: "unavailable",
+          reason: { code: "transcript-unavailable" }
+        },
+        expectedStarts: 0,
+        runProcess: async (): Promise<ProcessResult> => {
+          throw new Error("process must not start without its artifact directory");
+        }
+      },
+      {
         name: "pre-start cancellation",
         definition,
         flags: ["project-gate:profile=required"],
         aborted: true,
-        expected: { status: "unavailable", reason: { code: "execution-cancelled" } },
+        expected: {
+          status: "unavailable",
+          reason: { code: "execution-cancelled" }
+        },
         runProcess: async (): Promise<ProcessResult> => {
           throw new Error("process must not start");
         }
@@ -483,7 +544,10 @@ describe("Project Gate process Check", () => {
         name: "spawn failure",
         definition,
         flags: ["project-gate:profile=required"],
-        expected: { status: "unavailable", reason: { code: "process-unavailable" } },
+        expected: {
+          status: "unavailable",
+          reason: { code: "process-unavailable" }
+        },
         expectsTranscript: true,
         expectedTranscriptError: "spawn failed",
         runProcess: async (): Promise<ProcessResult> => {
@@ -494,7 +558,10 @@ describe("Project Gate process Check", () => {
         name: "process execution spawn failure result",
         definition,
         flags: ["project-gate:profile=required"],
-        expected: { status: "unavailable", reason: { code: "process-unavailable" } },
+        expected: {
+          status: "unavailable",
+          reason: { code: "process-unavailable" }
+        },
         expectsTranscript: true,
         expectedTranscriptError: "spawn failed",
         runProcess: async (): Promise<ProcessResult> => ({
@@ -509,7 +576,10 @@ describe("Project Gate process Check", () => {
         name: "missing exit fact after a signal",
         definition,
         flags: ["project-gate:profile=required"],
-        expected: { status: "unavailable", reason: { code: "exit-unavailable" } },
+        expected: {
+          status: "unavailable",
+          reason: { code: "exit-unavailable" }
+        },
         runProcess: async (): Promise<ProcessResult> => ({
           signal: "SIGTERM",
           status: null,
@@ -521,7 +591,10 @@ describe("Project Gate process Check", () => {
         name: "startup transcript write failure",
         definition,
         flags: ["project-gate:profile=required"],
-        expected: { status: "unavailable", reason: { code: "transcript-unavailable" } },
+        expected: {
+          status: "unavailable",
+          reason: { code: "transcript-unavailable" }
+        },
         expectedStarts: 0,
         runProcess: async (): Promise<ProcessResult> => ({
           signal: null,
@@ -535,7 +608,10 @@ describe("Project Gate process Check", () => {
         name: "settled transcript write failure",
         definition,
         flags: ["project-gate:profile=required"],
-        expected: { status: "unavailable", reason: { code: "transcript-unavailable" } },
+        expected: {
+          status: "unavailable",
+          reason: { code: "transcript-unavailable" }
+        },
         expectsTranscript: true,
         expectedTranscriptRunning: true,
         runProcess: async (): Promise<ProcessResult> => ({
@@ -571,10 +647,11 @@ describe("Project Gate process Check", () => {
         if (scenario.aborted) controller.abort();
         const records: ReportedRecord[] = [];
         const outcome = await invoke(
-          createProcessCheck(scenario.definition, root, dependencies),
+          createProcessCheck(scenario.definition, dependencies),
           records,
           scenario.flags,
-          controller.signal
+          controller.signal,
+          scenario.artifactDirectoryDisabled ? null : fixtureArtifactDirectory(root)
         );
 
         assert.deepEqual(outcome, scenario.expected, scenario.name);
@@ -584,7 +661,7 @@ describe("Project Gate process Check", () => {
         }
         assert.equal(starts, scenario.expectedStarts ?? (scenario.aborted ? 0 : 1), scenario.name);
         if (scenario.expectsTranscript) {
-          const transcriptPath = join(root, "process", "fixture-command.log");
+          const transcriptPath = join(fixtureArtifactDirectory(root), "process.log");
           assert.equal(existsSync(transcriptPath), true, scenario.name);
           if (scenario.expectedTranscriptError !== undefined) {
             assert.match(
@@ -609,7 +686,7 @@ describe("Project Gate process Check", () => {
     try {
       const transcriptWrites: string[] = [];
       let starts = 0;
-      const check = createProcessCheck(definition, root, {
+      const check = createProcessCheck(definition, {
         runProcess: async ({ cancelSignal }): Promise<ProcessResult> => {
           starts += 1;
           assert.equal(cancelSignal, controller.signal);
@@ -628,7 +705,13 @@ describe("Project Gate process Check", () => {
           writeFileSync(filePath, content, "utf8");
         }
       });
-      const outcome = await invoke(check, [], undefined, controller.signal);
+      const outcome = await invoke(
+        check,
+        [],
+        undefined,
+        controller.signal,
+        fixtureArtifactDirectory(root)
+      );
 
       assert.deepEqual(outcome, {
         status: "unavailable",
@@ -647,6 +730,7 @@ describe("Project Gate process Check", () => {
 
 interface ProcessScenario {
   readonly aborted?: boolean;
+  readonly artifactDirectoryDisabled?: boolean;
   readonly definition: ProcessCheckDescriptor;
   readonly expected: CheckResult;
   readonly expectedStarts?: number;
@@ -667,12 +751,14 @@ interface ReportedRecord {
 async function invoke(
   check: ReturnType<typeof createProcessCheck>,
   records: ReportedRecord[],
-  flags: readonly string[] = ["project-gate:profile=required"],
-  signal = new AbortController().signal
+  flags: readonly string[] | undefined = ["project-gate:profile=required"],
+  signal: AbortSignal | undefined = new AbortController().signal,
+  artifactDirectory: string | null = null
 ) {
   if (check.execution === undefined)
     throw new Error("fixture Check must have an execution callback");
   return check.execution({
+    artifactDirectory,
     dependencies: Object.freeze({
       get: (checkId: string) =>
         Object.freeze({
@@ -681,16 +767,25 @@ async function invoke(
         }),
       list: () => Object.freeze([])
     }),
+    invocationId: "invocation/v1:fixture-process",
     options: check.options ?? {},
     project: {
       root: process.cwd(),
-      flags
+      flags: flags ?? []
     },
     records: {
       report: (identity, data) => records.push(Object.freeze({ data, identity }))
     },
-    signal
+    signal: signal ?? new AbortController().signal
   });
+}
+
+function fixtureArtifactDirectory(root: string): string {
+  return join(root, "checks", "fixture-command");
+}
+
+function escapeRegularExpression(value: string): string {
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 async function captureNonTTYProgress<T>(

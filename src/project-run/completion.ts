@@ -1,4 +1,3 @@
-import { resolve } from "node:path";
 import { failedOutput } from "./output-status.ts";
 import { publishMachineOutput } from "./machine-publication.ts";
 import {
@@ -9,7 +8,7 @@ import {
   type RunResultFacts
 } from "./result.ts";
 import type { CheckAggregate } from "./controls/contract.ts";
-import { diagnosticTags } from "./diagnostic-logging/logger.ts";
+import { DIAGNOSTIC_CHANNELS, diagnosticTags } from "./diagnostic-logging/logger.ts";
 import type { Invocation } from "./invocation.ts";
 import {
   createPublicationModelV4,
@@ -44,10 +43,7 @@ export function completeInvocation(
       configuration: invocation.outputConfiguration.machinePublication,
       statuses: invocation.outputs,
       model,
-      directory: resolve(
-        invocation.projectRoot,
-        invocation.outputConfiguration.machinePublication.directory
-      )
+      directory: invocation.paths.machinePublicationDirectory
     });
     if (!published) return failure(invocation, facts);
   }
@@ -120,7 +116,7 @@ export function finalizeInvocation(
   candidate: NonConfigurationRunResult
 ): NonConfigurationRunResult {
   const preCloseOutputs = invocation.outputs.value();
-  invocation.diagnosticLogger.observe({
+  invocation.diagnosticLogging.core.observe({
     event: "run.terminal-before-log-close",
     tags: diagnosticTags("RUN", "TERMINAL", terminalStatusTag(candidate)),
     details: {
@@ -129,9 +125,13 @@ export function finalizeInvocation(
       outputs: preCloseOutputDetails(preCloseOutputs)
     }
   });
-  const diagnosticLoggingStatus = invocation.diagnosticLogger.close();
-  if (diagnosticLoggingStatus === "failed") invocation.outputs.failed("diagnosticLogging");
-  if (diagnosticLoggingStatus === "succeeded") invocation.outputs.succeeded("diagnosticLogging");
+  const diagnosticLoggingStatuses = invocation.diagnosticLogging.close();
+  for (const channel of DIAGNOSTIC_CHANNELS) {
+    const status = diagnosticLoggingStatuses[channel];
+    if (status === "failed") invocation.outputs.failedDiagnosticChannel(channel);
+    if (status === "succeeded") invocation.outputs.succeededDiagnosticChannel(channel);
+  }
+  invocation.progressRendering.close();
 
   const outputs = invocation.outputs.value();
   switch (candidate.kind) {

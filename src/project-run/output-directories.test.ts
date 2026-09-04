@@ -33,6 +33,7 @@ describe("Package Run output directories", () => {
             }
           }),
           {
+            checkArtifactBaseDirectory: directory,
             outputs: {
               machinePublication: { directory },
               diagnosticLogging: { directory }
@@ -113,14 +114,21 @@ function assertSharedOutputDirectory(
 ): void {
   assert.equal(outputs.machinePublication.status, "succeeded");
   assert.equal(outputs.diagnosticLogging.status, "succeeded");
-  const diagnosticFile = outputs.diagnosticLogging.file ?? "";
-  assert.equal(
-    diagnosticFile,
-    relative(projectRoot, join(outputDirectory, basename(diagnosticFile)))
-  );
-  assert.equal(existsSync(resolve(projectRoot, diagnosticFile)), true);
+  const diagnosticFiles = [
+    outputs.diagnosticLogging.channels.core.file,
+    outputs.diagnosticLogging.channels.scheduler.file
+  ];
+  assert.equal(outputs.diagnosticLogging.channels.learnedAdmission.status, "disabled");
+  for (const diagnosticFile of diagnosticFiles) {
+    assert.ok(diagnosticFile);
+    assert.equal(
+      diagnosticFile,
+      relative(projectRoot, join(outputDirectory, basename(diagnosticFile)))
+    );
+    assert.equal(existsSync(resolve(projectRoot, diagnosticFile)), true);
+  }
   assert.deepEqual(
     readdirSync(outputDirectory).sort(),
-    [basename(diagnosticFile), "records.ndjson", "run.json"].sort()
+    [...diagnosticFiles.map((file) => basename(file ?? "")), "records.ndjson", "run.json"].sort()
   );
 }

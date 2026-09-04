@@ -105,7 +105,8 @@ export function recordSettledCheck(
     ),
     details: {
       durationMs: input.durationMs,
-      ...(input.messages.length === 0 ? {} : { messages: input.messages }),
+      messageCount: input.messages.length,
+      phase: input.phase,
       ...diagnosticSettledOutcome(input.outcome)
     }
   });
@@ -125,13 +126,11 @@ function diagnosticSettledOutcome(outcome: CheckOutcome): Readonly<Record<string
   switch (outcome.status) {
     case "passed":
     case "failed":
-      return Object.freeze({ data: summarizeDiagnosticValue(outcome.data) });
+      return Object.freeze({ status: outcome.status });
     case "not-applicable":
-      return outcome.reason === undefined
-        ? Object.freeze({})
-        : Object.freeze({ reason: outcome.reason });
+      return Object.freeze({ reasonCode: outcome.reason?.code ?? null, status: outcome.status });
     case "unavailable":
-      return Object.freeze({ reason: outcome.reason });
+      return Object.freeze({ reasonCode: outcome.reason.code, status: outcome.status });
   }
 }
 

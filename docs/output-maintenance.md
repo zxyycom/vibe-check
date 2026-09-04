@@ -48,12 +48,11 @@ Check preflight/execution 只建立自己的 capture buffer；context 外调用�
 `process.stdout` / `process.stderr`；in-process Check 的直接 stream writes 和
 child-process 输出必须进入独立 sink，不能依赖当前 target 偶然是 non-TTY 来建立兼容保证。
 
-Captured console 进入 settlement messages，因此显式启用 diagnostic logging 时，同一内容也会写入 `check.finished`
-diagnostic details；默认 disabled 不创建该文件。它仍不进入 machine v4，Check author 不得把 secret 当作 console 日志。
+Captured console 进入 settlement messages；`check.finished` diagnostic 只保留 bounded phase、duration 和 message count，不复制 message text 或 final data。默认 disabled 不创建 diagnostic channel files；它们仍不进入 machine v4，Check author 不得把 secret 当作 console 日志。
 
 Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只给 level label 加色。display name、
 reason 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029；原 message string
-保留在 `RunResult.checkMessages`。Writer failure 保持可观察，不吞掉错误或继续后续 write。
+保留在 `RunResult.checkMessages`。Terminal writer failure 保持可观察，不吞掉错误或继续后续 write。caller 选择 `progressLogFile` 时，tee 总是先写 terminal；file-only setup/write/close failure 仅标记 progress output failed，terminal rendering 继续，final transcript 仍包含每项 Check duration（含 `null`）。
 
 ## Package 材料的维护与验证
 

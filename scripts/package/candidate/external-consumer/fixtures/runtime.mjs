@@ -589,8 +589,8 @@ function readLearnedMachine(projectRoot) {
 
 function readLearnedDiagnostic(projectRoot, result) {
   if (result.kind !== "completed") throw new Error(`Expected learned Run to complete: ${result.kind}`);
-  const path = result.outputs.diagnosticLogging.file;
-  if (path === null) throw new Error("Expected learned Run diagnostic file");
+  const path = result.outputs.diagnosticLogging.channels.learnedAdmission.file;
+  if (typeof path !== "string") throw new Error("Expected learned-admission diagnostic file");
   return readFileSync(join(projectRoot, path), "utf8");
 }
 

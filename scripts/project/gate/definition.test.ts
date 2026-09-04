@@ -100,7 +100,6 @@ describe("Project Gate Definition", () => {
   it("projects the central composition manifest into an ordinary Project Definition", async () => {
     const entries = createProjectGateEntries({
       externalConsumerLease: createExternalConsumerMaterialLease(),
-      invocationLogDirectory: "/tmp/project-gate-logs",
       preparedCandidate
     });
     const definition = createProjectGateDefinition(entries);
@@ -351,7 +350,6 @@ describe("Project Gate Definition", () => {
     try {
       const entries = createProjectGateEntries({
         externalConsumerLease: createExternalConsumerMaterialLease(),
-        invocationLogDirectory: logDirectory,
         preparedCandidate
       });
       const definition = createProjectGateDefinition(entries);
@@ -446,7 +444,10 @@ describe("Project Gate Definition", () => {
         {
           disabledCheckId: "fixture-required",
           selectedCheckId: "fixture-quality",
-          selection: { kind: "focused" as const, presets: ["quality" as const] }
+          selection: {
+            kind: "focused" as const,
+            presets: ["quality" as const]
+          }
         }
       ]) {
         calls.length = 0;
@@ -526,7 +527,10 @@ describe("Project Gate Definition", () => {
           },
           records: [
             {
-              data: { code: "test-evidence-case.entity.case-missing", count: 2 },
+              data: {
+                code: "test-evidence-case.entity.case-missing",
+                count: 2
+              },
               identity: { id: "native-operation-diagnostic" }
             }
           ]
@@ -690,25 +694,28 @@ describe("Project Gate Definition", () => {
       });
       const passed = processResult(0, "ast-grep 0.45.0");
       const rulePassed = processResult(0, "rule output");
+      const artifactDirectory = ruleTestArtifactDirectory(logDirectory);
       const successful = await invokeCheck(
         createTestEvidenceRuleTestsCheck(
-          logDirectory,
           testEvidenceRuleDependencies({ ruleTests: rulePassed, version: passed }, invocations)
-        )
+        ),
+        new AbortController().signal,
+        artifactDirectory
       );
       assert.deepEqual(successful, {
         status: "passed",
         data: { ruleTestsExitCode: 0, versionExitCode: 0 }
       });
-      const transcriptPath = join(logDirectory, "process", "test-evidence-rule-tests.log");
+      const transcriptPath = join(artifactDirectory, "process.log");
       assert.match(readFileSync(transcriptPath, "utf8"), /step: version/);
       assert.match(readFileSync(transcriptPath, "utf8"), /step: rule-tests/);
 
       const versionMismatch = await invokeCheck(
         createTestEvidenceRuleTestsCheck(
-          logDirectory,
           testEvidenceRuleDependencies({ version: processResult(0, "wrong version") }, invocations)
-        )
+        ),
+        new AbortController().signal,
+        artifactDirectory
       );
       assert.deepEqual(versionMismatch, {
         status: "failed",
@@ -718,7 +725,7 @@ describe("Project Gate Definition", () => {
             level: "error",
             code: "ast-grep-version-mismatch",
             message:
-              "The ast-grep version did not match; transcript: process/test-evidence-rule-tests.log."
+              "The ast-grep version did not match; transcript: checks/test-evidence-rule-tests/process.log."
           }
         ]
       });
@@ -726,12 +733,13 @@ describe("Project Gate Definition", () => {
 
       const failed = await invokeCheckWithRecords(
         createTestEvidenceRuleTestsCheck(
-          logDirectory,
           testEvidenceRuleDependencies(
             { ruleTests: processResult(7), version: passed },
             invocations
           )
-        )
+        ),
+        new AbortController().signal,
+        artifactDirectory
       );
       assert.deepEqual(failed.result, {
         status: "failed",
@@ -741,7 +749,7 @@ describe("Project Gate Definition", () => {
             level: "error",
             code: "command-failed",
             message:
-              "Command exited with code 7; signal: none; transcript: process/test-evidence-rule-tests.log."
+              "Command exited with code 7; signal: none; transcript: checks/test-evidence-rule-tests/process.log."
           }
         ]
       });
@@ -750,7 +758,7 @@ describe("Project Gate Definition", () => {
           data: {
             command: "ast-grep",
             exitCode: 7,
-            log: "process/test-evidence-rule-tests.log",
+            log: "checks/test-evidence-rule-tests/process.log",
             signal: "none"
           },
           identity: { id: "command-failure" }
@@ -759,12 +767,18 @@ describe("Project Gate Definition", () => {
 
       const unavailable = await invokeCheck(
         createTestEvidenceRuleTestsCheck(
-          logDirectory,
           testEvidenceRuleDependencies(
-            { version: { ...processResult(null), error: new Error("fixture unavailable") } },
+            {
+              version: {
+                ...processResult(null),
+                error: new Error("fixture unavailable")
+              }
+            },
             invocations
           )
-        )
+        ),
+        new AbortController().signal,
+        artifactDirectory
       );
       assert.deepEqual(unavailable, {
         status: "unavailable",
@@ -774,14 +788,14 @@ describe("Project Gate Definition", () => {
       const controller = new AbortController();
       const cancelled = await invokeCheck(
         createTestEvidenceRuleTestsCheck(
-          logDirectory,
           testEvidenceRuleDependencies(
             { ruleTests: rulePassed, version: passed },
             invocations,
             () => controller.abort()
           )
         ),
-        controller.signal
+        controller.signal,
+        artifactDirectory
       );
       assert.deepEqual(cancelled, {
         status: "unavailable",
@@ -825,17 +839,29 @@ function processResult(
   return Object.freeze({ signal: null, status, stderr: "", stdout });
 }
 
-async function invokeCheck(check: Check, signal = new AbortController().signal) {
-  return (await invokeCheckWithRecords(check, signal)).result;
+async function invokeCheck(
+  check: Check,
+  signal = new AbortController().signal,
+  artifactDirectory: string | null = null
+) {
+  return (await invokeCheckWithRecords(check, signal, artifactDirectory)).result;
 }
 
-async function invokeCheckWithRecords(check: Check, signal = new AbortController().signal) {
+async function invokeCheckWithRecords(
+  check: Check,
+  signal = new AbortController().signal,
+  artifactDirectory: string | null = null
+) {
   if (check.execution === undefined)
     throw new Error("fixture Check must have an execution callback");
   const records: Array<
-    Readonly<{ readonly data: object; readonly identity: { readonly id: string } }>
+    Readonly<{
+      readonly data: object;
+      readonly identity: { readonly id: string };
+    }>
   > = [];
   const result = await check.execution({
+    artifactDirectory,
     dependencies: {
       get: (checkId: string) => ({
         ok: false,
@@ -843,6 +869,7 @@ async function invokeCheckWithRecords(check: Check, signal = new AbortController
       }),
       list: () => Object.freeze([])
     },
+    invocationId: "invocation/v1:fixture-definition",
     options: check.options ?? {},
     project: {
       root: process.cwd(),
@@ -854,4 +881,8 @@ async function invokeCheckWithRecords(check: Check, signal = new AbortController
     signal
   });
   return Object.freeze({ records, result });
+}
+
+function ruleTestArtifactDirectory(root: string): string {
+  return join(root, "checks", "test-evidence-rule-tests");
 }
