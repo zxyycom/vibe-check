@@ -10,6 +10,9 @@ export type ParseJsonValueInput = {
   readonly source: string;
 };
 
+/** Signals malformed JSON without exposing parser-provided source text to higher-level reporters. */
+export class JsonSyntaxError extends Error {}
+
 export function isJsonValue(value: unknown): value is JsonValue {
   if (
     value === null ||
@@ -33,7 +36,7 @@ export function parseJsonValue({ label = "JSON", source }: ParseJsonValueInput):
   try {
     parsed = JSON.parse(source);
   } catch (error: unknown) {
-    throw new Error(`${label} parse failed: ${errorMessage(error)}`, { cause: error });
+    throw new JsonSyntaxError(`${label} parse failed: ${errorMessage(error)}`, { cause: error });
   }
   if (!isJsonValue(parsed)) {
     throw new Error(`${label} must contain a JSON value`);

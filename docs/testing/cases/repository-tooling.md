@@ -159,9 +159,14 @@ Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
 Entities:
 
 - `bun|scripts/validation/documentation/workflow.test.ts|docs validation library reports success only through an explicit reporter`
+- `bun|scripts/validation/documentation/workflow.test.ts|docs validation returns typed expected failures and keeps the Gate path console-silent`
+- `bun|scripts/validation/documentation/workflow.test.ts|docs diagnostics fail closed before direct CLI or Gate presentation`
+- `bun|scripts/validation/documentation/links.test.ts|documentation link validation retains every missing local-link occurrence in stable order`
   Proves:
 
-- Documentation library validation remains silent when no reporter is supplied and sends success summaries only to an explicit reporter, so an in-process Project Gate Check cannot corrupt Product-owned TTY progress with direct console output.
+- Documentation workflow uses an explicit reporter only for success summaries and returns provider-approved typed expected diagnostics without recovering Gate facts from thrown text. Its direct CLI and workspace caller write each failed diagnostic presentation to stderr and exit nonzero. Without a reporter, the in-process Gate path remains console-silent.
+- Empty collections, noncanonical data, duplicate IDs and unsafe one-line presentation fail before CLI or Gate presentation. The Gate path then becomes unavailable without admitting a failed Record or leaking control characters.
+- JSON, schema, examples and links own their task-local ID/data/presentation. The link fixture proves every missing local-link occurrence has canonical repository-relative source/target, line, column and occurrence, in deterministic source-location order.
 
 ## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
 
@@ -238,12 +243,16 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps native Check outcomes transcript-free`
+- `bun|scripts/project/gate/checks/process/native-operation.test.ts|Project Gate native operation > keeps native Check outcomes transcript-free`
+- `bun|scripts/project/gate/checks/docs-validation.test.ts|Project Gate documentation native diagnostics > publishes complete docs native diagnostic Records while terminal progress stays bounded`
+- `bun|scripts/project/gate/checks/native-projections.test.ts|Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
   Proves:
 
-- Native operations 直接形成 passed/failed/unavailable Check facts；validation failure 保留安全的 diagnostic code/count Record，并用 terminal message 指向对应 focused root command，不暴露 raw diagnostics，也不会创建空 Check artifact。
-- Test Evidence rule validation 向真实 ast-grep 步骤传递 cancellation，只在自身 `checks/test-evidence-rule-tests/process.log` 保留已发生的 version/rule-test process evidence，并区分 nonzero、version mismatch 和 unavailable 结果。
+- Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`。docs fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；terminal 与 progress tee 只显示前十条、将一条限制为 240 Unicode code points 并说明另有两条 omitted。preview 不改变 failed status、final data 或 effective aggregate。
+- 空、重复或不安全 diagnostics，以及 operation throw，均 fail closed 为 unavailable；不会创建 synthetic failed Record 或 native transcript。
+- Decision Records 只把已验证的 source/index/relationship facts 投影为 typed safe diagnostics，不转交 YAML、schema 或 filesystem `errors` 原文。semantic Test Evidence 只按 origin/code allowlist 和 code-specific policy 发布已验证的 path/location、Case ID 与 `runner: "bun"`；`topic.heading-unexpected` fixture 证明一条显式批准的 unexpected-heading Record。message、child/parser text、target、selector 和 entity key 不进入 native Record/preview；未知输入 fail closed 为 unavailable。
+- Test Evidence rule validation 把 cancellation 交给真实 ast-grep process，并只在自身 `checks/test-evidence-rule-tests/process.log` 保留 version/rule-test evidence。nonzero、version mismatch 和 unavailable 仍可区分；version-mismatch Record 只含 expected version、fixed mismatch classification、exit code 和 invocation-relative log reference，不复制 stdout/stderr。
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
 

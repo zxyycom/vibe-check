@@ -15,6 +15,21 @@ import {
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
 const encoder = new TextEncoder();
 
+/** A safe, provider-owned reason that docs validation may project without reading error text. */
+export class MachineExamplePublicationFailure extends Error {
+  public readonly kind: string;
+  public readonly path: string;
+
+  public constructor(kind: string, repositoryPath: string) {
+    super(
+      `${repositoryPath}: ${kind.replaceAll("-", " ")}; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}.`
+    );
+    this.kind = kind;
+    this.name = "MachineExamplePublicationFailure";
+    this.path = repositoryPath;
+  }
+}
+
 export function publishMachineExampleFiles(files: readonly GeneratedMachineExampleFile[]): void {
   cleanRetiredExampleDirectories();
   for (const file of files) {
@@ -33,15 +48,12 @@ export function checkPublishedMachineExampleFiles(
     let actual: Buffer;
     try {
       actual = fs.readFileSync(resolvePublishedPath(file.relativePath));
-    } catch {
-      throw new Error(
-        `published machine example is missing: ${file.relativePath}; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
-      );
+    } catch (error: unknown) {
+      if (!isMissingFile(error)) throw error;
+      throw machineExampleFailure("published-machine-example-missing", file.relativePath);
     }
     if (!actual.equals(expected)) {
-      throw new Error(
-        `published machine example drift: ${file.relativePath}; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
-      );
+      throw machineExampleFailure("published-machine-example-drift", file.relativePath);
     }
   }
 }
@@ -74,9 +86,7 @@ function checkCurrentExampleInventory(): void {
   }
   const example = rootEntries.find((entry) => entry.name === MACHINE_EXAMPLE_NAME);
   if (!example?.isDirectory()) {
-    throw new Error(
-      `published machine example is missing: ${MACHINE_EXAMPLE_ROOT}; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
-    );
+    throw machineExampleFailure("published-machine-example-missing", MACHINE_EXAMPLE_ROOT);
   }
   checkExampleInventory(new Set<string>(MACHINE_EXAMPLE_FILES));
 }
@@ -90,8 +100,9 @@ function checkExampleInventory(expectedFiles: ReadonlySet<string>): void {
   }
   for (const fileName of MACHINE_EXAMPLE_FILES) {
     if (!entries.some((entry) => entry.isFile() && entry.name === fileName)) {
-      throw new Error(
-        `published machine example is missing: ${MACHINE_EXAMPLE_ROOT}/${fileName}; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
+      throw machineExampleFailure(
+        "published-machine-example-missing",
+        `${MACHINE_EXAMPLE_ROOT}/${fileName}`
       );
     }
   }
@@ -102,16 +113,29 @@ function readPublishedDirectory(relativePath: string): fs.Dirent[] {
     return fs.readdirSync(resolvePublishedPath(relativePath), {
       withFileTypes: true
     });
-  } catch {
-    throw new Error(
-      `published machine example directory is missing or unreadable: ${relativePath}; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
-    );
+  } catch (error: unknown) {
+    if (!isMissingFile(error)) throw error;
+    throw machineExampleFailure("published-machine-example-directory-missing", relativePath);
   }
 }
 
 function inventoryDrift(relativePath: string): Error {
-  return new Error(
-    `published machine example inventory drift: unexpected ${relativePath}; expected exactly ${MACHINE_EXAMPLE_ROOT} with ${MACHINE_EXAMPLE_FILES.length} files; regenerate with ${MACHINE_EXAMPLE_REGENERATE_COMMAND}`
+  return machineExampleFailure("published-machine-example-inventory-drift", relativePath);
+}
+
+function machineExampleFailure(
+  kind: string,
+  relativePath: string
+): MachineExamplePublicationFailure {
+  return new MachineExamplePublicationFailure(kind, relativePath);
+}
+
+function isMissingFile(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as Readonly<{ readonly code?: unknown }>).code === "ENOENT"
   );
 }
 

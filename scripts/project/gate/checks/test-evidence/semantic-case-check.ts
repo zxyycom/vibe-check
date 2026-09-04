@@ -1,34 +1,51 @@
 import { checkTestEvidence } from "../../../../test-evidence/command.ts";
 import type { Check } from "@zxyycom/vibe-check";
+
 import {
   createNativeOperationCheck,
   nativeFailed,
   nativePassed,
+  type NativeOperationDiagnostic,
   type NativeOperationResult
 } from "../process/native-operation.ts";
+import { safeTestEvidenceBlockingDiagnostics } from "./semantic-case-projection.ts";
 
-/** Adapts semantic Case closure into its Gate Check. */
-export function createTestEvidenceCheck(): Check {
+export interface TestEvidenceCheckDependencies {
+  readonly check: typeof checkTestEvidence;
+}
+
+const defaultDependencies: TestEvidenceCheckDependencies = Object.freeze({
+  check: checkTestEvidence
+});
+
+/** Adapts the semantic Case ledger into its Gate Check without publishing raw diagnostic text. */
+export function createTestEvidenceCheck(
+  dependencies: TestEvidenceCheckDependencies = defaultDependencies
+): Check {
   return createNativeOperationCheck({
     checkId: "test-evidence",
     displayName: "Semantic Case ledger",
     operation: async (workspaceRoot, signal): Promise<NativeOperationResult> => {
-      const result = await checkTestEvidence({ cancelSignal: signal, workspaceRoot });
+      const result = await dependencies.check({ cancelSignal: signal, workspaceRoot });
       if (result.status === "ok") return nativePassed();
-      const diagnostics = result.diagnostics.filter(({ blocking }) => blocking);
-      const safeCode = safeDiagnosticCode(diagnostics[0]?.code);
+
+      const diagnostics = safeTestEvidenceBlockingDiagnostics(result.diagnostics);
+      if (diagnostics === undefined) {
+        throw new Error("Test Evidence has no safe diagnostic projection");
+      }
       return nativeFailed({
-        code: `test-evidence-${safeCode}`,
-        diagnosticCount: diagnostics.length,
-        focusedCommand: "bun run test-evidence -- check --root .",
-        summary: `Test Evidence reported ${diagnostics.length} blocking diagnostic(s); first code: ${safeCode}`
+        code: `test-evidence-${diagnostics[0].code}`,
+        diagnostics: nativeDiagnostics(diagnostics),
+        focusedCommand: "bun run test-evidence -- check --root ."
       });
     }
   });
 }
 
-function safeDiagnosticCode(value: string | undefined): string {
-  return value !== undefined && value.length <= 80 && /^[a-z][a-z0-9:.-]*$/u.test(value)
-    ? value
-    : "invalid";
+function nativeDiagnostics(
+  diagnostics: readonly (NativeOperationDiagnostic & Readonly<{ readonly code: string }>)[]
+): readonly NativeOperationDiagnostic[] {
+  return Object.freeze(
+    diagnostics.map(({ data, id, presentation }) => Object.freeze({ data, id, presentation }))
+  );
 }

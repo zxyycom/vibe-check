@@ -5,6 +5,7 @@ import {
   type TestEvidenceRuleTestInvocations,
   type TestEvidenceRuleTestResult
 } from "../../../../test-evidence/ast-grep/rule-tests.ts";
+import { expectedAstGrepVersionLine } from "../../../../test-evidence/ast-grep/command.ts";
 import { type ProcessResult } from "../../../../process-execution/execution.ts";
 import { defineCheck, type Check, type CheckResult } from "@zxyycom/vibe-check";
 
@@ -158,6 +159,18 @@ function settleRuleTestResult(
       signal: failedProcess.result.signal
     });
   }
+  const expectedVersion = expectedAstGrepVersionLine();
+  const log = processTranscriptReference(logPath);
+  context.records.report(
+    { id: "ast-grep-version-mismatch" },
+    Object.freeze({
+      expectedVersion,
+      kind: "ast-grep-version-mismatch",
+      log,
+      mismatch: "version-output",
+      versionExitCode: result.version.status
+    })
+  );
   return Object.freeze({
     status: "failed",
     data: Object.freeze({ versionExitCode: result.version.status }),
@@ -165,7 +178,7 @@ function settleRuleTestResult(
       Object.freeze({
         level: "error",
         code: "ast-grep-version-mismatch",
-        message: `The ast-grep version did not match; transcript: ${processTranscriptReference(logPath)}.`
+        message: `The ast-grep version did not match; transcript: ${log}.`
       })
     ])
   });

@@ -4,13 +4,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
+import { defineCheck, run as packageRun } from "@zxyycom/vibe-check";
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { defineCheck, run as packageRun, type Check } from "@zxyycom/vibe-check";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
 import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
 import { selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
-import { createNativeOperationCheck } from "./checks/process/native-operation.ts";
 import {
   createProjectGateDefinition,
   createProjectGateEntries,
@@ -18,6 +17,7 @@ import {
   PROJECT_GATE_RUN_CONFIG
 } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
+import { invokeCheck, invokeCheckWithRecords } from "./checks/check-execution.test-support.ts";
 import { writeProcessTranscript } from "./checks/process/process.ts";
 import {
   createTestEvidenceRuleTestsCheck,
@@ -586,197 +586,6 @@ describe("Project Gate Definition", () => {
     }
   });
 
-  it("keeps native Check outcomes transcript-free", async () => {
-    const logDirectory = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
-    try {
-      const scenarios = [
-        {
-          check: createNativeOperationCheck({
-            checkId: "fixture-native-pass",
-            displayName: "Fixture native pass",
-            operation: () => ({ passed: true })
-          }),
-          expected: { status: "passed", data: { outcome: "completed" } }
-        },
-        {
-          check: createNativeOperationCheck({
-            checkId: "fixture-native-diagnostic",
-            displayName: "Fixture native diagnostic",
-            operation: () => ({
-              passed: false,
-              code: "test-evidence-case.entity.case-missing",
-              diagnosticCount: 2,
-              focusedCommand: "bun run test-evidence -- check --root .",
-              summary:
-                "Test Evidence reported 2 blocking diagnostic(s); first code: case.entity.case-missing"
-            })
-          }),
-          expected: {
-            status: "failed",
-            data: {
-              outcome: "failed",
-              diagnosticCode: "test-evidence-case.entity.case-missing",
-              diagnosticCount: 2
-            },
-            messages: [
-              {
-                level: "error",
-                code: "test-evidence-case.entity.case-missing",
-                message:
-                  "Test Evidence reported 2 blocking diagnostic(s); first code: case.entity.case-missing; run: bun run test-evidence -- check --root ."
-              }
-            ]
-          },
-          records: [
-            {
-              data: {
-                code: "test-evidence-case.entity.case-missing",
-                count: 2
-              },
-              identity: { id: "native-operation-diagnostic" }
-            }
-          ]
-        },
-        {
-          check: createNativeOperationCheck({
-            checkId: "fixture-native-docs-diagnostic",
-            displayName: "Fixture native docs diagnostic",
-            operation: () => ({
-              passed: false,
-              code: "docs-example-validator-invalid",
-              diagnosticCount: 1,
-              focusedCommand: "bun run validate -- docs examples",
-              summary: "The Docs example validator reported a validation error"
-            })
-          }),
-          expected: {
-            status: "failed",
-            data: {
-              outcome: "failed",
-              diagnosticCode: "docs-example-validator-invalid",
-              diagnosticCount: 1
-            },
-            messages: [
-              {
-                level: "error",
-                code: "docs-example-validator-invalid",
-                message:
-                  "The Docs example validator reported a validation error; run: bun run validate -- docs examples"
-              }
-            ]
-          },
-          records: [
-            {
-              data: { code: "docs-example-validator-invalid", count: 1 },
-              identity: { id: "native-operation-diagnostic" }
-            }
-          ]
-        },
-        {
-          check: createNativeOperationCheck({
-            checkId: "fixture-native-decision-diagnostic",
-            displayName: "Fixture native Decision diagnostic",
-            operation: () => ({
-              passed: false,
-              code: "decision-records-invalid",
-              diagnosticCount: 3,
-              focusedCommand: "bun run decisions -- check",
-              summary: "Decision Records reported 3 validation error(s)"
-            })
-          }),
-          expected: {
-            status: "failed",
-            data: {
-              outcome: "failed",
-              diagnosticCode: "decision-records-invalid",
-              diagnosticCount: 3
-            },
-            messages: [
-              {
-                level: "error",
-                code: "decision-records-invalid",
-                message:
-                  "Decision Records reported 3 validation error(s); run: bun run decisions -- check"
-              }
-            ]
-          },
-          records: [
-            {
-              data: { code: "decision-records-invalid", count: 3 },
-              identity: { id: "native-operation-diagnostic" }
-            }
-          ]
-        },
-        {
-          check: createNativeOperationCheck({
-            checkId: "fixture-native-throw",
-            displayName: "Fixture native throw",
-            operation: () => {
-              throw new Error("fixture failure");
-            }
-          }),
-          expected: {
-            status: "unavailable",
-            reason: { code: "native-operation-unavailable" }
-          }
-        }
-      ];
-      for (const scenario of scenarios) {
-        const invocation = await invokeCheckWithRecords(scenario.check);
-        assert.deepEqual(invocation.result, scenario.expected);
-        assert.deepEqual(invocation.records, scenario.records ?? []);
-        assert.equal(
-          existsSync(join(logDirectory, "process", `${scenario.check.checkId}.log`)),
-          false
-        );
-      }
-
-      const cancelled = new AbortController();
-      cancelled.abort();
-      const check = createNativeOperationCheck({
-        checkId: "fixture-native-cancelled",
-        displayName: "Fixture native cancelled",
-        operation: () => {
-          throw new Error("must not run");
-        }
-      });
-      assert.deepEqual(await invokeCheck(check, cancelled.signal), {
-        status: "unavailable",
-        reason: { code: "execution-cancelled" }
-      });
-      assert.equal(
-        existsSync(join(logDirectory, "process", "fixture-native-cancelled.log")),
-        false
-      );
-
-      const afterOperationCancellation = new AbortController();
-      let operationWorkspaceRoot: string | undefined;
-      let operationSignal: AbortSignal | undefined;
-      const operationCancelled = createNativeOperationCheck({
-        checkId: "fixture-native-operation-cancelled",
-        displayName: "Fixture native operation cancellation",
-        operation: (workspaceRoot, signal) => {
-          operationWorkspaceRoot = workspaceRoot;
-          operationSignal = signal;
-          afterOperationCancellation.abort();
-          return { passed: true };
-        }
-      });
-      assert.deepEqual(await invokeCheck(operationCancelled, afterOperationCancellation.signal), {
-        status: "unavailable",
-        reason: { code: "execution-cancelled" }
-      });
-      assert.equal(operationWorkspaceRoot, process.cwd());
-      assert.equal(operationSignal, afterOperationCancellation.signal);
-      assert.equal(
-        existsSync(join(logDirectory, "process", "fixture-native-operation-cancelled.log")),
-        false
-      );
-    } finally {
-      rmSync(logDirectory, { force: true, recursive: true });
-    }
-  });
-
   it("preserves two-step ast-grep process evidence and failures", async () => {
     const logDirectory = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
@@ -812,14 +621,14 @@ describe("Project Gate Definition", () => {
       assert.match(readFileSync(transcriptPath, "utf8"), /step: version/);
       assert.match(readFileSync(transcriptPath, "utf8"), /step: rule-tests/);
 
-      const versionMismatch = await invokeCheck(
+      const versionMismatch = await invokeCheckWithRecords(
         createTestEvidenceRuleTestsCheck(
           testEvidenceRuleDependencies({ version: processResult(0, "wrong version") }, invocations)
         ),
         new AbortController().signal,
         artifactDirectory
       );
-      assert.deepEqual(versionMismatch, {
+      assert.deepEqual(versionMismatch.result, {
         status: "failed",
         data: { versionExitCode: 0 },
         messages: [
@@ -831,6 +640,21 @@ describe("Project Gate Definition", () => {
           }
         ]
       });
+      assert.deepEqual(versionMismatch.records, [
+        {
+          data: {
+            expectedVersion: "ast-grep 0.45.0",
+            kind: "ast-grep-version-mismatch",
+            log: "checks/test-evidence-rule-tests/process.log",
+            mismatch: "version-output",
+            versionExitCode: 0
+          },
+          identity: { id: "ast-grep-version-mismatch" }
+        }
+      ]);
+      assert.doesNotMatch(JSON.stringify(versionMismatch), /wrong version/);
+      assert.doesNotMatch(JSON.stringify(versionMismatch), /stdout/);
+      assert.doesNotMatch(JSON.stringify(versionMismatch), /stderr/);
       assert.doesNotMatch(readFileSync(transcriptPath, "utf8"), /step: rule-tests/);
 
       const failed = await invokeCheckWithRecords(
@@ -939,50 +763,6 @@ function processResult(
   readonly stdout: string;
 }> {
   return Object.freeze({ signal: null, status, stderr: "", stdout });
-}
-
-async function invokeCheck(
-  check: Check,
-  signal = new AbortController().signal,
-  artifactDirectory: string | null = null
-) {
-  return (await invokeCheckWithRecords(check, signal, artifactDirectory)).result;
-}
-
-async function invokeCheckWithRecords(
-  check: Check,
-  signal = new AbortController().signal,
-  artifactDirectory: string | null = null
-) {
-  if (check.execution === undefined)
-    throw new Error("fixture Check must have an execution callback");
-  const records: Array<
-    Readonly<{
-      readonly data: object;
-      readonly identity: { readonly id: string };
-    }>
-  > = [];
-  const result = await check.execution({
-    artifactDirectory,
-    dependencies: {
-      get: (checkId: string) => ({
-        ok: false,
-        error: { code: "dependency-not-declared", checkId }
-      }),
-      list: () => Object.freeze([])
-    },
-    invocationId: "invocation/v1:fixture-definition",
-    options: check.options ?? {},
-    project: {
-      root: process.cwd(),
-      flags: []
-    },
-    records: {
-      report: (identity, data) => records.push(Object.freeze({ data, identity }))
-    },
-    signal
-  });
-  return Object.freeze({ records, result });
 }
 
 function ruleTestArtifactDirectory(root: string): string {

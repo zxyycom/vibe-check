@@ -10,20 +10,20 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 `scripts/**` 按实际 workflow 与生命周期组织；下表是当前 owner、入口和允许依赖方向的权威映射。
 目录层级只表达父子 owner，具体文件继续由所在目录和文件名共同表达职责。
 
-| Owner                                                   | 责任与入口                                                                                                                                                                                                                                                                           |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `scripts/development/**`                                | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`scripts/process-execution/command.ts` 提供其进程命令边界。                                                                                                                                                    |
-| `scripts/environment/manage.ts`                         | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理，以及 `env:setup` 返回前完成的 local package candidate 自举。                                                                                                                                                           |
-| `scripts/process-execution/**`                          | repository automation 的 process facade、contract、runner、failure、plain-text environment 与根命令 adapter；跨 owner 只消费 `execution.ts`。                                                                                                                                        |
-| `scripts/repository-files/**`                           | repository 文件遍历、文本读写和路径 containment；不拥有 JSON validation 或 generic serialization。                                                                                                                                                                                   |
-| `scripts/error-message.ts` 与 `scripts/value-guards.ts` | 明确的诊断字符串和值形状小边界；它们是 scripts root 直接拥有的 capability。                                                                                                                                                                                                          |
-| `scripts/validation/**`                                 | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。                                                   |
-| `scripts/docs/**`                                       | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。                                                                                                     |
+| Owner                                                   | 责任与入口                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `scripts/development/**`                                | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`scripts/process-execution/command.ts` 提供其进程命令边界。                                                                                                                                                                                                                                                                                                                                                                                       |
+| `scripts/environment/manage.ts`                         | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理，以及 `env:setup` 返回前完成的 local package candidate 自举。                                                                                                                                                                                                                                                                                                                                                                                             |
+| `scripts/process-execution/**`                          | repository automation 的 process facade、contract、runner、failure、plain-text environment 与根命令 adapter；跨 owner 只消费 `execution.ts`。                                                                                                                                                                                                                                                                                                                                                                           |
+| `scripts/repository-files/**`                           | repository 文件遍历、文本读写和路径 containment；不拥有 JSON validation 或 generic serialization。                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| `scripts/canonical-json.ts`、`scripts/diagnostic-safety.ts`、`scripts/error-message.ts` 与 `scripts/value-guards.ts` | 跨 scripts owner 复用的根级安全 capability：canonical JSON machine facts、owner-local diagnostic ID/单行 presentation 的安全不变量，以及明确的诊断字符串和值形状小边界。它们不拥有字段语义、排序或 Product contract。                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| `scripts/validation/**`                                 | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。                                                                                                                                                                                                                                                                                      |
+| `scripts/docs/**`                                       | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。                                                                                                                                                                                                                                                                                                                                         |
 | `scripts/package/**`                                    | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate/release 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 准备、安装并核对 fingerprint local receipt，`release/**` 验证 clean source、formal version/tag、portable receipt 与 same-artifact Gate handoff，`candidate/external-consumer/**` 拥有隔离 consumer material、typed provider 与 types/documentation/runtime acceptance。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
-| `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/definition.ts` 是 Gate 组合配置入口，`gate/run.ts` 是唯一 process entry，`gate/checks/**` 拥有各领域 Check 配置与 adapter，`gate/runtime/**` 拥有 bound runtime mechanics。                                                                          |
-| `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                             |
-| `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                    |
-| `scripts/maintenance/**`                                 | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。                                                                                                                               |
+| `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/definition.ts` 是 Gate 组合配置入口，`gate/run.ts` 是唯一 process entry，`gate/checks/**` 拥有各领域 Check 配置与 adapter，`gate/runtime/**` 拥有 bound runtime mechanics。                                                                                                                                                                                                                                                                                                 |
+| `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                                                                                                                                                                                                                                                       |
+| `scripts/maintenance/**`                                | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。                                                                                                                                                                                                                                                                                                                                                                 |
 
 `src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。`scripts/project/package.json`
 从 exact installed `@zxyycom/vibe-check` candidate 消费该入口；`scripts/package/**` 只负责准备该 candidate，不能
@@ -35,16 +35,16 @@ scripts helper、环境状态或 process adapter。
 
 根 `package.json` 只公开下列工作流；内部 `scripts/**` 文件不是第二套根入口。
 
-| Workflow                  | 调用                                                                                                                                          | Owner                                     |
-| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| environment               | `bun run env:setup`；`bun run env:check`                                                                                                      | `scripts/environment/manage.ts`           |
-| development               | `bun run format [-- check]`；`bun run lint [-- product \| scripts]`；`bun run typecheck [-- product \| scripts]`；`bun run test`              | `scripts/development/**`                |
-| package candidate         | `bun run package:status`；`bun run package:build`；`bun run package:verify`；显式物理集成 `bun run package:candidate:integration`              | `scripts/package/command.ts` 与 `scripts/package/candidate/integration-command.ts` |
-| formal package release    | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>`                   | `scripts/package/release/command.ts`      |
-| docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                           | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
-| governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>` | their named owners                        |
-| maintenance advisory      | `bun run maintenance:lizard-upstream`                                                                                                        | `scripts/maintenance/lizard-upstream-advisory.ts` |
-| Project Gate              | `bun run check [-- --typecheck \| --lint \| --test \| --docs \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>`             | `scripts/project/gate/run.ts`             |
+| Workflow                  | 调用                                                                                                                                                    | Owner                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| environment               | `bun run env:setup`；`bun run env:check`                                                                                                                | `scripts/environment/manage.ts`                                                     |
+| development               | `bun run format [-- check]`；`bun run lint [-- product \| scripts]`；`bun run typecheck [-- product \| scripts]`；`bun run test`                        | `scripts/development/**`                                                            |
+| package candidate         | `bun run package:status`；`bun run package:build`；`bun run package:verify`；显式物理集成 `bun run package:candidate:integration`                       | `scripts/package/command.ts` 与 `scripts/package/candidate/integration-command.ts`  |
+| formal package release    | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>`                            | `scripts/package/release/command.ts`                                                |
+| docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                                       | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
+| governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>`                    | their named owners                                                                  |
+| maintenance advisory      | `bun run maintenance:lizard-upstream`                                                                                                                   | `scripts/maintenance/lizard-upstream-advisory.ts`                                   |
+| Project Gate              | `bun run check [-- --typecheck \| --lint \| --test \| --docs \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>` | `scripts/project/gate/run.ts`                                                       |
 
 `bun run check` 选择日常 required 集；focused preset 可组合并替换默认选择，`--all` 独占其它 preset。
 `.codex/environments/*.toml` 也直接调用该正式名称；旧 `verify:vibe-check-workspace`、`:required` 与
@@ -66,11 +66,11 @@ source-aligned function-metrics port 增加 translated-only 排除。实现原�
 
 `scripts/development/lizard-performance/command.ts` 是唯一显式选择的开发期比较入口。它**只形成 evidence，不授权或实施优化**；尤其不得据此修改 source-aligned analyzer core/readers/shared/protocol。结果必须按 layer、workload 与 temperature 读取，不能压缩成一个“Python 或 TypeScript 更快”的结论：
 
-| Layer | 回答的问题 | 不可替代的边界 |
-| --- | --- | --- |
-| A — historical Product end-to-end | 迁移前后完整 Product invocation | 包含 1.23→1.24、I/O、subprocess/Worker 与 Product 边界变化 |
+| Layer                               | 回答的问题                                            | 不可替代的边界                                                                                         |
+| ----------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| A — historical Product end-to-end   | 迁移前后完整 Product invocation                       | 包含 1.23→1.24、I/O、subprocess/Worker 与 Product 边界变化                                             |
 | B — fixed Lizard 1.24 analyzer-only | 同一已解码 source 上的 Python API / current port cost | 不含 Product read/decode、Worker、CLI/CSV 或 settlement；tiny startup 与 representative batch 分开解释 |
-| C — current Product decomposition | current path 的诊断定位 | stage 时间可重叠；不提供 historical 或 analyzer-only 替代值 |
+| C — current Product decomposition   | current path 的诊断定位                               | stage 时间可重叠；不提供 historical 或 analyzer-only 替代值                                            |
 
 ```bash
 bun scripts/development/lizard-performance/command.ts --mode smoke --layer B \
@@ -311,9 +311,13 @@ import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](s
 
 ### Process evidence
 
-Native docs、Decision Records 与 Test Evidence Checks 不创建单进程 transcript。每个外部 command Check 只从自己的 `CheckExecutionContext.artifactDirectory` 读取其路径能力；未授予该目录时以 `transcript-unavailable` fail closed。已授予目录时，它在启动 child 前写入 `checks/<encoded-check-id>/process.log` 的 running transcript，并在结算后将同一路径改写为 command、stdout/stderr、exit/signal/timeout 与安全 error summary；startup 写入失败时不得启动 child。process 与 ast-grep rule-test Check 不从 Gate Definition closure 或 invocation root 获取路径，也不能写 sibling Check artifact。
+Native docs、Decision Records 与 semantic Test Evidence Checks 不创建单进程 transcript。它们只能把 producing owner 已批准、已排序的 typed safe diagnostics 交给 private native adapter。每项诊断成为一个完整的 Check-local Record；adapter 不从 Record data 推断 ID、字段、顺序或 presentation。默认 terminal 只是同一集合的预览：按输入顺序最多十项，每项最多 240 个 Unicode code points；超长项标记 `truncated`，余项以准确 omitted count 指向完整 Records。预览不改变 Check data、status、aggregate 或 machine Record set。
 
-Check message 和 failure Record 只引用 `checks/<encoded-check-id>/process.log`。terminal message 不复制 child output、绝对路径、command arguments、credential URL 或 digest。配置了 timeout 且 facade 明确报告超时时结算为 `process-timeout`；不能可靠分类的 process/log/parse 边界 fail closed 为 `unavailable`。Product diagnostic channel、Gate transcript、progress transcript 与 child transcript 各自记录不同层次，不互相解析或复制。
+native adapter 接收到空、重复或不安全 diagnostics，或 native operation 抛错时，必须 fail closed 为 `unavailable`，不发布 synthetic failed Record，也不创建 transcript。Decision Records 只发布经 capability 验证的 decision ID、repo-relative source/index path 与 owner-authored classification/presentation；不会转交可能含 YAML、schema 或 filesystem detail 的 `errors: string[]`。Test Evidence 只接受封闭 origin/code allowlist，并依 code-specific policy 投影已验证的 repo-relative path/location、Case ID 和 `runner: "bun"`；child output、parser/error message、JUnit target/selector/entity key 与其它自由文本不进入 Record 或 preview。
+
+每个 external-command Check 只从自己的 `CheckExecutionContext.artifactDirectory` 读取路径能力；未授予时以 `transcript-unavailable` fail closed。已授予时，它在启动 child 前写入 `checks/<encoded-check-id>/process.log` 的 running transcript，并在结算后将同一路径改写为 command、stdout/stderr、exit/signal/timeout 与安全 error summary；startup 写入失败时不得启动 child。process 与 ast-grep rule-test Check 不从 Gate Definition closure 或 invocation root 获取路径，也不能写 sibling Check artifact。
+
+process Check 的 failure Record 和 terminal message 只引用 `checks/<encoded-check-id>/process.log`。terminal message 不复制 child output、绝对路径、command arguments、credential URL 或 digest。配置了 timeout 且 facade 明确报告超时时结算为 `process-timeout`；不能可靠分类的 process/log/parse 边界 fail closed 为 `unavailable`。ast-grep version mismatch 仍属于该 transcript-owning Check：它只发布 expected version、固定 mismatch classification、version exit code 与 invocation-relative log reference，不解析或复制 version stdout/stderr。Product diagnostic channel、Gate transcript、progress transcript 与 child transcript 各自记录不同层次，不互相解析或复制。
 
 ### Gate result post-processing and exits
 
@@ -329,12 +333,12 @@ Hook 必须返回闭合的 `{ status, messages }`，且不能改写 context 或 
 
 package API 文档按下列 owner 维护：
 
-| 内容 | 可编辑事实源 | 投影或发布结果 |
-| --- | --- | --- |
-| README 与深入机制正文、标题和链接 | package root `README.md`、`docs/api-mechanics.md` 的 projected example fence 之外 | 同一 checked-in Markdown 直接进入 package。 |
-| Check guide | [package README 的随包 Check 索引](../README.md#随包提供的-check)所链接的对应 guide | 同一 checked-in Markdown 直接进入 package。 |
-| 可执行 API 示例 | `docs/examples/package-api/*.ts` 的 allowlisted file 或 region | projection registry 指定的自然 Markdown heading 下的唯一 TypeScript fence，或 source JSDoc `@example` tail。 |
-| declaration 说明 | declaration owner 中 managed `@example` tail 之前的 source JSDoc prose | emitted declarations 保留该说明和投影后的示例。 |
+| 内容                              | 可编辑事实源                                                                        | 投影或发布结果                                                                                               |
+| --------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| README 与深入机制正文、标题和链接 | package root `README.md`、`docs/api-mechanics.md` 的 projected example fence 之外   | 同一 checked-in Markdown 直接进入 package。                                                                  |
+| Check guide                       | [package README 的随包 Check 索引](../README.md#随包提供的-check)所链接的对应 guide | 同一 checked-in Markdown 直接进入 package。                                                                  |
+| 可执行 API 示例                   | `docs/examples/package-api/*.ts` 的 allowlisted file 或 region                      | projection registry 指定的自然 Markdown heading 下的唯一 TypeScript fence，或 source JSDoc `@example` tail。 |
+| declaration 说明                  | declaration owner 中 managed `@example` tail 之前的 source JSDoc prose              | emitted declarations 保留该说明和投影后的示例。                                                              |
 
 每个 Markdown target 由 `scripts/docs/package-api/example-projections.ts` 中的自然 ATX heading path 定位。path 按
 H2-H6 ancestor-to-target 的 heading text 排列；跳过数字层级不会产生空 path component。目标 section 必须
@@ -372,9 +376,7 @@ bytes；installed consumer typecheck 直接检查 Definition，documentation acc
 documented built-in/custom facts、RunResult messages 与 machine publication。legacy schemas、historical examples、generator sources 与 validation scripts 不进入
 package。
 
-Documentation validation library functions 返回 Promise，调用方必须等待 completion；它们只通过 `validateDocs({ report })` 的显式 reporter 发布成功消息。不提供
-reporter 时保持静默。CLI 入口提供 console reporter，Project Gate 的 in-process docs Checks 不提供，从而不在 Product
-拥有 TTY running region 时向同一 stdout 插入未登记内容。
+Documentation validation library functions 返回 Promise，调用方必须等待 completion。四个 native Gate docs task（`json`、`schema`、`examples`、`links`）把可预期的内容 validation failure 返回为 task-owned、已排序的 safe diagnostics，而不从 Error text 恢复 machine 或 terminal facts；unexpected I/O、programming 或安全边界 failure 继续 throw。每项 diagnostic 都有 stable task-local ID、non-array Record data 和单行 presentation；`links` 对每个 missing local-link occurrence 保留 canonical repository-relative source / target、line、column 与 occurrence。`validateDocs({ report })` 只通过显式 reporter 发布 success；typed failed result 不调用 reporter。workflow 的 direct CLI 和 workspace caller 读取 failed result 后，逐条将 safe presentation 写到 stderr 并以非零退出。Project Gate 的 in-process docs Checks 不提供 reporter，而是把同一 diagnostics 交给 native Check Record adapter，从而不在 Product 拥有 TTY running region 时向 stdout 插入未登记内容。
 
 `bun run validate` 先运行全部文档 task，再执行 repository layout characterization，最后运行
 `git diff --check`；`bun run validate -- docs` 只运行文档 task，不执行 layout 或 diff 检查。
@@ -390,16 +392,14 @@ materials 只走显式 historical validation path，不进入 current traversal 
 
 `scripts/process-execution/execution.ts` 是跨 owner 的 process facade；其它 scripts owner 只能从该 facade 消费 process capability，不得 deep import `process-execution/{contract,failure,plain-text-environment,result,runner}.ts`。
 
-`scripts/process-execution/**`、`scripts/repository-files/**`、`scripts/error-message.ts` 与 `scripts/value-guards.ts` 是普通 tracked repository source，不是 package、workspace、独立 manifest、独立
+`scripts/process-execution/**`、`scripts/repository-files/**`、`scripts/canonical-json.ts`、`scripts/diagnostic-safety.ts`、`scripts/error-message.ts` 与 `scripts/value-guards.ts` 是普通 tracked repository source，不是 package、workspace、独立 manifest、独立
 TypeScript config、独立 Project Gate Check 或 selection preset。它们由 `bun run typecheck -- scripts`、`bun run lint -- scripts`、
 `bun run format -- check` 和 Test Evidence current scripts surface 覆盖。它们与 `src/data-boundary/**` 与 `src/package-checks/host-environment/**` 是不同
 owner：前者服务 repository automation，后者服务 Product runtime；Product 不得 import 前者。这些 script boundaries
 不定义 Product source-access boundary；适用的 Project consumer 与 package/docs 例外见
 [Source owners and dependency direction](#source-owners-and-dependency-direction)。
 
-进程 facade、repository file/path capability 与两个根级小 capability 必须让开发脚本边界可复现和可诊断：
-文件遍历返回稳定 slash-normalized relative paths，文本与 process failure 保留目标或失败事实，不静默跳过；已启动 child 的 cancellation 保留 error、
-signal 和 `status: null`，不能视为成功。JSON validation、serialization 与 Product scan-scope/scanner contract 仍由各自 owner 承担。
+进程 facade、repository file/path capability 与四个根级小 capability 让开发脚本边界可复现、可诊断且可安全交接：文件遍历返回稳定 slash-normalized relative paths，文本与 process failure 保留目标或失败事实，不静默跳过；已启动 child 的 cancellation 保留 error、signal 和 `status: null`，不能视为成功。`scripts/canonical-json.ts` 将 untrusted scripts data materialize 为 detached、immutable、有限 JSON machine fact，拒绝 getter、hook、cycle 与非有限 number；`scripts/diagnostic-safety.ts` 只验证 owner-local Record ID 和单行 presentation，拒绝控制字符。二者由 scripts root 共同拥有，是因为多个 scripts owner 都需同一安全不变量；它们不定义 Product data boundary、public schema、诊断字段、排序或 presentation 语义。JSON document validation、serialization 与 Product scan-scope/scanner contract 仍由各自 owner 承担。
 
 ### Environment setup and destructive boundary
 
