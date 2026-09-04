@@ -1,6 +1,6 @@
 ---
 title: 以 typed provider data 拆分 external consumer acceptance
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-27T05:00:42Z
 purpose: 让一次外部安装成为可审计的共同运算，并由独立 consumer Checks 并行验收类型、文档和运行时行为。

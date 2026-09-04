@@ -34,7 +34,7 @@
       "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
       "complete-first-release-check-set-without-markdown-structure.md": "sha256:98287aa77d20eec27c838c7923f1bc425ba117b80ccc545a84ae08914749469b",
       "complete-project-gate-before-public-package-release.md": "sha256:c06bdaf6a8f8b5bb159c639170abeb1fd70a7d2e9adfca511e8ae94d89598b8f",
-      "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md": "sha256:52eeec99a8343294cfd1834176034ce638bcf9ce8c7fa7294b4d30e260d29e10",
+      "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md": "sha256:d418f012b519b311305eebc0cda3a82bd9741c2c3302ace18cbef3bde6698822",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
       "confirm-config-run-and-package-names-before-publication.md": "sha256:39e30c7df1b05d09f93355a5a2279d817aeda4cd65e9072d90b40a2a5e71c0df",
@@ -65,6 +65,7 @@
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
       "exclude-historical-schemas-from-maintainability-metrics.md": "sha256:be9d6f8ef503e3adca5f9dd1b594c749d2812902a0dc7656625d1f5557ca8d50",
       "exclude-lizard-port-from-repository-quality-metrics.md": "sha256:89a66fe4208b043246142aba85af988b9ed3d603c9ef90e1f4df2adcf38eace4",
+      "exclude-test-functions-but-keep-test-maintainability-evidence.md": "sha256:3e7cd61ebce5032dbde3391d7bf043983fb599a858e37b235982322d05017330",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
@@ -190,6 +191,7 @@
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
       "retain-private-invocation-admission-strategy-lifecycle.md": "sha256:20e1ad76e1eaded574bfd26306d899c58dec10dca5b132ed01a4b2c601e467b6",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
+      "reuse-gate-prepared-candidate-without-detached-lifecycle.md": "sha256:47d0c11312074d16f21af3f32a1839733234bf8083c1e9eb3ae21048a6cd5773",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
@@ -210,7 +212,7 @@
       "ship-current-machine-contract-materials-in-the-package.md": "sha256:e556625a1028816a4bc7f19a9a27cdc5df0f0c06804fd1d004c0352cf6eb2636",
       "ship-one-capability-rich-machine-example.md": "sha256:6f58fc71d58bd72d614af34475b0d2f07a585a934d0b85fc66210ca0ab2754e8",
       "ship-one-definition-backed-machine-example.md": "sha256:9d6ee52c5758930a8647616927a8e615a6819082dd232523aaa34530106796b8",
-      "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:bcd47c30def29f37ae63358686729c5ea822afe6a05d37a99b92580ec3cf0d9d",
+      "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:a59f00e3db07564ce351aa90953140ed4dd1dfb83f5f2ec1c42c4bc792f98013",
       "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
       "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
@@ -1238,16 +1240,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md",
+        "sourcePath": "archive/configure-project-gate-admission-priority-by-repeated-comparative-evidence.md",
         "title": "用重复对照证据配置 Project Gate 的准入优先级",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T04:56:53Z",
         "purpose": "让 Gate 的 test partition、容量、mutex 与任何非零 admission priority 都对应可复核的同工作负载资源和关键路径证据。",
@@ -2202,6 +2204,37 @@
             "target": "isolate-lizard-port-behind-check-private-interface.md"
           }
         ]
+      }
+    },
+    "exclude-test-functions-but-keep-test-maintainability-evidence.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "exclude-test-functions-but-keep-test-maintainability-evidence.md",
+        "title": "排除测试函数复杂度但保留测试可维护性证据",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T03:03:19Z",
+        "purpose": "降低 repository Function metrics 的无效分析成本，同时继续用重复和文件长度约束直接影响维护体验的测试代码问题。",
+        "background": "Product test/test-support 显著增加 analyzer 时间；测试函数复杂度价值较低，但重复代码和超长文件仍影响维护。",
+        "decision": "Function metrics 不分析 Product test/test-support，duplicate detection 与 file metrics 继续覆盖测试代码。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "exclude-undefined-markdown-references-from-link-check.md": {
@@ -6181,6 +6214,46 @@
         ]
       }
     },
+    "reuse-gate-prepared-candidate-without-detached-lifecycle.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "reuse-gate-prepared-candidate-without-detached-lifecycle.md",
+        "title": "以唯一 prepared candidate 完成 Project Gate package 验收",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T03:03:18Z",
+        "purpose": "让 full Gate 只执行一次真实 package preparation，同时保留产物、consumer contract 与显式 cold integration 证明。",
+        "background": "Gate root 已准备 exact candidate，但 candidate test 仍 detached cold build 并多次安装，重复物理工作持续触发硬门禁。",
+        "decision": "Gate root 唯一拥有真实 candidate lifecycle，full 消费其 typed evidence；cold integration 由显式 package target 承接。",
+        "tags": [
+          "configuration",
+          "testing",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md"
+          },
+          {
+            "type": "归并",
+            "target": "split-external-consumer-acceptance-with-typed-provider-data.md"
+          }
+        ]
+      }
+    },
     "reuse-prepared-candidate-across-package-acceptance.md": {
       "keys": {
         "tag": [
@@ -6839,16 +6912,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "split-external-consumer-acceptance-with-typed-provider-data.md",
+        "sourcePath": "archive/split-external-consumer-acceptance-with-typed-provider-data.md",
         "title": "以 typed provider data 拆分 external consumer acceptance",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-27T05:00:42Z",
         "purpose": "让一次外部安装成为可审计的共同运算，并由独立 consumer Checks 并行验收类型、文档和运行时行为。",

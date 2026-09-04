@@ -1,6 +1,6 @@
 ---
 title: 用重复对照证据配置 Project Gate 的准入优先级
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T04:56:53Z
 purpose: 让 Gate 的 test partition、容量、mutex 与任何非零 admission priority 都对应可复核的同工作负载资源和关键路径证据。
