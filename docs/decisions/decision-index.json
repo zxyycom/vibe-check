@@ -65,7 +65,7 @@
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
       "exclude-historical-schemas-from-maintainability-metrics.md": "sha256:be9d6f8ef503e3adca5f9dd1b594c749d2812902a0dc7656625d1f5557ca8d50",
       "exclude-lizard-port-from-repository-quality-metrics.md": "sha256:89a66fe4208b043246142aba85af988b9ed3d603c9ef90e1f4df2adcf38eace4",
-      "exclude-test-functions-but-keep-test-maintainability-evidence.md": "sha256:3e7cd61ebce5032dbde3391d7bf043983fb599a858e37b235982322d05017330",
+      "exclude-test-functions-but-keep-test-maintainability-evidence.md": "sha256:6907264d6a092eeafef3f4919c1add31e85263fab92eda832d9c54b5390402c3",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
       "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
