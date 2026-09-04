@@ -6,7 +6,7 @@ import {
   type RecordDiagnostic,
   type RecordSubmissionResult
 } from "./record-store.ts";
-import type { CoreCheck, CoreSnapshot } from "./facts.ts";
+import type { CoreCheck, CoreRecord, CoreSnapshot } from "./facts.ts";
 import { validateCheckDescriptor } from "../check/descriptor-validation.ts";
 import { normalizeCheckOutcome } from "./outcome-normalization.ts";
 
@@ -39,6 +39,8 @@ export interface AuthorCheckSettlement {
 export interface CoreCheckSession {
   openCheckScope(checkId: string): TrustedCheckScope;
   readSettledCheckOutcome(checkId: string): CheckOutcome;
+  /** Product-private readback used only after this Check's terminal settlement. */
+  readSettledCheckRecords(checkId: string): readonly CoreRecord[];
   closeUnresolvedAsCancelled(): readonly CancelledCheckClosure[];
   freeze(): CoreSnapshot;
 }
@@ -95,8 +97,7 @@ function createSlots(registrations: readonly CoreCheckRegistration[]): CoreSlot[
       checkId: definition.value.checkId,
       definition: definition.value,
       diagnostics: new Set(),
-      lifecycle: { kind: "registered" },
-      recordIds: new Set()
+      lifecycle: { kind: "registered" }
     });
   }
   return slots.sort((left, right) =>
@@ -137,6 +138,14 @@ class CoreCheckSessionImpl implements CoreCheckSession {
       coreInvariant("Core settled Check is not available");
     }
     return slot.lifecycle.outcome;
+  }
+
+  public readSettledCheckRecords(checkId: string): readonly CoreRecord[] {
+    const slot = this.#slotFor(checkId);
+    if (slot.lifecycle.kind !== "settled") {
+      coreInvariant("Core settled Check Records are not available");
+    }
+    return this.#recordStore.recordsForCheckInCanonicalOrder(checkId);
   }
 
   public closeUnresolvedAsCancelled(): readonly CancelledCheckClosure[] {

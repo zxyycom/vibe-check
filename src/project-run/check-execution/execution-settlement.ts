@@ -22,16 +22,14 @@ export interface SettledCheckFacts {
 }
 
 export type CheckExecutionSettlementState = Readonly<{
+  readonly session: CoreCheckSession;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly lifecycle: CheckExecutionLifecycle | undefined;
   readonly settledFactsByCheckId: Map<string, SettledCheckFacts>;
 }>;
 
 /** Mutable execution session state shared by execution and terminal finalization. */
-export type CheckExecutionState = CheckExecutionSettlementState &
-  Readonly<{
-    readonly session: CoreCheckSession;
-  }>;
+export type CheckExecutionState = CheckExecutionSettlementState;
 
 export class CheckExecutionInvariantFailure extends Error {
   public constructor(message: string) {
@@ -123,6 +121,7 @@ export function recordSettledCheck(
       outcome: input.outcome,
       durationMs: input.durationMs,
       messages: input.messages,
+      records: input.state.session.readSettledCheckRecords(input.check.checkId),
       visibility: input.check.visibility
     })
   );

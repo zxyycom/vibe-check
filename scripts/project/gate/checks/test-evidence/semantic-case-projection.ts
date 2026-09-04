@@ -69,14 +69,7 @@ function safeDiagnosticProjection(
   const data = safeDiagnosticData(context, fields);
   return Object.freeze({
     code: context.code,
-    data,
-    presentation: presentation({
-      caseId: fields.caseId,
-      code: context.code,
-      location: fields.location,
-      origin: context.origin,
-      path: fields.path
-    })
+    data
   });
 }
 
@@ -184,28 +177,6 @@ function safeRunner(
 ): "bun" | undefined {
   if (!policy.runner || diagnostic.runner === undefined) return undefined;
   return diagnostic.runner === "bun" ? "bun" : undefined;
-}
-
-function presentation(options: {
-  readonly caseId: string | undefined;
-  readonly code: string;
-  readonly location: Readonly<{ readonly column?: number; readonly line: number }> | undefined;
-  readonly origin: TestEvidenceDiagnosticOrigin;
-  readonly path: string | undefined;
-}): string {
-  const location = presentationLocation(options.path, options.location);
-  const casePrefix = options.caseId === undefined ? "" : `Case ${options.caseId}: `;
-  return `${casePrefix}Test Evidence ${options.origin} diagnostic ${options.code}${location}.`;
-}
-
-function presentationLocation(
-  path: string | undefined,
-  location: Readonly<{ readonly column?: number; readonly line: number }> | undefined
-): string {
-  if (path === undefined) return "";
-  if (location === undefined) return ` at ${path}`;
-  const column = location.column === undefined ? "" : `:${location.column}`;
-  return ` at ${path}:${location.line}${column}`;
 }
 
 function compareSafeDiagnostic(

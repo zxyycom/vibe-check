@@ -1,4 +1,5 @@
 import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { CoreRecord } from "../../check-settlement/facts.ts";
 import type { ProgressFeedback, ProgressWriter } from "./renderer.ts";
 
 export const COUNTS = Object.freeze({ failed: 1, notApplicable: 1, passed: 1, unavailable: 1 });
@@ -23,6 +24,7 @@ export function settled(
   durationMs: number | null,
   presentation: Readonly<{
     readonly messages?: readonly CheckMessage[];
+    readonly records?: readonly CoreRecord[];
     readonly visibility?: CheckVisibility;
   }> = {}
 ): ProgressFeedback {
@@ -33,6 +35,7 @@ export function settled(
     durationMs,
     outcome,
     messages: presentation.messages ?? [],
+    records: presentation.records ?? [],
     visibility: presentation.visibility ?? "always"
   };
 }

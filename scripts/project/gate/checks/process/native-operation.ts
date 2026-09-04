@@ -20,9 +20,6 @@ const UNAVAILABLE_REASON_CODE = Object.freeze({
   nativeOperationUnavailable: "native-operation-unavailable"
 } as const);
 
-const NATIVE_DIAGNOSTIC_PREVIEW_LIMIT = 10;
-const NATIVE_DIAGNOSTIC_PREVIEW_CODE_POINT_LIMIT = 240;
-
 /** Maps one private native operation into ordinary Check facts without a process transcript. */
 export function createNativeOperationCheck(
   input: Readonly<{
@@ -63,8 +60,6 @@ function passedResult(): CheckResult {
 }
 
 function failedResult(result: SafeNativeOperationFailed): CheckResult {
-  const preview = result.diagnostics.slice(0, NATIVE_DIAGNOSTIC_PREVIEW_LIMIT);
-  const omittedCount = result.diagnostics.length - preview.length;
   return Object.freeze({
     status: "failed",
     data: Object.freeze({
@@ -73,56 +68,13 @@ function failedResult(result: SafeNativeOperationFailed): CheckResult {
       diagnosticCount: result.diagnostics.length
     }),
     messages: Object.freeze([
-      ...preview.map((diagnostic) =>
-        Object.freeze({
-          level: "error" as const,
-          code: result.code,
-          message: boundedPresentation(diagnostic.presentation)
-        })
-      ),
-      ...(omittedCount === 0
-        ? []
-        : [
-            Object.freeze({
-              level: "error" as const,
-              code: result.code,
-              message: `${omittedCount} additional diagnostic(s) were omitted from terminal preview; inspect this Check's Records for the complete set.`
-            })
-          ]),
       Object.freeze({
-        level: "error",
+        level: "error" as const,
         code: result.code,
         message: `Run: ${result.focusedCommand}.`
       })
     ])
   });
-}
-
-function boundedPresentation(presentation: string): string {
-  if (codePointLength(presentation) <= NATIVE_DIAGNOSTIC_PREVIEW_CODE_POINT_LIMIT)
-    return presentation;
-  const marker = "… [truncated]";
-  return `${prefixByCodePoints(
-    presentation,
-    NATIVE_DIAGNOSTIC_PREVIEW_CODE_POINT_LIMIT - codePointLength(marker)
-  )}${marker}`;
-}
-
-function codePointLength(value: string): number {
-  let length = 0;
-  for (const _character of value) length += 1;
-  return length;
-}
-
-function prefixByCodePoints(value: string, limit: number): string {
-  let prefix = "";
-  let length = 0;
-  for (const character of value) {
-    if (length === limit) break;
-    prefix += character;
-    length += 1;
-  }
-  return prefix;
 }
 
 function unavailable(

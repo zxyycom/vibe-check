@@ -1,6 +1,6 @@
 ---
 title: 让 Native Gate 失败发布 owner-scoped 详细诊断 Record
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T10:18:25Z
 purpose: 让 Project Gate 的 native validation failure 为每条安全诊断保留可读取 Record，并在默认终端显示有界预览。

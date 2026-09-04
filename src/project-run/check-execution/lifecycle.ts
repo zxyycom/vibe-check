@@ -1,4 +1,5 @@
 import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { CoreRecord } from "../../check-settlement/facts.ts";
 
 /** Private Run handoff for Check lifecycle presentation and accounting. */
 export type CheckExecutionLifecycle = Readonly<{
@@ -14,6 +15,7 @@ export type CheckSettledFact = CheckStartedFact &
   Readonly<{
     durationMs: number | null;
     messages: readonly CheckMessage[];
+    records: readonly CoreRecord[];
     outcome: CheckOutcome;
     visibility: CheckVisibility;
   }>;

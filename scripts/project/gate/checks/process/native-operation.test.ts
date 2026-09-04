@@ -30,13 +30,11 @@ describe("Project Gate native operation", () => {
               diagnostics: [
                 {
                   data: { caseId: "AUX-EXAMPLE-001", kind: "case-entity-missing" },
-                  id: "case:aux-example-001:entity-missing",
-                  presentation: "AUX-EXAMPLE-001: required test entity is missing."
+                  id: "case:aux-example-001:entity-missing"
                 },
                 {
                   data: { caseId: "AUX-EXAMPLE-002", kind: "case-entity-missing" },
-                  id: "case:aux-example-002:entity-missing",
-                  presentation: "AUX-EXAMPLE-002: required test entity is missing."
+                  id: "case:aux-example-002:entity-missing"
                 }
               ],
               focusedCommand: "bun run test-evidence -- check --root ."
@@ -50,16 +48,6 @@ describe("Project Gate native operation", () => {
               diagnosticCount: 2
             },
             messages: [
-              {
-                level: "error",
-                code: "test-evidence-case.entity.case-missing",
-                message: "AUX-EXAMPLE-001: required test entity is missing."
-              },
-              {
-                level: "error",
-                code: "test-evidence-case.entity.case-missing",
-                message: "AUX-EXAMPLE-002: required test entity is missing."
-              },
               {
                 level: "error",
                 code: "test-evidence-case.entity.case-missing",
@@ -97,9 +85,7 @@ describe("Project Gate native operation", () => {
                     kind: "machine-artifact-example-invalid",
                     path: "docs/examples/artifacts/mixed-outcomes/run.json"
                   },
-                  id: "machine-artifact:syntax:docs%2Fexamples%2Fartifacts%2Fmixed-outcomes%2Frun.json",
-                  presentation:
-                    "docs/examples/artifacts/mixed-outcomes/run.json: current machine artifact example is invalid (syntax)."
+                  id: "machine-artifact:syntax:docs%2Fexamples%2Fartifacts%2Fmixed-outcomes%2Frun.json"
                 }
               ],
               focusedCommand: "bun run validate -- docs examples"
@@ -113,12 +99,6 @@ describe("Project Gate native operation", () => {
               diagnosticCount: 1
             },
             messages: [
-              {
-                level: "error",
-                code: "docs-example-validator-invalid",
-                message:
-                  "docs/examples/artifacts/mixed-outcomes/run.json: current machine artifact example is invalid (syntax)."
-              },
               {
                 level: "error",
                 code: "docs-example-validator-invalid",
@@ -148,18 +128,15 @@ describe("Project Gate native operation", () => {
               diagnostics: [
                 {
                   data: { decisionId: "decision-a.md", kind: "decision-invalid" },
-                  id: "decision:decision-a.md:invalid",
-                  presentation: "decision-a.md: Decision Record validation failed."
+                  id: "decision:decision-a.md:invalid"
                 },
                 {
                   data: { decisionId: "decision-b.md", kind: "decision-invalid" },
-                  id: "decision:decision-b.md:invalid",
-                  presentation: "decision-b.md: Decision Record validation failed."
+                  id: "decision:decision-b.md:invalid"
                 },
                 {
                   data: { decisionId: "decision-c.md", kind: "decision-invalid" },
-                  id: "decision:decision-c.md:invalid",
-                  presentation: "decision-c.md: Decision Record validation failed."
+                  id: "decision:decision-c.md:invalid"
                 }
               ],
               focusedCommand: "bun run decisions -- check"
@@ -173,21 +150,6 @@ describe("Project Gate native operation", () => {
               diagnosticCount: 3
             },
             messages: [
-              {
-                level: "error",
-                code: "decision-records-invalid",
-                message: "decision-a.md: Decision Record validation failed."
-              },
-              {
-                level: "error",
-                code: "decision-records-invalid",
-                message: "decision-b.md: Decision Record validation failed."
-              },
-              {
-                level: "error",
-                code: "decision-records-invalid",
-                message: "decision-c.md: Decision Record validation failed."
-              },
               {
                 level: "error",
                 code: "decision-records-invalid",
@@ -234,36 +196,37 @@ describe("Project Gate native operation", () => {
         );
       }
 
-      const longPresentation = `long presentation ${"x".repeat(300)}`;
-      const boundedPreview = await invokeCheckWithRecords(
+      const recordOnly = await invokeCheckWithRecords(
         createNativeOperationCheck({
-          checkId: "fixture-native-bounded-preview",
-          displayName: "Fixture native bounded preview",
+          checkId: "fixture-native-record-only",
+          displayName: "Fixture native record-only",
           operation: () => ({
             passed: false,
-            code: "native-preview-invalid",
+            code: "native-record-invalid",
             diagnostics: Array.from({ length: 12 }, (_, index) => ({
               data: { index: index + 1, kind: "fixture-diagnostic" },
-              id: `fixture:diagnostic:${index + 1}`,
-              presentation: index === 0 ? longPresentation : `fixture diagnostic ${index + 1}.`
+              id: `fixture:diagnostic:${index + 1}`
             })),
-            focusedCommand: "bun run fixture-native-preview"
+            focusedCommand: "bun run fixture-native-record-only"
           })
         })
       );
-      assert.equal(boundedPreview.records.length, 12);
-      assert.equal(boundedPreview.result.status, "failed");
-      if (boundedPreview.result.status === "failed") {
-        const messages = boundedPreview.result.messages ?? [];
-        assert.equal(diagnosticCount(boundedPreview.result.data), 12);
-        assert.equal(messages.length, 12);
-        assert.equal(codePointLength(messages[0]?.message ?? ""), 240);
-        assert.match(messages[0]?.message ?? "", /\[truncated\]$/);
-        assert.equal(
-          messages[10]?.message,
-          "2 additional diagnostic(s) were omitted from terminal preview; inspect this Check's Records for the complete set."
-        );
-      }
+      assert.equal(recordOnly.records.length, 12);
+      assert.deepEqual(recordOnly.result, {
+        status: "failed",
+        data: {
+          outcome: "failed",
+          diagnosticCode: "native-record-invalid",
+          diagnosticCount: 12
+        },
+        messages: [
+          {
+            level: "error",
+            code: "native-record-invalid",
+            message: "Run: bun run fixture-native-record-only."
+          }
+        ]
+      });
 
       for (const operation of [
         () =>
@@ -278,8 +241,8 @@ describe("Project Gate native operation", () => {
             passed: false,
             code: "native-duplicate-diagnostic",
             diagnostics: [
-              { data: { index: 1 }, id: "fixture:duplicate", presentation: "first diagnostic." },
-              { data: { index: 2 }, id: "fixture:duplicate", presentation: "second diagnostic." }
+              { data: { index: 1 }, id: "fixture:duplicate" },
+              { data: { index: 2 }, id: "fixture:duplicate" }
             ],
             focusedCommand: "bun run fixture-native-duplicate"
           }) as const,
@@ -287,9 +250,7 @@ describe("Project Gate native operation", () => {
           ({
             passed: false,
             code: "native-unsafe-diagnostic",
-            diagnostics: [
-              { data: { index: 1 }, id: "fixture:unsafe", presentation: "unsafe\npresentation" }
-            ],
+            diagnostics: [{ data: { index: 1 }, id: "fixture:unsafe\nidentifier" }],
             focusedCommand: "bun run fixture-native-unsafe"
           }) as const
       ]) {
@@ -313,8 +274,7 @@ describe("Project Gate native operation", () => {
         diagnostics: [
           {
             data: { kind: "fixture-diagnostic" },
-            id: "fixture:passed-accessor",
-            presentation: "fixture diagnostic."
+            id: "fixture:passed-accessor"
           }
         ],
         focusedCommand: "bun run fixture-native-accessor"
@@ -323,7 +283,7 @@ describe("Project Gate native operation", () => {
         enumerable: true,
         get: () => {
           passedAccessorReads += 1;
-          return passedAccessorReads === 1 ? false : "unsafe\npresentation";
+          return passedAccessorReads === 1 ? false : "unsafe\nvalue";
         }
       });
       const passedAccessor = await invokeCheckWithRecords(
@@ -340,30 +300,26 @@ describe("Project Gate native operation", () => {
       assert.deepEqual(passedAccessor.records, []);
       assert.equal(passedAccessorReads, 0);
 
-      let diagnosticPresentationAccessorReads = 0;
+      let diagnosticDataAccessorReads = 0;
       const diagnosticAccessorResult: NativeOperationResult = {
         passed: false,
         code: "native-accessor-invalid",
         diagnostics: [
           {
             data: { index: 1, kind: "fixture-diagnostic" },
-            id: "fixture:before-accessor",
-            presentation: "first diagnostic."
+            id: "fixture:before-accessor"
           },
           Object.defineProperty(
             {
               data: { index: 2, kind: "fixture-diagnostic" },
-              id: "fixture:diagnostic-accessor",
-              presentation: "second diagnostic."
+              id: "fixture:data-accessor"
             },
-            "presentation",
+            "data",
             {
               enumerable: true,
               get: () => {
-                diagnosticPresentationAccessorReads += 1;
-                return diagnosticPresentationAccessorReads === 1
-                  ? "second diagnostic."
-                  : "unsafe\npresentation";
+                diagnosticDataAccessorReads += 1;
+                return { index: 2, kind: "unsafe" };
               }
             }
           )
@@ -372,7 +328,7 @@ describe("Project Gate native operation", () => {
       };
       const diagnosticAccessor = await invokeCheckWithRecords(
         createNativeOperationCheck({
-          checkId: "fixture-native-diagnostic-accessor",
+          checkId: "fixture-native-data-accessor",
           displayName: "Fixture native diagnostic accessor",
           operation: () => diagnosticAccessorResult
         })
@@ -382,8 +338,8 @@ describe("Project Gate native operation", () => {
         reason: { code: "native-operation-unavailable" }
       });
       assert.deepEqual(diagnosticAccessor.records, []);
-      assert.equal(diagnosticPresentationAccessorReads, 0);
-      assert.doesNotMatch(JSON.stringify(diagnosticAccessor), /unsafe\\npresentation/);
+      assert.equal(diagnosticDataAccessorReads, 0);
+      assert.doesNotMatch(JSON.stringify(diagnosticAccessor), /fixture:data-accessor/);
 
       let focusedCommandAccessorReads = 0;
       const focusedCommandAccessorResult: NativeOperationResult = {
@@ -392,8 +348,7 @@ describe("Project Gate native operation", () => {
         diagnostics: [
           {
             data: { kind: "fixture-diagnostic" },
-            id: "fixture:focused-command-accessor",
-            presentation: "fixture diagnostic."
+            id: "fixture:focused-command-accessor"
           }
         ],
         focusedCommand: "bun run fixture-native-accessor"
@@ -467,16 +422,3 @@ describe("Project Gate native operation", () => {
     }
   });
 });
-
-function diagnosticCount(data: object): number {
-  if (!("diagnosticCount" in data) || typeof data.diagnosticCount !== "number") {
-    throw new Error("Fixture native result is missing diagnosticCount");
-  }
-  return data.diagnosticCount;
-}
-
-function codePointLength(value: string): number {
-  let length = 0;
-  for (const _character of value) length += 1;
-  return length;
-}

@@ -333,7 +333,7 @@ normalize to `always`; a container cannot declare visibility, does not pass it t
 values fail Definition validation. Visibility is declarative presentation identity: normalized executable
 declarations always carry it, so `always` has the same fingerprint whether omitted or explicit and
 `attention` changes that fingerprint. It does not change scheduling, execution, options, Check/Record
-facts, machine output, Run Controls, or invocation-wide progress configuration.
+facts, machine output, Run Controls, or invocation-wide progress configuration. `attention` 的 `passed` Check 在默认 progress 中仅当没有 accepted Record 也没有 accepted message 时隐藏；任一类存在时仍显示其 settled block。
 
 The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs task-local preflight plus direct callbacks subject to `dependsOn` / `observes` relation semantics, mutexes, and the effective parallel budget.
 
@@ -418,7 +418,7 @@ Definition 为三项相互独立的 Run output 建立以下 defaults；RunContro
 | Output              | Definition default                                     | 配置责任                                                                                                                         |
 | ------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
 | machine publication | `{ enabled: true, directory: "artifacts/vibe-check" }` | 发布完整 machine artifact set；字节契约见 [Output](output.md)。                                                                  |
-| progress rendering  | `{ enabled: true }`                                    | 呈现 invocation 与 Check lifecycle；caller 可用 `progressLogFile` 为本 Run 指定 tee target，终端和 console capture 边界见 [API mechanisms](api-mechanics.md#check-输出与受管-progress)。 |
+| progress rendering  | `{ enabled: true }`                                    | 呈现 invocation 与 Check lifecycle；enabled/disabled 行为、Record/message 的独立有界预览与 terminal/console 边界由 [API mechanisms](api-mechanics.md#check-输出与受管-progress) 完整定义；caller 可用 `progressLogFile` 为本 Run 指定 tee target。 |
 | diagnostic logging  | `{ enabled: false, directory: ".log/vibe-check" }`     | 以 explicit core/scheduler/learned-admission channels 记录 owner 时间线；格式与失败边界见 [API mechanisms](api-mechanics.md#outputs-与-runresult-边界)。                        |
 
 machine publication 与 diagnostic logging 的 `directory` 共用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。

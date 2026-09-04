@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { describe, it } from "node:test";
 
 import type { ProcessResult } from "../../../../process-execution/execution.ts";
@@ -355,7 +355,7 @@ describe("Project Gate process Check", () => {
       assert.deepEqual(records, [
         {
           data: {
-            command: process.execPath,
+            command: basename(process.execPath),
             exitCode: 7,
             log: "checks/fixture-command/process.log",
             signal: "none"
@@ -406,7 +406,7 @@ describe("Project Gate process Check", () => {
       const record = productRun.result.snapshot.records[0];
       assert.equal(record?.checkId, "fixture-command");
       assert.equal(record?.id, "command-failure");
-      assert.equal(record?.data.command, process.execPath);
+      assert.equal(record?.data.command, basename(process.execPath));
       assert.equal(record?.data.exitCode, 7);
       assert.equal(record?.data.signal, "none");
       const transcriptReference = record?.data.log;
@@ -428,7 +428,7 @@ describe("Project Gate process Check", () => {
       assert.match(
         productRun.output,
         new RegExp(
-          `^ {2}\\[1/1] Fixture command \\| failed \\| \\d+(?:\\.\\d+)?(?:ms|s)\\n {4}\\[error] Command exited with code 7; signal: none; transcript: ${escapeRegularExpression(transcriptReference)}\\.$`,
+          `^ {2}\\[1/1] Fixture command \\| failed \\| \\d+(?:\\.\\d+)?(?:ms|s)\\n {4}\\[record] command-failure \\| \\{.*\\}\\n {4}\\[error] Command exited with code 7; signal: none; transcript: ${escapeRegularExpression(transcriptReference)}\\.$`,
           "m"
         )
       );

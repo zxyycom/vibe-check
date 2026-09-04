@@ -168,6 +168,7 @@ export function createProgressRendering(
             durationMs: fact.durationMs,
             messages: fact.messages,
             outcome: fact.outcome,
+            records: fact.records,
             visibility: fact.visibility
           })
         );

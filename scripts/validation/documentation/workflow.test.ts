@@ -80,12 +80,6 @@ test("docs validation returns typed expected failures and keeps the Gate path co
       {
         code: "docs-links-validator-invalid",
         level: "error",
-        message:
-          "docs/typed-validation-link-fixture.md:1:1 missing local Markdown link target: docs/missing-target.md."
-      },
-      {
-        code: "docs-links-validator-invalid",
-        level: "error",
         message: "Run: bun run validate -- docs links."
       }
     ],
@@ -93,7 +87,7 @@ test("docs validation returns typed expected failures and keeps the Gate path co
   });
 });
 
-test("docs diagnostics fail closed before direct CLI or Gate presentation", async () => {
+test("docs direct validation fails closed while the Gate adapter projects its safe Record subset", async () => {
   assert.throws(
     () => expectedDocsValidationFailure([]),
     /Documentation validation diagnostics are invalid/
@@ -155,10 +149,26 @@ test("docs diagnostics fail closed before direct CLI or Gate presentation", asyn
   );
   const invocation = await invokeDocsValidationCheck(check, "fixture/docs-validation-unsafe");
   assert.deepEqual(invocation.result, {
-    status: "unavailable",
-    reason: { code: "native-operation-unavailable" }
+    data: {
+      diagnosticCode: "docs-links-validator-invalid",
+      diagnosticCount: 1,
+      outcome: "failed"
+    },
+    messages: [
+      {
+        code: "docs-links-validator-invalid",
+        level: "error",
+        message: "Run: bun run validate -- docs links."
+      }
+    ],
+    status: "failed"
   });
-  assert.deepEqual(invocation.records, []);
+  assert.deepEqual(invocation.records, [
+    {
+      data: { kind: "fixture" },
+      identity: { id: "fixture:unsafe-presentation" }
+    }
+  ]);
 });
 
 async function invokeDocsValidationCheck(

@@ -30,7 +30,9 @@ export function createDecisionRecordsCheck(
       }
       return nativeFailed({
         code: "decision-records-invalid",
-        diagnostics: result.diagnostics,
+        diagnostics: Object.freeze(
+          result.diagnostics.map(({ data, id }) => Object.freeze({ data, id }))
+        ),
         focusedCommand: "bun run decisions -- check"
       });
     }

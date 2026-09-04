@@ -54,6 +54,7 @@ describe("check-record Core Check session", () => {
 function settleCanonicalCheckFacts(session: ReturnType<typeof createCoreCheckSession>) {
   const zeta = session.openCheckScope("zeta-check");
   assert.throws(() => session.readSettledCheckOutcome("zeta-check"), CoreInvariantFailure);
+  assert.throws(() => session.readSettledCheckRecords("zeta-check"), CoreInvariantFailure);
   assert.deepEqual(
     zeta.settleProduct({
       status: "unavailable",
@@ -70,6 +71,13 @@ function settleCanonicalCheckFacts(session: ReturnType<typeof createCoreCheckSes
     authorResultAccepted: true,
     outcome: { status: "failed", data: { "2": "two", "10": 10 } }
   });
+  assert.deepEqual(session.readSettledCheckRecords("alpha-check"), [
+    {
+      checkId: "alpha-check",
+      id: "sample",
+      data: { "2": "two", "10": { "2": 2, "10": 10 } }
+    }
+  ]);
   return session.readSettledCheckOutcome("alpha-check");
 }
 

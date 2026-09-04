@@ -17,6 +17,7 @@ export function check(
     readonly enabledByFlags?: Check["enabledByFlags"];
     readonly execution?: CheckExecution;
     readonly maxParallel?: number;
+    readonly visibility?: Check["visibility"];
   }> = {}
 ): Check {
   return {
@@ -24,7 +25,8 @@ export function check(
     displayName: overrides.checkId ?? "Custom",
     execution: overrides.execution ?? (() => PASSED),
     ...(overrides.enabledByFlags === undefined ? {} : { enabledByFlags: overrides.enabledByFlags }),
-    ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel })
+    ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel }),
+    ...(overrides.visibility === undefined ? {} : { visibility: overrides.visibility })
   };
 }
 

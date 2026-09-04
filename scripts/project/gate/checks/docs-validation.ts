@@ -37,7 +37,9 @@ export function createDocsValidationCheck(
       if (result.status === "passed") return nativePassed();
       return nativeFailed({
         code: `${input.checkId}-invalid`,
-        diagnostics: result.diagnostics,
+        diagnostics: Object.freeze(
+          result.diagnostics.map(({ data, id }) => Object.freeze({ data, id }))
+        ),
         focusedCommand: `bun run validate -- docs ${input.task}`
       });
     }

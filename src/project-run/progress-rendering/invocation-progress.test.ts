@@ -135,6 +135,73 @@ describe("Package Run progress rendering outputs", () => {
     assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
   });
 
+  it("contains a Record preview write failure while retaining accepted Check and Record facts", async () => {
+    const output = capturedProgressWriter({ throwAtWrite: 2 });
+    const result = await executeValidatedRun(
+      definition(
+        [
+          check({
+            execution: ({ records }) => {
+              records.report({ id: "accepted" }, { source: "callback" });
+              return PASSED;
+            }
+          })
+        ],
+        true
+      ),
+      {},
+      [],
+      { progressWriterFactory: () => output.writer }
+    );
+
+    assert.equal(result.kind, "output");
+    if (result.kind !== "output") return;
+    assert.deepEqual(result.diagnostic, { code: "progress-rendering-failed" });
+    assert.equal(result.outputs.progressRendering.status, "failed");
+    assert.match(output.attempts[1] ?? "", /\[record] accepted \| \{"source":"callback"}/);
+    assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
+    assert.deepEqual(result.snapshot.records, [
+      { checkId: "custom", id: "accepted", data: { source: "callback" } }
+    ]);
+  });
+
+  it("previews only accepted Records when Record misuse settles its Check unavailable", async () => {
+    const output = capturedProgressWriter();
+    const result = await executeValidatedRun(
+      definition(
+        [
+          check({
+            execution: ({ records }) => {
+              records.report({ id: "accepted" }, { source: "callback" });
+              const untypedReporter: Readonly<{
+                report(identity: unknown, data: unknown): void;
+              }> = records;
+              untypedReporter.report({ extra: true, id: "rejected" }, { source: "invalid-record" });
+              return PASSED;
+            }
+          })
+        ],
+        true
+      ),
+      {},
+      [],
+      { progressWriterFactory: () => output.writer }
+    );
+
+    assert.equal(result.kind, "completed");
+    if (result.kind !== "completed") return;
+    assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+      reason: { code: "record-invalid" },
+      status: "unavailable"
+    });
+    assert.deepEqual(result.snapshot.records, [
+      { checkId: "custom", id: "accepted", data: { source: "callback" } }
+    ]);
+    const transcript = output.writes.join("");
+    assert.match(transcript, /\[record] accepted \| \{"source":"callback"}/);
+    assert.doesNotMatch(transcript, /rejected|invalid-record/);
+  });
+
   it("schedules one 5-second TTY heartbeat and cancels it after the last Check settles", async () => {
     const output = capturedProgressWriter({ isTTY: true });
     const slow = deferred<void>();
@@ -221,5 +288,61 @@ describe("Package Run progress rendering outputs", () => {
     assert.equal(output.writes.length, 2);
     assert.equal(result.snapshot.checks.length, 1);
     assert.equal(result.snapshot.records.length, 1);
+  });
+  it("renders accepted attention Records while retaining complete Records and messages in final facts", async () => {
+    const output = capturedProgressWriter();
+    const messages = Array.from({ length: 6 }, (_, index) => ({
+      level: "error" as const,
+      code: `message-${index + 1}`,
+      message: `message ${index + 1} ${"x".repeat(260)}`
+    }));
+    const result = await executeValidatedRun(
+      definition(
+        [
+          check({
+            checkId: "attention-records",
+            visibility: "attention",
+            execution: ({ records }) => {
+              for (let index = 1; index <= 6; index += 1) {
+                records.report({ id: `record-${index}` }, { index, text: "x".repeat(260) });
+              }
+              return { status: "passed", data: {}, messages };
+            }
+          })
+        ],
+        true
+      ),
+      {},
+      [],
+      { progressWriterFactory: () => output.writer }
+    );
+
+    assert.equal(result.kind, "completed");
+    if (result.kind !== "completed") return;
+    assert.equal(result.snapshot.records.length, 6);
+    assert.deepEqual(
+      result.checkMessages,
+      messages.map((message) => ({
+        checkId: "attention-records",
+        ...message
+      }))
+    );
+    const transcript = output.writes.join("");
+    assert.equal(transcript.match(/^ {4}\[record\]/gmu)?.length, 5);
+    assert.equal(transcript.match(/^ {4}\[error\]/gmu)?.length, 5);
+    assert.equal(
+      transcript.includes(
+        "    [records] 1 additional record(s) were omitted from terminal preview.\n"
+      ),
+      true
+    );
+    assert.equal(
+      transcript.includes(
+        "    [messages] 1 additional message(s) were omitted from terminal preview.\n"
+      ),
+      true
+    );
+    assert.equal(transcript.includes("… [truncated]"), true);
+    assert.equal(transcript.includes("  [1/1] attention-records | passed |"), true);
   });
 });

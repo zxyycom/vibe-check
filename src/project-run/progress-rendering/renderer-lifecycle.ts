@@ -101,6 +101,7 @@ export class ProgressRendererController implements ProgressRenderer {
           durationMs: feedback.durationMs,
           messages: feedback.messages,
           outcome: feedback.outcome,
+          records: feedback.records,
           totalChecks,
           usesColor: this.usesColor
         })

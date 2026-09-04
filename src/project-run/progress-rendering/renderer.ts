@@ -1,4 +1,5 @@
 import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { CoreRecord } from "../../check-settlement/facts.ts";
 import { ProgressRendererController } from "./renderer-lifecycle.ts";
 
 export interface ProgressWriter {
@@ -30,6 +31,7 @@ export type ProgressFeedback = Readonly<
       readonly durationMs: number | null;
       readonly visibility: CheckVisibility;
       readonly messages: readonly CheckMessage[];
+      readonly records: readonly CoreRecord[];
     }
   | {
       readonly kind: "final";

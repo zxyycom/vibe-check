@@ -33,7 +33,6 @@ const SAFE_NATIVE_OPERATION_PASSED: SafeNativeOperationPassed = Object.freeze({ 
 export interface NativeOperationDiagnostic {
   readonly data: CanonicalScriptJsonObject;
   readonly id: string;
-  readonly presentation: string;
 }
 
 export interface NativeOperationPassed {
@@ -52,7 +51,7 @@ export type NativeOperationResult = Readonly<NativeOperationPassed | NativeOpera
 /**
  * Snapshots an operation result through own data descriptors before any native
  * Check judgment or Record publication. Accessors, prototype variants, and
- * incomplete nested diagnostics fail closed rather than becoming presentation.
+ * incomplete nested diagnostics fail closed rather than becoming published facts.
  */
 export function safeNativeOperationResult(value: unknown): SafeNativeOperationResult | undefined {
   const properties = snapshotPlainObjectProperties(value);
@@ -113,24 +112,14 @@ function safeNativeOperationDiagnostics(
 
 function safeNativeOperationDiagnostic(value: unknown): NativeOperationDiagnostic | undefined {
   const properties = snapshotPlainObjectProperties(value);
-  if (
-    properties === undefined ||
-    !hasExactEnumerableKeys(properties, ["data", "id", "presentation"])
-  ) {
+  if (properties === undefined || !hasExactEnumerableKeys(properties, ["data", "id"])) {
     return undefined;
   }
 
   const data = canonicalizeScriptJsonObject(propertyValue(properties, "data"));
   const id = propertyValue(properties, "id");
-  const presentation = propertyValue(properties, "presentation");
-  if (
-    data === undefined ||
-    !isSafeDiagnosticIdentifier(id) ||
-    !isSafeDiagnosticPresentation(presentation)
-  ) {
-    return undefined;
-  }
-  return Object.freeze({ data, id, presentation });
+  if (data === undefined || !isSafeDiagnosticIdentifier(id)) return undefined;
+  return Object.freeze({ data, id });
 }
 
 function snapshotPlainObjectProperties(

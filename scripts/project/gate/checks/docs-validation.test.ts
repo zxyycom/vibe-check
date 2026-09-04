@@ -112,24 +112,34 @@ describe("Project Gate documentation native diagnostics", () => {
         expectedRecords.sort(compareRecordIdentity)
       );
 
-      const previewMessages = productRun.checkMessages.filter(
+      const checkMessages = productRun.checkMessages.filter(
         (message) => message.checkId === "docs-links-validator"
       );
-      assert.equal(previewMessages.length, 12);
-      const firstPreview = previewMessages[0]?.message ?? "";
-      assert.equal(codePointLength(firstPreview), 240);
-      assert.match(firstPreview, /… \[truncated\]$/u);
-      const omitted =
-        "2 additional diagnostic(s) were omitted from terminal preview; inspect this Check's Records for the complete set.";
-      assert.equal(previewMessages[10]?.message, omitted);
-      assert.equal(previewMessages[11]?.message, "Run: bun run validate -- docs links.");
+      assert.deepEqual(checkMessages, [
+        {
+          checkId: "docs-links-validator",
+          level: "error",
+          code: "docs-links-validator-invalid",
+          message: "Run: bun run validate -- docs links."
+        }
+      ]);
 
+      const omitted = "    [records] 7 additional record(s) were omitted from terminal preview.\n";
       const progressLog = readFileSync(join(artifactRoot, "progress.log"), "utf8");
+      assert.equal(recordPreviewCount(progressLog), 5);
+      assert.equal(progressLog.includes(omitted), true);
+      assert.match(progressLog, /^ {4}\[record\].*… \[truncated\]$/mu);
+      assert.equal(progressLog.includes(checkMessages[0]?.message ?? ""), true);
+
       const terminalDriver = join(artifactRoot, "terminal-run.ts");
       writeFileSync(
         terminalDriver,
         [
-          'import { defineConfig, run } from "@zxyycom/vibe-check";',
+          `import { defineConfig, run } from ${JSON.stringify(
+            pathToFileURL(
+              join(process.cwd(), "scripts/project/node_modules/@zxyycom/vibe-check/index.mjs")
+            ).href
+          )};`,
           `import { createDocsValidationCheck } from ${JSON.stringify(
             pathToFileURL(join(process.cwd(), "scripts/project/gate/checks/docs-validation.ts"))
               .href
@@ -159,22 +169,18 @@ describe("Project Gate documentation native diagnostics", () => {
       });
       assert.equal(terminal.status, 0);
       assert.equal(terminal.stderr, "");
-      for (const rendered of [terminal.stdout, progressLog]) {
-        assert.equal(rendered.includes(firstPreview), true);
-        assert.equal(rendered.includes(omitted), true);
-        for (const target of targets.slice(1, 10)) assert.equal(rendered.includes(target), true);
-        for (const target of targets.slice(10)) assert.equal(rendered.includes(target), false);
-      }
+      assert.equal(recordPreviewCount(terminal.stdout), 5);
+      assert.equal(terminal.stdout.includes(omitted), true);
+      assert.match(terminal.stdout, /^ {4}\[record\].*… \[truncated\]$/mu);
+      assert.equal(terminal.stdout.includes(checkMessages[0]?.message ?? ""), true);
     } finally {
       rmSync(artifactRoot, { force: true, recursive: true });
     }
   });
 });
 
-function codePointLength(value: string): number {
-  let length = 0;
-  for (const _character of value) length += 1;
-  return length;
+function recordPreviewCount(value: string): number {
+  return value.match(/^ {4}\[record\]/gmu)?.length ?? 0;
 }
 
 function compareRecordIdentity(

@@ -45,7 +45,5 @@ export function createTestEvidenceCheck(
 function nativeDiagnostics(
   diagnostics: readonly (NativeOperationDiagnostic & Readonly<{ readonly code: string }>)[]
 ): readonly NativeOperationDiagnostic[] {
-  return Object.freeze(
-    diagnostics.map(({ data, id, presentation }) => Object.freeze({ data, id, presentation }))
-  );
+  return Object.freeze(diagnostics.map(({ data, id }) => Object.freeze({ data, id })));
 }

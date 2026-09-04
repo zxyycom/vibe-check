@@ -80,7 +80,7 @@ export function failedProcessResult(
   context.records.report(
     { id: "command-failure" },
     Object.freeze({
-      command: input.command,
+      command: basename(input.command),
       exitCode: input.exitCode,
       log: processTranscriptReference(input.logPath),
       signal: input.signal ?? "none"

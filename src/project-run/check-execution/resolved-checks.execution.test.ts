@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
+import { canonicalizeJsonObject } from "../../data-boundary/canonical-data.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import type { CheckExecutionLifecycle, CheckSettledFact, CheckStartedFact } from "./lifecycle.ts";
 import { executeResolvedChecks } from "./resolved-checks.ts";
@@ -31,6 +32,8 @@ describe("Package Run direct Check execution", () => {
       clock: scriptedClock([12, 27]),
       lifecycle
     });
+    const canonicalFailureData = canonicalizeJsonObject({ failures: 1 });
+    if (canonicalFailureData === undefined) throw new Error("fixture data must be canonical");
 
     assert.equal(result.kind, "completed");
     assert.deepEqual(started, [{ checkId: "direct-check", displayName: "direct-check" }]);
@@ -38,9 +41,10 @@ describe("Package Run direct Check execution", () => {
       {
         checkId: "direct-check",
         displayName: "direct-check",
-        outcome: { status: "failed", data: { failures: 1 } },
+        outcome: { status: "failed", data: canonicalFailureData },
         durationMs: 15,
         messages: [],
+        records: [],
         visibility: "always"
       }
     ]);

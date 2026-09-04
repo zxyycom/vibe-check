@@ -160,12 +160,12 @@ Entities:
 
 - `bun|scripts/validation/documentation/workflow.test.ts|docs validation library reports success only through an explicit reporter`
 - `bun|scripts/validation/documentation/workflow.test.ts|docs validation returns typed expected failures and keeps the Gate path console-silent`
-- `bun|scripts/validation/documentation/workflow.test.ts|docs diagnostics fail closed before direct CLI or Gate presentation`
+- `bun|scripts/validation/documentation/workflow.test.ts|docs direct validation fails closed while the Gate adapter projects its safe Record subset`
 - `bun|scripts/validation/documentation/links.test.ts|documentation link validation retains every missing local-link occurrence in stable order`
   Proves:
 
 - Documentation workflow uses an explicit reporter only for success summaries and returns provider-approved typed expected diagnostics without recovering Gate facts from thrown text. Its direct CLI and workspace caller write each failed diagnostic presentation to stderr and exit nonzero. Without a reporter, the in-process Gate path remains console-silent.
-- Empty collections, noncanonical data, duplicate IDs and unsafe one-line presentation fail before CLI or Gate presentation. The Gate path then becomes unavailable without admitting a failed Record or leaking control characters.
+- Empty collections, noncanonical data, duplicate IDs and unsafe one-line presentation fail before direct CLI presentation. The Gate adapter deliberately projects only its safe `{ id, data }` subset, so a direct-CLI-only unsafe presentation cannot suppress the corresponding failed Record or focused command message.
 - JSON, schema, examples and links own their task-local ID/data/presentation. The link fixture proves every missing local-link occurrence has canonical repository-relative source/target, line, column and occurrence, in deterministic source-location order.
 
 ## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
@@ -249,9 +249,9 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
   Proves:
 
-- Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`。docs fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；terminal 与 progress tee 只显示前十条、将一条限制为 240 Unicode code points 并说明另有两条 omitted。preview 不改变 failed status、final data 或 effective aggregate。
+- Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`，也不再承载 diagnostic presentation。docs fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；Product terminal 与 progress tee 用 generic Record preview 只显示五条、将每条 terminal-control-escaped text 限制为 240 Unicode code points，并说明另有七条 omitted。preview 不改变 failed status、final data、accepted focused-command message 或 effective aggregate。
 - 空、重复或不安全 diagnostics，以及 operation throw，均 fail closed 为 unavailable；不会创建 synthetic failed Record 或 native transcript。
-- Decision Records 只把已验证的 source/index/relationship facts 投影为 typed safe diagnostics，不转交 YAML、schema 或 filesystem `errors` 原文。semantic Test Evidence 只按 origin/code allowlist 和 code-specific policy 发布已验证的 path/location、Case ID 与 `runner: "bun"`；`topic.heading-unexpected` fixture 证明一条显式批准的 unexpected-heading Record。message、child/parser text、target、selector 和 entity key 不进入 native Record/preview；未知输入 fail closed 为 unavailable。
+- Decision Records 只把已验证的 source/index/relationship facts 投影为 typed safe diagnostics，不转交 YAML、schema 或 filesystem `errors` 原文。semantic Test Evidence 只按 origin/code allowlist 和 code-specific policy 发布已验证的 path/location、Case ID 与 `runner: "bun"`；`topic.heading-unexpected` fixture 证明一条显式批准的 unexpected-heading Record。child/parser text、target、selector 和 entity key 不进入 native Record；generic Product preview 不读取或猜测 data fields。未知输入 fail closed 为 unavailable。
 - Test Evidence rule validation 把 cancellation 交给真实 ast-grep process，并只在自身 `checks/test-evidence-rule-tests/process.log` 保留 version/rule-test evidence。nonzero、version mismatch 和 unavailable 仍可区分；version-mismatch Record 只含 expected version、fixed mismatch classification、exit code 和 invocation-relative log reference，不复制 stdout/stderr。
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
@@ -272,8 +272,8 @@ Entities:
 - eligible command 只有在零退出并写入自身 artifact 的 `checks/<encoded-check-id>/process.log` 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。未授予 `artifactDirectory` 时不得启动 child，且以 `transcript-unavailable` 结算。失败 message 与 Record 使用同一 invocation-relative `checks/<encoded-check-id>/process.log` reference，而不暴露 invocation absolute path。
 - Dependency-backed process 只读取声明的 direct provider，要求 upstream passed，经 provider parser 恢复 data 后才派生无冲突 environment；unreadable、failed 或 malformed data 不启动 child process。
 - A typed-success process publishes its typed final data only after a zero exit and a successfully written settled transcript. It then closed-parses stdout and validates it against its typed dependency; malformed stdout or invalid parsed/provenance data settles `unavailable / process-output-invalid`, never a passed result.
-- 非零退出产生含 command、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；message 只含 exit code、signal 和 invocation-relative transcript reference，不复制 child output、完整路径、command、credential URL 或 digest。
-- The same nonzero Check executed through the installed public Run keeps its failure Record, presents only that approved summary, and returns the corresponding `{ checkId, level, code, message }` item from `RunResult.checkMessages`; transcript-only material remains absent from both surfaces.
+- 非零退出产生含 basename command label、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；Record 与 message 都不复制 child output、可执行文件完整路径、command arguments、credential URL 或 digest。
+- The same nonzero Check executed through the installed public Run keeps its complete failure Record and its `{ checkId, level, code, message }` item from `RunResult.checkMessages`; Product progress separately renders bounded generic Record and message previews, while transcript-only material remains absent from both surfaces.
 - 启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。settled transcript replacement 失败时不把缺失最终日志误报为 command 结果；running evidence 只保证存在到 replacement 开始前。
 - Process descriptor 把显式 timeout 交给 process facade；只有 descriptor 声明该时限时，timeout fact 才结算为带安全 `command-timeout` message 的 `process-timeout` unavailable，否则 fail closed 为普通 process unavailable。timeout transcript 保留 `timed-out: yes`。
 - 已运行 command 被取消时，transcript 保留 signal 与 error summary，outcome 为 `execution-cancelled` unavailable。

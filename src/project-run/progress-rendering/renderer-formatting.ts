@@ -1,4 +1,6 @@
 import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
+import type { CoreRecord } from "../../check-settlement/facts.ts";
+import { canonicalJsonText } from "../../data-boundary/canonical-data.ts";
 import { FLAG_CONDITION_NOT_MATCHED_CODE } from "../check-execution/flag-controls.ts";
 import type { ProgressFeedback, ProgressOutcomeCounts } from "./renderer.ts";
 
@@ -8,6 +10,10 @@ const COLOR = Object.freeze({
   reset: "\u001B[0m",
   warning: "\u001B[33m"
 });
+
+const MAXIMUM_PREVIEW_ITEMS = 5;
+const MAXIMUM_PREVIEW_CODE_POINTS = 240;
+const TRUNCATION_MARKER = "… [truncated]";
 
 const NAMED_CONTROL_ESCAPES: Readonly<Partial<Record<string, string>>> = Object.freeze({
   "\n": "\\n",
@@ -33,7 +39,8 @@ export function shouldPresentSettledFeedback(
   return (
     feedback.visibility !== "attention" ||
     feedback.outcome.status !== "passed" ||
-    feedback.messages.length > 0
+    feedback.messages.length > 0 ||
+    feedback.records.length > 0
   );
 }
 
@@ -43,6 +50,7 @@ export function isFlagConditionNotMatchedFeedback(
   return (
     feedback.durationMs === null &&
     feedback.messages.length === 0 &&
+    feedback.records.length === 0 &&
     feedback.outcome.status === "not-applicable" &&
     feedback.outcome.reason?.code === FLAG_CONDITION_NOT_MATCHED_CODE
   );
@@ -67,6 +75,7 @@ export function formatSettledBlock(
     readonly durationMs: number | null;
     readonly messages: readonly CheckMessage[];
     readonly outcome: CheckOutcome;
+    readonly records: readonly CoreRecord[];
     readonly totalChecks: number;
     readonly usesColor: boolean;
   }>
@@ -76,7 +85,7 @@ export function formatSettledBlock(
   const duration = input.durationMs === null ? "not run" : formatDuration(input.durationMs);
   const reasonSuffix = reason === undefined ? "" : ` | ${escapeTerminalText(reason)}`;
   const row = `  [${input.completionOrdinal}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | ${status} | ${duration}${reasonSuffix}\n`;
-  return `${row}${input.messages.map((message) => formatMessage(message, input.usesColor)).join("")}`;
+  return `${row}${formatRecords(input.records)}${formatMessages(input.messages, input.usesColor)}`;
 }
 
 export function formatFinalSummary(
@@ -96,31 +105,44 @@ export function formatFinalSummary(
   ].join("\n");
 }
 
+function formatRecords(records: readonly CoreRecord[]): string {
+  return formatPreview(records, formatRecord, "record");
+}
+
+function formatMessages(messages: readonly CheckMessage[], usesColor: boolean): string {
+  return formatPreview(messages, (message) => formatMessage(message, usesColor), "message");
+}
+
+function formatPreview<Item>(
+  items: readonly Item[],
+  formatItem: (item: Item) => string,
+  name: "message" | "record"
+): string {
+  const preview = items.slice(0, MAXIMUM_PREVIEW_ITEMS);
+  const omittedCount = items.length - preview.length;
+  return `${preview.map(formatItem).join("")}${
+    omittedCount === 0
+      ? ""
+      : `    [${name}s] ${omittedCount} additional ${name}(s) were omitted from terminal preview.\n`
+  }`;
+}
+
+function formatRecord(record: CoreRecord): string {
+  return `    [record] ${boundedTerminalText(`${record.id} | ${canonicalJsonText(record.data)}`)}\n`;
+}
+
 function formatMessage(message: CheckMessage, usesColor: boolean): string {
   const label = colorMessageLevel(message.level, usesColor);
-  return `    [${label}] ${escapeTerminalText(message.message)}\n`;
+  return `    [${label}] ${boundedTerminalText(message.message)}\n`;
 }
 
-function totalChecks(counts: ProgressOutcomeCounts): number {
-  return counts.passed + counts.failed + counts.notApplicable + counts.unavailable;
-}
-
-function statusForOutcome(outcome: CheckOutcome): ProgressStatus {
-  switch (outcome.status) {
-    case "passed":
-    case "failed":
-      return outcome.status;
-    case "not-applicable":
-      return "not-applicable";
-    case "unavailable":
-      return "unavailable";
-  }
-}
-
-function reasonForOutcome(outcome: CheckOutcome): string | undefined {
-  return outcome.status === "passed" || outcome.status === "failed"
-    ? undefined
-    : outcome.reason?.code;
+function boundedTerminalText(value: string): string {
+  const escaped = escapeTerminalText(value);
+  if (codePointLength(escaped) <= MAXIMUM_PREVIEW_CODE_POINTS) return escaped;
+  return `${prefixByCodePoints(
+    escaped,
+    MAXIMUM_PREVIEW_CODE_POINTS - codePointLength(TRUNCATION_MARKER)
+  )}${TRUNCATION_MARKER}`;
 }
 
 /** Human-only fields must not control the terminal that presents them. */
@@ -140,6 +162,23 @@ function escapeTerminalText(value: string): string {
   return escaped;
 }
 
+function codePointLength(value: string): number {
+  let length = 0;
+  for (const _character of value) length += 1;
+  return length;
+}
+
+function prefixByCodePoints(value: string, limit: number): string {
+  let prefix = "";
+  let length = 0;
+  for (const character of value) {
+    if (length === limit) break;
+    prefix += character;
+    length += 1;
+  }
+  return prefix;
+}
+
 function isTerminalControl(codePoint: number): boolean {
   return (
     codePoint <= 0x1f ||
@@ -155,6 +194,28 @@ function colorMessageLevel(level: CheckMessage["level"], usesColor: boolean): st
 }
 
 type ProgressStatus = CheckOutcome["status"];
+
+function statusForOutcome(outcome: CheckOutcome): ProgressStatus {
+  switch (outcome.status) {
+    case "passed":
+    case "failed":
+      return outcome.status;
+    case "not-applicable":
+      return "not-applicable";
+    case "unavailable":
+      return "unavailable";
+  }
+}
+
+function reasonForOutcome(outcome: CheckOutcome): string | undefined {
+  return outcome.status === "passed" || outcome.status === "failed"
+    ? undefined
+    : outcome.reason?.code;
+}
+
+function totalChecks(counts: ProgressOutcomeCounts): number {
+  return counts.passed + counts.failed + counts.notApplicable + counts.unavailable;
+}
 
 function formatDuration(durationMs: number): string {
   if (durationMs < 1_000) {
