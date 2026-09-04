@@ -1213,7 +1213,7 @@
     "entries": {
       "analyze-markdown-link-cache-packing.md": "sha256:ce5c994f17a338005e2f7e13bbd48cec8eef2cb2624f7d331e31f5dc2d7435b7",
       "assess-admission-state-performance-and-selection-index.md": "sha256:98061f900a651bf14b5c024f4c897236276ce991c53b2551d897fc06719d76fd",
-      "assess-lizard-extension-adoption-value.md": "sha256:8f3100dedd8fa993782d68c5d05eb219fd6a38da64877c73e979d3c028589db3",
+      "assess-lizard-extension-adoption-value.md": "sha256:576898564f4888780727af937302f319ee3a7496d28d73f901334ae8f4ae52ea",
       "assess-lizard-upstream-release-and-branch-delta.md": "sha256:9f8d6857d7fb8b9614830d028aa81054bca11326a4fb25ad1601b3a4c258f5ee",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",

@@ -10,7 +10,12 @@ import type {
   AdmissionPolicyInput,
   AdmissionSelectionPolicy
 } from "./admission-selection-policy.ts";
-import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope } from "./graph.ts";
+import type { PlannedTask } from "./graph.ts";
+import {
+  isConstrainedScopeContinuation,
+  scopeForTask,
+  tighteningScopeForTask
+} from "./admission-scope-layers.ts";
 import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
 
 export interface LearnedCriticalPathAdmission {
@@ -66,7 +71,10 @@ function selectTighteningCandidate(
   criticalPath: SchedulerCriticalPathSnapshot
 ): AdmissionCandidate | undefined {
   return input.candidates
-    .filter((candidate) => activatesTighteningScope(input, candidate.task))
+    .filter(
+      (candidate) =>
+        tighteningScopeForTask(input.graph, input.inspection, candidate.task) !== undefined
+    )
     .sort((left, right) => compareConstrainedCandidates(input, criticalPath, left, right))[0];
 }
 
@@ -75,7 +83,9 @@ function selectConstrainedContinuation(
   criticalPath: SchedulerCriticalPathSnapshot
 ): AdmissionCandidate | undefined {
   return input.candidates
-    .filter((candidate) => isConstrainedContinuation(input, candidate.task))
+    .filter((candidate) =>
+      isConstrainedScopeContinuation(input.graph, input.inspection, candidate.task)
+    )
     .sort((left, right) => compareConstrainedCandidates(input, criticalPath, left, right))[0];
 }
 
@@ -89,20 +99,6 @@ function selectOrdinaryReadyCandidate(
     (selected, candidate) =>
       compareLearnedTasks(criticalPath, candidate.task, selected.task) < 0 ? candidate : selected,
     first
-  );
-}
-
-function activatesTighteningScope(input: AdmissionPolicyInput, task: PlannedTask): boolean {
-  const scope = activationScopeFor(input, task);
-  return scope !== undefined && scope.maxParallel < input.inspection.maxParallel;
-}
-
-function isConstrainedContinuation(input: AdmissionPolicyInput, task: PlannedTask): boolean {
-  const scope = scopeForTask(input.graph, task);
-  return (
-    scope !== undefined &&
-    input.inspection.activeScopeIds.includes(scope.id) &&
-    scope.maxParallel < input.inspection.maxParallel
   );
 }
 
@@ -141,27 +137,6 @@ function criticalPathScore(criticalPath: SchedulerCriticalPathSnapshot, taskId: 
   const score = criticalPathScoreForTask(criticalPath, taskId);
   if (score === undefined) throw new Error(`learned scheduler score is missing task ${taskId}`);
   return score;
-}
-
-function activationScopeFor(
-  input: AdmissionPolicyInput,
-  task: PlannedTask
-): PlannedTaskScope | undefined {
-  const scope = scopeForTask(input.graph, task);
-  if (
-    scope === undefined ||
-    !scope.activationTaskIds.includes(task.id) ||
-    input.inspection.activeScopeIds.includes(scope.id)
-  ) {
-    return undefined;
-  }
-  return scope;
-}
-
-function scopeForTask(graph: PlannedTaskGraph, task: PlannedTask): PlannedTaskScope | undefined {
-  return task.scopeId === undefined
-    ? undefined
-    : graph.scopes.find((scope) => scope.id === task.scopeId);
 }
 
 function compareText(left: string, right: string): number {

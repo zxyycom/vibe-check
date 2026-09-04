@@ -256,13 +256,14 @@ package 的公共默认值。
 waiver。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自
 owner 阻断。
 
-Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。三个 metrics Check 对已证实的
-source-aligned translated target 保留唯一最小 Gate exception ledger：`definition.ts` 精确硬编码 16 个
-provenance-qualified path、22 个 rule-path instance（duplicate 1、file-metrics 6、function-metrics 15）。配置测试读取根
-`licenses/lizard-1.24.0-provenance.json` 并校验每项排除 target 的 source header，对遗漏、非 translated target 或 header
-漂移 fail closed；它验证硬编码 selection，而非在 runtime 从 ledger 导出。它不排除 `extensions/protocol.ts`、手写 port façade、
-adapter、Worker、Check、tests 或其它非翻译 Product source，也不影响 lint、format、typecheck、identity/deviation、import-boundary
-或行为测试。边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
+Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。三个 metrics Check 的
+`product-source` area 都排除 `src/package-checks/function-metrics/analyzer/**`：该目录由 source-aligned port owner 整体维护，不生成
+repository duplicate、file 或 function-metric Finding。配置测试必须证明三项使用同一 glob、目录内代表路径未被选择，而
+目录外的 Product adapter、Worker、measurement 与 Check 仍被选择。该范围不从 provenance ledger 动态生成，也不改变 package
+Check 的公共默认 selection。
+
+整目录 metrics 排除不影响 analyzer 的 lint、format、typecheck、source identity、oracle/parity、deviation、provenance/license、
+import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ### Process evidence
 

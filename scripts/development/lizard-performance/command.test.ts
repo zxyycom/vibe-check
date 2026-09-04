@@ -7,6 +7,8 @@ import {
   assertStableOutputDigest,
   isSupportedSupervisorPlatform,
   parseArguments,
+  parseChildResult,
+  parseWorkloadManifest,
   statisticalWallMs,
   temperatureArguments
 } from "./command.ts";
@@ -29,6 +31,49 @@ describe("Lizard TypeScript developer performance evidence", () => {
       }
     );
     assert.throws(() => parseArguments(["--layer", "python"]), /A, B, C, or all/);
+    assert.throws(() => parseArguments(["--lizard123", "relative/lizard"]), /absolute executable/);
+    assert.throws(
+      () => parseArguments(["--lizard124-source", "relative/source"]),
+      /absolute source checkout/
+    );
+    assert.equal(
+      parseArguments(["--output", "relative/evidence"]).outputDirectory,
+      new URL("../../../relative/evidence", import.meta.url).pathname
+    );
+  });
+
+  it("locates invalid child and manifest fields at the evidence boundary", () => {
+    assert.throws(
+      () =>
+        parseChildResult({
+          metrics: [
+            {
+              ccn: null,
+              endLine: 1,
+              file: 12,
+              name: "fixture",
+              nloc: 1,
+              parameterCount: 0,
+              startLine: 1
+            }
+          ]
+        }),
+      /metrics\[0\]\.file/
+    );
+    const sparseMetrics = new Array<unknown>(1);
+    assert.throws(() => parseChildResult({ metrics: sparseMetrics }), /metrics\[0\]\.value/);
+    assert.throws(
+      () =>
+        parseWorkloadManifest({
+          analyzerBatchReplications: 1,
+          analyzerSourcePaths: [],
+          fixedLizardVersion: "1.24.0",
+          id: "fixture",
+          productSourcePaths: ["sample.ts"],
+          sourceSha256: "digest"
+        }),
+      /analyzerSourcePaths/
+    );
   });
 
   it("canonicalizes metric ordering before output equality", () => {
