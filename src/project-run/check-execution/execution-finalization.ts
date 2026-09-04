@@ -10,9 +10,10 @@ import {
   CheckExecutionInvariantFailure,
   recordSettledCheck,
   type CheckIdentity,
+  type CheckExecutionState,
   type SettledCheckFacts
 } from "./execution-settlement.ts";
-import type { CheckExecutionState, ResolvedCheckExecution } from "./resolved-checks.ts";
+import type { ResolvedCheckExecution } from "./resolved-execution-result.ts";
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 

@@ -16,9 +16,9 @@ import { prepareTaskGraph } from "./task-scheduler/graph.ts";
 import { aggregateCheckOutcomes, validateCheckAggregationSelection } from "./aggregation.ts";
 import {
   executeResolvedChecks,
-  type CheckExecutionClock,
-  type ResolvedCheckExecution
+  type CheckExecutionClock
 } from "./check-execution/resolved-checks.ts";
+import type { ResolvedCheckExecution } from "./check-execution/resolved-execution-result.ts";
 import { planStaticCheckGraph } from "./check-execution/plan.ts";
 import {
   type ProgressRefreshScheduler,

@@ -65,6 +65,12 @@ interface ParsedCheckFields {
   readonly visibility: CheckVisibility | null;
 }
 
+interface ParsedFlagEnablementControl extends Readonly<Record<string, unknown>> {
+  readonly flags: unknown;
+  readonly mode: CheckFlagEnablementMode;
+  readonly propagateDependsOn?: true;
+}
+
 const CHECK_KEYS = [
   "admissionPriority",
   "checkId",
@@ -262,19 +268,31 @@ function parseCheckFields(
 
 function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | null | undefined {
   if (!Object.hasOwn(data, "enabledByFlags")) return null;
-  const control = snapshotClosedRecord(data.enabledByFlags);
-  if (
-    control === undefined ||
-    !hasOnlyFlagEnablementKeys(control) ||
-    !Object.hasOwn(control, "flags") ||
-    !Object.hasOwn(control, "mode") ||
-    !isCheckFlagEnablementMode(control.mode) ||
-    (Object.hasOwn(control, "propagateDependsOn") && control.propagateDependsOn !== true)
-  ) {
-    return undefined;
-  }
+  const control = parseFlagEnablementControl(data.enabledByFlags);
+  if (control === undefined) return undefined;
   const flags = parseUniqueIdentifiers(control.flags);
   if (flags === undefined) return undefined;
+  return canonicalFlagEnablement(control, flags);
+}
+
+function parseFlagEnablementControl(value: unknown): ParsedFlagEnablementControl | undefined {
+  const control = snapshotClosedRecord(value);
+  if (control === undefined || !hasOnlyFlagEnablementKeys(control)) return undefined;
+  return hasFlagEnablementFields(control) ? control : undefined;
+}
+
+function hasFlagEnablementFields(
+  control: Readonly<Record<string, unknown>>
+): control is ParsedFlagEnablementControl {
+  if (!Object.hasOwn(control, "flags") || !Object.hasOwn(control, "mode")) return false;
+  if (!isCheckFlagEnablementMode(control.mode)) return false;
+  return !Object.hasOwn(control, "propagateDependsOn") || control.propagateDependsOn === true;
+}
+
+function canonicalFlagEnablement(
+  control: ParsedFlagEnablementControl,
+  flags: readonly string[]
+): CheckFlagEnablement | undefined {
   const [firstFlag, ...remainingFlags] = [...flags].sort();
   if (firstFlag === undefined) return undefined;
   const canonicalFlags: [string, ...string[]] = [firstFlag, ...remainingFlags];

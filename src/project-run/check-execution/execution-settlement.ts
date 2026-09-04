@@ -27,6 +27,12 @@ export type CheckExecutionSettlementState = Readonly<{
   readonly settledFactsByCheckId: Map<string, SettledCheckFacts>;
 }>;
 
+/** Mutable execution session state shared by execution and terminal finalization. */
+export type CheckExecutionState = CheckExecutionSettlementState &
+  Readonly<{
+    readonly session: CoreCheckSession;
+  }>;
+
 export class CheckExecutionInvariantFailure extends Error {
   public constructor(message: string) {
     super(message);

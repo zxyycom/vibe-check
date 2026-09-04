@@ -3,7 +3,7 @@ import type {
   NormalizedCheck,
   SchedulerMeasurementHook
 } from "../../project-definition/project-definition.ts";
-import { createCoreCheckSession, type CoreCheckSession } from "../../check-settlement/session.ts";
+import { createCoreCheckSession } from "../../check-settlement/session.ts";
 import {
   diagnosticTags,
   summarizeDiagnosticValue,
@@ -21,7 +21,7 @@ import {
   CheckExecutionInvariantFailure,
   recordSettledCheck,
   settleCallback,
-  type CheckExecutionSettlementState,
+  type CheckExecutionState,
   type CheckIdentity,
   type SettledCheckFacts
 } from "./execution-settlement.ts";
@@ -43,6 +43,7 @@ import {
   type CheckPreflightResolution,
   type ReadyCheckPreflightResolution
 } from "./preflight.ts";
+import type { ResolvedCheckExecution } from "./resolved-execution-result.ts";
 
 const INERT_SIGNAL = new AbortController().signal;
 const NO_CHECK_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
@@ -53,28 +54,6 @@ const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({
 
 /** Package-private monotonic clock seam for execution accounting. */
 export type CheckExecutionClock = Readonly<{ now(): number }>;
-
-type ResolvedCheckExecutionFacts = Readonly<{
-  readonly checkDurations: readonly import("../result.ts").CheckDuration[];
-  readonly checkMessages: readonly import("../result.ts").CheckRunMessage[];
-  readonly snapshot: import("../../check-settlement/facts.ts").CoreSnapshot;
-  /** Product-private terminal Scheduler facts; never projected into RunResult. */
-  readonly terminalSchedulerMeasurement?: import("../../project-definition/project-definition.ts").SchedulerMeasurementContext;
-}>;
-
-export type ResolvedCheckExecution =
-  | (Readonly<{
-      readonly kind: "completed";
-      /** Private effective selection shared with invocation-level aggregation. */
-      readonly effectiveCheckIds: readonly string[];
-    }> &
-      ResolvedCheckExecutionFacts)
-  | (Readonly<{ readonly kind: "cancelled" }> & ResolvedCheckExecutionFacts)
-  | (Readonly<{ readonly kind: "admission-policy-failed" }> & ResolvedCheckExecutionFacts);
-
-export interface CheckExecutionState extends CheckExecutionSettlementState {
-  readonly session: CoreCheckSession;
-}
 
 interface ExecuteCheckInput extends CheckExecutionState {
   readonly check: NormalizedCheck;
