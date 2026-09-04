@@ -7,6 +7,7 @@ import type { ProcessResult } from "../../../../process-execution/execution.ts";
 import type { CheckExecutionContext, CheckResult } from "@zxyycom/vibe-check";
 
 import type { ProcessCheckDescriptor } from "./process.ts";
+import type { ProcessFailureRecord } from "./failure-projection.ts";
 
 /** One completed child-process step included in a Check-owned transcript. */
 export interface ProcessTranscriptStep {
@@ -73,19 +74,25 @@ export function failedProcessResult(
   input: Readonly<{
     readonly command: string;
     readonly exitCode: number;
+    readonly failureRecords?: readonly ProcessFailureRecord[];
     readonly logPath: string;
     readonly signal: NodeJS.Signals | null;
   }>
 ): CheckResult {
-  context.records.report(
-    { id: "command-failure" },
-    Object.freeze({
-      command: basename(input.command),
-      exitCode: input.exitCode,
-      log: processTranscriptReference(input.logPath),
-      signal: input.signal ?? "none"
-    })
-  );
+  if (input.failureRecords === undefined) {
+    context.records.report(
+      { id: "command-failure" },
+      Object.freeze({
+        command: basename(input.command),
+        exitCode: input.exitCode,
+        log: processTranscriptReference(input.logPath),
+        signal: input.signal ?? "none"
+      })
+    );
+  } else {
+    for (const record of input.failureRecords)
+      context.records.report({ id: record.id }, record.data);
+  }
   return Object.freeze({
     status: "failed",
     data: Object.freeze({ exitCode: input.exitCode }),

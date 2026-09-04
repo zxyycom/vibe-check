@@ -317,7 +317,29 @@ native adapter 接收到空、重复或不安全 `{ id, data }` diagnostics，�
 
 每个 external-command Check 只从自己的 `CheckExecutionContext.artifactDirectory` 读取路径能力；未授予时以 `transcript-unavailable` fail closed。已授予时，它在启动 child 前写入 `checks/<encoded-check-id>/process.log` 的 running transcript，并在结算后将同一路径改写为 command、stdout/stderr、exit/signal/timeout 与安全 error summary；startup 写入失败时不得启动 child。process 与 ast-grep rule-test Check 不从 Gate Definition closure 或 invocation root 获取路径，也不能写 sibling Check artifact。
 
-process Check 的 failure Record 和 terminal message 只引用 `checks/<encoded-check-id>/process.log`。failure Record 的 `command` 是 basename label，不是可执行文件完整路径；完整 command/args 仅在私有 transcript。terminal message 不复制 child output、绝对路径、command arguments、credential URL 或 digest。配置了 timeout 且 facade 明确报告超时时结算为 `process-timeout`；不能可靠分类的 process/log/parse 边界 fail closed 为 `unavailable`。ast-grep version mismatch 仍属于该 transcript-owning Check：它只发布 expected version、固定 mismatch classification、version exit code 与 invocation-relative log reference，不解析或复制 version stdout/stderr。Product diagnostic channel、Gate transcript、progress transcript 与 child transcript 各自记录不同层次，不互相解析或复制。
+#### Project Gate 的结构化非零 process Records
+
+这套投影只适用于**已经结算为 nonzero exit** 的 Gate process Check；它不是 generic process adapter 按 command、argv 或人读输出猜测工具语义的机制。process base 仍是 child execution、transcript、four-state outcome 与 generic fallback 的唯一 owner；工具 owner 只负责将自己的已验证 stdout 协议转换为完整的 safe Record 集合；Core 继续是唯一的 Record preview owner。
+
+当前的显式选择只有下表三项。没有列在表中的 process Check 不拥有 structured failure protocol。
+
+| Gate Check | 工具 owner protocol | 接受后发布的 Record data |
+| --- | --- | --- |
+| `lint-product` | oxlint `--format=json`；只接受 `src/**` 内的诊断 | `{ kind: "oxlint-diagnostic", path, location, rule, severity, occurrence }` |
+| `lint-scripts` | oxlint `--format=json`；只接受 `scripts/**` 内的诊断 | `{ kind: "oxlint-diagnostic", path, location, rule, severity, occurrence }` |
+| `format-check` | oxfmt `--list-different`；只接受 `workspaceFormatTargets` 中的路径 | `{ kind: "oxfmt-difference", path }` |
+
+每次适用的 nonzero result 都按以下固定顺序处理：
+
+1. process base 先成功写入完整 settled `checks/<encoded-check-id>/process.log`；若没有 artifact capability、transcript 不能写入、执行被取消、spawn/error、status 为 null 或 timeout，则结算为既有 `unavailable`，不尝试投影。
+2. 只有表中 Gate entry 显式提供的工具 owner projector 才可读取该次 stdout。它必须先构造、排序并验证**整组**候选 Records，之后才可替换 generic Record。
+3. 任何候选不完整或不安全、unknown field、JSON/path-list 形状错误、workspace/scope/target escape、重复 identity 或 parser exception 都拒绝整组候选；Check 仍失败，并且只发布一个 generic `command-failure` Record。
+
+oxlint 的 closed JSON schema 要求每个诊断具有 `error` 或 `warning` severity、scope 内 canonical relative path、正 line/column，以及匹配 `/^[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)?(?:\([a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)?\))?$/` 的 `code`。安装的 oxlint 1.78 允许 label 只有 `{ span }`，所以 `label` 可缺失或为 string，但永不进入 Record。oxfmt 要求输出为完整、非空、无重复的 list-different 路径集合；每一行都必须是已授权 target 内的 canonical relative path。
+
+两种工具 owner 都只能发布由 ASCII 字母、数字、`.`、`_`、`-`、`/` 组成的 workspace-relative path；因此 `:`、`@`、`?`、`#`、`=` 等 credential 或 query 风险字符不能进入 data 或 identity。structured Record 与所有 terminal message 均不得复制 child output、tool message/help/snippet、absolute root、command arguments、credential URL 或 digest。结构化 Records 使用本节前述的 Core 默认 preview；工具 adapter 不控制 preview 的条数、排序、截断或文本格式。
+
+没有成功 structured projection 的 process Check，其 failure Record 和 terminal message 只引用 `checks/<encoded-check-id>/process.log`。generic failure Record 的 `command` 是 basename label，不是可执行文件完整路径；完整 command/args 只保留在私有 transcript。Bun test、tsgo、Git whitespace 与 ast-grep rule-test 没有本 Gate 采用的 stable owner protocol，因此保持 generic command failure；ast-grep version mismatch 仍只发布 expected version、固定 mismatch classification、version exit code 与 invocation-relative log reference。Product diagnostic channel、Gate transcript、progress transcript 与 child transcript 各自记录不同层次，不互相解析或复制。
 
 ### Gate result post-processing and exits
 

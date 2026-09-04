@@ -5,8 +5,10 @@ import type { Check } from "@zxyycom/vibe-check";
 import type { ProjectGatePreset } from "../runtime/catalog.ts";
 import {
   createProcessCheck,
+  createProcessCheckWithFailureProjection,
   createProcessCheckWithDataDependency,
-  type ProcessCheckDataDependency
+  type ProcessCheckDataDependency,
+  type ProcessFailureProjection
 } from "./process/process.ts";
 import type { ProjectGateEntry } from "../runtime/entries.ts";
 import type { ExternalConsumerMaterialLease } from "./external-consumer-material.ts";
@@ -24,14 +26,29 @@ export function createProjectGateProcessEntry<Data extends object = object>(
     readonly invocation: ProcessInvocation;
     readonly checkId: string;
     readonly displayName: string;
+    readonly failureProjection?: ProcessFailureProjection;
     readonly mutex?: readonly string[];
     readonly presets: readonly ProjectGatePreset[];
     readonly required: boolean;
     readonly timeoutMs?: number;
   }>
 ): ProjectGateEntry {
-  const { checkId, dataDependency, displayName, invocation, mutex, presets, required, timeoutMs } =
-    input;
+  const {
+    checkId,
+    dataDependency,
+    displayName,
+    failureProjection,
+    invocation,
+    mutex,
+    presets,
+    required,
+    timeoutMs
+  } = input;
+  if (dataDependency !== undefined && failureProjection !== undefined) {
+    throw new TypeError(
+      "A process Check cannot combine dependency and structured failure adapters"
+    );
+  }
   const descriptor = {
     args: invocation.args,
     checkId,
@@ -41,10 +58,14 @@ export function createProjectGateProcessEntry<Data extends object = object>(
     ...(invocation.env === undefined ? {} : { environment: definedEnvironment(invocation.env) }),
     ...(timeoutMs === undefined ? {} : { timeoutMs })
   };
-  const check =
-    dataDependency === undefined
-      ? createProcessCheck(descriptor)
-      : createProcessCheckWithDataDependency(descriptor, dataDependency);
+  let check: Check;
+  if (dataDependency !== undefined) {
+    check = createProcessCheckWithDataDependency(descriptor, dataDependency);
+  } else if (failureProjection !== undefined) {
+    check = createProcessCheckWithFailureProjection(descriptor, failureProjection);
+  } else {
+    check = createProcessCheck(descriptor);
+  }
   return Object.freeze({
     check:
       mutex === undefined ? check : Object.freeze({ ...check, mutex: Object.freeze([...mutex]) }),

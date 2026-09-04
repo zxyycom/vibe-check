@@ -11,6 +11,7 @@ import {
   writeProcessTranscript
 } from "./transcript.ts";
 import type { ProcessCheckDependencies, ProcessCheckDescriptor } from "./process.ts";
+import { safeProcessFailureRecords, type ProcessFailureProjection } from "./failure-projection.ts";
 
 export const PROCESS_CHECK_UNAVAILABLE_REASON_CODE = Object.freeze({
   dependencyDataInvalid: "dependency-data-invalid",
@@ -33,44 +34,78 @@ export function unavailableProcessCheckResult<Data extends object = object>(
   return Object.freeze({ status: "unavailable", reason: { code } });
 }
 
-export function executeProcessCheck(
-  context: CheckExecutionContext<ProcessCheckDescriptor>,
-  dependencies: ProcessCheckDependencies
-): Promise<CheckResult>;
+export interface ProcessExecutionOutput<Data extends object = object> {
+  readonly failureProjection?: ProcessFailureProjection;
+  readonly successData?: (stdout: string) => Data;
+}
+
 export function executeProcessCheck<Data extends object>(
   context: CheckExecutionContext<ProcessCheckDescriptor>,
   dependencies: ProcessCheckDependencies,
-  successData: (stdout: string) => Data
+  output: Readonly<{
+    readonly failureProjection?: ProcessFailureProjection;
+    readonly successData: (stdout: string) => Data;
+  }>
 ): Promise<CheckResult<Data>>;
+export function executeProcessCheck(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  dependencies: ProcessCheckDependencies,
+  output?: ProcessExecutionOutput
+): Promise<CheckResult>;
 export async function executeProcessCheck(
   context: CheckExecutionContext<ProcessCheckDescriptor>,
   dependencies: ProcessCheckDependencies,
-  successData?: (stdout: string) => object
+  output: ProcessExecutionOutput = {}
 ): Promise<CheckResult> {
   if (context.signal.aborted)
     return unavailableProcessCheckResult(PROCESS_CHECK_UNAVAILABLE_REASON_CODE.executionCancelled);
-  const artifactDirectory = context.artifactDirectory;
-  if (artifactDirectory === null)
+  const transcript = startProcessTranscript(context, dependencies);
+  if (transcript === undefined)
     return unavailableProcessCheckResult(
       PROCESS_CHECK_UNAVAILABLE_REASON_CODE.transcriptUnavailable
     );
 
-  const logPath = processTranscriptPath(artifactDirectory);
+  const result = await runConfiguredProcess(context, dependencies);
+  if (!writeSettledProcessTranscript(context, dependencies, transcript.artifactDirectory, result))
+    return unavailableProcessCheckResult(
+      PROCESS_CHECK_UNAVAILABLE_REASON_CODE.transcriptUnavailable
+    );
+
+  return settledProcessCheckResult(context, output, result, transcript.logPath);
+}
+
+interface ProcessTranscript {
+  readonly artifactDirectory: string;
+  readonly logPath: string;
+}
+
+/** Claims and writes the Check-owned transcript before starting its external command. */
+function startProcessTranscript(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  dependencies: ProcessCheckDependencies
+): ProcessTranscript | undefined {
+  const artifactDirectory = context.artifactDirectory;
+  if (artifactDirectory === null) return undefined;
+
   try {
     writeProcessStartupTranscript({
       artifactDirectory,
       definition: context.options,
       writeTextFile: dependencies.writeTextFile
     });
+    return Object.freeze({ artifactDirectory, logPath: processTranscriptPath(artifactDirectory) });
   } catch {
-    return unavailableProcessCheckResult(
-      PROCESS_CHECK_UNAVAILABLE_REASON_CODE.transcriptUnavailable
-    );
+    return undefined;
   }
+}
 
-  let result: ProcessResult;
+/** Executes the configured command once and materializes spawn failures for settled evidence. */
+async function runConfiguredProcess(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  dependencies: ProcessCheckDependencies
+): Promise<ProcessResult> {
   try {
-    result = await dependencies.runProcess({
+    return await dependencies.runProcess({
       args: context.options.args,
       command: context.options.command,
       cwd: context.options.cwd ?? context.project.root,
@@ -80,9 +115,17 @@ export async function executeProcessCheck(
       timeout: context.options.timeoutMs
     });
   } catch (error: unknown) {
-    result = unavailableProcessResult(error);
+    return unavailableProcessResult(error);
   }
+}
 
+/** Replaces running transcript evidence with the command's final process state. */
+function writeSettledProcessTranscript(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  dependencies: ProcessCheckDependencies,
+  artifactDirectory: string,
+  result: ProcessResult
+): boolean {
   try {
     writeProcessTranscript({
       artifactDirectory,
@@ -90,61 +133,71 @@ export async function executeProcessCheck(
       steps: [{ definition: context.options, label: "command", result }],
       writeTextFile: dependencies.writeTextFile
     });
+    return true;
   } catch {
-    return unavailableProcessCheckResult(
-      PROCESS_CHECK_UNAVAILABLE_REASON_CODE.transcriptUnavailable
-    );
+    return false;
   }
+}
 
+/** Maps a fully transcribed process result into the ordinary Check outcome. */
+function settledProcessCheckResult(
+  context: CheckExecutionContext<ProcessCheckDescriptor>,
+  output: ProcessExecutionOutput,
+  result: ProcessResult,
+  logPath: string
+): CheckResult {
   if (context.signal.aborted)
     return unavailableProcessCheckResult(PROCESS_CHECK_UNAVAILABLE_REASON_CODE.executionCancelled);
-  if (result.timedOut === true) {
-    const timeoutMs = context.options.timeoutMs;
-    if (timeoutMs === undefined)
-      return unavailableProcessCheckResult(
-        PROCESS_CHECK_UNAVAILABLE_REASON_CODE.processUnavailable
-      );
-    return Object.freeze({
-      status: "unavailable",
-      reason: { code: PROCESS_CHECK_UNAVAILABLE_REASON_CODE.processTimeout },
-      messages: Object.freeze([
-        Object.freeze({
-          level: "error",
-          code: "command-timeout",
-          message: `Command exceeded its ${formatTimeout(timeoutMs)} timeout; transcript: ${processTranscriptReference(logPath)}.`
-        })
-      ])
-    });
-  }
+  if (result.timedOut === true) return timedOutProcessCheckResult(context.options, logPath);
   if (result.error !== undefined)
     return unavailableProcessCheckResult(PROCESS_CHECK_UNAVAILABLE_REASON_CODE.processUnavailable);
-  const exitCode = result.status;
-  if (exitCode === null)
+  if (result.status === null)
     return unavailableProcessCheckResult(PROCESS_CHECK_UNAVAILABLE_REASON_CODE.exitUnavailable);
-  if (exitCode === 0) {
-    if (successData === undefined)
-      return Object.freeze({
-        status: "passed",
-        data: Object.freeze({ exitCode })
-      });
-    try {
-      return Object.freeze({
-        status: "passed",
-        data: successData(result.stdout)
-      });
-    } catch {
-      return unavailableProcessCheckResult(
-        PROCESS_CHECK_UNAVAILABLE_REASON_CODE.processOutputInvalid
-      );
-    }
-  }
+  if (result.status === 0) return successfulProcessCheckResult(output, result.stdout);
 
+  const failureRecords =
+    output.failureProjection === undefined
+      ? undefined
+      : safeProcessFailureRecords(output.failureProjection, result.stdout);
   return failedProcessResult(context, {
     command: context.options.command,
-    exitCode,
+    exitCode: result.status,
     logPath,
-    signal: result.signal
+    signal: result.signal,
+    ...(failureRecords === undefined ? {} : { failureRecords })
   });
+}
+
+function timedOutProcessCheckResult(
+  definition: ProcessCheckDescriptor,
+  logPath: string
+): CheckResult {
+  const timeoutMs = definition.timeoutMs;
+  if (timeoutMs === undefined)
+    return unavailableProcessCheckResult(PROCESS_CHECK_UNAVAILABLE_REASON_CODE.processUnavailable);
+  return Object.freeze({
+    status: "unavailable",
+    reason: { code: PROCESS_CHECK_UNAVAILABLE_REASON_CODE.processTimeout },
+    messages: Object.freeze([
+      Object.freeze({
+        level: "error",
+        code: "command-timeout",
+        message: `Command exceeded its ${formatTimeout(timeoutMs)} timeout; transcript: ${processTranscriptReference(logPath)}.`
+      })
+    ])
+  });
+}
+
+function successfulProcessCheckResult(output: ProcessExecutionOutput, stdout: string): CheckResult {
+  if (output.successData === undefined)
+    return Object.freeze({ status: "passed", data: Object.freeze({ exitCode: 0 }) });
+  try {
+    return Object.freeze({ status: "passed", data: output.successData(stdout) });
+  } catch {
+    return unavailableProcessCheckResult(
+      PROCESS_CHECK_UNAVAILABLE_REASON_CODE.processOutputInvalid
+    );
+  }
 }
 
 function unavailableProcessResult(error: unknown): ProcessResult {

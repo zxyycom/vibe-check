@@ -7,13 +7,16 @@ import {
 } from "../process-execution/command.ts";
 import { workspaceFormatTargets } from "./format-targets.ts";
 
-export type FormatAction = "check" | "write";
+export type FormatAction = "check" | "list-different" | "write";
 
 export function workspaceFormatInvocation(action: FormatAction): ProcessInvocation {
-  return bunPackageInvocation("oxfmt", [
-    action === "check" ? "--check" : "--write",
-    ...workspaceFormatTargets
-  ]);
+  return bunPackageInvocation("oxfmt", [formatCommandOption(action), ...workspaceFormatTargets]);
+}
+
+function formatCommandOption(action: FormatAction): "--check" | "--list-different" | "--write" {
+  if (action === "check") return "--check";
+  if (action === "list-different") return "--list-different";
+  return "--write";
 }
 
 function parseFormatInvocation(argv: readonly string[]): FormatAction {

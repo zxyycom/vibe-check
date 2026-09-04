@@ -16,6 +16,7 @@ import {
   unavailableProcessCheckResult,
   type ProcessCheckUnavailableReasonCode
 } from "./process-execution.ts";
+import type { ProcessFailureProjection } from "./failure-projection.ts";
 
 export interface ProcessCheckDependencies {
   readonly runProcess: typeof runProcess;
@@ -47,6 +48,7 @@ export interface ProcessCheckDescriptor {
 }
 
 export type { ProcessTranscriptStep } from "./transcript.ts";
+export type { ProcessFailureProjection, ProcessFailureRecord } from "./failure-projection.ts";
 export {
   failedProcessResult,
   processTranscriptReference,
@@ -78,6 +80,22 @@ export function createProcessCheck(
     options: definition,
     preflight: prepareProcessDescriptor,
     execution: async (context): Promise<CheckResult> => executeProcessCheck(context, dependencies)
+  });
+}
+
+/** Creates an ordinary process Check with one owner-selected structured nonzero projection. */
+export function createProcessCheckWithFailureProjection(
+  definition: ProcessCheckDescriptor,
+  failureProjection: ProcessFailureProjection,
+  dependencies: ProcessCheckDependencies = defaultProcessCheckDependencies
+) {
+  return defineCheck<string, ProcessCheckDescriptor>({
+    checkId: definition.checkId,
+    displayName: definition.displayName,
+    options: definition,
+    preflight: prepareProcessDescriptor,
+    execution: async (context): Promise<CheckResult> =>
+      executeProcessCheck(context, dependencies, { failureProjection })
   });
 }
 
@@ -132,9 +150,11 @@ export function createProcessCheckWithDataDependencyAndSuccessData<
       return executeProcessCheck(
         Object.freeze({ ...context, options: resolved.options }),
         dependencies,
-        (stdout) => {
-          const data = successData.parseData(successData.fromStdout(stdout));
-          return successData.validateDependencyData?.(data, resolved.data) ?? data;
+        {
+          successData: (stdout) => {
+            const data = successData.parseData(successData.fromStdout(stdout));
+            return successData.validateDependencyData?.(data, resolved.data) ?? data;
+          }
         }
       );
     }

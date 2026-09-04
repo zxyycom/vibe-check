@@ -186,7 +186,7 @@ Entities:
 
 - `bun|scripts/development/quality-targets.test.ts|development quality target boundaries > excludes only generated function-analyzer oracle fixtures from product lint and format`
   Proves:
-- Product lint and workspace format retain every normal `src` target while excluding only the checked-in generated function-analyzer oracle fixture directory; no translated-only lint or format exception is allowed. Typecheck likewise has no translated-only exception.
+- Product lint and workspace format retain every normal `src` target while excluding only the checked-in generated function-analyzer oracle fixture directory; no translated-only lint or format exception is allowed. Typecheck likewise has no translated-only exception. Gate-specific lint explicitly selects oxlint JSON while standalone development lint preserves its default output; Gate format explicitly selects list-different while standalone `format check` preserves `--check`.
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
 
@@ -267,12 +267,20 @@ Entities:
 - `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > requires an explicit timeout before reporting safe timeout evidence`
 - `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
 - `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > maps a settled cancellation fact to transcript evidence and unavailable`
+- `bun|scripts/project/gate/checks/process/structured-failure.test.ts|Project Gate structured process failure projection > writes settled evidence before publishing complete owner Records`
+- `bun|scripts/project/gate/checks/process/structured-failure.test.ts|Project Gate structured process failure projection > falls back once without partial owner Records when projection declines the child output`
+- `bun|scripts/project/gate/checks/process/structured-failure.test.ts|Project Gate structured process failure projection > falls back once without partial owner Records when the projection produces duplicate identities`
+- `bun|scripts/project/gate/checks/oxlint-failure-records.test.ts|Project Gate oxlint failure Records > projects every complete scoped JSON diagnostic with installed-protocol label spans`
+- `bun|scripts/project/gate/checks/oxlint-failure-records.test.ts|Project Gate oxlint failure Records > declines malformed, out-of-scope, and incomplete diagnostic protocols as one whole`
+- `bun|scripts/project/gate/checks/oxfmt-failure-records.test.ts|Project Gate oxfmt failure Records > projects every authorized list-different path as a relative Record`
+- `bun|scripts/project/gate/checks/oxfmt-failure-records.test.ts|Project Gate oxfmt failure Records > declines non-path text, duplicate paths, and paths outside the owned target set`
   Proves:
 
 - eligible command 只有在零退出并写入自身 artifact 的 `checks/<encoded-check-id>/process.log` 后才通过。普通单进程 Check 在启动 child 前先写同路径 running transcript，包含 command 与 timeout；结算后将其替换为完整结果，startup 写入失败则不启动 child。未授予 `artifactDirectory` 时不得启动 child，且以 `transcript-unavailable` 结算。失败 message 与 Record 使用同一 invocation-relative `checks/<encoded-check-id>/process.log` reference，而不暴露 invocation absolute path。
 - Dependency-backed process 只读取声明的 direct provider，要求 upstream passed，经 provider parser 恢复 data 后才派生无冲突 environment；unreadable、failed 或 malformed data 不启动 child process。
 - A typed-success process publishes its typed final data only after a zero exit and a successfully written settled transcript. It then closed-parses stdout and validates it against its typed dependency; malformed stdout or invalid parsed/provenance data settles `unavailable / process-output-invalid`, never a passed result.
 - 非零退出产生含 basename command label、exit code、signal 与 log reference 的 Check-local supplemental Record，随后得到 failed final data 和唯一 `error` / `command-failed` message；Record 与 message 都不复制 child output、可执行文件完整路径、command arguments、credential URL 或 digest。
+- 每个 nonzero process 都先写入 settled transcript。只有 Gate entry 显式选择的工具 owner parser 才能替换 generic Record：`lint-product` / `lint-scripts` 的 oxlint JSON 接受 label 只有 span 的安装协议，但要求完整 closed schema、safe `code` grammar、scope 内 canonical path 与正位置，并只发布 path/location/rule/severity/occurrence；`format-check` 的 oxfmt 只接受 `workspaceFormatTargets` 内完整、非空且无重复的 list-different paths。两种 adapter 都只发布由 ASCII 字母、数字、`._-/` 构成的 canonical relative path，拒绝 credential/query delimiter。任一 parser、schema、scope、target、path、identity 或安全检查失败都不发布 partial owner facts，而是恰好回退为一个 generic Record。Bun test、tsgo、Git whitespace 与 ast-grep rule-test 继续保留 generic command-failure evidence。
 - The same nonzero Check executed through the installed public Run keeps its complete failure Record and its `{ checkId, level, code, message }` item from `RunResult.checkMessages`; Product progress separately renders bounded generic Record and message previews, while transcript-only material remains absent from both surfaces.
 - 启动前取消不启动 process；spawn、exit facts 或 transcript 边界失败得到对应 unavailable outcome。settled transcript replacement 失败时不把缺失最终日志误报为 command 结果；running evidence 只保证存在到 replacement 开始前。
 - Process descriptor 把显式 timeout 交给 process facade；只有 descriptor 声明该时限时，timeout fact 才结算为带安全 `command-timeout` message 的 `process-timeout` unavailable，否则 fail closed 为普通 process unavailable。timeout transcript 保留 `timed-out: yes`。

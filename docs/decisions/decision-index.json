@@ -166,6 +166,7 @@
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:b12df18e821e1faf4a5bc62a7f55d285adead370cab22d8478c49b2fc27abb53",
       "publish-invocation-creation-time-without-execution-telemetry.md": "sha256:dd0b0d8631379eb31ff7cda58d4bfa662da7e22e245885240c7ac62b14dd9d92",
       "publish-invocation-creation-timestamp-without-check-telemetry.md": "sha256:07f76379cade1144f1bc2dca91fda7fa403f5867607fd3b644c3831c732573e4",
+      "publish-owner-structured-process-check-records.md": "sha256:78e57a629afbaf7a0946d01d6bb8cd72319edb928b82cb4ca49fd237f327366b",
       "publish-project-gate-machine-facts-in-machine-namespace.md": "sha256:b0569ebfbda1a5a836853639ed5bdea0e2aafc48471bb897653606ede1e54ad7",
       "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:daa7e106cd218de23c4f76a8f1a7e82af04032e45baeaf2df733ff3d330d385e",
       "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
@@ -5431,6 +5432,35 @@
             "target": "preserve-release-gate-readiness-with-invocation-creation-time.md"
           }
         ]
+      }
+    },
+    "publish-owner-structured-process-check-records.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "publish-owner-structured-process-check-records.md",
+        "title": "以 owner 协议发布结构化 process Check Records",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T14:17:43Z",
+        "purpose": "让有稳定工具协议的 Gate process Check 发布逐项安全 Records，同时保留未知或不可信 child failure 的通用 transcript fallback。",
+        "background": "通用失败 Record 缺少逐问题定位，直接传播 child text 又会越过持久化安全边界。",
+        "decision": "仅让工具 owner 投影经完整验证的 safe Records；不能证明的输出继续保留 transcript 与通用 failure。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "publish-project-gate-machine-facts-in-machine-namespace.md": {

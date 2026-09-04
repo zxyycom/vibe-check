@@ -8,16 +8,25 @@ import {
 import { GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES } from "./format-targets.ts";
 
 export type LintScope = "product" | "scripts";
+export type LintOutputFormat = "default" | "json";
 
 const lintPaths: Readonly<Record<LintScope, readonly string[]>> = {
   product: ["src"],
   scripts: ["scripts"]
 };
 
-export function lintInvocation(scope: LintScope): ProcessInvocation {
+export function lintInvocation(
+  scope: LintScope,
+  outputFormat: LintOutputFormat = "default"
+): ProcessInvocation {
   const exclusions =
     scope === "product" ? [`--ignore-pattern=${GENERATED_FUNCTION_METRICS_ANALYZER_FIXTURES}`] : [];
-  return bunPackageInvocation("oxlint", ["--deny-warnings", ...exclusions, ...lintPaths[scope]]);
+  return bunPackageInvocation("oxlint", [
+    "--deny-warnings",
+    ...(outputFormat === "json" ? ["--format=json"] : []),
+    ...exclusions,
+    ...lintPaths[scope]
+  ]);
 }
 
 function isLintScope(value: string): value is LintScope {

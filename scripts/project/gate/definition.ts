@@ -2,6 +2,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { workspaceFormatInvocation } from "../../development/format.ts";
+import { workspaceFormatTargets } from "../../development/format-targets.ts";
 import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";
 import {
@@ -26,6 +27,8 @@ import {
 } from "./checks/process-entry.ts";
 import { createPreparedCandidateCheck } from "./checks/prepared-candidate.ts";
 import { createProjectGateRepositoryQualityChecks } from "./checks/repository-quality.ts";
+import { createOxfmtFailureProjection } from "./checks/oxfmt-failure-records.ts";
+import { createOxlintFailureProjection } from "./checks/oxlint-failure-records.ts";
 import { createTestEvidenceRuleTestsCheck } from "./checks/test-evidence/ast-grep-rule-tests-check.ts";
 import { createTestEvidenceCheck } from "./checks/test-evidence/semantic-case-check.ts";
 import { createProjectGateTestEntries } from "./checks/test-execution/entries.ts";
@@ -102,7 +105,11 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       required: true
     }),
     createProjectGateProcessEntry({
-      invocation: lintInvocation("product"),
+      failureProjection: createOxlintFailureProjection({
+        scope: "product",
+        workspaceRoot: repositoryRoot
+      }),
+      invocation: lintInvocation("product", "json"),
       checkId: "lint-product",
       displayName: "TypeScript product lint",
       presets: ["lint"],
@@ -116,14 +123,22 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       required: true
     }),
     createProjectGateProcessEntry({
-      invocation: lintInvocation("scripts"),
+      failureProjection: createOxlintFailureProjection({
+        scope: "scripts",
+        workspaceRoot: repositoryRoot
+      }),
+      invocation: lintInvocation("scripts", "json"),
       checkId: "lint-scripts",
       displayName: "TypeScript script lint",
       presets: ["lint"],
       required: true
     }),
     createProjectGateProcessEntry({
-      invocation: workspaceFormatInvocation("check"),
+      failureProjection: createOxfmtFailureProjection({
+        targets: workspaceFormatTargets,
+        workspaceRoot: repositoryRoot
+      }),
+      invocation: workspaceFormatInvocation("list-different"),
       checkId: "format-check",
       displayName: "Source format",
       presets: [],
