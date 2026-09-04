@@ -23,10 +23,6 @@ export interface ProgressRendering {
   readonly prepared: (totalChecks: number) => void;
 }
 export interface ProgressFinalFeedback {
-  readonly checkDurations: readonly Readonly<{
-    readonly checkId: string;
-    readonly durationMs: number | null;
-  }>[];
   readonly counts: ProgressOutcomeCounts;
   readonly elapsedMs: number;
   readonly execution: "cancelled" | "completed";
@@ -190,7 +186,6 @@ export function createProgressRendering(
       stopRefresh();
       render(
         Object.freeze({
-          checkDurations: input.checkDurations,
           counts: input.counts,
           elapsedMs: input.elapsedMs,
           execution: input.execution,

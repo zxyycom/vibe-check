@@ -89,9 +89,7 @@ describe("Package Run progress timing", () => {
       { checkId: "fast", durationMs: 20 },
       { checkId: "slow", durationMs: 35 }
     ]);
-    assert.match(
-      output.writes.at(-1) ?? "",
-      / {2}elapsed: 40ms\n {2}check durations:\n {4}- fast: 20ms\n {4}- slow: 35ms\n$/
-    );
+    assert.match(output.writes.at(-1) ?? "", / {2}elapsed: 40ms\n$/);
+    assert.equal(output.writes.join("").includes("check durations:"), false);
   });
 });

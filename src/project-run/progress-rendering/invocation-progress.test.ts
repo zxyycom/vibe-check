@@ -27,11 +27,12 @@ describe("Package Run progress rendering outputs", () => {
     assert.match(output.writes[1] ?? "", /^ {2}\[1\/1] Custom \| passed \| \d+(?:\.\d+)?ms\n$/);
     assert.match(
       output.writes[2] ?? "",
-      /^\nExecution summary:\n {2}execution: completed\n {2}total checks: 1\n {2}passed: 1\n {2}failed: 0\n {2}not applicable: 0\n {2}unavailable: 0\n {2}elapsed: \d+(?:\.\d+)?(?:ms|s)\n {2}check durations:\n {4}- custom: \d+(?:\.\d+)?(?:ms|s)\n$/
+      /^\nExecution summary:\n {2}execution: completed\n {2}total checks: 1\n {2}passed: 1\n {2}failed: 0\n {2}not applicable: 0\n {2}unavailable: 0\n {2}elapsed: \d+(?:\.\d+)?(?:ms|s)\n$/
     );
+    assert.equal(output.writes.join("").includes("check durations:"), false);
   });
 
-  it("tees one Run-selected progress log while retaining terminal output and every Check duration", async () => {
+  it("tees final progress while retaining canonical Check durations in RunResult", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-progress-log-"));
     try {
       const output = capturedProgressWriter();
@@ -52,15 +53,18 @@ describe("Package Run progress rendering outputs", () => {
       );
 
       assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
       assert.equal(result.outputs.progressRendering.status, "succeeded");
+      assert.equal(result.checkDurations[0]?.checkId, "executed");
+      assert.equal(typeof result.checkDurations[0]?.durationMs, "number");
+      assert.deepEqual(result.checkDurations[1], { checkId: "not-run", durationMs: null });
       const progressFile = join(root, "evidence", "progress.log");
       assert.equal(existsSync(progressFile), true);
       const transcript = readFileSync(progressFile, "utf8");
       assert.equal(transcript, output.writes.join(""));
-      assert.match(
-        transcript,
-        /check durations:\n {4}- executed: \d+(?:\.\d+)?(?:ms|s)\n {4}- not-run: null\n/
-      );
+      assert.match(transcript, / {2}\[2\/2] executed \| passed \| \d+(?:\.\d+)?(?:ms|s)\n/);
+      assert.equal(transcript.includes("check durations:"), false);
+      assert.equal(transcript.includes("- not-run: null"), false);
     } finally {
       rmSync(root, { force: true, recursive: true });
     }

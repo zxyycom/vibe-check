@@ -81,7 +81,7 @@ Owner: `docs/configuration.md#run-outputs-and-compatibility-boundary`
 Entities:
 
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > presents enabled Package Run progress through the injected plain writer`
-- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > tees one Run-selected progress log while retaining terminal output and every Check duration`
+- `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > tees final progress while retaining canonical Check durations in RunResult`
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > keeps terminal progress when its selected file target cannot be opened`
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > does not create or write a progress writer when Package Run progress is disabled`
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > contains progress writer failures while preserving completed Check facts`
@@ -97,7 +97,7 @@ Entities:
   Proves:
 - Disabling progress rendering does not construct its writer or affect Check execution.
 - Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
-- A progress writer failure, including one raised by a scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts. A caller-selected `progressLogFile` tees the same bytes after terminal output, includes every canonical Check duration including `null`, and cannot suppress terminal output when its file target fails.
+- A progress writer failure, including one raised by a scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts. A caller-selected `progressLogFile` tees the same bytes after terminal output, preserving visible settled-row duration and final execution/counts/elapsed; complete canonical Check durations, including `null`, remain in `RunResult`, and a file target failure cannot suppress terminal output.
 - Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. When progress rendering and machine publication both fail, their statuses remain observable and progress rendering keeps its existing diagnostic priority.
 
 ## Case WB-DIAGNOSTIC-LOGGING-OUTPUT-001: Diagnostic logging is a Product-owned Run output

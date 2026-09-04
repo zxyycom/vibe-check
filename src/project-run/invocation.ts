@@ -275,7 +275,6 @@ function finalizeResolvedCheckExecution(input: {
   }
   invocation.progressRendering.final({
     counts: outcomeCounts(executed.snapshot),
-    checkDurations: executed.checkDurations,
     elapsedMs: elapsedSince(input.executionStartedAt, invocation.clock),
     execution: executed.kind
   });

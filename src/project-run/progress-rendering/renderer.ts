@@ -36,11 +36,6 @@ export type ProgressFeedback = Readonly<
       readonly execution: "cancelled" | "completed";
       readonly counts: ProgressOutcomeCounts;
       readonly elapsedMs: number;
-      /** Ordered full summary; `null` means that Check never executed. */
-      readonly checkDurations: readonly Readonly<{
-        readonly checkId: string;
-        readonly durationMs: number | null;
-      }>[];
     }
 >;
 
