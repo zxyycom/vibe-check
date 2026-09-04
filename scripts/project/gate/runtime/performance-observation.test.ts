@@ -84,13 +84,19 @@ describe("Project Gate performance observation", () => {
       status: "unavailable"
     });
 
-    const tagOverride = observeProjectGatePerformance(
+    const focusedPreset = observeProjectGatePerformance(
       createProjectGateResult("passed"),
-      context({ elapsedToInitialResultMs: 120, enabledTags: ["package-tests"] }),
+      context({
+        elapsedToInitialResultMs: 120,
+        selection: { kind: "focused", presets: ["quality"] }
+      }),
       [baseline],
       runtime
     );
-    assert.match(tagOverride.messages.at(-1)?.message ?? "", /not comparable \(tag override\)/);
+    assert.match(
+      focusedPreset.messages.at(-1)?.message ?? "",
+      /not comparable \(focused preset selection\)/
+    );
 
     const floatingPointPhaseClosure = observeProjectGatePerformance(
       createProjectGateResult("passed"),
@@ -165,7 +171,7 @@ function context(
       readonly durationMs: number | null;
     }>[];
     readonly elapsedToInitialResultMs: number;
-    readonly enabledTags?: readonly "package-tests"[];
+    readonly selection?: ProjectGateContext["selection"];
     readonly timing?: ProjectGateContext["timing"];
   }>
 ): ProjectGateContext {
@@ -183,11 +189,7 @@ function context(
       declarativeFingerprint: "fixture-fingerprint",
       kind: "completed"
     }),
-    selection: Object.freeze({
-      disabledTags: [],
-      enabledTags: overrides.enabledTags ?? [],
-      profile: "required"
-    }),
+    selection: Object.freeze(overrides.selection ?? { kind: "required" }),
     timing:
       overrides.timing ??
       Object.freeze({

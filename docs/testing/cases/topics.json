@@ -3,7 +3,7 @@
   "topics": [
     {
       "id": "quality-gate",
-      "description": "Repository Gate 的显式 aggregation、adapter、进程结果与正式 required/full 入口验收契约。"
+      "description": "Repository Gate 的显式 aggregation、adapter、进程结果与正式 required/all 入口验收契约。"
     },
     {
       "id": "quality-runtime",

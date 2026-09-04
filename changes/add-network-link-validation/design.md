@@ -19,7 +19,7 @@
 **Non-Goals**
 
 - 不在首次公开版本实现网络访问。
-- 不把 network opt-in放入 Run flags、Gate profile、environment或 shared capability。
+- 不把 network opt-in放入 Run flags、Project Gate selection、environment或 shared capability。
 - 不使用公网 smoke作为本次 planning验证，也不查询任何外部服务。
 
 ## Decisions

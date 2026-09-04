@@ -10,7 +10,7 @@
       "add-secret-detection-to-package-check-contract.md": "sha256:e896eff80c7c343833289902daa348a323e92e23d56049547a345eeec622a931",
       "adopt-invocation-scoped-custom-admission-strategy-authoring.md": "sha256:a77e0d796cc4c6ef87f6caa29575140b3e9dcc2214016c79abd88e38bcb22261",
       "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
-      "adopt-selected-lizard-extensions-in-product-owned-analyzer.md": "sha256:aa0208b9be73d91de01bd4e5cb560bac6a7b8d64d88644d605600ee9c4a6fc02",
+      "adopt-selected-lizard-extensions-in-product-owned-analyzer.md": "sha256:c90984e5d597832a38737f53104c032c9d460994cb1899f5afc15ba2a5715458",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:b7b41d2500be71ca7afe8e717881286d33651caac4ff4be7bcfc154031b95710",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
@@ -91,7 +91,7 @@
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
       "install-check-console-router-before-preflight.md": "sha256:42c664c9280a794898fb3d04e1825ecaefb4e18e83d4bd5bee97eb41d8136abf",
-      "integrate-foundation-into-workspace-assurance.md": "sha256:157c0f303636b27c332f5c1edd34593f64aff6f8948edea905f811fedb948ab8",
+      "integrate-foundation-into-workspace-assurance.md": "sha256:2ba2d7abfbc0de7c3cb1e4aaa546f915df96ca1196b93a2fc4a3d51f84dfef1a",
       "introduce-invocation-scoped-admission-strategy-lifecycle.md": "sha256:c5fd0ed1deb8aa164fcd18192549ca0910c11f348d5f09a0b34af0ca66bbbfdf",
       "isolate-lizard-port-behind-check-private-interface.md": "sha256:c1312eca8da67fcd915fd74a1b97d5d0b8014a516c8cef0c942b8b95ba13ffba",
       "keep-built-in-options-owned-and-tool-neutral.md": "sha256:65cb23fcffc885cfd960eb5b21cbd5fdf653b5a51600faca1b49429d1f4298fd",
@@ -103,8 +103,8 @@
       "keep-empty-information-check-warnings-as-run-facts.md": "sha256:fc469c8ec8d0f49e421223ecadbe2fe8d6f9eb4497ab3779f824edd3aa5d35a0",
       "keep-first-release-check-set-to-four-without-markdown-structure.md": "sha256:37954fc491b455fff1328c93322235e3f4ac648b24d21f6c7419e12f0d31965f",
       "keep-format-aware-check-capabilities-independent.md": "sha256:46e47f4c85fc1f5bfc575508885e2cf11ce1ee3e8145380ff01bd396e41a8e81",
-      "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:9c07be5fe5ce302d3d9c993ca62b2607520f35c0fd9b736db58b1936c1515168",
-      "keep-lizard-advisory-explicit-with-selected-extension-adoption.md": "sha256:0fe00c2c9fb94d8eb98201c51b3cab03b93957ce249a380168592b317a5b89b9",
+      "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:e7a3c64e559a57b31d3dbbdb6dd7a173b9e6a39233c81233947254583fcd1cf6",
+      "keep-lizard-advisory-explicit-with-selected-extension-adoption.md": "sha256:f3c835c80ff507ae59a168e671d3f5f86f6fd2c7fbb934699f9bfd0b262f00c2",
       "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:b482960bbdfb3d44e013bb3a5cc87f7c4e64f506e61b1466a83bfb91da484f52",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
@@ -116,7 +116,7 @@
       "keep-sensitive-quality-record-material-ephemeral.md": "sha256:f89701e33cfb23c3cbebee397e0344e22a987c30a1bb3a6e16d1ee25f6e1128d",
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
-      "learn-check-task-durations-for-critical-path-admission.md": "sha256:bf0296ce00dd94a959a9c55f3ef184c9ad7bbd7a14118e2bd6cd16e8ffb3c953",
+      "learn-check-task-durations-for-critical-path-admission.md": "sha256:0d0a17f580b0cb3f95418cf057a728dc457b9c8e29da0c080cafacf7fc1334cb",
       "let-check-options-own-execution-dependencies.md": "sha256:52c7988876cb3db670036647d84c7670dc88fe48adbed036f580fa64c20b6f63",
       "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:24e543f8d4eaacba1caf1c0cb33a3e0091b225466e96dafb94e1a0c50220206f",
       "let-duplicate-detection-adapter-own-cli-protocol.md": "sha256:4dd7c33f9b0754e8efc83e9f486fc650d9e34c329d7a4a7216a565cb490e1eb5",
@@ -135,10 +135,10 @@
       "monitor-project-gate-performance-advisory.md": "sha256:5e6395c44272266e1e51bcd80a2ac35a5a422a97ac1b0c0faacc21526d4adb7b",
       "observe-post-action-policy-measurement.md": "sha256:6498e88fe3031037298e35613adf36eecf2515a5703b491591bdb548458fa9da",
       "observe-repository-quality-checks-inside-project-gate.md": "sha256:c1b423b6d2e69c1c9ab2c8b23d2006fefc4aa6b44eec4c0ff3e6d339f2185084",
-      "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:2968e8285b8a2be1ea9b93afd741477b63542fe9ca0b7332f347076451c515ed",
+      "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:1de67057db8611b3dde1e414c6005b61efe463ceeda61bceedee440bb2b53541",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
-      "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md": "sha256:5d16e1818f3e5aea9a78f62f6ac57b9a02bb8ed139a020a469dfbb68c9984d71",
+      "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md": "sha256:d5683d0aec3724775875ff9d551589489159d0ce8c1c735d10d07e801c5a2d56",
       "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:577d823f32c2ab8450d1bd065bbc2d4c093d5b7503323b185741389c03dd3066",
@@ -191,7 +191,7 @@
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
       "retain-private-invocation-admission-strategy-lifecycle.md": "sha256:20e1ad76e1eaded574bfd26306d899c58dec10dca5b132ed01a4b2c601e467b6",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
-      "reuse-gate-prepared-candidate-without-detached-lifecycle.md": "sha256:47d0c11312074d16f21af3f32a1839733234bf8083c1e9eb3ae21048a6cd5773",
+      "reuse-gate-prepared-candidate-without-detached-lifecycle.md": "sha256:f5db383b9f649cdf0aa38dd572fdbdbf0683e83211eba02673eda9f8cddc7b28",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
       "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
@@ -261,6 +261,7 @@
       "use-neutral-observation-and-project-definition-gates.md": "sha256:d93bc71047c86e7c78480e27b55ba9c87b3fbd8aa4d0c6a991c43dc79cb00e38",
       "use-one-check-shape-with-recursive-composition.md": "sha256:d74a6b3e4cc9fd00c84cda7033944b57c2ab112f113e5c6748124e452b15b921",
       "use-programmatic-api-as-product-entry.md": "sha256:4dc2aae0ceb39268f7245df1c0d7312ef34826152af34b978879586982e83d8c",
+      "use-project-check-command-with-focused-gate-presets.md": "sha256:efd61156107ea395c96ac10661a8c5199481d82865527bf49a939f7d36c41486",
       "use-project-decision-records.md": "sha256:4e4a395ce2b91ce47bfbce284f5f8c8de749c2028fcb8ecaa83c09d312b2799e",
       "use-recursive-check-values-with-optional-execution.md": "sha256:0c602e74ab18fc111c681057bf146069f4b3049402d6ada6edf00caa9df3b473",
       "use-runtime-resolved-check-and-record-core.md": "sha256:b847d6f9fb1b4122e2b5d0671acf9ae37fab63b9081ce872fe0676920c38265f",
@@ -6234,9 +6235,9 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-09-04T03:03:18Z",
-        "purpose": "让 full Gate 只执行一次真实 package preparation，同时保留产物、consumer contract 与显式 cold integration 证明。",
+        "purpose": "让 complete --all Gate 复用唯一真实 package preparation，并保留产物、consumer 与 cold integration 证明。",
         "background": "Gate root 已准备 exact candidate，但 candidate test 仍 detached cold build 并多次安装，重复物理工作持续触发硬门禁。",
-        "decision": "Gate root 唯一拥有真实 candidate lifecycle，full 消费其 typed evidence；cold integration 由显式 package target 承接。",
+        "decision": "Gate root 独占 candidate lifecycle；complete --all 复用其 evidence，cold integration 使用显式 target。",
         "tags": [
           "configuration",
           "testing",
@@ -8393,6 +8394,35 @@
             "target": "use-versioned-npm-package-release-unit.md"
           }
         ]
+      }
+    },
+    "use-project-check-command-with-focused-gate-presets.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "use-project-check-command-with-focused-gate-presets.md",
+        "title": "用 check 命令和闭合 preset 运行 Project Gate",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T04:36:20Z",
+        "purpose": "让日常 Gate 通过短命令和少量高频 preset 形成可读、可组合且依赖闭合的项目选择。",
+        "background": "本 Decision 建立前，旧入口名称冗长，profile 与正反 tag 控制分散且没有直接使用 Product 的原生 flag settlement。",
+        "decision": "采用唯一 check 根命令、required 默认、显式 all 和少量闭合 preset，并由组合配置引用各 owner 的 Check 对象。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "use-project-decision-records.md": {

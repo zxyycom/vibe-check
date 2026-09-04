@@ -201,4 +201,4 @@ bun run test-evidence -- check --root .
 3. `Owner` 真正拥有全部 `Proves`，且 `Proves` 不复述函数名或生成模板。
 4. Rename、move、split、merge、delete 与正文变化已按语义连续性处理。
 5. 账本没有 Entry、Contract、Status、marker、committed inventory/index 或兼容双读。
-6. 目标行为测试、`bun run test-evidence -- check --root .` 与范围匹配的 required/full workspace verification 已通过。
+6. 目标行为测试、`bun run test-evidence -- check --root .` 与范围匹配的默认或 `--all` Project Gate 已通过。

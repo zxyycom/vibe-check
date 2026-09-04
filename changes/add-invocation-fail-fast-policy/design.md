@@ -69,4 +69,4 @@ trusted Check settlement
 - pending Checks应结算为`unavailable / fail-fast-not-started`，还是需要其它现有四态表达？
 - fail-fast触发后，尚未admit的`observes` Check是否同样停止，还是observer被定义为唯一固定例外？
 - policy只属于RunControls，还是Definition也可提供默认；若两者都支持，override和fingerprint如何表达？
-- 哪个代表性full Gate workload与延迟预算足以证明收益超过诊断损失和Scheduler复杂度？
+- 哪个代表性 complete `--all` Gate workload与延迟预算足以证明收益超过诊断损失和Scheduler复杂度？

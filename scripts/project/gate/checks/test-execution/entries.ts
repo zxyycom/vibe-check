@@ -8,7 +8,7 @@ import {
 } from "../../../../package/artifact/acceptance-input.ts";
 import type { Check } from "@zxyycom/vibe-check";
 
-import type { ProjectGateProfile, ProjectGateTag } from "../../runtime/catalog.ts";
+import type { ProjectGatePreset } from "../../runtime/catalog.ts";
 import type { ProcessCheckDataDependency } from "../process/process.ts";
 import type { ProjectGateEntry } from "../../runtime/entries.ts";
 import {
@@ -40,7 +40,8 @@ export interface ProjectGateTestCheckDefinition {
   readonly displayName: string;
   readonly lane: ProjectGateTestLaneName;
   readonly mutex?: readonly string[];
-  readonly tags: readonly ProjectGateTag[];
+  readonly presets: readonly ProjectGatePreset[];
+  readonly required: boolean;
   readonly timeoutMs?: number;
 }
 
@@ -51,7 +52,6 @@ export function createProjectGateTestEntries(
     readonly externalConsumer: Check;
     readonly lanes: ProjectGateTestLanes;
     readonly preparedCandidate: Check;
-    readonly profiles: readonly ProjectGateProfile[];
     readonly repositoryRoot: string;
     readonly runtime: ProjectGateRuntime;
   }>
@@ -63,7 +63,6 @@ export function createProjectGateTestEntries(
         externalConsumer: input.externalConsumer,
         files: input.lanes[definition.lane],
         preparedCandidate: input.preparedCandidate,
-        profiles: input.profiles,
         repositoryRoot: input.repositoryRoot,
         runtime: input.runtime
       })
@@ -87,7 +86,7 @@ export function defineProjectGateTestChecks(
       Object.freeze({
         ...definition,
         ...(definition.mutex === undefined ? {} : { mutex: Object.freeze([...definition.mutex]) }),
-        tags: Object.freeze([...definition.tags])
+        presets: Object.freeze([...definition.presets])
       })
     )
   );
@@ -98,27 +97,18 @@ function createProjectGateTestEntry(input: {
   readonly externalConsumer: Check;
   readonly files: readonly string[];
   readonly preparedCandidate: Check;
-  readonly profiles: readonly ProjectGateProfile[];
   readonly repositoryRoot: string;
   readonly runtime: ProjectGateRuntime;
 }): ProjectGateEntry {
-  const {
-    definition,
-    externalConsumer,
-    files,
-    preparedCandidate,
-    profiles,
-    repositoryRoot,
-    runtime
-  } = input;
+  const { definition, externalConsumer, files, preparedCandidate, repositoryRoot, runtime } = input;
   const processEntry = {
     checkId: definition.checkId,
     displayName: definition.displayName,
     invocation: bunTestInvocation(files, repositoryRoot),
     ...(definition.mutex === undefined ? {} : { mutex: definition.mutex }),
-    profiles,
+    presets: definition.presets,
+    required: definition.required,
     runtime,
-    tags: definition.tags,
     ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };
   if (definition.candidateInput === undefined) return createProjectGateProcessEntry(processEntry);

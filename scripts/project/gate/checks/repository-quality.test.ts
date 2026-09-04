@@ -5,9 +5,9 @@ import { minimatch } from "minimatch";
 
 import {
   createRepositoryQualityChecks,
+  PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS,
   repositoryQualityScannerCommands
 } from "./repository-quality.ts";
-import { PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS } from "../definition.ts";
 
 describe("repository quality Checks", () => {
   it("uses the retained repository policy and binds only the mise-provided SCC command", () => {

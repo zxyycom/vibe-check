@@ -40,9 +40,7 @@ prefix_rule(pattern=["bun", "run", "test-evidence"], decision="prompt")
 
 # Workspace validation and verification.
 prefix_rule(pattern=["bun", "run", "validate"], decision="allow")
-prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace"], decision="allow")
-prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace:required"], decision="allow")
-prefix_rule(pattern=["bun", "run", "verify:vibe-check-workspace:full"], decision="allow")
+prefix_rule(pattern=["bun", "run", "check"], decision="allow")
 
 # Non-blocking quality observation commands.
 prefix_rule(pattern=["bun", "run", "quality"], decision="allow")

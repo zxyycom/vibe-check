@@ -1,19 +1,18 @@
-import { dirname, relative, resolve } from "node:path";
+import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  run as packageRun,
-  type CheckAggregation,
-  type RunControls,
-  type RunResult
-} from "@zxyycom/vibe-check";
+import { run as packageRun, type RunControls, type RunResult } from "@zxyycom/vibe-check";
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
-import { selectionFromFlags, type ProjectGateSelection } from "./controls.ts";
-import { afterGate, createProjectGateDefinition, createProjectGateEntries } from "../definition.ts";
+import { selectionFromFlags } from "./controls.ts";
+import {
+  afterGate,
+  createProjectGateDefinition,
+  createProjectGateEntries,
+  projectGateAggregation,
+  projectGateOutputOverrides
+} from "../definition.ts";
 import { createExternalConsumerMaterialLease } from "../checks/external-consumer-material.ts";
-import type { ProjectGateEntry } from "./entries.ts";
-import { projectGateEligibleCheckIds } from "./eligibility.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 
@@ -40,7 +39,7 @@ export async function run(controls: ProjectGateRunControls): Promise<RunResult> 
     preparedCandidate: controls.preparedCandidate
   });
   try {
-    return await packageRun(createProjectGateDefinition(entries, selection), {
+    return await packageRun(createProjectGateDefinition(entries), {
       checkAggregation: projectGateAggregation(entries, selection),
       flags: controls.flags,
       outputs: projectGateOutputOverrides(controls.invocationLogDirectory),
@@ -54,26 +53,3 @@ export async function run(controls: ProjectGateRunControls): Promise<RunResult> 
 
 /** Projects central post-processing configuration with this candidate-bound Run. */
 export { afterGate };
-
-/** Publishes standard machine facts beside the Gate diagnostic log for this invocation. */
-export function projectGateOutputOverrides(invocationLogDirectory: string) {
-  const directory = relative(repositoryRoot, invocationLogDirectory);
-  return Object.freeze({
-    diagnosticLogging: { directory, enabled: true },
-    machinePublication: { directory, enabled: true }
-  });
-}
-
-/** Binds the exact eligible Check IDs to the required/full aggregation semantics. */
-export function projectGateAggregation(
-  entries: readonly ProjectGateEntry[],
-  selection: ProjectGateSelection
-): CheckAggregation {
-  return Object.freeze({
-    checks: projectGateEligibleCheckIds(entries, selection),
-    empty: "failed",
-    mode: "all",
-    notApplicable: "fail",
-    unavailable: "propagate"
-  });
-}

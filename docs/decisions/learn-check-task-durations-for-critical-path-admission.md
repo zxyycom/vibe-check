@@ -36,5 +36,5 @@ relations: []
 - 采用: learned policy 在既有 relation/mutex candidate、capacity facts 与 selection layer 内先比较 estimated downstream critical-path score。仅在 score 相同时比较 owning Task 的现有 effective `admissionPriority`，随后使用 canonical tie-break；学习模型不修改、吸收或重新解释 priority 的 authoring、继承或 Task metadata 语义。
 - 采用: 公共文档直接说明当前样本窗口、统计、prior 和 score 算法，以便消费者理解当前行为与诊断；这些模型细节不构成跨 model version 的兼容承诺，也不保证跨版本、环境或 Run 产生相同 admission 顺序或性能结果。稳定契约是显式启用、状态边界、硬调度正确性与故障隔离。
 - 采用: history envelope 使用内部 model version；missing 或不兼容版本正常 cold start，malformed、read/write failure、clock anomaly 与并发 last-writer 样本丢失只降低优化质量。它们不改变 Task membership、Check/Record facts、aggregation、machine publication 或 Run result kind；第一版仅以有界 diagnostic 解释，不新增 public history-health DTO。
-- 采用: learned policy 是通用 package 能力；本仓 Project Gate 仅在 exact candidate、相同 Task membership 与 terminal outcomes 的重复交错 A/B 中，required/full 均不退化且至少一个 profile 改善时采用，否则 Gate 保持 static 而不否定 Product 能力。
+- 采用: learned policy 是通用 package 能力；本仓 Project Gate 仅在 exact candidate、相同 Task membership 与 terminal outcomes 的重复交错 A/B 中，required 与 complete `--all` workload 均不退化且至少一个 workload 改善时采用，否则 Gate 保持 static 而不否定 Product 能力。
 - 不采用: 隐式 learned 默认、逐项手工 duration 配置、history 进入 Scheduler mutable state、用 learned score 绕过 dependency/mutex/capacity/cancellation、priority hard override、稳定算法或精确顺序承诺、remote/shared history、history failure 质量结算或首版 public telemetry DTO。

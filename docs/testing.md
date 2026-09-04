@@ -29,7 +29,7 @@ test node，修改 test body，或修改 Case owner/proof 前后，都运行：
 bun run test-evidence -- check --root .
 ```
 
-该命令从完整 profile 加载并注册测试，以 static/JUnit identity 闭合 Case；它不执行测试正文。还必须运行受影响的
+该命令从完整测试清单加载并注册测试，以 static/JUnit identity 闭合 Case；它不执行测试正文。还必须运行受影响的
 最窄测试，或由 Project Gate 对应 behavior 子 Check 执行。Case 描述 current owner 承诺且能由失败信号判定的行为，不描述已删除 helper、historical material 或 internal
 scheduler identity；provider setup 的执行复用本身不产生 Case。Definition Cases 覆盖 recursive ordinary Check、`inherit`、direct default composition、static/custom admission grammar 与
 fail-closed validation；runtime Cases 覆盖 direct execution、outcome/reason、dependency blocking、Check-facts Record
@@ -48,22 +48,19 @@ bun run test-evidence -- check --root .
 ```
 
 产品或 scripts 改动先运行最窄 Bun test，再按 owner 运行 typecheck/lint。Project Gate 将 Test Evidence entity
-closure 与按稳定 owner 分区的 behavior execution 分别结算；required 还保留同次 exact package candidate 的 typed
-provider，但默认不选择 `package-tests` physical acceptance Checks。full 或 required 加 `--enable-tag package-tests`
-才选择 candidate lifecycle、artifact、external-consumer provider 及其 types/docs/runtime consumer Checks。
+closure 与按稳定 owner 分区的 behavior execution 分别结算；默认 required 还保留同次 exact package candidate 的 typed
+provider，但不选择高成本的 artifact、external-consumer provider 及其 types/docs/runtime acceptance Checks。
 
 跨 owner、Gate 或 output contract 的日常交付运行：
 
 ```bash
-bun run verify:vibe-check-workspace:required
+bun run check
 ```
 
-涉及 package artifact、candidate、外部 consumer 或发布验收时运行 full；本地只需在 required 中加入这三项时，
-使用 `--enable-tag package-tests`：
+涉及 package artifact、candidate、外部 consumer 或发布验收时显式运行 complete Gate：
 
 ```bash
-bun run verify:vibe-check-workspace:full
-bun run verify:vibe-check-workspace -- --profile required --enable-tag package-tests
+bun run check -- --all
 ```
 
 必须报告实际运行的检查和未运行项及影响。

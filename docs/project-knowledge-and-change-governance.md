@@ -144,4 +144,4 @@ active membership、stage、进度、暂停或实施授权；它与目标 artifa
 | Investigation Report 正文、资源、关系或索引 | `bun run investigations` |
 | Decision Markdown、生命周期、关系或索引 | `bun run decisions -- check` |
 | Change Plan | `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证 |
-| 同时改变多个工作流边界 | `bun run verify:vibe-check-workspace:required` |
+| 同时改变多个工作流边界 | `bun run check` |

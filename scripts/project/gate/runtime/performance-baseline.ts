@@ -1,5 +1,3 @@
-import type { ProjectGateProfile } from "./catalog.ts";
-
 /** The runtime identity under which one Gate performance workload was measured. */
 export interface ProjectGatePerformanceRuntime {
   readonly architecture: string;
@@ -11,7 +9,7 @@ export interface ProjectGatePerformanceRuntime {
 export interface ProjectGatePerformanceWorkload {
   readonly candidatePreparation: "reuse";
   readonly declarativeFingerprint: string;
-  readonly profile: ProjectGateProfile;
+  readonly profile: "full" | "required";
   readonly runtime: ProjectGatePerformanceRuntime;
 }
 

@@ -8,7 +8,7 @@
 bun run maintenance:lizard-upstream
 ```
 
-这不是 Product Check、package public API 或默认 Project Gate member。只有运行此命令才发起网络请求；required/full Gate 保持离线，命令结果也不改变其 exit mapping。
+这不是 Product Check、package public API 或默认 Project Gate member。只有运行此命令才发起网络请求；required 与 `--all` Gate 保持离线，命令结果也不改变其 exit mapping。
 
 ## Transport and result
 

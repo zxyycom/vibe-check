@@ -21,7 +21,7 @@ relations: []
 
 ## 背景
 
-- Product diagnostic log 已覆盖真实 core facts，但当前每个事件使用英文摘要加完整 `details` JSON；一次 full Gate 的普通成功路径也难以快速扫描。
+- Product diagnostic log 已覆盖真实 core facts，但当前每个事件使用英文摘要加完整 `details` JSON；一次 complete `--all` Gate 的普通成功路径也难以快速扫描。
 - `run.json` 与 `records.ndjson` 是 machine final facts，不拥有 Scheduler 连续过程，也不应被复制成另一套人读归约器。
 - Gate 的 afterGate performance observation、最终 Gate result 与 process exit mapping 形成在 Product Run 之外，当前 invocation artifacts 无法单独证明这些外层事实。
 - Check-owned process transcripts 属于同次 invocation，但与根级 Gate/Product/machine 文件平铺会遮蔽事实层级。

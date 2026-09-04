@@ -26,7 +26,7 @@ relations:
 
 - 当前 long-term baseline 固定 Lizard `1.24.0` tag `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`；Product-owned TypeScript analyzer 已取代 Python、Lizard command、version probe、CSV process adapter 与 public `scanner.executable`。
 - 前序 hard-cut direction 用 `translated`、`deferred-extension-body` 与 `excluded-entry-surface` 管理每个 upstream source/range；19 个 legacy concrete bodies 在该 baseline 都是 deferred/no registration。完整 internal extension lifecycle 是 private source-aligned support seam，不是 Product plugin API。
-- 已授权 Change `adopt-selected-lizard-extensions` 选择 `lizardcomplextags` 与 `lizardnd`。该 Change 的 implementation、Product docs、tests、oracle、performance 与 required/full acceptance 已闭合；本方向已成为 current fact，并由本 active + aligned Decision 承接。
+- 已授权 Change `adopt-selected-lizard-extensions` 选择 `lizardcomplextags` 与 `lizardnd`。该 Change 的 implementation、Product docs、tests、oracle、performance 与 required/complete `--all` acceptance 已闭合；本方向已成为 current fact，并由本 active + aligned Decision 承接。
 
 ## 决策
 

@@ -30,7 +30,7 @@ Network Check需要独立的授权、transport、redaction、rate/resource和 no
 - Hostname与每次 redirect解析均拒绝非公共地址，且不会通过 DNS rebinding、mixed answers、userinfo、proxy或 scheme转换绕过。
 - Logs/Records/final data/cache/artifacts不含 raw query values、userinfo、authorization、cookies或 credential-derived digest。
 - Timeout、TLS、DNS、status、redirect、rate limit与取消有有界、可测试的四态语义；网络临时状态不被当作稳定全局事实。
-- 实施后的 public/package/docs/Case与 required/full Gate证据完整，并包含隔离网络测试环境。
+- 实施后的 public/package/docs/Case与默认/`--all` Gate证据完整，并包含隔离网络测试环境。
 
 ## Affected Owners
 

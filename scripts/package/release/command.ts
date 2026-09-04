@@ -36,8 +36,7 @@ export function createFullReleaseAcceptanceInvocation(receiptPath: string) {
       "--",
       "bun",
       projectGatePath,
-      "--profile",
-      "full",
+      "--all",
       "--release-receipt",
       resolve(repositoryRoot, receiptPath)
     ]),
@@ -45,7 +44,7 @@ export function createFullReleaseAcceptanceInvocation(receiptPath: string) {
   });
 }
 
-/** Runs only local formal preparation or same-receipt full Gate verification. */
+/** Runs only local formal preparation or same-receipt complete Gate verification. */
 export async function runFormalReleaseCommand(
   argv: readonly string[],
   stepOverrides: Partial<FormalReleaseCommandSteps> = {}

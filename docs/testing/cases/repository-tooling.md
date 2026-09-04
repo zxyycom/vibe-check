@@ -9,11 +9,11 @@ Entities:
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation contracts > rejects invalid private consumer manifests`
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation contracts > keeps the explicit cold integration target outside routine discovery with hard timeout`
 - `bun|scripts/package/candidate/receipt.test.ts|rejects malformed and stale receipts before artifact reuse`
-- `bun|scripts/package/command.test.ts|package root commands distinguish stale status from a completed rebuild and bind verification to full acceptance`
+- `bun|scripts/package/command.test.ts|package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance`
   Proves:
 
 - Candidate preparation rejects overlapping build/cache roots and accepts only a valid private consumer manifest. Receipt contracts reject malformed or stale package state before reuse, while root preparation derives the actual build, artifact, installation and resolved entry used by every Project Gate invocation.
-- Routine test discovery keeps only fast decision/input contracts. The separately named `package:candidate:integration` target has a 30-second process boundary and exercises physical cold build/install/reuse plus drift/fallback decisions without becoming a second full-Gate lifecycle. Build-only staging material remains owned by artifact acceptance.
+- Routine test discovery keeps only fast decision/input contracts. The separately named `package:candidate:integration` target has a 30-second process boundary and exercises physical cold build/install/reuse plus drift/fallback decisions without becoming a second complete package lifecycle inside the Gate. Build-only staging material remains owned by artifact acceptance.
 - Root package status is read-only and reports `current` or `stale` separately from the required repair action; after build, its current state is reported separately from the performed preparation action. Root verify delegates to the complete package acceptance owner rather than accepting stale material or inventing another acceptance path.
 
 ## Case AUX-PACKAGE-ARTIFACT-MATERIAL-001: Artifact audit closes the physical package material
@@ -42,12 +42,12 @@ Entities:
 - `bun|scripts/package/release/release.test.ts|formal package release > writes a portable sanitized receipt and rejects identity or artifact drift`
 - `bun|scripts/package/release/release.test.ts|formal package release > isolates formal staging and receipt state from the default local candidate`
 - `bun|scripts/package/release/release.test.ts|formal package release > requires one exact clean Git worktree revision before formal preparation`
-- `bun|scripts/package/release/command.test.ts|formal release root commands require closed inputs and bind verification to one full-Gate receipt`
+- `bun|scripts/package/release/command.test.ts|formal release root commands require closed inputs and bind verification to one complete --all Gate receipt`
   Proves:
 
 - Formal preparation accepts only a positive canonical `0.0.x` and an explicit conservative tag, requires exact clean `HEAD`, and keeps release staging/receipt/compiler state distinct from the fingerprint local candidate while sharing only the versioned artifact root.
 - The versioned receipt uses repository-relative canonical paths, records the scoped package identity, and binds commit, input fingerprint, ordered inventory, SHA-256, SHA-512 SRI, manifest/README identities and the complete third-party legal-material inventory, version, and tag. Its writer rejects a foreign receipt path or mismatched artifact SHA-256 before replacing the owned receipt; its closed grammar and verifier reject extra consumer identity, path escape, duplicated inventory, contract drift, and changed artifact bytes without storing credential material.
-- The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one unmodified full Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
+- The root command grammar requires complete named inputs: prepare forwards one explicit version/tag and reports the receipted artifact identity, while verify constructs one unmodified complete `--all` Project Gate invocation for the explicit receipt and preserves its returned exit status. Missing or duplicated inputs fail instead of selecting an implicit version, tag, or receipt.
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable
 
@@ -188,23 +188,25 @@ Entities:
 Owner: `docs/script-tooling.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > binds retained workspace verification names directly to the Gate profiles without disabled tags`
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current profile membership closed`
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags`
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete full selection for one explicit formal release receipt`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects ordinary Check entries without a command catalog or policy`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current selection metadata closed`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects the central composition manifest into an ordinary Project Definition`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > uses the retained repository policy and binds only the mise-provided SCC command`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > derives required, full, and partial aggregates from the same entries`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > derives required, all, and focused aggregates from the same preset manifest`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities`
   Proves:
 
-- 保留的 `verify:vibe-check-workspace`、`:required` 与 `:full` root names 分别直接调用 Project Gate default/full、required 与 full profiles，且正式 target 通过 mise 进入锁定 scanner 环境，且不传 disabled tags。
-- 根级 `definition.ts` 是单一 Gate 配置 owner：普通 entries、完整 test lane-to-Check 映射和 repository-quality options 都从这里进入同一个 Project Definition；`checks/**` 只实现 adapter，`runtime/**` 只绑定 selection、aggregation 和 Run mechanics。Gate entry validation 对 `dependsOn` 与 `observes` 一视同仁地检查 exact collection、self/missing target 与 profile/tag selection closure。Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、包含快速 candidate contracts 的轻量 package-supporting Check、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities；detached cold integration 不进入 routine profile。直接的 duplicate/file/function/Markdown repository-quality Checks 可由 quality tag 禁用；每个 eligible Check 的 terminal status 与其它 eligible identity 一同进入 explicit `all` aggregate，findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。Definition 与 explicit aggregation 从同一 entries 投影 eligibility；artifact 直接消费 root prepared candidate，external provider 独占 named lifecycle mutex，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 documentation-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。Gate 当前保留 root `maxParallel: 3` 和 default admission priority；任何非零值仍须先用成对测量证明不会伤害任一 profile 的 median，且只排序 ready admission，不能凌驾于这些 dependency、mutex 或 cap 边界。
+- 唯一正式根命令 `bun run check` 通过 mise 进入锁定 scanner 环境；两个 Codex environment 配置直接调用该命令，旧 `verify:vibe-check-workspace`、`:required` 与 `:full` 已删除。
+- 根级 `definition.ts` 是单一 Gate 组合入口：稳定 manifest 展示完整 entries、required/preset membership、run-level scheduler/outputs/aggregate 与唯一 `afterGate`；test lane-to-Check descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有，再以普通对象组进入同一个 Project Definition。Gate entry validation 对 `dependsOn` 与 `observes` 一视同仁地检查 exact collection、self/missing target 与 required/preset selection closure，并拒绝覆盖 Check 自带的 `enabledByFlags`。Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、包含快速 candidate contracts 的轻量 package-supporting Check、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities；detached cold integration 不进入 routine test preset。直接的 duplicate/file/function/Markdown repository-quality Checks 由 quality preset 选择；每个 eligible Check 的 terminal status 与其它 eligible identity 一同进入 explicit `all` aggregate（不是 `--all` selection），findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。Definition 与 explicit aggregation从同一 entry metadata 投影 eligibility；artifact 直接消费 root prepared candidate，external provider 独占 named lifecycle mutex，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 documentation-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。Gate 当前保留 root `maxParallel: 3` 和 default admission priority；任何非零值仍须先用成对测量证明不会伤害 required 与 complete workload 的 median，且只排序 ready admission，不能凌驾于这些 dependency、mutex 或 cap 边界。
 - Gate 自有 quality 构造显式保留 repository-specific files 与 duplicate thresholds、file-metrics `300 + 500/10`、function-metrics `50 + 150/below 5 + CC 10 + parameters 5` 和 non-blocking findings，不继承更宽松的 package consumer defaults。duplicate/file/function 三项的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；配置测试证明 port-root 内 translated source、façade、tests 与 development harness 均未被这些 metrics 选择，而目录外 implementation 继续被选择。Function metrics 另外排除 Product test/test-support，duplicate/file 仍选择代表性测试文件以保留重复与文件长度证据。该 selection 不从 provenance ledger 动态生成，也不替代 analyzer 或测试的 lint、format、typecheck、source identity、oracle、provenance、import-boundary 或行为测试。CPD 不选择 Markdown，duplicate/file metrics 不选择 historical Schemas 且不再需要历史 waiver；current Schemas 仍被选择。Markdown Link selection 只包含 `docs/**/*.md` 与 `changes/**/*.md`，不会用 TypeScript scope 制造 input-rejection noise。
-- adapter 无参时默认 required，接受合法显式 profile、重复 disabled tag 与受控 `package-tests` enabled tag，并将其规范化为 opaque flags；正式 full 自动选择全部未禁用 Checks。独立 `--help` 在任何 candidate/log 工作前返回完整 profile、opt-in tag、disable-filter 与示例说明。
-- `--release-receipt` 是 selection 之外的显式 candidate source，只接受一个非空 path，并要求无 tag override 的完整 full profile；普通无参/required/full 调用仍使用 local candidate source。
-- Required 默认不选择带 `package-tests` 的 artifact、external-consumer provider 与 types/docs/runtime consumer Checks；prepared candidate typed provider 和快速 package-supporting contracts 仍在 required 中。显式 enable tag 或 full 才纳入 package acceptance；excluded Checks 的 reason code 指明具体 profile/tag，terminal message 指明没有运行的 Check 动作和恢复命令，aggregate 只消费同次 selection 的 eligible identities。启动 summary 另明确 package acceptance 是未选择、按 profile/tag 选择还是被禁用。
-- Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine full。
+- adapter 无参时默认 required；`--typecheck`、`--lint`、`--test`、`--docs` 与 `--quality` 可重复、可组合并替换默认选择，规范化后成为 Product opaque flags；`--all` 独占 preset 并选择完整 Gate。独立 `--help` 在任何 candidate/log 工作前返回完整 preset 与示例说明。
+- Product Run integration 证明同一 entry metadata 既控制原生 `enabledByFlags`，也控制 explicit aggregate：未选择 Check 不执行并保留 `not-applicable / flag-condition-not-matched`，selected aggregate 只消费实际选择的 identity。
+- `--release-receipt` 是 selection 之外的显式 candidate source，只接受一个非空 path，并要求完整 `--all`；其它调用仍使用 local candidate source。
+- Required 默认不选择 artifact、external-consumer provider 与 types/docs/runtime consumer Checks；prepared candidate typed provider 和快速 package-supporting contracts 仍在 required 中。只有 `--all` 纳入 package acceptance；未选择 Check 保留 Product 的 `flag-condition-not-matched` fact，aggregate 只消费同次 selection 的 eligible identities。启动 summary 明确 required、focused 或 all 及 package acceptance 是否选择。
+- Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine `--test` preset。
 
 ## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate co-locates the Product diagnostic log
 
@@ -320,9 +322,9 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > uses the default performance observer and keeps advisory warnings non-blocking`
   Proves:
 
-- Gate-owned observer 每次形成单条 `elapsed-to-initial-result` observation，并显示 candidate preparation、adapter/setup 与 Product Run phase：没有同一标准 workload baseline、tag override、初步非 passed 或不完整 Run timing 时明确为 not-comparable；它不读取 diagnostics log 或将并行 Check duration 相加为 Gate wall time。
+- Gate-owned observer 每次形成单条 `elapsed-to-initial-result` observation，并显示 candidate preparation、adapter/setup 与 Product Run phase：没有同一标准 workload baseline、使用 focused preset、初步非 passed 或不完整 Run timing 时明确为 not-comparable；它不读取 diagnostics log 或将并行 Check duration 相加为 Gate wall time。
 - 可比较的标准 workload 以总 `elapsed-to-initial-result` 在 threshold 内形成 info，超界只形成一条含总值、三段 phase、threshold 和至多三个最慢 Check 的 warning；两种 observation 都保留初步 Gate status、既有消息和 process exit，不能成为第二个硬性能预算。
-- `definition.ts` 的默认 `afterGate` 实际调用 observer；adapter 测试可通过 loader seam 提供 fixture Hook，但该 seam 不构成配置入口。正式 baseline 已记录标准 required/full 的开发机样本，仍仅用于匹配 workload 的 advisory comparison，不能被测试 fixture、custom hook 或单次执行改写为性能 budget。
+- `definition.ts` 的默认 `afterGate` 实际调用 observer；adapter 测试可通过 loader seam 提供 fixture Hook，但该 seam 不构成配置入口。正式 baseline 已记录标准 required/all selection 的开发机样本，仍仅用于匹配 workload 的 advisory comparison，不能被测试 fixture、custom hook 或单次执行改写为性能 budget。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 

@@ -38,6 +38,5 @@
 - 按[文档导航的交付验证](docs/navigation.md#交付验证)选择最窄且覆盖受影响边界的命令。
 - 产品行为先运行目标测试，再按 package scripts 补 typecheck、lint、dependency 与入口检查。
 - 跨产品行为、Change Plan、schema、示例、输出或多个包边界时，运行
-  `bun run verify:vibe-check-workspace:required`；发布前或大范围重构运行
-  `bun run verify:vibe-check-workspace:full`。
+  `bun run check`；发布前或大范围重构运行 `bun run check -- --all`。
 - 最终说明实际运行的验证、未运行项及其影响。

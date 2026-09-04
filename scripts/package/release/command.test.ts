@@ -11,7 +11,7 @@ import { sha256File } from "../pack.ts";
 import { PACKAGE_LICENSE } from "../package-contract.ts";
 import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 
-test("formal release root commands require closed inputs and bind verification to one full-Gate receipt", async () => {
+test("formal release root commands require closed inputs and bind verification to one complete --all Gate receipt", async () => {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-release-command-"));
   try {
     const artifactPath = join(root, "zxyycom-vibe-check-0.0.1.tgz");
@@ -72,7 +72,7 @@ test("formal release root commands require closed inputs and bind verification t
     const invocation = createFullReleaseAcceptanceInvocation(verifiedReceipt);
     assert.equal(invocation.command, "mise");
     assert.deepEqual(invocation.args.slice(0, 3), ["exec", "--", "bun"]);
-    assert.deepEqual(invocation.args.slice(-4, -2), ["--profile", "full"]);
+    assert.equal(invocation.args.at(-3), "--all");
     assert.equal(invocation.args.at(-2), "--release-receipt");
     assert.match(
       invocation.args.at(-1) ?? "",

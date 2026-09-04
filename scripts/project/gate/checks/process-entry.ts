@@ -2,7 +2,7 @@ import type { ProcessInvocation } from "../../../process-execution/command.ts";
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 import type { Check } from "@zxyycom/vibe-check";
 
-import type { ProjectGateProfile, ProjectGateTag } from "../runtime/catalog.ts";
+import type { ProjectGatePreset } from "../runtime/catalog.ts";
 import {
   createProcessCheck,
   createProcessCheckWithDataDependency,
@@ -26,8 +26,8 @@ export function createProjectGateProcessEntry<Data extends object = object>(
     readonly checkId: string;
     readonly displayName: string;
     readonly mutex?: readonly string[];
-    readonly profiles: readonly ProjectGateProfile[];
-    readonly tags: readonly ProjectGateTag[];
+    readonly presets: readonly ProjectGatePreset[];
+    readonly required: boolean;
     readonly runtime: ProjectGateRuntime;
     readonly timeoutMs?: number;
   }>
@@ -38,9 +38,9 @@ export function createProjectGateProcessEntry<Data extends object = object>(
     displayName,
     invocation,
     mutex,
-    profiles,
+    presets,
+    required,
     runtime,
-    tags,
     timeoutMs
   } = input;
   const descriptor = {
@@ -63,23 +63,26 @@ export function createProjectGateProcessEntry<Data extends object = object>(
   return Object.freeze({
     check:
       mutex === undefined ? check : Object.freeze({ ...check, mutex: Object.freeze([...mutex]) }),
-    profiles,
-    tags
+    presets: Object.freeze([...presets]),
+    required
   });
 }
 
-/** Adds shared required/full selection metadata to a non-process Gate Check. */
+/** Adds project selection metadata to a non-process Gate Check. */
 export function createProjectGateCommonEntry(
-  check: Check,
-  profiles: readonly ProjectGateProfile[],
-  tags: readonly ProjectGateTag[],
-  mutex?: readonly string[]
+  input: Readonly<{
+    readonly check: Check;
+    readonly mutex?: readonly string[];
+    readonly presets: readonly ProjectGatePreset[];
+    readonly required: boolean;
+  }>
 ): ProjectGateEntry {
+  const { check, mutex, presets, required } = input;
   return Object.freeze({
     check:
       mutex === undefined ? check : Object.freeze({ ...check, mutex: Object.freeze([...mutex]) }),
-    profiles,
-    tags
+    presets: Object.freeze([...presets]),
+    required
   });
 }
 

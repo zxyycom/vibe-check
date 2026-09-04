@@ -20,7 +20,7 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | `scripts/validation/**`                                 | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。                                                   |
 | `scripts/docs/**`                                       | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。                                                                                                     |
 | `scripts/package/**`                                    | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate/release 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 准备、安装并核对 fingerprint local receipt，`release/**` 验证 clean source、formal version/tag、portable receipt 与 same-artifact Gate handoff，`candidate/external-consumer/**` 拥有隔离 consumer material、typed provider 与 types/documentation/runtime acceptance。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
-| `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/definition.ts` 集中拥有 Gate 配置，`gate/run.ts` 是唯一 process entry，`gate/checks/**` 与 `gate/runtime/**` 分别拥有 Check adapter 和 bound runtime mechanics。                                                                          |
+| `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/definition.ts` 是 Gate 组合配置入口，`gate/run.ts` 是唯一 process entry，`gate/checks/**` 拥有各领域 Check 配置与 adapter，`gate/runtime/**` 拥有 bound runtime mechanics。                                                                          |
 | `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                             |
 | `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                    |
 | `scripts/maintenance/**`                                 | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。                                                                                                                               |
@@ -44,10 +44,11 @@ scripts helper、环境状态或 process adapter。
 | docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]`                           | `scripts/validation/workspace.ts` 与 `scripts/validation/documentation/workflow.ts` |
 | governance                | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>` | their named owners                        |
 | maintenance advisory      | `bun run maintenance:lizard-upstream`                                                                                                        | `scripts/maintenance/lizard-upstream-advisory.ts` |
-| Project Gate              | `bun run verify:vibe-check-workspace`；`bun run verify:vibe-check-workspace:required`；`bun run verify:vibe-check-workspace:full`             | `scripts/project/gate/run.ts`             |
+| Project Gate              | `bun run check [-- --typecheck \| --lint \| --test \| --docs \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>`             | `scripts/project/gate/run.ts`             |
 
-无 suffix 的 Project Gate 与 `:required` 都选择 required profile；`:full` 显式选择 full。scope、action
-和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
+`bun run check` 选择日常 required 集；focused preset 可组合并替换默认选择，`--all` 独占其它 preset。
+`.codex/environments/*.toml` 也直接调用该正式名称；旧 `verify:vibe-check-workspace`、`:required` 与
+`:full` 均不再存在。scope、action 和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
 
 ## Development tooling
 
@@ -165,11 +166,11 @@ unpacked package build evidence，`build/artifacts/` 保存 versioned `.tgz`。`
 `package:status` 只读地报告 candidate version、`current`/`stale` freshness、unpacked path、tarball path 和经验证的
 installed entry；stale 时另报告 required preparation action，并以非零退出提示 `package:build`，不静默复用或修复。
 `package:build` 执行既有 prepare 的 `reuse`/`reinstall`/`rebuild` 选择和相应 audit，明确分别报告完成后的 current state 与
-performed action；`package:verify` 直接运行 full Project Gate。Gate root 在 Product Run 前完成或复用这一份 exact preparation，
-full 内的 artifact 与 external-consumer acceptance 只消费其 typed evidence，不再另建 detached cold candidate。
-`package:candidate:integration` 是默认 test profile 之外的显式物理 target：它在 30 秒进程硬限制内以 test-local state 证明一次
+performed action；`package:verify` 直接运行 complete Project Gate。Gate root 在 Product Run 前完成或复用这一份 exact preparation，
+`--all` 内的 artifact 与 external-consumer acceptance 只消费其 typed evidence，不再另建 detached cold candidate。
+`package:candidate:integration` 是 routine `--test` preset 之外的显式物理 target：它在 30 秒进程硬限制内以 test-local state 证明一次
 cold build/install/reuse，并覆盖以下边界：build staging 仍由 artifact acceptance 审计、installed documentation drift 会失败、
-missing dependency 触发 reinstall、malformed receipt 触发 rebuild。Routine full 不运行该显式 target。
+missing dependency 触发 reinstall、malformed receipt 触发 rebuild。Routine Gate 不运行该显式 target。
 
 Candidate preparation 先执行不修改文件系统的状态判断，再根据结果执行动作：
 
@@ -178,7 +179,7 @@ Candidate preparation 先执行不修改文件系统的状态判断，再根据�
 - `rebuild`：receipt 或 artifact 无法复用；清理 candidate state 后重新 build、pack 和 install。
 
 Reuse path 不重复扫描只服务 build evidence 的 staging 内容。Artifact acceptance 仍对同一次
-provider staging 执行完整 material audit，因此 staging corruption 不会从 full/package acceptance 中消失。
+provider staging 执行完整 material audit，因此 staging corruption 不会从 `--all` package acceptance 中消失。
 
 ### Formal release preparation and receipt
 
@@ -205,7 +206,7 @@ Release receipt 只保存 repository-relative canonical paths，并闭合 source
 ordered tar inventory、SHA-256、SHA-512 SRI、manifest/legal/README identity；它不保存 token、OTP、`.npmrc`、publisher secret、
 临时 consumer 或 absolute checkout path。prepare 在 build 前后复核 clean commit/fingerprint，写入 receipt 后再按该 receipt
 重验；任一 source 或 byte drift 都失败。只有 receipt 通过 current verifier 后，这些本地材料才构成完整 formal preparation
-结果；receipt 本身仍不证明 Gate 或 registry 状态。`package:release:verify` 只把显式 receipt 交给 full Gate，不查询 registry，
+结果；receipt 本身仍不证明 Gate 或 registry 状态。`package:release:verify` 只把显式 receipt 交给 `--all` Gate，不查询 registry，
 也不发布。
 
 ## Project Gate
@@ -214,15 +215,22 @@ ordered tar inventory、SHA-256、SHA-512 SRI、manifest/legal/README identity�
 
 ```text
 scripts/project/gate/
-├── definition.ts        # 全部 Check 选择、配置、profile/tag 与 scheduler 绑定
+├── definition.ts        # 完整组合 manifest、selection、aggregate、outputs、scheduler 与 afterGate
 ├── run.ts               # argv、candidate、transcript 与 process exit adapter
-├── checks/              # 各 Check adapter；process、test execution 等按领域分目录
+├── checks/              # 各领域 Check 对象/对象组、options 与 adapter
 └── runtime/             # bound Run、selection、aggregation、result 与 transcript mechanics
 ```
 
-`definition.ts` 是阅读完整 Gate 配置的入口：普通 process Check 在此显式声明，全部 test Check 由同文件中的闭合表声明，四个 repository-quality Check 的 file selection、area、阈值、waiver 与 finding policy 也在同文件声明；唯一 project-owned `afterGate` 也在这里配置。`checks/**` 只实现这些声明所需的 adapter；`runtime/**` 不另行拥有 Check membership、quality policy 或第二个 Hook 配置面。
+`definition.ts` 是阅读完整 Gate 组合的入口：从稳定顺序的 entry manifest 可以恢复全部 Check identity、
+required/preset membership、跨 Check 关系的最终闭包，以及 run-level aggregate、outputs、scheduler 和唯一
+project-owned `afterGate`。组合入口可以引用 `checks/**` owner 已定义的普通 Check 对象或闭合对象组；领域
+options、scanner protocol、test file partition 和 execution mechanics 留在对应 owner，不为追求物理单文件而
+复制。`runtime/**` 不另行拥有 Check membership、领域 policy 或第二个 Hook 配置面。
 
-一次运行先解析参数并准备 exact local candidate，或在 full profile 下重验显式 release receipt；之后才动态导入 `runtime/bound-run.ts`。这个分层不是第二个运行入口：`run.ts` 必须先确定 candidate，bound Run 才能通过已解析的 package public entry 构造 Project Definition，并验证该 entry 与 prepared candidate 相同。直接从源码静态导入 package implementation 会绕过这个 candidate 边界，因此不允许。
+一次运行先解析参数并准备 exact local candidate，或在 `--all --release-receipt <path>` 下重验显式 release receipt；之后才动态导入
+`runtime/bound-run.ts`。这个分层不是第二个运行入口：`run.ts` 必须先确定 candidate，bound Run 才能通过已解析的
+package public entry 构造 Project Definition，并验证该 entry 与 prepared candidate 相同。直接从源码静态导入
+package implementation 会绕过这个 candidate 边界，因此不允许。
 
 每次 invocation 在 `.log/project-gate/<invocation-id>/` 写入 `gate.log`、一个 Product diagnostic log、标准 `run.json` / `records.ndjson`，以及已启动外部命令的 `process/<check-id>.log`。这些都是本次运行的本地 evidence；不存在 `latest`、retention、quality-only report 或跨 invocation 合并协议。machine files 必须按 [Output](output.md) 的完整二文件集合读取。
 
@@ -234,26 +242,34 @@ scripts/project/gate/
 
 ### Test execution partition
 
-`checks/test-execution/lanes.ts` 将 Test Evidence 已知的 Bun test files 投影为互斥且非空的 execution lanes；每个文件必须恰好属于一个 lane，未知 Product owner 在启动测试前失败。lane 只拥有测试文件分区，不能隐藏 Gate Check 配置；lane 到 Check ID、显示名、tags、candidate input、mutex 与 timeout 的完整映射位于 `definition.ts`。
+`checks/test-execution/lanes.ts` 将 Test Evidence 已知的 Bun test files 投影为互斥且非空的 execution lanes；每个文件必须恰好属于一个 lane，未知 Product owner 在启动测试前失败。`checks/test-execution/checks.ts` 拥有 lane 到 Check ID、显示名、candidate input、mutex、timeout 与 Gate selection metadata 的闭合对象组；`definition.ts` 显式引用该组并把它放入完整 Gate manifest，避免复制 identity 或执行配置。
 
-Package supporting、artifact acceptance、三个 external-consumer acceptance、各 Product Check owner、Product runtime、Project tooling、Test Evidence、validation 与 ordinary scripts 分别结算。快速 candidate contract 属于 package supporting；显式 `candidate.integration.ts` 不符合 routine profile 的 `*.test.ts` 身份，因此不由该 profile 发现，其正式入口是 `package:candidate:integration`。External-consumer provider 是独立 Check，不伪装成 test lane。
+Package supporting、artifact acceptance、三个 external-consumer acceptance、各 Product Check owner、Product runtime、Project tooling、Test Evidence、validation 与 ordinary scripts 分别结算。快速 candidate contract 属于 package supporting；显式 `candidate.integration.ts` 不符合 routine `*.test.ts` 身份，因此不由 `--test` 发现，其正式入口是 `package:candidate:integration`。External-consumer provider 是独立 Check，不伪装成 test lane。
 
-### Profiles and scheduling
+### Selection presets and scheduling
 
-参数 grammar 为 `--profile required|full`、可重复的 `--disable-tag <tag>`、受控的 `--enable-tag package-tests`，以及必须单独使用的 `-h` / `--help`。无 profile 时默认 required；同一 tag 不能同时 enable 和 disable。help 在 candidate preparation、package import 和 log directory creation 前退出。
+selection 参数只包含 `--typecheck`、`--lint`、`--test`、`--docs`、`--quality`、`--all`，以及必须单独使用的
+`-h` / `--help`。无 selection 参数时使用 required；多个 focused preset 取并集并替换 required，重复项被规范化；
+`--all` 不能与 focused preset 组合。`--release-receipt <path>` 是 selection 之外的 formal candidate input，只能与
+`--all` 组合。help 在 candidate preparation、package import 和 log directory creation 前退出。
 
-- required 默认不选择 `package-tests`；显式 enable 后选择。full 选择所有未禁用的 package acceptance Checks。
-- 两个 profile 都选择四个 `quality` Checks。禁用 tag 时对应 Check 保留 `not-applicable` fact。
-- 所有 eligible Check status 进入同一个 `all` aggregate：必须全部 `passed`；`failed` 使 aggregate failed，`unavailable` propagate，`not-applicable` fail，空 selection failed。findings、messages、Records 与 final data 不直接参与 aggregate。
-- scheduler 的 root `maxParallel`、每个 Check 的 timeout 与 mutex 都在 `definition.ts` 声明。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。root 并发上限不因本次优化改变。
-- 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 和 full 的 median，因此所有 Check 的 effective priority 都是 `0`。
+- required 是日常完整检查，但不选择高成本 package artifact 与 external-consumer acceptance；`--all` 选择完整 Gate。
+- focused preset 只选择相应闭合集：`typecheck`、`lint`、routine `test`、`docs` 或 repository `quality`。`--test` 不隐式加入 package acceptance。
+- entry manifest 为每项 Check 投影 Product 原生 `enabledByFlags`。未选择 Check 仍保留 `not-applicable / flag-condition-not-matched` fact，但不进入本次 explicit aggregate。
+- 当前 Product 不会因选择 dependent 自动选择其 `dependsOn`；Gate 因而在构造 manifest 时同时验证 required 与每个 preset 对 `dependsOn`、`observes` 的闭包。`observes` closure 是本 Gate 为保持观察输入可用而采用的保守配置校验，不表示未来 Product 会自动传播该关系。任一 owner 自带 `enabledByFlags` 时拒绝组合，避免 Gate 覆盖其原有条件。通用 `dependsOn` flag 传递由 Draft Change [`propagate-flag-selection-through-check-dependencies`](../changes/propagate-flag-selection-through-check-dependencies/proposal.md) 承接，不在 Gate 临时实现任意选择 DSL。
+- 所有 eligible Check status 进入同一个显式 `all` aggregate（不是 `--all` selection）：必须全部 `passed`；`failed` 使 aggregate failed，`unavailable` propagate，`not-applicable` fail，空 selection failed。findings、messages、Records 与 final data 不直接参与 aggregate。
+- scheduler 的 root `maxParallel` 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，但最终关系与选择闭包必须通过中央 manifest 校验。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。root 并发上限不因本次调整改变。
+- 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 与 complete workload 的 median，因此所有 Check 的 effective priority 都是 `0`。
 
-完整 tag 集合和可执行例子由 `--help` 输出；root package scripts 经 `mise exec` 调用同一个 `run.ts`，
+完整 preset 集合和可执行例子由 `--help` 输出；root `check` script 经 `mise exec` 调用同一个 `run.ts`，
 Gate 只为 file metrics 读取 mise-bound SCC command。
 
 ### Direct repository-quality Checks
 
-`definition.ts` 直接声明 `duplicate-detection`、`file-metrics`、`function-metrics` 与 `markdown-link-validation` 的 repository-private options。它们是同一 Project Definition 中的普通 package Checks，不存在父 quality Check、嵌套 Run、第二份配置或独立 quality command。
+`checks/repository-quality.ts` 拥有 `duplicate-detection`、`file-metrics`、`function-metrics` 与
+`markdown-link-validation` 的 repository-private options，并向 `definition.ts` 返回一个具名对象组。它们仍是同一
+Project Definition 中可逐项审阅和选择的普通 package Checks，不存在父 quality Check、嵌套 Run、第二份运行配置
+或独立 quality command。
 
 Gate 对四项使用 non-blocking finding policy：normal findings 保留完整 final data / Records，并由 owning Check 输出有上限的安全摘要；超过摘要上限时只追加精确 omitted count。external-command、source、parse、内置分析或资源上限 failure 仍结算为 `unavailable`。完整 finding facts 以 machine Records 为准。
 
@@ -262,7 +278,7 @@ repository-private scope 只让 TypeScript、current Schemas 和 examples 进入
 metrics，但仍由显式 documentation contract 严格验证。repository defaults 还排除 `**/archive/**`；这是本项目配置，不是
 package 的公共默认值。
 
-同一 non-blocking Finding policy 适用于 required、full 和正式 release receipt 验证：发布前不要求 Finding 清零或逐项
+同一 non-blocking Finding policy 适用于 required、`--all` 和正式 release receipt 验证：发布前不要求 Finding 清零或逐项
 waiver。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自
 owner 阻断。
 
@@ -358,7 +374,7 @@ materials 只走显式 historical validation path，不进入 current traversal 
 `scripts/process-execution/execution.ts` 是跨 owner 的 process facade；其它 scripts owner 只能从该 facade 消费 process capability，不得 deep import `process-execution/{contract,failure,plain-text-environment,result,runner}.ts`。
 
 `scripts/process-execution/**`、`scripts/repository-files/**`、`scripts/error-message.ts` 与 `scripts/value-guards.ts` 是普通 tracked repository source，不是 package、workspace、独立 manifest、独立
-TypeScript config 或独立 Gate profile。它们由 `bun run typecheck -- scripts`、`bun run lint -- scripts`、
+TypeScript config、独立 Project Gate Check 或 selection preset。它们由 `bun run typecheck -- scripts`、`bun run lint -- scripts`、
 `bun run format -- check` 和 Test Evidence current scripts surface 覆盖。它们与 `src/data-boundary/**` 与 `src/package-checks/host-environment/**` 是不同
 owner：前者服务 repository automation，后者服务 Product runtime；Product 不得 import 前者。这些 script boundaries
 不定义 Product source-access boundary；适用的 Project consumer 与 package/docs 例外见
@@ -404,7 +420,7 @@ typed operation；`change-plan` 与 `investigations` root commands 直接调用�
 metadata、index 或 lifecycle 语义。写入与归档仍由相应 subcommand/skill 和当前任务授权决定。
 
 `scripts/test-evidence/command.ts` 拥有 current test entity discovery、Case query 和 closure check。它把同一 caller
-`AbortSignal` 传给 ast-grep static scan 与 Bun registration report process，要求完整 profile 的每个 runner entity
+`AbortSignal` 传给 ast-grep static scan 与 Bun registration report process，要求完整测试清单的每个 runner entity
 都以 skipped testcase 报告；测试正文由 Gate process 子 Checks 或最窄目标命令执行。测试分层和 Case maintenance 继续由
 [测试策略](testing.md)与[测试证据维护](testing/case-maintenance.md) owner 定义。
 
@@ -419,11 +435,11 @@ bun run validate -- docs
 bun run test-evidence -- check --root .
 ```
 
-涉及 Gate 或多个 owner 时运行 required；涉及 package artifact、candidate 或外部 consumer 时运行 full：
+涉及 Gate 或多个 owner 时运行默认 required；涉及 package artifact、candidate 或外部 consumer 时运行 complete Gate：
 
 ```bash
-bun run verify:vibe-check-workspace:required
-bun run verify:vibe-check-workspace:full
+bun run check
+bun run check -- --all
 ```
 
 报告实际运行的检查及未运行项。

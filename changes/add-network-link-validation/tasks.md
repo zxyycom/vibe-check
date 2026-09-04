@@ -18,4 +18,4 @@
 
 - [ ] 2.1 运行 authorization/SSRF/redirect/credentials/resources/status/failure最窄 tests与 Test Evidence closure。
 - [ ] 2.2 运行 product typecheck/lint/tests、docs/package candidate和 installed consumer；不访问真实公网。
-- [ ] 2.3 运行 required/full Gate并复核 zero ambient credentials、raw-material absence与 nondeterministic failure分层。
+- [ ] 2.3 运行默认 `bun run check` 与 complete `bun run check -- --all`，并复核 zero ambient credentials、raw-material absence与 nondeterministic failure分层。

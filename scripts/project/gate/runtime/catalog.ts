@@ -1,20 +1,17 @@
-export const PROJECT_GATE_PROFILES = ["required", "full"] as const;
-export type ProjectGateProfile = (typeof PROJECT_GATE_PROFILES)[number];
-
-export const PROJECT_GATE_TAGS = [
-  "catalog",
+/** Closed focused selections exposed by the Project Gate command. */
+export const PROJECT_GATE_PRESETS = Object.freeze([
   "docs",
-  "format",
-  "git",
-  "package-tests",
-  "product",
+  "lint",
   "quality",
-  "scripts",
-  "tests"
-] as const;
-export type ProjectGateTag = (typeof PROJECT_GATE_TAGS)[number];
+  "test",
+  "typecheck"
+] as const);
 
-export const PROJECT_GATE_OPT_IN_TAGS = [
-  "package-tests"
-] as const satisfies readonly ProjectGateTag[];
-export type ProjectGateOptInTag = (typeof PROJECT_GATE_OPT_IN_TAGS)[number];
+export type ProjectGatePreset = (typeof PROJECT_GATE_PRESETS)[number];
+
+/** Candidate-independent selection vocabulary shared by argv parsing and Definition projection. */
+export const PROJECT_GATE_SELECTION = Object.freeze({
+  complete: "all" as const,
+  default: "required" as const,
+  presets: PROJECT_GATE_PRESETS
+});

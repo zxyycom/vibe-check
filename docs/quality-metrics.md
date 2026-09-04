@@ -85,7 +85,7 @@ final data、Records、messages、definition warnings、output statuses 或 prog
 
 repository Gate 负责在自己的 Project Definition/Run adapter 中绑定 eligibility selection 和 aggregation，并从最终
 `RunResult.aggregate` 映射 process result。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写
-Product Check outcomes。当前 profile/tag selection、`afterGate` hook、transcript 与 exit mapping 只见
+Product Check outcomes。当前 required/preset/all selection、`afterGate` hook、transcript 与 exit mapping 只见
 [脚本工具的 Project Gate](script-tooling.md#project-gate)。
 
 ## Verification

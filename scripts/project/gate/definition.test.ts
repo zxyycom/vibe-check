@@ -5,15 +5,20 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { defineCheck, type Check } from "@zxyycom/vibe-check";
+import { defineCheck, run as packageRun, type Check } from "@zxyycom/vibe-check";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
-import { defineProjectGateEntries } from "./runtime/entries.ts";
-import { projectGateCheckForSelection } from "./runtime/eligibility.ts";
+import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
+import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
+import { selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
 import { createNativeOperationCheck } from "./checks/process/native-operation.ts";
-import { createProjectGateDefinition, createProjectGateEntries } from "./definition.ts";
+import {
+  createProjectGateDefinition,
+  createProjectGateEntries,
+  projectGateAggregation,
+  PROJECT_GATE_RUN_CONFIG
+} from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
 import { writeProcessTranscript } from "./checks/process/process.ts";
-import { projectGateAggregation } from "./runtime/bound-run.ts";
 import {
   createTestEvidenceRuleTestsCheck,
   type TestEvidenceRuleTestsCheckDependencies
@@ -92,17 +97,13 @@ const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
 ]);
 
 describe("Project Gate Definition", () => {
-  it("projects ordinary Check entries without a command catalog or policy", async () => {
+  it("projects the central composition manifest into an ordinary Project Definition", async () => {
     const entries = createProjectGateEntries({
       externalConsumerLease: createExternalConsumerMaterialLease(),
       invocationLogDirectory: "/tmp/project-gate-logs",
       preparedCandidate
     });
-    const definition = createProjectGateDefinition(entries, {
-      profile: "required",
-      disabledTags: [],
-      enabledTags: []
-    });
+    const definition = createProjectGateDefinition(entries);
 
     assert.deepEqual(
       definition.checks.map(({ checkId }) => checkId),
@@ -120,6 +121,11 @@ describe("Project Gate Definition", () => {
       },
       maxParallel: 3,
       measurementHooks: []
+    });
+    assert.deepEqual(PROJECT_GATE_RUN_CONFIG.selection, {
+      complete: "all",
+      default: "required",
+      presets: ["docs", "lint", "quality", "test", "typecheck"]
     });
     assert.equal(Object.hasOwn(definition, "policies"), false);
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
@@ -162,31 +168,15 @@ describe("Project Gate Definition", () => {
     for (const checkId of qualityCheckIds) {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.equal(Object.hasOwn(entry ?? {}, "contributesToAggregate"), false);
-      assert.deepEqual(entry?.profiles, ["required", "full"]);
-      assert.deepEqual(entry?.tags, ["quality"]);
+      assert.equal(entry?.required, true);
+      assert.equal(entry?.presets.includes("quality"), true);
     }
     const qualityEntry = entries.find(({ check }) => check.checkId === "duplicate-detection");
     assert.ok(qualityEntry);
-    assert.deepEqual(
-      await invokeCheck(
-        projectGateCheckForSelection(qualityEntry, {
-          profile: "required",
-          disabledTags: ["quality"],
-          enabledTags: []
-        })
-      ),
-      {
-        status: "not-applicable",
-        reason: { code: "tag-quality-disabled" },
-        messages: [
-          {
-            level: "info",
-            code: "project-gate-check-not-run",
-            message: "Duplicate detection did not run because tag quality was disabled."
-          }
-        ]
-      }
-    );
+    assert.deepEqual(projectGateFlagControlledCheck(qualityEntry).enabledByFlags, {
+      flags: ["project-gate:all", "project-gate:required", "project-gate:preset=quality"],
+      mode: "any"
+    });
 
     const expectedTestLanes = resolveProjectGateTestLanes(process.cwd());
     for (const [checkId, files] of [
@@ -263,14 +253,10 @@ describe("Project Gate Definition", () => {
     assert.throws(
       () =>
         defineProjectGateEntries([
-          { check: prerequisite, profiles: ["full"], tags: [] },
-          {
-            check: dependent,
-            profiles: ["required", "full"],
-            tags: []
-          }
+          { check: prerequisite, presets: [], required: false },
+          { check: dependent, presets: [], required: true }
         ]),
-      /selection-closed: fixture-dependent -> fixture-prerequisite/
+      /required-selection closed: fixture-dependent -> fixture-prerequisite/
     );
     const observer = defineCheck({
       checkId: "fixture-observer",
@@ -280,30 +266,18 @@ describe("Project Gate Definition", () => {
     assert.throws(
       () =>
         defineProjectGateEntries([
-          { check: prerequisite, profiles: ["full"], tags: [] },
-          {
-            check: observer,
-            profiles: ["required", "full"],
-            tags: []
-          }
+          { check: prerequisite, presets: [], required: true },
+          { check: observer, presets: ["docs"], required: true }
         ]),
-      /observes relation is not selection-closed: fixture-observer -> fixture-prerequisite/
+      /observes relation is not preset-selection closed: fixture-observer -> fixture-prerequisite/
     );
     assert.throws(
       () =>
         defineProjectGateEntries([
-          {
-            check: prerequisite,
-            profiles: ["required", "full"],
-            tags: ["docs"]
-          },
-          {
-            check: dependent,
-            profiles: ["required", "full"],
-            tags: []
-          }
+          { check: prerequisite, presets: [], required: true },
+          { check: dependent, presets: ["test"], required: true }
         ]),
-      /selection-closed: fixture-dependent -> fixture-prerequisite/
+      /dependsOn relation is not preset-selection closed: fixture-dependent -> fixture-prerequisite/
     );
     const selfDependent = defineCheck({
       checkId: "fixture-self-dependent",
@@ -311,7 +285,7 @@ describe("Project Gate Definition", () => {
       displayName: "Fixture self-dependent"
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: selfDependent, profiles: ["required"], tags: [] }]),
+      () => defineProjectGateEntries([{ check: selfDependent, presets: [], required: true }]),
       /cannot depend on itself: fixture-self-dependent/
     );
     const selfObserver = defineCheck({
@@ -320,8 +294,37 @@ describe("Project Gate Definition", () => {
       observes: ["fixture-self-observer"]
     });
     assert.throws(
-      () => defineProjectGateEntries([{ check: selfObserver, profiles: ["required"], tags: [] }]),
+      () => defineProjectGateEntries([{ check: selfObserver, presets: [], required: true }]),
       /cannot observe itself: fixture-self-observer/
+    );
+    const existingFlagControl = defineCheck({
+      checkId: "fixture-existing-flag-control",
+      displayName: "Fixture existing flag control",
+      enabledByFlags: { flags: ["fixture"], mode: "any" }
+    });
+    assert.throws(
+      () => defineProjectGateEntries([{ check: existingFlagControl, presets: [], required: true }]),
+      /already owns enabledByFlags: fixture-existing-flag-control/
+    );
+    const invalidRequired: ProjectGateEntry = {
+      check: prerequisite,
+      presets: [],
+      required: true
+    };
+    Object.defineProperty(invalidRequired, "required", { value: "true" });
+    assert.throws(
+      () => defineProjectGateEntries([invalidRequired]),
+      /required marker is invalid: fixture-prerequisite/
+    );
+    const invalidPresets: ProjectGateEntry = {
+      check: prerequisite,
+      presets: [],
+      required: true
+    };
+    Object.defineProperty(invalidPresets, "presets", { value: "test" });
+    assert.throws(
+      () => defineProjectGateEntries([invalidPresets]),
+      /presets are not an exact collection: fixture-prerequisite/
     );
     const missingDependency = defineCheck({
       checkId: "fixture-missing-dependency",
@@ -329,14 +332,7 @@ describe("Project Gate Definition", () => {
       displayName: "Fixture missing dependency"
     });
     assert.throws(
-      () =>
-        defineProjectGateEntries([
-          {
-            check: missingDependency,
-            profiles: ["required"],
-            tags: []
-          }
-        ]),
+      () => defineProjectGateEntries([{ check: missingDependency, presets: [], required: true }]),
       /dependsOn relation is missing: fixture-missing-dependency -> fixture-absent/
     );
     const missingObservation = defineCheck({
@@ -345,19 +341,12 @@ describe("Project Gate Definition", () => {
       observes: ["fixture-absent"]
     });
     assert.throws(
-      () =>
-        defineProjectGateEntries([
-          {
-            check: missingObservation,
-            profiles: ["required"],
-            tags: []
-          }
-        ]),
+      () => defineProjectGateEntries([{ check: missingObservation, presets: [], required: true }]),
       /observes relation is missing: fixture-missing-observation -> fixture-absent/
     );
   });
 
-  it("derives required, full, and partial aggregates from the same entries", async () => {
+  it("derives required, all, and focused aggregates from the same preset manifest", () => {
     const logDirectory = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
     try {
       const entries = createProjectGateEntries({
@@ -365,45 +354,25 @@ describe("Project Gate Definition", () => {
         invocationLogDirectory: logDirectory,
         preparedCandidate
       });
-      const selections = [
-        {
-          profile: "required" as const,
-          disabledTags: [] as const,
-          enabledTags: [] as const
-        },
-        { profile: "full" as const, disabledTags: [] as const, enabledTags: [] as const },
-        {
-          profile: "required" as const,
-          disabledTags: [] as const,
-          enabledTags: ["package-tests"] as const
-        },
-        {
-          profile: "full" as const,
-          disabledTags: ["package-tests"] as const,
-          enabledTags: [] as const
-        },
-        {
-          profile: "required" as const,
-          disabledTags: ["quality"] as const,
-          enabledTags: [] as const
-        }
+      const definition = createProjectGateDefinition(entries);
+      const selections: readonly ProjectGateSelection[] = [
+        { kind: "required" },
+        { kind: "all" },
+        { kind: "focused", presets: ["typecheck"] },
+        { kind: "focused", presets: ["docs", "quality"] },
+        { kind: "focused", presets: ["test"] }
       ];
 
       for (const selection of selections) {
-        const disabledTags = new Set<string>(selection.disabledTags);
-        const enabledTags = new Set<string>(selection.enabledTags);
-        createProjectGateDefinition(entries, selection);
+        const expectedIds = entries
+          .filter((entry) => {
+            if (selection.kind === "all") return true;
+            if (selection.kind === "required") return entry.required;
+            return entry.presets.some((preset) => selection.presets.includes(preset));
+          })
+          .map(({ check }) => check.checkId);
         assert.deepEqual(projectGateAggregation(entries, selection), {
-          checks: entries
-            .filter(
-              (entry) =>
-                entry.profiles.includes(selection.profile) &&
-                !entry.tags.some((tag) => disabledTags.has(tag)) &&
-                (selection.profile === "full" ||
-                  !entry.tags.includes("package-tests") ||
-                  enabledTags.has("package-tests"))
-            )
-            .map(({ check }) => check.checkId),
+          checks: expectedIds,
           empty: "failed",
           mode: "all",
           notApplicable: "fail",
@@ -411,69 +380,106 @@ describe("Project Gate Definition", () => {
         });
       }
 
-      for (const packageCheckId of [
-        "prepared-external-package-consumer",
-        "tests-package-artifact",
-        "tests-package-consumer-types",
-        "tests-package-consumer-docs",
-        "tests-package-consumer-runtime"
-      ]) {
-        const packageTests = entries.find(({ check }) => check.checkId === packageCheckId);
-        assert.ok(packageTests, `${packageCheckId} must exist`);
-        const notEnabled = projectGateCheckForSelection(packageTests, {
-          profile: "required",
-          disabledTags: [],
-          enabledTags: []
-        });
-        assert.deepEqual(await invokeCheck(notEnabled), {
-          status: "not-applicable",
-          reason: { code: "tag-package-tests-not-enabled" },
-          messages: [
-            {
-              level: "info",
-              code: "project-gate-check-not-run",
-              message: `${packageTests.check.displayName} did not run; use --enable-tag package-tests or --profile full.`
-            }
-          ]
+      for (const check of definition.checks) {
+        assert.equal(check.enabledByFlags?.mode, "any");
+        assert.equal(check.enabledByFlags?.flags.includes("project-gate:all"), true);
+      }
+      for (const packageCheckId of packageAcceptanceCheckIds) {
+        const entry = entries.find(({ check }) => check.checkId === packageCheckId);
+        assert.ok(entry, `${packageCheckId} must exist`);
+        assert.equal(entry.required, false);
+        assert.deepEqual(entry.presets, []);
+        assert.deepEqual(projectGateFlagControlledCheck(entry).enabledByFlags, {
+          flags: ["project-gate:all"],
+          mode: "any"
         });
       }
+      const testAggregate = projectGateAggregation(entries, {
+        kind: "focused",
+        presets: ["test"]
+      });
+      for (const packageCheckId of packageAcceptanceCheckIds) {
+        assert.equal(testAggregate.checks.includes(packageCheckId), false);
+      }
+    } finally {
+      rmSync(logDirectory, { force: true, recursive: true });
+    }
+  });
 
-      let profileExcludedWorkStarted = false;
-      const profileOnlyEntry = defineProjectGateEntries([
+  it("executes only Product flag-selected Checks and aggregates the same identities", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-flags-"));
+    try {
+      const calls: string[] = [];
+      const entries = defineProjectGateEntries([
         {
           check: defineCheck({
-            checkId: "fixture-full-only",
-            displayName: "Fixture full-only Check",
+            checkId: "fixture-required",
+            displayName: "Fixture required",
             execution: () => {
-              profileExcludedWorkStarted = true;
+              calls.push("fixture-required");
               return { status: "passed", data: {} };
             }
           }),
-          profiles: ["full"],
-          tags: []
+          presets: [],
+          required: true
+        },
+        {
+          check: defineCheck({
+            checkId: "fixture-quality",
+            displayName: "Fixture quality",
+            execution: () => {
+              calls.push("fixture-quality");
+              return { status: "passed", data: {} };
+            }
+          }),
+          presets: ["quality"],
+          required: false
         }
-      ])[0];
-      if (profileOnlyEntry === undefined) throw new Error("fixture entry must be present");
-      const profileExcluded = projectGateCheckForSelection(profileOnlyEntry, {
-        profile: "required",
-        disabledTags: [],
-        enabledTags: []
-      });
-      assert.deepEqual(await invokeCheck(profileExcluded), {
-        status: "not-applicable",
-        reason: { code: "profile-required-excluded" },
-        messages: [
+      ]);
+
+      for (const scenario of [
+        {
+          disabledCheckId: "fixture-quality",
+          selectedCheckId: "fixture-required",
+          selection: { kind: "required" as const }
+        },
+        {
+          disabledCheckId: "fixture-required",
+          selectedCheckId: "fixture-quality",
+          selection: { kind: "focused" as const, presets: ["quality" as const] }
+        }
+      ]) {
+        calls.length = 0;
+        const result = await packageRun(createProjectGateDefinition(entries), {
+          checkAggregation: projectGateAggregation(entries, scenario.selection),
+          flags: selectionFlags(scenario.selection),
+          outputs: {
+            diagnosticLogging: { enabled: false },
+            machinePublication: { enabled: false },
+            progressRendering: { enabled: false }
+          },
+          projectRoot
+        });
+        assert.equal(result.kind, "completed");
+        if (result.kind !== "completed") continue;
+        assert.equal(result.aggregate, "passed");
+        assert.deepEqual(calls, [scenario.selectedCheckId]);
+        assert.equal(
+          result.snapshot.checks.find(({ checkId }) => checkId === scenario.selectedCheckId)
+            ?.outcome.status,
+          "passed"
+        );
+        assert.deepEqual(
+          result.snapshot.checks.find(({ checkId }) => checkId === scenario.disabledCheckId)
+            ?.outcome,
           {
-            level: "info",
-            code: "project-gate-check-not-run",
-            message:
-              "Fixture full-only Check did not run because profile required does not include it."
+            status: "not-applicable",
+            reason: { code: "flag-condition-not-matched" }
           }
-        ]
-      });
-      assert.equal(profileExcludedWorkStarted, false);
+        );
+      }
     } finally {
-      rmSync(logDirectory, { force: true, recursive: true });
+      rmSync(projectRoot, { force: true, recursive: true });
     }
   });
 

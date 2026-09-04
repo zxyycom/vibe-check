@@ -1,4 +1,8 @@
-import { parseProjectGateArguments, type ProjectGateSelection } from "./controls.ts";
+import {
+  isCompleteProjectGateSelection,
+  parseProjectGateArguments,
+  type ProjectGateSelection
+} from "./controls.ts";
 
 export type ProjectGateCandidateInput =
   | Readonly<{ readonly kind: "local" }>
@@ -91,10 +95,8 @@ function invocationForSelection(
       selection
     });
   }
-  if (!isCompleteReleaseSelection(selection)) {
-    return invocationFailure(
-      "--release-receipt requires the complete --profile full selection without tag overrides"
-    );
+  if (!isCompleteProjectGateSelection(selection)) {
+    return invocationFailure("--release-receipt requires the complete --all selection");
   }
   return Object.freeze({
     ok: true,
@@ -102,14 +104,6 @@ function invocationForSelection(
     candidateInput: Object.freeze({ kind: "release-receipt", receiptPath: releaseReceiptPath }),
     selection
   });
-}
-
-function isCompleteReleaseSelection(selection: ProjectGateSelection): boolean {
-  return (
-    selection.profile === "full" &&
-    selection.disabledTags.length === 0 &&
-    selection.enabledTags.length === 0
-  );
 }
 
 function invocationFailure(

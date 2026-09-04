@@ -15,7 +15,7 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..")
 const projectGatePath = resolve(repositoryRoot, "scripts/project/gate/run.ts");
 
 export const FULL_PACKAGE_ACCEPTANCE_INVOCATION = Object.freeze({
-  args: Object.freeze(["exec", "--", "bun", projectGatePath, "--profile", "full"]),
+  args: Object.freeze(["exec", "--", "bun", projectGatePath, "--all"]),
   command: "mise"
 });
 
@@ -71,7 +71,7 @@ export async function runPackageCommand(
       return 0;
     }
     case "verify":
-      // The full Gate owns package lifecycle, artifact, and external-consumer acceptance.
+      // The complete --all Gate owns package lifecycle, artifact, and external-consumer acceptance.
       return steps.verify();
   }
 }

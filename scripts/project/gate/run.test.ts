@@ -126,6 +126,14 @@ const expectedCheckIds = [
   "git-diff-whitespace"
 ] as const;
 
+const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
+  "prepared-external-package-consumer",
+  "tests-package-artifact",
+  "tests-package-consumer-types",
+  "tests-package-consumer-docs",
+  "tests-package-consumer-runtime"
+]);
+
 const rootPackageManifestSource = readFileSync(
   fileURLToPath(new URL("../../../package.json", import.meta.url)),
   "utf8"
@@ -133,27 +141,19 @@ const rootPackageManifestSource = readFileSync(
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("Project Gate entries, root binding, and controls", () => {
-  it("binds retained workspace verification names directly to the Gate profiles without disabled tags", () => {
+  it("binds the sole project check command to the mise-backed Gate root", () => {
     const manifest: unknown = JSON.parse(rootPackageManifestSource);
     assert.ok(isNonArrayRecord(manifest), "root package manifest must be an object");
     const rootScripts = manifest.scripts;
     assert.ok(isNonArrayRecord(rootScripts), "root package manifest must declare a scripts object");
 
-    assert.deepEqual(
-      {
-        base: rootScripts["verify:vibe-check-workspace"],
-        full: rootScripts["verify:vibe-check-workspace:full"],
-        required: rootScripts["verify:vibe-check-workspace:required"]
-      },
-      {
-        base: "mise exec -- bun scripts/project/gate/run.ts",
-        full: "mise exec -- bun scripts/project/gate/run.ts --profile full",
-        required: "mise exec -- bun scripts/project/gate/run.ts --profile required"
-      }
-    );
+    assert.equal(rootScripts.check, "mise exec -- bun scripts/project/gate/run.ts");
+    assert.equal(rootScripts["verify:vibe-check-workspace"], undefined);
+    assert.equal(rootScripts["verify:vibe-check-workspace:full"], undefined);
+    assert.equal(rootScripts["verify:vibe-check-workspace:required"], undefined);
   });
 
-  it("keeps the explicit assurance identities and current profile membership closed", () => {
+  it("keeps the explicit assurance identities and current selection metadata closed", () => {
     const entries = createProjectGateEntries({
       externalConsumerLease: createExternalConsumerMaterialLease(),
       invocationLogDirectory: "/tmp/project-gate-logs",
@@ -163,102 +163,73 @@ describe("Project Gate entries, root binding, and controls", () => {
     const checkIds = new Set(entries.map(({ check }) => check.checkId));
 
     assert.deepEqual(checkIds, expectedIds);
-    for (const profile of ["required", "full"] as const) {
-      assert.deepEqual(
-        new Set(
-          entries
-            .filter((entry) => entry.profiles.includes(profile))
-            .map(({ check }) => check.checkId)
-        ),
-        expectedIds
-      );
-    }
+    assert.deepEqual(
+      new Set(entries.filter(({ required }) => required).map(({ check }) => check.checkId)),
+      new Set(expectedCheckIds.filter((checkId) => !packageAcceptanceCheckIds.has(checkId)))
+    );
     for (const entry of entries)
-      assert.deepEqual(Object.keys(entry).sort(), ["check", "profiles", "tags"]);
+      assert.deepEqual(Object.keys(entry).sort(), ["check", "presets", "required"]);
   });
 
-  it("defaults to required and normalizes explicit profile plus repeatable enabled and disabled tags into opaque flags", () => {
+  it("defaults to required and normalizes combinable focused presets into opaque flags", () => {
     assert.deepEqual(parseProjectGateArguments([]), {
       ok: true,
       action: "run",
-      value: { profile: "required", disabledTags: [], enabledTags: [] }
+      value: { kind: "required" }
     });
-    const parsed = parseProjectGateArguments([
-      "--profile",
-      "full",
-      "--disable-tag",
-      "docs",
-      "--disable-tag",
-      "quality",
-      "--enable-tag",
-      "package-tests",
-      "--enable-tag",
-      "package-tests"
-    ]);
+    const parsed = parseProjectGateArguments(["--quality", "--docs", "--docs"]);
 
     assert.deepEqual(parsed, {
       ok: true,
       action: "run",
-      value: {
-        profile: "full",
-        disabledTags: ["docs", "quality"],
-        enabledTags: ["package-tests"]
-      }
+      value: { kind: "focused", presets: ["docs", "quality"] }
     });
     if (!parsed.ok || parsed.action !== "run") return;
     assert.deepEqual(selectionFlags(parsed.value), [
-      "project-gate:profile=full",
-      "project-gate:disable-tag=docs",
-      "project-gate:disable-tag=quality",
-      "project-gate:enable-tag=package-tests"
+      "project-gate:preset=docs",
+      "project-gate:preset=quality"
     ]);
     assert.deepEqual(selectionFromFlags(selectionFlags(parsed.value)), parsed.value);
+    assert.deepEqual(parseProjectGateArguments(["--all"]), {
+      ok: true,
+      action: "run",
+      value: { kind: "all" }
+    });
     assert.deepEqual(parseProjectGateArguments(["--help"]), { ok: true, action: "help" });
     assert.deepEqual(parseProjectGateArguments(["-h"]), { ok: true, action: "help" });
-    assert.equal(parseProjectGateArguments(["--help", "--profile", "full"]).ok, false);
+    assert.equal(parseProjectGateArguments(["--help", "--all"]).ok, false);
     const help = projectGateHelp();
-    assert.match(help, /Opt-in tags: package-tests/);
-    assert.match(
-      help,
-      /Disable filters \(all currently used\): catalog, docs, format, git, package-tests, product, quality, scripts, tests/
-    );
-    assert.match(help, /candidate, artifact, and external-consumer acceptance/);
+    assert.match(help, /--typecheck/);
+    assert.match(help, /--lint/);
+    assert.match(help, /--test/);
+    assert.match(help, /--docs/);
+    assert.match(help, /--quality/);
+    assert.match(help, /--all/);
+    assert.match(help, /Focused presets can be combined/);
     assert.match(help, /--release-receipt <path>/);
     assert.equal(
-      projectGateSelectionSummary({ profile: "required", disabledTags: [], enabledTags: [] }),
-      "profile=required; package-acceptance=not-selected (use --enable-tag package-tests or --profile full); disabled-tags=none"
+      projectGateSelectionSummary({ kind: "required" }),
+      "selection=required; package-acceptance=not-selected"
     );
     assert.equal(
-      projectGateSelectionSummary({
-        profile: "required",
-        disabledTags: [],
-        enabledTags: ["package-tests"]
-      }),
-      "profile=required; package-acceptance=selected-by-tag-package-tests; disabled-tags=none"
+      projectGateSelectionSummary({ kind: "focused", presets: ["docs", "quality"] }),
+      "selection=focused; presets=docs,quality; package-acceptance=not-selected"
     );
     assert.equal(parseProjectGateArguments(["unexpected"]).ok, false);
-    assert.equal(parseProjectGateArguments(["--disable-tag", ""]).ok, false);
+    assert.equal(parseProjectGateArguments(["--profile", "full"]).ok, false);
     assert.equal(parseProjectGateArguments(["--enable-tag", "docs"]).ok, false);
+    assert.equal(parseProjectGateArguments(["--all", "--docs"]).ok, false);
     assert.equal(
-      parseProjectGateArguments(["--enable-tag", "package-tests", "--disable-tag", "package-tests"])
-        .ok,
-      false
-    );
-    assert.equal(
-      selectionFromFlags([
-        "project-gate:profile=required",
-        "project-gate:enable-tag=package-tests",
-        "project-gate:disable-tag=package-tests"
-      ]),
+      selectionFromFlags(["project-gate:preset=quality", "project-gate:preset=docs"]),
       undefined
     );
+    assert.equal(selectionFromFlags(["project-gate:all", "project-gate:required"]), undefined);
   });
 
-  it("requires the complete full selection for one explicit formal release receipt", () => {
+  it("requires the complete all selection for one explicit formal release receipt", () => {
     assert.deepEqual(
       parseProjectGateInvocationArguments([
-        "--profile",
-        "full",
+        "--all",
         "--release-receipt",
         "build/releases/zxyycom-vibe-check-0.0.1.release.json"
       ]),
@@ -269,7 +240,7 @@ describe("Project Gate entries, root binding, and controls", () => {
           kind: "release-receipt",
           receiptPath: "build/releases/zxyycom-vibe-check-0.0.1.release.json"
         },
-        selection: { profile: "full", disabledTags: [], enabledTags: [] }
+        selection: { kind: "all" }
       }
     );
     assert.equal(
@@ -281,10 +252,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     );
     assert.equal(
       parseProjectGateInvocationArguments([
-        "--profile",
-        "full",
-        "--disable-tag",
-        "docs",
+        "--docs",
         "--release-receipt",
         "build/releases/zxyycom-vibe-check-0.0.1.release.json"
       ]).ok,
@@ -292,8 +260,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     );
     assert.equal(
       parseProjectGateInvocationArguments([
-        "--profile",
-        "full",
+        "--all",
         "--release-receipt",
         "first.json",
         "--release-receipt",
@@ -403,12 +370,7 @@ describe("Project Gate adapter closure", () => {
     let observedReceiptPath: string | undefined;
     let observedCandidate: PreparedPackageCandidate | undefined;
     const status = await runProjectGateWithoutTranscript(
-      [
-        "--profile",
-        "full",
-        "--release-receipt",
-        "build/releases/zxyycom-vibe-check-0.0.1.release.json"
-      ],
+      ["--all", "--release-receipt", "build/releases/zxyycom-vibe-check-0.0.1.release.json"],
       {
         createInvocationLogDirectory: () => "/tmp/project-gate-release",
         loadRunModule: async () => ({
@@ -511,40 +473,28 @@ describe("Project Gate adapter closure", () => {
           readonly preparedCandidate: PreparedPackageCandidate;
         }>
       | undefined;
-    const status = await runProjectGateWithoutTranscript(
-      [
-        "--profile",
-        "full",
-        "--disable-tag",
-        "docs",
-        "--disable-tag",
-        "docs",
-        "--enable-tag",
-        "package-tests"
-      ],
-      {
-        createInvocationLogDirectory: (): string => {
-          createdLogs += 1;
-          return "/tmp/project-gate-logs";
-        },
-        loadRunModule: async () => {
-          loaded += 1;
-          return {
-            resolvedEntryPath: prepared.resolvedEntryPath,
-            afterGate: defaultAfterGate,
-            run: async (input) => {
-              ran += 1;
-              runInput = input;
-              return complete;
-            }
-          };
-        },
-        prepareCandidate: async () => {
-          preparedCandidates += 1;
-          return prepared;
-        }
+    const status = await runProjectGateWithoutTranscript(["--quality", "--docs", "--docs"], {
+      createInvocationLogDirectory: (): string => {
+        createdLogs += 1;
+        return "/tmp/project-gate-logs";
+      },
+      loadRunModule: async () => {
+        loaded += 1;
+        return {
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          afterGate: defaultAfterGate,
+          run: async (input) => {
+            ran += 1;
+            runInput = input;
+            return complete;
+          }
+        };
+      },
+      prepareCandidate: async () => {
+        preparedCandidates += 1;
+        return prepared;
       }
-    );
+    });
 
     assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
     assert.equal(preparedCandidates, 1);
@@ -552,11 +502,7 @@ describe("Project Gate adapter closure", () => {
     assert.equal(createdLogs, 1);
     assert.equal(ran, 1);
     assert.deepEqual(runInput, {
-      flags: [
-        "project-gate:profile=full",
-        "project-gate:disable-tag=docs",
-        "project-gate:enable-tag=package-tests"
-      ],
+      flags: ["project-gate:preset=docs", "project-gate:preset=quality"],
       invocationLogDirectory: "/tmp/project-gate-logs",
       preparedCandidate: prepared
     });
@@ -631,11 +577,7 @@ describe("Project Gate adapter closure", () => {
         preparedCandidate: prepared,
         repositoryRoot,
         runResult,
-        selection: {
-          disabledTags: [],
-          enabledTags: [],
-          profile: "required"
-        },
+        selection: { kind: "required" },
         timing: {
           adapterSetupMs: 15,
           candidatePreparationMs: 10,

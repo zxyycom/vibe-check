@@ -7,8 +7,8 @@ import { fileURLToPath } from "node:url";
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import { afterGate as definitionAfterGate } from "../definition.ts";
-import { afterGate, projectGateOutputOverrides, run as runProjectGate } from "./bound-run.ts";
+import { afterGate as definitionAfterGate, projectGateOutputOverrides } from "../definition.ts";
+import { afterGate, run as runProjectGate } from "./bound-run.ts";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 

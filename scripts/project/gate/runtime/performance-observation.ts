@@ -10,6 +10,7 @@ import {
   type ProjectGatePerformanceBaseline,
   type ProjectGatePerformanceRuntime
 } from "./performance-baseline.ts";
+import { projectGateStandardProfile } from "./controls.ts";
 
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 
@@ -74,14 +75,14 @@ function comparableBaseline(
   runtime: ProjectGatePerformanceRuntime
 ): BaselineComparison {
   if (initialResult.status !== "passed") return notComparable("initial result was not passed");
-  if (context.selection.disabledTags.length > 0 || context.selection.enabledTags.length > 0)
-    return notComparable("tag override");
+  const profile = projectGateStandardProfile(context.selection);
+  if (profile === undefined) return notComparable("focused preset selection");
   if (!isReusableCandidate(context)) return notComparable("candidate was not reused");
 
   const run = readComparableRunFacts(context.runResult);
   if (run === undefined) return notComparable("Run facts were incomplete");
 
-  const baseline = matchingBaseline(baselines, context.selection.profile, run, runtime);
+  const baseline = matchingBaseline(baselines, profile, run, runtime);
   return baseline === undefined
     ? notComparable("no matching baseline")
     : Object.freeze({ baseline, kind: "comparable", run });
@@ -98,7 +99,7 @@ function isReusableCandidate(context: ProjectGateContext): boolean {
 
 function matchingBaseline(
   baselines: readonly ProjectGatePerformanceBaseline[],
-  profile: ProjectGateContext["selection"]["profile"],
+  profile: "full" | "required",
   run: ComparableRunFacts,
   runtime: ProjectGatePerformanceRuntime
 ): ProjectGatePerformanceBaseline | undefined {

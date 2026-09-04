@@ -54,9 +54,9 @@ relations: []
 ### 每个候选的采用门槛
 
 - 采用：每个非机械优化必须在独立 Investigation/Decision/Change 中明确候选和回退边界，并进入 current deviation evidence。
-- 采用：验收至少证明完整 token-stream differential、27-reader oracle、source identity、processor/extension protocol、真实目标 corpus before/after、typecheck/lint 和 required/full Gate；无法证明语义等价或稳定收益时不采用。
+- 采用：验收至少证明完整 token-stream differential、27-reader oracle、source identity、processor/extension protocol、真实目标 corpus before/after、typecheck/lint 和 required/complete `--all` Gate；无法证明语义等价或稳定收益时不采用。
 - 采用：引入库时同时验证所需 regex/Unicode/zero-width/capture/global-iteration 语义、Bun Worker 与取消/资源行为、package artifact 和支持平台装载、版本与完整性固定、license/security 以及无运行时下载或系统级隐式依赖。WASM、Node-API 或其他 native 载体不因“更快”自动获得例外。
 
 ### 当前基线与未预选的技术
 
-- 采用：当前 built-in `RegExp` 实现继续是已对齐基线；本决策只建立允许评估和采用等价 host primitive 的未来方向，不预先选择 PCRE2、RE2、Oniguruma、WASM、native addon 或手写 scanner，也不把 profile 占比当成可回收承诺。
+- 采用：当前 built-in `RegExp` 实现继续是已对齐基线；本决策只建立允许评估和采用等价 host primitive 的未来方向，不预先选择 PCRE2、RE2、Oniguruma、WASM、native addon 或手写 scanner，也不把 profiler sample 占比当成可回收承诺。

@@ -35,9 +35,9 @@ const rebuiltCandidate: PreparedPackageCandidate = Object.freeze({
   stagingDirectory: "/fixture/build/package"
 });
 
-test("package root commands distinguish stale status from a completed rebuild and bind verification to full acceptance", async () => {
+test("package root commands distinguish stale status from a completed rebuild and bind verification to complete --all acceptance", async () => {
   assert.equal(FULL_PACKAGE_ACCEPTANCE_INVOCATION.command, "mise");
-  assert.deepEqual(FULL_PACKAGE_ACCEPTANCE_INVOCATION.args.slice(-2), ["--profile", "full"]);
+  assert.deepEqual(FULL_PACKAGE_ACCEPTANCE_INVOCATION.args.slice(-1), ["--all"]);
   assert.deepEqual(FULL_PACKAGE_ACCEPTANCE_INVOCATION.args.slice(0, 3), ["exec", "--", "bun"]);
   assert.match(
     FULL_PACKAGE_ACCEPTANCE_INVOCATION.args[3] ?? "",
