@@ -430,6 +430,7 @@ Owner: `docs/script-tooling.md#development-tooling`
 Entities:
 
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > requires an explicit bounded developer invocation`
+- `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > locates invalid child and manifest fields at the evidence boundary`
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > canonicalizes metric ordering before output equality`
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > uses every ABBA block in deterministic bootstrap classification and only marks IQR outliers`
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > selects counted-operation wall only for warmed statistics and gives both B sides one warmup flag`
@@ -437,7 +438,7 @@ Entities:
 - `bun|scripts/development/lizard-performance/command.test.ts|labels Linux wait4 resource scope without relabeling max RSS as tree aggregate`
 Proves:
 
-- Developer comparison selection is explicit, bounded and developer-only; it cannot silently select an ambient language condition or Gate path, become Product/package surface, or authorize a performance optimization.
+- Developer comparison selection is explicit, bounded and developer-only; fixed Lizard executable/source inputs require host-absolute paths while the output path may remain caller-relative. It cannot silently select an ambient language condition or Gate path, become Product/package surface, or authorize a performance optimization. Child result and workload-manifest failures identify the invalid metric index or manifest field without accepting a partial evidence shape.
 - Fixed-Lizard analyzer comparison canonicalizes the Product-consumed metric fields before equality and retains stable path/order semantics.
 - ABBA paired ratios, deterministic bootstrap confidence intervals, practical-equivalence classification and IQR marking preserve all samples; resource scope can independently make a resource comparison non-comparable.
 - Warm statistics select the target-internal counted operation rather than whole-target startup/warm-up wall; drift after preflight and unsupported collector platforms stop comparability.

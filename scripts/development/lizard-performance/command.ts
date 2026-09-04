@@ -2,7 +2,7 @@
 import { createHash } from "node:crypto";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, relative, resolve } from "node:path";
+import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { runProcessSync } from "../../process-execution/execution.ts";
@@ -122,16 +122,16 @@ export function parseArguments(argv: readonly string[]): Arguments {
     }
     if (value === "--lizard123") {
       const parsed = argv[++index];
-      if (parsed === undefined || parsed.startsWith("-"))
+      if (parsed === undefined || parsed.startsWith("-") || !isAbsolute(parsed))
         throw new Error("--lizard123 requires an absolute executable");
-      lizard123 = resolve(parsed);
+      lizard123 = parsed;
       continue;
     }
     if (value === "--lizard124-source") {
       const parsed = argv[++index];
-      if (parsed === undefined || parsed.startsWith("-"))
+      if (parsed === undefined || parsed.startsWith("-") || !isAbsolute(parsed))
         throw new Error("--lizard124-source requires an absolute source checkout");
-      lizard124Source = resolve(parsed);
+      lizard124Source = parsed;
       continue;
     }
     if (value === "--output") {
@@ -954,36 +954,11 @@ function parseSupervisorResult(value: unknown): SupervisorResult {
   });
 }
 
-function parseChildResult(value: unknown): ChildResult {
+export function parseChildResult(value: unknown): ChildResult {
   const input = record(value);
   if (input === undefined || !Array.isArray(input.metrics))
     throw new Error("benchmark target emitted no metrics array");
-  const metrics: CanonicalMetric[] = [];
-  for (const entry of input.metrics) {
-    const metric = record(entry);
-    if (
-      metric === undefined ||
-      typeof metric.file !== "string" ||
-      typeof metric.name !== "string" ||
-      typeof metric.startLine !== "number" ||
-      typeof metric.endLine !== "number" ||
-      typeof metric.nloc !== "number" ||
-      typeof metric.parameterCount !== "number" ||
-      (typeof metric.ccn !== "number" && metric.ccn !== null)
-    )
-      throw new Error("benchmark target emitted an invalid metric");
-    metrics.push(
-      Object.freeze({
-        ccn: metric.ccn,
-        endLine: metric.endLine,
-        file: metric.file,
-        name: metric.name,
-        nloc: metric.nloc,
-        parameterCount: metric.parameterCount,
-        startLine: metric.startLine
-      })
-    );
-  }
+  const metrics = Array.from(input.metrics, parseCanonicalMetric);
   const productDigest = typeof input.productDigest === "string" ? input.productDigest : undefined;
   const scannerExecutable =
     typeof input.scannerExecutable === "string" ? input.scannerExecutable : undefined;
@@ -998,7 +973,7 @@ function parseChildResult(value: unknown): ChildResult {
       : Object.fromEntries(
           Object.entries(stagesSource).map(([key, duration]) => {
             if (typeof duration !== "number" && duration !== null)
-              throw new Error("benchmark target emitted an invalid stage duration");
+              throw new Error(`benchmark target emitted an invalid stages.${key} duration`);
             return [key, duration];
           })
         );
@@ -1009,7 +984,7 @@ function parseChildResult(value: unknown): ChildResult {
       : Object.fromEntries(
           Object.entries(stageScopesSource).map(([key, scope]) => {
             if (typeof scope !== "string")
-              throw new Error("benchmark target emitted an invalid stage scope");
+              throw new Error(`benchmark target emitted an invalid stageScopes.${key} value`);
             return [key, scope];
           })
         );
@@ -1023,32 +998,103 @@ function parseChildResult(value: unknown): ChildResult {
   });
 }
 
-function parseWorkloadManifest(value: unknown): WorkloadManifest {
-  const input = record(value);
-  if (
-    input === undefined ||
-    typeof input.id !== "string" ||
-    input.fixedLizardVersion !== LIZARD_PYTHON_VERSION ||
-    !Array.isArray(input.productSourcePaths) ||
-    input.productSourcePaths.length === 0 ||
-    !input.productSourcePaths.every((path) => typeof path === "string") ||
-    !Array.isArray(input.analyzerSourcePaths) ||
-    input.analyzerSourcePaths.length === 0 ||
-    !input.analyzerSourcePaths.every((path) => typeof path === "string") ||
-    typeof input.analyzerBatchReplications !== "number" ||
-    !Number.isSafeInteger(input.analyzerBatchReplications) ||
-    input.analyzerBatchReplications < 1 ||
-    typeof input.sourceSha256 !== "string"
-  )
-    throw new Error("invalid fixed Lizard benchmark manifest");
+function parseCanonicalMetric(value: unknown, index: number): CanonicalMetric {
+  const metric = record(value);
+  if (metric === undefined) throw invalidMetric(index, "value", "an object");
+  const ccn = metric.ccn;
+  if (typeof ccn !== "number" && ccn !== null)
+    throw invalidMetric(index, "ccn", "a number or null");
   return Object.freeze({
-    analyzerBatchReplications: input.analyzerBatchReplications,
-    analyzerSourcePaths: Object.freeze([...input.analyzerSourcePaths]),
-    fixedLizardVersion: LIZARD_PYTHON_VERSION,
-    id: input.id,
-    productSourcePaths: Object.freeze([...input.productSourcePaths]),
-    sourceSha256: input.sourceSha256
+    ccn,
+    endLine: metricNumber(metric, "endLine", index),
+    file: metricString(metric, "file", index),
+    name: metricString(metric, "name", index),
+    nloc: metricNumber(metric, "nloc", index),
+    parameterCount: metricNumber(metric, "parameterCount", index),
+    startLine: metricNumber(metric, "startLine", index)
   });
+}
+
+function metricString(
+  metric: Readonly<Record<string, unknown>>,
+  field: "file" | "name",
+  index: number
+): string {
+  const value = metric[field];
+  if (typeof value !== "string") throw invalidMetric(index, field, "a string");
+  return value;
+}
+
+function metricNumber(
+  metric: Readonly<Record<string, unknown>>,
+  field: "endLine" | "nloc" | "parameterCount" | "startLine",
+  index: number
+): number {
+  const value = metric[field];
+  if (typeof value !== "number") throw invalidMetric(index, field, "a number");
+  return value;
+}
+
+function invalidMetric(index: number, field: string, requirement: string): Error {
+  return new Error(`benchmark target metrics[${index}].${field} must be ${requirement}`);
+}
+
+export function parseWorkloadManifest(value: unknown): WorkloadManifest {
+  const input = record(value);
+  if (input === undefined) throw invalidManifest("root", "an object");
+  if (input.fixedLizardVersion !== LIZARD_PYTHON_VERSION) {
+    throw invalidManifest("fixedLizardVersion", LIZARD_PYTHON_VERSION);
+  }
+  const analyzerBatchReplications = manifestPositiveSafeInteger(input, "analyzerBatchReplications");
+  const analyzerSourcePaths = manifestStringArray(input, "analyzerSourcePaths");
+  const productSourcePaths = manifestStringArray(input, "productSourcePaths");
+  return Object.freeze({
+    analyzerBatchReplications,
+    analyzerSourcePaths,
+    fixedLizardVersion: LIZARD_PYTHON_VERSION,
+    id: manifestString(input, "id"),
+    productSourcePaths,
+    sourceSha256: manifestString(input, "sourceSha256")
+  });
+}
+
+function manifestString(
+  manifest: Readonly<Record<string, unknown>>,
+  field: "id" | "sourceSha256"
+): string {
+  const value = manifest[field];
+  if (typeof value !== "string") throw invalidManifest(field, "a string");
+  return value;
+}
+
+function manifestStringArray(
+  manifest: Readonly<Record<string, unknown>>,
+  field: "analyzerSourcePaths" | "productSourcePaths"
+): readonly string[] {
+  const value = manifest[field];
+  if (
+    !Array.isArray(value) ||
+    value.length === 0 ||
+    !value.every((item) => typeof item === "string")
+  ) {
+    throw invalidManifest(field, "a non-empty string array");
+  }
+  return Object.freeze([...value]);
+}
+
+function manifestPositiveSafeInteger(
+  manifest: Readonly<Record<string, unknown>>,
+  field: "analyzerBatchReplications"
+): number {
+  const value = manifest[field];
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) {
+    throw invalidManifest(field, "a positive safe integer");
+  }
+  return value;
+}
+
+function invalidManifest(field: string, requirement: string): Error {
+  return new Error(`fixed Lizard benchmark manifest ${field} must be ${requirement}`);
 }
 
 if (import.meta.main) runComparison(parseArguments(process.argv.slice(2)));
