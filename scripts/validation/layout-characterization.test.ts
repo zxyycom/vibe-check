@@ -307,6 +307,31 @@ it("characterizes repository layout and dependency boundaries", () => {
       rmSync(root, { force: true, recursive: true });
     }
   }
+
+  const root = createTargetLayout();
+  try {
+    writeSource(
+      root,
+      "src/package-checks/function-metrics/analyzer-worker.ts",
+      ['import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";', "const = ;"].join(
+        "\n"
+      )
+    );
+    assert.throws(
+      () => validateRepositoryLayout({ repositoryRoot: root }),
+      (error: unknown) => {
+        assert.ok(error instanceof Error);
+        assert.match(
+          error.message,
+          /module-specifier-parse: src\/package-checks\/function-metrics\/analyzer-worker\.ts:/u
+        );
+        assert.doesNotMatch(error.message, /function-metrics-required-adapter-import:/u);
+        return true;
+      }
+    );
+  } finally {
+    rmSync(root, { force: true, recursive: true });
+  }
 });
 
 function createTargetLayout(): string {
