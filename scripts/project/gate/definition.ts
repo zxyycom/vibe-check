@@ -86,17 +86,9 @@ const projectGateTestChecks = createProjectGateTestCheckDefinitions({
 
 export type { ProjectGateRuntime } from "./checks/process-entry.ts";
 
-/** Creates this invocation's project-private ordinary Check entries. */
-export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly ProjectGateEntry[] {
-  const testLanes = resolveProjectGateTestLanes(repositoryRoot);
-  const preparedCandidate = createPreparedCandidateCheck(runtime.preparedCandidate);
-  const repositoryQuality = createProjectGateRepositoryQualityChecks();
-  const externalConsumer = createExternalConsumerMaterialCheck({
-    lease: runtime.externalConsumerLease,
-    preparedCandidateCheckId: preparedCandidate.checkId,
-    timeoutMs: packageAcceptanceTimeoutMs
-  });
-  return defineProjectGateEntries([
+/** Creates the ordinary typecheck, lint, and format entries of the required Gate assurance. */
+function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGateEntry[] {
+  return [
     createProjectGateProcessEntry({
       invocation: typecheckInvocation("product"),
       checkId: "typecheck-product",
@@ -143,7 +135,17 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       displayName: "Source format",
       presets: [],
       required: true
-    }),
+    })
+  ];
+}
+
+/** Combines invocation-local package preparation with all test-lane entries that consume it. */
+function createProjectGateCandidateAndTestEntries(
+  preparedCandidate: ReturnType<typeof createPreparedCandidateCheck>,
+  externalConsumer: ReturnType<typeof createExternalConsumerMaterialCheck>,
+  testLanes: ReturnType<typeof resolveProjectGateTestLanes>
+): readonly ProjectGateEntry[] {
+  return [
     createProjectGateCommonEntry({
       check: preparedCandidate,
       presets: [],
@@ -161,7 +163,15 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       lanes: testLanes,
       preparedCandidate,
       repositoryRoot
-    }),
+    })
+  ];
+}
+
+/** Creates direct repository-quality Checks while keeping their owner-provided definitions together. */
+function createProjectGateRepositoryQualityEntries(
+  repositoryQuality: ReturnType<typeof createProjectGateRepositoryQualityChecks>
+): readonly ProjectGateEntry[] {
+  return [
     createProjectGateCommonEntry({
       check: repositoryQuality.duplicateDetection,
       presets: ["quality"],
@@ -181,7 +191,13 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       check: repositoryQuality.markdownLinkValidation,
       presets: ["docs", "quality"],
       required: true
-    }),
+    })
+  ];
+}
+
+/** Creates native documentation validation and repository-governance entries. */
+function createProjectGateDocumentationAndGovernanceEntries(): readonly ProjectGateEntry[] {
+  return [
     createProjectGateCommonEntry({
       check: createDocsValidationCheck({
         checkId: "docs-json-validator",
@@ -234,7 +250,25 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
       check: createTestEvidenceRuleTestsCheck(),
       presets: ["test"],
       required: true
-    }),
+    })
+  ];
+}
+
+/** Creates this invocation's project-private ordinary Check entries. */
+export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly ProjectGateEntry[] {
+  const testLanes = resolveProjectGateTestLanes(repositoryRoot);
+  const preparedCandidate = createPreparedCandidateCheck(runtime.preparedCandidate);
+  const repositoryQuality = createProjectGateRepositoryQualityChecks();
+  const externalConsumer = createExternalConsumerMaterialCheck({
+    lease: runtime.externalConsumerLease,
+    preparedCandidateCheckId: preparedCandidate.checkId,
+    timeoutMs: packageAcceptanceTimeoutMs
+  });
+  return defineProjectGateEntries([
+    ...createProjectGateDevelopmentVerificationEntries(),
+    ...createProjectGateCandidateAndTestEntries(preparedCandidate, externalConsumer, testLanes),
+    ...createProjectGateRepositoryQualityEntries(repositoryQuality),
+    ...createProjectGateDocumentationAndGovernanceEntries(),
     createProjectGateProcessEntry({
       invocation: {
         args: ["diff", "--check"],
