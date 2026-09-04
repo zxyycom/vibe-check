@@ -1,6 +1,6 @@
 ---
 title: 使用显式 Run Controls Check aggregation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-21T15:02:45Z
 purpose: 让需要多 Check 结论的调用方通过显式 Run Controls 聚合 settled Check statuses，而不是运行已退休的通用评估器。

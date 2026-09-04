@@ -81,6 +81,7 @@ const CHECK_KEYS = [
   "preflight",
   "visibility"
 ] as const;
+const FLAG_ENABLEMENT_KEYS = ["flags", "mode", "propagateDependsOn"] as const;
 
 const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   definition: null,
@@ -264,10 +265,11 @@ function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | nu
   const control = snapshotClosedRecord(data.enabledByFlags);
   if (
     control === undefined ||
-    Object.keys(control).length !== 2 ||
+    !hasOnlyFlagEnablementKeys(control) ||
     !Object.hasOwn(control, "flags") ||
     !Object.hasOwn(control, "mode") ||
-    !isCheckFlagEnablementMode(control.mode)
+    !isCheckFlagEnablementMode(control.mode) ||
+    (Object.hasOwn(control, "propagateDependsOn") && control.propagateDependsOn !== true)
   ) {
     return undefined;
   }
@@ -276,7 +278,17 @@ function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | nu
   const [firstFlag, ...remainingFlags] = [...flags].sort();
   if (firstFlag === undefined) return undefined;
   const canonicalFlags: [string, ...string[]] = [firstFlag, ...remainingFlags];
-  return Object.freeze({ flags: Object.freeze(canonicalFlags), mode: control.mode });
+  return Object.freeze({
+    flags: Object.freeze(canonicalFlags),
+    mode: control.mode,
+    ...(control.propagateDependsOn === true ? { propagateDependsOn: true as const } : {})
+  });
+}
+
+function hasOnlyFlagEnablementKeys(control: Readonly<Record<string, unknown>>): boolean {
+  return Object.keys(control).every((key) =>
+    FLAG_ENABLEMENT_KEYS.some((allowed) => allowed === key)
+  );
 }
 
 function isCheckFlagEnablementMode(value: unknown): value is CheckFlagEnablementMode {

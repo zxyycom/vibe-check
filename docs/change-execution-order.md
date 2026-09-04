@@ -81,7 +81,7 @@ artifacts 与 Decision 状态审阅。该提交在既有 `main` 基线上按依�
 | 1B：Custom lifecycle 已交付 | [已归档的 `support-invocation-scoped-custom-admission-strategies`](../changes/archive/support-invocation-scoped-custom-admission-strategies/proposal.md) | 已交付并归档。现行 public simple/prepared lifecycle、terminal aggregate 与 consumer evidence 由 runtime、Architecture、API mechanics 及两个 active + aligned [authoring](decisions/adopt-invocation-scoped-custom-admission-strategy-authoring.md) / [output](decisions/extend-measurement-hook-output-to-prepared-complete.md) Decisions 承接；archive 只留形成时 provenance。 | 后续 Simulation/algorithm 若修改 project-definition、invocation、terminal delivery、RunResult output、Case 或 docs owner，默认按当前 stable contract 串行集成；Simulation 仍只独立、增量地提供 context object。 |
 | 1C：Admission simulation Plan 已归档 | [已归档的 `provide-admission-strategy-simulation`](../changes/archive/provide-admission-strategy-simulation/proposal.md) | standalone 与 callback 的 immutable `AdmissionGraph` / `AdmissionState` 已在同一 private compiled machine、pure core state/reducer 与 canonical effects 上完成实施/验证；归档 Plan 只保留形成时 provenance，稳定 public contract 由 runtime、Architecture、Configuration、API mechanics 和 active + aligned [Decision](decisions/provide-immutable-admission-graph-state.md)承接。 | 已交付 custom lifecycle 仍是 stable baseline；algorithm 可复用 private core/test harness，但不依赖 simulation public contract，也不与 archived Plan 混合实现。 |
 | 1D：Scheduler 算法 Plan | [`optimize-learned-admission-strategy`](../changes/optimize-learned-admission-strategy/proposal.md) | 已收敛为 strict baseline 与唯一 same-layer admissible-first 候选的可证伪比较；当前 seam 已可作为稳定基线。当前按自身 Readiness 冻结 corpus、prediction provenance、A/B data contract 与门槛；未满足本 Change 的 evidence gates 与单独授权前不得切换生产策略 | 固定 duration prediction 输入，不与 model/statistics 优化混跑；scope unsafe-backfill witness 一旦出现 protected-delay 退化即 not-adopt；可共享 private kernel/test harness，但不得依赖 1C 的 public contract |
-| 1E：规划 | [`provide-invocation-path-context`](../changes/provide-invocation-path-context/proposal.md) | 闭合只读 output facts 与 writable workspace/state owner，推进到 Plan | 可与 1A–1D 并行规划；不要同时修改 invocation runtime |
+| 1E：Invocation path 已交付 | [已归档的 `provide-invocation-path-context`](../changes/archive/provide-invocation-path-context/proposal.md) | invocation path context、owner-scoped Gate evidence 与相关 output contract 已交付并归档；稳定契约由当前 runtime、output owner 与 aligned Decisions 承接。 | 后续统一路径或新增 writable consumer 时建立独立 Change；不得从 archive 恢复实施授权。 |
 | 1F：Markdown 缓存已交付 | [已归档的 `cache-markdown-link-safe-facts`](../changes/archive/cache-markdown-link-safe-facts/proposal.md) | 显式 parse-facts cache、严格串行语义、单文件 JSONL packing 与性能证据均已交付并归档 | 后续缓存演进建立独立 Change，不从 archive 恢复实施授权 |
 | 1G：Lizard analyzer 已交付 | [已归档的 `replace-lizard-with-typescript-function-analyzers`](../changes/archive/replace-lizard-with-typescript-function-analyzers/proposal.md) | source-aligned hard cut、1.24.0 同步、私有 port、性能证据、reader fast path 与 selected extensions 均已交付并归档 | 后续 upstream 同步、性能优化或 extension adoption 各自建立独立 Change |
 
@@ -143,8 +143,8 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 
 ### Invocation path、Markdown cache 与 Node 轨道
 
-- `provide-invocation-path-context` 在 Plan 前必须区分只读 Product-owned output facts、per-invocation writable workspace 与
-  cross-run state。没有真实 writable consumer 时，不预置通用 path map、workspace 或 state registry。
+- [已归档的 `provide-invocation-path-context`](../changes/archive/provide-invocation-path-context/proposal.md) 已交付只读
+  invocation path facts 与 owner-scoped Gate evidence；它没有预置通用 writable path map、workspace 或 cross-run state registry。
 - [已归档的 `cache-markdown-link-safe-facts`](../changes/archive/cache-markdown-link-safe-facts/proposal.md) 已交付显式
   parse-facts cache；machine/diagnostic output path 没有因此成为 cache directory，项目也没有建立通用 cross-run state owner。
 - `adopt-node-execution-backend` 横跨 repository scripts、Test Evidence、package/candidate、Gate、lockfile、性能和 Windows

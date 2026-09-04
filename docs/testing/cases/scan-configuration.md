@@ -26,11 +26,12 @@ Owner: `docs/configuration.md#flag-enabled-checks`
 Entities:
 
 - `bun|src/project-definition/project-definition.flag-enablement.test.ts|Project Definition > normalizes executable flag enablement as declarative identity`
+- `bun|src/project-definition/project-definition.flag-enablement.test.ts|Project Definition > normalizes opt-in dependency propagation as declarative identity`
 - `bun|src/project-definition/project-definition.flag-enablement.test.ts|Project Definition > rejects malformed and container flag enablement`
   Proves:
 
-- An executable Check's non-empty `enabledByFlags` set is copied, de-duplicated, sorted and frozen with its closed mode. Equivalent declarations share a fingerprint, while changing the mode changes declarative identity.
-- Empty or malformed flag sets, unknown modes or control fields, container declarations and the retired singular field fail Definition validation.
+- An executable Check's non-empty `enabledByFlags` set is copied, de-duplicated, sorted and frozen with its closed mode. Equivalent declarations share a fingerprint; mode or the literal opt-in `propagateDependsOn: true` changes declarative identity, while omission preserves direct-selection compatibility.
+- Empty or malformed flag sets, unknown modes or control fields, non-literal propagation values, container declarations and the retired singular field fail Definition validation.
 
 ## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preflight
 
@@ -138,12 +139,13 @@ Entities:
 - `bun|src/project-run/check-execution/preflight-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
+- `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > reuses effective flag selection for explicit aggregation`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
   Proves:
 - Completed, output failure, and execution-phase-cancelled final-snapshot `RunResult` values expose only accepted detached `{ checkId, level, code, message }` items. Invalid attachments and author results rejected by Record settlement expose no partial messages.
 - `checkMessages` preserves author order within each Check and canonical snapshot Check order across parallel settlement; disabling progress or a settled progress writer failure does not remove it.
 - Task-local preflight receives the invocation signal only after admission; cooperative cancellation closes the existing execution phase as `cancelled` without admitting pending author work.
-- A real Run preserves attention-Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor visibility.
+- A real Run preserves attention-Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor visibility. The explicit `effective` selector reuses the invocation's private flag selection, including activated prerequisites, without projecting that selection into the result.
 
 ## Case ADD-SECRET-DETECTION-AUTHORING-001: Secret detection requires an explicit closed files policy
 

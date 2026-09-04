@@ -1,6 +1,6 @@
 ---
 title: 在 progress 中按名称分组未命中 flag 的 Checks
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T15:57:07Z
 purpose: 保留终态消息和 visibility 的同时，集中呈现因 flag 条件未匹配而未启动的 Checks。

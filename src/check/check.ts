@@ -62,6 +62,11 @@ export interface CheckFlagEnablement {
   readonly flags: readonly [string, ...string[]];
   /** 对声明 token 与本次 Run flags 执行的 presence predicate。 */
   readonly mode: CheckFlagEnablementMode;
+  /**
+   * 条件命中时是否启动本 Check 的传递 `dependsOn` prerequisite；省略时保持只选择直接命中 Check 的兼容行为。
+   * `observes` 不参与此选择，且 dependency 自己的 flag 条件不会阻止本次已启动的 prerequisite。
+   */
+  readonly propagateDependsOn?: true;
 }
 
 /**

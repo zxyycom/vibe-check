@@ -15,7 +15,7 @@
     declarative snapshot + fingerprint + complete static graph validation
       │ if not cancelled before execution: private effective strategy prepares once
       │   (duration prediction + frozen selection policy when learned)
-      │ invocation control barrier: cancellation + normalized flag conditions
+      │ invocation control barrier: cancellation + one private effective flag selection
       ▼
     initial control settlements + complete static Task graph
       │ Scheduler applies direct relations, mutex and parallel scheduling
@@ -31,7 +31,7 @@
       ▼
     RunResult
 
-Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，再处理 invocation cancellation precedence，并按 Definition 顺序完成 invocation flag control。flag 条件不匹配的 Check 先结算为 `not-applicable / flag-condition-not-matched`，并作为同一张 Scheduler graph 的 pre-admission non-passed Task result；它不会再次 admission，其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。其余 Check 被 Scheduler admission 后在自己的 task 中执行 preflight，随后才执行 author callback；没有互相约束的 preflight 可以并行。Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
+Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，再处理 invocation cancellation precedence。graph 有效时，flag control 从同一次 private effective selection 结算：direct selection 包含无 flag Check 与 predicate-matching flag Check；只有 matching root author 以 literal `propagateDependsOn: true` opt-in 时，才额外加入其 normalized `dependsOn` 传递闭包，省略字段仍保持 direct-selection compatibility。closure 不访问 `observes`，并覆盖 dependency 自身 predicate miss；因此 dependency-activated Check 不会结算为 flag disabled。effective selection 外的 predicate miss 才先结算为 `not-applicable / flag-condition-not-matched`，并作为同一张 Scheduler graph 的 pre-admission non-passed Task result；它不会再次 admission，其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。其余 Check 被 Scheduler admission 后在自己的 task 中执行 preflight，随后才执行 author callback；没有互相约束的 preflight 可以并行。Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。flags 只是 selection input，不是权限或环境准入；hard condition 仍由 Check-owned preflight/execution 结算。
 
 这里的 private strategy lifecycle 不能扩大 public authoring contract：Invocation 在 graph ready 后对 effective strategy 调用一次
 `prepare`，Scheduler 只接收其完整 frozen policy 并同步 `decide` 零次或多次；Scheduler 停止 admission、drain、seal terminal
@@ -401,9 +401,9 @@ upstream facts.
 - `progressLogFile` 是可选、invocation-only 的 terminal-progress tee target，使用同一非空且无 U+0000 target grammar；它不会改变 Definition outputs、Definition fingerprint 或 Check callback capability。
 - `signal` 供 preflight 与 execution 协作取消；取消结果记录对应 phase。
 - `outputs` 覆盖本次 diagnostic logging、machine publication 或 progress rendering。
-- `checkAggregation` 选择 `checks`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。
+- `checkAggregation` 显式选择 `checks: "all"`、Check-ID list 或 `"effective"`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。`"effective"` 只复用本次 private flag-and-dependency selection；`"all"` 和 ID list 不模拟或修改它。
 
-aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整 terminal facts 结算后产生 `passed`、`failed`、`not-applicable` 或 `unavailable`；未配置 policy 时 `aggregate` 为 `null`。consumer 需要调用级结论时显式选择 policy，同时保留每项 Check outcome。
+aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整 terminal facts 结算后产生 `passed`、`failed`、`not-applicable` 或 `unavailable`；未配置 policy 时 `aggregate` 为 `null`。`"effective"` 的 empty selection 仍由 caller `empty` policy 结算，且不会把 private selection projection 到 `RunResult`、machine、diagnostic 或 callback。consumer 需要调用级结论时显式选择 policy，同时保留每项 Check outcome。
 
 Check-specific invocation facts 由 owning Check 的 options 或 producing Check 的 final data 承载。多个 Checks 共享且必须成功的事实时，producer 负责 acquisition policy 与 data shape，下游通过 direct `dependsOn` 读取；需要处理任意 settled outcome 的 policy 则使用 `observes`。上面的 typed dependency 示例聚焦前者 data handoff。
 

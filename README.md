@@ -177,7 +177,7 @@ grammar 见上表链接到的 Check 指南。通用 grammar 与带 getter 等 ho
 | `checkId` | 在同一 Definition 中唯一的稳定标识；用于查找 outcome、Record、message 和 duration。 |
 | `displayName` | 进度和人读结果中显示的名称。 |
 | `execution(context)` | 执行检查并返回一个 terminal outcome。省略时，当前节点只用于组织子 `checks`。 |
-| `enabledByFlags` | 可选的 `{ flags, mode }`；条件不匹配时在任何 owning preflight / execution 前结算为 `not-applicable`，并作为未满足的 prerequisite 参与同一张图。 |
+| `enabledByFlags` | 可选的 `{ flags, mode, propagateDependsOn?: true }`；条件不匹配时在任何 owning preflight / execution 前结算为 `not-applicable`。匹配 root 只有显式写出 literal `true` 时才启动其传递 `dependsOn` prerequisite；`observes` 不会被选择。 |
 | `dependsOn` | 必须先结算为 `passed` 的 direct prerequisite IDs；任一非 `passed` 都阻止本 Check 的 preflight 和 execution。可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
 | `observes` | 所列每个 direct Check 都只需先各自形成任意 terminal outcome 的 IDs；用于审计、汇总或基于 outcome 形成本 Check 的 policy，不把上游非 `passed` 当作本 Check 的 prerequisite；同样可用 `inherit({ add, remove })` 显式编辑继承值。 |
 | `admissionPriority` | 同一既有 ready 准入层级中的静态相对优先级；必须是安全整数，省略后继承最近的容器值，最终为 `0`。它是完整 Task graph 上的 metadata，不改变 Check tree 的声明顺序，也不越过依赖、mutex、并行上限或 cancellation/lifecycle hard guard。 |
@@ -186,7 +186,9 @@ grammar 见上表链接到的 Check 指南。通用 grammar 与带 getter 等 ho
 
 `execution` 可以同步返回，也可以返回 `Promise`。它通过 `context` 读取当前 options、project root、flags、两类 relation 授权的 direct outcome、取消 signal，并可用 `records.report(...)` 保存不决定终态的补充事实。
 
-`enabledByFlags.flags` 必须是非空 token 集合；`mode` 可以是 `all`、`any`、`none` 或 `not-all`。其中 `any` 表示至少一个声明 token 存在，不是“恰好一个”；`not-all` 表示至少一个声明 token 不存在。需要带值 flag、“恰好一个”或嵌套布尔条件时，Check 继续在 callback 中解释 `context.project.flags`。条件不匹配的 Check 保留 `not-applicable / flag-condition-not-matched` 事实；以它为 `dependsOn` 的 Check 会因 prerequisite 未通过而不启动，以它为 `observes` 的 Check 仍可读取该终态。深入执行顺序与 settlement 见 [API 机制](docs/api-mechanics.md#一次-run-的生命周期)。
+`enabledByFlags.flags` 必须是非空 token 集合；`mode` 可以是 `all`、`any`、`none` 或 `not-all`。其中 `any` 表示至少一个声明 token 存在，不是“恰好一个”；`not-all` 表示至少一个声明 token 不存在。需要带值 flag、“恰好一个”或嵌套布尔条件时，Check 继续在 callback 中解释 `context.project.flags`。
+
+省略 `propagateDependsOn` 保持只选择 direct match 的兼容行为；它不是可填写 `false` 的开关。匹配且 opt-in 的 root 会把其完整传递 `dependsOn` 闭包加入本次私有选择，因此其中 dependency 即使自己的 flag predicate 未命中，也照常走普通 Scheduler、preflight 和 execution。未在该选择中的 flag Check 才保留 `not-applicable / flag-condition-not-matched`；以它为 `dependsOn` 的 Check 会因 prerequisite 未通过而不启动，以它为 `observes` 的 Check 仍可读取该终态。flags 只决定本次选择，不是权限或环境准入；硬条件仍应在 Check-owned preflight 或 execution 结算。完整 invocation lifecycle、aggregation 和输出边界见 [API 机制](docs/api-mechanics.md#一次-run-的生命周期)。
 
 默认 progress 会把因 flag 条件未匹配而没有启动的 Checks 合成一个原因说明块，并在下面列出各自的
 `displayName`；完整 Check facts、最终计数和 machine output 不会被压缩或删除。完整分组条件与其它未启动状态的
@@ -513,6 +515,8 @@ learned policy 先在同一 existing Scheduler selection layer 内比较 critica
 `checkArtifactBaseDirectory`、`progressLogFile` 和仅对本次运行生效的 `outputs` overrides。`progressLogFile` 是本次 Run 的可选 transcript target，仍会保留终端呈现。需要让某个 Check 写 invocation-local artifact 时，
 调用方显式设置 base；callback 只会得到自己的 absolute `artifactDirectory`（未设置时为 `null`），不会得到 sibling Check、
 machine、diagnostic 或跨 Run state 的路径。
+
+需要 invocation-level conclusion 时，调用方还显式配置 `checkAggregation`：`checks: "all"` 聚合所有 Check，Check-ID list 聚合指定成员，`checks: "effective"` 则复用这次 flags 与 opt-in `dependsOn` 已形成的私有选择。`effective` 不公开 Check-ID list，也不改变未配置 aggregation 时 `aggregate: null` 的默认值；完整 policy 和空集合语义见 [API 机制](docs/api-mechanics.md#runcontrols-与-check-aggregation)。
 
 读取结果时分两层判断：
 

@@ -1,6 +1,6 @@
 ---
 title: 将 flag control 终态作为 Scheduler 准入前结果
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T03:33:46Z
 purpose: 保留统一 flag 判定的同时，让未启用 Check 遵守 passed prerequisite 与 terminal observation 语义。

@@ -10,15 +10,19 @@ function check(
   input: Readonly<{
     readonly checkId: string;
     readonly displayName?: string;
+    readonly dependsOn?: Check["dependsOn"];
     readonly enabledByFlags?: Check["enabledByFlags"];
     readonly execution: Check["execution"];
+    readonly observes?: Check["observes"];
   }>
 ): Check {
   return {
     checkId: input.checkId,
     displayName: input.displayName ?? input.checkId,
+    ...(input.dependsOn === undefined ? {} : { dependsOn: input.dependsOn }),
     ...(input.enabledByFlags === undefined ? {} : { enabledByFlags: input.enabledByFlags }),
-    execution: input.execution
+    execution: input.execution,
+    ...(input.observes === undefined ? {} : { observes: input.observes })
   };
 }
 
@@ -137,6 +141,65 @@ describe("Package Run progress terminal statuses", () => {
     assert.match(output.writes[2] ?? "", /^ {2}\[3\/3] Always on \| passed \| \d+(?:\.\d+)?ms\n$/);
     assert.equal(output.writes.join("").includes("flag-condition-not-matched"), false);
     assert.equal(output.writes.at(-1)?.includes("not applicable: 2"), true);
+  });
+
+  it("groups only flag-disabled Checks outside an activated dependency closure", async () => {
+    const output = capturedProgressWriter();
+    let deferredCalls = 0;
+    let providerCalls = 0;
+    let rootCalls = 0;
+    const result = await executeValidatedRun(
+      progressDefinition([
+        check({
+          checkId: "provider",
+          displayName: "Provider",
+          enabledByFlags: { flags: ["provider"], mode: "all" },
+          execution: () => {
+            providerCalls += 1;
+            return { status: "passed", data: {} };
+          }
+        }),
+        check({
+          checkId: "root",
+          displayName: "Root",
+          dependsOn: ["provider"],
+          enabledByFlags: { flags: ["root"], mode: "all", propagateDependsOn: true },
+          execution: () => {
+            rootCalls += 1;
+            return { status: "passed", data: {} };
+          }
+        }),
+        check({
+          checkId: "deferred",
+          displayName: "Deferred",
+          enabledByFlags: { flags: ["deferred"], mode: "all" },
+          execution: () => {
+            deferredCalls += 1;
+            return { status: "passed", data: {} };
+          }
+        })
+      ]),
+      { flags: ["root"] },
+      [],
+      { progressWriterFactory: () => output.writer }
+    );
+
+    assert.equal(result.kind, "completed");
+    assert.deepEqual(
+      { deferredCalls, providerCalls, rootCalls },
+      {
+        deferredCalls: 0,
+        providerCalls: 1,
+        rootCalls: 1
+      }
+    );
+    assert.equal(
+      output.writes[1],
+      "  The following check did not run because the run flags did not match its condition:\n" +
+        "    - Deferred\n"
+    );
+    assert.equal(output.writes.join("").includes("    - Provider\n"), false);
+    assert.equal(output.writes.join("").includes("    - Root\n"), false);
   });
 
   it("renders a duration-bearing row for an executed not-applicable Check without a reason", async () => {

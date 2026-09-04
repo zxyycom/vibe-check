@@ -310,7 +310,9 @@ function finalizeCompletedExecution(
   executed: Extract<ResolvedCheckExecution, { readonly kind: "completed" }>
 ): NonConfigurationRunResult {
   const aggregate =
-    aggregation === undefined ? null : aggregateCheckOutcomes(executed.snapshot, aggregation);
+    aggregation === undefined
+      ? null
+      : aggregateCheckOutcomes(executed.snapshot, aggregation, executed.effectiveCheckIds);
   invocation.diagnosticLogging.core.observe({
     event: "run.aggregation.completed",
     tags: diagnosticTags("RUN", "AGGREGATION", "COMPLETED"),

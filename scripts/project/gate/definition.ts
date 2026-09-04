@@ -16,11 +16,7 @@ import { observeProjectGatePerformance } from "./runtime/performance-observation
 import { createDecisionRecordsCheck } from "./checks/decision-records.ts";
 import { createDocsValidationCheck } from "./checks/docs-validation.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
-import {
-  projectGateEligibleCheckIds,
-  projectGateFlagControlledCheck
-} from "./runtime/eligibility.ts";
-import type { ProjectGateSelection } from "./runtime/controls.ts";
+import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
 import { PROJECT_GATE_SELECTION } from "./runtime/catalog.ts";
 import { createExternalConsumerMaterialCheck } from "./checks/external-consumer-material.ts";
 import {
@@ -276,13 +272,10 @@ export function projectGateInvocationOutputControls(
   });
 }
 
-/** Binds the exact selected Check IDs to the central aggregation policy. */
-export function projectGateAggregation(
-  entries: readonly ProjectGateEntry[],
-  selection: ProjectGateSelection
-): CheckAggregation {
+/** Binds aggregation to Product's private flag-and-dependency effective selection. */
+export function projectGateAggregation(): CheckAggregation {
   return Object.freeze({
-    checks: projectGateEligibleCheckIds(entries, selection),
+    checks: "effective",
     ...PROJECT_GATE_RUN_CONFIG.aggregation
   });
 }

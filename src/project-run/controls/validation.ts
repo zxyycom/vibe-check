@@ -113,7 +113,10 @@ function parseOptionalCheckAggregation(
   if (value === undefined) return Object.freeze({ ok: true, value: undefined });
   const data = exactKeys(value, ["checks", "mode", "unavailable", "notApplicable", "empty"]);
   if (data === undefined) return invalidControls("controls.checkAggregation");
-  const checks = data.checks === "all" ? "all" : parseClosedCheckIds(data.checks);
+  const checks =
+    data.checks === "all" || data.checks === "effective"
+      ? data.checks
+      : parseClosedCheckIds(data.checks);
   if (checks === undefined) return invalidControls("controls.checkAggregation.checks");
   const mode = parseLiteral(data.mode, CHECK_AGGREGATION_MODES);
   const unavailable = parseLiteral(data.unavailable, UNAVAILABLE_HANDLING);

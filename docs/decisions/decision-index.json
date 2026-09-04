@@ -52,6 +52,7 @@
       "defer-lizard-until-after-check-foundations.md": "sha256:4b78a6c3f073be364693ddf3e6ee693fa8209ea23796c1ba76722f67420c3d88",
       "defer-lizard-until-after-semantic-config-workflow.md": "sha256:5a0efe27f476e35503eea0bf9d049041425b410a823ae802b4036af044098937",
       "define-offline-markdown-link-target-boundaries.md": "sha256:21ff530e25fd85d40bc930ed36fb8ef3d8194c22682e0373b6f3801a0bd6e9dc",
+      "delegate-project-gate-selection-to-product-effective-selection.md": "sha256:60dce64320225a3a1f5a47ad5a0f684c59581da00954e243db224b54b9343647",
       "distinguish-primary-and-derived-change-problem-sets.md": "sha256:09e34fb1de5af9032f8163470fba2928f5c10e46a3bc867691c7345e323190d9",
       "distinguish-primary-and-derived-change-problems.md": "sha256:7e4118245432930509d1da63e9b7d4f40a713bab8001d2082e77e05c2db45f02",
       "drive-product-execution-from-project-definition.md": "sha256:c329de0b8dfba2523e277c3b15d92fbf70905bf6a807bee78ba6e8590e0fb29f",
@@ -86,7 +87,7 @@
       "expose-two-public-operations.md": "sha256:ed280c8d33900d2e0dcce71a9f83a5789d5763284539940d36e3f528da9e3240",
       "extend-invocation-local-scheduler-performance-summary.md": "sha256:9bfbd9e6da004b67fb79e0c8ef85f067e978eb782432deea944570817a0e1a49",
       "extend-measurement-hook-output-to-prepared-complete.md": "sha256:d0eab54f22897ec1fa25076afafc493bd7391e79145ce4e22c45141e3a2e0c52",
-      "group-flag-disabled-checks-in-progress.md": "sha256:dbd74b6a814ab87e204de01e948970a5284a6021e44cf35ee95f5f7dd967f458",
+      "group-flag-disabled-checks-in-progress.md": "sha256:7444753372a7ce2e6069296e64ce64856fd0227d17194ca52f4ac286530c1e59",
       "hard-cut-legacy-tool-shaped-config.md": "sha256:942a78d7b3214d01642386226f56a5eba07ce6bd4034d377b7e6345860b9640d",
       "hard-cut-prestable-machine-contracts.md": "sha256:9ef5064ca3a4f136a476423e2995748e4302af8d7d2fafef6257b46d68340675",
       "inherit-depends-on-and-observes-independently.md": "sha256:f85e8742852f19ebdedd81f83fadced8f22d4d75fb0677df02b87787dbcd7613",
@@ -220,13 +221,14 @@
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
       "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
       "track-lizard-supported-languages-with-upstream-advisory.md": "sha256:17ce134e21a7bc17c17bb9e57f81edb0faf027f72a198acb1459410d9d16d0c9",
-      "treat-flag-control-settlements-as-scheduler-results.md": "sha256:82c224445e6f3669831841c61391a70ff407cab3caa3b57b6c6c61c969e1a920",
+      "treat-flag-control-settlements-as-scheduler-results.md": "sha256:6428b3e7df656ed7b5f04e23bbc67e44edbe98d88f207a945389dfa64d3798cc",
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:e2ded43206717fe2d7d5e73061b8693a0319e1cba35d8d58f118371f1365a13f",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-run-output-directories-as-explicit-trusted-targets.md": "sha256:8f01b9f9b6d5d19a93c6efdc9ebb919a063a3ae781da09b8d1880c1e726772bf",
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:d2651f0a630694e8828b67b88c87e57a34e6701cf3ada276e2b16d8ddeeee38a",
       "unify-default-summary-with-terminal-measurement-hooks.md": "sha256:a0ea65a0722d0bf5b7d69e3c6c47a13df15061173ec6fbbb6c13821194f766b4",
+      "unify-effective-flag-selection-and-aggregation.md": "sha256:5186c7222b430583dce1c7743d69de891bb4d1e6d000b75e956240de660a4e2d",
       "use-a-verified-fast-path-for-lizard-reader-resolution.md": "sha256:b4dbea919fa19d15780db4302fc20b3f76cf40b30db21a0dc612f5a63e323c5b",
       "use-bun-typescript-project-definition.md": "sha256:a4d6b9cdc62e8981cf6f90db1f7d86b5d93b998e6e25f30ca4ad189273cd058e",
       "use-check-owned-extractors-for-opaque-record-identities.md": "sha256:a9bbb2fd123e914ce0b7f720799e9ad8cdfc1aabc2c3d47354cd32f799b92509",
@@ -246,7 +248,7 @@
       "use-declarative-quality-decision-policies.md": "sha256:8063191a71dd89e11f819a5d2037528564d0ac7a4f543a962d7bea192671484e",
       "use-direct-check-execution-with-minimal-record-reporting.md": "sha256:d2422022aac04091ae19527c0958ccad077183d7b7b04a6685d8c5771c64a4d0",
       "use-direct-check-execution-with-structured-results.md": "sha256:b05a8b212a7d8666757f91793a8c1b38acb1c24e27d74091b50eb27f2123d473",
-      "use-explicit-run-controls-check-aggregation.md": "sha256:9879a5df5a7af07350a36f1440dcb6e02642e460bb5f61d1ffdbf1687395b2f0",
+      "use-explicit-run-controls-check-aggregation.md": "sha256:326ebaeba7dadd70926cbf8015611343a8404286187267223ec67a0683686e68",
       "use-field-aware-built-in-check-adjustments.md": "sha256:1401b9dadcf56784af186d9325b3bc54e4972ede462fbd4d7b544c9985ebcee7",
       "use-file-policy-overrides.md": "sha256:2d5cad4cd0151f70825737714b08f91395302fc5bd3984f819949d7872447db8",
       "use-fixed-semantic-config-v2.md": "sha256:e0e1759326703e63e134b4d4577b31fe47a553cb4cf8633f5d823276a324efbe",
@@ -264,7 +266,7 @@
       "use-neutral-observation-and-project-definition-gates.md": "sha256:d93bc71047c86e7c78480e27b55ba9c87b3fbd8aa4d0c6a991c43dc79cb00e38",
       "use-one-check-shape-with-recursive-composition.md": "sha256:d74a6b3e4cc9fd00c84cda7033944b57c2ab112f113e5c6748124e452b15b921",
       "use-programmatic-api-as-product-entry.md": "sha256:4dc2aae0ceb39268f7245df1c0d7312ef34826152af34b978879586982e83d8c",
-      "use-project-check-command-with-focused-gate-presets.md": "sha256:efd61156107ea395c96ac10661a8c5199481d82865527bf49a939f7d36c41486",
+      "use-project-check-command-with-focused-gate-presets.md": "sha256:695883425103feabda2def81d99d506282f0dabf09322878d4f35f2f6ecee1f2",
       "use-project-decision-records.md": "sha256:4e4a395ce2b91ce47bfbce284f5f8c8de749c2028fcb8ecaa83c09d312b2799e",
       "use-recursive-check-values-with-optional-execution.md": "sha256:0c602e74ab18fc111c681057bf146069f4b3049402d6ada6edf00caa9df3b473",
       "use-runtime-resolved-check-and-record-core.md": "sha256:b847d6f9fb1b4122e2b5d0671acf9ae37fab63b9081ce872fe0676920c38265f",
@@ -1801,6 +1803,40 @@
         "relations": []
       }
     },
+    "delegate-project-gate-selection-to-product-effective-selection.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "delegate-project-gate-selection-to-product-effective-selection.md",
+        "title": "让 Project Gate 委托 Product 处理依赖选择",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T09:21:35Z",
+        "purpose": "让 Gate 的 preset 只表达 direct intent，并由 Product 统一补齐已 opt-in 的 dependsOn prerequisite。",
+        "background": "Gate 曾为每个 preset 手工维护依赖闭包和 aggregate IDs，现已具备同源 Product effective selection。",
+        "decision": "Gate 继续拥有命令、preset 与 observes 可读性，但用 authoring propagation 和 effective aggregation 委托 dependsOn 选择。",
+        "tags": [
+          "configuration",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "use-project-check-command-with-focused-gate-presets.md"
+          }
+        ]
+      }
+    },
     "distinguish-primary-and-derived-change-problem-sets.md": {
       "keys": {
         "tag": [
@@ -2874,16 +2910,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "group-flag-disabled-checks-in-progress.md",
+        "sourcePath": "archive/group-flag-disabled-checks-in-progress.md",
         "title": "在 progress 中按名称分组未命中 flag 的 Checks",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-01T15:57:07Z",
         "purpose": "保留终态消息和 visibility 的同时，集中呈现因 flag 条件未匹配而未启动的 Checks。",
@@ -7188,16 +7224,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "treat-flag-control-settlements-as-scheduler-results.md",
+        "sourcePath": "archive/treat-flag-control-settlements-as-scheduler-results.md",
         "title": "将 flag control 终态作为 Scheduler 准入前结果",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-02T03:33:46Z",
         "purpose": "保留统一 flag 判定的同时，让未启用 Check 遵守 passed prerequisite 与 terminal observation 语义。",
@@ -7394,6 +7430,52 @@
           {
             "type": "修订",
             "target": "expose-invocation-local-scheduler-measurement-hooks.md"
+          }
+        ]
+      }
+    },
+    "unify-effective-flag-selection-and-aggregation.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "unify-effective-flag-selection-and-aggregation.md",
+        "title": "统一 flag 有效选择、依赖启动与 aggregation",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-04T08:38:14Z",
+        "purpose": "让 flag 选择可按 Check authoring 启动其 dependsOn 闭包，并让 aggregation 复用同一有效选择。",
+        "background": "现有 flag control 独立结算未匹配 Check，调用方须重复维护依赖闭包和 aggregate IDs。",
+        "decision": "enabledByFlags 的显式 opt-in 形成一次私有有效选择；它只传播 dependsOn，并由显式 aggregation selector 同源消费。",
+        "tags": [
+          "configuration",
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "归并",
+            "target": "treat-flag-control-settlements-as-scheduler-results.md"
+          },
+          {
+            "type": "归并",
+            "target": "use-explicit-run-controls-check-aggregation.md"
+          },
+          {
+            "type": "归并",
+            "target": "group-flag-disabled-checks-in-progress.md"
           }
         ]
       }
@@ -7994,16 +8076,16 @@
           "configuration"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-explicit-run-controls-check-aggregation.md",
+        "sourcePath": "archive/use-explicit-run-controls-check-aggregation.md",
         "title": "使用显式 Run Controls Check aggregation",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-21T15:02:45Z",
         "purpose": "让需要多 Check 结论的调用方通过显式 Run Controls 聚合 settled Check statuses，而不是运行已退休的通用评估器。",
@@ -8512,16 +8594,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "use-project-check-command-with-focused-gate-presets.md",
+        "sourcePath": "archive/use-project-check-command-with-focused-gate-presets.md",
         "title": "用 check 命令和闭合 preset 运行 Project Gate",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-04T04:36:20Z",
         "purpose": "让日常 Gate 通过短命令和少量高频 preset 形成可读、可组合且依赖闭合的项目选择。",

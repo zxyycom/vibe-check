@@ -76,15 +76,18 @@ Check-specific 字段或状态。
 ## Explicit aggregation and repository Gate mapping
 
 multi-Check aggregation 是一次 invocation 的 derived result，不是 Check-facts status、evidence container 或隐式 quality policy。
-调用方通过 `RunControls.checkAggregation` 显式选择 Check IDs、`all | any` mode，以及 unavailable、not-applicable 和 empty-set
-handling；selection 在 work 前验证。未配置时 `RunResultFacts.aggregate` 为 `null`。
+调用方通过 `RunControls.checkAggregation` 显式选择 `checks: "all"`、Check-ID list 或 `checks: "effective"`，再选择
+`all | any` mode，以及 unavailable、not-applicable 和 empty-set handling；selection 在 work 前验证。`"effective"` 只读取同一次 private
+flag-and-`dependsOn` selection，包含 dependency-activated prerequisite；它不是默认值、public Check-ID list 或第二套 resolver。
+未配置时 `RunResultFacts.aggregate` 为 `null`。
 
 aggregation 只读取 selected settled Check statuses 并返回 `passed | failed | not-applicable | unavailable`。它不复制或解释
 final data、Records、messages、definition warnings、output statuses 或 progress presentation；这些原始 facts 不因 aggregate
 存在而隐藏或改写。
 
-repository Gate 负责在自己的 Project Definition/Run adapter 中绑定 eligibility selection 和 aggregation，并从最终
-`RunResult.aggregate` 映射 process result。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写
+repository Gate 负责在自己的 Project Definition/Run adapter 中绑定 flags 和显式 `checks: "effective"` aggregation，并从最终
+`RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate
+只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写
 Product Check outcomes。当前 required/preset/all selection、`afterGate` hook、transcript 与 exit mapping 只见
 [脚本工具的 Project Gate](script-tooling.md#project-gate)。
 

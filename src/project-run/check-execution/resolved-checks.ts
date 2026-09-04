@@ -33,7 +33,11 @@ import {
 } from "./execution-finalization.ts";
 import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 import { planStaticCheckGraph } from "./plan.ts";
-import { resolveFlagControlSettlements, type FlagControlSettlement } from "./flag-controls.ts";
+import {
+  selectEffectiveCheckIds,
+  resolveFlagControlSettlements,
+  type FlagControlSettlement
+} from "./flag-controls.ts";
 import {
   prepareCheck,
   type CheckPreflightResolution,
@@ -59,7 +63,12 @@ type ResolvedCheckExecutionFacts = Readonly<{
 }>;
 
 export type ResolvedCheckExecution =
-  | (Readonly<{ readonly kind: "completed" }> & ResolvedCheckExecutionFacts)
+  | (Readonly<{
+      readonly kind: "completed";
+      /** Private effective selection shared with invocation-level aggregation. */
+      readonly effectiveCheckIds: readonly string[];
+    }> &
+      ResolvedCheckExecutionFacts)
   | (Readonly<{ readonly kind: "cancelled" }> & ResolvedCheckExecutionFacts)
   | (Readonly<{ readonly kind: "admission-policy-failed" }> & ResolvedCheckExecutionFacts);
 
@@ -111,11 +120,13 @@ export async function executeResolvedChecks(
   input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
   prepareTaskGraph(planStaticCheckGraph(input.checks), input.maxParallel);
-  return runWithCheckConsoleRouter(() => executePreparedResolvedChecks(input));
+  const effectiveCheckIds = selectEffectiveCheckIds(input.checks, input.project.flags);
+  return runWithCheckConsoleRouter(() => executePreparedResolvedChecks(input, effectiveCheckIds));
 }
 
 async function executePreparedResolvedChecks(
-  input: ResolvedCheckExecutionInput
+  input: ResolvedCheckExecutionInput,
+  effectiveCheckIds: readonly string[]
 ): Promise<ResolvedCheckExecution> {
   const state = createExecutionState({
     checks: input.checks,
@@ -125,7 +136,7 @@ async function executePreparedResolvedChecks(
   const flagControlSettlements = resolveFlagControlSettlements({
     checks: input.checks,
     diagnosticLogger: input.diagnosticLogger,
-    flags: input.project.flags,
+    effectiveCheckIds,
     signal: input.signal
   });
   for (const settlement of flagControlSettlements) {
@@ -186,6 +197,7 @@ async function executePreparedResolvedChecks(
 
   return closeResolvedChecks({
     allChecks: input.checks,
+    effectiveCheckIds,
     graphRun,
     state
   });

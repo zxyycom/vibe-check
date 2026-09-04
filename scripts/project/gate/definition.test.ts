@@ -95,6 +95,57 @@ const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "tests-package-consumer-docs",
   "tests-package-consumer-runtime"
 ]);
+const expectedRequiredCheckIds = expectedCheckIds.filter(
+  (checkId) => !packageAcceptanceCheckIds.has(checkId)
+);
+
+const expectedCheckIdsBySelection: readonly Readonly<{
+  readonly checkIds: readonly string[];
+  readonly selection: ProjectGateSelection;
+}>[] = [
+  {
+    checkIds: expectedRequiredCheckIds,
+    selection: { kind: "required" }
+  },
+  { checkIds: expectedCheckIds, selection: { kind: "all" } },
+  {
+    checkIds: ["typecheck-product", "typecheck-scripts"],
+    selection: { kind: "focused", presets: ["typecheck"] }
+  },
+  {
+    checkIds: [
+      "duplicate-detection",
+      "file-metrics",
+      "function-metrics",
+      "markdown-link-validation",
+      "docs-json-validator",
+      "docs-schema-validator",
+      "docs-example-validator",
+      "docs-links-validator"
+    ],
+    selection: { kind: "focused", presets: ["docs", "quality"] }
+  },
+  {
+    checkIds: [
+      "tests-package-supporting",
+      "tests-product-duplicate-detection",
+      "tests-product-file-metrics",
+      "tests-product-function-metrics",
+      "tests-product-json",
+      "tests-product-markdown-links",
+      "tests-product-secret-detection",
+      "tests-product-supporting-checks",
+      "tests-product-runtime",
+      "tests-scripts-project",
+      "tests-scripts-test-evidence",
+      "tests-scripts-validation",
+      "tests-scripts-tooling",
+      "test-evidence",
+      "test-evidence-rule-tests"
+    ],
+    selection: { kind: "focused", presets: ["test"] }
+  }
+];
 
 describe("Project Gate Definition", () => {
   it("projects the central composition manifest into an ordinary Project Definition", async () => {
@@ -174,7 +225,8 @@ describe("Project Gate Definition", () => {
     assert.ok(qualityEntry);
     assert.deepEqual(projectGateFlagControlledCheck(qualityEntry).enabledByFlags, {
       flags: ["project-gate:all", "project-gate:required", "project-gate:preset=quality"],
-      mode: "any"
+      mode: "any",
+      propagateDependsOn: true
     });
 
     const expectedTestLanes = resolveProjectGateTestLanes(process.cwd());
@@ -249,13 +301,11 @@ describe("Project Gate Definition", () => {
       dependsOn: ["fixture-prerequisite"],
       displayName: "Fixture dependent"
     });
-    assert.throws(
-      () =>
-        defineProjectGateEntries([
-          { check: prerequisite, presets: [], required: false },
-          { check: dependent, presets: [], required: true }
-        ]),
-      /required-selection closed: fixture-dependent -> fixture-prerequisite/
+    assert.doesNotThrow(() =>
+      defineProjectGateEntries([
+        { check: prerequisite, presets: [], required: false },
+        { check: dependent, presets: [], required: true }
+      ])
     );
     const observer = defineCheck({
       checkId: "fixture-observer",
@@ -270,13 +320,11 @@ describe("Project Gate Definition", () => {
         ]),
       /observes relation is not preset-selection closed: fixture-observer -> fixture-prerequisite/
     );
-    assert.throws(
-      () =>
-        defineProjectGateEntries([
-          { check: prerequisite, presets: [], required: true },
-          { check: dependent, presets: ["test"], required: true }
-        ]),
-      /dependsOn relation is not preset-selection closed: fixture-dependent -> fixture-prerequisite/
+    assert.doesNotThrow(() =>
+      defineProjectGateEntries([
+        { check: prerequisite, presets: [], required: true },
+        { check: dependent, presets: ["test"], required: true }
+      ])
     );
     const selfDependent = defineCheck({
       checkId: "fixture-self-dependent",
@@ -345,62 +393,45 @@ describe("Project Gate Definition", () => {
     );
   });
 
-  it("derives required, all, and focused aggregates from the same preset manifest", () => {
-    const logDirectory = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
-    try {
-      const entries = createProjectGateEntries({
-        externalConsumerLease: createExternalConsumerMaterialLease(),
-        preparedCandidate
-      });
-      const definition = createProjectGateDefinition(entries);
-      const selections: readonly ProjectGateSelection[] = [
-        { kind: "required" },
-        { kind: "all" },
-        { kind: "focused", presets: ["typecheck"] },
-        { kind: "focused", presets: ["docs", "quality"] },
-        { kind: "focused", presets: ["test"] }
-      ];
+  it("keeps required, all, and focused membership golden while aggregation uses Product selection", () => {
+    const entries = createProjectGateEntries({
+      externalConsumerLease: createExternalConsumerMaterialLease(),
+      preparedCandidate
+    });
+    const definition = createProjectGateDefinition(entries);
+    assert.deepEqual(projectGateAggregation(), {
+      checks: "effective",
+      empty: "failed",
+      mode: "all",
+      notApplicable: "fail",
+      unavailable: "propagate"
+    });
 
-      for (const selection of selections) {
-        const expectedIds = entries
-          .filter((entry) => {
-            if (selection.kind === "all") return true;
-            if (selection.kind === "required") return entry.required;
-            return entry.presets.some((preset) => selection.presets.includes(preset));
-          })
-          .map(({ check }) => check.checkId);
-        assert.deepEqual(projectGateAggregation(entries, selection), {
-          checks: expectedIds,
-          empty: "failed",
-          mode: "all",
-          notApplicable: "fail",
-          unavailable: "propagate"
-        });
-      }
+    for (const expectation of expectedCheckIdsBySelection) {
+      const flags = new Set(selectionFlags(expectation.selection));
+      assert.deepEqual(
+        definition.checks
+          .filter((check) => check.enabledByFlags?.flags.some((flag) => flags.has(flag)))
+          .map(({ checkId }) => checkId),
+        expectation.checkIds
+      );
+    }
 
-      for (const check of definition.checks) {
-        assert.equal(check.enabledByFlags?.mode, "any");
-        assert.equal(check.enabledByFlags?.flags.includes("project-gate:all"), true);
-      }
-      for (const packageCheckId of packageAcceptanceCheckIds) {
-        const entry = entries.find(({ check }) => check.checkId === packageCheckId);
-        assert.ok(entry, `${packageCheckId} must exist`);
-        assert.equal(entry.required, false);
-        assert.deepEqual(entry.presets, []);
-        assert.deepEqual(projectGateFlagControlledCheck(entry).enabledByFlags, {
-          flags: ["project-gate:all"],
-          mode: "any"
-        });
-      }
-      const testAggregate = projectGateAggregation(entries, {
-        kind: "focused",
-        presets: ["test"]
+    for (const check of definition.checks) {
+      assert.equal(check.enabledByFlags?.mode, "any");
+      assert.equal(check.enabledByFlags?.flags.includes("project-gate:all"), true);
+      assert.equal(check.enabledByFlags?.propagateDependsOn, true);
+    }
+    for (const packageCheckId of packageAcceptanceCheckIds) {
+      const entry = entries.find(({ check }) => check.checkId === packageCheckId);
+      assert.ok(entry, `${packageCheckId} must exist`);
+      assert.equal(entry.required, false);
+      assert.deepEqual(entry.presets, []);
+      assert.deepEqual(projectGateFlagControlledCheck(entry).enabledByFlags, {
+        flags: ["project-gate:all"],
+        mode: "any",
+        propagateDependsOn: true
       });
-      for (const packageCheckId of packageAcceptanceCheckIds) {
-        assert.equal(testAggregate.checks.includes(packageCheckId), false);
-      }
-    } finally {
-      rmSync(logDirectory, { force: true, recursive: true });
     }
   });
 
@@ -452,7 +483,7 @@ describe("Project Gate Definition", () => {
       ]) {
         calls.length = 0;
         const result = await packageRun(createProjectGateDefinition(entries), {
-          checkAggregation: projectGateAggregation(entries, scenario.selection),
+          checkAggregation: projectGateAggregation(),
           flags: selectionFlags(scenario.selection),
           outputs: {
             diagnosticLogging: { enabled: false },
@@ -479,6 +510,77 @@ describe("Project Gate Definition", () => {
           }
         );
       }
+    } finally {
+      rmSync(projectRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("starts a downstream-only Gate Check with its prerequisite and aggregates Product selection", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-propagation-"));
+    try {
+      const calls: string[] = [];
+      const entries = defineProjectGateEntries([
+        {
+          check: defineCheck({
+            checkId: "fixture-prerequisite",
+            displayName: "Fixture prerequisite",
+            execution: () => {
+              calls.push("fixture-prerequisite");
+              return { status: "passed", data: {} };
+            }
+          }),
+          presets: [],
+          required: false
+        },
+        {
+          check: defineCheck({
+            checkId: "fixture-downstream",
+            dependsOn: ["fixture-prerequisite"],
+            displayName: "Fixture downstream",
+            execution: () => {
+              calls.push("fixture-downstream");
+              return { status: "passed", data: {} };
+            }
+          }),
+          presets: ["quality"],
+          required: false
+        },
+        {
+          check: defineCheck({
+            checkId: "fixture-unselected",
+            displayName: "Fixture unselected",
+            execution: () => {
+              calls.push("fixture-unselected");
+              return { status: "passed", data: {} };
+            }
+          }),
+          presets: ["docs"],
+          required: false
+        }
+      ]);
+
+      const result = await packageRun(createProjectGateDefinition(entries), {
+        checkAggregation: projectGateAggregation(),
+        flags: selectionFlags({ kind: "focused", presets: ["quality"] }),
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        projectRoot
+      });
+      assert.equal(result.kind, "completed");
+      if (result.kind !== "completed") return;
+      assert.equal(result.aggregate, "passed");
+      assert.deepEqual(calls, ["fixture-prerequisite", "fixture-downstream"]);
+      assert.deepEqual(
+        result.snapshot.checks.map(({ checkId, outcome }) => [checkId, outcome.status]),
+        [
+          ["fixture-downstream", "passed"],
+          ["fixture-prerequisite", "passed"],
+          ["fixture-unselected", "not-applicable"]
+        ]
+      );
     } finally {
       rmSync(projectRoot, { force: true, recursive: true });
     }

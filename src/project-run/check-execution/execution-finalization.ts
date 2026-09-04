@@ -20,6 +20,7 @@ const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 export function closeResolvedChecks(
   input: Readonly<{
     readonly allChecks: readonly NormalizedCheck[];
+    readonly effectiveCheckIds: readonly string[];
     readonly graphRun: Awaited<
       ReturnType<typeof import("../task-scheduler/scheduler.ts").runTaskGraph<boolean>>
     >;
@@ -43,8 +44,8 @@ export function closeResolvedChecks(
       });
     }
     assertEveryCheckClosed(input.allChecks, input.graphRun.settlements);
-    return resolvedExecution(
-      "completed",
+    return completedResolvedExecution(
+      input.effectiveCheckIds,
       input.state.session.freeze(),
       input.state,
       input.graphRun.terminalMeasurement
@@ -104,7 +105,7 @@ export function trustedFailure(error: unknown): CheckExecutionInvariantFailure {
 }
 
 function resolvedExecution(
-  kind: ResolvedCheckExecution["kind"],
+  kind: Exclude<ResolvedCheckExecution["kind"], "completed">,
   snapshot: CoreSnapshot,
   state: CheckExecutionState,
   terminalSchedulerMeasurement: SchedulerMeasurementContext | undefined
@@ -112,6 +113,21 @@ function resolvedExecution(
   return Object.freeze({
     kind,
     ...checkRunSummaries(snapshot, state.settledFactsByCheckId),
+    snapshot,
+    ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
+  });
+}
+
+function completedResolvedExecution(
+  effectiveCheckIds: readonly string[],
+  snapshot: CoreSnapshot,
+  state: CheckExecutionState,
+  terminalSchedulerMeasurement: SchedulerMeasurementContext | undefined
+): Extract<ResolvedCheckExecution, { readonly kind: "completed" }> {
+  return Object.freeze({
+    kind: "completed",
+    ...checkRunSummaries(snapshot, state.settledFactsByCheckId),
+    effectiveCheckIds,
     snapshot,
     ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
   });

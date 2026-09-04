@@ -28,8 +28,7 @@ export type ProjectGateRunControls = Readonly<
 
 /** Binds one fresh project Definition to one adapter-owned invocation log root. */
 export async function run(controls: ProjectGateRunControls): Promise<RunResult> {
-  const selection = selectionFromFlags(controls.flags ?? []);
-  if (selection === undefined)
+  if (selectionFromFlags(controls.flags ?? []) === undefined)
     throw new TypeError("Project Gate controls failed closed validation");
 
   const externalConsumerLease = createExternalConsumerMaterialLease();
@@ -39,7 +38,7 @@ export async function run(controls: ProjectGateRunControls): Promise<RunResult> 
   });
   try {
     return await packageRun(createProjectGateDefinition(entries), {
-      checkAggregation: projectGateAggregation(entries, selection),
+      checkAggregation: projectGateAggregation(),
       ...projectGateInvocationOutputControls(controls.invocationLogDirectory),
       flags: controls.flags,
       projectRoot: repositoryRoot,

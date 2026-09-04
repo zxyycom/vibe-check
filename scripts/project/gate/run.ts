@@ -162,7 +162,7 @@ export async function runProjectGate(
     reportGateAdapterMessage(
       transcript,
       "info",
-      "project gate aggregation: mode=all over eligible Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
+      "project gate aggregation: mode=all over effective Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
     );
     const runResult = await runModule.run({
       flags: selectionFlags(parsed.selection),

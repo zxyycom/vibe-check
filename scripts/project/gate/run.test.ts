@@ -593,7 +593,7 @@ describe("Project Gate adapter closure", () => {
       );
       assert.match(
         output.logs.join("\n"),
-        /project gate aggregation: mode=all over eligible Check statuses; failed\/not-applicable\/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs/
+        /project gate aggregation: mode=all over effective Check statuses; failed\/not-applicable\/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs/
       );
       assert.match(output.logs.join("\n"), /project gate result: failed/);
       assert.doesNotMatch(output.logs.join("\n"), /project gate result: passed/);

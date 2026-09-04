@@ -13,7 +13,9 @@ export function validateCheckAggregationSelection(
   checkIds: readonly string[]
 ): RunControlValidationResult<CheckAggregation | undefined> {
   if (aggregation === undefined) return Object.freeze({ ok: true, value: undefined });
-  if (aggregation.checks === "all") return Object.freeze({ ok: true, value: aggregation });
+  if (aggregation.checks === "all" || aggregation.checks === "effective") {
+    return Object.freeze({ ok: true, value: aggregation });
+  }
   const knownCheckIds = new Set(checkIds);
   const selectedCheckIds = new Set<string>();
   for (const checkId of aggregation.checks) {
@@ -28,9 +30,10 @@ export function validateCheckAggregationSelection(
 /** Derives one explicit consumer-selected aggregate from settled Check statuses only. */
 export function aggregateCheckOutcomes(
   snapshot: CoreSnapshot,
-  aggregation: CheckAggregation
+  aggregation: CheckAggregation,
+  effectiveCheckIds: readonly string[]
 ): CheckAggregate {
-  const statuses = selectedChecks(snapshot, aggregation.checks).map((check) =>
+  const statuses = selectedChecks(snapshot, aggregation.checks, effectiveCheckIds).map((check) =>
     aggregateStatus(check, aggregation)
   );
   if (statuses.includes("unavailable")) return "unavailable";
@@ -45,10 +48,12 @@ export function aggregateCheckOutcomes(
 
 function selectedChecks(
   snapshot: CoreSnapshot,
-  selection: CheckAggregation["checks"]
+  selection: CheckAggregation["checks"],
+  effectiveCheckIds: readonly string[]
 ): readonly CoreCheck[] {
   if (selection === "all") return snapshot.checks;
-  return selection.map((checkId) => {
+  const selectedCheckIds = selection === "effective" ? effectiveCheckIds : selection;
+  return selectedCheckIds.map((checkId) => {
     const check = snapshot.checks.find((candidate) => candidate.checkId === checkId);
     if (check === undefined) throw new TypeError("Aggregation selection was not validated");
     return check;

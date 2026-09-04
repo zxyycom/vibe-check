@@ -115,10 +115,11 @@ Definition 会复制、去重、按文本排序并冻结这组 token。`mode` �
 该字段只属于 executable Check，并作为 canonical declarative identity 进入 Definition fingerprint。container
 不接受该字段，也不向 children 继承它。空 flags 集合没有有效的控制含义，因此属于 malformed Definition。
 
-**执行顺序。** Run 在任何 control settlement 或 author work 前验证包含全部 executable Checks 的完整静态 graph。
-如果 invocation signal 此时已经取消，Scheduler 直接关闭 pending Tasks，不再把它们结算为 flag 未命中；否则 Run
-按 Definition 顺序一次完成所有 `enabledByFlags` 判断。字段省略或条件匹配的 Check 继续留在 Scheduler pending 集合，
-只有获得 admission 后才执行自己的 task-local preflight 和 execution；条件不匹配时，Product 在这些 Check-local work 前把它结算为
+**传递启动 opt-in。** `enabledByFlags.propagateDependsOn` 只能省略或填写 literal `true`；省略保持此前只选择 direct match 的兼容行为，`false`、其它值、unknown sibling field 与 container authoring 都在 Definition validation 失败。matching flag root 写出 `true` 时，Product 才把它的 normalized `dependsOn` **完整传递闭包**加入本次 private effective selection；多个 matching roots 的 closure 取去重并集，并按 canonical Check order 消费。这个选择不遍历 `observes`。
+
+被 closure 加入的 dependency 是 dependency-activated：即使自身 `enabledByFlags` predicate 未命中，也不产生 flag-control settlement，而是和其它已选择 Check 一样等待 Scheduler admission、task-local preflight 与 execution。没有 `enabledByFlags` 的 executable Check 始终保持默认直接选择。只有 effective selection 外、predicate 未命中的 flag Check 才形成 `flag-condition-not-matched`。传播只补齐依赖启动，不改变 `dependsOn` 必须 all-passed 的 prerequisite 规则，也不绕过静态 graph validation 或 cancellation。
+
+**执行顺序。** Run 在任何 control settlement 或 author work 前验证包含全部 executable Checks 的完整静态 graph，并以验证后的 graph 形成一次 private effective selection。pre-work cancellation 仍直接关闭 pending Tasks，不把它们伪造为 flag 未命中。否则字段省略、predicate 匹配或被 matching opt-in root 的 `dependsOn` closure 激活的 Check 留在 Scheduler pending 集合，只有获得 admission 后才执行自己的 task-local preflight 和 execution；effective selection 外的 predicate 未命中 Check 则在这些 Check-local work 前结算为
 `{ status: "not-applicable", reason: { code: "flag-condition-not-matched" } }`。该 Check 没有 started fact，
 duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一张 Scheduler graph、Check facts、dependency readback
 与显式 aggregation 中。以它为 `dependsOn` 的 Check 在自己的 preflight 前结算为 `unavailable / dependency-not-passed`；
@@ -127,9 +128,7 @@ duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一�
 未启动 Checks，不为每项重复完整 settled row；其它未启动或非成功结果不进入该分组。完整人读输出边界见
 [深入 API 机制](api-mechanics.md#outputs-与-runresult-边界)。
 
-**责任边界。** callback 仍会收到完整的 canonical `project.flags`。Product 不提供“恰好一个”、带值 flags、
-嵌套布尔表达式或通用 predicate，也不定义 token vocabulary。需要这些复杂条件时，owning Check 在 callback 中解释
-`project.flags` 并返回领域适当的终态。
+**责任边界。** effective selection 是 invocation-private planning value：Product 不公开 resolver、effective ID list、callback capability、RunResult field、machine field 或 diagnostic selection telemetry。callback 仍会收到完整的 canonical `project.flags`。Product 不提供“恰好一个”、带值 flags、嵌套布尔表达式或通用 predicate，也不定义 token vocabulary。flags 不是权限、环境准入或 capability authorization；需要硬条件或复杂条件时，owning Check 在 preflight/execution 中解释 `project.flags` 并返回领域适当的终态。
 
 `scheduler.admissionPolicy` 是 closed `static | custom | learned-critical-path` authoring field。省略与显式
 `{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 literal inference，与同形
@@ -370,7 +369,7 @@ Checks、改变 scanner commands、注册 dependencies 或选择另一份 Defini
 
 ```ts
 {
-  checks: "all" | readonly string[],
+  checks: "all" | "effective" | readonly string[],
   mode: "all" | "any",
   unavailable: "propagate" | "fail" | "exclude",
   notApplicable: "exclude" | "pass" | "fail",
@@ -378,7 +377,9 @@ Checks、改变 scanner commands、注册 dependencies 或选择另一份 Defini
 }
 ```
 
-selection 在执行前拒绝 unknown、duplicate 或 non-normalized Check ID。未配置时 final facts 的 `aggregate` 为 `null`；配置
+`"all"` 选择全部 normalized executable Checks；Check-ID list 选择 caller 明示成员；`"effective"` 是显式第三种 selector，
+只复用这次 Run 的 private flag-and-`dependsOn` selection（含 dependency-activated prerequisite）。它不公开 ID list、resolver 或新的
+selection telemetry，也不改变 `"all"`、ID-list validation、默认 `aggregate: null` 或 `empty` policy。ID-list selection 在执行前拒绝 unknown、duplicate 或 non-normalized Check ID。配置
 后只从 selected settled statuses 派生四态 aggregate，原始 Check/Record facts 始终保留。具体状态折叠由
 [Quality Metrics](quality-metrics.md#explicit-aggregation-and-repository-gate-mapping)拥有。
 

@@ -1,6 +1,6 @@
 ---
 title: 用 check 命令和闭合 preset 运行 Project Gate
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T04:36:20Z
 purpose: 让日常 Gate 通过短命令和少量高频 preset 形成可读、可组合且依赖闭合的项目选择。
@@ -22,7 +22,7 @@ relations: []
 
 - 本 Decision 建立前，package scripts 同时公开 `verify:vibe-check-workspace`、`:required` 与 `:full`，但无参数和 `:required` 等价；profile 的实际差异主要是 package acceptance，仍叠加 enable/disable tag grammar。
 - Gate 已拥有一个中央 Definition，但 flag catalog、selection、aggregate 和 output binding 分布在 runtime modules；另一方面，完整 quality options 和 test lane descriptors 全部展开在 Definition，又使组合入口过长。
-- Product 的 `enabledByFlags` 能在 author work 前统一结算未选择 Check，但不会自动选择 `dependsOn` 闭包。当前项目可以为有限 preset 显式维护闭包；通用传递能力由 Draft Change [`propagate-flag-selection-through-check-dependencies`](../../changes/propagate-flag-selection-through-check-dependencies/proposal.md) 评估，该 Draft 不授权本轮实施 Product API。
+- Product 的 `enabledByFlags` 能在 author work 前统一结算未选择 Check，但不会自动选择 `dependsOn` 闭包。当前项目可以为有限 preset 显式维护闭包；通用传递能力由形成时的 Draft Change [`propagate-flag-selection-through-check-dependencies`](../../../changes/archive/propagate-flag-selection-through-check-dependencies/proposal.md) 评估，该 Draft 不授权本轮实施 Product API。
 - exact candidate preparation、candidate-bound package import、完整 release evidence 和显式 all-status aggregate 已有独立 owner，命令与选择整理不能绕过这些边界。
 
 ## 决策

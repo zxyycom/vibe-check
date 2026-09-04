@@ -222,10 +222,10 @@ scripts/project/gate/
 ```
 
 `definition.ts` 是阅读完整 Gate 组合的入口：从稳定顺序的 entry manifest 可以恢复全部 Check identity、
-required/preset membership、跨 Check 关系的最终闭包，以及 run-level aggregate、outputs、scheduler 和唯一
+required/preset membership、Gate 自有的 `observes` 闭合，以及 run-level aggregate、outputs、scheduler 和唯一
 project-owned `afterGate`。组合入口可以引用 `checks/**` owner 已定义的普通 Check 对象或闭合对象组；领域
 options、scanner protocol、test file partition 和 execution mechanics 留在对应 owner，不为追求物理单文件而
-复制。`runtime/**` 不另行拥有 Check membership、领域 policy 或第二个 Hook 配置面。
+复制。`runtime/**` 不另行拥有 Check membership、领域 policy、`dependsOn` 传播或第二个 Hook 配置面。
 
 一次运行先解析参数并准备 exact local candidate，或在 `--all --release-receipt <path>` 下重验显式 release receipt；之后才动态导入
 `runtime/bound-run.ts`。这个分层不是第二个运行入口：`run.ts` 必须先确定 candidate，bound Run 才能通过已解析的
@@ -272,10 +272,10 @@ selection 参数只包含 `--typecheck`、`--lint`、`--test`、`--docs`、`--qu
 
 - required 是日常完整检查，但不选择高成本 package artifact 与 external-consumer acceptance；`--all` 选择完整 Gate。
 - focused preset 只选择相应闭合集：`typecheck`、`lint`、routine `test`、`docs` 或 repository `quality`。`--test` 不隐式加入 package acceptance。
-- entry manifest 为每项 Check 投影 Product 原生 `enabledByFlags`。未选择 Check 仍保留 `not-applicable / flag-condition-not-matched` fact，但不进入本次 explicit aggregate。
-- 当前 Product 不会因选择 dependent 自动选择其 `dependsOn`；Gate 因而在构造 manifest 时同时验证 required 与每个 preset 对 `dependsOn`、`observes` 的闭包。`observes` closure 是本 Gate 为保持观察输入可用而采用的保守配置校验，不表示未来 Product 会自动传播该关系。任一 owner 自带 `enabledByFlags` 时拒绝组合，避免 Gate 覆盖其原有条件。通用 `dependsOn` flag 传递由 Draft Change [`propagate-flag-selection-through-check-dependencies`](../changes/propagate-flag-selection-through-check-dependencies/proposal.md) 承接，不在 Gate 临时实现任意选择 DSL。
-- 所有 eligible Check status 进入同一个显式 `all` aggregate（不是 `--all` selection）：必须全部 `passed`；`failed` 使 aggregate failed，`unavailable` propagate，`not-applicable` fail，空 selection failed。findings、messages、Records 与 final data 不直接参与 aggregate。
-- scheduler 的 root `maxParallel` 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，但最终关系与选择闭包必须通过中央 manifest 校验。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。root 并发上限不因本次调整改变。
+- entry manifest 为每项 Check 投影 Product 原生 `enabledByFlags`，并以 literal `propagateDependsOn: true` 允许命中的下游 Check 启动其 `dependsOn` prerequisite。未选中的 Check 仍保留 `not-applicable / flag-condition-not-matched` fact；被启动的 prerequisite 走普通 Product lifecycle。该 field 的 grammar、默认兼容与“flags 不是权限”边界由 [Configuration](configuration.md#flag-enabled-checks) 唯一拥有。
+- Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 required 与每个 preset 的选择闭合，以保证观察输入可用。Product 不从 `observes` 传播选择。任一 owner 自带 `enabledByFlags` 时仍拒绝组合，避免 Gate 覆盖其原有条件。
+- 所有 effective Check status 进入同一个显式 `effective` aggregate（不是 `--all` selection）：它复用同次 Product flag-and-dependency selection，必须全部 `passed`；`failed` 使 aggregate failed，`unavailable` propagate，`not-applicable` fail，空 selection failed。findings、messages、Records 与 final data 不直接参与 aggregate。
+- scheduler 的 root `maxParallel` 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，Gate manifest 保证本地 relation 输入与 `observes` 可读性，Product 则拥有已选 `dependsOn` closure。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。root 并发上限不因本次调整改变。
 - 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 与 complete workload 的 median，因此所有 Check 的 effective priority 都是 `0`。
 
 完整 preset 集合和可执行例子由 `--help` 输出；root `check` script 经 `mise exec` 调用同一个 `run.ts`，

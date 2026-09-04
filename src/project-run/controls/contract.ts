@@ -18,7 +18,8 @@ export interface RunControls {
 }
 /** 将选定 Check statuses 折叠为 invocation aggregate 的规则。 */
 export interface CheckAggregation {
-  readonly checks: "all" | readonly string[];
+  /** `effective` reuses the invocation's private flag-and-dependency selection. */
+  readonly checks: "all" | "effective" | readonly string[];
   readonly mode: "all" | "any";
   readonly unavailable: "propagate" | "fail" | "exclude";
   readonly notApplicable: "exclude" | "pass" | "fail";

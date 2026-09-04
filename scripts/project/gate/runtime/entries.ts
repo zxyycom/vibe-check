@@ -15,7 +15,7 @@ export interface ProjectGateEntry {
   readonly required: boolean;
 }
 
-/** Freezes entries after validating their preset and static relation closure. */
+/** Freezes entries after validating their selection metadata and static relation inputs. */
 export function defineProjectGateEntries(
   entries: readonly ProjectGateEntry[]
 ): readonly ProjectGateEntry[] {
@@ -58,14 +58,22 @@ function validateProjectGateRelation(
       `Project Gate ${relation} relation is missing: ${entry.check.checkId} -> ${checkId}`
     );
   }
-  if (entry.required && !relatedEntry.required) {
+  if (relation === "observes") validateProjectGateObservationSelection(entry, relatedEntry);
+}
+
+/** Keeps Gate observers readable; Product flag propagation intentionally excludes observes. */
+function validateProjectGateObservationSelection(
+  entry: ProjectGateEntry,
+  observedEntry: ProjectGateEntry
+): void {
+  if (entry.required && !observedEntry.required) {
     throw new TypeError(
-      `Project Gate ${relation} relation is not required-selection closed: ${entry.check.checkId} -> ${checkId}`
+      `Project Gate observes relation is not required-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
-  if (entry.presets.some((preset) => !relatedEntry.presets.includes(preset))) {
+  if (entry.presets.some((preset) => !observedEntry.presets.includes(preset))) {
     throw new TypeError(
-      `Project Gate ${relation} relation is not preset-selection closed: ${entry.check.checkId} -> ${checkId}`
+      `Project Gate observes relation is not preset-selection closed: ${entry.check.checkId} -> ${observedEntry.check.checkId}`
     );
   }
 }
