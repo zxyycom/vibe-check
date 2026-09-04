@@ -190,6 +190,112 @@
         "title": "SCC 与 jscpd 升级就绪性评估"
       }
     },
+    "audit-project-gate-candidate-lifecycle-process-overhead.md": {
+      "keys": {
+        "formed-at": [
+          1788489940000
+        ],
+        "relation-type": [
+          "复查"
+        ],
+        "tag": [
+          "package-candidate",
+          "performance",
+          "process-overhead",
+          "project-gate"
+        ],
+        "text": [
+          "为何 full Project Gate 的 tests-package-candidate 反复超过 5 秒，以及在保持 root maxParallel=3、20 秒 case/30 秒 lane 硬门禁不变时，怎样以可验证的架构变更使该 Check 稳定低于 5 秒？",
+          "审计 Project Gate candidate lifecycle 的重复物理工作与进程开销"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-04T02:45:40+00:00",
+        "question": "为何 full Project Gate 的 tests-package-candidate 反复超过 5 秒，以及在保持 root maxParallel=3、20 秒 case/30 秒 lane 硬门禁不变时，怎样以可验证的架构变更使该 Check 稳定低于 5 秒？",
+        "relations": [
+          {
+            "target": "correct-project-gate-candidate-timeout-interpretation.md",
+            "type": "复查"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "package-candidate",
+          "performance",
+          "process-overhead",
+          "project-gate"
+        ],
+        "title": "审计 Project Gate candidate lifecycle 的重复物理工作与进程开销"
+      }
+    },
+    "audit-project-gate-function-metrics-check-overhead.md": {
+      "keys": {
+        "formed-at": [
+          1788489986000
+        ],
+        "relation-type": [
+          "补充"
+        ],
+        "tag": [
+          "function-metrics",
+          "performance",
+          "project-gate",
+          "test-execution"
+        ],
+        "text": [
+          "Project Gate Function metrics Check 超 5 秒开销审计",
+          "full Project Gate 中的 Bun Product function metrics tests（近期 6.3 秒、曾 8.9 秒）与 direct Function metrics Check（曾 5.3 秒）为什么超过 5 秒；是否存在重复扫描、Worker/child-process 启动或测试矩阵重复执行，以及在不提高 root 并发度、不放宽 timeout 下怎样使每个 Check 的普通负载低于 5 秒？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-04T02:46:26+00:00",
+        "question": "full Project Gate 中的 Bun Product function metrics tests（近期 6.3 秒、曾 8.9 秒）与 direct Function metrics Check（曾 5.3 秒）为什么超过 5 秒；是否存在重复扫描、Worker/child-process 启动或测试矩阵重复执行，以及在不提高 root 并发度、不放宽 timeout 下怎样使每个 Check 的普通负载低于 5 秒？",
+        "relations": [
+          {
+            "target": "compare-lizard-regex-backends-and-analyzer-cost-allocation.md",
+            "type": "补充"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "function-metrics",
+          "performance",
+          "project-gate",
+          "test-execution"
+        ],
+        "title": "Project Gate Function metrics Check 超 5 秒开销审计"
+      }
+    },
+    "audit-project-gate-validation-and-type-acceptance-overhead.md": {
+      "keys": {
+        "formed-at": [
+          1788490177000
+        ],
+        "tag": [
+          "external-consumer",
+          "performance",
+          "project-gate",
+          "validation"
+        ],
+        "text": [
+          "Project Gate validation 与 external consumer type acceptance 开销审计",
+          "在不运行 full Project Gate 的条件下，Bun validation tooling tests 与 Bun external package consumer type acceptance 的超过 5 秒现象，哪些是 check 自身结构性成本，哪些只能归因于并发/候选生命周期环境；同族 process-backed lanes 是否已有可消除的重复启动？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-04T02:49:37Z",
+        "question": "在不运行 full Project Gate 的条件下，Bun validation tooling tests 与 Bun external package consumer type acceptance 的超过 5 秒现象，哪些是 check 自身结构性成本，哪些只能归因于并发/候选生命周期环境；同族 process-backed lanes 是否已有可消除的重复启动？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "external-consumer",
+          "performance",
+          "project-gate",
+          "validation"
+        ],
+        "title": "Project Gate validation 与 external consumer type acceptance 开销审计"
+      }
+    },
     "choose-minimal-library-for-strict-json-and-duplicate-keys.md": {
       "keys": {
         "formed-at": [
@@ -442,6 +548,44 @@
         "title": "Momoa 选型确认与 Bun/candidate 闭合 spike"
       }
     },
+    "correct-project-gate-candidate-timeout-interpretation.md": {
+      "keys": {
+        "formed-at": [
+          1788488194000
+        ],
+        "relation-type": [
+          "修正"
+        ],
+        "tag": [
+          "package-candidate",
+          "performance",
+          "project-gate",
+          "test-reliability"
+        ],
+        "text": [
+          "20 秒 candidate case timeout 应如何解释，后续优化是否应改变 Gate 全局并发或改为慢 Check 的局部并发约束？",
+          "修正 Project Gate candidate 超时与并发优化边界"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-04T02:16:34+00:00",
+        "question": "20 秒 candidate case timeout 应如何解释，后续优化是否应改变 Gate 全局并发或改为慢 Check 的局部并发约束？",
+        "relations": [
+          {
+            "target": "diagnose-project-gate-candidate-timeout-under-contention.md",
+            "type": "修正"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "package-candidate",
+          "performance",
+          "project-gate",
+          "test-reliability"
+        ],
+        "title": "修正 Project Gate candidate 超时与并发优化边界"
+      }
+    },
     "diagnose-bun-cold-project-gate-candidate-import.md": {
       "keys": {
         "formed-at": [
@@ -602,6 +746,36 @@
           "source-alignment"
         ],
         "title": "TypeScript Lizard port 性能差距根因"
+      }
+    },
+    "diagnose-project-gate-candidate-timeout-under-contention.md": {
+      "keys": {
+        "formed-at": [
+          1788487792000
+        ],
+        "tag": [
+          "package-candidate",
+          "performance",
+          "project-gate",
+          "test-reliability"
+        ],
+        "text": [
+          "Project Gate candidate lifecycle 竞争超时与假失败诊断",
+          "为什么同一 full Project Gate workload 的 package candidate lifecycle 会在 13.9–22.5 秒间波动并曾触发 20 秒 case timeout；当前证据支持优先优化什么？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-04T02:09:52+00:00",
+        "question": "为什么同一 full Project Gate workload 的 package candidate lifecycle 会在 13.9–22.5 秒间波动并曾触发 20 秒 case timeout；当前证据支持优先优化什么？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "package-candidate",
+          "performance",
+          "project-gate",
+          "test-reliability"
+        ],
+        "title": "Project Gate candidate lifecycle 竞争超时与假失败诊断"
       }
     },
     "evaluate-markdown-link-serial-io-optimization.md": {
@@ -1216,15 +1390,20 @@
       "assess-lizard-extension-adoption-value.md": "sha256:576898564f4888780727af937302f319ee3a7496d28d73f901334ae8f4ae52ea",
       "assess-lizard-upstream-release-and-branch-delta.md": "sha256:9f8d6857d7fb8b9614830d028aa81054bca11326a4fb25ad1601b3a4c258f5ee",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
+      "audit-project-gate-candidate-lifecycle-process-overhead.md": "sha256:3dc132bfe2a2a2532e3e894041a2fde5cee0598bb8b50580fd99673f977f01f3",
+      "audit-project-gate-function-metrics-check-overhead.md": "sha256:159955ae5308c239c86e3cadb54d1f1cfd773a91a09e1563e0922c65eab76daf",
+      "audit-project-gate-validation-and-type-acceptance-overhead.md": "sha256:14b5db0e16b89eda41e843682046002578c75636b2f35c5929648e4211ab65ec",
       "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
       "compare-lizard-and-scc-typescript-port-priority.md": "sha256:2c18eb6094b1bd3028f930599b9a3d37af05f2103a2072513a5793d930a4ee3b",
       "compare-lizard-python-typescript-performance.md": "sha256:61fcf72ac86ff84a586d106681d4de85c67f82bd38521b62770cc126fe3faebb",
       "compare-lizard-regex-backends-and-analyzer-cost-allocation.md": "sha256:09a6215d2e9e347cc433598310b42ccfc337dc5c59fac61c893d30f1b6d3fa20",
       "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
       "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
+      "correct-project-gate-candidate-timeout-interpretation.md": "sha256:b1842aa528ccba3c5cf43249f146604b4d17853086472256e0c543c8c42df08a",
       "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:f45a56559223f8c0d317013d7da4772bbf87838a714be580f44027f744803401",
       "diagnose-lizard-real-typescript-analyzer-hot-path.md": "sha256:480cfb264b2265c7e878beaed75d272bb512451f6cfd7403d03e8095eeea1ced",
       "diagnose-lizard-typescript-port-performance-gap.md": "sha256:ab60210fb4001d659e3e2e26b878f3af3b7f6e5fd8b7da17ef7d8fc164d4c9dd",
+      "diagnose-project-gate-candidate-timeout-under-contention.md": "sha256:f9be57ab5cc0d02e53e14a9548fa0ccfc4faf8ba5b8a1f3770df366f2f8a4dc6",
       "evaluate-markdown-link-serial-io-optimization.md": "sha256:8c749ead3a22883a056318d560e8554393ffbf474898fc48c12eb7622e7ef41e",
       "evaluate-persistent-data-structure-libraries-for-admission-core.md": "sha256:85d43d2f8b07c22faa1e0a368f0273db6c8cce9a7b0dae7ae7987a75d8493e9c",
       "evaluate-secret-detection-library-candidates.md": "sha256:57d39379139f56d6b9874f0443263ed2412ce1d60292366862d61427b494df2a",
