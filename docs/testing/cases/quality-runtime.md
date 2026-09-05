@@ -308,9 +308,11 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > isolates missing, malformed, incompatible, failed, and concurrent local state`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > evicts the oldest series by observation sequence`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > does not create samples when timing is unavailable`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > evicts the oldest series beyond capacity`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > round-trips closed digest-only history`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > contains read and write faults with concurrent writers`
 - `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
 - `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
 Proves:
@@ -323,8 +325,8 @@ Proves:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > persists bounded admitted Task samples without retaining authored inputs`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-model.test.ts|scheduler history and prediction > uses learned means before a median project prior and a cold-start fallback`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
+- `bun|src/project-run/scheduler-duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > uses learned means before a median project prior and cold start`
 Proves:
 
 - An identity derived from model version, Check ID, canonical authored options, and canonical effective flags yields a frozen digest-only prediction snapshot. Its learned estimates retain sample count, arithmetic mean, and nearest-rank p90 without retaining source options or flags.
