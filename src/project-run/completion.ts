@@ -1,4 +1,5 @@
 import { failedOutput } from "./output-status.ts";
+import { resolveFinalRunResult } from "./completion-result-resolver.ts";
 import { publishMachineOutput } from "./machine-publication.ts";
 import {
   outputFailure,
@@ -132,37 +133,7 @@ export function finalizeInvocation(
     if (status === "succeeded") invocation.outputs.succeededDiagnosticChannel(channel);
   }
   invocation.progressRendering.close();
-
-  const outputs = invocation.outputs.value();
-  switch (candidate.kind) {
-    case "completed": {
-      const output = failedOutput(outputs);
-      return output === undefined
-        ? Object.freeze({ ...candidate, outputs })
-        : outputFailure(
-            candidate.declarativeFingerprint,
-            candidate.definitionWarnings,
-            outputs,
-            output,
-            finalSnapshotFacts(candidate)
-          );
-    }
-    case "output": {
-      const output = failedOutput(outputs);
-      if (output === undefined) throw new Error("Run output failed without a failed status");
-      return outputFailure(
-        candidate.declarativeFingerprint,
-        candidate.definitionWarnings,
-        outputs,
-        output,
-        finalSnapshotFacts(candidate)
-      );
-    }
-    case "planning":
-    case "cancelled":
-    case "execution":
-      return Object.freeze({ ...candidate, outputs });
-  }
+  return resolveFinalRunResult(candidate, invocation.outputs.value());
 }
 
 function terminalStatusTag(candidate: NonConfigurationRunResult): string {
@@ -248,16 +219,5 @@ function nonPassedFact(
     checkId: check.checkId,
     reason: check.outcome.status === "failed" ? null : (check.outcome.reason ?? null),
     status: check.outcome.status
-  });
-}
-
-function finalSnapshotFacts(
-  candidate: Extract<NonConfigurationRunResult, RunResultFacts>
-): RunResultFacts {
-  return Object.freeze({
-    aggregate: candidate.aggregate,
-    checkDurations: candidate.checkDurations,
-    checkMessages: candidate.checkMessages,
-    snapshot: candidate.snapshot
   });
 }

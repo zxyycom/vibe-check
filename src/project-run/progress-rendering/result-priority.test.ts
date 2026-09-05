@@ -1,8 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
+import type { CoreSnapshot } from "../../check-settlement/facts.ts";
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check } from "../../check/check.ts";
+import { resolveFinalRunResult } from "../completion-result-resolver.ts";
+import type { RunOutputStatus, RunOutputStatuses } from "../output-status.ts";
+import { outputFailure, type NonConfigurationRunResult, type RunResultFacts } from "../result.ts";
 import type { ProgressWriter } from "./renderer.ts";
 import { executeValidatedRun } from "../invocation.ts";
 
@@ -138,4 +142,154 @@ describe("Package Run progress result priority", () => {
     assert.equal(result.outputs.progressRendering.status, "failed");
     assert.equal(result.snapshot.checks.length, 2);
   });
+
+  it("resolves closed output statuses without replacing primary results", () => {
+    const unclosedOutputs = outputStatuses();
+    const completed = completedCandidate(unclosedOutputs);
+    for (const [outputs, expectedDiagnostic] of [
+      [outputStatuses({ measurementHooks: "failed" }), "scheduler-measurement-hooks-failed"],
+      [outputStatuses({ diagnosticLogging: "failed" }), "diagnostic-logging-failed"],
+      [outputStatuses({ machinePublication: "failed" }), "machine-publication-failed"],
+      [
+        outputStatuses({
+          diagnosticLogging: "failed",
+          machinePublication: "failed",
+          progressRendering: "failed"
+        }),
+        "progress-rendering-failed"
+      ]
+    ] as const) {
+      const resolved = resolveFinalRunResult(completed, outputs);
+
+      assert.equal(resolved.kind, "output");
+      if (resolved.kind !== "output") continue;
+      assert.equal(resolved.diagnostic.code, expectedDiagnostic);
+      assertFinalFacts(resolved);
+    }
+
+    const closedOutputs = outputStatuses({
+      diagnosticLogging: "failed",
+      machinePublication: "failed",
+      progressRendering: "failed"
+    });
+    const existingOutputStatuses = outputStatuses({ machinePublication: "failed" });
+    const existingOutput = outputFailure(
+      "declarative-fingerprint",
+      EMPTY_WARNINGS,
+      existingOutputStatuses,
+      "machinePublication",
+      FINAL_FACTS
+    );
+    const reselected = resolveFinalRunResult(existingOutput, closedOutputs);
+    assert.equal(reselected.kind, "output");
+    if (reselected.kind !== "output") return;
+    assert.equal(reselected.diagnostic.code, "progress-rendering-failed");
+    assertFinalFacts(reselected);
+
+    for (const candidate of [
+      planningCandidate(unclosedOutputs),
+      executionCandidate(unclosedOutputs),
+      preWorkCancellationCandidate(unclosedOutputs)
+    ]) {
+      const resolved = resolveFinalRunResult(candidate, closedOutputs);
+      assert.equal(resolved.kind, candidate.kind);
+      assert.equal(resolved.outputs, closedOutputs);
+    }
+  });
 });
+
+const EMPTY_WARNINGS = Object.freeze([]);
+const EMPTY_SNAPSHOT: CoreSnapshot = Object.freeze({
+  checks: Object.freeze([]),
+  records: Object.freeze([])
+});
+const FINAL_FACTS: RunResultFacts = Object.freeze({
+  aggregate: null,
+  checkDurations: Object.freeze([{ checkId: "custom", durationMs: 1 }]),
+  checkMessages: Object.freeze([
+    { checkId: "custom", code: "retained", level: "info" as const, message: "retained message" }
+  ]),
+  snapshot: EMPTY_SNAPSHOT
+});
+
+function outputStatuses(
+  overrides: Partial<Record<keyof RunOutputStatuses, RunOutputStatus["status"]>> = {}
+): RunOutputStatuses {
+  const statusFor = (output: keyof RunOutputStatuses): RunOutputStatus =>
+    outputStatus(overrides[output] ?? "disabled");
+  const diagnosticLogging = statusFor("diagnosticLogging");
+  return Object.freeze({
+    diagnosticLogging: Object.freeze({
+      ...diagnosticLogging,
+      channels: Object.freeze({
+        core: Object.freeze({ ...diagnosticLogging, file: null }),
+        learnedAdmission: Object.freeze({ ...diagnosticLogging, file: null }),
+        scheduler: Object.freeze({ ...diagnosticLogging, file: null })
+      })
+    }),
+    machinePublication: statusFor("machinePublication"),
+    measurementHooks: statusFor("measurementHooks"),
+    progressRendering: statusFor("progressRendering")
+  });
+}
+
+function outputStatus(status: RunOutputStatus["status"]): RunOutputStatus {
+  return Object.freeze({ enabled: status !== "disabled", status });
+}
+
+function completedCandidate(
+  outputs: RunOutputStatuses
+): Extract<NonConfigurationRunResult, { readonly kind: "completed" }> {
+  return Object.freeze({
+    kind: "completed",
+    declarativeFingerprint: "declarative-fingerprint",
+    definitionWarnings: EMPTY_WARNINGS,
+    outputs,
+    ...FINAL_FACTS
+  });
+}
+
+function planningCandidate(
+  outputs: RunOutputStatuses
+): Extract<NonConfigurationRunResult, { readonly kind: "planning" }> {
+  return Object.freeze({
+    kind: "planning",
+    declarativeFingerprint: "declarative-fingerprint",
+    definitionWarnings: EMPTY_WARNINGS,
+    diagnostic: Object.freeze({ code: "task-graph-invalid" }),
+    outputs
+  });
+}
+
+function executionCandidate(
+  outputs: RunOutputStatuses
+): Extract<NonConfigurationRunResult, { readonly kind: "execution" }> {
+  return Object.freeze({
+    kind: "execution",
+    declarativeFingerprint: "declarative-fingerprint",
+    definitionWarnings: EMPTY_WARNINGS,
+    diagnostic: Object.freeze({ code: "task-engine-failed" }),
+    outputs
+  });
+}
+
+function preWorkCancellationCandidate(
+  outputs: RunOutputStatuses
+): Extract<NonConfigurationRunResult, { readonly kind: "cancelled" }> {
+  return Object.freeze({
+    kind: "cancelled",
+    declarativeFingerprint: "declarative-fingerprint",
+    definitionWarnings: EMPTY_WARNINGS,
+    outputs,
+    phase: "pre-work"
+  });
+}
+
+function assertFinalFacts(
+  result: Extract<NonConfigurationRunResult, { readonly kind: "output" }>
+): void {
+  assert.equal(result.aggregate, FINAL_FACTS.aggregate);
+  assert.equal(result.checkDurations, FINAL_FACTS.checkDurations);
+  assert.equal(result.checkMessages, FINAL_FACTS.checkMessages);
+  assert.equal(result.snapshot, FINAL_FACTS.snapshot);
+}

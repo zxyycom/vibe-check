@@ -13,11 +13,8 @@ import {
 import { AdmissionStrategyPreparationFailure } from "./admission-strategy-provider/custom-strategy-preparation.ts";
 import type { PreparedAdmissionStrategy } from "./admission-strategy-provider/prepared-admission-strategy.ts";
 import { prepareTaskGraph } from "./task-scheduler/graph.ts";
-import { aggregateCheckOutcomes, validateCheckAggregationSelection } from "./aggregation.ts";
-import {
-  executeResolvedChecks,
-  type CheckExecutionClock
-} from "./check-execution/resolved-checks.ts";
+import { validateCheckAggregationSelection } from "./aggregation.ts";
+import { type CheckExecutionClock } from "./check-execution/resolved-checks.ts";
 import type { ResolvedCheckExecution } from "./check-execution/resolved-execution-result.ts";
 import { planStaticCheckGraph } from "./check-execution/plan.ts";
 import {
@@ -25,11 +22,10 @@ import {
   type ProgressRendering,
   type ProgressWriterFactory
 } from "./progress-rendering/presentation.ts";
-import { completeInvocation, finalizeInvocation, type CoreExecution } from "./completion.ts";
+import { finalizeInvocation } from "./completion.ts";
 import { createProjectContext } from "./project-context.ts";
 import type { ResolvedInvocationPaths } from "./invocation-paths.ts";
 import {
-  executionCancellation,
   isCancelled,
   planning,
   preExecutionCancellation,
@@ -44,8 +40,9 @@ import {
   type DiagnosticLoggingRouter
 } from "./diagnostic-logging/logger.ts";
 import { createInvocation } from "./invocation-creation.ts";
-import { elapsedSince, outcomeCounts } from "./invocation-progress.ts";
 import type { OutputStatuses } from "./output-status.ts";
+import { executeScheduler, type SchedulerExecution } from "./scheduler-adapter.ts";
+import { mapResolvedExecutionToRunCandidate } from "./resolved-execution-candidate.ts";
 export type Invocation = Readonly<{
   /** Product-private test seam; package `run` never accepts a provider factory. */
   readonly admissionStrategyProviderFactory: AdmissionStrategyProviderFactory | undefined;
@@ -197,14 +194,14 @@ async function executePreparedInvocation(
   }
   invocation.progressRendering.prepared(invocation.normalized.checks.length);
   const executionStartedAt = invocation.clock.now();
-  const executed = await executeChecks(invocation, project, invocation.clock, preparedStrategy);
+  const executed = await executeScheduler({ invocation, preparedStrategy, project });
   if (isExecutionRunResult(executed)) return executed;
   await completeAdmissionStrategyAfterTerminalMeasurement(
     preparedStrategy,
     executed,
     invocation.outputs
   );
-  return finalizeResolvedCheckExecution({
+  return mapResolvedExecutionToRunCandidate({
     aggregation,
     executed,
     executionStartedAt,
@@ -262,70 +259,6 @@ async function completeAdmissionStrategyAfterTerminalMeasurement(
   }
 }
 
-/** Maps a closed Scheduler execution into the Run-owned outcome and final presentation. */
-function finalizeResolvedCheckExecution(input: {
-  readonly aggregation: CheckAggregation | undefined;
-  readonly executed: ResolvedCheckExecution;
-  readonly executionStartedAt: number;
-  readonly invocation: Invocation;
-}): NonConfigurationRunResult {
-  const { executed, invocation } = input;
-  if (executed.kind === "admission-policy-failed") {
-    return executionResult(invocation, "admission-policy-failed");
-  }
-  invocation.progressRendering.final({
-    counts: outcomeCounts(executed.snapshot),
-    elapsedMs: elapsedSince(input.executionStartedAt, invocation.clock),
-    execution: executed.kind
-  });
-  if (executed.kind === "cancelled") {
-    return finalizeCancelledExecution(invocation, executed);
-  }
-  return finalizeCompletedExecution(invocation, input.aggregation, executed);
-}
-
-function finalizeCancelledExecution(
-  invocation: Invocation,
-  executed: Extract<ResolvedCheckExecution, { readonly kind: "cancelled" }>
-): NonConfigurationRunResult {
-  invocation.diagnosticLogging.core.observe({
-    event: "run.execution.cancelled",
-    tags: diagnosticTags("RUN", "EXECUTION", "CANCELLED"),
-    details: { checkCount: executed.snapshot.checks.length }
-  });
-  return executionCancellation({
-    checkDurations: executed.checkDurations,
-    checkMessages: executed.checkMessages,
-    declarativeFingerprint: invocation.declarativeFingerprint,
-    definitionWarnings: invocation.definitionWarnings,
-    outputs: invocation.outputs.value(),
-    snapshot: executed.snapshot
-  });
-}
-
-function finalizeCompletedExecution(
-  invocation: Invocation,
-  aggregation: CheckAggregation | undefined,
-  executed: Extract<ResolvedCheckExecution, { readonly kind: "completed" }>
-): NonConfigurationRunResult {
-  const aggregate =
-    aggregation === undefined
-      ? null
-      : aggregateCheckOutcomes(executed.snapshot, aggregation, executed.effectiveCheckIds);
-  invocation.diagnosticLogging.core.observe({
-    event: "run.aggregation.completed",
-    tags: diagnosticTags("RUN", "AGGREGATION", "COMPLETED"),
-    details: { aggregate, selection: aggregation ?? null }
-  });
-  const core: CoreExecution = Object.freeze({
-    aggregate,
-    checkDurations: executed.checkDurations,
-    checkMessages: executed.checkMessages,
-    snapshot: executed.snapshot
-  });
-  return completeInvocation(invocation, core);
-}
-
 function cancelledBeforeExecution(
   invocation: Invocation,
   phase: "pre-work" | "planning"
@@ -343,55 +276,6 @@ function cancelledBeforeExecution(
   );
 }
 
-async function executeChecks(
-  invocation: Invocation,
-  project: CheckProjectContext,
-  clock: CheckExecutionClock,
-  preparedStrategy: PreparedAdmissionStrategy
-): Promise<ResolvedCheckExecution | NonConfigurationRunResult> {
-  try {
-    const observeAdmittedTask = preparedStrategy.observeAdmittedTask;
-    const shouldCollectSchedulerPerformanceDiagnostics =
-      invocation.diagnosticLoggingEnabled ||
-      invocation.normalized.scheduler.measurementHooks.length > 0 ||
-      preparedStrategy.admissionPolicy.requiresMeasurement === true ||
-      preparedStrategy.requiresTerminalMeasurement;
-    const schedulerPerformanceDiagnostics = shouldCollectSchedulerPerformanceDiagnostics
-      ? Object.freeze({
-          clock,
-          declarativeFingerprint: invocation.declarativeFingerprint,
-          ...(invocation.diagnosticLoggingEnabled
-            ? { logger: invocation.diagnosticLogging.scheduler }
-            : {})
-        })
-      : undefined;
-    return await executeResolvedChecks({
-      admissionPolicy: preparedStrategy.admissionPolicy,
-      checks: invocation.normalized.checks,
-      clock,
-      diagnosticLogger: invocation.diagnosticLogging.core,
-      ...(invocation.diagnosticLoggingEnabled
-        ? { schedulerDiagnosticLogger: invocation.diagnosticLogging.scheduler }
-        : {}),
-      ...(observeAdmittedTask === undefined
-        ? {}
-        : { onAdmittedCheck: (check) => observeAdmittedTask(check.definition.checkId) }),
-      schedulerPerformanceDiagnostics,
-      schedulerMeasurementHooks: invocation.normalized.scheduler.measurementHooks,
-      onSchedulerMeasurementHookFailure: () => invocation.outputs.failed("measurementHooks"),
-      onSchedulerMeasurementHooksSettled: () => invocation.outputs.succeeded("measurementHooks"),
-      maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
-      invocationId: invocation.invocationId,
-      lifecycle: invocation.progressRendering.lifecycle,
-      paths: invocation.paths,
-      project,
-      signal: invocation.controls.signal
-    });
-  } catch {
-    return executionResult(invocation, "task-engine-failed");
-  }
-}
-
 function planningResult(
   invocation: Invocation,
   code: Extract<RunDiagnostic["code"], "task-graph-invalid">
@@ -407,10 +291,7 @@ function executionResult(
   invocation: Invocation,
   code: Extract<
     RunDiagnostic["code"],
-    | "admission-policy-failed"
-    | "admission-strategy-preparation-failed"
-    | "publication-model-failed"
-    | "task-engine-failed"
+    "admission-strategy-preparation-failed" | "task-engine-failed"
   >
 ): NonConfigurationRunResult {
   return Object.freeze({
@@ -422,7 +303,7 @@ function executionResult(
   });
 }
 function isExecutionRunResult(
-  value: ResolvedCheckExecution | NonConfigurationRunResult
-): value is NonConfigurationRunResult {
+  value: SchedulerExecution
+): value is Extract<NonConfigurationRunResult, { readonly kind: "execution" }> {
   return "declarativeFingerprint" in value;
 }
