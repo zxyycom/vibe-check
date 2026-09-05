@@ -27,11 +27,13 @@ Entities:
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the audited production dependency set`
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > declares the approved SPDX, Bun host, repository, and public registry contract`
 - `bun|scripts/package/artifact/manifest.test.ts|generated package manifest rejects legal, host, publish, executable, and export drift`
+- `bun|scripts/package/legal-materials.test.ts|package legal materials > fails closed in the translated-analyzer audit phase order`
   Proves:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
 - The closed generated manifest uses the user-scoped `@zxyycom/vibe-check` identity and carries the complete `MIT AND Apache-2.0 AND BSD-2-Clause` expression, Vibe Check's exact MIT text and `zxyycom` notice, Bun `>=1.3.14`, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, or subpath export.
 - The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, all four complete current artifact examples, exact Lizard/Pygments notice, license and provenance material, and the non-public emitted function-metrics Worker through staging and tar audit; it includes exact zero-byte NDJSON files and excludes historical or analyzer fixture material.
+- The direct legal-material audit proves the orchestrator's stable seven-stage fail-first order: approved material bytes; provenance inventory parsing; translated-target closure; registered target headers; untracked headers; deferred bodies absent; then fixed-source notice content. Each injected combination exposes the first reachable stage error.
 
 ## Case AUX-PACKAGE-RELEASE-001: Formal release binds one clean source to one portable artifact receipt
 
