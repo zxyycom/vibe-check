@@ -225,6 +225,17 @@ Proves:
 - The standalone and callback seeds expose one frozen opaque state contract. Its canonical catalog, inspection, validation precedence, binary settlement, forced block and scope lifecycle return successors without mutating a retained predecessor.
 - The private trace invokes the same reducer for public and real-only failed/cancellation actions. An instrumented real Scheduler replays each canonical effect against its corresponding immutable core state; legacy snapshot mutex facts remain additive with dynamic holders through their settlement, and an 80-by-80 failed cascade keeps every newly ready child in descending declared-slot frontier order and retains a frozen closed-scope root. Custom policy measurements, diagnostics, and terminal last-settled facts retain the direct-then-forced order. Callback lookahead cannot start, reserve, settle or otherwise control real Task lifecycle, whose callback proposal remains Scheduler-hard-revalidated.
 
+## Case WB-RUNTIME-ADMISSION-COMPILED-GRAPH-001: Prepared graph compilation retains Scheduler static indexes
+
+Owner: `docs/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/task-scheduler/admission-core-compiled-graph.test.ts|prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it`
+  Proves:
+- When invoked with a prepared graph, the Product-private compiler produces Scheduler lookup tables without rematerializing the graph or its frozen snapshot. Task/scope/mutex declaration slots, duplicate mutex/relation occurrences, reverse dependency/observation/terminal mappings, activation membership and lexical public catalog order stay exact.
+- `prepareTaskGraph` remains the only untrusted-input validation/normalization boundary. The compiler's root-cap assertion is a defensive invariant for prepared input, not a second validation path.
+- The compiled object, its relation indexes, and tested slot lists retain their existing Object.freeze guards; this Case does not claim deep `Map` immutability or a public API. Forced reverse-slot priority and active-scope cap/ID ordering remain separately owned by the existing admission-core and Scheduler evidence.
+
 ## Case AUX-MARKDOWN-LINK-OUTCOMES-001: Markdown Link settles safe complete outcomes
 
 Owner: `docs/checks/markdown-link-validation.md#效果与结果`
