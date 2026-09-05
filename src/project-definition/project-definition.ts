@@ -1,5 +1,3 @@
-import { createHash } from "node:crypto";
-
 import { resolveCheckTree, type ResolvedCheckTreeLeaf } from "./check-tree/resolution.ts";
 import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDescriptor } from "../check/descriptor.ts";
@@ -11,7 +9,8 @@ import type {
   CheckVisibility
 } from "../check/check.ts";
 import { DEFAULT_PROJECT_OUTPUTS } from "./output-defaults.ts";
-import { isNonArrayRecord } from "../data-boundary/value-shapes.ts";
+import { createDeclarativeProjectSnapshot } from "./declarative-snapshot.ts";
+export { createDeclarativeFingerprint } from "./declarative-snapshot.ts";
 
 /** 一次 Project Run 的明确输出配置。 */
 export interface ProjectOutputs {
@@ -242,7 +241,7 @@ export function normalizeProjectDefinition(
   const checks = Object.freeze(tree.leaves.map(normalizeCheck));
   return Object.freeze({
     checks,
-    declarative: freezeDeclarativeSnapshot(definition, checks),
+    declarative: createDeclarativeProjectSnapshot(definition, checks),
     definitionWarnings: tree.warnings,
     scheduler: normalizeSchedulerPolicy(definition.scheduler)
   });
@@ -261,44 +260,6 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     ...(leaf.preflight === undefined ? {} : { preflight: leaf.preflight }),
     visibility: leaf.visibility
   });
-}
-export function createDeclarativeFingerprint(snapshot: DeclarativeProjectSnapshot): string {
-  return createHash("sha256").update(stableJson(snapshot)).digest("hex");
-}
-function freezeDeclarativeSnapshot(
-  definition: ProjectDefinition,
-  checks: readonly NormalizedCheck[]
-): DeclarativeProjectSnapshot {
-  const declarations = checks
-    .map(({ execution: _execution, preflight: _preflight, ...declaration }) => declaration)
-    .sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));
-  return deepFreeze({
-    apiVersion: definition.apiVersion,
-    checks: declarations,
-    outputs: definition.outputs,
-    scheduler: Object.freeze({
-      admissionPolicy: declarativeAdmissionPolicy(definition.scheduler.admissionPolicy),
-      maxParallel: definition.scheduler.maxParallel
-    })
-  });
-}
-
-function declarativeAdmissionPolicy(
-  policy: AdmissionPolicy
-): DeclarativeSchedulerPolicy["admissionPolicy"] {
-  if (policy.kind === "learned-critical-path") {
-    return Object.freeze({
-      kind: "learned-critical-path" as const,
-      stateDirectory: policy.stateDirectory
-    });
-  }
-  if (policy.kind === "custom") {
-    return Object.freeze({
-      kind: "custom" as const,
-      strategy: Object.freeze({ kind: policy.strategy.kind })
-    });
-  }
-  return Object.freeze({ kind: "static" as const });
 }
 function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
   let admissionPolicy: AdmissionPolicy;
@@ -320,23 +281,4 @@ function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
     maxParallel: policy.maxParallel,
     measurementHooks: Object.freeze([...policy.measurementHooks])
   });
-}
-function compareText(left: string, right: string): number {
-  if (left < right) return -1;
-  if (left > right) return 1;
-  return 0;
-}
-function deepFreeze<T>(value: T): T {
-  if (typeof value !== "object" || value === null || Object.isFrozen(value)) return value;
-  for (const item of Object.values(value)) deepFreeze(item);
-  return Object.freeze(value);
-}
-function stableJson(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
-  if (isNonArrayRecord(value))
-    return `{${Object.keys(value)
-      .sort()
-      .map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`)
-      .join(",")}}`;
-  return JSON.stringify(value);
 }
