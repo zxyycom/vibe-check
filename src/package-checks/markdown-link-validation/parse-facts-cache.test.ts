@@ -6,12 +6,12 @@ import path from "node:path";
 import { describe, it } from "node:test";
 
 import { parseMarkdownLinkFacts } from "./markdown-parser.ts";
+import { MarkdownLinkParseFactsSession } from "./parse-facts-cache.ts";
 import {
   MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION,
-  MarkdownLinkParseFactsSession,
   parseMarkdownLinkParseFactsPayload,
   projectMarkdownLinkParseFactsPayload
-} from "./parse-facts-cache.ts";
+} from "./parse-facts-cache-payload.ts";
 
 const CACHE_FILE = "markdown-link-parse-facts-v1.jsonl";
 const CACHE_FORMAT = "markdown-link-parse-facts-jsonl-v1";
@@ -124,6 +124,7 @@ describe("Markdown Link parse-facts cache", () => {
         ["current"]
       );
       await session.finalize(signal);
+      await session.finalize(new AbortController().signal);
 
       assert.equal(controller.signal.aborted, true);
       assert.equal(
