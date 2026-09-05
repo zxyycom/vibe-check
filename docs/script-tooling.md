@@ -59,6 +59,9 @@ scripts helper、环境状态或 process adapter。
 | maintenance advisory      | `bun run maintenance:lizard-upstream`                                                                                                                   | `scripts/maintenance/lizard-upstream-advisory.ts`                                   |
 | Project Gate              | `bun run check [-- --typecheck \| --lint \| --test \| --docs \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>` | `scripts/project/gate/run.ts`                                                       |
 
+来源映射维护使用 `bun run source-mapping [-- check | sync]`，由 `scripts/package/legal-materials/source-mapping.ts`
+拥有；默认只读检查，写入边界见[来源映射维护](#translated-source-mapping-maintenance)。
+
 `bun run check` 选择日常 required 集；focused preset 可组合并替换默认选择，`--all` 独占其它 preset。
 `.codex/environments/*.toml` 也直接调用该正式名称；旧 `verify:vibe-check-workspace`、`:required` 与
 `:full` 均不再存在。scope、action 和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
@@ -222,6 +225,39 @@ ordered tar inventory、SHA-256、SHA-512 SRI、manifest/legal/README identity�
 重验；任一 source 或 byte drift 都失败。只有 receipt 通过 current verifier 后，这些本地材料才构成完整 formal preparation
 结果；receipt 本身仍不证明 Gate 或 registry 状态。`package:release:verify` 只把显式 receipt 交给 `--all` Gate，不查询 registry，
 也不发布。
+
+### Translated source mapping maintenance
+
+此维护流程只处理 source-aligned Lizard port 的**来源到仓库 target**闭合；它不是上游代码更新、header 修复或
+analyzer 行为验收。维护者先区分下列 owner，不能从相邻 JSON 的格式推断写入权：
+
+| Material | Owner / editable status | Purpose |
+| --- | --- | --- |
+| `licenses/lizard-1.24.0-provenance.json` | source/range/hash/SPDX→translated target inventory 的唯一人工编辑源 | 来源、范围和 translated target 改动时在此更新。 |
+| `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/lizard-1.24-source-identity.json` | 单独人工维护的 identity evidence | 选择 source→symbol 或 named host seam，并保留 `classes`/`symbols` completeness signal；它不由 ledger 生成。 |
+| `scripts/package/package-contract.ts` 的 `PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_SHA256` | 由 ledger 字节派生的 package legal-material pin | package legal-material audit 消费该 pin；不要手改。 |
+
+通常先运行只读检查：
+
+```sh
+bun run source-mapping
+```
+
+它解析 ledger 并核对 package-contract 中的精确 provenance SHA-256；只有摘要一致且 identity 不含旧派生计数后，才执行
+source-identity AST audit。发现任一派生材料陈旧时失败而不写工作树。审阅 ledger 和 identity selection 后，才可显式运行：
+
+```sh
+bun run source-mapping -- sync
+```
+
+`sync` 只会把 provenance 的 SHA-256 投影到 package contract，并在遗留字段存在时从 identity JSON 删除派生的
+`counts.entries` 与 `counts.targets`；它不生成或改写 source→symbol/host-seam 选择、上游 hash、SPDX、license、
+source header、oracle 或 analyzer 行为。写入前会先完成 ledger/identity/package-pin 校验及 identity audit；验证拒绝时
+不改 curated files（包括缺失或重复的 package pin）。若之后的写入失败，流程尝试恢复本次尝试写入的每个文件的原内容；
+该恢复路径由目标测试覆盖，但不替代版本控制。
+
+来源 inventory/派生 pin 的维护测试、identity AST coverage、以及 source header/legal-material closure 是互补证据；
+它们不能证明 reader/oracle/parity 的翻译语义，后者仍由 analyzer owner 的行为测试证明。
 
 ## Project Gate
 

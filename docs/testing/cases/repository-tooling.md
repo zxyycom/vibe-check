@@ -35,6 +35,20 @@ Entities:
 - The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, all four complete current artifact examples, exact Lizard/Pygments notice, license and provenance material, and the non-public emitted function-metrics Worker through staging and tar audit; it includes exact zero-byte NDJSON files and excludes historical or analyzer fixture material.
 - The direct legal-material audit proves the orchestrator's stable seven-stage fail-first order: approved material bytes; provenance inventory parsing; translated-target closure; registered target headers; untracked headers; deferred bodies absent; then fixed-source notice content. Each injected combination exposes the first reachable stage error.
 
+## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
+
+Owner: `docs/script-tooling.md#translated-source-mapping-maintenance`
+Entities:
+
+- `bun|scripts/package/legal-materials/source-mapping.test.ts|source mapping sync derives only the package provenance pin after reviewing curated mappings`
+- `bun|scripts/package/legal-materials/source-mapping.test.ts|source mapping sync leaves curated files untouched when validation rejects a mapping`
+- `bun|scripts/package/legal-materials/source-mapping.test.ts|source mapping sync restores a prior file when a later write fails`
+  Proves:
+
+- After curated mapping review, synchronization preserves ledger bytes, reports only the identity manifest and package contract as changed, deletes only legacy derived `counts.entries`/`counts.targets`, and replaces only the package provenance SHA-256 from the ledger. A following check reports no changes.
+- A rejected identity mapping, malformed provenance, or missing/duplicate package pin leaves all three curated fixture files byte-for-byte unchanged before writing. If the later package-contract write partially fails, every attempted fixture write is restored to its prior contents.
+- This Case proves maintenance and recovery boundaries only. Source header/legal-material closure remains `AUX-PACKAGE-ARTIFACT-MATERIAL-001`; source→symbol/host-seam coverage remains `FM-ANALYZER-SOURCE-IDENTITY-001`; neither is analyzer semantic/oracle/parity evidence.
+
 ## Case AUX-PACKAGE-RELEASE-001: Formal release binds one clean source to one portable artifact receipt
 
 Owner: `docs/script-tooling.md#formal-release-preparation-and-receipt`
