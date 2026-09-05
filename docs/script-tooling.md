@@ -288,16 +288,16 @@ Gate 只为 file metrics 读取 mise-bound SCC command。
 Project Definition 中可逐项审阅和选择的普通 package Checks，不存在父 quality Check、嵌套 Run、第二份运行配置
 或独立 quality command。
 
-Gate 对四项使用 non-blocking finding policy：normal findings 保留完整 final data / Records，并由 owning Check 输出有上限的安全摘要；超过摘要上限时只追加精确 omitted count。external-command、source、parse、内置分析或资源上限 failure 仍结算为 `unavailable`。完整 finding facts 以 machine Records 为准。
+Gate 对四项显式使用 `blocking` finding policy：未被 owning Check 既有 waiver 或 selection exclusion 消除的 normal Finding 保留完整 final data / Records，并令 owning Check `failed`；安全摘要仍由 owning Check 有上限地输出，超过摘要上限时只追加精确 omitted count。zero Finding 仍令 Check `passed`。external-command、source、parse、内置分析或资源上限 failure 仍结算为 `unavailable`。完整 finding facts 以 machine Records 为准。
+
+四项都是 required 与 `quality` preset 的成员，故其未豁免 normal Finding 会通过现有 status-only `effective` / `all` aggregate 阻断 required、`--quality` 与 `--all` invocation；`markdown-link-validation` 还是 `docs` preset 成员，因此同样阻断 `--docs`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private explicit policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
 
 repository-private scope 只让 TypeScript、current Schemas 和 examples 进入 `duplicate-detection`；Markdown 由 file metrics
 与 Markdown link validation 观察，不进入重复检测。`docs/schemas/historical/**` 不进入 duplicate/file maintainability
 metrics，但仍由显式 documentation contract 严格验证。repository defaults 还排除 `**/archive/**`；这是本项目配置，不是
 package 的公共默认值。
 
-同一 non-blocking Finding policy 适用于 required、`--all` 和正式 release receipt 验证：发布前不要求 Finding 清零或逐项
-waiver。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自
-owner 阻断。
+同一 `blocking` policy 适用于 required、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
 
 Gate 只接受 mise 提供的绝对 SCC path；缺失或相对 `VIBE_CHECK_SCC_CMD` 不回退 ambient `PATH`，而让 file-metrics owner 按 scanner failure 结算。`functionMetrics` 直接使用内置 analyzer，不读取 scanner command 或环境 binding。三个 metrics Check 的
 `product-source` area 都排除 `src/package-checks/function-metrics/analyzer/**`：该目录由 source-aligned port owner 整体维护，不生成

@@ -1,6 +1,6 @@
 ---
 title: 将活动质量清理中的已选记录作为必需修复
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T15:20:40Z
 purpose: 区分 Gate 的 advisory 聚合与已启动清理 Change 对其选定质量记录的必需处置。

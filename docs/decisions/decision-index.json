@@ -45,7 +45,7 @@
       "construct-function-metrics-from-defaulted-area-policy.md": "sha256:85e09451048af2fe1615f2c7d48bf92b9f0b7c83d12132295054283a8d96f4e3",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
       "cooperatively-cancel-task-graphs.md": "sha256:7c5524f935b669fb9db4cecb9ed20f0b78afb8dac40d0629a56aa0ad7f572a86",
-      "default-package-quality-findings-to-advisory.md": "sha256:5b7e16dea967c3845ed3a622ac3aa7160168ed55dadc39fb4ef4678d5a834248",
+      "default-package-quality-findings-to-advisory.md": "sha256:f5f3c47c656f1a082e34ceb08e9fd4b3ae2b64ad00f1713145bae58fdd84c744",
       "default-project-gate-to-required-profile.md": "sha256:81bc2c8e30f441b478e12fe88e8fe21ce5666971906d41ee3bca626bbf18b09e",
       "defer-future-feature-detail-until-prioritized.md": "sha256:7852346befd1c0227510085aafa4bb1403ba511f0c429e834cc051fa4bda1ac6",
       "defer-lizard-runtime-unification.md": "sha256:d1b70b8ceda63451c4940940c5cb20b897590e27efdb19c493c0df1cd7c2cd21",
@@ -108,13 +108,14 @@
       "keep-gate-run-evidence-complete-with-stateless-scheduler-context.md": "sha256:ea2fe0c0ceee7de690f037bc0517084d3c12af4c349f3aaac7085dbf1b216ca1",
       "keep-lizard-advisory-explicit-with-selected-extension-adoption.md": "sha256:f3c835c80ff507ae59a168e671d3f5f86f6fd2c7fbb934699f9bfd0b262f00c2",
       "keep-package-machine-docs-consumer-focused.md": "sha256:92a2373c3ae8ae680a6c037321d32313fa442844c9e16d229d9dc84709a6c185",
+      "keep-package-quality-defaults-advisory-and-make-project-gate-strict.md": "sha256:8706876e4a855a8c2a579ca9ffacd3b10d8740080e5ced7de0f1cd5cd077dcf9",
       "keep-prestable-package-releases-on-0-0-x.md": "sha256:b482960bbdfb3d44e013bb3a5cc87f7c4e64f506e61b1466a83bfb91da484f52",
       "keep-prestable-releases-on-0-0-x.md": "sha256:03827730a8ed1e151cb320d3f9e03b292349acc83e23c2d211cfc76ff4be3fff",
       "keep-project-workflow-skill-overrides-bounded.md": "sha256:91f4836ca23599c2afe5a117368d3e6630bb412d520c1189f77aac339a60800a",
       "keep-public-config-tool-neutral.md": "sha256:20f27b3206cc31de25e12f1f66c4f199ddeca3ec5cc5ba8d2c05108d119813f6",
       "keep-public-inventory-and-package-materials-tooling-owned.md": "sha256:c59ad47b081a0cce195830264a9c555b4966e6de042df57a2539a217c366d63b",
       "keep-record-field-shapes-at-the-type-boundary.md": "sha256:0fd2de21fab591cff48036b30e912a72370996dc995ebe68cd69dbe40971aab6",
-      "keep-repository-quality-findings-advisory-through-release.md": "sha256:9ad083b099355d44d78d0537de28e61bd829a0cb7498e4a87eac08de2d434f60",
+      "keep-repository-quality-findings-advisory-through-release.md": "sha256:7e85af460bdb9c78ff6724b43c1edc63ce865deec4e5a21a7c41e0ddf4b3c2f7",
       "keep-sensitive-quality-record-material-ephemeral.md": "sha256:f89701e33cfb23c3cbebee397e0344e22a987c30a1bb3a6e16d1ee25f6e1128d",
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
       "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
@@ -195,7 +196,7 @@
       "require-explicit-quality-baselines.md": "sha256:c7ab7787e6b9462c9b38a3921ec7c7135da402b0149de9137acc8ddb988a2764",
       "require-explicit-quality-comparison-references.md": "sha256:6defb1263f4309390851c29010185b69a98490287c3fbad55d2f3908d68e9b88",
       "require-known-repository-quality-remediation-before-public-release.md": "sha256:d3f57d08bba36a5e22d4e4bccb41ef7bba506032c2d4d824dfb5ff721c77db8d",
-      "require-selected-repository-quality-remediation-in-active-cleanup-changes.md": "sha256:0a83155aee75c2c04ecb6433b8b21ec412a675e2ded3ea05129ec5e74a6eeb34",
+      "require-selected-repository-quality-remediation-in-active-cleanup-changes.md": "sha256:b63ae8082b507efa4f372bade243f7b3194781f55fd7550e5b2783642e25c990",
       "restrict-machine-publication-to-canonical-file-ownership.md": "sha256:ffc7d96b6c2b385b6fdd9289b5a988b54a6874e22c002958a609df7d74dcd99d",
       "retain-private-invocation-admission-strategy-lifecycle.md": "sha256:20e1ad76e1eaded574bfd26306d899c58dec10dca5b132ed01a4b2c601e467b6",
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
@@ -1607,16 +1608,16 @@
           "product-contract"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "default-package-quality-findings-to-advisory.md",
+        "sourcePath": "archive/default-package-quality-findings-to-advisory.md",
         "title": "默认将 Package 质量 Finding 作为非阻断观察",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-30T11:39:49Z",
         "purpose": "让普通 consumer 从完整质量证据开始，而不是无意继承本仓库的严格阻断政策。",
@@ -3599,6 +3600,54 @@
         ]
       }
     },
+    "keep-package-quality-defaults-advisory-and-make-project-gate-strict.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "product-priority",
+          "repository-automation",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "keep-package-quality-defaults-advisory-and-make-project-gate-strict.md",
+        "title": "保持 Package 质量默认 advisory 并使 Project Gate 的质量 Finding 阻断",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-05T08:49:10Z",
+        "purpose": "保持 Package 默认 advisory，同时让 Project Gate 的未豁免质量 Finding 通过所属 Check status 阻断。",
+        "background": "Package 默认已改为 advisory，而 Gate 仍显式使用严格阈值和 non-blocking policy。",
+        "decision": "保留 Package 默认 advisory；将 Gate 四项质量 Check 显式改为 blocking，并由现有 all aggregate 自然失败。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "product-priority",
+          "repository-automation",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "default-package-quality-findings-to-advisory.md"
+          },
+          {
+            "type": "替代",
+            "target": "keep-repository-quality-findings-advisory-through-release.md"
+          },
+          {
+            "type": "修订",
+            "target": "require-selected-repository-quality-remediation-in-active-cleanup-changes.md"
+          }
+        ]
+      }
+    },
     "keep-prestable-package-releases-on-0-0-x.md": {
       "keys": {
         "tag": [
@@ -3782,16 +3831,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "keep-repository-quality-findings-advisory-through-release.md",
+        "sourcePath": "archive/keep-repository-quality-findings-advisory-through-release.md",
         "title": "让仓库质量 Finding 在发布前仍为提示",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-02T06:42:07Z",
         "purpose": "让同一 repository quality policy 在开发与发布验收中保持非阻断，不建立发布专用清零要求。",
@@ -6367,16 +6416,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "require-selected-repository-quality-remediation-in-active-cleanup-changes.md",
+        "sourcePath": "archive/require-selected-repository-quality-remediation-in-active-cleanup-changes.md",
         "title": "将活动质量清理中的已选记录作为必需修复",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-04T15:20:40Z",
         "purpose": "区分 Gate 的 advisory 聚合与已启动清理 Change 对其选定质量记录的必需处置。",

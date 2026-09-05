@@ -118,7 +118,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         minimumTokens: 75
       }
     },
-    findingPolicy: "non-blocking"
+    findingPolicy: "blocking"
   },
   fileMetrics: {
     codeAreas: {
@@ -160,7 +160,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         }
       }
     },
-    findingPolicy: "non-blocking"
+    findingPolicy: "blocking"
   },
   functionMetrics: {
     codeAreas: {
@@ -185,14 +185,14 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         limits: repositoryFunctionLimits
       }
     },
-    findingPolicy: "non-blocking"
+    findingPolicy: "blocking"
   },
   markdownLinkValidation: {
     files: {
       ...areaFileDefaults,
       include: ["docs/**/*.md", "changes/**/*.md"]
     },
-    findingPolicy: "non-blocking"
+    findingPolicy: "blocking"
   }
 } as const satisfies RepositoryQualityCheckOptions;
 

@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { defineCheck, run as packageRun } from "@zxyycom/vibe-check";
+import { defineCheck, markdownLinkValidation, run as packageRun } from "@zxyycom/vibe-check";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
@@ -510,6 +510,57 @@ describe("Project Gate Definition", () => {
           }
         );
       }
+    } finally {
+      rmSync(projectRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("settles a blocking normal quality Finding through its owning Check and effective aggregate", async () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-quality-finding-"));
+    try {
+      const docsDirectory = join(projectRoot, "docs");
+      mkdirSync(docsDirectory);
+      const guidePath = join(docsDirectory, "guide.md");
+      writeFileSync(join(docsDirectory, "target.md"), "# Target\n", "utf8");
+      const entries = defineProjectGateEntries([
+        {
+          check: markdownLinkValidation({
+            files: { include: ["docs/**/*.md"] },
+            findingPolicy: "blocking"
+          }),
+          presets: ["quality"],
+          required: false
+        }
+      ]);
+      const definition = createProjectGateDefinition(entries);
+      const runQuality = () =>
+        packageRun(definition, {
+          checkAggregation: projectGateAggregation(),
+          flags: selectionFlags({ kind: "focused", presets: ["quality"] }),
+          outputs: {
+            diagnosticLogging: { enabled: false },
+            machinePublication: { enabled: false },
+            progressRendering: { enabled: false }
+          },
+          projectRoot
+        });
+
+      writeFileSync(guidePath, "[target](target.md)\n", "utf8");
+      const zeroFindings = await runQuality();
+      assert.equal(zeroFindings.kind, "completed");
+      if (zeroFindings.kind !== "completed") return;
+      assert.equal(zeroFindings.aggregate, "passed");
+      assert.equal(zeroFindings.snapshot.records.length, 0);
+      assert.equal(zeroFindings.snapshot.checks[0]?.outcome.status, "passed");
+
+      writeFileSync(guidePath, "[missing](missing.md)\n", "utf8");
+      const normalFinding = await runQuality();
+      assert.equal(normalFinding.kind, "completed");
+      if (normalFinding.kind !== "completed") return;
+      assert.equal(normalFinding.snapshot.checks[0]?.checkId, "markdown-link-validation");
+      assert.equal(normalFinding.snapshot.checks[0]?.outcome.status, "failed");
+      assert.equal(normalFinding.snapshot.records.length, 1);
+      assert.equal(normalFinding.aggregate, "failed");
     } finally {
       rmSync(projectRoot, { force: true, recursive: true });
     }

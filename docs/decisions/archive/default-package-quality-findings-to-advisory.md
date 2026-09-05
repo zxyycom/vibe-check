@@ -1,6 +1,6 @@
 ---
 title: 默认将 Package 质量 Finding 作为非阻断观察
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T11:39:49Z
 purpose: 让普通 consumer 从完整质量证据开始，而不是无意继承本仓库的严格阻断政策。

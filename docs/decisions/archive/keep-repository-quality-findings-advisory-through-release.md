@@ -1,6 +1,6 @@
 ---
 title: 让仓库质量 Finding 在发布前仍为提示
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T06:42:07Z
 purpose: 让同一 repository quality policy 在开发与发布验收中保持非阻断，不建立发布专用清零要求。
