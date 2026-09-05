@@ -12,9 +12,9 @@ import {
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import type { AdmissionSelectionPolicy } from "../task-scheduler/admission-selection-policy.ts";
 import { runTaskGraph } from "../task-scheduler/scheduler.ts";
-import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/scheduler-performance-diagnostics.ts";
+import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/measurement/diagnostics.ts";
 import { executeCheckCallback } from "./callback.ts";
-import { artifactDirectoryForCheck, type ResolvedInvocationPaths } from "../invocation-paths.ts";
+import { artifactDirectoryForCheck, type ResolvedInvocationPaths } from "../invocation/paths.ts";
 import { runWithCheckConsoleRouter } from "./console-capture.ts";
 import { createCheckDependencies } from "./dependencies.ts";
 import {

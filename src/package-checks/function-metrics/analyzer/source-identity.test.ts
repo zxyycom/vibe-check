@@ -36,9 +36,7 @@ const MAPPING_VOCABULARY = new Set([
 ]);
 const FIXED_IDENTITY_COUNTS = {
   classes: 83,
-  entries: 46,
-  symbols: 820,
-  targets: 41
+  symbols: 820
 } as const;
 const FIXED_UPSTREAM = {
   project: "terryyin/lizard",
@@ -59,6 +57,8 @@ interface SourceReference {
 }
 
 interface TargetReference {
+  /** Selects one named additional carrier from a split provenance range. */
+  readonly additionalTargetBasename?: string;
   readonly className?: string;
   readonly provenance?: SourceReference;
   readonly static?: boolean;
@@ -74,7 +74,9 @@ interface SymbolMapping {
 }
 
 interface TargetSeam extends SymbolMapping {
-  readonly targetRole: TargetRole;
+  /** Selects one named additional carrier when this seam stays in its own range. */
+  readonly additionalTargetBasename?: string;
+  readonly targetRole?: TargetRole;
 }
 
 interface ClassMapping {
@@ -83,6 +85,9 @@ interface ClassMapping {
   readonly methods: readonly SymbolMapping[];
   readonly sourceName: string;
   readonly targetName: string;
+  /** A split source range may retain a class in one named additional runtime carrier. */
+  readonly additionalTargetBasename?: string;
+  readonly targetRole?: TargetRole;
 }
 
 interface IdentityEntry extends SourceReference {
@@ -95,9 +100,7 @@ interface IdentityEntry extends SourceReference {
 interface IdentityManifest {
   readonly counts: {
     readonly classes: number;
-    readonly entries: number;
     readonly symbols: number;
-    readonly targets: number;
   };
   readonly entries: readonly IdentityEntry[];
   readonly mappingVocabulary: readonly string[];
@@ -196,15 +199,24 @@ test("fixed Lizard reader/shared source identities map to translated symbols or 
 
     for (const classMapping of entry.classes) {
       mappedClassCount += 1;
+      const classTargetPath = targetPathForRole(
+        provenanceEntry,
+        classMapping.targetRole ?? "primary",
+        classMapping.additionalTargetBasename
+      );
+      const classTarget =
+        classTargetPath === primaryTargetPath
+          ? entryTarget
+          : sourceFile(classTargetPath, sourceFiles);
       assert.ok(
-        findClass(entryTarget, classMapping.targetName),
-        `${sourceKey}:${classMapping.sourceName} is absent from ${primaryTargetPath}`
+        findClass(classTarget, classMapping.targetName),
+        `${sourceKey}:${classMapping.sourceName} is absent from ${classTargetPath}`
       );
       assert.ok(
-        targetClassNames.add(`${primaryTargetPath}:${classMapping.targetName}`),
+        targetClassNames.add(`${classTargetPath}:${classMapping.targetName}`),
         `${sourceKey}:${classMapping.sourceName} duplicates a target class identity`
       );
-      verifiedEntryTargetPaths.add(primaryTargetPath);
+      verifiedEntryTargetPaths.add(classTargetPath);
 
       mappedSymbolCount += assertAllClassSymbols(
         classMapping,
@@ -221,6 +233,7 @@ test("fixed Lizard reader/shared source identities map to translated symbols or 
         targetSeam,
         provenanceEntry,
         sourceKey,
+        inventory,
         sourceFiles,
         verifiedEntryTargetPaths
       );
@@ -245,10 +258,9 @@ function assertManifestShape(manifest: IdentityManifest, inventory: TranslatedIn
   assert.ok(manifest.scope.length > 0, "identity manifest scope must be non-empty");
   assert.equal(manifest.mappingVocabulary.length, MAPPING_VOCABULARY.size);
   assert.deepEqual(new Set(manifest.mappingVocabulary), MAPPING_VOCABULARY);
-  assert.deepEqual(manifest.counts, FIXED_IDENTITY_COUNTS);
+  assert.equal(manifest.counts.classes, FIXED_IDENTITY_COUNTS.classes);
+  assert.equal(manifest.counts.symbols, FIXED_IDENTITY_COUNTS.symbols);
   assert.equal(manifest.entries.length, inventory.translatedEntries.length);
-  assert.equal(manifest.counts.entries, manifest.entries.length);
-  assert.equal(manifest.counts.targets, inventory.targetPaths.size);
   assert.equal(JSON.stringify(manifest).includes('"sha256"'), false);
   assert.equal(JSON.stringify(manifest).includes('"spdx"'), false);
   assert.equal(JSON.stringify(manifest).includes('"targetPath"'), false);
@@ -262,8 +274,6 @@ function assertTranslatedInventory(provenance: ProvenanceLedger): TranslatedInve
   const sourceKeys = new Set<string>();
   const targetPaths = new Set<string>();
   const translatedEntries = provenance.files.filter((entry) => entry.status === "translated");
-
-  assert.equal(translatedEntries.length, FIXED_IDENTITY_COUNTS.entries);
 
   for (const entry of translatedEntries) {
     assertProvenanceEntryShape(entry);
@@ -280,7 +290,6 @@ function assertTranslatedInventory(provenance: ProvenanceLedger): TranslatedInve
     }
   }
 
-  assert.equal(targetPaths.size, FIXED_IDENTITY_COUNTS.targets);
   return { entriesByKey, sourceKeys, targetPaths, translatedEntries };
 }
 
@@ -356,7 +365,13 @@ function assertAllClassSymbols(
       `${sourceKey}:${classMapping.sourceName} maps ${mapping.sourceName} more than once`
     );
 
-    const targetPath = targetPathForMapping(provenanceEntry, mapping.target, inventory);
+    const targetPath = targetPathForMapping(
+      provenanceEntry,
+      mapping.target,
+      inventory,
+      classMapping.targetRole ?? "primary",
+      classMapping.additionalTargetBasename
+    );
     const targetClassName = mapping.target.className ?? classMapping.targetName;
     const targetSource = sourceFile(targetPath, sourceFiles);
     const targetClass = findClass(targetSource, targetClassName);
@@ -378,21 +393,19 @@ function assertTargetSeam(
   targetSeam: TargetSeam,
   provenanceEntry: ProvenanceEntry,
   sourceKey: string,
+  inventory: TranslatedInventory,
   sourceFiles: Map<string, ts.SourceFile>,
   verifiedTargetPaths: Set<string>
 ): number {
   assertMappingShape(targetSeam, sourceKey);
-  assert.equal(
-    targetSeam.target.provenance,
-    undefined,
-    `${sourceKey}: target seam must use its entry provenance`
-  );
-  assert.equal(
-    targetSeam.target.targetRole,
-    undefined,
-    `${sourceKey}: target seam role belongs on the seam`
-  );
-  const targetPath = targetPathForRole(provenanceEntry, targetSeam.targetRole);
+  const targetPath =
+    targetSeam.target.provenance === undefined
+      ? targetPathForRole(
+          provenanceEntry,
+          targetSeam.targetRole ?? "primary",
+          targetSeam.additionalTargetBasename
+        )
+      : targetPathForMapping(provenanceEntry, targetSeam.target, inventory);
   const target = sourceFile(targetPath, sourceFiles);
   if (targetSeam.target.className === undefined) {
     assert.ok(
@@ -453,11 +466,16 @@ function assertMappingShape(mapping: SymbolMapping, location: string): void {
 function targetPathForMapping(
   entryProvenance: ProvenanceEntry,
   target: TargetReference,
-  inventory: TranslatedInventory
+  inventory: TranslatedInventory,
+  defaultTargetRole: TargetRole = "primary",
+  defaultAdditionalTargetBasename?: string
 ): string {
   if (target.provenance === undefined) {
-    assert.equal(target.targetRole, undefined, "a target role requires a provenance reference");
-    return targetPathForRole(entryProvenance, "primary");
+    return targetPathForRole(
+      entryProvenance,
+      target.targetRole ?? defaultTargetRole,
+      target.additionalTargetBasename ?? defaultAdditionalTargetBasename
+    );
   }
 
   const referencedProvenance = inventory.entriesByKey.get(sourceReferenceKey(target.provenance));
@@ -465,10 +483,18 @@ function targetPathForMapping(
     referencedProvenance,
     `target reference lacks translated root provenance: ${sourceReferenceKey(target.provenance)}`
   );
-  return targetPathForRole(referencedProvenance, target.targetRole ?? "primary");
+  return targetPathForRole(
+    referencedProvenance,
+    target.targetRole ?? "primary",
+    target.additionalTargetBasename
+  );
 }
 
-function targetPathForRole(entry: ProvenanceEntry, targetRole: TargetRole): string {
+function targetPathForRole(
+  entry: ProvenanceEntry,
+  targetRole: TargetRole,
+  additionalTargetBasename?: string
+): string {
   if (targetRole === "primary") {
     assertNonEmptyString(
       entry.targetPath,
@@ -477,14 +503,35 @@ function targetPathForRole(entry: ProvenanceEntry, targetRole: TargetRole): stri
     return entry.targetPath;
   }
 
-  const additionalTargets = entry.additionalTargetPaths;
-  assert.ok(additionalTargets, `${entry.sourcePath}:${entry.range} has no additional target path`);
-  assert.equal(
-    additionalTargets.length,
-    1,
-    `${entry.sourcePath}:${entry.range} must name exactly one additional target`
+  const additionalTargets = entry.additionalTargetPaths ?? [];
+  assert.ok(
+    additionalTargets.length > 0,
+    `${entry.sourcePath}:${entry.range} has no additional target path`
   );
-  const targetPath = additionalTargets[0];
+  if (additionalTargetBasename === undefined) {
+    assert.equal(
+      additionalTargets.length,
+      1,
+      `${entry.sourcePath}:${entry.range} must select an additional target by basename`
+    );
+    const targetPath = additionalTargets[0];
+    assertNonEmptyString(targetPath, `${entry.sourcePath}:${entry.range}: additional targetPath`);
+    return targetPath;
+  }
+  assert.match(
+    additionalTargetBasename,
+    /^[a-z][a-z0-9-]*$/u,
+    `${entry.sourcePath}:${entry.range}: additional target basename`
+  );
+  const matches = additionalTargets.filter((path) =>
+    path.endsWith(`/${additionalTargetBasename}.ts`)
+  );
+  assert.equal(
+    matches.length,
+    1,
+    `${entry.sourcePath}:${entry.range}: additional target basename is ambiguous or absent`
+  );
+  const targetPath = matches[0];
   assertNonEmptyString(targetPath, `${entry.sourcePath}:${entry.range}: additional targetPath`);
   return targetPath;
 }

@@ -3,12 +3,15 @@ import { createHash } from "node:crypto";
 import { diagnosticTags, type DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import type { SchedulerDecision } from "./scheduler-decision.ts";
 import type { SchedulerState } from "./execution-state.ts";
-import { schedulerInspectionForCore, validateAdmissionCoreSelection } from "./admission-core.ts";
+import {
+  schedulerInspectionForCore,
+  validateAdmissionCoreSelection
+} from "./admission-core/core.ts";
 import type {
   AdmissionViablePendingTask,
   SchedulerPerformanceDiagnostics,
   SchedulerPerformanceState
-} from "./scheduler-performance-diagnostics.ts";
+} from "./measurement/diagnostics.ts";
 import type { AdmissionPolicyFault } from "./scheduler-admission-decision.ts";
 
 /** Fault logging is observational and therefore excluded from Scheduler control-path timing. */

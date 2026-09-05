@@ -7,7 +7,7 @@
  * overrides for class declarations and expression-bodied members.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CLikeNestingStackStates, CLikeReader, CLikeStates } from "../shared/clike.ts";
 import type { TokenFactory } from "../shared/code-reader.ts";
 

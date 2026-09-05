@@ -3,17 +3,23 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../value-guards.ts";
-import { type BunTestSurface, isSafeRelativeGlob } from "./discovery/bun-files.ts";
 import { isSafeRelativePosixPath } from "./relative-path.ts";
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
-export type SupportedRunnerProfile = {
-  schemaVersion: 1;
-  id: string;
-  version: number;
-  bun: BunTestSurface;
-};
+export type BunTestSurface = Readonly<{
+  readonly sourceRoots: readonly string[];
+  readonly include: readonly string[];
+  readonly ignore: readonly string[];
+  readonly supplementalFiles: readonly string[];
+}>;
+
+export type SupportedRunnerProfile = Readonly<{
+  readonly schemaVersion: 1;
+  readonly id: string;
+  readonly version: number;
+  readonly bun: BunTestSurface;
+}>;
 
 export const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -39,12 +45,12 @@ export function loadSupportedRunnerProfile(sourcePath = profilePath): SupportedR
     throw new Error("supported runner profile identity is invalid");
   }
   const bun = parseBunProfile(value.bun);
-  return {
+  return Object.freeze({
     schemaVersion: 1,
     id: value.id,
     version: Number(value.version),
     bun
-  };
+  });
 }
 
 function parseBunProfile(value: unknown): SupportedRunnerProfile["bun"] {
@@ -60,15 +66,27 @@ function parseBunProfile(value: unknown): SupportedRunnerProfile["bun"] {
   const supplementalFiles = relativePathList(value.supplementalFiles, "Bun supplementalFiles", {
     allowEmpty: true
   });
-  return {
-    sourceRoots,
-    include,
-    ignore,
-    supplementalFiles
-  };
+  return Object.freeze({ sourceRoots, include, ignore, supplementalFiles });
 }
 
-function globList(value: unknown, label: string, options: { allowEmpty?: boolean } = {}): string[] {
+export function isSafeRelativeGlob(pattern: string): boolean {
+  return (
+    pattern.length > 0 &&
+    pattern === pattern.trim() &&
+    !pattern.startsWith("!") &&
+    !pattern.startsWith("#") &&
+    !pattern.includes("\\") &&
+    !pattern.includes("\0") &&
+    !path.posix.isAbsolute(pattern) &&
+    pattern.split("/").every((segment) => segment.length > 0 && segment !== "." && segment !== "..")
+  );
+}
+
+function globList(
+  value: unknown,
+  label: string,
+  options: { allowEmpty?: boolean } = {}
+): readonly string[] {
   const items = sortedStringList(value, label, options);
   if (items.some((item) => !isSafeRelativeGlob(item))) {
     throw new Error(`${label} must contain positive relative POSIX globs`);
@@ -80,7 +98,7 @@ function relativePathList(
   value: unknown,
   label: string,
   options: { allowEmpty?: boolean } = {}
-): string[] {
+): readonly string[] {
   const items = sortedStringList(value, label, options);
   if (items.some((item) => !isSafeRelativePosixPath(item))) {
     throw new Error(`${label} must contain safe relative POSIX paths`);
@@ -92,7 +110,7 @@ function sortedStringList(
   value: unknown,
   label: string,
   options: { allowEmpty?: boolean } = {}
-): string[] {
+): readonly string[] {
   if (!isUnknownArray(value) || (!options.allowEmpty && value.length === 0)) {
     throw new Error(`${label} must be ${options.allowEmpty ? "a" : "a non-empty"} string array`);
   }
@@ -108,7 +126,7 @@ function sortedStringList(
   ) {
     throw new Error(`${label} must be uniquely sorted`);
   }
-  return items;
+  return Object.freeze(items);
 }
 
 function isUnknownArray(value: unknown): value is unknown[] {

@@ -5,10 +5,11 @@
  * SPDX-License-Identifier: MIT
  * Modified: translated to the Check-private TypeScript port. Python's
  * import-time FileInfoBuilder/FunctionInfo monkey patches are represented by
- * typed private members on those host classes in core.ts.
+ * typed private members on those host classes in analysis-context.ts and analysis-model.ts.
  */
 
-import type { AnalyzerReader, FileInfoBuilder, TokenStream } from "../core.ts";
+import type { AnalyzerReader, TokenStream } from "../contracts.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import type {
   ExtensionArgumentRegistrar,
   LizardExtension as LizardExtensionProtocol
@@ -108,7 +109,7 @@ export class LizardExtension implements LizardExtensionProtocol {
   }
 }
 
-/** Source lizardnd.py's FileInfoBuilder patch target, supplied by core.ts. */
+/** Source lizardnd.py's FileInfoBuilder patch target, supplied by analysis-context.ts. */
 export type NDFileInfoAddition = Pick<
   FileInfoBuilder,
   | "add_nd_condition"

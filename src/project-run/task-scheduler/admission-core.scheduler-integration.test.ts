@@ -7,8 +7,8 @@ import { admissionSelectionPolicyFor } from "./custom-admission-policy.ts";
 import {
   compilePreparedAdmissionGraph,
   createInitialAdmissionCoreState
-} from "./admission-core.ts";
-import { admissionCoreTraceProjectionFor, traceAdmissionCore } from "./admission-core-trace.ts";
+} from "./admission-core/core.ts";
+import { admissionCoreTraceProjectionFor, traceAdmissionCore } from "./admission-core/trace.ts";
 import { prepareTaskGraph } from "./graph.ts";
 import { runTaskGraph } from "./scheduler.ts";
 

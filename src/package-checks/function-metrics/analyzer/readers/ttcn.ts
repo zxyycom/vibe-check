@@ -7,7 +7,7 @@
  * preprocessing, declaration and implementation state transitions.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CLikeNestingStackStates, CLikeReader, CLikeStates } from "../shared/clike.ts";
 import { CodeReader, type TokenFactory } from "../shared/code-reader.ts";
 

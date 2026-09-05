@@ -6,7 +6,8 @@
  * Modified: translated to the product-owned TypeScript analyzer.
  */
 
-import type { AnalyzerReader, FileInfoBuilder, TokenStream } from "../core.ts";
+import type { AnalyzerReader, TokenStream } from "../contracts.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CCppCommentsMixin } from "../shared/clike.ts";
 import { CodeReader, type TokenFactory } from "../shared/code-reader.ts";
 import { GoLikeStates } from "../shared/golike.ts";

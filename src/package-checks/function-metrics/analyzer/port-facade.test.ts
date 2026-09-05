@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { analyzeSourceCode } from "./core.ts";
+import { analyzeSourceCode } from "./pipeline.ts";
 import { getExtensions } from "./extensions/registry.ts";
 import {
   analyzeLizardSource,

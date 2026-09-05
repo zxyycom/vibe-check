@@ -7,7 +7,7 @@
  * C-like state overrides, record handling and nested class lifecycle.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CLikeNestingStackStates, CLikeReader, CLikeStates } from "../shared/clike.ts";
 import { createJavaBodyStates } from "./java-body-states.ts";
 

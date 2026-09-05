@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 
 describe("Package Run diagnostic logging output", () => {

@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import type { CheckExecutionContext } from "../../check/check.ts";
-import { executeValidatedRun } from "../../project-run/invocation.ts";
+import { executeValidatedRun } from "../../project-run/invocation/run.ts";
 import { maintenanceReminders, type MaintenanceReminderOptions } from "./maintenance-reminders.ts";
 import {
   FULL_BASE,

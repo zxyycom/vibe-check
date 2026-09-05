@@ -7,7 +7,7 @@
  * declaration override, selector lifecycle and typedef suppression.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CLikeNestingStackStates, CLikeReader, CLikeStates } from "../shared/clike.ts";
 
 /** Objective-C reader with source-compatible C-like and selector state fan-out. */

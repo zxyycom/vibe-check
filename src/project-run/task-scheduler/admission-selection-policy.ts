@@ -1,5 +1,5 @@
 import type { PlannedTask, PlannedTaskGraph } from "./graph.ts";
-import type { AdmissionCoreState } from "./admission-core.ts";
+import type { AdmissionCoreState } from "./admission-core/core.ts";
 import {
   isConstrainedScopeContinuation,
   scopeForTask,

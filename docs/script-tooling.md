@@ -20,9 +20,9 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 | `scripts/validation/**`                                 | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。                                                                                                                                                                                                                                                                                      |
 | `scripts/docs/**`                                       | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。                                                                                                                                                                                                                                                                                                                                         |
 | `scripts/package/**`                                    | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate/release 共用 package-material audit；`artifact/**` 构建和审计 tarball，`candidate/**` 准备、安装并核对 fingerprint local receipt，`release/**` 验证 clean source、formal version/tag、portable receipt 与 same-artifact Gate handoff，`candidate/external-consumer/**` 拥有隔离 consumer material、typed provider 与 types/documentation/runtime acceptance。candidate fingerprint 有意覆盖整个 package lifecycle 以保守失效。 |
-| `scripts/project/**`                                    | 唯一 private candidate consumer root；`gate/definition.ts` 是 Gate 组合配置入口，`gate/run.ts` 是唯一 process entry，`gate/checks/**` 拥有各领域 Check 配置与 adapter，`gate/runtime/**` 拥有 bound runtime mechanics。                                                                                                                                                                                                                                                                                                 |
+| `scripts/project/**`                                    | 唯一 private candidate consumer root；其 Gate child owner 见[Project Gate and Test Evidence child owners](#project-gate-and-test-evidence-child-owners)。                                                                                                                                                                                                                                                                                                 |
 | `scripts/decision-records/command.ts`                   | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| `scripts/test-evidence/command.ts`                      | 当前 test entity discovery、Case 查询与闭合检查的 command/API owner；`catalog/test-support.ts` 仅为它的 node:test fixture setup。                                                                                                                                                                                                                                                                                                                                                                                       |
+| `scripts/test-evidence/command.ts`                      | current test entity discovery、Case 查询与闭合检查的 command/API owner；其 child owner 见[Project Gate and Test Evidence child owners](#project-gate-and-test-evidence-child-owners)。                                                                                                                                                                                                                                                                                                                                                                                       |
 | `scripts/maintenance/**`                                | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。                                                                                                                                                                                                                                                                                                                                                                 |
 
 `src/index.ts` 是唯一 public 产品入口及 package artifact build/declaration entry。`scripts/project/package.json`
@@ -30,6 +30,19 @@ source/contract material，但不以它建立内部 runtime consumer 或调用 P
 import 或启动 project consumer。artifact/package-API documentation build 与 audit 可以读取各自显式 allowlisted 的
 Product source 或 contract material，但不成为 Package Run consumer。产品 runtime、Definition 和 Check 不得依赖
 scripts helper、环境状态或 process adapter。
+
+### Project Gate and Test Evidence child owners
+
+| 路径 | 职责 |
+| --- | --- |
+| `scripts/project/gate/definition.ts` | Gate 组合配置及 invocation runtime material 的类型。 |
+| `scripts/project/gate/run.ts` | 唯一 Gate process entry。 |
+| `scripts/project/gate/checks/entry-factories.ts` | 将已解析的 process invocation 或 native Check 封装为带 selection metadata 的 Gate entry。process entry 只能是 plain、typed data dependency 或 structured failure projection 之一；TypeScript union 与 runtime guard 都拒绝混用两个 adapter。 |
+| 其它 `scripts/project/gate/checks/**` | 各领域 Check 配置与 adapter。 |
+| `scripts/project/gate/runtime/**` | bound runtime mechanics。 |
+| `scripts/test-evidence/profile.ts` | runner profile schema/value validation。 |
+| `scripts/test-evidence/discovery/**` | 单向消费 profile，并拥有 files/process registration。 |
+| `scripts/test-evidence/catalog/test-support.ts` | catalog 的 node:test fixture setup，不构成独立行为 owner。 |
 
 ## Root commands
 
@@ -142,6 +155,7 @@ local candidate 与 formal release 共用同一 closed generated manifest：user
 dependency；Pygments/Lizard legal provenance text 本身不构成 runtime dependency。SPDX 字段不能替代 physical legal-material audit。
 artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package
 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
+
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
 它不从 repository source 或祖先依赖补偿不完整的 candidate。安装后的责任按以下边界闭合：
 
@@ -349,7 +363,17 @@ oxlint 的 closed JSON schema 要求每个诊断具有 `error` 或 `warning` sev
 
 Hook 必须返回闭合的 `{ status, messages }`，且不能改写 context 或 RunResult；抛错或返回非法 shape 时 fail closed 为 `unavailable`。最终 `passed`、`failed`、`unavailable` 分别映射 exit `0`、`1`、`2`。参数、candidate、import、entry identity、log setup 或 execution boundary 在形成初步结果前失败时也映射为 `2`。
 
-`gate.log` 从 transcript 成功建立后只写 Gate adapter 的 candidate/selection/aggregation/execution messages、`afterGate` final messages 及唯一 final directory/result/exit；它不 patch `console`、`process.stdout` 或 `process.stderr`，也不复制 Product progress、Check presentation 或 child output。Product progress 继续直接输出 terminal，并仅由 Product progress owner tee 到 `progress.log`。成功关闭时追加 invocation directory、唯一最终 result 与 exit；关闭失败时即使 Product Run 已结算，也返回 `unavailable` / exit `2`。Gate 不解析 Product log、machine files、progress log 或 child transcripts 来重建结果。
+#### Gate terminal and transcript
+
+| Channel | 它包含的事实 | 它不包含的事实 |
+| --- | --- | --- |
+| `gate.log` | Gate adapter 的 candidate/selection/aggregation/execution messages、`afterGate` final messages，以及唯一 final directory/result/exit。 | Product progress、Check presentation 与 child output。 |
+| terminal | 一条 candidate/source/selection 启动摘要、Product progress、Gate warning/error、logs path 与最终 result。 | candidate、aggregation 或 post-processing 的完整 Gate adapter info。 |
+| `progress.log` | Product progress owner 生成并与 terminal 双投递的 progress text。 | Gate adapter transcript 或 child transcript。 |
+
+Gate 不 patch `console`、`process.stdout` 或 `process.stderr`，也不解析 Product log、machine files、`progress.log` 或 child
+transcript 来重建结果。成功关闭时 `gate.log` 追加 invocation directory、唯一最终 result 与 exit；关闭失败时即使 Product Run
+已结算，也返回 `unavailable` / exit `2`。
 
 ## Documentation, validation, and package material
 

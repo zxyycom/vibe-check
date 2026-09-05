@@ -16,9 +16,7 @@
   ],
   "counts": {
     "classes": 83,
-    "entries": 46,
-    "symbols": 820,
-    "targets": 41
+    "symbols": 820
   },
   "entries": [
     {
@@ -43,14 +41,18 @@
         {
           "sourceName": "preprocessing",
           "target": {
-            "symbol": "preprocessing"
+            "symbol": "preprocessing",
+            "targetRole": "additional",
+            "additionalTargetBasename": "pipeline"
           },
           "mapping": "direct"
         },
         {
           "sourceName": "comment_counter",
           "target": {
-            "symbol": "commentCounter"
+            "symbol": "commentCounter",
+            "targetRole": "additional",
+            "additionalTargetBasename": "pipeline"
           },
           "mapping": "host-casing-seam",
           "reason": "The TypeScript host spelling is camelCase; this mapping retains the source function identity without adding a duplicate runtime alias."
@@ -58,7 +60,9 @@
         {
           "sourceName": "line_counter",
           "target": {
-            "symbol": "lineCounter"
+            "symbol": "lineCounter",
+            "targetRole": "additional",
+            "additionalTargetBasename": "pipeline"
           },
           "mapping": "host-casing-seam",
           "reason": "The TypeScript host spelling is camelCase; this mapping retains the source function identity without adding a duplicate runtime alias."
@@ -66,7 +70,9 @@
         {
           "sourceName": "token_counter",
           "target": {
-            "symbol": "tokenCounter"
+            "symbol": "tokenCounter",
+            "targetRole": "additional",
+            "additionalTargetBasename": "pipeline"
           },
           "mapping": "host-casing-seam",
           "reason": "The TypeScript host spelling is camelCase; this mapping retains the source function identity without adding a duplicate runtime alias."
@@ -74,7 +80,9 @@
         {
           "sourceName": "condition_counter",
           "target": {
-            "symbol": "conditionCounter"
+            "symbol": "conditionCounter",
+            "targetRole": "additional",
+            "additionalTargetBasename": "pipeline"
           },
           "mapping": "host-casing-seam",
           "reason": "The TypeScript host spelling is camelCase; this mapping retains the source function identity without adding a duplicate runtime alias."
@@ -522,7 +530,9 @@
               },
               "mapping": "direct"
             }
-          ]
+          ],
+          "targetRole": "additional",
+          "additionalTargetBasename": "analysis-context"
         },
         {
           "sourceName": "FileInfoBuilder",
@@ -703,7 +713,9 @@
               },
               "mapping": "direct"
             }
-          ]
+          ],
+          "targetRole": "additional",
+          "additionalTargetBasename": "analysis-context"
         }
       ]
     },
@@ -7720,9 +7732,14 @@
           "sourceName": "NDFileInfoAddition.add_nd_condition",
           "target": {
             "symbol": "add_nd_condition",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7730,9 +7747,14 @@
           "sourceName": "NDFileInfoAddition.reset_nd_complexity",
           "target": {
             "symbol": "reset_nd_complexity",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7740,9 +7762,14 @@
           "sourceName": "NDFileInfoAddition.add_hidden_bracket_condition",
           "target": {
             "symbol": "add_hidden_bracket_condition",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7750,9 +7777,14 @@
           "sourceName": "NDFileInfoAddition.get_hidden_bracket",
           "target": {
             "symbol": "get_hidden_bracket",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7760,9 +7792,14 @@
           "sourceName": "NDFileInfoAddition.loop_bracket_status",
           "target": {
             "symbol": "loop_bracket_status",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7770,9 +7807,14 @@
           "sourceName": "NDFileInfoAddition.get_loop_status",
           "target": {
             "symbol": "get_loop_status",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7780,9 +7822,14 @@
           "sourceName": "NDFileInfoAddition.set_in_condition",
           "target": {
             "symbol": "set_in_condition",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7790,9 +7837,14 @@
           "sourceName": "NDFileInfoAddition.get_in_condition",
           "target": {
             "symbol": "get_in_condition",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7800,9 +7852,14 @@
           "sourceName": "NDFileInfoAddition.increment_condition_depth",
           "target": {
             "symbol": "increment_condition_depth",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7810,9 +7867,14 @@
           "sourceName": "NDFileInfoAddition.decrement_condition_depth",
           "target": {
             "symbol": "decrement_condition_depth",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7820,9 +7882,14 @@
           "sourceName": "NDFileInfoAddition.get_condition_depth",
           "target": {
             "symbol": "get_condition_depth",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7830,9 +7897,14 @@
           "sourceName": "NDFileInfoAddition.reset_condition_tracking",
           "target": {
             "symbol": "reset_condition_tracking",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7840,9 +7912,14 @@
           "sourceName": "NDFileInfoAddition.set_logical_operator_added",
           "target": {
             "symbol": "set_logical_operator_added",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7850,9 +7927,14 @@
           "sourceName": "NDFileInfoAddition.get_logical_operator_added",
           "target": {
             "symbol": "get_logical_operator_added",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7860,9 +7942,14 @@
           "sourceName": "NDFileInfoAddition.set_prev_was_else",
           "target": {
             "symbol": "set_prev_was_else",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7870,9 +7957,14 @@
           "sourceName": "NDFileInfoAddition.get_prev_was_else",
           "target": {
             "symbol": "get_prev_was_else",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7880,9 +7972,14 @@
           "sourceName": "NDFileInfoAddition.clear_prev_was_else",
           "target": {
             "symbol": "clear_prev_was_else",
-            "className": "FileInfoBuilder"
+            "className": "FileInfoBuilder",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            },
+            "targetRole": "additional",
+            "additionalTargetBasename": "analysis-context"
           },
-          "targetRole": "additional",
           "mapping": "dynamic-attribute-host-seam",
           "reason": "The source import-time FileInfoBuilder patch is represented by this explicit typed core member instead of mutable class patching."
         },
@@ -7890,11 +7987,14 @@
           "sourceName": "_init_nesting_depth_data",
           "target": {
             "symbol": "constructor",
-            "className": "FunctionInfo"
+            "className": "FunctionInfo",
+            "provenance": {
+              "sourcePath": "lizard.py",
+              "sourceRange": "lines 287-590"
+            }
           },
-          "targetRole": "additional",
           "mapping": "field-initializer-host-seam",
-          "reason": "The source appended FunctionInfo initializer is represented by typed per-function construction and field initializers in core.ts."
+          "reason": "The source appended FunctionInfo initializer is represented by typed per-function construction and field initializers in analysis-model.ts and analysis-context.ts."
         }
       ]
     }

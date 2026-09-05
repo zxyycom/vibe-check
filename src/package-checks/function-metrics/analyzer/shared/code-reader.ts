@@ -7,7 +7,8 @@
  * state-machine sequencing used by concrete Lizard language readers.
  */
 
-import type { AnalyzerReader, FileInfoBuilder, TokenStream } from "../core.ts";
+import type { AnalyzerReader, TokenStream } from "../contracts.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 
 /** A regex match passed to language-specific token factories. */
 export class TokenMatch {

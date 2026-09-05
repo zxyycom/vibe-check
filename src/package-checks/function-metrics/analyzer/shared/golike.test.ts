@@ -11,7 +11,9 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import { analyzeSourceCode, FileInfoBuilder, type ReaderConstructor } from "../core.ts";
+import { analyzeSourceCode } from "../pipeline.ts";
+import { FileInfoBuilder } from "../analysis-context.ts";
+import type { ReaderConstructor } from "../contracts.ts";
 import { GoReader } from "../readers/go.ts";
 import { CodeReader } from "./code-reader.ts";
 import { GoLikeStates } from "./golike.ts";

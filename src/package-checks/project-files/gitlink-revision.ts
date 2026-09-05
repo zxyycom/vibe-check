@@ -1,6 +1,6 @@
 /** Reads canonical gitlink entries from a named Git tree revision. */
 
-import { processFailed } from "../host-environment/process/command.ts";
+import { processFailed } from "../host-environment/process.ts";
 import { runGit } from "../host-environment/git.ts";
 import { toSlashPath } from "../host-environment/path.ts";
 

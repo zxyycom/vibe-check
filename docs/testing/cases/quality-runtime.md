@@ -213,14 +213,14 @@ Entities:
 Owner: `docs/api-mechanics.md#admissiongraph-simulation`
 Entities:
 
-- `bun|src/project-run/task-scheduler/admission-graph.test.ts|immutable admission graph > validates exact input and returns frozen opaque branching successors`
-- `bun|src/project-run/task-scheduler/admission-graph.test.ts|immutable admission graph > uses canonical catalog order, dedicated validation reasons, binary settlements, and scope lifecycle`
-- `bun|src/project-run/task-scheduler/admission-graph.capacity.test.ts|immutable admission graph capacity > keeps duplicate blocker payloads and global active-scope capacity for every candidate`
-- `bun|src/project-run/task-scheduler/admission-core.transitions.test.ts|admission core transitions > admission core settles in the selected implementation`
-- `bun|src/project-run/task-scheduler/admission-core.transitions.test.ts|admission core transitions > keeps persistent forced-frontier priority and closed scope roots across a 80-by-80 cascade`
-- `bun|src/project-run/task-scheduler/admission-core.trace.test.ts|admission core trace > traces public and private binary/failed/cancellation transitions through one reducer`
+- `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > validates exact input and returns frozen opaque branching successors`
+- `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > uses canonical catalog order, dedicated validation reasons, binary settlements, and scope lifecycle`
+- `bun|src/project-run/task-scheduler/admission-core/graph.capacity.test.ts|immutable admission graph capacity > keeps duplicate blocker payloads and global active-scope capacity for every candidate`
+- `bun|src/project-run/task-scheduler/admission-core/transitions.test.ts|admission core transitions > admission core settles in the selected implementation`
+- `bun|src/project-run/task-scheduler/admission-core/transitions.test.ts|admission core transitions > keeps persistent forced-frontier priority and closed scope roots across a 80-by-80 cascade`
+- `bun|src/project-run/task-scheduler/admission-core/trace.test.ts|admission core trace > traces public and private binary/failed/cancellation transitions through one reducer`
 - `bun|src/project-run/task-scheduler/admission-core.scheduler-integration.test.ts|Scheduler admission core integration > replays canonical failed and forced effects through shell diagnostics and measurement`
-- `bun|src/project-run/task-scheduler/admission-graph.test.ts|immutable admission graph > supplies callback lookahead without reserving or starting a real Task`
+- `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > supplies callback lookahead without reserving or starting a real Task`
 Proves:
 - The standalone and callback seeds expose one frozen opaque state contract. Its canonical catalog, inspection, validation precedence, binary settlement, forced block and scope lifecycle return successors without mutating a retained predecessor.
 - The private trace invokes the same reducer for public and real-only failed/cancellation actions. An instrumented real Scheduler pairs every canonical effect with its immutable Core post-state; legacy snapshot mutex facts remain additive with dynamic holders through their settlement, and an 80-by-80 failed cascade keeps every newly ready child in descending declared-slot frontier order and retains a frozen closed-scope root. Direct running settlement precedes forced effects. For each forced blocked effect, the shell preserves this observable order: pending-measurement flush, matching immutable post-state, shell blocked settlement, state capture, blocked-effect record, conditional diagnostic projection, then Core observer. Custom policy measurements retain the direct-then-forced order; synthetic blocked diagnostics retain the direct failed-source `task-settled` trigger; terminal last-settled facts retain that order. Callback lookahead cannot start, reserve, settle or otherwise control real Task lifecycle, whose callback proposal remains Scheduler-hard-revalidated.
@@ -230,7 +230,7 @@ Proves:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/task-scheduler/admission-core-compiled-graph.test.ts|prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it`
+- `bun|src/project-run/task-scheduler/admission-core/compiled-graph.test.ts|prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it`
   Proves:
 - When invoked with a prepared graph, the Product-private compiler produces Scheduler lookup tables without rematerializing the graph or its frozen snapshot. Task/scope/mutex declaration slots, duplicate mutex/relation occurrences, reverse dependency/observation/terminal mappings, activation membership and lexical public catalog order stay exact.
 - `prepareTaskGraph` remains the only untrusted-input validation/normalization boundary. The compiler's root-cap assertion is a defensive invariant for prepared input, not a second validation path.
@@ -288,21 +288,21 @@ Entities:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics.test.ts|Scheduler performance diagnostics > bounds top admission delays and breaks equal delays by Task ID`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-waits.test.ts|Scheduler performance diagnostics > records an accepted explicit policy wait`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-waits.test.ts|Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-boundaries.test.ts|Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-waits.test.ts|Scheduler performance diagnostics > excludes a passive running drain with a null proposal`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-boundaries.test.ts|Scheduler performance diagnostics > contains terminal writer failures`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-terminal.test.ts|Scheduler performance diagnostics terminal drains > contains a policy diagnostic writer failure while draining admitted work`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-terminal.test.ts|Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > bounds top admission delays and breaks equal delays by Task ID`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts|Scheduler performance diagnostics > records an accepted explicit policy wait`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts|Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-boundaries.test.ts|Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts|Scheduler performance diagnostics > excludes a passive running drain with a null proposal`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-boundaries.test.ts|Scheduler performance diagnostics > contains terminal writer failures`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-terminal.test.ts|Scheduler performance diagnostics terminal drains > contains a policy diagnostic writer failure while draining admitted work`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-terminal.test.ts|Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > hands enabled diagnostics to the Scheduler for one terminal human summary`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > does not sample Scheduler diagnostics when diagnostic logging is disabled`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > awaits ordered hooks over one immutable terminal context without exposing Task values`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > continues after synchronous and asynchronous hook failures`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > delivers the internal summary Hook before caller Hooks through one runner`
-- `bun|src/project-run/task-scheduler/scheduler-performance-diagnostics-hooks.test.ts|Scheduler measurement hooks > contains summary writer failure while preserving caller Hook failure delivery`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > awaits ordered hooks over one immutable terminal context without exposing Task values`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > continues after synchronous and asynchronous hook failures`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > delivers the internal summary Hook before caller Hooks through one runner`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > contains summary writer failure while preserving caller Hook failure delivery`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > keeps settled facts while making Hook failures visible`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > marks all successfully settled configured Hooks as succeeded`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > preserves execution cancellation when a measurement Hook fails after drain`
@@ -324,8 +324,8 @@ Entities:
 - `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > evicts the oldest series beyond capacity`
 - `bun|src/project-run/scheduler-duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > round-trips closed digest-only history`
 - `bun|src/project-run/scheduler-duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > contains read and write faults with concurrent writers`
-- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
-- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
 Proves:
 
 - The Product-private local history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, keeps at most 32 samples per identity and 4096 recently updated identities, and persists digest-only closed state through same-directory atomic replacement.
@@ -361,7 +361,7 @@ Entities:
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > forms one frozen ranking and complete policy from immutable graph and prediction`
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > uses score, effective priority, and canonical order within each existing selection layer`
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > keeps the Scheduler capacity wait guard when the highest score cannot admit`
-- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
 Proves:
 
 - Learned scheduling captures its immutable graph/prediction into one frozen critical-path score table and complete Scheduler policy before admission, then compares score descending only within the existing tightening, constrained-continuation, and ordinary layers; equal scores retain effective priority and canonical Task-ID order.
@@ -372,7 +372,7 @@ Proves:
 Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
 Proves:
 
 - Learned diagnostics report bounded read/write and selected-admission facts without raw authored options, effective flags, identity inputs, or samples. A local history write failure remains an optimization-only observation and preserves the completed quality result.
@@ -383,19 +383,19 @@ Owner: `docs/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/admission-strategy-provider/provider.test.ts|admission strategy provider > prepares one closed static, custom, or learned-fallback policy without widening public configuration`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal Hooks on normal execution`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when cancellation drains started work`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when an admission policy fault drains`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > does not complete when pre-terminal task-engine setup fails`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps a prepared completion output enabled but not-run without a sealed context`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps prepared policy closures independent across overlapping Runs`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > runs a public prepared strategy once and completes after generic terminal Hooks`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps public prepared closures isolated across overlapping Runs`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > fails public preparation before Scheduler start and preserves its output boundary`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > aggregates public completion failures without rewriting a sealed primary result`
-- `bun|src/project-run/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > enables measurement output only for generic Hooks or an actual prepared completion`
-- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > prepares before admission and records only after terminal measurement Hooks settle`
-- `bun|src/project-run/invocation.learned-scheduling.test.ts|Package Run learned Scheduler admission > records a cancelled Run only after its terminal measurement Hook settles`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal Hooks on normal execution`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when cancellation drains started work`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when an admission policy fault drains`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > does not complete when pre-terminal task-engine setup fails`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps a prepared completion output enabled but not-run without a sealed context`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps prepared policy closures independent across overlapping Runs`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > runs a public prepared strategy once and completes after generic terminal Hooks`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps public prepared closures isolated across overlapping Runs`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > fails public preparation before Scheduler start and preserves its output boundary`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > aggregates public completion failures without rewriting a sealed primary result`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > enables measurement output only for generic Hooks or an actual prepared completion`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > prepares before admission and records only after terminal measurement Hooks settle`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > records a cancelled Run only after its terminal measurement Hook settles`
 Proves:
 
 - Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver completion at most once after admission stops, started work drains and generic terminal Hooks settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no completion delivery.

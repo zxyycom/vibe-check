@@ -17,7 +17,7 @@ import {
   admissionCandidatesForCore,
   scopeToActivateForCore,
   type AdmissionCoreState
-} from "./admission-core.ts";
+} from "./admission-core/core.ts";
 
 export interface SchedulerDecisionCycle {
   readonly admissionCore: AdmissionCoreState;

@@ -1,6 +1,7 @@
 import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import type { PreparedPackageCandidate } from "../../package/candidate/prepare.ts";
 import { workspaceFormatInvocation } from "../../development/format.ts";
 import { workspaceFormatTargets } from "../../development/format-targets.ts";
 import { lintInvocation } from "../../development/lint.ts";
@@ -19,12 +20,14 @@ import { createDocsValidationCheck } from "./checks/docs-validation.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
 import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
 import { PROJECT_GATE_SELECTION } from "./runtime/catalog.ts";
-import { createExternalConsumerMaterialCheck } from "./checks/external-consumer-material.ts";
+import {
+  createExternalConsumerMaterialCheck,
+  type ExternalConsumerMaterialLease
+} from "./checks/external-consumer-material.ts";
 import {
   createProjectGateCommonEntry,
-  createProjectGateProcessEntry,
-  type ProjectGateRuntime
-} from "./checks/process-entry.ts";
+  createProjectGateProcessEntry
+} from "./checks/entry-factories.ts";
 import { createPreparedCandidateCheck } from "./checks/prepared-candidate.ts";
 import { createProjectGateRepositoryQualityChecks } from "./checks/repository-quality.ts";
 import { createOxfmtFailureProjection } from "./checks/oxfmt-failure-records.ts";
@@ -84,7 +87,11 @@ const projectGateTestChecks = createProjectGateTestCheckDefinitions({
   packageAcceptanceTimeoutMs
 });
 
-export type { ProjectGateRuntime } from "./checks/process-entry.ts";
+/** Runtime material bound to one Project Gate invocation. */
+export interface ProjectGateRuntime {
+  readonly externalConsumerLease: ExternalConsumerMaterialLease;
+  readonly preparedCandidate: PreparedPackageCandidate;
+}
 
 /** Creates the ordinary typecheck, lint, and format entries of the required Gate assurance. */
 function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGateEntry[] {

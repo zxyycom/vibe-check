@@ -7,7 +7,7 @@
  * admission and fallback policy remain outside this module.
  */
 
-import type { ReaderConstructor } from "./core.ts";
+import type { ReaderConstructor } from "./contracts.ts";
 import { CSharpReader } from "./readers/csharp.ts";
 import { ErlangReader } from "./readers/erlang.ts";
 import { FortranReader } from "./readers/fortran.ts";

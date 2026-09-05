@@ -6,7 +6,7 @@
  * Modified: mechanically translated to the Check-private TypeScript port.
  */
 
-import type { AnalyzerReader, TokenStream } from "../core.ts";
+import type { AnalyzerReader, TokenStream } from "../contracts.ts";
 import type { LizardExtension as LizardExtensionProtocol } from "./protocol.ts";
 
 /** Records every source reader condition token with its current source line. */

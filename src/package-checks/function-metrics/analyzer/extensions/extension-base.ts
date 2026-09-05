@@ -7,7 +7,8 @@
  * lifecycle and per-reader context assignment.
  */
 
-import { FileInfoBuilder, type AnalyzerReader, type TokenStream } from "../core.ts";
+import { FileInfoBuilder } from "../analysis-context.ts";
+import type { AnalyzerReader, TokenStream } from "../contracts.ts";
 import { CodeStateMachine } from "../shared/code-reader.ts";
 import type { LizardExtension } from "./protocol.ts";
 

@@ -1,4 +1,4 @@
-import { findingDetail } from "../finding-presentation/message.test-support.ts";
+import { findingDetail } from "../finding-detail.test-support.ts";
 
 const OVERLAP =
   "Duplicate fragment contains 120 tokens across 12 lines at scripts/b.ts:40-51, src/a.ts:40-51.";

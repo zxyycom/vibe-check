@@ -7,7 +7,7 @@
  * class-body nesting states.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import type { JavaStates } from "./java.ts";
 
 /**

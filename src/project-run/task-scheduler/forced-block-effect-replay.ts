@@ -2,13 +2,13 @@ import {
   schedulerInspectionForCore,
   type AdmissionCoreEffect,
   type AdmissionCoreState
-} from "./admission-core.ts";
+} from "./admission-core/core.ts";
 import { decisionContext } from "./scheduler-decision-inspection.ts";
 import { freezeDecision } from "./scheduler-decision-model.ts";
 import type { SchedulerTrigger } from "./scheduler-decision.ts";
 import type { SchedulerState } from "./execution-state.ts";
 import { observeSchedulerDecision, performanceState } from "./scheduler-observation.ts";
-import type { SchedulerPerformanceDiagnostics } from "./scheduler-performance-diagnostics.ts";
+import type { SchedulerPerformanceDiagnostics } from "./measurement/diagnostics.ts";
 import { applyForcedBlockedSettlement } from "./scheduler-task-lifecycle.ts";
 
 /**

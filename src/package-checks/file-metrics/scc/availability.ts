@@ -1,5 +1,5 @@
 import { errorMessage } from "../../host-environment/error-message.ts";
-import { processFailure, runProcess } from "../../host-environment/process/command.ts";
+import { processFailure, runProcess } from "../../host-environment/process.ts";
 import type { ResolvedFileMetricsScannerOptions } from "../options.ts";
 import { SCC_VERSION_OUTPUT } from "./parser.ts";
 

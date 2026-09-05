@@ -10,19 +10,11 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import {
-  applyCrossFileProcessors,
-  FileAnalyzer,
-  FileInfoBuilder,
-  FileInformation,
-  OutputScheme,
-  printExtensionResults,
-  registerExtensionArguments,
-  type AnalyzerProcessor,
-  type AnalyzerReader,
-  type NestingStackLike,
-  type TokenStream
-} from "../core.ts";
+import { applyCrossFileProcessors, FileAnalyzer, registerExtensionArguments } from "../pipeline.ts";
+import { FileInfoBuilder, type NestingStackLike } from "../analysis-context.ts";
+import { FileInformation } from "../analysis-model.ts";
+import { OutputScheme, printExtensionResults } from "../extension-output.ts";
+import type { AnalyzerProcessor, AnalyzerReader, TokenStream } from "../contracts.ts";
 import { CLikeReader } from "../shared/clike.ts";
 import { ExtensionBase } from "./extension-base.ts";
 import { DEFAULT_ND_THRESHOLD, LizardExtension as NestingDepthExtension } from "./lizardnd.ts";
@@ -583,11 +575,11 @@ class CountingNestingStack implements NestingStackLike {
     this.decorated.addNamespace(token);
   }
 
-  public startNewFunctionNesting(functionInfo: import("../core.ts").FunctionInfo): void {
+  public startNewFunctionNesting(functionInfo: import("../analysis-model.ts").FunctionInfo): void {
     this.decorated.startNewFunctionNesting(functionInfo);
   }
 
-  public popNesting(): import("../core.ts").Nesting | undefined {
+  public popNesting(): import("../analysis-model.ts").Nesting | undefined {
     return this.decorated.popNesting();
   }
 
@@ -595,7 +587,7 @@ class CountingNestingStack implements NestingStackLike {
     return this.decorated.currentNestingLevel;
   }
 
-  public get lastFunction(): import("../core.ts").FunctionInfo | undefined {
+  public get lastFunction(): import("../analysis-model.ts").FunctionInfo | undefined {
     return this.decorated.lastFunction;
   }
 }

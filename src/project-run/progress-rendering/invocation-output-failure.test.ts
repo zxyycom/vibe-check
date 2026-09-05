@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { isRecord } from "../../data-boundary/value-shapes.ts";
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 import {
   capturedProgressWriter,
   check,

@@ -4,7 +4,7 @@ import { describe, it } from "node:test";
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check } from "../../check/check.ts";
 import type { ProgressWriter } from "./renderer.ts";
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 
 function check(
   input: Readonly<{

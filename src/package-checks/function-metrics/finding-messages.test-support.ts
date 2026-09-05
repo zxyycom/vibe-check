@@ -1,5 +1,5 @@
 import type { CheckMessage } from "../../check/check.ts";
-import { findingDetail } from "../finding-presentation/message.test-support.ts";
+import { findingDetail } from "../finding-detail.test-support.ts";
 
 export const NON_BLOCKING_DETAILS = Object.freeze([
   findingDetail(

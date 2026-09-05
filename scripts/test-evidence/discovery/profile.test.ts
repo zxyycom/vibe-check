@@ -82,6 +82,12 @@ test("loads one versioned and sorted supported runner profile", async () => {
   assert.equal(profile.schemaVersion, 1);
   assert.equal(profile.id, "vibe-check-native-tests");
   assert.equal(profile.version, 1);
+  assert.equal(Object.isFrozen(profile), true);
+  assert.equal(Object.isFrozen(profile.bun), true);
+  assert.equal(Object.isFrozen(profile.bun.sourceRoots), true);
+  assert.equal(Object.isFrozen(profile.bun.include), true);
+  assert.equal(Object.isFrozen(profile.bun.ignore), true);
+  assert.equal(Object.isFrozen(profile.bun.supplementalFiles), true);
   assert.deepEqual(profile.bun.ignore, ["**/node_modules/**"]);
   assert.deepEqual(
     profile.bun.sourceRoots,

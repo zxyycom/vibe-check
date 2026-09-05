@@ -44,7 +44,10 @@ import type { ProjectGatePerformanceBaseline } from "./runtime/performance-basel
 import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
 import { afterGate as defaultAfterGate, createProjectGateEntries } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
-import type { ProjectGateTranscriptCompletion } from "./runtime/transcript.ts";
+import type {
+  ProjectGateTranscript,
+  ProjectGateTranscriptCompletion
+} from "./runtime/transcript.ts";
 
 const prepared = Object.freeze({
   artifactPath: "/tmp/vibe-check.tgz",
@@ -526,6 +529,9 @@ describe("Project Gate adapter closure", () => {
     let observedContext: ProjectGateContext | undefined;
     let observedInitial: ProjectGateResult | undefined;
     let transcriptCompletion: ProjectGateTranscriptCompletion | undefined;
+    const transcriptMessages: Array<
+      Readonly<{ readonly level: "error" | "info" | "warning"; readonly text: string }>
+    > = [];
     const output = captureConsole();
     try {
       const status = await runProjectGateWithoutTranscript([], {
@@ -565,7 +571,8 @@ describe("Project Gate adapter closure", () => {
               transcriptCompletion = completion;
               return "succeeded" as const;
             },
-            writeGateMessage: () => undefined
+            writeGateMessage: (message: Parameters<ProjectGateTranscript["writeGateMessage"]>[0]) =>
+              transcriptMessages.push(message)
           });
         }
       });
@@ -592,9 +599,14 @@ describe("Project Gate adapter closure", () => {
         /project gate warning \[fixture-post-processing]: Fixture post-processing rejected the initial result/
       );
       assert.match(
-        output.logs.join("\n"),
+        transcriptMessages.map((message) => message.text).join("\n"),
         /project gate aggregation: mode=all over effective Check statuses; failed\/not-applicable\/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs/
       );
+      assert.match(
+        output.logs.join("\n"),
+        /project gate start: candidate=0\.0\.0-local\.fixture; source=local; selection=required/
+      );
+      assert.doesNotMatch(output.logs.join("\n"), /project gate aggregation:/);
       assert.match(output.logs.join("\n"), /project gate result: failed/);
       assert.doesNotMatch(output.logs.join("\n"), /project gate result: passed/);
       assert.deepEqual(transcriptCompletion, {
@@ -655,6 +667,9 @@ describe("Project Gate adapter closure", () => {
       declarativeFingerprint: "performance-fixture"
     });
     const defaultOutput = captureConsole();
+    const defaultTranscriptMessages: Array<
+      Readonly<{ readonly level: "error" | "info" | "warning"; readonly text: string }>
+    > = [];
     try {
       const defaultStatus = await runProjectGateWithoutTranscript([], {
         clock: scriptedClock([100, 110, 125, 145]),
@@ -664,13 +679,23 @@ describe("Project Gate adapter closure", () => {
           afterGate: defaultAfterGate,
           run: async () => runResult
         }),
-        prepareCandidate: async () => prepared
+        prepareCandidate: async () => prepared,
+        startTranscript: () =>
+          Object.freeze({
+            complete: () => "succeeded" as const,
+            writeGateMessage: (message: Parameters<ProjectGateTranscript["writeGateMessage"]>[0]) =>
+              defaultTranscriptMessages.push(message)
+          })
       });
 
       assert.equal(defaultStatus, PROJECT_GATE_EXIT_STATUS.passed);
       assert.match(
-        defaultOutput.logs.join("\n"),
+        defaultTranscriptMessages.map((message) => message.text).join("\n"),
         /project gate info \[project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 45\.0ms \(candidate preparation 10\.0ms; adapter\/setup 15\.0ms; Product Run 20\.0ms\) was not comparable \(no matching baseline\)/
+      );
+      assert.doesNotMatch(
+        defaultOutput.logs.join("\n"),
+        /project gate info \[project-gate-performance-elapsed-to-initial-result]/
       );
     } finally {
       defaultOutput.restore();
@@ -705,6 +730,9 @@ describe("Project Gate adapter closure", () => {
     }
 
     const invalidTimingOutput = captureConsole();
+    const invalidTimingTranscriptMessages: Array<
+      Readonly<{ readonly level: "error" | "info" | "warning"; readonly text: string }>
+    > = [];
     try {
       const status = await runProjectGateWithoutTranscript([], {
         clock: scriptedClock([100, Number.NaN, Number.NaN, Number.NaN]),
@@ -714,11 +742,21 @@ describe("Project Gate adapter closure", () => {
           afterGate: defaultAfterGate,
           run: async () => completedResult("passed")
         }),
-        prepareCandidate: async () => prepared
+        prepareCandidate: async () => prepared,
+        startTranscript: () =>
+          Object.freeze({
+            complete: () => "succeeded" as const,
+            writeGateMessage: (message: Parameters<ProjectGateTranscript["writeGateMessage"]>[0]) =>
+              invalidTimingTranscriptMessages.push(message)
+          })
       });
 
       assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
       assert.match(
+        invalidTimingTranscriptMessages.map((message) => message.text).join("\n"),
+        /elapsed-to-initial-result timing was not comparable \(invalid total timing\)/
+      );
+      assert.doesNotMatch(
         invalidTimingOutput.logs.join("\n"),
         /elapsed-to-initial-result timing was not comparable \(invalid total timing\)/
       );

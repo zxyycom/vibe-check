@@ -14,7 +14,7 @@ import {
   type ProgressWriter
 } from "./renderer.ts";
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
-import type { OutputStatuses } from "../output-status.ts";
+import type { OutputStatuses } from "../outputs/status.ts";
 export interface ProgressRendering {
   /** Closes only an already-created file tee; it never creates a writer after pre-work termination. */
   readonly close: () => void;

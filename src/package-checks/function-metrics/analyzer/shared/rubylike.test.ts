@@ -9,7 +9,8 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
 
-import { analyzeSourceCode, FileInfoBuilder } from "../core.ts";
+import { analyzeSourceCode } from "../pipeline.ts";
+import { FileInfoBuilder } from "../analysis-context.ts";
 import { RubylikeReader, RubylikeStateMachine } from "./rubylike.ts";
 
 test("Ruby-like states clone the runtime subclass and resolve its function keyword", () => {

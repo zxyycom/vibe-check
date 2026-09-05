@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: MIT
  * Modified: translated to the product-owned TypeScript analyzer.
  */
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CCppCommentsMixin } from "../shared/clike.ts";
 import { CodeReader, type TokenFactory } from "../shared/code-reader.ts";
 import { GoLikeStates } from "../shared/golike.ts";

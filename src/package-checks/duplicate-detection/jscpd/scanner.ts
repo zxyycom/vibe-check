@@ -11,11 +11,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { errorMessage } from "../../host-environment/error-message.ts";
-import {
-  runProcess,
-  runProcessSync,
-  type ProcessResult
-} from "../../host-environment/process/command.ts";
+import { runProcess, runProcessSync, type ProcessResult } from "../../host-environment/process.ts";
 import type { ResolvedDuplicateDetectionScannerOptions } from "../options.ts";
 import { resolveJscpdCommand, type JscpdCommand } from "./command-resolution.ts";
 import { parseJscpdJsonReport } from "./json-report.ts";

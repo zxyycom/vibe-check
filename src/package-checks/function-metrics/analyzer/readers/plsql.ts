@@ -7,7 +7,8 @@
  * source PL/SQL preprocessing and declaration/body state lifecycle retained.
  */
 
-import type { FileInfoBuilder, TokenStream } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
+import type { TokenStream } from "../contracts.ts";
 import { CCppCommentsMixin } from "../shared/clike.ts";
 import {
   CodeReader,

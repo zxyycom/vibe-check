@@ -7,7 +7,7 @@ import { describe, it } from "node:test";
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import { isRecord } from "../../data-boundary/value-shapes.ts";
 import type { ProgressWriter } from "./renderer.ts";
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 
 function capturedProgressWriter() {
   const writes: string[] = [];

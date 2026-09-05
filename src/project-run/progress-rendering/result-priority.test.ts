@@ -4,11 +4,11 @@ import { describe, it } from "node:test";
 import type { CoreSnapshot } from "../../check-settlement/facts.ts";
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check } from "../../check/check.ts";
-import { resolveFinalRunResult } from "../completion-result-resolver.ts";
-import type { RunOutputStatus, RunOutputStatuses } from "../output-status.ts";
+import { resolveFinalRunResult } from "../completion/result-resolver.ts";
+import type { RunOutputStatus, RunOutputStatuses } from "../outputs/status.ts";
 import { outputFailure, type NonConfigurationRunResult, type RunResultFacts } from "../result.ts";
 import type { ProgressWriter } from "./renderer.ts";
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 

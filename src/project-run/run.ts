@@ -2,10 +2,10 @@ import type { ProjectDefinition } from "../project-definition/project-definition
 import type { RunControls } from "./controls/contract.ts";
 import { validateProjectDefinition } from "../project-definition/project-definition-validation.ts";
 import { validateRunControls } from "./controls/validation.ts";
-import { executeValidatedRun } from "./invocation.ts";
+import { executeValidatedRun } from "./invocation/run.ts";
 import type { RunResult } from "./result.ts";
 
-export type { RunOutputStatus, RunOutputStatuses } from "./output-status.ts";
+export type { RunOutputStatus, RunOutputStatuses } from "./outputs/status.ts";
 export type { RunDiagnostic, RunResult } from "./result.ts";
 
 /**

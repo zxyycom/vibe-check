@@ -6,7 +6,7 @@ import type { RunControlDiagnostic } from "./controls/validation-result.ts";
 import type { CheckAggregate, RunControls } from "./controls/contract.ts";
 import type { CheckMessageLevel } from "../check/check.ts";
 import type { CoreSnapshot } from "../check-settlement/facts.ts";
-import type { RunOutputStatuses } from "./output-status.ts";
+import type { RunOutputStatuses } from "./outputs/status.ts";
 export type RunDiagnostic = Readonly<{
   readonly code:
     | "admission-policy-failed"

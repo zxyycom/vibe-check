@@ -1,5 +1,5 @@
-import { processFailed, runProcessSync } from "./process/command.ts";
-import type { ProcessResult, RunProcessSyncOptions } from "./process/command.ts";
+import { processFailed, runProcessSync } from "./process.ts";
+import type { ProcessResult, RunProcessSyncOptions } from "./process.ts";
 import { toSlashPath } from "./path.ts";
 
 export type RunGitOptions = Omit<RunProcessSyncOptions, "command">;

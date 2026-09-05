@@ -71,6 +71,6 @@ Entities:
 
 Proves:
 
-- Current source-to-target identity evidence uses the root provenance inventory as its only machine-readable mapping and fail-closes all 46 translated source/range references and all 41 translated targets (including the extension-protocol and ND typed-host additional targets). The AST test verifies 83 class identities and 820 named symbol/seam mappings at their TypeScript target or an explicitly named, narrow host seam.
+- The root provenance inventory is the only machine-readable source/range/hash/SPDX→translated-target inventory and fail-closes all 46 translated source/range references and all 41 translated targets (including the extension-protocol and ND typed-host additional targets). The separate identity manifest supplies the 83 class identities and 820 named symbol/seam mappings which this AST test verifies at their TypeScript target or an explicitly named, narrow host seam.
 - Source lifecycle class, field, and callback identities cannot silently disappear, and current `src` tests cannot read archived Change evidence. The manifest is static verification evidence only: it does not create a runtime registry, reflection surface, or Product plugin API.
 - This Case does not prove oracle semantic parity, deferred extension-body implementation, or Product adapter integration.

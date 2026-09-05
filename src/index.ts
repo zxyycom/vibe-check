@@ -129,7 +129,7 @@ export type {
   InheritableCheckCollection
 } from "./check/check.ts";
 export { defineAdmissionPolicy, defineConfig } from "./project-definition/project-definition.ts";
-export { createAdmissionGraph } from "./project-run/task-scheduler/admission-core.ts";
+export { createAdmissionGraph } from "./project-run/task-scheduler/admission-core/core.ts";
 export type {
   AdmissionPolicy,
   AdmissionPolicyContext,

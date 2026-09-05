@@ -8,7 +8,7 @@
  * reader-local Pygments-compatible lexer and no Python/Pygments runtime.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CodeReader, CodeStateMachine, isPythonWhitespace } from "../shared/code-reader.ts";
 
 // Preserve Pygments 2.18's root alternatives in source order: its early `>`

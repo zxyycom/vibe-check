@@ -4,7 +4,7 @@ import { realpathSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 import { errorMessage } from "../host-environment/error-message.ts";
-import { processFailed } from "../host-environment/process/command.ts";
+import { processFailed } from "../host-environment/process.ts";
 import { runGit } from "../host-environment/git.ts";
 
 export type GitlinkWorktreeInspection =

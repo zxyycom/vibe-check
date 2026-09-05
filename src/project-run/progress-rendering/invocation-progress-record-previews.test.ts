@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 import { capturedProgressWriter, check, definition } from "./invocation.test-support.ts";
 
 describe("Package Run progress rendering outputs", () => {

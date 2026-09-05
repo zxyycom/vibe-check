@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { minimatch } from "minimatch";
 
+import { type BunTestSurface, isSafeRelativeGlob } from "../profile.ts";
 import { isSafeRelativePosixPath, resolveExistingWorkspacePath } from "../relative-path.ts";
 
 const GLOB_OPTIONS = {
@@ -10,13 +11,6 @@ const GLOB_OPTIONS = {
   nocomment: true,
   nonegate: true
 } as const;
-
-export type BunTestSurface = {
-  sourceRoots: string[];
-  include: string[];
-  ignore: string[];
-  supplementalFiles: string[];
-};
 
 export function resolveBunTestFiles(options: {
   workspaceRoot: string;
@@ -161,19 +155,6 @@ function walkRegularFiles(rootPath: string): string[] {
       }
     }
   }
-}
-
-export function isSafeRelativeGlob(pattern: string): boolean {
-  return (
-    pattern.length > 0 &&
-    pattern === pattern.trim() &&
-    !pattern.startsWith("!") &&
-    !pattern.startsWith("#") &&
-    !pattern.includes("\\") &&
-    !pattern.includes("\0") &&
-    !path.posix.isAbsolute(pattern) &&
-    pattern.split("/").every((segment) => segment.length > 0 && segment !== "." && segment !== "..")
-  );
 }
 
 function compareStrings({

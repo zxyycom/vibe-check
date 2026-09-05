@@ -11,7 +11,7 @@ import {
   type AdmissionPolicyFaultCategory
 } from "./scheduler-admission-decision.ts";
 import { capacityFor } from "./scheduler-decision-inspection.ts";
-import { admissionStateForCore } from "./admission-core.ts";
+import { admissionStateForCore } from "./admission-core/core.ts";
 
 /** Adapts the public, trusted callback to the Scheduler's private pure policy seam. */
 export function admissionSelectionPolicyFor(

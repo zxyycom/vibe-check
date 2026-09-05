@@ -1,4 +1,4 @@
-import { runProcess } from "../../host-environment/process/command.ts";
+import { runProcess } from "../../host-environment/process.ts";
 import type { ResolvedDuplicateDetectionScannerOptions } from "../options.ts";
 import { isMissingExplicitCommand } from "./command-path.ts";
 import { isPackageJscpdCommand, resolveJscpdCommand } from "./command-resolution.ts";

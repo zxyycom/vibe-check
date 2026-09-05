@@ -20,7 +20,7 @@ const PRODUCT_OWNERS = [
 const PRIVATE_PROCESS_IMPORT = ["../process-execution", "runner.ts"].join("/");
 const PRIVATE_FUNCTION_METRICS_ANALYZER_IMPORT = [
   "../../src/package-checks/function-metrics/analyzer",
-  "core.ts"
+  "pipeline.ts"
 ].join("/");
 
 it("characterizes repository layout and dependency boundaries", () => {
@@ -134,42 +134,42 @@ it("characterizes repository layout and dependency boundaries", () => {
     },
     {
       expected:
-        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/core.ts",
+        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
       mutate: (root) =>
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
-          'import { analyzeSourceCode } from "./analyzer/core.ts";\nvoid analyzeSourceCode;\n'
+          'import { analyzeSourceCode } from "./analyzer/pipeline.ts";\nvoid analyzeSourceCode;\n'
         )
     },
     {
       expected:
-        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/core.ts",
+        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
       mutate: (root) =>
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
-          'void import(("./analyzer/core.ts"));\n'
+          'void import(("./analyzer/pipeline.ts"));\n'
         )
     },
     {
       expected:
-        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/core.ts",
+        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
       mutate: (root) =>
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
-          "void import(`./analyzer/core.ts`);\n"
+          "void import(`./analyzer/pipeline.ts`);\n"
         )
     },
     {
       expected:
-        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/core.ts",
+        "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
       mutate: (root) =>
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
-          'void import((("./analyzer/core.ts" as string) satisfies string));\n'
+          'void import((("./analyzer/pipeline.ts" as string) satisfies string));\n'
         )
     },
     {
@@ -204,14 +204,14 @@ it("characterizes repository layout and dependency boundaries", () => {
     },
     {
       expected:
-        "function-metrics-adapter-deep-imports-analyzer: src/package-checks/function-metrics/analyzer-adapter.ts -> ./analyzer/core.ts",
+        "function-metrics-adapter-deep-imports-analyzer: src/package-checks/function-metrics/analyzer-adapter.ts -> ./analyzer/pipeline.ts",
       mutate: (root) =>
         writeSource(
           root,
           "src/package-checks/function-metrics/analyzer-adapter.ts",
           [
             'import "./analyzer/port-facade.ts";',
-            'import { analyzeSourceCode } from "./analyzer/core.ts";',
+            'import { analyzeSourceCode } from "./analyzer/pipeline.ts";',
             "void analyzeSourceCode;"
           ].join("\n")
         )
@@ -238,7 +238,7 @@ it("characterizes repository layout and dependency boundaries", () => {
     },
     {
       expected:
-        "function-metrics-nonproduct-imports-analyzer: scripts/validation/illegal.ts -> ../../src/package-checks/function-metrics/analyzer/core.ts",
+        "function-metrics-nonproduct-imports-analyzer: scripts/validation/illegal.ts -> ../../src/package-checks/function-metrics/analyzer/pipeline.ts",
       mutate: (root) =>
         writeSource(
           root,
@@ -340,16 +340,16 @@ function createTargetLayout(): string {
   for (const owner of PRODUCT_OWNERS) {
     writeSource(root, `src/${owner}/${owner}.ts`, "export {};\n");
   }
-  writeSource(root, "src/package-checks/function-metrics/analyzer/core.ts", "export {};\n");
+  writeSource(root, "src/package-checks/function-metrics/analyzer/pipeline.ts", "export {};\n");
   writeSource(
     root,
     "src/package-checks/function-metrics/analyzer/port-facade.ts",
-    'import "./core.ts";\nexport {};\n'
+    'import "./pipeline.ts";\nexport {};\n'
   );
   writeSource(
     root,
     "src/package-checks/function-metrics/analyzer/port-facade.test.ts",
-    'import "./core.ts";\nimport "./port-facade.ts";\nexport {};\n'
+    'import "./pipeline.ts";\nimport "./port-facade.ts";\nexport {};\n'
   );
   writeSource(
     root,
@@ -371,7 +371,7 @@ function createTargetLayout(): string {
     "src/package-checks/function-metrics/target-files.ts",
     [
       'import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";',
-      '// import { analyzeSourceCode } from "./analyzer/core.ts";',
+      '// import { analyzeSourceCode } from "./analyzer/pipeline.ts";',
       "void analyzeFunctionMetricsSources;"
     ].join("\n")
   );

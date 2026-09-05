@@ -6,7 +6,8 @@
  * Modified: translated to the product-owned TypeScript analyzer.
  */
 
-import type { FileInfoBuilder, TokenStream } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
+import type { TokenStream } from "../contracts.ts";
 import {
   CodeReader,
   CodeStateMachine,

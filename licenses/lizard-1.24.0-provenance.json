@@ -28,9 +28,9 @@
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "In-memory analyze_files construction and ordered cross-file processing. File discovery, decoding, reader selection, and multiprocessing remain outside this retained lifecycle.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/core.ts retains analyzeFiles/analyze_files with FileAnalyzer construction and direct ordered cross_file_process reassignment.",
-      "verification": "core.test.ts source analyze_files lifecycle test plus extension-protocol lifecycle/order tests; target-path review",
-      "targetPath": "src/package-checks/function-metrics/analyzer/core.ts"
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/pipeline.ts retains analyzeFiles/analyze_files with FileAnalyzer construction and direct ordered cross_file_process reassignment.",
+      "verification": "pipeline.test.ts source analyze_files lifecycle test plus extension-protocol lifecycle/order tests; target-path review",
+      "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
     },
     {
       "sourcePath": "lizard.py",
@@ -48,10 +48,14 @@
       "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
       "spdx": "Apache-2.0",
       "status": "translated",
-      "boundary": "Nesting, models, builder and all five analyzer processors.",
-      "implementationEvidence": "translated target present in the current worktree",
-      "verification": "source-derived analyzer tests and target-path review",
-      "targetPath": "src/package-checks/function-metrics/analyzer/core.ts"
+      "boundary": "Nesting and mutable function/file models, plus FileInfoBuilder context; the five analyzer processors remain in the linked pipeline lifecycle.",
+      "implementationEvidence": "analysis-model.ts retains Nesting, Namespace, FunctionInfo, and FileInformation; analysis-context.ts retains NestingStack and FileInfoBuilder while pipeline.ts carries the processor stages.",
+      "verification": "model-context.test.ts and pipeline.test.ts source-derived analyzer tests; provenance symbol-range verification; target-path review",
+      "targetPath": "src/package-checks/function-metrics/analyzer/analysis-model.ts",
+      "additionalTargetPaths": [
+        "src/package-checks/function-metrics/analyzer/analysis-context.ts",
+        "src/package-checks/function-metrics/analyzer/pipeline.ts"
+      ]
     },
     {
       "sourcePath": "lizard.py",
@@ -72,7 +76,7 @@
       "boundary": "In-memory FileAnalyzer.analyze_source_code lifecycle.",
       "implementationEvidence": "translated target present in the current worktree",
       "verification": "source-derived analyzer tests and target-path review",
-      "targetPath": "src/package-checks/function-metrics/analyzer/core.ts"
+      "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
     },
     {
       "sourcePath": "lizard.py",
@@ -91,9 +95,9 @@
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "In-memory map_files_to_analyzer handoff after the Product has supplied admitted source units; Product Worker scheduling owns the external multiprocessing replacement.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/core.ts retains mapFilesToAnalyzer/map_files_to_analyzer with the source argument/order and direct FileAnalyzer mapping lifecycle.",
-      "verification": "core.test.ts source analyze_files lifecycle test plus extension-protocol lifecycle/order tests; provenance symbol-range verification; target-path review",
-      "targetPath": "src/package-checks/function-metrics/analyzer/core.ts"
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/pipeline.ts retains mapFilesToAnalyzer/map_files_to_analyzer with the source argument/order and direct FileAnalyzer mapping lifecycle.",
+      "verification": "pipeline.test.ts source analyze_files lifecycle test plus extension-protocol lifecycle/order tests; provenance symbol-range verification; target-path review",
+      "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
     },
     {
       "sourcePath": "lizard.py",
@@ -112,9 +116,9 @@
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "Complete OutputScheme object: extension schema fields, custom FUNCTION_INFO columns, average patching, silent metadata, and pure formatting-string methods. Report invocation remains a separate entry surface.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/core.ts exports source-aligned OutputScheme with mutable extensions/items state and all methods from this range.",
-      "verification": "core.test.ts OutputScheme fields/schema/formatting lifecycle test and extension-protocol schema/lifecycle tests",
-      "targetPath": "src/package-checks/function-metrics/analyzer/core.ts"
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extension-output.ts exports source-aligned OutputScheme with mutable extensions/items state and all methods from this range.",
+      "verification": "extension-output.test.ts OutputScheme fields/schema/formatting lifecycle test and extension-protocol schema/lifecycle tests",
+      "targetPath": "src/package-checks/function-metrics/analyzer/extension-output.ts"
     },
     {
       "sourcePath": "lizard.py",
@@ -135,7 +139,7 @@
       "boundary": "Extension set_args lifecycle hook.",
       "implementationEvidence": "translated target present in the current worktree",
       "verification": "source-derived analyzer tests and target-path review",
-      "targetPath": "src/package-checks/function-metrics/analyzer/core.ts"
+      "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
     },
     {
       "sourcePath": "lizard.py",
@@ -177,7 +181,7 @@
       "boundary": "Extension print_result lifecycle hook.",
       "implementationEvidence": "translated target present in the current worktree",
       "verification": "source-derived analyzer tests and target-path review",
-      "targetPath": "src/package-checks/function-metrics/analyzer/core.ts"
+      "targetPath": "src/package-checks/function-metrics/analyzer/extension-output.ts"
     },
     {
       "sourcePath": "lizard.py",
@@ -671,7 +675,7 @@
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Check-private token processor that records source-order complexity contributor token/current-line pairs. Product projection remains outside the port.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts retains the source LizardExtension processor; core.ts/function façade hold only the necessary private facts.",
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts retains the source LizardExtension processor; model.ts/analysis-context.ts/function façade hold only the necessary private facts.",
       "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle and port-façade parity tests",
       "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts"
     },
@@ -802,12 +806,13 @@
       "sha256": "fe8f8b03608e83844b3eea1c9fa27443eb8df031dd489162ec79ea7b2c2e96e6",
       "spdx": "MIT",
       "status": "translated",
-      "boundary": "Check-private maximum nesting-depth processor. The source import-time FileInfoBuilder/FunctionInfo monkey patches are narrowed to typed core.ts host members; no extension loader or Product plugin surface is exposed.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts retains the processor, threshold, metadata and bracket helper; core.ts hosts the typed per-function and FileInfoBuilder lifecycle seam.",
+      "boundary": "Check-private maximum nesting-depth processor. The source import-time FileInfoBuilder/FunctionInfo monkey patches are narrowed to typed analysis-model.ts and analysis-context.ts host members; no extension loader or Product plugin surface is exposed.",
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts retains the processor, threshold, metadata and bracket helper; analysis-model.ts and analysis-context.ts host the typed per-function and FileInfoBuilder lifecycle seams.",
       "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle, typed-host-seam and port-façade parity tests",
       "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
       "additionalTargetPaths": [
-        "src/package-checks/function-metrics/analyzer/core.ts"
+        "src/package-checks/function-metrics/analyzer/analysis-context.ts",
+        "src/package-checks/function-metrics/analyzer/analysis-model.ts"
       ]
     },
     {

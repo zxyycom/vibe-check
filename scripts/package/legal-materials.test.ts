@@ -95,7 +95,10 @@ describe("package legal materials", () => {
             ])
           })
         ),
-      /translated-analyzer provenance does not close its expected target set/u
+      new RegExp(
+        `candidate package is missing translated analyzer target: ${targetClosurePath}`,
+        "u"
+      )
     );
     assert.throws(
       () =>

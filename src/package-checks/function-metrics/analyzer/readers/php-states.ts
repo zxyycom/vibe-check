@@ -7,7 +7,7 @@
  * retaining the source PHP function/class/match state machine.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CodeStateMachine, isPythonWhitespace } from "../shared/code-reader.ts";
 
 /* Source state callbacks retain their method identity; CodeStateMachine supplies the owning receiver. */

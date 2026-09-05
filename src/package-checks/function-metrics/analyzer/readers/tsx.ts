@@ -6,7 +6,7 @@
  * Modified: translated to the product-owned TypeScript analyzer.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CodeReader, isPythonWhitespace, type TokenFactory } from "../shared/code-reader.ts";
 import { js_style_regex_expression } from "../shared/js-style-regex.ts";
 import { JSTokenizer, Tokenizer, TypeScriptReader } from "./typescript.ts";

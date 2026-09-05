@@ -5,7 +5,7 @@ import type {
 } from "../../project-definition/project-definition.ts";
 import { diagnosticTags } from "../diagnostic-logging/logger.ts";
 import type { RunTaskGraphOptions, SchedulerState } from "./execution-state.ts";
-import type { SchedulerPerformanceDiagnostics } from "./scheduler-performance-diagnostics.ts";
+import type { SchedulerPerformanceDiagnostics } from "./measurement/diagnostics.ts";
 import { observeSchedulerDiagnostic } from "./scheduler-observation.ts";
 
 /** Delivers the terminal measurement to the internal summary and caller hooks exactly once. */

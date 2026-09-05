@@ -396,9 +396,9 @@ function selectsPath(
 const analyzerPathPrefix = "src/package-checks/function-metrics/analyzer/";
 const lizardPortQualityExclusion = `${analyzerPathPrefix}**`;
 const lizardPortRepresentativePaths = [
-  "src/package-checks/function-metrics/analyzer/core.ts",
+  "src/package-checks/function-metrics/analyzer/pipeline.ts",
   "src/package-checks/function-metrics/analyzer/port-facade.ts",
-  "src/package-checks/function-metrics/analyzer/core.test.ts",
+  "src/package-checks/function-metrics/analyzer/pipeline.test.ts",
   "src/package-checks/function-metrics/analyzer/performance-harness.test-support.ts"
 ] as const;
 const retainedProductBoundaryPaths = [

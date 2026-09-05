@@ -4,7 +4,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-import { analyzeSourceCode, type FunctionInfo, type ReaderConstructor } from "../core.ts";
+import { analyzeSourceCode } from "../pipeline.ts";
+import type { FunctionInfo } from "../analysis-model.ts";
+import type { ReaderConstructor } from "../contracts.ts";
 import { CLikeReader } from "../shared/clike.ts";
 import { CSharpReader } from "./csharp.ts";
 import { JavaReader } from "./java.ts";

@@ -6,7 +6,7 @@
  * Modified: translated to the product-owned TypeScript analyzer.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { TypeScriptReader } from "./typescript.ts";
 
 export class JavaScriptReader extends TypeScriptReader {

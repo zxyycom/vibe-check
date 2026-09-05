@@ -13,7 +13,7 @@ Entities:
 - `bun|src/project-definition/project-definition.visibility.test.ts|Project Definition > ignores inherited visibility while defaulting executable Checks`
 - `bun|src/project-definition/project-definition.fingerprint.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
 - `bun|src/project-definition/project-definition.typed-provider.test.ts|Project Definition > accepts parsers only on executable providers and excludes them from declarative identity`
-- `bun|src/project-run/output-directories.test.ts|Package Run output directories > accepts child, parent, and absolute directories in Definition and RunControls`
+- `bun|src/project-run/outputs/directories.test.ts|Package Run output directories > accepts child, parent, and absolute directories in Definition and RunControls`
   Proves:
 
 - Recursive ordinary Checks normalize only the declared executable/container grammar. Exact `dependsOn`, `observes`, and `mutex` scheduling collections use explicit `inherit` independently; scalar `maxParallel` and signed `admissionPriority` inherit the nearest explicit value, with priority omission and explicit `0` sharing canonical identity. Executable `enabledByFlags` and visibility are canonical declarative identity. The closed scheduler policy defaults to canonical `static` and accepts exact `static`, `custom` with nested simple/prepared strategy, or `learned-critical-path`; custom strategy kind enters the fingerprint, while callback identity stays outside it and non-empty, NUL-free learned `stateDirectory` remains declarative identity. Nonconforming, retired or unknown authoring fails closed; trusted execution/parser functions remain outside declarative fingerprints.

@@ -239,7 +239,7 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when the Gate transcript cannot be completed`
   Proves:
 
-- invocation-local `gate.log` 只保存显式写入的 Gate adapter / afterGate message 与 `[GATE]` 标记的 invocation directory、最终 result 和 exit status；建立和关闭都不会 patch console 或 process stream writer，Product progress 与 Check presentation 保持 terminal-only，重复关闭不会伪装成功。
+- invocation-local `gate.log` 保存显式写入的 Gate adapter / afterGate message 与 `[GATE]` 标记的 invocation directory、最终 result 和 exit status；candidate/selection、aggregation 与 post-processing 的 info 不写 terminal。terminal 只保留启动摘要、Product progress、Gate warning/error、logs path 与最终 result。建立和关闭都不会 patch console 或 process stream writer，Product progress 与 Check presentation 保持各自的 terminal owner，重复关闭不会伪装成功。
 - transcript 消费 afterGate 处理后的唯一 result 及其 exit mapping，而不是初步结果或另一套聚合；directory 已创建但 transcript 无法建立时不启动 Product Run 并显示该 directory，已开始的 transcript 无法完整关闭时 fail closed 为 unavailable，只在终端报告 unavailable result 并保留 directory 供检查。
 
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
@@ -251,12 +251,14 @@ Entities:
 - `bun|scripts/project/gate/checks/docs-validation.test.ts|Project Gate documentation native diagnostics > publishes complete docs native diagnostic Records while terminal progress stays bounded`
 - `bun|scripts/project/gate/checks/native-projections.test.ts|Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
+- `bun|scripts/project/gate/checks/entry-factories.test.ts|constructs exclusive process entry adapters and rejects mixed adapters`
   Proves:
 
 - Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`，也不再承载 diagnostic presentation。docs fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；Product terminal 与 progress tee 用 generic Record preview 只显示五条、将每条 terminal-control-escaped text 限制为 240 Unicode code points，并说明另有七条 omitted。preview 不改变 failed status、final data、accepted focused-command message 或 effective aggregate。
 - 空、重复或不安全 diagnostics，以及 operation throw，均 fail closed 为 unavailable；不会创建 synthetic failed Record 或 native transcript。
 - Decision Records 只把已验证的 source/index/relationship facts 投影为 typed safe diagnostics，不转交 YAML、schema 或 filesystem `errors` 原文。semantic Test Evidence 只按 origin/code allowlist 和 code-specific policy 发布已验证的 path/location、Case ID 与 `runner: "bun"`；`topic.heading-unexpected` fixture 证明一条显式批准的 unexpected-heading Record。child/parser text、target、selector 和 entity key 不进入 native Record；generic Product preview 不读取或猜测 data fields。未知输入 fail closed 为 unavailable。
 - Test Evidence rule validation 把 cancellation 交给真实 ast-grep process，并只在自身 `checks/test-evidence-rule-tests/process.log` 保留 version/rule-test evidence。nonzero、version mismatch 和 unavailable 仍可区分；version-mismatch Record 只含 expected version、fixed mismatch classification、exit code 和 invocation-relative log reference，不复制 stdout/stderr。
+- Gate process entry factory 只接受 plain、typed dependency 或 structured failure projection 中的一种 adapter；每种合法 entry 保留 provider `dependsOn` 与 selection metadata，且 entry、mutex 与 presets 保持冻结。两个 adapter 同时存在时，TypeScript authoring 和 runtime guard 都拒绝该 entry，不能由 process factory 拼出混合证据路径。
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
 

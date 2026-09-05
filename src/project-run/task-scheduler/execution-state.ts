@@ -10,14 +10,14 @@ import {
 import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { SchedulerSnapshot } from "./scheduler-decision.ts";
 import type { AdmissionPolicyFaultCategory } from "./scheduler-admission-decision.ts";
-import type { SchedulerPerformanceDiagnosticsInput } from "./scheduler-performance-diagnostics.ts";
+import type { SchedulerPerformanceDiagnosticsInput } from "./measurement/diagnostics.ts";
 import {
   compilePreparedAdmissionGraph,
   createAdmissionCoreFromSchedulerSnapshot,
   createInitialAdmissionCoreState,
   type AdmissionCoreEffect,
   type AdmissionCoreState
-} from "./admission-core.ts";
+} from "./admission-core/core.ts";
 
 export type TaskSettlement<TResult> = Readonly<
   | { readonly kind: "completed"; readonly value: TResult }

@@ -7,7 +7,7 @@
  * retaining the source reader's PHP block tokenizer and state transitions.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CCppCommentsMixin } from "../shared/clike.ts";
 import { CodeReader, type TokenFactory } from "../shared/code-reader.ts";
 import { PHPLanguageStates } from "./php-states.ts";

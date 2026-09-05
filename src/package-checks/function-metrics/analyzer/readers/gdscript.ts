@@ -6,7 +6,7 @@
  * Modified: translated to TypeScript for the product-owned analyzer.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { PythonReader, PythonStates } from "./python.ts";
 
 export class GDScriptReader extends PythonReader {

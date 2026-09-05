@@ -5,7 +5,7 @@ import { defineConfig } from "../../project-definition/project-definition.ts";
 import type { Check, CheckExecution } from "../../check/check.ts";
 import { deferred, scriptedClock } from "../execution-control.test-support.ts";
 import type { ProgressWriter } from "./renderer.ts";
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 

@@ -12,7 +12,9 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-import { analyzeSourceCode, type FunctionInfo, type ReaderConstructor } from "../core.ts";
+import { analyzeSourceCode } from "../pipeline.ts";
+import type { FunctionInfo } from "../analysis-model.ts";
+import type { ReaderConstructor } from "../contracts.ts";
 import { PHPReader } from "./php.ts";
 import { PLSQLReader } from "./plsql.ts";
 

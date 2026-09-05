@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { describe, it } from "node:test";
 
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import type { AdmissionSelectionPolicy } from "../task-scheduler/admission-selection-policy.ts";
 import { check, definition } from "./invocation.test-support.ts";

@@ -6,7 +6,8 @@
  * Modified: translated to TypeScript for the product-owned analyzer.
  */
 
-import type { FileInfoBuilder, TokenStream } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
+import type { TokenStream } from "../contracts.ts";
 import { CodeReader, CodeStateMachine, isPythonWhitespace } from "../shared/code-reader.ts";
 import { ScriptLanguageMixIn } from "../shared/script-language.ts";
 

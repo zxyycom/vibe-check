@@ -17,7 +17,7 @@ import {
   type TestEvidenceDiagnostic
 } from "../entities.ts";
 import type { SupportedRunnerProfile } from "../profile.ts";
-import { processFailureMessage, runBunCommand } from "../runner-process.ts";
+import { processFailureMessage, runBunCommand } from "./runner-process.ts";
 import { resolveBunTestFiles } from "./bun-files.ts";
 import { parseBunRegistrationJUnit, type BunJUnitCase } from "./bun-junit.ts";
 export { parseBunJUnit, parseBunRegistrationJUnit, type BunJUnitCase } from "./bun-junit.ts";

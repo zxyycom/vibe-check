@@ -22,20 +22,50 @@
   投影；它不拥有 Finding facts 或明细位置；
 - `src/project-definition/**` 拥有 Project Definition tree、defaults、validation、normalization 与 fingerprint；
 - `src/check-settlement/**` 拥有 terminal Check/Record facts、session、store 与 fact validation；
-- `src/project-run/**` 拥有 Run entry、invocation、aggregation、project context、completion/result，以及独立的
-  `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**`、`scheduler-duration-model/**`、
-  `admission-strategy-provider/**` 与 `task-scheduler/**` 子 owner；
+- `src/project-run/**` 拥有 Run entry、aggregation、project context 与 result；其下级 owner 见
+  [Project Run child owners](#project-run-child-owners)；
 - `src/machine-output/v4/**` 拥有从 Check facts 向 versioned machine artifacts 的 publication；
 - `src/cache/**` 拥有 caller-keyed canonical JSON object 的 identity、untrusted disk envelope、read/compute/write observation 与 atomic local publication；它不拥有 caller key correctness、payload domain 或 Check adoption；
 - `src/finding-waivers/**` 拥有按调用方语义 identity 对账 finding waiver 的公开纯函数；它不发布
   Record、不决定 Check outcome，也不依赖 Core 或 Gate；
 - `src/package-checks/<check-owner>/**` 拥有 package-provided ordinary Checks 与 Check-owned scanners；其同级 `project-files/**`、`host-environment/**` 是该 delivery owner 的真实共同能力；
+- `src/package-checks/function-metrics/analyzer/**` 是 function-metrics Check 私有的 source-aligned Lizard port；其
+  文件职责见 [Function-metrics analyzer](#function-metrics-analyzer)；
 - `src/data-boundary/**` 拥有 canonical JSON/data、closed-value snapshot 与跨 core owner 的 type guards；
 - `scripts/docs/package-api/**` 拥有 package、文档与 candidate tooling 共用的 public-root inventory。
 
 生产依赖方向由 `src/index.ts` 组合 public roots；Project Definition 与 Check facts 不相互依赖，二者都只依赖
 ordinary Check contract。task scheduler 只是 Run 的 private child，不形成第二个顶层产品模块。源码不为这些模块额外建立
 `index.ts` barrel 或 compatibility re-export。
+
+### Project Run child owners
+
+`src/project-run/**` 的目录层级表达下列父子关系；表中职责不改变 Product public entry 或 RunResult owner。
+
+| 路径 | 下级 owner 的职责 |
+| --- | --- |
+| `invocation/**` | 一次 invocation 的创建、路径、Scheduler handoff、execution candidate 与 progress counter。 |
+| `completion/**` | sealed Check facts 之后的 machine publication 与 terminal result。 |
+| `outputs/**` | Run output 的选择与 status。 |
+| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。 |
+| `task-scheduler/measurement/**` | timing、summary 与 diagnostic measurement。 |
+| `task-scheduler/**` 父层 | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。 |
+| 其它直接子 owner | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**`、`scheduler-duration-model/**` 与 `admission-strategy-provider/**` 继续各自拥有其既有领域职责。 |
+
+### Function-metrics analyzer
+
+`src/package-checks/function-metrics/analyzer/**` 只处理 supplied source 的 Lizard-domain analysis；Product input
+admission、I/O、cancellation 与 metric mapping 留在该目录外。
+
+| 文件 | 职责 |
+| --- | --- |
+| `contracts.ts` | analyzer 内 reader、constructor、processor 等宿主组合的类型契约，不承载翻译算法。 |
+| `analysis-model.ts` | 可变分析结果模型。 |
+| `analysis-context.ts` | 每个文件的 reader context 与 extension nesting seam。 |
+| `pipeline.ts` | token 与 extension lifecycle。 |
+| `extension-output.ts` | analyzer-internal extension result/output lifecycle compatibility。 |
+| `reader-registry.ts` | 有序 reader registry。 |
+| `port-facade.ts` | 目录外生产调用的唯一 façade，以及 supplied-source/suffix capability 边界。 |
 
 ## Definition boundary
 

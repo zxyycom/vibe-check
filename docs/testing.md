@@ -18,6 +18,10 @@
 只有在能观察 owner 承诺的结果时才进入 current test surface 与 Case 账本；无法以稳定自动化方式证明的边界在 owner
 验证说明或 Change 审查中记录为 `Manual CR:`，不创建名义 Case。
 
+测试路径遵循[编码规范 §8](coding-style.md#8-目录文件与模块命名)：单文件实现与其配对测试就近共置；证明多个 child
+module 共同契约的测试保留在拥有该契约的最近父 owner；专属 test support 随它服务的行为 owner。不得为了目录整齐另建
+`tests/` owner；Case 账本记录每个当前实体的实际路径。
+
 ## Case 账本
 
 `docs/testing/cases/**` 是 current semantic catalog。每个 Case 命名 stable owner、current Bun test entity 和可证伪的

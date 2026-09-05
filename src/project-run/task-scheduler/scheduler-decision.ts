@@ -15,7 +15,7 @@ import {
   reconcileAdmissionCore,
   schedulerInspectionForCore,
   type AdmissionCoreState
-} from "./admission-core.ts";
+} from "./admission-core/core.ts";
 
 export type {
   SchedulerDecision,

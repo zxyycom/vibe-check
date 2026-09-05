@@ -7,7 +7,8 @@
  * bodies fail explicitly rather than pretending to process source.
  */
 
-import { DEFAULT_TOKEN_PROCESSORS, type AnalyzerProcessor } from "../core.ts";
+import { DEFAULT_TOKEN_PROCESSORS } from "../pipeline.ts";
+import type { AnalyzerProcessor } from "../contracts.ts";
 import { LizardExtension as ComplexTagsExtension } from "./lizardcomplextags.ts";
 import { LizardExtension as NestingDepthExtension } from "./lizardnd.ts";
 import type { ExtensionInput, RegisteredLizardExtension } from "./protocol.ts";

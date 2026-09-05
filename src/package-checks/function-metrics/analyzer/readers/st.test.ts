@@ -12,7 +12,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-import { analyzeSourceCode } from "../core.ts";
+import { analyzeSourceCode } from "../pipeline.ts";
 import { StReader } from "./st.ts";
 
 const fixtureDirectory = resolve(

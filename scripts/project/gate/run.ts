@@ -11,12 +11,7 @@ import {
 import { prepareReleaseCandidateFromReceipt } from "../../package/release/prepare.ts";
 import { errorMessage } from "../../error-message.ts";
 
-import {
-  projectGateHelp,
-  projectGateSelectionSummary,
-  selectionFlags,
-  type ProjectGateSelection
-} from "./runtime/controls.ts";
+import { projectGateHelp, selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
 import {
   parseProjectGateInvocationArguments,
   type ProjectGateCandidateInput
@@ -25,11 +20,15 @@ import {
   createInitialProjectGateResult,
   createProjectGateResult,
   parseProjectGateResult,
-  type ProjectGateMessage,
   type ProjectGateResult
 } from "./runtime/result.ts";
 import { startProjectGateTranscript, type ProjectGateTranscript } from "./runtime/transcript.ts";
 import type { ProjectGateAfterHook, ProjectGateContext } from "./runtime/after-gate.ts";
+import {
+  reportGateAdapterMessage,
+  reportGateInvocationStarted,
+  reportProjectGateMessages
+} from "./runtime/reporting.ts";
 
 interface GateRunModule {
   readonly afterGate: ProjectGateAfterHook;
@@ -144,26 +143,11 @@ export async function runProjectGate(
   let exitStatus: ProjectGateExitStatus;
   let transcriptStatus: "failed" | "succeeded";
   try {
-    reportGateAdapterMessage(
-      transcript,
-      "info",
-      `project gate candidate: ${prepared.candidateVersion}`
-    );
-    reportGateAdapterMessage(
-      transcript,
-      "info",
-      `project gate candidate source: ${parsed.candidateInput.kind}`
-    );
-    reportGateAdapterMessage(
-      transcript,
-      "info",
-      `project gate selection: ${projectGateSelectionSummary(parsed.selection)}`
-    );
-    reportGateAdapterMessage(
-      transcript,
-      "info",
-      "project gate aggregation: mode=all over effective Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
-    );
+    reportGateInvocationStarted(transcript, {
+      candidateSource: parsed.candidateInput.kind,
+      candidateVersion: prepared.candidateVersion,
+      selection: parsed.selection
+    });
     const runResult = await runModule.run({
       flags: selectionFlags(parsed.selection),
       invocationLogDirectory,
@@ -297,27 +281,6 @@ function createProjectGateContext(
       startedAtMs: input.startedAtMs
     })
   });
-}
-
-function reportProjectGateMessages(
-  messages: readonly ProjectGateMessage[],
-  transcript: ProjectGateTranscript
-): void {
-  for (const message of messages) {
-    const text = `project gate ${message.level} [${message.code}]: ${message.message}`;
-    reportGateAdapterMessage(transcript, message.level, text);
-  }
-}
-
-function reportGateAdapterMessage(
-  transcript: ProjectGateTranscript,
-  level: ProjectGateMessage["level"],
-  text: string
-): void {
-  transcript.writeGateMessage({ level, text });
-  if (level === "error") return console.error(text);
-  if (level === "warning") return console.warn(text);
-  console.log(text);
 }
 
 if (import.meta.main) {

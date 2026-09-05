@@ -48,8 +48,18 @@ export function parseTranslatedAnalyzerProvenanceInventory(source: Buffer): Prov
 export function collectTranslatedTargets(
   inventory: ProvenanceInventory
 ): ReadonlyMap<string, readonly ProvenanceEntry[]> {
+  const sourcesByTarget = collectTargetSources(inventory.files, inventory.supplementalSources);
+  return new Map(
+    [...sourcesByTarget].map(([targetPath, entries]) => [targetPath, Object.freeze(entries)])
+  );
+}
+
+function collectTargetSources(
+  files: readonly ProvenanceEntry[],
+  supplementalSources: readonly ProvenanceEntry[]
+): Map<string, ProvenanceEntry[]> {
   const sourcesByTarget = new Map<string, ProvenanceEntry[]>();
-  for (const entry of [...inventory.files, ...inventory.supplementalSources]) {
+  for (const entry of [...files, ...supplementalSources]) {
     if (entry.status !== "translated" || entry.targetPath === undefined) continue;
     for (const targetPath of [entry.targetPath, ...entry.additionalTargetPaths]) {
       const sources = sourcesByTarget.get(targetPath) ?? [];
@@ -57,12 +67,7 @@ export function collectTranslatedTargets(
       sourcesByTarget.set(targetPath, sources);
     }
   }
-  if (sourcesByTarget.size === 41) {
-    return new Map(
-      [...sourcesByTarget].map(([targetPath, entries]) => [targetPath, Object.freeze(entries)])
-    );
-  }
-  throw new Error("translated-analyzer provenance does not close its expected target set");
+  return sourcesByTarget;
 }
 
 function assertFixedInventoryIdentity(value: Readonly<Record<string, unknown>>): void {

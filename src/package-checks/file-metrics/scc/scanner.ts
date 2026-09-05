@@ -5,7 +5,7 @@
  */
 
 import { errorMessage } from "../../host-environment/error-message.ts";
-import { runProcessSync } from "../../host-environment/process/command.ts";
+import { runProcessSync } from "../../host-environment/process.ts";
 import type { ResolvedFileMetricsScannerOptions } from "../options.ts";
 import { parseSccCSV, type SccScanResult } from "./parser.ts";
 

@@ -29,7 +29,7 @@ export function writeExternalConsumerRuntimeFixture(consumerDirectory: string): 
   writeFileSync(join(consumerDirectory, "link-target.md"), "# Target\n", "utf8");
 }
 
-export { assertExternalConsumerRuntime } from "./runtime-evidence.ts";
+export { assertExternalConsumerRuntime } from "./runtime-evidence/run.ts";
 
 function runFixture(): string {
   const source = readFileSync(

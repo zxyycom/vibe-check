@@ -1,6 +1,6 @@
 /** Enumerates files from initialized, non-cyclic submodule working trees. */
 
-import { processFailed } from "../host-environment/process/command.ts";
+import { processFailed } from "../host-environment/process.ts";
 import { runGit, splitNulDelimitedGitFileList } from "../host-environment/git.ts";
 import {
   canonicalRepositoryPath,

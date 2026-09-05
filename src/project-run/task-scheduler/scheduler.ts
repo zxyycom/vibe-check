@@ -21,7 +21,7 @@ export type {
 } from "./execution-state.ts";
 import { AdmissionPolicyFault } from "./scheduler-admission-decision.ts";
 import { replayCoreForcedBlocks } from "./forced-block-effect-replay.ts";
-import { SchedulerPerformanceDiagnostics } from "./scheduler-performance-diagnostics.ts";
+import { SchedulerPerformanceDiagnostics } from "./measurement/diagnostics.ts";
 import {
   observeAdmissionPolicyFault,
   observeSchedulerDecision,
@@ -44,7 +44,7 @@ import {
   selectAdmissionCore,
   settleRunningAdmissionCore,
   type AdmissionCoreEffect
-} from "./admission-core.ts";
+} from "./admission-core/core.ts";
 
 export async function runTaskGraph<TResult>(
   options: RunTaskGraphOptions<TResult>

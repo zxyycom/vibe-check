@@ -4,7 +4,7 @@
  * remain outside the source-aligned port.
  */
 
-import { analyzeSourceCode } from "./core.ts";
+import { analyzeSourceCode } from "./pipeline.ts";
 import { getExtensions } from "./extensions/registry.ts";
 import { get_reader_for, languages, type RegisteredReader } from "./reader-registry.ts";
 

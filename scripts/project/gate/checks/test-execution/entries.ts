@@ -21,7 +21,7 @@ import {
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
 } from "../../../../package/candidate/external-consumer/input.ts";
-import { createProjectGateProcessEntry } from "../process-entry.ts";
+import { createProjectGateProcessEntry } from "../entry-factories.ts";
 import {
   parseProjectGatePreparedCandidateData,
   type ProjectGatePreparedCandidateData

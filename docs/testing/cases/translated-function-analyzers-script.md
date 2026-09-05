@@ -5,16 +5,16 @@
 Owner: `docs/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > preserves basic C-like function information, NLOC, CCN, and parameters`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > keeps comment directives and generated-code stopping in upstream processor order`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > keeps FileAnalyzer's default no-extension processor pipeline equivalent to the direct source helper`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > matches Python splitlines and whitespace token distinctions in the core pipeline`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > retains source-named model aliases through a static extension lifecycle`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > patches FUNCTION_INFO averages for dynamic source-named extension metrics`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > retains OutputScheme fields, schema values, and retained formatting lifecycle`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > runs source analyze_files cross-file and print-result hooks in registration order`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > adapts source-spelled duplicate nesting decorators through FileInfoBuilder`
-- `bun|src/package-checks/function-metrics/analyzer/core.test.ts|Lizard in-memory core > propagates an explicit undefined cross-file result instead of treating it as an absent hook`
+- `bun|src/package-checks/function-metrics/analyzer/pipeline.test.ts|Lizard in-memory core > preserves basic C-like function information, NLOC, CCN, and parameters`
+- `bun|src/package-checks/function-metrics/analyzer/pipeline.test.ts|Lizard in-memory core > keeps comment directives and generated-code stopping in upstream processor order`
+- `bun|src/package-checks/function-metrics/analyzer/pipeline.test.ts|Lizard in-memory core > keeps FileAnalyzer's default no-extension processor pipeline equivalent to the direct source helper`
+- `bun|src/package-checks/function-metrics/analyzer/pipeline.test.ts|Lizard in-memory core > matches Python splitlines and whitespace token distinctions in the core pipeline`
+- `bun|src/package-checks/function-metrics/analyzer/model-context.test.ts|Lizard in-memory core > retains source-named model aliases through a static extension lifecycle`
+- `bun|src/package-checks/function-metrics/analyzer/extension-output.test.ts|Lizard in-memory core > patches FUNCTION_INFO averages for dynamic source-named extension metrics`
+- `bun|src/package-checks/function-metrics/analyzer/extension-output.test.ts|Lizard in-memory core > retains OutputScheme fields, schema values, and retained formatting lifecycle`
+- `bun|src/package-checks/function-metrics/analyzer/extension-output.test.ts|Lizard in-memory core > runs source analyze_files cross-file and print-result hooks in registration order`
+- `bun|src/package-checks/function-metrics/analyzer/model-context.test.ts|Lizard in-memory core > adapts source-spelled duplicate nesting decorators through FileInfoBuilder`
+- `bun|src/package-checks/function-metrics/analyzer/pipeline.test.ts|Lizard in-memory core > propagates an explicit undefined cross-file result instead of treating it as an absent hook`
 - `bun|src/package-checks/function-metrics/analyzer/shared/code-reader.test.ts|Lizard shared tokenizer > preserves upstream macro, comment, string, and symbol token boundaries`
 - `bun|src/package-checks/function-metrics/analyzer/shared/code-reader.test.ts|Lizard shared tokenizer > clones the concrete state-machine class for later reader and extension substates`
 - `bun|src/package-checks/function-metrics/analyzer/shared/clike.test.ts|Lizard C-like shared states > keeps r-value-reference CCN corrections and namespace-qualified function state`

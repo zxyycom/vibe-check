@@ -8,7 +8,8 @@
  * not exported through the product API as a plugin surface.
  */
 
-import type { AnalyzerReader, FileInformation, TokenStream } from "../core.ts";
+import type { AnalyzerReader, TokenStream } from "../contracts.ts";
+import type { FileInformation } from "../analysis-model.ts";
 
 /** Metadata an extension contributes to FunctionInfo/report schemas. */
 export interface FunctionInfoDefinition {

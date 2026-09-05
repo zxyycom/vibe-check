@@ -10,7 +10,9 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { FileAnalyzer, FileInfoBuilder, type AnalyzerReader, type TokenStream } from "../core.ts";
+import { FileAnalyzer } from "../pipeline.ts";
+import { FileInfoBuilder } from "../analysis-context.ts";
+import type { AnalyzerReader, TokenStream } from "../contracts.ts";
 import { getExtensions } from "../extensions/registry.ts";
 import { PythonReader } from "../readers/python.ts";
 import {

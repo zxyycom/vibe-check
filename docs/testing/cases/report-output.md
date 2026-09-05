@@ -41,8 +41,8 @@ Entities:
 Owner: `docs/configuration.md#run-outputs-and-compatibility-boundary`
 Entities:
 
-- `bun|src/project-run/output-directories.test.ts|Package Run output directories > writes independent machine and diagnostic files to one Definition-selected parent directory`
-- `bun|src/project-run/output-directories.test.ts|Package Run output directories > uses an absolute RunControls target without changing Definition defaults`
+- `bun|src/project-run/outputs/directories.test.ts|Package Run output directories > writes independent machine and diagnostic files to one Definition-selected parent directory`
+- `bun|src/project-run/outputs/directories.test.ts|Package Run output directories > uses an absolute RunControls target without changing Definition defaults`
   Proves:
 - A Definition-selected root-external parent directory and a RunControls-selected absolute directory can each host machine publication and diagnostic logging together. The diagnostic readback is `path.relative(projectRoot, resolvedFile)` for the invocation-specific log, while machine publication owns only `run.json` and `records.ndjson`.
 - Sharing a target directory does not create an `outputRoot`, containment promise, cleanup/retention protocol or coupled status: each output creates, replaces or cleans only its own exact files.

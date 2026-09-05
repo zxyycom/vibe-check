@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import { matchesAnyConfigGlob } from "./config-glob.ts";
 import { collectSubmoduleWorktreeFiles } from "./revision-worktree-files.ts";
 import { errorMessage } from "../host-environment/error-message.ts";
-import { processFailed } from "../host-environment/process/command.ts";
+import { processFailed } from "../host-environment/process.ts";
 import { runGit, splitNulDelimitedGitFileList } from "../host-environment/git.ts";
 import { toSlashPath } from "../host-environment/path.ts";
 import { walkFiles } from "../host-environment/filesystem.ts";

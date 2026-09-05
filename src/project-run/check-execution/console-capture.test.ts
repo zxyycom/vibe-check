@@ -3,7 +3,7 @@ import { describe, it } from "node:test";
 
 import type { Check } from "../../check/check.ts";
 import { defineConfig } from "../../project-definition/project-definition.ts";
-import { executeValidatedRun } from "../invocation.ts";
+import { executeValidatedRun } from "../invocation/run.ts";
 import { capturedProgressWriter, deferred } from "../progress-rendering/invocation.test-support.ts";
 import { visibleTerminalScreen } from "../progress-rendering/renderer.test-support.ts";
 

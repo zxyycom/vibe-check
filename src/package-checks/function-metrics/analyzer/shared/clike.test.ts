@@ -9,7 +9,8 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { analyzeSourceCode, FileInfoBuilder } from "../core.ts";
+import { analyzeSourceCode } from "../pipeline.ts";
+import { FileInfoBuilder } from "../analysis-context.ts";
 import { CSharpReader } from "../readers/csharp.ts";
 import { CLikeReader, CLikeStates } from "./clike.ts";
 

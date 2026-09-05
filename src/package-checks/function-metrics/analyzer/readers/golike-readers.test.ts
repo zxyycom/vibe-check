@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import test from "node:test";
 
-import { analyzeSourceCode, type FileInformation, type ReaderConstructor } from "../core.ts";
+import { analyzeSourceCode } from "../pipeline.ts";
+import type { FileInformation } from "../analysis-model.ts";
+import type { ReaderConstructor } from "../contracts.ts";
 import { GoReader } from "./go.ts";
 import { KotlinReader } from "./kotlin.ts";
 import { RustReader } from "./rust.ts";

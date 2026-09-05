@@ -7,7 +7,7 @@
  * callback sequencing for Ruby-like readers.
  */
 
-import type { FileInfoBuilder } from "../core.ts";
+import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CodeReader, CodeStateMachine } from "./code-reader.ts";
 import { ScriptLanguageMixIn } from "./script-language.ts";
 
