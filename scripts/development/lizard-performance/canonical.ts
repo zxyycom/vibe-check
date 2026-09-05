@@ -32,15 +32,22 @@ export function metricsEqual(
 }
 
 function compareMetrics(left: CanonicalMetric, right: CanonicalMetric): number {
-  return (
-    compareText(left.file, right.file) ||
-    left.startLine - right.startLine ||
-    left.endLine - right.endLine ||
-    compareText(left.name, right.name) ||
-    left.nloc - right.nloc ||
-    (left.ccn ?? -1) - (right.ccn ?? -1) ||
+  for (const comparison of metricFieldComparisons(left, right)) {
+    if (comparison) return comparison;
+  }
+  return 0;
+}
+
+function metricFieldComparisons(left: CanonicalMetric, right: CanonicalMetric): readonly number[] {
+  return Object.freeze([
+    compareText(left.file, right.file),
+    left.startLine - right.startLine,
+    left.endLine - right.endLine,
+    compareText(left.name, right.name),
+    left.nloc - right.nloc,
+    (left.ccn ?? -1) - (right.ccn ?? -1),
     left.parameterCount - right.parameterCount
-  );
+  ]);
 }
 
 function compareText(left: string, right: string): number {

@@ -31,6 +31,13 @@ describe("Lizard TypeScript developer performance evidence", () => {
       }
     );
     assert.throws(() => parseArguments(["--layer", "python"]), /A, B, C, or all/);
+    for (const inheritedOption of ["__proto__", "constructor", "toString"]) {
+      assert.throws(
+        () => parseArguments([inheritedOption]),
+        new RegExp(`unknown argument: ${inheritedOption}`)
+      );
+      assert.throws(() => parseArguments(["--layer", inheritedOption]), /A, B, C, or all/);
+    }
     assert.throws(() => parseArguments(["--lizard123", "relative/lizard"]), /absolute executable/);
     assert.throws(
       () => parseArguments(["--lizard124-source", "relative/source"]),
@@ -84,6 +91,32 @@ describe("Lizard TypeScript developer performance evidence", () => {
     const second = [...first].reverse();
     assert.deepEqual(canonicalMetrics(first), canonicalMetrics(second));
     assert.equal(metricsEqual(first, second), true);
+    const nonFiniteLocationMetrics = parseChildResult({
+      metrics: [
+        {
+          ccn: 1,
+          endLine: 4,
+          file: "same.ts",
+          name: "zeta",
+          nloc: 4,
+          parameterCount: 0,
+          startLine: Infinity
+        },
+        {
+          ccn: 1,
+          endLine: 4,
+          file: "same.ts",
+          name: "alpha",
+          nloc: 4,
+          parameterCount: 0,
+          startLine: Infinity
+        }
+      ]
+    }).metrics;
+    assert.deepEqual(
+      canonicalMetrics(nonFiniteLocationMetrics).map(({ name }) => name),
+      ["alpha", "zeta"]
+    );
   });
 
   it("uses every ABBA block in deterministic bootstrap classification and only marks IQR outliers", () => {
