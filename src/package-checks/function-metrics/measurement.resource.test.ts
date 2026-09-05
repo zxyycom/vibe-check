@@ -85,6 +85,103 @@ describe("functionMetrics resource admission", () => {
     }
   });
 
+  it("fails closed for malformed Worker replies while retaining the current transport shape boundary", async () => {
+    const root = createRoot("vibe-check-function-worker-reply-");
+    const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
+    if (workerDescriptor === undefined)
+      throw new Error("Bun Worker must be available for this test.");
+    let reply: unknown;
+    try {
+      writeFileSync(join(root, "src", "input.ts"), "export const input = 1;\n", "utf8");
+      Object.defineProperty(globalThis, "Worker", {
+        configurable: true,
+        value: class {
+          public onmessage: ((event: { readonly data: unknown }) => void) | null = null;
+
+          public postMessage(): void {
+            this.onmessage?.({ data: reply });
+          }
+
+          public terminate(): void {}
+        }
+      });
+
+      const parentAcceptedMetric = {
+        cyclomaticComplexity: {
+          extraNestedKey: true,
+          source: "typescript-analyzer",
+          value: null
+        },
+        endLine: -2,
+        extraMetricKey: true,
+        file: "src/input.ts",
+        lines: -3,
+        name: "parent-accepted",
+        parameterCount: -4,
+        startLine: -1
+      };
+      reply = {
+        extraTopLevelKey: true,
+        kind: "complete",
+        metrics: [parentAcceptedMetric]
+      };
+      assert.deepEqual(await measure(root, ["src/input.ts"]), {
+        kind: "complete",
+        metrics: [parentAcceptedMetric]
+      });
+
+      const invalidReplies = [
+        {
+          name: "a missing metric identity",
+          reply: { kind: "complete", metrics: [{ ...parentAcceptedMetric, name: undefined }] }
+        },
+        {
+          name: "a non-safe-integer measurement",
+          reply: { kind: "complete", metrics: [{ ...parentAcceptedMetric, startLine: 1.5 }] }
+        },
+        {
+          name: "a non-safe-integer complexity",
+          reply: {
+            kind: "complete",
+            metrics: [
+              {
+                ...parentAcceptedMetric,
+                cyclomaticComplexity: { source: "typescript-analyzer", value: 1.5 }
+              }
+            ]
+          }
+        },
+        {
+          name: "an unrecognized complexity source",
+          reply: {
+            kind: "complete",
+            metrics: [
+              {
+                ...parentAcceptedMetric,
+                cyclomaticComplexity: { source: "other-analyzer", value: 1 }
+              }
+            ]
+          }
+        },
+        {
+          name: "a metric outside the parent-approved exact paths",
+          reply: { kind: "complete", metrics: [{ ...parentAcceptedMetric, file: "src/other.ts" }] }
+        }
+      ];
+      for (const invalidReply of invalidReplies) {
+        reply = invalidReply.reply;
+        assert.deepEqual(
+          await measure(root, ["src/input.ts"]),
+          { kind: "analysis-failed" },
+          invalidReply.name
+        );
+      }
+    } finally {
+      Object.defineProperty(globalThis, "Worker", workerDescriptor);
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it("yields during admission so cancellation prevents Worker startup, Records, and waiver audit", async () => {
     const root = createRoot("vibe-check-function-admission-cancel-");
     const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");

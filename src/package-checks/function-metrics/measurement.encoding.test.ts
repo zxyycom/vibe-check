@@ -38,6 +38,36 @@ const LIZARD_124_AUTO_READ_OBSERVATIONS = [
     bytes: "646566ff206e65776c696e657328293a0d0a20202020706173730d",
     expected: "def newlines():\r\n    pass\r",
     name: "fallback newlines after an invalid byte"
+  },
+  {
+    bytes: "ff41c280e0a080f0908080",
+    expected: "A\u0080\u0800\u{10000}",
+    name: "valid two-, three-, and four-byte sequences after an invalid byte"
+  },
+  {
+    bytes: "c080c1bf",
+    expected: "",
+    name: "overlong two-byte sequences"
+  },
+  {
+    bytes: "eda080",
+    expected: "",
+    name: "a UTF-8 encoded surrogate"
+  },
+  {
+    bytes: "f0808080f4908080f5808080",
+    expected: "",
+    name: "out-of-range four-byte sequences"
+  },
+  {
+    bytes: "e28220f0908080",
+    expected: " \u{10000}",
+    name: "a truncated sequence before a later valid sequence"
+  },
+  {
+    bytes: "c2c280",
+    expected: "\u0080",
+    name: "an invalid lead byte before a valid trailing sequence"
   }
 ] as const;
 

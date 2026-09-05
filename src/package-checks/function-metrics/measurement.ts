@@ -143,48 +143,68 @@ export function decodeLizardAutoRead(bytes: Uint8Array): string {
 function decodeUtf8IgnoringInvalidBytes(bytes: Uint8Array): string {
   let decoded = "";
   for (let index = 0; index < bytes.length;) {
-    const first = bytes[index];
-    if (first <= 0x7f) {
-      decoded += String.fromCodePoint(first);
+    const codePoint = decodeUtf8CodePoint(bytes, index);
+    if (codePoint === undefined) {
       index += 1;
       continue;
     }
-    const second = bytes[index + 1];
-    const third = bytes[index + 2];
-    const fourth = bytes[index + 3];
-    if (first >= 0xc2 && first <= 0xdf && isUtf8Continuation(second)) {
-      decoded += String.fromCodePoint(((first & 0x1f) << 6) | (second & 0x3f));
-      index += 2;
-      continue;
-    }
-    if (
-      first >= 0xe0 &&
-      first <= 0xef &&
-      isUtf8SecondByteForThreeByteSequence(first, second) &&
-      isUtf8Continuation(third)
-    ) {
-      decoded += String.fromCodePoint(
-        ((first & 0x0f) << 12) | ((second & 0x3f) << 6) | (third & 0x3f)
-      );
-      index += 3;
-      continue;
-    }
-    if (
-      first >= 0xf0 &&
-      first <= 0xf4 &&
-      isUtf8SecondByteForFourByteSequence(first, second) &&
-      isUtf8Continuation(third) &&
-      isUtf8Continuation(fourth)
-    ) {
-      decoded += String.fromCodePoint(
-        ((first & 0x07) << 18) | ((second & 0x3f) << 12) | ((third & 0x3f) << 6) | (fourth & 0x3f)
-      );
-      index += 4;
-      continue;
-    }
-    index += 1;
+    decoded += String.fromCodePoint(codePoint);
+    index += utf8SequenceByteLength(codePoint);
   }
   return decoded;
+}
+
+function decodeUtf8CodePoint(bytes: Uint8Array, index: number): number | undefined {
+  const first = bytes[index];
+  if (first === undefined) return undefined;
+  if (first <= 0x7f) return first;
+  if (first >= 0xc2 && first <= 0xdf) return decodeTwoByteUtf8Sequence(first, bytes[index + 1]);
+  if (first >= 0xe0 && first <= 0xef) {
+    return decodeThreeByteUtf8Sequence(first, bytes[index + 1], bytes[index + 2]);
+  }
+  if (first >= 0xf0 && first <= 0xf4) {
+    return decodeFourByteUtf8Sequence(first, bytes[index + 1], bytes[index + 2], bytes[index + 3]);
+  }
+  return undefined;
+}
+
+function decodeTwoByteUtf8Sequence(first: number, second: number | undefined): number | undefined {
+  if (!isUtf8Continuation(second)) return undefined;
+  return ((first & 0x1f) << 6) | (second & 0x3f);
+}
+
+function decodeThreeByteUtf8Sequence(
+  first: number,
+  second: number | undefined,
+  third: number | undefined
+): number | undefined {
+  if (!isUtf8SecondByteForThreeByteSequence(first, second) || !isUtf8Continuation(third)) {
+    return undefined;
+  }
+  return ((first & 0x0f) << 12) | ((second & 0x3f) << 6) | (third & 0x3f);
+}
+
+function decodeFourByteUtf8Sequence(
+  first: number,
+  second: number | undefined,
+  third: number | undefined,
+  fourth: number | undefined
+): number | undefined {
+  if (
+    !isUtf8SecondByteForFourByteSequence(first, second) ||
+    !isUtf8Continuation(third) ||
+    !isUtf8Continuation(fourth)
+  ) {
+    return undefined;
+  }
+  return ((first & 0x07) << 18) | ((second & 0x3f) << 12) | ((third & 0x3f) << 6) | (fourth & 0x3f);
+}
+
+function utf8SequenceByteLength(codePoint: number): number {
+  if (codePoint <= 0x7f) return 1;
+  if (codePoint <= 0x7ff) return 2;
+  if (codePoint <= 0xffff) return 3;
+  return 4;
 }
 
 function isUtf8Continuation(value: number | undefined): value is number {
@@ -277,28 +297,36 @@ function isWorkerResponse(value: unknown): value is FunctionMetricsAnalysisWorke
 
 function isFunctionMetric(value: unknown): value is FunctionMetric {
   return (
-    typeof value === "object" &&
-    value !== null &&
-    "file" in value &&
-    typeof value.file === "string" &&
-    "name" in value &&
-    typeof value.name === "string" &&
-    "startLine" in value &&
-    Number.isSafeInteger(value.startLine) &&
-    "endLine" in value &&
-    Number.isSafeInteger(value.endLine) &&
-    "lines" in value &&
-    Number.isSafeInteger(value.lines) &&
-    "parameterCount" in value &&
-    Number.isSafeInteger(value.parameterCount) &&
-    "cyclomaticComplexity" in value &&
-    typeof value.cyclomaticComplexity === "object" &&
-    value.cyclomaticComplexity !== null &&
-    "source" in value.cyclomaticComplexity &&
-    value.cyclomaticComplexity.source === "typescript-analyzer" &&
-    "value" in value.cyclomaticComplexity &&
-    (value.cyclomaticComplexity.value === null ||
-      (typeof value.cyclomaticComplexity.value === "number" &&
-        Number.isSafeInteger(value.cyclomaticComplexity.value)))
+    isRecord(value) &&
+    hasFunctionMetricIdentity(value) &&
+    hasFunctionMetricMeasurements(value) &&
+    isTypeScriptAnalyzerCyclomaticComplexity(value.cyclomaticComplexity)
   );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function hasFunctionMetricIdentity(metric: Record<string, unknown>): boolean {
+  return typeof metric.file === "string" && typeof metric.name === "string";
+}
+
+function hasFunctionMetricMeasurements(metric: Record<string, unknown>): boolean {
+  return (
+    Number.isSafeInteger(metric.startLine) &&
+    Number.isSafeInteger(metric.endLine) &&
+    Number.isSafeInteger(metric.lines) &&
+    Number.isSafeInteger(metric.parameterCount)
+  );
+}
+
+function isTypeScriptAnalyzerCyclomaticComplexity(value: unknown): boolean {
+  return (
+    isRecord(value) && value.source === "typescript-analyzer" && isNullableSafeInteger(value.value)
+  );
+}
+
+function isNullableSafeInteger(value: unknown): boolean {
+  return value === null || (typeof value === "number" && Number.isSafeInteger(value));
 }
