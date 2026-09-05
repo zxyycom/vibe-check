@@ -5,38 +5,18 @@ import {
   createSchedulerCriticalPathSnapshot,
   criticalPathScoreForTask
 } from "./critical-path-ranking.ts";
+import {
+  schedulerGraphSnapshot,
+  schedulerGraphTask
+} from "./scheduler-graph-snapshot.test-support.ts";
 
 describe("critical-path ranking", () => {
   it("scores both dependency and observation downstream paths once", () => {
-    const graph = Object.freeze({
-      scopes: Object.freeze([]),
-      tasks: Object.freeze([
-        Object.freeze({
-          admissionPriority: 0,
-          dependsOn: Object.freeze([]),
-          mutex: Object.freeze([]),
-          observes: Object.freeze([]),
-          scopeId: null,
-          taskId: "source"
-        }),
-        Object.freeze({
-          admissionPriority: 0,
-          dependsOn: Object.freeze(["source"]),
-          mutex: Object.freeze([]),
-          observes: Object.freeze([]),
-          scopeId: null,
-          taskId: "dependency"
-        }),
-        Object.freeze({
-          admissionPriority: 0,
-          dependsOn: Object.freeze([]),
-          mutex: Object.freeze([]),
-          observes: Object.freeze(["source"]),
-          scopeId: null,
-          taskId: "observer"
-        })
-      ])
-    });
+    const graph = schedulerGraphSnapshot([
+      schedulerGraphTask("source"),
+      schedulerGraphTask("dependency", { dependsOn: ["source"] }),
+      schedulerGraphTask("observer", { observes: ["source"] })
+    ]);
     const prediction = Object.freeze({
       predictions: Object.freeze([
         Object.freeze({ estimatedDurationMs: 2, taskId: "source" }),
