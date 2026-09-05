@@ -2,7 +2,7 @@
 
 ## Case WB-PROJECT-DEFINITION-001: Recursive Project Definition grammar fails closed
 
-Owner: `docs/configuration.md#recursive-check-tree`
+Owner: `docs/development/project-definition.md#recursive-check-tree`
 Entities:
 
 - `bun|src/project-definition/project-definition.authoring-defaults.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
@@ -22,7 +22,7 @@ Entities:
 
 ## Case WB-PROJECT-DEFINITION-FLAG-ENABLEMENT-001: Flag enablement is closed executable identity
 
-Owner: `docs/configuration.md#flag-enabled-checks`
+Owner: `docs/development/project-definition.md#flag-enabled-checks`
 Entities:
 
 - `bun|src/project-definition/project-definition.flag-enablement.test.ts|Project Definition > normalizes executable flag enablement as declarative identity`
@@ -35,7 +35,7 @@ Entities:
 
 ## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preflight
 
-Owner: `docs/configuration.md#package-provided-check-composition`
+Owner: `docs/development/project-definition.md#package-provided-check-composition`
 Entities:
 
 - `bun|src/project-definition/project-definition.options-preflight.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
@@ -46,7 +46,7 @@ Entities:
 
 ## Case AUX-PUBLIC-AUTHORING-TYPES-001: Public authoring values and declarations remain usable from an installed package
 
-Owner: `docs/configuration.md#public-authoring-surface`
+Owner: `docs/development/project-definition.md#public-authoring-surface`
 Entities:
 
 - `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
@@ -77,7 +77,7 @@ Entities:
 
 ## Case WB-PROGRESS-OUTPUT-001: Progress rendering is a Run-owned output
 
-Owner: `docs/configuration.md#run-outputs-and-compatibility-boundary`
+Owner: `docs/development/project-run.md#run-outputs-and-compatibility-boundary`
 Entities:
 
 - `bun|src/project-run/progress-rendering/invocation-progress.test.ts|Package Run progress rendering outputs > presents enabled Package Run progress through the injected plain writer`
@@ -135,7 +135,7 @@ Entities:
 
 ## Case WB-RUN-RESULT-CHECK-MESSAGES-001: Final-snapshot Run results retain accepted Check messages
 
-Owner: `docs/configuration.md#invocation-and-results`
+Owner: `docs/development/project-run.md#invocation-and-results`
 Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
@@ -162,4 +162,5 @@ Entities:
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > requires a complete explicit files policy and publishes the public parser`
 
 Proves:
+
 - `secretDetection` rejects missing or partial files authoring, freezes only its closed resource/waiver options, and exposes a parser that verifies the five safe final-count invariants.

@@ -9,7 +9,7 @@
   扩张，也不承诺所有平台、语言或后续 SCC release。
 - `fileMetrics` 的稳定结果只有 code-line finding、Record 和 final data；threshold 仍由 area owner 以非阻断观测策略
   拥有。consumer contract 的 owner 是 `docs/checks/file-metrics.md`，scanner-private boundary 的 owner 是
-  `docs/scanner-dependencies.md`；本 Draft 不替代这两个 owner。
+  `docs/development/scanner-dependencies.md`；本 Draft 不替代这两个 owner。
 - scanner dependency owner 禁止把 SCC、Lizard 与 jscpd 合并为 shared registry 或 generic backend interface。
 - 本 Draft 不授权 runtime 实现，也不阻塞 Lizard 或当前 scanner implementation。
 

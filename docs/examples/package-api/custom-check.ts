@@ -1,6 +1,6 @@
+// #region package-api-example:custom-check-definition
 import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
-// #region package-api-example:custom-check-definition
 function hasValidLicensePolicyOptions(options: object): boolean {
   const denied: unknown = Reflect.get(options, "denied");
   return (

@@ -2,7 +2,7 @@
 
 ## Case AUX-QUALITY-RECORD-GENERATION-001: Package-provided thresholds return final data and supplemental facts
 
-Owner: `docs/quality-metrics.md#package-provided-ordinary-checks-and-exact-inputs`
+Owner: `docs/development/check-results.md#package-provided-ordinary-checks-and-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
@@ -141,6 +141,7 @@ Entities:
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > returns unavailable rather than a partial result after cancellation or detector protocol failure`
 
 Proves:
+
 - Secret finding identity uses only rule, path, structural class and ordinal; applied waiver retains a safe finding Record, while unused and overmatched waiver authoring remains observable and does not silently settle actionable findings.
 - Replacing the detected private-key value or moving it to another line changes the safe location evidence but not the rule/path/structure/ordinal identity.
 - Cancellation and detector protocol failure settle unavailable without final data or raw detector material.

@@ -18,5 +18,5 @@ installed-consumer evidence，再决定是否形成独立 public contract。默�
 case 能满足这些条件时，以“不扩张”结束，不为预置 capability 建立抽象。
 
 当前 stable consumer contract 由 [`docs/checks/file-metrics.md`](../../docs/checks/file-metrics.md) 持有，scanner-private
-boundary 由 [`docs/scanner-dependencies.md`](../../docs/scanner-dependencies.md) 持有。本 Draft 只承接未来判断：它不阻塞
+boundary 由 [`docs/development/scanner-dependencies.md`](../../docs/development/scanner-dependencies.md) 持有。本 Draft 只承接未来判断：它不阻塞
 Lizard 或当前 scanner implementation。

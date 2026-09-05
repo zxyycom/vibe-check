@@ -157,377 +157,64 @@ helper 只返回 disposition 与 audit；采用方仍拥有 Records、messages �
 | [`fileMetrics`](./docs/checks/file-metrics.md) | `findingWaivers` | `{ metric: "code-lines", path }` |
 | [`functionMetrics`](./docs/checks/function-metrics.md) | `findingWaivers` | `{ metric, path, functionName, startLine }` |
 | [`duplicateDetection`](./docs/checks/duplicate-detection.md) | `findingWaivers` | `{ metric: "duplicate-tokens", locations }` |
+| [`secretDetection`](./docs/checks/secret-detection.md) | `findingWaivers` | `{ path, ruleId, structuralClass, ordinal }`；不含 secret 值、message、line 或 hash。 |
 | 其它随包 Check | 暂无同名原生 option | 对应 Check 指南；不能据此推断自动支持 |
 
 三个内置指标型 Check（`fileMetrics`、`functionMetrics` 与 `duplicateDetection`，下称 metric trio）都在完整 metric Finding
 形成后对账，保留 applied Finding Record 与 reason，并把 stale/overbroad authoring 作为 audit evidence；各自完整 identity
-grammar 见上表链接到的 Check 指南。通用 grammar 与带 getter 等 hostile input 的拒绝边界见
-[深入 API 机制](./docs/api-mechanics.md#finding-waiver-reconciliation)。
+grammar 见上表链接到的 Check 指南。`secretDetection` 同样在完整安全投影 Finding 后对账，但其 waiver 只能匹配表中的
+非敏感 identity，不能豁免 coverage gap 或 `unavailable`；reason 也会作为 evidence 发布，不能包含敏感材料。通用 grammar
+与带 getter 等 hostile input 的拒绝边界见[深入 API 机制](./docs/api-mechanics.md#finding-waiver-reconciliation)。
 
-## 自定义 Check API
+## Project Definition 与 Run API
 
-只使用随包 Check 时，可以跳过本节。需要表达项目自己的规则时，通常只需要定义 Check、组成 Definition、运行并读取结果；preflight、依赖调度、waiver 对账、聚合和取消等进阶能力放在[深入 API 机制](./docs/api-mechanics.md)中。
-
-### 定义 Check
-
-`defineCheck(value)` 接受一个普通 Check object，并保留 `checkId`、options 和 final data 的 TypeScript inference。常用字段如下：
-
-| 字段 | 用途 |
-| --- | --- |
-| `checkId` | 在同一 Definition 中唯一的稳定标识；用于查找 outcome、Record、message 和 duration。 |
-| `displayName` | 进度和人读结果中显示的名称。 |
-| `execution(context)` | 执行检查并返回一个 terminal outcome。省略时，当前节点只用于组织子 `checks`。 |
-| `enabledByFlags` | 可选的 `{ flags, mode, propagateDependsOn?: true }`；条件不匹配时在任何 owning preflight / execution 前结算为 `not-applicable`。匹配 root 只有显式写出 literal `true` 时才启动其传递 `dependsOn` prerequisite；`observes` 不会被选择。 |
-| `dependsOn` | 必须先结算为 `passed` 的 direct prerequisite IDs；任一非 `passed` 都阻止本 Check 的 preflight 和 execution。可用 `inherit({ add, remove })` 在容器继承值上显式编辑。 |
-| `observes` | 所列每个 direct Check 都只需先各自形成任意 terminal outcome 的 IDs；用于审计、汇总或基于 outcome 形成本 Check 的 policy，不把上游非 `passed` 当作本 Check 的 prerequisite；同样可用 `inherit({ add, remove })` 显式编辑继承值。 |
-| `admissionPriority` | 同一既有 ready 准入层级中的静态相对优先级；必须是安全整数，省略后继承最近的容器值，最终为 `0`。它是完整 Task graph 上的 metadata，不改变 Check tree 的声明顺序，也不越过依赖、mutex、并行上限或 cancellation/lifecycle hard guard。 |
-| `options` | 当前 Check 的配置；Run 会把准备后的只读副本交给 `context.options`。 |
-| `checks` | 可选的子 Check 列表，用于组织一组相关规则。 |
-
-`execution` 可以同步返回，也可以返回 `Promise`。它通过 `context` 读取当前 options、project root、flags、两类 relation 授权的 direct outcome、取消 signal，并可用 `records.report(...)` 保存不决定终态的补充事实。
-
-`enabledByFlags.flags` 必须是非空 token 集合；`mode` 可以是 `all`、`any`、`none` 或 `not-all`。其中 `any` 表示至少一个声明 token 存在，不是“恰好一个”；`not-all` 表示至少一个声明 token 不存在。需要带值 flag、“恰好一个”或嵌套布尔条件时，Check 继续在 callback 中解释 `context.project.flags`。
-
-省略 `propagateDependsOn` 保持只选择 direct match 的兼容行为；它不是可填写 `false` 的开关。匹配且 opt-in 的 root 会把其完整传递 `dependsOn` 闭包加入本次私有选择，因此其中 dependency 即使自己的 flag predicate 未命中，也照常走普通 Scheduler、preflight 和 execution。未在该选择中的 flag Check 才保留 `not-applicable / flag-condition-not-matched`；以它为 `dependsOn` 的 Check 会因 prerequisite 未通过而不启动，以它为 `observes` 的 Check 仍可读取该终态。flags 只决定本次选择，不是权限或环境准入；硬条件仍应在 Check-owned preflight 或 execution 结算。完整 invocation lifecycle、aggregation 和输出边界见 [API 机制](docs/api-mechanics.md#一次-run-的生命周期)。
-
-默认 progress 会把因 flag 条件未匹配而没有启动的 Checks 合成一个原因说明块，并在下面列出各自的
-`displayName`；完整 Check facts、最终计数和 machine output 不会被压缩或删除。完整分组条件与其它未启动状态的
-呈现边界见 [API 机制](docs/api-mechanics.md#outputs-与-runresult-边界)。
-
-必须取得成功 provider data 才能开始工作时，使用 `dependsOn`，再以 `context.dependencies.get(checkId)` 读取 final data，并由 producing
-Check 的 `parseData` 恢复其业务类型。需要在所有 observed upstream 各自结算为任意 terminal outcome 后审计时，使用 `observes`，再用零参数
-`context.dependencies.list()`：它按 normalized effective direct ID 的稳定顺序返回冻结的 observation array；每项都是冻结的
-`{ checkId, outcome }`，`outcome` 保留 Core 已结算的完整四态，包含两类 relation 分别继承后形成的 direct ID 并集。`get` 和 `list`
-都只授权这个并集；同一 ID 不能同时出现在两类 relation。它不是全局已执行 Check 列表，
-不包含 ambient executed、transitive 或未声明 Check，也不反映 scheduler history。consumer 只能根据这些只读事实形成自己
-Check 的 I/O、Records、messages 和 terminal result，不能重跑、修改或重新结算上游。完整示例与 parser 边界见
-[深入 API 机制的类型化依赖数据](./docs/api-mechanics.md#类型化依赖数据)。
-
-| 返回状态 | 何时使用 |
-| --- | --- |
-| `passed` | 检查完成且满足规则；同时返回主要 final `data`。 |
-| `failed` | 检查完成但不满足规则；同时返回主要 final `data`。 |
-| `not-applicable` | 当前输入没有适用的工作；可以附带 reason。 |
-| `unavailable` | 无法形成可信结果；必须附带 reason。 |
-
-final `data` 和 supplemental Record 使用 object-shaped canonical JSON。Check 可以附带有序的人读 `messages`，但通用 API
-不保证每个结果都有 message。默认 progress 会在 TTY 中维护临时 running region；Check preflight/execution 通过全局
-`console.*` 写入的文本会按异步 Check context 捕获，settlement 后统一呈现并保留在 `RunResult.checkMessages`，不会破坏
-running region。`process.stdout.write` / `process.stderr.write` 绕过这个 console router；如果直接写入 progress 使用的
-terminal stream，文本可能与光标控制交错，造成内容被覆盖或遗留 running row。直接 stream write、高容量或流式日志应改用
-Check-owned file、transcript 或独立 logger；完整边界见
-[深入 API 机制的 Check 输出](./docs/api-mechanics.md#check-输出与受管-progress)。
+无论 Definition 只含随包 Check，还是也含自定义 Check，调用主线都是组成 Definition、运行一次 invocation，再读取结果。本节说明两类调用方共用的 defaults、调度与结果边界。
 
 ### 组成 Project Definition
 
-`defineConfig({ checks, ... })` 组成可重复运行的 Project Definition，并补齐未声明的默认值。最常调整的默认项是：
+`defineConfig({ checks, ... })` 会补齐 outputs 和 scheduler 的默认值。同一份 Definition 可安全用于多次 `run(...)`；需要只改变某个 nested field 时，只写该 field 即可。
 
 | 配置 | 默认值 | 效果 |
 | --- | --- | --- |
 | `outputs.progressRendering.enabled` | `true` | 在终端呈现 Check 生命周期与汇总。 |
-| `outputs.machinePublication.enabled` | `true` | 把 `run.json` 和 `records.ndjson` 写入 `artifacts/vibe-check`。 |
-| `outputs.diagnosticLogging.enabled` | `false` | 需要排障时按 Product owner 写入 invocation-specific core、scheduler，以及仅 learned policy 使用的 learned-admission 日志。 |
+| `outputs.machinePublication.enabled` | `true` | 把 `run.json` 与 `records.ndjson` 写入 `artifacts/vibe-check`。 |
+| `outputs.diagnosticLogging.enabled` | `false` | 为本次 invocation 写入维护者诊断日志。 |
 | `scheduler.maxParallel` | `4` | 限制最外层 Check 并行数。 |
-| `scheduler.admissionPolicy` | `{ kind: "static" }` | 每轮以完整静态图与当前事实重算的默认无状态准入 policy。 |
+| `scheduler.admissionPolicy` | `{ kind: "static" }` | 按静态图与当前 ready facts 选择 task。 |
 
-`outputs` 和 `scheduler` 都可以只覆盖需要改变的 nested field；同一份 Definition 可以安全地传给多次 `run(...)`。
-machine publication 和 diagnostic logging 的 `directory` 在 Definition 与 RunControls 中使用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。相对值（包括 `..`）从本次 effective `projectRoot` 解析；绝对值直接作为明确 target。两项仍是独立 output，可以填写同一目录（machine 只拥有 `run.json` 与 `records.ndjson`，diagnostic logging 只创建 invocation-specific `.log`）。这不是 filesystem sandbox、目录清空或 containment 承诺；可移植的可重复 Definition 应优先使用相对目录，把 invocation-specific 的外部绝对 target 放进 `run(..., { outputs })`。
+machine publication 与 diagnostic logging 的 `directory` 都是调用方选择的 target：相对路径从这次 effective `projectRoot` 解析，绝对路径直接使用。它们不是 sandbox、目录清空或 containment 承诺；可移植的 Definition 优先使用相对路径，将 invocation-specific 绝对 target 放入 `run(..., { outputs })`。
 
-### 自定义准入 policy
+### 调度多个 Check 与终态统计
 
-当调用方要根据完整 Task graph 和当前准入事实选择下一项 Task 时，设置
-`scheduler.admissionPolicy` 为 `custom`。现行 public contract 有两种 strategy：`simple` 直接提供同步
-`decide(context)`；需要为**本次 Run**异步准备选择 closure 或处理 sealed terminal measurement 时，使用下文的
-`prepared`。两个 `decide` 都只能提出 `select(taskId)` 或 `wait`。它收到 detached、deep-frozen 的 decision DTO；Task
-metadata 是 topology 与 priority 的唯一来源。需要比较假设分支时，callback 可从 `context.admissionState` 读取与下文
-standalone `AdmissionGraph` 相同的 immutable state contract；其中的 `select` / `settle` 只产生 hypothetical successor，
-不会为真实 Run 预留、启动或结算 Task。
+默认静态调度已经保证 `dependsOn`、`observes`、mutex、并行预算和取消边界。只有需要为 ready task 定义项目自己的选择偏好、模拟静态图分支、为一次 Run 准备策略，或复用调用方拥有的本地时长 history 时，阅读[按项目约束调度 Check](./docs/guides/scheduling.md)。
 
-Scheduler 仍独占 relation/mutex readiness、capacity、cancellation、Task 启动和结算的 hard guard。callback 是调用方
-trusted host code：closure 可使用调用方自己持有的 capability；Vibe Check 传入 frozen context 并接收 result-only proposal，
-但不暴露 mutable/private Scheduler state 或真实 Task control。`defineAdmissionPolicy(...)` 只改善 TypeScript inference，inline
-同形 object 等价。
-
-失败分流按 callback 阶段固定：simple/prepared 的 `decide` throw、thenable、malformed/illegal proposal 或不可 drain 的
-`wait` 形成 `admission-policy-failed`，Scheduler 停止新 admission、取消 pending 并 drain 已启动 work；prepared 的
-`prepare` throw、reject 或不能形成精确 closure 时，在 Scheduler 启动前形成
-`admission-strategy-preparation-failed`。完整的终态 output 状态和 primary-result 优先级见
-[深入 API 机制](./docs/api-mechanics.md#outputs-与-runresult-边界)。
-
-```ts
-import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
-
-const executionOrder: string[] = [];
-
-const compile = defineCheck({
-  checkId: "compile",
-  displayName: "Compile",
-  execution() {
-    executionOrder.push("compile");
-    return { status: "passed", data: {} };
-  }
-});
-
-const publish = defineCheck({
-  admissionPriority: 10,
-  checkId: "publish",
-  dependsOn: [compile.checkId],
-  displayName: "Publish",
-  execution() {
-    executionOrder.push("publish");
-    return { status: "passed", data: {} };
-  }
-});
-
-const preferPublish = defineAdmissionPolicy({
-  kind: "custom",
-  strategy: {
-    kind: "simple",
-    decide(context) {
-      const publishTask = context.graph.tasks.find((task) => task.taskId === publish.checkId);
-      const publishCandidate = context.candidates.find(
-        (candidate) => candidate.taskId === publish.checkId && candidate.canAdmit
-      );
-      if (publishTask?.admissionPriority === 10 && publishCandidate !== undefined) {
-        return { kind: "select", taskId: publishCandidate.taskId };
-      }
-
-      const nextCandidate = context.candidates.find((candidate) => candidate.canAdmit);
-      return nextCandidate === undefined
-        ? { kind: "wait" }
-        : { kind: "select", taskId: nextCandidate.taskId };
-    }
-  }
-});
-
-const definition = defineConfig({
-  checks: [compile, publish],
-  outputs: {
-    diagnosticLogging: { enabled: false },
-    machinePublication: { enabled: false },
-    progressRendering: { enabled: false }
-  },
-  scheduler: {
-    admissionPolicy: preferPublish,
-    maxParallel: 1
-  }
-});
-
-const result = await run(definition);
-if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
-if (executionOrder.join(",") !== "compile,publish") {
-  throw new Error(`Unexpected execution order: ${executionOrder.join(",")}`);
-}
-```
-
-### 模拟 AdmissionGraph
-
-`createAdmissionGraph({ graph, maxParallel })` 对独立的静态 Scheduler graph 执行 validation/compile，返回可形成
-immutable `AdmissionState` 的 `AdmissionGraph` handle；它不运行 Check。`catalog`、`inspection` 与
-`validateSelection(taskId)` 只读取假设边界；`select(taskId)` 和 `settle(taskId, "satisfied" | "unsatisfied")` 返回
-successor，保留原 state 即可比较分支。所有 DTO、transition result 与 handle 都是 frozen。
-
-这个 public state 只表达 hypothetical admission：没有 Task、Promise、signal、取消、reservation、执行结果或 effect stream，
-也不会写回真实 Run。完整 rejection precedence、binary settlement 与 live callback seed 的边界由
-[深入 API 机制](./docs/api-mechanics.md#admissiongraph-simulation)拥有。
-
-```ts
-import { createAdmissionGraph } from "@zxyycom/vibe-check";
-
-const graph = createAdmissionGraph({
-  graph: {
-    scopes: [],
-    tasks: [
-      {
-        admissionPriority: 0,
-        dependsOn: [],
-        mutex: [],
-        observes: [],
-        scopeId: null,
-        taskId: "compile"
-      },
-      {
-        admissionPriority: 0,
-        dependsOn: ["compile"],
-        mutex: [],
-        observes: [],
-        scopeId: null,
-        taskId: "publish"
-      }
-    ]
-  },
-  maxParallel: 1
-});
-
-const initial = graph.initialState();
-const compile = initial.select("compile");
-if (!compile.accepted) throw new Error(`Cannot select compile: ${compile.reason.kind}`);
-
-// Retaining `initial` and the successor forms two independent hypothetical branches.
-const completed = compile.state.settle("compile", "satisfied");
-if (!completed.accepted || !completed.state.catalog.selectableTaskIds.includes("publish")) {
-  throw new Error("Expected publish to become selectable after hypothetical completion");
-}
-```
-
-### 已准备的 custom strategy
-
-当一次 Run 需要在 graph ready 后异步形成选择 closure，或需要在 sealed terminal measurement 上收尾时，使用
-`strategy.kind: "prepared"`。其成功调用顺序是：
-
-1. Invocation 对每个 graph-ready Run 一次调用 `prepare({ graph })`，得到只属于该 Run 的 `{ decide, complete? }`。
-2. Scheduler 同步调用 returned `decide`，并独占所有 admission hard guard 与 Task lifecycle。
-3. Scheduler seal terminal context 后，先运行启用的 internal summary 和所有 configured generic
-   `scheduler.measurementHooks`。
-4. Invocation 随后至多一次调用 optional `complete(context)`，并将实际 generic Hook/complete 的 settlement 写入既有
-   `outputs.measurementHooks`。
-
-`prepare` 的 public input 只有 frozen graph-ready facts；`complete` 的 public input 是 frozen
-`SchedulerMeasurementContext`。调用方把需要的 host capability 捕获在 closure 中；Product 保留 state、logger、clock 和
-Scheduler/Task control 的 owner。每个重叠 Run 都使用自己的 returned closure。prepare 失败会在 Scheduler 启动前形成
-`admission-strategy-preparation-failed`；complete throw/reject 会令 `outputs.measurementHooks` 为 failed，但不会改写已经
-sealed 的 primary facts。
-
-```ts
-import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
-
-const events: string[] = [];
-const check = defineCheck({
-  checkId: "check",
-  displayName: "Check",
-  execution: () => ({ status: "passed" as const, data: {} })
-});
-
-const strategy = defineAdmissionPolicy({
-  kind: "custom",
-  strategy: {
-    kind: "prepared",
-    async prepare({ graph }) {
-      const taskIds = new Set(graph.tasks.map((task) => task.taskId));
-      await Promise.resolve();
-      return {
-        decide(context) {
-          const candidate = context.candidates.find(
-            ({ taskId, canAdmit }) => canAdmit && taskIds.has(taskId)
-          );
-          return candidate === undefined
-            ? { kind: "wait" as const }
-            : { kind: "select" as const, taskId: candidate.taskId };
-        },
-        complete(terminal) {
-          if (!Object.isFrozen(terminal) || terminal.execution.settledTasks.length !== 1) {
-            throw new Error("Expected one sealed terminal measurement");
-          }
-          events.push("complete");
-        }
-      };
-    }
-  }
-});
-
-const result = await run(
-  defineConfig({
-    checks: [check],
-    outputs: {
-      diagnosticLogging: { enabled: false },
-      machinePublication: { enabled: false },
-      progressRendering: { enabled: false }
-    },
-    scheduler: { admissionPolicy: strategy }
-  })
-);
-if (result.kind !== "completed" || result.outputs.measurementHooks.status !== "succeeded") {
-  throw new Error(`Run did not complete its prepared strategy: ${result.kind}`);
-}
-if (events.join(",") !== "complete") throw new Error("Prepared completion was not delivered");
-```
-
-### learned-critical-path 准入 policy
-
-当同一项目会反复运行，并希望在**不改变**依赖、mutex、parallel budget 或 cancellation 规则的前提下，按本地历史时长
-优先推进较长的后继路径时，设置 `scheduler.admissionPolicy` 为 `learned-critical-path`。`stateDirectory` 是 caller-owned
-local state：非空、不得含 U+0000；relative path 从每次 `run` 的 effective `projectRoot` 解析，absolute path 直接使用。
-它不是 sandbox、remote/cache service、锁、自动清理或 secret storage；请由项目自己选择可写、可删除且不含敏感路径成分的目录。
-
-首次 Run 没有 history 仍可正常完成；v1 以 cold weight `1` 开始。后续 Run 使用 state directory 中按 model version、Check ID、
-canonical authored options 与 effective flags 分桶的 digest-only local samples，当前实现优先同 identity 的 32-sample arithmetic mean、再用本次 Run 的 median prior，并最多保留
-4096 个最近更新的 identity。窗口也计算 nearest-rank `p90` 以公开当前模型；它不替代 mean 进入 score。以上窗口、统计、file
-envelope 和 heuristic 是当前优化实现说明，而非 storage/model compatibility commitment。`expectedDurationMs` 不是 v1 authoring
-field。missing、malformed、incompatible 或 read-failed state 形成 learned cold/project-prior model；无法构造 canonical
-prediction input，或 local setup、prediction 或 score table 时，该 invocation 回退 static selection；Scheduler 闭合后的 record/write
-failure 只丢失未来样本。它们只在启用时记录有界
-diagnostic，不改变本次质量结算，也不会向 Check facts、machine output 或 `RunResult` 增加 history 数据。完整状态流和算法边界见
-[深入 API 机制](./docs/api-mechanics.md#learned-critical-path-准入)。
-
-```ts
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
-
-const executionOrder: string[] = [];
-
-function delayedCheck(checkId: string, delayMs: number) {
-  return defineCheck({
-    checkId,
-    displayName: checkId,
-    async execution() {
-      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
-      executionOrder.push(checkId);
-      return { status: "passed" as const, data: {} };
-    }
-  });
-}
-
-// 以明显高于常见本地计时抖动的时长差演示 learned 排序。
-const fast = delayedCheck("fast", 0);
-const slow = delayedCheck("slow", 250);
-const definition = defineConfig({
-  checks: [fast, slow],
-  outputs: {
-    diagnosticLogging: { enabled: false },
-    machinePublication: { enabled: false },
-    progressRendering: { enabled: false }
-  },
-  scheduler: {
-    admissionPolicy: {
-      kind: "learned-critical-path",
-      // 调用方拥有的本地目录相对 effective projectRoot 解析。
-      stateDirectory: ".vibe-check/scheduler-history"
-    },
-    maxParallel: 1
-  }
-});
-
-const first = await run(definition);
-const second = await run(definition);
-if (first.kind !== "completed" || second.kind !== "completed") {
-  throw new Error("Expected both learned-scheduling Runs to complete");
-}
-if (executionOrder.join(",") !== "fast,slow,slow,fast") {
-  throw new Error(`Unexpected learned scheduling order: ${executionOrder.join(",")}`);
-}
-```
-
-learned policy 先在同一 existing Scheduler selection layer 内比较 critical-path score；仅 score 相同时才使用已有
-`admissionPriority`，最后按 Task ID，不能越过任何 Scheduler hard guard。详见[深入 API 机制](./docs/api-mechanics.md#learned-critical-path-准入)。
+若目的不是改变选择，而是在 Run 结束后读取冻结的 scheduler graph、settlement 与 raw measurement 来保存项目自己的统计，直接阅读该专题的[观察终态 measurement](./docs/guides/scheduling.md#观察终态-measurement)。`scheduler.measurementHooks` 是终态 side effect，不是每个 Task 的 event stream，也不能改写已结算的 Check 或 aggregate。
 
 ### 运行并读取结果
 
-`run(definition, controls?)` 执行一次独立 invocation。常用 controls 包括 `projectRoot`、`flags`、`signal`、
-`checkArtifactBaseDirectory`、`progressLogFile` 和仅对本次运行生效的 `outputs` overrides。`progressLogFile` 是本次 Run 的可选 transcript target，仍会保留终端呈现。需要让某个 Check 写 invocation-local artifact 时，
-调用方显式设置 base；callback 只会得到自己的 absolute `artifactDirectory`（未设置时为 `null`），不会得到 sibling Check、
-machine、diagnostic 或跨 Run state 的路径。
-
-需要 invocation-level conclusion 时，调用方还显式配置 `checkAggregation`：`checks: "all"` 聚合所有 Check，Check-ID list 聚合指定成员，`checks: "effective"` 则复用这次 flags 与 opt-in `dependsOn` 已形成的私有选择。`effective` 不公开 Check-ID list，也不改变未配置 aggregation 时 `aggregate: null` 的默认值；完整 policy 和空集合语义见 [API 机制](docs/api-mechanics.md#runcontrols-与-check-aggregation)。
+`run(definition, controls?)` 执行一次独立 invocation。常用 controls 包括 `projectRoot`、`flags`、`signal`、`checkArtifactBaseDirectory`、`progressLogFile` 和仅对本次运行生效的 `outputs` overrides。需要让某个 Check 写 invocation-local artifact 时，调用方显式设置 base；callback 只会得到自己的 absolute `artifactDirectory`（未设置时为 `null`）。
 
 读取结果时分两层判断：
 
 1. 先读取 `RunResult.kind`，确认 invocation 是完整结算、配置错误、规划失败、输出失败、执行失败还是被取消。
 2. 对有 snapshot 的结果，按 `checkId` 查找 `snapshot.checks[].outcome`，再处理 `passed`、`failed`、`not-applicable` 或 `unavailable`。
 
-合法运行中，即使某项 Check 返回 `failed`，Run 仍可能是 `kind: "completed"`。若 custom admission policy 发生 fault，结果是 `kind: "execution"` 且 `diagnostic.code` 为 `admission-policy-failed`；它不是 Check outcome，也不含 partial snapshot。如果 CI 需要因质量 Finding 退出非零状态，调用方必须像快速开始那样显式判断目标 outcome，或配置并读取 invocation-level aggregation。
+合法运行中，即使某项 Check 返回 `failed`，Run 仍可能是 `kind: "completed"`。若 CI 需要因质量 Finding 退出非零，调用方必须像快速开始那样显式判断目标 outcome，或配置并读取 invocation-level `checkAggregation`；其选择范围和空集合语义见 [API 机制](./docs/api-mechanics.md#runcontrols-与-check-aggregation)。
+
+## 自定义 Check API
+
+只使用随包 Check 时，可以跳过本节。项目自己的规则通常遵循“定义 Check、加入 Definition、运行并读取结果”的主线：
+
+1. 使用 `defineCheck(...)` 声明稳定的 `checkId`、`displayName` 与 `execution`；`execution` 返回 `passed`、`failed`、`not-applicable` 或 `unavailable`。
+2. 把该 Check 加入 `defineConfig({ checks, ... })` 的 `checks`，并按上一节运行和读取结果。
+
+完整的 authoring 示例、`preflight`、callback context、typed dependencies、Records、messages、取消和不能做什么，见[编写会正确结算的自定义 Check](./docs/guides/extending-check-lifecycle.md)。
 
 ## 输出与进阶用法
 
-- [深入 API 机制](./docs/api-mechanics.md)说明 options preflight、依赖、组合、Finding presentation/waiver、console capture、cancellation 和 output failure 边界。
+- [API 机制](./docs/api-mechanics.md)解释一次 Run 如何从 Definition、选择、preflight、execution 到结果、aggregation 与 outputs；它是理解公共数据流的参考，不是另一个 API 入口。
+- [编写会正确结算的自定义 Check](./docs/guides/extending-check-lifecycle.md)解决“在哪个 callback 写规则、能读写什么、怎样取消或失败”的 authoring 任务。
+- [按项目约束调度 Check](./docs/guides/scheduling.md)解决“何时需要改变调度选择、怎样不越过 Scheduler guard”的 scheduling 任务。
 - [机器输出契约](./docs/output.md)说明 `run.json`、`records.ndjson` 和对应 schemas；只有需要把结果交给其他工具时才需要读取它。
 - 精确 overload、泛型推断和字段 JSDoc 以安装包中的 `types/**.d.ts` 为准。
 

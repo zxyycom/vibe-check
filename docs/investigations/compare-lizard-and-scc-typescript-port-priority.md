@@ -13,7 +13,7 @@ relations: []
 
 ## 形成时背景
 
-Vibe Check 的 `functionMetrics` 与 `fileMetrics` 分别通过 owner-local adapter 调用 Lizard 与 SCC；二者不是共享 scanner subsystem 中可互换的 backend。[scanner dependency owner](../scanner-dependencies.md) 要求每个 Check 自己拥有 command、availability、process、parser、measurement conversion 与 failure semantics，公共 exact-input capability 只承接真实共同不变量。
+Vibe Check 的 `functionMetrics` 与 `fileMetrics` 分别通过 owner-local adapter 调用 Lizard 与 SCC；二者不是共享 scanner subsystem 中可互换的 backend。[scanner dependency owner](../development/scanner-dependencies.md) 要求每个 Check 自己拥有 command、availability、process、parser、measurement conversion 与 failure semantics，公共 exact-input capability 只承接真实共同不变量。
 
 形成本报告时，仓库通过 [`mise.toml`](../../mise.toml) 锁定 `lizard@1.23.0` 与 `scc@3.7.0`。`functionMetrics` 接受 canonical `1.23.<patch>` Lizard，`fileMetrics` 只接受 SCC `3.7.0` version/CSV contract；两项 default Check 都要求 consumer runtime 另行提供 executable。当时的上游最新版本已分别是 Lizard `1.24.0` 与 SCC `v4.0.0`，因此安装 latest 不是任一当前 adapter 的兼容路径。
 
@@ -37,7 +37,7 @@ Vibe Check 的 `functionMetrics` 与 `fileMetrics` 分别通过 owner-local adap
 
 **方法。** 三个只读子任务分别调查 Lizard、SCC 和比较性产品/架构判断，主线程再对照仓库 owner、active Decisions、Change Plan、官方 tag/release 与临时 source checkout 交叉核对。临时 clone 位于仓库外 `/tmp`，没有保存为长期资源；下文给出 tag、revision、计量口径和官方链接以便复核。没有安装依赖、修改 lockfile、运行远端写入或建立发布资产。
 
-**仓库依据。** 主要读取了 [`functionMetrics` 指南](../checks/function-metrics.md)、[`fileMetrics` 指南](../checks/file-metrics.md)、[scanner dependency owner](../scanner-dependencies.md)、[`functionMetrics` target registry](../../src/package-checks/function-metrics/target-files.ts)、[`fileMetrics` measurement model](../../src/package-checks/file-metrics/measurement-model.ts)、[`SCC` parser](../../src/package-checks/file-metrics/scc/parser.ts)、[共享 file selection defaults](../../src/package-checks/project-files/configuration.ts)、上述语言范围 Decision、[Lizard 后置 Decision](../decisions/archive/defer-lizard-until-after-check-foundations.md) 与旧 Change 的 proposal/design/tasks。旧 Change 的 `stage=plan`、`2/9` 与机械有效性来自 `bun run change-plan -- show/check`；机械有效不证明内容仍可实施。
+**仓库依据。** 主要读取了 [`functionMetrics` 指南](../checks/function-metrics.md)、[`fileMetrics` 指南](../checks/file-metrics.md)、[scanner dependency owner](../development/scanner-dependencies.md)、[`functionMetrics` target registry](../../src/package-checks/function-metrics/target-files.ts)、[`fileMetrics` measurement model](../../src/package-checks/file-metrics/measurement-model.ts)、[`SCC` parser](../../src/package-checks/file-metrics/scc/parser.ts)、[共享 file selection defaults](../../src/package-checks/project-files/configuration.ts)、上述语言范围 Decision、[Lizard 后置 Decision](../decisions/archive/defer-lizard-until-after-check-foundations.md) 与旧 Change 的 proposal/design/tasks。旧 Change 的 `stage=plan`、`2/9` 与机械有效性来自 `bun run change-plan -- show/check`；机械有效不证明内容仍可实施。
 
 **Lizard 上游依据。** 当前产品 baseline 是官方 tag [`1.23.0`](https://github.com/terryyin/lizard/tree/1.23.0)、commit `06284ec87c1966fee4ddbf3f068ccf89b987b0f8`。对 `lizard.py`、`lizard_languages/*.py` 与 `lizard_ext/*.py` 的物理行计量得到 64 个 Python 文件、8,282 行；这包含空行/注释，不代表 semantic LOC、迁移工时或维护复杂度。1.23 registry 有 27 个 language readers，当前产品将其投影为 55 个 eligible extensions。
 

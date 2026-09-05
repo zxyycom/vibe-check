@@ -79,7 +79,6 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     const { artifact, documentation } = await fixture();
     assert.equal(existsSync(artifact.artifactPath), true);
     assert.equal(artifact.files.includes("package/README.md"), true);
-    assert.equal(artifact.files.includes("package/docs/api-mechanics.md"), true);
     assert.equal(artifact.files.includes("package/docs/index.md"), false);
     assert.equal(artifact.files.includes("package/docs/checks/index.md"), false);
     for (const document of documentation.documents) {

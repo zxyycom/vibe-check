@@ -6,6 +6,7 @@ import { describe, it } from "node:test";
 
 import { collectPackageDocumentation } from "./check-guides.ts";
 import { PACKAGE_CHECK_GUIDES } from "./check-guide-registry.ts";
+import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
 import { createPackageApiDocumentationFixture } from "./test-support.ts";
 
@@ -15,18 +16,15 @@ describe("package Check guides", () => {
   it("requires one README-linked guide for every package-provided Check function", () => {
     const rendered = renderPackageApiDocumentation({ repositoryRoot });
     const documents = collectPackageDocumentation(repositoryRoot, rendered.markdownDocuments);
-    assert.equal(PACKAGE_CHECK_GUIDES.length, 8);
-    assert.deepEqual(documents.map((document) => document.packagePath).sort(), [
-      "docs/api-mechanics.md",
-      "docs/checks/duplicate-detection.md",
-      "docs/checks/file-metrics.md",
-      "docs/checks/function-metrics.md",
-      "docs/checks/json-schema-validation.md",
-      "docs/checks/json-validation.md",
-      "docs/checks/maintenance-reminders.md",
-      "docs/checks/markdown-link-validation.md",
-      "docs/checks/secret-detection.md"
-    ]);
+    assert.deepEqual(
+      documents.map((document) => document.packagePath).sort(),
+      [
+        ...PACKAGE_API_MARKDOWN_DOCUMENTS.filter((document) => document.id !== "readme").map(
+          (document) => document.packagePath
+        ),
+        ...PACKAGE_CHECK_GUIDES.map((guide) => guide.sourcePath)
+      ].sort()
+    );
     assert.equal(
       documents.some((document) => document.packagePath.endsWith("index.md")),
       false
@@ -55,6 +53,22 @@ describe("package Check guides", () => {
       assert.throws(
         () => collectPackageDocumentation(fixture, missingLinkMarkdown),
         /README is missing a direct package Check guide link/
+      );
+
+      const missingApiDocumentMarkdown = rendered.markdownDocuments.map((document) =>
+        document.packagePath === "README.md"
+          ? {
+              ...document,
+              content: document.content.replaceAll(
+                "./docs/guides/scheduling.md",
+                "./docs/guides/missing.md"
+              )
+            }
+          : document
+      );
+      assert.throws(
+        () => collectPackageDocumentation(fixture, missingApiDocumentMarkdown),
+        /README is missing a direct package API document link/
       );
 
       writeFileSync(join(fixture, "docs/checks/extra.md"), "# extra\n", "utf8");

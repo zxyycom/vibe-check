@@ -6,22 +6,62 @@
 
 本文不定义各载体的固定格式、字段、关系或生命周期命令；这些机械契约分别由
 `investigation-report`、`decision-records` 和 `change-plan` skill 拥有。项目安装、命令接线与
-adapter 由[脚本工具](script-tooling.md#governance-and-test-evidence-adapters)拥有。
+adapter 由[脚本工具](../tooling/workspace.md#governance-and-test-evidence-adapters)拥有。
+
+## 开发者文档的维护方式
+
+内部开发者文档先按维护任务与唯一内容 owner 定位，再按需要读取相邻实现、测试和关联 owner；目录按该维护边界分组，文件名直接表达中心对象或工作流。篇幅只是在一页混合多个独立责任、阅读路径不清或无法局部定位时触发拆分审查，不是硬性行数上限；为不同受众保留的必要说明不因主题重叠而删除。
 
 ## 按用途选择权威载体
 
-| 要恢复或维护的内容 | 权威载体 | 该载体不拥有或不证明的内容 |
-| --- | --- | --- |
-| 已成为当前基线的稳定行为、public contract、职责边界和验证语义 | `docs/` 中对应的 owner 文档 | 当前二进制已经实现或通过验收 |
-| 当前实现状态及其可执行或可发布证据 | 代码、测试和 release artifact | 为什么采用某个长期方向，或未来准备怎样改变 |
-| 达到本项目自动沉淀条件，或由用户明确要求保存的一轮形成时背景、依据、认识和适用边界 | `docs/investigations/` | 当前事实、Bug 状态、实施授权或修复完成事实 |
-| 已确认且跨 change 持续有效的方向、理由、约束、对齐状态和演进关系 | `docs/decisions/` | 当前实现副本、优先级、实施任务、授权或验收完成事实 |
-| 一个当前 change 的范围、设计、任务、验证、Git 基线和生命周期状态 | `changes/<change>/` | 当前稳定事实或跨 change 方向的第二份 owner |
+| 要恢复或维护的内容                                                                 | 权威载体                      | 该载体不拥有或不证明的内容                         |
+| ---------------------------------------------------------------------------------- | ----------------------------- | -------------------------------------------------- |
+| 已成为当前基线的稳定行为、public contract、职责边界和验证语义                      | `docs/` 中对应的 owner 文档   | 当前二进制已经实现或通过验收                       |
+| 当前实现状态及其可执行或可发布证据                                                 | 代码、测试和 release artifact | 为什么采用某个长期方向，或未来准备怎样改变         |
+| 达到本项目自动沉淀条件，或由用户明确要求保存的一轮形成时背景、依据、认识和适用边界 | `docs/investigations/`        | 当前事实、Bug 状态、实施授权或修复完成事实         |
+| 已确认且跨 change 持续有效的方向、理由、约束、对齐状态和演进关系                   | `docs/decisions/`             | 当前实现副本、优先级、实施任务、授权或验收完成事实 |
+| 一个当前 change 的范围、设计、任务、验证、Git 基线和生命周期状态                   | `changes/<change>/`           | 当前稳定事实或跨 change 方向的第二份 owner         |
 
 `decision-index.json` 和 investigation index 都是从权威 Markdown 重建的查询视图，不拥有独立事实。
 一个方向成为当前基线后，Decision 保留“为什么采用”，对应 owner 文档保留“当前如何工作”；二者
 不互相替代。普通文档只有在拥有独立当前契约、任务入口或验收责任时才单独保留，否则并入对应
 owner 或删除。
+
+## 按受众维护说明与审查文档影响
+
+项目内说明与随包用户文档服务不同任务，不能把同主题直接判为重复：
+
+| 受众与任务                     | 必须讲清的内容                                                                | 边界                                                           |
+| ------------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| package 用户完成集成或深入扩展 | 何时使用、如何配置或编写回调、输入与返回作用、可观察结果、失败/取消及安全边界 | 仅凭随包页面、声明与示例即可完成任务，不依赖未发布的设计文档。 |
+| 维护者理解或修改实现           | 为什么需要该行为、职责归属、不变量、生命周期、取舍与验证方式                  | 可以为设计推导重述用户承诺，但不能用内部说明替代用户使用方案。 |
+
+共同承诺可以在两种叙述中出现，应保持含义和适用范围一致，不要求逐字相同或从一篇生成另一篇。
+删减前先判断该段是否仍承担独立使用或设计解释；只清理无独立用途的清单、数字、规则副本和背景。
+发现共同承诺冲突时，核对当前行为 owner、代码与测试，修正受影响说明；不因受众不同容许相互矛盾。
+当前设计所需理由留在项目内说明；跨 Change 长期取舍由 Decision 保留。
+
+用户文档从 README 进入；首次使用、各 Check 指南、跨能力公共模型和深入任务专题按使用需求分层。
+专题数量不设硬上限，但每篇必须有可辨认的用户任务，不能按内部文件、函数或“高级”标签机械拆页。
+回调专题说明公开扩展点的使用方案，不把私有 Hook 描述成用户能力。示例与发布材料的具体维护方式见
+[脚本工具](../tooling/documentation.md)。
+
+### 行为变更的交付审查
+
+新增、修改或删除产品行为、使用方案或内部职责时，在已有 Change 的影响、任务与验证中说明下列内容；
+局部任务没有 Change 时写入本次交付。不增加固定 artifact、平行账本或“每次必须改文档”的机械规则。
+
+1. **变化与受众**：从实际实现 diff 和行为证据识别用户能观察到的变化，以及维护者需要知道的设计影响。
+   没有新导出也要检查默认值、回调时机、错误/取消语义、输出、I/O 与安全边界是否改变。
+2. **文档落点**：分别说明用户页面与内部说明需要更新的章节；JSDoc、示例或 machine 材料受影响时一并处理。
+   无需修改某类说明时给出具体理由，不把“已更新内部 owner”当作用户文档完成。首次新增能力还要核对
+   用户能否从 README 或相关专题找到它，而不仅检查已有页面中的文字。
+3. **独立反查**：由非实施代理以实际 diff 为起点，核对上述影响判断和更新后的说明，而非只审查 Markdown
+   差异或任务勾选。对重要深入能力，再以仅持随包文档的代表性使用任务检验能否选择扩展点、写出用法并
+   理解失败结果；若必须额外解释源码才能完成，补足用户材料。独立审查不可用时明确其缺口，不声称已完成。
+4. **证据边界**：按文档导航运行受影响的投影、链接、schema、示例及包验收；交付区分机械校验与语义审查。
+   前者不能证明自然语言完整同步，后者也不能替代可执行契约检查。纯内部重构可以不改用户文档，拼写
+   修正无需扩展为全功能审计，但应如实说明本次范围。
 
 ## 复杂或严重 Bug 的自动调查沉淀
 
@@ -61,18 +101,18 @@ owner 对后续相关任务的预先明确要求，满足该 skill 的显式请�
 调查报告可以保存形成时症状、复现条件、实际依据、根因判断、候选修复、排除方案、已执行动作、
 验证结果和未知项，但这些内容仍按下表交给当前 owner：
 
-| Bug 处理结果 | 当前 owner |
-| --- | --- |
-| 已实施的修复 | 代码或配置 |
-| 防回归证明和当前验证结果 | 测试及对应验证 artifact |
+| Bug 处理结果                               | 当前 owner                                  |
+| ------------------------------------------ | ------------------------------------------- |
+| 已实施的修复                               | 代码或配置                                  |
+| 防回归证明和当前验证结果                   | 测试及对应验证 artifact                     |
 | 只约束当前实施的范围、任务、进度与恢复条件 | 当前 Change Plan；简单局部修复不预建 Change |
-| 已成为当前稳定规则的行为或边界 | 对应 `docs/` owner 文档 |
-| 已确认且跨 change 持续有效的方向或取舍 | Decision |
+| 已成为当前稳定规则的行为或边界             | 对应 `docs/` owner 文档                     |
+| 已确认且跨 change 持续有效的方向或取舍     | Decision                                    |
 
 ## Decision 与 Change 交接
 
 活动决策的一般解释、任务关系分类、alignment、拆分和生命周期由项目内完整上游
-[`decision-records` skill](../.codex/skills/decision-records/SKILL.md) 与对应决策记录拥有。本文只定义
+[`decision-records` skill](../../.codex/skills/decision-records/SKILL.md) 与对应决策记录拥有。本文只定义
 Decision 与 Change 之间的项目级交接：
 
 1. 进入一个 Change 前，运行 `bun run decisions -- list`，再按 `decision-records` 恢复会直接改变该
@@ -100,10 +140,10 @@ artifacts 为准。只约束当前 Change 的开放问题、暂停原因和恢�
 只使用 `change-plan` 定义的规范 stage，不另建暂停状态。
 
 固定 artifact、严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态由项目内完整上游
-[`change-plan` skill](../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
-[脚本工具](script-tooling.md#governance-and-test-evidence-adapters)。
+[`change-plan` skill](../../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
+[脚本工具](../tooling/workspace.md#governance-and-test-evidence-adapters)。
 
-同时推进多个 Change 时，从[Change 执行依赖与 Worktree 协调](change-execution-order.md)恢复跨 Change 的
+同时推进多个 Change 时，从[Change 执行依赖与 Worktree 协调](change-coordination.md)恢复跨 Change 的
 硬前置、推荐合入顺序和共享 owner 冲突。该文档是依据当前 Change artifacts 维护的协调视图，不拥有
 active membership、stage、进度、暂停或实施授权；它与目标 artifacts 不一致时，先按当前事实修正
 协调视图，不能反向覆盖目标 Change。
@@ -127,7 +167,7 @@ active membership、stage、进度、暂停或实施授权；它与目标 artifa
 ## 历史读取边界
 
 只有任务明确要求历史审计、恢复形成时依据或比较演进时，才读取
-[`archive/legacy/historical-openspec-materials.md`](../archive/legacy/historical-openspec-materials.md)
+[`archive/legacy/historical-openspec-materials.md`](../../archive/legacy/historical-openspec-materials.md)
 并按需进入其快照。历史内容不参与当前规范、计划或验证；恢复方向必须从当前 owner、活动决策和
 实现证据重新建立基线。
 
@@ -138,10 +178,10 @@ active membership、stage、进度、暂停或实施授权；它与目标 artifa
 
 ## 验证
 
-| 改动范围 | 验证入口 |
-| --- | --- |
-| 本文档、标题、路径或文档路由 | `bun run validate -- docs` |
-| Investigation Report 正文、资源、关系或索引 | `bun run investigations` |
-| Decision Markdown、生命周期、关系或索引 | `bun run decisions -- check` |
-| Change Plan | `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证 |
-| 同时改变多个工作流边界 | `bun run check` |
+| 改动范围                                    | 验证入口                                                                   |
+| ------------------------------------------- | -------------------------------------------------------------------------- |
+| 本文档、标题、路径或文档路由                | `bun run validate -- docs`                                                 |
+| Investigation Report 正文、资源、关系或索引 | `bun run investigations`                                                   |
+| Decision Markdown、生命周期、关系或索引     | `bun run decisions -- check`                                               |
+| Change Plan                                 | `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证 |
+| 同时改变多个工作流边界                      | `bun run check`                                                            |

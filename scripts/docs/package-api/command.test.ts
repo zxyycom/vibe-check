@@ -4,14 +4,35 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { runPackageApiDocumentationCli } from "./command.ts";
+import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
 import { createPackageApiDocumentationFixture } from "./test-support.ts";
 
 describe("package API documentation CLI", () => {
   it("writes expected projections and detects stale output through --check", () => {
     const fixtureRoot = createPackageApiDocumentationFixture();
     try {
-      assert.equal(existsSync(join(fixtureRoot, "README.md")), true);
-      assert.equal(existsSync(join(fixtureRoot, "docs/api-mechanics.md")), true);
+      for (const document of PACKAGE_API_MARKDOWN_DOCUMENTS) {
+        assert.equal(existsSync(join(fixtureRoot, document.packagePath)), true);
+      }
+      assert.equal(
+        runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
+        0
+      );
+
+      const schedulingPath = join(fixtureRoot, "docs/guides/scheduling.md");
+      writeFileSync(
+        schedulingPath,
+        readFileSync(schedulingPath, "utf8").replace(
+          "const executionOrder: string[] = [];",
+          "stale"
+        ),
+        "utf8"
+      );
+      const staleScheduling = runPackageApiDocumentationCli(["--check"], {
+        repositoryRoot: fixtureRoot
+      });
+      assert.equal(staleScheduling.exitCode, 1);
+      assert.match(staleScheduling.diagnostics[0] ?? "", /docs\/guides\/scheduling\.md/);
       assert.equal(
         runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
         0

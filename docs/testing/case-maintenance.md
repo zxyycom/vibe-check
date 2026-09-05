@@ -2,7 +2,7 @@
 
 本文是 Vibe Check 语义测试账本的项目级 owner。它完整定义 Topic、语义 Case、当前
 测试实体之间的关系，以及账本的存储、查询、修改和闭合失败边界。修改或审查测试时，
-先读[测试策略](../testing.md)选择层级并判断自动化测试义务，再读相关行为 owner
+先读[测试策略](strategy.md)选择层级并判断自动化测试义务，再读相关行为 owner
 确认当前契约，最后按本文维护账本。
 
 [`scripts/test-evidence/`](../../scripts/test-evidence/) 实现 runner profile、实体发现、
@@ -82,10 +82,12 @@ Case 不是完整契约文档。`Owner` 指向完整规则，`Proves` 只记录�
 # <topic>
 
 ## Case <CASE-ID>: <title>
+
 Owner: `<relative-current-owner.md#heading>`
 Entities:
+
 - `bun|<workspace-relative-test-file>|<current test name>`
-Proves:
+  Proves:
 - <owner 承诺且可由该实体证伪的当前行为>
 ```
 
@@ -101,7 +103,7 @@ test-evidence 工具报告的完整 key，不允许通配符。Case 标题、ID�
 当前实体或产品测试义务，也不参与 `check` 的当前覆盖计算。
 
 历史语义对应的生产能力仍存在、但当前没有直接测试实体时，这不是 Case 映射缺口。
-是否新增产品测试按[测试策略的测试所有权](../testing.md#测试所有权)在独立 change 中
+是否新增产品测试按[测试策略的测试所有权](strategy.md#测试所有权)在独立 change 中
 评估；在形成当前直接证据前，不创建空 Case、名义 Case 或为迁移反向补测试。
 
 尚无当前实体的 planned test intention 留在行为 owner、活动决策或 active Change Plan，
@@ -115,7 +117,7 @@ test-evidence 工具报告的完整 key，不允许通配符。Case 标题、ID�
 静态发现与 runtime registration report 必须复用同一文件集合。registration child 用专用不匹配
 test-name pattern 加载完整文件面；报告必须把每个 testcase 明确标为 skipped，并提供 file、line、suite 与 name。
 实际测试通过由 Project Gate 按稳定 owner 分区的独立 execution Checks 证明，不由 entity closure 推断；具体
-membership、package provider dependency、tag 与 scheduling 规则由[脚本工具](../script-tooling.md#project-gate)拥有。
+membership、package provider dependency、tag 与 scheduling 规则由[脚本工具](../tooling/project-gate.md)拥有。
 
 严格 `check` 总是从完整当前树重新发现，不使用 Git diff、缓存清单或历史账本作为发现
 范围，并验证：

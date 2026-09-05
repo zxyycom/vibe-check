@@ -6,11 +6,11 @@
 
 ## Owner-local adapters
 
-| Check | Measurement implementation | Private owner |
-| --- | --- | --- |
-| `duplicateDetection` | jscpd command | `src/package-checks/duplicate-detection/jscpd/**` |
-| `fileMetrics` | SCC command | `src/package-checks/file-metrics/scc/**` |
-| `functionMetrics` | product-owned TypeScript analyzer | `src/package-checks/function-metrics/analyzer/**` |
+| Check                | Measurement implementation        | Private owner                                     |
+| -------------------- | --------------------------------- | ------------------------------------------------- |
+| `duplicateDetection` | jscpd command                     | `src/package-checks/duplicate-detection/jscpd/**` |
+| `fileMetrics`        | SCC command                       | `src/package-checks/file-metrics/scc/**`          |
+| `functionMetrics`    | product-owned TypeScript analyzer | `src/package-checks/function-metrics/analyzer/**` |
 
 两个 external-command adapter 分别拥有 command options、availability probe、subprocess lifecycle、parser、
 tool-native failure、measurement conversion 与相邻 tests。它们可复用
@@ -30,7 +30,7 @@ protocol 或 consumer setting，且不改变 root provenance 或 source identity
 
 ## Check-owned command options
 
-[随包 Check 指南](navigation.md#随包-check-指南)拥有初始 options；[Configuration](configuration.md#package-provided-check-composition)
+[随包 Check 指南](../navigation.md#随包-check-指南)拥有初始 options；[Configuration](project-definition.md#package-provided-check-composition)
 只拥有普通 Project Definition 的组合边界。
 
 - `fileMetrics.scanner` 只接受 executable。SCC adapter 固定执行精确 `scc version 4.0.0` probe 与
@@ -40,7 +40,7 @@ protocol 或 consumer setting，且不改变 root provenance 或 source identity
 - `functionMetrics` 的公开 options 只有 `codeAreas`、`findingPolicy` 与 `findingWaivers`；每个 area 的 closed `limits` 包含
   NLOC、CCN、nesting depth 与 parameter maximum。没有 scanner、
   executable、command 或 environment override。它的内置 analyzer 使用固定 reader registry，资源上限和
-  unavailable result 由 [`functionMetrics` 指南](checks/function-metrics.md)定义。
+  unavailable result 由 [`functionMetrics` 指南](../checks/function-metrics.md)定义。
 
 version probe 是 external adapter provenance，不是 consumer version policy。无法启动、无法识别版本、协议不兼容或
 报告无效，都由对应 external-command Check fail closed 为 `unavailable`，不会形成成功空结果。`functionMetrics`
@@ -59,7 +59,7 @@ Project Gate 只为 `fileMetrics` 注入 mise 提供的绝对 SCC executable。�
 
 Gate 对 `functionMetrics` 直接调用普通 constructor，不传 command、scanner 或 Lizard environment binding。因而
 默认 Gate 的 function metrics 结算只取决于其公开 policy、选中的 source 和内置 analyzer；它不触发 upstream
-advisory。显式维护查询见 [Lizard upstream advisory](maintenance-lizard-upstream-advisory.md#run)。
+advisory。显式维护查询见 [Lizard upstream advisory](../tooling/lizard-upstream.md#run)。
 
 ## Exact-input handoff
 
@@ -89,7 +89,7 @@ exact-input fingerprint、configuration version 与结构化 scanner configurati
 external command 的 availability、process、parse、cache 或 exact-input failure 由对应 owner 转换为
 `unavailable`。`functionMetrics` 的 source collection、cancellation、analysis 和资源上限失败同样由其 Check owner
 转换为稳定 `unavailable` reason；原因、message 和恢复操作以
-[`functionMetrics` 指南](checks/function-metrics.md#not-applicable-与-unavailable)为准。合法空输入、nonzero
+[`functionMetrics` 指南](../checks/function-metrics.md#not-applicable-与-unavailable)为准。合法空输入、nonzero
 finding exit 和 parser header 的具体解释，仍各自属于 external adapter tests；不存在 Product-wide scanner failure taxonomy。
 
 ## Verification

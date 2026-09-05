@@ -2,7 +2,7 @@
 
 ## Case FM-ANALYZER-READERS-E-001: Go-like reader 保持 Lizard 1.24 的 observable metrics
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/readers/golike-readers.test.ts|Go-like readers preserve every oracle suffix and edge fixture`

@@ -4,7 +4,7 @@
 
 ## Context
 
-[`docs/scan-scope.md`](../../docs/scan-scope.md) 规定当前 Markdown Link source occurrences 不包含 HTML attribute；[`adopt-low-level-markdown-link-parser-architecture.md`](../../docs/decisions/adopt-low-level-markdown-link-parser-architecture.md) 也将现有 parser facts 和 resolver 保持为 Link-private implementation。活动且已对齐的 [`keep-format-aware-check-capabilities-independent.md`](../../docs/decisions/keep-format-aware-check-capabilities-independent.md) 要求不同格式风险保持独立 Check owner，并要求未来能力只在有新的真实 consumer、风险证据或明确优先级时重新基线化；它不决定本 Draft 的 public identity 或精确 contract。
+[`docs/development/project-files.md`](../../docs/development/project-files.md) 规定当前 Markdown Link source occurrences 不包含 HTML attribute；[`adopt-low-level-markdown-link-parser-architecture.md`](../../docs/decisions/adopt-low-level-markdown-link-parser-architecture.md) 也将现有 parser facts 和 resolver 保持为 Link-private implementation。活动且已对齐的 [`keep-format-aware-check-capabilities-independent.md`](../../docs/decisions/keep-format-aware-check-capabilities-independent.md) 要求不同格式风险保持独立 Check owner，并要求未来能力只在有新的真实 consumer、风险证据或明确优先级时重新基线化；它不决定本 Draft 的 public identity 或精确 contract。
 
 当前没有要求实现 HTML 校验的命名 consumer。用户只确认 `<a href="docs/a.md">` 可以作为未来校验内容，当前不需要。
 
@@ -34,7 +34,7 @@
 
 ### Resulting Impacts
 
-- 恢复实施会影响 `docs/configuration.md`、`docs/scan-scope.md`、`docs/quality-metrics.md`、`docs/output.md`、`src/package-checks/**`、`src/index.ts`、package dependency/license materials 与 semantic Cases。
+- 恢复实施会影响 `docs/development/project-definition.md`、`docs/development/project-files.md`、`docs/development/check-results.md`、`docs/output.md`、`src/package-checks/**`、`src/index.ts`、package dependency/license materials 与 semantic Cases。
 - Source selection、HTML decode/parser failure、malformed markup、duplicate attributes、`<base>`、fragment ID/name、directory 与 root-external policy需要在 Plan 前闭合。
 - 若 Markdown raw HTML 进入范围，必须证明 parser ownership 与 occurrence 去重，而不能建立公共 AST、跨 Check snapshot 或 shared resolver。
 

@@ -23,7 +23,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-RECORD-001: Check and Record foundation is exact and closed
 
-Owner: `docs/quality-metrics.md#check-and-record-facts`
+Owner: `docs/development/check-results.md#check-and-record-facts`
 Entities:
 
 - `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > emits canonical UTF-8 JSON for safe detached values`
@@ -76,7 +76,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-CATALOG-001: Package Run validates and executes direct Checks
 
-Owner: `docs/configuration.md#invocation-and-results`
+Owner: `docs/development/project-run.md#invocation-and-results`
 Entities:
 
 - `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
@@ -102,7 +102,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-LIFECYCLE-001: Each executable Check closes as one Check-facts fact
 
-Owner: `docs/quality-metrics.md#check-and-record-facts`
+Owner: `docs/development/check-results.md#check-and-record-facts`
 Entities:
 
 - `bun|src/check-settlement/session-lifecycle.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts`
@@ -113,7 +113,7 @@ Entities:
 
 ## Case WB-RUNTIME-RECORD-MANAGER-001: Check-owned reporters retain trustworthy Records
 
-Owner: `docs/quality-metrics.md#check-and-record-facts`
+Owner: `docs/development/check-results.md#check-and-record-facts`
 Entities:
 
 - `bun|src/check-settlement/session-record-misuse.test.ts|check-record Core Check session > binds structural Record ownership, retains prior Records, and contains invalid author writes`
@@ -126,7 +126,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-FAILURE-001: Product contains ordinary callback failures safely
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
@@ -136,7 +136,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Direct Check relations run through the shared graph
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/run-planning.test.ts|Package Run > rejects an invalid projected Check relation graph before any Check callback runs`
@@ -151,7 +151,7 @@ Entities:
 
 ## Case WB-RUNTIME-DEPENDENCY-BLOCKING-001: Non-passed prerequisites settle dependents without author work
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
@@ -163,7 +163,7 @@ Entities:
 
 ## Case WB-RUNTIME-DEPENDENCY-OBSERVATION-001: Observers read direct terminal outcomes
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/run-dependency-data.test.ts|Package Run > observes an unavailable Check and exposes its read failure`
@@ -174,7 +174,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-DURATION-001: Product Run closes private lifecycle and duration facts
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > hands final Check-facts outcomes and one finite duration to the private lifecycle`
@@ -188,7 +188,7 @@ Entities:
 
 ## Case CHECK-SCOPED-CONCURRENCY-001: Check parallel limits use the shared engine
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
@@ -199,7 +199,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECKPOINT-001: Frozen Check-facts snapshot is a two-entity projection
 
-Owner: `docs/architecture.md#check-facts`
+Owner: `docs/development/architecture.md#check-facts`
 Entities:
 
 - `bun|src/check-settlement/session-lifecycle.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts`
@@ -221,13 +221,13 @@ Entities:
 - `bun|src/project-run/task-scheduler/admission-core/trace.test.ts|admission core trace > traces public and private binary/failed/cancellation transitions through one reducer`
 - `bun|src/project-run/task-scheduler/admission-core.scheduler-integration.test.ts|Scheduler admission core integration > replays canonical failed and forced effects through shell diagnostics and measurement`
 - `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > supplies callback lookahead without reserving or starting a real Task`
-Proves:
+  Proves:
 - The standalone and callback seeds expose one frozen opaque state contract. Its canonical catalog, inspection, validation precedence, binary settlement, forced block and scope lifecycle return successors without mutating a retained predecessor.
 - The private trace invokes the same reducer for public and real-only failed/cancellation actions. An instrumented real Scheduler pairs every canonical effect with its immutable Core post-state; legacy snapshot mutex facts remain additive with dynamic holders through their settlement, and an 80-by-80 failed cascade keeps every newly ready child in descending declared-slot frontier order and retains a frozen closed-scope root. Direct running settlement precedes forced effects. For each forced blocked effect, the shell preserves this observable order: pending-measurement flush, matching immutable post-state, shell blocked settlement, state capture, blocked-effect record, conditional diagnostic projection, then Core observer. Custom policy measurements retain the direct-then-forced order; synthetic blocked diagnostics retain the direct failed-source `task-settled` trigger; terminal last-settled facts retain that order. Callback lookahead cannot start, reserve, settle or otherwise control real Task lifecycle, whose callback proposal remains Scheduler-hard-revalidated.
 
 ## Case WB-RUNTIME-ADMISSION-COMPILED-GRAPH-001: Prepared graph compilation retains Scheduler static indexes
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/task-scheduler/admission-core/compiled-graph.test.ts|prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it`
@@ -261,7 +261,7 @@ Entities:
 
 ## Case AUX-QUALITY-CACHE-001: Duplicate cache identity is stable
 
-Owner: `docs/scanner-dependencies.md#cache-and-failures`
+Owner: `docs/development/scanner-dependencies.md#cache-and-failures`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/cache/store.test.ts|quality measurement cache > keys duplicate-code cache by scanner and exact input identity`
@@ -285,7 +285,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-PERFORMANCE-DIAGNOSTICS-001: Enabled Scheduler diagnostics retain bounded honest timing projections
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
@@ -316,7 +316,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-HISTORY-001: Local Scheduler history remains bounded and failure-contained
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
@@ -326,60 +326,60 @@ Entities:
 - `bun|src/project-run/scheduler-duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > contains read and write faults with concurrent writers`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
-Proves:
+  Proves:
 
 - The Product-private local history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, keeps at most 32 samples per identity and 4096 recently updated identities, and persists digest-only closed state through same-directory atomic replacement.
 - Missing, malformed, incompatible, and read-failed state forms an empty learned model; post-drain write failure and concurrent last-writer activity only reduce future samples. None exposes partial JSON or retains authored options and effective flags. A learned Run keeps its enabled learned-admission diagnostic channel when history is unavailable and records bounded history-read availability evidence; static/custom runs leave that channel disabled. The Architecture/API owner, not this Case, defines the distinct static fallback when prediction cannot be formed.
 
 ## Case WB-RUNTIME-SCHEDULER-PREDICTION-001: Frozen duration predictions use a deterministic bounded prior
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/scheduler-duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
 - `bun|src/project-run/scheduler-duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > uses learned means before a median project prior and cold start`
-Proves:
+  Proves:
 
 - An identity derived from model version, Check ID, canonical authored options, and canonical effective flags yields a frozen digest-only prediction snapshot. Its learned estimates retain sample count, arithmetic mean, and nearest-rank p90 without retaining source options or flags.
 - The snapshot selects learned estimates first, then one median of the Run's learned estimates for unknown Tasks, and finally common positive cold-start weight `1`; unavailable timing does not revise it or create a sample.
 
 ## Case WB-RUNTIME-SCHEDULER-CRITICAL-PATH-001: Directed readiness relations form one reverse critical-path score
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/task-scheduler/critical-path-ranking.test.ts|critical-path ranking > scores both dependency and observation downstream paths once`
-Proves:
+  Proves:
 
 - Before admission, the immutable score table adds each Task estimate to the maximum direct downstream score across both `dependsOn` and `observes` relations; it is frozen and does not reinterpret Task priority or runtime capacity facts.
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-ADMISSION-001: Learned admission preserves generic Scheduler legality
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > forms one frozen ranking and complete policy from immutable graph and prediction`
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > uses score, effective priority, and canonical order within each existing selection layer`
 - `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > keeps the Scheduler capacity wait guard when the highest score cannot admit`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
-Proves:
+  Proves:
 
 - Learned scheduling captures its immutable graph/prediction into one frozen critical-path score table and complete Scheduler policy before admission, then compares score descending only within the existing tightening, constrained-continuation, and ordinary layers; equal scores retain effective priority and canonical Task-ID order.
 - The pure policy returns `wait` for a capacity-blocked preferred Task, leaving relation, mutex, capacity, cancellation, and drain hard guards to the generic Scheduler. Terminal raw measurement is consumed privately after drain and is not added to `RunResult`.
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned optimization observations stay bounded and non-quality-bearing
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
-Proves:
+  Proves:
 
 - Learned diagnostics report bounded read/write and selected-admission facts without raw authored options, effective flags, identity inputs, or samples. A local history write failure remains an optimization-only observation and preserves the completed quality result.
 
 ## Case WB-RUNTIME-ADMISSION-STRATEGY-LIFECYCLE-001: Invocation-scoped strategies preserve terminal delivery
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/admission-strategy-provider/provider.test.ts|admission strategy provider > prepares one closed static, custom, or learned-fallback policy without widening public configuration`
@@ -396,7 +396,7 @@ Entities:
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > enables measurement output only for generic Hooks or an actual prepared completion`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > prepares before admission and records only after terminal measurement Hooks settle`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > records a cancelled Run only after its terminal measurement Hook settles`
-Proves:
+  Proves:
 
 - Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver completion at most once after admission stops, started work drains and generic terminal Hooks settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no completion delivery.
 - Generic Hooks all receive their chance before public complete. Their actual settlement, plus optional complete, is the sole input to the existing measurement output: generic-only no-context stays enabled/`not-run`; simple and prepared-without-complete do not independently enable it; a completion failure cannot overwrite sealed primary facts, and later complete success cannot overwrite a generic failure.

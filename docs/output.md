@@ -84,8 +84,9 @@ visibility 的系统，应在 Vibe Check 契约之外建立自己的读取协议
    `parseData` 声明 typed provider contract；对应 Check 形成 `passed`。
 3. 递归 `example-release-workflow` 把 manifest dependency 传给 children；`example-release-policy` 用 `inherit` 追加 provider
    dependency，读取并解析两份 upstream final data，随后形成 `failed` final data 和两条 Records。组织节点自身不产生 Check row。
-4. optional Check 直接形成 `not-applicable`；external review 的 `failure / block` preflight 在任何 execution 开始前形成
-   `unavailable`。两条 preflight message 与 failed policy message 保留在 `RunResult.checkMessages`，不进入 machine fields。
+4. optional Check 直接形成 `not-applicable`；external review 的 `failure / block` preflight 在**该 Check** 的 execution 前形成
+   `unavailable`。它不构成全局 execution barrier，无 relation 的其他 Check 仍可并行开始。两条 preflight message 与 failed
+   policy message 保留在 `RunResult.checkMessages`，不进入 machine fields。
 
 仓库生成器通过完整 public `run` 执行同一份 Definition，并使用只含有效 `package.json` 的隔离 project root 得到以上
 Check/Record facts；随后只把 invocation ID 与 timestamp 固定为文档值，使 checked-in bytes 可重复生成。示例 Definition

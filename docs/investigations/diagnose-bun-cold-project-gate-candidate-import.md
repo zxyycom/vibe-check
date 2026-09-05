@@ -21,7 +21,7 @@ project gate candidate import failed: ResolveMessage: Cannot find module '@zxyyc
 
 当时的 Bun 为 `1.3.14`。仓库根 manifest 有意使用 private 名称 `vibe-check`；正式 candidate artifact 才声明 `@zxyycom/vibe-check`，并安装到唯一 private consumer `scripts/project/node_modules/@zxyycom/vibe-check`。因此根 manifest 没有同名 dependency 不是缺漏，mise warning 也没有阻止失败前的环境安装步骤。
 
-[`docs/script-tooling.md#project-gate`](../script-tooling.md#project-gate) 要求 [`scripts/project/gate/run.ts`](../../scripts/project/gate/run.ts) 先准备 exact candidate，再动态导入 [`runtime/bound-run.ts`](../../scripts/project/gate/runtime/bound-run.ts)，核对实际 resolved entry 后才构造 Definition 和 Product Run。当前 [`candidate/install.ts`](../../scripts/package/candidate/install.ts) 会替换 private consumer 的整个 `node_modules` 后运行独立 `bun install`，并在安装子进程中验证 candidate entry、manifest、材料和直接依赖；这次故障发生在这些准备动作返回成功之后的父 Bun 进程。
+[`docs/script-tooling.md#project-gate`](../tooling/project-gate.md#project-gate) 要求 [`scripts/project/gate/run.ts`](../../scripts/project/gate/run.ts) 先准备 exact candidate，再动态导入 [`runtime/bound-run.ts`](../../scripts/project/gate/runtime/bound-run.ts)，核对实际 resolved entry 后才构造 Definition 和 Product Run。当前 [`candidate/install.ts`](../../scripts/package/candidate/install.ts) 会替换 private consumer 的整个 `node_modules` 后运行独立 `bun install`，并在安装子进程中验证 candidate entry、manifest、材料和直接依赖；这次故障发生在这些准备动作返回成功之后的父 Bun 进程。
 
 项目要求的冷启动边界只有标准自举：`env:setup` 必须把 checkout 准备成正常项目，后续 Gate 和其他操作只需在这份已自举状态上工作；项目没有承诺跳过自举后直接运行 verification 也能自行恢复。本报告保存该轮故障的形成时认识，并判断 `env:setup` 预先构建 candidate 是否完整满足这项要求。它不是 Bun upstream 修复承诺、长期 Decision 或脚本修改授权；当前代码、脚本工具 owner 和活动 Decisions 仍拥有现行事实与约束。
 
@@ -38,7 +38,7 @@ project gate candidate import failed: ResolveMessage: Cannot find module '@zxyyc
 
 ## 调查范围与依据
 
-**故障形成时实际读取的仓库事实。** 调查读取了环境 setup 配置、[`scripts/environment/manage.ts`](../../scripts/environment/manage.ts)、package scripts、[`scripts/package/candidate/prepare.ts`](../../scripts/package/candidate/prepare.ts)、candidate install/receipt、Gate root/bound runtime、相邻 Gate tests、[`docs/script-tooling.md`](../script-tooling.md)、测试策略，以及与 exact candidate 和连续 timing 直接相关的活动 Decisions。形成时的关键控制流是：
+**故障形成时实际读取的仓库事实。** 调查读取了环境 setup 配置、[`scripts/environment/manage.ts`](../../scripts/environment/manage.ts)、package scripts、[`scripts/package/candidate/prepare.ts`](../../scripts/package/candidate/prepare.ts)、candidate install/receipt、Gate root/bound runtime、相邻 Gate tests、[`docs/script-tooling.md`](../tooling/workspace.md)、测试策略，以及与 exact candidate 和连续 timing 直接相关的活动 Decisions。形成时的关键控制流是：
 
 1. 当时的 `env:setup` 绑定 mise tools，执行 frozen pnpm install，然后初始化并同步 CodeGraph；它形成工具环境，但尚未准备 package candidate。
 2. Gate root 在同一父 Bun 进程中加载 candidate preparation 代码，准备或复用 tarball，并由安装子进程写入 `scripts/project/node_modules`。

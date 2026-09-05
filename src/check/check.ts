@@ -477,6 +477,8 @@ export type TypedCheckWithoutOptions<
  * @remarks 此函数负责 authoring inference；{@link run} 负责 Project Definition validation。
  * @example 定义带 options、Records 与 messages 的自定义 Check
  * ```ts
+ * import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+ *
  * function hasValidLicensePolicyOptions(options: object): boolean {
  *   const denied: unknown = Reflect.get(options, "denied");
  *   return (

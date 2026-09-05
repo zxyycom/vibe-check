@@ -2,7 +2,7 @@
 
 ## Case FM-ANALYZER-READERS-D-001: translated C-like readers preserve Lizard 1.24 direct function facts
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/readers/clike-readers.test.ts|C-like shared reader preserves every C and C++ suffix plus the edge oracle`

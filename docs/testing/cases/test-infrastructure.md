@@ -7,7 +7,7 @@ Entities:
 
 - `bun|scripts/test-evidence/catalog.test.ts|diagnoses malformed Case structure and stable identity conflicts`
 - `bun|scripts/test-evidence/catalog.test.ts|parses and queries topic-grouped semantic Cases`
-Proves:
+  Proves:
 
 - 受控 topic Markdown 解析 Owner、Entities 与 Proves，并支持按 topic、owner、entity 和文本有界查询。
 - 非法目录成员、symlink、heading、字段、Owner anchor、重复 ID/entity 与空语义产生阻断诊断。
@@ -40,7 +40,7 @@ Entities:
 
 ## Case AUX-TEST-EVIDENCE-CANCELLATION-001: Test Evidence 将取消传到真实 runner process
 
-Owner: `docs/script-tooling.md#source-owners-and-dependency-direction`
+Owner: `docs/tooling/workspace.md#source-owners-and-dependency-direction`
 Entities:
 
 - `bun|scripts/test-evidence/discovery/profile.test.ts|forwards cancellation through the top-level discovery operation`

@@ -33,9 +33,6 @@ export interface RenderedPackageApiDocumentation {
 }
 
 function assertMarkdownDocumentRegistry(documents: readonly PackageApiMarkdownDocument[]): void {
-  if (documents.length !== 2) {
-    throw new Error("package API documentation must contain one README and one deeper guide");
-  }
   const ids = new Set<string>();
   const paths = new Set<string>();
   for (const document of documents) {
@@ -51,10 +48,8 @@ function assertMarkdownDocumentRegistry(documents: readonly PackageApiMarkdownDo
     paths.add(document.packagePath);
   }
   const readme = documents.find((document) => document.id === README_DOCUMENT_ID);
-  const deeperGuide = documents.find((document) => document.id !== README_DOCUMENT_ID);
-  if (readme?.packagePath !== "README.md" || deeperGuide?.packagePath !== "docs/api-mechanics.md") {
-    throw new Error("package API Markdown documents must be README.md plus docs/api-mechanics.md");
-  }
+  if (readme?.packagePath !== "README.md")
+    throw new Error("package API Markdown document registry must contain README.md");
 }
 
 /**

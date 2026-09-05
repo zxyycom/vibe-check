@@ -38,7 +38,7 @@ Entities:
 
 ## Case WB-OUTPUT-DIRECTORY-TARGETS-001: Run outputs own only their exact files at explicit targets
 
-Owner: `docs/configuration.md#run-outputs-and-compatibility-boundary`
+Owner: `docs/development/project-run.md#run-outputs-and-compatibility-boundary`
 Entities:
 
 - `bun|src/project-run/outputs/directories.test.ts|Package Run output directories > writes independent machine and diagnostic files to one Definition-selected parent directory`
@@ -74,7 +74,7 @@ Entities:
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
 
-Owner: `docs/output-maintenance.md#package-材料的维护与验证`
+Owner: `docs/development/output-maintenance.md#package-材料的维护与验证`
 Entities:
 
 - `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants`
@@ -85,7 +85,7 @@ Entities:
 
 ## Case AUX-DOCS-HISTORICAL-MACHINE-SCHEMAS-001: Current v4 example validation rejects historical machine identities
 
-Owner: `docs/output-maintenance.md#package-材料的维护与验证`
+Owner: `docs/development/output-maintenance.md#package-材料的维护与验证`
 Entities:
 
 - `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`

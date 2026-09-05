@@ -2,7 +2,7 @@
 
 ## Case WB-SCANNER-EXACT-RESULT-SCOPE-001: Scanner exact input scope
 
-Owner: `docs/scanner-dependencies.md#exact-input-handoff`
+Owner: `docs/development/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
 - `bun|src/package-checks/project-files/exact-input-measurement.test.ts|scoped measurement acceptance > validates declared source paths without inspecting payload shape`
@@ -11,7 +11,7 @@ Entities:
 
 ## Case WB-SCANNER-FILE-METRICS-CHECK-001: File constructor owns its policy and direct callback
 
-Owner: `docs/scanner-dependencies.md#check-owned-command-options`
+Owner: `docs/development/scanner-dependencies.md#check-owned-command-options`
 Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > materializes closed defaults and rejects malformed authored or resolved policy`
@@ -20,7 +20,7 @@ Entities:
 
 ## Case WB-SCANNER-FILE-METRICS-SCOPE-001: File metrics applies area-owned exact scope
 
-Owner: `docs/scanner-dependencies.md#exact-input-handoff`
+Owner: `docs/development/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
@@ -29,7 +29,7 @@ Entities:
 
 ## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function Check owns area, finding, and unavailable policy
 
-Owner: `docs/scanner-dependencies.md#check-owned-command-options`
+Owner: `docs/development/scanner-dependencies.md#check-owned-command-options`
 Entities:
 
 - `bun|src/package-checks/function-metrics/constructor.test.ts|functionMetrics constructor > materializes frozen analyzer-owned defaults and rejects malformed closed policy`
@@ -43,7 +43,7 @@ Entities:
 
 ## Case WB-SCANNER-DUPLICATE-CHECK-001: Duplicate default owns its command and Check-owned cache options
 
-Owner: `docs/scanner-dependencies.md#cache-and-failures`
+Owner: `docs/development/scanner-dependencies.md#cache-and-failures`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > executes duplicate detection from Check-owned scanner options with final data and Check-owned cache options`
@@ -54,7 +54,7 @@ Entities:
 
 ## Case WB-SCANNER-DUPLICATE-SCOPE-001: Duplicate detection compares the complete exact scope
 
-Owner: `docs/scanner-dependencies.md#exact-input-handoff`
+Owner: `docs/development/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/default-check.test.ts|default Check direct callbacks > detects project-relative duplicates through the public Check and fails an explicit all aggregate`
@@ -65,7 +65,7 @@ Entities:
 
 ## Case AUX-JSCPD-ADAPTER-OUTCOMES-001: jscpd adapter preserves its private result boundary
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/duplicate-detection/jscpd/scanner.test.ts|quality jscpd wrapper failure projection > classifies commands missing after preflight as execution failures`
@@ -83,7 +83,7 @@ Entities:
 
 ## Case AUX-FUNCTION-ANALYZER-ADAPTER-OUTCOMES-001: Product analyzer adapter preserves its whole-input boundary
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer-adapter.test.ts|functionMetrics Product analyzer adapter > maps all 27 reader families and 55 registered suffixes from supplied source`
@@ -107,7 +107,7 @@ Entities:
 
 ## Case AUX-SCC-ADAPTER-OUTCOMES-001: scc adapter preserves its private result boundary
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > sends --no-config and rejects a successful scc invocation that produces no CSV header`
@@ -120,7 +120,7 @@ Entities:
 
 ## Case AUX-SCC-V4-AVAILABILITY-001: SCC v4 exact executable contract
 
-Owner: `docs/scanner-dependencies.md#check-owned-command-options`
+Owner: `docs/development/scanner-dependencies.md#check-owned-command-options`
 Entities:
 
 - `bun|src/package-checks/file-metrics/scc/availability.test.ts|SCC availability > accepts only the SCC 4.0.0 executable contract`

@@ -33,6 +33,6 @@ relations:
 - 采用: 不创建 Product-owned private SCC config，除非后续差分证明 v4 default 无法表达稳定 Product semantics；任何这样的 config 仍是 adapter 私有，不接受 consumer input。
 - 采用: SCC adapter 与 jscpd、Lizard adapter 保持 owner-local，不建立 scanner registry、共享 backend interface 或 Product-wide command grammar。
 - 采用: 当前 consumer contract 由 [`docs/checks/file-metrics.md`](../checks/file-metrics.md)、adapter boundary 由
-  [`docs/scanner-dependencies.md`](../scanner-dependencies.md) 持有；本 Decision 只保存可持续的 hard-cut 与 ownership 判断。
+  [`docs/development/scanner-dependencies.md`](../development/scanner-dependencies.md) 持有；本 Decision 只保存可持续的 hard-cut 与 ownership 判断。
   `upgrade-scc-file-metrics-to-v4` 的 differential evidence 只证明该次 Linux migration，不扩大为所有平台、所有语言或
   future SCC release 的兼容性承诺。

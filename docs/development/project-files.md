@@ -28,7 +28,7 @@ VCS/Product state、dependencies、build/generated、cache、coverage、log、te
 `functionMetrics`、`jsonValidation` 与 `markdownLinkValidation` 保留同一 source/exclude，并按各自支持的文件类型派生精准
 默认 include。显式数组完整替换 owning Check 的对应默认值。项目需要追加排除时，通过
 `{ ...defaultProjectFileSelection, exclude: [...defaultProjectFileSelection.exclude, projectGlob] }` 建立自己的 selection。
-本节拥有完整公共 file-selection 基线；Check-specific defaults 由对应[随包 Check 指南](navigation.md#随包-check-指南)拥有。
+本节拥有完整公共 file-selection 基线；Check-specific defaults 由对应[随包 Check 指南](../navigation.md#随包-check-指南)拥有。
 
 三个 metric constructor 都让每个 area 直接拥有 files 和自己的阈值，独立选择的 paths 可以重叠；duplicate area 使用
 line/token policy，并且只有一个 area 同时选中全部 fragment locations 时才拥有该比较；file area 使用 file code-line

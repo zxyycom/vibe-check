@@ -28,7 +28,7 @@
       "carry-recursive-check-parallel-limits-through-task-scopes.md": "sha256:e4bd6e3c8b3ca86b625d1771e93b8d4dcb185589b06076517ff3d7af2821bd14",
       "centralize-project-gate-after-hook-configuration.md": "sha256:20bd7f463dc8863a31d58caeb4885725cca404aeda5dd60de26b12d9cb9fcad5",
       "centralize-project-gate-definition-and-separate-adapters.md": "sha256:3342a6f2f6ef0023573441fc21d705e066a66721dbce40d9c80bc5612c32438b",
-      "choose-implementation-style-by-problem-shape.md": "sha256:3ddcb5060f3a0211a5eb0247a1e8388a629a31533e6ba6755e19c03fc638d62f",
+      "choose-implementation-style-by-problem-shape.md": "sha256:c21d44c2fd07a2b9744acac0d8e72fb7a3c3773952449f06c59c21788fd1d400",
       "compare-duplicates-only-within-common-code-areas.md": "sha256:3ed088dfdb503eacb6b9829c0cd359456a9279058fd957fdef58f5b1bf28a04a",
       "complete-first-release-check-set-before-publication.md": "sha256:3dcdf3e040f66bd1d469c4729a8d0234c1edc5d23558973a9f884c9722573405",
       "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
@@ -118,7 +118,7 @@
       "keep-repository-quality-findings-advisory-through-release.md": "sha256:7e85af460bdb9c78ff6724b43c1edc63ce865deec4e5a21a7c41e0ddf4b3c2f7",
       "keep-sensitive-quality-record-material-ephemeral.md": "sha256:f89701e33cfb23c3cbebee397e0344e22a987c30a1bb3a6e16d1ee25f6e1128d",
       "keep-sensitive-scan-material-ephemeral.md": "sha256:42c82e84c23e776c03c6862baafc604ecc5e473ff1beffd2c62256ce9a41960f",
-      "keep-seven-distinct-project-skills.md": "sha256:e4c44f85a361fc13f533541b30aaac2c8e187b87c9227e389c3e3bdd38794ec5",
+      "keep-seven-distinct-project-skills.md": "sha256:e30f0b768bbfd483e3dc9c2cf0af9c8a02070327a5853f976a58a1f812f2271e",
       "learn-check-task-durations-for-critical-path-admission.md": "sha256:0d0a17f580b0cb3f95418cf057a728dc457b9c8e29da0c080cafacf7fc1334cb",
       "let-check-options-own-execution-dependencies.md": "sha256:52c7988876cb3db670036647d84c7670dc88fe48adbed036f580fa64c20b6f63",
       "let-dependent-checks-read-settled-upstream-outputs.md": "sha256:24e543f8d4eaacba1caf1c0cb33a3e0091b225466e96dafb94e1a0c50220206f",
@@ -138,6 +138,7 @@
       "monitor-project-gate-performance-advisory.md": "sha256:5e6395c44272266e1e51bcd80a2ac35a5a422a97ac1b0c0faacc21526d4adb7b",
       "observe-post-action-policy-measurement.md": "sha256:6498e88fe3031037298e35613adf36eecf2515a5703b491591bdb548458fa9da",
       "observe-repository-quality-checks-inside-project-gate.md": "sha256:c1b423b6d2e69c1c9ab2c8b23d2006fefc4aa6b44eec4c0ff3e6d339f2185084",
+      "organize-maintainer-documentation-by-responsibility.md": "sha256:ee335954832b2c2dfb468194cda31021a62486aa8ae86fa816a1ecf2ee9bca7d",
       "organize-owner-aware-project-run-and-gate-diagnostics.md": "sha256:8285f1911c8ba0cfc4d92ab032aeec78d7e09cb0cacb402bffe898885a0b9f67",
       "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:82f2d663a946d3157f404b782a0de86240ff3537dce52aec71cc9447f501447f",
       "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
@@ -170,7 +171,7 @@
       "publish-owner-structured-process-check-records.md": "sha256:78e57a629afbaf7a0946d01d6bb8cd72319edb928b82cb4ca49fd237f327366b",
       "publish-project-gate-machine-facts-in-machine-namespace.md": "sha256:b0569ebfbda1a5a836853639ed5bdea0e2aafc48471bb897653606ede1e54ad7",
       "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:daa7e106cd218de23c4f76a8f1a7e82af04032e45baeaf2df733ff3d330d385e",
-      "publish-readable-esm-package-layout.md": "sha256:c36562c04eb82d0ce7c5ca4d2de772fa9189c3e7637ed5f03a94c66ba5425c98",
+      "publish-readable-esm-package-layout.md": "sha256:b675b0c8aadf748675414e7056fb550c950b9129a818090520ddf68c6333ab3b",
       "publish-unscoped-vibe-check-publicly.md": "sha256:bb71c40ed12471c8769a34a64304aca6a75ada1422aec329921b59dd8b2b4386",
       "publish-user-scoped-vibe-check-publicly.md": "sha256:e27ee857bfd31ac3c25a12f2d0c264a2762cbb045974ed6c56d9d9c5b9e6bc39",
       "rate-limit-non-force-main-auto-push-after-commit.md": "sha256:39f730309a2843c029911c8c06127ba628603e5618920f922f81ec00941046e9",
@@ -202,6 +203,7 @@
       "retain-running-parallel-limits-and-order-ready-admission-by-priority.md": "sha256:45d195f9c952e3429f0b42c46e534ba6093a28a6433ff05ff26fcfa8573941d3",
       "reuse-gate-prepared-candidate-without-detached-lifecycle.md": "sha256:f5db383b9f649cdf0aa38dd572fdbdbf0683e83211eba02673eda9f8cddc7b28",
       "reuse-prepared-candidate-across-package-acceptance.md": "sha256:fad1b6975ab7827175c038f1bed07756647a1f5fd50a00d096706aab71d87a01",
+      "review-documentation-impact-by-audience.md": "sha256:c43645102309dc6d31a0503dcc257f8a29fe05b87241eb5e2083513ca5fe7ded",
       "run-check-preflight-with-task-admission.md": "sha256:f5a410eed6c2eb733e8fe349e3ba1c449731a3391dcbd27eaaf1fd066029f2d2",
       "run-repository-quality-checks-inside-project-gate.md": "sha256:d83451ff1f2d0d9a6beedda31d9be2fb5630ffd621e778ae2be932956b42b117",
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
@@ -222,7 +224,8 @@
       "ship-one-capability-rich-machine-example.md": "sha256:6f58fc71d58bd72d614af34475b0d2f07a585a934d0b85fc66210ca0ab2754e8",
       "ship-one-definition-backed-machine-example.md": "sha256:9d6ee52c5758930a8647616927a8e615a6819082dd232523aaa34530106796b8",
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:a59f00e3db07564ce351aa90953140ed4dd1dfb83f5f2ec1c42c4bc792f98013",
-      "structure-package-documentation-around-one-readme.md": "sha256:36d807f83ef5abf6a3613d01765193ccf803f03b397e1c9948c2b28e1d488468",
+      "structure-package-documentation-around-one-readme.md": "sha256:964544b8104561a5f9ae1723c693980dcadf270c417b0a5e9c3864ad911b8877",
+      "structure-package-documentation-by-user-task.md": "sha256:cd51ad167bad420ff1d3f305724973bfbe646f229e32babf350e891613788260",
       "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
       "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
       "track-lizard-supported-languages-with-upstream-advisory.md": "sha256:17ce134e21a7bc17c17bb9e57f81edb0faf027f72a198acb1459410d9d16d0c9",
@@ -275,7 +278,7 @@
       "use-project-decision-records.md": "sha256:4e4a395ce2b91ce47bfbce284f5f8c8de749c2028fcb8ecaa83c09d312b2799e",
       "use-recursive-check-values-with-optional-execution.md": "sha256:0c602e74ab18fc111c681057bf146069f4b3049402d6ada6edf00caa9df3b473",
       "use-runtime-resolved-check-and-record-core.md": "sha256:b847d6f9fb1b4122e2b5d0671acf9ae37fab63b9081ce872fe0676920c38265f",
-      "use-scc-v4-file-metrics-cli-protocol.md": "sha256:d1247362ef64789f8d986980200b67479b333347f852be8b701a4bac3009af76",
+      "use-scc-v4-file-metrics-cli-protocol.md": "sha256:62905687bcf9e59b37e7b5e27f63cd053e9dc4fa017af95e6873a3103bd2dccd",
       "use-semantic-check-ids-in-project-config.md": "sha256:6573b9ba86972941d7312cd41ebe3f4f259d62ab86cdccc5fc2e6f579ab9e1d5",
       "use-semantic-check-ids-in-quality-records.md": "sha256:7e30b6b103d2a28334ab73707d138be4b1fac6c7166857536f292e62017a2b4c",
       "use-semantic-test-case-closure.md": "sha256:171eb708a4b7b35559182224a3165e7bcfe83c82f1a0b6e5c87cad5a58d079cc",
@@ -4558,6 +4561,33 @@
         ]
       }
     },
+    "organize-maintainer-documentation-by-responsibility.md": {
+      "keys": {
+        "tag": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "organize-maintainer-documentation-by-responsibility.md",
+        "title": "按维护职责组织内部文档",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-05T18:48:20Z",
+        "purpose": "让维护者从任务定位完整规则，避免平铺长文或机械拆页增加恢复上下文的负担。",
+        "background": "内部文档名称过泛且目录混杂，配置与工具长文同时承担多个可独立维护的任务。",
+        "decision": "按维护职责分组并以中心对象命名，按独立阅读任务拆长文而不设置行数上限。",
+        "tags": [
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
     "organize-owner-aware-project-run-and-gate-diagnostics.md": {
       "keys": {
         "tag": [
@@ -6614,6 +6644,33 @@
         ]
       }
     },
+    "review-documentation-impact-by-audience.md": {
+      "keys": {
+        "tag": [
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "review-documentation-impact-by-audience.md",
+        "title": "按用户使用与内部设计分别审查文档影响",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-05T17:16:42Z",
+        "purpose": "保留两种受众所需的完整解释，并降低行为变化后人写文档漏同步的风险。",
+        "background": "主题重叠不等于叙述重复，机械投影和包材料检查不能判断设计或使用说明是否跟随行为变化。",
+        "decision": "保留受众特定叙述，在现有变更交付中分别判断文档影响并由独立代理从实际变更反查。",
+        "tags": [
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
     "run-check-preflight-with-task-admission.md": {
       "keys": {
         "tag": [
@@ -7271,16 +7328,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "structure-package-documentation-around-one-readme.md",
+        "sourcePath": "archive/structure-package-documentation-around-one-readme.md",
         "title": "以单一 README 分级组织 package 文档",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-27T14:56:42Z",
         "purpose": "让 package consumer 从唯一总入口理解常用自定义 API，并按需进入 Check 或机制说明。",
@@ -7291,6 +7348,40 @@
           "workflow-policy"
         ],
         "relations": []
+      }
+    },
+    "structure-package-documentation-by-user-task.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "structure-package-documentation-by-user-task.md",
+        "title": "以单一入口和任务专题组织随包文档",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-05T17:14:56Z",
+        "purpose": "让用户从最小使用路径进入深入扩展方案，并允许文档随真实使用任务增长。",
+        "background": "单一深入文档限制使调度和回调用法挤入 README，难以承接持续增加的公开能力。",
+        "decision": "保持 README 唯一总入口，按独立使用任务扩展显式随包专题，不限制深入页面数量。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "structure-package-documentation-around-one-readme.md"
+          }
+        ]
       }
     },
     "support-bun-as-the-package-host.md": {

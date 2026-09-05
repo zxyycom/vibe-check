@@ -2,7 +2,7 @@
 
 ## Case FM-ANALYZER-READERS-F-001: PHP 与 PL/SQL reader 保持 Lizard 1.24 直接函数指标
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/readers/php-plsql.test.ts|PHP and PL/SQL readers preserve every checked-in suffix and edge fixture`
@@ -17,7 +17,7 @@ Proves:
 
 ## Case FM-ANALYZER-READER-REGISTRY-001: reader registry 保持 Lizard 1.24 顺序与 suffix 选择
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/reader-registry.test.ts|reader registry retains the 27-reader Lizard source order`
@@ -31,7 +31,7 @@ Proves:
 
 ## Case FM-ANALYZER-CLIKE-OVERRIDE-SEAM-001: shared CLike declaration lifecycle 可被 source reader 正确覆写
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/shared/clike.test.ts|Lizard C-like shared states > dispatches CLike source override seams through declaration and implementation transitions`

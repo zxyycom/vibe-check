@@ -20,7 +20,7 @@ relations:
 - 保留拥有持久 artifact、项目特有证据，或无法从编码规范直接推导的独立工程判断能力。
 
 ## 背景
-- `docs/coding-style.md` 已经统一拥有实现归属、边界处理、领域类型、实现模型、局部表达、错误、
+- `docs/development/coding-style.md` 已经统一拥有实现归属、边界处理、领域类型、实现模型、局部表达、错误、
   模块、依赖和验证规则；文档导航还能把具体行为路由到唯一领域 owner。
 - 通用 API、CI、review、refactor、debugging、增量实现、TDD 和外部资料使用方法没有项目专属
   runtime 或状态，其有效规则已经能够从行为 owner、编码规范、测试策略和当前任务恢复。
@@ -33,7 +33,7 @@ relations:
   `investigation-report`、`performance-optimization`、`product-architecture-judgment` 和
   `test-evidence-review`。
 - 采用: 每个 Skill 的入口描述拥有其通用触发条件；`AGENTS.md` 只补充 Vibe Check 特有的 owner、
-  命令和验证路由，`docs/script-tooling.md` 拥有当前安装清单、分发边界和项目接线。
+  命令和验证路由，`docs/tooling/workspace.md` 拥有当前安装清单、分发边界和项目接线。
 - 采用: 普通实现、调试、审查、重构、接口、自动化和测试实施直接从文档导航进入行为 owner，
   再遵循编码规范、测试策略与相邻验证，不为同义通用方法安装项目 Skill。
 - 采用: `change-plan`、`common-denominator-design`、`decision-records`、`investigation-report` 和

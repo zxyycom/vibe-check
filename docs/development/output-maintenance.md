@@ -1,7 +1,7 @@
 # 机器输出实现与材料维护
 
 本文面向修改 machine publisher、progress renderer 或随包 machine materials 的仓库维护者。Package consumer 的唯一
-machine contract 是[机器输出契约](output.md)；本页只拥有实现归属、publication workflow 与 repository validation，
+machine contract 是[机器输出契约](../output.md)；本页只拥有实现归属、publication workflow 与 repository validation，
 不随 package 发布。
 
 ## Check facts 到 machine files 的投影
@@ -39,7 +39,7 @@ console、terminal author order 输出 message lines；message code 保留在 `R
 `attention` 只省略 passed 且无 messages 的 settled row。flag 条件未匹配的 invocation-control settlements 是独立例外：renderer
 缓存其 `displayName`；resolved Check lifecycle 调用必需的 `flagControlCompleted` 后，presentation 将它映射为
 `"flag-control-completed"` feedback，renderer 再写一个原因说明块和名称列表。精确分组条件、
-其它未启动状态的逐项呈现和完整 facts 边界由[深入 API 机制](api-mechanics.md#outputs-与-runresult-边界)拥有；所有 outcomes
+其它未启动状态的逐项呈现和完整 facts 边界由[深入 API 机制](../api-mechanics.md#outputs-与-runresult-边界)拥有；所有 outcomes
 仍计入 canonical ordinal 和最终计数。
 
 普通 TTY 在仍有 Check 运行时每 5 秒重绘 running region，并显示基于共享 monotonic interval 的 elapsed time；首次 running

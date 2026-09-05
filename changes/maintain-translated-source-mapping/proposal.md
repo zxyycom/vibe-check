@@ -26,4 +26,4 @@
 
 ## Affected Owners
 
-`scripts/package/legal-materials/**`、`licenses/lizard-1.24.0-provenance.json`、analyzer source identity evidence、package legal-material audit、[脚本工具](../../docs/script-tooling.md)、[Check-owned scanner dependencies](../../docs/scanner-dependencies.md) 与相关 Case 账本。
+`scripts/package/legal-materials/**`、`licenses/lizard-1.24.0-provenance.json`、analyzer source identity evidence、package legal-material audit、[脚本工具](../../docs/tooling/workspace.md)、[Check-owned scanner dependencies](../../docs/development/scanner-dependencies.md) 与相关 Case 账本。

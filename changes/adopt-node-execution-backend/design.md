@@ -75,7 +75,7 @@
 | 1、5、8 | Gate 与性能 | Gate names、transcript、runtime observation 与 performance baseline 使用 Node facts并重新测量；不得沿用 Bun baseline 或通过放宽门禁隐藏 runtime 偏移 |
 | 1、2、7、8 | 文档与治理 | architecture、configuration、script tooling、testing、package consumer docs、AGENTS commands 与直接相关 Decisions 同步；`bun run` 只表述为 optional launcher，canonical reproducible commands 使用 Node/pnpm |
 | 1、3、5、8 | 平台验收 | 除 Linux smoke 外，在目标 Windows sandbox 验证 Node/pnpm、mise、Git、scanners、路径、进程与信号；Node 迁移本身不证明所有外部工具已支持该 sandbox |
-| 1—8 | 并行 Change 协调 | 收敛为 Plan 前，按 [`docs/change-execution-order.md`](../../docs/change-execution-order.md) 复核与 `upgrade-jscpd-duplicate-detection-to-5-1-1`、`upgrade-scc-file-metrics-to-v4`、`replace-lizard-with-typescript-function-analyzers`、`add-scheduler-performance-diagnostics` 的串行顺序和已落地主线事实 |
+| 1—8 | 并行 Change 协调 | 收敛为 Plan 前，按 [`docs/governance/change-coordination.md`](../../docs/governance/change-coordination.md) 复核与 `upgrade-jscpd-duplicate-detection-to-5-1-1`、`upgrade-scc-file-metrics-to-v4`、`replace-lizard-with-typescript-function-analyzers`、`add-scheduler-performance-diagnostics` 的串行顺序和已落地主线事实 |
 
 ## Risks / Trade-offs
 

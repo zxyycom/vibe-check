@@ -4,9 +4,9 @@ import { dirname, join, normalize, relative, resolve } from "node:path";
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../machine-artifacts/package-materials.ts";
 import { PACKAGE_CHECK_GUIDES, type PackageCheckGuide } from "./check-guide-registry.ts";
+import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
 
 const README_PATH = "README.md";
-const API_MECHANICS_PATH = "docs/api-mechanics.md";
 const CHECK_GUIDE_README_LINK = "(../../README.md#随包提供的-check)";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey,
@@ -49,7 +49,8 @@ export function collectPackageDocumentation(
   );
   const checkGuides = PACKAGE_CHECK_GUIDES.map((guide) => readCheckGuide(root, guide.sourcePath));
   const readme = requiredDocument(rendered, README_PATH);
-  const supportingDocuments = [requiredDocument(rendered, API_MECHANICS_PATH), ...checkGuides];
+  const apiDocuments = rendered.filter((document) => document.packagePath !== README_PATH);
+  const supportingDocuments = [...apiDocuments, ...checkGuides];
   assertGuideLinks(readme, supportingDocuments);
   assertLocalMarkdownLinks([readme, ...supportingDocuments]);
   return Object.freeze(supportingDocuments);
@@ -58,14 +59,14 @@ export function collectPackageDocumentation(
 function assertRenderedMarkdownInventory(
   documents: readonly PackageDocumentationFile[]
 ): readonly PackageDocumentationFile[] {
-  const expected = [API_MECHANICS_PATH, README_PATH].sort();
+  const expected = PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => document.packagePath).sort();
   const actual = documents.map((document) => document.packagePath).sort();
   if (
     actual.length !== expected.length ||
     actual.some((packagePath, index) => packagePath !== expected[index])
   ) {
     throw new Error(
-      `rendered package Markdown must be README.md plus one API mechanics guide: received ${actual.join(", ")}`
+      `rendered package Markdown must exactly match the API document registry: received ${actual.join(", ")}`
     );
   }
   for (const document of documents) assertDocumentText(document);
@@ -169,8 +170,25 @@ function assertGuideLinks(
   readme: PackageDocumentationFile,
   documents: readonly PackageDocumentationFile[]
 ): void {
-  if (!readme.content.includes(`(./${API_MECHANICS_PATH})`)) {
-    throw new Error(`README is missing the package API mechanics link: ${API_MECHANICS_PATH}`);
+  for (const apiDocument of documents.filter((candidate) =>
+    PACKAGE_API_MARKDOWN_DOCUMENTS.some(
+      (registered) => registered.packagePath === candidate.packagePath
+    )
+  )) {
+    if (!readme.content.includes(`](./${apiDocument.packagePath})`)) {
+      throw new Error(
+        `README is missing a direct package API document link: ${apiDocument.packagePath}`
+      );
+    }
+    const readmeLink = relative(dirname(apiDocument.packagePath), README_PATH).replaceAll(
+      "\\",
+      "/"
+    );
+    if (!apiDocument.content.includes(`](${readmeLink})`)) {
+      throw new Error(
+        `package API document is missing its README link: ${apiDocument.packagePath}`
+      );
+    }
   }
   if (!readme.content.includes("(./docs/output.md)")) {
     throw new Error("README is missing the package machine output guide link: docs/output.md");

@@ -22,7 +22,7 @@ relations: []
 - 将全部实现打入一个入口文件会掩盖 `src/**` 已有的模块职责与调用边界，也不利于源码级调试。
 - tarball 中存在一个内部路径，不代表该路径自动成为公开 API；consumer 可依赖的导入路径仍由 `package.json` 的 `exports` 定义。
 - CJS、`require`、browser 或压缩产物分别意味着额外的加载方式、宿主或交付承诺，当前没有对应的 consumer 验证需求。
-- 本决策拥有 package 的物理运行时布局和源码恢复材料；当前实现与 audit 规则由[脚本工具](../script-tooling.md#package-artifact-与-candidate)承接。
+- 本决策拥有 package 的物理运行时布局和源码恢复材料；当前实现与 audit 规则由[脚本工具](../tooling/package-lifecycle.md#package-artifact-与-candidate)承接。
 - 本决策不建立新的 subpath API、宿主或执行入口。程序化入口和 Bun 宿主范围继续由各自已有决策承接。
 
 ## 决策

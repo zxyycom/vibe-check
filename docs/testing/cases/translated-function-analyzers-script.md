@@ -2,7 +2,7 @@
 
 ## Case FM-ANALYZER-CORE-001: translated in-memory analyzer primitives preserve their Lizard 1.24 processor boundary
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/pipeline.test.ts|Lizard in-memory core > preserves basic C-like function information, NLOC, CCN, and parameters`
@@ -38,7 +38,7 @@ Proves:
 
 ## Case FM-ANALYZER-READERS-B-001: translated script readers preserve Lizard 1.24 reader-local function metrics
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/readers/script-readers.test.ts|script readers preserve every registered suffix and normal/edge oracle fixture`

@@ -39,13 +39,20 @@ describe("package API documentation renderer", () => {
       for (const document of rendered.markdownDocuments) {
         assert.equal(document.content, readFileSync(document.absolutePath, "utf8"));
       }
-      assert.equal(rendered.readme.content.includes("](./docs/api-mechanics.md)"), true);
-      assert.equal(
-        rendered.markdownDocuments
-          .find((document) => document.documentId === "api-mechanics")
-          ?.content.includes("](../README.md)"),
-        true
-      );
+      for (const document of PACKAGE_API_MARKDOWN_DOCUMENTS) {
+        if (document.id === "readme") continue;
+        assert.equal(rendered.readme.content.includes(`](./${document.packagePath})`), true);
+        const expectedReadmeLink = relative(dirname(document.packagePath), "README.md").replaceAll(
+          "\\",
+          "/"
+        );
+        assert.equal(
+          rendered.markdownDocuments
+            .find((candidate) => candidate.documentId === document.id)
+            ?.content.includes(`](${expectedReadmeLink})`),
+          true
+        );
+      }
 
       for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {
         const payload = regionPayload(fixtureRoot, projection.sourcePath, projection.regionId);
@@ -421,7 +428,7 @@ function projectionsWithMarkdownHeadingPath(
 function projectionsWithDuplicateJSDocTarget(): readonly PackageApiExampleProjection[] {
   return PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) => {
     if (projection.id !== "custom-check-definition") return projection;
-    const target = projection.targets[0];
+    const target = projection.targets.find((candidate) => candidate.kind === "jsdoc");
     if (target === undefined || target.kind !== "jsdoc")
       throw new Error("missing fixture JSDoc target");
     return { ...projection, targets: [...projection.targets, target] };
@@ -431,7 +438,7 @@ function projectionsWithDuplicateJSDocTarget(): readonly PackageApiExampleProjec
 function projectionsWithSharedJSDocTarget(): readonly PackageApiExampleProjection[] {
   const target = PACKAGE_API_EXAMPLE_PROJECTIONS.find(
     (projection) => projection.id === "custom-check-definition"
-  )?.targets[0];
+  )?.targets.find((candidate) => candidate.kind === "jsdoc");
   if (target === undefined || target.kind !== "jsdoc")
     throw new Error("missing fixture JSDoc target");
   return PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) =>

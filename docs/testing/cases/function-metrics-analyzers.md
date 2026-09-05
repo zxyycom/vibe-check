@@ -2,13 +2,13 @@
 
 ## Case FM-ANALYZER-PORT-FACADE-001: Check-private port façade exposes only supplied-source Lizard analysis
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > provides case-insensitive suffix capability and supplied-source Lizard-domain analysis`
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > matches source-order registry resolution for fast paths and explicit fallbacks`
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > matches the fixed-tag selected-extension corpus across every reader fixture and semantic case`
-Proves:
+  Proves:
 
 - The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result. It privately composes the selected `complextags` and `nd` processors, retaining each function's complete source-ordered `[token, line]` contributors and maximum nesting depth. Its 27-reader/56-entry source-order coverage differentially compares both façade APIs and fixture analysis with `get_reader_for`, including `R/r` canonical deduplication, mixed case, multi-dot and slash/backslash paths.
 - Fixed-tag observations cover all 110 normal/edge/malformed reader fixtures and ten direct extension semantic cases, including contributor order/line, `else if`, ternary, first/subsequent logical operators, bracket/indent closure and per-function reset.
@@ -17,7 +17,7 @@ Proves:
 
 ## Case FM-ANALYZER-READERS-A-001: Fortran、Structured Text 与 Erlang reader 保持 Lizard 1.24 可观察语义
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/readers/fortran.test.ts|Fortran reader preserves every registered suffix, edge fixture, and fixed/free form metrics`
@@ -30,7 +30,7 @@ Entities:
 
 ## Case FM-ANALYZER-EXTENSION-PROTOCOL-001: internal extension protocol keeps the Lizard 1.24 lifecycle closed
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts|internal extensions preserve default processor order plus object/class ordering_index registration`
@@ -52,7 +52,7 @@ Proves:
 
 ## Case FM-ANALYZER-MALFORMED-DIFFERENTIAL-001: source-order readers retain complete malformed-source observations
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/readers/malformed-source.test.ts|every source-order reader preserves Lizard 1.24 malformed-source whole-file observations`
@@ -64,7 +64,7 @@ Proves:
 
 ## Case FM-ANALYZER-SOURCE-IDENTITY-001: translated port structure retains fixed Lizard 1.24 identities
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/source-identity.test.ts|fixed Lizard reader/shared source identities map to translated symbols or named host seams`

@@ -1,6 +1,6 @@
 ---
 title: 以单一 README 分级组织 package 文档
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-27T14:56:42Z
 purpose: 让 package consumer 从唯一总入口理解常用自定义 API，并按需进入 Check 或机制说明。

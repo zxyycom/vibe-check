@@ -1,9 +1,8 @@
-# Quality Metrics
+# Check 结果
 
 本文拥有通用 Check、supplemental Record 与 explicit Check aggregation 的事实语义。每项随包 Check 的领域 options、
-outcome、final data、Record、message 与不可用原因由对应[随包 Check 指南](navigation.md#随包-check-指南)拥有。Definition authoring、typed
-direct dependency readback 见 [Configuration](configuration.md)；machine DTO/bytes 见 [Output](output.md)；repository Gate
-adapter 见 [脚本工具](script-tooling.md#project-gate)。本文不拥有 scanner commands、machine serialization、argv parsing、
+outcome、final data、Record、message 与不可用原因由对应[随包 Check 指南](../navigation.md#随包-check-指南)拥有。Definition authoring 与 typed direct dependency readback 见 [Project Definition](project-definition.md#typed-dependency-data)；machine DTO/bytes 见 [Output](../output.md)；repository Gate
+adapter 见 [脚本工具](../tooling/project-gate.md)。本文不拥有 scanner commands、machine serialization、argv parsing、
 generic scheduler 或 human presentation grammar。
 
 ## Check and Record facts
@@ -66,12 +65,12 @@ Check ID 或 options shape。
 4. package Check 的 Finding 摘要是 Check-owned presentation，不是通用 Record 投影。Producing Check 决定安全字段、显示
    上限和完整明细入口；它可以与 Product progress 的 generic Record preview 并存，后者只显示 local Record ID 与 canonical JSON，
    不解释 Finding 字段也不替代该摘要。通用 `presentCheckFindings(...)` 只执行调用方给出的 presentation hooks，见
-   [Finding presentation](api-mechanics.md#finding-presentation)。
+   [Finding presentation](../api-mechanics.md#finding-presentation)。
 5. 读取文件的 Check 从自己的 options 形成 selected/exact input；文件分类与完整性见
-   [Project files and Check exact inputs](scan-scope.md)，外部工具边界见
+   [Project files and Check exact inputs](project-files.md)，外部工具边界见
    [Check-owned scanner dependencies](scanner-dependencies.md)。
 
-按能力读取完整事实契约时，从[随包 Check 指南](navigation.md#随包-check-指南)选择唯一 owner，不从本节推断
+按能力读取完整事实契约时，从[随包 Check 指南](../navigation.md#随包-check-指南)选择唯一 owner，不从本节推断
 Check-specific 字段或状态。
 
 ## Explicit aggregation and repository Gate mapping
@@ -90,11 +89,11 @@ repository Gate 负责在自己的 Project Definition/Run adapter 中绑定 flag
 `RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate
 只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写
 Product Check outcomes。当前 required/preset/all selection、`afterGate` hook、transcript 与 exit mapping 只见
-[脚本工具的 Project Gate](script-tooling.md#project-gate)。
+[脚本工具的 Project Gate](../tooling/project-gate.md)。
 
 ## Verification
 
 current evidence 覆盖 recursive Definition validation、direct callback four-state outcomes、canonical final/Record data、
 Check-facts ownership/terminal closure、prerequisites/cancellation、explicit aggregation、Check-owned scanner exact inputs/cache 和
-Gate exit mapping。machine schema/example/publication evidence 见 [Output](output.md)；Case catalog 与验证入口见
-[Testing](testing.md)。
+Gate exit mapping。machine schema/example/publication evidence 见 [Output](../output.md)；Case catalog 与验证入口见
+[Testing](../testing/strategy.md)。

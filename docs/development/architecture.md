@@ -42,30 +42,30 @@ ordinary Check contract。task scheduler 只是 Run 的 private child，不形�
 
 `src/project-run/**` 的目录层级表达下列父子关系；表中职责不改变 Product public entry 或 RunResult owner。
 
-| 路径 | 下级 owner 的职责 |
-| --- | --- |
-| `invocation/**` | 一次 invocation 的创建、路径、Scheduler handoff、execution candidate 与 progress counter。 |
-| `completion/**` | sealed Check facts 之后的 machine publication 与 terminal result。 |
-| `outputs/**` | Run output 的选择与 status。 |
-| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。 |
-| `task-scheduler/measurement/**` | timing、summary 与 diagnostic measurement。 |
-| `task-scheduler/**` 父层 | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。 |
-| 其它直接子 owner | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**`、`scheduler-duration-model/**` 与 `admission-strategy-provider/**` 继续各自拥有其既有领域职责。 |
+| 路径                               | 下级 owner 的职责                                                                                                                                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `invocation/**`                    | 一次 invocation 的创建、路径、Scheduler handoff、execution candidate 与 progress counter。                                                                                            |
+| `completion/**`                    | sealed Check facts 之后的 machine publication 与 terminal result。                                                                                                                    |
+| `outputs/**`                       | Run output 的选择与 status。                                                                                                                                                          |
+| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。                                                                                                                     |
+| `task-scheduler/measurement/**`    | timing、summary 与 diagnostic measurement。                                                                                                                                           |
+| `task-scheduler/**` 父层           | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。                                                                                                               |
+| 其它直接子 owner                   | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**`、`scheduler-duration-model/**` 与 `admission-strategy-provider/**` 继续各自拥有其既有领域职责。 |
 
 ### Function-metrics analyzer
 
 `src/package-checks/function-metrics/analyzer/**` 只处理 supplied source 的 Lizard-domain analysis；Product input
 admission、I/O、cancellation 与 metric mapping 留在该目录外。
 
-| 文件 | 职责 |
-| --- | --- |
-| `contracts.ts` | analyzer 内 reader、constructor、processor 等宿主组合的类型契约，不承载翻译算法。 |
-| `analysis-model.ts` | 可变分析结果模型。 |
-| `analysis-context.ts` | 每个文件的 reader context 与 extension nesting seam。 |
-| `pipeline.ts` | token 与 extension lifecycle。 |
-| `extension-output.ts` | analyzer-internal extension result/output lifecycle compatibility。 |
-| `reader-registry.ts` | 有序 reader registry。 |
-| `port-facade.ts` | 目录外生产调用的唯一 façade，以及 supplied-source/suffix capability 边界。 |
+| 文件                  | 职责                                                                              |
+| --------------------- | --------------------------------------------------------------------------------- |
+| `contracts.ts`        | analyzer 内 reader、constructor、processor 等宿主组合的类型契约，不承载翻译算法。 |
+| `analysis-model.ts`   | 可变分析结果模型。                                                                |
+| `analysis-context.ts` | 每个文件的 reader context 与 extension nesting seam。                             |
+| `pipeline.ts`         | token 与 extension lifecycle。                                                    |
+| `extension-output.ts` | analyzer-internal extension result/output lifecycle compatibility。               |
+| `reader-registry.ts`  | 有序 reader registry。                                                            |
+| `port-facade.ts`      | 目录外生产调用的唯一 façade，以及 supplied-source/suffix capability 边界。        |
 
 ## Definition boundary
 
@@ -73,9 +73,9 @@ admission、I/O、cancellation 与 metric mapping 留在该目录外。
 `execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
 `dependsOn`、`observes`、`mutex`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。
 
-完整 authoring grammar、默认值和 invocation contract 由 [Configuration](configuration.md) 拥有。Definition validation 在任何 execution、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical immutable JSON object，并 canonicalize scheduling collection。Definition 不识别 package-provided Check ID，也不解释其 option shape。
+完整 authoring grammar 与默认值由 [Project Definition](project-definition.md) 拥有；invocation contract 由 [Project Run](project-run.md) 拥有。Definition validation 在任何 execution、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical immutable JSON object，并 canonicalize scheduling collection。Definition 不识别 package-provided Check ID，也不解释其 option shape。
 
-Definition grammar 只描述递归 Check、调度、executable-only `visibility` / `enabledByFlags`、Check-owned execution/options 及可选 `preflight`。Definition 将 `enabledByFlags` 规范化为 executable Check 的 declarative identity；完整字段 grammar 和 flag 条件由 [Configuration](configuration.md#flag-enabled-checks) 拥有。`preflight`、`execution` 与 typed provider 的 executable-only `parseData` 都是 trusted functions：Definition 保留函数 identity，但不调用函数，也不把它们写入 declarative snapshot、fingerprint、Check-facts snapshot 或 machine output。Typed provider 的 public type relation 由 [Configuration](configuration.md#typed-dependency-data) 拥有。`visibility` 是 normalized declarative fingerprint 的一部分，但不控制执行；producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
+Definition grammar 只描述递归 Check、调度、executable-only `visibility` / `enabledByFlags`、Check-owned execution/options 及可选 `preflight`。Definition 将 `enabledByFlags` 规范化为 executable Check 的 declarative identity；完整字段 grammar 和 flag 条件由 [Configuration](project-definition.md#flag-enabled-checks) 拥有。`preflight`、`execution` 与 typed provider 的 executable-only `parseData` 都是 trusted functions：Definition 保留函数 identity，但不调用函数，也不把它们写入 declarative snapshot、fingerprint、Check-facts snapshot 或 machine output。Typed provider 的 public type relation 由 [Configuration](project-definition.md#typed-dependency-data) 拥有。`visibility` 是 normalized declarative fingerprint 的一部分，但不控制执行；producing Check 自己定义 final data 与可选 Record data 的 domain shape；跨 Check 的聚合只由 invocation controls 显式请求，不成为 Definition 的第二套 domain grammar。
 
 ## Execution boundary
 
@@ -118,13 +118,13 @@ Scheduler: seals terminal measurement → internal summary → configured generi
 Invocation: public prepared complete once → aggregate output; private learned complete stays contained
 ```
 
-| Boundary | Sole owner | Handoff and authority |
-| --- | --- | --- |
-| Public/private strategy preparation and completion | Invocation | It resolves one Run-local strategy. Public prepare failure stops before Scheduler with `admission-strategy-preparation-failed`; a public complete runs at most once after Scheduler returns a sealed context. Private learned completion remains contained. |
-| Admission decisions and hard legality | Scheduler | Receives only a frozen synchronous policy, invokes `decide` zero or more times, and alone validates relation, mutex, capacity, cancellation and drain guards. It never receives prepare or complete. |
-| Terminal measurement and generic Hook delivery | Scheduler | Stops admission, drains started work, seals facts, then delivers its diagnostic-enabled internal summary and every configured generic Hook before returning context. |
-| Public aggregate mapping | Invocation | After Scheduler returns, it runs public complete and maps actual generic Hook/complete settlement to existing `outputs.measurementHooks`, without changing sealed primary facts. |
-| Cross-Run learning | Duration-model / provider | A learned internal complete may record sealed occupancy only for a later Run's private prepare. |
+| Boundary                                           | Sole owner                | Handoff and authority                                                                                                                                                                                                                                       |
+| -------------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Public/private strategy preparation and completion | Invocation                | It resolves one Run-local strategy. Public prepare failure stops before Scheduler with `admission-strategy-preparation-failed`; a public complete runs at most once after Scheduler returns a sealed context. Private learned completion remains contained. |
+| Admission decisions and hard legality              | Scheduler                 | Receives only a frozen synchronous policy, invokes `decide` zero or more times, and alone validates relation, mutex, capacity, cancellation and drain guards. It never receives prepare or complete.                                                        |
+| Terminal measurement and generic Hook delivery     | Scheduler                 | Stops admission, drains started work, seals facts, then delivers its diagnostic-enabled internal summary and every configured generic Hook before returning context.                                                                                        |
+| Public aggregate mapping                           | Invocation                | After Scheduler returns, it runs public complete and maps actual generic Hook/complete settlement to existing `outputs.measurementHooks`, without changing sealed primary facts.                                                                            |
+| Cross-Run learning                                 | Duration-model / provider | A learned internal complete may record sealed occupancy only for a later Run's private prepare.                                                                                                                                                             |
 
 Invocation creates the measurement collector only when diagnostic logging, configured generic measurement Hooks, a policy's
 per-decision `requiresMeasurement`, or a terminal-demanding prepared strategy requires it. Plain static has no extra collector/
@@ -173,7 +173,7 @@ pre-work/planning failure 没有 Scheduler context，因此不会调用 caller H
 diagnostic writer failure，不是 measurement Hook failure。Hook identity/source/closure 不进入 declarative fingerprint，且本能力
 不增加 hook ID/version/registry、machine/progress/Check facts、跨 invocation history、learned scheduling 或自动调参。
 
-Run 在完整 static graph validation 后把 preflight 放入已 admitted Check 的 task-local lifecycle；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal，并受该 Check 的 `dependsOn`、`observes`、mutex、capacity 与 priority 约束。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不调用 author callback，也没有 author execution started lifecycle fact；它的 non-passed outcome 仍会阻止自己的 `dependsOn` dependents。每个独立 ready task 的 preflight 可以并行，不能形成全局 barrier。精确结果 grammar、messages 与 reason 映射见 [Configuration](configuration.md#check-options-preflight)。
+Run 在完整 static graph validation 后把 preflight 放入已 admitted Check 的 task-local lifecycle；未提供 `preflight` 的 Check 直接使用 authored options。每个 preflight 收到 Definition 已 snapshot 的 options 与本次 invocation 的 cancellation signal，并受该 Check 的 `dependsOn`、`observes`、mutex、capacity 与 priority 约束。`block`、throw、malformed result 或 noncanonical prepared/fallback value 只结算 owning Check 为 `unavailable`，不调用 author callback，也没有 author execution started lifecycle fact；它的 non-passed outcome 仍会阻止自己的 `dependsOn` dependents。每个独立 ready task 的 preflight 可以并行，不能形成全局 barrier。精确结果 grammar、messages 与 reason 映射见 [Configuration](project-definition.md#check-options-preflight)。
 
 Invocation creation 在任何 author work 前一次解析并冻结 effective absolute project root、enabled output target 和可选
 Check artifact base；completion 与 callback assembly 只消费这份 private path representation，不再次解释 caller directory text。
@@ -190,18 +190,18 @@ Check-owned file selection 与 cache configuration 继续保留在 owning Check 
 
 Product 将 ordinary throw、malformed result、Record misuse 和 cancellation 映射为 owning unavailable outcome。静态 graph 通过后，Invocation 只建立一次 private effective flag selection：matching opt-in root 的 normalized `dependsOn` closure 与 direct selection 一起决定 flag-control settlement 和 `checks: "effective"` aggregation；它不建立第二张 graph、选择 DSL 或 callback resolver，也不传播 `observes`。被该 closure 加入的 dependency 继续遵守普通 Scheduler、preflight 与 prerequisite rules，不能以 selection 伪造 `passed` 或绕过 cancellation。这个 execution boundary 将 author terminal result 与其 messages attachment 一起验证，再只把 stripped four-state result 交给 Check facts；只有 Check facts 接受该 result 后，accepted Check-local Records 与 detached author messages 才一起进入 private lifecycle feedback，后者另进入 final-snapshot `RunResult.checkMessages`。invalid attachment 不接受部分 author messages；Product 在静态 graph 校验后、任何 author preflight 或 execution 前安装一次 console router，并在各自 awaited async context 中隔离捕获；已捕获的 `console.*` 文本是独立受管 feedback，即使 callback 随后 throw 或返回 malformed result 仍会保留。`dependsOn` 只在每个 direct upstream `passed` 后允许 dependent 的 preflight/execution；全部 direct prerequisite terminal 后若任一非 `passed`，Product 以 `unavailable / dependency-not-passed`、稳定 direct blocker `checkIds`、null duration 结算 dependent，且不调用其 author work。`observes` 等待每个 direct upstream 各自形成任意四态 terminal outcome。两类 relation 的 normalized union 授权 `dependencies.get` / `list`，但同一 direct ID 不得双重声明。Cancellation 停止新的 admission，并将同一 signal 传给已 admitted callback；它不能在 Bun runtime 中强制停止 non-cooperative code。已 admitted work drain 后，Product 保留已 settled Check 与 Record，安全关闭其余 executable Check，再返回 execution-phase cancellation facts。
 
-Run 在 author callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Check-facts settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`，并将受管 messages 按 canonical Check order、再按 preflight console、preflight author messages、execution console、terminal author messages 的顺序投影为 `RunResult.checkMessages`。Core settlement 保持 accepted Record/message facts；execution lifecycle 只在 settlement 后私下交付完整事实给 progress。progress renderer 是唯一 terminal preview owner，不能回写 Record、message、snapshot、RunResult 或 machine publication；其 enabled/disabled 与有界展示契约由 [API mechanisms](api-mechanics.md#check-输出与受管-progress) 完整定义。duration 与 messages 都不进入 `CheckOutcome`、Record、Check facts 或 machine publication。flag-control、preflight-blocked 与 prerequisite-blocked Check 都保留 `null` duration。resolved-Check execution owner 在 invocation flag control 和 task-local preflight/admission 前安装一次 async-context-aware console router，并在全部 Check 闭合后恢复；每个 author function 只拥有自己的 invocation-local buffer，context 外仍调用 host console，并发 Check 不共享 buffer。settlement 后 renderer 才写自己的 target stream。直接 `process.stdout` / `process.stderr` 写入和高容量 process output 仍必须进入项目自己拥有的 transcript（例如 Project Gate 的 `.log/`），不能与 progress stream 穿插。这类 transcript 不是 Product output，也不属于 machine output。
+Run 在 author callback 前开始 monotonic per-Check measurement，并在 callback result、Record validation 与 Check-facts settlement 后结束。这个 execution owner 将同一次 `{ checkId, durationMs | null }` 事实交给 private lifecycle feedback 和 final-snapshot `RunResult.checkDurations`，并将受管 messages 按 canonical Check order、再按 preflight console、preflight author messages、execution console、terminal author messages 的顺序投影为 `RunResult.checkMessages`。Core settlement 保持 accepted Record/message facts；execution lifecycle 只在 settlement 后私下交付完整事实给 progress。progress renderer 是唯一 terminal preview owner，不能回写 Record、message、snapshot、RunResult 或 machine publication；其 enabled/disabled 与有界展示契约由 [API mechanisms](../api-mechanics.md#check-输出与受管-progress) 完整定义。duration 与 messages 都不进入 `CheckOutcome`、Record、Check facts 或 machine publication。flag-control、preflight-blocked 与 prerequisite-blocked Check 都保留 `null` duration。resolved-Check execution owner 在 invocation flag control 和 task-local preflight/admission 前安装一次 async-context-aware console router，并在全部 Check 闭合后恢复；每个 author function 只拥有自己的 invocation-local buffer，context 外仍调用 host console，并发 Check 不共享 buffer。settlement 后 renderer 才写自己的 target stream。直接 `process.stdout` / `process.stderr` 写入和高容量 process output 仍必须进入项目自己拥有的 transcript（例如 Project Gate 的 `.log/`），不能与 progress stream 穿插。这类 transcript 不是 Product output，也不属于 machine output。
 
 ## Check facts
 
-Check-facts session 将每个 canonical executable Check 恰好 register 一次，且只冻结 `checks` 与 `records`。Check 的 terminal outcome grammar 由 [Quality Metrics](quality-metrics.md#check-and-record-facts) 定义：
+Check-facts session 将每个 canonical executable Check 恰好 register 一次，且只冻结 `checks` 与 `records`。Check 的 terminal outcome grammar 由 [Quality Metrics](check-results.md#check-and-record-facts) 定义：
 
 - `passed`，带有 canonical final data；
 - `failed`，带有 canonical final data；
 - `not-applicable`，可选 reason code；
 - `unavailable`，带有 Product or author-controlled reason code 和可选 prerequisite `checkIds`。
 
-callback 只能通过自己的 reporter 提交 supplemental Record：`records.report({ id }, data)`。Product 提供 Check ownership 与 structural `{ checkId, id }` identity，验证 canonical safety、拒绝 duplicate/late/invalid mutation，并在后续 ordinary failure 时保留已经 accepted 的 Record。final data 与 Record data 都 materialize 为 detached、null-prototype、deep-frozen canonical JSON object；snapshot 不承诺 JavaScript own-key enumeration order。Check-local domain shape和canonical text/bytes ordering由 [Quality Metrics](quality-metrics.md#check-and-record-facts)分别界定。Task identity、callback closure、scheduler bookkeeping 和 scanner-private payload 都不是 Check facts。
+callback 只能通过自己的 reporter 提交 supplemental Record：`records.report({ id }, data)`。Product 提供 Check ownership 与 structural `{ checkId, id }` identity，验证 canonical safety、拒绝 duplicate/late/invalid mutation，并在后续 ordinary failure 时保留已经 accepted 的 Record。final data 与 Record data 都 materialize 为 detached、null-prototype、deep-frozen canonical JSON object；snapshot 不承诺 JavaScript own-key enumeration order。Check-local domain shape和canonical text/bytes ordering由 [Quality Metrics](check-results.md#check-and-record-facts)分别界定。Task identity、callback closure、scheduler bookkeeping 和 scanner-private payload 都不是 Check facts。
 
 Raw Check facts 始终可供 completed/output `RunResult` generic readback。只有 caller 显式提供 `RunControls.checkAggregation` 时，Run 才从选定 settled Check statuses 产生最小 `aggregate`；没有配置时该字段为 `null`。`checks: "effective"` 读取同一 invocation-private selection，但 facts、RunResult、machine publication 和 diagnostic output 都不发布该 selection、root 或 activation metadata。aggregation 不读取 Record data、definition warning、output status 或 presentation，也不替代项目的 raw facts。
 
@@ -209,7 +209,7 @@ Run callback-local dependency view 只授权当前 Check 的 normalized effectiv
 
 ## Caller-keyed cache boundary
 
-`src/cache/**` 是独立 package-root helper：它只拥有 caller-keyed canonical JSON object 的本地存储 mechanics，不拥有 caller key correctness、payload meaning 或缓存 observation 如何影响 Check/项目行为的 policy。它既不发现项目输入，也不获得 project root、scanner、Check facts、diagnostic logger、output 或 Run lifecycle capability；cache hit 也不跳过 execution 或重放 Check settlement。完整 public contract 由 [API mechanics](api-mechanics.md#caller-keyed-json-cache) 拥有。
+`src/cache/**` 是独立 package-root helper：它只拥有 caller-keyed canonical JSON object 的本地存储 mechanics，不拥有 caller key correctness、payload meaning 或缓存 observation 如何影响 Check/项目行为的 policy。它既不发现项目输入，也不获得 project root、scanner、Check facts、diagnostic logger、output 或 Run lifecycle capability；cache hit 也不跳过 execution 或重放 Check settlement。完整 public contract 由 [API mechanics](../api-mechanics.md#caller-keyed-json-cache) 拥有。
 
 cache directory 是 caller-trusted disposable local state。atomic temporary publication 只保护完整 target，不引入 lock、single-flight、cleanup、remote sharing、tamper resistance 或 secret protection。duplicate detection 的 Check-local raw fragment cache 继续由该 Check 的 scanner/availability owner 解释，不因 standalone helper 而迁移或改变 unavailable mapping。
 
@@ -222,11 +222,11 @@ options type、runtime validation、execution、领域 measurement/finding model
 Check 只在 package-checks 内共享 `blocking | non-blocking` policy、重叠区域合并和 Finding 计数；各 Check 继续拥有阈值、
 scanner protocol、candidate conversion、Record identity/data 与 unavailable vocabulary，Core 不解释这套 Finding policy。
 
-需要项目文件的 Check 将完整 file selection 放在自己的 options 中，并独立调用 `src/package-checks/project-files/**` 的真实共同 collection/exact-membership mechanism；metric Check 也分别拥有自己的 code-area policy。jscpd 与 SCC adapter 分别位于唯一 producing Check 内；`functionMetrics` 的 TypeScript analyzer 同样只由该 Check 拥有，不存在集中 scanner owner 或 Definition registry。external adapter 只接收所属 Check 的 exact accepted files、command options 与必要 Check-owned cache options，在 conversion 前拒绝任何 out-of-set result batch，且不向 Check facts 或 publication 暴露 raw scanner data。SCC 的 CSV parsing 保持 adapter-local；function analyzer 的 reader/token state 也不成为公共或可替换 command protocol。每个 Check 通过自己的 final data 表达 conclusion；只有详细 finding 是补充事实时才报告 Record。具体初始 option 值见对应[随包 Check 指南](navigation.md#随包-check-指南)，file mechanism 见 [Project files and Check exact inputs](scan-scope.md)，private tool 边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
+需要项目文件的 Check 将完整 file selection 放在自己的 options 中，并独立调用 `src/package-checks/project-files/**` 的真实共同 collection/exact-membership mechanism；metric Check 也分别拥有自己的 code-area policy。jscpd 与 SCC adapter 分别位于唯一 producing Check 内；`functionMetrics` 的 TypeScript analyzer 同样只由该 Check 拥有，不存在集中 scanner owner 或 Definition registry。external adapter 只接收所属 Check 的 exact accepted files、command options 与必要 Check-owned cache options，在 conversion 前拒绝任何 out-of-set result batch，且不向 Check facts 或 publication 暴露 raw scanner data。SCC 的 CSV parsing 保持 adapter-local；function analyzer 的 reader/token state 也不成为公共或可替换 command protocol。每个 Check 通过自己的 final data 表达 conclusion；只有详细 finding 是补充事实时才报告 Record。具体初始 option 值见对应[随包 Check 指南](../navigation.md#随包-check-指南)，file mechanism 见 [Project files and Check exact inputs](project-files.md)，private tool 边界见 [Check-owned scanner dependencies](scanner-dependencies.md)。
 
 ## Output and downstream boundary
 
-Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。`diagnostic-logging/**` 只在 Product 已知事实形成处连续追加 invocation-local 人读材料；它显式拥有 `core`、`scheduler` 和只在 learned policy 生效时启用的 `learnedAdmission` 三个 channel。每个 channel 使用 owner-first filename 和同一 invocation suffix；router 在委托 channel 前赋予全局 sequence、monotonic elapsed 和 invocation ID，并分别收敛 setup/write/close failure。它不从 final snapshot 或 process transcript 重建过程，不进入 machine v4，也不向 Check callback 增加 logger。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](output.md)。
+Publication 创建一个 validated machine v4 model，再从它投影 `run.json` 和 `records.ndjson`。v4 Check row 投影 terminal status 及 passed/failed final data；Record row 投影 `{ checkId, id, data }`。aggregation、output status 与人读展示仍留在各自的 Run/consumer boundary。`diagnostic-logging/**` 只在 Product 已知事实形成处连续追加 invocation-local 人读材料；它显式拥有 `core`、`scheduler` 和只在 learned policy 生效时启用的 `learnedAdmission` 三个 channel。每个 channel 使用 owner-first filename 和同一 invocation suffix；router 在委托 channel 前赋予全局 sequence、monotonic elapsed 和 invocation ID，并分别收敛 setup/write/close failure。它不从 final snapshot 或 process transcript 重建过程，不进入 machine v4，也不向 Check callback 增加 logger。每个 package-provided Check 的 parser 只验证自己的 final-data object，不替代 machine complete-set validation。精确 field、complete-set fingerprint 与 atomicity boundary 见 [Output](../output.md)。
 
 Scheduler graph 只在 scheduler channel 记录一次完整 snapshot；随后的 decision 只携带同一 graph fingerprint 和动态 facts，不重复 graph。Scheduler terminal summary 也只是该 channel 的一次性 private observation；它不能成为 public result field、machine field、progress field、warning/autotune input 或可发现/可解析的 telemetry contract。
 

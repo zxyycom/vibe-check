@@ -2,7 +2,7 @@
 
 ## Case FM-ANALYZER-READERS-C-001: TypeScript-style source readers preserve Lizard 1.24 observable metrics
 
-Owner: `docs/scanner-dependencies.md#owner-local-adapters`
+Owner: `docs/development/scanner-dependencies.md#owner-local-adapters`
 Entities:
 
 - `bun|src/package-checks/function-metrics/analyzer/readers/typescript.test.ts|TypeScript reader preserves fixtures, type syntax, decorators, regexes, templates, methods, and arrows`

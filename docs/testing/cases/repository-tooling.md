@@ -2,7 +2,7 @@
 
 ## Case AUX-PACKAGE-CANDIDATE-001: Candidate lifecycle admits only verified local package state
 
-Owner: `docs/script-tooling.md#local-candidate-lifecycle`
+Owner: `docs/tooling/package-lifecycle.md#local-candidate-lifecycle`
 Entities:
 
 - `bun|scripts/package/candidate/candidate.test.ts|package candidate preparation contracts > rejects overlapping package build and cache roots`
@@ -18,7 +18,7 @@ Entities:
 
 ## Case AUX-PACKAGE-ARTIFACT-MATERIAL-001: Artifact audit closes the physical package material
 
-Owner: `docs/script-tooling.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
 Entities:
 
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > packages approved docs and machine materials`
@@ -37,7 +37,7 @@ Entities:
 
 ## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
 
-Owner: `docs/script-tooling.md#translated-source-mapping-maintenance`
+Owner: `docs/tooling/package-lifecycle.md#translated-source-mapping-maintenance`
 Entities:
 
 - `bun|scripts/package/legal-materials/source-mapping.test.ts|source mapping sync derives only the package provenance pin after reviewing curated mappings`
@@ -51,7 +51,7 @@ Entities:
 
 ## Case AUX-PACKAGE-RELEASE-001: Formal release binds one clean source to one portable artifact receipt
 
-Owner: `docs/script-tooling.md#formal-release-preparation-and-receipt`
+Owner: `docs/tooling/package-lifecycle.md#formal-release-preparation-and-receipt`
 Entities:
 
 - `bun|scripts/package/release/release.test.ts|formal package release > accepts only explicit canonical prestable versions and conservative tags`
@@ -67,7 +67,7 @@ Entities:
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable
 
-Owner: `docs/script-tooling.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
 Entities:
 
 - `bun|scripts/package/artifact/esm-module-specifiers.test.ts|emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings`
@@ -78,7 +78,7 @@ Entities:
 
 ## Case AUX-PACKAGE-RUNTIME-SOURCE-MAPS-001: Packaged source maps match their emitted modules
 
-Owner: `docs/script-tooling.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
 Entities:
 
 - `bun|scripts/package/artifact/runtime-source-maps.test.ts|runtime source maps > normalizes and verifies one map against its packaged TypeScript source`
@@ -88,7 +88,7 @@ Entities:
 
 ## Case AUX-PACKAGE-ACCEPTANCE-INPUTS-001: Package acceptance consumes closed provider material
 
-Owner: `docs/script-tooling.md#prepared-candidate-data`
+Owner: `docs/tooling/project-gate.md#prepared-candidate-data`
 Entities:
 
 - `bun|scripts/package/artifact/acceptance-input.test.ts|accepts provider-owned artifact staging material`
@@ -104,7 +104,7 @@ Entities:
 
 ## Case AUX-PACKAGE-EXTERNAL-CONSUMER-001: An external consumer runs the installed candidate without ancestry fallback
 
-Owner: `docs/script-tooling.md#prepared-candidate-data`
+Owner: `docs/tooling/project-gate.md#prepared-candidate-data`
 Entities:
 
 - `bun|scripts/package/candidate/external-consumer/runtime.test.ts|external consumer runtime acceptance`
@@ -114,7 +114,7 @@ Entities:
 
 ## Case AUX-PACKAGE-API-DOCUMENTATION-001: Package API documentation projections stay executable and exact
 
-Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
 Entities:
 
 - `bun|scripts/docs/package-api/command.test.ts|package API documentation CLI > writes expected projections and detects stale output through --check`
@@ -122,23 +122,23 @@ Entities:
 - `bun|scripts/docs/package-api/render.test.ts|package API documentation renderer > replaces generated JSDoc tails and rejects malformed source or Markdown example targets`
   Proves:
 
-- The renderer projects each allowlisted TypeScript payload byte-for-byte into the unique TypeScript fence under its declared natural heading path, or into a source JSDoc target. Published Markdown keeps headings, surrounding prose and ordinary links without projection comments.
+- The renderer projects each allowlisted TypeScript payload byte-for-byte into the unique TypeScript fence under its declared natural heading path, or into a source JSDoc target. Its explicit published API-document registry keeps README as the sole entry and closes the current deeper task guides without treating arbitrary Markdown as package material. Published Markdown keeps headings, surrounding prose and ordinary links without projection comments.
 - The registry and renderer reject duplicate source/region/target identities, unsafe JSDoc tails, malformed heading paths, missing or duplicate heading targets, ambiguous or unclosed example fences, and package example projection markers. Heading paths follow authored ancestry even when heading levels skip; removing a JSDoc target clears its obsolete managed tail.
 - Write mode updates only projected Markdown fences and JSDoc tails. Check mode writes nothing and fails when a checked-in projection is stale.
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 
-Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
 Entities:
 
 - `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
   Proves:
 
-- The ancestry-external installation carries the exact checked-in published-path README, API mechanics guide, hand-written Check guides, machine output guide, current v4 schemas, and the mixed-outcomes Definition/output example. One consumer-owned Bun runner executes every projected runtime example in deterministic order and then the installed Definition against that exact candidate, retaining source identity on import failure. The Definition runs the documented package-provided and custom `observes` workflow, publishes its configured machine output, and forms the documented four outcome states, three RunResult messages and two Records.
+- The ancestry-external installation carries the exact checked-in published-path README, every explicitly registered API guide, hand-written Check guides, machine output guide, current v4 schemas, and the mixed-outcomes Definition/output example. One consumer-owned Bun runner executes every projected runtime example in deterministic order and then the installed Definition against that exact candidate, retaining source identity on import failure. The Definition runs the documented package-provided and custom `observes` workflow, publishes its configured machine output, and forms the documented four outcome states, three RunResult messages and two Records.
 
 ## Case AUX-PACKAGE-CHECK-GUIDES-001: Package Check guides close the package-provided ordinary Check inventory
 
-Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
 Entities:
 
 - `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > requires one README-linked guide for every package-provided Check function`
@@ -150,7 +150,7 @@ Entities:
 
 ## Case AUX-PACKAGE-DEPENDENCY-VERSIONS-001: Candidate dependency requirements validate actual resolutions
 
-Owner: `docs/script-tooling.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
 Entities:
 
 - `bun|scripts/package/dependency-version.test.ts|package dependency versions satisfy only their declared requirement`
@@ -160,7 +160,7 @@ Entities:
 
 ## Case AUX-DOCS-VALIDATION-CLI-001: Root validation preserves default and focused docs selection
 
-Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
 Entities:
 
 - `bun|scripts/validation/workspace.test.ts|root validate CLI runs every docs task by default`
@@ -171,7 +171,7 @@ Entities:
 
 ## Case AUX-DOCS-VALIDATION-REPORTING-001: In-process docs validation keeps output reporter-owned
 
-Owner: `docs/script-tooling.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
 Entities:
 
 - `bun|scripts/validation/documentation/workflow.test.ts|docs validation library reports success only through an explicit reporter`
@@ -186,7 +186,7 @@ Entities:
 
 ## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
 
-Owner: `docs/coding-style.md#2-owner-与实现归属先行`
+Owner: `docs/development/coding-style.md#2-owner-与实现归属先行`
 Entities:
 
 - `bun|scripts/validation/layout-characterization.test.ts|characterizes repository layout and dependency boundaries`
@@ -197,7 +197,7 @@ Entities:
 
 ## Case AUX-DEVELOPMENT-QUALITY-TARGETS-001: Development quality commands exclude only generated analyzer oracle fixtures
 
-Owner: `docs/script-tooling.md#development-tooling`
+Owner: `docs/tooling/workspace.md#development-tooling`
 Entities:
 
 - `bun|scripts/development/quality-targets.test.ts|development quality target boundaries > excludes only generated function-analyzer oracle fixtures from product lint and format`
@@ -206,7 +206,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root`
@@ -234,7 +234,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate 将 Product owner outputs 放入 invocation namespaces
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/runtime/bound-run.test.ts|binds owner-specific Product outputs and Check artifacts to the Gate invocation directory`
@@ -244,7 +244,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-TRANSCRIPT-001: Project Gate 保存并闭合外层运行过程
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/runtime/transcript.test.ts|Project Gate transcript > records only Gate-owned messages and final facts without patching terminal writers`
@@ -258,7 +258,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-AUTHORING-001: Project Gate 区分 native 与真实 process evidence
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/checks/process/native-operation.test.ts|Project Gate native operation > keeps native Check outcomes transcript-free`
@@ -276,7 +276,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > publishes closed success data only after a settled transcript`
@@ -308,7 +308,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-PREPARED-CANDIDATE-001: Gate 将已准备 candidate 保留为 typed fact
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/checks/prepared-candidate.test.ts|prepared package candidate Check > publishes versioned typed candidate data and rejects malformed dependency facts`
@@ -320,7 +320,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-ADAPTER-001: Project Gate 只闭合已准备的完整 invocation
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > returns help before candidate or log work`
@@ -338,7 +338,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-POST-PROCESSING-001: Project Gate 后处理只产出一个最终结果
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/runtime/bound-run.test.ts|projects the central afterGate configuration with candidate-bound run`
@@ -353,7 +353,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 性能观察保持 advisory
 
-Owner: `docs/script-tooling.md#project-gate`
+Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance observation > emits elapsed observations and preserves Gate status across comparable advisory outcomes`
@@ -366,7 +366,7 @@ Entities:
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 
-Owner: `docs/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
 - `bun|src/project-run/task-scheduler/task-engine.static-validation.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
@@ -404,7 +404,7 @@ Entities:
 
 ## Case AUX-SCRIPT-BOUNDARIES-001: Repository 与 process capability 的边界稳定
 
-Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
+Owner: `docs/tooling/workspace.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
 - `bun|scripts/process-execution/process.test.ts|detects failed process results`
@@ -418,7 +418,7 @@ Entities:
 
 ## Case AUX-WORKSPACE-PROCESS-001: Process execution 保持纯文本捕获边界
 
-Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
+Owner: `docs/tooling/workspace.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
 - `bun|scripts/process-execution/process.test.ts|runs child processes with plain text output environment`
@@ -428,7 +428,7 @@ Entities:
 
 ## Case AUX-WORKSPACE-PROCESS-CANCELLATION-001: Process execution 保留 caller cancellation 事实
 
-Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
+Owner: `docs/tooling/workspace.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
 - `bun|scripts/process-execution/process.test.ts|cancels an already-started child process`
@@ -438,7 +438,7 @@ Entities:
 
 ## Case AUX-WORKSPACE-PROCESS-TIMEOUT-001: Process execution 保留 timeout 事实
 
-Owner: `docs/script-tooling.md#process-repository-file-and-narrow-boundary-capabilities`
+Owner: `docs/tooling/workspace.md#process-repository-file-and-narrow-boundary-capabilities`
 Entities:
 
 - `bun|scripts/process-execution/process.test.ts|times out an already-started child process`
@@ -448,7 +448,7 @@ Entities:
 
 ## Case AUX-LIZARD-UPSTREAM-ADVISORY-001: Lizard upstream 查询保持显式、受限且非阻断
 
-Owner: `docs/maintenance-lizard-upstream-advisory.md#transport-and-result`
+Owner: `docs/tooling/lizard-upstream.md#transport-and-result`
 Entities:
 
 - `bun|scripts/maintenance/lizard-upstream-advisory.test.ts|Lizard upstream advisory reports the pinned 1.24 baseline as current without ambient credentials`
@@ -462,7 +462,7 @@ Entities:
 
 ## Case AUX-LIZARD-PERFORMANCE-EVIDENCE-001: Opt-in Lizard comparison keeps equality and statistical interpretation explicit
 
-Owner: `docs/script-tooling.md#development-tooling`
+Owner: `docs/tooling/workspace.md#development-tooling`
 Entities:
 
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > requires an explicit bounded developer invocation`
@@ -472,7 +472,7 @@ Entities:
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > selects counted-operation wall only for warmed statistics and gives both B sides one warmup flag`
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > blocks statistical sampling on counted output drift and refuses non-Linux supervisor semantics`
 - `bun|scripts/development/lizard-performance/command.test.ts|labels Linux wait4 resource scope without relabeling max RSS as tree aggregate`
-Proves:
+  Proves:
 
 - Developer comparison selection is explicit, bounded and developer-only; fixed Lizard executable/source inputs require host-absolute paths while the output path may remain caller-relative. Unknown CLI names, including inherited object-property names, fail closed rather than selecting a layer, an ambient language condition or a Gate path. The workflow cannot become a Product/package surface or authorize a performance optimization. Child-result and workload-manifest failures identify the invalid metric index or manifest field without accepting a partial evidence shape.
 - Fixed-Lizard analyzer comparison canonicalizes the Product-consumed metric fields before equality with stable slash-path and field ordering. When a location-number subtraction is non-finite, the comparator falls through to the later text key, preserving deterministic ordering rather than inventing a numeric result.

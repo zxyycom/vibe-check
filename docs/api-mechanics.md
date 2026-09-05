@@ -2,6 +2,12 @@
 
 本文说明 package 的通用 invocation lifecycle：自定义 Check 如何经过 Definition validation、options preflight、execution 与 settlement，以及一次 Run 如何形成 dependency data、aggregation、outputs 和可判别结果。首次集成先阅读[package README](../README.md)；随包 Check 的 options、业务效果和安全边界由各自指南说明；单个 public 字段与函数签名以 installed declarations 为准。
 
+## 按任务阅读
+
+- 需要定义项目规则、选择 `preflight` / `execution`、读取 callback context、处理依赖或取消时，阅读[编写会正确结算的自定义 Check](guides/extending-check-lifecycle.md)。
+- 需要为多个 Check 定义选择偏好、比较假设分支、使用 prepared strategy 或 learned history 时，阅读[按项目约束调度 Check](guides/scheduling.md)。
+- 本页解释这些公开能力在一次 Run 中怎样衔接，以及 dependency data、aggregation 与 outputs 的共同结果模型；它不替代两份按任务编写的指南。
+
 ## 一次 Run 的生命周期
 
 以下顺序描述责任与数据流；箭头表示当前阶段成功形成下一阶段的输入：
@@ -12,10 +18,9 @@
     Project Definition
       │ run: validate Definition + RunControls, then normalize the Check tree
       ▼
-    declarative snapshot + fingerprint + complete static graph validation
-      │ if not cancelled before execution: private effective strategy prepares once
-      │   (duration prediction + frozen selection policy when learned)
-      │ invocation control barrier: cancellation + one private effective flag selection
+    validated Definition + complete static graph
+      │ before execution: apply cancellation and flag selection
+      │ prepared admission strategy readies one Run-local decision function when configured
       ▼
     initial control settlements + complete static Task graph
       │ Scheduler applies direct relations, mutex and parallel scheduling
@@ -31,13 +36,21 @@
       ▼
     RunResult
 
-Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，再处理 invocation cancellation precedence。graph 有效时，flag control 从同一次 private effective selection 结算：direct selection 包含无 flag Check 与 predicate-matching flag Check；只有 matching root author 以 literal `propagateDependsOn: true` opt-in 时，才额外加入其 normalized `dependsOn` 传递闭包，省略字段仍保持 direct-selection compatibility。closure 不访问 `observes`，并覆盖 dependency 自身 predicate miss；因此 dependency-activated Check 不会结算为 flag disabled。effective selection 外的 predicate miss 才先结算为 `not-applicable / flag-condition-not-matched`，并作为同一张 Scheduler graph 的 pre-admission non-passed Task result；它不会再次 admission，其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。其余 Check 被 Scheduler admission 后在自己的 task 中执行 preflight，随后才执行 author callback；没有互相约束的 preflight 可以并行。Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。flags 只是 selection input，不是权限或环境准入；hard condition 仍由 Check-owned preflight/execution 结算。
+### Selection 与 Scheduler readiness
 
-这里的 private strategy lifecycle 不能扩大 public authoring contract：Invocation 在 graph ready 后对 effective strategy 调用一次
-`prepare`，Scheduler 只接收其完整 frozen policy 并同步 `decide` 零次或多次；Scheduler 停止 admission、drain、seal terminal
-measurement 并完成既有 Hooks 后，只有 resolved execution 返回 terminal context，Invocation 才调用一次 `complete`。normal、
-cancelled 和 admission-policy-failed Run 只要返回该 context 都遵循这个顺序；pre-terminal task-engine failure 不调用
-`complete`。`complete` 的数据只能成为后续 Run 的 preparation input，不能回流到同一 Run 的 decision。
+Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，再处理 invocation cancellation precedence。graph 有效时，flag control 从同一次 private effective selection 结算：direct selection 包含无 flag Check 与 predicate-matching flag Check；只有 matching root author 以 literal `propagateDependsOn: true` opt-in 时，才额外加入其 normalized `dependsOn` 传递闭包，省略字段仍保持 direct-selection compatibility。closure 不访问 `observes`，并覆盖 dependency 自身 predicate miss；因此 dependency-activated Check 不会结算为 flag disabled。
+
+effective selection 外的 predicate miss 才先结算为 `not-applicable / flag-condition-not-matched`，并作为同一张 Scheduler graph 的 pre-admission non-passed Task result；它不会再次 admission，其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。flags 只是 selection input，不是权限或环境准入；hard condition 仍由 Check-owned preflight/execution 结算。
+
+### Task-local preflight 与 execution
+
+其余 Check 被 Scheduler 在 direct relation、mutex 与 capacity 允许后 admission，并在自己的 task 中执行 preflight，随后才执行 author callback。没有互相约束的 preflight 可以并行；它们不构成 Definition 顺序的全局 barrier。
+
+### Terminal snapshot、aggregation 与 outputs
+
+Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
+
+对 prepared custom strategy 而言，graph ready 后 `prepare` 每次 Run 最多形成一个 Run-local `decide`；Scheduler 可以同步调用它零次或多次。Scheduler 结束 admission、等待已启动工作并形成 terminal measurement 后，先交付 generic `measurementHooks`，再在存在 terminal context 时调用可选 `complete`。不能形成 terminal measurement 的早期执行失败不会调用 `complete`；`complete` 只能处理终态观察，不能回写同一 Run 的选择或 Check 结果。实际 authoring 见[调度专题](guides/scheduling.md#已准备的-custom-strategy)。
 
 ## Definition 与 invocation 的责任
 
@@ -50,106 +63,15 @@ fingerprint 使用 normalized declarative fields；preflight、execution 与 cus
 
 ### custom admission policy
 
-`scheduler.admissionPolicy` 省略时与 `{ kind: "static" }` 相同。custom 只有两种 exact authoring form：
-
-- `{ kind: "custom", strategy: { kind: "simple", decide(context) } }`：每个 admission cycle 直接使用同步 `decide`；
-- `{ kind: "custom", strategy: { kind: "prepared", prepare({ graph }) } }`：每个 graph-ready Run async-capable
-  `prepare` 一次，并返回该 Run 的 `{ decide, complete? }`。
-
-simple 的 `decide` 和 prepared 返回对象的 `decide` 都必须同步返回精确
-`{ kind: "select", taskId }` 或 `{ kind: "wait" }`。`defineAdmissionPolicy(...)` 只改善这些 literal 的 TypeScript
-inference，inline object 与 helper 的运行语义完全相同。declarative snapshot/fingerprint 记录 custom 的 strategy kind，
-但不记录 callback identity、source 或 closure。Compatibility hard cut 只接受这两种 form：retired
-`proposeAdmission`、unknown authoring fields 和 thenable `decide` 都不构成合法 authoring。
-
-Invocation 在静态图 ready 且未于 pre-work/planning 取消后，解析该 Run 的 custom strategy。simple 立即形成 Run-local
-selection closure；prepared 恰好调用一次 `prepare(Object.freeze({ graph }))`，其 return 或 resolved exact
-`{ decide, complete? }` 也只属于该 Run。重叠 Runs 不共享 returned object 或 closure。成功准备后，Scheduler 只接收 frozen
-synchronous `decide`；有 sealed terminal context 时，Invocation 在 generic terminal Hooks 返回后至多一次交付 optional
-`complete`。
-
-每次实际 decide 都收到独立、deep-frozen 的 `AdmissionPolicyContext`：`graph` 以 canonical arrays 提供完整 normalized tasks、
-scopes 及每个 Task 的 relation arrays，Task metadata 是 topology 和 `admissionPriority` 的唯一来源；该
-`SchedulerGraphSnapshot` 在 invocation 内一次冻结并由所有 decision context 共享。dynamic facts 提供 relation/mutex
-candidates 的 `{ taskId, canAdmit }`、capacity、running/settled/active-scope IDs、最小 cancellation runtime 状态以及
-决策边界 measurement。完整 Scheduler state、Check data、Records、messages 与 Task control 保持在 Product owner 内。
-
-callback 是调用方 trusted host code。调用方 closure 保有自己的 host capability；Vibe Check 只提供 frozen context 和
-result-only handoff，不把 private Scheduler inspection 或真实 Task command 变成 custom strategy API。Scheduler 在 callback 后独占
-readiness、mutex、capacity、cancellation、Task start/await/settlement，以及 selected Task 仍 pending、属于本轮 candidate 和
-`wait` 可 drain 的验证。
-
-custom callback 在每次**实际**调用前获得 shared graph 和已 flush 的 `measurement`。`cumulative` 投影 bounded
-scalar/discrete/peak facts，完整 per-Task table 只属于 terminal raw measurement；`measurementCount` 与
-`measurementAt(index)` 是 context 创建时捕获 end-count 的 synchronous reader。available timing 才包含数值 contribution；
-合法 zero span 仍是 available，而 clock/integral fault 形成 unavailable timing。该 observation 描述 action 后 state，
-不把时段解释为 action causality、critical path 或 CPU 归因。
+`scheduler.admissionPolicy` 省略时使用 `{ kind: "static" }`。custom policy 的 `simple` 与 `prepared` form、`decide` 可读事实、proposal 限制、失败和 cancellation 边界，见[按项目约束调度 Check](guides/scheduling.md#自定义准入-policy)。这里保留共同 lifecycle 关系：policy 只能提出选择，Scheduler 仍拥有 relation、mutex、容量、取消、Task 启动和结算的 guard。
 
 ### AdmissionGraph simulation
 
-`createAdmissionGraph({ graph, maxParallel })` exact-validates its input record, validates the supplied
-`SchedulerGraphSnapshot` and positive safe-integer root cap, then compiles one private graph for the returned `AdmissionGraph`
-handle. `initialState()` creates an immutable standalone seed; each actual custom callback receives the same `AdmissionState`
-contract as its live `context.admissionState` seed.
-
-state 的 `catalog` 将所有 pending Task 按 Unicode `taskId` 顺序分为 selectable IDs 或一个 primary rejection；`inspection` 同样
-使用 canonical order。`validateSelection` 不构造 catalog，且与 `select` 使用相同 precedence：complete、unknown、not-pending、
-depends-on-pending、observes-pending、mutex-held、scope-capacity-reached、root-capacity-reached。`settle` 先拒绝非二值 outcome，
-再检查 complete、unknown 和 non-running。
-
-accepted `select` 只产生 hypothetical running successor；binary `settle` 释放其 mutex/capacity，并把 direct unsatisfied
-dependent 以 private forced-block microsteps 结算到下一 public boundary。`completed` 是 satisfied，现有
-`prerequisite-unsatisfied` 与 `failed` 是 unsatisfied；private blocked/cancelled settlements 不进入 public settled list。
-scope 在 activation Task 开始后 active，并在 terminal Task 结算后 closed。所有 handles、results 与 DTO 都 frozen；state
-没有 constructor、serialization、cancel/effect/executor action 或 mutable storage。
-
-live seed 的 branch 从不 reservation 或启动真实 Task；callback 仍只能返回原有 exact proposal，Scheduler 在返回后重新执行
-lifecycle、candidate、capacity 与 cancellation hard guard。static/custom/learned path 未读取 `admissionState` 时不构造 public
-catalog/search projection；private compiled graph、parent+delta node、reducer/effects 和 real shell 共同承接 transition，
-Task/Promise/signal/diagnostic/measurement/RunResult 仍只属于 real shell。
-
-| 触发点 | owner 与处理 | 对调用方可见的结果 |
-| --- | --- | --- |
-| prepared `prepare` throw/reject 或不能形成 exact closure | Invocation 在 Scheduler start 前结束该 Run。 | `kind: "execution"` / `admission-strategy-preparation-failed`；没有 complete delivery。`outputs.measurementHooks` 仍只由 configured generic Hooks 决定是 disabled 或 enabled/`not-run`。 |
-| `decide` throw、thenable、malformed proposal、illegal `select` 或 undrainable `wait` | Scheduler 停止新 admission、取消 pending，并 drain 已启动 Task。 | `kind: "execution"` / `admission-policy-failed`；若 drain seal 出 context，prepared `complete` 仍在 generic Hooks 后交付。 |
-| pre-terminal task-engine failure | task engine 形成 primary execution result。 | 没有 sealed context 或 complete delivery；已 enabled 的 measurement output 保持 `not-run`。 |
-| generic Hook 或 public `complete` throw/reject | Scheduler 让余下 generic Hooks 获得调用机会；Invocation 汇总 terminal participant settlement。 | `outputs.measurementHooks.status` 为 `failed`；正常 completed Run 映射为保留 sealed facts 的 `kind: "output"` / `scheduler-measurement-hooks-failed`，已有 primary outcome 不被覆盖。 |
+`createAdmissionGraph(...)` 是独立静态图的 immutable hypothetical simulation，不运行或控制真实 Check。如何建立分支、读取 successor 以及它不包含什么，见[调度专题的 AdmissionGraph](guides/scheduling.md#模拟-admissiongraph)。真实 Run 的 callback 仍只提交 proposal，随后由 Scheduler 重检 guard。
 
 ### learned-critical-path 准入
 
-`scheduler.admissionPolicy: { kind: "learned-critical-path", stateDirectory }` 是无 callback 的 opt-in local optimization。
-每次 Run 在完整 static graph 就绪后，由 invocation 的 private effective strategy 一次 prepare：duration model 读取 local
-history 并形成 immutable prediction，pure critical-path algorithm 形成 frozen Scheduler-facing `select|wait` policy。Scheduler
-只消费该 private policy；它不接触 prepare/complete，调用方也不获得 lifecycle、provider 或 model API。正常、取消和
-admission-policy-failed Run 若形成 terminal measurement context，会先完成既有 terminal Hook delivery，再由 invocation 一次
-complete；该 commit 只为后续 Run prepare 提供输入，不能修改同一 Run 已经作出的 selection。
-
-`stateDirectory` 必须是非空、无 U+0000 string；relative text 从 effective `projectRoot` 解析，absolute text 直接作为
-caller target。它是 Definition declarative identity，因此同目录的 State policy 与其它目录不能共享 fingerprint；它不是
-RunControls、output、remote store、sandbox、锁、清理或 secret-management capability。v1 不接受 `expectedDurationMs` 或其它
-Check-level duration grammar。
-
-在 author preflight/execution 前，Product 从该目录尝试读取一个 closed history envelope；不存在、malformed、版本不兼容或
-read failure 都只得到空 history，仍按 learned policy 的 cold/project prior 继续。每个 executable Task 的 identity 是 model version、Check ID、canonical authored options
-和 normalized effective flags 的 digest，state 只保存 digest 而不保存原 values。当前 implementation 对同 identity 使用最多
-32 个 admitted-to-settled duration samples 的 arithmetic mean 作为 `estimatedDurationMs`；同一有序窗口的 nearest-rank `p90`
-与 sample count 是当前内部 prediction statistics，但不参与 score。没有该 identity 时使用本次 Run 已知 estimates 的 median，若仍没有 prior 则
-用 cold `1`。它最多保留最近更新的 4096 identities。该 envelope、上限、statistics 和 heuristic 是当前实现描述，非跨版本
-storage/model compatibility promise，也不承诺跨版本、环境或 Run 得到相同顺序或性能结果。
-
-Product 用 frozen estimates 在完整 static graph 的 `dependsOn` 与 `observes` directed edges 上计算 score；pure Scheduler
-仍按现有 tightening、constrained-continuation 和 ordinary candidate layers运行，只在同一 layer 内按 score 降序选择。只有
-score 相同时才比较 existing effective `admissionPriority`，再按 canonical Task ID；relation、mutex、capacity、cancellation、
-Task start、settlement 和 drain hard guard 完全不变。history、estimate 和 score 不进入 custom callback context、Check
-context、Check/Record facts、machine output、progress 或 public `RunResult`。
-
-在 Scheduler 已停止 admission、完成 started work drain、seal terminal measurement 并交付既有 terminal Hooks 后，Product 才从
-private terminal occupancy measurement 记录可用 duration sample，随后以 same-directory temporary file / atomic replacement 尝试写回。unavailable timing 不产生 sample。failure 的
-分流按阶段固定：上述 history read 的空/无效结果仍形成 learned cold/project-prior prediction；无法形成 canonical prediction input，
-或 local setup、prediction 或 score-table construction 失败时，该 invocation 的 selection 回退为 static；Scheduler drain 后的
-record/write failure 只会丢失未来 Run 可用的优化样本。三类情况都只在启用 diagnostic logging 时形成有界 human diagnostic，不会改变
-invocation 的 quality result、`RunResult.kind`、output schema 或 machine bytes。本能力没有 parser、schema、event-stream、
-retention/discovery API 或 auto-tuning contract。
+`learned-critical-path` 是 opt-in、caller-owned local state 的选择优化；它不改变依赖、mutex、并行预算或取消规则，也不把 history 写入 Check facts、machine output 或 `RunResult`。目录责任、cold fallback 与不保证的范围见[调度专题](guides/scheduling.md#learned-critical-path-准入-policy)。
 
 ## options preflight 与 execution
 
@@ -163,7 +85,7 @@ preflight 返回以下三种 closed result 之一：
 | `{ status: "failure", action: "block", reason, messages? }`              | owning Check 以 `unavailable` 结算。    |
 | `{ status: "failure", action: "continue", reason, fallback, messages? }` | 使用 `fallback` 进入 execution。        |
 
-Run 先验证完整 static task graph并完成 invocation flag control；Scheduler 在 direct relation、mutex 与 capacity 允许后 admission 单个未结算 Check，并在该 Check 的 author callback 前执行其 task-local preflight。互不约束的 preflight 可以并行，不形成按 Definition 顺序的全局 preflight barrier。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`；其 `dependsOn` dependent 因此不会开始 author work。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。`enabledByFlags` 的公开 authoring grammar 见 [README 的 Check 定义](../README.md#定义-check)。
+Run 先验证完整 static task graph并完成 invocation flag control；Scheduler 在 direct relation、mutex 与 capacity 允许后 admission 单个未结算 Check，并在该 Check 的 author callback 前执行其 task-local preflight。互不约束的 preflight 可以并行，不形成按 Definition 顺序的全局 preflight barrier。preflight throw、malformed result 或 noncanonical prepared value 把 owning Check 结算为 `unavailable`；其 `dependsOn` dependent 因此不会开始 author work。prepared options 与 fallback 都会成为 detached、deep-frozen 的 invocation-local value；preflight messages 与后续 terminal outcome 共同呈现 preparation 结果。`enabledByFlags` 的公开 authoring grammar 见[按 flag 选择 Check](guides/extending-check-lifecycle.md#按-flag-选择-check)。
 
 Package root 的 `defaultProjectFileSelection` 只是 file-selecting constructor 共用的可组合、深冻结 baseline；spread 该
 value 不会建立跨 Check global config。部分 constructor 原样物化它，具有更窄文件类型能力的 constructor 从相同
@@ -204,8 +126,9 @@ method descriptors。每个 awaited preflight/execution 只建立独立 async ca
   继承受管 terminal stream。console capture 不进入 final data、Records、Check facts 或 machine output，也不替代可持久
   诊断材料。
 
-`diagnosticLogging` 默认关闭；调用方显式启用后，`check.finished` diagnostic 会像其它 settled messages 一样包含 captured
-console 内容。因此 console 不应写入 secret；只需要内存 readback 时保持 diagnostic logging disabled。
+`diagnosticLogging` 默认关闭；调用方显式启用后，`check.finished` diagnostic 只保留有界的 phase、duration 和
+message count，不复制 captured console message text 或 final data。console 文本仍会成为 Check messages，可能出现在 progress
+和 `RunResult.checkMessages`；因此不要向 console 写入 secret，关闭 diagnostic logging 也不构成安全输出边界。
 
 需要稳定补充说明时仍优先在 terminal result 返回结构化 `messages`；console capture 是对常见 author logging 的安全
 兼容边界，不是新的 live observer 或 Check logger API。在 `run(...)` 返回后由调用方打印汇总不受 running region 约束。

@@ -2,7 +2,7 @@
 
 ## Case AUX-QUALITY-FINGERPRINT-001: Quality input fingerprint 稳定
 
-Owner: `docs/scan-scope.md#exact-input-fingerprint`
+Owner: `docs/development/project-files.md#exact-input-fingerprint`
 Entities:
 
 - `bun|src/package-checks/project-files/file-fingerprint.test.ts|quality input fingerprints > uses stable SHA-256 fingerprints for sorted file content`
@@ -12,7 +12,7 @@ Entities:
 
 ## Case WB-SCOPE-GIT-CANDIDATES-001: Git worktree candidate identity 与 config glob 语义稳定
 
-Owner: `docs/scan-scope.md#file-collection-mechanism`
+Owner: `docs/development/project-files.md#file-collection-mechanism`
 Entities:
 
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
@@ -28,7 +28,7 @@ Entities:
 
 ## Case WB-SCOPE-FILE-COLLECTION-001: Product explicit file sources 与 named selections 稳定
 
-Owner: `docs/scan-scope.md#file-collection-mechanism`
+Owner: `docs/development/project-files.md#file-collection-mechanism`
 Entities:
 
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > enumerates the filesystem independently of Git ignore rules`
@@ -45,7 +45,7 @@ Entities:
 
 ## Case ADD-FUNCTION-METRICS-LIZARD-SCOPE-001: Function metrics selects exactly translated analyzer inputs
 
-Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
+Owner: `docs/development/project-files.md#package-provided-check-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/function-metrics/target-files.test.ts|functionMetrics analyzer target files > selects every adapter-provided extension case-insensitively and excludes unsupported paths`
@@ -59,7 +59,7 @@ Proves:
 
 ## Case ADD-JSON-VALIDATION-SCOPE-001: JSON eligibility is an exact subset of its Check-owned file selection
 
-Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
+Owner: `docs/development/project-files.md#package-provided-check-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/json-validation/json-validation.test.ts|JSON validation default Check > reports selected non-JSON paths and returns exact mixed final counts`
@@ -74,7 +74,7 @@ Proves:
 
 ## Case ADD-JSON-SCHEMA-VALIDATION-SCOPE-001: Registered Schema inputs remain an exact declared subset
 
-Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
+Owner: `docs/development/project-files.md#package-provided-check-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/json-schema-validation/json-schema-validation.identity-and-scope.test.ts|JSON Schema validation default Check > reports scope/document failures, blocks dependent bindings, and leaves zero bindings not applicable`
@@ -85,7 +85,7 @@ Proves:
 
 ## Case AUX-MARKDOWN-LINK-PARSER-001: Markdown Link parser produces closed source facts
 
-Owner: `docs/scan-scope.md#markdown-link-source-occurrences`
+Owner: `docs/development/project-files.md#markdown-link-source-occurrences`
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > collects GFM inline, image, reference, and autolink occurrences`
@@ -104,7 +104,7 @@ Entities:
 
 ## Case AUX-MARKDOWN-LINK-TARGET-001: Markdown Link resolves only bounded direct local targets
 
-Owner: `docs/scan-scope.md#markdown-link-direct-targets`
+Owner: `docs/development/project-files.md#markdown-link-direct-targets`
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > reads only root-contained sources and returns their Link parser facts`
@@ -120,7 +120,7 @@ Entities:
 
 ## Case ADD-SECRET-DETECTION-SCOPE-001: Secret detection retains only exact bounded text coverage
 
-Owner: `docs/scan-scope.md#package-provided-check-exact-inputs`
+Owner: `docs/development/project-files.md#package-provided-check-exact-inputs`
 Entities:
 
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > uses only exact approved files and projects findings without canary material`
@@ -130,6 +130,7 @@ Entities:
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > uses a no-follow descriptor so an exact root-escaping symlink is unavailable without Records`
 
 Proves:
+
 - Secret detection reads and detects only its explicit selected paths; excluded paths are never rediscovered or reported.
 - NUL, invalid UTF-8, and bounded resource gaps remain explicit failed coverage facts rather than clean or waived inputs.
 - Every successfully read raw byte, including a later non-text gap, consumes the total byte budget; file-count and remaining-total exhaustion stop detector work with explicit coverage facts.

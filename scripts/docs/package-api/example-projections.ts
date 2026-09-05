@@ -28,7 +28,7 @@ export interface PackageApiExampleProjection {
   readonly title: string;
 }
 
-/** The README plus the only allowed deeper package API guide. */
+/** Explicitly published API-document inventory; this is not a general Markdown traversal. */
 export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
   Object.freeze({
     id: "readme",
@@ -37,6 +37,14 @@ export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
   Object.freeze({
     id: "api-mechanics",
     packagePath: "docs/api-mechanics.md"
+  }),
+  Object.freeze({
+    id: "extending-check-lifecycle",
+    packagePath: "docs/guides/extending-check-lifecycle.md"
+  }),
+  Object.freeze({
+    id: "scheduling",
+    packagePath: "docs/guides/scheduling.md"
   })
 ] satisfies readonly PackageApiMarkdownDocument[]);
 
@@ -90,6 +98,11 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/custom-check.ts",
     targets: Object.freeze([
       Object.freeze({
+        documentId: "extending-check-lifecycle",
+        headingPath: Object.freeze(["定义 Check"]),
+        kind: "markdown"
+      }),
+      Object.freeze({
         declarationName: "defineCheck",
         kind: "jsdoc",
         sourcePath: "src/check/check.ts"
@@ -104,8 +117,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/custom-admission-policy.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "readme",
-        headingPath: Object.freeze(["自定义 Check API", "自定义准入 policy"]),
+        documentId: "scheduling",
+        headingPath: Object.freeze(["自定义准入 policy"]),
         kind: "markdown"
       })
     ]),
@@ -118,8 +131,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/admission-graph.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "readme",
-        headingPath: Object.freeze(["自定义 Check API", "模拟 AdmissionGraph"]),
+        documentId: "scheduling",
+        headingPath: Object.freeze(["模拟 AdmissionGraph"]),
         kind: "markdown"
       })
     ]),
@@ -132,8 +145,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/prepared-custom-admission-policy.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "readme",
-        headingPath: Object.freeze(["自定义 Check API", "已准备的 custom strategy"]),
+        documentId: "scheduling",
+        headingPath: Object.freeze(["已准备的 custom strategy"]),
         kind: "markdown"
       })
     ]),
@@ -146,8 +159,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/learned-critical-path.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "readme",
-        headingPath: Object.freeze(["自定义 Check API", "learned-critical-path 准入 policy"]),
+        documentId: "scheduling",
+        headingPath: Object.freeze(["learned-critical-path 准入 policy"]),
         kind: "markdown"
       })
     ]),

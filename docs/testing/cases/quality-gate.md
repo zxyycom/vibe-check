@@ -2,7 +2,7 @@
 
 ## Case WB-EXPLICIT-AGGREGATION-001: Repository Gate binds eligibility to package aggregation
 
-Owner: `docs/quality-metrics.md#explicit-aggregation-and-repository-gate-mapping`
+Owner: `docs/development/check-results.md#explicit-aggregation-and-repository-gate-mapping`
 Entities:
 
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection`
