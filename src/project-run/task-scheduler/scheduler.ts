@@ -5,8 +5,6 @@ import {
   type SchedulerDecision,
   type SchedulerTrigger
 } from "./scheduler-decision.ts";
-import { decisionContext } from "./scheduler-decision-inspection.ts";
-import { freezeDecision } from "./scheduler-decision-model.ts";
 import {
   createSchedulerState,
   snapshotSchedulerState,
@@ -22,6 +20,7 @@ export type {
   TaskSettlement
 } from "./execution-state.ts";
 import { AdmissionPolicyFault } from "./scheduler-admission-decision.ts";
+import { replayCoreForcedBlocks } from "./forced-block-effect-replay.ts";
 import { SchedulerPerformanceDiagnostics } from "./scheduler-performance-diagnostics.ts";
 import {
   observeAdmissionPolicyFault,
@@ -35,7 +34,6 @@ import {
   applyAdmissionPolicyFault,
   applyBlockedSettlement,
   applyCancellation,
-  applyForcedBlockedSettlement,
   buildTaskGraphRun,
   nextRunningSettlement,
   settleRunningTask
@@ -43,11 +41,9 @@ import {
 import {
   cancelPendingAdmissionCore,
   reconcileAdmissionCore,
-  schedulerInspectionForCore,
   selectAdmissionCore,
   settleRunningAdmissionCore,
-  type AdmissionCoreEffect,
-  type AdmissionCoreState
+  type AdmissionCoreEffect
 } from "./admission-core.ts";
 
 export async function runTaskGraph<TResult>(
@@ -252,56 +248,6 @@ export async function runTaskGraph<TResult>(
         return Object.freeze({ ...run, terminalMeasurement });
       }
     }
-  }
-}
-
-function replayCoreForcedBlocks<TResult>(
-  state: SchedulerState<TResult>,
-  effects: readonly AdmissionCoreEffect[],
-  effectStates: readonly AdmissionCoreState[],
-  diagnostics: SchedulerPerformanceDiagnostics | undefined,
-  trigger: SchedulerTrigger
-): void {
-  if (effects.length !== effectStates.length) {
-    throw new Error("shared admission core effect replay has no matching immutable post-state");
-  }
-  for (const [index, effect] of effects.entries()) {
-    if (effect.kind !== "settled" || effect.settlementKind !== "blocked") {
-      throw new Error("shared admission core forced-block replay received a non-blocked effect");
-    }
-    const effectState = effectStates[index];
-    if (effectState === undefined) {
-      throw new Error("shared admission core forced block has no immutable post-state");
-    }
-    diagnostics?.beforePendingSettlement([effect.taskId]);
-    state.admissionCore = effectState;
-    applyForcedBlockedSettlement(state, effect.taskId, effect.dependencyIds ?? []);
-    diagnostics?.captureState(performanceState(state));
-    diagnostics?.recordEffect(
-      Object.freeze({ kind: "settled", settlementKind: "blocked", taskId: effect.taskId })
-    );
-    if (diagnostics !== undefined || state.diagnosticLogger !== undefined) {
-      const inspection = schedulerInspectionForCore(state.admissionCore);
-      observeSchedulerDecision(
-        state,
-        freezeDecision({
-          ...decisionContext(
-            Object.freeze({
-              ...inspection,
-              isAbortRequested: state.signal?.aborted === true,
-              isCancelled: state.isCancelled
-            }),
-            state.admissionCore.compiled.graph.schedulerGraphSnapshot
-          ),
-          dependencyIds: effect.dependencyIds ?? [],
-          kind: "settle-blocked",
-          taskId: effect.taskId,
-          trigger
-        }),
-        diagnostics
-      );
-    }
-    observeAdmissionCoreEffect(state, effect);
   }
 }
 

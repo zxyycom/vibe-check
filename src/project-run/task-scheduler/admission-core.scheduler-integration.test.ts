@@ -11,7 +11,6 @@ import {
 import { admissionCoreTraceProjectionFor, traceAdmissionCore } from "./admission-core-trace.ts";
 import { prepareTaskGraph } from "./graph.ts";
 import { runTaskGraph } from "./scheduler.ts";
-import { recordingLogger } from "./task-engine.test-support.ts";
 
 describe("Scheduler admission core integration", () => {
   it("replays canonical failed and forced effects through shell diagnostics and measurement", async () => {
@@ -42,6 +41,7 @@ describe("Scheduler admission core integration", () => {
     const shellEffects: typeof expectedEffects = [];
     const contexts: AdmissionPolicyContext[] = [];
     const observations: DiagnosticObservation[] = [];
+    const replayEvents: string[] = [];
 
     const run = await runTaskGraph({
       admissionPolicy: admissionSelectionPolicyFor((context) => {
@@ -51,15 +51,34 @@ describe("Scheduler admission core integration", () => {
         assert.equal(context.admissionState.validateSelection(candidate.taskId).accepted, true);
         return { kind: "select", taskId: candidate.taskId };
       }),
-      diagnosticLogger: recordingLogger(observations),
+      diagnosticLogger: Object.freeze({
+        close: () => "disabled" as const,
+        observe: (observation: DiagnosticObservation): void => {
+          observations.push(observation);
+          const details = observation.details;
+          if (
+            observation.event === "scheduler.decision" &&
+            details !== null &&
+            typeof details === "object" &&
+            Reflect.get(details, "kind") === "settle-blocked"
+          ) {
+            const taskId: unknown = Reflect.get(details, "taskId");
+            if (typeof taskId === "string") replayEvents.push(`diagnostic:${taskId}`);
+          }
+        }
+      }),
       execute: (task) => {
         if (task.id === "source") throw new Error("expected source failure");
         return task.id;
       },
       graph,
       maxParallel: 1,
+      onTaskBlocked: (task) => {
+        replayEvents.push(`blocked:${task.id}`);
+      },
       onAdmissionCoreEffect: ({ effect, state }) => {
         shellEffects.push({ effect, projection: admissionCoreTraceProjectionFor(state) });
+        replayEvents.push(`core:${effect.kind}:${effect.taskId}`);
       },
       performanceDiagnostics: Object.freeze({
         clock: Object.freeze({ now: () => 0 }),
@@ -68,6 +87,16 @@ describe("Scheduler admission core integration", () => {
     });
 
     assert.deepEqual(shellEffects, expectedEffects);
+    assert.deepEqual(replayEvents.slice(0, 8), [
+      "core:admitted:source",
+      "core:settled:source",
+      "blocked:last-dependent",
+      "diagnostic:last-dependent",
+      "core:settled:last-dependent",
+      "blocked:first-dependent",
+      "diagnostic:first-dependent",
+      "core:settled:first-dependent"
+    ]);
     const sourceSettlementMeasurement = contexts
       .flatMap((context) =>
         Array.from({ length: context.measurement.measurementCount }, (_, index) =>
@@ -114,15 +143,24 @@ describe("Scheduler admission core integration", () => {
         if (kind !== "settle-blocked") return [];
         const taskId: unknown = Reflect.get(details, "taskId");
         const blockers: unknown = Reflect.get(details, "blockers");
+        const trigger: unknown = Reflect.get(details, "trigger");
         if (blockers === null || typeof blockers !== "object") return [];
+        if (trigger === null || typeof trigger !== "object") return [];
         const dependency: unknown = Reflect.get(blockers, "dependency");
-        return typeof taskId === "string" && typeof dependency === "number"
-          ? [Object.freeze({ dependency, taskId })]
+        const triggerKind: unknown = Reflect.get(trigger, "kind");
+        const triggerSettlementKind: unknown = Reflect.get(trigger, "settlementKind");
+        const triggerTaskId: unknown = Reflect.get(trigger, "taskId");
+        return typeof taskId === "string" &&
+          typeof dependency === "number" &&
+          triggerKind === "task-settled" &&
+          triggerSettlementKind === "failed" &&
+          triggerTaskId === "source"
+          ? [Object.freeze({ dependency, taskId, triggerTaskId })]
           : [];
       }),
       [
-        { dependency: 1, taskId: "last-dependent" },
-        { dependency: 0, taskId: "first-dependent" }
+        { dependency: 1, taskId: "last-dependent", triggerTaskId: "source" },
+        { dependency: 0, taskId: "first-dependent", triggerTaskId: "source" }
       ]
     );
     assert.deepEqual(
