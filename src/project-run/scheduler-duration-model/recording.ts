@@ -1,4 +1,7 @@
-import type { SchedulerRawMeasurement } from "../../project-definition/project-definition.ts";
+import type {
+  SchedulerMeasurementAdmission,
+  SchedulerRawMeasurement
+} from "../../project-definition/project-definition.ts";
 import {
   freezeSchedulerHistoryModel,
   isBoundedDurationMs,
@@ -50,48 +53,77 @@ export function recordSchedulerHistory(input: {
     });
   }
 
-  const settledByTaskId = new Map(
-    input.settledTasks.map((settled) => [settled.taskId, settled.kind])
-  );
-  const historyByIdentity = new Map(
-    input.history.series.map((series) => [series.identityDigest, series] as const)
-  );
-  let latestObservationSequence = input.history.latestObservationSequence;
-  let acceptedSampleCount = 0;
-  for (const admission of timingFacts.admissions) {
-    const sample = sampleForAdmission(admission, input.prediction, settledByTaskId);
-    if (sample === undefined || latestObservationSequence === Number.MAX_SAFE_INTEGER) continue;
-    latestObservationSequence += 1;
-    const existing = historyByIdentity.get(sample.identityDigest);
-    const samples = [
-      ...(existing?.samples ?? []),
-      {
-        durationMs: sample.durationMs,
-        observationSequence: latestObservationSequence,
-        settlementKind: sample.settlementKind
-      }
-    ].slice(-MAX_SCHEDULER_HISTORY_SAMPLES_PER_SERIES);
-    historyByIdentity.set(
-      sample.identityDigest,
-      Object.freeze({
-        identityDigest: sample.identityDigest,
-        latestObservationSequence,
-        samples: Object.freeze(samples)
-      })
-    );
-    acceptedSampleCount += 1;
-  }
-
-  const retained = retainRecentSeries(historyByIdentity.values());
-  const history = freezeSchedulerHistoryModel({ latestObservationSequence, series: retained });
+  const merged = mergeVerifiedAdmissionSamples({
+    admissions: timingFacts.admissions,
+    history: input.history,
+    prediction: input.prediction,
+    settledByTaskId: new Map(input.settledTasks.map((settled) => [settled.taskId, settled.kind]))
+  });
+  const retained = retainRecentSeries(merged.seriesByIdentity.values());
+  const history = freezeSchedulerHistoryModel({
+    latestObservationSequence: merged.latestObservationSequence,
+    series: retained
+  });
   return Object.freeze({
     history,
     observation: Object.freeze({
-      acceptedSampleCount,
+      acceptedSampleCount: merged.acceptedSampleCount,
       retainedSeriesCount: history.series.length,
       status: "recorded"
     })
   });
+}
+
+type VerifiedAdmissionMerge = Readonly<{
+  readonly acceptedSampleCount: number;
+  readonly latestObservationSequence: number;
+  readonly seriesByIdentity: ReadonlyMap<string, SchedulerHistorySeries>;
+}>;
+
+/** Applies valid admissions in Scheduler order and returns the updated identity histories. */
+function mergeVerifiedAdmissionSamples(input: {
+  readonly admissions: readonly SchedulerMeasurementAdmission[];
+  readonly history: SchedulerHistoryModel;
+  readonly prediction: SchedulerPredictionSnapshot;
+  readonly settledByTaskId: ReadonlyMap<string, SchedulerDurationSettlementKind>;
+}): VerifiedAdmissionMerge {
+  const seriesByIdentity = new Map(
+    input.history.series.map((series) => [series.identityDigest, series] as const)
+  );
+  let latestObservationSequence = input.history.latestObservationSequence;
+  let acceptedSampleCount = 0;
+  for (const admission of input.admissions) {
+    const sample = sampleForAdmission(admission, input.prediction, input.settledByTaskId);
+    if (sample === undefined || latestObservationSequence === Number.MAX_SAFE_INTEGER) continue;
+    latestObservationSequence += 1;
+    appendSampleToIdentityHistory(seriesByIdentity, sample, latestObservationSequence);
+    acceptedSampleCount += 1;
+  }
+  return Object.freeze({ acceptedSampleCount, latestObservationSequence, seriesByIdentity });
+}
+
+function appendSampleToIdentityHistory(
+  seriesByIdentity: Map<string, SchedulerHistorySeries>,
+  sample: AdmissionSample,
+  observationSequence: number
+): void {
+  const existing = seriesByIdentity.get(sample.identityDigest);
+  const samples = [
+    ...(existing?.samples ?? []),
+    {
+      durationMs: sample.durationMs,
+      observationSequence,
+      settlementKind: sample.settlementKind
+    }
+  ].slice(-MAX_SCHEDULER_HISTORY_SAMPLES_PER_SERIES);
+  seriesByIdentity.set(
+    sample.identityDigest,
+    Object.freeze({
+      identityDigest: sample.identityDigest,
+      latestObservationSequence: observationSequence,
+      samples: Object.freeze(samples)
+    })
+  );
 }
 
 type AdmissionSample = Readonly<{
