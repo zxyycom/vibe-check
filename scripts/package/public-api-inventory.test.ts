@@ -258,8 +258,6 @@ type _UnsupportedDeepReadonly = ProjectModule["DeepReadonly"];
 type _UnsupportedCheckDescriptor = ProjectModule["CheckDescriptor"];
 // @ts-expect-error CheckDataParser is supporting syntax, not a named public type root.
 type _UnsupportedCheckDataParser = ProjectModule["CheckDataParser"];
-// @ts-expect-error CheckDependencies is carried by CheckExecutionContext, not a named public type root.
-type _UnsupportedCheckDependencies = ProjectModule["CheckDependencies"];
 // @ts-expect-error DependencyReadResult is supporting syntax, not a named public type root.
 type _UnsupportedDependencyReadResult = ProjectModule["DependencyReadResult"];
 // @ts-expect-error DependencyObservation is supporting syntax, not a named public type root.

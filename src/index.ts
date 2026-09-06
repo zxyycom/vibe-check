@@ -56,7 +56,13 @@ export { jsonSchemaValidation } from "./package-checks/json-schema-validation/de
 export { parseJsonSchemaValidationData } from "./package-checks/json-schema-validation/final-data.ts";
 export type { JsonSchemaValidationFinalData } from "./package-checks/json-schema-validation/final-data.ts";
 export type {
+  JsonSchemaIdentity,
+  JsonSchemaIdentityMode,
+  JsonSchemaInstanceBinding,
+  JsonSchemaReferenceResolution,
+  JsonSchemaReferenceSource,
   JsonSchemaValidationOptions,
+  RegisteredJsonSchema,
   ResolvedJsonSchemaValidationOptions
 } from "./package-checks/json-schema-validation/options.ts";
 export type {
@@ -119,6 +125,7 @@ export type {
 export { defineCheck, inherit } from "./check/check.ts";
 export type {
   Check,
+  CheckDependencies,
   CheckExecution,
   CheckExecutionContext,
   CheckPreflight,
@@ -172,4 +179,5 @@ export type {
   RunControls
 } from "./project-run/controls/contract.ts";
 export { run } from "./project-run/run.ts";
+export type { RunOutputStatus, RunOutputStatuses } from "./project-run/outputs/status.ts";
 export type { RunResult } from "./project-run/result.ts";

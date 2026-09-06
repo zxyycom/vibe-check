@@ -7,8 +7,10 @@ import { after, describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import {
+  PACKAGE_DESCRIPTION,
   PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
+  PACKAGE_KEYWORDS,
   PACKAGE_LIZARD_APACHE_LICENSE_PATH,
   PACKAGE_LIZARD_MIT_LICENSE_PATH,
   PACKAGE_PYGMENTS_LICENSE_PATH,
@@ -155,7 +157,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     });
   });
 
-  it("declares the approved SPDX, Node host, repository, and public registry contract", async () => {
+  it("declares the approved distribution and discovery contract", async () => {
     const { artifact } = await fixture();
     const manifest = candidateManifest(artifact.stagingDirectory);
     assert.equal(manifest.name, "@zxyycom/vibe-check");
@@ -164,6 +166,8 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       readFileSync(join(artifact.stagingDirectory, "LICENSE"), "utf8"),
       /^MIT License\n\nCopyright \(c\) 2026 zxyycom\n/u
     );
+    assert.equal(manifest.description, PACKAGE_DESCRIPTION);
+    assert.deepEqual(manifest.keywords, PACKAGE_KEYWORDS);
     assert.equal(manifest.license, "MIT AND Apache-2.0 AND BSD-2-Clause");
     for (const path of [
       PACKAGE_THIRD_PARTY_NOTICES_PATH,

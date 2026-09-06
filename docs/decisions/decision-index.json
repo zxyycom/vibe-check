@@ -53,6 +53,8 @@
       "defer-lizard-until-after-semantic-config-workflow.md": "sha256:5a0efe27f476e35503eea0bf9d049041425b410a823ae802b4036af044098937",
       "define-offline-markdown-link-target-boundaries.md": "sha256:21ff530e25fd85d40bc930ed36fb8ef3d8194c22682e0373b6f3801a0bd6e9dc",
       "delegate-project-gate-selection-to-product-effective-selection.md": "sha256:60dce64320225a3a1f5a47ad5a0f684c59581da00954e243db224b54b9343647",
+      "describe-vibe-check-as-a-general-project-quality-gate.md": "sha256:24bf4195a7b17990b3225a8377315a68d5df7cba80a6ddc0861f537b108ccd17",
+      "describe-vibe-check-as-a-typescript-quality-gate-tool.md": "sha256:3cd95f9c3c08a58ff34fc6c60e48cb9175b6c1c78f1276da4c7885614f381c48",
       "distinguish-primary-and-derived-change-problem-sets.md": "sha256:09e34fb1de5af9032f8163470fba2928f5c10e46a3bc867691c7345e323190d9",
       "distinguish-primary-and-derived-change-problems.md": "sha256:7e4118245432930509d1da63e9b7d4f40a713bab8001d2082e77e05c2db45f02",
       "drive-product-execution-from-project-definition.md": "sha256:c329de0b8dfba2523e277c3b15d92fbf70905bf6a807bee78ba6e8590e0fb29f",
@@ -75,6 +77,7 @@
       "execute-recursive-checks-through-one-task-graph.md": "sha256:6ea95feec90d39ede593496e61e81d5b808ebb67a6f25b430d77a50b3798d47b",
       "expand-format-aware-built-in-checks.md": "sha256:efd850129c2545c8dd296d2990ce1253a6584caf7032827570a5b74c10caaf35",
       "expand-format-aware-quality-checks.md": "sha256:3dd2e88277a58d0a099e299a9f71c360a9ede37a63316f8209d3da555e2964ba",
+      "export-consumer-named-supporting-types-from-package-root.md": "sha256:722979ae78ab7f7538c3eede41bcbd664b846d0ed862af782af0e70c76bd2c6b",
       "expose-built-in-check-values-alongside-config-and-run.md": "sha256:603ef962dcd37e4a0feea9cb6d45400420f95e02d1aa905bbfcac8982ee0888a",
       "expose-built-in-check-values-and-adjustment-functions.md": "sha256:8cd1651c5097c79b6f3bb3c48d716e8119910b74380362ac5e70ad9447bc6025",
       "expose-config-definition-and-project-run-operations.md": "sha256:e8fb19a6bdbe705af83e7ed6b2f80e0f96827ff994c614151619601b9bbe01e5",
@@ -1849,6 +1852,65 @@
         ]
       }
     },
+    "describe-vibe-check-as-a-general-project-quality-gate.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "archived"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "archive/describe-vibe-check-as-a-general-project-quality-gate.md",
+        "title": "将 Vibe Check 描述为通用项目质量门禁",
+        "status": "archived",
+        "alignment": "aligned",
+        "createdAt": "2026-09-06T16:08:54Z",
+        "purpose": "让 registry、repository 与用户入口使用同一段准确、可检索的 Product 定位。",
+        "background": "Product 已迁移到 Node host，但 GitHub 仍描述为 Bun 项目，npm candidate 尚无 description 与 keywords。",
+        "decision": "将 Vibe Check 定位为面向 Node 项目的通用 TypeScript 质量门禁，并同步 npm、GitHub 与 README 描述。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "describe-vibe-check-as-a-typescript-quality-gate-tool.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "describe-vibe-check-as-a-typescript-quality-gate-tool.md",
+        "title": "将 Vibe Check 描述为通用 TypeScript 质量门禁工具",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-06T16:23:01Z",
+        "purpose": "让产品描述准确表达工具用途，而不把 Node 运行宿主误写成被检查项目的类型限制。",
+        "background": "既有描述使用“面向 Node 项目”，会让非 Node 项目的使用者误以为 Vibe Check 不适用。",
+        "decision": "将 Vibe Check 定位为通用 TypeScript 质量门禁工具，并把 Node 仅作为 package 运行环境约束表达。",
+        "tags": [
+          "product-contract"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "describe-vibe-check-as-a-general-project-quality-gate.md"
+          }
+        ]
+      }
+    },
     "distinguish-primary-and-derived-change-problem-sets.md": {
       "keys": {
         "tag": [
@@ -2529,6 +2591,33 @@
         "decision": "将 Markdown、路径引用、JSON、JSON Schema、秘密与网络外链作为可独立选择的产品能力。",
         "tags": [
           "product-priority"
+        ],
+        "relations": []
+      }
+    },
+    "export-consumer-named-supporting-types-from-package-root.md": {
+      "keys": {
+        "tag": [
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "export-consumer-named-supporting-types-from-package-root.md",
+        "title": "从 package root 导出消费者需要命名的 supporting types",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-06T16:12:41Z",
+        "purpose": "让消费者可直接命名公共配置、回调与结果 helper 所需类型，同时避免批量冻结内部 declarations。",
+        "background": "部分公共签名中的 supporting types 只能被推断或复制，妨碍消费者编写可复用 helper 与配置片段。",
+        "decision": "只从 package root 导出具有独立消费者命名场景的公共 supporting types，并以真实 installed consumer 验收。",
+        "tags": [
+          "product-contract"
         ],
         "relations": []
       }

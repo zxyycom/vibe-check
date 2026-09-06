@@ -4,8 +4,10 @@ import { errorMessage } from "../../error-message.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import {
   CANDIDATE_DEPENDENCIES,
+  PACKAGE_DESCRIPTION,
   PACKAGE_NODE_ENGINE,
   PACKAGE_ENTRY_PATH,
+  PACKAGE_KEYWORDS,
   PACKAGE_LICENSE,
   PACKAGE_MANIFEST_FILES,
   PACKAGE_NAME,
@@ -18,9 +20,11 @@ import { sameOrderedStrings } from "../package-material-audit.ts";
 
 const PACKAGE_MANIFEST_KEYS = Object.freeze([
   "dependencies",
+  "description",
   "engines",
   "exports",
   "files",
+  "keywords",
   "license",
   "name",
   "publishConfig",
@@ -38,6 +42,8 @@ export function writeCandidateManifest(input: {
   const manifest = {
     name: PACKAGE_NAME,
     version: input.version,
+    description: PACKAGE_DESCRIPTION,
+    keywords: PACKAGE_KEYWORDS,
     type: "module",
     license: PACKAGE_LICENSE,
     engines: { node: PACKAGE_NODE_ENGINE },
@@ -100,6 +106,16 @@ function assertManifestIdentity(
 }
 
 function assertManifestDistributionMetadata(manifest: Readonly<Record<string, unknown>>): void {
+  if (manifest.description !== PACKAGE_DESCRIPTION) {
+    throw new Error("candidate artifact manifest description does not match the package contract");
+  }
+  if (
+    !Array.isArray(manifest.keywords) ||
+    !manifest.keywords.every((keyword) => typeof keyword === "string") ||
+    !sameOrderedStrings(manifest.keywords, PACKAGE_KEYWORDS)
+  ) {
+    throw new Error("candidate artifact manifest keywords do not match the package contract");
+  }
   if (!hasExactRecord(manifest.engines, { node: PACKAGE_NODE_ENGINE })) {
     throw new Error("candidate artifact manifest must declare only the verified Node host range");
   }

@@ -5,6 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
+import { PACKAGE_DESCRIPTION, PACKAGE_KEYWORDS } from "../package-contract.ts";
 import { auditCandidateManifest, writeCandidateManifest } from "./manifest.ts";
 
 test("generated package manifest rejects legal, host, publish, executable, and export drift", () => {
@@ -14,6 +15,9 @@ test("generated package manifest rejects legal, host, publish, executable, and e
     writeCandidateManifest({ manifestPath, version: "0.0.1" });
     const source = readFileSync(manifestPath, "utf8");
     assert.doesNotThrow(() => auditCandidateManifest(source, "0.0.1"));
+    const generatedManifest = mutableManifest(source);
+    assert.equal(generatedManifest.description, PACKAGE_DESCRIPTION);
+    assert.deepEqual(generatedManifest.keywords, PACKAGE_KEYWORDS);
 
     for (const mutation of [
       (manifest: MutableManifest) => {
@@ -21,6 +25,12 @@ test("generated package manifest rejects legal, host, publish, executable, and e
       },
       (manifest: MutableManifest) => {
         manifest.license = "UNLICENSED";
+      },
+      (manifest: MutableManifest) => {
+        manifest.description = "An unrelated package.";
+      },
+      (manifest: MutableManifest) => {
+        manifest.keywords = ["quality-gate"];
       },
       (manifest: MutableManifest) => {
         manifest.engines = { node: ">=24" };

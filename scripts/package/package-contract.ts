@@ -1,6 +1,17 @@
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 
 export const PACKAGE_NAME = CURRENT_PUBLIC_CONTRACT.packageImport;
+/** Concise discovery description shared by the published package and repository profile. */
+export const PACKAGE_DESCRIPTION =
+  "通用 TypeScript 质量门禁工具，提供可组合 Check、类型安全 API 和结构化结果。";
+export const PACKAGE_KEYWORDS = Object.freeze([
+  "quality-gate",
+  "project-validation",
+  "code-quality",
+  "ci",
+  "typescript",
+  "nodejs"
+]);
 /** Exact filesystem-safe stem emitted by Bun when it packs {@link PACKAGE_NAME}. */
 export const PACKAGE_TARBALL_STEM = "zxyycom-vibe-check";
 export const PACKAGE_NODE_ENGINE = ">=24.18";

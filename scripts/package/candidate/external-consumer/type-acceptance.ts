@@ -239,6 +239,9 @@ const changedFilesConsumer = defineCheck({
   displayName: "Isolated changed-files consumer",
   observes: [changedFiles.checkId],
   execution: ({ dependencies }) => {
+    if (!directRelationIds(dependencies).includes(changedFiles.checkId)) {
+      return { status: "unavailable", reason: { code: "changed-files-data-not-declared" } };
+    }
     const observation = dependencies.list().find(({ checkId }) => checkId === changedFiles.checkId);
     if (
       observation === undefined ||
@@ -250,6 +253,43 @@ const changedFilesConsumer = defineCheck({
     return { status: observation.outcome.status, data: { fileCount: parsedChangedFiles.files.length } };
   }
 });
+
+function directRelationIds(dependencies: CheckDependencies): readonly string[] {
+  return dependencies.list().map((observation) => observation.checkId);
+}
+
+const jsonSchemaIdentityMode: JsonSchemaIdentityMode = "require-match";
+const jsonSchemaIdentity: JsonSchemaIdentity = { mode: jsonSchemaIdentityMode };
+const jsonSchemaReferenceSources: readonly JsonSchemaReferenceSource[] = [
+  { catalog: "json-schema-2020-12", kind: "bundled" }
+];
+const jsonSchemaReferenceResolution: JsonSchemaReferenceResolution = {
+  mode: "allowlisted",
+  sources: jsonSchemaReferenceSources
+};
+const jsonSchemaResources: readonly RegisteredJsonSchema[] = [
+  { id: "isolated-schema", path: "schemas/isolated.json" }
+];
+const jsonSchemaBindings: readonly JsonSchemaInstanceBinding[] = [
+  {
+    id: "isolated-instance-binding",
+    instancePath: "instances/isolated.json",
+    schemaId: "isolated-schema"
+  }
+];
+const configuredJsonSchemaCheck = jsonSchemaValidation({
+  bindings: jsonSchemaBindings,
+  referenceResolution: jsonSchemaReferenceResolution,
+  schemaIdentity: jsonSchemaIdentity,
+  schemas: jsonSchemaResources
+});
+const disabledOutput: RunOutputStatus = { enabled: false, status: "disabled" };
+
+function outputParticipantNames(outputs: RunOutputStatuses): readonly string[] {
+  return Object.entries(outputs)
+    .filter(([, output]) => output.status !== disabledOutput.status)
+    .map(([name]) => name);
+}
 
 const secretCheck = secretDetection({
   files: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" }
@@ -282,7 +322,8 @@ const definition: ProjectDefinition = defineConfig({
     secretCheck,
     directCheck,
     changedFiles,
-    changedFilesConsumer
+    changedFilesConsumer,
+    configuredJsonSchemaCheck
   ]
 });
 ${CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE}
@@ -384,6 +425,11 @@ function observeFinalDurations(runResult: RunResult): void {
   }
 }
 
+function observeRunOutputs(runResult: RunResult): void {
+  if (runResult.kind === "configuration") return;
+  void outputParticipantNames(runResult.outputs);
+}
+
 void [
   cacheJsonByKey,
   defineAdmissionPolicy,
@@ -408,11 +454,15 @@ void [
   changedFiles,
   changedFilesData,
   changedFilesConsumer,
+  configuredJsonSchemaCheck,
+  directRelationIds,
+  jsonSchemaIdentityMode,
   customAdmissionPolicy,
   preparedCustomAdmissionPolicy,
   learnedCriticalPathAdmissionPolicy,
   inheritedCheckIds,
   observeFinalDurations,
+  observeRunOutputs,
   findingMessages,
   presentCheckFindings,
   reminder,
