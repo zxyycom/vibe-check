@@ -70,6 +70,98 @@ describe("immutable admission graph capacity", () => {
     assert.deepEqual(globallyFull.validateSelection("inside"), expected);
     assert.deepEqual(globallyFull.validateSelection("unscoped"), expected);
   });
+
+  it("atomically holds and releases weighted claims across named resources", () => {
+    const initial = createAdmissionGraph({
+      graph: schedulerGraphSnapshot(
+        [
+          schedulerGraphTask("first", {
+            resourceClaims: [
+              { resourceId: "browser", units: 1 },
+              { resourceId: "memory", units: 2 }
+            ]
+          }),
+          schedulerGraphTask("second", {
+            resourceClaims: [
+              { resourceId: "browser", units: 1 },
+              { resourceId: "memory", units: 2 }
+            ]
+          }),
+          schedulerGraphTask("unrelated")
+        ],
+        [],
+        [
+          { resourceId: "browser", units: 2 },
+          { resourceId: "memory", units: 3 }
+        ]
+      ),
+      maxParallel: 3
+    }).initialState();
+    assert.deepEqual(initial.inspection.resources, [
+      { available: 2, capacity: 2, inUse: 0, resourceId: "browser" },
+      { available: 3, capacity: 3, inUse: 0, resourceId: "memory" }
+    ]);
+
+    const first = acceptedState(initial.select("first"));
+    assert.deepEqual(first.validateSelection("second"), {
+      accepted: false,
+      reason: {
+        kind: "resource-capacity-insufficient",
+        resources: [
+          {
+            available: 1,
+            capacity: 3,
+            inUse: 2,
+            required: 2,
+            resourceId: "memory"
+          }
+        ]
+      }
+    });
+    assert.deepEqual(first.inspection.resources, [
+      { available: 1, capacity: 2, inUse: 1, resourceId: "browser" },
+      { available: 1, capacity: 3, inUse: 2, resourceId: "memory" }
+    ]);
+    const withUnrelated = acceptedState(first.select("unrelated"));
+    assert.deepEqual(withUnrelated.inspection.resources, first.inspection.resources);
+
+    const released = acceptedState(first.settle("first", "unsatisfied"));
+    assert.deepEqual(released.inspection.resources, initial.inspection.resources);
+    assert.equal(released.validateSelection("second").accepted, true);
+
+    assert.throws(
+      () =>
+        createAdmissionGraph({
+          graph: schedulerGraphSnapshot(
+            [
+              schedulerGraphTask("unknown", {
+                resourceClaims: [{ resourceId: "database", units: 1 }]
+              })
+            ],
+            [],
+            [{ resourceId: "browser", units: 1 }]
+          ),
+          maxParallel: 1
+        }),
+      /claims unknown resource database/
+    );
+    assert.throws(
+      () =>
+        createAdmissionGraph({
+          graph: schedulerGraphSnapshot(
+            [
+              schedulerGraphTask("oversized", {
+                resourceClaims: [{ resourceId: "browser", units: 2 }]
+              })
+            ],
+            [],
+            [{ resourceId: "browser", units: 1 }]
+          ),
+          maxParallel: 1
+        }),
+      /claim exceeds resource capacity: browser/
+    );
+  });
 });
 
 function acceptedState(result: AdmissionTransitionResult): AdmissionState {

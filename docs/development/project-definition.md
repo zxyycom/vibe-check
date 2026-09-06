@@ -72,7 +72,10 @@ export default defineConfig({
       ],
     },
   ],
-  scheduler: { maxParallel: 4 },
+  scheduler: {
+    maxParallel: 4,
+    resourceCapacities: { browser: 2 },
+  },
 });
 ```
 
@@ -128,7 +131,9 @@ duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一�
 
 **责任边界。** effective selection 是 invocation-private planning value：Product 不公开 resolver、effective ID list、callback capability、RunResult field、machine field 或 diagnostic selection telemetry。callback 仍会收到完整的 canonical `project.flags`。Product 不提供“恰好一个”、带值 flags、嵌套布尔表达式或通用 predicate，也不定义 token vocabulary。flags 不是权限、环境准入或 capability authorization；需要硬条件或复杂条件时，owning Check 在 preflight/execution 中解释 `project.flags` 并返回领域适当的终态。
 
-### Scheduler admission policy
+### Scheduler 配置
+
+`scheduler.resourceCapacities` 是 resource ID 到正 safe-integer units 的 closed mapping；省略规范化为冻结的 `{}`。resource ID 必须含至少一个非空白字符。每个 Check 的 effective `resourceClaims` 必须引用这里声明的 ID，claim units 也必须为正 safe integer 且不能大于对应 capacity。未知或 oversized claim 会使 Definition 在任何 author work 前失败。capacities、effective claims 及其 canonical key order 都进入 declarative snapshot/fingerprint。
 
 `scheduler.admissionPolicy` 是 closed `static | custom | learned-critical-path` authoring field。省略与显式
 `{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 literal inference，与同形
@@ -186,9 +191,9 @@ failure 的优先级由
 
 `AdmissionPolicyContext` 是每次**实际** custom callback 新建的 detached、deep-frozen ordinary data snapshot。
 
-- `graph` 是 invocation 内一次规范化、递归冻结后供所有 callback 共享的唯一 `SchedulerGraphSnapshot`；所有公开 Task identity 都是 `taskId`，topology 与 `admissionPriority` 只在 `graph.tasks` 的 Task metadata 中出现。
+- `graph` 是 invocation 内一次规范化、递归冻结后供所有 callback 共享的唯一 `SchedulerGraphSnapshot`；所有公开 Task identity 都是 `taskId`，topology、`admissionPriority`、canonical `resourceCapacities` 与每项 `resourceClaims` 只在这里的静态 metadata 中出现。
 - `admissionState` 是当前同型 immutable admission boundary。重复读取在同一 callback 内保持同一 handle identity；调用方可保留 predecessor 并以 `select` / binary `settle` 推演 hypothetical successor，但不能启动、取消、reservation、等待或结算真实 Task。
-- 其余动态 facts 包含 relation/mutex candidates 的 `{ taskId, canAdmit }`、root/effective capacity、running/settled/active-scope IDs、cancellation runtime facts，以及调用前已 flush 的 `measurement`。
+- 其余动态 facts 包含 relation/mutex/resource candidates 的 `{ taskId, canAdmit }`、root/effective capacity、`admissionState.inspection.resources` 中每个资源的 `{ resourceId, capacity, inUse, available }`、running/settled/active-scope IDs、cancellation runtime facts，以及调用前已 flush 的 `measurement`。named shortage 的 selection rejection 使用 `resource-capacity-insufficient` 并列出所有不足资源的 required/occupancy facts。
 
 `measurement.cumulative` 只给有界累计 scalar/peak/discrete facts，完整 per-Task table 只属于 terminal raw measurement；`measurementCount` 和 `measurementAt(index)` 是 context 创建时捕获的 invocation-local append-only frozen action-observation prefix reader。`measurementAt(index)` 是同步 getter，不返回 live array 或 per-round slice；index 不在 `[0, measurementCount)` 时返回 `undefined`，即使 Scheduler 在该 callback return 后继续执行也不能读取后续 append。每条 observation 给出 accepted `select`/`wait` 的 sequence/kind/task identity、从其 post-action state 开始到下一次实际 custom callback 前结束的 occupancy interval，以及期间 admitted/settled effects。该 interval 是 closed union：`availability: "available"` 才含数值 `contribution`，`availability: "unavailable"` 只含 reason，绝不以全零伪造失效 timing；合法 zero span 仍是 available contribution。它不表达 action 因果、duration 或 critical path，也不暴露 private Scheduler object、`Set`/`Map`、Check options/functions/data、Records、messages、logger、clock、signal 或真实 Task command。完整 callback 的 trusted、reentrancy、hard guard 与 fault 边界见
 [深入 API 机制](../api-mechanics.md#custom-admission-policy)。
@@ -303,6 +308,8 @@ Every node has a unique `checkId` and non-empty `displayName`. An executable nod
 
 `maxParallel` is a positive safe integer. The definition scheduler supplies the root value (default `4`), and a node's value is inherited by descendants unless a child supplies its own value.
 
+`resourceClaims` 是 resource ID 到正 safe integer 的 closed mapping。它继承最近的显式完整 mapping：省略时保留，`{}` 明确清空，其它显式 mapping 完整替换而不逐 key 合并。每个 effective claim 必须引用 `scheduler.resourceCapacities` 已声明的资源，并且不能超过该资源总量。一个 Task 的全部 claims 在 admission 时原子取得，贯穿 task-local preflight 与 execution，并在任意 settlement path 一起释放。
+
 `admissionPriority` is a signed safe integer. It inherits from the nearest explicit ancestor and defaults to `0`. It is immutable Task metadata: static/custom policies can read it only through the full graph, and it only orders otherwise-ready work in the same scheduler selection layer. It does not change declaration order or bypass direct dependencies, mutexes, root or scoped capacity, or lifecycle cancellation. Use a few relative bands rather than a unique number for every Check.
 
 `dependsOn`、`observes` 与 `mutex` 都接受 exact string collection 或 `inherit({ add, remove })`：
@@ -318,13 +325,14 @@ The following field fragments are the only three collection forms. They belong o
 import { inherit } from "@zxyycom/vibe-check";
 
 const inheritedScheduling = {
-  // Omit `dependsOn`, `observes`, or `mutex` to retain the parent's collection.
+  // Omit collections or `resourceClaims` to retain the parent's value.
 };
 
 const exactScheduling = {
   dependsOn: ["compile"], // Replace the inherited dependencies.
   observes: ["publish-summary"], // Replace the inherited terminal observations.
   mutex: [], // Deliberately clear inherited mutexes.
+  resourceClaims: {}, // Deliberately clear the inherited complete mapping.
 };
 
 const editedScheduling = {
@@ -341,7 +349,7 @@ declarations always carry it, so `always` has the same fingerprint whether omitt
 `attention` changes that fingerprint. It does not change scheduling, execution, options, Check/Record
 facts, machine output, Run Controls, or invocation-wide progress configuration. `attention` 的 `passed` Check 在默认 progress 中仅当没有 accepted Record 也没有 accepted message 时隐藏；任一类存在时仍显示其 settled block。
 
-The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs task-local preflight plus direct callbacks subject to `dependsOn` / `observes` relation semantics, mutexes, and the effective parallel budget.
+The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs task-local preflight plus direct callbacks subject to `dependsOn` / `observes` relation semantics, mutexes, root/scoped parallel budgets, and atomic named resource claims.
 
 ## Package-provided Check composition
 

@@ -7,11 +7,13 @@ import { runTaskGraph } from "./scheduler.ts";
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import {
   completedValues,
+  createDeferred,
   decisionFor,
   delay,
   recordedSchedulerDecisions,
   recordingLogger,
-  rootBudgetGraph
+  rootBudgetGraph,
+  waitFor
 } from "./task-engine.test-support.ts";
 
 describe("static task engine", () => {
@@ -59,6 +61,7 @@ describe("static task engine", () => {
       running: 0
     });
     assert.deepEqual(rootAdmission.graphIdentity, {
+      resourceCapacities: [],
       scopes: [],
       tasks: [
         {
@@ -67,6 +70,7 @@ describe("static task engine", () => {
           taskId: "base",
           mutex: [],
           observes: [],
+          resourceClaims: [],
           scopeId: null
         },
         {
@@ -75,6 +79,7 @@ describe("static task engine", () => {
           taskId: "dependent",
           mutex: [],
           observes: [],
+          resourceClaims: [],
           scopeId: null
         },
         {
@@ -83,6 +88,7 @@ describe("static task engine", () => {
           taskId: "mutex-one",
           mutex: ["shared"],
           observes: [],
+          resourceClaims: [],
           scopeId: null
         },
         {
@@ -91,6 +97,7 @@ describe("static task engine", () => {
           taskId: "mutex-two",
           mutex: ["shared"],
           observes: [],
+          resourceClaims: [],
           scopeId: null
         },
         {
@@ -99,6 +106,7 @@ describe("static task engine", () => {
           taskId: "independent",
           mutex: [],
           observes: [],
+          resourceClaims: [],
           scopeId: null
         }
       ]
@@ -239,5 +247,69 @@ describe("static task engine", () => {
       { maxParallel: 1, pendingTaskIds: ["high"], runningTaskIds: ["running"] }
     );
     assert.equal(noPreemption.kind, "await-running");
+  });
+
+  it("limits named resource concurrency without withholding unrelated root slots", async () => {
+    const observations: DiagnosticObservation[] = [];
+    const started: string[] = [];
+    const gates = new Map(
+      ["browser-one", "browser-two", "browser-three", "unrelated"].map((taskId) => [
+        taskId,
+        createDeferred<void>()
+      ])
+    );
+    const running = runTaskGraph({
+      diagnosticLogger: recordingLogger(observations),
+      graph: {
+        resourceCapacities: { browser: 2 },
+        tasks: [
+          { id: "browser-one", resourceClaims: { browser: 1 } },
+          { id: "browser-two", resourceClaims: { browser: 1 } },
+          { id: "browser-three", resourceClaims: { browser: 1 } },
+          { id: "unrelated" }
+        ]
+      },
+      maxParallel: 3,
+      execute: async (task) => {
+        started.push(task.id);
+        await gates.get(task.id)?.promise;
+        return task.id;
+      }
+    });
+
+    await waitFor(() => started.length === 3);
+    assert.deepEqual(started, ["browser-one", "browser-two", "unrelated"]);
+    assert.equal(
+      recordedSchedulerDecisions(observations).some(
+        (decision) => decision.blockers.resourceCapacity === 1
+      ),
+      true
+    );
+
+    gates.get("browser-one")?.resolve(undefined);
+    await waitFor(() => started.includes("browser-three"));
+    for (const gate of gates.values()) gate.resolve(undefined);
+    assert.deepEqual(completedValues(await running), [
+      "browser-one",
+      "browser-two",
+      "browser-three",
+      "unrelated"
+    ]);
+
+    const afterFailure = await runTaskGraph({
+      graph: {
+        resourceCapacities: { browser: 1 },
+        tasks: [
+          { id: "failing", resourceClaims: { browser: 1 } },
+          { id: "after-failure", resourceClaims: { browser: 1 } }
+        ]
+      },
+      maxParallel: 2,
+      execute: (task) => {
+        if (task.id === "failing") throw new Error("fixture failure");
+        return task.id;
+      }
+    });
+    assert.deepEqual(completedValues(afterFailure), ["after-failure"]);
   });
 });

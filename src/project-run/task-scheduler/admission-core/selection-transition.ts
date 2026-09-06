@@ -27,6 +27,7 @@ interface MutableTransitionFacts {
   pendingObservations: NumberStore;
   readonly previous: CoreTaskStatus;
   remainingTaskCount: number;
+  resourceInUse: NumberStore;
   runningTotal: number;
   readonly status: CoreTaskStatus;
   statuses: StatusStore;
@@ -42,7 +43,7 @@ export function transitionIndexedSelection(
   activatedScopeSlot: number | undefined
 ): AdmissionSelectionIndex {
   const facts = initialTransitionFacts(selection, taskSlot, status, activatedScopeSlot);
-  applyRunningAndMutexDelta(compiled, facts);
+  applyRunningOccupancyDelta(compiled, facts);
   applySettlementRelationDelta(compiled, facts);
   applyScopeLifecycleDelta(compiled, facts);
   return freezeSelectionIndex({
@@ -56,6 +57,7 @@ export function transitionIndexedSelection(
     pendingDependencies: facts.pendingDependencies,
     pendingObservations: facts.pendingObservations,
     remainingTaskCount: facts.remainingTaskCount,
+    resourceInUse: facts.resourceInUse,
     runningTotal: facts.runningTotal,
     statuses: facts.statuses
   });
@@ -79,6 +81,7 @@ function initialTransitionFacts(
     pendingObservations: selection.pendingObservations,
     previous: statusForSelection(selection, taskSlot),
     remainingTaskCount: selection.remainingTaskCount,
+    resourceInUse: selection.resourceInUse,
     runningTotal: selection.runningTotal,
     status,
     statuses: withStatusAt(selection.statuses, taskSlot, status),
@@ -86,8 +89,8 @@ function initialTransitionFacts(
   };
 }
 
-/** Running admission/settlement changes global count and only affected mutex reverse fanout. */
-function applyRunningAndMutexDelta(
+/** Running admission/settlement changes the global count and owned constraint occupancy. */
+function applyRunningOccupancyDelta(
   compiled: CompiledAdmissionGraph,
   facts: MutableTransitionFacts
 ): void {
@@ -96,6 +99,7 @@ function applyRunningAndMutexDelta(
     facts.runningTotal += 1;
     facts.mutexHolders = withMutexHolderDelta(compiled, facts.mutexHolders, taskSlot, 1);
     facts.heldMutexBlockers = withMutexBlockerDelta(compiled, facts.heldMutexBlockers, taskSlot, 1);
+    facts.resourceInUse = withResourceClaimDelta(compiled, facts.resourceInUse, taskSlot, 1);
   } else if (previous.kind === "running" && status.kind === "settled") {
     facts.runningTotal -= 1;
     facts.remainingTaskCount -= 1;
@@ -106,9 +110,24 @@ function applyRunningAndMutexDelta(
       taskSlot,
       -1
     );
+    facts.resourceInUse = withResourceClaimDelta(compiled, facts.resourceInUse, taskSlot, -1);
   } else if (previous.kind === "pending" && status.kind === "settled") {
     facts.remainingTaskCount -= 1;
   }
+}
+
+function withResourceClaimDelta(
+  compiled: CompiledAdmissionGraph,
+  resourceInUse: NumberStore,
+  taskSlot: number,
+  direction: 1 | -1
+): NumberStore {
+  return withNumberDeltas(
+    resourceInUse,
+    compiled.taskResourceClaims[taskSlot].map(
+      ({ resourceSlot, units }) => [resourceSlot, direction * units] as const
+    )
+  );
 }
 
 function withMutexHolderDelta(

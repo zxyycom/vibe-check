@@ -25,7 +25,8 @@ function materializeCheck(check: ParsedCheck): Check {
     ...(dependsOn === undefined ? {} : { dependsOn }),
     ...(check.maxParallel === undefined ? {} : { maxParallel: check.maxParallel }),
     ...(mutex === undefined ? {} : { mutex }),
-    ...(observes === undefined ? {} : { observes })
+    ...(observes === undefined ? {} : { observes }),
+    ...(check.resourceClaims === undefined ? {} : { resourceClaims: check.resourceClaims })
   };
   if (
     check.definition === null ||

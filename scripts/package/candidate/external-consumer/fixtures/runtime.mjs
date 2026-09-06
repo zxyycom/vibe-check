@@ -370,6 +370,7 @@ async function observeCacheReuse() {
 async function observeAdmissionSimulation(projectRoot) {
   const simulation = createAdmissionGraph({
     graph: {
+      resourceCapacities: [],
       scopes: [],
       tasks: [
         admissionSimulationTask("source"),
@@ -512,6 +513,7 @@ function admissionSimulationTask(taskId, dependsOn = []) {
     dependsOn,
     mutex: [],
     observes: [],
+    resourceClaims: [],
     scopeId: null,
     taskId
   };

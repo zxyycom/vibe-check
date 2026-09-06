@@ -36,6 +36,7 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
       onSchedulerMeasurementHookFailure: () => invocation.outputs.failed("measurementHooks"),
       onSchedulerMeasurementHooksSettled: () => invocation.outputs.succeeded("measurementHooks"),
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
+      resourceCapacities: invocation.normalized.declarative.scheduler.resourceCapacities,
       invocationId: invocation.invocationId,
       lifecycle: invocation.progressRendering.lifecycle,
       paths: invocation.paths,

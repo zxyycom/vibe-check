@@ -1,5 +1,11 @@
 import { validatePreparedTaskGraph } from "./graph-validation.ts";
 import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
+import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+
+export interface NamedResourceUnits {
+  readonly resourceId: string;
+  readonly units: number;
+}
 
 export interface TaskNode {
   readonly admissionPriority?: number;
@@ -7,6 +13,7 @@ export interface TaskNode {
   readonly dependsOn?: readonly string[];
   readonly mutex?: readonly string[];
   readonly observes?: readonly string[];
+  readonly resourceClaims?: Readonly<Record<string, number>>;
   readonly scopeId?: string;
 }
 
@@ -23,6 +30,7 @@ export interface TaskScope {
 }
 
 export interface TaskGraph {
+  readonly resourceCapacities?: Readonly<Record<string, number>>;
   readonly tasks: readonly TaskNode[];
   readonly scopes?: readonly TaskScope[];
 }
@@ -33,6 +41,7 @@ export interface PlannedTask {
   readonly dependsOn: readonly string[];
   readonly mutex: readonly string[];
   readonly observes: readonly string[];
+  readonly resourceClaims: readonly NamedResourceUnits[];
   readonly scopeId: string | undefined;
 }
 
@@ -44,19 +53,21 @@ export interface PlannedTaskScope {
 }
 
 export interface PlannedTaskGraph {
+  readonly resourceCapacities: readonly NamedResourceUnits[];
   /** Immutable public projection shared by every decision and terminal measurement in one run. */
   readonly schedulerGraphSnapshot: SchedulerGraphSnapshot;
   readonly tasks: readonly PlannedTask[];
   readonly scopes: readonly PlannedTaskScope[];
 }
 
-const TASK_GRAPH_KEYS = ["tasks", "scopes"] as const;
+const TASK_GRAPH_KEYS = ["resourceCapacities", "tasks", "scopes"] as const;
 const TASK_NODE_KEYS = [
   "admissionPriority",
   "id",
   "dependsOn",
   "mutex",
   "observes",
+  "resourceClaims",
   "scopeId"
 ] as const;
 const TASK_SCOPE_KEYS = ["id", "maxParallel", "activationTaskIds", "terminalTaskId"] as const;
@@ -68,15 +79,27 @@ export function validateTaskGraph(graph: unknown): void {
 
 export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): PlannedTaskGraph {
   const data = record(graph, "task graph", TASK_GRAPH_KEYS);
+  const resourceCapacities = resourceMapping(
+    data.resourceCapacities,
+    "task graph resourceCapacities"
+  );
   const tasks = normalizeTasks(data.tasks);
   const scopes = normalizeScopes(data.scopes);
   const taskById = new Map(tasks.map((task) => [task.id, task] as const));
   const scopeById = new Map(scopes.map((scope) => [scope.id, scope] as const));
 
-  validatePreparedTaskGraph({ rootMaxParallel, scopeById, scopes, taskById, tasks });
+  validatePreparedTaskGraph({
+    resourceCapacities,
+    rootMaxParallel,
+    scopeById,
+    scopes,
+    taskById,
+    tasks
+  });
 
   return Object.freeze({
-    schedulerGraphSnapshot: schedulerGraphSnapshot(tasks, scopes),
+    resourceCapacities,
+    schedulerGraphSnapshot: schedulerGraphSnapshot(tasks, scopes, resourceCapacities),
     tasks: Object.freeze(tasks),
     scopes: Object.freeze(scopes)
   });
@@ -84,9 +107,11 @@ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): Plan
 
 function schedulerGraphSnapshot(
   tasks: readonly PlannedTask[],
-  scopes: readonly PlannedTaskScope[]
+  scopes: readonly PlannedTaskScope[],
+  resourceCapacities: readonly NamedResourceUnits[]
 ): SchedulerGraphSnapshot {
   return Object.freeze({
+    resourceCapacities,
     scopes: Object.freeze(
       scopes.map((scope) =>
         Object.freeze({
@@ -104,6 +129,7 @@ function schedulerGraphSnapshot(
           dependsOn: Object.freeze([...task.dependsOn]),
           mutex: Object.freeze([...task.mutex]),
           observes: Object.freeze([...task.observes]),
+          resourceClaims: task.resourceClaims,
           scopeId: task.scopeId ?? null,
           taskId: task.id
         })
@@ -135,6 +161,7 @@ function normalizeTasks(value: unknown): PlannedTask[] {
         dependsOn: Object.freeze(stringList(data.dependsOn, `task ${id}.dependsOn`)),
         mutex: Object.freeze(stringList(data.mutex, `task ${id}.mutex`)),
         observes: Object.freeze(stringList(data.observes, `task ${id}.observes`)),
+        resourceClaims: resourceMapping(data.resourceClaims, `task ${id}.resourceClaims`),
         scopeId
       })
     );
@@ -225,6 +252,25 @@ function requiredStringList(value: unknown, fieldName: string): string[] {
   return stringList(value, fieldName);
 }
 
+function resourceMapping(value: unknown, fieldName: string): readonly NamedResourceUnits[] {
+  if (value === undefined) return Object.freeze([]);
+  const data = snapshotClosedRecord(value);
+  if (data === undefined) throw new TypeError(`${fieldName} must be a closed object`);
+  const entries: NamedResourceUnits[] = [];
+  for (const resourceId of Object.keys(data).sort(compareText)) {
+    if (resourceId.trim().length === 0) {
+      throw new TypeError(`${fieldName} resource ids must be non-empty strings`);
+    }
+    entries.push(
+      Object.freeze({
+        resourceId,
+        units: positiveSafeInteger(data[resourceId], `${fieldName}.${resourceId}`)
+      })
+    );
+  }
+  return Object.freeze(entries);
+}
+
 function positiveSafeInteger(value: unknown, fieldName: string): number {
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value <= 0) {
     throw new TypeError(`${fieldName} must be a positive safe integer`);
@@ -238,4 +284,10 @@ function admissionPriorityOrDefault(value: unknown, taskId: string): number {
     throw new TypeError(`task ${taskId}.admissionPriority must be a safe integer`);
   }
   return value;
+}
+
+function compareText(left: string, right: string): number {
+  if (left < right) return -1;
+  if (left > right) return 1;
+  return 0;
 }

@@ -123,6 +123,7 @@ export type {
   CheckExecutionContext,
   CheckPreflight,
   CheckPreflightResult,
+  CheckResourceClaims,
   CheckOutcome,
   CheckResult,
   CheckUnavailableReason,

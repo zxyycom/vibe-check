@@ -10,7 +10,12 @@ import {
   type SchedulerMeasurementHook,
   type SchedulerPolicy
 } from "./project-definition.ts";
-import { snapshotClosedArray, snapshotClosedRecord } from "../data-boundary/closed-values.ts";
+import {
+  snapshotClosedArray,
+  snapshotClosedPolicyRecord,
+  snapshotClosedRecord
+} from "../data-boundary/closed-values.ts";
+import { snapshotResourceUnitMapping } from "./resource-unit-mapping.ts";
 
 type DefinitionValidationResult<T> = Readonly<
   | { readonly ok: true; readonly value: T }
@@ -46,7 +51,11 @@ function parseProjectDefinitionFields(
   if (checks === undefined) return invalidDefinition("definition.checks");
   const parsedChecks = parseCheckTreeAuthoring(checks);
   if (parsedChecks === undefined) return invalidDefinition("definition.checks");
-  const tree = resolveParsedCheckTree(parsedChecks, scheduler.maxParallel);
+  const tree = resolveParsedCheckTree(
+    parsedChecks,
+    scheduler.maxParallel,
+    scheduler.resourceCapacities
+  );
   if (tree === undefined) return invalidDefinition("definition.checks");
   const outputs = parseOutputs(data.outputs);
   if (outputs === undefined) return invalidDefinition("definition.outputs");
@@ -91,31 +100,28 @@ function exactRecord(
 }
 
 function parseScheduler(value: unknown): SchedulerPolicy | undefined {
-  const data = snapshotClosedRecord(value);
-  if (
-    data === undefined ||
-    !Object.hasOwn(data, "maxParallel") ||
-    Object.keys(data).some(
-      (key) => key !== "admissionPolicy" && key !== "maxParallel" && key !== "measurementHooks"
-    )
-  ) {
-    return undefined;
-  }
+  const data = snapshotClosedPolicyRecord(value, {
+    optional: ["admissionPolicy", "measurementHooks", "resourceCapacities"],
+    required: ["maxParallel"]
+  });
+  if (data === undefined) return undefined;
   const admissionPolicy = Object.hasOwn(data, "admissionPolicy")
     ? parseAdmissionPolicy(data.admissionPolicy)
     : Object.freeze({ kind: "static" as const });
+  if (admissionPolicy === undefined) return undefined;
   const measurementHooks = parseMeasurementHooks(data.measurementHooks);
-  return typeof data.maxParallel === "number" &&
-    Number.isSafeInteger(data.maxParallel) &&
-    data.maxParallel > 0 &&
-    admissionPolicy !== undefined &&
-    measurementHooks !== undefined
-    ? Object.freeze({
-        admissionPolicy,
-        maxParallel: data.maxParallel,
-        measurementHooks
-      })
-    : undefined;
+  if (measurementHooks === undefined) return undefined;
+  const resourceCapacities = snapshotResourceUnitMapping(
+    Object.hasOwn(data, "resourceCapacities") ? data.resourceCapacities : {}
+  );
+  if (resourceCapacities === undefined) return undefined;
+  const maxParallel = positiveSafeInteger(data.maxParallel);
+  if (maxParallel === undefined) return undefined;
+  return Object.freeze({ admissionPolicy, maxParallel, measurementHooks, resourceCapacities });
+}
+
+function positiveSafeInteger(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0 ? value : undefined;
 }
 
 function parseMeasurementHooks(value: unknown): readonly SchedulerMeasurementHook[] | undefined {

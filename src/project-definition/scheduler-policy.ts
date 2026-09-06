@@ -45,6 +45,13 @@ export interface AdmissionInspection {
   }>;
   readonly nextBoundary: "select" | "wait" | "complete";
   readonly runningTaskIds: readonly string[];
+  /** 当前 named resource occupancy；按 resourceId 规范排序。 */
+  readonly resources: readonly Readonly<{
+    readonly available: number;
+    readonly capacity: number;
+    readonly inUse: number;
+    readonly resourceId: string;
+  }>[];
   readonly scopes: readonly AdmissionScopeLifecycle[];
   readonly settledTasks: readonly AdmissionSettledTask[];
 }
@@ -87,6 +94,16 @@ export type AdmissionSelectionRejectionReason =
       readonly maxParallel: number;
       readonly running: number;
       readonly scopeId: string;
+    }>
+  | Readonly<{
+      readonly kind: "resource-capacity-insufficient";
+      readonly resources: readonly Readonly<{
+        readonly available: number;
+        readonly capacity: number;
+        readonly inUse: number;
+        readonly required: number;
+        readonly resourceId: string;
+      }>[];
     }>
   | Readonly<{ readonly kind: "observes-pending"; readonly taskIds: readonly string[] }>;
 
@@ -210,6 +227,10 @@ export type SchedulerMeasurementTiming =
 
 /** 所有公开 Scheduler context 共用的图 DTO；Task identity 一律为 `taskId`。 */
 export interface SchedulerGraphSnapshot {
+  readonly resourceCapacities: readonly Readonly<{
+    readonly resourceId: string;
+    readonly units: number;
+  }>[];
   readonly scopes: readonly Readonly<{
     readonly activationTaskIds: readonly string[];
     readonly id: string;
@@ -221,6 +242,10 @@ export interface SchedulerGraphSnapshot {
     readonly dependsOn: readonly string[];
     readonly mutex: readonly string[];
     readonly observes: readonly string[];
+    readonly resourceClaims: readonly Readonly<{
+      readonly resourceId: string;
+      readonly units: number;
+    }>[];
     readonly scopeId: string | null;
     readonly taskId: string;
   }>[];
@@ -422,6 +447,8 @@ export interface SchedulerPolicy {
   readonly admissionPolicy: AdmissionPolicy;
   readonly maxParallel: number;
   readonly measurementHooks: readonly SchedulerMeasurementHook[];
+  /** 本次 Definition 中可由 Check 原子占用的 named resource 总 units。 */
+  readonly resourceCapacities: Readonly<Record<string, number>>;
 }
 
 export interface DeclarativeSchedulerPolicy {
@@ -436,4 +463,5 @@ export interface DeclarativeSchedulerPolicy {
         readonly stateDirectory: string;
       }>;
   readonly maxParallel: number;
+  readonly resourceCapacities: Readonly<Record<string, number>>;
 }

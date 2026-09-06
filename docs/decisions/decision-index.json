@@ -61,6 +61,7 @@
       "drive-run-from-project-definition-value.md": "sha256:6e7959469558969a0a97929fc4d53334cbc64a686a5013ec4124c3139424a6a5",
       "enable-explicit-markdown-link-parse-cache.md": "sha256:2eee2f4f6ecb8918816074c4ac7838db014c1a35db1ccbe7ac1e3217991fc8f7",
       "enable-tool-effects-by-default.md": "sha256:d10374d46ca8ca53541d22fa2f0b68d3b46aadb0d2fa3111fadc2aecc026d56d",
+      "enforce-static-named-resource-capacities.md": "sha256:5bf875737d098fc96f922000c84d7817252c6ab01c9f00ac0fcebcf672b52e40",
       "enumerate-normalized-direct-dependency-outcomes.md": "sha256:1d0e5a30bee3ab73973a8c3f624ad8e6730fae975cda1d0a2967e98666fc0316",
       "evaluate-decision-policies-from-core-facts.md": "sha256:190bf87cddf2cb52fbb7a72315d946d5a43a61cacb317f876f2ef4e2c5821225",
       "exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md": "sha256:64689d4ad8078bd6a5c6c3457647dfa3e20daa3f841de800346992e5d7d5a3ef",
@@ -2082,6 +2083,35 @@
         "background": "产品是执行型质量工具；程序化调用改变集成入口，但不取消工具对可观察进度、可复用缓存和持久输出的责任。",
         "decision": "Public package API 默认通过 Product-owned runtime 启用受控日志、缓存和工具输出，并同时返回结构化结果；调用方可用公开配置显式调整或关闭这些效果。",
         "tags": [
+          "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "enforce-static-named-resource-capacities.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "enforce-static-named-resource-capacities.md",
+        "title": "以静态 named resource capacity 约束 Check 准入",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-06T09:12:40Z",
+        "purpose": "让一次 Run 在 root 并行预算之外安全共享可计数资源，同时保持 Scheduler 对合法性和生命周期的唯一责任。",
+        "background": "mutex 只能表达单 holder，root 与 scoped 并行预算不能区分浏览器、设备或内存等独立资源，也无法表达不同 Check 的加权消耗。",
+        "decision": "采用 Definition-owned 静态资源总量与可继承的 Check claims，并由共享 admission core 原子取得、持有和释放全部 units。",
+        "tags": [
+          "configuration",
           "product-contract"
         ],
         "relations": []

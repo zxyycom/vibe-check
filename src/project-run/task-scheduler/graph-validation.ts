@@ -1,6 +1,7 @@
-import type { PlannedTask, PlannedTaskScope } from "./graph.ts";
+import type { NamedResourceUnits, PlannedTask, PlannedTaskScope } from "./graph.ts";
 
 interface PreparedTaskGraphValidationInput {
+  readonly resourceCapacities: readonly NamedResourceUnits[];
   readonly rootMaxParallel: number | undefined;
   readonly scopeById: ReadonlyMap<string, PlannedTaskScope>;
   readonly scopes: readonly PlannedTaskScope[];
@@ -24,9 +25,30 @@ interface TaskRelationTraversal {
 
 /** Validates direct relations and scope structure after graph-shaped input is normalized. */
 export function validatePreparedTaskGraph(input: PreparedTaskGraphValidationInput): void {
+  validateResourceClaims(input.resourceCapacities, input.tasks);
   validateTaskRelations(input.tasks, input.taskById);
   validateTaskRelationCycles(input.tasks, input.taskById);
   validateScopes(input);
+}
+
+function validateResourceClaims(
+  capacities: readonly NamedResourceUnits[],
+  tasks: readonly PlannedTask[]
+): void {
+  const capacityByResourceId = new Map(
+    capacities.map(({ resourceId, units }) => [resourceId, units] as const)
+  );
+  for (const task of tasks) {
+    for (const claim of task.resourceClaims) {
+      const capacity = capacityByResourceId.get(claim.resourceId);
+      if (capacity === undefined) {
+        throw new Error(`task ${task.id} claims unknown resource ${claim.resourceId}`);
+      }
+      if (claim.units > capacity) {
+        throw new Error(`task ${task.id} claim exceeds resource capacity: ${claim.resourceId}`);
+      }
+    }
+  }
 }
 
 function validateTaskRelations(

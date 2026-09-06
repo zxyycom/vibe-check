@@ -252,4 +252,51 @@ describe("Scheduler performance diagnostics", () => {
       { settledAfterLastAdmissionMs: 5, taskId: "zeta" }
     ]);
   });
+
+  it("classifies a named resource wait as capacity blocked", async () => {
+    const clock = scriptedClock();
+    const observations: DiagnosticObservation[] = [];
+    const releaseResource = createDeferred<void>();
+    const running = runTaskGraph({
+      diagnosticLogger: recordingLogger(observations),
+      execute: async (task) => {
+        if (task.id === "resource-holder") await releaseResource.promise;
+        return task.id;
+      },
+      graph: {
+        resourceCapacities: { browser: 1 },
+        tasks: [
+          { id: "resource-holder", resourceClaims: { browser: 1 } },
+          { id: "resource-blocked", resourceClaims: { browser: 1 } }
+        ]
+      },
+      maxParallel: 2,
+      performanceDiagnostics: enabledDiagnostics(clock, observations)
+    });
+    await waitFor(() => hasSchedulerDecision(observations, "await-running", "wait"));
+    clock.advance("named resource capacity wait", 5);
+    releaseResource.resolve(undefined);
+    await running;
+
+    const summary = schedulerSummary(observations);
+    assert.equal(summary.capacityBlockedTaskMs, 5);
+    assert.deepEqual(summary.topAdmissionDelays, [
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 5,
+        capacityBlockedMs: 5,
+        mutexBlockedMs: 0,
+        taskActiveMs: 0,
+        taskId: "resource-blocked"
+      },
+      {
+        admissiblePendingMs: 0,
+        admissionDelayMs: 0,
+        capacityBlockedMs: 0,
+        mutexBlockedMs: 0,
+        taskActiveMs: 5,
+        taskId: "resource-holder"
+      }
+    ]);
+  });
 });

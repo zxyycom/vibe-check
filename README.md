@@ -180,13 +180,14 @@ grammar 见上表链接到的 Check 指南。`secretDetection` 同样在完整�
 | `outputs.machinePublication.enabled` | `true` | 把 `run.json` 与 `records.ndjson` 写入 `artifacts/vibe-check`。 |
 | `outputs.diagnosticLogging.enabled` | `false` | 为本次 invocation 写入维护者诊断日志。 |
 | `scheduler.maxParallel` | `4` | 限制最外层 Check 并行数。 |
+| `scheduler.resourceCapacities` | `{}` | 声明本次 Run 中可由 Check 原子占用的 named resource 总 units。 |
 | `scheduler.admissionPolicy` | `{ kind: "static" }` | 按静态图与当前 ready facts 选择 task。 |
 
 machine publication 与 diagnostic logging 的 `directory` 都是调用方选择的 target：相对路径从这次 effective `projectRoot` 解析，绝对路径直接使用。它们不是 sandbox、目录清空或 containment 承诺；可移植的 Definition 优先使用相对路径，将 invocation-specific 绝对 target 放入 `run(..., { outputs })`。
 
 ### 调度多个 Check 与终态统计
 
-默认静态调度已经保证 `dependsOn`、`observes`、mutex、并行预算和取消边界。只有需要为 ready task 定义项目自己的选择偏好、模拟静态图分支、为一次 Run 准备策略，或复用调用方拥有的本地时长 history 时，阅读[按项目约束调度 Check](./docs/guides/scheduling.md)。
+默认静态调度已经保证 `dependsOn`、`observes`、mutex、root/scoped 并行预算、named resource capacity 和取消边界。需要限制浏览器、设备或其它可计数共享资源时，先在 `scheduler.resourceCapacities` 声明总量，再由 Check 的 `resourceClaims` 声明从 admission 到 settlement 持有的 units；完整 grammar、继承和示例见[按项目约束调度 Check](./docs/guides/scheduling.md#限制-named-resource-并发)。只有需要为 ready task 定义项目自己的选择偏好、模拟静态图分支、为一次 Run 准备策略，或复用调用方拥有的本地时长 history 时，才配置非默认 admission policy。
 
 若目的不是改变选择，而是在 Run 结束后读取冻结的 scheduler graph、settlement 与 raw measurement 来保存项目自己的统计，直接阅读该专题的[观察终态 measurement](./docs/guides/scheduling.md#观察终态-measurement)。`scheduler.measurementHooks` 是终态 side effect，不是每个 Task 的 event stream，也不能改写已结算的 Check 或 aggregate。
 

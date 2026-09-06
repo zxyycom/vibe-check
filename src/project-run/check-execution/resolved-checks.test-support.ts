@@ -39,6 +39,7 @@ export function normalized(
     mutex: [],
     observes: resolved.observes,
     options: {},
+    resourceClaims: Object.freeze({}),
     ...(resolved.preflight === undefined ? {} : { preflight: resolved.preflight }),
     visibility: "always"
   };

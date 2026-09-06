@@ -60,6 +60,7 @@ const preparationContext = (context: CustomAdmissionPreparationContext): Schedul
   context.graph;
 const simulation: AdmissionGraph = createAdmissionGraph({
   graph: {
+    resourceCapacities: [],
     scopes: [],
     tasks: [
       {
@@ -67,6 +68,7 @@ const simulation: AdmissionGraph = createAdmissionGraph({
         dependsOn: [],
         mutex: [],
         observes: [],
+        resourceClaims: [],
         scopeId: null,
         taskId: "simulated"
       }
@@ -77,6 +79,7 @@ const simulation: AdmissionGraph = createAdmissionGraph({
 const simulatedState: AdmissionState = simulation.initialState();
 const simulationInput: AdmissionGraphInput = {
   graph: {
+    resourceCapacities: [],
     scopes: [],
     tasks: [
       {
@@ -84,6 +87,7 @@ const simulationInput: AdmissionGraphInput = {
         dependsOn: [],
         mutex: [],
         observes: [],
+        resourceClaims: [],
         scopeId: null,
         taskId: "simulated-input"
       }

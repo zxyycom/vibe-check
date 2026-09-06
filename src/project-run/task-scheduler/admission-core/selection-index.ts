@@ -43,6 +43,7 @@ export interface AdmissionSelectionIndex {
   readonly pendingObservations: NumberStore;
   readonly pendingDependencies: NumberStore;
   readonly remainingTaskCount: number;
+  readonly resourceInUse: NumberStore;
   readonly runningTotal: number;
   readonly statuses: StatusStore;
 }

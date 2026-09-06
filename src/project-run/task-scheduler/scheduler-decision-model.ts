@@ -44,6 +44,7 @@ export interface SchedulerCapacity {
 export interface SchedulerBlockerSummary {
   readonly dependency: number;
   readonly mutex: number;
+  readonly resourceCapacity: number;
   readonly rootCapacity: boolean;
   readonly scopeCapacity: boolean;
 }

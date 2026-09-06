@@ -170,7 +170,8 @@ describe("Project Gate Definition", () => {
         stateDirectory: ".cache/vibe-check/scheduler-history"
       },
       maxParallel: 3,
-      measurementHooks: []
+      measurementHooks: [],
+      resourceCapacities: {}
     });
     assert.deepEqual(PROJECT_GATE_RUN_CONFIG.selection, {
       complete: "all",

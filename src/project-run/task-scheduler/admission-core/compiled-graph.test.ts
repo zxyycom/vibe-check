@@ -8,6 +8,7 @@ describe("prepared admission graph compiler", () => {
   it("compiles static indexes from a prepared graph without rematerializing it", () => {
     const graph = prepareTaskGraph(
       {
+        resourceCapacities: { browser: 2, memory: 4 },
         scopes: [
           {
             activationTaskIds: ["a-dependent"],
@@ -23,11 +24,16 @@ describe("prepared admission graph compiler", () => {
           }
         ],
         tasks: [
-          { id: "z-source", mutex: ["mutex-two", "mutex-one", "mutex-two"] },
+          {
+            id: "z-source",
+            mutex: ["mutex-two", "mutex-one", "mutex-two"],
+            resourceClaims: { memory: 2, browser: 1 }
+          },
           {
             dependsOn: ["z-source", "z-source"],
             id: "a-dependent",
             mutex: ["mutex-one"],
+            resourceClaims: { browser: 2 },
             scopeId: "later-scope"
           },
           {
@@ -80,6 +86,24 @@ describe("prepared admission graph compiler", () => {
       ]
     );
     assert.deepEqual(compiled.taskMutexSlots, [[0, 1, 0], [1], [2], [], []]);
+    assert.deepEqual(
+      [...compiled.resourceSlotById],
+      [
+        ["browser", 0],
+        ["memory", 1]
+      ]
+    );
+    assert.deepEqual(compiled.resourceCapacityBySlot, [2, 4]);
+    assert.deepEqual(compiled.taskResourceClaims, [
+      [
+        { resourceSlot: 0, units: 1 },
+        { resourceSlot: 1, units: 2 }
+      ],
+      [{ resourceSlot: 0, units: 2 }],
+      [],
+      [],
+      []
+    ]);
     assert.deepEqual(compiled.relationIndexes.reverseMutexOccurrences, [[0, 0], [0, 1], [2]]);
     assert.deepEqual(compiled.relationIndexes.reverseDependencies, [[1, 1], [4], [3], [], []]);
     assert.deepEqual(compiled.relationIndexes.reverseObservations, [[2, 2], [], [], [], []]);
@@ -98,5 +122,7 @@ describe("prepared admission graph compiler", () => {
     assert.equal(Object.isFrozen(compiled.relationIndexes), true);
     assert.equal(Object.isFrozen(compiled.taskMutexSlots), true);
     assert.equal(Object.isFrozen(compiled.taskMutexSlots[0]), true);
+    assert.equal(Object.isFrozen(compiled.taskResourceClaims), true);
+    assert.equal(Object.isFrozen(compiled.taskResourceClaims[0]), true);
   });
 });

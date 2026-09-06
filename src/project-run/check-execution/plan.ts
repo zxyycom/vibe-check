@@ -1,15 +1,23 @@
 import type { TaskGraph, TaskNode, TaskScope } from "../task-scheduler/graph.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
+import {
+  EMPTY_RESOURCE_UNIT_MAPPING,
+  type ResourceUnitMapping
+} from "../../project-definition/resource-unit-mapping.ts";
 
 /**
  * Pure executable-Check projection. Check ids are the only scheduler Task
  * identities: containment has already been resolved by Definition and has no
  * runtime alias or completion semantics here.
  */
-export function planStaticCheckGraph(checks: readonly NormalizedCheck[]): TaskGraph {
+export function planStaticCheckGraph(
+  checks: readonly NormalizedCheck[],
+  resourceCapacities: ResourceUnitMapping = EMPTY_RESOURCE_UNIT_MAPPING
+): TaskGraph {
   const tasks = checks.map(taskForCheck);
   const scopes = checks.map(scopeForCheck);
   return Object.freeze({
+    resourceCapacities,
     tasks: Object.freeze(tasks),
     scopes: Object.freeze(scopes)
   });
@@ -22,6 +30,7 @@ function taskForCheck(check: NormalizedCheck): TaskNode {
     id: check.definition.checkId,
     mutex: check.mutex,
     observes: check.observes,
+    resourceClaims: check.resourceClaims,
     scopeId: scopeIdFor(check)
   });
 }

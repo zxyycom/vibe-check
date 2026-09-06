@@ -12,31 +12,44 @@ import { planStaticCheckGraph } from "./plan.ts";
 
 describe("Check execution plan", () => {
   it("projects normalized admission priority into the static task graph", () => {
-    const checks = normalizeProjectDefinition(
+    const normalized = normalizeProjectDefinition(
       defineConfig({
+        scheduler: { resourceCapacities: { browser: 2 } },
         checks: [
           defineCheck({
             admissionPriority: -2,
             checkId: "lowered",
             displayName: "Lowered",
             observes: ["defaulted"],
+            resourceClaims: { browser: 1 },
             execution: passed
           }),
           defineCheck({ checkId: "defaulted", displayName: "Defaulted", execution: passed })
         ]
       })
-    ).checks;
+    );
+    const graph = planStaticCheckGraph(
+      normalized.checks,
+      normalized.declarative.scheduler.resourceCapacities
+    );
 
     assert.deepEqual(
-      planStaticCheckGraph(checks).tasks.map(({ admissionPriority, id, observes }) => ({
+      graph.tasks.map(({ admissionPriority, id, observes, resourceClaims }) => ({
         admissionPriority,
         id,
-        observes
+        observes,
+        resourceClaims
       })),
       [
-        { admissionPriority: -2, id: "lowered", observes: ["defaulted"] },
-        { admissionPriority: 0, id: "defaulted", observes: [] }
+        {
+          admissionPriority: -2,
+          id: "lowered",
+          observes: ["defaulted"],
+          resourceClaims: { browser: 1 }
+        },
+        { admissionPriority: 0, id: "defaulted", observes: [], resourceClaims: {} }
       ]
     );
+    assert.deepEqual(graph.resourceCapacities, { browser: 2 });
   });
 });

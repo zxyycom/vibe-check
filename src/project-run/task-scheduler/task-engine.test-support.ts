@@ -56,11 +56,15 @@ export function schedulerSummary(
 export function assertFrozenSchedulerGraphSnapshot(graph: SchedulerGraphSnapshot): void {
   assert.equal(Object.isFrozen(graph), true);
   assert.equal(Object.isFrozen(graph.tasks), true);
+  assert.equal(Object.isFrozen(graph.resourceCapacities), true);
+  for (const resource of graph.resourceCapacities) assert.equal(Object.isFrozen(resource), true);
   for (const task of graph.tasks) {
     assert.equal(Object.isFrozen(task), true);
     assert.equal(Object.isFrozen(task.dependsOn), true);
     assert.equal(Object.isFrozen(task.mutex), true);
     assert.equal(Object.isFrozen(task.observes), true);
+    assert.equal(Object.isFrozen(task.resourceClaims), true);
+    for (const resource of task.resourceClaims) assert.equal(Object.isFrozen(resource), true);
   }
   assert.equal(Object.isFrozen(graph.scopes), true);
   for (const scope of graph.scopes) {
@@ -216,6 +220,7 @@ function assertSchedulerDecisionContext(decision: SchedulerDecision): void {
   assert.deepEqual(Object.keys(decision.blockers).sort(), [
     "dependency",
     "mutex",
+    "resourceCapacity",
     "rootCapacity",
     "scopeCapacity"
   ]);

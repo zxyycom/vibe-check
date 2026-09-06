@@ -15,6 +15,12 @@ export interface SchedulerInspection {
   readonly maxParallel: number;
   readonly pendingTasks: readonly PlannedTask[];
   readonly runningMutexes: readonly string[];
+  readonly resources: readonly Readonly<{
+    readonly available: number;
+    readonly capacity: number;
+    readonly inUse: number;
+    readonly resourceId: string;
+  }>[];
   readonly runningTaskIds: readonly string[];
   readonly settledTasks: readonly Readonly<{
     readonly kind: SchedulerSettlementKind;

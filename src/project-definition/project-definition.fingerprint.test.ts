@@ -153,16 +153,54 @@ describe("Project Definition", () => {
         kind: "learned-critical-path",
         stateDirectory: ".vibe-check/duration-state"
       },
-      maxParallel: 4
+      maxParallel: 4,
+      resourceCapacities: {}
     });
     assert.deepEqual(normalizeProjectDefinition(firstCustomPolicy).declarative.scheduler, {
       admissionPolicy: { kind: "custom", strategy: { kind: "simple" } },
-      maxParallel: 4
+      maxParallel: 4,
+      resourceCapacities: {}
     });
     assert.deepEqual(normalizeProjectDefinition(preparedCustomPolicy).declarative.scheduler, {
       admissionPolicy: { kind: "custom", strategy: { kind: "prepared" } },
-      maxParallel: 4
+      maxParallel: 4,
+      resourceCapacities: {}
     });
+
+    const resourceBaseline = defineConfig({
+      scheduler: { resourceCapacities: { browser: 2, memory: 4 } },
+      checks: [
+        defineCheck({
+          checkId: "resource-check",
+          displayName: "Resource check",
+          execution: passed,
+          resourceClaims: { memory: 2, browser: 1 }
+        })
+      ]
+    });
+    const resourceReordered = defineConfig({
+      scheduler: { resourceCapacities: { memory: 4, browser: 2 } },
+      checks: [
+        defineCheck({
+          checkId: "resource-check",
+          displayName: "Resource check",
+          execution: passed,
+          resourceClaims: { browser: 1, memory: 2 }
+        })
+      ]
+    });
+    const resourceChanged = defineConfig({
+      scheduler: { resourceCapacities: { browser: 3, memory: 4 } },
+      checks: resourceBaseline.checks
+    });
+    assert.equal(
+      createDeclarativeFingerprint(normalizeProjectDefinition(resourceBaseline).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(resourceReordered).declarative)
+    );
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(resourceBaseline).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(resourceChanged).declarative)
+    );
 
     const options = {};
     Object.defineProperty(options, "__proto__", {

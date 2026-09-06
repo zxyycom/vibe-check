@@ -3,6 +3,7 @@ import type {
   NormalizedCheck,
   SchedulerMeasurementHook
 } from "../../project-definition/project-definition.ts";
+import type { ResourceUnitMapping } from "../../project-definition/resource-unit-mapping.ts";
 import { createCoreCheckSession } from "../../check-settlement/session.ts";
 import {
   diagnosticTags,
@@ -70,6 +71,7 @@ type ResolvedCheckExecutionInput = Readonly<{
   readonly admissionPolicy?: AdmissionSelectionPolicy;
   readonly checks: readonly NormalizedCheck[];
   readonly maxParallel: number;
+  readonly resourceCapacities?: ResourceUnitMapping;
   /** Product invocation identity；private direct-execution tests 使用稳定 fallback。 */
   readonly invocationId?: string;
   /** 冻结的 invocation paths；仅 private direct-execution tests 可以省略。 */
@@ -98,7 +100,7 @@ type ResolvedCheckExecutionInput = Readonly<{
 export async function executeResolvedChecks(
   input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
-  prepareTaskGraph(planStaticCheckGraph(input.checks), input.maxParallel);
+  prepareTaskGraph(planStaticCheckGraph(input.checks, input.resourceCapacities), input.maxParallel);
   const effectiveCheckIds = selectEffectiveCheckIds(input.checks, input.project.flags);
   return runWithCheckConsoleRouter(() => executePreparedResolvedChecks(input, effectiveCheckIds));
 }
@@ -128,7 +130,7 @@ async function executePreparedResolvedChecks(
   let graphRun: Awaited<ReturnType<typeof runTaskGraph<boolean>>>;
   try {
     graphRun = await runTaskGraph<boolean>({
-      graph: planStaticCheckGraph(input.checks),
+      graph: planStaticCheckGraph(input.checks, input.resourceCapacities),
       admissionPolicy: input.admissionPolicy,
       maxParallel: input.maxParallel,
       diagnosticLogger: input.schedulerDiagnosticLogger ?? input.diagnosticLogger,

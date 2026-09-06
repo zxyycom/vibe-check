@@ -15,11 +15,17 @@ export interface CompiledAdmissionGraph {
   readonly graph: PlannedTaskGraph;
   readonly maxParallel: number;
   readonly mutexSlotById: ReadonlyMap<string, number>;
+  readonly resourceCapacityBySlot: readonly number[];
+  readonly resourceSlotById: ReadonlyMap<string, number>;
   readonly scopesById: ReadonlyMap<string, PlannedTaskGraph["scopes"][number]>;
   readonly scopeSlotById: ReadonlyMap<string, number>;
   readonly scopeSlotsByTerminalTaskSlot: readonly (readonly number[])[];
   readonly taskById: ReadonlyMap<string, PlannedTask>;
   readonly taskMutexSlots: readonly (readonly number[])[];
+  readonly taskResourceClaims: readonly (readonly Readonly<{
+    readonly resourceSlot: number;
+    readonly units: number;
+  }>[])[];
   readonly taskActivatesScope: readonly boolean[];
   readonly taskScopeSlots: readonly (number | undefined)[];
   readonly taskSlotsById: ReadonlyMap<string, number>;
@@ -41,6 +47,12 @@ interface MutexStaticIndexes {
   readonly taskMutexSlots: readonly (readonly number[])[];
 }
 
+interface ResourceStaticIndexes {
+  readonly resourceCapacityBySlot: readonly number[];
+  readonly resourceSlotById: ReadonlyMap<string, number>;
+  readonly taskResourceClaims: CompiledAdmissionGraph["taskResourceClaims"];
+}
+
 interface ScopeStaticIndexes {
   readonly scopeSlotsByTerminalTaskSlot: readonly (readonly number[])[];
   readonly taskActivatesScope: readonly boolean[];
@@ -59,6 +71,7 @@ interface CompiledAdmissionGraphParts {
   readonly mutexIndexes: MutexStaticIndexes;
   readonly publicTaskOrder: PublicTaskOrder;
   readonly relationIndexes: ReverseRelationIndexes;
+  readonly resourceIndexes: ResourceStaticIndexes;
   readonly scopeIndexes: ScopeStaticIndexes;
 }
 
@@ -71,6 +84,7 @@ export function compilePreparedAdmissionGraph(
   const catalog = compileGraphSlotCatalog(graph);
   const mutexIndexes = compileMutexStaticIndexes(graph);
   const relationIndexes = compileRelationStaticIndexes(graph, catalog.taskSlotsById);
+  const resourceIndexes = compileResourceStaticIndexes(graph);
   const scopeIndexes = compileScopeStaticIndexes(graph, catalog);
   const publicTaskOrder = compilePublicTaskOrder(graph, catalog.taskSlotsById);
 
@@ -81,8 +95,30 @@ export function compilePreparedAdmissionGraph(
     mutexIndexes,
     publicTaskOrder,
     relationIndexes,
+    resourceIndexes,
     scopeIndexes
   });
+}
+
+function compileResourceStaticIndexes(graph: PlannedTaskGraph): ResourceStaticIndexes {
+  const resourceSlotById = new Map(
+    graph.resourceCapacities.map(({ resourceId }, slot) => [resourceId, slot] as const)
+  );
+  const resourceCapacityBySlot = Object.freeze(graph.resourceCapacities.map(({ units }) => units));
+  const taskResourceClaims = Object.freeze(
+    graph.tasks.map((task) =>
+      Object.freeze(
+        task.resourceClaims.map(({ resourceId, units }) => {
+          const resourceSlot = resourceSlotById.get(resourceId);
+          if (resourceSlot === undefined) {
+            throw new Error(`admission core resource is unknown: ${resourceId}`);
+          }
+          return Object.freeze({ resourceSlot, units });
+        })
+      )
+    )
+  );
+  return { resourceCapacityBySlot, resourceSlotById, taskResourceClaims };
 }
 
 function assertMaxParallel(maxParallel: number): void {
@@ -237,12 +273,15 @@ function assembleCompiledAdmissionGraph(
     mutexIndexes,
     publicTaskOrder,
     relationIndexes,
+    resourceIndexes,
     scopeIndexes
   } = parts;
   return Object.freeze({
     graph,
     maxParallel,
     mutexSlotById: mutexIndexes.mutexSlotById,
+    resourceCapacityBySlot: resourceIndexes.resourceCapacityBySlot,
+    resourceSlotById: resourceIndexes.resourceSlotById,
     relationIndexes: Object.freeze({
       reverseDependencies: relationIndexes.reverseDependencies,
       reverseMutexOccurrences: mutexIndexes.reverseMutexOccurrences,
@@ -254,6 +293,7 @@ function assembleCompiledAdmissionGraph(
     taskById: catalog.taskById,
     taskIdsInPublicOrder: publicTaskOrder.taskIdsInPublicOrder,
     taskMutexSlots: mutexIndexes.taskMutexSlots,
+    taskResourceClaims: resourceIndexes.taskResourceClaims,
     taskActivatesScope: scopeIndexes.taskActivatesScope,
     taskScopeSlots: scopeIndexes.taskScopeSlots,
     taskSlotsById: catalog.taskSlotsById,

@@ -8,20 +8,33 @@ export function summarizeSchedulerBlockers(
 ): SchedulerBlockerSummary {
   let dependency = 0;
   let mutex = 0;
+  let resourceCapacity = 0;
   for (const task of state.pendingTasks) {
     if (hasUnsatisfiedRelation(task, state.settledTasks)) {
       dependency += 1;
       continue;
     }
     if (hasRunningMutex(task.mutex, state.runningMutexes)) mutex += 1;
+    else if (hasResourceShortage(task.resourceClaims, state.resources)) resourceCapacity += 1;
   }
   return Object.freeze({
     dependency,
     mutex,
+    resourceCapacity,
     rootCapacity: state.runningTaskIds.length >= state.maxParallel,
     scopeCapacity:
       capacity.effectiveMaxParallel < state.maxParallel &&
       state.runningTaskIds.length >= capacity.effectiveMaxParallel
+  });
+}
+
+function hasResourceShortage(
+  claims: SchedulerInspection["pendingTasks"][number]["resourceClaims"],
+  resources: SchedulerInspection["resources"]
+): boolean {
+  return claims.some((claim) => {
+    const resource = resources.find(({ resourceId }) => resourceId === claim.resourceId);
+    return resource === undefined || claim.units > resource.available;
   });
 }
 

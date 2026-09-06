@@ -71,7 +71,7 @@ admission、I/O、cancellation 与 metric mapping 留在该目录外。
 
 `defineConfig` 返回普通 Project Definition value。它的递归 `checks` tree 由普通 `Check` values 组成：
 `execution`、`options` 和 child `checks` 是同一对象上的字段。容器只向 descendants 传递
-`dependsOn`、`observes`、`mutex`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。
+`dependsOn`、`observes`、`mutex`、`resourceClaims`、`maxParallel` 和 `admissionPriority`，不形成独立 Check-facts 或 output entity。root `scheduler.resourceCapacities` 声明同一 invocation 内可供这些 claims 使用的静态总量。
 
 完整 authoring grammar 与默认值由 [Project Definition](project-definition.md) 拥有；invocation contract 由 [Project Run](project-run.md) 拥有。Definition validation 在任何 execution、scanner、cache、progress 或 output work 之前闭合 ordinary Check grammar：它拒绝 unknown Check field 和 malformed scheduling value，将每个 Check 的 `options` snapshot 为 canonical immutable JSON object，并 canonicalize scheduling collection。Definition 不识别 package-provided Check ID，也不解释其 option shape。
 
@@ -79,12 +79,14 @@ Definition grammar 只描述递归 Check、调度、executable-only `visibility`
 
 ## Execution boundary
 
-Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root budget、immutable Task graph metadata（含 `admissionPriority`）、cancellation 与 settlement。private static policy 是无状态纯决策；public custom policy 是 invocation-scoped `simple | prepared` strategy。simple 直接形成同步 select/wait closure；prepared 在 graph ready 后为每个 Run 一次 `prepare({ graph })`，只把该次返回的同步 `decide` 交给 Scheduler。priority 不另有 map/list 或旁路输入；public callbacks 收到 frozen context，并以 result-only proposal 回交 Scheduler，而不是取得 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
+Product 将 executable node 一次 flatten 为 canonical catalog。它只将 generic task engine 用于 graph validation、dependency/mutex admission、root/scoped budget、atomic named resource accounting、immutable Task graph metadata（含 `admissionPriority` 和 claims）、cancellation 与 settlement。named resource slots 在 graph compile 时建立；running seed、admission 和任意 settlement 都通过同一 persistent selection transition 更新 occupancy，因此 custom proposal、standalone simulation 与 real shell 共享 legality。
+
+private static policy 是无状态纯决策。它在相同 priority 规则下先考虑 `canAdmit` 的普通 candidate，避免等待 named resource 的 Task 浪费其它 ready work 可使用的 root slot。public custom policy 是 invocation-scoped `simple | prepared` strategy：simple 直接形成同步 select/wait closure；prepared 在 graph ready 后为每个 Run 一次 `prepare({ graph })`，只把该次返回的同步 `decide` 交给 Scheduler。priority 不另有 map/list 或旁路输入；public callbacks 收到 frozen context，并以 result-only proposal 回交 Scheduler，而不是取得 private engine alias，也不会因此被 sandbox 或限制自身 host-side effect。
 
 standalone `createAdmissionGraph` 与 custom callback 的 `admissionState` 共享 Scheduler-private compiled graph、immutable
 parent+delta dynamic node、pure reducer 和 canonical effects。前者从独立 static input 形成 initial state；后者只在实际 callback
 boundary 提供同型 live seed。两者都只公开 frozen inspection/catalog/validation 与 hypothetical `select` / binary `settle`
-successor。
+successor。graph DTO 用 canonical `{ resourceId, units }[]` 表达静态 capacities/claims；inspection 只投影当前 occupancy，不暴露 mutable counter 或资源操作 capability。
 
 real shell 仍独占 Task/Promise、signal、diagnostic、measurement、actual value/error 与 `RunResult`，并只应用 reducer effects
 后执行既有 callback-return hard guards。public state 不是 cancellation、executor、effect stream、state storage 或 reservation

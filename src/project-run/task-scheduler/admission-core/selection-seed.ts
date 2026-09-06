@@ -17,6 +17,7 @@ interface SeedTaskCounters {
   readonly pendingDependencies: number[];
   readonly pendingObservations: number[];
   readonly remainingTaskCount: number;
+  readonly resourceInUse: number[];
   readonly runningTotal: number;
 }
 
@@ -44,6 +45,7 @@ export function selectionIndexForSeed(
     pendingDependencies: persistentNumbersFor(counters.pendingDependencies),
     pendingObservations: persistentNumbersFor(counters.pendingObservations),
     remainingTaskCount: counters.remainingTaskCount,
+    resourceInUse: persistentNumbersFor(counters.resourceInUse),
     runningTotal: counters.runningTotal,
     statuses: persistentStatus
   });
@@ -60,12 +62,16 @@ function seedTaskCounters(
   const pendingObservations: number[] = [];
   let remainingTaskCount = 0;
   let runningTotal = 0;
+  const resourceInUse = compiled.resourceCapacityBySlot.map(() => 0);
   for (const [taskSlot, task] of compiled.graph.tasks.entries()) {
     const status = statusForStore(statuses, taskSlot);
     if (status.kind === "pending" || status.kind === "running") remainingTaskCount += 1;
     if (status.kind === "running") {
       runningTotal += 1;
       for (const mutexSlot of compiled.taskMutexSlots[taskSlot]) mutexHolders[mutexSlot] += 1;
+      for (const claim of compiled.taskResourceClaims[taskSlot]) {
+        resourceInUse[claim.resourceSlot] += claim.units;
+      }
     }
     appendDependencyCountsForSeed(
       compiled,
@@ -82,6 +88,7 @@ function seedTaskCounters(
     pendingDependencies,
     pendingObservations,
     remainingTaskCount,
+    resourceInUse,
     runningTotal
   };
 }

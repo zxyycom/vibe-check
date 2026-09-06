@@ -44,6 +44,28 @@ describe("static task engine", () => {
       /duplicate task id: same/
     );
     assert.throws(
+      () =>
+        validateTaskGraph({
+          resourceCapacities: { browser: 1 },
+          tasks: [{ id: "unknown-resource", resourceClaims: { database: 1 } }]
+        }),
+      /claims unknown resource database/
+    );
+    assert.throws(
+      () =>
+        validateTaskGraph({
+          resourceCapacities: { browser: 1 },
+          tasks: [{ id: "oversized-claim", resourceClaims: { browser: 2 } }]
+        }),
+      /claim exceeds resource capacity: browser/
+    );
+    for (const resourceCapacities of [{ browser: 0 }, { browser: 1.5 }, { " ": 1 }]) {
+      assert.throws(
+        () => validateTaskGraph({ resourceCapacities, tasks: [] }),
+        /positive safe integer|non-empty strings/
+      );
+    }
+    assert.throws(
       () => validateTaskGraph({ tasks: [{ id: "dependent", dependsOn: ["missing"] }] }),
       /task dependent depends on unknown task missing/
     );

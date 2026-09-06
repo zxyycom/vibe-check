@@ -10,6 +10,7 @@ import {
   type TrustedDataParser
 } from "./check-fields-authoring.ts";
 import { parseCheckScheduling, type ParsedCheckCollection } from "./scheduling-authoring.ts";
+import type { ResourceUnitMapping } from "../resource-unit-mapping.ts";
 
 export type { ParsedCheckCollection } from "./scheduling-authoring.ts";
 
@@ -25,6 +26,7 @@ export interface ParsedCheck {
   readonly maxParallel: number | undefined;
   readonly mutex: ParsedCheckCollection | undefined;
   readonly observes: ParsedCheckCollection | undefined;
+  readonly resourceClaims: ResourceUnitMapping | undefined;
   readonly options: object | null;
   readonly path: string;
   readonly parseData: TrustedDataParser | null;
@@ -91,6 +93,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex,
     observes: scheduling.observes,
+    resourceClaims: scheduling.resourceClaims,
     options: fields.options,
     path,
     parseData: fields.parseData,

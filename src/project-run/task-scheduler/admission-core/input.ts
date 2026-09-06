@@ -16,12 +16,16 @@ export function compileAdmissionGraphInput(input: AdmissionGraphInput): Compiled
 }
 
 function taskGraphFromSchedulerSnapshot(value: unknown): TaskGraph {
-  const graph = exactRecord(value, "admission graph", ["scopes", "tasks"]);
+  const graph = exactRecord(value, "admission graph", ["resourceCapacities", "scopes", "tasks"]);
   const rawTasks = requiredArray(graph.tasks, "admission graph tasks");
   const rawScopes = requiredArray(graph.scopes, "admission graph scopes");
   const tasks = rawTasks.map(taskFromInput);
   const scopes = rawScopes.map(scopeFromInput);
   return Object.freeze({
+    resourceCapacities: resourceMappingFromInput(
+      graph.resourceCapacities,
+      "admission graph resourceCapacities"
+    ),
     scopes: Object.freeze(scopes),
     tasks: Object.freeze(tasks)
   });
@@ -34,6 +38,7 @@ function taskFromInput(candidate: unknown, index: number): TaskGraph["tasks"][nu
     "dependsOn",
     "mutex",
     "observes",
+    "resourceClaims",
     "scopeId",
     "taskId"
   ]);
@@ -46,8 +51,24 @@ function taskFromInput(candidate: unknown, index: number): TaskGraph["tasks"][nu
     id: requiredString(task.taskId, `${label}.taskId`),
     mutex: stringArray(task.mutex, `${label}.mutex`),
     observes: stringArray(task.observes, `${label}.observes`),
+    resourceClaims: resourceMappingFromInput(task.resourceClaims, `${label}.resourceClaims`),
     ...(task.scopeId === null ? {} : { scopeId: requiredString(task.scopeId, `${label}.scopeId`) })
   });
+}
+
+function resourceMappingFromInput(value: unknown, label: string): Readonly<Record<string, number>> {
+  const items = requiredArray(value, label);
+  const entries: [string, number][] = [];
+  const ids = new Set<string>();
+  for (const [index, candidate] of items.entries()) {
+    const itemLabel = `${label}[${index}]`;
+    const item = exactRecord(candidate, itemLabel, ["resourceId", "units"]);
+    const resourceId = requiredString(item.resourceId, `${itemLabel}.resourceId`);
+    if (ids.has(resourceId)) throw new TypeError(`${label} repeats resource ${resourceId}`);
+    ids.add(resourceId);
+    entries.push([resourceId, requiredNumber(item.units, `${itemLabel}.units`)]);
+  }
+  return Object.freeze(Object.fromEntries(entries));
 }
 
 function scopeFromInput(candidate: unknown, index: number): TaskScope {

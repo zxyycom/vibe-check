@@ -6,9 +6,11 @@ type SchedulerGraphTask = SchedulerGraphSnapshot["tasks"][number];
 /** Creates a fresh deep-frozen public graph DTO without invoking private graph preparation. */
 export function schedulerGraphSnapshot(
   tasks: readonly SchedulerGraphTask[],
-  scopes: readonly SchedulerGraphScope[] = []
+  scopes: readonly SchedulerGraphScope[] = [],
+  resourceCapacities: SchedulerGraphSnapshot["resourceCapacities"] = []
 ): SchedulerGraphSnapshot {
   return Object.freeze({
+    resourceCapacities: Object.freeze(resourceCapacities.map(frozenResourceUnits)),
     scopes: Object.freeze(scopes.map(frozenScope)),
     tasks: Object.freeze(tasks.map(frozenTask))
   });
@@ -24,6 +26,7 @@ export function schedulerGraphTask(
     dependsOn: [],
     mutex: [],
     observes: [],
+    resourceClaims: [],
     scopeId: null,
     taskId,
     ...overrides
@@ -45,7 +48,14 @@ function frozenTask(task: SchedulerGraphTask): SchedulerGraphTask {
     dependsOn: Object.freeze([...task.dependsOn]),
     mutex: Object.freeze([...task.mutex]),
     observes: Object.freeze([...task.observes]),
+    resourceClaims: Object.freeze(task.resourceClaims.map(frozenResourceUnits)),
     scopeId: task.scopeId,
     taskId: task.taskId
   });
+}
+
+function frozenResourceUnits<
+  T extends Readonly<{ readonly resourceId: string; readonly units: number }>
+>(resource: T): T {
+  return Object.freeze({ ...resource });
 }

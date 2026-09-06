@@ -80,7 +80,9 @@ function selectConstrainedContinuation(
 function selectOrdinaryReadyCandidate(
   candidates: readonly AdmissionCandidate[]
 ): AdmissionCandidate {
-  const [first, ...remaining] = candidates;
+  const admissible = candidates.filter(({ canAdmit }) => canAdmit);
+  const selectable = admissible.length === 0 ? candidates : admissible;
+  const [first, ...remaining] = selectable;
   if (first === undefined) throw new Error("static scheduler selection requires a candidate");
   return remaining.reduce(
     (selected, candidate) =>

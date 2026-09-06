@@ -68,8 +68,15 @@ describe("task engine admission policy", () => {
     });
 
     const graph = {
+      resourceCapacities: { browser: 2 },
       tasks: [
-        { id: "first", admissionPriority: 1, mutex: ["shared"], scopeId: "limited" },
+        {
+          id: "first",
+          admissionPriority: 1,
+          mutex: ["shared"],
+          resourceClaims: { browser: 1 },
+          scopeId: "limited"
+        },
         { id: "second", admissionPriority: 9 }
       ],
       scopes: [
@@ -101,6 +108,7 @@ describe("task engine admission policy", () => {
         dependsOn: [],
         mutex: ["shared"],
         observes: [],
+        resourceClaims: [{ resourceId: "browser", units: 1 }],
         scopeId: "limited",
         taskId: "first"
       },
@@ -109,9 +117,14 @@ describe("task engine admission policy", () => {
         dependsOn: [],
         mutex: [],
         observes: [],
+        resourceClaims: [],
         scopeId: null,
         taskId: "second"
       }
+    ]);
+    assert.deepEqual(context.graph.resourceCapacities, [{ resourceId: "browser", units: 2 }]);
+    assert.deepEqual(context.admissionState.inspection.resources, [
+      { available: 2, capacity: 2, inUse: 0, resourceId: "browser" }
     ]);
     assert.deepEqual(context.graph.scopes, [
       {

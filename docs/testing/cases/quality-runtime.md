@@ -216,13 +216,14 @@ Entities:
 - `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > validates exact input and returns frozen opaque branching successors`
 - `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > uses canonical catalog order, dedicated validation reasons, binary settlements, and scope lifecycle`
 - `bun|src/project-run/task-scheduler/admission-core/graph.capacity.test.ts|immutable admission graph capacity > keeps duplicate blocker payloads and global active-scope capacity for every candidate`
+- `bun|src/project-run/task-scheduler/admission-core/graph.capacity.test.ts|immutable admission graph capacity > atomically holds and releases weighted claims across named resources`
 - `bun|src/project-run/task-scheduler/admission-core/transitions.test.ts|admission core transitions > admission core settles in the selected implementation`
 - `bun|src/project-run/task-scheduler/admission-core/transitions.test.ts|admission core transitions > keeps persistent forced-frontier priority and closed scope roots across a 80-by-80 cascade`
 - `bun|src/project-run/task-scheduler/admission-core/trace.test.ts|admission core trace > traces public and private binary/failed/cancellation transitions through one reducer`
 - `bun|src/project-run/task-scheduler/admission-core.scheduler-integration.test.ts|Scheduler admission core integration > replays canonical failed and forced effects through shell diagnostics and measurement`
 - `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > supplies callback lookahead without reserving or starting a real Task`
   Proves:
-- The standalone and callback seeds expose one frozen opaque state contract. Its canonical catalog, inspection, validation precedence, binary settlement, forced block and scope lifecycle return successors without mutating a retained predecessor.
+- The standalone and callback seeds expose one frozen opaque state contract. Its canonical catalog, inspection, validation precedence, binary settlement, forced block, scope lifecycle and named-resource occupancy return successors without mutating a retained predecessor. Static resource/claim input fails closed, and selection rejection reports every insufficient resource without granting reservation capability.
 - The private trace invokes the same reducer for public and real-only failed/cancellation actions. An instrumented real Scheduler pairs every canonical effect with its immutable Core post-state; legacy snapshot mutex facts remain additive with dynamic holders through their settlement, and an 80-by-80 failed cascade keeps every newly ready child in descending declared-slot frontier order and retains a frozen closed-scope root. Direct running settlement precedes forced effects. For each forced blocked effect, the shell preserves this observable order: pending-measurement flush, matching immutable post-state, shell blocked settlement, state capture, blocked-effect record, conditional diagnostic projection, then Core observer. Custom policy measurements retain the direct-then-forced order; synthetic blocked diagnostics retain the direct failed-source `task-settled` trigger; terminal last-settled facts retain that order. Callback lookahead cannot start, reserve, settle or otherwise control real Task lifecycle, whose callback proposal remains Scheduler-hard-revalidated.
 
 ## Case WB-RUNTIME-ADMISSION-COMPILED-GRAPH-001: Prepared graph compilation retains Scheduler static indexes
@@ -232,9 +233,20 @@ Entities:
 
 - `bun|src/project-run/task-scheduler/admission-core/compiled-graph.test.ts|prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it`
   Proves:
-- When invoked with a prepared graph, the Product-private compiler produces Scheduler lookup tables without rematerializing the graph or its frozen snapshot. Task/scope/mutex declaration slots, duplicate mutex/relation occurrences, reverse dependency/observation/terminal mappings, activation membership and lexical public catalog order stay exact.
+- When invoked with a prepared graph, the Product-private compiler produces Scheduler lookup tables without rematerializing the graph or its frozen snapshot. Task/scope/mutex/resource declaration slots, capacities and per-Task claim units, duplicate mutex/relation occurrences, reverse dependency/observation/terminal mappings, activation membership and lexical public catalog order stay exact.
 - `prepareTaskGraph` remains the only untrusted-input validation/normalization boundary. The compiler's root-cap assertion is a defensive invariant for prepared input, not a second validation path.
 - The compiled object, its relation indexes, and tested slot lists retain their existing Object.freeze guards; this Case does not claim deep `Map` immutability or a public API. Forced reverse-slot priority and active-scope cap/ID ordering remain separately owned by the existing admission-core and Scheduler evidence.
+
+## Case CHECK-NAMED-RESOURCE-CONCURRENCY-001: Check Tasks atomically share named resource capacity
+
+Owner: `docs/guides/scheduling.md#限制-named-resource-并发`
+Entities:
+
+- `bun|src/project-run/task-scheduler/admission-core/graph.capacity.test.ts|immutable admission graph capacity > atomically holds and releases weighted claims across named resources`
+- `bun|src/project-run/task-scheduler/task-engine.admission.test.ts|static task engine > limits named resource concurrency without withholding unrelated root slots`
+  Proves:
+- A Task acquires all weighted named-resource claims atomically at admission, holds them in the shared immutable state until satisfied, unsatisfied or failed settlement, and then releases every unit. Unknown and oversized claims fail static graph validation.
+- The real static Scheduler admits no more resource consumers than configured capacity while still filling an available root slot with unrelated ready work. Its blocker observation distinguishes named-resource shortage, and a failed holder releases capacity for later work.
 
 ## Case AUX-MARKDOWN-LINK-OUTCOMES-001: Markdown Link settles safe complete outcomes
 
@@ -290,6 +302,7 @@ Entities:
 
 - `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
 - `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > bounds top admission delays and breaks equal delays by Task ID`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > classifies a named resource wait as capacity blocked`
 - `bun|src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts|Scheduler performance diagnostics > records an accepted explicit policy wait`
 - `bun|src/project-run/task-scheduler/measurement/diagnostics-waits.test.ts|Scheduler performance diagnostics > retains an accepted wait count when timing becomes unavailable`
 - `bun|src/project-run/task-scheduler/measurement/diagnostics-boundaries.test.ts|Scheduler performance diagnostics > distinguishes a valid zero-span summary from unavailable timing and retains discrete facts`
@@ -309,7 +322,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > preserves an admission-policy failure when a measurement Hook fails after drain`
   Proves:
 - An explicitly enabled Scheduler-only diagnostic handoff emits one bounded human summary after terminal drain. It separates shell control work from decision observation, integrates Scheduler slot/capacity state without claiming wall/CPU utilization, and records accepted policy waits rather than passive drains.
-- For pending Tasks whose prerequisites completed and observations settled, each interval classifies every Task exactly once as mutex-blocked, capacity-blocked, or currently admissible. The corresponding task·ms and peaks expose queue pressure; each reported top admission delay uses the same three components to construct its complete delay without inferring a policy reason.
+- For pending Tasks whose prerequisites completed and observations settled, each interval classifies every Task exactly once as mutex-blocked, capacity-blocked, or currently admissible. Root, scoped and named-resource shortages share the capacity-blocked class. The corresponding task·ms and peaks expose queue pressure; each reported top admission delay uses the same three components to construct its complete delay without inferring a policy reason.
 - The last admission boundary's logical post-state active snapshot retains its complete discrete count and at most three settlement-delta contributors, including the newly admitted Task. These contributors explain the observed completion tail but do not claim dependency critical-path ownership. The invocation-owned declarative fingerprint remains only a declarative-configuration matching signal and does not identify RunControls, code/candidate/tool/runtime/host, terminal outcomes, or a custom callback.
 - Named scripted clock phases distinguish valid zero spans from invalid clock samples; timing failure retains the fingerprint, admitted and accepted-wait counts, max-running, last-settled Task ID, queue peaks, and tail active count without fabricating time. Only when the policy is static, diagnostics are disabled, and the caller Hook list is empty does Scheduler add no measurement collector or clock reads; a custom policy needs decision-boundary measurement even without terminal consumers. Summary writer failures cannot revise the settled Scheduler result.
 - Internal default summary Hook and each caller measurement Hook share one ordered terminal runner; the default wrapper contains writer failure before caller failure/output policy applies. Each caller measurement Hook receives the same recursively frozen terminal context after admission stops and started work drains. It exposes canonical graph, admitted/settled kind-only observations, and first-order raw measurement without Task values/errors/callbacks, summary top-N projections, mutable internals, or an interval event log. Sync/async generic Hooks run in configuration order and all settle. When they are the only output participants, their all-successful sequence marks `measurementHooks` succeeded; a generic throw/rejection still gives later generic Hooks their chance and marks the aggregate failed. A normal completed Run with that failure becomes the facts-preserving `scheduler-measurement-hooks-failed` output result; cancellation and admission-policy failure retain their primary result/diagnostic with the Hook status still visible.

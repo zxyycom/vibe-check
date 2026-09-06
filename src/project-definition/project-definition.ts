@@ -6,10 +6,15 @@ import type {
   CheckExecution,
   CheckFlagEnablement,
   CheckPreflight,
+  CheckResourceClaims,
   CheckVisibility
 } from "../check/check.ts";
 import { DEFAULT_PROJECT_OUTPUTS } from "./output-defaults.ts";
 import { createDeclarativeProjectSnapshot } from "./declarative-snapshot.ts";
+import {
+  EMPTY_RESOURCE_UNIT_MAPPING,
+  snapshotResourceUnitMapping
+} from "./resource-unit-mapping.ts";
 export { createDeclarativeFingerprint } from "./declarative-snapshot.ts";
 
 /** 一次 Project Run 的明确输出配置。 */
@@ -122,6 +127,7 @@ export interface NormalizedCheckDeclaration {
   readonly mutex: readonly string[];
   readonly observes: readonly string[];
   readonly options: object;
+  readonly resourceClaims: CheckResourceClaims;
   readonly visibility: CheckVisibility;
 }
 export interface NormalizedCheck extends NormalizedCheckDeclaration {
@@ -228,22 +234,31 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
     scheduler: {
       admissionPolicy: value.scheduler?.admissionPolicy ?? STATIC_ADMISSION_POLICY,
       maxParallel: value.scheduler?.maxParallel ?? 4,
-      measurementHooks: value.scheduler?.measurementHooks ?? []
+      measurementHooks: value.scheduler?.measurementHooks ?? [],
+      resourceCapacities: value.scheduler?.resourceCapacities ?? EMPTY_RESOURCE_UNIT_MAPPING
     }
   };
 }
 export function normalizeProjectDefinition(
   definition: ProjectDefinition
 ): NormalizedProjectDefinition {
-  const tree = resolveCheckTree(definition.checks, definition.scheduler.maxParallel);
+  const scheduler = normalizeSchedulerPolicy(definition.scheduler);
+  const tree = resolveCheckTree(
+    definition.checks,
+    scheduler.maxParallel,
+    scheduler.resourceCapacities
+  );
   if (tree === undefined)
     throw new TypeError("Project Definition Check tree failed closed normalization");
   const checks = Object.freeze(tree.leaves.map(normalizeCheck));
   return Object.freeze({
     checks,
-    declarative: createDeclarativeProjectSnapshot(definition, checks),
+    declarative: createDeclarativeProjectSnapshot(
+      Object.freeze({ ...definition, scheduler }),
+      checks
+    ),
     definitionWarnings: tree.warnings,
-    scheduler: normalizeSchedulerPolicy(definition.scheduler)
+    scheduler
   });
 }
 function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
@@ -258,10 +273,15 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     observes: leaf.observes,
     options: leaf.options,
     ...(leaf.preflight === undefined ? {} : { preflight: leaf.preflight }),
+    resourceClaims: leaf.resourceClaims,
     visibility: leaf.visibility
   });
 }
 function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
+  const resourceCapacities = snapshotResourceUnitMapping(policy.resourceCapacities);
+  if (resourceCapacities === undefined) {
+    throw new TypeError("Project Definition scheduler resource capacities failed normalization");
+  }
   let admissionPolicy: AdmissionPolicy;
   if (policy.admissionPolicy.kind === "static") {
     admissionPolicy = STATIC_ADMISSION_POLICY;
@@ -279,6 +299,7 @@ function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
   return Object.freeze({
     admissionPolicy,
     maxParallel: policy.maxParallel,
-    measurementHooks: Object.freeze([...policy.measurementHooks])
+    measurementHooks: Object.freeze([...policy.measurementHooks]),
+    resourceCapacities
   });
 }

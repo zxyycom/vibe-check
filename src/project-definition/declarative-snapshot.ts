@@ -24,7 +24,8 @@ export function createDeclarativeProjectSnapshot(
     outputs: definition.outputs,
     scheduler: Object.freeze({
       admissionPolicy: declarativeAdmissionPolicy(definition.scheduler.admissionPolicy),
-      maxParallel: definition.scheduler.maxParallel
+      maxParallel: definition.scheduler.maxParallel,
+      resourceCapacities: definition.scheduler.resourceCapacities
     })
   });
 }

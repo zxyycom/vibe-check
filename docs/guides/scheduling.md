@@ -1,17 +1,45 @@
 # 按项目约束调度 Check
 
-返回 [README](../../README.md)。本专题面向已经有多个自定义 Check、且确实需要改变 ready task 的选择顺序或分析假设调度分支的调用方。默认 `{ kind: "static" }` 已经遵守依赖、mutex、并行预算和取消；只有这些不变式之外的**选择偏好**需要项目规则时，才使用 custom 或 learned policy。Check 自己的 options、preflight、execution 与取消处理见[编写自定义 Check](extending-check-lifecycle.md)。
+返回 [README](../../README.md)。本专题面向已经有多个自定义 Check、需要限制可计数共享资源、改变 ready task 的选择顺序或分析假设调度分支的调用方。默认 `{ kind: "static" }` 已经遵守依赖、mutex、root/scoped 并行预算、named resource capacity 和取消；只有这些不变式之外的**选择偏好**需要项目规则时，才使用 custom 或 learned policy。Check 自己的 options、preflight、execution 与取消处理见[编写自定义 Check](extending-check-lifecycle.md)。
 
 ## 选择正确的工具
 
 | 目标 | 使用 | 不适用的情况 |
 | --- | --- | --- |
+| 限制浏览器、设备或内存等可计数共享资源 | `scheduler.resourceCapacities` 与 Check 的 `resourceClaims` | 它不探测实际资源，也不跨 Run 提供 semaphore。 |
 | 只指定静态相对顺序 | Check 的 `admissionPriority` | 它不能越过依赖、mutex、容量或取消 guard。 |
 | 每次 ready selection 根据当前事实选择一个 task | `scheduler.admissionPolicy` 的 `custom/simple` strategy | 不要用它启动、取消、结算 task 或绕过硬约束。 |
 | 先异步准备本 Run 专用决策 closure，或在终态 measurement 后收尾 | `custom/prepared` strategy | 不是普通 Check lifecycle hook，也不能改写已 sealed 的结果。 |
 | 对独立静态图比较假设分支 | `createAdmissionGraph(...)` | 它不运行 Check，也不影响真实 Run。 |
 | 多次运行后按本地时长历史改善选择 | `learned-critical-path` | 不是可靠的时长承诺、remote cache 或锁服务。 |
 | Run 结束后保存项目自己的调度统计 | `scheduler.measurementHooks` | 它不是每个 Task 的 event stream，也不改变选择。 |
+
+## 限制 named resource 并发
+
+`scheduler.maxParallel` 限制同时运行的 Check 总数；`mutex` 只表达同名资源一次至多一个 holder。需要让同一种资源允许多个 holder、而不同 Check 消耗不同 units 时，使用静态 named resource capacity：
+
+```ts
+import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
+
+const browserAudit = defineCheck({
+  checkId: "browser-audit",
+  displayName: "Browser audit",
+  resourceClaims: { browser: 1, memoryGb: 2 },
+  execution: () => ({ status: "passed", data: {} })
+});
+
+export default defineConfig({
+  checks: [browserAudit],
+  scheduler: {
+    maxParallel: 4,
+    resourceCapacities: { browser: 2, memoryGb: 8 }
+  }
+});
+```
+
+resource ID 必须是非空白字符串，capacity 和 claim 都必须是正 safe integer。每个 claim 必须引用已声明资源且不大于其总 capacity，否则 Definition 在任何 Check work 前失败。一个 Task 的全部 claims 在 admission 时原子取得，并在任意 settlement（成功、失败或其它终态）后一起释放；Scheduler 不会先占一部分再等待另一部分。同一 ordinary selection layer 中，没有 claim 的 ready work 仍可使用空闲 root slot，不会因为另一个 Task 正等待 named resource 而被扣留；既有 tighter-scope activation/continuation 层级仍先于 ordinary work。
+
+`resourceClaims` 与 `maxParallel`、relations 和 mutex 一样可写在 container 上供 descendants 继承；省略保留最近的完整 mapping，显式 `{}` 清空，任何其它显式 mapping 都完整替换而不与父 mapping 合并。named resources 是 invocation-local 静态计数，不提供动态申请、reservation、跨 Run semaphore、资源发现或 fairness 承诺。互斥语义仍使用 `mutex`，不要用 capacity `1` 取代已有 mutex identity，反之亦然。
 
 ## 自定义准入 policy
 
@@ -104,6 +132,7 @@ import { createAdmissionGraph } from "@zxyycom/vibe-check";
 
 const graph = createAdmissionGraph({
   graph: {
+    resourceCapacities: [{ resourceId: "browser", units: 1 }],
     scopes: [],
     tasks: [
       {
@@ -111,6 +140,7 @@ const graph = createAdmissionGraph({
         dependsOn: [],
         mutex: [],
         observes: [],
+        resourceClaims: [{ resourceId: "browser", units: 1 }],
         scopeId: null,
         taskId: "compile"
       },
@@ -119,6 +149,7 @@ const graph = createAdmissionGraph({
         dependsOn: ["compile"],
         mutex: [],
         observes: [],
+        resourceClaims: [],
         scopeId: null,
         taskId: "publish"
       }

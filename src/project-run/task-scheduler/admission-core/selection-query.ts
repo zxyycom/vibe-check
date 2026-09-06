@@ -125,7 +125,8 @@ function hasCapacityForPendingTask(state: SelectionCoreState, taskSlot: number):
   const running = state.selection.runningTotal;
   return (
     scopeCapacityBlockerFor(state, taskSlot, running) === undefined &&
-    running < state.compiled.maxParallel
+    running < state.compiled.maxParallel &&
+    resourceCapacityRejectionFor(state, taskSlot) === undefined
   );
 }
 
@@ -143,13 +144,54 @@ function capacityRejectionFor(
       scopeId: scope.id
     });
   }
-  return running >= state.compiled.maxParallel
-    ? Object.freeze({
-        kind: "root-capacity-reached",
-        maxParallel: state.compiled.maxParallel,
-        running
+  if (running >= state.compiled.maxParallel) {
+    return Object.freeze({
+      kind: "root-capacity-reached",
+      maxParallel: state.compiled.maxParallel,
+      running
+    });
+  }
+  return resourceCapacityRejectionFor(state, taskSlot);
+}
+
+function resourceCapacityRejectionFor(
+  state: SelectionCoreState,
+  taskSlot: number
+):
+  | Extract<AdmissionSelectionRejectionReason, { readonly kind: "resource-capacity-insufficient" }>
+  | undefined {
+  const task = requiredTaskForCore(state, taskSlot);
+  const insufficient: Extract<
+    AdmissionSelectionRejectionReason,
+    { readonly kind: "resource-capacity-insufficient" }
+  >["resources"][number][] = [];
+  for (const claim of state.compiled.taskResourceClaims[taskSlot]) {
+    const capacity = state.compiled.resourceCapacityBySlot[claim.resourceSlot];
+    const inUse = numberFor(state.selection.resourceInUse, claim.resourceSlot);
+    if (capacity === undefined) {
+      throw new Error(`admission core resource slot is unknown: ${claim.resourceSlot}`);
+    }
+    if (inUse + claim.units <= capacity) continue;
+    const resourceId = state.compiled.graph.resourceCapacities[claim.resourceSlot]?.resourceId;
+    if (resourceId === undefined) {
+      throw new Error(`admission core task resource claim is missing: ${task.id}`);
+    }
+    insufficient.push(
+      Object.freeze({
+        available: capacity - inUse,
+        capacity,
+        inUse,
+        required: claim.units,
+        resourceId
       })
-    : undefined;
+    );
+  }
+  return insufficient.length === 0
+    ? undefined
+    : Object.freeze({
+        kind: "resource-capacity-insufficient",
+        resources: Object.freeze(insufficient)
+      });
 }
 
 /** Active scope capacity is global; an activating candidate supplies one additional exact scope fact. */

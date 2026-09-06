@@ -3,6 +3,7 @@ import { createAdmissionGraph } from "@zxyycom/vibe-check";
 
 const graph = createAdmissionGraph({
   graph: {
+    resourceCapacities: [{ resourceId: "browser", units: 1 }],
     scopes: [],
     tasks: [
       {
@@ -10,6 +11,7 @@ const graph = createAdmissionGraph({
         dependsOn: [],
         mutex: [],
         observes: [],
+        resourceClaims: [{ resourceId: "browser", units: 1 }],
         scopeId: null,
         taskId: "compile"
       },
@@ -18,6 +20,7 @@ const graph = createAdmissionGraph({
         dependsOn: ["compile"],
         mutex: [],
         observes: [],
+        resourceClaims: [],
         scopeId: null,
         taskId: "publish"
       }

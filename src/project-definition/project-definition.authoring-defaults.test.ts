@@ -33,6 +33,8 @@ function assertDefinitionDefaults(definition: ProjectDefinition): void {
   assert.equal(definition.scheduler.maxParallel, 4);
   assert.deepEqual(definition.scheduler.admissionPolicy, { kind: "static" });
   assert.deepEqual(definition.scheduler.measurementHooks, []);
+  assert.deepEqual(definition.scheduler.resourceCapacities, {});
+  assert.equal(Object.isFrozen(definition.scheduler.resourceCapacities), true);
   assert.deepEqual(
     normalizeProjectDefinition(defineConfig({})).declarative.scheduler,
     normalizeProjectDefinition(defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } }))
@@ -162,7 +164,14 @@ function assertSchedulerValidation(definition: ProjectDefinition): void {
       maxParallel: 1,
       measurementHooks: ["invalid"]
     },
-    { admissionPolicy: { kind: "static" }, maxParallel: 1, unexpected: true }
+    { admissionPolicy: { kind: "static" }, maxParallel: 1, unexpected: true },
+    { admissionPolicy: { kind: "static" }, maxParallel: 1, resourceCapacities: { browser: 0 } },
+    {
+      admissionPolicy: { kind: "static" },
+      maxParallel: 1,
+      resourceCapacities: { browser: 1.5 }
+    },
+    { admissionPolicy: { kind: "static" }, maxParallel: 1, resourceCapacities: { " ": 1 } }
   ]) {
     assert.equal(validateProjectDefinition({ ...definition, scheduler }).ok, false);
   }

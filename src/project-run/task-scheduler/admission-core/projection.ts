@@ -15,6 +15,7 @@ import {
   selectionRejectionForPendingTask,
   statusForCore
 } from "./selection-query.ts";
+import { numberFor } from "./selection-index.ts";
 import type { AdmissionCoreState } from "./selection.ts";
 import type { SchedulerSettlementKind } from "../scheduler-decision-model.ts";
 
@@ -59,6 +60,7 @@ export function inspectionForCore(state: AdmissionCoreState): AdmissionInspectio
       running: state.selection.runningTotal
     }),
     nextBoundary: nextBoundaryFor(hasSelectablePending, state.selection.runningTotal),
+    resources: resourceOccupancyForCore(state),
     runningTaskIds: Object.freeze(runningTaskIds),
     scopes: Object.freeze(
       [...state.compiled.graph.scopes]
@@ -82,6 +84,7 @@ export function schedulerInspectionForCore(state: AdmissionCoreState): Readonly<
   readonly maxParallel: number;
   readonly pendingTasks: readonly PlannedTask[];
   readonly runningMutexes: readonly string[];
+  readonly resources: AdmissionInspection["resources"];
   readonly runningTaskIds: readonly string[];
   readonly settledTasks: readonly Readonly<{
     readonly kind: SchedulerSettlementKind;
@@ -109,10 +112,25 @@ export function schedulerInspectionForCore(state: AdmissionCoreState): Readonly<
     graph: state.compiled.graph,
     maxParallel: state.compiled.maxParallel,
     pendingTasks: Object.freeze(pendingTasks),
+    resources: resourceOccupancyForCore(state),
     runningMutexes: Object.freeze([...runningMutexes]),
     runningTaskIds: Object.freeze(runningTaskIds),
     settledTasks: Object.freeze(settledTasks.map((task) => Object.freeze(task)))
   });
+}
+
+function resourceOccupancyForCore(state: AdmissionCoreState): AdmissionInspection["resources"] {
+  return Object.freeze(
+    state.compiled.graph.resourceCapacities.map(({ resourceId, units }, resourceSlot) => {
+      const inUse = numberFor(state.selection.resourceInUse, resourceSlot);
+      return Object.freeze({
+        available: units - inUse,
+        capacity: units,
+        inUse,
+        resourceId
+      });
+    })
+  );
 }
 
 function nextBoundaryFor(

@@ -94,6 +94,7 @@ export function performanceState<TResult>(
         continue;
       case "root-capacity-reached":
       case "scope-capacity-reached":
+      case "resource-capacity-insufficient":
         admissionViablePendingTasks.push(
           Object.freeze({ kind: "capacity-blocked", taskId: task.id })
         );

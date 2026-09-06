@@ -139,7 +139,10 @@ function observeInvocationStarted(
 function validateTaskGraph(invocation: Invocation): boolean {
   try {
     prepareTaskGraph(
-      planStaticCheckGraph(invocation.normalized.checks),
+      planStaticCheckGraph(
+        invocation.normalized.checks,
+        invocation.normalized.declarative.scheduler.resourceCapacities
+      ),
       invocation.normalized.declarative.scheduler.maxParallel
     );
     invocation.diagnosticLogging.core.observe({
@@ -214,7 +217,10 @@ async function prepareAdmissionStrategy(
   invocation: Invocation
 ): Promise<PreparedAdmissionStrategy> {
   const graph = prepareTaskGraph(
-    planStaticCheckGraph(invocation.normalized.checks),
+    planStaticCheckGraph(
+      invocation.normalized.checks,
+      invocation.normalized.declarative.scheduler.resourceCapacities
+    ),
     invocation.normalized.declarative.scheduler.maxParallel
   );
   const admissionStrategyProviderFactory =

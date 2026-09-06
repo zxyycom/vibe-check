@@ -150,4 +150,81 @@ describe("Project Definition", () => {
       );
     }
   });
+
+  it("normalizes closed named resource capacities and exact replacement claims", () => {
+    const definition = defineConfig({
+      scheduler: { resourceCapacities: { browser: 2, memory: 4 } },
+      checks: [
+        {
+          checkId: "resource-group",
+          displayName: "Resource group",
+          resourceClaims: { memory: 2, browser: 1 },
+          checks: [
+            defineCheck({
+              checkId: "inherited-resource-claims",
+              displayName: "Inherited resource claims",
+              execution: passed
+            }),
+            defineCheck({
+              checkId: "cleared-resource-claims",
+              displayName: "Cleared resource claims",
+              execution: passed,
+              resourceClaims: {}
+            }),
+            defineCheck({
+              checkId: "replaced-resource-claims",
+              displayName: "Replaced resource claims",
+              execution: passed,
+              resourceClaims: { browser: 2 }
+            })
+          ]
+        }
+      ]
+    });
+    const normalized = normalizeProjectDefinition(definition);
+
+    assert.deepEqual(normalized.declarative.scheduler.resourceCapacities, {
+      browser: 2,
+      memory: 4
+    });
+    assert.deepEqual(
+      normalized.checks.map(({ definition: descriptor, resourceClaims }) => [
+        descriptor.checkId,
+        resourceClaims
+      ]),
+      [
+        ["inherited-resource-claims", { browser: 1, memory: 2 }],
+        ["cleared-resource-claims", {}],
+        ["replaced-resource-claims", { browser: 2 }]
+      ]
+    );
+    assert.equal(Object.isFrozen(normalized.checks[0]?.resourceClaims), true);
+
+    for (const invalid of [
+      defineConfig({
+        scheduler: { resourceCapacities: { browser: 1 } },
+        checks: [
+          defineCheck({
+            checkId: "unknown-resource",
+            displayName: "Unknown resource",
+            execution: passed,
+            resourceClaims: { database: 1 }
+          })
+        ]
+      }),
+      defineConfig({
+        scheduler: { resourceCapacities: { browser: 1 } },
+        checks: [
+          defineCheck({
+            checkId: "oversized-claim",
+            displayName: "Oversized claim",
+            execution: passed,
+            resourceClaims: { browser: 2 }
+          })
+        ]
+      })
+    ]) {
+      assert.equal(validateProjectDefinition(invalid).ok, false);
+    }
+  });
 });

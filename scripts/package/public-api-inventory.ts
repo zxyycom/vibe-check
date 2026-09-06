@@ -65,6 +65,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     CheckOutcome: "CheckOutcome",
     CheckPreflight: "CheckPreflight",
     CheckPreflightResult: "CheckPreflightResult",
+    CheckResourceClaims: "CheckResourceClaims",
     CheckResult: "CheckResult",
     CheckUnavailableReason: "CheckUnavailableReason",
     DuplicateDetectionFinalData: "DuplicateDetectionFinalData",

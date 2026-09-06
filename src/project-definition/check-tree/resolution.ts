@@ -12,6 +12,7 @@ import {
   type ParsedCheckCollection,
   type ParsedCheckTree
 } from "./authoring.ts";
+import { EMPTY_RESOURCE_UNIT_MAPPING, type ResourceUnitMapping } from "../resource-unit-mapping.ts";
 
 export type { Check, InheritableCheckCollection } from "../../check/check.ts";
 
@@ -26,6 +27,7 @@ export interface ResolvedCheckTreeLeaf {
   readonly observes: readonly string[];
   readonly options: object;
   readonly preflight?: CheckPreflight;
+  readonly resourceClaims: ResourceUnitMapping;
   readonly visibility: CheckVisibility;
 }
 
@@ -40,6 +42,7 @@ interface InheritedScheduling {
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly observes: readonly string[];
+  readonly resourceClaims: ResourceUnitMapping;
 }
 
 /**
@@ -49,15 +52,19 @@ interface InheritedScheduling {
  */
 export function resolveCheckTree(
   value: unknown,
-  rootMaxParallel: number
+  rootMaxParallel: number,
+  resourceCapacities: ResourceUnitMapping = EMPTY_RESOURCE_UNIT_MAPPING
 ): ResolvedCheckTree | undefined {
   const parsed = parseCheckTreeAuthoring(value);
-  return parsed === undefined ? undefined : resolveParsedCheckTree(parsed, rootMaxParallel);
+  return parsed === undefined
+    ? undefined
+    : resolveParsedCheckTree(parsed, rootMaxParallel, resourceCapacities);
 }
 
 export function resolveParsedCheckTree(
   parsed: ParsedCheckTree,
-  rootMaxParallel: number
+  rootMaxParallel: number,
+  resourceCapacities: ResourceUnitMapping = EMPTY_RESOURCE_UNIT_MAPPING
 ): ResolvedCheckTree | undefined {
   if (!Number.isSafeInteger(rootMaxParallel) || rootMaxParallel <= 0) return undefined;
   const leaves: ResolvedCheckTreeLeaf[] = [];
@@ -66,24 +73,49 @@ export function resolveParsedCheckTree(
     dependsOn: Object.freeze([]),
     maxParallel: rootMaxParallel,
     mutex: Object.freeze([]),
-    observes: Object.freeze([])
+    observes: Object.freeze([]),
+    resourceClaims: EMPTY_RESOURCE_UNIT_MAPPING
   });
-  for (const check of parsed.checks) flattenCheck(check, root, leaves);
+  for (const check of parsed.checks) {
+    if (!flattenCheck(check, root, resourceCapacities, leaves)) return undefined;
+  }
   return Object.freeze({ leaves: Object.freeze(leaves), warnings: parsed.warnings });
 }
 
 function flattenCheck(
   check: ParsedCheck,
   inherited: InheritedScheduling,
+  resourceCapacities: ResourceUnitMapping,
   leaves: ResolvedCheckTreeLeaf[]
-): void {
-  const scheduling: InheritedScheduling = Object.freeze({
+): boolean {
+  const scheduling = resolveScheduling(check, inherited);
+  if (!claimsFitCapacities(scheduling.resourceClaims, resourceCapacities)) return false;
+  const leaf = resolvedLeafFor(check, scheduling);
+  if (leaf !== undefined) leaves.push(leaf);
+  for (const child of check.checks) {
+    if (!flattenCheck(child, scheduling, resourceCapacities, leaves)) return false;
+  }
+  return true;
+}
+
+function resolveScheduling(
+  check: ParsedCheck,
+  inherited: InheritedScheduling
+): InheritedScheduling {
+  return Object.freeze({
     admissionPriority: check.admissionPriority ?? inherited.admissionPriority,
     dependsOn: resolveCollection(inherited.dependsOn, check.dependsOn),
     maxParallel: check.maxParallel ?? inherited.maxParallel,
     mutex: resolveCollection(inherited.mutex, check.mutex),
-    observes: resolveCollection(inherited.observes, check.observes)
+    observes: resolveCollection(inherited.observes, check.observes),
+    resourceClaims: check.resourceClaims ?? inherited.resourceClaims
   });
+}
+
+function resolvedLeafFor(
+  check: ParsedCheck,
+  scheduling: InheritedScheduling
+): ResolvedCheckTreeLeaf | undefined {
   const visibility = check.visibility;
   if (
     check.execution !== null &&
@@ -91,23 +123,32 @@ function flattenCheck(
     check.options !== null &&
     visibility !== null
   ) {
-    leaves.push(
-      Object.freeze({
-        admissionPriority: scheduling.admissionPriority,
-        definition: check.definition,
-        dependsOn: scheduling.dependsOn,
-        ...(check.enabledByFlags === null ? {} : { enabledByFlags: check.enabledByFlags }),
-        execution: check.execution,
-        maxParallel: scheduling.maxParallel,
-        mutex: scheduling.mutex,
-        observes: scheduling.observes,
-        options: check.options,
-        ...(check.preflight === null ? {} : { preflight: check.preflight }),
-        visibility
-      })
-    );
+    return Object.freeze({
+      admissionPriority: scheduling.admissionPriority,
+      definition: check.definition,
+      dependsOn: scheduling.dependsOn,
+      ...(check.enabledByFlags === null ? {} : { enabledByFlags: check.enabledByFlags }),
+      execution: check.execution,
+      maxParallel: scheduling.maxParallel,
+      mutex: scheduling.mutex,
+      observes: scheduling.observes,
+      options: check.options,
+      ...(check.preflight === null ? {} : { preflight: check.preflight }),
+      resourceClaims: scheduling.resourceClaims,
+      visibility
+    });
   }
-  for (const child of check.checks) flattenCheck(child, scheduling, leaves);
+  return undefined;
+}
+
+function claimsFitCapacities(
+  claims: ResourceUnitMapping,
+  capacities: ResourceUnitMapping
+): boolean {
+  return Object.entries(claims).every(
+    ([resourceId, units]) =>
+      Object.hasOwn(capacities, resourceId) && units <= (capacities[resourceId] ?? 0)
+  );
 }
 
 function resolveCollection(

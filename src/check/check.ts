@@ -53,6 +53,9 @@ export interface CheckResultMessages {
 /** 已结算 Check 在人读 progress 中的可见性。 */
 export type CheckVisibility = "always" | "attention";
 
+/** Check Task 在 admission 到 settlement 期间持有的静态 named resource units。 */
+export type CheckResourceClaims = Readonly<Record<string, number>>;
+
 /** 多 flag Check 启用条件使用的集合 predicate。 */
 export type CheckFlagEnablementMode = "all" | "any" | "none" | "not-all";
 
@@ -344,6 +347,8 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   readonly admissionPriority?: number;
   /** 共享资源名称，或对父 mutex collection 的显式 edit。 */
   readonly mutex?: InheritableCheckCollection<string>;
+  /** 静态 named resource claims；省略时继承，显式 mapping 完整替换。 */
+  readonly resourceClaims?: CheckResourceClaims;
   /** 已结算 Check 的人读可见性；可执行节点默认 `always`。 */
   readonly visibility?: CheckVisibility;
 }

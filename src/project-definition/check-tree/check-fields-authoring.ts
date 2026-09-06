@@ -55,6 +55,7 @@ const CHECK_KEYS = [
   "observes",
   "parseData",
   "preflight",
+  "resourceClaims",
   "visibility"
 ] as const;
 const FLAG_ENABLEMENT_KEYS = ["flags", "mode", "propagateDependsOn"] as const;

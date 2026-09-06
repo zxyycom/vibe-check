@@ -4,6 +4,7 @@ import {
   type InheritedCheckCollection
 } from "../../check/check.ts";
 import { parseUniqueIdentifiers } from "./collection-authoring.ts";
+import { snapshotResourceUnitMapping, type ResourceUnitMapping } from "../resource-unit-mapping.ts";
 
 export type ParsedCheckCollection = Readonly<
   | { readonly kind: "exact"; readonly values: readonly string[] }
@@ -20,6 +21,7 @@ export type ParsedCheckScheduling = Readonly<{
   readonly maxParallel: number | undefined;
   readonly mutex: ParsedCheckCollection | undefined;
   readonly observes: ParsedCheckCollection | undefined;
+  readonly resourceClaims: ResourceUnitMapping | undefined;
 }>;
 
 /** Parses the closed relation, priority, and capacity fields for one authored Check. */
@@ -31,9 +33,26 @@ export function parseCheckScheduling(
   const observes = parseCollection(data, "observes");
   const admissionPriority = parseAdmissionPriority(data.admissionPriority);
   const maxParallel = parseMaxParallel(data.maxParallel);
+  const resourceClaims =
+    data.resourceClaims === undefined
+      ? undefined
+      : snapshotResourceUnitMapping(data.resourceClaims);
   if (dependsOn === null || mutex === null || observes === null) return undefined;
-  if (admissionPriority === null || maxParallel === null) return undefined;
-  return resolvedScheduling({ admissionPriority, dependsOn, maxParallel, mutex, observes });
+  if (
+    admissionPriority === null ||
+    maxParallel === null ||
+    (data.resourceClaims !== undefined && resourceClaims === undefined)
+  ) {
+    return undefined;
+  }
+  return resolvedScheduling({
+    admissionPriority,
+    dependsOn,
+    maxParallel,
+    mutex,
+    observes,
+    resourceClaims
+  });
 }
 
 function resolvedScheduling(
@@ -43,6 +62,7 @@ function resolvedScheduling(
     readonly maxParallel: number | undefined;
     readonly mutex: ParsedCheckCollection | undefined;
     readonly observes: ParsedCheckCollection | undefined;
+    readonly resourceClaims: ResourceUnitMapping | undefined;
   }>
 ): ParsedCheckScheduling {
   return Object.freeze({
@@ -50,7 +70,8 @@ function resolvedScheduling(
     dependsOn: scheduling.dependsOn ?? undefined,
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex ?? undefined,
-    observes: scheduling.observes ?? undefined
+    observes: scheduling.observes ?? undefined,
+    resourceClaims: scheduling.resourceClaims
   });
 }
 
