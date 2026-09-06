@@ -1,26 +1,41 @@
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 import { DIAGNOSTIC_CHANNELS, type DiagnosticChannel } from "../diagnostic-logging/logger.ts";
 
+/** 一项 Run-owned terminal output 或 measurement participant 的最终状态 readback。 */
 export interface RunOutputStatus {
+  /** effective configuration 是否启用该 participant；`false` 时 status 必为 `disabled`。 */
   readonly enabled: boolean;
+  /** `disabled` 为未启用；`not-run` 为启用但未到达完成；`succeeded` 为完成，`failed` 为其 own I/O 或 hook failure。 */
   readonly status: "disabled" | "failed" | "not-run" | "succeeded";
 }
 
-/** One Product-owned human diagnostic channel; files are readback even when setup fails. */
+/** Product-owned 人读 diagnostic channel；即使 setup 失败也保留其 file readback。 */
 export interface RunDiagnosticLoggingChannelStatus extends RunOutputStatus {
+  /**
+   * 相对 effective project root 的 target readback；跨卷时可为 absolute path。disabled channel 为 `null`，
+   * enabled channel 即使 setup 失败也保留预先计算的 path。
+   */
   readonly file: string | null;
 }
 
+/** diagnostic logging aggregate 及其各 owner channel 的最终状态 readback。 */
 export interface RunDiagnosticLoggingOutputStatus extends RunOutputStatus {
-  /** Aggregate state plus the exact owner channel responsible for any partial failure. */
+  /** aggregate status 及每个 owner channel 的独立 readback；partial failure 可由此定位。 */
   readonly channels: Readonly<Record<DiagnosticChannel, RunDiagnosticLoggingChannelStatus>>;
 }
 
+/** 配置有效后四个 terminal output participant 的独立最终状态。 */
 export interface RunOutputStatuses {
+  /** `run.json` 与 `records.ndjson` canonical publication 的状态。 */
   readonly machinePublication: RunOutputStatus;
+  /** terminal progress 与可选 progress log tee 的状态。 */
   readonly progressRendering: RunOutputStatus;
+  /** core、scheduler 与 conditional learned-admission diagnostic channels 的 aggregate 状态。 */
   readonly diagnosticLogging: RunDiagnosticLoggingOutputStatus;
-  /** Scheduler measurement hooks are terminal side effects configured by the Definition. */
+  /**
+   * Definition generic Hooks 与 prepared custom strategy 的 optional `complete` 所形成的 terminal participant
+   * 状态；它不能由 RunControls 注入或覆盖。
+   */
   readonly measurementHooks: RunOutputStatus;
 }
 

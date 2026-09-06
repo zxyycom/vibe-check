@@ -6,10 +6,15 @@ import {
 
 /** `markdown-link-validation` 在 passed/failed outcome 中发布的主数据。 */
 export interface MarkdownLinkValidationFinalData {
+  /** 已成功读取并完成 Markdown link occurrence 提取的 source 文件数。 */
   readonly sourceFileCount: number;
+  /** 从已处理 source 中提取的 semantic link occurrence 数。 */
   readonly occurrenceCount: number;
+  /** 进入 direct endpoint validation 的 logical occurrence 数，包括 target memo hit。 */
   readonly targetReadCount: number;
+  /** occurrence finding 与 rejected input 的合计数。 */
   readonly findingCount: number;
+  /** files policy 已选中、但因不是 `.md`/`.markdown` path 而被拒绝的输入数。 */
   readonly rejectedInputCount: number;
 }
 

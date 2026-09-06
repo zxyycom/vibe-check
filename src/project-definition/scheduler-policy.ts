@@ -5,7 +5,9 @@ export type AdmissionProposal =
 
 /** 独立模拟 immutable Scheduler admission graph 的 exact input。 */
 export interface AdmissionGraphInput {
+  /** 要模拟的已规范化静态图 DTO；模拟器会先验证其 closed shape 与引用。 */
   readonly graph: SchedulerGraphSnapshot;
+  /** standalone state 的 root 并行上限。 */
   readonly maxParallel: number;
 }
 
@@ -38,45 +40,65 @@ export interface AdmissionState {
 
 /** 当前 immutable state 的公开动态 inspection。 */
 export interface AdmissionInspection {
+  /** 当前 root、active scope 与 running count 形成的 capacity 快照。 */
   readonly capacity: Readonly<{
+    /** 合成当前 active scope 限制后的有效并行上限。 */
     readonly effectiveMaxParallel: number;
+    /** standalone graph 的 root 并行上限。 */
     readonly maxParallel: number;
+    /** 当前 hypothetical running Task 数。 */
     readonly running: number;
   }>;
+  /** 下一合法动作类别：选择 Task、等待 running Task，或 state 已完成。 */
   readonly nextBoundary: "select" | "wait" | "complete";
+  /** 当前 hypothetical running Task IDs，按 graph 的 canonical Task 顺序。 */
   readonly runningTaskIds: readonly string[];
   /** 当前 named resource occupancy；按 resourceId 规范排序。 */
   readonly resources: readonly Readonly<{
+    /** 尚可原子取得的 units。 */
     readonly available: number;
+    /** graph 声明的总 units。 */
     readonly capacity: number;
+    /** 当前 running Tasks 已占用的 units。 */
     readonly inUse: number;
+    /** named resource 的稳定 ID。 */
     readonly resourceId: string;
   }>[];
+  /** 每个静态 scope 的当前 lifecycle，按 scopeId 规范排序。 */
   readonly scopes: readonly AdmissionScopeLifecycle[];
+  /** 可映射为 satisfied/unsatisfied 的 hypothetical settlements。 */
   readonly settledTasks: readonly AdmissionSettledTask[];
 }
 
 /** 一个静态 scope 的推导 lifecycle。 */
 export interface AdmissionScopeLifecycle {
+  /** scope 尚未激活、当前 active，或 terminal Task 已结算后的 closed 状态。 */
   readonly lifecycle: "inactive" | "active" | "closed";
+  /** graph 中声明的稳定 scope ID。 */
   readonly scopeId: string;
 }
 
 /** 可公开映射为 binary outcome 的 Task settlement。 */
 export interface AdmissionSettledTask {
+  /** 本次 hypothetical settlement 是否满足 dependents 的前置关系。 */
   readonly outcome: AdmissionSettlementOutcome;
+  /** 已结算 Task 的稳定 ID。 */
   readonly taskId: string;
 }
 
 /** 所有 pending Task 的 canonical selectable/non-selectable partition。 */
 export interface AdmissionCatalog {
+  /** 当前 pending 但不可 select 的 Tasks 及其 primary reason。 */
   readonly nonSelectableTasks: readonly AdmissionNonSelectableTask[];
+  /** 当前可合法 select 的 pending Task IDs。 */
   readonly selectableTaskIds: readonly string[];
 }
 
 /** catalog 中一个 pending Task 的 primary non-selection reason。 */
 export interface AdmissionNonSelectableTask {
+  /** 该 Task 当前不可 select 的 canonical primary reason。 */
   readonly reason: AdmissionSelectionRejectionReason;
+  /** 当前仍 pending 的稳定 Task ID。 */
   readonly taskId: string;
 }
 
@@ -227,38 +249,63 @@ export type SchedulerMeasurementTiming =
 
 /** 所有公开 Scheduler context 共用的图 DTO；Task identity 一律为 `taskId`。 */
 export interface SchedulerGraphSnapshot {
+  /** 全部 named resource capacities，按 resourceId 规范排序。 */
   readonly resourceCapacities: readonly Readonly<{
+    /** named resource 的稳定 ID。 */
     readonly resourceId: string;
+    /** 本次 invocation 可供原子 claim 的总 units。 */
     readonly units: number;
   }>[];
+  /** 全部静态 scopes 的 normalized lifecycle 边界。 */
   readonly scopes: readonly Readonly<{
+    /** 选择其中任一列出的 Task 后会激活该 scope。 */
     readonly activationTaskIds: readonly string[];
+    /** scope 的稳定 ID。 */
     readonly id: string;
+    /** scope active 时允许的最大并行 Task 数。 */
     readonly maxParallel: number;
+    /** 结算后关闭该 scope 的 terminal Task ID。 */
     readonly terminalTaskId: string;
   }>[];
+  /** 全部 normalized Tasks 及静态 admission metadata。 */
   readonly tasks: readonly Readonly<{
+    /** 同一 selection layer 中用于静态排序的 priority。 */
     readonly admissionPriority: number;
+    /** 必须以 completed settlement 满足的直接 dependency Task IDs。 */
     readonly dependsOn: readonly string[];
+    /** 与 running Tasks 不能同时持有的 mutex IDs。 */
     readonly mutex: readonly string[];
+    /** 只要求先结算、但不要求 completed 的直接 observed Task IDs。 */
     readonly observes: readonly string[];
+    /** admission 时必须一次性取得的 named resource claims。 */
     readonly resourceClaims: readonly Readonly<{
+      /** 被 claim 的 named resource ID。 */
       readonly resourceId: string;
+      /** 该 Task 运行期间占用的 units。 */
       readonly units: number;
     }>[];
+    /** 所属静态 scope ID；不属于 scope 时为 null。 */
     readonly scopeId: string | null;
+    /** Task 在全部 Scheduler DTO 中使用的稳定 ID。 */
     readonly taskId: string;
   }>[];
 }
 
 /** 一条已关闭 occupancy interval 对累计值的有界贡献。 */
 export interface SchedulerMeasurementIntervalContribution {
+  /** admission-viable 且当时可准入的 pending Task 数对 interval 的时间积分。 */
   readonly admissiblePendingTaskMs: number;
+  /** 已接受 wait action 在 interval 内实际延续的毫秒数。 */
   readonly acceptedWaitMs: number;
+  /** 因 root、scope 或 named resource capacity 不足而阻塞的 pending Task·ms。 */
   readonly capacityBlockedTaskMs: number;
+  /** effectiveMaxParallel 对 interval 的 capacity-slot·ms 积分。 */
   readonly effectiveCapacitySlotMs: number;
+  /** 因 mutex conflict 而阻塞的 pending Task·ms。 */
   readonly mutexBlockedTaskMs: number;
+  /** root maxParallel 对 interval 的 capacity-slot·ms 积分。 */
   readonly rootCapacitySlotMs: number;
+  /** running Task 数对 interval 的 Task·ms 积分。 */
   readonly taskSlotMs: number;
 }
 
@@ -321,21 +368,33 @@ export interface AdmissionPolicyMeasurement {
 
 /** policy 决策时的有界累计事实；刻意不含 terminal per-Task table。 */
 interface SchedulerDecisionMeasurementCumulativeFacts {
+  /** normalized declarative Definition 的匹配 fingerprint；不包含 controls 或 runtime facts。 */
   readonly declarativeFingerprint: string;
+  /** 当前 boundary 前已累计的离散 Scheduler 计数。 */
   readonly discrete: Readonly<{
+    /** Scheduler 已接受的 wait proposals 数。 */
     readonly acceptedWaitCount: number;
+    /** 已实际 admission 的不同 Task 数。 */
     readonly admittedCount: number;
+    /** 已观察到的最大同时 running Task 数。 */
     readonly maxRunning: number;
   }>;
+  /** 可来自不同 boundary、不能相加的 admission queue 峰值。 */
   readonly peaks: SchedulerMeasurementPeakCounts;
 }
 
 interface AvailableSchedulerDecisionMeasurementCumulative extends SchedulerDecisionMeasurementCumulativeFacts {
+  /** available 表示本 branch 的累计 timingFacts 可读。 */
   readonly timing: Readonly<{ readonly availability: "available" }>;
+  /** decision boundary 前已累计的 timing integrals。 */
   readonly timingFacts: Readonly<{
+    /** 已接受 wait action 累计延续的毫秒数。 */
     readonly acceptedWaitMs: number;
+    /** effective capacity slot 的累计毫秒积分。 */
     readonly effectiveCapacitySlotMs: number;
+    /** root capacity slot 的累计毫秒积分。 */
     readonly rootCapacitySlotMs: number;
+    /** running Task slot 的累计毫秒积分。 */
     readonly taskSlotMs: number;
   }>;
 }
@@ -354,53 +413,79 @@ export type SchedulerDecisionMeasurementCumulative =
   | UnavailableSchedulerDecisionMeasurementCumulative;
 
 export interface SchedulerMeasurementPeakCounts {
+  /** 任一 boundary 上全部 admission-viable pending Tasks 的最大数量。 */
   readonly admissionViablePendingTaskCount: number;
+  /** 任一 boundary 上可立即准入的 pending Tasks 最大数量。 */
   readonly admissiblePendingTaskCount: number;
+  /** 任一 boundary 上 capacity-blocked pending Tasks 最大数量。 */
   readonly capacityBlockedTaskCount: number;
+  /** 任一 boundary 上 mutex-blocked pending Tasks 最大数量。 */
   readonly mutexBlockedTaskCount: number;
 }
 
 export interface SchedulerMeasurementAdmission {
+  /** 该 Task 在 admission-viable pending 期间的互斥 delay 分类积分。 */
   readonly admissionDelay: Readonly<{
+    /** Task 可准入但仍 pending 的累计毫秒数。 */
     readonly admissiblePendingMs: number;
+    /** Task 因 capacity 不足仍 pending 的累计毫秒数。 */
     readonly capacityBlockedMs: number;
+    /** Task 因 mutex conflict 仍 pending 的累计毫秒数。 */
     readonly mutexBlockedMs: number;
   }>;
   /** Scheduler monotonic-clock timestamp in milliseconds, or no admission occurred. */
   readonly admittedAtMonotonicMs: number | null;
   /** Scheduler monotonic-clock timestamp in milliseconds, or no settlement occurred. */
   readonly settledAtMonotonicMs: number | null;
+  /** 被测 Task 的稳定 ID。 */
   readonly taskId: string;
 }
 
 export interface SchedulerMeasurementTimingFacts {
+  /** 已接受 wait action 累计延续的毫秒数。 */
   readonly acceptedWaitMs: number;
+  /** 进入过 admission-viable pending 集合的逐 Task timing facts。 */
   readonly admissions: readonly SchedulerMeasurementAdmission[];
+  /** effective capacity slot 的累计毫秒积分。 */
   readonly effectiveCapacitySlotMs: number;
   /** Terminal Scheduler monotonic-clock timestamp in milliseconds. */
   readonly endedAtMonotonicMs: number;
+  /** root capacity slot 的累计毫秒积分。 */
   readonly rootCapacitySlotMs: number;
+  /** Scheduler 同步 shell control operations 内累计的毫秒数。 */
   readonly schedulerControlPathMs: number;
+  /** decision diagnostic observation work 内累计的毫秒数。 */
   readonly schedulerDecisionObservationMs: number;
   /** First Scheduler monotonic-clock timestamp in milliseconds. */
   readonly startedAtMonotonicMs: number;
+  /** running Task slot 的累计毫秒积分。 */
   readonly taskSlotMs: number;
 }
 
 interface SchedulerRawMeasurementFacts {
+  /** normalized declarative Definition 的匹配 fingerprint；不包含 controls 或 runtime facts。 */
   readonly declarativeFingerprint: string;
+  /** 即使 timing unavailable 也保留的离散终态事实。 */
   readonly discrete: Readonly<{
+    /** Scheduler 已接受的 wait proposals 数。 */
     readonly acceptedWaitCount: number;
+    /** 已实际 admission 的不同 Task 数。 */
     readonly admittedCount: number;
+    /** 最后一次 admission 后当时仍 active 的完整 Task ID 集合。 */
     readonly completionTailActiveTaskIds: readonly string[];
+    /** 最后结算的 Task ID；没有 settlement 时为 null。 */
     readonly lastSettledTaskId: string | null;
+    /** 已观察到的最大同时 running Task 数。 */
     readonly maxRunning: number;
   }>;
+  /** 可来自不同 boundary、不能相加的 admission queue 峰值。 */
   readonly peaks: SchedulerMeasurementPeakCounts;
 }
 
 interface AvailableSchedulerRawMeasurement extends SchedulerRawMeasurementFacts {
+  /** available 表示完整终态 timingFacts 可读。 */
   readonly timing: Readonly<{ readonly availability: "available" }>;
+  /** 基于 Scheduler monotonic clock 形成的完整终态 timing facts。 */
   readonly timingFacts: SchedulerMeasurementTimingFacts;
 }
 
@@ -421,19 +506,26 @@ export type SchedulerRawMeasurement =
  * 一次 Scheduler 终态 Hook 可读取的递归冻结上下文；不包含 Task 值、错误或可变 engine 对象。
  */
 export interface SchedulerMeasurementContext {
+  /** 本次 Scheduler 实际使用的 normalized frozen graph。 */
   readonly graph: SchedulerGraphSnapshot;
+  /** 不含 Task value、Check result 或 error 的终态 execution 投影。 */
   readonly execution: Readonly<{
+    /** 至少实际启动过一次的 Task IDs，按首次 admission 顺序。 */
     readonly admittedTaskIds: readonly string[];
+    /** graph 中每个 Task 的终态 Scheduler settlement，按 canonical Task 顺序。 */
     readonly settledTasks: readonly Readonly<{
+      /** Scheduler settlement kind；completed 不等同于 Check passed。 */
       readonly kind:
         | "completed"
         | "prerequisite-unsatisfied"
         | "failed"
         | "blocked"
         | "cancelled-before-start";
+      /** 已结算 Task 的稳定 ID。 */
       readonly taskId: string;
     }>[];
   }>;
+  /** Scheduler-owned 一阶计数与可选 timing facts。 */
   readonly rawMeasurement: SchedulerRawMeasurement;
 }
 
@@ -444,8 +536,11 @@ export type SchedulerMeasurementHook =
 
 /** 定义级的 Scheduler 预算、admission policy 与终态 measurement consumer。 */
 export interface SchedulerPolicy {
+  /** normalized static、custom 或 learned-critical-path admission policy。 */
   readonly admissionPolicy: AdmissionPolicy;
+  /** 同时 running 的 root Check 上限。 */
   readonly maxParallel: number;
+  /** terminal measurement 的 caller-owned consumers，按配置顺序调用。 */
   readonly measurementHooks: readonly SchedulerMeasurementHook[];
   /** 本次 Definition 中可由 Check 原子占用的 named resource 总 units。 */
   readonly resourceCapacities: Readonly<Record<string, number>>;

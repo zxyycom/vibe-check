@@ -43,25 +43,42 @@ export function isMaintenanceCommitId(value: unknown): value is string {
 }
 
 export type MeasuredMaintenanceReminderAssessment = Readonly<{
+  /** 未超过任何阈值时为 clear；至少严格超过一个阈值时为 due。 */
   readonly assessment: "clear" | "due";
+  /** reminder 配置锁定的完整基线 commit ID。 */
   readonly baseCommit: string;
+  /** first-parent 区间内 numstat additions 与 deletions 的总和。 */
   readonly changedLines: number;
+  /** 从 HEAD 沿 first-parent 到 baseCommit 的 commit 数。 */
   readonly commitCount: number;
+  /** 实际值严格超过配置上限的维度；clear assessment 时为空。 */
   readonly exceeded: readonly ("commits" | "changed-lines")[];
+  /** 测量时 HEAD 的完整 commit ID。 */
   readonly headCommit: string;
+  /** Definition 中该 reminder 的稳定局部 ID。 */
   readonly id: string;
+  /** due 或 unavailable 是否阻断 Check 的配置模式。 */
   readonly mode: MaintenanceReminderMode;
 }>;
 
 export type UnavailableMaintenanceReminderAssessment = Readonly<{
+  /** 表示该 reminder 未能形成计数测量。 */
   readonly assessment: "unavailable";
+  /** reminder 配置锁定的完整基线 commit ID。 */
   readonly baseCommit: string;
+  /** unavailable assessment 不发布 partial changed-line count。 */
   readonly changedLines: null;
+  /** unavailable assessment 不发布 partial commit count。 */
   readonly commitCount: null;
+  /** unavailable assessment 不判定任何阈值已超过。 */
   readonly exceeded: readonly [];
+  /** 已成功解析时的完整 HEAD commit ID；解析 HEAD 失败时为 null。 */
   readonly headCommit: string | null;
+  /** Definition 中该 reminder 的稳定局部 ID。 */
   readonly id: string;
+  /** due 或 unavailable 是否阻断 Check 的配置模式。 */
   readonly mode: MaintenanceReminderMode;
+  /** 未能测量的稳定机器可读原因。 */
   readonly reason: MaintenanceReminderUnavailableReason;
 }>;
 
@@ -72,6 +89,7 @@ export type MaintenanceReminderAssessment =
 
 /** `maintenance-reminders` 在 passed/failed outcome 中发布的主数据。 */
 export interface MaintenanceRemindersFinalData {
+  /** 每个已配置 reminder 的唯一 assessment，按 Definition 顺序发布。 */
   readonly entries: readonly MaintenanceReminderAssessment[];
 }
 

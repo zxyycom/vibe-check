@@ -9,13 +9,21 @@ export const MAX_REPORTED_JSON_SCHEMA_ISSUES = 100;
 
 /** `json-schema-validation` 在 passed/failed outcome 中发布的主数据。 */
 export interface JsonSchemaValidationFinalData {
+  /** Definition 中已声明的 binding 总数。 */
   readonly bindingCount: number;
+  /** 因所引用 schema 存在 document 或 compile issue 而未验证 instance 的 binding 数。 */
   readonly blockedBindingCount: number;
+  /** instance out-of-scope、document invalid 或不符合对应 schema 的 binding 数。 */
   readonly invalidBindingCount: number;
+  /** schema document、compile、instance 与 keyword issue 的总数。 */
   readonly issueCount: number;
+  /** 是否因发布上限而省略了一个或多个 issue Record。 */
   readonly issuesTruncated: boolean;
+  /** 实际发布为 Record 的 issue 数。 */
   readonly reportedIssueCount: number;
+  /** Definition 中声明的不同 schema identity 数。 */
   readonly schemaCount: number;
+  /** input 符合对应 schema 的 binding 数。 */
   readonly validBindingCount: number;
 }
 

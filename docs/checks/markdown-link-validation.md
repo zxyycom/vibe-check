@@ -108,8 +108,7 @@ Product 不提供 lock、merge、fsync/durability、atomicity、concurrency、TT
 删除该 directory state。cache 不是 Check/settlement cache：取消的 invocation 不会用它形成 Finding、Record、message、
 final-data 或 machine output。
 
-本页拥有 consumer contract，不拥有单次 benchmark 的通过结论；当前 formal runtime observation、raw samples 和历史比较边界见
-`changes/pack-markdown-link-cache-jsonl/evidence/`。
+本页拥有 consumer contract，不拥有单次 benchmark 的通过结论；项目应基于自己的 workload、环境与容量要求评估 cache 的实际收益。
 
 ## 工作原理
 
@@ -234,8 +233,21 @@ source I/O scope 只包含通过 `.md` / `.markdown` eligibility 的 accepted pa
 
 ```ts
 import { defineConfig, markdownLinkValidation, run } from "@zxyycom/vibe-check";
-const result = await run(defineConfig({ checks: [markdownLinkValidation()] }));
+
+const check = markdownLinkValidation();
+const result = await run(defineConfig({ checks: [check] }));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`Markdown link validation did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
 ```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

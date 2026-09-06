@@ -336,7 +336,7 @@ if (executionOrder.join(",") !== "fast,slow,slow,fast") {
 
 首次 Run 没有 history 也可完成；缺失、损坏或读写失败的 state 会回退为 static selection 或 cold/project-prior model，不改变本次质量结算。`stateDirectory` 相对本次 effective `projectRoot` 解析；调用方负责选择可写、可删除的目录、容量和清理。它不是 sandbox、secret storage、remote cache 或跨进程锁，也不把 history 写入 Check facts、machine output 或 `RunResult`。
 
-完整可运行例子在 `docs/examples/package-api/learned-critical-path.ts`；它刻意使用延迟制造可观察排序，只适合作为示例，不应复制为生产计时模型。该策略只在既有 Scheduler selection layer 比较 score，不能越过依赖、mutex、parallel budget 或 cancellation guard。
+本节上方的完整示例刻意使用延迟制造可观察排序，只适合作为示例，不应复制为生产计时模型。该策略只在既有 Scheduler selection layer 比较 score，不能越过依赖、mutex、parallel budget 或 cancellation guard。
 
 ## 下一步
 

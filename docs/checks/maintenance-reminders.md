@@ -147,10 +147,21 @@ const check = maintenanceReminders([
   }
 ]);
 const result = await run(defineConfig({ checks: [check] }));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`Maintenance reminders did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
 ```
 
 示例 commit ID 只是 shape 占位值，必须替换为当前项目 first-parent history 中的真实复核 commit。若直接使用不存在的
 占位值，条目会得到 `assessment: "unavailable"`；这不是一次成功的维护基线配置。
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

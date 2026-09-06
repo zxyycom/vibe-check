@@ -11,7 +11,9 @@ export const DEFAULT_FINDING_POLICY: FindingPolicy = "non-blocking";
 
 /** 三个代码质量 Check 正常完成时返回的精确 finding 计数。 */
 export interface FindingSummary {
+  /** 仍可处置且采用 blocking policy 的 finding 数；waived finding 不计入。 */
   readonly blockingFindingCount: number;
+  /** Check 发现的全部 finding 数，包括已 waived 或 non-blocking 的 finding。 */
   readonly findingCount: number;
 }
 

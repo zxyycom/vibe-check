@@ -23,26 +23,40 @@ type NonThenable<T extends object> = T & Readonly<{ readonly then?: undefined }>
 
 /** Caller-keyed JSON cache 的 options。 */
 export interface CacheJsonByKeyOptions<T extends object> {
+  /** cache miss、读取失败或 payload 无效时执行的 sync/async computation。 */
   readonly compute: () => unknown;
+  /** 调用方信任、可自行清理的 absolute local directory。 */
   readonly directory: string;
+  /** 覆盖所有影响 computation 结果的完整 semantic key；不得包含 secret 或低熵敏感值。 */
   readonly key: string;
+  /** 调用方为这一类缓存选择的非空 identity namespace。 */
   readonly namespace: string;
+  /** 同步验证 cached/computed canonical JSON object，并返回调用方的 typed value。 */
   readonly parse: (value: unknown) => NonThenable<T>;
+  /** 调用方控制、在 payload 或 computation contract 改变时更新的非空版本。 */
   readonly version: string;
 }
 
 /** `cacheJsonByKey` 返回的闭合 cache observation 与本次 parser value。 */
 export type CacheJsonByKeyResult<T extends object> =
   | Readonly<{
+      /** 已读取并通过 parser 验证现有 payload。 */
       readonly read: "hit";
+      /** 本次 value 来自 cache，不调用 `compute`。 */
       readonly source: "cache";
+      /** `parse` 返回的调用方 typed value。 */
       readonly value: T;
+      /** cache hit 不尝试重新写入。 */
       readonly write: "not-attempted";
     }>
   | Readonly<{
+      /** 没有 entry、读取失败，或已有 payload 未通过 identity/parser 验证。 */
       readonly read: "failed" | "invalid" | "miss";
+      /** 本次 value 来自成功的 `compute` 与 `parse`。 */
       readonly source: "computed";
+      /** `parse` 返回的调用方 typed value。 */
       readonly value: T;
+      /** 新 payload 已存储，或存储失败但 typed value 仍可使用。 */
       readonly write: "failed" | "stored";
     }>;
 

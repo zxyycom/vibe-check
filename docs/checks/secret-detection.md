@@ -72,16 +72,24 @@ I/O 只限 files 选择的 local paths；无 command、network、history、envir
 ## 最小用法
 
 ```ts
-import { defineConfig, secretDetection } from "@zxyycom/vibe-check";
+import { defineConfig, run, secretDetection } from "@zxyycom/vibe-check";
 
-const definition = defineConfig({
-  checks: [
-    secretDetection({
-      files: { source: "filesystem", include: ["src/**/*"], exclude: ["**/generated/**"] }
-    })
-  ]
+const check = secretDetection({
+  files: { source: "filesystem", include: ["src/**/*"], exclude: ["**/generated/**"] }
 });
+const result = await run(defineConfig({ checks: [check] }));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`Secret detection did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
 ```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 
