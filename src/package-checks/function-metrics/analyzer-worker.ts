@@ -1,13 +1,17 @@
 import { analyzeFunctionMetricsSources } from "./analyzer-adapter.ts";
+import { parentPort } from "node:worker_threads";
 import type {
   FunctionMetricsAnalysisWorkerRequest,
   FunctionMetricsAnalysisWorkerResponse
 } from "./analyzer-worker-contract.ts";
 
-self.onmessage = (event: MessageEvent<unknown>) => {
-  postMessage(analyzeWorkerRequest(event.data));
-  self.close();
-};
+if (parentPort === null) throw new Error("functionMetrics analyzer requires a parent Worker port");
+const workerPort = parentPort;
+
+workerPort.once("message", (value: unknown): void => {
+  workerPort.postMessage(analyzeWorkerRequest(value));
+  workerPort.close();
+});
 
 function analyzeWorkerRequest(value: unknown): FunctionMetricsAnalysisWorkerResponse {
   if (!isWorkerRequest(value)) return Object.freeze({ kind: "analysis-failed" });

@@ -11,8 +11,10 @@ import { collectPackageMachineMaterials } from "../../../docs/machine-artifacts/
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import type { ExternalConsumerMaterial } from "./material.ts";
+import { externalConsumerNodeCommand } from "./node-command.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
+const MACHINE_DEFINITION_PATH = "docs/examples/artifacts/mixed-outcomes/definition.ts";
 
 /** Writes documentation examples contributed by documentation acceptance. */
 export function writeExternalConsumerDocumentationFixture(
@@ -27,6 +29,12 @@ export function writeExternalConsumerDocumentationFixture(
       readFileSync(join(sourceRepositoryRoot, sourcePath), "utf8"),
       "utf8"
     );
+  }
+  for (const material of collectPackageMachineMaterials(sourceRepositoryRoot)) {
+    if (!material.sourcePath.startsWith("docs/examples/artifacts/mixed-outcomes/")) continue;
+    const destination = join(consumerDirectory, material.sourcePath);
+    mkdirSync(dirname(destination), { recursive: true });
+    writeFileSync(destination, material.content);
   }
 }
 
@@ -74,13 +82,11 @@ function runtimeDocumentationExampleSourcePaths(): readonly string[] {
 }
 
 function runDocumentationAcceptance(material: ExternalConsumerMaterial): void {
-  const definitionPath = join(
-    material.installedPackageDirectory,
-    "docs/examples/artifacts/mixed-outcomes/definition.ts"
-  );
+  const definitionPath = join(material.consumerDirectory, MACHINE_DEFINITION_PATH);
   const result = spawnSync(
-    process.execPath,
+    externalConsumerNodeCommand(),
     [
+      "--input-type=module",
       "-e",
       documentationAcceptanceRunnerSource(),
       JSON.stringify(runtimeDocumentationExampleSourcePaths()),
@@ -161,7 +167,14 @@ const documentedRecords = recordsSource.trimEnd().split("\\n").filter(Boolean).m
   const { schemaVersion: _schemaVersion, ...record } = JSON.parse(line);
   return record;
 });
-assert.deepEqual(result.snapshot.checks, documentedRun.checks);
-assert.deepEqual(result.snapshot.records, documentedRecords);
+for (const check of result.snapshot.checks) {
+  if (check.outcome.status === "passed" || check.outcome.status === "failed") {
+    assert.equal(Object.getPrototypeOf(check.outcome.data), null);
+  }
+}
+for (const record of result.snapshot.records) assert.equal(Object.getPrototypeOf(record.data), null);
+const plainJson = (value) => JSON.parse(JSON.stringify(value));
+assert.deepEqual(plainJson(result.snapshot.checks), documentedRun.checks);
+assert.deepEqual(plainJson(result.snapshot.records), documentedRecords);
 `;
 }

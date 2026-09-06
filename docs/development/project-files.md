@@ -127,7 +127,7 @@ target I/O 前进入 Check 的 `rootExternalTargetMode`。`ignore` 不产生 fin
 lexically root-in candidate 只能使用 component containment probe。若某个 symlink hop 越出 root，除 `validate` mode 外，
 该 probe 不授权触碰 root 外 referent。
 
-containment guarantee 依据操作期间观察到的 host filesystem state 判断。Bun/Node path API 不提供 portable dirfd/openat
+containment guarantee 依据操作期间观察到的 host filesystem state 判断。Node path/filesystem API 不提供 portable dirfd/openat
 traversal，因此 component probe 成功后的 hostile concurrent replacement 不在本 Check 的 authorization proof 范围内。
 regular-file read 仍使用 no-follow final-leaf opening 和 byte bound；需要 hostile-filesystem isolation 的调用方应使用
 OS-level sandbox。

@@ -1,6 +1,6 @@
 ---
 title: 首个 package 只支持 Bun 宿主
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-12T10:30:27Z
 purpose: 让首个 npm package 的可运行宿主与当前 TypeScript Project Definition 和产品运行时能力保持一致。

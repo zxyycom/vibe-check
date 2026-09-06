@@ -300,6 +300,10 @@ process.stdout.write(
       kind: result.kind,
       firstChangedFilesConsumer: settledFinalData(firstConsumerCheck),
       machineSchemaVersion: publishedRun.schemaVersion,
+      runtime: {
+        bunVersion: process.versions.bun ?? null,
+        nodeVersion: process.version
+      },
       parserEvidence,
       secondChangedFilesConsumer: settledFinalData(secondConsumerCheck),
       duplicateData: settledFinalData(duplicate),

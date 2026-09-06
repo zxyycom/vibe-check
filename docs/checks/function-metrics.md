@@ -96,7 +96,10 @@ selected path 发布一条 non-blocking `input-rejected / unsupported-file-type`
 `not-applicable / no-eligible-input`；全部 rejected 则以完整 rejection evidence 正常结算，而不是不可用。
 
 accepted paths 被一次性交给内置 analyzer，且只能是这次 invocation 的 exact input。analyzer 不重新发现项目文件，
-不执行外部 command；任何无法形成完整可信 analysis 的情况都不会发布 trusted prefix 或 partial final data。
+不执行外部 command。Product parent 先有界读取全部 accepted source，再将完整 batch 交给一个
+package-private `node:worker_threads` Worker；Worker 只分析传入的 source text，不读取路径或环境。取消会终止该 Worker；
+Worker error、未发布结果就退出或无法形成完整可信 analysis 都结算为 `analysis-failed`，不会发布
+trusted prefix 或 partial final data。Worker entry 是随 package 交付的私有 `.mjs` material，不是 public export。
 
 ## 效果与结果
 

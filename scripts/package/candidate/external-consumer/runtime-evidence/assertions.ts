@@ -5,6 +5,7 @@ import {
   assertUnavailableDependencyDuration
 } from "./durations.ts";
 import { assertDuplicateAndTerminalMessages } from "./messages.ts";
+import { assertNodeRuntime } from "./runtime-host.ts";
 import { isRecord, isUnknownArray, requiredString } from "./values.ts";
 
 export type CandidateFixtureEvidence = Readonly<{
@@ -36,6 +37,7 @@ export type CandidateFixtureEvidence = Readonly<{
   markdownLinkOutcome: string | null;
   machineSchemaVersion: unknown;
   parserEvidence: unknown;
+  runtime: unknown;
   secondChangedFilesConsumer: unknown;
 }>;
 
@@ -108,6 +110,7 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
   assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });
   assertLearnedScheduling(runEvidence.learnedScheduling);
   assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
+  assertNodeRuntime(runEvidence.runtime);
   assertDuplicateAndTerminalMessages(runEvidence.checkMessages);
   assertHumanOutput(runEvidence.humanOutput);
   for (const checkId of [

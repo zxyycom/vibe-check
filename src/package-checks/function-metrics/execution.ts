@@ -13,7 +13,11 @@ import {
 import { appendCheckMessages } from "../../check/finding-presentation.ts";
 import { functionFindingMessages, functionWaiverMessages } from "./finding-messages.ts";
 import { analyzeFunctionMetrics } from "./analysis.ts";
-import { measureFunctionMetrics, type FunctionMeasurementResult } from "./measurement.ts";
+import {
+  measureFunctionMetrics,
+  type FunctionMeasurementDependencies,
+  type FunctionMeasurementResult
+} from "./measurement.ts";
 import type {
   FunctionMetricsAreaInput,
   FunctionMetricsExactInputSet
@@ -45,7 +49,10 @@ export type FunctionMetricsUnavailableReasonCode =
 
 /** Default Check callback；一次扫描完整 area exact-input union。 */
 export async function executeFunctionMetrics(
-  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>
+  context: CheckExecutionContext<ResolvedFunctionMetricsOptions>,
+  dependencies: Readonly<{
+    readonly measurement?: Partial<FunctionMeasurementDependencies>;
+  }> = {}
 ): Promise<CheckResult<FunctionMetricsFinalData>> {
   if (!validResolvedFunctionMetricsOptions(context.options)) return unavailable("invalid-options");
   if (context.signal.aborted) return unavailable("cancelled");
@@ -57,12 +64,15 @@ export async function executeFunctionMetrics(
     return unavailable("source-unavailable");
   }
   if (context.signal.aborted) return unavailable("cancelled");
-  return executePreparedFunctionMetrics(context, prepared);
+  return executePreparedFunctionMetrics(context, prepared, dependencies);
 }
 
 async function executePreparedFunctionMetrics(
   context: CheckExecutionContext<ResolvedFunctionMetricsOptions>,
-  prepared: PreparedFunctionInputs
+  prepared: PreparedFunctionInputs,
+  dependencies: Readonly<{
+    readonly measurement?: Partial<FunctionMeasurementDependencies>;
+  }>
 ): Promise<CheckResult<FunctionMetricsFinalData>> {
   if (prepared.selectedPathCount === 0) {
     return noEligibleFunctionInputResult(context);
@@ -73,10 +83,13 @@ async function executePreparedFunctionMetrics(
     reportFindingWaiverAudits(context, reconciliation, functionMetricsWaiverAuditRecord);
     return settleFunctionFindings(reconciliation, prepared.rejectedCandidates);
   }
-  const measurement = await measureFunctionMetrics({
-    input: prepared.exactInput,
-    signal: context.signal
-  });
+  const measurement = await measureFunctionMetrics(
+    {
+      input: prepared.exactInput,
+      signal: context.signal
+    },
+    dependencies.measurement
+  );
   if (measurement.kind !== "complete") {
     return appendInputRejectedMessage(
       directMeasurementFailure(measurement),

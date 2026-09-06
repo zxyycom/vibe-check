@@ -31,4 +31,4 @@ relations: []
 - 采用：所有 target decode/classification、filesystem I/O、source-vs-target boundary、root-external authorization、realpath/symlink handling、directory one-entry policy、limits、unavailable folding 和 safe output 继续由 Link-owned resolver 实现。parser 只接收已获授权读取的 source/eligible anchor target bytes，不能发现文件、调用 Git/child process、发起网络或递归扫描。
 - 采用：public API 继续只暴露 `markdownLinkValidation` 和其 closed options；不公开 AST、parser configuration、generic resolver、cross-Check snapshot 或 shared Markdown model。
 - 不采用：`remark-validate-links` 作为完整 Product validator；完整 unified/remark pipeline、`markdown-it` 或网络/crawler 型 checker 作为首版默认 runtime。未来若出现独立的 Markdown transform consumer 或新的兼容性证据，必须以新 Decision 重新评审这一选择。
-- 约束：精确 production semver、最小 extension set、传递 dependency/license/security audit、Bun installed-consumer evidence、source-range contract 与 GitHub-priority fixture corpus在实际依赖变更前由 Link Change 的 L4/L5 闭合；本 Decision 不授权跳过这些门禁。
+- 约束：精确 production semver、最小 extension set、传递 dependency/license/security audit、supported-host installed-consumer evidence、source-range contract 与 GitHub-priority fixture corpus在实际依赖变更前由 Link Change 的 L4/L5 闭合；本 Decision 不授权跳过这些门禁。

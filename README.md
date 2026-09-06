@@ -1,6 +1,6 @@
 # Vibe Check
 
-Vibe Check 是面向 Bun 项目的 TypeScript 质量检查库。你可以直接使用随包提供的代码、JSON、Schema、Markdown 和维护检查，也可以把项目自己的规则写成 Check，然后在项目脚本、测试或 CI 中获得结构化结果。
+Vibe Check 是面向 Node 项目的 TypeScript 质量检查库。你可以直接使用随包提供的代码、JSON、Schema、Markdown 和维护检查，也可以把项目自己的规则写成 Check，然后在项目脚本、测试或 CI 中获得结构化结果。
 
 所有公开能力都从 `@zxyycom/vibe-check` package root 导入。Vibe Check 不要求额外的配置文件，也不提供 CLI：检查内容、组合方式和运行时机都由你的 TypeScript 代码决定。
 
@@ -10,7 +10,7 @@ Vibe Check 是面向 Bun 项目的 TypeScript 质量检查库。你可以直接�
 npm install @zxyycom/vibe-check
 ```
 
-npm 负责安装 package；应用代码和质量脚本使用 **Bun `>=1.3.14`** 执行。安装完成后，可以用 `bun run <file>` 运行下面的示例。
+npm 负责安装 package；应用代码和质量脚本使用 **Node `>=24.18 <25`** 执行。安装完成后，可以用 `node <file>` 运行下面的示例。
 
 ## 自定义 Check 快速开始
 
@@ -61,7 +61,7 @@ if (outcome?.status !== "passed" || outcome.data.actualBytes !== 82_000) {
 运行它：
 
 ```sh
-bun run quality.ts
+node quality.ts
 ```
 
 `RunResult.kind === "completed"` 表示这次 Run 已经完整结算，不等于其中每项 Check 都通过。示例继续读取 `bundle-size` 的 `outcome.status`，并在结果不符合预期时让脚本失败。
@@ -227,7 +227,7 @@ machine publication 与 diagnostic logging 的 `directory` 都是调用方选择
 
 ## 分发与兼容范围
 
-npm 只负责分发和安装 package；受支持的产品 host 是 **Bun `>=1.3.14`**。通过 npm 安装不表示 Node.js runtime 已受支持。
+npm 只负责分发和安装 package；受支持的产品 host 是 **Node `>=24.18 <25`**。仓库自身的构建、测试和发布工具仍可使用 Bun，但这不是 package consumer 的运行前置。
 
 当前 public contract 只有 `@zxyycom/vibe-check` package root 的程序化 API。CLI、`bin`、plugin API、CommonJS/browser entry 和 subpath imports 都不在支持范围内。
 

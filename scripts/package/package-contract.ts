@@ -3,7 +3,7 @@ import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 export const PACKAGE_NAME = CURRENT_PUBLIC_CONTRACT.packageImport;
 /** Exact filesystem-safe stem emitted by Bun when it packs {@link PACKAGE_NAME}. */
 export const PACKAGE_TARBALL_STEM = "zxyycom-vibe-check";
-export const PACKAGE_BUN_ENGINE = ">=1.3.14";
+export const PACKAGE_NODE_ENGINE = ">=24.18 <25";
 /** SPDX expression for the complete shipped work, including translated analyzer ranges. */
 export const PACKAGE_LICENSE = "MIT AND Apache-2.0 AND BSD-2-Clause";
 export const PACKAGE_LICENSE_PATH = "LICENSE";
@@ -46,8 +46,8 @@ export const PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH =
   "src/package-checks/function-metrics/analyzer-worker.ts";
 export const PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH =
   "dist/esm/package-checks/function-metrics/analyzer-worker.mjs";
-export const PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH =
-  "dist/esm/package-checks/function-metrics/measurement.mjs";
+export const PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH =
+  "dist/esm/package-checks/function-metrics/analyzer-worker-port.mjs";
 export const PACKAGE_MOMOA_LICENSE_PATH = "third-party-licenses/momoa-3.3.12-LICENSE";
 export const PACKAGE_SECRETLINT_LICENSE_PATH = "third-party-licenses/secretlint-13.0.5-MIT-LICENSE";
 export const PACKAGE_README_PATH = "README.md";

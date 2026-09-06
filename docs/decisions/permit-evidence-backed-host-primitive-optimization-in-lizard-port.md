@@ -16,7 +16,7 @@ relations: []
 
 ## 目的
 
-- 让 Lizard port 继续保持可同步、可审计的上游语义，同时允许针对 TypeScript/Bun host 的可证性能实现。
+- 让 Lizard port 继续保持可同步、可审计的上游语义，同时允许针对 TypeScript Product host 的可证性能实现。
 - 防止将“近一比一翻译”误读为必须永久使用 JavaScript 内建 `RegExp`、生成器或其他宿主原语。
 
 ### 读取与采用边界
@@ -55,7 +55,7 @@ relations: []
 
 - 采用：每个非机械优化必须在独立 Investigation/Decision/Change 中明确候选和回退边界，并进入 current deviation evidence。
 - 采用：验收至少证明完整 token-stream differential、27-reader oracle、source identity、processor/extension protocol、真实目标 corpus before/after、typecheck/lint 和 required/complete `--all` Gate；无法证明语义等价或稳定收益时不采用。
-- 采用：引入库时同时验证所需 regex/Unicode/zero-width/capture/global-iteration 语义、Bun Worker 与取消/资源行为、package artifact 和支持平台装载、版本与完整性固定、license/security 以及无运行时下载或系统级隐式依赖。WASM、Node-API 或其他 native 载体不因“更快”自动获得例外。
+- 采用：引入库时同时验证所需 regex/Unicode/zero-width/capture/global-iteration 语义、supported Product Worker 与取消/资源行为、package artifact 和支持平台装载、版本与完整性固定、license/security 以及无运行时下载或系统级隐式依赖。WASM、Node-API 或其他 native 载体不因“更快”自动获得例外。
 
 ### 当前基线与未预选的技术
 

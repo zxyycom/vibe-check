@@ -20,7 +20,7 @@ export type ResolvedJscpdCommand =
 
 /**
  * package-provided scanner 的可移植 marker。真实 executable 只由私有 jscpd adapter 解析，避免公共
- * Definition 与 fingerprint 保存 consumer-specific Bun 或 package path。
+ * Definition 与 fingerprint 保存 consumer-specific runtime 或 package path。
  */
 export const DEFAULT_JSCPD_COMMAND: DuplicateDetectionScannerCommand = Object.freeze({
   kind: "package"

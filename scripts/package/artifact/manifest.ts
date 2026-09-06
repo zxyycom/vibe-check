@@ -4,7 +4,7 @@ import { errorMessage } from "../../error-message.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import {
   CANDIDATE_DEPENDENCIES,
-  PACKAGE_BUN_ENGINE,
+  PACKAGE_NODE_ENGINE,
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE,
   PACKAGE_MANIFEST_FILES,
@@ -40,7 +40,7 @@ export function writeCandidateManifest(input: {
     version: input.version,
     type: "module",
     license: PACKAGE_LICENSE,
-    engines: { bun: PACKAGE_BUN_ENGINE },
+    engines: { node: PACKAGE_NODE_ENGINE },
     repository: { type: "git", url: PACKAGE_REPOSITORY_MANIFEST_URL },
     publishConfig: { access: PACKAGE_PUBLISH_ACCESS, registry: PACKAGE_PUBLISH_REGISTRY },
     exports: {
@@ -100,8 +100,8 @@ function assertManifestIdentity(
 }
 
 function assertManifestDistributionMetadata(manifest: Readonly<Record<string, unknown>>): void {
-  if (!hasExactRecord(manifest.engines, { bun: PACKAGE_BUN_ENGINE })) {
-    throw new Error("candidate artifact manifest must declare only the verified Bun host range");
+  if (!hasExactRecord(manifest.engines, { node: PACKAGE_NODE_ENGINE })) {
+    throw new Error("candidate artifact manifest must declare only the verified Node host range");
   }
   if (
     !hasExactRecord(manifest.repository, {

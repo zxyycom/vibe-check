@@ -7,7 +7,7 @@ import { after, describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
 import {
-  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
   PACKAGE_LIZARD_APACHE_LICENSE_PATH,
   PACKAGE_LIZARD_MIT_LICENSE_PATH,
@@ -118,12 +118,12 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       true
     );
     assertReadableRuntimeLayout(artifact.stagingDirectory);
-    const measurement = readFileSync(
-      join(artifact.stagingDirectory, PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH),
+    const workerParent = readFileSync(
+      join(artifact.stagingDirectory, PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH),
       "utf8"
     );
     assert.equal(
-      measurement.split('new URL("./analyzer-worker.mjs", import.meta.url)').length - 1,
+      workerParent.split('new URL("./analyzer-worker.mjs", import.meta.url)').length - 1,
       1
     );
     assert.equal(
@@ -155,7 +155,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     });
   });
 
-  it("declares the approved SPDX, Bun host, repository, and public registry contract", async () => {
+  it("declares the approved SPDX, Node host, repository, and public registry contract", async () => {
     const { artifact } = await fixture();
     const manifest = candidateManifest(artifact.stagingDirectory);
     assert.equal(manifest.name, "@zxyycom/vibe-check");
@@ -182,7 +182,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       artifact.files.some((path) => path.includes("/analyzer/fixtures/")),
       false
     );
-    assert.deepEqual(manifest.engines, { bun: ">=1.3.14" });
+    assert.deepEqual(manifest.engines, { node: ">=24.18 <25" });
     assert.deepEqual(manifest.repository, {
       type: "git",
       url: "git+https://github.com/zxyycom/vibe-check.git"

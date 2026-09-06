@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { Worker } from "node:worker_threads";
 
 describe("functionMetrics analyzer Worker", () => {
   it("resolves the Product adapter from the source tree and rejects malformed transport", async () => {
@@ -37,18 +38,18 @@ describe("functionMetrics analyzer Worker", () => {
 });
 
 async function sendWorkerRequest(request: unknown): Promise<unknown> {
-  const worker = new Worker(new URL("./analyzer-worker.ts", import.meta.url).href);
+  const worker = new Worker(new URL("./analyzer-worker.ts", import.meta.url));
   try {
     worker.postMessage(request);
     return await receiveWorkerResponse(worker);
   } finally {
-    worker.terminate();
+    await worker.terminate();
   }
 }
 
 function receiveWorkerResponse(worker: Worker): Promise<unknown> {
   return new Promise((resolve, reject) => {
-    worker.onmessage = (event: MessageEvent<unknown>): void => resolve(event.data);
-    worker.onerror = (event: ErrorEvent): void => reject(event.error);
+    worker.once("message", resolve);
+    worker.once("error", reject);
   });
 }

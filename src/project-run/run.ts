@@ -9,7 +9,7 @@ export type { RunOutputStatus, RunOutputStatuses } from "./outputs/status.ts";
 export type { RunDiagnostic, RunResult } from "./result.ts";
 
 /**
- * 在调用方的 Bun runtime 中执行一个由项目拥有的 Project Definition。
+ * 在调用方的 Node runtime 中执行一个由项目拥有的 Project Definition。
  *
  * @param definition - Project Definition input；{@link defineConfig} 补齐 defaults，run 在 invocation 前验证。
  * @param controls - 本次 invocation context 与 outputs 使用的闭合控制值。

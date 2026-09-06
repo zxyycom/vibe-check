@@ -2,7 +2,7 @@ import { isAbsolute } from "node:path";
 
 import { isNonArrayRecord, isStringArray } from "../../value-guards.ts";
 import {
-  PACKAGE_BUN_ENGINE,
+  PACKAGE_NODE_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
@@ -16,7 +16,7 @@ import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
 import { isSha256Digest, isSha512Integrity } from "../pack.ts";
 import { isFullGitCommit, parseFormalReleaseVersion, parseReleaseTag } from "./identity.ts";
 
-const FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION = 2 as const;
+const FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION = 3 as const;
 
 export interface FormalReleaseReceipt {
   readonly schemaVersion: typeof FORMAL_RELEASE_RECEIPT_SCHEMA_VERSION;
@@ -37,7 +37,7 @@ export interface FormalReleaseReceipt {
   }>;
   readonly staging: Readonly<{ readonly path: string }>;
   readonly contract: Readonly<{
-    readonly bunEngine: typeof PACKAGE_BUN_ENGINE;
+    readonly nodeEngine: typeof PACKAGE_NODE_ENGINE;
     readonly license: typeof PACKAGE_LICENSE;
     readonly ownLicense: Readonly<{
       readonly path: typeof PACKAGE_LICENSE_PATH;
@@ -143,7 +143,7 @@ function parseStagingIdentity(value: unknown): FormalReleaseReceipt["staging"] {
 function parseReleaseContract(value: unknown): FormalReleaseReceipt["contract"] {
   assertReleaseContract(value);
   return Object.freeze({
-    bunEngine: PACKAGE_BUN_ENGINE,
+    nodeEngine: PACKAGE_NODE_ENGINE,
     license: PACKAGE_LICENSE,
     ownLicense: Object.freeze({ path: PACKAGE_LICENSE_PATH, sha256: PACKAGE_LICENSE_SHA256 }),
     publish: Object.freeze({
@@ -164,7 +164,7 @@ function assertReleaseContract(value: unknown): asserts value is Readonly<
   if (
     !isNonArrayRecord(value) ||
     !hasExactKeys(value, [
-      "bunEngine",
+      "nodeEngine",
       "license",
       "ownLicense",
       "publish",
@@ -172,7 +172,7 @@ function assertReleaseContract(value: unknown): asserts value is Readonly<
       "repository",
       "legalMaterials"
     ]) ||
-    value.bunEngine !== PACKAGE_BUN_ENGINE ||
+    value.nodeEngine !== PACKAGE_NODE_ENGINE ||
     value.license !== PACKAGE_LICENSE ||
     value.repository !== PACKAGE_REPOSITORY_MANIFEST_URL ||
     !hasExactStringRecord(value.ownLicense, {

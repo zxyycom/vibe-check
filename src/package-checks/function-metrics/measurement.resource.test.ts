@@ -6,7 +6,8 @@ import { describe, it } from "node:test";
 import { functionMetrics } from "./constructor.ts";
 import { createRoot, execute } from "./constructor.test-support.ts";
 import { executeFunctionMetrics } from "./execution.ts";
-import { measureFunctionMetrics } from "./measurement.ts";
+import type { FunctionMetricsWorkerPort } from "./analyzer-worker-port.ts";
+import { measureFunctionMetrics, type FunctionMeasurementDependencies } from "./measurement.ts";
 
 const MEBIBYTE = 1024 * 1024;
 const FILE_LIMIT = 8 * MEBIBYTE;
@@ -55,56 +56,52 @@ describe("functionMetrics resource admission", () => {
 
   it("maps a synchronous Worker postMessage failure to one whole analysis failure", async () => {
     const root = createRoot("vibe-check-function-worker-post-failure-");
-    const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
-    if (workerDescriptor === undefined)
-      throw new Error("Bun Worker must be available for this test.");
-    let terminated = false;
+    let listeners: WorkerListeners | undefined;
+    let terminationCount = 0;
+    let unsubscribeCount = 0;
     try {
       writeFileSync(join(root, "src", "input.ts"), "export const input = 1;\n", "utf8");
-      Object.defineProperty(globalThis, "Worker", {
-        configurable: true,
-        value: class {
-          public onerror: Worker["onerror"] = null;
-          public onmessage: Worker["onmessage"] = null;
-
-          public postMessage(): void {
-            throw new Error("Worker postMessage failed.");
-          }
-
-          public terminate(): void {
-            terminated = true;
-          }
-        }
-      });
-
-      assert.deepEqual(await measure(root, ["src/input.ts"]), { kind: "analysis-failed" });
-      assert.equal(terminated, true);
+      assert.deepEqual(
+        await measure(root, ["src/input.ts"], {
+          createWorker: () => ({
+            postMessage: () => {
+              throw new Error("Worker postMessage failed.");
+            },
+            subscribe: (nextListeners) => {
+              listeners = nextListeners;
+              return (): void => {
+                unsubscribeCount += 1;
+              };
+            },
+            terminate: () => {
+              terminationCount += 1;
+            }
+          })
+        }),
+        { kind: "analysis-failed" }
+      );
+      assert.equal(unsubscribeCount, 1);
+      assert.equal(terminationCount, 1);
+      const lateListeners = listeners;
+      if (lateListeners === undefined) throw new Error("Worker listeners were not installed");
+      lateListeners.message({ kind: "analysis-failed" });
+      lateListeners.error();
+      lateListeners.exit(0);
+      assert.equal(unsubscribeCount, 1);
+      assert.equal(terminationCount, 1);
     } finally {
-      Object.defineProperty(globalThis, "Worker", workerDescriptor);
       rmSync(root, { recursive: true, force: true });
     }
   });
 
   it("fails closed for malformed Worker replies while retaining the current transport shape boundary", async () => {
     const root = createRoot("vibe-check-function-worker-reply-");
-    const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
-    if (workerDescriptor === undefined)
-      throw new Error("Bun Worker must be available for this test.");
     let reply: unknown;
     try {
       writeFileSync(join(root, "src", "input.ts"), "export const input = 1;\n", "utf8");
-      Object.defineProperty(globalThis, "Worker", {
-        configurable: true,
-        value: class {
-          public onmessage: ((event: { readonly data: unknown }) => void) | null = null;
-
-          public postMessage(): void {
-            this.onmessage?.({ data: reply });
-          }
-
-          public terminate(): void {}
-        }
-      });
+      const dependencies = {
+        createWorker: () => scriptedWorker({ postMessage: (listeners) => listeners.message(reply) })
+      } satisfies Partial<FunctionMeasurementDependencies>;
 
       const parentAcceptedMetric = {
         cyclomaticComplexity: {
@@ -125,7 +122,7 @@ describe("functionMetrics resource admission", () => {
         kind: "complete",
         metrics: [parentAcceptedMetric]
       };
-      assert.deepEqual(await measure(root, ["src/input.ts"]), {
+      assert.deepEqual(await measure(root, ["src/input.ts"], dependencies), {
         kind: "complete",
         metrics: [parentAcceptedMetric]
       });
@@ -171,22 +168,34 @@ describe("functionMetrics resource admission", () => {
       for (const invalidReply of invalidReplies) {
         reply = invalidReply.reply;
         assert.deepEqual(
-          await measure(root, ["src/input.ts"]),
+          await measure(root, ["src/input.ts"], dependencies),
           { kind: "analysis-failed" },
           invalidReply.name
         );
       }
+      for (const failedEvent of [
+        { name: "Worker error", publish: (listeners: WorkerListeners) => listeners.error() },
+        {
+          name: "zero exit without a reply",
+          publish: (listeners: WorkerListeners) => listeners.exit(0)
+        },
+        { name: "non-zero exit", publish: (listeners: WorkerListeners) => listeners.exit(1) }
+      ]) {
+        assert.deepEqual(
+          await measure(root, ["src/input.ts"], {
+            createWorker: () => scriptedWorker({ postMessage: failedEvent.publish })
+          }),
+          { kind: "analysis-failed" },
+          failedEvent.name
+        );
+      }
     } finally {
-      Object.defineProperty(globalThis, "Worker", workerDescriptor);
       rmSync(root, { recursive: true, force: true });
     }
   });
 
   it("yields during admission so cancellation prevents Worker startup, Records, and waiver audit", async () => {
     const root = createRoot("vibe-check-function-admission-cancel-");
-    const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
-    if (workerDescriptor === undefined)
-      throw new Error("Bun Worker must be available for this test.");
     let workerStarted = false;
     try {
       writeFileSync(join(root, "src", "input.ts"), Buffer.alloc(FILE_LIMIT, 0x20));
@@ -208,20 +217,19 @@ describe("functionMetrics resource admission", () => {
           }
         ]
       });
-      Object.defineProperty(globalThis, "Worker", {
-        configurable: true,
-        value: class {
-          public constructor() {
-            workerStarted = true;
-            throw new Error("Worker must not start after admission cancellation.");
-          }
-        }
-      });
       const controller = new AbortController();
       const cancellation = setTimeout(() => controller.abort(), 0);
       try {
         const observed = await execute(
-          executeFunctionMetrics,
+          (context) =>
+            executeFunctionMetrics(context, {
+              measurement: {
+                createWorker: () => {
+                  workerStarted = true;
+                  throw new Error("Worker must not start after admission cancellation.");
+                }
+              }
+            }),
           check.options,
           root,
           controller.signal
@@ -244,18 +252,45 @@ describe("functionMetrics resource admission", () => {
         clearTimeout(cancellation);
       }
     } finally {
-      Object.defineProperty(globalThis, "Worker", workerDescriptor);
       rmSync(root, { recursive: true, force: true });
     }
   });
 });
 
-function measure(rootDir: string, approvedExactPaths: readonly string[]) {
+function measure(
+  rootDir: string,
+  approvedExactPaths: readonly string[],
+  dependencies: Partial<FunctionMeasurementDependencies> = {}
+) {
   return measureFunctionMetrics(
     {
       input: { approvedExactPaths, areas: [], rootDir },
       signal: new AbortController().signal
     },
-    { yieldAdmission: () => Promise.resolve() }
+    { yieldAdmission: () => Promise.resolve(), ...dependencies }
   );
+}
+
+type WorkerListeners = Parameters<FunctionMetricsWorkerPort["subscribe"]>[0];
+
+function scriptedWorker(
+  input: Readonly<{
+    readonly postMessage: (listeners: WorkerListeners) => void;
+    readonly terminate?: () => void;
+  }>
+): FunctionMetricsWorkerPort {
+  let listeners: WorkerListeners | undefined;
+  return {
+    postMessage: (): void => {
+      if (listeners === undefined) throw new Error("scripted Worker has no listeners");
+      input.postMessage(listeners);
+    },
+    subscribe: (nextListeners): (() => void) => {
+      listeners = nextListeners;
+      return (): void => {
+        listeners = undefined;
+      };
+    },
+    terminate: input.terminate ?? (() => undefined)
+  };
 }

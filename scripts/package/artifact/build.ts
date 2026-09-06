@@ -12,7 +12,7 @@ import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-invento
 import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
-  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SOURCE_PATH,
   PACKAGE_README_PATH,
@@ -225,7 +225,7 @@ function normalizeEmittedModule(input: {
     fileName: input.javascriptPath,
     source: readFileSync(input.javascriptPath, "utf8")
   });
-  const moduleSource = isEmittedFunctionMetricsMeasurement(input)
+  const moduleSource = isEmittedFunctionMetricsWorkerParent(input)
     ? rewriteFunctionMetricsWorkerUrl({
         fileName: input.javascriptPath,
         source: staticModuleSource
@@ -248,13 +248,13 @@ function normalizeEmittedModule(input: {
   rmSync(sourceMapPath);
 }
 
-function isEmittedFunctionMetricsMeasurement(input: {
+function isEmittedFunctionMetricsWorkerParent(input: {
   readonly javascriptPath: string;
   readonly stagingDirectory: string;
 }): boolean {
   return (
     relative(input.stagingDirectory, input.javascriptPath).split(sep).join("/") ===
-    `${PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH.slice(0, -".mjs".length)}.js`
+    `${PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH.slice(0, -".mjs".length)}.js`
   );
 }
 

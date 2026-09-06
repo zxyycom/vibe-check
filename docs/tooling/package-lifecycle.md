@@ -13,15 +13,15 @@ Worker execution shape。构建过程逐模块生成
 `dist/esm/**.mjs`，同时生成 `types/**.d.ts`、对应的源码映射，并复制 package 所属的非 test/fixture `src/**.ts`
 Product 源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；`package.json` 的 `exports` 只开放根路径
 `"."`，因此物理存在的 `dist`、`types` 与 `src` 目录不是 consumer subpath API。worker 不是额外 export：normalization
-只在 emitted `function-metrics/measurement.js` 中恰好一次将 `new URL("./analyzer-worker.ts", import.meta.url)` 改为
+只在 emitted `function-metrics/analyzer-worker-port.js` 中恰好一次将 `new URL("./analyzer-worker.ts", import.meta.url)` 改为
 `analyzer-worker.mjs`，任何数量或 compiler-shape drift 都拒绝产物，绝不 broad-rewrite ordinary URL strings。
 
 逐模块产物保留第三方 package imports；candidate manifest 必须声明完整且可审计的直接运行时依赖要求。依赖的行为 owner
 决定使用精确版本还是有界 semver range；candidate installation 必须验证实际解析版本满足声明，随后由实际 consumer
 execution 验证这份安装。package tooling 不替依赖 owner 推断额外兼容语义。
 local candidate 与 formal release 共用同一 closed generated manifest：user-scoped `@zxyycom/vibe-check`、唯一 root export、
-`MIT AND Apache-2.0 AND BSD-2-Clause`、Bun `>=1.3.14`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
-完整 production dependencies。manifest 不含 `private`、`bin`、lifecycle scripts、Node host 或 subpath export。
+`MIT AND Apache-2.0 AND BSD-2-Clause`、Node `>=24.18 <25`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
+完整 production dependencies。manifest 不含 `private`、`bin`、lifecycle scripts、Bun host 或 subpath export。
 仓库根 [`LICENSE`](../../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还携带
 [`THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md)、`licenses/**` 中 Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments
 2.18 BSD-2-Clause text 与 fixed-range provenance，以及 Momoa third-party text。staging、tarball 与 installed candidate 都逐字节

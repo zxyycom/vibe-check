@@ -54,7 +54,7 @@ function assertInstalledDeclarationDocumentation(consumerDirectory: string): voi
     declarationMarker: `export declare function ${CURRENT_PUBLIC_CONTRACT.operations.run}`,
     declarationPath: join(packageDirectory, runDeclarationPath)
   });
-  assert.match(runDocs, /在调用方的 Bun runtime 中执行/);
+  assert.match(runDocs, /在调用方的 Node runtime 中执行/);
   assert.match(runDocs, /@remarks.*validation/su);
   assert.match(runDocs, /@param definition/);
   assert.match(runDocs, /@returns/);

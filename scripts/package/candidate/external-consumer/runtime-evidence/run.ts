@@ -9,10 +9,11 @@ import { isPathWithin } from "../../../../repository-files/paths.ts";
 import { isAcceptedPackageDependencyVersion } from "../../../dependency-version.ts";
 import {
   CANDIDATE_DEPENDENCIES,
-  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH
 } from "../../../package-contract.ts";
 import { assertExternalConsumerCommandSucceeded } from "../command-result.ts";
+import { externalConsumerNodeCommand } from "../node-command.ts";
 import type { ExternalConsumerMaterial } from "../material.ts";
 import { assertCandidateRunEvidence, type CandidateFixtureEvidence } from "./assertions.ts";
 import {
@@ -76,7 +77,9 @@ function declaredJscpdBin(bin: unknown): string | undefined {
 }
 
 function runJscpdEngine(binPath: string): string {
-  const result = spawnSync(process.execPath, [binPath, "--version"], { encoding: "utf8" });
+  const result = spawnSync(externalConsumerNodeCommand(), [binPath, "--version"], {
+    encoding: "utf8"
+  });
   assert.equal(result.error, undefined, "resolved jscpd engine did not start");
   assert.equal(result.status, 0, result.stderr);
   const version = result.stdout.trim().match(/(?:jscpd|cpd)\s+([^\s]+)/iu)?.[1];
@@ -154,6 +157,7 @@ function projectCandidateFixtureEvidence(
     humanOutput: humanOutput,
     kind,
     machineSchemaVersion: evidence.machineSchemaVersion,
+    runtime: evidence.runtime,
     jsonSchemaData: evidence.jsonSchemaData,
     jsonSchemaOutcome,
     learnedScheduling: evidence.learnedScheduling,
@@ -167,16 +171,20 @@ function projectCandidateFixtureEvidence(
 
 function assertInstalledFunctionMetricsWorker(resolvedEntryPath: string): void {
   const packageDirectory = dirname(resolvedEntryPath);
-  const measurementPath = resolve(
+  const workerParentPath = resolve(
     packageDirectory,
-    PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH
+    PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH
   );
   const workerPath = resolve(packageDirectory, PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH);
-  assert.equal(existsSync(measurementPath), true, "installed function-metrics module is missing");
+  assert.equal(
+    existsSync(workerParentPath),
+    true,
+    "installed function-metrics Worker parent is missing"
+  );
   assert.equal(existsSync(workerPath), true, "installed function-metrics Worker entry is missing");
   const workerUrl = 'new URL("./analyzer-worker.mjs", import.meta.url)';
   assert.equal(
-    readFileSync(measurementPath, "utf8").split(workerUrl).length - 1,
+    readFileSync(workerParentPath, "utf8").split(workerUrl).length - 1,
     1,
     "installed function-metrics module does not resolve exactly one shipped Worker URL"
   );
@@ -186,7 +194,7 @@ function candidateFixtureOutput(consumerDirectory: string): Readonly<{
   readonly evidence: Readonly<Record<string, unknown>>;
   readonly humanOutput: string;
 }> {
-  const result = spawnSync(process.execPath, ["run-fixture.mjs", consumerDirectory], {
+  const result = spawnSync(externalConsumerNodeCommand(), ["run-fixture.mjs", consumerDirectory], {
     cwd: consumerDirectory,
     encoding: "utf8"
   });

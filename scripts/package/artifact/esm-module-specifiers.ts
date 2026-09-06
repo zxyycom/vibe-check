@@ -19,7 +19,8 @@ export function rewriteRelativeEsmModuleExtensions(input: {
  *
  * This deliberately does not normalize ordinary `new URL(...)` values: package runtime code may
  * carry URLs with source-level semantics. The artifact builder invokes it only for emitted
- * `function-metrics/measurement.js` and it rejects any compiler-shape drift instead of guessing.
+ * `function-metrics/analyzer-worker-port.js` and it rejects any compiler-shape drift instead of
+ * guessing.
  */
 export function rewriteFunctionMetricsWorkerUrl(input: {
   readonly fileName: string;

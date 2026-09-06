@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
 import { run } from "../../project-run/run.ts";
+import type { FunctionMetricsWorkerPort } from "./analyzer-worker-port.ts";
 import { functionMetrics } from "./constructor.ts";
 import { executeFunctionMetrics } from "./execution.ts";
 import { parseFunctionMetricsData } from "./final-data.ts";
@@ -114,11 +115,10 @@ describe("functionMetrics analyzer execution", () => {
 
   it("terminates an in-flight Worker before results or waiver audit", async () => {
     const root = createRoot("vibe-check-function-cancelled-");
-    const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
-    if (workerDescriptor === undefined)
-      throw new Error("Bun Worker must be available for this test.");
     let workerStarted = 0;
     let workerTerminated = 0;
+    let workerUnsubscribed = 0;
+    let workerListeners: Parameters<FunctionMetricsWorkerPort["subscribe"]>[0] | undefined;
     let cancellation: ReturnType<typeof setTimeout> | undefined;
     try {
       const nestedConditionals = `${"value ? ".repeat(6000)}0${" : 0".repeat(6000)}`;
@@ -141,24 +141,28 @@ describe("functionMetrics analyzer execution", () => {
         ]
       });
       const controller = new AbortController();
-      const OriginalWorker = globalThis.Worker;
-      Object.defineProperty(globalThis, "Worker", {
-        configurable: true,
-        value: class extends OriginalWorker {
-          public constructor(...arguments_: ConstructorParameters<typeof Worker>) {
-            workerStarted += 1;
-            super(...arguments_);
-            cancellation = setTimeout(() => controller.abort(), 30);
-          }
-
-          public override terminate(): void {
-            workerTerminated += 1;
-            super.terminate();
-          }
-        }
-      });
       const observed = await execute(
-        executeFunctionMetrics,
+        (context) =>
+          executeFunctionMetrics(context, {
+            measurement: {
+              createWorker: (): FunctionMetricsWorkerPort => {
+                workerStarted += 1;
+                cancellation = setTimeout(() => controller.abort(), 0);
+                return {
+                  postMessage: () => undefined,
+                  subscribe: (listeners) => {
+                    workerListeners = listeners;
+                    return (): void => {
+                      workerUnsubscribed += 1;
+                    };
+                  },
+                  terminate: () => {
+                    workerTerminated += 1;
+                  }
+                };
+              }
+            }
+          }),
         check.options,
         root,
         controller.signal
@@ -177,10 +181,17 @@ describe("functionMetrics analyzer execution", () => {
       });
       assert.equal(workerStarted, 1);
       assert.equal(workerTerminated, 1);
+      assert.equal(workerUnsubscribed, 1);
+      const lateListeners = workerListeners;
+      if (lateListeners === undefined) throw new Error("Worker listeners were not installed");
+      lateListeners.message({ kind: "analysis-failed" });
+      lateListeners.error();
+      lateListeners.exit(1);
+      assert.equal(workerTerminated, 1);
+      assert.equal(workerUnsubscribed, 1);
       assert.deepEqual(observed.records, []);
     } finally {
       if (cancellation !== undefined) clearTimeout(cancellation);
-      Object.defineProperty(globalThis, "Worker", workerDescriptor);
       rmSync(root, { recursive: true, force: true });
     }
   });

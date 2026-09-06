@@ -20,7 +20,7 @@ relations:
 
 ## 背景
 
-- 项目运行脚本通过普通 import 已经获得 Project Definition，definition 中的 functions 和 closures 已存在于调用方 Bun runtime。
+- 项目运行入口通过普通 import 已经获得 Project Definition，definition 中的 functions 和 closures 已存在于调用方 runtime。
 - 当前 Check model 的每项 execution 只是一项独立 Check callback；不需要 TaskPlan factory 或 execution-time Task registration。
 - JSON 无法自然表达项目 functions，因此继续使用 TypeScript hard cut。
 

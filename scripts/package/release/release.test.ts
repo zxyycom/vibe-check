@@ -84,7 +84,7 @@ describe("formal package release", () => {
       assert.throws(() => parseFormalReleaseReceipt(reorderedInventory), /artifact identity/);
 
       const wrongContract = mutableReceipt(receipt);
-      wrongContract.contract.bunEngine = ">=1.0.0";
+      wrongContract.contract.nodeEngine = ">=24";
       assert.throws(() => parseFormalReleaseReceipt(wrongContract), /package contract/);
 
       const extraField = mutableReceipt(receipt);
@@ -165,7 +165,7 @@ describe("formal package release", () => {
 type MutableReceiptFixture = {
   [key: string]: unknown;
   artifact: { [key: string]: unknown; files: string[]; path: string };
-  contract: { [key: string]: unknown; bunEngine: string };
+  contract: { [key: string]: unknown; nodeEngine: string };
 };
 
 function mutableReceipt(value: unknown): MutableReceiptFixture {
@@ -186,7 +186,7 @@ function isMutableReceiptFixture(value: unknown): value is MutableReceiptFixture
     Array.isArray(artifact.files) &&
     artifact.files.every((file) => typeof file === "string") &&
     isNonArrayRecord(contract) &&
-    typeof contract.bunEngine === "string"
+    typeof contract.nodeEngine === "string"
   );
 }
 

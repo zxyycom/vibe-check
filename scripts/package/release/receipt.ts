@@ -7,7 +7,7 @@ import { auditStagingRuntime } from "../artifact/staging-audit.ts";
 import type { CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import {
-  PACKAGE_BUN_ENGINE,
+  PACKAGE_NODE_ENGINE,
   PACKAGE_LICENSE,
   PACKAGE_LICENSE_PATH,
   PACKAGE_LICENSE_SHA256,
@@ -172,7 +172,7 @@ function createFormalReleaseReceipt(input: {
   readonly tag: string;
 }): FormalReleaseReceipt {
   return parseFormalReleaseReceipt({
-    schemaVersion: 2,
+    schemaVersion: 3,
     package: { name: PACKAGE_NAME, version: input.artifact.candidateVersion, tag: input.tag },
     source: {
       commit: input.sourceCommit,
@@ -186,7 +186,7 @@ function createFormalReleaseReceipt(input: {
     },
     staging: { path: toPortableOwnedPath(input.repositoryRoot, input.artifact.stagingDirectory) },
     contract: {
-      bunEngine: PACKAGE_BUN_ENGINE,
+      nodeEngine: PACKAGE_NODE_ENGINE,
       license: PACKAGE_LICENSE,
       ownLicense: { path: PACKAGE_LICENSE_PATH, sha256: PACKAGE_LICENSE_SHA256 },
       publish: { access: PACKAGE_PUBLISH_ACCESS, registry: PACKAGE_PUBLISH_REGISTRY },

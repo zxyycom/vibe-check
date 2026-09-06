@@ -109,7 +109,7 @@ test("formal release root commands require closed inputs and bind verification t
 
 function formalReleaseReceiptFixture(): unknown {
   return {
-    schemaVersion: 2,
+    schemaVersion: 3,
     package: { name: "@zxyycom/vibe-check", version: "0.0.1", tag: "latest" },
     source: { commit: "b".repeat(40), inputFingerprint: "a".repeat(64) },
     artifact: {
@@ -120,7 +120,7 @@ function formalReleaseReceiptFixture(): unknown {
     },
     staging: { path: "build/release-package" },
     contract: {
-      bunEngine: ">=1.3.14",
+      nodeEngine: ">=24.18 <25",
       license: PACKAGE_LICENSE,
       ownLicense: {
         path: "LICENSE",

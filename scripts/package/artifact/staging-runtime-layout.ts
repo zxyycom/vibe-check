@@ -3,7 +3,7 @@ import { basename, dirname, join, resolve } from "node:path";
 
 import { collectFilePaths } from "../file-inventory.ts";
 import {
-  PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH,
+  PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH,
   PACKAGE_RUNTIME_DIRECTORY
 } from "../package-contract.ts";
@@ -27,13 +27,16 @@ export function assertReadableStagingRuntimeLayout(stagingDirectory: string): vo
 
 function assertFunctionMetricsWorkerRuntime(stagingDirectory: string): void {
   const workerPath = join(stagingDirectory, PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH);
-  const measurementPath = join(stagingDirectory, PACKAGE_FUNCTION_METRICS_MEASUREMENT_RUNTIME_PATH);
-  if (!existsSync(workerPath) || !existsSync(measurementPath)) {
+  const workerParentPath = join(
+    stagingDirectory,
+    PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH
+  );
+  if (!existsSync(workerPath) || !existsSync(workerParentPath)) {
     throw new Error("candidate runtime is missing the emitted function-metrics Worker entry");
   }
-  const measurement = readFileSync(measurementPath, "utf8");
+  const workerParent = readFileSync(workerParentPath, "utf8");
   const workerUrl = 'new URL("./analyzer-worker.mjs", import.meta.url)';
-  const occurrenceCount = measurement.split(workerUrl).length - 1;
+  const occurrenceCount = workerParent.split(workerUrl).length - 1;
   if (occurrenceCount !== 1) {
     throw new Error(
       `candidate function-metrics runtime must resolve exactly one emitted Worker URL; received ${occurrenceCount}`

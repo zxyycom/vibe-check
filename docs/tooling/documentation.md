@@ -42,7 +42,7 @@ current machine schemas 位于 `docs/schemas/`，唯一 artifact example 位于
 `scripts/docs/machine-artifacts/package-materials.ts` 是随 package 发布的 machine material 精确 registry：它只包含
 `docs/output.md`、current v4 run / Record schemas 与这一组 Definition/output materials，并按原始 bytes 读取。package build、
 packed tar audit、candidate reuse、installed package audit 与 ancestry-external consumer acceptance 都比较同一 registry 的精确
-bytes；installed consumer typecheck 直接检查 Definition，documentation acceptance 用一个 consumer-owned Bun child 按确定顺序
+bytes；installed consumer typecheck 直接检查 Definition，documentation acceptance 用一个 mise 锁定的 consumer-owned Node child 按确定顺序
 执行全部 runtime examples 和 machine Definition。Example 或 Definition import 失败时，错误保留对应 source identity；执行成功后再核对
 documented built-in/custom facts、RunResult messages 与 machine publication。legacy schemas、historical examples、generator sources 与 validation scripts 不进入
 package。

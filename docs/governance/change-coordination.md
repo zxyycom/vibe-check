@@ -125,7 +125,7 @@ Draft/Plan 的存在都不表示已经取得实施授权。
 | Change                                                                                         | 恢复条件                                                                 | 激活后的复核重点                                                           |
 | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 真实 workload 证明收益，并闭合 trigger、pending outcome 与 observer 规则 | cutoff、terminal summary、drain boundary 和未启动 Task 结算                |
-| [`add-named-resource-capacity`](../../changes/add-named-resource-capacity/proposal.md)         | 真实资源争用证明 `mutex` 与 `maxParallel` 不足，并闭合有限进展           | capacity denominator、atomic claims、hard-guard facts 与 interval boundary |
+| `add-named-resource-capacity`                                                                 | 真实资源争用证明 `mutex` 与 `maxParallel` 不足，并闭合有限进展           | capacity denominator、atomic claims、hard-guard facts 与 interval boundary |
 
 ### Scanner 轨道
 

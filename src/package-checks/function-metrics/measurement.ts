@@ -1,10 +1,12 @@
 import { closeSync, openSync, readSync } from "node:fs";
 import { resolve } from "node:path";
 
-import type {
-  FunctionMetricsAnalysisWorkerRequest,
-  FunctionMetricsAnalysisWorkerResponse
-} from "./analyzer-worker-contract.ts";
+import type { FunctionMetricsAnalysisWorkerRequest } from "./analyzer-worker-contract.ts";
+import {
+  analyzeAdmittedSources,
+  createNodeFunctionMetricsWorker,
+  type FunctionMetricsWorkerPort
+} from "./analyzer-worker-port.ts";
 import type { FunctionMetric, FunctionMetricsExactInputSet } from "./measurement-model.ts";
 
 const MAXIMUM_FILE_BYTES = 8 * 1024 * 1024;
@@ -24,11 +26,13 @@ interface FunctionMeasurementInput {
   readonly signal: AbortSignal;
 }
 
-interface FunctionMeasurementDependencies {
+export interface FunctionMeasurementDependencies {
+  readonly createWorker: () => FunctionMetricsWorkerPort;
   readonly yieldAdmission: () => Promise<void>;
 }
 
 const DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES: FunctionMeasurementDependencies = Object.freeze({
+  createWorker: createNodeFunctionMetricsWorker,
   yieldAdmission: yieldAdmissionToTimer
 });
 
@@ -38,12 +42,16 @@ const DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES: FunctionMeasurementDependencies
  */
 export async function measureFunctionMetrics(
   { input, signal }: FunctionMeasurementInput,
-  dependencies: FunctionMeasurementDependencies = DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES
+  dependencies: Partial<FunctionMeasurementDependencies> = {}
 ): Promise<FunctionMeasurementResult> {
-  const admitted = await readExactFunctionSources(input, signal, dependencies.yieldAdmission);
+  const createWorker =
+    dependencies.createWorker ?? DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES.createWorker;
+  const yieldAdmission =
+    dependencies.yieldAdmission ?? DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES.yieldAdmission;
+  const admitted = await readExactFunctionSources(input, signal, yieldAdmission);
   if (admitted.kind !== "complete") return admitted;
   if (signal.aborted) return Object.freeze({ kind: "cancelled" });
-  return analyzeAdmittedSources(admitted.request, input.approvedExactPaths, signal);
+  return analyzeAdmittedSources(admitted.request, input.approvedExactPaths, signal, createWorker);
 }
 
 async function readExactFunctionSources(
@@ -231,102 +239,4 @@ function isUtf8SecondByteForFourByteSequence(
     !(first === 0xf0 && second < 0x90) &&
     !(first === 0xf4 && second > 0x8f)
   );
-}
-
-async function analyzeAdmittedSources(
-  request: FunctionMetricsAnalysisWorkerRequest,
-  approvedExactPaths: readonly string[],
-  signal: AbortSignal
-): Promise<FunctionMeasurementResult> {
-  let worker: Worker;
-  try {
-    worker = new Worker(new URL("./analyzer-worker.ts", import.meta.url).href);
-  } catch {
-    return Object.freeze({ kind: "analysis-failed" });
-  }
-  return new Promise((resolveResult) => {
-    let settled = false;
-    const finish = (result: FunctionMeasurementResult): void => {
-      if (settled) return;
-      settled = true;
-      signal.removeEventListener("abort", cancelled);
-      worker.terminate();
-      resolveResult(result);
-    };
-    const cancelled = (): void => finish(Object.freeze({ kind: "cancelled" }));
-    worker.onmessage = (event: MessageEvent<unknown>): void => {
-      if (signal.aborted) return cancelled();
-      const response = parseWorkerResponse(event.data, approvedExactPaths);
-      finish(response);
-    };
-    worker.onerror = (): void => finish(Object.freeze({ kind: "analysis-failed" }));
-    signal.addEventListener("abort", cancelled, { once: true });
-    if (signal.aborted) return cancelled();
-    try {
-      worker.postMessage(request);
-    } catch {
-      finish(Object.freeze({ kind: "analysis-failed" }));
-    }
-  });
-}
-
-function parseWorkerResponse(
-  value: unknown,
-  approvedExactPaths: readonly string[]
-): FunctionMeasurementResult {
-  if (!isWorkerResponse(value)) return Object.freeze({ kind: "analysis-failed" });
-  if (value.kind === "analysis-failed") return value;
-  const approvedPaths = new Set(approvedExactPaths);
-  return value.metrics.every((metric) => approvedPaths.has(metric.file))
-    ? Object.freeze({ kind: "complete", metrics: value.metrics })
-    : Object.freeze({ kind: "analysis-failed" });
-}
-
-function isWorkerResponse(value: unknown): value is FunctionMetricsAnalysisWorkerResponse {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "kind" in value &&
-    (value.kind === "analysis-failed" ||
-      (value.kind === "complete" &&
-        "metrics" in value &&
-        Array.isArray(value.metrics) &&
-        value.metrics.every(isFunctionMetric)))
-  );
-}
-
-function isFunctionMetric(value: unknown): value is FunctionMetric {
-  return (
-    isRecord(value) &&
-    hasFunctionMetricIdentity(value) &&
-    hasFunctionMetricMeasurements(value) &&
-    isTypeScriptAnalyzerCyclomaticComplexity(value.cyclomaticComplexity)
-  );
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
-}
-
-function hasFunctionMetricIdentity(metric: Record<string, unknown>): boolean {
-  return typeof metric.file === "string" && typeof metric.name === "string";
-}
-
-function hasFunctionMetricMeasurements(metric: Record<string, unknown>): boolean {
-  return (
-    Number.isSafeInteger(metric.startLine) &&
-    Number.isSafeInteger(metric.endLine) &&
-    Number.isSafeInteger(metric.lines) &&
-    Number.isSafeInteger(metric.parameterCount)
-  );
-}
-
-function isTypeScriptAnalyzerCyclomaticComplexity(value: unknown): boolean {
-  return (
-    isRecord(value) && value.source === "typescript-analyzer" && isNullableSafeInteger(value.value)
-  );
-}
-
-function isNullableSafeInteger(value: unknown): boolean {
-  return value === null || (typeof value === "number" && Number.isSafeInteger(value));
 }

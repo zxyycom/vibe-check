@@ -31,7 +31,7 @@ relations:
 ## 决策
 
 - 采用: `duplicateDetection(options?)` 继续只暴露 area policy 与 package/executable-only custom command；不公开 args、availability args、workers、version、version range 或 probe bypass。
-- 采用: 保留 jscpd v5 CLI adapter。package command 继续从已安装 manifest 解析受控 bin target并由 active Bun 执行；custom executable 继续直接接收 adapter-owned version/config/output arguments；adapter 不传 `--workers`，沿用实际工具的自动 worker policy。
+- 采用: 保留 jscpd v5 CLI adapter。package command 继续从已安装 manifest 解析受控 bin target并由 active package runtime executable 执行；custom executable 继续直接接收 adapter-owned version/config/output arguments；adapter 不传 `--workers`，沿用实际工具的自动 worker policy。
 - 采用: repository dependency 与 lockfile 固定当前实际测试基线 `5.1.1`；发布 candidate 从该基线声明同 major v5 的有界 range `^5.1.1`。发布验收在 repository、candidate installation 与 external consumer 三条路径验证 resolved manifest、contained bin 与实际 engine version 一致；candidate installation 还必须验证实际解析版本满足 range，external consumer 必须使用该实际安装完成 duplicate-detection Run。该验收不把 package command 的每次 runtime version probe 变成 exact-5.1.1 gate。
 - 采用: version probe 只确认 executable 可运行且提供可识别的 provenance。任何可识别实际版本都进入 raw-cache identity，不因偏离 repository baseline 而单独失败；无法识别版本时拒绝 availability，防止多个未知工具版本共享 cache identity。
 - 采用: compatible-range 内的 finding 变化属于启发式 scanner 演进，由 area thresholds 与项目 Gate policy处理；process、config、report、parse 或 exact-input failure 继续 fail closed 为 `unavailable`，绝不伪装为成功空结果。

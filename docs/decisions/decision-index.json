@@ -9,7 +9,7 @@
       "add-invocation-local-scheduler-performance-summary.md": "sha256:fc65bdb972882df0b2378cd702578505b9e5ee8056aeefe328bbc35739f22469",
       "add-secret-detection-to-package-check-contract.md": "sha256:e896eff80c7c343833289902daa348a323e92e23d56049547a345eeec622a931",
       "adopt-invocation-scoped-custom-admission-strategy-authoring.md": "sha256:a77e0d796cc4c6ef87f6caa29575140b3e9dcc2214016c79abd88e38bcb22261",
-      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:3281d10d3b4c9aa97ecce1db516baabffe4073d2a052629ad172c8d1a812c276",
+      "adopt-low-level-markdown-link-parser-architecture.md": "sha256:63c885d06bcc98c523ed974a99ef45158629e649a873fb1151621703f703e64b",
       "adopt-selected-lizard-extensions-in-product-owned-analyzer.md": "sha256:c90984e5d597832a38737f53104c032c9d460994cb1899f5afc15ba2a5715458",
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:b7b41d2500be71ca7afe8e717881286d33651caac4ff4be7bcfc154031b95710",
@@ -69,7 +69,7 @@
       "exclude-lizard-port-from-repository-quality-metrics.md": "sha256:89a66fe4208b043246142aba85af988b9ed3d603c9ef90e1f4df2adcf38eace4",
       "exclude-test-functions-but-keep-test-maintainability-evidence.md": "sha256:6907264d6a092eeafef3f4919c1add31e85263fab92eda832d9c54b5390402c3",
       "exclude-undefined-markdown-references-from-link-check.md": "sha256:6ea40bdf5c319abe0b4d8cda573a5fa4b4735d8dac46a87030f89ebfbf117cbf",
-      "execute-check-functions-in-caller-runtime.md": "sha256:f634b3c8e1ad367a516c7341057bcda0e6309e231bc35daf9c473aadd03d678a",
+      "execute-check-functions-in-caller-runtime.md": "sha256:b76b702b234ed5e540007b4ea8412a46e4c38bf0086916329ac31967e6d60b33",
       "execute-check-scopes-through-one-task-graph.md": "sha256:45c0a2e7d9cc81dc1dceb1c875521fce97c4f731de45d44bc3450b5dad7a98a2",
       "execute-project-functions-through-task-system-in-caller-runtime.md": "sha256:7e5f18d1edf6aa3d33e4865bff789d16c492ecc84d1de508d9f4c046133babe4",
       "execute-recursive-checks-through-one-task-graph.md": "sha256:6ea95feec90d39ede593496e61e81d5b808ebb67a6f25b430d77a50b3798d47b",
@@ -142,9 +142,9 @@
       "organize-maintainer-documentation-by-responsibility.md": "sha256:ee335954832b2c2dfb468194cda31021a62486aa8ae86fa816a1ecf2ee9bca7d",
       "organize-owner-aware-project-run-and-gate-diagnostics.md": "sha256:8285f1911c8ba0cfc4d92ab032aeec78d7e09cb0cacb402bffe898885a0b9f67",
       "organize-project-run-and-gate-diagnostics-for-human-inspection.md": "sha256:82f2d663a946d3157f404b782a0de86240ff3537dce52aec71cc9447f501447f",
-      "pass-project-definition-check-functions-to-run.md": "sha256:42ad89feb9bc27816c1efd91a75b750134c4d99832745624fe5e043f4b9c69c8",
+      "pass-project-definition-check-functions-to-run.md": "sha256:f5a07b5f22f0517d00123ba646a150227eca63f98c59afa784356db6e847eb33",
       "pass-project-definition-value-to-run.md": "sha256:b15c47bd16b4ffa1efb2f2d1eb4a4e0ff3a390d06830c2a09469bd85c24ad94f",
-      "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md": "sha256:d5683d0aec3724775875ff9d551589489159d0ce8c1c735d10d07e801c5a2d56",
+      "permit-evidence-backed-host-primitive-optimization-in-lizard-port.md": "sha256:3ca5324ff01113979abf64bb8b39ae6a42c380fa575dbd7b38795b7560f27009",
       "post-process-project-gate-with-owned-context.md": "sha256:b889aa0bf08f37665de27b962c63059efa9935f0c6ab684a751a672932b46dd0",
       "preinstall-selected-typescript-capabilities.md": "sha256:ae8789a389d6c4ffb3526cc803fbd65d94af0c9c839719c5c31550b656bcd746",
       "prepare-check-options-before-execution.md": "sha256:577d823f32c2ab8450d1bd065bbc2d4c093d5b7503323b185741389c03dd3066",
@@ -169,12 +169,13 @@
       "publish-fingerprint-bound-check-record-machine-v4.md": "sha256:b12df18e821e1faf4a5bc62a7f55d285adead370cab22d8478c49b2fc27abb53",
       "publish-invocation-creation-time-without-execution-telemetry.md": "sha256:dd0b0d8631379eb31ff7cda58d4bfa662da7e22e245885240c7ac62b14dd9d92",
       "publish-invocation-creation-timestamp-without-check-telemetry.md": "sha256:07f76379cade1144f1bc2dca91fda7fa403f5867607fd3b644c3831c732573e4",
+      "publish-node-readable-esm-package-layout.md": "sha256:66989e171450f88cb00d0b36c731badbb6dc4c93d55c6d59f0ba8938c8a0dd21",
       "publish-owner-structured-process-check-records.md": "sha256:78e57a629afbaf7a0946d01d6bb8cd72319edb928b82cb4ca49fd237f327366b",
       "publish-project-gate-machine-facts-in-machine-namespace.md": "sha256:b0569ebfbda1a5a836853639ed5bdea0e2aafc48471bb897653606ede1e54ad7",
       "publish-project-gate-machine-facts-with-invocation-evidence.md": "sha256:daa7e106cd218de23c4f76a8f1a7e82af04032e45baeaf2df733ff3d330d385e",
-      "publish-readable-esm-package-layout.md": "sha256:b675b0c8aadf748675414e7056fb550c950b9129a818090520ddf68c6333ab3b",
+      "publish-readable-esm-package-layout.md": "sha256:411e884ccdbe086ac4d058fb9cf0047ae8b3836d6d34dabf953a595ee68fddbb",
       "publish-unscoped-vibe-check-publicly.md": "sha256:bb71c40ed12471c8769a34a64304aca6a75ada1422aec329921b59dd8b2b4386",
-      "publish-user-scoped-vibe-check-publicly.md": "sha256:e27ee857bfd31ac3c25a12f2d0c264a2762cbb045974ed6c56d9d9c5b9e6bc39",
+      "publish-user-scoped-vibe-check-publicly.md": "sha256:fda761bba1f8a9e445554d3cefc2041e9e92bef77f04c79f561bd322d1c5d056",
       "rate-limit-non-force-main-auto-push-after-commit.md": "sha256:39f730309a2843c029911c8c06127ba628603e5618920f922f81ec00941046e9",
       "read-direct-dependency-final-data-by-string.md": "sha256:80c15df161b683b4dfd6cf4dc4e09514935aaf86d7b0589224baff0db8aa315d",
       "reconcile-finding-waivers-with-caller-defined-identities.md": "sha256:bff18bd78ea8bf7692235dc0725ca5869ea07cdb41f6a94b207d9c47e19c0ed8",
@@ -183,7 +184,7 @@
       "refine-product-module-boundaries.md": "sha256:ca807ad24d1b8282e1c6a1291c4b09c0ff4b0e0a8e0d127e352ea0ea756e42a4",
       "refine-project-gate-context-timing-phases.md": "sha256:e3b93f579701e290aa78c1216305e5939260c178d76f27f68dcc0e2c19b351a6",
       "refine-project-run-and-settlement-owners.md": "sha256:50ed6c51b7f852dc6e87e6c66d092cec58a0d3be2348ecfce9d631b709ea0621",
-      "release-one-versioned-npm-product-unit.md": "sha256:e2ef341a200e9f743b2351f376cdc74eb899d78691286970ffe477fc865029ac",
+      "release-one-versioned-npm-product-unit.md": "sha256:11ae85221ef8c86980d7ed15637dd4b60724410bbf7efe0a6f8838bba612f7c2",
       "remove-unconsumed-option-capability.md": "sha256:d9c25f4d9086f43513bfccbf7ae616935e1301a2f1b162aee56fc2f6b1b5d6f7",
       "render-record-and-message-previews-in-product-progress.md": "sha256:da6b07d3bb5eb2f59a62ededc70ff1d937330ef1b1039fd5d338fb27bf4e0a14",
       "replace-global-tool-effects-with-run-outputs.md": "sha256:c38862f6dcc06d266d1e0019b88381789bac04664bdbdac1246014d0f24a9e1b",
@@ -227,11 +228,12 @@
       "split-external-consumer-acceptance-with-typed-provider-data.md": "sha256:a59f00e3db07564ce351aa90953140ed4dd1dfb83f5f2ec1c42c4bc792f98013",
       "structure-package-documentation-around-one-readme.md": "sha256:964544b8104561a5f9ae1723c693980dcadf270c417b0a5e9c3864ad911b8877",
       "structure-package-documentation-by-user-task.md": "sha256:cd51ad167bad420ff1d3f305724973bfbe646f229e32babf350e891613788260",
-      "support-bun-as-the-package-host.md": "sha256:9d9ccc35f899caba261a30f3333c05a3823bbb527fbcc06b36b9c89f099fa66f",
+      "support-bun-as-the-package-host.md": "sha256:658b977f3eb72be3e7d1caced75b625a4c70d4cc809b85189c1bce1140f38c8a",
       "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
+      "support-node-as-the-package-host.md": "sha256:f56cc9c3bb54ed8d6026c33b72f5d3f98d06004eb71392fde125212597206c09",
       "track-lizard-supported-languages-with-upstream-advisory.md": "sha256:17ce134e21a7bc17c17bb9e57f81edb0faf027f72a198acb1459410d9d16d0c9",
       "treat-flag-control-settlements-as-scheduler-results.md": "sha256:6428b3e7df656ed7b5f04e23bbc67e44edbe98d88f207a945389dfa64d3798cc",
-      "treat-jscpd-version-as-adapter-provenance.md": "sha256:e2ded43206717fe2d7d5e73061b8693a0319e1cba35d8d58f118371f1365a13f",
+      "treat-jscpd-version-as-adapter-provenance.md": "sha256:9098df13ac2f3042d2f4e6bd4fc991c912ff1dd6b82dc770649ff83351a682e6",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-run-output-directories-as-explicit-trusted-targets.md": "sha256:8f01b9f9b6d5d19a93c6efdc9ebb919a063a3ae781da09b8d1880c1e726772bf",
@@ -268,7 +270,7 @@
       "use-json-filename-for-commented-config.md": "sha256:78e557b5d59328c4113c511119cdfdf9961aa1c81772938ed5c0aee8c6d5b1c5",
       "use-location-independent-finding-identities.md": "sha256:37bf8c411e93e953a1a9e46f68e719d4390dcab81ec728ba06e8f4e7e2eb91d7",
       "use-location-independent-record-identities.md": "sha256:132ee8c1dbd5502c33918b584098e8fa2f7af6dfaa05e51cf3e92e69c9d8a78c",
-      "use-momoa-for-strict-json-document-boundary.md": "sha256:4e2ac5e7dd386436b1244f53967bee060e84101808e38853dda11ed08df4655e",
+      "use-momoa-for-strict-json-document-boundary.md": "sha256:0b535b015b9a795a0565cc34968fa02c533bac7a0ed0628716406be0408ad4d7",
       "use-native-object-composition-for-check-customization.md": "sha256:a93b1a592b6f6e073a1ec5c6ddadaf8da986f1d91f4f8c5f70c9dadcaf0486a4",
       "use-native-test-evidence-catalog.md": "sha256:7d4528a424d7754a958bfc91c902072de129d5778eba506d278b66a3cdcce6c6",
       "use-neutral-default-for-observation-and-file-policy-for-gates.md": "sha256:c32c3acb2f66e66d0047debd2c5c23405ba126a0f82318c30dffb7c269dd0173",
@@ -2361,7 +2363,7 @@
         "alignment": "aligned",
         "createdAt": "2026-08-17T15:28:19Z",
         "purpose": "让 Package Run 直接调用 Project Definition 中的 Check functions，并由唯一 Task system 管理调度。",
-        "background": "Functions 已随项目 import 存在于调用方 Bun runtime；跨进程重载会复制配置和改变 closure 语义。",
+        "background": "Functions 已随项目 import 存在于调用方 runtime；跨进程重载会复制配置和改变 closure 语义。",
         "decision": "每个 Check function 在调用方 runtime 中作为独立 Product Task 执行，不建立 TaskPlan 或整次运行隔离层。",
         "tags": [
           "product-contract"
@@ -5544,6 +5546,40 @@
         ]
       }
     },
+    "publish-node-readable-esm-package-layout.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "publish-node-readable-esm-package-layout.md",
+        "title": "以 Node 可读 ESM 模块树交付 package 运行时",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-06T11:54:53Z",
+        "purpose": "让 Node consumer 可检查运行时模块边界，并恢复对应的权威 TypeScript 源码。",
+        "background": "既有可读布局满足调试目标，但只承诺 Bun 加载；Node-only Product 必须显式验证模块、Worker 与依赖解析。",
+        "decision": "继续交付只公开根路径的可读 ESM、声明、源码与映射，并以 Node exact consumer 验证完整运行时布局。",
+        "tags": [
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "publish-readable-esm-package-layout.md"
+          }
+        ]
+      }
+    },
     "publish-owner-structured-process-check-records.md": {
       "keys": {
         "tag": [
@@ -5643,16 +5679,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "publish-readable-esm-package-layout.md",
+        "sourcePath": "archive/publish-readable-esm-package-layout.md",
         "title": "以可读 ESM 模块树交付 package 运行时",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-24T08:04:05Z",
         "purpose": "让 Bun consumer 能检查 ESM 模块边界，并恢复对应的权威 TypeScript 源码。",
@@ -7421,16 +7457,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "support-bun-as-the-package-host.md",
+        "sourcePath": "archive/support-bun-as-the-package-host.md",
         "title": "首个 package 只支持 Bun 宿主",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-08-12T10:30:27Z",
         "purpose": "让首个 npm package 的可运行宿主与当前 TypeScript Project Definition 和产品运行时能力保持一致。",
@@ -7473,6 +7509,40 @@
           {
             "type": "修订",
             "target": "use-string-flags-for-project-run-controls.md"
+          }
+        ]
+      }
+    },
+    "support-node-as-the-package-host.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "support-node-as-the-package-host.md",
+        "title": "公开 package 只支持 Node 宿主",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-06T11:54:52Z",
+        "purpose": "让公开 package 由普通 Node consumer 直接运行，同时保持仓库工具宿主为独立责任。",
+        "background": "Bun-only 产品宿主阻止 Node consumer 使用完整公开能力，而迁移仓库脚本不会改善已发布 Product 的运行边界。",
+        "decision": "公开 package 只承诺 Node 24.18 至 24.x 宿主；Bun 继续作为仓库 tooling，但不再是 Product runtime contract。",
+        "tags": [
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "替代",
+            "target": "support-bun-as-the-package-host.md"
           }
         ]
       }
@@ -8700,7 +8770,7 @@
         "status": "active",
         "alignment": "aligned",
         "createdAt": "2026-08-24T14:20:04Z",
-        "purpose": "让严格 JSON Check 在 Bun 中可靠拒绝 decoded duplicate key，而不由 Product 自行实现完整 JSON parser。",
+        "purpose": "让严格 JSON Check 在受支持的 Product host 中可靠拒绝 decoded duplicate key，而不由 Product 自行实现完整 JSON parser。",
         "background": "原生 JSON.parse 很轻但会丢失重复成员证据；更小候选要么不满足严格 grammar，要么需要额外双解析与事件状态机。",
         "decision": "在 jsonValidation Check 的私有 strict document boundary 中采用 Momoa，并接受其单入口约 92 KB 的代码面以换取直接可审计的 AST 语义。",
         "tags": [

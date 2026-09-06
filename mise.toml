@@ -5,6 +5,13 @@ lockfile = true
 package_manager = "npm"
 
 [env]
+VIBE_CHECK_NODE_CMD = { tools = true, value = """
+{%- if os() == 'windows' -%}
+{{ tools['node'].path }}/node.exe
+{%- else -%}
+{{ tools['node'].path }}/bin/node
+{%- endif -%}
+""" }
 VIBE_CHECK_SCC_CMD = { tools = true, value = """
 {%- if os() == 'windows' -%}
 {{ tools['go:github.com/boyter/scc/v4'].path }}/bin/scc.exe
