@@ -158,6 +158,34 @@
         "title": "Lizard 上游正式版本与发布线差异核验"
       }
     },
+    "assess-node-26-package-host-readiness.md": {
+      "keys": {
+        "formed-at": [
+          1788700549000
+        ],
+        "tag": [
+          "node",
+          "package-host",
+          "runtime-compatibility"
+        ],
+        "text": [
+          "Node 26 package host 切换准备度评估",
+          "在公开 Product 已由 Node 24.18 consumer baseline 验收、仓库工具仍由 Bun 承载的前提下，Vibe Check 切换或新增 Node 26 package host 验收需要哪些证据、边界与迁移步骤？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-06T13:15:49+00:00",
+        "question": "在公开 Product 已由 Node 24.18 consumer baseline 验收、仓库工具仍由 Bun 承载的前提下，Vibe Check 切换或新增 Node 26 package host 验收需要哪些证据、边界与迁移步骤？",
+        "relations": [],
+        "resourceIds": [],
+        "tags": [
+          "node",
+          "package-host",
+          "runtime-compatibility"
+        ],
+        "title": "Node 26 package host 切换准备度评估"
+      }
+    },
     "assess-scc-and-jscpd-upgrade-readiness.md": {
       "keys": {
         "formed-at": [
@@ -1389,6 +1417,7 @@
       "assess-admission-state-performance-and-selection-index.md": "sha256:297993543aecff290007c758d6f724ef55ca889632e731cbfb02ae8bd8b4b99f",
       "assess-lizard-extension-adoption-value.md": "sha256:4ebf6189d54adb00b8607211e4074aed8da03b9f5fc3c894291ac2caa788295b",
       "assess-lizard-upstream-release-and-branch-delta.md": "sha256:9f8d6857d7fb8b9614830d028aa81054bca11326a4fb25ad1601b3a4c258f5ee",
+      "assess-node-26-package-host-readiness.md": "sha256:14b29f39ed879f2f796163ca5071af457e8c89216234190f96a9170372d49d8d",
       "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
       "audit-project-gate-candidate-lifecycle-process-overhead.md": "sha256:3dc132bfe2a2a2532e3e894041a2fde5cee0598bb8b50580fd99673f977f01f3",
       "audit-project-gate-function-metrics-check-overhead.md": "sha256:159955ae5308c239c86e3cadb54d1f1cfd773a91a09e1563e0922c65eab76daf",
