@@ -182,7 +182,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       artifact.files.some((path) => path.includes("/analyzer/fixtures/")),
       false
     );
-    assert.deepEqual(manifest.engines, { node: ">=24.18 <25" });
+    assert.deepEqual(manifest.engines, { node: ">=24.18" });
     assert.deepEqual(manifest.repository, {
       type: "git",
       url: "git+https://github.com/zxyycom/vibe-check.git"

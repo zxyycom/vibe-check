@@ -10,7 +10,7 @@ Vibe Check 是面向 Node 项目的 TypeScript 质量检查库。你可以直接
 npm install @zxyycom/vibe-check
 ```
 
-npm 负责安装 package；应用代码和质量脚本使用 **Node `>=24.18 <25`** 执行。安装完成后，可以用 `node <file>` 运行下面的示例。
+npm 负责安装 package；应用代码和质量脚本的最低运行要求是 **Node `>=24.18`**。安装完成后，可以用 `node <file>` 运行下面的示例。
 
 ## 自定义 Check 快速开始
 
@@ -227,7 +227,7 @@ machine publication 与 diagnostic logging 的 `directory` 都是调用方选择
 
 ## 分发与兼容范围
 
-npm 只负责分发和安装 package；受支持的产品 host 是 **Node `>=24.18 <25`**。仓库自身的构建、测试和发布工具仍可使用 Bun，但这不是 package consumer 的运行前置。
+npm 只负责分发和安装 package；唯一受支持的产品 host 是 Node，最低版本要求为 **`>=24.18`**。仓库自身的构建、测试和发布工具仍可使用 Bun，但这不是 package consumer 的运行前置。当前 exact-candidate acceptance 使用的实际版本由仓库工具单独记录，不把一次验证版本写成最高兼容边界。
 
 当前 public contract 只有 `@zxyycom/vibe-check` package root 的程序化 API。CLI、`bin`、plugin API、CommonJS/browser entry 和 subpath imports 都不在支持范围内。
 

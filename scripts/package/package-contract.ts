@@ -3,7 +3,7 @@ import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 export const PACKAGE_NAME = CURRENT_PUBLIC_CONTRACT.packageImport;
 /** Exact filesystem-safe stem emitted by Bun when it packs {@link PACKAGE_NAME}. */
 export const PACKAGE_TARBALL_STEM = "zxyycom-vibe-check";
-export const PACKAGE_NODE_ENGINE = ">=24.18 <25";
+export const PACKAGE_NODE_ENGINE = ">=24.18";
 /** SPDX expression for the complete shipped work, including translated analyzer ranges. */
 export const PACKAGE_LICENSE = "MIT AND Apache-2.0 AND BSD-2-Clause";
 export const PACKAGE_LICENSE_PATH = "LICENSE";

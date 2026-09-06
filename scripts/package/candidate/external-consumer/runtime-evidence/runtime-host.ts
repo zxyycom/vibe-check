@@ -12,6 +12,10 @@ export function assertNodeRuntime(value: unknown): void {
   if (match === null) return;
   const major = Number(match[1]);
   const minor = Number(match[2]);
-  assert.equal(major, 24, `unsupported Node major ${major}`);
-  assert.equal(minor >= 18, true, `unsupported Node 24 minor ${minor}`);
+  const meetsMinimumVersion = major > 24 || (major === 24 && minor >= 18);
+  assert.equal(
+    meetsMinimumVersion,
+    true,
+    `unsupported Node version ${nodeVersion}; expected >=24.18`
+  );
 }

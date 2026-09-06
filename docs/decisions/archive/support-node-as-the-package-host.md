@@ -1,6 +1,6 @@
 ---
 title: 公开 package 只支持 Node 宿主
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-06T11:54:52Z
 purpose: 让公开 package 由普通 Node consumer 直接运行，同时保持仓库工具宿主为独立责任。

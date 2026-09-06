@@ -20,7 +20,7 @@ Product 源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；
 决定使用精确版本还是有界 semver range；candidate installation 必须验证实际解析版本满足声明，随后由实际 consumer
 execution 验证这份安装。package tooling 不替依赖 owner 推断额外兼容语义。
 local candidate 与 formal release 共用同一 closed generated manifest：user-scoped `@zxyycom/vibe-check`、唯一 root export、
-`MIT AND Apache-2.0 AND BSD-2-Clause`、Node `>=24.18 <25`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
+`MIT AND Apache-2.0 AND BSD-2-Clause`、最低 Node 版本 `>=24.18`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
 完整 production dependencies。manifest 不含 `private`、`bin`、lifecycle scripts、Bun host 或 subpath export。
 仓库根 [`LICENSE`](../../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还携带
 [`THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md)、`licenses/**` 中 Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments

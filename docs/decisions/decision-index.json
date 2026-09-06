@@ -230,10 +230,11 @@
       "structure-package-documentation-by-user-task.md": "sha256:cd51ad167bad420ff1d3f305724973bfbe646f229e32babf350e891613788260",
       "support-bun-as-the-package-host.md": "sha256:658b977f3eb72be3e7d1caced75b625a4c70d4cc809b85189c1bce1140f38c8a",
       "support-multi-flag-check-enablement-strategies.md": "sha256:a0fb0b4fde8e1141fbb02389fd91e91e2ebeb740e67b96a2ef1e35d9eb92925a",
-      "support-node-as-the-package-host.md": "sha256:f56cc9c3bb54ed8d6026c33b72f5d3f98d06004eb71392fde125212597206c09",
+      "support-node-as-the-package-host.md": "sha256:a018b9235cb98aeaa775dc3f1d5c196fe528a1092442b793d737eeaf8074ffa7",
       "track-lizard-supported-languages-with-upstream-advisory.md": "sha256:17ce134e21a7bc17c17bb9e57f81edb0faf027f72a198acb1459410d9d16d0c9",
       "treat-flag-control-settlements-as-scheduler-results.md": "sha256:6428b3e7df656ed7b5f04e23bbc67e44edbe98d88f207a945389dfa64d3798cc",
       "treat-jscpd-version-as-adapter-provenance.md": "sha256:9098df13ac2f3042d2f4e6bd4fc991c912ff1dd6b82dc770649ff83351a682e6",
+      "treat-node-engine-as-a-minimum-version.md": "sha256:08c17940413b735309c9c2e794932f3d1736d1fe38bdbacb7375769f586681d4",
       "treat-package-provided-checks-as-ordinary.md": "sha256:78b81fa056c91c1c680e6966d819223904929adae7244793fc2dc03af23f8805",
       "treat-project-definitions-as-trusted-code.md": "sha256:587a52d995cf8ee2dbbdcf90c5327c25ee12caa6eb67de862d52ca0cbe5262be",
       "treat-run-output-directories-as-explicit-trusted-targets.md": "sha256:8f01b9f9b6d5d19a93c6efdc9ebb919a063a3ae781da09b8d1880c1e726772bf",
@@ -7520,16 +7521,16 @@
           "product-priority"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "support-node-as-the-package-host.md",
+        "sourcePath": "archive/support-node-as-the-package-host.md",
         "title": "公开 package 只支持 Node 宿主",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-06T11:54:52Z",
         "purpose": "让公开 package 由普通 Node consumer 直接运行，同时保持仓库工具宿主为独立责任。",
@@ -7653,6 +7654,40 @@
           {
             "type": "修订",
             "target": "let-duplicate-detection-adapter-own-cli-protocol.md"
+          }
+        ]
+      }
+    },
+    "treat-node-engine-as-a-minimum-version.md": {
+      "keys": {
+        "tag": [
+          "product-contract",
+          "product-priority"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "treat-node-engine-as-a-minimum-version.md",
+        "title": "将 Node package engine 作为最低版本约束",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-06T13:15:40Z",
+        "purpose": "让 package 声明最低 Node 能力要求，不以未经证实的主版本上限阻止 consumer。",
+        "background": "实际验收版本与兼容范围是不同事实；现有 Node 25 上限没有已确认的不兼容依据。",
+        "decision": "Node-only package 使用 `>=24.18`；验收单独记录实际 runtime，版本排除必须依据兼容证据。",
+        "tags": [
+          "product-contract",
+          "product-priority"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "support-node-as-the-package-host.md"
           }
         ]
       }

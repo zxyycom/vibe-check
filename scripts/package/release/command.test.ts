@@ -120,7 +120,7 @@ function formalReleaseReceiptFixture(): unknown {
     },
     staging: { path: "build/release-package" },
     contract: {
-      nodeEngine: ">=24.18 <25",
+      nodeEngine: ">=24.18",
       license: PACKAGE_LICENSE,
       ownLicense: {
         path: "LICENSE",
