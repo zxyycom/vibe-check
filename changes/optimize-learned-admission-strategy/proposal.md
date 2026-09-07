@@ -2,6 +2,8 @@
 
 本 Change 的 Plan artifacts 已收敛为可执行承诺：只比较 private learned admission 的 strict baseline 与一个同层 admissible-first backfill 候选；未授权任何生产接线或 metadata 变更。
 
+当前执行边界：用户已另行授权 [公共 learned strategy 重构](../expose-learned-admission-strategy/proposal.md)，将移除本页比较方案依赖的 private learned kind、provider 与专属 observer。以下 private seam、旧 callback 写法和测量开销描述仅是尚待重新基线化的比较设计，不能作为当前 runtime 事实或继续采样的依据。本 Change 暂不进入 Implementation、Gate A/B 或 production wiring；应先按 tasks 的新增 Readiness 核对 public prepared strategy、当前 named resource guards、history identity 与测量边界，再重写受影响方案并刷新 Plan。该重构不授权或预判 backfill 采用。
+
 ## Why
 
 当前 learned critical-path policy 在每个 admission boundary 先取第一个非空 selection layer：`tightening → constrained continuation → ordinary`。constrained layer 的现实现 comparator 为 scope cap 升序 → critical-path score 降序 → effective `admissionPriority` 降序 → Task ID 升序 → scope ID 升序 → Task ID 升序（最后一项是现实现的 duplicate Task-ID fallback；Task ID 唯一时不可达）；ordinary 为 score 降序 → priority 降序 → Task ID 升序。它只查看该层第一名；该 Task 的 `canAdmit=false` 时提出 `wait`，由 Scheduler 的 hard guard 只在 running work 可 drain 时接受等待。

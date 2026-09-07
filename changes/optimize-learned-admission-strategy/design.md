@@ -2,6 +2,8 @@
 
 本设计定义一个可证伪的 private algorithm comparison：先固定 strict baseline、唯一候选、corpus 与接受门槛，再决定 adopt 或 not-adopt；当前仍不授权 production wiring。
 
+当前恢复条件：另行授权的 [公共 learned strategy 重构](../expose-learned-admission-strategy/design.md) 正在替换这里的 private 基线。本文保留待重新核对的比较方案，不证明旧 provider、callback grammar 或性能数值仍适用；在 public helper、current guards 与新的同层测量基线重新审阅前，不执行实验或采用路径。
+
 ## Context
 
 - 现行 `learned-critical-path` 实现位于 `src/project-run/task-scheduler/learned-critical-path-admission-policy.ts`。strict baseline 的 first nonempty layer 固定为 tightening、constrained continuation、ordinary；constrained comparator 为 scope cap 升序 → score 降序 → priority 降序 → Task ID 升序 → scope ID 升序 → Task ID 升序（最后一项是现实现 duplicate Task-ID fallback；unique Task ID 时不可达），ordinary 为 score 降序 → priority 降序 → Task ID 升序。每层只检查第一名；其 `canAdmit=false` 即提出 `wait`。

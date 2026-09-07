@@ -75,6 +75,13 @@ artifacts 与 Decision 状态审阅。该提交在既有 `main` 基线上按依�
 
 ### 当前推荐批次
 
+当前 learned 相关协调以 [公共策略重构](../../changes/expose-learned-admission-strategy/proposal.md) 和
+[算法比较新增恢复条件](../../changes/optimize-learned-admission-strategy/tasks.md#readiness) 为准：下表 1A 的
+private learned 基线正在被公共 helper 接线替换，1D 不得直接复用旧 provider、callback grammar、history identity
+或测量开销进行采样。先完成公共接线的实际验收，再重审算法 Plan；本次工作不授权 backfill 实验或采用。
+原三方材料范围也正按 [翻译归属整理](../../changes/scope-translated-source-notices/proposal.md) 更新，两者只共享最终
+package 验收，由同一操作者串行构建 exact candidate，不能并行覆盖 build evidence。
+
 | 批次                                 | Change                                                                                                                                                      | 当前允许的工作                                                                                                                                                                                                                                                                                                                                                                        | 并行边界                                                                                                                                                                                                        |
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1A：私有 lifecycle 基线              | [active + aligned private lifecycle Decision](../decisions/retain-private-invocation-admission-strategy-lifecycle.md)                                       | 当前 stable baseline 是 Invocation-private provider lifecycle 与 Scheduler execution boundary；runtime、Architecture 和 API mechanics 是 current owner。形成时 archive 只保留 provenance。                                                                                                                                                                                            | duration-model、task-scheduler、provider、resolved-checks 与 invocation 的 current owner 以 stable owner 为准；本行不授予新的 implementation 工作。                                                             |
@@ -160,6 +167,29 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 ### 已完成并归档
 
 - [`add-secret-detection`](../../changes/archive/add-secret-detection/proposal.md)：已完成随包、显式 file scope 与通用 Finding waiver 的 production implementation 并归档；固定 Secretlint rule/license/provenance、bounded no-follow input read、representative corpus、package/candidate、长期 Decision 与 leak-canary evidence 均已闭合，归档时 `tasks.md` 为 12/12。它不进入其它 Change 的实现批次。
+
+## 2026-09-07 讨论事项的 Draft 交接
+
+本组基于 `9ee0263e205f0d963aa773f2caa97abf1b764b9c` 及当时未提交的工作区核对，只记录后续考虑的独立 Outcome；
+不建立新的实施基线，也不表示下表方向已批准实施。各 Draft 的事实、方案与开放问题由自身 artifacts 拥有。
+本次 Change/Decision CLI 被执行策略拒绝；这里只报告实际创建的 Draft，不宣称生命周期检查通过。
+
+| Draft | 关系与允许推进的工作 |
+| --- | --- |
+| [公开文件收集工具](../../changes/expose-project-file-collection/proposal.md) | 先评审独立 file tool 的 public contract；`codeAreas` 继续由各 Check 封装。 |
+| [配置 progress preview](../../changes/configure-progress-preview/proposal.md) | 评审数量与截断 formatter；与下一项共享展示边界，先明确 renderer 与 Check 的责任。 |
+| [收敛 Check Finding 呈现](../../changes/consolidate-check-finding-presentation/proposal.md) | 评估既有 helper 之外是否仍有真实共性；不是 preview API 的硬前置，也不预定统一方案。 |
+| [Check 指南共同契约](../../changes/refine-check-guide-shared-contracts/proposal.md) | 延续已完成的文档修复，只处理剩余共性；file tool 若公开，其用户指南可承接相关共享规则。 |
+| [静态 package 材料](../../changes/author-static-package-materials/proposal.md) | 独立评审稳定内容与动态派生；与其它 package 实施共享 owner 时串行。 |
+| [当前 package 定位](../../changes/clarify-current-package-artifact-discovery/proposal.md) | 已复核：现有固定 build/package 与 status 满足需求，不再作为待实施改进；保留评审记录，未归档。 |
+| [旧生成产物清理](../../changes/clean-obsolete-generated-artifacts/proposal.md) | 用户已批准检查并清理确认废弃且可恢复的本地产物；精确范围与结果由该 Change 记录，生成机制问题先讨论。 |
+| [诊断日志命名](../../changes/simplify-invocation-diagnostic-filenames/proposal.md) | 评审独占 invocation directory 与共享 target 的差异，不直接删除 UUID 防冲突机制。 |
+| [cold candidate 启动核验](../../changes/verify-cold-candidate-bootstrap/proposal.md) | 待验证线索，先隔离复现；与 package build/install 验证串行，不预判根因。 |
+
+learned 算法比较继续由[既有优化 Change](../../changes/optimize-learned-admission-strategy/proposal.md)拥有，其 public
+strategy 基线恢复条件仍适用。已实施的[公共 learned helper](../../changes/expose-learned-admission-strategy/proposal.md)、
+[法律材料修复](../../changes/scope-translated-source-notices/proposal.md)和[文档修复](../../changes/clarify-package-documentation/proposal.md)
+保留原交付证据，不重复建立待修 Change；完整 Gate 通过不表示这些 Change 已完成生命周期迁移或归档。
 
 ## Worktree 与合入规则
 
