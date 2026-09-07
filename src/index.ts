@@ -137,6 +137,11 @@ export type {
   InheritableCheckCollection
 } from "./check/check.ts";
 export { defineAdmissionPolicy, defineConfig } from "./project-definition/project-definition.ts";
+export { createLearnedCriticalPathStrategy } from "./learned-critical-path/strategy.ts";
+export type {
+  LearnedCriticalPathObservation,
+  LearnedCriticalPathStrategyOptions
+} from "./learned-critical-path/strategy.ts";
 export { createAdmissionGraph } from "./project-run/task-scheduler/admission-core/core.ts";
 export type {
   AdmissionPolicy,

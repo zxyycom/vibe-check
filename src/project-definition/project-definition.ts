@@ -144,7 +144,7 @@ export interface NormalizedProjectDefinition {
   readonly checks: readonly NormalizedCheck[];
   readonly declarative: DeclarativeProjectSnapshot;
   readonly definitionWarnings: readonly DefinitionWarning[];
-  /** Runtime scheduler policy；custom callback 与 learned local state 保留在此处。 */
+  /** Runtime scheduler policy；custom callback 保留在此处。 */
   readonly scheduler: SchedulerPolicy;
 }
 const STATIC_ADMISSION_POLICY: AdmissionPolicy = Object.freeze({
@@ -159,9 +159,7 @@ type ExactAdmissionPolicy<T extends AdmissionPolicy> =
           Readonly<{
             readonly strategy: ExactCustomAdmissionStrategy<T["strategy"]>;
           }>
-      : T extends Readonly<{ readonly kind: "learned-critical-path" }>
-        ? T & Record<Exclude<keyof T, "kind" | "stateDirectory">, never>
-        : never;
+      : never;
 
 type ExactCustomAdmissionStrategy<T extends CustomAdmissionStrategy> =
   T extends Readonly<{ readonly kind: "simple" }>
@@ -193,7 +191,6 @@ type ExactPreparedCustomAdmissionStrategy<T> = T extends PreparedCustomAdmission
  *
  * @remarks inline policy 与此 helper 的结果完全等价。custom simple `decide` 同步运行；prepared
  * strategy 为每个 graph-ready Run 解析独立 closure，调用方负责其 trusted host callback 的可重入性。
- * learned-critical-path 的 stateDirectory 在稍后的 Run 中从 effective projectRoot 解析。
  */
 export function defineAdmissionPolicy<const T extends AdmissionPolicy>(
   policy: ExactAdmissionPolicy<T>
@@ -285,15 +282,10 @@ function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
   let admissionPolicy: AdmissionPolicy;
   if (policy.admissionPolicy.kind === "static") {
     admissionPolicy = STATIC_ADMISSION_POLICY;
-  } else if (policy.admissionPolicy.kind === "custom") {
+  } else {
     admissionPolicy = Object.freeze({
       kind: "custom" as const,
       strategy: Object.freeze({ ...policy.admissionPolicy.strategy })
-    });
-  } else {
-    admissionPolicy = Object.freeze({
-      kind: "learned-critical-path" as const,
-      stateDirectory: policy.admissionPolicy.stateDirectory
     });
   }
   return Object.freeze({

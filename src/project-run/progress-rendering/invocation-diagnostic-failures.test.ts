@@ -59,7 +59,6 @@ describe("Package Run diagnostic logging output", () => {
       assert.equal(result.outputs.diagnosticLogging.status, "failed");
       assert.equal(result.outputs.diagnosticLogging.channels.core.status, "succeeded");
       assert.equal(result.outputs.diagnosticLogging.channels.scheduler.status, "failed");
-      assert.equal(result.outputs.diagnosticLogging.channels.learnedAdmission.status, "disabled");
       assert.ok(coreObservations.some((observation) => observation.event === "check.finished"));
     } finally {
       rmSync(root, { recursive: true, force: true });

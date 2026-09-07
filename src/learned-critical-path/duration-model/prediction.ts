@@ -51,7 +51,8 @@ export function createSchedulerHistoryIdentity(input: {
 /** Forms learned means first, then one project median prior, without invoking preflight. */
 export function createSchedulerPredictionSnapshot(
   history: SchedulerHistoryModel,
-  inputs: readonly SchedulerPredictionInput[]
+  inputs: readonly SchedulerPredictionInput[],
+  coldStartDurationMs = 1
 ): SchedulerPredictionSnapshot {
   const learned = inputs.map((input) => learnedPrediction(history, input));
   const projectPrior = median(
@@ -61,7 +62,7 @@ export function createSchedulerPredictionSnapshot(
   );
   const predictions = learned.map((prediction) => {
     if (prediction.source === "learned") return prediction;
-    if (projectPrior === undefined) return coldStartPrediction(prediction);
+    if (projectPrior === undefined) return coldStartPrediction(prediction, coldStartDurationMs);
     return projectPriorPrediction(prediction, projectPrior);
   });
   const digest = digestCanonicalValue({
@@ -132,8 +133,15 @@ function projectPriorPrediction(
   });
 }
 
-function coldStartPrediction(prediction: SchedulerTaskPrediction): SchedulerTaskPrediction {
-  return Object.freeze({ ...prediction, estimatedDurationMs: 1, source: "cold-start" });
+function coldStartPrediction(
+  prediction: SchedulerTaskPrediction,
+  coldStartDurationMs: number
+): SchedulerTaskPrediction {
+  return Object.freeze({
+    ...prediction,
+    estimatedDurationMs: coldStartDurationMs,
+    source: "cold-start"
+  });
 }
 
 function freezePrediction(prediction: SchedulerTaskPrediction): SchedulerTaskPrediction {

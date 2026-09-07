@@ -72,7 +72,6 @@ function preparedCustomAdmissionStrategy(
   return Object.freeze({
     admissionPolicy: admissionSelectionPolicyFor(strategy.decide),
     completion,
-    observeAdmittedTask: undefined,
     requiresTerminalMeasurement: completion.kind === "measurement-hook"
   });
 }

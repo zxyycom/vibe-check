@@ -34,7 +34,6 @@ package implementation 会绕过这个 candidate 边界，因此不允许。
 ├── progress.log
 ├── core-<utc-compact>-<product-uuid>.log
 ├── scheduler-<utc-compact>-<product-uuid>.log
-├── learned-admission-<utc-compact>-<product-uuid>.log  # 仅 learned policy
 ├── machine/
 │   ├── run.json
 │   └── records.ndjson
@@ -43,7 +42,7 @@ package implementation 会绕过这个 candidate 边界，因此不允许。
         └── process.log
 ```
 
-这三个 Product filename 共享创建时刻和 Product UUID；其每条 diagnostic observation 还带 Product invocation ID、全局 sequence 与 monotonic elapsed。Gate evidence root 只提供这一次 Gate invocation 的共同目录，不把 Gate、progress 和 Product writer 伪装为同一 writer 或同一 event sequence。所有文件都是本次运行的本地 evidence；不存在 `latest`、retention、quality-only report、根级 `run.json` / `records.ndjson`、旧 `process/<check-id>.log` 或跨 invocation 合并协议。machine files 必须按 [Output](../output.md) 的完整二文件集合读取。
+core 与 scheduler 的诊断文件名共享创建时刻和 Product UUID；每条 diagnostic observation 还带 Product invocation ID、全局 sequence 与 monotonic elapsed。Gate、progress 和 Product writers 各自拥有输出过程，共同写入本次 Gate invocation 的 evidence root。文件发现以本次 invocation 路径和 output readback 为准，目录保留与清理由调用方管理。machine files 必须按 [Output](../output.md) 的完整二文件集合读取。
 
 ### Prepared candidate data
 

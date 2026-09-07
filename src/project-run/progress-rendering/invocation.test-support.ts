@@ -9,7 +9,7 @@ export { deferred } from "../execution-control.test-support.ts";
 
 export const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
 export const DIAGNOSTIC_FILE =
-  /^.+\/(?:core|scheduler|learned-admission)-\d{8}T\d{6}\.\d{3}Z-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.log$/;
+  /^.+\/(?:core|scheduler)-\d{8}T\d{6}\.\d{3}Z-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.log$/;
 
 export function check(
   overrides: Readonly<{

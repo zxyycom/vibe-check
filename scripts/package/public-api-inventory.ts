@@ -7,6 +7,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   operations: Object.freeze({
     cacheJsonByKey: "cacheJsonByKey",
     createAdmissionGraph: "createAdmissionGraph",
+    createLearnedCriticalPathStrategy: "createLearnedCriticalPathStrategy",
     defineAdmissionPolicy: "defineAdmissionPolicy",
     defineCheck: "defineCheck",
     defineConfig: "defineConfig",
@@ -52,6 +53,8 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     AdmissionSettledTask: "AdmissionSettledTask",
     AdmissionState: "AdmissionState",
     AdmissionTransitionResult: "AdmissionTransitionResult",
+    LearnedCriticalPathObservation: "LearnedCriticalPathObservation",
+    LearnedCriticalPathStrategyOptions: "LearnedCriticalPathStrategyOptions",
     CustomAdmissionPreparationContext: "CustomAdmissionPreparationContext",
     CustomAdmissionStrategy: "CustomAdmissionStrategy",
     PreparedCustomAdmissionStrategy: "PreparedCustomAdmissionStrategy",

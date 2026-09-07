@@ -17,6 +17,7 @@ describe("Package Run diagnostic logging output", () => {
       const result = await executeValidatedRun(
         definition(catalog),
         {
+          flags: ["private-flag"],
           outputs: { diagnosticLogging: { directory: "diagnostic", enabled: true } },
           projectRoot: root
         },
@@ -38,7 +39,10 @@ describe("Package Run diagnostic logging output", () => {
       assert.equal([...diagnosticLog.matchAll(/\[RUN\] \[STARTED\].*run\.started /g)].length, 1);
       assert.match(diagnosticLog, /aggregation=null/);
       assert.match(diagnosticLog, /checkCount=70/);
-      assert.match(diagnosticLog, /flags=\[\]/);
+      assert.match(diagnosticLog, /flags\.availability="available"/);
+      assert.match(diagnosticLog, /flags\.items=1/);
+      assert.match(diagnosticLog, /flags\.shape="array"/);
+      assert.doesNotMatch(diagnosticLog, /private-flag/);
       assert.match(diagnosticLog, /invocationId="invocation\/v1:/);
       assert.match(diagnosticLog, /outputs\./);
       assert.match(diagnosticLog, /scheduler\./);

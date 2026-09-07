@@ -51,7 +51,6 @@ describe("Package Run default outputs", () => {
       assert.deepEqual(result.outputs.diagnosticLogging, {
         channels: {
           core: { enabled: false, file: null, status: "disabled" },
-          learnedAdmission: { enabled: false, file: null, status: "disabled" },
           scheduler: { enabled: false, file: null, status: "disabled" }
         },
         enabled: false,

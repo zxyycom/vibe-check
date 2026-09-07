@@ -118,7 +118,6 @@ function assertSharedOutputDirectory(
     outputs.diagnosticLogging.channels.core.file,
     outputs.diagnosticLogging.channels.scheduler.file
   ];
-  assert.equal(outputs.diagnosticLogging.channels.learnedAdmission.status, "disabled");
   for (const diagnosticFile of diagnosticFiles) {
     assert.ok(diagnosticFile);
     assert.equal(

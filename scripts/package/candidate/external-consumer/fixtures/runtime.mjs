@@ -6,6 +6,7 @@ import { join } from "node:path";
 import {
   cacheJsonByKey,
   createAdmissionGraph,
+  createLearnedCriticalPathStrategy,
   defineCheck,
   defineConfig,
   duplicateDetection,
@@ -241,7 +242,9 @@ const functionMetricsCheck =
     : undefined;
 const functionMetricsRecords =
   result.kind === "completed"
-    ? result.snapshot.records.filter((record) => record.checkId === installedFunctionMetrics.checkId)
+    ? result.snapshot.records.filter(
+        (record) => record.checkId === installedFunctionMetrics.checkId
+      )
     : null;
 const jsonSchemaCheck =
   result.kind === "completed"
@@ -386,11 +389,14 @@ async function observeAdmissionSimulation(projectRoot) {
   });
   const initial = simulation.initialState();
   const selectedSource = initial.select("source");
-  if (!selectedSource.accepted) throw new Error("installed standalone source selection was rejected");
+  if (!selectedSource.accepted)
+    throw new Error("installed standalone source selection was rejected");
   const settledSource = selectedSource.state.settle("source", "unsatisfied");
-  if (!settledSource.accepted) throw new Error("installed standalone source settlement was rejected");
+  if (!settledSource.accepted)
+    throw new Error("installed standalone source settlement was rejected");
   const independentBranch = initial.select("independent");
-  if (!independentBranch.accepted) throw new Error("installed standalone branch selection was rejected");
+  if (!independentBranch.accepted)
+    throw new Error("installed standalone branch selection was rejected");
 
   const started = [];
   let lookaheadSettled = false;
@@ -426,10 +432,12 @@ async function observeAdmissionSimulation(projectRoot) {
             decide(context) {
               if (!lookaheadSelected) {
                 const selected = context.admissionState.select(second.checkId);
-                if (!selected.accepted) throw new Error("installed callback lookahead was rejected");
+                if (!selected.accepted)
+                  throw new Error("installed callback lookahead was rejected");
                 lookaheadSelected = true;
                 const settled = selected.state.settle(second.checkId, "satisfied");
-                if (!settled.accepted) throw new Error("installed callback branch settlement was rejected");
+                if (!settled.accepted)
+                  throw new Error("installed callback branch settlement was rejected");
                 lookaheadSettled = true;
               }
               const candidate = context.candidates.find(({ canAdmit }) => canAdmit);
@@ -524,6 +532,7 @@ function admissionSimulationTask(taskId, dependsOn = []) {
 }
 
 async function observeLearnedScheduling(projectRoot) {
+  const observations = [];
   const fast = defineCheck({
     checkId: "installed-learned-fast",
     displayName: "Installed learned fast",
@@ -542,18 +551,21 @@ async function observeLearnedScheduling(projectRoot) {
       return { status: "passed", data: {} };
     }
   });
+  const stateDirectory = join(projectRoot, "learned-state");
+  const strategy = createLearnedCriticalPathStrategy({
+    stateDirectory,
+    identityForTask: (task) => ({ taskId: task.taskId, fixtureVersion: 1 }),
+    observe: (event) => observations.push(event)
+  });
   const definition = defineConfig({
     checks: [fast, slow],
     outputs: {
-      diagnosticLogging: { directory: "learned-diagnostics", enabled: true },
+      diagnosticLogging: { enabled: false },
       machinePublication: { directory: "learned-machine", enabled: true },
       progressRendering: { enabled: false }
     },
     scheduler: {
-      admissionPolicy: {
-        kind: "learned-critical-path",
-        stateDirectory: "learned-state"
-      },
+      admissionPolicy: { kind: "custom", strategy },
       maxParallel: 1
     }
   });
@@ -563,25 +575,26 @@ async function observeLearnedScheduling(projectRoot) {
   };
   const first = await run(definition, controls);
   const firstMachine = readLearnedMachine(projectRoot);
-  const firstDiagnostic = readLearnedDiagnostic(projectRoot, first);
-  const statePath = join(projectRoot, "learned-state", "scheduler-history.json");
+  const firstObservations = observations.splice(0);
+  const statePath = join(stateDirectory, "scheduler-history.json");
   const second = await run(definition, controls);
   const secondMachine = readLearnedMachine(projectRoot);
-  const secondDiagnostic = readLearnedDiagnostic(projectRoot, second);
+  const secondObservations = observations.splice(0);
   const history = readFileSync(statePath, "utf8");
   return {
-    first: publicLearnedRunEvidence(first, firstMachine, firstDiagnostic),
+    first: publicLearnedRunEvidence(first, firstMachine, firstObservations),
     history,
     stateFileExists: existsSync(statePath),
-    second: publicLearnedRunEvidence(second, secondMachine, secondDiagnostic)
+    second: publicLearnedRunEvidence(second, secondMachine, secondObservations)
   };
 }
 
-function publicLearnedRunEvidence(result, machine, diagnostic) {
+function publicLearnedRunEvidence(result, machine, observations) {
   return {
-    diagnostic,
     kind: result.kind,
     machineHasSchedulerHistory: Object.hasOwn(machine, "schedulerHistory"),
+    machineHasSchedulerPrediction: Object.hasOwn(machine, "schedulerPrediction"),
+    observations,
     resultHasSchedulerHistory: Object.hasOwn(result, "schedulerHistory"),
     resultHasSchedulerPrediction: Object.hasOwn(result, "schedulerPrediction"),
     snapshotCheckIds:
@@ -591,13 +604,6 @@ function publicLearnedRunEvidence(result, machine, diagnostic) {
 
 function readLearnedMachine(projectRoot) {
   return JSON.parse(readFileSync(join(projectRoot, "learned-machine", "run.json"), "utf8"));
-}
-
-function readLearnedDiagnostic(projectRoot, result) {
-  if (result.kind !== "completed") throw new Error(`Expected learned Run to complete: ${result.kind}`);
-  const path = result.outputs.diagnosticLogging.channels.learnedAdmission.file;
-  if (typeof path !== "string") throw new Error("Expected learned-admission diagnostic file");
-  return readFileSync(join(projectRoot, path), "utf8");
 }
 
 function delay(milliseconds) {

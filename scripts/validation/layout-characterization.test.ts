@@ -12,6 +12,7 @@ const PRODUCT_OWNERS = [
   "check-settlement",
   "data-boundary",
   "finding-waivers",
+  "learned-critical-path",
   "machine-output",
   "package-checks",
   "project-definition",

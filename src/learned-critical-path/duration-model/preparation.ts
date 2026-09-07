@@ -31,10 +31,17 @@ export type SchedulerDurationModelRecordObservation =
 export async function prepareSchedulerDurationModel(input: {
   readonly predictionInputs: readonly SchedulerPredictionInput[];
   readonly stateDirectory: string;
+  readonly coldStartDurationMs?: number;
+  readonly maxSamplesPerSeries?: number;
+  readonly maxSeries?: number;
 }): Promise<SchedulerDurationModelPreparation> {
   try {
     const loaded = await loadSchedulerHistory(input.stateDirectory);
-    const prediction = createSchedulerPredictionSnapshot(loaded.history, input.predictionInputs);
+    const prediction = createSchedulerPredictionSnapshot(
+      loaded.history,
+      input.predictionInputs,
+      input.coldStartDurationMs
+    );
     return Object.freeze({
       kind: "ready",
       prediction,
@@ -46,7 +53,9 @@ export async function prepareSchedulerDurationModel(input: {
             history: loaded.history,
             prediction,
             rawMeasurement: terminalMeasurement.rawMeasurement,
-            settledTasks: terminalMeasurement.execution.settledTasks
+            settledTasks: terminalMeasurement.execution.settledTasks,
+            maxSamplesPerSeries: input.maxSamplesPerSeries,
+            maxSeries: input.maxSeries
           });
           const writeObservation = await writeSchedulerHistory(
             input.stateDirectory,

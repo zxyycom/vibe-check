@@ -2,7 +2,7 @@
 
 ## Case AUX-CALLER-KEYED-JSON-CACHE-001: Caller-owned JSON cache isolates storage mechanics
 
-Owner: `docs/api-mechanics.md#caller-keyed-json-cache`
+Owner: `docs/guides/cache-results.md#缓存计算结果`
 Entities:
 
 - `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > validates a closed absolute input grammar before reading or computing`
@@ -42,7 +42,7 @@ Entities:
 
 ## Case API-FINDING-WAIVER-RECONCILIATION-001: Public helper reconciles caller-defined finding identities
 
-Owner: `docs/api-mechanics.md#finding-waiver-reconciliation`
+Owner: `docs/guides/finding-waivers.md#对账-finding-waiver`
 Entities:
 
 - `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > matches caller-defined structural identities, preserves reasons, and audits unused waivers`
@@ -55,7 +55,7 @@ Entities:
 
 ## Case API-FINDING-PRESENTATION-001: Producing Checks own bounded Finding presentation
 
-Owner: `docs/api-mechanics.md#finding-presentation`
+Owner: `docs/guides/presenting-findings.md#输入与投影`
 Entities:
 
 - `bun|src/check/finding-presentation.test.ts|Check Finding presentation > lets the producing Check own the visible limit and overflow navigation`
@@ -65,7 +65,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-CONSOLE-001: Product settles Check console output without TTY interference
 
-Owner: `docs/api-mechanics.md#check-输出与受管-progress`
+Owner: `docs/development/human-output.md#check-console-capture-maintenance`
 Entities:
 
 - `bun|src/project-run/check-execution/console-capture.test.ts|Package Run Check console capture > attributes concurrent console calls and presents them only after Check settlement`
@@ -332,25 +332,25 @@ Entities:
 Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > does not create samples when timing is unavailable`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > evicts the oldest series beyond capacity`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > round-trips closed digest-only history`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > contains read and write faults with concurrent writers`
-- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
-- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
+- `bun|src/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
+- `bun|src/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > does not create samples when timing is unavailable`
+- `bun|src/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > evicts the oldest series beyond capacity`
+- `bun|src/learned-critical-path/duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > round-trips closed digest-only history`
+- `bun|src/learned-critical-path/duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > contains read and write faults with concurrent writers`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a caller-owned absolute state directory`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > uses caller-owned observations and contains local history write failure`
   Proves:
 
-- The Product-private local history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, keeps at most 32 samples per identity and 4096 recently updated identities, and persists digest-only closed state through same-directory atomic replacement.
-- Missing, malformed, incompatible, and read-failed state forms an empty learned model; post-drain write failure and concurrent last-writer activity only reduce future samples. None exposes partial JSON or retains authored options and effective flags. A learned Run keeps its enabled learned-admission diagnostic channel when history is unavailable and records bounded history-read availability evidence; static/custom runs leave that channel disabled. The Architecture/API owner, not this Case, defines the distinct static fallback when prediction cannot be formed.
+- Caller-owned learned history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, applies the configured sample/series bounds, and persists digest-only closed state through same-directory atomic replacement.
+- Missing, malformed, incompatible, and read-failed state forms an empty model; post-drain write failure and concurrent last-writer activity only reduce future samples. Caller-owned identity projections and optional observations do not expose Product options, flags, or a Product diagnostic channel. The Architecture/API owner, not this Case, defines static fallback when prediction cannot be formed.
 
 ## Case WB-RUNTIME-SCHEDULER-PREDICTION-001: Frozen duration predictions use a deterministic bounded prior
 
 Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
-- `bun|src/project-run/scheduler-duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > uses learned means before a median project prior and cold start`
+- `bun|src/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
+- `bun|src/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > uses learned means before a median project prior and cold start`
   Proves:
 
 - An identity derived from model version, Check ID, canonical authored options, and canonical effective flags yields a frozen digest-only prediction snapshot. Its learned estimates retain sample count, arithmetic mean, and nearest-rank p90 without retaining source options or flags.
@@ -366,36 +366,35 @@ Entities:
 
 - Before admission, the immutable score table adds each Task estimate to the maximum direct downstream score across both `dependsOn` and `observes` relations; it is frozen and does not reinterpret Task priority or runtime capacity facts.
 
-## Case WB-RUNTIME-SCHEDULER-LEARNED-ADMISSION-001: Learned admission preserves generic Scheduler legality
+## Case WB-RUNTIME-SCHEDULER-LEARNED-ADMISSION-001: Public learned strategy preserves generic Scheduler legality
 
 Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > forms one frozen ranking and complete policy from immutable graph and prediction`
-- `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > uses score, effective priority, and canonical order within each existing selection layer`
-- `bun|src/project-run/task-scheduler/learned-critical-path-admission-policy.test.ts|learned critical-path task engine > keeps the Scheduler capacity wait guard when the highest score cannot admit`
-- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a project-root-relative state directory`
+- `bun|src/learned-critical-path/strategy.test.ts|public learned critical-path strategy > uses the public scope layers and returns wait for an unavailable learned preference`
+- `bun|src/learned-critical-path/strategy.test.ts|public learned critical-path strategy > rejects a non-absolute history path and contains rejected caller observations`
+- `bun|src/learned-critical-path/strategy.test.ts|public learned critical-path strategy > orders score, priority, canonical IDs, constrained scope caps, continuations, and static fallback through public data`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a caller-owned absolute state directory`
   Proves:
 
-- Learned scheduling captures its immutable graph/prediction into one frozen critical-path score table and complete Scheduler policy before admission, then compares score descending only within the existing tightening, constrained-continuation, and ordinary layers; equal scores retain effective priority and canonical Task-ID order.
-- The pure policy returns `wait` for a capacity-blocked preferred Task, leaving relation, mutex, capacity, cancellation, and drain hard guards to the generic Scheduler. Terminal raw measurement is consumed privately after drain and is not added to `RunResult`.
+- The exported learned factory builds an ordinary prepared custom strategy from caller-owned history location and identity projection. It captures its immutable graph/prediction before admission, compares critical-path score within existing layers, and keeps generic relation, mutex, capacity, cancellation and drain guards authoritative.
 
-## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned optimization observations stay bounded and non-quality-bearing
+## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned caller observations stay bounded and non-quality-bearing
 
 Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > emits bounded learned diagnostics and contains local history write failure`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > uses caller-owned observations and contains local history write failure`
   Proves:
 
-- Learned diagnostics report bounded read/write and selected-admission facts without raw authored options, effective flags, identity inputs, or samples. A local history write failure remains an optimization-only observation and preserves the completed quality result.
+- The factory sends bounded setup/fallback observations to its optional caller-owned observer without Product diagnostic output. A local history failure remains optimization-only and preserves the completed quality result.
 
 ## Case WB-RUNTIME-ADMISSION-STRATEGY-LIFECYCLE-001: Invocation-scoped strategies preserve terminal delivery
 
 Owner: `docs/development/architecture.md#execution-boundary`
 Entities:
 
-- `bun|src/project-run/admission-strategy-provider/provider.test.ts|admission strategy provider > prepares one closed static, custom, or learned-fallback policy without widening public configuration`
+- `bun|src/project-run/admission-strategy-provider/provider.test.ts|admission strategy provider > prepares one closed static or custom policy without widening public configuration`
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal Hooks on normal execution`
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when cancellation drains started work`
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when an admission policy fault drains`
@@ -413,4 +412,4 @@ Entities:
 
 - Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver completion at most once after admission stops, started work drains and generic terminal Hooks settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no completion delivery.
 - Generic Hooks all receive their chance before public complete. Their actual settlement, plus optional complete, is the sole input to the existing measurement output: generic-only no-context stays enabled/`not-run`; simple and prepared-without-complete do not independently enable it; a completion failure cannot overwrite sealed primary facts, and later complete success cannot overwrite a generic failure.
-- A learned strategy prepares its immutable prediction before Scheduler decisions and records its terminal sample only after terminal delivery. This private lifecycle remains contained while public simple/prepared authoring provides the closed public lifecycle.
+- A learned factory is an ordinary public prepared strategy: it prepares immutable prediction before Scheduler decisions and records its terminal sample only after terminal delivery, without a private Invocation lifecycle.

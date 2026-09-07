@@ -164,15 +164,20 @@ describe("Project Gate Definition", () => {
       machinePublication: { directory: "artifacts/vibe-check", enabled: false },
       progressRendering: { enabled: true }
     });
-    assert.deepEqual(definition.scheduler, {
-      admissionPolicy: {
-        kind: "learned-critical-path",
-        stateDirectory: ".cache/vibe-check/scheduler-history"
+    assert.equal(definition.scheduler.admissionPolicy.kind, "custom");
+    assert.equal(
+      definition.scheduler.admissionPolicy.kind === "custom" &&
+        definition.scheduler.admissionPolicy.strategy.kind,
+      "prepared"
+    );
+    assert.deepEqual(
+      {
+        maxParallel: definition.scheduler.maxParallel,
+        measurementHooks: definition.scheduler.measurementHooks,
+        resourceCapacities: definition.scheduler.resourceCapacities
       },
-      maxParallel: 3,
-      measurementHooks: [],
-      resourceCapacities: {}
-    });
+      { maxParallel: 3, measurementHooks: [], resourceCapacities: {} }
+    );
     assert.deepEqual(PROJECT_GATE_RUN_CONFIG.selection, {
       complete: "all",
       default: "required",

@@ -32,7 +32,6 @@ export function resolveInvocationPaths(
     readonly checkArtifactBaseDirectory: string | undefined;
     readonly checkIds: readonly string[];
     readonly diagnosticLogSuffix: string | undefined;
-    readonly learnedAdmissionEnabled: boolean;
     readonly outputConfiguration: ProjectOutputs;
     readonly progressLogFile: string | undefined;
     readonly projectRoot: string;
@@ -49,8 +48,7 @@ export function resolveInvocationPaths(
   );
   const diagnosticLoggingFiles = diagnosticFilesFor({
     diagnosticDirectory,
-    diagnosticLogSuffix: input.diagnosticLogSuffix,
-    learnedAdmissionEnabled: input.learnedAdmissionEnabled
+    diagnosticLogSuffix: input.diagnosticLogSuffix
   });
   const machinePublicationDirectory = resolve(
     projectRoot,
@@ -76,12 +74,10 @@ function diagnosticFilesFor(
   input: Readonly<{
     readonly diagnosticDirectory: string;
     readonly diagnosticLogSuffix: string | undefined;
-    readonly learnedAdmissionEnabled: boolean;
   }>
 ): Readonly<Record<DiagnosticChannel, string | null>> {
   const file = (channel: DiagnosticChannel): string | null =>
-    input.diagnosticLogSuffix === undefined ||
-    (channel === "learnedAdmission" && !input.learnedAdmissionEnabled)
+    input.diagnosticLogSuffix === undefined
       ? null
       : join(
           input.diagnosticDirectory,
@@ -89,7 +85,6 @@ function diagnosticFilesFor(
         );
   return Object.freeze({
     core: file("core"),
-    learnedAdmission: file("learnedAdmission"),
     scheduler: file("scheduler")
   });
 }
@@ -104,7 +99,6 @@ function diagnosticReadbackFiles(
   };
   return Object.freeze({
     core: readback("core"),
-    learnedAdmission: readback("learnedAdmission"),
     scheduler: readback("scheduler")
   });
 }
@@ -160,7 +154,5 @@ function diagnosticLogFileNameForChannel(channel: DiagnosticChannel, suffix: str
       return `core-${suffix}.log`;
     case "scheduler":
       return `scheduler-${suffix}.log`;
-    case "learnedAdmission":
-      return `learned-admission-${suffix}.log`;
   }
 }

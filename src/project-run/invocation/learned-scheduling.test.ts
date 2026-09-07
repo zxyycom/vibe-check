@@ -8,10 +8,13 @@ import { describe, it } from "node:test";
 
 import type { Check } from "../../check/check.ts";
 import {
+  createLearnedCriticalPathStrategy,
+  type LearnedCriticalPathObservation
+} from "../../learned-critical-path/strategy.ts";
+import {
   defineConfig,
   type SchedulerMeasurementHook
 } from "../../project-definition/project-definition.ts";
-import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { executeValidatedRun } from "./run.ts";
 
 const PASSED = Object.freeze({
@@ -20,12 +23,16 @@ const PASSED = Object.freeze({
 });
 
 describe("Package Run learned Scheduler admission", () => {
-  it("learns admitted Task durations through a project-root-relative state directory", async () => {
+  it("learns admitted Task durations through a caller-owned absolute state directory", async () => {
     const root = await mkdtemp(join(tmpdir(), "vibe-check-learned-scheduler-"));
     try {
       const firstOrder: string[] = [];
       const first = await executeValidatedRun(
-        learnedDefinition({ order: firstOrder }),
+        learnedDefinition({
+          order: firstOrder,
+          sampleWindow: 1,
+          stateDirectory: join(root, "scheduler-state")
+        }),
         { projectRoot: root },
         []
       );
@@ -43,68 +50,50 @@ describe("Package Run learned Scheduler admission", () => {
 
       const secondOrder: string[] = [];
       const second = await executeValidatedRun(
-        learnedDefinition({ order: secondOrder }),
+        learnedDefinition({
+          order: secondOrder,
+          sampleWindow: 1,
+          stateDirectory: join(root, "scheduler-state")
+        }),
         { projectRoot: root },
         []
       );
       assert.equal(second.kind, "completed");
       assert.deepEqual(secondOrder, ["slow", "fast"]);
+      const persisted: unknown = JSON.parse(
+        await readFile(join(root, "scheduler-state", "scheduler-history.json"), "utf8")
+      );
+      assertPersistedHistory(persisted);
+      assert.ok(persisted.series.every((series) => series.samples.length <= 1));
     } finally {
       await rm(root, { force: true, recursive: true });
     }
   });
 
-  it("emits bounded learned diagnostics and contains local history write failure", async () => {
+  it("uses caller-owned observations and contains local history write failure", async () => {
     const root = await mkdtemp(join(tmpdir(), "vibe-check-learned-diagnostics-"));
     try {
       await writeFile(join(root, "not-a-directory"), "not a directory", "utf8");
-      const observations: DiagnosticObservation[] = [];
+      const observations: LearnedCriticalPathObservation[] = [];
       const result = await executeValidatedRun(
         learnedDefinition({
-          diagnosticLogging: true,
+          observe: (event) => observations.push(event),
           order: [],
-          stateDirectory: "not-a-directory"
+          stateDirectory: join(root, "not-a-directory")
         }),
         { flags: ["private-flag"], projectRoot: root },
-        [],
-        {
-          diagnosticLoggerFactory: () =>
-            Object.freeze({
-              close: () => "succeeded" as const,
-              observe: (observation: DiagnosticObservation) => observations.push(observation)
-            })
-        }
+        []
       );
-
       assert.equal(result.kind, "completed");
-      if (result.kind !== "completed") return;
-      assert.equal(result.outputs.diagnosticLogging.channels.learnedAdmission.enabled, true);
-      assert.equal(result.outputs.diagnosticLogging.channels.learnedAdmission.status, "succeeded");
-      const learning = observations.filter(
-        (observation) =>
-          observation.event.startsWith("scheduler.history.") ||
-          observation.event === "scheduler.learned-admission"
-      );
-      const historyRead = learning.find(
-        (observation) => observation.event === "scheduler.history.read"
-      );
-      assert.ok(historyRead?.tags.includes("FAILED"));
-      assert.equal(
-        learning.filter((observation) => observation.event === "scheduler.learned-admission")
-          .length,
-        2
-      );
       assert.ok(
-        learning.some(
-          (observation) =>
-            observation.event === "scheduler.history.write" && observation.tags.includes("FAILED")
+        observations.some(
+          (event) => event.kind === "history-unavailable" || event.kind === "recording-unavailable"
         )
       );
-      const serialized = JSON.stringify(observations);
-      assert.doesNotMatch(serialized, /private-option/);
-      assert.doesNotMatch(serialized, /private-flag/);
-      assert.doesNotMatch(serialized, /identityDigest/);
-      assert.doesNotMatch(serialized, /samples/);
+      assert.doesNotMatch(
+        JSON.stringify(observations),
+        /private-option|private-flag|identityDigest|samples/
+      );
     } finally {
       await rm(root, { force: true, recursive: true });
     }
@@ -114,40 +103,24 @@ describe("Package Run learned Scheduler admission", () => {
     const root = await mkdtemp(join(tmpdir(), "vibe-check-learned-lifecycle-"));
     try {
       const events: string[] = [];
-      let historyVisibleToTerminalHook = true;
+      const terminalHistory = historyDuringTerminalHook(events, join(root, "scheduler-state"));
       const result = await executeValidatedRun(
         learnedDefinition({
-          diagnosticLogging: true,
-          measurementHooks: [
-            async () => {
-              events.push("terminal-hook");
-              try {
-                await readFile(join(root, "scheduler-state", "scheduler-history.json"), "utf8");
-              } catch {
-                historyVisibleToTerminalHook = false;
-              }
-            }
-          ],
+          observe: (event) => events.push(event.kind),
+          stateDirectory: join(root, "scheduler-state"),
+          measurementHooks: [terminalHistory.hook],
           order: []
         }),
         { projectRoot: root },
-        [],
-        {
-          diagnosticLoggerFactory: () => historyLifecycleDiagnosticLogger(events)
-        }
+        []
       );
 
       assert.equal(result.kind, "completed");
-      assert.equal(historyVisibleToTerminalHook, false);
+      assert.equal(terminalHistory.visible, false);
+      await assertRecordedTaskCount(join(root, "scheduler-state"), 2);
       assertEventsInOrder({
         events,
-        required: [
-          "scheduler.history.read",
-          "scheduler.learned-admission",
-          "terminal-hook",
-          "scheduler.history.recorded",
-          "scheduler.history.write"
-        ]
+        required: ["selection-proposed", "terminal-hook"]
       });
     } finally {
       await rm(root, { force: true, recursive: true });
@@ -159,6 +132,7 @@ describe("Package Run learned Scheduler admission", () => {
     try {
       const controller = new AbortController();
       const events: string[] = [];
+      const terminalHistory = historyDuringTerminalHook(events, join(root, "scheduler-state"));
       const result = await executeValidatedRun(
         learnedDefinition({
           checks: [
@@ -176,27 +150,21 @@ describe("Package Run learned Scheduler admission", () => {
               execution: () => PASSED
             }
           ],
-          diagnosticLogging: true,
-          measurementHooks: [async () => events.push("terminal-hook")],
+          observe: (event) => events.push(event.kind),
+          stateDirectory: join(root, "scheduler-state"),
+          measurementHooks: [terminalHistory.hook],
           order: []
         }),
         { projectRoot: root, signal: controller.signal },
-        [],
-        {
-          diagnosticLoggerFactory: () => historyLifecycleDiagnosticLogger(events)
-        }
+        []
       );
 
       assert.equal(result.kind, "cancelled");
+      assert.equal(terminalHistory.visible, false);
+      await assertRecordedTaskCount(join(root, "scheduler-state"), 2);
       assertEventsInOrder({
         events,
-        required: [
-          "scheduler.history.read",
-          "scheduler.learned-admission",
-          "terminal-hook",
-          "scheduler.history.recorded",
-          "scheduler.history.write"
-        ]
+        required: ["selection-proposed", "terminal-hook"]
       });
     } finally {
       await rm(root, { force: true, recursive: true });
@@ -207,20 +175,28 @@ describe("Package Run learned Scheduler admission", () => {
 function learnedDefinition(input: {
   readonly order: string[];
   readonly checks?: readonly Check[];
-  readonly diagnosticLogging?: boolean;
+  readonly observe?: (event: LearnedCriticalPathObservation) => void;
   readonly measurementHooks?: readonly SchedulerMeasurementHook[];
-  readonly stateDirectory?: string;
+  readonly sampleWindow?: number;
+  readonly stateDirectory: string;
 }) {
-  const stateDirectory = input.stateDirectory ?? "scheduler-state";
   return defineConfig({
     checks: input.checks ?? learnedChecks(input.order),
     outputs: {
-      diagnosticLogging: { enabled: input.diagnosticLogging ?? false },
+      diagnosticLogging: { enabled: false },
       machinePublication: { enabled: false },
       progressRendering: { enabled: false }
     },
     scheduler: {
-      admissionPolicy: { kind: "learned-critical-path", stateDirectory },
+      admissionPolicy: {
+        kind: "custom",
+        strategy: createLearnedCriticalPathStrategy({
+          identityForTask: (task) => ({ taskId: task.taskId, test: "learned-scheduling" }),
+          observe: input.observe,
+          sampleWindow: input.sampleWindow,
+          stateDirectory: input.stateDirectory
+        })
+      },
       maxParallel: 1,
       measurementHooks: input.measurementHooks ?? []
     }
@@ -252,22 +228,70 @@ function learnedChecks(order: string[]): readonly Check[] {
   ];
 }
 
-function historyLifecycleDiagnosticLogger(events: string[]): DiagnosticLogger {
+function historyDuringTerminalHook(
+  events: string[],
+  stateDirectory: string
+): Readonly<{ readonly hook: SchedulerMeasurementHook; readonly visible: boolean }> {
+  let visible = true;
   return Object.freeze({
-    close: () => "succeeded" as const,
-    observe: (observation: DiagnosticObservation) => {
-      if (
-        observation.event === "scheduler.history.read" ||
-        observation.event === "scheduler.learned-admission" ||
-        observation.event === "scheduler.history.recorded" ||
-        observation.event === "scheduler.history.write"
-      ) {
-        events.push(observation.event);
+    hook: async () => {
+      events.push("terminal-hook");
+      try {
+        await readFile(join(stateDirectory, "scheduler-history.json"), "utf8");
+      } catch {
+        visible = false;
       }
+    },
+    get visible(): boolean {
+      return visible;
     }
   });
 }
 
 function delay(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+function assertPersistedHistory(
+  value: unknown
+): asserts value is { readonly series: readonly { readonly samples: readonly unknown[] }[] } {
+  assert.ok(isPersistedHistory(value));
+}
+
+async function assertRecordedTaskCount(
+  stateDirectory: string,
+  expectedTaskCount: number
+): Promise<void> {
+  const history: unknown = JSON.parse(
+    await readFile(join(stateDirectory, "scheduler-history.json"), "utf8")
+  );
+  assertPersistedHistory(history);
+  assert.equal(history.series.length, expectedTaskCount);
+  assert.equal(
+    history.series.reduce((count, series) => count + series.samples.length, 0),
+    expectedTaskCount
+  );
+}
+
+function isPersistedHistory(
+  value: unknown
+): value is { readonly series: readonly { readonly samples: readonly unknown[] }[] } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "series" in value &&
+    Array.isArray(value.series) &&
+    value.series.every(isPersistedHistorySeries)
+  );
+}
+
+function isPersistedHistorySeries(
+  value: unknown
+): value is { readonly samples: readonly unknown[] } {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "samples" in value &&
+    Array.isArray(value.samples)
+  );
 }

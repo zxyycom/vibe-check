@@ -126,10 +126,7 @@ function observeInvocationStarted(
     details: {
       aggregation: aggregation ?? null,
       checkCount: invocation.normalized.checks.length,
-      flags:
-        invocation.normalized.scheduler.admissionPolicy.kind === "learned-critical-path"
-          ? summarizeDiagnosticValue(invocation.controls.flags ?? [])
-          : (invocation.controls.flags ?? []),
+      flags: summarizeDiagnosticValue(invocation.controls.flags ?? []),
       outputs: invocation.outputConfiguration,
       scheduler: invocation.normalized.declarative.scheduler
     }
@@ -227,12 +224,7 @@ async function prepareAdmissionStrategy(
     invocation.admissionStrategyProviderFactory ?? createAdmissionStrategyProvider;
   const provider = admissionStrategyProviderFactory({
     admissionPolicy: invocation.normalized.scheduler.admissionPolicy,
-    checks: invocation.normalized.checks,
-    flags: invocation.controls.flags ?? [],
-    graph: graph.schedulerGraphSnapshot,
-    observeDiagnostic: (observation) =>
-      invocation.diagnosticLogging.learnedAdmission.observe(observation),
-    projectRoot: invocation.paths.projectRoot
+    graph: graph.schedulerGraphSnapshot
   });
   return provider.prepare();
 }

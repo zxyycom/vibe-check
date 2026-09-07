@@ -225,11 +225,6 @@ export type AdmissionPolicy =
   | Readonly<{
       readonly kind: "custom";
       readonly strategy: CustomAdmissionStrategy;
-    }>
-  | Readonly<{
-      /** 调用方管理的本地状态；relative path 在稍后的 Project Run 中从 effective projectRoot 解析。 */
-      readonly kind: "learned-critical-path";
-      readonly stateDirectory: string;
     }>;
 
 /** 定义级的 Check 调度预算与 admission policy。 */
@@ -536,7 +531,7 @@ export type SchedulerMeasurementHook =
 
 /** 定义级的 Scheduler 预算、admission policy 与终态 measurement consumer。 */
 export interface SchedulerPolicy {
-  /** normalized static、custom 或 learned-critical-path admission policy。 */
+  /** normalized static or custom admission policy。 */
   readonly admissionPolicy: AdmissionPolicy;
   /** 同时 running 的 root Check 上限。 */
   readonly maxParallel: number;
@@ -552,10 +547,6 @@ export interface DeclarativeSchedulerPolicy {
     | Readonly<{
         readonly kind: "custom";
         readonly strategy: Readonly<{ readonly kind: "simple" | "prepared" }>;
-      }>
-    | Readonly<{
-        readonly kind: "learned-critical-path";
-        readonly stateDirectory: string;
       }>;
   readonly maxParallel: number;
   readonly resourceCapacities: Readonly<Record<string, number>>;

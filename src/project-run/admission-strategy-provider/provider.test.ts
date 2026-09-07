@@ -14,7 +14,7 @@ import { createAdmissionStrategyProvider } from "./provider.ts";
 const PASSED = Object.freeze({ data: Object.freeze({}), status: "passed" as const });
 
 describe("admission strategy provider", () => {
-  it("prepares one closed static, custom, or learned-fallback policy without widening public configuration", async () => {
+  it("prepares one closed static or custom policy without widening public configuration", async () => {
     const staticPrepared = await providerFor({ policy: { kind: "static" } }).prepare();
     assert.equal(staticPrepared.admissionPolicy, staticAdmissionSelectionPolicy);
     assert.equal(staticPrepared.requiresTerminalMeasurement, false);
@@ -33,25 +33,10 @@ describe("admission strategy provider", () => {
     assert.equal(customPrepared.admissionPolicy.requiresMeasurement, true);
     assert.equal(customPrepared.requiresTerminalMeasurement, false);
     assert.equal(customPrepared.completion.kind, "none");
-
-    const observations: string[] = [];
-    const learnedFallback = await providerFor({
-      flags: new Map(),
-      observations,
-      policy: { kind: "learned-critical-path", stateDirectory: "state" }
-    }).prepare();
-    assert.equal(learnedFallback.admissionPolicy, staticAdmissionSelectionPolicy);
-    assert.equal(learnedFallback.requiresTerminalMeasurement, true);
-    assert.deepEqual(observations, ["scheduler.history.prediction-unavailable"]);
   });
 });
 
-function providerFor(input: {
-  readonly policy: AdmissionPolicy;
-  readonly flags?: unknown;
-  readonly observations?: string[];
-}) {
-  const observations = input.observations ?? [];
+function providerFor(input: { readonly policy: AdmissionPolicy }) {
   const definition = defineConfig({
     checks: [
       {
@@ -73,10 +58,6 @@ function providerFor(input: {
   );
   return createAdmissionStrategyProvider({
     admissionPolicy: normalized.scheduler.admissionPolicy,
-    checks: normalized.checks,
-    flags: input.flags ?? [],
-    graph: graph.schedulerGraphSnapshot,
-    observeDiagnostic: (observation) => observations.push(observation.event),
-    projectRoot: process.cwd()
+    graph: graph.schedulerGraphSnapshot
   });
 }

@@ -39,6 +39,8 @@ export function recordSchedulerHistory(input: {
     readonly kind: SchedulerDurationSettlementKind;
     readonly taskId: string;
   }>[];
+  readonly maxSamplesPerSeries?: number;
+  readonly maxSeries?: number;
 }): SchedulerHistoryRecording {
   const rawMeasurement = input.rawMeasurement;
   const timingFacts = rawMeasurement.timingFacts;
@@ -53,13 +55,24 @@ export function recordSchedulerHistory(input: {
     });
   }
 
+  return recordedHistory(input, timingFacts.admissions);
+}
+
+function recordedHistory(
+  input: Parameters<typeof recordSchedulerHistory>[0],
+  admissions: readonly SchedulerMeasurementAdmission[]
+): SchedulerHistoryRecording {
   const merged = mergeVerifiedAdmissionSamples({
-    admissions: timingFacts.admissions,
+    admissions,
     history: input.history,
     prediction: input.prediction,
-    settledByTaskId: new Map(input.settledTasks.map((settled) => [settled.taskId, settled.kind]))
+    settledByTaskId: new Map(input.settledTasks.map((settled) => [settled.taskId, settled.kind])),
+    maxSamplesPerSeries: input.maxSamplesPerSeries ?? MAX_SCHEDULER_HISTORY_SAMPLES_PER_SERIES
   });
-  const retained = retainRecentSeries(merged.seriesByIdentity.values());
+  const retained = retainRecentSeries(
+    merged.seriesByIdentity.values(),
+    input.maxSeries ?? MAX_SCHEDULER_HISTORY_SERIES
+  );
   const history = freezeSchedulerHistoryModel({
     latestObservationSequence: merged.latestObservationSequence,
     series: retained
@@ -86,6 +99,7 @@ function mergeVerifiedAdmissionSamples(input: {
   readonly history: SchedulerHistoryModel;
   readonly prediction: SchedulerPredictionSnapshot;
   readonly settledByTaskId: ReadonlyMap<string, SchedulerDurationSettlementKind>;
+  readonly maxSamplesPerSeries: number;
 }): VerifiedAdmissionMerge {
   const seriesByIdentity = new Map(
     input.history.series.map((series) => [series.identityDigest, series] as const)
@@ -96,7 +110,12 @@ function mergeVerifiedAdmissionSamples(input: {
     const sample = sampleForAdmission(admission, input.prediction, input.settledByTaskId);
     if (sample === undefined || latestObservationSequence === Number.MAX_SAFE_INTEGER) continue;
     latestObservationSequence += 1;
-    appendSampleToIdentityHistory(seriesByIdentity, sample, latestObservationSequence);
+    appendSampleToIdentityHistory(
+      seriesByIdentity,
+      sample,
+      latestObservationSequence,
+      input.maxSamplesPerSeries
+    );
     acceptedSampleCount += 1;
   }
   return Object.freeze({ acceptedSampleCount, latestObservationSequence, seriesByIdentity });
@@ -105,7 +124,8 @@ function mergeVerifiedAdmissionSamples(input: {
 function appendSampleToIdentityHistory(
   seriesByIdentity: Map<string, SchedulerHistorySeries>,
   sample: AdmissionSample,
-  observationSequence: number
+  observationSequence: number,
+  maxSamplesPerSeries: number
 ): void {
   const existing = seriesByIdentity.get(sample.identityDigest);
   const samples = [
@@ -115,7 +135,7 @@ function appendSampleToIdentityHistory(
       observationSequence,
       settlementKind: sample.settlementKind
     }
-  ].slice(-MAX_SCHEDULER_HISTORY_SAMPLES_PER_SERIES);
+  ].slice(-maxSamplesPerSeries);
   seriesByIdentity.set(
     sample.identityDigest,
     Object.freeze({
@@ -163,7 +183,8 @@ function sampleForAdmission(
 }
 
 function retainRecentSeries(
-  series: Iterable<SchedulerHistorySeries>
+  series: Iterable<SchedulerHistorySeries>,
+  maxSeries: number
 ): readonly SchedulerHistorySeries[] {
   return Object.freeze(
     [...series]
@@ -172,7 +193,7 @@ function retainRecentSeries(
           right.latestObservationSequence - left.latestObservationSequence ||
           compareText(left.identityDigest, right.identityDigest)
       )
-      .slice(0, MAX_SCHEDULER_HISTORY_SERIES)
+      .slice(0, maxSeries)
   );
 }
 

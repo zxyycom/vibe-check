@@ -1,36 +1,42 @@
 // #region package-api-example:learned-critical-path
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import {
+  createLearnedCriticalPathStrategy,
+  defineCheck,
+  defineConfig,
+  run
+} from "@zxyycom/vibe-check";
 
-const executionOrder: string[] = [];
-
-function delayedCheck(checkId: string, delayMs: number) {
+function scheduledCheck(checkId: string) {
   return defineCheck({
     checkId,
     displayName: checkId,
-    async execution() {
-      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
-      executionOrder.push(checkId);
-      return { status: "passed" as const, data: {} };
-    }
+    execution: () => ({ status: "passed" as const, data: {} })
   });
 }
 
-// 以明显高于常见本地计时抖动的时长差演示 learned 排序。
-const fast = delayedCheck("fast", 0);
-const slow = delayedCheck("slow", 250);
+// 调用方选择不与其它 Run 共用的绝对目录，并负责后续清理；不会从 projectRoot 解析。
+const stateDirectory = `/tmp/vibe-check-learned-history-${Date.now()}-${Math.random()}`;
+const strategy = createLearnedCriticalPathStrategy({
+  stateDirectory,
+  identityForTask: (task) => ({
+    taskId: task.taskId,
+    // 在调用方的 key 中保留所有影响时长可比性的因素。
+    implementationVersion: "example-v1"
+  }),
+  observe(event) {
+    // 这是调用方尽力而为的观察点，不是 Product diagnostic channel。
+    if (event.kind === "history-unavailable") console.warn(event.reason);
+  }
+});
 const definition = defineConfig({
-  checks: [fast, slow],
+  checks: [scheduledCheck("first"), scheduledCheck("second")],
   outputs: {
     diagnosticLogging: { enabled: false },
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   },
   scheduler: {
-    admissionPolicy: {
-      kind: "learned-critical-path",
-      // 调用方拥有的本地目录相对 effective projectRoot 解析。
-      stateDirectory: ".vibe-check/scheduler-history"
-    },
+    admissionPolicy: { kind: "custom", strategy },
     maxParallel: 1
   }
 });
@@ -38,9 +44,6 @@ const definition = defineConfig({
 const first = await run(definition);
 const second = await run(definition);
 if (first.kind !== "completed" || second.kind !== "completed") {
-  throw new Error("Expected both learned-scheduling Runs to complete");
-}
-if (executionOrder.join(",") !== "fast,slow,slow,fast") {
-  throw new Error(`Unexpected learned scheduling order: ${executionOrder.join(",")}`);
+  throw new Error("Expected both learned strategy Runs to complete");
 }
 // #endregion package-api-example:learned-critical-path

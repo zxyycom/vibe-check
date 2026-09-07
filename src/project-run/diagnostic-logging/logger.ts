@@ -5,7 +5,7 @@ import type { CheckExecutionClock } from "../check-execution/resolved-checks.ts"
 import { renderDiagnosticObservation } from "./observation-rendering.ts";
 export { summarizeDiagnosticValue } from "./diagnostic-detail-rendering.ts";
 
-export const DIAGNOSTIC_CHANNELS = ["core", "scheduler", "learnedAdmission"] as const;
+export const DIAGNOSTIC_CHANNELS = ["core", "scheduler"] as const;
 export type DiagnosticChannel = (typeof DIAGNOSTIC_CHANNELS)[number];
 export type DiagnosticChannelStatus = "disabled" | "failed" | "succeeded";
 
@@ -31,7 +31,6 @@ export interface DiagnosticLogger {
 /** The invocation-local router is the sole Product correlation and channel-routing owner. */
 export interface DiagnosticLoggingRouter {
   readonly core: DiagnosticLogger;
-  readonly learnedAdmission: DiagnosticLogger;
   readonly scheduler: DiagnosticLogger;
   close(): Readonly<Record<DiagnosticChannel, DiagnosticChannelStatus>>;
 }
@@ -66,7 +65,7 @@ export const createDiagnosticLogger: DiagnosticLoggerFactory = (input) => {
 };
 
 /**
- * Builds the minimal owner-neutral router. It has no subscriber registry: the three Product owners are
+ * Builds the minimal owner-neutral router. It has no subscriber registry: the Product owners are
  * explicit fields, each writer is isolated, and one shared sequence/clock is assigned before delegation.
  */
 export function createDiagnosticLoggingRouter(
@@ -75,15 +74,10 @@ export function createDiagnosticLoggingRouter(
     readonly coreFile: string | null;
     readonly factory: DiagnosticLoggerFactory;
     readonly invocationId: string;
-    readonly learnedAdmissionFile: string | null;
     readonly schedulerFile: string | null;
   }>
 ): DiagnosticLoggingRouter {
-  if (
-    input.coreFile === null &&
-    input.schedulerFile === null &&
-    input.learnedAdmissionFile === null
-  )
+  if (input.coreFile === null && input.schedulerFile === null)
     return disabledDiagnosticLoggingRouter();
   const startedAt = safeNow(input.clock);
   let sequence = 0;
@@ -103,15 +97,12 @@ export function createDiagnosticLoggingRouter(
   };
   const core = route(input.coreFile);
   const scheduler = route(input.schedulerFile);
-  const learnedAdmission = route(input.learnedAdmissionFile);
   return Object.freeze({
     core,
-    learnedAdmission,
     scheduler,
     close: () =>
       Object.freeze({
         core: core.close(),
-        learnedAdmission: learnedAdmission.close(),
         scheduler: scheduler.close()
       })
   });
@@ -176,12 +167,10 @@ function disabledDiagnosticLoggingRouter(): DiagnosticLoggingRouter {
   const disabled = disabledLogger();
   return Object.freeze({
     core: disabled,
-    learnedAdmission: disabled,
     scheduler: disabled,
     close: () =>
       Object.freeze({
         core: "disabled" as const,
-        learnedAdmission: "disabled" as const,
         scheduler: "disabled" as const
       })
   });

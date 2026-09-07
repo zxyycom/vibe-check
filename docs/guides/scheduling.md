@@ -1,45 +1,54 @@
 # 按项目约束调度 Check
 
-返回 [README](../../README.md)。本专题面向已经有多个自定义 Check、需要限制可计数共享资源、改变 ready task 的选择顺序或分析假设调度分支的调用方。默认 `{ kind: "static" }` 已经遵守依赖、mutex、root/scoped 并行预算、named resource capacity 和取消；只有这些不变式之外的**选择偏好**需要项目规则时，才使用 custom 或 learned policy。Check 自己的 options、preflight、execution 与取消处理见[编写自定义 Check](extending-check-lifecycle.md)。
+本专题面向已经有多个自定义 Check、需要表达并发约束、改变 ready task 的选择顺序或分析假设调度分支的调用方。默认 `{ kind: "static" }` 已经遵守依赖、mutex、root/scoped 并行预算、named resource capacity 和取消；只有这些不变式之外的**选择偏好**需要项目规则时，才使用 custom policy（包括 learned helper 返回的 prepared strategy）。Check 自己的 options、preflight、execution 与取消处理见[编写自定义 Check](extending-check-lifecycle.md)。
 
 ## 选择正确的工具
 
-| 目标 | 使用 | 不适用的情况 |
+| 目标 | 使用 | 作用边界 |
 | --- | --- | --- |
-| 限制浏览器、设备或内存等可计数共享资源 | `scheduler.resourceCapacities` 与 Check 的 `resourceClaims` | 它不探测实际资源，也不跨 Run 提供 semaphore。 |
-| 只指定静态相对顺序 | Check 的 `admissionPriority` | 它不能越过依赖、mutex、容量或取消 guard。 |
-| 每次 ready selection 根据当前事实选择一个 task | `scheduler.admissionPolicy` 的 `custom/simple` strategy | 不要用它启动、取消、结算 task 或绕过硬约束。 |
-| 先异步准备本 Run 专用决策 closure，或在终态 measurement 后收尾 | `custom/prepared` strategy | 不是普通 Check lifecycle hook，也不能改写已 sealed 的结果。 |
-| 对独立静态图比较假设分支 | `createAdmissionGraph(...)` | 它不运行 Check，也不影响真实 Run。 |
-| 多次运行后按本地时长历史改善选择 | `learned-critical-path` | 不是可靠的时长承诺、remote cache 或锁服务。 |
-| Run 结束后保存项目自己的调度统计 | `scheduler.measurementHooks` | 它不是每个 Task 的 event stream，也不改变选择。 |
+| 让一组 Task 互斥执行 | 在每个相关 Check 的 `mutex` 写入同一个名称 | 同一互斥名称下，同一时刻最多运行一个 Task。 |
+| 为可计数共享资源声明并发容量 | `scheduler.resourceCapacities` 与 Check 的 `resourceClaims` | capacity 与 claim 都是本次 Run 的静态 units。 |
+| 只指定静态相对顺序 | Check 的 `admissionPriority` | 在 Scheduler 的 relation、mutex、容量和取消约束内排序 ready Task。 |
+| 每次 ready selection 根据当前事实选择一个 task | `scheduler.admissionPolicy` 的 `custom/simple` strategy | 向 Scheduler 提交一个 selection proposal。 |
+| 先异步准备本 Run 专用决策 closure，或在终态 measurement 后收尾 | `custom/prepared` strategy | `prepare` 形成 Run-local closure，`complete` 消费 terminal measurement。 |
+| 对独立静态图比较假设分支 | `createAdmissionGraph(...)` | 创建 immutable simulation，并从 predecessor 派生独立 successor。 |
+| 多次运行后按本地时长历史改善选择 | `createLearnedCriticalPathStrategy(...)` 作为 `custom/prepared` strategy | 使用调用方管理的本地 history 形成选择偏好。 |
+| Run 结束后保存项目自己的调度统计 | `scheduler.measurementHooks` | 接收冻结的 terminal measurement 作为 side effect 输入。 |
 
 ## 限制 named resource 并发
 
-`scheduler.maxParallel` 限制同时运行的 Check 总数；`mutex` 只表达同名资源一次至多一个 holder。需要让同一种资源允许多个 holder、而不同 Check 消耗不同 units 时，使用静态 named resource capacity：
+`scheduler.maxParallel` 限制同时运行的 Check 总数。用 `mutex` 为需要互斥执行的 Task 声明同一个逻辑组名称；同一互斥名称下，同一时刻最多运行一个 Task。需要为同一种可计数资源声明容量、并让不同 Check 消耗不同 units 时，使用静态 named resource capacity：
 
 ```ts
 import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
 
-const browserAudit = defineCheck({
-  checkId: "browser-audit",
-  displayName: "Browser audit",
-  resourceClaims: { browser: 1, memoryGb: 2 },
+const firstAudit = defineCheck({
+  checkId: "first-audit",
+  displayName: "First audit",
+  mutex: ["exclusive-audit"],
+  resourceClaims: { worker: 1, capacityUnits: 2 },
+  execution: () => ({ status: "passed", data: {} })
+});
+
+const secondAudit = defineCheck({
+  checkId: "second-audit",
+  displayName: "Second audit",
+  mutex: ["exclusive-audit"],
   execution: () => ({ status: "passed", data: {} })
 });
 
 export default defineConfig({
-  checks: [browserAudit],
+  checks: [firstAudit, secondAudit],
   scheduler: {
     maxParallel: 4,
-    resourceCapacities: { browser: 2, memoryGb: 8 }
+    resourceCapacities: { worker: 2, capacityUnits: 8 }
   }
 });
 ```
 
-resource ID 必须是非空白字符串，capacity 和 claim 都必须是正 safe integer。每个 claim 必须引用已声明资源且不大于其总 capacity，否则 Definition 在任何 Check work 前失败。一个 Task 的全部 claims 在 admission 时原子取得，并在任意 settlement（成功、失败或其它终态）后一起释放；Scheduler 不会先占一部分再等待另一部分。同一 ordinary selection layer 中，没有 claim 的 ready work 仍可使用空闲 root slot，不会因为另一个 Task 正等待 named resource 而被扣留；既有 tighter-scope activation/continuation 层级仍先于 ordinary work。
+两个 Check 共享 `exclusive-audit`，因此同一时刻最多运行其中一个；它们仍可分别声明不同的 resource claims。resource ID 必须是非空白字符串，capacity 和 claim 都必须是正 safe integer。每个 claim 必须引用已声明资源且不大于其总 capacity，否则 Definition 在任何 Check work 前失败。一个 Task 的全部 claims 在 admission 时原子取得，并在任意 settlement（成功、失败或其它终态）后一起释放；Scheduler 不会先占一部分再等待另一部分。同一 ordinary selection layer 中，没有 claim 的 ready work 仍可使用空闲 root slot，不会因为另一个 Task 正等待 named resource 而被扣留；既有 tighter-scope activation/continuation 层级仍先于 ordinary work。
 
-`resourceClaims` 与 `maxParallel`、relations 和 mutex 一样可写在 container 上供 descendants 继承；省略保留最近的完整 mapping，显式 `{}` 清空，任何其它显式 mapping 都完整替换而不与父 mapping 合并。named resources 是 invocation-local 静态计数，不提供动态申请、reservation、跨 Run semaphore、资源发现或 fairness 承诺。互斥语义仍使用 `mutex`，不要用 capacity `1` 取代已有 mutex identity，反之亦然。
+`resourceClaims` 与 `maxParallel`、relations 和 mutex 一样可写在 container 上供 descendants 继承；省略保留最近的完整 mapping，显式 `{}` 清空，任何其它显式 mapping 都完整替换而不与父 mapping 合并。named resources 是 invocation-local 静态计数；`mutex` 表达逻辑组互斥，`resourceClaims` 表达 units 容量，两者可以按项目约束组合。
 
 ## 自定义准入 policy
 
@@ -173,62 +182,39 @@ if (!completed.accepted || !completed.state.catalog.selectableTaskIds.includes("
 
 ## 已准备的 custom strategy
 
-需要异步读取调用方自己的配置并形成本 Run 专用 closure 时，使用 `{ kind: "prepared", prepare }`。`prepare({ graph })` 每个 graph-ready Run 最多调用一次；它返回同步 `decide` 和可选 `complete(terminal)`。`complete` 在 Scheduler seal terminal context、generic measurement hooks 已结算后至多运行一次。
+需要在 Scheduler 开始前异步读取调用方自己的配置，并把结果形成本 Run 专用 decision closure 时，使用 `{ kind: "prepared", prepare }`。每个 graph-ready Run 最多调用一次 `prepare`；它返回同步 `decide` 和可选的 `complete(terminal)`。下例选择第一个可准入候选，并在可用 timing 下保存一次终态计数：
 
 ```ts
 import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
-type SchedulerSample = Readonly<{ readonly preferredTaskId: string }>;
-const history: SchedulerSample[] = [];
-const executionOrder: string[] = [];
-const terminalEvents: string[] = [];
+let settledTaskCount: number | null = null;
 
 function scheduledCheck(checkId: string) {
   return defineCheck({
     checkId,
     displayName: checkId,
-    execution() {
-      executionOrder.push(checkId);
-      return { status: "passed" as const, data: {} };
-    }
+    execution: () => ({ status: "passed" as const, data: {} })
   });
 }
 
-const first = scheduledCheck("first");
-const second = scheduledCheck("second");
 const strategy = defineAdmissionPolicy({
   kind: "custom",
   strategy: {
     kind: "prepared",
-    async prepare({ graph }) {
-      const previous = history.at(-1) ?? null;
-      const taskIds = new Set(graph.tasks.map((task) => task.taskId));
-      await Promise.resolve();
+    async prepare() {
+      // 模拟异步读取调用方自己的配置，并将其捕获在本 Run 的 closure 中。
+      const preferredTaskId = await Promise.resolve("second");
       return {
         decide(context) {
-          const preferred = previous?.preferredTaskId;
-          const preferredCandidate = context.candidates.find(
-            ({ canAdmit, taskId }) => canAdmit && taskId === preferred && taskIds.has(taskId)
-          );
-          const next = preferredCandidate ?? context.candidates.find(({ canAdmit }) => canAdmit);
+          const next = context.candidates.find(
+            ({ canAdmit, taskId }) => canAdmit && taskId === preferredTaskId
+          ) ?? context.candidates.find(({ canAdmit }) => canAdmit);
           return next === undefined
             ? { kind: "wait" as const }
             : { kind: "select" as const, taskId: next.taskId };
         },
         complete(terminal) {
-          const completeTasks = terminal.execution.settledTasks.every(
-            ({ kind }) => kind === "completed"
-          );
-          const timing = terminal.rawMeasurement.timing;
-          if (
-            timing.availability === "available" &&
-            terminal.execution.admittedTaskIds.length === terminal.execution.settledTasks.length &&
-            completeTasks &&
-            terminal.rawMeasurement.discrete.lastSettledTaskId !== null
-          ) {
-            history.push({ preferredTaskId: terminal.rawMeasurement.discrete.lastSettledTaskId });
-          }
-          terminalEvents.push("complete");
+          settledTaskCount = terminal.execution.settledTasks.length;
         }
       };
     }
@@ -236,38 +222,18 @@ const strategy = defineAdmissionPolicy({
 });
 
 const definition = defineConfig({
-  checks: [first, second],
+  checks: [scheduledCheck("first"), scheduledCheck("second")],
   outputs: {
     diagnosticLogging: { enabled: false },
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   },
-  scheduler: {
-    admissionPolicy: strategy,
-    measurementHooks: [
-      (terminal) => {
-        if (terminal.execution.settledTasks.length !== 2) {
-          throw new Error("Expected a terminal measurement for both Checks");
-        }
-        terminalEvents.push("generic");
-      }
-    ]
-  }
+  scheduler: { admissionPolicy: strategy }
 });
 
-const firstRun = await run(definition);
-const secondRun = await run(definition);
-if (firstRun.kind !== "completed" || secondRun.kind !== "completed") {
-  throw new Error("Expected both Runs to complete");
-}
-if (history.length !== 2 || history[0]?.preferredTaskId !== "second") {
-  throw new Error("Expected the first terminal measurement to seed caller-owned history");
-}
-if (executionOrder.join(",") !== "first,second,second,first") {
-  throw new Error(`Unexpected execution order: ${executionOrder.join(",")}`);
-}
-if (terminalEvents.join(",") !== "generic,complete,generic,complete") {
-  throw new Error("Expected generic hooks before prepared completion on both Runs");
+const result = await run(definition);
+if (result.kind !== "completed" || settledTaskCount !== 2) {
+  throw new Error("Expected a completed Run and terminal measurement for both Checks");
 }
 ```
 
@@ -275,51 +241,58 @@ if (terminalEvents.join(",") !== "generic,complete,generic,complete") {
 
 ### 观察终态 measurement
 
-任何 scheduler policy 都可配置 `scheduler.measurementHooks`。每个 hook 在 Scheduler 已有 terminal measurement 后收到冻结的 `{ graph, execution, rawMeasurement }`；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。上方 runnable example 同时配置了 generic hook 和 prepared `complete`：generic hooks 先结算，随后才调用 `complete`。如果任一 hook 抛错或 reject，`result.outputs.measurementHooks.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
+任何 scheduler policy 都可配置 `scheduler.measurementHooks`。每个 hook 在 Scheduler 已有 terminal measurement 后收到冻结的 `{ graph, execution, rawMeasurement }`；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。若同时配置 generic hook 与 prepared `complete`，generic hooks 先结算，随后才调用 `complete`。如果任一 hook 抛错或 reject，`result.outputs.measurementHooks.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
 
 三种 measurement 入口服务不同阶段：`decide(context)` 中的 `context.measurement` 只读在线 action-observation prefix；`scheduler.measurementHooks` 消费每个有 terminal measurement 的 Run；prepared strategy 的 `complete` 在同一终态 measurement、且 generic hooks 都结算后处理调用方在 `prepare` 时捕获的 Run-local state。不要把任一入口当成每 task event stream、执行前 hook 或 Check callback。它们没有 Task data、errors、Records、可变 engine、logger 或时钟 capability；需要逐项规则事实时，在 Check 的 `execution` 中用 final data / Records 表达。
 
 `prepare` 只在 graph 已有效且 Run 尚未于 pre-work / planning 取消后调用；它没有 cancellation signal、timeout 或“必有 complete”的 cleanup 保证。prepare reject 会结束为 `admission-strategy-preparation-failed`。一旦 Run 进入 Scheduler，正常结束、取消或 policy fault 的 drain 只要 seal 出 terminal measurement，都会在 generic hooks 后调用 `complete`；早期 setup / execution failure 没有 terminal measurement 时不会调用它。因此不要在 `prepare` 中取得必须依赖 `complete` 释放的资源。
 
-保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。`rawMeasurement.timing.availability === "available"` 只证明终态 timing facts 可读，不证明 Run quality 成功；`settledTasks.kind === "completed"` 是 Scheduler settlement，不等于 Check `passed`，且 context 不提供 `RunResult.kind`。示例采取保守的“所有任务都被 admitted 且以 `completed` settlement 结束”筛选，只用于避免保存明显不完整的调度样本；若业务只允许成功 Run，先暂存候选，在 `run(...)` 返回后同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate，再决定是否提交。`kind: "completed"` 本身不表示质量检查全部通过。
+保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。`rawMeasurement.timing.availability === "available"` 只证明终态 timing facts 可读，不证明 Run quality 成功；`settledTasks.kind === "completed"` 是 Scheduler settlement，不等于 Check `passed`，且 context 不提供 `RunResult.kind`。若业务只允许成功 Run，先暂存候选，在 `run(...)` 返回后同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate，再决定是否提交。`kind: "completed"` 本身不表示质量检查全部通过。
 
-## learned-critical-path 准入 policy
+## learned critical-path strategy
 
-当同一项目反复运行、且本地目录可以保存调用方拥有的非敏感性能状态时，设置：
+当同一项目反复运行、且本地目录可以保存调用方拥有的非敏感性能状态时，使用
+`createLearnedCriticalPathStrategy(...)` 返回的 prepared strategy：
 
 ```ts
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import {
+  createLearnedCriticalPathStrategy,
+  defineCheck,
+  defineConfig,
+  run
+} from "@zxyycom/vibe-check";
 
-const executionOrder: string[] = [];
-
-function delayedCheck(checkId: string, delayMs: number) {
+function scheduledCheck(checkId: string) {
   return defineCheck({
     checkId,
     displayName: checkId,
-    async execution() {
-      await new Promise<void>((resolve) => setTimeout(resolve, delayMs));
-      executionOrder.push(checkId);
-      return { status: "passed" as const, data: {} };
-    }
+    execution: () => ({ status: "passed" as const, data: {} })
   });
 }
 
-// 以明显高于常见本地计时抖动的时长差演示 learned 排序。
-const fast = delayedCheck("fast", 0);
-const slow = delayedCheck("slow", 250);
+// 调用方选择不与其它 Run 共用的绝对目录，并负责后续清理；不会从 projectRoot 解析。
+const stateDirectory = `/tmp/vibe-check-learned-history-${Date.now()}-${Math.random()}`;
+const strategy = createLearnedCriticalPathStrategy({
+  stateDirectory,
+  identityForTask: (task) => ({
+    taskId: task.taskId,
+    // 在调用方的 key 中保留所有影响时长可比性的因素。
+    implementationVersion: "example-v1"
+  }),
+  observe(event) {
+    // 这是调用方尽力而为的观察点，不是 Product diagnostic channel。
+    if (event.kind === "history-unavailable") console.warn(event.reason);
+  }
+});
 const definition = defineConfig({
-  checks: [fast, slow],
+  checks: [scheduledCheck("first"), scheduledCheck("second")],
   outputs: {
     diagnosticLogging: { enabled: false },
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
   },
   scheduler: {
-    admissionPolicy: {
-      kind: "learned-critical-path",
-      // 调用方拥有的本地目录相对 effective projectRoot 解析。
-      stateDirectory: ".vibe-check/scheduler-history"
-    },
+    admissionPolicy: { kind: "custom", strategy },
     maxParallel: 1
   }
 });
@@ -327,16 +300,32 @@ const definition = defineConfig({
 const first = await run(definition);
 const second = await run(definition);
 if (first.kind !== "completed" || second.kind !== "completed") {
-  throw new Error("Expected both learned-scheduling Runs to complete");
-}
-if (executionOrder.join(",") !== "fast,slow,slow,fast") {
-  throw new Error(`Unexpected learned scheduling order: ${executionOrder.join(",")}`);
+  throw new Error("Expected both learned strategy Runs to complete");
 }
 ```
 
-首次 Run 没有 history 也可完成；缺失、损坏或读写失败的 state 会回退为 static selection 或 cold/project-prior model，不改变本次质量结算。`stateDirectory` 相对本次 effective `projectRoot` 解析；调用方负责选择可写、可删除的目录、容量和清理。它不是 sandbox、secret storage、remote cache 或跨进程锁，也不把 history 写入 Check facts、machine output 或 `RunResult`。
+`stateDirectory` 必须是调用方提供的非空 absolute、可写且可删除的目录；helper 不从 effective
+`projectRoot` 解析它。它是调用方信任的本地性能状态，不是 filesystem sandbox、secret storage、remote cache 或跨进程锁；
+调用方负责 retention 和清理。history identity 虽会被 hash 成文件关联所用的 digest，digest 不是保密机制：不得把 secret、token
+或低熵敏感输入放进 identity。`identityForTask(task)` 必须返回 canonical-JSON-compatible identity，并显式包含所有会改变
+时长可比性的 options、flags、环境或实现版本；helper 不读取 normalized Check options、Run flags 或 `projectRoot` 来补全它。
 
-本节上方的完整示例刻意使用延迟制造可观察排序，只适合作为示例，不应复制为生产计时模型。该策略只在既有 Scheduler selection layer 比较 score，不能越过依赖、mutex、parallel budget 或 cancellation guard。
+`sampleWindow` 的范围是 1–32（默认 32），`maxHistorySeries` 是 1–4096（默认 4096），`coldStartDurationMs` 必须为正有限数（默认 1）；
+这些 model knobs 会进入 helper 生成的 history key。非 absolute/空 `stateDirectory` 或非法 model knob 会在 factory 创建时 throw；
+这类 authoring/configuration error 不属于一次 Run 的 optimization 退化。首次运行、缺失、损坏、不兼容或 read-failed history
+会被当作空 history：已有 learned estimate 的同一 Run 可为未知 Task 提供 project prior，否则使用 cold start。identity 无效、无法
+完成 setup/prediction/critical-path preparation 时，策略退化为普通 static decision，并以 `history-unavailable` 报告；record/write
+失败只影响后续 Run 的 history，并以 `recording-unavailable` 报告。上述 history 退化均不改变本次 Task membership、Check facts、
+aggregate、machine output 或质量结算。
+
+每个策略选择的 `select` proposal 会产生带 task ID、estimate、critical-path score、sample count 和 source 的
+`selection-proposed` event；它不确认 Task 已实际 admission。observer 是 caller-owned best-effort callback：同步 throw 或 rejected
+Promise 会被忽略，返回的 Promise 不会被 await，因此 callback 可以在 `run(...)` 返回后继续，Run 完成也不证明 observation sink
+已完成。它不创建 Product diagnostic channel、output status 或 file，也不把 history 写入 Check facts、machine output 或 `RunResult`。
+
+工厂返回普通 public prepared custom strategy，并通过每次 decision 的 measurement context 工作。它只在既有 Scheduler
+selection layer 比较 score，随后仍由 Scheduler 应用依赖、mutex、parallel budget 与 cancellation guard。策略的实际运行成本
+取决于项目的 graph、history 和 observer；需要据此选择或调优时，由项目在目标 workload 上测量。
 
 ## 下一步
 

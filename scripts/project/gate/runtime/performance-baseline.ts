@@ -27,7 +27,7 @@ export interface ProjectGatePerformanceBaseline {
 
 /**
  * Advisory baselines collected on 2026-09-02 with five interleaved, sequential
- * learned-critical-path invocations per profile. The threshold is the greater of p90 * 1.25 and
+ * public learned prepared-strategy invocations per profile. The threshold is the greater of p90 * 1.25 and
  * median * 1.5 so ordinary workstation noise remains non-blocking.
  */
 export const PROJECT_GATE_PERFORMANCE_BASELINES: readonly ProjectGatePerformanceBaseline[] =

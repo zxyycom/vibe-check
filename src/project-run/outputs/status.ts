@@ -30,7 +30,7 @@ export interface RunOutputStatuses {
   readonly machinePublication: RunOutputStatus;
   /** terminal progress 与可选 progress log tee 的状态。 */
   readonly progressRendering: RunOutputStatus;
-  /** core、scheduler 与 conditional learned-admission diagnostic channels 的 aggregate 状态。 */
+  /** core 与 scheduler diagnostic channels 的 aggregate 状态。 */
   readonly diagnosticLogging: RunDiagnosticLoggingOutputStatus;
   /**
    * Definition generic Hooks 与 prepared custom strategy 的 optional `complete` 所形成的 terminal participant
@@ -53,13 +53,11 @@ export interface OutputStatuses {
 export function createOutputStatuses(
   configuration: ProjectOutputs,
   diagnosticLoggingFiles: Readonly<Record<DiagnosticChannel, string | null>>,
-  learnedAdmissionEnabled: boolean,
   initialMeasurementHooksEnabled: boolean
 ): OutputStatuses {
   let measurementHooksEnabled = initialMeasurementHooksEnabled;
   const diagnosticChannelEnabled: Readonly<Record<DiagnosticChannel, boolean>> = Object.freeze({
     core: configuration.diagnosticLogging.enabled,
-    learnedAdmission: configuration.diagnosticLogging.enabled && learnedAdmissionEnabled,
     scheduler: configuration.diagnosticLogging.enabled
   });
   const statuses: Record<keyof RunOutputStatuses, RunOutputStatus["status"]> = {
@@ -70,7 +68,6 @@ export function createOutputStatuses(
   };
   const diagnosticChannelStatuses: Record<DiagnosticChannel, RunOutputStatus["status"]> = {
     core: initialStatus(diagnosticChannelEnabled.core),
-    learnedAdmission: initialStatus(diagnosticChannelEnabled.learnedAdmission),
     scheduler: initialStatus(diagnosticChannelEnabled.scheduler)
   };
   const enabled = (output: keyof RunOutputStatuses): boolean =>
@@ -127,7 +124,6 @@ export function createOutputStatuses(
         diagnosticLogging: Object.freeze({
           channels: Object.freeze({
             core: diagnosticChannelValue("core"),
-            learnedAdmission: diagnosticChannelValue("learnedAdmission"),
             scheduler: diagnosticChannelValue("scheduler")
           }),
           enabled: configuration.diagnosticLogging.enabled,

@@ -147,8 +147,6 @@ function parseAdmissionPolicy(value: unknown): AdmissionPolicy | undefined {
       return parseStaticAdmissionPolicy(data);
     case "custom":
       return parseCustomAdmissionPolicy(data);
-    case "learned-critical-path":
-      return parseLearnedCriticalPathAdmissionPolicy(data);
   }
   return undefined;
 }
@@ -165,21 +163,6 @@ function parseCustomAdmissionPolicy(
   if (!hasExactKeys(policy, ["kind", "strategy"])) return undefined;
   const strategy = parseCustomAdmissionStrategy(policy.strategy);
   return strategy === undefined ? undefined : Object.freeze({ kind: "custom", strategy });
-}
-
-function parseLearnedCriticalPathAdmissionPolicy(
-  policy: Readonly<Record<string, unknown>>
-): Extract<AdmissionPolicy, { readonly kind: "learned-critical-path" }> | undefined {
-  if (!hasExactKeys(policy, ["kind", "stateDirectory"])) return undefined;
-  const stateDirectory = policy.stateDirectory;
-  if (
-    typeof stateDirectory !== "string" ||
-    stateDirectory.length === 0 ||
-    stateDirectory.includes("\0")
-  ) {
-    return undefined;
-  }
-  return Object.freeze({ kind: "learned-critical-path" as const, stateDirectory });
 }
 
 function parseCustomAdmissionStrategy(value: unknown): CustomAdmissionStrategy | undefined {

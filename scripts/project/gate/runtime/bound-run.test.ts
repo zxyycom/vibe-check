@@ -54,7 +54,6 @@ it("binds owner-specific Product outputs and Check artifacts to the Gate invocat
     assert.equal(result.outputs.machinePublication.status, "succeeded");
     assert.equal(result.outputs.diagnosticLogging.channels.core.status, "succeeded");
     assert.equal(result.outputs.diagnosticLogging.channels.scheduler.status, "succeeded");
-    assert.equal(result.outputs.diagnosticLogging.channels.learnedAdmission.status, "disabled");
     assert.equal(result.outputs.progressRendering.status, "disabled");
     assert.deepEqual(projectGateOutputOverrides(invocationLogDirectory), {
       diagnosticLogging: {

@@ -15,7 +15,6 @@ describe("Project Definition", () => {
     const definition = defineConfig({});
     assertDefinitionDefaults(definition);
     assertCustomAdmissionPolicy();
-    assertLearnedCriticalPathAdmissionPolicy();
     assertSchedulerValidation(definition);
     assertOutputDirectoryValidation(definition);
     assert.equal(Object.getPrototypeOf(definition), Object.prototype);
@@ -87,17 +86,6 @@ function assertCustomAdmissionPolicy(): void {
   });
 }
 
-function assertLearnedCriticalPathAdmissionPolicy(): void {
-  const policy = defineAdmissionPolicy({
-    kind: "learned-critical-path",
-    stateDirectory: ".vibe-check/duration-state"
-  });
-  const definition = defineConfig({ scheduler: { admissionPolicy: policy } });
-  assert.equal(definition.scheduler.admissionPolicy, policy);
-  assert.equal(validateProjectDefinition(definition).ok, true);
-  assert.deepEqual(normalizeProjectDefinition(definition).scheduler.admissionPolicy, policy);
-}
-
 function assertSchedulerValidation(definition: ProjectDefinition): void {
   assert.equal(
     validateProjectDefinition({ ...definition, scheduler: { maxParallel: 1 } }).ok,
@@ -134,6 +122,10 @@ function assertSchedulerValidation(definition: ProjectDefinition): void {
         strategy: { kind: "prepared", prepare: () => ({ decide: () => ({ kind: "wait" }) }) },
         unexpected: true
       },
+      maxParallel: 1
+    },
+    {
+      admissionPolicy: { kind: "learned-critical-path", stateDirectory: "state-directory" },
       maxParallel: 1
     },
     { admissionPolicy: { kind: "learned-critical-path" }, maxParallel: 1 },

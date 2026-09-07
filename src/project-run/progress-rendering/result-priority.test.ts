@@ -223,7 +223,6 @@ function outputStatuses(
       ...diagnosticLogging,
       channels: Object.freeze({
         core: Object.freeze({ ...diagnosticLogging, file: null }),
-        learnedAdmission: Object.freeze({ ...diagnosticLogging, file: null }),
         scheduler: Object.freeze({ ...diagnosticLogging, file: null })
       })
     }),

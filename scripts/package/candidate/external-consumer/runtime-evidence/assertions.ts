@@ -5,6 +5,7 @@ import {
   assertUnavailableDependencyDuration
 } from "./durations.ts";
 import { assertDuplicateAndTerminalMessages } from "./messages.ts";
+import { assertLearnedScheduling } from "./learned-scheduling.ts";
 import { assertNodeRuntime } from "./runtime-host.ts";
 import { isRecord, isUnknownArray, requiredString } from "./values.ts";
 
@@ -155,43 +156,6 @@ function assertAdmissionSimulation(value: unknown): void {
     executionCount: 0,
     kind: "execution"
   });
-}
-
-function assertLearnedScheduling(value: unknown): void {
-  if (!isRecord(value))
-    throw new TypeError("isolated learned scheduling evidence must be an object");
-  assert.equal(value.stateFileExists, true);
-  const history = requiredString(value.history, "isolated learned scheduler history");
-  assert.match(history, /"series":\[/);
-  assert.doesNotMatch(history, /installed-private-option|installed-private-flag/);
-
-  for (const phase of ["first", "second"] as const) {
-    const learnedRun: unknown = value[phase];
-    if (!isRecord(learnedRun)) {
-      throw new TypeError(`isolated learned ${phase} Run evidence must be an object`);
-    }
-    assert.equal(learnedRun.kind, "completed");
-    assert.equal(learnedRun.machineHasSchedulerHistory, false);
-    assert.equal(learnedRun.resultHasSchedulerHistory, false);
-    assert.equal(learnedRun.resultHasSchedulerPrediction, false);
-    assert.deepEqual(learnedRun.snapshotCheckIds, [
-      "installed-learned-fast",
-      "installed-learned-slow"
-    ]);
-    const diagnostic = requiredString(
-      learnedRun.diagnostic,
-      `isolated learned ${phase} diagnostic`
-    );
-    assert.match(diagnostic, /scheduler\.history\.read/);
-    assert.match(diagnostic, /scheduler\.history\.write/);
-  }
-  const first = value.first;
-  const second = value.second;
-  if (!isRecord(first) || !isRecord(second)) {
-    throw new TypeError("isolated learned Run evidence is incomplete");
-  }
-  assert.match(requiredString(first.diagnostic, "isolated first learned diagnostic"), /MISSING/);
-  assert.match(requiredString(second.diagnostic, "isolated second learned diagnostic"), /LOADED/);
 }
 
 function assertParserEvidence(value: unknown): void {

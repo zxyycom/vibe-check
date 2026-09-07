@@ -34,8 +34,6 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
   const outputConfiguration = effectiveOutputs(input.definition, input.controls);
   const clock = input.dependencies.clock ?? SYSTEM_MONOTONIC_CLOCK;
   const diagnosticLoggingEnabled = outputConfiguration.diagnosticLogging.enabled;
-  const learnedAdmissionEnabled =
-    input.normalized.scheduler.admissionPolicy.kind === "learned-critical-path";
   const startedAtUtc = captureOutputCreationTimestamp(outputConfiguration, input.dependencies);
   const identity = createInvocationIdentity();
   const paths = resolveInvocationPaths({
@@ -44,7 +42,6 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
     diagnosticLogSuffix: diagnosticLoggingEnabled
       ? diagnosticLogSuffix(requireStartedAtUtc(startedAtUtc), identity.uuid)
       : undefined,
-    learnedAdmissionEnabled,
     outputConfiguration,
     progressLogFile: input.controls.progressLogFile,
     projectRoot: input.controls.projectRoot ?? process.cwd()
@@ -52,7 +49,6 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
   const outputs = createOutputStatuses(
     outputConfiguration,
     paths.diagnosticLoggingReadbackFiles,
-    learnedAdmissionEnabled,
     input.normalized.scheduler.measurementHooks.length > 0
   );
   const diagnosticLogging = createDiagnosticLoggingRouter({
@@ -60,7 +56,6 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
     coreFile: paths.diagnosticLoggingFiles.core,
     factory: input.dependencies.diagnosticLoggerFactory ?? createDiagnosticLogger,
     invocationId: identity.id,
-    learnedAdmissionFile: paths.diagnosticLoggingFiles.learnedAdmission,
     schedulerFile: paths.diagnosticLoggingFiles.scheduler
   });
 

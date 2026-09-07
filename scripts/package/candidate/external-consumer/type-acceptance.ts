@@ -121,6 +121,7 @@ function publicImports(): string {
 const PUBLIC_IMPORTS_TEMPLATE = `import {
   cacheJsonByKey,
   createAdmissionGraph,
+  createLearnedCriticalPathStrategy,
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,
@@ -328,28 +329,27 @@ const definition: ProjectDefinition = defineConfig({
 });
 ${CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE}
 const learnedCriticalPathAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({
-  kind: "learned-critical-path",
-  stateDirectory: ".vibe-check/duration-state"
+  kind: "custom",
+  strategy: createLearnedCriticalPathStrategy({
+    identityForTask: (task) => ({ taskId: task.taskId, fixture: "external-consumer" }),
+    sampleWindow: 2,
+    maxHistorySeries: 2,
+    coldStartDurationMs: 1,
+    stateDirectory: "/tmp/isolated-learned-duration-state"
+  })
 });
 defineConfig({ scheduler: { admissionPolicy: learnedCriticalPathAdmissionPolicy } });
-defineConfig({});
 defineAdmissionPolicy({
   kind: "static",
   // @ts-expect-error admission policy authoring is a closed union.
   unsupported: true
 });
 defineAdmissionPolicy({
+  // @ts-expect-error learned-critical-path is not an admission policy kind.
   kind: "learned-critical-path",
-  stateDirectory: ".vibe-check/duration-state",
-  // @ts-expect-error admission policy authoring is a closed union.
-  unsupported: true
+  stateDirectory: "/tmp/isolated-learned-duration-state"
 });
-defineAdmissionPolicy({
-  kind: "learned-critical-path",
-  stateDirectory: ".vibe-check/duration-state",
-  // @ts-expect-error v1 derives duration predictions from local history rather than authored hints.
-  expectedDurationMs: 250
-});
+
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
 const reminder = maintenanceReminders([
   {
@@ -432,6 +432,7 @@ function observeRunOutputs(runResult: RunResult): void {
 
 void [
   cacheJsonByKey,
+  createLearnedCriticalPathStrategy,
   defineAdmissionPolicy,
   cacheResult,
   defineCheck,

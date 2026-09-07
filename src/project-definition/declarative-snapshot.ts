@@ -38,12 +38,6 @@ export function createDeclarativeFingerprint(snapshot: DeclarativeProjectSnapsho
 function declarativeAdmissionPolicy(
   policy: AdmissionPolicy
 ): DeclarativeSchedulerPolicy["admissionPolicy"] {
-  if (policy.kind === "learned-critical-path") {
-    return Object.freeze({
-      kind: "learned-critical-path" as const,
-      stateDirectory: policy.stateDirectory
-    });
-  }
   if (policy.kind === "custom") {
     return Object.freeze({
       kind: "custom" as const,

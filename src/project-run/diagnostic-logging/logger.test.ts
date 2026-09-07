@@ -95,28 +95,21 @@ describe("Project Run diagnostic logger", () => {
           observe: (observation: DiagnosticObservation) => observations.push(observation)
         }),
       invocationId: "invocation/v1:test",
-      learnedAdmissionFile: "learned-admission.log",
       schedulerFile: "scheduler.log"
     });
 
     router.core.observe({ event: "run.started", tags: diagnosticTags("RUN", "STARTED") });
     router.scheduler.observe({ event: "scheduler.graph", tags: diagnosticTags("GRAPH") });
-    router.learnedAdmission.observe({
-      event: "scheduler.history.prediction-unavailable",
-      tags: diagnosticTags("HISTORY", "PREDICTION_UNAVAILABLE")
-    });
 
     assert.deepEqual(
       observations.map((observation) => observation.correlation),
       [
         { elapsedMs: 1, invocationId: "invocation/v1:test", sequence: 1 },
-        { elapsedMs: 2, invocationId: "invocation/v1:test", sequence: 2 },
-        { elapsedMs: 3, invocationId: "invocation/v1:test", sequence: 3 }
+        { elapsedMs: 2, invocationId: "invocation/v1:test", sequence: 2 }
       ]
     );
     assert.deepEqual(router.close(), {
       core: "succeeded",
-      learnedAdmission: "succeeded",
       scheduler: "succeeded"
     });
   });
@@ -134,14 +127,12 @@ describe("Project Run diagnostic logger", () => {
         });
       },
       invocationId: "invocation/v1:setup-failure",
-      learnedAdmissionFile: null,
       schedulerFile: "scheduler.log"
     });
     setupFailure.core.observe({ event: "run.started", tags: diagnosticTags("RUN", "STARTED") });
     setupFailure.scheduler.observe({ event: "scheduler.graph", tags: diagnosticTags("GRAPH") });
     assert.deepEqual(setupFailure.close(), {
       core: "succeeded",
-      learnedAdmission: "disabled",
       scheduler: "failed"
     });
     assert.deepEqual(
@@ -162,14 +153,12 @@ describe("Project Run diagnostic logger", () => {
           observe: (observation: DiagnosticObservation) => closeObservations.push(observation)
         }),
       invocationId: "invocation/v1:close-failure",
-      learnedAdmissionFile: null,
       schedulerFile: "scheduler.log"
     });
     closeFailure.core.observe({ event: "run.started", tags: diagnosticTags("RUN", "STARTED") });
     closeFailure.scheduler.observe({ event: "scheduler.graph", tags: diagnosticTags("GRAPH") });
     assert.deepEqual(closeFailure.close(), {
       core: "succeeded",
-      learnedAdmission: "disabled",
       scheduler: "failed"
     });
     assert.deepEqual(

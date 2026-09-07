@@ -1,5 +1,4 @@
 import type { CheckProjectContext } from "../../check/check.ts";
-import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import type { PreparedAdmissionStrategy } from "../admission-strategy-provider/prepared-admission-strategy.ts";
 import { executeResolvedChecks } from "../check-execution/resolved-checks.ts";
 import type { ResolvedCheckExecution } from "../check-execution/resolved-execution-result.ts";
@@ -20,7 +19,6 @@ type SchedulerAdapterInput = Readonly<{
 export async function executeScheduler(input: SchedulerAdapterInput): Promise<SchedulerExecution> {
   const { invocation, preparedStrategy } = input;
   try {
-    const onAdmittedCheck = admittedCheckObservation(preparedStrategy);
     const performanceDiagnostics = schedulerPerformanceDiagnostics(input);
     return await executeResolvedChecks({
       admissionPolicy: preparedStrategy.admissionPolicy,
@@ -30,7 +28,6 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
       ...(invocation.diagnosticLoggingEnabled
         ? { schedulerDiagnosticLogger: invocation.diagnosticLogging.scheduler }
         : {}),
-      ...(onAdmittedCheck === undefined ? {} : { onAdmittedCheck }),
       schedulerPerformanceDiagnostics: performanceDiagnostics,
       schedulerMeasurementHooks: invocation.normalized.scheduler.measurementHooks,
       onSchedulerMeasurementHookFailure: () => invocation.outputs.failed("measurementHooks"),
@@ -46,15 +43,6 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
   } catch {
     return taskEngineFailure(invocation);
   }
-}
-
-function admittedCheckObservation(
-  preparedStrategy: PreparedAdmissionStrategy
-): ((check: NormalizedCheck) => void) | undefined {
-  const observeAdmittedTask = preparedStrategy.observeAdmittedTask;
-  return observeAdmittedTask === undefined
-    ? undefined
-    : (check) => observeAdmittedTask(check.definition.checkId);
 }
 
 function schedulerPerformanceDiagnostics(input: SchedulerAdapterInput) {

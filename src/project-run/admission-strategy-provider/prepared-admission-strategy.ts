@@ -22,8 +22,6 @@ export interface PreparedAdmissionStrategy {
   readonly admissionPolicy: AdmissionSelectionPolicy;
   /** Closed provider demand merged with output and policy measurement requirements by invocation. */
   readonly requiresTerminalMeasurement: boolean;
-  /** Provider-private learned admission observation, kept out of Scheduler policy input. */
-  readonly observeAdmittedTask: ((taskId: string) => void) | undefined;
   /** Completion owner: no public lifecycle, contained private lifecycle, or public output participant. */
   readonly completion: PreparedAdmissionStrategyCompletion;
 }

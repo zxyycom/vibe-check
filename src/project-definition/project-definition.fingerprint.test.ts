@@ -112,22 +112,6 @@ describe("Project Definition", () => {
     const staticPolicy = defineConfig({
       scheduler: { admissionPolicy: { kind: "static" } }
     });
-    const firstLearnedPolicy = defineConfig({
-      scheduler: {
-        admissionPolicy: {
-          kind: "learned-critical-path",
-          stateDirectory: ".vibe-check/duration-state"
-        }
-      }
-    });
-    const secondLearnedPolicy = defineConfig({
-      scheduler: {
-        admissionPolicy: {
-          kind: "learned-critical-path",
-          stateDirectory: ".vibe-check/other-duration-state"
-        }
-      }
-    });
     assert.equal(
       createDeclarativeFingerprint(normalizeProjectDefinition(firstCustomPolicy).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(secondCustomPolicy).declarative)
@@ -144,18 +128,6 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(hooksOne).declarative),
       createDeclarativeFingerprint(normalizeProjectDefinition(hooksTwo).declarative)
     );
-    assert.notEqual(
-      createDeclarativeFingerprint(normalizeProjectDefinition(firstLearnedPolicy).declarative),
-      createDeclarativeFingerprint(normalizeProjectDefinition(secondLearnedPolicy).declarative)
-    );
-    assert.deepEqual(normalizeProjectDefinition(firstLearnedPolicy).declarative.scheduler, {
-      admissionPolicy: {
-        kind: "learned-critical-path",
-        stateDirectory: ".vibe-check/duration-state"
-      },
-      maxParallel: 4,
-      resourceCapacities: {}
-    });
     assert.deepEqual(normalizeProjectDefinition(firstCustomPolicy).declarative.scheduler, {
       admissionPolicy: { kind: "custom", strategy: { kind: "simple" } },
       maxParallel: 4,

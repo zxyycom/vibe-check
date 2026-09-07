@@ -7,10 +7,12 @@ import { workspaceFormatTargets } from "../../development/format-targets.ts";
 import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";
 import {
+  createLearnedCriticalPathStrategy,
   defineConfig,
   type CheckAggregation,
   type ProjectDefinition,
-  type RunControls
+  type RunControls,
+  type SchedulerGraphSnapshot
 } from "@zxyycom/vibe-check";
 
 import type { ProjectGateAfterHook } from "./runtime/after-gate.ts";
@@ -75,8 +77,14 @@ export const PROJECT_GATE_RUN_CONFIG = Object.freeze({
   selection: PROJECT_GATE_SELECTION,
   scheduler: Object.freeze({
     admissionPolicy: Object.freeze({
-      kind: "learned-critical-path" as const,
-      stateDirectory: ".cache/vibe-check/scheduler-history"
+      kind: "custom" as const,
+      strategy: createLearnedCriticalPathStrategy({
+        identityForTask: (task: SchedulerGraphSnapshot["tasks"][number]) => ({
+          gateStrategy: "v1",
+          taskId: task.taskId
+        }),
+        stateDirectory: resolve(repositoryRoot, ".cache/vibe-check/scheduler-history")
+      })
     }),
     maxParallel: 3
   })

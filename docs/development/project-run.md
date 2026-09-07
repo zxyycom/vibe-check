@@ -53,7 +53,7 @@ filesystem-safe Check-ID encoding，避免分隔符、traversal、常规 compone
 仍保留在既有 Check facts。`options` 是 invocation-local canonical snapshot 或 preflight prepared/fallback；Check-specific 输入、
 file selection、领域 policy 和 cache 仍由 owning Check options 承接。需要成功 provider data 的 consumer 用 `dependsOn`；需要
 四态 outcome 审计的 consumer 用 `observes`。两者的 direct union 都可由 `dependencies.get` 显式判断 data 可用性，或由
-`dependencies.list()`稳定枚举；二者都不授予 transitive、未声明或 scheduler-duration-model access。
+`dependencies.list()`稳定枚举；二者都不授予 transitive、未声明或 caller-owned learned strategy state access。
 
 invalid Definition、controls 或 aggregation selection 在 author work 前返回 configuration result。ordinary callback throw、
 malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、
@@ -66,8 +66,8 @@ Definition 为三项相互独立的 Run output 建立以下 defaults；RunContro
 | Output              | Definition default                                     | 配置责任                                                                                                                                                                                                                                              |
 | ------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | machine publication | `{ enabled: true, directory: "artifacts/vibe-check" }` | 发布完整 machine artifact set；字节契约见 [Output](../output.md)。                                                                                                                                                                                    |
-| progress rendering  | `{ enabled: true }`                                    | 呈现 invocation 与 Check lifecycle；enabled/disabled 行为、Record/message 的独立有界预览与 terminal/console 边界由 [API mechanisms](../api-mechanics.md#check-输出与受管-progress) 完整定义；caller 可用 `progressLogFile` 为本 Run 指定 tee target。 |
-| diagnostic logging  | `{ enabled: false, directory: ".log/vibe-check" }`     | 以 explicit core/scheduler/learned-admission channels 记录 owner 时间线；格式与失败边界见 [API mechanisms](../api-mechanics.md#outputs-与-runresult-边界)。                                                                                           |
+| progress rendering  | `{ enabled: true }`                                    | 呈现 invocation 与 Check lifecycle；enabled/disabled 行为、Record/message 的独立有界预览与 terminal/console 边界由 [API mechanisms](../api-mechanics.md#check-messages-与受管-progress) 完整定义；caller 可用 `progressLogFile` 为本 Run 指定 tee target。 |
+| diagnostic logging  | `{ enabled: false, directory: ".log/vibe-check" }`     | 以 explicit core/scheduler channels 记录 owner 时间线；格式与失败边界见 [API mechanisms](../api-mechanics.md#outputs-与-runresult-边界)。                                                                                           |
 
 machine publication 与 diagnostic logging 的 `directory` 共用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。
 相对值从 effective `projectRoot` 解析，`..` 保持合法；绝对值直接作为明确 target。Definition 与 RunControls 对两项 output 使用相同 grammar，且两项仍独立配置、独立 status/failure，也可以显式填写同一目录。grammar 不 trim author text、不建立跨平台字符禁用表，也不提供 lexical/realpath/symlink containment、directory allowlist、清空或 filesystem sandbox。Definition 中的 author directory string 仍进入 declarative fingerprint；因此可移植、可重复的 Definition 应优先使用相对目录，而 invocation-specific 外部 target 通常放在 RunControls。
