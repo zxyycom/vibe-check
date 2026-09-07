@@ -65,7 +65,7 @@ Check ID 或 options shape。
 4. package Check 的 Finding 摘要是 Check-owned presentation，不是通用 Record 投影。Producing Check 决定安全字段、显示
    上限和完整明细入口；它可以与 Product progress 的 generic Record preview 并存，后者只显示 local Record ID 与 canonical JSON，
    不解释 Finding 字段也不替代该摘要。通用 `presentCheckFindings(...)` 只执行调用方给出的 presentation hooks，见
-   [Finding presentation](../api-mechanics.md#finding-presentation)。
+   [Finding 摘要指南](../guides/presenting-findings.md)。
 5. 读取文件的 Check 从自己的 options 形成 selected/exact input；文件分类与完整性见
    [Project files and Check exact inputs](project-files.md)，外部工具边界见
    [Check-owned scanner dependencies](scanner-dependencies.md)。

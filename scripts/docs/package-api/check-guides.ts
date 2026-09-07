@@ -7,10 +7,10 @@ import { PACKAGE_CHECK_GUIDES, type PackageCheckGuide } from "./check-guide-regi
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
 
 const README_PATH = "README.md";
-const CHECK_GUIDE_README_LINK = "(../../README.md#随包提供的-check)";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey,
   CURRENT_PUBLIC_CONTRACT.operations.createAdmissionGraph,
+  CURRENT_PUBLIC_CONTRACT.operations.createLearnedCriticalPathStrategy,
   CURRENT_PUBLIC_CONTRACT.operations.defineAdmissionPolicy,
   CURRENT_PUBLIC_CONTRACT.operations.defineCheck,
   CURRENT_PUBLIC_CONTRACT.operations.defineConfig,
@@ -180,15 +180,6 @@ function assertGuideLinks(
         `README is missing a direct package API document link: ${apiDocument.packagePath}`
       );
     }
-    const readmeLink = relative(dirname(apiDocument.packagePath), README_PATH).replaceAll(
-      "\\",
-      "/"
-    );
-    if (!apiDocument.content.includes(`](${readmeLink})`)) {
-      throw new Error(
-        `package API document is missing its README link: ${apiDocument.packagePath}`
-      );
-    }
   }
   if (!readme.content.includes("(./docs/output.md)")) {
     throw new Error("README is missing the package machine output guide link: docs/output.md");
@@ -198,13 +189,8 @@ function assertGuideLinks(
       throw new Error(`README is missing a direct package Check guide link: ${guide.sourcePath}`);
     }
     const document = requiredDocument(documents, guide.sourcePath);
-    if (
-      !document.content.includes(`# \`${guide.exportName}\``) ||
-      !document.content.includes(CHECK_GUIDE_README_LINK)
-    ) {
-      throw new Error(
-        `package Check guide must identify its public export and link back to README: ${guide.sourcePath}`
-      );
+    if (!document.content.includes(`# \`${guide.exportName}\``)) {
+      throw new Error(`package Check guide must identify its public export: ${guide.sourcePath}`);
     }
   }
 }

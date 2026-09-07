@@ -42,16 +42,6 @@ describe("package API documentation renderer", () => {
       for (const document of PACKAGE_API_MARKDOWN_DOCUMENTS) {
         if (document.id === "readme") continue;
         assert.equal(rendered.readme.content.includes(`](./${document.packagePath})`), true);
-        const expectedReadmeLink = relative(dirname(document.packagePath), "README.md").replaceAll(
-          "\\",
-          "/"
-        );
-        assert.equal(
-          rendered.markdownDocuments
-            .find((candidate) => candidate.documentId === document.id)
-            ?.content.includes(`](${expectedReadmeLink})`),
-          true
-        );
       }
 
       for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {

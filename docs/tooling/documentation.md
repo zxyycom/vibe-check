@@ -31,7 +31,7 @@ H2-H6 ancestor-to-target 的 heading text 排列；跳过数字层级不会产�
 `scripts/validation/documentation/workflow.ts` 在 `package-api-documentation` task 中调用 check mode。artifact audit
 再次计算投影并要求 checked-in Markdown/JSDoc 与结果一致，再把同一 Markdown 交给 package material collector。
 
-package README 是 consumer 文档的唯一总入口：它直接链接显式 API 专题 inventory 和 machine output 指南，不发布 `docs/index.md` 或 `docs/checks/index.md`。[随包 Check 索引](../../README.md#随包提供的-check)是 public package-provided Check functions 的唯一逐项 registry，并逐项直链其已注册的 Check guides；它不承接 API 专题入口。API 专题只由 explicit inventory 发布，而不是按篇数、关键词或目录遍历推定；每篇均反链 README。Check guide registry 必须与 public package-provided Check functions 完整闭合；collector 要求 published-path API Markdown 与 hand-written Check guides 使用 LF 且恰有一个 trailing LF，并拒绝缺失直链、额外 Check 页面和 package 内无法解析的相对 Markdown 链接。
+package README 是 consumer 文档的唯一总入口：它直接链接显式 API 专题 inventory 和 machine output 指南，不发布 `docs/index.md` 或 `docs/checks/index.md`。[随包 Check 索引](../../README.md#随包提供的-check)是 public package-provided Check functions 的唯一逐项 registry，并逐项直链其已注册的 Check guides；它不承接 API 专题入口。API 专题只由 explicit inventory 发布，而不是按篇数、关键词或目录遍历推定；README 必须直接链接每篇已发布 API 专题。Check guide registry 必须与 public package-provided Check functions 完整闭合；collector 要求 published-path API Markdown 与 hand-written Check guides 使用 LF 且恰有一个 trailing LF，并拒绝缺失 README 直链、额外 Check 页面和 package 内无法解析的相对 Markdown 链接。
 
 current machine schemas 位于 `docs/schemas/`，唯一 artifact example 位于
 `docs/examples/artifacts/mixed-outcomes/`；其中 `definition.ts` 是直接随包发布的可执行 Project Definition，

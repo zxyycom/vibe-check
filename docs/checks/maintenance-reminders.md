@@ -1,7 +1,5 @@
 # `maintenanceReminders`
 
-返回 [README 的随包 Check 概览](../../README.md#随包提供的-check)。
-
 ## 用途
 
 本页说明 `maintenanceReminders` 的输入、terminal effects 与安全边界。`maintenanceReminders(entries)` 创建一个固定

@@ -1,7 +1,6 @@
 # `fileMetrics`
 
-本页完整说明 package consumer 如何构造、配置和读取 `fileMetrics`。package 总入口见
-[README 的随包 Check 概览](../../README.md#随包提供的-check)；普通 Check 的 preflight、Run 与结果读取机制见
+本页完整说明 package consumer 如何构造、配置和读取 `fileMetrics`。普通 Check 的 preflight、Run 与结果读取机制见
 [深入 API 机制](../api-mechanics.md)。
 
 ## 用途
@@ -161,10 +160,6 @@ go = "1.26.4"
 运行 `mise install` 后，用 `scc --version` 确认当前 project runtime 能解析到该命令。若项目使用其它安装方式，只要
 `scanner.executable` 指向已授权、直接接受上述协议并产生精确 SCC 4.0.0 version output 和受支持 CSV header 的 executable 即可。
 
-从 SCC 3.7.0 迁移的 custom command 会因 version probe 结算为 unavailable；这是有意的 hard cut，
-不存在 v3 fallback。SCC v4 的语言计量修正可能改变 `Code` 或 `Complexity`，但本 Check 的 threshold
-仍保持既有非阻断观测策略。
-
 ## 效果与结果
 
 每个可信 finding 都形成 Record，不因 policy 或先前 finding 而省略。正常 final data 恰为
@@ -192,12 +187,12 @@ Record，带 identity、reason、matchCount 和 `"unused" | "overmatched"` statu
 而不是悄悄失效或覆盖多个 finding。audit Record ID 使用 `/finding-waiver-audit/<identity.path>`，该 leading-slash domain
 与正常 finding 的 normalized relative path ID 不相交。
 
-`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 后，会按
-稳定 path 顺序直接展示最多十条未被 waiver 精确豁免的安全摘要，包含项目相对 path、code lines、effective limit 和 areas；
-超限时用 `findings-omitted` 说明未显示数量。完整集合仍从本 Check 的 Records 读取，精确 applied waiver 继续由上述
-`finding-waived` message 单独说明。由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；没有 finding
-且没有 waiver audit 时，`passed` 与 `not-applicable` 不合成人为提示。若已配置 waiver，即使 exact-path union 为空，Check
-仍会对已知空 finding 集合产生 `unused` audit Record 和 warning，同时保持 `not-applicable / no-eligible-input` outcome。
+`fileMetrics` 的 detail messages 按稳定 path 顺序，包含项目相对 path、code lines、effective limit 和 areas；完整 finding 集合从
+本 Check 的 Records 读取。通用的 terminal Finding 呈现与 Run progress 预览边界见
+[呈现 Check Finding](../guides/presenting-findings.md)。精确 applied waiver 继续由上述 `finding-waived` message 单独说明。
+由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；没有 finding 且没有 waiver audit 时，`passed` 与
+`not-applicable` 不合成人为提示。若已配置 waiver，即使 exact-path union 为空，Check 仍会对已知空 finding 集合产生 `unused`
+audit Record 和 warning，同时保持 `not-applicable / no-eligible-input` outcome。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFileMetricsData(value)` 验证 final data。两者返回
 `FileMetricsFinalData`，Record 与不可用原因可分别用 `FileMetricsRecordData` 和

@@ -6,7 +6,7 @@
 
 - 需要定义项目规则、选择 `preflight` / `execution`、读取 callback context、处理依赖或取消时，阅读[编写会正确结算的自定义 Check](guides/extending-check-lifecycle.md)。
 - 需要为多个 Check 定义选择偏好、比较假设分支、使用 prepared strategy 或 learned history 时，阅读[按项目约束调度 Check](guides/scheduling.md)。
-- 本页解释这些公开能力在一次 Run 中怎样衔接，以及 dependency data、aggregation 与 outputs 的共同结果模型；它不替代两份按任务编写的指南。
+- 本页解释这些公开能力在一次 Run 中怎样衔接，以及 dependency data、aggregation 与 outputs 的共同结果模型；按任务的 authoring 与 scheduling 细节分别位于上述指南。
 
 ## 一次 Run 的生命周期
 
@@ -42,6 +42,10 @@ Run 在 author work 前验证包含全部可执行 Check 的静态 task graph，
 
 effective selection 外的 predicate miss 才先结算为 `not-applicable / flag-condition-not-matched`，并作为同一张 Scheduler graph 的 pre-admission non-passed Task result；它不会再次 admission，其 `dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 仍可等待并读取该终态。flags 只是 selection input，不是权限或环境准入；hard condition 仍由 Check-owned preflight/execution 结算。
 
+### 并发约束
+
+用 `mutex` 为需要互斥执行的 Task 声明同一个逻辑组名称；同一互斥名称下，同一时刻最多运行一个 Task。`maxParallel` 限制 slot 数量；`resourceClaims` 按 units 占用已声明的 named resource。这三类约束与 relations 一起由 Scheduler 重检，admission policy 只提出选择，不改变这些约束。
+
 ### Task-local preflight 与 execution
 
 其余 Check 被 Scheduler 在 direct relation、mutex 与 capacity 允许后 admission，并在自己的 task 中执行 preflight，随后才执行 author callback。没有互相约束的 preflight 可以并行；它们不构成 Definition 顺序的全局 barrier。
@@ -59,7 +63,7 @@ Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle�
 - `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom strategy 的 inference；它与同形 inline policy value 等价。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
 
-fingerprint 使用 normalized declarative fields；preflight、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static`、`custom` 与 `learned-critical-path`；后者包含 `stateDirectory`，custom 仍绝不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
+fingerprint 使用 normalized declarative fields；preflight、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static` 与 `custom`，且不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
 
 ### custom admission policy
 
@@ -69,9 +73,14 @@ fingerprint 使用 normalized declarative fields；preflight、execution 与 cus
 
 `createAdmissionGraph(...)` 是独立静态图的 immutable hypothetical simulation，不运行或控制真实 Check。输入 graph 的 named resource capacities/claims 使用 canonical `{ resourceId, units }[]`；successor inspection 投影当前 `{ capacity, inUse, available }`，但不提供 reservation 或真实资源 handle。如何建立分支、读取 successor 以及它不包含什么，见[调度专题的 AdmissionGraph](guides/scheduling.md#模拟-admissiongraph)。真实 Run 的 callback 仍只提交 proposal，随后由 Scheduler 重检 relation、mutex、root/scoped 和 named-resource guards。
 
-### learned-critical-path 准入
+### learned critical-path strategy
 
-`learned-critical-path` 是 opt-in、caller-owned local state 的选择优化；它不改变依赖、mutex、并行预算或取消规则，也不把 history 写入 Check facts、machine output 或 `RunResult`。目录责任、cold fallback 与不保证的范围见[调度专题](guides/scheduling.md#learned-critical-path-准入-policy)。
+`createLearnedCriticalPathStrategy(options)` 返回普通 public prepared custom strategy；将它放入
+`scheduler.admissionPolicy: { kind: "custom", strategy }`。它遵循与其它 prepared strategy 相同的 prepare、decision
+measurement 和 terminal complete lifecycle；Scheduler 仍会重检其 `select` proposal 的 relation、mutex、capacity 与取消
+guard。它不创建 Product 专属 diagnostic channel、output status 或 `RunResult` field。完整 factory 用法、history 安全
+边界、退化、observation contract 与项目测量边界见
+[调度专题](guides/scheduling.md#learned-critical-path-strategy)。
 
 ## options preflight 与 execution
 
@@ -100,105 +109,21 @@ selected-but-rejected 行为由对应 Check 指南说明。
 
 `messages?` 是 owning Check 可选的有序人读说明；consumer 必须先按 outcome 处理事实，不能用 message presence 推断状态。final data、Records 和 messages 分别承载主要事实、补充事实和人读说明。随包 Check 的额外 message 保证由各自指南说明。
 
-### Check 输出与受管 progress
+### Check messages 与受管 progress
 
-Core settlement 只接受并保留 Record facts；execution lifecycle 保留 accepted messages，二者都不选择 terminal text。Check execution 在 settlement 后通过 Product-private lifecycle feedback 交付完整 accepted Records 与 messages；只有 enabled progress renderer 消费该 handoff。每个 settled block 分别预览最多五条 Records 和最多五条 messages：Records 按该 Check 的 canonical local Record ID order，messages 保留 accepted/author order。Record 只显示 local ID 与 canonical JSON data，message 只显示其 message text。两类文本均先 terminal-control escape，再按 Unicode code point 截断到最多 240（截断 marker 计入该上限）；两类 omitted count 独立且准确。该 renderer-only projection 不会截断、重排或回写 Core snapshot（含 `RunResult` 可读取的 Records）、`RunResult.checkMessages` 或 machine publication。`progressRendering: { enabled: false }` 不创建 writer、tee、refresh 或这两类 preview，且不改变 Check execution、settlement 或完整 facts。
+Check 在 terminal result 中返回有序的 `messages`；它们是人读补充信息，consumer 仍先按 outcome 处理 final data 和 Records。启用 progress rendering 后，每个 settled row 预览最多五条 Records 与五条 messages；accepted Records 与 final data 是 Check facts，按各自的 `RunResult` / machine contract 保留，messages 则保留在 `RunResult.checkMessages` 供人读。renderer 的截断或关闭不会改写它们。
 
-Check execution 与 Product progress 在调用方的同一个 runtime 中运行。默认 progress 在可用 TTY 上维护临时 running
-region，并在同一个 terminal 上移动光标。Product 先完成静态 Check graph 校验，再在任何 author preflight 或 execution
-之前安装一次全局 `console.*` router；router 贯穿 invocation flag control、task-local preflight 与 Check execution，所有 Check 闭合后统一恢复原
-method descriptors。每个 awaited preflight/execution 只建立独立 async capture context：当前 Check 的调用先进入自己的
-内存数组，settlement 后再与该 Check 的 row 连续呈现，并以 `console-<method>` code 保留在
-`RunResult.checkMessages`。并发 Check 的数组互不混合；没有 Check capture context 的 host console 调用继续走原方法。
+在 callback 已等待的异步工作中通过全局 `console.*` 发出的文本，会作为该 Check 的 `console-<method>` messages 呈现。它适合短的人读诊断：不要向 console 写入 secret，也不要依赖 progress 文本保存完整事实。`process.stdout.write`、`process.stderr.write`、流式或 child-process 输出应写入 Check-owned file、transcript 或独立 logger；这些输出不具有可靠的 Check 归属，直接写入受管 terminal 也可能与 progress 交错。需要稳定补充说明时，在 terminal result 返回结构化 `messages`。
 
-- `console.log` / `info` / `debug` 等普通输出映射为 `info`，`warn` 映射为 `warning`，`error` / `trace` / failed
-  `assert` 映射为 `error`。Product 使用非彩色 Console formatting，并在最终 renderer 中转义 terminal controls。
-- preflight console 排在 preflight author messages 前；execution console 排在 terminal author messages 前。callback
-  随后 throw、取消或返回 malformed result 时，已经捕获的 console 文本仍保留，非法 author message attachment
-  仍按原规则整体拒绝。
-- 捕获只覆盖通过当前全局 `console` 发起、且属于 callback 已等待 async work 的调用。预先保存的 method reference、
-  callback 自行替换全局 console，以及未等待的 floating work 不在可靠归属边界内。
-- `process.stdout.write` / `process.stderr.write` 直接写入 process stream，不经过 global console methods，因此绕过 console
-  router。Product 不 patch 这些 host-wide streams：它们同时承载 Product、宿主和第三方输出，raw writes 也没有稳定的
-  console-call 边界；全局接管会扩大副作用且仍不能可靠覆盖 inherited child-process stdio。直接写入 progress 使用的
-  terminal stream 时，文本可能与 TTY cursor update 交错，造成内容被覆盖或遗留 running row。
-- 直接 stream write、高容量、流式或 child-process 输出必须写入 Check-owned file、transcript 或独立 logger；不要让它
-  继承受管 terminal stream。console capture 不进入 final data、Records、Check facts 或 machine output，也不替代可持久
-  诊断材料。
+### Progress rendering
 
-`diagnosticLogging` 默认关闭；调用方显式启用后，`check.finished` diagnostic 只保留有界的 phase、duration 和
-message count，不复制 captured console message text 或 final data。console 文本仍会成为 Check messages，可能出现在 progress
-和 `RunResult.checkMessages`；因此不要向 console 写入 secret，关闭 diagnostic logging 也不构成安全输出边界。
+TTY 使用可更新的 running region；plain output 与 `TERM=dumb` 只追加 settled presentation。每个可见 settled row 保留 measured duration 或 `not run`；完整、canonical-ordered `RunResult.checkDurations` 仍保留所有 Check，未执行项为 `null`。`visibility: "attention"` 只隐藏既无 accepted Record 也无 author/captured message 的 passed settled row，不隐藏 running Check。
 
-需要稳定补充说明时仍优先在 terminal result 返回结构化 `messages`；console capture 是对常见 author logging 的安全
-兼容边界，不是新的 live observer 或 Check logger API。在 `run(...)` 返回后由调用方打印汇总不受 running region 约束。
+flag control barrier 结束后，因 `enabledByFlags` 未匹配而未启动的 Checks 以一个原因块分组呈现，而非逐项 settled row；dependency activation 带入的 Check 不在该组。两种显示压缩都不改变 Check facts、accounting 或结果。配置 `progressLogFile` 时，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 使 progress output failed，但不吞掉 terminal presentation。
 
-## Caller-keyed JSON cache
+### Finding message presentation
 
-`cacheJsonByKey(...)` 是 package root 的 standalone local-storage helper，不属于 `ProjectDefinition`、`RunControls`、`CheckExecutionContext` 或 Run settlement。调用方提供 absolute `directory`、非空 `namespace`、payload `version`、opaque `key`、同步 `parse` 与同步/异步 `compute`。`key` 必须覆盖所有会改变 computation 结果的输入、实现版本、options、toolchain 与声明的外部状态；helper 不分析依赖，也不判断 key 是否完整。
-
-helper 对固定 API version、namespace、version 和 key 的 canonical structure 计算 SHA-256 identity，并只以 digest 命名 entry。raw key 不进入文件名、envelope、result 或 helper-owned diagnostics。磁盘 entry 在 closed envelope、identity、canonical object payload 与同步 parser 都成功前不可信；只有全部通过才是 hit。miss、invalid payload 或 read failure 后，helper 恰好调用一次 `compute`，并让 computed payload 经过相同的 detached canonical-object/parser boundary。
-
-返回的冻结 result envelope 表示本次调用，而非 Check 结算：hit 为 `{ source: "cache", read: "hit", write: "not-attempted" }`；computed 为 `{ source: "computed", read: "miss" | "invalid" | "failed", write: "stored" | "failed" }`。compute 或 parser failure 直接传播且不写 entry；storage failure 不改变已接受的 computed value，也不自动创建 Check message、Record 或 terminal status。parser 返回的 domain value 由 parser owner 决定是否进一步冻结。
-
-写入在 caller directory 内经 unique temporary file 和 atomic rename 发布。并发 miss 可以重复 computation，但 target 只作为完整有效 entry 读取；helper 不提供 lock、single-flight、global mutable cache、cleanup 或 whole-Check replay。directory 是 caller 信任且可删除的本地 state，不提供 containment、remote sharing、authenticity 或 secret protection；不得将 secret、token 或低熵敏感材料放入 key。consumer 自己决定是否把 observation 转换为 Check 事实。
-
-## Finding presentation
-
-`presentCheckFindings(...)` 是 package root 的通用 presentation helper。它不规定 Finding shape 或完整明细位置；producing
-Check 必须提供稳定排序的 `findings`、非负安全整数 `limit`、单条 `message` hook，以及超限时的
-`omittedMessage` hook：
-
-```ts
-import { presentCheckFindings } from "@zxyycom/vibe-check";
-
-const messages = presentCheckFindings({
-  findings,
-  limit: 20,
-  message: (finding) => ({
-    code: "finding-detail",
-    level: finding.blocking ? "error" : "warning",
-    message: `${finding.path}:${finding.line} ${finding.summary}`,
-  }),
-  omittedMessage: ({
-    omittedCount,
-    omittedFindings,
-    presentedCount,
-    totalCount,
-  }) => ({
-    code: "findings-omitted",
-    level: omittedFindings.some((finding) => finding.blocking)
-      ? "error"
-      : "warning",
-    message: `${omittedCount} more of ${totalCount} findings; inspect reports/my-check.json after the first ${presentedCount}.`,
-  }),
-});
-```
-
-helper 只调用前 `limit` 项的 `message` hook；超限时再调用一次 `omittedMessage`。超限 context 同时给出完整计数和
-原 `omittedFindings` references，因此 Check 可以决定省略项等级，并明确告诉 consumer 去 Records、artifact、transcript
-或其它实际位置深入查看。返回值只是已冻结 `CheckMessage[]`；Check 仍需把它附加到自己的 terminal result，并自行保存
-完整 Finding facts。四项随包质量 Check 使用该通用机制但各自选择 `limit: 10` 和安全字段。
-
-## Finding waiver reconciliation
-
-`reconcileFindingWaivers({ findings, identify, waivers })` 是 package root 提供的独立 helper，供 custom Check 或其它
-finding producer 在**完整** finding 候选集合形成后对账。`identify(finding)` 对输入顺序中的每个原 finding 接收完整
-finding；调用方自行选择稳定的语义 identity，例如 path、function name 和 metric 的组合。`identify` 的结果与
-`waiver.identity` 都必须可安全 materialize 为 canonical JSON，helper 按 canonical JSON 的结构而非对象引用匹配。
-
-每项 waiver 的 identity 必须唯一且 reason 为非空 string。重复 canonical identity、无法 canonicalize 的 finding 或
-waiver identity、无效 reason，或 malformed / hostile waiver authoring 都抛出 `TypeError`。每个 configured waiver 都在完整
-集合上获得 audit：`0` 次匹配是 `unused`，`1` 次是 `applied`，`>1` 次是 `overmatched`；过宽 waiver 不会豁免任一 finding。
-
-输出 `findings` 保持输入顺序，并在每项结果中保留同一个原 finding reference。applied waiver 附带的 evidence 是 detached、
-deep-frozen 的 canonical materialization，因此调用方之后修改 authored identity 或 reason 不会改变结果。helper 只返回
-finding disposition 和 waiver audit；它不发布 Record、message 或 terminal outcome。采用它的 Check 自己决定如何发布证据及
-如何结算 actionable finding。
-
-随包的 [`fileMetrics`](checks/file-metrics.md)、[`functionMetrics`](checks/function-metrics.md)、
-[`duplicateDetection`](checks/duplicate-detection.md) 与 [`secretDetection`](checks/secret-detection.md) 已在各自 options 中原生接入该 helper；它们共享上述 reconciliation，
-但 identity、Record、message 与 settlement 仍由各自指南拥有。其它随包 Check 没有自动获得 `findingWaivers` 字段；尤其 `secretDetection` 的 waiver 只能匹配其不含敏感值的安全 identity，不能豁免 coverage gap 或 unavailable。
+producing Check 可用 `presentCheckFindings(...)` 从完整 Finding facts 形成有限的 terminal messages。输入、omission summary、完整明细位置与随包 Check 的采用见[呈现 Check Finding](guides/presenting-findings.md)。
 
 ## 递归组合与继承
 
@@ -334,74 +259,40 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 
 ## outputs 与 RunResult 边界
 
-Definition outputs 提供 diagnostic logging、machine publication 与 progress rendering 三项独立 default；RunControls 可以只覆盖当前调用需要的部分。`scheduler.measurementHooks` 不属于这组三项配置：它是 Definition-owned terminal side effect，不能由 RunControls 注入或覆盖。machine publication 与 diagnostic logging 各自的 `directory` 都是受信任调用方选择的非空、无 U+0000 target：relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target；没有 containment 或 sandbox 语义，两个 output 也不因同目录而合并。configuration 成功后的职责如下：
+Definition 分别配置 diagnostic logging、machine publication 与 progress rendering；`run(..., { outputs })` 可只覆盖本次 invocation 的其中一项。machine publication 与 diagnostic logging 的 `directory` 都是调用方选择的非空、无 U+0000 的受信任 target：相对路径从 effective `projectRoot` 解析，绝对路径直接使用；它们不提供 containment 或 sandbox 语义。`scheduler.measurementHooks` 是 Definition-owned terminal side effect，不能由 RunControls 注入或覆盖；它只交付 caller 配置的 generic Hooks 与 prepared strategy 的 public `complete`，`scheduler.summary` 则属于 diagnostic logging。
 
-- 只有 diagnostic logging 或 machine publication 至少一项启用时，Run 才在创建 invocation 阶段捕获一次 immutable wall-clock `startedAtUtc`；两项都禁用时不读取或序列化 wall clock。
-- 启用的 diagnostic logging 在 preflight 前以同一 instant 和 UUID 形成 owner-first `core-<suffix>.log`、`scheduler-<suffix>.log`，以及只对 learned-critical-path 生效的 `learned-admission-<suffix>.log`。它不是通用 event bus：三个 explicit owner channel 分别写自身事实，router 在每次委托前赋予跨 channel 的 sequence、monotonic elapsed 和 invocation ID。每个事件以这些 correlation fields、可筛选的 `[]` 标签和 event name 开始；普通事实使用 `key=value`，超出当前主行容量的事实进入有界 continuation line。owner 已由 filename 表达，行标签只突出 Run、Check、phase、decision 和 outcome 等阅读轴；Scheduler decision 的顶层 `kind` / `taskId` 与 Record observation 的顶层 `result` 已由标签完整表达时，不在 facts 中重复。
-- Scheduler channel 先记录一次完整 graph 和 SHA-256 fingerprint；每个 decision 仅引用该 fingerprint 并保留本轮 `select`/`wait`、hard-guard 和其它动态 facts，不重复 graph。它不记录 policy wait reason、reservation/sticky target、公平/饥饿 state 或 policy timing telemetry。admission-policy fault 只记录有界 category，不能泄漏 callback 原值、stack 或 caller data。
-- learned-critical-path 在启用 diagnostic logging 时在 learned-admission channel 记录有界的 local history read、prediction availability、selected admission、record/write observation；它不记录 raw authored options、effective flags、identity input、sample 或 local-state bytes。static/custom policy 不创建该 file；history unavailable 仍保留 enabled channel 并记录有界 history-read availability。state I/O/prediction failure 仍只是 optimization observation，不改写 `RunResult`、Check facts 或 machine publication。
-- effective diagnostic logging enabled 时，private Scheduler shell 在实际进入后于 normal、caller-cancelled 或 admission-policy-fault drain 的 terminal path，将有界 `scheduler.summary` internal default Hook 与 caller Hooks 交给同一 ordered runner。summary wrapper 自行包含 writer failure，Scheduler 不作 summary 特调。它分开记录 shell control path、decision observation、slot·ms/capacity ratio、accepted policy wait、admission queue pressure、admission delay 与 tail；clock/integral fault 明确形成 unavailable timing 而不伪造零值，合法 zero span 与之不同。各 projection 允许重叠，不能相加为 wall/CPU/thread/OS utilization；`proposal: null` 的被动 drain 不计 accepted wait。pre-work/planning failure 没有这条 summary，writer failure 也不改写 Run 结果。
-- broader graph-ready 只要求全部 directed relations settled；Queue pressure 使用更窄的 admission-viable pending universe：每个 `dependsOn` 必须 `completed`，每个 `observes` 必须 settled，且 Task 仍 pending。即将因 failed prerequisite 走 `settle-blocked` 的 graph-ready Task 不在其中。每个 sampled interval 按 mutex conflict → canonical `canAdmit` false → canonical `canAdmit` true 的顺序互斥分类为 mutex-blocked、capacity-blocked 或 admissible-pending；root、scoped 或 named-resource shortage 都属于现有 capacity-blocked 类，分别形成 `mutexBlockedTaskMs`、`capacityBlockedTaskMs`、`admissiblePendingTaskMs`。三者之和是 `admissionViablePendingTaskMs`。`peakAdmissionViablePendingTaskCount`、`peakMutexBlockedTaskCount`、`peakCapacityBlockedTaskCount` 与 `peakAdmissiblePendingTaskCount` 是可能来自不同 boundary 的离散峰值，分类峰值不能相加为同一时刻的 total，也不是 decision 计数。top-three `topAdmissionDelays` 中每项的 `mutexBlockedMs + capacityBlockedMs + admissiblePendingMs` 精确构成该项 `admissionDelayMs`；这些事实不推断 policy 的选择理由。
-- Tail active set 是最后一次 admission boundary 的逻辑 post-state snapshot，包含此前仍 running 的 Tasks 与新 admitted Task；`discrete.completionTailActiveTaskCount` 保留完整数量，`topCompletionTailContributors` 只保留其中 settlement delta 最大的三个 `{ taskId, settledAfterLastAdmissionMs }`。它解释 last-admission-to-terminal span 的活跃成员，不是 critical path；terminal control/observation 可能使 tail span 大于最大的 contributor delta。`declarativeFingerprint` 原样来自 invocation，只是 declarative-configuration matching signal；它覆盖 normalized declarative Definition，但不包含 `RunControls`、code/candidate/tool/runtime/host、terminal outcome 或 custom callback identity/source/closure。timing unavailable 仍精确保留 fingerprint、admitted count、accepted-wait count、max-running、last-settled Task ID、四个 queue peaks 与 tail active count，但省略不能证明的 task·ms、delay breakdown、tail delta 及其它 time-valued projection。
-- 启用的 machine publication 将同一个 instant 投影为 `run.json` 的 `invocation.timestamp`，所以 timestamp 不是 publication 完成时间；两项同时启用时，日志文件名与 machine timestamp 必须共享该一次捕获。
-- progress rendering 呈现人读 lifecycle：可见 settled row 保留 measured duration 或 `not run`；final summary 只呈现 execution、counts 与 elapsed，不重复完整 `checkDurations`。完整、canonical-ordered duration facts 仍属于 `RunResult`，包括未执行 Check 的 `null`；machine output 不包含 duration。若 caller 提供 `progressLogFile`，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 标记 progress output failed，但不得吞掉 terminal。machine publication、progress rendering、diagnostic logging 与 configured measurement hooks 都由 Run 调度，并分别保留 status；measurement hooks 不因它们与前三项一同 readback 而成为 `outputs` configuration。
+- **machine publication** 在 terminal snapshot 形成后写入 machine files。需要由工具消费的稳定数据时，读取 [机器输出契约](output.md) 与 Check facts。
+- **progress rendering** 呈现人读 lifecycle；可选 `progressLogFile` 镜像相同的 terminal presentation。它不改变 Check execution、settlement 或完整 facts。
+- **diagnostic logging** 为当前 invocation 写入人工诊断。它用于关联 Run、Check、phase 与 Scheduler 行为；日志不是 parser/schema、跨 invocation discovery 或 retention contract，也不替代 Check final data、Record 或 message。
 
-这些 diagnostic 行不建立可解析 schema。Run 结束前最后一条可写 diagnostic event 是 `run.terminal-before-log-close`：它只证明 terminal fact 已写入、logger close 尚未确认，随后才尝试关闭日志。
+启用 diagnostic logging 时，scheduler channel 可给出本次 Run 的 `scheduler.summary`：它帮助解释 admission、等待、capacity 与 tail 的当前诊断投影。time 与 capacity 指标只描述 Scheduler 行为，不表示 CPU、memory、thread 或 process 的 OS utilization；需要 machine-readable 结论时，仍读取 machine output 和 Check facts。
 
-只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。此时
-`outputs.diagnosticLogging` 的形状为 `{ enabled, status, channels }`；`channels` 是显式
-`core`、`scheduler`、`learnedAdmission` map，每项为 `{ enabled, status, file }`，且 `status` 都使用
-`"disabled" | "not-run" | "succeeded" | "failed"`。aggregate `status` 在任一 enabled channel failed 时为
-`failed`，仅全部 enabled channel succeeded 时为 `succeeded`。禁用 channel 的 `file` 为 `null`；已启用 channel 即使文件创建失败也保留
-`path.relative(projectRoot, resolvedFile)` 的预先计算 readback。root 外 target 因此可含 `..`；跨卷时平台可以返回绝对路径。static/custom
-Run 的 learned-admission channel 是 disabled，learned Run 即使 history unavailable 仍可启用它。无效 Definition、controls 或 aggregation
-selection 直接返回 configuration diagnostic，不创建诊断日志。
+只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。每项 status 使用 `"disabled" | "not-run" | "succeeded" | "failed"`；`outputs.diagnosticLogging` 的形状为 `{ enabled, status, channels }`，其中 `channels` 是 `core`、`scheduler` 的 `{ enabled, status, file }` map。禁用 channel 的 `file` 为 `null`；启用 channel 即使创建文件失败也保留预先计算的 `path.relative(projectRoot, resolvedFile)`，因此 root 外 target 可含 `..`，跨卷时平台可以返回 absolute path。任一 enabled channel failed 时 aggregate status 为 `failed`，只有全部 enabled channel succeeded 时为 `succeeded`。
 
-`outputs.measurementHooks` 的形状为 `{ enabled, status }`，使用同一 closed status set。其 authority、participant 和
-readback 如下；内置 `scheduler.summary` writer 不属于此 output。
+`outputs.measurementHooks` 的形状为 `{ enabled, status }`：
 
 | 条件 | `enabled` / `status` |
 | --- | --- |
-| normalized `scheduler.measurementHooks` 非空，或 successful prepared custom result 实际含 `complete` | `enabled: true`。 |
+| normalized `scheduler.measurementHooks` 非空，或 successful prepared strategy 实际提供 `complete` | `enabled: true`。 |
 | 两者都没有 | `enabled: false`，`status: "disabled"`。 |
-| enabled Run 没有 sealed terminal sequence | `status: "not-run"`。prepare failure 因此在无 generic Hooks 时 disabled、有 generic Hooks 时 enabled/`not-run`。 |
-| sealed sequence 中，actual generic Hooks 与 optional public `complete` 全部成功 | `status: "succeeded"`。 |
-| sealed sequence 中任一 generic Hook 或 complete throw/reject | `status: "failed"`；后续 complete success 不会覆盖已记录的 generic failure。 |
+| enabled Run 没有 sealed terminal sequence | `status: "not-run"`。 |
+| sealed sequence 中所有 generic Hooks 与可选 public `complete` 都成功 | `status: "succeeded"`。 |
+| 任一 generic Hook 或 `complete` throw/reject | `status: "failed"`；后续 `complete` success 不会覆盖已记录的 generic failure。 |
 
-Scheduler 按配置顺序让所有 generic Hooks 获得调用机会；Invocation 随后才调用 public complete，并汇总这些实际
-participants 的 settlement。仅当 primary Run 正常完成时，measurement-hook failure 才把结果映射为保留 facts 的
-`kind: "output"` / `scheduler-measurement-hooks-failed`；cancellation 或 execution diagnostic 保持原有 primary result，
-failure 仍在该 output status 可见。
+channel setup、write 或 close failure 只使对应 output failed，不改写已经形成的 Check/Record facts，也不阻断其它 output 结算。
 
-diagnostic logging 只服务当前人工诊断：它没有 parser、schema/version、跨版本格式兼容、`latest`、retention 或跨 invocation
-discovery contract，也不替代 Check final data、Record、terminal message 或 Check/process adapter 自有的 transcript。logging
-单个 channel 的 setup/write/close failure 只令该 channel 与 aggregate diagnostic output 为 failed，不改写已形成的 Check/Record facts，也不阻断其它 channel、progress rendering 或 machine publication 的
-闭合。多个 output 都失败时，`RunResult.outputs` 保留每项 status；仅当 primary Run 已正常完成时，`kind: "output"` 依次选择
-progress rendering、machine publication、diagnostic logging、measurement hooks 的第一个 failed output。故
-`scheduler-measurement-hooks-failed` 表示 Hook output failed 且没有更高优先级的 output failure 被选作 diagnostic；它不覆盖
-cancellation 或 execution diagnostic。diagnostic logging 不进入 machine v4；其 machine-field 排除见
-[机器输出契约](output.md)。Check final-data parser 只处理已经取得的单个 data object，不替代该契约。
-
-因此 `scheduler.summary` 不进入 `RunResult`、Check/Record facts、machine v4、progress、warning、autotune 或任何 public API；它不获得 parser/schema/version、跨 invocation discovery 或 retention contract，也不是 CPU、memory、thread、process 等 OS telemetry。以后若 fail-fast 或 named-resource capacity 改变 Scheduler capacity/hard guard，必须重新审阅 summary 的 capacity denominator、queue classification、boundary 与 wait 解释，而不是静默重用旧 projection。
-
-progress rendering 在 TTY 中维护 running region，在 plain output 与 `TERM=dumb` 中只追加 settled presentation。每个可见 settled row 保留 measured duration 或 `not run`；final summary 只保留 execution、counts 与 elapsed。完整、canonical-ordered `RunResult.checkDurations`（未执行项为 `null`）不投影到 final summary 或 machine output。可选 `progressLogFile` 仅镜像这份终端 presentation。invocation flag control barrier 结束时，因 `enabledByFlags` 未匹配而没有启动的 Checks 不逐项呈现完整 settled row；renderer 写一个原因说明块，并按 Definition 顺序列出这些 Checks 的 `displayName`。该分组只识别 Product 形成的 `not-applicable / flag-condition-not-matched`、`durationMs: null` 且无 messages 的事实；preflight failure、dependency blocking、cancellation、其它 `not-applicable` / `unavailable` 和带 messages 的 Check 仍各自呈现。`visibility: "attention"` 继续只隐藏既无 accepted Record 也无 author/captured message 的 passed settled row。两种压缩都不改变 accounting ordinal、outcome、Records、machine output、dependency、aggregation 或 `RunResult`；accepted author message 与 captured console code 都保留在 `RunResult.checkMessages`，终端只呈现 level 与正文。renderer failure 进入对应 output status，不改写已形成的 Check facts。
-
-```text
-  The following 2 checks did not run because the run flags did not match their conditions:
-    - Deep audit
-    - Dependency audit
-```
+当 primary Run 已正常完成时，output failure 使结果成为 `kind: "output"`；多个 failure 依次选择 progress rendering、machine publication、diagnostic logging、measurement hooks 的第一个作为 diagnostic。`scheduler-measurement-hooks-failed` 因而只表示 measurement hook 是按该顺序选中的 failure；cancellation 或 execution diagnostic 保持原有 primary result，hook failure 仍在 `outputs.measurementHooks.status` 可见。
 
 按 `RunResult.kind` 和 cancellation phase 读取结果：
 
-| 分支                                              | 可用 facts 与处理方式                                                                                                                                                                                                                                                                                                                   |
-| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `completed`                                       | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。                                                                                                                                                                                                                          |
-| `output`                                          | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。`scheduler-measurement-hooks-failed` 只在正常 completion 且 measurement Hooks 是按 output 顺序选中的第一个 failed output 时出现；所有 configured generic Hooks 已获调用机会，且至少一个 generic Hook 或 public prepared `complete` throw/reject。已有 cancellation 或 execution failure 时主 result 保留，Hook failure 仅表现为 `outputs.measurementHooks.status: "failed"`。 |
-| `cancelled` / `phase: "execution"`                | 取消时关闭的 snapshot、durations 与 messages；按 cancellation result 处理。                                                                                                                                                                                                                                                             |
-| `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。                                                                                                                                                                                                                                                                          |
-| `configuration`                                   | Definition、controls 或 aggregation selection diagnostic；project callback 执行数为零。                                                                                                                                                                                                                                                 |
-| `planning`                                        | task-graph diagnostic 与 invocation metadata。                                                                                                                                                                                                                                                                                          |
-| `execution`                                       | Product execution-settlement diagnostic 与 invocation metadata。`diagnostic.code === "admission-policy-failed"` 表示 custom policy 已停止 admission、取消 pending 并 drain started work；它不是 Check terminal status，也不携带 partial snapshot。                                                                                      |
+| 分支 | 可用 facts 与处理方式 |
+| --- | --- |
+| `completed` | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。 |
+| `output` | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。 |
+| `cancelled` / `phase: "execution"` | 取消时关闭的 snapshot、durations 与 messages；按 cancellation result 处理。 |
+| `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。 |
+| `configuration` | Definition、controls 或 aggregation selection diagnostic；project callback 执行数为零。 |
+| `planning` | task-graph diagnostic 与 invocation metadata。 |
+| `execution` | Product execution-settlement diagnostic 与 invocation metadata。`diagnostic.code === "admission-policy-failed"` 表示 custom policy 已停止 admission、取消 pending 并 drain started work；它不是 Check terminal status，也不携带 partial snapshot。 |
 
-Check `failed` 是已结算的业务 outcome；Run `execution` 是 invocation infrastructure diagnostic；Run `output` 是完整 Check facts 附带的 diagnostic logging、publication 或 rendering failure diagnostic。
+Check `failed` 是已结算的业务 outcome；Run `execution` 是 invocation infrastructure diagnostic；Run `output` 是完整 Check facts 附带的 output failure diagnostic。

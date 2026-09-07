@@ -45,6 +45,18 @@ export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
   Object.freeze({
     id: "scheduling",
     packagePath: "docs/guides/scheduling.md"
+  }),
+  Object.freeze({
+    id: "cache-results",
+    packagePath: "docs/guides/cache-results.md"
+  }),
+  Object.freeze({
+    id: "finding-waivers",
+    packagePath: "docs/guides/finding-waivers.md"
+  }),
+  Object.freeze({
+    id: "presenting-findings",
+    packagePath: "docs/guides/presenting-findings.md"
   })
 ] satisfies readonly PackageApiMarkdownDocument[]);
 
@@ -70,8 +82,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/cache-json-by-key.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "readme",
-        headingPath: Object.freeze(["复用 caller-owned JSON cache"]),
+        documentId: "cache-results",
+        headingPath: Object.freeze(["最小用法"]),
         kind: "markdown"
       })
     ]),
@@ -154,17 +166,31 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "presenting-findings",
+    regionId: "presenting-findings",
+    sourcePath: "docs/examples/package-api/presenting-findings.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "presenting-findings",
+        headingPath: Object.freeze(["最小用法"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "将完整 Finding 集合呈现为有界 terminal messages"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "learned-critical-path",
     regionId: "learned-critical-path",
     sourcePath: "docs/examples/package-api/learned-critical-path.ts",
     targets: Object.freeze([
       Object.freeze({
         documentId: "scheduling",
-        headingPath: Object.freeze(["learned-critical-path 准入 policy"]),
+        headingPath: Object.freeze(["learned critical-path strategy"]),
         kind: "markdown"
       })
     ]),
-    title: "复用本地时长 history 的 critical-path 准入"
+    title: "通过 public prepared strategy 复用本地时长 history"
   }),
   Object.freeze({
     evidence: "runtime",

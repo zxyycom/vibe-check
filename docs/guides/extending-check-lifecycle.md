@@ -1,6 +1,6 @@
 # 编写会正确结算的自定义 Check
 
-返回 [README](../../README.md)。本专题面向需要把项目规则接入 Vibe Check 的调用方：选择 `preflight` 或 `execution`，读取 callback 输入，返回可信终态，并在需要时发布补充事实。先能用一个普通 `execution` 完成规则；只有必须在执行前准备或验证 options 时才增加 `preflight`。一次 Run 的公共生命周期、输出优先级和完整结果模型见 [API 机制](../api-mechanics.md)。
+本专题面向需要把项目规则接入 Vibe Check 的调用方：选择 `preflight` 或 `execution`，读取 callback 输入，返回可信终态，并在需要时发布补充事实。先能用一个普通 `execution` 完成规则；只有必须在执行前准备或验证 options 时才增加 `preflight`。一次 Run 的公共生命周期、输出优先级和完整结果模型见 [API 机制](../api-mechanics.md)。
 
 ## 选择扩展点
 

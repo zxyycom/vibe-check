@@ -21,7 +21,7 @@ Finding waiver 分为两层 public authoring：`reconcileFindingWaivers(...)` �
 独立 helper；`fileMetrics`、`functionMetrics`、`duplicateDetection` 与 `secretDetection` 另外在自己的 options 中接受
 `findingWaivers`。四项 identity grammar、Records、messages 和 settlement 分别由对应 Check 指南拥有；其它 constructor
 没有因为 generic helper 存在而自动接受同名字段。完整 helper grammar 见
-[Finding waiver reconciliation](../api-mechanics.md#finding-waiver-reconciliation)。
+[对账 Finding waiver](../guides/finding-waivers.md)。
 
 ```ts
 import {
@@ -135,7 +135,7 @@ duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一�
 
 `scheduler.resourceCapacities` 是 resource ID 到正 safe-integer units 的 closed mapping；省略规范化为冻结的 `{}`。resource ID 必须含至少一个非空白字符。每个 Check 的 effective `resourceClaims` 必须引用这里声明的 ID，claim units 也必须为正 safe integer 且不能大于对应 capacity。未知或 oversized claim 会使 Definition 在任何 author work 前失败。capacities、effective claims 及其 canonical key order 都进入 declarative snapshot/fingerprint。
 
-`scheduler.admissionPolicy` 是 closed `static | custom | learned-critical-path` authoring field。省略与显式
+`scheduler.admissionPolicy` 是 closed `static | custom` authoring field。省略与显式
 `{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 literal inference，与同形
 inline object 没有额外运行语义。custom branch 是 `{ kind: "custom", strategy }`，其中：
 
@@ -144,33 +144,19 @@ inline object 没有额外运行语义。custom branch 是 `{ kind: "custom", st
   `{ decide(context), complete? }`；
 - 两种 `decide` 都同步返回精确 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`。
 
-exact validation 以这个 closed grammar 作为 compatibility hard cut：retired `proposeAdmission`、unknown authoring fields
-与 async/thenable `decide` 都被拒绝。prepare throw/reject 或 malformed prepared result 在 Scheduler 启动前映射为
+exact validation 接受上述 closed grammar，并拒绝 unknown authoring fields 与 async/thenable `decide`。
+prepare throw/reject 或 malformed prepared result 在 Scheduler 启动前映射为
 `admission-strategy-preparation-failed`。strategy kind 进入 declarative snapshot/fingerprint；callback
 identity/source/closure 不进入。调用顺序、冻结 context 和 output/result matrix 由
 [API mechanisms](../api-mechanics.md#custom-admission-policy) 完整拥有。
 
-#### Learned critical-path policy
+#### Learned critical-path strategy helper
 
-`{ kind: "learned-critical-path", stateDirectory }` 让 Product 在每次 Run 为该 Definition 使用 caller-managed
-local state。`stateDirectory` 是非空、不得含 U+0000 的字符串；relative text 在 invocation 的 effective
-`projectRoot` 解析，absolute text 直接作为 target。它不是 filesystem sandbox、清理、锁、remote store 或跨项目共享承诺；
-调用方负责目录可写性、retention 和不把 secrets 放进 path。该 policy 没有 `expectedDurationMs`、Check-level duration
-grammar 或可配置 model 参数。`stateDirectory` 是 declarative snapshot/fingerprint 的一部分；custom callback identity
-继续不进入 fingerprint。
-
-learned policy 在 author preflight/execution 前按 canonical Check ID、authored options、effective flags 与 model
-version 的 digest 查找本地时长样本，并将 immutable prediction/critical-path table 交给 private Scheduler selection。
-当前 v1 实现每个 identity 最多保留 32 个样本、全目录最多保留最近更新的 4096 个 identity；已知 identity 使用
-arithmetic mean，未知 Task 先使用本次 Run 已知 estimate 的 median，仍无 prior 时使用正的 cold-start weight `1`。同一窗口按
-nearest-rank 计算 `p90`，但不参与 score。以上数字、file envelope 和 selection heuristic 是
-当前优化实现说明，不是 public storage/model compatibility promise。
-missing、malformed、incompatible 或 read-failed state 只形成 empty learned model；无法形成 canonical inputs，或 local
-setup、prediction 或 score-table construction 失败时，该 invocation 才回退 static selection。Scheduler 闭合后的 record/write
-failure 与 concurrent last-writer 只影响未来样本；上述优化降级均不改变 quality result 或 public output。
-priority 只在 critical-path score 相同的既有 Scheduler selection layer 中作为 tie-breaker，绝不绕过 relation、mutex、
-capacity 或 cancellation hard guard。完整 pre-admission / post-closure state flow、privacy 与 failure containment 见
-[Architecture](architecture.md#execution-boundary) 和 [API mechanisms](../api-mechanics.md#learned-critical-path-准入)。
+`createLearnedCriticalPathStrategy(...)` 返回 public prepared custom strategy，调用方将其放入
+`{ kind: "custom", strategy }`。Definition 按同一 custom grammar 验证它；factory 自己验证 history directory、
+caller identity projection 与 model controls。调用方提供的配置和 closure 遵循本页的 runtime/declarative 分工。
+具体参数、安全、退化及 observation 语义由[调度指南](../guides/scheduling.md#learned-critical-path-strategy)拥有，
+模型与 lifecycle 的实现归属见[架构](architecture.md#learned-critical-path-helper-owner)。
 
 ### Scheduler measurement Hooks
 
@@ -300,7 +286,7 @@ not final data or supplemental Records.
 `presentCheckFindings({ findings, limit, message, omittedMessage })` 是公共 Check-authoring helper：producer
 决定非负上限和安全单条格式，超限 hook 决定省略项等级，并提供实际的完整明细读取位置。它只形成已冻结 messages，
 不建立统一 Finding/Record shape，也不替 producer 保存完整 facts。完整使用契约见
-[深入 API 机制](../api-mechanics.md#finding-presentation)。
+[Finding 摘要指南](../guides/presenting-findings.md)。
 
 ## Recursive Check tree
 

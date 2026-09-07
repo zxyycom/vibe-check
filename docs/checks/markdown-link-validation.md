@@ -1,7 +1,5 @@
 # `markdownLinkValidation`
 
-返回 [README 的随包 Check 概览](../../README.md#随包提供的-check)。
-
 ## 用途
 
 本页说明 `markdownLinkValidation` 的 options、terminal effects 与安全边界。该 Check 离线验证 selected Markdown
@@ -76,39 +74,18 @@ const documentationLinks = markdownLinkValidation({
 });
 ```
 
-### Parse-facts cache 的生命周期与可见性
+### Parse-facts cache
 
-#### 状态所有权与安全边界
+cache 默认关闭。只有 `{ enabled: true, directory }` 才会在调用方选择的 absolute directory 使用可删除的本地性能状态；调用方负责
+该目录的容量和删除。状态来自 Markdown parse facts，不是输出目录，也不提供机密性、secret protection 或 tamper resistance：不愿复制到
+调用方本地状态的 Markdown 不应启用 cache。
 
-启用时，调用方拥有 `directory` 的选择、容量监控和删除。Product 只为这个 Markdown Link Check 在其中使用
-`<directory>/markdown-link-parse-facts-v1.jsonl`：它是可删除的本地性能状态，不是输出目录，也没有默认位置。既有
-per-entry `.json` state 被忽略，不迁移、不删除。该文件可能保存 source-derived parse facts；它**不提供**
-confidentiality、secret protection 或 tamper resistance。不要为不愿复制到 caller-owned local state 的 Markdown 启用它。
+cache 命中只避免重新计算 parse facts。每次 invocation 仍使用当前 source selection、当前 Markdown bytes 和 target policy，重新形成
+Finding、Record 与 terminal outcome。无法从 cache 恢复的 facts 会 fresh-parse；publication 写入失败只影响将来的复用，不改变本次已经形成的
+facts、Check message、Record、final data、machine field 或 terminal status。取消在 publication 开始前不会启动它；一旦 append 已开始，
+invocation 会等待它结束。cache 不是 Check/settlement cache，也不提供跨进程协调、持久性或自动清理保证。
 
-#### 恢复与命中
-
-每个启用 cache 的 invocation 首次使用 cache 时，严格串行读取这一整个 JSONL file 一次，并从完整且可用的 lines 恢复本次
-invocation 的 Map。每个 source 或 target 在命中前仍先按当前授权读取 exact Markdown bytes，并通过 fatal UTF-8
-boundary；只有 exact bytes 的 SHA-256、Link parser contract 和 payload version 都匹配时，才复用 Link-private
-occurrences、headings 和 decoded source ranges。命中只跳过 parse-facts computation；每次 invocation 仍重新收集 source、
-授权 source/target path、probe current endpoint state、应用 options、形成 Finding/Record 和结算 Check。
-
-#### Publication、取消与 failure fallback
-
-fresh parse 的成功 facts 先留在本次 invocation。其 terminal boundary 在返回前最多一次严格串行、awaited 地将 dirty facts
-append 到该 file；若 signal 在 publication 开始前已取消，则不开始 publication；一旦开始，取消仍等待该 append，不启动
-background write。malformed、unknown-version 或未以 newline 终止的 line 被忽略；同一 identity 的多个有效 line 以最后一个
-有效 line 为准。whole file unreadable、单个 line 不可用，以及 read/parse/write failure 都只降低 cache availability：受影响
-facts fresh-parse 或 miss，不新增或改变 Check message、Record、final data、machine field 或 terminal status。
-
-#### 未提供的保证
-
-Product 不提供 lock、merge、fsync/durability、atomicity、concurrency、TTL、LRU、quota、automatic cleanup、remote sharing
-或 cross-process single-flight。跨进程干扰可能留下 invalid 或 duplicate line，并在以后降级为 miss；调用方继续负责容量监控和
-删除该 directory state。cache 不是 Check/settlement cache：取消的 invocation 不会用它形成 Finding、Record、message、
-final-data 或 machine output。
-
-本页拥有 consumer contract，不拥有单次 benchmark 的通过结论；项目应基于自己的 workload、环境与容量要求评估 cache 的实际收益。
+本页只说明 consumer contract；项目应基于自己的 workload、环境与容量要求评估实际收益。
 
 ## 工作原理
 
@@ -186,11 +163,12 @@ path 或 fragment。
 ```
 
 blocking finding 的 `failed` outcome 携带 `invalid-local-links` error message；non-blocking finding 的 `passed` outcome
-携带同 code 的 warning message。两者随后按 normal link、再按 input rejection 的稳定顺序直接展示最多十条安全摘要：normal
-摘要只含 source project-relative path、start line/column、occurrence kind 与封闭 reason，不复制 target；rejection 摘要只含
-项目相对 path。存在 rejected input 时仍先附 `input-rejected` 数量 warning；Finding 超过十条时再用 `findings-omitted` 说明
-未显示数量，完整 source range、safe target 与 reason 仍从 Records 读取。由本 Check 结算的 `unavailable` 使用对应
-`reason.code` 提供可操作 error message；无 Finding 的 `passed` 与 `not-applicable` 不合成人为提示。
+携带同 code 的 warning message。`markdownLinkValidation` 的 detail messages 先按 normal link、再按 input rejection 的稳定
+顺序：normal 摘要只含 source project-relative path、start line/column、occurrence kind 与封闭 reason，不复制 target；rejection
+摘要只含项目相对 path。存在 rejected input 时仍先附 `input-rejected` 数量 warning；完整 source range、safe target 与 reason
+仍从 Records 读取。通用的 terminal Finding 呈现与 Run progress 预览边界见
+[呈现 Check Finding](../guides/presenting-findings.md)。由本 Check 结算的 `unavailable` 使用对应 `reason.code` 提供可操作
+error message；无 Finding 的 `passed` 与 `not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseMarkdownLinkValidationData(value)` 验证 final data。两者返回
 `MarkdownLinkValidationFinalData`；Records 与原因可用 `MarkdownLinkValidationRecordData`、

@@ -97,3 +97,11 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 external adapter tests 证明 command、availability、parser 与 tool-specific failure；对应 Check integration tests
 证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、current evidence 的 46/41/83/820 identity closure 和 archive-read guard；adapter/Worker tests
 证明私有调用链与 whole-input mapping，function-metrics integration tests 证明 adapter 到 Check result 的映射。
+
+当前 Lizard `1.24.0` baseline 的 oracle、malformed、reader mapping、identity 与 deviation evidence 位于
+`src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/`；
+`licenses/lizard-1.24.0-provenance.json` 拥有 source/range、hash、SPDX 与 translated-target mapping。
+identity tests 从该 mapping 验证上述 source/target/symbol 闭合；测试 evidence 不参与 Product runtime 或 package payload。
+上游 release 查询由[显式 advisory 命令](../tooling/lizard-upstream.md#run)执行。采用新 baseline 或改变 translated
+source boundary 时，需另行批准，先更新根 provenance，再同步 current evidence、source-alignment review 并重跑相关证据。
+Product runtime 与 package payload 只使用随包材料，不以归档、临时 clone 或网络获取替代当前 analyzer。

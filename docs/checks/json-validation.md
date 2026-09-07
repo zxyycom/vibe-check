@@ -1,7 +1,5 @@
 # `jsonValidation`
 
-返回 [README 的随包 Check 概览](../../README.md#随包提供的-check)。
-
 ## 用途
 
 本页说明 `jsonValidation` 的 options、terminal effects 与安全边界。该 Check 严格验证自己选择且以小写

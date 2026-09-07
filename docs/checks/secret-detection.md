@@ -1,7 +1,5 @@
 # `secretDetection`
 
-返回 [README 的随包 Check 概览](../../README.md#随包提供的-check)。
-
 ## 用途
 
 `secretDetection({ files })` 是随包 ordinary Check，发现高置信 PEM private-key material。它不是全面 credential protection，也不验证 secret 有效性。

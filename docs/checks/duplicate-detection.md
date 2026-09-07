@@ -1,7 +1,5 @@
 # `duplicateDetection`
 
-返回 [README 的随包 Check 概览](../../README.md#随包提供的-check)。
-
 ## 用途
 
 本页是 package consumer 配置和读取 `duplicateDetection` 的主指南。`duplicateDetection(options?)` 使用带默认值的
@@ -10,7 +8,7 @@ policy 的重复片段报告为 supplemental Records，并分别报告 finding �
 可选 waiver 在完整 duplicate Finding 集合形成后按排序 location ranges 对账，不会缩小 jscpd 输入或 cache evidence。
 
 默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5。发布 manifest 的当前兼容范围是
-`^5.1.1`（下界为 5.1.1、上界不含 v6）；repository lockfile 则固定本 Change 验证过的 5.1.1。项目无需选择版本、提供 executable 或复制默认 options：
+`^5.1.1`（下界为 5.1.1、上界不含 v6）。项目无需选择版本、提供 executable 或复制默认 options：
 
 ```ts
 import { duplicateDetection } from "@zxyycom/vibe-check";
@@ -211,12 +209,11 @@ Applied Finding 增加 `waiver.reason` 并把 Record `blocking` 置为 `false`�
 每条 unused/overmatched audit 的 Record ID 是
 `/finding-waiver-audit/sha256:<canonical-identity-digest>`；该保留前缀与 normal duplicate Record ID domain 不相交。
 
-`failed` 的 `blocking-findings` message 与携带 non-blocking Records 的 `passed` 的 `non-blocking-findings` message 后，会按
-仍 actionable 的稳定 Finding 顺序直接展示最多十条安全摘要；每条只包含 token/line counts 和最多两个项目相对 location，更多 location
-只显示剩余数量。Finding 超过十条时再用 `findings-omitted` 说明未显示数量，完整集合仍从本 Check 的 Records 读取。由本
-Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；零 finding 的 `passed` 与 `not-applicable` 不合成
-人为提示。Applied waiver 另附 `finding-waived` info；unused/overmatched authoring 附 warning，并从 audit Record 保留完整
-identity 与 reason。
+`duplicateDetection` 的 detail messages 按仍 actionable 的稳定 Finding 顺序；每条只包含 token/line counts 和最多两个
+项目相对 location，更多 location 只显示剩余数量。完整集合仍从本 Check 的 Records 读取；通用的 terminal Finding 呈现与
+Run progress 预览边界见 [呈现 Check Finding](../guides/presenting-findings.md)。由本 Check 结算的 `unavailable` 会使用对应
+`reason.code` 提供 error message；零 finding 的 `passed` 与 `not-applicable` 不合成人为提示。Applied waiver 另附
+`finding-waived` info；unused/overmatched authoring 附 warning，并从 audit Record 保留完整 identity 与 reason。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseDuplicateDetectionData(value)` 验证 final data。两者返回
 `DuplicateDetectionFinalData`，Record 与不可用原因可分别用 `DuplicateDetectionRecordData` 和

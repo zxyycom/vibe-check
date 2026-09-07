@@ -31,6 +31,10 @@
 
 ## 按受众选择文档
 
+修改 Check console capture、progress renderer、diagnostic logging 或 Scheduler summary 投影时，从
+[Run 人读输出实现](development/human-output.md)定位实现规则，并对照[API 机制](api-mechanics.md#outputs-与-runresult-边界)
+核对用户可观察行为；这些实现细节不由机器输出 schema 拥有。
+
 package 用户从 [README](../README.md) 的使用入口进入 Check 指南、公共 API 模型与深入任务专题；
 这些页面必须在发布包中自足。维护者继续按上表进入内部职责、设计约束和验证 owner，也应读取本次
 行为对应的用户说明。两种叙述允许为各自用途讲解同一能力，不因主题重叠合并或删除。
