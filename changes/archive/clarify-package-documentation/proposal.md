@@ -1,6 +1,6 @@
 # Proposal
 
-本 Draft 记录已获批准的 package 文档重整范围及其后续验证边界。
+本 Change 记录已交付的 package 文档重整范围，以及本轮正式化与复核边界。
 
 ## Why
 

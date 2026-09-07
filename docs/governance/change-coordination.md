@@ -187,9 +187,9 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 
 learned 算法比较继续由[既有优化 Change](../../changes/optimize-learned-admission-strategy/proposal.md)拥有，其 public
 strategy 基线恢复条件仍适用。已实施的[公共 learned helper](../../changes/archive/expose-learned-admission-strategy/proposal.md)、
-[法律材料修复](../../changes/archive/scope-translated-source-notices/proposal.md)和[文档修复](../../changes/clarify-package-documentation/proposal.md)
-均已完成实现与验收，不再列为功能待办。公共 learned helper 已正式归档，相关三条决策为 active + aligned；
-法律材料 Change 已归档，相关后继决策为 active + aligned；文档修复的生命周期按对应 Change 查询恢复。既有优化 Plan 的 Readiness 0.0 仍未完成；本轮不发布。
+[法律材料修复](../../changes/archive/scope-translated-source-notices/proposal.md)和[文档修复](../../changes/archive/clarify-package-documentation/proposal.md)
+均已完成实现、验收与正式归档，不再列为功能待办；相关四条后继决策为 active + aligned。
+归档材料只保留形成时证据，当前行为由 runtime 与稳定文档 owner 承接。既有优化 Plan 的 Readiness 0.0 仍未完成；本轮不发布。
 
 ## Worktree 与合入规则
 

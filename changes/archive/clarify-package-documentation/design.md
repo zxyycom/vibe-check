@@ -1,6 +1,6 @@
 # Design
 
-本 Draft 以读者任务和稳定 owner 为边界，说明当前文档重整如何兑现 proposal。
+本 Change 以读者任务和稳定 owner 为边界，说明已交付文档重整及其正式化。
 
 ## Context
 
@@ -32,11 +32,11 @@
 ## Risks / Trade-offs
 
 压缩可能误删公开 readback 或让示例与正文失配，故主代理独立反查并要求完整 package acceptance。
-治理命令被当前执行策略拒绝；stage 保持 draft，用户的实施批准独立于 metadata 状态，不手改 Plan baseline。
+前轮治理命令被拒绝的事实保留在 tasks 的形成时证据中；本轮按用户要求通过正式命令完成状态收尾，不手改 Plan baseline。
 
 ## Open Questions
 
-前轮验证与独立审查已完成，后续 Check 指南修复单独记录验证。Change 生命周期命令受执行策略限制，stage 仍为 draft。
-用户提出的 preview 配置/截断 Hook 已交由[独立 Draft](../configure-progress-preview/proposal.md)讨论；
-其余 files/waiver/parser 文档共性的收敛与保留差异结论见[已归档共同契约整理](../archive/refine-check-guide-shared-contracts/proposal.md)。
+前轮验证与独立审查已完成，后续 Check 指南修复单独记录验证。当前无文档实施待办；本轮完成正式化与复核，生命周期以正式查询为准。
+用户提出的 preview 配置/截断 Hook 已交由[独立 Draft](../../configure-progress-preview/proposal.md)讨论；
+其余 files/waiver/parser 文档共性的收敛与保留差异结论见[已归档共同契约整理](../refine-check-guide-shared-contracts/proposal.md)。
 本 Change 保留已完成修复的交付证据，不扩大为这些新能力的实施计划。
