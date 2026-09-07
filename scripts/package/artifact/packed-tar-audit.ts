@@ -32,6 +32,7 @@ interface TarEntry {
 export function auditCandidateArtifact(input: {
   readonly artifactPath: string;
   readonly candidateVersion: string;
+  readonly repositoryRoot: string;
   readonly expectedFiles: readonly string[];
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
@@ -67,13 +68,18 @@ function assertTarCoreMaterials(
     readonly expectedJSDocExamplePayloads: readonly string[];
     readonly expectedReadme: string;
     readonly expectedAttributionNotice: Buffer;
+    readonly repositoryRoot: string;
   }>
 ): void {
   const manifest = requiredTarEntry(entries, "package/package.json");
   assertTarReadme(entries, input.expectedReadme);
   assertTarLegalMaterials(entries, input.expectedAttributionNotice);
   assertTarDeclarationExamples(entries, input.expectedJSDocExamplePayloads);
-  auditCandidateManifest(manifest.content, input.candidateVersion);
+  auditCandidateManifest({
+    candidateVersion: input.candidateVersion,
+    repositoryRoot: input.repositoryRoot,
+    source: manifest.content
+  });
   assertManifestPackageEntries(entries);
 }
 

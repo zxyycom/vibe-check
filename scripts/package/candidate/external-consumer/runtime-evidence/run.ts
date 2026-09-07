@@ -8,10 +8,10 @@ import { fileURLToPath } from "node:url";
 import { isPathWithin } from "../../../../repository-files/paths.ts";
 import { isAcceptedPackageDependencyVersion } from "../../../dependency-version.ts";
 import {
-  CANDIDATE_DEPENDENCIES,
   PACKAGE_FUNCTION_METRICS_WORKER_PARENT_RUNTIME_PATH,
   PACKAGE_FUNCTION_METRICS_WORKER_RUNTIME_PATH
 } from "../../../package-contract.ts";
+import { readReleaseManifestDependency } from "../../../artifact/manifest.ts";
 import { assertExternalConsumerCommandSucceeded } from "../command-result.ts";
 import { externalConsumerNodeCommand } from "../node-command.ts";
 import type { ExternalConsumerMaterial } from "../material.ts";
@@ -39,7 +39,7 @@ export function assertExternalConsumerRuntime(
   assert.equal(runJscpdEngine(jscpd.binPath), jscpd.version);
   assert.equal(
     isAcceptedPackageDependencyVersion({
-      requirement: { kind: "range", range: CANDIDATE_DEPENDENCIES.jscpd },
+      requirement: { kind: "range", range: readReleaseManifestDependency(repositoryRoot, "jscpd") },
       resolvedVersion: jscpd.version
     }),
     true

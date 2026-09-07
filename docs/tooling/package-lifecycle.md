@@ -21,18 +21,24 @@ Product 源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；
 execution 验证这份安装。普通 dependencies 不被 bundled 进 Vibe Check tarball，而由 package manager 作为独立 package
 安装。
 
-local candidate 与 formal release 共用同一 closed generated manifest：user-scoped `@zxyycom/vibe-check`、通用 TypeScript
-质量门禁 description、围绕 quality gate/项目验证/代码质量/CI/TypeScript/Node 的固定 keywords、唯一 root export、
-`MIT AND Apache-2.0 AND BSD-2-Clause`、最低 Node 版本 `>=24.18`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
-完整 production dependencies。manifest 不含 `private`、`homepage`、`bin`、lifecycle scripts、Bun host 或 subpath export。
+[`scripts/package/artifact/release-manifest.json`](../../scripts/package/artifact/release-manifest.json) 是 local candidate 与 formal
+release 共用的唯一稳定发布 manifest owner：它保存 user-scoped `@zxyycom/vibe-check`、discovery metadata、唯一 root export、
+license/host/repository/publish metadata、allowlisted files 与完整 production dependencies。其 `version` 必须是不可发布的
+`<candidate-version>` sentinel；构建以显式传入的 repository root 读取它，并且只投影本次 candidate/release version 到 staging。
+它不通过 module-level JSON import 回读主 checkout，因此 fixture 和 formal root 不能泄漏 source。fingerprint 显式绑定该 JSON 的
+repository-relative path 和原始 bytes；任意静态 JSON drift 都使 local candidate 与 formal receipt stale。manifest 不含 `private`、
+`homepage`、`bin`、lifecycle scripts、Bun host 或 subpath export。source→projection equality 不取代独立 audit：source 和 tar/staging
+仍对 closed fields、identity、license/legal material、engine、root export、files、publish target 与合法 dependency map fail closed；
+安装 probe 从同一 source 取得 Ajv/jscpd requirement，再验证实际 consumer-resolved package/bin。
+
 ### Legal material 与 dependency installation 的边界
 
 Package artifact 与 dependency installation 是两个不同的事实源：
 
-| 边界 | 当前范围 | 验收责任 | 不作出的结论 |
-| --- | --- | --- | --- |
-| 随包法律材料 | 根 [`LICENSE`](../../LICENSE) 是 Vibe Check own MIT text；唯一 [`licenses/`](../../licenses/) 目录保存仅适用于已携带 analyzer translations 的 [`analyzer-translations-NOTICE.md`](../../licenses/analyzer-translations-NOTICE.md)、Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments 2.18 BSD-2-Clause text 与 fixed-range provenance。 | staging、tarball 与 installed candidate 核对 packaged material，并闭合 shipped source header→ledger→license、deferred bodies absent 与无 Python/Lizard/Pygments runtime dependency。 | `licenses/` 不代表普通 npm dependency graph；归属说明不枚举独立安装的 dependency；artifact 不发布平级 `third-party-licenses/`。 |
-| 实际安装依赖 | private consumer 本次安装中实际存在的全部 top-level、scoped 与 nested dependency package，包括本平台实际选中的 optional package；不含 Vibe Check candidate 自身。 | 核对路径与 manifest 中非空且无首尾空白的 name/version，并读取同样非空且无首尾空白的当前 `license`，或所有条目具有同一个此类 `type` 的 legacy `licenses[]`。当前 policy 只接受 `Apache-2.0`、`BSD-2-Clause`、`BSD-3-Clause`、`BlueOak-1.0.0`、`ISC` 与 `MIT`。 | 审计不覆盖本平台未安装的 optional package，不证明 dependency package 的物理法律材料，也不构成法律审查或额外兼容语义。 |
+| 边界         | 当前范围                                                                                                                                                                                                                                                                                                                                | 验收责任                                                                                                                                                                                                                                                      | 不作出的结论                                                                                                                    |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| 随包法律材料 | 根 [`LICENSE`](../../LICENSE) 是 Vibe Check own MIT text；唯一 [`licenses/`](../../licenses/) 目录保存仅适用于已携带 analyzer translations 的 [`analyzer-translations-NOTICE.md`](../../licenses/analyzer-translations-NOTICE.md)、Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments 2.18 BSD-2-Clause text 与 fixed-range provenance。 | staging、tarball 与 installed candidate 核对 packaged material，并闭合 shipped source header→ledger→license、deferred bodies absent 与无 Python/Lizard/Pygments runtime dependency。                                                                          | `licenses/` 不代表普通 npm dependency graph；归属说明不枚举独立安装的 dependency；artifact 不发布平级 `third-party-licenses/`。 |
+| 实际安装依赖 | private consumer 本次安装中实际存在的全部 top-level、scoped 与 nested dependency package，包括本平台实际选中的 optional package；不含 Vibe Check candidate 自身。                                                                                                                                                                       | 核对路径与 manifest 中非空且无首尾空白的 name/version，并读取同样非空且无首尾空白的当前 `license`，或所有条目具有同一个此类 `type` 的 legacy `licenses[]`。当前 policy 只接受 `Apache-2.0`、`BSD-2-Clause`、`BSD-3-Clause`、`BlueOak-1.0.0`、`ISC` 与 `MIT`。 | 审计不覆盖本平台未安装的 optional package，不证明 dependency package 的物理法律材料，也不构成法律审查或额外兼容语义。           |
 
 Dependency manifest 缺失或格式错误、目录名与 manifest name 不一致、许可声明缺失/格式错误/不在当前 policy、symlink
 package layout 或 candidate package path 逃逸均 fail closed。SPDX 字段不能替代随包材料的 physical audit；Pygments/Lizard
@@ -93,7 +99,7 @@ evidence 承接，不在本稳定行为 owner 中复制。归档 release 中的�
 selection、availability 或授权。执行者必须先建立新的 active release owner，再从其 current evidence 取得
 `<selected-version>` 与 `<selected-tag>`，然后调用
 `bun run package:release:prepare -- --version <selected-version> --tag <selected-tag>`。Evidence 中的值不是后续版本的默认值、
-registry availability 证明或 publish 授权；public access 仍由 generated manifest 的 closed `publishConfig` 承接，外部
+registry availability 证明或 publish 授权；public access 仍由 version 投影后的 staging manifest 中闭合的 `publishConfig` 承接，外部
 publish mechanism 也不由此脚本执行。
 
 Prepare 清理的范围仅是 `build/release-package/`、该 version 的 `build/artifacts/zxyycom-vibe-check-<version>.tgz`、

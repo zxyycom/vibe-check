@@ -6,10 +6,10 @@ import { fileURLToPath } from "node:url";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
 import {
-  CANDIDATE_DEPENDENCIES,
   PACKAGE_LICENSE_SOURCE_PATH,
   PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS
 } from "../package-contract.ts";
+import { RELEASE_MANIFEST_SOURCE_PATH } from "./manifest.ts";
 import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
 import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../../docs/machine-artifacts/package-materials.ts";
@@ -40,13 +40,13 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
   const hash = createHash("sha256");
   hash.update(`bun=${bunVersion()}\0`);
   hash.update(`artifact-toolchain=${JSON.stringify(artifactToolchainVersions())}\0`);
-  hash.update(`candidate-dependencies=${JSON.stringify(CANDIDATE_DEPENDENCIES)}\0`);
   hash.update(`runtime-compiler-roots=${JSON.stringify(PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS)}\0`);
 
   const inputFiles = [
     ...collectRuntimeSourceFilePaths(join(repositoryRoot, "src")),
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
+    join(repositoryRoot, RELEASE_MANIFEST_SOURCE_PATH),
     join(repositoryRoot, PACKAGE_LICENSE_SOURCE_PATH),
     join(repositoryRoot, TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH),
     ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => join(repositoryRoot, material.path))

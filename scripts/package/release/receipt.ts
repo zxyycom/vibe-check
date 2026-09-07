@@ -142,6 +142,7 @@ function auditReceiptedPackage(material: FormalReleaseMaterial): void {
   const documentation = artifactDocumentation(material.repositoryRoot);
   auditStagingRuntime({
     candidateVersion: material.receipt.package.version,
+    repositoryRoot: material.repositoryRoot,
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: documentation.machineMaterials,
@@ -152,6 +153,7 @@ function auditReceiptedPackage(material: FormalReleaseMaterial): void {
   auditCandidateArtifact({
     artifactPath: material.artifactPath,
     candidateVersion: material.receipt.package.version,
+    repositoryRoot: material.repositoryRoot,
     expectedDocuments: documentation.documents,
     expectedFiles: material.receipt.artifact.files,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,

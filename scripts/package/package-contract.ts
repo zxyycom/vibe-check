@@ -1,21 +1,10 @@
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 
 export const PACKAGE_NAME = CURRENT_PUBLIC_CONTRACT.packageImport;
-/** Concise discovery description shared by the published package and repository profile. */
-export const PACKAGE_DESCRIPTION =
-  "通用 TypeScript 质量门禁工具，提供可组合 Check、类型安全 API 和结构化结果。";
-export const PACKAGE_KEYWORDS = Object.freeze([
-  "quality-gate",
-  "project-validation",
-  "code-quality",
-  "ci",
-  "typescript",
-  "nodejs"
-]);
 /** Exact filesystem-safe stem emitted by Bun when it packs {@link PACKAGE_NAME}. */
 export const PACKAGE_TARBALL_STEM = "zxyycom-vibe-check";
 export const PACKAGE_NODE_ENGINE = ">=24.18";
-/** SPDX expression for the complete shipped work, including translated analyzer ranges. */
+/** SPDX expression independently tied to shipped legal-material audit. */
 export const PACKAGE_LICENSE = "MIT AND Apache-2.0 AND BSD-2-Clause";
 export const PACKAGE_LICENSE_PATH = "LICENSE";
 export const PACKAGE_LICENSE_SHA256 =
@@ -27,28 +16,6 @@ export const PACKAGE_REPOSITORY_MANIFEST_URL = "git+https://github.com/zxyycom/v
 export const AJV_PACKAGE_NAME = "ajv";
 export const JSCPD_BIN_NAME = "jscpd";
 export const JSCPD_PACKAGE_NAME = "jscpd";
-export const JSCPD_VERSION_RANGE = "^5.1.1";
-
-export const CANDIDATE_DEPENDENCIES = Object.freeze({
-  "@humanwhocodes/momoa": "3.3.12",
-  "@secretlint/core": "13.0.5",
-  "@secretlint/secretlint-rule-privatekey": "13.0.5",
-  [AJV_PACKAGE_NAME]: "8.20.0",
-  "csv-parse": "7.0.1",
-  execa: "9.6.1",
-  "github-slugger": "2.0.0",
-  immutable: "5.1.9",
-  [JSCPD_PACKAGE_NAME]: JSCPD_VERSION_RANGE,
-  "mdast-util-from-markdown": "2.0.3",
-  "mdast-util-frontmatter": "2.0.1",
-  "mdast-util-gfm": "3.1.0",
-  "micromark-extension-frontmatter": "2.0.0",
-  "micromark-extension-gfm": "3.0.0",
-  minimatch: "10.2.5",
-  neverthrow: "8.2.0",
-  typebox: "1.3.9"
-});
-
 export const PACKAGE_DOCUMENTATION_DIRECTORY = "docs";
 export const PACKAGE_DISTRIBUTION_DIRECTORY = "dist";
 export const PACKAGE_ENTRY_PATH = "index.mjs";

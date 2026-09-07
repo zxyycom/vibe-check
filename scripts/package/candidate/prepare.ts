@@ -86,6 +86,7 @@ export async function preparePackageCandidate(
     const installation = installCandidate({
       artifactPath: plan.artifact.artifactPath,
       candidateVersion: plan.candidateVersion,
+      repositoryRoot: plan.repositoryRoot,
       consumerDirectory: plan.consumerDirectory,
       expectedDocuments: plan.documentation.documents,
       expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
@@ -121,6 +122,7 @@ export async function preparePackageCandidate(
   const installation = installCandidate({
     artifactPath: artifact.artifactPath,
     candidateVersion: plan.candidateVersion,
+    repositoryRoot: plan.repositoryRoot,
     consumerDirectory: plan.consumerDirectory,
     expectedDocuments: plan.documentation.documents,
     expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
@@ -216,6 +218,7 @@ function createCandidatePreparationPlan(
   const context = createCandidatePreparationContext(options);
   const assessment = assessReusableArtifact({
     candidateVersion: context.candidateVersion,
+    repositoryRoot: context.repositoryRoot,
     expectedDocuments: context.documentation.documents,
     expectedJSDocExamplePayloads: context.documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: context.documentation.machineMaterials,
@@ -259,6 +262,7 @@ function reusableCandidatePlan(
 ): CandidatePreparationPlan {
   const installation = inspectInstallation({
     candidateVersion: context.candidateVersion,
+    repositoryRoot: context.repositoryRoot,
     consumerDirectory: context.consumerDirectory,
     expectedDocuments: context.documentation.documents,
     expectedJSDocExamplePayloads: context.documentation.expectedJSDocExamplePayloads,

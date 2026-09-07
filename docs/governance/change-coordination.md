@@ -179,7 +179,7 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 | [配置 progress preview](../../changes/configure-progress-preview/proposal.md) | 评审数量与截断 formatter；与下一项共享展示边界，先明确 renderer 与 Check 的责任。 |
 | [收敛 Check Finding 呈现](../../changes/consolidate-check-finding-presentation/proposal.md) | 评估既有 helper 之外是否仍有真实共性；不是 preview API 的硬前置，也不预定统一方案。 |
 | [Check 指南共同契约](../../changes/archive/refine-check-guide-shared-contracts/proposal.md) | 已收敛 files/waiver 的真实共同规则并归档；保留 Check-local 差异和 parser owner，不引入或等待公共 file tool。 |
-| [静态 package 材料](../../changes/author-static-package-materials/proposal.md) | 独立评审稳定内容与动态派生；与其它 package 实施共享 owner 时串行。 |
+| [静态 package 材料](../../changes/archive/author-static-package-materials/proposal.md) | 已完成单一静态发布 manifest、动态 version 投影与完整包验收并归档；未静态化其它材料，也未修改 cold bootstrap。 |
 | [当前 package 定位](../../changes/clarify-current-package-artifact-discovery/proposal.md) | 已复核：现有固定 build/package 与 status 满足需求，不再作为待实施改进；保留评审记录，未归档。 |
 | [旧生成产物清理](../../changes/archive/clean-obsolete-generated-artifacts/proposal.md) | 已完成两份遗留文件的窄清理及 Process Check fixture 隔离修复并归档；不修改 Product 生成机制，不建立持续清理策略。 |
 | [诊断日志命名](../../changes/simplify-invocation-diagnostic-filenames/proposal.md) | 评审独占 invocation directory 与共享 target 的差异，不直接删除 UUID 防冲突机制。 |

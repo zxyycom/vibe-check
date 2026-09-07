@@ -76,6 +76,7 @@ export async function prepareReleaseCandidateFromReceipt(input: {
   const installation = installCandidate({
     artifactPath: verified.artifact.artifactPath,
     candidateVersion: verified.artifact.candidateVersion,
+    repositoryRoot,
     consumerDirectory,
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,

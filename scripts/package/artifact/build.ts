@@ -62,6 +62,7 @@ export async function buildCandidateArtifact(input: {
   mkdirSync(stagingDirectory, { recursive: true });
   writeCandidateManifest({
     manifestPath: join(stagingDirectory, "package.json"),
+    repositoryRoot,
     version: candidateVersion
   });
   writeFileSync(join(stagingDirectory, PACKAGE_README_PATH), documentation.readme, "utf8");
@@ -124,6 +125,7 @@ export async function buildCandidateArtifact(input: {
     expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
     expectedAttributionNotice,
+    repositoryRoot,
     stagingDirectory
   });
   const expectedFiles = collectFilePaths(stagingDirectory, () => true).map(
@@ -149,7 +151,8 @@ export async function buildCandidateArtifact(input: {
     expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
     expectedSha256: sha256,
-    expectedAttributionNotice
+    expectedAttributionNotice,
+    repositoryRoot
   });
   return Object.freeze({
     artifactPath,

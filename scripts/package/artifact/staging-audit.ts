@@ -41,6 +41,7 @@ const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
 
 export function auditStagingRuntime(input: {
   readonly candidateVersion: string;
+  readonly repositoryRoot: string;
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
@@ -65,10 +66,11 @@ export function auditStagingRuntime(input: {
     ...expectedMachineMaterials.map((material) => material.packagePath)
   ]);
   assertStagingEntries(entryPath, runtimeEntryPath, typesPath);
-  auditCandidateManifest(
-    readFileSync(join(stagingDirectory, "package.json"), "utf8"),
-    candidateVersion
-  );
+  auditCandidateManifest({
+    candidateVersion,
+    repositoryRoot: input.repositoryRoot,
+    source: readFileSync(join(stagingDirectory, "package.json"), "utf8")
+  });
   if (readFileSync(entryPath, "utf8") !== PACKAGE_ENTRY_SOURCE) {
     throw new Error("candidate public facade does not match the approved runtime entry");
   }

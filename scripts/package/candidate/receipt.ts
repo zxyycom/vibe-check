@@ -80,6 +80,7 @@ export function candidatePaths(
 /** Classifies reusable artifact state without mutating or rebuilding candidate material. */
 export function assessReusableArtifact(input: {
   readonly candidateVersion: string;
+  readonly repositoryRoot: string;
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedAttributionNotice: Buffer;
   readonly expectedJSDocExamplePayloads: readonly string[];
@@ -107,6 +108,7 @@ export function assessReusableArtifact(input: {
     auditCandidateArtifact({
       artifactPath: artifact.artifactPath,
       candidateVersion: artifact.candidateVersion,
+      repositoryRoot: input.repositoryRoot,
       expectedFiles: artifact.files,
       expectedDocuments: input.expectedDocuments,
       expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,

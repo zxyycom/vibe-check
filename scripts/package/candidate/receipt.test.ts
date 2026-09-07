@@ -17,11 +17,13 @@ test("rejects malformed and stale receipts before artifact reuse", () => {
     buildDirectory: join(temporaryRoot, "build"),
     stateDirectory: join(temporaryRoot, "state")
   });
+  const repositoryRoot = join(import.meta.dirname, "../../..");
   const candidateVersion = "0.0.0-local.current";
   const currentFingerprint = "current-input-fingerprint";
   const assessCurrentArtifact = (): ReturnType<typeof assessReusableArtifact> =>
     assessReusableArtifact({
       candidateVersion,
+      repositoryRoot,
       expectedDocuments: [],
       expectedJSDocExamplePayloads: [],
       expectedMachineMaterials: [],

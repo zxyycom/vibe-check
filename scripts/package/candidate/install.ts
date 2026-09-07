@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, rmSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
@@ -7,35 +7,24 @@ import type { PackageMachineMaterial } from "../../docs/machine-artifacts/packag
 import { errorMessage } from "../../error-message.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
-import {
-  AJV_PACKAGE_NAME,
-  CANDIDATE_DEPENDENCIES,
-  JSCPD_BIN_NAME,
-  JSCPD_PACKAGE_NAME,
-  PACKAGE_NAME
-} from "../package-contract.ts";
-import {
-  isAcceptedPackageDependencyVersion,
-  packageDependencyVersionRequirementText,
-  type PackageDependencyVersionRequirement
-} from "../dependency-version.ts";
+import { AJV_PACKAGE_NAME, JSCPD_PACKAGE_NAME, PACKAGE_NAME } from "../package-contract.ts";
 import { runBun, sha256File } from "../pack.ts";
-import { auditInstalledDependencyLicenses } from "./dependency-license-audit.ts";
+import {
+  verifyCandidateRuntimeDependencies,
+  type CandidateDependencyProbe
+} from "./dependency-probe.ts";
 import { assertInstalledCandidateMaterials } from "./installed-materials.ts";
 import type { InstalledCandidate } from "./receipt.ts";
 
-type CandidateRuntimeDependencyName = typeof AJV_PACKAGE_NAME | typeof JSCPD_PACKAGE_NAME;
-
-interface CandidateInstallationProbe {
-  readonly ajvPackageManifestPath: string;
+interface CandidateInstallationProbe extends CandidateDependencyProbe {
   readonly candidateEntryUrl: string;
-  readonly jscpdPackageManifestPath: string;
 }
 
 /** Replaces the dedicated private install and verifies the exact installed package entry. */
 export function installCandidate(input: {
   readonly artifactPath: string;
   readonly candidateVersion: string;
+  readonly repositoryRoot: string;
   readonly consumerDirectory: string;
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
@@ -46,6 +35,7 @@ export function installCandidate(input: {
   const {
     artifactPath,
     candidateVersion,
+    repositoryRoot,
     consumerDirectory,
     expectedJSDocExamplePayloads,
     expectedReadme
@@ -64,6 +54,7 @@ export function installCandidate(input: {
   });
   return verifyInstallation({
     candidateVersion,
+    repositoryRoot,
     consumerDirectory,
     expectedDocuments,
     expectedJSDocExamplePayloads,
@@ -76,6 +67,7 @@ export function installCandidate(input: {
 /** Inspects a candidate without accepting an ancestor package or dependency fallback. */
 export function inspectInstallation(input: {
   readonly candidateVersion: string;
+  readonly repositoryRoot: string;
   readonly consumerDirectory: string;
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
@@ -93,6 +85,7 @@ export function inspectInstallation(input: {
 /** Strictly validates a fresh install while retaining every failed validation stage. */
 function verifyInstallation(input: {
   readonly candidateVersion: string;
+  readonly repositoryRoot: string;
   readonly consumerDirectory: string;
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
@@ -100,8 +93,13 @@ function verifyInstallation(input: {
   readonly expectedAttributionNotice: Buffer;
   readonly expectedReadme: string;
 }): InstalledCandidate {
-  const { candidateVersion, consumerDirectory, expectedJSDocExamplePayloads, expectedReadme } =
-    input;
+  const {
+    candidateVersion,
+    repositoryRoot,
+    consumerDirectory,
+    expectedJSDocExamplePayloads,
+    expectedReadme
+  } = input;
   const expectedDocuments = input.expectedDocuments ?? [];
   const expectedMachineMaterials = input.expectedMachineMaterials ?? [];
   const packageDirectory = join(consumerDirectory, "node_modules", PACKAGE_NAME);
@@ -119,19 +117,11 @@ function verifyInstallation(input: {
     expectedJSDocExamplePayloads,
     expectedReadme
   });
-  auditInstalledDependencyLicenses({
-    candidatePackageDirectory: packageDirectory,
-    consumerDirectory
-  });
-  verifyCandidateJscpdDependency({
+  verifyCandidateRuntimeDependencies({
     consumerDirectory,
-    packageManifestPath: probe.jscpdPackageManifestPath
-  });
-  verifyCandidateDependency({
-    consumerDirectory,
-    packageManifestPath: probe.ajvPackageManifestPath,
-    packageName: AJV_PACKAGE_NAME,
-    versionRequirement: { kind: "exact", version: CANDIDATE_DEPENDENCIES.ajv }
+    packageDirectory,
+    repositoryRoot,
+    probe
   });
   return Object.freeze({
     installedPackageDirectory: packageDirectory,
@@ -234,66 +224,6 @@ function assertPrivateCandidateConsumer(consumerDirectory: string): void {
   }
 }
 
-function verifyCandidateJscpdDependency(
-  input: Readonly<{ readonly consumerDirectory: string; readonly packageManifestPath: string }>
-): void {
-  const { manifest, packageManifestPath } = verifyCandidateDependency({
-    consumerDirectory: input.consumerDirectory,
-    packageManifestPath: input.packageManifestPath,
-    packageName: JSCPD_PACKAGE_NAME,
-    versionRequirement: { kind: "range", range: CANDIDATE_DEPENDENCIES.jscpd }
-  });
-
-  const binTarget = declaredJscpdBinTarget(manifest.bin);
-  if (binTarget === undefined) {
-    throw new Error(
-      `resolved ${JSCPD_PACKAGE_NAME} package manifest does not declare its ${JSCPD_BIN_NAME} bin: ${packageManifestPath}`
-    );
-  }
-  const packageDirectory = dirname(packageManifestPath);
-  const binPath = resolve(packageDirectory, binTarget);
-  if (!isPathWithin(packageDirectory, binPath)) {
-    throw new Error(`resolved ${JSCPD_PACKAGE_NAME} bin escapes its package directory: ${binPath}`);
-  }
-  if (!existsSync(binPath)) {
-    throw new Error(`resolved ${JSCPD_PACKAGE_NAME} bin is missing: ${binPath}`);
-  }
-}
-
-/** Validates one probed runtime dependency and proves it stays in the private consumer. */
-function verifyCandidateDependency(input: {
-  readonly consumerDirectory: string;
-  readonly packageManifestPath: string;
-  readonly packageName: CandidateRuntimeDependencyName;
-  readonly versionRequirement: PackageDependencyVersionRequirement;
-}) {
-  const { consumerDirectory, packageManifestPath, packageName, versionRequirement } = input;
-  if (!isPathWithin(join(consumerDirectory, "node_modules"), packageManifestPath)) {
-    throw new Error(
-      `candidate ${packageName} dependency resolved outside private consumer node_modules: ${packageManifestPath}`
-    );
-  }
-  const manifest = readJsonFile(packageManifestPath, `resolved ${packageName} package manifest`);
-  const resolvedVersion =
-    isNonArrayRecord(manifest) && typeof manifest.version === "string"
-      ? manifest.version
-      : undefined;
-  if (
-    !isNonArrayRecord(manifest) ||
-    manifest.name !== packageName ||
-    resolvedVersion === undefined ||
-    !isAcceptedPackageDependencyVersion({
-      requirement: versionRequirement,
-      resolvedVersion
-    })
-  ) {
-    throw new Error(
-      `resolved ${packageName} package manifest must satisfy ${packageName}@${packageDependencyVersionRequirementText(versionRequirement)}: ${packageManifestPath}`
-    );
-  }
-  return Object.freeze({ manifest, packageManifestPath, version: resolvedVersion });
-}
-
 function readJsonFile(filePath: string, description: string): unknown {
   let source: string;
   try {
@@ -310,11 +240,4 @@ function readJsonFile(filePath: string, description: string): unknown {
       cause: error
     });
   }
-}
-
-function declaredJscpdBinTarget(value: unknown): string | undefined {
-  if (typeof value === "string") return value;
-  if (!isNonArrayRecord(value)) return undefined;
-  const target = value[JSCPD_BIN_NAME];
-  return typeof target === "string" ? target : undefined;
 }
