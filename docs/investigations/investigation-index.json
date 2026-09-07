@@ -1125,6 +1125,46 @@
         "title": "采用 ts-pattern，状态机保持按需调查"
       }
     },
+    "recheck-cold-candidate-bootstrap-gate-import.md": {
+      "keys": {
+        "formed-at": [
+          1788772900000
+        ],
+        "relation-type": [
+          "复查"
+        ],
+        "tag": [
+          "bun",
+          "module-resolution",
+          "package-candidate",
+          "project-gate",
+          "verification"
+        ],
+        "text": [
+          "冷 candidate bootstrap 的 Project Gate 导入复查",
+          "在提交 bb33371c 的隔离 candidate 冷态下，正式 typecheck Gate 是否仍会在 candidate 已成功准备后失败于 bound-run 导入；现有 evidence 能否区分 candidate lifecycle、Gate adapter 与未证实的 Bun resolver 假设？"
+        ]
+      },
+      "state": {
+        "formedAt": "2026-09-07T09:21:40Z",
+        "question": "在提交 bb33371c 的隔离 candidate 冷态下，正式 typecheck Gate 是否仍会在 candidate 已成功准备后失败于 bound-run 导入；现有 evidence 能否区分 candidate lifecycle、Gate adapter 与未证实的 Bun resolver 假设？",
+        "relations": [
+          {
+            "target": "diagnose-bun-cold-project-gate-candidate-import.md",
+            "type": "复查"
+          }
+        ],
+        "resourceIds": [],
+        "tags": [
+          "bun",
+          "module-resolution",
+          "package-candidate",
+          "project-gate",
+          "verification"
+        ],
+        "title": "冷 candidate bootstrap 的 Project Gate 导入复查"
+      }
+    },
     "recheck-json-dependency-and-zero-dependency-path.md": {
       "keys": {
         "formed-at": [
@@ -1442,6 +1482,7 @@
       "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
       "measure-markdown-link-serial-cache-overhead.md": "sha256:f5dd58142e34e02cc2b33f89fd103add3f8a571c90f354586600f960c2520ab4",
       "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
+      "recheck-cold-candidate-bootstrap-gate-import.md": "sha256:8d5311d57a6b48f00250af9e09bfe7184b818300fb27b6c47781466662cc676a",
       "recheck-json-dependency-and-zero-dependency-path.md": "sha256:6967e3e64bb9ed78eb4bf93f95a96d068bdf50d35e4d4ab6aaf840a7e81937c6",
       "remeasure-function-metrics-product-reader-fast-path.md": "sha256:93a6e21f8056ca5e1302720209508725d19101ed7c14a406372420b2cddd6854",
       "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md": "sha256:dfca0606ed628a4baf3c18b073d6441c6b5dfa5f373db89de4b0fd1eb97abdd7",

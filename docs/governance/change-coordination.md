@@ -183,7 +183,7 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 | [当前 package 定位](../../changes/clarify-current-package-artifact-discovery/proposal.md) | 已复核：现有固定 build/package 与 status 满足需求，不再作为待实施改进；保留评审记录，未归档。 |
 | [旧生成产物清理](../../changes/archive/clean-obsolete-generated-artifacts/proposal.md) | 已完成两份遗留文件的窄清理及 Process Check fixture 隔离修复并归档；不修改 Product 生成机制，不建立持续清理策略。 |
 | [诊断日志命名](../../changes/simplify-invocation-diagnostic-filenames/proposal.md) | 评审独占 invocation directory 与共享 target 的差异，不直接删除 UUID 防冲突机制。 |
-| [cold candidate 启动核验](../../changes/verify-cold-candidate-bootstrap/proposal.md) | 待验证线索，先隔离复现；与 package build/install 验证串行，不预判根因。 |
+| [cold candidate 启动核验](../../changes/archive/verify-cold-candidate-bootstrap/proposal.md) | 已完成限定环境的 cold/warm 调查并归档；共享 ancestor package 条件下冷态导入失败，根因未定，未实施修复。形成时依据见[调查报告](../investigations/recheck-cold-candidate-bootstrap-gate-import.md)。 |
 
 learned 算法比较继续由[既有优化 Change](../../changes/optimize-learned-admission-strategy/proposal.md)拥有，其 public
 strategy 基线恢复条件仍适用。已实施的[公共 learned helper](../../changes/expose-learned-admission-strategy/proposal.md)、
