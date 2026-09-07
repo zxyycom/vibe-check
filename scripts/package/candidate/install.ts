@@ -1,11 +1,9 @@
 import { existsSync, readFileSync, rmSync } from "node:fs";
-
-import { assertInstalledCandidateMaterials } from "./installed-materials.ts";
 import { dirname, join, resolve } from "node:path";
-import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
-import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import { fileURLToPath } from "node:url";
 
+import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
+import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
 import { errorMessage } from "../../error-message.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
@@ -22,6 +20,8 @@ import {
   type PackageDependencyVersionRequirement
 } from "../dependency-version.ts";
 import { runBun, sha256File } from "../pack.ts";
+import { auditInstalledDependencyLicenses } from "./dependency-license-audit.ts";
+import { assertInstalledCandidateMaterials } from "./installed-materials.ts";
 import type { InstalledCandidate } from "./receipt.ts";
 
 type CandidateRuntimeDependencyName = typeof AJV_PACKAGE_NAME | typeof JSCPD_PACKAGE_NAME;
@@ -119,6 +119,10 @@ function verifyInstallation(input: {
     expectedMachineMaterials,
     expectedJSDocExamplePayloads,
     expectedReadme
+  });
+  auditInstalledDependencyLicenses({
+    candidatePackageDirectory: packageDirectory,
+    consumerDirectory
   });
   verifyCandidateJscpdDependency({
     consumerDirectory,

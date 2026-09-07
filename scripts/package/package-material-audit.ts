@@ -19,18 +19,6 @@ export function assertJSDocExamplePayloads(input: {
   }
 }
 
-export function assertThirdPartyLicenseContent(
-  content: Buffer,
-  license: Readonly<{ readonly packageName: string; readonly sha256: string }>
-): void {
-  const sha256 = createHash("sha256").update(content).digest("hex");
-  if (sha256 !== license.sha256) {
-    throw new Error(
-      `candidate ${license.packageName} license material does not match the approved source text`
-    );
-  }
-}
-
 export function assertPackageLicenseContent(content: Buffer): void {
   const sha256 = createHash("sha256").update(content).digest("hex");
   if (sha256 !== PACKAGE_LICENSE_SHA256) {

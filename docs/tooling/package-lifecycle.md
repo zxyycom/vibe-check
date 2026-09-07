@@ -18,25 +18,36 @@ Product 源码。package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；
 
 逐模块产物保留第三方 package imports；candidate manifest 必须声明完整且可审计的直接运行时依赖要求。依赖的行为 owner
 决定使用精确版本还是有界 semver range；candidate installation 必须验证实际解析版本满足声明，随后由实际 consumer
-execution 验证这份安装。package tooling 不替依赖 owner 推断额外兼容语义。
+execution 验证这份安装。普通 dependencies 不被 bundled 进 Vibe Check tarball，而由 package manager 作为独立 package
+安装。
+
 local candidate 与 formal release 共用同一 closed generated manifest：user-scoped `@zxyycom/vibe-check`、通用 TypeScript
 质量门禁 description、围绕 quality gate/项目验证/代码质量/CI/TypeScript/Node 的固定 keywords、唯一 root export、
 `MIT AND Apache-2.0 AND BSD-2-Clause`、最低 Node 版本 `>=24.18`、canonical `zxyycom/vibe-check` repository、explicit public npm registry/access、allowlisted files 与
 完整 production dependencies。manifest 不含 `private`、`homepage`、`bin`、lifecycle scripts、Bun host 或 subpath export。
-仓库根 [`LICENSE`](../../LICENSE) 是 own MIT text owner，当前 notice 为 `Copyright (c) 2026 zxyycom`；artifact 还携带
-[`THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md)、`licenses/**` 中 Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments
-2.18 BSD-2-Clause text 与 fixed-range provenance，以及 Momoa third-party text。staging、tarball 与 installed candidate 都逐字节
-核对这些 material、shipped source header→ledger→license closure、deferred bodies absent 与无 Python/Lizard/Pygments runtime
-dependency；Pygments/Lizard legal provenance text 本身不构成 runtime dependency。SPDX 字段不能替代 physical legal-material audit。
+### Legal material 与 dependency installation 的边界
+
+Package artifact 与 dependency installation 是两个不同的事实源：
+
+| 边界 | 当前范围 | 验收责任 | 不作出的结论 |
+| --- | --- | --- | --- |
+| 随包法律材料 | 根 [`LICENSE`](../../LICENSE) 是 Vibe Check own MIT text；根 [`THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md) 是第三方归属与材料索引；唯一 `licenses/` 目录保存 Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments 2.18 BSD-2-Clause text 与 fixed-range provenance。 | staging、tarball 与 installed candidate 逐字节核对 material，并闭合 shipped source header→ledger→license、deferred bodies absent 与无 Python/Lizard/Pygments runtime dependency。 | `licenses/` 不代表普通 npm dependency graph；artifact 不发布平级 `third-party-licenses/`。 |
+| 实际安装依赖 | private consumer 本次安装中实际存在的全部 top-level、scoped 与 nested dependency package，包括本平台实际选中的 optional package；不含 Vibe Check candidate 自身。 | 核对路径与 manifest 中非空且无首尾空白的 name/version，并读取同样非空且无首尾空白的当前 `license`，或所有条目具有同一个此类 `type` 的 legacy `licenses[]`。当前 policy 只接受 `Apache-2.0`、`BSD-2-Clause`、`BSD-3-Clause`、`BlueOak-1.0.0`、`ISC` 与 `MIT`。 | 审计不覆盖本平台未安装的 optional package，不证明 dependency package 的物理法律材料，也不构成法律审查或额外兼容语义。 |
+
+Dependency manifest 缺失或格式错误、目录名与 manifest name 不一致、许可声明缺失/格式错误/不在当前 policy、symlink
+package layout 或 candidate package path 逃逸均 fail closed。SPDX 字段不能替代随包材料的 physical audit；Pygments/Lizard
+legal provenance text 本身也不构成 runtime dependency。
+
 artifact audit 在 pack 前验证根入口、公开运行时导出、可解析的相对 `.mjs` 引用、源码映射与 package
 源码的一致性、声明与 README 投影以及允许的文件清单；pack 后继续验证 tar inventory、manifest 与摘要。
 
 `scripts/package/candidate/**` 只安装并核对这一个精确 tarball，再把解析到的根入口交给 private consumer；
 它不从 repository source 或祖先依赖补偿不完整的 candidate。安装后的责任按以下边界闭合：
 
-1. 一个 child 一次解析 candidate 根入口与两项声明依赖；
-2. parent 核对路径 containment、manifest version 和 jscpd bin；
-3. 实际 jscpd execution 由随后消费同一安装的 Product / external runtime 验收，preparation 不为同一事实重复启动多个 probe。
+1. package material audit 完成后，对上一节定义的实际安装依赖集合执行 license declaration policy audit；
+2. 一个 child 一次解析 candidate 根入口与 Ajv/jscpd 两项功能探针依赖；
+3. parent 核对路径 containment、manifest version 和 jscpd bin；
+4. 实际 jscpd execution 由随后消费同一安装的 Product / external runtime 验收，preparation 不为同一事实重复启动多个 probe。
 
 `candidate/external-consumer/**` 是 candidate 下级模块：它建立一次隔离安装及 typed material，并分别验证 types、
 documentation 与 runtime；runtime evidence 从 installed root import 实际调用 `functionMetrics`，要求 CCN `2` 的 non-blocking
@@ -59,7 +70,7 @@ performed action；`package:verify` 直接运行 complete Project Gate。Gate ro
 `--all` 内的 artifact 与 external-consumer acceptance 只消费其 typed evidence，不再另建 detached cold candidate。
 `package:candidate:integration` 是 routine `--test` preset 之外的显式物理 target：它在 30 秒进程硬限制内以 test-local state 证明一次
 cold build/install/reuse，并覆盖以下边界：build staging 仍由 artifact acceptance 审计、installed documentation drift 会失败、
-missing dependency 触发 reinstall、malformed receipt 触发 rebuild。Routine Gate 不运行该显式 target。
+installed dependency license drift 与 missing dependency 触发 reinstall、malformed receipt 触发 rebuild。Routine Gate 不运行该显式 target。
 
 Candidate preparation 先执行不修改文件系统的状态判断，再根据结果执行动作：
 

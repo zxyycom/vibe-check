@@ -1,24 +1,19 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 
-import { errorMessage } from "../../error-message.ts";
-import {
-  assertJSDocExamplePayloads,
-  assertThirdPartyLicenseContent,
-  assertPackageLicenseContent
-} from "../package-material-audit.ts";
 import type { PackageDocumentationFile } from "../../docs/package-api/check-guides.ts";
 import type { PackageMachineMaterial } from "../../docs/machine-artifacts/package-materials.ts";
-import {
-  PACKAGE_LICENSE_PATH,
-  PACKAGE_THIRD_PARTY_LICENSES,
-  PACKAGE_TYPES_DIRECTORY
-} from "../package-contract.ts";
+import { errorMessage } from "../../error-message.ts";
 import { collectFilePaths } from "../file-inventory.ts";
 import {
   assertNoLegacyFunctionMetricsRuntime,
   assertTranslatedAnalyzerLegalMaterials
 } from "../legal-materials.ts";
+import { PACKAGE_LICENSE_PATH, PACKAGE_TYPES_DIRECTORY } from "../package-contract.ts";
+import {
+  assertJSDocExamplePayloads,
+  assertPackageLicenseContent
+} from "../package-material-audit.ts";
 
 export function assertInstalledCandidateMaterials(input: {
   readonly packageDirectory: string;
@@ -37,9 +32,6 @@ export function assertInstalledCandidateMaterials(input: {
 function assertInstalledLegalMaterials(packageDirectory: string): void {
   try {
     assertPackageLicenseContent(readFileSync(join(packageDirectory, PACKAGE_LICENSE_PATH)));
-    for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
-      assertThirdPartyLicenseContent(readFileSync(join(packageDirectory, license.path)), license);
-    }
     const files = collectFilePaths(packageDirectory, () => true).map((path) =>
       relative(packageDirectory, path).split(sep).join("/")
     );

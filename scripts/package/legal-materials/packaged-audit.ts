@@ -3,7 +3,6 @@ import { createHash } from "node:crypto";
 import {
   PACKAGE_LIZARD_APACHE_LICENSE_PATH,
   PACKAGE_LIZARD_MIT_LICENSE_PATH,
-  PACKAGE_MOMOA_LICENSE_PATH,
   PACKAGE_PYGMENTS_LICENSE_PATH,
   PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH
 } from "../package-contract.ts";
@@ -103,7 +102,12 @@ export function assertNoticeSummarizesFixedSources(source: Buffer): void {
     "`lizardhalstead` entry body",
     "two extension-only Halstead support modules",
     PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
-    PACKAGE_MOMOA_LICENSE_PATH
+    "Separately installed npm dependencies",
+    "`licenses/`",
+    "physically present in the exact isolated installation",
+    "any platform-optional package selected for that installation",
+    "claim coverage of packages absent on the current platform",
+    "constitute legal review"
   ]) {
     if (!notice.includes(requiredText)) {
       throw new Error(

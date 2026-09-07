@@ -8,8 +8,7 @@ import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-invento
 import {
   CANDIDATE_DEPENDENCIES,
   PACKAGE_LICENSE_SOURCE_PATH,
-  PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS,
-  PACKAGE_THIRD_PARTY_LICENSES
+  PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS
 } from "../package-contract.ts";
 import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
@@ -46,7 +45,6 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
     join(repositoryRoot, PACKAGE_LICENSE_SOURCE_PATH),
-    ...PACKAGE_THIRD_PARTY_LICENSES.map((license) => join(repositoryRoot, license.sourcePath)),
     ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => join(repositoryRoot, material.path))
   ].sort();
   for (const filePath of inputFiles) {

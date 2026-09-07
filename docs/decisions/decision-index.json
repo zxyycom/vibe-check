@@ -244,6 +244,7 @@
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:d2651f0a630694e8828b67b88c87e57a34e6701cf3ada276e2b16d8ddeeee38a",
       "unify-default-summary-with-terminal-measurement-hooks.md": "sha256:a0ea65a0722d0bf5b7d69e3c6c47a13df15061173ec6fbbb6c13821194f766b4",
       "unify-effective-flag-selection-and-aggregation.md": "sha256:5186c7222b430583dce1c7743d69de891bb4d1e6d000b75e956240de660a4e2d",
+      "unify-package-legal-materials-and-audit-installed-dependencies.md": "sha256:b24d3870ef3bf699a826ccecf5681aa8b02059322d3c1996293c54b1de35be2d",
       "use-a-verified-fast-path-for-lizard-reader-resolution.md": "sha256:b4dbea919fa19d15780db4302fc20b3f76cf40b30db21a0dc612f5a63e323c5b",
       "use-bun-typescript-project-definition.md": "sha256:a4d6b9cdc62e8981cf6f90db1f7d86b5d93b998e6e25f30ca4ad189273cd058e",
       "use-check-owned-extractors-for-opaque-record-identities.md": "sha256:a9bbb2fd123e914ce0b7f720799e9ad8cdfc1aabc2c3d47354cd32f799b92509",
@@ -7971,6 +7972,37 @@
             "target": "group-flag-disabled-checks-in-progress.md"
           }
         ]
+      }
+    },
+    "unify-package-legal-materials-and-audit-installed-dependencies.md": {
+      "keys": {
+        "tag": [
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "unify-package-legal-materials-and-audit-installed-dependencies.md",
+        "title": "统一随包法律材料并审计实际安装依赖",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-07T02:22:54Z",
+        "purpose": "让单一 package 材料目录与安装时依赖许可审计分别承接稳定随包内容和动态依赖图。",
+        "background": "现有两个第三方目录来自功能分批引入，三个手工镜像文本既不是完整依赖清单，也没有形成稳定选择规则。",
+        "decision": "除自有 LICENSE 和顶层 notices 外统一使用 licenses 目录，并对每次 exact candidate 的完整安装包集合执行 fail-closed 许可声明审计。",
+        "tags": [
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": []
       }
     },
     "use-a-verified-fast-path-for-lizard-reader-resolution.md": {

@@ -6,7 +6,6 @@ import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_ENTRY_SOURCE,
   PACKAGE_LICENSE_PATH,
-  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_README_PATH,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_RUNTIME_ENTRY_PATH,
@@ -23,7 +22,6 @@ import {
 import { assertReadableStagingRuntimeLayout } from "./staging-runtime-layout.ts";
 import {
   assertJSDocExamplePayloads,
-  assertThirdPartyLicenseContent,
   assertPackageLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
@@ -36,7 +34,6 @@ const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_README_PATH,
-  ...PACKAGE_THIRD_PARTY_LICENSES.map((license) => license.path),
   ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => material.path)
 ]);
 
@@ -112,9 +109,6 @@ function assertStagingPublishedMaterials(input: {
   });
   assertPackageDocumentation(stagingDirectory, expectedDocuments);
   assertPackageMachineMaterials(stagingDirectory, expectedMachineMaterials);
-  for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
-    assertThirdPartyLicenseContent(readFileSync(join(stagingDirectory, license.path)), license);
-  }
   assertPackageLicenseContent(readFileSync(join(stagingDirectory, PACKAGE_LICENSE_PATH)));
   const files = stagingFilePaths(stagingDirectory);
   const legalAccess = Object.freeze({

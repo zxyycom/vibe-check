@@ -1,12 +1,21 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createRequire } from "node:module";
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  lstatSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { after, describe, it } from "node:test";
 
+import { isNonArrayRecord } from "../../value-guards.ts";
 import { assertInstalledCandidateMaterials } from "./installed-materials.ts";
 import { assessPackageCandidatePreparation, preparePackageCandidate } from "./prepare.ts";
 
@@ -122,6 +131,38 @@ await describe(
           }),
         /installed candidate README differs from the expected package documentation/
       );
+    });
+
+    await it("rejects installed dependency license drift before candidate reuse", async () => {
+      const { buildDirectory, consumerDirectory, first, stateDirectory } = await fixture();
+      const dependencyManifestPath = createRequire(first.resolvedEntryPath).resolve(
+        "immutable/package.json"
+      );
+      const originalManifestSource = readFileSync(dependencyManifestPath, "utf8");
+      const dependencyManifest: unknown = JSON.parse(originalManifestSource);
+      if (!isNonArrayRecord(dependencyManifest)) {
+        throw new TypeError(
+          `installed dependency manifest must be an object: ${dependencyManifestPath}`
+        );
+      }
+      try {
+        writeFileSync(
+          dependencyManifestPath,
+          `${JSON.stringify({ ...dependencyManifest, license: "GPL-3.0-only" }, null, 2)}\n`,
+          "utf8"
+        );
+        assert.deepEqual(
+          assessPackageCandidatePreparation({
+            buildDirectory,
+            consumerDirectory,
+            repositoryRoot,
+            stateDirectory
+          }),
+          { action: "reinstall", reason: "installation-invalid" }
+        );
+      } finally {
+        writeFileSync(dependencyManifestPath, originalManifestSource, "utf8");
+      }
     });
 
     await it("reinstalls a missing dependency instead of accepting ancestor fallback", async () => {

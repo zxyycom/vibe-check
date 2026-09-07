@@ -33,7 +33,16 @@ the provenance inventory. It retains BSD-2-Clause terms in addition to its Lizar
 complete wheel license text is
 [`licenses/Pygments-2.18.0-BSD-2-Clause.txt`](licenses/Pygments-2.18.0-BSD-2-Clause.txt).
 
-## Other bundled third-party material
+## Separately installed npm dependencies
 
-The existing exact Momoa license material is retained at
-[`third-party-licenses/momoa-3.3.12-LICENSE`](third-party-licenses/momoa-3.3.12-LICENSE).
+Vibe Check's package manifest declares its direct runtime dependencies. They are not bundled into the
+Vibe Check tarball: the package manager resolves and installs them as separate packages, whose manifests
+and any legal materials remain owned by those package distributions. For that reason, `licenses/` is the
+inventory of third-party material incorporated into Vibe Check, not a static copy of the direct and
+transitive npm dependency graph.
+
+Candidate acceptance audits the name, version, and explicit license declaration of every dependency
+package physically present in the exact isolated installation. This includes top-level and scoped
+packages, nested packages, and any platform-optional package selected for that installation. It does not
+claim coverage of packages absent on the current platform, replace dependency-owned legal materials, or
+constitute legal review.

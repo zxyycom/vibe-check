@@ -19,8 +19,7 @@ import {
   PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS,
   PACKAGE_RUNTIME_DIRECTORY,
   PACKAGE_SOURCE_DIRECTORY,
-  PACKAGE_TARBALL_STEM,
-  PACKAGE_THIRD_PARTY_LICENSES
+  PACKAGE_TARBALL_STEM
 } from "../package-contract.ts";
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "../pack.ts";
@@ -166,22 +165,6 @@ function copyLegalMaterials(input: {
   }
   copyFileSync(packageLicenseSource, join(input.stagingDirectory, PACKAGE_LICENSE_PATH));
 
-  for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
-    const sourcePath = join(input.repositoryRoot, license.sourcePath);
-    const destinationPath = join(input.stagingDirectory, license.path);
-    if (!existsSync(sourcePath)) {
-      throw new Error(
-        `candidate source is missing ${license.packageName} license material: ${sourcePath}`
-      );
-    }
-    mkdirSync(dirname(destinationPath), { recursive: true });
-    copyFileSync(sourcePath, destinationPath);
-    if (sha256File(destinationPath) !== license.sha256) {
-      throw new Error(
-        `candidate ${license.packageName} license material does not match the approved source text`
-      );
-    }
-  }
   for (const material of TRANSLATED_ANALYZER_LEGAL_MATERIALS) {
     const source = join(input.repositoryRoot, material.path);
     const destination = join(input.stagingDirectory, material.path);

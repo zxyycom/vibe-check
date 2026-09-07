@@ -32,7 +32,7 @@ Entities:
 
 - Artifact construction and audit produce one package with the approved single-README documentation inventory, no package or Check index page, public declarations and root exports, readable ESM layout, and the complete audited production dependency requirements.
 - The closed generated manifest uses the user-scoped `@zxyycom/vibe-check` identity and carries the fixed general-purpose quality-gate discovery description and keywords, the complete `MIT AND Apache-2.0 AND BSD-2-Clause` expression, Vibe Check's exact MIT text and `zxyycom` notice, minimum Node engine `>=24.18` without an unverified upper bound, canonical GitHub repository, explicit public npm registry/access, and no `private`, `bin`, lifecycle scripts, Bun engine, or subpath export.
-- The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, all four complete current artifact examples, exact Lizard/Pygments notice, license and provenance material, and the non-public emitted function-metrics Worker through staging and tar audit; it includes exact zero-byte NDJSON files and excludes historical or analyzer fixture material.
+- The same byte-level allowlist carries `docs/output.md`, both current v4 schemas, all four complete current artifact examples, exact Lizard/Pygments notice, license and provenance material, and the non-public emitted function-metrics Worker through staging and tar audit; it includes exact zero-byte NDJSON files, has one `licenses` material root with no parallel `third-party-licenses`, and excludes historical or analyzer fixture material.
 - The direct legal-material audit proves the orchestrator's stable seven-stage fail-first order: approved material bytes; provenance inventory parsing; translated-target closure; registered target headers; untracked headers; deferred bodies absent; then fixed-source notice content. Each injected combination exposes the first reachable stage error.
 
 ## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
@@ -157,6 +157,16 @@ Entities:
   Proves:
 
 - Package tooling distinguishes exact dependency versions from bounded semver ranges, accepts only actual resolutions covered by the declared requirement (including rejection of jscpd `5.1.0` below the `^5.1.1` lower bound), and renders the same requirement in rejection diagnostics.
+
+## Case AUX-PACKAGE-DEPENDENCY-LICENSES-001: Candidate audits every installed dependency license declaration
+
+Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
+Entities:
+
+- `bun|scripts/package/candidate/dependency-license-audit.test.ts|installed dependency license audit > covers every package directory and fails closed on unsupported declarations and layouts`
+  Proves:
+
+- The installed dependency license audit enumerates top-level, scoped and nested package directories, accepts repeated legacy `licenses[].type` entries only when every value is the same non-empty whitespace-normalized identity, and returns the complete accepted license distribution to its direct caller. It rejects candidate path escape, malformed manifests, package-name mismatch, missing/malformed/unsupported declarations, and symbolic-link package or nested `node_modules` layouts instead of treating a selective set of mirrored texts as dependency coverage.
 
 ## Case AUX-DOCS-VALIDATION-CLI-001: Root validation preserves default and focused docs selection
 

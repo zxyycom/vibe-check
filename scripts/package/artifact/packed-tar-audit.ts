@@ -5,7 +5,6 @@ import { errorMessage } from "../../error-message.ts";
 import {
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE_PATH,
-  PACKAGE_THIRD_PARTY_LICENSES,
   PACKAGE_README_PATH,
   PACKAGE_TYPES_PATH
 } from "../package-contract.ts";
@@ -18,7 +17,6 @@ import {
 import { sha256File } from "../pack.ts";
 import {
   assertJSDocExamplePayloads,
-  assertThirdPartyLicenseContent,
   assertPackageLicenseContent,
   sameOrderedStrings
 } from "../package-material-audit.ts";
@@ -87,12 +85,6 @@ function assertTarReadme(entries: readonly TarEntry[], expectedReadme: string): 
 function assertTarLegalMaterials(entries: readonly TarEntry[]): void {
   const packageLicense = requiredTarEntry(entries, `package/${PACKAGE_LICENSE_PATH}`);
   assertPackageLicenseContent(packageLicense.content);
-  for (const license of PACKAGE_THIRD_PARTY_LICENSES) {
-    assertThirdPartyLicenseContent(
-      requiredTarEntry(entries, `package/${license.path}`).content,
-      license
-    );
-  }
   const legalAccess = tarPackageLegalMaterialAccess(entries);
   assertTranslatedAnalyzerLegalMaterials(legalAccess);
   assertNoLegacyFunctionMetricsRuntime(legalAccess);

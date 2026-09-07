@@ -231,4 +231,12 @@ npm 只负责分发和安装 package；唯一受支持的产品 host 是 Node，
 
 当前 public contract 只有 `@zxyycom/vibe-check` package root 的程序化 API。CLI、`bin`、plugin API、CommonJS/browser entry 和 subpath imports 都不在支持范围内。
 
-`0.0.x` patch 之间不承诺 package-level 兼容。项目应提交 lockfile，并在升级前检查对应版本的变更。Vibe Check 自有材料使用 MIT；安装包中的 `THIRD_PARTY_NOTICES.md` 与 `licenses/**` 承载翻译 analyzer 的适用第三方材料。
+`0.0.x` patch 之间不承诺 package-level 兼容。项目应提交 lockfile，并在升级前检查对应版本的变更。
+
+随包法律材料按责任分为三层：
+
+- 根 `LICENSE` 是 Vibe Check 自有 MIT 文本；
+- 根 `THIRD_PARTY_NOTICES.md` 是第三方归属与材料索引；
+- 唯一 `licenses/` 目录保存被翻译进本包的 analyzer 第三方文本与来源记录。
+
+普通 npm dependencies 不被复制到 `licenses/`；package manager 将它们安装为独立 package，其许可声明与可能携带的法律材料由各 dependency package 自身负责。Vibe Check 的 candidate 验收只核对本次隔离安装中实际存在的 dependency package 及其许可声明，不把该动态集合声明为随包材料清单或法律审查结论。
