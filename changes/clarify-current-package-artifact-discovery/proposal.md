@@ -11,5 +11,5 @@
 
 从一个正式入口可核对 current/stale、unpacked package、对应 tarball 与 installed entry，且能区分本地候选、正式 release 和 Check/Run outputs。
 
-当前 Outcome 已由现有入口满足，不新增代码或输出机制。旧材料是否可删由[清理 Change](../clean-obsolete-generated-artifacts/proposal.md)承接；
+当前 Outcome 已由现有入口满足，不新增代码或输出机制。旧材料窄清理及 fixture 隔离结果由[已归档清理记录](../archive/clean-obsolete-generated-artifacts/proposal.md)承接；
 未来如出现具体的新消费需求，应先重新确认范围。生命周期尚未迁移或归档，不以 Draft metadata 表示实施未完成。

@@ -168,13 +168,12 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 
 - [`add-secret-detection`](../../changes/archive/add-secret-detection/proposal.md)：已完成随包、显式 file scope 与通用 Finding waiver 的 production implementation 并归档；固定 Secretlint rule/license/provenance、bounded no-follow input read、representative corpus、package/candidate、长期 Decision 与 leak-canary evidence 均已闭合，归档时 `tasks.md` 为 12/12。它不进入其它 Change 的实现批次。
 
-## 2026-09-07 讨论事项的 Draft 交接
+## 2026-09-07 讨论事项的交接
 
-本组基于 `9ee0263e205f0d963aa773f2caa97abf1b764b9c` 及当时未提交的工作区核对，只记录后续考虑的独立 Outcome；
-不建立新的实施基线，也不表示下表方向已批准实施。各 Draft 的事实、方案与开放问题由自身 artifacts 拥有。
-本次 Change/Decision CLI 被执行策略拒绝；这里只报告实际创建的 Draft，不宣称生命周期检查通过。
+本组最初基于 `9ee0263e205f0d963aa773f2caa97abf1b764b9c` 及当时未提交的工作区登记独立 Outcome。
+下表只协调当前关系，不建立实施基线或扩大授权；各 Change 的范围、状态、验证与完成记录由自身 artifacts 拥有。
 
-| Draft | 关系与允许推进的工作 |
+| Change | 关系与允许推进的工作 |
 | --- | --- |
 | [公开文件收集工具](../../changes/expose-project-file-collection/proposal.md) | 先评审独立 file tool 的 public contract；`codeAreas` 继续由各 Check 封装。 |
 | [配置 progress preview](../../changes/configure-progress-preview/proposal.md) | 评审数量与截断 formatter；与下一项共享展示边界，先明确 renderer 与 Check 的责任。 |
@@ -182,7 +181,7 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 | [Check 指南共同契约](../../changes/refine-check-guide-shared-contracts/proposal.md) | 延续已完成的文档修复，只处理剩余共性；file tool 若公开，其用户指南可承接相关共享规则。 |
 | [静态 package 材料](../../changes/author-static-package-materials/proposal.md) | 独立评审稳定内容与动态派生；与其它 package 实施共享 owner 时串行。 |
 | [当前 package 定位](../../changes/clarify-current-package-artifact-discovery/proposal.md) | 已复核：现有固定 build/package 与 status 满足需求，不再作为待实施改进；保留评审记录，未归档。 |
-| [旧生成产物清理](../../changes/clean-obsolete-generated-artifacts/proposal.md) | 用户已批准检查并清理确认废弃且可恢复的本地产物；精确范围与结果由该 Change 记录，生成机制问题先讨论。 |
+| [旧生成产物清理](../../changes/archive/clean-obsolete-generated-artifacts/proposal.md) | 已完成两份遗留文件的窄清理及 Process Check fixture 隔离修复并归档；不修改 Product 生成机制，不建立持续清理策略。 |
 | [诊断日志命名](../../changes/simplify-invocation-diagnostic-filenames/proposal.md) | 评审独占 invocation directory 与共享 target 的差异，不直接删除 UUID 防冲突机制。 |
 | [cold candidate 启动核验](../../changes/verify-cold-candidate-bootstrap/proposal.md) | 待验证线索，先隔离复现；与 package build/install 验证串行，不预判根因。 |
 

@@ -2,7 +2,7 @@
 
 ## Scope and authorization
 
-2026-09-07，用户明确授权仅清理已经确认**过期或失败产生、无人引用且可重建**的精确本地产物；不得删除 build/artifacts/cache/log 的父目录，不得触碰 current candidate、formal release evidence、活跃输出或无法恢复的历史诊断。本 Change metadata 仍为 `draft`。
+2026-09-07，用户明确授权仅清理已经确认**过期或失败产生、无人引用且可重建**的精确本地产物；不得删除 build/artifacts/cache/log 的父目录，不得触碰 current candidate、formal release evidence、活跃输出或无法恢复的历史诊断。本 Change 已进入 `plan`；后续 fixture 修复仍只限本 Change 的既有 Process Check 测试。
 
 ## Removed
 
@@ -30,4 +30,6 @@ The two files were removed individually. `artifacts/vibe-check/` remains as an e
 
 The unique `fixture-command` identity matches the `reports a safe failure Record and command-failed message for nonzero exit without copying child output` test in `scripts/project/gate/checks/process/process.test.ts` (lines 324–402). At lines 392–395 it supplies legacy `outputs.output`, while `defineConfig` reads only `outputs.machinePublication` (in `src/project-definition/project-definition.ts`, lines 208–216) and the default is enabled at `artifacts/vibe-check` (`src/project-definition/output-defaults.ts`, line 3). The invocation at lines 397–400 sets a Check-local artifact base but no `projectRoot`, so the default machine-publication pair is written under the workspace current directory.
 
-This identifies why the deleted pair can recur; this one-time cleanup cannot prevent it. It is a test-isolation/source compatibility issue, not grounds for a broader deletion. No test or Gate was rerun because either could recreate the pair. Await explicit user authorization before changing the test or output-generation mechanism.
+This identified why the deleted pair could recur. The approved fixture repair is now implemented in that same test: it uses `outputs.machinePublication: { enabled: false }`, passes its temporary `root` as `projectRoot`, and asserts both the disabled output status and absence of the default pair beneath that root. It preserves the existing Record, message, progress and transcript-only-material assertions.
+
+The repair is invocation-local: it prevents this fixture from using the workspace cwd default target; it does not change Product output generation or prove that arbitrary callers cannot enable publication. No broader deletion, Gate, build, installation or Product runtime change is authorized by this evidence.

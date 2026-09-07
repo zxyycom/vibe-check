@@ -390,19 +390,26 @@ describe("Project Gate process Check", () => {
           defineConfig({
             checks: [productCheck],
             outputs: {
-              output: { enabled: false },
+              machinePublication: { enabled: false },
               progressRendering: { enabled: true }
             }
           }),
           {
             checkArtifactBaseDirectory: join(root, "checks"),
-            flags: ["project-gate:profile=required"]
+            flags: ["project-gate:profile=required"],
+            projectRoot: root
           }
         )
       );
 
       assert.equal(productRun.result.kind, "completed");
       if (productRun.result.kind !== "completed") return;
+      assert.deepEqual(productRun.result.outputs.machinePublication, {
+        enabled: false,
+        status: "disabled"
+      });
+      assert.equal(existsSync(join(root, "artifacts", "vibe-check", "run.json")), false);
+      assert.equal(existsSync(join(root, "artifacts", "vibe-check", "records.ndjson")), false);
       const record = productRun.result.snapshot.records[0];
       assert.equal(record?.checkId, "fixture-command");
       assert.equal(record?.id, "command-failure");

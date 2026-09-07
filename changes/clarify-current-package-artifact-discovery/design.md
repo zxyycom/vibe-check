@@ -19,7 +19,7 @@
 2026-09-07 按实际 `bun run package:status` 复核：候选 `0.0.0-local.afada4b41fc8` 为 `current`，
 unpacked path 为 `build/package/`，tarball 为 `build/artifacts/zxyycom-vibe-check-0.0.0-local.afada4b41fc8.tgz`，
 installed entry 为 `scripts/project/node_modules/@zxyycom/vibe-check/index.mjs`。这次读数是形成时证据，不是未来默认版本。
-因此保留现有入口与 ownership，不安排实施任务。旧材料处置交 [清理 Change](../clean-obsolete-generated-artifacts/proposal.md)。
+因此保留现有入口与 ownership，不安排实施任务。旧材料窄清理及 fixture 隔离结果见[已归档清理记录](../archive/clean-obsolete-generated-artifacts/proposal.md)。
 
 ### Resulting Impacts
 
