@@ -34,6 +34,14 @@ npm 负责安装 package；应用代码和质量脚本的最低运行要求是 *
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
 
+## 共享的 files 选择语义
+
+`duplicateDetection`、`fileMetrics`、`functionMetrics` 与 `secretDetection` 都用 `files` 指定 Check-owned 的 project 文件范围。它不是 Product-wide setting、跨 Check cache 或新 public file tool；`files` 在 options 的位置、是否必填、默认值、accepted/rejected input 和后续 I/O 继续由对应 Check guide 拥有。
+
+共同 shape 是 `{ source, include, exclude }`。`source` 只能是 `"filesystem"` 或 `"git-worktree"`：前者枚举普通文件且不解释 `.gitignore`，后者使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。两种 source 都是显式选择；不能形成候选快照时 owning Check 以 `unavailable` 结算，不会改用另一种 source。
+
+`include` 与 `exclude` 都以 project-root-relative、使用 `/` 的 path glob 匹配，且 `exclude` 优先。显式数组完整替换该 Check 的相应默认值：`include: []` 不选择路径，`exclude: []` 不排除路径。只有需要保留某 Check 的公开默认排除时，才从 `defaultProjectFileSelection` 显式组合。各 Check 的 area semantics、eligibility、精确输入、coverage 与安全处理并不相同，应继续阅读其指南。
+
 `markdownLinkValidation` 的 cache 只是 opt-in local performance state：它可能保存 source-derived link destination、heading
 slug 与 range，不提供 confidentiality 或 automatic cleanup。调用方只有在接受这项 material 并拥有目录生命周期时，才传入
 `cache: { enabled: true, directory: "/absolute/removable/cache" }`；完整 option、failure 与 memo boundary 见其 Check guide。

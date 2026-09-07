@@ -18,7 +18,9 @@
 }
 ```
 
-`source` 可取 `filesystem` 或 `git-worktree`，include/exclude 是 project-relative `/` glob 且 exclude 优先。三个 limit 都是正安全整数；它们可收窄或显式提高。options 不接受 arbitrary regex、command、baseline、detector allowlist 或 message suppression。
+共同 `{ source, include, exclude }` grammar、source failure 与数组替换见
+[共享的 files 选择语义](../../README.md#共享的-files-选择语义)。此 Check 不提供默认 selection：完整 top-level `files`
+仍是唯一输入授权。三个 limit 都是正安全整数；它们可收窄或显式提高。options 不接受 arbitrary regex、command、baseline、detector allowlist 或 message suppression。
 
 ## 工作原理
 
@@ -38,7 +40,10 @@ Check 先从 own `files` policy 收集 exact project-relative paths。对每个 
 
 zero selected paths 为 `not-applicable`，没有 final data。否则，无 actionable finding 且没有 coverage gap 为 `passed`；任一 actionable finding 或 deterministic coverage gap 为 `failed`。`unavailable` 也没有 final data，且不发布 partial result。`secret-finding` Record 只含 blocking、rule ID、path、safe location、structural class 与 ordinal。coverage Record 是不可豁免的 `{ kind: "coverage-gap", path, reason, blocking: true }`。`SecretDetectionOptions`、`ResolvedSecretDetectionOptions`、`SecretDetectionFinalData`、`SecretDetectionRecordData` 与 `SecretDetectionUnavailableReasonCode` 均从 package root 导出。
 
-`findingWaivers` 复用 `reconcileFindingWaivers(...)`：identity 恰为 `{ path, ruleId: "@secretlint/secretlint-rule-privatekey", structuralClass: "text-document", ordinal }`，不含 value/message/line/hash。唯一匹配的 finding 是 **waived finding**：它仍保留原 finding Record 与 reason，但不再计入 actionable finding；`unused` 与 `overmatched` waiver 形成 audit，后者不豁免任一 finding。coverage gap 与 unavailable 不受 waiver 影响。
+`findingWaivers` 采用[共同 waiver reconciliation/audit](../guides/finding-waivers.md#随包-check-的共同采用过程)：identity 恰为
+`{ path, ruleId: "@secretlint/secretlint-rule-privatekey", structuralClass: "text-document", ordinal }`，不含 value/message/line/hash。
+唯一匹配的 finding 是 **waived finding**：它仍保留原 finding Record 与 reason，但不再计入 actionable finding。coverage gap
+与 unavailable 不受 waiver 影响。
 
 ```ts
 const check = secretDetection({

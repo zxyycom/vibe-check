@@ -178,7 +178,7 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 | [公开文件收集工具](../../changes/expose-project-file-collection/proposal.md) | 先评审独立 file tool 的 public contract；`codeAreas` 继续由各 Check 封装。 |
 | [配置 progress preview](../../changes/configure-progress-preview/proposal.md) | 评审数量与截断 formatter；与下一项共享展示边界，先明确 renderer 与 Check 的责任。 |
 | [收敛 Check Finding 呈现](../../changes/consolidate-check-finding-presentation/proposal.md) | 评估既有 helper 之外是否仍有真实共性；不是 preview API 的硬前置，也不预定统一方案。 |
-| [Check 指南共同契约](../../changes/refine-check-guide-shared-contracts/proposal.md) | 延续已完成的文档修复，只处理剩余共性；file tool 若公开，其用户指南可承接相关共享规则。 |
+| [Check 指南共同契约](../../changes/archive/refine-check-guide-shared-contracts/proposal.md) | 已收敛 files/waiver 的真实共同规则并归档；保留 Check-local 差异和 parser owner，不引入或等待公共 file tool。 |
 | [静态 package 材料](../../changes/author-static-package-materials/proposal.md) | 独立评审稳定内容与动态派生；与其它 package 实施共享 owner 时串行。 |
 | [当前 package 定位](../../changes/clarify-current-package-artifact-discovery/proposal.md) | 已复核：现有固定 build/package 与 status 满足需求，不再作为待实施改进；保留评审记录，未归档。 |
 | [旧生成产物清理](../../changes/archive/clean-obsolete-generated-artifacts/proposal.md) | 已完成两份遗留文件的窄清理及 Process Check fixture 隔离修复并归档；不修改 Product 生成机制，不建立持续清理策略。 |

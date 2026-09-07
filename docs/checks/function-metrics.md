@@ -28,7 +28,8 @@ source aggregate 最大 `64 MiB`。这两个上限不改变上述 metric limits�
 
 ### 区域与 finding policy
 
-每个非空 area ID 必须声明 `files`，其余字段可继承默认值。一个路径可匹配多个 area；Check 对同一函数 metric
+每个非空 area ID 必须声明 `files`，其共同 selector grammar、source failure 与数组替换见
+[共享的 files 选择语义](../../README.md#共享的-files-选择语义)，其余字段可继承默认值。一个路径可匹配多个 area；Check 对同一函数 metric
 采用所有 matching areas 中最严格的有效 limit，任一 matching area 为 `blocking` 时该 finding 就是 blocking。
 所有 selected path 先按每个 area 的 source/include/exclude 收集，再稳定去重；area 重叠不会重复分析或重复发布同一
 metric finding。
@@ -54,11 +55,10 @@ const metrics = functionMetrics({
 
 ### 精确豁免一个函数指标
 
-`findingWaivers` 只匹配 normal metric findings，不匹配 input rejection。identity 是
-`functionName`、`metric`、`path` 与 `startLine`：path 是 normalized project-root-relative slash path，
-`startLine` 是正安全整数。匹配零条为 `unused`，同一 identity 匹配多条为 `overmatched`；这两种 authoring audit 都不应用
-waiver。恰好匹配一条才是 `applied`：原 finding Record 保留、附上 reason 并不再 blocking。通用 waiver 对账语义见
-[对账 Finding waiver](../guides/finding-waivers.md)。
+`findingWaivers` 只匹配 normal metric findings，不匹配 input rejection。共同 authoring、matching 与 audit 见
+[对账 Finding waiver](../guides/finding-waivers.md)；本 Check 的 identity 是 `functionName`、`metric`、`path` 与
+`startLine`，其中 path 是 normalized project-root-relative slash path，`startLine` 是正安全整数。恰好匹配的 waiver
+保留原 finding Record、附上 reason 并不再 blocking；本 Check 仍为未匹配或过宽 authoring 发布 audit，且不应用 waiver。
 
 ```ts
 const metrics = functionMetrics({

@@ -5,7 +5,8 @@
 本页是 package consumer 配置和读取 `duplicateDetection` 的主指南。`duplicateDetection(options?)` 使用带默认值的
 policy 构造一个普通 `duplicate-detection` Check。该 Check 用 jscpd 比较自己批准的项目文件，把满足行数与 token
 policy 的重复片段报告为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
-可选 waiver 在完整 duplicate Finding 集合形成后按排序 location ranges 对账，不会缩小 jscpd 输入或 cache evidence。
+可选 waiver 按[共同 reconciliation/audit 过程](../guides/finding-waivers.md#随包-check-的共同采用过程)在完整 duplicate Finding
+集合形成后按排序 location ranges 对账，不会缩小 jscpd 输入或 cache evidence。
 
 默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5。发布 manifest 的当前兼容范围是
 `^5.1.1`（下界为 5.1.1、上界不含 v6）。项目无需选择版本、提供 executable 或复制默认 options：
@@ -43,14 +44,12 @@ const check = duplicateDetection();
 自己的 resolved options，调用方无需复制该对象；完整默认 glob 可直接从该 public value 读取。
 
 - 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
-- 每个显式 area 必须提供 `files` branch。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`。
-  `filesystem` 枚举普通文件且不解释 `.gitignore`；`git-worktree` 使用已跟踪文件和未被 Git 标准忽略规则排除的
-  未跟踪文件。来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
-- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。两者可分别省略并使用公开的
-  `defaultProjectFileSelection`；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
+- 每个显式 area 必须提供 `files` branch。共同 `{ source, include, exclude }` grammar、source failure 和数组替换见
+  [共享的 files 选择语义](../../README.md#共享的-files-选择语义)；本 Check 的 branch fields 可分别省略并使用公开的
+  `defaultProjectFileSelection`。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
-- `findingWaivers` 省略时为 `[]`。每项必须是 closed `{ identity, reason }`，reason 非空且 identity 唯一。identity 恰为
-  `{ metric: "duplicate-tokens", locations }`；`locations` 至少两项，必须逐项复制 Finding Record 中的完整
+- `findingWaivers` 省略时为 `[]`，并采用[共同 waiver authoring 与 audit](../guides/finding-waivers.md#identity-与-audit)。identity
+  恰为 `{ metric: "duplicate-tokens", locations }`；`locations` 至少两项，必须逐项复制 Finding Record 中的完整
   `{ path, startLine, endLine }`。数组先按 path 文本升序，再按 `startLine`、`endLine` 数值升序严格排序。path 是 normalized
   project-root-relative slash path，line 是正安全整数且
   `endLine >= startLine`；缺失、重复或乱序 location 都会被拒绝。
@@ -114,8 +113,7 @@ const duplicates = duplicateDetection({
 });
 ```
 
-匹配零条时是 `unused`；一条时是 `applied`；多条时是 `overmatched`，且不豁免任何片段。range 变化会让旧 waiver
-stale 并进入 audit，而不会误匹配同一文件组合中的另一个 fragment。
+range 变化会让旧 waiver 进入[共同 audit](../guides/finding-waivers.md#identity-与-audit)，而不会误匹配同一文件组合中的另一个 fragment。
 
 ## 定制 jscpd executable
 

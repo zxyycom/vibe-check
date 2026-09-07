@@ -52,13 +52,12 @@ const check = fileMetrics();
 
 - 省略整个 `codeAreas` 时，constructor 建立默认 `project` 区域。显式 `codeAreas` 必须至少包含一个
   非空 area ID。
-- 每个显式区域必须提供 `files`。`source` 只能是 `"filesystem" | "git-worktree"`，默认 `filesystem`；filesystem
-  不解释 `.gitignore`，git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。来源不可用时 Check
-  结算为 `unavailable`，不会切换到另一来源。
-- `include` 与 `exclude` 都按 project-root-relative slash path 的 glob 匹配，exclude 优先。省略时使用公开的
-  `defaultProjectFileSelection`；显式数组是完整替换值，`include: []` 不选择路径，`exclude: []` 不排除路径。
+- 每个显式区域必须提供 `files`。共同 `{ source, include, exclude }` grammar、source failure 和数组替换见
+  [共享的 files 选择语义](../../README.md#共享的-files-选择语义)；本 Check 的 branch fields 省略时使用公开的
+  `defaultProjectFileSelection`。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
-- `findingWaivers` 省略时为 `[]`。每项必须是 `{ identity: { metric: "code-lines", path }, reason }`；`path` 必须已经是
+- `findingWaivers` 省略时为 `[]`，并采用[共同 waiver authoring 与 audit](../guides/finding-waivers.md#identity-与-audit)。每项必须是
+  `{ identity: { metric: "code-lines", path }, reason }`；`path` 必须已经是
   normalized project-root-relative slash path：非空、不以 `/` 开头、不含 `\\`、Windows drive prefix、空 segment、`.` 或 `..`。
   `reason` 必须非空，同一 `{ metric, path }` 不得重复。它不接受 callback 或 glob：metric 和 path 是该 Check 承诺的稳定
   identity，实际行数与上限仍会随策略变化。
