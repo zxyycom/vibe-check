@@ -1,6 +1,6 @@
 ---
 title: 统一随包法律材料并审计实际安装依赖
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-07T02:22:54Z
 purpose: 让单一 package 材料目录与安装时依赖许可审计分别承接稳定随包内容和动态依赖图。

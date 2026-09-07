@@ -79,7 +79,7 @@ artifacts 与 Decision 状态审阅。该提交在既有 `main` 基线上按依�
 [算法比较新增恢复条件](../../changes/optimize-learned-admission-strategy/tasks.md#readiness) 为准：下表 1A 的
 公共 helper 接线已交付并验收，1D 仍不得直接复用旧 provider、callback grammar、history identity
 或测量开销进行采样。算法 Plan 须按新的公共基线完成语义重审与重新取证；本次收尾不授权 backfill 实验或采用。
-原三方材料范围已按 [翻译归属整理](../../changes/scope-translated-source-notices/proposal.md) 完成交付，两者只共享最终
+原三方材料范围已按 [翻译归属整理](../../changes/archive/scope-translated-source-notices/proposal.md) 完成交付，两者只共享最终
 package 验收，由同一操作者串行构建 exact candidate，不能并行覆盖 build evidence。
 
 | 批次                                 | Change                                                                                                                                                      | 当前允许的工作                                                                                                                                                                                                                                                                                                                                                                        | 并行边界                                                                                                                                                                                                        |
@@ -187,9 +187,9 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 
 learned 算法比较继续由[既有优化 Change](../../changes/optimize-learned-admission-strategy/proposal.md)拥有，其 public
 strategy 基线恢复条件仍适用。已实施的[公共 learned helper](../../changes/archive/expose-learned-admission-strategy/proposal.md)、
-[法律材料修复](../../changes/scope-translated-source-notices/proposal.md)和[文档修复](../../changes/clarify-package-documentation/proposal.md)
+[法律材料修复](../../changes/archive/scope-translated-source-notices/proposal.md)和[文档修复](../../changes/clarify-package-documentation/proposal.md)
 均已完成实现与验收，不再列为功能待办。公共 learned helper 已正式归档，相关三条决策为 active + aligned；
-法律材料与文档修复的生命周期按各自 Change 查询恢复。既有优化 Plan 的 Readiness 0.0 仍未完成；本轮不发布。
+法律材料 Change 已归档，相关后继决策为 active + aligned；文档修复的生命周期按对应 Change 查询恢复。既有优化 Plan 的 Readiness 0.0 仍未完成；本轮不发布。
 
 ## Worktree 与合入规则
 

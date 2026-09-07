@@ -1,8 +1,8 @@
 ---
 title: 将翻译来源说明置于对应法律材料目录
-status: candidate
-alignment: null
-createdAt: null
+status: active
+alignment: aligned
+createdAt: 2026-09-07T10:07:20Z
 purpose: 让归属说明的名称、路径和正文准确表达实际随包翻译材料而非全部第三方依赖。
 background: 根第三方说明实为 Lizard 和 Pygments 翻译说明，却混入计数和安装审计流程，范围不清。
 decision: 根仅保留自有许可，翻译归属与原文同置 licenses，动态安装依赖仍独立审计。

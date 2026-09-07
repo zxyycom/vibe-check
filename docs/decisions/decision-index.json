@@ -217,6 +217,7 @@
       "scan-duplicate-code-once-across-code-areas.md": "sha256:70303ebb4655706e0214e450752f639cf1b5f84c045e6939a1badb62e5e5ed34",
       "schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md": "sha256:5508c2d38239de7ea0f1f280866809b23d811f190256fc286f973bec86cf6206",
       "schedule-project-gate-by-measured-resource-ownership.md": "sha256:762ac2a9f3f6dd20cf274dd8df975a3e17771ef872a46f7e11ef785403784951",
+      "scope-translated-source-notices-to-material-directory.md": "sha256:ed46d607fbde82b63954fe5240b2270ed445bb2735539dc84bf2a4d0e63b96a4",
       "select-check-files-from-explicit-sources.md": "sha256:7af8161492e9e3efd7a125a1590679326d187ec121d081f99d6469bfe810d0f8",
       "separate-admission-policy-from-scheduler-state-machine.md": "sha256:8fb2972519574d3bceac5a1e4c8b2d173a6ce9f9e6cce91577ad4d93dd1f8d27",
       "separate-check-and-record-type-identities.md": "sha256:a66112ba969ddc40bdb7da25c852f2d5db76fc35d73e1cd8f34b337cd9a02754",
@@ -247,7 +248,7 @@
       "treat-unaligned-decisions-as-future-direction-input.md": "sha256:d2651f0a630694e8828b67b88c87e57a34e6701cf3ada276e2b16d8ddeeee38a",
       "unify-default-summary-with-terminal-measurement-hooks.md": "sha256:a0ea65a0722d0bf5b7d69e3c6c47a13df15061173ec6fbbb6c13821194f766b4",
       "unify-effective-flag-selection-and-aggregation.md": "sha256:5186c7222b430583dce1c7743d69de891bb4d1e6d000b75e956240de660a4e2d",
-      "unify-package-legal-materials-and-audit-installed-dependencies.md": "sha256:b24d3870ef3bf699a826ccecf5681aa8b02059322d3c1996293c54b1de35be2d",
+      "unify-package-legal-materials-and-audit-installed-dependencies.md": "sha256:b3bd93a27974f1055085cf3297a052dd170f433cb2cf01d747c72d4c19b13928",
       "use-a-verified-fast-path-for-lizard-reader-resolution.md": "sha256:b4dbea919fa19d15780db4302fc20b3f76cf40b30db21a0dc612f5a63e323c5b",
       "use-bun-typescript-project-definition.md": "sha256:a4d6b9cdc62e8981cf6f90db1f7d86b5d93b998e6e25f30ca4ad189273cd058e",
       "use-check-owned-extractors-for-opaque-record-identities.md": "sha256:a9bbb2fd123e914ce0b7f720799e9ad8cdfc1aabc2c3d47354cd32f799b92509",
@@ -7103,6 +7104,42 @@
         ]
       }
     },
+    "scope-translated-source-notices-to-material-directory.md": {
+      "keys": {
+        "tag": [
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "scope-translated-source-notices-to-material-directory.md",
+        "title": "将翻译来源说明置于对应法律材料目录",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-07T10:07:20Z",
+        "purpose": "让归属说明的名称、路径和正文准确表达实际随包翻译材料而非全部第三方依赖。",
+        "background": "根第三方说明实为 Lizard 和 Pygments 翻译说明，却混入计数和安装审计流程，范围不清。",
+        "decision": "根仅保留自有许可，翻译归属与原文同置 licenses，动态安装依赖仍独立审计。",
+        "tags": [
+          "dependency-policy",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "unify-package-legal-materials-and-audit-installed-dependencies.md"
+          }
+        ]
+      }
+    },
     "select-check-files-from-explicit-sources.md": {
       "keys": {
         "tag": [
@@ -8093,16 +8130,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "unify-package-legal-materials-and-audit-installed-dependencies.md",
+        "sourcePath": "archive/unify-package-legal-materials-and-audit-installed-dependencies.md",
         "title": "统一随包法律材料并审计实际安装依赖",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-07T02:22:54Z",
         "purpose": "让单一 package 材料目录与安装时依赖许可审计分别承接稳定随包内容和动态依赖图。",
