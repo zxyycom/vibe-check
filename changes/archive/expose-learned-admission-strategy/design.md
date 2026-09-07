@@ -30,7 +30,7 @@
 
 ## Risks / Trade-offs
 
-public context 与旧 private inputs 不等价，identity、measurement 与 diagnostic 的遗漏会产生表面去特例而实质丢行为。参数增加应限定在真实模型用途。当前运行策略拒绝了 decisions list 和 change-plan list，计划生命周期与决策集合维护能否执行仍需实际验证，不以手改索引或 metadata 绕过。
+public context 与旧 private inputs 不等价，identity、measurement 与 diagnostic 的遗漏会产生表面去特例而实质丢行为。参数增加应限定在真实模型用途。前轮治理命令被拒绝的事实保留在 tasks 的形成时证据中；本轮使用正式命令核对并完成生命周期收尾，不重做已交付功能。
 
 ## Open Questions
 
@@ -42,5 +42,5 @@ record/write failure 不改变 Run facts。observer 是不等待且包含 throw/
 `selection-proposed` 只表示提议，不表示 Scheduler 已接受 admission。core flags 诊断统一保留摘要，
 不再通过 learned kind 特判保护。完整契约由 scheduling guide 拥有。
 
-当前无产品方向性待决事项；没有旧 kind 兼容或发布授权。治理工具被拒绝执行，Change 保持 draft，
-新决策保持 candidate；它们不是已生效长期决策集合，实施授权来自本次用户明确批准。
+当前无产品方向性待决事项；没有旧 kind 兼容或发布授权。用户已要求自行完成已交付工作的必要调整与正式化；
+当前生命周期以正式查询为准，收尾验证见 tasks。前轮执行限制不再作为当前阻塞。

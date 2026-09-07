@@ -1,8 +1,8 @@
 ---
 title: 保持运行诊断通道独立于可选策略
-status: candidate
-alignment: null
-createdAt: null
+status: active
+alignment: aligned
+createdAt: 2026-09-07T10:07:19Z
 purpose: 让 Product 诊断反映稳定运行职责，而可选策略通过普通调用方观察能力解释自身行为。
 background: 专用 learned-admission channel 要求 Product 识别一种普通扩展功能，破坏相同接口接入边界。
 decision: 保留 Gate、progress、Core 和 Scheduler 的职责隔离，移除 Product 专属学习诊断通道。

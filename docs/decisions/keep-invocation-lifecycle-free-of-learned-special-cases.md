@@ -1,8 +1,8 @@
 ---
 title: 保持 Invocation 策略生命周期不识别学习特例
-status: candidate
-alignment: null
-createdAt: null
+status: active
+alignment: aligned
+createdAt: 2026-09-07T10:07:18Z
 purpose: 让 Invocation 承接统一策略生命周期而不为某项可选功能提供额外状态或观察权限。
 background: 原私有生命周期同时拥有 learned state 与专属 observer，和普通 prepared author 的能力不对等。
 decision: Invocation 只适配 static 与公共 custom 策略，学习和观察通过相同公开上下文完成。

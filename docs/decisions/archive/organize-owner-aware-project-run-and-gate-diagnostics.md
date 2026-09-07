@@ -1,6 +1,6 @@
 ---
 title: 以 owner-aware channel 组织 Project Run 与 Gate 诊断
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T06:54:13Z
 purpose: 让维护者按输出 owner 检查同一次 invocation，而不再从混合 transcript 或单一 Product log 中筛选事实。

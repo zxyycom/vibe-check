@@ -2,7 +2,7 @@
 
 本 Change 的 Plan artifacts 已收敛为可执行承诺：只比较 private learned admission 的 strict baseline 与一个同层 admissible-first backfill 候选；未授权任何生产接线或 metadata 变更。
 
-当前执行边界：用户已另行授权 [公共 learned strategy 重构](../expose-learned-admission-strategy/proposal.md)，将移除本页比较方案依赖的 private learned kind、provider 与专属 observer。以下 private seam、旧 callback 写法和测量开销描述仅是尚待重新基线化的比较设计，不能作为当前 runtime 事实或继续采样的依据。本 Change 暂不进入 Implementation、Gate A/B 或 production wiring；应先按 tasks 的新增 Readiness 核对 public prepared strategy、当前 named resource guards、history identity 与测量边界，再重写受影响方案并刷新 Plan。该重构不授权或预判 backfill 采用。
+当前执行边界：用户已另行授权 [公共 learned strategy 重构](../archive/expose-learned-admission-strategy/proposal.md)，已移除本页比较方案依赖的 private learned kind、provider 与专属 observer。以下 private seam、旧 callback 写法和测量开销描述仅是尚待重新基线化的比较设计，不能作为当前 runtime 事实或继续采样的依据。本 Change 暂不进入 Implementation、Gate A/B 或 production wiring；应先按 tasks 的新增 Readiness 核对 public prepared strategy、当前 named resource guards、history identity 与测量边界，再重写受影响方案并刷新 Plan。该重构不授权或预判 backfill 采用。
 
 ## Why
 
@@ -46,5 +46,5 @@
 - `src/project-run/task-scheduler/**`：private selection/comparison harness、hard guards、deterministic traces 与 direct tests。
 - `src/project-run/scheduler-duration-model/**`（当前 duration-model owner）：frozen prediction provenance 与 isolated/no-record comparison preparation；不改变 model。
 - `scripts/project/gate/**` 与 Change-local evidence runner：experimental custom Definition adapter/frozen score fixture、exact reused installed candidate/receipt、required/all workload execution、script-byte capture/restoration、raw evidence preservation；不把 advisory Gate threshold 当 budget。
-- [`docs/decisions/learn-check-task-durations-for-critical-path-admission.md`](../../docs/decisions/learn-check-task-durations-for-critical-path-admission.md) 与 [`docs/decisions/retain-private-invocation-admission-strategy-lifecycle.md`](../../docs/decisions/retain-private-invocation-admission-strategy-lifecycle.md)：当前 `active + aligned` 的长期边界；后者确认 private outer lifecycle / Scheduler-facing pure policy 的分层及 Scheduler hard guards。本 Change 不修改 Decision；若最终改变稳定策略语义才另行演进。
+- [公共 learned strategy](../../docs/decisions/provide-learned-admission-through-public-strategy.md) 与 [统一 Invocation 策略生命周期](../../docs/decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)：当前 `active + aligned` 的长期边界。它们已替换旧 private learned 方向；本 Plan 必须先完成 tasks 0.0 的语义重审与重新基线化，再进入实验。本次只同步决策入口，不实施该优化 Change。
 - [`docs/governance/change-coordination.md`](../../docs/governance/change-coordination.md)：1D 的 coordination 说明；不替代本 Change 对当前 private seam实施基线、evidence gates 与授权的 Readiness。

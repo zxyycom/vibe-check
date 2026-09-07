@@ -1,6 +1,6 @@
 ---
 title: 保留私有 invocation 准入策略生命周期
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-03T06:15:11Z
 purpose: 让 static、custom 与 learned 准入策略在 Invocation 内完成私有准备、同步选择与终态记录，同时保持 Scheduler 的唯一执行责任。

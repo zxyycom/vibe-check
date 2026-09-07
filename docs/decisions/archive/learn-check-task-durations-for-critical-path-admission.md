@@ -1,6 +1,6 @@
 ---
 title: 用本地 Check Task 时长历史估计准入关键路径
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-02T08:13:42Z
 purpose: 让显式启用的调度策略从本地真实 Task 时长形成关键路径估计，同时不改变执行正确性或承诺固定算法。

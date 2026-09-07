@@ -2,15 +2,15 @@
 
 本设计定义一个可证伪的 private algorithm comparison：先固定 strict baseline、唯一候选、corpus 与接受门槛，再决定 adopt 或 not-adopt；当前仍不授权 production wiring。
 
-当前恢复条件：另行授权的 [公共 learned strategy 重构](../expose-learned-admission-strategy/design.md) 正在替换这里的 private 基线。本文保留待重新核对的比较方案，不证明旧 provider、callback grammar 或性能数值仍适用；在 public helper、current guards 与新的同层测量基线重新审阅前，不执行实验或采用路径。
+当前恢复条件：另行授权的 [公共 learned strategy 重构](../archive/expose-learned-admission-strategy/design.md) 已交付并替换这里的 private 基线。本文保留待重新核对的比较方案，不证明旧 provider、callback grammar 或性能数值仍适用；在 public helper、current guards 与新的同层测量基线重新审阅前，不执行实验或采用路径。
 
 ## Context
 
-- 现行 `learned-critical-path` 实现位于 `src/project-run/task-scheduler/learned-critical-path-admission-policy.ts`。strict baseline 的 first nonempty layer 固定为 tightening、constrained continuation、ordinary；constrained comparator 为 scope cap 升序 → score 降序 → priority 降序 → Task ID 升序 → scope ID 升序 → Task ID 升序（最后一项是现实现 duplicate Task-ID fallback；unique Task ID 时不可达），ordinary 为 score 降序 → priority 降序 → Task ID 升序。每层只检查第一名；其 `canAdmit=false` 即提出 `wait`。
+- 以下是形成时旧 private 方案的待复核输入，不是当前源码事实。当前公共入口为 `src/learned-critical-path/strategy.ts`；tasks 0.0 须重新核对其内部选择实现。旧 strict baseline 的 first nonempty layer 固定为 tightening、constrained continuation、ordinary；constrained comparator 为 scope cap 升序 → score 降序 → priority 降序 → Task ID 升序 → scope ID 升序 → Task ID 升序（最后一项是形成时实现的 duplicate Task-ID fallback；unique Task ID 时不可达），ordinary 为 score 降序 → priority 降序 → Task ID 升序。每层只检查第一名；其 `canAdmit=false` 即提出 `wait`。
 - Scheduler 先按 relation/mutex 建立 candidates，后以 `canAdmit`、lifecycle 和 running-drain 验证 select/wait。policy input 没有 running remaining duration、硬 duration bound 或 reservation；prediction 是 point estimate，不是执行时长承诺。因此 nontrivial backfill 不能保证不延迟 protected preferred Task。
-- [`learn-check-task-durations-for-critical-path-admission`](../../docs/decisions/learn-check-task-durations-for-critical-path-admission.md) 已确认：static 默认、learned 为显式 local repeat-run capability、没有 `expectedDurationMs`，priority 仅为 score 同分 tie-break；模型细节可观察但不承诺固定兼容 order/performance。
-- [`retain-private-invocation-admission-strategy-lifecycle`](../../docs/decisions/retain-private-invocation-admission-strategy-lifecycle.md) 是当前 `active + aligned` 的 lifecycle Decision：Scheduler-facing policy 仍是同步、result-only 的 `select | wait` 投影，且 Scheduler 独占 hard guards。不得为本实验引入 reservation、另一个状态机或 public strategy lifecycle。
-- [`docs/governance/change-coordination.md`](../../docs/governance/change-coordination.md) 将本 Change 列为 1D：可先冻结证据；production strategy implementation 需要当前 private seam 的稳定实施基线，但不以 archived Change artifact 作为当前 owner。simulation public API 非依赖。fail-fast 与 named capacity 仍是 Draft 条件分支，若先落地则 rebaseline。
+- 当前长期方向由 [公共 learned strategy](../../docs/decisions/provide-learned-admission-through-public-strategy.md) 承接：static 默认、caller-owned local history、priority 同分规则与故障隔离保留；公共接线的性能必须重新取证，不能沿用旧 private baseline。
+- 当前 lifecycle 由 [统一 Invocation 策略生命周期](../../docs/decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md) 承接：public prepared strategy 与 Scheduler hard guards 分层。本文以下旧 private seam 与实验写法仍须按 tasks 0.0 完成整体语义重审；更新决策入口不表示已重新基线化或解除实验门禁。
+- [`docs/governance/change-coordination.md`](../../docs/governance/change-coordination.md) 将本 Change 列为 1D：先完成 tasks 0.0，才进入后续证据冻结。下文的旧 private seam、callback 与条件分支状态全部属于待重审方案，不作为当前 runtime 事实；本轮未重审该方案或解除实验门禁。
 
 ## Goals / Non-Goals
 
