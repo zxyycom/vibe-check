@@ -17,6 +17,7 @@ import {
 import {
   assertNoLegacyFunctionMetricsRuntime,
   assertTranslatedAnalyzerLegalMaterials,
+  TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH,
   TRANSLATED_ANALYZER_LEGAL_MATERIALS
 } from "../legal-materials.ts";
 import { assertReadableStagingRuntimeLayout } from "./staging-runtime-layout.ts";
@@ -34,7 +35,8 @@ const fixedStagingMaterialPaths: ReadonlySet<string> = new Set([
   PACKAGE_ENTRY_PATH,
   PACKAGE_LICENSE_PATH,
   PACKAGE_README_PATH,
-  ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => material.path)
+  ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => material.path),
+  TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH
 ]);
 
 export function auditStagingRuntime(input: {
@@ -42,6 +44,7 @@ export function auditStagingRuntime(input: {
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedReadme: string;
   readonly stagingDirectory: string;
 }): void {
@@ -50,6 +53,7 @@ export function auditStagingRuntime(input: {
     expectedDocuments,
     expectedJSDocExamplePayloads,
     expectedMachineMaterials,
+    expectedAttributionNotice,
     expectedReadme,
     stagingDirectory
   } = input;
@@ -69,6 +73,7 @@ export function auditStagingRuntime(input: {
     throw new Error("candidate public facade does not match the approved runtime entry");
   }
   assertStagingPublishedMaterials({
+    expectedAttributionNotice,
     expectedDocuments,
     expectedJSDocExamplePayloads,
     expectedMachineMaterials,
@@ -91,6 +96,7 @@ function assertStagingEntries(
 
 function assertStagingPublishedMaterials(input: {
   readonly expectedDocuments: readonly PackageDocumentationFile[];
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
@@ -98,6 +104,7 @@ function assertStagingPublishedMaterials(input: {
 }): void {
   const {
     expectedDocuments,
+    expectedAttributionNotice,
     expectedJSDocExamplePayloads,
     expectedMachineMaterials,
     expectedReadme,
@@ -116,7 +123,7 @@ function assertStagingPublishedMaterials(input: {
     hasFile: (packagePath: string) => existsSync(join(stagingDirectory, packagePath)),
     readFile: (packagePath: string) => readFileSync(join(stagingDirectory, packagePath))
   });
-  assertTranslatedAnalyzerLegalMaterials(legalAccess);
+  assertTranslatedAnalyzerLegalMaterials(legalAccess, expectedAttributionNotice);
   assertNoLegacyFunctionMetricsRuntime(legalAccess);
   assertJSDocExamplePayloads({
     declarationSources: collectFilePaths(join(stagingDirectory, PACKAGE_TYPES_DIRECTORY), (path) =>

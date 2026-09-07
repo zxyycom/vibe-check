@@ -24,7 +24,11 @@ import {
 import { writeCandidateManifest } from "./manifest.ts";
 import { runBun, sha256File } from "../pack.ts";
 import { normalizeRuntimeSourceMap } from "./runtime-source-maps.ts";
-import { TRANSLATED_ANALYZER_LEGAL_MATERIALS } from "../legal-materials.ts";
+import {
+  TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH,
+  TRANSLATED_ANALYZER_LEGAL_MATERIALS,
+  readTranslatedAnalyzerAttributionNotice
+} from "../legal-materials.ts";
 
 export interface CandidateArtifact {
   readonly artifactPath: string;
@@ -72,6 +76,7 @@ export async function buildCandidateArtifact(input: {
     writeFileSync(destination, material.content);
   }
   copyLegalMaterials({ repositoryRoot, stagingDirectory });
+  const expectedAttributionNotice = readTranslatedAnalyzerAttributionNotice(repositoryRoot);
 
   runBun({
     args: [
@@ -118,6 +123,7 @@ export async function buildCandidateArtifact(input: {
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
+    expectedAttributionNotice,
     stagingDirectory
   });
   const expectedFiles = collectFilePaths(stagingDirectory, () => true).map(
@@ -142,7 +148,8 @@ export async function buildCandidateArtifact(input: {
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
-    expectedSha256: sha256
+    expectedSha256: sha256,
+    expectedAttributionNotice
   });
   return Object.freeze({
     artifactPath,
@@ -179,6 +186,10 @@ function copyLegalMaterials(input: {
       );
     }
   }
+  copyFileSync(
+    join(input.repositoryRoot, TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH),
+    join(input.stagingDirectory, TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH)
+  );
 }
 
 /** Converts TypeScript's emitted .js module graph into the package's ESM .mjs tree. */

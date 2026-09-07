@@ -31,7 +31,7 @@ Package artifact 与 dependency installation 是两个不同的事实源：
 
 | 边界 | 当前范围 | 验收责任 | 不作出的结论 |
 | --- | --- | --- | --- |
-| 随包法律材料 | 根 [`LICENSE`](../../LICENSE) 是 Vibe Check own MIT text；根 [`THIRD_PARTY_NOTICES.md`](../../THIRD_PARTY_NOTICES.md) 是第三方归属与材料索引；唯一 `licenses/` 目录保存 Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments 2.18 BSD-2-Clause text 与 fixed-range provenance。 | staging、tarball 与 installed candidate 逐字节核对 material，并闭合 shipped source header→ledger→license、deferred bodies absent 与无 Python/Lizard/Pygments runtime dependency。 | `licenses/` 不代表普通 npm dependency graph；artifact 不发布平级 `third-party-licenses/`。 |
+| 随包法律材料 | 根 [`LICENSE`](../../LICENSE) 是 Vibe Check own MIT text；唯一 [`licenses/`](../../licenses/) 目录保存仅适用于已携带 analyzer translations 的 [`analyzer-translations-NOTICE.md`](../../licenses/analyzer-translations-NOTICE.md)、Lizard 1.24 MIT、`lizard.py` Apache-2.0、Pygments 2.18 BSD-2-Clause text 与 fixed-range provenance。 | staging、tarball 与 installed candidate 核对 packaged material，并闭合 shipped source header→ledger→license、deferred bodies absent 与无 Python/Lizard/Pygments runtime dependency。 | `licenses/` 不代表普通 npm dependency graph；归属说明不枚举独立安装的 dependency；artifact 不发布平级 `third-party-licenses/`。 |
 | 实际安装依赖 | private consumer 本次安装中实际存在的全部 top-level、scoped 与 nested dependency package，包括本平台实际选中的 optional package；不含 Vibe Check candidate 自身。 | 核对路径与 manifest 中非空且无首尾空白的 name/version，并读取同样非空且无首尾空白的当前 `license`，或所有条目具有同一个此类 `type` 的 legacy `licenses[]`。当前 policy 只接受 `Apache-2.0`、`BSD-2-Clause`、`BSD-3-Clause`、`BlueOak-1.0.0`、`ISC` 与 `MIT`。 | 审计不覆盖本平台未安装的 optional package，不证明 dependency package 的物理法律材料，也不构成法律审查或额外兼容语义。 |
 
 Dependency manifest 缺失或格式错误、目录名与 manifest name 不一致、许可声明缺失/格式错误/不在当前 policy、symlink

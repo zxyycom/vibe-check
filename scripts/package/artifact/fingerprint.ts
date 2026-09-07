@@ -13,7 +13,10 @@ import {
 import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
 import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
 import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../../docs/machine-artifacts/package-materials.ts";
-import { TRANSLATED_ANALYZER_LEGAL_MATERIALS } from "../legal-materials.ts";
+import {
+  TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH,
+  TRANSLATED_ANALYZER_LEGAL_MATERIALS
+} from "../legal-materials.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
   "scripts/docs/package-api/example-projections.ts",
@@ -45,6 +48,7 @@ export function createArtifactFingerprint(repositoryRoot: string): string {
     ...documentationInputFiles(repositoryRoot),
     ...collectPackageSourceFiles(repositoryRoot),
     join(repositoryRoot, PACKAGE_LICENSE_SOURCE_PATH),
+    join(repositoryRoot, TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH),
     ...TRANSLATED_ANALYZER_LEGAL_MATERIALS.map((material) => join(repositoryRoot, material.path))
   ].sort();
   for (const filePath of inputFiles) {

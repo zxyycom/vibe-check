@@ -17,7 +17,10 @@ import {
   PACKAGE_README_PATH,
   PACKAGE_REPOSITORY_MANIFEST_URL
 } from "../package-contract.ts";
-import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
+import {
+  PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS,
+  readTranslatedAnalyzerAttributionNotice
+} from "../legal-materials.ts";
 import {
   fileMatchesSha256,
   fileMatchesSha512Integrity,
@@ -142,6 +145,7 @@ function auditReceiptedPackage(material: FormalReleaseMaterial): void {
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: documentation.machineMaterials,
+    expectedAttributionNotice: readTranslatedAnalyzerAttributionNotice(material.repositoryRoot),
     expectedReadme: documentation.readme,
     stagingDirectory: material.stagingDirectory
   });
@@ -153,7 +157,8 @@ function auditReceiptedPackage(material: FormalReleaseMaterial): void {
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: documentation.machineMaterials,
     expectedReadme: documentation.readme,
-    expectedSha256: material.receipt.artifact.sha256
+    expectedSha256: material.receipt.artifact.sha256,
+    expectedAttributionNotice: readTranslatedAnalyzerAttributionNotice(material.repositoryRoot)
   });
   assertReceiptedReadme(material);
 }
@@ -195,9 +200,9 @@ function createFormalReleaseReceipt(input: {
         sha256: sha256File(join(input.artifact.stagingDirectory, PACKAGE_README_PATH))
       },
       repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-      legalMaterials: PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => ({
-        path: material.path,
-        sha256: material.sha256
+      legalMaterials: PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS.map((path) => ({
+        path,
+        sha256: sha256File(join(input.artifact.stagingDirectory, path))
       }))
     }
   });

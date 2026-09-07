@@ -26,12 +26,6 @@ import type { InstalledCandidate } from "./receipt.ts";
 
 type CandidateRuntimeDependencyName = typeof AJV_PACKAGE_NAME | typeof JSCPD_PACKAGE_NAME;
 
-interface VerifiedCandidateDependency {
-  readonly manifest: Readonly<Record<string, unknown>>;
-  readonly packageManifestPath: string;
-  readonly version: string;
-}
-
 interface CandidateInstallationProbe {
   readonly ajvPackageManifestPath: string;
   readonly candidateEntryUrl: string;
@@ -46,6 +40,7 @@ export function installCandidate(input: {
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials?: readonly PackageMachineMaterial[];
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedReadme: string;
 }): InstalledCandidate {
   const {
@@ -73,6 +68,7 @@ export function installCandidate(input: {
     expectedDocuments,
     expectedJSDocExamplePayloads,
     expectedMachineMaterials,
+    expectedAttributionNotice: input.expectedAttributionNotice,
     expectedReadme
   });
 }
@@ -84,6 +80,7 @@ export function inspectInstallation(input: {
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials?: readonly PackageMachineMaterial[];
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedReadme: string;
 }): InstalledCandidate | undefined {
   try {
@@ -100,6 +97,7 @@ function verifyInstallation(input: {
   readonly expectedDocuments?: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials?: readonly PackageMachineMaterial[];
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedReadme: string;
 }): InstalledCandidate {
   const { candidateVersion, consumerDirectory, expectedJSDocExamplePayloads, expectedReadme } =
@@ -117,6 +115,7 @@ function verifyInstallation(input: {
     packageDirectory,
     expectedDocuments,
     expectedMachineMaterials,
+    expectedAttributionNotice: input.expectedAttributionNotice,
     expectedJSDocExamplePayloads,
     expectedReadme
   });
@@ -267,7 +266,7 @@ function verifyCandidateDependency(input: {
   readonly packageManifestPath: string;
   readonly packageName: CandidateRuntimeDependencyName;
   readonly versionRequirement: PackageDependencyVersionRequirement;
-}): VerifiedCandidateDependency {
+}) {
   const { consumerDirectory, packageManifestPath, packageName, versionRequirement } = input;
   if (!isPathWithin(join(consumerDirectory, "node_modules"), packageManifestPath)) {
     throw new Error(

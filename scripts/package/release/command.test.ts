@@ -9,7 +9,10 @@ import { createFullReleaseAcceptanceInvocation, runFormalReleaseCommand } from "
 import { parseFormalReleaseReceipt } from "./receipt.ts";
 import { sha256File } from "../pack.ts";
 import { PACKAGE_LICENSE } from "../package-contract.ts";
-import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
+import {
+  PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS,
+  PACKAGE_THIRD_PARTY_LEGAL_MATERIALS
+} from "../legal-materials.ts";
 
 test("formal release root commands require closed inputs and bind verification to one complete --all Gate receipt", async () => {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-release-command-"));
@@ -129,9 +132,11 @@ function formalReleaseReceiptFixture(): unknown {
       publish: { access: "public", registry: "https://registry.npmjs.org/" },
       readme: { path: "README.md", sha256: "d".repeat(64) },
       repository: "git+https://github.com/zxyycom/vibe-check.git",
-      legalMaterials: PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => ({
-        path: material.path,
-        sha256: material.sha256
+      legalMaterials: PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS.map((path) => ({
+        path,
+        sha256:
+          PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.find((material) => material.path === path)?.sha256 ??
+          "e".repeat(64)
       }))
     }
   };

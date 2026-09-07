@@ -81,6 +81,7 @@ export function candidatePaths(
 export function assessReusableArtifact(input: {
   readonly candidateVersion: string;
   readonly expectedDocuments: readonly PackageDocumentationFile[];
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
@@ -111,7 +112,8 @@ export function assessReusableArtifact(input: {
       expectedJSDocExamplePayloads: input.expectedJSDocExamplePayloads,
       expectedMachineMaterials: input.expectedMachineMaterials,
       expectedReadme: input.expectedReadme,
-      expectedSha256: artifact.sha256
+      expectedSha256: artifact.sha256,
+      expectedAttributionNotice: input.expectedAttributionNotice
     });
   } catch {
     return Object.freeze({ status: "rejected", reason: "artifact-invalid" });

@@ -11,7 +11,7 @@ import {
 import {
   assertNoLegacyFunctionMetricsRuntime,
   assertTranslatedAnalyzerLegalMaterials,
-  PACKAGE_THIRD_PARTY_LEGAL_MATERIALS,
+  PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS,
   type PackagedLegalMaterialAccess
 } from "../legal-materials.ts";
 import { sha256File } from "../pack.ts";
@@ -37,6 +37,7 @@ export function auditCandidateArtifact(input: {
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
   readonly expectedReadme: string;
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedSha256: string;
 }): void {
   const actualSha256 = sha256File(input.artifactPath);
@@ -65,11 +66,12 @@ function assertTarCoreMaterials(
     readonly candidateVersion: string;
     readonly expectedJSDocExamplePayloads: readonly string[];
     readonly expectedReadme: string;
+    readonly expectedAttributionNotice: Buffer;
   }>
 ): void {
   const manifest = requiredTarEntry(entries, "package/package.json");
   assertTarReadme(entries, input.expectedReadme);
-  assertTarLegalMaterials(entries);
+  assertTarLegalMaterials(entries, input.expectedAttributionNotice);
   assertTarDeclarationExamples(entries, input.expectedJSDocExamplePayloads);
   auditCandidateManifest(manifest.content, input.candidateVersion);
   assertManifestPackageEntries(entries);
@@ -82,11 +84,14 @@ function assertTarReadme(entries: readonly TarEntry[], expectedReadme: string): 
   }
 }
 
-function assertTarLegalMaterials(entries: readonly TarEntry[]): void {
+function assertTarLegalMaterials(
+  entries: readonly TarEntry[],
+  expectedAttributionNotice: Buffer
+): void {
   const packageLicense = requiredTarEntry(entries, `package/${PACKAGE_LICENSE_PATH}`);
   assertPackageLicenseContent(packageLicense.content);
   const legalAccess = tarPackageLegalMaterialAccess(entries);
-  assertTranslatedAnalyzerLegalMaterials(legalAccess);
+  assertTranslatedAnalyzerLegalMaterials(legalAccess, expectedAttributionNotice);
   assertNoLegacyFunctionMetricsRuntime(legalAccess);
 }
 
@@ -162,8 +167,8 @@ function assertManifestPackageEntries(entries: readonly TarEntry[]): void {
     !entries.some((entry) => entry.path === `package/${PACKAGE_TYPES_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_LICENSE_PATH}`) ||
     !entries.some((entry) => entry.path === `package/${PACKAGE_README_PATH}`) ||
-    !PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.every((material) =>
-      entries.some((entry) => entry.path === `package/${material.path}`)
+    !PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS.every((path) =>
+      entries.some((entry) => entry.path === `package/${path}`)
     )
   ) {
     throw new Error(

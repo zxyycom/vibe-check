@@ -25,6 +25,7 @@ import {
 import { artifactDocumentation } from "./documentation-audit.ts";
 import { buildCandidateArtifact } from "./build.ts";
 import { createArtifactFingerprint } from "./fingerprint.ts";
+import { readTranslatedAnalyzerAttributionNotice } from "../legal-materials.ts";
 import { auditStagingRuntime } from "./staging-audit.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -55,6 +56,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
             expectedDocuments: documentation.documents,
             expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
             expectedMachineMaterials: documentation.machineMaterials,
+            expectedAttributionNotice: readTranslatedAnalyzerAttributionNotice(repositoryRoot),
             expectedReadme: documentation.readme,
             stagingDirectory: gateInput.stagingDirectory
           });
@@ -178,6 +180,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
     ]) {
       assert.equal(artifact.files.includes(`package/${path}`), true);
     }
+    assert.equal(artifact.files.includes("package/THIRD_PARTY_NOTICES.md"), false);
     assert.equal(
       artifact.files.some((path) => path.startsWith("package/third-party-licenses/")),
       false
@@ -186,9 +189,9 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       Array.isArray(manifest.files) && manifest.files.filter((path) => path === "licenses").length,
       1
     );
-    assert.match(
+    assert.equal(
       readFileSync(join(artifact.stagingDirectory, PACKAGE_THIRD_PARTY_NOTICES_PATH), "utf8"),
-      /20 remaining Lizard concrete extension bodies \(the 19 legacy bodies plus\s+the `lizardhalstead` entry body\) and two extension-only Halstead support modules/u
+      readFileSync(join(repositoryRoot, PACKAGE_THIRD_PARTY_NOTICES_PATH), "utf8")
     );
     assert.equal(
       artifact.files.some((path) => path.includes("/analyzer/fixtures/")),

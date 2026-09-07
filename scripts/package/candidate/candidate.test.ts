@@ -37,6 +37,7 @@ describe("package candidate preparation contracts", () => {
         artifactPath: join(temporaryRoot, "unreachable-artifact.tgz"),
         candidateVersion: "0.0.0-local.manifest-diagnostics",
         consumerDirectory: join(temporaryRoot, "consumer"),
+        expectedAttributionNotice: Buffer.from("fixture notice\n", "utf8"),
         expectedJSDocExamplePayloads: [],
         expectedReadme: ""
       };

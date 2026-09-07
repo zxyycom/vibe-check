@@ -1,14 +1,15 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { processFailureFromResult, runProcessSync } from "../../process-execution/execution.ts";
 import { packageCandidatePaths } from "../build-contract.ts";
 import { sha256File } from "../pack.ts";
-import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
+import { PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS } from "../legal-materials.ts";
 import { parseFormalReleaseVersion, parseReleaseTag } from "./identity.ts";
 import { createFormalReleasePaths } from "./paths.ts";
 import {
@@ -17,6 +18,8 @@ import {
   writeFormalReleaseReceipt
 } from "./receipt.ts";
 import { readCleanReleaseSource } from "./source.ts";
+
+const repositorySourceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
 describe("formal package release", () => {
   it("accepts only explicit canonical prestable versions and conservative tags", () => {
@@ -40,6 +43,11 @@ describe("formal package release", () => {
       mkdirSync(paths.stagingDirectory, { recursive: true });
       writeFileSync(paths.artifactPath, "formal artifact\n", "utf8");
       writeFileSync(join(paths.stagingDirectory, "README.md"), "# Fixture\n", "utf8");
+      for (const path of PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS) {
+        const target = join(paths.stagingDirectory, path);
+        mkdirSync(join(target, ".."), { recursive: true });
+        writeFileSync(target, readFileSync(join(repositorySourceRoot, path)));
+      }
       const artifact = {
         artifactPath: paths.artifactPath,
         candidateVersion: "0.0.1",
@@ -61,9 +69,9 @@ describe("formal package release", () => {
       assert.match(receipt.artifact.integrity, /^sha512-/u);
       assert.deepEqual(
         receipt.contract.legalMaterials,
-        PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => ({
-          path: material.path,
-          sha256: material.sha256
+        PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS.map((path) => ({
+          path,
+          sha256: sha256File(join(paths.stagingDirectory, path))
         }))
       );
       const source = readFileSync(paths.receiptPath, "utf8");

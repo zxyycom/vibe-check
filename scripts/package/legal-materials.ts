@@ -6,15 +6,15 @@ import {
   PACKAGE_PYGMENTS_LICENSE_PATH,
   PACKAGE_PYGMENTS_LICENSE_SHA256,
   PACKAGE_THIRD_PARTY_NOTICES_PATH,
-  PACKAGE_THIRD_PARTY_NOTICES_SHA256,
   PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
   PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_SHA256
 } from "./package-contract.ts";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import {
   assertDeferredExtensionBodiesRemainUnshipped,
   assertExactLegalMaterialBytes,
   assertNoUntrackedTranslatedSourceHeaders,
-  assertNoticeSummarizesFixedSources,
   assertTranslatedTargetHeaders
 } from "./legal-materials/packaged-audit.ts";
 import {
@@ -44,29 +44,33 @@ export const TRANSLATED_ANALYZER_LICENSE_MATERIALS: readonly PackagedLegalMateri
     })
   ]);
 
-/** Notice and range-level evidence that binds the translated source headers to fixed upstream input. */
-export const TRANSLATED_ANALYZER_NOTICE_MATERIALS: readonly PackagedLegalMaterial[] = Object.freeze(
-  [
-    Object.freeze({
-      path: PACKAGE_THIRD_PARTY_NOTICES_PATH,
-      sha256: PACKAGE_THIRD_PARTY_NOTICES_SHA256
-    }),
+/** Range-level evidence that binds the translated source headers to fixed upstream input. */
+export const TRANSLATED_ANALYZER_PROVENANCE_MATERIALS: readonly PackagedLegalMaterial[] =
+  Object.freeze([
     Object.freeze({
       path: PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
       sha256: PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_SHA256
     })
-  ]
-);
+  ]);
 
 /** Byte-identities of legal materials added for the translated analyzer closure. */
 export const TRANSLATED_ANALYZER_LEGAL_MATERIALS: readonly PackagedLegalMaterial[] = Object.freeze([
-  ...TRANSLATED_ANALYZER_NOTICE_MATERIALS,
+  ...TRANSLATED_ANALYZER_PROVENANCE_MATERIALS,
   ...TRANSLATED_ANALYZER_LICENSE_MATERIALS
 ]);
+
+/** Human-readable attribution belongs beside the incorporated-source materials, not at package root. */
+export const TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH = PACKAGE_THIRD_PARTY_NOTICES_PATH;
 
 /** All third-party legal materials receipted with the package, excluding Vibe Check's own LICENSE. */
 export const PACKAGE_THIRD_PARTY_LEGAL_MATERIALS: readonly PackagedLegalMaterial[] = Object.freeze([
   ...TRANSLATED_ANALYZER_LEGAL_MATERIALS
+]);
+
+/** Every legal path recorded by a formal receipt; only upstream-derived materials use fixed source pins. */
+export const PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS: readonly string[] = Object.freeze([
+  TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH,
+  ...PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) => material.path)
 ]);
 
 /** A staging directory, tarball, or installed package can provide this minimal file view. */
@@ -84,8 +88,27 @@ export interface PackagedLegalMaterialAccess {
  * extension names remain evidence only: neither their TypeScript sources nor their
  * emitted runtime modules may enter the package.
  */
-export function assertTranslatedAnalyzerLegalMaterials(access: PackagedLegalMaterialAccess): void {
+export function readTranslatedAnalyzerAttributionNotice(repositoryRoot: string): Buffer {
+  return readFileSync(join(repositoryRoot, TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH));
+}
+
+export function assertTranslatedAnalyzerLegalMaterials(
+  access: PackagedLegalMaterialAccess,
+  expectedAttributionNotice: Buffer
+): void {
   assertExactLegalMaterialBytes(access, TRANSLATED_ANALYZER_LEGAL_MATERIALS);
+  if (!access.hasFile(TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH)) {
+    throw new Error(
+      `candidate package is missing translated-analyzer attribution notice: ${TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH}`
+    );
+  }
+  if (
+    !access.readFile(TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH).equals(expectedAttributionNotice)
+  ) {
+    throw new Error(
+      "candidate translated-analyzer attribution notice differs from its repository source"
+    );
+  }
   const inventory = parseTranslatedAnalyzerProvenanceInventory(
     access.readFile(PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH)
   );
@@ -93,7 +116,6 @@ export function assertTranslatedAnalyzerLegalMaterials(access: PackagedLegalMate
   assertTranslatedTargetHeaders(access, translatedByTarget);
   assertNoUntrackedTranslatedSourceHeaders(access, translatedByTarget);
   assertDeferredExtensionBodiesRemainUnshipped(access, inventory.files);
-  assertNoticeSummarizesFixedSources(access.readFile(PACKAGE_THIRD_PARTY_NOTICES_PATH));
 }
 
 /** Proves the hard-cut candidate cannot carry the retired external function-metrics adapter. */

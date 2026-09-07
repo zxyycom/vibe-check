@@ -2,6 +2,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { artifactDocumentation } from "../artifact/documentation-audit.ts";
+import { readTranslatedAnalyzerAttributionNotice } from "../legal-materials.ts";
 import { PACKAGE_TARBALL_STEM } from "../package-contract.ts";
 import { buildCandidateArtifact, type CandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
@@ -89,6 +90,7 @@ export async function preparePackageCandidate(
       expectedDocuments: plan.documentation.documents,
       expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
       expectedMachineMaterials: plan.documentation.machineMaterials,
+      expectedAttributionNotice: plan.expectedAttributionNotice,
       expectedReadme: plan.documentation.readme
     });
     writeReceipt({
@@ -123,6 +125,7 @@ export async function preparePackageCandidate(
     expectedDocuments: plan.documentation.documents,
     expectedJSDocExamplePayloads: plan.documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: plan.documentation.machineMaterials,
+    expectedAttributionNotice: plan.expectedAttributionNotice,
     expectedReadme: plan.documentation.readme
   });
   writeReceipt({
@@ -183,6 +186,7 @@ type CandidatePreparationContext = Readonly<{
   readonly consumerDirectory: string;
   readonly documentation: ReturnType<typeof artifactDocumentation>;
   readonly inputFingerprint: string;
+  readonly expectedAttributionNotice: Buffer;
   readonly paths: ReturnType<typeof candidatePaths>;
   readonly repositoryRoot: string;
 }>;
@@ -216,6 +220,7 @@ function createCandidatePreparationPlan(
     expectedJSDocExamplePayloads: context.documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: context.documentation.machineMaterials,
     expectedReadme: context.documentation.readme,
+    expectedAttributionNotice: context.expectedAttributionNotice,
     inputFingerprint: context.inputFingerprint,
     paths: context.paths
   });
@@ -236,6 +241,7 @@ function createCandidatePreparationContext(
     ),
     documentation: artifactDocumentation(repositoryRoot),
     inputFingerprint,
+    expectedAttributionNotice: readTranslatedAnalyzerAttributionNotice(repositoryRoot),
     paths: candidatePaths(repositoryRoot, {
       ...(options.buildDirectory === undefined ? {} : { buildDirectory: options.buildDirectory }),
       ...(options.stateDirectory === undefined ? {} : { stateDirectory: options.stateDirectory })
@@ -257,6 +263,7 @@ function reusableCandidatePlan(
     expectedDocuments: context.documentation.documents,
     expectedJSDocExamplePayloads: context.documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: context.documentation.machineMaterials,
+    expectedAttributionNotice: context.expectedAttributionNotice,
     expectedReadme: context.documentation.readme
   });
   if (

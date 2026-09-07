@@ -14,6 +14,7 @@ import {
 } from "./package-contract.ts";
 import {
   assertTranslatedAnalyzerLegalMaterials,
+  readTranslatedAnalyzerAttributionNotice,
   type PackagedLegalMaterialAccess
 } from "./legal-materials.ts";
 
@@ -36,13 +37,17 @@ type ProvenanceSource = Readonly<{
 
 type LegalAccessMutation = Readonly<{
   readonly afterApprovedBytes?: ReadonlyMap<string, Buffer>;
-  readonly alwaysRead?: ReadonlyMap<string, Buffer>;
   readonly extraFiles?: ReadonlyMap<string, Buffer>;
+  readonly missingFiles?: ReadonlySet<string>;
+  readonly noticeContent?: Buffer;
 }>;
 
 describe("package legal materials", () => {
   it("fails closed in the translated-analyzer audit phase order", () => {
-    assert.doesNotThrow(() => assertTranslatedAnalyzerLegalMaterials(legalAccess()));
+    const expectedAttributionNotice = readTranslatedAnalyzerAttributionNotice(repositoryRoot);
+    assert.doesNotThrow(() =>
+      assertTranslatedAnalyzerLegalMaterials(legalAccess(), expectedAttributionNotice)
+    );
 
     const malformedInventory = Buffer.from("{", "utf8");
     const headerDriftInventory = mutateInventory((inventory) => {
@@ -59,20 +64,21 @@ describe("package legal materials", () => {
     assert.throws(
       () =>
         assertTranslatedAnalyzerLegalMaterials(
-          legalAccess({
-            afterApprovedBytes: new Map([
-              [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, malformedInventory]
-            ]),
-            alwaysRead: new Map([
-              [PACKAGE_THIRD_PARTY_NOTICES_PATH, Buffer.from("drifted", "utf8")]
-            ]),
-            extraFiles: new Map([[untrackedTargetPath, Buffer.from(sourceHeader, "utf8")]])
-          })
+          legalAccess({ missingFiles: new Set([PACKAGE_THIRD_PARTY_NOTICES_PATH]) }),
+          expectedAttributionNotice
         ),
       new RegExp(
-        `candidate translated-analyzer legal material differs from its approved bytes: ${PACKAGE_THIRD_PARTY_NOTICES_PATH}`,
+        `candidate package is missing translated-analyzer attribution notice: ${PACKAGE_THIRD_PARTY_NOTICES_PATH}`,
         "u"
       )
+    );
+    assert.throws(
+      () =>
+        assertTranslatedAnalyzerLegalMaterials(
+          legalAccess({ noticeContent: Buffer.from("notice drift", "utf8") }),
+          expectedAttributionNotice
+        ),
+      /attribution notice differs from its repository source/u
     );
     assert.throws(
       () =>
@@ -82,7 +88,8 @@ describe("package legal materials", () => {
               [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, malformedInventory]
             ]),
             extraFiles: new Map([[untrackedTargetPath, Buffer.from(sourceHeader, "utf8")]])
-          })
+          }),
+          expectedAttributionNotice
         ),
       /translated-analyzer provenance inventory is invalid JSON/u
     );
@@ -93,7 +100,8 @@ describe("package legal materials", () => {
             afterApprovedBytes: new Map([
               [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, targetClosureDriftInventory]
             ])
-          })
+          }),
+          expectedAttributionNotice
         ),
       new RegExp(
         `candidate package is missing translated analyzer target: ${targetClosurePath}`,
@@ -108,7 +116,8 @@ describe("package legal materials", () => {
               [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, headerDriftInventory]
             ]),
             extraFiles: new Map([[untrackedTargetPath, Buffer.from(sourceHeader, "utf8")]])
-          })
+          }),
+          expectedAttributionNotice
         ),
       /translated analyzer header does not identify provenance source legal-materials-test-missing-source\.py/u
     );
@@ -120,7 +129,8 @@ describe("package legal materials", () => {
               [untrackedTargetPath, Buffer.from(sourceHeader, "utf8")],
               [deferredTarget, Buffer.from("deferred body\n", "utf8")]
             ])
-          })
+          }),
+          expectedAttributionNotice
         ),
       new RegExp(
         `packaged translated analyzer header has no provenance target entry: ${untrackedTargetPath}`,
@@ -131,28 +141,12 @@ describe("package legal materials", () => {
       () =>
         assertTranslatedAnalyzerLegalMaterials(
           legalAccess({
-            afterApprovedBytes: new Map([
-              [PACKAGE_THIRD_PARTY_NOTICES_PATH, Buffer.from("notice drift", "utf8")]
-            ]),
             extraFiles: new Map([[deferredTarget, Buffer.from("deferred body\n", "utf8")]])
-          })
+          }),
+          expectedAttributionNotice
         ),
       new RegExp(
         `deferred translated-analyzer extension body must not be shipped: ${deferredFile(provenance()).sourcePath}`,
-        "u"
-      )
-    );
-    assert.throws(
-      () =>
-        assertTranslatedAnalyzerLegalMaterials(
-          legalAccess({
-            afterApprovedBytes: new Map([
-              [PACKAGE_THIRD_PARTY_NOTICES_PATH, Buffer.from("notice drift", "utf8")]
-            ])
-          })
-        ),
-      new RegExp(
-        `translated-analyzer third-party notices omit required material: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`,
         "u"
       )
     );
@@ -161,6 +155,7 @@ describe("package legal materials", () => {
 
 function legalAccess(mutation: LegalAccessMutation = {}): PackagedLegalMaterialAccess {
   const files = legalFiles();
+  for (const path of mutation.missingFiles ?? []) files.delete(path);
   for (const [path, content] of mutation.extraFiles ?? []) files.set(path, content);
   const packagePaths = new Set(files.keys());
   const reads = new Map<string, number>();
@@ -168,10 +163,14 @@ function legalAccess(mutation: LegalAccessMutation = {}): PackagedLegalMaterialA
     files: Object.freeze([...packagePaths].sort()),
     hasFile: (packagePath: string) => packagePaths.has(packagePath),
     readFile: (packagePath: string) => {
+      if (
+        packagePath === PACKAGE_THIRD_PARTY_NOTICES_PATH &&
+        mutation.noticeContent !== undefined
+      ) {
+        return mutation.noticeContent;
+      }
       const count = reads.get(packagePath) ?? 0;
       reads.set(packagePath, count + 1);
-      const alwaysRead = mutation.alwaysRead?.get(packagePath);
-      if (alwaysRead !== undefined) return alwaysRead;
       const afterApprovedBytes = mutation.afterApprovedBytes?.get(packagePath);
       if (count > 0 && afterApprovedBytes !== undefined) return afterApprovedBytes;
       const content = files.get(packagePath);

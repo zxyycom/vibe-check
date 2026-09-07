@@ -126,6 +126,9 @@ await describe(
             expectedJSDocExamplePayloads: [],
             expectedDocuments: [],
             expectedMachineMaterials: [],
+            expectedAttributionNotice: readFileSync(
+              join(repositoryRoot, "licenses/analyzer-translations-NOTICE.md")
+            ),
             expectedReadme: "incorrect candidate README\n",
             packageDirectory: first.installedPackageDirectory
           }),

@@ -12,7 +12,10 @@ import {
   PACKAGE_README_PATH,
   PACKAGE_REPOSITORY_MANIFEST_URL
 } from "../package-contract.ts";
-import { PACKAGE_THIRD_PARTY_LEGAL_MATERIALS } from "../legal-materials.ts";
+import {
+  PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS,
+  PACKAGE_THIRD_PARTY_LEGAL_MATERIALS
+} from "../legal-materials.ts";
 import { isSha256Digest, isSha512Integrity } from "../pack.ts";
 import { isFullGitCommit, parseFormalReleaseVersion, parseReleaseTag } from "./identity.ts";
 
@@ -152,7 +155,11 @@ function parseReleaseContract(value: unknown): FormalReleaseReceipt["contract"] 
     }),
     readme: Object.freeze({ path: PACKAGE_README_PATH, sha256: value.readme.sha256 }),
     repository: PACKAGE_REPOSITORY_MANIFEST_URL,
-    legalMaterials: canonicalThirdPartyLegalMaterials()
+    legalMaterials: Object.freeze(
+      value.legalMaterials.map((material) =>
+        Object.freeze({ path: material.path, sha256: material.sha256 })
+      )
+    )
   });
 }
 
@@ -160,6 +167,7 @@ function assertReleaseContract(value: unknown): asserts value is Readonly<
   Record<string, unknown>
 > & {
   readonly readme: Readonly<{ readonly sha256: string }>;
+  readonly legalMaterials: readonly Readonly<{ readonly path: string; readonly sha256: string }>[];
 } {
   if (
     !isNonArrayRecord(value) ||
@@ -199,21 +207,22 @@ function isReadmeIdentity(value: unknown): value is Readonly<{ readonly sha256: 
   );
 }
 
-function isThirdPartyLegalMaterialIdentity(value: unknown): boolean {
+function isThirdPartyLegalMaterialIdentity(
+  value: unknown
+): value is readonly Readonly<{ readonly path: string; readonly sha256: string }>[] {
   return (
     Array.isArray(value) &&
-    value.length === PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.length &&
-    PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.every((material, index) =>
-      hasExactStringRecord(value[index], { path: material.path, sha256: material.sha256 })
-    )
-  );
-}
-
-function canonicalThirdPartyLegalMaterials(): FormalReleaseReceipt["contract"]["legalMaterials"] {
-  return Object.freeze(
-    PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.map((material) =>
-      Object.freeze({ path: material.path, sha256: material.sha256 })
-    )
+    value.length === PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS.length &&
+    PACKAGE_THIRD_PARTY_LEGAL_MATERIAL_PATHS.every((path, index) => {
+      const material = PACKAGE_THIRD_PARTY_LEGAL_MATERIALS.find(
+        (candidate) => candidate.path === path
+      );
+      if (!isNonArrayRecord(value[index]) || !hasExactKeys(value[index], ["path", "sha256"])) {
+        return false;
+      }
+      if (value[index].path !== path || !isSha256Digest(value[index].sha256)) return false;
+      return material === undefined || value[index].sha256 === material.sha256;
+    })
   );
 }
 

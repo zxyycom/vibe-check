@@ -3,6 +3,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { artifactDocumentation } from "../artifact/documentation-audit.ts";
+import { readTranslatedAnalyzerAttributionNotice } from "../legal-materials.ts";
 import { buildCandidateArtifact } from "../artifact/build.ts";
 import { createArtifactFingerprint } from "../artifact/fingerprint.ts";
 import { installCandidate } from "../candidate/install.ts";
@@ -79,6 +80,7 @@ export async function prepareReleaseCandidateFromReceipt(input: {
     expectedDocuments: documentation.documents,
     expectedJSDocExamplePayloads: documentation.expectedJSDocExamplePayloads,
     expectedMachineMaterials: documentation.machineMaterials,
+    expectedAttributionNotice: readTranslatedAnalyzerAttributionNotice(repositoryRoot),
     expectedReadme: documentation.readme
   });
   return Object.freeze({

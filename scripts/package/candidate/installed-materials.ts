@@ -20,16 +20,20 @@ export function assertInstalledCandidateMaterials(input: {
   readonly expectedDocuments: readonly PackageDocumentationFile[];
   readonly expectedJSDocExamplePayloads: readonly string[];
   readonly expectedMachineMaterials: readonly PackageMachineMaterial[];
+  readonly expectedAttributionNotice: Buffer;
   readonly expectedReadme: string;
 }): void {
   assertInstalledReadme(input.packageDirectory, input.expectedReadme);
-  assertInstalledLegalMaterials(input.packageDirectory);
+  assertInstalledLegalMaterials(input.packageDirectory, input.expectedAttributionNotice);
   assertInstalledDocumentation(input.packageDirectory, input.expectedDocuments);
   assertInstalledMachineMaterials(input.packageDirectory, input.expectedMachineMaterials);
   assertInstalledDeclarationPayloads(input.packageDirectory, input.expectedJSDocExamplePayloads);
 }
 
-function assertInstalledLegalMaterials(packageDirectory: string): void {
+function assertInstalledLegalMaterials(
+  packageDirectory: string,
+  expectedAttributionNotice: Buffer
+): void {
   try {
     assertPackageLicenseContent(readFileSync(join(packageDirectory, PACKAGE_LICENSE_PATH)));
     const files = collectFilePaths(packageDirectory, () => true).map((path) =>
@@ -40,7 +44,7 @@ function assertInstalledLegalMaterials(packageDirectory: string): void {
       hasFile: (packagePath: string) => existsSync(join(packageDirectory, packagePath)),
       readFile: (packagePath: string) => readFileSync(join(packageDirectory, packagePath))
     });
-    assertTranslatedAnalyzerLegalMaterials(legalAccess);
+    assertTranslatedAnalyzerLegalMaterials(legalAccess, expectedAttributionNotice);
     assertNoLegacyFunctionMetricsRuntime(legalAccess);
   } catch (error: unknown) {
     throw new Error(

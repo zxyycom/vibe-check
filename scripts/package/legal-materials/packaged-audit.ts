@@ -3,8 +3,7 @@ import { createHash } from "node:crypto";
 import {
   PACKAGE_LIZARD_APACHE_LICENSE_PATH,
   PACKAGE_LIZARD_MIT_LICENSE_PATH,
-  PACKAGE_PYGMENTS_LICENSE_PATH,
-  PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH
+  PACKAGE_PYGMENTS_LICENSE_PATH
 } from "../package-contract.ts";
 import {
   TRANSLATED_ANALYZER_LIZARD_REVISION,
@@ -85,33 +84,6 @@ export function assertDeferredExtensionBodiesRemainUnshipped(
     if (access.hasFile(entry.targetPath) || access.hasFile(runtimePath)) {
       throw new Error(
         `deferred translated-analyzer extension body must not be shipped: ${entry.sourcePath}`
-      );
-    }
-  }
-}
-
-export function assertNoticeSummarizesFixedSources(source: Buffer): void {
-  const notice = source.toString("utf8");
-  for (const requiredText of [
-    TRANSLATED_ANALYZER_LIZARD_REVISION,
-    "Lizard 1.24.0",
-    "Apache-2.0",
-    "Pygments 2.18.0",
-    "BSD-2-Clause",
-    "20 remaining Lizard concrete extension bodies",
-    "`lizardhalstead` entry body",
-    "two extension-only Halstead support modules",
-    PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH,
-    "Separately installed npm dependencies",
-    "`licenses/`",
-    "physically present in the exact isolated installation",
-    "any platform-optional package selected for that installation",
-    "claim coverage of packages absent on the current platform",
-    "constitute legal review"
-  ]) {
-    if (!notice.includes(requiredText)) {
-      throw new Error(
-        `translated-analyzer third-party notices omit required material: ${requiredText}`
       );
     }
   }
