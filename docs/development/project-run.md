@@ -71,6 +71,11 @@ machine publication 与 diagnostic logging 的 `directory` 共用同一受信任
 
 RunControls 对 `outputs.progressRendering` 的 `recordPreviewLimit`、`messagePreviewLimit`、`textPreviewCodePointLimit` 与 `formatter` 使用和 Definition 同型的逐字段覆盖：省略或 `undefined` 不覆盖，数量 `0` 是有效值，`formatter: null` 明确清除 Definition formatter。controls 不进入 declarative snapshot/fingerprint，也不扩展 `RunResult.outputs.progressRendering` 的 `{ enabled, status }` readback。非法数量、unknown 字段或非函数/非 null formatter（包括 disabled progress）在 author work 前形成 `invalid-run-controls`。
 
+Controls output parser 保留各 output object / leaf 的 typed failure，并将共享 progress grammar 的字段诊断映射到
+`controls.outputs.<output>.<field>`；无效 object 停在当前 node，unknown key 保留 `unknown-key`，非法值带封闭的
+`expected` 提示，不读取 accessor 或回显原值。Definition 使用同一 progress grammar，但仍把 failure 折叠为
+既有 `definition.outputs` 诊断，不依赖 Controls error type。消费者的定位方式与提示值由[输出配置诊断](../guides/run-outputs.md#排查输出配置错误)拥有。
+
 Definition、controls 或 aggregation selection 无效时尚无可信 effective output configuration，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由输出指南完整表达。
 
 Product 没有共享 comparison/reference channel 或 policy-selection layer。Producing Check 通过自己的 options 或 composition

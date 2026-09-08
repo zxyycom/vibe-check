@@ -59,7 +59,7 @@ function parseRunControlFields(
   if (!flags.ok) return flags;
   const checkAggregation = parseOptionalCheckAggregation(data.checkAggregation);
   if (!checkAggregation.ok) return checkAggregation;
-  const outputs = optionalControl(data.outputs, parseOutputsOverride, "controls.outputs");
+  const outputs = parseOutputsOverride(data.outputs);
   if (!outputs.ok) return outputs;
   const projectRoot = optionalControl(data.projectRoot, parseString, "controls.projectRoot");
   if (!projectRoot.ok) return projectRoot;

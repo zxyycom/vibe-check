@@ -89,13 +89,18 @@ function assertProgressRenderingValidation(definition: ProjectDefinition): void 
     { enabled: false, formatter: {} },
     { enabled: false, unexpected: true }
   ]) {
-    assert.equal(
-      validateProjectDefinition({
-        ...definition,
-        outputs: { ...definition.outputs, progressRendering }
-      }).ok,
-      false
-    );
+    const rejected = validateProjectDefinition({
+      ...definition,
+      outputs: { ...definition.outputs, progressRendering }
+    });
+    assert.equal(rejected.ok, false);
+    if (!rejected.ok) {
+      assert.deepEqual(rejected.error, {
+        kind: "invalid-project-definition",
+        path: "definition.outputs",
+        reason: "invalid-value"
+      });
+    }
   }
 }
 

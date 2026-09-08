@@ -96,7 +96,19 @@ Entities:
 - `bun|src/project-run/controls/outputs-override-validation.test.ts|Package Run output overrides > merges bounded progress previews field by field and clears a Definition formatter`
   Proves:
 
-- RunControls applies only explicit preview fields: `0` is an effective count, `undefined` preserves the Definition field, and `formatter: null` clears the authored callback without mutating it. Invalid safe-integer, formatter and unknown-field values fail closed.
+- RunControls applies only explicit preview fields: `0` is an effective count, `undefined` preserves the Definition field, and `formatter: null` clears the authored callback without mutating it. The accepted override remains frozen.
+
+## Case WB-OUTPUT-OVERRIDE-DIAGNOSTIC-001: 输出覆盖值错误可定位且不执行作者代码
+
+Owner: `docs/development/project-run.md#run-outputs-and-compatibility-boundary`
+Entities:
+
+- `bun|src/project-run/controls/outputs-override-validation.test.ts|Package Run output overrides > locates rejected output fields with closed expectations and without reading accessors`
+- `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
+  Proves:
+
+- 无效 output object 与已知 leaf 返回对应 controls path、invalid-value 和封闭的合法值提示；unknown key 返回具体字段 path 与 unknown-key，不附加 expected 或回显被拒绝值。
+- disabled output 的显式字段仍被校验；accessor 不被执行，Run 在无效目录、未知 output 字段或非法 preview 配置下返回 configuration，且不执行 Check author callback。
 
 ## Case WB-PROGRESS-OUTPUT-001: Progress rendering is a Run-owned output
 

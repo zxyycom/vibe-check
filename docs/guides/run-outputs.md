@@ -93,6 +93,35 @@ diagnostic 文件默认使用 `core-<utc-compact>-<uuid>.log` 与 `scheduler-<ut
 
 启用 diagnostic logging 时，scheduler channel 可给出本次 Run 的 `scheduler.summary`：它帮助解释 admission、等待、capacity 与 tail 的当前诊断投影。time 与 capacity 指标只描述 Scheduler 行为，不表示 CPU、memory、thread 或 process 的 OS utilization；需要 machine-readable 结论时，仍读取 machine output 和 Check facts。
 
+## 排查输出配置错误
+
+本次 `outputs` 覆盖值不合法时，Run 在执行 Check 或创建输出前返回 `kind: "configuration"`。
+先检查 `diagnostic.kind === "invalid-run-controls"`，再按 `path` 定位本次 controls 中的字段。
+`reason: "unknown-key"` 表示应删除或更正该字段名；`reason: "invalid-value"` 时，输出覆盖值诊断还提供
+`expected` 说明合法值要求。例如 `recordPreviewLimit: -1` 返回：
+
+```json
+{
+  "kind": "invalid-run-controls",
+  "path": "controls.outputs.progressRendering.recordPreviewLimit",
+  "reason": "invalid-value",
+  "expected": "non-negative-safe-integer"
+}
+```
+
+| `expected` | 合法值要求 |
+| --- | --- |
+| `plain-data-object` | 普通或 null-prototype 对象，只含可枚举的自有字符串 data properties；不能使用数组、accessor 或 symbol key。 |
+| `boolean` | `true` 或 `false`。 |
+| `function-or-null` | formatter 函数或 `null`；函数的同步返回要求见[preview 配置](#配置-preview-文本)。 |
+| `non-negative-safe-integer` | 大于等于 `0` 的安全整数。 |
+| `positive-safe-integer` | 大于 `0` 的安全整数。 |
+| `non-empty-string-without-nul` | 非空且不含 U+0000 的字符串；路径规则见[日志与输出目标](#日志与输出目标)。 |
+
+即使对应输出已关闭，显式提供的字段仍须合法。对象本身无法安全读取时，`path` 指向该对象，不尝试执行
+getter 来寻找更深字段。诊断不回显被拒绝的值；unknown key 诊断不提供 `expected`，其它 controls 诊断也可能
+省略它。Definition 的无效输出配置仍通过 `invalid-project-definition` 指向 `definition.outputs`。
+
 ## 输出状态与失败处理
 
 只有 non-configuration `RunResult` 具有有效 output configuration 与 `outputs` readback。每项 status 使用 `"disabled" | "not-run" | "succeeded" | "failed"`。`RunResult.outputs.progressRendering` 返回 `{ enabled, status }`；预览文本、effective limits 与 formatter 由配置和呈现流程使用，不包含在返回值中。

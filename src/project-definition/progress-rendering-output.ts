@@ -36,43 +36,72 @@ export interface ResolvedProgressRenderingOutput {
 type ProgressRenderingFieldSpec = Readonly<{
   readonly key: keyof ProgressRenderingOutput;
   readonly accepts: (value: unknown) => boolean;
+  readonly expected: ProgressRenderingFieldExpectation;
 }>;
 
+/** Closed expectations shared with invocation diagnostics; never contains authored values. */
+export type ProgressRenderingFieldExpectation =
+  | "plain-data-object"
+  | "boolean"
+  | "function-or-null"
+  | "non-negative-safe-integer"
+  | "positive-safe-integer";
+
+type ProgressRenderingFieldsResult = Readonly<
+  | { readonly ok: true; readonly value: Partial<ProgressRenderingOutput> }
+  | {
+      readonly ok: false;
+      readonly key: string | null;
+      readonly reason: "unknown-key" | "invalid-value";
+      readonly expected?: ProgressRenderingFieldExpectation;
+    }
+>;
+
 const PROGRESS_RENDERING_FIELD_SPECS = Object.freeze([
-  { key: "enabled", accepts: isBoolean },
-  { key: "formatter", accepts: isProgressPreviewFormatterOrNull },
-  { key: "messagePreviewLimit", accepts: isNonNegativeSafeInteger },
-  { key: "recordPreviewLimit", accepts: isNonNegativeSafeInteger },
-  { key: "textPreviewCodePointLimit", accepts: isPositiveSafeInteger }
+  { key: "enabled", accepts: isBoolean, expected: "boolean" },
+  { key: "formatter", accepts: isProgressPreviewFormatterOrNull, expected: "function-or-null" },
+  {
+    key: "messagePreviewLimit",
+    accepts: isNonNegativeSafeInteger,
+    expected: "non-negative-safe-integer"
+  },
+  {
+    key: "recordPreviewLimit",
+    accepts: isNonNegativeSafeInteger,
+    expected: "non-negative-safe-integer"
+  },
+  {
+    key: "textPreviewCodePointLimit",
+    accepts: isPositiveSafeInteger,
+    expected: "positive-safe-integer"
+  }
 ] satisfies readonly ProgressRenderingFieldSpec[]);
 
 /** Parses the fields shared by Definition output and RunControls override grammar. */
-export function parseProgressRenderingFields(
-  value: unknown
-): Partial<ProgressRenderingOutput> | undefined {
+export function parseProgressRenderingFields(value: unknown): ProgressRenderingFieldsResult {
   const data = snapshotClosedRecord(value);
-  if (
-    data === undefined ||
-    Object.keys(data).some(
-      (key) => !PROGRESS_RENDERING_FIELD_SPECS.some((field) => field.key === key)
-    )
-  ) {
-    return undefined;
+  if (data === undefined) {
+    return { ok: false, key: null, reason: "invalid-value", expected: "plain-data-object" };
   }
-  if (
-    !PROGRESS_RENDERING_FIELD_SPECS.every(
-      ({ key, accepts }) => data[key] === undefined || accepts(data[key])
-    )
-  ) {
-    return undefined;
-  }
-  return Object.freeze(
-    Object.fromEntries(
-      PROGRESS_RENDERING_FIELD_SPECS.flatMap(({ key }) =>
-        data[key] === undefined ? [] : [[key, data[key]]]
-      )
-    ) as Partial<ProgressRenderingOutput>
+  const unknownKey = Object.keys(data).find(
+    (key) => !PROGRESS_RENDERING_FIELD_SPECS.some((field) => field.key === key)
   );
+  if (unknownKey !== undefined) return { ok: false, key: unknownKey, reason: "unknown-key" };
+  for (const { key, accepts, expected } of PROGRESS_RENDERING_FIELD_SPECS) {
+    if (data[key] !== undefined && !accepts(data[key])) {
+      return { ok: false, key, reason: "invalid-value", expected };
+    }
+  }
+  return {
+    ok: true,
+    value: Object.freeze(
+      Object.fromEntries(
+        PROGRESS_RENDERING_FIELD_SPECS.flatMap(({ key }) =>
+          data[key] === undefined ? [] : [[key, data[key]]]
+        )
+      ) as Partial<ProgressRenderingOutput>
+    )
+  };
 }
 
 function isBoolean(value: unknown): boolean {

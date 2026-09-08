@@ -37,8 +37,8 @@ function parseDirectoryOutput(
 
 function parseProgressRenderingOutput(value: unknown): ResolvedProgressRenderingOutput | undefined {
   const fields = parseProgressRenderingFields(value);
-  if (fields?.enabled === undefined) return undefined;
-  return resolveProgressRenderingOutput(fields);
+  if (!fields.ok || fields.value.enabled === undefined) return undefined;
+  return resolveProgressRenderingOutput(fields.value);
 }
 
 function exactKeys(

@@ -432,7 +432,20 @@ function observeFinalDurations(runResult: RunResult): void {
 }
 
 function observeRunOutputs(runResult: RunResult): void {
-  if (runResult.kind === "configuration") return;
+  if (runResult.kind === "configuration") {
+    if (runResult.diagnostic.kind === "invalid-run-controls") {
+      if (runResult.diagnostic.reason === "invalid-value") {
+        const expected: "plain-data-object" | "boolean" | "function-or-null" |
+          "non-negative-safe-integer" | "positive-safe-integer" |
+          "non-empty-string-without-nul" | undefined = runResult.diagnostic.expected;
+        void expected;
+      } else {
+        const absent: undefined = runResult.diagnostic.expected;
+        void absent;
+      }
+    }
+    return;
+  }
   void outputParticipantNames(runResult.outputs);
 }
 

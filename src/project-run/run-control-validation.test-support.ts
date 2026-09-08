@@ -22,15 +22,38 @@ export async function assertInvalidRunControlsAndDefinition(calls: () => number)
   const unknownOutputKey = await run(source, {
     outputs: { diagnosticLogging: { directory: "diagnostic", unexpected: true } }
   });
+  const invalidPreview = await run(source, {
+    outputs: { progressRendering: { enabled: false, recordPreviewLimit: -1 } }
+  });
   const invalidCheckArtifactDirectory = await run(source, { checkArtifactBaseDirectory: "" });
   const nulCheckArtifactDirectory = await run(source, { checkArtifactBaseDirectory: "checks\0" });
   const invalidProgressLogFile = await run(source, { progressLogFile: "" });
   const nulProgressLogFile = await run(source, { progressLogFile: "progress\0.log" });
   const invalidDefinition = await run({ ...source, unexpected: true }, {});
   assertInvalidControl(unknown, "controls.changedFiles", "unknown-key");
-  assertInvalidControl(emptyDirectory, "controls.outputs", "invalid-value");
-  assertInvalidControl(nulDirectory, "controls.outputs", "invalid-value");
-  assertInvalidControl(unknownOutputKey, "controls.outputs", "invalid-value");
+  assertInvalidControl(
+    emptyDirectory,
+    "controls.outputs.diagnosticLogging.directory",
+    "invalid-value",
+    "non-empty-string-without-nul"
+  );
+  assertInvalidControl(
+    nulDirectory,
+    "controls.outputs.machinePublication.directory",
+    "invalid-value",
+    "non-empty-string-without-nul"
+  );
+  assertInvalidControl(
+    unknownOutputKey,
+    "controls.outputs.diagnosticLogging.unexpected",
+    "unknown-key"
+  );
+  assertInvalidControl(
+    invalidPreview,
+    "controls.outputs.progressRendering.recordPreviewLimit",
+    "invalid-value",
+    "non-negative-safe-integer"
+  );
   assertInvalidControl(invalidProgressLogFile, "controls.progressLogFile", "invalid-value");
   assertInvalidControl(nulProgressLogFile, "controls.progressLogFile", "invalid-value");
   assertInvalidControl(
@@ -79,11 +102,17 @@ export async function assertBlockedPreflight(
 function assertInvalidControl(
   result: Awaited<ReturnType<typeof run>>,
   path: string,
-  reason: string
+  reason: string,
+  expected?: string
 ): void {
   assert.deepEqual(result, {
     kind: "configuration",
     definitionWarnings: [],
-    diagnostic: { kind: "invalid-run-controls", path, reason }
+    diagnostic: {
+      kind: "invalid-run-controls",
+      path,
+      reason,
+      ...(expected === undefined ? {} : { expected })
+    }
   });
 }
