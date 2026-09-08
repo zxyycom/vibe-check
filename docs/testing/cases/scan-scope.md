@@ -99,7 +99,7 @@ Proves:
 
 ## Case AUX-MARKDOWN-LINK-PARSER-001: Markdown Link parser produces closed source facts
 
-Owner: `docs/development/project-files.md#markdown-link-source-occurrences`
+Owner: `docs/development/markdown-link-resolution.md#markdown-link-source-occurrences`
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/markdown-parser.test.ts|Markdown link parser > collects GFM inline, image, reference, and autolink occurrences`
@@ -118,7 +118,7 @@ Entities:
 
 ## Case AUX-MARKDOWN-LINK-TARGET-001: Markdown Link resolves only bounded direct local targets
 
-Owner: `docs/development/project-files.md#markdown-link-direct-targets`
+Owner: `docs/development/markdown-link-resolution.md#markdown-link-direct-targets`
 Entities:
 
 - `bun|src/package-checks/markdown-link-validation/local-resolver.test.ts|Markdown local resolver > reads only root-contained sources and returns their Link parser facts`

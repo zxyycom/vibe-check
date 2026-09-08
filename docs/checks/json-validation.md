@@ -2,13 +2,12 @@
 
 ## 用途
 
-本页说明 `jsonValidation` 的 options、terminal effects 与安全边界。该 Check 严格验证自己选择且以小写
-`.json` 结尾的文档，并报告 syntax error、duplicate key 与 incomplete document。`jsonValidation(options?)` 补齐默认值并
-返回可直接放入 Project Definition `checks` 的普通 Check。
+`jsonValidation(options?)` 构造普通 Check，严格验证所选小写 `.json` 文档的完整性，报告 syntax error、duplicate key
+与 incomplete document。
 
 ## 最小用法
 
-示例保留终端进度，关闭 machine publication，不写入 machine files。
+示例保留终端进度，不写 machine files。
 
 ```ts
 import { defineConfig, jsonValidation, run } from "@zxyycom/vibe-check";
@@ -27,9 +26,8 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。若需接受 `not-applicable` 或聚合多个 Check，
+显式配置并读取 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)；`run(...)` 返回本身不表示通过。
 
 ## 参数与默认配置
 
@@ -44,16 +42,12 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-上面的代码块是无参调用物化后的完整 resolved options；`exclude` 表示 constructor detached-copy 了 package root 公开
-`defaultProjectFileSelection.exclude` 的全部条目，不是调用方必须复制的输入。authoring options 的 `files` 与
-`maximumBytes` 都可以省略；`files.source`、`files.include` 与 `files.exclude` 也可分别省略。source 可选 `filesystem` 或
-`git-worktree`，selected path 必须命中
-`include` 且不能命中 `exclude`。只有其中 case-sensitive `path.endsWith(".json")` 的 paths 成为输入。
-filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。两种来源都使用
-本页 `files` branch 的 `include` / `exclude` glob；来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
-`maximumBytes` 是每个 raw JSON document 的 byte 上限，必须是正安全整数。显式 `include` / `exclude` 数组是完整替换值；
-例如显式 `include: ["**/*"]` 会选择其它类型，Check 将为每个不受支持的 path 发布拒绝 Finding，而不会静默过滤。
-constructor 返回后若通过普通对象组合替换 `check.options`，该 replacement 才必须提供完整 resolved shape。
+无参调用物化上述完整 options，其中 `exclude` 是公开 `defaultProjectFileSelection.exclude` 的独立副本。
+`files`、其子字段和 `maximumBytes` 都可省略；`maximumBytes` 必须是正安全整数。
+
+文件来源、glob 与数组替换遵循[共享 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。
+本 Check 只读取 case-sensitive `path.endsWith(".json")` 的 selected paths；宽泛 include 选中的其它路径发布拒绝 Finding，
+不静默过滤。constructor 后替换 `check.options` 时，必须提供完整 resolved shape。
 
 ### 定制 authoring options
 
@@ -69,9 +63,8 @@ const configJsonValidation = jsonValidation({
 
 ## 工作原理
 
-constructor 先关闭 authoring shape、补齐并冻结 resolved options。该 Check 获 Scheduler admission 后，其 task-local preflight 再验证完整 options；
-execution 收集 selected paths，按小写 `.json` suffix 完整分成 accepted/rejected。每个 rejected path 先产生 supplemental
-Record，accepted path 才通过 strict-document boundary 读取和解析；无效文档产生另一种 supplemental Record。
+constructor 补齐并冻结 closed options，获 Scheduler admission 后先 preflight，再按本页 suffix 规则完整分类输入。
+每个 rejected path 先发布 Record；accepted path 才读取、解析，无效文档另发 Record。
 
 strict-document boundary 先按 byte length 应用 `maximumBytes`，再依次区分 BOM、fatal UTF-8、strict JSON grammar 与 decoded
 duplicate key；每个文档只返回最先成立的封闭 reason。合法文档只向 owning Check 交付不含 prototype 的深冻结私有值，

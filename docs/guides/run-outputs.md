@@ -22,9 +22,9 @@
 
 ## Check messages 与受管 progress
 
-Check 在 terminal result 中返回有序的 `messages`；它们是人读补充信息，consumer 仍先按 outcome 处理 final data 和 Records。启用 progress rendering 后，每个 settled row 默认最多预览五条 Records 与五条 messages，且每条正文默认最多 240 个 Unicode code points；两个数量必须为非负 safe integer，文本预算必须为正 safe integer，Definition 或本次 Run 可独立改变它们。`0` 只隐藏该类 detail，仍显示准确 omitted count；短预算时 `… [truncated]` 只保留放得下的 marker 前缀。accepted Records 与 final data 是 Check facts，按各自的 `RunResult` / machine contract 保留，messages 则保留在 `RunResult.checkMessages` 供人读。renderer 的截断、formatter 或关闭不会改写它们。
+Check terminal `messages` 是有序的人读补充信息；consumer 仍按 outcome 处理 final data 和 Records。表中的两项 preview 数量必须为非负 safe integer，文本预算必须为正 safe integer；短预算时 `… [truncated]` 只保留放得下的 marker 前缀。accepted Records 与 final data 按各自的 `RunResult` / machine contract 保留，messages 保留在 `RunResult.checkMessages`；截断、formatter 或关闭呈现均不改写它们。
 
-在 callback 已等待的异步工作中通过全局 `console.*` 发出的文本，会作为该 Check 的 `console-<method>` messages 呈现。它适合短的人读诊断：不要向 console 写入 secret，也不要依赖 progress 文本保存完整事实。`process.stdout.write`、`process.stderr.write`、流式或 child-process 输出应写入 Check-owned file、transcript 或独立 logger；这些输出不具有可靠的 Check 归属，直接写入受管 terminal 也可能与 progress 交错。需要稳定补充说明时，在 terminal result 返回结构化 `messages`。
+在 callback 已等待的异步工作中通过全局 `console.*` 发出的文本，会作为该 Check 的 `console-<method>` messages 呈现。它适合短的人读诊断：不要向 console 写入 secret，也不要依赖 progress 文本保存完整事实。`process.stdout.write`、`process.stderr.write`、流式或 child-process 输出应写入 Check-owned file、transcript 或独立 logger；这些输出不具有可靠的 Check 归属，直接写入受管 terminal 也可能与 progress 交错。需要稳定补充说明时，在 terminal result 返回结构化 `messages`；从 Finding 生成有限摘要可用[呈现工具](presenting-findings.md)。
 
 ### 配置 preview 文本
 
@@ -78,10 +78,6 @@ formatter 返回空字符串仍是一条呈现项；throw 或返回非字符串�
 TTY 使用可更新的 running region；plain output 与 `TERM=dumb` 只追加 settled presentation。每个可见 settled row 保留 measured duration 或 `not run`；完整、canonical-ordered `RunResult.checkDurations` 仍保留所有 Check，未执行项为 `null`。`visibility: "attention"` 只隐藏既无 accepted Record 也无 author/captured message 的 passed settled row，不隐藏 running Check。
 
 flag control barrier 结束后，因 `enabledByFlags` 未匹配而未启动的 Checks 以一个原因块分组呈现，而非逐项 settled row；dependency activation 带入的 Check 不在该组。两种显示压缩都不改变 Check facts、accounting 或结果。配置 `progressLogFile` 时，同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 使 progress output failed，但不吞掉 terminal presentation。
-
-## Finding message presentation
-
-producing Check 可用 `presentCheckFindings(...)` 从完整 Finding facts 形成有限的 terminal messages。输入、omission summary、完整明细位置与随包 Check 的采用见[呈现 Check Finding](presenting-findings.md)。
 
 ## 日志与输出目标
 

@@ -1,25 +1,21 @@
 # `fileMetrics`
 
-本页完整说明 package consumer 如何构造、配置和读取 `fileMetrics`。普通 Check 的 preflight、Run 与结果读取机制见
-[深入 API 机制](../api-mechanics.md)。
-
 ## 用途
 
-`fileMetrics(options?)` 返回一个普通 `file-metrics` Check。该 Check 使用 SCC 测量各区域所选文件的代码行数，
-将超过区域策略的文件发布为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。可选的声明式
-waiver 在完整 finding 集合形成后对账；它不会把路径排除在 SCC 输入之外。
+`fileMetrics(options?)` 构造 `file-metrics` Check，用 SCC 测量文件代码行数，报告超限 Records 及总数、blocking 数量。
+waiver 在完整 Finding 集合上对账，不从 SCC 输入排除路径。
 
-执行这个 Check 时，project runtime 需要让默认 `scc` command 可用，或在 `scanner.executable` 中选择项目已授权且
-精确 SCC 4.0.0 version output 与受支持 CSV contract 的 executable。
+运行环境须提供默认 `scc` command，或配置已授权的 `scanner.executable`；两者均须支持精确 SCC 4.0.0 version output
+与 CSV contract。安装与协议见[定制 SCC executable](#定制-scc-executable)。
 
 ## 最小用法
 
-示例保留终端进度，关闭 machine publication，不写入 machine files。
+示例保留终端进度，不写 machine files。
 
 ```ts
 import { defineConfig, fileMetrics, run } from "@zxyycom/vibe-check";
 
-const check = fileMetrics();
+const check = fileMetrics({ findingPolicy: "blocking" });
 const result = await run(defineConfig({
   checks: [check],
   outputs: { machinePublication: { enabled: false } }
@@ -33,14 +29,14 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+示例显式使用 `findingPolicy: "blocking"`，让未豁免的普通 Finding 导致失败；默认 `non-blocking` 只警告，不因 Finding 退出非零。
+
+本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。若需接受 `not-applicable` 或聚合多个 Check，
+显式配置并读取 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)；`run(...)` 返回本身不表示通过。
 
 ## 参数与默认配置
 
-顶层 `codeAreas`、`findingPolicy`、`findingWaivers` 与 `scanner` 都可省略。每个 `codeAreas[areaId]` 同时拥有文件选择和代码行
-策略，因此不同区域可以选择不同文件并使用不同上限。无参调用物化以下完整、冻结的 Check options：
+顶层 options 都可省略；每个 area 独立选择文件与代码行策略。无参调用物化以下完整、冻结的 options：
 
 ```ts
 {
@@ -62,8 +58,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-这里的 `defaultProjectFileSelection` 是从 package root 公开的深冻结完整基线；constructor 会把同值 files branch 物化到
-自己的 resolved options，调用方无需复制该对象；完整默认 glob 可直接从该 public value 读取。
+`defaultProjectFileSelection` 是 package root 公开的深冻结默认选择；constructor 会物化同值 files branch，无须手工复制。
 
 ### 字段规则
 
@@ -113,8 +108,7 @@ const sourceAndTests = fileMetrics({
 });
 ```
 
-本例只覆盖各区域显式给出的字段；省略的文件字段、finding policy 和代码行字段继续使用 package 默认值。`tests` area
-通过公开的深冻结 `defaultProjectFileSelection` 保留 common exclusions，再追加项目的 fixture 规则。
+省略字段沿用默认值；`tests` 保留默认排除项并追加 fixture 规则。
 
 ### 单个区域的有效上限
 
@@ -199,16 +193,15 @@ non-blocking 或 waived finding Records。
 
 精确命中一项 finding 的 waiver 会保留原 finding Record，并写入 `waiver.reason`、将 `blocking` 设为 `false`，同时附加
 `finding-waived` info message。未命中或命中多项的 waiver 不会隐藏 finding；各自产生一条 `kind: "finding-waiver-audit"`
-Record，带 identity、reason、matchCount 和 `"unused" | "overmatched"` status，并附 warning。这样 stale 或过宽配置可见，
-而不是悄悄失效或覆盖多个 finding。audit Record ID 使用 `/finding-waiver-audit/<identity.path>`，该 leading-slash domain
+Record，带 identity、reason、matchCount 和 `"unused" | "overmatched"` status，并附 warning。
+audit Record ID 使用 `/finding-waiver-audit/<identity.path>`，该 leading-slash domain
 与正常 finding 的 normalized relative path ID 不相交。
 
 `fileMetrics` 的 detail messages 按稳定 path 顺序，包含项目相对 path、code lines、effective limit 和 areas；完整 finding 集合从
 本 Check 的 Records 读取。通用的 terminal Finding 呈现与 Run progress 预览边界见
-[呈现 Check Finding](../guides/presenting-findings.md)。精确 applied waiver 继续由上述 `finding-waived` message 单独说明。
+[呈现 Check Finding](../guides/presenting-findings.md)。
 由本 Check 结算的 `unavailable` 会使用对应 `reason.code` 提供 error message；没有 finding 且没有 waiver audit 时，`passed` 与
-`not-applicable` 不合成人为提示。若已配置 waiver，即使 exact-path union 为空，Check 仍会对已知空 finding 集合产生 `unused`
-audit Record 和 warning，同时保持 `not-applicable / no-eligible-input` outcome。
+`not-applicable` 不合成人为提示。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseFileMetricsData(value)` 验证 final data。两者返回
 `FileMetricsFinalData`，Record 与不可用原因可分别用 `FileMetricsRecordData` 和

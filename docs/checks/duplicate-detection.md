@@ -2,23 +2,19 @@
 
 ## 用途
 
-本页是 package consumer 配置和读取 `duplicateDetection` 的主指南。`duplicateDetection(options?)` 使用带默认值的
-policy 构造一个普通 `duplicate-detection` Check。该 Check 用 jscpd 比较自己批准的项目文件，把满足行数与 token
-policy 的重复片段报告为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。
-可选 waiver 按[共同 reconciliation/audit 过程](../guides/finding-waivers.md#随包-check-的共同采用过程)在完整 duplicate Finding
-集合形成后按排序 location ranges 对账，不会缩小 jscpd 输入或 cache evidence。
+`duplicateDetection(options?)` 构造 `duplicate-detection` Check，用 jscpd 报告满足行数/token 策略的重复片段。
+它发布完整 Finding Records，并分别统计总数与 blocking 数量；waiver 不缩小 scanner 输入或 cache evidence。
 
-默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5。发布 manifest 的当前兼容范围是
-`^5.1.1`（下界为 5.1.1、上界不含 v6）。项目可直接使用下方默认 Check，无需另行配置 executable。
+默认使用随 package 安装的 jscpd v5（manifest 范围 `^5.1.1`），无需另配 executable。
 
 ## 最小用法
 
-示例保留终端进度，关闭 machine publication，不写入 machine files。
+示例保留终端进度，不写 machine files。
 
 ```ts
 import { defineConfig, duplicateDetection, run } from "@zxyycom/vibe-check";
 
-const check = duplicateDetection();
+const check = duplicateDetection({ findingPolicy: "blocking" });
 const result = await run(defineConfig({
   checks: [check],
   outputs: { machinePublication: { enabled: false } }
@@ -32,14 +28,14 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+示例显式使用 `findingPolicy: "blocking"`，让未豁免的普通 Finding 导致失败；默认 `non-blocking` 只警告，不因 Finding 退出非零。
+
+本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。若需接受 `not-applicable` 或聚合多个 Check，
+显式配置并读取 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)；`run(...)` 返回本身不表示通过。
 
 ## 参数与默认配置
 
-顶层 `cache`、`codeAreas`、`findingPolicy`、`findingWaivers` 与 `scanner` 都可省略；显式 `codeAreas[areaId]` 只要求提供
-`files` branch。无参调用物化成以下完整 Check options，调用方无需复制：
+顶层 options 都可省略；显式 area 必须提供 `files`。无参调用物化以下完整 options：
 
 ```ts
 {
@@ -59,8 +55,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-这里的 `defaultProjectFileSelection` 是从 package root 公开的深冻结完整基线；constructor 会把同值 files branch 物化到
-自己的 resolved options，调用方无需复制该对象；完整默认 glob 可直接从该 public value 读取。
+`defaultProjectFileSelection` 是 package root 公开的深冻结默认选择；constructor 会物化同值 files branch，无须手工复制。
 
 - 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
 - 每个显式 area 必须提供 `files` branch。共同 `{ source, include, exclude }` grammar、source failure 和数组替换见
@@ -80,8 +75,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 
 ## 定制区域 policy
 
-调用方只声明要改变的 policy，不需要读取默认 Check。下面两个 area 各自拥有文件范围和阈值；省略的 file fields、
-finding policy 与阈值由 constructor 补齐。只有追加默认数组时才组合公开的 files 基线：
+下面两个 area 各自选择文件和阈值；省略字段使用默认值。追加默认排除项时才组合公开 files 基线：
 
 ```ts
 import { defaultProjectFileSelection, duplicateDetection } from "@zxyycom/vibe-check";
@@ -105,10 +99,9 @@ const sourceAndScriptsDuplicateDetection = duplicateDetection({
 });
 ```
 
-每个 `codeAreas[id]` 都是该区域文件范围、有效 finding policy 与行数/token 下限的单一事实源。上例的
-`scripts.exclude` 显式保留 common defaults 并追加测试文件；若只写 `["scripts/**/*.test.ts"]`，它会完整替换默认排除数组。
-Area 同时是比较边界：上例中只属于 `source` 的文件不会与只属于 `scripts` 的文件形成 Finding。若项目需要跨这两个目录
-比较，应另声明一个同时选中两类路径的 area，而不是依赖它们恰好进入同一次 scanner 调用。
+上例保留默认排除项再追加测试文件；只写 `["scripts/**/*.test.ts"]` 会替换整个排除数组。
+Area 也是比较边界：仅属于 `source` 和仅属于 `scripts` 的文件不会互相形成 Finding。
+跨目录比较需另声明同时选中两类路径的 area；精确规则见[工作原理](#工作原理)。
 
 ### 精确豁免一个重复片段
 
@@ -151,14 +144,10 @@ const customDuplicateDetection = duplicateDetection({
 });
 ```
 
-`executable` 必须是已授权、可执行且**直接接受 jscpd CLI 参数**的 command。public scanner policy 只选择 command；
-owning adapter 负责 version probe、exact-path config、JSON report 与 jscpd 的自动 worker policy。实际版本用于区分 cache
-provenance，不要求 custom command 等于 package 当前安装的版本。
-
-需要靠前置参数才能转发到 jscpd 的通用 runtime（例如 `node path/to/jscpd.js`）不是受支持的 custom command；应直接
-提供 jscpd executable 或一个已授权的专用 wrapper executable。
-
-package 或 custom command 的实际版本都会隔离 cache；command、config 或 report 不兼容时，Check 以 `unavailable` 结算，不会把未完成扫描当作零 Finding。
+`executable` 必须是项目已授权、可执行且直接接受 jscpd CLI 参数的 command。
+需要前置参数的 runtime（如 `node path/to/jscpd.js`）不受支持，可改用已授权的专用 wrapper executable。
+adapter 拥有 version probe、exact-path config、JSON report 与自动 worker policy；调用方只选择 command。
+custom 版本无需等于 package 版本，但实际版本会隔离 cache；不兼容或失败的具体结算见[不可用原因](#not-applicable-与-unavailable)。
 
 ## 工作原理
 
@@ -175,10 +164,6 @@ Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文�
    阈值中的最大值。
 5. 完整可信 Finding candidates 形成后才执行 waiver reconciliation；source/scanner/cache failure 不伪造 audit。Applied
    Finding 保留 Record，unused/overmatched authoring 形成独立 audit Record，然后 Check 按 actionable disposition 结算。
-
-例如互斥的 `source` 与 `scripts` area 分别选中一个 location 时，两者没有共同 area，该 fragment 会被过滤。若另有
-`application` area 同时选中这两个 location，并使用 line `10` / token `100`，则只有同时达到这两个下限的 fragment 会以
-`codeAreas: ["application"]` 形成 Finding。
 
 cache 只保存通过 exact-input 校验的 scanner fragments；无论是否命中 cache，当前 area annotation 与最终 policy filtering
 都走同一路径。只有 package/custom command identity、实际 jscpd 版本、当前 commit、完整 exact-input fingerprint 和实际
@@ -253,10 +238,8 @@ Run progress 预览边界见 [呈现 Check Finding](../guides/presenting-finding
 
 ## I/O 与安全边界
 
-execution 启动一次本机 jscpd 调用；输入只包含各 `codeAreas[id].files` 批准的 exact paths 去重并集。union 只优化 scanner
-执行，不扩大任何 area 的比较边界；共同 area 过滤仍在可信 raw result 上执行。显式配置
-`scanner.command.kind: "custom"` 表示项目授权执行其中的 executable；所有传入参数由 owning adapter 生成。该 Check
-不发起网络请求。
+execution 仅把各 area 批准路径的去重并集交给本机 jscpd，不发起网络请求。
+custom command 是项目明确授权的 executable，参数均由 adapter 生成；共用 scanner 不扩大 area 比较边界。
 
 ## 适用边界
 

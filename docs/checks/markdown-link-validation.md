@@ -2,18 +2,16 @@
 
 ## 用途
 
-本页说明 `markdownLinkValidation` 的 options、terminal effects 与安全边界。该 Check 离线验证 selected Markdown
-sources 中的本机链接、图片目标与标题锚点。`markdownLinkValidation(options?)` 补齐默认值并返回可直接放入 Project
-Definition `checks` 的普通 Check。
+`markdownLinkValidation(options?)` 构造普通 Check，离线验证所选 Markdown 中的本机链接、图片目标与标题锚点。
 
 ## 最小用法
 
-示例保留终端进度，关闭 machine publication，不写入 machine files。
+示例保留终端进度，不写 machine files。
 
 ```ts
 import { defineConfig, markdownLinkValidation, run } from "@zxyycom/vibe-check";
 
-const check = markdownLinkValidation();
+const check = markdownLinkValidation({ findingPolicy: "blocking" });
 const result = await run(defineConfig({
   checks: [check],
   outputs: { machinePublication: { enabled: false } }
@@ -27,9 +25,10 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+示例显式使用 `findingPolicy: "blocking"`，让普通链接 Finding 导致失败；默认 `non-blocking` 只警告，不因 Finding 退出非零。
+
+本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。若需接受 `not-applicable` 或聚合多个 Check，
+显式配置并读取 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)；`run(...)` 返回本身不表示通过。
 
 ## 参数与默认配置
 
@@ -57,27 +56,19 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-上面的代码块是无参调用物化后的完整 resolved options；`exclude` 表示 constructor detached-copy 了 package root 公开
-`defaultProjectFileSelection.exclude` 的全部条目，不是调用方必须复制的输入。所有顶层 authoring fields 都可省略，
-`files` 与 `limits` 内的字段也可分别省略。显式 `include` / `exclude` 数组是完整替换值；显式宽泛 include 选中的非 Markdown
-path 会产生拒绝 Finding，而不是被静默过滤。
+无参调用物化上述完整 options，`exclude` 是公开 `defaultProjectFileSelection.exclude` 的独立副本。
+所有顶层字段及 `files`、`limits` 子字段都可省略。
 
-- `files` 定义 Markdown source selection；source 可选 `filesystem` 或 `git-worktree`，selected path 必须命中
-  `include` 且不能命中 `exclude`。filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略
-  规则排除的未跟踪文件。其中 extension 大小写不敏感的 `.md` / `.markdown` 成为 sources，direct targets 仅用于
-  resolution；来源不可用时 Check 结算为 `unavailable`，不会切换到另一来源。
-- `findingPolicy` 为 `blocking | non-blocking`，默认 `non-blocking`。它只结算本 Check 的 normal local-reference
-  findings：`blocking` 使 finding outcome 为 `failed`，`non-blocking` 保留相同的 Records、计数与 final data，但以
-  `passed` outcome 和 warning message 提示；它不会改写 Project Run、aggregation 或 Gate outcome。
+- `files` 遵循[共享 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。只有大小写不敏感的
+  `.md` / `.markdown` 成为 sources；其它 selected paths 发布拒绝 Finding。direct targets 仅供 resolution，不扩大 source selection。
+- `findingPolicy` 为 `blocking | non-blocking`，默认 `non-blocking`，只决定本 Check 的普通链接 Finding 是否导致失败，不改写 Run、aggregation 或 Gate outcome；Records 与计数不随 policy 改变。
 - `requireExistingTargets` 控制缺失 direct local target 是否是 finding。
 - `validateSameDocumentAnchors` / `validateCrossDocumentAnchors` 分别控制当前文档与直接 Markdown target 的 heading
   lookup。
 - `rootExternalTargetMode` 为 `ignore | report | validate`；只有显式 `validate` 才授权 bounded root-external target I/O。
 - `requireNonEmptyDirectories` 启用时最多读取 direct directory 的一个 entry，不递归遍历。
-- `cache` 是闭合的 Link parse-facts performance-state branch。省略时，或显式写成
-  `{ enabled: false }` 时为默认关闭，且不访问 cache filesystem；disabled branch 不能带 `directory`。只有
-  `{ enabled: true, directory: "/absolute/caller-owned/path" }` 才启用，其中 `directory` 必须是非空、无 U+0000
-  的 host-absolute path。它不改变 source selection、target policy、Check ID 或 Finding policy。
+- `cache` 默认 `{ enabled: false }`，不访问 cache filesystem，且不能带 `directory`。启用 branch 必须为
+  `{ enabled: true, directory }`，其中 directory 是非空、无 U+0000 的 host-absolute path；安全与失败行为见 [Parse-facts cache](#parse-facts-cache)。
 - `limits` 限制单文档 bytes、全部 semantic occurrences 与 direct target reads；constructor 会补齐该 branch 中省略的
   fields。`maxMarkdownBytes` 不得超过 `16_777_216`，`maxOccurrences` 不得超过 `100_000`，
   `maxTargetReads` 不得超过 `10_000`。
@@ -101,24 +92,17 @@ const documentationLinks = markdownLinkValidation({
 
 ### Parse-facts cache
 
-cache 默认关闭。只有 `{ enabled: true, directory }` 才会在调用方选择的 absolute directory 使用可删除的本地性能状态；调用方负责
-该目录的容量和删除。状态来自 Markdown parse facts，不是输出目录，也不提供机密性、secret protection 或 tamper resistance：不愿复制到
-调用方本地状态的 Markdown 不应启用 cache。
+启用后，cache 在调用方指定的 absolute directory 保存可删除的 Markdown parse facts；调用方负责目录容量与删除。
+它不是输出目录，也不提供机密性或防篡改保护；不愿复制到本地状态的 Markdown 不应启用 cache。
 
-cache 命中只避免重新计算 parse facts。每次 invocation 仍使用当前 source selection、当前 Markdown bytes 和 target policy，重新形成
-Finding、Record 与 terminal outcome。无法从 cache 恢复的 facts 会 fresh-parse；publication 写入失败只影响将来的复用，不改变本次已经形成的
-facts、Check message、Record、final data、machine field 或 terminal status。取消在 publication 开始前不会启动它；一旦 append 已开始，
-invocation 会等待它结束。cache 不是 Check/settlement cache，也不提供跨进程协调、持久性或自动清理保证。
-
-本页只说明 consumer contract；项目应基于自己的 workload、环境与容量要求评估实际收益。
+命中只避免重复计算 parse facts；每次仍用当前 selection、Markdown bytes 与 target policy 形成 Finding、Record 和 outcome，
+不改变 Check ID 或 finding policy。无法恢复 facts 时 fresh-parse；写入失败只影响后续复用，不改变本次结果或任何发布字段。
+publication 开始前取消不会启动写入；append 开始后会等待完成。cache 不缓存 settlement，也不保证跨进程协调、持久性或自动清理。
 
 ## 工作原理
 
-Check 验证 options，收集 Markdown source paths，再处理 supported inline、reference 与 autolink occurrences。完整 selected
-paths 先按 `.md` / `.markdown` suffix 分为 accepted/rejected，每个
-rejected path 产生 supplemental Record，只有 accepted path 成为 source。target file、directory 与 GitHub-priority heading
-anchor 按上面 policy 做 bounded validation；每个 link finding 产生另一种 supplemental Record。direct target 可以参与当前
-occurrence validation，source discovery 始终由 `files` selection 决定。
+Check 先验证 options，按本页 suffix 规则完整分类 selected paths，为 rejected paths 发布 Records，再解析 accepted sources。
+对 file、directory 与 GitHub-priority heading anchor 按 policy 做 bounded validation；每个普通链接 Finding 另发 Record。
 
 一次 invocation 内，同一 canonical Markdown target 的成功 parsed headings 可以被多个 cross-document anchor occurrence
 复用。它只复用首次成功 snapshot：target 随后变化时，本次 invocation 继续使用该 snapshot；target failure 不被 memoize。每个
@@ -132,9 +116,8 @@ Check 的 occurrence 集合。HTTP(S)、`mailto:` 与其它非本地 target 只�
 ## 效果与结果
 
 没有 normal link finding 时 outcome 为 `passed`；有 normal link finding 时，`findingPolicy: "blocking"` 为 `failed`，
-`findingPolicy: "non-blocking"` 为 `passed`。input rejection 固定 non-blocking，不受该 policy 影响。两种 finding policy 都
-保留相同的 final data 与每 finding 一条 Record；blocking link finding 附带 `invalid-local-links` error message，
-non-blocking link finding 附带同 code 的 warning message。正常 final data 恰为：
+`findingPolicy: "non-blocking"` 为 `passed`。input rejection 固定 non-blocking，不受该 policy 影响。
+两种 policy 保留相同 final data 与每 Finding 一条 Record。正常 final data 恰为：
 
 ```ts
 {
@@ -234,6 +217,4 @@ source I/O scope 只包含通过 `.md` / `.markdown` eligibility 的 accepted pa
 
 ## 适用边界
 
-该 Check 只评估本机 target 与 heading-anchor integrity，不评估 remote URL reachability 或 HTML attribute links。项目需要
-这些能力时，应另外提供明确拥有网络或 HTML parsing policy 的 Check；当前 `markdownLinkValidation` 不会隐式扩展到这些
-输入。
+该 Check 不评估 remote URL reachability 或 HTML attribute links；需要时另配拥有明确网络或 HTML parsing policy 的 Check。

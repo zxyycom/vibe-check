@@ -188,7 +188,7 @@ Entities:
 
 ## Case CHECK-SCOPED-CONCURRENCY-001: Check parallel limits use the shared engine
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/scheduler.md#admission-state-与-real-shell`
 Entities:
 
 - `bun|src/project-run/task-scheduler/task-engine.scope-capacity.test.ts|static task engine > keeps a scope cap active through terminal settlement and prioritizes its continuation`
@@ -210,7 +210,7 @@ Entities:
 
 ## Case WB-RUNTIME-ADMISSION-GRAPH-001: Immutable AdmissionGraph shares Scheduler legality without control capability
 
-Owner: `docs/api-mechanics.md#admissiongraph-simulation`
+Owner: `docs/guides/simulating-admission.md#模拟-admissiongraph`
 Entities:
 
 - `bun|src/project-run/task-scheduler/admission-core/graph.test.ts|immutable admission graph > validates exact input and returns frozen opaque branching successors`
@@ -228,7 +228,7 @@ Entities:
 
 ## Case WB-RUNTIME-ADMISSION-COMPILED-GRAPH-001: Prepared graph compilation retains Scheduler static indexes
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/scheduler.md#admission-state-与-real-shell`
 Entities:
 
 - `bun|src/project-run/task-scheduler/admission-core/compiled-graph.test.ts|prepared admission graph compiler > compiles static indexes from a prepared graph without rematerializing it`
@@ -297,7 +297,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-PERFORMANCE-DIAGNOSTICS-001: Enabled Scheduler diagnostics retain bounded honest timing projections
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/scheduler.md#measurement-collector-与-immutable-context`
 Entities:
 
 - `bun|src/project-run/task-scheduler/measurement/diagnostics.test.ts|Scheduler performance diagnostics > keeps control-path and decision observation separate while integrating real running slots`
@@ -329,7 +329,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-HISTORY-001: Local Scheduler history remains bounded and failure-contained
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
@@ -346,7 +346,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-PREDICTION-001: Frozen duration predictions use a deterministic bounded prior
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
@@ -358,7 +358,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-CRITICAL-PATH-001: Directed readiness relations form one reverse critical-path score
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/project-run/task-scheduler/critical-path-ranking.test.ts|critical-path ranking > scores both dependency and observation downstream paths once`
@@ -368,7 +368,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-ADMISSION-001: Public learned strategy preserves generic Scheduler legality
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/learned-critical-path/strategy.test.ts|public learned critical-path strategy > uses the public scope layers and returns wait for an unavailable learned preference`
@@ -381,7 +381,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned caller observations stay bounded and non-quality-bearing
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > uses caller-owned observations and contains local history write failure`
@@ -391,7 +391,7 @@ Entities:
 
 ## Case WB-RUNTIME-ADMISSION-STRATEGY-LIFECYCLE-001: Invocation-scoped strategies preserve terminal delivery
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/scheduler.md#public-prepared-admission-strategy-lifecycle`
 Entities:
 
 - `bun|src/project-run/admission-strategy-provider/provider.test.ts|admission strategy provider > prepares one closed static or custom policy without widening public configuration`

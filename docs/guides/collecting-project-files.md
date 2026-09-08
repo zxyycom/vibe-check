@@ -44,7 +44,7 @@ Check constructor 接受省略字段时，由 owning Check 物化默认值；显
 
 这些对象只接受列出的自有数据字段，不接受额外字段或 getter/setter；数组也不接受额外属性或 accessor 元素。工具不在遗漏 root 时替调用方选择目录；显式 root 不是路径隔离、文件系统沙箱或文件内容可读性的承诺。
 
-本工具不解释 `ProjectFileSelectionOptions` 的省略字段，也不代表任何随包 Check 的默认值。需要通用基线时，像示例一样显式 spread `defaultProjectFileSelection`，再完整替换或派生 `include`、`exclude` 与（需要时）`source`。两组数组使用相同的 minimatch glob 语义，点号开头的路径也参与匹配，不会被额外隐藏。
+本工具不物化 `ProjectFileSelectionOptions` 的省略字段；要使用基线，像示例一样显式 spread `defaultProjectFileSelection`。匹配和替换规则见上节。
 
 返回值是相对解析后 root、使用 `/`、按稳定文本顺序排序并去重的冻结数组。没有匹配 path 时，返回冻结的空数组；返回后文件是否仍存在、是否可读或内容是否变化不在此工具承诺范围内。它不会读取文件内容，也不与 Check 或其它调用共享原子快照。
 

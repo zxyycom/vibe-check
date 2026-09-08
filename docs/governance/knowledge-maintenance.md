@@ -1,12 +1,7 @@
 # 项目知识与变更治理
 
-本文档是 Vibe Check 项目知识载体的权威性、内容归属和变更交接规则的唯一 owner。维护者与 AI
-使用它区分当前稳定规则、当前实现证据、形成时调查认识、跨任务长期方向和单次实施上下文，并把
-调查、决策、实施与验收结果交给正确载体。
-
-本文不定义各载体的固定格式、字段、关系或生命周期命令；这些机械契约分别由
-`investigation-report`、`decision-records` 和 `change-plan` skill 拥有。项目安装、命令接线与
-adapter 由[脚本工具](../tooling/workspace.md#governance-and-test-evidence-adapters)拥有。
+记录或交接项目认识时，用本文确定内容应进入当前规范、调查、Decision 还是 Change，以及谁承接实施与验收。
+各载体的格式、字段和生命周期命令由对应 skill 定义；安装与接线见[工作区工具](../tooling/workspace.md#governance-and-test-evidence-adapters)。
 
 ## 开发者文档的维护方式
 
@@ -38,10 +33,8 @@ owner 或删除。
 | package 用户完成集成或深入扩展 | 何时使用、如何配置或编写回调、输入与返回作用、可观察结果、失败/取消及安全边界 | 仅凭随包页面、声明与示例即可完成任务，不依赖未发布的设计文档。 |
 | 维护者理解或修改实现           | 为什么需要该行为、职责归属、不变量、生命周期、取舍与验证方式                  | 可以为设计推导重述用户承诺，但不能用内部说明替代用户使用方案。 |
 
-共同承诺只保留一个完整定义位置；两种叙述可保留有明确 owner 引用的摘要与设计推导，保持含义和适用范围一致，不要求逐字相同或从一篇生成另一篇。
-删减前先判断该段是否仍承担独立使用或设计解释；只清理无独立用途的清单、数字、规则副本和背景。
-发现共同承诺冲突时，核对当前行为 owner、代码与测试，修正受影响说明；不因受众不同容许相互矛盾。
-当前设计所需理由留在项目内说明；跨 Change 长期取舍由 Decision 保留。
+共同承诺只在 owner 完整定义；另一受众可保留有明确引用的摘要与设计推导，不要求逐字相同或生成副本。
+删减只清理无独立用途的清单、规则副本和背景；出现冲突时核对行为 owner、代码与测试。当前设计理由留在内部说明，跨 Change 取舍留给 Decision。
 
 用户文档从 README 进入；首次使用、各 Check 指南、跨能力公共模型和深入任务专题按使用需求分层。
 专题数量不设硬上限，但每篇必须有可辨认的用户任务，不能按内部文件、函数或“高级”标签机械拆页。
@@ -67,11 +60,8 @@ owner 或删除。
 
 ## 复杂或严重 Bug 的自动调查沉淀
 
-本项目明确要求：代理在调查或修复过程中确认 Bug 达到下列“复杂”或“严重”条件后，必须在同一
-任务内使用 `investigation-report` skill 创建调查报告，不等待用户再次催促或确认。该规则提供项目
-owner 对后续相关任务的预先明确要求，满足该 skill 的显式请求前提；执行时不再就单个 Bug 请求
-重复确认。该规则不建立独立的 Bug 报告格式或 open/closed 生命周期，也不扩大当前任务对产品修复、
-外部写入或其他副作用的授权。
+调查或修复中确认 Bug 满足以下任一复杂或严重条件后，必须在同一任务内用 `investigation-report` skill 沉淀报告，
+不等待用户再次确认。这是项目预先授权的报告维护，不扩张产品修复、外部写入等授权，也不建立另一套 Bug 格式或 open/closed 生命周期。
 
 满足以下任一条件即视为**复杂 Bug**：
 
@@ -88,17 +78,14 @@ owner 对后续相关任务的预先明确要求，满足该 skill 的显式请�
 3. 对常见合法输入产生静默错误结果、伪成功、错误可信 artifact，或者把失败掩盖为合法空结果。
 4. 影响多个独立消费者、环境或平台，并且不能由一个局部失败清楚限定影响范围。
 
-自动沉淀按以下顺序执行：
+自动沉淀的步骤：
 
-1. 先取得足以判断复杂度、严重度和结论强度的实际证据，不为满足形式预建空报告。
-2. 确认达到自动触发条件后，继续完成当前任务已经授权的调查、修复和验证；未授权的产品修改、
-   外部写入或其他副作用仍需遵守当前任务边界。
-3. 在当前任务交付前，按本轮实际结果一次形成完整报告。Bug 尚未解决时，报告已确认认识、未知项
-   和继续调查条件，不把推测写成完成事实。
-4. 按 `investigation-report` skill 完成索引同步、全量检查和语义审阅。报告建立后若又出现实质新证据
-   或结论变化，按关系规则形成后继报告，不改写前一轮认识。
-5. 普通局部 Bug 如果根因直接、修复局部、具有最窄回归测试且不满足任何严重条件，不自动创建报告；
-   用户仍可明确要求沉淀。
+1. 先取得足够证据判断复杂度、严重度和结论强度，不预建空报告。
+2. 继续当前已授权的调查、修复与验证；其它副作用仍需相应授权。
+3. 交付前据实际结果形成完整报告。未解决时说明已知、未知与继续调查条件，不把推测写成完成事实。
+4. 按 skill 同步索引、全量检查与语义审阅；建立后出现实质新证据或结论变化时形成后继，不改写前轮认识。
+
+根因直接、修复局部、有最窄回归测试且未达到严重条件的普通 Bug，不自动创建报告；用户仍可明确要求沉淀。
 
 调查报告可以保存形成时症状、复现条件、实际依据、根因判断、候选修复、排除方案、已执行动作、
 验证结果和未知项，但这些内容仍按下表交给当前 owner：
@@ -113,58 +100,38 @@ owner 对后续相关任务的预先明确要求，满足该 skill 的显式请�
 
 ## Decision 与 Change 交接
 
-活动决策的一般解释、任务关系分类、alignment、拆分和生命周期由项目内完整上游
-[`decision-records` skill](../../.codex/skills/decision-records/SKILL.md) 与对应决策记录拥有。本文只定义
-Decision 与 Change 之间的项目级交接：
+活动决策的 alignment、关系、拆分和生命周期由 [decision-records skill](../../.codex/skills/decision-records/SKILL.md) 定义。
+项目交接遵循以下边界：
 
-1. 进入一个 Change 前，运行 `bun run decisions -- list`，再按 `decision-records` 恢复会直接改变该
-   Change 目标或结果的活动决策；当前请求决定本次授权，当前请求与 Change artifacts 共同限定
-   交付范围。
-2. Change 直接使用 `change-plan` 的 proposal、design、tasks 与 lifecycle，不为决策引用增加项目
-   自定义字段、章节或平行清单。
-3. 一条 `active + unaligned` 决策可以直接按已确认方向进入 Change 目标和 plan；当前请求明确把它
-   纳入实施授权时再实施。开始 Change 前不预先修改 alignment，也不把未对齐本身当作退回探索的
-   理由。
-4. 一个 Change 可以落实一条或多条决策，一条决策也可以跨多个 Change 落实；Change 的任务完成、
-   stage 转换或 complete 删除都不会自动改变决策状态。
-5. Change 的稳定事实 owner 已同步且相关验证通过后，对直接相关的活动决策触发 alignment 核对；
-   是否改变 alignment、是否需要拆分或演进只按 `decision-records` 的判断与命令执行。
+1. 进入 Change 前先运行 `bun run decisions -- list`，恢复直接影响目标的活动判断；本次请求确定授权，并与 Change artifacts 共同限定交付。
+2. `active + unaligned` 是已确认方向，可以进入目标和计划；明确纳入本次授权后才实施。不预先改变 alignment，也不因未对齐而退回探索。
+3. Decision 与 Change 可以多对多映射。Change 的任务、stage 或删除不会自动改变决策状态；稳定 owner 同步并验证后，再按 skill 核对 alignment 和演进。
+4. Change 直接使用既有 proposal、design、tasks 和 lifecycle，不增加决策引用专用字段、章节或平行清单。
 
 ## Change Plan 使用边界
 
-需要跨文件、owner 或验证阶段持久交接的明确 change 使用 `$change-plan`。简单局部改动直接同步
-owner、实现和验证；仍在探索的问题先继续探索，不为获得形式而预建空计划。
+需要跨文件、owner 或验证阶段持久交接时使用 [change-plan skill](../../.codex/skills/change-plan/SKILL.md)。
+简单局部改动直接同步 owner 与验证；探索中的问题不预建形式计划。
 
-项目约定的根目录是 `changes/`；处理前使用 `bun run change-plan -- list changes` 定位当前计划，
-再阅读目标 Change 的 proposal、design 与 tasks。`changes/` 根目录不维护手工 active Change 清单、
-发布状态快照或跨 Change 事实副本；动态成员、stage、任务进度和 Git 距离以命令输出与目标
-artifacts 为准。只约束当前 Change 的开放问题、暂停原因和恢复条件写入对应 artifacts；metadata
-只使用 `change-plan` 定义的规范 stage，不另建暂停状态。
+项目根是 `changes/`。先运行 `bun run change-plan -- list changes`，再读目标 artifacts：
 
-固定 artifact、严格 metadata、stage、Git 距离、命令门禁、授权检查和退出状态由项目内完整上游
-[`change-plan` skill](../../.codex/skills/change-plan/SKILL.md) 定义；package 入口见
-[脚本工具](../tooling/workspace.md#governance-and-test-evidence-adapters)。
+- 成员、stage、进度和 Git 距离以 CLI 和目标 artifacts 为准；根目录不维护 active 清单、发布快照或跨 Change 事实副本。
+- 本次开放问题、暂停原因和恢复条件写入 artifacts；metadata 只用 skill 定义的 stage，不增加暂停状态。
+- 固定结构、metadata、Git 距离、命令门禁和退出状态归 skill；package 接线归[工作区工具](../tooling/workspace.md#governance-and-test-evidence-adapters)。
 
-同时推进多个 Change 时，从[Change 执行依赖与 Worktree 协调](change-coordination.md)恢复跨 Change 的
-硬前置、推荐合入顺序和共享 owner 冲突。该文档是依据当前 Change artifacts 维护的协调视图，不拥有
-active membership、stage、进度、暂停或实施授权；它与目标 artifacts 不一致时，先按当前事实修正
-协调视图，不能反向覆盖目标 Change。
+多个 Change 的硬前置、合入顺序和共享 owner 冲突见[Change 协调](change-coordination.md)。该视图不拥有动态状态或授权；
+与目标 artifacts 不一致时修正协调视图，不反向覆盖 Change。
 
 ## 从调查和实施交接到当前事实
 
-1. 普通调查、排障和未确认判断留在当前任务；复杂或严重 Bug 按本项目自动触发条件沉淀，其他调查
-   只在用户明确要求时进入 `docs/investigations/`。报告本身不产生方向、任务或实施授权。
-2. 已确认且跨 change 持续有效的判断写入 `docs/decisions/`；未确认草稿留在当前任务或 Change 中。
-3. 获得授权的实施按“Change Plan 使用边界”判断是直接完成局部修改，还是写入
-   `changes/<change>/` 持久交接。
-4. 已成为当前稳定规则的结果写入对应 `docs/` owner 文档；当前实现及其证明写入代码、测试和
-   release artifact。
-5. Change 完成后先同步上述 owner，再完成语义验收；alignment 按“Decision 与 Change 交接”核对。
-   只有当前任务明确授权删除且新版 `complete` 门禁通过时，才删除整个 Change 目录。
+普通调查和未确认判断留在当前任务；复杂/严重 Bug 按上节自动沉淀，其它报告须有用户明确请求。
+报告只保存形成时认识，不产生方向、任务或实施授权。
 
-载体出现差异时，按内容类型从权威 owner 恢复：当前稳定规则看 owner 文档，当前实现看代码、测试
-和 release artifact，形成时认识看调查报告，未来方向看活动决策，当前实施上下文看 active Change。
-确认差异后更新失配的当前载体，不让调查报告、Change 或历史材料反向覆盖现行事实。
+交付时把已成为当前规则的结果交给文档 owner，实现与证明交给代码、测试及 artifact，跨 Change 方向交给 Decision；
+本次范围、进度与恢复条件留给当前 Change。先完成 owner 同步与语义验收，再核对 alignment。
+只有取得本次明确删除授权且 `complete` 门禁通过，才删除 Change 目录。
+
+载体有差异时，按[权威载体](#按用途选择权威载体)定位失配来源；调查、Change 或历史材料不能反向覆盖当前事实。
 
 ## 历史审计边界
 

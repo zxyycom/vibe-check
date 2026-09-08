@@ -2,13 +2,12 @@
 
 ## 用途
 
-本页说明 `jsonSchemaValidation` 的 options、terminal effects 与安全边界。该 Check 使用显式 schema registry 与
-instance bindings 验证选定的 JSON instances。`jsonSchemaValidation(options?)` 补齐默认值并返回可直接放入 Project
-Definition `checks` 的普通 Check。
+`jsonSchemaValidation(options?)` 构造普通 Check，使用显式 schema registry 与 instance bindings 验证 JSON instances。
+先声明 schema 与 binding；无参调用不发现 schema，并结算为 `not-applicable / no-bindings`。
 
 ## 最小用法
 
-示例保留终端进度，关闭 machine publication，不写入 machine files。
+示例保留终端进度，不写 machine files。
 
 ```ts
 import { defineConfig, jsonSchemaValidation, run } from "@zxyycom/vibe-check";
@@ -33,9 +32,8 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。若需接受 `not-applicable` 或聚合多个 Check，
+显式配置并读取 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)；`run(...)` 返回本身不表示通过。
 
 ## 参数与默认配置
 
@@ -50,17 +48,11 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-上面的代码块是无参调用物化后的完整 resolved options；`defaultProjectFileSelection` 是 package root 公开的同值深冻结
-基线；完整默认 glob 可直接从该 public value 读取。六个顶层 authoring fields 都可省略；`files` 内的三个字段也可分别省略。显式 `schemas`、`bindings` 与
-`referenceResolution.sources` 数组是完整替换值。`schemaIdentity` 与
-`referenceResolution` 的显式 discriminated branch 必须自身完整。无参调用不会发现 schema；由于 `bindings: []`，它结算为
-`not-applicable / no-bindings`。constructor 返回后若通过普通对象组合替换 `check.options`，replacement 才必须保留完整
-resolved shape。
+无参调用物化上述完整 options；`files` 使用 package root 公开的深冻结 `defaultProjectFileSelection` 基线。
+六个顶层字段及 `files` 子字段都可省略；显式 `schemas`、`bindings`、`referenceResolution.sources` 数组完整替换默认值。
+`schemaIdentity` 与 `referenceResolution` 的显式 discriminated branch 必须完整；constructor 后替换 `check.options` 也须保留完整 resolved shape。
 
-- `files` 完整定义本 Check 可读取的 local paths；source 可选 `filesystem` 或 `git-worktree`，selected path 必须命中
-  `include` 且不能命中 `exclude`。filesystem 不解释 `.gitignore`；git-worktree 使用已跟踪文件和未被 Git 标准忽略
-  规则排除的未跟踪文件。schema 与 instance 的读取 scope 是 selected set；来源不可用时 Check 结算为
-  `unavailable`，不会切换到另一来源。
+- `files` 遵循[共享 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)，selected set 是 schema 与 instance 的本地读取 scope；来源不可用时不切换来源。
 - `maximumBytes` 是每个 schema 或 instance document 的 raw byte 上限，必须是正安全整数。
 - `schemas` 每项为 `{ id, path }`；schema `id` 是 1–256 字符且没有 credentials、query 或 fragment 的绝对
   `https:` / `urn:` identity，`path` 是 1–512 字符的 normalized project-relative 小写 `.json` path。schema ID 与 path
@@ -111,11 +103,9 @@ fragment 的精确 HTTPS origin；`pathPrefix` 最长 256 字符，从 `/` 开�
 
 ## 工作原理
 
-constructor 先关闭 authoring shape、补齐并冻结 resolved options。该 Check 获 Scheduler admission 后，其 task-local preflight 验证完整 options；zero
-bindings 结算为 `not-applicable`；其它调用从 `files`
-selection 建立可读 path set，加载 registered schemas，按 identity policy 编译，再验证每个 binding。selected set
-之外的声明 path 形成 `out-of-scope` domain issue，读取 scope 保持为 selected set。schema document、compile 与
-instance issues 形成 Records。
+constructor 补齐并冻结 closed options；获 Scheduler admission 后先 preflight，再建立 selected path set、加载 registry、
+按 identity policy 编译并验证 bindings。selected set 外的声明路径形成 `out-of-scope` issue，不扩大读取范围。
+schema document、compile 与 instance issues 均形成 Records。
 
 local schema 与 instance document 复用 [JSON Validation 工作原理](json-validation.md#工作原理)定义的 strict-document
 boundary；本指南只增加 schema identity、reference resolution、binding 与 engine settlement，不建立另一套 JSON 解析规则。

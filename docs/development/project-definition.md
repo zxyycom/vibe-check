@@ -1,12 +1,8 @@
 # Project Definition
 
-Vibe Check configuration is a project-owned TypeScript **Project Definition**. `defineConfig` creates its plain value; a project-owned wrapper calls `run(definition, controls)`. Product never discovers, reloads, or accepts a second configuration module.
+本文拥有 project-owned TypeScript Definition 的 validation、normalization、声明性 snapshot 与 fingerprint 不变量。公开 authoring 由 [API 机制](../api-mechanics.md)、[Check lifecycle](../guides/extending-check-lifecycle.md)、[依赖数据](../guides/check-dependencies.md)及[调度指南](../guides/scheduling.md)定义；Run Controls 和 capability 投影见 [Project Run](project-run.md)。
 
-本文拥有 Project Definition 的 validation、normalization、声明性 snapshot 与 fingerprint 实现不变量。公开参数和组合规则由 [API 机制](../api-mechanics.md)、[Check authoring](../guides/extending-check-lifecycle.md)、[依赖数据](../guides/check-dependencies.md)与[调度指南](../guides/scheduling.md)定义；本页为维护实现解释这些承诺，不建立第二份公开规则。Check/Record settlement 实现属于 [Check results](check-results.md)，每项随包 Check 的 consumer contract 属于对应[随包 Check 指南](../navigation.md#随包-check-指南)，owner-local external-tool adapter boundary 属于 [Check-owned scanner dependencies](scanner-dependencies.md)，result/output DTOs 属于 [Output](../output.md)。
-
-`ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与明确的 diagnostic logging、machine publication/progress rendering outputs。它没有 package-specific `quality`、file scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自己的完整 `options` 中声明并消费这些输入。
-
-它不拥有 invocation controls、Run execution/result compatibility、各 Check 的 domain options、scanner adapter 或 machine DTO。
+Definition 仅含 ordinary Check tree、scheduler 与默认 outputs；file selection、领域 policy 和 scanner options 留在 owning Check，不按随包 Check ID 解释。`defineConfig` 生成普通 value，Product 不发现或重载配置模块。
 
 ## Progress preview 配置
 
@@ -16,18 +12,7 @@ Vibe Check configuration is a project-owned TypeScript **Project Definition**. `
 
 ## Public authoring surface
 
-package surface 包含 `defineAdmissionPolicy`、`defineConfig`、`defineCheck`、`inherit`、`run`，六个可补齐默认值的 Check constructors
-`duplicateDetection(options?)`、`fileMetrics(options?)`、`functionMetrics(options?)`、`jsonValidation(options?)`、
-`jsonSchemaValidation(options?)`、`markdownLinkValidation(options?)`，以及必填输入的 `secretDetection({ files })` 与
-`maintenanceReminders(entries)`。八项函数都返回 ordinary Check object，不引入第二种 execution model；其余 authoring helper、Definition
-value 与 invocation operation 各自保持其显式责任。仓库 private consumer 的 Definition 由
-[`scripts/project/gate/definition.ts`](../../scripts/project/gate/definition.ts) 组装；下例只说明 Project Definition 的 authoring 形状，不是该 Gate Definition 的逐行副本。
-
-Finding waiver 分为两层 public authoring：`reconcileFindingWaivers(...)` 是任意 producer 可在完整 Finding 集合上调用的
-独立 helper；`fileMetrics`、`functionMetrics`、`duplicateDetection` 与 `secretDetection` 另外在自己的 options 中接受
-`findingWaivers`。四项 identity grammar、Records、messages 和 settlement 分别由对应 Check 指南拥有；其它 constructor
-没有因为 generic helper 存在而自动接受同名字段。完整 helper grammar 见
-[对账 Finding waiver](../guides/finding-waivers.md)。
+`defineCheck`/`defineConfig` 等 authoring helper 与随包 constructors 通过同一 ordinary Check tree 集成，不建立第二 execution model。public export inventory 由 `src/index.ts` 和[API 机制](../api-mechanics.md)维护；下例说明 authoring 形状，不是[仓库 Gate Definition](../../scripts/project/gate/definition.ts)的副本。
 
 ```ts
 import {
@@ -100,22 +85,9 @@ export default defineConfig({
 
 ### Scheduler 配置
 
-`scheduler.resourceCapacities` 是 resource ID 到正 safe-integer units 的 closed mapping；省略规范化为冻结的 `{}`。resource ID 必须含至少一个非空白字符。每个 Check 的 effective `resourceClaims` 必须引用这里声明的 ID，claim units 也必须为正 safe integer 且不能大于对应 capacity。未知或 oversized claim 会使 Definition 在任何 author work 前失败。capacities、effective claims 及其 canonical key order 都进入 declarative snapshot/fingerprint。
+公开 resource mapping、policy grammar 和 callback proposals 由[调度指南](../guides/scheduling.md)定义。validator 在 work 前关闭 scheduler grammar：resource ID 必须含非空白字符，capacities/claims 使用正 safe integer；每个 effective claim 必须引用已声明资源且不超过 capacity。normalizer 将省略 capacities 变为冻结 `{}`，并将 canonical capacities/effective claims 纳入 fingerprint。
 
-`scheduler.admissionPolicy` 是 closed `static | custom` authoring field。省略与显式
-`{ kind: "static" }` 都规范化为同一个 static policy；`defineAdmissionPolicy(...)` 只保留 literal inference，与同形
-inline object 没有额外运行语义。custom branch 是 `{ kind: "custom", strategy }`，其中：
-
-- simple strategy 为 `{ kind: "simple", decide(context) }`；
-- prepared strategy 为 `{ kind: "prepared", prepare({ graph }) }`，它可 return 或 resolve 当前 Run 的
-  `{ decide(context), complete? }`；
-- 两种 `decide` 都同步返回精确 `{ kind: "select", taskId }` 或 `{ kind: "wait" }`。
-
-exact validation 接受上述 closed grammar，并拒绝 unknown authoring fields 与 async/thenable `decide`。
-prepare throw/reject 或 malformed prepared result 在 Scheduler 启动前映射为
-`admission-strategy-preparation-failed`。strategy kind 进入 declarative snapshot/fingerprint；callback
-identity/source/closure 不进入。调用顺序、冻结 context 和 output/result matrix 由
-[调度指南](../guides/scheduling.md#自定义准入-policy) 完整拥有。
+省略 admissionPolicy 与显式 static 规范化为同一值；`defineAdmissionPolicy` 只改善 inference。custom simple/prepared 的 strategy kind 进入 snapshot/fingerprint，function identity/source/closure 不进入。closed validation 拒绝 unknown fields；同步 decide 的 runtime result 检查拒绝 async/thenable。prepare failure 由 Invocation 在 Scheduler 启动前映射，不是 Definition validation 执行 callback。维护时同时核对 authoring types、direct-value validation 和 [Scheduler handoff](scheduler.md)。
 
 #### Learned critical-path strategy helper
 
@@ -127,29 +99,13 @@ caller identity projection 与 model controls。调用方提供的配置和 clos
 
 ### Scheduler measurement Hooks
 
-`scheduler.measurementHooks` 是可选的 readonly function array；省略时规范化为冻结空数组。validation 只接受
-exact function entries，normalization 复制并冻结列表。每个 callback 接收同一个递归冻结的
-`SchedulerMeasurementContext`，可同步返回或返回 `Promise<void>`。该 context 只交付 canonical graph、
-admitted/settled kind observation 与 Scheduler-owned raw measurement；它不交付 Task value/error/callback、clock、
-mutable Scheduler 或完整 interval history。
+`scheduler.measurementHooks` 是 Definition-owned runtime function array。validation 只接受 exact function entries；normalization 复制、冻结列表，省略时为空。callback identity/source/closure 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
 
-这是一项 Definition-owned runtime callback，而不是可由 `RunControls.outputs` 配置、覆盖或注入的 output。Hook
-function 的 identity、source 与 closure 不进入 declarative snapshot/fingerprint；nonempty configured list 或 successful
-prepared result 实际包含 `complete` 才启用 `outputs.measurementHooks`。终态调用顺序、context 形成、closed status 与主 Run
-failure 的优先级由
-[Architecture](architecture.md#execution-boundary) 和 [API mechanisms](../guides/run-outputs.md#输出状态与失败处理)
-完整拥有。
+context、ordered delivery 和 prepared complete 的接线见 [Scheduler terminal handoff](scheduler.md#terminal-hooks-与-completion)；公开 status 与 failure priority 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
 ### Admission policy context
 
-`AdmissionPolicyContext` 是每次**实际** custom callback 新建的 detached、deep-frozen ordinary data snapshot。
-
-- `graph` 是 invocation 内一次规范化、递归冻结后供所有 callback 共享的唯一 `SchedulerGraphSnapshot`；所有公开 Task identity 都是 `taskId`，topology、`admissionPriority`、canonical `resourceCapacities` 与每项 `resourceClaims` 只在这里的静态 metadata 中出现。
-- `admissionState` 是当前同型 immutable admission boundary。重复读取在同一 callback 内保持同一 handle identity；调用方可保留 predecessor 并以 `select` / binary `settle` 推演 hypothetical successor，但不能启动、取消、reservation、等待或结算真实 Task。
-- 其余动态 facts 包含 relation/mutex/resource candidates 的 `{ taskId, canAdmit }`、root/effective capacity、`admissionState.inspection.resources` 中每个资源的 `{ resourceId, capacity, inUse, available }`、running/settled/active-scope IDs、cancellation runtime facts，以及调用前已 flush 的 `measurement`。named shortage 的 selection rejection 使用 `resource-capacity-insufficient` 并列出所有不足资源的 required/occupancy facts。
-
-`measurement.cumulative` 只给有界累计 scalar/peak/discrete facts，完整 per-Task table 只属于 terminal raw measurement；`measurementCount` 和 `measurementAt(index)` 是 context 创建时捕获的 invocation-local append-only frozen action-observation prefix reader。`measurementAt(index)` 是同步 getter，不返回 live array 或 per-round slice；index 不在 `[0, measurementCount)` 时返回 `undefined`，即使 Scheduler 在该 callback return 后继续执行也不能读取后续 append。每条 observation 给出 accepted `select`/`wait` 的 sequence/kind/task identity、从其 post-action state 开始到下一次实际 custom callback 前结束的 occupancy interval，以及期间 admitted/settled effects。该 interval 是 closed union：`availability: "available"` 才含数值 `contribution`，`availability: "unavailable"` 只含 reason，绝不以全零伪造失效 timing；合法 zero span 仍是 available contribution。它不表达 action 因果、duration 或 critical path，也不暴露 private Scheduler object、`Set`/`Map`、Check options/functions/data、Records、messages、logger、clock、signal 或真实 Task command。完整 callback 的 trusted、reentrancy、hard guard 与 fault 边界见
-[调度指南](../guides/scheduling.md#自定义准入-policy)。
+Definition 只提供 normalized static graph metadata，不能给 callback 暴露 authored options/functions/data。Invocation 内唯一 frozen graph DTO 与每次 callback 的 detached dynamic context、lazy admissionState 和 captured-prefix measurement 由[Scheduler collector](scheduler.md#measurement-collector-与-immutable-context)构造；字段、inspection 与 proposal 的公开使用规则由[调度指南](../guides/scheduling.md#自定义准入-policy)定义。
 
 ### Check options preflight
 
@@ -172,20 +128,11 @@ failure 的优先级由
 
 ## Recursive Check tree
 
-Every node has a unique `checkId` and non-empty `displayName`. An executable node can also contain children; execution and containment are independent ordinary fields. Containment contributes scheduling inheritance only: it does not create a separately published Check or a hierarchy in the final snapshot.
+validation 要求全树唯一 checkId 和非空 displayName。execution 与 containment 独立：executable 也可有 children；container 只影响 scheduling inheritance，不创建单独的 published hierarchy。
 
-`maxParallel` is a positive safe integer. The definition scheduler supplies the root value (default `4`), and a node's value is inherited by descendants unless a child supplies its own value.
+root maxParallel 为正 safe integer，省略默认 4；admissionPriority 为有符号 safe integer，默认 0。normalization 按父子关系解析以下继承，具体 authoring 范围见[调度指南](../guides/scheduling.md)：maxParallel 和 admissionPriority 继承最近显式值；resourceClaims 继承整个 mapping，显式 `{}` 清空，不逐 key merge；dependsOn/observes/mutex 的 exact collection 完整替换（含空数组），inherit 则在父集合上 add/remove 后排序去重。normalized direct dependsOn 与 observes 不得包含同一 provider，二者只引用 executable IDs。
 
-`resourceClaims` 是 resource ID 到正 safe integer 的 closed mapping。它继承最近的显式完整 mapping：省略时保留，`{}` 明确清空，其它显式 mapping 完整替换而不逐 key 合并。每个 effective claim 必须引用 `scheduler.resourceCapacities` 已声明的资源，并且不能超过该资源总量。一个 Task 的全部 claims 在 admission 时原子取得，贯穿 task-local preflight 与 execution，并在任意 settlement path 一起释放。
-
-`admissionPriority` is a signed safe integer. It inherits from the nearest explicit ancestor and defaults to `0`. It is immutable Task metadata: static/custom policies can read it only through the full graph, and it only orders otherwise-ready work in the same scheduler selection layer. It does not change declaration order or bypass direct dependencies, mutexes, root or scoped capacity, or lifecycle cancellation. Use a few relative bands rather than a unique number for every Check.
-
-`dependsOn`、`observes` 与 `mutex` 都接受 exact string collection 或 `inherit({ add, remove })`：
-
-- an exact collection replaces the inherited collection, including `[]` to clear it;
-- `inherit` changes the parent collection deliberately, then canonicalizes and de-duplicates it;
-- `dependsOn` 与 `observes` 都命名同一 Definition 中的 executable Check IDs；mutex values 命名 shared resources。
-- `dependsOn` 只在所有 direct provider 都已 `passed` 后授权本 Check 的 preflight/execution；`observes` 只等待所有 direct provider 形成任意 terminal outcome。两类 relation 的 union 授权 `dependencies.get` / `list`，同一 provider 不得同时出现在两者。
+effective priority/claims 是 immutable graph metadata；admission 时原子取得全部 claims，贯穿 preflight/execution，任意 settlement 一起释放。declaration order 不代替 execution order，也不绕过 prerequisite、mutex、capacity 或 cancellation。
 
 The following field fragments are the only three collection forms. They belong on an ordinary Check; they are not a second configuration format. Use Check IDs that are executable in the same Definition.
 
@@ -210,29 +157,10 @@ const editedScheduling = {
 };
 ```
 
-An executable Check may declare `visibility: "always" | "attention"`. Omission and explicit `undefined`
-normalize to `always`; a container cannot declare visibility, does not pass it to children, and unknown
-values fail Definition validation. Visibility is declarative presentation identity: normalized executable
-declarations always carry it, so `always` has the same fingerprint whether omitted or explicit and
-`attention` changes that fingerprint. It does not change scheduling, execution, options, Check/Record
-facts, machine output, Run Controls, or invocation-wide progress configuration. `attention` 的 `passed` Check 在默认 progress 中仅当没有 accepted Record 也没有 accepted message 时隐藏；任一类存在时仍显示其 settled block。
-
-The declaration order of `checks` is not execution order. After validation, Product flattens executable nodes to a canonical Check catalog and runs task-local preflight plus direct callbacks subject to `dependsOn` / `observes` relation semantics, mutexes, root/scoped parallel budgets, and atomic named resource claims.
+`visibility` 只允许 executable 声明，不继承给 children；省略/undefined 规范化为 always，unknown values 失败。normalized declarations 始终携带该值，因此显式/省略 always 有相同 fingerprint，attention 则不同。它不改变 execution 或 facts；呈现由[progress owner](human-output.md#progress-presentation-maintenance)消费。
 
 ## Package-provided Check composition
 
-本节只拥有随包 Check 与 Project Definition 的共同组合边界。每项 Check 的 consumer options、默认值、领域校验、结果、
-Records、不可用原因和定制依赖用法由[随包 Check 指南](../navigation.md#随包-check-指南)中的对应 owner 完整表达。
+各 constructor 同步验证 authoring input 并物化完整、冻结的 resolved options；哪些输入可省略由对应[Check 指南](../navigation.md#随包-check-指南)定义。其结果仍是 ordinary executable Check，没有 Core registry 或 ID 特权。
 
-八个函数都返回 ordinary executable `Check`，Product core 不注册或特殊解释这些 Check ID。前六个 constructor 接受
-可省略的 authoring policy、同步拒绝未知或非法输入，并产生完整、冻结的 resolved options；
-`secretDetection({ files })` 要求完整显式 files policy，`maintenanceReminders(entries)` 要求显式提醒政策。若调用方在 constructor 后用原生对象组合替换完整
-`options`，owning Check 的 preflight 仍负责拒绝缺失、未知或非法 resolved shape；Definition 只保存 canonical authored
-JSON，不把领域错误提升为整个 Definition 的 configuration failure。
-
-六个读取文件的 defaulted constructor 共用 package root 导出的深冻结 `defaultProjectFileSelection` 作为可组合基线；`secretDetection` 则要求 caller 提供完整 explicit selection，但各 Check
-仍拥有自己的精准 include、领域字段和 exact-input eligibility。公共文件选择、默认排除和原生组合方式见
-[Project files and Check exact inputs](project-files.md#check-owned-file-selection)；每项 Check 的 resolved 默认值只见对应指南。
-scanner executable、command marker 和 adapter protocol 由 owning Check 及
-[Check-owned scanner dependencies](scanner-dependencies.md#check-owned-command-options)承接，不是 Definition、Run Controls 或
-环境变量中的共享 override。
+constructor 后通过原生对象组合替换 options 时，owning preflight 仍须拒绝缺失、unknown 或非法 resolved shape。Definition 只保存 canonical authored JSON，不把领域错误升级为全局 configuration failure。默认 file-selection 的共同机制见 [Project files](project-files.md#check-owned-file-selection)，scanner protocol 与 unavailable mapping 见 [Scanner dependencies](scanner-dependencies.md)；这些不是 Definition/Controls 的共享 override。

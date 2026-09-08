@@ -4,13 +4,15 @@
 
 ## 测试层级
 
-| 层级                         | 位置与证明                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Definition/Check facts       | `src/project-definition/**`、`src/check-settlement/**` 的共置 tests：recursive Check validation、native default composition、closed static/custom admission policy、static canonicalization、callback-preserving fingerprint、caller-owned learned strategy configuration、direct callback result validation、terminal Check/Record facts。                                                                                                                                                                                                                                                                                                                                                                                |
-| Product Run/Output/Scheduler | `src/project-run/**`、`src/machine-output/v4/**`、`src/project-run/task-scheduler/**` 的共置 tests：Run controls、dependency/mutex/named-resource/cancellation、Run diagnostics、publication invariants/outputs、stateless full-graph task admission、atomic multi-resource hard guard/release 与 admission-policy fault drain；caller-owned learned history 的 closed envelope、version/failure fallback、configured bounded retention、atomic publication、prediction/critical-path score 和 effective-priority tie；enabled-only Scheduler summary 使用 named scripted clock 证明 flush-before-mutate、slot·ms/ratio、accepted wait、互斥 queue pressure、admission-delay breakdown、last-admission tail snapshot、zero-span 与 unavailable，不把重叠 projection 当作 wall/CPU 指标。 |
-| Default adapters             | `src/package-checks/**` 的共置 tests：Check-owned scanner options、exact scope、cache、availability/process/parser failure 与 supplemental Records。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
-| Repository tooling           | `scripts/**` 的共置 tests：process execution、repository-files、docs/package API、validation、package artifact/candidate、Project Gate 与 Test Evidence behavior。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| Consumer and Gate            | `scripts/project/**` private consumer 证明 exact candidate import、repository Gate binding；`scripts/validation/**` 独立验证 current v4 schema/example complete two-file set。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| 层级 | 位置与直接证明 |
+| --- | --- |
+| Definition / Check facts | `src/project-definition/**`、`src/check-settlement/**`：authoring、validation、composition 与终态 Check/Record facts。 |
+| Product Run / Output / Scheduler | `src/project-run/**`、`src/machine-output/v4/**`：Run controls、调度与取消、输出和 publication 不变量。 |
+| 随包 Check | `src/package-checks/**`：Check-owned options、exact scope、cache、availability/process/parser failure 与 supplemental Records。 |
+| Repository tooling | `scripts/**`：process、repository files、文档、package、Gate 和 Test Evidence 行为。 |
+| Consumer / 独立验收 | `scripts/project/**` 证明 exact candidate import 与 Gate binding；`scripts/validation/**` 独立验证 current v4 schema/example 完整二文件集合。 |
+
+具体行为与验收边界由相应[行为 owner](../navigation.md#如何阅读这些文档)定义，不在层级表重复配置字段或实现清单。
 
 ## 测试所有权
 
@@ -24,23 +26,20 @@ module 共同契约的测试保留在拥有该契约的最近父 owner；专属 
 
 ## Case 账本
 
-`docs/testing/cases/**` 是 current semantic catalog。每个 Case 命名 stable owner、current Bun test entity 和可证伪的
-`Proves` statement。Case 按 owner contract 与责任方可观察结果划分，不按测试数量、Project Gate lane、provider/consumer
-执行 DAG 或性能特征划分；同一实体只有在它直接证明另一 owner 的独立结果时才可映射多个 Case。新增、删除、rename/move
-test node，修改 test body，或修改 Case owner/proof 前后，都运行：
+`docs/testing/cases/**` 连接当前行为承诺与直接测试。每个 Case 按 owner 契约和可观察结果划分，
+命名当前 owner、Bun entity 与可证伪的 `Proves`；存储、粒度、修改和全树闭合规则由[测试证据维护](case-maintenance.md)完整定义。
+
+新增、删除、重命名、移动测试节点，修改测试正文或 Case Owner / Proves 前后，均运行：
 
 ```bash
 bun run test-evidence -- check --root .
 ```
 
-该命令从完整测试清单加载并注册测试，以 static/JUnit identity 闭合 Case；它不执行测试正文。还必须运行受影响的
-最窄测试，或由 Project Gate 对应 behavior 子 Check 执行。Case 描述 current owner 承诺且能由失败信号判定的行为，不描述已删除 helper、historical material 或 internal
-scheduler identity；provider setup 的执行复用本身不产生 Case。Definition Cases 覆盖 recursive ordinary Check、`inherit`、direct default composition、static/custom admission grammar 与
-fail-closed validation；runtime Cases 覆盖 direct execution、outcome/reason、dependency blocking、Check-facts Record
-ownership、cancellation、stateless policy hard guard/fault drain 和 Run diagnostic；output Cases 覆盖 v4 bytes/schema、complete-set fingerprint、publication
-lifecycle 和独立 docs validation。
+该命令加载完整清单并注册测试，核对 static/JUnit identity 与 Case 映射，但**不执行测试正文**。
+还需运行最窄目标测试，或由 Gate 对应 behavior Check 执行。provider setup 的执行复用不产生新的测试目的或 Case。
 
-Scheduler diagnostic Case 只证明 shell-owned human observation：scripted clock 要独立断言 timing unavailable 与有效 zero span、summary 的 single terminal attempt、writer containment、declarative-configuration matching signal、离散 facts，以及 capacity/wait/queue/delay/tail 的可观察投影。history/model tests 另行证明 local state 读取、闭合 parser、prediction、record 与 atomic write 的 empty-model/persistence-failure 边界，且不扩张 Check/Record/machine/progress/RunResult 契约；无法组成预测时的单次 static fallback 由 Architecture/API owner 定义。它们不把当前模型参数当成稳定 API。queue tests 以同一个 admission-viable pending 集合证明 mutex、capacity、admissible 三类互斥 task·ms 与峰值；named-resource shortage 与 root/scoped shortage 共用 capacity-blocked 分类，但另以 graph/core/shell evidence 证明 claim validation、atomic accounting、无关 work 继续填充 root slot 和 settlement release。delay tests 证明三类 breakdown 构成完整 delay；tail tests 证明 last-admission post-state active count 与有界 contributors，而不把它们解释为 policy 原因或 critical path。formula 和 state-boundary tests 属于 Scheduler owner；logger formatting tests 只证明有界安全渲染，machine/public/progress tests 则证明 summary 不改变既有契约。future fail-fast 或其它 capacity/hard guard 改变后，须重审该 Case 的 denominator、queue classification、boundary 与 wait evidence。
+Scheduler 的 scripted-clock、queue/delay/tail、history 和资源核算证明要求见[调度器验证边界](../development/scheduler.md#验证边界)。
+这些域特定要求不改变通用 Case 粒度，也不扩张 Check/Record/machine/progress/RunResult 契约。
 
 ## 验证入口
 

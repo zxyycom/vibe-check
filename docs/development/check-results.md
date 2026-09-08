@@ -7,21 +7,9 @@ generic scheduler 或 human presentation grammar。
 
 ## Check and Record facts
 
-`src/project-definition/**` validates and flattens recursive Check tree；`src/check-settlement/**` 为每个 executable Check 保存一个 terminal
-fact：
+Definition 先 flatten canonical executable catalog，`check-settlement/**` 为每项保存一个 terminal fact。公开[四态与 data grammar](../api-mechanics.md#terminal-resultrecords-与-messages)在这里闭合：passed/failed 必须有 canonical final data；not-applicable/unavailable 不伪造 data。
 
-| `outcome.status` | 含义                                                                |
-| ---------------- | ------------------------------------------------------------------- |
-| `passed`         | Check 完成自己的质量结论，并带 canonical final `data`。             |
-| `failed`         | Check 完成自己的质量结论，并带 canonical final `data`。             |
-| `not-applicable` | Check 有意没有 work；reason code 可省略，且不伪造 final data。      |
-| `unavailable`    | Product 无法给出正常结论；必须有 `reason.code`，且没有 final data。 |
-
-四种 outcome 都是 direct `observes` 的 terminal ordering facts；observer 在所有 direct observation 已结算后才可 admission。
-direct `dependsOn` 是更强的 passed prerequisite：任一 provider 为 `failed`、`not-applicable` 或 `unavailable` 时，Product 在 dependent
-preflight/execution 前将其结算为 `unavailable / dependency-not-passed`，带 direct non-passed `checkIds` 和 null duration。需要 upstream
-data 的 callback 使用 Configuration 的 `dependencies.get` contract；`passed`/`failed` 有 canonical final data，`not-applicable`/`unavailable`
-没有。Product 不伪造 provider final data，也不把 observer 的 terminal outcome 变成 prerequisite。
+Scheduler 将 observes 的任意终态与 dependsOn 的 all-passed prerequisite 区分处理。prerequisite-blocked settlement 必须保留 direct non-passed checkIds、null duration，且没有 author work；dependency view 只从已冻结 facts 读可用 final data，不制造 provider 结果。
 
 callback 通过 Check-owned reporter 报告零个或多个 supplemental facts：
 
@@ -48,38 +36,13 @@ registry 或 machine artifact reader。
 
 ## Package-provided ordinary Checks and exact inputs
 
-本节只拥有随包 Check 共同服从的 Check/Record 事实边界；具体字段、默认值、Finding identity、状态映射、message、
-不可用原因和安全限制由各 Check 指南拥有。Definition、Run、Check facts、aggregation 与 machine publication 不识别这些
-Check ID 或 options shape。
+随包 Check 使用同一 settlement/reporting contract；Definition、Run、aggregation 与 machine publisher 不识别其 ID/options domain。adapter、parse、cache、I/O 或 exact-input failure 只结算 owning Check，不建立第二 quality model。
 
-共同事实如下：
-
-1. 每项随包能力仍是 ordinary Check，使用公共契约的四状态结果与 Check-local Records；adapter、parser、cache、I/O 或
-   exact-input failure 只结算 owning Check，不建立第二套 quality model。
-2. `failed`、`unavailable` 与带 non-blocking Finding 的 `passed` 由 owning Check 附带可操作 message；零问题
-   `passed` 与 `not-applicable` 不合成人为提示。message 不改变 final data、Records 或 status。
-3. `duplicate-detection`、`file-metrics` 与 `function-metrics` 的正常 final data 都使用
-   `{ findingCount, blockingFindingCount }`；每条可信 Finding 保留为带显式 blocking 状态的 Check-local Record，任一
-   effective blocking Finding 使 owning Check failed。各 Check 的 area overlap、threshold、waiver 与 Record 字段仍由其
-   指南分别定义。
-4. package Check 的 Finding 摘要是 Check-owned presentation，不是通用 Record 投影。Producing Check 决定安全字段、显示
-   上限和完整明细入口；它可以与 Product progress 的 generic Record preview 并存，后者只显示 local Record ID 与 canonical JSON，
-   不解释 Finding 字段也不替代该摘要。通用 `presentCheckFindings(...)` 只执行调用方给出的 presentation hooks，见
-   [Finding 摘要指南](../guides/presenting-findings.md)。
-5. 读取文件的 Check 从自己的 options 形成 selected/exact input；文件分类与完整性见
-   [Project files and Check exact inputs](project-files.md)，外部工具边界见
-   [Check-owned scanner dependencies](scanner-dependencies.md)。
-
-按能力读取完整事实契约时，从[随包 Check 指南](../navigation.md#随包-check-指南)选择唯一 owner，不从本节推断
-Check-specific 字段或状态。
+领域字段、Finding identity、状态映射和 messages 完整由各[Check 指南](../navigation.md#随包-check-指南)拥有。Check-owned Finding 摘要与 generic Record preview 是独立呈现：前者选择安全字段、上限和明细入口，后者只读 local ID/canonical JSON，不解释 Finding。共享 helper 见[呈现指南](../guides/presenting-findings.md)，exact-input 接线见 [Project files](project-files.md)。
 
 ## Explicit aggregation and repository Gate mapping
 
-multi-Check aggregation 是一次 invocation 的 derived result，不是 Check-facts status、evidence container 或隐式 quality policy。
-调用方通过 `RunControls.checkAggregation` 显式选择 `checks: "all"`、Check-ID list 或 `checks: "effective"`，再选择
-`all | any` mode，以及 unavailable、not-applicable 和 empty-set handling；selection 在 work 前验证。`"effective"` 只读取同一次 private
-flag-and-`dependsOn` selection，包含 dependency-activated prerequisite；它不是默认值、public Check-ID list 或第二套 resolver。
-未配置时 `RunResultFacts.aggregate` 为 `null`。
+aggregation 是 invocation-derived result，不是 Check-facts status 或隐式质量策略。公开 selectors 与折叠规则由[API 机制](../api-mechanics.md)定义；Run 在 work 前验证 selection，未配置则 aggregate 为 null。effective selector 必须复用唯一 private flag-and-dependsOn selection（含 activated prerequisites），不重新解析或发布成员列表。
 
 aggregation 只读取 selected settled Check statuses 并返回 `passed | failed | not-applicable | unavailable`。它不复制或解释
 final data、Records、messages、definition warnings、output statuses 或 progress presentation；这些原始 facts 不因 aggregate

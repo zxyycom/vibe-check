@@ -50,6 +50,5 @@ void terminalResult; // The producing Check attaches these messages to its termi
 [`markdownLinkValidation`](../checks/markdown-link-validation.md) 自动使用相同的 presentation helper，并在各自实现中固定
 `limit: 10`；调用方不能通过这些 Check 的 options 调整该值。因而每个 Check terminal result 最多包含十条 Finding detail
 messages；Finding 超过十条时另有一条 `findings-omitted` summary。完整 Finding facts 仍由各 Check 的 Records 承载。
-启用 Run progress 后，renderer 默认另行最多预览五条 messages 和五条 Records，可通过 Definition 或本次 Controls 配置；这是展示限制，
-不会改写 terminal result 或完整 facts，详见 [Check messages 与受管 progress](run-outputs.md#check-messages-与受管-progress)。
+Run progress 的[预览限制](run-outputs.md#check-messages-与受管-progress)独立于本 helper 的 message 数量，不改写 terminal result 或完整 facts。
 各 Check guide 只说明自己的 Finding shape、detail 字段、排序和 terminal policy。

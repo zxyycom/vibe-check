@@ -131,7 +131,7 @@ Entities:
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 
-Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation-validation.md#随包材料验收`
 Entities:
 
 - `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
@@ -173,7 +173,7 @@ Entities:
 
 ## Case AUX-DOCS-VALIDATION-CLI-001: Root validation preserves default and focused docs selection
 
-Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation-validation.md#文档-task`
 Entities:
 
 - `bun|scripts/validation/workspace.test.ts|root validate CLI runs every docs task by default`
@@ -184,7 +184,7 @@ Entities:
 
 ## Case AUX-DOCS-VALIDATION-REPORTING-001: In-process docs validation keeps output reporter-owned
 
-Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
+Owner: `docs/tooling/documentation-validation.md#文档-task`
 Entities:
 
 - `bun|scripts/validation/documentation/workflow.test.ts|docs validation library reports success only through an explicit reporter`
@@ -257,7 +257,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-TRANSCRIPT-001: Project Gate 保存并闭合外层运行过程
 
-Owner: `docs/tooling/project-gate.md#project-gate`
+Owner: `docs/tooling/gate-diagnostics.md#gate-terminal-and-transcript`
 Entities:
 
 - `bun|scripts/project/gate/runtime/transcript.test.ts|Project Gate transcript > records only Gate-owned messages and final facts without patching terminal writers`
@@ -289,7 +289,7 @@ Entities:
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
 
-Owner: `docs/tooling/project-gate.md#project-gate`
+Owner: `docs/tooling/gate-diagnostics.md#process-evidence`
 Entities:
 
 - `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > publishes closed success data only after a settled transcript`
@@ -379,7 +379,7 @@ Entities:
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/scheduler.md#admission-state-与-real-shell`
 Entities:
 
 - `bun|src/project-run/task-scheduler/task-engine.static-validation.test.ts|static task engine > validates static task identity dependency and scope structure before execution`
@@ -475,7 +475,7 @@ Entities:
 
 ## Case AUX-LIZARD-PERFORMANCE-EVIDENCE-001: Opt-in Lizard comparison keeps equality and statistical interpretation explicit
 
-Owner: `docs/tooling/workspace.md#development-tooling`
+Owner: `docs/tooling/lizard-performance.md#lizard--typescript-performance-evidence`
 Entities:
 
 - `bun|scripts/development/lizard-performance/command.test.ts|Lizard TypeScript developer performance evidence > requires an explicit bounded developer invocation`

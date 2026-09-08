@@ -17,17 +17,16 @@
 
 ## 当前 Change 协调
 
-当前集合只包含 `changes/` 的直接普通目录。已完成 Change 在稳定 owner 接管、验证闭合且取得当次删除授权后通过
-`complete` 退出集合；Git 历史只能在明确历史审计时提供恢复线索，不能成为当前事实、实施授权或验证输入。
+下表只列存在跨 Change 约束的轨道，不是完整成员或状态清单；完整当前集合由 `bun run change-plan -- list changes` 查询。
+已完成 Change 在 owner 接管、验证闭合且获当次删除授权后通过 `complete` 退出；历史仅在明确审计时提供线索。
 
 | 轨道 | 当前 Change | 协调边界 |
 | --- | --- | --- |
-| 治理迁移 | [`migrate-governance-skill-contracts`](../../changes/migrate-governance-skill-contracts/proposal.md) | 独占修改治理 skills、记录身份、索引与治理文档；完成迁移前，其余 Change 不手工改写这些投影。 |
 | Scheduler 算法 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 先完成 Readiness 0.0，以当前 public prepared strategy、resource guards、history identity 与测量边界重新基线化；未满足证据 gate 和单独授权前不切换生产策略。 |
-| Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 仍是 Draft；只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。若先实施，会使算法 Change 的相关 corpus 和 terminal evidence 失效。 |
-| Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 仍是 Draft；等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
-| Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | Plan 保持暂停；等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
-| Scanner 判断 | [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 仍是 Draft；没有真实 consumer outcome 时保持 executable-only，不占生产实现 worktree。 |
+| Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。若先实施，会使算法 Change 的相关 corpus 和 terminal evidence 失效。 |
+| Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
+| Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 恢复前等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
+| Scanner 判断 | [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 没有真实 consumer outcome 时保持 executable-only，不占生产实现 worktree。 |
 
 ### Scheduler 轨道
 

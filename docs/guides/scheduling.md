@@ -1,6 +1,6 @@
 # 按项目约束调度 Check
 
-本专题面向已经有多个自定义 Check、需要表达并发约束、改变 ready task 的选择顺序或分析假设调度分支的调用方。默认 `{ kind: "static" }` 已经遵守依赖、mutex、root/scoped 并行预算、named resource capacity 和取消；只有这些不变式之外的**选择偏好**需要项目规则时，才使用 custom policy（包括 learned helper 返回的 prepared strategy）。Check 自己的 options、preflight、execution 与取消处理见[编写自定义 Check](extending-check-lifecycle.md)。
+本专题面向已经有多个自定义 Check、需要表达并发约束、改变 ready task 的选择顺序的调用方。默认 `{ kind: "static" }` 已经遵守依赖、mutex、root/scoped 并行预算、named resource capacity 和取消；只有这些不变式之外的**选择偏好**需要项目规则时，才使用 custom policy（包括 learned helper 返回的 prepared strategy）。Check 自己的 options、preflight、execution 与取消处理见[编写自定义 Check](extending-check-lifecycle.md)。
 
 ## 选择正确的工具
 
@@ -11,13 +11,15 @@
 | 只指定静态相对顺序 | Check 的 `admissionPriority` | 在 Scheduler 的 relation、mutex、容量和取消约束内排序 ready Task。 |
 | 每次 ready selection 根据当前事实选择一个 task | `scheduler.admissionPolicy` 的 `custom/simple` strategy | 向 Scheduler 提交一个 selection proposal。 |
 | 先异步准备本 Run 专用决策 closure，或在终态 measurement 后收尾 | `custom/prepared` strategy | `prepare` 形成 Run-local closure，`complete` 消费 terminal measurement。 |
-| 对独立静态图比较假设分支 | `createAdmissionGraph(...)` | 创建 immutable simulation，并从 predecessor 派生独立 successor。 |
+| 对独立静态图比较假设分支 | [`createAdmissionGraph(...)`](simulating-admission.md) | 不执行 Check；在独立专题中建立并比较 immutable successor。 |
 | 多次运行后按本地时长历史改善选择 | `createLearnedCriticalPathStrategy(...)` 作为 `custom/prepared` strategy | 使用调用方管理的本地 history 形成选择偏好。 |
 | Run 结束后保存项目自己的调度统计 | `scheduler.measurementHooks` | 接收冻结的 terminal measurement 作为 side effect 输入。 |
 
+`admissionPriority` 必须是有符号 safe integer；Check 节点省略时继承最近显式祖先值，没有祖先声明时为 `0`。
+
 ## 限制 named resource 并发
 
-`scheduler.maxParallel` 限制同时运行的 Check 总数。用 `mutex` 为需要互斥执行的 Task 声明同一个逻辑组名称；同一互斥名称下，同一时刻最多运行一个 Task。需要为同一种可计数资源声明容量、并让不同 Check 消耗不同 units 时，使用静态 named resource capacity：
+`scheduler.maxParallel` 限制同时运行的 Check 总数，必须是正 safe integer，`defineConfig` 省略时默认 `4`。Check 节点的 `maxParallel` 也必须是正 safe integer，省略时继承最近显式祖先值；没有祖先声明时使用 root 预算。除表中的 `mutex` 外，需要让不同 Check 消耗同一种资源的不同 units 时，配置静态 named resource capacity：
 
 ```ts
 import { defineCheck, defineConfig } from "@zxyycom/vibe-check";
@@ -132,54 +134,6 @@ custom `decide(context)` 可通过 `context.measurement` 读取当前 decision b
 
 用它在**在线选择**时比较当前累计事实；不要把它当作完整逐 Task 历史或终态报告。需要 Run 结束后的完整 graph、settled tasks 与 raw measurement，改用下面的 `scheduler.measurementHooks`；prepared strategy 的 `complete` 同样只在有 terminal measurement 时运行。
 
-## 模拟 AdmissionGraph
-
-`createAdmissionGraph({ graph, maxParallel })` 用于测试或比较静态图的假设分支。保留一个 predecessor state，并从它的 successor 分别选择或结算，即可得到彼此独立的分支。
-
-```ts
-import { createAdmissionGraph } from "@zxyycom/vibe-check";
-
-const graph = createAdmissionGraph({
-  graph: {
-    resourceCapacities: [{ resourceId: "browser", units: 1 }],
-    scopes: [],
-    tasks: [
-      {
-        admissionPriority: 0,
-        dependsOn: [],
-        mutex: [],
-        observes: [],
-        resourceClaims: [{ resourceId: "browser", units: 1 }],
-        scopeId: null,
-        taskId: "compile"
-      },
-      {
-        admissionPriority: 0,
-        dependsOn: ["compile"],
-        mutex: [],
-        observes: [],
-        resourceClaims: [],
-        scopeId: null,
-        taskId: "publish"
-      }
-    ]
-  },
-  maxParallel: 1
-});
-
-const initial = graph.initialState();
-const compile = initial.select("compile");
-if (!compile.accepted) throw new Error(`Cannot select compile: ${compile.reason.kind}`);
-
-// Retaining `initial` and the successor forms two independent hypothetical branches.
-const completed = compile.state.settle("compile", "satisfied");
-if (!completed.accepted || !completed.state.catalog.selectableTaskIds.includes("publish")) {
-  throw new Error("Expected publish to become selectable after hypothetical completion");
-}
-```
-
-`select` / `settle` 返回新的 immutable successor，原 state 不变，因此可以保留并比较多个分支。所有选择、结算和资源占用都只是模拟状态，不启动真实 Check、不预留真实资源，也不写回 Run。
-
 ## 已准备的 custom strategy
 
 需要在 Scheduler 开始前异步读取调用方自己的配置，并把结果形成本 Run 专用 decision closure 时，使用 `{ kind: "prepared", prepare }`。每个 graph-ready Run 最多调用一次 `prepare`；它返回同步 `decide` 和可选的 `complete(terminal)`。下例优先选择可准入的 `second`，否则选择第一个可准入候选，并在 `complete` 中保存终态任务计数：
@@ -237,13 +191,13 @@ if (result.kind !== "completed" || settledTaskCount !== 2) {
 }
 ```
 
-`prepare` 失败会在 Scheduler 启动前使 Run 成为 `admission-strategy-preparation-failed`。`complete` throw/reject 会让 `outputs.measurementHooks.status` 为 failed，但不能改变已 sealed 的 primary Check facts 或 aggregate。策略需要的配置、logger 或 clock 由调用方提供并捕获在 closure 中；context 提供只读调度事实，真实 Task 启动与结算由 Scheduler 控制。
+策略需要的配置、logger 或 clock 由调用方提供并捕获在 closure 中；context 只提供调度事实，真实 Task 启动与结算由 Scheduler 控制。准备失败与终态收尾边界如下。
 
 ### 观察终态 measurement
 
-任何 scheduler policy 都可配置 `scheduler.measurementHooks`。每个 hook 在 Scheduler 已有 terminal measurement 后收到冻结的 `{ graph, execution, rawMeasurement }`；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。若同时配置 generic hook 与 prepared `complete`，generic hooks 先结算，随后才调用 `complete`。如果任一 hook 抛错或 reject，`result.outputs.measurementHooks.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
+任何 scheduler policy 都可配置 `scheduler.measurementHooks`。每个 hook 在 Scheduler 已有 terminal measurement 后收到冻结的 `{ graph, execution, rawMeasurement }`；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。若同时配置 generic hook 与 prepared `complete`，generic hooks 先结算，随后才调用 `complete`。如果任一 hook 或 `complete` 抛错或 reject，`result.outputs.measurementHooks.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
 
-三种 measurement 入口服务不同阶段：`decide(context)` 中的 `context.measurement` 只读在线 action-observation prefix；`scheduler.measurementHooks` 消费每个有 terminal measurement 的 Run；prepared strategy 的 `complete` 在同一终态 measurement、且 generic hooks 都结算后处理调用方在 `prepare` 时捕获的 Run-local state。这些输入提供调度观察；需要逐项业务数据、失败原因或 Records 时，在 Check 的 `execution` 中形成事实，再从 `RunResult` 读取。
+终态 measurement 不同于 `decide` 所读 `context.measurement` 的在线观察前缀。需要逐项业务数据、失败原因或 Records 时，在 Check 的 `execution` 中形成事实，再从 `RunResult` 读取。
 
 `prepare` 只在 graph 已有效且 Run 尚未于 pre-work / planning 取消后调用；它没有 cancellation signal、timeout 或“必有 complete”的 cleanup 保证。prepare reject 会结束为 `admission-strategy-preparation-failed`。一旦 Run 进入 Scheduler，正常结束、取消或 policy fault 的 drain 只要 seal 出 terminal measurement，都会在 generic hooks 后调用 `complete`；早期 setup / execution failure 没有 terminal measurement 时不会调用它。因此不要在 `prepare` 中取得必须依赖 `complete` 释放的资源。
 
@@ -252,7 +206,3 @@ if (result.kind !== "completed" || settledTaskCount !== 2) {
 ## 复用本地时长历史
 
 同一项目反复运行、希望依据历史时长安排 ready Tasks 时，阅读[用本地时长历史调度 Check](learned-scheduling.md)。该专题说明 `createLearnedCriticalPathStrategy`、caller-owned history 与观察回调。
-
-## 下一步
-
-需要解释 Run lifecycle、dependency data、aggregation 或 outputs 的通用模型时，阅读 [API 机制](../api-mechanics.md)；需要实现 Check 规则本身时，回到[编写自定义 Check](extending-check-lifecycle.md)。

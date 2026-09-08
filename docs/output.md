@@ -76,23 +76,13 @@ visibility 的系统，应在 Vibe Check 契约之外建立自己的读取协议
 | [`run.json`](examples/artifacts/mixed-outcomes/run.json) | 与该 Definition 的五个可执行 Check 对应，集中展示 package-provided/custom `passed`、`failed`、`not-applicable` 与 `unavailable` facts。 |
 | [`records.ndjson`](examples/artifacts/mixed-outcomes/records.ndjson) | failed policy 发布的两条 supplemental Records，用于核对多行 framing、ownership、排序和 fingerprint。 |
 
-这三份材料按以下关系阅读：
+示例的输入与结果可按三条路径核对：
 
-1. `jsonValidation({ files: { include: ["package.json"] } })` 使用随包 constructor，显式选择 `package.json` 并保留默认
-   source / exclude policy；示例输入中的有效 manifest 使 `json-validation` 形成 `passed` final data。
-2. `example-release-inputs` 的 preflight 在 authored files 为空时以 `failure / continue` 准备 fallback，再由
-   `parseData` 声明 typed provider contract；对应 Check 形成 `passed`。
-3. 递归 `example-release-workflow` 把 manifest dependency 传给 children；`example-release-policy` 用 `inherit` 追加 provider
-   dependency，读取并解析两份 upstream final data，随后形成 `failed` final data 和两条 Records。组织节点自身不产生 Check row。
-4. optional Check 直接形成 `not-applicable`；external review 的 `failure / block` preflight 在**该 Check** 的 execution 前形成
-   `unavailable`。它不构成全局 execution barrier，无 relation 的其他 Check 仍可并行开始。两条 preflight message 与 failed
-   policy message 保留在 `RunResult.checkMessages`，不进入 machine fields。
+- `jsonValidation` 显式检查 `package.json`，保留默认 source/exclude；自定义 provider 在空 authored files 时以 preflight fallback 继续并通过。
+- 递归 workflow 继承 manifest dependency；policy 用 `inherit` 追加 provider，解析两份 upstream data，再形成 failed data 与两条 Records。container 不产生 Check row。
+- 另两项分别直接 `not-applicable` 与被本项 preflight block 为 `unavailable`，不阻挡无 relation 的其它 Check。preflight 和 policy messages 仅进入 `RunResult.checkMessages`。
 
-仓库生成器通过完整 public `run` 执行同一份 Definition，并使用只含有效 `package.json` 的隔离 project root 得到以上
-Check/Record facts；随后只把 invocation ID 与 timestamp 固定为文档值，使 checked-in bytes 可重复生成。示例 Definition
-启用了 `artifacts/vibe-check` machine publication；直接运行会在本次 project root 下更新该目录中的两份 canonical files。
-示例 facts 与固定 metadata 只用于核对 Definition/output 对应关系；consumer 在自己的 project root 调用
-`run(definition)` 时，会按实际 `package.json` 形成结果和本次 Run 的 invocation metadata。
+checked-in outputs 在只含有效 `package.json` 的隔离 root 中执行该 Definition 后生成，仅把 invocation ID 与 timestamp 固定为文档值。直接 `run(definition)` 会根据你的实际 `package.json` 形成结果和本次 metadata，并更新 project root 下 `artifacts/vibe-check` 中的两份 canonical files；示例 facts 不是对任意项目结果的保证。
 
 随包机器契约的当前版本是 v4，validation boundary 对其它 schema identity fail closed。本示例使用非空 Record set；零
 Record 集合按读取规则表示为零字节 `records.ndjson`。

@@ -4,9 +4,6 @@
 
 ## learned critical-path strategy
 
-当同一项目反复运行、且本地目录可以保存调用方拥有的非敏感性能状态时，使用
-`createLearnedCriticalPathStrategy(...)` 返回的 prepared strategy：
-
 ```ts
 import {
   createLearnedCriticalPathStrategy,
@@ -57,6 +54,8 @@ if (first.kind !== "completed" || second.kind !== "completed") {
 }
 ```
 
+## 配置 history 与任务 identity
+
 `stateDirectory` 必须是调用方提供的非空 absolute、可写且可删除的目录；helper 不从 effective
 `projectRoot` 解析它。它是调用方信任的本地性能状态，不是 filesystem sandbox、secret storage、remote cache 或跨进程锁；
 调用方负责 retention 和清理。history identity 虽会被 hash 成文件关联所用的 digest，digest 不是保密机制：不得把 secret、token
@@ -65,7 +64,11 @@ if (first.kind !== "completed" || second.kind !== "completed") {
 
 `sampleWindow` 的范围是 1–32（默认 32），`maxHistorySeries` 是 1–4096（默认 4096），`coldStartDurationMs` 必须为正有限数（默认 1）；
 这些 model knobs 会进入 helper 生成的 history key。非 absolute/空 `stateDirectory` 或非法 model knob 会在 factory 创建时 throw；
-这类 authoring/configuration error 不属于一次 Run 的 optimization 退化。首次运行、缺失、损坏、不兼容或 read-failed history
+这类 authoring/configuration error 不属于一次 Run 的 optimization 退化。
+
+## 退化与观察
+
+首次运行、缺失、损坏、不兼容或 read-failed history
 会被当作空 history：已有 learned estimate 的同一 Run 可为未知 Task 提供 project prior，否则使用 cold start。identity 无效、无法
 完成 setup/prediction/critical-path preparation 时，策略退化为普通 static decision，并以 `history-unavailable` 报告；record/write
 失败只影响后续 Run 的 history，并以 `recording-unavailable` 报告。上述 history 退化均不改变本次 Task membership、Check facts、
@@ -77,10 +80,4 @@ Promise 会被忽略，返回的 Promise 不会被 await，因此 callback 可�
 已完成。通过 `observe` 接收 helper 事件，通过 `stateDirectory` 保存 history；需要持久化事件时，由调用方管理自己的 sink。
 这些 helper 状态独立于 Product 的 diagnostic channels、output statuses、Check facts、machine output 和 `RunResult`。
 
-工厂返回普通 public prepared custom strategy，并通过每次 decision 的 measurement context 工作。它只在既有 Scheduler
-selection layer 比较 score，随后仍由 Scheduler 应用依赖、mutex、parallel budget 与 cancellation guard。策略的实际运行成本
-取决于项目的 graph、history 和 observer；需要据此选择或调优时，由项目在目标 workload 上测量。
-
-## 下一步
-
-策略只提出选择，Scheduler 继续执行[并发与准入约束](scheduling.md)。Run 结果与 Check outcome 分开读取，见 [API 机制](../api-mechanics.md#runresult-分支)。
+策略通过每次 decision 的 measurement context 工作，只在既有 selection layer 比较 score；Scheduler 仍重检[准入约束](scheduling.md)。实际运行成本取决于 graph、history 和 observer，应在目标 workload 上测量；history 优化不代表 [Run 或 Check 质量通过](../api-mechanics.md#runresult-分支)。

@@ -2,10 +2,6 @@
 
 需要把一项 Check 的结果交给另一项使用时，先声明 direct `dependsOn` 或 `observes`，再通过 dependency reader 读取上游结果，并用 provider parser 恢复业务类型。需要上游通过才开始时选择 `dependsOn`；需要审计任意终态时选择 `observes`。这些关系还约束 Scheduler 准入，调度预算见[调度 Check](scheduling.md)。
 
-## 选择依赖关系
-
-producer 同时声明 `execution` 与 `parseData`，从而拥有 final-data contract。需要其成功 data 才能工作时，consumer 先声明 direct `dependsOn`，再用非泛型 `dependencies.get(checkId)` 读取 canonical data、收窄 `ok`，最后调用 producer 的 parser。需要在每个 observed upstream 各自结算后，根据任意 terminal outcome 审计或制定 policy 时，改声明 direct `observes`；两类 relation 的 union 才是 dependency reader 的授权范围。
-
 ## 完整运行示例
 
 ```ts
@@ -65,16 +61,11 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-dependency reader 为两类 relation union 中、具有 `passed` / `failed` final data 的 direct provider 返回 `ok: true`，并保留 upstream status；其它读取返回包含原因的 `ok: false`。上例的 `dependsOn` 已保证 callback 只在 provider `passed` 后开始，因此它不会把 upstream `failed` 继续传播为自己的结果；`!read.ok` 仍保留为 boundary defense。producer parser 负责 shape、invariant 和 compatibility validation，consumer 显式调用它恢复 provider data。八个随包 Check 都提供 `parseData` 和同实现的 package-root parser；名称与类型见各自指南。
+上例先收窄 `get` 的 `ok`，再显式调用 producer 的 `parseData`。`dependsOn` 保证 callback 只在 provider `passed` 后开始；`!read.ok` 仍作为读取边界防御。八个随包 Check 都提供 `parseData` 和同实现的 package-root parser，名称与类型见各自指南。
 
 ## 批量审计 direct outcomes
 
-当 consumer 需要批量审计自己的全部 direct upstream outcomes，而不是读取一个成功 prerequisite 时，先声明 `observes`，再使用
-`dependencies.list()`。它没有参数，返回按 normalized effective direct dependency ID 的稳定顺序排列的冻结
-`{ checkId, outcome }[]`；每项及其 Core-owned `outcome` 都是冻结的完整四态 `CheckOutcome`。因此
-`not-applicable` 和 `unavailable` 是正常的可观察 terminal facts，不是 `get` 的 read error；两类 relation 各自继承得到的
-direct ID 在去重 union 中只出现一次。列表不读取 ambient executed Checks、scheduler history、transitive 或 undeclared Checks。
-以下 Check 只能据此形成自己的 summary、I/O、Records、messages 和 terminal result，不能修改、取消、重跑或重结算 producer：
+审计任意终态时声明 `observes`，再用 `dependencies.list()` 读取 direct union 的冻结 `{ checkId, outcome }[]`。四态 outcome 都是正常可观察事实；以下 Check 从中形成自己的结果，而不修改 producer：
 
 ```ts
 const auditChangedFiles = defineCheck({
@@ -109,7 +100,7 @@ const auditChangedFiles = defineCheck({
 });
 ```
 
-读取 `passed` / `failed` data 后仍需调用 producer parser；`not-applicable` / `unavailable` 保留原始 reason。observations 是冻结事实，只能用于形成 consumer 自身的结果和副作用。
+读取 `passed` / `failed` data 后仍需调用 producer parser；其余状态保留原 reason。consumer 可据此形成 summary、I/O、Records、messages 与自身终态，但不能修改、取消、重跑或重结算 producer。
 
 ## Provider 类型与解析边界
 
@@ -127,4 +118,4 @@ parser 接收 Check-facts-owned 的 detached、deep-frozen canonical object，�
 - `dependsOn` 等所有 direct provider 通过才允许本 Check 的 preflight/execution；任一 provider 非 `passed` 时，本 Check 在 author work 前成为 `unavailable / dependency-not-passed`，reason 带 direct blocker `checkIds`，duration 为 `null`。`observes` 只等待终态，不要求通过。
 - `get(checkId)` 是 non-generic string read，只授权 normalized effective `dependsOn ∪ observes` 的 direct ID（包括各自继承项）。未声明、传递或 malformed ID 返回不泄露 upstream fact 的 `dependency-not-declared`。
 - 已声明 provider 的 `passed` / `failed` 返回 `ok: true`、status 与 canonical data；`not-applicable` / `unavailable` 返回 `ok: false`、该 status 与 `upstream-data-unavailable`。TypeScript 类型本身不授予访问权。
-- `list()` 无参返回同一 direct union 的冻结完整四态 observations；不提供 Records、scheduler timing 或全局执行历史。
+- `list()` 无参返回同一 direct union 的完整四态 observations，按 normalized effective direct ID 稳定排序并去重；数组、每项与 Core-owned outcome 都冻结。不读取传递、未声明或 ambient executed Checks，也不提供 Records、scheduler timing 或全局历史。

@@ -12,21 +12,11 @@
 | `fileMetrics`        | SCC command                       | `src/package-checks/file-metrics/scc/**`          |
 | `functionMetrics`    | product-owned TypeScript analyzer | `src/package-checks/function-metrics/analyzer/**` |
 
-两个 external-command adapter 分别拥有 command options、availability probe、subprocess lifecycle、parser、
-tool-native failure、measurement conversion 与相邻 tests。它们可复用
-`src/package-checks/host-environment/**` 的 process/error capability，以及
-`src/package-checks/project-files/**` 的 exact-path membership；这些真实共同不变量不建立共享 backend
-interface。`functionMetrics` 的 reader registry、tokenization 与分析状态同样保持在自己的 analyzer owner，
-不把 analyzer internals 公开为可替换插件或 command protocol。`analyzer/port-facade.ts` 是 analyzer
-目录唯一面向目录外生产代码的 Check-private entry；port 外仅 `analyzer-adapter.ts` 可消费它。实际链固定为
-measurement → Worker → Product adapter → port façade → source-aligned internals：measurement 保留 exact-path
-I/O、decode、资源与取消，Worker 只验证 transport 并调用 adapter，adapter 独占 Product support/error 与
-`FunctionMetric` mapping。固定 analyzer facts 在此边界映射为 CCN contributor 和 nesting-depth value；它们由 Check 的
-closed area limits、Finding/waiver/Record policy 消费，而不是形成可配置 analyzer、extension list 或 plugin protocol。translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check
-与 tests 仍按普通项目规则审查。它们均不形成 public export、scanner protocol 或可替换 backend。
-手写 façade 拥有仅 host 使用的 reader-resolution seam，供 capability 与 analysis 共用；它保持 registry
-selection 与 unsupported-input boundary，未覆盖的输入继续交给 source-aligned registry。该 seam 不构成 scanner
-protocol 或 consumer setting，且不改变 root provenance 或 source identity。
+external adapters 各自拥有 command、availability、process、parser、tool-native failure 与 conversion；仅复用 host-environment 的 process/error capability 和 project-files 的 exact membership，不建立共享 backend interface。
+
+function analyzer 的唯一目录外生产入口是 `analyzer/port-facade.ts`，仅 `analyzer-adapter.ts` 可消费。调用链为 measurement → Worker → Product adapter → façade → source-aligned internals：measurement 拥有 exact-path I/O、decode、资源与取消；Worker 只验证 transport/调用 adapter；adapter 独占 Product support/error 和 FunctionMetric mapping（含 CCN contributor/nesting depth）。Check 再应用 area limits、Finding、waiver 和 Record policy。
+
+translated core/readers/shared/extensions 以 source fidelity 为先；手写 façade、adapter、Worker、Check/tests 仍按普通项目规则。façade 的 host-only reader-resolution seam 供 capability/analysis 共用，保持 registry selection、unsupported-input boundary 与 root provenance/source identity；未覆盖输入交由 source-aligned registry。所有 internals 仍私有，不形成 public plugin、可替换 backend 或 command protocol。
 
 ## Check-owned command options
 
@@ -37,19 +27,13 @@ protocol 或 consumer setting，且不改变 root provenance 或 source identity
   `--no-config --by-file --format csv` exact-path protocol；不允许 arguments passthrough。
 - `duplicateDetection.scanner` 由其指南定义 package/custom command 的完整 policy；adapter 拥有 version
   probe、exact-input config、JSON report 与 worker policy。
-- `functionMetrics` 的公开 options 只有 `codeAreas`、`findingPolicy` 与 `findingWaivers`；每个 area 的 closed `limits` 包含
-  NLOC、CCN、nesting depth 与 parameter maximum。没有 scanner、
-  executable、command 或 environment override。它的内置 analyzer 使用固定 reader registry，资源上限和
-  unavailable result 由 [`functionMetrics` 指南](../checks/function-metrics.md)定义。
+- `functionMetrics` 无 command override；固定 reader registry、closed limits、资源上限与结果由 [Check 指南](../checks/function-metrics.md)拥有。
 
 version probe 是 external adapter provenance，不是 consumer version policy。无法启动、无法识别版本、协议不兼容或
 报告无效，都由对应 external-command Check fail closed 为 `unavailable`，不会形成成功空结果。`functionMetrics`
 不执行这类 probe：分析失败与资源上限在其自身结果模型中结算。
 
-每个 constructor 都同步拒绝 malformed/unknown/incomplete authoring input 并物化 defaults；Run 在
-owning callback work 前仍进行 task-local resolved-options preflight。普通 object composition 破坏完整 options 时，
-owning Check 结算为 `unavailable / invalid-options`。Definition、Run Controls、environment variables 与
-repository tooling 不会替换 Check options 或注册跨 Check backend。
+constructor 与 task-local resolved-options preflight 的分工见[Project Definition](project-definition.md#package-provided-check-composition)；领域 options 不通过 Definition、Controls 或环境注册跨 Check backend。
 
 ### Gate-bound repository observations
 
@@ -67,14 +51,7 @@ advisory。显式维护查询见 [Lizard upstream advisory](../tooling/lizard-up
 都使用每个 `codeAreas[id].files` 的去重并集。外部 adapter 与内置 analyzer 都不接收 project root 来重新发现或扩大
 输入。
 
-`duplicateDetection` 一次把完整 approved scope 交给 jscpd。raw fragment 只有在全部 locations 的 area 集合存在
-非空交集时才形成 Finding；line/token 下界取共同 areas 的最严格值。`fileMetrics` 一次把稳定去重 union 交给 SCC，
-每个 file measurement 按全部 matching areas 的最严格有效 code-line maximum 结算。
-
-`functionMetrics` 先用其内置 reader registry 将每个 selected path 分为 accepted/rejected。accepted union 一次交给
-内置 analyzer，rejected path 只形成 non-blocking input-rejection Record；同一 metric finding 恢复全部 matching
-areas，使用最严格有效 limits，并在任一 matching area 为 blocking 时成为 blocking。任何超出 exact set 或无法形成
-完整可信分析结果的路径都不能发布 partial records。
+area membership 的恢复与 eligibility 在 owning Check 完成，见[Project files](project-files.md#package-provided-check-exact-inputs)；adapter 不计算共享领域 policy。任何 out-of-set batch 或不完整分析结果必须在 conversion/Record publication 前整批拒绝。
 
 一次 Check invocation 只使用冻结 options 与 exact input。external command data、raw output、parser internals 和
 analyzer token state 都不进入 declarative fingerprint、Core facts、public output 或 Run Controls。
@@ -103,7 +80,7 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 ## Verification
 
 external adapter tests 证明 command、availability、parser 与 tool-specific failure；对应 Check integration tests
-证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、current evidence 的 46/41/83/820 identity closure 和 archive-read guard；adapter/Worker tests
+证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、由当前 provenance mapping 确定的 identity closure 和 archive-read guard；adapter/Worker tests
 证明私有调用链与 whole-input mapping，function-metrics integration tests 证明 adapter 到 Check result 的映射。
 
 当前 Lizard `1.24.0` baseline 的 oracle、malformed、reader mapping、identity 与 deviation evidence 位于

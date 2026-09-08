@@ -2,12 +2,11 @@
 
 ## 用途
 
-本页说明 `maintenanceReminders` 的输入、terminal effects 与安全边界。`maintenanceReminders(entries)` 创建一个固定
-ID 为 `maintenance-reminders` 的 Check，用 Git first-parent history 提醒定期复核维护事项。
+`maintenanceReminders(entries)` 创建固定 ID 为 `maintenance-reminders` 的 Check，用 Git first-parent history 提醒定期复核。
 
 ## 最小用法
 
-示例保留终端进度，关闭 machine publication，不写入 machine files。
+示例保留终端进度，不写 machine files。
 
 ```ts
 import { defineConfig, maintenanceReminders, run } from "@zxyycom/vibe-check";
@@ -33,12 +32,11 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-示例 commit ID 只是 shape 占位值，必须替换为当前项目 first-parent history 中的真实复核 commit。若直接使用不存在的
-占位值，条目会得到 `assessment: "unavailable"`；本例显式选择 `enforcing`，因此 Check 不会通过，脚本退出非零。省略 mode 时默认 `advisory`，只提醒而不阻断。
+将占位 commit ID 换成项目 first-parent history 中的真实复核 commit；不存在的基线产生条目 `unavailable`。
+示例使用 `enforcing`，会因到期或不可测量失败；默认 `advisory` 只提醒。
 
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。若需接受 `not-applicable` 或聚合多个 Check，
+显式配置并读取 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)；`run(...)` 返回本身不表示通过。
 
 ## 参数与默认配置
 
@@ -120,12 +118,11 @@ type FinalData = Readonly<{ entries: readonly EntryAssessment[] }>;
 | `unavailable` | 附加 warning，不贡献失败。 | 附加 error，并令所属 Check 失败。 |
 
 `due` message code 是 `maintenance-reminder-due`，`unavailable` message code 是
-`maintenance-reminder-unavailable`。任一 `enforcing` entry 为 `due` 或 `unavailable` 时 Check outcome 为 `failed`；否则为
-`passed`。`due` message 正文是 `<id>: <message>`；`unavailable` 还在末尾追加 ` (<reason>)`。该 Check 不发布
-supplemental Records；条目也不会成为独立 Check、aggregation target 或 progress row。
+`maintenance-reminder-unavailable`。有条目贡献失败则 Check 为 `failed`，否则为 `passed`。
+`due` 正文是 `<id>: <message>`；`unavailable` 追加 ` (<reason>)`。不发布 supplemental Records；条目不成为独立
+Check、aggregation target、progress row 或 machine row。
 
-启用 machine publication 时，entries 只作为一项普通 `maintenance-reminders` Check 的 final data；entry 不形成独立
-machine row，terminal messages 也不进入 machine files。
+启用 machine publication 时只发布所属 Check 的 final data，terminal messages 不进入 machine files。
 
 用返回 Check 的 `check.parseData(value)` 或 package root 的 `parseMaintenanceRemindersData(value)` 验证 final data。parser
 验证每个 discriminated assessment、commit ID、唯一 reminder ID、计数、`exceeded` 与 reason 不变量，并返回

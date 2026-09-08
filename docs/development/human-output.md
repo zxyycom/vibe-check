@@ -88,7 +88,7 @@ channel setup/write/close failure 分别收敛，完整 facts 与其它输出继
 
 diagnostic-enabled Scheduler shell 在 normal、cancelled 或 policy-fault drain 的 terminal path 中，将 summary wrapper
 和 caller Hooks 交给同一 ordered runner。wrapper 包含 projection/writer failure；pre-work/planning failure 没有这次
-summary。collector 的采样边界与 terminal handoff 由[prepared lifecycle](architecture.md#public-prepared-admission-strategy-lifecycle)定义。
+summary。collector 的采样边界与 terminal handoff 由[Scheduler measurement collector](scheduler.md#measurement-collector-与-immutable-context)定义。
 
 summary 分开投影 control path、decision observations、slot·ms/capacity ratio、accepted wait、queue pressure、admission
 delay 与 tail；这些投影可重叠，不应相加为 wall time 或 OS utilization。`proposal: null` 的被动 drain 不计 accepted wait。

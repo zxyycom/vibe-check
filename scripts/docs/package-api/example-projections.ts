@@ -63,6 +63,10 @@ export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
     packagePath: "docs/guides/scheduling.md"
   }),
   Object.freeze({
+    id: "simulating-admission",
+    packagePath: "docs/guides/simulating-admission.md"
+  }),
+  Object.freeze({
     id: "collecting-project-files",
     packagePath: "docs/guides/collecting-project-files.md"
   }),
@@ -177,7 +181,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/admission-graph.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "scheduling",
+        documentId: "simulating-admission",
         headingPath: Object.freeze(["模拟 AdmissionGraph"]),
         kind: "markdown"
       })

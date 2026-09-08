@@ -12,11 +12,6 @@ npm install @zxyycom/vibe-check
 
 npm 负责安装 package；应用代码和质量脚本的最低运行要求是 **Node `>=24.18`**。安装完成后，可以用 `node <file>` 运行下面的示例。
 
-## 选择起步路径
-
-- **使用随包 Check**：从下方的 Check 索引选择所需规则；每份指南说明 options、结果和运行前提。
-- **编写自定义 Check**：从后面的最小示例开始，再按需要阅读生命周期与 callback 指南。
-
 ## 随包提供的 Check
 
 如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execution`。除 `maintenanceReminders(entries)` 与 `secretDetection({ files })` 有必填输入外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。
@@ -34,17 +29,9 @@ npm 负责安装 package；应用代码和质量脚本的最低运行要求是 *
 
 `duplicateDetection`、`fileMetrics`、`functionMetrics` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
 
-## 共享的 files 选择语义
-
-文件选择使用显式 source 与 include/exclude；共同规则和 `defaultProjectFileSelection` 见[选择与收集项目文件](./docs/guides/collecting-project-files.md#共享的-files-选择语义)。各 Check 的 options 位置、默认值与后续读取边界由各自指南说明。
-
 ## 自定义 Check 快速开始
 
 下面的 `quality.ts` 展示一条完整的最小路径：定义 bundle 大小规则、运行它，并确认 Check 通过。为使示例能够独立运行，`actualBytes` 使用固定输入；接入项目时，把这部分替换为项目真实的测量逻辑即可。
-
-- `defineCheck(...)` 定义一项检查，以及通过或失败时要返回的数据。
-- `defineConfig(...)` 把一项或多项 Check 组成可重复运行的 Project Definition。
-- `run(...)` 执行 Definition，并返回本次运行的结果。
 
 示例保留默认的进度输出，但关闭 machine publication，因此第一次运行不会写入 `run.json` 或 `records.ndjson`：
 
@@ -92,49 +79,27 @@ node quality.ts
 
 `RunResult.kind === "completed"` 表示这次 Run 已经完整结算，不等于其中每项 Check 都通过。示例继续读取 `bundle-size` 的 `outcome.status`，并在结果不符合预期时让脚本失败。
 
-## Project Definition 与 Run API
+## 运行、配置与读取结果
 
-无论 Definition 只含随包 Check，还是也含自定义 Check，调用主线都是组成 Definition、运行一次 invocation，再读取结果。本节提供参数归属、默认行为与结果读取入口。
+`defineConfig(...)` 定义可复用的 Checks、options、依赖、scheduler 和默认 outputs；`run(definition, controls?)` 的第二个参数只设置本次根目录、flags、取消、产物与日志目标、output overrides 和显式 aggregation。Controls 不能替换 Check 或 scheduler；字段位置和覆盖规则见 [API 机制](./docs/api-mechanics.md#参数应该放在哪里)。
 
-### 参数放在哪里
+默认最多并行运行四个 Check，显示进度并把 machine files 写入 `artifacts/vibe-check`；diagnostic logging 默认关闭。上例显式关闭 machine publication。配置方法见[输出指南](./docs/guides/run-outputs.md)与[调度指南](./docs/guides/scheduling.md)。
 
-`run(definition, controls?)` 的两份输入分别回答两个问题：
+先判断 `RunResult.kind`；对有 snapshot 的结果，再按 `checkId` 读取 `snapshot.checks[].outcome` 的 `passed`、`failed`、`not-applicable` 或 `unavailable`。`completed` 不代表质量通过：CI 应显式判断目标 outcomes，或配置并读取 [`checkAggregation`](./docs/api-mechanics.md#runcontrols-与-check-aggregation)，再决定退出码。
 
-- **项目怎么检查**：在 `defineConfig(...)` 中组织 Checks、Check options、依赖、调度策略和默认输出方式。
-- **这一次怎么运行**：在 `run` 的第二个参数中设置项目根目录、flags、取消信号、本次产物与日志目标，以及显式结果聚合。
-- **只在这一次改变默认输出**：使用第二个参数的 `outputs`；只覆盖明确提供的字段，不修改原 Definition。
+## 按任务继续阅读
 
-无需调整本次运行时，直接调用 `run(definition)`。完整的[参数位置与覆盖规则](./docs/api-mechanics.md#参数应该放在哪里)说明每个字段的归属；需要扩展行为时，从[回调的作用位置](./docs/guides/callbacks.md)选择执行前准备、检查结果、说明生成、预览呈现或终态观察的接入点。
+只读当前任务需要的专题；精确 overload、泛型推断和字段 JSDoc 以安装包中的 `types/**.d.ts` 为准。
 
-### 默认输出与调度
+- [API 机制](./docs/api-mechanics.md)：Run 生命周期、组合继承、结果与 aggregation。
+- [选择回调位置](./docs/guides/callbacks.md)：确定执行前、检查中、显示时或结束后的接入点。
+- [自定义 Check](./docs/guides/extending-check-lifecycle.md)：options 准备、callback context、Records 与协作取消。
+- [Check 依赖与类型化数据](./docs/guides/check-dependencies.md)：`dependsOn` / `observes`、读取授权与 provider parser。
+- [Run 输出与诊断](./docs/guides/run-outputs.md)：输出配置、progress、日志与失败处理。
+- [调度 Check](./docs/guides/scheduling.md)：并发资源、准入策略与终态观察。
+- [机器输出契约](./docs/output.md)：供其他工具读取 `run.json`、`records.ndjson` 与 schemas。
 
-`defineConfig` 默认显示进度，并把 machine files 写入 `artifacts/vibe-check`；diagnostic logging 默认关闭。输出目录、预览和日志按[输出指南](./docs/guides/run-outputs.md)配置。
-
-默认最多并行运行四个 Check，并遵守依赖、互斥、资源与取消约束。需要改变并发预算、选择顺序或观察终态统计时，阅读[调度专题](./docs/guides/scheduling.md)。
-
-### 运行并读取结果
-
-`run(definition, controls?)` 执行一次独立 invocation。常用 controls 包括 `projectRoot`、`flags`、`signal`、`checkArtifactBaseDirectory`、`progressLogFile` 和仅对本次运行生效的 `outputs` overrides。需要让某个 Check 写 invocation-local artifact 时，调用方显式设置 base；callback 只会得到自己的 absolute `artifactDirectory`（未设置时为 `null`）。
-
-读取结果时分两层判断：
-
-1. 先读取 `RunResult.kind`，确认 invocation 是完整结算、配置错误、规划失败、输出失败、执行失败还是被取消。
-2. 对有 snapshot 的结果，按 `checkId` 查找 `snapshot.checks[].outcome`，再处理 `passed`、`failed`、`not-applicable` 或 `unavailable`。
-
-合法运行中，即使某项 Check 返回 `failed`，Run 仍可能是 `kind: "completed"`。若 CI 需要因质量 Finding 退出非零，调用方必须像快速开始那样显式判断目标 outcome，或配置并读取 invocation-level `checkAggregation`；其选择范围和空集合语义见 [API 机制](./docs/api-mechanics.md#runcontrols-与-check-aggregation)。
-
-## 自定义 Check API
-
-只使用随包 Check 时，可以跳过本节。项目自己的规则通常遵循“定义 Check、加入 Definition、运行并读取结果”的主线：
-
-1. 使用 `defineCheck(...)` 声明稳定的 `checkId`、`displayName` 与 `execution`；`execution` 返回 `passed`、`failed`、`not-applicable` 或 `unavailable`。
-2. 把该 Check 加入 `defineConfig({ checks, ... })` 的 `checks`，并按上一节运行和读取结果。
-
-完整的 authoring 示例、`preflight`、callback context、typed dependencies、Records、messages 与取消处理，见[编写会正确结算的自定义 Check](./docs/guides/extending-check-lifecycle.md)。
-
-## Package 预提供的可选工具
-
-需要文件收集、缓存、Finding 处理或调度辅助时，在项目代码或自定义 Check 中显式调用下列工具；返回值和接入点如下。
+以下可选工具由项目代码或自定义 Check 显式调用：
 
 | 目的 | 工具与接入方式 | 详解 |
 | --- | --- | --- |
@@ -142,31 +107,16 @@ node quality.ts
 | 按完整语义 key 复用本地 JSON 计算 | `cacheJsonByKey(...)` 在普通项目代码或 Check 内返回一次调用的缓存结果 | [缓存计算结果](./docs/guides/cache-results.md) |
 | 对账完整 Finding 集合与 waiver audit | `reconcileFindingWaivers(...)` 在 Finding 形成后返回 disposition 与 audit | [对账 Finding waiver](./docs/guides/finding-waivers.md) |
 | 生成有限的 Finding 人读摘要 | `presentCheckFindings(...)` 返回 `CheckMessage[]`，由 producing Check 附到自己的 terminal result | [呈现 Check Finding](./docs/guides/presenting-findings.md) |
-| 在不执行 Check 的前提下分析静态 admission 分支 | `createAdmissionGraph(...)` 独立创建 immutable simulation，不需要 `run(...)` 或 custom policy | [模拟 AdmissionGraph](./docs/guides/scheduling.md#模拟-admissiongraph) |
+| 在不执行 Check 的前提下分析静态 admission 分支 | `createAdmissionGraph(...)` 独立创建 immutable simulation，不需要 `run(...)` 或 custom policy | [模拟 AdmissionGraph](./docs/guides/simulating-admission.md) |
 | 为重复 Run 准备基于本地时长 history 的选择策略 | `createLearnedCriticalPathStrategy(...)` 的返回值接入 `scheduler.admissionPolicy` 的 custom strategy | [learned critical-path strategy](./docs/guides/learned-scheduling.md) |
 
-`defineCheck`、`defineConfig`、`defineAdmissionPolicy` 与 `inherit` 用于 Definition authoring，`run` 执行一次 invocation。各随包 Check 的 `parse…Data` 导出用于解析该 Check 的 final data；其输入和结果由相应 Check 指南及 installed declarations 说明。此表提供通用可选工具的入口，完整 public export 仍以 installed declarations 为准。
-
-## 输出与进阶用法
-
-- [API 机制](./docs/api-mechanics.md)解释一次 Run 如何从 Definition、选择、preflight、execution 到结果、aggregation 与 outputs。
-- [配置 Run 输出与诊断](./docs/guides/run-outputs.md)说明默认输出、progress formatter、日志目标及输出失败处理。
-- [读取 Check 依赖与类型化数据](./docs/guides/check-dependencies.md)说明 `dependsOn` / `observes`、`get` / `list` 与 provider parser。
-- [按作用位置选择回调（Hook）](./docs/guides/callbacks.md)解决“执行前、检查中、显示时、结束后分别用哪个回调、写在哪里、能改变什么”的选择问题。
-- [编写会正确结算的自定义 Check](./docs/guides/extending-check-lifecycle.md)解决“在哪个 callback 写规则、能读写什么、怎样取消或失败”的 authoring 任务。
-- [按项目约束调度 Check](./docs/guides/scheduling.md)解决“何时需要改变调度选择、怎样不越过 Scheduler guard”的 scheduling 任务。
-- [机器输出契约](./docs/output.md)说明 `run.json`、`records.ndjson` 和对应 schemas；只有需要把结果交给其他工具时才需要读取它。
-- 精确 overload、泛型推断和字段 JSDoc 以安装包中的 `types/**.d.ts` 为准。
+各随包 Check 的 `parse…Data` 导出用于解析该 Check 的 final data；完整签名与类型见相应 Check 指南及 installed declarations。
 
 ## 包内结构与调试
 
 业务代码始终从 `@zxyycom/vibe-check` 导入。安装包中的 `index.mjs` 是公开 runtime entry，`types/**.d.ts` 提供 TypeScript declarations；source maps、`src/**.ts` 和可读的 `dist/esm/**.mjs` 用于堆栈定位与实现检查，不是额外的 public import path。
 
-安装包还包含机器输出文档、v4 run / Record schemas 和一组完整 artifact example，便于需要消费机器结果的工具核对实际 bytes。
-
 ## 分发与兼容范围
-
-npm 分发和安装 package；受支持的产品 host 是 Node，最低版本要求为 **`>=24.18`**。
 
 当前 public contract 只有 `@zxyycom/vibe-check` package root 的程序化 API。CLI、`bin`、plugin API、CommonJS/browser entry 和 subpath imports 都不在支持范围内。
 

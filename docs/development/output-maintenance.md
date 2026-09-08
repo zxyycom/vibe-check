@@ -1,6 +1,6 @@
 # 机器输出实现与材料维护
 
-本文面向修改 machine publisher、progress renderer 或随包 machine materials 的仓库维护者。Package consumer 的唯一
+本文面向修改 machine publisher 或随包 machine materials 的仓库维护者。Package consumer 的唯一
 machine contract 是[机器输出契约](../output.md)；本页只拥有实现归属、publication workflow 与 repository validation，
 不随 package 发布。
 
@@ -33,26 +33,7 @@ snapshot，完整集合 fingerprint 与 handled-failure cleanup 承接 fail-clos
 
 ## 进度呈现实现
 
-Product progress 从 producing Run 的 lifecycle facts 呈现 status、duration、受控 reason code 和受管 messages，不从
-machine artifacts 恢复状态。普通 visible settled block 先输出 row，再按 preflight console、preflight author、execution
-console、terminal author order 输出 message lines；message code 保留在 `RunResult.checkMessages`，不重复到终端。
-`attention` 只省略 passed 且无 messages 的 settled row。flag 条件未匹配的 invocation-control settlements 是独立例外：renderer
-缓存其 `displayName`；resolved Check lifecycle 调用必需的 `flagControlCompleted` 后，presentation 将它映射为
-`"flag-control-completed"` feedback，renderer 再写一个原因说明块和名称列表。精确分组条件、
-其它未启动状态的逐项呈现和完整 facts 边界由[Progress rendering](../guides/run-outputs.md#progress-rendering)拥有；所有 outcomes
-仍计入 canonical ordinal 和最终计数。
-
-普通 TTY 在仍有 Check 运行时每 5 秒重绘 running region，并显示基于共享 monotonic interval 的 elapsed time；首次 running
-row 在 heartbeat 前不伪造时长。Plain output 与 `TERM=dumb` 保持 append-only，只追加 settled block 或 invocation flag control barrier 结束后的分组，也不启动 heartbeat timer。Renderer 在 TTY Run 期间独占目标 terminal；resolved-Check execution 在静态 graph 校验后、invocation flag control 与 task-local preflight 前安装一次 async-context-aware global-console router，在全部 Check 闭合后恢复原 method descriptors。每个 awaited
-Check preflight/execution 只建立自己的 capture buffer；context 外调用继续委托 host console。Product 不 patch
-`process.stdout` / `process.stderr`；in-process Check 的直接 stream writes 和
-child-process 输出必须进入独立 sink，不能依赖当前 target 偶然是 non-TTY 来建立兼容保证。
-
-Captured console 进入 settlement messages；`check.finished` diagnostic 只保留 bounded phase、duration 和 message count，不复制 message text 或 final data。默认 disabled 不创建 diagnostic channel files；它们仍不进入 machine v4，Check author 不得把 secret 当作 console 日志。
-
-Plain/dumb terminal 使用 literal `[info]`、`[warning]`、`[error]`；color-capable TTY 只给 level label 加色。display name、
-reason 与 message 都转义 newline、carriage return、tab、terminal controls、ESC、U+2028 和 U+2029；原 message string
-保留在 `RunResult.checkMessages`。Terminal writer failure 保持可观察，不吞掉错误或继续后续 write。caller 选择 `progressLogFile` 时，tee 总是先写 terminal；file-only setup/write/close failure 仅标记 progress output failed，terminal rendering 继续，final transcript 仍包含每项 Check duration（含 `null`）。
+progress 直接消费 Run lifecycle，不从 machine files 恢复结果；console capture、preview、TTY/tee 与 writer failure 的实现统一见[Run 人读输出](human-output.md)。修改 publisher 不得让 machine projection 成为人读输出的事实来源。
 
 ## Package 材料的维护与验证
 
