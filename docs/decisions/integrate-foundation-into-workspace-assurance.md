@@ -1,5 +1,6 @@
 ---
 title: 将 Foundation 纳入普通 workspace assurance
+id: 260823-integrate-foundation-into-workspace-assurance
 status: active
 alignment: aligned
 createdAt: 2026-08-23T16:30:22Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: vendor-foundation-as-repository-owned-script-tool.md
+    target: 260818-vendor-foundation-as-repository-owned-script-tool
 ---
 
 ## 目的

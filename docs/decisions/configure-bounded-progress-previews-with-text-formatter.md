@@ -1,5 +1,6 @@
 ---
 title: 提供可配置且受管的 progress 文本预览
+id: 260907-configure-bounded-progress-previews-with-text-formatter
 status: active
 alignment: aligned
 createdAt: 2026-09-07T10:30:45Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: render-record-and-message-previews-in-product-progress.md
+    target: 260904-render-record-and-message-previews-in-product-progress
 ---
 
 ## 目的

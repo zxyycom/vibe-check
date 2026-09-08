@@ -1,5 +1,6 @@
 ---
 title: 收敛 Product 模块边界到实际 owner
+id: 260826-refine-product-module-boundaries
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T06:48:56Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: align-source-layout-and-naming-with-module-owners.md
+    target: 260824-align-source-layout-and-naming-with-module-owners
 ---
 
 ## 目的

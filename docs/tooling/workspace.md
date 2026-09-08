@@ -59,7 +59,7 @@ scripts helper、环境状态或 process adapter。
 | maintenance advisory      | `bun run maintenance:lizard-upstream`                                                                                                                   | `scripts/maintenance/lizard-upstream-advisory.ts`                                   |
 | Project Gate              | `bun run check [-- --typecheck \| --lint \| --test \| --docs \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>` | `scripts/project/gate/run.ts`                                                       |
 
-`bun run investigations` 默认执行完整检查。列出或同步 Investigation 索引时使用 `bun run investigations -- list` 或 `bun run investigations -- sync-index`；命令从当前仓库根目录推定 root。只有需要覆盖该默认值时才把 `--root <path>` 放在子命令之后，例如 `bun run investigations -- list --root <path>`。
+`bun run investigations` 默认执行完整检查。列出或同步 Investigation 索引时使用 `bun run investigations -- list` 或 `bun run investigations -- sync-index`；命令从当前仓库根目录推定 root。只有需要覆盖该默认值时才把 `--root <path>` 放在子命令之后，例如 `bun run investigations -- list --root <path>`。Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 的 `YYMMDD-<name>`；文件 basename 只是可独立变化的 source locator，身份迁移必须使用所属 skill 的 `rename` 事务。
 
 来源映射维护使用 `bun run source-mapping [-- check | sync]`，由 `scripts/package/legal-materials/source-mapping.ts`
 拥有；默认只读检查，写入边界见[来源映射维护](package-lifecycle.md#translated-source-mapping-maintenance)。
@@ -182,7 +182,7 @@ Product Check 的 scanner command、availability command 和 unavailable behavio
 
 `scripts/decision-records/command.ts` 把 repository root 绑定到已安装 capability，并转发其 CLI 或暴露同一
 typed operation；`change-plan` 与 `investigations` root commands 直接调用各自 skill 的 CLI。它们不复制 parser、
-metadata、index 或 lifecycle 语义。写入与归档仍由相应 subcommand/skill 和当前任务授权决定。
+metadata、index 或 lifecycle 语义。写入由相应 subcommand/skill 和当前任务授权决定；Change 完成后只在明确删除授权下使用 `complete`，成功即删除整个目录，不建立完成态 archive。
 
 `scripts/test-evidence/command.ts` 拥有 current test entity discovery、Case query 和 closure check。它把同一 caller
 `AbortSignal` 传给 ast-grep static scan 与 Bun registration report process，要求完整测试清单的每个 runner entity

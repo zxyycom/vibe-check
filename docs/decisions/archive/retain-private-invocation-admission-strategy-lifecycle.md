@@ -1,5 +1,6 @@
 ---
 title: 保留私有 invocation 准入策略生命周期
+id: 260903-retain-private-invocation-admission-strategy-lifecycle
 status: archived
 alignment: aligned
 createdAt: 2026-09-03T06:15:11Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 拆分
-    target: introduce-invocation-scoped-admission-strategy-lifecycle.md
+    target: 260903-introduce-invocation-scoped-admission-strategy-lifecycle
 ---
 
 ## 目的

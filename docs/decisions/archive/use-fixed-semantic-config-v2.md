@@ -1,5 +1,6 @@
 ---
 title: 将文件政策契约升级为固定配置 v2
+id: 260804-use-fixed-semantic-config-v2
 status: archived
 alignment: null
 createdAt: 2026-08-04T15:02:12Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-fixed-semantic-config-version.md
+    target: 260803-use-fixed-semantic-config-version
 ---
 
 ## 目的

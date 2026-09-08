@@ -1,5 +1,6 @@
 ---
 title: 让 Check options 拥有执行依赖
+id: 260817-let-check-options-own-execution-dependencies
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T16:29:25Z
@@ -10,11 +11,11 @@ tags:
   - configuration
 relations:
   - type: 替代
-    target: bind-external-programs-outside-check-semantics.md
+    target: 260814-bind-external-programs-outside-check-semantics
   - type: 替代
-    target: limit-tool-neutrality-to-built-in-checks.md
+    target: 260805-limit-tool-neutrality-to-built-in-checks
   - type: 修订
-    target: hard-cut-legacy-tool-shaped-config.md
+    target: 260803-hard-cut-legacy-tool-shaped-config
 ---
 
 ## 目的

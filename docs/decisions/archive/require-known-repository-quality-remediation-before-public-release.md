@@ -1,5 +1,6 @@
 ---
 title: 公开发布前处置已知仓库质量 Findings
+id: 260830-require-known-repository-quality-remediation-before-public-release
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:05:36Z

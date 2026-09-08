@@ -1,5 +1,6 @@
 ---
 title: 让语义 check ID 直接属于质量记录目录
+id: 260805-use-semantic-check-ids-in-quality-records
 status: archived
 alignment: null
 createdAt: 2026-08-05T07:09:36Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 替代
-    target: use-semantic-check-ids-in-project-config.md
+    target: 260803-use-semantic-check-ids-in-project-config
 ---
 
 ## 目的

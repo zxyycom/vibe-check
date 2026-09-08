@@ -1,5 +1,6 @@
 ---
 title: 对 main 提交后的非强制自动推送限频
+id: 260831-rate-limit-non-force-main-auto-push-after-commit
 status: active
 alignment: aligned
 createdAt: 2026-08-31T06:18:20Z

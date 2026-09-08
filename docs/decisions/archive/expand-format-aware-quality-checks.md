@@ -1,5 +1,6 @@
 ---
 title: 扩展格式感知的非代码质量检查
+id: 260804-expand-format-aware-quality-checks
 status: archived
 alignment: null
 createdAt: 2026-08-04T15:02:11Z

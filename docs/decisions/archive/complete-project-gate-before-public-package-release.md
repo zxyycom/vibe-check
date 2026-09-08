@@ -1,5 +1,6 @@
 ---
 title: 在公开 package 发布前完成项目门禁
+id: 260819-complete-project-gate-before-public-package-release
 status: archived
 alignment: aligned
 createdAt: 2026-08-19T06:34:27Z

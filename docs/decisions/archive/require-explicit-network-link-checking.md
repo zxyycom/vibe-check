@@ -1,5 +1,6 @@
 ---
 title: 网络链接检查必须显式启用
+id: 260804-require-explicit-network-link-checking
 status: archived
 alignment: null
 createdAt: 2026-08-04T15:02:13Z

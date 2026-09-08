@@ -1,5 +1,6 @@
 ---
 title: 将未通过前置的 dependent 结算为 unavailable
+id: 260901-settle-non-passed-dependents-as-unavailable
 status: active
 alignment: aligned
 createdAt: 2026-09-01T10:43:22Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: cancel-task-admission-and-drain-started-work.md
+    target: 260815-cancel-task-admission-and-drain-started-work
 ---
 
 ## 目的

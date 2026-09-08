@@ -1,5 +1,6 @@
 ---
 title: 保持内置 Check options 受 descriptor owner 约束且工具中立
+id: 260814-keep-built-in-options-owned-and-tool-neutral
 status: archived
 alignment: aligned
 createdAt: 2026-08-14T13:50:47Z

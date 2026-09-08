@@ -1,5 +1,6 @@
 ---
 title: 使用含 final data 的 Core Check 与 minimal Record facts
+id: 260821-use-core-check-record-facts-with-final-data
 status: active
 alignment: aligned
 createdAt: 2026-08-21T15:02:45Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: use-core-check-and-record-facts-from-run-resolution.md
+    target: 260815-use-core-check-and-record-facts-from-run-resolution
 ---
 
 ## 目的

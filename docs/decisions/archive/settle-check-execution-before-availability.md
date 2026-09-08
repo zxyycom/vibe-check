@@ -1,5 +1,6 @@
 ---
 title: 在 Check availability 前结算执行 capability
+id: 260813-settle-check-execution-before-availability
 status: archived
 alignment: aligned
 createdAt: 2026-08-13T07:05:49Z

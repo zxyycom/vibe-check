@@ -20,7 +20,7 @@ export type DecisionListAlignment = DecisionAlignment | "all";
 declare const decisionIdBrand: unique symbol;
 declare const decisionSourcePathBrand: unique symbol;
 declare const decisionTagBrand: unique symbol;
-/** A validated stable Markdown basename such as `use-stable-ids.md`. */
+/** A validated stable extensionless identity such as `use-stable-ids`. */
 export type DecisionId = string & {
     readonly [decisionIdBrand]: "DecisionId";
 };
@@ -35,6 +35,12 @@ export type DecisionTag = string & {
 export type DecisionRelation = {
     type: DecisionRelationType;
     target: DecisionId;
+    summary?: string;
+};
+/** A CLI relation-summary input before its target selector is resolved. */
+export type DecisionRelationSummary = {
+    target: DecisionId;
+    summary?: string;
 };
 export type DecisionSuccessor = {
     alignment: DecisionAlignment;
@@ -45,6 +51,7 @@ export type DecisionRelationOverride = {
 } | {
     kind: "replace";
     relations: DecisionRelation[];
+    relationSummaries?: DecisionRelationSummary[];
 };
 export type DecisionProjection = {
     title: string;
@@ -91,7 +98,10 @@ export type DecisionRecordSource = {
 } | {
     kind: "missing";
 };
-export type DecisionIndexState = DecisionDocument & {
+export type DecisionIndexState = Omit<DecisionDocument, "alignment"> & {
+    /** Absent for archived records so the optional query field has no value. */
+    alignment?: DecisionAlignment;
+    name: string;
     sourcePath: DecisionSourcePath;
 };
 export type DecisionSource = Readonly<{
@@ -105,16 +115,9 @@ export type DecisionSourceInput = Readonly<{
     sourcePath: string;
     text: string;
 }>;
-export type DecisionIndexStoredEntry = {
-    keys: {
-        tag: DecisionTag[];
-        status: [EstablishedDecisionStatus];
-        alignment?: [DecisionAlignment];
-    };
-    state: DecisionIndexState;
-};
-export type DecisionIndexEntry = DecisionIndexStoredEntry & {
+export type DecisionIndexEntry = {
     id: DecisionId;
+    state: DecisionIndexState;
 };
 export type DecisionIndexMetadata = Record<string, never>;
 export type DecisionSourceRevision = {
@@ -122,30 +125,20 @@ export type DecisionSourceRevision = {
     entries: Record<DecisionId, string>;
 };
 export type DecisionIndex = {
-    schemaVersion: 3;
+    schemaVersion: 4;
     namespace: "decisions";
-    definitionVersion: 6;
+    definitionVersion: 10;
     metadata: DecisionIndexMetadata;
     sourceRevision: DecisionSourceRevision;
-    keyDefinitions: [
-        {
-            name: "tag";
-            mode: "exact";
-        },
-        {
-            name: "status";
-            mode: "exact";
-        },
-        {
-            name: "alignment";
-            mode: "exact";
-        }
-    ];
-    entries: Record<DecisionId, DecisionIndexStoredEntry>;
+    entries: Record<DecisionId, DecisionIndexState>;
 };
 export type DecisionRecord = {
-    /** Whether the source is a complete candidate eligible for activation. */
+    /** Whether the source is a body-ready candidate eligible for activation. */
     activationCandidate: boolean;
+    /** Whether this source has a valid candidate scaffold shape. */
+    scaffoldValid: boolean;
+    /** Whether the fixed candidate body passes mechanical readiness checks. */
+    bodyReady: boolean;
     alignment: DecisionAlignment | null;
     createdAt: string | null;
     /** Raw basename for invalid sources; validated on candidate/established records. */
@@ -194,14 +187,18 @@ export type DecisionScan = {
     workspaceRoot: string;
 };
 export type DecisionValidationResult = {
-    /** Number of complete candidates eligible for activation. */
+    /** Compatibility count of body-ready candidates eligible for activation. */
     activationCandidateCount: number;
+    /** Number of mechanically body-ready candidate scaffolds. */
+    bodyReadyCandidateCount: number;
     activeCount: number;
     alignedCount: number;
     archivedCount: number;
     decisionCount: number;
     errors: string[];
     scan: DecisionScan;
+    /** Number of structurally valid candidate scaffolds. */
+    scaffoldCandidateCount: number;
     unalignedCount: number;
 };
 export type MarkdownSection = {

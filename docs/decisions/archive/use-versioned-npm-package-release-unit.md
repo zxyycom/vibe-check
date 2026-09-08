@@ -1,5 +1,6 @@
 ---
 title: 使用版本化 npm package 作为产品发布单元
+id: 260806-use-versioned-npm-package-release-unit
 status: archived
 alignment: unaligned
 createdAt: 2026-08-06T02:57:00Z

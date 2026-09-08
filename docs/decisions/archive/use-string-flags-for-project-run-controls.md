@@ -1,5 +1,6 @@
 ---
 title: 对 Project Run controls 使用字符串 flag
+id: 260820-use-string-flags-for-project-run-controls
 status: archived
 alignment: aligned
 createdAt: 2026-08-20T02:15:14Z

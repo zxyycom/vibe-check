@@ -1,5 +1,6 @@
 ---
 title: "采用 Remeda 与 Mnemonist，保留原生集合默认"
+id: "260811-functional-utilities-and-data-structures"
 formedAt: "2026-08-11T07:54:34Z"
 question: "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？"
 tags:

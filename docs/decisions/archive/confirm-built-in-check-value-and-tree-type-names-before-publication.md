@@ -1,5 +1,6 @@
 ---
 title: 发布前确认内置 Check 值与 Check tree 类型名称
+id: 260814-confirm-built-in-check-value-and-tree-type-names-before-publication
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T13:50:34Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: confirm-config-run-and-package-names-before-publication.md
+    target: 260814-confirm-config-run-and-package-names-before-publication
 ---
 
 ## 目的

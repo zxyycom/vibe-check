@@ -1,5 +1,6 @@
 ---
 title: 让基线语义留在 producing Check
+id: 260821-keep-comparison-semantics-inside-producing-checks
 status: active
 alignment: aligned
 createdAt: 2026-08-21T05:58:42Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: require-explicit-named-comparison-references.md
+    target: 260805-require-explicit-named-comparison-references
 ---
 
 ## 目的

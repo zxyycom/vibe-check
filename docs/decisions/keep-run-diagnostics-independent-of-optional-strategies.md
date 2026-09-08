@@ -1,5 +1,6 @@
 ---
 title: 保持运行诊断通道独立于可选策略
+id: 260907-keep-run-diagnostics-independent-of-optional-strategies
 status: active
 alignment: aligned
 createdAt: 2026-09-07T10:07:19Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: organize-owner-aware-project-run-and-gate-diagnostics.md
+    target: 260904-organize-owner-aware-project-run-and-gate-diagnostics
 ---
 
 ## 目的

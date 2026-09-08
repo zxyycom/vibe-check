@@ -1,5 +1,6 @@
 ---
 title: 允许 Check 返回终态消息并显式声明 visibility
+id: 260822-allow-check-terminal-messages-and-explicit-visibility
 status: archived
 alignment: aligned
 createdAt: 2026-08-22T08:48:11Z

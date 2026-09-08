@@ -1,5 +1,6 @@
 ---
 title: 公开发布前要求完整 Project Gate 证据
+id: 260830-require-complete-project-gate-evidence-before-public-release
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:34:09Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 拆分
-    target: preserve-release-gate-readiness-with-invocation-creation-time.md
+    target: 260830-preserve-release-gate-readiness-with-invocation-creation-time
 ---
 
 ## 目的

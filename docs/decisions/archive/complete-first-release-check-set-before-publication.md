@@ -1,5 +1,6 @@
 ---
 title: 在首次公开发布前完成选定的首版 Checks
+id: 260824-complete-first-release-check-set-before-publication
 status: archived
 alignment: unaligned
 createdAt: 2026-08-24T10:06:12Z

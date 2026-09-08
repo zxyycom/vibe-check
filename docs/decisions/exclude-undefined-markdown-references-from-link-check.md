@@ -1,5 +1,6 @@
 ---
 title: 将未定义 Markdown reference 排除在 Link Check 之外
+id: 260825-exclude-undefined-markdown-references-from-link-check
 status: active
 alignment: aligned
 createdAt: 2026-08-25T05:56:52Z

@@ -1,5 +1,6 @@
 ---
 title: 在配置与运行操作旁公开内置 Check 值
+id: 260814-expose-built-in-check-values-alongside-config-and-run
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T13:50:34Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: expose-config-definition-and-project-run-operations.md
+    target: 260814-expose-config-definition-and-project-run-operations
 ---
 
 ## 目的

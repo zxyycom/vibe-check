@@ -1,5 +1,6 @@
 ---
 title: 在私有运行边界内执行项目代码
+id: 260812-contain-project-code-behind-private-runtime-boundary
 status: archived
 alignment: unaligned
 createdAt: 2026-08-12T10:30:38Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: treat-project-definitions-as-trusted-code.md
+    target: 260805-treat-project-definitions-as-trusted-code
 ---
 
 ## 目的

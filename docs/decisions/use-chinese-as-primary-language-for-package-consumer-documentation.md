@@ -1,5 +1,6 @@
 ---
 title: package consumer 文档以中文叙述为主
+id: 260830-use-chinese-as-primary-language-for-package-consumer-documentation
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:34:11Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 替代
-    target: use-chinese-as-primary-language-for-public-documentation.md
+    target: 260824-use-chinese-as-primary-language-for-public-documentation
 ---
 
 ## 目的

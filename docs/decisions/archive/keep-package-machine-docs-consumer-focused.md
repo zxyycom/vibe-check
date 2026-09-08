@@ -1,5 +1,6 @@
 ---
 title: 让 package machine 文档只承接消费契约
+id: 260829-keep-package-machine-docs-consumer-focused
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T02:17:38Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: ship-current-machine-contract-materials-in-the-package.md
+    target: 260828-ship-current-machine-contract-materials-in-the-package
 ---
 
 ## 目的

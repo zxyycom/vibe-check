@@ -1,5 +1,6 @@
 ---
 title: 在 Task admission 边界协作式取消运行
+id: 260815-cooperatively-cancel-task-graphs
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T08:14:41Z

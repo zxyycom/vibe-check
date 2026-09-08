@@ -1,5 +1,6 @@
 ---
 title: "Lizard 上游正式版本与发布线差异核验"
+id: "260903-assess-lizard-upstream-release-and-branch-delta"
 formedAt: "2026-09-03T01:08:31Z"
 question: "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？"
 tags:
@@ -10,7 +11,7 @@ tags:
   - "upstream-release"
 relations:
   - type: "补充"
-    target: "compare-lizard-and-scc-typescript-port-priority.md"
+    target: "260901-compare-lizard-and-scc-typescript-port-priority"
 ---
 
 ## 形成时背景

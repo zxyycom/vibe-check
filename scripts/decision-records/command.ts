@@ -23,7 +23,6 @@ export type {
   DecisionIndexEntry,
   DecisionIndexMetadata,
   DecisionIndexState,
-  DecisionIndexStoredEntry,
   DecisionListAlignment,
   DecisionListStatus,
   DecisionMetadata,
@@ -205,7 +204,10 @@ function additionalDecisionValidationDiagnostics(
 function safeDecisionRecordDiagnostic(
   record: DecisionValidationRecord
 ): DecisionRecordsGateDiagnostic | undefined {
-  if (!isSafeDecisionId(record.decisionId) || !isSafeRepositoryPath(record.sourcePath)) {
+  if (
+    !isSafeDecisionDiagnosticIdentity(record.decisionId) ||
+    !isSafeRepositoryPath(record.sourcePath)
+  ) {
     return undefined;
   }
   if (record.source.kind === "invalid") {
@@ -259,8 +261,9 @@ function compareDiagnostic(
   return 0;
 }
 
-function isSafeDecisionId(value: unknown): value is string {
-  return typeof value === "string" && /^[a-z][a-z0-9-]*\.md$/u.test(value);
+function isSafeDecisionDiagnosticIdentity(value: unknown): value is string {
+  // Parsed records use extensionless IDs; an invalid source can only expose its safe Markdown locator.
+  return typeof value === "string" && /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.md)?$/u.test(value);
 }
 
 function isSafeRepositoryPath(value: unknown): value is string {

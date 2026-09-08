@@ -1,5 +1,6 @@
 ---
 title: 将 Project Gate machine facts 写入 invocation evidence
+id: 260829-publish-project-gate-machine-facts-with-invocation-evidence
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:40:19Z

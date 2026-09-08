@@ -1,5 +1,6 @@
 ---
 title: 在 custom admission policy 前提供决策边界 measurement
+id: 260902-provide-decision-boundary-admission-measurement
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T02:34:22Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: expose-stateless-custom-admission-policy-to-callers.md
+    target: 260901-expose-stateless-custom-admission-policy-to-callers
 ---
 
 ## 目的

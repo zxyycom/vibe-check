@@ -1,5 +1,6 @@
 ---
 title: 稳定质量身份不使用源码位置
+id: 260804-use-location-independent-finding-identities
 status: archived
 alignment: null
 createdAt: 2026-08-04T15:02:12Z

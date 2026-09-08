@@ -1,5 +1,6 @@
 ---
 title: 公开发布 unscoped vibe-check package
+id: 260814-publish-unscoped-vibe-check-publicly
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T05:52:50Z

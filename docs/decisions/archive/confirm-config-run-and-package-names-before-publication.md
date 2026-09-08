@@ -1,5 +1,6 @@
 ---
 title: 发布前确认配置定义、Package Run 与 package 契约名称
+id: 260814-confirm-config-run-and-package-names-before-publication
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:33Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: confirm-package-contract-names-before-publication.md
+    target: 260812-confirm-package-contract-names-before-publication
 ---
 
 ## 目的

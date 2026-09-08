@@ -2,7 +2,7 @@
 
 本 Change 的 Plan artifacts 已收敛为可执行承诺：只比较 private learned admission 的 strict baseline 与一个同层 admissible-first backfill 候选；未授权任何生产接线或 metadata 变更。
 
-当前执行边界：用户已另行授权 [公共 learned strategy 重构](../archive/expose-learned-admission-strategy/proposal.md)，已移除本页比较方案依赖的 private learned kind、provider 与专属 observer。以下 private seam、旧 callback 写法和测量开销描述仅是尚待重新基线化的比较设计，不能作为当前 runtime 事实或继续采样的依据。本 Change 暂不进入 Implementation、Gate A/B 或 production wiring；应先按 tasks 的新增 Readiness 核对 public prepared strategy、当前 named resource guards、history identity 与测量边界，再重写受影响方案并刷新 Plan。该重构不授权或预判 backfill 采用。
+当前执行边界：已经交付的公共 learned strategy 重构移除了本页比较方案依赖的 private learned kind、provider 与专属 observer；当前长期边界见[公共 learned strategy Decision](../../docs/decisions/provide-learned-admission-through-public-strategy.md)。以下 private seam、旧 callback 写法和测量开销描述仅是尚待重新基线化的比较设计，不能作为当前 runtime 事实或继续采样的依据。本 Change 暂不进入 Implementation、Gate A/B 或 production wiring；应先按 tasks 的新增 Readiness 核对 public prepared strategy、当前 named resource guards、history identity 与测量边界，再重写受影响方案并刷新 Plan。已交付重构不授权或预判 backfill 采用。
 
 ## Why
 
@@ -23,7 +23,7 @@
 - strict/candidate algorithm owner 仍只位于 `src/project-run/task-scheduler/**` private comparison harness 与当前 private provider；比较期间 production learned binding 保持 strict。comparison-only adapter 与 frozen score fixture 位于 `scripts/project/gate/**` evidence owner，不成为 Product API 或另一 Product algorithm implementation；它以同一冻结 prediction-derived critical-path score table 构造并逐 trace 验证 custom callback projection。现有 public custom context 提供 graph、`candidates.canAdmit`、capacity、activeScope 和 running facts，足以重放两种选择而不重写 Scheduler legality。
 - 建立 Change-local、evidence-only script variant runner（无 public config/env switch/registry）：它只临时切换 `scripts/project/gate/definition.ts` 及确有必要的一条 direct assertion 的 script bytes，不改 `src/**` 或 package inputs。两个 variant 都把 central Gate Definition 设为现有 `{ kind: "custom", proposeAdmission }`：strict callback 按 current first-layer/comparator/first-only wait，candidate callback 按 same-layer admissible-first；它们均承受同一 custom per-decision measurement overhead。runner 不是 production wiring，也不得留下 hidden env/runtime selector。
 - 实施前先完成 deterministic corpus、exact traces/timing assertions、A/B data contract、排除规则与预注册阈值。corpus 覆盖 ordinary score/priority/ID、tightening、continuation、`dependsOn`/`observes`、mutex/root capacity、scope unsafe-backfill witness、benefit/risk pairs、failure/blocked/cancel/finite progress 与 frozen prediction；unsafe witness 的 protected-delay 退化立即产生 not-adopt，且不再采 Gate candidate。
-- 生产策略切换的硬 Readiness 是当前 private seam 的稳定实现提交已进入实施基线；当前事实由 runtime、Architecture、API mechanics 与 active+aligned lifecycle Decision 承接，归档 Change 只作形成时证据。证据与 Plan 准备可先行。`provide-admission-strategy-simulation` 的 public API 不是依赖，如有实现只能复用 private machine/harness。
+- 生产策略切换的硬 Readiness 是当前 private seam 的稳定实现提交已进入实施基线；当前事实由 runtime、Architecture、API mechanics 与 active+aligned lifecycle Decision 承接。证据与 Plan 准备可先行。`provide-admission-strategy-simulation` 的 public API 不是依赖，如有实现只能复用 private machine/harness。
 - `add-invocation-fail-fast-policy` 和 `add-named-resource-capacity` 仍是 Draft 条件分支，不进入本 corpus。若任一项先落地或改变现有 candidate/capacity/terminal facts，冻结结果失效，必须以新事实重新采 baseline、prediction、trace 与 A/B。
 
 ### Resulting Impacts

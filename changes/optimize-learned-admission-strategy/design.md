@@ -2,7 +2,7 @@
 
 本设计定义一个可证伪的 private algorithm comparison：先固定 strict baseline、唯一候选、corpus 与接受门槛，再决定 adopt 或 not-adopt；当前仍不授权 production wiring。
 
-当前恢复条件：另行授权的 [公共 learned strategy 重构](../archive/expose-learned-admission-strategy/design.md) 已交付并替换这里的 private 基线。本文保留待重新核对的比较方案，不证明旧 provider、callback grammar 或性能数值仍适用；在 public helper、current guards 与新的同层测量基线重新审阅前，不执行实验或采用路径。
+当前恢复条件：已经交付的公共 learned strategy 重构已替换这里的 private 基线，当前长期边界见[公共 learned strategy Decision](../../docs/decisions/provide-learned-admission-through-public-strategy.md)。本文保留待重新核对的比较方案，不证明旧 provider、callback grammar 或性能数值仍适用；在 public helper、current guards 与新的同层测量基线重新审阅前，不执行实验或采用路径。
 
 ## Context
 

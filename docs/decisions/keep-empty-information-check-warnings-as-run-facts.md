@@ -1,5 +1,6 @@
 ---
 title: 将空 information Check warning 保持为 Run facts
+id: 260821-keep-empty-information-check-warnings-as-run-facts
 status: active
 alignment: aligned
 createdAt: 2026-08-21T16:10:24Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: allow-empty-information-checks-with-warning.md
+    target: 260817-allow-empty-information-checks-with-warning
 ---
 
 ## 目的

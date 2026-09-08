@@ -1,5 +1,6 @@
 ---
 title: 在 Change 中区分主要问题与衍生问题
+id: 260822-distinguish-primary-and-derived-change-problems
 status: archived
 alignment: aligned
 createdAt: 2026-08-22T07:41:22Z

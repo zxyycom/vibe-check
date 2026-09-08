@@ -1,5 +1,6 @@
 ---
 title: 在产品自有 analyzer 中私有采用指定 Lizard 扩展
+id: 260903-adopt-selected-lizard-extensions-in-product-owned-analyzer
 status: active
 alignment: aligned
 createdAt: 2026-09-03T14:38:08Z
@@ -13,7 +14,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: replace-lizard-runtime-with-product-owned-typescript-analyzers.md
+    target: 260902-replace-lizard-runtime-with-product-owned-typescript-analyzers
 ---
 
 ## 目的

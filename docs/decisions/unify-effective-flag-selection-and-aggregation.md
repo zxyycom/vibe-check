@@ -1,5 +1,6 @@
 ---
 title: 统一 flag 有效选择、依赖启动与 aggregation
+id: 260904-unify-effective-flag-selection-and-aggregation
 status: active
 alignment: aligned
 createdAt: 2026-09-04T08:38:14Z
@@ -13,11 +14,11 @@ tags:
   - workflow-policy
 relations:
   - type: 归并
-    target: treat-flag-control-settlements-as-scheduler-results.md
+    target: 260902-treat-flag-control-settlements-as-scheduler-results
   - type: 归并
-    target: use-explicit-run-controls-check-aggregation.md
+    target: 260821-use-explicit-run-controls-check-aggregation
   - type: 归并
-    target: group-flag-disabled-checks-in-progress.md
+    target: 260901-group-flag-disabled-checks-in-progress
 ---
 
 ## 目的

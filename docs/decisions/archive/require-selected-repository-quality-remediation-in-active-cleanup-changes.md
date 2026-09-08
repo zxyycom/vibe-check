@@ -1,5 +1,6 @@
 ---
 title: 将活动质量清理中的已选记录作为必需修复
+id: 260904-require-selected-repository-quality-remediation-in-active-cleanup-changes
 status: archived
 alignment: aligned
 createdAt: 2026-09-04T15:20:40Z

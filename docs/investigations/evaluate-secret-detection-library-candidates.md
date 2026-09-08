@@ -1,5 +1,6 @@
 ---
 title: "显式文件范围 Secret Detection 库候选评估"
+id: "260903-evaluate-secret-detection-library-candidates"
 formedAt: "2026-09-03T11:10:08+00:00"
 question: "哪个现成 detector 能在 Bun-hosted 随包 Check 中只处理显式声明文件，并在不传播 raw secret 或其派生值的前提下支持可审计的高置信检测？"
 tags:

@@ -1,5 +1,6 @@
 ---
 title: "Lizard analyzer 宿主加速候选调查"
+id: "260903-survey-lizard-host-acceleration-candidates"
 formedAt: "2026-09-03T09:38:29+00:00"
 question: "在 source alignment 约束可观察 Lizard analyzer 语义、而非 JavaScript 原语的前提下，哪些 regex/lexer 与其它宿主实现候选值得继续验证；它们在 27-reader 覆盖、Bun Worker、打包和性能证据上分别处于什么状态？"
 tags:
@@ -11,7 +12,7 @@ tags:
   - "typescript"
 relations:
   - type: "补充"
-    target: "diagnose-lizard-real-typescript-analyzer-hot-path.md"
+    target: "260903-diagnose-lizard-real-typescript-analyzer-hot-path"
 ---
 
 ## 形成时背景
@@ -125,7 +126,7 @@ relations:
 
 ## 随附资源
 
-- [candidate package/API probes](./_resources/survey-lizard-host-acceleration-candidates/candidate-probes.json)
-- [Oniguruma compile inventory](./_resources/survey-lizard-host-acceleration-candidates/oniguruma-compile-inventory.json)
-- [Oniguruma real-TypeScript raw-scan probe](./_resources/survey-lizard-host-acceleration-candidates/oniguruma-real-typescript-raw-scan.json)
-- [regex feature inventory](./_resources/survey-lizard-host-acceleration-candidates/regex-feature-inventory.json)
+- [candidate package/API probes](./_resources/260903-survey-lizard-host-acceleration-candidates/candidate-probes.json)
+- [Oniguruma compile inventory](./_resources/260903-survey-lizard-host-acceleration-candidates/oniguruma-compile-inventory.json)
+- [Oniguruma real-TypeScript raw-scan probe](./_resources/260903-survey-lizard-host-acceleration-candidates/oniguruma-real-typescript-raw-scan.json)
+- [regex feature inventory](./_resources/260903-survey-lizard-host-acceleration-candidates/regex-feature-inventory.json)

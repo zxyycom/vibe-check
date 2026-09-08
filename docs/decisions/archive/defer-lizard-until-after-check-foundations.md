@@ -1,5 +1,6 @@
 ---
 title: 将 Lizard 统一后置于 Check 产品基础
+id: 260805-defer-lizard-until-after-check-foundations
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T11:15:25Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: defer-lizard-until-after-semantic-config-workflow.md
+    target: 260803-defer-lizard-until-after-semantic-config-workflow
 ---
 
 ## 目的

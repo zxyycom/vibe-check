@@ -1,5 +1,6 @@
 ---
 title: 让文件指标区域拥有文件范围与行数策略
+id: 260828-let-file-metrics-areas-own-files-and-thresholds
 status: active
 alignment: aligned
 createdAt: 2026-08-28T06:39:31Z

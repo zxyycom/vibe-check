@@ -1,5 +1,6 @@
 ---
 title: 使用决策驱动的 Change Plan 并完整归档 OpenSpec
+id: 260811-use-decision-led-change-plans-and-archive-openspec
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T02:50:06Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: match-change-detail-to-current-phase.md
+    target: 260806-match-change-detail-to-current-phase
 ---
 
 ## 目的

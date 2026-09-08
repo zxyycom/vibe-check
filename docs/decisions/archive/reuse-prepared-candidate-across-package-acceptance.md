@@ -1,5 +1,6 @@
 ---
 title: 在 package acceptance 间复用已准备 candidate
+id: 260827-reuse-prepared-candidate-across-package-acceptance
 status: archived
 alignment: aligned
 createdAt: 2026-08-27T00:41:37Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: provide-prepared-package-candidate-as-typed-check-data.md
+    target: 260826-provide-prepared-package-candidate-as-typed-check-data
 ---
 
 ## 目的

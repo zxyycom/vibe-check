@@ -1,5 +1,6 @@
 ---
 title: 从显式来源选择 Check 文件
+id: 260828-select-check-files-from-explicit-sources
 status: active
 alignment: aligned
 createdAt: 2026-08-28T11:14:37Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: let-each-check-own-file-selection.md
+    target: 260826-let-each-check-own-file-selection
 ---
 
 ## 目的

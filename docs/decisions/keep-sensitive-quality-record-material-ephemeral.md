@@ -1,5 +1,6 @@
 ---
 title: 让 supplemental Record 的敏感源材料保持临时
+id: 260805-keep-sensitive-quality-record-material-ephemeral
 status: active
 alignment: unaligned
 createdAt: 2026-08-05T11:15:26Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: keep-sensitive-scan-material-ephemeral.md
+    target: 260804-keep-sensitive-scan-material-ephemeral
 ---
 
 ## 目的

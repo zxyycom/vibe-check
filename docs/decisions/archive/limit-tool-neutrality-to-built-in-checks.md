@@ -1,5 +1,6 @@
 ---
 title: 将工具中立约束限定于 Product-provided Check 配置
+id: 260805-limit-tool-neutrality-to-built-in-checks
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: keep-public-config-tool-neutral.md
+    target: 260803-keep-public-config-tool-neutral
 ---
 
 ## 目的

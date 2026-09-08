@@ -1,5 +1,6 @@
 ---
 title: "SCC 与 jscpd 升级就绪性评估"
+id: "260901-assess-scc-and-jscpd-upgrade-readiness"
 formedAt: "2026-09-01T06:25:22+00:00"
 question: "相对 Vibe Check 当前锁定的 SCC 3.7.0 与 jscpd 5.0.11，官方最新稳定版分别改变了什么；现有 adapter、finding/measurement contract、安装、candidate 与 Project Gate 是否适合升级？"
 tags:

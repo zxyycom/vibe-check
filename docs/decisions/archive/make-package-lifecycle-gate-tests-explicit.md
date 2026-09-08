@@ -1,5 +1,6 @@
 ---
 title: 让高成本 package lifecycle Gate 测试显式启用
+id: 260826-make-package-lifecycle-gate-tests-explicit
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T16:55:30Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: default-project-gate-to-required-profile.md
+    target: 260823-default-project-gate-to-required-profile
 ---
 
 ## 目的

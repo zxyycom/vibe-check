@@ -1,5 +1,6 @@
 ---
 title: 将 Scheduler 性能测量交给 invocation-local Hook
+id: 260902-expose-invocation-local-scheduler-measurement-hooks
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T01:22:44Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: extend-invocation-local-scheduler-performance-summary.md
+    target: 260902-extend-invocation-local-scheduler-performance-summary
 ---
 
 ## 目的

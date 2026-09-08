@@ -1,5 +1,6 @@
 ---
 title: 将随包提供的 Check 保持为普通 Check
+id: 260826-treat-package-provided-checks-as-ordinary
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T02:26:57Z

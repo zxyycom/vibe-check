@@ -1,5 +1,6 @@
 ---
 title: 对预正式 machine contract 执行单版本硬切
+id: 260815-hard-cut-prestable-machine-contracts
 status: active
 alignment: aligned
 createdAt: 2026-08-15T03:47:14Z

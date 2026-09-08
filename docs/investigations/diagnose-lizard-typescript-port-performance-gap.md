@@ -1,5 +1,6 @@
 ---
 title: "TypeScript Lizard port 性能差距根因"
+id: "260903-diagnose-lizard-typescript-port-performance-gap"
 formedAt: "2026-09-03T06:22:29Z"
 question: "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？"
 tags:
@@ -10,7 +11,7 @@ tags:
   - "source-alignment"
 relations:
   - type: "补充"
-    target: "compare-lizard-python-typescript-performance.md"
+    target: "260903-compare-lizard-python-typescript-performance"
 ---
 
 ## 形成时背景
@@ -126,22 +127,22 @@ TypeScript profile 也把 shared tokenizer regex、native `regExpExec`、Fortran
 
 ## 随附资源
 
-- [façade suffix-index ABBA 探索证据](./_resources/diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-abba.json)
-- [façade suffix-index 实验源码](./_resources/diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-experiment.ts)
-- [Python full warmed regex cache 观测](./_resources/diagnose-lizard-typescript-port-performance-gap/python-full-warm-cache.json)
-- [Python profile 环境与观测](./_resources/diagnose-lizard-typescript-port-performance-gap/python-profile-observations.json)
-- [Python reader dispatch microbenchmark](./_resources/diagnose-lizard-typescript-port-performance-gap/python-reader-selection-microbenchmark.jsonl)
-- [Python runtime native module probe](./_resources/diagnose-lizard-typescript-port-performance-gap/python-runtime-native-probe.json)
-- [Python selected cProfile stats](./_resources/diagnose-lizard-typescript-port-performance-gap/python-selected-profile-stats.txt)
-- [Python upstream reader selection 与 cache raw 观测](./_resources/diagnose-lizard-typescript-port-performance-gap/python-selection.json)
-- [27 reader-family median 排序证据](./_resources/diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json)
-- [TypeScript reader dispatch microbenchmark](./_resources/diagnose-lizard-typescript-port-performance-gap/reader-selection-microbenchmark.jsonl)
-- [runtime control Bun 结果](./_resources/diagnose-lizard-typescript-port-performance-gap/runtime-control-bun.json)
-- [runtime control entry](./_resources/diagnose-lizard-typescript-port-performance-gap/runtime-control-entry.ts)
-- [runtime control 方法与版本](./_resources/diagnose-lizard-typescript-port-performance-gap/runtime-control-method.md)
-- [runtime control Node 24 结果](./_resources/diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json)
-- [TypeScript Bun CPU profile](./_resources/diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.md)
-- [TypeScript dispatch 反事实证据](./_resources/diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json)
-- [TypeScript RegExp construction raw 观测](./_resources/diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json)
-- [TypeScript upstream reader selection raw 观测](./_resources/diagnose-lizard-typescript-port-performance-gap/typescript-selection.json)
-- [TypeScript stage profile](./_resources/diagnose-lizard-typescript-port-performance-gap/typescript-stage-profile.json)
+- [façade suffix-index ABBA 探索证据](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-abba.json)
+- [façade suffix-index 实验源码](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-experiment.ts)
+- [Python full warmed regex cache 观测](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-full-warm-cache.json)
+- [Python profile 环境与观测](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-profile-observations.json)
+- [Python reader dispatch microbenchmark](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-reader-selection-microbenchmark.jsonl)
+- [Python runtime native module probe](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-runtime-native-probe.json)
+- [Python selected cProfile stats](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-selected-profile-stats.txt)
+- [Python upstream reader selection 与 cache raw 观测](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/python-selection.json)
+- [27 reader-family median 排序证据](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json)
+- [TypeScript reader dispatch microbenchmark](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/reader-selection-microbenchmark.jsonl)
+- [runtime control Bun 结果](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-bun.json)
+- [runtime control entry](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-entry.ts)
+- [runtime control 方法与版本](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-method.md)
+- [runtime control Node 24 结果](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json)
+- [TypeScript Bun CPU profile](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.md)
+- [TypeScript dispatch 反事实证据](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json)
+- [TypeScript RegExp construction raw 观测](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json)
+- [TypeScript upstream reader selection raw 观测](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-selection.json)
+- [TypeScript stage profile](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-stage-profile.json)

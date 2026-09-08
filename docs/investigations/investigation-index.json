@@ -1,1495 +1,859 @@
 {
-  "definitionVersion": 6,
+  "definitionVersion": 11,
   "entries": {
-    "analyze-markdown-link-cache-packing.md": {
-      "keys": {
-        "formed-at": [
-          1788423509000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "cache-design",
-          "markdown-link-validation",
-          "performance",
-          "storage-mechanics"
-        ],
-        "text": [
-          "Markdown Link 缓存合并前性能分析",
-          "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T08:18:29+00:00",
-        "question": "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？",
-        "relations": [
-          {
-            "target": "evaluate-markdown-link-serial-io-optimization.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "analyze-markdown-link-cache-packing/README.md",
-          "analyze-markdown-link-cache-packing/benchmark.ts",
-          "analyze-markdown-link-cache-packing/cache-syscall-stage-profile.ts",
-          "analyze-markdown-link-cache-packing/direct-cache-api-profile-results.json",
-          "analyze-markdown-link-cache-packing/direct-cache-api-profile.ts",
-          "analyze-markdown-link-cache-packing/raw-results.json"
-        ],
-        "tags": [
-          "cache-design",
-          "markdown-link-validation",
-          "performance",
-          "storage-mechanics"
-        ],
-        "title": "Markdown Link 缓存合并前性能分析"
-      }
+    "260811-functional-utilities-and-data-structures": {
+      "formedAt": "2026-08-11T07:54:34Z",
+      "name": "functional-utilities-and-data-structures",
+      "question": "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "functional-utilities-and-data-structures.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "采用 Remeda 与 Mnemonist，保留原生集合默认"
     },
-    "assess-admission-state-performance-and-selection-index.md": {
-      "keys": {
-        "formed-at": [
-          1788434108000
-        ],
-        "tag": [
-          "admission-scheduling",
-          "performance",
-          "scheduler",
-          "simulation"
-        ],
-        "text": [
-          "Admission state 性能与单一 selection index 评估",
-          "当前 immutable AdmissionGraph/AdmissionState 的实际性能与复杂度如何，单一 selection index 和逐条件筛选能否成为下一轮优化的核心？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T11:15:08+00:00",
-        "question": "当前 immutable AdmissionGraph/AdmissionState 的实际性能与复杂度如何，单一 selection index 和逐条件筛选能否成为下一轮优化的核心？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "admission-scheduling",
-          "performance",
-          "scheduler",
-          "simulation"
-        ],
-        "title": "Admission state 性能与单一 selection index 评估"
-      }
+    "260811-pattern-matching-and-state-modeling-libraries": {
+      "formedAt": "2026-08-11T07:54:34Z",
+      "name": "pattern-matching-and-state-modeling-libraries",
+      "question": "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "pattern-matching-and-state-modeling-libraries.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "采用 ts-pattern，状态机保持按需调查"
     },
-    "assess-lizard-extension-adoption-value.md": {
-      "keys": {
-        "formed-at": [
-          1788399250000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "metric-policy",
-          "source-alignment",
-          "upstream-release"
-        ],
-        "text": [
-          "Lizard optional extensions 对 Vibe Check 的采用价值评估",
-          "当前被裁切或延期的 Lizard optional extensions 中，哪些有加回 Vibe Check 的意义，哪些不应恢复，以及为什么？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T01:34:10Z",
-        "question": "当前被裁切或延期的 Lizard optional extensions 中，哪些有加回 Vibe Check 的意义，哪些不应恢复，以及为什么？",
-        "relations": [
-          {
-            "target": "assess-lizard-upstream-release-and-branch-delta.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "assess-lizard-extension-adoption-value/lizard-1.23.0-provenance.json"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "metric-policy",
-          "source-alignment",
-          "upstream-release"
-        ],
-        "title": "Lizard optional extensions 对 Vibe Check 的采用价值评估"
-      }
+    "260811-result-and-option-libraries": {
+      "formedAt": "2026-08-11T07:54:34Z",
+      "name": "result-and-option-libraries",
+      "question": "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "result-and-option-libraries.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "采用 neverthrow 与项目自有 Option"
     },
-    "assess-lizard-upstream-release-and-branch-delta.md": {
-      "keys": {
-        "formed-at": [
-          1788397711000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "dependency-upgrades",
-          "function-metrics",
-          "lizard",
-          "release-provenance",
-          "upstream-release"
-        ],
-        "text": [
-          "Lizard 上游正式版本与发布线差异核验",
-          "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T01:08:31Z",
-        "question": "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？",
-        "relations": [
-          {
-            "target": "compare-lizard-and-scc-typescript-port-priority.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "dependency-upgrades",
-          "function-metrics",
-          "lizard",
-          "release-provenance",
-          "upstream-release"
-        ],
-        "title": "Lizard 上游正式版本与发布线差异核验"
-      }
+    "260821-schema-validation-and-static-inference": {
+      "formedAt": "2026-08-21T02:22:26Z",
+      "name": "schema-validation-and-static-inference",
+      "question": "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "schema-validation-and-static-inference.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "Record schema authoring 的框架选择、替代项与互操作边界"
     },
-    "assess-node-26-package-host-readiness.md": {
-      "keys": {
-        "formed-at": [
-          1788700549000
-        ],
-        "tag": [
-          "node",
-          "package-host",
-          "runtime-compatibility"
-        ],
-        "text": [
-          "Node 26 package host 切换准备度评估",
-          "在公开 Product 已由 Node 24.18 consumer baseline 验收、仓库工具仍由 Bun 承载的前提下，Vibe Check 切换或新增 Node 26 package host 验收需要哪些证据、边界与迁移步骤？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-06T13:15:49+00:00",
-        "question": "在公开 Product 已由 Node 24.18 consumer baseline 验收、仓库工具仍由 Bun 承载的前提下，Vibe Check 切换或新增 Node 26 package host 验收需要哪些证据、边界与迁移步骤？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "node",
-          "package-host",
-          "runtime-compatibility"
-        ],
-        "title": "Node 26 package host 切换准备度评估"
-      }
+    "260824-choose-minimal-library-for-strict-json-and-duplicate-keys": {
+      "formedAt": "2026-08-24T13:12:21Z",
+      "name": "choose-minimal-library-for-strict-json-and-duplicate-keys",
+      "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "choose-minimal-library-for-strict-json-and-duplicate-keys.md",
+      "tags": [
+        "implementation-libraries",
+        "json-validation"
+      ],
+      "title": "严格 JSON 与重复 key 的最小库选择"
     },
-    "assess-scc-and-jscpd-upgrade-readiness.md": {
-      "keys": {
-        "formed-at": [
-          1788243922000
-        ],
-        "tag": [
-          "dependency-upgrades",
-          "duplicate-detection",
-          "file-metrics",
-          "jscpd",
-          "scc"
-        ],
-        "text": [
-          "SCC 与 jscpd 升级就绪性评估",
-          "相对 Vibe Check 当前锁定的 SCC 3.7.0 与 jscpd 5.0.11，官方最新稳定版分别改变了什么；现有 adapter、finding/measurement contract、安装、candidate 与 Project Gate 是否适合升级？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-01T06:25:22+00:00",
-        "question": "相对 Vibe Check 当前锁定的 SCC 3.7.0 与 jscpd 5.0.11，官方最新稳定版分别改变了什么；现有 adapter、finding/measurement contract、安装、candidate 与 Project Gate 是否适合升级？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "dependency-upgrades",
-          "duplicate-detection",
-          "file-metrics",
-          "jscpd",
-          "scc"
-        ],
-        "title": "SCC 与 jscpd 升级就绪性评估"
-      }
+    "260824-compare-minimal-json-duplicate-key-candidates": {
+      "formedAt": "2026-08-24T13:59:46Z",
+      "name": "compare-minimal-json-duplicate-key-candidates",
+      "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+      "relations": [
+        {
+          "target": "260824-recheck-json-dependency-and-zero-dependency-path",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "compare-minimal-json-duplicate-key-candidates.md",
+      "tags": [
+        "implementation-libraries",
+        "json-validation"
+      ],
+      "title": "极简候选复核：保留 duplicate-key 时的最小可行面"
     },
-    "audit-project-gate-candidate-lifecycle-process-overhead.md": {
-      "keys": {
-        "formed-at": [
-          1788489940000
-        ],
-        "relation-type": [
-          "复查"
-        ],
-        "tag": [
-          "package-candidate",
-          "performance",
-          "process-overhead",
-          "project-gate"
-        ],
-        "text": [
-          "为何 full Project Gate 的 tests-package-candidate 反复超过 5 秒，以及在保持 root maxParallel=3、20 秒 case/30 秒 lane 硬门禁不变时，怎样以可验证的架构变更使该 Check 稳定低于 5 秒？",
-          "审计 Project Gate candidate lifecycle 的重复物理工作与进程开销"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-04T02:45:40+00:00",
-        "question": "为何 full Project Gate 的 tests-package-candidate 反复超过 5 秒，以及在保持 root maxParallel=3、20 秒 case/30 秒 lane 硬门禁不变时，怎样以可验证的架构变更使该 Check 稳定低于 5 秒？",
-        "relations": [
-          {
-            "target": "correct-project-gate-candidate-timeout-interpretation.md",
-            "type": "复查"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "package-candidate",
-          "performance",
-          "process-overhead",
-          "project-gate"
-        ],
-        "title": "审计 Project Gate candidate lifecycle 的重复物理工作与进程开销"
-      }
+    "260824-confirm-momoa-with-bun-and-candidate-spike": {
+      "formedAt": "2026-08-24T14:28:56Z",
+      "name": "confirm-momoa-with-bun-and-candidate-spike",
+      "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+      "relations": [
+        {
+          "target": "260824-compare-minimal-json-duplicate-key-candidates",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "confirm-momoa-with-bun-and-candidate-spike.md",
+      "tags": [
+        "implementation-libraries",
+        "json-validation"
+      ],
+      "title": "Momoa 选型确认与 Bun/candidate 闭合 spike"
     },
-    "audit-project-gate-function-metrics-check-overhead.md": {
-      "keys": {
-        "formed-at": [
-          1788489986000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "function-metrics",
-          "performance",
-          "project-gate",
-          "test-execution"
-        ],
-        "text": [
-          "Project Gate Function metrics Check 超 5 秒开销审计",
-          "full Project Gate 中的 Bun Product function metrics tests（近期 6.3 秒、曾 8.9 秒）与 direct Function metrics Check（曾 5.3 秒）为什么超过 5 秒；是否存在重复扫描、Worker/child-process 启动或测试矩阵重复执行，以及在不提高 root 并发度、不放宽 timeout 下怎样使每个 Check 的普通负载低于 5 秒？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-04T02:46:26+00:00",
-        "question": "full Project Gate 中的 Bun Product function metrics tests（近期 6.3 秒、曾 8.9 秒）与 direct Function metrics Check（曾 5.3 秒）为什么超过 5 秒；是否存在重复扫描、Worker/child-process 启动或测试矩阵重复执行，以及在不提高 root 并发度、不放宽 timeout 下怎样使每个 Check 的普通负载低于 5 秒？",
-        "relations": [
-          {
-            "target": "compare-lizard-regex-backends-and-analyzer-cost-allocation.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "function-metrics",
-          "performance",
-          "project-gate",
-          "test-execution"
-        ],
-        "title": "Project Gate Function metrics Check 超 5 秒开销审计"
-      }
+    "260824-recheck-json-dependency-and-zero-dependency-path": {
+      "formedAt": "2026-08-24T13:38:49Z",
+      "name": "recheck-json-dependency-and-zero-dependency-path",
+      "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
+      "relations": [
+        {
+          "target": "260824-choose-minimal-library-for-strict-json-and-duplicate-keys",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "recheck-json-dependency-and-zero-dependency-path.md",
+      "tags": [
+        "implementation-libraries",
+        "json-validation"
+      ],
+      "title": "依赖实际加载面与零依赖严格 grammar 路径"
     },
-    "audit-project-gate-validation-and-type-acceptance-overhead.md": {
-      "keys": {
-        "formed-at": [
-          1788490177000
-        ],
-        "tag": [
-          "external-consumer",
-          "performance",
-          "project-gate",
-          "validation"
-        ],
-        "text": [
-          "Project Gate validation 与 external consumer type acceptance 开销审计",
-          "在不运行 full Project Gate 的条件下，Bun validation tooling tests 与 Bun external package consumer type acceptance 的超过 5 秒现象，哪些是 check 自身结构性成本，哪些只能归因于并发/候选生命周期环境；同族 process-backed lanes 是否已有可消除的重复启动？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-04T02:49:37Z",
-        "question": "在不运行 full Project Gate 的条件下，Bun validation tooling tests 与 Bun external package consumer type acceptance 的超过 5 秒现象，哪些是 check 自身结构性成本，哪些只能归因于并发/候选生命周期环境；同族 process-backed lanes 是否已有可消除的重复启动？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "external-consumer",
-          "performance",
-          "project-gate",
-          "validation"
-        ],
-        "title": "Project Gate validation 与 external consumer type acceptance 开销审计"
-      }
+    "260825-markdown-link-validation-library-strategy": {
+      "formedAt": "2026-08-25T02:35:35Z",
+      "name": "markdown-link-validation-library-strategy",
+      "question": "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "markdown-link-validation-library-strategy.md",
+      "tags": [
+        "implementation-libraries"
+      ],
+      "title": "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
     },
-    "choose-minimal-library-for-strict-json-and-duplicate-keys.md": {
-      "keys": {
-        "formed-at": [
-          1787577141000
-        ],
-        "tag": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "text": [
-          "严格 JSON 与重复 key 的最小库选择",
-          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-24T13:12:21Z",
-        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "title": "严格 JSON 与重复 key 的最小库选择"
-      }
+    "260901-assess-scc-and-jscpd-upgrade-readiness": {
+      "formedAt": "2026-09-01T06:25:22+00:00",
+      "name": "assess-scc-and-jscpd-upgrade-readiness",
+      "question": "相对 Vibe Check 当前锁定的 SCC 3.7.0 与 jscpd 5.0.11，官方最新稳定版分别改变了什么；现有 adapter、finding/measurement contract、安装、candidate 与 Project Gate 是否适合升级？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-scc-and-jscpd-upgrade-readiness.md",
+      "tags": [
+        "dependency-upgrades",
+        "duplicate-detection",
+        "file-metrics",
+        "jscpd",
+        "scc"
+      ],
+      "title": "SCC 与 jscpd 升级就绪性评估"
     },
-    "compare-lizard-and-scc-typescript-port-priority.md": {
-      "keys": {
-        "formed-at": [
-          1788241833000
-        ],
-        "tag": [
-          "dependency-policy",
-          "file-metrics",
-          "function-metrics",
-          "scanner-backends",
-          "typescript-migration"
-        ],
-        "text": [
-          "Lizard 与 SCC 的 TypeScript 迁移优先级比较",
-          "在 Vibe Check 当前的产品契约、依赖分发与兼容范围下，Lizard 和 SCC 哪个更值得迁移为 Product-owned TypeScript backend，现有 Lizard Change 是否仍可实施？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-01T05:50:33Z",
-        "question": "在 Vibe Check 当前的产品契约、依赖分发与兼容范围下，Lizard 和 SCC 哪个更值得迁移为 Product-owned TypeScript backend，现有 Lizard Change 是否仍可实施？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "dependency-policy",
-          "file-metrics",
-          "function-metrics",
-          "scanner-backends",
-          "typescript-migration"
-        ],
-        "title": "Lizard 与 SCC 的 TypeScript 迁移优先级比较"
-      }
+    "260901-compare-lizard-and-scc-typescript-port-priority": {
+      "formedAt": "2026-09-01T05:50:33Z",
+      "name": "compare-lizard-and-scc-typescript-port-priority",
+      "question": "在 Vibe Check 当前的产品契约、依赖分发与兼容范围下，Lizard 和 SCC 哪个更值得迁移为 Product-owned TypeScript backend，现有 Lizard Change 是否仍可实施？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "compare-lizard-and-scc-typescript-port-priority.md",
+      "tags": [
+        "dependency-policy",
+        "file-metrics",
+        "function-metrics",
+        "scanner-backends",
+        "typescript-migration"
+      ],
+      "title": "Lizard 与 SCC 的 TypeScript 迁移优先级比较"
     },
-    "compare-lizard-python-typescript-performance.md": {
-      "keys": {
-        "formed-at": [
-          1788414917000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment"
-        ],
-        "text": [
-          "Lizard Python 与 TypeScript analyzer 性能对照",
-          "固定 Lizard 1.24、输出相等和已声明 Linux scope 下的 Python/Lizard、TypeScript port 与 historical Product 性能证据是否授权优化？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T05:55:17Z",
-        "question": "固定 Lizard 1.24、输出相等和已声明 Linux scope 下的 Python/Lizard、TypeScript port 与 historical Product 性能证据是否授权优化？",
-        "relations": [
-          {
-            "target": "compare-lizard-and-scc-typescript-port-priority.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "compare-lizard-python-typescript-performance/a-historical-product-full/evidence.json",
-          "compare-lizard-python-typescript-performance/a-historical-product-full/historical-product-request.json",
-          "compare-lizard-python-typescript-performance/a-historical-product-full/summary.md",
-          "compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/evidence.json",
-          "compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/historical-product-request.json",
-          "compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/summary.md",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/evidence.json",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/representative-batch-request.json",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/summary.md",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/tiny-cold-start-request.json",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/evidence.json",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/summary.md",
-          "compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json",
-          "compare-lizard-python-typescript-performance/c-current-product-full/current-decomposition-request.json",
-          "compare-lizard-python-typescript-performance/c-current-product-full/evidence.json",
-          "compare-lizard-python-typescript-performance/c-current-product-full/summary.md"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment"
-        ],
-        "title": "Lizard Python 与 TypeScript analyzer 性能对照"
-      }
+    "260901-diagnose-bun-cold-project-gate-candidate-import": {
+      "formedAt": "2026-09-01T09:45:33+00:00",
+      "name": "diagnose-bun-cold-project-gate-candidate-import",
+      "question": "为什么全新 worktree 的 environment setup 在成功安装并核对本地 package candidate 后，仍无法从 Project Gate 导入 @zxyycom/vibe-check；将 package:build 纳入 env:setup 能否完整满足项目的自举要求？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "diagnose-bun-cold-project-gate-candidate-import.md",
+      "tags": [
+        "bun",
+        "environment-setup",
+        "module-resolution",
+        "package-candidate",
+        "project-gate"
+      ],
+      "title": "Bun 冷启动下 Project Gate candidate 导入失败调查"
     },
-    "compare-lizard-regex-backends-and-analyzer-cost-allocation.md": {
-      "keys": {
-        "formed-at": [
-          1788434770000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "backend",
-          "function-metrics",
-          "lizard",
-          "performance",
-          "regex",
-          "source-alignment",
-          "typescript",
-          "wasm"
-        ],
-        "text": [
-          "Lizard regex 后端与 analyzer 成本分配对比",
-          "在真实 TypeScript Lizard workload 上，正则/token generation 对 Python 与 TypeScript 性能差距可作何种有边界的比例判断；WASM、npm/native 和 CLI regex 后端分别有什么实际接入成本与继续调查价值？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T11:26:10+00:00",
-        "question": "在真实 TypeScript Lizard workload 上，正则/token generation 对 Python 与 TypeScript 性能差距可作何种有边界的比例判断；WASM、npm/native 和 CLI regex 后端分别有什么实际接入成本与继续调查价值？",
-        "relations": [
-          {
-            "target": "explain-cpython-jsc-lizard-regex-performance-gap.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/evidence.json",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-abba.py",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-driver.ts",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-summary.json",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-abba.py",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-smoke.ts",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-native-probe.mjs",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-onigasm-probe.mjs",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-probe.mjs",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-re2-probe.mjs",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-summary.json",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw-summary.json",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw.ts",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-cost.json",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-probe.ts",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/provenance.json",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/python-stage-breakdown.py",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-abba.py",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-bun.ts",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-python.py",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.json",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.mjs",
-          "compare-lizard-regex-backends-and-analyzer-cost-allocation/typescript-stage-breakdown.ts"
-        ],
-        "tags": [
-          "backend",
-          "function-metrics",
-          "lizard",
-          "performance",
-          "regex",
-          "source-alignment",
-          "typescript",
-          "wasm"
-        ],
-        "title": "Lizard regex 后端与 analyzer 成本分配对比"
-      }
+    "260903-analyze-markdown-link-cache-packing": {
+      "formedAt": "2026-09-03T08:18:29+00:00",
+      "name": "analyze-markdown-link-cache-packing",
+      "question": "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？",
+      "relations": [
+        {
+          "target": "260903-evaluate-markdown-link-serial-io-optimization",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-analyze-markdown-link-cache-packing/README.md",
+        "260903-analyze-markdown-link-cache-packing/benchmark.ts",
+        "260903-analyze-markdown-link-cache-packing/cache-syscall-stage-profile.ts",
+        "260903-analyze-markdown-link-cache-packing/direct-cache-api-profile-results.json",
+        "260903-analyze-markdown-link-cache-packing/direct-cache-api-profile.ts",
+        "260903-analyze-markdown-link-cache-packing/raw-results.json"
+      ],
+      "sourcePath": "analyze-markdown-link-cache-packing.md",
+      "tags": [
+        "cache-design",
+        "markdown-link-validation",
+        "performance",
+        "storage-mechanics"
+      ],
+      "title": "Markdown Link 缓存合并前性能分析"
     },
-    "compare-minimal-json-duplicate-key-candidates.md": {
-      "keys": {
-        "formed-at": [
-          1787579986000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "text": [
-          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
-          "极简候选复核：保留 duplicate-key 时的最小可行面"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-24T13:59:46Z",
-        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
-        "relations": [
-          {
-            "target": "recheck-json-dependency-and-zero-dependency-path.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "title": "极简候选复核：保留 duplicate-key 时的最小可行面"
-      }
+    "260903-assess-admission-state-performance-and-selection-index": {
+      "formedAt": "2026-09-03T11:15:08+00:00",
+      "name": "assess-admission-state-performance-and-selection-index",
+      "question": "当前 immutable AdmissionGraph/AdmissionState 的实际性能与复杂度如何，单一 selection index 和逐条件筛选能否成为下一轮优化的核心？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-admission-state-performance-and-selection-index.md",
+      "tags": [
+        "admission-scheduling",
+        "performance",
+        "scheduler",
+        "simulation"
+      ],
+      "title": "Admission state 性能与单一 selection index 评估"
     },
-    "confirm-momoa-with-bun-and-candidate-spike.md": {
-      "keys": {
-        "formed-at": [
-          1787581736000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "text": [
-          "Momoa 选型确认与 Bun/candidate 闭合 spike",
-          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-24T14:28:56Z",
-        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
-        "relations": [
-          {
-            "target": "compare-minimal-json-duplicate-key-candidates.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "title": "Momoa 选型确认与 Bun/candidate 闭合 spike"
-      }
+    "260903-assess-lizard-extension-adoption-value": {
+      "formedAt": "2026-09-03T01:34:10Z",
+      "name": "assess-lizard-extension-adoption-value",
+      "question": "当前被裁切或延期的 Lizard optional extensions 中，哪些有加回 Vibe Check 的意义，哪些不应恢复，以及为什么？",
+      "relations": [
+        {
+          "target": "260903-assess-lizard-upstream-release-and-branch-delta",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-assess-lizard-extension-adoption-value/lizard-1.23.0-provenance.json"
+      ],
+      "sourcePath": "assess-lizard-extension-adoption-value.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "metric-policy",
+        "source-alignment",
+        "upstream-release"
+      ],
+      "title": "Lizard optional extensions 对 Vibe Check 的采用价值评估"
     },
-    "correct-project-gate-candidate-timeout-interpretation.md": {
-      "keys": {
-        "formed-at": [
-          1788488194000
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "package-candidate",
-          "performance",
-          "project-gate",
-          "test-reliability"
-        ],
-        "text": [
-          "20 秒 candidate case timeout 应如何解释，后续优化是否应改变 Gate 全局并发或改为慢 Check 的局部并发约束？",
-          "修正 Project Gate candidate 超时与并发优化边界"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-04T02:16:34+00:00",
-        "question": "20 秒 candidate case timeout 应如何解释，后续优化是否应改变 Gate 全局并发或改为慢 Check 的局部并发约束？",
-        "relations": [
-          {
-            "target": "diagnose-project-gate-candidate-timeout-under-contention.md",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "package-candidate",
-          "performance",
-          "project-gate",
-          "test-reliability"
-        ],
-        "title": "修正 Project Gate candidate 超时与并发优化边界"
-      }
+    "260903-assess-lizard-upstream-release-and-branch-delta": {
+      "formedAt": "2026-09-03T01:08:31Z",
+      "name": "assess-lizard-upstream-release-and-branch-delta",
+      "question": "截至 2026-09-03，Lizard 相对 Vibe Check 锁定的 1.23.0 的最新正式版本、实质更新、通常发布线及该线 HEAD 相对最新 release tag 的精确提交差分别是什么？",
+      "relations": [
+        {
+          "target": "260901-compare-lizard-and-scc-typescript-port-priority",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "assess-lizard-upstream-release-and-branch-delta.md",
+      "tags": [
+        "dependency-upgrades",
+        "function-metrics",
+        "lizard",
+        "release-provenance",
+        "upstream-release"
+      ],
+      "title": "Lizard 上游正式版本与发布线差异核验"
     },
-    "diagnose-bun-cold-project-gate-candidate-import.md": {
-      "keys": {
-        "formed-at": [
-          1788255933000
-        ],
-        "tag": [
-          "bun",
-          "environment-setup",
-          "module-resolution",
-          "package-candidate",
-          "project-gate"
-        ],
-        "text": [
-          "Bun 冷启动下 Project Gate candidate 导入失败调查",
-          "为什么全新 worktree 的 environment setup 在成功安装并核对本地 package candidate 后，仍无法从 Project Gate 导入 @zxyycom/vibe-check；将 package:build 纳入 env:setup 能否完整满足项目的自举要求？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-01T09:45:33+00:00",
-        "question": "为什么全新 worktree 的 environment setup 在成功安装并核对本地 package candidate 后，仍无法从 Project Gate 导入 @zxyycom/vibe-check；将 package:build 纳入 env:setup 能否完整满足项目的自举要求？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "bun",
-          "environment-setup",
-          "module-resolution",
-          "package-candidate",
-          "project-gate"
-        ],
-        "title": "Bun 冷启动下 Project Gate candidate 导入失败调查"
-      }
+    "260903-compare-lizard-python-typescript-performance": {
+      "formedAt": "2026-09-03T05:55:17Z",
+      "name": "compare-lizard-python-typescript-performance",
+      "question": "固定 Lizard 1.24、输出相等和已声明 Linux scope 下的 Python/Lizard、TypeScript port 与 historical Product 性能证据是否授权优化？",
+      "relations": [
+        {
+          "target": "260901-compare-lizard-and-scc-typescript-port-priority",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-compare-lizard-python-typescript-performance/a-historical-product-full/evidence.json",
+        "260903-compare-lizard-python-typescript-performance/a-historical-product-full/historical-product-request.json",
+        "260903-compare-lizard-python-typescript-performance/a-historical-product-full/summary.md",
+        "260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/evidence.json",
+        "260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/historical-product-request.json",
+        "260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/summary.md",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/evidence.json",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/representative-batch-request.json",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/summary.md",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/tiny-cold-start-request.json",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/evidence.json",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/summary.md",
+        "260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json",
+        "260903-compare-lizard-python-typescript-performance/c-current-product-full/current-decomposition-request.json",
+        "260903-compare-lizard-python-typescript-performance/c-current-product-full/evidence.json",
+        "260903-compare-lizard-python-typescript-performance/c-current-product-full/summary.md"
+      ],
+      "sourcePath": "compare-lizard-python-typescript-performance.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "performance",
+        "source-alignment"
+      ],
+      "title": "Lizard Python 与 TypeScript analyzer 性能对照"
     },
-    "diagnose-lizard-real-typescript-analyzer-hot-path.md": {
-      "keys": {
-        "formed-at": [
-          1788425325000
-        ],
-        "relation-type": [
-          "归并"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "profiling",
-          "source-alignment",
-          "typescript"
-        ],
-        "text": [
-          "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？",
-          "真实 TypeScript Lizard analyzer 慢路径诊断"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T08:48:45+00:00",
-        "question": "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？",
-        "relations": [
-          {
-            "target": "diagnose-lizard-typescript-port-performance-gap.md",
-            "type": "归并"
-          },
-          {
-            "target": "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md",
-            "type": "归并"
-          }
-        ],
-        "resourceIds": [
-          "diagnose-lizard-real-typescript-analyzer-hot-path/provenance.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/python-cprofile-tottime.txt",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-driver.py",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-evidence.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache-driver.py",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-driver.py",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-measurement.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-base-tokenizer.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.md",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-cpu-profile-run.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-counterfactual.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-driver.ts",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-fastpath-count.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-ordered-resolver-counterfactual.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-profile-driver.ts",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-reader-only.jsonl",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction-driver.ts",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-count.json",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-driver.ts",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-timings.jsonl",
-          "diagnose-lizard-real-typescript-analyzer-hot-path/typescript-tokenizer-only.jsonl"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "profiling",
-          "source-alignment",
-          "typescript"
-        ],
-        "title": "真实 TypeScript Lizard analyzer 慢路径诊断"
-      }
+    "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation": {
+      "formedAt": "2026-09-03T11:26:10+00:00",
+      "name": "compare-lizard-regex-backends-and-analyzer-cost-allocation",
+      "question": "在真实 TypeScript Lizard workload 上，正则/token generation 对 Python 与 TypeScript 性能差距可作何种有边界的比例判断；WASM、npm/native 和 CLI regex 后端分别有什么实际接入成本与继续调查价值？",
+      "relations": [
+        {
+          "target": "260903-explain-cpython-jsc-lizard-regex-performance-gap",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/evidence.json",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-abba.py",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-driver.ts",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-summary.json",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-abba.py",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-smoke.ts",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-native-probe.mjs",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-onigasm-probe.mjs",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-probe.mjs",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-re2-probe.mjs",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-summary.json",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw-summary.json",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw.ts",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-cost.json",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-probe.ts",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/provenance.json",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/python-stage-breakdown.py",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-abba.py",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-bun.ts",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-python.py",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.json",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.mjs",
+        "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/typescript-stage-breakdown.ts"
+      ],
+      "sourcePath": "compare-lizard-regex-backends-and-analyzer-cost-allocation.md",
+      "tags": [
+        "backend",
+        "function-metrics",
+        "lizard",
+        "performance",
+        "regex",
+        "source-alignment",
+        "typescript",
+        "wasm"
+      ],
+      "title": "Lizard regex 后端与 analyzer 成本分配对比"
     },
-    "diagnose-lizard-typescript-port-performance-gap.md": {
-      "keys": {
-        "formed-at": [
-          1788416549000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "profiling",
-          "source-alignment"
-        ],
-        "text": [
-          "TypeScript Lizard port 性能差距根因",
-          "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T06:22:29Z",
-        "question": "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？",
-        "relations": [
-          {
-            "target": "compare-lizard-python-typescript-performance.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-abba.json",
-          "diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-experiment.ts",
-          "diagnose-lizard-typescript-port-performance-gap/python-full-warm-cache.json",
-          "diagnose-lizard-typescript-port-performance-gap/python-profile-observations.json",
-          "diagnose-lizard-typescript-port-performance-gap/python-reader-selection-microbenchmark.jsonl",
-          "diagnose-lizard-typescript-port-performance-gap/python-runtime-native-probe.json",
-          "diagnose-lizard-typescript-port-performance-gap/python-selected-profile-stats.txt",
-          "diagnose-lizard-typescript-port-performance-gap/python-selection.json",
-          "diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json",
-          "diagnose-lizard-typescript-port-performance-gap/reader-selection-microbenchmark.jsonl",
-          "diagnose-lizard-typescript-port-performance-gap/runtime-control-bun.json",
-          "diagnose-lizard-typescript-port-performance-gap/runtime-control-entry.ts",
-          "diagnose-lizard-typescript-port-performance-gap/runtime-control-method.md",
-          "diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json",
-          "diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.md",
-          "diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json",
-          "diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json",
-          "diagnose-lizard-typescript-port-performance-gap/typescript-selection.json",
-          "diagnose-lizard-typescript-port-performance-gap/typescript-stage-profile.json"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "profiling",
-          "source-alignment"
-        ],
-        "title": "TypeScript Lizard port 性能差距根因"
-      }
+    "260903-diagnose-lizard-real-typescript-analyzer-hot-path": {
+      "formedAt": "2026-09-03T08:48:45+00:00",
+      "name": "diagnose-lizard-real-typescript-analyzer-hot-path",
+      "question": "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？",
+      "relations": [
+        {
+          "target": "260903-diagnose-lizard-typescript-port-performance-gap",
+          "type": "归并"
+        },
+        {
+          "target": "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance",
+          "type": "归并"
+        }
+      ],
+      "resourceIds": [
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/provenance.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-cprofile-tottime.txt",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-driver.py",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-evidence.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache-driver.py",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-driver.py",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-measurement.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-base-tokenizer.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.md",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-cpu-profile-run.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-counterfactual.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-driver.ts",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-fastpath-count.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-ordered-resolver-counterfactual.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-profile-driver.ts",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-reader-only.jsonl",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction-driver.ts",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-count.json",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-driver.ts",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-timings.jsonl",
+        "260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-tokenizer-only.jsonl"
+      ],
+      "sourcePath": "diagnose-lizard-real-typescript-analyzer-hot-path.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "performance",
+        "profiling",
+        "source-alignment",
+        "typescript"
+      ],
+      "title": "真实 TypeScript Lizard analyzer 慢路径诊断"
     },
-    "diagnose-project-gate-candidate-timeout-under-contention.md": {
-      "keys": {
-        "formed-at": [
-          1788487792000
-        ],
-        "tag": [
-          "package-candidate",
-          "performance",
-          "project-gate",
-          "test-reliability"
-        ],
-        "text": [
-          "Project Gate candidate lifecycle 竞争超时与假失败诊断",
-          "为什么同一 full Project Gate workload 的 package candidate lifecycle 会在 13.9–22.5 秒间波动并曾触发 20 秒 case timeout；当前证据支持优先优化什么？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-04T02:09:52+00:00",
-        "question": "为什么同一 full Project Gate workload 的 package candidate lifecycle 会在 13.9–22.5 秒间波动并曾触发 20 秒 case timeout；当前证据支持优先优化什么？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "package-candidate",
-          "performance",
-          "project-gate",
-          "test-reliability"
-        ],
-        "title": "Project Gate candidate lifecycle 竞争超时与假失败诊断"
-      }
+    "260903-diagnose-lizard-typescript-port-performance-gap": {
+      "formedAt": "2026-09-03T06:22:29Z",
+      "name": "diagnose-lizard-typescript-port-performance-gap",
+      "question": "固定 Lizard 1.24 representative batch 中 TypeScript port 较慢是否由解码或 Python 原生依赖导致，应优先在哪一层继续优化？",
+      "relations": [
+        {
+          "target": "260903-compare-lizard-python-typescript-performance",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-abba.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/facade-suffix-index-experiment.ts",
+        "260903-diagnose-lizard-typescript-port-performance-gap/python-full-warm-cache.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/python-profile-observations.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/python-reader-selection-microbenchmark.jsonl",
+        "260903-diagnose-lizard-typescript-port-performance-gap/python-runtime-native-probe.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/python-selected-profile-stats.txt",
+        "260903-diagnose-lizard-typescript-port-performance-gap/python-selection.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/reader-family-medians.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/reader-selection-microbenchmark.jsonl",
+        "260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-bun.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-entry.ts",
+        "260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-method.md",
+        "260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.md",
+        "260903-diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/typescript-selection.json",
+        "260903-diagnose-lizard-typescript-port-performance-gap/typescript-stage-profile.json"
+      ],
+      "sourcePath": "diagnose-lizard-typescript-port-performance-gap.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "performance",
+        "profiling",
+        "source-alignment"
+      ],
+      "title": "TypeScript Lizard port 性能差距根因"
     },
-    "evaluate-markdown-link-serial-io-optimization.md": {
-      "keys": {
-        "formed-at": [
-          1788420423000
-        ],
-        "relation-type": [
-          "复查"
-        ],
-        "tag": [
-          "markdown-link-validation",
-          "performance",
-          "serial-io"
-        ],
-        "text": [
-          "Markdown Link 严格串行 I/O 优化复查",
-          "在相同 1,000 source / 160 target 严格串行 workload 中，最终的 Markdown Link parse-facts cache 优化相对 cfe715d 基线实际改变了什么；是否通过 cold gate，并保持了哪些语义边界？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T07:27:03+00:00",
-        "question": "在相同 1,000 source / 160 target 严格串行 workload 中，最终的 Markdown Link parse-facts cache 优化相对 cfe715d 基线实际改变了什么；是否通过 cold gate，并保持了哪些语义边界？",
-        "relations": [
-          {
-            "target": "measure-markdown-link-serial-cache-overhead.md",
-            "type": "复查"
-          }
-        ],
-        "resourceIds": [
-          "evaluate-markdown-link-serial-io-optimization/after-final-hit-utf8.json",
-          "evaluate-markdown-link-serial-io-optimization/before-old-cfe715d.json",
-          "evaluate-markdown-link-serial-io-optimization/candidate.patch"
-        ],
-        "tags": [
-          "markdown-link-validation",
-          "performance",
-          "serial-io"
-        ],
-        "title": "Markdown Link 严格串行 I/O 优化复查"
-      }
+    "260903-evaluate-markdown-link-serial-io-optimization": {
+      "formedAt": "2026-09-03T07:27:03+00:00",
+      "name": "evaluate-markdown-link-serial-io-optimization",
+      "question": "在相同 1,000 source / 160 target 严格串行 workload 中，最终的 Markdown Link parse-facts cache 优化相对 cfe715d 基线实际改变了什么；是否通过 cold gate，并保持了哪些语义边界？",
+      "relations": [
+        {
+          "target": "260903-measure-markdown-link-serial-cache-overhead",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "260903-evaluate-markdown-link-serial-io-optimization/after-final-hit-utf8.json",
+        "260903-evaluate-markdown-link-serial-io-optimization/before-old-cfe715d.json",
+        "260903-evaluate-markdown-link-serial-io-optimization/candidate.patch"
+      ],
+      "sourcePath": "evaluate-markdown-link-serial-io-optimization.md",
+      "tags": [
+        "markdown-link-validation",
+        "performance",
+        "serial-io"
+      ],
+      "title": "Markdown Link 严格串行 I/O 优化复查"
     },
-    "evaluate-persistent-data-structure-libraries-for-admission-core.md": {
-      "keys": {
-        "formed-at": [
-          1788443578000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "admission-scheduling",
-          "implementation-libraries",
-          "performance",
-          "persistent-data-structures"
-        ],
-        "text": [
-          "Admission core 持久数据结构库评估",
-          "在 optimize-admission-core-selection-index 的 immutable admission state 中，成熟库能否替代 persistent indexed vector、max-priority frontier 与密集 reverse-index/counter，且是否值得进入 Vibe Check 的 public runtime candidate？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T13:52:58Z",
-        "question": "在 optimize-admission-core-selection-index 的 immutable admission state 中，成熟库能否替代 persistent indexed vector、max-priority frontier 与密集 reverse-index/counter，且是否值得进入 Vibe Check 的 public runtime candidate？",
-        "relations": [
-          {
-            "target": "functional-utilities-and-data-structures.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json",
-          "evaluate-persistent-data-structure-libraries-for-admission-core/spike-reproduction.md",
-          "evaluate-persistent-data-structure-libraries-for-admission-core/spike.ts",
-          "evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json"
-        ],
-        "tags": [
-          "admission-scheduling",
-          "implementation-libraries",
-          "performance",
-          "persistent-data-structures"
-        ],
-        "title": "Admission core 持久数据结构库评估"
-      }
+    "260903-evaluate-persistent-data-structure-libraries-for-admission-core": {
+      "formedAt": "2026-09-03T13:52:58Z",
+      "name": "evaluate-persistent-data-structure-libraries-for-admission-core",
+      "question": "在 optimize-admission-core-selection-index 的 immutable admission state 中，成熟库能否替代 persistent indexed vector、max-priority frontier 与密集 reverse-index/counter，且是否值得进入 Vibe Check 的 public runtime candidate？",
+      "relations": [
+        {
+          "target": "260811-functional-utilities-and-data-structures",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json",
+        "260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike-reproduction.md",
+        "260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike.ts",
+        "260903-evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json"
+      ],
+      "sourcePath": "evaluate-persistent-data-structure-libraries-for-admission-core.md",
+      "tags": [
+        "admission-scheduling",
+        "implementation-libraries",
+        "performance",
+        "persistent-data-structures"
+      ],
+      "title": "Admission core 持久数据结构库评估"
     },
-    "evaluate-secret-detection-library-candidates.md": {
-      "keys": {
-        "formed-at": [
-          1788433808000
-        ],
-        "tag": [
-          "bun",
-          "implementation-libraries",
-          "secret-detection",
-          "security"
-        ],
-        "text": [
-          "哪个现成 detector 能在 Bun-hosted 随包 Check 中只处理显式声明文件，并在不传播 raw secret 或其派生值的前提下支持可审计的高置信检测？",
-          "显式文件范围 Secret Detection 库候选评估"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T11:10:08+00:00",
-        "question": "哪个现成 detector 能在 Bun-hosted 随包 Check 中只处理显式声明文件，并在不传播 raw secret 或其派生值的前提下支持可审计的高置信检测？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "bun",
-          "implementation-libraries",
-          "secret-detection",
-          "security"
-        ],
-        "title": "显式文件范围 Secret Detection 库候选评估"
-      }
+    "260903-evaluate-secret-detection-library-candidates": {
+      "formedAt": "2026-09-03T11:10:08+00:00",
+      "name": "evaluate-secret-detection-library-candidates",
+      "question": "哪个现成 detector 能在 Bun-hosted 随包 Check 中只处理显式声明文件，并在不传播 raw secret 或其派生值的前提下支持可审计的高置信检测？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "evaluate-secret-detection-library-candidates.md",
+      "tags": [
+        "bun",
+        "implementation-libraries",
+        "secret-detection",
+        "security"
+      ],
+      "title": "显式文件范围 Secret Detection 库候选评估"
     },
-    "explain-cpython-jsc-lizard-regex-performance-gap.md": {
-      "keys": {
-        "formed-at": [
-          1788428703000
-        ],
-        "relation-type": [
-          "归并"
-        ],
-        "tag": [
-          "cpython",
-          "function-metrics",
-          "javascriptcore",
-          "lizard",
-          "performance",
-          "regex",
-          "source-alignment",
-          "typescript"
-        ],
-        "text": [
-          "CPython 与 JavaScriptCore 执行 Lizard tokenizer 正则的性能差距解释",
-          "在真实 TypeScript source 产生相同 raw token 与 UTF-16 offset 的前提下，为什么 upstream Python Lizard 的正则扫描明显快于 Bun 上的 TypeScript port，当前证据能把原因定位到哪一层？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T09:45:03+00:00",
-        "question": "在真实 TypeScript source 产生相同 raw token 与 UTF-16 offset 的前提下，为什么 upstream Python Lizard 的正则扫描明显快于 Bun 上的 TypeScript port，当前证据能把原因定位到哪一层？",
-        "relations": [
-          {
-            "target": "diagnose-lizard-real-typescript-analyzer-hot-path.md",
-            "type": "归并"
-          },
-          {
-            "target": "survey-lizard-host-acceleration-candidates.md",
-            "type": "归并"
-          }
-        ],
-        "resourceIds": [
-          "explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-ablation.ts",
-          "explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-output-guards.ts",
-          "explain-cpython-jsc-lizard-regex-performance-gap/bun-generic-stage-control.ts",
-          "explain-cpython-jsc-lizard-regex-performance-gap/bun-raw-reuse.ts",
-          "explain-cpython-jsc-lizard-regex-performance-gap/bun-symmetric-raw.ts",
-          "explain-cpython-jsc-lizard-regex-performance-gap/bun-synthetic-controls.ts",
-          "explain-cpython-jsc-lizard-regex-performance-gap/evidence.json",
-          "explain-cpython-jsc-lizard-regex-performance-gap/provenance.json",
-          "explain-cpython-jsc-lizard-regex-performance-gap/python-feature-ablation.py",
-          "explain-cpython-jsc-lizard-regex-performance-gap/python-generic-stage-control.py",
-          "explain-cpython-jsc-lizard-regex-performance-gap/python-raw.py",
-          "explain-cpython-jsc-lizard-regex-performance-gap/python-symmetric-raw.py",
-          "explain-cpython-jsc-lizard-regex-performance-gap/typescript-token-pattern.json"
-        ],
-        "tags": [
-          "cpython",
-          "function-metrics",
-          "javascriptcore",
-          "lizard",
-          "performance",
-          "regex",
-          "source-alignment",
-          "typescript"
-        ],
-        "title": "CPython 与 JavaScriptCore 执行 Lizard tokenizer 正则的性能差距解释"
-      }
+    "260903-explain-cpython-jsc-lizard-regex-performance-gap": {
+      "formedAt": "2026-09-03T09:45:03+00:00",
+      "name": "explain-cpython-jsc-lizard-regex-performance-gap",
+      "question": "在真实 TypeScript source 产生相同 raw token 与 UTF-16 offset 的前提下，为什么 upstream Python Lizard 的正则扫描明显快于 Bun 上的 TypeScript port，当前证据能把原因定位到哪一层？",
+      "relations": [
+        {
+          "target": "260903-diagnose-lizard-real-typescript-analyzer-hot-path",
+          "type": "归并"
+        },
+        {
+          "target": "260903-survey-lizard-host-acceleration-candidates",
+          "type": "归并"
+        }
+      ],
+      "resourceIds": [
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-ablation.ts",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-output-guards.ts",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-generic-stage-control.ts",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-raw-reuse.ts",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-symmetric-raw.ts",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-synthetic-controls.ts",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/evidence.json",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/provenance.json",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/python-feature-ablation.py",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/python-generic-stage-control.py",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/python-raw.py",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/python-symmetric-raw.py",
+        "260903-explain-cpython-jsc-lizard-regex-performance-gap/typescript-token-pattern.json"
+      ],
+      "sourcePath": "explain-cpython-jsc-lizard-regex-performance-gap.md",
+      "tags": [
+        "cpython",
+        "function-metrics",
+        "javascriptcore",
+        "lizard",
+        "performance",
+        "regex",
+        "source-alignment",
+        "typescript"
+      ],
+      "title": "CPython 与 JavaScriptCore 执行 Lizard tokenizer 正则的性能差距解释"
     },
-    "functional-utilities-and-data-structures.md": {
-      "keys": {
-        "formed-at": [
-          1786434874000
-        ],
-        "tag": [
-          "implementation-libraries"
-        ],
-        "text": [
-          "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？",
-          "采用 Remeda 与 Mnemonist，保留原生集合默认"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-11T07:54:34Z",
-        "question": "Vibe Check 应预置哪些函数式数据转换与专用数据结构能力，才能减少重复实现而不引入重叠代码风格？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "采用 Remeda 与 Mnemonist，保留原生集合默认"
-      }
+    "260903-investigate-fortran-lizard-performance-hotspot": {
+      "formedAt": "2026-09-03T07:59:46Z",
+      "name": "investigate-fortran-lizard-performance-hotspot",
+      "question": "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？",
+      "relations": [
+        {
+          "target": "260903-diagnose-lizard-typescript-port-performance-gap",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-investigate-fortran-lizard-performance-hotspot/fortran-family-evidence.json"
+      ],
+      "sourcePath": "investigate-fortran-lizard-performance-hotspot.md",
+      "tags": [
+        "fortran",
+        "function-metrics",
+        "lizard",
+        "performance",
+        "source-alignment"
+      ],
+      "title": "固定 Lizard 1.24 Fortran 语料性能热点轻量复核"
     },
-    "investigate-fortran-lizard-performance-hotspot.md": {
-      "keys": {
-        "formed-at": [
-          1788422386000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "fortran",
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment"
-        ],
-        "text": [
-          "固定 Lizard 1.24 Fortran 语料性能热点轻量复核",
-          "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T07:59:46Z",
-        "question": "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？",
-        "relations": [
-          {
-            "target": "diagnose-lizard-typescript-port-performance-gap.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "investigate-fortran-lizard-performance-hotspot/fortran-family-evidence.json"
-        ],
-        "tags": [
-          "fortran",
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment"
-        ],
-        "title": "固定 Lizard 1.24 Fortran 语料性能热点轻量复核"
-      }
+    "260903-measure-markdown-link-serial-cache-overhead": {
+      "formedAt": "2026-09-03T06:55:56+00:00",
+      "name": "measure-markdown-link-serial-cache-overhead",
+      "question": "在不跳过 source bytes 且 source I/O 严格串行的 Markdown Link validation 中，当前 explicit parse-facts cache 的可复现基线是什么；哪些低风险解释与实施边界应由后续 before/after 证据检验？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "measure-markdown-link-serial-cache-overhead.md",
+      "tags": [
+        "markdown-link-validation",
+        "performance",
+        "serial-io"
+      ],
+      "title": "Markdown Link 严格串行 cache 开销测量"
     },
-    "markdown-link-validation-library-strategy.md": {
-      "keys": {
-        "formed-at": [
-          1787625335000
-        ],
-        "tag": [
-          "implementation-libraries"
-        ],
-        "text": [
-          "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？",
-          "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-25T02:35:35Z",
-        "question": "Vibe Check 的离线 Markdown Link Validation 应采用何种第三方库策略，能否在既定本机目标、安全、范围与 GitHub-priority anchor 边界内以可控难度实施？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "离线 Link Check 的 parser、slug 与完整 validator 候选比较"
-      }
+    "260903-remeasure-function-metrics-product-reader-fast-path": {
+      "formedAt": "2026-09-03T08:10:08Z",
+      "name": "remeasure-function-metrics-product-reader-fast-path",
+      "question": "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
+      "relations": [
+        {
+          "target": "260903-verify-lizard-reader-resolution-fast-path",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "260903-remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json",
+        "260903-remeasure-function-metrics-product-reader-fast-path/evidence.json",
+        "260903-remeasure-function-metrics-product-reader-fast-path/product-driver.ts",
+        "260903-remeasure-function-metrics-product-reader-fast-path/run-benchmark.py",
+        "260903-remeasure-function-metrics-product-reader-fast-path/summary.json"
+      ],
+      "sourcePath": "remeasure-function-metrics-product-reader-fast-path.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "performance",
+        "product-runtime",
+        "verification"
+      ],
+      "title": "复测 reader fast path 的完整 functionMetrics Product 路径"
     },
-    "measure-markdown-link-serial-cache-overhead.md": {
-      "keys": {
-        "formed-at": [
-          1788418556000
-        ],
-        "tag": [
-          "markdown-link-validation",
-          "performance",
-          "serial-io"
-        ],
-        "text": [
-          "Markdown Link 严格串行 cache 开销测量",
-          "在不跳过 source bytes 且 source I/O 严格串行的 Markdown Link validation 中，当前 explicit parse-facts cache 的可复现基线是什么；哪些低风险解释与实施边界应由后续 before/after 证据检验？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T06:55:56+00:00",
-        "question": "在不跳过 source bytes 且 source I/O 严格串行的 Markdown Link validation 中，当前 explicit parse-facts cache 的可复现基线是什么；哪些低风险解释与实施边界应由后续 before/after 证据检验？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "markdown-link-validation",
-          "performance",
-          "serial-io"
-        ],
-        "title": "Markdown Link 严格串行 cache 开销测量"
-      }
+    "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance": {
+      "formedAt": "2026-09-03T08:27:49Z",
+      "name": "remeasure-lizard-python-typescript-real-typescript-analyzer-performance",
+      "question": "在同一批真实仓库 TypeScript Product 源、同一已解码 source 和相同 canonical 输出前置条件下，当前 TypeScript Lizard port 与 upstream Python Lizard 1.24 的 analyzer-only warmed-operation 性能如何比较，历史 Product 与 analyzer 数值为何同量级？",
+      "relations": [
+        {
+          "target": "260903-compare-lizard-python-typescript-performance",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/corpus-manifest.json",
+        "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/evidence.json",
+        "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/preflight-canonical-metrics.json",
+        "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
+        "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/run-benchmark.py"
+      ],
+      "sourcePath": "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "performance",
+        "source-alignment",
+        "typescript"
+      ],
+      "title": "真实 TypeScript Product 源上的 Lizard Python 与 TypeScript analyzer 复测"
     },
-    "pattern-matching-and-state-modeling-libraries.md": {
-      "keys": {
-        "formed-at": [
-          1786434874000
-        ],
-        "tag": [
-          "implementation-libraries"
-        ],
-        "text": [
-          "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？",
-          "采用 ts-pattern，状态机保持按需调查"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-11T07:54:34Z",
-        "question": "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "采用 ts-pattern，状态机保持按需调查"
-      }
+    "260903-survey-lizard-host-acceleration-candidates": {
+      "formedAt": "2026-09-03T09:38:29+00:00",
+      "name": "survey-lizard-host-acceleration-candidates",
+      "question": "在 source alignment 约束可观察 Lizard analyzer 语义、而非 JavaScript 原语的前提下，哪些 regex/lexer 与其它宿主实现候选值得继续验证；它们在 27-reader 覆盖、Bun Worker、打包和性能证据上分别处于什么状态？",
+      "relations": [
+        {
+          "target": "260903-diagnose-lizard-real-typescript-analyzer-hot-path",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-survey-lizard-host-acceleration-candidates/candidate-probes.json",
+        "260903-survey-lizard-host-acceleration-candidates/oniguruma-compile-inventory.json",
+        "260903-survey-lizard-host-acceleration-candidates/oniguruma-real-typescript-raw-scan.json",
+        "260903-survey-lizard-host-acceleration-candidates/regex-feature-inventory.json"
+      ],
+      "sourcePath": "survey-lizard-host-acceleration-candidates.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "performance",
+        "regex",
+        "source-alignment",
+        "typescript"
+      ],
+      "title": "Lizard analyzer 宿主加速候选调查"
     },
-    "recheck-cold-candidate-bootstrap-gate-import.md": {
-      "keys": {
-        "formed-at": [
-          1788772900000
-        ],
-        "relation-type": [
-          "复查"
-        ],
-        "tag": [
-          "bun",
-          "module-resolution",
-          "package-candidate",
-          "project-gate",
-          "verification"
-        ],
-        "text": [
-          "冷 candidate bootstrap 的 Project Gate 导入复查",
-          "在提交 bb33371c 的隔离 candidate 冷态下，正式 typecheck Gate 是否仍会在 candidate 已成功准备后失败于 bound-run 导入；现有 evidence 能否区分 candidate lifecycle、Gate adapter 与未证实的 Bun resolver 假设？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-07T09:21:40Z",
-        "question": "在提交 bb33371c 的隔离 candidate 冷态下，正式 typecheck Gate 是否仍会在 candidate 已成功准备后失败于 bound-run 导入；现有 evidence 能否区分 candidate lifecycle、Gate adapter 与未证实的 Bun resolver 假设？",
-        "relations": [
-          {
-            "target": "diagnose-bun-cold-project-gate-candidate-import.md",
-            "type": "复查"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "bun",
-          "module-resolution",
-          "package-candidate",
-          "project-gate",
-          "verification"
-        ],
-        "title": "冷 candidate bootstrap 的 Project Gate 导入复查"
-      }
+    "260903-verify-lizard-reader-resolution-fast-path": {
+      "formedAt": "2026-09-03T07:34:42Z",
+      "name": "verify-lizard-reader-resolution-fast-path",
+      "question": "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
+      "relations": [
+        {
+          "target": "260903-diagnose-lizard-typescript-port-performance-gap",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260903-verify-lizard-reader-resolution-fast-path/facade-acceptance.json",
+        "260903-verify-lizard-reader-resolution-fast-path/facade-acceptance.ts"
+      ],
+      "sourcePath": "verify-lizard-reader-resolution-fast-path.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "performance",
+        "source-alignment",
+        "verification"
+      ],
+      "title": "验证 Lizard reader-resolution fast path 性能"
     },
-    "recheck-json-dependency-and-zero-dependency-path.md": {
-      "keys": {
-        "formed-at": [
-          1787578729000
-        ],
-        "relation-type": [
-          "修正"
-        ],
-        "tag": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "text": [
-          "依赖实际加载面与零依赖严格 grammar 路径",
-          "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-24T13:38:49Z",
-        "question": "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？",
-        "relations": [
-          {
-            "target": "choose-minimal-library-for-strict-json-and-duplicate-keys.md",
-            "type": "修正"
-          }
-        ],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries",
-          "json-validation"
-        ],
-        "title": "依赖实际加载面与零依赖严格 grammar 路径"
-      }
+    "260904-audit-project-gate-candidate-lifecycle-process-overhead": {
+      "formedAt": "2026-09-04T02:45:40+00:00",
+      "name": "audit-project-gate-candidate-lifecycle-process-overhead",
+      "question": "为何 full Project Gate 的 tests-package-candidate 反复超过 5 秒，以及在保持 root maxParallel=3、20 秒 case/30 秒 lane 硬门禁不变时，怎样以可验证的架构变更使该 Check 稳定低于 5 秒？",
+      "relations": [
+        {
+          "target": "260904-correct-project-gate-candidate-timeout-interpretation",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "audit-project-gate-candidate-lifecycle-process-overhead.md",
+      "tags": [
+        "package-candidate",
+        "performance",
+        "process-overhead",
+        "project-gate"
+      ],
+      "title": "审计 Project Gate candidate lifecycle 的重复物理工作与进程开销"
     },
-    "remeasure-function-metrics-product-reader-fast-path.md": {
-      "keys": {
-        "formed-at": [
-          1788423008000
-        ],
-        "relation-type": [
-          "复查"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "product-runtime",
-          "verification"
-        ],
-        "text": [
-          "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
-          "复测 reader fast path 的完整 functionMetrics Product 路径"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T08:10:08Z",
-        "question": "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？",
-        "relations": [
-          {
-            "target": "verify-lizard-reader-resolution-fast-path.md",
-            "type": "复查"
-          }
-        ],
-        "resourceIds": [
-          "remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json",
-          "remeasure-function-metrics-product-reader-fast-path/evidence.json",
-          "remeasure-function-metrics-product-reader-fast-path/product-driver.ts",
-          "remeasure-function-metrics-product-reader-fast-path/run-benchmark.py",
-          "remeasure-function-metrics-product-reader-fast-path/summary.json"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "product-runtime",
-          "verification"
-        ],
-        "title": "复测 reader fast path 的完整 functionMetrics Product 路径"
-      }
+    "260904-audit-project-gate-function-metrics-check-overhead": {
+      "formedAt": "2026-09-04T02:46:26+00:00",
+      "name": "audit-project-gate-function-metrics-check-overhead",
+      "question": "full Project Gate 中的 Bun Product function metrics tests（近期 6.3 秒、曾 8.9 秒）与 direct Function metrics Check（曾 5.3 秒）为什么超过 5 秒；是否存在重复扫描、Worker/child-process 启动或测试矩阵重复执行，以及在不提高 root 并发度、不放宽 timeout 下怎样使每个 Check 的普通负载低于 5 秒？",
+      "relations": [
+        {
+          "target": "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "audit-project-gate-function-metrics-check-overhead.md",
+      "tags": [
+        "function-metrics",
+        "performance",
+        "project-gate",
+        "test-execution"
+      ],
+      "title": "Project Gate Function metrics Check 超 5 秒开销审计"
     },
-    "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md": {
-      "keys": {
-        "formed-at": [
-          1788424069000
-        ],
-        "relation-type": [
-          "复查"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment",
-          "typescript"
-        ],
-        "text": [
-          "在同一批真实仓库 TypeScript Product 源、同一已解码 source 和相同 canonical 输出前置条件下，当前 TypeScript Lizard port 与 upstream Python Lizard 1.24 的 analyzer-only warmed-operation 性能如何比较，历史 Product 与 analyzer 数值为何同量级？",
-          "真实 TypeScript Product 源上的 Lizard Python 与 TypeScript analyzer 复测"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T08:27:49Z",
-        "question": "在同一批真实仓库 TypeScript Product 源、同一已解码 source 和相同 canonical 输出前置条件下，当前 TypeScript Lizard port 与 upstream Python Lizard 1.24 的 analyzer-only warmed-operation 性能如何比较，历史 Product 与 analyzer 数值为何同量级？",
-        "relations": [
-          {
-            "target": "compare-lizard-python-typescript-performance.md",
-            "type": "复查"
-          }
-        ],
-        "resourceIds": [
-          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/corpus-manifest.json",
-          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/evidence.json",
-          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/preflight-canonical-metrics.json",
-          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json",
-          "remeasure-lizard-python-typescript-real-typescript-analyzer-performance/run-benchmark.py"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment",
-          "typescript"
-        ],
-        "title": "真实 TypeScript Product 源上的 Lizard Python 与 TypeScript analyzer 复测"
-      }
+    "260904-audit-project-gate-validation-and-type-acceptance-overhead": {
+      "formedAt": "2026-09-04T02:49:37Z",
+      "name": "audit-project-gate-validation-and-type-acceptance-overhead",
+      "question": "在不运行 full Project Gate 的条件下，Bun validation tooling tests 与 Bun external package consumer type acceptance 的超过 5 秒现象，哪些是 check 自身结构性成本，哪些只能归因于并发/候选生命周期环境；同族 process-backed lanes 是否已有可消除的重复启动？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "audit-project-gate-validation-and-type-acceptance-overhead.md",
+      "tags": [
+        "external-consumer",
+        "performance",
+        "project-gate",
+        "validation"
+      ],
+      "title": "Project Gate validation 与 external consumer type acceptance 开销审计"
     },
-    "result-and-option-libraries.md": {
-      "keys": {
-        "formed-at": [
-          1786434874000
-        ],
-        "tag": [
-          "implementation-libraries"
-        ],
-        "text": [
-          "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？",
-          "采用 neverthrow 与项目自有 Option"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-11T07:54:34Z",
-        "question": "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "采用 neverthrow 与项目自有 Option"
-      }
+    "260904-correct-project-gate-candidate-timeout-interpretation": {
+      "formedAt": "2026-09-04T02:16:34+00:00",
+      "name": "correct-project-gate-candidate-timeout-interpretation",
+      "question": "20 秒 candidate case timeout 应如何解释，后续优化是否应改变 Gate 全局并发或改为慢 Check 的局部并发约束？",
+      "relations": [
+        {
+          "target": "260904-diagnose-project-gate-candidate-timeout-under-contention",
+          "type": "修正"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "correct-project-gate-candidate-timeout-interpretation.md",
+      "tags": [
+        "package-candidate",
+        "performance",
+        "project-gate",
+        "test-reliability"
+      ],
+      "title": "修正 Project Gate candidate 超时与并发优化边界"
     },
-    "schema-validation-and-static-inference.md": {
-      "keys": {
-        "formed-at": [
-          1787278946000
-        ],
-        "tag": [
-          "implementation-libraries"
-        ],
-        "text": [
-          "Record schema authoring 的框架选择、替代项与互操作边界",
-          "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-08-21T02:22:26Z",
-        "question": "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？",
-        "relations": [],
-        "resourceIds": [],
-        "tags": [
-          "implementation-libraries"
-        ],
-        "title": "Record schema authoring 的框架选择、替代项与互操作边界"
-      }
+    "260904-diagnose-project-gate-candidate-timeout-under-contention": {
+      "formedAt": "2026-09-04T02:09:52+00:00",
+      "name": "diagnose-project-gate-candidate-timeout-under-contention",
+      "question": "为什么同一 full Project Gate workload 的 package candidate lifecycle 会在 13.9–22.5 秒间波动并曾触发 20 秒 case timeout；当前证据支持优先优化什么？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "diagnose-project-gate-candidate-timeout-under-contention.md",
+      "tags": [
+        "package-candidate",
+        "performance",
+        "project-gate",
+        "test-reliability"
+      ],
+      "title": "Project Gate candidate lifecycle 竞争超时与假失败诊断"
     },
-    "survey-lizard-host-acceleration-candidates.md": {
-      "keys": {
-        "formed-at": [
-          1788428309000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "regex",
-          "source-alignment",
-          "typescript"
-        ],
-        "text": [
-          "Lizard analyzer 宿主加速候选调查",
-          "在 source alignment 约束可观察 Lizard analyzer 语义、而非 JavaScript 原语的前提下，哪些 regex/lexer 与其它宿主实现候选值得继续验证；它们在 27-reader 覆盖、Bun Worker、打包和性能证据上分别处于什么状态？"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T09:38:29+00:00",
-        "question": "在 source alignment 约束可观察 Lizard analyzer 语义、而非 JavaScript 原语的前提下，哪些 regex/lexer 与其它宿主实现候选值得继续验证；它们在 27-reader 覆盖、Bun Worker、打包和性能证据上分别处于什么状态？",
-        "relations": [
-          {
-            "target": "diagnose-lizard-real-typescript-analyzer-hot-path.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "survey-lizard-host-acceleration-candidates/candidate-probes.json",
-          "survey-lizard-host-acceleration-candidates/oniguruma-compile-inventory.json",
-          "survey-lizard-host-acceleration-candidates/oniguruma-real-typescript-raw-scan.json",
-          "survey-lizard-host-acceleration-candidates/regex-feature-inventory.json"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "regex",
-          "source-alignment",
-          "typescript"
-        ],
-        "title": "Lizard analyzer 宿主加速候选调查"
-      }
+    "260906-assess-node-26-package-host-readiness": {
+      "formedAt": "2026-09-06T13:15:49+00:00",
+      "name": "assess-node-26-package-host-readiness",
+      "question": "在公开 Product 已由 Node 24.18 consumer baseline 验收、仓库工具仍由 Bun 承载的前提下，Vibe Check 切换或新增 Node 26 package host 验收需要哪些证据、边界与迁移步骤？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "assess-node-26-package-host-readiness.md",
+      "tags": [
+        "node",
+        "package-host",
+        "runtime-compatibility"
+      ],
+      "title": "Node 26 package host 切换准备度评估"
     },
-    "verify-lizard-reader-resolution-fast-path.md": {
-      "keys": {
-        "formed-at": [
-          1788420882000
-        ],
-        "relation-type": [
-          "补充"
-        ],
-        "tag": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment",
-          "verification"
-        ],
-        "text": [
-          "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
-          "验证 Lizard reader-resolution fast path 性能"
-        ]
-      },
-      "state": {
-        "formedAt": "2026-09-03T07:34:42Z",
-        "question": "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？",
-        "relations": [
-          {
-            "target": "diagnose-lizard-typescript-port-performance-gap.md",
-            "type": "补充"
-          }
-        ],
-        "resourceIds": [
-          "verify-lizard-reader-resolution-fast-path/facade-acceptance.json",
-          "verify-lizard-reader-resolution-fast-path/facade-acceptance.ts"
-        ],
-        "tags": [
-          "function-metrics",
-          "lizard",
-          "performance",
-          "source-alignment",
-          "verification"
-        ],
-        "title": "验证 Lizard reader-resolution fast path 性能"
-      }
+    "260907-recheck-cold-candidate-bootstrap-gate-import": {
+      "formedAt": "2026-09-07T09:21:40Z",
+      "name": "recheck-cold-candidate-bootstrap-gate-import",
+      "question": "在提交 bb33371c 的隔离 candidate 冷态下，正式 typecheck Gate 是否仍会在 candidate 已成功准备后失败于 bound-run 导入；现有 evidence 能否区分 candidate lifecycle、Gate adapter 与未证实的 Bun resolver 假设？",
+      "relations": [
+        {
+          "target": "260901-diagnose-bun-cold-project-gate-candidate-import",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "recheck-cold-candidate-bootstrap-gate-import.md",
+      "tags": [
+        "bun",
+        "module-resolution",
+        "package-candidate",
+        "project-gate",
+        "verification"
+      ],
+      "title": "冷 candidate bootstrap 的 Project Gate 导入复查"
     }
   },
-  "keyDefinitions": [
-    {
-      "name": "formed-at",
-      "mode": "range"
-    },
-    {
-      "name": "relation-type",
-      "mode": "exact"
-    },
-    {
-      "name": "tag",
-      "mode": "exact"
-    },
-    {
-      "name": "text",
-      "mode": "text"
-    }
-  ],
   "metadata": {},
   "namespace": "investigations",
-  "schemaVersion": 3,
+  "schemaVersion": 4,
   "sourceRevision": {
     "entries": {
-      "analyze-markdown-link-cache-packing.md": "sha256:ce5c994f17a338005e2f7e13bbd48cec8eef2cb2624f7d331e31f5dc2d7435b7",
-      "assess-admission-state-performance-and-selection-index.md": "sha256:297993543aecff290007c758d6f724ef55ca889632e731cbfb02ae8bd8b4b99f",
-      "assess-lizard-extension-adoption-value.md": "sha256:4ebf6189d54adb00b8607211e4074aed8da03b9f5fc3c894291ac2caa788295b",
-      "assess-lizard-upstream-release-and-branch-delta.md": "sha256:9f8d6857d7fb8b9614830d028aa81054bca11326a4fb25ad1601b3a4c258f5ee",
-      "assess-node-26-package-host-readiness.md": "sha256:14b29f39ed879f2f796163ca5071af457e8c89216234190f96a9170372d49d8d",
-      "assess-scc-and-jscpd-upgrade-readiness.md": "sha256:992d93e6e3a6dfa86d13bab9b27efc49338c3dc261746d6f7fe1abf846bfb76f",
-      "audit-project-gate-candidate-lifecycle-process-overhead.md": "sha256:3dc132bfe2a2a2532e3e894041a2fde5cee0598bb8b50580fd99673f977f01f3",
-      "audit-project-gate-function-metrics-check-overhead.md": "sha256:159955ae5308c239c86e3cadb54d1f1cfd773a91a09e1563e0922c65eab76daf",
-      "audit-project-gate-validation-and-type-acceptance-overhead.md": "sha256:14b5db0e16b89eda41e843682046002578c75636b2f35c5929648e4211ab65ec",
-      "choose-minimal-library-for-strict-json-and-duplicate-keys.md": "sha256:115ca9a3b1dbea873b701c34fefc983716b7820b2d0028cf1fe9872c7ecace43",
-      "compare-lizard-and-scc-typescript-port-priority.md": "sha256:3d7361a8463f3659d9a7a1d90b4cb1e3d9ebf4a753bbfd0e2272efa460007731",
-      "compare-lizard-python-typescript-performance.md": "sha256:61fcf72ac86ff84a586d106681d4de85c67f82bd38521b62770cc126fe3faebb",
-      "compare-lizard-regex-backends-and-analyzer-cost-allocation.md": "sha256:09a6215d2e9e347cc433598310b42ccfc337dc5c59fac61c893d30f1b6d3fa20",
-      "compare-minimal-json-duplicate-key-candidates.md": "sha256:1aa8ac004bc4378a37586993c11b5318a97a6f18d6e5aad0b553067b62ef14d5",
-      "confirm-momoa-with-bun-and-candidate-spike.md": "sha256:1e17075f33cab3bb7d36a26f20762f4d0a7606ca723992dba6f37729798ef534",
-      "correct-project-gate-candidate-timeout-interpretation.md": "sha256:b1842aa528ccba3c5cf43249f146604b4d17853086472256e0c543c8c42df08a",
-      "diagnose-bun-cold-project-gate-candidate-import.md": "sha256:d92d236cb8596eeaba127f121ffb31716099a875789af7a2ab4232c31654e2ea",
-      "diagnose-lizard-real-typescript-analyzer-hot-path.md": "sha256:480cfb264b2265c7e878beaed75d272bb512451f6cfd7403d03e8095eeea1ced",
-      "diagnose-lizard-typescript-port-performance-gap.md": "sha256:ab60210fb4001d659e3e2e26b878f3af3b7f6e5fd8b7da17ef7d8fc164d4c9dd",
-      "diagnose-project-gate-candidate-timeout-under-contention.md": "sha256:f9be57ab5cc0d02e53e14a9548fa0ccfc4faf8ba5b8a1f3770df366f2f8a4dc6",
-      "evaluate-markdown-link-serial-io-optimization.md": "sha256:8c749ead3a22883a056318d560e8554393ffbf474898fc48c12eb7622e7ef41e",
-      "evaluate-persistent-data-structure-libraries-for-admission-core.md": "sha256:85d43d2f8b07c22faa1e0a368f0273db6c8cce9a7b0dae7ae7987a75d8493e9c",
-      "evaluate-secret-detection-library-candidates.md": "sha256:57d39379139f56d6b9874f0443263ed2412ce1d60292366862d61427b494df2a",
-      "explain-cpython-jsc-lizard-regex-performance-gap.md": "sha256:49e4d854ac63ccac6466e8b28eeee51cfc33bedce736e7b72e2dc585b0306b27",
-      "functional-utilities-and-data-structures.md": "sha256:24991300f0f12a1efd10fb6fe2d6e27dfede6589037a5ff905b2dc9e386770f3",
-      "investigate-fortran-lizard-performance-hotspot.md": "sha256:9c6666a687ea7131230c33fb8e9052d92e43bcd0db9c491a642861c53b414116",
-      "markdown-link-validation-library-strategy.md": "sha256:75457286d4be0f842914ae94647a582515a4d566ae34abaf924bc122d37c8bb7",
-      "measure-markdown-link-serial-cache-overhead.md": "sha256:f5dd58142e34e02cc2b33f89fd103add3f8a571c90f354586600f960c2520ab4",
-      "pattern-matching-and-state-modeling-libraries.md": "sha256:d580af154a89a092d37c7c2eec8010a4520b5a9dba94959317a6f9f5d3746206",
-      "recheck-cold-candidate-bootstrap-gate-import.md": "sha256:8d5311d57a6b48f00250af9e09bfe7184b818300fb27b6c47781466662cc676a",
-      "recheck-json-dependency-and-zero-dependency-path.md": "sha256:6967e3e64bb9ed78eb4bf93f95a96d068bdf50d35e4d4ab6aaf840a7e81937c6",
-      "remeasure-function-metrics-product-reader-fast-path.md": "sha256:93a6e21f8056ca5e1302720209508725d19101ed7c14a406372420b2cddd6854",
-      "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md": "sha256:dfca0606ed628a4baf3c18b073d6441c6b5dfa5f373db89de4b0fd1eb97abdd7",
-      "result-and-option-libraries.md": "sha256:2a7660ba472520806deddbbca80b76f3c4f9410baf74984039e1f20bda92b623",
-      "schema-validation-and-static-inference.md": "sha256:5dabe147f87f8778cf0c37a03c7b58790611f7476b103b6c188ce0ac3c9bf4fb",
-      "survey-lizard-host-acceleration-candidates.md": "sha256:6ce0fe5e13dc0c1df84f1c52c3d5cd9ca3a6c001dc0af5fbf86c53eb0cd4206b",
-      "verify-lizard-reader-resolution-fast-path.md": "sha256:ce2058ab3039313d29c60355f0c9e8ab611d2a26b583fe5696c7d0aa3dfbde52"
+      "260811-functional-utilities-and-data-structures": "sha256:d59ca11e90cea5f6391291e97cd5a6a59efcdb062e8d7a581abdd81abba7b490",
+      "260811-pattern-matching-and-state-modeling-libraries": "sha256:5e7b7d85620f6bf7ae19e3b20bedd16d53f2b2ea656d9c945968a0337fedb4e4",
+      "260811-result-and-option-libraries": "sha256:5e15282cc7fde6187f4c89825e97060e0e4904b9bcabca415681a8cc33e9f3d6",
+      "260821-schema-validation-and-static-inference": "sha256:97f6088a2bf38634c4b86ecd2368a5fba268422581f57647dea2fdf1787b4742",
+      "260824-choose-minimal-library-for-strict-json-and-duplicate-keys": "sha256:0f3054e4ed712051825a056ed1165ca99a62af22aa27246df8932d946248d3c0",
+      "260824-compare-minimal-json-duplicate-key-candidates": "sha256:ad1a6410819f41de22e3b13dda9d53a6fcc176f7473ea9f6f452b09102226132",
+      "260824-confirm-momoa-with-bun-and-candidate-spike": "sha256:64bb0bee6f5644b6aec6274167def58afdcbd32ca920670f2d04afec10db7bfe",
+      "260824-recheck-json-dependency-and-zero-dependency-path": "sha256:9670ed4d32ca3b858a2230ee826f704ca928586b6caa7fe673f19bf0d8c133b9",
+      "260825-markdown-link-validation-library-strategy": "sha256:d1dd059a512a52799bfd4af0a65bf962a69df7374b616944cffb1404b88d59c9",
+      "260901-assess-scc-and-jscpd-upgrade-readiness": "sha256:c88e48ebb22b74a900d83a16783be2410ffcd2c56609a3ec61a5dc3bf0fdd57a",
+      "260901-compare-lizard-and-scc-typescript-port-priority": "sha256:59066393f6fef3c15fceb28661b4333de6639e51f1421b80762ea26e8b2d5824",
+      "260901-diagnose-bun-cold-project-gate-candidate-import": "sha256:df29fa0f801b34f13a198a3aca9588b480f708a3852e5be983b41d6e7d6c6846",
+      "260903-analyze-markdown-link-cache-packing": "sha256:20a41eee5e11b6f087b79d9de3833946a04f418ba66a76059431d1085ddb09d8",
+      "260903-assess-admission-state-performance-and-selection-index": "sha256:817d197469f6e76279fe2ce7c08c90691e71d2788bb4312ed7af668256e60db2",
+      "260903-assess-lizard-extension-adoption-value": "sha256:4b4f0b9831dd942d326073471f28e22d7c8f7d4fe3b52a0ebca11189e7c17b73",
+      "260903-assess-lizard-upstream-release-and-branch-delta": "sha256:07943bd5f7dc954bb99080b6c384d106868d2a9eba3fbc9d4e795615f0dd8bd1",
+      "260903-compare-lizard-python-typescript-performance": "sha256:8484b4a99ceeff790b736625e5e80c2814338577b016e86afb7ad9d46c2f546b",
+      "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation": "sha256:06a267d92435d93f588d36609acb4371cac5b429cf51a0bbc28de0a8e4620dcf",
+      "260903-diagnose-lizard-real-typescript-analyzer-hot-path": "sha256:31a95616671114cfe2fdc90109ddb2627127651243dd7b2309e98aca64f85863",
+      "260903-diagnose-lizard-typescript-port-performance-gap": "sha256:47d8f423cf7ae306252910041ddd170baec2603726dbaf9c1ec94187fb8e1221",
+      "260903-evaluate-markdown-link-serial-io-optimization": "sha256:3d3f504bd1aeafb81159763cc23e54a7ac1ea32b54b25d261492cef420dab63c",
+      "260903-evaluate-persistent-data-structure-libraries-for-admission-core": "sha256:2abc3a6258cf15ae021fa780b7c5017e4d1d09cce7b39593c7b830ee1c560c2e",
+      "260903-evaluate-secret-detection-library-candidates": "sha256:6d503ae80445e3cce252c701d6d42b75f0fd3e0df17672bdfcbeb32c3c4d821e",
+      "260903-explain-cpython-jsc-lizard-regex-performance-gap": "sha256:ebb2df747a9d541a96ca8efb1fe94489b726734bb7cdc2272f4fd8b1e6cc9f97",
+      "260903-investigate-fortran-lizard-performance-hotspot": "sha256:b47f0cb28460970ccc9a54264d3741cd7e55b0be1d25c9475622c9239c53fc5f",
+      "260903-measure-markdown-link-serial-cache-overhead": "sha256:7946aa232a8c9413408bcb45d76b759842b9fead805529e0d945b4423c773ca7",
+      "260903-remeasure-function-metrics-product-reader-fast-path": "sha256:75e7a575ada586da14723bac8f31a8a5b479d5ab068fc2a3d320dac5b9c68a00",
+      "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance": "sha256:72c3bba83e74fd1191e29a3ebf6a20204becf741a647e11503b7f7805c2d3211",
+      "260903-survey-lizard-host-acceleration-candidates": "sha256:414388a2e2c142a787ea2eacc4ffe04e98ec4eb3fb9237247a4f1f4b805e4875",
+      "260903-verify-lizard-reader-resolution-fast-path": "sha256:e76df3965988d78ab6fd05b62c49466d43b6c0d68d63bf5b9e509fe9331d19b2",
+      "260904-audit-project-gate-candidate-lifecycle-process-overhead": "sha256:b56cfcb05f1fdefc21147feb6e00faa651faa12f7fa313758b6cbd2493713b0f",
+      "260904-audit-project-gate-function-metrics-check-overhead": "sha256:84e75049b40ccbd794d5b146fadb189a9e005e49262062c171587df6206136b6",
+      "260904-audit-project-gate-validation-and-type-acceptance-overhead": "sha256:482bca32d786f3ee7506522e2a27460d572477105c652409ca8982a29bca6951",
+      "260904-correct-project-gate-candidate-timeout-interpretation": "sha256:5ecaa7d34cd644c1602d23aea069dd910d24a10be897c2978b5e4c50240832d4",
+      "260904-diagnose-project-gate-candidate-timeout-under-contention": "sha256:7dc4a90e12ff2ec382f4d786617b760f8cc04037f84ad574b776699be445cfb7",
+      "260906-assess-node-26-package-host-readiness": "sha256:b01bedac42300965c3a8fcf131deb26f3c3ecb92f3a9f629fadbe6164b842f09",
+      "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

@@ -1,5 +1,6 @@
 ---
 title: 以带默认值的区域政策构造函数指标 Check
+id: 260828-construct-function-metrics-from-defaulted-area-policy
 status: active
 alignment: aligned
 createdAt: 2026-08-28T06:28:26Z

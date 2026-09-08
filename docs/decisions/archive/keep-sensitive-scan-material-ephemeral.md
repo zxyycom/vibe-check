@@ -1,5 +1,6 @@
 ---
 title: 让敏感扫描材料保持临时且不可持久化
+id: 260804-keep-sensitive-scan-material-ephemeral
 status: archived
 alignment: null
 createdAt: 2026-08-04T15:02:13Z

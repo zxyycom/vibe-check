@@ -1,5 +1,6 @@
 ---
 title: 将 package build evidence 置于可发现的受管输出
+id: 260827-make-package-build-evidence-discoverable
 status: active
 alignment: aligned
 createdAt: 2026-08-27T06:44:50Z

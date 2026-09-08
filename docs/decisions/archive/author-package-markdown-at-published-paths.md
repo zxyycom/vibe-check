@@ -1,5 +1,6 @@
 ---
 title: 让发布路径 Markdown 直接拥有 package 文档正文
+id: 260828-author-package-markdown-at-published-paths
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T08:30:34Z

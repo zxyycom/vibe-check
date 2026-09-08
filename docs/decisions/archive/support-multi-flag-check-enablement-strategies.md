@@ -1,5 +1,6 @@
 ---
 title: 支持多 flag Check 启用策略
+id: 260901-support-multi-flag-check-enablement-strategies
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T14:32:05Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: use-string-flags-for-project-run-controls.md
+    target: 260820-use-string-flags-for-project-run-controls
 ---
 
 ## 目的

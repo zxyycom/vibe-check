@@ -1,5 +1,6 @@
 ---
 title: 以私有接口隔离 Lizard source-aligned port
+id: 260902-isolate-lizard-port-behind-check-private-interface
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T16:33:21Z

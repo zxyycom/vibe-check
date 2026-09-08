@@ -1,5 +1,6 @@
 ---
 title: 为 Markdown Link Check 采用低层 parser 与 Link-owned resolver
+id: 260825-adopt-low-level-markdown-link-parser-architecture
 status: active
 alignment: aligned
 createdAt: 2026-08-25T05:49:49Z

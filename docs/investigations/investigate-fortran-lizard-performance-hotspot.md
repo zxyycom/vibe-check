@@ -1,5 +1,6 @@
 ---
 title: "固定 Lizard 1.24 Fortran 语料性能热点轻量复核"
+id: "260903-investigate-fortran-lizard-performance-hotspot"
 formedAt: "2026-09-03T07:59:46Z"
 question: "在当前 TypeScript Lizard port 的固定 Fortran 1.24 语料中，剩余差距位于哪一层、是否有不触及 translated core 的修复点，以及是否值得现在实施？"
 tags:
@@ -10,7 +11,7 @@ tags:
   - "source-alignment"
 relations:
   - type: "补充"
-    target: "diagnose-lizard-typescript-port-performance-gap.md"
+    target: "260903-diagnose-lizard-typescript-port-performance-gap"
 ---
 
 ## 形成时背景
@@ -50,4 +51,4 @@ relations:
 
 ## 随附资源
 
-- [固定 Fortran family 输入与既有观察摘录](./_resources/investigate-fortran-lizard-performance-hotspot/fortran-family-evidence.json)
+- [固定 Fortran family 输入与既有观察摘录](./_resources/260903-investigate-fortran-lizard-performance-hotspot/fortran-family-evidence.json)

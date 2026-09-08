@@ -1,5 +1,6 @@
 ---
 title: 移除无消费者的 Product Option 能力
+id: 260826-remove-unconsumed-option-capability
 status: active
 alignment: aligned
 createdAt: 2026-08-26T07:35:30Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: preinstall-selected-typescript-capabilities.md
+    target: 260811-preinstall-selected-typescript-capabilities
 ---
 
 ## 目的

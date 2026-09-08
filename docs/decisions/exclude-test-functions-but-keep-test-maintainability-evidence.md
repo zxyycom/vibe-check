@@ -1,5 +1,6 @@
 ---
 title: 排除测试函数复杂度但保留测试可维护性证据
+id: 260904-exclude-test-functions-but-keep-test-maintainability-evidence
 status: active
 alignment: aligned
 createdAt: 2026-09-04T03:03:19Z

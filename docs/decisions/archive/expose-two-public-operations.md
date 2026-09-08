@@ -1,5 +1,6 @@
 ---
 title: 只公开配置定义与工具运行两个操作
+id: 260812-expose-two-public-operations
 status: archived
 alignment: unaligned
 createdAt: 2026-08-12T10:54:44Z

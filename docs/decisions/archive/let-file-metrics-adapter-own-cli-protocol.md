@@ -1,5 +1,6 @@
 ---
 title: 让文件指标 adapter 独占 SCC CLI 协议
+id: 260828-let-file-metrics-adapter-own-cli-protocol
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T06:39:32Z

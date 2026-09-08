@@ -1,5 +1,6 @@
 ---
 title: 延后未来功能 change 的契约细化
+id: 260805-defer-future-feature-detail-until-prioritized
 status: archived
 alignment: null
 createdAt: 2026-08-05T09:25:08Z

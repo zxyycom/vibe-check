@@ -1,5 +1,6 @@
 ---
 title: 发布前确认内置 Check 与调整 API 名称
+id: 260815-confirm-built-in-check-and-adjustment-names-before-publication
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T06:16:25Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: confirm-built-in-check-value-and-tree-type-names-before-publication.md
+    target: 260814-confirm-built-in-check-value-and-tree-type-names-before-publication
 ---
 
 ## 目的

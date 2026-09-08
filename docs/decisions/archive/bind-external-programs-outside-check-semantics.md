@@ -1,5 +1,6 @@
 ---
 title: 在 Check 语义外显式绑定外部程序
+id: 260814-bind-external-programs-outside-check-semantics
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T05:52:51Z

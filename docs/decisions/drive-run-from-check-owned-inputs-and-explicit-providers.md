@@ -1,5 +1,6 @@
 ---
 title: 由 Check-owned 输入与显式 provider 驱动 Run
+id: 260828-drive-run-from-check-owned-inputs-and-explicit-providers
 status: active
 alignment: aligned
 createdAt: 2026-08-28T10:36:57Z
@@ -10,9 +11,9 @@ tags:
   - configuration
 relations:
   - type: 归并
-    target: drive-run-from-check-owned-execution-options.md
+    target: 260817-drive-run-from-check-owned-execution-options
   - type: 归并
-    target: let-check-options-own-execution-dependencies.md
+    target: 260817-let-check-options-own-execution-dependencies
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 收敛 Project Run 与 Check settlement owner
+id: 260826-refine-project-run-and-settlement-owners
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T08:52:11Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: refine-product-module-boundaries.md
+    target: 260826-refine-product-module-boundaries
 ---
 
 ## 目的

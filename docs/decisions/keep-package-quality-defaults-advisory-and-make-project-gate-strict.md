@@ -1,5 +1,6 @@
 ---
 title: 保持 Package 质量默认 advisory 并使 Project Gate 的质量 Finding 阻断
+id: 260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict
 status: active
 alignment: aligned
 createdAt: 2026-09-05T08:49:10Z
@@ -14,11 +15,11 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: default-package-quality-findings-to-advisory.md
+    target: 260830-default-package-quality-findings-to-advisory
   - type: 替代
-    target: keep-repository-quality-findings-advisory-through-release.md
+    target: 260902-keep-repository-quality-findings-advisory-through-release
   - type: 修订
-    target: require-selected-repository-quality-remediation-in-active-cleanup-changes.md
+    target: 260904-require-selected-repository-quality-remediation-in-active-cleanup-changes
 ---
 
 ## 目的

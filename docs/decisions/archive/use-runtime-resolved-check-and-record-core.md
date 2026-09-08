@@ -1,5 +1,6 @@
 ---
 title: 使用运行时解析的 Check 与 QualityRecord 核心
+id: 260805-use-runtime-resolved-check-and-record-core
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:20Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: use-standard-quality-record-stream.md
+    target: 260805-use-standard-quality-record-stream
 ---
 
 ## 目的

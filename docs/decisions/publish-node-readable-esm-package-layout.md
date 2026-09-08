@@ -1,5 +1,6 @@
 ---
 title: 以 Node 可读 ESM 模块树交付 package 运行时
+id: 260906-publish-node-readable-esm-package-layout
 status: active
 alignment: aligned
 createdAt: 2026-09-06T11:54:53Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: publish-readable-esm-package-layout.md
+    target: 260824-publish-readable-esm-package-layout
 ---
 
 ## 目的

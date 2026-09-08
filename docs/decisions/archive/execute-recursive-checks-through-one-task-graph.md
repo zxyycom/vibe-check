@@ -1,5 +1,6 @@
 ---
 title: 通过单一 Task graph 执行递归 Check
+id: 260815-execute-recursive-checks-through-one-task-graph
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:30Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: execute-check-scopes-through-one-task-graph.md
+    target: 260815-execute-check-scopes-through-one-task-graph
 ---
 
 ## 目的

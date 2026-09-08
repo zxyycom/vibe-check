@@ -1,5 +1,6 @@
 ---
 title: 让 package 对外说明以中文叙述为主
+id: 260824-use-chinese-as-primary-language-for-public-documentation
 status: archived
 alignment: aligned
 createdAt: 2026-08-24T07:23:03Z

@@ -12,7 +12,6 @@ import { createTestEvidenceCheck } from "./test-evidence/semantic-case-check.ts"
 describe("Project Gate owner-safe native projections", () => {
   it("publishes only owner-approved Decision and Test Evidence diagnostics", async () => {
     const decisionRoot = mkdtempSync(join(process.cwd(), "vibe-check-decision-records-"));
-    const decisionIndexPath = `${decisionRoot.slice(process.cwd().length + 1)}/decision-index.json`;
     try {
       writeFileSync(join(decisionRoot, "unsafe-source.md"), "secret parser input\n", "utf8");
       const validation = await validateDecisionRecordsForGate({ decisionsDir: decisionRoot });
@@ -27,15 +26,6 @@ describe("Project Gate owner-safe native projections", () => {
             },
             id: "source:unsafe-source.md:invalid",
             presentation: "unsafe-source.md: Decision Record source is invalid."
-          },
-          {
-            data: {
-              kind: "decision-validation-invalid",
-              occurrence: 1,
-              path: decisionIndexPath
-            },
-            id: "validation:invalid:1",
-            presentation: `${decisionIndexPath}: Decision Records validation could not complete.`
           }
         ]
       });
@@ -51,18 +41,64 @@ describe("Project Gate owner-safe native projections", () => {
             path: "unsafe-source.md"
           },
           identity: { id: "source:unsafe-source.md:invalid" }
-        },
-        {
-          data: {
-            kind: "decision-validation-invalid",
-            occurrence: 1,
-            path: decisionIndexPath
-          },
-          identity: { id: "validation:invalid:1" }
         }
       ]);
       assert.equal(decision.result.status, "failed");
       assert.doesNotMatch(JSON.stringify(decision), /secret parser input/);
+
+      const datedDecisionRoot = mkdtempSync(
+        join(process.cwd(), "vibe-check-dated-decision-records-")
+      );
+      try {
+        writeFileSync(
+          join(datedDecisionRoot, "dated-decision.md"),
+          `---
+title: Dated decision fixture
+id: 260908-dated-decision
+status: active
+alignment: aligned
+createdAt: 2026-09-08T00:00:00Z
+purpose: Prove dated diagnostic identity
+background: A missing predecessor is intentional
+decision: Keep safe diagnostic projection
+tags:
+  - testing
+relations:
+  - type: 修订
+    target: 260908-missing-predecessor
+---
+
+## 目的
+- Prove a dated ID.
+
+## 背景
+- The target is absent.
+
+## 决策
+- 采用: Project a safe relationship diagnostic.
+`,
+          "utf8"
+        );
+        assert.deepEqual(
+          await validateDecisionRecordsForGate({ decisionsDir: datedDecisionRoot }),
+          {
+            diagnostics: [
+              {
+                data: {
+                  decisionId: "260908-dated-decision",
+                  kind: "decision-source-invalid",
+                  path: "dated-decision.md"
+                },
+                id: "source:dated-decision.md:invalid",
+                presentation: "dated-decision.md: Decision Record source is invalid."
+              }
+            ],
+            status: "failed"
+          }
+        );
+      } finally {
+        rmSync(datedDecisionRoot, { force: true, recursive: true });
+      }
 
       const privateText = "/private/workspace child stderr";
       const testEvidence = await invokeCheckWithRecords(

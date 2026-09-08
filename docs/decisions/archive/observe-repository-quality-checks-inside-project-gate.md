@@ -1,5 +1,6 @@
 ---
 title: 在 Project Gate 内直接观察仓库质量 Checks
+id: 260829-observe-repository-quality-checks-inside-project-gate
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:39:14Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: run-repository-quality-checks-inside-project-gate.md
+    target: 260829-run-repository-quality-checks-inside-project-gate
 ---
 
 ## 目的

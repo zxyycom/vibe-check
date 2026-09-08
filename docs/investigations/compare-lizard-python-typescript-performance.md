@@ -1,5 +1,6 @@
 ---
 title: "Lizard Python 与 TypeScript analyzer 性能对照"
+id: "260903-compare-lizard-python-typescript-performance"
 formedAt: "2026-09-03T05:55:17Z"
 question: "固定 Lizard 1.24、输出相等和已声明 Linux scope 下的 Python/Lizard、TypeScript port 与 historical Product 性能证据是否授权优化？"
 tags:
@@ -9,7 +10,7 @@ tags:
   - "source-alignment"
 relations:
   - type: "补充"
-    target: "compare-lizard-and-scc-typescript-port-priority.md"
+    target: "260901-compare-lizard-and-scc-typescript-port-priority"
 ---
 
 ## 形成时背景
@@ -94,20 +95,20 @@ A 的 historical/current preflight snapshot digest 均为 `58465d0c049f56dfc4bcd
 
 ## 随附资源
 
-- [a-historical-product-full/evidence.json](./_resources/compare-lizard-python-typescript-performance/a-historical-product-full/evidence.json)
-- [a-historical-product-full/historical-product-request.json](./_resources/compare-lizard-python-typescript-performance/a-historical-product-full/historical-product-request.json)
-- [a-historical-product-full/summary.md](./_resources/compare-lizard-python-typescript-performance/a-historical-product-full/summary.md)
-- [a-historical-product-warmed-operation-full/evidence.json](./_resources/compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/evidence.json)
-- [a-historical-product-warmed-operation-full/historical-product-request.json](./_resources/compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/historical-product-request.json)
-- [a-historical-product-warmed-operation-full/summary.md](./_resources/compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/summary.md)
-- [b-fixed-lizard-1.24-full/evidence.json](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/evidence.json)
-- [b-fixed-lizard-1.24-full/representative-batch-request.json](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/representative-batch-request.json)
-- [b-fixed-lizard-1.24-full/summary.md](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/summary.md)
-- [b-fixed-lizard-1.24-full/tiny-cold-start-request.json](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/tiny-cold-start-request.json)
-- [b-fixed-lizard-1.24-warmed-operation-full/evidence.json](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/evidence.json)
-- [b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json)
-- [b-fixed-lizard-1.24-warmed-operation-full/summary.md](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/summary.md)
-- [b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json](./_resources/compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json)
-- [c-current-product-full/current-decomposition-request.json](./_resources/compare-lizard-python-typescript-performance/c-current-product-full/current-decomposition-request.json)
-- [c-current-product-full/evidence.json](./_resources/compare-lizard-python-typescript-performance/c-current-product-full/evidence.json)
-- [c-current-product-full/summary.md](./_resources/compare-lizard-python-typescript-performance/c-current-product-full/summary.md)
+- [a-historical-product-full/evidence.json](./_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-full/evidence.json)
+- [a-historical-product-full/historical-product-request.json](./_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-full/historical-product-request.json)
+- [a-historical-product-full/summary.md](./_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-full/summary.md)
+- [a-historical-product-warmed-operation-full/evidence.json](./_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/evidence.json)
+- [a-historical-product-warmed-operation-full/historical-product-request.json](./_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/historical-product-request.json)
+- [a-historical-product-warmed-operation-full/summary.md](./_resources/260903-compare-lizard-python-typescript-performance/a-historical-product-warmed-operation-full/summary.md)
+- [b-fixed-lizard-1.24-full/evidence.json](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/evidence.json)
+- [b-fixed-lizard-1.24-full/representative-batch-request.json](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/representative-batch-request.json)
+- [b-fixed-lizard-1.24-full/summary.md](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/summary.md)
+- [b-fixed-lizard-1.24-full/tiny-cold-start-request.json](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-full/tiny-cold-start-request.json)
+- [b-fixed-lizard-1.24-warmed-operation-full/evidence.json](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/evidence.json)
+- [b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/representative-batch-request.json)
+- [b-fixed-lizard-1.24-warmed-operation-full/summary.md](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/summary.md)
+- [b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json](./_resources/260903-compare-lizard-python-typescript-performance/b-fixed-lizard-1.24-warmed-operation-full/tiny-cold-start-request.json)
+- [c-current-product-full/current-decomposition-request.json](./_resources/260903-compare-lizard-python-typescript-performance/c-current-product-full/current-decomposition-request.json)
+- [c-current-product-full/evidence.json](./_resources/260903-compare-lizard-python-typescript-performance/c-current-product-full/evidence.json)
+- [c-current-product-full/summary.md](./_resources/260903-compare-lizard-python-typescript-performance/c-current-product-full/summary.md)

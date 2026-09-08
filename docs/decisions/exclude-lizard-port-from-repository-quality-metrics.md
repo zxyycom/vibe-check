@@ -1,5 +1,6 @@
 ---
 title: 将 Lizard 私有 port 整目录排除出仓库质量指标
+id: 260903-exclude-lizard-port-from-repository-quality-metrics
 status: active
 alignment: aligned
 createdAt: 2026-09-03T16:38:02Z
@@ -13,7 +14,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: isolate-lizard-port-behind-check-private-interface.md
+    target: 260902-isolate-lizard-port-behind-check-private-interface
 ---
 
 ## 目的

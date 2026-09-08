@@ -1,5 +1,6 @@
 ---
 title: 公开 package 只支持 Node 宿主
+id: 260906-support-node-as-the-package-host
 status: archived
 alignment: aligned
 createdAt: 2026-09-06T11:54:52Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 替代
-    target: support-bun-as-the-package-host.md
+    target: 260812-support-bun-as-the-package-host
 ---
 
 ## 目的

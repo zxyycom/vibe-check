@@ -1,5 +1,6 @@
 ---
 title: 在稳定承诺前保持 0.0.x 版本线
+id: 260806-keep-prestable-releases-on-0-0-x
 status: archived
 alignment: unaligned
 createdAt: 2026-08-06T03:03:02Z

@@ -1,5 +1,6 @@
 ---
 title: 按用户使用与内部设计分别审查文档影响
+id: 260905-review-documentation-impact-by-audience
 status: active
 alignment: aligned
 createdAt: 2026-09-05T17:16:42Z

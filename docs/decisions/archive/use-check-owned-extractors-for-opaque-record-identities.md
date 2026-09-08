@@ -1,5 +1,6 @@
 ---
 title: 使用 Check-owned extractor 生成 opaque Record identity
+id: 260821-use-check-owned-extractors-for-opaque-record-identities
 status: archived
 alignment: unaligned
 createdAt: 2026-08-21T03:35:54Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: use-location-independent-record-identities.md
+    target: 260805-use-location-independent-record-identities
 ---
 
 ## 目的

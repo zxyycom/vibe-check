@@ -1,5 +1,6 @@
 ---
 title: 将 Project Gate machine facts 发布到 machine namespace
+id: 260904-publish-project-gate-machine-facts-in-machine-namespace
 status: active
 alignment: aligned
 createdAt: 2026-09-04T06:54:15Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: publish-project-gate-machine-facts-with-invocation-evidence.md
+    target: 260829-publish-project-gate-machine-facts-with-invocation-evidence
 ---
 
 ## 目的

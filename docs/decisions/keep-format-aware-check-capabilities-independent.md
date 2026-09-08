@@ -1,5 +1,6 @@
 ---
 title: 保持格式感知 Check 能力彼此独立
+id: 260830-keep-format-aware-check-capabilities-independent
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:33:59Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 重划
-    target: expand-format-aware-built-in-checks.md
+    target: 260805-expand-format-aware-built-in-checks
 ---
 
 ## 目的

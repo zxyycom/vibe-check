@@ -1,5 +1,6 @@
 ---
 title: 观察与门禁都使用项目持有的 Project Definition
+id: 260814-use-user-owned-definition-for-observation-and-gates
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:33Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-neutral-observation-and-project-definition-gates.md
+    target: 260805-use-neutral-observation-and-project-definition-gates
 ---
 
 ## 目的

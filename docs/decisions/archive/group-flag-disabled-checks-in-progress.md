@@ -1,5 +1,6 @@
 ---
 title: 在 progress 中按名称分组未命中 flag 的 Checks
+id: 260901-group-flag-disabled-checks-in-progress
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T15:57:07Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: allow-check-terminal-messages-and-explicit-visibility.md
+    target: 260822-allow-check-terminal-messages-and-explicit-visibility
 ---
 
 ## 目的

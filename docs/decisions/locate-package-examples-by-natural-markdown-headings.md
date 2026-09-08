@@ -1,5 +1,6 @@
 ---
 title: 以自然 Markdown section 定位 package 可执行示例
+id: 260828-locate-package-examples-by-natural-markdown-headings
 status: active
 alignment: aligned
 createdAt: 2026-08-28T09:58:28Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: author-package-markdown-at-published-paths.md
+    target: 260828-author-package-markdown-at-published-paths
 ---
 
 ## 目的

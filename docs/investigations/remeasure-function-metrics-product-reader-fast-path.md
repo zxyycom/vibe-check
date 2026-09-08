@@ -1,5 +1,6 @@
 ---
 title: "复测 reader fast path 的完整 functionMetrics Product 路径"
+id: "260903-remeasure-function-metrics-product-reader-fast-path"
 formedAt: "2026-09-03T08:10:08Z"
 question: "在同一真实仓库 Product 源 corpus、同一主机和 warmed operation 条件下，reader-resolution fast path 提交 dd9635d 相对其直接父提交 e2bad65 的完整 functionMetrics Product 路径是否保持输出等价，并呈现可区分的 wall-time 变化？"
 tags:
@@ -10,7 +11,7 @@ tags:
   - "verification"
 relations:
   - type: "复查"
-    target: "verify-lizard-reader-resolution-fast-path.md"
+    target: "260903-verify-lizard-reader-resolution-fast-path"
 ---
 
 ## 形成时背景
@@ -36,11 +37,11 @@ relations:
 
 ## 调查范围与依据
 
-**Corpus 不是 synthetic representative fixture。** 输入是 `e2bad65` 中 254 个已跟踪、非测试、非 fixture、非 test-support 的 `src/**/*.ts` **真实 Product runtime source files**，总计 1,138,778 bytes；它排除 `src/package-checks/function-metrics/analyzer/port-facade.ts`，因为该文件正是 before/after 的唯一 Product-source corpus drift。两个临时 detached worktree 对每个选中 path 做 byte-for-byte 比对后才开始；完整 entries、bytes 和 manifest digest 见 [corpus-manifest.json](./_resources/remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json)。这是一份真实仓库源的固定 corpus，但它只有 TypeScript 文件，不代表 27 个 reader family、任意 consumer repository、malformed input 或长期 session。
+**Corpus 不是 synthetic representative fixture。** 输入是 `e2bad65` 中 254 个已跟踪、非测试、非 fixture、非 test-support 的 `src/**/*.ts` **真实 Product runtime source files**，总计 1,138,778 bytes；它排除 `src/package-checks/function-metrics/analyzer/port-facade.ts`，因为该文件正是 before/after 的唯一 Product-source corpus drift。两个临时 detached worktree 对每个选中 path 做 byte-for-byte 比对后才开始；完整 entries、bytes 和 manifest digest 见 [corpus-manifest.json](./_resources/260903-remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json)。这是一份真实仓库源的固定 corpus，但它只有 TypeScript 文件，不代表 27 个 reader family、任意 consumer repository、malformed input 或长期 session。
 
 每个 fresh Bun target dynamic-import 自己 revision 的 `src/index.ts`，但二者均以 before worktree 作为同一 immutable `projectRoot`；这使 explicit input paths、读入 bytes、输出 Record identity 保持固定，而被测 Product implementation 和 Worker 相对模块来自各自 revision。调用为 `defineConfig` + `functionMetrics` + `run`；`files.include` 传入全部 254 条 exact paths，non-blocking 低阈值确保 finding Records 和 Check settlement 都实际执行。该路径覆盖 explicit selection/admission、bounded file read、UTF-8 decode、Worker transport、Product adapter、port façade/analysis、finding Record creation 与 final snapshot settlement；它不含 machine publication、diagnostic/progress rendering、Project Gate 或 process cold-start import。
 
-先分别运行 complete Product preflight；两边都是 1 Check、3,686 Records，snapshot JSON SHA-256 均为 `12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc`。随后每个 target 先运行一次未计时的完整 Product warmup；`operationWallMs` 只包围第二次完整 Product run。15 个 block 以奇数 ABBA、偶数 BAAB 交替，各 condition 30 个计数样本；每个样本重新检查同一 snapshot digest，保留 IQR 标记但不删除样本。运行时是 Bun 1.3.14、Linux x64、AMD Ryzen AI 7 H 450（详情、driver SHA-256、tree/revision identity、顺序和 raw samples 见 [evidence.json](./_resources/remeasure-function-metrics-product-reader-fast-path/evidence.json)）。
+先分别运行 complete Product preflight；两边都是 1 Check、3,686 Records，snapshot JSON SHA-256 均为 `12bd0612ebf16a9ee7f24f1e13af229be676db1ab3f1e448484306aeb264fccc`。随后每个 target 先运行一次未计时的完整 Product warmup；`operationWallMs` 只包围第二次完整 Product run。15 个 block 以奇数 ABBA、偶数 BAAB 交替，各 condition 30 个计数样本；每个样本重新检查同一 snapshot digest，保留 IQR 标记但不删除样本。运行时是 Bun 1.3.14、Linux x64、AMD Ryzen AI 7 H 450（详情、driver SHA-256、tree/revision identity、顺序和 raw samples 见 [evidence.json](./_resources/260903-remeasure-function-metrics-product-reader-fast-path/evidence.json)）。
 
 ## 调查结果与边界
 
@@ -60,8 +61,8 @@ after 的 unpaired median 低 **3.39%**。按 15 个 ABBA/BAAB block 中每侧�
 
 ## 随附资源
 
-- [corpus-manifest.json](./_resources/remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json)
-- [evidence.json](./_resources/remeasure-function-metrics-product-reader-fast-path/evidence.json)
-- [product-driver.ts](./_resources/remeasure-function-metrics-product-reader-fast-path/product-driver.ts)
-- [run-benchmark.py](./_resources/remeasure-function-metrics-product-reader-fast-path/run-benchmark.py)
-- [summary.json](./_resources/remeasure-function-metrics-product-reader-fast-path/summary.json)
+- [corpus-manifest.json](./_resources/260903-remeasure-function-metrics-product-reader-fast-path/corpus-manifest.json)
+- [evidence.json](./_resources/260903-remeasure-function-metrics-product-reader-fast-path/evidence.json)
+- [product-driver.ts](./_resources/260903-remeasure-function-metrics-product-reader-fast-path/product-driver.ts)
+- [run-benchmark.py](./_resources/260903-remeasure-function-metrics-product-reader-fast-path/run-benchmark.py)
+- [summary.json](./_resources/260903-remeasure-function-metrics-product-reader-fast-path/summary.json)

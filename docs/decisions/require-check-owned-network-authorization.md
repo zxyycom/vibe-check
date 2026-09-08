@@ -1,5 +1,6 @@
 ---
 title: 网络 Check 使用 Check-owned 显式授权
+id: 260822-require-check-owned-network-authorization
 status: active
 alignment: unaligned
 createdAt: 2026-08-22T05:52:32Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: require-explicit-network-check-authorization.md
+    target: 260805-require-explicit-network-check-authorization
 ---
 
 ## 目的

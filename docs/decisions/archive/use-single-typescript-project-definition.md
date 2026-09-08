@@ -1,5 +1,6 @@
 ---
 title: 使用单一 TypeScript Project Definition
+id: 260812-use-single-typescript-project-definition
 status: archived
 alignment: unaligned
 createdAt: 2026-08-12T09:38:14Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-bun-typescript-project-definition.md
+    target: 260805-use-bun-typescript-project-definition
 ---
 
 ## 目的

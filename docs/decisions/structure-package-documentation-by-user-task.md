@@ -1,5 +1,6 @@
 ---
 title: 以单一入口和任务专题组织随包文档
+id: 260905-structure-package-documentation-by-user-task
 status: active
 alignment: aligned
 createdAt: 2026-09-05T17:14:56Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: structure-package-documentation-around-one-readme.md
+    target: 260827-structure-package-documentation-around-one-readme
 ---
 
 ## 目的

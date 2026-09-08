@@ -1,5 +1,6 @@
 ---
 title: 分离 Check settlement、Project Run、progress 与 machine owner
+id: 260830-separate-settlement-run-progress-and-machine-owners
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:34:11Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 拆分
-    target: refine-project-run-and-settlement-owners.md
+    target: 260826-refine-project-run-and-settlement-owners
 ---
 
 ## 目的

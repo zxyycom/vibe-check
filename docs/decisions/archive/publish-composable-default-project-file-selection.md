@@ -1,5 +1,6 @@
 ---
 title: 公开可组合的默认项目文件选择
+id: 260830-publish-composable-default-project-file-selection
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T11:39:49Z

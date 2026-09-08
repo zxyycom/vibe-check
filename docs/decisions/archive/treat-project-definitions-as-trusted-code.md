@@ -1,5 +1,6 @@
 ---
 title: 将 Project Definition 与自定义 Runner 视为受信任代码
+id: 260805-treat-project-definitions-as-trusted-code
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z

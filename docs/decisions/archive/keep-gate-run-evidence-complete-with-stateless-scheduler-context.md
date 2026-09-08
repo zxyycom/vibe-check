@@ -1,5 +1,6 @@
 ---
 title: 以无状态 Scheduler context 保持完整 Gate Run 证据
+id: 260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T14:54:27Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: consolidate-project-gate-run-evidence.md
+    target: 260829-consolidate-project-gate-run-evidence
 ---
 
 ## 目的

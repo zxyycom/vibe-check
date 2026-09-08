@@ -1,5 +1,6 @@
 ---
 title: 使用原生对象组合自定义 Check
+id: 260817-use-native-object-composition-for-check-customization
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T09:18:05Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 替代
-    target: use-check-value-derivation-contract.md
+    target: 260815-use-check-value-derivation-contract
 ---
 
 ## 目的

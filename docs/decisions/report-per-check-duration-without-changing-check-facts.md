@@ -1,5 +1,6 @@
 ---
 title: 报告每项 Check 时长而不改变 Check facts
+id: 260830-report-per-check-duration-without-changing-check-facts
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:34:09Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 拆分
-    target: preserve-release-gate-readiness-with-invocation-creation-time.md
+    target: 260830-preserve-release-gate-readiness-with-invocation-creation-time
 ---
 
 ## 目的

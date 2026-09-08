@@ -126,7 +126,7 @@ Decision 与 Change 之间的项目级交接：
    纳入实施授权时再实施。开始 Change 前不预先修改 alignment，也不把未对齐本身当作退回探索的
    理由。
 4. 一个 Change 可以落实一条或多条决策，一条决策也可以跨多个 Change 落实；Change 的任务完成、
-   stage 转换或归档都不会自动改变决策状态。
+   stage 转换或 complete 删除都不会自动改变决策状态。
 5. Change 的稳定事实 owner 已同步且相关验证通过后，对直接相关的活动决策触发 alignment 核对；
    是否改变 alignment、是否需要拆分或演进只按 `decision-records` 的判断与命令执行。
 
@@ -159,24 +159,22 @@ active membership、stage、进度、暂停或实施授权；它与目标 artifa
    `changes/<change>/` 持久交接。
 4. 已成为当前稳定规则的结果写入对应 `docs/` owner 文档；当前实现及其证明写入代码、测试和
    release artifact。
-5. Change 完成后先同步上述 owner，再完成语义验收；alignment 按“Decision 与 Change 交接”核对，
-   归档只在当前任务明确授权后执行。
+5. Change 完成后先同步上述 owner，再完成语义验收；alignment 按“Decision 与 Change 交接”核对。
+   只有当前任务明确授权删除且新版 `complete` 门禁通过时，才删除整个 Change 目录。
 
 载体出现差异时，按内容类型从权威 owner 恢复：当前稳定规则看 owner 文档，当前实现看代码、测试
 和 release artifact，形成时认识看调查报告，未来方向看活动决策，当前实施上下文看 active Change。
 确认差异后更新失配的当前载体，不让调查报告、Change 或历史材料反向覆盖现行事实。
 
-## 历史读取边界
+## 历史审计边界
 
-只有任务明确要求历史审计、恢复形成时依据或比较演进时，才读取
-[`archive/legacy/historical-openspec-materials.md`](../../archive/legacy/historical-openspec-materials.md)
-并按需进入其快照。历史内容不参与当前规范、计划或验证；恢复方向必须从当前 owner、活动决策和
-实现证据重新建立基线。
+仓库不保留已完成 Change 或迁移前 OpenSpec 的历史目录、索引或内容副本。只有任务明确要求历史审计、
+恢复形成时依据或比较演进时，才可从版本历史取得线索；历史内容不参与当前规范、计划或验证，也不直接
+恢复实施授权。任何需要继续推进的方向都必须以当前 owner、活动决策和实现证据重新建立基线。
 
-恢复时不继承历史 lifecycle、任务完成状态或实现基线，但这不表示已经形成的计划内容必须退回探索。
-经当前 owner、活动决策和实现证据重新核对后仍成立的范围、设计、任务与验证，应重建到当前 Change
-的固定 artifacts，再通过 `change-plan` 的正常门禁确认 plan；只有失去依据或仍存在实质未决的部分
-才重新探索。
+恢复时不继承旧 lifecycle、任务完成状态或实现基线。经当前事实重新核对后仍成立的范围、设计、任务与
+验证，应重建到当前 Change 的固定 artifacts，再通过 `change-plan` 的正常门禁确认 plan；只有失去依据或
+仍存在实质未决的部分才重新探索。
 
 ## 验证
 

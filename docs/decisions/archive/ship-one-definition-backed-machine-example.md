@@ -1,5 +1,6 @@
 ---
 title: 只随包交付一组由 Definition 支撑的 machine 示例
+id: 260829-ship-one-definition-backed-machine-example
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T03:49:57Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: keep-package-machine-docs-consumer-focused.md
+    target: 260829-keep-package-machine-docs-consumer-focused
 ---
 
 ## 目的

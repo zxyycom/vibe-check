@@ -1,5 +1,6 @@
 ---
 title: 让依赖 Check 读取上游 settled outputs
+id: 260821-let-dependent-checks-read-settled-upstream-outputs
 status: archived
 alignment: unaligned
 createdAt: 2026-08-21T07:32:25Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: project-executable-checks-into-validated-task-graph.md
+    target: 260817-project-executable-checks-into-validated-task-graph
 ---
 
 ## 目的

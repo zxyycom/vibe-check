@@ -1,5 +1,6 @@
 ---
 title: 使用 Check scoped invocation-wide 并行上限
+id: 260814-use-check-scoped-invocation-wide-parallel-limits
 status: archived
 alignment: aligned
 createdAt: 2026-08-14T13:50:48Z

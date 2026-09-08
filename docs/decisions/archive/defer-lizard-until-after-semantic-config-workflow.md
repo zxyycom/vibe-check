@@ -1,5 +1,6 @@
 ---
 title: 将 Lizard 运行时统一留到语义配置与产品工作之后
+id: 260803-defer-lizard-until-after-semantic-config-workflow
 status: archived
 alignment: null
 createdAt: 2026-08-03T09:05:03Z
@@ -10,7 +11,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: defer-lizard-runtime-unification.md
+    target: 260803-defer-lizard-runtime-unification
 ---
 
 ## 目的

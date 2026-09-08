@@ -1,5 +1,6 @@
 ---
 title: 使用无状态准入策略与 Scheduler 硬 guard
+id: 260901-use-stateless-admission-policies-with-hard-scheduler-guards
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T14:51:15Z
@@ -12,9 +13,9 @@ tags:
   - workflow-policy
 relations:
   - type: 归并
-    target: separate-admission-policy-from-scheduler-state-machine.md
+    target: 260901-separate-admission-policy-from-scheduler-state-machine
   - type: 归并
-    target: retain-running-parallel-limits-and-order-ready-admission-by-priority.md
+    target: 260901-retain-running-parallel-limits-and-order-ready-admission-by-priority
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在 Check Task 准入后执行 preflight
+id: 260901-run-check-preflight-with-task-admission
 status: active
 alignment: aligned
 createdAt: 2026-09-01T10:43:19Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: prepare-check-options-before-execution.md
+    target: 260826-prepare-check-options-before-execution
 ---
 
 ## 目的

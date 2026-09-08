@@ -1,5 +1,6 @@
 ---
 title: 让每个重复检测区域共同拥有文件范围和阈值
+id: 260828-let-each-duplicate-code-area-own-files-and-thresholds
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T04:31:52Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: scan-duplicate-code-once-across-code-areas.md
+    target: 260828-scan-duplicate-code-once-across-code-areas
 ---
 
 ## 目的

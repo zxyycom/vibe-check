@@ -1,5 +1,6 @@
 ---
 title: 让 Check 用局部 identity 提交 custom Record data
+id: 260821-report-check-owned-record-data-with-local-identities
 status: active
 alignment: aligned
 createdAt: 2026-08-21T05:58:41Z
@@ -11,9 +12,9 @@ tags:
   - product-contract
 relations:
   - type: 归并
-    target: keep-record-field-shapes-at-the-type-boundary.md
+    target: 260821-keep-record-field-shapes-at-the-type-boundary
   - type: 归并
-    target: use-check-owned-extractors-for-opaque-record-identities.md
+    target: 260821-use-check-owned-extractors-for-opaque-record-identities
 ---
 
 ## 目的

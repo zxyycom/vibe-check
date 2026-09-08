@@ -1,5 +1,6 @@
 ---
 title: 用 string getter 读取 direct dependency final data
+id: 260823-read-direct-dependency-final-data-by-string
 status: archived
 alignment: aligned
 createdAt: 2026-08-23T11:13:59Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: let-dependent-checks-read-settled-upstream-outputs.md
+    target: 260821-let-dependent-checks-read-settled-upstream-outputs
 ---
 
 ## 目的

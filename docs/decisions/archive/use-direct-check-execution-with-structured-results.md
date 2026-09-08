@@ -1,5 +1,6 @@
 ---
 title: 使用直接 Check execution 与结构化结果
+id: 260817-use-direct-check-execution-with-structured-results
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T16:29:25Z

@@ -1,5 +1,6 @@
 ---
 title: 以 owner 协议发布结构化 process Check Records
+id: 260904-publish-owner-structured-process-check-records
 status: active
 alignment: aligned
 createdAt: 2026-09-04T14:17:43Z

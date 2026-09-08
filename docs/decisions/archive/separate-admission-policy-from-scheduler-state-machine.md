@@ -1,5 +1,6 @@
 ---
 title: 将准入选择策略与 Scheduler 状态机分离
+id: 260901-separate-admission-policy-from-scheduler-state-machine
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T13:03:39Z

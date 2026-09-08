@@ -1,5 +1,6 @@
 ---
 title: 用调用方定义的身份对账质量 Finding 豁免
+id: 260830-reconcile-finding-waivers-with-caller-defined-identities
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T14:43:38Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics.md
+    target: 260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics
 ---
 
 ## 目的

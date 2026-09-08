@@ -1,5 +1,6 @@
 ---
 title: 以可读 ESM 模块树交付 package 运行时
+id: 260824-publish-readable-esm-package-layout
 status: archived
 alignment: aligned
 createdAt: 2026-08-24T08:04:05Z

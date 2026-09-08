@@ -1,5 +1,6 @@
 ---
 title: 在 Project Gate 内直接运行仓库质量 Checks
+id: 260829-run-repository-quality-checks-inside-project-gate
 status: archived
 alignment: unaligned
 createdAt: 2026-08-29T15:36:05Z

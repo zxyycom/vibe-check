@@ -1,5 +1,6 @@
 ---
 title: "Bun 冷启动下 Project Gate candidate 导入失败调查"
+id: "260901-diagnose-bun-cold-project-gate-candidate-import"
 formedAt: "2026-09-01T09:45:33+00:00"
 question: "为什么全新 worktree 的 environment setup 在成功安装并核对本地 package candidate 后，仍无法从 Project Gate 导入 @zxyycom/vibe-check；将 package:build 纳入 env:setup 能否完整满足项目的自举要求？"
 tags:

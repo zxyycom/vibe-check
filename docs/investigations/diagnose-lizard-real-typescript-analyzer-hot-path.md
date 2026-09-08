@@ -1,5 +1,6 @@
 ---
 title: "真实 TypeScript Lizard analyzer 慢路径诊断"
+id: "260903-diagnose-lizard-real-typescript-analyzer-hot-path"
 formedAt: "2026-09-03T08:48:45+00:00"
 question: "在真实仓库 TypeScript Product source 上，当前 TypeScript Lizard port 相对 upstream Python 仍约慢 2.35 倍，原因是否仍是此前的 reader 路径匹配，下一步可证实的热点和实施边界是什么？"
 tags:
@@ -11,9 +12,9 @@ tags:
   - "typescript"
 relations:
   - type: "归并"
-    target: "diagnose-lizard-typescript-port-performance-gap.md"
+    target: "260903-diagnose-lizard-typescript-port-performance-gap"
   - type: "归并"
-    target: "remeasure-lizard-python-typescript-real-typescript-analyzer-performance.md"
+    target: "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance"
 ---
 
 ## 形成时背景
@@ -95,26 +96,26 @@ Python cProfile 的热点也位于 tokenization、processors 和 TypeScript stat
 
 ## 随附资源
 
-- [provenance](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/provenance.json)
-- [python cProfile tottime](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/python-cprofile-tottime.txt)
-- [python profile driver](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-driver.py)
-- [python profile evidence](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-evidence.json)
-- [python regexp cache driver](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache-driver.py)
-- [python regexp cache](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache.json)
-- [python stage driver](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-driver.py)
-- [python stage measurement](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-measurement.json)
-- [typescript base tokenizer](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-base-tokenizer.json)
-- [typescript Bun CPU profile](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.md)
-- [typescript CPU profile run](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-cpu-profile-run.json)
-- [typescript façade direct counterfactual](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-counterfactual.json)
-- [typescript façade direct driver](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-driver.ts)
-- [typescript fastpath count](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-fastpath-count.json)
-- [typescript ordered resolver counterfactual](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-ordered-resolver-counterfactual.json)
-- [typescript profile driver](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-profile-driver.ts)
-- [typescript reader only](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-reader-only.jsonl)
-- [typescript regexp construction driver](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction-driver.ts)
-- [typescript regexp construction](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction.json)
-- [typescript regexp count](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-count.json)
-- [typescript stage driver](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-driver.ts)
-- [typescript stage timings](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-timings.jsonl)
-- [typescript tokenizer only](./_resources/diagnose-lizard-real-typescript-analyzer-hot-path/typescript-tokenizer-only.jsonl)
+- [provenance](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/provenance.json)
+- [python cProfile tottime](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-cprofile-tottime.txt)
+- [python profile driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-driver.py)
+- [python profile evidence](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-profile-evidence.json)
+- [python regexp cache driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache-driver.py)
+- [python regexp cache](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-regexp-cache.json)
+- [python stage driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-driver.py)
+- [python stage measurement](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-measurement.json)
+- [typescript base tokenizer](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-base-tokenizer.json)
+- [typescript Bun CPU profile](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.md)
+- [typescript CPU profile run](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-cpu-profile-run.json)
+- [typescript façade direct counterfactual](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-counterfactual.json)
+- [typescript façade direct driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-driver.ts)
+- [typescript fastpath count](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-fastpath-count.json)
+- [typescript ordered resolver counterfactual](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-ordered-resolver-counterfactual.json)
+- [typescript profile driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-profile-driver.ts)
+- [typescript reader only](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-reader-only.jsonl)
+- [typescript regexp construction driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction-driver.ts)
+- [typescript regexp construction](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-construction.json)
+- [typescript regexp count](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-regexp-count.json)
+- [typescript stage driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-driver.ts)
+- [typescript stage timings](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-stage-timings.jsonl)
+- [typescript tokenizer only](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-tokenizer-only.jsonl)

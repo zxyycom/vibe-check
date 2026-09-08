@@ -1,5 +1,6 @@
 ---
 title: 在执行前验证普通 Check options
+id: 260826-validate-ordinary-check-options-before-execution
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T03:37:48Z
@@ -11,9 +12,9 @@ tags:
   - product-contract
 relations:
   - type: 归并
-    target: let-each-check-own-file-selection.md
+    target: 260826-let-each-check-own-file-selection
   - type: 归并
-    target: treat-package-provided-checks-as-ordinary.md
+    target: 260826-treat-package-provided-checks-as-ordinary
 ---
 
 ## 目的

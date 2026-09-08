@@ -1,5 +1,6 @@
 ---
 title: 使用常规 JSON 文件名承载带注释配置
+id: 260803-use-json-filename-for-commented-config
 status: archived
 alignment: null
 createdAt: 2026-08-03T08:45:26Z

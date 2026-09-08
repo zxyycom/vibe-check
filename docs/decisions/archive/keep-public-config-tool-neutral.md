@@ -1,5 +1,6 @@
 ---
 title: 让 public project config 保持 scanner-tool 中立
+id: 260803-keep-public-config-tool-neutral
 status: archived
 alignment: null
 createdAt: 2026-08-03T08:45:33Z

@@ -1,5 +1,6 @@
 ---
 title: 在首发 Checks 中提供受控 Schema 引用
+id: 260825-allow-controlled-json-schema-reference-sources
 status: archived
 alignment: unaligned
 createdAt: 2026-08-25T08:08:27Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: complete-first-release-check-set-before-publication.md
+    target: 260824-complete-first-release-check-set-before-publication
 ---
 
 ## 目的

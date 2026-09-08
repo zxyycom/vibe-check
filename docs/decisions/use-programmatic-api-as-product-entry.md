@@ -1,5 +1,6 @@
 ---
 title: 让程序化 API 成为唯一正式产品执行入口
+id: 260812-use-programmatic-api-as-product-entry
 status: active
 alignment: aligned
 createdAt: 2026-08-12T09:12:51Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 拆分
-    target: use-versioned-npm-package-release-unit.md
+    target: 260806-use-versioned-npm-package-release-unit
 ---
 
 ## 目的

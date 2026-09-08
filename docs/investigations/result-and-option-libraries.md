@@ -1,5 +1,6 @@
 ---
 title: "采用 neverthrow 与项目自有 Option"
+id: "260811-result-and-option-libraries"
 formedAt: "2026-08-11T07:54:34Z"
 question: "Vibe Check 应如何分别表达值缺失与可预期失败，并用最少的第三方依赖保持同步和异步组合能力？"
 tags:

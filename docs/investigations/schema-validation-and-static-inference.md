@@ -1,5 +1,6 @@
 ---
 title: "Record schema authoring 的框架选择、替代项与互操作边界"
+id: "260821-schema-validation-and-static-inference"
 formedAt: "2026-08-21T02:22:26Z"
 question: "Vibe Check 的 typed Record 是否应以第三方 Schema 框架统一 runtime validation 与 static inference；若应采用，TypeBox、Zod、Valibot、ArkType、Ajv 及 Standard Schema / Standard JSON Schema 各自适合什么边界？"
 tags:

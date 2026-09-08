@@ -1,5 +1,6 @@
 ---
 title: 公开同步的单份项目文件收集工具
+id: 260908-provide-synchronous-single-selection-file-collection
 status: active
 alignment: aligned
 createdAt: 2026-09-08T01:32:42Z

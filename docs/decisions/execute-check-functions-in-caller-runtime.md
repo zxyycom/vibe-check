@@ -1,5 +1,6 @@
 ---
 title: 在调用方 runtime 中执行 Check functions
+id: 260817-execute-check-functions-in-caller-runtime
 status: active
 alignment: aligned
 createdAt: 2026-08-17T15:28:19Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: execute-project-functions-through-task-system-in-caller-runtime.md
+    target: 260814-execute-project-functions-through-task-system-in-caller-runtime
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: "CPython 与 JavaScriptCore 执行 Lizard tokenizer 正则的性能差距解释"
+id: "260903-explain-cpython-jsc-lizard-regex-performance-gap"
 formedAt: "2026-09-03T09:45:03+00:00"
 question: "在真实 TypeScript source 产生相同 raw token 与 UTF-16 offset 的前提下，为什么 upstream Python Lizard 的正则扫描明显快于 Bun 上的 TypeScript port，当前证据能把原因定位到哪一层？"
 tags:
@@ -13,9 +14,9 @@ tags:
   - "typescript"
 relations:
   - type: "归并"
-    target: "diagnose-lizard-real-typescript-analyzer-hot-path.md"
+    target: "260903-diagnose-lizard-real-typescript-analyzer-hot-path"
   - type: "归并"
-    target: "survey-lizard-host-acceleration-candidates.md"
+    target: "260903-survey-lizard-host-acceleration-candidates"
 ---
 
 ## 形成时背景
@@ -179,16 +180,16 @@ JSC source 只确认 RegExp JIT/bytecode、cache 与 8-bit/16-bit input 等实�
 
 ## 随附资源
 
-- [bun-feature-ablation.ts](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-ablation.ts)
-- [bun-feature-output-guards.ts](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-output-guards.ts)
-- [bun-generic-stage-control.ts](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/bun-generic-stage-control.ts)
-- [bun-raw-reuse.ts](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/bun-raw-reuse.ts)
-- [bun-symmetric-raw.ts](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/bun-symmetric-raw.ts)
-- [bun-synthetic-controls.ts](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/bun-synthetic-controls.ts)
-- [evidence.json](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/evidence.json)
-- [provenance.json](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/provenance.json)
-- [python-feature-ablation.py](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/python-feature-ablation.py)
-- [python-generic-stage-control.py](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/python-generic-stage-control.py)
-- [python-raw.py](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/python-raw.py)
-- [python-symmetric-raw.py](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/python-symmetric-raw.py)
-- [typescript-token-pattern.json](./_resources/explain-cpython-jsc-lizard-regex-performance-gap/typescript-token-pattern.json)
+- [bun-feature-ablation.ts](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-ablation.ts)
+- [bun-feature-output-guards.ts](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-feature-output-guards.ts)
+- [bun-generic-stage-control.ts](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-generic-stage-control.ts)
+- [bun-raw-reuse.ts](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-raw-reuse.ts)
+- [bun-symmetric-raw.ts](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-symmetric-raw.ts)
+- [bun-synthetic-controls.ts](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/bun-synthetic-controls.ts)
+- [evidence.json](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/evidence.json)
+- [provenance.json](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/provenance.json)
+- [python-feature-ablation.py](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/python-feature-ablation.py)
+- [python-generic-stage-control.py](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/python-generic-stage-control.py)
+- [python-raw.py](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/python-raw.py)
+- [python-symmetric-raw.py](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/python-symmetric-raw.py)
+- [typescript-token-pattern.json](./_resources/260903-explain-cpython-jsc-lizard-regex-performance-gap/typescript-token-pattern.json)

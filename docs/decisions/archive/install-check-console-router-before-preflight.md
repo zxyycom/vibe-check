@@ -1,5 +1,6 @@
 ---
 title: 在 Check preflight 前一次安装 console router
+id: 260831-install-check-console-router-before-preflight
 status: archived
 alignment: aligned
 createdAt: 2026-08-31T09:53:01Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: provide-product-progress-with-check-console-capture.md
+    target: 260831-provide-product-progress-with-check-console-capture
 ---
 
 ## 目的

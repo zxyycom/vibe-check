@@ -1,5 +1,6 @@
 ---
 title: 让唯一 machine 示例覆盖代表性公共 Check 能力
+id: 260829-ship-one-capability-rich-machine-example
 status: active
 alignment: aligned
 createdAt: 2026-08-29T04:17:23Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: ship-one-definition-backed-machine-example.md
+    target: 260829-ship-one-definition-backed-machine-example
 ---
 
 ## 目的

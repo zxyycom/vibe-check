@@ -1,5 +1,6 @@
 ---
 title: 只保留七项独立项目 Skill
+id: 260812-keep-seven-distinct-project-skills
 status: active
 alignment: aligned
 createdAt: 2026-08-12T05:41:33Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: use-complete-upstream-governance-skills.md
+    target: 260811-use-complete-upstream-governance-skills
 ---
 
 ## 目的

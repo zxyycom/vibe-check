@@ -1,5 +1,6 @@
 ---
 title: 将活动未对齐决策作为未来演进输入
+id: 260806-treat-unaligned-decisions-as-future-direction-input
 status: active
 alignment: aligned
 createdAt: 2026-08-06T01:44:08Z

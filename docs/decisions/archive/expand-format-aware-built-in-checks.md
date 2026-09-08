@@ -1,5 +1,6 @@
 ---
 title: 扩展格式感知的 Product-provided Checks
+id: 260805-expand-format-aware-built-in-checks
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T11:15:25Z
@@ -10,7 +11,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: expand-format-aware-quality-checks.md
+    target: 260804-expand-format-aware-quality-checks
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 将测试实体闭合与测试执行拆为独立 assurance
+id: 260826-separate-test-evidence-closure-from-execution
 status: active
 alignment: aligned
 createdAt: 2026-08-26T16:55:29Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: use-semantic-test-case-closure.md
+    target: 260730-use-semantic-test-case-closure
 ---
 
 ## 目的

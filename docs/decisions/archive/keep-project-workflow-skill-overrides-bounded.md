@@ -1,5 +1,6 @@
 ---
 title: 保持项目工作流 Skill 语义覆盖有界
+id: 260806-keep-project-workflow-skill-overrides-bounded
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T01:44:09Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: use-upstream-skills-with-project-local-exceptions.md
+    target: 260730-use-upstream-skills-with-project-local-exceptions
 ---
 
 ## 目的

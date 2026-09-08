@@ -1,5 +1,6 @@
 ---
 title: 让 Project Gate 绑定 Run aggregation
+id: 260821-bind-project-gates-to-run-aggregation
 status: archived
 alignment: aligned
 createdAt: 2026-08-21T15:02:46Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-user-owned-definition-for-observation-and-gates.md
+    target: 260814-use-user-owned-definition-for-observation-and-gates
 ---
 
 ## 目的

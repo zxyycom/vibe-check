@@ -42,7 +42,7 @@
 | [Tooling](tooling/workspace.md)、[Project Gate](tooling/project-gate.md)、[Package lifecycle](tooling/package-lifecycle.md)、[文档材料](tooling/documentation.md) | 仓库工具与发布维护者 | 否 | 开发命令、exact candidate、项目 Gate、包与文档维护工作流 |
 | [测试策略](testing/strategy.md)、[Case 维护](testing/case-maintenance.md)与 Case 账本 | 测试实施者、reviewer | 否 | 测试证明职责与证据完整性 |
 | [知识治理](governance/knowledge-maintenance.md)、[Change 协调](governance/change-coordination.md) | 维护者、交接代理 | 否 | 知识载体归属、文档影响审查与跨 Change 协调 |
-| Decisions、active Changes、Investigations 与 archive | 按明确任务进入的维护者 | 否 | 分别记录长期方向、实施上下文和形成时认识；历史不定义当前行为 |
+| Decisions、current Changes 与 Investigations | 按明确任务进入的维护者 | 否 | 分别记录长期方向、实施上下文和形成时认识；已完成 Change 不作为持久知识载体 |
 
 ## 如何阅读这些文档
 
@@ -65,7 +65,7 @@
 | 修改 package artifact、candidate、external consumer 或 formal release lifecycle                                                                        | [Package lifecycle](tooling/package-lifecycle.md)、[编码规范](development/coding-style.md)                                       | [Project Gate](tooling/project-gate.md)、package material 与 consumer acceptance                                                                          |
 | 新增或修改测试、fixture、Case 或验证脚本                                                                                                               | [测试策略](testing/strategy.md)、[测试证据维护](testing/case-maintenance.md)、[编码规范](development/coding-style.md)            | `docs/testing/cases/`、`test-evidence-review` skill、行为 owner 与相邻测试                                                                                |
 | 恢复、审阅或维护跨任务沿用的长期判断                                                                                                                   | `decision-records` skill、`bun run decisions -- list`、目标决策与相关行为 owner                                                  | 与 Change 交接时读[项目知识与变更治理](governance/knowledge-maintenance.md)                                                                               |
-| 创建、恢复、实施、搁置、验收或归档较大 change                                                                                                          | `change-plan` skill、`bun run change-plan -- list changes`、目标 `changes/<change>/`                                             | [项目知识与变更治理](governance/knowledge-maintenance.md)、相关决策与行为 owner                                                                           |
+| 创建、恢复、实施、搁置、验收或完成较大 change                                                                                                          | `change-plan` skill、`bun run change-plan -- list changes`、目标 `changes/<change>/`                                             | [项目知识与变更治理](governance/knowledge-maintenance.md)、相关决策与行为 owner                                                                           |
 | 协调多个 active Change 的依赖、合入顺序或 Git worktree                                                                                                 | [Change 执行依赖与 Worktree 协调](governance/change-coordination.md)、`bun run change-plan -- list changes`                      | 目标 Change artifacts、[项目知识与变更治理](governance/knowledge-maintenance.md)                                                                          |
 | 调查或修复中确认 Bug 达到项目定义的复杂或严重条件                                                                                                      | [复杂或严重 Bug 的自动调查沉淀](governance/knowledge-maintenance.md#复杂或严重-bug-的自动调查沉淀)、`investigation-report` skill | 目标报告、按需随附资源与 [Governance adapters](tooling/workspace.md#governance-and-test-evidence-adapters)                                                |
 | 创建、更新或审阅其他持久调查报告                                                                                                                       | `investigation-report` skill                                                                                                     | [Governance adapters](tooling/workspace.md#governance-and-test-evidence-adapters)、目标报告与按需随附资源                                                 |
@@ -84,12 +84,12 @@ defaults、execution、outcomes、final data、Records、messages、不可用原
 
 上表指定的公开与内部 owner 文档承接各自当前稳定规则；代码、测试和 release artifact 证明当前实现状态；活动决策
 承接已确认且跨 change 持续有效的方向；active Change Plan 承接单次 change 的实施上下文；调查
-报告保存形成时认识。完整载体分工、调查与实施交接、Decision / Change 协作和历史读取边界只见
+报告保存形成时认识。完整载体分工、调查与实施交接、Decision / Change 协作和历史审计边界只见
 [项目知识与变更治理](governance/knowledge-maintenance.md)。
 
 除非文档明确标注 Current 或已实现，目标性 `MUST` / `SHALL` 只表示目标契约或决策要求，不证明
 当前二进制已经支持。发现材料不一致时，先判断它是稳定规则、未来方向、当前计划、实现证据还是
-历史记录，再更新对应 owner；归档材料不参与当前规范、计划或验证。
+历史记录，再更新对应 owner；版本历史不参与当前规范、计划或验证。
 
 ## 交付验证
 

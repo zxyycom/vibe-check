@@ -1,5 +1,6 @@
 ---
 title: 发布前确认单一 Check authoring 与派生名称
+id: 260815-confirm-single-check-authoring-and-derivation-names-before-publication
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:40Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: confirm-built-in-check-and-adjustment-names-before-publication.md
+    target: 260815-confirm-built-in-check-and-adjustment-names-before-publication
 ---
 
 ## 目的

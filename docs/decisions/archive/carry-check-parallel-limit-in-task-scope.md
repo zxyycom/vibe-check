@@ -1,5 +1,6 @@
 ---
 title: 在 Task scope 中承载 Check 并行上限
+id: 260815-carry-check-parallel-limit-in-task-scope
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T03:47:07Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-check-scoped-invocation-wide-parallel-limits.md
+    target: 260814-use-check-scoped-invocation-wide-parallel-limits
 ---
 
 ## 目的

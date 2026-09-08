@@ -1,5 +1,6 @@
 ---
 title: "Admission core 持久数据结构库评估"
+id: "260903-evaluate-persistent-data-structure-libraries-for-admission-core"
 formedAt: "2026-09-03T13:52:58Z"
 question: "在 optimize-admission-core-selection-index 的 immutable admission state 中，成熟库能否替代 persistent indexed vector、max-priority frontier 与密集 reverse-index/counter，且是否值得进入 Vibe Check 的 public runtime candidate？"
 tags:
@@ -9,7 +10,7 @@ tags:
   - "persistent-data-structures"
 relations:
   - type: "补充"
-    target: "functional-utilities-and-data-structures.md"
+    target: "260811-functional-utilities-and-data-structures"
 ---
 
 ## 形成时背景
@@ -61,7 +62,7 @@ max-heap。现有 benchmark 的形状包括 T=64/256/1024/4096、branch retentio
 API、GitHub repository / latest-commit / release API、以及随包 README、declaration 和 LICENSE。版本、最近
 npm 发布、license、依赖、unpacked size、file count、module/types/exports 和 engines 来自 npm manifest；star
 和 2026-08-04 至 2026-09-02 的下载只作采用信号，不证明正确性或性能。完整可复查快照、端点和原始
-字段见[上游快照](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json)。
+字段见[上游快照](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json)。
 
 候选以能力而非数量筛选：已安装的 [Mnemonist 0.40.4](https://registry.npmjs.org/mnemonist/0.40.4)、
 成熟的 [Immutable.js 5.1.9](https://registry.npmjs.org/immutable/5.1.9)、搜索发现且确实提供 persistent
@@ -78,9 +79,9 @@ ordered set 的 [@rimbu/sorted 2.1.10](https://registry.npmjs.org/%40rimbu%2Fsor
 检查。对 Mnemonist root `MaxHeap` 的 `push`、以及 datastructures-js `enqueue`，别名观察证明为原地
 mutation；Mnemonist 的 `mnemonist/heap.js` subpath 在 Bun 和 Node 24 ESM 都被其 exports map 拒绝，只有
 root ESM import 可用。类型检查使用项目 TypeScript 后运行了同一 spike。可复现源码和结果分别见
-[spike](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/spike.ts)、
-[spike 复现](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/spike-reproduction.md) 与
-[spike 输出](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json)。
+[spike](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike.ts)、
+[spike 复现](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike-reproduction.md) 与
+[spike 输出](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json)。
 
 ## 调查结果与边界
 
@@ -167,7 +168,7 @@ hard guard 或 package bundle，不能宣称 end-to-end speedup、allocation/ret
 
 ## 随附资源
 
-- [spike-output.json](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json)
-- [spike-reproduction.md](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/spike-reproduction.md)
-- [spike.ts](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/spike.ts)
-- [upstream-snapshot.json](./_resources/evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json)
+- [spike-output.json](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike-output.json)
+- [spike-reproduction.md](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike-reproduction.md)
+- [spike.ts](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/spike.ts)
+- [upstream-snapshot.json](./_resources/260903-evaluate-persistent-data-structure-libraries-for-admission-core/upstream-snapshot.json)

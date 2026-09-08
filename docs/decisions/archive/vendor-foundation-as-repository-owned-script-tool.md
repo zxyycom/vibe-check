@@ -1,5 +1,6 @@
 ---
 title: 将 foundation 固化为仓库自有脚本工具
+id: 260818-vendor-foundation-as-repository-owned-script-tool
 status: archived
 alignment: aligned
 createdAt: 2026-08-18T09:24:16Z

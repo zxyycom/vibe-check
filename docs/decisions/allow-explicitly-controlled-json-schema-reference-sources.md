@@ -1,5 +1,6 @@
 ---
 title: 仅允许显式受控的 JSON Schema 引用来源
+id: 260830-allow-explicitly-controlled-json-schema-reference-sources
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:33:59Z
@@ -11,11 +12,11 @@ tags:
   - product-contract
 relations:
   - type: 重划
-    target: allow-controlled-json-schema-reference-sources.md
+    target: 260825-allow-controlled-json-schema-reference-sources
   - type: 重划
-    target: complete-first-release-check-set-without-markdown-structure.md
+    target: 260824-complete-first-release-check-set-without-markdown-structure
   - type: 重划
-    target: expand-format-aware-built-in-checks.md
+    target: 260805-expand-format-aware-built-in-checks
 ---
 
 ## 目的

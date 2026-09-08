@@ -1,5 +1,6 @@
 ---
 title: 在 machine v3 只发布 Check、Record 与运行元数据
+id: 260815-publish-check-record-machine-v3
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T08:26:56Z

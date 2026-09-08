@@ -1,5 +1,6 @@
 ---
 title: 分别继承 dependsOn 与 observes relation
+id: 260901-inherit-depends-on-and-observes-independently
 status: active
 alignment: aligned
 createdAt: 2026-09-01T10:43:20Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-inherit-for-check-collection-edits.md
+    target: 260817-use-inherit-for-check-collection-edits
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 集中 Project Gate 定义并分离 adapter 与 runtime
+id: 260831-centralize-project-gate-definition-and-separate-adapters
 status: archived
 alignment: aligned
 createdAt: 2026-08-31T07:49:37Z

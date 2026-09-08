@@ -1,5 +1,6 @@
 ---
 title: 从 package root 导出消费者需要命名的 supporting types
+id: 260906-export-consumer-named-supporting-types-from-package-root
 status: active
 alignment: aligned
 createdAt: 2026-09-06T16:12:41Z

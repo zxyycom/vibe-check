@@ -1,5 +1,6 @@
 ---
 title: 让每个 Check 完整拥有自己的文件选择
+id: 260826-let-each-check-own-file-selection
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T02:26:58Z
@@ -11,9 +12,9 @@ tags:
   - product-contract
 relations:
   - type: 归并
-    target: use-check-owned-file-overrides.md
+    target: 260822-use-check-owned-file-overrides
   - type: 归并
-    target: define-offline-markdown-link-target-boundaries.md
+    target: 260825-define-offline-markdown-link-target-boundaries
 ---
 
 ## 目的

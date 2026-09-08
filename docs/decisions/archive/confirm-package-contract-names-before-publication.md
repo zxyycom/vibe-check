@@ -1,5 +1,6 @@
 ---
 title: 发布前确认 package 公共契约名称
+id: 260812-confirm-package-contract-names-before-publication
 status: archived
 alignment: unaligned
 createdAt: 2026-08-12T11:07:30Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: approve-public-names-before-publication.md
+    target: 260812-approve-public-names-before-publication
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 公开配置定义函数与 Package Run
+id: 260814-expose-config-definition-and-project-run-operations
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:33Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: expose-two-public-operations.md
+    target: 260812-expose-two-public-operations
 ---
 
 ## 目的

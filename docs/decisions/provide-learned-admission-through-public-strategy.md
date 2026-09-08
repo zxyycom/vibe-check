@@ -1,5 +1,6 @@
 ---
 title: 通过公共策略接口提供可选学习准入
+id: 260907-provide-learned-admission-through-public-strategy
 status: active
 alignment: aligned
 createdAt: 2026-09-07T10:07:16Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: learn-check-task-durations-for-critical-path-admission.md
+    target: 260902-learn-check-task-durations-for-critical-path-admission
 ---
 
 ## 目的

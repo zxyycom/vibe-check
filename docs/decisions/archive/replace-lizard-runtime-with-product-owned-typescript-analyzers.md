@@ -1,5 +1,6 @@
 ---
 title: 以产品自有 TypeScript 分析器完整替换 Lizard runtime
+id: 260902-replace-lizard-runtime-with-product-owned-typescript-analyzers
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T08:10:10Z
@@ -13,9 +14,9 @@ tags:
   - product-priority
 relations:
   - type: 归并
-    target: defer-lizard-until-after-check-foundations.md
+    target: 260805-defer-lizard-until-after-check-foundations
   - type: 归并
-    target: let-function-metrics-adapter-own-lizard-cli-protocol.md
+    target: 260828-let-function-metrics-adapter-own-lizard-cli-protocol
 ---
 
 ## 目的

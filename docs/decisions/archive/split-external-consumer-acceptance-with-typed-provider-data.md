@@ -1,5 +1,6 @@
 ---
 title: 以 typed provider data 拆分 external consumer acceptance
+id: 260827-split-external-consumer-acceptance-with-typed-provider-data
 status: archived
 alignment: aligned
 createdAt: 2026-08-27T05:00:42Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: reuse-prepared-candidate-across-package-acceptance.md
+    target: 260827-reuse-prepared-candidate-across-package-acceptance
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 用连续阶段解释 Gate 初步结果耗时
+id: 260830-refine-project-gate-context-timing-phases
 status: active
 alignment: aligned
 createdAt: 2026-08-30T04:14:37Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: post-process-project-gate-with-owned-context.md
+    target: 260827-post-process-project-gate-with-owned-context
 ---
 
 ## 目的

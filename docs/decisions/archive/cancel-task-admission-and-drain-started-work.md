@@ -1,5 +1,6 @@
 ---
 title: 取消 Task admission 并收尾已启动工作
+id: 260815-cancel-task-admission-and-drain-started-work
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T10:28:59Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: cooperatively-cancel-task-graphs.md
+    target: 260815-cooperatively-cancel-task-graphs
 ---
 
 ## 目的

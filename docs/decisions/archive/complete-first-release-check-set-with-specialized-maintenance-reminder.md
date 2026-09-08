@@ -1,5 +1,6 @@
 ---
 title: 以专用构造函数完成首版维护提醒
+id: 260824-complete-first-release-check-set-with-specialized-maintenance-reminder
 status: archived
 alignment: unaligned
 createdAt: 2026-08-24T13:52:31Z
@@ -12,11 +13,11 @@ tags:
   - product-priority
 relations:
   - type: 归并
-    target: complete-first-release-check-set-before-publication.md
+    target: 260824-complete-first-release-check-set-before-publication
   - type: 归并
-    target: expose-minimal-check-and-run-public-surface.md
+    target: 260821-expose-minimal-check-and-run-public-surface
   - type: 归并
-    target: use-native-object-composition-for-check-customization.md
+    target: 260817-use-native-object-composition-for-check-customization
 ---
 
 ## 目的

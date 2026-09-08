@@ -1,5 +1,6 @@
 ---
 title: "Admission state 性能与单一 selection index 评估"
+id: "260903-assess-admission-state-performance-and-selection-index"
 formedAt: "2026-09-03T11:15:08+00:00"
 question: "当前 immutable AdmissionGraph/AdmissionState 的实际性能与复杂度如何，单一 selection index 和逐条件筛选能否成为下一轮优化的核心？"
 tags:
@@ -17,9 +18,9 @@ relations: []
 当前行为由源码、测试和稳定行为文档 owner 承接；本报告的 Markdown 是本轮调查认识的语义 owner，
 `investigation-index.json` 只是它的派生发现索引。
 
-历史 Change `provide-admission-strategy-simulation` 已交付并归档。它引入 private parent+delta state，
+历史 Change `provide-admission-strategy-simulation` 已交付，形成时目录现已按完成态策略删除。它引入 private parent+delta state，
 让 standalone `AdmissionGraph`、callback-bound `AdmissionState` 和真实 Scheduler 共用 legality、transition、
-forced-block 与 effect 语义，同时让 successor 保留 predecessor reference 而不复制完整动态状态。该归档 Change
+forced-block 与 effect 语义，同时让 successor 保留 predecessor reference 而不复制完整动态状态。该已完成 Change
 提供本轮的形成时 benchmark 材料；它不是当前实现或下一轮优化方案的 owner。
 
 形成时的性能问题来自两个已观察到的事实：完整 Scheduler real-run 相对实施前同机记录变慢，以及当前实现会在
@@ -52,10 +53,10 @@ state 查询、candidate 枚举、capacity/mutex/scope 判断和 forced-block cl
 
 | 材料 | 在本报告中的作用 | 能支持 / 不能支持 |
 | --- | --- | --- |
-| [归档 benchmark summary](../../changes/archive/provide-admission-strategy-simulation/readiness/admission-state-benchmark.summary.md)、相邻 [raw evidence](../../changes/archive/provide-admission-strategy-simulation/readiness/admission-state-benchmark.raw.json) 与 [manifest](../../changes/archive/provide-admission-strategy-simulation/readiness/admission-state-benchmark.manifest.json) | 当前量级、batch shape、fixture、host 与测量限制的形成时证据 | 支持同一记录内的 p50/p95 和 workload 描述；不把 `heapUsed` proxy 当 allocation/retained-object 计数，不证明函数级因果。 |
+| 形成时 `provide-admission-strategy-simulation` 的 benchmark summary、raw evidence 与 manifest（现已按完成态删除策略移除） | 当前量级、batch shape、fixture、host 与测量限制的形成时证据 | 支持本报告已经摘录的同一记录内 p50/p95 和 workload 描述；不提供当前可重放 artifact，不把 `heapUsed` proxy 当 allocation/retained-object 计数，也不证明函数级因果。 |
 | Plan 基线 commit `bc93fe0ca7cbcd310cf187a2a2c2076b57eb6e13` 的同一 benchmark `pre-implementation real-shell` rows | 同机、同 fixture/seed/batch-shape 的 before signal | 支持回退调查信号；两次采集时间不同，不能充当跨环境预算或将差异完全归因于 admission state。 |
 | 形成时的 `src/project-run/task-scheduler/admission-core.ts`、[`graph-validation.ts`](../../src/project-run/task-scheduler/graph-validation.ts)、[`scheduler.ts`](../../src/project-run/task-scheduler/scheduler.ts) 与 [`execution-state.ts`](../../src/project-run/task-scheduler/execution-state.ts) | 形成时的 selection、state、settlement、compile 和 Scheduler owner 分析 | 支持本文的静态控制流与渐近推导；不替代新的 profile 或多规模测量。 |
-| [归档 tasks 的 Verification 2.1–2.5](../../changes/archive/provide-admission-strategy-simulation/tasks.md#verification) | 形成时 correctness 与 Gate 验证已完成的记录；Gate process entry 由 `scripts/project/gate/run.ts` 拥有。 | 支持把它们视为行为验收，而非本轮的性能材料；不能证明没有 numeric performance regression，因为 Gate 没有该 budget。 |
+| 形成时 `provide-admission-strategy-simulation/tasks.md` 的 Verification 2.1–2.5（现已删除） | 形成时 correctness 与 Gate 验证已完成的记录；Gate process entry 由 `scripts/project/gate/run.ts` 拥有。 | 只支持本报告对形成时行为验收的记述，不提供当前独立复核材料；不能证明没有 numeric performance regression，因为 Gate 没有该 budget。 |
 
 Benchmark 命令为 `bun changes/provide-admission-strategy-simulation/readiness/admission-state-benchmark.ts`。形成时环境为
 Bun `1.3.14`、Linux WSL2、AMD Ryzen AI 7 H 450，固定 seed `20260903`、5 个 warmup sample 与 17 个

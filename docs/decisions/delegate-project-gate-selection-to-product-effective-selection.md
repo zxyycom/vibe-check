@@ -1,5 +1,6 @@
 ---
 title: 让 Project Gate 委托 Product 处理依赖选择
+id: 260904-delegate-project-gate-selection-to-product-effective-selection
 status: active
 alignment: aligned
 createdAt: 2026-09-04T09:21:35Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: use-project-check-command-with-focused-gate-presets.md
+    target: 260904-use-project-check-command-with-focused-gate-presets
 ---
 
 ## 目的

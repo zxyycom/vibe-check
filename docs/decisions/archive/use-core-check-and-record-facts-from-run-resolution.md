@@ -1,5 +1,6 @@
 ---
 title: 从 Run resolution 建立 Core Check 与 Record 事实
+id: 260815-use-core-check-and-record-facts-from-run-resolution
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T10:28:59Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: use-core-check-and-quality-record-facts.md
+    target: 260815-use-core-check-and-quality-record-facts
 ---
 
 ## 目的

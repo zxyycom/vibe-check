@@ -1,5 +1,6 @@
 ---
 title: 按人工检查目的组织 Project Run 与 Gate 诊断
+id: 260830-organize-project-run-and-gate-diagnostics-for-human-inspection
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T10:20:40Z

@@ -1,5 +1,6 @@
 ---
 title: 在 Project Definition 使用可组合 Check tree 并由 Package Run 构造内置绑定
+id: 260815-use-composable-check-tree-with-run-owned-bindings
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T07:34:24Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-composable-check-tree-in-project-definition.md
+    target: 260814-use-composable-check-tree-in-project-definition
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在 task-local Check 生命周期中保持 console router
+id: 260901-keep-console-router-through-task-local-check-lifecycle
 status: active
 alignment: aligned
 createdAt: 2026-09-01T10:43:21Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: install-check-console-router-before-preflight.md
+    target: 260831-install-check-console-router-before-preflight
 ---
 
 ## 目的

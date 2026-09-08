@@ -1,5 +1,6 @@
 ---
 title: 将 executable Check 直接投影到已验证 Task graph
+id: 260817-project-executable-checks-into-validated-task-graph
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T15:47:47Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: execute-recursive-checks-through-one-task-graph.md
+    target: 260815-execute-recursive-checks-through-one-task-graph
 ---
 
 ## 目的

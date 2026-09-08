@@ -1,5 +1,6 @@
 ---
 title: 比较只使用显式命名并冻结的参考
+id: 260805-require-explicit-named-comparison-references
 status: archived
 alignment: aligned
 createdAt: 2026-08-05T10:31:35Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: require-explicit-quality-comparison-references.md
+    target: 260805-require-explicit-quality-comparison-references
 ---
 
 ## 目的

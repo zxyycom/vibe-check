@@ -1,5 +1,6 @@
 ---
 title: 由 Project Definition 值驱动 Package Run
+id: 260814-drive-run-from-project-definition-value
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:34Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: drive-product-execution-from-project-definition.md
+    target: 260812-drive-product-execution-from-project-definition
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 从带默认值的区域政策构造重复检测 Check
+id: 260828-construct-duplicate-detection-from-defaulted-policy
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T05:31:57Z
@@ -11,9 +12,9 @@ tags:
   - product-contract
 relations:
   - type: 归并
-    target: expose-ordinary-check-values-with-define-check.md
+    target: 260817-expose-ordinary-check-values-with-define-check
   - type: 归并
-    target: let-each-duplicate-code-area-own-files-and-thresholds.md
+    target: 260828-let-each-duplicate-code-area-own-files-and-thresholds
 ---
 
 ## 目的

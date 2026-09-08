@@ -1,5 +1,6 @@
 ---
 title: 以单一 README 分级组织 package 文档
+id: 260827-structure-package-documentation-around-one-readme
 status: archived
 alignment: aligned
 createdAt: 2026-08-27T14:56:42Z

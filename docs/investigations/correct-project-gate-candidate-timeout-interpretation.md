@@ -1,5 +1,6 @@
 ---
 title: "修正 Project Gate candidate 超时与并发优化边界"
+id: "260904-correct-project-gate-candidate-timeout-interpretation"
 formedAt: "2026-09-04T02:16:34+00:00"
 question: "20 秒 candidate case timeout 应如何解释，后续优化是否应改变 Gate 全局并发或改为慢 Check 的局部并发约束？"
 tags:
@@ -9,7 +10,7 @@ tags:
   - "test-reliability"
 relations:
   - type: "修正"
-    target: "diagnose-project-gate-candidate-timeout-under-contention.md"
+    target: "260904-diagnose-project-gate-candidate-timeout-under-contention"
 ---
 
 ## 形成时背景

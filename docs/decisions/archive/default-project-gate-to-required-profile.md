@@ -1,5 +1,6 @@
 ---
 title: 让默认 Project Gate 使用 required profile
+id: 260823-default-project-gate-to-required-profile
 status: archived
 alignment: aligned
 createdAt: 2026-08-23T16:30:16Z

@@ -1,5 +1,6 @@
 ---
 title: 在采用指定扩展时保持 Lizard advisory 显式
+id: 260903-keep-lizard-advisory-explicit-with-selected-extension-adoption
 status: active
 alignment: aligned
 createdAt: 2026-09-03T14:38:09Z
@@ -13,7 +14,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: track-lizard-supported-languages-with-upstream-advisory.md
+    target: 260902-track-lizard-supported-languages-with-upstream-advisory
 ---
 
 ## 目的

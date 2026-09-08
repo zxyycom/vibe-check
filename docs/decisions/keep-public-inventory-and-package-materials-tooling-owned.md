@@ -1,5 +1,6 @@
 ---
 title: 保持 public inventory 由 package materials tooling 拥有
+id: 260830-keep-public-inventory-and-package-materials-tooling-owned
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:34:11Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 拆分
-    target: refine-project-run-and-settlement-owners.md
+    target: 260826-refine-project-run-and-settlement-owners
 ---
 
 ## 目的

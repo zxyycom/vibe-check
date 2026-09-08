@@ -1,5 +1,6 @@
 ---
 title: 让函数指标 adapter 独占 Lizard CLI 协议
+id: 260828-let-function-metrics-adapter-own-lizard-cli-protocol
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T06:28:26Z

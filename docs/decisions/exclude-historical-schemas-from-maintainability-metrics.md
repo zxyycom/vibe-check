@@ -1,5 +1,6 @@
 ---
 title: 将历史 Schema 移出可维护性指标
+id: 260902-exclude-historical-schemas-from-maintainability-metrics
 status: active
 alignment: aligned
 createdAt: 2026-09-02T06:42:06Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 替代
-    target: waive-historical-v2-schema-file-metric-with-preserved-evidence.md
+    target: 260830-waive-historical-v2-schema-file-metric-with-preserved-evidence
 ---
 
 ## 目的

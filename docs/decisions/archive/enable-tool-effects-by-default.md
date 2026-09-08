@@ -1,5 +1,6 @@
 ---
 title: 默认启用工具运行副作用
+id: 260812-enable-tool-effects-by-default
 status: archived
 alignment: unaligned
 createdAt: 2026-08-12T10:30:31Z

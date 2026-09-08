@@ -1,5 +1,6 @@
 ---
 title: 保持 Invocation 策略生命周期不识别学习特例
+id: 260907-keep-invocation-lifecycle-free-of-learned-special-cases
 status: active
 alignment: aligned
 createdAt: 2026-09-07T10:07:18Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: retain-private-invocation-admission-strategy-lifecycle.md
+    target: 260903-retain-private-invocation-admission-strategy-lifecycle
 ---
 
 ## 目的

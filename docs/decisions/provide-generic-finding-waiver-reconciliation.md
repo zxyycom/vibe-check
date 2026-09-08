@@ -1,5 +1,6 @@
 ---
 title: 提供泛型 Finding waiver 对账能力
+id: 260830-provide-generic-finding-waiver-reconciliation
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:34:10Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 拆分
-    target: reconcile-finding-waivers-with-caller-defined-identities.md
+    target: 260830-reconcile-finding-waivers-with-caller-defined-identities
 ---
 
 ## 目的

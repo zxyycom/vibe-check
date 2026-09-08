@@ -1,5 +1,6 @@
 ---
 title: 将 jscpd 版本作为 adapter provenance 而非项目政策
+id: 260828-treat-jscpd-version-as-adapter-provenance
 status: active
 alignment: aligned
 createdAt: 2026-08-28T06:12:49Z
@@ -12,7 +13,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: let-duplicate-detection-adapter-own-cli-protocol.md
+    target: 260828-let-duplicate-detection-adapter-own-cli-protocol
 ---
 
 ## 目的

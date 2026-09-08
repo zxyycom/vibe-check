@@ -1,5 +1,6 @@
 ---
 title: 以唯一 prepared candidate 完成 Project Gate package 验收
+id: 260904-reuse-gate-prepared-candidate-without-detached-lifecycle
 status: active
 alignment: aligned
 createdAt: 2026-09-04T03:03:18Z
@@ -12,9 +13,9 @@ tags:
   - workflow-policy
 relations:
   - type: 归并
-    target: configure-project-gate-admission-priority-by-repeated-comparative-evidence.md
+    target: 260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence
   - type: 归并
-    target: split-external-consumer-acceptance-with-typed-provider-data.md
+    target: 260827-split-external-consumer-acceptance-with-typed-provider-data
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在 package 中交付当前 machine contract 材料
+id: 260828-ship-current-machine-contract-materials-in-the-package
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T15:05:30Z

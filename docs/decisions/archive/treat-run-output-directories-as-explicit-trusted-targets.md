@@ -1,5 +1,6 @@
 ---
 title: 将 Run output directory 视为显式受信任 target
+id: 260831-treat-run-output-directories-as-explicit-trusted-targets
 status: archived
 alignment: aligned
 createdAt: 2026-08-31T15:15:51Z

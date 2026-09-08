@@ -1,5 +1,6 @@
 ---
 title: 分离成功前置与已结算终态观测
+id: 260901-separate-passed-dependencies-from-settled-observations
 status: active
 alignment: aligned
 createdAt: 2026-09-01T10:43:18Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: enumerate-normalized-direct-dependency-outcomes.md
+    target: 260831-enumerate-normalized-direct-dependency-outcomes
 ---
 
 ## 目的

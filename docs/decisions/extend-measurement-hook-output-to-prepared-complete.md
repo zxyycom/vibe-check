@@ -1,5 +1,6 @@
 ---
 title: 将 prepared complete 纳入 measurement Hook output
+id: 260903-extend-measurement-hook-output-to-prepared-complete
 status: active
 alignment: aligned
 createdAt: 2026-09-03T06:15:21Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: preserve-primary-run-failures-over-measurement-hook-output.md
+    target: 260902-preserve-primary-run-failures-over-measurement-hook-output
 ---
 
 ## 目的

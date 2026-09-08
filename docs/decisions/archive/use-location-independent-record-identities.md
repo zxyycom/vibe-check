@@ -1,5 +1,6 @@
 ---
 title: QualityRecord 稳定身份不使用当前源码位置
+id: 260805-use-location-independent-record-identities
 status: archived
 alignment: aligned
 createdAt: 2026-08-05T11:15:26Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: use-location-independent-finding-identities.md
+    target: 260804-use-location-independent-finding-identities
 ---
 
 ## 目的

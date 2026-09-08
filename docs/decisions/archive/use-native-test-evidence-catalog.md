@@ -1,5 +1,6 @@
 ---
 title: 采用一原生测试节点一条证据的统一目录
+id: 260727-use-native-test-evidence-catalog
 status: archived
 alignment: null
 createdAt: 2026-07-27T06:40:00Z

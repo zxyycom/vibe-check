@@ -1,5 +1,6 @@
 ---
 title: 按问题形态约束实现风格
+id: 260811-choose-implementation-style-by-problem-shape
 status: active
 alignment: aligned
 createdAt: 2026-08-11T07:32:31Z

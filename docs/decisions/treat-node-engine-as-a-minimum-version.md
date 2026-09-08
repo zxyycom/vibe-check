@@ -1,5 +1,6 @@
 ---
 title: 将 Node package engine 作为最低版本约束
+id: 260906-treat-node-engine-as-a-minimum-version
 status: active
 alignment: aligned
 createdAt: 2026-09-06T13:15:40Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: support-node-as-the-package-host.md
+    target: 260906-support-node-as-the-package-host
 ---
 
 ## 目的

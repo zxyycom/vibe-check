@@ -1,5 +1,6 @@
 ---
 title: 在 Task scope 中承载递归 Check 并行上限
+id: 260815-carry-recursive-check-parallel-limits-through-task-scopes
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:20Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: carry-check-parallel-limit-in-task-scope.md
+    target: 260815-carry-check-parallel-limit-in-task-scope
 ---
 
 ## 目的

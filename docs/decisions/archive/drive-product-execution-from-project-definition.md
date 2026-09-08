@@ -1,5 +1,6 @@
 ---
 title: 由 Project Definition 驱动产品执行
+id: 260812-drive-product-execution-from-project-definition
 status: archived
 alignment: unaligned
 createdAt: 2026-08-12T10:30:34Z

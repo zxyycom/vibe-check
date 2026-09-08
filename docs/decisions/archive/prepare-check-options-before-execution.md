@@ -1,5 +1,6 @@
 ---
 title: 在执行前准备普通 Check options
+id: 260826-prepare-check-options-before-execution
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T05:00:24Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: validate-ordinary-check-options-before-execution.md
+    target: 260826-validate-ordinary-check-options-before-execution
 ---
 
 ## 目的

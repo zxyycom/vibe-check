@@ -1,5 +1,6 @@
 ---
 title: 使用直接 Check execution 与最小 Record reporting
+id: 260821-use-direct-check-execution-with-minimal-record-reporting
 status: archived
 alignment: unaligned
 createdAt: 2026-08-21T05:58:42Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-direct-check-execution-with-structured-results.md
+    target: 260817-use-direct-check-execution-with-structured-results
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在稳定承诺前让 package 保持 0.0.x 版本线
+id: 260812-keep-prestable-package-releases-on-0-0-x
 status: active
 alignment: aligned
 createdAt: 2026-08-12T09:27:03Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: keep-prestable-releases-on-0-0-x.md
+    target: 260806-keep-prestable-releases-on-0-0-x
 ---
 
 ## 目的

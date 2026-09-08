@@ -1,5 +1,6 @@
 ---
 title: 使用四态 Check final result 与主数据
+id: 260821-use-four-state-check-results-with-final-data
 status: active
 alignment: aligned
 createdAt: 2026-08-21T15:02:44Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-direct-check-execution-with-minimal-record-reporting.md
+    target: 260821-use-direct-check-execution-with-minimal-record-reporting
 ---
 
 ## 目的

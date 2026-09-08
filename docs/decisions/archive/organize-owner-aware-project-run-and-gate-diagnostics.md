@@ -1,5 +1,6 @@
 ---
 title: 以 owner-aware channel 组织 Project Run 与 Gate 诊断
+id: 260904-organize-owner-aware-project-run-and-gate-diagnostics
 status: archived
 alignment: aligned
 createdAt: 2026-09-04T06:54:13Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: organize-project-run-and-gate-diagnostics-for-human-inspection.md
+    target: 260830-organize-project-run-and-gate-diagnostics-for-human-inspection
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在个人 npm scope 公开发布 Vibe Check package
+id: 260831-publish-user-scoped-vibe-check-publicly
 status: active
 alignment: aligned
 createdAt: 2026-08-31T03:56:03Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: publish-unscoped-vibe-check-publicly.md
+    target: 260814-publish-unscoped-vibe-check-publicly
 ---
 
 ## 目的

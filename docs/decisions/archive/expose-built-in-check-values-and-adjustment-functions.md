@@ -1,5 +1,6 @@
 ---
 title: 公开内置 Check 值与独立调整函数
+id: 260815-expose-built-in-check-values-and-adjustment-functions
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T06:16:14Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: expose-built-in-check-values-alongside-config-and-run.md
+    target: 260814-expose-built-in-check-values-alongside-config-and-run
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 按测量与资源责任调度 Project Gate
+id: 260827-schedule-project-gate-by-measured-resource-ownership
 status: archived
 alignment: aligned
 createdAt: 2026-08-27T00:41:38Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: make-package-lifecycle-gate-tests-explicit.md
+    target: 260826-make-package-lifecycle-gate-tests-explicit
 ---
 
 ## 目的

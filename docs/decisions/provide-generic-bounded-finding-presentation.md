@@ -1,5 +1,6 @@
 ---
 title: 提供由 Check 配置的通用有界 Finding 展示
+id: 260831-provide-generic-bounded-finding-presentation
 status: active
 alignment: aligned
 createdAt: 2026-08-31T09:23:56Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: present-bounded-safe-finding-summaries.md
+    target: 260831-present-bounded-safe-finding-summaries
 ---
 
 ## 目的

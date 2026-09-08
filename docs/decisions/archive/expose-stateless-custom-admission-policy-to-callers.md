@@ -1,5 +1,6 @@
 ---
 title: 向调用方公开无状态 custom admission policy
+id: 260901-expose-stateless-custom-admission-policy-to-callers
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T14:55:23Z

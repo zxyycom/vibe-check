@@ -15,8 +15,132 @@ export type InvestigationRelationType =
   | "拆分";
 
 export type InvestigationRelation = {
-  target: string;
   type: InvestigationRelationType;
+  target: string;
+  summary?: string;
+};
+
+export type InvestigationCandidateReadiness = {
+  bodyReady: boolean;
+  resourceReady: boolean;
+  scaffoldValid: boolean;
+};
+
+export type InvestigationCandidate = {
+  errors: string[];
+  id: string;
+  markdown: string | null;
+  path: string;
+  readiness: InvestigationCandidateReadiness;
+  warnings: string[];
+};
+
+export type InvestigationCandidateCreateOptions = {
+  formedAt: string;
+  id: string;
+  investigationsDir?: string;
+  question: string;
+  relations: readonly InvestigationRelation[];
+  tags: readonly string[];
+  title: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateCreateResult = {
+  candidate: InvestigationCandidate | null;
+  changed: boolean;
+  errors: string[];
+  status: "ok" | "invalid-options" | "error";
+  warnings: string[];
+};
+
+export type InvestigationCandidateListOptions = {
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateListResult = {
+  candidates: InvestigationCandidate[];
+  errors: string[];
+  status: "ok" | "error";
+  warnings: string[];
+};
+
+export type InvestigationCandidateShowOptions = {
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateShowResult = {
+  candidate: InvestigationCandidate | null;
+  errors: string[];
+  status: "ok" | "error";
+  warnings: string[];
+};
+
+export type InvestigationCandidatePublishOptions = {
+  ids: readonly string[];
+  investigationsDir?: string;
+  preflight?: boolean;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidatePublishResult = {
+  changed: boolean;
+  errors: string[];
+  ids: string[];
+  indexPath: string;
+  preflight: boolean;
+  warnings: string[];
+};
+
+export type InvestigationCandidateDiscardOptions = {
+  deleteOwnedResources?: boolean;
+  deleteRecordedCandidate?: boolean;
+  id: string;
+  investigationsDir?: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationCandidateDiscardResult = {
+  changed: boolean;
+  deletedResourceIds: string[];
+  errors: string[];
+  id: string;
+  requiresRecordedDeletionConfirmation: boolean;
+};
+
+export type InvestigationRenameOptions = {
+  investigationsDir?: string;
+  preflight?: boolean;
+  renameRecordedCandidate?: boolean;
+  renameRecordedReport?: boolean;
+  source: string;
+  target: string;
+  workspaceRoot: string;
+};
+
+export type InvestigationRenamePlan = {
+  affectedCandidateRelationCount: number;
+  affectedEstablishedRelationCount: number;
+  affectedResourceReferenceCount: number;
+  newId: string;
+  newName: string;
+  newSourcePath: string;
+  oldId: string;
+  oldName: string;
+  oldSourcePath: string;
+  outcome: "preflight" | "ready";
+  resourceOwnerMoved: boolean;
+};
+
+export type InvestigationRenameResult = {
+  changed: boolean;
+  errors: string[];
+  indexPath: string;
+  plan: InvestigationRenamePlan | null;
+  status: "attention" | "error" | "ok";
 };
 
 export type InvestigationReportCheckOptions = {
@@ -36,14 +160,26 @@ export type InvestigationReportCheckResult = {
 
 export type InvestigationIndexSyncOptions = {
   investigationsDir?: string;
+  mode?: "check" | "write";
+  selectors?: readonly string[];
   workspaceRoot: string;
 };
 
 export type InvestigationIndexSyncResult = {
   changed: boolean;
+  changedIds: string[];
+  diagnostics: Array<{
+    code: string;
+    reason: string;
+    recovery: string;
+    target: string;
+  }>;
   errors: string[];
   indexPath: string;
   reportCount: number;
+  scope: "all" | "selected";
+  selectedIds: string[];
+  state: string;
   warnings: string[];
 };
 
@@ -99,11 +235,13 @@ export type InvestigationIndexState = {
 };
 
 export type InvestigationIndexQueryOptions = {
+  direction?: "predecessors" | "successors" | "both";
   formedAtFrom?: string;
   formedAtTo?: string;
   investigationsDir?: string;
   limit?: number;
   offset?: number;
+  relatedTo?: string;
   relationType?: InvestigationRelationType;
   tags?: readonly string[];
   text?: string;
@@ -165,6 +303,7 @@ export type InvestigationReportTraceResult = {
     source: string;
     target: string;
     type: InvestigationRelationType;
+    summary?: string;
   }>;
   errors: string[];
   id: string;
@@ -218,3 +357,84 @@ export type InvestigationReportDiscardResult = {
 export declare function discardInvestigationReport(
   input: unknown
 ): Promise<InvestigationReportDiscardResult>;
+
+export declare function createInvestigationCandidate(
+  input: unknown
+): Promise<InvestigationCandidateCreateResult>;
+export declare function listInvestigationCandidates(
+  input: unknown
+): Promise<InvestigationCandidateListResult>;
+export declare function showInvestigationCandidate(
+  input: unknown
+): Promise<InvestigationCandidateShowResult>;
+export declare function publishInvestigationCandidates(
+  input: unknown
+): Promise<InvestigationCandidatePublishResult>;
+export declare function discardInvestigationCandidate(
+  input: unknown
+): Promise<InvestigationCandidateDiscardResult>;
+export declare function renameInvestigationRecord(
+  options: InvestigationRenameOptions
+): Promise<InvestigationRenameResult>;
+
+export type InvestigationSearchOptions = {
+  direction?: "predecessors" | "successors" | "both";
+  formedAtFrom?: string;
+  formedAtTo?: string;
+  in?: "content" | "metadata";
+  investigationsDir?: string;
+  limit?: number;
+  match?: "all" | "any" | "phrase";
+  query: string;
+  relatedTo?: string;
+  relationType?: InvestigationRelationType;
+  tags?: readonly string[];
+  workspaceRoot: string;
+};
+export type InvestigationContentSearchEntry = {
+  formedAt: string;
+  id: string;
+  previews: ReadonlyArray<{
+    column: number | null;
+    line: number;
+    preview: string;
+  }>;
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+};
+export type InvestigationMetadataSearchField =
+  | "id"
+  | "name"
+  | "title"
+  | "question"
+  | "tags";
+export type InvestigationMetadataMatchedRelation = {
+  summary: string;
+  target: string;
+  type: InvestigationRelationType;
+};
+export type InvestigationMetadataSearchEntry = {
+  formedAt: string;
+  id: string;
+  matchedFields: readonly InvestigationMetadataSearchField[];
+  matchedRelations: readonly InvestigationMetadataMatchedRelation[];
+  question: string;
+  sourcePath: string;
+  tags: readonly string[];
+  title: string;
+};
+export type InvestigationSearchEntry =
+  | InvestigationContentSearchEntry
+  | InvestigationMetadataSearchEntry;
+export type InvestigationSearchResult = {
+  entries: readonly InvestigationSearchEntry[];
+  errors: readonly string[];
+  indexPath: string;
+  status: "error" | "ok";
+  warnings: readonly string[];
+};
+export declare function searchInvestigationReports(
+  input: unknown
+): Promise<InvestigationSearchResult>;

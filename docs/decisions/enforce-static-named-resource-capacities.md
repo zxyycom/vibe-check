@@ -1,5 +1,6 @@
 ---
 title: 以静态 named resource capacity 约束 Check 准入
+id: 260906-enforce-static-named-resource-capacities
 status: active
 alignment: aligned
 createdAt: 2026-09-06T09:12:40Z

@@ -1,5 +1,6 @@
 ---
 title: 将 Project Definition 的 Check functions 交给 Run
+id: 260817-pass-project-definition-check-functions-to-run
 status: active
 alignment: aligned
 createdAt: 2026-08-17T15:28:18Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: pass-project-definition-value-to-run.md
+    target: 260814-pass-project-definition-value-to-run
 ---
 
 ## 目的

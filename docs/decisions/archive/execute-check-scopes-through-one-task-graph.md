@@ -1,5 +1,6 @@
 ---
 title: 通过单一 Task graph 执行 Check scope
+id: 260815-execute-check-scopes-through-one-task-graph
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T03:46:59Z
@@ -10,9 +11,9 @@ tags:
   - product-contract
 relations:
   - type: 归并
-    target: use-static-check-task-plans-with-shared-scheduling.md
+    target: 260805-use-static-check-task-plans-with-shared-scheduling
   - type: 归并
-    target: settle-check-execution-before-availability.md
+    target: 260813-settle-check-execution-before-availability
 ---
 
 ## 目的

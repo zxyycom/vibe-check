@@ -1,5 +1,6 @@
 ---
 title: 将翻译来源说明置于对应法律材料目录
+id: 260907-scope-translated-source-notices-to-material-directory
 status: active
 alignment: aligned
 createdAt: 2026-09-07T10:07:20Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: unify-package-legal-materials-and-audit-installed-dependencies.md
+    target: 260907-unify-package-legal-materials-and-audit-installed-dependencies
 ---
 
 ## 目的

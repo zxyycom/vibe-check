@@ -1,5 +1,6 @@
 ---
 title: 将安全秘密检测纳入随包 Check 契约
+id: 260903-add-secret-detection-to-package-check-contract
 status: active
 alignment: aligned
 createdAt: 2026-09-03T11:55:10Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: provide-package-check-functions-parsers-and-actionable-messages.md
+    target: 260828-provide-package-check-functions-parsers-and-actionable-messages
 ---
 
 ## 目的

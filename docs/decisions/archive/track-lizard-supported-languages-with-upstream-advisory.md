@@ -1,5 +1,6 @@
 ---
 title: 以仓库提示持续跟随 Lizard 支持语言与 analyzer 修复
+id: 260902-track-lizard-supported-languages-with-upstream-advisory
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T08:10:11Z
@@ -13,7 +14,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: align-function-metrics-inputs-with-lizard-supported-languages.md
+    target: 260830-align-function-metrics-inputs-with-lizard-supported-languages
 ---
 
 ## 目的

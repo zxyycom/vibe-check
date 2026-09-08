@@ -1,5 +1,6 @@
 ---
 title: 公开单一 Check authoring surface
+id: 260815-expose-single-check-authoring-surface
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:38:42Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: expose-built-in-check-values-and-adjustment-functions.md
+    target: 260815-expose-built-in-check-values-and-adjustment-functions
 ---
 
 ## 目的

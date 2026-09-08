@@ -1,5 +1,6 @@
 ---
 title: 在区域质量 Check 间共享 Finding 阻断政策
+id: 260828-share-finding-policy-across-area-quality-checks
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T11:14:38Z

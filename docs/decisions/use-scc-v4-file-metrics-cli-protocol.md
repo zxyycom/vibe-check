@@ -1,5 +1,6 @@
 ---
 title: 让文件指标 adapter 固定 SCC v4 CLI 协议
+id: 260901-use-scc-v4-file-metrics-cli-protocol
 status: active
 alignment: aligned
 createdAt: 2026-09-01T13:33:54Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: let-file-metrics-adapter-own-cli-protocol.md
+    target: 260828-let-file-metrics-adapter-own-cli-protocol
 ---
 
 ## 目的

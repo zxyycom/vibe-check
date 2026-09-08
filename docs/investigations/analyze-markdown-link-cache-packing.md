@@ -1,5 +1,6 @@
 ---
 title: "Markdown Link 缓存合并前性能分析"
+id: "260903-analyze-markdown-link-cache-packing"
 formedAt: "2026-09-03T08:18:29+00:00"
 question: "在保持当前 Markdown Link cache 语义与严格串行约束的前提下，现有 per-entry cache 的直接 API profile 与 storage-mechanics microbenchmark 是否支持下一步正式 runtime 评估有限 shard packing；当前证据能和不能决定什么？"
 tags:
@@ -9,7 +10,7 @@ tags:
   - "storage-mechanics"
 relations:
   - type: "补充"
-    target: "evaluate-markdown-link-serial-io-optimization.md"
+    target: "260903-evaluate-markdown-link-serial-io-optimization"
 ---
 
 ## 形成时背景
@@ -78,9 +79,9 @@ relations:
 
 ## 随附资源
 
-- [resource reproduction and scope notes](./_resources/analyze-markdown-link-cache-packing/README.md)
-- [storage microbenchmark script](./_resources/analyze-markdown-link-cache-packing/benchmark.ts)
-- [isolated syscall-stage profile script](./_resources/analyze-markdown-link-cache-packing/cache-syscall-stage-profile.ts)
-- [merged direct cache API profile results](./_resources/analyze-markdown-link-cache-packing/direct-cache-api-profile-results.json)
-- [direct cache API profile script](./_resources/analyze-markdown-link-cache-packing/direct-cache-api-profile.ts)
-- [storage microbenchmark raw results](./_resources/analyze-markdown-link-cache-packing/raw-results.json)
+- [resource reproduction and scope notes](./_resources/260903-analyze-markdown-link-cache-packing/README.md)
+- [storage microbenchmark script](./_resources/260903-analyze-markdown-link-cache-packing/benchmark.ts)
+- [isolated syscall-stage profile script](./_resources/260903-analyze-markdown-link-cache-packing/cache-syscall-stage-profile.ts)
+- [merged direct cache API profile results](./_resources/260903-analyze-markdown-link-cache-packing/direct-cache-api-profile-results.json)
+- [direct cache API profile script](./_resources/260903-analyze-markdown-link-cache-packing/direct-cache-api-profile.ts)
+- [storage microbenchmark raw results](./_resources/260903-analyze-markdown-link-cache-packing/raw-results.json)

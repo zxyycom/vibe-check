@@ -1,5 +1,6 @@
 ---
 title: 以显式选项启用 Markdown Link parse cache
+id: 260902-enable-explicit-markdown-link-parse-cache
 status: active
 alignment: aligned
 createdAt: 2026-09-02T08:06:15Z

@@ -1,5 +1,6 @@
 ---
 title: 将 Scheduler 性能汇总限定为 invocation-local 人读诊断
+id: 260901-add-invocation-local-scheduler-performance-summary
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T16:13:40Z

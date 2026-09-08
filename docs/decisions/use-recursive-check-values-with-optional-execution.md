@@ -1,5 +1,6 @@
 ---
 title: 使用可选 execution 的递归 Check 普通对象
+id: 260817-use-recursive-check-values-with-optional-execution
 status: active
 alignment: aligned
 createdAt: 2026-08-17T15:28:16Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-one-check-shape-with-recursive-composition.md
+    target: 260815-use-one-check-shape-with-recursive-composition
 ---
 
 ## 目的

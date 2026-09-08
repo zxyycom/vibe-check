@@ -1,5 +1,6 @@
 ---
 title: 在 Change 中区分主要问题集合与衍生问题
+id: 260822-distinguish-primary-and-derived-change-problem-sets
 status: active
 alignment: aligned
 createdAt: 2026-08-22T07:45:44Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: distinguish-primary-and-derived-change-problems.md
+    target: 260822-distinguish-primary-and-derived-change-problems
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 在 Check Task 运行期间应用并行上限
+id: 260817-apply-check-parallel-limit-while-task-runs
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T15:28:17Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: carry-recursive-check-parallel-limits-through-task-scopes.md
+    target: 260815-carry-recursive-check-parallel-limits-through-task-scopes
 ---
 
 ## 目的

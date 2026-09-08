@@ -1,5 +1,6 @@
 ---
 title: 默认将 Package 质量 Finding 作为非阻断观察
+id: 260830-default-package-quality-findings-to-advisory
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T11:39:49Z
@@ -11,9 +12,9 @@ tags:
   - product-contract
 relations:
   - type: 归并
-    target: expose-markdown-link-finding-policy.md
+    target: 260830-expose-markdown-link-finding-policy
   - type: 归并
-    target: share-finding-policy-across-area-quality-checks.md
+    target: 260828-share-finding-policy-across-area-quality-checks
 ---
 
 ## 目的

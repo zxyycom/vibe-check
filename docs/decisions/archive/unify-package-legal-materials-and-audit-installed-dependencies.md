@@ -1,5 +1,6 @@
 ---
 title: 统一随包法律材料并审计实际安装依赖
+id: 260907-unify-package-legal-materials-and-audit-installed-dependencies
 status: archived
 alignment: aligned
 createdAt: 2026-09-07T02:22:54Z

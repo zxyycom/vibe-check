@@ -1,5 +1,6 @@
 ---
 title: 为随包 Check 提供构造函数、解析器与可行动消息
+id: 260828-provide-package-check-functions-parsers-and-actionable-messages
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T15:05:29Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: complete-first-release-check-set-with-specialized-maintenance-reminder.md
+    target: 260824-complete-first-release-check-set-with-specialized-maintenance-reminder
 ---
 
 ## 目的

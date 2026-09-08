@@ -1,5 +1,6 @@
 ---
 title: 使用固定语义配置契约版本
+id: 260803-use-fixed-semantic-config-version
 status: archived
 alignment: null
 createdAt: 2026-08-03T09:23:47Z

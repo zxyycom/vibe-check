@@ -1,5 +1,6 @@
 ---
 title: 从仓库文件指标中精确排除保留字节的历史 v2 schema
+id: 260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T14:06:36Z

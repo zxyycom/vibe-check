@@ -1,5 +1,6 @@
 ---
 title: 以 policy action 后状态观察修订准入 measurement
+id: 260902-observe-post-action-policy-measurement
 status: active
 alignment: aligned
 createdAt: 2026-09-02T02:56:32Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: provide-decision-boundary-admission-measurement.md
+    target: 260902-provide-decision-boundary-admission-measurement
 ---
 
 ## 目的

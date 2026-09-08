@@ -1,5 +1,6 @@
 ---
 title: 使用闭合的可继承 Check 集合表达式
+id: 260815-use-closed-inheritable-check-collection-expressions
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:54Z

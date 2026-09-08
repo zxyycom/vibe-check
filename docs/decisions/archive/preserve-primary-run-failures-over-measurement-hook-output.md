@@ -1,5 +1,6 @@
 ---
 title: 保留主 Run failure 高于 measurement Hook output
+id: 260902-preserve-primary-run-failures-over-measurement-hook-output
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T01:50:13Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: expose-invocation-local-scheduler-measurement-hooks.md
+    target: 260902-expose-invocation-local-scheduler-measurement-hooks
 ---
 
 ## 目的

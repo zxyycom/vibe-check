@@ -1,5 +1,6 @@
 ---
 title: 用本地 Check Task 时长历史估计准入关键路径
+id: 260902-learn-check-task-durations-for-critical-path-admission
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T08:13:42Z

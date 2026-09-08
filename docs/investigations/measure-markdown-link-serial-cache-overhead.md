@@ -1,5 +1,6 @@
 ---
 title: "Markdown Link 严格串行 cache 开销测量"
+id: "260903-measure-markdown-link-serial-cache-overhead"
 formedAt: "2026-09-03T06:55:56+00:00"
 question: "在不跳过 source bytes 且 source I/O 严格串行的 Markdown Link validation 中，当前 explicit parse-facts cache 的可复现基线是什么；哪些低风险解释与实施边界应由后续 before/after 证据检验？"
 tags:

@@ -1,5 +1,6 @@
 ---
 title: 以 invocation 策略生命周期包装纯准入选择
+id: 260903-introduce-invocation-scoped-admission-strategy-lifecycle
 status: archived
 alignment: aligned
 createdAt: 2026-09-03T04:24:05Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: use-stateless-admission-policies-with-hard-scheduler-guards.md
+    target: 260901-use-stateless-admission-policies-with-hard-scheduler-guards
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: "极简候选复核：保留 duplicate-key 时的最小可行面"
+id: "260824-compare-minimal-json-duplicate-key-candidates"
 formedAt: "2026-08-24T13:59:46Z"
 question: "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
 tags:
@@ -7,7 +8,7 @@ tags:
   - "json-validation"
 relations:
   - type: "补充"
-    target: "recheck-json-dependency-and-zero-dependency-path.md"
+    target: "260824-recheck-json-dependency-and-zero-dependency-path"
 ---
 
 ## 形成时背景

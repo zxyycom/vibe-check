@@ -1,5 +1,6 @@
 ---
 title: 将 Vibe Check 描述为通用 TypeScript 质量门禁工具
+id: 260906-describe-vibe-check-as-a-typescript-quality-gate-tool
 status: active
 alignment: aligned
 createdAt: 2026-09-06T16:23:01Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: describe-vibe-check-as-a-general-project-quality-gate.md
+    target: 260906-describe-vibe-check-as-a-general-project-quality-gate
 ---
 
 ## 目的

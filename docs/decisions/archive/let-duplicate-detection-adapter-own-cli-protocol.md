@@ -1,5 +1,6 @@
 ---
 title: 让重复检测 adapter 独占 CLI 协议与执行调优
+id: 260828-let-duplicate-detection-adapter-own-cli-protocol
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T05:40:11Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: construct-duplicate-detection-from-defaulted-policy.md
+    target: 260828-construct-duplicate-detection-from-defaulted-policy
 ---
 
 ## 目的

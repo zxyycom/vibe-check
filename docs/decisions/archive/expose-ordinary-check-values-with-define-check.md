@@ -1,5 +1,6 @@
 ---
 title: 公开普通 Check 值与 defineCheck authoring helper
+id: 260817-expose-ordinary-check-values-with-define-check
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T15:00:43Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: expose-single-check-authoring-surface.md
+    target: 260815-expose-single-check-authoring-surface
 ---
 
 ## 目的

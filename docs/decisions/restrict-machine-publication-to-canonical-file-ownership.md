@@ -1,5 +1,6 @@
 ---
 title: 将 machine publication 限于 canonical file ownership
+id: 260831-restrict-machine-publication-to-canonical-file-ownership
 status: active
 alignment: aligned
 createdAt: 2026-08-31T15:26:59Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: treat-run-output-directories-as-explicit-trusted-targets.md
+    target: 260831-treat-run-output-directories-as-explicit-trusted-targets
 ---
 
 ## 目的

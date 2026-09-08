@@ -1,5 +1,6 @@
 ---
 title: 明确文档受众、发布范围与契约归属
+id: 260908-declare-document-audience-publication-and-contract-ownership
 status: active
 alignment: aligned
 createdAt: 2026-09-08T02:30:06Z

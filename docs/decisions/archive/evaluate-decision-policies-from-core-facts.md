@@ -1,5 +1,6 @@
 ---
 title: 从 Core facts 求值封闭质量决策策略
+id: 260815-evaluate-decision-policies-from-core-facts
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T12:27:50Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: keep-decision-policies-closed-and-declarative.md
+    target: 260805-keep-decision-policies-closed-and-declarative
 ---
 
 ## 目的

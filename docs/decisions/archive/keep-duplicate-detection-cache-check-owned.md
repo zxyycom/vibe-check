@@ -1,5 +1,6 @@
 ---
 title: 保持 duplicate-detection cache 由 Check 拥有
+id: 260830-keep-duplicate-detection-cache-check-owned
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T17:34:11Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 拆分
-    target: refine-project-run-and-settlement-owners.md
+    target: 260826-refine-project-run-and-settlement-owners
 ---
 
 ## 目的

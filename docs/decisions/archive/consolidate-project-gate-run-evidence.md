@@ -1,5 +1,6 @@
 ---
 title: 将 Gate Run 证据收敛为单次高信噪 invocation
+id: 260829-consolidate-project-gate-run-evidence
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T10:03:43Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: add-ephemeral-project-run-diagnostic-logging.md
+    target: 260829-add-ephemeral-project-run-diagnostic-logging
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: "Project Gate Function metrics Check 超 5 秒开销审计"
+id: "260904-audit-project-gate-function-metrics-check-overhead"
 formedAt: "2026-09-04T02:46:26+00:00"
 question: "full Project Gate 中的 Bun Product function metrics tests（近期 6.3 秒、曾 8.9 秒）与 direct Function metrics Check（曾 5.3 秒）为什么超过 5 秒；是否存在重复扫描、Worker/child-process 启动或测试矩阵重复执行，以及在不提高 root 并发度、不放宽 timeout 下怎样使每个 Check 的普通负载低于 5 秒？"
 tags:
@@ -9,7 +10,7 @@ tags:
   - "test-execution"
 relations:
   - type: "补充"
-    target: "compare-lizard-regex-backends-and-analyzer-cost-allocation.md"
+    target: "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation"
 ---
 
 ## 形成时背景

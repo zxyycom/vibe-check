@@ -1,11 +1,15 @@
 {
-  "$comment": "entry 对象键、派生 keys、资源排序、关系图、sourceRevision 与报告 Markdown 的一致性由调查报告 CLI 检查。",
+  "$comment": "entry 对象键、资源排序、关系图、sourceRevision 与报告 Markdown 的一致性由调查报告 CLI 检查。",
   "$defs": {
     "fingerprint": {
       "pattern": "^sha256:[0-9a-f]{64}$",
       "type": "string"
     },
     "investigationId": {
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "type": "string"
+    },
+    "sourcePath": {
       "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*\\.md$",
       "type": "string"
     },
@@ -25,6 +29,12 @@
             "拆分"
           ],
           "type": "string"
+        },
+        "summary": {
+          "maxLength": 40,
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?!.*[\\r\\n])[\\s\\S]*\\S$",
+          "type": "string"
         }
       },
       "required": [
@@ -38,66 +48,16 @@
       "pattern": "^[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+(?:/[A-Za-z0-9\\u3007\\u4e00-\\u9fff._\\-+@=()（）\\[\\]【】《》,!~'，。！、·：？]+)*$",
       "type": "string"
     },
-    "keyValues": {
-      "additionalProperties": false,
-      "properties": {
-        "formed-at": {
-          "items": {
-            "type": "integer"
-          },
-          "maxItems": 1,
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        },
-        "relation-type": {
-          "items": {
-            "enum": [
-              "补充",
-              "复查",
-              "修正",
-              "推翻",
-              "归并",
-              "拆分"
-            ],
-            "type": "string"
-          },
-          "type": "array",
-          "uniqueItems": true
-        },
-        "tag": {
-          "items": {
-            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
-            "type": "string"
-          },
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        },
-        "text": {
-          "items": {
-            "minLength": 1,
-            "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
-            "type": "string"
-          },
-          "minItems": 1,
-          "type": "array",
-          "uniqueItems": true
-        }
-      },
-      "required": [
-        "tag",
-        "formed-at",
-        "relation-type",
-        "text"
-      ],
-      "type": "object"
-    },
     "state": {
       "additionalProperties": false,
       "properties": {
         "formedAt": {
           "pattern": "^(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})(Z|[+-]\\d{2}:\\d{2})$",
+          "type": "string"
+        },
+        "name": {
+          "minLength": 1,
+          "pattern": "^(?!\\s)(?:[^\\u0000-\\u001f\\u007f]*\\S)?$",
           "type": "string"
         },
         "question": {
@@ -118,6 +78,9 @@
           "type": "array",
           "uniqueItems": true
         },
+        "sourcePath": {
+          "$ref": "#/$defs/sourcePath"
+        },
         "tags": {
           "items": {
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
@@ -136,10 +99,12 @@
       "required": [
         "title",
         "formedAt",
+        "name",
         "question",
         "tags",
         "relations",
-        "resourceIds"
+        "resourceIds",
+        "sourcePath"
       ],
       "type": "object"
     }
@@ -149,49 +114,16 @@
   "description": "由单份调查报告 Markdown 生成的领域状态通用索引。",
   "properties": {
     "definitionVersion": {
-      "const": 6
+      "const": 11
     },
     "entries": {
       "additionalProperties": {
-        "additionalProperties": false,
-        "properties": {
-          "keys": {
-            "$ref": "#/$defs/keyValues"
-          },
-          "state": {
-            "$ref": "#/$defs/state"
-          }
-        },
-        "required": [
-          "keys",
-          "state"
-        ],
-        "type": "object"
+        "$ref": "#/$defs/state"
       },
       "propertyNames": {
         "$ref": "#/$defs/investigationId"
       },
       "type": "object"
-    },
-    "keyDefinitions": {
-      "const": [
-        {
-          "mode": "exact",
-          "name": "tag"
-        },
-        {
-          "mode": "range",
-          "name": "formed-at"
-        },
-        {
-          "mode": "exact",
-          "name": "relation-type"
-        },
-        {
-          "mode": "text",
-          "name": "text"
-        }
-      ]
     },
     "metadata": {
       "additionalProperties": false,
@@ -201,7 +133,7 @@
       "const": "investigations"
     },
     "schemaVersion": {
-      "const": 3
+      "const": 4
     },
     "sourceRevision": {
       "additionalProperties": false,
@@ -229,7 +161,6 @@
   "required": [
     "definitionVersion",
     "entries",
-    "keyDefinitions",
     "metadata",
     "namespace",
     "schemaVersion",

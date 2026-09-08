@@ -1,5 +1,6 @@
 ---
 title: 在 JSON sibling Checks 间共享 strict document boundary
+id: 260830-share-strict-json-document-boundary-between-json-checks
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:34:11Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 拆分
-    target: refine-project-run-and-settlement-owners.md
+    target: 260826-refine-project-run-and-settlement-owners
 ---
 
 ## 目的

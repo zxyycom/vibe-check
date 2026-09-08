@@ -1,5 +1,6 @@
 ---
 title: 用 Gate-owned Hook 提示标准运行的性能偏移
+id: 260829-monitor-project-gate-performance-advisory
 status: active
 alignment: aligned
 createdAt: 2026-08-29T15:36:05Z

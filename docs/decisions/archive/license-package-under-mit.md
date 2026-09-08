@@ -1,5 +1,6 @@
 ---
 title: 使用 MIT 许可发布 Vibe Check package
+id: 260814-license-package-under-mit
 status: archived
 alignment: aligned
 createdAt: 2026-08-14T05:52:51Z

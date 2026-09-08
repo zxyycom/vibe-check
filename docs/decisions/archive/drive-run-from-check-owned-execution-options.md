@@ -1,5 +1,6 @@
 ---
 title: 由 Check-owned execution options 驱动 Run
+id: 260817-drive-run-from-check-owned-execution-options
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T16:29:26Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: drive-run-from-project-definition-value.md
+    target: 260814-drive-run-from-project-definition-value
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 使用显式 Run Controls Check aggregation
+id: 260821-use-explicit-run-controls-check-aggregation
 status: archived
 alignment: aligned
 createdAt: 2026-08-21T15:02:45Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 替代
-    target: evaluate-decision-policies-from-core-facts.md
+    target: 260815-evaluate-decision-policies-from-core-facts
 ---
 
 ## 目的

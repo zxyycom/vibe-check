@@ -1,5 +1,6 @@
 ---
 title: 让 Bun 入口自行绑定项目锁定工具
+id: 260812-make-bun-entries-use-pinned-tools
 status: active
 alignment: aligned
 createdAt: 2026-08-12T15:04:30Z

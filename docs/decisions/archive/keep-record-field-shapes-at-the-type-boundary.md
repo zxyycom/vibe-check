@@ -1,5 +1,6 @@
 ---
 title: 让 Record field shape 保持在 Check 类型边界
+id: 260821-keep-record-field-shapes-at-the-type-boundary
 status: archived
 alignment: unaligned
 createdAt: 2026-08-21T03:35:53Z

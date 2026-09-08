@@ -1,5 +1,6 @@
 ---
 title: 使用显式文件政策覆盖
+id: 260804-use-file-policy-overrides
 status: archived
 alignment: unaligned
 createdAt: 2026-08-04T15:02:12Z

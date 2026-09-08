@@ -1,5 +1,6 @@
 ---
 title: 使用完整上游治理 Skill 包
+id: 260811-use-complete-upstream-governance-skills
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T02:39:52Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: keep-project-workflow-skill-overrides-bounded.md
+    target: 260806-keep-project-workflow-skill-overrides-bounded
 ---
 
 ## 目的

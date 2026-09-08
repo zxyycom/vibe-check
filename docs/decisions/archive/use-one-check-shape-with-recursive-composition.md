@@ -1,5 +1,6 @@
 ---
 title: 使用带递归 composition 的单一 Check shape
+id: 260815-use-one-check-shape-with-recursive-composition
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:31:09Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 替代
-    target: keep-check-groups-authoring-only.md
+    target: 260815-keep-check-groups-authoring-only
 ---
 
 ## 目的

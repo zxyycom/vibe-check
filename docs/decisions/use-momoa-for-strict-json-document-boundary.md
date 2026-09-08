@@ -1,5 +1,6 @@
 ---
 title: 为严格 JSON 文档边界采用 Momoa
+id: 260824-use-momoa-for-strict-json-document-boundary
 status: active
 alignment: aligned
 createdAt: 2026-08-24T14:20:04Z

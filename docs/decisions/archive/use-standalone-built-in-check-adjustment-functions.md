@@ -1,5 +1,6 @@
 ---
 title: 使用独立函数调整普通内置 Check 数据
+id: 260815-use-standalone-built-in-check-adjustment-functions
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T06:16:05Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-field-aware-built-in-check-adjustments.md
+    target: 260814-use-field-aware-built-in-check-adjustments
 ---
 
 ## 目的

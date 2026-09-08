@@ -1,5 +1,6 @@
 ---
 title: 让重复检测以显式 command 扫描完整 Check scope
+id: 260828-scan-duplicate-code-once-across-code-areas
 status: archived
 alignment: aligned
 createdAt: 2026-08-28T02:48:20Z

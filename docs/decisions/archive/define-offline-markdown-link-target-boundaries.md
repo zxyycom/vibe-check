@@ -1,5 +1,6 @@
 ---
 title: 为 Markdown Link Check 定义离线本地目标边界
+id: 260825-define-offline-markdown-link-target-boundaries
 status: archived
 alignment: aligned
 createdAt: 2026-08-25T01:56:25Z

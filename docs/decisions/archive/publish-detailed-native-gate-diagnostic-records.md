@@ -1,5 +1,6 @@
 ---
 title: 让 Native Gate 失败发布 owner-scoped 详细诊断 Record
+id: 260904-publish-detailed-native-gate-diagnostic-records
 status: archived
 alignment: aligned
 createdAt: 2026-09-04T10:18:25Z

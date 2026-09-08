@@ -1,5 +1,6 @@
 ---
 title: 按材料所有权串行 Project Gate 文档验证
+id: 260830-serialize-project-gate-documentation-materials-by-ownership
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:42:15Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: schedule-project-gate-by-measured-resource-ownership.md
+    target: 260827-schedule-project-gate-by-measured-resource-ownership
 ---
 
 ## 目的

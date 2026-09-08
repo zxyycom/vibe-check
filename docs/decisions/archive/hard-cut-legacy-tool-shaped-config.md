@@ -1,5 +1,6 @@
 ---
 title: 对旧 tool-shaped project config 执行 hard cut
+id: 260803-hard-cut-legacy-tool-shaped-config
 status: archived
 alignment: aligned
 createdAt: 2026-08-03T09:23:47Z

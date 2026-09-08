@@ -1,5 +1,6 @@
 ---
 title: "采用 ts-pattern，状态机保持按需调查"
+id: "260811-pattern-matching-and-state-modeling-libraries"
 formedAt: "2026-08-11T07:54:34Z"
 question: "Vibe Check 应如何分别表达封闭分支与有限状态机，哪些能力应预置，哪些能力应等待真实工作负载？"
 tags:

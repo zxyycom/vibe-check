@@ -1,5 +1,6 @@
 ---
 title: 公开 Markdown Link 的 Finding Policy
+id: 260830-expose-markdown-link-finding-policy
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:05:35Z

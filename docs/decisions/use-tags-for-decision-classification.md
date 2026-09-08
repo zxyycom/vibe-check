@@ -1,5 +1,6 @@
 ---
 title: 使用 tags 分类决策记录
+id: 260818-use-tags-for-decision-classification
 status: active
 alignment: aligned
 createdAt: 2026-08-18T02:38:12Z

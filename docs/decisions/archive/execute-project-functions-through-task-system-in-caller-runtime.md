@@ -1,5 +1,6 @@
 ---
 title: 在调用方 runtime 中通过 Task 系统执行项目函数
+id: 260814-execute-project-functions-through-task-system-in-caller-runtime
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:35Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: contain-project-code-behind-private-runtime-boundary.md
+    target: 260812-contain-project-code-behind-private-runtime-boundary
 ---
 
 ## 目的

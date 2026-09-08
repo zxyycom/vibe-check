@@ -1,5 +1,6 @@
 ---
 title: "审计 Project Gate candidate lifecycle 的重复物理工作与进程开销"
+id: "260904-audit-project-gate-candidate-lifecycle-process-overhead"
 formedAt: "2026-09-04T02:45:40+00:00"
 question: "为何 full Project Gate 的 tests-package-candidate 反复超过 5 秒，以及在保持 root maxParallel=3、20 秒 case/30 秒 lane 硬门禁不变时，怎样以可验证的架构变更使该 Check 稳定低于 5 秒？"
 tags:
@@ -9,7 +10,7 @@ tags:
   - "project-gate"
 relations:
   - type: "复查"
-    target: "correct-project-gate-candidate-timeout-interpretation.md"
+    target: "260904-correct-project-gate-candidate-timeout-interpretation"
 ---
 
 ## 形成时背景

@@ -1,5 +1,6 @@
 ---
 title: 公开最小 Check authoring 与 Run surface
+id: 260821-expose-minimal-check-and-run-public-surface
 status: archived
 alignment: aligned
 createdAt: 2026-08-21T15:02:47Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: expose-recursive-check-authoring-and-run-surface.md
+    target: 260817-expose-recursive-check-authoring-and-run-surface
 ---
 
 ## 目的

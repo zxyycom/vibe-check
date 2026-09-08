@@ -1,5 +1,6 @@
 ---
 title: 分离 Check 身份与 Record 类型身份
+id: 260805-separate-check-and-record-type-identities
 status: archived
 alignment: aligned
 createdAt: 2026-08-05T10:31:35Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: use-semantic-check-ids-in-quality-records.md
+    target: 260805-use-semantic-check-ids-in-quality-records
 ---
 
 ## 目的

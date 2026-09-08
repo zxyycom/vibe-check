@@ -1,5 +1,6 @@
 ---
 title: 将 Project Definition 值交给 Package Run
+id: 260814-pass-project-definition-value-to-run
 status: archived
 alignment: unaligned
 createdAt: 2026-08-14T08:18:34Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-single-typescript-project-definition.md
+    target: 260812-use-single-typescript-project-definition
 ---
 
 ## 目的

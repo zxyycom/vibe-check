@@ -1,5 +1,6 @@
 ---
 title: 让选中文件与 Check eligibility 完整对账
+id: 260830-reconcile-selected-files-with-check-eligibility
 status: active
 alignment: aligned
 createdAt: 2026-08-30T15:52:43Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: publish-composable-default-project-file-selection.md
+    target: 260830-publish-composable-default-project-file-selection
 ---
 
 ## 目的

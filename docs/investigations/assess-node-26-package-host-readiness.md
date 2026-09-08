@@ -1,5 +1,6 @@
 ---
 title: "Node 26 package host 切换准备度评估"
+id: "260906-assess-node-26-package-host-readiness"
 formedAt: "2026-09-06T13:15:49+00:00"
 question: "在公开 Product 已由 Node 24.18 consumer baseline 验收、仓库工具仍由 Bun 承载的前提下，Vibe Check 切换或新增 Node 26 package host 验收需要哪些证据、边界与迁移步骤？"
 tags:

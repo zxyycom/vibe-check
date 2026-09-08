@@ -1,5 +1,6 @@
 ---
 title: 使用 inherit 编辑可继承 Check 集合
+id: 260817-use-inherit-for-check-collection-edits
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T14:42:02Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-closed-inheritable-check-collection-expressions.md
+    target: 260815-use-closed-inheritable-check-collection-expressions
 ---
 
 ## 目的

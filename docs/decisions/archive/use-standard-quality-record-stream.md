@@ -1,5 +1,6 @@
 ---
 title: 使用统一质量记录流与独立能力运行状态
+id: 260805-use-standard-quality-record-stream
 status: archived
 alignment: null
 createdAt: 2026-08-05T06:43:16Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: use-generic-machine-v2-for-content-findings.md
+    target: 260804-use-generic-machine-v2-for-content-findings
 ---
 
 ## 目的

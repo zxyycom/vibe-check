@@ -1,5 +1,6 @@
 ---
 title: 让源码布局与命名共同表达模块 owner
+id: 260824-align-source-layout-and-naming-with-module-owners
 status: archived
 alignment: aligned
 createdAt: 2026-08-24T02:13:05Z

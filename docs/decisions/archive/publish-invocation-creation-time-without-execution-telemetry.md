@@ -1,5 +1,6 @@
 ---
 title: 发布 invocation 创建时间而非执行遥测
+id: 260830-publish-invocation-creation-time-without-execution-telemetry
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:14:36Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: complete-project-gate-before-public-package-release.md
+    target: 260819-complete-project-gate-before-public-package-release
 ---
 
 ## 目的

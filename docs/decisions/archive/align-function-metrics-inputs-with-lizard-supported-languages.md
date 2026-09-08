@@ -1,5 +1,6 @@
 ---
 title: 让函数指标输入范围与 Lizard 支持语言对齐
+id: 260830-align-function-metrics-inputs-with-lizard-supported-languages
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T14:43:39Z

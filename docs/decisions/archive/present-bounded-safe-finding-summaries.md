@@ -1,5 +1,6 @@
 ---
 title: 默认展示有界且安全的 Finding 摘要
+id: 260831-present-bounded-safe-finding-summaries
 status: archived
 alignment: aligned
 createdAt: 2026-08-31T07:11:25Z

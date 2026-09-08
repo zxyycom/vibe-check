@@ -1,5 +1,6 @@
 ---
 title: 将已准备的 package candidate 表达为 typed Check data
+id: 260826-provide-prepared-package-candidate-as-typed-check-data
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T23:41:45Z

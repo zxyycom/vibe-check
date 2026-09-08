@@ -1,5 +1,6 @@
 ---
 title: 网络 Check 必须获得显式声明式授权
+id: 260805-require-explicit-network-check-authorization
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T11:15:25Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: require-explicit-network-link-checking.md
+    target: 260804-require-explicit-network-link-checking
 ---
 
 ## 目的

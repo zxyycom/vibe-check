@@ -1,5 +1,6 @@
 ---
 title: 首次公开发布前保持四项首版 Check 能力
+id: 260830-keep-first-release-check-set-to-four-without-markdown-structure
 status: active
 alignment: aligned
 createdAt: 2026-08-30T17:33:59Z
@@ -11,9 +12,9 @@ tags:
   - product-priority
 relations:
   - type: 重划
-    target: allow-controlled-json-schema-reference-sources.md
+    target: 260825-allow-controlled-json-schema-reference-sources
   - type: 重划
-    target: complete-first-release-check-set-without-markdown-structure.md
+    target: 260824-complete-first-release-check-set-without-markdown-structure
 ---
 
 ## 目的

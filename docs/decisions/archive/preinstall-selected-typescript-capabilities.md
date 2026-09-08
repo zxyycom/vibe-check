@@ -1,5 +1,6 @@
 ---
 title: 预置有限的 TypeScript 实现能力
+id: 260811-preinstall-selected-typescript-capabilities
 status: archived
 alignment: aligned
 createdAt: 2026-08-11T07:39:34Z

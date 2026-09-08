@@ -1,5 +1,6 @@
 ---
 title: 质量比较只接受显式命名参考
+id: 260805-require-explicit-quality-comparison-references
 status: archived
 alignment: null
 createdAt: 2026-08-05T06:43:22Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: require-explicit-quality-baselines.md
+    target: 260804-require-explicit-quality-baselines
 ---
 
 ## 目的

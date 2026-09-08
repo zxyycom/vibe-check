@@ -1,5 +1,6 @@
 ---
 title: 在独占运行目录显式使用固定诊断文件名
+id: 260908-allow-channel-only-diagnostic-filenames-in-invocation-controls
 status: active
 alignment: aligned
 createdAt: 2026-09-08T01:32:41Z

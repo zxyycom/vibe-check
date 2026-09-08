@@ -1,5 +1,6 @@
 ---
 title: 由 Product progress 捕获并结算 Check console 输出
+id: 260831-provide-product-progress-with-check-console-capture
 status: archived
 alignment: aligned
 createdAt: 2026-08-31T09:23:57Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: provide-product-owned-check-progress.md
+    target: 260820-provide-product-owned-check-progress
 ---
 
 ## 目的

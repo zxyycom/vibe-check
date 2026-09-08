@@ -1,5 +1,6 @@
 ---
 title: "Project Gate candidate lifecycle 竞争超时与假失败诊断"
+id: "260904-diagnose-project-gate-candidate-timeout-under-contention"
 formedAt: "2026-09-04T02:09:52+00:00"
 question: "为什么同一 full Project Gate workload 的 package candidate lifecycle 会在 13.9–22.5 秒间波动并曾触发 20 秒 case timeout；当前证据支持优先优化什么？"
 tags:

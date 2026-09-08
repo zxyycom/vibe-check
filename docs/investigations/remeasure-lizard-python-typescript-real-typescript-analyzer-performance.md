@@ -1,5 +1,6 @@
 ---
 title: "真实 TypeScript Product 源上的 Lizard Python 与 TypeScript analyzer 复测"
+id: "260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance"
 formedAt: "2026-09-03T08:27:49Z"
 question: "在同一批真实仓库 TypeScript Product 源、同一已解码 source 和相同 canonical 输出前置条件下，当前 TypeScript Lizard port 与 upstream Python Lizard 1.24 的 analyzer-only warmed-operation 性能如何比较，历史 Product 与 analyzer 数值为何同量级？"
 tags:
@@ -10,7 +11,7 @@ tags:
   - "typescript"
 relations:
   - type: "复查"
-    target: "compare-lizard-python-typescript-performance.md"
+    target: "260903-compare-lizard-python-typescript-performance"
 ---
 
 ## 形成时背景
@@ -78,8 +79,8 @@ relations:
 
 ## 随附资源
 
-- [corpus-manifest.json](./_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/corpus-manifest.json)
-- [evidence.json](./_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/evidence.json)
-- [preflight-canonical-metrics.json](./_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/preflight-canonical-metrics.json)
-- [request.json](./_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json)
-- [run-benchmark.py](./_resources/remeasure-lizard-python-typescript-real-typescript-analyzer-performance/run-benchmark.py)
+- [corpus-manifest.json](./_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/corpus-manifest.json)
+- [evidence.json](./_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/evidence.json)
+- [preflight-canonical-metrics.json](./_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/preflight-canonical-metrics.json)
+- [request.json](./_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/request.json)
+- [run-benchmark.py](./_resources/260903-remeasure-lizard-python-typescript-real-typescript-analyzer-performance/run-benchmark.py)

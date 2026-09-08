@@ -1,5 +1,6 @@
 ---
 title: 使用 Bun 托管的 TypeScript Project Definition
+id: 260805-use-bun-typescript-project-definition
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:35Z
@@ -10,9 +11,9 @@ tags:
   - configuration
 relations:
   - type: 归并
-    target: use-json-filename-for-commented-config.md
+    target: 260803-use-json-filename-for-commented-config
   - type: 归并
-    target: use-fixed-semantic-config-v2.md
+    target: 260804-use-fixed-semantic-config-v2
 ---
 
 ## 目的

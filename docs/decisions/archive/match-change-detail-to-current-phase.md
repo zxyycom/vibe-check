@@ -1,5 +1,6 @@
 ---
 title: 让 change 细节服务当前阶段
+id: 260806-match-change-detail-to-current-phase
 status: archived
 alignment: aligned
 createdAt: 2026-08-06T01:44:08Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: defer-future-feature-detail-until-prioritized.md
+    target: 260805-defer-future-feature-detail-until-prioritized
 ---
 
 ## 目的

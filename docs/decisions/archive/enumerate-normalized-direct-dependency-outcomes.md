@@ -1,5 +1,6 @@
 ---
 title: 枚举已规范化的直接 dependency outcomes
+id: 260831-enumerate-normalized-direct-dependency-outcomes
 status: archived
 alignment: aligned
 createdAt: 2026-08-31T15:38:59Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: read-direct-dependency-final-data-by-string.md
+    target: 260823-read-direct-dependency-final-data-by-string
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 由 Check options 表达文件级差异
+id: 260822-use-check-owned-file-overrides
 status: archived
 alignment: unaligned
 createdAt: 2026-08-22T05:52:33Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-file-policy-overrides.md
+    target: 260804-use-file-policy-overrides
 ---
 
 ## 目的

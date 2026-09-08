@@ -1,5 +1,6 @@
 ---
 title: 以 owner-scoped Scheduler context 保持完整 Gate Run 证据
+id: 260904-keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context
 status: active
 alignment: aligned
 createdAt: 2026-09-04T06:54:14Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: keep-gate-run-evidence-complete-with-stateless-scheduler-context.md
+    target: 260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context
 ---
 
 ## 目的

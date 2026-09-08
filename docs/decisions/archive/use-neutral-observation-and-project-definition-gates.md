@@ -1,5 +1,6 @@
 ---
 title: 观察使用中性定义，门禁要求 Project Definition
+id: 260805-use-neutral-observation-and-project-definition-gates
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-neutral-default-for-observation-and-file-policy-for-gates.md
+    target: 260804-use-neutral-default-for-observation-and-file-policy-for-gates
 ---
 
 ## 目的

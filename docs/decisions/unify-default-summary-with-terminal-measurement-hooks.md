@@ -1,5 +1,6 @@
 ---
 title: 将默认 Scheduler summary 统一为 terminal measurement Hook
+id: 260902-unify-default-summary-with-terminal-measurement-hooks
 status: active
 alignment: aligned
 createdAt: 2026-09-02T02:34:23Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: expose-invocation-local-scheduler-measurement-hooks.md
+    target: 260902-expose-invocation-local-scheduler-measurement-hooks
 ---
 
 ## 目的

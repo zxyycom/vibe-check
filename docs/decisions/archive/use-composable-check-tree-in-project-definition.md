@@ -1,5 +1,6 @@
 ---
 title: 在 Project Definition 使用可组合 Check tree
+id: 260814-use-composable-check-tree-in-project-definition
 status: archived
 alignment: aligned
 createdAt: 2026-08-14T13:50:47Z

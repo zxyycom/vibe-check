@@ -1,5 +1,6 @@
 ---
 title: 由 Product Run 提供 Check 生命周期进度
+id: 260820-provide-product-owned-check-progress
 status: archived
 alignment: aligned
 createdAt: 2026-08-20T06:43:50Z

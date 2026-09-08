@@ -1,5 +1,6 @@
 ---
 title: 使用基于 Check 值的派生契约
+id: 260815-use-check-value-derivation-contract
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T15:38:33Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 替代
-    target: use-standalone-built-in-check-adjustment-functions.md
+    target: 260815-use-standalone-built-in-check-adjustment-functions
 ---
 
 ## 目的

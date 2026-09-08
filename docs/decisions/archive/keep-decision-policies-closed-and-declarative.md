@@ -1,5 +1,6 @@
 ---
 title: 保持质量决策策略封闭且声明式
+id: 260805-keep-decision-policies-closed-and-declarative
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:35Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-declarative-quality-decision-policies.md
+    target: 260805-use-declarative-quality-decision-policies
 ---
 
 ## 目的

@@ -1,5 +1,6 @@
 ---
 title: 采用 invocation-scoped custom admission strategy authoring
+id: 260903-adopt-invocation-scoped-custom-admission-strategy-authoring
 status: active
 alignment: aligned
 createdAt: 2026-09-03T05:59:31Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 拆分
-    target: introduce-invocation-scoped-admission-strategy-lifecycle.md
+    target: 260903-introduce-invocation-scoped-admission-strategy-lifecycle
 ---
 
 ## 目的

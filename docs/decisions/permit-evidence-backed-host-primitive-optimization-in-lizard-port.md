@@ -1,5 +1,6 @@
 ---
 title: 允许 Lizard port 使用证据闭合的宿主原语优化
+id: 260903-permit-evidence-backed-host-primitive-optimization-in-lizard-port
 status: active
 alignment: unaligned
 createdAt: 2026-09-03T09:06:06Z

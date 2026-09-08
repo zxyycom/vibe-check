@@ -1,5 +1,6 @@
 ---
 title: "严格 JSON 与重复 key 的最小库选择"
+id: "260824-choose-minimal-library-for-strict-json-and-duplicate-keys"
 formedAt: "2026-08-24T13:12:21Z"
 question: "在 Vibe Check 的 `add-json-validation` Change 中，哪个库能以最小 adapter 在 Bun 中验证严格 JSON 并可靠检测 decoded duplicate key，同时怎样在热度、生态、接入复杂度与运行时重量之间取舍？"
 tags:

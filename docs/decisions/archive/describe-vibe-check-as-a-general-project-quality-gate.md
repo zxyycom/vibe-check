@@ -1,5 +1,6 @@
 ---
 title: 将 Vibe Check 描述为通用项目质量门禁
+id: 260906-describe-vibe-check-as-a-general-project-quality-gate
 status: archived
 alignment: aligned
 createdAt: 2026-09-06T16:08:54Z

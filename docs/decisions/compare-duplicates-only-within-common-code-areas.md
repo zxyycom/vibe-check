@@ -1,5 +1,6 @@
 ---
 title: 只在共同代码区域内形成重复 Finding
+id: 260902-compare-duplicates-only-within-common-code-areas
 status: active
 alignment: aligned
 createdAt: 2026-09-02T06:42:05Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: let-each-duplicate-code-area-own-files-and-thresholds.md
+    target: 260828-let-each-duplicate-code-area-own-files-and-thresholds
 ---
 
 ## 目的

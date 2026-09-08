@@ -1,5 +1,6 @@
 ---
 title: 保留运行期并行上限并按优先级选择 ready Task
+id: 260901-retain-running-parallel-limits-and-order-ready-admission-by-priority
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T04:56:52Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: apply-check-parallel-limit-while-task-runs.md
+    target: 260817-apply-check-parallel-limit-while-task-runs
 ---
 
 ## 目的

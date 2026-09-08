@@ -1,5 +1,6 @@
 ---
 title: "Lizard regex 后端与 analyzer 成本分配对比"
+id: "260903-compare-lizard-regex-backends-and-analyzer-cost-allocation"
 formedAt: "2026-09-03T11:26:10+00:00"
 question: "在真实 TypeScript Lizard workload 上，正则/token generation 对 Python 与 TypeScript 性能差距可作何种有边界的比例判断；WASM、npm/native 和 CLI regex 后端分别有什么实际接入成本与继续调查价值？"
 tags:
@@ -13,7 +14,7 @@ tags:
   - "wasm"
 relations:
   - type: "补充"
-    target: "explain-cpython-jsc-lizard-regex-performance-gap.md"
+    target: "260903-explain-cpython-jsc-lizard-regex-performance-gap"
 ---
 
 ## 形成时背景
@@ -164,26 +165,26 @@ built-in staged-generic仍是无依赖 same-output control，但它会改 transl
 
 ## 随附资源
 
-- [evidence.json](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/evidence.json)
-- [node-bun-engine-abba.py](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-abba.py)
-- [node-bun-engine-driver.ts](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-driver.ts)
-- [node-bun-engine-summary.json](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-summary.json)
-- [node-bun-import-abba.py](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-abba.py)
-- [node-bun-import-smoke.ts](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-smoke.ts)
-- [npm-regex-second-pass-native-probe.mjs](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-native-probe.mjs)
-- [npm-regex-second-pass-onigasm-probe.mjs](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-onigasm-probe.mjs)
-- [npm-regex-second-pass-probe.mjs](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-probe.mjs)
-- [npm-regex-second-pass-re2-probe.mjs](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-re2-probe.mjs)
-- [npm-regex-second-pass-summary.json](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-summary.json)
-- [oniguruma-cold-raw-summary.json](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw-summary.json)
-- [oniguruma-cold-raw.ts](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw.ts)
-- [oniguruma-integration-cost.json](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-cost.json)
-- [oniguruma-integration-probe.ts](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-probe.ts)
-- [provenance.json](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/provenance.json)
-- [python-stage-breakdown.py](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/python-stage-breakdown.py)
-- [raw-token-abba.py](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-abba.py)
-- [raw-token-bun.ts](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-bun.ts)
-- [raw-token-python.py](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-python.py)
-- [rg-cli-bounded-control.json](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.json)
-- [rg-cli-bounded-control.mjs](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.mjs)
-- [typescript-stage-breakdown.ts](./_resources/compare-lizard-regex-backends-and-analyzer-cost-allocation/typescript-stage-breakdown.ts)
+- [evidence.json](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/evidence.json)
+- [node-bun-engine-abba.py](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-abba.py)
+- [node-bun-engine-driver.ts](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-driver.ts)
+- [node-bun-engine-summary.json](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-engine-summary.json)
+- [node-bun-import-abba.py](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-abba.py)
+- [node-bun-import-smoke.ts](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/node-bun-import-smoke.ts)
+- [npm-regex-second-pass-native-probe.mjs](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-native-probe.mjs)
+- [npm-regex-second-pass-onigasm-probe.mjs](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-onigasm-probe.mjs)
+- [npm-regex-second-pass-probe.mjs](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-probe.mjs)
+- [npm-regex-second-pass-re2-probe.mjs](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-re2-probe.mjs)
+- [npm-regex-second-pass-summary.json](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/npm-regex-second-pass-summary.json)
+- [oniguruma-cold-raw-summary.json](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw-summary.json)
+- [oniguruma-cold-raw.ts](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-cold-raw.ts)
+- [oniguruma-integration-cost.json](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-cost.json)
+- [oniguruma-integration-probe.ts](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/oniguruma-integration-probe.ts)
+- [provenance.json](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/provenance.json)
+- [python-stage-breakdown.py](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/python-stage-breakdown.py)
+- [raw-token-abba.py](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-abba.py)
+- [raw-token-bun.ts](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-bun.ts)
+- [raw-token-python.py](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/raw-token-python.py)
+- [rg-cli-bounded-control.json](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.json)
+- [rg-cli-bounded-control.mjs](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/rg-cli-bounded-control.mjs)
+- [typescript-stage-breakdown.ts](./_resources/260903-compare-lizard-regex-backends-and-analyzer-cost-allocation/typescript-stage-breakdown.ts)

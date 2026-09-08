@@ -1,5 +1,6 @@
 ---
 title: 在 project config 中使用语义 check ID
+id: 260803-use-semantic-check-ids-in-project-config
 status: archived
 alignment: null
 createdAt: 2026-08-03T09:23:47Z

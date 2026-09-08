@@ -1,5 +1,6 @@
 ---
 title: 在首次公开发布前完成四项选定的首版 Checks
+id: 260824-complete-first-release-check-set-without-markdown-structure
 status: archived
 alignment: unaligned
 createdAt: 2026-08-24T14:01:40Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: complete-first-release-check-set-before-publication.md
+    target: 260824-complete-first-release-check-set-before-publication
 ---
 
 ## 目的

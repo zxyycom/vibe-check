@@ -1,5 +1,6 @@
 ---
 title: "验证 Lizard reader-resolution fast path 性能"
+id: "260903-verify-lizard-reader-resolution-fast-path"
 formedAt: "2026-09-03T07:34:42Z"
 question: "当前手写 façade 的 reader-resolution fast path 在 fixed Lizard 1.24 representative request 上是否保持重建的原 façade 路径输出，并在同主机 warmed operation 中降低分析时间？"
 tags:
@@ -10,7 +11,7 @@ tags:
   - "verification"
 relations:
   - type: "补充"
-    target: "diagnose-lizard-typescript-port-performance-gap.md"
+    target: "260903-diagnose-lizard-typescript-port-performance-gap"
 ---
 
 ## 形成时背景
@@ -50,5 +51,5 @@ after 的 median 比 before 低 **44.97%**。配对 block 的 median delta 为 *
 
 ## 随附资源
 
-- [facade-acceptance.json](./_resources/verify-lizard-reader-resolution-fast-path/facade-acceptance.json)
-- [facade-acceptance.ts](./_resources/verify-lizard-reader-resolution-fast-path/facade-acceptance.ts)
+- [facade-acceptance.json](./_resources/260903-verify-lizard-reader-resolution-fast-path/facade-acceptance.json)
+- [facade-acceptance.ts](./_resources/260903-verify-lizard-reader-resolution-fast-path/facade-acceptance.ts)

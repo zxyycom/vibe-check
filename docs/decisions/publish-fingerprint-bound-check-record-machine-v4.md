@@ -1,5 +1,6 @@
 ---
 title: 将 machine v4 发布为指纹绑定的双文件集合
+id: 260821-publish-fingerprint-bound-check-record-machine-v4
 status: active
 alignment: aligned
 createdAt: 2026-08-21T15:02:46Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: publish-fingerprint-bound-check-record-machine-v3.md
+    target: 260815-publish-fingerprint-bound-check-record-machine-v3
 ---
 
 ## 目的

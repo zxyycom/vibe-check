@@ -1,5 +1,6 @@
 ---
 title: 在 Lizard 私有 façade 使用可验证且可回退的 reader 快速解析
+id: 260903-use-a-verified-fast-path-for-lizard-reader-resolution
 status: active
 alignment: aligned
 createdAt: 2026-09-03T07:15:30Z

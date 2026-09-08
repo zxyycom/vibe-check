@@ -1,5 +1,6 @@
 ---
 title: 增加一次性 Project Run core 诊断日志 output
+id: 260829-add-ephemeral-project-run-diagnostic-logging
 status: archived
 alignment: aligned
 createdAt: 2026-08-29T06:20:34Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: replace-global-tool-effects-with-run-outputs.md
+    target: 260826-replace-global-tool-effects-with-run-outputs
 ---
 
 ## 目的

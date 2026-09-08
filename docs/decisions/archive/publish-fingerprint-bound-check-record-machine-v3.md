@@ -1,5 +1,6 @@
 ---
 title: 将 machine v3 发布为指纹绑定的双文件集合
+id: 260815-publish-fingerprint-bound-check-record-machine-v3
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T10:25:13Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: publish-check-record-machine-v3.md
+    target: 260815-publish-check-record-machine-v3
 ---
 
 ## 目的

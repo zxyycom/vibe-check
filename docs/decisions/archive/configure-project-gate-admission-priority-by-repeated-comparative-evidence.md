@@ -1,5 +1,6 @@
 ---
 title: 用重复对照证据配置 Project Gate 的准入优先级
+id: 260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence
 status: archived
 alignment: aligned
 createdAt: 2026-09-01T04:56:53Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: schedule-project-gate-by-measured-resource-ownership-and-documentation-materials.md
+    target: 260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials
 ---
 
 ## 目的

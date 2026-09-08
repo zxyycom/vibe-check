@@ -1,5 +1,6 @@
 ---
 title: 用明确 Run outputs 与 Check-owned cache 取代旧全局工具模型
+id: 260826-replace-global-tool-effects-with-run-outputs
 status: archived
 alignment: aligned
 createdAt: 2026-08-26T09:17:19Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: enable-tool-effects-by-default.md
+    target: 260812-enable-tool-effects-by-default
 ---
 
 ## 目的

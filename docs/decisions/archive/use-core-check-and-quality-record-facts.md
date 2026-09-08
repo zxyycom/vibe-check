@@ -1,5 +1,6 @@
 ---
 title: 使用 Core Check 与 QualityRecord 两类事实
+id: 260815-use-core-check-and-quality-record-facts
 status: archived
 alignment: unaligned
 createdAt: 2026-08-15T03:46:51Z
@@ -10,9 +11,9 @@ tags:
   - product-contract
 relations:
   - type: 归并
-    target: use-runtime-resolved-check-and-record-core.md
+    target: 260805-use-runtime-resolved-check-and-record-core
   - type: 归并
-    target: separate-check-and-record-type-identities.md
+    target: 260805-separate-check-and-record-type-identities
 ---
 
 ## 目的

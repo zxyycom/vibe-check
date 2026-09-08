@@ -1,5 +1,6 @@
 ---
 title: "Project Gate validation 与 external consumer type acceptance 开销审计"
+id: "260904-audit-project-gate-validation-and-type-acceptance-overhead"
 formedAt: "2026-09-04T02:49:37Z"
 question: "在不运行 full Project Gate 的条件下，Bun validation tooling tests 与 Bun external package consumer type acceptance 的超过 5 秒现象，哪些是 check 自身结构性成本，哪些只能归因于并发/候选生命周期环境；同族 process-backed lanes 是否已有可消除的重复启动？"
 tags:

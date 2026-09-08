@@ -1,5 +1,6 @@
 ---
 title: 使用通用 machine v2 承载内容检查
+id: 260804-use-generic-machine-v2-for-content-findings
 status: archived
 alignment: null
 createdAt: 2026-08-04T15:02:12Z

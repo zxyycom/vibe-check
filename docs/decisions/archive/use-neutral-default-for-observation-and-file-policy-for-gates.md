@@ -1,5 +1,6 @@
 ---
 title: 观察使用中性默认，阻断使用文件政策
+id: 260804-use-neutral-default-for-observation-and-file-policy-for-gates
 status: archived
 alignment: null
 createdAt: 2026-08-04T03:37:21Z

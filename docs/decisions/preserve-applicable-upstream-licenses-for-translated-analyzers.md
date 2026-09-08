@@ -1,5 +1,6 @@
 ---
 title: 为翻译的 analyzer 保留适用 upstream 许可与声明
+id: 260902-preserve-applicable-upstream-licenses-for-translated-analyzers
 status: active
 alignment: aligned
 createdAt: 2026-09-02T08:10:12Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: license-package-under-mit.md
+    target: 260814-license-package-under-mit
 ---
 
 ## 目的

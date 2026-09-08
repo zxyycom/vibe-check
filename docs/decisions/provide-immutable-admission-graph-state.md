@@ -1,5 +1,6 @@
 ---
 title: 提供不可变 AdmissionGraph 与 AdmissionState
+id: 260903-provide-immutable-admission-graph-state
 status: active
 alignment: aligned
 createdAt: 2026-09-03T09:09:30Z

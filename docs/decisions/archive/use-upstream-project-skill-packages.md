@@ -1,5 +1,6 @@
 ---
 title: 采用完整上游包维护项目工程 skills
+id: 260727-use-upstream-project-skill-packages
 status: archived
 alignment: null
 createdAt: 2026-07-27T06:40:00Z

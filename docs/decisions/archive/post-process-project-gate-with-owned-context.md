@@ -1,5 +1,6 @@
 ---
 title: 以完整 Gate-owned invocation 上下文后处理一个 Gate 结果
+id: 260827-post-process-project-gate-with-owned-context
 status: archived
 alignment: aligned
 createdAt: 2026-08-27T03:52:26Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: bind-project-gates-to-run-aggregation.md
+    target: 260821-bind-project-gates-to-run-aggregation
 ---
 
 ## 目的

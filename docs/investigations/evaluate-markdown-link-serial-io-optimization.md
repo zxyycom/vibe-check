@@ -1,5 +1,6 @@
 ---
 title: "Markdown Link 严格串行 I/O 优化复查"
+id: "260903-evaluate-markdown-link-serial-io-optimization"
 formedAt: "2026-09-03T07:27:03+00:00"
 question: "在相同 1,000 source / 160 target 严格串行 workload 中，最终的 Markdown Link parse-facts cache 优化相对 cfe715d 基线实际改变了什么；是否通过 cold gate，并保持了哪些语义边界？"
 tags:
@@ -8,7 +9,7 @@ tags:
   - "serial-io"
 relations:
   - type: "复查"
-    target: "measure-markdown-link-serial-cache-overhead.md"
+    target: "260903-measure-markdown-link-serial-cache-overhead"
 ---
 
 ## 形成时背景
@@ -31,7 +32,7 @@ relations:
 - **明确未采用：** digest memo、packed cache、deferred/background write 与动态 buffer 均未保留。多独立 entry 的延后写入并不减少 entry 数量或必需 I/O；packed storage 仍会引入全量重写、并发合并、损坏域与增长管理，未作为本轮低风险优化。
 - **环境和 workload：** 两个 raw JSON 都记录 Bun `1.3.14`、Linux x64、AMD Ryzen AI 7 H 450（6 CPU），fixture seed `1592639710`、1,000 sources / 160 normal targets（normal corpus 1,160 Markdown files）、512/2,048/8,192-byte source sizes，以及每 source deterministic 1..5 target links。每组 5 samples，以 median wall time 汇总；cold 清空 application cache directory，但不强制丢弃 OS page cache。
 - **比较材料：** before 资源产生于 `2026-09-03T07:09:53.628Z`，对应 cfe715d 版本；after 资源产生于 `2026-09-03T07:22:07.393Z`，对应最终 hit/UTF-8 优化。二者均比较同一 formal runtime direct `executeMarkdownLinkValidation` envelope 的 disabled 与 enabled，且 public-run observation 不作为 gate comparator。
-- **harness 与完整复现：** 当前树中 active path `changes/cache-markdown-link-safe-facts/evidence/benchmark.ts` 不存在；实际使用的是明确授权读取的 archived input `changes/archive/cache-markdown-link-safe-facts/evidence/benchmark.ts`。形成时其 SHA-256 为 `68afc4b04ce28ee43dc224041d16a900c42ed703f64c8666bc9e33908e729e60`，working tree、`HEAD` 与 `cfe715d` 的 Git blob identity 均为 `cce26f87c656a8972201e9648146f1d15dd3281d`。在 clean cfe715d worktree 中，先确认 active Change path 不存在；执行 `mkdir -p changes/cache-markdown-link-safe-facts/evidence`，把 archived harness 复制为 `changes/cache-markdown-link-safe-facts/evidence/benchmark.ts`，再执行 raw JSON 的 inner invocation `bun changes/cache-markdown-link-safe-facts/evidence/benchmark.ts --output changes/cache-markdown-link-safe-facts/evidence/results/latest.json`；完成后只在该路径最初不存在的前提下执行 `rm -rf changes/cache-markdown-link-safe-facts` 清理这次临时创建的目录。raw JSON 的 `command` 字段只记录第三步 inner invocation，**不**记录复制或清理。
+- **harness 与完整复现：** 形成时实际使用的是已完成 Change `cache-markdown-link-safe-facts` 的 benchmark harness；该 Change 目录现已按完成态删除策略移除，因而本报告不再提供当前树内的直接复现入口。形成时 harness SHA-256 为 `68afc4b04ce28ee43dc224041d16a900c42ed703f64c8666bc9e33908e729e60`，Git blob identity 为 `cce26f87c656a8972201e9648146f1d15dd3281d`；raw JSON 的 `command` 字段只记录当时的 inner invocation，不包含形成时的复制或清理步骤。只有明确历史审计时才可从相应 Git 版本恢复该线索，并须重新核对环境与当前实现，不能把它当作现行可执行步骤。
 - **candidate identity 与受管资源：** before 可以以 `cfe715d` 恢复；after 以同一 base 加本报告的 `candidate.patch` 恢复。该 patch 由当前树相对 cfe715d 重新生成，只含 6 个本轮 source/test 文件：`src/cache/cache-json-by-key.ts`、`filesystem-probes.ts`、`local-resolution.ts`、`parse-facts-cache.ts`、`parse-facts-cache.test.ts` 与 `resolver-engine.ts`；不含 Case owner 文档 `docs/testing/cases/scan-scope.md`、其它 docs、Change artifacts 或 index；SHA-256 为 `69806cfe398734c992c90098baa64930b62e5db4057ffe22684cdab51755cc87`。它以 `git diff --binary --unified=0 cfe715d -- <six paths>` 生成，避免 nested unified-diff 的 context 空行触发仓库 trailing-whitespace gate；因此在临时 clean cfe715d tree 以 `git apply --unidiff-zero --binary --check`、apply，并逐文件 `cmp` 这 6 个路径与当前工作树一致。`after-final-hit-utf8.json` 的 SHA-256 为 `023b5672b4a93100941dd596490cbeb8bc8ab54f7fba2238482faf93f245fca1`；`before-old-cfe715d.json` 的 SHA-256 为 `f4332def08fbd5efc67aabd176d130b30f730aec713c57d60b2cea820a0d05e2`。资源包含完整 samples、summary、comparison 与 semantic sections；formal runtime 不公开 physical I/O / parse counters。
 
 ## 调查结果与边界
@@ -68,6 +69,6 @@ relations:
 
 ## 随附资源
 
-- [after final hit utf8 raw benchmark](./_resources/evaluate-markdown-link-serial-io-optimization/after-final-hit-utf8.json)
-- [before old cfe715d raw benchmark](./_resources/evaluate-markdown-link-serial-io-optimization/before-old-cfe715d.json)
-- [candidate source and test patch](./_resources/evaluate-markdown-link-serial-io-optimization/candidate.patch)
+- [after final hit utf8 raw benchmark](./_resources/260903-evaluate-markdown-link-serial-io-optimization/after-final-hit-utf8.json)
+- [before old cfe715d raw benchmark](./_resources/260903-evaluate-markdown-link-serial-io-optimization/before-old-cfe715d.json)
+- [candidate source and test patch](./_resources/260903-evaluate-markdown-link-serial-io-optimization/candidate.patch)

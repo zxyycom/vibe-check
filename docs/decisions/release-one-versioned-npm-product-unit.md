@@ -1,5 +1,6 @@
 ---
 title: 以版本化 npm package 交付完整产品单元
+id: 260812-release-one-versioned-npm-product-unit
 status: active
 alignment: aligned
 createdAt: 2026-08-12T09:12:51Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 拆分
-    target: use-versioned-npm-package-release-unit.md
+    target: 260806-use-versioned-npm-package-release-unit
 ---
 
 ## 目的

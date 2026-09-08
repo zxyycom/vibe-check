@@ -1,5 +1,6 @@
 ---
 title: 使用声明式质量决策策略
+id: 260805-use-declarative-quality-decision-policies
 status: archived
 alignment: null
 createdAt: 2026-08-05T06:43:25Z

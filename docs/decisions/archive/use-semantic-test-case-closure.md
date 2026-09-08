@@ -1,5 +1,6 @@
 ---
 title: 采用完整测试实体与语义 Case 闭合
+id: 260730-use-semantic-test-case-closure
 status: archived
 alignment: aligned
 createdAt: 2026-07-30T03:24:22Z
@@ -10,7 +11,7 @@ tags:
   - testing
 relations:
   - type: 修订
-    target: use-native-test-evidence-catalog.md
+    target: 260727-use-native-test-evidence-catalog
 ---
 
 ## 目的

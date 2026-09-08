@@ -1,5 +1,6 @@
 ---
 title: 采用完整上游 Skill 包并允许显式项目本地例外
+id: 260730-use-upstream-skills-with-project-local-exceptions
 status: archived
 alignment: null
 createdAt: 2026-07-30T03:24:22Z
@@ -10,7 +11,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: use-upstream-project-skill-packages.md
+    target: 260727-use-upstream-project-skill-packages
 ---
 
 ## 目的

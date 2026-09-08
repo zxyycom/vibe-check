@@ -1,5 +1,6 @@
 ---
 title: 提供 caller-keyed JSON cache 且不缓存 Run settlement
+id: 260901-provide-caller-keyed-json-cache-without-run-caching
 status: active
 alignment: aligned
 createdAt: 2026-09-01T03:20:25Z
@@ -11,7 +12,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: keep-duplicate-detection-cache-check-owned.md
+    target: 260830-keep-duplicate-detection-cache-check-owned
 ---
 
 ## 目的

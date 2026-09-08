@@ -1,5 +1,6 @@
 ---
 title: 让仓库质量 Finding 在发布前仍为提示
+id: 260902-keep-repository-quality-findings-advisory-through-release
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T06:42:07Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 替代
-    target: require-known-repository-quality-remediation-before-public-release.md
+    target: 260830-require-known-repository-quality-remediation-before-public-release
 ---
 
 ## 目的

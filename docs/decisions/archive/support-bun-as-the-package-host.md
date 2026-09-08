@@ -1,5 +1,6 @@
 ---
 title: 首个 package 只支持 Bun 宿主
+id: 260812-support-bun-as-the-package-host
 status: archived
 alignment: aligned
 createdAt: 2026-08-12T10:30:27Z

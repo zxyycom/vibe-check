@@ -1,5 +1,6 @@
 ---
 title: 由中央 Definition 配置 Project Gate afterGate
+id: 260831-centralize-project-gate-after-hook-configuration
 status: active
 alignment: aligned
 createdAt: 2026-08-31T16:03:14Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: centralize-project-gate-definition-and-separate-adapters.md
+    target: 260831-centralize-project-gate-definition-and-separate-adapters
 ---
 
 ## 目的

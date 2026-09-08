@@ -1,5 +1,6 @@
 ---
 title: 允许空 information Check 并给出提示
+id: 260817-allow-empty-information-checks-with-warning
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T15:37:57Z

@@ -1,5 +1,6 @@
 ---
 title: "冷 candidate bootstrap 的 Project Gate 导入复查"
+id: "260907-recheck-cold-candidate-bootstrap-gate-import"
 formedAt: "2026-09-07T09:21:40Z"
 question: "在提交 bb33371c 的隔离 candidate 冷态下，正式 typecheck Gate 是否仍会在 candidate 已成功准备后失败于 bound-run 导入；现有 evidence 能否区分 candidate lifecycle、Gate adapter 与未证实的 Bun resolver 假设？"
 tags:
@@ -10,7 +11,7 @@ tags:
   - "verification"
 relations:
   - type: "复查"
-    target: "diagnose-bun-cold-project-gate-candidate-import.md"
+    target: "260901-diagnose-bun-cold-project-gate-candidate-import"
 ---
 
 ## 形成时背景

@@ -1,5 +1,6 @@
 ---
 title: 使用字段感知的内置 Check 调整方法
+id: 260814-use-field-aware-built-in-check-adjustments
 status: archived
 alignment: aligned
 createdAt: 2026-08-14T15:25:27Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: keep-built-in-options-owned-and-tool-neutral.md
+    target: 260814-keep-built-in-options-owned-and-tool-neutral
 ---
 
 ## 目的

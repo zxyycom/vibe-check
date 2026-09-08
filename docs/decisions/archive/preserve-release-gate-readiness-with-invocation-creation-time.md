@@ -1,5 +1,6 @@
 ---
 title: 以 invocation 创建时间保持发布前 Gate 就绪边界
+id: 260830-preserve-release-gate-readiness-with-invocation-creation-time
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:18:43Z
@@ -11,7 +12,7 @@ tags:
   - product-priority
 relations:
   - type: 修订
-    target: publish-invocation-creation-time-without-execution-telemetry.md
+    target: 260830-publish-invocation-creation-time-without-execution-telemetry
 ---
 
 ## 目的

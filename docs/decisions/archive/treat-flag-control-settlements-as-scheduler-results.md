@@ -1,5 +1,6 @@
 ---
 title: 将 flag control 终态作为 Scheduler 准入前结果
+id: 260902-treat-flag-control-settlements-as-scheduler-results
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T03:33:46Z
@@ -12,7 +13,7 @@ tags:
   - product-contract
 relations:
   - type: 修订
-    target: support-multi-flag-check-enablement-strategies.md
+    target: 260901-support-multi-flag-check-enablement-strategies
 ---
 
 ## 目的

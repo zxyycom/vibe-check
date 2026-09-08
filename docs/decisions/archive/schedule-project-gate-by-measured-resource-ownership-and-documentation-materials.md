@@ -1,5 +1,6 @@
 ---
 title: 按实测资源所有权调度 Gate 与文档材料
+id: 260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:53:50Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: serialize-project-gate-documentation-materials-by-ownership.md
+    target: 260830-serialize-project-gate-documentation-materials-by-ownership
 ---
 
 ## 目的

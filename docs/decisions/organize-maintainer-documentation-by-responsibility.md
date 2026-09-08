@@ -1,5 +1,6 @@
 ---
 title: 按维护职责组织内部文档
+id: 260905-organize-maintainer-documentation-by-responsibility
 status: active
 alignment: aligned
 createdAt: 2026-09-05T18:48:20Z

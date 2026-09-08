@@ -1,5 +1,6 @@
 ---
 title: 保持 Check group 仅为 authoring context
+id: 260815-keep-check-groups-authoring-only
 status: archived
 alignment: aligned
 createdAt: 2026-08-15T12:28:01Z
@@ -10,7 +11,7 @@ tags:
   - configuration
 relations:
   - type: 修订
-    target: use-composable-check-tree-with-run-owned-bindings.md
+    target: 260815-use-composable-check-tree-with-run-owned-bindings
 ---
 
 ## 目的

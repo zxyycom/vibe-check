@@ -1,5 +1,6 @@
 ---
 title: 公开递归 Check authoring 与 Run surface
+id: 260817-expose-recursive-check-authoring-and-run-surface
 status: archived
 alignment: aligned
 createdAt: 2026-08-17T16:53:01Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 替代
-    target: confirm-single-check-authoring-and-derivation-names-before-publication.md
+    target: 260815-confirm-single-check-authoring-and-derivation-names-before-publication
 ---
 
 ## 目的

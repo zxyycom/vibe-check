@@ -1,5 +1,6 @@
 ---
 title: 由 Product progress 统一预览 Record 与 Check message
+id: 260904-render-record-and-message-previews-in-product-progress
 status: archived
 alignment: aligned
 createdAt: 2026-09-04T13:51:37Z
@@ -12,7 +13,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: publish-detailed-native-gate-diagnostic-records.md
+    target: 260904-publish-detailed-native-gate-diagnostic-records
 ---
 
 ## 目的

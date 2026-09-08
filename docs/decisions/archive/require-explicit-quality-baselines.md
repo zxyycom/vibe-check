@@ -1,5 +1,6 @@
 ---
 title: 质量比较只接受显式基线
+id: 260804-require-explicit-quality-baselines
 status: archived
 alignment: null
 createdAt: 2026-08-04T07:18:16Z

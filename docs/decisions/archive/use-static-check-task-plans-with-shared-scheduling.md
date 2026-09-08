@@ -1,5 +1,6 @@
 ---
 title: 使用静态 Check TaskPlan 与共享调度器
+id: 260805-use-static-check-task-plans-with-shared-scheduling
 status: archived
 alignment: unaligned
 createdAt: 2026-08-05T10:31:36Z

@@ -1,5 +1,6 @@
 ---
 title: 发布前显式确认每个公共名称
+id: 260812-approve-public-names-before-publication
 status: archived
 alignment: unaligned
 createdAt: 2026-08-12T09:12:51Z
@@ -10,7 +11,7 @@ tags:
   - product-contract
 relations:
   - type: 拆分
-    target: use-versioned-npm-package-release-unit.md
+    target: 260806-use-versioned-npm-package-release-unit
 ---
 
 ## 目的

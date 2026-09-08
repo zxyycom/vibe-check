@@ -1,5 +1,6 @@
 ---
 title: 聚合 Project Gate 的全部 eligible Check statuses
+id: 260830-aggregate-all-eligible-project-gate-check-statuses
 status: active
 alignment: aligned
 createdAt: 2026-08-30T04:05:34Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: observe-repository-quality-checks-inside-project-gate.md
+    target: 260829-observe-repository-quality-checks-inside-project-gate
 ---
 
 ## 目的

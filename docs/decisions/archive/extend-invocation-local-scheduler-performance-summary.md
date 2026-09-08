@@ -1,5 +1,6 @@
 ---
 title: 扩展 invocation-local Scheduler 压力与尾段诊断
+id: 260902-extend-invocation-local-scheduler-performance-summary
 status: archived
 alignment: aligned
 createdAt: 2026-09-02T00:07:04Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 修订
-    target: add-invocation-local-scheduler-performance-summary.md
+    target: 260901-add-invocation-local-scheduler-performance-summary
 ---
 
 ## 目的

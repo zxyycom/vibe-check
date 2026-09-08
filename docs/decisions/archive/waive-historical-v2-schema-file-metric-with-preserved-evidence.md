@@ -1,5 +1,6 @@
 ---
 title: 保留证据地豁免历史 v2 Schema 文件指标
+id: 260830-waive-historical-v2-schema-file-metric-with-preserved-evidence
 status: archived
 alignment: aligned
 createdAt: 2026-08-30T17:34:10Z
@@ -11,7 +12,7 @@ tags:
   - workflow-policy
 relations:
   - type: 拆分
-    target: reconcile-finding-waivers-with-caller-defined-identities.md
+    target: 260830-reconcile-finding-waivers-with-caller-defined-identities
 ---
 
 ## 目的

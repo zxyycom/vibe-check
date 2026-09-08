@@ -1,5 +1,6 @@
 ---
 title: "Lizard 与 SCC 的 TypeScript 迁移优先级比较"
+id: "260901-compare-lizard-and-scc-typescript-port-priority"
 formedAt: "2026-09-01T05:50:33Z"
 question: "在 Vibe Check 当前的产品契约、依赖分发与兼容范围下，Lizard 和 SCC 哪个更值得迁移为 Product-owned TypeScript backend，现有 Lizard Change 是否仍可实施？"
 tags:
