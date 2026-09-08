@@ -18,7 +18,7 @@
 
 ### Intended Change
 
-- 消费[资源配置](../configure-project-gate-named-resources/proposal.md)和[虚拟平台](../build-admission-simulation-workbench/proposal.md)的稳定输入，先运行基线、定位反例，再提出和比较小范围候选。
+- 消费[Gate 资源配置](../../docs/tooling/project-gate.md#并发与优先级)（配置提交 `b30477b6`）和[虚拟平台](../build-admission-simulation-workbench/proposal.md)的稳定输入，先运行基线、定位反例，再提出和比较小范围候选。
 - 必要时只修改 `src/learned-critical-path/**` 的选择启发式；保持公开 prepared strategy、duration/history 模型、Scheduler legality 与资源生命周期。
 - 比较范围限于可解释的局部规则，不预定回填或层序改动一定胜出；不引入深搜索、强化学习、新预测模型、预约、抢占、跨 Run 公平或新配置选项。
 

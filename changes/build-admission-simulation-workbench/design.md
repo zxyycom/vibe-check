@@ -8,7 +8,7 @@
 - [模拟调度分支指南](../../docs/guides/simulating-admission.md)规定 `createAdmissionGraph(input)` 形成 immutable state，只有 `select(taskId)` 与二元 `settle(taskId, "satisfied" | "unsatisfied")` 产生合法 successor；它不启动 Check、不保留真实资源，也没有公开取消 transition。
 - [Scheduler](../../docs/development/scheduler.md)拥有真实 task/promise、取消、资源生命周期与 measurement；虚拟循环不得复制它。真实 shared-closure adapter 只证明少量 lifecycle 接线，不能变成虚拟时长或竞争数据。
 - [时长调查](../../docs/investigations/calibrate-gate-duration-variation.md)提供四类固定 profile 的 proxy median 和各五个 `sample / median` 倍率。它明确未识别 Gate resource competition coefficient，且全量 core duration 不可再叠加为“无竞争基线”。
-- [资源配置 Change](../configure-project-gate-named-resources/proposal.md)将来可能形成 Gate mapping；基础平台先使用合成图。mapping 形成后才增加一个带 mapping identity 的最终 Gate-shape scenario；静态分析足够，不要求实测竞争证明。
+- [Gate 资源配置](../../docs/tooling/project-gate.md#并发与优先级)已由提交 `b30477b6` 交接；基础平台先使用合成图，最终 Gate-shape scenario 读取该映射并记录 identity。映射来自静态分析，不要求实测竞争证明。
 
 ## Goals / Non-Goals
 

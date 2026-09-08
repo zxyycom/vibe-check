@@ -16,7 +16,7 @@
 
 ### Intended Change
 
-- 等待 [Gate named-resource 配置](../configure-project-gate-named-resources/proposal.md)、[admission 虚拟测量平台](../build-admission-simulation-workbench/proposal.md)与[简单算法重设计](../redesign-learned-admission-heuristic/proposal.md)各自的稳定结论和继承提交；资源配置与基础平台可独立实施，平台最终 Gate 场景继承资源映射，算法在输入就绪后形成和比较候选。
+- 继承 [Gate named-resource 配置](../../docs/tooling/project-gate.md#并发与优先级)提交 `b30477b6`，等待 [admission 虚拟测量平台](../build-admission-simulation-workbench/proposal.md)与[简单算法重设计](../redesign-learned-admission-heuristic/proposal.md)的稳定结论和提交；平台最终 Gate 场景继承资源映射，算法在输入就绪后形成和比较候选。
 - 审核相对 0.0.1 的实际公开差异，编写简短 release notes/迁移说明；沿用正式 release prepare/verify 入口形成并验收精确产物。
 - 在获得当次明确外部写入授权后发布，并验证 registry 和真实安装结果；具体顺序与待定输入见[设计草案](design.md)。不顺带增加产品功能或升级依赖。
 
