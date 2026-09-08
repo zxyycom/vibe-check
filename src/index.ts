@@ -165,6 +165,7 @@ export type {
   CustomAdmissionPreparationContext,
   CustomAdmissionStrategy,
   PreparedCustomAdmissionStrategy,
+  ProgressPreviewFormatter,
   ProjectOutputs,
   ProjectDefinition,
   SchedulerDecisionMeasurementCumulative,

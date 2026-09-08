@@ -174,6 +174,53 @@ describe("Project Definition", () => {
       createDeclarativeFingerprint(normalizeProjectDefinition(resourceChanged).declarative)
     );
 
+    const defaultProgress = defineConfig({});
+    const explicitDefaultProgress = defineConfig({
+      outputs: {
+        progressRendering: {
+          formatter: null,
+          messagePreviewLimit: 5,
+          recordPreviewLimit: 5,
+          textPreviewCodePointLimit: 240
+        }
+      }
+    });
+    const firstFormatter = defineConfig({
+      outputs: { progressRendering: { formatter: () => "first" } }
+    });
+    const secondFormatter = defineConfig({
+      outputs: { progressRendering: { formatter: () => "second" } }
+    });
+    const changedProgressLimit = defineConfig({
+      outputs: { progressRendering: { recordPreviewLimit: 6 } }
+    });
+    assert.equal(
+      createDeclarativeFingerprint(normalizeProjectDefinition(defaultProgress).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(explicitDefaultProgress).declarative)
+    );
+    assert.equal(
+      createDeclarativeFingerprint(normalizeProjectDefinition(firstFormatter).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(secondFormatter).declarative)
+    );
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(defaultProgress).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(firstFormatter).declarative)
+    );
+    assert.notEqual(
+      createDeclarativeFingerprint(normalizeProjectDefinition(defaultProgress).declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(changedProgressLimit).declarative)
+    );
+    assert.deepEqual(
+      normalizeProjectDefinition(firstFormatter).declarative.outputs.progressRendering,
+      {
+        enabled: true,
+        formatter: "custom",
+        messagePreviewLimit: 5,
+        recordPreviewLimit: 5,
+        textPreviewCodePointLimit: 240
+      }
+    );
+
     const options = {};
     Object.defineProperty(options, "__proto__", {
       enumerable: true,

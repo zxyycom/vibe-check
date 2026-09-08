@@ -25,16 +25,33 @@ callback throw/cancel/malformed result 仍保留已捕获文本，而非法 auth
 settlement 后，private lifecycle handoff 将 accepted Records/messages 交给 enabled progress renderer；captured console
 以 `console-<method>` code 保留于 `RunResult.checkMessages`，不进入 Check final data 或 machine publication。
 
-renderer 每个 settled block 最多预览五条 Records 和五条 messages，分别按 canonical local Record ID 与 accepted
-message order；Record 使用 local ID/canonical JSON，message 使用正文。两者先 escape terminal controls，再按 Unicode
-code point 截断至 240（含 marker），分别统计 omitted count。禁用 progress 时不创建 writer、tee、refresh 或 preview；
-完整 facts 和执行结算保持不变。调用方可依赖的输出与敏感信息边界见[API 机制](../api-mechanics.md#check-messages-与受管-progress)。
-
 ## Progress presentation maintenance
 
 renderer 从 settled lifecycle feedback 读取 outcome、duration、Records 与 messages。`attention` 仅省略 passed
-且没有 accepted Record/message 的 settled row；它保持 running row 和 accounting ordinal。TTY 使用单一 monotonic
-elapsed interval 与 heartbeat 维护 running region；plain/dumb target 只追加 settled presentation。每个 visible
+且没有 accepted Record/message 的 settled row；它保持 running row 和 accounting ordinal。
+
+### Preview pipeline
+
+配置 grammar、defaults 与声明性投影由 [Project Definition](project-definition.md#progress-preview-配置) 拥有，
+单次覆盖由 [Project Run](project-run.md#run-outputs-and-compatibility-boundary) 拥有。renderer 只消费已经解析并冻结的 effective policy，按以下顺序呈现：
+
+1. **选择 detail**：每个 settled block 分别按 `recordPreviewLimit` 和 `messagePreviewLimit` 选取 Records/messages，
+   保持 canonical local Record ID 与 accepted message order。`0` 不呈现该类 detail，但仍统计 omitted count；
+   settled row 的 attention 判断继续基于 accepted facts，而不是预览数量。
+2. **生成正文**：Record 默认文本为 local ID/canonical JSON，message 默认文本为正文。存在 formatter 时，仅对
+   selected item 按 Records 后 messages 的顺序调用一次，传入冻结、未 escape/未截断的 `{ kind, text, maxCodePoints }`。
+   omitted items、summary、running row 和 TTY refresh 不调用 formatter；空字符串仍是有效正文。
+3. **安全呈现**：默认或自定义正文先 escape terminal controls，再按 effective Unicode code-point budget 截断。
+   `… [truncated]` marker 计入预算，短预算只显示 marker 前缀；label、顺序和 omitted count 继续由 renderer 拥有。
+
+formatter throw 或非字符串返回使 progress output failed，随后停写，但不改写已接受 facts/Check settlement。
+真实 Promise 的 rejection 被观察，任意 thenable 不会被读取或调用。禁用 progress 时不创建 writer、tee、refresh
+或 preview，也不调用 formatter。formatter 是 trusted caller code，不是 secret redaction 或 I/O sandbox；
+调用方可依赖的输出与敏感信息边界见 [API 机制](../api-mechanics.md#check-messages-与受管-progress)。
+
+### Lifecycle 与写入
+
+TTY 使用单一 monotonic elapsed interval 与 heartbeat 维护 running region；plain/dumb target 只追加 settled presentation。每个 visible
 settled block 原子写入；level label 按 terminal capability 着色，正文做 terminal escape，message code 保留在
 readback 而非终端正文。final summary 展示 execution、counts 和 elapsed。
 

@@ -162,7 +162,13 @@ describe("Project Gate Definition", () => {
     assert.deepEqual(definition.outputs, {
       diagnosticLogging: { directory: ".log/vibe-check", enabled: false },
       machinePublication: { directory: "artifacts/vibe-check", enabled: false },
-      progressRendering: { enabled: true }
+      progressRendering: {
+        enabled: true,
+        formatter: null,
+        messagePreviewLimit: 5,
+        recordPreviewLimit: 5,
+        textPreviewCodePointLimit: 240
+      }
     });
     assert.equal(definition.scheduler.admissionPolicy.kind, "custom");
     assert.equal(

@@ -2,10 +2,12 @@ import { createHash } from "node:crypto";
 
 import type { AdmissionPolicy, DeclarativeSchedulerPolicy } from "./scheduler-policy.ts";
 import type {
+  DeclarativeProjectOutputs,
   DeclarativeProjectSnapshot,
   NormalizedCheck,
   ProjectDefinition
 } from "./project-definition.ts";
+import { resolveProgressRenderingOutput } from "./output-defaults.ts";
 import { isNonArrayRecord } from "../data-boundary/value-shapes.ts";
 
 /**
@@ -21,11 +23,26 @@ export function createDeclarativeProjectSnapshot(
   return deepFreeze({
     apiVersion: definition.apiVersion,
     checks: declarations,
-    outputs: definition.outputs,
+    outputs: declarativeOutputs(definition),
     scheduler: Object.freeze({
       admissionPolicy: declarativeAdmissionPolicy(definition.scheduler.admissionPolicy),
       maxParallel: definition.scheduler.maxParallel,
       resourceCapacities: definition.scheduler.resourceCapacities
+    })
+  });
+}
+
+function declarativeOutputs(definition: ProjectDefinition): DeclarativeProjectOutputs {
+  const progressRendering = resolveProgressRenderingOutput(definition.outputs.progressRendering);
+  return Object.freeze({
+    diagnosticLogging: definition.outputs.diagnosticLogging,
+    machinePublication: definition.outputs.machinePublication,
+    progressRendering: Object.freeze({
+      enabled: progressRendering.enabled,
+      formatter: progressRendering.formatter === null ? "default" : "custom",
+      messagePreviewLimit: progressRendering.messagePreviewLimit,
+      recordPreviewLimit: progressRendering.recordPreviewLimit,
+      textPreviewCodePointLimit: progressRendering.textPreviewCodePointLimit
     })
   });
 }

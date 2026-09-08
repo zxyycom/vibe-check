@@ -9,7 +9,11 @@ import type {
   CheckResourceClaims,
   CheckVisibility
 } from "../check/check.ts";
-import { DEFAULT_PROJECT_OUTPUTS } from "./output-defaults.ts";
+import { DEFAULT_PROJECT_OUTPUTS, resolveProgressRenderingOutput } from "./output-defaults.ts";
+import type {
+  ProgressRenderingOutput,
+  ResolvedProgressRenderingOutput
+} from "./progress-rendering-output.ts";
 import { createDeclarativeProjectSnapshot } from "./declarative-snapshot.ts";
 import {
   EMPTY_RESOURCE_UNIT_MAPPING,
@@ -26,17 +30,36 @@ export interface ProjectOutputs {
     /** `false` 时本次 Run 不发布 machine output。 */
     readonly enabled: boolean;
   }>;
-  /** 人读 progress rendering。 */
-  readonly progressRendering: Readonly<{
-    /** `false` 时不构造或写入 progress writer。 */
-    readonly enabled: boolean;
-  }>;
+  /** 人读 progress lifecycle 与 preview 配置。 */
+  readonly progressRendering: ProgressRenderingOutput;
   /** 仅供维护者读取的一次 invocation diagnostic log。 */
   readonly diagnosticLogging: Readonly<{
     /** 相对目录从 project root 解析；绝对目录直接作为 target，默认 `.log/vibe-check`。 */
     readonly directory: string;
     /** `false` 时不创建 diagnostic writer 或 file。 */
     readonly enabled: boolean;
+  }>;
+}
+
+export type {
+  ProgressPreviewFormatter,
+  ProgressRenderingOutput,
+  ResolvedProgressRenderingOutput
+} from "./progress-rendering-output.ts";
+
+/** 已解析的 Run outputs；只在 Product invocation 内部使用。 */
+export interface ResolvedProjectOutputs extends Omit<ProjectOutputs, "progressRendering"> {
+  readonly progressRendering: ResolvedProgressRenderingOutput;
+}
+
+/** callback-free Definition output 投影；仅供 declarative fingerprint 使用。 */
+export interface DeclarativeProjectOutputs extends Omit<ProjectOutputs, "progressRendering"> {
+  readonly progressRendering: Readonly<{
+    readonly enabled: boolean;
+    readonly formatter: "custom" | "default";
+    readonly messagePreviewLimit: number;
+    readonly recordPreviewLimit: number;
+    readonly textPreviewCodePointLimit: number;
   }>;
 }
 
@@ -137,7 +160,7 @@ export interface NormalizedCheck extends NormalizedCheckDeclaration {
 export interface DeclarativeProjectSnapshot {
   readonly apiVersion: "1";
   readonly checks: readonly NormalizedCheckDeclaration[];
-  readonly outputs: ProjectOutputs;
+  readonly outputs: DeclarativeProjectOutputs;
   readonly scheduler: DeclarativeSchedulerPolicy;
 }
 export interface NormalizedProjectDefinition {
@@ -214,11 +237,7 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
           value.outputs?.machinePublication?.enabled ??
           DEFAULT_PROJECT_OUTPUTS.machinePublication.enabled
       },
-      progressRendering: {
-        enabled:
-          value.outputs?.progressRendering?.enabled ??
-          DEFAULT_PROJECT_OUTPUTS.progressRendering.enabled
-      },
+      progressRendering: resolveProgressRenderingOutput(value.outputs?.progressRendering ?? {}),
       diagnosticLogging: {
         directory:
           value.outputs?.diagnosticLogging?.directory ??

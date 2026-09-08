@@ -1,5 +1,8 @@
+import { types } from "node:util";
+
 import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { CoreRecord } from "../../check-settlement/facts.ts";
+import type { ResolvedProgressRenderingOutput } from "../../project-definition/project-definition.ts";
 import { canonicalJsonText } from "../../data-boundary/canonical-data.ts";
 import { FLAG_CONDITION_NOT_MATCHED_CODE } from "../check-execution/flag-controls.ts";
 import type { ProgressFeedback, ProgressOutcomeCounts } from "./renderer.ts";
@@ -11,8 +14,6 @@ const COLOR = Object.freeze({
   warning: "\u001B[33m"
 });
 
-const MAXIMUM_PREVIEW_ITEMS = 5;
-const MAXIMUM_PREVIEW_CODE_POINTS = 240;
 const TRUNCATION_MARKER = "… [truncated]";
 
 const NAMED_CONTROL_ESCAPES: Readonly<Partial<Record<string, string>>> = Object.freeze({
@@ -78,6 +79,7 @@ export function formatSettledBlock(
     readonly records: readonly CoreRecord[];
     readonly totalChecks: number;
     readonly usesColor: boolean;
+    readonly progressRendering: ResolvedProgressRenderingOutput;
   }>
 ): string {
   const status = statusForOutcome(input.outcome);
@@ -85,7 +87,9 @@ export function formatSettledBlock(
   const duration = input.durationMs === null ? "not run" : formatDuration(input.durationMs);
   const reasonSuffix = reason === undefined ? "" : ` | ${escapeTerminalText(reason)}`;
   const row = `  [${input.completionOrdinal}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | ${status} | ${duration}${reasonSuffix}\n`;
-  return `${row}${formatRecords(input.records)}${formatMessages(input.messages, input.usesColor)}`;
+  const recordPreview = formatRecords(input.records, input.progressRendering);
+  const messagePreview = formatMessages(input.messages, input.usesColor, input.progressRendering);
+  return `${row}${recordPreview}${messagePreview}`;
 }
 
 export function formatFinalSummary(
@@ -105,44 +109,102 @@ export function formatFinalSummary(
   ].join("\n");
 }
 
-function formatRecords(records: readonly CoreRecord[]): string {
-  return formatPreview(records, formatRecord, "record");
+function formatRecords(
+  records: readonly CoreRecord[],
+  progressRendering: ResolvedProgressRenderingOutput
+): string {
+  return formatPreview(
+    records,
+    (record) => formatRecord(record, progressRendering),
+    "record",
+    progressRendering.recordPreviewLimit
+  );
 }
 
-function formatMessages(messages: readonly CheckMessage[], usesColor: boolean): string {
-  return formatPreview(messages, (message) => formatMessage(message, usesColor), "message");
+function formatMessages(
+  messages: readonly CheckMessage[],
+  usesColor: boolean,
+  progressRendering: ResolvedProgressRenderingOutput
+): string {
+  return formatPreview(
+    messages,
+    (message) => formatMessage(message, usesColor, progressRendering),
+    "message",
+    progressRendering.messagePreviewLimit
+  );
 }
 
 function formatPreview<Item>(
   items: readonly Item[],
   formatItem: (item: Item) => string,
-  name: "message" | "record"
+  previewKind: "message" | "record",
+  limit: number
 ): string {
-  const preview = items.slice(0, MAXIMUM_PREVIEW_ITEMS);
+  const preview = items.slice(0, limit);
   const omittedCount = items.length - preview.length;
-  return `${preview.map(formatItem).join("")}${
-    omittedCount === 0
-      ? ""
-      : `    [${name}s] ${omittedCount} additional ${name}(s) were omitted from terminal preview.\n`
-  }`;
+  let renderedPreview = "";
+  // Caller formatters run once in selection order; a throw stops the current block.
+  for (const item of preview) renderedPreview += formatItem(item);
+  if (omittedCount === 0) return renderedPreview;
+  return `${renderedPreview}    [${previewKind}s] ${omittedCount} additional ${previewKind}(s) were omitted from terminal preview.\n`;
 }
 
-function formatRecord(record: CoreRecord): string {
-  return `    [record] ${boundedTerminalText(`${record.id} | ${canonicalJsonText(record.data)}`)}\n`;
+function formatRecord(
+  record: CoreRecord,
+  progressRendering: ResolvedProgressRenderingOutput
+): string {
+  const defaultText = `${record.id} | ${canonicalJsonText(record.data)}`;
+  const formattedText = formattedPreviewText("record", defaultText, progressRendering);
+  const previewText = boundedTerminalText(
+    formattedText,
+    progressRendering.textPreviewCodePointLimit
+  );
+  return `    [record] ${previewText}\n`;
 }
 
-function formatMessage(message: CheckMessage, usesColor: boolean): string {
+function formatMessage(
+  message: CheckMessage,
+  usesColor: boolean,
+  progressRendering: ResolvedProgressRenderingOutput
+): string {
   const label = colorMessageLevel(message.level, usesColor);
-  return `    [${label}] ${boundedTerminalText(message.message)}\n`;
+  const formattedText = formattedPreviewText("message", message.message, progressRendering);
+  const previewText = boundedTerminalText(
+    formattedText,
+    progressRendering.textPreviewCodePointLimit
+  );
+  return `    [${label}] ${previewText}\n`;
 }
 
-function boundedTerminalText(value: string): string {
+function formattedPreviewText(
+  kind: "record" | "message",
+  text: string,
+  progressRendering: ResolvedProgressRenderingOutput
+): string {
+  const formatter = progressRendering.formatter;
+  if (formatter === null) return text;
+  const formatted: unknown = formatter(
+    Object.freeze({ kind, maxCodePoints: progressRendering.textPreviewCodePointLimit, text })
+  );
+  if (typeof formatted === "string") return formatted;
+  observeRejectedPromise(formatted);
+  throw new TypeError("Progress preview formatter must synchronously return a string");
+}
+
+function observeRejectedPromise(value: unknown): void {
+  if (types.isPromise(value)) {
+    // The intrinsic call observes a real Promise without reading a caller-controlled `.then`.
+    // eslint-disable-next-line typescript/no-floating-promises -- rendering must not await formatter misuse.
+    void Promise.prototype.then.call(value, undefined, () => undefined);
+  }
+}
+
+function boundedTerminalText(value: string, maximumCodePoints: number): string {
   const escaped = escapeTerminalText(value);
-  if (codePointLength(escaped) <= MAXIMUM_PREVIEW_CODE_POINTS) return escaped;
-  return `${prefixByCodePoints(
-    escaped,
-    MAXIMUM_PREVIEW_CODE_POINTS - codePointLength(TRUNCATION_MARKER)
-  )}${TRUNCATION_MARKER}`;
+  if (codePointLength(escaped) <= maximumCodePoints) return escaped;
+  const marker = prefixByCodePoints(TRUNCATION_MARKER, maximumCodePoints);
+  const textBudget = maximumCodePoints - codePointLength(marker);
+  return `${prefixByCodePoints(escaped, textBudget)}${marker}`;
 }
 
 /** Human-only fields must not control the terminal that presents them. */

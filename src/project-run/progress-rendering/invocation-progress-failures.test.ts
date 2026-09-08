@@ -14,16 +14,36 @@ import {
 describe("Package Run progress rendering outputs", () => {
   it("does not create or write a progress writer when Package Run progress is disabled", async () => {
     let factoryCalls = 0;
-    const result = await executeValidatedRun(definition([check()]), {}, [], {
-      progressWriterFactory: () => {
-        factoryCalls += 1;
-        return capturedProgressWriter().writer;
+    let formatterCalls = 0;
+    const source = definition([check()]);
+    const result = await executeValidatedRun(
+      {
+        ...source,
+        outputs: {
+          ...source.outputs,
+          progressRendering: {
+            ...source.outputs.progressRendering,
+            formatter: () => {
+              formatterCalls += 1;
+              return "must not run";
+            }
+          }
+        }
+      },
+      {},
+      [],
+      {
+        progressWriterFactory: () => {
+          factoryCalls += 1;
+          return capturedProgressWriter().writer;
+        }
       }
-    });
+    );
 
     assert.equal(result.kind, "completed");
     assert.equal(result.outputs.progressRendering.status, "disabled");
     assert.equal(factoryCalls, 0);
+    assert.equal(formatterCalls, 0);
   });
 
   it("contains progress writer failures while preserving completed Check facts", async () => {
@@ -82,6 +102,78 @@ describe("Package Run progress rendering outputs", () => {
     assert.deepEqual(result.snapshot.records, [
       { checkId: "custom", id: "accepted", data: { source: "callback" } }
     ]);
+  });
+
+  it("contains formatter failure and observes returned Promise rejection without revising accepted facts", async () => {
+    let thenReads = 0;
+    const hostileThenable = Object.defineProperty({}, "then", {
+      get: () => {
+        thenReads += 1;
+        throw new Error("then must not be read");
+      }
+    });
+    for (const formatter of [
+      () => {
+        throw new Error("formatter throw");
+      },
+      () => {
+        /* eslint-disable typescript/no-floating-promises -- formatter misuse returns this Promise immediately. */
+        const rejected = new Promise<never>((_resolve, reject) =>
+          reject(new Error("formatter rejection"))
+        );
+        /* eslint-enable typescript/no-floating-promises */
+        const rejectedWithHostileThen = Object.defineProperty(rejected, "then", {
+          get: () => {
+            thenReads += 1;
+            return (
+              onFulfilled?: ((value: unknown) => unknown) | null,
+              onRejected?: ((reason: unknown) => unknown) | null
+            ) =>
+              Promise.prototype.then.call(rejected, onFulfilled, onRejected).catch(() => undefined);
+          }
+        });
+        return rejectedWithHostileThen;
+      },
+      () => hostileThenable
+    ]) {
+      const output = capturedProgressWriter();
+      const source = definition(
+        [
+          check({
+            execution: ({ records }) => {
+              records.report({ id: "accepted" }, { source: "callback" });
+              return {
+                ...PASSED,
+                messages: [{ level: "info" as const, code: "accepted", message: "message" }]
+              };
+            }
+          })
+        ],
+        true
+      );
+      const configured = {
+        ...source,
+        outputs: {
+          ...source.outputs,
+          progressRendering: { ...source.outputs.progressRendering }
+        }
+      };
+      Reflect.set(configured.outputs.progressRendering, "formatter", formatter);
+      const result = await executeValidatedRun(configured, {}, [], {
+        progressWriterFactory: () => output.writer
+      });
+      assert.equal(result.kind, "output");
+      if (result.kind !== "output") continue;
+      assert.deepEqual(result.diagnostic, { code: "progress-rendering-failed" });
+      assert.equal(result.outputs.progressRendering.status, "failed");
+      assert.deepEqual(result.snapshot.checks[0]?.outcome, PASSED);
+      assert.deepEqual(result.snapshot.records, [
+        { checkId: "custom", id: "accepted", data: { source: "callback" } }
+      ]);
+      assert.equal(result.checkMessages[0]?.message, "message");
+    }
+    await Promise.resolve();
+    assert.equal(thenReads, 0);
   });
 
   it("previews only accepted Records when Record misuse settles its Check unavailable", async () => {

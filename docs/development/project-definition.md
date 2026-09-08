@@ -8,6 +8,14 @@ Vibe Check configuration is a project-owned TypeScript **Project Definition**. `
 
 它不拥有 invocation controls、Run execution/result compatibility、各 Check 的 domain options、scanner adapter 或 machine DTO。
 
+## Progress preview 配置
+
+`outputs.progressRendering` 默认是 `{ enabled: true, recordPreviewLimit: 5, messagePreviewLimit: 5, textPreviewCodePointLimit: 240, formatter: null }`。两个数量分别是非负 safe integer；`0` 只隐藏对应 detail，仍保留准确 omitted count。文本预算是正 safe integer，按 Unicode code point 限制每条正文；没有额外硬上限。所有字段即使 `enabled: false` 也必须通过 closed validation。
+
+`formatter` 可以省略或为 `null`，此时 renderer 使用默认正文；也可以是同步 `(context) => string`，其中冻结的 `context` 只含 `{ kind: "record" | "message", text, maxCodePoints }`。`text` 是未 escape、未截断的 Record local ID/canonical JSON 或 message 正文。formatter 不接收原始对象、Check context 或 writer，返回值仍由 renderer escape 和限长；它不能改写完整 facts、label、顺序或 omitted count。throw 或非字符串返回会使 progress output failed，不会回退默认文本。
+
+省略新字段（包括旧的 direct Definition `{ enabled }`）会在 validation/normalization 中补齐默认值。数值和 formatter 的 `default`/`custom` 种类进入 declarative snapshot；formatter 函数、identity、source 与 closure 不进入 fingerprint，RunControls 也不进入。新增默认字段会改变升级前旧 fingerprint，不承诺跨版本字符串稳定。
+
 ## Public authoring surface
 
 package surface 包含 `defineAdmissionPolicy`、`defineConfig`、`defineCheck`、`inherit`、`run`，六个可补齐默认值的 Check constructors

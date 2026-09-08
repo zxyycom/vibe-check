@@ -126,6 +126,8 @@ node quality.ts
 | 配置 | 默认值 | 效果 |
 | --- | --- | --- |
 | `outputs.progressRendering.enabled` | `true` | 在终端呈现 Check 生命周期与汇总。 |
+| `outputs.progressRendering.recordPreviewLimit` / `messagePreviewLimit` | `5` / `5` | 分别限制每个 settled block 的 Record 与 message 预览；`0` 隐藏 detail 但保留 omitted count。 |
+| `outputs.progressRendering.textPreviewCodePointLimit` / `formatter` | `240` / `null` | 限制每条 preview 正文；可用同步 formatter 生成替代文本，Product 仍负责 escape 与截断。 |
 | `outputs.machinePublication.enabled` | `true` | 把 `run.json` 与 `records.ndjson` 写入 `artifacts/vibe-check`。 |
 | `outputs.diagnosticLogging.enabled` | `false` | 为本次 invocation 写入维护者诊断日志。 |
 | `scheduler.maxParallel` | `4` | 限制最外层 Check 并行数。 |
@@ -143,6 +145,8 @@ machine publication 与 diagnostic logging 的 `directory` 都是调用方选择
 ### 运行并读取结果
 
 `run(definition, controls?)` 执行一次独立 invocation。常用 controls 包括 `projectRoot`、`flags`、`signal`、`checkArtifactBaseDirectory`、`progressLogFile` 和仅对本次运行生效的 `outputs` overrides。需要让某个 Check 写 invocation-local artifact 时，调用方显式设置 base；callback 只会得到自己的 absolute `artifactDirectory`（未设置时为 `null`）。
+
+progress preview 的 Definition/RunControls 配置、formatter 的文本/失败边界和前后片段示例见[API 机制](./docs/api-mechanics.md#check-messages-与受管-progress)；它不会改变完整 Check facts 或 `RunResult.outputs.progressRendering` 的 enabled/status readback。
 
 读取结果时分两层判断：
 

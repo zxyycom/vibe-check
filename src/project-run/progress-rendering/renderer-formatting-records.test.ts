@@ -82,5 +82,54 @@ describe("Package Run progress Record and message previews", () => {
     assert.equal(messages.length, 6);
     assert.equal(records[0]?.data.a, "first");
     assert.equal(messages[0]?.message.endsWith("🙂"), true);
+
+    const formattedOutput = createWriter();
+    const formatterContexts: Array<{
+      readonly kind: "record" | "message";
+      readonly maxCodePoints: number;
+      readonly text: string;
+    }> = [];
+    const formattedRenderer = createProgressRenderer(formattedOutput.writer, undefined, {
+      enabled: true,
+      formatter: (context) => {
+        formatterContexts.push(context);
+        assert.equal(Object.isFrozen(context), true);
+        return context.kind === "record" ? "🙂record" : "";
+      },
+      messagePreviewLimit: 1,
+      recordPreviewLimit: 1,
+      textPreviewCodePointLimit: 1
+    });
+    formattedRenderer.render({ kind: "prepared", totalChecks: 1 });
+    formattedRenderer.render(
+      settled("formatted", "Formatted", { status: "passed", data: {} }, 1, {
+        messages: messages.slice(0, 2),
+        records: records.slice(0, 2),
+        visibility: "attention"
+      })
+    );
+    const formattedBlock = formattedOutput.writes[1] ?? "";
+    assert.deepEqual(formatterContexts, [
+      {
+        kind: "record",
+        maxCodePoints: 1,
+        text: `record\nid | ${JSON.stringify(records[0]?.data)}`
+      },
+      { kind: "message", maxCodePoints: 1, text: messages[0]?.message ?? "" }
+    ]);
+    assert.equal(formattedBlock.includes("    [record] …\n"), true);
+    assert.equal(formattedBlock.includes("    [error] \n"), true);
+    assert.equal(
+      formattedBlock.includes(
+        "    [records] 1 additional record(s) were omitted from terminal preview.\n"
+      ),
+      true
+    );
+    assert.equal(
+      formattedBlock.includes(
+        "    [messages] 1 additional message(s) were omitted from terminal preview.\n"
+      ),
+      true
+    );
   });
 });

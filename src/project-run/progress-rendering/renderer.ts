@@ -1,5 +1,7 @@
 import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
 import type { CoreRecord } from "../../check-settlement/facts.ts";
+import type { ResolvedProgressRenderingOutput } from "../../project-definition/project-definition.ts";
+import { resolveProgressRenderingOutput } from "../../project-definition/output-defaults.ts";
 import { ProgressRendererController } from "./renderer-lifecycle.ts";
 
 export interface ProgressWriter {
@@ -63,9 +65,12 @@ const SYSTEM_PROGRESS_CLOCK: ProgressClock = Object.freeze({ now: () => performa
 /** Product-private lifecycle presentation with one owner for feedback and its writer. */
 export function createProgressRenderer(
   writer: ProgressWriter,
-  clock: ProgressClock = SYSTEM_PROGRESS_CLOCK
+  clock: ProgressClock = SYSTEM_PROGRESS_CLOCK,
+  progressRendering: ResolvedProgressRenderingOutput = resolveProgressRenderingOutput({
+    enabled: true
+  })
 ): ProgressRenderer {
-  const controller = new ProgressRendererController(writer, clock);
+  const controller = new ProgressRendererController(writer, clock, progressRendering);
   return Object.freeze({
     refreshesRunningRegion: controller.refreshesRunningRegion,
     refresh: (): void => controller.refresh(),

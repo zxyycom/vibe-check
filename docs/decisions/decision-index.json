@@ -34,6 +34,7 @@
       "complete-first-release-check-set-with-specialized-maintenance-reminder.md": "sha256:42a431afdb6ff55c2022cd4505bd7d4fe378b1b70086be6d762ad4568b683916",
       "complete-first-release-check-set-without-markdown-structure.md": "sha256:98287aa77d20eec27c838c7923f1bc425ba117b80ccc545a84ae08914749469b",
       "complete-project-gate-before-public-package-release.md": "sha256:c06bdaf6a8f8b5bb159c639170abeb1fd70a7d2e9adfca511e8ae94d89598b8f",
+      "configure-bounded-progress-previews-with-text-formatter.md": "sha256:404774cd7f4dfd14b75f9cce53d87ef30e77e3ed66c50ea4b9ace011ac46e60c",
       "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md": "sha256:d418f012b519b311305eebc0cda3a82bd9741c2c3302ace18cbef3bde6698822",
       "confirm-built-in-check-and-adjustment-names-before-publication.md": "sha256:99d96de24c4e0f4968bf2557a932751a201e7c4415885769d01b5bb2e6b0b022",
       "confirm-built-in-check-value-and-tree-type-names-before-publication.md": "sha256:73f22e06d5b817f4f25c4161d4716e870e5c8e8ba0ee644f5d6dc74e638fcdda",
@@ -192,7 +193,7 @@
       "refine-project-run-and-settlement-owners.md": "sha256:50ed6c51b7f852dc6e87e6c66d092cec58a0d3be2348ecfce9d631b709ea0621",
       "release-one-versioned-npm-product-unit.md": "sha256:11ae85221ef8c86980d7ed15637dd4b60724410bbf7efe0a6f8838bba612f7c2",
       "remove-unconsumed-option-capability.md": "sha256:d9c25f4d9086f43513bfccbf7ae616935e1301a2f1b162aee56fc2f6b1b5d6f7",
-      "render-record-and-message-previews-in-product-progress.md": "sha256:da6b07d3bb5eb2f59a62ededc70ff1d937330ef1b1039fd5d338fb27bf4e0a14",
+      "render-record-and-message-previews-in-product-progress.md": "sha256:01bd145da750189203e078a648b47bbc1a2771b198ba1b0c509d94feb834edf3",
       "replace-global-tool-effects-with-run-outputs.md": "sha256:c38862f6dcc06d266d1e0019b88381789bac04664bdbdac1246014d0f24a9e1b",
       "replace-lizard-runtime-with-product-owned-typescript-analyzers.md": "sha256:6174ebe75ac824c462f6fa3ec42d06154b12c2b6810f0253cb33829054c29419",
       "report-check-owned-record-data-with-local-identities.md": "sha256:eb679fdc79a2d06ebce2de536643760c36977e7c0410a22170749b72c523a7d8",
@@ -1256,6 +1257,42 @@
           "product-priority"
         ],
         "relations": []
+      }
+    },
+    "configure-bounded-progress-previews-with-text-formatter.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "configure-bounded-progress-previews-with-text-formatter.md",
+        "title": "提供可配置且受管的 progress 文本预览",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-07T10:30:45Z",
+        "purpose": "让调用方调整 Record 与 message 预览并定制文本，同时保留完整事实和终端安全责任。",
+        "background": "固定数量与长度不能满足不同终端摘要需求，而 renderer 已拥有统一呈现和独立失败边界。",
+        "decision": "由 progress output 配置独立限制和同步文本 formatter，回调结果继续转义限长且不进入事实或指纹。",
+        "tags": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "relations": [
+          {
+            "type": "修订",
+            "target": "render-record-and-message-previews-in-product-progress.md"
+          }
+        ]
       }
     },
     "configure-project-gate-admission-priority-by-repeated-comparative-evidence.md": {
@@ -6300,16 +6337,16 @@
           "workflow-policy"
         ],
         "status": [
-          "active"
+          "archived"
         ],
         "alignment": [
           "aligned"
         ]
       },
       "state": {
-        "sourcePath": "render-record-and-message-previews-in-product-progress.md",
+        "sourcePath": "archive/render-record-and-message-previews-in-product-progress.md",
         "title": "由 Product progress 统一预览 Record 与 Check message",
-        "status": "active",
+        "status": "archived",
         "alignment": "aligned",
         "createdAt": "2026-09-04T13:51:37Z",
         "purpose": "让任何已接受 Record 都在默认 progress 中有受管预览，并把 Check message 保持为独立输出。",

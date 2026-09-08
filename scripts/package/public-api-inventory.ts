@@ -129,6 +129,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     ProjectFileSelection: "ProjectFileSelection",
     ProjectFileSelectionOptions: "ProjectFileSelectionOptions",
     ProjectFileSource: "ProjectFileSource",
+    ProgressPreviewFormatter: "ProgressPreviewFormatter",
     ProjectOutputs: "ProjectOutputs",
     RegisteredJsonSchema: "RegisteredJsonSchema",
     ResolvedDuplicateDetectionOptions: "ResolvedDuplicateDetectionOptions",

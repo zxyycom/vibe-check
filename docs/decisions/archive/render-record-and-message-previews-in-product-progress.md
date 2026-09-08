@@ -1,6 +1,6 @@
 ---
 title: 由 Product progress 统一预览 Record 与 Check message
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T13:51:37Z
 purpose: 让任何已接受 Record 都在默认 progress 中有受管预览，并把 Check message 保持为独立输出。

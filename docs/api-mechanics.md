@@ -111,9 +111,56 @@ selected-but-rejected 行为由对应 Check 指南说明。
 
 ### Check messages 与受管 progress
 
-Check 在 terminal result 中返回有序的 `messages`；它们是人读补充信息，consumer 仍先按 outcome 处理 final data 和 Records。启用 progress rendering 后，每个 settled row 预览最多五条 Records 与五条 messages；accepted Records 与 final data 是 Check facts，按各自的 `RunResult` / machine contract 保留，messages 则保留在 `RunResult.checkMessages` 供人读。renderer 的截断或关闭不会改写它们。
+Check 在 terminal result 中返回有序的 `messages`；它们是人读补充信息，consumer 仍先按 outcome 处理 final data 和 Records。启用 progress rendering 后，每个 settled row 默认最多预览五条 Records 与五条 messages，且每条正文默认最多 240 个 Unicode code points；两个数量必须为非负 safe integer，文本预算必须为正 safe integer，Definition 或本次 Run 可独立改变它们。`0` 只隐藏该类 detail，仍显示准确 omitted count；短预算时 `… [truncated]` 只保留放得下的 marker 前缀。accepted Records 与 final data 是 Check facts，按各自的 `RunResult` / machine contract 保留，messages 则保留在 `RunResult.checkMessages` 供人读。renderer 的截断、formatter 或关闭不会改写它们。
 
 在 callback 已等待的异步工作中通过全局 `console.*` 发出的文本，会作为该 Check 的 `console-<method>` messages 呈现。它适合短的人读诊断：不要向 console 写入 secret，也不要依赖 progress 文本保存完整事实。`process.stdout.write`、`process.stderr.write`、流式或 child-process 输出应写入 Check-owned file、transcript 或独立 logger；这些输出不具有可靠的 Check 归属，直接写入受管 terminal 也可能与 progress 交错。需要稳定补充说明时，在 terminal result 返回结构化 `messages`。
+
+#### 配置 preview 文本
+
+需要在终端中保留长文本的前后片段时，把同步 `formatter` 写进 Definition。它接收冻结的 `{ kind, text, maxCodePoints }`：`kind` 是 `"record"` 或 `"message"`，`text` 是选中项未转义、未截断的默认正文（Record 为 local ID 加 canonical JSON，message 为正文），`maxCodePoints` 是当前文本预算。Product 仅对数量限制内的项调用一次，先 Records 后 messages；返回值仍由 Product 转义并限长。如下例把长文本折叠为头尾片段，并在本次 Run 单独缩小 Record 数量：
+
+```ts
+import {
+  defineCheck,
+  defineConfig,
+  run,
+  type ProgressPreviewFormatter
+} from "@zxyycom/vibe-check";
+
+const headAndTail: ProgressPreviewFormatter = ({ text, maxCodePoints }) => {
+  const points = [...text];
+  if (points.length <= maxCodePoints) return text;
+  const tailLength = Math.max(1, Math.floor(maxCodePoints / 3));
+  const headLength = Math.max(0, maxCodePoints - tailLength - 1);
+  return `${points.slice(0, headLength).join("")}…${points.slice(-tailLength).join("")}`;
+};
+
+const detail = defineCheck({
+  checkId: "detail",
+  displayName: "Detail",
+  execution: ({ records }) => {
+    records.report({ id: "long-detail" }, { text: "a verbose diagnostic value" });
+    return { status: "passed", data: {} };
+  }
+});
+
+const definition = defineConfig({
+  checks: [detail],
+  outputs: {
+    machinePublication: { enabled: false },
+    progressRendering: { formatter: headAndTail, textPreviewCodePointLimit: 48 }
+  }
+});
+
+const result = await run(definition, {
+  outputs: { progressRendering: { recordPreviewLimit: 1 } }
+});
+if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+```
+
+文本预算只限制转义后的 preview 正文（含截断 marker），不包含缩进、label、换行、汇总或省略提示；Unicode code points 不等于终端列宽或 graphemes。
+
+formatter 返回空字符串仍是一条呈现项；throw 或返回非字符串（包括 Promise/thenable）只使 `outputs.progressRendering` failed，不回退默认文本，也不改变 Check/Record/message facts。它是 trusted project code：可见完整默认文本，不能把预算当成 redaction/access control，Product 不 sandbox 其独立 I/O 或 detached work。`formatter: null` 可在 RunControls 明确清除 Definition formatter；省略或 `undefined` 不覆盖。Definition 的数值与 formatter 种类参与 declarative fingerprint，但函数 identity/source/closure 以及 RunControls 覆盖均不参与；`RunResult.outputs.progressRendering` 继续只读回 enabled/status。
 
 ### Progress rendering
 
@@ -250,7 +297,7 @@ upstream facts.
 - `checkArtifactBaseDirectory` 是可选、invocation-only 的 Check artifact base；它使用非空且无 U+0000 的受信任 directory grammar，relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target。它不进入 Definition fingerprint，不创建 output status，也不授予 Check 读取 base、sibling directory、machine/diagnostic output 或 cross-Run state 的能力；没有配置时 callback 的 `artifactDirectory` 为 `null`。
 - `progressLogFile` 是可选、invocation-only 的 terminal-progress tee target，使用同一非空且无 U+0000 target grammar；它不会改变 Definition outputs、Definition fingerprint 或 Check callback capability。
 - `signal` 供 preflight 与 execution 协作取消；取消结果记录对应 phase。
-- `outputs` 覆盖本次 diagnostic logging、machine publication 或 progress rendering。
+- `outputs` 覆盖本次 diagnostic logging、machine publication 或 progress rendering；progress 的数量、文本预算与 formatter 按字段覆盖，`0` 有效，`formatter: null` 清除 Definition callback，省略/`undefined` 不覆盖。
 - `checkAggregation` 显式选择 `checks: "all"`、Check-ID list 或 `"effective"`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。`"effective"` 只复用本次 private flag-and-dependency selection；`"all"` 和 ID list 不模拟或修改它。
 
 aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整 terminal facts 结算后产生 `passed`、`failed`、`not-applicable` 或 `unavailable`；未配置 policy 时 `aggregate` 为 `null`。`"effective"` 的 empty selection 仍由 caller `empty` policy 结算，且不会把 private selection projection 到 `RunResult`、machine、diagnostic 或 callback。consumer 需要调用级结论时显式选择 policy，同时保留每项 Check outcome。
@@ -262,7 +309,7 @@ Check-specific invocation facts 由 owning Check 的 options 或 producing Check
 Definition 分别配置 diagnostic logging、machine publication 与 progress rendering；`run(..., { outputs })` 可只覆盖本次 invocation 的其中一项。machine publication 与 diagnostic logging 的 `directory` 都是调用方选择的非空、无 U+0000 的受信任 target：相对路径从 effective `projectRoot` 解析，绝对路径直接使用；它们不提供 containment 或 sandbox 语义。`scheduler.measurementHooks` 是 Definition-owned terminal side effect，不能由 RunControls 注入或覆盖；它只交付 caller 配置的 generic Hooks 与 prepared strategy 的 public `complete`，`scheduler.summary` 则属于 diagnostic logging。
 
 - **machine publication** 在 terminal snapshot 形成后写入 machine files。需要由工具消费的稳定数据时，读取 [机器输出契约](output.md) 与 Check facts。
-- **progress rendering** 呈现人读 lifecycle；可选 `progressLogFile` 镜像相同的 terminal presentation。它不改变 Check execution、settlement 或完整 facts。
+- **progress rendering** 呈现人读 lifecycle；可选 `progressLogFile` 镜像相同的 terminal presentation。它不改变 Check execution、settlement 或完整 facts；`RunResult.outputs.progressRendering` 继续只读回 `{ enabled, status }`，不公开 preview 文本、effective limits 或 formatter。
 - **diagnostic logging** 为当前 invocation 写入人工诊断。它用于关联 Run、Check、phase 与 Scheduler 行为；日志不是 parser/schema、跨 invocation discovery 或 retention contract，也不替代 Check final data、Record 或 message。
 
 启用 diagnostic logging 时，scheduler channel 可给出本次 Run 的 `scheduler.summary`：它帮助解释 admission、等待、capacity 与 tail 的当前诊断投影。time 与 capacity 指标只描述 Scheduler 行为，不表示 CPU、memory、thread 或 process 的 OS utilization；需要 machine-readable 结论时，仍读取 machine output 和 Check facts。

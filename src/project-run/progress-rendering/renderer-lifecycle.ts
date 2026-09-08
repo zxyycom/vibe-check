@@ -4,6 +4,7 @@ import type {
   ProgressRenderer,
   ProgressWriter
 } from "./renderer.ts";
+import type { ResolvedProgressRenderingOutput } from "../../project-definition/project-definition.ts";
 import {
   formatFlagConditionNotMatchedBlock,
   formatFinalSummary,
@@ -32,10 +33,16 @@ export class ProgressRendererController implements ProgressRenderer {
   private renderedRunningRows = 0;
   private readonly running: RunningCheck[] = [];
   private readonly usesColor: boolean;
+  private readonly progressRendering: ResolvedProgressRenderingOutput;
 
-  constructor(writer: ProgressWriter, clock: ProgressClock) {
+  constructor(
+    writer: ProgressWriter,
+    clock: ProgressClock,
+    progressRendering: ResolvedProgressRenderingOutput
+  ) {
     this.writer = writer;
     this.clock = clock;
+    this.progressRendering = progressRendering;
     this.refreshesRunningRegion = writer.isTTY && writer.term?.toLowerCase() !== "dumb";
     this.usesColor = this.refreshesRunningRegion && writer.color;
   }
@@ -103,7 +110,8 @@ export class ProgressRendererController implements ProgressRenderer {
           outcome: feedback.outcome,
           records: feedback.records,
           totalChecks,
-          usesColor: this.usesColor
+          usesColor: this.usesColor,
+          progressRendering: this.progressRendering
         })
       );
     }

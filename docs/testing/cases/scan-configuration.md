@@ -76,6 +76,28 @@ Entities:
 - `maintenanceReminders(entries)` creates exactly one fixed-ID, attention ordinary Check with package-owned Git options; it does not create a child Check collection.
 - Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. It exposes a discriminated final-data parser; invalid/unknown replacement data settles the owning Check unavailable in preflight with an actionable message, while policy changes affect the declarative fingerprint.
 
+## Case WB-PROGRESS-PREVIEW-DEFINITION-001: Progress preview Definition is defaulted and callback-free declarative identity
+
+Owner: `docs/development/project-definition.md#progress-preview-配置`
+Entities:
+
+- `bun|src/project-definition/project-definition.authoring-defaults.test.ts|Project Definition > creates a plain value with Product-owned authoring defaults`
+- `bun|src/project-definition/project-definition.fingerprint.test.ts|Project Definition > fingerprints canonical declarative data without retaining callback functions`
+  Proves:
+
+- Definition defaults Record/message preview limits to `5`/`5`, text budget to `240`, and formatter to `null`; compatible direct `{ enabled }` input receives the same frozen resolved policy. Closed validation rejects invalid limits, formatter values and unknown fields even when progress is disabled.
+- Normalized numeric policy and formatter `default`/`custom` kind enter declarative identity. Omission and explicit defaults share a fingerprint; distinct callback identities share the `custom` projection, while a policy value or formatter kind change does not.
+
+## Case WB-PROGRESS-PREVIEW-OVERRIDE-001: RunControls override progress preview fields without changing Definition policy
+
+Owner: `docs/development/project-run.md#run-outputs-and-compatibility-boundary`
+Entities:
+
+- `bun|src/project-run/controls/outputs-override-validation.test.ts|Package Run output overrides > merges bounded progress previews field by field and clears a Definition formatter`
+  Proves:
+
+- RunControls applies only explicit preview fields: `0` is an effective count, `undefined` preserves the Definition field, and `formatter: null` clears the authored callback without mutating it. Invalid safe-integer, formatter and unknown-field values fail closed.
+
 ## Case WB-PROGRESS-OUTPUT-001: Progress rendering is a Run-owned output
 
 Owner: `docs/development/project-run.md#run-outputs-and-compatibility-boundary`
@@ -87,6 +109,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > does not create or write a progress writer when Package Run progress is disabled`
 - `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains progress writer failures while preserving completed Check facts`
 - `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains a Record preview write failure while retaining accepted Check and Record facts`
+- `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains formatter failure and observes returned Promise rejection without revising accepted facts`
 - `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > previews only accepted Records when Record misuse settles its Check unavailable`
 - `bun|src/project-run/progress-rendering/invocation-progress-heartbeat.test.ts|Package Run progress rendering outputs > schedules one 5-second TTY heartbeat and cancels it after the last Check settles`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps an execution failure distinct when progress presentation has failed`
@@ -96,6 +119,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps execution cancellation distinct when progress presentation has failed`
 - `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains a TTY rewrite failure without leaving Check or Record facts open`
 - `bun|src/project-run/progress-rendering/invocation-progress-record-previews.test.ts|Package Run progress rendering outputs > renders accepted attention Records while retaining complete Records and messages in final facts`
+- `bun|src/project-run/progress-rendering/invocation-progress-record-previews.test.ts|Package Run progress rendering outputs > applies RunControls preview limits and formatter to terminal and tee bytes without changing facts`
 - `bun|src/project-run/progress-rendering/renderer-formatting-records.test.ts|Package Run progress Record and message previews > renders independent bounded Record and message previews without changing their source facts`
 - `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > continues output publication after a progress writer failure`
 - `bun|src/project-run/progress-rendering/invocation-output-failure.test.ts|Package Run output failure composition > returns output facts when machine publication alone fails`
@@ -104,7 +128,7 @@ Entities:
 - Disabling progress rendering constructs neither writer, tee, refresh schedule nor Record/message preview, and does not affect Check execution or complete facts.
 - Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
 - A progress writer failure, including one raised by a Record preview or scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts. A caller-selected `progressLogFile` tees the same bytes after terminal output, preserving visible settled-row duration and final execution/counts/elapsed; complete canonical Check durations, including `null`, remain in `RunResult`, and a file target failure cannot suppress terminal output.
-- Every settled block independently previews at most five accepted Records and five accepted messages. A Record uses only its local ID plus canonical JSON data; both kinds truncate terminal-control-escaped text at 240 Unicode code points with the marker included and report their own exact omitted count. Only Records accepted before settlement are previewed; rejected or fabricated Record data never appears. These limits never change snapshot Records or `RunResult.checkMessages`; an attention passed Check with either kind remains visible.
+- Every settled block independently previews its configured number of accepted Records and messages. By default, a Record uses only its local ID plus canonical JSON data; both kinds terminal-escape then truncate at their configured Unicode code-point budget with the marker included and report their own exact omitted count. A synchronous formatter sees frozen default text only for count-selected items, Records precede messages, and its empty string remains presented; it cannot change labels, ordering or facts. Only Records accepted before settlement are previewed; rejected or fabricated Record data never appears. Formatter throw/non-string results—including real rejected Promises with a caller-owned `then`—fail only progress rendering without reading arbitrary thenables or revising snapshot Records/`RunResult.checkMessages`; an attention passed Check with either kind remains visible.
 - Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. After all output owners close, result resolution is pure: a completed candidate upgrades to `output` using failed-output priority—progress rendering, machine publication, diagnostic logging, then measurement hooks; an existing `output` candidate reselects that same priority; `planning`, `cancelled` and `execution` candidates retain their primary kind while exposing every closed status. When progress rendering and machine publication both fail, both statuses remain observable and the result diagnostic selects progress rendering.
 
 ## Case WB-DIAGNOSTIC-LOGGING-OUTPUT-001: Diagnostic logging is a Product-owned Run output

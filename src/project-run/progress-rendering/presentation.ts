@@ -13,7 +13,7 @@ import {
   type ProgressOutcomeCounts,
   type ProgressWriter
 } from "./renderer.ts";
-import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
+import type { ResolvedProgressRenderingOutput } from "../../project-definition/project-definition.ts";
 import type { OutputStatuses } from "../outputs/status.ts";
 export interface ProgressRendering {
   /** Closes only an already-created file tee; it never creates a writer after pre-work termination. */
@@ -57,7 +57,7 @@ const defaultProgressRefreshScheduler: ProgressRefreshScheduler = Object.freeze(
 
 /** Owns terminal progress and its optional file tee; terminal output survives a file-only failure. */
 export function createProgressRendering(
-  configuration: ProjectOutputs["progressRendering"],
+  configuration: ResolvedProgressRenderingOutput,
   statuses: OutputStatuses,
   dependencies: ProgressRenderingDependencies = {}
 ): ProgressRendering {
@@ -99,7 +99,7 @@ export function createProgressRendering(
       onFileFailure: () => statuses.failed("progressRendering"),
       terminal: (dependencies.writerFactory ?? defaultProgressWriter)()
     });
-    renderer = createProgressRenderer(writer, dependencies.clock);
+    renderer = createProgressRenderer(writer, dependencies.clock, configuration);
     return renderer;
   };
 

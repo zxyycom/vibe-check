@@ -4,7 +4,8 @@ import {
   createDeclarativeFingerprint,
   type DefinitionWarning,
   type NormalizedProjectDefinition,
-  type ProjectDefinition
+  type ProjectDefinition,
+  type ResolvedProjectOutputs
 } from "../../project-definition/project-definition.ts";
 import type { RunControls } from "../controls/contract.ts";
 import {
@@ -84,7 +85,7 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
 }
 
 function captureOutputCreationTimestamp(
-  outputConfiguration: ProjectDefinition["outputs"],
+  outputConfiguration: ResolvedProjectOutputs,
   dependencies: RunInvocationDependencies
 ): string | null {
   if (

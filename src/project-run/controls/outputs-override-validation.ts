@@ -1,6 +1,6 @@
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { isOutputDirectory } from "../../project-definition/output-validation.ts";
-import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
+import { parseProgressRenderingFields } from "../../project-definition/progress-rendering-output.ts";
 import type { RunControls } from "./contract.ts";
 
 type DirectoryOutputOverride = Readonly<{
@@ -24,7 +24,7 @@ export function parseOutputsOverride(value: unknown): RunControls["outputs"] | u
     "machinePublication",
     parseDirectoryOutputOverride
   );
-  const progressRendering = optionalOutput(data, "progressRendering", parseProgressOutputOverride);
+  const progressRendering = optionalOutput(data, "progressRendering", parseProgressRenderingFields);
   const diagnosticLogging = optionalOutput(data, "diagnosticLogging", parseDirectoryOutputOverride);
   if (!machinePublication.ok || !progressRendering.ok || !diagnosticLogging.ok) return undefined;
   return Object.freeze({
@@ -65,12 +65,4 @@ function parseDirectoryOutputOverride(value: unknown): DirectoryOutputOverride |
     ...(data.directory === undefined ? {} : { directory: data.directory }),
     ...(data.enabled === undefined ? {} : { enabled: data.enabled })
   });
-}
-function parseProgressOutputOverride(
-  value: unknown
-): Partial<ProjectOutputs["progressRendering"]> | undefined {
-  const data = snapshotClosedRecord(value);
-  if (data === undefined || Object.keys(data).some((key) => key !== "enabled")) return undefined;
-  if (data.enabled !== undefined && typeof data.enabled !== "boolean") return undefined;
-  return Object.freeze(data.enabled === undefined ? {} : { enabled: data.enabled });
 }

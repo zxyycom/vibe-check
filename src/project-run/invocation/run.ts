@@ -3,7 +3,8 @@ import {
   normalizeProjectDefinition,
   type DefinitionWarning,
   type NormalizedProjectDefinition,
-  type ProjectDefinition
+  type ProjectDefinition,
+  type ResolvedProjectOutputs
 } from "../../project-definition/project-definition.ts";
 import type { CheckAggregation, RunControls } from "../controls/contract.ts";
 import {
@@ -54,7 +55,7 @@ export type Invocation = Readonly<{
   readonly diagnosticLogging: DiagnosticLoggingRouter;
   /** Effective output selection, retained privately for enabled-only Scheduler diagnostics. */
   readonly diagnosticLoggingEnabled: boolean;
-  readonly outputConfiguration: ProjectDefinition["outputs"];
+  readonly outputConfiguration: ResolvedProjectOutputs;
   readonly outputs: OutputStatuses;
   readonly invocationId: string;
   readonly normalized: NormalizedProjectDefinition;

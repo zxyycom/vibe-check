@@ -219,5 +219,23 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       })
     ]),
     title: "读取 typed dependency final data"
+  }),
+  Object.freeze({
+    evidence: "runtime",
+    id: "progress-preview",
+    regionId: "progress-preview",
+    sourcePath: "docs/examples/package-api/progress-preview.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "api-mechanics",
+        headingPath: Object.freeze([
+          "terminal result、Records 与 messages",
+          "Check messages 与受管 progress",
+          "配置 preview 文本"
+        ]),
+        kind: "markdown"
+      })
+    ]),
+    title: "受管 progress 文本的前后片段预览"
   })
 ] satisfies readonly PackageApiExampleProjection[]);
