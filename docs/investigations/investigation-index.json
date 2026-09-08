@@ -874,7 +874,7 @@
       "260904-diagnose-project-gate-candidate-timeout-under-contention": "sha256:7dc4a90e12ff2ec382f4d786617b760f8cc04037f84ad574b776699be445cfb7",
       "260906-assess-node-26-package-host-readiness": "sha256:b01bedac42300965c3a8fcf131deb26f3c3ecb92f3a9f629fadbe6164b842f09",
       "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82",
-      "260908-calibrate-gate-duration-variation": "sha256:4e08315e7aafdca910d253650c0d72410cbe15690be4aae4168389a242f22cea"
+      "260908-calibrate-gate-duration-variation": "sha256:a306e4ce1893e6f88ac1f21eaae84333058b9a23d8fb5692adcf115c9aae8459"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

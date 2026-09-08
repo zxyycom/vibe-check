@@ -22,10 +22,9 @@
 
 | 轨道 | 当前 Change | 协调边界 |
 | --- | --- | --- |
-| Scheduler 简单优化 | [`redesign-learned-admission-heuristic`](../../changes/redesign-learned-admission-heuristic/proposal.md) | 继承稳定平台和资源输入，先跑基线与解释反例，再形成有限候选、比较并交接采用/不采用；不提前确定最终算法。 |
-| Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停，不作为新算法 Change 的依赖或并行实施入口；保留其原有恢复门禁，不继承旧 private baseline 或采用结论。 |
-| 0.0.2 发布 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | 继承 Gate 配置与平台基线，等待算法稳定提交后再冻结正式包；算法不采用时完成证据收尾与稳定提交即可解除该项前置。可先审核升级差异，正式准备、验收与授权发布串行执行。 |
-| Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。若先实施，会使算法 Change 的相关 corpus 和 terminal evidence 失效。 |
+| Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停；保留其原有恢复门禁，不继承旧 private baseline，也不因新对照已结束而取得实施授权。 |
+| 0.0.2 发布 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | Gate 配置、平台及算法不采用结论均已进入稳定提交，上游前置已解除。正式准备、验收与授权发布仍串行执行。 |
+| Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。实施后须重新验证受影响的算法 corpus 和 terminal evidence。 |
 | Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
 | Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 恢复前等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
 | Scanner 判断 | [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 没有真实 consumer outcome 时保持 executable-only，不占生产实现 worktree。 |
@@ -35,13 +34,13 @@
 Scheduler 的稳定行为仍由 runtime、Architecture、API mechanics 与
 [统一 Invocation 策略生命周期 Decision](../decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)承接；跨 Change 的虚拟评估方向由[以可复现虚拟负载为主评估准入启发式](../decisions/evaluate-admission-heuristics-with-seeded-virtual-workloads.md)承接。Change artifacts 只保存各自当前实施边界。
 
-资源输入由 [Gate 配置 owner](../tooling/project-gate.md#并发与优先级)维护，基线提交为 `b30477b6`；[虚拟平台 owner](../tooling/workspace.md#virtual-admission-workbench) 的基线提交为 `f7e9f353`。算法实验继承这两个稳定输入，先形成基线再设计候选，不预定采用结论。
+资源输入由 [Gate 配置 owner](../tooling/project-gate.md#并发与优先级)维护，基线提交为 `b30477b6`；[虚拟平台 owner](../tooling/workspace.md#virtual-admission-workbench) 的基线提交为 `f7e9f353`。[算法对照](../tooling/workspace.md#learned-admission-heuristic-对照记录)在这两个输入上以不采用收敛，稳定提交为 `fd8923c8`，Product 继续使用原算法。
 
-[Gate 时长调查](../investigations/calibrate-gate-duration-variation.md)保存形成时的经验范围与后续建议，不是当前资源配置的实测门禁。资源分类由 Gate owner 承接，profile、竞争模型与证据接口由 [Workspace workbench owner](../tooling/workspace.md#virtual-admission-workbench) 承接，比较和停止流程由算法 design 承接。资源变化只使对应 Gate 场景重新验收，不反向改变通用模拟模型或候选采用标准。
+[Gate 时长调查](../investigations/calibrate-gate-duration-variation.md)保存形成时的经验范围与后续建议，不是当前资源配置的实测门禁。资源分类由 Gate owner 承接，profile、竞争模型、证据接口与已结束的对照边界由 [Workspace workbench owner](../tooling/workspace.md#virtual-admission-workbench) 承接。资源变化只使对应 Gate 场景重新验收，不反向改变通用模拟模型或候选采用标准。
 
-[`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)继续暂停，不作为新轨道依赖或并行 helper 修改入口；未来恢复仍须其原有 Readiness 与新的范围确认。`add-invocation-fail-fast-policy` 若先改变 candidate、terminal 或 drain facts，须使受影响 baseline、trace 和比较证据重新有效。
+[`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)继续暂停；未来恢复仍须其原有 Readiness 与新的范围确认。`add-invocation-fail-fast-policy` 若改变 candidate、terminal 或 drain facts，须使受影响 baseline、trace 和比较证据重新有效。
 
-[`release-0-0-2`](../../changes/release-0-0-2/proposal.md)继承 Gate 配置与平台基线，等待算法的 owner 交接和稳定提交；算法不采用时完成证据收尾与稳定提交即可解除该项前置，发布与外部写入仍需独立授权。发布可先审查升级差异，但 package、Gate 和用户材料 owner 的正式冻结/验收须串行继承上游结果。
+[`release-0-0-2`](../../changes/release-0-0-2/proposal.md)已取得上述三个稳定提交及 owner 交接，上游前置已解除。发布与外部写入仍需独立授权；package、Gate 和用户材料 owner 的正式冻结/验收须串行继承这些结果，不能以 local candidate Gate 通过代替正式 release 验收。
 
 ### Link 与 Scanner 轨道
 

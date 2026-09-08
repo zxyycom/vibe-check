@@ -10,13 +10,13 @@
 
 消费者能够安装精确的 `0.0.2`，取得相互匹配的运行时、声明、文档及法律材料；发布记录可对应 source commit、正式 tarball、receipt、完整 Gate、registry integrity 和安装后验证，并清楚说明从 0.0.1 升级的影响。
 
-若算法 Change 以证据保留基线，算法证据收尾与稳定提交完成后仍可进入发布准备；这不构成发布授权。
+算法对照已以证据保留基线并完成稳定提交，三个上游前置均已解除；这不构成发布授权。
 
 ## Scope
 
 ### Intended Change
 
-- 继承 [Gate named-resource 配置](../../docs/tooling/project-gate.md#并发与优先级)提交 `b30477b6` 与 [admission 虚拟测量平台](../../docs/tooling/workspace.md#virtual-admission-workbench)提交 `f7e9f353`，等待[简单算法重设计](../redesign-learned-admission-heuristic/proposal.md)的稳定结论和提交；算法在这两个稳定输入上形成和比较候选。
+- 继承 [Gate named-resource 配置](../../docs/tooling/project-gate.md#并发与优先级)提交 `b30477b6`、[admission 虚拟测量平台](../../docs/tooling/workspace.md#virtual-admission-workbench)提交 `f7e9f353`，以及[算法不采用结论](../../docs/tooling/workspace.md#learned-admission-heuristic-对照记录)提交 `fd8923c8`；Product 算法保持原样。
 - 审核相对 0.0.1 的实际公开差异，编写简短 release notes/迁移说明；沿用正式 release prepare/verify 入口形成并验收精确产物。
 - 在获得当次明确外部写入授权后发布，并验证 registry 和真实安装结果；具体顺序与待定输入见[设计草案](design.md)。不顺带增加产品功能或升级依赖。
 

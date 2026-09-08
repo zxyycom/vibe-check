@@ -19,13 +19,13 @@
 
 ### Intended Change
 
-**发布输入的状态：** 目标版本已选 `0.0.2`；npm tag 建议 `latest`、待确认；public access 由受验 staging manifest 承接。最终 source commit、上游结论、发布机制、当次 registry observations 与 publisher 核验仍待取得。版本已占用时停止确认，不自行递增。
+**发布输入的状态：** 目标版本已选 `0.0.2`；npm tag 建议 `latest`、待确认；public access 由受验 staging manifest 承接。上游结论已交接；最终 release source commit、发布机制、当次 registry observations 与 publisher 核验仍待取得。版本已占用时停止确认，不自行递增。
 
 按以下顺序形成证据；可先做升级差异调查，但不能绕过上游结论冻结正式包。
 
 | 步骤 | 执行动作与通过条件 |
 | --- | --- |
-| 1. 上游结论 | named-resource configuration 与 virtual workbench 各自完成 owner 交接并进入稳定提交；算法 Change 在二者基线上产出采用/不采用证据。算法不采用时，完成其证据收尾与稳定提交即可解除该项发布前置。 |
+| 1. 上游结论 | 已交接 named-resource configuration `b30477b6`、virtual workbench `f7e9f353` 与算法不采用结论 `fd8923c8`，此项前置已解除；各自稳定 owner 见 proposal。 |
 | 2. 升级说明 | 对照 0.0.1 实际发布包及可追溯 source，核对宿主、API/config、调度、机器输出和法律材料；说明破坏式变化、新能力、迁移动作与限制，建议精确锁版并提交 lockfile。历史比较仅服务此审计。 |
 | 3. 正式验收 | 同一 clean HEAD 上用 `bun run package:release:prepare -- --version <version> --tag <tag>` 构建；receipt 绑定 source、fingerprint、inventory 与 integrity，再用 `bun run package:release:verify -- --receipt <receipt-path>` 对该包运行完整 Gate 和 external consumer 验收。 |
 | 4. 授权发布 | 临发布前重验 source/tarball、registry version/tag 和 publisher authority，取得精确对象的外部写入授权；只发布已验 tarball。 |
@@ -47,6 +47,5 @@
 
 ## Open Questions
 
-- 上游三个 Change 的最终结论、stable commits 与文档影响分别是什么？算法若不采用，其证据收尾与稳定提交何时完成？
 - npm tag 是否为 `latest`；使用什么发布机制，何时由用户授权并完成 publisher 核验？
 - release notes 保存在哪里；是否创建/push Git tag 或 GitHub Release，以及如何处理远端同步？
