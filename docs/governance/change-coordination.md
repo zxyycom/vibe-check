@@ -177,7 +177,6 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 | --- | --- |
 | [公开文件收集工具](../../changes/expose-project-file-collection/proposal.md) | 先评审独立 file tool 的 public contract；`codeAreas` 继续由各 Check 封装。 |
 | [配置 progress preview（已归档）](../../changes/archive/configure-progress-preview/proposal.md) | 数量/长度配置与文本级同步 formatter 已完成，2026-09-08 经文档/编码规范复核、完整 Gate 36/36 与包消费者验收后归档；后继决策 aligned。当前行为由 [API 机制](../api-mechanics.md#check-messages-与受管-progress)、Project Definition/Run 与人读输出 owner 承接，归档 Plan 仅保留形成时依据，不再列为待实现功能。 |
-| [收敛 Check Finding 呈现](../../changes/consolidate-check-finding-presentation/proposal.md) | 已与 preview 同步完成 call-site 差异审查：保持既有公共 helper 和四个 local mappers，不增加 helper/preset；无需产品实现，Draft 保留本次审查依据，未获删除或归档授权。 |
 | [Check 指南共同契约](../../changes/archive/refine-check-guide-shared-contracts/proposal.md) | 已收敛 files/waiver 的真实共同规则并归档；保留 Check-local 差异和 parser owner，不引入或等待公共 file tool。 |
 | [静态 package 材料](../../changes/archive/author-static-package-materials/proposal.md) | 已完成单一静态发布 manifest、动态 version 投影与完整包验收并归档；未静态化其它材料，也未修改 cold bootstrap。 |
 | 当前 package 定位（已删除 Draft） | 2026-09-07 经用户明确授权删除无需实施的 Draft；现有固定 build/package 与 status 已满足需求，当前行为继续由 [Package lifecycle](../tooling/package-lifecycle.md#local-candidate-lifecycle) 承接。 |
