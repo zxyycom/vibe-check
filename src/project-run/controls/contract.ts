@@ -1,5 +1,11 @@
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
-/** 单次 run 调用的闭合上下文与 output override；Project Definition 保持为 authored input。 */
+/**
+ * `run(definition, controls?)` 的第二个参数，只指定这一次怎么运行。
+ *
+ * root、flags、signal、Check 产物与日志目标以及显式 aggregation 属于本次调用；`outputs` 只逐字段
+ * 覆盖 Definition 的输出默认值，不修改原 Definition。Checks、Check options 与 scheduler 仍在
+ * `defineConfig(...)` 中声明，不能从这里替换；这些 Controls 不进入 Definition fingerprint。
+ */
 export interface RunControls {
   /** 单次 diagnostic 文件命名；默认 `unique`，独占目录可选 `channel` 使用固定 Core/Scheduler 名，同名目标失败且不覆盖。 */
   readonly diagnosticLogFileNaming?: DiagnosticLogFileNaming;

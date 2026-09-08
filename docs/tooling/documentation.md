@@ -21,6 +21,8 @@ H2-H6 ancestor-to-target 的 heading text 排列；跳过数字层级不会产�
 缺失或重复、section 中没有或存在多个 TypeScript fence、fence 未闭合以及出现以
 `<!-- package-api-example:` 开头的 projection marker 都使投影失败。
 
+读者与规则责任见[文档导航](../navigation.md#读者发布范围与规则归属)。导航是阅读映射，发布范围仍由本页指向的现有 registries 决定；新增、移动或改变发布项时同时核对导航与 README，不能只更新列表而未通过 package material / consumer 验收。
+
 按以下顺序修改和验证：
 
 1. 正文或链接直接编辑最终 Markdown；Check guide 直接编辑对应 guide。

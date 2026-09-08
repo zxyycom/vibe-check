@@ -3,9 +3,50 @@
 本文只负责把任务路由到稳定规则的唯一 owner、必要工作流和交付验证入口。行为细节、当前实现
 快照、schema 字段和工具机械契约均在对应 owner 中维护，不在本文复述。
 
+## 读者、发布范围与规则归属
+
+**用户文档也是项目公开行为的规范 owner。** 修改实现时先读取对应用户契约，再进入内部实现 owner；“主要面向用户”不表示维护者可跳过，“随包发布”也不表示每篇教程、入口或示例都是规范。
+
+三个维度分别判断：主要读者决定解释方式；随包范围决定消费者实际可获得哪些材料；owner 决定规则在哪里完整定义。一个规则保留一个定义位置，其它页面用摘要或设计推导链接它。下面是阅读与责任映射；发布事实继续以现有 [package material registries](tooling/documentation.md#documentation-validation-and-package-material) 为准，不由此表增加发布项。
+
+### 随包用户材料
+
+表内“用户”包括使用 package 的项目开发者；维护者修改相关能力时也必须读取该行公开承诺。
+
+| 文档 | 主要读者 | 随包 | 内容角色与规则范围 | 对应实现 / 验证入口 |
+| --- | --- | --- | --- | --- |
+| [README](../README.md) | 首次集成用户 | 是 | 唯一用户总入口；安装、支持范围与最小路径，专题内容只给摘要和链接 | [包生命周期](tooling/package-lifecycle.md)、package consumer acceptance |
+| [API 机制](api-mechanics.md) | 集成与自定义 Check 用户 | 是 | 公开 Run 生命周期、Definition/Controls 归属、通用 Check facts、组合、aggregation 与结果分支 | [Project Definition](development/project-definition.md)、[Project Run](development/project-run.md)、[Check 结果](development/check-results.md)及相邻 tests |
+| [回调位置](guides/callbacks.md) | 选择扩展点的用户 | 是 | 定位表与链路摘要；具体回调契约引用对应专题 | 各回调 owner 与 package API examples |
+| [自定义 Check](guides/extending-check-lifecycle.md) | Check author | 是 | preflight/execution authoring、callback context、flags 与协作取消 | Definition / Check execution / settlement tests |
+| [依赖与类型化数据](guides/check-dependencies.md) | producer / consumer author | 是 | direct relations、get/list 授权、typed provider 与 parser 边界 | [Definition](development/project-definition.md#typed-dependency-data)、dependency tests 与 consumer typecheck |
+| [Run 输出与诊断](guides/run-outputs.md) | 配置输出或排障的用户 | 是 | 输出配置、progress/console/diagnostic、readback 与失败优先级；machine bytes 引用独立契约 | [人读输出实现](development/human-output.md)、[Run 接线](development/project-run.md)、output tests |
+| [调度 Check](guides/scheduling.md) | 配置并发或策略的用户 | 是 | 资源与准入、simple/prepared lifecycle、simulation 与终态 measurement | [Architecture](development/architecture.md)、scheduler / simulation tests |
+| [本地时长历史调度](guides/learned-scheduling.md) | 使用 learned strategy 的用户 | 是 | factory、identity、history、安全、退化与 observation | [learned owner](development/architecture.md#learned-critical-path-helper-owner)、helper tests 与 consumer examples |
+| [选择与收集项目文件](guides/collecting-project-files.md) | 文件选择与工具调用方 | 是 | 共同 selection 与默认基线；同步 collectProjectFiles 的完整输入、结果和失败边界 | [Project files](development/project-files.md)、selection/collection tests |
+| [缓存计算结果](guides/cache-results.md) | 本地缓存调用方 | 是 | cacheJsonByKey 的 key、结果与信任边界 | helper 相邻 tests 与 consumer examples |
+| [Finding waiver](guides/finding-waivers.md) | Finding producer / policy author | 是 | 通用 reconciliation 与 audit；Check-specific identity 引用各 Check | waiver helper 与各 Check tests |
+| [Finding 呈现](guides/presenting-findings.md) | Finding producer | 是 | message helper、数量与省略结果；不定义 Check outcome | presentation helper 与各 Check tests |
+| [八项 Check 指南的逐项入口](../README.md#随包提供的-check) | 随包 Check 用户 | 是，全部已注册 guide | 每篇分别定义所属 Check 的 options、默认值、结果、Records/messages、不可用原因与安全边界 | 对应 package-check owner / tests，Check guide registry 验收 |
+| [机器输出契约](output.md) | machine artifact consumer | 是 | publication set、DTO 语义、版本与消费边界 | [机器输出维护](development/output-maintenance.md)、独立 schema/example/consumer acceptance |
+| current [schemas](schemas/) 与 [artifact example](examples/artifacts/mixed-outcomes/) | machine artifact consumer | 仅 current registry 项 | schema 拥有精确机器结构；example 是可验证实例，不新增规则 | machine material registry、generation 与独立验收 |
+| API example sources 与 source JSDoc / emitted declarations | API 用户、维护者 | 仅注册示例与声明/源码包材料 | 类型声明拥有精确签名；JSDoc 提供局部说明，示例证明用法而不替代契约 | [投影维护](tooling/documentation.md)、docs:api 与 consumer types/runtime |
+
+### 仅工作区维护材料
+
+| 文档范围 / 入口 | 主要读者 | 随包 | 所拥有的责任 |
+| --- | --- | --- | --- |
+| 本文与 AGENTS.md | 维护者、编码代理 | 否 | 任务路由与工作区执行要求；不复制领域契约 |
+| [Architecture](development/architecture.md) 与 development 中下表指定的领域 owner | 产品维护者 | 否 | 实现职责、内部不变量与设计推导；公开承诺回链用户 owner |
+| [编码规范](development/coding-style.md) | 实施者、reviewer | 否 | 代码组织和工程实现规则 |
+| [Tooling](tooling/workspace.md)、[Project Gate](tooling/project-gate.md)、[Package lifecycle](tooling/package-lifecycle.md)、[文档材料](tooling/documentation.md) | 仓库工具与发布维护者 | 否 | 开发命令、exact candidate、项目 Gate、包与文档维护工作流 |
+| [测试策略](testing/strategy.md)、[Case 维护](testing/case-maintenance.md)与 Case 账本 | 测试实施者、reviewer | 否 | 测试证明职责与证据完整性 |
+| [知识治理](governance/knowledge-maintenance.md)、[Change 协调](governance/change-coordination.md) | 维护者、交接代理 | 否 | 知识载体归属、文档影响审查与跨 Change 协调 |
+| Decisions、active Changes、Investigations 与 archive | 按明确任务进入的维护者 | 否 | 分别记录长期方向、实施上下文和形成时认识；历史不定义当前行为 |
+
 ## 如何阅读这些文档
 
-先按任务读取“主入口”，再读取目标附近的源码与测试。“需要时再读”只用于确实跨越对应边界的
+先从上表找到公开行为 owner，再按任务读取下表的内部“主入口”，最后读取目标附近的源码与测试。纯工具或治理任务直接进入其主入口。“需要时再读”只用于确实跨越对应边界的
 任务；不要为获取上下文遍历全部文档。
 
 | 任务                                                                                                                                                   | 主入口                                                                                                                           | 需要时再读                                                                                                                                                |
@@ -29,18 +70,9 @@
 | 调查或修复中确认 Bug 达到项目定义的复杂或严重条件                                                                                                      | [复杂或严重 Bug 的自动调查沉淀](governance/knowledge-maintenance.md#复杂或严重-bug-的自动调查沉淀)、`investigation-report` skill | 目标报告、按需随附资源与 [Governance adapters](tooling/workspace.md#governance-and-test-evidence-adapters)                                                |
 | 创建、更新或审阅其他持久调查报告                                                                                                                       | `investigation-report` skill                                                                                                     | [Governance adapters](tooling/workspace.md#governance-and-test-evidence-adapters)、目标报告与按需随附资源                                                 |
 
-## 按受众选择文档
+## 文档变更审查
 
-修改 Check console capture、progress renderer、diagnostic logging 或 Scheduler summary 投影时，从
-[Run 人读输出实现](development/human-output.md)定位实现规则，并对照[API 机制](api-mechanics.md#outputs-与-runresult-边界)
-核对用户可观察行为；这些实现细节不由机器输出 schema 拥有。
-
-package 用户从 [README](../README.md) 的使用入口进入 Check 指南、公共 API 模型与深入任务专题；
-这些页面必须在发布包中自足。维护者继续按上表进入内部职责、设计约束和验证 owner，也应读取本次
-行为对应的用户说明。两种叙述允许为各自用途讲解同一能力，不因主题重叠合并或删除。
-
-产品行为、使用方案或内部职责变化时，按[文档影响审查](governance/knowledge-maintenance.md#行为变更的交付审查)
-分别判断两类文档和示例的影响，并在已有 Change 或局部交付中保存实际审查结果。这里不另建专题清单。
+产品行为、使用方案或内部职责变化时，按[文档影响审查](governance/knowledge-maintenance.md#行为变更的交付审查)分别核对公开承诺与内部实现说明，并由非实施代理以实际 diff 反查。两类页面可为各自任务解释同一能力，但完整规则只在所属 owner 修改；用户任务不能依赖未发布文档。新增、移动或改变发布范围时，同步上表阅读路径、既有 registry、README 直链与包内链接。
 
 ## 随包 Check 指南
 
@@ -50,7 +82,7 @@ defaults、execution、outcomes、final data、Records、messages、不可用原
 
 ## 权威性与状态
 
-`docs/` owner 文档承接当前稳定规则；代码、测试和 release artifact 证明当前实现状态；活动决策
+上表指定的公开与内部 owner 文档承接各自当前稳定规则；代码、测试和 release artifact 证明当前实现状态；活动决策
 承接已确认且跨 change 持续有效的方向；active Change Plan 承接单次 change 的实施上下文；调查
 报告保存形成时认识。完整载体分工、调查与实施交接、Decision / Change 协作和历史读取边界只见
 [项目知识与变更治理](governance/knowledge-maintenance.md)。

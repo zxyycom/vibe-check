@@ -72,20 +72,23 @@ describe("package API documentation CLI", () => {
       );
       assert.equal(readFileSync(readmePath, "utf8").includes("\nstale\n"), false);
 
-      const apiMechanicsPath = join(fixtureRoot, "docs/api-mechanics.md");
+      const dependencyGuidePath = join(fixtureRoot, "docs/guides/check-dependencies.md");
       writeFileSync(
-        apiMechanicsPath,
-        readFileSync(apiMechanicsPath, "utf8").replace(
+        dependencyGuidePath,
+        readFileSync(dependencyGuidePath, "utf8").replace(
           "const CHANGED_FILES_DATA_VERSION = 1 as const;",
           "stale"
         ),
         "utf8"
       );
-      const staleApiMechanics = runPackageApiDocumentationCli(["--check"], {
+      const staleDependencyGuide = runPackageApiDocumentationCli(["--check"], {
         repositoryRoot: fixtureRoot
       });
-      assert.equal(staleApiMechanics.exitCode, 1);
-      assert.match(staleApiMechanics.diagnostics[0] ?? "", /docs\/api-mechanics\.md/);
+      assert.equal(staleDependencyGuide.exitCode, 1);
+      assert.match(
+        staleDependencyGuide.diagnostics[0] ?? "",
+        /docs\/guides\/check-dependencies\.md/
+      );
       assert.equal(
         runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,
         0

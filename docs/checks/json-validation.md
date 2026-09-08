@@ -6,6 +6,31 @@
 `.json` 结尾的文档，并报告 syntax error、duplicate key 与 incomplete document。`jsonValidation(options?)` 补齐默认值并
 返回可直接放入 Project Definition `checks` 的普通 Check。
 
+## 最小用法
+
+示例保留终端进度，关闭 machine publication，不写入 machine files。
+
+```ts
+import { defineConfig, jsonValidation, run } from "@zxyycom/vibe-check";
+
+const check = jsonValidation();
+const result = await run(defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+}));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`JSON validation did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
+```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+
 ## 参数与默认配置
 
 ```ts
@@ -121,26 +146,6 @@ Records 与 warning 的 `passed` 结算。`unavailable.reason.code` 只使用以
 
 I/O scope 是 `files` 选中且通过小写 `.json` eligibility 的本地文件；rejected path 只形成事实，不读取内容。external
 command 和 network request 数均为零。
-
-## 最小用法
-
-```ts
-import { defineConfig, jsonValidation, run } from "@zxyycom/vibe-check";
-
-const check = jsonValidation();
-const result = await run(defineConfig({ checks: [check] }));
-const outcome = result.kind === "completed"
-  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
-  : undefined;
-if (result.kind !== "completed" || outcome?.status !== "passed") {
-  console.error(`JSON validation did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
-  process.exitCode = 1;
-}
-```
-
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

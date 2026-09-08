@@ -110,7 +110,12 @@ import type {
   SchedulerPolicy
 } from "./scheduler-policy.ts";
 
-/** 已补齐默认 outputs、可交给 run 执行的项目定义。 */
+/**
+ * `defineConfig(...)` 形成的可重复运行项目定义：声明检查内容、调度方式与默认输出。
+ *
+ * 本次 root、flags、signal、Check 产物与日志目标以及显式 aggregation 交给 `run` 的第二个参数；
+ * 其中的 output overrides 只改变当前调用，不修改这里的默认值。
+ */
 export interface ProjectDefinition {
   readonly apiVersion: "1";
   readonly checks: readonly Check[];

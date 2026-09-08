@@ -177,7 +177,7 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 | Change | 关系与允许推进的工作 |
 | --- | --- |
 | [公开文件收集工具（已归档）](../../changes/archive/expose-project-file-collection/proposal.md) | 同步单 selection、无中途取消的 public façade 已完成，经 AI-ready 文档和完整编码规范审查、完整 Gate 36/36 与包消费者验收后于 2026-09-08 归档；Decision aligned。当前契约见[项目文件](../development/project-files.md#public-single-selection-collection)与[用户指南](../guides/collecting-project-files.md)，归档材料不再是待实施入口。 |
-| [配置 progress preview（已归档）](../../changes/archive/configure-progress-preview/proposal.md) | 数量/长度配置与文本级同步 formatter 已完成，2026-09-08 经文档/编码规范复核、完整 Gate 36/36 与包消费者验收后归档；后继决策 aligned。当前行为由 [API 机制](../api-mechanics.md#check-messages-与受管-progress)、Project Definition/Run 与人读输出 owner 承接，归档 Plan 仅保留形成时依据，不再列为待实现功能。 |
+| [配置 progress preview（已归档）](../../changes/archive/configure-progress-preview/proposal.md) | 数量/长度配置与文本级同步 formatter 已完成，2026-09-08 经文档/编码规范复核、完整 Gate 36/36 与包消费者验收后归档；后继决策 aligned。当前行为由 [API 机制](../guides/run-outputs.md#check-messages-与受管-progress)、Project Definition/Run 与人读输出 owner 承接，归档 Plan 仅保留形成时依据，不再列为待实现功能。 |
 | [Check 指南共同契约](../../changes/archive/refine-check-guide-shared-contracts/proposal.md) | 已收敛 files/waiver 的真实共同规则并归档；保留 Check-local 差异和 parser owner，不引入或等待公共 file tool。 |
 | [静态 package 材料](../../changes/archive/author-static-package-materials/proposal.md) | 已完成单一静态发布 manifest、动态 version 投影与完整包验收并归档；未静态化其它材料，也未修改 cold bootstrap。 |
 | 当前 package 定位（已删除 Draft） | 2026-09-07 经用户明确授权删除无需实施的 Draft；现有固定 build/package 与 status 已满足需求，当前行为继续由 [Package lifecycle](../tooling/package-lifecycle.md#local-candidate-lifecycle) 承接。 |
@@ -203,6 +203,12 @@ strategy 基线恢复条件仍适用。已实施的[公共 learned helper](../..
 6. **每项 Change 独立验收、归档和提交。** 归档必须有当前任务的明确授权。
 7. **堆叠分支按依赖顺序同步与合入。** 上游更新后，下游先同步并运行受影响验证；最终向目标主线合入时保持依赖
    顺序，不把下游提交先于其上游引入。
+
+## 文档阅读路径调整的交付与协调
+
+2026-09-08 以 `bf3d6e79eb8090977f9ba4220eaf8d611d524e51` 与受验工作区为输入，[align-documentation-ownership-and-user-reading-paths](../../changes/archive/align-documentation-ownership-and-user-reading-paths/proposal.md) 已完成并按用户授权归档，任务为 11/11。导航、公开契约与内部实现说明的责任已同步，21 份随包 Markdown 经 AI-ready 独立复审和完整 Gate 36/36 验证；Product 行为保持不变，相关 Decision 为 active + aligned。当前文档归属见[导航](../navigation.md#读者发布范围与规则归属)，归档 Plan 只保留形成时依据。
+
+本 Change 与 learned 算法 Plan 只有 scheduling 文档的编辑交集，没有语义硬前置。后续算法工作按当前专题路径复核引用，并继续遵守其自身的实施授权与验收条件；本次文档归档不改变该 Plan 的状态。
 
 ## 维护与验证
 

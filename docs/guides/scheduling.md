@@ -124,7 +124,7 @@ if (executionOrder.join(",") !== "compile,publish") {
 
 ### 在线选择时读取 observation prefix
 
-custom `decide(context)` 还可读取 `context.measurement`，它是当前 decision boundary 已冻结的**前缀**，不是注册另一个 hook：
+custom `decide(context)` 可通过 `context.measurement` 读取当前 decision boundary 已冻结的**观察前缀**：
 
 - `cumulative` 提供当前累计的离散计数、peaks 和 timing availability；只有 `timing.availability === "available"` 才有 `timingFacts`。
 - `measurementCount` 是当前已捕获 action observation 的数量。
@@ -178,11 +178,11 @@ if (!completed.accepted || !completed.state.catalog.selectableTaskIds.includes("
 }
 ```
 
-它只表达 immutable hypothetical admission state：没有 Task、Promise、signal、reservation、真实执行结果或 effect stream，也不会写回 Run。`select` / `settle` 返回 successor，原 state 不变。
+`select` / `settle` 返回新的 immutable successor，原 state 不变，因此可以保留并比较多个分支。所有选择、结算和资源占用都只是模拟状态，不启动真实 Check、不预留真实资源，也不写回 Run。
 
 ## 已准备的 custom strategy
 
-需要在 Scheduler 开始前异步读取调用方自己的配置，并把结果形成本 Run 专用 decision closure 时，使用 `{ kind: "prepared", prepare }`。每个 graph-ready Run 最多调用一次 `prepare`；它返回同步 `decide` 和可选的 `complete(terminal)`。下例选择第一个可准入候选，并在可用 timing 下保存一次终态计数：
+需要在 Scheduler 开始前异步读取调用方自己的配置，并把结果形成本 Run 专用 decision closure 时，使用 `{ kind: "prepared", prepare }`。每个 graph-ready Run 最多调用一次 `prepare`；它返回同步 `decide` 和可选的 `complete(terminal)`。下例优先选择可准入的 `second`，否则选择第一个可准入候选，并在 `complete` 中保存终态任务计数：
 
 ```ts
 import { defineAdmissionPolicy, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
@@ -237,95 +237,21 @@ if (result.kind !== "completed" || settledTaskCount !== 2) {
 }
 ```
 
-`prepare` 失败会在 Scheduler 启动前使 Run 成为 `admission-strategy-preparation-failed`。`complete` throw/reject 会让 `outputs.measurementHooks.status` 为 failed，但不能改变已 sealed 的 primary Check facts 或 aggregate。将调用方自己的 capability 捕获在 closure 中；不要期待 context 暴露 Product 的 state、logger、clock 或真实 Task control。
+`prepare` 失败会在 Scheduler 启动前使 Run 成为 `admission-strategy-preparation-failed`。`complete` throw/reject 会让 `outputs.measurementHooks.status` 为 failed，但不能改变已 sealed 的 primary Check facts 或 aggregate。策略需要的配置、logger 或 clock 由调用方提供并捕获在 closure 中；context 提供只读调度事实，真实 Task 启动与结算由 Scheduler 控制。
 
 ### 观察终态 measurement
 
 任何 scheduler policy 都可配置 `scheduler.measurementHooks`。每个 hook 在 Scheduler 已有 terminal measurement 后收到冻结的 `{ graph, execution, rawMeasurement }`；它适合调用方自己的统计、记录或后续处理，不能修改 Task、Check facts、aggregate 或选择历史。若同时配置 generic hook 与 prepared `complete`，generic hooks 先结算，随后才调用 `complete`。如果任一 hook 抛错或 reject，`result.outputs.measurementHooks.status` 为 `failed`；Check facts 不变，原本正常完成的 Run 可映射为 `kind: "output"`，已有 `cancelled` / `execution` 主结果保持不变。
 
-三种 measurement 入口服务不同阶段：`decide(context)` 中的 `context.measurement` 只读在线 action-observation prefix；`scheduler.measurementHooks` 消费每个有 terminal measurement 的 Run；prepared strategy 的 `complete` 在同一终态 measurement、且 generic hooks 都结算后处理调用方在 `prepare` 时捕获的 Run-local state。不要把任一入口当成每 task event stream、执行前 hook 或 Check callback。它们没有 Task data、errors、Records、可变 engine、logger 或时钟 capability；需要逐项规则事实时，在 Check 的 `execution` 中用 final data / Records 表达。
+三种 measurement 入口服务不同阶段：`decide(context)` 中的 `context.measurement` 只读在线 action-observation prefix；`scheduler.measurementHooks` 消费每个有 terminal measurement 的 Run；prepared strategy 的 `complete` 在同一终态 measurement、且 generic hooks 都结算后处理调用方在 `prepare` 时捕获的 Run-local state。这些输入提供调度观察；需要逐项业务数据、失败原因或 Records 时，在 Check 的 `execution` 中形成事实，再从 `RunResult` 读取。
 
 `prepare` 只在 graph 已有效且 Run 尚未于 pre-work / planning 取消后调用；它没有 cancellation signal、timeout 或“必有 complete”的 cleanup 保证。prepare reject 会结束为 `admission-strategy-preparation-failed`。一旦 Run 进入 Scheduler，正常结束、取消或 policy fault 的 drain 只要 seal 出 terminal measurement，都会在 generic hooks 后调用 `complete`；早期 setup / execution failure 没有 terminal measurement 时不会调用它。因此不要在 `prepare` 中取得必须依赖 `complete` 释放的资源。
 
 保存后续 Run 会使用的 caller-owned data 时，先根据自己的目标定义“可接受样本”。`rawMeasurement.timing.availability === "available"` 只证明终态 timing facts 可读，不证明 Run quality 成功；`settledTasks.kind === "completed"` 是 Scheduler settlement，不等于 Check `passed`，且 context 不提供 `RunResult.kind`。若业务只允许成功 Run，先暂存候选，在 `run(...)` 返回后同时核对 `result.kind` 与业务要求的 Check outcomes 或 aggregate，再决定是否提交。`kind: "completed"` 本身不表示质量检查全部通过。
 
-## learned critical-path strategy
+## 复用本地时长历史
 
-当同一项目反复运行、且本地目录可以保存调用方拥有的非敏感性能状态时，使用
-`createLearnedCriticalPathStrategy(...)` 返回的 prepared strategy：
-
-```ts
-import {
-  createLearnedCriticalPathStrategy,
-  defineCheck,
-  defineConfig,
-  run
-} from "@zxyycom/vibe-check";
-
-function scheduledCheck(checkId: string) {
-  return defineCheck({
-    checkId,
-    displayName: checkId,
-    execution: () => ({ status: "passed" as const, data: {} })
-  });
-}
-
-// 调用方选择不与其它 Run 共用的绝对目录，并负责后续清理；不会从 projectRoot 解析。
-const stateDirectory = `/tmp/vibe-check-learned-history-${Date.now()}-${Math.random()}`;
-const strategy = createLearnedCriticalPathStrategy({
-  stateDirectory,
-  identityForTask: (task) => ({
-    taskId: task.taskId,
-    // 在调用方的 key 中保留所有影响时长可比性的因素。
-    implementationVersion: "example-v1"
-  }),
-  observe(event) {
-    // 这是调用方尽力而为的观察点，不是 Product diagnostic channel。
-    if (event.kind === "history-unavailable") console.warn(event.reason);
-  }
-});
-const definition = defineConfig({
-  checks: [scheduledCheck("first"), scheduledCheck("second")],
-  outputs: {
-    diagnosticLogging: { enabled: false },
-    machinePublication: { enabled: false },
-    progressRendering: { enabled: false }
-  },
-  scheduler: {
-    admissionPolicy: { kind: "custom", strategy },
-    maxParallel: 1
-  }
-});
-
-const first = await run(definition);
-const second = await run(definition);
-if (first.kind !== "completed" || second.kind !== "completed") {
-  throw new Error("Expected both learned strategy Runs to complete");
-}
-```
-
-`stateDirectory` 必须是调用方提供的非空 absolute、可写且可删除的目录；helper 不从 effective
-`projectRoot` 解析它。它是调用方信任的本地性能状态，不是 filesystem sandbox、secret storage、remote cache 或跨进程锁；
-调用方负责 retention 和清理。history identity 虽会被 hash 成文件关联所用的 digest，digest 不是保密机制：不得把 secret、token
-或低熵敏感输入放进 identity。`identityForTask(task)` 必须返回 canonical-JSON-compatible identity，并显式包含所有会改变
-时长可比性的 options、flags、环境或实现版本；helper 不读取 normalized Check options、Run flags 或 `projectRoot` 来补全它。
-
-`sampleWindow` 的范围是 1–32（默认 32），`maxHistorySeries` 是 1–4096（默认 4096），`coldStartDurationMs` 必须为正有限数（默认 1）；
-这些 model knobs 会进入 helper 生成的 history key。非 absolute/空 `stateDirectory` 或非法 model knob 会在 factory 创建时 throw；
-这类 authoring/configuration error 不属于一次 Run 的 optimization 退化。首次运行、缺失、损坏、不兼容或 read-failed history
-会被当作空 history：已有 learned estimate 的同一 Run 可为未知 Task 提供 project prior，否则使用 cold start。identity 无效、无法
-完成 setup/prediction/critical-path preparation 时，策略退化为普通 static decision，并以 `history-unavailable` 报告；record/write
-失败只影响后续 Run 的 history，并以 `recording-unavailable` 报告。上述 history 退化均不改变本次 Task membership、Check facts、
-aggregate、machine output 或质量结算。
-
-每个策略选择的 `select` proposal 会产生带 task ID、estimate、critical-path score、sample count 和 source 的
-`selection-proposed` event；它不确认 Task 已实际 admission。observer 是 caller-owned best-effort callback：同步 throw 或 rejected
-Promise 会被忽略，返回的 Promise 不会被 await，因此 callback 可以在 `run(...)` 返回后继续，Run 完成也不证明 observation sink
-已完成。它不创建 Product diagnostic channel、output status 或 file，也不把 history 写入 Check facts、machine output 或 `RunResult`。
-
-工厂返回普通 public prepared custom strategy，并通过每次 decision 的 measurement context 工作。它只在既有 Scheduler
-selection layer 比较 score，随后仍由 Scheduler 应用依赖、mutex、parallel budget 与 cancellation guard。策略的实际运行成本
-取决于项目的 graph、history 和 observer；需要据此选择或调优时，由项目在目标 workload 上测量。
+同一项目反复运行、希望依据历史时长安排 ready Tasks 时，阅读[用本地时长历史调度 Check](learned-scheduling.md)。该专题说明 `createLearnedCriticalPathStrategy`、caller-owned history 与观察回调。
 
 ## 下一步
 

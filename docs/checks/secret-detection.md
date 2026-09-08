@@ -4,6 +4,33 @@
 
 `secretDetection({ files })` 是随包 ordinary Check，发现高置信 PEM private-key material。它不是全面 credential protection，也不验证 secret 有效性。
 
+## 最小用法
+
+示例保留终端进度，关闭 machine publication，不写入 machine files。
+
+```ts
+import { defineConfig, run, secretDetection } from "@zxyycom/vibe-check";
+
+const check = secretDetection({
+  files: { source: "filesystem", include: ["src/**/*"], exclude: ["**/generated/**"] }
+});
+const result = await run(defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+}));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`Secret detection did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
+```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+
 ## 参数与默认配置
 
 `files` 必填，且必须是完整 `{ source, include, exclude }` value；它是唯一的输入授权，不提供隐式全仓库 fallback。
@@ -19,7 +46,7 @@
 ```
 
 共同 `{ source, include, exclude }` grammar、source failure 与数组替换见
-[共享的 files 选择语义](../../README.md#共享的-files-选择语义)。此 Check 不提供默认 selection：完整 top-level `files`
+[共享的 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。此 Check 不提供默认 selection：完整 top-level `files`
 仍是唯一输入授权。三个 limit 都是正安全整数；它们可收窄或显式提高。options 不接受 arbitrary regex、command、baseline、detector allowlist 或 message suppression。
 
 ## 工作原理
@@ -72,28 +99,6 @@ zero selected paths 为 `not-applicable / no-eligible-input`。NUL、invalid UTF
 
 I/O 只限 files 选择的 local paths；无 command、network、history、environment、home、binary 或 remote secret-manager I/O。POSIX no-follow 打开绑定 final leaf；Node path/filesystem API 没有 portable `openat`/dirfd traversal，因此中间目录或已打开 inode 的恶意并发替换不属于 OS sandbox guarantee，需该隔离级别的调用方应使用 OS-level sandbox。raw detector material 不会进入 result、Record、message、machine output、cache、log 或 error。
 
-## 最小用法
-
-```ts
-import { defineConfig, run, secretDetection } from "@zxyycom/vibe-check";
-
-const check = secretDetection({
-  files: { source: "filesystem", include: ["src/**/*"], exclude: ["**/generated/**"] }
-});
-const result = await run(defineConfig({ checks: [check] }));
-const outcome = result.kind === "completed"
-  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
-  : undefined;
-if (result.kind !== "completed" || outcome?.status !== "passed") {
-  console.error(`Secret detection did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
-  process.exitCode = 1;
-}
-```
-
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
-
 ## 适用边界
 
-只选择需保护的 text-bearing paths，并将 detected material 移除或使用精确、带理由的 waiver。不要把本 Check 当作 history、environment、binary 或 remote-secret scanner。该 guide 的 package Check owner 维护固定 rule set、依赖升级和 synthetic corpus；每次 Secretlint release、engine 或 dependency graph 变化都必须重跑 candidate、installed consumer 和 leak-canary evidence。
+只选择需保护的 text-bearing paths，并将 detected material 移除或使用精确、带理由的 waiver。不要把本 Check 当作 history、environment、binary 或 remote-secret scanner。

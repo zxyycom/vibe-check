@@ -49,7 +49,7 @@ Entities:
 
 ## Case WB-OUTPUT-RUN-PROGRESS-001: Product projects Check execution progress for people
 
-Owner: `docs/api-mechanics.md#outputs-与-runresult-边界`
+Owner: `docs/guides/run-outputs.md#progress-rendering`
 Entities:
 
 - `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`

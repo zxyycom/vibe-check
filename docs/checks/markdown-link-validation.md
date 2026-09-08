@@ -6,6 +6,31 @@
 sources 中的本机链接、图片目标与标题锚点。`markdownLinkValidation(options?)` 补齐默认值并返回可直接放入 Project
 Definition `checks` 的普通 Check。
 
+## 最小用法
+
+示例保留终端进度，关闭 machine publication，不写入 machine files。
+
+```ts
+import { defineConfig, markdownLinkValidation, run } from "@zxyycom/vibe-check";
+
+const check = markdownLinkValidation();
+const result = await run(defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+}));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`Markdown link validation did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
+```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+
 ## 参数与默认配置
 
 ```ts
@@ -206,26 +231,6 @@ source I/O scope 只包含通过 `.md` / `.markdown` eligibility 的 accepted pa
 
 启用 `cache` 会额外访问调用方指定 directory，并可能写入上文所列 source-derived parse facts；它不改变 published facts，
 也不把 cache directory 当作 security boundary。调用方应仅传入自己信任、可删除的 absolute directory。
-
-## 最小用法
-
-```ts
-import { defineConfig, markdownLinkValidation, run } from "@zxyycom/vibe-check";
-
-const check = markdownLinkValidation();
-const result = await run(defineConfig({ checks: [check] }));
-const outcome = result.kind === "completed"
-  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
-  : undefined;
-if (result.kind !== "completed" || outcome?.status !== "passed") {
-  console.error(`Markdown link validation did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
-  process.exitCode = 1;
-}
-```
-
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

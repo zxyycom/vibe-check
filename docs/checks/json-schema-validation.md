@@ -6,6 +6,37 @@
 instance bindings 验证选定的 JSON instances。`jsonSchemaValidation(options?)` 补齐默认值并返回可直接放入 Project
 Definition `checks` 的普通 Check。
 
+## 最小用法
+
+示例保留终端进度，关闭 machine publication，不写入 machine files。
+
+```ts
+import { defineConfig, jsonSchemaValidation, run } from "@zxyycom/vibe-check";
+
+const configured = {
+  schemas: [{ id: "urn:example:config", path: "schema/config.json" }],
+  bindings: [
+    { id: "config", instancePath: "config.json", schemaId: "urn:example:config" }
+  ]
+};
+const schemaCheck = jsonSchemaValidation(configured);
+const result = await run(defineConfig({
+  checks: [schemaCheck],
+  outputs: { machinePublication: { enabled: false } }
+}));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === schemaCheck.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`JSON Schema validation did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
+```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
+
 ## 参数与默认配置
 
 ```ts
@@ -167,32 +198,6 @@ binding 数量为零时结算为 `not-applicable / no-bindings`。`unavailable.r
 默认 `offline` mode 的 network request 数为零。`allowlisted` HTTPS source 以精确 origin 与 path prefix 定义
 remote scope；每次 response 最多读取 1,048,576 bytes，单次请求 timeout 为 5 秒。request 不携带 credentials 或 custom
 headers，也不跟随 redirect。remote reference authorization 保持 local file selection 不变。
-
-## 最小用法
-
-```ts
-import { defineConfig, jsonSchemaValidation, run } from "@zxyycom/vibe-check";
-
-const configured = {
-  schemas: [{ id: "urn:example:config", path: "schema/config.json" }],
-  bindings: [
-    { id: "config", instancePath: "config.json", schemaId: "urn:example:config" }
-  ]
-};
-const schemaCheck = jsonSchemaValidation(configured);
-const result = await run(defineConfig({ checks: [schemaCheck] }));
-const outcome = result.kind === "completed"
-  ? result.snapshot.checks.find(({ checkId }) => checkId === schemaCheck.checkId)?.outcome
-  : undefined;
-if (result.kind !== "completed" || outcome?.status !== "passed") {
-  console.error(`JSON Schema validation did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
-  process.exitCode = 1;
-}
-```
-
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

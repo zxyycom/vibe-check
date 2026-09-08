@@ -47,6 +47,7 @@
       "construct-function-metrics-from-defaulted-area-policy.md": "sha256:85e09451048af2fe1615f2c7d48bf92b9f0b7c83d12132295054283a8d96f4e3",
       "contain-project-code-behind-private-runtime-boundary.md": "sha256:d3cd4b7fa4a765c26fbc1565132c8a755b6a64343d7857a5da9e11d62d9638b6",
       "cooperatively-cancel-task-graphs.md": "sha256:7c5524f935b669fb9db4cecb9ed20f0b78afb8dac40d0629a56aa0ad7f572a86",
+      "declare-document-audience-publication-and-contract-ownership.md": "sha256:864efb09d1163eae230a23076ba8d4c9733a893a2ed4e3d9ed021a194f65535b",
       "default-package-quality-findings-to-advisory.md": "sha256:f5f3c47c656f1a082e34ceb08e9fd4b3ae2b64ad00f1713145bae58fdd84c744",
       "default-project-gate-to-required-profile.md": "sha256:81bc2c8e30f441b478e12fe88e8fe21ce5666971906d41ee3bca626bbf18b09e",
       "defer-future-feature-detail-until-prioritized.md": "sha256:7852346befd1c0227510085aafa4bb1403ba511f0c429e834cc051fa4bda1ac6",
@@ -1682,6 +1683,33 @@
         "decision": "Task engine 在 admission 边界观察 AbortSignal，停止新 Task、收尾已启动 Task，并将未完成 Check 关闭为 cancelled。",
         "tags": [
           "product-contract"
+        ],
+        "relations": []
+      }
+    },
+    "declare-document-audience-publication-and-contract-ownership.md": {
+      "keys": {
+        "tag": [
+          "documentation"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "declare-document-audience-publication-and-contract-ownership.md",
+        "title": "明确文档受众、发布范围与契约归属",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-08T02:30:06Z",
+        "purpose": "让用户与维护者定位同一公开契约及对应实现责任",
+        "background": "文档是否随包和主要读者不能决定其是否拥有项目规则",
+        "decision": "分别标明受众和发布范围，由用户文档定义公开契约并连接内部实现 owner",
+        "tags": [
+          "documentation"
         ],
         "relations": []
       }

@@ -56,8 +56,7 @@ message、Record 或 terminal status。parser owner 决定是否进一步冻结�
 ## 并发与安全边界
 
 写入在 caller directory 内经 unique temporary file 和 atomic rename 发布。并发 miss 可以重复 computation，
-但 target 只作为完整有效 entry 读取；helper 不提供 lock、single-flight、global mutable cache、cleanup 或
-whole-Check replay。
+但 target 只作为完整有效 entry 读取。需要避免重复 computation 时由调用方协调并发；缓存目录的清理也由调用方负责。
 
 directory 是 caller 信任且可删除的本地 state，不提供 containment、remote sharing、authenticity 或 secret
 protection；不得将 secret、token 或低熵敏感材料放入 key，SHA-256 digest 也不是保密机制。consumer 自己

@@ -4,6 +4,8 @@
 acceptance 机制，以及 package-provided Check 如何使用这些能力。它不建立 Product-wide scan scope，也不定义
 Check final status、Record、aggregation、machine output 或 scanner protocol。
 
+公开 selection、默认基线与独立收集工具由[选择与收集项目文件](../guides/collecting-project-files.md)定义；本页解释内部收集与 exact-input 机制如何兑现它们。
+
 ## Check-owned file selection
 
 需要读取项目文件的 Check 在自己的完整 `options` 中拥有以下 `files` shape；三个 metric constructor 接受每个
@@ -28,7 +30,7 @@ VCS/Product state、dependencies、build/generated、cache、coverage、log、te
 `functionMetrics`、`jsonValidation` 与 `markdownLinkValidation` 保留同一 source/exclude，并按各自支持的文件类型派生精准
 默认 include。显式数组完整替换 owning Check 的对应默认值。项目需要追加排除时，通过
 `{ ...defaultProjectFileSelection, exclude: [...defaultProjectFileSelection.exclude, projectGlob] }` 建立自己的 selection。
-本节拥有完整公共 file-selection 基线；Check-specific defaults 由对应[随包 Check 指南](../navigation.md#随包-check-指南)拥有。
+公共 file-selection 基线由[用户指南](../guides/collecting-project-files.md#共享的-files-选择语义)拥有；Check-specific defaults 由对应[随包 Check 指南](../navigation.md#随包-check-指南)拥有。
 
 三个 metric constructor 都让每个 area 直接拥有 files 和自己的阈值，独立选择的 paths 可以重叠；duplicate area 使用
 line/token policy，并且只有一个 area 同时选中全部 fragment locations 时才拥有该比较；file area 使用 file code-line

@@ -39,6 +39,22 @@ export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
     packagePath: "docs/api-mechanics.md"
   }),
   Object.freeze({
+    id: "run-outputs",
+    packagePath: "docs/guides/run-outputs.md"
+  }),
+  Object.freeze({
+    id: "check-dependencies",
+    packagePath: "docs/guides/check-dependencies.md"
+  }),
+  Object.freeze({
+    id: "learned-scheduling",
+    packagePath: "docs/guides/learned-scheduling.md"
+  }),
+  Object.freeze({
+    id: "callbacks",
+    packagePath: "docs/guides/callbacks.md"
+  }),
+  Object.freeze({
     id: "extending-check-lifecycle",
     packagePath: "docs/guides/extending-check-lifecycle.md"
   }),
@@ -203,7 +219,7 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/learned-critical-path.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "scheduling",
+        documentId: "learned-scheduling",
         headingPath: Object.freeze(["learned critical-path strategy"]),
         kind: "markdown"
       })
@@ -231,8 +247,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/typed-dependency.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "api-mechanics",
-        headingPath: Object.freeze(["类型化依赖数据", "完整运行示例"]),
+        documentId: "check-dependencies",
+        headingPath: Object.freeze(["完整运行示例"]),
         kind: "markdown"
       })
     ]),
@@ -245,12 +261,8 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
     sourcePath: "docs/examples/package-api/progress-preview.ts",
     targets: Object.freeze([
       Object.freeze({
-        documentId: "api-mechanics",
-        headingPath: Object.freeze([
-          "terminal result、Records 与 messages",
-          "Check messages 与受管 progress",
-          "配置 preview 文本"
-        ]),
+        documentId: "run-outputs",
+        headingPath: Object.freeze(["Check messages 与受管 progress", "配置 preview 文本"]),
         kind: "markdown"
       })
     ]),

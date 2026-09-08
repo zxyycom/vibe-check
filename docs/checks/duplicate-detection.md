@@ -9,13 +9,32 @@ policy 的重复片段报告为 supplemental Records，并分别报告 finding �
 集合形成后按排序 location ranges 对账，不会缩小 jscpd 输入或 cache evidence。
 
 默认 package command 使用随 `@zxyycom/vibe-check` 安装的 jscpd v5。发布 manifest 的当前兼容范围是
-`^5.1.1`（下界为 5.1.1、上界不含 v6）。项目无需选择版本、提供 executable 或复制默认 options：
+`^5.1.1`（下界为 5.1.1、上界不含 v6）。项目可直接使用下方默认 Check，无需另行配置 executable。
+
+## 最小用法
+
+示例保留终端进度，关闭 machine publication，不写入 machine files。
 
 ```ts
-import { duplicateDetection } from "@zxyycom/vibe-check";
+import { defineConfig, duplicateDetection, run } from "@zxyycom/vibe-check";
 
 const check = duplicateDetection();
+const result = await run(defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+}));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`Duplicate detection did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
 ```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 参数与默认配置
 
@@ -45,7 +64,7 @@ const check = duplicateDetection();
 
 - 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
 - 每个显式 area 必须提供 `files` branch。共同 `{ source, include, exclude }` grammar、source failure 和数组替换见
-  [共享的 files 选择语义](../../README.md#共享的-files-选择语义)；本 Check 的 branch fields 可分别省略并使用公开的
+  [共享的 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)；本 Check 的 branch fields 可分别省略并使用公开的
   `defaultProjectFileSelection`。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
 - `findingWaivers` 省略时为 `[]`，并采用[共同 waiver authoring 与 audit](../guides/finding-waivers.md#identity-与-audit)。identity
@@ -139,11 +158,7 @@ provenance，不要求 custom command 等于 package 当前安装的版本。
 需要靠前置参数才能转发到 jscpd 的通用 runtime（例如 `node path/to/jscpd.js`）不是受支持的 custom command；应直接
 提供 jscpd executable 或一个已授权的专用 wrapper executable。
 
-默认 package command 使用安装包声明并由 package manager 解析的兼容 jscpd v5。repository、candidate 与
-external-consumer 的发布验收会验证 resolved manifest、contained bin 和实际 engine version 一致；这是发布证据，
-不把 package command 的每次 availability probe 变成 exact-5.1.1 runtime gate。package 或 custom command 的实际版本
-都会隔离 cache；command、config 或 report 不兼容时，Check fail closed 为 `unavailable`，不会把无法完成的扫描伪装成零
-finding。
+package 或 custom command 的实际版本都会隔离 cache；command、config 或 report 不兼容时，Check 以 `unavailable` 结算，不会把未完成扫描当作零 Finding。
 
 ## 工作原理
 
@@ -242,26 +257,6 @@ execution 启动一次本机 jscpd 调用；输入只包含各 `codeAreas[id].fi
 执行，不扩大任何 area 的比较边界；共同 area 过滤仍在可信 raw result 上执行。显式配置
 `scanner.command.kind: "custom"` 表示项目授权执行其中的 executable；所有传入参数由 owning adapter 生成。该 Check
 不发起网络请求。
-
-## 最小用法
-
-```ts
-import { defineConfig, duplicateDetection, run } from "@zxyycom/vibe-check";
-
-const check = duplicateDetection();
-const result = await run(defineConfig({ checks: [check] }));
-const outcome = result.kind === "completed"
-  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
-  : undefined;
-if (result.kind !== "completed" || outcome?.status !== "passed") {
-  console.error(`Duplicate detection did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
-  process.exitCode = 1;
-}
-```
-
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

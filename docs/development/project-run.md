@@ -1,9 +1,11 @@
 # Project Run
 
-本文拥有 project-owned Run Controls、invocation inputs、Run result compatibility 与 output configuration boundary。
-Project Definition 的 authoring、defaults、validation、normalization 与 `inherit` composition 由 [Project Definition](project-definition.md) 拥有。
+本文拥有 invocation inputs 的验证、路径冻结、callback capability 投影与 output configuration 接线不变量。公开 Controls 和 RunResult 由 [API 机制](../api-mechanics.md)定义，输出配置与 readback 由[输出指南](../guides/run-outputs.md)定义；本页说明实现怎样维持这些承诺。
+Definition validation、normalization 与 fingerprint 实现由 [Project Definition](project-definition.md) 拥有。
 
 ## Invocation and results
+
+参数按作用范围分工：Definition 拥有项目的 Checks、各项 options / relations、scheduler 与默认 outputs；Controls 拥有当前调用的 root、flags、signal、产物目标与显式 aggregation。两者唯一的 output 配置重叠是“Definition 默认值 → 当前调用逐字段覆盖”，不是任意对象合并，也不允许用 Controls 改写 Check 或 scheduler。消费者的完整字段位置表见[参数应该放在哪里](../api-mechanics.md#参数应该放在哪里)。
 
 `run(definition, controls?)` 先验证一个 Project Definition 和一个 closed `RunControls` value。一次调用的 controls 只可设置
 `projectRoot`、`flags`、显式 `checkAggregation`、`signal`、`checkArtifactBaseDirectory`、`progressLogFile`、`diagnosticLogFileNaming` 和 output overrides；它不能替换
@@ -57,17 +59,11 @@ file selection、领域 policy 和 cache 仍由 owning Check options 承接。�
 
 invalid Definition、controls 或 aggregation selection 在 author work 前返回 configuration result。ordinary callback throw、
 malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、
-messages、output failure priority 和 readback 见[深入 API 机制的 outputs 与 RunResult 边界](../api-mechanics.md#outputs-与-runresult-边界)。
+messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，output failure priority 和 readback 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
 ## Run outputs and compatibility boundary
 
-Definition 为三项相互独立的 Run output 建立以下 defaults；RunControls 只覆盖当前调用明确提供的字段：
-
-| Output              | Definition default                                     | 配置责任                                                                                                                                                                                                                                              |
-| ------------------- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| machine publication | `{ enabled: true, directory: "artifacts/vibe-check" }` | 发布完整 machine artifact set；字节契约见 [Output](../output.md)。                                                                                                                                                                                    |
-| progress rendering  | `{ enabled: true, recordPreviewLimit: 5, messagePreviewLimit: 5, textPreviewCodePointLimit: 240, formatter: null }` | 呈现 invocation 与 Check lifecycle；Record/message 预览可分别限制数量，并可用同步 formatter 重写正文；完整事实、terminal safety 与失败边界由 [API mechanisms](../api-mechanics.md#check-messages-与受管-progress) 完整定义；caller 可用 `progressLogFile` 为本 Run 指定 tee target。 |
-| diagnostic logging  | `{ enabled: false, directory: ".log/vibe-check" }`     | 以 explicit core/scheduler channels 记录 owner 时间线；格式与失败边界见 [API mechanisms](../api-mechanics.md#outputs-与-runresult-边界)。                                                                                           |
+公开的三项 output defaults 与逐字段覆盖由[输出指南](../guides/run-outputs.md#默认输出与本次覆盖)定义；Run 先合成并冻结有效配置，再分别初始化输出，不能从一项 output 开关推断其它输出。以下是维护解析与接线必须保持的约束。
 
 machine publication 与 diagnostic logging 的 `directory` 共用同一受信任 target grammar：值必须是非空且不含 U+0000 的字符串。
 相对值从 effective `projectRoot` 解析，`..` 保持合法；绝对值直接作为明确 target。Definition 与 RunControls 对两项 output 使用相同 grammar，且两项仍独立配置、独立 status/failure，也可以显式填写同一目录。grammar 不 trim author text、不建立跨平台字符禁用表，也不提供 lexical/realpath/symlink containment、directory allowlist、清空或 filesystem sandbox。Definition 中的 author directory string 仍进入 declarative fingerprint；因此可移植、可重复的 Definition 应优先使用相对目录，而 invocation-specific 外部 target 通常放在 RunControls。
@@ -75,7 +71,7 @@ machine publication 与 diagnostic logging 的 `directory` 共用同一受信任
 
 RunControls 对 `outputs.progressRendering` 的 `recordPreviewLimit`、`messagePreviewLimit`、`textPreviewCodePointLimit` 与 `formatter` 使用和 Definition 同型的逐字段覆盖：省略或 `undefined` 不覆盖，数量 `0` 是有效值，`formatter: null` 明确清除 Definition formatter。controls 不进入 declarative snapshot/fingerprint，也不扩展 `RunResult.outputs.progressRendering` 的 `{ enabled, status }` readback。非法数量、unknown 字段或非函数/非 null formatter（包括 disabled progress）在 author work 前形成 `invalid-run-controls`。
 
-Definition、controls 或 aggregation selection 无效时尚无可信 effective output configuration，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由上表链接的 owner 完整表达。
+Definition、controls 或 aggregation selection 无效时尚无可信 effective output configuration，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由输出指南完整表达。
 
 Product 没有共享 comparison/reference channel 或 policy-selection layer。Producing Check 通过自己的 options 或 composition
 拥有 baseline/comparison behavior；repository Gate 只在 project-owned Run 中绑定 selected Check IDs 和 aggregation。
@@ -84,10 +80,12 @@ Product 不发现 JSON/JSONC configuration，也不提供 editor profile、adjus
 operational dependency map、CLI 或 `bin`。Project-owned TypeScript Definition 与 bound Run 是唯一支持的执行集成路径；
 随包 Check 仍各自导出 final-data parser。
 
+项目代码可以绑定 Definition 和固定 Controls，仅向自己的调用方暴露需要改变的输入；这不创建新的 Product 配置层，也不要求把 root 或 signal 搬入 Definition。仓库 Gate 的 `afterGate` 位于 Product RunResult 形成之后，负责项目结果后处理，不属于 `defineConfig` 或 RunControls 的 hook 字段；其唯一配置位置与失败规则见[Project Gate](../tooling/project-gate.md#gate-result-post-processing-and-exits)。Product 内部回调则按[作用位置](../guides/callbacks.md)区分 Check 准备、执行、呈现和调度终态观察。
+
 ### Diagnostic file naming
 
 `RunControls.diagnosticLogFileNaming` 只为当前 invocation 选择封闭的 `"unique" | "channel"` 命名方式；省略或 `undefined` 保持 `unique`。其它值即使在 diagnostics 关闭时也在 author work 前形成 `invalid-run-controls`。它不属于 Definition 或 output override，不参与 declarative snapshot/fingerprint，也不单独启用 diagnostics。
 
 默认 `unique` 沿用 `core-<utc-compact>-<uuid>.log` 与 `scheduler-<utc-compact>-<uuid>.log`，适用于共享输出目录。显式 `channel` 仅将 basename 改为 `core.log` 与 `scheduler.log`；不新增目录，不改变日志内容、UUID、创建时间、全局 sequence 或 elapsed。调用方应将 diagnostics directory 指向自己隔离的本次 invocation 目录；Product 不验证目录独占性。
 
-两种模式均沿用每 channel 的 exclusive-create（`wx`）：已有文件或并发冲突使该 channel failed，不覆盖、不追加、不自动回退命名。两个文件不是事务；一个 channel 失败时另一个可以成功，不回滚已创建文件。失败目标仍通过既有 channel `file` readback 返回，Check/Record facts 和 output failure priority 不变。正式 failure/status 边界见 [API mechanisms](../api-mechanics.md#outputs-与-runresult-边界)。
+两种模式均沿用每 channel 的 exclusive-create（`wx`）：已有文件或并发冲突使该 channel failed，不覆盖、不追加、不自动回退命名。两个文件不是事务；一个 channel 失败时另一个可以成功，不回滚已创建文件。失败目标仍通过既有 channel `file` readback 返回，Check/Record facts 和 output failure priority 不变。正式 failure/status 边界见 [API mechanisms](../guides/run-outputs.md#输出状态与失败处理)。

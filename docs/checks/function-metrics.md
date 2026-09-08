@@ -3,12 +3,36 @@
 ## 用途
 
 `functionMetrics` 是普通 Check，评估每个函数的 NLOC、cyclomatic complexity（CCN）、最大 nesting depth 与 parameter count。
-它在 Product 内使用内置 TypeScript analyzer，分析所选的受支持源文件；不接受 scanner 或 executable，且不发起网络请求。
+它使用随包 TypeScript analyzer 分析所选的受支持源文件。
+
+## 最小用法
+
+示例保留终端进度，关闭 machine publication，不写入 machine files。
+
+```ts
+import { defineConfig, functionMetrics, run } from "@zxyycom/vibe-check";
+
+const check = functionMetrics();
+const result = await run(defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+}));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`Function metrics did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
+```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 参数与默认配置
 
-`FunctionMetricsOptions` 只接受 `codeAreas`、`findingPolicy` 与 `findingWaivers`。`scanner`、`executable`、
-command 或环境变量不是公开 API；传入未知字段会让 constructor 同步抛出 `TypeError`。
+`FunctionMetricsOptions` 接受 `codeAreas`、`findingPolicy` 与 `findingWaivers`；未知字段使 constructor 同步抛出 `TypeError`。
 
 无参调用建立冻结的 `project` area：其 `files` 继承 `defaultProjectFileSelection` 的 source/exclude，include 由
 内置 analyzer 支持的大小写不敏感 source-file suffix 生成；finding policy 为 `non-blocking`，无 waiver。每个 area 可声明自己的 `files`、
@@ -29,7 +53,7 @@ source aggregate 最大 `64 MiB`。这两个上限不改变上述 metric limits�
 ### 区域与 finding policy
 
 每个非空 area ID 必须声明 `files`，其共同 selector grammar、source failure 与数组替换见
-[共享的 files 选择语义](../../README.md#共享的-files-选择语义)，其余字段可继承默认值。一个路径可匹配多个 area；Check 对同一函数 metric
+[共享的 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)，其余字段可继承默认值。一个路径可匹配多个 area；Check 对同一函数 metric
 采用所有 matching areas 中最严格的有效 limit，任一 matching area 为 `blocking` 时该 finding 就是 blocking。
 所有 selected path 先按每个 area 的 source/include/exclude 收集，再稳定去重；area 重叠不会重复分析或重复发布同一
 metric finding。
@@ -83,11 +107,7 @@ Check 先用 `codeAreas[id].files` 形成 selected paths，再用同一内置 re
 selected path 发布一条 non-blocking `input-rejected / unsupported-file-type` Record。selected union 为空时是
 `not-applicable / no-eligible-input`；全部 rejected 则以完整 rejection evidence 正常结算，而不是不可用。
 
-accepted paths 被一次性交给内置 analyzer，且只能是这次 invocation 的 exact input。analyzer 不重新发现项目文件，
-不执行外部 command。Product parent 先有界读取全部 accepted source，再将完整 batch 交给一个
-package-private `node:worker_threads` Worker；Worker 只分析传入的 source text，不读取路径或环境。取消会终止该 Worker；
-Worker error、未发布结果就退出或无法形成完整可信 analysis 都结算为 `analysis-failed`，不会发布
-trusted prefix 或 partial final data。Worker entry 是随 package 交付的私有 `.mjs` material，不是 public export。
+accepted paths 经有界读取后，以完整 source batch 交给内置 analyzer；分析只使用本次 exact inputs，不重新发现文件。取消会停止分析；无法形成完整可信结果时结算为 `analysis-failed`，不发布 partial final data。
 
 ## 效果与结果
 
@@ -126,29 +146,9 @@ finding 集合形成前结算为 `unavailable`：
 ## I/O 与安全边界
 
 Check 只读取其 `codeAreas[id].files` 选出的 project-local exact inputs，并将 accepted paths 交给内置 analyzer。
-它不执行 child process、不读取 scanner command 或 ambient environment override、不发起网络 request，也不会修改 source files。
+分析在本地完成，不执行外部 command、不发起网络请求，也不修改 source files。
 source collection 和 content read 失败、resource limit 或无法形成完整可信 analysis 都以本页列出的 `unavailable` reason
 结算，而不是静默跳过或发布 partial data。
-
-## 最小用法
-
-```ts
-import { defineConfig, functionMetrics, run } from "@zxyycom/vibe-check";
-
-const check = functionMetrics();
-const result = await run(defineConfig({ checks: [check] }));
-const outcome = result.kind === "completed"
-  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
-  : undefined;
-if (result.kind !== "completed" || outcome?.status !== "passed") {
-  console.error(`Function metrics did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
-  process.exitCode = 1;
-}
-```
-
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

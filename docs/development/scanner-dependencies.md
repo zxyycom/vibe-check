@@ -92,6 +92,14 @@ external command 的 availability、process、parse、cache 或 exact-input fail
 [`functionMetrics` 指南](../checks/function-metrics.md#not-applicable-与-unavailable)为准。合法空输入、nonzero
 finding exit 和 parser header 的具体解释，仍各自属于 external adapter tests；不存在 Product-wide scanner failure taxonomy。
 
+## Package maintenance evidence
+
+`duplicateDetection` 的默认 jscpd v5 兼容范围由发布 manifest 声明。repository、candidate 与 external-consumer 验收核对 resolved manifest、contained bin 和实际 engine version 一致；这不把每次 runtime availability probe 变成 exact-5.1.1 gate。
+
+`functionMetrics` 的 parent 有界读取 accepted source，再将完整 batch 交给 `node:worker_threads` Worker。Worker 只分析传入文本；取消终止 Worker，error 或未交付完整结果的 exit 映射为 analysis failure。私有 Worker `.mjs` 是必需包材料，artifact 与 installed-consumer 验收需证明其实际可执行。
+
+`secretDetection` 的 Check owner 维护固定 Secretlint rule set、依赖升级与 synthetic corpus；Secretlint release、engine 或 dependency graph 改变时，重跑 candidate、installed consumer 与 leak-canary evidence。其用户安全承诺仍由[Secret Detection 指南](../checks/secret-detection.md)定义。
+
 ## Verification
 
 external adapter tests 证明 command、availability、parser 与 tool-specific failure；对应 Check integration tests

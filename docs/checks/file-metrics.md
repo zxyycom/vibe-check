@@ -9,16 +9,33 @@
 将超过区域策略的文件发布为 supplemental Records，并分别报告 finding 总数与 blocking finding 数量。可选的声明式
 waiver 在完整 finding 集合形成后对账；它不会把路径排除在 SCC 输入之外。
 
-无参调用使用完整默认策略：
-
-```ts
-import { fileMetrics } from "@zxyycom/vibe-check";
-
-const check = fileMetrics();
-```
-
 执行这个 Check 时，project runtime 需要让默认 `scc` command 可用，或在 `scanner.executable` 中选择项目已授权且
 精确 SCC 4.0.0 version output 与受支持 CSV contract 的 executable。
+
+## 最小用法
+
+示例保留终端进度，关闭 machine publication，不写入 machine files。
+
+```ts
+import { defineConfig, fileMetrics, run } from "@zxyycom/vibe-check";
+
+const check = fileMetrics();
+const result = await run(defineConfig({
+  checks: [check],
+  outputs: { machinePublication: { enabled: false } }
+}));
+const outcome = result.kind === "completed"
+  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
+  : undefined;
+if (result.kind !== "completed" || outcome?.status !== "passed") {
+  console.error(`File metrics did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
+  process.exitCode = 1;
+}
+```
+
+本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
+`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
+[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 参数与默认配置
 
@@ -53,7 +70,7 @@ const check = fileMetrics();
 - 省略整个 `codeAreas` 时，constructor 建立默认 `project` 区域。显式 `codeAreas` 必须至少包含一个
   非空 area ID。
 - 每个显式区域必须提供 `files`。共同 `{ source, include, exclude }` grammar、source failure 和数组替换见
-  [共享的 files 选择语义](../../README.md#共享的-files-选择语义)；本 Check 的 branch fields 省略时使用公开的
+  [共享的 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)；本 Check 的 branch fields 省略时使用公开的
   `defaultProjectFileSelection`。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
 - `findingWaivers` 省略时为 `[]`，并采用[共同 waiver authoring 与 audit](../guides/finding-waivers.md#identity-与-audit)。每项必须是
@@ -215,26 +232,6 @@ audit Record 和 warning，同时保持 `not-applicable / no-eligible-input` out
 
 execution 只启动本机已授权的 SCC executable，输入仅包含各区域批准的 exact paths 去重并集。该 Check 不发起网络请求，
 也不把 raw SCC stdout/stderr 直接发布为稳定 Check 或 Record data。
-
-## 最小用法
-
-```ts
-import { defineConfig, fileMetrics, run } from "@zxyycom/vibe-check";
-
-const check = fileMetrics();
-const result = await run(defineConfig({ checks: [check] }));
-const outcome = result.kind === "completed"
-  ? result.snapshot.checks.find(({ checkId }) => checkId === check.checkId)?.outcome
-  : undefined;
-if (result.kind !== "completed" || outcome?.status !== "passed") {
-  console.error(`File metrics did not pass: ${result.kind} / ${outcome?.status ?? "no outcome"}`);
-  process.exitCode = 1;
-}
-```
-
-本例采用严格的单项 CI policy：`RunResult.kind` 不是 `completed`，或该 Check 不是 `passed`，都映射为非零退出码。若项目接受
-`not-applicable`、需要只聚合某些 Check，或需要其它 `unavailable` 语义，调用方应显式配置并读取
-[`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)，而不是只等待 `run(...)` 返回。
 
 ## 适用边界
 

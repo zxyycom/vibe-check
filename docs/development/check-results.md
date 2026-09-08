@@ -1,6 +1,6 @@
 # Check 结果
 
-本文拥有通用 Check、supplemental Record 与 explicit Check aggregation 的事实语义。每项随包 Check 的领域 options、
+本文拥有 Check/Record 的 canonical settlement、terminal closure 与 aggregation 接线不变量。公开的四态、Record 与 aggregation 语义由 [API 机制](../api-mechanics.md)定义；本页按实现职责解释这些承诺。每项随包 Check 的领域 options、
 outcome、final data、Record、message 与不可用原因由对应[随包 Check 指南](../navigation.md#随包-check-指南)拥有。Definition authoring 与 typed direct dependency readback 见 [Project Definition](project-definition.md#typed-dependency-data)；machine DTO/bytes 见 [Output](../output.md)；repository Gate
 adapter 见 [脚本工具](../tooling/project-gate.md)。本文不拥有 scanner commands、machine serialization、argv parsing、
 generic scheduler 或 human presentation grammar。
@@ -54,7 +54,7 @@ Check ID 或 options shape。
 
 共同事实如下：
 
-1. 每项随包能力仍是 ordinary Check，使用本页定义的四状态结果与 Check-local Records；adapter、parser、cache、I/O 或
+1. 每项随包能力仍是 ordinary Check，使用公共契约的四状态结果与 Check-local Records；adapter、parser、cache、I/O 或
    exact-input failure 只结算 owning Check，不建立第二套 quality model。
 2. `failed`、`unavailable` 与带 non-blocking Finding 的 `passed` 由 owning Check 附带可操作 message；零问题
    `passed` 与 `not-applicable` 不合成人为提示。message 不改变 final data、Records 或 status。

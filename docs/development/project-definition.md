@@ -2,7 +2,7 @@
 
 Vibe Check configuration is a project-owned TypeScript **Project Definition**. `defineConfig` creates its plain value; a project-owned wrapper calls `run(definition, controls)`. Product never discovers, reloads, or accepts a second configuration module.
 
-本文拥有 Project Definition（包含 ordinary Check tree、scheduler 与 admission authoring）的 defaults、validation、normalization 与 `inherit` composition。Check/Record 通用语义属于 [Check results](check-results.md)，每项随包 Check 的 consumer contract 属于对应[随包 Check 指南](../navigation.md#随包-check-指南)，owner-local external-tool adapter boundary 属于 [Check-owned scanner dependencies](scanner-dependencies.md)，result/output DTOs 属于 [Output](../output.md)。
+本文拥有 Project Definition 的 validation、normalization、声明性 snapshot 与 fingerprint 实现不变量。公开参数和组合规则由 [API 机制](../api-mechanics.md)、[Check authoring](../guides/extending-check-lifecycle.md)、[依赖数据](../guides/check-dependencies.md)与[调度指南](../guides/scheduling.md)定义；本页为维护实现解释这些承诺，不建立第二份公开规则。Check/Record settlement 实现属于 [Check results](check-results.md)，每项随包 Check 的 consumer contract 属于对应[随包 Check 指南](../navigation.md#随包-check-指南)，owner-local external-tool adapter boundary 属于 [Check-owned scanner dependencies](scanner-dependencies.md)，result/output DTOs 属于 [Output](../output.md)。
 
 `ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与明确的 diagnostic logging、machine publication/progress rendering outputs。它没有 package-specific `quality`、file scope 或 code-area 字段；需要项目文件或领域 policy 的 Check 在自己的完整 `options` 中声明并消费这些输入。
 
@@ -10,11 +10,9 @@ Vibe Check configuration is a project-owned TypeScript **Project Definition**. `
 
 ## Progress preview 配置
 
-`outputs.progressRendering` 默认是 `{ enabled: true, recordPreviewLimit: 5, messagePreviewLimit: 5, textPreviewCodePointLimit: 240, formatter: null }`。两个数量分别是非负 safe integer；`0` 只隐藏对应 detail，仍保留准确 omitted count。文本预算是正 safe integer，按 Unicode code point 限制每条正文；没有额外硬上限。所有字段即使 `enabled: false` 也必须通过 closed validation。
+公开 defaults、数值范围、formatter 输入与失败语义由[输出指南](../guides/run-outputs.md#check-messages-与受管-progress)定义。Definition validation 在 progress disabled 时仍验证所有字段；normalization 为省略字段补齐同一默认值，renderer 只消费 effective policy。
 
-`formatter` 可以省略或为 `null`，此时 renderer 使用默认正文；也可以是同步 `(context) => string`，其中冻结的 `context` 只含 `{ kind: "record" | "message", text, maxCodePoints }`。`text` 是未 escape、未截断的 Record local ID/canonical JSON 或 message 正文。formatter 不接收原始对象、Check context 或 writer，返回值仍由 renderer escape 和限长；它不能改写完整 facts、label、顺序或 omitted count。throw 或非字符串返回会使 progress output failed，不会回退默认文本。
-
-省略新字段（包括旧的 direct Definition `{ enabled }`）会在 validation/normalization 中补齐默认值。数值和 formatter 的 `default`/`custom` 种类进入 declarative snapshot；formatter 函数、identity、source 与 closure 不进入 fingerprint，RunControls 也不进入。新增默认字段会改变升级前旧 fingerprint，不承诺跨版本字符串稳定。
+数值和 formatter 的 `default`/`custom` 种类进入 declarative snapshot；函数 identity/source/closure 和 RunControls 均不进入 fingerprint。字段变动可能改变版本间 fingerprint，不承诺跨版本字符串稳定；维护时同时核对 authoring defaults、direct Definition normalization 与输出消费。
 
 ## Public authoring surface
 
@@ -91,53 +89,14 @@ export default defineConfig({
 
 ### Flag-enabled Checks
 
-当启用条件只取决于本次 `RunControls.flags` 中是否存在指定 token 时，可以在 executable Check 上声明
-`enabledByFlags`，不必在 callback 中重复编写控制分支：
+公开 authoring grammar、四种 predicate、传递选择和用户边界由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)定义。本节只拥有将其转换为 invocation 输入的实现不变量：
 
-```ts
-const deepAudit = defineCheck({
-  checkId: "deep-audit",
-  displayName: "Deep audit",
-  enabledByFlags: {
-    flags: ["deep-audit", "release"],
-    mode: "all",
-  },
-  execution: () => ({ status: "passed", data: {} }),
-});
-
-await run(defineConfig({ checks: [deepAudit] }), {
-  flags: ["deep-audit", "release"],
-});
-```
-
-**声明与规范化。** `enabledByFlags.flags` 必须是非空 string-token array，不允许 sparse hole，且每项都是非空字符串。
-Definition 会复制、去重、按文本排序并冻结这组 token。`mode` 的精确语义如下；本次 Run 中未被声明的
-其它 flags 不影响判断：
-
-| Mode      | Check 启用条件                                                |
-| --------- | ------------------------------------------------------------- |
-| `all`     | 每个声明 token 都存在。                                       |
-| `any`     | 一个或多个声明 token 存在；全部存在时也启用，不是“恰好一个”。 |
-| `none`    | 没有任何声明 token 存在。                                     |
-| `not-all` | 一个或多个声明 token 不存在；全部不存在时也启用。             |
-
-该字段只属于 executable Check，并作为 canonical declarative identity 进入 Definition fingerprint。container
-不接受该字段，也不向 children 继承它。空 flags 集合没有有效的控制含义，因此属于 malformed Definition。
-
-**传递启动 opt-in。** `enabledByFlags.propagateDependsOn` 只能省略或填写 literal `true`；省略保持此前只选择 direct match 的兼容行为，`false`、其它值、unknown sibling field 与 container authoring 都在 Definition validation 失败。matching flag root 写出 `true` 时，Product 才把它的 normalized `dependsOn` **完整传递闭包**加入本次 private effective selection；多个 matching roots 的 closure 取去重并集，并按 canonical Check order 消费。这个选择不遍历 `observes`。
-
-被 closure 加入的 dependency 是 dependency-activated：即使自身 `enabledByFlags` predicate 未命中，也不产生 flag-control settlement，而是和其它已选择 Check 一样等待 Scheduler admission、task-local preflight 与 execution。没有 `enabledByFlags` 的 executable Check 始终保持默认直接选择。只有 effective selection 外、predicate 未命中的 flag Check 才形成 `flag-condition-not-matched`。传播只补齐依赖启动，不改变 `dependsOn` 必须 all-passed 的 prerequisite 规则，也不绕过静态 graph validation 或 cancellation。
-
-**执行顺序。** Run 在任何 control settlement 或 author work 前验证包含全部 executable Checks 的完整静态 graph，并以验证后的 graph 形成一次 private effective selection。pre-work cancellation 仍直接关闭 pending Tasks，不把它们伪造为 flag 未命中。否则字段省略、predicate 匹配或被 matching opt-in root 的 `dependsOn` closure 激活的 Check 留在 Scheduler pending 集合，只有获得 admission 后才执行自己的 task-local preflight 和 execution；effective selection 外的 predicate 未命中 Check 则在这些 Check-local work 前结算为
-`{ status: "not-applicable", reason: { code: "flag-condition-not-matched" } }`。该 Check 没有 started fact，
-duration 为 `null`，但仍作为 pre-admission non-passed result 留在同一张 Scheduler graph、Check facts、dependency readback
-与显式 aggregation 中。以它为 `dependsOn` 的 Check 在自己的 preflight 前结算为 `unavailable / dependency-not-passed`；
-以它为 `observes` 的 Check 仍可 admission 并读取该 `not-applicable` outcome。默认 progress 在 invocation flag control 完成时
-用一个原因说明和 `displayName` 列表呈现全部这类
-未启动 Checks，不为每项重复完整 settled row；其它未启动或非成功结果不进入该分组。完整人读输出边界见
-[深入 API 机制](../api-mechanics.md#outputs-与-runresult-边界)。
-
-**责任边界。** effective selection 是 invocation-private planning value：Product 不公开 resolver、effective ID list、callback capability、RunResult field、machine field 或 diagnostic selection telemetry。callback 仍会收到完整的 canonical `project.flags`。Product 不提供“恰好一个”、带值 flags、嵌套布尔表达式或通用 predicate，也不定义 token vocabulary。flags 不是权限、环境准入或 capability authorization；需要硬条件或复杂条件时，owning Check 在 preflight/execution 中解释 `project.flags` 并返回领域适当的终态。
+- validator 仅在 executable 节点接受 closed enabledByFlags，拒绝 container、空/sparse token 列表、非法 mode、非 literal-true propagation 和 unknown fields；normalizer 复制、去重、按文本排序并冻结 token，不向 children 继承字段。
+- normalized control 进入 declarative snapshot/fingerprint；省略 propagation 与显式 opt-in 保持可区分，不能在 normalization 时隐式开启传播。
+- Run 在任何 control settlement 或 author work 前验证完整 executable graph，再计算唯一 private effective selection。matching opt-in roots 的 normalized dependsOn closure 取去重并集，以 canonical Check order 消费；不读取 observes，也不再次验证或运行 provider。
+- effective selection 同时供 flag settlement 与 effective aggregation 消费；未匹配且不在 selection 中的 Check 才结算为 flag-condition-not-matched。被激活的 dependency 保留普通 pending/admission 路径，all-passed prerequisite 仍由 Scheduler 重检。
+- cancellation precedence 在 flag control 之前，不把 cancelled Task 伪造成 flag miss；pre-admission result 留在同一 graph、dependency readback 和终态 snapshot 中，没有 started fact，duration 为 null。
+- selection 保持 invocation-private，不投影新的 ID list、callback capability 或 machine/diagnostic telemetry。callback 仍读取完整 canonical project.flags；人读压缩由[输出指南](../guides/run-outputs.md#progress-rendering)定义。
 
 ### Scheduler 配置
 
@@ -156,14 +115,14 @@ exact validation 接受上述 closed grammar，并拒绝 unknown authoring field
 prepare throw/reject 或 malformed prepared result 在 Scheduler 启动前映射为
 `admission-strategy-preparation-failed`。strategy kind 进入 declarative snapshot/fingerprint；callback
 identity/source/closure 不进入。调用顺序、冻结 context 和 output/result matrix 由
-[API mechanisms](../api-mechanics.md#custom-admission-policy) 完整拥有。
+[调度指南](../guides/scheduling.md#自定义准入-policy) 完整拥有。
 
 #### Learned critical-path strategy helper
 
 `createLearnedCriticalPathStrategy(...)` 返回 public prepared custom strategy，调用方将其放入
 `{ kind: "custom", strategy }`。Definition 按同一 custom grammar 验证它；factory 自己验证 history directory、
 caller identity projection 与 model controls。调用方提供的配置和 closure 遵循本页的 runtime/declarative 分工。
-具体参数、安全、退化及 observation 语义由[调度指南](../guides/scheduling.md#learned-critical-path-strategy)拥有，
+具体参数、安全、退化及 observation 语义由[调度指南](../guides/learned-scheduling.md)拥有，
 模型与 lifecycle 的实现归属见[架构](architecture.md#learned-critical-path-helper-owner)。
 
 ### Scheduler measurement Hooks
@@ -178,7 +137,7 @@ mutable Scheduler 或完整 interval history。
 function 的 identity、source 与 closure 不进入 declarative snapshot/fingerprint；nonempty configured list 或 successful
 prepared result 实际包含 `complete` 才启用 `outputs.measurementHooks`。终态调用顺序、context 形成、closed status 与主 Run
 failure 的优先级由
-[Architecture](architecture.md#execution-boundary) 和 [API mechanisms](../api-mechanics.md#outputs-与-runresult-边界)
+[Architecture](architecture.md#execution-boundary) 和 [API mechanisms](../guides/run-outputs.md#输出状态与失败处理)
 完整拥有。
 
 ### Admission policy context
@@ -190,111 +149,26 @@ failure 的优先级由
 - 其余动态 facts 包含 relation/mutex/resource candidates 的 `{ taskId, canAdmit }`、root/effective capacity、`admissionState.inspection.resources` 中每个资源的 `{ resourceId, capacity, inUse, available }`、running/settled/active-scope IDs、cancellation runtime facts，以及调用前已 flush 的 `measurement`。named shortage 的 selection rejection 使用 `resource-capacity-insufficient` 并列出所有不足资源的 required/occupancy facts。
 
 `measurement.cumulative` 只给有界累计 scalar/peak/discrete facts，完整 per-Task table 只属于 terminal raw measurement；`measurementCount` 和 `measurementAt(index)` 是 context 创建时捕获的 invocation-local append-only frozen action-observation prefix reader。`measurementAt(index)` 是同步 getter，不返回 live array 或 per-round slice；index 不在 `[0, measurementCount)` 时返回 `undefined`，即使 Scheduler 在该 callback return 后继续执行也不能读取后续 append。每条 observation 给出 accepted `select`/`wait` 的 sequence/kind/task identity、从其 post-action state 开始到下一次实际 custom callback 前结束的 occupancy interval，以及期间 admitted/settled effects。该 interval 是 closed union：`availability: "available"` 才含数值 `contribution`，`availability: "unavailable"` 只含 reason，绝不以全零伪造失效 timing；合法 zero span 仍是 available contribution。它不表达 action 因果、duration 或 critical path，也不暴露 private Scheduler object、`Set`/`Map`、Check options/functions/data、Records、messages、logger、clock、signal 或真实 Task command。完整 callback 的 trusted、reentrancy、hard guard 与 fault 边界见
-[深入 API 机制](../api-mechanics.md#custom-admission-policy)。
+[调度指南](../guides/scheduling.md#自定义准入-policy)。
 
 ### Check options preflight
 
-executable Check 可以提供 `preflight(options, signal)`，在本次 invocation 内准备 execution options。默认的同形 authored/prepared options 可以省略 preflight；如果 `Check<AuthoredOptions, PreparedOptions>` 声明了不同的 prepared shape，TypeScript 会要求提供 preflight。Definition 只保存 trusted function。Run 先处理 invocation cancellation precedence 并完成 `enabledByFlags` control；未结算的 Check 在 Scheduler admission 后、该 Check 的 author execution 前运行 task-local preflight。它受 direct relation、mutex、capacity、priority 与 cancellation 约束，不形成按 Definition 顺序的全局 preflight barrier。
+公开的 authoring 与结果 grammar 由[自定义 Check 指南](../guides/extending-check-lifecycle.md#preflight准备阻止或带-fallback-继续)定义；通用 final data/Record/messages 由 [API 机制](../api-mechanics.md#terminal-resultrecords-与-messages)定义。本节维护 Definition 与 invocation 之间的实现边界：
 
-preflight 只能返回以下 closed result 之一：
-
-```ts
-{ status: "success", preparedOptions, messages? }
-{ status: "failure", action: "block", reason, messages? }
-{ status: "failure", action: "continue", reason, fallback, messages? }
-```
-
-- `success` 以 `preparedOptions` 进入 execution。
-- `failure/block` 不允许 `fallback`，不调用 execution，并把 reason 原样用于 owning Check 的 `unavailable` outcome。
-- `failure/continue` 必须同时提供 reason 与 `fallback`，再以 fallback 进入 execution。reason 是 Check-owned diagnostic identity，当前不单独形成 outcome；需要调用方观察的详情应写入 `messages`。
-
-prepared/fallback 会被重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value；它既不回写 Definition authored options，也不改变 declarative fingerprint。preflight、execution 与 typed-provider parser 都是 trusted functions，不进入 fingerprint、Check facts 或 machine output。preflight 中捕获的 console messages、accepted preflight messages、execution 中捕获的 console messages 与 accepted terminal messages 依次排列；即使 execution 随后抛错，前两组仍会保留。
-
-Run 把同一 invocation cancellation signal 传给 preflight 和 execution；异步 preflight 应在等待工作中协作退出。preflight 是已经通过 `dependsOn` prerequisite、`observes` terminal wait、mutex 与 capacity admission 的单 Check task-local work，而不是 invocation-wide barrier；互不相关的 preflight 可以按 Scheduler 约束并行。取消以现有 execution-phase `cancelled` RunResult 结束。preflight throw 使用 `preflight-threw`；malformed result/message/reason 或 noncanonical prepared/fallback 使用 `invalid-preflight-result`。这些 preparation failure 只结算 owning Check，不把整个 Definition 变为 configuration failure。
-
-preflight `block` 的 Check 没有 author execution started fact，duration 为 `null`；它仍保留 unavailable fact、accepted preflight messages、aggregation、settled lifecycle 与 progress。因 direct `dependsOn` 非 `passed` 而未获 author work 的 Check 同样以 Product-owned `unavailable / dependency-not-passed` 结算，带稳定的 direct blocker `checkIds` 与 `null` duration；它不调用 preflight 或 execution，也没有 author Record/message。Check facts 不识别 package-provided Check ID，也不解释 files、thresholds、scanner commands、schemas、links 或 reminder policy。
-
-An executable Check returns exactly one terminal result, optionally with ordered terminal messages:
-
-```ts
-{ status: "passed", data: object, messages?: readonly CheckMessage[] }
-{ status: "failed", data: object, messages?: readonly CheckMessage[] }
-{ status: "not-applicable", reason?: { code: string }, messages?: readonly CheckMessage[] }
-{ status: "unavailable", reason: { code: string }, messages?: readonly CheckMessage[] }
-```
-
-`passed` and `failed` require an object final data value; an empty object is the authoring form for no domain data. A callback may separately call `records.report({ id }, data)` zero or more times. These final returns and two-argument reporting are the complete shared result surface: a Check owns its data shape, and a Project Run supplies only explicit invocation controls.
+- Definition 只保留 trusted preflight function，不执行它，也不把 callback identity/source/closure 放入 declarative fingerprint。Run 完成 graph validation 与 flag control 后，才由 admitted Task 执行 preflight；它使用同一次 cancellation signal，受 direct relations、mutex、capacity 和 priority 约束。
+- prepared/fallback 重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value，不回写 authored options 或 fingerprint。throw 映射 preflight-threw；malformed result/message/reason 或 noncanonical prepared/fallback 映射 invalid-preflight-result；失败只结算 owning Check，不升级为 Definition configuration failure。
+- preflight block 没有 author-execution started fact、duration 为 null，但保留 accepted preparation messages、terminal fact、aggregation 和 settled lifecycle。prerequisite-blocked Task 则不运行 preflight/execution，也没有 author Record/message；direct blocker facts 由 settlement 保存。
+- console/author message 依照 preparation、execution 的先后次序交付；即使 execution 后续抛错，已经接受的 preparation messages 仍保留。通用 terminal grammar 由 settlement 验证，Definition 不解释任何 Check 领域 data。
 
 ### Typed dependency data
 
-本节拥有 public typed provider 与 `dependencies.get` / `dependencies.list` contract。[Architecture](architecture.md) 拥有 runtime handoff，[Quality Metrics](check-results.md) 拥有四态 final-data availability，[Output](../output.md) 拥有独立 machine-publication boundary。
+公开的 provider 类型、parser 责任与 `dependencies.get` / `list` 契约由[依赖数据指南](../guides/check-dependencies.md)拥有。维护时区分三个边界：`defineCheck` overload 保留 synchronous parser 与 execution data 的类型关系；Definition validator 仅保存 executable object 的合法 function（自有 `undefined` 规范化为省略）；runtime handoff 根据 normalized direct relation union 提供已冻结 facts，不调用 parser。
 
-A TypeScript typed provider is authored through `defineCheck({ execution, parseData })`. Its synchronous
-parser return type is the provider-local data contract: the same type constrains that Check's `passed` and
-`failed` execution data, and the returned value retains `parseData` as a required function. The broad `Check`
-type deliberately remains the ordinary recursive/container surface and does not declare `parseData`; using
-`satisfies Check` or an inline `defineConfig` Check cannot establish the provider type relation. Ordinary
-executable Checks without a parser and recursive containers remain valid; a container cannot declare
-`parseData`.
+类型证据需覆盖 PromiseLike 拒绝与普通 recursive Check 仍合法；运行时证据需覆盖 direct 授权、四态可用性、稳定列表和 immutable handoff。[Architecture](architecture.md) 拥有 handoff 实现，[Check 结果](check-results.md)拥有 canonical settlement 不变量。
 
-The parser constraint carried by `defineCheck` preserves that synchronous boundary even when its result type is
-broad: an `async` parser or any parser returning `PromiseLike` is rejected. This does not add a separate named package-root
-type. It does not reject canonical
-JSON data merely because it has a `then` property: a non-callable `then` value remains ordinary data; only a
-callable `then` would make the returned value thenable.
+### Message attachment validation
 
-Runtime Definition validation still accepts a function parser on an executable trusted author object so that
-JavaScript and explicitly cast inputs reach the same closed grammar. That validation preserves the function
-but does not manufacture the TypeScript relation; the provider remains responsible for those shapes. An own
-`parseData: undefined` follows ordinary optional-property semantics: Definition normalizes it to omission and
-the materialized Check does not retain that key, so it does not create a typed provider.
-
-完整的 producer、consumer 与 `run(...)` 组合示例见[深入 API 机制的类型化依赖数据](../api-mechanics.md#类型化依赖数据)。
-
-`dependencies.get(checkId: string)` 有意保持 non-generic。它只授权当前 Check 的 normalized effective
-`dependsOn ∪ observes` direct ID，并包含两类 relation 各自继承得到的 ID；未声明、transitive、malformed 或其它未授权
-ID 都返回不携带 upstream fact 的 `dependency-not-declared`。已声明的 `passed` 或 `failed` outcome 返回其 status 与 canonical
-final data；`not-applicable` 或 `unavailable` 返回带该 status 的 `upstream-data-unavailable`。TypeScript type 不授予访问权：consumer
-先完成 string read、收窄结果，再调用 producing Check 的 parser。
-
-`dependencies.list()` 不接收 selection input。它返回冻结的 `{ checkId, outcome }` array，精确覆盖上述 normalized effective
-direct ID 并集，并按稳定 normalized ID 顺序排列。每个 `outcome` 是完整冻结的 Core `CheckOutcome`：`passed` 与 `failed` 保留 canonical
-final data，`not-applicable` 与 `unavailable` 保留原始 reason。结果包含两类 relation 各自继承的 direct ID，但绝不包含 ambient executed
-Checks、transitive dependencies、undeclared IDs、scheduler timing、Records 或改变 upstream execution 的方式。从 observation 读取 final
-data 的 consumer 仍调用 producing Check 的 parser，并且只能用 observations 形成自身 I/O、Records、messages 与 terminal result。
-
-The parser receives the Check-facts-owned canonical runtime object: a detached, deeply frozen object with canonical
-JSON values. It does not receive the author's original object or JSON text. The provider owns business-shape
-validation, version discrimination, thrown-error policy, and parser round-trip tests; Product neither calls
-the parser nor adds a parser-rejection result.
-
-As a heuristic rather than a guarantee, a same-version trusted provider whose tests guarantee the shape may
-implement `parseData` only as an identity/type anchor. That does not validate JavaScript or cast-based
-producers, historical or cross-version artifacts, or untrusted input. Validate those boundaries in the
-provider instead of treating TypeScript inference as runtime proof.
-
-每个 package-provided Check 都附带 Check-specific `parseData`，并从 package root 导出同一 final-data parser 与对应
-final-data type。它们验证单个 `passed` / `failed` data object 的 closed shape 与业务不变量；不解析 machine bytes，也不
-替代 v4 publication-set/schema validation。自定义 Check 仍自行决定是否提供 parser，Product 不建立 generic
-parser registry。
-
-Terminal messages and explicit visibility are two distinct primary Check capabilities. Messages provide final supplemental detail; visibility controls whether a settled human row remains visible. Neither changes the Check outcome, scheduling, Records, Check facts, or machine publication.
-
-`messages` is an optional dense ordered array of exact `{ level, code, message }` items. `level` is
-`info | warning | error`; author attachment 的 `code` 是 non-empty Check-owned string，`message` 是 non-empty string，
-without trimming, Unicode normalization, or a Product item/length cap。Product 捕获的 console call 使用
-`console-<method>` code 和对应 level；它不是 author attachment，但复用相同 settlement/readback presentation shape。
-`CheckMessage` is a supporting declaration used by `CheckResult`; it does not expand the package-root named-type inventory.
-Omitted, own-property `undefined`, and an empty array all mean no messages. Product keeps author item order
-without de-duplication or normalization. It validates the complete attachment
-descriptor-safely with the terminal result: a malformed item or attachment makes the author result
-unavailable and no partial messages are accepted. Messages are supplemental human/programmatic detail,
-not final data or supplemental Records.
-
-`presentCheckFindings({ findings, limit, message, omittedMessage })` 是公共 Check-authoring helper：producer
-决定非负上限和安全单条格式，超限 hook 决定省略项等级，并提供实际的完整明细读取位置。它只形成已冻结 messages，
-不建立统一 Finding/Record shape，也不替 producer 保存完整 facts。完整使用契约见
-[Finding 摘要指南](../guides/presenting-findings.md)。
+公开 message shape 与终态作用见 [API 机制](../api-mechanics.md#terminal-resultrecords-与-messages)，显示控制见[输出指南](../guides/run-outputs.md)。validator 以 descriptor-safe 方式整体接收 attachment：非法 item 不接受 partial messages；省略、自有 undefined 和空数组归一到无 messages，合法 attachment 保持 author 顺序且不去重。captured console 由 execution owner 生成，再复用同一 accepted-message readback shape。Finding helper 的输入与输出契约见[呈现指南](../guides/presenting-findings.md)，不是 Definition 的领域规则。
 
 ## Recursive Check tree
 
