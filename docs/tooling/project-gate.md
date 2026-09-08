@@ -33,12 +33,12 @@ package implementation 会绕过这个 candidate 边界，因此不允许。
 candidate preparation 完成后，每次 invocation 在 `.log/project-gate/<invocation-id>/` 创建自己的 evidence root。
 bound Run 将这个已创建的目录映射为 Product controls，不在 Product 内再建立一层目录：
 
-| 配置或能力 | Gate 选择 |
-| --- | --- |
-| `diagnosticLogFileNaming` | `channel` |
-| `diagnosticLogging.directory` | 本次 evidence root |
-| `machinePublication.directory` | root 下的 `machine/` |
-| `progressLogFile` | root 下的 `progress.log` |
+| 配置或能力                     | Gate 选择                  |
+| ------------------------------ | -------------------------- |
+| `diagnosticLogFileNaming`      | `channel`                  |
+| `diagnosticLogging.directory`  | 本次 evidence root         |
+| `machinePublication.directory` | root 下的 `machine/`       |
+| `progressLogFile`              | root 下的 `progress.log`   |
 | executable Check artifact base | 只授予 root 下的 `checks/` |
 
 因此布局固定为：
@@ -99,7 +99,16 @@ Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missin
 
 #### 并发与优先级
 
-scheduler 的 root `maxParallel` 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，Gate manifest 保证本地 relation 输入与 `observes` 可读性，Product 则拥有已选 `dependsOn` closure。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。
+scheduler 的 root `maxParallel`、named-resource budget 与跨 owner mutex 名称在 `definition.ts` 声明；Check 固有 timeout/mutex 可由其 owner 对象声明，Gate manifest 保证本地 relation 输入与 `observes` 可读性，Product 则拥有已选 `dependsOn` closure。external-consumer provider 独占 package lifecycle mutex；会读写 checked-in documentation materials 的 validation Checks 共享 documentation mutex。
+
+Gate 保留 root `maxParallel: 3`，并使用两个**逻辑** named-resource budget；unit 既不是 CPU core、内存量，也不是实测竞争系数：
+
+| Resource ID                     | Capacity / unit              | Claiming Checks                                                                                     | 静态分类理由                                                                                                                             |
+| ------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有 `tests-*` test-lane Check，各 claim `1`                                                        | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
+| `project-gate-repository-scans` | 2 个并发递归 repository scan | `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-link-validation`，各 claim `1` | 四项都会递归收集或读取 repository inputs；前三项还会运行 scanner 或 worker。预算避免让三项以上同类全树读取重叠，同时不把四项全部串行化。 |
+
+typecheck、lint、format、candidate provider、external-consumer provider 与 native documentation/governance Checks 不声明 named-resource claim：它们不属于以上同类工作预算；已有 package-lifecycle/documentation mutex 仍单独表达各自的独占关系。新声明必须先有同样可从 owner 恢复的共享工作特征和逻辑单位；不得因单次时长、高方差或“所有 Check 都用 CPU”扩大这些 budget。Product 继续验证 capacity/claim 合法性并原子持有/释放 units；模拟器可读取版本化映射，但必须自行定义竞争减速，不得从该表推断物理竞争或性能收益。
 
 静态 `admissionPriority` 也只由 `definition.ts` 配置。它只在同一 ready 层级内排序，不能越过 dependency、mutex、capacity、lifecycle 或 cancellation hard guard。当前 Gate 不声明非零 priority：成对测量没有同时改善 required 与 complete workload 的 median，因此所有 Check 的 effective priority 都是 `0`。
 
@@ -171,11 +180,11 @@ import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](.
 
 Hook 必须返回闭合的 `{ status, messages }`，且不能改写 context 或 RunResult；抛错或返回非法 shape 时 fail closed 为 `unavailable`。
 
-| 最终状态 | process exit |
-| --- | --- |
-| `passed` | `0` |
-| `failed` | `1` |
-| `unavailable` | `2` |
+| 最终状态      | process exit |
+| ------------- | ------------ |
+| `passed`      | `0`          |
+| `failed`      | `1`          |
+| `unavailable` | `2`          |
 
 参数、candidate、import、entry identity、log setup 或 execution boundary 在形成初步结果前失败时，也映射为 `2`。
 

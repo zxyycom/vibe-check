@@ -87,6 +87,9 @@ const qualityCheckIds: ReadonlySet<string> = new Set([
   "function-metrics",
   "markdown-link-validation"
 ]);
+const bunTestRunnerCheckIds: readonly string[] = expectedCheckIds.filter((checkId) =>
+  checkId.startsWith("tests-")
+);
 
 const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "prepared-external-package-consumer",
@@ -182,8 +185,18 @@ describe("Project Gate Definition", () => {
         measurementHooks: definition.scheduler.measurementHooks,
         resourceCapacities: definition.scheduler.resourceCapacities
       },
-      { maxParallel: 3, measurementHooks: [], resourceCapacities: {} }
+      {
+        maxParallel: 3,
+        measurementHooks: [],
+        resourceCapacities: {
+          "project-gate-bun-test-runners": 2,
+          "project-gate-repository-scans": 2
+        }
+      }
     );
+    for (const check of definition.checks) {
+      assert.deepEqual(check.resourceClaims, expectedResourceClaimsFor(check.checkId));
+    }
     assert.deepEqual(PROJECT_GATE_RUN_CONFIG.selection, {
       complete: "all",
       default: "required",
@@ -796,6 +809,16 @@ describe("Project Gate Definition", () => {
     }
   });
 });
+
+function expectedResourceClaimsFor(checkId: string): Readonly<Record<string, number>> | undefined {
+  if (bunTestRunnerCheckIds.includes(checkId)) {
+    return { "project-gate-bun-test-runners": 1 };
+  }
+  if (qualityCheckIds.has(checkId)) {
+    return { "project-gate-repository-scans": 1 };
+  }
+  return undefined;
+}
 
 function testEvidenceRuleDependencies(
   result: Readonly<{

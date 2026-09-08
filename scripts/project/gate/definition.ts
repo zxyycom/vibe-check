@@ -44,6 +44,12 @@ const documentationMaterialsMutex = ["project-gate-documentation-materials"] as 
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
 const packageAcceptanceTimeoutMs = 30_000;
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+const projectGateBunTestRunnerResourceClaims = Object.freeze({
+  "project-gate-bun-test-runners": 1
+});
+const projectGateRepositoryScanResourceClaims = Object.freeze({
+  "project-gate-repository-scans": 1
+});
 
 /**
  * Project-owned post-processing run after one candidate-backed Product result.
@@ -86,7 +92,11 @@ export const PROJECT_GATE_RUN_CONFIG = Object.freeze({
         stateDirectory: resolve(repositoryRoot, ".cache/vibe-check/scheduler-history")
       })
     }),
-    maxParallel: 3
+    maxParallel: 3,
+    resourceCapacities: Object.freeze({
+      "project-gate-bun-test-runners": 2,
+      "project-gate-repository-scans": 2
+    })
   })
 });
 
@@ -172,13 +182,16 @@ function createProjectGateCandidateAndTestEntries(
       presets: [],
       required: false
     }),
-    ...createProjectGateTestEntries({
-      definitions: projectGateTestChecks,
-      externalConsumer,
-      lanes: testLanes,
-      preparedCandidate,
-      repositoryRoot
-    })
+    ...withProjectGateResourceClaims(
+      createProjectGateTestEntries({
+        definitions: projectGateTestChecks,
+        externalConsumer,
+        lanes: testLanes,
+        preparedCandidate,
+        repositoryRoot
+      }),
+      projectGateBunTestRunnerResourceClaims
+    )
   ];
 }
 
@@ -186,28 +199,44 @@ function createProjectGateCandidateAndTestEntries(
 function createProjectGateRepositoryQualityEntries(
   repositoryQuality: ReturnType<typeof createProjectGateRepositoryQualityChecks>
 ): readonly ProjectGateEntry[] {
-  return [
-    createProjectGateCommonEntry({
-      check: repositoryQuality.duplicateDetection,
-      presets: ["quality"],
-      required: true
-    }),
-    createProjectGateCommonEntry({
-      check: repositoryQuality.fileMetrics,
-      presets: ["quality"],
-      required: true
-    }),
-    createProjectGateCommonEntry({
-      check: repositoryQuality.functionMetrics,
-      presets: ["quality"],
-      required: true
-    }),
-    createProjectGateCommonEntry({
-      check: repositoryQuality.markdownLinkValidation,
-      presets: ["docs", "quality"],
-      required: true
+  return withProjectGateResourceClaims(
+    [
+      createProjectGateCommonEntry({
+        check: repositoryQuality.duplicateDetection,
+        presets: ["quality"],
+        required: true
+      }),
+      createProjectGateCommonEntry({
+        check: repositoryQuality.fileMetrics,
+        presets: ["quality"],
+        required: true
+      }),
+      createProjectGateCommonEntry({
+        check: repositoryQuality.functionMetrics,
+        presets: ["quality"],
+        required: true
+      }),
+      createProjectGateCommonEntry({
+        check: repositoryQuality.markdownLinkValidation,
+        presets: ["docs", "quality"],
+        required: true
+      })
+    ],
+    projectGateRepositoryScanResourceClaims
+  );
+}
+
+/** Adds one Gate-owned logical resource claim to a homogeneous entry group. */
+function withProjectGateResourceClaims(
+  entries: readonly ProjectGateEntry[],
+  resourceClaims: Readonly<Record<string, number>>
+): readonly ProjectGateEntry[] {
+  return entries.map((entry) =>
+    Object.freeze({
+      ...entry,
+      check: Object.freeze({ ...entry.check, resourceClaims })
     })
-  ];
+  );
 }
 
 /** Creates native documentation validation and repository-governance entries. */
