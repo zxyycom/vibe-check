@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "protocolId": "simple-admission-algorithm-comparison-v1",
+  "baseline": {
+    "kind": "public-createLearnedCriticalPathStrategy",
+    "rule": "Each regime prepares the public helper against the same isolated frozen synthetic history from which every candidate receives its taskId-to-estimate map. The helper retains its own public tightening/continuation layer logic."
+  },
+  "predictionRegimes": [
+    {
+      "id": "cold-all-1",
+      "kind": "empty-history",
+      "expectedSource": "cold-start",
+      "expectedSampleCount": 0,
+      "expectedEstimateRule": "all task estimates are 1"
+    },
+    {
+      "id": "synthetic-nonuniform",
+      "kind": "public-complete-recorded-history",
+      "expectedSource": "learned",
+      "expectedSampleCount": 1,
+      "expectedEstimateRule": "one synthetic completed duration equal to the declared profile nominalWorkMs per task"
+    },
+    {
+      "id": "synthetic-mismatch",
+      "kind": "public-complete-recorded-history",
+      "expectedSource": "learned",
+      "expectedSampleCount": 1,
+      "expectedEstimateRule": "one fixed cyclic permutation of declared profile nominalWorkMs by canonical task ID; it is deliberately not simulation work"
+    }
+  ],
+  "legacyColdFixtureIds": [
+    "empty", "single", "chain", "two-shared-claims", "wide-tie", "backfill", "scoped-capacity", "weighted-mutex-multi-resource", "profile-variation", "long-tail-critical", "unsatisfied-observes", "gate-shape-v1", "learned-heuristic-weighted-shared-dependency-regression"
+  ],
+  "newScenarioIds": [
+    "packing-33222", "packing-5432", "unlock-long-tail", "weighted-resource-choice", "constrained-scope-choice", "regression-id-permutation-a", "regression-id-permutation-b"
+  ],
+  "replicates": 5,
+  "seed": 7,
+  "policies": [
+    {
+      "id": "public-learned-baseline",
+      "rule": "Actual public helper with its own scope layers and frozen history."
+    },
+    {
+      "id": "spt-global",
+      "rule": "Across all global canAdmit candidates, estimate ascending, then admissionPriority descending, then taskId ascending."
+    },
+    {
+      "id": "lpt-global",
+      "rule": "Across all global canAdmit candidates, estimate descending, then admissionPriority descending, then taskId ascending."
+    },
+    {
+      "id": "critical-path-global",
+      "rule": "Across all global canAdmit candidates, static longest path score descending, then admissionPriority descending, then taskId ascending; edges include dependsOn and observes."
+    },
+    {
+      "id": "bounded-bnb-global",
+      "rule": "At each decision, branch over all public legal select actions and wait when running work exists; use 4096 expansions, safe optimistic lower bound, and a legal CP-greedy incumbent fallback."
+    }
+  ],
+  "bnb": {
+    "nodeBudgetPerDecision": 4096,
+    "model": "all settlements satisfied; graph/state legality from public immutable AdmissionState; no contention slowdown; running remaining is conservatively re-estimated as its full frozen prediction at each observed boundary",
+    "lowerBound": "elapsed + max(max currently-running predicted remaining, total unsettled predicted work / graph.root maxParallel)",
+    "completeness": "Only a result marked complete is optimal for this hypothetical prediction model, one scenario state and the enumerated select-plus-wait action space. Truncated results are not optimality claims."
+  },
+  "cost": {
+    "contexts": [
+      { "scenarioId": "packing-5432", "regimeId": "synthetic-nonuniform", "maxDecisionContexts": 6 },
+      { "scenarioId": "unlock-long-tail", "regimeId": "synthetic-nonuniform", "maxDecisionContexts": 6 },
+      { "scenarioId": "weighted-mutex-multi-resource", "regimeId": "cold-all-1", "maxDecisionContexts": 6 },
+      { "scenarioId": "gate-shape-v1", "regimeId": "cold-all-1", "maxDecisionContexts": 6 }
+    ],
+    "warmups": 2,
+    "samples": 9,
+    "corpusIterations": 1,
+    "timer": "performance.now surrounds only a direct synchronous decide loop. The timed public handles are constructed without an observe callback, so no external observer callback runs in the interval. Preparation, synthetic-history materialization, corpus capture and disposal are excluded; prepare elapsed is reported separately.",
+    "order": "cyclic policy order by sample index"
+  },
+  "adoptionScreen": "After reporting every result, retain the old no-regression per-scenario makespan and secondary metrics plus at least one eligible improvement and p95 <= 1.25x public baseline. This is an unchanged screen, not an experiment filter or automatic adoption authority."
+}

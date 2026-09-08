@@ -1,0 +1,141 @@
+--- a/src/learned-critical-path/strategy.ts
++++ b/src/learned-critical-path/strategy.ts
+@@ -185,47 +185,74 @@
+   return Object.freeze({ kind: "select", taskId: selected.taskId });
+ }
+ 
++/**
++ * Preserves selection layers while preferring public availability, then resource-claim backlog on score/priority ties.
++ */
+ function selectLearnedCandidate(
+   context: AdmissionPolicyContext,
+   criticalPath: SchedulerCriticalPathSnapshot
+ ): AdmissionPolicyContext["candidates"][number] {
+   const layers = learnedSelectionLayers(context);
+-  if (layers.tightening.length > 0)
++  const hasAdmissibleCandidate = context.candidates.some((candidate) => candidate.canAdmit);
++  const candidates = candidatesForLearnedSelection(context.candidates, hasAdmissibleCandidate);
++  const resourceBacklog = resourceBacklogForCandidates(context.candidates, layers.taskById);
++  const tightening = candidatesForLearnedSelection(layers.tightening, hasAdmissibleCandidate);
++  const continuation = candidatesForLearnedSelection(layers.continuation, hasAdmissibleCandidate);
++  if (tightening.length > 0)
+     return requiredFirst(
+-      sortConstrained(layers.tightening, layers.taskById, layers.scopeById, criticalPath)
++      sortConstrained(tightening, layers.taskById, layers.scopeById, criticalPath, resourceBacklog)
+     );
+-  if (layers.continuation.length > 0)
++  if (continuation.length > 0)
+     return requiredFirst(
+-      sortConstrained(layers.continuation, layers.taskById, layers.scopeById, criticalPath)
++      sortConstrained(
++        continuation,
++        layers.taskById,
++        layers.scopeById,
++        criticalPath,
++        resourceBacklog
++      )
+     );
+   return requiredFirst(
+-    [...context.candidates].sort(learnedCandidateComparator(layers.taskById, criticalPath))
++    [...candidates].sort(learnedCandidateComparator(layers.taskById, criticalPath, resourceBacklog))
+   );
+ }
+ 
++function candidatesForLearnedSelection(
++  candidates: readonly AdmissionPolicyContext["candidates"][number][],
++  hasAdmissibleCandidate: boolean
++): readonly AdmissionPolicyContext["candidates"][number][] {
++  return hasAdmissibleCandidate ? candidates.filter((candidate) => candidate.canAdmit) : candidates;
++}
++
+ function learnedCandidateComparator(
+   taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
+-  criticalPath: SchedulerCriticalPathSnapshot
++  criticalPath: SchedulerCriticalPathSnapshot,
++  resourceBacklog: ReadonlyMap<string, number>
+ ): (
+   left: AdmissionPolicyContext["candidates"][number],
+   right: AdmissionPolicyContext["candidates"][number]
+ ) => number {
+-  return (left, right) => compareLearnedTasks(taskById, criticalPath, left.taskId, right.taskId);
++  return (left, right) =>
++    compareLearnedTasks(taskById, criticalPath, resourceBacklog, left.taskId, right.taskId);
+ }
+ 
+ function sortConstrained(
+   candidates: readonly AdmissionPolicyContext["candidates"][number][],
+   taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
+   scopeById: ReadonlyMap<string, SchedulerGraphSnapshot["scopes"][number]>,
+-  criticalPath: SchedulerCriticalPathSnapshot
++  criticalPath: SchedulerCriticalPathSnapshot,
++  resourceBacklog: ReadonlyMap<string, number>
+ ): AdmissionPolicyContext["candidates"][number][] {
+-  return [...candidates].sort(learnedConstrainedComparator(taskById, scopeById, criticalPath));
++  return [...candidates].sort(
++    learnedConstrainedComparator(taskById, scopeById, criticalPath, resourceBacklog)
++  );
+ }
+ 
+ function learnedConstrainedComparator(
+   taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
+   scopeById: ReadonlyMap<string, SchedulerGraphSnapshot["scopes"][number]>,
+-  criticalPath: SchedulerCriticalPathSnapshot
++  criticalPath: SchedulerCriticalPathSnapshot,
++  resourceBacklog: ReadonlyMap<string, number>
+ ): (
+   left: AdmissionPolicyContext["candidates"][number],
+   right: AdmissionPolicyContext["candidates"][number]
+@@ -235,7 +262,7 @@
+     const rightScope = requiredLearnedScope(right, taskById, scopeById);
+     return (
+       leftScope.maxParallel - rightScope.maxParallel ||
+-      compareLearnedTasks(taskById, criticalPath, left.taskId, right.taskId) ||
++      compareLearnedTasks(taskById, criticalPath, resourceBacklog, left.taskId, right.taskId) ||
+       compareText(leftScope.id, rightScope.id) ||
+       compareText(left.taskId, right.taskId)
+     );
+@@ -256,6 +283,7 @@
+ function compareLearnedTasks(
+   taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>,
+   criticalPath: SchedulerCriticalPathSnapshot,
++  resourceBacklog: ReadonlyMap<string, number>,
+   leftId: string,
+   rightId: string
+ ): number {
+@@ -270,10 +298,36 @@
+   return (
+     rightScore - leftScore ||
+     right.admissionPriority - left.admissionPriority ||
++    resourceBacklogScore(right, resourceBacklog) - resourceBacklogScore(left, resourceBacklog) ||
+     compareText(leftId, rightId)
+   );
+ }
+ 
++function resourceBacklogForCandidates(
++  candidates: readonly AdmissionPolicyContext["candidates"][number][],
++  taskById: ReadonlyMap<string, SchedulerGraphSnapshot["tasks"][number]>
++): ReadonlyMap<string, number> {
++  const backlog = new Map<string, number>();
++  for (const candidate of candidates) {
++    const task = taskById.get(candidate.taskId);
++    if (task === undefined) throw new Error("learned candidate is missing from graph");
++    for (const claim of task.resourceClaims) {
++      backlog.set(claim.resourceId, (backlog.get(claim.resourceId) ?? 0) + claim.units);
++    }
++  }
++  return backlog;
++}
++
++function resourceBacklogScore(
++  task: SchedulerGraphSnapshot["tasks"][number],
++  resourceBacklog: ReadonlyMap<string, number>
++): number {
++  return task.resourceClaims.reduce(
++    (score, claim) => score + claim.units * (resourceBacklog.get(claim.resourceId) ?? 0),
++    0
++  );
++}
++
+ function observe(
+   options: LearnedCriticalPathStrategyOptions,
+   event: LearnedCriticalPathObservation

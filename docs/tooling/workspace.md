@@ -187,6 +187,12 @@ c2 在 v2 的固定 5 个 replicate 中均把该反例的 makespan 从基线 `20
 若要重放历史结果，调用方必须自行提供与 evidence identity 相符的两个公开 package artifact；清理 ignored
 raw output 不改变这一边界。
 
+形成时的方案对照、反例解释及 baseline→c2 源码差异见
+[启发式未采用调查报告](../investigations/explain-learned-heuristic-rejection.md)。报告保存本轮认识，
+不替代本节的当前工具契约，也不授权采用历史候选。
+后续 [简单算法比较调查报告](../investigations/compare-simple-admission-algorithms.md) 扩展了 SPT、LPT、
+关键路径贪婪与有界搜索的实验范围；其资源仅供该轮调查复核，未替换 Product 策略或本节的工具入口。
+
 ### 治理、来源映射与 Project Gate 调用
 
 `bun run investigations` 默认执行完整检查。列出或同步 Investigation 索引时使用 `bun run investigations -- list` 或 `bun run investigations -- sync-index`；命令从当前仓库根目录推定 root。只有需要覆盖该默认值时才把 `--root <path>` 放在子命令之后，例如 `bun run investigations -- list --root <path>`。

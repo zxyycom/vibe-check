@@ -1,0 +1,1745 @@
+{
+  "bnb": {
+    "calls": 1340,
+    "completeCalls": 1060,
+    "selfValidation": {
+      "small": {
+        "packing-33222": {
+          "exhaustive": {
+            "complete": true,
+            "expanded": 6007,
+            "firstAction": {
+              "kind": "select",
+              "taskId": "p3b"
+            },
+            "predictedMakespan": 6,
+            "pruned": 0
+          },
+          "pruned": {
+            "complete": true,
+            "expanded": 89,
+            "firstAction": {
+              "kind": "select",
+              "taskId": "p3b"
+            },
+            "predictedMakespan": 6,
+            "pruned": 38
+          }
+        },
+        "packing-5432": {
+          "exhaustive": {
+            "complete": true,
+            "expanded": 761,
+            "firstAction": {
+              "kind": "select",
+              "taskId": "p5"
+            },
+            "predictedMakespan": 7,
+            "pruned": 0
+          },
+          "pruned": {
+            "complete": true,
+            "expanded": 1,
+            "firstAction": {
+              "kind": "select",
+              "taskId": "p5"
+            },
+            "predictedMakespan": 7,
+            "pruned": 1
+          }
+        },
+        "unlock-long-tail": {
+          "exhaustive": {
+            "complete": true,
+            "expanded": 341,
+            "firstAction": {
+              "kind": "select",
+              "taskId": "unlock"
+            },
+            "predictedMakespan": 13,
+            "pruned": 0
+          },
+          "pruned": {
+            "complete": true,
+            "expanded": 96,
+            "firstAction": {
+              "kind": "select",
+              "taskId": "unlock"
+            },
+            "predictedMakespan": 13,
+            "pruned": 44
+          }
+        }
+      },
+      "truncatedWithoutPruning": {
+        "complete": false,
+        "expanded": 4096,
+        "firstAction": {
+          "kind": "select",
+          "taskId": "x0"
+        },
+        "predictedMakespan": 6,
+        "pruned": 0
+      },
+      "zeroBudgetLegalFallback": {
+        "complete": false,
+        "expanded": 0,
+        "firstAction": {
+          "kind": "select",
+          "taskId": "x0"
+        },
+        "predictedMakespan": 6,
+        "pruned": 0
+      }
+    },
+    "truncatedCalls": 280
+  },
+  "costRuns": [
+    {
+      "adoptionScreen": {
+        "costP95Ms": {
+          "bounded-bnb-global": 1740.6733659999954,
+          "critical-path-global": 0.2738589999935357,
+          "lpt-global": 0.10670899999968242,
+          "public-learned-baseline": 0.38255100000242237,
+          "spt-global": 0.13956900000630412
+        },
+        "preservedThreshold": 0.47818875000302796,
+        "rule": "reported only; no product adoption is performed by this experiment",
+        "successfulRecords": 170,
+        "totalRecords": 170
+      },
+      "cost": {
+        "contextCount": 21,
+        "contextHash": "sha256:94574799358baceaada11dfac107d1031ce39f5ec470a1965417316d9d9fd46f",
+        "perPolicy": {
+          "bounded-bnb-global": {
+            "p50Ms": 1698.4504140000063,
+            "p95Ms": 1740.6733659999954,
+            "prepareMs": 0.15912700001354096,
+            "samplesMs": [
+              1727.8509090000007,
+              1737.5623239999986,
+              1740.6733659999954,
+              1650.8261829999974,
+              1615.7360080000071,
+              1631.904309000005,
+              1708.901788999996,
+              1698.4504140000063,
+              1650.2852490000078
+            ]
+          },
+          "critical-path-global": {
+            "p50Ms": 0.20066200000292156,
+            "p95Ms": 0.2738589999935357,
+            "prepareMs": 0.09452499999315478,
+            "samplesMs": [
+              0.15341500000067754,
+              0.18408199999976205,
+              0.1675119999999879,
+              0.20066200000292156,
+              0.231921999991755,
+              0.162901999996393,
+              0.2738589999935357,
+              0.2170439999899827,
+              0.20215599999937695
+            ]
+          },
+          "lpt-global": {
+            "p50Ms": 0.0424090000014985,
+            "p95Ms": 0.10670899999968242,
+            "prepareMs": 0.10630699999455828,
+            "samplesMs": [
+              0.036917999997967854,
+              0.04166799999802606,
+              0.05918999999994412,
+              0.0424090000014985,
+              0.056205000000773,
+              0.043210999996517785,
+              0.0356960000062827,
+              0.10670899999968242,
+              0.041437000007135794
+            ]
+          },
+          "public-learned-baseline": {
+            "p50Ms": 0.25443300000188174,
+            "p95Ms": 0.38255100000242237,
+            "prepareMs": 19.552547999992385,
+            "samplesMs": [
+              0.16579800000181422,
+              0.25443300000188174,
+              0.38255100000242237,
+              0.31055700000433717,
+              0.2686589999939315,
+              0.17759000000660308,
+              0.24405300000216812,
+              0.21598100000119302,
+              0.30367399999522604
+            ]
+          },
+          "spt-global": {
+            "p50Ms": 0.07485900000028778,
+            "p95Ms": 0.13956900000630412,
+            "prepareMs": 0.2522679999601678,
+            "samplesMs": [
+              0.05409000000508968,
+              0.10747999999875901,
+              0.0866810000006808,
+              0.07973800000036135,
+              0.06860800000140443,
+              0.05490200000349432,
+              0.13956900000630412,
+              0.07485900000028778,
+              0.05008300000918098
+            ]
+          }
+        }
+      },
+      "label": "retained-predicted-makespan-validation",
+      "rawEvidenceSha256": "sha256:19d12198890a4fc7d3eb5188f03b6dcd21657f25ba0c756dea061559958d1e95",
+      "reason": "Retained full execution used to validate predicted makespan; its raw output is the first retained raw cache, not the historical superseded run.",
+      "runtimeCachePath": "/tmp/vibe-check-simple-admission-comparison-full-evidence.json"
+    },
+    {
+      "adoptionScreen": {
+        "costP95Ms": {
+          "bounded-bnb-global": 1712.8678609999915,
+          "critical-path-global": 0.22857400000066264,
+          "lpt-global": 0.07451799999398645,
+          "public-learned-baseline": 0.4618380000028992,
+          "spt-global": 0.1619009999994887
+        },
+        "preservedThreshold": 0.577297500003624,
+        "rule": "reported only; no product adoption is performed by this experiment",
+        "successfulRecords": 170,
+        "totalRecords": 170
+      },
+      "cost": {
+        "contextCount": 21,
+        "contextHash": "sha256:94574799358baceaada11dfac107d1031ce39f5ec470a1965417316d9d9fd46f",
+        "perPolicy": {
+          "bounded-bnb-global": {
+            "p50Ms": 1669.9098130000057,
+            "p95Ms": 1712.8678609999915,
+            "prepareMs": 0.08870499998738524,
+            "samplesMs": [
+              1689.4238639999967,
+              1702.1139789999943,
+              1703.8554529999965,
+              1661.4906000000046,
+              1626.244571000003,
+              1621.0566640000034,
+              1666.2930659999984,
+              1712.8678609999915,
+              1669.9098130000057
+            ]
+          },
+          "critical-path-global": {
+            "p50Ms": 0.18503399999463,
+            "p95Ms": 0.22857400000066264,
+            "prepareMs": 0.08315399999264628,
+            "samplesMs": [
+              0.22857400000066264,
+              0.18503399999463,
+              0.14194400000269525,
+              0.17434399999910966,
+              0.22584900000947528,
+              0.19201699999393895,
+              0.1625930000009248,
+              0.15664099999412429,
+              0.18944200000260025
+            ]
+          },
+          "lpt-global": {
+            "p50Ms": 0.04033499999786727,
+            "p95Ms": 0.07451799999398645,
+            "prepareMs": 0.07622199999605073,
+            "samplesMs": [
+              0.03764999999839347,
+              0.03770999999687774,
+              0.05145500000071479,
+              0.07451799999398645,
+              0.03708899999037385,
+              0.0408259999967413,
+              0.03709899999375921,
+              0.05170599999837577,
+              0.04033499999786727
+            ]
+          },
+          "public-learned-baseline": {
+            "p50Ms": 0.2509470000077272,
+            "p95Ms": 0.4618380000028992,
+            "prepareMs": 16.542594999991707,
+            "samplesMs": [
+              0.16465600000083214,
+              0.20381900000211317,
+              0.39596500000334345,
+              0.4618380000028992,
+              0.2757629999978235,
+              0.1807859999971697,
+              0.25617600000987295,
+              0.20325800000864547,
+              0.2509470000077272
+            ]
+          },
+          "spt-global": {
+            "p50Ms": 0.06618300000263844,
+            "p95Ms": 0.1619009999994887,
+            "prepareMs": 0.2885980000210111,
+            "samplesMs": [
+              0.0556529999958002,
+              0.10537599999952363,
+              0.06618300000263844,
+              0.1007370000006631,
+              0.055051999996067025,
+              0.06187499999941792,
+              0.1619009999994887,
+              0.07172399999399204,
+              0.055162999997264706
+            ]
+          }
+        }
+      },
+      "label": "retained-public-artifact-output-validation",
+      "rawEvidenceSha256": "sha256:986e447185c9f7dcc677c36ff7897005878e6e31b7f4c2683ed948ae8b1a4e3f",
+      "reason": "Retained full execution after public-artifact dynamic-import and Node filesystem-output refactor only; no algorithm, input, protocol or budget change.",
+      "runtimeCachePath": "/tmp/vibe-check-simple-admission-comparison-rerun-full-evidence.json"
+    }
+  ],
+  "historicalSupersededRun": {
+    "knownConsoleP95Ms": {
+      "bounded-bnb-global": 1686.4410020000068,
+      "critical-path-global": 0.22987699999066535,
+      "lpt-global": 0.11090600000170525,
+      "public-learned-baseline": 1.6371700000017881,
+      "spt-global": 0.11259000000427477
+    },
+    "knownResultSummary": "The then-observed 170 policy records succeeded; the later two retained runs have identical per-replicate makespan and commitment results, but the first raw trace/timing samples are unavailable.",
+    "label": "superseded-pre-cache-run",
+    "rawEvidenceStatus": "not-retained",
+    "reason": "This first successful execution used the same evidence.json output path. It was superseded by the later predicted-makespan validation rerun before raw-output cache retention was introduced; no safe full raw reconstruction is claimed."
+  },
+  "protocolSha256": "c485a80781b2544168354ff840be25f676c03676841fb7407e106ccbda6d38c9",
+  "resultsIdenticalAcrossRuns": true,
+  "retainedRunsBoundary": "runs contains the two later raw outputs only; it does not enumerate the superseded-pre-cache-run above.",
+  "scenarios": [
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          200,
+          200,
+          200,
+          200,
+          200
+        ],
+        "critical-path-global": [
+          200,
+          200,
+          200,
+          200,
+          200
+        ],
+        "lpt-global": [
+          200,
+          200,
+          200,
+          200,
+          200
+        ],
+        "public-learned-baseline": [
+          200,
+          200,
+          200,
+          200,
+          200
+        ],
+        "spt-global": [
+          200,
+          200,
+          200,
+          200,
+          200
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "backfill"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "critical-path-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "lpt-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "public-learned-baseline": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "spt-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "chain"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "critical-path-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "lpt-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "public-learned-baseline": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "spt-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "constrained-scope-choice"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "critical-path-global": [
+          19,
+          19,
+          19,
+          19,
+          19
+        ],
+        "lpt-global": [
+          19,
+          19,
+          19,
+          19,
+          19
+        ],
+        "public-learned-baseline": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "spt-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ]
+      },
+      "predictionRegime": "synthetic-mismatch",
+      "scenarioId": "constrained-scope-choice"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "critical-path-global": [
+          19,
+          19,
+          19,
+          19,
+          19
+        ],
+        "lpt-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "public-learned-baseline": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "spt-global": [
+          19,
+          19,
+          19,
+          19,
+          19
+        ]
+      },
+      "predictionRegime": "synthetic-nonuniform",
+      "scenarioId": "constrained-scope-choice"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "critical-path-global": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "lpt-global": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "public-learned-baseline": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "spt-global": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "empty"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "critical-path-global": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "lpt-global": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "public-learned-baseline": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "spt-global": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "gate-shape-v1"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "critical-path-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "lpt-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "public-learned-baseline": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "spt-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "learned-heuristic-weighted-shared-dependency-regression"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          120,
+          120,
+          120,
+          120,
+          570
+        ],
+        "critical-path-global": [
+          120,
+          120,
+          120,
+          120,
+          570
+        ],
+        "lpt-global": [
+          120,
+          120,
+          120,
+          120,
+          570
+        ],
+        "public-learned-baseline": [
+          120,
+          120,
+          120,
+          120,
+          570
+        ],
+        "spt-global": [
+          120,
+          120,
+          120,
+          120,
+          570
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "long-tail-critical"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "critical-path-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "lpt-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "public-learned-baseline": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "spt-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "packing-33222"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "critical-path-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "lpt-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "public-learned-baseline": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "spt-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ]
+      },
+      "predictionRegime": "synthetic-mismatch",
+      "scenarioId": "packing-33222"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "critical-path-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "lpt-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "public-learned-baseline": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "spt-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ]
+      },
+      "predictionRegime": "synthetic-nonuniform",
+      "scenarioId": "packing-33222"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "critical-path-global": [
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "lpt-global": [
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "public-learned-baseline": [
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "spt-global": [
+          8,
+          8,
+          8,
+          8,
+          8
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "packing-5432"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          9,
+          9,
+          9,
+          9,
+          9
+        ],
+        "critical-path-global": [
+          9,
+          9,
+          9,
+          9,
+          9
+        ],
+        "lpt-global": [
+          9,
+          9,
+          9,
+          9,
+          9
+        ],
+        "public-learned-baseline": [
+          9,
+          9,
+          9,
+          9,
+          9
+        ],
+        "spt-global": [
+          9,
+          9,
+          9,
+          9,
+          9
+        ]
+      },
+      "predictionRegime": "synthetic-mismatch",
+      "scenarioId": "packing-5432"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "critical-path-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "lpt-global": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "public-learned-baseline": [
+          7,
+          7,
+          7,
+          7,
+          7
+        ],
+        "spt-global": [
+          8,
+          8,
+          8,
+          8,
+          8
+        ]
+      },
+      "predictionRegime": "synthetic-nonuniform",
+      "scenarioId": "packing-5432"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          1581.3672490000001,
+          1500.032504,
+          1496.602434,
+          1460.749573,
+          1636.350432
+        ],
+        "critical-path-global": [
+          1581.3672490000001,
+          1500.032504,
+          1496.602434,
+          1460.749573,
+          1636.350432
+        ],
+        "lpt-global": [
+          1581.3672490000001,
+          1500.032504,
+          1496.602434,
+          1460.749573,
+          1636.350432
+        ],
+        "public-learned-baseline": [
+          1581.3672490000001,
+          1500.032504,
+          1496.602434,
+          1460.749573,
+          1636.350432
+        ],
+        "spt-global": [
+          1581.3672490000001,
+          1500.032504,
+          1496.602434,
+          1460.749573,
+          1636.350432
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "profile-variation"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          300,
+          300,
+          300,
+          300,
+          300
+        ],
+        "critical-path-global": [
+          300,
+          300,
+          300,
+          300,
+          300
+        ],
+        "lpt-global": [
+          304,
+          304,
+          304,
+          304,
+          304
+        ],
+        "public-learned-baseline": [
+          304,
+          304,
+          304,
+          304,
+          304
+        ],
+        "spt-global": [
+          304,
+          304,
+          304,
+          304,
+          304
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "regression-id-permutation-a"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "critical-path-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "lpt-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "public-learned-baseline": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "spt-global": [
+          304,
+          304,
+          304,
+          304,
+          304
+        ]
+      },
+      "predictionRegime": "synthetic-mismatch",
+      "scenarioId": "regression-id-permutation-a"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "critical-path-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "lpt-global": [
+          300,
+          300,
+          300,
+          300,
+          300
+        ],
+        "public-learned-baseline": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "spt-global": [
+          304,
+          304,
+          304,
+          304,
+          304
+        ]
+      },
+      "predictionRegime": "synthetic-nonuniform",
+      "scenarioId": "regression-id-permutation-a"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "critical-path-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "lpt-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "public-learned-baseline": [
+          205,
+          205,
+          205,
+          205,
+          205
+        ],
+        "spt-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "regression-id-permutation-b"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "critical-path-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "lpt-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "public-learned-baseline": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "spt-global": [
+          304,
+          304,
+          304,
+          304,
+          304
+        ]
+      },
+      "predictionRegime": "synthetic-mismatch",
+      "scenarioId": "regression-id-permutation-b"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "critical-path-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "lpt-global": [
+          204,
+          204,
+          204,
+          204,
+          204
+        ],
+        "public-learned-baseline": [
+          205,
+          205,
+          205,
+          205,
+          205
+        ],
+        "spt-global": [
+          205,
+          205,
+          205,
+          205,
+          205
+        ]
+      },
+      "predictionRegime": "synthetic-nonuniform",
+      "scenarioId": "regression-id-permutation-b"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          40,
+          40,
+          40,
+          40,
+          40
+        ],
+        "critical-path-global": [
+          40,
+          40,
+          40,
+          40,
+          40
+        ],
+        "lpt-global": [
+          40,
+          40,
+          40,
+          40,
+          40
+        ],
+        "public-learned-baseline": [
+          40,
+          40,
+          40,
+          40,
+          40
+        ],
+        "spt-global": [
+          40,
+          40,
+          40,
+          40,
+          40
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "scoped-capacity"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          25,
+          25,
+          25,
+          25,
+          25
+        ],
+        "critical-path-global": [
+          25,
+          25,
+          25,
+          25,
+          25
+        ],
+        "lpt-global": [
+          25,
+          25,
+          25,
+          25,
+          25
+        ],
+        "public-learned-baseline": [
+          25,
+          25,
+          25,
+          25,
+          25
+        ],
+        "spt-global": [
+          25,
+          25,
+          25,
+          25,
+          25
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "single"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "critical-path-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "lpt-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "public-learned-baseline": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ],
+        "spt-global": [
+          150,
+          150,
+          150,
+          150,
+          150
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "two-shared-claims"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "critical-path-global": [
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "lpt-global": [
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "public-learned-baseline": [
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "spt-global": [
+          15,
+          15,
+          15,
+          15,
+          15
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "unlock-long-tail"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        "critical-path-global": [
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        "lpt-global": [
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        "public-learned-baseline": [
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        "spt-global": [
+          13,
+          13,
+          13,
+          13,
+          13
+        ]
+      },
+      "predictionRegime": "synthetic-mismatch",
+      "scenarioId": "unlock-long-tail"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          13,
+          13,
+          13,
+          13,
+          13
+        ],
+        "critical-path-global": [
+          13,
+          13,
+          13,
+          13,
+          13
+        ],
+        "lpt-global": [
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "public-learned-baseline": [
+          13,
+          13,
+          13,
+          13,
+          13
+        ],
+        "spt-global": [
+          14,
+          14,
+          14,
+          14,
+          14
+        ]
+      },
+      "predictionRegime": "synthetic-nonuniform",
+      "scenarioId": "unlock-long-tail"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "critical-path-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "lpt-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "public-learned-baseline": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "spt-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "unsatisfied-observes"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077
+        ],
+        "critical-path-global": [
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077
+        ],
+        "lpt-global": [
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077
+        ],
+        "public-learned-baseline": [
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077
+        ],
+        "spt-global": [
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077,
+          92.6923076923077
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "weighted-mutex-multi-resource"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "critical-path-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "lpt-global": [
+          21,
+          21,
+          21,
+          21,
+          21
+        ],
+        "public-learned-baseline": [
+          18,
+          18,
+          18,
+          18,
+          18
+        ],
+        "spt-global": [
+          21,
+          21,
+          21,
+          21,
+          21
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "weighted-resource-choice"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "critical-path-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "lpt-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "public-learned-baseline": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "spt-global": [
+          21,
+          21,
+          21,
+          21,
+          21
+        ]
+      },
+      "predictionRegime": "synthetic-mismatch",
+      "scenarioId": "weighted-resource-choice"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          13,
+          13,
+          13,
+          13,
+          13
+        ],
+        "critical-path-global": [
+          13,
+          13,
+          13,
+          13,
+          13
+        ],
+        "lpt-global": [
+          21,
+          21,
+          21,
+          21,
+          21
+        ],
+        "public-learned-baseline": [
+          14,
+          14,
+          14,
+          14,
+          14
+        ],
+        "spt-global": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ]
+      },
+      "predictionRegime": "synthetic-nonuniform",
+      "scenarioId": "weighted-resource-choice"
+    },
+    {
+      "makespanMsByPolicy": {
+        "bounded-bnb-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "critical-path-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "lpt-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "public-learned-baseline": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "spt-global": [
+          20,
+          20,
+          20,
+          20,
+          20
+        ]
+      },
+      "predictionRegime": "cold-all-1",
+      "scenarioId": "wide-tie"
+    }
+  ],
+  "schemaVersion": 1,
+  "replayMetadata": {
+    "actualPublicCandidate": {
+      "packageName": "@zxyycom/vibe-check",
+      "packageVersion": "0.0.0-local.47404e90e692",
+      "entrySha256": "sha256:dab388d17ab9ea57a34bd32921267a9d2162fa1954c91bafbd4d9d42b52522e4"
+    },
+    "protocolDeviation": {
+      "frozenProtocolRule": "legal CP-greedy incumbent fallback",
+      "actualImplementation": "solveBnb always initializes its incumbent with greedyCompletion, whose prediction-descending ranking is LPT. fallbackAction uses critical-path ranking only when incumbent.firstAction is null.",
+      "truncationBehavior": "A truncated search returns the current legal incumbent firstAction, which may already reflect a search improvement; it is not necessarily the CP fallback action.",
+      "measurementBoundary": "This comparison measured LPT-seeded BnB only. It does not validate a CP-seeded incumbent variant."
+    },
+    "retainedRawEvidence": [
+      {
+        "label": "retained-predicted-makespan-validation",
+        "rawEvidenceSha256": "sha256:19d12198890a4fc7d3eb5188f03b6dcd21657f25ba0c756dea061559958d1e95"
+      },
+      {
+        "label": "retained-public-artifact-output-validation",
+        "rawEvidenceSha256": "sha256:986e447185c9f7dcc677c36ff7897005878e6e31b7f4c2683ed948ae8b1a4e3f"
+      }
+    ]
+  }
+}

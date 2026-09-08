@@ -1,0 +1,56 @@
+{
+  "historicalSupersededRun": {
+    "knownConsoleP95Ms": {
+      "bounded-bnb-global": 1686.4410020000068,
+      "critical-path-global": 0.22987699999066535,
+      "lpt-global": 0.11090600000170525,
+      "public-learned-baseline": 1.6371700000017881,
+      "spt-global": 0.11259000000427477
+    },
+    "knownResultSummary": "The then-observed 170 policy records succeeded; the later two retained runs have identical per-replicate makespan and commitment results, but the first raw trace/timing samples are unavailable.",
+    "label": "superseded-pre-cache-run",
+    "rawEvidenceStatus": "not-retained",
+    "reason": "This first successful execution used the same evidence.json output path. It was superseded by the later predicted-makespan validation rerun before raw-output cache retention was introduced; no safe full raw reconstruction is claimed."
+  },
+  "protocolSha256": "c485a80781b2544168354ff840be25f676c03676841fb7407e106ccbda6d38c9",
+  "resultsIdenticalAcrossRuns": true,
+  "retainedRunsBoundary": "runs contains the two later raw outputs only; it does not enumerate the superseded-pre-cache-run above.",
+  "runs": [
+    {
+      "label": "retained-predicted-makespan-validation",
+      "rawEvidenceSha256": "sha256:19d12198890a4fc7d3eb5188f03b6dcd21657f25ba0c756dea061559958d1e95",
+      "reason": "Retained full execution used to validate predicted makespan; its raw output is the first retained raw cache, not the historical superseded run.",
+      "reportResource": "evidence.json contains compact per-replicate results and both cost samples",
+      "runtimeCachePath": "/tmp/vibe-check-simple-admission-comparison-full-evidence.json"
+    },
+    {
+      "label": "retained-public-artifact-output-validation",
+      "rawEvidenceSha256": "sha256:986e447185c9f7dcc677c36ff7897005878e6e31b7f4c2683ed948ae8b1a4e3f",
+      "reason": "Retained full execution after public-artifact dynamic-import and Node filesystem-output refactor only; no algorithm, input, protocol or budget change.",
+      "reportResource": "evidence.json contains compact per-replicate results and both cost samples",
+      "runtimeCachePath": "/tmp/vibe-check-simple-admission-comparison-rerun-full-evidence.json"
+    }
+  ],
+  "schemaVersion": 1,
+  "actualPublicCandidate": {
+    "packageName": "@zxyycom/vibe-check",
+    "packageVersion": "0.0.0-local.47404e90e692",
+    "entrySha256": "sha256:dab388d17ab9ea57a34bd32921267a9d2162fa1954c91bafbd4d9d42b52522e4"
+  },
+  "protocolDeviation": {
+    "frozenProtocolRule": "legal CP-greedy incumbent fallback",
+    "actualImplementation": "solveBnb always initializes its incumbent with greedyCompletion, whose prediction-descending ranking is LPT. fallbackAction uses critical-path ranking only when incumbent.firstAction is null.",
+    "truncationBehavior": "A truncated search returns the current legal incumbent firstAction, which may already reflect a search improvement; it is not necessarily the CP fallback action.",
+    "measurementBoundary": "This comparison measured LPT-seeded BnB only. It does not validate a CP-seeded incumbent variant."
+  },
+  "retainedRawEvidence": [
+    {
+      "label": "retained-predicted-makespan-validation",
+      "rawEvidenceSha256": "sha256:19d12198890a4fc7d3eb5188f03b6dcd21657f25ba0c756dea061559958d1e95"
+    },
+    {
+      "label": "retained-public-artifact-output-validation",
+      "rawEvidenceSha256": "sha256:986e447185c9f7dcc677c36ff7897005878e6e31b7f4c2683ed948ae8b1a4e3f"
+    }
+  ]
+}

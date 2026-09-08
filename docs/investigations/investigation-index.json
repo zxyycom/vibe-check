@@ -830,6 +830,62 @@
         "project-gate"
       ],
       "title": "Gate 单项与全量时长调查及虚拟负载波动校准"
+    },
+    "260908-compare-simple-admission-algorithms": {
+      "formedAt": "2026-09-08T12:43:33Z",
+      "name": "compare-simple-admission-algorithms",
+      "question": "本轮简单准入算法比较是否获得可采用的性能优化，未成功的依据是什么，对当前方案和后续优化空间能作出哪些有限判断？",
+      "relations": [
+        {
+          "summary": "扩展为不同简单算法对照",
+          "target": "260908-explain-learned-heuristic-rejection",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260908-compare-simple-admission-algorithms/comparison-algorithms.ts",
+        "260908-compare-simple-admission-algorithms/comparison-fixtures.ts",
+        "260908-compare-simple-admission-algorithms/comparison-output.ts",
+        "260908-compare-simple-admission-algorithms/evidence.json",
+        "260908-compare-simple-admission-algorithms/protocol-v1.sha256",
+        "260908-compare-simple-admission-algorithms/protocol.sha256",
+        "260908-compare-simple-admission-algorithms/run-manifest.json",
+        "260908-compare-simple-admission-algorithms/simple-admission-comparison.protocol.json",
+        "260908-compare-simple-admission-algorithms/simple-admission-comparison.ts",
+        "260908-compare-simple-admission-algorithms/summary.json",
+        "260908-compare-simple-admission-algorithms/trace-excerpts.json"
+      ],
+      "sourcePath": "compare-simple-admission-algorithms.md",
+      "tags": [
+        "admission-scheduling",
+        "algorithm-evaluation",
+        "virtual-admission"
+      ],
+      "title": "简单准入算法对照：未获得可采用的性能优化"
+    },
+    "260908-explain-learned-heuristic-rejection": {
+      "formedAt": "2026-09-08T11:55:30Z",
+      "name": "explain-learned-heuristic-rejection",
+      "question": "c1 的 v1 对照与 c2 的 v2 对照为何未产生可采用的优化，反例机理和可外推边界分别是什么？",
+      "relations": [
+        {
+          "summary": "以其校准输入完成方案对照",
+          "target": "260908-calibrate-gate-duration-variation",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "260908-explain-learned-heuristic-rejection/candidate-c2.patch",
+        "260908-explain-learned-heuristic-rejection/evidence-map.json"
+      ],
+      "sourcePath": "explain-learned-heuristic-rejection.md",
+      "tags": [
+        "admission-scheduling",
+        "algorithm-evaluation",
+        "learned-heuristic",
+        "virtual-admission"
+      ],
+      "title": "Learned 准入启发式未采用的对照解释"
     }
   },
   "metadata": {},
@@ -874,7 +930,9 @@
       "260904-diagnose-project-gate-candidate-timeout-under-contention": "sha256:7dc4a90e12ff2ec382f4d786617b760f8cc04037f84ad574b776699be445cfb7",
       "260906-assess-node-26-package-host-readiness": "sha256:b01bedac42300965c3a8fcf131deb26f3c3ecb92f3a9f629fadbe6164b842f09",
       "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82",
-      "260908-calibrate-gate-duration-variation": "sha256:a306e4ce1893e6f88ac1f21eaae84333058b9a23d8fb5692adcf115c9aae8459"
+      "260908-calibrate-gate-duration-variation": "sha256:a306e4ce1893e6f88ac1f21eaae84333058b9a23d8fb5692adcf115c9aae8459",
+      "260908-compare-simple-admission-algorithms": "sha256:e3e5f7878dddf5dbd0c5a7c0de30c721adc0d2cb4f9f9975cd4c31793c058253",
+      "260908-explain-learned-heuristic-rejection": "sha256:2968e598eb49087fb0fd6db88cf041e36b8673e52c337e170df45d6263919342"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

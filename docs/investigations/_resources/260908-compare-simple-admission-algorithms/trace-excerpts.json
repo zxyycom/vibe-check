@@ -1,0 +1,6418 @@
+{
+  "protocolSha256": "c485a80781b2544168354ff840be25f676c03676841fb7407e106ccbda6d38c9",
+  "purpose": "Representative full virtual traces only; raw cache locations and hashes appear in run-manifest.json.",
+  "schemaVersion": 1,
+  "traces": [
+    {
+      "makespanMs": 304,
+      "policyId": "public-learned-baseline",
+      "prediction": {
+        "expectedSampleCount": 0,
+        "expectedSource": "cold-start",
+        "regimeId": "cold-all-1",
+        "sha256": "sha256:abdd6656909130fe1c46eccb0ae0ec0a9ac3bf519f1a91f53a062fa43aef35c3"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:7ef7845abe9c6f5d12dfb3e4c50e71fcd021500faa355c07157bbf6d46a834ad",
+      "scenarioId": "regression-id-permutation-a",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 1,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root"
+          ]
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 1,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 2,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [
+              "a-tail",
+              "m-fill"
+            ],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 4,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          }
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 4,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 4,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail"
+            ]
+          }
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 5,
+          "deltaMs": 99,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "z-root"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a2"
+            ],
+            "selectableTaskIds": [
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "z-root"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a2"
+            ],
+            "selectableTaskIds": [
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 7,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a2"
+            }
+          ],
+          "runningTaskIds": [
+            "a2"
+          ]
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "z-root"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a3"
+            ],
+            "selectableTaskIds": [
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "z-root"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 9,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a3"
+            ],
+            "selectableTaskIds": [
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 9,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a3"
+            }
+          ],
+          "runningTaskIds": [
+            "a3"
+          ]
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 9,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a4",
+              "a5",
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "z-root"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 10,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a4"
+            ],
+            "selectableTaskIds": [
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "z-root"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 11,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a4"
+            ],
+            "selectableTaskIds": [
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 11,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a4"
+            }
+          ],
+          "runningTaskIds": [
+            "a4"
+          ]
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 11,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a5",
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "z-root"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 12,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a5"
+            ],
+            "selectableTaskIds": [
+              "m-fill",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "z-root"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 13,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "z-root"
+            ]
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 14,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a5"
+            },
+            {
+              "rate": 1,
+              "taskId": "m-fill"
+            }
+          ],
+          "runningTaskIds": [
+            "a5",
+            "m-fill"
+          ]
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "m-fill"
+            ],
+            "selectableTaskIds": [
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 15,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-tail"
+        },
+        {
+          "atMs": 304,
+          "boundaryIndex": 16,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 304,
+          "boundaryIndex": 16,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root",
+              "z-tail"
+            ]
+          },
+          "taskId": "z-tail"
+        }
+      ]
+    },
+    {
+      "makespanMs": 304,
+      "policyId": "spt-global",
+      "prediction": {
+        "expectedSampleCount": 0,
+        "expectedSource": "cold-start",
+        "regimeId": "cold-all-1",
+        "sha256": "sha256:abdd6656909130fe1c46eccb0ae0ec0a9ac3bf519f1a91f53a062fa43aef35c3"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:7ef7845abe9c6f5d12dfb3e4c50e71fcd021500faa355c07157bbf6d46a834ad",
+      "scenarioId": "regression-id-permutation-a",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            },
+            {
+              "rate": 1,
+              "taskId": "m-fill"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root",
+            "m-fill"
+          ]
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "m-fill"
+            ]
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "deltaMs": 99,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root"
+          ]
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-tail"
+            ],
+            "selectableTaskIds": [
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 5,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "a2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 6,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "a2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "a2"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "a2"
+          ]
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 7,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 8,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 8,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a3"
+            }
+          ],
+          "runningTaskIds": [
+            "a3"
+          ]
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 8,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 9,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 10,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 10,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a4"
+            }
+          ],
+          "runningTaskIds": [
+            "a4"
+          ]
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 10,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 11,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 12,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 104,
+          "boundaryIndex": 12,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a5"
+            }
+          ],
+          "runningTaskIds": [
+            "a5"
+          ]
+        },
+        {
+          "atMs": 104,
+          "boundaryIndex": 12,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 104,
+          "boundaryIndex": 13,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 15,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-tail"
+        },
+        {
+          "atMs": 304,
+          "boundaryIndex": 16,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 304,
+          "boundaryIndex": 16,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root",
+              "z-tail"
+            ]
+          },
+          "taskId": "z-tail"
+        }
+      ]
+    },
+    {
+      "makespanMs": 304,
+      "policyId": "lpt-global",
+      "prediction": {
+        "expectedSampleCount": 0,
+        "expectedSource": "cold-start",
+        "regimeId": "cold-all-1",
+        "sha256": "sha256:abdd6656909130fe1c46eccb0ae0ec0a9ac3bf519f1a91f53a062fa43aef35c3"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:7ef7845abe9c6f5d12dfb3e4c50e71fcd021500faa355c07157bbf6d46a834ad",
+      "scenarioId": "regression-id-permutation-a",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            },
+            {
+              "rate": 1,
+              "taskId": "m-fill"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root",
+            "m-fill"
+          ]
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "m-fill"
+            ]
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "deltaMs": 99,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root"
+          ]
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-tail"
+            ],
+            "selectableTaskIds": [
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 5,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "a2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 6,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "a2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "a2"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "a2"
+          ]
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 7,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 8,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 8,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a3"
+            }
+          ],
+          "runningTaskIds": [
+            "a3"
+          ]
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 8,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 9,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 10,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 10,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a4"
+            }
+          ],
+          "runningTaskIds": [
+            "a4"
+          ]
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 10,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 11,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 103,
+          "boundaryIndex": 12,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 104,
+          "boundaryIndex": 12,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a5"
+            }
+          ],
+          "runningTaskIds": [
+            "a5"
+          ]
+        },
+        {
+          "atMs": 104,
+          "boundaryIndex": 12,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 104,
+          "boundaryIndex": 13,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 15,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-tail"
+        },
+        {
+          "atMs": 304,
+          "boundaryIndex": 16,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 304,
+          "boundaryIndex": 16,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root",
+              "z-tail"
+            ]
+          },
+          "taskId": "z-tail"
+        }
+      ]
+    },
+    {
+      "makespanMs": 300,
+      "policyId": "critical-path-global",
+      "prediction": {
+        "expectedSampleCount": 0,
+        "expectedSource": "cold-start",
+        "regimeId": "cold-all-1",
+        "sha256": "sha256:abdd6656909130fe1c46eccb0ae0ec0a9ac3bf519f1a91f53a062fa43aef35c3"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:7ef7845abe9c6f5d12dfb3e4c50e71fcd021500faa355c07157bbf6d46a834ad",
+      "scenarioId": "regression-id-permutation-a",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "m-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            },
+            {
+              "rate": 1,
+              "taskId": "m-fill"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root",
+            "m-fill"
+          ]
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "m-fill"
+            ]
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "deltaMs": 99,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root"
+          ]
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [
+              "a-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 5,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 6,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 7,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "deltaMs": 99,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a2"
+            ],
+            "selectableTaskIds": [
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 9,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a2",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-tail"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 10,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a2",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 10,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a2"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a2",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 10,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [
+              "a3",
+              "a4",
+              "a5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 11,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 12,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 12,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a3"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a3",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 12,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [
+              "a4",
+              "a5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 13,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 14,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 14,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a4"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a4",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [
+              "a5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 15,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 16,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a5"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a5",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 16,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 300,
+          "boundaryIndex": 17,
+          "deltaMs": 96,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 300,
+          "boundaryIndex": 17,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root",
+              "z-tail"
+            ]
+          },
+          "taskId": "z-tail"
+        }
+      ]
+    },
+    {
+      "makespanMs": 300,
+      "policyId": "bounded-bnb-global",
+      "prediction": {
+        "expectedSampleCount": 0,
+        "expectedSource": "cold-start",
+        "regimeId": "cold-all-1",
+        "sha256": "sha256:abdd6656909130fe1c46eccb0ae0ec0a9ac3bf519f1a91f53a062fa43aef35c3"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:7ef7845abe9c6f5d12dfb3e4c50e71fcd021500faa355c07157bbf6d46a834ad",
+      "scenarioId": "regression-id-permutation-a",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 1,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root"
+          ]
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 1,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 2,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [
+              "a-tail",
+              "m-fill"
+            ],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 4,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          }
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 4,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 4,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [
+              "m-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 5,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "m-fill",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail"
+            ]
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "m-fill",
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail"
+            ]
+          }
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 6,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "m-fill"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "m-fill",
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill"
+            ]
+          },
+          "taskId": "m-fill"
+        },
+        {
+          "atMs": 102,
+          "boundaryIndex": 7,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "deltaMs": 98,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-root"
+            }
+          ],
+          "runningTaskIds": [
+            "z-root"
+          ]
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-root"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a2"
+            ],
+            "selectableTaskIds": [
+              "z-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 9,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a2",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "z-tail"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 10,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a2",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "m-fill",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 10,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a2"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a2",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 10,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [
+              "a3",
+              "a4",
+              "a5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a2"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 11,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 12,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a3",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "m-fill",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 12,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a3"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a3",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 12,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [
+              "a4",
+              "a5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a3"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 13,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 14,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a4",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "m-fill",
+              "z-root"
+            ]
+          }
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 14,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a4"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a4",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [
+              "a5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a4"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 15,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a5",
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 16,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a5"
+            },
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a5",
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 16,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "z-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root"
+            ]
+          },
+          "taskId": "a5"
+        },
+        {
+          "atMs": 300,
+          "boundaryIndex": 17,
+          "deltaMs": 96,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "z-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "z-tail"
+          ]
+        },
+        {
+          "atMs": 300,
+          "boundaryIndex": 17,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "a2",
+              "a3",
+              "a4",
+              "a5",
+              "m-fill",
+              "z-root",
+              "z-tail"
+            ]
+          },
+          "taskId": "z-tail"
+        }
+      ]
+    },
+    {
+      "makespanMs": 17,
+      "policyId": "public-learned-baseline",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:d8c7cd48080374c6c78bda48bae7a8eebf3087352fea3806806445b8be565b48"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:99090ac0d4e4ab2e2fca877ad22cac7dcad7fb3ab03474d2614a995e1cb9ac50",
+      "scenarioId": "constrained-scope-choice",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 1,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-open"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-open"
+          ]
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 1,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-work"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-work"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          }
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 3,
+          "deltaMs": 9,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-work"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-work"
+          ]
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-close",
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-close"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work"
+            ]
+          },
+          "taskId": "scope-close"
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-close"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work"
+            ]
+          }
+        },
+        {
+          "atMs": 11,
+          "boundaryIndex": 5,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-close"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-close"
+          ]
+        },
+        {
+          "atMs": 11,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work"
+            ]
+          },
+          "taskId": "scope-close"
+        },
+        {
+          "atMs": 11,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work"
+            ]
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 11,
+          "boundaryIndex": 7,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 13,
+          "boundaryIndex": 8,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            },
+            {
+              "rate": 1,
+              "taskId": "unscoped-short"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long",
+            "unscoped-short"
+          ]
+        },
+        {
+          "atMs": 13,
+          "boundaryIndex": 8,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 17,
+          "boundaryIndex": 9,
+          "deltaMs": 4,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long"
+          ]
+        },
+        {
+          "atMs": 17,
+          "boundaryIndex": 9,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-long"
+        }
+      ]
+    },
+    {
+      "makespanMs": 19,
+      "policyId": "spt-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:d8c7cd48080374c6c78bda48bae7a8eebf3087352fea3806806445b8be565b48"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:99090ac0d4e4ab2e2fca877ad22cac7dcad7fb3ab03474d2614a995e1cb9ac50",
+      "scenarioId": "constrained-scope-choice",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 1,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-open"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-open"
+          ]
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 1,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          }
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 3,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-short"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-short"
+          ]
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-work",
+              "unscoped-long"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-short"
+            ]
+          }
+        },
+        {
+          "atMs": 9,
+          "boundaryIndex": 5,
+          "deltaMs": 6,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long"
+          ]
+        },
+        {
+          "atMs": 9,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-work"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 9,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-work"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 18,
+          "boundaryIndex": 7,
+          "deltaMs": 9,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-work"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-work"
+          ]
+        },
+        {
+          "atMs": 18,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-close"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 18,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-close"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        },
+        {
+          "atMs": 19,
+          "boundaryIndex": 9,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-close"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-close"
+          ]
+        },
+        {
+          "atMs": 19,
+          "boundaryIndex": 9,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        }
+      ]
+    },
+    {
+      "makespanMs": 17,
+      "policyId": "lpt-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:d8c7cd48080374c6c78bda48bae7a8eebf3087352fea3806806445b8be565b48"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:99090ac0d4e4ab2e2fca877ad22cac7dcad7fb3ab03474d2614a995e1cb9ac50",
+      "scenarioId": "constrained-scope-choice",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [
+              "unscoped-short"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            },
+            {
+              "rate": 1,
+              "taskId": "unscoped-short"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long",
+            "unscoped-short"
+          ]
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "unscoped-short"
+            ]
+          }
+        },
+        {
+          "atMs": 6,
+          "boundaryIndex": 3,
+          "deltaMs": 4,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long"
+          ]
+        },
+        {
+          "atMs": 6,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-open"
+            ],
+            "settledTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 6,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 5,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-open"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-open"
+          ]
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-work"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-work"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 7,
+          "deltaMs": 9,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-work"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-work"
+          ]
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-close"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-close"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        },
+        {
+          "atMs": 17,
+          "boundaryIndex": 9,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-close"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-close"
+          ]
+        },
+        {
+          "atMs": 17,
+          "boundaryIndex": 9,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        }
+      ]
+    },
+    {
+      "makespanMs": 19,
+      "policyId": "critical-path-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:d8c7cd48080374c6c78bda48bae7a8eebf3087352fea3806806445b8be565b48"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:99090ac0d4e4ab2e2fca877ad22cac7dcad7fb3ab03474d2614a995e1cb9ac50",
+      "scenarioId": "constrained-scope-choice",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 1,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-open"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-open"
+          ]
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 1,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-work"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-work"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open"
+            ]
+          }
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 3,
+          "deltaMs": 9,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-work"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-work"
+          ]
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-close",
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work"
+            ]
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 10,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work"
+            ]
+          }
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 5,
+          "deltaMs": 6,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long"
+          ]
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-close",
+              "unscoped-short"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long"
+            ]
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 7,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long"
+            ]
+          }
+        },
+        {
+          "atMs": 18,
+          "boundaryIndex": 7,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-short"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-short"
+          ]
+        },
+        {
+          "atMs": 18,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-close"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 18,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-close"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        },
+        {
+          "atMs": 19,
+          "boundaryIndex": 9,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-close"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-close"
+          ]
+        },
+        {
+          "atMs": 19,
+          "boundaryIndex": 9,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        }
+      ]
+    },
+    {
+      "makespanMs": 17,
+      "policyId": "bounded-bnb-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:d8c7cd48080374c6c78bda48bae7a8eebf3087352fea3806806445b8be565b48"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:99090ac0d4e4ab2e2fca877ad22cac7dcad7fb3ab03474d2614a995e1cb9ac50",
+      "scenarioId": "constrained-scope-choice",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [
+              "unscoped-short"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            },
+            {
+              "rate": 1,
+              "taskId": "unscoped-short"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long",
+            "unscoped-short"
+          ]
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-short"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "unscoped-long"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "unscoped-short"
+            ]
+          }
+        },
+        {
+          "atMs": 6,
+          "boundaryIndex": 3,
+          "deltaMs": 4,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "unscoped-long"
+            }
+          ],
+          "runningTaskIds": [
+            "unscoped-long"
+          ]
+        },
+        {
+          "atMs": 6,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-open"
+            ],
+            "settledTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "unscoped-long"
+        },
+        {
+          "atMs": 6,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-open"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 5,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-open"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-open"
+          ]
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-work"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-open"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-work"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 7,
+          "deltaMs": 9,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-work"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-work"
+          ]
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "scope-close"
+            ],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-work"
+        },
+        {
+          "atMs": 16,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "scope-close"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        },
+        {
+          "atMs": 17,
+          "boundaryIndex": 9,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "scope-close"
+            }
+          ],
+          "runningTaskIds": [
+            "scope-close"
+          ]
+        },
+        {
+          "atMs": 17,
+          "boundaryIndex": 9,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "scope-close",
+              "scope-open",
+              "scope-work",
+              "unscoped-long",
+              "unscoped-short"
+            ]
+          },
+          "taskId": "scope-close"
+        }
+      ]
+    },
+    {
+      "makespanMs": 7,
+      "policyId": "public-learned-baseline",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:5ae57ec0828cfef13f32fd127f3c1b05b83299ae0dcd6a9e9945e1c2a7718ff5"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:da49b272b1bbd445bf3e75b1e791c9374d99e4f4debd6972a11d6b6faceb84f1",
+      "scenarioId": "packing-33222",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3a"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3b"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "deltaMs": 3,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p3a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3b"
+            }
+          ],
+          "runningTaskIds": [
+            "p3a",
+            "p3b"
+          ]
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3b"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a"
+            ]
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2a"
+            ],
+            "selectableTaskIds": [
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          }
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p2b"
+            }
+          ],
+          "runningTaskIds": [
+            "p2a",
+            "p2b"
+          ]
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2b"
+            ],
+            "selectableTaskIds": [
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2c"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2c"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 7,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2c"
+            }
+          ],
+          "runningTaskIds": [
+            "p2c"
+          ]
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2c"
+        }
+      ]
+    },
+    {
+      "makespanMs": 7,
+      "policyId": "spt-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:5ae57ec0828cfef13f32fd127f3c1b05b83299ae0dcd6a9e9945e1c2a7718ff5"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:da49b272b1bbd445bf3e75b1e791c9374d99e4f4debd6972a11d6b6faceb84f1",
+      "scenarioId": "packing-33222",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2a"
+            ],
+            "selectableTaskIds": [
+              "p2b",
+              "p2c",
+              "p3a",
+              "p3b"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p2b"
+            }
+          ],
+          "runningTaskIds": [
+            "p2a",
+            "p2b"
+          ]
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2b"
+            ],
+            "selectableTaskIds": [
+              "p2c",
+              "p3a",
+              "p3b"
+            ],
+            "settledTaskIds": [
+              "p2a"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2c",
+              "p3a",
+              "p3b"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2c"
+            ],
+            "selectableTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2b"
+            ]
+          },
+          "taskId": "p2c"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2c",
+              "p3a"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b"
+            ]
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2c",
+              "p3a"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b"
+            ]
+          }
+        },
+        {
+          "atMs": 4,
+          "boundaryIndex": 5,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2c"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3a"
+            }
+          ],
+          "runningTaskIds": [
+            "p2c",
+            "p3a"
+          ]
+        },
+        {
+          "atMs": 4,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3a"
+            ],
+            "selectableTaskIds": [
+              "p3b"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ]
+          },
+          "taskId": "p2c"
+        },
+        {
+          "atMs": 4,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ]
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 7,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p3a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3b"
+            }
+          ],
+          "runningTaskIds": [
+            "p3a",
+            "p3b"
+          ]
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3a"
+            ]
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 8,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p3b"
+            }
+          ],
+          "runningTaskIds": [
+            "p3b"
+          ]
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 8,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p3b"
+        }
+      ]
+    },
+    {
+      "makespanMs": 7,
+      "policyId": "lpt-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:5ae57ec0828cfef13f32fd127f3c1b05b83299ae0dcd6a9e9945e1c2a7718ff5"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:da49b272b1bbd445bf3e75b1e791c9374d99e4f4debd6972a11d6b6faceb84f1",
+      "scenarioId": "packing-33222",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3a"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3b"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "deltaMs": 3,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p3a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3b"
+            }
+          ],
+          "runningTaskIds": [
+            "p3a",
+            "p3b"
+          ]
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3b"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a"
+            ]
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2a"
+            ],
+            "selectableTaskIds": [
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          }
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p2b"
+            }
+          ],
+          "runningTaskIds": [
+            "p2a",
+            "p2b"
+          ]
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2b"
+            ],
+            "selectableTaskIds": [
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2c"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2c"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 7,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2c"
+            }
+          ],
+          "runningTaskIds": [
+            "p2c"
+          ]
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2c"
+        }
+      ]
+    },
+    {
+      "makespanMs": 7,
+      "policyId": "critical-path-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:5ae57ec0828cfef13f32fd127f3c1b05b83299ae0dcd6a9e9945e1c2a7718ff5"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:da49b272b1bbd445bf3e75b1e791c9374d99e4f4debd6972a11d6b6faceb84f1",
+      "scenarioId": "packing-33222",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3a"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3b"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "deltaMs": 3,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p3a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3b"
+            }
+          ],
+          "runningTaskIds": [
+            "p3a",
+            "p3b"
+          ]
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3b"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a"
+            ]
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2a"
+            ],
+            "selectableTaskIds": [
+              "p2b",
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 5,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p3a",
+              "p3b"
+            ]
+          }
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p2b"
+            }
+          ],
+          "runningTaskIds": [
+            "p2a",
+            "p2b"
+          ]
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p2b"
+            ],
+            "selectableTaskIds": [
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 5,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2c"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2c"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2c"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 7,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2c"
+            }
+          ],
+          "runningTaskIds": [
+            "p2c"
+          ]
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2c"
+        }
+      ]
+    },
+    {
+      "makespanMs": 7,
+      "policyId": "bounded-bnb-global",
+      "prediction": {
+        "expectedSampleCount": 1,
+        "expectedSource": "learned",
+        "regimeId": "synthetic-nonuniform",
+        "sha256": "sha256:5ae57ec0828cfef13f32fd127f3c1b05b83299ae0dcd6a9e9945e1c2a7718ff5"
+      },
+      "replicate": 0,
+      "sampledWorkCommitment": "sha256:da49b272b1bbd445bf3e75b1e791c9374d99e4f4debd6972a11d6b6faceb84f1",
+      "scenarioId": "packing-33222",
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3b"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3a"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2c",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "p2c"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2c",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2c"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3b"
+            }
+          ],
+          "runningTaskIds": [
+            "p2c",
+            "p3b"
+          ]
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3b"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b",
+              "p3a"
+            ],
+            "settledTaskIds": [
+              "p2c"
+            ]
+          },
+          "taskId": "p2c"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2c"
+            ]
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 2,
+          "boundaryIndex": 4,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p3a",
+              "p3b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2c"
+            ]
+          }
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 4,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p3a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3b"
+            }
+          ],
+          "runningTaskIds": [
+            "p3a",
+            "p3b"
+          ]
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 4,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3a"
+            ],
+            "selectableTaskIds": [
+              "p2a",
+              "p2b"
+            ],
+            "settledTaskIds": [
+              "p2c",
+              "p3b"
+            ]
+          },
+          "taskId": "p3b"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 5,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p3a"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2c",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 3,
+          "boundaryIndex": 6,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2a",
+              "p3a"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2c",
+              "p3b"
+            ]
+          }
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 6,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2a"
+            },
+            {
+              "rate": 1,
+              "taskId": "p3a"
+            }
+          ],
+          "runningTaskIds": [
+            "p2a",
+            "p3a"
+          ]
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "p3a"
+            ],
+            "selectableTaskIds": [
+              "p2b"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2c",
+              "p3b"
+            ]
+          },
+          "taskId": "p2a"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "p2b"
+            ],
+            "settledTaskIds": [
+              "p2a",
+              "p2c",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p3a"
+        },
+        {
+          "atMs": 5,
+          "boundaryIndex": 7,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "p2b"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2c",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 8,
+          "deltaMs": 2,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "p2b"
+            }
+          ],
+          "runningTaskIds": [
+            "p2b"
+          ]
+        },
+        {
+          "atMs": 7,
+          "boundaryIndex": 8,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "p2a",
+              "p2b",
+              "p2c",
+              "p3a",
+              "p3b"
+            ]
+          },
+          "taskId": "p2b"
+        }
+      ]
+    }
+  ],
+  "replayMetadata": {
+    "actualPublicCandidate": {
+      "packageName": "@zxyycom/vibe-check",
+      "packageVersion": "0.0.0-local.47404e90e692",
+      "entrySha256": "sha256:dab388d17ab9ea57a34bd32921267a9d2162fa1954c91bafbd4d9d42b52522e4"
+    },
+    "protocolDeviation": {
+      "frozenProtocolRule": "legal CP-greedy incumbent fallback",
+      "actualImplementation": "solveBnb always initializes its incumbent with greedyCompletion, whose prediction-descending ranking is LPT. fallbackAction uses critical-path ranking only when incumbent.firstAction is null.",
+      "truncationBehavior": "A truncated search returns the current legal incumbent firstAction, which may already reflect a search improvement; it is not necessarily the CP fallback action.",
+      "measurementBoundary": "This comparison measured LPT-seeded BnB only. It does not validate a CP-seeded incumbent variant."
+    },
+    "retainedRawEvidence": [
+      {
+        "label": "retained-predicted-makespan-validation",
+        "rawEvidenceSha256": "sha256:19d12198890a4fc7d3eb5188f03b6dcd21657f25ba0c756dea061559958d1e95"
+      },
+      {
+        "label": "retained-public-artifact-output-validation",
+        "rawEvidenceSha256": "sha256:986e447185c9f7dcc677c36ff7897005878e6e31b7f4c2683ed948ae8b1a4e3f"
+      }
+    ]
+  }
+}

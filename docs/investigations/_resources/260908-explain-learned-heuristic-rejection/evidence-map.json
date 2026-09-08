@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "purpose": "最小复核索引；完整协议、指标、样本和代表性反例逐事件 trace 仍由下列已提交来源拥有。",
+  "sourceCommit": "fd8923c8",
+  "reviewedHead": "b82ae4ce27a5e80a3b386c0abff9af09ecacd8ca",
+  "v2Evidence": {
+    "path": "scripts/project/admission-workbench/learned-heuristic-dual-artifact.evidence.json",
+    "sha256": "sha256:25650bfd655ef5fb5aef8f37b017c224c4281d1274218826388c7b427d72cd6d",
+    "protocolSha256": "sha256:58a9a365fb1f5ad9a040d974e02f5de2c3d02cbc070e4d907bb37a31c1849b93",
+    "primaryRule": "每场景、每 replicate 的 candidate makespan 不得高于 baseline；不允许跨场景平均替代。",
+    "result": {
+      "tiedScenarioCount": 11,
+      "improved": {
+        "scenarioId": "gate-shape-v1",
+        "baselineMakespanMs": 1000,
+        "candidateMakespanMs": 900
+      },
+      "regressed": {
+        "scenarioId": "learned-heuristic-weighted-shared-dependency-regression",
+        "baselineMakespanMs": 204,
+        "candidateMakespanMs": 300,
+        "fixedReplicates": 5
+      }
+    }
+  },
+  "costGuard": {
+    "boundary": "fresh-public-prepared-direct-decide",
+    "samplesPerArtifact": 15,
+    "baselineP95Ms": 24.545004000000063,
+    "candidateP95Ms": 24.355285000000094,
+    "budgetP95Ms": 30.68125500000008,
+    "passes": true
+  },
+  "artifactSources": {
+    "baseline": {
+      "version": "0.0.0-local.ec1320793b5f",
+      "strategySha256": "sha256:bcd454eac35926bcb40681b71b2f8773ec961a2fd739e8950643b041cec2e17f"
+    },
+    "candidate": {
+      "version": "0.0.0-local.67408df9c41c",
+      "strategySha256": "sha256:e31adeb1cd40bfb05933c5d138dcd2fd9266c7db8f8a944fe209e29b1fa56303"
+    }
+  },
+  "sourceDelta": [
+    "c1: 在存在可准入 candidate 时，只保留 canAdmit candidate。",
+    "c2: 在 score、priority 并列时，以 public resource-claim backlog 作为后续 tie-breaker。"
+  ],
+  "historicalNonGating": [
+    "learned-heuristic-candidate-1.evidence.json",
+    "learned-heuristic-candidate-2.evidence.json",
+    "learned-heuristic-comparable-cost.evidence.json",
+    "learned-heuristic-dual-artifact-invalid-cost.evidence.json"
+  ],
+  "candidateC2Patch": {
+    "path": "candidate-c2.patch",
+    "sha256": "sha256:84111460b2f030feb4a412083dd48dfacc8a702b974f27d90b925cccfe62b53f",
+    "lines": 141,
+    "extraction": "直接从两个保留 public artifact 的 strategy.ts 以 diff -u 提取；不依赖 ignored cache。",
+    "base": {
+      "artifactPath": "scripts/project/node_modules/.vibe-check-heuristic-baseline-public/src/learned-critical-path/strategy.ts",
+      "sha256": "sha256:bcd454eac35926bcb40681b71b2f8773ec961a2fd739e8950643b041cec2e17f",
+      "matchesProductAtFd8923c8": true,
+      "matchesCurrentProductAtReviewedHead": true
+    },
+    "target": {
+      "artifactPath": "scripts/project/node_modules/.vibe-check-heuristic-candidate-public/src/learned-critical-path/strategy.ts",
+      "sha256": "sha256:e31adeb1cd40bfb05933c5d138dcd2fd9266c7db8f8a944fe209e29b1fa56303"
+    },
+    "recoveryBoundary": "该 patch 仅保存实际 baseline→c2 的组合 source 差异，包含 c1；它不是已采用实现、不能证明独立 c1 source 已被恢复，也不授权把它应用到当前 Product。"
+  },
+  "candidateC1VirtualOutcome": {
+    "sourceRawEvidenceSha256": "sha256:527911aecc0edcd75eaf5779bee5bfca8a7f2044938d9d953bc0f29d8c66c13e",
+    "protocolId": "learned-admission-heuristic-comparison-v1",
+    "scenarioCount": 12,
+    "replicatesPerScenario": 5,
+    "makespanComparison": "all baseline/candidate pairs equal",
+    "boundary": "Historical virtual-result audit only; this does not validate discarded v1 cost measurements or claim c1 was tested against the later 13th scenario."
+  }
+}
