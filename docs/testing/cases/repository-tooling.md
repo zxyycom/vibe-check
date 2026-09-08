@@ -492,3 +492,47 @@ Entities:
 - ABBA paired ratios, deterministic bootstrap confidence intervals, practical-equivalence classification and IQR marking preserve all samples; resource scope can independently make a resource comparison non-comparable.
 - Warm statistics select the target-internal counted operation rather than whole-target startup/warm-up wall; drift after preflight and unsupported collector platforms stop comparability.
 - Linux parent/child collector evidence names CPU plus reaped-descendant semantics and a single-process maximum RSS boundary, never falsely labeling it process-tree aggregate RSS.
+
+## Case AUX-ADMISSION-WORKBENCH-001: Private virtual admission workbench keeps legality and synthetic time separate
+
+Owner: `docs/tooling/workspace.md#virtual-admission-workbench`
+Entities:
+
+- `bun|scripts/project/admission-workbench/command.test.ts|command writes identified virtual stdout for static and isolated learned replicates`
+- `bun|scripts/project/admission-workbench/command.test.ts|command exclusively creates an explicit output after complete serialization`
+- `bun|scripts/project/admission-workbench/command.test.ts|command rejects malformed arguments inputs and unsafe output targets`
+- `bun|scripts/project/admission-workbench/command.test.ts|command returns nonzero error evidence with parsed identity for a public graph rejection`
+- `bun|scripts/project/admission-workbench/command.test.ts|workbench source consumes only the installed public package and never the Gate entry`
+- `bun|scripts/project/admission-workbench/policy.test.ts|prepared learned policy copies fixed history into isolated absolute state and keeps identity stable`
+- `bun|scripts/project/admission-workbench/policy.test.ts|prepared learned policy invalidates identity and setup fallback instead of scoring it`
+- `bun|scripts/project/admission-workbench/policy.test.ts|formal simple and prepared adapters prepare once and never complete virtual observations`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > matches shared-resource and serial hand-calculated oracles`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > matches empty single and chain boundaries without invoking policy for an empty graph`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > shares sampled external work across policies while deriving replicates deterministically`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > provides only formal context and a real captured action-observation prefix`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > preserves non-empty trace, time, boundary, and identities after a later policy failure`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > separates scenario schema rejection from public graph rejection`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > backfills past a capacity-blocked head and enforces scoped capacity`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > recomputes weak multi-resource rates after weighted and mutex occupancy changes`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > settles ties canonically and distinguishes unsatisfied dependencies from observers`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > freezes exact profile vectors and the claimed-only Gate resource shape`
+- `bun|scripts/project/admission-workbench/simulate.test.ts|admission workbench > rejects wait without running work and illegal proposals without fallback`
+  Proves:
+
+- Private runner 只从 exact installed package public entry 消费 `AdmissionGraph` 与 learned helper；版本化 scenario 对 profile/task claim、policy registry、有限正数和图输入保持 closed validation，非法 public graph 与非法 policy 不会被静默替换为平台选择。
+- FNV-1a UTF-8 NUL tuple 与 mulberry32 让同一 seed/replicate 可复放，并使不同 policy 共享同一 task 外生 work；空图不调用 policy，事件循环覆盖回填、scope、mutex、weighted/multi-resource、同刻 canonical settlement 与 `unsatisfied` forced block。
+- 错误 evidence 保留已经发生的 boundary、virtual time、action-observation 和 trace prefix，并保留可可靠解析的 scenario/profile/policy/candidate identity；正式 policy context 只含 public graph/state、候选、capacity/runtime 与已关闭 action-observation prefix，不暴露 sampled/remaining work、PRNG 或完整 trace。
+- static 是版本化的简单合法 baseline；learned prepared adapter 为每个 replicate 复制同一固定 history snapshot 到独占 absolute state directory，记录 projection/model/fallback identity，不调用 `complete`，且 history/setup 或非预期 prediction fallback 使比较失败。
+- makespan 与 slot·time、逐 named-resource unit·time 分开；四个调查 proxy profile 保留精确 median 与倍率且不冒充完整 Gate baseline，三档 contention/5.5x 长尾与 claimed-only Gate resource shape 都明确是合成或静态输入，virtual milliseconds 不等于 Gate timing。
+- CLI 成功 JSON 只写 stdout 或独占新建的显式文件；输入、已有目标、符号链接与 public graph failure 返回非零结构 evidence。运行 workbench 不调用 Gate entry、真实 Check 或 private Scheduler source。
+
+## Case AUX-ADMISSION-WORKBENCH-SHARED-CLOSURE-001: Public shared closure distinguishes cancellation from virtual settlement
+
+Owner: `docs/tooling/workspace.md#root-commands`
+Entities:
+
+- `bun|scripts/project/admission-workbench/shared-closure.test.ts|admission workbench shared closure > drains an admitted real Check while cancellation closes pending work before it starts`
+- `bun|scripts/project/admission-workbench/shared-closure.test.ts|admission workbench shared closure > keeps virtual unsatisfied settlement separate from real cancellation`
+  Proves:
+
+- The public installed-package Run drains an admitted Check after cancellation while a pending Check never begins: both are unavailable with `execution-cancelled`, the pending duration is null, and the admitted Check has a duration. Separately, public AdmissionGraph `settle(..., "unsatisfied")` blocks `dependsOn`, releases `observes`, and does not introduce a cancellation transition.
