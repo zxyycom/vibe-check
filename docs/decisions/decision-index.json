@@ -311,6 +311,7 @@
       "260907-unify-package-legal-materials-and-audit-installed-dependencies": "sha256:5c61cc4f9f3e1d912020b2870c3035b0cf9cc9bbd3a0bb475852227b634e1f22",
       "260908-allow-channel-only-diagnostic-filenames-in-invocation-controls": "sha256:8c1319df99eb0ba9161b1f18677eb9ac89177222971d3b0c48e3232567ddb817",
       "260908-declare-document-audience-publication-and-contract-ownership": "sha256:078fbd8166aa768d5d95fad0d965343c3e848337550f4ce9ece8c50a6961a978",
+      "260908-default-project-subagents-to-terra": "sha256:3e07afdecd0dfa6071bc44a2e2d576aa5c4056b105b3adde6a36ced6f429aaca",
       "260908-delete-completed-change-and-openspec-history": "sha256:cc3819d682c53f1ddec361e388eeaa2f3465584f04fe58d6e8682361a7a69b58",
       "260908-provide-synchronous-single-selection-file-collection": "sha256:c0803574b26a55984f85f8f35af860789ac6a945f619c900da3ab720d8dc80ab",
       "260908-use-dated-governance-record-identities": "sha256:dfeab02dab622f98663e850d1b157ab8f0cf61eeec020c7cfdd84fa2ae6ba79d"
@@ -6172,6 +6173,21 @@
       "decision": "分别标明受众和发布范围，由用户文档定义公开契约并连接内部实现 owner",
       "tags": [
         "documentation"
+      ],
+      "relations": []
+    },
+    "260908-default-project-subagents-to-terra": {
+      "name": "default-project-subagents-to-terra",
+      "sourcePath": "default-project-subagents-to-terra.md",
+      "title": "项目子代理默认使用 Terra",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-08T06:34:52Z",
+      "purpose": "让项目子代理模型选择遵循用户明确偏好",
+      "background": "用户要求常规子代理使用 Terra，仅明确需要高智能时使用 Sol，并排除 Astra",
+      "decision": "默认 Terra，明确高智能任务才用 Sol，项目子代理不用 Astra",
+      "tags": [
+        "workflow-policy"
       ],
       "relations": []
     },
