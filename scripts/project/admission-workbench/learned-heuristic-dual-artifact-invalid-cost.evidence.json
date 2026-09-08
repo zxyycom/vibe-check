@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 2,
+  "evidenceStatus": "historical-non-gating",
+  "rawEvidenceSha256": "sha256:11854eb0a48073a1207f7bc4fdf739d1550b5ef168fec2de7c190bf4650a6d72",
+  "protocolId": "learned-admission-heuristic-comparison-v2",
+  "supersededReason": "The wrapper-inclusive cost observation was not the specified fresh-public-prepared-direct-decide interval and cannot support the cost guard.",
+  "comparisonDisposition": "candidate-rejected"
+}

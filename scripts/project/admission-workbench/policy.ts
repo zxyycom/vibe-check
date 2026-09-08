@@ -1,7 +1,3 @@
-import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
-
 import {
   createLearnedCriticalPathStrategy,
   type AdmissionPolicy,
@@ -11,9 +7,15 @@ import {
 } from "@zxyycom/vibe-check";
 
 import { sha256Json } from "./evidence.ts";
+import {
+  prepareWritableState,
+  removeWritableState,
+  type WritablePolicyState
+} from "./learned-heuristic-policy-state.ts";
 import type { PolicyRegistryId } from "./scenario.ts";
 
 export type DecisionPolicy = (context: AdmissionPolicyContext) => AdmissionProposal;
+export type LearnedStrategyFactory = typeof createLearnedCriticalPathStrategy;
 
 export interface PolicyIdentity {
   readonly expectedFallbackType: "cold-start" | "none";
@@ -30,7 +32,11 @@ export interface PolicyIdentity {
 }
 
 export interface PreparedPolicyHandle {
+  /** Validating adapter for virtual simulation and public-policy conformance checks. */
   readonly decide: DecisionPolicy;
+  /** Direct public prepared decision, for a bounded timing loop only. */
+  readonly directDecide: DecisionPolicy;
+  readonly assertValid: () => void;
   readonly dispose: () => Promise<void>;
   readonly identity: PolicyIdentity;
   /** Test-only observation of the isolated writable copy; it is never serialized as identity. */
@@ -58,10 +64,12 @@ const EMPTY_HISTORY_SNAPSHOT = Object.freeze({
   snapshotId: "empty-scheduler-history-v1"
 });
 
-const REGISTERED_LEARNED_FIXTURE = Object.freeze({
+export const REGISTERED_LEARNED_FIXTURE = Object.freeze({
   expectedFallbackType: "cold-start" as const,
   historySnapshot: EMPTY_HISTORY_SNAPSHOT,
-  identityForTask: (task: SchedulerGraphSnapshot["tasks"][number]) => ({ taskId: task.taskId }),
+  identityForTask: (task: SchedulerGraphSnapshot["tasks"][number]) => ({
+    taskId: task.taskId
+  }),
   identityProjectionId: "task-id-v1",
   policyId: "learned",
   coldStartDurationMs: 1,
@@ -103,7 +111,9 @@ export async function preparePolicyDefinition(
 ): Promise<PreparedPolicyHandle> {
   if (policy.kind === "static") {
     return Object.freeze({
+      assertValid: () => undefined,
       decide: staticPolicy,
+      directDecide: staticPolicy,
       dispose: async () => undefined,
       identity,
       stateDirectory: null
@@ -111,7 +121,9 @@ export async function preparePolicyDefinition(
   }
   if (policy.strategy.kind === "simple") {
     return Object.freeze({
+      assertValid: () => undefined,
       decide: policy.strategy.decide,
+      directDecide: policy.strategy.decide,
       dispose: async () => undefined,
       identity,
       stateDirectory: null
@@ -120,7 +132,9 @@ export async function preparePolicyDefinition(
   if (graph === undefined) throw new TypeError("prepared policy requires a graph");
   const prepared = await policy.strategy.prepare({ graph });
   return Object.freeze({
+    assertValid: () => undefined,
     decide: prepared.decide,
+    directDecide: prepared.decide,
     dispose: async () => undefined,
     identity,
     stateDirectory: null
@@ -132,56 +146,116 @@ export async function prepareLearnedPolicy(
   fixture: LearnedPolicyFixture,
   graph: SchedulerGraphSnapshot
 ): Promise<PreparedPolicyHandle> {
-  const modelOptions = Object.freeze({
+  return prepareLearnedPolicyWithFactory(createLearnedCriticalPathStrategy, fixture, graph);
+}
+
+/** Prepares a policy from a separately imported public package artifact. */
+export async function prepareLearnedPolicyWithFactory(
+  factory: LearnedStrategyFactory,
+  fixture: LearnedPolicyFixture,
+  graph: SchedulerGraphSnapshot
+): Promise<PreparedPolicyHandle> {
+  const modelOptions = learnedModelOptions(fixture);
+  const writableState = await prepareWritableState(fixture.historySnapshot.files);
+  try {
+    const validation = createFallbackValidator(fixture);
+    const strategy = factory({
+      ...modelOptions,
+      identityForTask: fixture.identityForTask,
+      observe: validation.observe,
+      stateDirectory: writableState.stateDirectory
+    });
+    if (strategy.kind !== "prepared") throw new TypeError("learned strategy is not prepared");
+    const prepared = await strategy.prepare({ graph });
+    validation.assertValid();
+    return learnedPolicyHandle(
+      fixture,
+      modelOptions,
+      writableState,
+      prepared.decide,
+      validation.assertValid
+    );
+  } catch (error) {
+    await removeWritableState(writableState.stateParent);
+    throw error;
+  }
+}
+
+function learnedModelOptions(fixture: LearnedPolicyFixture): Readonly<{
+  readonly coldStartDurationMs: number;
+  readonly maxHistorySeries: number;
+  readonly sampleWindow: number;
+}> {
+  return Object.freeze({
     coldStartDurationMs: fixture.coldStartDurationMs ?? 1,
     maxHistorySeries: fixture.maxHistorySeries ?? 4096,
     sampleWindow: fixture.sampleWindow ?? 32
   });
-  const historySnapshotSha256 = sha256Json({
-    files: fixture.historySnapshot.files,
-    snapshotId: fixture.historySnapshot.snapshotId
+}
+
+function createFallbackValidator(fixture: LearnedPolicyFixture): Readonly<{
+  readonly assertValid: () => void;
+  readonly observe: (event: Readonly<{ readonly kind: string; readonly source?: string }>) => void;
+}> {
+  const allowedSources = expectedPredictionSources(fixture.expectedFallbackType);
+  let invalidFallback: string | undefined;
+  return Object.freeze({
+    assertValid: () => {
+      if (invalidFallback !== undefined) throw new Error(invalidFallback);
+    },
+    observe: (event) => {
+      if (invalidFallback !== undefined) return;
+      invalidFallback = invalidFallbackReason(event, allowedSources);
+    }
   });
-  const snapshotRoot = await mkdtemp(join(tmpdir(), "vibe-check-history-snapshot-"));
-  const stateParent = await mkdtemp(join(tmpdir(), "vibe-check-admission-workbench-"));
-  const stateDirectory = join(stateParent, "state");
-  try {
-    await materializeSnapshot(snapshotRoot, fixture.historySnapshot.files);
-    await cp(snapshotRoot, stateDirectory, { recursive: true, force: false, errorOnExist: true });
-    const observations: Array<
-      | Readonly<{ readonly kind: "history-unavailable"; readonly reason: string }>
-      | Readonly<{ readonly kind: "selection-proposed"; readonly source: string }>
-      | Readonly<{ readonly kind: "recording-unavailable" }>
-    > = [];
-    const strategy = createLearnedCriticalPathStrategy({
-      ...modelOptions,
-      identityForTask: fixture.identityForTask,
-      observe: (event) => {
-        observations.push(event);
-      },
-      stateDirectory
-    });
-    if (strategy.kind !== "prepared") throw new TypeError("learned strategy is not prepared");
-    const prepared = await strategy.prepare({ graph });
-    assertNoUnexpectedFallback(observations, fixture.expectedFallbackType);
-    const decide: DecisionPolicy = (context) => {
-      const proposal = prepared.decide(context);
-      assertNoUnexpectedFallback(observations, fixture.expectedFallbackType);
-      return proposal;
-    };
-    return Object.freeze({
-      decide,
-      dispose: async () => {
-        await rm(stateParent, { recursive: true, force: true });
-      },
-      identity: learnedIdentity(fixture, historySnapshotSha256, modelOptions),
-      stateDirectory
-    });
-  } catch (error) {
-    await rm(stateParent, { recursive: true, force: true });
-    throw error;
-  } finally {
-    await rm(snapshotRoot, { recursive: true, force: true });
-  }
+}
+
+function expectedPredictionSources(
+  expectedFallbackType: LearnedPolicyFixture["expectedFallbackType"]
+): ReadonlySet<string> {
+  return expectedFallbackType === "cold-start"
+    ? new Set(["cold-start"])
+    : new Set(["learned", "project-prior"]);
+}
+
+function invalidFallbackReason(
+  event: Readonly<{ readonly kind: string; readonly source?: string }>,
+  allowedSources: ReadonlySet<string>
+): string | undefined {
+  if (event.kind === "history-unavailable")
+    return "learned policy history/setup fallback invalidates this comparison";
+  if (event.kind !== "selection-proposed") return undefined;
+  if (event.source !== undefined && allowedSources.has(event.source)) return undefined;
+  return `learned policy used unexpected prediction source; expected ${[...allowedSources].join(" or ")}`;
+}
+
+function learnedPolicyHandle(
+  fixture: LearnedPolicyFixture,
+  modelOptions: NonNullable<PolicyIdentity["modelOptions"]>,
+  writableState: WritablePolicyState,
+  directDecide: DecisionPolicy,
+  assertValid: () => void
+): PreparedPolicyHandle {
+  const decide: DecisionPolicy = (context) => {
+    const proposal = directDecide(context);
+    assertValid();
+    return proposal;
+  };
+  return Object.freeze({
+    assertValid,
+    decide,
+    directDecide,
+    dispose: async () => removeWritableState(writableState.stateParent),
+    identity: learnedIdentity(
+      fixture,
+      sha256Json({
+        files: fixture.historySnapshot.files,
+        snapshotId: fixture.historySnapshot.snapshotId
+      }),
+      modelOptions
+    ),
+    stateDirectory: writableState.stateDirectory
+  });
 }
 
 function learnedIdentity(
@@ -217,48 +291,4 @@ export function staticIdentity(policyId: string): PolicyIdentity {
     policyId,
     policyVersion: 1 as const
   });
-}
-
-function assertNoUnexpectedFallback(
-  observations: readonly Readonly<{ readonly kind: string; readonly source?: string }>[],
-  expectedFallbackType: LearnedPolicyFixture["expectedFallbackType"]
-): void {
-  if (observations.some(({ kind }) => kind === "history-unavailable")) {
-    throw new Error("learned policy history/setup fallback invalidates this comparison");
-  }
-  const allowedSources =
-    expectedFallbackType === "cold-start"
-      ? new Set(["cold-start"])
-      : new Set(["learned", "project-prior"]);
-  if (
-    observations.some(
-      (event) =>
-        event.kind === "selection-proposed" &&
-        (event.source === undefined || !allowedSources.has(event.source))
-    )
-  ) {
-    throw new Error(
-      `learned policy used unexpected prediction source; expected ${[...allowedSources].join(" or ")}`
-    );
-  }
-}
-
-async function materializeSnapshot(
-  root: string,
-  files: Readonly<Record<string, string>>
-): Promise<void> {
-  for (const [relativePath, content] of Object.entries(files).sort(([left], [right]) =>
-    left.localeCompare(right)
-  )) {
-    if (
-      relativePath.length === 0 ||
-      relativePath.startsWith("/") ||
-      relativePath.split("/").some((part) => part === "" || part === "." || part === "..")
-    ) {
-      throw new TypeError("history snapshot path must be a safe relative path");
-    }
-    const path = join(root, relativePath);
-    await mkdir(join(path, ".."), { recursive: true });
-    await writeFile(path, content, { encoding: "utf8", flag: "wx" });
-  }
 }

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "historical-non-gating",
+  "rawEvidenceSha256": "sha256:56a2d56ace4066ce0abf58d520a906197ea50abe6a6b0f3aa91e3e105875bd86",
+  "protocolId": "learned-admission-heuristic-comparison-v1",
+  "summary": "v1 froze the original 12 fixtures and baseline before candidate exploration. It is retained as provenance only; v2 added the weighted shared-dependency counterexample and replaced the cost boundary."
+}

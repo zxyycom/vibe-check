@@ -153,6 +153,40 @@ unit·time、正式 action-observation prefix 与 ordered trace。资源指标�
 时长模型，禁止把其 makespan 与正式 Gate wall time 计算预测误差比例。任何模拟结果都不保证真实
 Gate 加速。
 
+### Learned admission heuristic 对照记录
+
+`learned-heuristic-evaluation.ts` 是一次已结束的维护者对照，不是第二个 root command、Product API、Gate
+selector 或持续性能承诺。它只接受两个已构建 package directory 的公开 `index.mjs`，分别动态导入
+`createLearnedCriticalPathStrategy`；复现命令为：
+
+```sh
+bun scripts/project/admission-workbench/learned-heuristic-evaluation.ts \
+  --baseline-artifact <baseline-package-directory> \
+  --candidate-artifact <candidate-package-directory> \
+  --out <new-evidence.json>
+```
+
+v1 先冻结 12 个 fixture、基线和两个小候选：c1 只将 scored choice 按 public `canAdmit` 过滤，未产生
+可采用的虚拟收益；c2 再以 public resource-claim backlog 解决同 score/priority 的并列，在 `gate-shape-v1`
+从 `1000` 到 `900`，但这不是采用依据。v2 保留旧输入、加入
+`learned-heuristic-weighted-shared-dependency-regression.json`（固定 9 个 task、`maxParallel=2`、`shared=2`、
+`queue=2`），并修正成本边界。
+
+成本 corpus 只能由基线公开 policy 捕获；捕获 handle 随即释放，两个 artifact 为每张图新建同配置
+prepared policy，计时区间只调用原始 public `decide`。记录 corpus hash/count、raw samples、nearest-rank
+p95 与 1.25× guard；fallback 以 O(1) sticky failure 在计时外检查。virtual 结果与宿主成本仍是不同证据，
+均不表示真实 Gate 加速。
+
+c2 在 v2 的固定 5 个 replicate 中均把该反例的 makespan 从基线 `204` 增至 `300`，所以无论之后的
+成本 guard 对它有利与否，结论都是 **保留基线（no adoption）**，且未改变 Product 行为。
+`learned-heuristic-*.evidence.json` 中 `historical-non-gating` 的 v1 或 wrapper-cost 记录只保存探索来历，
+不得用于采用判断；当前 `current-replay` 双 artifact evidence 才是结论的可复核输入。它保留逐场景指标、
+反例的完整代表 trace、artifact/protocol/context hashes 和有效成本 samples；忽略的原始全量输出并非复现前提。
+
+追溯材料中的 c1/c2 规则足以辨识曾评估的对象，但仓库不会从已还原的 Product source 自动重建历史候选。
+若要重放历史结果，调用方必须自行提供与 evidence identity 相符的两个公开 package artifact；清理 ignored
+raw output 不改变这一边界。
+
 ### 治理、来源映射与 Project Gate 调用
 
 `bun run investigations` 默认执行完整检查。列出或同步 Investigation 索引时使用 `bun run investigations -- list` 或 `bun run investigations -- sync-index`；命令从当前仓库根目录推定 root。只有需要覆盖该默认值时才把 `--root <path>` 放在子命令之后，例如 `bun run investigations -- list --root <path>`。

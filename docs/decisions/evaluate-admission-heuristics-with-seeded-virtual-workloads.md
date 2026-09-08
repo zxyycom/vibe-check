@@ -2,7 +2,7 @@
 title: 以可复现虚拟负载为主评估准入启发式
 id: 260908-evaluate-admission-heuristics-with-seeded-virtual-workloads
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-08T08:03:51Z
 purpose: 让简单准入算法低成本覆盖常见极端场景，并以真实运行校准而非替代模拟边界。
 background: 频繁真实执行成本高，固定任务时长又不能表达共享资源竞争造成的效率变化。

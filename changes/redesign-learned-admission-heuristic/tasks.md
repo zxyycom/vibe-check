@@ -1,6 +1,7 @@
 # Tasks
 
-平台与资源输入就绪后依次完成基线、比较协议、候选探索和采用结论；没有收益时保留现状。
+本 Change 已以保留基线收敛；没有 Product 代码、测试或用户行为变更。下列状态只记录已经发生的工作，
+不以计划文件或失败的质量门禁替代独立审查。
 
 ## Readiness
 
@@ -11,13 +12,15 @@
 
 ## Implementation
 
-- [ ] 1.1 继承平台及资源配置稳定提交，固定场景、预测/history 和随机输入，运行当前 helper 基线并解释反例。
-- [ ] 1.2 在设计候选前冻结逐场景回归口径、seed/重复、次指标取舍、宿主成本采样与接受上限。
-- [ ] 1.3 按反例形成至多两轮、每轮至多两个候选；逐个固定规则、复杂度和合法退化后实现比较，无有价值反例时保留基线。
-- [ ] 1.4 按固定协议决定采用或不采用；同步实际受影响的指南、内部 owner、JSDoc、测试与 Case。
+- [x] 1.1 v1 用当前 helper 冻结 12 个既有 fixture 的基线；v2 保留它们并加入 9-task weighted shared-dependency 反例，基线为 204 makespan。
+- [x] 1.2 在候选比较前冻结 v1 的逐场景口径、seed/重复、secondary 与成本预算；v2 加入反例并冻结 fresh-handle public-context direct-decide 的 15 个样本与 1.25× p95 guard。
+- [x] 1.3 比较 c1（public `canAdmit` filter，无可采用收益）和 c2（再以 public resource-claim backlog 同分打破）；c2 虽使 gate-shape 1000→900，却在新反例五次均为 300，已还原。
+- [x] 1.4 作出 no-adopt 决定并交接到 `docs/tooling/workspace.md`；新增 workbench replay Test/Case，但未发生指南、JSDoc 或 Product 行为影响。
 
 ## Verification
 
-- [ ] 2.1 修改测试前后运行 bun run test-evidence -- check --root .，通过 strategy 与平台目标测试及真实 shared-closure integration。
-- [ ] 2.2 保存逐场景指标/trace、宿主决策成本和少量真实 Gate 接线证据；通过 bun run package:candidate:integration。
-- [ ] 2.3 完成非实施代理文档影响审查和 bun run check -- --all，向发布交接采用或不采用的稳定提交。
+- [x] 2.1 运行 `bun run typecheck`、`bun run lint`、`bun run format check` 及 `bun test src/learned-critical-path/strategy.test.ts scripts/project/admission-workbench/policy.test.ts`（6 pass）。
+- [x] 2.2 以两个公开 artifact 重跑 v2；记录 package-content hashes、基线 context corpus hash/count、raw samples 与 204→300 回归。计时只含 fresh public prepared `decide`。
+- [x] 2.3 将 v1 和旧 wrapper-cost evidence 标为 `historical-non-gating` / superseded，不作为采用证据。
+- [x] 2.4 完成独立正确性与文档影响复核、AI-ready 文档及编码规范优化；新增 replay 测试与 Case，592/592 evidence 通过，聚焦 quality 门禁通过。先前六项 metrics 失败已修复，不作为通过证据。
+- [x] 2.5 `bun run package:candidate:integration`（6 tests）、helper/workbench 目标测试（26 tests）与 `bun run check -- --all`（36/36）通过；真实接线摘要交给稳定 evidence。已独立复核 no-adopt 与用户材料不变的边界；通过本次稳定提交向发布交接，不授权 0.0.2 发布。

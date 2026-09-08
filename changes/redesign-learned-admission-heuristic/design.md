@@ -41,3 +41,19 @@
 ## Open Questions
 
 无阻止按依赖推进的未决范围或用户选择。具体反例、候选、计算上限和采用结果是 Implementation 的产物；评估协议在候选比较前冻结，而不是在平台可用前预定最终算法。
+
+## 已落实的停止决定
+
+v1 先尝试 c1（以 public `canAdmit` 过滤 scored choices，未获得可采用收益），再尝试 c2（在 c1 上以
+public resource-claim backlog 解决同 score/priority 的并列）。c2 曾使 `gate-shape-v1` 从 `1000` 到 `900`，
+但 v2 加入的 weighted shared-dependency 反例显示它延迟 `a-root` 的 shared capacity，固定 workload 从
+`204` 退化到 `300`。策略、测试和用户文档均已还原，故没有 Product/API/调度语义变更。
+
+复现 evaluator 不能将 simulation capture、fallback wrapper 或累计 observer scan 计入成本：基线 handle
+只用于生成 immutable public contexts，随后释放；每个 artifact/graph 新建同配置 handle，计时只调用其
+public prepared `decide`，并在计时外检查 O(1) sticky fallback failure 和 corpus hash 不变。它记录整个
+package content hash，避免 re-export stub 造成 artifact 身份混淆。该 helper 是 workbench adapter，不是
+Product runtime 或 Gate 接线。
+
+因为主指标已经失败，不再寻找候选或放宽二级/成本门槛。正式成本数值和协议边界见工作区 owner；先前 v1
+及带 wrapper 的 v2 数值只保留为 `historical-non-gating` / superseded 记录。

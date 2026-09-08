@@ -1,0 +1,3584 @@
+{
+  "schemaVersion": 2,
+  "evidenceStatus": "current-replay",
+  "resultScope": "frozen-v2-dual-artifact-comparison",
+  "protocol": {
+    "id": "learned-admission-heuristic-comparison-v2",
+    "schemaVersion": 2,
+    "sha256": "sha256:58a9a365fb1f5ad9a040d974e02f5de2c3d02cbc070e4d907bb37a31c1849b93"
+  },
+  "environment": {
+    "architecture": "x64",
+    "bunVersion": "1.3.14",
+    "command": "bun scripts/project/admission-workbench/learned-heuristic-evaluation.ts",
+    "platform": "linux"
+  },
+  "scenarioInputs": [
+    {
+      "scenarioId": "empty",
+      "source": "fixture:empty"
+    },
+    {
+      "scenarioId": "single",
+      "source": "fixture:single"
+    },
+    {
+      "scenarioId": "chain",
+      "source": "fixture:chain"
+    },
+    {
+      "scenarioId": "two-shared-claims",
+      "source": "fixture:two-shared-claims"
+    },
+    {
+      "scenarioId": "wide-tie",
+      "source": "fixture:wide-tie"
+    },
+    {
+      "scenarioId": "backfill",
+      "source": "fixture:backfill"
+    },
+    {
+      "scenarioId": "scoped-capacity",
+      "source": "fixture:scoped-capacity"
+    },
+    {
+      "scenarioId": "weighted-mutex-multi-resource",
+      "source": "fixture:weighted-mutex-multi-resource"
+    },
+    {
+      "scenarioId": "profile-variation",
+      "source": "fixture:profile-variation"
+    },
+    {
+      "scenarioId": "long-tail-critical",
+      "source": "fixture:long-tail-critical"
+    },
+    {
+      "scenarioId": "unsatisfied-observes",
+      "source": "fixture:unsatisfied-observes"
+    },
+    {
+      "scenarioId": "gate-shape-v1",
+      "source": "fixture:gate-shape-v1"
+    },
+    {
+      "scenarioId": "learned-heuristic-weighted-shared-dependency-regression",
+      "source": "/workspace/vibe-check/scripts/project/admission-workbench/learned-heuristic-weighted-shared-dependency-regression.json"
+    }
+  ],
+  "artifacts": {
+    "baseline": {
+      "artifact": {
+        "entrySha256": "sha256:dab388d17ab9ea57a34bd32921267a9d2162fa1954c91bafbd4d9d42b52522e4",
+        "packageContentsSha256": "sha256:d671d79a2b07cc3904e970b3c9ea606ff8bd37bea8c4601d2744417647cac7d7",
+        "packageName": "@zxyycom/vibe-check",
+        "packageVersion": "0.0.0-local.ec1320793b5f"
+      },
+      "policyIdentity": {
+        "expectedFallbackType": "cold-start",
+        "historySnapshotSha256": "sha256:ea92b0d819fdd764b16756fa5215a53aae7d6a7220bdf6ac5dd36c8dcb4a9477",
+        "identityProjectionId": "task-id-v1",
+        "kind": "prepared",
+        "modelOptions": {
+          "coldStartDurationMs": 1,
+          "maxHistorySeries": 4096,
+          "sampleWindow": 32
+        },
+        "policyId": "learned",
+        "policyVersion": 1
+      }
+    },
+    "candidate": {
+      "artifact": {
+        "entrySha256": "sha256:dab388d17ab9ea57a34bd32921267a9d2162fa1954c91bafbd4d9d42b52522e4",
+        "packageContentsSha256": "sha256:4df8dc865964814d2b3963eeb5d0d6b05a64553dc29729976365373ba68e5afa",
+        "packageName": "@zxyycom/vibe-check",
+        "packageVersion": "0.0.0-local.67408df9c41c"
+      },
+      "policyIdentity": {
+        "expectedFallbackType": "cold-start",
+        "historySnapshotSha256": "sha256:ea92b0d819fdd764b16756fa5215a53aae7d6a7220bdf6ac5dd36c8dcb4a9477",
+        "identityProjectionId": "task-id-v1",
+        "kind": "prepared",
+        "modelOptions": {
+          "coldStartDurationMs": 1,
+          "maxHistorySeries": 4096,
+          "sampleWindow": 32
+        },
+        "policyId": "learned",
+        "policyVersion": 1
+      }
+    }
+  },
+  "scenarioMetrics": {
+    "baseline": [
+      {
+        "scenarioId": "empty",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        ]
+      },
+      {
+        "scenarioId": "single",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          }
+        ]
+      },
+      {
+        "scenarioId": "chain",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          }
+        ]
+      },
+      {
+        "scenarioId": "two-shared-claims",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          }
+        ]
+      },
+      {
+        "scenarioId": "wide-tie",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          }
+        ]
+      },
+      {
+        "scenarioId": "backfill",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          }
+        ]
+      },
+      {
+        "scenarioId": "scoped-capacity",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          }
+        ]
+      },
+      {
+        "scenarioId": "weighted-mutex-multi-resource",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          }
+        ]
+      },
+      {
+        "scenarioId": "profile-variation",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 1581.3672490000001,
+            "slotTimeMs": 2913.55891,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ed66edfd07ee967913d5791869de5601fec694a5531e514125a749958a7303fe"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 1500.032504,
+            "slotTimeMs": 2677.598719,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0658dfe66cc90d2edffd7d5902eadc622f32d2fd2803a65faa0beaa482f5aa39"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 1496.602434,
+            "slotTimeMs": 2681.8484470000003,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:148eb04c6e33be52068b6d244702ab8ccdeef4f463fc584989ba232f76ca9c78"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 1460.749573,
+            "slotTimeMs": 2577.8271700000005,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:c296d7073952aa83126db6bdfbfb4147e344588d0934b578744c859d607c8444"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 1636.350432,
+            "slotTimeMs": 3173.150291,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:f7fdbb698120702271afb93ed2bb521b7d637e8e56988158ff65e9c8b16af699"
+          }
+        ]
+      },
+      {
+        "scenarioId": "long-tail-critical",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 570,
+            "slotTimeMs": 590,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ba98dcdb5353919941760823510cb991a235e0263b4ca998b3f9c3283efd07e4"
+          }
+        ]
+      },
+      {
+        "scenarioId": "unsatisfied-observes",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          }
+        ]
+      },
+      {
+        "scenarioId": "gate-shape-v1",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 1000,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 1000,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 1000,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 1000,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 1000,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          }
+        ]
+      },
+      {
+        "scenarioId": "learned-heuristic-weighted-shared-dependency-regression",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 204,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 204,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 204,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 204,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 204,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          }
+        ]
+      }
+    ],
+    "candidate": [
+      {
+        "scenarioId": "empty",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 0,
+            "slotTimeMs": 0,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+          }
+        ]
+      },
+      {
+        "scenarioId": "single",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 25,
+            "slotTimeMs": 25,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:53a0dfec934a3499d7da8a218d3de08e601928736ba058fe9315f1b854361684"
+          }
+        ]
+      },
+      {
+        "scenarioId": "chain",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 150,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0897952970fd00b78f5903da27694592f7c5de53ee09c1f5103eac018507e3b4"
+          }
+        ]
+      },
+      {
+        "scenarioId": "two-shared-claims",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 150,
+            "slotTimeMs": 300,
+            "resourceUnitTimeMs": {
+              "cpu": 300
+            },
+            "sampledWorkCommitment": "sha256:6d2eec60ef118c350dcfe186cd6632bb81b2146e2bf01147cbb5def00d608c32"
+          }
+        ]
+      },
+      {
+        "scenarioId": "wide-tie",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 60,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:4c5dbe67b71de8881635d5f7c4bbf8f3ee28d8ad070a3a37b0538fa6e798ec91"
+          }
+        ]
+      },
+      {
+        "scenarioId": "backfill",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 200,
+            "slotTimeMs": 225,
+            "resourceUnitTimeMs": {
+              "exclusive": 200
+            },
+            "sampledWorkCommitment": "sha256:c9ac5085f1791fdc06d8628acab5206b16a34be611bfb0f179f98e225d1fcf56"
+          }
+        ]
+      },
+      {
+        "scenarioId": "scoped-capacity",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 40,
+            "slotTimeMs": 40,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ea1e779e3c3ee26aa337467a5ad1ec367639d26dead6e43ff3de1a858a66af53"
+          }
+        ]
+      },
+      {
+        "scenarioId": "weighted-mutex-multi-resource",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 92.6923076923077,
+            "slotTimeMs": 127.6923076923077,
+            "resourceUnitTimeMs": {
+              "cpu": 190.3846153846154,
+              "io": 92.6923076923077
+            },
+            "sampledWorkCommitment": "sha256:6c0d4a6857d67e6f60f947d38dd2ac96b987fdf5377349c17ec82e39d9f8e298"
+          }
+        ]
+      },
+      {
+        "scenarioId": "profile-variation",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 1581.3672490000001,
+            "slotTimeMs": 2913.55891,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ed66edfd07ee967913d5791869de5601fec694a5531e514125a749958a7303fe"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 1500.032504,
+            "slotTimeMs": 2677.598719,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:0658dfe66cc90d2edffd7d5902eadc622f32d2fd2803a65faa0beaa482f5aa39"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 1496.602434,
+            "slotTimeMs": 2681.8484470000003,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:148eb04c6e33be52068b6d244702ab8ccdeef4f463fc584989ba232f76ca9c78"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 1460.749573,
+            "slotTimeMs": 2577.8271700000005,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:c296d7073952aa83126db6bdfbfb4147e344588d0934b578744c859d607c8444"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 1636.350432,
+            "slotTimeMs": 3173.150291,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:f7fdbb698120702271afb93ed2bb521b7d637e8e56988158ff65e9c8b16af699"
+          }
+        ]
+      },
+      {
+        "scenarioId": "long-tail-critical",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 120,
+            "slotTimeMs": 140,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:b9fbef1c7842ec8d1c73b949eb1e3dfaf7cb59a2a23013670031fa204565923a"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 570,
+            "slotTimeMs": 590,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:ba98dcdb5353919941760823510cb991a235e0263b4ca998b3f9c3283efd07e4"
+          }
+        ]
+      },
+      {
+        "scenarioId": "unsatisfied-observes",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 20,
+            "slotTimeMs": 20,
+            "resourceUnitTimeMs": {},
+            "sampledWorkCommitment": "sha256:08d3aa6f7c02cc84aae20703b7e53da6389afddf769160305f2b9cf29dfe7f1e"
+          }
+        ]
+      },
+      {
+        "scenarioId": "gate-shape-v1",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 900,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 900,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 900,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 900,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 900,
+            "slotTimeMs": 2100,
+            "resourceUnitTimeMs": {
+              "project-gate-bun-test-runners": 1700,
+              "project-gate-repository-scans": 400
+            },
+            "sampledWorkCommitment": "sha256:af20a5b4572355a6f4556b2fbadea198be98bf1e462d193d41653cf17d8be125"
+          }
+        ]
+      },
+      {
+        "scenarioId": "learned-heuristic-weighted-shared-dependency-regression",
+        "replicates": [
+          {
+            "replicate": 0,
+            "status": "success",
+            "makespanMs": 300,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 1,
+            "status": "success",
+            "makespanMs": 300,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 2,
+            "status": "success",
+            "makespanMs": 300,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 3,
+            "status": "success",
+            "makespanMs": 300,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          },
+          {
+            "replicate": 4,
+            "status": "success",
+            "makespanMs": 300,
+            "slotTimeMs": 306,
+            "resourceUnitTimeMs": {
+              "queue": 208,
+              "shared": 304
+            },
+            "sampledWorkCommitment": "sha256:2e3a2fab02cb876f51e6f1ad001ef781d23526cb3638911ef1fe68901d44aa0f"
+          }
+        ]
+      }
+    ]
+  },
+  "representativeRegressionTrace": {
+    "scenarioId": "learned-heuristic-weighted-shared-dependency-regression",
+    "replicate": 0,
+    "baseline": {
+      "actionObservations": [
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "a-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 1,
+          "taskId": "a-root"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "a-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 100,
+              "admissiblePendingTaskMs": 100,
+              "capacityBlockedTaskMs": 500,
+              "effectiveCapacitySlotMs": 200,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 200,
+              "taskSlotMs": 100
+            }
+          },
+          "kind": "wait",
+          "sequence": 2,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 3,
+          "taskId": "b-root"
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "a-tail"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 4,
+          "taskId": "a-tail"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "a-tail"
+            },
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 100,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 500,
+              "effectiveCapacitySlotMs": 200,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 200,
+              "taskSlotMs": 200
+            }
+          },
+          "kind": "wait",
+          "sequence": 5,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b-tail"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 6,
+          "taskId": "b-tail"
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b2"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 7,
+          "taskId": "b2"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b-tail"
+            },
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b2"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 4,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 2
+            }
+          },
+          "kind": "wait",
+          "sequence": 8,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b3"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 9,
+          "taskId": "b3"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b3"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 1,
+              "capacityBlockedTaskMs": 2,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 1
+            }
+          },
+          "kind": "wait",
+          "sequence": 10,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b4"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 11,
+          "taskId": "b4"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b4"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 1,
+              "capacityBlockedTaskMs": 1,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 1
+            }
+          },
+          "kind": "wait",
+          "sequence": 12,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b5"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 13,
+          "taskId": "b5"
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "c-fill"
+            },
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b5"
+            },
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "c-fill"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 2
+            }
+          },
+          "kind": "select",
+          "sequence": 14,
+          "taskId": "c-fill"
+        }
+      ],
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 1,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root"
+          ]
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 1,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-tail",
+              "b-root",
+              "b2",
+              "b3",
+              "b4",
+              "b5",
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 2,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b-root"
+            ],
+            "selectableTaskIds": [
+              "a-tail",
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "b-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 4,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root"
+            ]
+          }
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 4,
+          "deltaMs": 100,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "b-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "b-root"
+          ]
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 4,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b-root"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 4,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "b5",
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root"
+            ]
+          },
+          "taskId": "b-root"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 5,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b-tail"
+            ],
+            "selectableTaskIds": [
+              "b2",
+              "b3",
+              "b4",
+              "b5",
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root"
+            ]
+          },
+          "taskId": "b-tail"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 6,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "b-tail",
+              "b2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root"
+            ]
+          },
+          "taskId": "b2"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "b-tail",
+              "b2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root"
+            ]
+          }
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 7,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "b-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "b2"
+            }
+          ],
+          "runningTaskIds": [
+            "b-tail",
+            "b2"
+          ]
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b2"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail"
+            ]
+          },
+          "taskId": "b-tail"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "b3",
+              "b4",
+              "b5",
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2"
+            ]
+          },
+          "taskId": "b2"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b3"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2"
+            ]
+          },
+          "taskId": "b3"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 9,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b3"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2"
+            ]
+          }
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 9,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "b3"
+            }
+          ],
+          "runningTaskIds": [
+            "b3"
+          ]
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 9,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "b4",
+              "b5",
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3"
+            ]
+          },
+          "taskId": "b3"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 10,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b4"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3"
+            ]
+          },
+          "taskId": "b4"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 11,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b4"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3"
+            ]
+          }
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 11,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "b4"
+            }
+          ],
+          "runningTaskIds": [
+            "b4"
+          ]
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 11,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "b5",
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4"
+            ]
+          },
+          "taskId": "b4"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 12,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b5"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4"
+            ]
+          },
+          "taskId": "b5"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 13,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "b5",
+              "c-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4"
+            ]
+          },
+          "taskId": "c-fill"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "b5"
+            },
+            {
+              "rate": 1,
+              "taskId": "c-fill"
+            }
+          ],
+          "runningTaskIds": [
+            "b5",
+            "c-fill"
+          ]
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "c-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "b5"
+            ]
+          },
+          "taskId": "b5"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "b5",
+              "c-fill"
+            ]
+          },
+          "taskId": "c-fill"
+        }
+      ]
+    },
+    "candidate": {
+      "actionObservations": [
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 1,
+          "taskId": "b-root"
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "c-fill"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 2,
+          "taskId": "c-fill"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "c-fill"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 5,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 2
+            }
+          },
+          "kind": "wait",
+          "sequence": 3,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 99,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 495,
+              "effectiveCapacitySlotMs": 198,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 198,
+              "taskSlotMs": 99
+            }
+          },
+          "kind": "wait",
+          "sequence": 4,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "a-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 5,
+          "taskId": "a-root"
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b-tail"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 6,
+          "taskId": "b-tail"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b-tail"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 4,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 2
+            }
+          },
+          "kind": "wait",
+          "sequence": 7,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "a-root"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 99,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 396,
+              "effectiveCapacitySlotMs": 198,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 198,
+              "taskSlotMs": 99
+            }
+          },
+          "kind": "wait",
+          "sequence": 8,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b2"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 9,
+          "taskId": "b2"
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "a-tail"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 10,
+          "taskId": "a-tail"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b2"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 3,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 2
+            }
+          },
+          "kind": "wait",
+          "sequence": 11,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b3"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 12,
+          "taskId": "b3"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b3"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 2,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 2
+            }
+          },
+          "kind": "wait",
+          "sequence": 13,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b4"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 0,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 0,
+              "taskSlotMs": 0
+            }
+          },
+          "kind": "select",
+          "sequence": 14,
+          "taskId": "b4"
+        },
+        {
+          "effects": [
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b4"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 1,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 1,
+              "effectiveCapacitySlotMs": 2,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 2,
+              "taskSlotMs": 2
+            }
+          },
+          "kind": "wait",
+          "sequence": 15,
+          "taskId": null
+        },
+        {
+          "effects": [
+            {
+              "kind": "admitted",
+              "taskId": "b5"
+            },
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "b5"
+            },
+            {
+              "kind": "settled",
+              "settlementKind": "completed",
+              "taskId": "a-tail"
+            }
+          ],
+          "interval": {
+            "availability": "available",
+            "contribution": {
+              "acceptedWaitMs": 0,
+              "admissiblePendingTaskMs": 0,
+              "capacityBlockedTaskMs": 0,
+              "effectiveCapacitySlotMs": 194,
+              "mutexBlockedTaskMs": 0,
+              "rootCapacitySlotMs": 194,
+              "taskSlotMs": 98
+            }
+          },
+          "kind": "select",
+          "sequence": 16,
+          "taskId": "b5"
+        }
+      ],
+      "trace": [
+        {
+          "atMs": 0,
+          "boundaryIndex": 0,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b-root"
+            ],
+            "selectableTaskIds": [
+              "c-fill"
+            ],
+            "settledTaskIds": []
+          },
+          "taskId": "b-root"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 1,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "b-root",
+              "c-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          },
+          "taskId": "c-fill"
+        },
+        {
+          "atMs": 0,
+          "boundaryIndex": 2,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "b-root",
+              "c-fill"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": []
+          }
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "b-root"
+            },
+            {
+              "rate": 1,
+              "taskId": "c-fill"
+            }
+          ],
+          "runningTaskIds": [
+            "b-root",
+            "c-fill"
+          ]
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 2,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "b-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "c-fill"
+            ]
+          },
+          "taskId": "c-fill"
+        },
+        {
+          "atMs": 1,
+          "boundaryIndex": 3,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "b-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "c-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "deltaMs": 99,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "b-root"
+            }
+          ],
+          "runningTaskIds": [
+            "b-root"
+          ]
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 3,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "b5"
+            ],
+            "settledTaskIds": [
+              "b-root",
+              "c-fill"
+            ]
+          },
+          "taskId": "b-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 4,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [
+              "b-tail"
+            ],
+            "settledTaskIds": [
+              "b-root",
+              "c-fill"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 5,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "b-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "b-root",
+              "c-fill"
+            ]
+          },
+          "taskId": "b-tail"
+        },
+        {
+          "atMs": 100,
+          "boundaryIndex": 6,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root",
+              "b-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "b-root",
+              "c-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            },
+            {
+              "rate": 1,
+              "taskId": "b-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root",
+            "b-tail"
+          ]
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 6,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "b-root",
+              "b-tail",
+              "c-fill"
+            ]
+          },
+          "taskId": "b-tail"
+        },
+        {
+          "atMs": 101,
+          "boundaryIndex": 7,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-root"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "b-root",
+              "b-tail",
+              "c-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "deltaMs": 99,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-root"
+            }
+          ],
+          "runningTaskIds": [
+            "a-root"
+          ]
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 7,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [],
+            "selectableTaskIds": [
+              "a-tail",
+              "b2",
+              "b3",
+              "b4",
+              "b5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "c-fill"
+            ]
+          },
+          "taskId": "a-root"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 8,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "b2"
+            ],
+            "selectableTaskIds": [
+              "a-tail"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "c-fill"
+            ]
+          },
+          "taskId": "b2"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 9,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "c-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        },
+        {
+          "atMs": 200,
+          "boundaryIndex": 10,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b2"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "c-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 10,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "b2"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "b2"
+          ]
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 10,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-tail"
+            ],
+            "selectableTaskIds": [
+              "b3",
+              "b4",
+              "b5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "c-fill"
+            ]
+          },
+          "taskId": "b2"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 11,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b3"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "c-fill"
+            ]
+          },
+          "taskId": "b3"
+        },
+        {
+          "atMs": 201,
+          "boundaryIndex": 12,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b3"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "c-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 12,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "b3"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "b3"
+          ]
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 12,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-tail"
+            ],
+            "selectableTaskIds": [
+              "b4",
+              "b5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "c-fill"
+            ]
+          },
+          "taskId": "b3"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 13,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b4"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "c-fill"
+            ]
+          },
+          "taskId": "b4"
+        },
+        {
+          "atMs": 202,
+          "boundaryIndex": 14,
+          "kind": "policy-wait",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b4"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "c-fill"
+            ]
+          }
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 14,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "b4"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "b4"
+          ]
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 14,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "select",
+            "runningTaskIds": [
+              "a-tail"
+            ],
+            "selectableTaskIds": [
+              "b5"
+            ],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "c-fill"
+            ]
+          },
+          "taskId": "b4"
+        },
+        {
+          "atMs": 203,
+          "boundaryIndex": 15,
+          "kind": "select",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail",
+              "b5"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "c-fill"
+            ]
+          },
+          "taskId": "b5"
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 16,
+          "deltaMs": 1,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            },
+            {
+              "rate": 1,
+              "taskId": "b5"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail",
+            "b5"
+          ]
+        },
+        {
+          "atMs": 204,
+          "boundaryIndex": 16,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "wait",
+            "runningTaskIds": [
+              "a-tail"
+            ],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "b5",
+              "c-fill"
+            ]
+          },
+          "taskId": "b5"
+        },
+        {
+          "atMs": 300,
+          "boundaryIndex": 17,
+          "deltaMs": 96,
+          "kind": "advance",
+          "rates": [
+            {
+              "rate": 1,
+              "taskId": "a-tail"
+            }
+          ],
+          "runningTaskIds": [
+            "a-tail"
+          ]
+        },
+        {
+          "atMs": 300,
+          "boundaryIndex": 17,
+          "kind": "settle",
+          "outcome": "satisfied",
+          "state": {
+            "nextBoundary": "complete",
+            "runningTaskIds": [],
+            "selectableTaskIds": [],
+            "settledTaskIds": [
+              "a-root",
+              "a-tail",
+              "b-root",
+              "b-tail",
+              "b2",
+              "b3",
+              "b4",
+              "b5",
+              "c-fill"
+            ]
+          },
+          "taskId": "a-tail"
+        }
+      ]
+    }
+  },
+  "hostCost": {
+    "baseline": {
+      "p50Ms": 19.163182000000006,
+      "p95Ms": 24.545004000000063,
+      "samplesMs": [
+        24.545004000000063,
+        20.46615100000008,
+        19.163182000000006,
+        18.395246999999927,
+        18.547098000000005,
+        19.42799600000012,
+        20.371007999999847,
+        19.19644399999993,
+        18.15599300000008,
+        18.186167999999952,
+        19.113941999999952,
+        18.50443899999982,
+        19.387109999999666,
+        20.73107600000003,
+        18.186228999999912
+      ]
+    },
+    "baselineContextCorpusSha256": "sha256:d99bd6916ac5cf62112db52b7b9918d218023c121482a276d992e86c0b6da052",
+    "candidate": {
+      "p50Ms": 21.723109999999906,
+      "p95Ms": 24.355285000000094,
+      "samplesMs": [
+        23.657464000000118,
+        24.355285000000094,
+        21.679550999999947,
+        23.34145699999999,
+        22.196641,
+        21.723109999999906,
+        20.739462000000003,
+        22.1435919999999,
+        20.289855999999872,
+        23.12059699999986,
+        22.902141999999913,
+        20.63614000000007,
+        20.851259000000027,
+        20.17927299999974,
+        20.429305999999997
+      ]
+    },
+    "corpusContextCounts": [
+      {
+        "count": 0,
+        "scenarioId": "empty"
+      },
+      {
+        "count": 5,
+        "scenarioId": "single"
+      },
+      {
+        "count": 10,
+        "scenarioId": "chain"
+      },
+      {
+        "count": 10,
+        "scenarioId": "two-shared-claims"
+      },
+      {
+        "count": 15,
+        "scenarioId": "wide-tie"
+      },
+      {
+        "count": 20,
+        "scenarioId": "backfill"
+      },
+      {
+        "count": 35,
+        "scenarioId": "scoped-capacity"
+      },
+      {
+        "count": 15,
+        "scenarioId": "weighted-mutex-multi-resource"
+      },
+      {
+        "count": 30,
+        "scenarioId": "profile-variation"
+      },
+      {
+        "count": 15,
+        "scenarioId": "long-tail-critical"
+      },
+      {
+        "count": 10,
+        "scenarioId": "unsatisfied-observes"
+      },
+      {
+        "count": 150,
+        "scenarioId": "gate-shape-v1"
+      },
+      {
+        "count": 70,
+        "scenarioId": "learned-heuristic-weighted-shared-dependency-regression"
+      }
+    ],
+    "measurementBoundary": "fresh-public-prepared-direct-decide",
+    "measurementOrder": "alternating-baseline-first",
+    "warmupCount": 3
+  },
+  "comparison": {
+    "costGuard": {
+      "baselineP95Ms": 24.545004000000063,
+      "budgetP95Ms": 30.68125500000008,
+      "candidateP95Ms": 24.355285000000094,
+      "passes": true
+    },
+    "disposition": "candidate-rejected",
+    "findings": [
+      "learned-heuristic-weighted-shared-dependency-regression/0: makespan regressed",
+      "learned-heuristic-weighted-shared-dependency-regression/1: makespan regressed",
+      "learned-heuristic-weighted-shared-dependency-regression/2: makespan regressed",
+      "learned-heuristic-weighted-shared-dependency-regression/3: makespan regressed",
+      "learned-heuristic-weighted-shared-dependency-regression/4: makespan regressed",
+      "learned-heuristic-weighted-shared-dependency-regression: tail makespan regressed"
+    ],
+    "improvements": [
+      "gate-shape-v1/0: makespan improved",
+      "gate-shape-v1/1: makespan improved",
+      "gate-shape-v1/2: makespan improved",
+      "gate-shape-v1/3: makespan improved",
+      "gate-shape-v1/4: makespan improved"
+    ]
+  },
+  "conclusion": {
+    "decision": "retain-baseline-no-adoption",
+    "reason": "The weighted shared-dependency counterexample regressed from 204 to 300 in every fixed replicate; the independent host-cost guard passed but cannot cover a primary-metric regression.",
+    "productBehaviorChanged": false
+  },
+  "rawEvidenceSha256": "sha256:e7e3b5b8986c47a33af8c754b4e852de807d5ffdb02a626e143db59778558fb7",
+  "physicalIntegration": {
+    "candidateVersion": "0.0.0-local.47404e90e692",
+    "packageCandidateIntegration": {
+      "command": "bun run package:candidate:integration",
+      "passed": true,
+      "testCount": 6
+    },
+    "targetedTests": {
+      "command": "bun test src/learned-critical-path/strategy.test.ts scripts/project/admission-workbench/*.test.ts",
+      "passed": true,
+      "testCount": 26
+    },
+    "projectGate": {
+      "command": "bun run check -- --all",
+      "passed": true,
+      "checkCount": 36,
+      "logId": "2026-09-08T11-44-48.031Z-2484994-e2b682e0-8922-431f-9f9f-be401693dc31",
+      "elapsedToInitialResultMs": 22830.0,
+      "candidatePreparationMs": 108.2,
+      "adapterSetupMs": 350.9,
+      "productRunMs": 22371.0
+    },
+    "boundary": "Real package/lifecycle wiring evidence only. The Gate uses the retained baseline helper and live local history; these timings are not a frozen A/B, heuristic gain, or calibration ratio against synthetic virtual milliseconds."
+  }
+}

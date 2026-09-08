@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "historical-non-gating",
+  "rawEvidenceSha256": "sha256:527911aecc0edcd75eaf5779bee5bfca8a7f2044938d9d953bc0f29d8c66c13e",
+  "protocolId": "learned-admission-heuristic-comparison-v1",
+  "candidate": "c1: filter scored choices through public canAdmit before falling back to the existing legal behavior",
+  "outcome": "No virtual benefit justified adoption; c1 was not retained.",
+  "supersededBy": "learned-admission-heuristic-comparison-v2"
+}

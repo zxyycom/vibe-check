@@ -40,3 +40,16 @@
 - [learned helper](../../src/learned-critical-path/strategy.ts)、相邻测试与 duration/history owner：候选和保持不变的模型边界。
 - [用户指南](../../docs/guides/learned-scheduling.md)、[调度指南](../../docs/guides/scheduling.md)与[内部 helper owner](../../docs/development/architecture.md#learned-critical-path-helper-owner)：实际采用后的影响。
 - 虚拟平台：场景、证据和共享闭包集成；[发布 Change](../release-0-0-2/proposal.md)：继承采用或不采用的稳定结论。
+
+## 已实现结论（2026-09-08）
+
+已冻结 `learned-admission-heuristic-comparison-v2`：它以两个公开 package artifact、相同 cold-start
+history、seed `7` 和每场景 5 个 replicate 对照，并把成本限制为基线捕获的公开 context corpus 上、两个
+新建 prepared policy 的直接 `decide` 回放。9-task weighted shared-dependency 回归中，基线 makespan 为
+`204`，c2 候选为 `300`（5/5）；因此违反主指标零容忍，结论为 **保留基线，不采用候选**。v1 的
+c1（public `canAdmit` filter）无可采用虚拟收益；c2 在该 filter 上增加 public resource-claim backlog 的同分打破。
+
+这不是 Product 行为变更，也不授权发布。旧 v1 和已替代的包装器计时 evidence 都明确标为
+`historical-non-gating`；当前协议、反例、双 artifact replay 及其边界由
+[工作区工具](../../docs/tooling/workspace.md#learned-admission-heuristic-对照记录)承接。独立审查、复杂度优化、真实包集成与完整 Gate 已通过；
+此前失败的 metrics 门禁不作为通过依据。稳定证据随本次提交向发布交接，发布仍需独立授权。

@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "historical-non-gating",
+  "rawEvidenceSha256": "sha256:cba7afd510b2e4518d0e06945c7c7feba5ef211e03f638b7801f50d380a2b84f",
+  "protocolId": "learned-admission-heuristic-comparison-v1",
+  "candidate": "c2: c1 plus public resource-claim backlog as a same-score tie-breaker",
+  "historicalObservation": "The synthetic gate shape improved from 1000 to 900, which did not establish adoption.",
+  "supersededBy": "learned-admission-heuristic-comparison-v2",
+  "currentOutcome": "The added weighted shared-dependency counterexample regressed 204 to 300 in 5/5 fixed replicates; c2 was restored out of Product source."
+}

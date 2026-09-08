@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 2,
+  "protocolId": "learned-admission-heuristic-comparison-v2",
+  "scenarioInputs": [
+    {
+      "fixtureId": "empty"
+    },
+    {
+      "fixtureId": "single"
+    },
+    {
+      "fixtureId": "chain"
+    },
+    {
+      "fixtureId": "two-shared-claims"
+    },
+    {
+      "fixtureId": "wide-tie"
+    },
+    {
+      "fixtureId": "backfill"
+    },
+    {
+      "fixtureId": "scoped-capacity"
+    },
+    {
+      "fixtureId": "weighted-mutex-multi-resource"
+    },
+    {
+      "fixtureId": "profile-variation"
+    },
+    {
+      "fixtureId": "long-tail-critical"
+    },
+    {
+      "fixtureId": "unsatisfied-observes"
+    },
+    {
+      "fixtureId": "gate-shape-v1"
+    },
+    {
+      "path": "scripts/project/admission-workbench/learned-heuristic-weighted-shared-dependency-regression.json"
+    }
+  ],
+  "virtualComparison": {
+    "seed": 7,
+    "replicates": 5,
+    "history": {
+      "snapshotId": "empty-scheduler-history-v1",
+      "identityProjectionId": "task-id-v1",
+      "expectedFallbackType": "cold-start",
+      "coldStartDurationMs": 1,
+      "sampleWindow": 32,
+      "maxHistorySeries": 4096
+    },
+    "correctness": "Each artifact and replicate must succeed with its fixed external work commitment. Policy fallback, malformed proposal, illegal selection, or no-progress rejects the candidate.",
+    "primary": {
+      "metric": "makespanMs",
+      "rule": "For every scenario and replicate, candidate makespanMs must be less than or equal to baseline. Tolerance is exactly zero virtual milliseconds because both public artifacts consume the same fixed scenario, history, seed, and sampled-work commitment.",
+      "tail": "For each scenario, candidate maximum makespan over the five replicates must not exceed baseline maximum; no cross-scenario average can substitute."
+    },
+    "secondary": {
+      "gatingOrder": "Evaluate only after primary passes.",
+      "metrics": [
+        "slotTimeMs",
+        "resourceUnitTimeMs by resourceId"
+      ],
+      "rule": "Report every scenario/replicate delta separately and never add resource IDs together. Candidate is only proposed for independent review when no secondary metric regresses and at least one eligible scenario has strictly lower makespan; otherwise retain baseline.",
+      "improvementEligibleScenarioIds": [
+        "backfill",
+        "weighted-mutex-multi-resource",
+        "profile-variation",
+        "long-tail-critical",
+        "gate-shape-v1"
+      ]
+    }
+  },
+  "hostCost": {
+    "workload": "The baseline public artifact captures frozen ordinary AdmissionPolicyContext values while simulating all scenarioInputs, five replicates each. New, same-config public prepared policies are then created per artifact and graph; each timing sample replays precisely that baseline context corpus 10 times.",
+    "clock": "Bun performance.now() immediately surrounds only each artifact public prepared strategy’s direct synchronous decide-loop; it measures host monotonic elapsed milliseconds, not virtual time.",
+    "preparation": "Dynamic public-artifact import, history materialization, policy preparation, baseline context capture, fallback checking, virtual simulation, trace collection, and disposal are outside timed intervals.",
+    "sameContext": "Baseline and candidate cost measurements use the same captured baseline contexts. The capture handle is disposed before fresh timing handles are created. Per-event fallback observation sets only an O(1) sticky failure and is checked after replay, so the timer cannot include wrapper validation or a growing observation scan. Sample order alternates to limit systematic first-run bias; raw samples are persisted separately.",
+    "warmups": 3,
+    "samples": 15,
+    "corpusIterations": 10,
+    "summary": "Candidate p95 must not exceed 1.25 times baseline p95. This guards public decision cost only; it does not claim Gate speedup.",
+    "environment": "Run serially with no concurrent heavy work. Record Bun version, platform, architecture, command identity, and both artifact identities.",
+    "nonDecisionObservation": "Complete virtual-suite elapsed is non-gating and must not be presented as policy decision cost."
+  },
+  "boundaries": {
+    "artifactBoundary": "The evaluator dynamically imports only each supplied package directory's public index.mjs export and records its manifest version plus index hash. The workbench's own virtual-state driver is not a package artifact and proves no Product Gate lifecycle behavior.",
+    "gateShape": "gate-shape-v1 is a 21-task claimed-only synthetic resource shape, not the full 36-Check Gate performance model; virtual milliseconds must not be compared with Gate wall time.",
+    "realIntegration": "A separate shared-closure integration and root-owned physical candidate/Gate validation prove real lifecycle and package wiring, not heuristic speedup."
+  }
+}

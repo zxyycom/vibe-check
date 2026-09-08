@@ -1,0 +1,7 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "historical-non-gating",
+  "rawEvidenceSha256": "sha256:ae882067841f3ca83adca9a18692b1bccd4c50216ff74bc5b615ca097af7114f",
+  "protocolId": "learned-admission-heuristic-comparison-v1",
+  "supersededReason": "This v1 measurement did not use the v2 fresh-handle, baseline-public-context, direct-decide timing boundary."
+}

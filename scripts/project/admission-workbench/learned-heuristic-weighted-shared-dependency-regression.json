@@ -1,0 +1,46 @@
+{
+  "scenarioVersion": 1,
+  "scenarioId": "learned-heuristic-weighted-shared-dependency-regression",
+  "assumptionIds": ["learned-heuristic-regression-v1", "synthetic-work-assumption-v1"],
+  "contention": "zero",
+  "graph": {
+    "maxParallel": 2,
+    "graph": {
+      "resourceCapacities": [
+        { "resourceId": "queue", "units": 2 },
+        { "resourceId": "shared", "units": 2 }
+      ],
+      "scopes": [],
+      "tasks": [
+        { "taskId": "a-root", "admissionPriority": 0, "dependsOn": [], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [{ "resourceId": "shared", "units": 2 }] },
+        { "taskId": "a-tail", "admissionPriority": 0, "dependsOn": ["a-root"], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [] },
+        { "taskId": "b-root", "admissionPriority": 0, "dependsOn": [], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [{ "resourceId": "queue", "units": 2 }, { "resourceId": "shared", "units": 1 }] },
+        { "taskId": "b-tail", "admissionPriority": 0, "dependsOn": ["b-root"], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [] },
+        { "taskId": "b2", "admissionPriority": 0, "dependsOn": [], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [{ "resourceId": "queue", "units": 2 }, { "resourceId": "shared", "units": 1 }] },
+        { "taskId": "b3", "admissionPriority": 0, "dependsOn": [], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [{ "resourceId": "queue", "units": 2 }, { "resourceId": "shared", "units": 1 }] },
+        { "taskId": "b4", "admissionPriority": 0, "dependsOn": [], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [{ "resourceId": "queue", "units": 2 }, { "resourceId": "shared", "units": 1 }] },
+        { "taskId": "b5", "admissionPriority": 0, "dependsOn": [], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [{ "resourceId": "queue", "units": 2 }, { "resourceId": "shared", "units": 1 }] },
+        { "taskId": "c-fill", "admissionPriority": 0, "dependsOn": [], "observes": [], "mutex": [], "scopeId": null, "resourceClaims": [] }
+      ]
+    }
+  },
+  "profiles": [
+    { "id": "root", "nominalWorkMs": 100, "multiplierSamples": [1], "resourceClaims": [{ "resourceId": "shared", "units": 2 }] },
+    { "id": "queued-root", "nominalWorkMs": 100, "multiplierSamples": [1], "resourceClaims": [{ "resourceId": "queue", "units": 2 }, { "resourceId": "shared", "units": 1 }] },
+    { "id": "tail", "nominalWorkMs": 100, "multiplierSamples": [1], "resourceClaims": [] },
+    { "id": "queued-short", "nominalWorkMs": 1, "multiplierSamples": [1], "resourceClaims": [{ "resourceId": "queue", "units": 2 }, { "resourceId": "shared", "units": 1 }] },
+    { "id": "short", "nominalWorkMs": 1, "multiplierSamples": [1], "resourceClaims": [] }
+  ],
+  "taskProfiles": {
+    "a-root": "root",
+    "a-tail": "tail",
+    "b-root": "queued-root",
+    "b-tail": "short",
+    "b2": "queued-short",
+    "b3": "queued-short",
+    "b4": "queued-short",
+    "b5": "queued-short",
+    "c-fill": "short"
+  },
+  "policyIds": ["static", "learned"]
+}

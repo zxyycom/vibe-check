@@ -536,3 +536,14 @@ Entities:
   Proves:
 
 - The public installed-package Run drains an admitted Check after cancellation while a pending Check never begins: both are unavailable with `execution-cancelled`, the pending duration is null, and the admitted Check has a duration. Separately, public AdmissionGraph `settle(..., "unsatisfied")` blocks `dependsOn`, releases `observes`, and does not introduce a cancellation transition.
+
+## Case AUX-LEARNED-HEURISTIC-REPLAY-001: Dual-artifact replay rejects regressions without hiding boundary failures
+
+Owner: `docs/tooling/workspace.md#learned-admission-heuristic-对照记录`
+Entities:
+
+- `bun|scripts/project/admission-workbench/learned-heuristic-evaluation.test.ts|learned heuristic replay rejects a 204 to 300 makespan regression even when its cost guard passes`
+- `bun|scripts/project/admission-workbench/learned-heuristic-evaluation.test.ts|learned heuristic replay keeps a sticky fallback failure outside direct prepared decide replay`
+  Proves:
+
+- Frozen dual-artifact comparison treats a per-replicate/tail makespan regression as rejection even when the independent 1.25× host-cost guard passes. The bounded timing path calls the raw public prepared `decide` only; public context capture and sticky fallback validation remain outside that interval, and a later fallback invalidates the replay rather than being scored as a candidate benefit.
