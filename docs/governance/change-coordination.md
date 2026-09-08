@@ -171,11 +171,12 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 ## 2026-09-07 讨论事项的交接
 
 本组最初基于 `9ee0263e205f0d963aa773f2caa97abf1b764b9c` 及当时未提交的工作区登记独立 Outcome。
+本组于 2026-09-08 基于 `90a4d4232b4d2a1cbf1f33ef45a995ff56667938` 与本次受验工作区复核文件收集、日志命名的完成与归档状态。
 下表只协调当前关系，不建立实施基线或扩大授权；各 Change 的范围、状态、验证与完成记录由自身 artifacts 拥有。
 
 | Change | 关系与允许推进的工作 |
 | --- | --- |
-| [公开文件收集工具](../../changes/expose-project-file-collection/proposal.md) | 先评审独立 file tool 的 public contract；`codeAreas` 继续由各 Check 封装。 |
+| [公开文件收集工具（已归档）](../../changes/archive/expose-project-file-collection/proposal.md) | 同步单 selection、无中途取消的 public façade 已完成，经 AI-ready 文档和完整编码规范审查、完整 Gate 36/36 与包消费者验收后于 2026-09-08 归档；Decision aligned。当前契约见[项目文件](../development/project-files.md#public-single-selection-collection)与[用户指南](../guides/collecting-project-files.md)，归档材料不再是待实施入口。 |
 | [配置 progress preview（已归档）](../../changes/archive/configure-progress-preview/proposal.md) | 数量/长度配置与文本级同步 formatter 已完成，2026-09-08 经文档/编码规范复核、完整 Gate 36/36 与包消费者验收后归档；后继决策 aligned。当前行为由 [API 机制](../api-mechanics.md#check-messages-与受管-progress)、Project Definition/Run 与人读输出 owner 承接，归档 Plan 仅保留形成时依据，不再列为待实现功能。 |
 | [Check 指南共同契约](../../changes/archive/refine-check-guide-shared-contracts/proposal.md) | 已收敛 files/waiver 的真实共同规则并归档；保留 Check-local 差异和 parser owner，不引入或等待公共 file tool。 |
 | [静态 package 材料](../../changes/archive/author-static-package-materials/proposal.md) | 已完成单一静态发布 manifest、动态 version 投影与完整包验收并归档；未静态化其它材料，也未修改 cold bootstrap。 |

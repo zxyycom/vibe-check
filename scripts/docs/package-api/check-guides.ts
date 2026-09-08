@@ -8,6 +8,7 @@ import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
 
 const README_PATH = "README.md";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
+  CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles,
   CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey,
   CURRENT_PUBLIC_CONTRACT.operations.createAdmissionGraph,
   CURRENT_PUBLIC_CONTRACT.operations.createLearnedCriticalPathStrategy,

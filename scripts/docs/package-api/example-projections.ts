@@ -47,6 +47,10 @@ export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
     packagePath: "docs/guides/scheduling.md"
   }),
   Object.freeze({
+    id: "collecting-project-files",
+    packagePath: "docs/guides/collecting-project-files.md"
+  }),
+  Object.freeze({
     id: "cache-results",
     packagePath: "docs/guides/cache-results.md"
   }),
@@ -74,6 +78,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
       })
     ]),
     title: "最小 Project Definition 与 Run"
+  }),
+  Object.freeze({
+    evidence: "runtime",
+    id: "collect-project-files",
+    regionId: "collect-project-files",
+    sourcePath: "docs/examples/package-api/collect-project-files.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "collecting-project-files",
+        headingPath: Object.freeze(["最小用法"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "按完整 selection 收集冻结的 project-relative path 快照"
   }),
   Object.freeze({
     evidence: "runtime",

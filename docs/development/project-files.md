@@ -38,8 +38,8 @@ package-provided Check ID 解释。
 
 ## File collection mechanism
 
-`collectProjectFileSets(root, selections)` 先按 `source` 分组，每种不同来源只建立一次稳定候选快照，再为每个命名选择应用
-自己的 `include` 与 `exclude`。`collectProjectFiles(root, files)` 是单个选择的入口。最终路径相对项目根目录并使用 `/`，
+`src/package-checks/project-files/collection.ts` 的内部 `collectProjectFileSets(root, selections)` 先按 `source` 分组，每种不同来源只建立一次稳定候选快照，再为每个命名选择应用
+自己的 `include` 与 `exclude`。`collectProjectFiles(root, files)` 是同一模块供 Check 使用的 trusted 单份入口，不是 package root API。公开调用必须使用[下节](#public-single-selection-collection)的 `collectProjectFiles({ projectRoot, selection })`，由公共边界先校验输入。最终路径相对项目根目录并使用 `/`，
 经过稳定去重排序；路径必须命中至少一个 `include` 且不能命中任一 `exclude`，因此 `exclude` 优先。两组数组使用同一个
 minimatch glob grammar；点号开头的路径也参与显式 glob 匹配，不存在额外的隐藏 dotfile 规则。
 
@@ -52,6 +52,14 @@ minimatch glob grammar；点号开头的路径也参与显式 glob 匹配，不�
 两种来源都会在失败时停止并报告错误。filesystem 无法读取 root 或遍历目录时报告包含该目录的读取错误；Git command、
 repository 或 gitlink inspection 失败时报告 Git 来源不可用。文件收集不会自动切换到另一来源，也不会把来源失败伪装成
 空集合。
+
+### Public single-selection collection
+
+package root 的 `collectProjectFiles({ projectRoot, selection })` 让普通脚本与 custom Check 同步收集**一份**完整 `ProjectFileSelection`。调用方必须显式给出非空、无 U+0000 的 root string；relative text 从调用时 current working directory 解析、absolute text 直接使用，boundary 再将其 resolve 为实际 collection root。它不在 root 缺失时替调用方猜测 current working directory，也不承诺 containment、sandbox、文件存在性、可读性、content snapshot 或跨次原子性。
+
+public boundary 对 unknown options 与 full selection 做 closed、descriptor-safe snapshot：options 恰有 `projectRoot` / `selection`，selection 恰有 `source` / `include` / `exclude`，source 只能是 `filesystem` 或 `git-worktree`；`include` / `exclude` 必须是无空洞的字符串数组，拒绝 accessor、额外属性和非法值。它不接受 `ProjectFileSelectionOptions` 的省略字段，因为 default 仍是 owning Check 的 policy；ordinary consumer 需要基线时可显式组合 `defaultProjectFileSelection`。invalid input 同步抛出 action-bearing `TypeError`；filesystem/Git selected source 失败继续同步抛出 collection `Error`，没有 fallback。成功返回 detached、冻结的 relative slash paths，维持本节的 stable sort/dedup；空冻结数组是合法成功结果。
+
+该 façade 只验证/快照 public input 并复用同一个 internal collection mechanism；`collectProjectFileSets` 的 named batch、`Map`、source candidates 与 traversal optimization 仍为 private。它不读取内容，不拥有 Check `codeAreas`、eligibility、exact-input handoff、threshold、Record或 settlement；不接受 `AbortSignal`、不支持中途取消、watcher、cache、scanner或 Product-wide file scope。
 
 ### Exact-input fingerprint
 

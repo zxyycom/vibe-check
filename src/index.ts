@@ -117,6 +117,8 @@ export type {
   ReconcileFindingWaiversOptions
 } from "./finding-waivers/reconciliation.ts";
 export { defaultProjectFileSelection } from "./package-checks/project-files/configuration.ts";
+export { collectProjectFiles } from "./package-checks/project-files/public-collection.ts";
+export type { CollectProjectFilesOptions } from "./package-checks/project-files/public-collection.ts";
 export type {
   ProjectFileSelection,
   ProjectFileSelectionOptions,

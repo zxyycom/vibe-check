@@ -107,6 +107,7 @@ node quality.ts
 
 | 目的 | 工具与接入方式 | 详解 |
 | --- | --- | --- |
+| 按一份完整 selection 收集项目文件 path | `collectProjectFiles(...)` 在普通项目代码或 custom Check 内返回冻结的 relative path 快照 | [收集项目文件](./docs/guides/collecting-project-files.md) |
 | 按完整语义 key 复用本地 JSON 计算 | `cacheJsonByKey(...)` 在普通项目代码或 Check 内返回一次调用的缓存结果 | [缓存计算结果](./docs/guides/cache-results.md) |
 | 对账完整 Finding 集合与 waiver audit | `reconcileFindingWaivers(...)` 在 Finding 形成后返回 disposition 与 audit | [对账 Finding waiver](./docs/guides/finding-waivers.md) |
 | 生成有限的 Finding 人读摘要 | `presentCheckFindings(...)` 返回 `CheckMessage[]`，由 producing Check 附到自己的 terminal result | [呈现 Check Finding](./docs/guides/presenting-findings.md) |
@@ -169,7 +170,7 @@ progress preview 的 Definition/RunControls 配置、formatter 的文本/失败�
 - [API 机制](./docs/api-mechanics.md)解释一次 Run 如何从 Definition、选择、preflight、execution 到结果、aggregation 与 outputs。
 - [编写会正确结算的自定义 Check](./docs/guides/extending-check-lifecycle.md)解决“在哪个 callback 写规则、能读写什么、怎样取消或失败”的 authoring 任务。
 - [按项目约束调度 Check](./docs/guides/scheduling.md)解决“何时需要改变调度选择、怎样不越过 Scheduler guard”的 scheduling 任务。
-- [缓存计算结果](./docs/guides/cache-results.md)与[对账 Finding waiver](./docs/guides/finding-waivers.md)说明对应的 package 预提供工具。
+- [收集项目文件](./docs/guides/collecting-project-files.md)、[缓存计算结果](./docs/guides/cache-results.md)与[对账 Finding waiver](./docs/guides/finding-waivers.md)说明对应的 package 预提供工具。
 - [机器输出契约](./docs/output.md)说明 `run.json`、`records.ndjson` 和对应 schemas；只有需要把结果交给其他工具时才需要读取它。
 - 精确 overload、泛型推断和字段 JSDoc 以安装包中的 `types/**.d.ts` 为准。
 

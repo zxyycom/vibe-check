@@ -120,6 +120,7 @@ function publicImports(): string {
 
 const PUBLIC_IMPORTS_TEMPLATE = `import {
   cacheJsonByKey,
+  collectProjectFiles,
   createAdmissionGraph,
   createLearnedCriticalPathStrategy,
   defineAdmissionPolicy,
@@ -199,6 +200,11 @@ const sourceFiles: ProjectFileSelection = {
   exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
   include: ["src/**/*.ts"]
 };
+
+const selectedProjectFiles: readonly string[] = collectProjectFiles({
+  projectRoot: ".",
+  selection: sourceFiles
+});
 
 const changedFilesData: ChangedFilesData = {
   files: ["src/duplicate-a.ts", "src/duplicate-b.ts"],
@@ -432,9 +438,11 @@ function observeRunOutputs(runResult: RunResult): void {
 
 void [
   cacheJsonByKey,
+  collectProjectFiles,
   createLearnedCriticalPathStrategy,
   defineAdmissionPolicy,
   cacheResult,
+  selectedProjectFiles,
   defineCheck,
   defineConfig,
   duplicateDetection,

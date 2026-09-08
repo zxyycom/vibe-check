@@ -1,3 +1,4 @@
+import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -5,6 +6,8 @@ import { join } from "node:path";
 
 import {
   cacheJsonByKey,
+  collectProjectFiles,
+  defaultProjectFileSelection,
   createAdmissionGraph,
   createLearnedCriticalPathStrategy,
   defineCheck,
@@ -32,6 +35,16 @@ const markdownLinkCacheDirectory = join(projectRoot, ".vibe-check", "markdown-li
 const MARKDOWN_LINK_CACHE_FILE = "markdown-link-parse-facts-v1.jsonl";
 
 const cacheEvidence = await observeCacheReuse();
+const publicCollectionSnapshot = collectProjectFiles({
+  projectRoot,
+  selection: { ...defaultProjectFileSelection, include: ["duplicate-*.ts"] }
+});
+assert.equal(Object.isFrozen(publicCollectionSnapshot), true);
+assert.deepEqual(publicCollectionSnapshot, ["duplicate-a.ts", "duplicate-b.ts"]);
+assert.throws(
+  () => collectProjectFiles({ projectRoot: "", selection: defaultProjectFileSelection }),
+  TypeError
+);
 const learnedSchedulingEvidence = await observeLearnedScheduling(projectRoot);
 const admissionSimulationEvidence = await observeAdmissionSimulation(projectRoot);
 

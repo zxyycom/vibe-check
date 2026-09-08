@@ -43,6 +43,20 @@ Entities:
 - 一个 named-selection 调用可从同一 source snapshot 形成多个稳定 file sets，且不会增加 config 之外的 hidden exclusions。
 - Check-owned eligibility partition 按 selected 顺序只评估每个 path 一次，并把它恰好保留在 accepted 或 rejected 一侧；结果与两侧数组均冻结。
 
+## Case PUBLIC-PROJECT-FILE-COLLECTION-001: Public single selection collection retains validated immutable path snapshots
+
+Owner: `docs/development/project-files.md#public-single-selection-collection`
+Entities:
+
+- `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > collects a frozen detached selection snapshot from an explicit root`
+- `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > retains a successful empty selection as a frozen result`
+- `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > rejects malformed input without invoking accessor hooks`
+- `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > keeps selected source failures distinct from invalid invocation`
+  Proves:
+- public collection requires a descriptor-safe closed options/full-selection snapshot, accepts explicit default composition, and never invokes selection or array accessor input while rejecting missing/extra fields, malformed root, non-string/sparse arrays, or illegal source as `TypeError`.
+- a successful public call returns a detached frozen, stable project-relative path snapshot; a frozen empty array remains a successful no-match result.
+- selected Git source unavailability remains an ordinary collection failure, distinct from invalid invocation and never represented as an empty result or fallback.
+
 ## Case ADD-FUNCTION-METRICS-LIZARD-SCOPE-001: Function metrics selects exactly translated analyzer inputs
 
 Owner: `docs/development/project-files.md#package-provided-check-exact-inputs`
