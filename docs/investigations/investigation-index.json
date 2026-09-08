@@ -810,6 +810,26 @@
         "verification"
       ],
       "title": "冷 candidate bootstrap 的 Project Gate 导入复查"
+    },
+    "260908-calibrate-gate-duration-variation": {
+      "formedAt": "2026-09-08T08:17:29Z",
+      "name": "calibrate-gate-duration-variation",
+      "question": "当前 Gate 的单项执行与正式全量运行有多大时长波动，哪些数据可用来确定虚拟任务随机幅度，哪些仍不能解释为资源竞争？",
+      "relations": [],
+      "resourceIds": [
+        "260908-calibrate-gate-duration-variation/measure.sh",
+        "260908-calibrate-gate-duration-variation/observations.json",
+        "260908-calibrate-gate-duration-variation/summarize.py",
+        "260908-calibrate-gate-duration-variation/summary.json"
+      ],
+      "sourcePath": "calibrate-gate-duration-variation.md",
+      "tags": [
+        "admission-simulation",
+        "duration-variation",
+        "performance",
+        "project-gate"
+      ],
+      "title": "Gate 单项与全量时长调查及虚拟负载波动校准"
     }
   },
   "metadata": {},
@@ -853,7 +873,8 @@
       "260904-correct-project-gate-candidate-timeout-interpretation": "sha256:5ecaa7d34cd644c1602d23aea069dd910d24a10be897c2978b5e4c50240832d4",
       "260904-diagnose-project-gate-candidate-timeout-under-contention": "sha256:7dc4a90e12ff2ec382f4d786617b760f8cc04037f84ad574b776699be445cfb7",
       "260906-assess-node-26-package-host-readiness": "sha256:b01bedac42300965c3a8fcf131deb26f3c3ecb92f3a9f629fadbe6164b842f09",
-      "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82"
+      "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82",
+      "260908-calibrate-gate-duration-variation": "sha256:b2644eff58181bfc59c43e153b3b4b90ba207a0826e720b31f04a8878023fd2a"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

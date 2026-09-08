@@ -1,0 +1,631 @@
+{
+  "environment": "startedAt=2026-09-08T08:11:33Z\nbun=1.3.14\nuname=Linux dev-container 6.18.33.2-microsoft-standard-WSL2 #1 SMP PREEMPT_DYNAMIC Thu Jun 18 21:54:43 UTC 2026 x86_64 GNU/Linux\nnproc=4\nmode=run\nfinishedAt=2026-09-08T08:13:34Z\n",
+  "sourceHead": "aaeddad9063b9f56366f9d500befb92ef0dcae06",
+  "inputManifest": "unstagedDiffSha256=0027f3a164f5fb5c572d75bf4df4af0d11ff2bbc0292c0edccbc84438dc91b69\nstagedDiffSha256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nuntracked content hashes (git excludes respected):\neef7b4c9cf81f038cad4f3b6acc51eece061d64417aa07cd51e2fa49e17306a8  changes/build-admission-simulation-workbench/.change-plan.json\n5486709505f7b7cd6d766643f30ea828df643dbca917df16609819b4a212a4e7  changes/build-admission-simulation-workbench/design.md\n2456f79dfe9d46441cf563b4c325c6f56a9d3c21edb31d43bdbe8bbe3f1d7893  changes/build-admission-simulation-workbench/proposal.md\neef7b4c9cf81f038cad4f3b6acc51eece061d64417aa07cd51e2fa49e17306a8  changes/configure-project-gate-named-resources/.change-plan.json\n3ef77d461a9b3cc46bfc892914699a098cabfdb761a7b4677caaf91ed2967b6d  changes/configure-project-gate-named-resources/design.md\n3fee42edcab70ac0eac6701f84cfad59506ffbce796116b379a8cdaad66234f4  changes/configure-project-gate-named-resources/proposal.md\nb9729c47e705efdbf6b3a820c85e8e8419ae8399944923213720a52b748200af  docs/decisions/evaluate-admission-heuristics-with-seeded-virtual-workloads.md\n",
+  "inputBeforeAfterEqual": true,
+  "measurementProtocol": "Predeclared sample count: 5 serial complete-Gate runs, then 5 serial cycles of four public payload proxies.\nGate primary endpoint: shell wall-clock elapsed measured around the formal command. Gate elapsed/phase, core execution duration, and bounded scheduler task-active facts are attribution only.\nCore check.finished.durationMs excludes preflight and admission waiting; admitted-to-settled taskActiveMs is only exposed for scheduler summary top admission delays.\nPayload proxies: typecheck product, typecheck scripts, lint product, lint scripts. They are not Project-Gate Check baselines.\nAll stdout/stderr, exit statuses, and discovered Gate evidence paths are retained; no result-based exclusion.\nNo source modification, cache/history clearing, or environment setup is performed. Learned history may naturally update.\n",
+  "commands": [
+    {
+      "label": "gate-all-1",
+      "exitStatus": 0,
+      "command": "bun run check -- --all",
+      "clock": {
+        "outerWallClockStartedNs": "1788855093487950084",
+        "outerWallClockEndedNs": "1788855115002144574",
+        "outerElapsedSeconds": "21.514194490",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "gate-all-2",
+      "exitStatus": 0,
+      "command": "bun run check -- --all",
+      "clock": {
+        "outerWallClockStartedNs": "1788855115043994308",
+        "outerWallClockEndedNs": "1788855136687666107",
+        "outerElapsedSeconds": "21.643671799",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "gate-all-3",
+      "exitStatus": 0,
+      "command": "bun run check -- --all",
+      "clock": {
+        "outerWallClockStartedNs": "1788855136722420620",
+        "outerWallClockEndedNs": "1788855156717763275",
+        "outerElapsedSeconds": "19.995342655",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "gate-all-4",
+      "exitStatus": 0,
+      "command": "bun run check -- --all",
+      "clock": {
+        "outerWallClockStartedNs": "1788855156751496457",
+        "outerWallClockEndedNs": "1788855177179350248",
+        "outerElapsedSeconds": "20.427853791",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "gate-all-5",
+      "exitStatus": 0,
+      "command": "bun run check -- --all",
+      "clock": {
+        "outerWallClockStartedNs": "1788855177216848643",
+        "outerWallClockEndedNs": "1788855199323054180",
+        "outerElapsedSeconds": "22.106205537",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-product-1",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855199359225504",
+        "outerWallClockEndedNs": "1788855199715424950",
+        "outerElapsedSeconds": "0.356199446",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-scripts-1",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855199740629454",
+        "outerWallClockEndedNs": "1788855200095224237",
+        "outerElapsedSeconds": "0.354594783",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-product-1",
+      "exitStatus": 0,
+      "command": "bun run lint -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855200123650614",
+        "outerWallClockEndedNs": "1788855201266284942",
+        "outerElapsedSeconds": "1.142634328",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-scripts-1",
+      "exitStatus": 0,
+      "command": "bun run lint -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855201291462844",
+        "outerWallClockEndedNs": "1788855202092144078",
+        "outerElapsedSeconds": "0.800681234",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-product-2",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855202120576942",
+        "outerWallClockEndedNs": "1788855202505141721",
+        "outerElapsedSeconds": "0.384564779",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-scripts-2",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855202531011369",
+        "outerWallClockEndedNs": "1788855202927132605",
+        "outerElapsedSeconds": "0.396121236",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-product-2",
+      "exitStatus": 0,
+      "command": "bun run lint -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855202953160532",
+        "outerWallClockEndedNs": "1788855204059941999",
+        "outerElapsedSeconds": "1.106781467",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-scripts-2",
+      "exitStatus": 0,
+      "command": "bun run lint -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855204086012147",
+        "outerWallClockEndedNs": "1788855204818524965",
+        "outerElapsedSeconds": "0.732512818",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-product-3",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855204844125333",
+        "outerWallClockEndedNs": "1788855205221010314",
+        "outerElapsedSeconds": "0.376884981",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-scripts-3",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855205246695579",
+        "outerWallClockEndedNs": "1788855205604093755",
+        "outerElapsedSeconds": "0.357398176",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-product-3",
+      "exitStatus": 0,
+      "command": "bun run lint -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855205626643412",
+        "outerWallClockEndedNs": "1788855207262993844",
+        "outerElapsedSeconds": "1.636350432",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-scripts-3",
+      "exitStatus": 0,
+      "command": "bun run lint -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855207306465708",
+        "outerWallClockEndedNs": "1788855208418711828",
+        "outerElapsedSeconds": "1.112246120",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-product-4",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855208443472584",
+        "outerWallClockEndedNs": "1788855208785313275",
+        "outerElapsedSeconds": "0.341840691",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-scripts-4",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855208810434752",
+        "outerWallClockEndedNs": "1788855209230157014",
+        "outerElapsedSeconds": "0.419722262",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-product-4",
+      "exitStatus": 0,
+      "command": "bun run lint -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855209269867082",
+        "outerWallClockEndedNs": "1788855210602058743",
+        "outerElapsedSeconds": "1.332191661",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-scripts-4",
+      "exitStatus": 0,
+      "command": "bun run lint -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855210627702580",
+        "outerWallClockEndedNs": "1788855211458118546",
+        "outerElapsedSeconds": "0.830415966",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-product-5",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855211484713951",
+        "outerWallClockEndedNs": "1788855211832363941",
+        "outerElapsedSeconds": "0.347649990",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "typecheck-scripts-5",
+      "exitStatus": 0,
+      "command": "bun run typecheck -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855211855602058",
+        "outerWallClockEndedNs": "1788855212209570164",
+        "outerElapsedSeconds": "0.353968106",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-product-5",
+      "exitStatus": 0,
+      "command": "bun run lint -- product",
+      "clock": {
+        "outerWallClockStartedNs": "1788855212233765805",
+        "outerWallClockEndedNs": "1788855213392687947",
+        "outerElapsedSeconds": "1.158922142",
+        "exitStatus": "0"
+      }
+    },
+    {
+      "label": "lint-scripts-5",
+      "exitStatus": 0,
+      "command": "bun run lint -- scripts",
+      "clock": {
+        "outerWallClockStartedNs": "1788855213419748038",
+        "outerWallClockEndedNs": "1788855214357746886",
+        "outerElapsedSeconds": "0.937998848",
+        "exitStatus": "0"
+      }
+    }
+  ],
+  "gateRuns": [
+    {
+      "label": "gate-all-1",
+      "sourceDirectory": ".log/project-gate/2026-09-08T08-11-34.267Z-1573495-0d9bedec-d93f-41ab-b7d3-d71c942a1013",
+      "sourceArtifactSha256": {
+        "gate.log": "11d4adc87050237af0a1ad3d3724672081fe208fd93d5c5ef8ddb0945e0848fa",
+        "core.log": "e0a6af26cc504f72cab4bcdf7c8420120107372899805988d04df4bdf4a462ce",
+        "scheduler.log": "82864b3978514ab6d8e5e6792dfe7939239a18cb069eb0685d1518c29a8343e6",
+        "machine_run.json": "2655dda5f5d73d1ba5bc036e99b4ac064189675d62b93f2eb68674982e6807fb",
+        "machine_records.ndjson": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidate": {
+        "candidateVersion": "0.0.0-local.47404e90e692",
+        "sha256": "e735f1700a175f30e951edaa737824998e3af301f86e8ac96d6f8d36c7581518",
+        "reused": true,
+        "preparationAction": "reuse"
+      },
+      "gateTimingAndStatusLines": [
+        "[GATE] [INFO] project gate candidate: 0.0.0-local.47404e90e692",
+        "[GATE] [INFO] project gate selection: selection=all; package-acceptance=selected",
+        "[GATE] [INFO] project gate info [project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 21243.9ms (candidate preparation 172.1ms; adapter/setup 386.2ms; Product Run 20685.6ms) was not comparable (no matching baseline)",
+        "[GATE] [RESULT:PASSED] project gate result: passed",
+        "[GATE] [EXIT:0] project gate exit status: 0"
+      ],
+      "coreExecutionDurationLines": [
+        "#000012 +00:00:00.065 [CHECK:prepared-package-candidate] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=5.242",
+        "#000020 +00:00:04.834 [CHECK:tests-scripts-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=4768.433",
+        "#000025 +00:00:04.967 [CHECK:markdown-link-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=4891.762",
+        "#000031 +00:00:07.903 [CHECK:tests-scripts-project] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=3064.988 messageCount=0",
+        "#000036 +00:00:08.156 [CHECK:prepared-external-package-consumer] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=8077.291",
+        "#000042 +00:00:08.216 [CHECK:tests-package-artifact] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=3246.283 messageCount=0",
+        "#000047 +00:00:10.515 [CHECK:function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=2606.142 messageCount=0",
+        "#000052 +00:00:11.039 [CHECK:tests-product-function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=2819.914",
+        "#000057 +00:00:12.957 [CHECK:tests-product-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=2438.57 messageCount=0",
+        "#000062 +00:00:13.008 [CHECK:test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1965.893 messageCount=0",
+        "#000067 +00:00:13.812 [CHECK:tests-package-consumer-types] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=5652.665",
+        "#000072 +00:00:14.774 [CHECK:tests-product-supporting-checks] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1762.317",
+        "#000077 +00:00:14.958 [CHECK:tests-package-supporting] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1998.106",
+        "#000083 +00:00:15.136 [CHECK:tests-product-duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1321.173",
+        "#000088 +00:00:16.639 [CHECK:tests-scripts-test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1859.853",
+        "#000093 +00:00:16.814 [CHECK:lint-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1674.461 messageCount=0",
+        "#000098 +00:00:16.880 [CHECK:tests-package-consumer-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1919.104",
+        "#000104 +00:00:17.666 [CHECK:lint-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=847.86 messageCount=0",
+        "#000109 +00:00:18.149 [CHECK:tests-package-consumer-docs] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1263.576",
+        "#000114 +00:00:18.674 [CHECK:duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=2029.592 messageCount=0",
+        "#000119 +00:00:18.687 [CHECK:decision-records] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=1018.165 messageCount=0",
+        "#000124 +00:00:18.835 [CHECK:tests-scripts-tooling] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=682.881 messageCount=0",
+        "#000129 +00:00:19.186 [CHECK:tests-product-json] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=496.266 messageCount=0",
+        "#000134 +00:00:19.309 [CHECK:tests-product-file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=632.033",
+        "#000139 +00:00:19.315 [CHECK:tests-product-markdown-links] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=476.536",
+        "#000144 +00:00:19.644 [CHECK:tests-product-secret-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=455.764",
+        "#000149 +00:00:19.891 [CHECK:typecheck-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=579.498 messageCount=0",
+        "#000154 +00:00:20.167 [CHECK:docs-example-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=274.313 messageCount=0",
+        "#000159 +00:00:20.175 [CHECK:typecheck-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=856.973 messageCount=0",
+        "#000164 +00:00:20.295 [CHECK:docs-schema-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=105.77 messageCount=0",
+        "#000169 +00:00:20.366 [CHECK:file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=718.03 messageCount=0",
+        "#000174 +00:00:20.384 [CHECK:format-check] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=215.517 messageCount=0",
+        "#000179 +00:00:20.404 [CHECK:docs-json-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=18.775 messageCount=0",
+        "#000184 +00:00:20.419 [CHECK:docs-links-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=12.673 messageCount=0",
+        "#000186 +00:00:20.426 [CHECK:git-diff-whitespace] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=57.356 messageCount=0",
+        "#000188 +00:00:20.430 [CHECK:test-evidence-rule-tests] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:69843fc7-3f70-4bc9-9977-5453aa59dac3\" check.finished durationMs=132.79 messageCount=0"
+      ],
+      "boundedTaskActiveFacts": {
+        "docs-json-validator": 19.676,
+        "docs-links-validator": 13.95,
+        "git-diff-whitespace": 59.01
+      }
+    },
+    {
+      "label": "gate-all-2",
+      "sourceDirectory": ".log/project-gate/2026-09-08T08-11-55.751Z-1577966-2ecce40b-6b47-407f-a519-5bcee648a764",
+      "sourceArtifactSha256": {
+        "gate.log": "c9dd36db110a03254042b9ebf4056e212d3c2528e0b9554f763c4ddfc25b6bdc",
+        "core.log": "0e9e93e147f3409e7c64523cab5bb94df365f12dd443e26fa93000f1182e1795",
+        "scheduler.log": "61abf245caf00252faaceb66c46cd847357e81b7ef4faf478e858bc0d729be24",
+        "machine_run.json": "c11be954c8994b14d52247664c4b3b2de4082d5df53a4b59b9f4a08e44404918",
+        "machine_records.ndjson": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidate": {
+        "candidateVersion": "0.0.0-local.47404e90e692",
+        "sha256": "e735f1700a175f30e951edaa737824998e3af301f86e8ac96d6f8d36c7581518",
+        "reused": true,
+        "preparationAction": "reuse"
+      },
+      "gateTimingAndStatusLines": [
+        "[GATE] [INFO] project gate candidate: 0.0.0-local.47404e90e692",
+        "[GATE] [INFO] project gate selection: selection=all; package-acceptance=selected",
+        "[GATE] [INFO] project gate info [project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 21331.2ms (candidate preparation 116.2ms; adapter/setup 355.7ms; Product Run 20859.3ms) was not comparable (no matching baseline)",
+        "[GATE] [RESULT:PASSED] project gate result: passed",
+        "[GATE] [EXIT:0] project gate exit status: 0"
+      ],
+      "coreExecutionDurationLines": [
+        "#000012 +00:00:00.064 [CHECK:prepared-package-candidate] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=4.981",
+        "#000020 +00:00:01.908 [CHECK:prepared-external-package-consumer] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1827.056",
+        "#000026 +00:00:06.832 [CHECK:tests-scripts-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=6767.074",
+        "#000031 +00:00:07.053 [CHECK:markdown-link-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=6975.977",
+        "#000037 +00:00:09.733 [CHECK:tests-package-consumer-types] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=7817.731",
+        "#000042 +00:00:10.450 [CHECK:tests-scripts-project] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=3610.54 messageCount=0",
+        "#000047 +00:00:10.919 [CHECK:tests-package-artifact] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=3861.82 messageCount=0",
+        "#000052 +00:00:12.333 [CHECK:function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=2594.513 messageCount=0",
+        "#000057 +00:00:13.499 [CHECK:tests-product-function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=3046.278",
+        "#000062 +00:00:13.671 [CHECK:tests-product-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=2747.575 messageCount=0",
+        "#000067 +00:00:14.409 [CHECK:test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=2074.145 messageCount=0",
+        "#000072 +00:00:15.293 [CHECK:tests-package-supporting] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1774.148",
+        "#000077 +00:00:15.316 [CHECK:tests-product-supporting-checks] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1641.805",
+        "#000083 +00:00:15.818 [CHECK:tests-product-duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1406.589",
+        "#000088 +00:00:16.846 [CHECK:tests-scripts-test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1548.693",
+        "#000093 +00:00:17.185 [CHECK:tests-package-consumer-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1865.661",
+        "#000098 +00:00:17.215 [CHECK:duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=363.941 messageCount=0",
+        "#000104 +00:00:17.306 [CHECK:lint-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1482.421 messageCount=0",
+        "#000109 +00:00:18.358 [CHECK:lint-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1169.944 messageCount=0",
+        "#000114 +00:00:18.680 [CHECK:tests-package-consumer-docs] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1463.087",
+        "#000119 +00:00:18.949 [CHECK:decision-records] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=1641.089 messageCount=0",
+        "#000124 +00:00:19.037 [CHECK:tests-scripts-tooling] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=676.707 messageCount=0",
+        "#000129 +00:00:19.341 [CHECK:tests-product-file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=657.614",
+        "#000134 +00:00:19.584 [CHECK:tests-product-json] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=633.022 messageCount=0",
+        "#000139 +00:00:19.682 [CHECK:tests-product-markdown-links] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=642.7",
+        "#000144 +00:00:19.787 [CHECK:typecheck-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=442.152 messageCount=0",
+        "#000149 +00:00:20.035 [CHECK:typecheck-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=448.997 messageCount=0",
+        "#000154 +00:00:20.312 [CHECK:docs-example-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=273.87 messageCount=0",
+        "#000159 +00:00:20.377 [CHECK:file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=554.561 messageCount=0",
+        "#000164 +00:00:20.504 [CHECK:docs-schema-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=124.878 messageCount=0",
+        "#000169 +00:00:20.510 [CHECK:tests-product-secret-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=825.901",
+        "#000174 +00:00:20.520 [CHECK:format-check] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=205.206 messageCount=0",
+        "#000179 +00:00:20.561 [CHECK:docs-json-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=37.732 messageCount=0",
+        "#000184 +00:00:20.576 [CHECK:docs-links-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=12.127 messageCount=0",
+        "#000186 +00:00:20.580 [CHECK:git-diff-whitespace] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=65.842 messageCount=0",
+        "#000188 +00:00:20.585 [CHECK:test-evidence-rule-tests] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:7d86a9be-c916-4614-872d-2ec3c5cba06b\" check.finished durationMs=79.001 messageCount=0"
+      ],
+      "boundedTaskActiveFacts": {
+        "docs-json-validator": 39.435,
+        "docs-links-validator": 13.595,
+        "git-diff-whitespace": 68.153
+      }
+    },
+    {
+      "label": "gate-all-3",
+      "sourceDirectory": ".log/project-gate/2026-09-08T08-12-17.441Z-1579635-e8153a98-e86f-4da9-9983-8e941fbbe24c",
+      "sourceArtifactSha256": {
+        "gate.log": "7081fdcdcc5bfceed5a4787c1294844f7426f1c97f90a41089d39abc4b764a80",
+        "core.log": "066b2df33816ce990d8ef2a7a2621216ef49a8801bbcbc4fee52f4337d894520",
+        "scheduler.log": "22e414ba905e98f7abf02f4165be70acc4e924ebaa5b488271fc937562e4d25a",
+        "machine_run.json": "1a2518677393a0f122662797b40ada15f19d2f99e2123c5d14626c597c2b6dd4",
+        "machine_records.ndjson": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidate": {
+        "candidateVersion": "0.0.0-local.47404e90e692",
+        "sha256": "e735f1700a175f30e951edaa737824998e3af301f86e8ac96d6f8d36c7581518",
+        "reused": true,
+        "preparationAction": "reuse"
+      },
+      "gateTimingAndStatusLines": [
+        "[GATE] [INFO] project gate candidate: 0.0.0-local.47404e90e692",
+        "[GATE] [INFO] project gate selection: selection=all; package-acceptance=selected",
+        "[GATE] [INFO] project gate info [project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 19687.8ms (candidate preparation 116.4ms; adapter/setup 358.5ms; Product Run 19212.9ms) was not comparable (no matching baseline)",
+        "[GATE] [RESULT:PASSED] project gate result: passed",
+        "[GATE] [EXIT:0] project gate exit status: 0"
+      ],
+      "coreExecutionDurationLines": [
+        "#000012 +00:00:00.058 [CHECK:prepared-package-candidate] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=5.198",
+        "#000020 +00:00:01.542 [CHECK:prepared-external-package-consumer] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1471.298",
+        "#000026 +00:00:05.994 [CHECK:markdown-link-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=5927.315",
+        "#000031 +00:00:06.044 [CHECK:tests-scripts-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=5985.891",
+        "#000037 +00:00:08.344 [CHECK:tests-package-consumer-types] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=6794.305",
+        "#000042 +00:00:09.408 [CHECK:tests-package-artifact] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=3359.625 messageCount=0",
+        "#000047 +00:00:09.555 [CHECK:tests-scripts-project] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=3558.255 messageCount=0",
+        "#000052 +00:00:10.918 [CHECK:tests-product-function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=2567.363",
+        "#000057 +00:00:12.197 [CHECK:tests-product-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=2636.531 messageCount=0",
+        "#000062 +00:00:12.265 [CHECK:function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=2850.658 messageCount=0",
+        "#000067 +00:00:12.940 [CHECK:test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=2018.064 messageCount=0",
+        "#000072 +00:00:13.444 [CHECK:tests-scripts-test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1174.835",
+        "#000078 +00:00:14.069 [CHECK:tests-package-supporting] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1867.838",
+        "#000083 +00:00:14.639 [CHECK:tests-package-consumer-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1192.669",
+        "#000088 +00:00:14.751 [CHECK:tests-product-supporting-checks] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1808.588",
+        "#000093 +00:00:15.038 [CHECK:duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=283.082 messageCount=0",
+        "#000098 +00:00:16.246 [CHECK:lint-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1603.106 messageCount=0",
+        "#000104 +00:00:16.379 [CHECK:tests-product-duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=2305.049",
+        "#000109 +00:00:16.599 [CHECK:lint-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1556.192 messageCount=0",
+        "#000114 +00:00:17.320 [CHECK:tests-package-consumer-docs] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1070.803",
+        "#000119 +00:00:17.334 [CHECK:tests-scripts-tooling] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=732.023 messageCount=0",
+        "#000124 +00:00:17.598 [CHECK:decision-records] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=1216.367 messageCount=0",
+        "#000129 +00:00:17.804 [CHECK:tests-product-json] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=467.363 messageCount=0",
+        "#000134 +00:00:17.970 [CHECK:tests-product-file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=647.639",
+        "#000139 +00:00:18.138 [CHECK:typecheck-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=331.709 messageCount=0",
+        "#000144 +00:00:18.216 [CHECK:tests-product-markdown-links] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=614.708",
+        "#000149 +00:00:18.488 [CHECK:tests-product-secret-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=512.795",
+        "#000154 +00:00:18.738 [CHECK:docs-example-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=248.138 messageCount=0",
+        "#000159 +00:00:18.749 [CHECK:typecheck-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=608.844 messageCount=0",
+        "#000164 +00:00:18.878 [CHECK:docs-schema-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=111.827 messageCount=0",
+        "#000169 +00:00:18.928 [CHECK:file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=684.727 messageCount=0",
+        "#000174 +00:00:18.945 [CHECK:format-check] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=205.098 messageCount=0",
+        "#000179 +00:00:18.968 [CHECK:docs-json-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=21.261 messageCount=0",
+        "#000184 +00:00:18.987 [CHECK:docs-links-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=17.378 messageCount=0",
+        "#000186 +00:00:18.992 [CHECK:git-diff-whitespace] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=60.758 messageCount=0",
+        "#000188 +00:00:18.994 [CHECK:test-evidence-rule-tests] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:70cc0be5-44ad-4189-94ce-1a514f9ca879\" check.finished durationMs=112.697"
+      ],
+      "boundedTaskActiveFacts": {
+        "docs-json-validator": 22.511,
+        "docs-links-validator": 18.553,
+        "git-diff-whitespace": 62.439
+      }
+    },
+    {
+      "label": "gate-all-4",
+      "sourceDirectory": ".log/project-gate/2026-09-08T08-12-37.422Z-1581254-0288d206-38e3-43b2-812c-f0a01f6761bd",
+      "sourceArtifactSha256": {
+        "gate.log": "e393ae7371becec6360dc9b27e94137f0405d1cb514faab052bfffb4e4081573",
+        "core.log": "7284020faa8063210adc4515e67f642449b3bf05b013f7b4aa9d3232d3d993a9",
+        "scheduler.log": "4bfc21873c7be40e74162241a6ed9f9ffefe37603ad6e4f08339fb2afdfaaf03",
+        "machine_run.json": "c5b97ce60697c7ea94bc1f21f17e178fde9d19edfeae23a7d238a357b6c2f26a",
+        "machine_records.ndjson": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidate": {
+        "candidateVersion": "0.0.0-local.47404e90e692",
+        "sha256": "e735f1700a175f30e951edaa737824998e3af301f86e8ac96d6f8d36c7581518",
+        "reused": true,
+        "preparationAction": "reuse"
+      },
+      "gateTimingAndStatusLines": [
+        "[GATE] [INFO] project gate candidate: 0.0.0-local.47404e90e692",
+        "[GATE] [INFO] project gate selection: selection=all; package-acceptance=selected",
+        "[GATE] [INFO] project gate info [project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 20122.9ms (candidate preparation 109.0ms; adapter/setup 339.3ms; Product Run 19674.6ms) was not comparable (no matching baseline)",
+        "[GATE] [RESULT:PASSED] project gate result: passed",
+        "[GATE] [EXIT:0] project gate exit status: 0"
+      ],
+      "coreExecutionDurationLines": [
+        "#000012 +00:00:00.053 [CHECK:prepared-package-candidate] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=3.938",
+        "#000020 +00:00:01.192 [CHECK:prepared-external-package-consumer] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1124.791",
+        "#000026 +00:00:05.093 [CHECK:tests-scripts-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=5039.868",
+        "#000031 +00:00:05.267 [CHECK:markdown-link-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=5203.291",
+        "#000037 +00:00:07.928 [CHECK:tests-package-consumer-types] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=6731.929",
+        "#000042 +00:00:08.885 [CHECK:tests-scripts-project] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=3786.565 messageCount=0",
+        "#000047 +00:00:09.088 [CHECK:tests-package-artifact] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=3816.018 messageCount=0",
+        "#000052 +00:00:10.796 [CHECK:tests-product-function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=2862.648",
+        "#000057 +00:00:11.988 [CHECK:function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=3098.916 messageCount=0",
+        "#000062 +00:00:11.998 [CHECK:tests-product-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=2906.257 messageCount=0",
+        "#000067 +00:00:12.794 [CHECK:test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1994.589 messageCount=0",
+        "#000072 +00:00:13.762 [CHECK:tests-product-supporting-checks] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1762.179",
+        "#000077 +00:00:13.893 [CHECK:tests-package-supporting] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1900.622",
+        "#000083 +00:00:14.301 [CHECK:tests-product-duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1504.738",
+        "#000088 +00:00:15.708 [CHECK:tests-scripts-test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1941.882",
+        "#000093 +00:00:16.023 [CHECK:tests-package-consumer-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=2127.046",
+        "#000098 +00:00:16.032 [CHECK:lint-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1727.055 messageCount=0",
+        "#000104 +00:00:16.051 [CHECK:duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=334.346 messageCount=0",
+        "#000109 +00:00:17.126 [CHECK:lint-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1097.781 messageCount=0",
+        "#000114 +00:00:17.268 [CHECK:tests-package-consumer-docs] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1232.558",
+        "#000119 +00:00:17.753 [CHECK:decision-records] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1699.952 messageCount=0",
+        "#000124 +00:00:17.816 [CHECK:tests-scripts-tooling] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=687.436 messageCount=0",
+        "#000129 +00:00:17.942 [CHECK:tests-product-file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=671.633",
+        "#000134 +00:00:18.326 [CHECK:tests-product-secret-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=507.745",
+        "#000139 +00:00:18.462 [CHECK:typecheck-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=516.666 messageCount=0",
+        "#000144 +00:00:18.505 [CHECK:tests-product-json] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=748.096 messageCount=0",
+        "#000149 +00:00:18.873 [CHECK:file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=364.687 messageCount=0",
+        "#000154 +00:00:19.188 [CHECK:docs-example-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=312.699 messageCount=0",
+        "#000159 +00:00:19.206 [CHECK:typecheck-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=740.793 messageCount=0",
+        "#000164 +00:00:19.349 [CHECK:docs-schema-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=140.378 messageCount=0",
+        "#000169 +00:00:19.356 [CHECK:tests-product-markdown-links] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=1025.741",
+        "#000174 +00:00:19.375 [CHECK:format-check] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=182.938 messageCount=0",
+        "#000179 +00:00:19.402 [CHECK:docs-json-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=24.964 messageCount=0",
+        "#000184 +00:00:19.418 [CHECK:docs-links-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=13.18 messageCount=0",
+        "#000186 +00:00:19.426 [CHECK:git-diff-whitespace] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=67.227 messageCount=0",
+        "#000188 +00:00:19.428 [CHECK:test-evidence-rule-tests] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:aeff5594-88f8-49e1-89fe-55b7e1cea359\" check.finished durationMs=76.528 messageCount=0"
+      ],
+      "boundedTaskActiveFacts": {
+        "docs-json-validator": 26.348,
+        "docs-links-validator": 14.842,
+        "git-diff-whitespace": 68.785
+      }
+    },
+    {
+      "label": "gate-all-5",
+      "sourceDirectory": ".log/project-gate/2026-09-08T08-12-57.997Z-1582898-8274e3fa-069d-4004-bd46-4a1267a154c6",
+      "sourceArtifactSha256": {
+        "gate.log": "4384e1a3d9746314fa4dd54d816bb35af1ace4f0115c3df85dd142b57d06e8dc",
+        "core.log": "1a4d74ce13e855a1c3af6823d3389352a6887dc2ead1bc0ae031fb868fd0de7b",
+        "scheduler.log": "a6625ca6947943ffe1f69c709594d7b07f4f45bc3b0e6784d44936e44d57eb0d",
+        "machine_run.json": "bb4330f4ee047fc36d98996eee3ac26ba8494e9c7c0d491fbcd46d4d8d28b2d0",
+        "machine_records.ndjson": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidate": {
+        "candidateVersion": "0.0.0-local.47404e90e692",
+        "sha256": "e735f1700a175f30e951edaa737824998e3af301f86e8ac96d6f8d36c7581518",
+        "reused": true,
+        "preparationAction": "reuse"
+      },
+      "gateTimingAndStatusLines": [
+        "[GATE] [INFO] project gate candidate: 0.0.0-local.47404e90e692",
+        "[GATE] [INFO] project gate selection: selection=all; package-acceptance=selected",
+        "[GATE] [INFO] project gate info [project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 21782.6ms (candidate preparation 124.9ms; adapter/setup 406.5ms; Product Run 21251.2ms) was not comparable (no matching baseline)",
+        "[GATE] [RESULT:PASSED] project gate result: passed",
+        "[GATE] [EXIT:0] project gate exit status: 0"
+      ],
+      "coreExecutionDurationLines": [
+        "#000012 +00:00:00.067 [CHECK:prepared-package-candidate] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=5.432",
+        "#000020 +00:00:01.433 [CHECK:prepared-external-package-consumer] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1349.453",
+        "#000026 +00:00:05.709 [CHECK:tests-scripts-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=5640.975",
+        "#000031 +00:00:05.804 [CHECK:markdown-link-validation] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=5725.068",
+        "#000037 +00:00:08.999 [CHECK:tests-package-consumer-types] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=7561.206",
+        "#000042 +00:00:09.618 [CHECK:tests-scripts-project] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=3904.086 messageCount=0",
+        "#000047 +00:00:09.744 [CHECK:tests-package-artifact] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=3933.393 messageCount=0",
+        "#000052 +00:00:12.019 [CHECK:function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=3013.57 messageCount=0",
+        "#000057 +00:00:12.930 [CHECK:tests-product-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=3179.52 messageCount=0",
+        "#000062 +00:00:13.026 [CHECK:tests-product-function-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=3404.043",
+        "#000068 +00:00:14.279 [CHECK:test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=2255.858 messageCount=0",
+        "#000073 +00:00:14.468 [CHECK:tests-package-consumer-runtime] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1438.911",
+        "#000078 +00:00:14.934 [CHECK:tests-package-supporting] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=2000.424",
+        "#000083 +00:00:15.704 [CHECK:tests-scripts-test-evidence] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1231.733",
+        "#000088 +00:00:16.379 [CHECK:tests-product-supporting-checks] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=2097.404",
+        "#000093 +00:00:16.920 [CHECK:duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=533.95 messageCount=0",
+        "#000099 +00:00:17.094 [CHECK:tests-product-duplicate-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=2156.25",
+        "#000104 +00:00:17.498 [CHECK:lint-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1789.032 messageCount=0",
+        "#000109 +00:00:18.279 [CHECK:lint-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1178.487 messageCount=0",
+        "#000114 +00:00:18.519 [CHECK:tests-package-consumer-docs] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1593.868",
+        "#000119 +00:00:19.122 [CHECK:tests-scripts-tooling] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=839.861 messageCount=0",
+        "#000124 +00:00:19.313 [CHECK:tests-product-file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=791.535",
+        "#000129 +00:00:19.322 [CHECK:decision-records] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1820.242 messageCount=0",
+        "#000134 +00:00:19.663 [CHECK:tests-product-json] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=536.066 messageCount=0",
+        "#000139 +00:00:19.763 [CHECK:tests-product-secret-detection] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=428.657",
+        "#000144 +00:00:20.011 [CHECK:tests-product-markdown-links] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=694.287",
+        "#000149 +00:00:20.305 [CHECK:typecheck-scripts] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=638.829 messageCount=0",
+        "#000154 +00:00:20.620 [CHECK:docs-example-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=312.896 messageCount=0",
+        "#000159 +00:00:20.711 [CHECK:file-metrics] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=697.014 messageCount=0",
+        "#000164 +00:00:20.856 [CHECK:docs-schema-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=141.113 messageCount=0",
+        "#000169 +00:00:20.862 [CHECK:typecheck-product] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=1095.352 messageCount=0",
+        "#000174 +00:00:20.879 [CHECK:format-check] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=256.263 messageCount=0",
+        "#000179 +00:00:20.905 [CHECK:docs-json-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=23.361 messageCount=0",
+        "#000184 +00:00:20.919 [CHECK:docs-links-validator] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=12.224 messageCount=0",
+        "#000186 +00:00:20.924 [CHECK:git-diff-whitespace] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=59.033 messageCount=0",
+        "#000188 +00:00:20.933 [CHECK:test-evidence-rule-tests] [EXECUTION] [FINISHED] [PASSED] invocationId=\"invocation/v1:4a6e4571-67a6-4503-9f8e-11bbdc626f94\" check.finished durationMs=74.74 messageCount=0"
+      ],
+      "boundedTaskActiveFacts": {
+        "docs-json-validator": 25.195,
+        "docs-links-validator": 13.581,
+        "git-diff-whitespace": 60.614
+      }
+    }
+  ],
+  "harnessFailure": {
+    "reason": "/usr/bin/time missing; target workloads did not start",
+    "manifest": "gate-all-1\t127\tbun run check -- --all\ngate-all-2\t127\tbun run check -- --all\ngate-all-3\t127\tbun run check -- --all\ngate-all-4\t127\tbun run check -- --all\ngate-all-5\t127\tbun run check -- --all\ntypecheck-product-1\t127\tbun run typecheck -- product\ntypecheck-scripts-1\t127\tbun run typecheck -- scripts\nlint-product-1\t127\tbun run lint -- product\nlint-scripts-1\t127\tbun run lint -- scripts\ntypecheck-product-2\t127\tbun run typecheck -- product\ntypecheck-scripts-2\t127\tbun run typecheck -- scripts\nlint-product-2\t127\tbun run lint -- product\nlint-scripts-2\t127\tbun run lint -- scripts\ntypecheck-product-3\t127\tbun run typecheck -- product\ntypecheck-scripts-3\t127\tbun run typecheck -- scripts\nlint-product-3\t127\tbun run lint -- product\nlint-scripts-3\t127\tbun run lint -- scripts\ntypecheck-product-4\t127\tbun run typecheck -- product\ntypecheck-scripts-4\t127\tbun run typecheck -- scripts\nlint-product-4\t127\tbun run lint -- product\nlint-scripts-4\t127\tbun run lint -- scripts\ntypecheck-product-5\t127\tbun run typecheck -- product\ntypecheck-scripts-5\t127\tbun run typecheck -- scripts\nlint-product-5\t127\tbun run lint -- product\nlint-scripts-5\t127\tbun run lint -- scripts\n",
+    "exampleStderr": "/tmp/gate-evidence-20260908/measure.sh: line 40: /usr/bin/time: No such file or directory\n",
+    "counts": {
+      "exit127": 25,
+      "targetWorkloadsStarted": 0
+    },
+    "followup": "Measurement clock changed to date +%s%N, then all predeclared 25 workloads were started in a fresh capture; no workload-result exclusions."
+  }
+}

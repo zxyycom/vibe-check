@@ -1,62 +1,43 @@
 # Design
 
-本 Draft 从“关键路径优先，资源受阻时比较等待与有限替代选择”开始设计；方向不是已采用算法，推演也不是收益证明。
+先使用平台形成基线和反例，再设计小范围候选；以明确的比较与停止流程交付算法结论。
 
 ## Context
 
-- 当前基线由 [learned helper](../../src/learned-critical-path/strategy.ts)、[使用指南](../../docs/guides/learned-scheduling.md)和[内部 owner](../../docs/development/architecture.md#learned-critical-path-helper-owner)承接：按 tightening、continuation、ordinary 层序排序，首选不能准入便 `wait`。
-- [模拟器](../../docs/guides/simulating-admission.md)可分支 select/settle，[Scheduler](../../docs/development/scheduler.md)仍拥有真实准入、资源占用和终态传播。模拟器不预测运行时间或结果，也不预留真实资源。
-- 遵守[公共 learned strategy](../../docs/decisions/provide-learned-admission-through-public-strategy.md)、[immutable state](../../docs/decisions/provide-immutable-admission-graph-state.md)与[命名资源](../../docs/decisions/enforce-static-named-resource-capacities.md)的活动方向；不恢复 private provider 或特殊 Invocation 接线。
-- [旧比较计划](../optimize-learned-admission-strategy/proposal.md)继续暂停；本 Change 不继承其候选、门槛或 private 性能结论。Draft 本身不授权实验、生产接线或旧目录删除。
+- 当前 [learned helper](../../src/learned-critical-path/strategy.ts)按 critical-path/layer ordering 选首项，受阻时 `wait`；这提供基线，不预先证明存在必须修改的缺陷。
+- [Scheduler](../../docs/development/scheduler.md)拥有 admission、资源、cancellation 与 settlement；公开 AdmissionState 的 `select/settle` 只证明假设转换，不执行 Check 或预测时间。
+- [虚拟评估 Decision](../../docs/decisions/evaluate-admission-heuristics-with-seeded-virtual-workloads.md)是 active / unaligned 的方向输入，不表示当前实现已对齐。[Gate 调查](../../docs/investigations/calibrate-gate-duration-variation.md)提供波动线索，不提供最终算法或真实竞争系数。
+- 资源配置按静态工作特征完成；平台基础实现独立推进。算法实验继承二者的稳定输入，不能把尚未形成的平台结果写成候选依据。
 
 ## Goals / Non-Goals
 
-目标是用少量可解释规则改善 Run 完成时间，控制关键任务延迟与决策开销；相同输入确定性选择，并保持有限进展。性能门槛在 baseline 后、候选比较前固定。
+主指标为 makespan；在主指标不更差时尽可能减少 slot·time 和每种资源的 unit·time，不跨资源相加。保持 legality、确定性、有限进展和低决策开销。
 
-不追求最优调度或任意 workload 都更快；不修改 history identity、存储、预测统计模型、默认 static policy、公共配置或资源生命周期。深层树搜索、beam search、强化学习、复杂预约与抢占另议，不成为本轮依赖。
+不预定最终算法，不追求所有 workload 更快，不增加用户关键任务、公共选项或预测模型，不扩展为深层搜索研究。平台和资源配置完成属于实验依赖，不是要求用户重新作产品决策。
 
 ## Decisions
 
 ### Intended Change
 
-已确认范围是简单算法重设计、预测模型不变、复用公开能力。以下选择规则仍待 baseline 与反例检验：
-
-1. **保留可比较基线。** 使用当前关键路径、priority 同分和稳定 ID 排序。区分 selection layer 启发式与 Scheduler 硬约束，是否调整层序须单独说明依据。
-2. **先做局部判断。** 重点处理首选受阻：比较等待与少量合法候选，优先判断资源冲突；必要时用共享 AdmissionState 推演资源与 scope 后果，不复制 legality reducer。
-3. **前瞻保持有界。** 局部判断不足时才评估一层前瞻。模拟 settlement 的时间与结果来自显式预测假设或测试虚拟时序，不是模拟器给出的事实；比较预计完成时间和首选延迟风险，而非只看占用率。
-4. **区分退化与故障。** 信息不足或计算预算耗尽时退回当前策略的合法选择；真实 callback fault 仍由 Scheduler 原规则处理。不得把无 running work 可 drain 的 `wait` 当退化路径。
-5. **再收敛为 Plan。** 固定唯一候选、评分/排序、候选数与推演步数上限、wait/退化规则及验收门槛，再派生任务。不增加公共 knobs；需要更深算法才能获益时停止扩张。
+1. **先取得可消费输入。** 继承平台与 Gate 映射的稳定提交，固定场景/version、seed/重复、profile、预测及 history 输入。基线和候选共享外生条件，分别隔离历史写入；不继承旧比较计划的 private baseline 或采用结论。
+2. **基线先于候选。** 使用当前 helper 跑场景，按 transition trace 解释等待、竞争或层序产生的具体反例。若无值得修正的问题，可直接保留现状。不能仅因占用率低就认定 makespan 可以改善。
+3. **比较前固定协议。** 在 Implementation 1.2 中，以平台的确定性与波动边界固定逐场景的回归容忍度、seed/重复、宿主成本采样和接受上限，保存为版本化评估输入后再设计候选。确定性正确性场景不容忍行为错误；性能场景分别约定主指标与尾部退化口径，不用总平均掩盖差项。平台工程参数和接受上限由实施者在已确认目标内给出，不等待用户选择公式；不得看过候选结果后放宽门槛。
+4. **反例驱动有限探索。** 最多两轮，每轮至多两个独立候选；优先尝试能解释反例的简单局部规则，回填和层序仅是可能方向。每个候选实现前写明选择顺序、并列规则、公开输入、复杂度、推演上限及合法退化；未使用推演时明确为零，不默认引入搜索器。后续轮次新增反例须保留既有场景并重跑基线，不删除不利样本。
+5. **合法性与信息边界。** 选择和可选浅层推演使用公开 AdmissionState；Scheduler 仍重检真实 proposal。策略不能读取模拟真实剩余工作量或随机未来。缺少预测或达到预算时采用已核对的基线合法流程；只在有 running work 可推进时等待，否则选择合法任务或由既有错误路径报告无进展，不伪造状态转换。
+6. **采用或停止。** 对固定协议逐场景比较 makespan；主指标不更差时再比较资源累计占用，不将不同资源加权成新主目标。通过正确性、性能和真实成本要求且收益有解释时采用；否则保留现状并交付理由。探索轮次用尽不自动扩深搜索；不以真实 Gate 加速百分比作为必要条件。
 
 ### Resulting Impacts
 
-设计和 corpus 至少覆盖以下常见问题；每个场景要有可核对的选择、终态与时间/开销证据，而非仅检查不会 throw。
-
-| 场景 | 必须回答的问题 |
-| --- | --- |
-| 队首阻塞与独立任务 | 首选因资源受阻时能否利用闲置容量；仅在 running work 可 drain 时等待，无剩余工作时正常结束。 |
-| 多资源、加权 claim 与 mutex | 替代任务是否占用首选即将需要的资源，造成更长阻塞；不得破坏原子获取与容量上限。 |
-| 长短任务混合、关键链与扇入/扇出 | 回填是否拖延长关键链，短任务偏好是否反复推迟长任务；不宣称跨 Run 的防饥饿保证。 |
-| root/scoped capacity 与 scope 激活 | 启动任务是否收紧有效容量、妨碍已有 scope 完成；保持 hard guard 与有限进展。 |
-| 冷启动、稀疏 history、预测偏差 | 相同图在低估/高估时是否出现严重退化；不把点估计当硬时长上限。 |
-| 失败、observes、取消与资源释放 | 假设成功不能改变真实 dependsOn/observes、blocked、drain 和终态 facts；取消后不新增 admission。 |
-| 并列与极端形状 | 同分、单槽、空/单任务、宽图和长链下是否稳定、有界且无非法 wait？ |
-| 决策成本 | 候选增多或模拟状态投影是否吞掉调度收益；无必要时不构造推演视图。 |
-
-验证分两层，均使用当前公开接线，不沿用旧 private 性能结论：
-
-- **确定性比较：** 冻结 graph、预测输入与代表性 fixtures，以虚拟时序记录完成时间、首选 admission delay、选择 trace 和终态；同时覆盖收益与退化场景。
-- **真实成本：** 同环境、同 selection、同预测输入并隔离 history 写入，交错重复测量 Gate/workload，记录各自 exact candidate 和原始证据。整体 wall time 为主指标，利用率仅作解释；采样前固定样本数与采用门槛。
-
-实施后按测试策略维护最窄策略/模拟/集成测试与 Case，运行受影响 package consumer 及 `bun run check -- --all`。分别反查 learned 用户指南、调度指南与内部 helper owner；非实施代理基于实际 diff 审查，不因没有新 API 而省略文档影响判断。仅改变 helper 行为时，不扩张 machine schema 或真实 Scheduler 职责。
+- 平台拥有场景模型、模拟指标、trace 和少量 shared-closure integration；算法只消费它们，不修改事实模型来帮助某个候选胜出。实际取消/drain 由真实集成证明，不扩张虚拟二元结算协议。
+- 决策成本使用宿主单调时钟单独采样，在相同图、预热及运行环境下对照，记录原始样本、汇总和既定预算。虚拟 makespan 不证明 CPU 成本。
+- 新增或修改测试前后运行 `bun run test-evidence -- check --root .`，执行 `bun test src/learned-critical-path/strategy.test.ts` 和平台目标测试；完成 `bun run package:candidate:integration`、少量正式 Gate 接线验证及 `bun run check -- --all`。
+- 采用后分别反查 learned 用户指南、调度指南、内部 helper owner、JSDoc 和 release upgrade impact；不采用时明确无产品行为变更。非实施代理基于实际 diff 审查两类文档影响。
+- 将采用或不采用结论、比较证据和稳定提交交接给发布；不采用同样可解除算法前置，不等于授权发布。
 
 ## Risks / Trade-offs
 
-历史时长不等于未来剩余时间；填满槽位可能延迟关键任务，一层推演也可能选错。安全硬约束必须始终成立，但性能只能在明确 workload 与预测偏差范围内证明。预先列出必须不退化的反例与允许权衡，不能在看到不利结果后改口径；收益不足则保留基线。
-
-不承诺所有场景都不延迟首选或所有 workload 都更快；允许的性能权衡不能豁免安全、取消或结算规则。
+模型不代表真实剩余时间，更多回填可能延长 makespan。小范围探索可能找不到有价值的改动，因此保留基线是有效出口。固定比较协议限制事后挑样本；候选规则在平台产生反例后确定，避免以准备审计代替实际问题发现。
 
 ## Open Questions
 
-- 哪些真实 workload 与命名资源配置能代表这次优化；当前 Gate 不足以覆盖时采用哪组补充场景？
-- 局部资源冲突判断是否足够，何时需要一层推演；running 剩余时长不可可靠取得时怎样比较等待？
-- 是否保持现行层序；候选上限、评分与时间/开销退化门槛分别是什么？这些需在形成 Plan 前闭合。
+无阻止按依赖推进的未决范围或用户选择。具体反例、候选、计算上限和采用结果是 Implementation 的产物；评估协议在候选比较前冻结，而不是在平台可用前预定最终算法。
