@@ -6,7 +6,7 @@ Project Definition 的 authoring、defaults、validation、normalization 与 `in
 ## Invocation and results
 
 `run(definition, controls?)` 先验证一个 Project Definition 和一个 closed `RunControls` value。一次调用的 controls 只可设置
-`projectRoot`、`flags`、显式 `checkAggregation`、`signal`、`checkArtifactBaseDirectory`、`progressLogFile` 和 output overrides；它不能替换
+`projectRoot`、`flags`、显式 `checkAggregation`、`signal`、`checkArtifactBaseDirectory`、`progressLogFile`、`diagnosticLogFileNaming` 和 output overrides；它不能替换
 Checks、改变 scanner commands、注册 dependencies 或选择另一份 Definition。
 
 `flags` 是可省略的 dense string-token array。省略、显式 `undefined` 和 `[]` 都形成冻结空数组；合法 token
@@ -83,3 +83,11 @@ Product 没有共享 comparison/reference channel 或 policy-selection layer。P
 Product 不发现 JSON/JSONC configuration，也不提供 editor profile、adjustment helper、generic parser/materializer registry、
 operational dependency map、CLI 或 `bin`。Project-owned TypeScript Definition 与 bound Run 是唯一支持的执行集成路径；
 随包 Check 仍各自导出 final-data parser。
+
+### Diagnostic file naming
+
+`RunControls.diagnosticLogFileNaming` 只为当前 invocation 选择封闭的 `"unique" | "channel"` 命名方式；省略或 `undefined` 保持 `unique`。其它值即使在 diagnostics 关闭时也在 author work 前形成 `invalid-run-controls`。它不属于 Definition 或 output override，不参与 declarative snapshot/fingerprint，也不单独启用 diagnostics。
+
+默认 `unique` 沿用 `core-<utc-compact>-<uuid>.log` 与 `scheduler-<utc-compact>-<uuid>.log`，适用于共享输出目录。显式 `channel` 仅将 basename 改为 `core.log` 与 `scheduler.log`；不新增目录，不改变日志内容、UUID、创建时间、全局 sequence 或 elapsed。调用方应将 diagnostics directory 指向自己隔离的本次 invocation 目录；Product 不验证目录独占性。
+
+两种模式均沿用每 channel 的 exclusive-create（`wx`）：已有文件或并发冲突使该 channel failed，不覆盖、不追加、不自动回退命名。两个文件不是事务；一个 channel 失败时另一个可以成功，不回滚已创建文件。失败目标仍通过既有 channel `file` readback 返回，Check/Record facts 和 output failure priority 不变。正式 failure/status 边界见 [API mechanisms](../api-mechanics.md#outputs-与-runresult-边界)。

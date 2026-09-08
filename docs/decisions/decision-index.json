@@ -14,6 +14,7 @@
       "aggregate-all-eligible-project-gate-check-statuses.md": "sha256:5b868dc3c2d64d22da09373c60cb5f7d8191159b00186fe66b20c9a653bfd682",
       "align-function-metrics-inputs-with-lizard-supported-languages.md": "sha256:b7b41d2500be71ca7afe8e717881286d33651caac4ff4be7bcfc154031b95710",
       "align-source-layout-and-naming-with-module-owners.md": "sha256:0fb13a576eb0b2b8be434b54c2c0a88bb04a1347fac1f34cc2e77696df43d8a1",
+      "allow-channel-only-diagnostic-filenames-in-invocation-controls.md": "sha256:c4b380e7b390ca841c032183775f4f1821637e1c7c06eac7a72f313769cbc8dd",
       "allow-check-terminal-messages-and-explicit-visibility.md": "sha256:01332542252de16f11e837ea196f4bfab17013809ef2ba4028249bbaa4108aa6",
       "allow-controlled-json-schema-reference-sources.md": "sha256:94e4b7a4903ed8c11b18d5c6d06c5bae703e4f8628d575891f597fdf2d01ce43",
       "allow-empty-information-checks-with-warning.md": "sha256:565fab0da6cd70e3d413608e337e4363f6e04fbfdeecd604a5ef48cfa62edd1a",
@@ -614,6 +615,37 @@
         "decision": "以 owner 层级和领域职责同时约束目录与命名，仅保留显式批准的 index 入口，移除临时 Product CLI diagnostic。",
         "tags": [
           "configuration",
+          "workflow-policy"
+        ],
+        "relations": []
+      }
+    },
+    "allow-channel-only-diagnostic-filenames-in-invocation-controls.md": {
+      "keys": {
+        "tag": [
+          "configuration",
+          "product-contract",
+          "workflow-policy"
+        ],
+        "status": [
+          "active"
+        ],
+        "alignment": [
+          "aligned"
+        ]
+      },
+      "state": {
+        "sourcePath": "allow-channel-only-diagnostic-filenames-in-invocation-controls.md",
+        "title": "在独占运行目录显式使用固定诊断文件名",
+        "status": "active",
+        "alignment": "aligned",
+        "createdAt": "2026-09-08T01:32:41Z",
+        "purpose": "简化 Gate 等独占运行目录中的日志定位，同时保留共享目录默认命名与防覆盖行为。",
+        "background": "已独占的 invocation 目录重复携带时间和 UUID 后缀，但全局删除后缀会破坏共享 target 的隔离。",
+        "decision": "通过单次 RunControls 选择 unique 或 channel 文件名，默认不变，Gate 显式使用固定 channel 名。",
+        "tags": [
+          "configuration",
+          "product-contract",
           "workflow-policy"
         ],
         "relations": []

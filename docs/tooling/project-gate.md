@@ -26,14 +26,14 @@ options、scanner protocol、test file partition 和 execution mechanics 留在�
 package public entry 构造 Project Definition，并验证该 entry 与 prepared candidate 相同。直接从源码静态导入
 package implementation 会绕过这个 candidate 边界，因此不允许。
 
-每次 invocation 先在 `.log/project-gate/<invocation-id>/` 创建 exact evidence root；candidate preparation 仍发生在此之前。bound Run 只把这一次已创建 root 映射为 Product controls，不在 Product 内再建立一层目录：`diagnosticLogging.directory` 为 root、`machinePublication.directory` 为 `machine/`、`progressLogFile` 为 `progress.log`，并只授予 executable Check `checks/` artifact base。因此布局固定为：
+每次 invocation 先在 `.log/project-gate/<invocation-id>/` 创建 exact evidence root；candidate preparation 仍发生在此之前。bound Run 只把这一次已创建 root 映射为 Product controls，不在 Product 内再建立一层目录：`diagnosticLogFileNaming` 显式选择 `channel`、`diagnosticLogging.directory` 为 root、`machinePublication.directory` 为 `machine/`、`progressLogFile` 为 `progress.log`，并只授予 executable Check `checks/` artifact base。因此布局固定为：
 
 ```text
 <invocation>/
 ├── gate.log
 ├── progress.log
-├── core-<utc-compact>-<product-uuid>.log
-├── scheduler-<utc-compact>-<product-uuid>.log
+├── core.log
+├── scheduler.log
 ├── machine/
 │   ├── run.json
 │   └── records.ndjson
@@ -42,7 +42,7 @@ package implementation 会绕过这个 candidate 边界，因此不允许。
         └── process.log
 ```
 
-core 与 scheduler 的诊断文件名共享创建时刻和 Product UUID；每条 diagnostic observation 还带 Product invocation ID、全局 sequence 与 monotonic elapsed。Gate、progress 和 Product writers 各自拥有输出过程，共同写入本次 Gate invocation 的 evidence root。文件发现以本次 invocation 路径和 output readback 为准，目录保留与清理由调用方管理。machine files 必须按 [Output](../output.md) 的完整二文件集合读取。
+Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍保留 UTC 与 UUID 唯一命名。每条 diagnostic observation 还带 Product invocation ID、全局 sequence 与 monotonic elapsed。Gate、progress 和 Product writers 各自拥有输出过程，共同写入本次 Gate invocation 的 evidence root。文件发现以本次 invocation 路径和 output readback 为准，目录保留与清理由调用方管理。machine files 必须按 [Output](../output.md) 的完整二文件集合读取。
 
 ### Prepared candidate data
 

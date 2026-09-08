@@ -297,6 +297,7 @@ upstream facts.
 - `checkArtifactBaseDirectory` 是可选、invocation-only 的 Check artifact base；它使用非空且无 U+0000 的受信任 directory grammar，relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target。它不进入 Definition fingerprint，不创建 output status，也不授予 Check 读取 base、sibling directory、machine/diagnostic output 或 cross-Run state 的能力；没有配置时 callback 的 `artifactDirectory` 为 `null`。
 - `progressLogFile` 是可选、invocation-only 的 terminal-progress tee target，使用同一非空且无 U+0000 target grammar；它不会改变 Definition outputs、Definition fingerprint 或 Check callback capability。
 - `signal` 供 preflight 与 execution 协作取消；取消结果记录对应 phase。
+- `diagnosticLogFileNaming` 可选 `"unique"`（默认）或 `"channel"`，只控制本次 core/scheduler 日志 basename，不启用 diagnostics、不进入 Definition fingerprint。
 - `outputs` 覆盖本次 diagnostic logging、machine publication 或 progress rendering；progress 的数量、文本预算与 formatter 按字段覆盖，`0` 有效，`formatter: null` 清除 Definition callback，省略/`undefined` 不覆盖。
 - `checkAggregation` 显式选择 `checks: "all"`、Check-ID list 或 `"effective"`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。`"effective"` 只复用本次 private flag-and-dependency selection；`"all"` 和 ID list 不模拟或修改它。
 
@@ -311,6 +312,8 @@ Definition 分别配置 diagnostic logging、machine publication 与 progress re
 - **machine publication** 在 terminal snapshot 形成后写入 machine files。需要由工具消费的稳定数据时，读取 [机器输出契约](output.md) 与 Check facts。
 - **progress rendering** 呈现人读 lifecycle；可选 `progressLogFile` 镜像相同的 terminal presentation。它不改变 Check execution、settlement 或完整 facts；`RunResult.outputs.progressRendering` 继续只读回 `{ enabled, status }`，不公开 preview 文本、effective limits 或 formatter。
 - **diagnostic logging** 为当前 invocation 写入人工诊断。它用于关联 Run、Check、phase 与 Scheduler 行为；日志不是 parser/schema、跨 invocation discovery 或 retention contract，也不替代 Check final data、Record 或 message。
+
+diagnostic 文件默认使用 `core-<utc-compact>-<uuid>.log` 与 `scheduler-<utc-compact>-<uuid>.log`。调用方已有隔离的 invocation 目录时，可以在 controls 同时设置 `diagnosticLogFileNaming: "channel"` 与 `outputs.diagnosticLogging: { enabled: true, directory: "<本次目录>" }`，得到 `core.log` 与 `scheduler.log`，不额外创建目录层级。Product 不保证该目录独占：每 channel 始终 exclusive-create，冲突即 failed，不覆盖、追加或退回唯一名；两个 channel 不是原子事务，一个失败时另一个仍可成功。真实目标继续从 channel `file` 读取，UUID、时间和日志 correlation 不变。
 
 启用 diagnostic logging 时，scheduler channel 可给出本次 Run 的 `scheduler.summary`：它帮助解释 admission、等待、capacity 与 tail 的当前诊断投影。time 与 capacity 指标只描述 Scheduler 行为，不表示 CPU、memory、thread 或 process 的 OS utilization；需要 machine-readable 结论时，仍读取 machine output 和 Check facts。
 

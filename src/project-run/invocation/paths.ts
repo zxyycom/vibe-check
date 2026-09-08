@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { join, relative, resolve } from "node:path";
 
 import type { DiagnosticChannel } from "../diagnostic-logging/logger.ts";
+import type { DiagnosticLogFileNaming } from "../controls/contract.ts";
 
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 
@@ -31,6 +32,7 @@ export function resolveInvocationPaths(
   input: Readonly<{
     readonly checkArtifactBaseDirectory: string | undefined;
     readonly checkIds: readonly string[];
+    readonly diagnosticLogFileNaming: DiagnosticLogFileNaming;
     readonly diagnosticLogSuffix: string | undefined;
     readonly outputConfiguration: ProjectOutputs;
     readonly progressLogFile: string | undefined;
@@ -48,6 +50,7 @@ export function resolveInvocationPaths(
   );
   const diagnosticLoggingFiles = diagnosticFilesFor({
     diagnosticDirectory,
+    diagnosticLogFileNaming: input.diagnosticLogFileNaming,
     diagnosticLogSuffix: input.diagnosticLogSuffix
   });
   const machinePublicationDirectory = resolve(
@@ -73,16 +76,18 @@ export function resolveInvocationPaths(
 function diagnosticFilesFor(
   input: Readonly<{
     readonly diagnosticDirectory: string;
+    readonly diagnosticLogFileNaming: DiagnosticLogFileNaming;
     readonly diagnosticLogSuffix: string | undefined;
   }>
 ): Readonly<Record<DiagnosticChannel, string | null>> {
-  const file = (channel: DiagnosticChannel): string | null =>
-    input.diagnosticLogSuffix === undefined
-      ? null
-      : join(
-          input.diagnosticDirectory,
-          diagnosticLogFileNameForChannel(channel, input.diagnosticLogSuffix)
-        );
+  const file = (channel: DiagnosticChannel): string | null => {
+    if (input.diagnosticLogSuffix === undefined) return null;
+    const basename =
+      input.diagnosticLogFileNaming === "channel"
+        ? `${channel}.log`
+        : `${channel}-${input.diagnosticLogSuffix}.log`;
+    return join(input.diagnosticDirectory, basename);
+  };
   return Object.freeze({
     core: file("core"),
     scheduler: file("scheduler")
@@ -146,13 +151,4 @@ function resolveCheckArtifactDirectories(
  */
 function encodeCheckArtifactDirectory(checkId: string): string {
   return `check-${createHash("sha256").update(checkId, "utf8").digest("base64url")}`;
-}
-
-function diagnosticLogFileNameForChannel(channel: DiagnosticChannel, suffix: string): string {
-  switch (channel) {
-    case "core":
-      return `core-${suffix}.log`;
-    case "scheduler":
-      return `scheduler-${suffix}.log`;
-  }
 }

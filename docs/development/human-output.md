@@ -66,7 +66,7 @@ output failed，同时保持 terminal delivery。writer failure 必须可观察�
 
 只有 diagnostic logging 或 machine publication 启用时，Invocation 才捕获一次 immutable wall-clock `startedAtUtc`。
 machine 将其用于 `invocation.timestamp`；diagnostic logging 在 preflight 前将同一 instant 与 UUID 用于 core/scheduler
-filename。两项均关闭时不读取/序列化 wall clock。
+默认 `unique` filename；invocation-only `channel` 命名仅选择 `core.log` / `scheduler.log`，不取消时间与 UUID 的生成或 observation correlation。完整命名和非事务 collision 边界见 [Project Run](project-run.md#diagnostic-file-naming)。两项均关闭时不读取/序列化 wall clock。
 
 router 为每次 observation 赋予 invocation-wide sequence、monotonic elapsed 与 invocation ID；renderer 以 filterable
 `[]` tags 和 `key=value` facts 生成有界物理行，超长 facts 使用 continuation lines。filename 表达 owner，tags 表达

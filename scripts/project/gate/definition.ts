@@ -328,9 +328,13 @@ export function projectGateOutputOverrides(invocationLogDirectory: string) {
 /** Grants Product only the invocation-local paths owned by its output and executable Check boundaries. */
 export function projectGateInvocationOutputControls(
   invocationLogDirectory: string
-): Pick<RunControls, "checkArtifactBaseDirectory" | "outputs" | "progressLogFile"> {
+): Pick<
+  RunControls,
+  "checkArtifactBaseDirectory" | "diagnosticLogFileNaming" | "outputs" | "progressLogFile"
+> {
   return Object.freeze({
     checkArtifactBaseDirectory: join(invocationLogDirectory, "checks"),
+    diagnosticLogFileNaming: "channel",
     outputs: projectGateOutputOverrides(invocationLogDirectory),
     progressLogFile: join(invocationLogDirectory, "progress.log")
   });

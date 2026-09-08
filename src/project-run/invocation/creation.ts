@@ -40,6 +40,7 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
   const paths = resolveInvocationPaths({
     checkArtifactBaseDirectory: input.controls.checkArtifactBaseDirectory,
     checkIds: input.normalized.checks.map((check) => check.definition.checkId),
+    diagnosticLogFileNaming: input.controls.diagnosticLogFileNaming ?? "unique",
     diagnosticLogSuffix: diagnosticLoggingEnabled
       ? diagnosticLogSuffix(requireStartedAtUtc(startedAtUtc), identity.uuid)
       : undefined,

@@ -1,6 +1,8 @@
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
 /** 单次 run 调用的闭合上下文与 output override；Project Definition 保持为 authored input。 */
 export interface RunControls {
+  /** 单次 diagnostic 文件命名；默认 `unique`，独占目录可选 `channel` 使用固定 Core/Scheduler 名，同名目标失败且不覆盖。 */
+  readonly diagnosticLogFileNaming?: DiagnosticLogFileNaming;
   /** caller 为当前 Run 选择的 progress log exact target；省略时只写 terminal。 */
   readonly progressLogFile?: string;
   /** caller 选择的 Check-owned invocation artifact base；省略时不授予 artifact capability。 */
@@ -20,6 +22,8 @@ export interface RunControls {
   /** 供 planning、preflight 与 execution 协作响应的 caller cancellation signal。 */
   readonly signal?: AbortSignal;
 }
+/** Diagnostic 文件名选择；不改变目录、日志内容或 invocation identity。 */
+export type DiagnosticLogFileNaming = "unique" | "channel";
 /** 将选定 Check statuses 折叠为 invocation aggregate 的规则。 */
 export interface CheckAggregation {
   /** `all` 选择全部 Check，ID 数组选择明确集合，`effective` 复用本 invocation 的 flag-and-dependency selection。 */

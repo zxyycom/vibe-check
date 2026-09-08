@@ -67,6 +67,7 @@ it("binds owner-specific Product outputs and Check artifacts to the Gate invocat
     });
     assert.deepEqual(projectGateInvocationOutputControls(invocationLogDirectory), {
       checkArtifactBaseDirectory: join(invocationLogDirectory, "checks"),
+      diagnosticLogFileNaming: "channel",
       outputs: projectGateOutputOverrides(invocationLogDirectory),
       progressLogFile: join(invocationLogDirectory, "progress.log")
     });
@@ -78,6 +79,8 @@ it("binds owner-specific Product outputs and Check artifacts to the Gate invocat
     assert.notEqual(schedulerFile, null);
     if (coreFile === null || schedulerFile === null)
       throw new Error("enabled Gate diagnostics must expose core and scheduler channels");
+    assert.equal(coreFile, relative(repositoryRoot, join(invocationLogDirectory, "core.log")));
+    assert.equal(schedulerFile, relative(repositoryRoot, join(invocationLogDirectory, "scheduler.log")));
     assert.equal(existsSync(join(repositoryRoot, coreFile)), true);
     assert.equal(existsSync(join(repositoryRoot, schedulerFile)), true);
     assert.equal(existsSync(join(invocationLogDirectory, "machine", "run.json")), true);
@@ -101,10 +104,10 @@ it("binds owner-specific Product outputs and Check artifacts to the Gate invocat
       ["fixture-output-override"]
     );
     assert.deepEqual(diagnosticFileInventory(invocationLogDirectory), [
-      relative(invocationLogDirectory, join(repositoryRoot, coreFile)),
+      "core.log",
       "machine/records.ndjson",
       "machine/run.json",
-      relative(invocationLogDirectory, join(repositoryRoot, schedulerFile))
+      "scheduler.log"
     ]);
   } finally {
     rmSync(invocationLogDirectory, { force: true, recursive: true });

@@ -181,7 +181,7 @@ consumer outcome。没有真实 consumer 时不扩张 public SCC 能力，也不
 | [静态 package 材料](../../changes/archive/author-static-package-materials/proposal.md) | 已完成单一静态发布 manifest、动态 version 投影与完整包验收并归档；未静态化其它材料，也未修改 cold bootstrap。 |
 | 当前 package 定位（已删除 Draft） | 2026-09-07 经用户明确授权删除无需实施的 Draft；现有固定 build/package 与 status 已满足需求，当前行为继续由 [Package lifecycle](../tooling/package-lifecycle.md#local-candidate-lifecycle) 承接。 |
 | [旧生成产物清理](../../changes/archive/clean-obsolete-generated-artifacts/proposal.md) | 已完成两份遗留文件的窄清理及 Process Check fixture 隔离修复并归档；不修改 Product 生成机制，不建立持续清理策略。 |
-| [诊断日志命名](../../changes/simplify-invocation-diagnostic-filenames/proposal.md) | 评审独占 invocation directory 与共享 target 的差异，不直接删除 UUID 防冲突机制。 |
+| [诊断日志命名（已归档）](../../changes/archive/simplify-invocation-diagnostic-filenames/proposal.md) | Gate 显式选择固定 channel 名、Product 默认保持唯一命名的改动已完成，经 AI-ready 文档和完整编码规范审查、完整 Gate 36/36 后于 2026-09-08 归档；Decision aligned。当前契约见 [Project Run](../development/project-run.md#diagnostic-file-naming)与 [Project Gate](../tooling/project-gate.md#project-gate)。 |
 | [cold candidate 启动核验](../../changes/archive/verify-cold-candidate-bootstrap/proposal.md) | 已完成限定环境调查并归档；用户重申自举保证属于环境 setup，未自举的 cold `check` 不在支持承诺内，不登记为待修 Change。当前边界见[环境自举 owner](../tooling/workspace.md#environment-setup-and-destructive-boundary)；[调查报告](../investigations/recheck-cold-candidate-bootstrap-gate-import.md)只保留形成时认识，不证明标准 setup 路径失效。 |
 
 learned 算法比较继续由[既有优化 Change](../../changes/optimize-learned-admission-strategy/proposal.md)拥有，其 public

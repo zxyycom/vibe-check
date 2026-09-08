@@ -3,11 +3,12 @@ import { isOutputDirectory } from "../../project-definition/output-validation.ts
 import { isNonArrayRecord, isUnknownArray } from "../../data-boundary/value-shapes.ts";
 import { parseOutputsOverride } from "./outputs-override-validation.ts";
 import type { RunControlDiagnostic, RunControlValidationResult } from "./validation-result.ts";
-import type { CheckAggregation, RunControls } from "./contract.ts";
+import type { CheckAggregation, DiagnosticLogFileNaming, RunControls } from "./contract.ts";
 
 const RUN_CONTROL_KEYS = [
   "checkArtifactBaseDirectory",
   "checkAggregation",
+  "diagnosticLogFileNaming",
   "progressLogFile",
   "outputs",
   "flags",
@@ -19,12 +20,16 @@ const UNAVAILABLE_HANDLING = ["propagate", "fail", "exclude"] as const;
 const NOT_APPLICABLE_HANDLING = ["exclude", "pass", "fail"] as const;
 const EMPTY_AGGREGATION_RESULTS = ["passed", "failed", "not-applicable"] as const;
 
-interface ParsedRunControlFields {
-  readonly checkAggregation: CheckAggregation | undefined;
+interface ParsedInvocationOutputTargets {
+  readonly diagnosticLogFileNaming: DiagnosticLogFileNaming | undefined;
   readonly checkArtifactBaseDirectory: string | undefined;
+  readonly progressLogFile: string | undefined;
+}
+
+interface ParsedRunControlFields extends ParsedInvocationOutputTargets {
+  readonly checkAggregation: CheckAggregation | undefined;
   readonly flags: readonly string[];
   readonly outputs: RunControls["outputs"] | undefined;
-  readonly progressLogFile: string | undefined;
   readonly projectRoot: string | undefined;
   readonly signal: AbortSignal | undefined;
 }
@@ -48,18 +53,8 @@ function validateRunControlsValue(value: unknown): RunControlValidationResult<Ru
 function parseRunControlFields(
   data: Readonly<Record<string, unknown>>
 ): RunControlValidationResult<ParsedRunControlFields> {
-  const checkArtifactBaseDirectory = optionalControl(
-    data.checkArtifactBaseDirectory,
-    parseOutputDirectory,
-    "controls.checkArtifactBaseDirectory"
-  );
-  if (!checkArtifactBaseDirectory.ok) return checkArtifactBaseDirectory;
-  const progressLogFile = optionalControl(
-    data.progressLogFile,
-    parseOutputDirectory,
-    "controls.progressLogFile"
-  );
-  if (!progressLogFile.ok) return progressLogFile;
+  const outputTargets = parseInvocationOutputTargets(data);
+  if (!outputTargets.ok) return outputTargets;
   const flags = parseFlags(data.flags);
   if (!flags.ok) return flags;
   const checkAggregation = parseOptionalCheckAggregation(data.checkAggregation);
@@ -73,19 +68,53 @@ function parseRunControlFields(
   return Object.freeze({
     ok: true,
     value: Object.freeze({
+      ...outputTargets.value,
       checkAggregation: checkAggregation.value,
-      checkArtifactBaseDirectory: checkArtifactBaseDirectory.value,
       flags: flags.value,
       outputs: outputs.value,
-      progressLogFile: progressLogFile.value,
       projectRoot: projectRoot.value,
       signal: signal.value
     })
   });
 }
 
+/** Parse caller-owned invocation output targets separately from Run execution controls. */
+function parseInvocationOutputTargets(
+  data: Readonly<Record<string, unknown>>
+): RunControlValidationResult<ParsedInvocationOutputTargets> {
+  const diagnosticLogFileNaming = optionalControl(
+    data.diagnosticLogFileNaming,
+    parseDiagnosticLogFileNaming,
+    "controls.diagnosticLogFileNaming"
+  );
+  if (!diagnosticLogFileNaming.ok) return diagnosticLogFileNaming;
+  const checkArtifactBaseDirectory = optionalControl(
+    data.checkArtifactBaseDirectory,
+    parseOutputDirectory,
+    "controls.checkArtifactBaseDirectory"
+  );
+  if (!checkArtifactBaseDirectory.ok) return checkArtifactBaseDirectory;
+  const progressLogFile = optionalControl(
+    data.progressLogFile,
+    parseOutputDirectory,
+    "controls.progressLogFile"
+  );
+  if (!progressLogFile.ok) return progressLogFile;
+  return Object.freeze({
+    ok: true,
+    value: Object.freeze({
+      diagnosticLogFileNaming: diagnosticLogFileNaming.value,
+      checkArtifactBaseDirectory: checkArtifactBaseDirectory.value,
+      progressLogFile: progressLogFile.value
+    })
+  });
+}
+
 function runControlsFromFields(fields: ParsedRunControlFields): RunControls {
   return Object.freeze({
+    ...(fields.diagnosticLogFileNaming === undefined
+      ? {}
+      : { diagnosticLogFileNaming: fields.diagnosticLogFileNaming }),
     ...(fields.checkArtifactBaseDirectory === undefined
       ? {}
       : { checkArtifactBaseDirectory: fields.checkArtifactBaseDirectory }),
@@ -106,6 +135,10 @@ function exactControlRecord(
   return unknownKey === undefined
     ? Object.freeze({ ok: true, value })
     : invalidRunControl(`controls.${unknownKey}`, "unknown-key");
+}
+
+function parseDiagnosticLogFileNaming(value: unknown): DiagnosticLogFileNaming | undefined {
+  return value === "unique" || value === "channel" ? value : undefined;
 }
 
 function optionalControl<T>(
