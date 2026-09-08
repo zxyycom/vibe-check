@@ -22,7 +22,9 @@
 
 | 轨道 | 当前 Change | 协调边界 |
 | --- | --- | --- |
-| Scheduler 算法 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 先完成 Readiness 0.0，以当前 public prepared strategy、resource guards、history identity 与测量边界重新基线化；未满足证据 gate 和单独授权前不切换生产策略。 |
+| Scheduler 简单优化 | [`redesign-learned-admission-heuristic`](../../changes/redesign-learned-admission-heuristic/proposal.md) | 本轮先以当前 public helper、模拟器和命名资源重新设计算法，闭合常见问题、唯一小范围候选与验收后再实施；不扩张为深层算法研究。 |
+| Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停，不作为新算法 Change 的依赖或并行实施入口；保留其原有恢复门禁，不继承旧 private baseline 或采用结论。 |
+| 0.0.2 发布 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | 算法 Change 收尾并进入发布基线后再冻结正式包；不采用算法时须由用户确认是否解除前置。可先审核升级差异，正式准备、验收与授权发布串行执行。 |
 | Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。若先实施，会使算法 Change 的相关 corpus 和 terminal evidence 失效。 |
 | Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
 | Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 恢复前等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
@@ -33,7 +35,9 @@
 Scheduler 当前基线由 runtime、Architecture、API mechanics 与
 [统一 Invocation 策略生命周期 Decision](../decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)承接；public simple/prepared authoring、terminal output、immutable simulation state 与 learned helper 的长期方向分别由当前 owner 和相关活动 Decisions 承接。
 
-`optimize-learned-admission-strategy` 只能在其 tasks 0.0 完成语义重审后冻结 corpus。`add-invocation-fail-fast-policy` 若先落地或改变 candidate、terminal、drain facts，算法 Change 必须重新采集受影响 baseline、trace 与 A/B evidence。Simulation public API 不是算法实施前置；共享 private owner 时保持串行集成。
+本轮由 `redesign-learned-admission-heuristic` 承接简单算法重设计；模拟器与命名资源是当前可用输入，不沿用旧计划的未实现假设。`optimize-learned-admission-strategy` 继续暂停，未来恢复仍须其 Readiness 0.0 及新的范围确认，不能与新 Change 并行修改 helper。`add-invocation-fail-fast-policy` 若先落地或改变 candidate、terminal、drain facts，须重采受影响 baseline、trace 与比较证据。
+
+`release-0-0-2` 依赖本轮算法收尾及其稳定提交，不依赖旧算法比较或其它条件分支。发布可先整理升级影响，但算法与发布共用 package、Gate 和用户材料 owner，正式产物冻结与验收必须在上游结果确认后进行。
 
 ### Link 与 Scanner 轨道
 
