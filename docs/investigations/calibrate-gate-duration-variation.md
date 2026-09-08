@@ -108,7 +108,7 @@ outer wall 中位数 **21514.194 ms**，观察范围 **19995.343–22106.206 ms*
 ### 后续交接与重新调查条件
 
 - [Gate 资源配置](../tooling/project-gate.md#并发与优先级)：调查显示应区分工作特征，但不足以选定资源 ID、units/capacity/claims。先取得同口径、可比隔离与重叠证据，再固定映射；不凭高方差直接限流。
-- [虚拟测量平台 Change](../../changes/build-admission-simulation-workbench/proposal.md)：接入固定 profile 与经验向量；保持 legality、时间模型、随机源和策略可见信息分离。少量闭包 Check 只做真实集成，不能替代 Gate 单项时间校准。
+- [虚拟测量平台](../tooling/workspace.md#virtual-admission-workbench)：接入固定 profile 与经验向量；保持 legality、时间模型、随机源和策略可见信息分离。少量闭包 Check 只做真实集成，不能替代 Gate 单项时间校准。
 - [算法 Change](../../changes/redesign-learned-admission-heuristic/proposal.md)：使用冻结场景与参数比较，主指标 makespan、资源占用次之；规则有依据且无明显退化即可，不承诺真实加速。完整单项计时/竞争参数缺口不通过扩大算法搜索解决。
 - N=5 只描述本轮局部经验范围，不报告可靠 p95、置信区间、长期尾部概率、普适最优资源配置或加速结论。CPU/RSS 和宿主调度噪声未取得；外层 realtime 未校验时钟跳变，Gate 内部单调计时可作独立口径复核。
 - Gate configuration、Check workload、candidate、工具/机器、缓存策略、history identity/model 或虚拟竞争模型发生变化后重采受影响部分；采用严格因果减速系数前，须用同一正式计时边界、明确单项采样入口、固定预测输入和配对/交错实验补证。本报告不新建 Gate selector 或公共测量 API。
