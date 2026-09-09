@@ -319,6 +319,7 @@
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
+      "260909-provide-invocation-private-dependency-handoff": "sha256:73db7113d2fff11746f497cf3984be2ce2031b11b67bfcdf22c85f042f122fb5",
       "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
       "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3"
@@ -6572,6 +6573,23 @@
       "tags": [
         "documentation",
         "workflow-policy"
+      ],
+      "relations": []
+    },
+    "260909-provide-invocation-private-dependency-handoff": {
+      "name": "provide-invocation-private-dependency-handoff",
+      "sourcePath": "provide-invocation-private-dependency-handoff.md",
+      "title": "提供调用内私有依赖交接",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-09T08:50:57Z",
+      "purpose": "让直接依赖同时传递可发布事实与保持身份的调用内原始对象",
+      "background": "canonical data 无法承载 Map、文件字节及其它需原样复用的内存对象",
+      "decision": "为直接依赖增加与 canonical facts 分离的 typed ephemeral handoff",
+      "tags": [
+        "configuration",
+        "dependency-policy",
+        "product-contract"
       ],
       "relations": []
     },
