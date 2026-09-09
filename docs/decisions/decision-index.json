@@ -319,6 +319,7 @@
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
+      "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
       "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3"
     },
@@ -6571,6 +6572,22 @@
       "tags": [
         "documentation",
         "workflow-policy"
+      ],
+      "relations": []
+    },
+    "260909-provide-public-command-check": {
+      "name": "provide-public-command-check",
+      "sourcePath": "provide-public-command-check.md",
+      "title": "提供公共 commandCheck 构造器",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-09T08:32:44Z",
+      "purpose": "让项目用普通 Check 执行外部命令而不重复实现进程生命周期",
+      "background": "现有自定义 Check 需自行处理 spawn、取消、超时、输出上限与四态映射",
+      "decision": "公开普通 commandCheck 并由 Product 统一命令执行机械语义",
+      "tags": [
+        "configuration",
+        "product-contract"
       ],
       "relations": []
     },
