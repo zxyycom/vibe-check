@@ -7,7 +7,7 @@
 - [proposal](proposal.md#resulting-impacts)列出的上游提交已进入本次 Plan 基线；末轮启发式研究未替换既有算法，不表示整个 `v0.0.1` 至本次基线区间没有调度实现变化。
 - 已有[源码差异调查](../../docs/investigations/audit-0-0-2-upgrade-differences.md)和升级说明初稿。旧版的可追溯源码为 `v0.0.1` → `2a454f0a`，调查端点为 `c0af9fff`。
 - 用户要求从完整 Git log、提交信息与部分形成时文档重新反查，补足旧稿遗漏；本次交付收敛为一份 changelog，同时说明净变化与升级影响。
-- 发布分支从 `c0af9fff` 分出，该基线比 `v0.0.1` 多 213 个可达提交。准备与证据在 `release-0-0-2` 的 `/workspace/vibe-check` 维护并按授权提交；发布成功后，本地 main 已快进合入 `4bb74e485d0a5047606bac28321ddb4214e52c02` 并通过完整 Gate，后续仅补齐本 Change 的交接记录。正式源码 S 仍为 `ddff63faf087a7949239d777729878988e641226`，冻结工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。
+- 发布分支从 `c0af9fff` 分出，该基线比 `v0.0.1` 多 213 个可达提交。准备与证据在 `release-0-0-2` 的 `/workspace/vibe-check` 维护并按授权提交；发布成功后，main 快进集成并通过完整 Gate，交付核对提交为 `65e3afa7c57fad7c6eaa2941868b41be25c0358c`，用户已将其推送到远端 main。正式源码 S 仍为 `ddff63faf087a7949239d777729878988e641226`，冻结工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。
 - 已确认采用[无前缀分支命名](../../docs/decisions/use-unprefixed-project-branch-names.md)和[发布源码与 Change 隔离](../../docs/decisions/isolate-package-release-source-from-change-work.md)。main 保持集成主线。
 - 继续遵守 [0.0.x 版本线](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)、[个人 scope](../../docs/decisions/publish-user-scoped-vibe-check-publicly.md)与[完整发布 Gate](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)。
 
@@ -61,7 +61,7 @@ changelog 随包提供，共用 README 入口、包内链接、指纹及精确 b
 
 **验证范围。** 历史重审支撑 changelog 的完整性与准确性，新版行为由现有目标测试和完整 Gate 证明，正式包由同产物 consumer 与分发安装证明；有具体缺口才补证据。公开承诺和内部职责按[文档影响审查](../../docs/governance/knowledge-maintenance.md#行为变更的交付审查)独立复核。
 
-**授权。** 发布准备、冻结、验收、浏览器登录与同一 tarball 的 public/latest 发布均已按授权完成，用户自行完成官方页面 2FA。用户又授权提交发布证据、创建并推送源码标签、合回本地 main；不包含额外推送 main 或清理 Change/工作区。token、OTP 和认证配置不写入仓库或日志。
+**授权。** 发布、源码标签与 main 集成已按授权完成，用户自行完成官方页面 2FA，并手动推送了交付核对提交。当前授权继续整理、同步状态并提交，不包含再次推送或清理 Change/工作区。token、OTP 和认证配置不写入仓库或日志。
 
 ## Risks / Trade-offs
 
@@ -73,4 +73,4 @@ changelog 随包提供，共用 README 入口、包内链接、指纹及精确 b
 
 ## Open Questions
 
-本轮发布、源码标签和本地 main 合入已完成，实际结果与验证见 evidence。没有阻塞本轮交付的开放问题；远端 main 推送及 Change/工作区清理不在本轮范围内，后续分别取得授权。
+发布、源码标签、main 集成及用户手动推送已完成，实际结果与验证见 evidence。没有阻塞当前交付的开放问题；本次整理提交的再次推送，以及 Change/工作区清理仍须后续独立授权。

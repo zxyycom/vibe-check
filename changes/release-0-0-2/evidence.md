@@ -1,6 +1,6 @@
 # 0.0.2 发布证据
 
-本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。0.0.2 已发布且分发验收通过，源码标签已推送并确认指向 S，本地 main 合入与完整 Gate 通过；本轮未推送 main 或清理 Change/工作区。
+本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。0.0.2 已发布且分发验收通过，源码标签指向 S，main 集成与完整 Gate 通过；用户已推送交付核对提交。本次继续整理后续文档，保留 Change 与工作区，不改写已发布产物。
 
 ## 输入与选择
 
@@ -9,7 +9,7 @@
 | package / version | `@zxyycom/vibe-check@0.0.2` 已确定。 |
 | 发布分支与工作区 | `release-0-0-2` 在 `/workspace/vibe-check` 完成实现与证据维护，同一 checkout 用于 main 快进集成；独立 detached 发布工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。 |
 | 正式源码 S | `ddff63faf087a7949239d777729878988e641226`，冻结前 worktree 与 index 干净；不是 Plan 基线或后续证据提交。 |
-| main 集成轨迹 | 本地 main 从 `c0af9fff429ea22602432b542f743af29f305fa4` 快进合入 `4bb74e485d0a5047606bac28321ddb4214e52c02` 并完成验证，其后仅补齐本 Change 交接记录；远端 main 未推送。 |
+| main 集成轨迹 | 从 `c0af9fff` 快进合入发布分支，交付核对提交为 `65e3afa7c57fad7c6eaa2941868b41be25c0358c`；本次开始时已通过 `ls-remote` 确认远端 main 与该提交一致。 |
 | 升级差异依据 | `v0.0.1` 的 source 为 `2a454f0a6162afebb6729a4cfef969594d045c10`，调查端点为 `c0af9fff`；结论见[调查报告](../../docs/investigations/audit-0-0-2-upgrade-differences.md)。 |
 | 升级说明 | 统一由[变更日志](../../docs/changelog.md)承接；内容已通过历史重审和独立语义复核，已确定随包交付并由 README 直链；版本内容、发布状态与链接已完成 2.1 独立终审；后续若再改发布材料，须重审受影响部分。 |
 | npm dist-tag | 已按固定发布约定发布，registry `latest` 已指向 `0.0.2`。 |
@@ -243,4 +243,20 @@ Change 回填后，文档、Decision、Plan（13/19）和 diff 检查通过；�
 ## 后续授权边界
 
 本轮保留 Change 目录、发布分支、冻结工作区与隔离安装 consumer；没有运行 Change complete 或清理。
-远端 main 推送、Change 完成删除、工作区和分支释放均作为后续独立授权动作，不从本次发布或合入成功推导授权。
+本次整理提交的再次推送、Change 完成删除、工作区和分支释放均作为后续独立授权动作，不从已有发布、推送或合入成功推导授权。
+
+## 用户推送后的状态整理
+
+2026-09-09 用户说明已手动推送，并要求继续整理相关内容后提交。开始时工作树与索引干净，
+通过同一 GitHub 仓库的 `ls-remote` 确认远端 main 为 `65e3afa7c57fad7c6eaa2941868b41be25c0358c`，
+与本地 main、origin/main 一致；`v0.0.2` 的 tag object 与 peeled source S 均未变。
+
+本次将当前摘要、design 与 Change 协调说明同步为“已发布、已集成且用户已推送”，先前各轮“未推送”的记录保留为当时事实。
+工作区 changelog 补入发布日期并移除“正式发布后”的待发布措辞；这是发布后的说明修正，
+不会重新打包或修改 registry 的 `0.0.2`，也不会移动冻结 S、receipt 或标签。
+所有整理在 release 分支提交，再快进回 main；本次不再次推送。
+
+非实施 Terra 基于四份实际 diff 复核当前/历史状态、协调入口、已发布产物不可改写及授权边界，审查通过。
+`bun run check -- --all` 为 36 passed、0 failed/not-applicable/unavailable；验证对象是更新说明后的 local candidate `0.0.0-local.7bad8ccfc61f`，
+日志：`.log/project-gate/2026-09-09T05-05-44.648Z-3287721-29f7a670-d9bc-498f-888a-ed5683e3744a/`。
+文档、Decision、全部 Change 与 diff 检查通过；补记本段后另跑文档和 Plan 检查，追加本次非敏感 evidence 快照。

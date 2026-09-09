@@ -23,7 +23,7 @@
 | 轨道 | 当前 Change | 协调边界 |
 | --- | --- | --- |
 | Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停；保留其原有恢复门禁，不继承旧 private baseline，也不因新对照已结束而取得实施授权。 |
-| 0.0.2 发布 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | Gate 配置、平台及最终算法对照均已交接，上游前置已解除。按目标 Plan 在 `release-0-0-2` 实现 worktree 准备，再依 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 串行冻结、同一 tarball 完整验收、授权发布与发布后合回 `main`；旧算法比较不阻塞发布。 |
+| 0.0.2 发布交接 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | 发布、分发验收、源码标签与 main 集成已完成，用户已推送集成结果。Change 和冻结工作区暂留供交接，退出与清理须独立授权；实际证据及后续整理见目标 Plan，不重新打开已收束的算法研究。 |
 | Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。实施后须重新验证受影响的算法 corpus 和 terminal evidence。 |
 | Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
 | Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 恢复前等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
@@ -40,7 +40,7 @@ Scheduler 的稳定行为仍由 runtime、Architecture、API mechanics 与
 
 [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)继续暂停；未来恢复仍须其原有 Readiness 与新的范围确认。`add-invocation-fail-fast-policy` 若改变 candidate、terminal 或 drain facts，须使受影响 baseline、trace 和比较证据重新有效。
 
-[`release-0-0-2`](../../changes/release-0-0-2/proposal.md)已取得上述三个稳定提交及 owner 交接，并纳入提交 `c0af9fff` 的[最后一轮简单算法对照](../investigations/compare-simple-admission-algorithms.md)：没有候选满足采用条件，Product 保留原算法。上游前置已解除，后续按目标 Plan 在实现 worktree 准备、冻结、验收、发布和合回 `main` 的顺序执行；正式发布工作区的边界见 [Package release](../tooling/package-release.md#发布工作区冻结源与交接)。发布与外部写入仍需独立授权，不能以 local candidate Gate 通过代替正式 release 验收；动态 stage 和任务进度仍以目标 Change 为准。
+[`release-0-0-2`](../../changes/release-0-0-2/proposal.md)已纳入上述三个稳定提交与 `c0af9fff` 的[最后一轮简单算法对照](../investigations/compare-simple-admission-algorithms.md)：没有候选满足采用条件，Product 保留原算法。研究前置已解除；发布交接的当前协调边界见上表，事实与验证见目标 Change，不再将该研究作为后续发布准备任务。正式发布工作区与清理边界仍由 [Package release](../tooling/package-release.md#发布工作区冻结源与交接)拥有。
 
 ### Link 与 Scanner 轨道
 
