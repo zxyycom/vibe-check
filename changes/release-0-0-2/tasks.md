@@ -20,7 +20,7 @@
 - [x] 1.3 在冻结工作区执行正式 prepare，核对 0.0.2 receipt、tarball、S、fingerprint、inventory 与 integrity；记录可定位的非敏感结果。Owner：package release。
 - [x] 1.4 在 2.2、2.3 通过并取得精确发布授权后，按已确认机制发布同一 tarball，保存实际结果。Owner：发布执行者。
 - [x] 1.5 在 2.4 通过后交付升级说明，持久保存发布 evidence 与所需 artifact/log；按授权创建、推送指向 S 的 `v0.0.2`。Owner：发布执行者。
-- [ ] 1.6 在发布与分发验证成功、1.5 交接完成后，按授权将发布修正和交接材料合回 main；记录合入提交，运行受影响验证，保持标签指向 S。Owner：发布集成。
+- [x] 1.6 在发布与分发验证成功、1.5 交接完成后，按授权将发布修正和交接材料合回 main；记录合入提交，运行受影响验证，保持标签指向 S。Owner：发布集成。
 
 ## Verification
 
@@ -28,4 +28,4 @@
 - [x] 2.2 在冻结工作区对 1.3 的 receipt 运行 `bun run package:release:verify -- --receipt <receipt-path>`，确认同一正式包的完整 `--all` Gate 与 external consumer 验收通过，保存日志定位。Owner：package / Gate。
 - [x] 2.3 临发布前重新核对冻结 S、receipt/tarball freshness，并在获授权后核验 registry version/dist-tag 与 publisher authority，确认精确外部写入授权。Owner：发布执行者。
 - [x] 2.4 核对 registry 0.0.2 的 dist-tag 与 integrity，隔离安装精确版本并验证 root import、类型、README 用法与代表性 Check；记录实际环境和结果。Owner：分发验证。
-- [ ] 2.5 核对升级说明可取得、证据可恢复、`v0.0.2` 指向 S、main 合入及验证已完成。之后仅在独立授权与各自门禁满足时清理 Change 或释放工作区/分支。Owner：交付审查。
+- [x] 2.5 核对升级说明可取得、证据可恢复、`v0.0.2` 指向 S、main 合入及验证已完成。之后仅在独立授权与各自门禁满足时清理 Change 或释放工作区/分支。Owner：交付审查。

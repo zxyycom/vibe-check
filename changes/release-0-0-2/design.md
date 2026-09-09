@@ -7,7 +7,7 @@
 - [proposal](proposal.md#resulting-impacts)列出的上游提交已进入本次 Plan 基线；末轮启发式研究未替换既有算法，不表示整个 `v0.0.1` 至本次基线区间没有调度实现变化。
 - 已有[源码差异调查](../../docs/investigations/audit-0-0-2-upgrade-differences.md)和升级说明初稿。旧版的可追溯源码为 `v0.0.1` → `2a454f0a`，调查端点为 `c0af9fff`。
 - 用户要求从完整 Git log、提交信息与部分形成时文档重新反查，补足旧稿遗漏；本次交付收敛为一份 changelog，同时说明净变化与升级影响。
-- `main` 保持在 `c0af9fff`，比 `v0.0.1` 多 213 个可达提交；已从该基线创建 `release-0-0-2`，发布准备在该分支的 `/workspace/vibe-check` 实现工作区维护，并已按授权分次提交。正式源码 S 已选定为 `ddff63faf087a7949239d777729878988e641226`，冻结工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。
+- 发布分支从 `c0af9fff` 分出，该基线比 `v0.0.1` 多 213 个可达提交。准备与证据在 `release-0-0-2` 的 `/workspace/vibe-check` 维护并按授权提交；发布成功后，本地 main 已快进合入 `4bb74e485d0a5047606bac28321ddb4214e52c02` 并通过完整 Gate，后续仅补齐本 Change 的交接记录。正式源码 S 仍为 `ddff63faf087a7949239d777729878988e641226`，冻结工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。
 - 已确认采用[无前缀分支命名](../../docs/decisions/use-unprefixed-project-branch-names.md)和[发布源码与 Change 隔离](../../docs/decisions/isolate-package-release-source-from-change-work.md)。main 保持集成主线。
 - 继续遵守 [0.0.x 版本线](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)、[个人 scope](../../docs/decisions/publish-user-scoped-vibe-check-publicly.md)与[完整发布 Gate](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)。
 
@@ -26,7 +26,7 @@
 | 输入 | 本次选择与状态 |
 | --- | --- |
 | npm package / version | `@zxyycom/vibe-check@0.0.2` 已确定。 |
-| 发布分支 | `release-0-0-2` 已创建并检出；唯一活跃实现工作区为 `/workspace/vibe-check`。 |
+| 发布分支 | `release-0-0-2` 在 `/workspace/vibe-check` 完成实现与证据维护；本地 main 在同一 checkout 接收快进集成，冻结工作区独立保留。 |
 | source commit S | 已冻结干净提交 `ddff63faf087a7949239d777729878988e641226`；与 Plan `baseCommit` 及后续 evidence 提交分开记录。 |
 | npm dist-tag | 已按固定约定发布，registry `latest` 指向 `0.0.2`。 |
 | access / 发布产物 | 按既定规则使用 public access，并发布同一受验 tarball；不是本次重新选择的事项。 |
@@ -73,4 +73,4 @@ changelog 随包提供，共用 README 入口、包内链接、指纹及精确 b
 
 ## Open Questions
 
-0.0.2 已发布且源码标签已推送；本地 main 合入已获授权，实际结果与验证见 evidence。远端 main 推送及后续清理不在本轮范围内。
+本轮发布、源码标签和本地 main 合入已完成，实际结果与验证见 evidence。没有阻塞本轮交付的开放问题；远端 main 推送及 Change/工作区清理不在本轮范围内，后续分别取得授权。

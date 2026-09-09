@@ -1,15 +1,15 @@
 # 0.0.2 发布证据
 
-本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。0.0.2 已发布且分发验收通过，源码标签已推送并确认指向 S；本地 main 合入与最终交接见末节。
+本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。0.0.2 已发布且分发验收通过，源码标签已推送并确认指向 S，本地 main 合入与完整 Gate 通过；本轮未推送 main 或清理 Change/工作区。
 
 ## 输入与选择
 
 | 输入 | 已有依据与本次状态 |
 | --- | --- |
 | package / version | `@zxyycom/vibe-check@0.0.2` 已确定。 |
-| 发布分支与工作区 | `release-0-0-2` 的 `/workspace/vibe-check` 为唯一 Change 实现工作区；独立 detached 发布工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。 |
+| 发布分支与工作区 | `release-0-0-2` 在 `/workspace/vibe-check` 完成实现与证据维护，同一 checkout 用于 main 快进集成；独立 detached 发布工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。 |
 | 正式源码 S | `ddff63faf087a7949239d777729878988e641226`，冻结前 worktree 与 index 干净；不是 Plan 基线或后续证据提交。 |
-| 当前集成基线 | `main` / `c0af9fff429ea22602432b542f743af29f305fa4` 未变；发布分支从该提交分出，准备改动在该分支维护，已提交里程碑见下节记录。 |
+| main 集成轨迹 | 本地 main 从 `c0af9fff429ea22602432b542f743af29f305fa4` 快进合入 `4bb74e485d0a5047606bac28321ddb4214e52c02` 并完成验证，其后仅补齐本 Change 交接记录；远端 main 未推送。 |
 | 升级差异依据 | `v0.0.1` 的 source 为 `2a454f0a6162afebb6729a4cfef969594d045c10`，调查端点为 `c0af9fff`；结论见[调查报告](../../docs/investigations/audit-0-0-2-upgrade-differences.md)。 |
 | 升级说明 | 统一由[变更日志](../../docs/changelog.md)承接；内容已通过历史重审和独立语义复核，已确定随包交付并由 README 直链；版本内容、发布状态与链接已完成 2.1 独立终审；后续若再改发布材料，须重审受影响部分。 |
 | npm dist-tag | 已按固定发布约定发布，registry `latest` 已指向 `0.0.2`。 |
@@ -228,8 +228,19 @@ Change 回填后，文档、Decision、Plan（13/19）和 diff 检查通过；�
 - 推送后通过同一仓库的 `ls-remote` 核对 tag object 与 peeled commit，均与本地一致。
   远端 main 当时仍为 `c0af9fff429ea22602432b542f743af29f305fa4`，与本地 main 相同；本轮 tag push 未移动 main。
 
-## 待取得的交接结果
+### 本地 main 集成与最终核对
 
-- Git 交接后的追加 evidence 快照与本地 main 合入/验证结果。
+- 标签交接记录提交为 `4bb74e485d0a5047606bac28321ddb4214e52c02`。本地 main 从 `c0af9fff` 通过 `git merge --ff-only release-0-0-2` 合入该节点，
+  没有冲突或额外 merge commit；版本标签始终指向 S，不指向这个发布后提交。
+- 合入后运行 `bun run check -- --all`：36 passed、0 failed/not-applicable/unavailable，耗时 21 秒。
+  日志：`.log/project-gate/2026-09-09T04-57-43.085Z-3280154-c58d4138-0560-4273-84dd-edb96a07df42/`。
+  这是 main 的开发期 local candidate 完整 Gate，不替代前述已发布正式包证据。
+- 完成记录仍在 release 分支提交，再由 main 快进接收；这次补记只改变本 Change 的 Markdown，另跑文档、Plan、Decision 与 diff 检查。
+  发布分支提交的 post-commit hook 按既有规则跳过 main 自动推送，main 快进不创建提交；本轮未额外推送 main。
+- 本 Change 的 19 项任务均已有事实依据。changelog 已随 registry 包提供；原始包、receipt、两轮正式 Gate 及 evidence 快照已保存并核对摘要。
+  main 集成日志与最终 evidence 快照追加到同一归档槽位，保留前序快照。冻结工作区仍干净并保持 S。
 
-后续结果在 Change 工作区记录时间、来源与结论；构建和验证输出保留在冻结工作区的受控位置，并在释放前完成所需持久保存。源码 S、后续证据提交和 main 合入提交分别记录。
+## 后续授权边界
+
+本轮保留 Change 目录、发布分支、冻结工作区与隔离安装 consumer；没有运行 Change complete 或清理。
+远端 main 推送、Change 完成删除、工作区和分支释放均作为后续独立授权动作，不从本次发布或合入成功推导授权。
