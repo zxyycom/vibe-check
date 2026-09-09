@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-publish-invocation-creation-time-without-execution-telemetry
+    summary: 以 invocation 创建时间保持发布前 Gate 就绪边界
 ---
 
 ## 目的

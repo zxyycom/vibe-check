@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260824-complete-first-release-check-set-before-publication
+    summary: 在首次公开发布前完成四项选定的首版 Checks
 ---
 
 ## 目的

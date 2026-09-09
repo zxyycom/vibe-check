@@ -13,8 +13,10 @@ tags:
 relations:
   - type: 归并
     target: 260826-let-each-check-own-file-selection
+    summary: 在 Check 自有 selection 后验证 options
   - type: 归并
     target: 260826-treat-package-provided-checks-as-ordinary
+    summary: 让普通 Check 自带 options validator
 ---
 
 ## 目的
@@ -32,13 +34,13 @@ relations:
 
 ## 决策
 
-- 采用：有显式 `options` 的 executable ordinary Check 必须同时提供纯 `validateOptions(options)`；没有显式 options 的 Check 不提供该 callback。`defineCheck` 在 TypeScript authoring surface 上表达这组约束，Definition 的 closed grammar 在运行时再次闭合它。
-- 采用：Definition 先把 options 脱离调用方对象并 snapshot 为 canonical immutable JSON object，再调用 owning Check 的 `validateOptions`。只有明确返回 `true` 才接受；返回其它值或抛出都使整个 Definition 以该 Check 的 `options` path 返回 configuration failure，且不进入 execution、scanner 或 effects。
-- 采用：Core 只认识普通 `validateOptions` callback 是否存在及其接受结果，不导入 package-provided Check、不识别 Check ID、不保存 validator registry，也不解释 files、scanner、threshold、schema、Link 或 reminder 等领域字段。validator 与 execution 同属 trusted project code，不进入 declarative fingerprint、Core snapshot 或 machine output。
-- 采用：package 导出的六个 Check values 与 `maintenanceReminders` 构造函数结果都携带自己的 validator，并只产生合法的完整 options。调用方用普通对象组合替换 options 时会保留该 validator；不完整、越界或含未知字段的替换在 Definition 边界被拒绝。删除 validator 或把它与 options 错误组合也属于非法普通 Check grammar。
-- 采用：execution 只接收已经通过 owning validator 的 options，不再返回 `invalid-options`。`unavailable` 仅表达一个合法 Check 在当前 invocation 中因取消、工具、文件、解析、测量或其它运行条件无法形成可信 final data。
-- 采用：每项 package-provided Check 的 validator、execution、option type、finding/measurement、Record conversion、tool adapter 与 tests 继续位于该 Check owner；jscpd、scc 与 Lizard 分别属于 duplicate detection、file metrics 与 function metrics。每项随包 Check 继续拥有 package 内独立、可直接阅读的 consumer guide。
-- 采用：每个需要项目文件的 Check 继续在自己的完整 options 中拥有 `files`，需要 code-area classification 的 metric Check 继续拥有 `codeAreas`。`src/project-files/**` 只提供共同 collection、normalization、classification 与 exact-input mechanism，不保存全局 policy 或识别 Check ID。
-- 采用：Markdown Link source 只来自自己的 `options.files`；source-selection 外的 root 内 direct target 只可做 bounded resolver work且不递归发现 links。`rootExternalTargetMode`、directory、anchor、symlink、Record material 与零网络边界继续由 Link-local options 和 execution 拥有。
-- 采用：首次稳定发布前直接硬切该 ordinary Check grammar，不保留 execution-time `invalid-options`、package-specific Definition validator、旧 `quality` 字段、hidden files context 或兼容 alias。
+- 采用: 有显式 `options` 的 executable ordinary Check 必须同时提供纯 `validateOptions(options)`；没有显式 options 的 Check 不提供该 callback。`defineCheck` 在 TypeScript authoring surface 上表达这组约束，Definition 的 closed grammar 在运行时再次闭合它。
+- 采用: Definition 先把 options 脱离调用方对象并 snapshot 为 canonical immutable JSON object，再调用 owning Check 的 `validateOptions`。只有明确返回 `true` 才接受；返回其它值或抛出都使整个 Definition 以该 Check 的 `options` path 返回 configuration failure，且不进入 execution、scanner 或 effects。
+- 采用: Core 只认识普通 `validateOptions` callback 是否存在及其接受结果，不导入 package-provided Check、不识别 Check ID、不保存 validator registry，也不解释 files、scanner、threshold、schema、Link 或 reminder 等领域字段。validator 与 execution 同属 trusted project code，不进入 declarative fingerprint、Core snapshot 或 machine output。
+- 采用: package 导出的六个 Check values 与 `maintenanceReminders` 构造函数结果都携带自己的 validator，并只产生合法的完整 options。调用方用普通对象组合替换 options 时会保留该 validator；不完整、越界或含未知字段的替换在 Definition 边界被拒绝。删除 validator 或把它与 options 错误组合也属于非法普通 Check grammar。
+- 采用: execution 只接收已经通过 owning validator 的 options，不再返回 `invalid-options`。`unavailable` 仅表达一个合法 Check 在当前 invocation 中因取消、工具、文件、解析、测量或其它运行条件无法形成可信 final data。
+- 采用: 每项 package-provided Check 的 validator、execution、option type、finding/measurement、Record conversion、tool adapter 与 tests 继续位于该 Check owner；jscpd、scc 与 Lizard 分别属于 duplicate detection、file metrics 与 function metrics。每项随包 Check 继续拥有 package 内独立、可直接阅读的 consumer guide。
+- 采用: 每个需要项目文件的 Check 继续在自己的完整 options 中拥有 `files`，需要 code-area classification 的 metric Check 继续拥有 `codeAreas`。`src/project-files/**` 只提供共同 collection、normalization、classification 与 exact-input mechanism，不保存全局 policy 或识别 Check ID。
+- 采用: Markdown Link source 只来自自己的 `options.files`；source-selection 外的 root 内 direct target 只可做 bounded resolver work且不递归发现 links。`rootExternalTargetMode`、directory、anchor、symlink、Record material 与零网络边界继续由 Link-local options 和 execution 拥有。
+- 采用: 首次稳定发布前直接硬切该 ordinary Check grammar，不保留 execution-time `invalid-options`、package-specific Definition validator、旧 `quality` 字段、hidden files context 或兼容 alias。
 - 不采用：把完整随包 Check 称为无效实体、把非法 authoring 结算为 four-state outcome、由 Definition 按 Check ID 解释 options、让 custom Check 无法使用相同 validator contract，或把 Check-local policy重新集中到 shared registry。

@@ -2,7 +2,7 @@
 title: 将 Lizard 运行时统一留到语义配置与产品工作之后
 id: 260803-defer-lizard-until-after-semantic-config-workflow
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-08-03T09:05:03Z
 purpose: 先交付稳定的公共配置和用户可感知工作流，再处理高风险且主要改善开发边界的运行时统一。
 background: Lizard TypeScript port 收益与风险都高但用户感知有限；公共配置改为 scanner-tool 中立后，也不再需要为未来 port 预留一次配置迁移。
@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260803-defer-lizard-runtime-unification
+    summary: 将 Lizard 运行时统一留到语义配置与产品工作之后
 ---
 
 ## 目的

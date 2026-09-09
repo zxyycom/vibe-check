@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260821-use-direct-check-execution-with-minimal-record-reporting
+    summary: 使用四态 Check final result 与主数据
 ---
 
 ## 目的
@@ -28,8 +29,8 @@ relations:
 
 ## 决策
 
-- 采用：Public direct `execution` 返回唯一 closed result union：`passed` 与 `failed` 必须各携带 object `data`，`not-applicable` 可携带受控 reason，`unavailable` 必须携带受控 reason。已退休的双层表示不再是 result grammar。
-- 采用：`passed` 或 `failed` 的 `data` 是 producing Check 的唯一 primary structured result；无领域数据的 Check 显式返回空 object。Product 在 Core settlement boundary把该data以与Record data相同的canonical JSON安全边界detached、prototype-safe并deep-freeze；需要canonical text或bytes时再显式按lexical key order序列化。
-- 采用：direct execution context 继续提供 typed options、Product-owned invocation facts、Check-scoped `records` 与 cancellation signal；`records.report({ id }, data)` 仍只提交 supplemental Records，callback settlement 关闭 reporter。
-- 采用：Product 将 callback throw、malformed result、invalid final data、cancellation 和协议失败收敛为 owning Check 的 unavailable outcome，并不撤销已经接受的 Records 或影响无关 Checks。
+- 采用: Public direct `execution` 返回唯一 closed result union：`passed` 与 `failed` 必须各携带 object `data`，`not-applicable` 可携带受控 reason，`unavailable` 必须携带受控 reason。已退休的双层表示不再是 result grammar。
+- 采用: `passed` 或 `failed` 的 `data` 是 producing Check 的唯一 primary structured result；无领域数据的 Check 显式返回空 object。Product 在 Core settlement boundary把该data以与Record data相同的canonical JSON安全边界detached、prototype-safe并deep-freeze；需要canonical text或bytes时再显式按lexical key order序列化。
+- 采用: direct execution context 继续提供 typed options、Product-owned invocation facts、Check-scoped `records` 与 cancellation signal；`records.report({ id }, data)` 仍只提交 supplemental Records，callback settlement 关闭 reporter。
+- 采用: Product 将 callback throw、malformed result、invalid final data、cancellation 和协议失败收敛为 owning Check 的 unavailable outcome，并不撤销已经接受的 Records 或影响无关 Checks。
 - 不采用：execution wrapper、TaskPlan、从 Record data 推断 outcome、额外完成状态、Record catalog/generic，或为主数据引入 Product-owned domain schema、parser 或 presentation fallback。

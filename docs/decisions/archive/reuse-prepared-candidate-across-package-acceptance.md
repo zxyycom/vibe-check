@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260826-provide-prepared-package-candidate-as-typed-check-data
+    summary: 在 package acceptance 间复用已准备 candidate
 ---
 
 ## 目的

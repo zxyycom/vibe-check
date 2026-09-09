@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-require-explicit-network-check-authorization
+    summary: 网络 Check 使用 Check-owned 显式授权
 ---
 
 ## 目的
@@ -28,9 +29,9 @@ relations:
 
 ## 决策
 
-- 采用：未来 Product-owned 网络 Check 必须把网络 opt-in 表达为自己的 closed Check-owned options；neutral/default composition 以及缺失、无效或未启用的 opt-in 均不得发起网络请求。CLI profile、Gate 名称、环境变量或 Check registration 不得隐式提升该权限。
-- 采用：网络 Check 自己拥有目标限制、凭据传播和请求资源的安全 transport boundary；精确 allowlist、redirect、timeout 和诊断字段只在出现实际 Check consumer 时作为该 Check 的独立设计细化。
-- 采用：producing Check 以当前四态 result 结算自己的网络工作，并仅提交安全的 supplemental Records；transport、依赖或执行不确定性按 owning Check 的 `unavailable` semantics 表达，不伪造 normal result。
-- 采用：需要一个多 Check conclusion 的项目调用方明确配置 `RunControls.checkAggregation` 并消费 `RunResult.aggregate`；aggregation 只从 selected settled Check statuses 得出结果，不读取网络 Record data 或代替 Check 的安全判断。
-- 采用：此授权只约束 Product-owned 网络 implementation。项目 author 自己编写的 Check function 仍处于可信 project-code execution boundary，不因其出现在 Project Definition 中而获得 Product sandbox 或网络 authorization 断言。
+- 采用: 未来 Product-owned 网络 Check 必须把网络 opt-in 表达为自己的 closed Check-owned options；neutral/default composition 以及缺失、无效或未启用的 opt-in 均不得发起网络请求。CLI profile、Gate 名称、环境变量或 Check registration 不得隐式提升该权限。
+- 采用: 网络 Check 自己拥有目标限制、凭据传播和请求资源的安全 transport boundary；精确 allowlist、redirect、timeout 和诊断字段只在出现实际 Check consumer 时作为该 Check 的独立设计细化。
+- 采用: producing Check 以当前四态 result 结算自己的网络工作，并仅提交安全的 supplemental Records；transport、依赖或执行不确定性按 owning Check 的 `unavailable` semantics 表达，不伪造 normal result。
+- 采用: 需要一个多 Check conclusion 的项目调用方明确配置 `RunControls.checkAggregation` 并消费 `RunResult.aggregate`；aggregation 只从 selected settled Check statuses 得出结果，不读取网络 Record data 或代替 Check 的安全判断。
+- 采用: 此授权只约束 Product-owned 网络 implementation。项目 author 自己编写的 Check function 仍处于可信 project-code execution boundary，不因其出现在 Project Definition 中而获得 Product sandbox 或网络 authorization 断言。
 - 不采用：shared network authorization channel、Product-wide selection layer、普通离线链接 Check 自动访问网络，或由 Core/Record completeness/实时公共站点结果推断质量结论。

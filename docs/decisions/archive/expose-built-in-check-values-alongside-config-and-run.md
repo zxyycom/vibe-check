@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-expose-config-definition-and-project-run-operations
+    summary: 在配置与运行操作旁公开内置 Check 值
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-defer-future-feature-detail-until-prioritized
+    summary: 让 change 细节服务当前阶段
 ---
 
 ## 目的

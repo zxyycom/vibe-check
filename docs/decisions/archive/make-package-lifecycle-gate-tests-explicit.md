@@ -9,10 +9,12 @@ background: 物理 artifact、candidate 与外部 consumer tests 占完整测试
 decision: required 默认不执行三项 package lifecycle Checks，显式 tag 加入；full 自动执行全部。
 tags:
   - configuration
+  - testing
   - workflow-policy
 relations:
   - type: 修订
     target: 260823-default-project-gate-to-required-profile
+    summary: 让高成本 package lifecycle Gate 测试显式启用
 ---
 
 ## 目的

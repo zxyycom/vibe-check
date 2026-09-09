@@ -2,7 +2,7 @@
 title: 将 Lizard 运行时统一留到产品向工作之后
 id: 260803-defer-lizard-runtime-unification
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-08-03T07:42:48Z
 purpose: 先交付用户可感知的产品能力，再处理高风险且主要改善开发边界的运行时统一。
 background: Lizard TypeScript port 收益与风险都高，但用户感知有限，且活动 change 的技术排序曾被反复误当成产品优先级。

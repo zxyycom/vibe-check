@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-publish-composable-default-project-file-selection
+    summary: 让选中文件与 Check eligibility 完整对账
 ---
 
 ## 目的
@@ -30,9 +31,9 @@ relations:
 
 ## 决策
 
-- 采用：继续公开深冻结、可组合的 `defaultProjectFileSelection` 及其通用 source/include/exclude；它不是所有 Check 必须原样采用的完整 work set。package-provided Check 可以从其 source/exclude 派生与自身 eligibility 一致的默认 include，且不发布重复的公共默认对象。
-- 采用：files policy 形成 selected paths 后，任何 Check-owned supported-file filter 必须把完整集合确定性对账为 accepted 与 rejected；两者不相交且并集等于 selected，不能静默丢弃 rejected path。
-- 采用：每个 rejected path 由 owning Check 发布一条稳定、non-blocking `input-rejected` Finding 和汇总 warning；显式宽泛 include 的全部拒绝必须保留，调用方通过更精准的 include/exclude 降噪。
-- 采用：Record 字段、final count、area 关系与 passed/failed settlement 保持 Check-owned。all-rejected 是已完成分类并产生非阻断 Finding 的正常 completed result；真正 zero selected 才是 `not-applicable`。
-- 采用：当前规则适用于 function-metrics、JSON validation 与 Markdown Link 的 Product-owned eligibility filter。已经交给外部 backend 的 exact input 是否产生 output 需要 backend-specific 事实，不能由本规则推断为 rejection。
+- 采用: 继续公开深冻结、可组合的 `defaultProjectFileSelection` 及其通用 source/include/exclude；它不是所有 Check 必须原样采用的完整 work set。package-provided Check 可以从其 source/exclude 派生与自身 eligibility 一致的默认 include，且不发布重复的公共默认对象。
+- 采用: files policy 形成 selected paths 后，任何 Check-owned supported-file filter 必须把完整集合确定性对账为 accepted 与 rejected；两者不相交且并集等于 selected，不能静默丢弃 rejected path。
+- 采用: 每个 rejected path 由 owning Check 发布一条稳定、non-blocking `input-rejected` Finding 和汇总 warning；显式宽泛 include 的全部拒绝必须保留，调用方通过更精准的 include/exclude 降噪。
+- 采用: Record 字段、final count、area 关系与 passed/failed settlement 保持 Check-owned。all-rejected 是已完成分类并产生非阻断 Finding 的正常 completed result；真正 zero selected 才是 `not-applicable`。
+- 采用: 当前规则适用于 function-metrics、JSON validation 与 Markdown Link 的 Product-owned eligibility filter。已经交给外部 backend 的 exact input 是否产生 output 需要 backend-specific 事实，不能由本规则推断为 rejection。
 - 不采用：Product-wide file type registry、静默抑制开关、只报首项或总数而不保留 per-path Record、把拒绝升级为 blocking，或读取内容猜测文件类型。

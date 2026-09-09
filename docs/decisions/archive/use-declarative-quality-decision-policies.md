@@ -2,7 +2,7 @@
 title: 使用声明式质量决策策略
 id: 260805-use-declarative-quality-decision-policies
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-08-05T06:43:25Z
 purpose: 让多个质量能力的标准记录与运行状态能够通过可审阅配置组合成查询、接受和门禁结果。
 background: 固定 channels、overall completeness 和 gate prerequisite 无法表达不同能力、coverage 与 comparison 的逻辑组合。

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260817-use-inherit-for-check-collection-edits
+    summary: 分别继承 dependsOn 与 observes relation
 ---
 
 ## 目的

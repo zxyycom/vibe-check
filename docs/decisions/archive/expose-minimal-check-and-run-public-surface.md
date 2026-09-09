@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260817-expose-recursive-check-authoring-and-run-surface
+    summary: 公开最小 Check authoring 与 Run surface
 ---
 
 ## 目的
@@ -28,7 +29,7 @@ relations:
 
 ## 决策
 
-- 采用：public runtime values 仅保留 `defineConfig`、`defineCheck`、`inherit`、`run` 和 Product-provided complete ordinary Check defaults；不增加第二运行入口、runtime evaluation operation 或 catalog service。
-- 采用：public type roots覆盖ordinary recursive Check authoring、direct execution/context、four-state Check result/outcome/reasons、Project Definition、Run Controls、Run Result、effects、scheduler与默认Check options；Record identity/reporter只通过execution contextual typing出现，Record facts只通过Run Result结构读取，并以isolated consumer evidence约束额外named exports。
-- 采用：declarations、public-contract inventory、docs、examples、repository dogfood 与 exact package consumer acceptance 单向核对同一 public symbol set；supporting declaration type 不自动成为 runtime export。
+- 采用: public runtime values 仅保留 `defineConfig`、`defineCheck`、`inherit`、`run` 和 Product-provided complete ordinary Check defaults；不增加第二运行入口、runtime evaluation operation 或 catalog service。
+- 采用: public type roots覆盖ordinary recursive Check authoring、direct execution/context、four-state Check result/outcome/reasons、Project Definition、Run Controls、Run Result、effects、scheduler与默认Check options；Record identity/reporter只通过execution contextual typing出现，Record facts只通过Run Result结构读取，并以isolated consumer evidence约束额外named exports。
+- 采用: declarations、public-contract inventory、docs、examples、repository dogfood 与 exact package consumer acceptance 单向核对同一 public symbol set；supporting declaration type 不自动成为 runtime export。
 - 不采用：retired evaluator、selected evaluator、独立 Gate result、Record type/catalog/field/identity extractor roots、shared baseline/reference reporter roots、second Check node family、TaskPlan/factory/completion surface、wildcard/internal subpath exports、deprecated alias 或 public fallback adapter。

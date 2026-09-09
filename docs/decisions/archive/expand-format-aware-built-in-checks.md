@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260804-expand-format-aware-quality-checks
+    summary: 扩展格式感知的 Product-provided Checks
 ---
 
 ## 目的

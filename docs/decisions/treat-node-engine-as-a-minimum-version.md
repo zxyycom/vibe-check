@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260906-support-node-as-the-package-host
+    summary: 将 Node package engine 作为最低版本约束
 ---
 
 ## 目的

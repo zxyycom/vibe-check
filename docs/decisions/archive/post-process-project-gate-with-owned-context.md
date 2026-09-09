@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260821-bind-project-gates-to-run-aggregation
+    summary: 以完整 Gate 上下文后处理结果
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260831-present-bounded-safe-finding-summaries
+    summary: 提供由 Check 配置的通用有界 Finding 展示
 ---
 
 ## 目的

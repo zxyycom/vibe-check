@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260811-use-complete-upstream-governance-skills
+    summary: 只保留七项独立项目 Skill
 ---
 
 ## 目的

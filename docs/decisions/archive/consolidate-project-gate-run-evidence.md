@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260829-add-ephemeral-project-run-diagnostic-logging
+    summary: 将 Gate Run 证据收敛为单次高信噪 invocation
 ---
 
 ## 目的

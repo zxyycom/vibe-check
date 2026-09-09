@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260824-align-source-layout-and-naming-with-module-owners
+    summary: 收敛 Product 模块边界到实际 owner
 ---
 
 ## 目的

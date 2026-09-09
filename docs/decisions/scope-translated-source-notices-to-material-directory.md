@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260907-unify-package-legal-materials-and-audit-installed-dependencies
+    summary: 将翻译来源说明置于对应法律材料目录
 ---
 
 ## 目的

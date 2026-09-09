@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260904-use-project-check-command-with-focused-gate-presets
+    summary: 让 Project Gate 委托 Product 处理依赖选择
 ---
 
 ## 目的

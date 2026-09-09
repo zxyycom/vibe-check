@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-record-paused-change-state-in-artifacts
+    summary: 删除已完成 Change 与 OpenSpec 历史
 ---
 
 ## 目的

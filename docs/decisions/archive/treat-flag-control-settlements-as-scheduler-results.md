@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260901-support-multi-flag-check-enablement-strategies
+    summary: 将 flag control 终态作为 Scheduler 准入前结果
 ---
 
 ## 目的

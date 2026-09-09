@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260821-let-dependent-checks-read-settled-upstream-outputs
+    summary: 以 string getter 读取直接依赖 final data
 ---
 
 ## 目的

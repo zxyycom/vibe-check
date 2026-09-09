@@ -28,11 +28,11 @@ relations: []
 
 ## 决策
 
-- 采用：Definition validation 只关闭 ordinary recursive Check grammar、scheduling、effects 与 canonical opaque JSON options；它不得导入 package-provided Check、识别其 ID，或按其 option shape 分支。
-- 采用：每项 package-provided Check 在普通 execution entry 验证自己的完整 options，并以普通 four-state result 结算；invalid options 是 owning Check 的 `unavailable` / `invalid-options`，不是 core configuration taxonomy。
-- 采用：每项 package-provided Check 的 execution、option type/validation、finding/measurement model、Record conversion、tool adapter 与 tests 位于该 Check 的 owner 内。jscpd 属于 duplicate detection，scc 属于 file metrics，Lizard 属于 function metrics。
-- 采用：随包提供只是分发与文档身份，不授权 private Core hook、hidden context field、registry、backend map、subpath API 或不同于 custom Check 的 settlement contract。
-- 采用：底层 process、CSV、error、project-file collection 与 exact-path membership 只有在不含某个 Check 的领域判断、拥有独立不变量和多个真实 consumers 时才可独立共享；共享 mechanism 不拥有调用方 policy。
-- 采用：每项随包 Check 在 package 内有独立、可直接阅读的 consumer guide，说明完整初始 options、参数、工作原理、效果、four-state 边界与安全约束；declarations 的 LSP 信息不替代这些指南。
-- 采用：首次稳定发布前直接移除旧 package-specific Definition 字段、集中 adapter 容器和兼容 alias，不保留两套 authoring contract。
+- 采用: Definition validation 只关闭 ordinary recursive Check grammar、scheduling、effects 与 canonical opaque JSON options；它不得导入 package-provided Check、识别其 ID，或按其 option shape 分支。
+- 采用: 每项 package-provided Check 在普通 execution entry 验证自己的完整 options，并以普通 four-state result 结算；invalid options 是 owning Check 的 `unavailable` / `invalid-options`，不是 core configuration taxonomy。
+- 采用: 每项 package-provided Check 的 execution、option type/validation、finding/measurement model、Record conversion、tool adapter 与 tests 位于该 Check 的 owner 内。jscpd 属于 duplicate detection，scc 属于 file metrics，Lizard 属于 function metrics。
+- 采用: 随包提供只是分发与文档身份，不授权 private Core hook、hidden context field、registry、backend map、subpath API 或不同于 custom Check 的 settlement contract。
+- 采用: 底层 process、CSV、error、project-file collection 与 exact-path membership 只有在不含某个 Check 的领域判断、拥有独立不变量和多个真实 consumers 时才可独立共享；共享 mechanism 不拥有调用方 policy。
+- 采用: 每项随包 Check 在 package 内有独立、可直接阅读的 consumer guide，说明完整初始 options、参数、工作原理、效果、four-state 边界与安全约束；declarations 的 LSP 信息不替代这些指南。
+- 采用: 首次稳定发布前直接移除旧 package-specific Definition 字段、集中 adapter 容器和兼容 alias，不保留两套 authoring contract。
 - 不采用：Definition-owned package Check validator registry、集中 scanner adapter protocol、跨 Check metric model/analysis、以 `builtins` 表达 core privilege，或仅为了减少重复把 owner-local command/parser/failure 合并。

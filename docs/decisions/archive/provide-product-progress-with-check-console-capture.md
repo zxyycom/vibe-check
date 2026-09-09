@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260820-provide-product-owned-check-progress
+    summary: 由 progress 捕获并结算 Check console 输出
 ---
 
 ## 目的

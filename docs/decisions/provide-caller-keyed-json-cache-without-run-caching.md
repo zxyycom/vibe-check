@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-keep-duplicate-detection-cache-check-owned
+    summary: 提供 caller-keyed JSON cache，不缓存 Run
 ---
 
 ## 目的

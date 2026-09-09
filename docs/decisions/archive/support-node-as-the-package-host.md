@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 替代
     target: 260812-support-bun-as-the-package-host
+    summary: 公开 package 只支持 Node 宿主
 ---
 
 ## 目的

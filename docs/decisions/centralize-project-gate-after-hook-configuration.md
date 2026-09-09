@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260831-centralize-project-gate-definition-and-separate-adapters
+    summary: 由中央 Definition 配置 Project Gate afterGate
 ---
 
 ## 目的

@@ -12,8 +12,10 @@ tags:
 relations:
   - type: 归并
     target: 260805-use-static-check-task-plans-with-shared-scheduling
+    summary: 将静态 TaskPlan 纳入统一 Task graph
   - type: 归并
     target: 260813-settle-check-execution-before-availability
+    summary: 以 Task settlement 统一执行结算
 ---
 
 ## 目的

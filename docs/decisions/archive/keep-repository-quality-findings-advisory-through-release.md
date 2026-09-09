@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 替代
     target: 260830-require-known-repository-quality-remediation-before-public-release
+    summary: 让仓库质量 Finding 在发布前仍为提示
 ---
 
 ## 目的

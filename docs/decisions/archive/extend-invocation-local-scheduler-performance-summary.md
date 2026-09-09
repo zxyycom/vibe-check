@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260901-add-invocation-local-scheduler-performance-summary
+    summary: 扩展 invocation-local Scheduler 压力与尾段诊断
 ---
 
 ## 目的
@@ -31,8 +32,10 @@ relations:
 ## 决策
 
 - 采用: queue pressure 只观察仍 pending 且 admission-viable 的 Task：所有 `dependsOn` 已 completed、所有 `observes` 已 settled。failed-dependency 后等待 blocked settlement 的 broader graph-ready Task 不进入该集合。
-- 采用: 每个 admission-viable pending Task 在一个 sampled interval 中恰好属于一类，按硬事实顺序判定：存在 running mutex collision 时为 `mutex-blocked`；否则 canonical `canAdmit` 为 false 时为 `capacity-blocked`；否则为 `admissible-pending`。summary 顶层以 `admissionViablePendingTaskMs` 记录总 task·ms，以 `mutexBlockedTaskMs`、`capacityBlockedTaskMs`、`admissiblePendingTaskMs` 记录互斥分量；`peakAdmissionViablePendingTaskCount`、`peakMutexBlockedTaskCount`、`peakCapacityBlockedTaskCount` 与 `peakAdmissiblePendingTaskCount` 分别保留 total/分类峰值。三个分类 peak 发生时刻可以不同，不能把它们相加为同一时刻的 total peak。
-- 采用: Scheduler shell 在 accumulator constructor 及每次真实 state mutation 完成后的 `captureState`，从唯一 execution state 原子安装 post-state 只读分类投影与新 Task delay accumulator；下一次既有 admission、pending removal、running settlement、accepted wait 或 terminal boundary 同源累计 global/per-Task interval，分类投影本身不产生 clock sample。accumulator 不重新实现 relation、mutex、capacity 或 policy，也不建立第二套 pending/running/settlement 状态机。custom policy 在存在 admissible Task 时选择 `wait` 只累计 `admissible-pending` interval（投影为 `admissiblePendingTaskMs`），不记录或推断 starvation、fairness、reservation 或 policy reason。
+- 采用: 每个 admission-viable pending Task 在一个 sampled interval 中恰好属于一类，按硬事实顺序判定：存在 running mutex collision 时为 `mutex-blocked`；否则 canonical `canAdmit` 为 false 时为 `capacity-blocked`；否则为 `admissible-pending`。
+- 采用: summary 顶层以 `admissionViablePendingTaskMs` 记录总 task·ms，以 `mutexBlockedTaskMs`、`capacityBlockedTaskMs`、`admissiblePendingTaskMs` 记录互斥分量；`peakAdmissionViablePendingTaskCount`、`peakMutexBlockedTaskCount`、`peakCapacityBlockedTaskCount` 与 `peakAdmissiblePendingTaskCount` 分别保留 total/分类峰值。三个分类 peak 发生时刻可以不同，不能把它们相加为同一时刻的 total peak。
+- 采用: Scheduler shell 在 accumulator constructor 及每次真实 state mutation 完成后的 `captureState`，从唯一 execution state 原子安装 post-state 只读分类投影与新 Task delay accumulator。下一次既有 admission、pending removal、running settlement、accepted wait 或 terminal boundary 同源累计 global/per-Task interval；分类投影本身不产生 clock sample。
+- 采用: accumulator 不重新实现 relation、mutex、capacity 或 policy，也不建立第二套 pending/running/settlement 状态机。custom policy 在存在 admissible Task 时选择 `wait` 只累计 `admissible-pending` interval（投影为 `admissiblePendingTaskMs`），不记录或推断 starvation、fairness、reservation 或 policy reason。
 - 采用: 现有 top-three admission delay 排序与上限保持不变；每个 actually admitted Task 在原 item 中平铺 `mutexBlockedMs`、`capacityBlockedMs`、`admissiblePendingMs` 事实分解，并在有效 timing 的 sampled-boundary 模型内保证三者之和等于 `admissionDelayMs`。blocked/cancelled-before-admission Task 仍不伪造 admission chronology。
 - 采用: completion tail 仍从最后一次 admission 到 terminal；`discrete.completionTailActiveTaskCount` 保留最后一次 admission 后实际 active 的完整 Task 数，`topCompletionTailContributors` 至多列出其中三个随后 settled 的 contributor，按 `settledAfterLastAdmissionMs` 降序、Task ID 升序。该列表解释 tail 参与项，不声称 critical path、CPU bottleneck 或因果归属。
 - 采用: enabled-only private handoff 将 invocation 已有的 exact `declarativeFingerprint` 原样带入 `scheduler.summary`；不重算、不版本化、不读取 callback identity。相同值只证明 canonical declarative Definition identity 相同，覆盖声明的 Check membership/options/relations、outputs 与 Scheduler declarative fields；trusted function bodies 不进入该 snapshot。它不能单独证明实际 execution selection、terminal outcomes、RunControls、代码/candidate/tool/runtime/host 或 custom callback 算法相同。

@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-learn-check-task-durations-for-critical-path-admission
+    summary: 通过公共策略接口提供可选学习准入
 ---
 
 ## 目的

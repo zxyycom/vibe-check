@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-use-composable-check-tree-with-run-owned-bindings
+    summary: 保持 Check group 仅为 authoring context
 ---
 
 ## 目的

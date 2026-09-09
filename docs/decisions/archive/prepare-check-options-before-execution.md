@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 替代
     target: 260826-validate-ordinary-check-options-before-execution
+    summary: 在执行前准备普通 Check options
 ---
 
 ## 目的
@@ -29,11 +30,11 @@ relations:
 
 ## 决策
 
-- 采用：executable ordinary Check 可选地声明双泛型 `preflight<AuthoredOptions, PreparedOptions>(options, signal)`。它接收 Definition canonical authored options 与同一次 invocation 的 cancellation signal，并返回 closed 判别结果：`success` 必须带 `preparedOptions`；`failure/block` 必须带 reason 且绝不带 fallback；`failure/continue` 必须同时带 reason 与 fallback。两类 failure 都可附 ordered messages；continue 的 reason 是 Check-owned diagnostic identity，当前可观察表面是 messages 与后续 outcome；不再有静态 `onIssue` policy。
-- 采用：Run 在 Task admission 前按定义顺序顺序执行完整 global preflight barrier。preflight throw、malformed result、非法 reason/messages 或不能 canonicalize/freeze 的 prepared/fallback 都直接把 owning Check 结算为 `unavailable`；block 的 owning reason 原样成为 outcome reason，且 callback 不运行。
-- 采用：preflight 收到 callback 同一 AbortSignal 并应协作退出；barrier 期间或结束时已取消的 invocation 显式闭合 execution phase 为既有 `cancelled` RunResult，不依赖空 scheduler graph 推断取消，也不以 `Promise.race` 遗留 preparation work。
-- 采用：blocked Check 在 barrier 后立即关闭 Core scope，故没有 `started` lifecycle fact、duration 为 `null`，但仍有 settled/progress、messages、snapshot row、aggregation 与 dependency readback。依赖 blocked Check 的 ready task 读取既有 unavailable fact；scheduler 只等待仍需 execution 的 dependencies。
-- 采用：success prepared value 或 continue fallback 是 detached canonical deeply frozen invocation-local value；它只传给本次 callback，既不回写 Definition，也不改变 authored options 的 declarative fingerprint。preflight function 同 execution 一样不进入 fingerprint、Core 或 machine output。
-- 采用：preflight messages 总在 execution terminal messages 之前；execution throw 或 malformed terminal 仍保留已接受的 preflight messages。ordinary four-state terminal parsing仍只处理 execution result。
-- 采用：所有 package-provided Checks 与 `maintenanceReminders` 提供 block preflight，并与其 direct execution 入口复用 Check-local options validation helper；普通 custom Check 没有提供 preflight 的义务。
+- 采用: executable ordinary Check 可选地声明双泛型 `preflight<AuthoredOptions, PreparedOptions>(options, signal)`。它接收 Definition canonical authored options 与同一次 invocation 的 cancellation signal，并返回 closed 判别结果：`success` 必须带 `preparedOptions`；`failure/block` 必须带 reason 且绝不带 fallback；`failure/continue` 必须同时带 reason 与 fallback。两类 failure 都可附 ordered messages；continue 的 reason 是 Check-owned diagnostic identity，当前可观察表面是 messages 与后续 outcome；不再有静态 `onIssue` policy。
+- 采用: Run 在 Task admission 前按定义顺序顺序执行完整 global preflight barrier。preflight throw、malformed result、非法 reason/messages 或不能 canonicalize/freeze 的 prepared/fallback 都直接把 owning Check 结算为 `unavailable`；block 的 owning reason 原样成为 outcome reason，且 callback 不运行。
+- 采用: preflight 收到 callback 同一 AbortSignal 并应协作退出；barrier 期间或结束时已取消的 invocation 显式闭合 execution phase 为既有 `cancelled` RunResult，不依赖空 scheduler graph 推断取消，也不以 `Promise.race` 遗留 preparation work。
+- 采用: blocked Check 在 barrier 后立即关闭 Core scope，故没有 `started` lifecycle fact、duration 为 `null`，但仍有 settled/progress、messages、snapshot row、aggregation 与 dependency readback。依赖 blocked Check 的 ready task 读取既有 unavailable fact；scheduler 只等待仍需 execution 的 dependencies。
+- 采用: success prepared value 或 continue fallback 是 detached canonical deeply frozen invocation-local value；它只传给本次 callback，既不回写 Definition，也不改变 authored options 的 declarative fingerprint。preflight function 同 execution 一样不进入 fingerprint、Core 或 machine output。
+- 采用: preflight messages 总在 execution terminal messages 之前；execution throw 或 malformed terminal 仍保留已接受的 preflight messages。ordinary four-state terminal parsing仍只处理 execution result。
+- 采用: 所有 package-provided Checks 与 `maintenanceReminders` 提供 block preflight，并与其 direct execution 入口复用 Check-local options validation helper；普通 custom Check 没有提供 preflight 的义务。
 - 不采用：Definition-owned Check-local validation、package ID registry、未界定并行 preflight、将 block 伪装为 execution started、在 block 分支容纳 fallback、在 continue 分支省略 fallback/reason、第五种 Check status 或新的 RunResult kind。

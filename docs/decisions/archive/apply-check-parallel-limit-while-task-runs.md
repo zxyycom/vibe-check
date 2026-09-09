@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-carry-recursive-check-parallel-limits-through-task-scopes
+    summary: 在 Check Task 运行期间应用并行上限
 ---
 
 ## 目的

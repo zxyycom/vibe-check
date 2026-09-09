@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 替代
     target: 260830-waive-historical-v2-schema-file-metric-with-preserved-evidence
+    summary: 将历史 Schema 移出可维护性指标
 ---
 
 ## 目的

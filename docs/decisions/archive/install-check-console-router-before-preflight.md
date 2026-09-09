@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260831-provide-product-progress-with-check-console-capture
+    summary: 在 Check preflight 前一次安装 console router
 ---
 
 ## 目的

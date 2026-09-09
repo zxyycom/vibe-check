@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 替代
     target: 260826-prepare-check-options-before-execution
+    summary: 在 Check Task 准入后执行 preflight
 ---
 
 ## 目的

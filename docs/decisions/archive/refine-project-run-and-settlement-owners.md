@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260826-refine-product-module-boundaries
+    summary: 收敛 Project Run 与 Check settlement owner
 ---
 
 ## 目的

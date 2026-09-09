@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 拆分
     target: 260830-reconcile-finding-waivers-with-caller-defined-identities
+    summary: 保留证据地豁免历史 v2 Schema 文件指标
 ---
 
 ## 目的

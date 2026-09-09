@@ -12,10 +12,13 @@ tags:
 relations:
   - type: 替代
     target: 260814-bind-external-programs-outside-check-semantics
+    summary: 将外部程序 binding 纳入 Check options
   - type: 替代
     target: 260805-limit-tool-neutrality-to-built-in-checks
+    summary: 由 Check options 承担工具专属依赖
   - type: 修订
     target: 260803-hard-cut-legacy-tool-shaped-config
+    summary: 在 hard cut 后改用 Check-owned dependencies
 ---
 
 ## 目的

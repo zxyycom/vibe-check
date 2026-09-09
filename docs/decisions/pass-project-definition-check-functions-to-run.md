@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-pass-project-definition-value-to-run
+    summary: 将 Definition 的 Check 函数交给 Run
 ---
 
 ## 目的

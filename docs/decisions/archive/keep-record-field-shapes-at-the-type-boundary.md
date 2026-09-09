@@ -28,9 +28,9 @@ relations: []
 
 ## 决策
 
-- 采用：Public authoring 以 `CheckRecordType<RecordTypeId, Fields>` 等效的 type-only generic 表达 Record variant，并由 `defineCheck<[...]>` 把 catalog relation 投影到 report/reference contextual types 与 published declarations。
-- 采用：`Fields` 可以使用普通 TypeScript object、optional property、literal、union、array 与 nested object；不要求 author 同时提供 descriptor、TypeBox Schema、JSON Schema 或其它 runtime shape declaration。
-- 采用：Product runtime 只安全 materialize 并冻结 non-array canonical JSON object，拒绝不能稳定 hash 或发布的 function、`undefined`、non-finite number、cycle、accessor、unsupported prototype 与 sparse array；它不验证 erased required/property/union/constraint semantics。
-- 采用：Policy field operand 继续以显式 metadata 公开，但 typed authoring 约束可引用的 scalar-compatible key；runtime 与 machine 只验证实际读取值与声明 scalar type，不借此重建其它 field shape。
-- 采用：Machine Record schema 把 `fields` 作为 generic canonical JSON object；固定 TypeBox/Ajv schemas 属于 machine implementation 与 contract evidence，不进入 public Record type。
+- 采用: Public authoring 以 `CheckRecordType<RecordTypeId, Fields>` 等效的 type-only generic 表达 Record variant，并由 `defineCheck<[...]>` 把 catalog relation 投影到 report/reference contextual types 与 published declarations。
+- 采用: `Fields` 可以使用普通 TypeScript object、optional property、literal、union、array 与 nested object；不要求 author 同时提供 descriptor、TypeBox Schema、JSON Schema 或其它 runtime shape declaration。
+- 采用: Product runtime 只安全 materialize 并冻结 non-array canonical JSON object，拒绝不能稳定 hash 或发布的 function、`undefined`、non-finite number、cycle、accessor、unsupported prototype 与 sparse array；它不验证 erased required/property/union/constraint semantics。
+- 采用: Policy field operand 继续以显式 metadata 公开，但 typed authoring 约束可引用的 scalar-compatible key；runtime 与 machine 只验证实际读取值与声明 scalar type，不借此重建其它 field shape。
+- 采用: Machine Record schema 把 `fields` 作为 generic canonical JSON object；固定 TypeBox/Ajv schemas 属于 machine implementation 与 contract evidence，不进入 public Record type。
 - 不采用：为 JavaScript、`any` 或 dynamic custom Check 恢复第二份 field Schema。绕过 compiler 的 Check 拥有自己的 field semantics，Product 只保护自己实际消费和公开的边界。

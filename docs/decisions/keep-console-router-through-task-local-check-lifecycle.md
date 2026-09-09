@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260831-install-check-console-router-before-preflight
+    summary: 在 task-local Check 生命周期保留 console router
 ---
 
 ## 目的

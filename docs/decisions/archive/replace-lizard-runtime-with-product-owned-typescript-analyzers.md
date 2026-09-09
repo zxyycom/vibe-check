@@ -15,8 +15,10 @@ tags:
 relations:
   - type: 归并
     target: 260805-defer-lizard-until-after-check-foundations
+    summary: 将后置 Lizard port 落地为自有 TS analyzer
   - type: 归并
     target: 260828-let-function-metrics-adapter-own-lizard-cli-protocol
+    summary: 以自有 TS analyzer 取代 Lizard CLI adapter
 ---
 
 ## 目的

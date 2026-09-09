@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260826-refine-project-run-and-settlement-owners
+    summary: 保持 duplicate-detection cache 由 Check 拥有
 ---
 
 ## 目的

@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260820-use-string-flags-for-project-run-controls
+    summary: 支持多 flag Check 启用策略
 ---
 
 ## 目的

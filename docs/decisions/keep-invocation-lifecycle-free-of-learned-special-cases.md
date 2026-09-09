@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260903-retain-private-invocation-admission-strategy-lifecycle
+    summary: 保持 Invocation 策略生命周期不识别学习特例
 ---
 
 ## 目的

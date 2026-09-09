@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260904-organize-owner-aware-project-run-and-gate-diagnostics
+    summary: 保持运行诊断通道独立于可选策略
 ---
 
 ## 目的

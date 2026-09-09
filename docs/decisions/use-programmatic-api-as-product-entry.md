@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260806-use-versioned-npm-package-release-unit
+    summary: 让程序化 API 成为唯一正式产品执行入口
 ---
 
 ## 目的

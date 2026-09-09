@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260817-project-executable-checks-into-validated-task-graph
+    summary: 让依赖 Check 读取上游 settled outputs
 ---
 
 ## 目的

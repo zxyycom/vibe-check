@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260812-drive-product-execution-from-project-definition
+    summary: 由 Project Definition 值驱动 Package Run
 ---
 
 ## 目的

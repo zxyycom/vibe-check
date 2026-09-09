@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 替代
     target: 260805-require-explicit-named-comparison-references
+    summary: 让基线语义留在 producing Check
 ---
 
 ## 目的
@@ -30,8 +31,8 @@ relations:
 
 ## 决策
 
-- 采用：Product public `RunControls`、base project context、Record reporter、Core 与 machine 不提供 common baseline/reference input、status、matching 或 relation vocabulary。
-- 采用：需要 baseline/reference behavior 的 Check 通过自己的 options、dependencies 或 project-owned wrapper 获得输入，并自行决定 reproducibility、naming、availability 与 baseline algorithm。
-- 采用：Check 将 current、baseline、delta、classification 等需要公开的领域结果写入自己的 custom Record data，并通过 ordinary structured Check result表达四态终态。
-- 采用：Product 不消费 generic Record baseline relations；domain regression/blocking semantics 由 producing Check outcome拥有。
+- 采用: Product public `RunControls`、base project context、Record reporter、Core 与 machine 不提供 common baseline/reference input、status、matching 或 relation vocabulary。
+- 采用: 需要 baseline/reference behavior 的 Check 通过自己的 options、dependencies 或 project-owned wrapper 获得输入，并自行决定 reproducibility、naming、availability 与 baseline algorithm。
+- 采用: Check 将 current、baseline、delta、classification 等需要公开的领域结果写入自己的 custom Record data，并通过 ordinary structured Check result表达四态终态。
+- 采用: Product 不消费 generic Record baseline relations；domain regression/blocking semantics 由 producing Check outcome拥有。
 - 不采用：已退休的 shared Run/context/reference channel、reference facts、`relation-is`、`relation-kind-in`，或仅为保留当前 built-ins 而把 baseline capability注入所有 custom Checks。

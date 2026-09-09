@@ -29,9 +29,9 @@ relations: []
 
 ## 决策
 
-- 采用：private `native-operation` adapter 接收 failure owner 已排序的安全 diagnostics。每项包含 stable Check-local `id`、non-array object `data` 和单行 presentation。adapter 为每项调用 `records.report`，并且不从 `data` 重建文本、字段、ID 或排序。
-- 采用：详细 Records 是完整事实。adapter 只预览前十项；每项最多 240 个 Unicode code points，超长项标记 `truncated`；余项用准确 `omitted count` 指向同一 Check 的完整 Records。terminal preview 不截断 Record data。没有完整、安全且非空的 diagnostic collection 时结算 unavailable，不创建 synthetic aggregate failed Record。
-- 采用：docs、Decision Records、Test Evidence 与 ast-grep owner 分别构造、审计自己的 safe diagnostic projection。docs `links` 为每个坏链接返回 typed diagnostic；其 Record 至少有 repo-relative source/target、line/column location 与 occurrence。docs workflow 对 expected validation failure 返回 typed diagnostics，而非只 throw formatted aggregate string。
-- 采用：Test Evidence 只投影 owner 批准的 structural/Case diagnostics。来自 process result、parser exception 或其它未经批准文本的 raw stdout/stderr 不进入 Record 或 terminal preview。ast-grep version mismatch 只发布安全的 expected version、fixed mismatch classification、version exit code 和 log reference，绝不解析或复制 version stdout/stderr。
-- 采用：ordinary external-command Check 继续使用 `command-failure`/`process-timeout` Record 与 private `checks/<check-id>/process.log`，不接入 native diagnostic adapter。package repository-quality Check 继续按既有 policy 为每条 Finding 发布 Record 并提供有界 presentation。
+- 采用: private `native-operation` adapter 接收 failure owner 已排序的安全 diagnostics。每项包含 stable Check-local `id`、non-array object `data` 和单行 presentation。adapter 为每项调用 `records.report`，并且不从 `data` 重建文本、字段、ID 或排序。
+- 采用: 详细 Records 是完整事实。adapter 只预览前十项；每项最多 240 个 Unicode code points，超长项标记 `truncated`；余项用准确 `omitted count` 指向同一 Check 的完整 Records。terminal preview 不截断 Record data。没有完整、安全且非空的 diagnostic collection 时结算 unavailable，不创建 synthetic aggregate failed Record。
+- 采用: docs、Decision Records、Test Evidence 与 ast-grep owner 分别构造、审计自己的 safe diagnostic projection。docs `links` 为每个坏链接返回 typed diagnostic；其 Record 至少有 repo-relative source/target、line/column location 与 occurrence。docs workflow 对 expected validation failure 返回 typed diagnostics，而非只 throw formatted aggregate string。
+- 采用: Test Evidence 只投影 owner 批准的 structural/Case diagnostics。来自 process result、parser exception 或其它未经批准文本的 raw stdout/stderr 不进入 Record 或 terminal preview。ast-grep version mismatch 只发布安全的 expected version、fixed mismatch classification、version exit code 和 log reference，绝不解析或复制 version stdout/stderr。
+- 采用: ordinary external-command Check 继续使用 `command-failure`/`process-timeout` Record 与 private `checks/<check-id>/process.log`，不接入 native diagnostic adapter。package repository-quality Check 继续按既有 policy 为每条 Finding 发布 Record 并提供有界 presentation。
 - 不采用：单个 count aggregate、Gate 通用 Record schema/field registry、从 arbitrary Record data 自动格式化、把完整 diagnostics 塞进一个 terminal message、以 raw child output 填充 Record，或为 native operations 新建 process transcript。

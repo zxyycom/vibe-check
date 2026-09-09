@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260904-render-record-and-message-previews-in-product-progress
+    summary: 提供可配置且受管的 progress 文本预览
 ---
 
 ## 目的

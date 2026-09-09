@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260803-defer-lizard-until-after-semantic-config-workflow
+    summary: 将 Lizard 统一后置于 Check 产品基础
 ---
 
 ## 目的

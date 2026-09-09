@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260827-reuse-prepared-candidate-across-package-acceptance
+    summary: 以 typed provider data 拆分外部验收
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260727-use-native-test-evidence-catalog
+    summary: 采用完整测试实体与语义 Case 闭合
 ---
 
 ## 目的

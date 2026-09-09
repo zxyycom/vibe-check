@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials
+    summary: 用重复对照证据配置 Project Gate 的准入优先级
 ---
 
 ## 目的

@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260822-allow-check-terminal-messages-and-explicit-visibility
+    summary: 在 progress 中按名称分组未命中 flag 的 Checks
 ---
 
 ## 目的

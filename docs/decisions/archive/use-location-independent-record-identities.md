@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260804-use-location-independent-finding-identities
+    summary: QualityRecord 稳定身份不使用当前源码位置
 ---
 
 ## 目的

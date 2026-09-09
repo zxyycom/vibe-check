@@ -13,10 +13,13 @@ tags:
 relations:
   - type: 重划
     target: 260825-allow-controlled-json-schema-reference-sources
+    summary: 从首版 Check 集合拆出受控 Schema 引用
   - type: 重划
     target: 260824-complete-first-release-check-set-without-markdown-structure
+    summary: 将 Schema 引用从首版四项能力中分离
   - type: 重划
     target: 260805-expand-format-aware-built-in-checks
+    summary: 将 Schema 引用从格式 Check 路线独立出来
 ---
 
 ## 目的

@@ -8,11 +8,13 @@ purpose: 让 package consumer 用一份可执行配置和对应输出理解完�
 background: 四组示例只替换 terminal outcome，却重复同一 two-file 结构；只交付输出又无法说明哪些 Project Definition 会形成这些事实。
 decision: 只交付一组 mixed-outcomes Definition 与对应输出，并从该 Definition 生成 Check/Record facts。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations:
   - type: 修订
     target: 260829-keep-package-machine-docs-consumer-focused
+    summary: 只随包交付一组由 Definition 支撑的 machine 示例
 ---
 
 ## 目的
@@ -35,13 +37,13 @@ relations:
 
 ## 决策
 
-- 采用：Package machine example 精确收敛为 `docs/examples/artifacts/mixed-outcomes/`，其中只包含
+- 采用: Package machine example 精确收敛为 `docs/examples/artifacts/mixed-outcomes/`，其中只包含
   `definition.ts`、`run.json` 与 `records.ndjson`。
-- 采用：`definition.ts` 使用 package-root `vibe-check` imports，定义四个无 dependency/preflight 的同步自定义 Check；
+- 采用: `definition.ts` 使用 package-root `vibe-check` imports，定义四个无 dependency/preflight 的同步自定义 Check；
   它们在同一次 snapshot 中分别形成四种 terminal outcome，failed Check 另外发布一条 supplemental Record。
-- 采用：Repository generator 加载并执行同一份 Definition，通过 current Core settlement 得到 Check/Record facts；只为
+- 采用: Repository generator 加载并执行同一份 Definition，通过 current Core settlement 得到 Check/Record facts；只为
   checked-in bytes 注入固定 invocation ID 与 timestamp。不得另写一套手工 snapshot 作为输出事实源。
-- 采用：Package material registry、candidate fingerprint、staging、tarball、installation 与 external documentation
+- 采用: Package material registry、candidate fingerprint、staging、tarball、installation 与 external documentation
   acceptance 逐字节验收这三份 example materials；installed consumer typecheck 直接包含随包 Definition。
-- 采用：`docs/output.md` 说明三份材料的关系和固定 metadata 边界。README 仍是唯一 package 总入口，不新增 example
+- 采用: `docs/output.md` 说明三份材料的关系和固定 metadata 边界。README 仍是唯一 package 总入口，不新增 example
   README、目录 index、通用 artifact reader 或零 Record 专用 package fixture。

@@ -27,8 +27,8 @@ relations: []
 
 ## 决策
 
-- 采用：package root 公开 `defaultProjectFileSelection: ProjectFileSelection`；对象、`include` 与 `exclude` 数组深冻结，constructor 仍为自己的 resolved options 建立不可变快照。
-- 采用：默认 source 为 `filesystem`、include 为 `**/*`；exclude 明确覆盖常见 VCS/Product state、dependency、build、generated、cache、coverage、log、temporary、Python environment/cache 与 Rust target paths。
-- 采用：显式 `files.include` 或 `files.exclude` 继续完整替换相应默认数组；需要保留基线时，consumer 使用 object spread 和数组 spread 显式组合。
-- 采用：默认对象是普通 public value，不是 mutable global policy、deep-merge helper、preset registry 或 Project Definition field。
+- 采用: package root 公开 `defaultProjectFileSelection: ProjectFileSelection`；对象、`include` 与 `exclude` 数组深冻结，constructor 仍为自己的 resolved options 建立不可变快照。
+- 采用: 默认 source 为 `filesystem`、include 为 `**/*`；exclude 明确覆盖常见 VCS/Product state、dependency、build、generated、cache、coverage、log、temporary、Python environment/cache 与 Rust target paths。
+- 采用: 显式 `files.include` 或 `files.exclude` 继续完整替换相应默认数组；需要保留基线时，consumer 使用 object spread 和数组 spread 显式组合。
+- 采用: 默认对象是普通 public value，不是 mutable global policy、deep-merge helper、preset registry 或 Project Definition field。
 - 不采用：自动读取 `.gitignore`、隐式追加 consumer arrays、纳入 repository-specific `archive`/`fixtures` exclusions，或为每个 Check 发布重复默认对象。

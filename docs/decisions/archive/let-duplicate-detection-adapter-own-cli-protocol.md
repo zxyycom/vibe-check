@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260828-construct-duplicate-detection-from-defaulted-policy
+    summary: 让重复检测 adapter 独占 CLI 协议与执行调优
 ---
 
 ## 目的

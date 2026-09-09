@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260829-run-repository-quality-checks-inside-project-gate
+    summary: 在 Project Gate 内直接观察仓库质量 Checks
 ---
 
 ## 目的

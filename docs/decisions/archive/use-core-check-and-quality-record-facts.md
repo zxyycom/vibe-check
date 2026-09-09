@@ -12,8 +12,10 @@ tags:
 relations:
   - type: 归并
     target: 260805-use-runtime-resolved-check-and-record-core
+    summary: 将运行时 Check/Record 重构为两类核心事实
   - type: 归并
     target: 260805-separate-check-and-record-type-identities
+    summary: 以 checkId 直接绑定 QualityRecord
 ---
 
 ## 目的

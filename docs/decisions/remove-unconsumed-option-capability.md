@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260811-preinstall-selected-typescript-capabilities
+    summary: 移除无消费者的 Product Option 能力
 ---
 
 ## 目的

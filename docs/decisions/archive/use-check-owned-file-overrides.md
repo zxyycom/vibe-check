@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260804-use-file-policy-overrides
+    summary: 由 Check options 表达文件级差异
 ---
 
 ## 目的
@@ -28,9 +29,9 @@ relations:
 
 ## 决策
 
-- 采用：需要文件级变化的 Check 可以在自己的 closed options 中定义匹配输入和局部覆盖；该 Check 的文档、validation 与 execution 共同拥有其 pattern、precedence、threshold 或 merge semantics。
-- 采用：局部覆盖只可作用于该 Check 已取得资格的 inputs，不能扩大 Project scope、改变其他 Check 的 options、重写 scanner dependency 或创建 shared runtime configuration。
-- 采用：optional behavior 在该 Check 的完整 options 中明确 absent/disabled semantics；Product 不从 neutral default、`null` 删除或未声明 section 推断该行为。
-- 采用：producing Check 用自己的四态 result、final data 与 supplemental Records 表达局部工作；caller 如需多 Check conclusion，显式配置 aggregation 并只消费 settled statuses。
-- 采用：当某个实际 Check consumer 需要这种能力时，先为该 Check 选择并验证完整 option grammar；没有共同消费者时，不提前建立 Product-wide glob language、generic partial patch 或 cross-Check merge engine。
+- 采用: 需要文件级变化的 Check 可以在自己的 closed options 中定义匹配输入和局部覆盖；该 Check 的文档、validation 与 execution 共同拥有其 pattern、precedence、threshold 或 merge semantics。
+- 采用: 局部覆盖只可作用于该 Check 已取得资格的 inputs，不能扩大 Project scope、改变其他 Check 的 options、重写 scanner dependency 或创建 shared runtime configuration。
+- 采用: optional behavior 在该 Check 的完整 options 中明确 absent/disabled semantics；Product 不从 neutral default、`null` 删除或未声明 section 推断该行为。
+- 采用: producing Check 用自己的四态 result、final data 与 supplemental Records 表达局部工作；caller 如需多 Check conclusion，显式配置 aggregation 并只消费 settled statuses。
+- 采用: 当某个实际 Check consumer 需要这种能力时，先为该 Check 选择并验证完整 option grammar；没有共同消费者时，不提前建立 Product-wide glob language、generic partial patch 或 cross-Check merge engine。
 - 不采用：完整基础配置和共享有序 override catalog、由产品统一派生的 partial patch、隐式默认补值，或依靠局部配置内容推断 Gate conclusion。

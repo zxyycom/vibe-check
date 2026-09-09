@@ -15,6 +15,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-track-lizard-supported-languages-with-upstream-advisory
+    summary: 在采用指定扩展时保持 Lizard advisory 显式
 ---
 
 ## 目的
@@ -31,8 +32,8 @@ relations:
 
 ## 决策
 
-- 采用：保持 current full enabled Lizard reader surface（27 readers / 55 suffixes），并用 explicit-only repository advisory 比较记录的 baseline 与固定 official release source。advisory 只输出安全、non-blocking maintenance prompt；不自动修改 code、dependency、Decision、reader support surface、source mapping 或 Product result；它不是 package-provided Check，也不是 default offline Gate dependency。
-- 采用：仅在独立 Change 完成 fixed-tag source/provenance/oracle parity、private port/Product adapter boundary、closed Product contract、docs/tests/performance 与 workspace acceptance 后，私有采用 `complextags` 与 ND。`complextags` 仍只是 CCN Finding explanation；ND 仍是默认 `7` 的 closed nesting-depth metric。advisory 发现或成功 network query 不是 adoption authorization 或 parity evidence。
-- 采用：selected pair 外的其余 **17** legacy concrete optional bodies 与 Halstead source 继续 `deferred-extension-body`、默认 no registration/no runtime behavior。advisory、upstream release、reader change 或 internal protocol 不会自动翻译、注册或公开这些 bodies；未来 adoption 需要单独 explicit Change 与完整 Product evidence。
-- 采用：advisory network failure 只影响 explicit maintenance invocation，且不得伪造“没有更新”。ordinary required/complete `--all` Gate、Product outcome 与已发布 analyzer facts 不依赖实时 network。每次 future upstream upgrade 仍须独立审阅 source/range mapping、legal/deviation inventory、core/extension lifecycle、reader parity 与所需 Product behavior，再决定是否发布。
+- 采用: 保持 current full enabled Lizard reader surface（27 readers / 55 suffixes），并用 explicit-only repository advisory 比较记录的 baseline 与固定 official release source。advisory 只输出安全、non-blocking maintenance prompt；不自动修改 code、dependency、Decision、reader support surface、source mapping 或 Product result；它不是 package-provided Check，也不是 default offline Gate dependency。
+- 采用: 仅在独立 Change 完成 fixed-tag source/provenance/oracle parity、private port/Product adapter boundary、closed Product contract、docs/tests/performance 与 workspace acceptance 后，私有采用 `complextags` 与 ND。`complextags` 仍只是 CCN Finding explanation；ND 仍是默认 `7` 的 closed nesting-depth metric。advisory 发现或成功 network query 不是 adoption authorization 或 parity evidence。
+- 采用: selected pair 外的其余 **17** legacy concrete optional bodies 与 Halstead source 继续 `deferred-extension-body`、默认 no registration/no runtime behavior。advisory、upstream release、reader change 或 internal protocol 不会自动翻译、注册或公开这些 bodies；未来 adoption 需要单独 explicit Change 与完整 Product evidence。
+- 采用: advisory network failure 只影响 explicit maintenance invocation，且不得伪造“没有更新”。ordinary required/complete `--all` Gate、Product outcome 与已发布 analyzer facts 不依赖实时 network。每次 future upstream upgrade 仍须独立审阅 source/range mapping、legal/deviation inventory、core/extension lifecycle、reader parity 与所需 Product behavior，再决定是否发布。
 - 不采用：将 advisory 用作 runtime version probe、默认 Gate input、自动 source/extension adoption trigger、public extension discovery API，或 selected pair 外 bodies 的默认恢复机制。

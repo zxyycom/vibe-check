@@ -2,7 +2,7 @@
 title: 使用常规 JSON 文件名承载带注释配置
 id: 260803-use-json-filename-for-commented-config
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-08-03T08:45:26Z
 purpose: 降低项目配置的识别和采用门槛，同时保留注释、尾随逗号与 editor schema 辅助。
 background: JSONC 扩展名能精确标识语法，但相对不常见；固定工具目录和文件名已经能提供产品格式上下文。

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260805-use-standard-quality-record-stream
+    summary: 使用运行时解析的 Check 与 QualityRecord 核心
 ---
 
 ## 目的

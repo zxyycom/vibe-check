@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 拆分
     target: 260830-reconcile-finding-waivers-with-caller-defined-identities
+    summary: 提供泛型 Finding waiver 对账能力
 ---
 
 ## 目的

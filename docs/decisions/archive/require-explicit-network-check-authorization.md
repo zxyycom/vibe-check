@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260804-require-explicit-network-link-checking
+    summary: 网络 Check 必须获得显式声明式授权
 ---
 
 ## 目的

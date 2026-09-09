@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-provide-decision-boundary-admission-measurement
+    summary: 以 policy action 后状态观察修订准入 measurement
 ---
 
 ## 目的
@@ -25,7 +26,11 @@ relations:
 
 ## 决策
 - 采用: `measurement.cumulative` 是 callback boundary 前已 flush 的 detached/frozen bounded scalar、peak和discrete facts；每次 Run 一次构造的 `SchedulerGraphSnapshot` 在 callbacks 间共享，动态 arrays仍按轮 detached/frozen。
-- 采用: collector invocation-local append-only 保存逐条 frozen action observation。每个 context 捕获 `measurementCount` end-count，并以 `measurementAt(index)` 同步读取该 immutable prefix；越界为 `undefined`，旧 context 以后调用也不能观察 future append，因此不返回 live mutable array或每轮 slice。每条 observation 在 accepted `select`/`wait` 完成 hard guard/action 的 post-state 后开始，下一次**实际** custom callback 前 flush、append，交接 action 的 sequence/kind/task identity、post-action occupancy interval及期间 bounded admitted/settled effects。其 interval 是 closed union：available timing 才有数值 contribution，unavailable timing 只交接 closed reason；合法 zero span 仍是 available，clock/integral fault 不伪造成全零。它没有 actionDuration、causedBy、criticalPath或 CPU 归因。
+- 采用: collector invocation-local append-only 保存逐条 frozen action observation。
+- 采用: 每个 context 捕获 `measurementCount` end-count，并以 `measurementAt(index)` 同步读取该 immutable prefix；越界为 `undefined`，旧 context 以后调用也不能观察 future append，因此不返回 live mutable array 或每轮 slice。
+- 采用: 每条 observation 在 accepted `select`/`wait` 完成 hard guard/action 的 post-state 后开始，下一次**实际** custom callback 前 flush、append，交接 action 的 sequence/kind/task identity、post-action occupancy interval 及期间 bounded admitted/settled effects。
+- 采用: 其 interval 是 closed union：available timing 才有数值 contribution，unavailable timing 只交接 closed reason；合法 zero span 仍是 available，clock/integral fault 不伪造成全零。
+- 采用: 它没有 actionDuration、causedBy、criticalPath 或 CPU 归因。
 - 采用: blocked、cancel、settlement等不创建 policy callback，只在存在 pending action 时作为 since-action effect；policy fault 不形成有效 action。terminal raw measurement仍由同一 collector一次 materialize。
 - 采用: 所有 public snapshot 均 detached/frozen，旧 callback context不能观察 collector 后续 mutation。默认 summary Hook 自身包含其投影/writer失败；terminal delivery runner仅执行 generic hook delivery和其 wrapper failure policy，不识别 summary identity。
 - 不采用: complete interval ledger、跨 invocation history、learned scheduling、自动调参、async policy、per-transition caller Hook或让 policy直接读取 mutable collector。

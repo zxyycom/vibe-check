@@ -8,6 +8,7 @@ purpose: 让常见实现问题有稳定且边界明确的项目能力，避免�
 background: 编码规范已按问题形态选择模型；重复临时选库会扩大维护面，并让同类实现产生不一致表达。
 decision: 预置 neverthrow、ts-pattern、Remeda、Mnemonist 和产品自制 Option；只按对应问题形态使用，不引入重叠替代。
 tags:
+  - dependency-policy
   - workflow-policy
 relations: []
 ---

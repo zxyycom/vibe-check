@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-serialize-project-gate-documentation-materials-by-ownership
+    summary: 按实测资源所有权调度 Gate 与文档材料
 ---
 
 ## 目的

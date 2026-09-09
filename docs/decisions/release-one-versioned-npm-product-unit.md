@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260806-use-versioned-npm-package-release-unit
+    summary: 以版本化 npm package 交付完整产品单元
 ---
 
 ## 目的

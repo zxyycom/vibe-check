@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 替代
     target: 260805-use-location-independent-record-identities
+    summary: 改由 Check extractor 生成 opaque identity
 ---
 
 ## 目的
@@ -30,11 +31,11 @@ relations:
 
 ## 决策
 
-- 采用：每个 authored Record type 提供 private `identify(fields) => string` 等效 extractor；其参数由对应 Check-owned Record generic 进行 contextual typing。Function 只保留在 normalized execution binding，不进入 Core Check、catalog fingerprint 或 machine artifact。
-- 采用：Product 对 frozen canonical JSON fields snapshot 调用 extractor，拒绝 throw、non-string 或 empty string，按固定规则 normalize identity text，再与 `checkId`、`recordTypeId` 和 normalized `semanticSubject` 生成新的 versioned opaque `recordId`。
-- 采用：Product 只把 fields snapshot 作为 extractor 参数，不提供 Record location、message 或 arrival order。Trusted function 仍可能读取 closure state；producing Check 负责保持它跨运行 deterministic，并把不兼容变化作为 `recordTypeId` compatibility 变化或显式迁移处理。
-- 采用：需要区分同一 semantic subject 下多个领域事实时，Check 从 typed fields 返回确定文本；只依赖 semantic subject 的 Record type 可以使用显式 non-empty constant extractor。
-- 采用：Report 与 reference 使用同一 extractor。Reference input 可以在 invocation memory 中携带 typed fields，但 final facts 只保留 resolved `recordId` 与必要 reference/relation metadata，不公开 identity text。
-- 采用：Core 与 machine 把 `recordId` 视为 opaque identity。Validator 只检查 versioned grammar、唯一性、Check/Record type ownership、canonical order、references 与 Records set fingerprint，不从 fields 重算 ID。
-- 采用：当前源码 location 继续独立服务展示与导航；path 或其它领域值只有在 producing Check 明确把相应 typed field 用于 extractor 时才影响 identity。
+- 采用: 每个 authored Record type 提供 private `identify(fields) => string` 等效 extractor；其参数由对应 Check-owned Record generic 进行 contextual typing。Function 只保留在 normalized execution binding，不进入 Core Check、catalog fingerprint 或 machine artifact。
+- 采用: Product 对 frozen canonical JSON fields snapshot 调用 extractor，拒绝 throw、non-string 或 empty string，按固定规则 normalize identity text，再与 `checkId`、`recordTypeId` 和 normalized `semanticSubject` 生成新的 versioned opaque `recordId`。
+- 采用: Product 只把 fields snapshot 作为 extractor 参数，不提供 Record location、message 或 arrival order。Trusted function 仍可能读取 closure state；producing Check 负责保持它跨运行 deterministic，并把不兼容变化作为 `recordTypeId` compatibility 变化或显式迁移处理。
+- 采用: 需要区分同一 semantic subject 下多个领域事实时，Check 从 typed fields 返回确定文本；只依赖 semantic subject 的 Record type 可以使用显式 non-empty constant extractor。
+- 采用: Report 与 reference 使用同一 extractor。Reference input 可以在 invocation memory 中携带 typed fields，但 final facts 只保留 resolved `recordId` 与必要 reference/relation metadata，不公开 identity text。
+- 采用: Core 与 machine 把 `recordId` 视为 opaque identity。Validator 只检查 versioned grammar、唯一性、Check/Record type ownership、canonical order、references 与 Records set fingerprint，不从 fields 重算 ID。
+- 采用: 当前源码 location 继续独立服务展示与导航；path 或其它领域值只有在 producing Check 明确把相应 typed field 用于 extractor 时才影响 identity。
 - 不采用：`identityFields`、public selector grammar、serialized function、author-provided final `recordId`，或以可重算性冒充 artifact authenticity。

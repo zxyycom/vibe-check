@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-use-field-aware-built-in-check-adjustments
+    summary: 使用独立函数调整普通内置 Check 数据
 ---
 
 ## 目的

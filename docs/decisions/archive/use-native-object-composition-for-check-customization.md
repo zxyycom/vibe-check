@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260815-use-check-value-derivation-contract
+    summary: 使用原生对象组合自定义 Check
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-carry-check-parallel-limit-in-task-scope
+    summary: 在 Task scope 中承载递归 Check 并行上限
 ---
 
 ## 目的

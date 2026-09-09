@@ -8,6 +8,7 @@ purpose: 让项目拥有的 package 对外说明以中文承载主要语义，�
 background: 早期 package 文档曾采用中文主叙述，但该方向未进入当前稳定规范或决策，consumer 可达说明仍出现整段英文。
 decision: 对 package consumer 的 README 与声明说明采用中文主叙述，以 reviewer 编辑判断维护，不建立全量字符门禁或机械翻译义务。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations: []

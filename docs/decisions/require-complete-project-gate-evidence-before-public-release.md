@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 拆分
     target: 260830-preserve-release-gate-readiness-with-invocation-creation-time
+    summary: 公开发布前要求完整 Project Gate 证据
 ---
 
 ## 目的

@@ -13,8 +13,10 @@ tags:
 relations:
   - type: 重划
     target: 260825-allow-controlled-json-schema-reference-sources
+    summary: 从五项首版收敛为四项能力
   - type: 重划
     target: 260824-complete-first-release-check-set-without-markdown-structure
+    summary: 保留四项并将 Schema 引用独立成 Check
 ---
 
 ## 目的

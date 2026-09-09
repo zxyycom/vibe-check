@@ -14,8 +14,10 @@ tags:
 relations:
   - type: 归并
     target: 260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence
+    summary: 复用 candidate evidence 取代 Gate 调度关注点
   - type: 归并
     target: 260827-split-external-consumer-acceptance-with-typed-provider-data
+    summary: 由 Gate root 接管 provider candidate 生命周期
 ---
 
 ## 目的

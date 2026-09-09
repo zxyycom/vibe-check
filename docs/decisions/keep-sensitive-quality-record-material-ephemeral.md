@@ -2,7 +2,7 @@
 title: 让 supplemental Record 的敏感源材料保持临时
 id: 260805-keep-sensitive-quality-record-material-ephemeral
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-08-05T11:15:26Z
 purpose: 防止秘密和 credential URL 在产生 supplemental Record 时扩散到持久产物与诊断边界。
 background: Producing Check 必须短暂读取敏感值，但 Core Check outcome 的 diagnostic、minimal Record 和输出不应成为新的秘密副本。
@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260804-keep-sensitive-scan-material-ephemeral
+    summary: 让 supplemental Record 的敏感源材料保持临时
 ---
 
 ## 目的

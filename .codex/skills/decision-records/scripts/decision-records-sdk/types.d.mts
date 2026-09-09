@@ -73,7 +73,7 @@ export type DecisionMetadata = {
     createdAt: string;
 } | {
     status: "archived";
-    alignment: DecisionAlignment | null;
+    alignment: DecisionAlignment;
     createdAt: string;
 };
 export type DecisionDocument = DecisionProjection & DecisionTags & DecisionMetadata;
@@ -98,9 +98,7 @@ export type DecisionRecordSource = {
 } | {
     kind: "missing";
 };
-export type DecisionIndexState = Omit<DecisionDocument, "alignment"> & {
-    /** Absent for archived records so the optional query field has no value. */
-    alignment?: DecisionAlignment;
+export type DecisionIndexState = DecisionDocument & {
     name: string;
     sourcePath: DecisionSourcePath;
 };
@@ -119,6 +117,32 @@ export type DecisionIndexEntry = {
     id: DecisionId;
     state: DecisionIndexState;
 };
+export type DecisionListTagFacet = Readonly<{
+    count: number;
+    tag: DecisionTag;
+}>;
+export type DecisionListMonthFacet = Readonly<{
+    count: number;
+    month: string;
+}>;
+export type DecisionListTimeFacets = Readonly<{
+    earliest: string | null;
+    latest: string | null;
+    months: readonly DecisionListMonthFacet[];
+}>;
+export type DecisionListFacets = Readonly<{
+    alignments: Readonly<{
+        aligned: number;
+        unaligned: number;
+    }>;
+    createdAt: DecisionListTimeFacets;
+    recordCount: number;
+    statuses: Readonly<{
+        active: number;
+        archived: number;
+    }>;
+    tags: readonly DecisionListTagFacet[];
+}>;
 export type DecisionIndexMetadata = Record<string, never>;
 export type DecisionSourceRevision = {
     metadata: string;
@@ -127,7 +151,7 @@ export type DecisionSourceRevision = {
 export type DecisionIndex = {
     schemaVersion: 4;
     namespace: "decisions";
-    definitionVersion: 10;
+    definitionVersion: 11;
     metadata: DecisionIndexMetadata;
     sourceRevision: DecisionSourceRevision;
     entries: Record<DecisionId, DecisionIndexState>;
@@ -161,7 +185,12 @@ type DecisionRecordWithSource<Kind extends DecisionRecordSource["kind"]> = Omit<
     }>;
 };
 export type DecisionCandidateRecord = DecisionRecordWithSource<"candidate">;
-export type EstablishedDecisionRecord = DecisionRecordWithSource<"established">;
+export type EstablishedDecisionRecord = DecisionRecordWithSource<"established"> & {
+    alignment: DecisionAlignment;
+    createdAt: string;
+    document: DecisionDocument;
+    status: EstablishedDecisionStatus;
+};
 export declare function isActivationCandidateRecord(record: DecisionRecord): record is DecisionCandidateRecord;
 export declare function isDecisionCandidateRecord(record: DecisionRecord): record is DecisionCandidateRecord;
 export declare function isEstablishedDecisionRecord(record: DecisionRecord): record is EstablishedDecisionRecord;

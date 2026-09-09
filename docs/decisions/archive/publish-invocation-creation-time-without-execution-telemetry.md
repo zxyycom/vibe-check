@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260819-complete-project-gate-before-public-package-release
+    summary: 发布 invocation 创建时间而非执行遥测
 ---
 
 ## 目的

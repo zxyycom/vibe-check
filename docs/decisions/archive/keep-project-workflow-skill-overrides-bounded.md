@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260730-use-upstream-skills-with-project-local-exceptions
+    summary: 保持项目工作流 Skill 语义覆盖有界
 ---
 
 ## 目的

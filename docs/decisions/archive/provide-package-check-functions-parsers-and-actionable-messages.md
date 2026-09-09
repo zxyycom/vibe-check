@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260824-complete-first-release-check-set-with-specialized-maintenance-reminder
+    summary: 为随包 Check 提供构造函数、解析器与可行动消息
 ---
 
 ## 目的

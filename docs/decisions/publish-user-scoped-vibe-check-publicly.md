@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260814-publish-unscoped-vibe-check-publicly
+    summary: 在个人 npm scope 公开发布 Vibe Check package
 ---
 
 ## 目的

@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260826-make-package-lifecycle-gate-tests-explicit
+    summary: 按测量与资源责任调度 Project Gate
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-confirm-config-run-and-package-names-before-publication
+    summary: 发布前确认内置 Check 值与 Check tree 类型名称
 ---
 
 ## 目的

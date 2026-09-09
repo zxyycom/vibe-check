@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260815-expose-built-in-check-values-and-adjustment-functions
+    summary: 公开单一 Check authoring surface
 ---
 
 ## 目的

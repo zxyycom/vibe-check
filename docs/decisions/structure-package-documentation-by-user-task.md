@@ -8,11 +8,13 @@ purpose: 让用户从最小使用路径进入深入扩展方案，并允许文�
 background: 单一深入文档限制使调度和回调用法挤入 README，难以承接持续增加的公开能力。
 decision: 保持 README 唯一总入口，按独立使用任务扩展显式随包专题，不限制深入页面数量。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations:
   - type: 修订
     target: 260827-structure-package-documentation-around-one-readme
+    summary: 以单一入口和任务专题组织随包文档
 ---
 
 ## 目的

@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-organize-project-run-and-gate-diagnostics-for-human-inspection
+    summary: 以 owner-aware channel 组织 Run/Gate 诊断
 ---
 
 ## 目的

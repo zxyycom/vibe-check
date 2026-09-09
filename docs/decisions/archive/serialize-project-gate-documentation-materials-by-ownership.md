@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260827-schedule-project-gate-by-measured-resource-ownership
+    summary: 按材料所有权串行 Project Gate 文档验证
 ---
 
 ## 目的

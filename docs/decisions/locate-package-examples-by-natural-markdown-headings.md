@@ -8,11 +8,13 @@ purpose: 让发布文档不携带投影标记，同时保持可执行示例与�
 background: 成对注释虽能限定替换范围，却会把生成机制痕迹保留在 consumer 可检查的 package 文档原文中。
 decision: 使用自然 heading path 定位 section 中唯一的 TypeScript fence，并拒绝歧义目标和旧投影标记。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations:
   - type: 修订
     target: 260828-author-package-markdown-at-published-paths
+    summary: 以自然 Markdown section 定位 package 可执行示例
 ---
 
 ## 目的

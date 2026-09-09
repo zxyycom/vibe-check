@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260817-allow-empty-information-checks-with-warning
+    summary: 将空信息 Check warning 保留为 Run fact
 ---
 
 ## 目的
@@ -27,8 +28,8 @@ relations:
 
 ## 决策
 
-- 采用：空 information Check 继续是合法 Definition input，且不产生 runtime fact；normalization warning 不改变该节点合法性，也不伪造成 Check outcome、Record 或 aggregate。
-- 采用：所有 RunResult 分支通过结构化 `definitionWarnings` 暴露完整 normalized warning collection；阻断 Definition validation 失败时该 collection 为 `[]`。
-- 采用：Product 不恢复 logs output、warning renderer、warning-specific output channel 或从 warning 推导 Check terminal status。progress 只负责 Check lifecycle presentation。
-- 采用：项目 consumer 如需处理 warning，显式读取 structured `definitionWarnings` 并在自己的 invocation、Gate 或 presentation boundary 决定后续行为。
+- 采用: 空 information Check 继续是合法 Definition input，且不产生 runtime fact；normalization warning 不改变该节点合法性，也不伪造成 Check outcome、Record 或 aggregate。
+- 采用: 所有 RunResult 分支通过结构化 `definitionWarnings` 暴露完整 normalized warning collection；阻断 Definition validation 失败时该 collection 为 `[]`。
+- 采用: Product 不恢复 logs output、warning renderer、warning-specific output channel 或从 warning 推导 Check terminal status。progress 只负责 Check lifecycle presentation。
+- 采用: 项目 consumer 如需处理 warning，显式读取 structured `definitionWarnings` 并在自己的 invocation、Gate 或 presentation boundary 决定后续行为。
 - 不采用：因空节点拒绝整个 Definition、静默把它视为 executable work，或由 Product 日志/文本 fallback 代替 structured Run facts。

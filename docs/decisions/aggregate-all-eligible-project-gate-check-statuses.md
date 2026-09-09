@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260829-observe-repository-quality-checks-inside-project-gate
+    summary: 聚合全部 eligible Gate Check 状态
 ---
 
 ## 目的

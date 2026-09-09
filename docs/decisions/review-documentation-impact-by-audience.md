@@ -8,6 +8,7 @@ purpose: 保留两种受众所需的完整解释，并降低行为变化后人�
 background: 主题重叠不等于叙述重复，机械投影和包材料检查不能判断设计或使用说明是否跟随行为变化。
 decision: 保留受众特定叙述，在现有变更交付中分别判断文档影响并由独立代理从实际变更反查。
 tags:
+  - documentation
   - workflow-policy
 relations: []
 ---

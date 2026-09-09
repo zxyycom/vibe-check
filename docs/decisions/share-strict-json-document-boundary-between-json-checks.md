@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260826-refine-project-run-and-settlement-owners
+    summary: 在 JSON sibling Check 间共享严格文档边界
 ---
 
 ## 目的

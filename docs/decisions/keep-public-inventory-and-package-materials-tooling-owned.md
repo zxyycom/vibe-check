@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260826-refine-project-run-and-settlement-owners
+    summary: 保持清单与材料由 tooling owner 管理
 ---
 
 ## 目的

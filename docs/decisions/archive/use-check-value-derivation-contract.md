@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260815-use-standalone-built-in-check-adjustment-functions
+    summary: 使用基于 Check 值的派生契约
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260812-use-single-typescript-project-definition
+    summary: 将 Project Definition 值交给 Package Run
 ---
 
 ## 目的

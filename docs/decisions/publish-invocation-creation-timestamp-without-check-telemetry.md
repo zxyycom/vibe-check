@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260830-preserve-release-gate-readiness-with-invocation-creation-time
+    summary: 发布 invocation 创建时间而不建立 Check telemetry
 ---
 
 ## 目的

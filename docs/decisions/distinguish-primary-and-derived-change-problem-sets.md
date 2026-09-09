@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260822-distinguish-primary-and-derived-change-problems
+    summary: 在 Change 中区分主要问题集合与衍生问题
 ---
 
 ## 目的

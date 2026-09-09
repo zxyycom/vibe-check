@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-use-closed-inheritable-check-collection-expressions
+    summary: 使用 inherit 编辑可继承 Check 集合
 ---
 
 ## 目的

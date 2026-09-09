@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-expose-built-in-check-values-alongside-config-and-run
+    summary: 公开内置 Check 值与独立调整函数
 ---
 
 ## 目的

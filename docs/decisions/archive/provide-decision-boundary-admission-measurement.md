@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260901-expose-stateless-custom-admission-policy-to-callers
+    summary: 在 admission 前提供决策边界测量
 ---
 
 ## 目的

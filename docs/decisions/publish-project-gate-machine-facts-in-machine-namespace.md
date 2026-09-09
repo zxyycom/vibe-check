@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260829-publish-project-gate-machine-facts-with-invocation-evidence
+    summary: 将 Gate machine 事实发布到命名空间
 ---
 
 ## 目的

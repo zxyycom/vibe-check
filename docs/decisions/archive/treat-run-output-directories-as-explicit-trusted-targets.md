@@ -26,7 +26,7 @@ relations: []
 
 ## 决策
 
-- 采用：machine publication 与 diagnostic logging 的 directory 共用 grammar：接受不为空、且不含 U+0000 的 string；不 trim，也不新增跨平台字符禁用表。relative target 从 effective `projectRoot` 解析，absolute target 直接作为目标，`..` 合法。
-- 采用：Definition 与 RunControls 在 output I/O 前应用相同 validation；两个 output 可选择同一目录，但继续独立拥有 enabled/status/failure，以及 machine 的 `run.json`/`records.ndjson`/私有 temp 与 diagnostic 的 invocation-specific log。
-- 采用：diagnostic readback 保持 `path.relative(projectRoot, resolvedFile)`；root 外结果可包含 `..`，跨卷时采用平台返回的 absolute readback。Definition fingerprint 保留 author directory text，因此文档建议可移植 Definition 选用 relative text，把 invocation-specific 外部 target 放在 RunControls。
+- 采用: machine publication 与 diagnostic logging 的 directory 共用 grammar：接受不为空、且不含 U+0000 的 string；不 trim，也不新增跨平台字符禁用表。relative target 从 effective `projectRoot` 解析，absolute target 直接作为目标，`..` 合法。
+- 采用: Definition 与 RunControls 在 output I/O 前应用相同 validation；两个 output 可选择同一目录，但继续独立拥有 enabled/status/failure，以及 machine 的 `run.json`/`records.ndjson`/私有 temp 与 diagnostic 的 invocation-specific log。
+- 采用: diagnostic readback 保持 `path.relative(projectRoot, resolvedFile)`；root 外结果可包含 `..`，跨卷时采用平台返回的 absolute readback。Definition fingerprint 保留 author directory text，因此文档建议可移植 Definition 选用 relative text，把 invocation-specific 外部 target 放在 RunControls。
 - 不采用：filesystem sandbox、lexical/realpath/symlink containment、directory allowlist、共享 `outputRoot`、目录清空、retention 或让任一 output 管理另一项文件。

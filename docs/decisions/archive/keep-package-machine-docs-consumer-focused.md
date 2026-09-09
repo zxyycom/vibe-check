@@ -8,11 +8,13 @@ purpose: 让安装包只交付读取 machine publication 所需的契约、schem
 background: Output guide 的仓库维护章节和四份重复示例 README 增加了安装包阅读负担，却不改变 consumer 的读取动作。
 decision: 将 machine consumer 契约与仓库维护说明分开，package 示例只交付每组完整 publication bytes。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations:
   - type: 修订
     target: 260828-ship-current-machine-contract-materials-in-the-package
+    summary: 让 package machine 文档只承接消费契约
 ---
 
 ## 目的

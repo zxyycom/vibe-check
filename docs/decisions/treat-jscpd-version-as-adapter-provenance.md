@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260828-let-duplicate-detection-adapter-own-cli-protocol
+    summary: 将 jscpd 版本作为 adapter provenance 而非项目政策
 ---
 
 ## 目的

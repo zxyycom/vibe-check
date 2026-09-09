@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-extend-invocation-local-scheduler-performance-summary
+    summary: 将 Scheduler 性能测量交给 invocation-local Hook
 ---
 
 ## 目的

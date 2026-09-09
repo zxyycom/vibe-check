@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-cancel-task-admission-and-drain-started-work
+    summary: 将未通过前置的 dependent 结算为 unavailable
 ---
 
 ## 目的

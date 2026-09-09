@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260805-use-semantic-check-ids-in-quality-records
+    summary: 分离 Check 身份与 Record 类型身份
 ---
 
 ## 目的

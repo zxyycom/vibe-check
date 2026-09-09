@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-use-neutral-observation-and-project-definition-gates
+    summary: 观察与门禁都使用项目持有的 Project Definition
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260806-keep-project-workflow-skill-overrides-bounded
+    summary: 使用完整上游治理 Skill 包
 ---
 
 ## 目的

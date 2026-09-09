@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 拆分
     target: 260826-refine-project-run-and-settlement-owners
+    summary: 拆分 settlement、Run、progress 与 machine 职责
 ---
 
 ## 目的

@@ -14,8 +14,10 @@ tags:
 relations:
   - type: 归并
     target: 260901-separate-admission-policy-from-scheduler-state-machine
+    summary: 以无状态 select/wait policy 承接策略分离
   - type: 归并
     target: 260901-retain-running-parallel-limits-and-order-ready-admission-by-priority
+    summary: 以硬 guard 保留并行上限与优先级
 ---
 
 ## 目的

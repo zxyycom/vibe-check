@@ -2,7 +2,7 @@
 title: 稳定质量身份不使用源码位置
 id: 260804-use-location-independent-finding-identities
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-08-04T15:02:12Z
 purpose: 让质量 finding 在只发生行移动或排版变化时保持稳定身份和比较结果。
 background: 行号、列号和 byte offset 是当前定位信息，不是问题本身的稳定语义，写入 key 会制造虚假新增和回归。

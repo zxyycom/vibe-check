@@ -8,6 +8,7 @@ purpose: 让 package consumer 从同一安装版本取得 machine v4 说明、sc
 background: Package Run 默认可以发布 machine files，但当前安装包没有交付 output owner、current schemas 或 artifact examples。
 decision: Package 随当前 API 和 runtime 交付 consumer-oriented output guide、两份 v4 schema 与四组 current examples。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations: []

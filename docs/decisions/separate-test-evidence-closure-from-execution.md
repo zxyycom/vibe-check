@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260730-use-semantic-test-case-closure
+    summary: 将测试实体闭合与测试执行拆为独立 assurance
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260817-apply-check-parallel-limit-while-task-runs
+    summary: 保留运行期并行上限并按优先级选择 ready Task
 ---
 
 ## 目的

@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-expose-invocation-local-scheduler-measurement-hooks
+    summary: 将默认汇总统一为终态测量 Hook
 ---
 
 ## 目的

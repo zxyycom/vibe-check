@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260831-treat-run-output-directories-as-explicit-trusted-targets
+    summary: 将 machine 发布限于 canonical file owner
 ---
 
 ## 目的
@@ -25,6 +26,6 @@ relations:
 
 ## 决策
 
-- 采用：保留相对/绝对 trusted target grammar、独立 diagnostic logging 和非-sandbox 边界。
-- 采用：成功 publication 仅替换 canonical pair；handled partial failure 仅清理可能混合的 canonical files 与 owned temps。
+- 采用: 保留相对/绝对 trusted target grammar、独立 diagnostic logging 和非-sandbox 边界。
+- 采用: 成功 publication 仅替换 canonical pair；handled partial failure 仅清理可能混合的 canonical files 与 owned temps。
 - 不采用：删除 `metrics.json`、`report.md`、`warnings-all.ndjson`、`warnings.ndjson` 或任何其它调用方文件的 legacy cleanup。

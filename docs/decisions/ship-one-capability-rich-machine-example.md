@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260829-ship-one-definition-backed-machine-example
+    summary: 让唯一 machine 示例覆盖代表性公共 Check 能力
 ---
 
 ## 目的
@@ -32,14 +33,14 @@ relations:
 
 ## 决策
 
-- 采用：继续只交付 `docs/examples/artifacts/mixed-outcomes/` 下的 `definition.ts`、`run.json` 与
+- 采用: 继续只交付 `docs/examples/artifacts/mixed-outcomes/` 下的 `definition.ts`、`run.json` 与
   `records.ndjson`，不恢复 example README 或多目录 fixtures。
-- 采用：Definition 使用 `jsonValidation` 实际检查 project-root `package.json`，并以递归自定义 workflow 展示 typed
+- 采用: Definition 使用 `jsonValidation` 实际检查 project-root `package.json`，并以递归自定义 workflow 展示 typed
   provider/parser、preflight continue fallback、preflight block、inherited direct dependencies、dependency final-data
   readback、terminal messages、supplemental Records、visibility 与并行预算。
-- 采用：同一次 Run 形成 package-provided passed、custom passed、failed、not-applicable 与 unavailable facts；failed
+- 采用: 同一次 Run 形成 package-provided passed、custom passed、failed、not-applicable 与 unavailable facts；failed
   policy 读取内置和自定义 provider data，并发布多条 Records，使代码与 two-file output 可以逐项对应。
-- 采用：Repository generator 通过完整 public `run` 执行同一份 Definition，并在隔离的有效 project manifest 上形成
+- 采用: Repository generator 通过完整 public `run` 执行同一份 Definition，并在隔离的有效 project manifest 上形成
   Check/Record facts；只为 checked-in publication 替换固定 invocation metadata，不另建手工 snapshot。
-- 采用：Package typecheck、installed execution 与文档验收继续直接使用随包 Definition，并额外核对代表性 built-in、
+- 采用: Package typecheck、installed execution 与文档验收继续直接使用随包 Definition，并额外核对代表性 built-in、
   dependency-derived result、messages 与 Records；output guide 说明哪些效果进入 machine files，哪些只属于 `RunResult`。

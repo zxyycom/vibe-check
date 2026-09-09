@@ -2,7 +2,7 @@
 title: 将文件政策契约升级为固定配置 v2
 id: 260804-use-fixed-semantic-config-v2
 status: archived
-alignment: null
+alignment: unaligned
 createdAt: 2026-08-04T15:02:12Z
 purpose: 用明确版本边界承载文件覆盖和可组合功能政策，避免静默改变既有配置含义。
 background: 当前固定 v1 是完整且封闭的文档，加入 overrides 和 optional feature sections 已构成新的公共配置契约。
@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260803-use-fixed-semantic-config-version
+    summary: 将文件政策契约升级为固定配置 v2
 ---
 
 ## 目的

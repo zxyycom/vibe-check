@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260829-consolidate-project-gate-run-evidence
+    summary: 以无状态 Scheduler context 保持完整 Gate Run 证据
 ---
 
 ## 目的

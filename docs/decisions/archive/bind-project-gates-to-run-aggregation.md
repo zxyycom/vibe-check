@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-use-user-owned-definition-for-observation-and-gates
+    summary: 让 Project Gate 绑定 Run aggregation
 ---
 
 ## 目的
@@ -28,8 +29,8 @@ relations:
 
 ## 决策
 
-- 采用：每次 observation 或 Gate invocation 都将一个已验证的 Project Definition value 显式传给 Package Run；缺失或无效 Definition 仍在任何 Check work 前返回 typed configuration result。
-- 采用：blocking Gate 在自己的 Project Run 中绑定 eligible Check IDs 和完整 `checkAggregation` configuration，并消费 `RunResult.aggregate`；required/full 可以拥有不同 selection，但不以 profile 或命名评估器隐式选择行为。
-- 采用：Project Gate adapter 只把 invocation、configuration/run/output facts 与 aggregate 映射为 process exit `0`、`1` 或 `2`，并保留日志责任；它不选择已退休的评估器、重算 snapshot aggregate 或解释 Check-local data。
-- 采用：non-blocking observation 可以明确使用 neutral Definition composition 或不配置 aggregation；两者仍由项目 script 传入明确 Definition/Run Controls。
+- 采用: 每次 observation 或 Gate invocation 都将一个已验证的 Project Definition value 显式传给 Package Run；缺失或无效 Definition 仍在任何 Check work 前返回 typed configuration result。
+- 采用: blocking Gate 在自己的 Project Run 中绑定 eligible Check IDs 和完整 `checkAggregation` configuration，并消费 `RunResult.aggregate`；required/full 可以拥有不同 selection，但不以 profile 或命名评估器隐式选择行为。
+- 采用: Project Gate adapter 只把 invocation、configuration/run/output facts 与 aggregate 映射为 process exit `0`、`1` 或 `2`，并保留日志责任；它不选择已退休的评估器、重算 snapshot aggregate 或解释 Check-local data。
+- 采用: non-blocking observation 可以明确使用 neutral Definition composition 或不配置 aggregation；两者仍由项目 script 传入明确 Definition/Run Controls。
 - 不采用：Product configuration discovery、missing-definition fallback、命名评估器选择、独立 Gate result object、CLI-local reducer，或由 Product 生成项目 gate script。

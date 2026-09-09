@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-require-explicit-quality-comparison-references
+    summary: 比较只使用显式命名并冻结的参考
 ---
 
 ## 目的

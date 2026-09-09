@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-preserve-primary-run-failures-over-measurement-hook-output
+    summary: 将 prepared complete 纳入测量 Hook 输出
 ---
 
 ## 目的
@@ -28,7 +29,10 @@ relations:
 ## 决策
 
 - 采用: single semantic terminal pipeline：Scheduler 在 sealed terminal context 上运行 existing `internal summary → configured generic Hooks（按配置顺序、全部获得调用机会）` runner；Invocation/orchestration 在该 runner 返回后交付 prepared `complete`（存在时至多一次），并汇总 `outputs.measurementHooks`。Scheduler 保留 generic runner，Invocation/orchestration 拥有 strategy lifecycle、overall sequencing 与 aggregate mapping。
-- 采用: closed output states：`outputs.measurementHooks.enabled` 当且仅当 Definition generic Hook list 非空，或 successful prepared result 实际包含 `complete`；两者均无时为 disabled。enabled Run 未形成 sealed terminal sequence 时为 `not-run`；sequence 形成后，全部 actual generic Hooks 与 `complete`（如存在）成功为 `succeeded`，任一 generic Hook 或 `complete` throw/reject 为 `failed`。prepare failure 在无 generic Hooks 时为 disabled、有 generic Hooks 时为 enabled/`not-run`；无 generic Hooks 的 prepared result 未含 `complete` 时为 disabled，含 `complete` 而随后未形成 context 时为 enabled/`not-run`。field 名、status vocabulary 与 `scheduler-measurement-hooks-failed` diagnostic 保持既有 contract。
+- 采用: `outputs.measurementHooks.enabled` 当且仅当 Definition generic Hook list 非空，或 successful prepared result 实际包含 `complete`；两者均无时为 disabled。
+- 采用: enabled Run 未形成 sealed terminal sequence 时为 `not-run`。sequence 形成后，全部 actual generic Hooks 与 `complete`（如存在）成功为 `succeeded`；任一 generic Hook 或 `complete` throw/reject 为 `failed`。
+- 采用: prepare failure 在无 generic Hooks 时为 disabled，有 generic Hooks 时为 enabled/`not-run`。无 generic Hooks 的 prepared result 未含 `complete` 时为 disabled；含 `complete` 而随后未形成 context 时为 enabled/`not-run`。
+- 采用: field 名、status vocabulary 与 `scheduler-measurement-hooks-failed` diagnostic 保持既有 contract。
 - 采用: facts-preserving result mapping：coordinator 在 aggregate mapping 前形成或保留 sealed Task/Check snapshot 与 selected aggregation。aggregate failure 将 normal completed Run 映射为 `kind: "output"`；cancellation、admission-policy fault、preparation failure 和其他 primary execution failure 保持其原 result，aggregate failure 继续在 `outputs.measurementHooks.status` 可见。
 - 采用: internal summary containment：summary writer failure 不参与 caller/strategy aggregate，也不影响 Scheduler generic Hook runner 或 Invocation/orchestration `complete` delivery。
 - 不采用 second terminal output、renamed output、compatibility dual-read、strategy-driven rescheduling、sealed fact mutation、generic Hook short-circuit、machine v4 output write、schema revision，或由本记录定义 public authoring grammar、private collector demand、Simulation/persistence capability。

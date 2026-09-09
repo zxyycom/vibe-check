@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260906-describe-vibe-check-as-a-general-project-quality-gate
+    summary: 将 Vibe Check 描述为通用 TypeScript 质量门禁工具
 ---
 
 ## 目的

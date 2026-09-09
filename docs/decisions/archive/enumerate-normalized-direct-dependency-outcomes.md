@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260823-read-direct-dependency-final-data-by-string
+    summary: 枚举已规范化的直接 dependency outcomes
 ---
 
 ## 目的

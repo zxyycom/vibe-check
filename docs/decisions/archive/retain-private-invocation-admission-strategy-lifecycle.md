@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 拆分
     target: 260903-introduce-invocation-scoped-admission-strategy-lifecycle
+    summary: 保留私有 invocation 准入策略生命周期
 ---
 
 ## 目的

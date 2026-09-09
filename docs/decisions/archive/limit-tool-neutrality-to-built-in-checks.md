@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260803-keep-public-config-tool-neutral
+    summary: 将工具中立约束限定于 Product-provided Check 配置
 ---
 
 ## 目的

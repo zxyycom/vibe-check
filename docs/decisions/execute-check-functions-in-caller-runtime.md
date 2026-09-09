@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-execute-project-functions-through-task-system-in-caller-runtime
+    summary: 在调用方 runtime 中执行 Check functions
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-use-core-check-and-quality-record-facts
+    summary: 从 Run resolution 建立核心事实
 ---
 
 ## 目的

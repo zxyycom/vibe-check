@@ -2,7 +2,7 @@
 title: 采用完整上游包维护项目工程 skills
 id: 260727-use-upstream-project-skill-packages
 status: archived
-alignment: null
+alignment: aligned
 createdAt: 2026-07-27T06:40:00Z
 purpose: 让项目工程判断 skill 可持续升级，同时保持上游分发内容与项目接线的清晰边界。
 background: 项目需要 OpenSpec、架构边界、共同分母、最小实现和调查报告等专用工作流。

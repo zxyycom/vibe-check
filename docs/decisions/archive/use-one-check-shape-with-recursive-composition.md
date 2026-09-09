@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260815-keep-check-groups-authoring-only
+    summary: 使用带递归 composition 的单一 Check shape
 ---
 
 ## 目的

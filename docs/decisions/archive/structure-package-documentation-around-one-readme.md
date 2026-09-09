@@ -8,6 +8,7 @@ purpose: 让 package consumer 从唯一总入口理解常用自定义 API，并�
 background: 现有 README 同时承载入门、内置 Check、进阶机制和结果边界，另有 Check 索引页形成不必要的导航层级。
 decision: package 文档只以 README 作为总入口，直接链接每项 Check 指南，并最多提供一份深入 API 机制说明。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations: []

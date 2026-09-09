@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-keep-built-in-options-owned-and-tool-neutral
+    summary: 使用字段感知的内置 Check 调整方法
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260817-use-direct-check-execution-with-structured-results
+    summary: 直接执行 Check 并最小化 Record reporting
 ---
 
 ## 目的
@@ -29,9 +30,9 @@ relations:
 
 ## 决策
 
-- 采用：Public Check 继续声明 direct `execution` callback，不增加 execution wrapper、kind union、TaskPlan 或第二运行入口。
-- 采用：Execution context 继续提供 typed `options`、真正 Product-owned project/invocation facts、Check-scoped `records` 与 cancellation `signal`；Check-specific dependencies由 options或project-owned composition负责。
-- 采用：Execution 继续返回 `{ status: "completed", verdict: "passed" | "failed" }`、`{ status: "not-applicable", reason? }` 或 `{ status: "unavailable", reason }`。Product-owned throw、malformed result、cancellation 与 protocol failures映射为专属 unavailable reasons。
-- 采用：`records.report({ id }, data)` 可以提交零到多个 Records；return result 关闭 reporter和当前 Check。Product只验证 identity、canonical data、ownership、conflict、late write 与 lifecycle。
-- 采用：`defineCheck` 继续改善 options、context 与 result contextual typing；plain object、`satisfies Check`、native composition 与 inline Definition保持合法。
+- 采用: Public Check 继续声明 direct `execution` callback，不增加 execution wrapper、kind union、TaskPlan 或第二运行入口。
+- 采用: Execution context 继续提供 typed `options`、真正 Product-owned project/invocation facts、Check-scoped `records` 与 cancellation `signal`；Check-specific dependencies由 options或project-owned composition负责。
+- 采用: Execution 继续返回 `{ status: "completed", verdict: "passed" | "failed" }`、`{ status: "not-applicable", reason? }` 或 `{ status: "unavailable", reason }`。Product-owned throw、malformed result、cancellation 与 protocol failures映射为专属 unavailable reasons。
+- 采用: `records.report({ id }, data)` 可以提交零到多个 Records；return result 关闭 reporter和当前 Check。Product只验证 identity、canonical data、ownership、conflict、late write 与 lifecycle。
+- 采用: `defineCheck` 继续改善 options、context 与 result contextual typing；plain object、`satisfies Check`、native composition 与 inline Definition保持合法。
 - 不采用：Record catalog/generic、reference reporter、common comparison context、从 custom data 推断 outcome，或让 callback提供 `checkId`/Core outcome envelope。

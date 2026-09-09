@@ -25,8 +25,8 @@ relations: []
 
 ## 决策
 
-- 采用：Link Check 只验证 parser 已识别的 inline link、image、explicit autolink、选定 GFM autolink literal，以及能绑定 local definition 的 reference occurrence；definition target 由 Link 的 private adapter 解析并投影。
-- 采用：未定义、collapsed 或 shortcut reference 若 parser 没有产出语义 occurrence，就不形成 Link issue、Record、count 或 unavailable；它们保持普通 Markdown text 的现有语义。
-- 采用：Link fixtures 必须证明已定义 reference 会进入 target validation，未定义 reference 不会被二次提取；这两个结果不依赖 code/HTML/prose exclusion 的偶然实现。
+- 采用: Link Check 只验证 parser 已识别的 inline link、image、explicit autolink、选定 GFM autolink literal，以及能绑定 local definition 的 reference occurrence；definition target 由 Link 的 private adapter 解析并投影。
+- 采用: 未定义、collapsed 或 shortcut reference 若 parser 没有产出语义 occurrence，就不形成 Link issue、Record、count 或 unavailable；它们保持普通 Markdown text 的现有语义。
+- 采用: Link fixtures 必须证明已定义 reference 会进入 target validation，未定义 reference 不会被二次提取；这两个结果不依赖 code/HTML/prose exclusion 的偶然实现。
 - 不采用：在 Link Check 中通过 raw text、正则或 parser 私有 token hack 检测未定义 reference，或把其报告为 missing local target。
 - 未来：若出现独立、可证明的用户结果需要检查 undefined reference definitions，应建立单独的 Markdown syntax/lint Change，并重新评审 grammar、public结果与 parser reuse。

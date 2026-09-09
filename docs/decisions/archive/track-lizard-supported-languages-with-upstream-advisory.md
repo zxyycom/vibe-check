@@ -15,6 +15,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-align-function-metrics-inputs-with-lizard-supported-languages
+    summary: 以仓库提示持续跟随 Lizard 支持语言与 analyzer 修复
 ---
 
 ## 目的

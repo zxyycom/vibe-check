@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-use-composable-check-tree-in-project-definition
+    summary: 以可组合 Check tree 由 Run 构造绑定
 ---
 
 ## 目的

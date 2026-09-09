@@ -8,11 +8,13 @@ purpose: 让直接服务 package consumer 的人读说明以中文承载主要�
 background: 原决策 ID 使用 public documentation，范围宽于正文实际约束，容易被误读为所有公开材料规则。
 decision: README、package entry 与必要 public declarations 采用中文主叙述，不建立全库语言门禁。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations:
   - type: 替代
     target: 260824-use-chinese-as-primary-language-for-public-documentation
+    summary: package consumer 文档以中文叙述为主
 ---
 
 ## 目的

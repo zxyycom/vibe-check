@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-use-one-check-shape-with-recursive-composition
+    summary: 使用可选 execution 的递归 Check 普通对象
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260812-enable-tool-effects-by-default
+    summary: 以 Run outputs 取代全局工具效果
 ---
 
 ## 目的
@@ -24,6 +25,6 @@ relations:
 
 ## 决策
 
-- 采用：`ProjectDefinition.outputs`、`RunControls.outputs` 与 `RunResult.outputs` 只表达 `machinePublication` 和 `progressRendering`；失败为明确 `output` result，不再有 effect branch。
-- 采用：duplicate-detection options 独占 cache 的 directory、enabled、read-miss 与 write-failure settlement；其它 Check 和 Run 没有 cache capability。
+- 采用: `ProjectDefinition.outputs`、`RunControls.outputs` 与 `RunResult.outputs` 只表达 `machinePublication` 和 `progressRendering`；失败为明确 `output` result，不再有 effect branch。
+- 采用: duplicate-detection options 独占 cache 的 directory、enabled、read-miss 与 write-failure settlement；其它 Check 和 Run 没有 cache capability。
 - 不采用：全局 cache、logs output、output status 以外的泛化 IO 聚合，或以副作用技术形态混合无共同生命周期的能力。

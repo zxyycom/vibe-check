@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260827-post-process-project-gate-with-owned-context
+    summary: 用连续阶段解释 Gate 初步结果耗时
 ---
 
 ## 目的

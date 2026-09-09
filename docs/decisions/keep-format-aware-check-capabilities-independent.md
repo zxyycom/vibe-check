@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 重划
     target: 260805-expand-format-aware-built-in-checks
+    summary: 保持格式感知 Check 能力彼此独立
 ---
 
 ## 目的

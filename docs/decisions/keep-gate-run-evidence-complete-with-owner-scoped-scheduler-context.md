@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context
+    summary: 以 owner-scoped context 保持完整 Gate 证据
 ---
 
 ## 目的

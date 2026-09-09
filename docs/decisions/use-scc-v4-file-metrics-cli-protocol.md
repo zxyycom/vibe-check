@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260828-let-file-metrics-adapter-own-cli-protocol
+    summary: 让文件指标 adapter 固定 SCC v4 CLI 协议
 ---
 
 ## 目的

@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260824-publish-readable-esm-package-layout
+    summary: 以 Node 可读 ESM 模块树交付 package 运行时
 ---
 
 ## 目的

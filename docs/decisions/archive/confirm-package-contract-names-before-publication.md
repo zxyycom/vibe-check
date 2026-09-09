@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260812-approve-public-names-before-publication
+    summary: 发布前确认 package 公共契约名称
 ---
 
 ## 目的

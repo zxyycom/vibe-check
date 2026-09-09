@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260812-expose-two-public-operations
+    summary: 公开配置定义函数与 Package Run
 ---
 
 ## 目的

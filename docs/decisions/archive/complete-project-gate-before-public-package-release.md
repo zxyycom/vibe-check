@@ -23,7 +23,11 @@ relations: []
 
 本记录只决定首次公开 package 的交付顺序与最低消费者证据：local candidate、完整 Gate、正式 cutover，随后才可能公开发布。它不定义 <code>invocation</code> grammar、observer event shape、项目 CLI、renderer 格式、scheduler capacity 或 package public inventory；这些由各自的长期 owner 和 active Change 负责。
 
-当前 release path 的 timing 采用两种同源视图：Product 对每个实际执行的 Check 测量一次 <code>durationMs</code>，在 settled lifecycle feedback 与带 final snapshot 的 structured <code>RunResult</code> per-Check summary 中返回。它是进度和完成摘要的 execution signal，不是 Check terminal status、aggregation input 或 Record 的固有字段。首轮不承诺 <code>startedAt</code> / <code>endedAt</code> 或 record-report time；也不能仅为呈现而改写既有 <code>CheckOutcome</code> 或 minimal Record grammar。该约束不替代未来对独立 performance contract / canonical execution telemetry 的判断；若出现实际消费者，必须先演进长期 Decision，再建立独立 Change。
+当前 release path 的 timing 采用两种同源视图：Product 对每个实际执行的 Check 测量一次 <code>durationMs</code>，并在 settled lifecycle feedback 与带 final snapshot 的 structured <code>RunResult</code> per-Check summary 中返回。
+
+`durationMs` 是进度和完成摘要的 execution signal，不是 Check terminal status、aggregation input 或 Record 的固有字段。首轮不承诺 <code>startedAt</code> / <code>endedAt</code> 或 record-report time；也不能仅为呈现而改写既有 <code>CheckOutcome</code> 或 minimal Record grammar。
+
+该约束不替代未来对独立 performance contract / canonical execution telemetry 的判断；若出现实际消费者，必须先演进长期 Decision，再建立独立 Change。
 
 本记录不授予 npm registry 查询、凭据访问或 <code>npm publish</code> 的操作授权。动态 Change stage、任务与 handoff 由各自 active Change 和 change-plan CLI 恢复，不属于本长期决策。
 

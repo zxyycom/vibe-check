@@ -1,322 +1,322 @@
 {
   "schemaVersion": 4,
   "namespace": "decisions",
-  "definitionVersion": 10,
+  "definitionVersion": 11,
   "metadata": {},
   "sourceRevision": {
     "entries": {
       "260721-use-project-decision-records": "sha256:eff5f2a4c9e6c651cc54b8a4df1310774d41a849be8ca58e06df0ebfa11fd2ca",
-      "260727-use-native-test-evidence-catalog": "sha256:df82c59c1876268e7de987f4e83d11bbcfb5401542a0e13f028ad4d51f2e6094",
-      "260727-use-upstream-project-skill-packages": "sha256:4a0a60efd4f424b36b7a8c91eb5e0f933708825c2e7f6c89d529f21441098664",
-      "260730-use-semantic-test-case-closure": "sha256:94b6dba929902f66f3b3c31c97370de9db234283728b5f170deb765e4887b60a",
-      "260730-use-upstream-skills-with-project-local-exceptions": "sha256:87de5d55ed11e5918ca68fb1965e261da0d3839df707b45d4ebf57922eb1d944",
-      "260803-defer-lizard-runtime-unification": "sha256:2bdcfcc9b700a05f522608986854644d3d34ae300d53104a0c501a0c8f10dee4",
-      "260803-defer-lizard-until-after-semantic-config-workflow": "sha256:c35bfcad7a0b241b8cf7c2774b9c237e3a3c557337bd04e4cb866ce640ae85c3",
+      "260727-use-native-test-evidence-catalog": "sha256:33434885b3d0484612649e1760e510027c699984be5e695427a1bbc8eafe58e6",
+      "260727-use-upstream-project-skill-packages": "sha256:479a532dd17de833dbd99386d5e929ba7cd818a39cf3a5c2a0b24f104c52cd6e",
+      "260730-use-semantic-test-case-closure": "sha256:a79e8a393f61a845c0c0fb6ad3bf597021529aecf4f3cd5e264c4da8d0a8b010",
+      "260730-use-upstream-skills-with-project-local-exceptions": "sha256:5db7090c3517360aa4b310e37afc29a7f451f105cd4b855009327668c8e68c42",
+      "260803-defer-lizard-runtime-unification": "sha256:f33631653d5111a595b2df115c09fa9ad8b5b3417aca4146d658b82cc86f2a76",
+      "260803-defer-lizard-until-after-semantic-config-workflow": "sha256:a305dab941b7f2f4e3048d8989ec85816443a419c6f34846d1f3e8319dd7f18e",
       "260803-hard-cut-legacy-tool-shaped-config": "sha256:9a1e242c5671ec7058f5b78b3f88020ea5370174f40760bdcdfabe48d39c53a3",
-      "260803-keep-public-config-tool-neutral": "sha256:c1324e89d7fa5bab317145f93f89bbb1b4601202177a36a7cd29e20e76952a3d",
-      "260803-use-fixed-semantic-config-version": "sha256:635f5834cd9b1d8e1ca77f26a1c8b245c4ced795e2053fcfeb421d0e3098645c",
-      "260803-use-json-filename-for-commented-config": "sha256:387bf33fbe42492edd2093e6dc56e8b2a796146c0dc9bf91b77f7d0bfc8664b2",
-      "260803-use-semantic-check-ids-in-project-config": "sha256:ac246146b151f6864e5c875e5573baaf6c9f935b2199d1c04ebe70e5d571d1e6",
-      "260804-expand-format-aware-quality-checks": "sha256:2087c4626f70e9bb66a8cde64fa82e7732f45e529a41f111eff846cc5986d9c6",
-      "260804-keep-sensitive-scan-material-ephemeral": "sha256:e567ca68d2616cc4f52d58c82d08706949c6914bb23beaf5c5585bad188b1bd7",
-      "260804-require-explicit-network-link-checking": "sha256:a14c16de0d6b4d3c8435e14e149779c00d889abb6cf35958995c317c49d4ede9",
-      "260804-require-explicit-quality-baselines": "sha256:11dc2e25806a85ae74a7a99e759d41474778977ac35f27d335fedf4186254e49",
+      "260803-keep-public-config-tool-neutral": "sha256:d103f29eec35ef072b46bef2e11dc697cd30272709f7dd04b7cb14211b943ec8",
+      "260803-use-fixed-semantic-config-version": "sha256:423a6ca6b1ba572d473eaeb1510ee0561924498a748ce55e779af359aa5d5b87",
+      "260803-use-json-filename-for-commented-config": "sha256:567a291c047ef5dc9258c6c08030c2a52c8e4735b00d36dfcf58fe82157c70f7",
+      "260803-use-semantic-check-ids-in-project-config": "sha256:c91697131c6d195d454828b95062f7b7ac1bddccc3a123c2fa05ae57d783737b",
+      "260804-expand-format-aware-quality-checks": "sha256:0a77777c78c43d7f530c9d315b922ee70f294f8ea2b9b728129180c6603f877c",
+      "260804-keep-sensitive-scan-material-ephemeral": "sha256:a2cd1d7d116b7ea394c4a924bea31afcc8d2251d7f7b3794644462037c35c6dd",
+      "260804-require-explicit-network-link-checking": "sha256:2a84fb328a46967528bd290934ec872fcadaa683117fe731c52e175d9ff35f2b",
+      "260804-require-explicit-quality-baselines": "sha256:390ce41f0feef576ea59f68eb68892ec938d86e48aa2bf7e43061e84f3ac91c4",
       "260804-use-file-policy-overrides": "sha256:ad54bd5144b17c182b313b13489ee25a959925eb215608e15d2e36f86af65440",
-      "260804-use-fixed-semantic-config-v2": "sha256:2f3ea674a6294a3834d02b31cf0793e792e975c8797e01430119341c703460b2",
-      "260804-use-generic-machine-v2-for-content-findings": "sha256:0deae88cfe0125bf9e552ad52189b305ccb884389c2d234d6d51982106042565",
-      "260804-use-location-independent-finding-identities": "sha256:b60b059d853af3025c6f3453d8ae0d9c8c28c92eef4945157a6c1c8a0f226c65",
-      "260804-use-neutral-default-for-observation-and-file-policy-for-gates": "sha256:4ac0d99c0c6dbc05bf73c6d1a8bb4fd6deacc2bc444b709c30bff9195a5e65c7",
-      "260805-defer-future-feature-detail-until-prioritized": "sha256:d11aa0252639e20514dea0c02c5eb00be7af86b6f671efc391c6d04ad728cb9e",
-      "260805-defer-lizard-until-after-check-foundations": "sha256:233761e3040978771b101ad648128809765622feec00608dabab1e9ff101c173",
-      "260805-expand-format-aware-built-in-checks": "sha256:07ef5a76fb8a21f3728e3581a3d49594e223c2bf3c0df5933f97a0f79b196fef",
-      "260805-keep-decision-policies-closed-and-declarative": "sha256:ae1a0f9a1da97e96eef2810021bcea291fc03f50f4855beb89b876c8fa4f3763",
-      "260805-keep-sensitive-quality-record-material-ephemeral": "sha256:edf8d0759ca7fc451bba46987add760deec12dd0f6355e9dad8ad3c496bd877b",
-      "260805-limit-tool-neutrality-to-built-in-checks": "sha256:d5a03a878b81e78e4baae5b837090b17dab4ba700745feae92ea530baa1c27d1",
-      "260805-require-explicit-named-comparison-references": "sha256:4a6fdddd365fe4261e9067c95fe42dc8929fad307038dac7c1690586e15b479e",
-      "260805-require-explicit-network-check-authorization": "sha256:515553300dbc62dbe481fdf58fc037d924e82fbcf8b2cc67165702d572f1a82e",
-      "260805-require-explicit-quality-comparison-references": "sha256:52ff2c138cb963b810673a4d8d67f0f6c8c82b849aef8deb9dc52e0da0ab40f2",
-      "260805-separate-check-and-record-type-identities": "sha256:1ddb374263cb039e8125be57019265a2adb16489e9d0599b4b80912099d5c3c0",
+      "260804-use-fixed-semantic-config-v2": "sha256:5af5c3f8c6719602c665a467d30afb635593bf1b3af8f6c2ba8af1011cb56006",
+      "260804-use-generic-machine-v2-for-content-findings": "sha256:b15381634272b0823c4a77bf106f5bf5fffa26c02d2bca59d45d72fa5bcfa7a7",
+      "260804-use-location-independent-finding-identities": "sha256:0796313b8a4b8d82e71be6a51622e8bb3847ad5aa1e7f8700536ccd76f217e8a",
+      "260804-use-neutral-default-for-observation-and-file-policy-for-gates": "sha256:83bc36bbc6d0f9103fae56aca818acad3db4fe7da6e56b57135d257e2be001dd",
+      "260805-defer-future-feature-detail-until-prioritized": "sha256:542be2e41d9ade24a899629ae823a23c05c735f20638292be0e1423c4a01f459",
+      "260805-defer-lizard-until-after-check-foundations": "sha256:93b31bf4a4c99b375907ffd73f52bca0df770617187b4dc58a71404ee762b353",
+      "260805-expand-format-aware-built-in-checks": "sha256:9b916ba0382464130a8786f9cef7819ad51ef992d45a0a8ab98067ab86e3152e",
+      "260805-keep-decision-policies-closed-and-declarative": "sha256:501ef8533135baec8751444dbec8a2ffa8a93c7e276739e467492f7821436809",
+      "260805-keep-sensitive-quality-record-material-ephemeral": "sha256:c8318d183a2b0e2d827e7d8ca2791c7aef706859e7dc31cb2a58f1f3b48fe6d7",
+      "260805-limit-tool-neutrality-to-built-in-checks": "sha256:f864f1448a9cb6f3bb249f7436eced4c3a673f8523d2478b3784023885af57c9",
+      "260805-require-explicit-named-comparison-references": "sha256:b2532fa60fd7d030e7cd0488e11052ce6b5032703d47518d7d31c5cdb16d822d",
+      "260805-require-explicit-network-check-authorization": "sha256:74d3b3b5015a3986f46c10344fa9cd31eddffe3e2efdb1ea3442c32ba0cc88c4",
+      "260805-require-explicit-quality-comparison-references": "sha256:f37310d979ee8234116598195fa578b9861987cf9347a33fbc3cd107f07d2819",
+      "260805-separate-check-and-record-type-identities": "sha256:3dd296903ceb46af163e817eb23abbeb91aba0ba9d2870271e5f6337640bc2fb",
       "260805-treat-project-definitions-as-trusted-code": "sha256:1a370fd0009a31a31c1d2e760520d578c7b6d466561e5ef94bdfc298cb76790d",
-      "260805-use-bun-typescript-project-definition": "sha256:bba495c47eeaeaa47a1cb5dbea3d4b6574e9b9c516448229b60f577806c4cc27",
-      "260805-use-declarative-quality-decision-policies": "sha256:0dcce877b400145b461ff823b031335eeabc6ed91838058a2b439886447ed18e",
-      "260805-use-location-independent-record-identities": "sha256:ccdcb94b7a3ee2e8a2491c151d90c69bd93cea1814f06744fbbb8d0efc79ce30",
-      "260805-use-neutral-observation-and-project-definition-gates": "sha256:a41ec90bf4a4a91c6c35a8b04084405b808a1fb533e5bc75334b5ef82a853d94",
-      "260805-use-runtime-resolved-check-and-record-core": "sha256:d2333ba47f594c1997fbb02b8d452113aa3a64218044c9f21cb49ce64a1dff07",
-      "260805-use-semantic-check-ids-in-quality-records": "sha256:d3c87edae9127a49532b777fa91cd27e40991a746c1053a43c72e7e8102d775a",
-      "260805-use-standard-quality-record-stream": "sha256:8bc682f34904bd0a826e810fb8fda9accfb803dc15be89f553604fb06ac1e7be",
+      "260805-use-bun-typescript-project-definition": "sha256:f83d99c8e046dbf60118465f2c646897d545e003342c0df292f966b8c93d7b60",
+      "260805-use-declarative-quality-decision-policies": "sha256:758028b72029bb88b5474b65f23f80a215fbe115b0b99268769bab7b28dd0533",
+      "260805-use-location-independent-record-identities": "sha256:19742c2c6d29a792466bd41b415097e5ccd0581dd425aef3339ed6a6f7e7fe8c",
+      "260805-use-neutral-observation-and-project-definition-gates": "sha256:0d4b2634621582246923ca2ec862653f1f03582c32596f78663ba3c75ddfe5f1",
+      "260805-use-runtime-resolved-check-and-record-core": "sha256:de9aa65e656d33534ad56c0a0c8a0083ae6cd76c3234334e630e1340666d86ea",
+      "260805-use-semantic-check-ids-in-quality-records": "sha256:5fa946cc3c5e70be61939f7664be672bce9abeda1e8dbf13ef54888440907ce5",
+      "260805-use-standard-quality-record-stream": "sha256:05666fcba3eac44ae16bfc87fc4dbdb8f7b2946bdeafac331f1b1bc58c43999f",
       "260805-use-static-check-task-plans-with-shared-scheduling": "sha256:c19eb13590caa5fe11ce6b51dca28ec7eb0bd268169e02d33e672a8aa7865c92",
       "260806-keep-prestable-releases-on-0-0-x": "sha256:3279f3f005cfd36138be1c132e2c9c97250a032087eee783e7700631fa22af9e",
-      "260806-keep-project-workflow-skill-overrides-bounded": "sha256:94b3caa2701905c298954ad03e34326828ecb64fb90d08f184f75e2b8743617f",
-      "260806-match-change-detail-to-current-phase": "sha256:491848517e09520f58b6609c1f8868ad610cc7e890d52e157cf51955d6fcf51d",
+      "260806-keep-project-workflow-skill-overrides-bounded": "sha256:016fd58b974958d96367ab81fe5d6a82b09fc0560d9d1451b968e37d8b9d51bc",
+      "260806-match-change-detail-to-current-phase": "sha256:cafdfdc513e306ac9c4c43dc718afa137dafc16345d5e4d51a0370c857ef96c2",
       "260806-treat-unaligned-decisions-as-future-direction-input": "sha256:2303e6723410ade259e09db77caa135eb2d07af2152bc90043079c38458b26b0",
       "260806-use-versioned-npm-package-release-unit": "sha256:0628142eec7e2190c69ad4ab5e90a490ef89546c85c9184c892b51670a3c3cdf",
       "260811-choose-implementation-style-by-problem-shape": "sha256:80bee7899c2658054a956ba8ba8d29c01ffd18093df7e1fe5e3f844ca1343646",
-      "260811-preinstall-selected-typescript-capabilities": "sha256:c3efe3c1b58d65c5aba12b241d1d96ff4804a2a7a60acd07896d44da266b8d56",
-      "260811-use-complete-upstream-governance-skills": "sha256:7d0a6382f687d9c83e0facf155c7317ffe8bbfdb538cc0b5a3c96d76e11657b7",
-      "260811-use-decision-led-change-plans-and-archive-openspec": "sha256:25df822b4e320920ff1df3086deb117d15c6782a1b4c5e0f94f3605dfbc119ad",
-      "260812-approve-public-names-before-publication": "sha256:5a9eafee261fc6ecb1323218bd5de0fb63149a46545695dd726c7d005a9c31d6",
-      "260812-confirm-package-contract-names-before-publication": "sha256:093cc3b78f142ef63903091b551cec785a29db7709a95d4ba1176b14640e0c36",
-      "260812-contain-project-code-behind-private-runtime-boundary": "sha256:de801e44ef1172e480039c12a26bb2b64c11359af7e502cea6d62e92a4a72381",
+      "260811-preinstall-selected-typescript-capabilities": "sha256:13c4c87a810b1c749ab96f225d8e367112bcb15d7d09507fd0c32f678c123f02",
+      "260811-use-complete-upstream-governance-skills": "sha256:5165061a636cb2cd77e427935ad74180c22caf8ed2e9b05082cf959e85268226",
+      "260811-use-decision-led-change-plans-and-archive-openspec": "sha256:af7f8fe4209c8b0de4235723c13e919cedfa382f65ebf552e08b2be3240382d3",
+      "260812-approve-public-names-before-publication": "sha256:3c95aaaa82f48e133f0a1dc3bcfbd9e8884d81dd5b9f30e33b479530b05fd466",
+      "260812-confirm-package-contract-names-before-publication": "sha256:5954ca2b604e3c64b3586e075aa84c93eb92bef6ae7d19ff54a3b30f78fd71ab",
+      "260812-contain-project-code-behind-private-runtime-boundary": "sha256:c00e3550136b8849fd80f7ec5fd4df986d540572b0a2c90bcd37023ed02f3699",
       "260812-drive-product-execution-from-project-definition": "sha256:fa3d9dd8335118ea170980c346b6e1bec7e7a23a9acb842f3dfaf9c70b10b828",
       "260812-enable-tool-effects-by-default": "sha256:27f54c7758a70541ecb85c688a86e18ea3835d5bf8fdb98123d552423d6de042",
       "260812-expose-two-public-operations": "sha256:059ca7f83aeb8d12020300db2678fba42ec44aadfff8c088ce939f38a9956ab1",
-      "260812-keep-prestable-package-releases-on-0-0-x": "sha256:eccb04260115b3f978db6eae5d2d799bf4a5c9a95275a62de176126f2ff7cae8",
-      "260812-keep-seven-distinct-project-skills": "sha256:2d13f0ffd8d0efaecf35daca3a711e5cd35202c35c3d99c6f4f0f6a871a5d071",
+      "260812-keep-prestable-package-releases-on-0-0-x": "sha256:8b8c37ce1357a9623aeac856945663f9e4c102ef508f369d7d36d95f8cd551fe",
+      "260812-keep-seven-distinct-project-skills": "sha256:83e3718139414c33e86e569e043445e0735015d313dffdbefb6d69434e4c853a",
       "260812-make-bun-entries-use-pinned-tools": "sha256:6ff180bbfdbfd1a05446389e002b67268fe9777f1699d3334d6f67416639922e",
-      "260812-release-one-versioned-npm-product-unit": "sha256:3cd858f5f495dde6bc63d7021d25a0e3c8ebef73c35417fb68bd43997fc50414",
+      "260812-release-one-versioned-npm-product-unit": "sha256:2e6d1a5f34eb3780008a505b56392769c5524a6b7d1c01c18b4a31eed961dcde",
       "260812-support-bun-as-the-package-host": "sha256:18bfe5d7a2b68841208c742a4f3b5e9b61b871bd7c50b152ec6a46c6c5070367",
-      "260812-use-programmatic-api-as-product-entry": "sha256:afffe5151fddea194b30cfb784713b41e02253dad54253bdc98678d98a3909e7",
-      "260812-use-single-typescript-project-definition": "sha256:3b1062635c3668e70143ff8fa3354254ef104be854c59f9a31c075bf882c24cf",
+      "260812-use-programmatic-api-as-product-entry": "sha256:260ce6e42e7be5c183ba5ace4a17f5f938cb1515dfc7924810ff186614b15ea5",
+      "260812-use-single-typescript-project-definition": "sha256:6cfcb7d9856cf4331b07320f3d95f533dc1e0d0e44120c92317d89c0ec8e2fcd",
       "260813-settle-check-execution-before-availability": "sha256:81652398d4fd5225237feb6ef11ad966f57eff228332fc8e69ab093a26a7bc7d",
       "260814-bind-external-programs-outside-check-semantics": "sha256:671819161cae85cd8f487de5da9121ab1086e06540fcbe7e8919546c788ca109",
-      "260814-confirm-built-in-check-value-and-tree-type-names-before-publication": "sha256:a20a5486767b3c7bde684949b52ebe7c4d3ac730f6b59d673ad86204f01fab37",
-      "260814-confirm-config-run-and-package-names-before-publication": "sha256:0647007713f0c8b7796e896736b26e32959ff856fb75b1268907f44b28fe6a4e",
-      "260814-drive-run-from-project-definition-value": "sha256:1649cfc3b6d86b805e5338f2c0a90ff4339e58c4e9059264679d43703a9f7a60",
-      "260814-execute-project-functions-through-task-system-in-caller-runtime": "sha256:a2c56adc58ce9294105e943ac81b3207949b9f8160785af7add00966a2d79b58",
-      "260814-expose-built-in-check-values-alongside-config-and-run": "sha256:1dfadac7b02b147cd8a9e384fb7964a4634df516d1d6cf11d3cff25ce5fa4718",
-      "260814-expose-config-definition-and-project-run-operations": "sha256:b31e66a7b8d239a0898e76eda06d2ad9ce31795be73aa72fd442662ab30b16ad",
+      "260814-confirm-built-in-check-value-and-tree-type-names-before-publication": "sha256:bac6b9089b23cc5bdfc3db679943e3ba947030043b3cc241c016dca413676719",
+      "260814-confirm-config-run-and-package-names-before-publication": "sha256:2bfe67748639b9a38f99a957a3200b0f939f13fc07f8bd90639554ee152045b8",
+      "260814-drive-run-from-project-definition-value": "sha256:e99d151a8723212ed2b4da78e36f39c45852deb20aceb9ce63145b6943185595",
+      "260814-execute-project-functions-through-task-system-in-caller-runtime": "sha256:0f9f45ee67a6d183b41e2ee65f7d1a02c1f7da94858884a1ef0dd44a17ec0d03",
+      "260814-expose-built-in-check-values-alongside-config-and-run": "sha256:d0ce79b68a3630828438e1f62769572c58cdff93378747dc294de4b268178b5b",
+      "260814-expose-config-definition-and-project-run-operations": "sha256:1a475aa039ed2bd1fa22d6bfdb511667691618477fc98dced52d6c44555ede39",
       "260814-keep-built-in-options-owned-and-tool-neutral": "sha256:1019d9766225c2c18594e0cf491819b0f4cf8222964687234257bcfecd77e27a",
       "260814-license-package-under-mit": "sha256:6f1094977c7d15858a77434ac982b9910ca03099f9ae5e8143d1c9153a9e2938",
-      "260814-pass-project-definition-value-to-run": "sha256:66d35f2b0687491a61be11b931e6954876a710eb0e616fa1ff72892acc61fdd1",
+      "260814-pass-project-definition-value-to-run": "sha256:397926d29930f3085b189721433ec57ab2b868da54d84e6d4d9dfa6e21b7803a",
       "260814-publish-unscoped-vibe-check-publicly": "sha256:15e60303cffcf7dc41e797f78d8d5c8e0168b72e2c5b05dd68189ec958925226",
-      "260814-record-paused-change-state-in-artifacts": "sha256:e9b5bde19348cbf313b006b5a91615d5efdfc56b36c28133d8349c3bd788c777",
+      "260814-record-paused-change-state-in-artifacts": "sha256:1681cc87212bc623eacc4fe1ee7761202b1080de9e5309235ea33020b327d3a0",
       "260814-use-check-scoped-invocation-wide-parallel-limits": "sha256:59a18555723297089bfdab63d2ec20ba0be17b948e1b0adb3d699a9ac88ab78c",
       "260814-use-composable-check-tree-in-project-definition": "sha256:9ce9f24f046c0d1cbf55d62581fef55c235cd345992a87f550641b873c4da314",
-      "260814-use-field-aware-built-in-check-adjustments": "sha256:390f9a031564db0f0d262e49466258126d99442f0f3324c989aaa83884b28add",
-      "260814-use-user-owned-definition-for-observation-and-gates": "sha256:c5174b4207007384bdecaec49debe2e505d4d3cf70801d92257d4c509fc0c307",
-      "260815-cancel-task-admission-and-drain-started-work": "sha256:84932d0f1b623b6fc4c9d006efae1ad96e1562041594773b5afdb17311423d94",
-      "260815-carry-check-parallel-limit-in-task-scope": "sha256:3901a584857b5f4e4a7591e9b8576d1f5c06f5eb78044a4d04ffda19bce01183",
-      "260815-carry-recursive-check-parallel-limits-through-task-scopes": "sha256:fa81ce7471d3bdd33ecd792b34808b0e6bd88b724727901c9104e7e8d2e5cb7d",
-      "260815-confirm-built-in-check-and-adjustment-names-before-publication": "sha256:ab0e418a2b3f3b321605f2c3a9e35da7ea719df871178d1ae629662c601a0135",
-      "260815-confirm-single-check-authoring-and-derivation-names-before-publication": "sha256:0caecf7c1b22ed0fae4addee2cc5326619086b1520a4ee917f936facd4b90e73",
+      "260814-use-field-aware-built-in-check-adjustments": "sha256:09811a684850884f6aa6f4ab87ea3f3347826950c6db33adc1ca18bbe4155bce",
+      "260814-use-user-owned-definition-for-observation-and-gates": "sha256:8065ae23d637730627ebcac932631163bc85cd03fca83024a55fb84c99a131bd",
+      "260815-cancel-task-admission-and-drain-started-work": "sha256:5bd26f373ecad9833191ffbc740a6382118d5654fe6f57de4aaa4fbe74990e93",
+      "260815-carry-check-parallel-limit-in-task-scope": "sha256:852b6f9e3046d0fa159e6fe45ac0c35fdd0fb815cd47a9c030ebcb9545b6de58",
+      "260815-carry-recursive-check-parallel-limits-through-task-scopes": "sha256:e3bfe90cf9e7508e74c38fbba9236779a2b8efd0457da01812f59850a5ef981f",
+      "260815-confirm-built-in-check-and-adjustment-names-before-publication": "sha256:955545c57b2ab55f7485735a9e537b7eca7e792638cd9eed3d8d944be497bb8d",
+      "260815-confirm-single-check-authoring-and-derivation-names-before-publication": "sha256:00204aeb544f12654925c93675a58584dd07ea2e9313fb99babd50f1c98c6e75",
       "260815-cooperatively-cancel-task-graphs": "sha256:7b90f39e9aa68aff6a564a0159babf50acc9dc93bf8d451490c27fdbda753d19",
-      "260815-evaluate-decision-policies-from-core-facts": "sha256:47c6ac8a9999f11c62b2afa3412e2b8c7b7f4f094f281a7132b95a842c473f6a",
-      "260815-execute-check-scopes-through-one-task-graph": "sha256:7ccf037cc3a6a0c3c5500dbb7f2420851aa26c5fca1937f2b6345f59899c332c",
-      "260815-execute-recursive-checks-through-one-task-graph": "sha256:8e081fb8135027448c91965a65d24e42decb81a7ce1d57dc88e91bb668a31283",
-      "260815-expose-built-in-check-values-and-adjustment-functions": "sha256:863197ce50bbc43e926f37b7457986c423d2e201fcd8b71d2b7e6d318958c0b1",
-      "260815-expose-single-check-authoring-surface": "sha256:3c3dabc50a1d8591bf61cda9d84508fcdecce17e8829a9591c2ddd8076e224f9",
+      "260815-evaluate-decision-policies-from-core-facts": "sha256:9e36c507601481e4040af51798103d2f13e21f359219ab82c35cd55f95a43bb0",
+      "260815-execute-check-scopes-through-one-task-graph": "sha256:05984904792983119ca3fb26075b020915509d985bd35af10baa42dc10aa53fc",
+      "260815-execute-recursive-checks-through-one-task-graph": "sha256:4d4ec96dd63bf19d1aa2575b63d4904750e6aa97d3b054949594b86d69821f31",
+      "260815-expose-built-in-check-values-and-adjustment-functions": "sha256:0b484775fffe7cfee140b50e10725e1aa6320f9b7b9c8c9e7cd0a7b5a04ee815",
+      "260815-expose-single-check-authoring-surface": "sha256:a736d42bcf56e6789d90703980801202a9204d78140eddc4f8df4d839a26d6f8",
       "260815-hard-cut-prestable-machine-contracts": "sha256:6f3a035569aaae4d0bea781b358f5aba26a8b40873dc35cfd2ef30a84ad6cc31",
-      "260815-keep-check-groups-authoring-only": "sha256:36ac0f55403f023361faeddcd6353a505ae95af4f3a06910a9349a32f859dc72",
+      "260815-keep-check-groups-authoring-only": "sha256:fcc104ba88a1de39ba8ec5fc0c5bcc6099af4efe8b73744368dcd5219a623c34",
       "260815-publish-check-record-machine-v3": "sha256:506940e6ee3e08ae2d07f2b6a6b9fe9be0166663e2c57a20b45e3fd89efbe063",
-      "260815-publish-fingerprint-bound-check-record-machine-v3": "sha256:8b39b7520bf767fc50a0ec765ac09429725b7317667d0ab6793afb0a118e47c5",
-      "260815-use-check-value-derivation-contract": "sha256:d26bca87f3489b028a3cf9c5c59da716c7c607aa4d57f552f18b2c2b3dfaa238",
+      "260815-publish-fingerprint-bound-check-record-machine-v3": "sha256:f5aeb3a43f12f527993daedfa5d6d8c118bc469b19ee8dbd3fd34aab2951a99d",
+      "260815-use-check-value-derivation-contract": "sha256:b1a947f8b6acb1f14bfaa3f30a23f4bcaa707c4258870441e5cbb2db0ee737db",
       "260815-use-closed-inheritable-check-collection-expressions": "sha256:4b423701ef1aea2580da16962327aaaa45d415dab220278e88e3ff8d7e0479d2",
-      "260815-use-composable-check-tree-with-run-owned-bindings": "sha256:442b6dff9d1beb09ab610cb41dd54811dc6b69cb9c51c837e382f4a727f1cf3a",
-      "260815-use-core-check-and-quality-record-facts": "sha256:2dc955991bec6b4dbc7bd5021d2b6ff8eb2f2bd716389f70a8be6c17003e7203",
-      "260815-use-core-check-and-record-facts-from-run-resolution": "sha256:50668d7842620a61a77542a0ef02b3eac8dd10ad9c6663cdcde3d3d94885bb78",
-      "260815-use-one-check-shape-with-recursive-composition": "sha256:c794d888b0b4996ef91a2616ffbc8de6b127eccb46d0a09bb7e26a0b9c9ab7ce",
-      "260815-use-standalone-built-in-check-adjustment-functions": "sha256:f8a3c1214867ab49642cb8ed78a853f75df7ecca08d32715150452bb00af58ce",
+      "260815-use-composable-check-tree-with-run-owned-bindings": "sha256:bb7574090cb7d55da23f058fd81ebc54b5f0a536ea3ed9a6acae9bbd4ba596e9",
+      "260815-use-core-check-and-quality-record-facts": "sha256:38be9ac6041a1f71786fe54af072270ec9f43b8d4586c8466a19c3464c7dc0cd",
+      "260815-use-core-check-and-record-facts-from-run-resolution": "sha256:d69486291988b00ab0add4f0705ba39a7c0ee210707b43b2db7ae8a90df33669",
+      "260815-use-one-check-shape-with-recursive-composition": "sha256:f68388f5fbbb88e5f16cba1b04ed555b10607f41ecbd7f9aaa317b5b7cc2085d",
+      "260815-use-standalone-built-in-check-adjustment-functions": "sha256:b15e211a92d61b4d02e901d0ab7817eed57f565042a4b93bfa1c7deee2670f28",
       "260817-allow-empty-information-checks-with-warning": "sha256:55b1e5f6a42558850dc65c74543f40b5ba415b713212ec0abfeb4dcc7900d27b",
-      "260817-apply-check-parallel-limit-while-task-runs": "sha256:a2ce63099eb7a7c178f3d19cbcebf5d5da1ebe5477879d71b42098572bde1b60",
-      "260817-drive-run-from-check-owned-execution-options": "sha256:83cd6da84d69a0707e7aa67208b26248cfcfbdc7558f6034ca18486e23891da3",
-      "260817-execute-check-functions-in-caller-runtime": "sha256:07d12179ba98783fde8b88f386606f764e722f69a5893eca1bcb86296ab6395f",
-      "260817-expose-ordinary-check-values-with-define-check": "sha256:8082963cf36cd25578ca6bec55f7b8d4ba5580a49e15edcc3518eda5bbe641b7",
-      "260817-expose-recursive-check-authoring-and-run-surface": "sha256:a66df6ee6a7adab63fcee5e087026bdceaa0abf75fa51ee2310516970cbb0f2f",
-      "260817-let-check-options-own-execution-dependencies": "sha256:d34255137affc3ad6e36ca1368b4c03f7a861a2a591d305328e3200885fc31cf",
-      "260817-pass-project-definition-check-functions-to-run": "sha256:003ffdf6dd764bf505ad6257081c4bfc205c7bd7ac83c722101a83e9e9416ead",
-      "260817-project-executable-checks-into-validated-task-graph": "sha256:52f404f6ed45133da71d47872225235939cb059b4a3d4b0bf0369149b29f9ca2",
+      "260817-apply-check-parallel-limit-while-task-runs": "sha256:83767bee50ebb8d18feee2e77881dce07ec6ea9e266aa5119fe1a6573e989ae1",
+      "260817-drive-run-from-check-owned-execution-options": "sha256:8d030da95b62c4bb951dd6480b47bbca1b0e1d2ffb7886914feb645ca0fa0e70",
+      "260817-execute-check-functions-in-caller-runtime": "sha256:c2b157a41854c1e4645493662fba51a13aaa3cb3c2f9bb8a511a191319d2c3b9",
+      "260817-expose-ordinary-check-values-with-define-check": "sha256:ff003b4980406c589d1d857ee7edb393cd45240a381412b20a035a09d6b7d643",
+      "260817-expose-recursive-check-authoring-and-run-surface": "sha256:20f877e2ef7edc02f8c17ed6236ac51fab49a1986c53c2ca69996d81c02a3dc2",
+      "260817-let-check-options-own-execution-dependencies": "sha256:df4ee375b02d817b78d3905bb27caa1835afd08770749e82795cffdc6eb150f4",
+      "260817-pass-project-definition-check-functions-to-run": "sha256:6f4241a439f9cbbc9e3acffb2fc2e25118633bdf1f15c726cdda7e3b9a78f3de",
+      "260817-project-executable-checks-into-validated-task-graph": "sha256:fe8412c16b2ce7459a80e04bee89acfee73e63ff60ee3c00f78da088f9cd7fbb",
       "260817-use-direct-check-execution-with-structured-results": "sha256:7e3150a01d64af5b9b5f373204b3aef62be3c7148977eee2a3663abfef7bc3c8",
-      "260817-use-inherit-for-check-collection-edits": "sha256:5d7530f3e767ac54a48d3fcf6c8aa67de4b90bf189382db9e8d475aa0af5653d",
-      "260817-use-native-object-composition-for-check-customization": "sha256:0a0d1cf10367dc80ec49586b4efd4c6bf7a6caffb2570d00eb231b1e4d204c6a",
-      "260817-use-recursive-check-values-with-optional-execution": "sha256:f09958dbedb95384d1dc7ac27522901690df965dae53de537eefc7e8e6945097",
+      "260817-use-inherit-for-check-collection-edits": "sha256:44a9fe9fda2faf270ec80621883e22a67eabaa35b786a1a93eed43b427ab066a",
+      "260817-use-native-object-composition-for-check-customization": "sha256:1b4e055317c0ea31b7202c6f616dfe8710bcfe8546540a7b6342be59dfa90c20",
+      "260817-use-recursive-check-values-with-optional-execution": "sha256:d3656d14746b003c6c2af02e9a33cadf4ac46ca921ac8125ef60a84aedac514e",
       "260818-use-tags-for-decision-classification": "sha256:6ec3bc9a517805aa8ea5addb3b3341dacfa936d6d6d4e41e58798f9744e82ca5",
       "260818-vendor-foundation-as-repository-owned-script-tool": "sha256:349f8dd3fbf3149407f951230a2105f6b0b1407c7c2f475b6b55e2a31e3fb4e4",
-      "260819-complete-project-gate-before-public-package-release": "sha256:7d61248ba73f97fbaa40bc97a0ce97dc180f1e2c1a30e5943c535eaf856e164a",
+      "260819-complete-project-gate-before-public-package-release": "sha256:66a889aa44c72d2aa645814c2c3ded3fdac3c165c5f9c0d51d304d1995d0ddad",
       "260820-provide-product-owned-check-progress": "sha256:645cef211364b5d97754194efa969370f33a76df6a85d1e8d9713d3f03c043ab",
       "260820-use-string-flags-for-project-run-controls": "sha256:1bbf51f7c8767eeb73e930b239aa1a8d32f7a10a535f81ecde040fad4b7f2457",
-      "260821-bind-project-gates-to-run-aggregation": "sha256:2bd867b9a7c67f14eff3ce90f6c6f4155670a4c36297086003c20ff9b1633f8b",
-      "260821-expose-minimal-check-and-run-public-surface": "sha256:48334fde37db2ab4f94a7aa58e18dc4fe48b5f8e4f9447e6b9771d9d0c1960cb",
-      "260821-keep-comparison-semantics-inside-producing-checks": "sha256:c8214fe40d6fcab9a73791ce64af9c7c5fda832b9b457597aa7196c37c8a4909",
-      "260821-keep-empty-information-check-warnings-as-run-facts": "sha256:ad005ca3d522a44a11cdbf61e6bbd48103f7a8f4d96db59fd7f252b9edbfd9ff",
-      "260821-keep-record-field-shapes-at-the-type-boundary": "sha256:cf7d07a083b0ac2ec90824a63c0de9ac67357940c6438a3559b2d356cba0ff2b",
-      "260821-let-dependent-checks-read-settled-upstream-outputs": "sha256:d321826aaed8f1f92cf5d8eb700c01e53d1506829a550de6083488f1112d82cb",
-      "260821-publish-fingerprint-bound-check-record-machine-v4": "sha256:d9462dc968d3b0f6197c86d7fb7a912efe44832cf36ca1648dc84ed75025002b",
-      "260821-report-check-owned-record-data-with-local-identities": "sha256:0fedaf5094b924da063a5f92ebb72ed9ca64ebf6f2f88216dfc45098fd058a00",
-      "260821-use-check-owned-extractors-for-opaque-record-identities": "sha256:f2cede1d4aa77aeb6d3fe02869e3511ef18e9e3381637c608fa7179c97f8bf59",
-      "260821-use-core-check-record-facts-with-final-data": "sha256:3946611546353a6db973cf221f2a0ab9c22d9f9fd572c26bb76ea26c15a16129",
-      "260821-use-direct-check-execution-with-minimal-record-reporting": "sha256:7454bdad74293e2e9cd031268e1047e8d4b6ced0d8208fa78f359281a12f8bec",
-      "260821-use-explicit-run-controls-check-aggregation": "sha256:497429d208cb7c0ec3ad1c11829ff5cf88a0c6375e8bd7edb90fa1d3c38daab6",
-      "260821-use-four-state-check-results-with-final-data": "sha256:63a7c8503c7d52a37747e9b3fcce5ce5a2cfb04a9c8b39d7e953b2b163b81269",
+      "260821-bind-project-gates-to-run-aggregation": "sha256:30f021254690114d0ae1a8ce37cf803576b6f9297db83a90b150ec76a01743a4",
+      "260821-expose-minimal-check-and-run-public-surface": "sha256:5a16a869a82b47c57cea468a1c72a57d13f87e05951192e3c658e3250f4b384b",
+      "260821-keep-comparison-semantics-inside-producing-checks": "sha256:a2deedcb0376c9ca83957e2c35e50b12429eca5c797e57a55c747b0d348f6aca",
+      "260821-keep-empty-information-check-warnings-as-run-facts": "sha256:5ebdfaa3a19ea8b7086f1317942f1fff91ead4aac60cadcaee654973de8f2dc6",
+      "260821-keep-record-field-shapes-at-the-type-boundary": "sha256:d7c9065efae3387f8e756c77db2c5bfa25afb6c4121bfc6af7884d969bb7ee65",
+      "260821-let-dependent-checks-read-settled-upstream-outputs": "sha256:506af3dd886ddd258da385c9e7a3eb1da38e115970d84756fdd2f5805c2250c7",
+      "260821-publish-fingerprint-bound-check-record-machine-v4": "sha256:4bc3df18e460fee4c4271a3a1bbf495e1f441a885165a9d38c682dbbcd36b797",
+      "260821-report-check-owned-record-data-with-local-identities": "sha256:b67b29e4c70ecd68ad7d925fa789290fd3bbcfc0c9bf16729584ba3122f12362",
+      "260821-use-check-owned-extractors-for-opaque-record-identities": "sha256:289f2448f5552f13d169b80f6ba4f81d58e89e7c477885b7909fd8f05059bff8",
+      "260821-use-core-check-record-facts-with-final-data": "sha256:721b4fd4c926dc8147cb83b1beda31416c2c9db8e59a2040a969729bc4fe2415",
+      "260821-use-direct-check-execution-with-minimal-record-reporting": "sha256:32c3ddccca22607874db018c33745f4f21738f6608f2f764a7d358ba3379393c",
+      "260821-use-explicit-run-controls-check-aggregation": "sha256:3b7c64301760554e5c4a087ac0e5debc08e8ad3c9b19d95fe7100c1fc5974b46",
+      "260821-use-four-state-check-results-with-final-data": "sha256:48a5ad1136f17f7c3147b0416b7b7f2bebe473e013f567e9b6a74973fe763eaf",
       "260822-allow-check-terminal-messages-and-explicit-visibility": "sha256:b55c84eedaadb4fd934d14e5d1fe7326c166cef434bfb1e52d2a437878e77cad",
-      "260822-distinguish-primary-and-derived-change-problem-sets": "sha256:41b78667a6430125418320affde718e813d91ddf86a81077bf9ff4dc37575eab",
+      "260822-distinguish-primary-and-derived-change-problem-sets": "sha256:521003079196a1fa338954d14b5d7a3a16ba39223e4bc7742001307cdc1ecb81",
       "260822-distinguish-primary-and-derived-change-problems": "sha256:11fafd372af3daf74d0990d817d588468c24819ef73b870aae625d9ae689e667",
-      "260822-require-check-owned-network-authorization": "sha256:161a3988b6023291a406bf073ec80da4ce11d4f6ab0edcbf82fe09429a463b90",
-      "260822-use-check-owned-file-overrides": "sha256:eb4cd24527ff7193055187e866610b07b44bfca7d9660b0f9c37cdfc181e868e",
+      "260822-require-check-owned-network-authorization": "sha256:05fe68edf01d637c6519302fa18cdcbb542b1ce04c3990f7a07ee0ffe2d5ce6a",
+      "260822-use-check-owned-file-overrides": "sha256:2364b07803b7ca84519f82ee9eb875137f35912a295d4948fb913a25fa5d5033",
       "260823-default-project-gate-to-required-profile": "sha256:c10b062ae433587098628c0cf26f25df0ffae7d704cdcec09e8247ce6c093c5b",
-      "260823-integrate-foundation-into-workspace-assurance": "sha256:eebfb272a5222f317aa001d07c30f06341cdf81d8194486c229b97b2452ee622",
-      "260823-read-direct-dependency-final-data-by-string": "sha256:e4a60d26b51765d63f0dfa61ca2d456fa149f8951cc0d738dc6049b80c7fa770",
+      "260823-integrate-foundation-into-workspace-assurance": "sha256:602a6fbbaa3a91eedaea62038a4f3cd2fd2a9ffe28d419db63321b746afcf688",
+      "260823-read-direct-dependency-final-data-by-string": "sha256:57768fbd7f7183b9f9c01c512896074342c946c5cb3fd514375552e77150f6f0",
       "260824-align-source-layout-and-naming-with-module-owners": "sha256:3bb280c5a7e619984022d2d7d0018a4f6a9ff90f3d54bedf51a644447ccc7590",
       "260824-complete-first-release-check-set-before-publication": "sha256:3378c4ad1798a62de2a634f0bc7151ae93e38e2948149ed93fc8b2c207b2e02e",
-      "260824-complete-first-release-check-set-with-specialized-maintenance-reminder": "sha256:704880d3d377fee1086a3912b99f4386f5d622ca795ff5dd7be68e8e394a57bd",
-      "260824-complete-first-release-check-set-without-markdown-structure": "sha256:0ab4b840cc038df0c099e509c67e0bdd242afca8fe3be8ac51127fd12f3523f4",
+      "260824-complete-first-release-check-set-with-specialized-maintenance-reminder": "sha256:c530b42c2351fb0248c5e230d2cb5e815b0d0904150ac566486ec85a15cbd5c3",
+      "260824-complete-first-release-check-set-without-markdown-structure": "sha256:f5970f2eeec299fee60acabcb377b7b5dbc8ebd88b1893ececf0b6d334d1db43",
       "260824-publish-readable-esm-package-layout": "sha256:7825d9a4ca50df3acde7504aa83ef1185c64dd685a5358f46a9a3a0118c3fc6c",
-      "260824-use-chinese-as-primary-language-for-public-documentation": "sha256:0862529cb5f254dac38db21bb565e58508675a8a3524582fe312bb951200e424",
+      "260824-use-chinese-as-primary-language-for-public-documentation": "sha256:e6f9fdc953b0f46daf8b2614fb76b12c0957a8e2fa23a1bd12ca2451d1f292af",
       "260824-use-momoa-for-strict-json-document-boundary": "sha256:9c75ef84dd447734a6b1ac515c74afe667a2e51825afa890713ae5e3abc203ed",
-      "260825-adopt-low-level-markdown-link-parser-architecture": "sha256:716fa4329e5e4f926760b984064fe983e04783bdead011fb69fe117ea16d7cac",
-      "260825-allow-controlled-json-schema-reference-sources": "sha256:4ac0ba9d34733692550a511cb34d9a2c57dd6f13ac19760b4f583239cb90c214",
-      "260825-define-offline-markdown-link-target-boundaries": "sha256:e560597cb2d83fdaa38dcbbe72bb328bab0b58307cc731bd50c216e1fc69b71d",
-      "260825-exclude-undefined-markdown-references-from-link-check": "sha256:1425b4b693cc5d1065080a9ec1c73225f8885fbe166929bb535116da3422e90b",
-      "260826-let-each-check-own-file-selection": "sha256:cb22b0641e0d7c92e295267e35065b9aaed80687c8a8641698af26d38ed20df4",
-      "260826-make-package-lifecycle-gate-tests-explicit": "sha256:53c088f41e8519219316b283597cab6749ef51f6b0cefc9caf6ff794e51184bc",
-      "260826-prepare-check-options-before-execution": "sha256:9c1eebfeb1860612d38410fa4f41578111dd57ac22f859edcef06242412fda1e",
+      "260825-adopt-low-level-markdown-link-parser-architecture": "sha256:0ffdd36176464ee9265c259b47805fb5969ef267b9ebbc50f58f65eb66c6ae51",
+      "260825-allow-controlled-json-schema-reference-sources": "sha256:405472beec2d42911ae96cbc3fdf030028cd163e6f8ed3364ae2b9213f3e2faa",
+      "260825-define-offline-markdown-link-target-boundaries": "sha256:403e0b26f7668681666704098f79c7737a44de2bc31d5d5daf1045d737da6095",
+      "260825-exclude-undefined-markdown-references-from-link-check": "sha256:05f5b4838c80e32abea18427fc6a40e8a4de0e1fd7107a81e0f22f8cfa522efb",
+      "260826-let-each-check-own-file-selection": "sha256:0ca9c8fcb9536d9c8b84069eb20da14a8508c425110d224a91ae7afd1d4b7585",
+      "260826-make-package-lifecycle-gate-tests-explicit": "sha256:baa6928bcd7fa8898e1bb7ada89085fa8c20dfad4eea5df900b0774be94dd707",
+      "260826-prepare-check-options-before-execution": "sha256:ce437cbddecbc80bd1609b450cf5a9001df8208b6eb70b9867903a893828ac84",
       "260826-provide-prepared-package-candidate-as-typed-check-data": "sha256:48317d3dd5571b643025421f1d315fba34f643cfc708646967b82d5ebdf5120a",
-      "260826-refine-product-module-boundaries": "sha256:675493ef1fc7c342584448c126b6c3e8a0908d182804bfbdc7307da2716e0af8",
-      "260826-refine-project-run-and-settlement-owners": "sha256:b6dcf09033aac69e4ae495a12ce87eae03a6d89bb39742b122befe0646d29695",
-      "260826-remove-unconsumed-option-capability": "sha256:f1021f2a20d04636d940b8a4c259b44ed899ec96e091672979e7f1e4809a92e3",
-      "260826-replace-global-tool-effects-with-run-outputs": "sha256:48eb123e262332c74fce2083af9a87cbdd072fdf86ad2ddb249a927aecf741b4",
-      "260826-separate-test-evidence-closure-from-execution": "sha256:8dcf8927c61dcf6385ede1ff4bebc1b7abecc3386f0dd3ea27b91d2251822121",
-      "260826-treat-package-provided-checks-as-ordinary": "sha256:0c2e3eabd0e264668870e0f6d8b67fa590f78a992b2c7e7d1756bee7d4aab398",
-      "260826-validate-ordinary-check-options-before-execution": "sha256:a896cd1d898e2f75052147e125582ad255a1193b63e7f54fcc981a5e2de3548a",
+      "260826-refine-product-module-boundaries": "sha256:75db0b4d405193aa531e182caf72c7b51ed3dfd4a0980dfedc32a754731c0374",
+      "260826-refine-project-run-and-settlement-owners": "sha256:cc20a4ac69984b488dde725fc12a4fa56f5211dabf07e12ce2aac99134bfac24",
+      "260826-remove-unconsumed-option-capability": "sha256:193fde83937fffddc3b4df9d2fdd59f04942c32445dda310eefc0e976750841f",
+      "260826-replace-global-tool-effects-with-run-outputs": "sha256:8bbf7e597a6ae4beb8721eb29f36f878b590e735448c8ce0266daa2efe8626bc",
+      "260826-separate-test-evidence-closure-from-execution": "sha256:dcdaf454dbd8479db7293ccbcdad806c46434c029327dbdee829b65213fe4627",
+      "260826-treat-package-provided-checks-as-ordinary": "sha256:c61a9f336c25e4875c7c21c792e340cc2baa796412da042b4fc560c373333963",
+      "260826-validate-ordinary-check-options-before-execution": "sha256:fbb68a43a70c9ea38542118c431ce86f2d6aad42a1ebe6b2daafb936c2ba96f3",
       "260827-make-package-build-evidence-discoverable": "sha256:4c58492edc4c73b084695c39f6e581b53a1360d194be0cdb3d121003a0ead716",
-      "260827-post-process-project-gate-with-owned-context": "sha256:83234078c9a7c40a6c26252f6e076333448d1cfa3c53a01be2102b5c77fd999a",
-      "260827-reuse-prepared-candidate-across-package-acceptance": "sha256:c6af4e3c5350446cbd9840b0f3866262b1f9028f107437bdff7f4066fc735057",
-      "260827-schedule-project-gate-by-measured-resource-ownership": "sha256:d09f5f3f5d7e6efb0c8c8fba55910552c8243e6dd5ddd7d1f347b06df11de41e",
-      "260827-split-external-consumer-acceptance-with-typed-provider-data": "sha256:1c760cf1ae4b6485b411032839a13c320289468ee0830763711a8a0fb694b9d4",
-      "260827-structure-package-documentation-around-one-readme": "sha256:f635ca1a424719e8fbca8ffb69c1bd9d5a9d744ab69644a5386da6abe4eea2eb",
-      "260828-author-package-markdown-at-published-paths": "sha256:aaf614bdf4fedb1171c9fe720c3c62b6ffbf27c8343839b25be38929fedd3823",
-      "260828-construct-duplicate-detection-from-defaulted-policy": "sha256:50639897b89b2abe7f76e163255f7ca48e835a2578aefb09da27a3125d6c1262",
+      "260827-post-process-project-gate-with-owned-context": "sha256:91aa84254b4475e887336bafe5938e383abaf62b095329105598f36cb62d569e",
+      "260827-reuse-prepared-candidate-across-package-acceptance": "sha256:1dfc91646ec86190547d1fef2c194c1ec5fd376dad87ea22a5ae7d13163766e8",
+      "260827-schedule-project-gate-by-measured-resource-ownership": "sha256:36ad8bcd5162ee79e555827f3bf19ceee7967ca25df364457ec3f2923c4637f4",
+      "260827-split-external-consumer-acceptance-with-typed-provider-data": "sha256:5b5d432f1f8f09488a38860d1f14c26ebcc69f1350a5405a976e3fc7dcbc6c53",
+      "260827-structure-package-documentation-around-one-readme": "sha256:d6ceb6a49dd079462f03160ce64f37800aea916f591b67dbcf1f28ce349e42e2",
+      "260828-author-package-markdown-at-published-paths": "sha256:c6876f67a18ddf67a7076a4adce74f9e7052a1c75a5b13e5df8804750e73e7f2",
+      "260828-construct-duplicate-detection-from-defaulted-policy": "sha256:784d7f1bd9c1d00f317e461af00990e7c4ed831bc3198a31509643178c639bd6",
       "260828-construct-function-metrics-from-defaulted-area-policy": "sha256:d4f5e2ce2ec98ce7f275621421ad1872ab663d1bbfc56e7ac2ce4648d42188dd",
-      "260828-drive-run-from-check-owned-inputs-and-explicit-providers": "sha256:48a6d724c4432eab6b0fe7476faf71f8263e747dd84ae4f9f7d011ca6d75e4ce",
-      "260828-let-duplicate-detection-adapter-own-cli-protocol": "sha256:21a3c2e9767886bb95b4a20f52ea49d4c1ab46d4dc1f766dc0e41965f489f471",
-      "260828-let-each-duplicate-code-area-own-files-and-thresholds": "sha256:9743252250416a6ab7df9a580ef1bb3ea1262967a36840ac9434c356e6659974",
+      "260828-drive-run-from-check-owned-inputs-and-explicit-providers": "sha256:8114dfde1fee2b7c1ad0d4f123a0fcca975ee34f38bd371de7c151a3f87a8244",
+      "260828-let-duplicate-detection-adapter-own-cli-protocol": "sha256:7a96f2d3c5b5c31d0dda3fa23aa673eab257b87fa9ff8f8c3da591e7ab4c4e02",
+      "260828-let-each-duplicate-code-area-own-files-and-thresholds": "sha256:3cac04777bd8da5e2218025ed584167543ebf22628bde331dcb955763340686b",
       "260828-let-file-metrics-adapter-own-cli-protocol": "sha256:6ee1286e9ef2cce31655c7d5c7206c7a30e36bc280237df46c57ffb51a838bd8",
       "260828-let-file-metrics-areas-own-files-and-thresholds": "sha256:cd6e478a937c3300a5fadab8f8f12908126ad0a30b820436bef97792b9687076",
       "260828-let-function-metrics-adapter-own-lizard-cli-protocol": "sha256:aa73f9c917acd3c318e691ea1c57e1b31eac23a992a16e9fd398fb38ab17e430",
-      "260828-locate-package-examples-by-natural-markdown-headings": "sha256:a29a5b9e2c336b863883fb26aaf63d827dcd12b2b6b75ab02029985a8ee6561b",
-      "260828-provide-package-check-functions-parsers-and-actionable-messages": "sha256:0f56b2e938fe6e8d228d1e4f3c9bbcba83442a9b301b9db6b0ba7c7db88b0b4e",
+      "260828-locate-package-examples-by-natural-markdown-headings": "sha256:7e2771d1f817560a3dbf19a0e3bd977cda22e9bbd6cc0309ae6cbf19e112d89f",
+      "260828-provide-package-check-functions-parsers-and-actionable-messages": "sha256:1f480db9bfc874064554a4dd45f229d371c6690a8bcd704ab829943018af5252",
       "260828-scan-duplicate-code-once-across-code-areas": "sha256:749d268e09ec166fa2bbd995299d2a2686173b772cd716a786f90fdaabf92f60",
-      "260828-select-check-files-from-explicit-sources": "sha256:b5a4499b35f6b69f188909c046eeae3e7f115b1ef6a9b9a4599a23b6d56f1d49",
+      "260828-select-check-files-from-explicit-sources": "sha256:e447b059a01beb3e45fcfb93a0e12bba745a743650ba26a07a64fbee18bdfe79",
       "260828-share-finding-policy-across-area-quality-checks": "sha256:534c7f2417e444b28be42bd50a33a1f07316e4aced2d255a737ed25b1b036429",
-      "260828-ship-current-machine-contract-materials-in-the-package": "sha256:fec4253c0710d71d0646a36eb1322f6cfd0531df20d3df333c7403fcf739a2f3",
-      "260828-treat-jscpd-version-as-adapter-provenance": "sha256:61de10746ef5d3aa44c1fa99b960ebf3c62fdfb91a386bf35eaacb09bdee069e",
-      "260829-add-ephemeral-project-run-diagnostic-logging": "sha256:68144f96dcb7f024a424e64c7b7f9bd81ab050264587f848244523e0418d4643",
-      "260829-consolidate-project-gate-run-evidence": "sha256:913408d85572f55f8070d82ee38bd78ee0ef8ff1ea2fd71bf78af533431810f3",
-      "260829-keep-package-machine-docs-consumer-focused": "sha256:46141d5b6a439a84227d5e3b0305f6524dfdaf0ff512adebdbdb0eed062a95df",
+      "260828-ship-current-machine-contract-materials-in-the-package": "sha256:55186e810a8d38f24834e72a00aa3a28f7d9ded62d6ce05bd730db3cf316bbb4",
+      "260828-treat-jscpd-version-as-adapter-provenance": "sha256:ad6578740e9b85fc107bd3ee4e27bafb3af67a5c1144b7c7799109a4e6ffc0ff",
+      "260829-add-ephemeral-project-run-diagnostic-logging": "sha256:79cbfc656f6c94c7a2bad3bfa6626763628b00e4428f0ecbdabed559d9362b54",
+      "260829-consolidate-project-gate-run-evidence": "sha256:fd64159c441716d5a1b0eddbca2f13d7809d223e43d662225ccbb385b7080447",
+      "260829-keep-package-machine-docs-consumer-focused": "sha256:c8151869759a6e6801d30f24ef9899850dcd5783d0e03021d3d9543b6102182c",
       "260829-monitor-project-gate-performance-advisory": "sha256:37a2d2b049bd799dfa5d27f560668c83beafd2e9611faa5f42397c35db62f953",
-      "260829-observe-repository-quality-checks-inside-project-gate": "sha256:620860e933f693287d3ce0af1f39de4fdddc742d592e00a6fe1f7113e57e19c6",
+      "260829-observe-repository-quality-checks-inside-project-gate": "sha256:02f8a2a68ddb6e333bd36904015a64b0590d15703164366f14d1a050b547633c",
       "260829-publish-project-gate-machine-facts-with-invocation-evidence": "sha256:1cb42ed44b35e4b93b586d8eb74357be5ab533d579e69daa24bddb49fb0e7f48",
       "260829-run-repository-quality-checks-inside-project-gate": "sha256:85d3e5361996450191200d14e16bbb546c8bff595799ecb68420722f1afa704c",
-      "260829-ship-one-capability-rich-machine-example": "sha256:d9db97c039a2392e8df2c9ad31df51d0c3da31e1eb3e1b4e0b8a19f87dc47af2",
-      "260829-ship-one-definition-backed-machine-example": "sha256:22721270fad0f17dbba7fbbab0e4fbef9df3b30d7f2c0ed474ac0eaa50f7876a",
-      "260830-aggregate-all-eligible-project-gate-check-statuses": "sha256:6d8ad388140cf0b4bfe7baea79bc53492d8632fc871a771808c46bd8df4f8bb1",
+      "260829-ship-one-capability-rich-machine-example": "sha256:40f67ca5b052290c30fb2a1a94b668eb4b3ee0d949f2b0cfd4addb5096686315",
+      "260829-ship-one-definition-backed-machine-example": "sha256:eca2ebf25c2c047d6e9a1f230c7adaacdf425d200b4db8ed394c38f06978a628",
+      "260830-aggregate-all-eligible-project-gate-check-statuses": "sha256:9940a511ed94dfeebc3832d18885e9d1c264941fe62293a0f25a3bbdffab3307",
       "260830-align-function-metrics-inputs-with-lizard-supported-languages": "sha256:7d515d4e0a72fcfbdba9a8c5d250e4385db6cd7632d188c21fbf91eb707189ec",
-      "260830-allow-explicitly-controlled-json-schema-reference-sources": "sha256:68a673a32e04973f3ea2e44128de19b8580604621e74ae335ab9b67e3a48fc43",
-      "260830-default-package-quality-findings-to-advisory": "sha256:b3503788067845b38def74c8fb538e334b209a56ea0377db9f1fc3d2dfcdb242",
+      "260830-allow-explicitly-controlled-json-schema-reference-sources": "sha256:1690c5193d22617e977ef6a83c1648234b19f5155577c86ff5408459e77141f1",
+      "260830-default-package-quality-findings-to-advisory": "sha256:7aafb4fa34e7b7019330c5ff1a265852e5cea358158e2d478d6bd460e1c698e1",
       "260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics": "sha256:4d4c9afb52b80deaee0da15918c0dd9d3ecfcec8caf7c90e8a37c04854d1cc6f",
       "260830-expose-markdown-link-finding-policy": "sha256:ce1469f42453560f29d9edf2a2dfe1bc9419741bd3fd68e96da6b094805846f3",
-      "260830-keep-duplicate-detection-cache-check-owned": "sha256:485e3a92746777559d49a313e9282534372ca2443fab3ff2deb399f2594e3e39",
-      "260830-keep-first-release-check-set-to-four-without-markdown-structure": "sha256:a6ebe981cb4e833cbef082db860407834ab549bd564a39041e886bc1303f5d41",
-      "260830-keep-format-aware-check-capabilities-independent": "sha256:2a45dc601395de9a13251a4132d560aa3cf494fe97742904fa5ffc7659fb4371",
-      "260830-keep-public-inventory-and-package-materials-tooling-owned": "sha256:80f3cb80bb1984f7bed9b521c4c98bcfb5fe8dbf20986f2aaa936db50ceebce0",
+      "260830-keep-duplicate-detection-cache-check-owned": "sha256:0f518d5b818293f4dc91273bc62a8f48b98b6c3f09cc778ad43b1573e0b6c76b",
+      "260830-keep-first-release-check-set-to-four-without-markdown-structure": "sha256:7c1511228d25ea7a332d02de30ddefedcda5520d4318ae6249124ba04dafdd64",
+      "260830-keep-format-aware-check-capabilities-independent": "sha256:d7b5f9e6ca1b93eafebfcb9540117c62c3e32698a8cfc99bb604470a95c96e37",
+      "260830-keep-public-inventory-and-package-materials-tooling-owned": "sha256:8bed8d93bc598ab1161b1f887fcfb6fdcdb4514476e78eb866bb8f869efcb7a5",
       "260830-organize-project-run-and-gate-diagnostics-for-human-inspection": "sha256:98b925be8843405737cd13f4e5137a1e7229ac7bf7640ebe241f045d65a4cb9a",
-      "260830-preserve-release-gate-readiness-with-invocation-creation-time": "sha256:a91a60f4e4fd2f50abe0b1a9c9a43418cf142a83df53e10705b8ba1edb06b3a7",
-      "260830-provide-generic-finding-waiver-reconciliation": "sha256:7749c4c4dcf7d976fd7dd93c370fe956da7545dfb5f0972cc19efb1a62eba185",
-      "260830-publish-composable-default-project-file-selection": "sha256:2aa0a78ff8f61d922abed27e7de69e7d00b3fb1b0106abdcf023f184767226a0",
-      "260830-publish-invocation-creation-time-without-execution-telemetry": "sha256:f9be25eda4c3f41fff9fad16b147ff0d8efbe34c7fcd1f27cd236c724dbf3c0c",
-      "260830-publish-invocation-creation-timestamp-without-check-telemetry": "sha256:e781d4cda6d526178347f55e3a20847956e6045e96ef56e04395509036c121c1",
-      "260830-reconcile-finding-waivers-with-caller-defined-identities": "sha256:00105e213e309ed801daae1b20047d7be51692fc8f032bbdb2ec40f60a34f5ad",
-      "260830-reconcile-selected-files-with-check-eligibility": "sha256:2893739dbc19a3d5deea5a5aad92968369b05aafc3bc0cd29d978641dc6e5667",
-      "260830-refine-project-gate-context-timing-phases": "sha256:e25ea9e366d413779042ca0baf28f84a59910be6303a704b774676ffce823ed4",
-      "260830-report-per-check-duration-without-changing-check-facts": "sha256:fd0684892dc65ad816545e59121379d73a60053ac9ec711532960c809040fa20",
-      "260830-require-complete-project-gate-evidence-before-public-release": "sha256:c645cf2a6df308f7bcffbe41209d85b74c417f4e4ca1871e30ab2cf370e5afed",
+      "260830-preserve-release-gate-readiness-with-invocation-creation-time": "sha256:e8f59c845a28ff33c0c98dadf7ec69ea9fb3f863e114c23b4243af3a6bf775f0",
+      "260830-provide-generic-finding-waiver-reconciliation": "sha256:df5d69363dfedb05374028a35783362fea845be23b23a296f0b3e14f6ee9ba50",
+      "260830-publish-composable-default-project-file-selection": "sha256:c183e19a1885c06f57967e5e20d8a28246331b2b8f5f00da4f75b342fea6e6c7",
+      "260830-publish-invocation-creation-time-without-execution-telemetry": "sha256:22f3bd1d53226c3b60189d71402e3dc25774a16b8e2cb51cb6508a6f62ea1b9f",
+      "260830-publish-invocation-creation-timestamp-without-check-telemetry": "sha256:8c2997dcbd340c0f080f5ea8a9cb40e554e2e190f085f3a6e4f7ac3b640d3d45",
+      "260830-reconcile-finding-waivers-with-caller-defined-identities": "sha256:f9a58184b5bac1e7ce6e646479ca6c060e14fa4d308d69f9f39a5c82e38704a9",
+      "260830-reconcile-selected-files-with-check-eligibility": "sha256:c465b273581071144afc5a4a67b7df31e773db1d186fb0c81680ac7b3a88c927",
+      "260830-refine-project-gate-context-timing-phases": "sha256:99c0d11c0846c8d03da445f783ff1794bc27c09dede93ad5be5bc2093a14d9d9",
+      "260830-report-per-check-duration-without-changing-check-facts": "sha256:99479e999a7ac600adedacbd3507cc3e0c0e30a522fc964f3893bb62602e997a",
+      "260830-require-complete-project-gate-evidence-before-public-release": "sha256:e9ca819b9a3cd86dc572cb3d4b8d603e20425f708a719a65d68d3cd29ac574c5",
       "260830-require-known-repository-quality-remediation-before-public-release": "sha256:b7c2fa0f90170e32e7b95d385309066028cab68ae922b809765877073d78bb01",
-      "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials": "sha256:415ab43995b2fd89e82575d2820250111a004d0485c91b72e5bfc5cf09db2682",
-      "260830-separate-settlement-run-progress-and-machine-owners": "sha256:da9985a8502b87c52f72378d17285c2d69192f5ffccede5e7dc4b35ae8d60f8e",
-      "260830-serialize-project-gate-documentation-materials-by-ownership": "sha256:5fdbb4a567dd48a634938d3ce9588ab281da934bbcf75e8b7dce32beecafb1c4",
-      "260830-share-strict-json-document-boundary-between-json-checks": "sha256:da4035b126e0f5bd6a50100ae24549c389e7c69d4ec589299ad28ef829f1af50",
-      "260830-use-chinese-as-primary-language-for-package-consumer-documentation": "sha256:7e46b89373252373d3a8ae34f4de00f5af8de9878a571586f7ae9fdd3852f768",
-      "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence": "sha256:8bb0ac9b2e935e19dbd7808a70c340f5ab9eb699c333433387d6ea93d57dd764",
-      "260831-centralize-project-gate-after-hook-configuration": "sha256:84d73fd90d0ea784815f38cc883c865c75c99156771c41e923faf7d68297e38f",
+      "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials": "sha256:4edd6237744327f5c1d6310574c0e0c5a0e1cbf692a3a3e6ebb0faa5575c3f9d",
+      "260830-separate-settlement-run-progress-and-machine-owners": "sha256:558af661b9e3d61b7de7382543db0110de84e765272f358fc08653321f8287e3",
+      "260830-serialize-project-gate-documentation-materials-by-ownership": "sha256:8d1e97da16bd46fc263444495aae301855aa27c29509dcc978b6e34cda66dd62",
+      "260830-share-strict-json-document-boundary-between-json-checks": "sha256:4e438b9dffe88d1e5a53ab7d61e96aff5f969cf9e47afce9643cd31903f41102",
+      "260830-use-chinese-as-primary-language-for-package-consumer-documentation": "sha256:075abe08636cd67fd158fd6a9b1dca5151f4e3a856b2403a5601a50bccb5f718",
+      "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence": "sha256:c9d11cc9d75cc3b108e5078f27e9fc8f7cce2d56ad5812eb42ce05b860069169",
+      "260831-centralize-project-gate-after-hook-configuration": "sha256:60b4c19fa5504d7e059466035dc36187e140b13878ea7be63ed8e5a1142764d4",
       "260831-centralize-project-gate-definition-and-separate-adapters": "sha256:cd442fac1bb82d82c5eb8ed6e93982be7ead2742216e01851ed48d43556a4785",
-      "260831-enumerate-normalized-direct-dependency-outcomes": "sha256:c4a35a5902a152313b805b2c1186279c2fe7c11e9b7c2b0dc24f82ac74b0e576",
-      "260831-install-check-console-router-before-preflight": "sha256:b6caa9f6597055469bc47f4346c87daa894a5e0d540e1188f0562140caafd0d2",
+      "260831-enumerate-normalized-direct-dependency-outcomes": "sha256:88ea41a97172c05111b5837c220f699445eeae704e43e57f7cad12aa5ec0ca72",
+      "260831-install-check-console-router-before-preflight": "sha256:19bea852e069d9553de008ff2a377c4632260e3900a447516233fa9f67b182e5",
       "260831-present-bounded-safe-finding-summaries": "sha256:1c89be9e26c6e29fcb95deb990acb9bc312278f3d6d800f0a96466754f0d685c",
-      "260831-provide-generic-bounded-finding-presentation": "sha256:48c5ddf88e59a4c68638e1e4356ecdf3fe6298ca49774fbf491c22f396651114",
-      "260831-provide-product-progress-with-check-console-capture": "sha256:d57587e48aeb5fe03b6f75db5f71e9267b7d35be4816625c3dd4d475e88bf6f3",
-      "260831-publish-user-scoped-vibe-check-publicly": "sha256:b2147ef627b8f2bd600b3b5981b62dbdf5071051467074ec79f0947aea735c70",
+      "260831-provide-generic-bounded-finding-presentation": "sha256:589c08bcc5e2d7e8be614dc2958ff04a7d05f55391bc8fb29356f1a6169b1086",
+      "260831-provide-product-progress-with-check-console-capture": "sha256:53350ecc171376aac0e0c06bffccc19e7213aa3b863cbf7392540b992ab9198d",
+      "260831-publish-user-scoped-vibe-check-publicly": "sha256:53d4a6b19a00cb0a4e38fa5f2bfbeea805a223c9c47cf21a23657c382841ed94",
       "260831-rate-limit-non-force-main-auto-push-after-commit": "sha256:0a68411255dcdfe025750960dd2808def0a6e0c211d9664fd498a64185fb3552",
-      "260831-restrict-machine-publication-to-canonical-file-ownership": "sha256:86c4f12fef160a2a9bd1fde0bba6d59abda49377a0b34ea2cb1f9b3b546c5f96",
-      "260831-treat-run-output-directories-as-explicit-trusted-targets": "sha256:631a0bb6104450e13c4ce30162185db1bda113f26a8310f4fb343888a20db635",
+      "260831-restrict-machine-publication-to-canonical-file-ownership": "sha256:4424da0e17b4bf3c41985cc08735b217f63b44e7f88522f3713e4fb2d46541b5",
+      "260831-treat-run-output-directories-as-explicit-trusted-targets": "sha256:a18e68944f83d7e9b0f8d32662384ad665948ef8ecca8f15f4bec8c21037f708",
       "260901-add-invocation-local-scheduler-performance-summary": "sha256:67a8361b0352b2eaf335d39383b92ec5e38987b618335027091f6fec092d39d0",
-      "260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence": "sha256:0e3ce4d9dc03e347c1be6c93dc529883c24e56b38431b5d460cbb0e8603114fc",
+      "260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence": "sha256:c40023e0c57d8b12a3cbfb23ccf042f4bf72a53bfdcb18e16749ceadc10d7cf2",
       "260901-expose-stateless-custom-admission-policy-to-callers": "sha256:2b2cffedf6b732b06a953221f42b46b3a97baffb7a8b6e77ba5fc622572d0f7a",
-      "260901-group-flag-disabled-checks-in-progress": "sha256:143d6d54ae41581e8e4c6a82f6a7dee8b456709d933707c9eef910c3cb2b43d5",
-      "260901-inherit-depends-on-and-observes-independently": "sha256:9a6d9377e26bd8228b84cad2233d30ceee303c74e81cc674c80d0f4aec3fd4e1",
-      "260901-keep-console-router-through-task-local-check-lifecycle": "sha256:5f679ed531738f00bce439a2a712e2f60b6aadb1fba3d5077b8b997ababb859f",
-      "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context": "sha256:dc63cde6727c67ecf64caa8d7931967ebd7ae3414b4f4ea4aee3bb4976834367",
-      "260901-provide-caller-keyed-json-cache-without-run-caching": "sha256:34ac669aede583ab241eeeab760b51d9de616791d9d2167fa473f0489c8e5ff0",
-      "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority": "sha256:3eebd81b320d3aad103f4e6c3adc8ce6d536df9d0bec76c3ba8d9ae967f27471",
-      "260901-run-check-preflight-with-task-admission": "sha256:eee8c1c041abf2d2847a4c2605cd81b92c916cb72f284afaa2f1c0dc35141816",
+      "260901-group-flag-disabled-checks-in-progress": "sha256:75d368ce21371d8cfad681bc4b39e7d45f10162c8555df2a7c5d8b464ad68b25",
+      "260901-inherit-depends-on-and-observes-independently": "sha256:1e34bdeb699bc621be1f408e22dc0530864c85af19d7f91638044c864cc4c565",
+      "260901-keep-console-router-through-task-local-check-lifecycle": "sha256:bcaaf4d9a4743250b516ecf3afd2a458d25ee472b8c8b421636d74dfa55eb863",
+      "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context": "sha256:d0748064088edafa8fd6efe375e84e75429c63d72e8241c385e597c773a35e87",
+      "260901-provide-caller-keyed-json-cache-without-run-caching": "sha256:7edd42041239d8c3cd879f677343b84ddd45bd41be0cbf3c9109265671ab4298",
+      "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority": "sha256:c5812dcf73a332da7ad93d91162b13112dac11244d4111e9e90c9e9ad1efc857",
+      "260901-run-check-preflight-with-task-admission": "sha256:4a932405f5777aa73a2b846d197ddee8333ecb81269604c39734e207dc6a939b",
       "260901-separate-admission-policy-from-scheduler-state-machine": "sha256:80ebe629b57e589fc6477e537cc26c2e9e1a68c16bde090a6146dfe89283a024",
-      "260901-separate-passed-dependencies-from-settled-observations": "sha256:a4e4bf255c6998ef8782db60963d9fcd9789c15827c476b21a500c72f43821e0",
-      "260901-settle-non-passed-dependents-as-unavailable": "sha256:ce9e0407378af7ac85db7daf28df71cde362a205d6ed842948276c562e428bdb",
-      "260901-support-multi-flag-check-enablement-strategies": "sha256:454610db07fdaa5d9682c10dae08b1b52e4d9d6f0bece0917c4599f6afd3a088",
-      "260901-use-scc-v4-file-metrics-cli-protocol": "sha256:8326e45eade365591fdd30efee93f43963c898ffc2ba67df25e071938aec8601",
-      "260901-use-stateless-admission-policies-with-hard-scheduler-guards": "sha256:333b9e5ab8a64d785ceb7046db4ff78c665005d5c5a433427b38e7b7a0c03760",
-      "260902-compare-duplicates-only-within-common-code-areas": "sha256:46f3ae3b34d706466e4fe1432617adb05cdb63e198a1e2f6d8ca450e2335559b",
+      "260901-separate-passed-dependencies-from-settled-observations": "sha256:ea6e376b900cc8f28f6536287adc5ab7fe58f71470f37bc6c0f2976fea05126b",
+      "260901-settle-non-passed-dependents-as-unavailable": "sha256:ac0023d8d350c4cb1d2e7ba0526216636ff2e5d20155c35e0ab1fc1de8ba9f12",
+      "260901-support-multi-flag-check-enablement-strategies": "sha256:a8ddaf8799edc6be2b821dbd5444876538c7b5879e581e358a7566098e965337",
+      "260901-use-scc-v4-file-metrics-cli-protocol": "sha256:0163fdca287870dd0e625538094b9e2d59cd0fe6c49862108b15d5ed221bd5cd",
+      "260901-use-stateless-admission-policies-with-hard-scheduler-guards": "sha256:f5fe53cd6e6b0c70b30ece11b9a531cee67b47fd4ed05b4b7ec91e92f399b131",
+      "260902-compare-duplicates-only-within-common-code-areas": "sha256:ce2819f1931ca5ea5fbf202b1e4afb33cfde11bb73560a34783896b241a41600",
       "260902-enable-explicit-markdown-link-parse-cache": "sha256:28bb84d508f66c591f8535919c75950dc72db9973548de7d8563a7856c35fdd5",
-      "260902-exclude-historical-schemas-from-maintainability-metrics": "sha256:d86ecf2126b6f215ee50ecc6a851f4956ed6d54fb19ace4b7a65f4cc64dd550e",
-      "260902-expose-invocation-local-scheduler-measurement-hooks": "sha256:a0865eadd6f33e12a021f6bca99b36db7071f2ff293d21dcf4da6ec880fa6963",
-      "260902-extend-invocation-local-scheduler-performance-summary": "sha256:1ddbfef1fb2221fa1e024093fa994227e028a7b9456da06985f1cb65a4a99b27",
-      "260902-isolate-lizard-port-behind-check-private-interface": "sha256:21cf7b85090812eaa468fb384d9c6c78828a783b4bac395c45cd4871f60a00d3",
-      "260902-keep-repository-quality-findings-advisory-through-release": "sha256:53b4d9bf214ef12bebdf4cb5f1d7a6dac17c2d044a9ace622542a8d1555c1dd1",
+      "260902-exclude-historical-schemas-from-maintainability-metrics": "sha256:34c8a1b8b988dc4db7d5a8d13f3192f230534cb7484f2abb1f10245183deef2b",
+      "260902-expose-invocation-local-scheduler-measurement-hooks": "sha256:d5c60e6fbcfbd0f2f4f0e92ec71baf04c02400e898c7877d00f65588c7b36c63",
+      "260902-extend-invocation-local-scheduler-performance-summary": "sha256:65c0dcc426a007843935c88c9b7224209d001367a0c5bb1f2287a40f3a167b56",
+      "260902-isolate-lizard-port-behind-check-private-interface": "sha256:2a42f14be2878d055bb59c9d1837be86c6401c8ffab8ab8c7bc3a8c89f42734b",
+      "260902-keep-repository-quality-findings-advisory-through-release": "sha256:dc3025469fcd78df79a08078b27667191b0a656928f999b2b181a3e3b78d9bdf",
       "260902-learn-check-task-durations-for-critical-path-admission": "sha256:73acba8e58ee51febc69c358ceb7070d440a8ee955cce970b398fa0e7c371b56",
-      "260902-observe-post-action-policy-measurement": "sha256:9044d57947748022e383b99676dca1ae9ae229d552b4de026909b09cc95015b9",
-      "260902-preserve-applicable-upstream-licenses-for-translated-analyzers": "sha256:86aaa4087d87df04b6a33b5ad79fe441647d091c387a2c2f61b29b3602a32102",
-      "260902-preserve-primary-run-failures-over-measurement-hook-output": "sha256:f36345ab5a233f76b6a04d381164cd98095f5b1152312d691488e9f7d0b1bf09",
-      "260902-provide-decision-boundary-admission-measurement": "sha256:e453a239fb77b4cd26e2236a5f351c91115e0f212e394cc899a7a2880953f7ee",
-      "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers": "sha256:c485f67250b03ce511b0f9d6bdcec7b246e0e513da054c19295c0935823fe0f6",
-      "260902-track-lizard-supported-languages-with-upstream-advisory": "sha256:97ed3cd3993a4fe61202877211687fb941c276e3be19c2538ceb67cf70933943",
-      "260902-treat-flag-control-settlements-as-scheduler-results": "sha256:f684ec2291dceec49336c894fdbc0e9df379439e84a49812c0f1f9fad632d8e1",
-      "260902-unify-default-summary-with-terminal-measurement-hooks": "sha256:b9bcb7ec9d323c934fdfadc9f61f50dca30a2f04f69a61517c7168c472b5133e",
-      "260903-add-secret-detection-to-package-check-contract": "sha256:5cacfbc6da0b283e1a07c72640a3d65d4b010f2df09885fbe16226d77955fc5f",
-      "260903-adopt-invocation-scoped-custom-admission-strategy-authoring": "sha256:ed4b093223de8b9d599cb44ea1a89f8bfd11c28e311880d2d4d9a7e92a3e2d1e",
-      "260903-adopt-selected-lizard-extensions-in-product-owned-analyzer": "sha256:93bc4a3351e234e129cc5530baece3b1b8e0348778f5340b6cc840c9ede94dcc",
-      "260903-exclude-lizard-port-from-repository-quality-metrics": "sha256:13ea9280bb1157f918b8babf6dfcca688a3ce57bd2e983bf62add8ed6e0fbff1",
-      "260903-extend-measurement-hook-output-to-prepared-complete": "sha256:9f9bf9fa87f9902479a6572bf692a2c3fdc26e29133a1da5251af4885fc2548a",
-      "260903-introduce-invocation-scoped-admission-strategy-lifecycle": "sha256:cd1064bb1ff530d13a273772eb86dfe72519eb47209afc415e250e6021b41960",
-      "260903-keep-lizard-advisory-explicit-with-selected-extension-adoption": "sha256:59885be6e16f85f5a130da0893b6c314c92df45efd653edd4562bfbe53952dcd",
-      "260903-permit-evidence-backed-host-primitive-optimization-in-lizard-port": "sha256:1110fc712a5bff51b2b480bddafa1b030d3890b3459d391dac54bd1fd318fa99",
+      "260902-observe-post-action-policy-measurement": "sha256:04d73f83ae6bdee657300a25065464f0479b2a7ded8dbfe62937fdbc51dc2a9d",
+      "260902-preserve-applicable-upstream-licenses-for-translated-analyzers": "sha256:269a48ae43f1be81262336c355faf41f8c8b45e1d49416ddebd3e6be5e2fcd99",
+      "260902-preserve-primary-run-failures-over-measurement-hook-output": "sha256:c0034e07d5ae0eeb735129a98d06c8c0031543e9c5274e3e9aae9293a11a93ff",
+      "260902-provide-decision-boundary-admission-measurement": "sha256:a80286db3533126a85a483d02de3a52174122c29233670a1648c2cf874827c3f",
+      "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers": "sha256:b513d6d7ef250ea198bc57e9592c44d7cd300e594dc0010916935b8b150e3140",
+      "260902-track-lizard-supported-languages-with-upstream-advisory": "sha256:0eadf275cd5dc02e5355b078b0a9c9c0b8a8c37eabf7fc148c548bc3a1f61e76",
+      "260902-treat-flag-control-settlements-as-scheduler-results": "sha256:07a0aa2eed049839d410c5fe64dd3cc92042107bb3ef511c689b9c9e2fcc2f92",
+      "260902-unify-default-summary-with-terminal-measurement-hooks": "sha256:4e362eb3436da1ea753fe404f3e77029183e9de66a116f6115ac8fbcd36c5619",
+      "260903-add-secret-detection-to-package-check-contract": "sha256:66a576630037940d53aeecc511f4e485b6398feee13989542455f022c04eeb7c",
+      "260903-adopt-invocation-scoped-custom-admission-strategy-authoring": "sha256:abffd56175789f508fdcfccef2dc76d605776afda9e7449129c35df84d6eb7ad",
+      "260903-adopt-selected-lizard-extensions-in-product-owned-analyzer": "sha256:8aa2ce7bd9cb962ff08b8452ed326fb9ed1c2d599cdb2da744176f5c510e6b7b",
+      "260903-exclude-lizard-port-from-repository-quality-metrics": "sha256:b97f3486b13f7111df8ce1ee80c4d1cf10ef678e09238bc849b74a5db4697647",
+      "260903-extend-measurement-hook-output-to-prepared-complete": "sha256:771b339a689a6ebaa94e7d681ea1178e6b22e21c2f35d84ef232ba3e266cab4d",
+      "260903-introduce-invocation-scoped-admission-strategy-lifecycle": "sha256:7d8bb3c9ee0e22792e73f0aa8b0999549bb3549beff8a4655b1e13e86ca56a92",
+      "260903-keep-lizard-advisory-explicit-with-selected-extension-adoption": "sha256:e2273cb34fc6bff342f2843c55ef3e6a1e36f3b3948fa1a2c017636736c4bf17",
+      "260903-permit-evidence-backed-host-primitive-optimization-in-lizard-port": "sha256:04385438dcb575170f7bfa298eb146a693e3a9b5835fd937471c28052ce80a6f",
       "260903-provide-immutable-admission-graph-state": "sha256:2fabf1fccc6b360ddfc4e7ef7cf11a262a19dcc8909b3bbdbcc1404b4f4d86f6",
-      "260903-retain-private-invocation-admission-strategy-lifecycle": "sha256:267409c2b701c1adce1859f7f66b02634b7e21e5a794d2f43cba2cb73c7617e7",
+      "260903-retain-private-invocation-admission-strategy-lifecycle": "sha256:0f73f3ba9e9db4ba8c44e0d27c8f1f09d0b5c81fa50f96c417e061958d64cf01",
       "260903-use-a-verified-fast-path-for-lizard-reader-resolution": "sha256:027d3ec01308a2bb79acdab981fa00e13a3ef3ba36adef78b22bd11d8f0df989",
-      "260904-delegate-project-gate-selection-to-product-effective-selection": "sha256:25a7a9ace30355232af5e482581ffe9b493f0db91c69f926022a8b18126053bc",
+      "260904-delegate-project-gate-selection-to-product-effective-selection": "sha256:2e81c666e3760673e1d51eb235706ab1b1c55fec419ad83053d5ae31c211e4c1",
       "260904-exclude-test-functions-but-keep-test-maintainability-evidence": "sha256:c18da0f30eeeca20227ca37bf5945250223ea0490586b0b6551166b52e6eadea",
-      "260904-keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context": "sha256:3ca2d51ee049563a9ec5b89a9f1572f3f9b90e73bea62613aac7cc0e9cba1eeb",
-      "260904-organize-owner-aware-project-run-and-gate-diagnostics": "sha256:eb736b4b0f56dc616d2075ac126c0cb44c2e8d9f881c5326e53f6636c682219d",
-      "260904-publish-detailed-native-gate-diagnostic-records": "sha256:d2ca487c4fcee6b4aaf0611d4cf83974c45acb73e19ef28058f296670219960c",
+      "260904-keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context": "sha256:5e75d5acbcf0a5ac54c0d1956e2832b19211e3e1ae2a39be987cd3b6b3bfe9b5",
+      "260904-organize-owner-aware-project-run-and-gate-diagnostics": "sha256:fb802075c4aac332ff7306a68ce00a111bd5215af875719cf8c48c794aec9530",
+      "260904-publish-detailed-native-gate-diagnostic-records": "sha256:ffd52a03722a0f450fe5a07c744739ea4fa1f1b41d67ab580bcffa89f331a5df",
       "260904-publish-owner-structured-process-check-records": "sha256:a966263d305972553686070da76af3ca3234d463deae595f79bd3c8973010a15",
-      "260904-publish-project-gate-machine-facts-in-machine-namespace": "sha256:32af57daae18f1286deb8f7de3774554c192a69b42229068edc704ad7d004c0e",
-      "260904-render-record-and-message-previews-in-product-progress": "sha256:8d72d4ba61390692a42a628b0c5f19057952bd765de6ceeb1a22420c7259e311",
+      "260904-publish-project-gate-machine-facts-in-machine-namespace": "sha256:c7541c56895fd0403dfe644bc32e07a154c0de55c204f24b2123bd73a78ab373",
+      "260904-render-record-and-message-previews-in-product-progress": "sha256:bcbd648f1291757d2360e2071821a6a2994551976b6e5d58e508711025e1b6e7",
       "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes": "sha256:225dada187603fbf1ca08509cbbbe8db79710ae1b94b6a38b6576538a67bedc5",
-      "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:c922803066fd461ec54d27f89a9769caf80f07ac59f09b8c7f20743faa2a5021",
-      "260904-unify-effective-flag-selection-and-aggregation": "sha256:b0655788a4c51397479ff36630bde08c08b0944ae254f6d30770bbe65a137f3c",
+      "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:de56f33381ee073f405c3463c9e958d832351a8c868fd57024bd158764bab73e",
+      "260904-unify-effective-flag-selection-and-aggregation": "sha256:6d3b6509a9e5ac562f4fda5c331d573b0fcb450089ed17a139a678d87653d6a9",
       "260904-use-project-check-command-with-focused-gate-presets": "sha256:39c5ba6bb62abbc55c6733a42f7510741a245237b30cf1b04e90d62f292ad60b",
-      "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": "sha256:d88abea80c7f0792d36e6f9d39d84a3e24c7cc498621899837d94b4415977528",
-      "260905-organize-maintainer-documentation-by-responsibility": "sha256:e996efc0e46d3b7fc46ba808723148a29839cc0eb93bfbeb06c12bf0456f6572",
-      "260905-review-documentation-impact-by-audience": "sha256:8717f420b83a3f8d962c50bfed612a7d179c3520bf2ef120e9a9c752bc2d7dfd",
-      "260905-structure-package-documentation-by-user-task": "sha256:fbcd4da2ee3a9f13b9530c4f76c735c44f0b48da2daedabb43952f5f36904d19",
+      "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": "sha256:190d49e7240fda2a8d3b27495ac74cf09361fdb3573846fbd1fafc44a0cb1f3a",
+      "260905-organize-maintainer-documentation-by-responsibility": "sha256:b36f7ca3cb4bef003336bc529b0bfda2e280ed61e412257ba8830691a1a8f7a1",
+      "260905-review-documentation-impact-by-audience": "sha256:ce10c6b265f5ccbafc5981f966284b7289fd19fbf50bd2bd12b0e0df6506e2f6",
+      "260905-structure-package-documentation-by-user-task": "sha256:388736f612019652cbc797934fc169d64872115b9a02a60d0b8d223cc1b99e75",
       "260906-describe-vibe-check-as-a-general-project-quality-gate": "sha256:a9f3a26bd685c26ed385b64675cd0160fa55937964baa05cbbb3947280580f71",
-      "260906-describe-vibe-check-as-a-typescript-quality-gate-tool": "sha256:29a2402458649763115eb319cb716d4376fc3257aa3ae0b7955deb853bbfc903",
+      "260906-describe-vibe-check-as-a-typescript-quality-gate-tool": "sha256:e41e87c1e4f26e96e281d159c171b35cc7906abd69f3aba96cd4d742c58eba19",
       "260906-enforce-static-named-resource-capacities": "sha256:eb2f66bfe1320c037c4ce1520a35ec27a9352f71a849737d3696e82b08941efc",
       "260906-export-consumer-named-supporting-types-from-package-root": "sha256:054dd78d4f9b98b6e9c77cad5d1d4ca6b42a314d2e29973a6fb72212c0ca0780",
-      "260906-publish-node-readable-esm-package-layout": "sha256:e4c19b0adda06c97619952751eb6b1fc983eefe8e91ec147c12e99af4c1b37b3",
-      "260906-support-node-as-the-package-host": "sha256:a9f2b7510a2c4adb57302aef998ff5d46557129ff49b75521ddb6a7fc1b7d12f",
-      "260906-treat-node-engine-as-a-minimum-version": "sha256:11ea39ce9fda40a0c7ee19cc48aff24cc5a9a7b37bd8bd86aa8f406e3a343723",
-      "260907-configure-bounded-progress-previews-with-text-formatter": "sha256:502e0cd5680d1c2c3bb661e869891cb4e791d5167a7a6e954827afa703930806",
-      "260907-keep-invocation-lifecycle-free-of-learned-special-cases": "sha256:bbf0518424c988b76b24a4cc955f1ccb6308187c1356eed19a883d4f58523b14",
-      "260907-keep-run-diagnostics-independent-of-optional-strategies": "sha256:3c754f372c378d6d09e8872ccc5ae8e9af146a5f765a0f08d92715f4c879fbb8",
-      "260907-provide-learned-admission-through-public-strategy": "sha256:1430bac8aeb041b62ddfd90d776ae1a07f1fffc9e96cef5afc220210b9932c7c",
-      "260907-scope-translated-source-notices-to-material-directory": "sha256:910640d35c71c001c614a6b9e3263468db2277d625cbbd6679cac6dbe1bbef39",
+      "260906-publish-node-readable-esm-package-layout": "sha256:89f6b0a8636185faa76d7bd851057b2300cbaabf3d076d05f89df2e0f098624a",
+      "260906-support-node-as-the-package-host": "sha256:518e5db4650c3bb037c91d2a11078e1a5024065609340a09d5c4c9d24d7bb4cc",
+      "260906-treat-node-engine-as-a-minimum-version": "sha256:0b6ef3605fa7bbb3ecd8ecee85999d53401f899a18fde74e273b92cf91151456",
+      "260907-configure-bounded-progress-previews-with-text-formatter": "sha256:5369f3191bb18f24f1e5a0e5f5929461908a448996e901b0eb309451511673a1",
+      "260907-keep-invocation-lifecycle-free-of-learned-special-cases": "sha256:cd0d37d61e5cb8bfb34ad3f0d415a3dc288d053e26faa134f6ed75c7a58d8967",
+      "260907-keep-run-diagnostics-independent-of-optional-strategies": "sha256:70e4cbd558a6e7f8922d7e70703212bc3f0f607fb86480fdb095f9a9f07ef6ea",
+      "260907-provide-learned-admission-through-public-strategy": "sha256:19a79cd46fd7d75899b50108f0e6045bcde96cdd72e9872a149de5dff0d37f88",
+      "260907-scope-translated-source-notices-to-material-directory": "sha256:cd581dfcc7c63dad530c66a5ea0adfe29caf6c097605bd53d52d0d0a834de506",
       "260907-unify-package-legal-materials-and-audit-installed-dependencies": "sha256:5c61cc4f9f3e1d912020b2870c3035b0cf9cc9bbd3a0bb475852227b634e1f22",
       "260908-allow-channel-only-diagnostic-filenames-in-invocation-controls": "sha256:8c1319df99eb0ba9161b1f18677eb9ac89177222971d3b0c48e3232567ddb817",
-      "260908-declare-document-audience-publication-and-contract-ownership": "sha256:078fbd8166aa768d5d95fad0d965343c3e848337550f4ce9ece8c50a6961a978",
-      "260908-default-project-subagents-to-terra": "sha256:3e07afdecd0dfa6071bc44a2e2d576aa5c4056b105b3adde6a36ced6f429aaca",
-      "260908-delete-completed-change-and-openspec-history": "sha256:cc3819d682c53f1ddec361e388eeaa2f3465584f04fe58d6e8682361a7a69b58",
+      "260908-declare-document-audience-publication-and-contract-ownership": "sha256:c5217fda251cff7bd7808f638aa41be4558c3c6b073d4cd8523b29c5ef688289",
+      "260908-default-project-subagents-to-terra": "sha256:7352807fbe93cbd2ad80e64eb9b17ab7d1a99a446578f5ae640df903cc1ed98d",
+      "260908-delete-completed-change-and-openspec-history": "sha256:8ca3fe78785746f54540378dd798facfce40fea5cdae44842205a8b146271a48",
       "260908-evaluate-admission-heuristics-with-seeded-virtual-workloads": "sha256:11475cc20ddd692112f1f5ccd4b33980cff0977971446d8e88712d443b5c82dc",
       "260908-isolate-package-release-source-from-change-work": "sha256:424e622408e55c648ea02973f61ab49125777e1114794fbd3ad2b05412c75f88",
       "260908-provide-synchronous-single-selection-file-collection": "sha256:c0803574b26a55984f85f8f35af860789ac6a945f619c900da3ab720d8dc80ab",
-      "260908-use-dated-governance-record-identities": "sha256:dfeab02dab622f98663e850d1b157ab8f0cf61eeec020c7cfdd84fa2ae6ba79d",
+      "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
@@ -345,6 +345,7 @@
       "sourcePath": "archive/use-native-test-evidence-catalog.md",
       "title": "采用一原生测试节点一条证据的统一目录",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-07-27T06:40:00Z",
       "purpose": "让测试证明目标与实际 runner identity 一一对应，并通过统一索引持续校验。",
       "background": "聚合账本和源码 marker 允许多个原生测试共享 case，难以证明目录没有遗漏或漂移。",
@@ -359,6 +360,7 @@
       "sourcePath": "archive/use-upstream-project-skill-packages.md",
       "title": "采用完整上游包维护项目工程 skills",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-07-27T06:40:00Z",
       "purpose": "让项目工程判断 skill 可持续升级，同时保持上游分发内容与项目接线的清晰边界。",
       "background": "项目需要 OpenSpec、架构边界、共同分母、最小实现和调查报告等专用工作流。",
@@ -384,7 +386,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260727-use-native-test-evidence-catalog"
+          "target": "260727-use-native-test-evidence-catalog",
+          "summary": "采用完整测试实体与语义 Case 闭合"
         }
       ]
     },
@@ -393,6 +396,7 @@
       "sourcePath": "archive/use-upstream-skills-with-project-local-exceptions.md",
       "title": "采用完整上游 Skill 包并允许显式项目本地例外",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-07-30T03:24:22Z",
       "purpose": "保持 Skill 来源和升级边界可审计，同时允许项目特有能力由本仓库完整拥有。",
       "background": "完整替换上游包适合通用方法，但携带固定账本 runtime 的版本不能表达本项目的语义 Case 与全树闭合边界。",
@@ -403,7 +407,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260727-use-upstream-project-skill-packages"
+          "target": "260727-use-upstream-project-skill-packages",
+          "summary": "采用完整上游 Skill 包并允许显式项目本地例外"
         }
       ]
     },
@@ -412,6 +417,7 @@
       "sourcePath": "archive/defer-lizard-runtime-unification.md",
       "title": "将 Lizard 运行时统一留到产品向工作之后",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-03T07:42:48Z",
       "purpose": "先交付用户可感知的产品能力，再处理高风险且主要改善开发边界的运行时统一。",
       "background": "Lizard TypeScript port 收益与风险都高，但用户感知有限，且活动 change 的技术排序曾被反复误当成产品优先级。",
@@ -426,6 +432,7 @@
       "sourcePath": "archive/defer-lizard-until-after-semantic-config-workflow.md",
       "title": "将 Lizard 运行时统一留到语义配置与产品工作之后",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-03T09:05:03Z",
       "purpose": "先交付稳定的公共配置和用户可感知工作流，再处理高风险且主要改善开发边界的运行时统一。",
       "background": "Lizard TypeScript port 收益与风险都高但用户感知有限；公共配置改为 scanner-tool 中立后，也不再需要为未来 port 预留一次配置迁移。",
@@ -436,7 +443,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260803-defer-lizard-runtime-unification"
+          "target": "260803-defer-lizard-runtime-unification",
+          "summary": "将 Lizard 运行时统一留到语义配置与产品工作之后"
         }
       ]
     },
@@ -460,6 +468,7 @@
       "sourcePath": "archive/keep-public-config-tool-neutral.md",
       "title": "让 public project config 保持 scanner-tool 中立",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-08-03T08:45:33Z",
       "purpose": "让项目配置表达稳定质量意图，而不是固化当前 scanner 实现和安装方式。",
       "background": "当前完整 QualityConfig 暴露 lizard、scc、jscpd 与 command/args，使底层替换直接变成 public config migration。",
@@ -474,6 +483,7 @@
       "sourcePath": "archive/use-fixed-semantic-config-version.md",
       "title": "使用固定语义配置契约版本",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-08-03T09:23:47Z",
       "purpose": "让 project config version 稳定标识文档契约，而不是承担调用者自定义的缓存失效责任。",
       "background": "当前 version 是任意字符串并参与 scanner cache identity；新的语义 schema 需要可验证的版本判别，同时缓存应由实际影响测量的输入决定。",
@@ -488,6 +498,7 @@
       "sourcePath": "archive/use-json-filename-for-commented-config.md",
       "title": "使用常规 JSON 文件名承载带注释配置",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-08-03T08:45:26Z",
       "purpose": "降低项目配置的识别和采用门槛，同时保留注释、尾随逗号与 editor schema 辅助。",
       "background": "JSONC 扩展名能精确标识语法，但相对不常见；固定工具目录和文件名已经能提供产品格式上下文。",
@@ -502,6 +513,7 @@
       "sourcePath": "archive/use-semantic-check-ids-in-project-config.md",
       "title": "在 project config 中使用语义 check ID",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-08-03T09:23:47Z",
       "purpose": "让 accepted-warning 配置按 Vibe Check 质量检查语义匹配，而不是依赖当前 scanner identity。",
       "background": "当前 acceptedWarnings 使用含 tool name 的 ruleId 和 sourceTool，backend replacement 会继续迁移 project config。",
@@ -516,6 +528,7 @@
       "sourcePath": "archive/expand-format-aware-quality-checks.md",
       "title": "扩展格式感知的非代码质量检查",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-04T15:02:11Z",
       "purpose": "让 Vibe Check 对文档和结构化资料执行与文件类型匹配的质量检查。",
       "background": "非代码文件不适合进入代码指标，但其链接、结构、格式和敏感内容具有独立质量风险。",
@@ -530,6 +543,7 @@
       "sourcePath": "archive/keep-sensitive-scan-material-ephemeral.md",
       "title": "让敏感扫描材料保持临时且不可持久化",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-04T15:02:13Z",
       "purpose": "防止秘密检测和外链验证把待检查的敏感内容扩散到质量产物或诊断系统。",
       "background": "Secret bytes、URL query values 和 userinfo 可能包含凭据，扫描流程自身不能成为新的泄露渠道。",
@@ -544,6 +558,7 @@
       "sourcePath": "archive/require-explicit-network-link-checking.md",
       "title": "网络链接检查必须显式启用",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-04T15:02:13Z",
       "purpose": "防止普通质量扫描隐式访问网络，并让外链结果具备明确的安全和可复现边界。",
       "background": "DNS 和 HTTP 会引入 SSRF、环境凭据、临时故障与不可复现结果，不能由 profile 或 gate 自动开启。",
@@ -558,6 +573,7 @@
       "sourcePath": "archive/require-explicit-quality-baselines.md",
       "title": "质量比较只接受显式基线",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-08-04T07:18:16Z",
       "purpose": "让质量比较和阻断结果始终绑定到调用者明确选择且可复现的代码基线。",
       "background": "自动选择上一代码提交无法可靠表达分支或发布比较目标，并可能让同一最终提交因历史形状不同得到误导性门禁结果。",
@@ -587,6 +603,7 @@
       "sourcePath": "archive/use-fixed-semantic-config-v2.md",
       "title": "将文件政策契约升级为固定配置 v2",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-04T15:02:12Z",
       "purpose": "用明确版本边界承载文件覆盖和可组合功能政策，避免静默改变既有配置含义。",
       "background": "当前固定 v1 是完整且封闭的文档，加入 overrides 和 optional feature sections 已构成新的公共配置契约。",
@@ -597,7 +614,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260803-use-fixed-semantic-config-version"
+          "target": "260803-use-fixed-semantic-config-version",
+          "summary": "将文件政策契约升级为固定配置 v2"
         }
       ]
     },
@@ -606,6 +624,7 @@
       "sourcePath": "archive/use-generic-machine-v2-for-content-findings.md",
       "title": "使用通用 machine v2 承载内容检查",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-04T15:02:12Z",
       "purpose": "让数值指标、内容问题和安全问题通过一套可验证且可演进的机器契约发布。",
       "background": "Current machine v1 固定为数值 warning 和三项 capability，无法无损表达非数值 finding、观察值和动态能力成员。",
@@ -620,6 +639,7 @@
       "sourcePath": "archive/use-location-independent-finding-identities.md",
       "title": "稳定质量身份不使用源码位置",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-04T15:02:12Z",
       "purpose": "让质量 finding 在只发生行移动或排版变化时保持稳定身份和比较结果。",
       "background": "行号、列号和 byte offset 是当前定位信息，不是问题本身的稳定语义，写入 key 会制造虚假新增和回归。",
@@ -634,6 +654,7 @@
       "sourcePath": "archive/use-neutral-default-for-observation-and-file-policy-for-gates.md",
       "title": "观察使用中性默认，阻断使用文件政策",
       "status": "archived",
+      "alignment": "aligned",
       "createdAt": "2026-08-04T03:37:21Z",
       "purpose": "让外部项目直接获得中性质量观察，并让阻断行为由项目持有的完整政策驱动。",
       "background": "观察需要通用起点；阻断需要可审阅、可提交且完整记录实际 scope、threshold 和 report policy 的配置。",
@@ -648,6 +669,7 @@
       "sourcePath": "archive/defer-future-feature-detail-until-prioritized.md",
       "title": "延后未来功能 change 的契约细化",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-05T09:25:08Z",
       "purpose": "避免尚未排期和实施的未来功能过早固化推测性协议，并把细化成本留到真实实现准备阶段。",
       "background": "多个未来 feature changes 从未进入实现，过细的字段、算法、状态机和测试矩阵会随基础架构演进反复失效并掩盖真正产品方向。",
@@ -674,7 +696,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260803-defer-lizard-until-after-semantic-config-workflow"
+          "target": "260803-defer-lizard-until-after-semantic-config-workflow",
+          "summary": "将 Lizard 统一后置于 Check 产品基础"
         }
       ]
     },
@@ -694,7 +717,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260804-expand-format-aware-quality-checks"
+          "target": "260804-expand-format-aware-quality-checks",
+          "summary": "扩展格式感知的 Product-provided Checks"
         }
       ]
     },
@@ -714,7 +738,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-use-declarative-quality-decision-policies"
+          "target": "260805-use-declarative-quality-decision-policies",
+          "summary": "保持质量决策策略封闭且声明式"
         }
       ]
     },
@@ -723,7 +748,7 @@
       "sourcePath": "keep-sensitive-quality-record-material-ephemeral.md",
       "title": "让 supplemental Record 的敏感源材料保持临时",
       "status": "active",
-      "alignment": "unaligned",
+      "alignment": "aligned",
       "createdAt": "2026-08-05T11:15:26Z",
       "purpose": "防止秘密和 credential URL 在产生 supplemental Record 时扩散到持久产物与诊断边界。",
       "background": "Producing Check 必须短暂读取敏感值，但 Core Check outcome 的 diagnostic、minimal Record 和输出不应成为新的秘密副本。",
@@ -734,7 +759,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260804-keep-sensitive-scan-material-ephemeral"
+          "target": "260804-keep-sensitive-scan-material-ephemeral",
+          "summary": "让 supplemental Record 的敏感源材料保持临时"
         }
       ]
     },
@@ -754,7 +780,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260803-keep-public-config-tool-neutral"
+          "target": "260803-keep-public-config-tool-neutral",
+          "summary": "将工具中立约束限定于 Product-provided Check 配置"
         }
       ]
     },
@@ -774,7 +801,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-require-explicit-quality-comparison-references"
+          "target": "260805-require-explicit-quality-comparison-references",
+          "summary": "比较只使用显式命名并冻结的参考"
         }
       ]
     },
@@ -794,7 +822,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260804-require-explicit-network-link-checking"
+          "target": "260804-require-explicit-network-link-checking",
+          "summary": "网络 Check 必须获得显式声明式授权"
         }
       ]
     },
@@ -803,6 +832,7 @@
       "sourcePath": "archive/require-explicit-quality-comparison-references.md",
       "title": "质量比较只接受显式命名参考",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-05T06:43:22Z",
       "purpose": "让任意质量变化视图和门禁都绑定到调用者明确选择、可复现且有名称的比较参考。",
       "background": "单一 baseline 与固定 changed/regressions channel 不能表达多个比较参考，但自动推断历史、分支或远端仍会产生不可复现结论。",
@@ -813,7 +843,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260804-require-explicit-quality-baselines"
+          "target": "260804-require-explicit-quality-baselines",
+          "summary": "质量比较只接受显式命名参考"
         }
       ]
     },
@@ -833,7 +864,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260805-use-semantic-check-ids-in-quality-records"
+          "target": "260805-use-semantic-check-ids-in-quality-records",
+          "summary": "分离 Check 身份与 Record 类型身份"
         }
       ]
     },
@@ -868,11 +900,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260803-use-json-filename-for-commented-config"
+          "target": "260803-use-json-filename-for-commented-config",
+          "summary": "以 Bun TS Definition 取代注释 JSON 文件"
         },
         {
           "type": "归并",
-          "target": "260804-use-fixed-semantic-config-v2"
+          "target": "260804-use-fixed-semantic-config-v2",
+          "summary": "以 Bun TS Definition 取代固定 config v2"
         }
       ]
     },
@@ -881,6 +915,7 @@
       "sourcePath": "archive/use-declarative-quality-decision-policies.md",
       "title": "使用声明式质量决策策略",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-05T06:43:25Z",
       "purpose": "让多个质量能力的标准记录与运行状态能够通过可审阅配置组合成查询、接受和门禁结果。",
       "background": "固定 channels、overall completeness 和 gate prerequisite 无法表达不同能力、coverage 与 comparison 的逻辑组合。",
@@ -906,7 +941,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260804-use-location-independent-finding-identities"
+          "target": "260804-use-location-independent-finding-identities",
+          "summary": "QualityRecord 稳定身份不使用当前源码位置"
         }
       ]
     },
@@ -926,7 +962,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260804-use-neutral-default-for-observation-and-file-policy-for-gates"
+          "target": "260804-use-neutral-default-for-observation-and-file-policy-for-gates",
+          "summary": "观察使用中性定义，门禁要求 Project Definition"
         }
       ]
     },
@@ -946,7 +983,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260805-use-standard-quality-record-stream"
+          "target": "260805-use-standard-quality-record-stream",
+          "summary": "使用运行时解析的 Check 与 QualityRecord 核心"
         }
       ]
     },
@@ -955,6 +993,7 @@
       "sourcePath": "archive/use-semantic-check-ids-in-quality-records.md",
       "title": "让语义 check ID 直接属于质量记录目录",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-05T07:09:36Z",
       "purpose": "让project config、能力输出和决策策略共同引用同一个稳定质量检查身份，而不经过旧warning或scanner identity映射。",
       "background": "QualityRecord已直接携带final check语义，继续映射旧warning fields会保留第二套身份owner。",
@@ -965,7 +1004,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260803-use-semantic-check-ids-in-project-config"
+          "target": "260803-use-semantic-check-ids-in-project-config",
+          "summary": "让语义 check ID 直接属于质量记录目录"
         }
       ]
     },
@@ -974,6 +1014,7 @@
       "sourcePath": "archive/use-standard-quality-record-stream.md",
       "title": "使用统一质量记录流与独立能力运行状态",
       "status": "archived",
+      "alignment": "unaligned",
       "createdAt": "2026-08-05T06:43:16Z",
       "purpose": "让所有内置质量能力通过同一标准数据协议逐条发布最终语义，并让有效记录不再被能力整体完成状态覆盖。",
       "background": "按 metric、content、security 划分结果形状并要求能力原子提交，会让 Core 持续承担领域分支，也会在后续工作失败时丢失已经可信的数据。",
@@ -984,7 +1025,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260804-use-generic-machine-v2-for-content-findings"
+          "target": "260804-use-generic-machine-v2-for-content-findings",
+          "summary": "使用统一质量记录流与独立能力运行状态"
         }
       ]
     },
@@ -1034,7 +1076,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260730-use-upstream-skills-with-project-local-exceptions"
+          "target": "260730-use-upstream-skills-with-project-local-exceptions",
+          "summary": "保持项目工作流 Skill 语义覆盖有界"
         }
       ]
     },
@@ -1054,7 +1097,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-defer-future-feature-detail-until-prioritized"
+          "target": "260805-defer-future-feature-detail-until-prioritized",
+          "summary": "让 change 细节服务当前阶段"
         }
       ]
     },
@@ -1114,6 +1158,7 @@
       "background": "编码规范已按问题形态选择模型；重复临时选库会扩大维护面，并让同类实现产生不一致表达。",
       "decision": "预置 neverthrow、ts-pattern、Remeda、Mnemonist 和产品自制 Option；只按对应问题形态使用，不引入重叠替代。",
       "tags": [
+        "dependency-policy",
         "workflow-policy"
       ],
       "relations": []
@@ -1134,7 +1179,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260806-keep-project-workflow-skill-overrides-bounded"
+          "target": "260806-keep-project-workflow-skill-overrides-bounded",
+          "summary": "使用完整上游治理 Skill 包"
         }
       ]
     },
@@ -1154,7 +1200,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260806-match-change-detail-to-current-phase"
+          "target": "260806-match-change-detail-to-current-phase",
+          "summary": "使用决策驱动的 Change Plan 并完整归档 OpenSpec"
         }
       ]
     },
@@ -1174,7 +1221,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260806-use-versioned-npm-package-release-unit"
+          "target": "260806-use-versioned-npm-package-release-unit",
+          "summary": "发布前显式确认每个公共名称"
         }
       ]
     },
@@ -1194,7 +1242,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260812-approve-public-names-before-publication"
+          "target": "260812-approve-public-names-before-publication",
+          "summary": "发布前确认 package 公共契约名称"
         }
       ]
     },
@@ -1214,7 +1263,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-treat-project-definitions-as-trusted-code"
+          "target": "260805-treat-project-definitions-as-trusted-code",
+          "summary": "在私有运行边界内执行项目代码"
         }
       ]
     },
@@ -1279,7 +1329,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260806-keep-prestable-releases-on-0-0-x"
+          "target": "260806-keep-prestable-releases-on-0-0-x",
+          "summary": "在稳定承诺前让 package 保持 0.0.x 版本线"
         }
       ]
     },
@@ -1299,7 +1350,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260811-use-complete-upstream-governance-skills"
+          "target": "260811-use-complete-upstream-governance-skills",
+          "summary": "只保留七项独立项目 Skill"
         }
       ]
     },
@@ -1335,7 +1387,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260806-use-versioned-npm-package-release-unit"
+          "target": "260806-use-versioned-npm-package-release-unit",
+          "summary": "以版本化 npm package 交付完整产品单元"
         }
       ]
     },
@@ -1371,7 +1424,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260806-use-versioned-npm-package-release-unit"
+          "target": "260806-use-versioned-npm-package-release-unit",
+          "summary": "让程序化 API 成为唯一正式产品执行入口"
         }
       ]
     },
@@ -1391,7 +1445,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-use-bun-typescript-project-definition"
+          "target": "260805-use-bun-typescript-project-definition",
+          "summary": "使用单一 TypeScript Project Definition"
         }
       ]
     },
@@ -1441,7 +1496,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-confirm-config-run-and-package-names-before-publication"
+          "target": "260814-confirm-config-run-and-package-names-before-publication",
+          "summary": "发布前确认内置 Check 值与 Check tree 类型名称"
         }
       ]
     },
@@ -1461,7 +1517,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260812-confirm-package-contract-names-before-publication"
+          "target": "260812-confirm-package-contract-names-before-publication",
+          "summary": "发布前确认配置定义、Package Run 与 package 契约名称"
         }
       ]
     },
@@ -1481,7 +1538,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260812-drive-product-execution-from-project-definition"
+          "target": "260812-drive-product-execution-from-project-definition",
+          "summary": "由 Project Definition 值驱动 Package Run"
         }
       ]
     },
@@ -1501,7 +1559,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260812-contain-project-code-behind-private-runtime-boundary"
+          "target": "260812-contain-project-code-behind-private-runtime-boundary",
+          "summary": "在调用方 runtime 中通过 Task 系统执行项目函数"
         }
       ]
     },
@@ -1521,7 +1580,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-expose-config-definition-and-project-run-operations"
+          "target": "260814-expose-config-definition-and-project-run-operations",
+          "summary": "在配置与运行操作旁公开内置 Check 值"
         }
       ]
     },
@@ -1541,7 +1601,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260812-expose-two-public-operations"
+          "target": "260812-expose-two-public-operations",
+          "summary": "公开配置定义函数与 Package Run"
         }
       ]
     },
@@ -1591,7 +1652,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260812-use-single-typescript-project-definition"
+          "target": "260812-use-single-typescript-project-definition",
+          "summary": "将 Project Definition 值交给 Package Run"
         }
       ]
     },
@@ -1626,7 +1688,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260811-use-decision-led-change-plans-and-archive-openspec"
+          "target": "260811-use-decision-led-change-plans-and-archive-openspec",
+          "summary": "在 Change artifacts 中记录暂停状态"
         }
       ]
     },
@@ -1676,7 +1739,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-keep-built-in-options-owned-and-tool-neutral"
+          "target": "260814-keep-built-in-options-owned-and-tool-neutral",
+          "summary": "使用字段感知的内置 Check 调整方法"
         }
       ]
     },
@@ -1696,7 +1760,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-use-neutral-observation-and-project-definition-gates"
+          "target": "260805-use-neutral-observation-and-project-definition-gates",
+          "summary": "观察与门禁都使用项目持有的 Project Definition"
         }
       ]
     },
@@ -1716,7 +1781,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-cooperatively-cancel-task-graphs"
+          "target": "260815-cooperatively-cancel-task-graphs",
+          "summary": "取消 Task admission 并收尾已启动工作"
         }
       ]
     },
@@ -1736,7 +1802,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-use-check-scoped-invocation-wide-parallel-limits"
+          "target": "260814-use-check-scoped-invocation-wide-parallel-limits",
+          "summary": "在 Task scope 中承载 Check 并行上限"
         }
       ]
     },
@@ -1756,7 +1823,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-carry-check-parallel-limit-in-task-scope"
+          "target": "260815-carry-check-parallel-limit-in-task-scope",
+          "summary": "在 Task scope 中承载递归 Check 并行上限"
         }
       ]
     },
@@ -1776,7 +1844,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-confirm-built-in-check-value-and-tree-type-names-before-publication"
+          "target": "260814-confirm-built-in-check-value-and-tree-type-names-before-publication",
+          "summary": "发布前确认内置 Check 与调整 API 名称"
         }
       ]
     },
@@ -1796,7 +1865,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-confirm-built-in-check-and-adjustment-names-before-publication"
+          "target": "260815-confirm-built-in-check-and-adjustment-names-before-publication",
+          "summary": "发布前确认单一 Check authoring 与派生名称"
         }
       ]
     },
@@ -1831,7 +1901,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-keep-decision-policies-closed-and-declarative"
+          "target": "260805-keep-decision-policies-closed-and-declarative",
+          "summary": "从 Core facts 求值封闭质量决策策略"
         }
       ]
     },
@@ -1851,11 +1922,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260805-use-static-check-task-plans-with-shared-scheduling"
+          "target": "260805-use-static-check-task-plans-with-shared-scheduling",
+          "summary": "将静态 TaskPlan 纳入统一 Task graph"
         },
         {
           "type": "归并",
-          "target": "260813-settle-check-execution-before-availability"
+          "target": "260813-settle-check-execution-before-availability",
+          "summary": "以 Task settlement 统一执行结算"
         }
       ]
     },
@@ -1875,7 +1948,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-execute-check-scopes-through-one-task-graph"
+          "target": "260815-execute-check-scopes-through-one-task-graph",
+          "summary": "通过单一 Task graph 执行递归 Check"
         }
       ]
     },
@@ -1895,7 +1969,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-expose-built-in-check-values-alongside-config-and-run"
+          "target": "260814-expose-built-in-check-values-alongside-config-and-run",
+          "summary": "公开内置 Check 值与独立调整函数"
         }
       ]
     },
@@ -1915,7 +1990,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260815-expose-built-in-check-values-and-adjustment-functions"
+          "target": "260815-expose-built-in-check-values-and-adjustment-functions",
+          "summary": "公开单一 Check authoring surface"
         }
       ]
     },
@@ -1950,7 +2026,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-use-composable-check-tree-with-run-owned-bindings"
+          "target": "260815-use-composable-check-tree-with-run-owned-bindings",
+          "summary": "保持 Check group 仅为 authoring context"
         }
       ]
     },
@@ -1985,7 +2062,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-publish-check-record-machine-v3"
+          "target": "260815-publish-check-record-machine-v3",
+          "summary": "将 machine v3 发布为指纹绑定的双文件集合"
         }
       ]
     },
@@ -2005,7 +2083,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260815-use-standalone-built-in-check-adjustment-functions"
+          "target": "260815-use-standalone-built-in-check-adjustment-functions",
+          "summary": "使用基于 Check 值的派生契约"
         }
       ]
     },
@@ -2040,7 +2119,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-use-composable-check-tree-in-project-definition"
+          "target": "260814-use-composable-check-tree-in-project-definition",
+          "summary": "以可组合 Check tree 由 Run 构造绑定"
         }
       ]
     },
@@ -2060,11 +2140,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260805-use-runtime-resolved-check-and-record-core"
+          "target": "260805-use-runtime-resolved-check-and-record-core",
+          "summary": "将运行时 Check/Record 重构为两类核心事实"
         },
         {
           "type": "归并",
-          "target": "260805-separate-check-and-record-type-identities"
+          "target": "260805-separate-check-and-record-type-identities",
+          "summary": "以 checkId 直接绑定 QualityRecord"
         }
       ]
     },
@@ -2084,7 +2166,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-use-core-check-and-quality-record-facts"
+          "target": "260815-use-core-check-and-quality-record-facts",
+          "summary": "从 Run resolution 建立核心事实"
         }
       ]
     },
@@ -2104,7 +2187,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260815-keep-check-groups-authoring-only"
+          "target": "260815-keep-check-groups-authoring-only",
+          "summary": "使用带递归 composition 的单一 Check shape"
         }
       ]
     },
@@ -2124,7 +2208,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-use-field-aware-built-in-check-adjustments"
+          "target": "260814-use-field-aware-built-in-check-adjustments",
+          "summary": "使用独立函数调整普通内置 Check 数据"
         }
       ]
     },
@@ -2159,7 +2244,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-carry-recursive-check-parallel-limits-through-task-scopes"
+          "target": "260815-carry-recursive-check-parallel-limits-through-task-scopes",
+          "summary": "在 Check Task 运行期间应用并行上限"
         }
       ]
     },
@@ -2179,7 +2265,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-drive-run-from-project-definition-value"
+          "target": "260814-drive-run-from-project-definition-value",
+          "summary": "由 Check-owned execution options 驱动 Run"
         }
       ]
     },
@@ -2199,7 +2286,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-execute-project-functions-through-task-system-in-caller-runtime"
+          "target": "260814-execute-project-functions-through-task-system-in-caller-runtime",
+          "summary": "在调用方 runtime 中执行 Check functions"
         }
       ]
     },
@@ -2219,7 +2307,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260815-expose-single-check-authoring-surface"
+          "target": "260815-expose-single-check-authoring-surface",
+          "summary": "以 defineCheck 公开普通 Check 值"
         }
       ]
     },
@@ -2239,7 +2328,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260815-confirm-single-check-authoring-and-derivation-names-before-publication"
+          "target": "260815-confirm-single-check-authoring-and-derivation-names-before-publication",
+          "summary": "公开递归 Check authoring 与 Run surface"
         }
       ]
     },
@@ -2259,15 +2349,18 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260814-bind-external-programs-outside-check-semantics"
+          "target": "260814-bind-external-programs-outside-check-semantics",
+          "summary": "将外部程序 binding 纳入 Check options"
         },
         {
           "type": "替代",
-          "target": "260805-limit-tool-neutrality-to-built-in-checks"
+          "target": "260805-limit-tool-neutrality-to-built-in-checks",
+          "summary": "由 Check options 承担工具专属依赖"
         },
         {
           "type": "修订",
-          "target": "260803-hard-cut-legacy-tool-shaped-config"
+          "target": "260803-hard-cut-legacy-tool-shaped-config",
+          "summary": "在 hard cut 后改用 Check-owned dependencies"
         }
       ]
     },
@@ -2287,7 +2380,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-pass-project-definition-value-to-run"
+          "target": "260814-pass-project-definition-value-to-run",
+          "summary": "将 Definition 的 Check 函数交给 Run"
         }
       ]
     },
@@ -2307,7 +2401,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-execute-recursive-checks-through-one-task-graph"
+          "target": "260815-execute-recursive-checks-through-one-task-graph",
+          "summary": "将 executable Check 直接投影到已验证 Task graph"
         }
       ]
     },
@@ -2342,7 +2437,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-use-closed-inheritable-check-collection-expressions"
+          "target": "260815-use-closed-inheritable-check-collection-expressions",
+          "summary": "使用 inherit 编辑可继承 Check 集合"
         }
       ]
     },
@@ -2362,7 +2458,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260815-use-check-value-derivation-contract"
+          "target": "260815-use-check-value-derivation-contract",
+          "summary": "使用原生对象组合自定义 Check"
         }
       ]
     },
@@ -2382,7 +2479,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-use-one-check-shape-with-recursive-composition"
+          "target": "260815-use-one-check-shape-with-recursive-composition",
+          "summary": "使用可选 execution 的递归 Check 普通对象"
         }
       ]
     },
@@ -2478,7 +2576,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-use-user-owned-definition-for-observation-and-gates"
+          "target": "260814-use-user-owned-definition-for-observation-and-gates",
+          "summary": "让 Project Gate 绑定 Run aggregation"
         }
       ]
     },
@@ -2498,7 +2597,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260817-expose-recursive-check-authoring-and-run-surface"
+          "target": "260817-expose-recursive-check-authoring-and-run-surface",
+          "summary": "公开最小 Check authoring 与 Run surface"
         }
       ]
     },
@@ -2519,7 +2619,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260805-require-explicit-named-comparison-references"
+          "target": "260805-require-explicit-named-comparison-references",
+          "summary": "让基线语义留在 producing Check"
         }
       ]
     },
@@ -2539,7 +2640,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260817-allow-empty-information-checks-with-warning"
+          "target": "260817-allow-empty-information-checks-with-warning",
+          "summary": "将空信息 Check warning 保留为 Run fact"
         }
       ]
     },
@@ -2576,7 +2678,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260817-project-executable-checks-into-validated-task-graph"
+          "target": "260817-project-executable-checks-into-validated-task-graph",
+          "summary": "让依赖 Check 读取上游 settled outputs"
         }
       ]
     },
@@ -2596,7 +2699,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-publish-fingerprint-bound-check-record-machine-v3"
+          "target": "260815-publish-fingerprint-bound-check-record-machine-v3",
+          "summary": "将 machine v4 发布为指纹绑定的双文件集合"
         }
       ]
     },
@@ -2617,11 +2721,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260821-keep-record-field-shapes-at-the-type-boundary"
+          "target": "260821-keep-record-field-shapes-at-the-type-boundary",
+          "summary": "将字段 shape 收敛为 Check local data"
         },
         {
           "type": "归并",
-          "target": "260821-use-check-owned-extractors-for-opaque-record-identities"
+          "target": "260821-use-check-owned-extractors-for-opaque-record-identities",
+          "summary": "以 Check local ID 取代 opaque ID 提取链"
         }
       ]
     },
@@ -2642,7 +2748,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260805-use-location-independent-record-identities"
+          "target": "260805-use-location-independent-record-identities",
+          "summary": "改由 Check extractor 生成 opaque identity"
         }
       ]
     },
@@ -2662,7 +2769,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-use-core-check-and-record-facts-from-run-resolution"
+          "target": "260815-use-core-check-and-record-facts-from-run-resolution",
+          "summary": "以 final data 形成核心 Check/Record facts"
         }
       ]
     },
@@ -2682,7 +2790,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260817-use-direct-check-execution-with-structured-results"
+          "target": "260817-use-direct-check-execution-with-structured-results",
+          "summary": "直接执行 Check 并最小化 Record reporting"
         }
       ]
     },
@@ -2702,7 +2811,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260815-evaluate-decision-policies-from-core-facts"
+          "target": "260815-evaluate-decision-policies-from-core-facts",
+          "summary": "使用显式 Run Controls Check aggregation"
         }
       ]
     },
@@ -2722,7 +2832,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260821-use-direct-check-execution-with-minimal-record-reporting"
+          "target": "260821-use-direct-check-execution-with-minimal-record-reporting",
+          "summary": "使用四态 Check final result 与主数据"
         }
       ]
     },
@@ -2758,7 +2869,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260822-distinguish-primary-and-derived-change-problems"
+          "target": "260822-distinguish-primary-and-derived-change-problems",
+          "summary": "在 Change 中区分主要问题集合与衍生问题"
         }
       ]
     },
@@ -2793,7 +2905,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260805-require-explicit-network-check-authorization"
+          "target": "260805-require-explicit-network-check-authorization",
+          "summary": "网络 Check 使用 Check-owned 显式授权"
         }
       ]
     },
@@ -2813,7 +2926,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260804-use-file-policy-overrides"
+          "target": "260804-use-file-policy-overrides",
+          "summary": "由 Check options 表达文件级差异"
         }
       ]
     },
@@ -2851,7 +2965,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260818-vendor-foundation-as-repository-owned-script-tool"
+          "target": "260818-vendor-foundation-as-repository-owned-script-tool",
+          "summary": "将 Foundation 纳入普通 workspace assurance"
         }
       ]
     },
@@ -2872,7 +2987,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260821-let-dependent-checks-read-settled-upstream-outputs"
+          "target": "260821-let-dependent-checks-read-settled-upstream-outputs",
+          "summary": "以 string getter 读取直接依赖 final data"
         }
       ]
     },
@@ -2926,15 +3042,18 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260824-complete-first-release-check-set-before-publication"
+          "target": "260824-complete-first-release-check-set-before-publication",
+          "summary": "将首版维护提醒收敛为专用构造函数"
         },
         {
           "type": "归并",
-          "target": "260821-expose-minimal-check-and-run-public-surface"
+          "target": "260821-expose-minimal-check-and-run-public-surface",
+          "summary": "在最小 Check surface 上加入维护提醒构造"
         },
         {
           "type": "归并",
-          "target": "260817-use-native-object-composition-for-check-customization"
+          "target": "260817-use-native-object-composition-for-check-customization",
+          "summary": "以专用构造函数取代对象组合维护提醒"
         }
       ]
     },
@@ -2955,7 +3074,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260824-complete-first-release-check-set-before-publication"
+          "target": "260824-complete-first-release-check-set-before-publication",
+          "summary": "在首次公开发布前完成四项选定的首版 Checks"
         }
       ]
     },
@@ -2986,6 +3106,7 @@
       "background": "早期 package 文档曾采用中文主叙述，但该方向未进入当前稳定规范或决策，consumer 可达说明仍出现整段英文。",
       "decision": "对 package consumer 的 README 与声明说明采用中文主叙述，以 reviewer 编辑判断维护，不建立全量字符门禁或机械翻译义务。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
@@ -3040,7 +3161,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260824-complete-first-release-check-set-before-publication"
+          "target": "260824-complete-first-release-check-set-before-publication",
+          "summary": "在首发 Checks 中提供受控 Schema 引用"
         }
       ]
     },
@@ -3092,11 +3214,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260822-use-check-owned-file-overrides"
+          "target": "260822-use-check-owned-file-overrides",
+          "summary": "将文件差异扩展为 Check 全量 selection"
         },
         {
           "type": "归并",
-          "target": "260825-define-offline-markdown-link-target-boundaries"
+          "target": "260825-define-offline-markdown-link-target-boundaries",
+          "summary": "将 Link 本地目标边界纳入自身 selection"
         }
       ]
     },
@@ -3112,12 +3236,14 @@
       "decision": "required 默认不执行三项 package lifecycle Checks，显式 tag 加入；full 自动执行全部。",
       "tags": [
         "configuration",
+        "testing",
         "workflow-policy"
       ],
       "relations": [
         {
           "type": "修订",
-          "target": "260823-default-project-gate-to-required-profile"
+          "target": "260823-default-project-gate-to-required-profile",
+          "summary": "让高成本 package lifecycle Gate 测试显式启用"
         }
       ]
     },
@@ -3138,7 +3264,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260826-validate-ordinary-check-options-before-execution"
+          "target": "260826-validate-ordinary-check-options-before-execution",
+          "summary": "在执行前准备普通 Check options"
         }
       ]
     },
@@ -3176,7 +3303,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260824-align-source-layout-and-naming-with-module-owners"
+          "target": "260824-align-source-layout-and-naming-with-module-owners",
+          "summary": "收敛 Product 模块边界到实际 owner"
         }
       ]
     },
@@ -3197,7 +3325,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260826-refine-product-module-boundaries"
+          "target": "260826-refine-product-module-boundaries",
+          "summary": "收敛 Project Run 与 Check settlement owner"
         }
       ]
     },
@@ -3218,7 +3347,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260811-preinstall-selected-typescript-capabilities"
+          "target": "260811-preinstall-selected-typescript-capabilities",
+          "summary": "移除无消费者的 Product Option 能力"
         }
       ]
     },
@@ -3238,7 +3368,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260812-enable-tool-effects-by-default"
+          "target": "260812-enable-tool-effects-by-default",
+          "summary": "以 Run outputs 取代全局工具效果"
         }
       ]
     },
@@ -3259,7 +3390,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260730-use-semantic-test-case-closure"
+          "target": "260730-use-semantic-test-case-closure",
+          "summary": "将测试实体闭合与测试执行拆为独立 assurance"
         }
       ]
     },
@@ -3296,11 +3428,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260826-let-each-check-own-file-selection"
+          "target": "260826-let-each-check-own-file-selection",
+          "summary": "在 Check 自有 selection 后验证 options"
         },
         {
           "type": "归并",
-          "target": "260826-treat-package-provided-checks-as-ordinary"
+          "target": "260826-treat-package-provided-checks-as-ordinary",
+          "summary": "让普通 Check 自带 options validator"
         }
       ]
     },
@@ -3337,7 +3471,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260821-bind-project-gates-to-run-aggregation"
+          "target": "260821-bind-project-gates-to-run-aggregation",
+          "summary": "以完整 Gate 上下文后处理结果"
         }
       ]
     },
@@ -3359,7 +3494,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260826-provide-prepared-package-candidate-as-typed-check-data"
+          "target": "260826-provide-prepared-package-candidate-as-typed-check-data",
+          "summary": "在 package acceptance 间复用已准备 candidate"
         }
       ]
     },
@@ -3381,7 +3517,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260826-make-package-lifecycle-gate-tests-explicit"
+          "target": "260826-make-package-lifecycle-gate-tests-explicit",
+          "summary": "按测量与资源责任调度 Project Gate"
         }
       ]
     },
@@ -3403,7 +3540,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260827-reuse-prepared-candidate-across-package-acceptance"
+          "target": "260827-reuse-prepared-candidate-across-package-acceptance",
+          "summary": "以 typed provider data 拆分外部验收"
         }
       ]
     },
@@ -3418,6 +3556,7 @@
       "background": "现有 README 同时承载入门、内置 Check、进阶机制和结果边界，另有 Check 索引页形成不必要的导航层级。",
       "decision": "package 文档只以 README 作为总入口，直接链接每项 Check 指南，并最多提供一份深入 API 机制说明。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
@@ -3434,6 +3573,7 @@
       "background": "旧流程把 Markdown 正文源与最终发布文件分开，维护者无法从发布路径直接恢复编辑边界。",
       "decision": "发布路径 Markdown 拥有正文与链接，投影代码只替换成对标记之间的已验证示例，不再生成整篇文档。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
@@ -3456,11 +3596,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260817-expose-ordinary-check-values-with-define-check"
+          "target": "260817-expose-ordinary-check-values-with-define-check",
+          "summary": "以默认化构造函数承接普通 Check authoring"
         },
         {
           "type": "归并",
-          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds"
+          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds",
+          "summary": "将 area 文件与阈值纳入默认化构造"
         }
       ]
     },
@@ -3496,11 +3638,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260817-drive-run-from-check-owned-execution-options"
+          "target": "260817-drive-run-from-check-owned-execution-options",
+          "summary": "将 Run 执行配置收回 Check-owned inputs"
         },
         {
           "type": "归并",
-          "target": "260817-let-check-options-own-execution-dependencies"
+          "target": "260817-let-check-options-own-execution-dependencies",
+          "summary": "将依赖与变更事实分给 options/provider"
         }
       ]
     },
@@ -3521,7 +3665,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260828-construct-duplicate-detection-from-defaulted-policy"
+          "target": "260828-construct-duplicate-detection-from-defaulted-policy",
+          "summary": "让重复检测 adapter 独占 CLI 协议与执行调优"
         }
       ]
     },
@@ -3542,7 +3687,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260828-scan-duplicate-code-once-across-code-areas"
+          "target": "260828-scan-duplicate-code-once-across-code-areas",
+          "summary": "让每个重复检测区域共同拥有文件范围和阈值"
         }
       ]
     },
@@ -3605,13 +3751,15 @@
       "background": "成对注释虽能限定替换范围，却会把生成机制痕迹保留在 consumer 可检查的 package 文档原文中。",
       "decision": "使用自然 heading path 定位 section 中唯一的 TypeScript fence，并拒绝歧义目标和旧投影标记。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
       "relations": [
         {
           "type": "修订",
-          "target": "260828-author-package-markdown-at-published-paths"
+          "target": "260828-author-package-markdown-at-published-paths",
+          "summary": "以自然 Markdown section 定位 package 可执行示例"
         }
       ]
     },
@@ -3632,7 +3780,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260824-complete-first-release-check-set-with-specialized-maintenance-reminder"
+          "target": "260824-complete-first-release-check-set-with-specialized-maintenance-reminder",
+          "summary": "为随包 Check 提供构造函数、解析器与可行动消息"
         }
       ]
     },
@@ -3669,7 +3818,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260826-let-each-check-own-file-selection"
+          "target": "260826-let-each-check-own-file-selection",
+          "summary": "从显式来源选择 Check 文件"
         }
       ]
     },
@@ -3700,6 +3850,7 @@
       "background": "Package Run 默认可以发布 machine files，但当前安装包没有交付 output owner、current schemas 或 artifact examples。",
       "decision": "Package 随当前 API 和 runtime 交付 consumer-oriented output guide、两份 v4 schema 与四组 current examples。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
@@ -3723,7 +3874,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260828-let-duplicate-detection-adapter-own-cli-protocol"
+          "target": "260828-let-duplicate-detection-adapter-own-cli-protocol",
+          "summary": "将 jscpd 版本作为 adapter provenance 而非项目政策"
         }
       ]
     },
@@ -3743,7 +3895,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260826-replace-global-tool-effects-with-run-outputs"
+          "target": "260826-replace-global-tool-effects-with-run-outputs",
+          "summary": "增加一次性 Project Run core 诊断日志 output"
         }
       ]
     },
@@ -3765,7 +3918,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260829-add-ephemeral-project-run-diagnostic-logging"
+          "target": "260829-add-ephemeral-project-run-diagnostic-logging",
+          "summary": "将 Gate Run 证据收敛为单次高信噪 invocation"
         }
       ]
     },
@@ -3780,13 +3934,15 @@
       "background": "Output guide 的仓库维护章节和四份重复示例 README 增加了安装包阅读负担，却不改变 consumer 的读取动作。",
       "decision": "将 machine consumer 契约与仓库维护说明分开，package 示例只交付每组完整 publication bytes。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
       "relations": [
         {
           "type": "修订",
-          "target": "260828-ship-current-machine-contract-materials-in-the-package"
+          "target": "260828-ship-current-machine-contract-materials-in-the-package",
+          "summary": "让 package machine 文档只承接消费契约"
         }
       ]
     },
@@ -3823,7 +3979,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260829-run-repository-quality-checks-inside-project-gate"
+          "target": "260829-run-repository-quality-checks-inside-project-gate",
+          "summary": "在 Project Gate 内直接观察仓库质量 Checks"
         }
       ]
     },
@@ -3876,7 +4033,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260829-ship-one-definition-backed-machine-example"
+          "target": "260829-ship-one-definition-backed-machine-example",
+          "summary": "让唯一 machine 示例覆盖代表性公共 Check 能力"
         }
       ]
     },
@@ -3891,13 +4049,15 @@
       "background": "四组示例只替换 terminal outcome，却重复同一 two-file 结构；只交付输出又无法说明哪些 Project Definition 会形成这些事实。",
       "decision": "只交付一组 mixed-outcomes Definition 与对应输出，并从该 Definition 生成 Check/Record facts。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
       "relations": [
         {
           "type": "修订",
-          "target": "260829-keep-package-machine-docs-consumer-focused"
+          "target": "260829-keep-package-machine-docs-consumer-focused",
+          "summary": "只随包交付一组由 Definition 支撑的 machine 示例"
         }
       ]
     },
@@ -3918,7 +4078,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260829-observe-repository-quality-checks-inside-project-gate"
+          "target": "260829-observe-repository-quality-checks-inside-project-gate",
+          "summary": "聚合全部 eligible Gate Check 状态"
         }
       ]
     },
@@ -3956,15 +4117,18 @@
       "relations": [
         {
           "type": "重划",
-          "target": "260825-allow-controlled-json-schema-reference-sources"
+          "target": "260825-allow-controlled-json-schema-reference-sources",
+          "summary": "从首版 Check 集合拆出受控 Schema 引用"
         },
         {
           "type": "重划",
-          "target": "260824-complete-first-release-check-set-without-markdown-structure"
+          "target": "260824-complete-first-release-check-set-without-markdown-structure",
+          "summary": "将 Schema 引用从首版四项能力中分离"
         },
         {
           "type": "重划",
-          "target": "260805-expand-format-aware-built-in-checks"
+          "target": "260805-expand-format-aware-built-in-checks",
+          "summary": "将 Schema 引用从格式 Check 路线独立出来"
         }
       ]
     },
@@ -3985,11 +4149,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260830-expose-markdown-link-finding-policy"
+          "target": "260830-expose-markdown-link-finding-policy",
+          "summary": "将 Link 默认阻断改为 Package advisory"
         },
         {
           "type": "归并",
-          "target": "260828-share-finding-policy-across-area-quality-checks"
+          "target": "260828-share-finding-policy-across-area-quality-checks",
+          "summary": "将区域 Check 共用阻断策略改为默认 advisory"
         }
       ]
     },
@@ -4041,7 +4207,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260826-refine-project-run-and-settlement-owners"
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "保持 duplicate-detection cache 由 Check 拥有"
         }
       ]
     },
@@ -4062,11 +4229,13 @@
       "relations": [
         {
           "type": "重划",
-          "target": "260825-allow-controlled-json-schema-reference-sources"
+          "target": "260825-allow-controlled-json-schema-reference-sources",
+          "summary": "从五项首版收敛为四项能力"
         },
         {
           "type": "重划",
-          "target": "260824-complete-first-release-check-set-without-markdown-structure"
+          "target": "260824-complete-first-release-check-set-without-markdown-structure",
+          "summary": "保留四项并将 Schema 引用独立成 Check"
         }
       ]
     },
@@ -4087,7 +4256,8 @@
       "relations": [
         {
           "type": "重划",
-          "target": "260805-expand-format-aware-built-in-checks"
+          "target": "260805-expand-format-aware-built-in-checks",
+          "summary": "保持格式感知 Check 能力彼此独立"
         }
       ]
     },
@@ -4107,7 +4277,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260826-refine-project-run-and-settlement-owners"
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "保持清单与材料由 tooling owner 管理"
         }
       ]
     },
@@ -4145,7 +4316,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-publish-invocation-creation-time-without-execution-telemetry"
+          "target": "260830-publish-invocation-creation-time-without-execution-telemetry",
+          "summary": "以 invocation 创建时间保持发布前 Gate 就绪边界"
         }
       ]
     },
@@ -4166,7 +4338,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities"
+          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities",
+          "summary": "提供泛型 Finding waiver 对账能力"
         }
       ]
     },
@@ -4203,7 +4376,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260819-complete-project-gate-before-public-package-release"
+          "target": "260819-complete-project-gate-before-public-package-release",
+          "summary": "发布 invocation 创建时间而非执行遥测"
         }
       ]
     },
@@ -4223,7 +4397,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time"
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time",
+          "summary": "发布 invocation 创建时间而不建立 Check telemetry"
         }
       ]
     },
@@ -4244,7 +4419,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics"
+          "target": "260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics",
+          "summary": "用调用方定义的身份对账质量 Finding 豁免"
         }
       ]
     },
@@ -4265,7 +4441,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-publish-composable-default-project-file-selection"
+          "target": "260830-publish-composable-default-project-file-selection",
+          "summary": "让选中文件与 Check eligibility 完整对账"
         }
       ]
     },
@@ -4286,7 +4463,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260827-post-process-project-gate-with-owned-context"
+          "target": "260827-post-process-project-gate-with-owned-context",
+          "summary": "用连续阶段解释 Gate 初步结果耗时"
         }
       ]
     },
@@ -4306,7 +4484,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time"
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time",
+          "summary": "报告每项 Check 时长而不改变 Check facts"
         }
       ]
     },
@@ -4327,7 +4506,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time"
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time",
+          "summary": "公开发布前要求完整 Project Gate 证据"
         }
       ]
     },
@@ -4365,7 +4545,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-serialize-project-gate-documentation-materials-by-ownership"
+          "target": "260830-serialize-project-gate-documentation-materials-by-ownership",
+          "summary": "按实测资源所有权调度 Gate 与文档材料"
         }
       ]
     },
@@ -4386,7 +4567,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260826-refine-project-run-and-settlement-owners"
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "拆分 settlement、Run、progress 与 machine 职责"
         }
       ]
     },
@@ -4408,7 +4590,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260827-schedule-project-gate-by-measured-resource-ownership"
+          "target": "260827-schedule-project-gate-by-measured-resource-ownership",
+          "summary": "按材料所有权串行 Project Gate 文档验证"
         }
       ]
     },
@@ -4428,7 +4611,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260826-refine-project-run-and-settlement-owners"
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "在 JSON sibling Check 间共享严格文档边界"
         }
       ]
     },
@@ -4443,13 +4627,15 @@
       "background": "原决策 ID 使用 public documentation，范围宽于正文实际约束，容易被误读为所有公开材料规则。",
       "decision": "README、package entry 与必要 public declarations 采用中文主叙述，不建立全库语言门禁。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
       "relations": [
         {
           "type": "替代",
-          "target": "260824-use-chinese-as-primary-language-for-public-documentation"
+          "target": "260824-use-chinese-as-primary-language-for-public-documentation",
+          "summary": "package consumer 文档以中文叙述为主"
         }
       ]
     },
@@ -4470,7 +4656,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities"
+          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities",
+          "summary": "保留证据地豁免历史 v2 Schema 文件指标"
         }
       ]
     },
@@ -4491,7 +4678,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260831-centralize-project-gate-definition-and-separate-adapters"
+          "target": "260831-centralize-project-gate-definition-and-separate-adapters",
+          "summary": "由中央 Definition 配置 Project Gate afterGate"
         }
       ]
     },
@@ -4528,7 +4716,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260823-read-direct-dependency-final-data-by-string"
+          "target": "260823-read-direct-dependency-final-data-by-string",
+          "summary": "枚举已规范化的直接 dependency outcomes"
         }
       ]
     },
@@ -4548,7 +4737,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260831-provide-product-progress-with-check-console-capture"
+          "target": "260831-provide-product-progress-with-check-console-capture",
+          "summary": "在 Check preflight 前一次安装 console router"
         }
       ]
     },
@@ -4583,7 +4773,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260831-present-bounded-safe-finding-summaries"
+          "target": "260831-present-bounded-safe-finding-summaries",
+          "summary": "提供由 Check 配置的通用有界 Finding 展示"
         }
       ]
     },
@@ -4603,7 +4794,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260820-provide-product-owned-check-progress"
+          "target": "260820-provide-product-owned-check-progress",
+          "summary": "由 progress 捕获并结算 Check console 输出"
         }
       ]
     },
@@ -4623,7 +4815,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260814-publish-unscoped-vibe-check-publicly"
+          "target": "260814-publish-unscoped-vibe-check-publicly",
+          "summary": "在个人 npm scope 公开发布 Vibe Check package"
         }
       ]
     },
@@ -4658,7 +4851,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260831-treat-run-output-directories-as-explicit-trusted-targets"
+          "target": "260831-treat-run-output-directories-as-explicit-trusted-targets",
+          "summary": "将 machine 发布限于 canonical file owner"
         }
       ]
     },
@@ -4712,7 +4906,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials"
+          "target": "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials",
+          "summary": "用重复对照证据配置 Project Gate 的准入优先级"
         }
       ]
     },
@@ -4749,7 +4944,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260822-allow-check-terminal-messages-and-explicit-visibility"
+          "target": "260822-allow-check-terminal-messages-and-explicit-visibility",
+          "summary": "在 progress 中按名称分组未命中 flag 的 Checks"
         }
       ]
     },
@@ -4769,7 +4965,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260817-use-inherit-for-check-collection-edits"
+          "target": "260817-use-inherit-for-check-collection-edits",
+          "summary": "分别继承 dependsOn 与 observes relation"
         }
       ]
     },
@@ -4789,7 +4986,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260831-install-check-console-router-before-preflight"
+          "target": "260831-install-check-console-router-before-preflight",
+          "summary": "在 task-local Check 生命周期保留 console router"
         }
       ]
     },
@@ -4811,7 +5009,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260829-consolidate-project-gate-run-evidence"
+          "target": "260829-consolidate-project-gate-run-evidence",
+          "summary": "以无状态 Scheduler context 保持完整 Gate Run 证据"
         }
       ]
     },
@@ -4832,7 +5031,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-keep-duplicate-detection-cache-check-owned"
+          "target": "260830-keep-duplicate-detection-cache-check-owned",
+          "summary": "提供 caller-keyed JSON cache，不缓存 Run"
         }
       ]
     },
@@ -4852,7 +5052,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260817-apply-check-parallel-limit-while-task-runs"
+          "target": "260817-apply-check-parallel-limit-while-task-runs",
+          "summary": "保留运行期并行上限并按优先级选择 ready Task"
         }
       ]
     },
@@ -4873,7 +5074,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260826-prepare-check-options-before-execution"
+          "target": "260826-prepare-check-options-before-execution",
+          "summary": "在 Check Task 准入后执行 preflight"
         }
       ]
     },
@@ -4910,7 +5112,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260831-enumerate-normalized-direct-dependency-outcomes"
+          "target": "260831-enumerate-normalized-direct-dependency-outcomes",
+          "summary": "分离成功前置与已结算终态观测"
         }
       ]
     },
@@ -4930,7 +5133,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260815-cancel-task-admission-and-drain-started-work"
+          "target": "260815-cancel-task-admission-and-drain-started-work",
+          "summary": "将未通过前置的 dependent 结算为 unavailable"
         }
       ]
     },
@@ -4951,7 +5155,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260820-use-string-flags-for-project-run-controls"
+          "target": "260820-use-string-flags-for-project-run-controls",
+          "summary": "支持多 flag Check 启用策略"
         }
       ]
     },
@@ -4972,7 +5177,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260828-let-file-metrics-adapter-own-cli-protocol"
+          "target": "260828-let-file-metrics-adapter-own-cli-protocol",
+          "summary": "让文件指标 adapter 固定 SCC v4 CLI 协议"
         }
       ]
     },
@@ -4994,11 +5200,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260901-separate-admission-policy-from-scheduler-state-machine"
+          "target": "260901-separate-admission-policy-from-scheduler-state-machine",
+          "summary": "以无状态 select/wait policy 承接策略分离"
         },
         {
           "type": "归并",
-          "target": "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority"
+          "target": "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority",
+          "summary": "以硬 guard 保留并行上限与优先级"
         }
       ]
     },
@@ -5019,7 +5227,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds"
+          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds",
+          "summary": "只在共同代码区域内形成重复 Finding"
         }
       ]
     },
@@ -5056,7 +5265,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence"
+          "target": "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence",
+          "summary": "将历史 Schema 移出可维护性指标"
         }
       ]
     },
@@ -5077,7 +5287,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-extend-invocation-local-scheduler-performance-summary"
+          "target": "260902-extend-invocation-local-scheduler-performance-summary",
+          "summary": "将 Scheduler 性能测量交给 invocation-local Hook"
         }
       ]
     },
@@ -5098,7 +5309,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260901-add-invocation-local-scheduler-performance-summary"
+          "target": "260901-add-invocation-local-scheduler-performance-summary",
+          "summary": "扩展 invocation-local Scheduler 压力与尾段诊断"
         }
       ]
     },
@@ -5136,7 +5348,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260830-require-known-repository-quality-remediation-before-public-release"
+          "target": "260830-require-known-repository-quality-remediation-before-public-release",
+          "summary": "让仓库质量 Finding 在发布前仍为提示"
         }
       ]
     },
@@ -5174,7 +5387,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-provide-decision-boundary-admission-measurement"
+          "target": "260902-provide-decision-boundary-admission-measurement",
+          "summary": "以 policy action 后状态观察修订准入 measurement"
         }
       ]
     },
@@ -5196,7 +5410,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-license-package-under-mit"
+          "target": "260814-license-package-under-mit",
+          "summary": "为翻译的 analyzer 保留适用 upstream 许可与声明"
         }
       ]
     },
@@ -5217,7 +5432,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-expose-invocation-local-scheduler-measurement-hooks"
+          "target": "260902-expose-invocation-local-scheduler-measurement-hooks",
+          "summary": "保留主 Run failure 高于测量 Hook 输出"
         }
       ]
     },
@@ -5238,7 +5454,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260901-expose-stateless-custom-admission-policy-to-callers"
+          "target": "260901-expose-stateless-custom-admission-policy-to-callers",
+          "summary": "在 admission 前提供决策边界测量"
         }
       ]
     },
@@ -5261,11 +5478,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260805-defer-lizard-until-after-check-foundations"
+          "target": "260805-defer-lizard-until-after-check-foundations",
+          "summary": "将后置 Lizard port 落地为自有 TS analyzer"
         },
         {
           "type": "归并",
-          "target": "260828-let-function-metrics-adapter-own-lizard-cli-protocol"
+          "target": "260828-let-function-metrics-adapter-own-lizard-cli-protocol",
+          "summary": "以自有 TS analyzer 取代 Lizard CLI adapter"
         }
       ]
     },
@@ -5288,7 +5507,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-align-function-metrics-inputs-with-lizard-supported-languages"
+          "target": "260830-align-function-metrics-inputs-with-lizard-supported-languages",
+          "summary": "以仓库提示持续跟随 Lizard 支持语言与 analyzer 修复"
         }
       ]
     },
@@ -5310,7 +5530,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260901-support-multi-flag-check-enablement-strategies"
+          "target": "260901-support-multi-flag-check-enablement-strategies",
+          "summary": "将 flag control 终态作为 Scheduler 准入前结果"
         }
       ]
     },
@@ -5331,7 +5552,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-expose-invocation-local-scheduler-measurement-hooks"
+          "target": "260902-expose-invocation-local-scheduler-measurement-hooks",
+          "summary": "将默认汇总统一为终态测量 Hook"
         }
       ]
     },
@@ -5352,7 +5574,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260828-provide-package-check-functions-parsers-and-actionable-messages"
+          "target": "260828-provide-package-check-functions-parsers-and-actionable-messages",
+          "summary": "将安全秘密检测纳入随包 Check 契约"
         }
       ]
     },
@@ -5374,7 +5597,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle"
+          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle",
+          "summary": "采用 invocation-scoped 准入策略 authoring"
         }
       ]
     },
@@ -5397,7 +5621,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers"
+          "target": "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers",
+          "summary": "在产品自有 analyzer 中私有采用指定 Lizard 扩展"
         }
       ]
     },
@@ -5420,7 +5645,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-isolate-lizard-port-behind-check-private-interface"
+          "target": "260902-isolate-lizard-port-behind-check-private-interface",
+          "summary": "将 Lizard 私有 port 整目录排除出仓库质量指标"
         }
       ]
     },
@@ -5441,7 +5667,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-preserve-primary-run-failures-over-measurement-hook-output"
+          "target": "260902-preserve-primary-run-failures-over-measurement-hook-output",
+          "summary": "将 prepared complete 纳入测量 Hook 输出"
         }
       ]
     },
@@ -5463,7 +5690,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260901-use-stateless-admission-policies-with-hard-scheduler-guards"
+          "target": "260901-use-stateless-admission-policies-with-hard-scheduler-guards",
+          "summary": "以 invocation 策略生命周期包装纯准入选择"
         }
       ]
     },
@@ -5486,7 +5714,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-track-lizard-supported-languages-with-upstream-advisory"
+          "target": "260902-track-lizard-supported-languages-with-upstream-advisory",
+          "summary": "在采用指定扩展时保持 Lizard advisory 显式"
         }
       ]
     },
@@ -5542,7 +5771,8 @@
       "relations": [
         {
           "type": "拆分",
-          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle"
+          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle",
+          "summary": "保留私有 invocation 准入策略生命周期"
         }
       ]
     },
@@ -5581,7 +5811,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260904-use-project-check-command-with-focused-gate-presets"
+          "target": "260904-use-project-check-command-with-focused-gate-presets",
+          "summary": "让 Project Gate 委托 Product 处理依赖选择"
         }
       ]
     },
@@ -5620,7 +5851,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context"
+          "target": "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context",
+          "summary": "以 owner-scoped context 保持完整 Gate 证据"
         }
       ]
     },
@@ -5642,7 +5874,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-organize-project-run-and-gate-diagnostics-for-human-inspection"
+          "target": "260830-organize-project-run-and-gate-diagnostics-for-human-inspection",
+          "summary": "以 owner-aware channel 组织 Run/Gate 诊断"
         }
       ]
     },
@@ -5696,7 +5929,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260829-publish-project-gate-machine-facts-with-invocation-evidence"
+          "target": "260829-publish-project-gate-machine-facts-with-invocation-evidence",
+          "summary": "将 Gate machine 事实发布到命名空间"
         }
       ]
     },
@@ -5718,7 +5952,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260904-publish-detailed-native-gate-diagnostic-records"
+          "target": "260904-publish-detailed-native-gate-diagnostic-records",
+          "summary": "由 progress 统一预览 Record 与 Check message"
         }
       ]
     },
@@ -5756,11 +5991,13 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence"
+          "target": "260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence",
+          "summary": "复用 candidate evidence 取代 Gate 调度关注点"
         },
         {
           "type": "归并",
-          "target": "260827-split-external-consumer-acceptance-with-typed-provider-data"
+          "target": "260827-split-external-consumer-acceptance-with-typed-provider-data",
+          "summary": "由 Gate root 接管 provider candidate 生命周期"
         }
       ]
     },
@@ -5783,15 +6020,18 @@
       "relations": [
         {
           "type": "归并",
-          "target": "260902-treat-flag-control-settlements-as-scheduler-results"
+          "target": "260902-treat-flag-control-settlements-as-scheduler-results",
+          "summary": "将 flag 未匹配并入一次有效选择"
         },
         {
           "type": "归并",
-          "target": "260821-use-explicit-run-controls-check-aggregation"
+          "target": "260821-use-explicit-run-controls-check-aggregation",
+          "summary": "让 aggregation 消费同源 effective selection"
         },
         {
           "type": "归并",
-          "target": "260901-group-flag-disabled-checks-in-progress"
+          "target": "260901-group-flag-disabled-checks-in-progress",
+          "summary": "将 flag 分组进度纳入 effective selection"
         }
       ]
     },
@@ -5831,15 +6071,18 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260830-default-package-quality-findings-to-advisory"
+          "target": "260830-default-package-quality-findings-to-advisory",
+          "summary": "保持 package advisory，Gate 改为 blocking"
         },
         {
           "type": "替代",
-          "target": "260902-keep-repository-quality-findings-advisory-through-release"
+          "target": "260902-keep-repository-quality-findings-advisory-through-release",
+          "summary": "以 Gate 阻断取代发布前质量 advisory"
         },
         {
           "type": "修订",
-          "target": "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes"
+          "target": "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes",
+          "summary": "将清理义务与 Gate 阻断分别保留"
         }
       ]
     },
@@ -5854,6 +6097,7 @@
       "background": "内部文档名称过泛且目录混杂，配置与工具长文同时承担多个可独立维护的任务。",
       "decision": "按维护职责分组并以中心对象命名，按独立阅读任务拆长文而不设置行数上限。",
       "tags": [
+        "documentation",
         "workflow-policy"
       ],
       "relations": []
@@ -5869,6 +6113,7 @@
       "background": "主题重叠不等于叙述重复，机械投影和包材料检查不能判断设计或使用说明是否跟随行为变化。",
       "decision": "保留受众特定叙述，在现有变更交付中分别判断文档影响并由独立代理从实际变更反查。",
       "tags": [
+        "documentation",
         "workflow-policy"
       ],
       "relations": []
@@ -5884,13 +6129,15 @@
       "background": "单一深入文档限制使调度和回调用法挤入 README，难以承接持续增加的公开能力。",
       "decision": "保持 README 唯一总入口，按独立使用任务扩展显式随包专题，不限制深入页面数量。",
       "tags": [
+        "documentation",
         "product-contract",
         "workflow-policy"
       ],
       "relations": [
         {
           "type": "修订",
-          "target": "260827-structure-package-documentation-around-one-readme"
+          "target": "260827-structure-package-documentation-around-one-readme",
+          "summary": "以单一入口和任务专题组织随包文档"
         }
       ]
     },
@@ -5925,7 +6172,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260906-describe-vibe-check-as-a-general-project-quality-gate"
+          "target": "260906-describe-vibe-check-as-a-general-project-quality-gate",
+          "summary": "将 Vibe Check 描述为通用 TypeScript 质量门禁工具"
         }
       ]
     },
@@ -5977,7 +6225,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260824-publish-readable-esm-package-layout"
+          "target": "260824-publish-readable-esm-package-layout",
+          "summary": "以 Node 可读 ESM 模块树交付 package 运行时"
         }
       ]
     },
@@ -5998,7 +6247,8 @@
       "relations": [
         {
           "type": "替代",
-          "target": "260812-support-bun-as-the-package-host"
+          "target": "260812-support-bun-as-the-package-host",
+          "summary": "公开 package 只支持 Node 宿主"
         }
       ]
     },
@@ -6019,7 +6269,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260906-support-node-as-the-package-host"
+          "target": "260906-support-node-as-the-package-host",
+          "summary": "将 Node package engine 作为最低版本约束"
         }
       ]
     },
@@ -6041,7 +6292,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260904-render-record-and-message-previews-in-product-progress"
+          "target": "260904-render-record-and-message-previews-in-product-progress",
+          "summary": "提供可配置且受管的 progress 文本预览"
         }
       ]
     },
@@ -6063,7 +6315,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260903-retain-private-invocation-admission-strategy-lifecycle"
+          "target": "260903-retain-private-invocation-admission-strategy-lifecycle",
+          "summary": "保持 Invocation 策略生命周期不识别学习特例"
         }
       ]
     },
@@ -6085,7 +6338,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260904-organize-owner-aware-project-run-and-gate-diagnostics"
+          "target": "260904-organize-owner-aware-project-run-and-gate-diagnostics",
+          "summary": "保持运行诊断通道独立于可选策略"
         }
       ]
     },
@@ -6107,7 +6361,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260902-learn-check-task-durations-for-critical-path-admission"
+          "target": "260902-learn-check-task-durations-for-critical-path-admission",
+          "summary": "通过公共策略接口提供可选学习准入"
         }
       ]
     },
@@ -6129,7 +6384,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260907-unify-package-legal-materials-and-audit-installed-dependencies"
+          "target": "260907-unify-package-legal-materials-and-audit-installed-dependencies",
+          "summary": "将翻译来源说明置于对应法律材料目录"
         }
       ]
     },
@@ -6213,7 +6469,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260814-record-paused-change-state-in-artifacts"
+          "target": "260814-record-paused-change-state-in-artifacts",
+          "summary": "删除已完成 Change 与 OpenSpec 历史"
         }
       ]
     },
@@ -6281,7 +6538,8 @@
       "relations": [
         {
           "type": "修订",
-          "target": "260721-use-project-decision-records"
+          "target": "260721-use-project-decision-records",
+          "summary": "治理记录使用日期前缀显式身份"
         }
       ]
     },

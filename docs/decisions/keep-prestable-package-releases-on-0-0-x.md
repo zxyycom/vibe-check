@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260806-keep-prestable-releases-on-0-0-x
+    summary: 在稳定承诺前让 package 保持 0.0.x 版本线
 ---
 
 ## 目的

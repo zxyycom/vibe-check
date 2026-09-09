@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260828-let-each-duplicate-code-area-own-files-and-thresholds
+    summary: 只在共同代码区域内形成重复 Finding
 ---
 
 ## 目的

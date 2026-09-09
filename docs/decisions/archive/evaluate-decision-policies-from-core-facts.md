@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-keep-decision-policies-closed-and-declarative
+    summary: 从 Core facts 求值封闭质量决策策略
 ---
 
 ## 目的

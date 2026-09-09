@@ -12,8 +12,10 @@ tags:
 relations:
   - type: 归并
     target: 260817-drive-run-from-check-owned-execution-options
+    summary: 将 Run 执行配置收回 Check-owned inputs
   - type: 归并
     target: 260817-let-check-options-own-execution-dependencies
+    summary: 将依赖与变更事实分给 options/provider
 ---
 
 ## 目的

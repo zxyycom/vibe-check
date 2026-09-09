@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260818-vendor-foundation-as-repository-owned-script-tool
+    summary: 将 Foundation 纳入普通 workspace assurance
 ---
 
 ## 目的

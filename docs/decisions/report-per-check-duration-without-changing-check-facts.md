@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260830-preserve-release-gate-readiness-with-invocation-creation-time
+    summary: 报告每项 Check 时长而不改变 Check facts
 ---
 
 ## 目的

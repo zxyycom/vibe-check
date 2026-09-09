@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260828-scan-duplicate-code-once-across-code-areas
+    summary: 让每个重复检测区域共同拥有文件范围和阈值
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260806-match-change-detail-to-current-phase
+    summary: 使用决策驱动的 Change Plan 并完整归档 OpenSpec
 ---
 
 ## 目的

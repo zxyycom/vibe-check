@@ -12,8 +12,10 @@ tags:
 relations:
   - type: 归并
     target: 260803-use-json-filename-for-commented-config
+    summary: 以 Bun TS Definition 取代注释 JSON 文件
   - type: 归并
     target: 260804-use-fixed-semantic-config-v2
+    summary: 以 Bun TS Definition 取代固定 config v2
 ---
 
 ## 目的

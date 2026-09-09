@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260831-enumerate-normalized-direct-dependency-outcomes
+    summary: 分离成功前置与已结算终态观测
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260815-confirm-single-check-authoring-and-derivation-names-before-publication
+    summary: 公开递归 Check authoring 与 Run surface
 ---
 
 ## 目的

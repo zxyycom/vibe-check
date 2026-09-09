@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260721-use-project-decision-records
+    summary: 治理记录使用日期前缀显式身份
 ---
 
 ## 目的

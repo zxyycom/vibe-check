@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-use-bun-typescript-project-definition
+    summary: 使用单一 TypeScript Project Definition
 ---
 
 ## 目的

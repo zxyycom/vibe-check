@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260811-use-decision-led-change-plans-and-archive-openspec
+    summary: 在 Change artifacts 中记录暂停状态
 ---
 
 ## 目的

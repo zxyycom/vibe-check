@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260826-let-each-check-own-file-selection
+    summary: 从显式来源选择 Check 文件
 ---
 
 ## 目的

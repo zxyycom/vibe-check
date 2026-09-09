@@ -8,6 +8,7 @@ purpose: 让维护者在最终 package 路径直接找到并编辑完整文档�
 background: 旧流程把 Markdown 正文源与最终发布文件分开，维护者无法从发布路径直接恢复编辑边界。
 decision: 发布路径 Markdown 拥有正文与链接，投影代码只替换成对标记之间的已验证示例，不再生成整篇文档。
 tags:
+  - documentation
   - product-contract
   - workflow-policy
 relations: []

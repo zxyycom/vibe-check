@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-expose-invocation-local-scheduler-measurement-hooks
+    summary: 保留主 Run failure 高于测量 Hook 输出
 ---
 
 ## 目的

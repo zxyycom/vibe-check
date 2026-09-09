@@ -15,10 +15,13 @@ tags:
 relations:
   - type: 归并
     target: 260902-treat-flag-control-settlements-as-scheduler-results
+    summary: 将 flag 未匹配并入一次有效选择
   - type: 归并
     target: 260821-use-explicit-run-controls-check-aggregation
+    summary: 让 aggregation 消费同源 effective selection
   - type: 归并
     target: 260901-group-flag-disabled-checks-in-progress
+    summary: 将 flag 分组进度纳入 effective selection
 ---
 
 ## 目的

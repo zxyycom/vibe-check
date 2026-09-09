@@ -13,8 +13,10 @@ tags:
 relations:
   - type: 归并
     target: 260817-expose-ordinary-check-values-with-define-check
+    summary: 以默认化构造函数承接普通 Check authoring
   - type: 归并
     target: 260828-let-each-duplicate-code-area-own-files-and-thresholds
+    summary: 将 area 文件与阈值纳入默认化构造
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-use-declarative-quality-decision-policies
+    summary: 保持质量决策策略封闭且声明式
 ---
 
 ## 目的

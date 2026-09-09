@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-use-check-scoped-invocation-wide-parallel-limits
+    summary: 在 Task scope 中承载 Check 并行上限
 ---
 
 ## 目的

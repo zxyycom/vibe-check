@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 拆分
     target: 260806-use-versioned-npm-package-release-unit
+    summary: 发布前显式确认每个公共名称
 ---
 
 ## 目的

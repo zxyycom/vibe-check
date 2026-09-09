@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-cooperatively-cancel-task-graphs
+    summary: 取消 Task admission 并收尾已启动工作
 ---
 
 ## 目的

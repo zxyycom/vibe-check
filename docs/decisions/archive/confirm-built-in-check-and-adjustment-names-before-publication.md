@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-confirm-built-in-check-value-and-tree-type-names-before-publication
+    summary: 发布前确认内置 Check 与调整 API 名称
 ---
 
 ## 目的

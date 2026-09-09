@@ -14,10 +14,13 @@ tags:
 relations:
   - type: 归并
     target: 260824-complete-first-release-check-set-before-publication
+    summary: 将首版维护提醒收敛为专用构造函数
   - type: 归并
     target: 260821-expose-minimal-check-and-run-public-surface
+    summary: 在最小 Check surface 上加入维护提醒构造
   - type: 归并
     target: 260817-use-native-object-composition-for-check-customization
+    summary: 以专用构造函数取代对象组合维护提醒
 ---
 
 ## 目的
@@ -35,14 +38,14 @@ relations:
 
 ## 决策
 
-- 采用：首次公开发布前完成并验证三项 Product-provided ordinary format Check values（`jsonValidation`、`jsonSchemaValidation`、`markdownLinkValidation`）以及唯一专用 public constructor `maintenanceReminders(entries)`；后者生成第四项独立 ordinary Check，不把它伪装为另一个无参 default value。
-- 采用：`maintenanceReminders(entries)` 只接受 dense reminder entries，返回一个 complete ordinary executable Check，固定 `checkId: "maintenance-reminders"`、`displayName: "Maintenance reminders"` 与 `visibility: "attention"`。同一 Project Definition 中多次调用仍遵守 ordinary duplicate Check-ID validation。
-- 采用：每个 entry 的 public policy 为唯一 lower-kebab-case `id`、immutable full 40- 或 64-hex `baseCommit`、至少一个正安全整数 `limits.commits` / `limits.changedLines`、非空 `message` 与可省略的 `mode: "advisory" | "enforcing"`；省略 mode 为 `advisory`。constructor 补齐 package-owned Git execution/options 和其它非项目语义默认值。
-- 采用：entries 是 owning Check 的 local data，不创建 child Check、Record、dependency、aggregation target、progress row 或 machine Check row。final data 按 author order 公开每项 `clear | due | unavailable` assessment 及 base/head、计数、超限项与可行动原因。
-- 采用：测量只读取 committed history。base 必须位于当前 `HEAD` 的 first-parent chain；从 `base..HEAD` 逐提交统计 first-parent commit count 和相对 first parent 的 `numstat` additions + deletions。base 不计入；merge 只按 first-parent diff 计一次；revert 计实际活动；binary 行数按零。任一 limit 被严格超过时 entry 为 `due`；Product 不读取 worktree/index delta，也不自动推进 base。
-- 采用：只要 callback 能形成完整 assessment array，advisory `due` / `unavailable` 返回 `passed + final data + warning`，enforcing `due` / `unavailable` 返回 `failed + final data + error`。因此 enforcing 在不能验证时 fail closed，而 advisory 保持可见但不阻断。whole-Check `unavailable` 仅用于 cancellation、internal/protocol failure 或无法形成可信完整 payload 的边界。
-- 采用：terminal messages 只通过 progress 与 `RunResult.checkMessages` 面向人；assessment final data 继续走普通 v4 Check outcome。是否把该 Check 纳入某个 repository Gate，以及对 failed/unavailable 的 process mapping，仍由 project-owned Run controls / adapter 显式决定。
-- 采用：constructor 的 public input 仅为 reminder policy entries；不增加 generic `deriveCheck`、partial override、Git-command override parameter、shared baseline/reference API、entry acknowledgement、wall-clock scheduler 或自动通知。返回的 Check 仍是普通对象，原生 object composition 不获得额外 materialization 或 deep-merge 语义。
-- 采用：本仓 `quality` Definition 不因本 Decision 隐式配置具体 reminder entries；真实 base、limits、message、progress visibility 和 Gate policy 是 repository consumer 的独立、显式选择。
-- 采用：完成后重新生成 exact package candidate，更新 public declarations、README/API guide、runtime dependencies、license 和 semantic Cases，并通过 required/full Project Gate 后再进入公开发布准备。
+- 采用: 首次公开发布前完成并验证三项 Product-provided ordinary format Check values（`jsonValidation`、`jsonSchemaValidation`、`markdownLinkValidation`）以及唯一专用 public constructor `maintenanceReminders(entries)`；后者生成第四项独立 ordinary Check，不把它伪装为另一个无参 default value。
+- 采用: `maintenanceReminders(entries)` 只接受 dense reminder entries，返回一个 complete ordinary executable Check，固定 `checkId: "maintenance-reminders"`、`displayName: "Maintenance reminders"` 与 `visibility: "attention"`。同一 Project Definition 中多次调用仍遵守 ordinary duplicate Check-ID validation。
+- 采用: 每个 entry 的 public policy 为唯一 lower-kebab-case `id`、immutable full 40- 或 64-hex `baseCommit`、至少一个正安全整数 `limits.commits` / `limits.changedLines`、非空 `message` 与可省略的 `mode: "advisory" | "enforcing"`；省略 mode 为 `advisory`。constructor 补齐 package-owned Git execution/options 和其它非项目语义默认值。
+- 采用: entries 是 owning Check 的 local data，不创建 child Check、Record、dependency、aggregation target、progress row 或 machine Check row。final data 按 author order 公开每项 `clear | due | unavailable` assessment 及 base/head、计数、超限项与可行动原因。
+- 采用: 测量只读取 committed history。base 必须位于当前 `HEAD` 的 first-parent chain；从 `base..HEAD` 逐提交统计 first-parent commit count 和相对 first parent 的 `numstat` additions + deletions。base 不计入；merge 只按 first-parent diff 计一次；revert 计实际活动；binary 行数按零。任一 limit 被严格超过时 entry 为 `due`；Product 不读取 worktree/index delta，也不自动推进 base。
+- 采用: 只要 callback 能形成完整 assessment array，advisory `due` / `unavailable` 返回 `passed + final data + warning`，enforcing `due` / `unavailable` 返回 `failed + final data + error`。因此 enforcing 在不能验证时 fail closed，而 advisory 保持可见但不阻断。whole-Check `unavailable` 仅用于 cancellation、internal/protocol failure 或无法形成可信完整 payload 的边界。
+- 采用: terminal messages 只通过 progress 与 `RunResult.checkMessages` 面向人；assessment final data 继续走普通 v4 Check outcome。是否把该 Check 纳入某个 repository Gate，以及对 failed/unavailable 的 process mapping，仍由 project-owned Run controls / adapter 显式决定。
+- 采用: constructor 的 public input 仅为 reminder policy entries；不增加 generic `deriveCheck`、partial override、Git-command override parameter、shared baseline/reference API、entry acknowledgement、wall-clock scheduler 或自动通知。返回的 Check 仍是普通对象，原生 object composition 不获得额外 materialization 或 deep-merge 语义。
+- 采用: 本仓 `quality` Definition 不因本 Decision 隐式配置具体 reminder entries；真实 base、limits、message、progress visibility 和 Gate policy 是 repository consumer 的独立、显式选择。
+- 采用: 完成后重新生成 exact package candidate，更新 public declarations、README/API guide、runtime dependencies、license 和 semantic Cases，并通过 required/full Project Gate 后再进入公开发布准备。
 - 不采用：generic factory、第二 Check family、reminder-level Check/Record identity、Product-wide baseline resolver、把 Git 无法测量伪装为 clear、因本次目标降低 network/secret 安全边界，或把其它 active Change 的 Readiness 当作实现证据。

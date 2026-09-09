@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260828-provide-package-check-functions-parsers-and-actionable-messages
+    summary: 将安全秘密检测纳入随包 Check 契约
 ---
 
 ## 目的

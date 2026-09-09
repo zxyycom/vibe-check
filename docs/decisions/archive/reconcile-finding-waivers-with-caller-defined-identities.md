@@ -13,6 +13,7 @@ tags:
 relations:
   - type: 修订
     target: 260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics
+    summary: 用调用方定义的身份对账质量 Finding 豁免
 ---
 
 ## 目的

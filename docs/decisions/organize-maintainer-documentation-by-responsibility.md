@@ -8,6 +8,7 @@ purpose: 让维护者从任务定位完整规则，避免平铺长文或机械�
 background: 内部文档名称过泛且目录混杂，配置与工具长文同时承担多个可独立维护的任务。
 decision: 按维护职责分组并以中心对象命名，按独立阅读任务拆长文而不设置行数上限。
 tags:
+  - documentation
   - workflow-policy
 relations: []
 ---

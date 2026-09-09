@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260812-confirm-package-contract-names-before-publication
+    summary: 发布前确认配置定义、Package Run 与 package 契约名称
 ---
 
 ## 目的

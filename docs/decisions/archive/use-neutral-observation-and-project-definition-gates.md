@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260804-use-neutral-default-for-observation-and-file-policy-for-gates
+    summary: 观察使用中性定义，门禁要求 Project Definition
 ---
 
 ## 目的

@@ -15,6 +15,7 @@ tags:
 relations:
   - type: 修订
     target: 260902-isolate-lizard-port-behind-check-private-interface
+    summary: 将 Lizard 私有 port 整目录排除出仓库质量指标
 ---
 
 ## 目的

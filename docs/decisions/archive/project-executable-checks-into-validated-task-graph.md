@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-execute-recursive-checks-through-one-task-graph
+    summary: 将 executable Check 直接投影到已验证 Task graph
 ---
 
 ## 目的

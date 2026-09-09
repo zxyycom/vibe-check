@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260904-publish-detailed-native-gate-diagnostic-records
+    summary: 由 progress 统一预览 Record 与 Check message
 ---
 
 ## 目的

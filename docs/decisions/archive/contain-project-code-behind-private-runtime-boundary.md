@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260805-treat-project-definitions-as-trusted-code
+    summary: 在私有运行边界内执行项目代码
 ---
 
 ## 目的

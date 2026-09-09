@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260815-expose-single-check-authoring-surface
+    summary: 以 defineCheck 公开普通 Check 值
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-execute-check-scopes-through-one-task-graph
+    summary: 通过单一 Task graph 执行递归 Check
 ---
 
 ## 目的

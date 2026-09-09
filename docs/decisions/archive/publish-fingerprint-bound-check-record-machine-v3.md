@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260815-publish-check-record-machine-v3
+    summary: 将 machine v3 发布为指纹绑定的双文件集合
 ---
 
 ## 目的

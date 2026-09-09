@@ -14,6 +14,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-license-package-under-mit
+    summary: 为翻译的 analyzer 保留适用 upstream 许可与声明
 ---
 
 ## 目的

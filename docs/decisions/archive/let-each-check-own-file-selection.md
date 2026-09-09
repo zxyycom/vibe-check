@@ -13,8 +13,10 @@ tags:
 relations:
   - type: 归并
     target: 260822-use-check-owned-file-overrides
+    summary: 将文件差异扩展为 Check 全量 selection
   - type: 归并
     target: 260825-define-offline-markdown-link-target-boundaries
+    summary: 将 Link 本地目标边界纳入自身 selection
 ---
 
 ## 目的
@@ -31,13 +33,13 @@ relations:
 
 ## 决策
 
-- 采用：`ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与 effects；`CheckProjectContext` 只提供 normalized root、cache context 与 invocation `changedFiles`/flags。二者都不提供 `quality`、resolved files 或 code areas。
-- 采用：每个需要项目文件的 Check 在自己的完整 closed options 中拥有 `files: { include, excludeDirs, generatedFiles }`，并在自己的 execution entry 验证和消费。不同 Check 的 selection 相互独立。
-- 采用：需要 code-area classification 的 metric Check 还在自己的 options 中拥有完整 `codeAreas`。code areas 不成为 arbitrary Check、Definition 或 Core 的公共领域模型。
-- 采用：项目若希望多个 Check 使用同一 policy，以普通 TypeScript constant 和 object spread 显式组合；Product 不提供 hidden defaults merge、cross-Check override catalog、precedence engine 或旧 `quality` alias。
-- 采用：`src/project-files/**` 只实现 project-root candidate collection、config glob filtering、revision/gitlink helpers、reported-path normalization 与 exact-input membership 等共同机制。调用方每次提供完整 selection；该模块不保存全局 policy，也不识别 Check ID。
-- 采用：局部 override、threshold 或 matching 只作用于 owning Check 已选择的 inputs，不能改变其它 Check 的 options、scanner dependency、aggregation 或 output。
-- 采用：Markdown Link source 只来自其 own `options.files` selected Markdown paths。root 内但 source-selection 外的 direct target 可做 bounded resolver work，但不成为 source；target 不递归发现 links。
-- 采用：Markdown Link 的 `rootExternalTargetMode` 保持 `ignore | report | validate` 三态且默认不读取 root 外路径；directory non-empty、anchor、symlink containment、safe Record material 与零网络边界继续由 Link-local options/execution 拥有。
-- 采用：producing Check 以普通 four-state result、final data 与 supplemental Records 表达 file work；invalid selection 为 owning Check 的 `unavailable` / `invalid-options`，collection/read/tool failure 按该 Check 的受控 unavailable semantics 结算。
+- 采用: `ProjectDefinition` 只拥有 ordinary Check tree、scheduler 与 effects；`CheckProjectContext` 只提供 normalized root、cache context 与 invocation `changedFiles`/flags。二者都不提供 `quality`、resolved files 或 code areas。
+- 采用: 每个需要项目文件的 Check 在自己的完整 closed options 中拥有 `files: { include, excludeDirs, generatedFiles }`，并在自己的 execution entry 验证和消费。不同 Check 的 selection 相互独立。
+- 采用: 需要 code-area classification 的 metric Check 还在自己的 options 中拥有完整 `codeAreas`。code areas 不成为 arbitrary Check、Definition 或 Core 的公共领域模型。
+- 采用: 项目若希望多个 Check 使用同一 policy，以普通 TypeScript constant 和 object spread 显式组合；Product 不提供 hidden defaults merge、cross-Check override catalog、precedence engine 或旧 `quality` alias。
+- 采用: `src/project-files/**` 只实现 project-root candidate collection、config glob filtering、revision/gitlink helpers、reported-path normalization 与 exact-input membership 等共同机制。调用方每次提供完整 selection；该模块不保存全局 policy，也不识别 Check ID。
+- 采用: 局部 override、threshold 或 matching 只作用于 owning Check 已选择的 inputs，不能改变其它 Check 的 options、scanner dependency、aggregation 或 output。
+- 采用: Markdown Link source 只来自其 own `options.files` selected Markdown paths。root 内但 source-selection 外的 direct target 可做 bounded resolver work，但不成为 source；target 不递归发现 links。
+- 采用: Markdown Link 的 `rootExternalTargetMode` 保持 `ignore | report | validate` 三态且默认不读取 root 外路径；directory non-empty、anchor、symlink containment、safe Record material 与零网络边界继续由 Link-local options/execution 拥有。
+- 采用: producing Check 以普通 four-state result、final data 与 supplemental Records 表达 file work；invalid selection 为 owning Check 的 `unavailable` / `invalid-options`，collection/read/tool failure 按该 Check 的受控 unavailable semantics 结算。
 - 不采用：Product-wide scan scope、global code-area policy、Run 注入 resolved file list、Link target 扩大 source discovery、默认读取任意本机路径，或跨 Check partial patch/merge engine。

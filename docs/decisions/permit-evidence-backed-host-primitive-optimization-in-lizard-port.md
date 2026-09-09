@@ -45,19 +45,19 @@ relations: []
 
 ### 保持不变的 source-alignment 契约
 
-- 采用：source alignment 约束 analyzer 的可观察语义和可同步结构，包括 token stream、reader 选择、processor 顺序、状态机转换、函数边界与字段、extension lifecycle、错误和取消边界；它不要求 TypeScript 与 Python 使用相同语言原语、标准库或执行引擎。
+- 采用: source alignment 约束 analyzer 的可观察语义和可同步结构，包括 token stream、reader 选择、processor 顺序、状态机转换、函数边界与字段、extension lifecycle、错误和取消边界；它不要求 TypeScript 与 Python 使用相同语言原语、标准库或执行引擎。
 
 ### 允许的实现位置与禁止的扩张
 
-- 采用：private port 可以使用项目实现或第三方依赖替换正则、token scanning 或其他宿主原语。具体替换必须留在 port 私有边界，不成为 Product 选项、public plugin API、backend abstraction、Python runtime、subprocess 或静默 fallback。
+- 采用: private port 可以使用项目实现或第三方依赖替换正则、token scanning 或其他宿主原语。具体替换必须留在 port 私有边界，不成为 Product 选项、public plugin API、backend abstraction、Python runtime、subprocess 或静默 fallback。
 - 不采用：不以源码文本相似度否定已有 parity evidence 支持的优化，也不以输出样例相等代替完整 token stream、生命周期、资源和分发验证。
 
 ### 每个候选的采用门槛
 
-- 采用：每个非机械优化必须在独立 Investigation/Decision/Change 中明确候选和回退边界，并进入 current deviation evidence。
-- 采用：验收至少证明完整 token-stream differential、27-reader oracle、source identity、processor/extension protocol、真实目标 corpus before/after、typecheck/lint 和 required/complete `--all` Gate；无法证明语义等价或稳定收益时不采用。
-- 采用：引入库时同时验证所需 regex/Unicode/zero-width/capture/global-iteration 语义、supported Product Worker 与取消/资源行为、package artifact 和支持平台装载、版本与完整性固定、license/security 以及无运行时下载或系统级隐式依赖。WASM、Node-API 或其他 native 载体不因“更快”自动获得例外。
+- 采用: 每个非机械优化必须在独立 Investigation/Decision/Change 中明确候选和回退边界，并进入 current deviation evidence。
+- 采用: 验收至少证明完整 token-stream differential、27-reader oracle、source identity、processor/extension protocol、真实目标 corpus before/after、typecheck/lint 和 required/complete `--all` Gate；无法证明语义等价或稳定收益时不采用。
+- 采用: 引入库时同时验证所需 regex/Unicode/zero-width/capture/global-iteration 语义、supported Product Worker 与取消/资源行为、package artifact 和支持平台装载、版本与完整性固定、license/security 以及无运行时下载或系统级隐式依赖。WASM、Node-API 或其他 native 载体不因“更快”自动获得例外。
 
 ### 当前基线与未预选的技术
 
-- 采用：当前 built-in `RegExp` 实现继续是已对齐基线；本决策只建立允许评估和采用等价 host primitive 的未来方向，不预先选择 PCRE2、RE2、Oniguruma、WASM、native addon 或手写 scanner，也不把 profiler sample 占比当成可回收承诺。
+- 采用: 当前 built-in `RegExp` 实现继续是已对齐基线；本决策只建立允许评估和采用等价 host primitive 的未来方向，不预先选择 PCRE2、RE2、Oniguruma、WASM、native addon 或手写 scanner，也不把 profiler sample 占比当成可回收承诺。

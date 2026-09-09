@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 替代
     target: 260812-contain-project-code-behind-private-runtime-boundary
+    summary: 在调用方 runtime 中通过 Task 系统执行项目函数
 ---
 
 ## 目的

@@ -12,6 +12,7 @@ tags:
 relations:
   - type: 修订
     target: 260814-drive-run-from-project-definition-value
+    summary: 由 Check-owned execution options 驱动 Run
 ---
 
 ## 目的
