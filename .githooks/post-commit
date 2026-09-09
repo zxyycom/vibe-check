@@ -3,11 +3,16 @@
 AUTO_PUSH_BRANCH="main"
 AUTO_PUSH_REMOTE="origin"
 AUTO_PUSH_INTERVAL_SECONDS=3600
+AUTO_PUSH_DECISION_ID="260831-rate-limit-non-force-main-auto-push-after-commit"
+AUTO_PUSH_DECISION_PATH="docs/decisions/rate-limit-non-force-main-auto-push-after-commit.md"
 STATE_DIRECTORY_NAME="vibe-check-hooks"
 STATE_FILE_NAME="main-auto-push.last-at"
 
 print_context() {
   printf '%s\n' "vibe-check post-commit auto-push"
+  printf '  policy: this checkout explicitly enabled bounded auto-push, so ordinary git commit authorization includes it; do not bypass the hook merely to avoid the expected push. Decision: %s (%s).\n' \
+    "$AUTO_PUSH_DECISION_ID" \
+    "$AUTO_PUSH_DECISION_PATH"
   printf '  commit: %s\n' "$current_commit"
   printf '  branch: %s\n' "$display_branch"
   printf '  target: %s/%s\n' "$AUTO_PUSH_REMOTE" "$AUTO_PUSH_BRANCH"

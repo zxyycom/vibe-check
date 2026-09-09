@@ -232,7 +232,7 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 - 只向 `origin` 推送显式 refspec `refs/heads/main:refs/heads/main`，同时关闭 force 与 follow-tags；远端包含本地没有的提交时，普通 non-fast-forward 保护会拒绝 push。
 - 远端、时间或 state 不可用以及 push 被拒绝时只输出诊断并返回成功，不改变 commit 结果，也不自动 fetch、pull、rebase、merge、创建或推送 tag。
 
-每次调用都会先输出 `commit`、`branch` 和 `target`，随后明确输出 `action`。跳过时还会输出 `reason`；真实 push 完成后会输出 `result`，失败时另输出不会执行的恢复动作和 retry 边界。因此从 commit transcript 可以区分“分支不适用”“cooldown 内未发起请求”“正在执行安全 push”“成功”和“提交仍留在本地”。这些内容写到 hook 的 stdout/stderr；图形化 Git client 是否展示 hook transcript 仍由该 client 决定。
+每次调用都会先输出 `policy`，说明显式启用的受限 auto-push 属于普通 `git commit` 授权的预期行为、执行者不应仅为避免该 push 而绕过 hook，并直接给出 `260831-rate-limit-non-force-main-auto-push-after-commit` 的稳定 Decision ID 与仓库相对路径。随后输出 `commit`、`branch`、`target` 和 `action`。跳过时还会输出 `reason`；真实 push 完成后会输出 `result`，失败时另输出不会执行的恢复动作和 retry 边界。因此从 commit transcript 可以区分“分支不适用”“cooldown 内未发起请求”“正在执行安全 push”“成功”和“提交仍留在本地”。这些内容写到 hook 的 stdout/stderr；图形化 Git client 是否展示 hook transcript 仍由该 client 决定。
 
 该 hook 只同步开发分支，不发布 npm package，也不创建 GitHub Release。npm package 仍是产品发布单元。
 
