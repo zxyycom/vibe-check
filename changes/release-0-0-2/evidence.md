@@ -11,9 +11,10 @@
 | 当前集成基线 | `main` / `c0af9fff429ea22602432b542f743af29f305fa4` 未变；发布分支从该提交分出，准备改动在该分支维护，已提交里程碑见下节记录。 |
 | 升级差异依据 | `v0.0.1` 的 source 为 `2a454f0a6162afebb6729a4cfef969594d045c10`，调查端点为 `c0af9fff`；结论见[调查报告](../../docs/investigations/audit-0-0-2-upgrade-differences.md)。 |
 | 升级说明 | 统一由[变更日志](../../docs/changelog.md)承接；内容已通过历史重审和独立语义复核，已确定随包交付并由 README 直链；版本内容、发布状态与链接已完成 2.1 独立终审；后续若再改发布材料，须重审受影响部分。 |
-| npm dist-tag | 历史记录确认 `0.0.1` 使用 `latest`；本次是否沿用待确认。 |
+| npm dist-tag | 已确认按固定发布约定使用 `latest`。 |
 | access / 发布产物 | public access 与发布同一受验 tarball 已由当前 Decision、manifest 和发布规则规定。 |
-| 认证执行方式 | 上次采用用户本地直接发布、交互式 2FA；本次方式待确认，权限须当次核验。 |
+| 认证执行方式 | 已确认按固定发布约定由发布者本地交互式发布并完成 2FA；权限须当次核验。 |
+| 归档位置 | 按固定规则使用 `/workspace/vibe-check/.git/vibe-check/releases/0.0.2/<receipt-sha256>/`；公共 Git 目录由命令实际读取，receipt 尚未生成，归档尚未执行。 |
 | Git 版本标签 | 本次计划为 `v0.0.2` → S，在发布与分发验证后按授权创建、推送。 |
 | GitHub Release | 上次没有创建，本次不默认新增此渠道。 |
 
@@ -112,6 +113,18 @@ cea4d1db:changes/optimize-admission-core-selection-index/design.md
   Gate 在本段及任务回填前执行，回填后另跑文档、Decision、Case 与 Change 检查。
 - 提交沿用 `release-0-0-2` 分支。post-commit hook 按既有规则跳过非 main 分支，未尝试 push。
   本轮提交不是选定正式 source S，也不构成冻结工作区、联网认证、发布、标签或合入授权。
+
+## 固定发布流程
+
+2026-09-09 用户确认 latest、本地交互式 2FA，并要求后续沿用持久流程。
+[Package release](../../docs/tooling/package-release.md#固定发布约定)现拥有固定选项与归档规则，Change 只记录解析后的输入、当次事实和执行结果。
+本轮不创建冻结 worktree、不运行正式 prepare、不读取认证、不发布、不写归档；具体结果仍在后续步骤核对。
+
+- 非实施 Terra 基于实际 diff 复核固定选项、归档可恢复性、授权边界与既有冻结规则，审查通过。
+  [固定流程 Decision](../../docs/decisions/standardize-package-release-procedure.md)已建立为 active / aligned。
+- `bun run check` 为 31 passed、5 not-applicable、0 failed/unavailable，验证对象仍是开发期 local candidate。
+  日志：`.log/project-gate/2026-09-09T03-52-23.159Z-3240873-ecfcf42f-6153-4875-be3c-15fd298a533e`。
+  Gate 后澄清摘要核对句、建立 Decision 并回填任务与证据，另跑文档、Decision、Plan 与 diff 检查。
 
 ## 待取得的发布结果
 

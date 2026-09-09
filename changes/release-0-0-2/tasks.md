@@ -5,8 +5,8 @@
 ## Readiness
 
 - [x] 0.1 核对上游交接：`b30477b6`、`f7e9f353`、`fd8923c8` 和 `c0af9fff` 已进入 Plan 基线；末轮启发式候选未采用，发布不再等待该性能研究。Owner：发布准备。
-- [ ] 0.2 确认本次 dist-tag 与认证执行方式；上次使用 `latest` 和本地交互式 2FA，public access 与发布同一受验 tarball 沿用既定规则。publisher 当次核验仍由 2.3 完成。Owner：用户与发布执行者。
-- [ ] 0.3 已确定 changelog 随包提供；补齐 artifact/log 保存方案，明确 Git 标签、合入和后续清理的授权边界。Owner：用户与发布执行者。
+- [x] 0.2 已确认按 [固定发布约定](../../docs/tooling/package-release.md#固定发布约定)使用 `latest`、本地交互式 2FA、public access 和同一受验 tarball；publisher 当次核验仍由 2.3 完成。Owner：用户与发布执行者。
+- [x] 0.3 已确定 changelog 随包提供，artifact/log 按 [固定归档规则](../../docs/tooling/package-release.md#固定归档位置与保存内容)保存；Git 标签、合入和后续清理分别取得当次授权。Owner：用户与发布执行者。
 - [x] 0.4 已按授权核对 21 个准备变更文件，创建并切换到 `release-0-0-2`，复用 `/workspace/vibe-check` 为唯一活跃实现工作区；切换前后内容与暂存状态一致，其他 worktree 未动。依据见 [evidence](evidence.md#分支准备与归属)。Owner：发布执行者。
 
 ## Implementation
@@ -15,6 +15,7 @@
 - [x] 1.1.1 由 Terra 审阅区间内 213 个可达提交的目录与信息，按主题核对实际 diff 与部分形成时文档，形成可追溯[变更日志](../../docs/changelog.md)；区分最终净变化、旧有能力、维护者变化与未采用实验，已通过非实施代理定向复核。依据见 [evidence](evidence.md#历史重审)。Owner：发布说明与独立审查者。
 - [x] 1.1.2 将 changelog 移至 `docs/changelog.md`，通过 README 和显式材料清单随包提供；验证包内链接、精确 bytes、目标测试及完整 Gate，并由非实施代理复核用户文档与内部职责。Owner：package documentation 与独立审查者。
 - [x] 1.1.3 将三类随包文档映射集中到 `docs/package-documents.json`，构建与验收按本次 root 读取；完成异根、映射、非法输入、fingerprint 和完整包验收，同步 owner、Decision 与独立审查。Owner：package documentation 与独立审查者。
+- [x] 1.1.4 将正常发布选项和归档规则固定到长期 owner 与 Decision，同步当前发布输入并完成独立语义复核。Owner：发布流程。
 - [ ] 1.2 在 0.2、0.3、0.4 与 2.1 完成后，按授权从已提交的发布准备材料选定干净 S，并建立固定 S 的独立 detached 发布工作区；在 Change evidence 记录工作区及 S。Owner：发布执行者。
 - [ ] 1.3 在冻结工作区执行正式 prepare，核对 0.0.2 receipt、tarball、S、fingerprint、inventory 与 integrity；记录可定位的非敏感结果。Owner：package release。
 - [ ] 1.4 在 2.2、2.3 通过并取得精确发布授权后，按已确认机制发布同一 tarball，保存实际结果。Owner：发布执行者。

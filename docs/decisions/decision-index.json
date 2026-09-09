@@ -319,7 +319,8 @@
       "260908-use-dated-governance-record-identities": "sha256:dfeab02dab622f98663e850d1b157ab8f0cf61eeec020c7cfdd84fa2ae6ba79d",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
-      "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058"
+      "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
+      "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6328,6 +6329,21 @@
       "tags": [
         "documentation",
         "product-contract"
+      ],
+      "relations": []
+    },
+    "260909-standardize-package-release-procedure": {
+      "name": "standardize-package-release-procedure",
+      "sourcePath": "standardize-package-release-procedure.md",
+      "title": "固定 package 发布流程与证据保存约定",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-09T03:55:09Z",
+      "purpose": "让后续发布复用同一套执行规则而不是重复选择流程",
+      "background": "发布 tag、认证机制和证据位置反复作为临时输入，增加交接成本并容易漂移",
+      "decision": "由 Package release 固定 latest、本地交互式 2FA 和公共 Git 目录中的证据归档，保留当次事实核验与授权",
+      "tags": [
+        "workflow-policy"
       ],
       "relations": []
     }
