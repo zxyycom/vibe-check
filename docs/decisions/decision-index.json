@@ -319,6 +319,7 @@
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
+      "260909-provide-file-change-marker-context": "sha256:842bce568b9a5be873a8e194765115c68750ddaf863b1d9358ef30ea61351a40",
       "260909-provide-invocation-private-dependency-handoff": "sha256:73db7113d2fff11746f497cf3984be2ce2031b11b67bfcdf22c85f042f122fb5",
       "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
@@ -6573,6 +6574,23 @@
       "tags": [
         "documentation",
         "workflow-policy"
+      ],
+      "relations": []
+    },
+    "260909-provide-file-change-marker-context": {
+      "name": "provide-file-change-marker-context",
+      "sourcePath": "provide-file-change-marker-context.md",
+      "title": "提供文件变更标记 Check 与 execution wrapper",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-09T10:30:21Z",
+      "purpose": "让多个 Check 复用一次可信文件变更采集并通过稳定查询判断相关工作",
+      "background": "重复采集与线性扫描会放大 I/O 和查询成本，而全局上下文会制造隐式契约",
+      "decision": "公开显式 provider Check 和普通 execution wrapper，并将规范事实与私有派生索引分层",
+      "tags": [
+        "configuration",
+        "performance",
+        "product-contract"
       ],
       "relations": []
     },

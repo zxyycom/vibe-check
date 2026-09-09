@@ -63,6 +63,18 @@ if (result.kind !== "completed") throw new Error(`Run did not complete: ${result
 
 上例先收窄 `get` 的 `ok`，再显式调用 producer 的 `parseData`。`dependsOn` 保证 callback 只在 provider `passed` 后开始；`!read.ok` 仍作为读取边界防御。八个随包 Check 都提供 `parseData` 和同实现的 package-root parser，名称与类型见各自指南。
 
+### 用普通 wrapper 复用读取步骤
+
+调用方可以把 `dependencies.get`、provider parser 和业务查询对象的构造封装为普通高阶函数，再让它调用实际 execution。组合后的责任保持显式：
+
+| Owner | 责任 |
+| --- | --- |
+| 外围 Check | 声明 direct `dependsOn` / `observes`，拥有 preflight、终态和 aggregation。 |
+| Wrapper | 读取和解析 provider data，构造查询对象，并定义读取或解析失败的映射。 |
+| Provider | 通过 canonical data 提供唯一依赖事实源。 |
+
+Wrapper 可以为下游函数构造 `{ ...context, change }` 一类冻结的扩展对象；`change` 是 wrapper API，不是 Product 向所有 Check 注入的 context 字段。可变索引留在私有闭包中，module-global registry 不能代替 direct relation、parser 或单次 Run 的生命周期。
+
 ## 批量审计 direct outcomes
 
 审计任意终态时声明 `observes`，再用 `dependencies.list()` 读取 direct union 的冻结 `{ checkId, outcome }[]`。四态 outcome 都是正常可观察事实；以下 Check 从中形成自己的结果，而不修改 producer：

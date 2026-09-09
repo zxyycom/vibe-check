@@ -98,6 +98,8 @@ ordinary throw、malformed result、Record misuse 和 cancellation 在 owning ex
 
 callback-local dependency view 仅授权 normalized direct `dependsOn ∪ observes`。它从 package-private settled Check seam 取得原有 canonical final-data 引用，不调用 provider parser、不读取 supplemental Records，也不建立第二套 facts store；公开 get/list 类型与失败边界由[依赖数据指南](../guides/check-dependencies.md)定义。
 
+如使用 provider-specific wrapper，它仍是 ordinary dependency consumer：可以解析 canonical facts 并形成 helper-local query/index。Canonical final data 继续作为唯一 published facts；wrapper 继续服从 relation authorization 与 settlement，且正确性不依赖未声明的 object identity。
+
 Run 只在 explicit aggregation 配置下读取选定 settled statuses；effective aggregation 与 flag control 使用同一 private selection，不发布 activation metadata。aggregate 不隐藏或改写 raw facts，接线与 Gate mapping 见[Check 结果](check-results.md#explicit-aggregation-and-repository-gate-mapping)。
 
 ## Caller-keyed cache boundary
