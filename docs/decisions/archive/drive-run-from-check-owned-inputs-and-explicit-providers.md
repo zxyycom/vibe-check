@@ -1,7 +1,7 @@
 ---
 title: 由 Check-owned 输入与显式 provider 驱动 Run
 id: 260828-drive-run-from-check-owned-inputs-and-explicit-providers
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T10:36:57Z
 purpose: 让 Check-specific 配置和领域输入留在 owning Check，并让 Run Controls 只承载 Product 能统一解释的 invocation 控制。

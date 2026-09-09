@@ -97,8 +97,6 @@ const licensePolicy = defineCheck({
 | `records` | 发布 object-shaped supplemental facts。 | 每个 ID 仅在本 Check 内唯一，且不会决定 status。 |
 | `signal` | 在可等待工作中协作退出。 | 取消后不要启动背景工作或把部分结果伪装为通过。 |
 
-普通函数可以包装 `execution`，读取上述 context 后构造冻结的扩展对象交给下游函数。新增字段属于 wrapper API；Product callback context、外围 Check 的 dependency relation 和先于 execution 发生的 preflight 保持不变。需要复用 provider read 与 parser 时，按[依赖数据指南](check-dependencies.md#用普通-wrapper-复用读取步骤)显式接线。
-
 成功与失败都必须返回 object-shaped final `data`；`not-applicable` 表示当前没有适用工作，`unavailable` 表示无法形成可信结果并必须带稳定 `reason.code`。`messages` 是有序的人读补充信息，不保证每个 outcome 都有；把完整或敏感详情留在调用方拥有的安全位置，不要依赖 progress 文本保存事实。
 
 ## 依赖与取消的实践

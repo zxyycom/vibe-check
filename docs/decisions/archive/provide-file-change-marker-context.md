@@ -1,7 +1,7 @@
 ---
 title: 提供文件变更标记 Check 与 execution wrapper
 id: 260909-provide-file-change-marker-context
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-09-09T10:30:21Z
 purpose: 让多个 Check 复用一次可信文件变更采集并通过稳定查询判断相关工作

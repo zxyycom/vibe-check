@@ -176,7 +176,7 @@
       "260828-author-package-markdown-at-published-paths": "sha256:c6876f67a18ddf67a7076a4adce74f9e7052a1c75a5b13e5df8804750e73e7f2",
       "260828-construct-duplicate-detection-from-defaulted-policy": "sha256:784d7f1bd9c1d00f317e461af00990e7c4ed831bc3198a31509643178c639bd6",
       "260828-construct-function-metrics-from-defaulted-area-policy": "sha256:d4f5e2ce2ec98ce7f275621421ad1872ab663d1bbfc56e7ac2ce4648d42188dd",
-      "260828-drive-run-from-check-owned-inputs-and-explicit-providers": "sha256:8114dfde1fee2b7c1ad0d4f123a0fcca975ee34f38bd371de7c151a3f87a8244",
+      "260828-drive-run-from-check-owned-inputs-and-explicit-providers": "sha256:adff31763723db0084f69c572a24b440f9a17adf87830112b0fb75008650155f",
       "260828-let-duplicate-detection-adapter-own-cli-protocol": "sha256:7a96f2d3c5b5c31d0dda3fa23aa673eab257b87fa9ff8f8c3da591e7ab4c4e02",
       "260828-let-each-duplicate-code-area-own-files-and-thresholds": "sha256:3cac04777bd8da5e2218025ed584167543ebf22628bde331dcb955763340686b",
       "260828-let-file-metrics-adapter-own-cli-protocol": "sha256:6ee1286e9ef2cce31655c7d5c7206c7a30e36bc280237df46c57ffb51a838bd8",
@@ -319,7 +319,8 @@
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
-      "260909-provide-file-change-marker-context": "sha256:842bce568b9a5be873a8e194765115c68750ddaf863b1d9358ef30ea61351a40",
+      "260909-prepare-project-change-flags-before-selection": "sha256:6652441301e2a001f4e03117c0f1f6d6c156a7a3e24b813e6b6adf0bc1d552d6",
+      "260909-provide-file-change-marker-context": "sha256:90fab6cc62c59c357a4249efd5937fc4fac683107fdfa3320d3252e3f8cc57a1",
       "260909-provide-invocation-private-dependency-handoff": "sha256:73db7113d2fff11746f497cf3984be2ce2031b11b67bfcdf22c85f042f122fb5",
       "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
@@ -3627,9 +3628,9 @@
     },
     "260828-drive-run-from-check-owned-inputs-and-explicit-providers": {
       "name": "drive-run-from-check-owned-inputs-and-explicit-providers",
-      "sourcePath": "drive-run-from-check-owned-inputs-and-explicit-providers.md",
+      "sourcePath": "archive/drive-run-from-check-owned-inputs-and-explicit-providers.md",
       "title": "由 Check-owned 输入与显式 provider 驱动 Run",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-28T10:36:57Z",
       "purpose": "让 Check-specific 配置和领域输入留在 owning Check，并让 Run Controls 只承载 Product 能统一解释的 invocation 控制。",
@@ -6577,11 +6578,39 @@
       ],
       "relations": []
     },
+    "260909-prepare-project-change-flags-before-selection": {
+      "name": "prepare-project-change-flags-before-selection",
+      "sourcePath": "prepare-project-change-flags-before-selection.md",
+      "title": "在 Project preparation 中派生 change flags",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-09T11:43:21Z",
+      "purpose": "以可选根配置一次准备文件变更，并复用统一 flag expression 在调度前选择 Check",
+      "background": "provider Check 与独立 enabledByChanges 都增加使用和契约重叠，而运行中由普通 Check 修改 flags 会破坏静态选择与显式关系",
+      "decision": "根 changes 配置在 selection 前派生保留 flags，并向 preflight/execution 提供同源 change 查询",
+      "tags": [
+        "configuration",
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260828-drive-run-from-check-owned-inputs-and-explicit-providers",
+          "summary": "为显式根 changes 增加唯一 project-wide 例外"
+        },
+        {
+          "type": "替代",
+          "target": "260909-provide-file-change-marker-context",
+          "summary": "以根级动态 flags 取代 provider/wrapper"
+        }
+      ]
+    },
     "260909-provide-file-change-marker-context": {
       "name": "provide-file-change-marker-context",
-      "sourcePath": "provide-file-change-marker-context.md",
+      "sourcePath": "archive/provide-file-change-marker-context.md",
       "title": "提供文件变更标记 Check 与 execution wrapper",
-      "status": "active",
+      "status": "archived",
       "alignment": "unaligned",
       "createdAt": "2026-09-09T10:30:21Z",
       "purpose": "让多个 Check 复用一次可信文件变更采集并通过稳定查询判断相关工作",
