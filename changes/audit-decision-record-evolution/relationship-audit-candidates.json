@@ -1,0 +1,5227 @@
+{
+  "schemaVersion": 2,
+  "scope": {
+    "decisionCount": 316,
+    "sourceCount": 200,
+    "relationCount": 223
+  },
+  "entries": [
+    {
+      "sourceId": "260730-use-semantic-test-case-closure",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260727-use-native-test-evidence-catalog"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260727-use-native-test-evidence-catalog",
+          "summary": "采用完整测试实体与语义 Case 闭合"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260730-use-upstream-skills-with-project-local-exceptions",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260727-use-upstream-project-skill-packages"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260727-use-upstream-project-skill-packages",
+          "summary": "采用完整上游 Skill 包并允许显式项目本地例外"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260803-defer-lizard-until-after-semantic-config-workflow",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260803-defer-lizard-runtime-unification"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260803-defer-lizard-runtime-unification",
+          "summary": "将 Lizard 运行时统一留到语义配置与产品工作之后"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260804-use-fixed-semantic-config-v2",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260803-use-fixed-semantic-config-version"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260803-use-fixed-semantic-config-version",
+          "summary": "将文件政策契约升级为固定配置 v2"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-defer-lizard-until-after-check-foundations",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260803-defer-lizard-until-after-semantic-config-workflow"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260803-defer-lizard-until-after-semantic-config-workflow",
+          "summary": "将 Lizard 统一后置于 Check 产品基础"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-expand-format-aware-built-in-checks",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260804-expand-format-aware-quality-checks"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260804-expand-format-aware-quality-checks",
+          "summary": "扩展格式感知的 Product-provided Checks"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-keep-decision-policies-closed-and-declarative",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-use-declarative-quality-decision-policies"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-use-declarative-quality-decision-policies",
+          "summary": "保持质量决策策略封闭且声明式"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-keep-sensitive-quality-record-material-ephemeral",
+      "baselineState": {
+        "status": "active",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260804-keep-sensitive-scan-material-ephemeral"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260804-keep-sensitive-scan-material-ephemeral",
+          "summary": "让 supplemental Record 的敏感源材料保持临时"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-limit-tool-neutrality-to-built-in-checks",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260803-keep-public-config-tool-neutral"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260803-keep-public-config-tool-neutral",
+          "summary": "将工具中立约束限定于 Product-provided Check 配置"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-require-explicit-named-comparison-references",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-require-explicit-quality-comparison-references"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-require-explicit-quality-comparison-references",
+          "summary": "比较只使用显式命名并冻结的参考"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-require-explicit-network-check-authorization",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260804-require-explicit-network-link-checking"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260804-require-explicit-network-link-checking",
+          "summary": "网络 Check 必须获得显式声明式授权"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-require-explicit-quality-comparison-references",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260804-require-explicit-quality-baselines"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260804-require-explicit-quality-baselines",
+          "summary": "质量比较只接受显式命名参考"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-separate-check-and-record-type-identities",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260805-use-semantic-check-ids-in-quality-records"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260805-use-semantic-check-ids-in-quality-records",
+          "summary": "分离 Check 身份与 Record 类型身份"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-use-bun-typescript-project-definition",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260803-use-json-filename-for-commented-config"
+        },
+        {
+          "type": "归并",
+          "target": "260804-use-fixed-semantic-config-v2"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260803-use-json-filename-for-commented-config",
+          "summary": "以 Bun TS Definition 取代注释 JSON 文件"
+        },
+        {
+          "type": "归并",
+          "target": "260804-use-fixed-semantic-config-v2",
+          "summary": "以 Bun TS Definition 取代固定 config v2"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-use-location-independent-record-identities",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260804-use-location-independent-finding-identities"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260804-use-location-independent-finding-identities",
+          "summary": "QualityRecord 稳定身份不使用当前源码位置"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-use-neutral-observation-and-project-definition-gates",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260804-use-neutral-default-for-observation-and-file-policy-for-gates"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260804-use-neutral-default-for-observation-and-file-policy-for-gates",
+          "summary": "观察使用中性定义，门禁要求 Project Definition"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-use-runtime-resolved-check-and-record-core",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260805-use-standard-quality-record-stream"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260805-use-standard-quality-record-stream",
+          "summary": "使用运行时解析的 Check 与 QualityRecord 核心"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-use-semantic-check-ids-in-quality-records",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260803-use-semantic-check-ids-in-project-config"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260803-use-semantic-check-ids-in-project-config",
+          "summary": "让语义 check ID 直接属于质量记录目录"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260805-use-standard-quality-record-stream",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260804-use-generic-machine-v2-for-content-findings"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260804-use-generic-machine-v2-for-content-findings",
+          "summary": "使用统一质量记录流与独立能力运行状态"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260806-keep-project-workflow-skill-overrides-bounded",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260730-use-upstream-skills-with-project-local-exceptions"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260730-use-upstream-skills-with-project-local-exceptions",
+          "summary": "保持项目工作流 Skill 语义覆盖有界"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260806-match-change-detail-to-current-phase",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-defer-future-feature-detail-until-prioritized"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-defer-future-feature-detail-until-prioritized",
+          "summary": "让 change 细节服务当前阶段"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260811-use-complete-upstream-governance-skills",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260806-keep-project-workflow-skill-overrides-bounded"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260806-keep-project-workflow-skill-overrides-bounded",
+          "summary": "使用完整上游治理 Skill 包"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260811-use-decision-led-change-plans-and-archive-openspec",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260806-match-change-detail-to-current-phase"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260806-match-change-detail-to-current-phase",
+          "summary": "使用决策驱动的 Change Plan 并完整归档 OpenSpec"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260812-approve-public-names-before-publication",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260806-use-versioned-npm-package-release-unit"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260806-use-versioned-npm-package-release-unit",
+          "summary": "发布前显式确认每个公共名称"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260812-confirm-package-contract-names-before-publication",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260812-approve-public-names-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260812-approve-public-names-before-publication",
+          "summary": "发布前确认 package 公共契约名称"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260812-contain-project-code-behind-private-runtime-boundary",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-treat-project-definitions-as-trusted-code"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-treat-project-definitions-as-trusted-code",
+          "summary": "在私有运行边界内执行项目代码"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260812-keep-prestable-package-releases-on-0-0-x",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260806-keep-prestable-releases-on-0-0-x"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260806-keep-prestable-releases-on-0-0-x",
+          "summary": "在稳定承诺前让 package 保持 0.0.x 版本线"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260812-keep-seven-distinct-project-skills",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260811-use-complete-upstream-governance-skills"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260811-use-complete-upstream-governance-skills",
+          "summary": "只保留七项独立项目 Skill"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260812-release-one-versioned-npm-product-unit",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260806-use-versioned-npm-package-release-unit"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260806-use-versioned-npm-package-release-unit",
+          "summary": "以版本化 npm package 交付完整产品单元"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260812-use-programmatic-api-as-product-entry",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260806-use-versioned-npm-package-release-unit"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260806-use-versioned-npm-package-release-unit",
+          "summary": "让程序化 API 成为唯一正式产品执行入口"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260812-use-single-typescript-project-definition",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-use-bun-typescript-project-definition"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-use-bun-typescript-project-definition",
+          "summary": "使用单一 TypeScript Project Definition"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-confirm-built-in-check-value-and-tree-type-names-before-publication",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-confirm-config-run-and-package-names-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-confirm-config-run-and-package-names-before-publication",
+          "summary": "发布前确认内置 Check 值与 Check tree 类型名称"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-confirm-config-run-and-package-names-before-publication",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260812-confirm-package-contract-names-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260812-confirm-package-contract-names-before-publication",
+          "summary": "发布前确认配置定义、Package Run 与 package 契约名称"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-drive-run-from-project-definition-value",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260812-drive-product-execution-from-project-definition"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260812-drive-product-execution-from-project-definition",
+          "summary": "由 Project Definition 值驱动 Package Run"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-execute-project-functions-through-task-system-in-caller-runtime",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260812-contain-project-code-behind-private-runtime-boundary"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260812-contain-project-code-behind-private-runtime-boundary",
+          "summary": "在调用方 runtime 中通过 Task 系统执行项目函数"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-expose-built-in-check-values-alongside-config-and-run",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-expose-config-definition-and-project-run-operations"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-expose-config-definition-and-project-run-operations",
+          "summary": "在配置与运行操作旁公开内置 Check 值"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-expose-config-definition-and-project-run-operations",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260812-expose-two-public-operations"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260812-expose-two-public-operations",
+          "summary": "公开配置定义函数与 Package Run"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-pass-project-definition-value-to-run",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260812-use-single-typescript-project-definition"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260812-use-single-typescript-project-definition",
+          "summary": "将 Project Definition 值交给 Package Run"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-record-paused-change-state-in-artifacts",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260811-use-decision-led-change-plans-and-archive-openspec"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260811-use-decision-led-change-plans-and-archive-openspec",
+          "summary": "在 Change artifacts 中记录暂停状态"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-use-field-aware-built-in-check-adjustments",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-keep-built-in-options-owned-and-tool-neutral"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-keep-built-in-options-owned-and-tool-neutral",
+          "summary": "使用字段感知的内置 Check 调整方法"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260814-use-user-owned-definition-for-observation-and-gates",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-use-neutral-observation-and-project-definition-gates"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-use-neutral-observation-and-project-definition-gates",
+          "summary": "观察与门禁都使用项目持有的 Project Definition"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-cancel-task-admission-and-drain-started-work",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-cooperatively-cancel-task-graphs"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-cooperatively-cancel-task-graphs",
+          "summary": "取消 Task admission 并收尾已启动工作"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-carry-check-parallel-limit-in-task-scope",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-check-scoped-invocation-wide-parallel-limits"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-check-scoped-invocation-wide-parallel-limits",
+          "summary": "在 Task scope 中承载 Check 并行上限"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-carry-recursive-check-parallel-limits-through-task-scopes",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-carry-check-parallel-limit-in-task-scope"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-carry-check-parallel-limit-in-task-scope",
+          "summary": "在 Task scope 中承载递归 Check 并行上限"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-confirm-built-in-check-and-adjustment-names-before-publication",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-confirm-built-in-check-value-and-tree-type-names-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-confirm-built-in-check-value-and-tree-type-names-before-publication",
+          "summary": "发布前确认内置 Check 与调整 API 名称"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-confirm-single-check-authoring-and-derivation-names-before-publication",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-confirm-built-in-check-and-adjustment-names-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-confirm-built-in-check-and-adjustment-names-before-publication",
+          "summary": "发布前确认单一 Check authoring 与派生名称"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-evaluate-decision-policies-from-core-facts",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-keep-decision-policies-closed-and-declarative"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-keep-decision-policies-closed-and-declarative",
+          "summary": "从 Core facts 求值封闭质量决策策略"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-execute-check-scopes-through-one-task-graph",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260805-use-static-check-task-plans-with-shared-scheduling"
+        },
+        {
+          "type": "归并",
+          "target": "260813-settle-check-execution-before-availability"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260805-use-static-check-task-plans-with-shared-scheduling",
+          "summary": "将静态 TaskPlan 纳入统一 Task graph"
+        },
+        {
+          "type": "归并",
+          "target": "260813-settle-check-execution-before-availability",
+          "summary": "以 Task settlement 统一执行结算"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-execute-recursive-checks-through-one-task-graph",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-execute-check-scopes-through-one-task-graph"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-execute-check-scopes-through-one-task-graph",
+          "summary": "通过单一 Task graph 执行递归 Check"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-expose-built-in-check-values-and-adjustment-functions",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-expose-built-in-check-values-alongside-config-and-run"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-expose-built-in-check-values-alongside-config-and-run",
+          "summary": "公开内置 Check 值与独立调整函数"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-expose-single-check-authoring-surface",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260815-expose-built-in-check-values-and-adjustment-functions"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260815-expose-built-in-check-values-and-adjustment-functions",
+          "summary": "公开单一 Check authoring surface"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-keep-check-groups-authoring-only",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-composable-check-tree-with-run-owned-bindings"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-composable-check-tree-with-run-owned-bindings",
+          "summary": "保持 Check group 仅为 authoring context"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-publish-fingerprint-bound-check-record-machine-v3",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-publish-check-record-machine-v3"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-publish-check-record-machine-v3",
+          "summary": "将 machine v3 发布为指纹绑定的双文件集合"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-use-check-value-derivation-contract",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260815-use-standalone-built-in-check-adjustment-functions"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260815-use-standalone-built-in-check-adjustment-functions",
+          "summary": "使用基于 Check 值的派生契约"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-use-composable-check-tree-with-run-owned-bindings",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-composable-check-tree-in-project-definition"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-composable-check-tree-in-project-definition",
+          "summary": "以可组合 Check tree 由 Run 构造绑定"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-use-core-check-and-quality-record-facts",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260805-use-runtime-resolved-check-and-record-core"
+        },
+        {
+          "type": "归并",
+          "target": "260805-separate-check-and-record-type-identities"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260805-use-runtime-resolved-check-and-record-core",
+          "summary": "将运行时 Check/Record 重构为两类核心事实"
+        },
+        {
+          "type": "归并",
+          "target": "260805-separate-check-and-record-type-identities",
+          "summary": "以 checkId 直接绑定 QualityRecord"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-use-core-check-and-record-facts-from-run-resolution",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-core-check-and-quality-record-facts"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-core-check-and-quality-record-facts",
+          "summary": "从 Run resolution 建立核心事实"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-use-one-check-shape-with-recursive-composition",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260815-keep-check-groups-authoring-only"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260815-keep-check-groups-authoring-only",
+          "summary": "使用带递归 composition 的单一 Check shape"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260815-use-standalone-built-in-check-adjustment-functions",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-field-aware-built-in-check-adjustments"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-field-aware-built-in-check-adjustments",
+          "summary": "使用独立函数调整普通内置 Check 数据"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-apply-check-parallel-limit-while-task-runs",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-carry-recursive-check-parallel-limits-through-task-scopes"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-carry-recursive-check-parallel-limits-through-task-scopes",
+          "summary": "在 Check Task 运行期间应用并行上限"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-drive-run-from-check-owned-execution-options",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-drive-run-from-project-definition-value"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-drive-run-from-project-definition-value",
+          "summary": "由 Check-owned execution options 驱动 Run"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-execute-check-functions-in-caller-runtime",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-execute-project-functions-through-task-system-in-caller-runtime"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-execute-project-functions-through-task-system-in-caller-runtime",
+          "summary": "在调用方 runtime 中执行 Check functions"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-expose-ordinary-check-values-with-define-check",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260815-expose-single-check-authoring-surface"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260815-expose-single-check-authoring-surface",
+          "summary": "以 defineCheck 公开普通 Check 值"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-expose-recursive-check-authoring-and-run-surface",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260815-confirm-single-check-authoring-and-derivation-names-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260815-confirm-single-check-authoring-and-derivation-names-before-publication",
+          "summary": "公开递归 Check authoring 与 Run surface"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-let-check-options-own-execution-dependencies",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260814-bind-external-programs-outside-check-semantics"
+        },
+        {
+          "type": "替代",
+          "target": "260805-limit-tool-neutrality-to-built-in-checks"
+        },
+        {
+          "type": "修订",
+          "target": "260803-hard-cut-legacy-tool-shaped-config"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260814-bind-external-programs-outside-check-semantics",
+          "summary": "将外部程序 binding 纳入 Check options"
+        },
+        {
+          "type": "替代",
+          "target": "260805-limit-tool-neutrality-to-built-in-checks",
+          "summary": "由 Check options 承担工具专属依赖"
+        },
+        {
+          "type": "修订",
+          "target": "260803-hard-cut-legacy-tool-shaped-config",
+          "summary": "在 hard cut 后改用 Check-owned dependencies"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-pass-project-definition-check-functions-to-run",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-pass-project-definition-value-to-run"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-pass-project-definition-value-to-run",
+          "summary": "将 Definition 的 Check 函数交给 Run"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-project-executable-checks-into-validated-task-graph",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-execute-recursive-checks-through-one-task-graph"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-execute-recursive-checks-through-one-task-graph",
+          "summary": "将 executable Check 直接投影到已验证 Task graph"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-use-inherit-for-check-collection-edits",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-closed-inheritable-check-collection-expressions"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-closed-inheritable-check-collection-expressions",
+          "summary": "使用 inherit 编辑可继承 Check 集合"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-use-native-object-composition-for-check-customization",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260815-use-check-value-derivation-contract"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260815-use-check-value-derivation-contract",
+          "summary": "使用原生对象组合自定义 Check"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260817-use-recursive-check-values-with-optional-execution",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-one-check-shape-with-recursive-composition"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-one-check-shape-with-recursive-composition",
+          "summary": "使用可选 execution 的递归 Check 普通对象"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-bind-project-gates-to-run-aggregation",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-user-owned-definition-for-observation-and-gates"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-use-user-owned-definition-for-observation-and-gates",
+          "summary": "让 Project Gate 绑定 Run aggregation"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-expose-minimal-check-and-run-public-surface",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260817-expose-recursive-check-authoring-and-run-surface"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260817-expose-recursive-check-authoring-and-run-surface",
+          "summary": "公开最小 Check authoring 与 Run surface"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-keep-comparison-semantics-inside-producing-checks",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260805-require-explicit-named-comparison-references"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260805-require-explicit-named-comparison-references",
+          "summary": "让基线语义留在 producing Check"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-keep-empty-information-check-warnings-as-run-facts",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260817-allow-empty-information-checks-with-warning"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260817-allow-empty-information-checks-with-warning",
+          "summary": "将空信息 Check warning 保留为 Run fact"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-let-dependent-checks-read-settled-upstream-outputs",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260817-project-executable-checks-into-validated-task-graph"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260817-project-executable-checks-into-validated-task-graph",
+          "summary": "让依赖 Check 读取上游 settled outputs"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-publish-fingerprint-bound-check-record-machine-v4",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-publish-fingerprint-bound-check-record-machine-v3"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-publish-fingerprint-bound-check-record-machine-v3",
+          "summary": "将 machine v4 发布为指纹绑定的双文件集合"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-report-check-owned-record-data-with-local-identities",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260821-keep-record-field-shapes-at-the-type-boundary"
+        },
+        {
+          "type": "归并",
+          "target": "260821-use-check-owned-extractors-for-opaque-record-identities"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260821-keep-record-field-shapes-at-the-type-boundary",
+          "summary": "将字段 shape 收敛为 Check local data"
+        },
+        {
+          "type": "归并",
+          "target": "260821-use-check-owned-extractors-for-opaque-record-identities",
+          "summary": "以 Check local ID 取代 opaque ID 提取链"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-use-check-owned-extractors-for-opaque-record-identities",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260805-use-location-independent-record-identities"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260805-use-location-independent-record-identities",
+          "summary": "改由 Check extractor 生成 opaque identity"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-use-core-check-record-facts-with-final-data",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-core-check-and-record-facts-from-run-resolution"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-use-core-check-and-record-facts-from-run-resolution",
+          "summary": "以 final data 形成核心 Check/Record facts"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-use-direct-check-execution-with-minimal-record-reporting",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260817-use-direct-check-execution-with-structured-results"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260817-use-direct-check-execution-with-structured-results",
+          "summary": "直接执行 Check 并最小化 Record reporting"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-use-explicit-run-controls-check-aggregation",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260815-evaluate-decision-policies-from-core-facts"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260815-evaluate-decision-policies-from-core-facts",
+          "summary": "使用显式 Run Controls Check aggregation"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260821-use-four-state-check-results-with-final-data",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260821-use-direct-check-execution-with-minimal-record-reporting"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260821-use-direct-check-execution-with-minimal-record-reporting",
+          "summary": "使用四态 Check final result 与主数据"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260822-distinguish-primary-and-derived-change-problem-sets",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260822-distinguish-primary-and-derived-change-problems"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260822-distinguish-primary-and-derived-change-problems",
+          "summary": "在 Change 中区分主要问题集合与衍生问题"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260822-require-check-owned-network-authorization",
+      "baselineState": {
+        "status": "active",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260805-require-explicit-network-check-authorization"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260805-require-explicit-network-check-authorization",
+          "summary": "网络 Check 使用 Check-owned 显式授权"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260822-use-check-owned-file-overrides",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260804-use-file-policy-overrides"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260804-use-file-policy-overrides",
+          "summary": "由 Check options 表达文件级差异"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260823-integrate-foundation-into-workspace-assurance",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260818-vendor-foundation-as-repository-owned-script-tool"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260818-vendor-foundation-as-repository-owned-script-tool",
+          "summary": "将 Foundation 纳入普通 workspace assurance"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260823-read-direct-dependency-final-data-by-string",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260821-let-dependent-checks-read-settled-upstream-outputs"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260821-let-dependent-checks-read-settled-upstream-outputs",
+          "summary": "以 string getter 读取直接依赖 final data"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260824-complete-first-release-check-set-with-specialized-maintenance-reminder",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260824-complete-first-release-check-set-before-publication"
+        },
+        {
+          "type": "归并",
+          "target": "260821-expose-minimal-check-and-run-public-surface"
+        },
+        {
+          "type": "归并",
+          "target": "260817-use-native-object-composition-for-check-customization"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260824-complete-first-release-check-set-before-publication",
+          "summary": "将首版维护提醒收敛为专用构造函数"
+        },
+        {
+          "type": "归并",
+          "target": "260821-expose-minimal-check-and-run-public-surface",
+          "summary": "在最小 Check surface 上加入维护提醒构造"
+        },
+        {
+          "type": "归并",
+          "target": "260817-use-native-object-composition-for-check-customization",
+          "summary": "以专用构造函数取代对象组合维护提醒"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260824-complete-first-release-check-set-without-markdown-structure",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260824-complete-first-release-check-set-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260824-complete-first-release-check-set-before-publication",
+          "summary": "在首次公开发布前完成四项选定的首版 Checks"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260825-allow-controlled-json-schema-reference-sources",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "unaligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260824-complete-first-release-check-set-before-publication"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260824-complete-first-release-check-set-before-publication",
+          "summary": "在首发 Checks 中提供受控 Schema 引用"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-let-each-check-own-file-selection",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260822-use-check-owned-file-overrides"
+        },
+        {
+          "type": "归并",
+          "target": "260825-define-offline-markdown-link-target-boundaries"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260822-use-check-owned-file-overrides",
+          "summary": "将文件差异扩展为 Check 全量 selection"
+        },
+        {
+          "type": "归并",
+          "target": "260825-define-offline-markdown-link-target-boundaries",
+          "summary": "将 Link 本地目标边界纳入自身 selection"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-make-package-lifecycle-gate-tests-explicit",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260823-default-project-gate-to-required-profile"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260823-default-project-gate-to-required-profile",
+          "summary": "让高成本 package lifecycle Gate 测试显式启用"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-prepare-check-options-before-execution",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260826-validate-ordinary-check-options-before-execution"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260826-validate-ordinary-check-options-before-execution",
+          "summary": "在执行前准备普通 Check options"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-refine-product-module-boundaries",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260824-align-source-layout-and-naming-with-module-owners"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260824-align-source-layout-and-naming-with-module-owners",
+          "summary": "收敛 Product 模块边界到实际 owner"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-refine-project-run-and-settlement-owners",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260826-refine-product-module-boundaries"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260826-refine-product-module-boundaries",
+          "summary": "收敛 Project Run 与 Check settlement owner"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-remove-unconsumed-option-capability",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260811-preinstall-selected-typescript-capabilities"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260811-preinstall-selected-typescript-capabilities",
+          "summary": "移除无消费者的 Product Option 能力"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-replace-global-tool-effects-with-run-outputs",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260812-enable-tool-effects-by-default"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260812-enable-tool-effects-by-default",
+          "summary": "以 Run outputs 取代全局工具效果"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-separate-test-evidence-closure-from-execution",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260730-use-semantic-test-case-closure"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260730-use-semantic-test-case-closure",
+          "summary": "将测试实体闭合与测试执行拆为独立 assurance"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260826-validate-ordinary-check-options-before-execution",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260826-let-each-check-own-file-selection"
+        },
+        {
+          "type": "归并",
+          "target": "260826-treat-package-provided-checks-as-ordinary"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260826-let-each-check-own-file-selection",
+          "summary": "在 Check 自有 selection 后验证 options"
+        },
+        {
+          "type": "归并",
+          "target": "260826-treat-package-provided-checks-as-ordinary",
+          "summary": "让普通 Check 自带 options validator"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260827-post-process-project-gate-with-owned-context",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260821-bind-project-gates-to-run-aggregation"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260821-bind-project-gates-to-run-aggregation",
+          "summary": "以完整 Gate 上下文后处理结果"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260827-reuse-prepared-candidate-across-package-acceptance",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260826-provide-prepared-package-candidate-as-typed-check-data"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260826-provide-prepared-package-candidate-as-typed-check-data",
+          "summary": "在 package acceptance 间复用已准备 candidate"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260827-schedule-project-gate-by-measured-resource-ownership",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260826-make-package-lifecycle-gate-tests-explicit"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260826-make-package-lifecycle-gate-tests-explicit",
+          "summary": "按测量与资源责任调度 Project Gate"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260827-split-external-consumer-acceptance-with-typed-provider-data",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260827-reuse-prepared-candidate-across-package-acceptance"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260827-reuse-prepared-candidate-across-package-acceptance",
+          "summary": "以 typed provider data 拆分外部验收"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-construct-duplicate-detection-from-defaulted-policy",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260817-expose-ordinary-check-values-with-define-check"
+        },
+        {
+          "type": "归并",
+          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260817-expose-ordinary-check-values-with-define-check",
+          "summary": "以默认化构造函数承接普通 Check authoring"
+        },
+        {
+          "type": "归并",
+          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds",
+          "summary": "将 area 文件与阈值纳入默认化构造"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-drive-run-from-check-owned-inputs-and-explicit-providers",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260817-drive-run-from-check-owned-execution-options"
+        },
+        {
+          "type": "归并",
+          "target": "260817-let-check-options-own-execution-dependencies"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260817-drive-run-from-check-owned-execution-options",
+          "summary": "将 Run 执行配置收回 Check-owned inputs"
+        },
+        {
+          "type": "归并",
+          "target": "260817-let-check-options-own-execution-dependencies",
+          "summary": "将依赖与变更事实分给 options/provider"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-let-duplicate-detection-adapter-own-cli-protocol",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-construct-duplicate-detection-from-defaulted-policy"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-construct-duplicate-detection-from-defaulted-policy",
+          "summary": "让重复检测 adapter 独占 CLI 协议与执行调优"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-let-each-duplicate-code-area-own-files-and-thresholds",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-scan-duplicate-code-once-across-code-areas"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-scan-duplicate-code-once-across-code-areas",
+          "summary": "让每个重复检测区域共同拥有文件范围和阈值"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-locate-package-examples-by-natural-markdown-headings",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-author-package-markdown-at-published-paths"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-author-package-markdown-at-published-paths",
+          "summary": "以自然 Markdown section 定位 package 可执行示例"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-provide-package-check-functions-parsers-and-actionable-messages",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260824-complete-first-release-check-set-with-specialized-maintenance-reminder"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260824-complete-first-release-check-set-with-specialized-maintenance-reminder",
+          "summary": "为随包 Check 提供构造函数、解析器与可行动消息"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-select-check-files-from-explicit-sources",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260826-let-each-check-own-file-selection"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260826-let-each-check-own-file-selection",
+          "summary": "从显式来源选择 Check 文件"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260828-treat-jscpd-version-as-adapter-provenance",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-let-duplicate-detection-adapter-own-cli-protocol"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-let-duplicate-detection-adapter-own-cli-protocol",
+          "summary": "将 jscpd 版本作为 adapter provenance 而非项目政策"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260829-add-ephemeral-project-run-diagnostic-logging",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260826-replace-global-tool-effects-with-run-outputs"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260826-replace-global-tool-effects-with-run-outputs",
+          "summary": "增加一次性 Project Run core 诊断日志 output"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260829-consolidate-project-gate-run-evidence",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260829-add-ephemeral-project-run-diagnostic-logging"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260829-add-ephemeral-project-run-diagnostic-logging",
+          "summary": "将 Gate Run 证据收敛为单次高信噪 invocation"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260829-keep-package-machine-docs-consumer-focused",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-ship-current-machine-contract-materials-in-the-package"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-ship-current-machine-contract-materials-in-the-package",
+          "summary": "让 package machine 文档只承接消费契约"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260829-observe-repository-quality-checks-inside-project-gate",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260829-run-repository-quality-checks-inside-project-gate"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260829-run-repository-quality-checks-inside-project-gate",
+          "summary": "在 Project Gate 内直接观察仓库质量 Checks"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260829-ship-one-capability-rich-machine-example",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260829-ship-one-definition-backed-machine-example"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260829-ship-one-definition-backed-machine-example",
+          "summary": "让唯一 machine 示例覆盖代表性公共 Check 能力"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260829-ship-one-definition-backed-machine-example",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260829-keep-package-machine-docs-consumer-focused"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260829-keep-package-machine-docs-consumer-focused",
+          "summary": "只随包交付一组由 Definition 支撑的 machine 示例"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-aggregate-all-eligible-project-gate-check-statuses",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260829-observe-repository-quality-checks-inside-project-gate"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260829-observe-repository-quality-checks-inside-project-gate",
+          "summary": "聚合全部 eligible Gate Check 状态"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-allow-explicitly-controlled-json-schema-reference-sources",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "重划",
+          "target": "260825-allow-controlled-json-schema-reference-sources"
+        },
+        {
+          "type": "重划",
+          "target": "260824-complete-first-release-check-set-without-markdown-structure"
+        },
+        {
+          "type": "重划",
+          "target": "260805-expand-format-aware-built-in-checks"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "重划",
+          "target": "260825-allow-controlled-json-schema-reference-sources",
+          "summary": "从首版 Check 集合拆出受控 Schema 引用"
+        },
+        {
+          "type": "重划",
+          "target": "260824-complete-first-release-check-set-without-markdown-structure",
+          "summary": "将 Schema 引用从首版四项能力中分离"
+        },
+        {
+          "type": "重划",
+          "target": "260805-expand-format-aware-built-in-checks",
+          "summary": "将 Schema 引用从格式 Check 路线独立出来"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-default-package-quality-findings-to-advisory",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260830-expose-markdown-link-finding-policy"
+        },
+        {
+          "type": "归并",
+          "target": "260828-share-finding-policy-across-area-quality-checks"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260830-expose-markdown-link-finding-policy",
+          "summary": "将 Link 默认阻断改为 Package advisory"
+        },
+        {
+          "type": "归并",
+          "target": "260828-share-finding-policy-across-area-quality-checks",
+          "summary": "将区域 Check 共用阻断策略改为默认 advisory"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-keep-duplicate-detection-cache-check-owned",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "保持 duplicate-detection cache 由 Check 拥有"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-keep-first-release-check-set-to-four-without-markdown-structure",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "重划",
+          "target": "260825-allow-controlled-json-schema-reference-sources"
+        },
+        {
+          "type": "重划",
+          "target": "260824-complete-first-release-check-set-without-markdown-structure"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "重划",
+          "target": "260825-allow-controlled-json-schema-reference-sources",
+          "summary": "从五项首版收敛为四项能力"
+        },
+        {
+          "type": "重划",
+          "target": "260824-complete-first-release-check-set-without-markdown-structure",
+          "summary": "保留四项并将 Schema 引用独立成 Check"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-keep-format-aware-check-capabilities-independent",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "重划",
+          "target": "260805-expand-format-aware-built-in-checks"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "重划",
+          "target": "260805-expand-format-aware-built-in-checks",
+          "summary": "保持格式感知 Check 能力彼此独立"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-keep-public-inventory-and-package-materials-tooling-owned",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "保持清单与材料由 tooling owner 管理"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-preserve-release-gate-readiness-with-invocation-creation-time",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-publish-invocation-creation-time-without-execution-telemetry"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-publish-invocation-creation-time-without-execution-telemetry",
+          "summary": "以 invocation 创建时间保持发布前 Gate 就绪边界"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-provide-generic-finding-waiver-reconciliation",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities",
+          "summary": "提供泛型 Finding waiver 对账能力"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-publish-invocation-creation-time-without-execution-telemetry",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260819-complete-project-gate-before-public-package-release"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260819-complete-project-gate-before-public-package-release",
+          "summary": "发布 invocation 创建时间而非执行遥测"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-publish-invocation-creation-timestamp-without-check-telemetry",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time",
+          "summary": "发布 invocation 创建时间而不建立 Check telemetry"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-reconcile-finding-waivers-with-caller-defined-identities",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-exclude-byte-preserved-historical-v2-schema-from-repository-file-metrics",
+          "summary": "用调用方定义的身份对账质量 Finding 豁免"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-reconcile-selected-files-with-check-eligibility",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-publish-composable-default-project-file-selection"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-publish-composable-default-project-file-selection",
+          "summary": "让选中文件与 Check eligibility 完整对账"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-refine-project-gate-context-timing-phases",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260827-post-process-project-gate-with-owned-context"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260827-post-process-project-gate-with-owned-context",
+          "summary": "用连续阶段解释 Gate 初步结果耗时"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-report-per-check-duration-without-changing-check-facts",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time",
+          "summary": "报告每项 Check 时长而不改变 Check facts"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-require-complete-project-gate-evidence-before-public-release",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-preserve-release-gate-readiness-with-invocation-creation-time",
+          "summary": "公开发布前要求完整 Project Gate 证据"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-serialize-project-gate-documentation-materials-by-ownership"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-serialize-project-gate-documentation-materials-by-ownership",
+          "summary": "按实测资源所有权调度 Gate 与文档材料"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-separate-settlement-run-progress-and-machine-owners",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "拆分 settlement、Run、progress 与 machine 职责"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-serialize-project-gate-documentation-materials-by-ownership",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260827-schedule-project-gate-by-measured-resource-ownership"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260827-schedule-project-gate-by-measured-resource-ownership",
+          "summary": "按材料所有权串行 Project Gate 文档验证"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-share-strict-json-document-boundary-between-json-checks",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260826-refine-project-run-and-settlement-owners",
+          "summary": "在 JSON sibling Check 间共享严格文档边界"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260830-use-chinese-as-primary-language-for-package-consumer-documentation",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260824-use-chinese-as-primary-language-for-public-documentation"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260824-use-chinese-as-primary-language-for-public-documentation",
+          "summary": "package consumer 文档以中文叙述为主"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260830-reconcile-finding-waivers-with-caller-defined-identities",
+          "summary": "保留证据地豁免历史 v2 Schema 文件指标"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260831-centralize-project-gate-after-hook-configuration",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260831-centralize-project-gate-definition-and-separate-adapters"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260831-centralize-project-gate-definition-and-separate-adapters",
+          "summary": "由中央 Definition 配置 Project Gate afterGate"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260831-enumerate-normalized-direct-dependency-outcomes",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260823-read-direct-dependency-final-data-by-string"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260823-read-direct-dependency-final-data-by-string",
+          "summary": "枚举已规范化的直接 dependency outcomes"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260831-install-check-console-router-before-preflight",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260831-provide-product-progress-with-check-console-capture"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260831-provide-product-progress-with-check-console-capture",
+          "summary": "在 Check preflight 前一次安装 console router"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260831-provide-generic-bounded-finding-presentation",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260831-present-bounded-safe-finding-summaries"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260831-present-bounded-safe-finding-summaries",
+          "summary": "提供由 Check 配置的通用有界 Finding 展示"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260831-provide-product-progress-with-check-console-capture",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260820-provide-product-owned-check-progress"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260820-provide-product-owned-check-progress",
+          "summary": "由 progress 捕获并结算 Check console 输出"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260831-publish-user-scoped-vibe-check-publicly",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260814-publish-unscoped-vibe-check-publicly"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260814-publish-unscoped-vibe-check-publicly",
+          "summary": "在个人 npm scope 公开发布 Vibe Check package"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260831-restrict-machine-publication-to-canonical-file-ownership",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260831-treat-run-output-directories-as-explicit-trusted-targets"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260831-treat-run-output-directories-as-explicit-trusted-targets",
+          "summary": "将 machine 发布限于 canonical file owner"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials",
+          "summary": "用重复对照证据配置 Project Gate 的准入优先级"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-group-flag-disabled-checks-in-progress",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260822-allow-check-terminal-messages-and-explicit-visibility"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260822-allow-check-terminal-messages-and-explicit-visibility",
+          "summary": "在 progress 中按名称分组未命中 flag 的 Checks"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-inherit-depends-on-and-observes-independently",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260817-use-inherit-for-check-collection-edits"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260817-use-inherit-for-check-collection-edits",
+          "summary": "分别继承 dependsOn 与 observes relation"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-keep-console-router-through-task-local-check-lifecycle",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260831-install-check-console-router-before-preflight"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260831-install-check-console-router-before-preflight",
+          "summary": "在 task-local Check 生命周期保留 console router"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260829-consolidate-project-gate-run-evidence"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260829-consolidate-project-gate-run-evidence",
+          "summary": "以无状态 Scheduler context 保持完整 Gate Run 证据"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-provide-caller-keyed-json-cache-without-run-caching",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-keep-duplicate-detection-cache-check-owned"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-keep-duplicate-detection-cache-check-owned",
+          "summary": "提供 caller-keyed JSON cache，不缓存 Run"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260817-apply-check-parallel-limit-while-task-runs"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260817-apply-check-parallel-limit-while-task-runs",
+          "summary": "保留运行期并行上限并按优先级选择 ready Task"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-run-check-preflight-with-task-admission",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260826-prepare-check-options-before-execution"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260826-prepare-check-options-before-execution",
+          "summary": "在 Check Task 准入后执行 preflight"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-separate-passed-dependencies-from-settled-observations",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260831-enumerate-normalized-direct-dependency-outcomes"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260831-enumerate-normalized-direct-dependency-outcomes",
+          "summary": "分离成功前置与已结算终态观测"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-settle-non-passed-dependents-as-unavailable",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260815-cancel-task-admission-and-drain-started-work"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260815-cancel-task-admission-and-drain-started-work",
+          "summary": "将未通过前置的 dependent 结算为 unavailable"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-support-multi-flag-check-enablement-strategies",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260820-use-string-flags-for-project-run-controls"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260820-use-string-flags-for-project-run-controls",
+          "summary": "支持多 flag Check 启用策略"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-use-scc-v4-file-metrics-cli-protocol",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-let-file-metrics-adapter-own-cli-protocol"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-let-file-metrics-adapter-own-cli-protocol",
+          "summary": "让文件指标 adapter 固定 SCC v4 CLI 协议"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260901-use-stateless-admission-policies-with-hard-scheduler-guards",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260901-separate-admission-policy-from-scheduler-state-machine"
+        },
+        {
+          "type": "归并",
+          "target": "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260901-separate-admission-policy-from-scheduler-state-machine",
+          "summary": "以无状态 select/wait policy 承接策略分离"
+        },
+        {
+          "type": "归并",
+          "target": "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority",
+          "summary": "以硬 guard 保留并行上限与优先级"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-compare-duplicates-only-within-common-code-areas",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-let-each-duplicate-code-area-own-files-and-thresholds",
+          "summary": "只在共同代码区域内形成重复 Finding"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-exclude-historical-schemas-from-maintainability-metrics",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence",
+          "summary": "将历史 Schema 移出可维护性指标"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-expose-invocation-local-scheduler-measurement-hooks",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-extend-invocation-local-scheduler-performance-summary"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-extend-invocation-local-scheduler-performance-summary",
+          "summary": "将 Scheduler 性能测量交给 invocation-local Hook"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-extend-invocation-local-scheduler-performance-summary",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260901-add-invocation-local-scheduler-performance-summary"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260901-add-invocation-local-scheduler-performance-summary",
+          "summary": "扩展 invocation-local Scheduler 压力与尾段诊断"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-keep-repository-quality-findings-advisory-through-release",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260830-require-known-repository-quality-remediation-before-public-release"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260830-require-known-repository-quality-remediation-before-public-release",
+          "summary": "让仓库质量 Finding 在发布前仍为提示"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-observe-post-action-policy-measurement",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-provide-decision-boundary-admission-measurement"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-provide-decision-boundary-admission-measurement",
+          "summary": "以 policy action 后状态观察修订准入 measurement"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-preserve-applicable-upstream-licenses-for-translated-analyzers",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-license-package-under-mit"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-license-package-under-mit",
+          "summary": "为翻译的 analyzer 保留适用 upstream 许可与声明"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-preserve-primary-run-failures-over-measurement-hook-output",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-expose-invocation-local-scheduler-measurement-hooks"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-expose-invocation-local-scheduler-measurement-hooks",
+          "summary": "保留主 Run failure 高于测量 Hook 输出"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-provide-decision-boundary-admission-measurement",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260901-expose-stateless-custom-admission-policy-to-callers"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260901-expose-stateless-custom-admission-policy-to-callers",
+          "summary": "在 admission 前提供决策边界测量"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260805-defer-lizard-until-after-check-foundations"
+        },
+        {
+          "type": "归并",
+          "target": "260828-let-function-metrics-adapter-own-lizard-cli-protocol"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260805-defer-lizard-until-after-check-foundations",
+          "summary": "将后置 Lizard port 落地为自有 TS analyzer"
+        },
+        {
+          "type": "归并",
+          "target": "260828-let-function-metrics-adapter-own-lizard-cli-protocol",
+          "summary": "以自有 TS analyzer 取代 Lizard CLI adapter"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-track-lizard-supported-languages-with-upstream-advisory",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-align-function-metrics-inputs-with-lizard-supported-languages"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-align-function-metrics-inputs-with-lizard-supported-languages",
+          "summary": "以仓库提示持续跟随 Lizard 支持语言与 analyzer 修复"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-treat-flag-control-settlements-as-scheduler-results",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260901-support-multi-flag-check-enablement-strategies"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260901-support-multi-flag-check-enablement-strategies",
+          "summary": "将 flag control 终态作为 Scheduler 准入前结果"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260902-unify-default-summary-with-terminal-measurement-hooks",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-expose-invocation-local-scheduler-measurement-hooks"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-expose-invocation-local-scheduler-measurement-hooks",
+          "summary": "将默认汇总统一为终态测量 Hook"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260903-add-secret-detection-to-package-check-contract",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260828-provide-package-check-functions-parsers-and-actionable-messages"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260828-provide-package-check-functions-parsers-and-actionable-messages",
+          "summary": "将安全秘密检测纳入随包 Check 契约"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260903-adopt-invocation-scoped-custom-admission-strategy-authoring",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle",
+          "summary": "采用 invocation-scoped 准入策略 authoring"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260903-adopt-selected-lizard-extensions-in-product-owned-analyzer",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-replace-lizard-runtime-with-product-owned-typescript-analyzers",
+          "summary": "在产品自有 analyzer 中私有采用指定 Lizard 扩展"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260903-exclude-lizard-port-from-repository-quality-metrics",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-isolate-lizard-port-behind-check-private-interface"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-isolate-lizard-port-behind-check-private-interface",
+          "summary": "将 Lizard 私有 port 整目录排除出仓库质量指标"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260903-extend-measurement-hook-output-to-prepared-complete",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-preserve-primary-run-failures-over-measurement-hook-output"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-preserve-primary-run-failures-over-measurement-hook-output",
+          "summary": "将 prepared complete 纳入测量 Hook 输出"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260903-introduce-invocation-scoped-admission-strategy-lifecycle",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260901-use-stateless-admission-policies-with-hard-scheduler-guards"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260901-use-stateless-admission-policies-with-hard-scheduler-guards",
+          "summary": "以 invocation 策略生命周期包装纯准入选择"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260903-keep-lizard-advisory-explicit-with-selected-extension-adoption",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-track-lizard-supported-languages-with-upstream-advisory"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-track-lizard-supported-languages-with-upstream-advisory",
+          "summary": "在采用指定扩展时保持 Lizard advisory 显式"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260903-retain-private-invocation-admission-strategy-lifecycle",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "拆分",
+          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "拆分",
+          "target": "260903-introduce-invocation-scoped-admission-strategy-lifecycle",
+          "summary": "保留私有 invocation 准入策略生命周期"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "authorized-manual-frontmatter-bypass"
+      }
+    },
+    {
+      "sourceId": "260904-delegate-project-gate-selection-to-product-effective-selection",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260904-use-project-check-command-with-focused-gate-presets"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260904-use-project-check-command-with-focused-gate-presets",
+          "summary": "让 Project Gate 委托 Product 处理依赖选择"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260904-keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context",
+          "summary": "以 owner-scoped context 保持完整 Gate 证据"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260904-organize-owner-aware-project-run-and-gate-diagnostics",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-organize-project-run-and-gate-diagnostics-for-human-inspection"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-organize-project-run-and-gate-diagnostics-for-human-inspection",
+          "summary": "以 owner-aware channel 组织 Run/Gate 诊断"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260904-publish-project-gate-machine-facts-in-machine-namespace",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260829-publish-project-gate-machine-facts-with-invocation-evidence"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260829-publish-project-gate-machine-facts-with-invocation-evidence",
+          "summary": "将 Gate machine 事实发布到命名空间"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260904-render-record-and-message-previews-in-product-progress",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260904-publish-detailed-native-gate-diagnostic-records"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260904-publish-detailed-native-gate-diagnostic-records",
+          "summary": "由 progress 统一预览 Record 与 Check message"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260904-reuse-gate-prepared-candidate-without-detached-lifecycle",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence"
+        },
+        {
+          "type": "归并",
+          "target": "260827-split-external-consumer-acceptance-with-typed-provider-data"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260901-configure-project-gate-admission-priority-by-repeated-comparative-evidence",
+          "summary": "复用 candidate evidence 取代 Gate 调度关注点"
+        },
+        {
+          "type": "归并",
+          "target": "260827-split-external-consumer-acceptance-with-typed-provider-data",
+          "summary": "由 Gate root 接管 provider candidate 生命周期"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260904-unify-effective-flag-selection-and-aggregation",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "归并",
+          "target": "260902-treat-flag-control-settlements-as-scheduler-results"
+        },
+        {
+          "type": "归并",
+          "target": "260821-use-explicit-run-controls-check-aggregation"
+        },
+        {
+          "type": "归并",
+          "target": "260901-group-flag-disabled-checks-in-progress"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "归并",
+          "target": "260902-treat-flag-control-settlements-as-scheduler-results",
+          "summary": "将 flag 未匹配并入一次有效选择"
+        },
+        {
+          "type": "归并",
+          "target": "260821-use-explicit-run-controls-check-aggregation",
+          "summary": "让 aggregation 消费同源 effective selection"
+        },
+        {
+          "type": "归并",
+          "target": "260901-group-flag-disabled-checks-in-progress",
+          "summary": "将 flag 分组进度纳入 effective selection"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260830-default-package-quality-findings-to-advisory"
+        },
+        {
+          "type": "替代",
+          "target": "260902-keep-repository-quality-findings-advisory-through-release"
+        },
+        {
+          "type": "修订",
+          "target": "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260830-default-package-quality-findings-to-advisory",
+          "summary": "保持 package advisory，Gate 改为 blocking"
+        },
+        {
+          "type": "替代",
+          "target": "260902-keep-repository-quality-findings-advisory-through-release",
+          "summary": "以 Gate 阻断取代发布前质量 advisory"
+        },
+        {
+          "type": "修订",
+          "target": "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes",
+          "summary": "将清理义务与 Gate 阻断分别保留"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260905-structure-package-documentation-by-user-task",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260827-structure-package-documentation-around-one-readme"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260827-structure-package-documentation-around-one-readme",
+          "summary": "以单一入口和任务专题组织随包文档"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260906-describe-vibe-check-as-a-typescript-quality-gate-tool",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260906-describe-vibe-check-as-a-general-project-quality-gate"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260906-describe-vibe-check-as-a-general-project-quality-gate",
+          "summary": "将 Vibe Check 描述为通用 TypeScript 质量门禁工具"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260906-publish-node-readable-esm-package-layout",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260824-publish-readable-esm-package-layout"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260824-publish-readable-esm-package-layout",
+          "summary": "以 Node 可读 ESM 模块树交付 package 运行时"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260906-support-node-as-the-package-host",
+      "baselineState": {
+        "status": "archived",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "替代",
+          "target": "260812-support-bun-as-the-package-host"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "替代",
+          "target": "260812-support-bun-as-the-package-host",
+          "summary": "公开 package 只支持 Node 宿主"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260906-treat-node-engine-as-a-minimum-version",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260906-support-node-as-the-package-host"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260906-support-node-as-the-package-host",
+          "summary": "将 Node package engine 作为最低版本约束"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260907-configure-bounded-progress-previews-with-text-formatter",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260904-render-record-and-message-previews-in-product-progress"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260904-render-record-and-message-previews-in-product-progress",
+          "summary": "提供可配置且受管的 progress 文本预览"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260907-keep-invocation-lifecycle-free-of-learned-special-cases",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260903-retain-private-invocation-admission-strategy-lifecycle"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260903-retain-private-invocation-admission-strategy-lifecycle",
+          "summary": "保持 Invocation 策略生命周期不识别学习特例"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260907-keep-run-diagnostics-independent-of-optional-strategies",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260904-organize-owner-aware-project-run-and-gate-diagnostics"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260904-organize-owner-aware-project-run-and-gate-diagnostics",
+          "summary": "保持运行诊断通道独立于可选策略"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260907-provide-learned-admission-through-public-strategy",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260902-learn-check-task-durations-for-critical-path-admission"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260902-learn-check-task-durations-for-critical-path-admission",
+          "summary": "通过公共策略接口提供可选学习准入"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260907-scope-translated-source-notices-to-material-directory",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260907-unify-package-legal-materials-and-audit-installed-dependencies"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260907-unify-package-legal-materials-and-audit-installed-dependencies",
+          "summary": "将翻译来源说明置于对应法律材料目录"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260908-delete-completed-change-and-openspec-history",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260814-record-paused-change-state-in-artifacts"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260814-record-paused-change-state-in-artifacts",
+          "summary": "删除已完成 Change 与 OpenSpec 历史"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    },
+    {
+      "sourceId": "260908-use-dated-governance-record-identities",
+      "baselineState": {
+        "status": "active",
+        "alignment": "aligned"
+      },
+      "baselineRelations": [
+        {
+          "type": "修订",
+          "target": "260721-use-project-decision-records"
+        }
+      ],
+      "finalRelations": [
+        {
+          "type": "修订",
+          "target": "260721-use-project-decision-records",
+          "summary": "治理记录使用日期前缀显式身份"
+        }
+      ],
+      "confidence": "high",
+      "implementation": {
+        "state": "applied",
+        "method": "decision-cli-evolve"
+      }
+    }
+  ],
+  "implementationSummary": {
+    "decision-cli-evolve": {
+      "sourceCount": 183,
+      "relationCount": 203
+    },
+    "authorized-manual-frontmatter-bypass": {
+      "sourceCount": 17,
+      "relationCount": 20
+    }
+  }
+}
