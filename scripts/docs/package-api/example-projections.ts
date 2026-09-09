@@ -1,11 +1,5 @@
 export type PackageApiExampleEvidence = "runtime" | "typecheck";
 
-export interface PackageApiMarkdownDocument {
-  readonly id: string;
-  /** The checked-in authoring source and exact path published in the package. */
-  readonly packagePath: string;
-}
-
 export type PackageApiExampleTarget =
   | Readonly<{
       readonly documentId: string;
@@ -27,62 +21,6 @@ export interface PackageApiExampleProjection {
   readonly targets: readonly PackageApiExampleTarget[];
   readonly title: string;
 }
-
-/** Explicitly published API-document inventory; this is not a general Markdown traversal. */
-export const PACKAGE_API_MARKDOWN_DOCUMENTS = Object.freeze([
-  Object.freeze({
-    id: "readme",
-    packagePath: "README.md"
-  }),
-  Object.freeze({
-    id: "api-mechanics",
-    packagePath: "docs/api-mechanics.md"
-  }),
-  Object.freeze({
-    id: "run-outputs",
-    packagePath: "docs/guides/run-outputs.md"
-  }),
-  Object.freeze({
-    id: "check-dependencies",
-    packagePath: "docs/guides/check-dependencies.md"
-  }),
-  Object.freeze({
-    id: "learned-scheduling",
-    packagePath: "docs/guides/learned-scheduling.md"
-  }),
-  Object.freeze({
-    id: "callbacks",
-    packagePath: "docs/guides/callbacks.md"
-  }),
-  Object.freeze({
-    id: "extending-check-lifecycle",
-    packagePath: "docs/guides/extending-check-lifecycle.md"
-  }),
-  Object.freeze({
-    id: "scheduling",
-    packagePath: "docs/guides/scheduling.md"
-  }),
-  Object.freeze({
-    id: "simulating-admission",
-    packagePath: "docs/guides/simulating-admission.md"
-  }),
-  Object.freeze({
-    id: "collecting-project-files",
-    packagePath: "docs/guides/collecting-project-files.md"
-  }),
-  Object.freeze({
-    id: "cache-results",
-    packagePath: "docs/guides/cache-results.md"
-  }),
-  Object.freeze({
-    id: "finding-waivers",
-    packagePath: "docs/guides/finding-waivers.md"
-  }),
-  Object.freeze({
-    id: "presenting-findings",
-    packagePath: "docs/guides/presenting-findings.md"
-  })
-] satisfies readonly PackageApiMarkdownDocument[]);
 
 export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   Object.freeze({

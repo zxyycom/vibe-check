@@ -16,6 +16,7 @@
 | 文档 | 用户任务与规则范围 |
 | --- | --- |
 | [README](../README.md) | 唯一用户总入口：安装、支持范围、最小路径与专题直链。 |
+| [变更日志](changelog.md) | 版本净变化、升级影响与提交追溯；具体行为规范由对应专题拥有。 |
 | [API 机制](api-mechanics.md) | Run 生命周期、Definition/Controls、组合、aggregation 和结果分支。 |
 | [回调位置](guides/callbacks.md) | 按任务选扩展点；具体契约引用对应专题。 |
 | [自定义 Check](guides/extending-check-lifecycle.md) | preflight/execution authoring、callback context、flags 与协作取消。 |
@@ -31,7 +32,7 @@
 | [八项 Check 指南](../README.md#随包提供的-check) | 每篇完整拥有该 Check 的 options、默认值、执行、结果、Records/messages、不可用及安全边界。 |
 | [机器输出契约](output.md) | publication set、DTO 语义、版本与消费边界。 |
 
-其它随包材料分别使用原有 registry：current [schemas](schemas/) 拥有精确机器结构；[artifact example](examples/artifacts/mixed-outcomes/)与 API example sources 证明用法，不新增规则。
+随包文档由 [JSON 映射](package-documents.json)声明源文件与包内路径：current [schemas](schemas/) 拥有精确机器结构；[artifact example](examples/artifacts/mixed-outcomes/)与 API example sources 证明用法，不新增规则。
 类型声明拥有精确签名，source JSDoc 提供局部说明；只发布已注册的 schema、示例与声明/源码包材料。
 投影维护见[文档材料](tooling/documentation.md)，机器材料维护见[输出维护](development/output-maintenance.md)。
 
@@ -90,11 +91,11 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 ## 文档变更审查
 
 产品行为、使用方案或内部职责变化时，按[文档影响审查](governance/knowledge-maintenance.md#行为变更的交付审查)分别核对公开承诺与内部说明，由非实施代理基于实际 diff 反查。
-新增、移动或改变发布范围时，同步阅读路径、现有 registry、README 直链和包内链接；机械校验不代替语义审查。
+新增、移动或改变发布范围时，同步阅读路径、JSON 映射、README 直链和包内链接；机械校验不代替语义审查。
 
 ## 随包 Check 指南
 
-唯一逐项索引在 [README](../README.md#随包提供的-check)，由 guide registry 验证与 public constructors、已发布 guides 完整闭合。
+唯一逐项索引在 [README](../README.md#随包提供的-check)，由 JSON 的 `checkGuides` 与公开 Check 函数、已发布 guides 完整闭合。
 通用 Check Definition / results 只保留跨 Check 契约；本页不复制逐项清单。
 
 ## 权威性与状态

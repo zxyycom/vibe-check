@@ -9,12 +9,13 @@
 | 要修改的内容 | 编辑位置 |
 | --- | --- |
 | README、API 专题正文、标题或链接 | 最终 Markdown 中受管示例代码块之外的内容 |
+| 发布范围、源文件或包内路径 | [发布映射配置](../package-documents.json) |
 | Check 指南 | [README 随包 Check 索引](../../README.md#随包提供的-check)链接的对应指南 |
 | 可执行 API 示例 | `docs/examples/package-api/*.ts` 中已列入白名单的文件或 region |
 | declaration 说明 | 声明所属源码中，受管 `@example` 尾部之前的 JSDoc 正文 |
 
-README 与 API 专题使用同一份 checked-in Markdown 发布；Check 指南也直接发布其 checked-in 文件。
-API 专题的显式清单和示例投影目标都由 `scripts/docs/package-api/example-projections.ts` 维护。
+README、API 专题与 Check 指南都发布 checked-in Markdown。文件映射由 [package-documents.json](../package-documents.json) 拥有；
+示例投影目标继续由 `scripts/docs/package-api/example-projections.ts` 维护。
 
 可执行示例会投影到指定 Markdown 标题下的 TypeScript 代码块，或源码 JSDoc 的 `@example` 尾部。
 生成的类型声明保留 JSDoc 说明和投影后的示例。
@@ -31,29 +32,45 @@ API 专题的显式清单和示例投影目标都由 `scripts/docs/package-api/e
 
 ## Documentation, validation, and package material
 
-本节定义随包文档和材料的发布范围；发布事实由下列现有 registry 决定。
+[package-documents.json](../package-documents.json) 是随包文档的唯一文件映射入口，代码按本次 repository root 读取。
+每项显式声明 `sourcePath`（仓库相对路径）与 `packagePath`（包根相对路径）；新增或移动发布文档时修改此配置。
 
-### README、API 专题与 Check 指南
+| 配置组 | 附加身份 | 保留的内容规则 |
+| --- | --- | --- |
+| `markdownDocuments` | `id`，供示例目标引用 | 自然标题下的示例投影；README 直接链接各篇文档 |
+| `checkGuides` | `checkId`、`exportName` | `docs/checks/` 源目录与公开 Check 函数完整闭合，验证固定指南章节与 README 索引 |
+| `machineMaterials` | 无 | 原始 bytes、current schema 和可执行 machine 示例验收 |
 
-package README 是消费者文档的唯一总入口。它必须直接链接每篇显式发布的 API 专题、machine output 指南，
+当前映射保持源路径与包内路径一致；README 的源文件与包内路径均固定为 `README.md`。
+配置只映射文件，不改写正文或链接，作者须维护源码与包内都有效的相对链接。当前映射未包含配置自身；它作为仓库构建输入维护。
+
+### Markdown 与 Check 指南
+
+package README 是消费者文档的唯一总入口。它必须直接链接每篇显式发布的 API 专题、changelog、machine output 指南，
 并通过[随包 Check 索引](../../README.md#随包提供的-check)逐项直链已注册的 Check 指南。
 
-两类文档分别按自己的清单发布：
-
-- **API 专题：** 只按显式 inventory 发布，不按篇数、关键词或目录遍历推定。
-- **Check 指南：** README 的随包 Check 索引是 public package-provided Check functions 的唯一逐项 registry；它不承接 API 专题入口。Check guide registry 必须与这些 public functions 完整闭合。
+只有已登记的示例目标参与代码投影，其余正文保留原始 bytes。README 的随包 Check 索引提供唯一逐项阅读入口；
+JSON 的 `checkGuides` 拥有文件映射，两者与 public package-provided Check functions 完整闭合。
 
 `docs/index.md` 和 `docs/checks/index.md` 不发布。
 
-collector 对 published-path API Markdown 和手写 Check 指南检查以下要求：
+collector 对已登记 Markdown 和手写 Check 指南检查以下要求：
 
 - 使用 LF，且恰有一个 trailing LF；
 - 不缺少 README 直链，也不存在额外 Check 页面；
 - package 内的相对 Markdown 链接都能解析。
 
+### 变更日志
+
+`docs/changelog.md` 随包提供版本净变化、升级影响和相关提交，由 README 直链；具体用法与行为规范继续引用相应用户指南。
+它与其它已登记 Markdown 共享 fingerprint、staging/tar/installed bytes 和链接验收。发布前核对目标版本内容和发布状态；
+Change 中的计划、调查过程与运行日志继续留在工作区。
+
+当前使用单文件，版本条目增长到影响阅读时再评估 `docs/changelog/<version>.md`，同步入口、显式材料清单和验收；不预建目录或自动收集历史文件。
+
 ### Machine 材料
 
-`scripts/docs/machine-artifacts/package-materials.ts` 是精确随包 registry，按原始 bytes 读取以下材料：
+`machineMaterials` 映射以下当前材料，由 `scripts/docs/machine-artifacts/package-materials.ts` 按原始 bytes 读取：
 
 - `docs/output.md` 与 `docs/schemas/` 中 current v4 run / Record schemas；
 - 唯一示例 `docs/examples/artifacts/mixed-outcomes/` 中的 `definition.ts`、`run.json` 与 `records.ndjson`。

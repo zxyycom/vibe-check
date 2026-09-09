@@ -12,6 +12,8 @@ npm install @zxyycom/vibe-check
 
 npm 负责安装 package；应用代码和质量脚本的最低运行要求是 **Node `>=24.18`**。安装完成后，可以用 `node <file>` 运行下面的示例。
 
+升级前查看随包的[变更日志](./docs/changelog.md)，确认对应版本的变化与必要调整。
+
 ## 随包提供的 Check
 
 如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execution`。除 `maintenanceReminders(entries)` 与 `secretDetection({ files })` 有必填输入外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。

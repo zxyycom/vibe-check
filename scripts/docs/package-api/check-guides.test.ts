@@ -1,12 +1,11 @@
 import assert from "node:assert/strict";
-import { rmSync, writeFileSync } from "node:fs";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 import { collectPackageDocumentation } from "./check-guides.ts";
-import { PACKAGE_CHECK_GUIDES } from "./check-guide-registry.ts";
-import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
+import { loadPackageDocuments } from "../package-documents.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
 import { createPackageApiDocumentationFixture } from "./test-support.ts";
 
@@ -14,20 +13,27 @@ const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../.
 
 describe("package Check guides", () => {
   it("requires one README-linked guide for every package-provided Check function", () => {
+    const mapping = loadPackageDocuments(repositoryRoot);
     const rendered = renderPackageApiDocumentation({ repositoryRoot });
     const documents = collectPackageDocumentation(repositoryRoot, rendered.markdownDocuments);
     assert.deepEqual(
       documents.map((document) => document.packagePath).sort(),
       [
-        ...PACKAGE_API_MARKDOWN_DOCUMENTS.filter((document) => document.id !== "readme").map(
-          (document) => document.packagePath
-        ),
-        ...PACKAGE_CHECK_GUIDES.map((guide) => guide.sourcePath)
+        ...mapping.markdownDocuments
+          .filter((document) => document.id !== "readme")
+          .map((document) => document.packagePath),
+        ...mapping.checkGuides.map((guide) => guide.packagePath)
       ].sort()
     );
     assert.equal(
       documents.some((document) => document.packagePath.endsWith("index.md")),
       false
+    );
+    const changelog = documents.find((document) => document.packagePath === "docs/changelog.md");
+    assert.ok(changelog);
+    assert.equal(
+      changelog.content,
+      readFileSync(join(repositoryRoot, "docs/changelog.md"), "utf8")
     );
   });
 
@@ -55,21 +61,20 @@ describe("package Check guides", () => {
         /README is missing a direct package Check guide link/
       );
 
-      const missingApiDocumentMarkdown = rendered.markdownDocuments.map((document) =>
-        document.packagePath === "README.md"
-          ? {
-              ...document,
-              content: document.content.replaceAll(
-                "./docs/guides/scheduling.md",
-                "./docs/guides/missing.md"
-              )
-            }
-          : document
-      );
-      assert.throws(
-        () => collectPackageDocumentation(fixture, missingApiDocumentMarkdown),
-        /README is missing a direct package API document link/
-      );
+      for (const documentPath of ["./docs/guides/scheduling.md", "./docs/changelog.md"]) {
+        const missingDocumentMarkdown = rendered.markdownDocuments.map((document) =>
+          document.packagePath === "README.md"
+            ? {
+                ...document,
+                content: document.content.replaceAll(documentPath, "./docs/missing.md")
+              }
+            : document
+        );
+        assert.throws(
+          () => collectPackageDocumentation(fixture, missingDocumentMarkdown),
+          /README is missing a direct package document link/
+        );
+      }
 
       writeFileSync(join(fixture, "docs/checks/extra.md"), "# extra\n", "utf8");
       assert.throws(

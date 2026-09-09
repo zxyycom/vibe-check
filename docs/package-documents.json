@@ -1,0 +1,36 @@
+{
+  "markdownDocuments": [
+    { "id": "readme", "sourcePath": "README.md", "packagePath": "README.md" },
+    { "id": "changelog", "sourcePath": "docs/changelog.md", "packagePath": "docs/changelog.md" },
+    { "id": "api-mechanics", "sourcePath": "docs/api-mechanics.md", "packagePath": "docs/api-mechanics.md" },
+    { "id": "run-outputs", "sourcePath": "docs/guides/run-outputs.md", "packagePath": "docs/guides/run-outputs.md" },
+    { "id": "check-dependencies", "sourcePath": "docs/guides/check-dependencies.md", "packagePath": "docs/guides/check-dependencies.md" },
+    { "id": "learned-scheduling", "sourcePath": "docs/guides/learned-scheduling.md", "packagePath": "docs/guides/learned-scheduling.md" },
+    { "id": "callbacks", "sourcePath": "docs/guides/callbacks.md", "packagePath": "docs/guides/callbacks.md" },
+    { "id": "extending-check-lifecycle", "sourcePath": "docs/guides/extending-check-lifecycle.md", "packagePath": "docs/guides/extending-check-lifecycle.md" },
+    { "id": "scheduling", "sourcePath": "docs/guides/scheduling.md", "packagePath": "docs/guides/scheduling.md" },
+    { "id": "simulating-admission", "sourcePath": "docs/guides/simulating-admission.md", "packagePath": "docs/guides/simulating-admission.md" },
+    { "id": "collecting-project-files", "sourcePath": "docs/guides/collecting-project-files.md", "packagePath": "docs/guides/collecting-project-files.md" },
+    { "id": "cache-results", "sourcePath": "docs/guides/cache-results.md", "packagePath": "docs/guides/cache-results.md" },
+    { "id": "finding-waivers", "sourcePath": "docs/guides/finding-waivers.md", "packagePath": "docs/guides/finding-waivers.md" },
+    { "id": "presenting-findings", "sourcePath": "docs/guides/presenting-findings.md", "packagePath": "docs/guides/presenting-findings.md" }
+  ],
+  "checkGuides": [
+    { "checkId": "duplicate-detection", "exportName": "duplicateDetection", "sourcePath": "docs/checks/duplicate-detection.md", "packagePath": "docs/checks/duplicate-detection.md" },
+    { "checkId": "file-metrics", "exportName": "fileMetrics", "sourcePath": "docs/checks/file-metrics.md", "packagePath": "docs/checks/file-metrics.md" },
+    { "checkId": "function-metrics", "exportName": "functionMetrics", "sourcePath": "docs/checks/function-metrics.md", "packagePath": "docs/checks/function-metrics.md" },
+    { "checkId": "json-validation", "exportName": "jsonValidation", "sourcePath": "docs/checks/json-validation.md", "packagePath": "docs/checks/json-validation.md" },
+    { "checkId": "json-schema-validation", "exportName": "jsonSchemaValidation", "sourcePath": "docs/checks/json-schema-validation.md", "packagePath": "docs/checks/json-schema-validation.md" },
+    { "checkId": "markdown-link-validation", "exportName": "markdownLinkValidation", "sourcePath": "docs/checks/markdown-link-validation.md", "packagePath": "docs/checks/markdown-link-validation.md" },
+    { "checkId": "maintenance-reminders", "exportName": "maintenanceReminders", "sourcePath": "docs/checks/maintenance-reminders.md", "packagePath": "docs/checks/maintenance-reminders.md" },
+    { "checkId": "secret-detection", "exportName": "secretDetection", "sourcePath": "docs/checks/secret-detection.md", "packagePath": "docs/checks/secret-detection.md" }
+  ],
+  "machineMaterials": [
+    { "sourcePath": "docs/output.md", "packagePath": "docs/output.md" },
+    { "sourcePath": "docs/schemas/vibe-check-record.schema.json", "packagePath": "docs/schemas/vibe-check-record.schema.json" },
+    { "sourcePath": "docs/schemas/vibe-check-run.schema.json", "packagePath": "docs/schemas/vibe-check-run.schema.json" },
+    { "sourcePath": "docs/examples/artifacts/mixed-outcomes/definition.ts", "packagePath": "docs/examples/artifacts/mixed-outcomes/definition.ts" },
+    { "sourcePath": "docs/examples/artifacts/mixed-outcomes/records.ndjson", "packagePath": "docs/examples/artifacts/mixed-outcomes/records.ndjson" },
+    { "sourcePath": "docs/examples/artifacts/mixed-outcomes/run.json", "packagePath": "docs/examples/artifacts/mixed-outcomes/run.json" }
+  ]
+}

@@ -3,11 +3,8 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  PACKAGE_API_EXAMPLE_PROJECTIONS,
-  PACKAGE_API_MARKDOWN_DOCUMENTS
-} from "./example-projections.ts";
-import { PACKAGE_CHECK_GUIDES } from "./check-guide-registry.ts";
+import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "./example-projections.ts";
+import { loadPackageDocuments, PACKAGE_DOCUMENTS_CONFIG_PATH } from "../package-documents.ts";
 
 type PackageApiJSDocTarget = Readonly<{
   readonly declarationName: string;
@@ -33,10 +30,14 @@ export const PACKAGE_API_JSDOC_TARGETS: readonly PackageApiJSDocTarget[] = Objec
 
 export function createPackageApiDocumentationFixture(): string {
   const fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-package-api-docs-"));
-  for (const document of PACKAGE_API_MARKDOWN_DOCUMENTS) {
-    copyFixtureFile(fixtureRoot, document.packagePath);
+  copyFixtureFile(fixtureRoot, PACKAGE_DOCUMENTS_CONFIG_PATH);
+  const documents = loadPackageDocuments(repositoryRoot);
+  for (const document of documents.markdownDocuments) {
+    copyFixtureFile(fixtureRoot, document.sourcePath);
   }
-  for (const guide of PACKAGE_CHECK_GUIDES) copyFixtureFile(fixtureRoot, guide.sourcePath);
+  for (const guide of documents.checkGuides) copyFixtureFile(fixtureRoot, guide.sourcePath);
+  for (const material of documents.machineMaterials)
+    copyFixtureFile(fixtureRoot, material.sourcePath);
   for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {
     copyFixtureFile(fixtureRoot, projection.sourcePath);
   }

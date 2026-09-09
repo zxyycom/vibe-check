@@ -2,9 +2,12 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { dirname, join, normalize, relative, resolve } from "node:path";
 
 import { CURRENT_PUBLIC_CONTRACT } from "../../package/public-api-inventory.ts";
-import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../machine-artifacts/package-materials.ts";
-import { PACKAGE_CHECK_GUIDES, type PackageCheckGuide } from "./check-guide-registry.ts";
-import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
+import { collectPackageMachineMaterials } from "../machine-artifacts/package-materials.ts";
+import {
+  loadPackageDocuments,
+  repositoryPath,
+  type PackageCheckGuide
+} from "../package-documents.ts";
 
 const README_PATH = "README.md";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
@@ -36,38 +39,52 @@ export interface PackageDocumentationFile {
   readonly packagePath: string;
 }
 
-/** Closes the published-path API Markdown and exact hand-written Check guide inventory. */
+/** Closes the published Markdown and exact hand-written Check guide inventories. */
 export function collectPackageDocumentation(
   repositoryRoot: string,
   renderedMarkdown: readonly PackageDocumentationFile[]
 ): readonly PackageDocumentationFile[] {
   const root = resolve(repositoryRoot);
-  assertGuideRegistry(PACKAGE_CHECK_GUIDES);
-  const rendered = assertRenderedMarkdownInventory(renderedMarkdown);
+  const mapping = loadPackageDocuments(root);
+  const guides = mapping.checkGuides;
+  assertGuideRegistry(guides);
+  const rendered = assertRenderedMarkdownInventory(renderedMarkdown, mapping.markdownDocuments);
   assertExactGuideDirectory(
     root,
-    PACKAGE_CHECK_GUIDES.map((guide) => guide.sourcePath)
+    guides.map((guide) => guide.sourcePath)
   );
-  const checkGuides = PACKAGE_CHECK_GUIDES.map((guide) => readCheckGuide(root, guide.sourcePath));
+  const checkGuides = guides.map((guide) => readCheckGuide(root, guide));
+  const machineMaterials = collectPackageMachineMaterials(root);
+  const machineMarkdown = machineMarkdownDocuments(machineMaterials);
   const readme = requiredDocument(rendered, README_PATH);
-  const apiDocuments = rendered.filter((document) => document.packagePath !== README_PATH);
-  const supportingDocuments = [...apiDocuments, ...checkGuides];
-  assertGuideLinks(readme, supportingDocuments);
-  assertLocalMarkdownLinks([readme, ...supportingDocuments]);
+  const publishedDocuments = rendered.filter((document) => document.packagePath !== README_PATH);
+  const supportingDocuments = [...publishedDocuments, ...checkGuides];
+  assertGuideLinks(
+    readme,
+    supportingDocuments,
+    mapping.markdownDocuments,
+    guides,
+    mapping.machineMaterials.map((material) => material.packagePath)
+  );
+  assertLocalMarkdownLinks(
+    [readme, ...supportingDocuments, ...machineMarkdown],
+    mapping.machineMaterials.map((material) => material.packagePath)
+  );
   return Object.freeze(supportingDocuments);
 }
 
 function assertRenderedMarkdownInventory(
-  documents: readonly PackageDocumentationFile[]
+  documents: readonly PackageDocumentationFile[],
+  markdownDocuments: readonly Readonly<{ readonly packagePath: string }>[]
 ): readonly PackageDocumentationFile[] {
-  const expected = PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => document.packagePath).sort();
+  const expected = markdownDocuments.map((document) => document.packagePath).sort();
   const actual = documents.map((document) => document.packagePath).sort();
   if (
     actual.length !== expected.length ||
     actual.some((packagePath, index) => packagePath !== expected[index])
   ) {
     throw new Error(
-      `rendered package Markdown must exactly match the API document registry: received ${actual.join(", ")}`
+      `rendered package Markdown must exactly match the document registry: received ${actual.join(", ")}`
     );
   }
   for (const document of documents) assertDocumentText(document);
@@ -133,17 +150,38 @@ function collectMarkdownFiles(root: string, directory: string): string[] {
   return paths.sort();
 }
 
-function readCheckGuide(root: string, packagePath: string): PackageDocumentationFile {
-  const path = join(root, packagePath);
-  if (!existsSync(path)) throw new Error(`package documentation file is missing: ${packagePath}`);
-  const document = Object.freeze({ content: readFileSync(path, "utf8"), packagePath });
+function readCheckGuide(root: string, guide: PackageCheckGuide): PackageDocumentationFile {
+  const path = repositoryPath(root, guide.sourcePath, "package Check guide source path");
+  if (!existsSync(path))
+    throw new Error(`package documentation file is missing: ${guide.sourcePath}`);
+  const document = Object.freeze({
+    content: readFileSync(path, "utf8"),
+    packagePath: guide.packagePath
+  });
   assertDocumentText(document);
   for (const heading of GUIDE_HEADINGS) {
     if (!document.content.includes(heading)) {
-      throw new Error(`package Check guide is missing required section ${heading}: ${packagePath}`);
+      throw new Error(
+        `package Check guide is missing required section ${heading}: ${guide.sourcePath}`
+      );
     }
   }
   return document;
+}
+
+function machineMarkdownDocuments(
+  materials: readonly Readonly<{ readonly content: Buffer; readonly packagePath: string }>[]
+): readonly PackageDocumentationFile[] {
+  return Object.freeze(
+    materials
+      .filter((material) => material.packagePath.endsWith(".md"))
+      .map((material) =>
+        Object.freeze({
+          content: material.content.toString("utf8"),
+          packagePath: material.packagePath
+        })
+      )
+  );
 }
 
 function assertDocumentText(document: PackageDocumentationFile): void {
@@ -169,37 +207,41 @@ function requiredDocument(
 
 function assertGuideLinks(
   readme: PackageDocumentationFile,
-  documents: readonly PackageDocumentationFile[]
+  documents: readonly PackageDocumentationFile[],
+  markdownDocuments: readonly Readonly<{ readonly packagePath: string }>[],
+  guides: readonly PackageCheckGuide[],
+  machineMaterialPaths: readonly string[]
 ): void {
-  for (const apiDocument of documents.filter((candidate) =>
-    PACKAGE_API_MARKDOWN_DOCUMENTS.some(
-      (registered) => registered.packagePath === candidate.packagePath
-    )
+  for (const document of documents.filter((candidate) =>
+    markdownDocuments.some((registered) => registered.packagePath === candidate.packagePath)
   )) {
-    if (!readme.content.includes(`](./${apiDocument.packagePath})`)) {
-      throw new Error(
-        `README is missing a direct package API document link: ${apiDocument.packagePath}`
-      );
+    if (!readme.content.includes(`](./${document.packagePath})`)) {
+      throw new Error(`README is missing a direct package document link: ${document.packagePath}`);
     }
   }
-  if (!readme.content.includes("(./docs/output.md)")) {
-    throw new Error("README is missing the package machine output guide link: docs/output.md");
-  }
-  for (const guide of PACKAGE_CHECK_GUIDES) {
-    if (!readme.content.includes(`](./${guide.sourcePath})`)) {
-      throw new Error(`README is missing a direct package Check guide link: ${guide.sourcePath}`);
+  for (const packagePath of machineMaterialPaths.filter((path) => path.endsWith(".md"))) {
+    if (!readme.content.includes(`](./${packagePath})`)) {
+      throw new Error(`README is missing a direct package machine guide link: ${packagePath}`);
     }
-    const document = requiredDocument(documents, guide.sourcePath);
+  }
+  for (const guide of guides) {
+    if (!readme.content.includes(`](./${guide.packagePath})`)) {
+      throw new Error(`README is missing a direct package Check guide link: ${guide.packagePath}`);
+    }
+    const document = requiredDocument(documents, guide.packagePath);
     if (!document.content.includes(`# \`${guide.exportName}\``)) {
-      throw new Error(`package Check guide must identify its public export: ${guide.sourcePath}`);
+      throw new Error(`package Check guide must identify its public export: ${guide.packagePath}`);
     }
   }
 }
 
-function assertLocalMarkdownLinks(documents: readonly PackageDocumentationFile[]): void {
+function assertLocalMarkdownLinks(
+  documents: readonly PackageDocumentationFile[],
+  machineMaterialPaths: readonly string[]
+): void {
   const paths = new Set([
     ...documents.map((document) => document.packagePath),
-    ...PACKAGE_MACHINE_MATERIAL_PATHS
+    ...machineMaterialPaths
   ]);
   for (const document of documents) {
     for (const match of document.content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {

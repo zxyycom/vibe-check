@@ -10,19 +10,21 @@ import {
   PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS
 } from "../package-contract.ts";
 import { RELEASE_MANIFEST_SOURCE_PATH } from "./manifest.ts";
-import { PACKAGE_CHECK_GUIDES } from "../../docs/package-api/check-guide-registry.ts";
-import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "../../docs/package-api/example-projections.ts";
-import { PACKAGE_MACHINE_MATERIAL_PATHS } from "../../docs/machine-artifacts/package-materials.ts";
+import {
+  loadPackageDocuments,
+  PACKAGE_DOCUMENTS_CONFIG_PATH,
+  repositoryPath
+} from "../../docs/package-documents.ts";
 import {
   TRANSLATED_ANALYZER_ATTRIBUTION_NOTICE_PATH,
   TRANSLATED_ANALYZER_LEGAL_MATERIALS
 } from "../legal-materials.ts";
 
 const DOCUMENTATION_INPUT_PATHS = Object.freeze([
+  "scripts/docs/package-documents.ts",
   "scripts/docs/package-api/example-projections.ts",
   "scripts/docs/package-api/markdown-example-fences.ts",
   "scripts/docs/package-api/render.ts",
-  "scripts/docs/package-api/check-guide-registry.ts",
   "scripts/docs/package-api/check-guides.ts",
   "scripts/docs/machine-artifacts/package-materials.ts"
 ]);
@@ -69,14 +71,26 @@ function collectPackageSourceFiles(repositoryRoot: string): readonly string[] {
 }
 
 function documentationInputFiles(repositoryRoot: string): readonly string[] {
+  const documents = loadPackageDocuments(repositoryRoot);
   return Object.freeze([
     ...DOCUMENTATION_INPUT_PATHS.map((path) => join(repositoryRoot, path)),
+    repositoryPath(
+      repositoryRoot,
+      PACKAGE_DOCUMENTS_CONFIG_PATH,
+      "package document configuration path"
+    ),
     ...collectFilePaths(join(repositoryRoot, DOCUMENTATION_EXAMPLES_DIRECTORY), (path) =>
       path.endsWith(".ts")
     ),
-    ...PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => join(repositoryRoot, document.packagePath)),
-    ...PACKAGE_CHECK_GUIDES.map((guide) => join(repositoryRoot, guide.sourcePath)),
-    ...PACKAGE_MACHINE_MATERIAL_PATHS.map((path) => join(repositoryRoot, path))
+    ...documents.markdownDocuments.map((document) =>
+      repositoryPath(repositoryRoot, document.sourcePath, "package Markdown source path")
+    ),
+    ...documents.checkGuides.map((guide) =>
+      repositoryPath(repositoryRoot, guide.sourcePath, "package Check guide source path")
+    ),
+    ...documents.machineMaterials.map((material) =>
+      repositoryPath(repositoryRoot, material.sourcePath, "package machine material source path")
+    )
   ]);
 }
 

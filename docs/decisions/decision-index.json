@@ -317,7 +317,9 @@
       "260908-isolate-package-release-source-from-change-work": "sha256:424e622408e55c648ea02973f61ab49125777e1114794fbd3ad2b05412c75f88",
       "260908-provide-synchronous-single-selection-file-collection": "sha256:c0803574b26a55984f85f8f35af860789ac6a945f619c900da3ab720d8dc80ab",
       "260908-use-dated-governance-record-identities": "sha256:dfeab02dab622f98663e850d1b157ab8f0cf61eeec020c7cfdd84fa2ae6ba79d",
-      "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3"
+      "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
+      "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
+      "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6294,6 +6296,38 @@
       "decision": "新增项目分支直接使用语义名称，Change 分支使用 Change 名称",
       "tags": [
         "workflow-policy"
+      ],
+      "relations": []
+    },
+    "260909-configure-package-document-mappings-in-docs": {
+      "name": "configure-package-document-mappings-in-docs",
+      "sourcePath": "configure-package-document-mappings-in-docs.md",
+      "title": "在 docs 中声明随包文档映射",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-09T03:26:10Z",
+      "purpose": "让文档维护者在同一目录维护内容与精确发布范围",
+      "background": "文档路径分散在代码清单中，维护文档需要同时定位打包实现",
+      "decision": "以 docs 下的 JSON 统一声明源文件与包内路径，构建和验收读取同一配置",
+      "tags": [
+        "documentation",
+        "workflow-policy"
+      ],
+      "relations": []
+    },
+    "260909-ship-changelog-with-package": {
+      "name": "ship-changelog-with-package",
+      "sourcePath": "ship-changelog-with-package.md",
+      "title": "随包交付版本变更日志",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-09T03:26:07Z",
+      "purpose": "让消费者随安装版本取得可追溯的变更与升级说明",
+      "background": "Change 草稿不随包提供且会在交接后清理，升级用户需要独立可读的长期入口",
+      "decision": "以 docs/changelog.md 承接版本变更日志并纳入随包材料，按实际阅读负担再评估版本目录",
+      "tags": [
+        "documentation",
+        "product-contract"
       ],
       "relations": []
     }

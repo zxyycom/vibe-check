@@ -1,12 +1,15 @@
 import { readFileSync } from "node:fs";
-import { relative, resolve, sep } from "node:path";
+import { resolve } from "node:path";
 
 import {
   PACKAGE_API_EXAMPLE_PROJECTIONS,
-  PACKAGE_API_MARKDOWN_DOCUMENTS,
-  type PackageApiExampleProjection,
-  type PackageApiMarkdownDocument
+  type PackageApiExampleProjection
 } from "./example-projections.ts";
+import {
+  loadPackageDocuments,
+  repositoryPath,
+  type PackageMarkdownDocument
+} from "../package-documents.ts";
 import {
   renderMarkdownExampleFences,
   type MarkdownExampleFenceReplacement
@@ -21,35 +24,15 @@ export interface RenderedPackageApiFile {
   readonly content: string;
 }
 
-export interface RenderedPackageApiMarkdownDocument extends RenderedPackageApiFile {
+export interface RenderedPackageMarkdownDocument extends RenderedPackageApiFile {
   readonly documentId: string;
   readonly packagePath: string;
 }
 
 export interface RenderedPackageApiDocumentation {
   readonly jsdocSources: readonly RenderedPackageApiFile[];
-  readonly markdownDocuments: readonly RenderedPackageApiMarkdownDocument[];
-  readonly readme: RenderedPackageApiMarkdownDocument;
-}
-
-function assertMarkdownDocumentRegistry(documents: readonly PackageApiMarkdownDocument[]): void {
-  const ids = new Set<string>();
-  const paths = new Set<string>();
-  for (const document of documents) {
-    if (
-      !validIdentifier(document.id) ||
-      !document.packagePath.endsWith(".md") ||
-      ids.has(document.id) ||
-      paths.has(document.packagePath)
-    ) {
-      throw new Error(`invalid package API Markdown document: ${document.id}`);
-    }
-    ids.add(document.id);
-    paths.add(document.packagePath);
-  }
-  const readme = documents.find((document) => document.id === README_DOCUMENT_ID);
-  if (readme?.packagePath !== "README.md")
-    throw new Error("package API Markdown document registry must contain README.md");
+  readonly markdownDocuments: readonly RenderedPackageMarkdownDocument[];
+  readonly readme: RenderedPackageMarkdownDocument;
 }
 
 /**
@@ -64,9 +47,14 @@ export function renderPackageApiDocumentation(
 ): RenderedPackageApiDocumentation {
   const repositoryRoot = resolve(input.repositoryRoot);
   const projections = input.projections ?? PACKAGE_API_EXAMPLE_PROJECTIONS;
-  assertMarkdownDocumentRegistry(PACKAGE_API_MARKDOWN_DOCUMENTS);
+  const documents = loadPackageDocuments(repositoryRoot).markdownDocuments;
   const payloads = collectExamplePayloads(repositoryRoot, projections);
-  const markdownDocuments = renderMarkdownDocuments(repositoryRoot, projections, payloads);
+  const markdownDocuments = renderMarkdownDocuments(
+    repositoryRoot,
+    documents,
+    projections,
+    payloads
+  );
   const readme = markdownDocuments.find((document) => document.documentId === README_DOCUMENT_ID);
   if (readme === undefined) throw new Error("package API documentation is missing its README");
   const jsdocSources = renderJSDocSources(repositoryRoot, projections, payloads);
@@ -75,11 +63,12 @@ export function renderPackageApiDocumentation(
 
 function renderMarkdownDocuments(
   repositoryRoot: string,
+  documents: readonly PackageMarkdownDocument[],
   projections: readonly PackageApiExampleProjection[],
   payloads: ReadonlyMap<string, ExamplePayload>
-): readonly RenderedPackageApiMarkdownDocument[] {
+): readonly RenderedPackageMarkdownDocument[] {
   return Object.freeze(
-    PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) =>
+    documents.map((document) =>
       renderMarkdownDocument(repositoryRoot, document, projections, payloads)
     )
   );
@@ -87,11 +76,15 @@ function renderMarkdownDocuments(
 
 function renderMarkdownDocument(
   repositoryRoot: string,
-  document: PackageApiMarkdownDocument,
+  document: PackageMarkdownDocument,
   projections: readonly PackageApiExampleProjection[],
   payloads: ReadonlyMap<string, ExamplePayload>
-): RenderedPackageApiMarkdownDocument {
-  const filePath = repositoryFilePath(repositoryRoot, document.packagePath);
+): RenderedPackageMarkdownDocument {
+  const filePath = repositoryPath(
+    repositoryRoot,
+    document.sourcePath,
+    "package Markdown source path"
+  );
   const replacements = markdownExampleFenceReplacements(document.id, projections, payloads);
   const content = renderMarkdownExampleFences({
     documentPackagePath: document.packagePath,
@@ -140,19 +133,6 @@ function requiredPayload(
   const payload = payloads.get(id);
   if (payload === undefined) throw new Error(`missing package API example payload: ${id}`);
   return payload;
-}
-
-function repositoryFilePath(repositoryRoot: string, repositoryPath: string): string {
-  const filePath = resolve(repositoryRoot, repositoryPath);
-  const relativePath = relative(repositoryRoot, filePath);
-  if (relativePath === "" || relativePath === ".." || relativePath.startsWith(`..${sep}`)) {
-    throw new Error(`package API documentation path escapes repository root: ${repositoryPath}`);
-  }
-  return filePath;
-}
-
-function validIdentifier(value: string): boolean {
-  return /^[a-z][a-z0-9-]*$/.test(value);
 }
 
 function readText(path: string): string {

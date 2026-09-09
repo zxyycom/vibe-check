@@ -2,6 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 
 import { type PackageApiExampleProjection } from "./example-projections.ts";
+import { loadPackageDocuments, type PackageMarkdownDocument } from "../package-documents.ts";
 import {
   assertProjection,
   assertTarget,
@@ -19,9 +20,16 @@ export function collectExamplePayloads(
   repositoryRoot: string,
   projections: readonly PackageApiExampleProjection[]
 ): ReadonlyMap<string, ExamplePayload> {
+  const markdownDocuments = loadPackageDocuments(repositoryRoot).markdownDocuments;
   const sourcePaths = collectExampleSourcePaths(repositoryRoot);
   const regions = collectExampleRegions(repositoryRoot, sourcePaths);
-  const payloads = resolveProjectionPayloads(repositoryRoot, projections, sourcePaths, regions);
+  const payloads = resolveProjectionPayloads(
+    repositoryRoot,
+    projections,
+    sourcePaths,
+    regions,
+    markdownDocuments
+  );
   assertAllExampleInputsAreProjected(repositoryRoot, sourcePaths, regions, projections);
   return payloads;
 }
@@ -53,7 +61,8 @@ function resolveProjectionPayloads(
   repositoryRoot: string,
   projections: readonly PackageApiExampleProjection[],
   sourcePaths: readonly string[],
-  regions: ReadonlyMap<string, ExamplePayload>
+  regions: ReadonlyMap<string, ExamplePayload>,
+  markdownDocuments: readonly PackageMarkdownDocument[]
 ): ReadonlyMap<string, ExamplePayload> {
   const sourcePathSet = new Set(
     sourcePaths.map((sourcePath) => toRepositoryPath(repositoryRoot, sourcePath))
@@ -63,7 +72,7 @@ function resolveProjectionPayloads(
   const usedMarkdownTargets = new Set<string>();
   const payloads = new Map<string, ExamplePayload>();
   for (const projection of projections) {
-    assertProjection(projection);
+    assertProjection(projection, markdownDocuments);
     if (projectionIds.has(projection.id)) {
       throw new Error(`duplicate package API example projection id: ${projection.id}`);
     }
@@ -81,7 +90,7 @@ function resolveProjectionPayloads(
     }
     projectionRegions.add(key);
     for (const target of projection.targets) {
-      assertTarget(target, projection.id);
+      assertTarget(target, projection.id, markdownDocuments);
       if (target.kind !== "markdown") continue;
       const targetKey = markdownTargetKey(target.documentId, target.headingPath);
       if (usedMarkdownTargets.has(targetKey)) {

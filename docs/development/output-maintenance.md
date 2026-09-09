@@ -44,15 +44,15 @@ preflight、dependency、typed readback、messages 和 Records 都经过普通 P
 再写出同目录的 `run.json` 与 `records.ndjson`。Definition 保持为人工维护的 source；regeneration 只清理 retired example
 directories 与当前两份 generated outputs。
 
-`scripts/docs/machine-artifacts/package-materials.ts` 精确登记 output guide、两份 current v4 schemas，以及
-`mixed-outcomes` 的 Definition 和 two-file output，并按原始 bytes 读取。
+[文档发布映射](../package-documents.json)的 `machineMaterials` 登记 output guide、两份 current v4 schemas，以及
+`mixed-outcomes` 的 Definition 和 two-file output；`scripts/docs/machine-artifacts/package-materials.ts` 按映射读取原始 bytes。
 
 `scripts/validation/documentation/machine-artifacts/**` 使用 checked-in schemas 从 raw bytes 独立验证 framing、canonical JSON、
 field schema、ordering、ownership 和 fingerprint，再检查 schema/example generation drift。`src/machine-output/v4/**` tests
 另行确认 runtime schema source、projection 和 serializer；两条验证路径不把对方的 validator 当作 acceptance authority。
 
 Candidate fingerprint、staging allowlist、packed tar audit、installation audit 与 ancestry-external docs acceptance 都使用同一
-closed material registry；installed consumer typecheck 直接包含随包 Definition，documentation acceptance 还把它交给
+JSON 文件映射；installed consumer typecheck 直接包含随包 Definition，documentation acceptance 还把它交给
 candidate `run`，核对 package-provided/custom outcomes、三条 RunResult messages、两条 Records 和已配置的 machine
-publication。该 registry 的随包范围止于 current guide、schemas 与 example；historical schemas、repository tooling、
+publication。该映射的随包范围止于 current guide、schemas 与 example；historical schemas、repository tooling、
 generators 和 validators 保留为仓库维护材料。

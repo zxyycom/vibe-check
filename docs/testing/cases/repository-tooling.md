@@ -129,6 +129,19 @@ Entities:
 - The registry and renderer reject duplicate source/region/target identities, unsafe JSDoc tails, malformed heading paths, missing or duplicate heading targets, ambiguous or unclosed example fences, and package example projection markers. Heading paths follow authored ancestry even when heading levels skip; removing a JSDoc target clears its obsolete managed tail.
 - Write mode updates only projected Markdown fences and JSDoc tails. Check mode writes nothing and fails when a checked-in projection is stale.
 
+## Case AUX-PACKAGE-DOCUMENT-MAPPING-001: Package document mappings bind source and published paths
+
+Owner: `docs/tooling/documentation.md#documentation-validation-and-package-material`
+Entities:
+
+- `bun|scripts/docs/package-documents.test.ts|package document mappings > reads the calling repository mapping and applies distinct source and package paths`
+- `bun|scripts/docs/package-documents.test.ts|package document mappings > rejects unknown fields, unsafe paths, and conflicting package targets`
+- `bun|scripts/docs/package-documents.test.ts|package document mappings > includes raw mapping bytes in the artifact fingerprint`
+  Proves:
+
+- Repository-local JSON maps Markdown, Check guide and machine-material sources to package paths. Distinct source and destination paths remain intact through rendering, raw machine-byte collection and package-local Markdown link validation, including a relocated machine schema; the candidate fingerprint changes for configuration-byte changes.
+- The loader rejects unknown fields, non-canonical or out-of-scope source/package paths, duplicate targets and file/ancestor target conflicts with the corresponding diagnostic.
+
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 
 Owner: `docs/tooling/documentation-validation.md#随包材料验收`
@@ -150,6 +163,7 @@ Entities:
   Proves:
 
 - Package documentation has exactly one README-linked guide for every package-provided Check function and a direct machine-output guide link; generated and hand-written Markdown use canonical LF text with one trailing LF, while the README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
+- The published Markdown inventory includes the exact checked-in changelog bytes and rejects a missing README link to that document.
 
 ## Case AUX-PACKAGE-DEPENDENCY-VERSIONS-001: Candidate dependency requirements validate actual resolutions
 

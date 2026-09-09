@@ -1,14 +1,17 @@
 import {
-  PACKAGE_API_MARKDOWN_DOCUMENTS,
   type PackageApiExampleProjection,
   type PackageApiExampleTarget
 } from "./example-projections.ts";
+import type { PackageMarkdownDocument } from "../package-documents.ts";
 
 const EXAMPLE_DIRECTORY = "docs/examples/package-api";
 
-export function assertProjection(projection: PackageApiExampleProjection): void {
+export function assertProjection(
+  projection: PackageApiExampleProjection,
+  markdownDocuments: readonly PackageMarkdownDocument[]
+): void {
   assertProjectionFields(projection);
-  assertUniqueProjectionTargets(projection);
+  assertUniqueProjectionTargets(projection, markdownDocuments);
 }
 
 function assertProjectionFields(projection: PackageApiExampleProjection): void {
@@ -35,10 +38,13 @@ function assertProjectionFields(projection: PackageApiExampleProjection): void {
   }
 }
 
-function assertUniqueProjectionTargets(projection: PackageApiExampleProjection): void {
+function assertUniqueProjectionTargets(
+  projection: PackageApiExampleProjection,
+  markdownDocuments: readonly PackageMarkdownDocument[]
+): void {
   const targetKeys = new Set<string>();
   for (const target of projection.targets) {
-    assertTarget(target, projection.id);
+    assertTarget(target, projection.id, markdownDocuments);
     const targetKey = projectionTargetKey(target);
     if (targetKeys.has(targetKey)) {
       throw new Error(`duplicate package API example target: ${projection.id}`);
@@ -47,12 +53,16 @@ function assertUniqueProjectionTargets(projection: PackageApiExampleProjection):
   }
 }
 
-export function assertTarget(target: PackageApiExampleTarget, projectionId: string): void {
+export function assertTarget(
+  target: PackageApiExampleTarget,
+  projectionId: string,
+  markdownDocuments: readonly PackageMarkdownDocument[]
+): void {
   if (target.kind === "markdown") {
     if (
       !validIdentifier(target.documentId) ||
       !isValidHeadingPath(target.headingPath) ||
-      !PACKAGE_API_MARKDOWN_DOCUMENTS.some((document) => document.id === target.documentId)
+      !markdownDocuments.some((document) => document.id === target.documentId)
     ) {
       throw new Error(`invalid package API Markdown example target: ${projectionId}`);
     }

@@ -4,15 +4,15 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { runPackageApiDocumentationCli } from "./command.ts";
-import { PACKAGE_API_MARKDOWN_DOCUMENTS } from "./example-projections.ts";
+import { loadPackageDocuments } from "../package-documents.ts";
 import { createPackageApiDocumentationFixture } from "./test-support.ts";
 
 describe("package API documentation CLI", () => {
   it("writes expected projections and detects stale output through --check", () => {
     const fixtureRoot = createPackageApiDocumentationFixture();
     try {
-      for (const document of PACKAGE_API_MARKDOWN_DOCUMENTS) {
-        assert.equal(existsSync(join(fixtureRoot, document.packagePath)), true);
+      for (const document of loadPackageDocuments(fixtureRoot).markdownDocuments) {
+        assert.equal(existsSync(join(fixtureRoot, document.sourcePath)), true);
       }
       assert.equal(
         runPackageApiDocumentationCli(["--write"], { repositoryRoot: fixtureRoot }).exitCode,

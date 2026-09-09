@@ -5,9 +5,9 @@ import { describe, it } from "node:test";
 
 import {
   PACKAGE_API_EXAMPLE_PROJECTIONS,
-  PACKAGE_API_MARKDOWN_DOCUMENTS,
   type PackageApiExampleProjection
 } from "./example-projections.ts";
+import { loadPackageDocuments } from "../package-documents.ts";
 import { renderPackageApiDocumentation } from "./render.ts";
 import { createPackageApiDocumentationFixture, PACKAGE_API_JSDOC_TARGETS } from "./test-support.ts";
 
@@ -20,13 +20,14 @@ describe("package API documentation renderer", () => {
   it("projects every registry source region to its declared Markdown fence and JSDoc target without changing payload bytes", () => {
     const fixtureRoot = createPackageApiDocumentationFixture();
     try {
+      const mapping = loadPackageDocuments(fixtureRoot);
       const rendered = renderPackageApiDocumentation({ repositoryRoot: fixtureRoot });
       assert.equal(rendered.readme.absolutePath, join(fixtureRoot, "README.md"));
       assert.deepEqual(
         rendered.markdownDocuments
           .map((document) => relative(fixtureRoot, document.absolutePath).split("\\").join("/"))
           .sort(),
-        PACKAGE_API_MARKDOWN_DOCUMENTS.map((document) => document.packagePath).sort()
+        mapping.markdownDocuments.map((document) => document.packagePath).sort()
       );
       assert.deepEqual(
         rendered.jsdocSources
@@ -39,7 +40,7 @@ describe("package API documentation renderer", () => {
       for (const document of rendered.markdownDocuments) {
         assert.equal(document.content, readFileSync(document.absolutePath, "utf8"));
       }
-      for (const document of PACKAGE_API_MARKDOWN_DOCUMENTS) {
+      for (const document of mapping.markdownDocuments) {
         if (document.id === "readme") continue;
         assert.equal(rendered.readme.content.includes(`](./${document.packagePath})`), true);
       }

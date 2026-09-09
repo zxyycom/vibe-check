@@ -29,10 +29,15 @@ artifact audit 再次计算投影，要求 checked-in Markdown/JSDoc 与计算�
 
 ## 随包材料验收
 
-验收覆盖[文档材料 registry](documentation.md#documentation-validation-and-package-material)声明的 README、API 专题、Check 指南、机器契约、current schemas 和示例。
+映射 loader 从当前 repository root 读取 `docs/package-documents.json`，先验证结构、身份与安全相对路径，
+拒绝目标冲突。配置原始 bytes、读取实现与所引用源文件参与 artifact fingerprint；fixture 与冻结工作区使用各自配置。
+Markdown 的源码检查使用 `sourcePath`，包内链接和 staging/tar/installed 验收使用 `packagePath`。
+包内链接检查也覆盖 machine 材料中的 Markdown 正文，避免 schema 或示例重定位后留下旧链接；其发布仍保留原始 bytes。
+
+验收覆盖[文档发布映射](documentation.md#documentation-validation-and-package-material)声明的 README、API 专题、changelog、Check 指南、机器契约、current schemas 和示例。
 `scripts/validation/documentation/machine-artifacts/**` 独立验收其中的 machine artifact；验证区分三种证据：
 
-1. **材料一致性：** package build、packed tar audit、candidate reuse、installed package audit 和 ancestry-external consumer acceptance 比较同一 registry 的精确 bytes。
+1. **材料一致性：** package build、packed tar audit、candidate reuse、installed package audit 和 ancestry-external consumer acceptance 按同一 JSON 映射比较目标路径与精确 bytes。
 2. **类型与运行：** installed consumer typecheck 直接检查 Definition；documentation acceptance 使用 mise 锁定、由消费者拥有的 Node child，按确定顺序执行全部 runtime examples 和 machine Definition。
 3. **结果核对：** Example 或 Definition import 失败时保留对应 source identity；执行成功后，再核对文档承诺的 built-in/custom facts、RunResult messages 与 machine publication。
 
