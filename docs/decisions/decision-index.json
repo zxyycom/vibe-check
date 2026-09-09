@@ -323,6 +323,7 @@
       "260909-provide-file-change-marker-context": "sha256:90fab6cc62c59c357a4249efd5937fc4fac683107fdfa3320d3252e3f8cc57a1",
       "260909-provide-invocation-private-dependency-handoff": "sha256:73db7113d2fff11746f497cf3984be2ce2031b11b67bfcdf22c85f042f122fb5",
       "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",
+      "260909-select-admission-optimization-by-effective-opportunity": "sha256:bf99839c860bf74d5776fb8ce041d7bb7e9b110a00bc884565688eb72915c289",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
       "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3"
     },
@@ -6653,6 +6654,23 @@
       "tags": [
         "configuration",
         "product-contract"
+      ],
+      "relations": []
+    },
+    "260909-select-admission-optimization-by-effective-opportunity": {
+      "name": "select-admission-optimization-by-effective-opportunity",
+      "sourcePath": "select-admission-optimization-by-effective-opportunity.md",
+      "title": "按有效调度机会约束 admission 优化",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-09T13:17:14Z",
+      "purpose": "让调度策略只在有效图、数据可信度和选择空间支持时承担额外规划成本",
+      "background": "窄增量运行会减少调度空间和学习样本，并可能让热缓存掩盖宽图与冷路径退化",
+      "decision": "把低数据和低调度机会作为一等场景，以有界混合策略和确定性回退控制优化成本",
+      "tags": [
+        "performance",
+        "testing",
+        "workflow-policy"
       ],
       "relations": []
     },
