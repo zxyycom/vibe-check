@@ -1,20 +1,21 @@
 # 0.0.2 发布证据
 
-本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。当前已完成源码差异调查、changelog、随包映射与说明终审，并按授权提交发布规则和打包改动；正式源码尚未冻结，0.0.2 尚未发布。
+本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。0.0.2 已发布到 canonical npm registry，latest、integrity、精确版本隔离安装与分发验收全部通过；剩余 Git 标签、合入与最终交接见末节。
 
 ## 输入与选择
 
 | 输入 | 已有依据与本次状态 |
 | --- | --- |
 | package / version | `@zxyycom/vibe-check@0.0.2` 已确定。 |
-| 发布分支与工作区 | `release-0-0-2` 已创建并检出；复用 `/workspace/vibe-check` 为唯一 Change 实现工作区。固定 S 的独立发布工作区尚未创建。 |
+| 发布分支与工作区 | `release-0-0-2` 的 `/workspace/vibe-check` 为唯一 Change 实现工作区；独立 detached 发布工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。 |
+| 正式源码 S | `ddff63faf087a7949239d777729878988e641226`，冻结前 worktree 与 index 干净；不是 Plan 基线或后续证据提交。 |
 | 当前集成基线 | `main` / `c0af9fff429ea22602432b542f743af29f305fa4` 未变；发布分支从该提交分出，准备改动在该分支维护，已提交里程碑见下节记录。 |
 | 升级差异依据 | `v0.0.1` 的 source 为 `2a454f0a6162afebb6729a4cfef969594d045c10`，调查端点为 `c0af9fff`；结论见[调查报告](../../docs/investigations/audit-0-0-2-upgrade-differences.md)。 |
 | 升级说明 | 统一由[变更日志](../../docs/changelog.md)承接；内容已通过历史重审和独立语义复核，已确定随包交付并由 README 直链；版本内容、发布状态与链接已完成 2.1 独立终审；后续若再改发布材料，须重审受影响部分。 |
-| npm dist-tag | 已确认按固定发布约定使用 `latest`。 |
+| npm dist-tag | 已按固定发布约定发布，registry `latest` 已指向 `0.0.2`。 |
 | access / 发布产物 | public access 与发布同一受验 tarball 已由当前 Decision、manifest 和发布规则规定。 |
-| 认证执行方式 | 已确认按固定发布约定由发布者本地交互式发布并完成 2FA；权限须当次核验。 |
-| 归档位置 | 按固定规则使用 `/workspace/vibe-check/.git/vibe-check/releases/0.0.2/<receipt-sha256>/`；公共 Git 目录由命令实际读取，receipt 尚未生成，归档尚未执行。 |
+| 认证执行方式 | npm 官方浏览器登录成功，`whoami` 为 `zxyycom`，目标包权限为 `read-write`；用户自行完成发布 2FA。未采集认证秘密。 |
+| 归档位置 | 按固定规则使用 `/workspace/vibe-check/.git/vibe-check/releases/0.0.2/a3d71ffe28926673d91dc96b22a043fce3f32d5ba28b0c12212d89c31fbe55e5/`；归档结果见下节。 |
 | Git 版本标签 | 本次计划为 `v0.0.2` → S，在发布与分发验证后按授权创建、推送。 |
 | GitHub Release | 上次没有创建，本次不默认新增此渠道。 |
 
@@ -126,12 +127,97 @@ cea4d1db:changes/optimize-admission-core-selection-index/design.md
   日志：`.log/project-gate/2026-09-09T03-52-23.159Z-3240873-ecfcf42f-6153-4875-be3c-15fd298a533e`。
   Gate 后澄清摘要核对句、建立 Decision 并回填任务与证据，另跑文档、Decision、Plan 与 diff 检查。
 
-## 待取得的发布结果
+## 正式源码冻结、同包验收与归档
 
-- 正式 source S、冻结发布工作区的位置、0.0.2 tarball/receipt 路径和 digest。
-- 同一正式包的完整 Gate 与 external consumer 验收。
-- 临发布 registry version/dist-tag、publisher 核验与精确发布授权。
-- 发布结果、registry integrity 对账和精确版本安装验收。
-- artifact/log 持久保存、源码标签与 main 合入/验证结果。
+2026-09-09 用户授权开始冻结、正式 prepare/verify 和证据保存，未授权本轮发布、标签推送或合入。
+当前发布准备提交为 `ddff63fa`（固定发布流程与证据归档约定）；冻结前工作树和索引干净。
+从 Plan 基线到 S 的五个准备提交已逐项审阅，内容为本次发布准备及独立 AGENTS 路由 Draft；当前 Plan 继续成立，未机械刷新基线。
+
+- 以完整提交 `ddff63faf087a7949239d777729878988e641226` 建立独立 detached worktree
+  `/workspace/vibe-check-release-0-0-2-ddff63fa`，已有工作区与 `main` 未动。
+- 在冻结工作区执行 `bun run env:setup`，完成锁定工具、依赖、CodeGraph 和开发期自举；pnpm 复用 133 个依赖，下载 0 个。
+  自举的 local candidate 不作为正式包证据。正式 Gate 通过 mise 使用 Node `v24.18.0`、Bun `1.3.14`，环境为 Linux x86_64。
+- 执行 `bun run package:release:prepare -- --version 0.0.2 --tag latest`，随后执行
+  `bun run package:release:verify -- --receipt build/releases/zxyycom-vibe-check-0.0.2.release.json`。
+  完整 Gate 显式报告 `candidate=0.0.2`、`source=release-receipt`、`selection=all`；
+  36 passed、0 failed/not-applicable/unavailable，Product Run 耗时 31.6 秒。
+  package artifact 以及 external consumer 的 types、documentation、runtime 验收全部通过。
+
+### 正式产物身份
+
+下列产物和日志路径相对冻结工作区；归档内保留相同相对路径。
+
+| 项目 | 实际值 |
+| --- | --- |
+| tarball | `build/artifacts/zxyycom-vibe-check-0.0.2.tgz`；1,168,284 bytes，inventory 1,271 个文件。 |
+| receipt | `build/releases/zxyycom-vibe-check-0.0.2.release.json`；schemaVersion 3。 |
+| source fingerprint | `08ea9f1a6a0569059c9b3512b690623baa43a2fb3f5122edff6d14bbad7e04ad` |
+| tarball SHA-256 | `6e92f55938388f7671d44e5d739a2ac8bcabfdcf848572ec6b1af7dca2af0751` |
+| tarball SRI | `sha512-g5em+Q6vMhhq0BL7tdSJKihSk3LAQRI7MJU0s/FWHIJXcqvDQo7V02bCcaz482GzPYuoJswJE/5mK32rRKq1NA==` |
+| receipt SHA-256 | `a3d71ffe28926673d91dc96b22a043fce3f32d5ba28b0c12212d89c31fbe55e5` |
+| Gate 日志 | `.log/project-gate/2026-09-09T04-26-48.485Z-3256081-e933947f-10ce-4378-86f1-634a29eb266e/` |
+
+另行直接核对 tarball 的 SHA-256、SRI、manifest version、完整 inventory 与 receipt；
+JSON 映射中 28 个材料的 source、staging、tarball 和 installed bytes 全部一致。
+正式构建及 Gate 后，冻结 worktree 和 index 仍干净，HEAD 仍为 S。
+
+### 已保存范围与剩余边界
+
+按“输入与选择”中的固定槽位保存原始 tarball、receipt 和 31 个 Gate 日志文件，共 33 个文件，复制后逐文件核对摘要一致。
+归档前审阅文件范围并对 receipt、tar 内容和日志执行常见凭据特征筛查，未发现匹配；未读取认证配置或执行登录，未纳入 `.npmrc`、OTP 或登录会话记录。
+本次证据在完成文档与 Plan 检查后，以 `evidence/<sha256>.md` 保存不可覆盖的非敏感快照。
+该目录是本地归档，不是另一个正式 verify 工作区，也不代表跨机器备份。
+
+本轮只在 Change 实现工作区更新 design、tasks 与本文；未修改冻结源码、重新打包、Git 提交、tag/push、合入或 npm publish。
+当前 Gate 证明本地正式包，不证明 registry 版本可用、publisher 权限或发布后安装结果。
+
+Change 回填后，文档、Decision、Plan（13/19）和 diff 检查通过；实现工作区另跑 `bun run check`，
+31 passed、5 not-applicable、0 failed/unavailable，日志为
+`.log/project-gate/2026-09-09T04-30-27.945Z-3261893-639271af-ad1d-48c9-834c-75dfd4f2fd24/`。
+这轮是回填材料的开发期 Gate，不替代上面的正式包验收；补记本段后再次核对文档、Plan 与 diff。
+
+## npm 发布与分发验收
+
+2026-09-09 用户在取得包身份、权限核验结果后，明确授权发布同一份 `@zxyycom/vibe-check@0.0.2` tarball，使用 public access 与 latest。
+先前 `npm whoami` 曾返回 401，重新完成官方浏览器登录后确认为 `zxyycom`；
+`npm access list packages zxyycom @zxyycom/vibe-check --json` 返回目标包 `read-write`。
+用户要求只提供认证 URL、不自动打开；正式 publish 使用 `--browser=false`，由用户在 npm 官方页面完成 2FA。
+本文不保存一次性认证 URL、token、OTP、认证配置或登录会话 transcript。
+
+### 临发布复核与发布结果
+
+- 再次通过同一 receipt 的 `package:release:verify`：36 passed、0 failed/not-applicable/unavailable，耗时 19.4 秒。
+  日志：`.log/project-gate/2026-09-09T04-40-41.274Z-3270724-b7311458-c1b9-46c6-85ce-48cba9ab87e4/`，位于冻结工作区。
+- 临发布 `whoami` 与目标包读写权限再次核验成功；registry 当时 `latest=0.0.1`，版本集合没有 `0.0.2`。
+  冻结 S、receipt 和 tarball 未变，未重新打包。
+- 在冻结工作区通过 npm 发布受验 `.tgz`，显式指定 `--tag latest --access public --registry=https://registry.npmjs.org/`；
+  禁用 lifecycle scripts 与自动打开浏览器，并以 `--logs-max=0` 禁止 npm 写 debug 日志。用户完成 2FA 后命令退出 0，报告 `+ @zxyycom/vibe-check@0.0.2`。
+- registry 记录的发布时间为 `2026-09-09T04:45:22.801Z`；发布后读取 canonical package metadata，确认 `latest=0.0.2`，
+  `versions["0.0.2"].dist.integrity` 与上节 receipt 的 SHA-512 SRI 完全一致。
+  正式分发地址为 [npm 0.0.2 tarball](https://registry.npmjs.org/@zxyycom/vibe-check/-/vibe-check-0.0.2.tgz)。
+
+### Registry 精确版本安装验收
+
+- 从上述 registry 地址下载 `.tgz`，与受验原包逐字节相等，SHA-256 仍为 `6e92f55938388f7671d44e5d739a2ac8bcabfdcf848572ec6b1af7dca2af0751`。
+- 在仓库祖先之外新建 `/tmp/vibe-check-registry-0-0-2-pn98BI`，通过 pnpm 从 canonical registry 安装精确 `@zxyycom/vibe-check@0.0.2`，
+  不使用本地 tarball 替代 registry 安装，不允许 lifecycle scripts。若干依赖请求曾出现 socket 错误，pnpm 自动重试后成功；
+  最终复用 113、下载 1、添加 114 个包。pnpm loose mode 为刚发布的精确版本在该临时 consumer 内自动记录 minimumReleaseAgeExclude，仓库配置未改。
+- 基于冻结工作区已有 external-consumer fixture 与 assertion，在 registry 安装目录上重新运行公开类型、已安装文档与可执行示例、
+  runtime 与 dependency containment 验收，全部通过；使用 mise Node `v24.18.0`、Bun `1.3.14`，环境为 Linux x86_64。
+  root entry 实际解析到该 consumer 的 `node_modules/.pnpm/@zxyycom+vibe-check@0.0.2/node_modules/@zxyycom/vibe-check/index.mjs`。
+- 将 registry tarball 的全部 1,271 个文件与实际 installed package 比较，bytes 全部一致；README、changelog、公开类型与代表性 Check 验收均由上述材料覆盖。
+  临时验收脚本复用现有断言，不新增仓库测试节点，也不把临时 consumer 当作长期证据 owner。
+
+发布后已将临发布完整 Gate 的 31 个日志文件复制到原归档槽位，逐文件核对摘要；在完成文档与 Plan 检查后追加新的 `evidence/<sha256>.md` 快照，保留发布前快照。
+认证 URL、OTP、token、认证配置和登录会话 transcript 不进入归档。源码 S、receipt 与正式 tarball 不变。
+本轮没有创建或推送 `v0.0.2`，未提交这些 Change 更新，未合入 main，也未清理工作区或 Change。
+
+发布结果回填后，文档、Decision、Plan（16/19）与 diff 检查通过；实现工作区的开发期 Gate 为 31 passed、5 not-applicable、0 failed/unavailable。
+日志：`.log/project-gate/2026-09-09T04-49-01.365Z-3275445-f2ddd048-6608-468b-b61d-eb7a27381af4/`。
+补记本段和当前输入状态后再次运行文档、Plan 与 diff 检查，随后保存本次 evidence 快照。
+
+## 待取得的交接结果
+
+- Git 交接后的追加 evidence 快照、源码标签与 main 合入/验证结果。
 
 后续结果在 Change 工作区记录时间、来源与结论；构建和验证输出保留在冻结工作区的受控位置，并在释放前完成所需持久保存。源码 S、后续证据提交和 main 合入提交分别记录。

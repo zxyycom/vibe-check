@@ -7,7 +7,7 @@
 - [proposal](proposal.md#resulting-impacts)列出的上游提交已进入本次 Plan 基线；末轮启发式研究未替换既有算法，不表示整个 `v0.0.1` 至本次基线区间没有调度实现变化。
 - 已有[源码差异调查](../../docs/investigations/audit-0-0-2-upgrade-differences.md)和升级说明初稿。旧版的可追溯源码为 `v0.0.1` → `2a454f0a`，调查端点为 `c0af9fff`。
 - 用户要求从完整 Git log、提交信息与部分形成时文档重新反查，补足旧稿遗漏；本次交付收敛为一份 changelog，同时说明净变化与升级影响。
-- `main` 保持在 `c0af9fff`，比 `v0.0.1` 多 213 个可达提交；已从该基线创建 `release-0-0-2`，发布准备在该分支的 `/workspace/vibe-check` 实现工作区维护，并已按授权分次提交。冻结工作区及正式源码 S 尚未建立。
+- `main` 保持在 `c0af9fff`，比 `v0.0.1` 多 213 个可达提交；已从该基线创建 `release-0-0-2`，发布准备在该分支的 `/workspace/vibe-check` 实现工作区维护，并已按授权分次提交。正式源码 S 已选定为 `ddff63faf087a7949239d777729878988e641226`，冻结工作区为 `/workspace/vibe-check-release-0-0-2-ddff63fa`。
 - 已确认采用[无前缀分支命名](../../docs/decisions/use-unprefixed-project-branch-names.md)和[发布源码与 Change 隔离](../../docs/decisions/isolate-package-release-source-from-change-work.md)。main 保持集成主线。
 - 继续遵守 [0.0.x 版本线](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)、[个人 scope](../../docs/decisions/publish-user-scoped-vibe-check-publicly.md)与[完整发布 Gate](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)。
 
@@ -27,10 +27,10 @@
 | --- | --- |
 | npm package / version | `@zxyycom/vibe-check@0.0.2` 已确定。 |
 | 发布分支 | `release-0-0-2` 已创建并检出；唯一活跃实现工作区为 `/workspace/vibe-check`。 |
-| source commit S | 从发布分支冻结的干净提交；待发布输入闭合后选定，与 Plan `baseCommit` 分开记录。 |
-| npm dist-tag | 按固定约定使用 `latest`，本次已确认。 |
+| source commit S | 已冻结干净提交 `ddff63faf087a7949239d777729878988e641226`；与 Plan `baseCommit` 及后续 evidence 提交分开记录。 |
+| npm dist-tag | 已按固定约定发布，registry `latest` 指向 `0.0.2`。 |
 | access / 发布产物 | 按既定规则使用 public access，并发布同一受验 tarball；不是本次重新选择的事项。 |
-| 认证执行方式 | 按固定约定由发布者本地交互式发布并完成 2FA；本次已确认，publisher 仍须当次核验。 |
+| 认证执行方式 | 按固定约定本地交互式发布并由用户完成 2FA；临发布已核验 `zxyycom` 对目标包具有 `read-write` 权限。 |
 | Git tag | `v0.0.2` 指向 S，在发布与分发验证成功后按授权创建、推送。 |
 | 发布说明 | 以[变更日志](../../docs/changelog.md)统一承接可追溯净变化与必要升级调整；已确定随包交付，由 README 直链；不默认新增 GitHub Release 渠道。 |
 
@@ -61,7 +61,7 @@ changelog 随包提供，共用 README 入口、包内链接、指纹及精确 b
 
 **验证范围。** 历史重审支撑 changelog 的完整性与准确性，新版行为由现有目标测试和完整 Gate 证明，正式包由同产物 consumer 与分发安装证明；有具体缺口才补证据。公开承诺和内部职责按[文档影响审查](../../docs/governance/knowledge-maintenance.md#行为变更的交付审查)独立复核。
 
-**授权。** 发布准备改动的归属核对、分支创建与切换已按本次授权完成。本次 Git 提交已获授权；后续冻结工作区、额外提交、tag/push、合并、联网/认证和 npm publish 仍按对应步骤取得授权；token、OTP 和认证配置不写入仓库或日志。
+**授权。** 发布准备改动、分支及提交已按授权完成。用户随后分别授权冻结工作区、正式 prepare/verify、证据保存、浏览器登录、权限核验及同一 tarball 的 public/latest 发布，并自行完成官方页面 2FA。发布及分发验收的实际结果见 evidence；额外 Git 提交、tag/push、合并及清理仍须独立授权。token、OTP 和认证配置不写入仓库或日志。
 
 ## Risks / Trade-offs
 
@@ -73,4 +73,4 @@ changelog 随包提供，共用 README 入口、包内链接、指纹及精确 b
 
 ## Open Questions
 
-发布方式与归档规则已确定；尚需选定正式 S、取得 receipt 和临发布事实。各实际 Git、网络/认证、发布与清理动作的当次授权，分别在执行前取得。
+发布方式、归档规则与正式 S 已确定，0.0.2 已发布；分发验收与归档结果见 evidence。后续 Git 标签、提交、合入及清理授权仍待取得，分别在执行前确认。
