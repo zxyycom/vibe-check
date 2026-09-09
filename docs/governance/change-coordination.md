@@ -23,7 +23,6 @@
 | 轨道 | 当前 Change | 协调边界 |
 | --- | --- | --- |
 | Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停；保留其原有恢复门禁，不继承旧 private baseline，也不因新对照已结束而取得实施授权。 |
-| 0.0.2 发布交接 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | 发布、分发验收、源码标签与 main 集成已完成，用户已推送集成结果。Change 和冻结工作区暂留供交接，退出与清理须独立授权；实际证据及后续整理见目标 Plan，不重新打开已收束的算法研究。 |
 | Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。实施后须重新验证受影响的算法 corpus 和 terminal evidence。 |
 | Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
 | Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 恢复前等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
@@ -39,8 +38,6 @@ Scheduler 的稳定行为仍由 runtime、Architecture、API mechanics 与
 [Gate 时长调查](../investigations/calibrate-gate-duration-variation.md)保存形成时的经验范围与后续建议，不是当前资源配置的实测门禁。资源分类由 Gate owner 承接，profile、竞争模型、证据接口与已结束的对照边界由 [Workspace workbench owner](../tooling/workspace.md#virtual-admission-workbench) 承接。资源变化只使对应 Gate 场景重新验收，不反向改变通用模拟模型或候选采用标准。
 
 [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)继续暂停；未来恢复仍须其原有 Readiness 与新的范围确认。`add-invocation-fail-fast-policy` 若改变 candidate、terminal 或 drain facts，须使受影响 baseline、trace 和比较证据重新有效。
-
-[`release-0-0-2`](../../changes/release-0-0-2/proposal.md)已纳入上述三个稳定提交与 `c0af9fff` 的[最后一轮简单算法对照](../investigations/compare-simple-admission-algorithms.md)：没有候选满足采用条件，Product 保留原算法。研究前置已解除；发布交接的当前协调边界见上表，事实与验证见目标 Change，不再将该研究作为后续发布准备任务。正式发布工作区与清理边界仍由 [Package release](../tooling/package-release.md#发布工作区冻结源与交接)拥有。
 
 ### Link 与 Scanner 轨道
 
