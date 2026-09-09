@@ -1,51 +1,78 @@
 # Design
 
-本 Draft 按“上游结论稳定 → 冻结版本 → 正式验收 → 授权发布 → registry 验证”组织交付。建立或提交草案不等于执行这些步骤。
+0.0.2 按“发布分支准备 → 冻结源码 → 正式验收与发布 → 分发验证 → 合回 main”推进。通用流程由 [Package release](../../docs/tooling/package-release.md)拥有；按 [tasks](tasks.md)记录本次进度。
 
 ## Context
 
-- 发布身份、clean HEAD、受控构建路径与 receipt 的精确契约见 [Package lifecycle](../../docs/tooling/package-lifecycle.md#formal-release-preparation-and-receipt)。workspace 根 package version 不是发布版本 owner；稳定 release manifest 保留 sentinel。
-- 遵守 [0.0.x 版本线](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)、[个人 scope 发布](../../docs/decisions/publish-user-scoped-vibe-check-publicly.md)与[完整发布 Gate](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)。本 Change 不建立稳定兼容承诺。
-- 上游轨道分为 repository Gate named-resource configuration、repo-private virtual measurement workbench 和 learned heuristic adoption。旧算法比较、HTML/网络 Link、fail-fast 与 SCC public expansion 不自动进入本版。
-- local Gate 证据不证明正式 0.0.2 已通过验收；旧 release 的版本可用性、publisher authority 和发布授权均须重新核验。
+- [proposal](proposal.md#resulting-impacts)列出的上游提交已进入本次 Plan 基线；末轮启发式研究未替换既有算法，不表示整个 `v0.0.1` 至本次基线区间没有调度实现变化。
+- 已有[源码差异调查](../../docs/investigations/audit-0-0-2-upgrade-differences.md)和升级说明初稿。旧版的可追溯源码为 `v0.0.1` → `2a454f0a`，调查端点为 `c0af9fff`。
+- 用户要求从完整 Git log、提交信息与部分形成时文档重新反查，补足旧稿遗漏；本次交付收敛为一份 changelog，同时说明净变化与升级影响。
+- `main` 保持在 `c0af9fff`，比 `v0.0.1` 多 213 个可达提交；已从该基线创建 `release-0-0-2`，发布准备在该分支的 `/workspace/vibe-check` 实现工作区维护，并已按授权分次提交。冻结工作区及正式源码 S 尚未建立。
+- 已确认采用[无前缀分支命名](../../docs/decisions/use-unprefixed-project-branch-names.md)和[发布源码与 Change 隔离](../../docs/decisions/isolate-package-release-source-from-change-work.md)。main 保持集成主线。
+- 继续遵守 [0.0.x 版本线](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)、[个人 scope](../../docs/decisions/publish-user-scoped-vibe-check-publicly.md)与[完整发布 Gate](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)。
 
 ## Goals / Non-Goals
 
-目标是交付可安装、可追溯、升级影响明确的 0.0.2，并分别证明本地产物与实际 registry 分发结果。
+目标是交付可安装、可追溯且升级影响清楚的 0.0.2，并使计划更新不干扰冻结发布。
 
-不扩张算法研究或其它能力，不降低 Gate、增加 waiver 或调整 selection 来通过发布。npm publish、Git tag 和 GitHub Release 各需相应授权；普通提交的受限 auto-push 仍按[工作区既有规则](../../docs/tooling/workspace.md#启用与授权)执行，不等于版本发布。
+本次不重审已发布 0.0.1 的 tarball，不替下游项目执行迁移回归，也不扩大产品能力或恢复其它 Change。新版自身的契约、正式包与分发验收仍由项目负责。
 
 ## Decisions
 
 ### Intended Change
 
-**发布输入的状态：** 目标版本已选 `0.0.2`；npm tag 建议 `latest`、待确认；public access 由受验 staging manifest 承接。上游结论已交接；最终 release source commit、发布机制、当次 registry observations 与 publisher 核验仍待取得。版本已占用时停止确认，不自行递增。
+本次输入按“已确认选择、拟沿用方案、待取得事实”区分；[evidence](evidence.md)保存观察结果，不从历史授权推导本次权限。
 
-按以下顺序形成证据；可先做升级差异调查，但不能绕过上游结论冻结正式包。
-
-| 步骤 | 执行动作与通过条件 |
+| 输入 | 本次选择与状态 |
 | --- | --- |
-| 1. 上游结论 | 已交接 named-resource configuration `b30477b6`、virtual workbench `f7e9f353` 与算法不采用结论 `fd8923c8`，此项前置已解除；各自稳定 owner 见 proposal。 |
-| 2. 升级说明 | 对照 0.0.1 实际发布包及可追溯 source，核对宿主、API/config、调度、机器输出和法律材料；说明破坏式变化、新能力、迁移动作与限制，建议精确锁版并提交 lockfile。历史比较仅服务此审计。 |
-| 3. 正式验收 | 同一 clean HEAD 上用 `bun run package:release:prepare -- --version <version> --tag <tag>` 构建；receipt 绑定 source、fingerprint、inventory 与 integrity，再用 `bun run package:release:verify -- --receipt <receipt-path>` 对该包运行完整 Gate 和 external consumer 验收。 |
-| 4. 授权发布 | 临发布前重验 source/tarball、registry version/tag 和 publisher authority，取得精确对象的外部写入授权；只发布已验 tarball。 |
-| 5. 分发验证 | 核对 registry metadata/tag/integrity，从 registry 安装精确版本，验证 root import、类型、README 最小路径及代表性 Check；结果与本地证据对应。 |
-| 6. 交接 | 保存发布结果、验证边界与限制；按已确认的 Git/tag/Release 方案关联 source。owner 交接、验证及当次删除授权齐备后才清理 Change。 |
+| npm package / version | `@zxyycom/vibe-check@0.0.2` 已确定。 |
+| 发布分支 | `release-0-0-2` 已创建并检出；唯一活跃实现工作区为 `/workspace/vibe-check`。 |
+| source commit S | 从发布分支冻结的干净提交；待发布输入闭合后选定，与 Plan `baseCommit` 分开记录。 |
+| npm dist-tag | 上次 `0.0.1` 使用 `latest`；本次拟沿用，待确认。 |
+| access / 发布产物 | 按既定规则使用 public access，并发布同一受验 tarball；不是本次重新选择的事项。 |
+| 认证执行方式 | 上次采用用户本地直接发布、交互式 2FA；这是当次方案，本次是否沿用待确认，publisher 仍须当次核验。 |
+| Git tag | `v0.0.2` 指向 S，在发布与分发验证成功后按授权创建、推送。 |
+| 发布说明 | 以[变更日志](../../docs/changelog.md)统一承接可追溯净变化与必要升级调整；已确定随包交付，由 README 直链；不默认新增 GitHub Release 渠道。 |
+
+执行顺序：
+
+1. **准备说明与发布分支（1.1、1.1.1、1.1.2、1.1.3、0.2、0.3、0.4 → 2.1）。** 完成历史重审与 changelog 的交叉审阅，确认当次发布输入；在获授权后把本次准备改动带到 `release-0-0-2` 的唯一活跃实现工作区。先核对已有改动归属，保留无关工作，不以在 main 提交作为迁移前提。
+2. **冻结源码（1.2）。** 发布准备可按授权分次提交；在当次输入与审阅闭合后，选定干净提交 S，建立独立 detached 发布工作区。把两个工作区位置、S 与当次输入记入 Change 工作区的 evidence；随后只在发布工作区运行正式命令。
+3. **正式验收（1.3 → 2.2）。** 执行 `bun run package:release:prepare -- --version 0.0.2 --tag <confirmed-dist-tag>`，取得 receipt；用 `bun run package:release:verify -- --receipt <receipt-path>` 驱动同一正式包的完整 `--all` Gate 和 external consumer 验收。
+4. **发布（2.3 → 1.4 → 2.4）。** 临发布前复核冻结源码、receipt/bytes、registry 与 publisher，取得精确发布授权；发布同一 tarball，然后核对 registry integrity 并完成精确版本安装验收。
+5. **交接与合入（1.5 → 1.6 → 2.5）。** 交付升级说明与非敏感证据，将 Git 标签绑定 S，按授权将发布分支修正及交接合回 main。合入涉及当前 main 的新增内容或冲突时，按受影响 owner 验证；合并提交不改写已发布源码身份。
 
 ### Resulting Impacts
 
-- Package lifecycle/scripts 保持构建与审计 owner；仅修复确认的发布阻塞，不借机重构工具。release notes 位置在 Plan 前确定，不把长篇迁移历史塞入 README。
-- source 或产物字节漂移时重新冻结输入、更新 receipt 并重跑受影响验收；不得用旧 local candidate 结果顶替正式证据。
-- 公开说明或内部职责变化时，由非实施代理基于实际 diff 反查；包材料、types/runtime/documentation 与 registry 消费者仍各有验证责任。
-- 认证只在相应授权下核验；token、OTP 和 `.npmrc` 不进入仓库、日志或 release evidence。
+**两份工作区的责任。** 发布分支的实现工作区拥有当前 Plan、升级说明和人工证据；冻结工作区拥有 S 的精确源码与正式构建/验证输出。冻结期间仍可在实现工作区更新 tasks/evidence。
+
+发布工作区的 tracked files、index 和 HEAD 保持 S；依赖与构建输出按既有入口在该工作区准备。若改动要进入本次发布，在发布分支提交后重新选定 S 并重新 prepare/verify，不修改 receipt 来接受漂移。
+
+**证据与清理。** evidence 记录工作区路径、S、receipt/tarball 路径与 digest、Gate/分发结果、源码标签及合入提交。完整 artifact/log 的保存位置在释放冻结工作区前确认并完成保存；摘要保存在发布分支。Change 工作区中的后续证据提交与 main 合并提交分别标识。
+
+**发布说明。** changelog 按主题说明净变化、必要升级调整及可复核的提交来源，区分产品与维护者影响。按提交信息定位实际 diff 与当初文档，并与旧版和当前 owner 核对；合并提交不重复计为功能，计划、回退和未采用实验不自动成为发布变化。历史文件仅从 Git 读取，不恢复旧目录，也不覆盖前轮调查认识。
+
+changelog 随包提供，共用 README 入口、包内链接、指纹及精确 bytes 验收。当前使用单文件，未来按阅读负担再评估版本目录。
+
+**发布映射。** `docs/package-documents.json` 集中声明 Markdown、Check 指南和 machine 材料的源文件与包内路径。
+三类材料共享路径校验、fingerprint 和交付映射；示例投影、Check 导出覆盖、machine 内容验证分别保持原责任。
+代码从本次 repository root 读取配置；配置 bytes 与所引用源文件均参与 fingerprint。本次保持现有目标路径，
+配置不自动改写链接，也不扩大为 Product runtime 配置。验证必须证明异根读取、映射生效、非法配置拒绝及包材料一致性。
+
+**验证范围。** 历史重审支撑 changelog 的完整性与准确性，新版行为由现有目标测试和完整 Gate 证明，正式包由同产物 consumer 与分发安装证明；有具体缺口才补证据。公开承诺和内部职责按[文档影响审查](../../docs/governance/knowledge-maintenance.md#行为变更的交付审查)独立复核。
+
+**授权。** 发布准备改动的归属核对、分支创建与切换已按本次授权完成。本次 Git 提交已获授权；后续冻结工作区、额外提交、tag/push、合并、联网/认证和 npm publish 仍按对应步骤取得授权；token、OTP 和认证配置不写入仓库或日志。
 
 ## Risks / Trade-offs
 
-发布前 registry 和权限状态可能变化；网络或认证失败不等于版本不存在。正式 receipt 只证明本地产物，不证明 registry 分发成功。0.0.x 不承诺包级兼容仍需清楚说明迁移，且不能撤销独立 output/schema 稳定契约。
-
-验证失败或发布部分成功时保留证据并停止，先核对实际状态；不自动重写 Git、覆盖版本、unpublish 或改 tag。恢复动作按影响另行授权。
+- 独立工作区隔离文件，不替代精确 S、receipt 与 tarball 的一致性核验；两个工作区使用各自的受控输出。
+- main 可以继续集成；合回时新增内容或冲突不能改变 `v0.0.2` 指向，也不能冒充该版本已验产物。
+- 网络/认证失败不表示版本不存在；发布结果不确定时先核对精确 registry 状态，不盲目重试发布或移动标签。
+- 发布后分发验证失败时保留当前证据和工作区并处理故障，暂停正常合入/清理。
+- Plan 结构检查与流程文档落地不证明分支已创建、正式包已构建或版本已发布。
 
 ## Open Questions
 
-- npm tag 是否为 `latest`；使用什么发布机制，何时由用户授权并完成 publisher 核验？
-- release notes 保存在哪里；是否创建/push Git tag 或 GitHub Release，以及如何处理远端同步？
+1. 是否沿用 `latest` 与上次本地直接发布、交互式 2FA 的方式？这已有历史方案，只确认本次是否沿用或改变。
+2. 完整 artifact/log 采用何处持久保存，在工作区释放前完成。
+3. 各实际 Git、网络/认证、发布与清理动作的当次授权，分别在执行前取得。

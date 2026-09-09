@@ -811,6 +811,21 @@
       ],
       "title": "冷 candidate bootstrap 的 Project Gate 导入复查"
     },
+    "260908-audit-0-0-2-upgrade-differences": {
+      "formedAt": "2026-09-08T13:55:00Z",
+      "name": "audit-0-0-2-upgrade-differences",
+      "question": "以 Git 历史为主，相对已发布 @zxyycom/vibe-check@0.0.1 的 source 基线，当前拟发布 0.0.2 的产品、包与迁移差异是什么；哪些结论有历史与当前 owner 交叉证据，哪些不能由本轮审计证明？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "audit-0-0-2-upgrade-differences.md",
+      "tags": [
+        "compatibility",
+        "package",
+        "release-audit",
+        "upgrade"
+      ],
+      "title": "Vibe Check 0.0.1 至拟发布 0.0.2 升级差异审计"
+    },
     "260908-calibrate-gate-duration-variation": {
       "formedAt": "2026-09-08T08:17:29Z",
       "name": "calibrate-gate-duration-variation",
@@ -930,6 +945,7 @@
       "260904-diagnose-project-gate-candidate-timeout-under-contention": "sha256:7dc4a90e12ff2ec382f4d786617b760f8cc04037f84ad574b776699be445cfb7",
       "260906-assess-node-26-package-host-readiness": "sha256:b01bedac42300965c3a8fcf131deb26f3c3ecb92f3a9f629fadbe6164b842f09",
       "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82",
+      "260908-audit-0-0-2-upgrade-differences": "sha256:10a9074c71bfb647b32f2cc4178d4b83203b6b65fb93292b7e81ac32fa7f10d2",
       "260908-calibrate-gate-duration-variation": "sha256:a306e4ce1893e6f88ac1f21eaae84333058b9a23d8fb5692adcf115c9aae8459",
       "260908-compare-simple-admission-algorithms": "sha256:e3e5f7878dddf5dbd0c5a7c0de30c721adc0d2cb4f9f9975cd4c31793c058253",
       "260908-explain-learned-heuristic-rejection": "sha256:2968e598eb49087fb0fd6db88cf041e36b8673e52c337e170df45d6263919342"
