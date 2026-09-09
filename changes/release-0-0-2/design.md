@@ -31,7 +31,7 @@
 | npm dist-tag | 已按固定约定发布，registry `latest` 指向 `0.0.2`。 |
 | access / 发布产物 | 按既定规则使用 public access，并发布同一受验 tarball；不是本次重新选择的事项。 |
 | 认证执行方式 | 按固定约定本地交互式发布并由用户完成 2FA；临发布已核验 `zxyycom` 对目标包具有 `read-write` 权限。 |
-| Git tag | `v0.0.2` 指向 S，在发布与分发验证成功后按授权创建、推送。 |
+| Git tag | `v0.0.2` 已在发布与分发验收后创建并推送；远端 tag 解引用确认指向 S。 |
 | 发布说明 | 以[变更日志](../../docs/changelog.md)统一承接可追溯净变化与必要升级调整；已确定随包交付，由 README 直链；不默认新增 GitHub Release 渠道。 |
 
 执行顺序：
@@ -61,7 +61,7 @@ changelog 随包提供，共用 README 入口、包内链接、指纹及精确 b
 
 **验证范围。** 历史重审支撑 changelog 的完整性与准确性，新版行为由现有目标测试和完整 Gate 证明，正式包由同产物 consumer 与分发安装证明；有具体缺口才补证据。公开承诺和内部职责按[文档影响审查](../../docs/governance/knowledge-maintenance.md#行为变更的交付审查)独立复核。
 
-**授权。** 发布准备改动、分支及提交已按授权完成。用户随后分别授权冻结工作区、正式 prepare/verify、证据保存、浏览器登录、权限核验及同一 tarball 的 public/latest 发布，并自行完成官方页面 2FA。发布及分发验收的实际结果见 evidence；额外 Git 提交、tag/push、合并及清理仍须独立授权。token、OTP 和认证配置不写入仓库或日志。
+**授权。** 发布准备、冻结、验收、浏览器登录与同一 tarball 的 public/latest 发布均已按授权完成，用户自行完成官方页面 2FA。用户又授权提交发布证据、创建并推送源码标签、合回本地 main；不包含额外推送 main 或清理 Change/工作区。token、OTP 和认证配置不写入仓库或日志。
 
 ## Risks / Trade-offs
 
@@ -73,4 +73,4 @@ changelog 随包提供，共用 README 入口、包内链接、指纹及精确 b
 
 ## Open Questions
 
-发布方式、归档规则与正式 S 已确定，0.0.2 已发布；分发验收与归档结果见 evidence。后续 Git 标签、提交、合入及清理授权仍待取得，分别在执行前确认。
+0.0.2 已发布且源码标签已推送；本地 main 合入已获授权，实际结果与验证见 evidence。远端 main 推送及后续清理不在本轮范围内。

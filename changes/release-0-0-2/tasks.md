@@ -19,7 +19,7 @@
 - [x] 1.2 在 0.2、0.3、0.4 与 2.1 完成后，按授权从已提交的发布准备材料选定干净 S，并建立固定 S 的独立 detached 发布工作区；在 Change evidence 记录工作区及 S。Owner：发布执行者。
 - [x] 1.3 在冻结工作区执行正式 prepare，核对 0.0.2 receipt、tarball、S、fingerprint、inventory 与 integrity；记录可定位的非敏感结果。Owner：package release。
 - [x] 1.4 在 2.2、2.3 通过并取得精确发布授权后，按已确认机制发布同一 tarball，保存实际结果。Owner：发布执行者。
-- [ ] 1.5 在 2.4 通过后交付升级说明，持久保存发布 evidence 与所需 artifact/log；按授权创建、推送指向 S 的 `v0.0.2`。Owner：发布执行者。
+- [x] 1.5 在 2.4 通过后交付升级说明，持久保存发布 evidence 与所需 artifact/log；按授权创建、推送指向 S 的 `v0.0.2`。Owner：发布执行者。
 - [ ] 1.6 在发布与分发验证成功、1.5 交接完成后，按授权将发布修正和交接材料合回 main；记录合入提交，运行受影响验证，保持标签指向 S。Owner：发布集成。
 
 ## Verification

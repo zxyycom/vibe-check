@@ -1,6 +1,6 @@
 # 0.0.2 发布证据
 
-本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。0.0.2 已发布到 canonical npm registry，latest、integrity、精确版本隔离安装与分发验收全部通过；剩余 Git 标签、合入与最终交接见末节。
+本文汇总本次发布输入与已取得的结果，详细实施顺序由 [design](design.md)拥有。0.0.2 已发布且分发验收通过，源码标签已推送并确认指向 S；本地 main 合入与最终交接见末节。
 
 ## 输入与选择
 
@@ -16,7 +16,7 @@
 | access / 发布产物 | public access 与发布同一受验 tarball 已由当前 Decision、manifest 和发布规则规定。 |
 | 认证执行方式 | npm 官方浏览器登录成功，`whoami` 为 `zxyycom`，目标包权限为 `read-write`；用户自行完成发布 2FA。未采集认证秘密。 |
 | 归档位置 | 按固定规则使用 `/workspace/vibe-check/.git/vibe-check/releases/0.0.2/a3d71ffe28926673d91dc96b22a043fce3f32d5ba28b0c12212d89c31fbe55e5/`；归档结果见下节。 |
-| Git 版本标签 | 本次计划为 `v0.0.2` → S，在发布与分发验证后按授权创建、推送。 |
+| Git 版本标签 | `v0.0.2` 已创建并推送，远端解引用确认为 S；tag object 为 `d690ca8faba030f3b60f9e8bd03efcaf0fe8de39`。 |
 | GitHub Release | 上次没有创建，本次不默认新增此渠道。 |
 
 上次方式的历史依据是 `d8d50978:changes/archive/publish-public-api-only-npm-package/release-evidence.md` 的 “Current scoped selection”、“Publication and registry acceptance” 与 “Git release identity”。本轮只从 Git 恢复该记录；它解释已有方案，不证明本次账号、registry 状态或授权。
@@ -216,8 +216,20 @@ Change 回填后，文档、Decision、Plan（13/19）和 diff 检查通过；�
 日志：`.log/project-gate/2026-09-09T04-49-01.365Z-3275445-f2ddd048-6608-468b-b61d-eb7a27381af4/`。
 补记本段和当前输入状态后再次运行文档、Plan 与 diff 检查，随后保存本次 evidence 快照。
 
+## Git 标签与 main 交接
+
+2026-09-09 用户授权提交发布证据、创建并推送指向 S 的 `v0.0.2`、合回本地 main；本轮不额外推送 main，也不清理 Change、分支或工作区。
+
+- 发布证据提交：`053ec6f147242a3f705ad93a0ee0cbe7ec42be42`，仅包含本 Change 的 design、tasks 与 evidence。
+- 创建 annotated tag `v0.0.2`，tag object 为 `d690ca8faba030f3b60f9e8bd03efcaf0fe8de39`，
+  指向 `ddff63faf087a7949239d777729878988e641226`；不是发布后的证据提交。
+- 配置的 SSH 连接在认证前被关闭；同一 GitHub 仓库的 HTTPS 可读。使用本机已登录 GitHub CLI 的标准凭据助手完成单次 HTTPS tag push，
+  不读取 token，不修改 origin、全局 Git 配置或 SSH 主机信任。没有 force、删除或覆盖已有 tag。
+- 推送后通过同一仓库的 `ls-remote` 核对 tag object 与 peeled commit，均与本地一致。
+  远端 main 当时仍为 `c0af9fff429ea22602432b542f743af29f305fa4`，与本地 main 相同；本轮 tag push 未移动 main。
+
 ## 待取得的交接结果
 
-- Git 交接后的追加 evidence 快照、源码标签与 main 合入/验证结果。
+- Git 交接后的追加 evidence 快照与本地 main 合入/验证结果。
 
 后续结果在 Change 工作区记录时间、来源与结论；构建和验证输出保留在冻结工作区的受控位置，并在释放前完成所需持久保存。源码 S、后续证据提交和 main 合入提交分别记录。
