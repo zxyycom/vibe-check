@@ -314,8 +314,10 @@
       "260908-default-project-subagents-to-terra": "sha256:3e07afdecd0dfa6071bc44a2e2d576aa5c4056b105b3adde6a36ced6f429aaca",
       "260908-delete-completed-change-and-openspec-history": "sha256:cc3819d682c53f1ddec361e388eeaa2f3465584f04fe58d6e8682361a7a69b58",
       "260908-evaluate-admission-heuristics-with-seeded-virtual-workloads": "sha256:11475cc20ddd692112f1f5ccd4b33980cff0977971446d8e88712d443b5c82dc",
+      "260908-isolate-package-release-source-from-change-work": "sha256:424e622408e55c648ea02973f61ab49125777e1114794fbd3ad2b05412c75f88",
       "260908-provide-synchronous-single-selection-file-collection": "sha256:c0803574b26a55984f85f8f35af860789ac6a945f619c900da3ab720d8dc80ab",
-      "260908-use-dated-governance-record-identities": "sha256:dfeab02dab622f98663e850d1b157ab8f0cf61eeec020c7cfdd84fa2ae6ba79d"
+      "260908-use-dated-governance-record-identities": "sha256:dfeab02dab622f98663e850d1b157ab8f0cf61eeec020c7cfdd84fa2ae6ba79d",
+      "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6229,6 +6231,21 @@
       ],
       "relations": []
     },
+    "260908-isolate-package-release-source-from-change-work": {
+      "name": "isolate-package-release-source-from-change-work",
+      "sourcePath": "isolate-package-release-source-from-change-work.md",
+      "title": "隔离冻结发布源码与持续推进的 Change 工作区",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-08T16:34:47Z",
+      "purpose": "让正式包保持精确源码身份，同时允许发布计划与证据持续维护",
+      "background": "发布校验要求同一干净提交，计划更新与构建共用工作区会制造不必要的源码漂移",
+      "decision": "main 保持集成主线，发布 Change 独立推进，冻结工作区绑定源码提交并在发布验证后合回",
+      "tags": [
+        "workflow-policy"
+      ],
+      "relations": []
+    },
     "260908-provide-synchronous-single-selection-file-collection": {
       "name": "provide-synchronous-single-selection-file-collection",
       "sourcePath": "provide-synchronous-single-selection-file-collection.md",
@@ -6264,6 +6281,21 @@
           "target": "260721-use-project-decision-records"
         }
       ]
+    },
+    "260908-use-unprefixed-project-branch-names": {
+      "name": "use-unprefixed-project-branch-names",
+      "sourcePath": "use-unprefixed-project-branch-names.md",
+      "title": "项目分支使用无前缀的语义名称",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-08T16:34:44Z",
+      "purpose": "让分支名称表达项目工作而非执行工具或命名空间",
+      "background": "Change 分支已有独立工作区约定，工具前缀不能表达正式项目的工作身份",
+      "decision": "新增项目分支直接使用语义名称，Change 分支使用 Change 名称",
+      "tags": [
+        "workflow-policy"
+      ],
+      "relations": []
     }
   }
 }

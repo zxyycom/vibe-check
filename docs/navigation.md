@@ -68,7 +68,10 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 根命令、脚本目录、共享 capability、环境 | [Workspace tooling](tooling/workspace.md)与 scripts tests |
 | Gate selection、candidate binding、afterGate、exit | [Project Gate](tooling/project-gate.md)与 adapter tests |
 | Gate native/process diagnostics、Record 投影 | [Gate diagnostics](tooling/gate-diagnostics.md)与各 producing owner tests |
-| package artifact、candidate、external consumer、release | [Package lifecycle](tooling/package-lifecycle.md)与 package / consumer acceptance |
+| 本地候选包状态、准备、安装与 external consumer | [Package lifecycle](tooling/package-lifecycle.md)与 candidate / consumer acceptance |
+| package 构建、manifest、ESM 布局与随包法律材料 | [Package artifact](tooling/package-artifact.md)与 artifact acceptance |
+| 正式发布、冻结 source、receipt 与发布后交接 | [Package release](tooling/package-release.md)与同产物完整 Gate |
+| translated source inventory、identity 与派生 pin | [来源映射维护](tooling/source-mapping.md)与 source identity audit |
 | Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)、目标正文与示例源 |
 | 示例投影器、docs 校验器或材料验收 | [Documentation validation](tooling/documentation-validation.md)、provider/validator 与测试 |
 | Lizard 性能测量 | [性能测量](tooling/lizard-performance.md)的显式 evidence workflow |

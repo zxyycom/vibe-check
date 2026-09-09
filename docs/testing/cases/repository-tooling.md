@@ -18,7 +18,7 @@ Entities:
 
 ## Case AUX-PACKAGE-ARTIFACT-MATERIAL-001: Artifact audit closes the physical package material
 
-Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-artifact.md#产物构造与审计`
 Entities:
 
 - `bun|scripts/package/artifact/artifact.test.ts|package artifact > packages approved docs and machine materials`
@@ -40,7 +40,7 @@ Entities:
 
 ## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
 
-Owner: `docs/tooling/package-lifecycle.md#translated-source-mapping-maintenance`
+Owner: `docs/tooling/source-mapping.md#translated-source-mapping`
 Entities:
 
 - `bun|scripts/package/legal-materials/source-mapping.test.ts|source mapping sync derives only the package provenance pin after reviewing curated mappings`
@@ -54,7 +54,7 @@ Entities:
 
 ## Case AUX-PACKAGE-RELEASE-001: Formal release binds one clean source to one portable artifact receipt
 
-Owner: `docs/tooling/package-lifecycle.md#formal-release-preparation-and-receipt`
+Owner: `docs/tooling/package-release.md#package-release`
 Entities:
 
 - `bun|scripts/package/release/release.test.ts|formal package release > accepts only explicit canonical prestable versions and conservative tags`
@@ -70,7 +70,7 @@ Entities:
 
 ## Case AUX-PACKAGE-ESM-NORMALIZATION-001: Artifact-relative ESM references remain resolvable
 
-Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-artifact.md#产物构造与审计`
 Entities:
 
 - `bun|scripts/package/artifact/esm-module-specifiers.test.ts|emitted ESM module specifiers > rewrites relative module references without changing ordinary path strings`
@@ -81,7 +81,7 @@ Entities:
 
 ## Case AUX-PACKAGE-RUNTIME-SOURCE-MAPS-001: Packaged source maps match their emitted modules
 
-Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-artifact.md#产物构造与审计`
 Entities:
 
 - `bun|scripts/package/artifact/runtime-source-maps.test.ts|runtime source maps > normalizes and verifies one map against its packaged TypeScript source`
@@ -153,7 +153,7 @@ Entities:
 
 ## Case AUX-PACKAGE-DEPENDENCY-VERSIONS-001: Candidate dependency requirements validate actual resolutions
 
-Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-artifact.md#产物构造与审计`
 Entities:
 
 - `bun|scripts/package/dependency-version.test.ts|package dependency versions satisfy only their declared requirement`
@@ -163,7 +163,7 @@ Entities:
 
 ## Case AUX-PACKAGE-DEPENDENCY-LICENSES-001: Candidate audits every installed dependency license declaration
 
-Owner: `docs/tooling/package-lifecycle.md#package-artifact-与-candidate`
+Owner: `docs/tooling/package-lifecycle.md#实际安装的依赖`
 Entities:
 
 - `bun|scripts/package/candidate/dependency-license-audit.test.ts|installed dependency license audit > covers every package directory and fails closed on unsupported declarations and layouts`

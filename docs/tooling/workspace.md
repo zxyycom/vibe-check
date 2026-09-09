@@ -199,7 +199,7 @@ raw output 不改变这一边界。
 
 Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 的 `YYMMDD-<name>`；文件 basename 只是可独立变化的 source locator，身份迁移必须使用所属 skill 的 `rename` 事务。
 
-来源映射维护使用 `bun run source-mapping [-- check | sync]`，由 `scripts/package/legal-materials/source-mapping.ts` 拥有；默认只读检查，写入边界见[来源映射维护](package-lifecycle.md#translated-source-mapping-maintenance)。
+来源映射维护使用 `bun run source-mapping [-- check | sync]`，由 `scripts/package/legal-materials/source-mapping.ts` 拥有；默认只读检查，写入边界见[来源映射维护](source-mapping.md#检查与同步)。
 
 `bun run check` 选择日常 required 集；focused preset 可组合并替换默认选择，`--all` 独占其它 preset。`.codex/environments/*.toml` 也直接调用该正式名称。scope、action 和子命令作为同一 workflow 的参数传入，不为内部 owner 建立同义 root alias。
 

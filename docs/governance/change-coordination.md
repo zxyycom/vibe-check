@@ -1,6 +1,6 @@
 # Change 执行依赖与 Worktree 协调
 
-本文是同时推进多个当前 Change 时的协调入口。它只维护当前集成基线、跨 Change 前置关系、推荐合入顺序、共享 owner 冲突和 worktree 规则；不保存已完成 Change 的副本或形成时证据。
+本文是同时推进多个当前 Change 时的协调入口。它完整维护 `main` 作为开发集成线、Change 分支命名、一般 worktree 规则、跨 Change 前置关系、推荐合入顺序与共享 owner 冲突；不保存已完成 Change 的副本或形成时证据。正式发布的双工作区、冻结 source、同一 tarball 验收、Git tag 与发布后交接时序由 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 完整定义。
 
 本文不拥有 Change 的 stage、任务状态、实施授权或恢复条件。成员与动态状态以
 `bun run change-plan -- list changes` 和目标 `changes/<change>/` artifacts 为准；本文与目标 artifacts 不一致时，先按当前事实更新本文，不得用协调摘要覆盖 Change 自身的约束。
@@ -13,7 +13,7 @@
 2. 读取目标 Change 的 `proposal.md`、`design.md` 和存在时的 `tasks.md`，确认 Outcome、开放问题、Resume Conditions 与 Readiness。
 3. 确认硬前置的稳定提交已经包含在目标 worktree 的实施基线中。该基线可以是 `main`、集成分支或上游 Change 分支，不要求先合入 `main`。
 4. 检查同批 worktree 是否修改相同源码 owner、lockfile、Gate、Case 账本或稳定文档 owner；有重叠时默认串行合入。
-5. 从选定实施基线创建一个 Change 一个分支、一个活跃实现 worktree。上游变化后，下游同步基线并重新复核。
+5. 从选定实施基线创建一个 Change 分支和一个活跃实现 worktree。发布的 detached 冻结 worktree 是 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 所定义的正式验收边界，不替代本项实施 worktree。上游变化后，下游同步基线并重新复核。
 
 ## 当前 Change 协调
 
@@ -23,7 +23,7 @@
 | 轨道 | 当前 Change | 协调边界 |
 | --- | --- | --- |
 | Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停；保留其原有恢复门禁，不继承旧 private baseline，也不因新对照已结束而取得实施授权。 |
-| 0.0.2 发布 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | Gate 配置、平台及算法不采用结论均已进入稳定提交，上游前置已解除。正式准备、验收与授权发布仍串行执行。 |
+| 0.0.2 发布 | [`release-0-0-2`](../../changes/release-0-0-2/proposal.md) | Gate 配置、平台及最终算法对照均已交接，上游前置已解除。按目标 Plan 在 `release-0-0-2` 实现 worktree 准备，再依 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 串行冻结、同一 tarball 完整验收、授权发布与发布后合回 `main`；旧算法比较不阻塞发布。 |
 | Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。实施后须重新验证受影响的算法 corpus 和 terminal evidence。 |
 | Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
 | Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 恢复前等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
@@ -40,7 +40,7 @@ Scheduler 的稳定行为仍由 runtime、Architecture、API mechanics 与
 
 [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)继续暂停；未来恢复仍须其原有 Readiness 与新的范围确认。`add-invocation-fail-fast-policy` 若改变 candidate、terminal 或 drain facts，须使受影响 baseline、trace 和比较证据重新有效。
 
-[`release-0-0-2`](../../changes/release-0-0-2/proposal.md)已取得上述三个稳定提交及 owner 交接，上游前置已解除。发布与外部写入仍需独立授权；package、Gate 和用户材料 owner 的正式冻结/验收须串行继承这些结果，不能以 local candidate Gate 通过代替正式 release 验收。
+[`release-0-0-2`](../../changes/release-0-0-2/proposal.md)已取得上述三个稳定提交及 owner 交接，并纳入提交 `c0af9fff` 的[最后一轮简单算法对照](../investigations/compare-simple-admission-algorithms.md)：没有候选满足采用条件，Product 保留原算法。上游前置已解除，后续按目标 Plan 在实现 worktree 准备、冻结、验收、发布和合回 `main` 的顺序执行；正式发布工作区的边界见 [Package release](../tooling/package-release.md#发布工作区冻结源与交接)。发布与外部写入仍需独立授权，不能以 local candidate Gate 通过代替正式 release 验收；动态 stage 和任务进度仍以目标 Change 为准。
 
 ### Link 与 Scanner 轨道
 
@@ -50,13 +50,14 @@ SCC public expansion 只评审新的 consumer outcome；当前 `fileMetrics` con
 
 ## Worktree 与合入规则
 
-1. **默认一个当前 Change 一个分支。** 分支使用 `codex/<change-name>`；有硬依赖时，下游分支可直接建立在上游稳定提交上。
-2. **一个 Change 一个活跃实现 worktree。** 不让两个执行者同时修改同一 Change 目录。
-3. **按下游实际继承的提交解除依赖。** 未提交 working tree、测试结果或未被下游继承的旁支提交不足以解除依赖。
-4. **共享 owner 默认串行。** package、Gate、Case、lockfile 或稳定文档的交叉改动分次合入。
-5. **先语义复核，再刷新 Plan。** Git 距离非零本身不要求机械重写 `baseCommit`；确认当前 Plan 仍成立后再运行 `plan`。
-6. **每项 Change 独立验收和提交。** owner 交接、验证与任务闭合后，只有取得当前任务的明确删除授权才运行 `complete`。
-7. **堆叠分支按依赖顺序同步与合入。** 上游更新后，下游先同步并运行受影响验证。
+1. **`main` 是开发集成线。** 当前 Change 从选定的实施基线分出；需要集成时按已验提交合回 `main`，而非把 `main` 当作活动 Change 分支。
+2. **默认一个当前 Change 一个无前缀语义分支。** 普通 Change 使用 `<change-name>`；发布使用 `release-<version 的连字符形式>`，例如 `release-0-0-2`。新项目分支直接使用语义名称，不使用工具或分类命名空间；既有分支不因此迁移或重命名。有硬依赖时，下游分支可直接建立在上游稳定提交上。
+3. **一个 Change 一个活跃实现 worktree。** 不让两个执行者同时修改同一 Change 目录。[Package release](../tooling/package-release.md#发布工作区冻结源与交接) 为正式发布另设 detached 冻结 worktree；它不是第二个实现 worktree，且不在其上更新活动 Change 记录，但 `S` 的快照可以保留已提交的 Change 文件。
+4. **按下游实际继承的提交解除依赖。** 未提交 working tree、测试结果或未被下游继承的旁支提交不足以解除依赖。
+5. **共享 owner 默认串行。** package、Gate、Case、lockfile 或稳定文档的交叉改动分次合入。
+6. **先语义复核，再刷新 Plan。** Git 距离非零本身不要求机械重写 `baseCommit`；确认当前 Plan 仍成立后再运行 `plan`。
+7. **每项 Change 独立验收和提交。** owner 交接、验证与任务闭合后，只有取得当前任务的明确删除授权才运行 `complete`。
+8. **堆叠分支按依赖顺序同步与合入。** 上游更新后，下游先同步并运行受影响验证。正式发布的 source/tag 与发布后修正、交接合回 `main` 的特殊顺序，以 [Package release](../tooling/package-release.md#发布工作区冻结源与交接) 为准。
 
 ## 维护与验证
 

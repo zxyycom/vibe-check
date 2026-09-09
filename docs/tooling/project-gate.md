@@ -67,7 +67,7 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 2. 选择 package acceptance 时，`checks/external-consumer-material.ts` 从同一 dependency 建立本次 invocation 拥有的 external consumer。types、documentation 与 runtime consumer Checks 只读消费已验证材料。
 3. `runtime/bound-run.ts` 在 `finally` 中清理这项 lease；测试故障注入和临时材料仍由各自 fixture 拥有。
 
-这些 typed facts 可进入本次 invocation 的 machine evidence，但其中含 invocation-local path，所以不是发布材料或可移植 receipt。formal release 的持久边界由 [Package lifecycle 的 formal release receipt](package-lifecycle.md#formal-release-preparation-and-receipt) 拥有。
+这些 typed facts 可进入本次 invocation 的 machine evidence，但其中含 invocation-local path，所以不是发布材料或可移植 receipt。formal release 的持久边界由 [Package release 的收据契约](package-release.md#受控路径与收据内容) 拥有。
 
 ### Test execution partition
 
