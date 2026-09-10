@@ -217,7 +217,7 @@
       "260830-reconcile-finding-waivers-with-caller-defined-identities": "sha256:f9a58184b5bac1e7ce6e646479ca6c060e14fa4d308d69f9f39a5c82e38704a9",
       "260830-reconcile-selected-files-with-check-eligibility": "sha256:c465b273581071144afc5a4a67b7df31e773db1d186fb0c81680ac7b3a88c927",
       "260830-refine-project-gate-context-timing-phases": "sha256:99c0d11c0846c8d03da445f783ff1794bc27c09dede93ad5be5bc2093a14d9d9",
-      "260830-report-per-check-duration-without-changing-check-facts": "sha256:99479e999a7ac600adedacbd3507cc3e0c0e30a522fc964f3893bb62602e997a",
+      "260830-report-per-check-duration-without-changing-check-facts": "sha256:04feb451369a6863b439ddf0d2935a93903bc18e89cd91e82fe92d8ecf2cb041",
       "260830-require-complete-project-gate-evidence-before-public-release": "sha256:e9ca819b9a3cd86dc572cb3d4b8d603e20425f708a719a65d68d3cd29ac574c5",
       "260830-require-known-repository-quality-remediation-before-public-release": "sha256:b7c2fa0f90170e32e7b95d385309066028cab68ae922b809765877073d78bb01",
       "260830-schedule-project-gate-by-measured-resource-ownership-and-documentation-materials": "sha256:4edd6237744327f5c1d6310574c0e0c5a0e1cbf692a3a3e6ebb0faa5575c3f9d",
@@ -327,6 +327,7 @@
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
       "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3",
       "260910-batch-declared-project-file-inputs-at-invocation-boundary": "sha256:981a6f4177279f54bd932d7c14d83a82db1fe2049973202c711463160a2f5eb5",
+      "260910-expose-check-centric-lifecycle-hooks": "sha256:062359c894851b1f8ef0c6b6722e393f0b5a935482f09d0e690d9b9a4d2d3e7e",
       "260910-model-project-file-refresh-as-immutable-generations": "sha256:42edb7327edd8e8c95593d03d61ad0cbcf7e277c2d9fbae907371f9e5c82eaa3",
       "260910-provide-invocation-project-input-context": "sha256:f3ab35ac48abcc5c53e4a582dd99c733e50a7ca9114ec5e6b4d5cfa2166dd136",
       "260910-separate-imperative-file-collection-from-declarative-snapshots": "sha256:29db338772e729f44478f2579df2cc1d4f7d80bddca689a418c232e87020d1c3",
@@ -4480,9 +4481,9 @@
     },
     "260830-report-per-check-duration-without-changing-check-facts": {
       "name": "report-per-check-duration-without-changing-check-facts",
-      "sourcePath": "report-per-check-duration-without-changing-check-facts.md",
+      "sourcePath": "archive/report-per-check-duration-without-changing-check-facts.md",
       "title": "报告每项 Check 时长而不改变 Check facts",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-30T17:34:09Z",
       "purpose": "为 progress 与最终 RunResult 提供 monotonic duration，同时保持 Check、Record 和聚合契约不变。",
@@ -6731,6 +6732,28 @@
           "type": "替代",
           "target": "260910-separate-imperative-file-collection-from-declarative-snapshots",
           "summary": "用 Check 自含声明替代独立快照 Provider"
+        }
+      ]
+    },
+    "260910-expose-check-centric-lifecycle-hooks": {
+      "name": "expose-check-centric-lifecycle-hooks",
+      "sourcePath": "expose-check-centric-lifecycle-hooks.md",
+      "title": "提供以 Check 为中心的生命周期观察",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-10T07:43:04Z",
+      "purpose": "让调用方观察逐 Check 生命周期且不取得执行控制权",
+      "background": "私有 progress 生命周期混合全局 barrier 与 Check 事件而调度 Hook 只覆盖终态测量",
+      "decision": "独立提供只读 Check 生命周期观察并由后续 Change 收敛具体 effect 契约",
+      "tags": [
+        "product-contract",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260830-report-per-check-duration-without-changing-check-facts",
+          "summary": "保留执行时长并增加 Check 事件观察"
         }
       ]
     },

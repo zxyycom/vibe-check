@@ -1,7 +1,7 @@
 ---
 title: 报告每项 Check 时长而不改变 Check facts
 id: 260830-report-per-check-duration-without-changing-check-facts
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T17:34:09Z
 purpose: 为 progress 与最终 RunResult 提供 monotonic duration，同时保持 Check、Record 和聚合契约不变。
