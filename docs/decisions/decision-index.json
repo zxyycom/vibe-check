@@ -325,7 +325,12 @@
       "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",
       "260909-select-admission-optimization-by-effective-opportunity": "sha256:bf99839c860bf74d5776fb8ce041d7bb7e9b110a00bc884565688eb72915c289",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
-      "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3"
+      "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3",
+      "260910-batch-declared-project-file-inputs-at-invocation-boundary": "sha256:981a6f4177279f54bd932d7c14d83a82db1fe2049973202c711463160a2f5eb5",
+      "260910-model-project-file-refresh-as-immutable-generations": "sha256:42edb7327edd8e8c95593d03d61ad0cbcf7e277c2d9fbae907371f9e5c82eaa3",
+      "260910-provide-invocation-project-input-context": "sha256:f3ab35ac48abcc5c53e4a582dd99c733e50a7ca9114ec5e6b4d5cfa2166dd136",
+      "260910-separate-imperative-file-collection-from-declarative-snapshots": "sha256:29db338772e729f44478f2579df2cc1d4f7d80bddca689a418c232e87020d1c3",
+      "260910-separate-live-file-collection-from-shared-snapshots": "sha256:8d9fe60ddda59dcd2e9d782d5d542b080525a1aca954bc8ffea7be295dec10f4"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6704,6 +6709,120 @@
         "workflow-policy"
       ],
       "relations": []
+    },
+    "260910-batch-declared-project-file-inputs-at-invocation-boundary": {
+      "name": "batch-declared-project-file-inputs-at-invocation-boundary",
+      "sourcePath": "batch-declared-project-file-inputs-at-invocation-boundary.md",
+      "title": "在调用输入边界批量准备 Check 声明的项目文件",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-10T07:01:28Z",
+      "purpose": "让 Check 自含文件声明并由 Product 对本次有效集合统一收集",
+      "background": "独立 Provider 增加接线样板而静态图锁定或逐 Check 收集都不能兼顾新鲜度与复用",
+      "decision": "新增标准 Check 文件输入字段并在 effective selection 后形成一次调用级路径快照",
+      "tags": [
+        "configuration",
+        "dependency-policy",
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "替代",
+          "target": "260910-separate-imperative-file-collection-from-declarative-snapshots",
+          "summary": "用 Check 自含声明替代独立快照 Provider"
+        }
+      ]
+    },
+    "260910-model-project-file-refresh-as-immutable-generations": {
+      "name": "model-project-file-refresh-as-immutable-generations",
+      "sourcePath": "archive/model-project-file-refresh-as-immutable-generations.md",
+      "title": "将项目文件 refresh 建模为不可变代际",
+      "status": "archived",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-10T06:36:21Z",
+      "purpose": "用统一 refresh API 显式创建可复用且版本明确的路径快照",
+      "background": "原地刷新共享 current snapshot 会让并发消费者读到错误代际",
+      "decision": "由声明式 refresh 创建 ordinary Provider 节点并返回绑定该代的 typed reference",
+      "tags": [
+        "configuration",
+        "dependency-policy",
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260910-separate-live-file-collection-from-shared-snapshots",
+          "summary": "以不可变 refresh 代际统一快照声明"
+        }
+      ]
+    },
+    "260910-provide-invocation-project-input-context": {
+      "name": "provide-invocation-project-input-context",
+      "sourcePath": "archive/provide-invocation-project-input-context.md",
+      "title": "在调用上下文提供项目输入查询",
+      "status": "archived",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-10T06:00:33Z",
+      "purpose": "让同一 Run 复用文件与 Git 获取而不把 Check 领域策略移入 Core",
+      "background": "各 Check 当前独立收集同源候选，外部 helper 无法拥有调用生命周期，Provider Check 又会把基础输入伪装为终态事实",
+      "decision": "由 Product 建立调用内项目输入 session，并以分层 files 与 Git 查询供 Check 使用",
+      "tags": [
+        "configuration",
+        "dependency-policy",
+        "performance",
+        "product-contract"
+      ],
+      "relations": []
+    },
+    "260910-separate-imperative-file-collection-from-declarative-snapshots": {
+      "name": "separate-imperative-file-collection-from-declarative-snapshots",
+      "sourcePath": "archive/separate-imperative-file-collection-from-declarative-snapshots.md",
+      "title": "分别提供命令式文件收集与声明式路径快照",
+      "status": "archived",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-10T06:45:36Z",
+      "purpose": "让两种不同生命周期使用各自准确的公开契约并只复用内部机制",
+      "background": "无跨代安全复用的 refresh 只是统一命名且会暗示不存在的共享状态",
+      "decision": "保留命令式 collect helper，并另设声明式 snapshot Provider 而不公开 refresh",
+      "tags": [
+        "configuration",
+        "dependency-policy",
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "替代",
+          "target": "260910-model-project-file-refresh-as-immutable-generations",
+          "summary": "撤销无实际跨代复用的统一 refresh"
+        }
+      ]
+    },
+    "260910-separate-live-file-collection-from-shared-snapshots": {
+      "name": "separate-live-file-collection-from-shared-snapshots",
+      "sourcePath": "archive/separate-live-file-collection-from-shared-snapshots.md",
+      "title": "分离实时文件收集与声明式共享快照",
+      "status": "archived",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-10T06:22:03Z",
+      "purpose": "让即时读取与跨 Check 复用具有不同且显式的生命周期语义",
+      "background": "隐藏调用内缓存会让首个调用者意外决定快照时点且无法可靠失效",
+      "decision": "保留每次调用重新观察的实时 helper，并以显式 Provider Check 产生可复用路径快照",
+      "tags": [
+        "configuration",
+        "dependency-policy",
+        "performance",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "替代",
+          "target": "260910-provide-invocation-project-input-context",
+          "summary": "以显式快照替代隐藏调用内缓存"
+        }
+      ]
     }
   }
 }
