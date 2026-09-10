@@ -1,0 +1,64 @@
+DeepReadonly investigation observations
+=======================================
+
+Formation baseline
+------------------
+- Repository HEAD: 18646a96caa4e93d68c9879fa4107ab751984e20
+- Local exact package candidate: 0.0.0-local.7bad8ccfc61f
+- TypeScript compiler: 6.0.3
+- @typescript/native-preview tsgo: 7.0.0-dev.20260621.1
+- Compiler mode for focused probes: strict + noUncheckedIndexedAccess
+
+Installed-consumer tuple reproduction
+-------------------------------------
+An ancestry-external temporary project installed the exact local tarball and defined a Check with:
+
+  readonly [executable: string, ...arguments: string[]]
+
+Its execution destructured options.command and assigned the first item to string. tsgo exited 1:
+
+  usage.ts(12,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+
+The emitted installed declaration contains the same array branch as src/check/check.ts:
+
+  T extends readonly (infer Item)[] ? readonly DeepReadonly<Item>[]
+
+Runtime tuple observation
+-------------------------
+A source-level public run received authored ["node", "--version"] in execution as a detached,
+frozen array with length 2 and the same two ordered values. The Check passed. This separates the
+static declaration defect from runtime snapshot behavior.
+
+Unknown-leaf reproduction
+-------------------------
+A second installed consumer used AuthoredOptions { readonly payload: unknown } with the canonical
+runtime value 42. Current declarations allowed options.payload to be assigned to string without a
+cast because DeepReadonly<unknown> is never. The consumer compiled with no diagnostics. At runtime,
+calling toUpperCase on that value threw and the Product settled the Check as:
+
+  {"status":"unavailable","reason":{"code":"execution-threw"}}
+
+Candidate type probe
+--------------------
+The investigation-only candidate maps arrays homomorphically over keyof and returns the leaf type
+instead of never. The attached probe compiled with no diagnostics under both TypeScript 6.0.3 and
+tsgo 7.0.0-dev.20260621.1. It preserved variadic, heterogeneous, optional, and discriminated tuple
+shapes; kept mutable and readonly homogeneous arrays readonly; recursively froze nested array item
+objects; and preserved unknown.
+
+noUncheckedIndexedAccess audit boundary
+---------------------------------------
+Enabling noUncheckedIndexedAccess over the existing full configs is not a narrow verification step:
+
+- tsconfig.product.json: 73 diagnostics across 29 files.
+- tsconfig.json: 125 diagnostics across 40 files; this scope also includes imported src files.
+
+These diagnostics were only counted and grouped. They were not classified as Bugs, fixed, or made
+part of the DeepReadonly repair scope.
+
+Machine-output boundary
+-----------------------
+The v4 machine schema contains homogeneous Type.Array fields and no Type.Tuple field. Its private
+DeepReadonly helper repeats the flattening array branch, but no current v4 generated tuple contract
+was found. Check authored/prepared options, executable, and command arguments are not fields in the
+v4 machine run or record schema.
