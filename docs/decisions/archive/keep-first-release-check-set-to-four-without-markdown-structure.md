@@ -1,7 +1,7 @@
 ---
 title: 首次公开发布前保持四项首版 Check 能力
 id: 260830-keep-first-release-check-set-to-four-without-markdown-structure
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T17:33:59Z
 purpose: 固定首发四项已选能力，并让 Markdown Structure 只在出现新的独立用户证据后重新评审。
