@@ -5,6 +5,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
+import { CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE } from "./check-options-type-acceptance.ts";
 import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admission-strategy-type-acceptance.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
@@ -92,6 +93,7 @@ function typecheckConfig(): string {
       compilerOptions: {
         module: "nodenext",
         moduleResolution: "nodenext",
+        noUncheckedIndexedAccess: true,
         noEmit: true,
         strict: true,
         target: "esnext",
@@ -190,6 +192,7 @@ const directCheck = defineCheck({
       : { status: "failed", data: { selected } };
   }
 });
+${CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE}
 interface ChangedFilesData {
   readonly files: readonly string[];
   readonly version: 1;
@@ -467,6 +470,7 @@ void [
   jsonSchemaValidation,
   jsonValidation,
   secretCheck,
+  preservedOptionShapesCheck,
   secretData,
   parseSecretDetectionData,
   run,

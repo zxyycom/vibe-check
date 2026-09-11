@@ -137,14 +137,12 @@ export type CheckOutcome = Readonly<
     }
 >;
 
-/** 将 callback options 转为不可变观察值的递归 utility type。 */
-export type DeepReadonly<T> = T extends string | number | boolean | null
-  ? T
-  : T extends readonly (infer Item)[]
-    ? readonly DeepReadonly<Item>[]
-    : T extends object
-      ? { readonly [Key in keyof T]: DeepReadonly<T[Key]> }
-      : never;
+/** 递归只读 Check callback options，同时保留 array/tuple 形状和非 object leaf 类型。 */
+export type DeepReadonly<Value> = Value extends readonly unknown[]
+  ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
+  : Value extends object
+    ? { readonly [Key in keyof Value]: DeepReadonly<Value[Key]> }
+    : Value;
 
 /** callback 写入 supplemental Record 时的 Check-local identity。 */
 interface RecordIdentityInput {

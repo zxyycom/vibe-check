@@ -107,6 +107,39 @@ function _typeCheckCheckExecutionContext() {
   void heterogeneous;
 }
 
+function _typeCheckDeepReadonlyOptionProjection() {
+  type Command = readonly [executable: string, ...arguments: string[]];
+  type OptionalTuple = readonly [head: string, tail?: number];
+  type TaggedValue =
+    | readonly [kind: "text", value: string]
+    | readonly [kind: "count", value: number];
+
+  const preservedOptionShapesExecution: CheckExecution<{
+    readonly command: Command;
+    readonly optional: OptionalTuple;
+    readonly payload: unknown;
+    readonly tagged: TaggedValue;
+  }> = ({ options }) => {
+    const command: Command = options.command;
+    const optional: OptionalTuple = options.optional;
+    const executable: string = options.command[0];
+    if (options.tagged[0] === "count") {
+      const count: number = options.tagged[1];
+      void count;
+    }
+    // @ts-expect-error unknown leaves retain their uncertainty in callback options.
+    const payload: string = options.payload;
+    // @ts-expect-error callback option tuples remain deeply readonly.
+    options.command[0] = "bun";
+    void command;
+    void executable;
+    void optional;
+    void payload;
+    return { status: "passed", data: {} };
+  };
+  void preservedOptionShapesExecution;
+}
+
 function _typeCheckClosedExecutionResults() {
   const messaged: Check = {
     checkId: "messaged-check",
