@@ -18,11 +18,12 @@ Compiler 方向由 Decision [`260911-adopt-soundness-oriented-typescript-typeche
 
 ### 基线证据
 
-| 证据 | 当前结果 | 计划用法 |
+| 证据 | 已核对事实 | 计划用法 |
 | --- | --- | --- |
 | Selected compiler rules | Product 103 个位置/50 个文件；scripts scope 168/62；跨 scope 去重后 210/89 | 按 exact optional、indexed access、控制流分批修复 |
 | Compiler distribution | Product implementation 62、Product tests/support 41、scripts/tests 107 | 按行为 owner 验证，不把位置数当作 Bug 数 |
-| Selected lint rules | `no-promise-executor-return` 为 Product 10、scripts 3；其它选定规则为零诊断 | 用受控负向输入确认零诊断规则已注册且 options 正确，修复 13 个现有位置后写入正式配置 |
+| Selected lint rules | `no-confusing-void-expression` 162 个位置/53 个文件；`strict-boolean-expressions` 103/50；`prefer-nullish-coalescing` 21/15；`prefer-optional-chain` 12/10；`only-throw-error` 2/2；`prefer-readonly` 2/2；`use-unknown-in-catch-callback-variable` 为 0；`no-promise-executor-return` 正式重跑为 0（原 inventory 为 Product 10、scripts 2） | 依 no-confusing、strict-boolean、其它规则三批闭合；位置只用于分批，不是 Bug 数，也不构成关闭规则的理由；每批以 scope lint、目标测试及受控负向输入验证 |
+| Unicorn plugin constraint | `unicorn/no-useless-promise-resolve-reject` 观察到 2/2，但 `plugins: ["unicorn"]` 会隐式启用 14 条 correctness 规则 | 不加载 plugin，不以 13 条 `off` workaround 固定当前版本行为；该 2/2 不是迁移义务 |
 | Broad `perf` category | `no-await-in-loop` 67、`no-useless-call` 1 | 不启用类别；保留有意顺序 await 和 source-aligned receiver seam |
 | Suppression inventory | 两处 ESLint-spelled suppression；一个多余 `eslint-enable` | 迁移为 Oxlint directive，关闭 ESLint compatibility，启用 unused audit |
 | Warning microprobe | JSON 保留 `severity: "warning"`，`--deny-warnings` 返回 1 | severity 用于分类，不改变 Gate 阻断性 |
@@ -40,7 +41,7 @@ Compiler 方向由 Decision [`260911-adopt-soundness-oriented-typescript-typeche
 
 - 不把诊断位置数直接解释为 Product Bug 数，也不借迁移重构无关 owner。
 - 不增加 compiler/lint runner、Gate Check、diagnostic baseline 或 installed-consumer invocation。
-- 不启用整个 `perf`、`pedantic`、`style` 或 `nursery` 类别。
+- 不启用整个 `perf`、`pedantic`、`style`、`nursery` 或 Unicorn correctness 类别。
 - 不把 Oxlint 诊断接入 Vibe Check Finding waiver；后者继续只服务拥有完整 Finding 集合和稳定语义 identity 的 Product Checks。
 
 ## Decisions
@@ -58,7 +59,7 @@ Compiler 方向由 Decision [`260911-adopt-soundness-oriented-typescript-typeche
 | Severity | Rules | 含义 |
 | --- | --- | --- |
 | `error` | `typescript/strict-boolean-expressions`、`typescript/only-throw-error`、`typescript/no-confusing-void-expression`、`typescript/use-unknown-in-catch-callback-variable` | 直接约束不可信语义；`only-throw-error` 取代范围更窄的 `no-throw-literal` |
-| `warning` | `typescript/prefer-nullish-coalescing`、`typescript/prefer-optional-chain`、`typescript/prefer-readonly`、`unicorn/no-useless-promise-resolve-reject`、`no-promise-executor-return` | 优化、惯用表达或控制流建议；由现有 `--deny-warnings` 保持阻断 |
+| `warning` | `typescript/prefer-nullish-coalescing`、`typescript/prefer-optional-chain`、`typescript/prefer-readonly`、`no-promise-executor-return` | 优化、惯用表达或控制流建议；由现有 `--deny-warnings` 保持阻断 |
 
 选定规则使用当前锁定 Oxlint/tsgolint 的默认 rule options；只有实施诊断证明默认值与行为 owner 冲突时，才在本 Change 中记录并采用最窄配置，不以关闭规则或批量 suppression 作为默认处理。
 
@@ -74,16 +75,17 @@ Compiler 方向由 Decision [`260911-adopt-soundness-oriented-typescript-typeche
 - Compiler 不采用只增加 index-signature 访问拼写约束的 `noPropertyAccessFromIndexSignature`，也不重复由 Oxlint 承接的 fallthrough、unused 和 exhaustiveness 规则。
 - Lint 不采用当前与有意 sequential await、parser test strings、loop closures 或 source-aligned dynamic call 冲突的 `no-await-in-loop`、`no-template-curly-in-string`、`no-loop-func` 和 `no-useless-call`。
 - Nursery 的 `typescript/no-unnecessary-condition` 不进入本次稳定 profile。
+- Lint 不加载 Unicorn plugin 或采用 `unicorn/no-useless-promise-resolve-reject`：Oxlint 1.78 会随 `plugins: ["unicorn"]` 隐式启用 14 条 Unicorn correctness 规则；以 13 条 `off` 保留单条规则会固化升级脆弱的版本细节。观察到的 2 个位置不构成迁移义务。
 
 #### 5. 实施顺序与现有入口
 
-实施按 lint suppression/profile → exact optional → indexed access → compiler control flow → package/consumer 同步推进，让较小的 lint 批次先形成独立可验收结果。Typecheck/lint development commands 和 Gate identities 保持不变；package artifact 与 external-consumer 继续通过 `--all` 验收。规则由各自配置 owner 生效，Gate 只投影已验证的工具诊断，不重算或二次过滤结果。
+实施按 lint suppression/profile → lint 三批（`no-confusing-void-expression` → `strict-boolean-expressions` → 其它选定规则）→ exact optional → indexed access → compiler control flow → package/consumer 同步推进。每个 lint 批次在正式 scope lint、涉及行为的目标测试与受控负向输入通过后才视为闭合；位置数不改变任何规则、severity 或 owner。Typecheck/lint development commands 和 Gate identities 保持不变；package artifact 与 external-consumer 继续通过 `--all` 验收。规则由各自配置 owner 生效，Gate 只投影已验证的工具诊断，不重算或二次过滤结果。
 
 ### Resulting Impacts
 
 - Exact optional 修复需要区分字段缺失和 present-`undefined`；indexed access 修复需要建立长度、key-presence、tuple 或相邻运行时不变量证据。
 - 三个 unreachable 位置需要确认不承接 fallback/cleanup；零诊断 compiler/lint 规则启用后负责阻止未来退化。
-- Promise executor 修复不能机械删除 `return`：必须保持 resolve/finish 后不继续执行的控制流，以及 cancellation、timeout 和 synchronization 时序。
+- Promise executor 的正式重跑虽已无诊断，仍须证明 resolve/finish 后不继续执行的控制流，以及 cancellation、timeout 和 synchronization 时序保持不变。
 - 修改 tests/test-support、公共类型或行为 owner 时，需要维护对应 Test Evidence、目标测试和文档影响审查。
 - Development config、package emit 和 installed consumer 分别拥有不同证据；完整验收必须覆盖三者。
 
@@ -96,4 +98,4 @@ Compiler 方向由 Decision [`260911-adopt-soundness-oriented-typescript-typeche
 
 ## Open Questions
 
-无阻断实施的开放问题。实施开始时只需根据 Plan 距离和其它 active Change 重跑 compiler/lint 基线；位置变化不会自动改变已选规则、severity、profile 或 suppression owner。
+无阻断实施的开放问题。实施完成后若 Plan 距离或其它 active Change 改变受影响输入，重跑 compiler/lint 基线；位置变化不会自动改变已选规则、severity、profile 或 suppression owner。
