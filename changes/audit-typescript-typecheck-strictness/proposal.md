@@ -1,11 +1,52 @@
 # Proposal
 
-本 Draft 审计 Vibe Check 的 TypeScript 类型检查严格度、作用范围和公共声明验收，形成以独立证明价值和诊断证据为依据的规则策略。
+本 Plan 统一增强 Vibe Check 的 TypeScript compiler 与 Oxlint 静态检查，使错误风险和优化建议都能在现有开发与 Gate 入口中得到明确、阻断性的验证。
 
 ## Why
 
-`DeepReadonly` 调查同时暴露了两类缺口：现有 `strict` 配置未通过 `noUncheckedIndexedAccess` 显示 tuple 退化的常见症状，而 `unknown -> never` 的不安全映射又只能由语义类型契约测试捕获。临时开启单个规则已在 product 与 scripts 范围产生大量未分类诊断。项目需要先恢复各检查边界的实际保证并分类诊断，再选择能够增加独立证明价值的规则。
+现有 TypeScript `strict` 基线未覆盖索引缺失、optional 字段精确性和部分控制流风险。候选 compiler profile 在当前基线上产生 210 个去重诊断、涉及 89 个文件，说明这些风险已跨越 Product、tests 和 repository scripts，需要按行为 owner 分批闭合。
+
+当前 Oxlint profile 已阻断所有 warning，但规则配置没有明确区分错误风险和优化建议。首批 lint 候选中，`no-promise-executor-return` 有 13 个现有诊断，其余选定规则为零诊断；仓库还保留两处 ESLint suppression 写法，尽管项目没有 ESLint dependency、配置或 invocation。
 
 ## Outcome
 
-项目获得一份按 Product source、repository scripts/tests 和 exact installed consumer 分区的 TypeScript 检查策略：明确采用或不采用的 compiler rules、诊断分类与处理原则、公共声明的严格 consumer profiles、Gate/开发入口及分阶段实施边界。后续实现以显式类型建模、运行时 guard 或有证据的局部 assertion 处理诊断。
+项目获得一份统一的 TypeScript 静态 assurance：源码、脚本和 package emit 共享 compiler soundness 底线，installed consumer 使用与公共声明责任相符的独立 profile；Oxlint 用 error 和 warning 表达不同风险类型，但两者都阻断；lint 例外只使用 Oxlint 原生机制，失效例外可被检测，ESLint directive 不再生效。
+
+## Scope
+
+### Intended Change
+
+| 范围 | 预期调整 |
+| --- | --- |
+| Source compiler | 在根 `tsconfig.json` 的 `strict` 之外开启 `noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 和 `allowUnreachableCode: false`，由 Product config 继续继承。 |
+| Package compiler | 在 package artifact 的显式 `--ignoreConfig` emit 中镜像六项实现语义；installed consumer 在现有 `strict + noUncheckedIndexedAccess` 上增加 `exactOptionalPropertyTypes`。 |
+| Lint error rules | 开启 `typescript/strict-boolean-expressions`、`typescript/only-throw-error`、`typescript/no-confusing-void-expression` 和 `typescript/use-unknown-in-catch-callback-variable`；由 `typescript/only-throw-error` 取代 `no-throw-literal`。 |
+| Lint warning rules | 开启 `typescript/prefer-nullish-coalescing`、`typescript/prefer-optional-chain`、`typescript/prefer-readonly`、`unicorn/no-useless-promise-resolve-reject` 和 `no-promise-executor-return`；保留 `--deny-warnings`，因此 warning 仍阻断。 |
+| Suppression | 将两处 `eslint-disable*` 改为精确的 Oxlint next-line directive，删除多余 enable，设置 `respectEslintDisableDirectives: false` 和 warning 级 `reportUnusedDisableDirectives`。 |
+| Execution | 复用现有 typecheck/lint Gate identities、package artifact emit 和 external-consumer acceptance，不增加 runner、profile 或 Gate Check。 |
+
+规则取舍分别由 Decisions [`260911-adopt-soundness-oriented-typescript-typecheck-profiles`](../../docs/decisions/adopt-soundness-oriented-typescript-typecheck-profiles.md) 和 [`260911-use-blocking-tiered-oxlint-policy`](../../docs/decisions/use-blocking-tiered-oxlint-policy.md) 持有；本 Plan 只实施其中已选定的规则与边界。
+
+### Resulting Impacts
+
+- Compiler 迁移需要处理 Product implementation 62 个、Product tests/support 41 个、scripts/tests 107 个去重诊断；修复必须区分真实边界缺陷、可建模状态和已有运行时不变量。
+- `no-promise-executor-return` 的 Product 10 处、scripts 3 处现有诊断需要保留 Promise settlement、abort、timeout 和 test synchronization 的控制流语义。
+- ESLint directive 迁移会修改 progress-rendering 测试正文，因此需要维护 Test Evidence 并运行相邻 failure/lifecycle tests。
+- Package emit、development config 和 installed-consumer profile承担不同责任，实施后需要分别验证，不能用其中一个入口代替另一个。
+- 其它 active Change 若先修改公共 types、external-consumer fixture 或诊断高密度 owner，实施前需要基于当前 HEAD 重跑基线。
+
+## Success Criteria
+
+- Product/scripts 在正式配置下通过全部选定 compiler 和 lint 规则，没有诊断 baseline、广泛 suppression 或无证据 assertion。
+- Package artifact emit 使用选定的六项 compiler 语义，installed consumer 在 `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes` 下通过公共 imports、examples 和 declarations 验收。
+- 13 个 Promise executor 诊断按相邻语义修复；受控输入证明每项新 lint 规则已注册并使用预期 options，warning 保留 warning severity 且因 `--deny-warnings` 返回失败。
+- 仓库没有 ESLint dependency、配置、invocation 或 `eslint-disable*` directive；Oxlint 不接受 ESLint directive，unused Oxlint directive 会阻断。
+- 受影响 owner 的目标测试、Test Evidence、typecheck、lint、format、文档/Decision 检查、默认 Gate 和 `bun run check -- --all` 全部通过，现有 Gate identities 和 selection 语义不变。
+- 稳定 owner 能恢复 compiler/lint profiles、severity 与阻断性、suppression owner 和 consumer 边界；两条 Decision 在完整方向落地并核对后标记为 aligned。
+
+## Affected Owners
+
+- Compiler/lint configuration and development entry：`tsconfig.json`、`tsconfig.product.json`、`.oxlintrc.json`、`scripts/development/typecheck.ts`、`scripts/development/lint.ts` 和 `docs/tooling/workspace.md`。
+- Product/scripts implementation and tests：诊断所在的 `src/**`、`scripts/**`、相应行为 owner 文档和 Semantic Cases。
+- Package/Gate evidence：`scripts/package/artifact/**`、`scripts/package/candidate/external-consumer/**`、`scripts/project/gate/checks/oxlint-failure-records.*`、package lifecycle/artifact 文档和现有 Gate entries。
+- Long-term rationale：上述两条 Decision 及其派生索引。

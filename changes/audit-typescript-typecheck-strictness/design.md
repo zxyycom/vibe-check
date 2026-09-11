@@ -1,68 +1,99 @@
 # Design
 
-本 Draft 先回答“规则是否增加独立证明价值、在哪些 scope 生效、现有诊断代表什么”，再据此形成配置与代码实施计划。
+本设计让 TypeScript compiler 负责类型和控制流可靠性，让 Oxlint 负责代码级错误模式、优化建议和 suppression；两者通过现有 Gate 共同形成一次静态 assurance 升级。
 
 ## Context
 
-当前 `tsconfig.product.json` 与 `tsconfig.json` 继承共享配置并启用 `strict`；Product、scripts 和 package external-consumer acceptance 使用不同的 typecheck scope。调查报告 [`diagnose-deep-readonly-option-type-erasure.md`](../../docs/investigations/diagnose-deep-readonly-option-type-erasure.md) 提供本审计的触发证据：
+### 事实源与执行边界
 
-- `noUncheckedIndexedAccess` 能暴露 widened array 的不安全索引读取，但 tuple erasure 仍需类型契约证据直接证明。
-- `unknown -> never` 会放行不安全赋值，只能由类型契约的负向证据捕获。
-- 临时对现有完整 scope 开启 `noUncheckedIndexedAccess` 时，product 得到 73 条诊断、涉及 29 个文件；scripts 得到 125 条诊断、涉及 40 个文件，且 scripts scope 包含其传递导入的部分 `src/**`。这些计数尚未去重或分类，不能等同于 Bug 数量。
+| 机制 | 配置 owner | 责任 | 现有验收 |
+| --- | --- | --- | --- |
+| Product compiler | `tsconfig.product.json` extends 根 `tsconfig.json` | Product implementation、tests 和 import boundary | required `typecheck-product` |
+| Scripts compiler | 根 `tsconfig.json` | Repository scripts 及其传递导入的 Product surface | required `typecheck-scripts` |
+| Package emit | `scripts/package/artifact/build.ts` 的显式 `--ignoreConfig` 参数 | 真实 runtime 和 declarations emit | `--all` artifact acceptance |
+| Installed consumer | external-consumer 临时 config | 公共 declarations、imports 和 examples | `--all` consumer types acceptance |
+| Product/scripts lint | `.oxlintrc.json`；`scripts/development/lint.ts` 选择 scope | Type-aware、代码模式和 suppression 检查 | required `lint-product` / `lint-scripts` |
 
-`DeepReadonly` 作为局部公共类型修复直接处理；本 Change 只承接持续影响 typecheck、Gate、贡献者工作流和 package consumer compatibility 的规则策略。
+Compiler 方向由 Decision [`260911-adopt-soundness-oriented-typescript-typecheck-profiles`](../../docs/decisions/adopt-soundness-oriented-typescript-typecheck-profiles.md) 持有；lint severity、规则范围和 suppression 由 Decision [`260911-use-blocking-tiered-oxlint-policy`](../../docs/decisions/use-blocking-tiered-oxlint-policy.md) 持有。两条 Decision 可以独立演进，本 Change 负责一次性实施和联合验收。
+
+### 基线证据
+
+| 证据 | 当前结果 | 计划用法 |
+| --- | --- | --- |
+| Selected compiler rules | Product 103 个位置/50 个文件；scripts scope 168/62；跨 scope 去重后 210/89 | 按 exact optional、indexed access、控制流分批修复 |
+| Compiler distribution | Product implementation 62、Product tests/support 41、scripts/tests 107 | 按行为 owner 验证，不把位置数当作 Bug 数 |
+| Selected lint rules | `no-promise-executor-return` 为 Product 10、scripts 3；其它选定规则为零诊断 | 用受控负向输入确认零诊断规则已注册且 options 正确，修复 13 个现有位置后写入正式配置 |
+| Broad `perf` category | `no-await-in-loop` 67、`no-useless-call` 1 | 不启用类别；保留有意顺序 await 和 source-aligned receiver seam |
+| Suppression inventory | 两处 ESLint-spelled suppression；一个多余 `eslint-enable` | 迁移为 Oxlint directive，关闭 ESLint compatibility，启用 unused audit |
+| Warning microprobe | JSON 保留 `severity: "warning"`，`--deny-warnings` 返回 1 | severity 用于分类，不改变 Gate 阻断性 |
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 建立 product、scripts/tests 与 external consumer 三类类型检查的配置、责任和差异矩阵。
-- 审计 `strict` 未包含或项目尚未决定的高价值规则，优先覆盖 indexed access、optional property、index signature、override、return 和 switch control-flow 风险。
-- 对候选规则的诊断按 owner 和原因分类，区分真实缺陷、类型建模缺口、已证明的运行时不变量、test-only ergonomics、lint 重叠与不值得承担的迁移成本。
-- 决定公共 package declarations 需要通过哪些独立 consumer compiler profiles，避免只用仓库自身设置验证库类型。
-- 形成按 owner 分阶段实施和验证的计划，并为 assertion、suppression 与过渡机制规定证据和退出条件。
+- 采用能拒绝错误程序或迫使未处理风险显式化的 compiler 规则，并按各消费边界配置。
+- 采用一组有明确代码质量价值的 lint 规则，让 severity 表达风险类型、现有 Gate 表达阻断性。
+- 按行为 owner 修复当前诊断，保持 runtime、错误映射、package 布局和 Gate selection 不变。
+- 让 Oxlint 独占 lint suppression，并通过 unused-directive 检查防止例外腐化。
 
 ### Non-Goals
 
-- Draft 只形成审计方案，不修改 tsconfig、typecheck runner、Gate、产品代码或测试正文。
-- 诊断计数不代表运行时 Bug 数量；每条诊断必须经过分类。
-- 独立产品缺陷由其行为 owner 局部处理，不并入规则配置实施。
-- consumer compatibility 只覆盖实际运行过的 compiler profiles。
-- TypeScript 检查不替代 runtime boundary validation、lint、测试或 installed package acceptance。
+- 不把诊断位置数直接解释为 Product Bug 数，也不借迁移重构无关 owner。
+- 不增加 compiler/lint runner、Gate Check、diagnostic baseline 或 installed-consumer invocation。
+- 不启用整个 `perf`、`pedantic`、`style` 或 `nursery` 类别。
+- 不把 Oxlint 诊断接入 Vibe Check Finding waiver；后者继续只服务拥有完整 Finding 集合和稳定语义 identity 的 Product Checks。
 
 ## Decisions
 
 ### Intended Change
 
-以下为 Draft 的审计方向，待诊断分类和成本证据完成后再冻结为 Plan：
+#### 1. Compiler profiles
 
-1. 建立 typecheck matrix，分别记录 product、scripts/tests、declaration emit 和 installed consumer 的 config、compiler、输入集合与 Gate 入口。
-2. 选择一组会改变缺失值、optional、索引、继承和 control-flow 可信度且未被现有 lint 等价覆盖的 compiler rules；至少独立评估 `noUncheckedIndexedAccess` 与 `exactOptionalPropertyTypes`，其它规则按实际代码形态和工具重叠决定。
-3. 对每项候选规则分别生成诊断清单，按唯一位置去重，并以 owner 和原因分类代表样本与总量；启用决策基于独立证明价值、修复方式和迁移成本，而非错误总数。
-4. 区分仓库源码规则与 package consumer compatibility。公共 declaration 可使用专用严格 consumer fixture 建立保证，而不要求仓库所有内部实现同步采用完全相同的 rule set。
-5. 根据分类结果选择一次启用、按 scope 分阶段启用、先修阻断项再启用，或有依据地不采用。暂时过渡需有 owner、退出条件和阻止新增违规的机制。
-6. 审计结论稳定后派生 `tasks.md` 并进入 Plan；独立产品 Bug、测试建模和工具配置分别交给其 owner。
+- 根 `tsconfig.json` 共享 `strict`、`noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 和 `allowUnreachableCode: false`；Product config 继续只定义 roots/cache 差异。
+- 迁移顺序为 exact optional → indexed access → unreachable/override/return。每批在 Product 和 scripts 都通过后立即写入正式 config。
+- Package emit 镜像六项实现语义。Installed consumer 只使用 `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes`，不承接 implementation-only 控制流规则。
+
+#### 2. Lint profile
+
+| Severity | Rules | 含义 |
+| --- | --- | --- |
+| `error` | `typescript/strict-boolean-expressions`、`typescript/only-throw-error`、`typescript/no-confusing-void-expression`、`typescript/use-unknown-in-catch-callback-variable` | 直接约束不可信语义；`only-throw-error` 取代范围更窄的 `no-throw-literal` |
+| `warning` | `typescript/prefer-nullish-coalescing`、`typescript/prefer-optional-chain`、`typescript/prefer-readonly`、`unicorn/no-useless-promise-resolve-reject`、`no-promise-executor-return` | 优化、惯用表达或控制流建议；由现有 `--deny-warnings` 保持阻断 |
+
+选定规则使用当前锁定 Oxlint/tsgolint 的默认 rule options；只有实施诊断证明默认值与行为 owner 冲突时，才在本 Change 中记录并采用最窄配置，不以关闭规则或批量 suppression 作为默认处理。
+
+#### 3. Suppression 与 ESLint 硬切换
+
+- 两处 ESLint-spelled suppression 改为 exact-rule `oxlint-disable-next-line`，保留可复核理由并删除多余 enable。
+- `.oxlintrc.json` 设置 `respectEslintDisableDirectives: false` 和 `reportUnusedDisableDirectives: "warn"`。
+- 单点例外使用 Oxlint next-line directive；稳定文件类别例外使用窄 override；只有输入不属于 lint owner 时才使用 ignore pattern。
+- Oxlint JSON 中的 `eslint(<rule>)` 是上游兼容 code，不是仓库 ESLint dependency，不在 Gate adapter 中重命名。
+
+#### 4. 明确排除项
+
+- Compiler 不采用只增加 index-signature 访问拼写约束的 `noPropertyAccessFromIndexSignature`，也不重复由 Oxlint 承接的 fallthrough、unused 和 exhaustiveness 规则。
+- Lint 不采用当前与有意 sequential await、parser test strings、loop closures 或 source-aligned dynamic call 冲突的 `no-await-in-loop`、`no-template-curly-in-string`、`no-loop-func` 和 `no-useless-call`。
+- Nursery 的 `typescript/no-unnecessary-condition` 不进入本次稳定 profile。
+
+#### 5. 实施顺序与现有入口
+
+实施按 lint suppression/profile → exact optional → indexed access → compiler control flow → package/consumer 同步推进，让较小的 lint 批次先形成独立可验收结果。Typecheck/lint development commands 和 Gate identities 保持不变；package artifact 与 external-consumer 继续通过 `--all` 验收。规则由各自配置 owner 生效，Gate 只投影已验证的工具诊断，不重算或二次过滤结果。
 
 ### Resulting Impacts
 
-- 审计结论可能要求修改共享/分区 tsconfig、`scripts/development/typecheck.ts`、Project Gate typecheck binding、workspace tooling 文档与相关测试 Case。
-- 若新增 installed-consumer profiles，package lifecycle、candidate input fingerprint 和 complete Gate 验收成本可能增加，需要测量并限定重复 compiler work。
-- 规则启用可能暴露真实边界缺陷，也可能要求用 tuple、判别联合、显式 guard 或局部 assertion 表达既有不变量；相应代码变化由行为 owner 验证。
-- 分阶段策略需阻止新代码增加目标诊断，并为现有例外保留明确 owner 与退出条件。
-- 公共 `DeepReadonly` 修复不依赖本 Change；其 installed-consumer 验收可作为严格 consumer profile 的首个输入样本。
+- Exact optional 修复需要区分字段缺失和 present-`undefined`；indexed access 修复需要建立长度、key-presence、tuple 或相邻运行时不变量证据。
+- 三个 unreachable 位置需要确认不承接 fallback/cleanup；零诊断 compiler/lint 规则启用后负责阻止未来退化。
+- Promise executor 修复不能机械删除 `return`：必须保持 resolve/finish 后不继续执行的控制流，以及 cancellation、timeout 和 synchronization 时序。
+- 修改 tests/test-support、公共类型或行为 owner 时，需要维护对应 Test Evidence、目标测试和文档影响审查。
+- Development config、package emit 和 installed consumer 分别拥有不同证据；完整验收必须覆盖三者。
 
 ## Risks / Trade-offs
 
-- 全量诊断跨越多个 owner，若不先分类就实施，容易把真实 Bug、测试便捷写法和编译器无法推导的不变量混在一次大范围重构中。
-- 只在 external consumer 开启严格规则可保护公共声明，却不会改善内部 source；只在 source 开启又可能漏掉 emitted declaration 与消费者配置组合。
-- 无证据的 `!`、cast 或 suppression 会降低可信度；拒绝所有迁移则继续保留已确认的漏检窗口。
-- 多 profile 会增加 typecheck 与 Gate 时间；是否值得必须结合失败归因和实际执行成本，而不是追求规则数量。
+- 210 个 compiler 位置跨越多个 owner；分批降低审查混杂，但不会减少每个位置的语义处理责任。
+- Compiler 无法证明的既有不变量需要在精确类型、runtime guard 和局部 assertion 之间判断；无条件 guard 和无证据 assertion 都会削弱结果。
+- Warning 仍阻断可能被误解；workspace owner 必须明确 severity 是诊断分类而不是 Gate 让步。
+- 锁定工具升级后，默认 rule options 可能发现新位置；升级仍需语义审阅，不进行批量自动修复。
 
 ## Open Questions
 
-1. Product、scripts/tests 与 installed consumer 是否采用同一 rule set，还是以共享最低线加分区增强规则组织？
-2. 除 `noUncheckedIndexedAccess` 与 `exactOptionalPropertyTypes` 外，哪些 compiler rules 提供了现有 Oxlint/type tests 没有的独立证明价值？
-3. 现有诊断中各类原因、owner 和真实缺陷比例是多少；哪些必须在启用前修复，哪些适合独立后续 Change？
-4. 若不能一次闭合，项目是否接受按 scope 分阶段启用；过渡机制如何阻止新增违规而不建立永久 suppression baseline？
-5. 严格 external-consumer profile 是内部 release evidence，还是需要形成公开的 TypeScript compiler compatibility 承诺？
-6. 增加 profile 后的 routine/complete Gate 成本是多少，能否复用同一次 declaration emit 和 candidate installation？
+无阻断实施的开放问题。实施开始时只需根据 Plan 距离和其它 active Change 重跑 compiler/lint 基线；位置变化不会自动改变已选规则、severity、profile 或 suppression owner。

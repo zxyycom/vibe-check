@@ -331,7 +331,9 @@
       "260910-model-project-file-refresh-as-immutable-generations": "sha256:42edb7327edd8e8c95593d03d61ad0cbcf7e277c2d9fbae907371f9e5c82eaa3",
       "260910-provide-invocation-project-input-context": "sha256:f3ab35ac48abcc5c53e4a582dd99c733e50a7ca9114ec5e6b4d5cfa2166dd136",
       "260910-separate-imperative-file-collection-from-declarative-snapshots": "sha256:29db338772e729f44478f2579df2cc1d4f7d80bddca689a418c232e87020d1c3",
-      "260910-separate-live-file-collection-from-shared-snapshots": "sha256:8d9fe60ddda59dcd2e9d782d5d542b080525a1aca954bc8ffea7be295dec10f4"
+      "260910-separate-live-file-collection-from-shared-snapshots": "sha256:8d9fe60ddda59dcd2e9d782d5d542b080525a1aca954bc8ffea7be295dec10f4",
+      "260911-adopt-soundness-oriented-typescript-typecheck-profiles": "sha256:915a4e700a68e925674c0eb91ff24976f49e7e3ede1f85c1de7b4c037cabcc51",
+      "260911-use-blocking-tiered-oxlint-policy": "sha256:40deac7742a75f3a0d918dcae7cf3b3c7d1725223c6e6edb8715548c5e0704f2"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6846,6 +6848,39 @@
           "summary": "以显式快照替代隐藏调用内缓存"
         }
       ]
+    },
+    "260911-adopt-soundness-oriented-typescript-typecheck-profiles": {
+      "name": "adopt-soundness-oriented-typescript-typecheck-profiles",
+      "sourcePath": "adopt-soundness-oriented-typescript-typecheck-profiles.md",
+      "title": "采用面向类型可靠性的 TypeScript 检查 profiles",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-11T09:27:18Z",
+      "purpose": "让源码、脚本、package emit 与 installed consumer 获得职责相符的类型可靠性保证",
+      "background": "现有 strict 基线遗漏索引、optional 与控制流风险，而不同 compiler scope 的消费者义务并不相同",
+      "decision": "共享源码 soundness 规则，保留独立 consumer profile，拒绝低证明价值或重复规则",
+      "tags": [
+        "configuration",
+        "testing",
+        "workflow-policy"
+      ],
+      "relations": []
+    },
+    "260911-use-blocking-tiered-oxlint-policy": {
+      "name": "use-blocking-tiered-oxlint-policy",
+      "sourcePath": "use-blocking-tiered-oxlint-policy.md",
+      "title": "采用阻断且分级的 Oxlint 质量策略",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-11T10:05:37Z",
+      "purpose": "让规则严重度表达风险类别，同时保持所有正式 lint 诊断阻断 Gate",
+      "background": "现有 lint 已拒绝 warning，但规则集与 suppression 仍未明确区分优化建议及 Oxlint 原生责任",
+      "decision": "按错误风险与优化建议分级报告，统一使用 Oxlint 原生 suppression 并拒绝 ESLint directive",
+      "tags": [
+        "configuration",
+        "workflow-policy"
+      ],
+      "relations": []
     }
   }
 }
