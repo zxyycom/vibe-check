@@ -918,6 +918,20 @@
         "typescript"
       ],
       "title": "DeepReadonly Check options 类型退化调查"
+    },
+    "260911-survey-markdown-lint-tools": {
+      "formedAt": "2026-09-11T04:01:54Z",
+      "name": "survey-markdown-lint-tools",
+      "question": "Markdown lint 工具有哪些主要类型和代表实现，它们怎样使用、实际能检查什么，当前热度与生态成熟度如何；Markdown 是弱标记语言时 lint 的价值边界在哪里？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "survey-markdown-lint-tools.md",
+      "tags": [
+        "documentation",
+        "markdown-lint",
+        "tooling-ecosystem"
+      ],
+      "title": "Markdown lint 工具、效果与生态调查"
     }
   },
   "metadata": {},
@@ -966,7 +980,8 @@
       "260908-calibrate-gate-duration-variation": "sha256:a306e4ce1893e6f88ac1f21eaae84333058b9a23d8fb5692adcf115c9aae8459",
       "260908-compare-simple-admission-algorithms": "sha256:e3e5f7878dddf5dbd0c5a7c0de30c721adc0d2cb4f9f9975cd4c31793c058253",
       "260908-explain-learned-heuristic-rejection": "sha256:2968e598eb49087fb0fd6db88cf041e36b8673e52c337e170df45d6263919342",
-      "260910-diagnose-deep-readonly-option-type-erasure": "sha256:184ed071bd20597468622bd209d3e1d046119a41a0281c565867359a35f83a9e"
+      "260910-diagnose-deep-readonly-option-type-erasure": "sha256:184ed071bd20597468622bd209d3e1d046119a41a0281c565867359a35f83a9e",
+      "260911-survey-markdown-lint-tools": "sha256:7334f26051fa650c7129934177117f31fe72ba9c96c6f9872374f086c1d942fe"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
