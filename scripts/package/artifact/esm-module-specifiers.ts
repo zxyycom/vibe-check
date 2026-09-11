@@ -57,7 +57,9 @@ export function rewriteFunctionMetricsWorkerUrl(input: {
       `emitted function-metrics Worker URL must occur exactly once: ${input.fileName}; received ${matches.length}`
     );
   }
-  return replaceModuleSpecifierToken(input.source, matches[0], "./analyzer-worker.mjs");
+  const match = matches[0];
+  if (match === undefined) throw new Error("function-metrics Worker URL match is missing");
+  return replaceModuleSpecifierToken(input.source, match, "./analyzer-worker.mjs");
 }
 
 function relativeJavaScriptSpecifierRanges(input: {
@@ -145,22 +147,25 @@ function assertValidEmittedJavaScript(input: {
 }
 
 function esmModuleSpecifier(node: ts.Node): ts.StringLiteral | undefined {
-  if (
-    (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
-    node.moduleSpecifier !== undefined &&
-    ts.isStringLiteral(node.moduleSpecifier)
-  ) {
-    return node.moduleSpecifier;
+  return moduleSpecifierFromDeclaration(node) ?? moduleSpecifierFromDynamicImport(node);
+}
+
+function moduleSpecifierFromDeclaration(node: ts.Node): ts.StringLiteral | undefined {
+  if (!ts.isImportDeclaration(node) && !ts.isExportDeclaration(node)) return undefined;
+  const { moduleSpecifier } = node;
+  return moduleSpecifier !== undefined && ts.isStringLiteral(moduleSpecifier)
+    ? moduleSpecifier
+    : undefined;
+}
+
+function moduleSpecifierFromDynamicImport(node: ts.Node): ts.StringLiteral | undefined {
+  if (!ts.isCallExpression(node) || node.expression.kind !== ts.SyntaxKind.ImportKeyword) {
+    return undefined;
   }
-  if (
-    ts.isCallExpression(node) &&
-    node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-    node.arguments.length === 1 &&
-    ts.isStringLiteral(node.arguments[0])
-  ) {
-    return node.arguments[0];
-  }
-  return undefined;
+  const [specifier] = node.arguments;
+  return node.arguments.length === 1 && specifier !== undefined && ts.isStringLiteral(specifier)
+    ? specifier
+    : undefined;
 }
 
 function isFunctionMetricsWorkerUrl(node: ts.Node): node is ts.NewExpression {

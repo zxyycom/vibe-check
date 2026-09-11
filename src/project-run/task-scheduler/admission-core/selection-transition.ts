@@ -1,5 +1,13 @@
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
+  requiredReverseDependenciesForCompiled,
+  requiredReverseMutexOccurrencesForCompiled,
+  requiredReverseObservationsForCompiled,
+  requiredScopeTerminalSlotsForCompiled,
+  requiredTaskMutexSlotsForCompiled,
+  requiredTaskResourceClaimsForCompiled
+} from "./compiled-graph-lookup.ts";
+import {
   enqueueForcedTaskSlots,
   freezeSelectionIndex,
   numberFor,
@@ -124,7 +132,7 @@ function withResourceClaimDelta(
 ): NumberStore {
   return withNumberDeltas(
     resourceInUse,
-    compiled.taskResourceClaims[taskSlot].map(
+    requiredTaskResourceClaimsForCompiled(compiled, taskSlot).map(
       ({ resourceSlot, units }) => [resourceSlot, direction * units] as const
     )
   );
@@ -138,7 +146,9 @@ function withMutexHolderDelta(
 ): NumberStore {
   return withNumberDeltas(
     mutexHolders,
-    compiled.taskMutexSlots[taskSlot].map((mutexSlot) => [mutexSlot, delta] as const)
+    requiredTaskMutexSlotsForCompiled(compiled, taskSlot).map(
+      (mutexSlot) => [mutexSlot, delta] as const
+    )
   );
 }
 
@@ -157,9 +167,8 @@ function mutexBlockerDeltasFor(
   delta: 1 | -1
 ): readonly (readonly [number, number])[] {
   const deltas: [number, number][] = [];
-  for (const mutexSlot of compiled.taskMutexSlots[taskSlot]) {
-    for (const blockedTaskSlot of compiled.relationIndexes.reverseMutexOccurrences[mutexSlot] ??
-      []) {
+  for (const mutexSlot of requiredTaskMutexSlotsForCompiled(compiled, taskSlot)) {
+    for (const blockedTaskSlot of requiredReverseMutexOccurrencesForCompiled(compiled, mutexSlot)) {
       deltas.push([blockedTaskSlot, delta]);
     }
   }
@@ -173,7 +182,7 @@ function applySettlementRelationDelta(
 ): void {
   const { previous, status, taskSlot } = facts;
   if (previous.kind === "settled" || status.kind !== "settled") return;
-  const reverseDependencies = compiled.relationIndexes.reverseDependencies[taskSlot];
+  const reverseDependencies = requiredReverseDependenciesForCompiled(compiled, taskSlot);
   facts.pendingDependencies = withNumberDeltas(
     facts.pendingDependencies,
     reverseDependencies.map((dependentSlot) => [dependentSlot, -1] as const)
@@ -186,7 +195,7 @@ function applySettlementRelationDelta(
   }
   facts.pendingObservations = withNumberDeltas(
     facts.pendingObservations,
-    compiled.relationIndexes.reverseObservations[taskSlot].map(
+    requiredReverseObservationsForCompiled(compiled, taskSlot).map(
       (observerSlot) => [observerSlot, -1] as const
     )
   );
@@ -228,7 +237,7 @@ function applyScopeLifecycleDelta(
     );
   }
   if (previous.kind === "settled" || status.kind !== "settled") return;
-  for (const scopeSlot of compiled.scopeSlotsByTerminalTaskSlot[taskSlot]) {
+  for (const scopeSlot of requiredScopeTerminalSlotsForCompiled(compiled, taskSlot)) {
     facts.activeScopeSlots = Object.freeze(
       facts.activeScopeSlots.filter((candidate) => candidate !== scopeSlot)
     );

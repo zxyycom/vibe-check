@@ -153,10 +153,12 @@ function parseShowCommand(args: string[]): ParsedCommand {
   if (positionals.length !== 1) {
     throw new Error("show requires exactly one <CASE-ID>");
   }
+  const [id] = positionals;
+  if (id === undefined) throw new Error("show requires exactly one <CASE-ID>");
   return {
     command: "show",
     workspaceRoot: path.resolve(values.root),
-    id: positionals[0]
+    id
   };
 }
 
@@ -178,7 +180,10 @@ function parseListCommand(args: string[]): ParsedCommand {
   requireRoot(values.root);
   const offset = optionalInteger(values.offset);
   const limit = optionalInteger(values.limit);
-  validateQueryWindow({ offset, limit });
+  validateQueryWindow({
+    ...(offset === undefined ? {} : { offset }),
+    ...(limit === undefined ? {} : { limit })
+  });
   return {
     command: "list",
     workspaceRoot: path.resolve(values.root),
@@ -248,20 +253,38 @@ function writeCheckResult(result: ProjectTestEvidenceReport, json: boolean): voi
     writeJson(result);
     return;
   }
+  writeTextCheckResult(result);
+}
+
+function writeTextCheckResult(result: ProjectTestEvidenceReport): void {
   if (result.status === "ok") {
-    process.stdout.write(
-      `Test Case check passed: ${result.summary.entities} current test entities ` +
-        `(${result.summary.bun} Bun); ${result.summary.mappedEntities} mapped by ` +
-        `${result.summary.cases} semantic Cases across ${result.summary.topics} topics.\n`
-    );
+    writeSuccessfulCheckSummary(result);
     return;
   }
-  for (const value of result.diagnostics) {
+  writeCheckDiagnostics(result.diagnostics);
+}
+
+function writeSuccessfulCheckSummary(result: ProjectTestEvidenceReport): void {
+  process.stdout.write(
+    `Test Case check passed: ${result.summary.entities} current test entities ` +
+      `(${result.summary.bun} Bun); ${result.summary.mappedEntities} mapped by ` +
+      `${result.summary.cases} semantic Cases across ${result.summary.topics} topics.\n`
+  );
+}
+
+function writeCheckDiagnostics(diagnostics: readonly TestEvidenceDiagnostic[]): void {
+  for (const diagnostic of diagnostics) {
     process.stderr.write(
-      `${value.origin}:${value.code}: ${value.message}` +
-        `${value.path ? ` (${value.path}${value.line ? `:${value.line}` : ""})` : ""}\n`
+      `${diagnostic.origin}:${diagnostic.code}: ${diagnostic.message}` +
+        `${diagnosticLocation(diagnostic)}\n`
     );
   }
+}
+
+function diagnosticLocation(diagnostic: TestEvidenceDiagnostic): string {
+  if (diagnostic.path === undefined || diagnostic.path === "") return "";
+  const line = diagnostic.line === undefined || diagnostic.line === 0 ? "" : `:${diagnostic.line}`;
+  return ` (${diagnostic.path}${line})`;
 }
 
 function writeJson(value: unknown): void {

@@ -119,7 +119,7 @@ function assertSharedOutputDirectory(
     outputs.diagnosticLogging.channels.scheduler.file
   ];
   for (const diagnosticFile of diagnosticFiles) {
-    assert.ok(diagnosticFile);
+    assert.ok(diagnosticFile !== null && diagnosticFile.length > 0);
     assert.equal(
       diagnosticFile,
       relative(projectRoot, join(outputDirectory, basename(diagnosticFile)))

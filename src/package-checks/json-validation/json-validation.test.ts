@@ -376,7 +376,9 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "gone.json"), "{}", "utf8");
       writeFileSync(join(root, "notes.txt"), "not JSON", "utf8");
       const result = runJsonValidation({
-        onRecordReported: () => rmSync(join(root, "gone.json"), { force: true }),
+        onRecordReported: () => {
+          rmSync(join(root, "gone.json"), { force: true });
+        },
         root
       });
       assert.deepEqual(result.records, [
@@ -439,7 +441,9 @@ describe("JSON validation default Check", () => {
 
       const between = new AbortController();
       const result = runJsonValidation({
-        onRecordReported: () => between.abort(),
+        onRecordReported: () => {
+          between.abort();
+        },
         root,
         signal: between.signal
       });

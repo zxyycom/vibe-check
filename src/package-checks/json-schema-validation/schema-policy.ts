@@ -108,8 +108,11 @@ function inspectDirectSchemaPolicy(
 ): SchemaCompileReason | undefined {
   if (Object.hasOwn(schemaObject, "$async")) return "invalid-schema";
   if (hasUnsupportedReferenceKeyword(schemaObject)) return "unsupported-reference";
-  if (Object.hasOwn(schemaObject, "$id") && !permittedNestedIdentifier(schemaObject.$id)) {
-    return "unsupported-reference";
+  if (Object.hasOwn(schemaObject, "$id")) {
+    const identifier = schemaObject.$id;
+    if (identifier === undefined || !permittedNestedIdentifier(identifier)) {
+      return "unsupported-reference";
+    }
   }
   return hasInvalidReferenceValue(schemaObject) ? "unsupported-reference" : undefined;
 }
@@ -123,9 +126,11 @@ function hasUnsupportedReferenceKeyword(
 function hasInvalidReferenceValue(
   schemaObject: Readonly<Record<string, StrictJsonValue>>
 ): boolean {
-  return ["$ref", "$schema"].some(
-    (key) => Object.hasOwn(schemaObject, key) && !permittedReference(schemaObject[key])
-  );
+  return ["$ref", "$schema"].some((key) => {
+    if (!Object.hasOwn(schemaObject, key)) return false;
+    const reference = schemaObject[key];
+    return reference === undefined || !permittedReference(reference);
+  });
 }
 
 function inspectNestedSchemaPolicies(

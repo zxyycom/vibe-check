@@ -1,8 +1,9 @@
 import type { ExecaResultLike, ProcessResult } from "./contract.ts";
 
 export function toProcessResult(result: ExecaResultLike, label: string): ProcessResult {
+  const error = processErrorFor(result, label);
   return {
-    error: processErrorFor(result, label),
+    ...(error === undefined ? {} : { error }),
     signal: result.signal ?? null,
     status: result.exitCode ?? null,
     stderr: outputString(result.stderr),
@@ -23,18 +24,23 @@ function processErrorFor(result: ExecaResultLike, label: string): Error | undefi
   const message =
     result.originalMessage ?? result.shortMessage ?? result.message ?? `${label} failed`;
   const error: NodeJS.ErrnoException = new Error(message);
-  if (result.code) {
+  if (result.code !== undefined && result.code !== "") {
     error.code = result.code;
   }
   return error;
 }
 
 function isExecutionError(result: ExecaResultLike): boolean {
-  if (!result.failed) {
+  if (result.failed !== true) {
     return false;
   }
   if (typeof result.exitCode === "number") {
     return false;
   }
-  return Boolean(result.code || result.timedOut || result.isMaxBuffer || result.signal);
+  return (
+    (result.code !== undefined && result.code !== "") ||
+    result.timedOut === true ||
+    result.isMaxBuffer === true ||
+    result.signal !== undefined
+  );
 }

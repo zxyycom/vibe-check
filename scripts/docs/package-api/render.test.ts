@@ -420,8 +420,7 @@ function projectionsWithDuplicateJSDocTarget(): readonly PackageApiExampleProjec
   return PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) => {
     if (projection.id !== "custom-check-definition") return projection;
     const target = projection.targets.find((candidate) => candidate.kind === "jsdoc");
-    if (target === undefined || target.kind !== "jsdoc")
-      throw new Error("missing fixture JSDoc target");
+    if (target?.kind !== "jsdoc") throw new Error("missing fixture JSDoc target");
     return { ...projection, targets: [...projection.targets, target] };
   });
 }
@@ -430,8 +429,7 @@ function projectionsWithSharedJSDocTarget(): readonly PackageApiExampleProjectio
   const target = PACKAGE_API_EXAMPLE_PROJECTIONS.find(
     (projection) => projection.id === "custom-check-definition"
   )?.targets.find((candidate) => candidate.kind === "jsdoc");
-  if (target === undefined || target.kind !== "jsdoc")
-    throw new Error("missing fixture JSDoc target");
+  if (target?.kind !== "jsdoc") throw new Error("missing fixture JSDoc target");
   return PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) =>
     projection.id === "quick-start"
       ? { ...projection, targets: [...projection.targets, target] }

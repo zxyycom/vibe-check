@@ -120,20 +120,18 @@ await describe(
 
     await it("rejects installed documentation drift without another installation", async () => {
       const { first } = await fixture();
-      assert.throws(
-        () =>
-          assertInstalledCandidateMaterials({
-            expectedJSDocExamplePayloads: [],
-            expectedDocuments: [],
-            expectedMachineMaterials: [],
-            expectedAttributionNotice: readFileSync(
-              join(repositoryRoot, "licenses/analyzer-translations-NOTICE.md")
-            ),
-            expectedReadme: "incorrect candidate README\n",
-            packageDirectory: first.installedPackageDirectory
-          }),
-        /installed candidate README differs from the expected package documentation/
-      );
+      assert.throws(() => {
+        assertInstalledCandidateMaterials({
+          expectedJSDocExamplePayloads: [],
+          expectedDocuments: [],
+          expectedMachineMaterials: [],
+          expectedAttributionNotice: readFileSync(
+            join(repositoryRoot, "licenses/analyzer-translations-NOTICE.md")
+          ),
+          expectedReadme: "incorrect candidate README\n",
+          packageDirectory: first.installedPackageDirectory
+        });
+      }, /installed candidate README differs from the expected package documentation/);
     });
 
     await it("rejects installed dependency license drift before candidate reuse", async () => {

@@ -25,10 +25,14 @@ const PRIVATE_FUNCTION_METRICS_ANALYZER_IMPORT = [
 ].join("/");
 
 it("characterizes repository layout and dependency boundaries", () => {
-  assert.doesNotThrow(() => validateRepositoryLayout());
+  assert.doesNotThrow(() => {
+    validateRepositoryLayout();
+  });
   const representativeLayout = createTargetLayout();
   try {
-    assert.doesNotThrow(() => validateRepositoryLayout({ repositoryRoot: representativeLayout }));
+    assert.doesNotThrow(() => {
+      validateRepositoryLayout({ repositoryRoot: representativeLayout });
+    });
   } finally {
     rmSync(representativeLayout, { force: true, recursive: true });
   }
@@ -39,154 +43,178 @@ it("characterizes repository layout and dependency boundaries", () => {
   }>[] = [
     {
       expected: "retired-source-directory: scripts/tools",
-      mutate: (root) => writeSource(root, "scripts/tools/legacy.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "scripts/tools/legacy.ts", "export {};\n");
+      }
     },
     {
       expected: "retired-source-directory: scripts/process-execution/process",
-      mutate: (root) =>
-        writeSource(root, "scripts/process-execution/process/legacy.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "scripts/process-execution/process/legacy.ts", "export {};\n");
+      }
     },
     {
       expected: "retired-source-directory: scripts/validation/documentation/repository",
-      mutate: (root) =>
-        writeSource(root, "scripts/validation/documentation/repository/legacy.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "scripts/validation/documentation/repository/legacy.ts", "export {};\n");
+      }
     },
     {
       expected: "project-gate-root-layout:",
-      mutate: (root) => writeSource(root, "scripts/project/gate/extra.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "scripts/project/gate/extra.ts", "export {};\n");
+      }
     },
     {
       expected: "unapproved-index: src/project-definition/index.ts",
-      mutate: (root) => writeSource(root, "src/project-definition/index.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "src/project-definition/index.ts", "export {};\n");
+      }
     },
     {
       expected: "generic-basename: scripts/validation/model.test.ts (model)",
-      mutate: (root) => writeSource(root, "scripts/validation/model.test.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "scripts/validation/model.test.ts", "export {};\n");
+      }
     },
     {
       expected:
         "product-imports-scripts: src/project-definition/illegal.ts -> ../../scripts/repository-files/paths.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/project-definition/illegal.ts",
           'import { toSlashPath } from "../../scripts/repository-files/paths.ts";\nvoid toSlashPath;\n'
-        )
+        );
+      }
     },
     {
       expected:
         "product-imports-scripts: src/project-definition/illegal.ts -> ../../scripts/repository-files/paths.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/project-definition/illegal.ts",
           'import "../../scripts/repository-files/paths.ts";\n'
-        )
+        );
+      }
     },
     {
       expected:
         "project-deep-imports-product: scripts/project/gate/illegal.ts -> ../../../src/index.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/project/gate/illegal.ts",
           'import type { ProjectDefinition } from "../../../src/index.ts";\nexport type { ProjectDefinition };\n'
-        )
+        );
+      }
     },
     {
       expected:
         "project-deep-imports-product: scripts/project/gate/illegal.ts -> ../../../src/index.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/project/gate/illegal.ts",
           'void import("../../../src/index.ts");\n'
-        )
+        );
+      }
     },
     {
       expected:
         "package-imports-project: scripts/package/artifact/illegal.ts -> ../../project/gate/run.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/package/artifact/illegal.ts",
           'import type { GateRun } from "../../project/gate/run.ts";\nexport type { GateRun };\n'
-        )
+        );
+      }
     },
     {
       expected:
         "script-deep-imports-process-execution: scripts/development/illegal.ts -> ../process-execution/runner.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/development/illegal.ts",
           `import { runProcess } from ${JSON.stringify(PRIVATE_PROCESS_IMPORT)};\nvoid runProcess;\n`
-        )
+        );
+      }
     },
     {
       expected:
         "environment-imports-process-execution: scripts/environment/manage.ts -> ../process-execution/execution.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/environment/manage.ts",
           'import { runProcess } from "../process-execution/execution.ts";\nvoid runProcess;\n'
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
           'import { analyzeSourceCode } from "./analyzer/pipeline.ts";\nvoid analyzeSourceCode;\n'
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
           'void import(("./analyzer/pipeline.ts"));\n'
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
           "void import(`./analyzer/pipeline.ts`);\n"
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-product-deep-imports-analyzer: src/package-checks/function-metrics/target-files.ts -> ./analyzer/pipeline.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.ts",
           'void import((("./analyzer/pipeline.ts" as string) satisfies string));\n'
-        )
+        );
+      }
     },
     {
       expected: "module-specifier-parse: src/project-definition/illegal.ts:",
-      mutate: (root) => writeSource(root, "src/project-definition/illegal.ts", "const = ;\n")
+      mutate: (root) => {
+        writeSource(root, "src/project-definition/illegal.ts", "const = ;\n");
+      }
     },
     {
       expected:
         "function-metrics-required-adapter-import: src/package-checks/function-metrics/analyzer-worker.ts must value-import src/package-checks/function-metrics/analyzer-adapter.ts",
-      mutate: (root) =>
-        writeSource(root, "src/package-checks/function-metrics/analyzer-worker.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "src/package-checks/function-metrics/analyzer-worker.ts", "export {};\n");
+      }
     },
     {
       expected:
         "function-metrics-required-adapter-import: src/package-checks/function-metrics/analyzer-worker.ts must value-import src/package-checks/function-metrics/analyzer-adapter.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/analyzer-worker.ts",
@@ -195,18 +223,20 @@ it("characterizes repository layout and dependency boundaries", () => {
             "const disguisedImport = 'import { analyzeFunctionMetricsSources } from \"./analyzer-adapter.ts\";';",
             "export {};"
           ].join("\n")
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-required-adapter-import: src/package-checks/function-metrics/target-files.ts must value-import src/package-checks/function-metrics/analyzer-adapter.ts",
-      mutate: (root) =>
-        writeSource(root, "src/package-checks/function-metrics/target-files.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(root, "src/package-checks/function-metrics/target-files.ts", "export {};\n");
+      }
     },
     {
       expected:
         "function-metrics-adapter-deep-imports-analyzer: src/package-checks/function-metrics/analyzer-adapter.ts -> ./analyzer/pipeline.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/analyzer-adapter.ts",
@@ -215,68 +245,79 @@ it("characterizes repository layout and dependency boundaries", () => {
             'import { analyzeSourceCode } from "./analyzer/pipeline.ts";',
             "void analyzeSourceCode;"
           ].join("\n")
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-analyzer-imports-product: src/package-checks/function-metrics/analyzer/port-facade.ts -> ../analyzer-adapter.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/analyzer/port-facade.ts",
           'import "../analyzer-adapter.ts";\n'
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-test-deep-imports-analyzer: src/package-checks/function-metrics/target-files.test.ts -> ./analyzer/port-facade.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/package-checks/function-metrics/target-files.test.ts",
           'import type { LizardSourceAnalysis } from "./analyzer/port-facade.ts";\nexport type { LizardSourceAnalysis };\n'
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-nonproduct-imports-analyzer: scripts/validation/illegal.ts -> ../../src/package-checks/function-metrics/analyzer/pipeline.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/validation/illegal.ts",
           `import type { AnalyzerReader } from ${JSON.stringify(PRIVATE_FUNCTION_METRICS_ANALYZER_IMPORT)};\nexport type { AnalyzerReader};\n`
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-private-public-entry: src/index.ts -> ./package-checks/function-metrics/analyzer-adapter.ts",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "src/index.ts",
           'export { analyzeFunctionMetricsSources } from "./package-checks/function-metrics/analyzer-adapter.ts";\n'
-        )
+        );
+      }
     },
     {
       expected:
         "function-metrics-port-facade-consumers: expected only src/package-checks/function-metrics/analyzer-adapter.ts to import src/package-checks/function-metrics/analyzer/port-facade.ts; found none",
-      mutate: (root) =>
-        writeSource(root, "src/package-checks/function-metrics/analyzer-adapter.ts", "export {};\n")
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-checks/function-metrics/analyzer-adapter.ts",
+          "export {};\n"
+        );
+      }
     },
     {
       expected:
         "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/package/artifact/build.ts",
           'const entry = join(repositoryRoot, "src/project-definition/project-definition.ts");\nvoid entry;\n'
-        )
+        );
+      }
     },
     {
       expected:
         "package-artifact-entry: expected exactly src/index.ts and src/package-checks/function-metrics/analyzer-worker.ts compiler roots",
-      mutate: (root) =>
+      mutate: (root) => {
         writeSource(
           root,
           "scripts/package/package-contract.ts",
@@ -288,11 +329,14 @@ it("characterizes repository layout and dependency boundaries", () => {
             '  "src/package-checks/function-metrics/unapproved-worker.ts"',
             "]);"
           ].join("\n")
-        )
+        );
+      }
     },
     {
       expected: "product-owner-directories:",
-      mutate: (root) => mkdirSync(join(root, "src", "unexpected"), { recursive: true })
+      mutate: (root) => {
+        mkdirSync(join(root, "src", "unexpected"), { recursive: true });
+      }
     }
   ];
 
@@ -301,7 +345,9 @@ it("characterizes repository layout and dependency boundaries", () => {
     try {
       violation.mutate(root);
       assert.throws(
-        () => validateRepositoryLayout({ repositoryRoot: root }),
+        () => {
+          validateRepositoryLayout({ repositoryRoot: root });
+        },
         new RegExp(escapeRegExp(violation.expected))
       );
     } finally {
@@ -319,7 +365,9 @@ it("characterizes repository layout and dependency boundaries", () => {
       )
     );
     assert.throws(
-      () => validateRepositoryLayout({ repositoryRoot: root }),
+      () => {
+        validateRepositoryLayout({ repositoryRoot: root });
+      },
       (error: unknown) => {
         assert.ok(error instanceof Error);
         assert.match(

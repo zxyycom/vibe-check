@@ -12,7 +12,7 @@ function check(
     readonly displayName?: string;
     readonly dependsOn?: Check["dependsOn"];
     readonly enabledByFlags?: Check["enabledByFlags"];
-    readonly execution: Check["execution"];
+    readonly execution: NonNullable<Check["execution"]>;
     readonly observes?: Check["observes"];
   }>
 ): Check {

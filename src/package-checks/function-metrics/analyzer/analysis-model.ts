@@ -270,7 +270,7 @@ export class FunctionInfo extends Nesting {
   public get parameters(): string[] {
     return this.fullParameters.flatMap((parameter) => {
       const match = /([\p{L}\p{N}_]+)(\s=.*)?(\s:.*)?$/u.exec(parameter);
-      return match?.[1] ? [match[1]] : [];
+      return match?.[1] !== undefined ? [match[1]] : [];
     });
   }
 

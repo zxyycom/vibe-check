@@ -110,7 +110,9 @@ export class CodeStateMachine {
   protected readUntilTokens: string[] = [];
   protected bracketCount = 0;
   protected readonly stateMachineConstructor: typeof CodeStateMachine;
-  protected readonly globalState: StateHandler = (token) => this._state_global(token);
+  protected readonly globalState: StateHandler = (token) => {
+    this._state_global(token);
+  };
 
   public constructor(context: FileInfoBuilder) {
     this.stateMachineConstructor = new.target;

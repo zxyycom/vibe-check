@@ -32,8 +32,12 @@ export function closeStaticAndRuntimeEntities(options: {
           `${options.runner} TestEntity identity ${identity} is ambiguous (${staticCandidates.length} static, ${runtimeEntries.length} runtime)`,
           {
             runner: options.runner,
-            selector: runtimeEntries[0]?.selector,
-            path: staticCandidates[0]?.sourcePath
+            ...(runtimeEntries[0]?.selector === undefined
+              ? {}
+              : { selector: runtimeEntries[0].selector }),
+            ...(staticCandidates[0]?.sourcePath === undefined
+              ? {}
+              : { path: staticCandidates[0].sourcePath })
           }
         )
       );
@@ -41,6 +45,7 @@ export function closeStaticAndRuntimeEntities(options: {
     }
     if (staticCandidates.length === 1 && runtimeEntries.length === 0) {
       const candidate = staticCandidates[0];
+      if (candidate === undefined) continue;
       diagnostics.push(
         diagnostic(
           "static-only",
@@ -58,6 +63,7 @@ export function closeStaticAndRuntimeEntities(options: {
     }
     if (staticCandidates.length === 0 && runtimeEntries.length === 1) {
       const runtime = runtimeEntries[0];
+      if (runtime === undefined) continue;
       diagnostics.push(
         diagnostic(
           "runtime-only",
@@ -74,7 +80,7 @@ export function closeStaticAndRuntimeEntities(options: {
     }
     const candidate = staticCandidates[0];
     const runtime = runtimeEntries[0];
-    if (!candidate || !runtime) {
+    if (candidate === undefined || runtime === undefined) {
       continue;
     }
     entities.push({

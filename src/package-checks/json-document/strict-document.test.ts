@@ -92,6 +92,7 @@ describe("strict JSON document boundary", () => {
     assert.equal(Object.getPrototypeOf(objectValue), null);
     assert.equal(Object.isFrozen(objectValue), true);
     const prototypeNamedValue = objectValue["__proto__"];
+    if (prototypeNamedValue === undefined) throw new Error("expected __proto__ JSON value");
     assert.notEqual(prototypeNamedValue, null);
     assert.equal(typeof prototypeNamedValue, "object");
     if (!isStrictJsonObject(prototypeNamedValue)) return;

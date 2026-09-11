@@ -55,9 +55,11 @@ export function execute(
 ) {
   return executeResolvedChecks({
     checks: [normalized(execution)],
-    clock: options.clock,
-    diagnosticLogger: options.diagnosticLogger,
-    lifecycle: options.lifecycle,
+    ...(options.clock === undefined ? {} : { clock: options.clock }),
+    ...(options.diagnosticLogger === undefined
+      ? {}
+      : { diagnosticLogger: options.diagnosticLogger }),
+    ...(options.lifecycle === undefined ? {} : { lifecycle: options.lifecycle }),
     maxParallel: 1,
     project: PROJECT,
     signal: undefined

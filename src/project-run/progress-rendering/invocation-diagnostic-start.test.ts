@@ -28,7 +28,7 @@ describe("Package Run diagnostic logging output", () => {
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
       const file = result.outputs.diagnosticLogging.channels.core.file;
-      assert.ok(file);
+      assert.ok(file !== null && file.length > 0);
       assert.match(file, /^diagnostic\/core-20260830T123456\.789Z-/);
       assert.equal(result.outputs.diagnosticLogging.channels.scheduler.status, "succeeded");
       assert.match(

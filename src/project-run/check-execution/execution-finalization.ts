@@ -31,17 +31,19 @@ export function closeResolvedChecks(
   try {
     assertNoTaskEngineFailures(input.graphRun.settlements);
     if (input.graphRun.admissionPolicyFault !== undefined) {
+      const terminalSchedulerMeasurement = input.graphRun.terminalMeasurement;
       return closeAdmissionPolicyFailed({
         normalizedChecks: input.allChecks,
         state: input.state,
-        terminalSchedulerMeasurement: input.graphRun.terminalMeasurement
+        ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
       });
     }
     if (input.graphRun.cancelled) {
+      const terminalSchedulerMeasurement = input.graphRun.terminalMeasurement;
       return closeCancelledExecution({
         normalizedChecks: input.allChecks,
         state: input.state,
-        terminalSchedulerMeasurement: input.graphRun.terminalMeasurement
+        ...(terminalSchedulerMeasurement === undefined ? {} : { terminalSchedulerMeasurement })
       });
     }
     assertEveryCheckClosed(input.allChecks, input.graphRun.settlements);

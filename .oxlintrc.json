@@ -5,6 +5,8 @@
     "correctness": "error"
   },
   "options": {
+    "reportUnusedDisableDirectives": "warn",
+    "respectEslintDisableDirectives": false,
     "typeAware": true
   },
   "env": {
@@ -65,7 +67,6 @@
         "no-unexpected-multiline": "error",
         "no-unsafe-finally": "error",
         "no-unsafe-optional-chaining": "error",
-        "no-throw-literal": "error",
         "no-unused-labels": "error",
         "no-unused-private-class-members": "error",
         "no-unused-vars": [
@@ -99,6 +100,7 @@
         "typescript/no-array-delete": "error",
         "typescript/no-base-to-string": "error",
         "typescript/no-confusing-non-null-assertion": "error",
+        "typescript/no-confusing-void-expression": "error",
         "typescript/no-deprecated": "error",
         "typescript/no-duplicate-enum-values": "error",
         "typescript/no-duplicate-type-constituents": "error",
@@ -116,6 +118,7 @@
         "typescript/no-misused-promises": "error",
         "typescript/no-namespace": "error",
         "typescript/no-non-null-asserted-optional-chain": "error",
+        "typescript/only-throw-error": "error",
         "typescript/no-inferrable-types": "error",
         "typescript/no-require-imports": "error",
         "typescript/no-this-alias": "error",
@@ -133,9 +136,15 @@
         "typescript/no-wrapper-object-types": "error",
         "typescript/prefer-as-const": "error",
         "typescript/prefer-namespace-keyword": "error",
+        "typescript/prefer-nullish-coalescing": "warn",
+        "typescript/prefer-optional-chain": "warn",
+        "typescript/prefer-readonly": "warn",
         "typescript/restrict-template-expressions": "error",
+        "typescript/strict-boolean-expressions": "error",
         "typescript/switch-exhaustiveness-check": "error",
-        "typescript/triple-slash-reference": "error"
+        "typescript/triple-slash-reference": "error",
+        "typescript/use-unknown-in-catch-callback-variable": "error",
+        "no-promise-executor-return": "warn"
       },
       "plugins": ["typescript", "import"],
       "env": {

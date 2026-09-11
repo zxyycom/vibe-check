@@ -1,7 +1,7 @@
 /** Reads canonical gitlink entries from a named Git tree revision. */
 
 import { processFailed } from "../host-environment/process.ts";
-import { runGit } from "../host-environment/git.ts";
+import { gitFailureDetail, runGit } from "../host-environment/git.ts";
 import { toSlashPath } from "../host-environment/path.ts";
 
 export type Gitlink = Readonly<{
@@ -21,11 +21,9 @@ export function gitlinksAtRevision({
     cwd: repository
   });
   if (processFailed(result)) {
-    const detail =
-      result.stderr.trim() ||
-      result.error?.message ||
-      (result.signal === null ? `exit status ${result.status}` : `signal ${result.signal}`);
-    throw new Error(`could not inspect gitlinks at ${revision} in ${repository}: ${detail}`);
+    throw new Error(
+      `could not inspect gitlinks at ${revision} in ${repository}: ${gitFailureDetail(result)}`
+    );
   }
 
   const gitlinks: Gitlink[] = [];

@@ -25,7 +25,9 @@ describe("quality scanner output parsing", () => {
       result.measurements.map((measurement) => measurement.sourcePaths),
       [["crates/docnav/src/lib.rs"], ["scripts/quality/scan.ts"], ["src/absolute.ts"]]
     );
-    assert.equal(result.measurements[0].payload.decisionTokens.value, 17);
+    const measurement = result.measurements[0];
+    if (measurement === undefined) throw new Error("expected one parsed scc measurement");
+    assert.equal(measurement.payload.decisionTokens.value, 17);
     const invalidResult = parseSccCSV(
       "Language,Location,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes\n",
       "/repo"

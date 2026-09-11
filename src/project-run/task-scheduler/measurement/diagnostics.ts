@@ -75,7 +75,10 @@ export class SchedulerPerformanceDiagnostics {
     const boundary = this.#timing.boundary();
     if (boundary === undefined) return;
     const admissionDelay = this.#timing.takeAdmissionDelay(taskId);
-    if (admissionDelay === undefined) return this.#timing.invalidate("integral-invalid");
+    if (admissionDelay === undefined) {
+      this.#timing.invalidate("integral-invalid");
+      return;
+    }
     this.#chronologyByTaskId.set(taskId, {
       admissionDelay,
       admittedAt: boundary,
@@ -97,7 +100,10 @@ export class SchedulerPerformanceDiagnostics {
     if (boundary === undefined) return;
     this.#timing.closeAcceptedWait(boundary);
     const chronology = this.#chronologyByTaskId.get(taskId);
-    if (chronology === undefined) return this.#timing.invalidate("integral-invalid");
+    if (chronology === undefined) {
+      this.#timing.invalidate("integral-invalid");
+      return;
+    }
     chronology.settledAt = boundary;
   }
 

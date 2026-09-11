@@ -5,7 +5,7 @@ import type { AdmissionPolicyContext } from "@zxyycom/vibe-check";
 
 import { staticIdentity, staticPolicy } from "./policy.ts";
 import { GATE_MAPPING } from "./gate-shape-fixture.ts";
-import { FIXTURES } from "./fixture-registry.ts";
+import { FIXTURES, requiredFixture } from "./fixture-registry.ts";
 import { INVESTIGATION_PROFILES } from "./scenario-fixtures.ts";
 import { simulate, simulateEvidence } from "./simulate.ts";
 
@@ -20,7 +20,7 @@ describe("admission workbench", () => {
     const serial = simulate(FIXTURES["two-shared-claims"], (context) => {
       if (context.runningTaskIds.length > 0) return { kind: "wait" };
       const taskId = context.candidates.find(({ canAdmit }) => canAdmit)?.taskId;
-      assert.ok(taskId);
+      assert.ok(taskId !== undefined && taskId !== "");
       selected += 1;
       return { kind: "select", taskId };
     });
@@ -81,8 +81,8 @@ describe("admission workbench", () => {
     assert.ok(contexts.length >= 3);
     const initial = contexts[0];
     const later = contexts.find(({ measurement }) => measurement.measurementCount > 0);
-    assert.ok(initial);
-    assert.ok(later);
+    assert.ok(initial !== undefined);
+    assert.ok(later !== undefined);
     assert.equal(initial.measurement.measurementCount, 0);
     assert.equal(later.measurement.cumulative.timing.availability, "available");
     const observation = later.measurement.measurementAt(0);
@@ -133,8 +133,8 @@ describe("admission workbench", () => {
 
   it("separates scenario schema rejection from public graph rejection", () => {
     const mismatched = {
-      ...structuredClone(FIXTURES.chain),
-      profiles: FIXTURES.chain.profiles.map((entry, index) =>
+      ...structuredClone(requiredFixture("chain")),
+      profiles: requiredFixture("chain").profiles.map((entry, index) =>
         index === 0 ? { ...entry, resourceClaims: [{ resourceId: "unknown", units: 1 }] } : entry
       )
     };
@@ -147,15 +147,15 @@ describe("admission workbench", () => {
 
     for (const schemaInvalid of [
       {
-        ...structuredClone(FIXTURES.chain),
+        ...structuredClone(requiredFixture("chain")),
         profiles: [
-          ...structuredClone(FIXTURES.chain.profiles),
-          structuredClone(FIXTURES.chain.profiles[0])
+          ...structuredClone(requiredFixture("chain").profiles),
+          structuredClone(requiredFixture("chain").profiles[0])
         ]
       },
       {
-        ...structuredClone(FIXTURES.chain),
-        taskProfiles: { ...FIXTURES.chain.taskProfiles, unknown: "first" }
+        ...structuredClone(requiredFixture("chain")),
+        taskProfiles: { ...requiredFixture("chain").taskProfiles, unknown: "first" }
       }
     ]) {
       const schemaFailure = simulateEvidence(schemaInvalid, staticPolicy, 0, 0);
@@ -167,8 +167,8 @@ describe("admission workbench", () => {
     }
 
     const rejected = {
-      ...structuredClone(FIXTURES.chain),
-      graph: { ...structuredClone(FIXTURES.chain.graph), maxParallel: 0 }
+      ...structuredClone(requiredFixture("chain")),
+      graph: { ...structuredClone(requiredFixture("chain").graph), maxParallel: 0 }
     };
     const graphFailure = simulateEvidence(rejected, staticPolicy, 0, 0);
     assert.equal(graphFailure.status, "error");
@@ -232,7 +232,12 @@ describe("admission workbench", () => {
       aRates.some((rate) => rate === 1),
       true
     );
-    assert.equal(result.resourceUnitTimeMs.cpu > result.resourceUnitTimeMs.io, true);
+    const cpuTime = result.resourceUnitTimeMs.cpu;
+    const ioTime = result.resourceUnitTimeMs.io;
+    if (cpuTime === undefined || ioTime === undefined) {
+      throw new Error("weighted-mutex result lacks expected resource timings");
+    }
+    assert.equal(cpuTime > ioTime, true);
     const selections = result.trace.flatMap((entry) =>
       entry.kind === "select" ? [entry.taskId] : []
     );
@@ -279,7 +284,7 @@ describe("admission workbench", () => {
       INVESTIGATION_PROFILES.map(({ id }) => id),
       ["typecheck-product-like", "typecheck-scripts-like", "lint-product-like", "lint-scripts-like"]
     );
-    const gate = FIXTURES["gate-shape-v1"];
+    const gate = requiredFixture("gate-shape-v1");
     assert.equal(gate.mappingIdentity, GATE_MAPPING.identity);
     assert.equal(gate.graph.maxParallel, 3);
     assert.equal(

@@ -44,7 +44,7 @@ export function createExternalConsumerMaterialLease(): ExternalConsumerMaterialL
       rmSync(owned, { force: true, recursive: true });
     },
     providerRoot(): string {
-      if (root === undefined) root = mkdtempSync(join(tmpdir(), "vibe-check-external-consumer-"));
+      root ??= mkdtempSync(join(tmpdir(), "vibe-check-external-consumer-"));
       return root;
     }
   });

@@ -77,8 +77,12 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
     normalized: input.normalized,
     progressRendering: createProgressRendering(outputConfiguration.progressRendering, outputs, {
       clock,
-      refreshScheduler: input.dependencies.progressRefreshScheduler,
-      writerFactory: input.dependencies.progressWriterFactory,
+      ...(input.dependencies.progressRefreshScheduler === undefined
+        ? {}
+        : { refreshScheduler: input.dependencies.progressRefreshScheduler }),
+      ...(input.dependencies.progressWriterFactory === undefined
+        ? {}
+        : { writerFactory: input.dependencies.progressWriterFactory }),
       file: paths.progressLogFile
     }),
     startedAtUtc

@@ -218,14 +218,16 @@ export async function assertSourceAndCacheWriteFailures(
   options: ReturnType<typeof duplicateDetection>["options"],
   root: string
 ): Promise<void> {
+  const sourceArea = options.codeAreas.source;
+  if (sourceArea === undefined) throw new Error("duplicateDetection source area is missing");
   const sourceUnavailable = await execute(
     executeDuplicateDetection,
     {
       ...options,
       codeAreas: {
         source: {
-          ...options.codeAreas.source,
-          files: { ...options.codeAreas.source.files, source: "git-worktree" }
+          ...sourceArea,
+          files: { ...sourceArea.files, source: "git-worktree" }
         }
       }
     },

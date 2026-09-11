@@ -252,12 +252,17 @@ function compilePublicTaskOrder(
   graph: PlannedTaskGraph,
   taskSlotsById: ReadonlyMap<string, number>
 ): PublicTaskOrder {
+  const taskIdsInPublicOrder = Object.freeze(graph.tasks.map((task) => task.id).sort(compareText));
   return {
-    taskIdsInPublicOrder: Object.freeze(graph.tasks.map((task) => task.id).sort(compareText)),
+    taskIdsInPublicOrder,
     taskSlotsInPublicOrder: Object.freeze(
-      graph.tasks
-        .map((task) => taskSlotsById.get(task.id)!)
-        .sort((left, right) => compareText(graph.tasks[left].id, graph.tasks[right].id))
+      taskIdsInPublicOrder.map((taskId) => {
+        const taskSlot = taskSlotsById.get(taskId);
+        if (taskSlot === undefined) {
+          throw new Error(`admission core task is missing from public order: ${taskId}`);
+        }
+        return taskSlot;
+      })
     )
   };
 }

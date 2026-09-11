@@ -48,7 +48,9 @@ describe("Lizard in-memory core", () => {
 
     const suppliedEmptyFunctions: FunctionInfo[] = [];
     const emptyFileInformation = new FileInformation("empty.cpp", 0, suppliedEmptyFunctions);
-    suppliedEmptyFunctions.push(analyzedFile.functionList[0]);
+    const analyzedFunction = analyzedFile.functionList[0];
+    if (analyzedFunction === undefined) throw new Error("expected analyzed function");
+    suppliedEmptyFunctions.push(analyzedFunction);
     assert.equal(emptyFileInformation.function_list.length, 0);
   });
 

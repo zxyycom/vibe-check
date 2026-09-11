@@ -166,10 +166,16 @@ function createFixture(): Readonly<{
   cpSync(new URL(`../../../${identityRelativePath}`, import.meta.url), paths.identityManifestPath);
   return Object.freeze({
     dependencies: Object.freeze({
-      auditSourceIdentity: (auditPaths: SourceMappingPaths) => assert.equal(auditPaths, paths),
-      writeFile: (path: string, source: string) => writeFileSync(path, source, "utf8")
+      auditSourceIdentity: (auditPaths: SourceMappingPaths) => {
+        assert.equal(auditPaths, paths);
+      },
+      writeFile: (path: string, source: string) => {
+        writeFileSync(path, source, "utf8");
+      }
     }),
-    dispose: () => rmSync(root, { force: true, recursive: true }),
+    dispose: () => {
+      rmSync(root, { force: true, recursive: true });
+    },
     paths
   });
 }

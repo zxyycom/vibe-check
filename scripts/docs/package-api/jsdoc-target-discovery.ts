@@ -53,7 +53,11 @@ function targetFromExampleComment(
     throw new Error(
       `package API JSDoc @example is not adjacent to a supported export in ${sourcePath}`
     );
-  return Object.freeze({ declarationName: declaration[1], sourcePath });
+  const declarationName = declaration[1];
+  if (declarationName === undefined) {
+    throw new TypeError(`package API JSDoc export has no declaration name in ${sourcePath}`);
+  }
+  return Object.freeze({ declarationName, sourcePath });
 }
 
 function validateExampleTail(lines: readonly string[], sourcePath: string): void {

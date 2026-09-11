@@ -39,11 +39,10 @@ function validOptionFields(options: Readonly<Record<string, unknown>>): boolean 
 
 function validMarkdownLinkCache(value: unknown): boolean {
   const disabled = snapshotExactClosedRecord(value, ["enabled"]);
-  if (disabled !== undefined && disabled.enabled === false) return true;
+  if (disabled?.enabled === false) return true;
   const enabled = snapshotExactClosedRecord(value, ["enabled", "directory"]);
   return (
-    enabled !== undefined &&
-    enabled.enabled === true &&
+    enabled?.enabled === true &&
     typeof enabled.directory === "string" &&
     enabled.directory.length > 0 &&
     !enabled.directory.includes("\0") &&

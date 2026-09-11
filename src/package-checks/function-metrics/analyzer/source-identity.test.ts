@@ -156,7 +156,12 @@ test("fixed Lizard reader/shared source identities map to translated symbols or 
   for (const entry of manifest.entries) {
     assertNoCompetingProvenanceFacts(entry);
     const sourceKey = sourceReferenceKey(entry);
-    assert.ok(manifestSourceKeys.add(sourceKey), `identity manifest duplicates ${sourceKey}`);
+    assert.equal(
+      manifestSourceKeys.has(sourceKey),
+      false,
+      `identity manifest duplicates ${sourceKey}`
+    );
+    manifestSourceKeys.add(sourceKey);
 
     const provenanceEntry = inventory.entriesByKey.get(sourceKey);
     assert.ok(
@@ -212,10 +217,13 @@ test("fixed Lizard reader/shared source identities map to translated symbols or 
         findClass(classTarget, classMapping.targetName),
         `${sourceKey}:${classMapping.sourceName} is absent from ${classTargetPath}`
       );
-      assert.ok(
-        targetClassNames.add(`${classTargetPath}:${classMapping.targetName}`),
+      const targetClassIdentity = `${classTargetPath}:${classMapping.targetName}`;
+      assert.equal(
+        targetClassNames.has(targetClassIdentity),
+        false,
         `${sourceKey}:${classMapping.sourceName} duplicates a target class identity`
       );
+      targetClassNames.add(targetClassIdentity);
       verifiedEntryTargetPaths.add(classTargetPath);
 
       mappedSymbolCount += assertAllClassSymbols(
@@ -281,7 +289,12 @@ function assertTranslatedInventory(provenance: ProvenanceLedger): TranslatedInve
       sourcePath: entry.sourcePath,
       sourceRange: entry.range
     });
-    assert.ok(sourceKeys.add(sourceKey), `root provenance duplicates translated ${sourceKey}`);
+    assert.equal(
+      sourceKeys.has(sourceKey),
+      false,
+      `root provenance duplicates translated ${sourceKey}`
+    );
+    sourceKeys.add(sourceKey);
     entriesByKey.set(sourceKey, entry);
     targetPaths.add(targetPathForRole(entry, "primary"));
     for (const targetPath of entry.additionalTargetPaths ?? []) {
@@ -360,10 +373,12 @@ function assertAllClassSymbols(
 
   for (const mapping of allMappings) {
     assertMappingShape(mapping, `${sourceKey}:${classMapping.sourceName}`);
-    assert.ok(
-      sourceNames.add(mapping.sourceName),
+    assert.equal(
+      sourceNames.has(mapping.sourceName),
+      false,
       `${sourceKey}:${classMapping.sourceName} maps ${mapping.sourceName} more than once`
     );
+    sourceNames.add(mapping.sourceName);
 
     const targetPath = targetPathForMapping(
       provenanceEntry,
@@ -458,7 +473,7 @@ function assertMappingShape(mapping: SymbolMapping, location: string): void {
     return;
   }
   assert.ok(
-    mapping.reason,
+    mapping.reason !== undefined && mapping.reason.length > 0,
     `${location}:${mapping.sourceName}: non-direct mapping needs a host-seam reason`
   );
 }

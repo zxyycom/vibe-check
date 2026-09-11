@@ -201,14 +201,17 @@ function propertyValue(properties: ReadonlyMap<string, OwnDataProperty>, key: st
   return properties.get(key)?.value;
 }
 
-type DataDescriptor = Omit<PropertyDescriptor, "get" | "set" | "value"> &
-  Readonly<{ readonly get?: undefined; readonly set?: undefined; readonly value: unknown }>;
+type DataDescriptor = Readonly<{
+  readonly enumerable?: boolean;
+  readonly value: unknown;
+}>;
 
 function isDataDescriptor(descriptor: unknown): descriptor is DataDescriptor {
   if (typeof descriptor !== "object" || descriptor === null) return false;
-  const candidate = descriptor as PropertyDescriptor;
   return (
-    candidate.get === undefined && candidate.set === undefined && Object.hasOwn(candidate, "value")
+    Object.hasOwn(descriptor, "value") &&
+    !Object.hasOwn(descriptor, "get") &&
+    !Object.hasOwn(descriptor, "set")
   );
 }
 

@@ -13,9 +13,9 @@ import { AttributeError, FileInformation, FunctionInfo } from "./analysis-model.
 import { isPythonWhitespace } from "./shared/code-reader.ts";
 
 export interface OutputSchemeItem {
-  caption?: string;
+  caption?: string | undefined;
   value: string;
-  avg_caption?: string;
+  avg_caption?: string | undefined;
 }
 
 /**
@@ -95,7 +95,11 @@ export class OutputScheme {
   }
 
   public captions(): string {
-    return this.items.flatMap((item) => (item.caption ? [item.caption] : [])).join("");
+    return this.items
+      .flatMap((item) =>
+        item.caption !== undefined && item.caption.length > 0 ? [item.caption] : []
+      )
+      .join("");
   }
 
   public static _head(captions: string): string {
@@ -114,7 +118,7 @@ export class OutputScheme {
   public function_info(functionInfo: FunctionInfo): string {
     let rendered = "";
     for (const item of this.items) {
-      if (!item.caption) continue;
+      if (item.caption === undefined || item.caption.length === 0) continue;
       rendered += pythonRightJustify(
         pythonString(readFunctionInfoAttribute(functionInfo, item.value)),
         Array.from(item.caption).length
@@ -128,7 +132,11 @@ export class OutputScheme {
   }
 
   public average_captions(): string {
-    return this.items.flatMap((item) => (item.avg_caption ? [item.avg_caption] : [])).join("");
+    return this.items
+      .flatMap((item) =>
+        item.avg_caption !== undefined && item.avg_caption.length > 0 ? [item.avg_caption] : []
+      )
+      .join("");
   }
 
   public averageCaptions(): string {
@@ -138,7 +146,7 @@ export class OutputScheme {
   public average_formatter(): string {
     return this.items
       .flatMap((item) => {
-        if (!item.avg_caption) return [];
+        if (item.avg_caption === undefined || item.avg_caption.length === 0) return [];
         return [`{module.average_${item.value}:${Array.from(item.avg_caption).length}.1f}`];
       })
       .join("");

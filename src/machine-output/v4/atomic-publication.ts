@@ -104,5 +104,7 @@ function removePaths(paths: readonly string[]): void {
       firstFailure ??= error;
     }
   }
-  if (firstFailure !== undefined) throw firstFailure;
+  if (firstFailure === undefined) return;
+  if (firstFailure instanceof Error) throw firstFailure;
+  throw new Error("publication cleanup failed", { cause: firstFailure });
 }

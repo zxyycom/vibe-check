@@ -178,7 +178,7 @@ function runPrerequisiteGraph(
     },
     isPrerequisiteSatisfied: Boolean,
     maxParallel: 1,
-    preAdmissionTaskResults
+    ...(preAdmissionTaskResults === undefined ? {} : { preAdmissionTaskResults })
   });
 }
 

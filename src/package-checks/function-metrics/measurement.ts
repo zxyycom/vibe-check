@@ -130,7 +130,9 @@ async function readBoundedSource(
 }
 
 function yieldAdmissionToTimer(): Promise<void> {
-  return new Promise<void>((resolveYield) => setTimeout(resolveYield, 0));
+  return new Promise<void>((resolveYield) => {
+    setTimeout(resolveYield, 0);
+  });
 }
 
 /**

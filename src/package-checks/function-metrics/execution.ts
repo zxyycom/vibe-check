@@ -276,8 +276,6 @@ function directMeasurementFailure(
     case "source-unavailable":
       return unavailable("source-unavailable");
   }
-  const exhaustiveMeasurement: never = measurement;
-  return exhaustiveMeasurement;
 }
 
 function unavailable(

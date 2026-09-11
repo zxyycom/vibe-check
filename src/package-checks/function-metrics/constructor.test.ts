@@ -147,7 +147,9 @@ describe("functionMetrics analyzer execution", () => {
             measurement: {
               createWorker: (): FunctionMetricsWorkerPort => {
                 workerStarted += 1;
-                cancellation = setTimeout(() => controller.abort(), 0);
+                cancellation = setTimeout(() => {
+                  controller.abort();
+                }, 0);
                 return {
                   postMessage: () => undefined,
                   subscribe: (listeners) => {

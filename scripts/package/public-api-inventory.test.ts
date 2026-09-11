@@ -178,20 +178,18 @@ function assertPublicRootsHaveChineseJSDoc(contract: typeof CURRENT_PUBLIC_CONTR
   ];
   const productSources = productTypeScriptSources();
   for (const name of publicRootNames) assertChineseJSDocForDeclaration(productSources, name);
-  assert.throws(
-    () =>
-      assertChineseJSDocForDeclaration(
-        [
-          {
-            path: "fixture.ts",
-            source:
-              "/** 前一声明的中文说明。 */\nconst unrelated = true;\n/** English direct comment. */\nexport const target = true;"
-          }
-        ],
-        "target"
-      ),
-    /target must retain a Chinese JSDoc summary/
-  );
+  assert.throws(() => {
+    assertChineseJSDocForDeclaration(
+      [
+        {
+          path: "fixture.ts",
+          source:
+            "/** 前一声明的中文说明。 */\nconst unrelated = true;\n/** English direct comment. */\nexport const target = true;"
+        }
+      ],
+      "target"
+    );
+  }, /target must retain a Chinese JSDoc summary/);
 }
 type ProductTypeScriptSource = Readonly<{ readonly path: string; readonly source: string }>;
 function assertChineseJSDocForDeclaration(
@@ -212,8 +210,10 @@ function assertChineseJSDocForDeclaration(
     1,
     `${name} must have exactly one adjacent JSDoc declaration owner; found ${matches.map((match) => match.path).join(", ") || "none"}`
   );
+  const documentedMatch = matches[0];
+  if (documentedMatch === undefined) throw new Error(`${name} has no documented declaration`);
   assert.match(
-    matches[0].documentation,
+    documentedMatch.documentation,
     /[\p{Script=Han}]/u,
     `${name} must retain a Chinese JSDoc summary`
   );
@@ -237,12 +237,14 @@ function packageValueExportNames(source: string): string[] {
 }
 function packageExportNames(source: string, pattern: RegExp): string[] {
   return [...source.matchAll(pattern)]
-    .flatMap((match) =>
-      match[1]
+    .flatMap((match) => {
+      const exportedNames = match[1];
+      if (exportedNames === undefined) throw new Error("package export declaration lacks names");
+      return exportedNames
         .split(",")
         .map((name) => name.trim())
-        .filter((name) => name.length > 0)
-    )
+        .filter((name) => name.length > 0);
+    })
     .sort((left, right) => left.localeCompare(right));
 }
 // Supporting implementation types must not become future package-entry roots.

@@ -48,6 +48,7 @@ describe("Package Run direct Check execution", () => {
           {
             checkId: "throwing",
             preflight: () => {
+              // oxlint-disable-next-line typescript/only-throw-error -- This adversarial fixture must preserve a plain thrown object as unknown diagnostic evidence.
               throw preflightError;
             }
           }

@@ -285,7 +285,9 @@ export function settlementFor<TResult>(run: TaskGraphRun<TResult>, taskId: strin
 }
 
 export function delay(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
 }
 
 export interface Deferred<TResult> {

@@ -36,7 +36,9 @@ export function observeSchedulerDecision<TResult>(
     tags: schedulerDecisionTags(decision),
     details: schedulerDecisionDetails(decision)
   };
-  const observe = () => observeSchedulerDiagnostic(state, observation);
+  const observe = () => {
+    observeSchedulerDiagnostic(state, observation);
+  };
   if (diagnostics === undefined) observe();
   else diagnostics.observeDecision(observe);
 }

@@ -332,8 +332,8 @@
       "260910-provide-invocation-project-input-context": "sha256:f3ab35ac48abcc5c53e4a582dd99c733e50a7ca9114ec5e6b4d5cfa2166dd136",
       "260910-separate-imperative-file-collection-from-declarative-snapshots": "sha256:29db338772e729f44478f2579df2cc1d4f7d80bddca689a418c232e87020d1c3",
       "260910-separate-live-file-collection-from-shared-snapshots": "sha256:8d9fe60ddda59dcd2e9d782d5d542b080525a1aca954bc8ffea7be295dec10f4",
-      "260911-adopt-soundness-oriented-typescript-typecheck-profiles": "sha256:915a4e700a68e925674c0eb91ff24976f49e7e3ede1f85c1de7b4c037cabcc51",
-      "260911-use-blocking-tiered-oxlint-policy": "sha256:40deac7742a75f3a0d918dcae7cf3b3c7d1725223c6e6edb8715548c5e0704f2"
+      "260911-adopt-soundness-oriented-typescript-typecheck-profiles": "sha256:06a158bbefd07b3ae88be7cba5da6fb45a9b57c95521473fe3c1ceec72fe8517",
+      "260911-use-blocking-tiered-oxlint-policy": "sha256:904e70fc51dfc65362e15be9c2d7baea9206a380e01b11160f84926f3f9e6f3d"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6854,7 +6854,7 @@
       "sourcePath": "adopt-soundness-oriented-typescript-typecheck-profiles.md",
       "title": "采用面向类型可靠性的 TypeScript 检查 profiles",
       "status": "active",
-      "alignment": "unaligned",
+      "alignment": "aligned",
       "createdAt": "2026-09-11T09:27:18Z",
       "purpose": "让源码、脚本、package emit 与 installed consumer 获得职责相符的类型可靠性保证",
       "background": "现有 strict 基线遗漏索引、optional 与控制流风险，而不同 compiler scope 的消费者义务并不相同",
@@ -6871,7 +6871,7 @@
       "sourcePath": "use-blocking-tiered-oxlint-policy.md",
       "title": "采用阻断且分级的 Oxlint 质量策略",
       "status": "active",
-      "alignment": "unaligned",
+      "alignment": "aligned",
       "createdAt": "2026-09-11T10:05:37Z",
       "purpose": "让规则严重度表达风险类别，同时保持所有正式 lint 诊断阻断 Gate",
       "background": "现有 lint 已拒绝 warning，但规则集与 suppression 仍未明确区分优化建议及 Oxlint 原生责任",

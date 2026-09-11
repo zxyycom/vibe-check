@@ -78,7 +78,7 @@ function exactArrayLength(value: readonly unknown[]): number | undefined {
 
 function declaredArrayLength(value: readonly unknown[]): number | undefined {
   const descriptor = Object.getOwnPropertyDescriptor(value, "length");
-  if (!isDataDescriptor(descriptor) || descriptor.enumerable) return undefined;
+  if (!isDataDescriptor(descriptor) || descriptor.enumerable === true) return undefined;
   const length = descriptor.value;
   return typeof length === "number" && Number.isSafeInteger(length) && length >= 0
     ? length
@@ -116,7 +116,7 @@ function canonicalizeScriptJsonRecord(
 }
 
 type DataDescriptor = Omit<PropertyDescriptor, "get" | "set" | "value"> &
-  Readonly<{ readonly get?: undefined; readonly set?: undefined; readonly value: unknown }>;
+  Readonly<{ readonly value: unknown }>;
 
 function isDataDescriptor(
   descriptor: PropertyDescriptor | undefined

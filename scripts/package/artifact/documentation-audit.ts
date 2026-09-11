@@ -80,12 +80,14 @@ function assertFileContentMatches(renderedFile: RenderedPackageApiFile): void {
 
 function jsdocExamplePayloads(documentation: RenderedPackageApiDocumentation): readonly string[] {
   const payloads = documentation.jsdocSources.flatMap(({ content }) =>
-    [...content.matchAll(/@example[^\n]*\n \* ```ts\n([\s\S]*?)\n \* ```/g)].map((match) =>
-      match[1]
+    [...content.matchAll(/@example[^\n]*\n \* ```ts\n([\s\S]*?)\n \* ```/g)].map((match) => {
+      const payload = match[1];
+      if (payload === undefined) throw new Error("JSDoc example has no payload");
+      return payload
         .split("\n")
         .map((line) => line.replace(/^ \* ?/, ""))
-        .join("\n")
-    )
+        .join("\n");
+    })
   );
   const expectedPayloadCount = PACKAGE_API_EXAMPLE_PROJECTIONS.reduce(
     (count, projection) =>

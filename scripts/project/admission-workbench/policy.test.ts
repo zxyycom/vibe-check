@@ -12,7 +12,7 @@ import {
   type LearnedPolicyFixture,
   type PolicyIdentity
 } from "./policy.ts";
-import { FIXTURES } from "./fixture-registry.ts";
+import { requiredFixture } from "./fixture-registry.ts";
 import { simulate } from "./simulate.ts";
 
 const emptyHistory = Object.freeze({
@@ -35,11 +35,11 @@ function learnedFixture(overrides: Partial<LearnedPolicyFixture> = {}): LearnedP
 }
 
 test("prepared learned policy copies fixed history into isolated absolute state and keeps identity stable", async () => {
-  const first = await prepareLearnedPolicy(learnedFixture(), FIXTURES.chain.graph.graph);
-  const second = await prepareLearnedPolicy(learnedFixture(), FIXTURES.chain.graph.graph);
+  const first = await prepareLearnedPolicy(learnedFixture(), requiredFixture("chain").graph.graph);
+  const second = await prepareLearnedPolicy(learnedFixture(), requiredFixture("chain").graph.graph);
   try {
-    assert.ok(first.stateDirectory);
-    assert.ok(second.stateDirectory);
+    assert.ok(first.stateDirectory !== null && first.stateDirectory !== "");
+    assert.ok(second.stateDirectory !== null && second.stateDirectory !== "");
     assert.equal(isAbsolute(first.stateDirectory), true);
     assert.equal(isAbsolute(second.stateDirectory), true);
     assert.notEqual(first.stateDirectory, second.stateDirectory);
@@ -59,7 +59,10 @@ test("prepared learned policy copies fixed history into isolated absolute state 
 
 test("prepared learned policy invalidates identity and setup fallback instead of scoring it", async () => {
   await assert.rejects(
-    prepareLearnedPolicy(learnedFixture({ identityForTask: () => 1n }), FIXTURES.chain.graph.graph),
+    prepareLearnedPolicy(
+      learnedFixture({ identityForTask: () => 1n }),
+      requiredFixture("chain").graph.graph
+    ),
     /fallback invalidates this comparison/
   );
 });
@@ -100,8 +103,12 @@ test("formal simple and prepared adapters prepare once and never complete virtua
     policyId: "prepared-fixture",
     policyVersion: 1
   });
-  const handle = await preparePolicyDefinition(policy, identity, FIXTURES.chain.graph.graph);
-  simulate(FIXTURES.chain, handle.decide, 0, 0, staticIdentity("static"));
+  const handle = await preparePolicyDefinition(
+    policy,
+    identity,
+    requiredFixture("chain").graph.graph
+  );
+  simulate(requiredFixture("chain"), handle.decide, 0, 0, staticIdentity("static"));
   await handle.dispose();
   assert.equal(prepareCount, 1);
   assert.equal(completeCount, 0);

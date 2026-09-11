@@ -92,7 +92,7 @@ describe("Lizard port façade", () => {
       ["carriage-return\r/example.kt", normalFixtureSourceForSuffix("kt")],
       [`line-separator\u2028/example.kt`, normalFixtureSourceForSuffix("kt")],
       [`paragraph-separator\u2029/example.kt`, normalFixtureSourceForSuffix("kt")]
-    ]) {
+    ] as const) {
       assertFacadeMatchesRegistry(filename, sourceCode);
     }
   });

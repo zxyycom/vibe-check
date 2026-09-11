@@ -126,7 +126,7 @@ describe("Package Run direct Check execution", () => {
     sourceOutcome: ReturnType<typeof outcomeFor>
   ): void {
     if (
-      observedRead?.ok &&
+      observedRead?.ok === true &&
       (sourceOutcome.status === "passed" || sourceOutcome.status === "failed")
     ) {
       assert.equal(observedRead.data, sourceOutcome.data);

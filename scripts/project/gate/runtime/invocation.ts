@@ -53,6 +53,9 @@ function extractCandidateInput(arguments_: readonly string[]):
   const selectionArguments: string[] = [];
   for (let index = 0; index < arguments_.length; index += 1) {
     const token = arguments_[index];
+    if (token === undefined) {
+      return invocationFailure("invalid empty invocation argument");
+    }
     if (token !== "--release-receipt") {
       selectionArguments.push(token);
       continue;

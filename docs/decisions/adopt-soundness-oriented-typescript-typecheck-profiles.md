@@ -2,7 +2,7 @@
 title: 采用面向类型可靠性的 TypeScript 检查 profiles
 id: 260911-adopt-soundness-oriented-typescript-typecheck-profiles
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-11T09:27:18Z
 purpose: 让源码、脚本、package emit 与 installed consumer 获得职责相符的类型可靠性保证
 background: 现有 strict 基线遗漏索引、optional 与控制流风险，而不同 compiler scope 的消费者义务并不相同
@@ -22,10 +22,10 @@ relations: []
 
 ## 背景
 
-- 当前 `tsconfig.json` 与 `tsconfig.product.json` 都使用 `strict`，Product 配置继承 scripts 配置的 compiler 基线；package build 因 `--ignoreConfig` 显式重述 emit 参数；installed-consumer types acceptance 是独立临时 `tsconfig`。
-- 在形成本判断的 HEAD 上，现有基线两个 scope 都通过。单独开启 `noUncheckedIndexedAccess` 产生 Product 73 条/29 文件和 scripts scope 125 条/40 文件诊断；`exactOptionalPropertyTypes` 分别产生 27 条/20 文件和 39 条/22 文件。scripts scope 会传递导入部分 `src/**`，所以这些跨 scope 计数不能相加当作唯一位置数。
-- 同一基线上，`noImplicitOverride`、`noImplicitReturns`、`noFallthroughCasesInSwitch` 和禁止 unused labels 没有当前诊断；禁止 unreachable code 发现 3 个 Product 实现位置。`noPropertyAccessFromIndexSignature` 在 Product 产生 851 条、scripts scope 产生 1266 条诊断，这些数量只用于评估迁移规模，不是拒绝修复的理由。代表性微型编译证明：该规则只为来自 index signature 的 dot access 增加 TS4111 语法诊断；`noUncheckedIndexedAccess` 已同时对 dot 和 bracket access 强制处理 `undefined`。
-- Oxlint 已负责 fallthrough、unused label/variables 和 switch exhaustiveness；tsgo 当前默认开启 side-effect import 检查与 import casing 检查。installed-consumer 已以 `strict + noUncheckedIndexedAccess` 验收公共导入，形成本判断时额外开启 `exactOptionalPropertyTypes` 的 exact candidate 也已通过。
+- 形成本判断时，`tsconfig.json` 与 `tsconfig.product.json` 都使用 `strict`，Product 配置继承根 compiler 基线；package build 因 `--ignoreConfig` 显式重述 emit 参数；installed-consumer types acceptance 是独立临时 `tsconfig`。
+- 在形成时的 HEAD 上，两个 scope 的既有基线都通过。单独开启 `noUncheckedIndexedAccess` 产生 Product 73 条/29 文件和 scripts scope 125 条/40 文件诊断；`exactOptionalPropertyTypes` 分别产生 27 条/20 文件和 39 条/22 文件。scripts scope 会传递导入部分 `src/**`，所以这些跨 scope 计数不能相加当作唯一位置数。
+- 同一形成时基线上，`noImplicitOverride`、`noImplicitReturns`、`noFallthroughCasesInSwitch` 和禁止 unused labels 没有诊断；禁止 unreachable code 发现 3 个 Product 实现位置。`noPropertyAccessFromIndexSignature` 在 Product 产生 851 条、scripts scope 产生 1266 条诊断，这些数量只用于评估迁移规模，不是拒绝修复的理由。代表性微型编译证明：该规则只为来自 index signature 的 dot access 增加 TS4111 语法诊断；`noUncheckedIndexedAccess` 已同时对 dot 和 bracket access 强制处理 `undefined`。
+- 形成时，Oxlint 已负责 fallthrough、unused label/variables 和 switch exhaustiveness；tsgo 默认开启 side-effect import 检查与 import casing 检查。installed-consumer 已以 `strict + noUncheckedIndexedAccess` 验收公共导入，额外开启 `exactOptionalPropertyTypes` 的 exact candidate 也已通过。
 
 ## 决策
 

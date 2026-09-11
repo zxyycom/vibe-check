@@ -27,7 +27,7 @@ export class SchedulerPerformanceTiming {
   readonly #clock: Readonly<{ now(): number }>;
   readonly #integrals = new SchedulerPerformanceIntegrals();
   #lastBoundaryAt: number | undefined;
-  #startedAt: number | undefined;
+  readonly #startedAt: number | undefined;
   #lastState: SchedulerPerformanceState;
   #timing: SchedulerMeasurementTiming = Object.freeze({ availability: "available" });
   #controlPathMs = 0;
@@ -137,13 +137,18 @@ export class SchedulerPerformanceTiming {
     if (this.#timing.availability === "unavailable") return undefined;
     try {
       const now = this.#clock.now();
-      if (!Number.isFinite(now)) return this.#unavailable("clock-non-finite");
+      if (!Number.isFinite(now)) {
+        this.#unavailable("clock-non-finite");
+        return undefined;
+      }
       if (this.#lastBoundaryAt !== undefined && now < this.#lastBoundaryAt) {
-        return this.#unavailable("clock-backward");
+        this.#unavailable("clock-backward");
+        return undefined;
       }
       return now;
     } catch {
-      return this.#unavailable("clock-threw");
+      this.#unavailable("clock-threw");
+      return undefined;
     }
   }
 
@@ -154,7 +159,10 @@ export class SchedulerPerformanceTiming {
   ): void {
     if (startedAt === undefined || endedAt === undefined) return;
     const elapsedMs = endedAt - startedAt;
-    if (!validElapsed(elapsedMs)) return this.#markUnavailable("interval-invalid");
+    if (!validElapsed(elapsedMs)) {
+      this.#markUnavailable("interval-invalid");
+      return;
+    }
     if (kind === "control") this.#controlPathMs += elapsedMs;
     else this.#decisionObservationMs += elapsedMs;
     if (!Number.isFinite(this.#controlPathMs) || !Number.isFinite(this.#decisionObservationMs)) {

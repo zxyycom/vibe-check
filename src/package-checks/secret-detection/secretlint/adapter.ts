@@ -81,10 +81,9 @@ export function adaptSecretlintMessages(
 function isPrivateKeyMessage(value: unknown): boolean {
   const message = snapshotClosedRecord(value);
   return (
-    message !== undefined &&
-    message.type === "message" &&
-    message.ruleId === secretDetectionPrivateKeyRuleId &&
-    message.severity === "error"
+    message?.type === "message" &&
+    message?.ruleId === secretDetectionPrivateKeyRuleId &&
+    message?.severity === "error"
   );
 }
 

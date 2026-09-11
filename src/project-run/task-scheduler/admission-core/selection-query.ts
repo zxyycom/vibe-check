@@ -1,6 +1,10 @@
 import type { AdmissionSelectionRejectionReason } from "../../../project-definition/scheduler-policy.ts";
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
+  requiredTaskForCompiled,
+  requiredTaskResourceClaimsForCompiled
+} from "./compiled-graph-lookup.ts";
+import {
   numberFor,
   statusForSelection,
   type AdmissionSelectionIndex,
@@ -32,9 +36,7 @@ export function isCoreComplete(state: SelectionCoreState): boolean {
 }
 
 export function requiredTaskForCore(state: SelectionCoreState, taskSlot: number): PlannedTask {
-  const task = state.compiled.graph.tasks[taskSlot];
-  if (task === undefined) throw new Error(`admission core task slot is unknown: ${taskSlot}`);
-  return task;
+  return requiredTaskForCompiled(state.compiled, taskSlot);
 }
 
 export function requiredTaskSlotForCore(state: SelectionCoreState, taskId: string): number {
@@ -165,7 +167,7 @@ function resourceCapacityRejectionFor(
     AdmissionSelectionRejectionReason,
     { readonly kind: "resource-capacity-insufficient" }
   >["resources"][number][] = [];
-  for (const claim of state.compiled.taskResourceClaims[taskSlot]) {
+  for (const claim of requiredTaskResourceClaimsForCompiled(state.compiled, taskSlot)) {
     const capacity = state.compiled.resourceCapacityBySlot[claim.resourceSlot];
     const inUse = numberFor(state.selection.resourceInUse, claim.resourceSlot);
     if (capacity === undefined) {

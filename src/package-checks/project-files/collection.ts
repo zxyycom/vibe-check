@@ -7,7 +7,7 @@ import { matchesAnyConfigGlob } from "./config-glob.ts";
 import { collectSubmoduleWorktreeFiles } from "./revision-worktree-files.ts";
 import { errorMessage } from "../host-environment/error-message.ts";
 import { processFailed } from "../host-environment/process.ts";
-import { runGit, splitNulDelimitedGitFileList } from "../host-environment/git.ts";
+import { gitFailureDetail, runGit, splitNulDelimitedGitFileList } from "../host-environment/git.ts";
 import { toSlashPath } from "../host-environment/path.ts";
 import { walkFiles } from "../host-environment/filesystem.ts";
 import type { ProjectFileSelection, ProjectFileSource } from "./configuration.ts";
@@ -16,6 +16,16 @@ type NamedProjectFileSelection = Readonly<{
   readonly id: string;
   readonly selection: ProjectFileSelection;
 }>;
+
+type SourceCandidateCollector = (
+  rootDir: string,
+  selections: readonly NamedProjectFileSelection[]
+) => readonly string[];
+
+const sourceCandidateCollectors = Object.freeze({
+  filesystem: collectFilesystemCandidates,
+  "git-worktree": collectGitWorktreeCandidates
+}) satisfies Readonly<Partial<Record<ProjectFileSource, SourceCandidateCollector>>>;
 
 const CONFIG_GLOB_MAGIC = /[\\*?[\]{}()!+@]/u;
 
@@ -77,21 +87,29 @@ function collectSourceCandidates(
   source: ProjectFileSource,
   selections: readonly NamedProjectFileSelection[]
 ): readonly string[] {
-  switch (source) {
-    case "filesystem":
-      return uniqueSorted(
-        walkFiles({
-          ignoredDirs: commonExcludedDirectoryNames(selections),
-          rootDir
-        }).map(toSlashPath)
-      );
-    case "git-worktree":
-      return collectGitWorktreeCandidates(rootDir, selections);
-    default: {
-      const unsupportedSource: never = source;
-      throw new TypeError(`unsupported project file source: ${String(unsupportedSource)}`);
-    }
-  }
+  return sourceCandidateCollectorFor(source)(rootDir, selections);
+}
+
+function sourceCandidateCollectorFor(source: ProjectFileSource): SourceCandidateCollector {
+  const collector = sourceCandidateCollectors[source];
+  if (collector === undefined) return unsupportedProjectFileSource(source);
+  return collector;
+}
+
+function unsupportedProjectFileSource(source: ProjectFileSource): never {
+  throw new TypeError(`unsupported project file source: ${source}`);
+}
+
+function collectFilesystemCandidates(
+  rootDir: string,
+  selections: readonly NamedProjectFileSelection[]
+): readonly string[] {
+  return uniqueSorted(
+    walkFiles({
+      ignoredDirs: commonExcludedDirectoryNames(selections),
+      rootDir
+    }).map(toSlashPath)
+  );
 }
 
 function collectGitWorktreeCandidates(
@@ -103,11 +121,9 @@ function collectGitWorktreeCandidates(
     cwd: rootDir
   });
   if (processFailed(result)) {
-    const detail =
-      result.stderr.trim() ||
-      result.error?.message ||
-      (result.signal === null ? `exit status ${result.status}` : `signal ${result.signal}`);
-    throw new Error(`could not enumerate git-worktree files in ${rootDir}: ${detail}`);
+    throw new Error(
+      `could not enumerate git-worktree files in ${rootDir}: ${gitFailureDetail(result)}`
+    );
   }
 
   const include = uniqueSorted(selections.flatMap(({ selection }) => [...selection.include]));

@@ -118,9 +118,12 @@ async function analyzeInOneShotWorker(
       worker.terminate();
       resolveResult(Object.freeze({ ...value, roundtripMs: performance.now() - started }));
     };
-    worker.onerror = () =>
+    worker.onerror = () => {
       finish(Object.freeze({ adapterAndPortAnalysisMs: 0, kind: "analysis-failed" }));
-    worker.onmessage = (event: MessageEvent<unknown>) => finish(parseWorkerResponse(event.data));
+    };
+    worker.onmessage = (event: MessageEvent<unknown>) => {
+      finish(parseWorkerResponse(event.data));
+    };
     try {
       worker.postMessage({ files });
     } catch {

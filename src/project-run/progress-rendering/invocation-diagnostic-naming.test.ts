@@ -69,8 +69,9 @@ describe("Package Run diagnostic file naming", () => {
           const output: RunDiagnosticLoggingChannelStatus =
             result.outputs.diagnosticLogging.channels[channel];
           assert.equal(output.status, "succeeded");
-          assert.ok(output.file);
-          const fileName = basename(output.file);
+          const file = output.file;
+          assert.ok(file !== null && file.length > 0);
+          const fileName = basename(file);
           if (naming === "channel") {
             assert.equal(fileName, `${channel}.log`);
           } else {
@@ -78,12 +79,9 @@ describe("Package Run diagnostic file naming", () => {
               fileName,
               new RegExp(`^${channel}-\\d{8}T\\d{6}\\.\\d{3}Z-[0-9a-f-]{36}\\.log$`)
             );
-            uniqueFiles.add(output.file);
+            uniqueFiles.add(file);
           }
-          assert.match(
-            readFileSync(join(root, output.file), "utf8"),
-            /invocationId="invocation\/v1:/
-          );
+          assert.match(readFileSync(join(root, file), "utf8"), /invocationId="invocation\/v1:/);
         }
       }
       assert.equal(fingerprints.size, 1);

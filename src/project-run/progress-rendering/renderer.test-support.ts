@@ -23,7 +23,7 @@ export function settled(
   outcome: CheckOutcome,
   durationMs: number | null,
   presentation: Readonly<{
-    readonly messages?: readonly CheckMessage[];
+    readonly messages?: readonly CheckMessage[] | undefined;
     readonly records?: readonly CoreRecord[];
     readonly visibility?: CheckVisibility;
   }> = {}

@@ -5,7 +5,7 @@ import type { AdmissionPolicyContext } from "@zxyycom/vibe-check";
 
 import { compareSuites } from "./learned-heuristic-comparison.ts";
 import type { CostSummary, Protocol, Suite } from "./learned-heuristic-evaluation-types.ts";
-import { FIXTURES } from "./fixture-registry.ts";
+import { requiredFixture } from "./fixture-registry.ts";
 import {
   prepareLearnedPolicyWithFactory,
   REGISTERED_LEARNED_FIXTURE,
@@ -53,7 +53,7 @@ test("learned heuristic replay rejects a 204 to 300 makespan regression even whe
 
 test("learned heuristic replay keeps a sticky fallback failure outside direct prepared decide replay", async () => {
   let context: AdmissionPolicyContext | undefined;
-  simulate(FIXTURES.single, (value) => {
+  simulate(requiredFixture("single"), (value) => {
     context = value;
     return staticPolicy(value);
   });
@@ -63,7 +63,7 @@ test("learned heuristic replay keeps a sticky fallback failure outside direct pr
   const handle = await prepareLearnedPolicyWithFactory(
     fallbackAfterDecisionFactory,
     REGISTERED_LEARNED_FIXTURE,
-    FIXTURES.single.graph.graph
+    requiredFixture("single").graph.graph
   );
   try {
     assert.deepEqual(handle.directDecide(capturedContext), { kind: "select", taskId: "only" });
@@ -116,7 +116,7 @@ function suiteFor(makespanMs: number): Suite {
 }
 
 function simulationResult(makespanMs: number): SimulationResult {
-  const result = simulate(FIXTURES.single, staticPolicy, 7, 0, staticIdentity("static"));
+  const result = simulate(requiredFixture("single"), staticPolicy, 7, 0, staticIdentity("static"));
   assert.equal(result.status, "success");
   return Object.freeze({ ...result, makespanMs });
 }

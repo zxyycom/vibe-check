@@ -1,7 +1,7 @@
 /** Enumerates files from initialized, non-cyclic submodule working trees. */
 
 import { processFailed } from "../host-environment/process.ts";
-import { runGit, splitNulDelimitedGitFileList } from "../host-environment/git.ts";
+import { gitFailureDetail, runGit, splitNulDelimitedGitFileList } from "../host-environment/git.ts";
 import {
   canonicalRepositoryPath,
   resolveDescendableGitlinkRepository,
@@ -33,7 +33,7 @@ export function collectSubmoduleWorktreeFiles({
       repository,
       visitedRepositories
     });
-    if (!submoduleRepository) continue;
+    if (submoduleRepository === null) continue;
     files.push(
       ...collectWorktreeFiles({
         prefix: gitlink.path,
@@ -65,11 +65,9 @@ function collectWorktreeFiles({
     cwd: repository
   });
   if (processFailed(result)) {
-    const detail =
-      result.stderr.trim() ||
-      result.error?.message ||
-      (result.signal === null ? `exit status ${result.status}` : `signal ${result.signal}`);
-    throw new Error(`could not enumerate git-worktree files in ${repository}: ${detail}`);
+    throw new Error(
+      `could not enumerate git-worktree files in ${repository}: ${gitFailureDetail(result)}`
+    );
   }
 
   const files = prefixAndFilter({
@@ -111,7 +109,7 @@ function collectNestedWorktreeFiles({
       repository,
       visitedRepositories
     });
-    if (!submoduleRepository) continue;
+    if (submoduleRepository === null) continue;
     files.push(
       ...collectWorktreeFiles({
         prefix: joinSlash({ path: gitlink.path, prefix }),
@@ -134,15 +132,17 @@ function worktreeRevision(repository: string): string | null {
     if (revision !== null) return revision;
     throw new Error(`git-worktree revision inspection returned no revision in ${repository}`);
   }
-  const headDoesNotExist =
+  if (headDoesNotExist(result)) return null;
+  throw new Error(
+    `could not inspect git-worktree revision in ${repository}: ${gitFailureDetail(result)}`
+  );
+}
+
+function headDoesNotExist(result: ReturnType<typeof runGit>): boolean {
+  return (
     result.error === undefined &&
     result.signal === null &&
     result.status === 1 &&
-    result.stderr.trim() === "";
-  if (headDoesNotExist) return null;
-  const detail =
-    result.stderr.trim() ||
-    result.error?.message ||
-    (result.signal === null ? `exit status ${result.status}` : `signal ${result.signal}`);
-  throw new Error(`could not inspect git-worktree revision in ${repository}: ${detail}`);
+    result.stderr.trim() === ""
+  );
 }

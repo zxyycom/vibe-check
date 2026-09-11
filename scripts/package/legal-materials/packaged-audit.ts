@@ -167,7 +167,10 @@ function spdxIdentifiers(header: string, targetPath: string): ReadonlySet<string
   const match = /SPDX-License-Identifier:\s*([^\r\n*]+)/u.exec(header);
   if (match === null)
     throw new Error(`translated analyzer target lacks an SPDX header: ${targetPath}`);
-  const identifiers = match[1].trim().split(" AND ");
+  const expression = match[1];
+  if (expression === undefined)
+    throw new Error(`translated analyzer target has an empty SPDX header: ${targetPath}`);
+  const identifiers = expression.trim().split(" AND ");
   if (
     identifiers.length === 0 ||
     identifiers.some((identifier) => !SPDX_LICENSE_SET.has(identifier))

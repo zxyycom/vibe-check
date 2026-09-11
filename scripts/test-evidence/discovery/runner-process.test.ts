@@ -41,6 +41,8 @@ async function waitForPath(filePath: string, timeoutMs: number): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (!fs.existsSync(filePath)) {
     if (Date.now() >= deadline) throw new Error(`child process did not create marker: ${filePath}`);
-    await new Promise((resolve) => setTimeout(resolve, 10));
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 10);
+    });
   }
 }

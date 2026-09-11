@@ -12,3 +12,12 @@ export function predictionInputs(ids: readonly string[]): readonly SchedulerPred
     )
   );
 }
+
+export function requiredPredictionInput(
+  inputs: readonly SchedulerPredictionInput[],
+  index: number
+): SchedulerPredictionInput {
+  const input = inputs[index];
+  if (input === undefined) throw new Error(`missing scheduler prediction input at index ${index}`);
+  return input;
+}

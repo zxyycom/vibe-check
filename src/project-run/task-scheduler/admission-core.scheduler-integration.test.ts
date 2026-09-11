@@ -103,10 +103,11 @@ describe("Scheduler admission core integration", () => {
           context.measurement.measurementAt(index)
         )
       )
-      .find((measurement) =>
-        measurement?.effects.some(
-          (effect) => effect.kind === "settled" && effect.taskId === "source"
-        )
+      .find(
+        (measurement) =>
+          measurement?.effects.some(
+            (effect) => effect.kind === "settled" && effect.taskId === "source"
+          ) === true
       );
     assert.deepEqual(sourceSettlementMeasurement, {
       interval: {

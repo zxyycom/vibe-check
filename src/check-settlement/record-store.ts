@@ -26,7 +26,7 @@ export class CoreRecordStore {
     if (id === undefined || data === undefined) return this.#reject(slot, "record-invalid");
 
     let records = this.#recordsByCheckId.get(slot.checkId);
-    if (records?.has(id)) return this.#reject(slot, "record-conflict");
+    if (records?.has(id) === true) return this.#reject(slot, "record-conflict");
     if (records === undefined) {
       records = new Map<string, CoreRecord>();
       this.#recordsByCheckId.set(slot.checkId, records);

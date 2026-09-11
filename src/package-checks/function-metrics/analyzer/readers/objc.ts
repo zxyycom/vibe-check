@@ -38,7 +38,9 @@ class ObjCStates extends CLikeStates {
     if (token === "typedef") {
       this.next(this._typedef, token);
     } else if (token === "(") {
-      this.next((currentToken) => this._state_dec(currentToken), token);
+      this.next((currentToken) => {
+        this._state_dec(currentToken);
+      }, token);
     }
   }
 
@@ -59,7 +61,9 @@ class ObjCStates extends CLikeStates {
       this.next(this._state_objc_dec);
       this.context.addToFunctionName(token);
     } else if (token === "{") {
-      this.next((currentToken) => this._state_entering_imp(currentToken), "{");
+      this.next((currentToken) => {
+        this._state_entering_imp(currentToken);
+      }, "{");
     } else {
       this.next(this.globalState);
     }
@@ -73,7 +77,9 @@ class ObjCStates extends CLikeStates {
     } else if (token === ",") {
       // Source ignores selector commas.
     } else if (token === "{") {
-      this.next((currentToken) => this._state_entering_imp(currentToken), "{");
+      this.next((currentToken) => {
+        this._state_entering_imp(currentToken);
+      }, "{");
     } else {
       this.next(this._state_objc_dec_begin);
       this.context.addToFunctionName(` ${token}`);

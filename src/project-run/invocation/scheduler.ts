@@ -28,10 +28,16 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
       ...(invocation.diagnosticLoggingEnabled
         ? { schedulerDiagnosticLogger: invocation.diagnosticLogging.scheduler }
         : {}),
-      schedulerPerformanceDiagnostics: performanceDiagnostics,
+      ...(performanceDiagnostics === undefined
+        ? {}
+        : { schedulerPerformanceDiagnostics: performanceDiagnostics }),
       schedulerMeasurementHooks: invocation.normalized.scheduler.measurementHooks,
-      onSchedulerMeasurementHookFailure: () => invocation.outputs.failed("measurementHooks"),
-      onSchedulerMeasurementHooksSettled: () => invocation.outputs.succeeded("measurementHooks"),
+      onSchedulerMeasurementHookFailure: () => {
+        invocation.outputs.failed("measurementHooks");
+      },
+      onSchedulerMeasurementHooksSettled: () => {
+        invocation.outputs.succeeded("measurementHooks");
+      },
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
       resourceCapacities: invocation.normalized.declarative.scheduler.resourceCapacities,
       invocationId: invocation.invocationId,

@@ -68,9 +68,13 @@ export class ControlledReferenceResolver {
       throw new ReferenceResolutionFailure("unapproved-reference");
     if (this.#resolverInput.signal.aborted) throw new ReferenceTransportFailure();
     const controller = new AbortController();
-    const abortForCaller = (): void => controller.abort();
+    const abortForCaller = (): void => {
+      controller.abort();
+    };
     this.#resolverInput.signal.addEventListener("abort", abortForCaller, { once: true });
-    const timeout = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS);
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, REMOTE_TIMEOUT_MS);
     try {
       return await this.loadWithController(referenceUri, controller);
     } catch (error) {

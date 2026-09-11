@@ -436,7 +436,7 @@ describe("Project Gate Definition", () => {
       const flags = new Set(selectionFlags(expectation.selection));
       assert.deepEqual(
         definition.checks
-          .filter((check) => check.enabledByFlags?.flags.some((flag) => flags.has(flag)))
+          .filter((check) => check.enabledByFlags?.flags.some((flag) => flags.has(flag)) === true)
           .map(({ checkId }) => checkId),
         expectation.checkIds
       );
@@ -793,7 +793,9 @@ describe("Project Gate Definition", () => {
           testEvidenceRuleDependencies(
             { ruleTests: rulePassed, version: passed },
             invocations,
-            () => controller.abort()
+            () => {
+              controller.abort();
+            }
           )
         ),
         controller.signal,

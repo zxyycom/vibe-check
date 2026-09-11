@@ -44,8 +44,7 @@ function isTightening(
 ): boolean {
   const scope = scopeForCandidate(candidate, taskById, scopeById);
   return (
-    scope !== undefined &&
-    scope.activationTaskIds.includes(candidate.taskId) &&
+    scope?.activationTaskIds.includes(candidate.taskId) === true &&
     !activeScopeIds.has(scope.id) &&
     scope.maxParallel < maxParallel
   );

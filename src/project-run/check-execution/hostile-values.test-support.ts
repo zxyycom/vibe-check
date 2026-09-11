@@ -35,7 +35,9 @@ export function adversarialCheckValues(): readonly HostileCheckValueFactory[] {
           }
         });
         return Object.freeze({
-          assertNotCalled: () => assert.equal(called, false),
+          assertNotCalled: () => {
+            assert.equal(called, false);
+          },
           value
         });
       }
@@ -50,7 +52,9 @@ export function adversarialCheckValues(): readonly HostileCheckValueFactory[] {
           }
         };
         return Object.freeze({
-          assertNotCalled: () => assert.equal(called, false),
+          assertNotCalled: () => {
+            assert.equal(called, false);
+          },
           value
         });
       }
@@ -97,7 +101,9 @@ export function adversarialCheckValues(): readonly HostileCheckValueFactory[] {
           }
         });
         return Object.freeze({
-          assertNotCalled: () => assert.equal(called, false),
+          assertNotCalled: () => {
+            assert.equal(called, false);
+          },
           messageAttachment: true,
           value
         });

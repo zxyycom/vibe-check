@@ -44,15 +44,16 @@ export type RunProcessOptions = {
 };
 
 export type ExecaResultLike = {
-  readonly code?: string;
-  readonly exitCode?: number;
-  readonly failed?: boolean;
-  readonly isMaxBuffer?: boolean;
-  readonly message?: string;
-  readonly originalMessage?: string;
-  readonly shortMessage?: string;
-  readonly signal?: NodeJS.Signals;
+  /** Execa's imported result types permit explicitly present `undefined` values. */
+  readonly code?: string | undefined;
+  readonly exitCode?: number | undefined;
+  readonly failed?: boolean | undefined;
+  readonly isMaxBuffer?: boolean | undefined;
+  readonly message?: string | undefined;
+  readonly originalMessage?: string | undefined;
+  readonly shortMessage?: string | undefined;
+  readonly signal?: NodeJS.Signals | undefined;
   readonly stderr?: unknown;
   readonly stdout?: unknown;
-  readonly timedOut?: boolean;
+  readonly timedOut?: boolean | undefined;
 };

@@ -3,13 +3,15 @@ import { describe, it } from "node:test";
 
 import { emptySchedulerHistory, freezeSchedulerHistoryModel } from "./bounded-history.ts";
 import { createSchedulerHistoryIdentity, createSchedulerPredictionSnapshot } from "./prediction.ts";
-import { predictionInputs } from "./scheduler-duration-model.test-support.ts";
+import {
+  predictionInputs,
+  requiredPredictionInput
+} from "./scheduler-duration-model.test-support.ts";
 
 describe("scheduler duration prediction", () => {
   it("forms a frozen digest-only summary", () => {
     const inputs = predictionInputs(["check"]);
-    const input = inputs[0];
-    assert.ok(input);
+    const input = requiredPredictionInput(inputs, 0);
     const history = freezeSchedulerHistoryModel({
       latestObservationSequence: 32,
       series: [
@@ -64,10 +66,8 @@ describe("scheduler duration prediction", () => {
       ]
     );
 
-    const fastInput = inputs[0];
-    const slowInput = inputs[1];
-    assert.ok(fastInput);
-    assert.ok(slowInput);
+    const fastInput = requiredPredictionInput(inputs, 0);
+    const slowInput = requiredPredictionInput(inputs, 1);
     const history = freezeSchedulerHistoryModel({
       latestObservationSequence: 2,
       series: [

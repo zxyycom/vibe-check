@@ -165,6 +165,8 @@ function assertTerminalMeasurementContext(context: SchedulerMeasurementContext):
   ]);
   assert.equal("values" in context.rawMeasurement, false);
   assert.equal("topAdmissionDelays" in context.rawMeasurement, false);
-  assert.equal("error" in context.execution.settledTasks[0], false);
-  assert.equal("value" in context.execution.settledTasks[0], false);
+  const firstSettledTask = context.execution.settledTasks[0];
+  if (firstSettledTask === undefined) throw new Error("expected first settled task");
+  assert.equal("error" in firstSettledTask, false);
+  assert.equal("value" in firstSettledTask, false);
 }

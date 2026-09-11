@@ -7,3 +7,9 @@ export const FIXTURES: Readonly<Record<string, Scenario>> = freezeScenario({
   ...standardFixtures,
   "gate-shape-v1": GATE_SHAPE_FIXTURE
 });
+
+export function requiredFixture(id: string): Scenario {
+  const scenario = FIXTURES[id];
+  if (scenario === undefined) throw new Error(`fixture is unavailable: ${id}`);
+  return scenario;
+}

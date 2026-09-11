@@ -133,5 +133,5 @@ function commandOutput(result: ToolCommandResult): string {
 function processTermination(result: ToolCommandResult): string {
   return typeof result.status === "number"
     ? `exit ${result.status}`
-    : `signal ${result.signal || "unknown"}`;
+    : `signal ${result.signal ?? "unknown"}`;
 }

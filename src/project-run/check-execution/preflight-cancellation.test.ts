@@ -118,9 +118,15 @@ describe("Package Run direct Check execution", () => {
             preflight: async (_options, signal) => {
               observedAllBlockedSignal = signal;
               cooperativePreflightEntered.resolve();
-              await new Promise<void>((resolve) =>
-                signal.addEventListener("abort", () => resolve(), { once: true })
-              );
+              await new Promise<void>((resolve) => {
+                signal.addEventListener(
+                  "abort",
+                  () => {
+                    resolve();
+                  },
+                  { once: true }
+                );
+              });
               return { status: "success", preparedOptions: {} };
             }
           }

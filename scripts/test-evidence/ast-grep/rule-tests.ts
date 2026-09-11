@@ -71,13 +71,16 @@ export async function runTestEvidenceRuleTests(options: {
   workspaceRoot: string;
 }): Promise<TestEvidenceRuleTestResult> {
   const invocations = testEvidenceRuleTestInvocations(options.workspaceRoot);
-  const version = await runProcess({ ...invocations.version, cancelSignal: options.cancelSignal });
+  const version = await runProcess({
+    ...invocations.version,
+    ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal })
+  });
   if (version.status !== 0 || version.stdout.trim() !== expectedAstGrepVersionLine()) {
     return { version };
   }
   const ruleTests = await runProcess({
     ...invocations.ruleTests,
-    cancelSignal: options.cancelSignal
+    ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal })
   });
   return { ruleTests, version };
 }

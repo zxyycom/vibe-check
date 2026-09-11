@@ -12,6 +12,8 @@ Worker、Product adapter 与 Lizard port façade都不是 package export 或 con
 
 package 根部的 `index.mjs` 只转发 `dist/esm/index.mjs`；`package.json` 的 `exports` 只开放根路径 `"."`。因此物理存在的 `dist`、`types` 与 `src` 目录不是 consumer subpath API。
 
+emit 使用显式 `tsgo --ignoreConfig`，所以 artifact owner 必须在 CLI 中镜像 source compiler 的 `strict`、`noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 与 `allowUnreachableCode: false`。这不是另一条 typecheck 或 profile；它确保真实 runtime/declaration emit 不因忽略根 config 而放宽实现验收。
+
 worker 不是额外 export：normalization 只在 emitted `function-metrics/analyzer-worker-port.js` 中恰好一次将 `new URL("./analyzer-worker.ts", import.meta.url)` 改为 `analyzer-worker.mjs`，任何数量或 compiler-shape drift 都拒绝产物，绝不 broad-rewrite ordinary URL strings。
 
 ### 依赖与发布清单

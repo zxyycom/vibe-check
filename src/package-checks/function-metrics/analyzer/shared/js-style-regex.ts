@@ -43,15 +43,20 @@ export function js_style_regex_expression(generator: TokenGenerator): TokenGener
         if (isRegex) {
           const regexTokens = [token];
           index += 1;
-          while (index < tokens.length && !tokens[index].endsWith("/")) {
-            regexTokens.push(tokens[index]);
+          while (index < tokens.length) {
+            const nextToken = tokens[index];
+            if (nextToken === undefined || nextToken.endsWith("/")) break;
+            regexTokens.push(nextToken);
             index += 1;
           }
           if (index < tokens.length) {
-            regexTokens.push(tokens[index]);
+            const closingToken = tokens[index];
+            if (closingToken === undefined) break;
+            regexTokens.push(closingToken);
             index += 1;
-            if (/^[igm]+$/u.test(tokens[index] ?? "")) {
-              regexTokens.push(tokens[index]);
+            const flags = tokens[index];
+            if (flags !== undefined && /^[igm]+$/u.test(flags)) {
+              regexTokens.push(flags);
               index += 1;
             }
           }

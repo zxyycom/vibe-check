@@ -1,15 +1,20 @@
 {
   "compilerOptions": {
     "allowImportingTsExtensions": true,
+    "allowUnreachableCode": false,
     "erasableSyntaxOnly": true,
+    "exactOptionalPropertyTypes": true,
     "incremental": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
     "noEmit": true,
     "strict": true,
     "target": "esnext",
     "tsBuildInfoFile": ".cache/typescript/tsconfig.tsbuildinfo",
     "types": ["node"],
+    "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "rewriteRelativeImportExtensions": true
   },

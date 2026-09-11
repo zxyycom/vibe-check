@@ -75,9 +75,9 @@ export interface LizardExtension {
 
 /** Python resolves extension class attributes and static methods through instances. */
 export interface LizardExtensionClassMetadata {
-  readonly ordering_index?: number;
-  readonly FUNCTION_INFO?: FunctionInfoDefinitions;
-  readonly silent_all_others?: boolean;
+  readonly ordering_index?: number | undefined;
+  readonly FUNCTION_INFO?: FunctionInfoDefinitions | undefined;
+  readonly silent_all_others?: boolean | undefined;
 }
 
 /** A directly registered class is an opaque descriptor, not a constructor to invoke at load time. */

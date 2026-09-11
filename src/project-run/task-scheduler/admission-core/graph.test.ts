@@ -180,7 +180,8 @@ describe("immutable admission graph", () => {
         assert.equal(branch.accepted, true);
         return { kind: "select", taskId: "first" };
       }
-      return selectable.length === 0 ? { kind: "wait" } : { kind: "select", taskId: selectable[0] };
+      const taskId = selectable[0];
+      return taskId === undefined ? { kind: "wait" } : { kind: "select", taskId };
     });
     const running = runTaskGraph({
       admissionPolicy: policy,
@@ -265,5 +266,9 @@ function deferred<T>() {
 }
 
 async function waitFor(predicate: () => boolean): Promise<void> {
-  while (!predicate()) await new Promise((resolve) => setTimeout(resolve, 0));
+  while (!predicate()) {
+    await new Promise<void>((resolve) => {
+      setTimeout(resolve, 0);
+    });
+  }
 }

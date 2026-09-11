@@ -8,7 +8,7 @@ export function runBunCommand(options: {
 }): Promise<ProcessResult> {
   return runProcess({
     args: options.args,
-    cancelSignal: options.cancelSignal,
+    ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal }),
     command: "bun",
     cwd: options.workspaceRoot,
     label: options.label

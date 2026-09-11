@@ -59,7 +59,7 @@ export async function checkLizardUpstream(
     options.timeoutMs ?? LIZARD_UPSTREAM_TIMEOUT_MS
   );
   try {
-    if (options.signal?.aborted) return unavailable("lizard-upstream-cancelled");
+    if (options.signal?.aborted === true) return unavailable("lizard-upstream-cancelled");
 
     const response = await (options.fetch ?? globalThis.fetch)(LIZARD_RELEASE_API_URL, {
       cache: "no-store",
@@ -71,7 +71,7 @@ export async function checkLizardUpstream(
     return await advisoryFromReleaseResponse(response, requestSignal.signal);
   } catch {
     if (requestSignal.timedOut()) return unavailable("lizard-upstream-timeout");
-    if (options.signal?.aborted) return unavailable("lizard-upstream-cancelled");
+    if (options.signal?.aborted === true) return unavailable("lizard-upstream-cancelled");
     return unavailable("lizard-upstream-network-error");
   } finally {
     requestSignal.dispose();
@@ -169,11 +169,9 @@ function formatVersion([major, minor, patch]: Version): string {
 }
 
 function compareVersions(left: Version, right: Version): number {
-  for (let index = 0; index < left.length; index += 1) {
-    const difference = left[index] - right[index];
-    if (difference !== 0) return difference;
-  }
-  return 0;
+  const [leftMajor, leftMinor, leftPatch] = left;
+  const [rightMajor, rightMinor, rightPatch] = right;
+  return leftMajor - rightMajor || leftMinor - rightMinor || leftPatch - rightPatch;
 }
 
 async function readResponseBody(
@@ -229,7 +227,9 @@ function createRequestSignal(
     didTimeout = true;
     controller.abort();
   }, timeoutMs);
-  const cancelFromSource = () => controller.abort();
+  const cancelFromSource = () => {
+    controller.abort();
+  };
   source?.addEventListener("abort", cancelFromSource, { once: true });
 
   return {

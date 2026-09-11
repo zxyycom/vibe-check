@@ -45,15 +45,14 @@ describe("runtime source maps", () => {
         sourcesContent: [packagedSource],
         version: 3
       });
-      assert.doesNotThrow(() =>
-        assertRuntimeSourceMapMatchesSource({ sourceMapPath, stagingDirectory })
-      );
+      assert.doesNotThrow(() => {
+        assertRuntimeSourceMapMatchesSource({ sourceMapPath, stagingDirectory });
+      });
 
       writeFileSync(packagedSourcePath, "export const example = 2;\n", "utf8");
-      assert.throws(
-        () => assertRuntimeSourceMapMatchesSource({ sourceMapPath, stagingDirectory }),
-        /source map content differs from packaged source/
-      );
+      assert.throws(() => {
+        assertRuntimeSourceMapMatchesSource({ sourceMapPath, stagingDirectory });
+      }, /source map content differs from packaged source/);
     } finally {
       rmSync(stagingDirectory, { force: true, recursive: true });
     }

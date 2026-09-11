@@ -145,7 +145,7 @@ function safePath(
   diagnostic: TestEvidenceDiagnostic,
   policy: DiagnosticFieldPolicy
 ): string | undefined {
-  if (!policy.path || diagnostic.path === undefined) return undefined;
+  if (policy.path !== true || diagnostic.path === undefined) return undefined;
   return isSafeRelativePosixPath(diagnostic.path) ? diagnostic.path : undefined;
 }
 
@@ -154,7 +154,7 @@ function safeLocation(
   policy: DiagnosticFieldPolicy,
   path: string | undefined
 ): Readonly<{ readonly column?: number; readonly line: number }> | undefined {
-  if (!policy.location || diagnostic.line === undefined) return undefined;
+  if (policy.location !== true || diagnostic.line === undefined) return undefined;
   if (path === undefined || !isSafeLocationPart(diagnostic.line)) return undefined;
   if (diagnostic.column !== undefined && !isSafeLocationPart(diagnostic.column)) return undefined;
   return Object.freeze({
@@ -167,7 +167,7 @@ function safeCaseId(
   diagnostic: TestEvidenceDiagnostic,
   policy: DiagnosticFieldPolicy
 ): string | undefined {
-  if (!policy.caseId || diagnostic.caseId === undefined) return undefined;
+  if (policy.caseId !== true || diagnostic.caseId === undefined) return undefined;
   return /^[A-Za-z0-9][A-Za-z0-9._-]*$/u.test(diagnostic.caseId) ? diagnostic.caseId : undefined;
 }
 
@@ -175,7 +175,7 @@ function safeRunner(
   diagnostic: TestEvidenceDiagnostic,
   policy: DiagnosticFieldPolicy
 ): "bun" | undefined {
-  if (!policy.runner || diagnostic.runner === undefined) return undefined;
+  if (policy.runner !== true || diagnostic.runner === undefined) return undefined;
   return diagnostic.runner === "bun" ? "bun" : undefined;
 }
 

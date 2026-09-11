@@ -245,8 +245,18 @@ function assertLocalMarkdownLinks(
   ]);
   for (const document of documents) {
     for (const match of document.content.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
-      const target = match[1].replace(/^<|>$/g, "").split(/[?#]/, 1)[0];
-      if (target === "" || /^[a-z][a-z0-9+.-]*:/i.test(target) || target.startsWith("/")) continue;
+      const rawTarget = match[1];
+      if (rawTarget === undefined) {
+        throw new TypeError(`package documentation link has no target: ${document.packagePath}`);
+      }
+      const [target] = rawTarget.replace(/^<|>$/g, "").split(/[?#]/, 1);
+      if (
+        target === undefined ||
+        target === "" ||
+        /^[a-z][a-z0-9+.-]*:/i.test(target) ||
+        target.startsWith("/")
+      )
+        continue;
       const resolved = normalize(join(dirname(document.packagePath), target)).replaceAll("\\", "/");
       if (!paths.has(resolved)) {
         throw new Error(

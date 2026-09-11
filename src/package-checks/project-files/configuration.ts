@@ -127,7 +127,7 @@ function resolveStringArray(
 
 function validStringArray(value: unknown): boolean {
   const items = snapshotClosedArray(value);
-  return items !== undefined && items.every(isString);
+  return items?.every(isString) === true;
 }
 
 function isString(value: unknown): value is string {

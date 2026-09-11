@@ -14,8 +14,12 @@ async function validate(argv: readonly string[]): Promise<void> {
   const tasks = parseDocsValidationTasks(argv.slice(docsOnly ? 1 : 0));
   const documentationExitCode = await runDocsValidationCli({
     argv: tasks,
-    writeStderr: (message) => console.error(message),
-    writeStdout: (message) => console.log(message)
+    writeStderr: (message) => {
+      console.error(message);
+    },
+    writeStdout: (message) => {
+      console.log(message);
+    }
   });
   if (documentationExitCode !== 0) {
     process.exitCode = documentationExitCode;

@@ -93,6 +93,7 @@ function typecheckConfig(): string {
       compilerOptions: {
         module: "nodenext",
         moduleResolution: "nodenext",
+        exactOptionalPropertyTypes: true,
         noUncheckedIndexedAccess: true,
         noEmit: true,
         strict: true,

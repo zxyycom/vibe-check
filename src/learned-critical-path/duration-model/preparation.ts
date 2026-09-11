@@ -54,8 +54,10 @@ export async function prepareSchedulerDurationModel(input: {
             prediction,
             rawMeasurement: terminalMeasurement.rawMeasurement,
             settledTasks: terminalMeasurement.execution.settledTasks,
-            maxSamplesPerSeries: input.maxSamplesPerSeries,
-            maxSeries: input.maxSeries
+            ...(input.maxSamplesPerSeries === undefined
+              ? {}
+              : { maxSamplesPerSeries: input.maxSamplesPerSeries }),
+            ...(input.maxSeries === undefined ? {} : { maxSeries: input.maxSeries })
           });
           const writeObservation = await writeSchedulerHistory(
             input.stateDirectory,

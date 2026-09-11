@@ -51,7 +51,11 @@ const defaultProgressRefreshScheduler: ProgressRefreshScheduler = Object.freeze(
   schedule: (refresh: () => void, intervalMs: number) => {
     const interval = setInterval(refresh, intervalMs);
     interval.unref();
-    return Object.freeze({ cancel: () => clearInterval(interval) });
+    return Object.freeze({
+      cancel: () => {
+        clearInterval(interval);
+      }
+    });
   }
 });
 
@@ -96,7 +100,9 @@ export function createProgressRendering(
     if (renderer !== undefined) return renderer;
     writer = createProgressTee({
       file: dependencies.file ?? null,
-      onFileFailure: () => statuses.failed("progressRendering"),
+      onFileFailure: () => {
+        statuses.failed("progressRendering");
+      },
       terminal: (dependencies.writerFactory ?? defaultProgressWriter)()
     });
     renderer = createProgressRenderer(writer, dependencies.clock, configuration);
@@ -156,9 +162,13 @@ export function createProgressRendering(
 
   return Object.freeze({
     close,
-    prepared: (totalChecks: number) => render(Object.freeze({ kind: "prepared", totalChecks })),
+    prepared: (totalChecks: number) => {
+      render(Object.freeze({ kind: "prepared", totalChecks }));
+    },
     lifecycle: Object.freeze({
-      flagControlCompleted: () => render(Object.freeze({ kind: "flag-control-completed" })),
+      flagControlCompleted: () => {
+        render(Object.freeze({ kind: "flag-control-completed" }));
+      },
       settled: (fact: CheckSettledFact) => {
         render(
           Object.freeze({

@@ -244,11 +244,18 @@ function hasValidSamples(samplesMs: readonly number[]): boolean {
 function hasConsistentBaselineStatistics(value: ProjectGatePerformanceBaseline): boolean {
   const orderedSamples = [...value.samplesMs].sort((left, right) => left - right);
   const middleIndex = Math.floor(orderedSamples.length / 2);
-  const medianMs =
-    orderedSamples.length % 2 === 0
-      ? (orderedSamples[middleIndex - 1] + orderedSamples[middleIndex]) / 2
-      : orderedSamples[middleIndex];
-  const p90Ms = orderedSamples[Math.ceil(orderedSamples.length * 0.9) - 1];
+  const upperMiddle = orderedSamples[middleIndex];
+  const lowerMiddle = orderedSamples[middleIndex - 1];
+  const p90Index = Math.ceil(orderedSamples.length * 0.9) - 1;
+  const p90Ms = orderedSamples[p90Index];
+  if (upperMiddle === undefined || p90Ms === undefined) return false;
+  let medianMs: number;
+  if (orderedSamples.length % 2 === 0) {
+    if (lowerMiddle === undefined) return false;
+    medianMs = (lowerMiddle + upperMiddle) / 2;
+  } else {
+    medianMs = upperMiddle;
+  }
   const thresholdMs = Math.ceil(Math.max(p90Ms * 1.25, medianMs * 1.5));
   return value.medianMs === medianMs && value.p90Ms === p90Ms && value.thresholdMs === thresholdMs;
 }

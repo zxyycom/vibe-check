@@ -55,7 +55,7 @@ describe("task engine admission policy", () => {
     let received: AdmissionPolicyContext | undefined;
     const selected: string[] = [];
     const policy = admissionSelectionPolicyFor((context) => {
-      if (received === undefined) received = context;
+      received ??= context;
       const admissible = context.candidates.find((candidate) => candidate.canAdmit);
       if (admissible === undefined) return { kind: "wait" };
       return {

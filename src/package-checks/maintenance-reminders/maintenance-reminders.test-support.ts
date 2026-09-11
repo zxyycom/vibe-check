@@ -56,7 +56,9 @@ export function onlyOutcome(result: Awaited<ReturnType<typeof run>>) {
   assert.equal(result.kind, "completed");
   if (result.kind !== "completed") throw new Error("Maintenance reminder Run did not complete");
   assert.equal(result.snapshot.checks.length, 1);
-  return Object.freeze({ outcome: result.snapshot.checks[0].outcome, result });
+  const check = result.snapshot.checks[0];
+  if (check === undefined) throw new Error("Maintenance reminder Run returned no checks");
+  return Object.freeze({ outcome: check.outcome, result });
 }
 
 export function capturedProgressWriter(): Readonly<{

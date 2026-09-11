@@ -194,8 +194,6 @@ function directMeasurementFailure(
     case "unavailable":
       return unavailable("external-dependency-unavailable");
   }
-  const exhaustiveMeasurement: never = measurement;
-  return exhaustiveMeasurement;
 }
 
 function unavailable(

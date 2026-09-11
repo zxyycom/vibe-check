@@ -247,13 +247,15 @@ describe("fileMetrics constructor and direct callback", () => {
           identity: { id: "src/a.ts" }
         }
       ]);
+      const sourceArea = check.options.codeAreas.source;
+      if (sourceArea === undefined) throw new Error("fileMetrics source area is missing");
       const blockingOverlap = await execute(
         executeFileMetrics,
         {
           ...check.options,
           codeAreas: {
             ...check.options.codeAreas,
-            source: { ...check.options.codeAreas.source, findingPolicy: "blocking" }
+            source: { ...sourceArea, findingPolicy: "blocking" }
           }
         },
         root
@@ -283,8 +285,8 @@ describe("fileMetrics constructor and direct callback", () => {
           ...check.options,
           codeAreas: {
             source: {
-              ...check.options.codeAreas.source,
-              files: { ...check.options.codeAreas.source.files, source: "git-worktree" }
+              ...sourceArea,
+              files: { ...sourceArea.files, source: "git-worktree" }
             }
           }
         },

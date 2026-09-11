@@ -186,7 +186,7 @@ function malformedHostileMessageAttachment(hostile: HostileCheckValue): CheckRes
   Object.defineProperty(malformedAttachment, "messages", {
     configurable: true,
     enumerable: true,
-    value: hostile.messageAttachment ? hostile.value : [hostile.value],
+    value: hostile.messageAttachment === true ? hostile.value : [hostile.value],
     writable: true
   });
   return malformedAttachment;
@@ -224,7 +224,9 @@ function assertHostileValueResultIsContained(
 
 function assertReporterIsClosed(reporter: ClosedReporter | undefined): void {
   if (reporter === undefined) throw new Error("Contained callback did not expose a reporter");
-  assert.throws(() => reporter.report({ id: "late" }, {}), /reporter is closed/);
+  assert.throws(() => {
+    reporter.report({ id: "late" }, {});
+  }, /reporter is closed/);
 }
 
 async function assertTrustedInvariantFaultEscapes(): Promise<void> {

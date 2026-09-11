@@ -65,7 +65,7 @@ describe("package candidate preparation contracts", () => {
     assert.equal(PACKAGE_CANDIDATE_INTEGRATION_INVOCATION.timeout, 30_000);
     assert.deepEqual(PACKAGE_CANDIDATE_INTEGRATION_INVOCATION.args.slice(0, 1), ["test"]);
     const target = PACKAGE_CANDIDATE_INTEGRATION_INVOCATION.args[1];
-    assert.ok(target);
+    assert.ok(target !== undefined && target !== "");
     assert.equal(isAbsolute(target), true);
     assert.equal(basename(target), "candidate.integration.ts");
     assert.deepEqual(PACKAGE_CANDIDATE_INTEGRATION_INVOCATION.args.slice(2), ["--reporter=dots"]);

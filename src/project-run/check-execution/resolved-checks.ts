@@ -5,33 +5,18 @@ import type {
 } from "../../project-definition/project-definition.ts";
 import type { ResourceUnitMapping } from "../../project-definition/resource-unit-mapping.ts";
 import { createCoreCheckSession } from "../../check-settlement/session.ts";
-import {
-  diagnosticTags,
-  summarizeDiagnosticValue,
-  type DiagnosticLogger
-} from "../diagnostic-logging/logger.ts";
-import { prepareTaskGraph } from "../task-scheduler/graph.ts";
+import type { DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import type { AdmissionSelectionPolicy } from "../task-scheduler/admission-selection-policy.ts";
-import { runTaskGraph } from "../task-scheduler/scheduler.ts";
+import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import type { SchedulerPerformanceDiagnosticsInput } from "../task-scheduler/measurement/diagnostics.ts";
-import { executeCheckCallback } from "./callback.ts";
-import { artifactDirectoryForCheck, type ResolvedInvocationPaths } from "../invocation/paths.ts";
+import type { ResolvedInvocationPaths } from "../invocation/paths.ts";
 import { runWithCheckConsoleRouter } from "./console-capture.ts";
-import { createCheckDependencies } from "./dependencies.ts";
 import {
-  CheckExecutionInvariantFailure,
   recordSettledCheck,
-  settleCallback,
   type CheckExecutionState,
-  type CheckIdentity,
   type SettledCheckFacts
 } from "./execution-settlement.ts";
-import {
-  checkIdentity,
-  closeResolvedChecks,
-  settleBlockedDependent,
-  trustedFailure
-} from "./execution-finalization.ts";
+import { checkIdentity, closeResolvedChecks } from "./execution-finalization.ts";
 import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 import { planStaticCheckGraph } from "./plan.ts";
 import {
@@ -39,34 +24,16 @@ import {
   resolveFlagControlSettlements,
   type FlagControlSettlement
 } from "./flag-controls.ts";
-import {
-  prepareCheck,
-  type CheckPreflightResolution,
-  type ReadyCheckPreflightResolution
-} from "./preflight.ts";
+import { runScheduledChecks } from "./scheduled-check-run.ts";
+import type { CheckExecutionClock } from "./admitted-check-execution.ts";
 import type { ResolvedCheckExecution } from "./resolved-execution-result.ts";
 
-const INERT_SIGNAL = new AbortController().signal;
 const NO_CHECK_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
-const DIRECT_EXECUTION_INVOCATION_ID = "invocation/v1:direct-check-execution";
-const SYSTEM_MONOTONIC_CLOCK: CheckExecutionClock = Object.freeze({
-  now: () => performance.now()
-});
 
 /** Package-private monotonic clock seam for execution accounting. */
-export type CheckExecutionClock = Readonly<{ now(): number }>;
+export type { CheckExecutionClock } from "./admitted-check-execution.ts";
 
-interface ExecuteCheckInput extends CheckExecutionState {
-  readonly check: NormalizedCheck;
-  readonly clock: CheckExecutionClock;
-  readonly onAdmittedCheck: ((check: NormalizedCheck) => void) | undefined;
-  readonly invocationId: string;
-  readonly paths: ResolvedInvocationPaths | undefined;
-  readonly project: CheckProjectContext;
-  readonly signal: AbortSignal;
-}
-
-type ResolvedCheckExecutionInput = Readonly<{
+export type ResolvedCheckExecutionInput = Readonly<{
   /** Complete prepared private policy handoff; public policy dispatch stays outside execution. */
   readonly admissionPolicy?: AdmissionSelectionPolicy;
   readonly checks: readonly NormalizedCheck[];
@@ -116,7 +83,7 @@ async function executePreparedResolvedChecks(
   });
   const flagControlSettlements = resolveFlagControlSettlements({
     checks: input.checks,
-    diagnosticLogger: input.diagnosticLogger,
+    ...(input.diagnosticLogger === undefined ? {} : { diagnosticLogger: input.diagnosticLogger }),
     effectiveCheckIds,
     signal: input.signal
   });
@@ -124,57 +91,11 @@ async function executePreparedResolvedChecks(
     settleFlagControlOutcome(state, settlement);
   }
   input.lifecycle?.flagControlCompleted();
-  const checksByCheckId = new Map(
-    input.checks.map((check) => [check.definition.checkId, check] as const)
-  );
-  let graphRun: Awaited<ReturnType<typeof runTaskGraph<boolean>>>;
-  try {
-    graphRun = await runTaskGraph<boolean>({
-      graph: planStaticCheckGraph(input.checks, input.resourceCapacities),
-      admissionPolicy: input.admissionPolicy,
-      maxParallel: input.maxParallel,
-      diagnosticLogger: input.schedulerDiagnosticLogger ?? input.diagnosticLogger,
-      performanceDiagnostics: input.schedulerPerformanceDiagnostics,
-      measurementHooks: input.schedulerMeasurementHooks,
-      onMeasurementHookFailure: input.onSchedulerMeasurementHookFailure,
-      onMeasurementHooksSettled: input.onSchedulerMeasurementHooksSettled,
-      preAdmissionTaskResults: Object.freeze(
-        flagControlSettlements.map((settlement) =>
-          Object.freeze({
-            taskId: settlement.check.definition.checkId,
-            value: false
-          })
-        )
-      ),
-      signal: input.signal,
-      isPrerequisiteSatisfied: (satisfied) => satisfied,
-      onTaskBlocked: (task, dependencyIds) => {
-        const check = checksByCheckId.get(task.id);
-        if (check === undefined) {
-          throw new CheckExecutionInvariantFailure("Blocked Task has no normalized Check");
-        }
-        settleBlockedDependent({ check, dependencyIds, state });
-      },
-      execute: (task, context) => {
-        const check = checksByCheckId.get(task.id);
-        if (check === undefined) {
-          throw new CheckExecutionInvariantFailure("Task graph has no normalized Check");
-        }
-        return executeAdmittedCheck({
-          ...state,
-          check,
-          clock: input.clock ?? SYSTEM_MONOTONIC_CLOCK,
-          onAdmittedCheck: input.onAdmittedCheck,
-          invocationId: input.invocationId ?? DIRECT_EXECUTION_INVOCATION_ID,
-          paths: input.paths,
-          project: input.project,
-          signal: context.signal ?? INERT_SIGNAL
-        });
-      }
-    });
-  } catch (error) {
-    throw trustedFailure(error);
-  }
+  const graphRun = await runScheduledChecks({
+    execution: input,
+    flagControlSettlements,
+    state
+  });
 
   return closeResolvedChecks({
     allChecks: input.checks,
@@ -215,110 +136,4 @@ function settleFlagControlOutcome(
     phase: "control",
     state
   });
-}
-
-function settleBlockedPreflight(
-  state: CheckExecutionState,
-  preflight: Extract<CheckPreflightResolution, { readonly kind: "blocked" }>
-): void {
-  const scope = state.session.openCheckScope(preflight.check.definition.checkId);
-  const outcome = scope.settleProduct(preflight.outcome);
-  recordSettledCheck({
-    check: checkIdentity(preflight.check),
-    durationMs: null,
-    messages: preflight.check.preflightMessages,
-    outcome,
-    phase: "preflight",
-    state
-  });
-}
-
-async function executeAdmittedCheck(input: ExecuteCheckInput): Promise<boolean> {
-  observeAdmittedCheck(input);
-  const preflight = await prepareCheck({
-    check: input.check,
-    diagnosticLogger: input.diagnosticLogger,
-    signal: input.signal
-  });
-  if (preflight.kind === "blocked") {
-    settleBlockedPreflight(input, preflight);
-    return false;
-  }
-  return executeReadyCheck({ ...input, preflight });
-}
-
-/** Diagnostic observation belongs to the invocation; it cannot revise admitted Task facts. */
-function observeAdmittedCheck(input: ExecuteCheckInput): void {
-  try {
-    input.onAdmittedCheck?.(input.check);
-  } catch {
-    // Learned diagnostic output is best-effort and has no execution consequence.
-  }
-}
-
-async function executeReadyCheck(
-  input: ExecuteCheckInput & Readonly<{ readonly preflight: ReadyCheckPreflightResolution }>
-): Promise<boolean> {
-  const check = input.preflight.check;
-  const checkId = check.definition.checkId;
-  const scope = input.session.openCheckScope(checkId);
-  const identity = checkIdentity(check);
-  input.diagnosticLogger?.observe({
-    event: "check.started",
-    tags: diagnosticTags(`CHECK:${checkId}`, "EXECUTION", "STARTED"),
-    details: {
-      dependencies: check.dependsOn,
-      displayName: check.definition.displayName,
-      options: summarizeDiagnosticValue(check.options)
-    }
-  });
-  emitStarted(input.lifecycle, identity);
-  const startedAt = input.clock.now();
-  const callback = await executeCheckCallback({
-    artifactDirectory:
-      input.paths === undefined ? null : artifactDirectoryForCheck(input.paths, checkId),
-    check,
-    dependencies: createCheckDependencies({
-      checkId,
-      diagnosticLogger: input.diagnosticLogger,
-      directRelationCheckIds: directRelationCheckIds(check),
-      session: input.session
-    }),
-    diagnosticLogger: input.diagnosticLogger,
-    invocationId: input.invocationId,
-    project: input.project,
-    scope,
-    signal: input.signal
-  });
-  const settled = settleCallback({
-    callback,
-    checkId,
-    diagnosticLogger: input.diagnosticLogger,
-    preflightMessages: check.preflightMessages,
-    scope
-  });
-  recordSettledCheck({
-    check: identity,
-    durationMs: durationSince(startedAt, input.clock),
-    messages: settled.messages,
-    outcome: settled.outcome,
-    phase: "execution",
-    state: input
-  });
-  return settled.outcome.status === "passed";
-}
-
-function directRelationCheckIds(
-  check: Pick<NormalizedCheck, "dependsOn" | "observes">
-): readonly string[] {
-  return Object.freeze([...new Set([...check.dependsOn, ...check.observes])].sort());
-}
-
-function emitStarted(lifecycle: CheckExecutionLifecycle | undefined, check: CheckIdentity): void {
-  lifecycle?.started(Object.freeze({ checkId: check.checkId, displayName: check.displayName }));
-}
-
-function durationSince(startedAt: number, clock: CheckExecutionClock): number {
-  const elapsed = clock.now() - startedAt;
-  return Number.isFinite(elapsed) && elapsed >= 0 ? elapsed : 0;
 }

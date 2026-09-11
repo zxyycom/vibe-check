@@ -42,7 +42,12 @@ async function generatedFiles(): Promise<readonly GeneratedMachineExampleFile[]>
 }
 
 function isMainModule(): boolean {
-  return process.argv[1] ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) : false;
+  const entrypoint = process.argv[1];
+  return (
+    entrypoint !== undefined &&
+    entrypoint !== "" &&
+    path.resolve(entrypoint) === fileURLToPath(import.meta.url)
+  );
 }
 
 if (isMainModule()) {

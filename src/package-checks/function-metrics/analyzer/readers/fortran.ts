@@ -77,7 +77,7 @@ export class FortranReader extends CodeReader {
       newLine = token === "\n";
 
       const macro = /^#\s*(\w+)/u.exec(token)?.[1]?.toLowerCase();
-      if (macro) {
+      if (macro !== undefined) {
         if (["if", "ifdef", "ifndef", "elif"].includes(macro)) this.context.addCondition();
         if (macroDepth > 0) {
           if (["if", "ifdef", "ifndef"].includes(macro)) macroDepth += 1;

@@ -214,6 +214,7 @@ export class PythonReader extends CodeReader {
     tokenFactory?: TokenFactory
   ): Generator<string> {
     const quote = token.startsWith('"""') || token.startsWith("'''") ? token.slice(0, 3) : token[0];
+    if (quote === undefined) return;
     const body = token.slice(quote.length, -quote.length);
     let literal = "";
     let produced = false;
@@ -300,7 +301,7 @@ export class PythonReader extends CodeReader {
     const iterator = tokens[Symbol.iterator]();
     let next = iterator.next();
 
-    while (!next.done) {
+    while (next.done !== true) {
       const token = next.value;
       if (token === "\n") {
         atLineStart = true;
@@ -313,7 +314,7 @@ export class PythonReader extends CodeReader {
         const lookahead: string[] = [];
         let nextReal: string | undefined;
         next = iterator.next();
-        while (!next.done) {
+        while (next.done !== true) {
           lookahead.push(next.value);
           if (next.value !== "\n" && !isPythonWhitespace(next.value)) {
             nextReal = next.value;
@@ -329,7 +330,7 @@ export class PythonReader extends CodeReader {
         } else if (nextReal === "(" || nextReal === "[") {
           isKeyword = false;
           let depth = 1;
-          while (!next.done) {
+          while (next.done !== true) {
             const lookaheadToken = next.value;
             lookahead.push(lookaheadToken);
             if (["(", "[", "{"].includes(lookaheadToken)) depth += 1;

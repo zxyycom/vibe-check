@@ -3,7 +3,9 @@ import assert from "node:assert/strict";
 interface FindingWaiverEvidence {
   readonly records: readonly Readonly<{ readonly data: object }>[];
   readonly result: Readonly<{
-    readonly messages?: readonly Readonly<{ readonly code: string; readonly message: string }>[];
+    readonly messages?:
+      | readonly Readonly<{ readonly code: string; readonly message: string }>[]
+      | undefined;
   }>;
 }
 

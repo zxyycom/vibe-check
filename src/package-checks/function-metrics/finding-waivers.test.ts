@@ -36,8 +36,9 @@ const STRICT_LIMITS = {
 } as const;
 
 describe("functionMetrics finding waivers", () => {
-  it("validates closed identity authoring without invoking hostile accessors", () =>
-    assertInvalidFunctionWaiverAuthoring());
+  it("validates closed identity authoring without invoking hostile accessors", () => {
+    assertInvalidFunctionWaiverAuthoring();
+  });
 
   it("audits unused waivers only after forming a complete empty candidate set", async () => {
     await assertFunctionUnusedWaiverAudit();

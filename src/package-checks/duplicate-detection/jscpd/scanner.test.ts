@@ -219,12 +219,14 @@ function assertNormalizedDuplicateScan(tempDir: string): void {
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.equal(result.measurements.length, 1);
-  assert.equal(result.measurements[0].payload.locations.length, 2);
+  const measurement = result.measurements[0];
+  if (measurement === undefined) throw new Error("expected one normalized duplicate measurement");
+  assert.equal(measurement.payload.locations.length, 2);
   assert.deepEqual(
-    result.measurements[0].payload.locations.map((location) => location.path),
+    measurement.payload.locations.map((location) => location.path),
     ["a.ts", "b.ts"]
   );
-  assert.deepEqual(result.measurements[0].sourcePaths, ["a.ts", "b.ts"]);
+  assert.deepEqual(measurement.sourcePaths, ["a.ts", "b.ts"]);
 }
 function createFakeJscpdToolConfig({
   reportJson,
@@ -264,6 +266,8 @@ process.exit(${JSON.stringify(exitCode)});
       executable: fakeJscpdPath,
       kind: "custom" as const
     },
-    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
+    cleanup: () => {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   };
 }

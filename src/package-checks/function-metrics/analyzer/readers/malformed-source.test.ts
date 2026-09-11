@@ -60,7 +60,9 @@ test("every source-order reader preserves Lizard 1.24 malformed-source whole-fil
 
   for (const [index, observation] of malformedOracle.fixtures.entries()) {
     const reader = registry[index];
-    assert.ok(reader, `missing source-order reader at index ${index}`);
+    if (reader === undefined) {
+      throw new Error(`missing source-order reader at index ${index}`);
+    }
     assert.equal(reader.name, observation.readerClass);
     assert.ok(
       reader.ext

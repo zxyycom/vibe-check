@@ -28,7 +28,9 @@ export interface FunctionMetricsWorkerPort {
 export function createNodeFunctionMetricsWorker(): FunctionMetricsWorkerPort {
   const worker = new Worker(new URL("./analyzer-worker.ts", import.meta.url));
   return Object.freeze({
-    postMessage: (value: unknown): void => worker.postMessage(value),
+    postMessage: (value: unknown): void => {
+      worker.postMessage(value);
+    },
     subscribe: (listeners: Parameters<FunctionMetricsWorkerPort["subscribe"]>[0]): (() => void) => {
       worker.once("message", listeners.message);
       worker.once("error", listeners.error);
@@ -69,17 +71,29 @@ export async function analyzeAdmittedSources(
       worker.terminate();
       resolveResult(result);
     };
-    const cancelled = (): void => finish(Object.freeze({ kind: "cancelled" }));
+    const cancelled = (): void => {
+      finish(Object.freeze({ kind: "cancelled" }));
+    };
     unsubscribe = worker.subscribe({
-      error: () => finish(Object.freeze({ kind: "analysis-failed" })),
-      exit: () => finish(Object.freeze({ kind: "analysis-failed" })),
+      error: () => {
+        finish(Object.freeze({ kind: "analysis-failed" }));
+      },
+      exit: () => {
+        finish(Object.freeze({ kind: "analysis-failed" }));
+      },
       message: (value: unknown): void => {
-        if (signal.aborted) return cancelled();
+        if (signal.aborted) {
+          cancelled();
+          return;
+        }
         finish(parseWorkerResponse(value, approvedExactPaths));
       }
     });
     signal.addEventListener("abort", cancelled, { once: true });
-    if (signal.aborted) return cancelled();
+    if (signal.aborted) {
+      cancelled();
+      return;
+    }
     try {
       worker.postMessage(request);
     } catch {

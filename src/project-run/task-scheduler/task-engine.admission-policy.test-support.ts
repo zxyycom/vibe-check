@@ -18,7 +18,7 @@ export function runWithCustomProposal(
     execute: () => undefined,
     graph,
     maxParallel: 1,
-    signal
+    ...(signal === undefined ? {} : { signal })
   });
 }
 

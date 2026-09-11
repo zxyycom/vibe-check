@@ -96,7 +96,13 @@ export function reconcileFindingWaivers<Finding, Identity>(
   const matchedWaiverIndexes = options.findings.map((finding) => {
     const identity = canonicalIdentity(options.identify(finding), "finding identity");
     const waiverIndex = waiverIndexesByIdentity.get(identity);
-    if (waiverIndex !== undefined) matchCounts[waiverIndex] += 1;
+    if (waiverIndex !== undefined) {
+      const matchCount = matchCounts[waiverIndex];
+      if (matchCount === undefined) {
+        throw new Error(`Finding waiver match index is out of range: ${waiverIndex}`);
+      }
+      matchCounts[waiverIndex] = matchCount + 1;
+    }
     return waiverIndex;
   });
   const waiverAudits = Object.freeze(
@@ -140,7 +146,11 @@ function materializeWaiver(value: CanonicalJsonValue): MaterializedFindingWaiver
   if (typeof reason !== "string" || reason.length === 0) {
     throw new TypeError("Finding waiver reasons must be non-empty strings");
   }
-  return Object.freeze({ identity: value.identity, reason });
+  const identity = value.identity;
+  if (identity === undefined) {
+    throw new TypeError("Finding waiver identity must be present");
+  }
+  return Object.freeze({ identity, reason });
 }
 
 function isCanonicalObject(value: CanonicalJsonValue): value is CanonicalJsonObject {

@@ -195,14 +195,12 @@ describe("finding waiver reconciliation", () => {
         }),
       /finding identity must be canonical JSON/
     );
-    assert.throws(
-      () => reconcileUnknownWaivers([{ identity: { path: "src/example.ts" }, reason: 42 }]),
-      /non-empty strings/
-    );
-    assert.throws(
-      () => reconcileUnknownWaivers([{ reason: "Missing identity." }]),
-      /identity and reason fields/
-    );
+    assert.throws(() => {
+      reconcileUnknownWaivers([{ identity: { path: "src/example.ts" }, reason: 42 }]);
+    }, /non-empty strings/);
+    assert.throws(() => {
+      reconcileUnknownWaivers([{ reason: "Missing identity." }]);
+    }, /identity and reason fields/);
     let accessorRead = false;
     const hostileWaiver = { reason: "Accessor must remain unread." };
     Object.defineProperty(hostileWaiver, "identity", {
@@ -212,13 +210,17 @@ describe("finding waiver reconciliation", () => {
         throw new Error("must not execute");
       }
     });
-    assert.throws(() => reconcileUnknownWaivers([hostileWaiver]), /canonical JSON arrays/);
+    assert.throws(() => {
+      reconcileUnknownWaivers([hostileWaiver]);
+    }, /canonical JSON arrays/);
     assert.equal(accessorRead, false);
     const trappedWaivers = new Proxy([], {
       ownKeys: () => {
         throw new Error("credential=must-not-leak");
       }
     });
-    assert.throws(() => reconcileUnknownWaivers(trappedWaivers), /canonical JSON arrays/);
+    assert.throws(() => {
+      reconcileUnknownWaivers(trappedWaivers);
+    }, /canonical JSON arrays/);
   });
 });

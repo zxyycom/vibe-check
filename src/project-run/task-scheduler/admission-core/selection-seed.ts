@@ -1,5 +1,9 @@
 import type { CompiledAdmissionGraph } from "./compiled-graph.ts";
 import {
+  requiredTaskMutexSlotsForCompiled,
+  requiredTaskResourceClaimsForCompiled
+} from "./compiled-graph-lookup.ts";
+import {
   forcedQueueFromTaskSlots,
   freezeSelectionIndex,
   persistentNumbersFor,
@@ -68,9 +72,11 @@ function seedTaskCounters(
     if (status.kind === "pending" || status.kind === "running") remainingTaskCount += 1;
     if (status.kind === "running") {
       runningTotal += 1;
-      for (const mutexSlot of compiled.taskMutexSlots[taskSlot]) mutexHolders[mutexSlot] += 1;
-      for (const claim of compiled.taskResourceClaims[taskSlot]) {
-        resourceInUse[claim.resourceSlot] += claim.units;
+      for (const mutexSlot of requiredTaskMutexSlotsForCompiled(compiled, taskSlot)) {
+        incrementCounter(mutexHolders, mutexSlot, 1, "mutex holder");
+      }
+      for (const claim of requiredTaskResourceClaimsForCompiled(compiled, taskSlot)) {
+        incrementCounter(resourceInUse, claim.resourceSlot, claim.units, "resource usage");
       }
     }
     appendDependencyCountsForSeed(
@@ -140,12 +146,36 @@ function heldMutexBlockersForSeed(
   const blockers = compiled.graph.tasks.map(() => 0);
   const legacyHeldMutexes = new Set(legacyRunningMutexes);
   for (const [taskSlot, task] of compiled.graph.tasks.entries()) {
-    for (const [mutexOccurrence, mutexSlot] of compiled.taskMutexSlots[taskSlot].entries()) {
-      blockers[taskSlot] += mutexHolders[mutexSlot];
-      if (legacyHeldMutexes.has(task.mutex[mutexOccurrence])) blockers[taskSlot] += 1;
+    for (const [mutexOccurrence, mutexSlot] of requiredTaskMutexSlotsForCompiled(
+      compiled,
+      taskSlot
+    ).entries()) {
+      const holderCount = mutexHolders[mutexSlot];
+      if (holderCount === undefined) {
+        throw new Error(`admission core mutex slot is unknown: ${mutexSlot}`);
+      }
+      incrementCounter(blockers, taskSlot, holderCount, "mutex blocker");
+      const mutexId = task.mutex[mutexOccurrence];
+      if (mutexId === undefined) {
+        throw new Error(`admission core mutex occurrence is unknown: ${mutexOccurrence}`);
+      }
+      if (legacyHeldMutexes.has(mutexId)) incrementCounter(blockers, taskSlot, 1, "mutex blocker");
     }
   }
   return blockers;
+}
+
+function incrementCounter(
+  values: number[],
+  slot: number,
+  amount: number,
+  counterName: string
+): void {
+  const current = values[slot];
+  if (current === undefined) {
+    throw new Error(`admission core ${counterName} slot is unknown: ${slot}`);
+  }
+  values[slot] = current + amount;
 }
 
 function seedActiveScopes(

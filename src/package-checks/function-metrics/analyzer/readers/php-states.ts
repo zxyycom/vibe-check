@@ -95,7 +95,7 @@ export class PHPLanguageStates extends CodeStateMachine {
   };
 
   private readonly _trait_declaration = (token: string): void => {
-    if (token && !isPythonWhitespace(token) && !["{", "("].includes(token)) {
+    if (token.length > 0 && !isPythonWhitespace(token) && !["{", "("].includes(token)) {
       this.trait_name = token;
       this.in_trait = true;
       this._state = this._state_global;
@@ -107,7 +107,7 @@ export class PHPLanguageStates extends CodeStateMachine {
 
   private readonly _class_declaration = (token: string): void => {
     if (
-      token &&
+      token.length > 0 &&
       !isPythonWhitespace(token) &&
       !["{", "(", "extends", "implements"].includes(token)
     ) {
@@ -123,10 +123,10 @@ export class PHPLanguageStates extends CodeStateMachine {
   private readonly _function_name = (token: string): void => {
     if (token && !isPythonWhitespace(token) && token !== "(") {
       const methodName = token;
-      if (this.in_class && this.class_name) {
+      if (this.in_class && this.class_name !== undefined && this.class_name.length > 0) {
         this.function_name = `${this.class_name}::${methodName}`;
         this.short_function_name = methodName;
-      } else if (this.in_trait && this.trait_name) {
+      } else if (this.in_trait && this.trait_name !== undefined && this.trait_name.length > 0) {
         this.function_name = `${this.trait_name}::${methodName}`;
         this.short_function_name = methodName;
       } else {
@@ -140,8 +140,10 @@ export class PHPLanguageStates extends CodeStateMachine {
       } else if (this.in_trait) {
         this.function_name = `${this.trait_name}::(anonymous)`;
       } else {
-        this.function_name = this.assignments.at(-1) || "(anonymous)";
-        if (this.assignments.at(-1)) this.assignments.pop();
+        const assignment = this.assignments.at(-1);
+        this.function_name =
+          assignment !== undefined && assignment.length > 0 ? assignment : "(anonymous)";
+        if (assignment !== undefined && assignment.length > 0) this.assignments.pop();
       }
       this.bracket_level = 1;
       this._state = this._function_args_continue;
@@ -153,7 +155,12 @@ export class PHPLanguageStates extends CodeStateMachine {
   private readonly _function_args = (token: string): void => {
     if (token !== "(") return;
     this.bracket_level = 1;
-    if (this.in_class && this.class_name && !this.is_function_declaration) {
+    if (
+      this.in_class &&
+      this.class_name !== undefined &&
+      this.class_name.length > 0 &&
+      !this.is_function_declaration
+    ) {
       this.context.pushNewFunction(this.short_function_name);
     } else {
       this.context.pushNewFunction(this.function_name);

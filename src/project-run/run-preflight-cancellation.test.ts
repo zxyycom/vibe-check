@@ -22,9 +22,15 @@ describe("Package Run", () => {
           preflight: async (_options, signal) => {
             assert.equal(signal, controller.signal);
             preflightEntered.resolve();
-            await new Promise<void>((resolve) =>
-              signal.addEventListener("abort", () => resolve(), { once: true })
-            );
+            await new Promise<void>((resolve) => {
+              signal.addEventListener(
+                "abort",
+                () => {
+                  resolve();
+                },
+                { once: true }
+              );
+            });
             return { status: "success", preparedOptions: {} };
           }
         }

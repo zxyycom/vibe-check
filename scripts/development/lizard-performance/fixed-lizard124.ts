@@ -89,7 +89,9 @@ function fixedLizardEnvironment(
     }).stdout.trim()
   });
   return Object.freeze({
-    cleanup: () => rmSync(environment, { force: true, recursive: true }),
+    cleanup: () => {
+      rmSync(environment, { force: true, recursive: true });
+    },
     command: (driver: string, warmupArguments: readonly string[], requestPath: string) => [
       "env",
       `PYTHONPATH=${source}`,

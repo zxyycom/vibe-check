@@ -270,7 +270,7 @@ function lifecycleDefinition(checks: readonly Check[], events: string[]) {
   });
 }
 
-function check(checkId: string, execution: Check["execution"]): Check {
+function check(checkId: string, execution: NonNullable<Check["execution"]>): Check {
   return { checkId, displayName: checkId, execution };
 }
 

@@ -192,7 +192,9 @@ describe("Project Gate process Check", () => {
               stdout: "settled stdout"
             };
           },
-          writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+          writeTextFile: ({ content, filePath }) => {
+            writeFileSync(filePath, content, "utf8");
+          }
         }
       );
 
@@ -249,7 +251,9 @@ describe("Project Gate process Check", () => {
             observedEnvironment = input.env;
             return { signal: null, status: 0, stderr: "", stdout: "" };
           },
-          writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+          writeTextFile: ({ content, filePath }) => {
+            writeFileSync(filePath, content, "utf8");
+          }
         }
       );
       const execution = check.execution;
@@ -383,7 +387,9 @@ describe("Project Gate process Check", () => {
           stderr: "secret error digest:deadbeef transcript-only-stderr",
           stdout: "secret output https://user:token@example.test transcript-only-stdout"
         }),
-        writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+        writeTextFile: ({ content, filePath }) => {
+          writeFileSync(filePath, content, "utf8");
+        }
       });
       const productRun = await captureNonTTYProgress(() =>
         run(
@@ -472,7 +478,9 @@ describe("Project Gate process Check", () => {
           timedOut: true
         };
       },
-      writeTextFile: ({ content, filePath }) => writeFileSync(filePath, content, "utf8")
+      writeTextFile: ({ content, filePath }) => {
+        writeFileSync(filePath, content, "utf8");
+      }
     };
     try {
       const configured = await invoke(
@@ -651,14 +659,14 @@ describe("Project Gate process Check", () => {
           }
         };
         const controller = new AbortController();
-        if (scenario.aborted) controller.abort();
+        if (scenario.aborted === true) controller.abort();
         const records: ReportedRecord[] = [];
         const outcome = await invoke(
           createProcessCheck(scenario.definition, dependencies),
           records,
           scenario.flags,
           controller.signal,
-          scenario.artifactDirectoryDisabled ? null : fixtureArtifactDirectory(root)
+          scenario.artifactDirectoryDisabled === true ? null : fixtureArtifactDirectory(root)
         );
 
         assert.deepEqual(outcome, scenario.expected, scenario.name);
@@ -666,8 +674,12 @@ describe("Project Gate process Check", () => {
           assert.deepEqual(outcome.messages ?? [], [], scenario.name);
           assert.deepEqual(records, [], scenario.name);
         }
-        assert.equal(starts, scenario.expectedStarts ?? (scenario.aborted ? 0 : 1), scenario.name);
-        if (scenario.expectsTranscript) {
+        assert.equal(
+          starts,
+          scenario.expectedStarts ?? (scenario.aborted === true ? 0 : 1),
+          scenario.name
+        );
+        if (scenario.expectsTranscript === true) {
           const transcriptPath = join(fixtureArtifactDirectory(root), "process.log");
           assert.equal(existsSync(transcriptPath), true, scenario.name);
           if (scenario.expectedTranscriptError !== undefined) {

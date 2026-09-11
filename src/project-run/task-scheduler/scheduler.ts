@@ -99,7 +99,10 @@ export async function runTaskGraph<TResult>(
       state.admissionCore = cancellation.state;
       diagnostics?.beforePendingSettlement(state.pending.map((task) => task.id));
       if (diagnostics === undefined) applyAdmissionPolicyFault(state, error);
-      else diagnostics.measureControlPath(() => applyAdmissionPolicyFault(state, error));
+      else
+        diagnostics.measureControlPath(() => {
+          applyAdmissionPolicyFault(state, error);
+        });
       diagnostics?.captureState(performanceState(state));
       observeAdmissionPolicyFault(state, error);
       trigger = Object.freeze({ kind: "cancellation-applied" });
@@ -116,7 +119,9 @@ export async function runTaskGraph<TResult>(
           const lifecycleFault = new AdmissionPolicyFault("lifecycle-invalid-select");
           if (diagnostics === undefined) applyAdmissionPolicyFault(state, lifecycleFault);
           else
-            diagnostics.measureControlPath(() => applyAdmissionPolicyFault(state, lifecycleFault));
+            diagnostics.measureControlPath(() => {
+              applyAdmissionPolicyFault(state, lifecycleFault);
+            });
           diagnostics?.captureState(performanceState(state));
           observeAdmissionPolicyFault(state, lifecycleFault);
           trigger = Object.freeze({ kind: "cancellation-applied" });
@@ -133,7 +138,10 @@ export async function runTaskGraph<TResult>(
         state.admissionCore = selection.transition.state;
         diagnostics?.beforeAdmission(decision.taskId, [...state.runningById.keys()]);
         if (diagnostics === undefined) applyAdmission(state, decision);
-        else diagnostics.measureControlPath(() => applyAdmission(state, decision));
+        else
+          diagnostics.measureControlPath(() => {
+            applyAdmission(state, decision);
+          });
         diagnostics?.captureState(performanceState(state));
         if (state.admissionPolicy.requiresMeasurement === true) {
           diagnostics?.beginSelectedPolicyAction(decision.taskId);
@@ -146,7 +154,10 @@ export async function runTaskGraph<TResult>(
       case "settle-blocked":
         diagnostics?.beforePendingSettlement([decision.taskId]);
         if (diagnostics === undefined) applyBlockedSettlement(state, decision);
-        else diagnostics.measureControlPath(() => applyBlockedSettlement(state, decision));
+        else
+          diagnostics.measureControlPath(() => {
+            applyBlockedSettlement(state, decision);
+          });
         diagnostics?.captureState(performanceState(state));
         diagnostics?.recordEffect(
           Object.freeze({
@@ -164,7 +175,10 @@ export async function runTaskGraph<TResult>(
         state.admissionCore = cancelPendingAdmissionCore(state.admissionCore).state;
         diagnostics?.beforePendingSettlement(decision.taskIds);
         if (diagnostics === undefined) applyCancellation(state, decision);
-        else diagnostics.measureControlPath(() => applyCancellation(state, decision));
+        else
+          diagnostics.measureControlPath(() => {
+            applyCancellation(state, decision);
+          });
         diagnostics?.captureState(performanceState(state));
         for (const taskId of decision.taskIds) {
           diagnostics?.recordEffect(
@@ -187,7 +201,10 @@ export async function runTaskGraph<TResult>(
         const completion = await nextRunningSettlement(state);
         diagnostics?.beforeRunningSettlement(completion.taskId);
         if (diagnostics === undefined) settleRunningTask(state, completion);
-        else diagnostics.measureControlPath(() => settleRunningTask(state, completion));
+        else
+          diagnostics.measureControlPath(() => {
+            settleRunningTask(state, completion);
+          });
         const settlementKind = completion.settlement.kind;
         if (
           settlementKind !== "completed" &&

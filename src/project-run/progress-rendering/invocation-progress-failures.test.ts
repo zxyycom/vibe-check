@@ -117,11 +117,9 @@ describe("Package Run progress rendering outputs", () => {
         throw new Error("formatter throw");
       },
       () => {
-        /* eslint-disable typescript/no-floating-promises -- formatter misuse returns this Promise immediately. */
-        const rejected = new Promise<never>((_resolve, reject) =>
-          reject(new Error("formatter rejection"))
-        );
-        /* eslint-enable typescript/no-floating-promises */
+        const rejected = new Promise<never>((_resolve, reject) => {
+          reject(new Error("formatter rejection"));
+        });
         const rejectedWithHostileThen = Object.defineProperty(rejected, "then", {
           get: () => {
             thenReads += 1;

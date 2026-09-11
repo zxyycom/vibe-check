@@ -82,7 +82,7 @@ function snapshotInheritedCollectionEntry(
 ): InheritedCollectionEntry {
   if (!isDataDescriptor(descriptor)) return "invalid";
   if (key === INHERITED_CHECK_COLLECTION) {
-    return descriptor.enumerable || descriptor.value !== true ? "invalid" : "marker";
+    return descriptor.enumerable === true || descriptor.value !== true ? "invalid" : "marker";
   }
   if (typeof key !== "string" || descriptor.enumerable !== true) return "invalid";
   Object.defineProperty(snapshot, key, {

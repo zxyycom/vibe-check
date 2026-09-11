@@ -148,7 +148,7 @@ function collectDynamicImportSpecifiers(
       addStaticModuleSpecifier(valueModuleSpecifiers, moduleSpecifier);
     }
   }
-  ts.forEachChild(node, (child) =>
-    collectDynamicImportSpecifiers(child, moduleSpecifiers, valueModuleSpecifiers)
-  );
+  ts.forEachChild(node, (child) => {
+    collectDynamicImportSpecifiers(child, moduleSpecifiers, valueModuleSpecifiers);
+  });
 }

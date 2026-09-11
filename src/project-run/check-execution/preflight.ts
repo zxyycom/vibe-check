@@ -55,7 +55,7 @@ type PreflightInvocation = Awaited<ReturnType<typeof invokeWithCapturedConsole<u
 
 /** Resolves one Check's task-local preparation after Scheduler admission. */
 export async function prepareCheck(input: PrepareCheckInput): Promise<CheckPreflightResolution> {
-  if (input.signal?.aborted) {
+  if (input.signal?.aborted === true) {
     return observeBlockedPreflight({
       check: input.check,
       diagnosticLogger: input.diagnosticLogger,
@@ -96,8 +96,8 @@ function resolvePreflightInvocation(
       diagnosticLogger: input.diagnosticLogger,
       details: { error: invocation.error },
       messages: invocation.messages,
-      result: input.signal?.aborted ? "cancelled-after-throw" : "threw",
-      reasonCode: input.signal?.aborted ? "execution-cancelled" : "preflight-threw"
+      result: input.signal?.aborted === true ? "cancelled-after-throw" : "threw",
+      reasonCode: input.signal?.aborted === true ? "execution-cancelled" : "preflight-threw"
     });
   }
   return resolveReturnedPreflight(input, invocation.output, invocation.messages);
@@ -108,7 +108,7 @@ function resolveReturnedPreflight(
   preflightOutput: unknown,
   consoleMessages: readonly CheckMessage[]
 ): CheckPreflightResolution {
-  if (input.signal?.aborted) {
+  if (input.signal?.aborted === true) {
     return observeBlockedPreflight({
       check: input.check,
       diagnosticLogger: input.diagnosticLogger,

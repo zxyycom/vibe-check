@@ -164,13 +164,15 @@ export async function assertReevaluatedCommonAreaPolicies(
   root: string,
   scanCountPath: string
 ): Promise<void> {
+  const sharedArea = options.codeAreas.shared;
+  if (sharedArea === undefined) throw new Error("duplicateDetection shared area is missing");
   const blockingCommonArea = await execute(
     executeDuplicateDetection,
     {
       ...options,
       codeAreas: {
         ...options.codeAreas,
-        shared: { ...options.codeAreas.shared, findingPolicy: "blocking" }
+        shared: { ...sharedArea, findingPolicy: "blocking" }
       }
     },
     root
@@ -196,7 +198,7 @@ export async function assertReevaluatedCommonAreaPolicies(
       ...options,
       codeAreas: {
         ...options.codeAreas,
-        shared: { ...options.codeAreas.shared, minimumTokens: 130 }
+        shared: { ...sharedArea, minimumTokens: 130 }
       }
     },
     root

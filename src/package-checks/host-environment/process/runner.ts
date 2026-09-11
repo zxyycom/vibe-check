@@ -14,7 +14,7 @@ export function runProcessSync(options: RunProcessSyncOptions): ProcessResult {
   const result = execaSync(command, args, {
     ...processOptions,
     encoding: processOptions.encoding ?? "utf8",
-    env: plainTextProcessEnv({ env: processOptions.env }),
+    env: plainTextProcessEnv(processOptions.env === undefined ? {} : { env: processOptions.env }),
     maxBuffer: processOptions.maxBuffer ?? DEFAULT_PROCESS_MAX_BUFFER_BYTES,
     reject: false,
     stripFinalNewline: false,
@@ -36,12 +36,12 @@ export function runProcess(options: RunProcessOptions): Promise<ProcessResult> {
   } = options;
 
   return execa(command, args, {
-    cwd,
-    env: plainTextProcessEnv({ env }),
+    ...(cwd === undefined ? {} : { cwd }),
+    env: plainTextProcessEnv(env === undefined ? {} : { env }),
     maxBuffer,
     reject: false,
     stripFinalNewline: false,
-    timeout,
+    ...(timeout === undefined ? {} : { timeout }),
     windowsHide
   }).then((result) => toProcessResult(result, label));
 }

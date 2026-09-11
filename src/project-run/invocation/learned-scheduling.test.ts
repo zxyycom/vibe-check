@@ -192,8 +192,8 @@ function learnedDefinition(input: {
         kind: "custom",
         strategy: createLearnedCriticalPathStrategy({
           identityForTask: (task) => ({ taskId: task.taskId, test: "learned-scheduling" }),
-          observe: input.observe,
-          sampleWindow: input.sampleWindow,
+          ...(input.observe === undefined ? {} : { observe: input.observe }),
+          ...(input.sampleWindow === undefined ? {} : { sampleWindow: input.sampleWindow }),
           stateDirectory: input.stateDirectory
         })
       },
@@ -249,7 +249,9 @@ function historyDuringTerminalHook(
 }
 
 function delay(milliseconds: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+  return new Promise<void>((resolve) => {
+    setTimeout(resolve, milliseconds);
+  });
 }
 
 function assertPersistedHistory(

@@ -227,9 +227,17 @@ function exampleRegionMarker(
   lineIndex: number
 ): Readonly<{ readonly id: string; readonly kind: "end" | "start" }> | undefined {
   const start = /^\/\/ #region package-api-example:([a-z][a-z0-9-]*)$/.exec(line);
-  if (start !== null) return Object.freeze({ id: start[1], kind: "start" });
+  if (start !== null) {
+    const id = start[1];
+    if (id === undefined) throw new TypeError("package API example start marker has no id");
+    return Object.freeze({ id, kind: "start" });
+  }
   const end = /^\/\/ #endregion package-api-example:([a-z][a-z0-9-]*)$/.exec(line);
-  if (end !== null) return Object.freeze({ id: end[1], kind: "end" });
+  if (end !== null) {
+    const id = end[1];
+    if (id === undefined) throw new TypeError("package API example end marker has no id");
+    return Object.freeze({ id, kind: "end" });
+  }
   if (line.includes("package-api-example:")) {
     throw new Error(`malformed package API example marker in ${sourcePath}:${lineIndex + 1}`);
   }

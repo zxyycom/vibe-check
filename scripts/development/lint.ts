@@ -36,7 +36,7 @@ function isLintScope(value: string): value is LintScope {
 function parseLintScopes(argv: readonly string[]): readonly LintScope[] {
   if (argv.length === 0) return ["product", "scripts"];
   const [scope] = argv;
-  if (argv.length !== 1 || !scope || !isLintScope(scope)) {
+  if (argv.length !== 1 || scope === undefined || scope === "" || !isLintScope(scope)) {
     throw new Error("usage: bun scripts/development/lint.ts [product|scripts]");
   }
   return [scope];

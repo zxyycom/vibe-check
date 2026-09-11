@@ -22,8 +22,9 @@ const DUPLICATE_IDENTITY = {
 } as const;
 
 describe("duplicateDetection finding waivers", () => {
-  it("validates sorted closed identity authoring without invoking hostile accessors", () =>
-    assertInvalidDuplicateWaiverAuthoring());
+  it("validates sorted closed identity authoring without invoking hostile accessors", () => {
+    assertInvalidDuplicateWaiverAuthoring();
+  });
 
   it("audits unused waivers only after forming a complete empty candidate set", async () => {
     await assertDuplicateUnusedWaiverAudit();

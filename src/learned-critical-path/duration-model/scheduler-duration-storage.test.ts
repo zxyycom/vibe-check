@@ -10,7 +10,10 @@ import {
   SCHEDULER_HISTORY_ENVELOPE_VERSION
 } from "./bounded-history.ts";
 import { createSchedulerHistoryIdentity, createSchedulerPredictionSnapshot } from "./prediction.ts";
-import { predictionInputs } from "./scheduler-duration-model.test-support.ts";
+import {
+  predictionInputs,
+  requiredPredictionInput
+} from "./scheduler-duration-model.test-support.ts";
 import { loadSchedulerHistory, schedulerHistoryPath, writeSchedulerHistory } from "./storage.ts";
 
 async function withStateDirectory(run: (directory: string) => Promise<void>): Promise<void> {
@@ -42,8 +45,7 @@ describe("scheduler duration storage", () => {
     await withStateDirectory(async (directory) => {
       assert.equal((await loadSchedulerHistory(directory)).observation, "missing");
       const inputs = predictionInputs(["check"]);
-      const input = inputs[0];
-      assert.ok(input);
+      const input = requiredPredictionInput(inputs, 0);
       const history = closedHistory({
         durationMs: 16.5,
         identityDigest: createSchedulerHistoryIdentity(input)
@@ -63,8 +65,7 @@ describe("scheduler duration storage", () => {
 
       const floatDirectory = join(directory, "floating-duration");
       const floatInputs = predictionInputs(["float-duration"]);
-      const floatInput = floatInputs[0];
-      assert.ok(floatInput);
+      const floatInput = requiredPredictionInput(floatInputs, 0);
       const floatHistory = closedHistory({
         durationMs: 12.5,
         identityDigest: createSchedulerHistoryIdentity(floatInput)
@@ -103,10 +104,8 @@ describe("scheduler duration storage", () => {
       assert.equal(await writeSchedulerHistory(directory, emptySchedulerHistory()), "failed");
 
       const concurrentDirectory = join(directory, "concurrent");
-      const leftInput = predictionInputs(["left"])[0];
-      const rightInput = predictionInputs(["right"])[0];
-      assert.ok(leftInput);
-      assert.ok(rightInput);
+      const leftInput = requiredPredictionInput(predictionInputs(["left"]), 0);
+      const rightInput = requiredPredictionInput(predictionInputs(["right"]), 0);
       const leftHistory = closedHistory({
         durationMs: 11,
         identityDigest: createSchedulerHistoryIdentity(leftInput)

@@ -131,7 +131,7 @@ function factKey(path: readonly string[]): string {
 
 function factValue(path: readonly string[], value: unknown): string {
   const key = path.at(-1);
-  if (typeof value === "number" && key?.endsWith("Ms")) {
+  if (typeof value === "number" && key?.endsWith("Ms") === true) {
     return String(Math.round(value * 1_000) / 1_000);
   }
   return JSON.stringify(value);

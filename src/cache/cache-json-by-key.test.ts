@@ -164,7 +164,7 @@ describe("caller-keyed JSON cache", () => {
         ["cache.two", "1", "one"],
         ["cache", "2", "one"],
         ["cache", "1", "two"]
-      ]) {
+      ] as const) {
         await cacheJsonByKey({
           compute: () => ({ count: calls.push(`${namespace}:${version}:${key}`) }),
           directory,
@@ -352,7 +352,9 @@ describe("caller-keyed JSON cache", () => {
         );
       const left = run();
       const right = run();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 10);
+      });
       release();
       const [first, second] = await Promise.all([left, right]);
       assert.equal(calls, 2);

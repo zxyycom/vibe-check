@@ -82,7 +82,7 @@ function parseSelection(value: unknown): ProjectFileSelection | undefined {
 
 function snapshotStringArray(value: unknown): readonly string[] | undefined {
   const items = snapshotClosedArray(value);
-  return items !== undefined && items.every((item): item is string => typeof item === "string")
+  return items?.every((item): item is string => typeof item === "string") === true
     ? Object.freeze([...items])
     : undefined;
 }

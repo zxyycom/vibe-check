@@ -199,9 +199,8 @@ function renderDetailRecord(
 function isEnumerableDataDescriptor(
   descriptor: PropertyDescriptor | undefined
 ): descriptor is PropertyDescriptor & Readonly<{ readonly value: unknown }> {
+  if (descriptor?.enumerable !== true) return false;
   return (
-    descriptor !== undefined &&
-    descriptor.enumerable === true &&
     descriptor.get === undefined &&
     descriptor.set === undefined &&
     Object.hasOwn(descriptor, "value")

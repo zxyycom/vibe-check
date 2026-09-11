@@ -106,8 +106,8 @@ function missingLocalTargetPath(input: LocalLinkOccurrence): string | undefined 
   const rawTarget = matchedLinkTarget(input.match);
   if (isIgnoredTarget(rawTarget)) return undefined;
 
-  const targetReference = rawTarget.split("#")[0];
-  if (targetReference === "") return undefined;
+  const [targetReference] = rawTarget.split("#");
+  if (targetReference === undefined || targetReference === "") return undefined;
   const targetPath = resolveLocalTarget(input.repositoryRoot, input.filePath, targetReference);
   if (fs.existsSync(path.join(input.repositoryRoot, targetPath))) return undefined;
   return targetPath;

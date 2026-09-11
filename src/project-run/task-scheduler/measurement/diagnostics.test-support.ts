@@ -153,7 +153,9 @@ export async function postMutationProjectionSummary(): Promise<Readonly<Record<s
     },
     isPrerequisiteSatisfied: (value) => value !== "unsatisfied",
     maxParallel: 1,
-    onTaskBlocked: () => clock.advance("blocked settlement projection install", 6),
+    onTaskBlocked: () => {
+      clock.advance("blocked settlement projection install", 6);
+    },
     performanceDiagnostics: enabledDiagnostics(clock, observations)
   });
   return schedulerSummary(observations);

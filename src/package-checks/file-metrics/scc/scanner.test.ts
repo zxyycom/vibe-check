@@ -62,6 +62,8 @@ function createFakeSccScanner(stdout: string, setup = "") {
 
   return {
     executable: fakeSccPath,
-    cleanup: () => rmSync(tempDir, { recursive: true, force: true })
+    cleanup: () => {
+      rmSync(tempDir, { recursive: true, force: true });
+    }
   };
 }

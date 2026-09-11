@@ -85,7 +85,7 @@ function checkCurrentExampleInventory(): void {
     }
   }
   const example = rootEntries.find((entry) => entry.name === MACHINE_EXAMPLE_NAME);
-  if (!example?.isDirectory()) {
+  if (example?.isDirectory() !== true) {
     throw machineExampleFailure("published-machine-example-missing", MACHINE_EXAMPLE_ROOT);
   }
   checkExampleInventory(new Set<string>(MACHINE_EXAMPLE_FILES));

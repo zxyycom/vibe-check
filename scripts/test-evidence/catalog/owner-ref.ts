@@ -30,6 +30,16 @@ export function diagnoseOwnerRefs(
       continue;
     }
     const [sourcePath, heading] = testCase.ownerRef.split("#");
+    if (sourcePath === undefined || heading === undefined) {
+      diagnostics.push(
+        caseDiagnostic(
+          "case.owner-invalid",
+          `Case ${testCase.id} Owner reference has incomplete path or heading: ${testCase.ownerRef}`,
+          testCase
+        )
+      );
+      continue;
+    }
     let anchors = anchorsByPath.get(sourcePath);
     if (anchors === undefined) {
       anchors = readOwnerAnchors(workspaceRoot, sourcePath);
@@ -112,7 +122,9 @@ function projectHeadingAnchor(
 ): void {
   const match = /^#{1,6}[ \t]+(.+?)[ \t]*#*[ \t]*$/u.exec(line);
   if (match === null) return;
-  const base = headingSlug(match[1]);
+  const heading = match[1];
+  if (heading === undefined) return;
+  const base = headingSlug(heading);
   const occurrence = repetitions.get(base) ?? 0;
   anchors.add(occurrence === 0 ? base : `${base}-${occurrence}`);
   repetitions.set(base, occurrence + 1);
@@ -143,19 +155,24 @@ function readOpeningFence(line: string): { marker: "`" | "~"; length: number } |
   if (match === null) {
     return undefined;
   }
-  const marker = match[1][0];
+  const fenceText = match[1];
+  if (fenceText === undefined) return undefined;
+  const marker = fenceText[0];
   if (marker !== "`" && marker !== "~") {
     return undefined;
   }
   return {
     marker,
-    length: match[1].length
+    length: fenceText.length
   };
 }
 
 function closesFence(line: string, fence: { marker: "`" | "~"; length: number }): boolean {
   const match = /^ {0,3}(`+|~+)[ \t]*$/u.exec(line);
-  return match !== null && match[1][0] === fence.marker && match[1].length >= fence.length;
+  const fenceText = match?.[1];
+  return (
+    fenceText !== undefined && fenceText[0] === fence.marker && fenceText.length >= fence.length
+  );
 }
 
 function caseDiagnostic(

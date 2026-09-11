@@ -567,15 +567,21 @@ class TypeScriptTypeAnnotationStates extends CodeStateMachine {
   };
 
   private readonly _inline_type_annotation = (token: string): void => {
-    this.readInsideBracketsThen("{}", token, () => this.returnFromState());
+    this.readInsideBracketsThen("{}", token, () => {
+      this.returnFromState();
+    });
   };
 
   private readonly _state_generic_type = (token: string): void => {
-    this.readInsideBracketsThen("<>", token, () => this.returnFromState());
+    this.readInsideBracketsThen("<>", token, () => {
+      this.returnFromState();
+    });
   };
 
   private readonly _function_type_annotation = (token: string): void => {
-    this.readInsideBracketsThen("()", token, () => this.returnFromState());
+    this.readInsideBracketsThen("()", token, () => {
+      this.returnFromState();
+    });
   };
 }
 

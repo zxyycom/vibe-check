@@ -17,6 +17,17 @@ export function runGit(options: RunGitOptions): ProcessResult {
   return runProcessSync({ command: "git", ...options });
 }
 
+/** Renders the actionable failure evidence shared by Git operation boundaries. */
+export function gitFailureDetail(result: ProcessResult): string {
+  const stderr = result.stderr.trim();
+  if (stderr.length > 0) return stderr;
+  const processErrorMessage = result.error?.message;
+  if (processErrorMessage !== undefined && processErrorMessage.length > 0) {
+    return processErrorMessage;
+  }
+  return result.signal === null ? `exit status ${result.status}` : `signal ${result.signal}`;
+}
+
 export function gitHeadSha(cwd: string): string | null {
   const result = runGit({ args: ["rev-parse", "HEAD"], cwd });
   if (processFailed(result)) return null;

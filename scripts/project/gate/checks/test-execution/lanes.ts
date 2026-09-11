@@ -130,7 +130,11 @@ function productPackageTestLane(file: string): ProductPackageTestLaneName {
   if (matchingLanes.length !== 1) {
     throw new TypeError(`Product package test file has no unique behavior owner lane: ${file}`);
   }
-  return matchingLanes[0].lane;
+  const matchingLane = matchingLanes[0];
+  if (matchingLane === undefined) {
+    throw new TypeError(`Product package test file has no behavior owner lane: ${file}`);
+  }
+  return matchingLane.lane;
 }
 
 function emptyTestLaneFiles(): Record<ProjectGateTestLaneName, string[]> {

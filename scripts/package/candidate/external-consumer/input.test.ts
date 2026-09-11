@@ -69,7 +69,9 @@ test("external consumer provider input is closed and fail-closed", () => {
     assert.equal(existsSync(resolvedEntryPath), true);
     rmSync(resolvedEntryPath);
     assert.deepEqual(parseExternalConsumerMaterialData(data), data);
-    assert.throws(() => validateExternalConsumerMaterialPhysical(data), /no longer matches/);
+    assert.throws(() => {
+      validateExternalConsumerMaterialPhysical(data);
+    }, /no longer matches/);
   } finally {
     rmSync(root, { force: true, recursive: true });
   }

@@ -23,9 +23,9 @@ test("checked-in release manifest projects only version and rejects static-sourc
     const manifestPath = join(root, "package.json");
     writeCandidateManifest({ manifestPath, repositoryRoot: root, version: "0.0.1" });
     const source = readFileSync(manifestPath, "utf8");
-    assert.doesNotThrow(() =>
-      auditCandidateManifest({ candidateVersion: "0.0.1", repositoryRoot: root, source })
-    );
+    assert.doesNotThrow(() => {
+      auditCandidateManifest({ candidateVersion: "0.0.1", repositoryRoot: root, source });
+    });
     const projected = mutableManifest(source);
     assert.equal(projected.version, "0.0.1");
 
@@ -51,26 +51,24 @@ test("checked-in release manifest projects only version and rejects static-sourc
     ]) {
       const manifest = mutableManifest(source);
       mutation(manifest);
-      assert.throws(() =>
+      assert.throws(() => {
         auditCandidateManifest({
           candidateVersion: "0.0.1",
           repositoryRoot: root,
           source: JSON.stringify(manifest)
-        })
-      );
+        });
+      });
     }
-    assert.throws(
-      () => auditCandidateManifest({ candidateVersion: "0.0.2", repositoryRoot: root, source }),
-      /identity/u
-    );
+    assert.throws(() => {
+      auditCandidateManifest({ candidateVersion: "0.0.2", repositoryRoot: root, source });
+    }, /identity/u);
 
     const sourceManifest = mutableManifest(readFileSync(sourcePath, "utf8"));
     sourceManifest.version = "1.0.0";
     writeFileSync(sourcePath, JSON.stringify(sourceManifest), "utf8");
-    assert.throws(
-      () => writeCandidateManifest({ manifestPath, repositoryRoot: root, version: "0.0.1" }),
-      /sentinel/u
-    );
+    assert.throws(() => {
+      writeCandidateManifest({ manifestPath, repositoryRoot: root, version: "0.0.1" });
+    }, /sentinel/u);
   } finally {
     rmSync(root, { force: true, recursive: true });
   }
@@ -101,10 +99,9 @@ test("release manifest reader does not leak the caller's repository root", () =>
   const root = mkdtempSync(join(tmpdir(), "vibe-check-package-manifest-isolation-"));
   try {
     const manifestPath = join(root, "package.json");
-    assert.throws(
-      () => writeCandidateManifest({ manifestPath, repositoryRoot: root, version: "0.0.1" }),
-      /ENOENT|release-manifest/u
-    );
+    assert.throws(() => {
+      writeCandidateManifest({ manifestPath, repositoryRoot: root, version: "0.0.1" });
+    }, /ENOENT|release-manifest/u);
   } finally {
     rmSync(root, { force: true, recursive: true });
   }

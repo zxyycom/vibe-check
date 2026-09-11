@@ -96,8 +96,7 @@ describe("JSON Schema validation default Check", () => {
       assert.equal(observed.records.length, 100);
       assert.equal(
         observed.records.every(
-          (record) =>
-            record.data && "kind" in record.data && record.data.kind === "keyword-violation"
+          (record) => "kind" in record.data && record.data.kind === "keyword-violation"
         ),
         true
       );

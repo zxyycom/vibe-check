@@ -79,7 +79,7 @@ function denseCanonicalArrayLength(value: readonly unknown[]): number | undefine
   if (Object.getPrototypeOf(value) !== Array.prototype) return undefined;
   const keys = Reflect.ownKeys(value);
   const lengthDescriptor = Object.getOwnPropertyDescriptor(value, "length");
-  if (!isDataDescriptor(lengthDescriptor) || lengthDescriptor.enumerable) return undefined;
+  if (!isDataDescriptor(lengthDescriptor) || lengthDescriptor.enumerable === true) return undefined;
   const length = lengthDescriptor.value;
   if (
     typeof length !== "number" ||
@@ -140,8 +140,6 @@ function canonicalizeObject(
 
 type DataDescriptor = Omit<PropertyDescriptor, "get" | "set" | "value"> &
   Readonly<{
-    get?: undefined;
-    set?: undefined;
     value: unknown;
   }>;
 
@@ -173,7 +171,13 @@ function canonicalText(value: CanonicalJsonValue): string {
   }
   return `{${Object.keys(value)
     .sort(compareText)
-    .map((key) => `${JSON.stringify(key)}:${canonicalText(value[key])}`)
+    .map((key) => {
+      const entry = value[key];
+      if (entry === undefined) {
+        throw new TypeError(`Canonical JSON object is missing declared key: ${key}`);
+      }
+      return `${JSON.stringify(key)}:${canonicalText(entry)}`;
+    })
     .join(",")}}`;
 }
 

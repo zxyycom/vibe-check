@@ -196,11 +196,17 @@ export function showTestCase(options: { workspaceRoot: string; id: string }): {
       )
     );
   }
+  let item: SemanticTestCase | null = null;
+  if (matches.length === 1) {
+    const [match] = matches;
+    if (match === undefined) throw new Error("single Case match is missing");
+    item = match;
+  }
   return {
     schemaVersion: 1,
     status: status(diagnostics),
     diagnostics,
-    item: matches.length === 1 ? matches[0] : null
+    item
   };
 }
 

@@ -45,9 +45,9 @@ type LegalAccessMutation = Readonly<{
 describe("package legal materials", () => {
   it("fails closed in the translated-analyzer audit phase order", () => {
     const expectedAttributionNotice = readTranslatedAnalyzerAttributionNotice(repositoryRoot);
-    assert.doesNotThrow(() =>
-      assertTranslatedAnalyzerLegalMaterials(legalAccess(), expectedAttributionNotice)
-    );
+    assert.doesNotThrow(() => {
+      assertTranslatedAnalyzerLegalMaterials(legalAccess(), expectedAttributionNotice);
+    });
 
     const malformedInventory = Buffer.from("{", "utf8");
     const headerDriftInventory = mutateInventory((inventory) => {
@@ -62,39 +62,36 @@ describe("package legal materials", () => {
     if (deferredTarget === undefined) throw new Error("fixture deferred source must name a target");
 
     assert.throws(
-      () =>
+      () => {
         assertTranslatedAnalyzerLegalMaterials(
           legalAccess({ missingFiles: new Set([PACKAGE_THIRD_PARTY_NOTICES_PATH]) }),
           expectedAttributionNotice
-        ),
+        );
+      },
       new RegExp(
         `candidate package is missing translated-analyzer attribution notice: ${PACKAGE_THIRD_PARTY_NOTICES_PATH}`,
         "u"
       )
     );
+    assert.throws(() => {
+      assertTranslatedAnalyzerLegalMaterials(
+        legalAccess({ noticeContent: Buffer.from("notice drift", "utf8") }),
+        expectedAttributionNotice
+      );
+    }, /attribution notice differs from its repository source/u);
+    assert.throws(() => {
+      assertTranslatedAnalyzerLegalMaterials(
+        legalAccess({
+          afterApprovedBytes: new Map([
+            [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, malformedInventory]
+          ]),
+          extraFiles: new Map([[untrackedTargetPath, Buffer.from(sourceHeader, "utf8")]])
+        }),
+        expectedAttributionNotice
+      );
+    }, /translated-analyzer provenance inventory is invalid JSON/u);
     assert.throws(
-      () =>
-        assertTranslatedAnalyzerLegalMaterials(
-          legalAccess({ noticeContent: Buffer.from("notice drift", "utf8") }),
-          expectedAttributionNotice
-        ),
-      /attribution notice differs from its repository source/u
-    );
-    assert.throws(
-      () =>
-        assertTranslatedAnalyzerLegalMaterials(
-          legalAccess({
-            afterApprovedBytes: new Map([
-              [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, malformedInventory]
-            ]),
-            extraFiles: new Map([[untrackedTargetPath, Buffer.from(sourceHeader, "utf8")]])
-          }),
-          expectedAttributionNotice
-        ),
-      /translated-analyzer provenance inventory is invalid JSON/u
-    );
-    assert.throws(
-      () =>
+      () => {
         assertTranslatedAnalyzerLegalMaterials(
           legalAccess({
             afterApprovedBytes: new Map([
@@ -102,27 +99,26 @@ describe("package legal materials", () => {
             ])
           }),
           expectedAttributionNotice
-        ),
+        );
+      },
       new RegExp(
         `candidate package is missing translated analyzer target: ${targetClosurePath}`,
         "u"
       )
     );
+    assert.throws(() => {
+      assertTranslatedAnalyzerLegalMaterials(
+        legalAccess({
+          afterApprovedBytes: new Map([
+            [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, headerDriftInventory]
+          ]),
+          extraFiles: new Map([[untrackedTargetPath, Buffer.from(sourceHeader, "utf8")]])
+        }),
+        expectedAttributionNotice
+      );
+    }, /translated analyzer header does not identify provenance source legal-materials-test-missing-source\.py/u);
     assert.throws(
-      () =>
-        assertTranslatedAnalyzerLegalMaterials(
-          legalAccess({
-            afterApprovedBytes: new Map([
-              [PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH, headerDriftInventory]
-            ]),
-            extraFiles: new Map([[untrackedTargetPath, Buffer.from(sourceHeader, "utf8")]])
-          }),
-          expectedAttributionNotice
-        ),
-      /translated analyzer header does not identify provenance source legal-materials-test-missing-source\.py/u
-    );
-    assert.throws(
-      () =>
+      () => {
         assertTranslatedAnalyzerLegalMaterials(
           legalAccess({
             extraFiles: new Map([
@@ -131,20 +127,22 @@ describe("package legal materials", () => {
             ])
           }),
           expectedAttributionNotice
-        ),
+        );
+      },
       new RegExp(
         `packaged translated analyzer header has no provenance target entry: ${untrackedTargetPath}`,
         "u"
       )
     );
     assert.throws(
-      () =>
+      () => {
         assertTranslatedAnalyzerLegalMaterials(
           legalAccess({
             extraFiles: new Map([[deferredTarget, Buffer.from("deferred body\n", "utf8")]])
           }),
           expectedAttributionNotice
-        ),
+        );
+      },
       new RegExp(
         `deferred translated-analyzer extension body must not be shipped: ${deferredFile(provenance()).sourcePath}`,
         "u"

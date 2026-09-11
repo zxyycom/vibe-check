@@ -67,7 +67,7 @@ async function astGrepScanResult(
     result = await runRule(
       ["scan", "--rule", options.rulePath, "--json=stream", "--color", "never", ...options.paths],
       {
-        cancelSignal: options.cancelSignal,
+        ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal }),
         workspaceRoot: options.workspaceRoot
       }
     );

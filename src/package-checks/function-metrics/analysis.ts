@@ -174,9 +174,14 @@ function compareComplexityContributors(
 ): number {
   const commonLength = Math.min(left.length, right.length);
   for (let index = 0; index < commonLength; index += 1) {
-    const lineDifference = left[index].line - right[index].line;
+    const leftContributor = left[index];
+    const rightContributor = right[index];
+    if (leftContributor === undefined || rightContributor === undefined) {
+      throw new Error(`Complexity contributor index is out of range: ${index}`);
+    }
+    const lineDifference = leftContributor.line - rightContributor.line;
     if (lineDifference !== 0) return lineDifference;
-    const tokenDifference = compareText(left[index].token, right[index].token);
+    const tokenDifference = compareText(leftContributor.token, rightContributor.token);
     if (tokenDifference !== 0) return tokenDifference;
   }
   return left.length - right.length;

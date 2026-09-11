@@ -60,7 +60,9 @@ class TTCNStates extends CLikeStates {
       this.context.restartNewFunction("");
     } else if (token === "control") {
       this.context.restartNewFunction("__control__");
-      this.next((currentToken) => this._state_dec_to_imp(currentToken));
+      this.next((currentToken) => {
+        this._state_dec_to_imp(currentToken);
+      });
     }
   }
 
@@ -68,7 +70,9 @@ class TTCNStates extends CLikeStates {
     if (isAlphabetic(token)) {
       this.context.addToFunctionName(token);
     } else if (token === "(") {
-      this.next((currentToken) => this._state_dec(currentToken), token);
+      this.next((currentToken) => {
+        this._state_dec(currentToken);
+      }, token);
     } else if (token === "@deterministic") {
       this.context.addToLongFunctionName(`${token} `);
     } else {
@@ -78,7 +82,9 @@ class TTCNStates extends CLikeStates {
 
   protected override _state_dec_to_imp(token: string): void {
     if (token === "{") {
-      this.next((currentToken) => this._state_imp(currentToken), "{");
+      this.next((currentToken) => {
+        this._state_imp(currentToken);
+      }, "{");
     } else {
       this.context.addToLongFunctionName(` ${token}`);
     }

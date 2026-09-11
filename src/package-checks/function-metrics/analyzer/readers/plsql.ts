@@ -54,7 +54,9 @@ export class PLSQLReader extends CodeReader {
           pendingTokens = [];
           continue;
         }
-        if (lastNonWhitespaceToken) yield lastNonWhitespaceToken;
+        if (lastNonWhitespaceToken !== undefined && lastNonWhitespaceToken.length > 0) {
+          yield lastNonWhitespaceToken;
+        }
         yield* pendingTokens;
         pendingTokens = [];
         lastNonWhitespaceToken = token;
@@ -63,7 +65,9 @@ export class PLSQLReader extends CodeReader {
       }
     }
 
-    if (lastNonWhitespaceToken) yield lastNonWhitespaceToken;
+    if (lastNonWhitespaceToken !== undefined && lastNonWhitespaceToken.length > 0) {
+      yield lastNonWhitespaceToken;
+    }
     yield* pendingTokens;
   }
 
@@ -246,13 +250,13 @@ class PLSQLStates extends CodeStateMachine {
     const lower = token.toLowerCase();
     if (lower === "procedure") {
       this.declaring_nested_function = true;
-      if (this.nested_br_level === undefined) this.nested_br_level = 0;
+      this.nested_br_level ??= 0;
       this.next(this._procedure_name);
       return;
     }
     if (lower === "function") {
       this.declaring_nested_function = true;
-      if (this.nested_br_level === undefined) this.nested_br_level = 0;
+      this.nested_br_level ??= 0;
       this.next(this._function_name);
       return;
     }

@@ -51,7 +51,10 @@ export function runAstGrep(
   options: RunAstGrepOptions = {}
 ): Promise<ProcessResult> {
   const invocation = astGrepInvocation(args, options);
-  return runProcess({ ...invocation, cancelSignal: options.cancelSignal });
+  return runProcess({
+    ...invocation,
+    ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal })
+  });
 }
 
 export function expectedAstGrepVersionLine(): string {

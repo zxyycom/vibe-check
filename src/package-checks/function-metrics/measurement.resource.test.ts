@@ -37,7 +37,9 @@ describe("functionMetrics resource admission", () => {
       for (const path of paths.slice(0, 8)) {
         writeFileSync(join(root, path), Buffer.alloc(FILE_LIMIT, 0x20));
       }
-      writeFileSync(join(root, paths[8]), " ");
+      const aggregateCapPath = paths[8];
+      if (aggregateCapPath === undefined) throw new Error("expected aggregate cap fixture path");
+      writeFileSync(join(root, aggregateCapPath), " ");
       assert.deepEqual(await measure(root, paths), { kind: "resource-limit-exceeded" });
     } finally {
       rmSync(root, { recursive: true, force: true });
@@ -100,7 +102,12 @@ describe("functionMetrics resource admission", () => {
     try {
       writeFileSync(join(root, "src", "input.ts"), "export const input = 1;\n", "utf8");
       const dependencies = {
-        createWorker: () => scriptedWorker({ postMessage: (listeners) => listeners.message(reply) })
+        createWorker: () =>
+          scriptedWorker({
+            postMessage: (listeners) => {
+              listeners.message(reply);
+            }
+          })
       } satisfies Partial<FunctionMeasurementDependencies>;
 
       const parentAcceptedMetric = {
@@ -174,12 +181,24 @@ describe("functionMetrics resource admission", () => {
         );
       }
       for (const failedEvent of [
-        { name: "Worker error", publish: (listeners: WorkerListeners) => listeners.error() },
+        {
+          name: "Worker error",
+          publish: (listeners: WorkerListeners) => {
+            listeners.error();
+          }
+        },
         {
           name: "zero exit without a reply",
-          publish: (listeners: WorkerListeners) => listeners.exit(0)
+          publish: (listeners: WorkerListeners) => {
+            listeners.exit(0);
+          }
         },
-        { name: "non-zero exit", publish: (listeners: WorkerListeners) => listeners.exit(1) }
+        {
+          name: "non-zero exit",
+          publish: (listeners: WorkerListeners) => {
+            listeners.exit(1);
+          }
+        }
       ]) {
         assert.deepEqual(
           await measure(root, ["src/input.ts"], {
@@ -218,7 +237,9 @@ describe("functionMetrics resource admission", () => {
         ]
       });
       const controller = new AbortController();
-      const cancellation = setTimeout(() => controller.abort(), 0);
+      const cancellation = setTimeout(() => {
+        controller.abort();
+      }, 0);
       try {
         const observed = await execute(
           (context) =>

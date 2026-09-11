@@ -16,7 +16,9 @@ describe("Package Run progress terminal formatting", () => {
       }
     });
 
-    assert.throws(() => renderer.render({ kind: "prepared", totalChecks: 1 }), /stream closed/);
+    assert.throws(() => {
+      renderer.render({ kind: "prepared", totalChecks: 1 });
+    }, /stream closed/);
     assert.equal(writes, 1);
   });
 });

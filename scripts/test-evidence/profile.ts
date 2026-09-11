@@ -111,8 +111,10 @@ function sortedStringList(
   label: string,
   options: { allowEmpty?: boolean } = {}
 ): readonly string[] {
-  if (!isUnknownArray(value) || (!options.allowEmpty && value.length === 0)) {
-    throw new Error(`${label} must be ${options.allowEmpty ? "a" : "a non-empty"} string array`);
+  if (!isUnknownArray(value) || (options.allowEmpty !== true && value.length === 0)) {
+    throw new Error(
+      `${label} must be ${options.allowEmpty === true ? "a" : "a non-empty"} string array`
+    );
   }
   const items = value.map((item) => {
     if (typeof item !== "string" || item.length === 0 || item !== item.trim()) {
@@ -122,7 +124,11 @@ function sortedStringList(
   });
   if (
     new Set(items).size !== items.length ||
-    items.some((item, index) => index > 0 && items[index - 1] >= item)
+    items.some((item, index) => {
+      if (index === 0) return false;
+      const previous = items[index - 1];
+      return previous === undefined || previous >= item;
+    })
   ) {
     throw new Error(`${label} must be uniquely sorted`);
   }

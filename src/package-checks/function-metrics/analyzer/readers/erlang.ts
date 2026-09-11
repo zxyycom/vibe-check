@@ -150,14 +150,14 @@ function* generatePygmentsCompatibleErlangTokenValues(sourceCode: string): Gener
     }
 
     const baseInteger = matchAt(ERLANG_BASE_INTEGER, sourceCode, index);
-    if (baseInteger) {
+    if (baseInteger !== undefined) {
       yield baseInteger;
       index += baseInteger.length;
       continue;
     }
 
     const integer = matchAt(ERLANG_INTEGER, sourceCode, index);
-    if (integer) {
+    if (integer !== undefined) {
       yield integer;
       index += integer.length;
       continue;
@@ -172,7 +172,7 @@ function* generatePygmentsCompatibleErlangTokenValues(sourceCode: string): Gener
     }
 
     const variable = matchAt(ERLANG_VARIABLE, sourceCode, index);
-    if (variable) {
+    if (variable !== undefined) {
       yield variable;
       index += variable.length;
       continue;
@@ -370,15 +370,15 @@ function consumeErlangDirective(
 
 function consumeErlangMacro(sourceCode: string, index: number): number {
   const variable = matchAt(ERLANG_VARIABLE, sourceCode, index);
-  if (variable) return index + variable.length;
+  if (variable !== undefined) return index + variable.length;
   return consumeErlangAtom(sourceCode, index);
 }
 
 function consumeErlangAtom(sourceCode: string, index: number): number {
   const quotedAtom = matchAt(ERLANG_QUOTED_ATOM, sourceCode, index);
-  if (quotedAtom) return index + quotedAtom.length;
+  if (quotedAtom !== undefined) return index + quotedAtom.length;
   const identifier = matchAt(ERLANG_ATOM_IDENTIFIER, sourceCode, index);
-  return identifier ? index + identifier.length : index;
+  return identifier !== undefined ? index + identifier.length : index;
 }
 
 function isPygmentsLineStart(sourceCode: string, index: number): boolean {

@@ -46,7 +46,9 @@ const DEFAULT_PATHS: SourceMappingPaths = Object.freeze({
 
 const DEFAULT_DEPENDENCIES: SourceMappingDependencies = Object.freeze({
   auditSourceIdentity: auditDefaultSourceIdentity,
-  writeFile: (path: string, source: string) => writeFileSync(path, source, "utf8")
+  writeFile: (path: string, source: string) => {
+    writeFileSync(path, source, "utf8");
+  }
 });
 
 /** Checks curated source mapping and its derived package pin without rewriting either. */

@@ -64,7 +64,7 @@ describe("Lizard in-memory core", () => {
       CLikeReader
     );
     const forgivenFunction = forgiven.functionList[0];
-    assert.ok(forgivenFunction);
+    if (forgivenFunction === undefined) throw new Error("expected forgiven function");
     assert.deepEqual([...forgivenFunction.forgivenMetrics], ["length", "parameter_count"]);
 
     const c0InformationSeparatorForgiven = analyzeSourceCode(

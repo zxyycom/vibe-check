@@ -153,12 +153,13 @@ function invalidMappings(): readonly Readonly<{
     },
     {
       diagnostic: /invalid package Markdown document mapping/,
-      mutate: (config) => Object.assign(config.markdownDocuments[0], { unexpected: true })
+      mutate: (config) =>
+        Object.assign(requiredEntry(config.markdownDocuments, 0), { unexpected: true })
     },
     {
       diagnostic: /must map README\.md from README\.md/,
       mutate: (config) =>
-        Object.assign(config.markdownDocuments[0], { sourcePath: "docs/readme.md" })
+        Object.assign(requiredEntry(config.markdownDocuments, 0), { sourcePath: "docs/readme.md" })
     },
     {
       diagnostic: /conflicting package document target: README\.md/,
@@ -171,21 +172,25 @@ function invalidMappings(): readonly Readonly<{
     },
     {
       diagnostic: /invalid package machine material mapping/,
-      mutate: (config) => Object.assign(config.machineMaterials[0], { sourcePath: "../outside.md" })
+      mutate: (config) =>
+        Object.assign(requiredEntry(config.machineMaterials, 0), { sourcePath: "../outside.md" })
     },
     {
       diagnostic: /invalid package machine material mapping/,
       mutate: (config) =>
-        Object.assign(config.machineMaterials[0], { sourcePath: "docs/output.md/" })
+        Object.assign(requiredEntry(config.machineMaterials, 0), { sourcePath: "docs/output.md/" })
     },
     {
       diagnostic: /invalid package machine material mapping/,
       mutate: (config) =>
-        Object.assign(config.machineMaterials[0], { sourcePath: "docs\u0000output.md" })
+        Object.assign(requiredEntry(config.machineMaterials, 0), {
+          sourcePath: "docs\u0000output.md"
+        })
     },
     {
       diagnostic: /invalid package machine material mapping/,
-      mutate: (config) => Object.assign(config.machineMaterials[0], { packagePath: "package.json" })
+      mutate: (config) =>
+        Object.assign(requiredEntry(config.machineMaterials, 0), { packagePath: "package.json" })
     },
     {
       diagnostic: /conflicting package document target: docs\/output\.md\/child\.json/,
@@ -225,6 +230,16 @@ function mutableEntries(value: unknown): Record<string, unknown>[] {
     entries.push({ ...entry });
   }
   return entries;
+}
+
+function requiredEntry(
+  entries: readonly Record<string, unknown>[],
+  index: number
+): Record<string, unknown> {
+  const entry = entries[index];
+  if (entry === undefined)
+    throw new Error(`missing package document fixture entry at index ${index}`);
+  return entry;
 }
 
 function writeConfig(root: string, config: MutableConfig): void {

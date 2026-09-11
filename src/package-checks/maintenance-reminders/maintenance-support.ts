@@ -51,9 +51,9 @@ export async function runGit(input: {
       }
       stdout += text;
     });
-    child.once("error", () =>
-      settle(input.signal.aborted ? { kind: "cancelled" } : { kind: "failed" })
-    );
+    child.once("error", () => {
+      settle(input.signal.aborted ? { kind: "cancelled" } : { kind: "failed" });
+    });
     child.once("close", (status) => {
       if (input.signal.aborted) {
         settle({ kind: "cancelled" });

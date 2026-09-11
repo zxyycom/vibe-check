@@ -38,21 +38,17 @@ describe("quality scanner output parsing", () => {
     if (!result.ok) {
       assert.fail(result.error);
     }
-    assert.equal(result.measurements[0].payload.tokenCount, 50);
-    assert.equal(result.measurements[0].payload.lineCount, 10);
+    const measurement = result.measurements[0];
+    if (measurement === undefined) throw new Error("expected one parsed duplicate measurement");
+    assert.equal(measurement.payload.tokenCount, 50);
+    assert.equal(measurement.payload.lineCount, 10);
     assert.deepEqual(
-      result.measurements[0].payload.locations.map((location) => location.path),
+      measurement.payload.locations.map((location) => location.path),
       ["crates/docnav/src/a.rs", "crates/docnav/src/b.rs"]
     );
-    assert.deepEqual(result.measurements[0].sourcePaths, [
-      "crates/docnav/src/a.rs",
-      "crates/docnav/src/b.rs"
-    ]);
+    assert.deepEqual(measurement.sourcePaths, ["crates/docnav/src/a.rs", "crates/docnav/src/b.rs"]);
     assert.deepEqual(
-      result.measurements[0].payload.locations.map((location) => [
-        location.startLine,
-        location.endLine
-      ]),
+      measurement.payload.locations.map((location) => [location.startLine, location.endLine]),
       [
         [10, 20],
         [5, 15]

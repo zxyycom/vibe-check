@@ -119,7 +119,11 @@ function parseCaseBlock(
   },
   match: RegExpExecArray
 ): SemanticTestCase {
-  const [, id, title] = match;
+  const id = match[1];
+  const title = match[2];
+  if (id === undefined || title === undefined) {
+    throw new Error("Case heading match has incomplete captures");
+  }
   const parser: CaseBlockParser = {
     content: options.lines
       .slice(options.start + 1, options.end)
@@ -146,13 +150,14 @@ function parseCaseBlock(
 
 function parseCaseOwner(parser: CaseBlockParser): string {
   const item = currentCaseContent(parser);
-  if (!item?.text.startsWith("Owner:")) {
+  if (item?.text.startsWith("Owner:") !== true) {
     reportCaseDiagnostic(parser, "case.owner-missing", `Case ${parser.id} has no Owner field`);
     return "";
   }
   const owner = /^Owner: `([^`]+)`$/.exec(item.text);
   parser.cursor += 1;
-  if (owner === null || !isOwnerRef(owner[1])) {
+  const ownerRef = owner?.[1];
+  if (ownerRef === undefined || !isOwnerRef(ownerRef)) {
     reportCaseDiagnostic(
       parser,
       "case.owner-invalid",
@@ -161,7 +166,7 @@ function parseCaseOwner(parser: CaseBlockParser): string {
     );
     return "";
   }
-  return owner[1];
+  return ownerRef;
 }
 
 function parseCaseEntities(parser: CaseBlockParser): string[] {
@@ -177,36 +182,35 @@ function parseCaseEntities(parser: CaseBlockParser): string[] {
   parser.cursor += 1;
   const entities: string[] = [];
   const seen = new Set<string>();
-  while (
-    currentCaseContent(parser) !== undefined &&
-    currentCaseContent(parser)?.text !== "Proves:"
-  ) {
-    const item = currentCaseContent(parser)!;
+  for (;;) {
+    const item = currentCaseContent(parser);
+    if (item === undefined || item.text === "Proves:") break;
     const match = /^- `([^`]+)`$/.exec(item.text);
-    if (match === null || match[1].trim() !== match[1])
+    const entityKey = match?.[1];
+    if (entityKey === undefined || entityKey.trim() !== entityKey)
       reportCaseDiagnostic(
         parser,
         "case.entity-invalid",
         `Case ${parser.id} Entities must contain exact backticked entity key bullets`,
         item.line
       );
-    else if (seen.has(match[1]))
+    else if (seen.has(entityKey))
       parser.options.diagnostics.push(
         diagnostic(
           "case.entity-duplicate",
           "case",
-          `Case ${parser.id} repeats test entity ${match[1]}`,
+          `Case ${parser.id} repeats test entity ${entityKey}`,
           {
             caseId: parser.id,
-            entityKey: match[1],
+            entityKey,
             path: parser.options.sourcePath,
             line: item.line
           }
         )
       );
     else {
-      seen.add(match[1]);
-      entities.push(match[1]);
+      seen.add(entityKey);
+      entities.push(entityKey);
     }
     parser.cursor += 1;
   }
@@ -231,17 +235,19 @@ function parseCaseProofs(parser: CaseBlockParser): string[] {
   }
   parser.cursor += 1;
   const proves: string[] = [];
-  while (currentCaseContent(parser) !== undefined) {
-    const item = currentCaseContent(parser)!;
+  for (;;) {
+    const item = currentCaseContent(parser);
+    if (item === undefined) break;
     const match = /^- (\S.*)$/.exec(item.text);
-    if (match === null)
+    const proof = match?.[1];
+    if (proof === undefined)
       reportCaseDiagnostic(
         parser,
         "case.proves-invalid",
         `Case ${parser.id} Proves must contain non-empty semantic bullets`,
         item.line
       );
-    else proves.push(match[1]);
+    else proves.push(proof);
     parser.cursor += 1;
   }
   if (proves.length === 0)

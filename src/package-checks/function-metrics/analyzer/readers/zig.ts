@@ -30,6 +30,7 @@ export class ZigReader extends CodeReader {
 class ZigStates extends GoLikeStates {
   protected static override readonly FUNC_KEYWORD = "fn";
 
-  protected override readonly _type_definition = (token: string): void =>
+  protected override readonly _type_definition = (token: string): void => {
     super._state_global(token);
+  };
 }

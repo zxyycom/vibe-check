@@ -55,7 +55,7 @@ describe("Package Run diagnostic logging output", () => {
         ["unavailable", "unavailable"]
       );
       const file = result.outputs.diagnosticLogging.channels.core.file;
-      assert.ok(file);
+      assert.ok(file !== null && file.length > 0);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
       assert.match(diagnosticLog, /record\.reported/);
       assert.match(diagnosticLog, /check\.contained/);

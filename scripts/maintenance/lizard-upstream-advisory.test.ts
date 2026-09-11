@@ -69,7 +69,13 @@ test("Lizard upstream advisory maps timeout and network failures to stable advis
   const timeout = await checkLizardUpstream({
     fetch: async (_input, init) =>
       await new Promise<Response>((_resolve, reject) => {
-        init?.signal?.addEventListener("abort", () => reject(new Error("aborted")), { once: true });
+        init?.signal?.addEventListener(
+          "abort",
+          () => {
+            reject(new Error("aborted"));
+          },
+          { once: true }
+        );
       }),
     timeoutMs: 1
   });

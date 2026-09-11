@@ -116,7 +116,7 @@ function transcriptStep(step: ProcessTranscriptStep): string {
   return [
     `step: ${label}`,
     `command: ${command}`,
-    `status: ${result.status === null ? "unavailable" : result.status}`,
+    `status: ${result.status ?? "unavailable"}`,
     `signal: ${result.signal ?? "none"}`,
     `timed-out: ${result.timedOut === true ? "yes" : "no"}`,
     `error: ${result.error === undefined ? "none" : commandToken(errorMessage(result.error))}`,

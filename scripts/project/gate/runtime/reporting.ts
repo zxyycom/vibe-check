@@ -51,6 +51,9 @@ export function reportGateAdapterMessage(
   text: string
 ): void {
   transcript.writeGateMessage({ level, text });
-  if (level === "error") return console.error(text);
+  if (level === "error") {
+    console.error(text);
+    return;
+  }
   console.warn(text);
 }

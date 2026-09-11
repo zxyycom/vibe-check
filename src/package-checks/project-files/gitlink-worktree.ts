@@ -24,26 +24,54 @@ export function inspectGitlinkWorktree({
   readonly gitlinkPath: string;
   readonly repository: string;
 }>): GitlinkWorktreeInspection {
+  const localWorktree = inspectLocalGitlinkWorktree({ gitlinkPath, repository });
+  if (localWorktree.kind !== "found") return localWorktree;
+  return inspectGitRepositoryRoot({
+    gitlinkPath,
+    canonicalSubmoduleRepository: localWorktree.repository
+  });
+}
+
+type LocalGitlinkWorktree = Readonly<{ readonly kind: "found"; readonly repository: string }>;
+
+function inspectLocalGitlinkWorktree({
+  gitlinkPath,
+  repository
+}: Readonly<{
+  readonly gitlinkPath: string;
+  readonly repository: string;
+}>): GitlinkWorktreeInspection | LocalGitlinkWorktree {
   const submoduleRepository = resolve(repository, gitlinkPath);
-  let canonicalSubmoduleRepository: string;
   try {
     if (!statSync(submoduleRepository).isDirectory()) return { kind: "missing" };
-    canonicalSubmoduleRepository = canonicalRepositoryPath(submoduleRepository);
+    return { kind: "found", repository: canonicalRepositoryPath(submoduleRepository) };
   } catch (error: unknown) {
     return missingPath(error)
       ? { kind: "missing" }
       : inspectionFailure(`could not inspect submodule worktree ${gitlinkPath}`, error);
   }
+}
 
+function inspectGitRepositoryRoot({
+  gitlinkPath,
+  canonicalSubmoduleRepository
+}: Readonly<{
+  readonly gitlinkPath: string;
+  readonly canonicalSubmoduleRepository: string;
+}>): GitlinkWorktreeInspection {
   const topLevelResult = runGit({
     args: ["rev-parse", "--show-toplevel"],
     cwd: canonicalSubmoduleRepository
   });
   if (processFailed(topLevelResult)) {
-    const topLevelFailureDetail =
-      topLevelResult.error?.message ||
-      topLevelResult.stderr.trim() ||
-      `exit ${topLevelResult.status}`;
+    const processErrorMessage = topLevelResult.error?.message;
+    const stderr = topLevelResult.stderr.trim();
+    let topLevelFailureDetail = `exit ${topLevelResult.status}`;
+    if (processErrorMessage !== undefined && processErrorMessage.length > 0) {
+      topLevelFailureDetail = processErrorMessage;
+    } else if (stderr.length > 0) {
+      topLevelFailureDetail = stderr;
+    }
     return {
       kind: "inspection-failed",
       error: `git rev-parse --show-toplevel failed while inspecting submodule ${gitlinkPath}: ${topLevelFailureDetail}`
@@ -51,7 +79,7 @@ export function inspectGitlinkWorktree({
   }
 
   const topLevel = topLevelResult.stdout.trim();
-  if (!topLevel) {
+  if (topLevel.length === 0) {
     return {
       kind: "inspection-failed",
       error: `git rev-parse --show-toplevel returned no repository path for submodule ${gitlinkPath}`

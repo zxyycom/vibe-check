@@ -24,7 +24,7 @@ describe("Package Run diagnostic logging output", () => {
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;
       const file = result.outputs.diagnosticLogging.channels.core.file;
-      assert.ok(file);
+      assert.ok(file !== null && file.length > 0);
       const diagnosticLog = readFileSync(join(root, file), "utf8");
       assert.match(diagnosticLog, /\[FINISHED] \[PASSED] .*check\.finished/);
       assert.match(diagnosticLog, /messageCount=0/);

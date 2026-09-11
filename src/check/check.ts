@@ -47,7 +47,7 @@ export interface CheckMessage {
 /** 可附加到每个 {@link CheckResult} branch 的有序 terminal messages。 */
 export interface CheckResultMessages {
   /** 省略、`undefined` 或空数组都表示没有 supplemental messages。 */
-  readonly messages?: readonly CheckMessage[];
+  readonly messages?: readonly CheckMessage[] | undefined;
 }
 
 /** 已结算 Check 在人读 progress 中的可见性。 */
@@ -415,7 +415,7 @@ interface OrdinaryCheckFields<PreparedOptions extends object> {
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ): CheckResult | Promise<CheckResult>;
-  readonly parseData?: never;
+  readonly parseData?: undefined;
 }
 
 export type CheckWithOptions<

@@ -144,8 +144,12 @@ describe("Lizard TypeScript developer performance evidence", () => {
   });
 
   it("blocks statistical sampling on counted output drift and refuses non-Linux supervisor semantics", () => {
-    assert.doesNotThrow(() => assertStableOutputDigest("same", "same", "sample"));
-    assert.throws(() => assertStableOutputDigest("expected", "changed", "sample"), /output drift/);
+    assert.doesNotThrow(() => {
+      assertStableOutputDigest("same", "same", "sample");
+    });
+    assert.throws(() => {
+      assertStableOutputDigest("expected", "changed", "sample");
+    }, /output drift/);
     assert.equal(isSupportedSupervisorPlatform("linux"), true);
     assert.equal(isSupportedSupervisorPlatform("darwin"), false);
   });

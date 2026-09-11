@@ -111,11 +111,10 @@ function isCurrentCacheEnvelope(
   readonly payload: unknown;
 }> {
   return (
-    envelope !== undefined &&
-    envelope.cacheFormatVersion === CACHE_FORMAT_VERSION &&
-    validIdentityDigest(envelope.identityDigest) &&
-    envelope.parserContractVersion === MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION &&
-    envelope.payloadVersion === CACHE_PAYLOAD_VERSION
+    envelope?.cacheFormatVersion === CACHE_FORMAT_VERSION &&
+    validIdentityDigest(envelope?.identityDigest) &&
+    envelope?.parserContractVersion === MARKDOWN_LINK_PARSE_FACTS_PARSER_CONTRACT_VERSION &&
+    envelope?.payloadVersion === CACHE_PAYLOAD_VERSION
   );
 }
 

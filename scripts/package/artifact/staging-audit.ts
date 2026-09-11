@@ -221,7 +221,9 @@ function declaredRuntimeExports(runtimeEntrySource: string): readonly string[] {
   const exports: string[] = [];
   const declaration = /export\s*\{([^}]+)\}\s*from\s*["']\.\//g;
   for (const match of runtimeEntrySource.matchAll(declaration)) {
-    for (const exportedName of match[1].split(",")) {
+    const exportedNames = match[1];
+    if (exportedNames === undefined) throw new Error("runtime export declaration lacks names");
+    for (const exportedName of exportedNames.split(",")) {
       const name = exportedName
         .trim()
         .split(/\s+as\s+/)

@@ -42,13 +42,12 @@ describe("machine publication v4 lifecycle", () => {
       fs.writeFileSync = (...args: Parameters<typeof fs.writeFileSync>): void => {
         written += 1;
         if (written === 2) throw new Error("injected candidate write failure");
-        return originalWrite(...args);
+        originalWrite(...args);
       };
       try {
-        assert.throws(
-          () => publishScanV4({ artifactDir: directory, model: model() }),
-          /injected candidate write failure/
-        );
+        assert.throws(() => {
+          publishScanV4({ artifactDir: directory, model: model() });
+        }, /injected candidate write failure/);
       } finally {
         fs.writeFileSync = originalWrite;
       }
@@ -70,10 +69,9 @@ describe("machine publication v4 lifecycle", () => {
         throw new Error("injected first rename failure");
       };
       try {
-        assert.throws(
-          () => publishScanV4({ artifactDir: directory, model: model() }),
-          /injected first rename failure/
-        );
+        assert.throws(() => {
+          publishScanV4({ artifactDir: directory, model: model() });
+        }, /injected first rename failure/);
       } finally {
         fs.renameSync = originalRename;
       }
@@ -95,13 +93,12 @@ describe("machine publication v4 lifecycle", () => {
       fs.renameSync = (...args: Parameters<typeof fs.renameSync>): void => {
         renamed += 1;
         if (renamed === 2) throw new Error("injected rename failure");
-        return originalRename(...args);
+        originalRename(...args);
       };
       try {
-        assert.throws(
-          () => publishScanV4({ artifactDir: directory, model: model() }),
-          /injected rename failure/
-        );
+        assert.throws(() => {
+          publishScanV4({ artifactDir: directory, model: model() });
+        }, /injected rename failure/);
       } finally {
         fs.renameSync = originalRename;
       }

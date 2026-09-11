@@ -30,7 +30,9 @@ describe("Package Run direct Check execution", () => {
       { checkId: "direct-check", level: "error", code: "failure", message: "Three details" }
     ]);
     assert.equal(Object.isFrozen(result.checkMessages), true);
-    messages[0].message = "Mutated after settlement";
+    const firstMessage = messages[0];
+    if (firstMessage === undefined) throw new Error("expected first direct check message");
+    firstMessage.message = "Mutated after settlement";
     assert.equal(result.checkMessages[0]?.message, "One detail");
 
     await assertUnboundedMessagesAreRetained();

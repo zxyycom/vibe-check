@@ -26,12 +26,12 @@ function parseFormatInvocation(argv: readonly string[]): FormatAction {
 }
 
 if (import.meta.main) {
-  runMain(() =>
+  runMain(() => {
     runProcessInvocationSync(
       workspaceFormatInvocation(parseFormatInvocation(process.argv.slice(2))),
       {
         report: reportProcessOutput
       }
-    )
-  );
+    );
+  });
 }

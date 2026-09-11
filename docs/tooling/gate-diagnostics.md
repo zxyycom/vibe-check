@@ -58,6 +58,8 @@ native adapter 收到空、重复或不安全的 `{ id, data }` diagnostics，�
 
 安装的 oxlint 1.78 允许 label 只有 `{ span }`，所以 `label` 可缺失或为 string，但永不进入 Record。
 
+Oxlint 的 `error` / `warning` severity 原样进入 Record；lint invocation 的 `--deny-warnings` 已决定两者都以 nonzero exit 阻断。Gate 不重分级、二次过滤或将这些位置易变的 process diagnostics 接入 Product Finding waiver；规则、scope、directive audit 和例外仍由 `.oxlintrc.json` 与 Oxlint invocation 拥有。
+
 **oxfmt 协议。** 输出必须是完整、非空、无重复的 list-different 路径集合；每行都必须是已授权 target 内的 canonical relative path。
 
 两种工具 owner 都只能发布由 ASCII 字母、数字、`.`、`_`、`-`、`/` 组成的 workspace-relative path；因此 `:`、`@`、`?`、`#`、`=` 等 credential 或 query 风险字符不能进入 data 或 identity。structured Record 与所有 terminal message 均不得复制 child output、tool message/help/snippet、absolute root、command arguments、credential URL 或 digest。结构化 Records 使用本节前述的 Core 默认 preview；工具 adapter 不控制 preview 的条数、排序、截断或文本格式。

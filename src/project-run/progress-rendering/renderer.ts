@@ -73,7 +73,11 @@ export function createProgressRenderer(
   const controller = new ProgressRendererController(writer, clock, progressRendering);
   return Object.freeze({
     refreshesRunningRegion: controller.refreshesRunningRegion,
-    refresh: (): void => controller.refresh(),
-    render: (feedback: ProgressFeedback): void => controller.render(feedback)
+    refresh: (): void => {
+      controller.refresh();
+    },
+    render: (feedback: ProgressFeedback): void => {
+      controller.render(feedback);
+    }
   });
 }

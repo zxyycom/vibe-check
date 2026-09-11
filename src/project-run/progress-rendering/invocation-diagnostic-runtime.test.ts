@@ -200,11 +200,15 @@ describe("Scheduler measurement Hook output", () => {
             displayName: "Waiting",
             execution: async ({ signal }) => {
               entered?.();
-              await new Promise<void>((resolve) =>
-                signal.addEventListener("abort", () => resolve(), {
-                  once: true
-                })
-              );
+              await new Promise<void>((resolve) => {
+                signal.addEventListener(
+                  "abort",
+                  () => {
+                    resolve();
+                  },
+                  { once: true }
+                );
+              });
               return { data: {}, status: "passed" };
             }
           }

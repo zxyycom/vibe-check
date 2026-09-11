@@ -29,6 +29,6 @@ export function joinSlash({
 }
 
 export function nonEmptyGitOutput(stdout: string | null | undefined): string | null {
-  const value = (stdout || "").trim();
-  return value || null;
+  const value = (stdout ?? "").trim();
+  return value.length > 0 ? value : null;
 }

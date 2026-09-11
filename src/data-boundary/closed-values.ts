@@ -15,6 +15,7 @@ function ownDataShape(value: object): OwnDataShape | undefined {
   if (
     keys.some((key) => {
       const descriptor = descriptors[key];
+      if (descriptor === undefined) return true;
       return descriptor.get !== undefined || descriptor.set !== undefined;
     })
   )
@@ -60,13 +61,16 @@ export function snapshotClosedRecord(
     const shape = ownDataShape(value);
     if (
       shape === undefined ||
-      shape.keys.some((key) => shape.descriptors[key].enumerable !== true)
+      shape.keys.some((key) => shape.descriptors[key]?.enumerable !== true)
     ) {
       return undefined;
     }
-    return Object.freeze(
-      Object.fromEntries(shape.keys.map((key) => [key, shape.descriptors[key].value as unknown]))
-    );
+    const entries = shape.keys.map((key) => {
+      const descriptor = shape.descriptors[key];
+      if (descriptor === undefined) throw new TypeError(`Missing own descriptor: ${key}`);
+      return [key, descriptor.value as unknown] as const;
+    });
+    return Object.freeze(Object.fromEntries(entries));
   } catch {
     return undefined;
   }
@@ -94,7 +98,7 @@ function closedArrayItems(shape: OwnDataShape, length: number): readonly unknown
   const items: unknown[] = [];
   for (let index = 0; index < length; index += 1) {
     const descriptor = shape.descriptors[String(index)];
-    if (descriptor === undefined || descriptor.enumerable !== true) return undefined;
+    if (descriptor?.enumerable !== true) return undefined;
     items.push(descriptor.value as unknown);
   }
   return Object.freeze(items);

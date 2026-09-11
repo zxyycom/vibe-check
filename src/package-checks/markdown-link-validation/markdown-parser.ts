@@ -233,11 +233,7 @@ function isMarkdownAstNode(value: unknown): value is MarkdownAstNode {
 function sourceRangeFromPosition(
   position: MarkdownAstPosition | undefined
 ): MarkdownSourceRange | null {
-  if (
-    position === undefined ||
-    position.start.offset === undefined ||
-    position.end.offset === undefined
-  ) {
+  if (position?.start.offset === undefined || position?.end.offset === undefined) {
     return null;
   }
 

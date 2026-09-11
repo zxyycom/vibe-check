@@ -46,7 +46,7 @@ export function compileRegisteredSchema<Value>(
   const schema = readSchema(schemaRelPath);
   const schemaId = isRecord(schema) && typeof schema.$id === "string" ? schema.$id : null;
   try {
-    if (!schemaId) return ajv.compile<Value>(schema);
+    if (schemaId === null || schemaId === "") return ajv.compile<Value>(schema);
     const validate = ajv.getSchema<Value>(schemaId);
     if (validate === undefined) throw schemaFailure("schema-not-registered", schemaRelPath);
     return validate;

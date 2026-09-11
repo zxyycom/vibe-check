@@ -51,7 +51,7 @@ export class RReader extends CodeReader {
 }
 
 class RStates extends CodeStateMachine {
-  private recent_tokens: string[] = [];
+  private readonly recent_tokens: string[] = [];
   private brace_count = 0;
   private in_braced_function = false;
   private additional_function_names: string[] = [];
@@ -174,6 +174,7 @@ class RStates extends CodeStateMachine {
     let currentNameTokens: string[] = [];
     while (index >= 0) {
       const token = this.recent_tokens[index];
+      if (token === undefined) break;
       if (token === "<-" || token === "=") {
         if (currentNameTokens.length > 0) {
           functionNames.push(currentNameTokens.reverse().join(""));

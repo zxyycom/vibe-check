@@ -26,14 +26,18 @@ function parseBunJUnitReport(
 ): Readonly<{ readonly cases: BunJUnitCase[]; readonly skipped: number; readonly tests: number }> {
   const rootMatch = /<testsuites\b([^>]*)>/u.exec(source);
   if (rootMatch === null) throw new Error("testsuites root is missing");
-  const attributes = parseXmlAttributes(rootMatch[1]);
+  const rootAttributes = rootMatch[1];
+  if (rootAttributes === undefined) throw new Error("testsuites root has no attributes");
+  const attributes = parseXmlAttributes(rootAttributes);
   const tests = parseNonNegativeInteger(attributes.tests, "tests");
   const failures = parseNonNegativeInteger(attributes.failures, "failures");
   const skipped = parseOptionalNonNegativeInteger(attributes.skipped, "skipped");
   if (failures !== 0) throw new Error(`report contains ${failures} failure(s)`);
-  const cases = [...source.matchAll(/<testcase\b([^>]*)\/?>/gu)].map((match) =>
-    parseBunJUnitCase(match[1])
-  );
+  const cases = [...source.matchAll(/<testcase\b([^>]*)\/?>/gu)].map((match) => {
+    const caseAttributes = match[1];
+    if (caseAttributes === undefined) throw new Error("testcase has no attributes");
+    return parseBunJUnitCase(caseAttributes);
+  });
   if (cases.length !== tests)
     throw new Error(
       `testsuites reports ${tests} tests but contains ${cases.length} testcase elements`
@@ -61,8 +65,14 @@ function parseBunJUnitCase(source: string): BunJUnitCase {
 
 function parseXmlAttributes(source: string): Record<string, string> {
   const attributes: Record<string, string> = {};
-  for (const match of source.matchAll(/([A-Za-z_:][A-Za-z0-9_.:-]*)="([^"]*)"/gu))
-    attributes[match[1]] = decodeXml(match[2]);
+  for (const match of source.matchAll(/([A-Za-z_:][A-Za-z0-9_.:-]*)="([^"]*)"/gu)) {
+    const key = match[1];
+    const value = match[2];
+    if (key === undefined || value === undefined) {
+      throw new Error("XML attribute has incomplete captures");
+    }
+    attributes[key] = decodeXml(value);
+  }
   return attributes;
 }
 

@@ -16,9 +16,7 @@ export class LizardExtension implements LizardExtensionProtocol {
     const conditions = reader.conditions;
     for (const token of tokens) {
       yield token;
-      if (context.current_function.complex_tags === undefined) {
-        context.current_function.complex_tags = [];
-      }
+      context.current_function.complex_tags ??= [];
       if (conditions.has(token)) {
         context.current_function.complex_tags.push([token, context.current_line]);
       }

@@ -96,5 +96,5 @@ function commandOutput(commandResult: SccVersionCommandResult): string {
 function processTermination(commandResult: SccVersionCommandResult): string {
   return typeof commandResult.status === "number"
     ? `exit ${commandResult.status}`
-    : `signal ${commandResult.signal || "unknown"}`;
+    : `signal ${commandResult.signal ?? "unknown"}`;
 }

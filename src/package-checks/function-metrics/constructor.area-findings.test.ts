@@ -105,14 +105,16 @@ describe("functionMetrics area findings", () => {
 
       assertComplexityContributorsAndNestingFinding(blocked.records, blocked.result.messages ?? []);
 
+      const sourceArea = mixed.options.codeAreas.source;
+      if (sourceArea === undefined) throw new Error("functionMetrics source area is missing");
       const sourceUnavailable = await execute(
         executeFunctionMetrics,
         {
           ...mixed.options,
           codeAreas: {
             source: {
-              ...mixed.options.codeAreas.source,
-              files: { ...mixed.options.codeAreas.source.files, source: "git-worktree" }
+              ...sourceArea,
+              files: { ...sourceArea.files, source: "git-worktree" }
             }
           }
         },

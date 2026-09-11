@@ -33,8 +33,12 @@ export function createTestEvidenceCheck(
       if (diagnostics === undefined) {
         throw new Error("Test Evidence has no safe diagnostic projection");
       }
+      const firstDiagnostic = diagnostics[0];
+      if (firstDiagnostic === undefined) {
+        throw new Error("Test Evidence has no safe diagnostic projection");
+      }
       return nativeFailed({
-        code: `test-evidence-${diagnostics[0].code}`,
+        code: `test-evidence-${firstDiagnostic.code}`,
         diagnostics: nativeDiagnostics(diagnostics),
         focusedCommand: "bun run test-evidence -- check --root ."
       });

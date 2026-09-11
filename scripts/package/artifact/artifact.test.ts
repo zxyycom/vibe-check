@@ -354,14 +354,16 @@ function isRecord(value: unknown): value is Readonly<Record<string, unknown>> {
 function declaredRuntimeExports(entryPath: string): string {
   const source = readFileSync(entryPath, "utf8");
   const exports = [...source.matchAll(/export\s*\{([^}]+)\}\s*from\s*["']\.\//g)]
-    .flatMap((match) =>
-      match[1].split(",").map((name) =>
+    .flatMap((match) => {
+      const exportedNames = match[1];
+      if (exportedNames === undefined) throw new Error("runtime export declaration lacks names");
+      return exportedNames.split(",").map((name) =>
         name
           .trim()
           .split(/\s+as\s+/)
           .at(-1)
-      )
-    )
+      );
+    })
     .filter((name): name is string => name !== undefined)
     .sort((left, right) => left.localeCompare(right));
   return JSON.stringify(exports);

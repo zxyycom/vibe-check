@@ -194,7 +194,7 @@ function formattedPreviewText(
 function observeRejectedPromise(value: unknown): void {
   if (types.isPromise(value)) {
     // The intrinsic call observes a real Promise without reading a caller-controlled `.then`.
-    // eslint-disable-next-line typescript/no-floating-promises -- rendering must not await formatter misuse.
+    // oxlint-disable-next-line typescript/no-floating-promises -- rendering must not await formatter misuse.
     void Promise.prototype.then.call(value, undefined, () => undefined);
   }
 }

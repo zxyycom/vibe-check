@@ -109,8 +109,8 @@ async function runBunRegistrationReport(
   reportPath: string
 ) {
   return runBunCommand({
-    cancelSignal: options.cancelSignal,
     workspaceRoot: options.workspaceRoot,
+    ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal }),
     args: [
       "test",
       ...files,
@@ -162,8 +162,8 @@ async function scanBunStaticEntities(
 ): Promise<BunStaticResult> {
   const ruleRoot = path.join(workspaceRoot, "scripts", "test-evidence", "ast-grep", "rules");
   const nativeScan = await scanAstRule({
-    cancelSignal,
     workspaceRoot,
+    ...(cancelSignal === undefined ? {} : { cancelSignal }),
     rulePath: path.join(ruleRoot, "bun-native-test.yml"),
     paths: files
   });
@@ -174,8 +174,8 @@ async function scanBunStaticEntities(
     "bun-unsupported-parameterized.yml"
   ]) {
     const scan = await scanAstRule({
-      cancelSignal,
       workspaceRoot,
+      ...(cancelSignal === undefined ? {} : { cancelSignal }),
       rulePath: path.join(ruleRoot, ruleName),
       paths: files
     });
@@ -194,7 +194,7 @@ function bunStaticCandidates(matches: readonly AstMatch[]): BunStaticResult {
   const diagnostics: TestEvidenceDiagnostic[] = [];
   for (const match of matches) {
     const name = match.metaVariables.single.NAME?.text;
-    if (!name) {
+    if (name === undefined || name === "") {
       diagnostics.push(
         diagnostic("static-scan-failed", "static", "Bun native test rule did not capture NAME", {
           path: match.file,

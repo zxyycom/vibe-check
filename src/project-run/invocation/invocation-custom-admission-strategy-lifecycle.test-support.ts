@@ -286,7 +286,7 @@ function resultWithOutputs(
   return result;
 }
 
-function check(checkId: string, execution: Check["execution"]): Check {
+function check(checkId: string, execution: NonNullable<Check["execution"]>): Check {
   return { checkId, displayName: checkId, execution };
 }
 

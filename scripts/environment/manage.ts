@@ -97,7 +97,7 @@ function trustRepositoryMiseConfig(): void {
 function runCommandInMise({ args, command, shouldCaptureOutput }: RunCommandInMiseInput): string {
   return runMiseCommand({
     args: ["exec", "--", command, ...args],
-    shouldCaptureOutput
+    ...(shouldCaptureOutput === undefined ? {} : { shouldCaptureOutput })
   });
 }
 
@@ -106,7 +106,7 @@ function runMiseCommand({ args, shouldCaptureOutput }: RunMiseCommandInput): str
     args,
     command: "mise",
     environment: MISE_ENV,
-    shouldCaptureOutput
+    ...(shouldCaptureOutput === undefined ? {} : { shouldCaptureOutput })
   });
 }
 
@@ -149,7 +149,12 @@ function parseEnvironmentAction(value: string | undefined): EnvironmentAction {
   throw new Error("usage: bun scripts/environment/manage.ts <check|setup>");
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+const entrypoint = process.argv[1];
+if (
+  entrypoint !== undefined &&
+  entrypoint !== "" &&
+  resolve(entrypoint) === fileURLToPath(import.meta.url)
+) {
   try {
     const action = parseEnvironmentAction(process.argv[2]);
     if (action === "setup") {

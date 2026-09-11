@@ -67,10 +67,12 @@ export function* commentCounter(tokens: TokenStream, reader: AnalyzerReader): Ge
       reader.context.forgiveGlobal = true;
     } else if (strippedComment.startsWith("#lizard forgives(")) {
       const metricMatch = /#lizard forgives?\(([^)]*)\)/u.exec(strippedComment);
-      if (metricMatch?.[1]) {
+      if (metricMatch?.[1] !== undefined) {
         for (const metric of metricMatch[1].split(",")) {
           const trimmedMetric = stripPythonWhitespace(metric);
-          if (trimmedMetric) reader.context.currentFunction.forgivenMetrics.add(trimmedMetric);
+          if (trimmedMetric.length > 0) {
+            reader.context.currentFunction.forgivenMetrics.add(trimmedMetric);
+          }
         }
       }
     } else if (strippedComment.startsWith("#lizard forgive")) {

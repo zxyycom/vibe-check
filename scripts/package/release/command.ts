@@ -25,7 +25,9 @@ interface FormalReleaseCommandSteps {
 
 const defaultSteps: FormalReleaseCommandSteps = Object.freeze({
   prepare: prepareFormalRelease,
-  report: (line: string) => console.log(line),
+  report: (line: string) => {
+    console.log(line);
+  },
   verify: runFullReleaseAcceptance
 });
 

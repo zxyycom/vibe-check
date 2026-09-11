@@ -30,7 +30,11 @@ export async function discoverTestEntities(
   }
   const profile = profileResolution.profile;
   const discovered = await discoverRunnerEntities(
-    { cancelSignal: options.cancelSignal, workspaceRoot, profile },
+    {
+      ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal }),
+      workspaceRoot,
+      profile
+    },
     dependencies
   );
   const diagnostics = [
@@ -91,7 +95,7 @@ async function discoverRunnerEntities(
   diagnostics: DiscoveryResult["diagnostics"];
 }> {
   const bun = await dependencies.discoverBunEntities({
-    cancelSignal: options.cancelSignal,
+    ...(options.cancelSignal === undefined ? {} : { cancelSignal: options.cancelSignal }),
     workspaceRoot: options.workspaceRoot,
     profile: options.profile
   });
@@ -106,8 +110,9 @@ function duplicateEntityDiagnostics(
 ): DiscoveryResult["diagnostics"] {
   const diagnostics: DiscoveryResult["diagnostics"] = [];
   for (let index = 1; index < entities.length; index += 1) {
-    if (entities[index - 1]?.entityKey === entities[index]?.entityKey) {
-      const entity = entities[index];
+    const previous = entities[index - 1];
+    const entity = entities[index];
+    if (entity !== undefined && previous?.entityKey === entity.entityKey) {
       diagnostics.push(
         diagnostic(
           "duplicate-entity",

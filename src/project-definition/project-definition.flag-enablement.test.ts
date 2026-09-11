@@ -41,11 +41,13 @@ describe("Project Definition", () => {
         ]
       })
     );
+    const sourceCheck = source.checks[0];
+    if (sourceCheck === undefined) throw new Error("expected source check");
     const differentMode = normalizeProjectDefinition(
       defineConfig({
         checks: [
           {
-            ...source.checks[0],
+            ...sourceCheck,
             enabledByFlags: { flags: ["analysis:deep", "analysis:slow"], mode: "any" }
           }
         ]

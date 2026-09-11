@@ -207,7 +207,9 @@ Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 
 
 根目录 `.oxlintrc.json` 是可机械执行的 TypeScript lint rule set 的唯一 owner，`.oxfmtrc.json` 拥有 format 选项，`scripts/development/format-targets.ts` 拥有显式 format target。
 
-`lint.ts` 与 `typecheck.ts` 只拥有 `product` / `scripts` scope 到路径或 tsconfig 的映射。它们使用 checkout 锁定的工具，两个 lint scope 都以 `oxlint --deny-warnings` 运行。`format` 写入这些显式 target，`format -- check` 只检查它们。
+`lint.ts` 与 `typecheck.ts` 只拥有 `product` / `scripts` scope 到路径或 tsconfig 的映射。根 `tsconfig.json` 是 Product 与 scripts 共享的 source compiler profile：`strict`、`noUncheckedIndexedAccess`、`exactOptionalPropertyTypes`、`noImplicitOverride`、`noImplicitReturns` 与 `allowUnreachableCode: false`；`tsconfig.product.json` 只继承该 profile 并定义 Product roots/cache。因 artifact emit 使用 `--ignoreConfig`，它在自己的 CLI 中镜像这六项实现语义；这是[产物契约](package-artifact.md#构建输入与包接口边界)的同步义务，不是第二份 source profile。external-consumer 的 types fixture 则以自己的严格 profile 验收 installed declarations；其范围与不继承的 implementation-only 规则见[候选包安装与外部使用方验收](package-lifecycle.md#候选包安装与外部使用方验收)。
+
+`.oxlintrc.json` 同时拥有 error/warning 规则、其 options 与 suppression policy。两个 lint scope 都以 `oxlint --deny-warnings` 运行，因此 warning 仍阻断；severity 只分类风险，不形成让步。authoring 只使用带 exact rule 和理由的 Oxlint directive：ESLint directives 不被接受，unused Oxlint directives 以 warning 报告后同样被阻断。该 profile 不加载 Unicorn plugin；规则选择及其升级边界由[阻断且分级的 Oxlint 决策](../decisions/use-blocking-tiered-oxlint-policy.md)完整定义。`format` 写入这些显式 target，`format -- check` 只检查它们。
 
 修改 lint rule、format option 或目标范围时，修改相应配置或 development owner；不要在 package、子目录或文档复制同义规则表或 target list。development lint、format 与 typecheck 对适用 `src` 保持完整普通输入，均不为 source-aligned function-metrics port 增加 translated-only 排除。实现原则仍以[编码规范](../development/coding-style.md)为准。
 

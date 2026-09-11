@@ -112,7 +112,7 @@ async function runConfiguredProcess(
       env: { ...process.env, ...context.options.environment },
       label: context.options.checkId,
       cancelSignal: context.signal,
-      timeout: context.options.timeoutMs
+      ...(context.options.timeoutMs === undefined ? {} : { timeout: context.options.timeoutMs })
     });
   } catch (error: unknown) {
     return unavailableProcessResult(error);

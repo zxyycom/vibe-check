@@ -24,7 +24,7 @@ function isTypecheckScope(value: string): value is TypecheckScope {
 function parseTypecheckScopes(argv: readonly string[]): readonly TypecheckScope[] {
   if (argv.length === 0) return ["product", "scripts"];
   const [scope] = argv;
-  if (argv.length !== 1 || !scope || !isTypecheckScope(scope)) {
+  if (argv.length !== 1 || scope === undefined || scope === "" || !isTypecheckScope(scope)) {
     throw new Error("usage: bun scripts/development/typecheck.ts [product|scripts]");
   }
   return [scope];

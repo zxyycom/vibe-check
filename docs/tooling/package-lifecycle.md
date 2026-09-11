@@ -54,7 +54,7 @@ Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 
 3. parent 核对路径 containment、manifest version 和 jscpd bin。
 4. 随后的 Product / external runtime 消费同一安装，实际执行 jscpd；preparation 不为同一事实重复启动 probe。
 
-`candidate/external-consumer/**` 建立一次隔离安装及 typed material，分别拥有 types、documentation 与 runtime 验收；父级 candidate lifecycle 不吸收这些职责。
+`candidate/external-consumer/**` 建立一次隔离安装及 typed material，分别拥有 types、documentation 与 runtime 验收；父级 candidate lifecycle 不吸收这些职责。其 types fixture 用独立的 `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes` profile 验收安装后的公共 declarations，不承接 `noImplicitOverride`、`noImplicitReturns` 或 unreachable-code 等 implementation-only 规则，也不增加 compiler invocation 或重复安装。
 
 Runtime 从 installed root import 调用 `functionMetrics`，要求 CCN `2` 的 non-blocking finding，证明 emitted Worker URL 指向安装包内 worker 且执行成功，不扩大 public exports。Types 用一次真实 `tsgo` consumer typecheck 覆盖 public imports、examples 与 Definition，直接核对 installed declaration owner 的相邻 JSDoc，不再为同一 declaration graph 建第二个 LanguageService program。Documentation 验收见[随包材料验收](documentation-validation.md#随包材料验收)。
 

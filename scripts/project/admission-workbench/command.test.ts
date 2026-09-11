@@ -6,7 +6,7 @@ import { test } from "node:test";
 
 import { execa } from "execa";
 
-import { FIXTURES } from "./fixture-registry.ts";
+import { requiredFixture } from "./fixture-registry.ts";
 
 const command = "scripts/project/admission-workbench/command.ts";
 
@@ -90,8 +90,8 @@ test("command returns nonzero error evidence with parsed identity for a public g
   await writeFile(
     path,
     JSON.stringify({
-      ...structuredClone(FIXTURES.chain),
-      graph: { ...structuredClone(FIXTURES.chain.graph), maxParallel: 0 }
+      ...structuredClone(requiredFixture("chain")),
+      graph: { ...structuredClone(requiredFixture("chain").graph), maxParallel: 0 }
     })
   );
   const result = await execa("bun", [command, path], { reject: false });

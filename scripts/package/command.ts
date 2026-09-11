@@ -29,7 +29,9 @@ interface PackageCommandSteps {
 const defaultSteps: PackageCommandSteps = Object.freeze({
   inspect: inspectPackageCandidate,
   prepare: preparePackageCandidate,
-  report: (line: string) => console.log(line),
+  report: (line: string) => {
+    console.log(line);
+  },
   verify: runFullPackageAcceptance
 });
 

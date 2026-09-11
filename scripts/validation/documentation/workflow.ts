@@ -49,11 +49,17 @@ export interface DocsValidationCliOptions {
 type DocsValidationAction = (options: DocsValidationTaskOptions) => void | Promise<void>;
 
 const tasks: Readonly<Record<DocsValidationTask, DocsValidationAction>> = {
-  [TASK_NAMES.json]: ({ report }) => validateJsonSyntax(report),
+  [TASK_NAMES.json]: ({ report }) => {
+    validateJsonSyntax(report);
+  },
   [TASK_NAMES.schema]: validatePublishedSchemas,
   [TASK_NAMES.examples]: validatePublishedExamples,
-  [TASK_NAMES.links]: ({ linkRepositoryRoot, report }) =>
-    validateMarkdownLinks({ report, repositoryRoot: linkRepositoryRoot }),
+  [TASK_NAMES.links]: ({ linkRepositoryRoot, report }) => {
+    validateMarkdownLinks({
+      ...(report === undefined ? {} : { report }),
+      ...(linkRepositoryRoot === undefined ? {} : { repositoryRoot: linkRepositoryRoot })
+    });
+  },
   [TASK_NAMES.packageApiDocumentation]: validatePackageApiDocumentation
 };
 
@@ -87,9 +93,14 @@ export async function validateDocs(
   const diagnostics: DocsValidationDiagnostic[] = [];
   for (const taskName of selectedTasks) {
     const task = tasks[taskName];
-    assert(task, `unknown validation task: ${taskName}`);
+    assert(task !== undefined, `unknown validation task: ${taskName}`);
     try {
-      await task({ linkRepositoryRoot: options.linkRepositoryRoot, report: options.report });
+      await task({
+        ...(options.linkRepositoryRoot === undefined
+          ? {}
+          : { linkRepositoryRoot: options.linkRepositoryRoot }),
+        ...(options.report === undefined ? {} : { report: options.report })
+      });
     } catch (error: unknown) {
       if (!(error instanceof ExpectedDocsValidationFailure)) throw error;
       diagnostics.push(...error.diagnostics);
@@ -174,8 +185,12 @@ if (import.meta.main) {
   await runAsyncMain(async () => {
     process.exitCode = await runDocsValidationCli({
       argv: process.argv.slice(2),
-      writeStderr: (message) => console.error(message),
-      writeStdout: (message) => console.log(message)
+      writeStderr: (message) => {
+        console.error(message);
+      },
+      writeStdout: (message) => {
+        console.log(message);
+      }
     });
   });
 }

@@ -54,7 +54,7 @@ describe("repository quality Checks", () => {
       false
     );
     const docsSpecs = fileMetrics.options.codeAreas["docs-specs"];
-    assert.ok(docsSpecs);
+    assert.ok(docsSpecs !== undefined);
     assert.equal(
       selectsPath(
         docsSpecs.files,
@@ -71,7 +71,7 @@ describe("repository quality Checks", () => {
       true
     );
     const duplicateSchemasExamples = duplicateDetection.options.codeAreas["schemas-examples"];
-    assert.ok(duplicateSchemasExamples);
+    assert.ok(duplicateSchemasExamples !== undefined);
     assert.equal(
       selectsPath(
         duplicateSchemasExamples.files,
@@ -84,7 +84,7 @@ describe("repository quality Checks", () => {
       true
     );
     const schemasExamples = fileMetrics.options.codeAreas["schemas-examples"];
-    assert.ok(schemasExamples);
+    assert.ok(schemasExamples !== undefined);
     assert.deepEqual(schemasExamples.files.include, ["docs/schemas/**", "docs/examples/**"]);
     assert.equal(
       selectsPath(schemasExamples.files, "docs/schemas/historical/v2/vibe-check-run.schema.json"),
@@ -128,7 +128,7 @@ describe("repository quality Checks", () => {
       }
     );
     for (const files of Object.values(productQualitySelections)) {
-      assert.ok(files);
+      assert.ok(files !== undefined);
       for (const path of lizardPortRepresentativePaths) {
         assert.equal(selectsPath(files, path), false, `${path} must stay outside quality metrics`);
       }
