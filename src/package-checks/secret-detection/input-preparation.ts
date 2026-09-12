@@ -1,4 +1,12 @@
-import { closeSync, constants, fstatSync, openSync, readSync } from "node:fs";
+import {
+  closeSync,
+  constants,
+  fstatSync,
+  lstatSync,
+  openSync,
+  readSync,
+  type BigIntStats
+} from "node:fs";
 import { resolve } from "node:path";
 
 import type { CheckExecutionContext } from "../../check/check.ts";
@@ -147,7 +155,7 @@ function readBoundedRegularFile(input: {
   readonly filePath: string;
   readonly options: ResolvedSecretDetectionOptions;
 }): BoundedRegularFileRead {
-  const descriptor = openRegularFileWithoutFollowingSymlink(input.filePath);
+  const descriptor = openIdentityCheckedRegularFile(input.filePath);
   if (descriptor === undefined) return Object.freeze({ kind: "unavailable" });
   try {
     const byteLength = regularFileByteLength(descriptor);
@@ -175,17 +183,66 @@ function closeDescriptor(descriptor: number): void {
   }
 }
 
-function openRegularFileWithoutFollowingSymlink(filePath: string): number | undefined {
-  if (!supportsNoFollowDescriptorOpen()) return undefined;
+interface RegularFileIdentity {
+  readonly device: bigint;
+  readonly inode: bigint;
+}
+
+function openIdentityCheckedRegularFile(filePath: string): number | undefined {
+  const expectedIdentity = regularFileIdentityAtPath(filePath);
+  if (expectedIdentity === undefined) return undefined;
+  const openFlags = finalLeafOpenFlags();
+  if (openFlags === undefined) return undefined;
+
+  let descriptor: number;
   try {
-    return openSync(filePath, constants.O_RDONLY | constants.O_NOFOLLOW);
+    descriptor = openSync(filePath, openFlags);
+  } catch {
+    return undefined;
+  }
+
+  const openedIdentity = regularFileIdentityOnDescriptor(descriptor);
+  if (openedIdentity !== undefined && sameRegularFileIdentity(expectedIdentity, openedIdentity)) {
+    return descriptor;
+  }
+  closeDescriptor(descriptor);
+  return undefined;
+}
+
+function finalLeafOpenFlags(): number | undefined {
+  if (process.platform === "win32") return constants.O_RDONLY;
+  return typeof constants.O_NOFOLLOW === "number" && constants.O_NOFOLLOW !== 0
+    ? constants.O_RDONLY | constants.O_NOFOLLOW
+    : undefined;
+}
+
+function regularFileIdentityAtPath(filePath: string): RegularFileIdentity | undefined {
+  try {
+    return regularFileIdentity(lstatSync(filePath, { bigint: true }));
   } catch {
     return undefined;
   }
 }
 
-function supportsNoFollowDescriptorOpen(): boolean {
-  return process.platform !== "win32" && constants.O_NOFOLLOW !== 0;
+function regularFileIdentityOnDescriptor(descriptor: number): RegularFileIdentity | undefined {
+  try {
+    return regularFileIdentity(fstatSync(descriptor, { bigint: true }));
+  } catch {
+    return undefined;
+  }
+}
+
+function regularFileIdentity(details: BigIntStats): RegularFileIdentity | undefined {
+  return details.isFile() && details.dev > 0n && details.ino > 0n
+    ? Object.freeze({ device: details.dev, inode: details.ino })
+    : undefined;
+}
+
+function sameRegularFileIdentity(
+  expected: RegularFileIdentity,
+  opened: RegularFileIdentity
+): boolean {
+  return expected.device === opened.device && expected.inode === opened.inode;
 }
 
 function regularFileByteLength(descriptor: number): number | undefined {

@@ -51,8 +51,10 @@ options 不接受 arbitrary regex、command、baseline、detector allowlist 或 
 ## 工作原理
 
 1. 按显式 `files` 收集 exact project-relative paths，先应用文件数限制。
-2. 在本仓库验证的 POSIX Node runtime 中，以 `O_NOFOLLOW` 打开 final leaf；在同一 descriptor 上检查 regular-file、size，
-   并在单文件/剩余总预算内分块读取。未满足安全读取条件的路径不获 detector coverage。
+2. 在受支持 POSIX runtime 中，先用 `lstat` 取得 final leaf 的 regular-file 身份，再以 `O_NOFOLLOW` 打开 descriptor，
+   并要求 descriptor 的 device/inode 身份与路径身份一致。随后在同一 descriptor 上检查 size，并在单文件/剩余总预算内
+   分块读取。symlink、无可靠文件身份或身份在打开前变化的路径不获 detector coverage。Windows 分支会以 read-only flag
+   尝试同一身份握手，避免仅因平台缺少 `O_NOFOLLOW` 就预先拒绝普通文件；这是 portability optimization，不扩展受支持平台契约。
 3. 成功读取后检查 NUL 与 fatal UTF-8，只有 approved text 交给 private adapter；它不接收 project root，也不重新枚举文件。
 
 adapter 固定使用 [Secretlint v13.0.5](https://github.com/secretlint/secretlint/releases/tag/v13.0.5) 中 MIT-licensed 的
@@ -112,7 +114,8 @@ const check = secretDetection({
 
 - NUL、invalid UTF-8、单文件/总 bytes/文件数超限是 deterministic `coverage-gap`，使 Check `failed`。
   成功 descriptor read 的 raw bytes 先消耗总预算，即使随后成为 non-text gap。
-- symlink、非 regular file、read/change failure 或 runtime 不支持 `O_NOFOLLOW` descriptor open：`source-unavailable`。
+- symlink、非 regular file、无法取得可靠 device/inode 身份、open 前身份变化、POSIX 不支持 `O_NOFOLLOW` 或 read/change
+  failure：`source-unavailable`。
 - whole-Check `unavailable` 的 closed reasons 为 `invalid-options`、`scan-input-unavailable`、`source-unavailable`、
   `detector-unavailable`、`detector-protocol-failed`、`execution-cancelled`。它们附同 code 的 error message，无 final data 或 partial result。
 
@@ -121,8 +124,10 @@ const check = secretDetection({
 I/O 只限 files 选择的 local paths；无 command、network、history、environment、home、binary 或 remote secret-manager I/O。
 raw detector material 不进入 result、Record、message、machine output、cache、log 或 error。
 
-POSIX no-follow 只绑定 final leaf；Node 没有 portable `openat`/dirfd traversal，无法保证中间目录或已打开 inode 不被恶意并发替换。
-需要该隔离级别时，调用方须使用 OS-level sandbox。
+这些检查只绑定 final leaf；Node 没有 portable `openat`/dirfd traversal，无法保证中间目录不被恶意并发替换，也无法排除
+已打开 inode 的同长度并发写入。Windows portability branch 未经本次原生 Windows 文件系统验证；路径若在 `lstat` 后被换为
+redirection，底层 open 可能取得目标 descriptor，但身份不匹配时不会读取或交给 detector。需要已承诺的 POSIX 边界之外的
+平台保证或更强隔离时，调用方须自行验证目标 runtime，并使用 OS-level sandbox。
 
 ## 适用边界
 

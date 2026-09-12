@@ -81,7 +81,10 @@ Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-
 - [Function metrics](../checks/function-metrics.md) 的默认 include 与 eligibility 来自同一 Check-local reader registry。先分类再分析 accepted union；rejected path 保留全部排序 area IDs，不能落入通用 source fallback。
 - [JSON validation](../checks/json-validation.md) 以 case-sensitive `.json` predicate 分类；[Markdown Link](../checks/markdown-link-validation.md) 对 `.md` / `.markdown` 使用大小写不敏感语义，direct target 不成为新的 source。
 - [JSON Schema](../checks/json-schema-validation.md) 只读取显式 schemas/bindings 且在 selection 内的 path，不从 suffix、`$schema` 或目录发现 work。
-- [Secret detection](../checks/secret-detection.md) 没有普通 suffix rejection；它在 detector 前对每个 selected path 完成 no-follow bounded-read/coverage settlement，adapter 只接收 accepted text，不取得 root 或重新发现权限。
+- [Secret detection](../checks/secret-detection.md) 没有普通 suffix rejection；它在 detector 前对每个 selected path 完成
+  path/descriptor identity-checked bounded-read/coverage settlement；受支持 POSIX runtime 还要求 no-follow open。Windows 分支
+  只是不再因缺少 `O_NOFOLLOW` 预先拒绝普通文件的 portability optimization，不扩展受支持平台契约。adapter 只接收
+  accepted text，不取得 root 或重新发现权限。
 
 分类不会改变本次 invocation 使用的文件来源，也不会把 rejected path 交给 scanner、document reader 或 Markdown parser。
 

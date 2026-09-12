@@ -380,7 +380,32 @@ describe("secretDetection", () => {
     }
   });
 
-  it("uses a no-follow descriptor so an exact root-escaping symlink is unavailable without Records", async () => {
+  it("does not reject a stable regular file solely because the Windows branch is selected", () => {
+    const supportModuleUrl = new URL("./secret-detection.test-support.ts", import.meta.url).href;
+    execFileSync(
+      process.execPath,
+      [
+        "-e",
+        [
+          'Object.defineProperty(process, "platform", { value: "win32" });',
+          `const support = await import(${JSON.stringify(supportModuleUrl)});`,
+          'const fs = await import("node:fs");',
+          'const path = await import("node:path");',
+          "const root = support.projectRoot();",
+          "try {",
+          '  fs.writeFileSync(path.join(root, "plain.txt"), "plain text", "utf8");',
+          "  const observed = await support.runSecretDetection(root);",
+          '  if (observed.result.status !== "passed") throw new Error(JSON.stringify(observed.result));',
+          "} finally {",
+          "  fs.rmSync(root, { force: true, recursive: true });",
+          "}"
+        ].join("\n")
+      ],
+      { stdio: "pipe" }
+    );
+  });
+
+  it("rejects an exact root-escaping final-leaf symlink without Records under the safe-read protocol", async () => {
     const root = projectRoot();
     const outside = projectRoot();
     try {

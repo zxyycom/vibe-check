@@ -141,11 +141,23 @@ Entities:
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > keeps synthetic canary material out of completed Run facts and published outputs`
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > fails closed for deterministic coverage gaps without treating them as waived findings`
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > accounts for non-text reads in the total budget and applies the selected-file limit`
-- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > uses a no-follow descriptor so an exact root-escaping symlink is unavailable without Records`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > rejects an exact root-escaping final-leaf symlink without Records under the safe-read protocol`
 
 Proves:
 
 - Secret detection reads and detects only its explicit selected paths; excluded paths are never rediscovered or reported.
 - NUL, invalid UTF-8, and bounded resource gaps remain explicit failed coverage facts rather than clean or waived inputs.
 - Every successfully read raw byte, including a later non-text gap, consumes the total byte budget; file-count and remaining-total exhaustion stop detector work with explicit coverage facts.
-- A selected symlink cannot make the Check read beyond its project-root path: a no-follow descriptor makes the whole Check unavailable without partial Records, and synthetic canary material is absent from Run facts, machine publication, Records stream, and diagnostic output.
+- A selected final-leaf symlink cannot make the Check read beyond its project-root path: POSIX no-follow and path/descriptor identity verification make the whole Check unavailable without partial Records. Intermediate-directory symlink or reparse traversal is outside this evidence. Synthetic canary material is absent from Run facts, machine publication, Records stream, and diagnostic output.
+
+## Case FIX-SECRET-DETECTION-WINDOWS-001: Windows branch does not pre-reject regular inputs
+
+Owner: `docs/checks/secret-detection.md#工作原理`
+Entities:
+
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > does not reject a stable regular file solely because the Windows branch is selected`
+
+Proves:
+
+- Selecting the `win32` branch no longer rejects a stable regular file solely because the platform lacks `O_NOFOLLOW`: with compatible host `node:fs` identity facts, the probe completes detector settlement instead of returning `source-unavailable`.
+- This forced-branch probe runs on the current host filesystem. It does not prove native Windows device/inode or reparse behavior and therefore does not establish a Windows support contract.
