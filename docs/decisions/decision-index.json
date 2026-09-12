@@ -335,7 +335,7 @@
       "260911-adopt-soundness-oriented-typescript-typecheck-profiles": "sha256:06a158bbefd07b3ae88be7cba5da6fb45a9b57c95521473fe3c1ceec72fe8517",
       "260911-use-blocking-tiered-oxlint-policy": "sha256:904e70fc51dfc65362e15be9c2d7baea9206a380e01b11160f84926f3f9e6f3d",
       "260912-keep-core-independent-of-package-tools": "sha256:b86fa5f200fdf7a1f641b3bdc423f7e583d135dc618716c67dc582f7daf26cc0",
-      "260912-provide-public-data-boundaries-for-tool-isolation": "sha256:02fc2d864de1b1c995bbc8d964d668692c80805b4ccae421adfb0939c0433fe0"
+      "260912-provide-public-data-boundaries-for-tool-isolation": "sha256:627f25a57429c48cfd7a459310cbc664a566f7c775e2ac90246a111902df5f3e"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },

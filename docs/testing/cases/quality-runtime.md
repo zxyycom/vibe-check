@@ -30,14 +30,14 @@ Entities:
 - `bun|src/data-boundary/closed-values.test.ts|public closed data snapshots > accepts only dense standard arrays and keeps items as shallow references`
   Proves:
 - `snapshotExactClosedRecord` accepts only the caller-declared exact own data-key set and rejects missing/extra fields, accessor authoring and contained reflection faults without evaluating an accessor.
-- `snapshotClosedArray` accepts only dense standard arrays without extra own fields or accessors. Both helpers freeze only the returned container: nested values retain their original identity and mutability, rather than being represented as detached canonical data.
+- `snapshotClosedArray` accepts only dense standard arrays without extra own fields or accessors. Both helpers close and freeze only the outer container: callback and `undefined` values, plus nested values, retain their original identity and mutability rather than being represented as detached canonical data.
 
 ## Case WB-RUNTIME-CHECK-RECORD-001: Check and Record foundation is exact and closed
 
 Owner: `docs/development/check-results.md#check-and-record-facts`
 Entities:
 
-- `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > emits canonical UTF-8 JSON for safe detached values`
+- `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > emits detached deep-frozen canonical UTF-8 JSON for safe values`
 - `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > rejects accessors, sparse arrays, and reflection failures without invoking author hooks`
 - `bun|src/check-settlement/facts.test.ts|check-record foundation model > accepts exactly one four-state terminal outcome for each Core Check`
 - `bun|src/check-settlement/facts.test.ts|check-record foundation model > validates an exact canonical two-entity snapshot with structural Record identity`
@@ -48,7 +48,7 @@ Entities:
 - `bun|src/check-settlement/fact-validation.test.ts|check-record foundation runtime validation > rejects non-canonical final or Record data and invalid ownership`
   Proves:
 - Check definitions, final data, and Record data admit only closed canonical JSON facts; callback execution and reporter ownership stay outside the frozen snapshot.
-- Canonical bytes and detached data reject accessors, proxies, sparse arrays, and non-JSON values without evaluating author hooks.
+- Canonical data is detached, deep-frozen, and uses null-prototype objects; its fixed lexical text ordering remains distinct from `JSON.stringify` integer-index ordering. The structural `CanonicalJsonPrimitive` type can express `NaN`, but runtime materialization rejects non-finite number. Canonical bytes and detached data reject accessors, sparse arrays, and non-JSON values without evaluating author hooks; reflection faults, including a Proxy that throws from a reflection trap, fail materialization, while a Proxy trap may execute during reflection.
 - A Check-facts Check has exactly one closed `passed`, `failed`, `not-applicable`, or `unavailable` outcome, and a snapshot contains only canonical Checks and structural `(checkId, id)` Records.
 
 ## Case API-FINDING-WAIVER-RECONCILIATION-001: Public helper reconciles caller-defined finding identities

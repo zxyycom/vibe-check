@@ -5,13 +5,17 @@ import { snapshotClosedArray, snapshotExactClosedRecord } from "./closed-values.
 
 describe("public closed data snapshots", () => {
   it("accepts only exact own data shapes without evaluating accessors or reflection failures", () => {
+    const callback = () => "retained";
     const nested = { retained: true };
-    const exact = snapshotExactClosedRecord({ kind: "bundle", nested }, [
-      "kind",
-      "nested"
-    ] as const);
-    assert.deepEqual(exact, { kind: "bundle", nested });
+    const exact = snapshotExactClosedRecord(
+      { callback, kind: "bundle", missing: undefined, nested },
+      ["callback", "kind", "missing", "nested"] as const
+    );
+    assert.deepEqual(exact, { callback, kind: "bundle", missing: undefined, nested });
     assert.equal(Object.isFrozen(exact), true);
+    assert.equal(exact?.callback, callback);
+    assert.equal(Object.hasOwn(exact ?? {}, "missing"), true);
+    assert.equal(exact?.missing, undefined);
     assert.equal(exact?.nested, nested);
     nested.retained = false;
     assert.deepEqual(exact?.nested, { retained: false });
@@ -43,12 +47,15 @@ describe("public closed data snapshots", () => {
   });
 
   it("accepts only dense standard arrays and keeps items as shallow references", () => {
+    const callback = () => "retained";
     const nested = { retained: true };
-    const snapshot = snapshotClosedArray([nested]);
+    const snapshot = snapshotClosedArray([callback, undefined, nested]);
     assert.equal(Object.isFrozen(snapshot), true);
-    assert.equal(snapshot?.[0], nested);
+    assert.equal(snapshot?.[0], callback);
+    assert.equal(snapshot?.[1], undefined);
+    assert.equal(snapshot?.[2], nested);
     nested.retained = false;
-    assert.deepEqual(snapshot?.[0], { retained: false });
+    assert.deepEqual(snapshot?.[2], { retained: false });
 
     const sparse: unknown[] = [];
     sparse.length = 2;

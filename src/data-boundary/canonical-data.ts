@@ -9,11 +9,11 @@ export type {
 const encoder = new TextEncoder();
 
 /**
- * 将任意输入安全 materialize 为 detached、deep-frozen 的 canonical JSON object。
+ * 将输入规范化为独立、递归冻结的 canonical JSON object 副本。
  *
- * 用于需要 object payload 的本地 identity、evidence 或持久化边界。只接受普通/null-prototype
- * object、标准 dense array、有限 JSON primitive；不会调用 getter 或 `toJSON`。无效输入、cycle
- * 或反射失败返回 `undefined`；Proxy trap 仍可能在反射期间执行，因此 hostile Proxy 不是无副作用边界。
+ * 只接受普通/null-prototype object、标准 dense array、有限 JSON primitive；输出中的每个 object 都是
+ * null-prototype，所有输出 object/array container 都是 detached、deep-frozen。不会调用 getter 或
+ * `toJSON`。无效输入、cycle 或反射失败返回 `undefined`；Proxy trap 仍可能在反射期间执行。
  */
 export function canonicalizeJsonObject(value: unknown): CanonicalJsonObject | undefined {
   const canonical = canonicalize(value, new Set<object>());
@@ -21,21 +21,23 @@ export function canonicalizeJsonObject(value: unknown): CanonicalJsonObject | un
 }
 
 /**
- * 将任意输入安全 materialize 为 detached、deep-frozen 的 canonical JSON value。
+ * 将输入规范化为独立、递归冻结的 canonical JSON value 副本。
  *
- * 成功结果将 `-0` 规范化为 `0`；拒绝 accessor、`toJSON` hook、sparse array、非 enumerable own
- * property、非有限 number 和不支持的 prototype。失败返回 `undefined`，不以 TypeScript 类型断言代替
- * runtime materialization。
+ * 成功结果将 `-0` 规范化为 `0`，并以 null-prototype object 与 deep-frozen container 输出；拒绝
+ * accessor、`toJSON` hook、sparse array、非 enumerable own property、非有限 number 和不支持的
+ * prototype。`CanonicalJsonPrimitive` 的 `number` 在静态上仍可表示 `NaN`，只有 runtime materialization
+ * 检查有限值。失败返回 `undefined`，不以 TypeScript 类型断言代替 runtime materialization。
  */
 export function canonicalizeJsonValue(value: unknown): CanonicalJsonValue | undefined {
   return canonicalize(value, new Set<object>());
 }
 
 /**
- * 将安全 materialize 后的 JSON 输出为确定性的无空白文本。
+ * 直接规范化输入并生成确定性的无空白 JSON 文本。
  *
- * object key 使用当前实现的 lexical `<` 顺序（不是外部 canonical-JSON 标准承诺）；无效输入抛
- * `TypeError`。适合稳定的本地 identity 或审计文本，不为 secret 提供保护。
+ * object key 使用固定 lexical `<` 顺序（不是外部 canonical-JSON 标准承诺）；即使同一 canonical object，
+ * `JSON.stringify` 仍会按 ECMAScript 的 integer-index key 顺序输出，因而不保证与本 helper 文本相同。
+ * 无效输入抛 `TypeError`。
  */
 export function canonicalJsonText(value: unknown): string {
   const canonical = canonicalizeJsonValue(value);
@@ -46,9 +48,10 @@ export function canonicalJsonText(value: unknown): string {
 }
 
 /**
- * 以 UTF-8 bytes 输出与 `canonicalJsonText` 相同的确定性 JSON。
+ * 直接规范化输入并生成与 `canonicalJsonText` 相同的确定性 UTF-8 JSON bytes。
  *
- * 无效输入抛 `TypeError`；可作为 hash 或二进制持久化输入，但不提供签名、认证或保密性。
+ * 此 helper 自行执行相同的 materialization 与固定 lexical key 排序，而非要求调用方先传入 canonical value；
+ * 无效输入抛 `TypeError`。
  */
 export function canonicalJsonBytes(value: unknown): Uint8Array {
   return encoder.encode(canonicalJsonText(value));

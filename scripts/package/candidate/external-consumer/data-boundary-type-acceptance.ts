@@ -9,7 +9,8 @@ const canonicalObject: CanonicalJsonObject | undefined = canonicalizeJsonObject(
   kind: "type-acceptance"
 });
 const canonicalPrimitive: CanonicalJsonPrimitive = 1;
+const staticallyExpressibleNaN: CanonicalJsonPrimitive = Number.NaN;
 const canonicalText: string = canonicalJsonText({ canonicalPrimitive });
 const canonicalBytes: Uint8Array = canonicalJsonBytes({ canonicalText });
-void [closedHeader, canonicalValue, canonicalObject, canonicalBytes];
+void [closedHeader, canonicalValue, canonicalObject, canonicalBytes, staticallyExpressibleNaN];
 `;

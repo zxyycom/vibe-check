@@ -28,8 +28,9 @@
   实作边界见 [Function-metrics analyzer](#function-metrics-analyzer)；
 - `src/data-boundary/**` 拥有 canonical JSON/data、closed-value snapshot 与跨 Core owner 的 type guards；
   `canonicalizeJsonValue`、`canonicalizeJsonObject`、`canonicalJsonText`、`canonicalJsonBytes`、
-  `snapshotExactClosedRecord`、`snapshotClosedArray` 及三个 Canonical JSON supporting types 是面向外部调用方的
-  独立能力，Core 仍保留其单份实现；
+  `snapshotExactClosedRecord`、`snapshotClosedArray` 及三个 Canonical JSON supporting types 构成两组公开 Core tool：
+  JSON 规范化/确定性序列化与外层结构快照。前者复制并规范化 JSON 数据，后者保留字段值和元素引用，亦可处理含回调的
+  配置。Core 与外部调用方复用同一实现和[公开契约](../guides/data-boundaries.md)，不要求每个便利变体独立承接业务流程；
 - `scripts/docs/package-api/**` 拥有 package、文档与 candidate tooling 共用的 public-root inventory。
 
 `src/package-tools/<domain-owner>/**` 是 Non-core tool 的目录。移除具体工具及其 facade export 后，若 Core 的

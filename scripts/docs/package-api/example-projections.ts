@@ -67,17 +67,45 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
-    id: "data-boundaries",
-    regionId: "data-boundaries",
+    id: "canonical-json-snapshot",
+    regionId: "canonical-json-snapshot",
     sourcePath: "docs/examples/package-api/data-boundaries.ts",
     targets: Object.freeze([
       Object.freeze({
         documentId: "data-boundaries",
-        headingPath: Object.freeze(["最小用法"]),
+        headingPath: Object.freeze(["取得独立的 JSON 副本"]),
         kind: "markdown"
       })
     ]),
-    title: "独立 materialize canonical JSON 与闭合数据快照"
+    title: "取得独立且递归冻结的 JSON 副本"
+  }),
+  Object.freeze({
+    evidence: "runtime",
+    id: "canonical-json-serialization",
+    regionId: "canonical-json-serialization",
+    sourcePath: "docs/examples/package-api/data-boundaries.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "data-boundaries",
+        headingPath: Object.freeze(["生成确定性文本或字节"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "直接生成确定性 JSON 文本与摘要输入字节"
+  }),
+  Object.freeze({
+    evidence: "runtime",
+    id: "closed-structure-snapshot",
+    regionId: "closed-structure-snapshot",
+    sourcePath: "docs/examples/package-api/data-boundaries.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "data-boundaries",
+        headingPath: Object.freeze(["检查含回调的配置结构"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "检查配置结构并保留回调与嵌套引用"
   }),
   Object.freeze({
     evidence: "runtime",
