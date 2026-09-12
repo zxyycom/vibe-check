@@ -1,23 +1,27 @@
 # Tasks
 
-先锁定现有 dependency 与 type evidence，再实现 marker、private lifecycle 和 provider-aware read，最后闭合公开材料与 package acceptance。
+先以当前 owner 与证据固定 public/runtime contract，再按 marker → Definition → settlement/store → readback 顺序实施，最后闭合 publication、文档和 installed candidate。
 
 ## Readiness
 
-- [ ] 0.1 运行 `bun run test-evidence -- check --root .`，查询 typed provider、direct dependency、Core publication 与 installed declaration 的当前 Cases，并确定新增证据的 owner。
-- [ ] 0.2 核对 `Check`/`CheckResult` generics、`defineCheck` overload、Definition normalization、settlement 与 dependency reader 调用链，固定 provider-object read 的 closed success/error union 和 string/list 兼容边界。
+- [x] 0.1 **证据 owner gate：** Test Evidence 账本一致；新增 handoff 使用独立 `WB-RUNTIME-DEPENDENCY-HANDOFF-001`，Definition、failure、string observation、machine/diagnostic absence 与 installed declarations 分别扩展既有 owner Cases。
+- [x] 0.2 **Contract seam gate：** `Check`/`CheckResult`、`defineCheck` overload、Definition check-tree、terminal parsing/Core settlement、execution finalization 与 dependency reader 均有明确 owner；marker authenticity、non-null object/function grammar、provider-object success/error union 和 string/list compatibility 已固定，无待决 contract。
+- [x] 0.3 **协调 gate：** 本 Change 没有其他 Change 的硬前置；project-change flags、batched project files 或 fail-fast 若与其并行实施，必须按共享 Definition/check-execution owner 串行合入并重跑受影响验证。
 
 ## Implementation
 
-- [ ] 1.1 增加 branded `defineCheckHandoff<T extends object>()` 与 supporting types，连接 provider authoring、`passed` result 和 dependency read，并用 compile-time tests 覆盖合法组合、缺失、多余与类型不匹配。
-- [ ] 1.2 扩展 Definition runtime validation 与 normalization，只保留 genuine executable marker，并证明 declarative snapshot 和 fingerprint 不受 marker/generic identity 影响。
-- [ ] 1.3 在 check-execution owner 实现 settlement-gated private store 与 provider-aware `dependencies.get(provider)`，覆盖 strict identity、fan-out、各终态、malformed result、cancellation、relation authorization 与 repeated-Run isolation。
-- [ ] 1.4 增加 Core snapshot、RunResult、machine v4、diagnostics、progress、string `get`、`list`、aggregation 和 cache 的 handoff-absence/compatibility 回归，保持现有 schema 和 example shape。
-- [ ] 1.5 更新 public/internal documentation owners、package-root JSDoc/exports 和 changelog，用 `Map` 加文件字节 snapshot 解释 no-parser、non-persistent 与 producer-owned immutability contract。
-- [ ] 1.6 同步 Semantic Cases、package API projection/material audit 和 installed-consumer fixture，证明 package-root consumer 可推断精确类型并读取同一引用。
+- [ ] 1.1 在 `src/check/**` 增加 package-authentic `CheckHandoff<T>`/`defineCheckHandoff<T>()`、`CheckResult<FinalData, Handoff = never>` 与完整 `defineCheck` authoring matrix；用 product typecheck corpus 证明 options/preflight/parser 组合、callable/object handoff、必填/禁止 branch 与 ordinary source compatibility。
+- [ ] 1.2 扩展 Definition check-tree validation、materialization 与 normalized Check，只在 executable provider 保留 genuine marker，拒绝 own-undefined/伪造/container marker，并在 declarative snapshot/fingerprint 前显式剥离；补 direct Definition/fingerprint tests。
+- [ ] 1.3 扩展 terminal result adapter 与 settlement handoff，按 provider marker 关闭 exact branch grammar；在 Core 接受 canonical `passed` 后才提交 `{ checkId, marker, value }`，覆盖 missing/extra/wrong-reference、failed/non-data branch、malformed data/Record、throw 与 cancellation 的无 partial commit。
+- [ ] 1.4 在 execution state 建立 invocation-private store 并以 `try/finally` 覆盖 completed/cancelled/admission-policy/invariant exits；实现 marker-matched single publication、fan-out strict identity、repeated-Run isolation 与无 store field 进入 resolved execution。
+- [ ] 1.5 实现 `dependencies.get(provider)` 的 typed overload 和 `DependencyHandoffReadResult<Id, T>`，只授权 effective direct `dependsOn`，固定 `dependency-not-declared` / `upstream-handoff-unavailable`；回归 direct `observes`、transitive、lookalike/foreign marker、string `get`、`list()` 和 canonical parser usage。
+- [ ] 1.6 在 owner seam 补 publication absence evidence：declarative fingerprint、Core/RunResult 与 machine v4 不含 marker/handoff，dependency diagnostics 不读取或总结 handoff；不为未接收新字段的 cache/aggregation/progress 增加重复 adapter 或名义测试。
+- [ ] 1.7 更新 `docs/api-mechanics.md`、dependency/custom-Check guides、四份 internal owner、package-root JSDoc/exports、public API inventory 与 changelog；投影一份 Map/typed-bytes 示例，明确 provider parser 仍只处理 canonical data，store clearing 不等于 disposer。
+- [ ] 1.8 新增/更新 Semantic Cases，并同步 package API projection、external-consumer type/runtime/docs fixtures；证明 installed package 可推断 marker/read 类型、取得 strict-equal identity，且 published Run/machine/docs contract 无 private value。
+- [ ] 1.9 在实现、owner 与证据全部闭合后核对长期方向完整成为 current fact，并将 `260909-provide-invocation-private-dependency-handoff` 标记为 aligned；若只交付部分方向则保持 unaligned，不用任务进度代替事实审查。
 
 ## Verification
 
-- [ ] 2.1 运行 authoring type tests、Definition validation/fingerprint tests、dependency execution tests、settlement misuse tests 与 publication-absence tests。
-- [ ] 2.2 运行 Test Evidence、docs、package API documentation/material、Product typecheck、lint、dependency/import-boundary 和默认 `bun run check`。
-- [ ] 2.3 运行 `bun run check -- --all`，验证 candidate artifact、published declarations/docs 和 installed Node consumer 的类型、identity 与 publication absence。
+- [ ] 2.1 运行最窄 Definition typed-provider/validation/fingerprint、terminal settlement、resolved dependency/cancellation、machine v4、diagnostic 与 package API inventory 测试，并运行 `bun run typecheck -- product`。
+- [ ] 2.2 运行 `bun run test-evidence -- check --root .`、`bun run decisions -- check`、`bun run docs:api`、`bun run validate -- docs`、`bun run lint -- product` 和默认 `bun run check`，闭合 current source、Decision、Cases、docs/material 与 required candidate。
+- [ ] 2.3 运行 `bun run check -- --all`，验证 exact candidate artifact、published declarations/docs，以及 ancestry-external Node consumer 的类型、runtime identity、cleanup 边界和 publication absence。
