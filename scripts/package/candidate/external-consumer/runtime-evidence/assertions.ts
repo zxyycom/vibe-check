@@ -28,6 +28,7 @@ export type CandidateFixtureEvidence = Readonly<{
   functionMetricsData: unknown;
   functionMetricsOutcome: string | null;
   functionMetricsRecords: unknown;
+  handoffPublished: unknown;
   humanOutput: string;
   kind: string;
   jsonSchemaData: unknown;
@@ -103,12 +104,17 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
     version: 1
   });
   assert.deepEqual(runEvidence.changedFilesFromRun, runEvidence.changedFilesFromMachine);
+  assert.equal(runEvidence.handoffPublished, false);
   assertParserEvidence(runEvidence.parserEvidence);
   assert.deepEqual(runEvidence.firstChangedFilesConsumer, {
     fileCount: 1,
     observedStatus: "failed"
   });
-  assert.deepEqual(runEvidence.secondChangedFilesConsumer, { firstFile: "src/duplicate-a.ts" });
+  assert.deepEqual(runEvidence.secondChangedFilesConsumer, {
+    firstFile: "src/duplicate-a.ts",
+    firstFileByteLength: 11,
+    handoffIdentity: true
+  });
   assertLearnedScheduling(runEvidence.learnedScheduling);
   assert.equal(runEvidence.machineSchemaVersion, "vibe-check.run.v4");
   assertNodeRuntime(runEvidence.runtime);

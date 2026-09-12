@@ -124,9 +124,11 @@ const installedFunctionMetrics = functionMetrics({
 });
 
 let changedFilesCalls = 0;
+let changedFileBytes;
 const changedFiles = defineCheck({
   checkId: "changed-files",
   displayName: "Changed files",
+  handoff: true,
   parseData(data) {
     if (
       data.version !== 1 ||
@@ -139,9 +141,14 @@ const changedFiles = defineCheck({
   },
   execution: () => {
     changedFilesCalls += 1;
+    changedFileBytes = new Map([
+      ["src/duplicate-a.ts", new TextEncoder().encode("duplicate-a")],
+      ["src/duplicate-b.ts", new TextEncoder().encode("duplicate-b")]
+    ]);
     return {
       status: "passed",
-      data: { files: ["src/duplicate-a.ts", "src/duplicate-b.ts"], version: 1 }
+      data: { files: ["src/duplicate-a.ts", "src/duplicate-b.ts"], version: 1 },
+      handoff: changedFileBytes
     };
   }
 });
@@ -183,10 +190,22 @@ const secondChangedFilesConsumer = defineCheck({
   displayName: "Second changed-files consumer",
   dependsOn: [changedFiles.checkId],
   execution: ({ dependencies }) => {
-    const read = dependencies.get(changedFiles.checkId);
+    const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const parsedChangedFiles = changedFiles.parseData(read.data);
-    return { status: read.status, data: { firstFile: parsedChangedFiles.files[0] } };
+    const firstFile = parsedChangedFiles.files[0];
+    const firstFileBytes = firstFile === undefined ? undefined : read.handoff.get(firstFile);
+    if (firstFileBytes === undefined) {
+      return { status: "unavailable", reason: { code: "changed-file-bytes-unavailable" } };
+    }
+    return {
+      status: read.status,
+      data: {
+        firstFile,
+        firstFileByteLength: firstFileBytes.byteLength,
+        handoffIdentity: read.handoff === changedFileBytes
+      }
+    };
   }
 });
 
@@ -282,6 +301,8 @@ const parsedChangedFilesFromRun =
   runChangedFilesCheck?.outcome.status === "passed"
     ? changedFiles.parseData(runChangedFilesCheck.outcome.data)
     : null;
+const runChangedFilesOutcome = runChangedFilesCheck?.outcome;
+const machineChangedFilesOutcome = publishedChangedFilesCheck?.outcome;
 const firstConsumerCheck =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === firstChangedFilesConsumer.checkId)
@@ -313,6 +334,11 @@ process.stdout.write(
       changedFilesCalls,
       changedFilesFromMachine: parsedChangedFilesFromMachine,
       changedFilesFromRun: parsedChangedFilesFromRun,
+      handoffPublished:
+        (runChangedFilesOutcome !== undefined &&
+          Object.hasOwn(runChangedFilesOutcome, "handoff")) ||
+        (machineChangedFilesOutcome !== undefined &&
+          Object.hasOwn(machineChangedFilesOutcome, "handoff")),
       kind: result.kind,
       firstChangedFilesConsumer: settledFinalData(firstConsumerCheck),
       machineSchemaVersion: publishedRun.schemaVersion,

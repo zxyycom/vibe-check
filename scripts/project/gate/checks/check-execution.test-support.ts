@@ -1,4 +1,19 @@
-import type { Check } from "@zxyycom/vibe-check";
+import type { Check, CheckDependencies } from "@zxyycom/vibe-check";
+
+type HandoffProvider<Id extends string = string> = Readonly<{
+  readonly checkId: Id;
+  readonly handoff: true;
+}>;
+type DependencyNotDeclaredResult = Readonly<{
+  readonly ok: false;
+  readonly error: Readonly<{ readonly code: "dependency-not-declared"; readonly checkId: string }>;
+}>;
+
+/** Closed dependency reader for direct callback fixtures that deliberately declare no relations. */
+export const NO_DECLARED_DEPENDENCIES: CheckDependencies = Object.freeze({
+  get: dependencyNotDeclared,
+  list: () => Object.freeze([])
+});
 
 export interface DirectCheckInvocation {
   readonly records: readonly Readonly<{
@@ -33,13 +48,7 @@ export async function invokeCheckWithRecords(
   > = [];
   const result = await check.execution({
     artifactDirectory,
-    dependencies: {
-      get: (checkId: string) => ({
-        ok: false,
-        error: { code: "dependency-not-declared", checkId }
-      }),
-      list: () => Object.freeze([])
-    },
+    dependencies: NO_DECLARED_DEPENDENCIES,
     invocationId: "invocation/v1:fixture-check",
     options: check.options ?? {},
     project: {
@@ -52,4 +61,18 @@ export async function invokeCheckWithRecords(
     signal
   });
   return Object.freeze({ records, result });
+}
+
+function dependencyNotDeclared<Id extends string>(
+  provider: HandoffProvider<Id>
+): DependencyNotDeclaredResult;
+function dependencyNotDeclared(checkId: string): DependencyNotDeclaredResult;
+function dependencyNotDeclared(dependency: string | HandoffProvider): DependencyNotDeclaredResult {
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({
+      code: "dependency-not-declared" as const,
+      checkId: typeof dependency === "string" ? dependency : dependency.checkId
+    })
+  });
 }

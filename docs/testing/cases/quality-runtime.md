@@ -131,8 +131,9 @@ Entities:
 
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/project-run/check-execution/resolved-checks.failure.test.ts|Package Run direct Check execution > contains invalid or duplicate Record writes without revising prior Records`
+- `bun|src/project-run/check-execution/resolved-checks.handoff-failure.test.ts|Package Run direct Check handoff execution > rejects malformed declared handoff results before a direct dependent can read them`
   Proves:
-- Ordinary malformed results, malformed terminal-message attachments, and Record misuse become the owning unavailable Check outcome without a partial message escape. A quality failure is an explicit `status: "failed"` with canonical final data; trusted invariant faults are not forged as public Check facts.
+- Ordinary malformed results, malformed terminal-message attachments, malformed declared-handoff branches/references, and Record misuse become the owning unavailable Check outcome without a partial message or handoff escape. A quality failure is an explicit `status: "failed"` with canonical final data; trusted invariant faults are not forged as public Check facts.
 
 ## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Direct Check relations run through the shared graph
 
@@ -171,6 +172,18 @@ Entities:
 - `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > makes a scheduler-blocked outcome available to its terminal observer`
   Proves:
 - `observes` waits for each direct Check to reach any of the four terminal outcomes and then admits ordinary author work. Callback-local `get` and `list` authorize exactly the normalized direct union of `dependsOn` and `observes`: passed/failed retain canonical data, unavailable/not-applicable retain the closed data-read failure, and list values are frozen in stable ID order without ambient, transitive or scheduler-history access.
+
+## Case WB-RUNTIME-DEPENDENCY-HANDOFF-001: Direct prerequisites share accepted invocation-private references
+
+Owner: `docs/development/architecture.md#execution-boundary`
+Entities:
+
+- `bun|src/project-run/check-execution/resolved-checks.handoff.test.ts|Package Run direct Check execution > delivers accepted provider handoffs only to direct dependents and clears them after each Run`
+- `bun|src/project-run/check-execution/resolved-checks.handoff-diagnostics.test.ts|Package Run direct Check handoff execution > does not expose declared-provider handoffs in containment or cancellation diagnostics`
+  Proves:
+- A `handoff: true` provider publishes its original accepted `passed` reference only after canonical settlement. Same-Run direct `dependsOn` fan-out receives strict-equal identity together with Core-owned canonical data; direct `observes`, transitive consumers and post-graph retained readers fail closed without upstream data/reference.
+- Every Run owns a distinct private store. Completion clears Product-held internal identity/value entries; this evidence proves no remaining Product read capability, not JavaScript GC, producer mutation safety or external resource disposal.
+- Core containment and callback-after-callback cancellation diagnostics retain the `handoff: true` provider's stripped terminal result only; they never retain the private handoff reference or its values.
 
 ## Case WB-RUNTIME-CHECK-DURATION-001: Product Run closes private lifecycle and duration facts
 

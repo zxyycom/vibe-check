@@ -80,7 +80,11 @@ describe("maintenance reminders", () => {
       const context: CheckExecutionContext<MaintenanceReminderOptions> = {
         artifactDirectory: null,
         dependencies: {
-          get: () => ({ ok: false, error: { code: "dependency-not-declared", checkId: "" } }),
+          get: () =>
+            ({
+              ok: false,
+              error: { code: "dependency-not-declared" as const, checkId: "" }
+            }) as const,
           list: () => Object.freeze([])
         },
         invocationId: "invocation/v1:direct-check-test",

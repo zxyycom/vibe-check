@@ -1,4 +1,5 @@
 import { inherit, type Check, type InheritableCheckCollection } from "../../check/check.ts";
+import { bindHandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import type { ParsedCheck, ParsedCheckCollection, ParsedCheckTree } from "./authoring.ts";
 
 /** Rebuilds the validated public authoring shape without retaining untyped input. */
@@ -41,18 +42,21 @@ function materializeCheck(check: ParsedCheck): Check {
       ...scheduling
     });
   }
-  return Object.freeze({
+  const materialized = Object.freeze({
     checkId: check.checkId,
     checks,
     displayName: check.displayName,
     ...(enabledByFlags === null ? {} : { enabledByFlags }),
     execution: check.execution,
+    ...(check.handoff === null ? {} : { handoff: true }),
     ...(check.parseData === null ? {} : { parseData: check.parseData }),
     options: check.options,
     ...(preflight === null ? {} : { preflight }),
     ...scheduling,
     visibility
   });
+  if (check.handoff !== null) bindHandoffProviderIdentity(materialized, check.handoff);
+  return materialized;
 }
 
 function materializeCollection(

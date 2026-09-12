@@ -1,11 +1,16 @@
 import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import type { CoreCheckSession } from "../../check-settlement/session.ts";
 import {
   diagnosticTags,
   summarizeDiagnosticValue,
   type DiagnosticLogger
 } from "../diagnostic-logging/logger.ts";
-import { parseCheckTerminalResult } from "./terminal-result.ts";
+import {
+  diagnosticCallbackResult,
+  parseCheckTerminalResult,
+  type ParsedCheckTerminalHandoff
+} from "./terminal-result.ts";
 import { combineCheckMessages } from "./messages.ts";
 import type { CheckExecutionLifecycle } from "./lifecycle.ts";
 import type { executeCheckCallback } from "./callback.ts";
@@ -22,9 +27,10 @@ export interface SettledCheckFacts {
 }
 
 export type CheckExecutionSettlementState = Readonly<{
-  readonly session: CoreCheckSession;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
+  readonly handoffsByCheckId: Map<string, ParsedCheckTerminalHandoff>;
   readonly lifecycle: CheckExecutionLifecycle | undefined;
+  readonly session: CoreCheckSession;
   readonly settledFactsByCheckId: Map<string, SettledCheckFacts>;
 }>;
 
@@ -38,39 +44,67 @@ export class CheckExecutionInvariantFailure extends Error {
   }
 }
 
-export function settleCallback(
-  input: Readonly<{
-    readonly callback: Awaited<ReturnType<typeof executeCheckCallback>>;
-    readonly checkId: string;
-    readonly diagnosticLogger: DiagnosticLogger | undefined;
-    readonly preflightMessages: readonly CheckMessage[];
-    readonly scope: ReturnType<CoreCheckSession["openCheckScope"]>;
-  }>
-): Readonly<{ readonly messages: readonly CheckMessage[]; readonly outcome: CheckOutcome }> {
+type SettleCallbackInput = Readonly<{
+  readonly callback: Awaited<ReturnType<typeof executeCheckCallback>>;
+  readonly checkId: string;
+  readonly diagnosticLogger: DiagnosticLogger | undefined;
+  readonly handoff: HandoffProviderIdentity | undefined;
+  readonly preflightMessages: readonly CheckMessage[];
+  readonly scope: ReturnType<CoreCheckSession["openCheckScope"]>;
+  readonly state: CheckExecutionSettlementState;
+}>;
+
+type SettledCallback = Readonly<{
+  readonly messages: readonly CheckMessage[];
+  readonly outcome: CheckOutcome;
+}>;
+type ProductCallback = Extract<SettleCallbackInput["callback"], { readonly source: "product" }>;
+type AuthorCallback = Extract<SettleCallbackInput["callback"], { readonly source: "author" }>;
+
+export function settleCallback(input: SettleCallbackInput): SettledCallback {
+  return input.callback.source === "product"
+    ? settleProductCallback(input, input.callback)
+    : settleAuthorCallback(input, input.callback);
+}
+
+/** Product-controlled callback failures settle without author-result parsing or handoff publication. */
+function settleProductCallback(
+  input: SettleCallbackInput,
+  callback: ProductCallback
+): SettledCallback {
+  const outcome = input.scope.settleProduct(callback.result);
+  return Object.freeze({
+    messages: combineCheckMessages(input.preflightMessages, callback.consoleMessages),
+    outcome
+  });
+}
+
+/** Parses an author result, settles it in Core, then commits its reference only after acceptance. */
+function settleAuthorCallback(
+  input: SettleCallbackInput,
+  callback: AuthorCallback
+): SettledCallback {
   const executionTags = diagnosticTags(`CHECK:${input.checkId}`, "EXECUTION");
-  const { callback } = input;
-  if (callback.source === "product") {
-    const outcome = input.scope.settleProduct(callback.result);
-    return Object.freeze({
-      messages: combineCheckMessages(input.preflightMessages, callback.consoleMessages),
-      outcome
-    });
-  }
-  const terminal = parseCheckTerminalResult(callback.result);
+  const terminal = parseCheckTerminalResult(callback.result, input.handoff);
   if (terminal === undefined) {
     input.diagnosticLogger?.observe({
       event: "callback.malformed",
       tags: diagnosticTags(...executionTags, "MALFORMED"),
-      details: { result: callback.result }
+      details: { result: diagnosticCallbackResult(callback.result, input.handoff) }
     });
   }
-  const settlement = input.scope.settle(terminal?.result ?? callback.result);
+  const settlement = input.scope.settle(
+    callbackSettlementCandidate(terminal, input.handoff, callback.result)
+  );
   if (terminal !== undefined && !settlement.authorResultAccepted) {
     input.diagnosticLogger?.observe({
       event: "check.contained",
       tags: diagnosticTags(...executionTags, "CONTAINED"),
-      details: { outcome: diagnosticOutcome(settlement.outcome), raw: callback.result }
+      details: { outcome: diagnosticOutcome(settlement.outcome), raw: terminal.result }
     });
+  }
+  if (terminal?.handoff !== undefined && settlement.authorResultAccepted) {
+    commitAcceptedHandoff(input.checkId, terminal.handoff, input.state);
   }
   return Object.freeze({
     messages:
@@ -79,6 +113,27 @@ export function settleCallback(
         : combineCheckMessages(input.preflightMessages, callback.consoleMessages),
     outcome: settlement.outcome
   });
+}
+
+/** A declared callback never sends its raw result to Core when terminal parsing rejects the handoff. */
+function callbackSettlementCandidate(
+  terminal: ReturnType<typeof parseCheckTerminalResult>,
+  handoff: HandoffProviderIdentity | undefined,
+  rawResult: unknown
+): unknown {
+  if (terminal !== undefined) return terminal.result;
+  return handoff === undefined ? rawResult : undefined;
+}
+
+function commitAcceptedHandoff(
+  checkId: string,
+  handoff: ParsedCheckTerminalHandoff,
+  state: CheckExecutionSettlementState
+): void {
+  if (state.handoffsByCheckId.has(checkId)) {
+    throw new CheckExecutionInvariantFailure("Check handoff published more than once");
+  }
+  state.handoffsByCheckId.set(checkId, handoff);
 }
 
 /** Records one terminal Check lifecycle fact after its owning Core scope has closed. */

@@ -1,4 +1,8 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
+import {
+  getDefinedHandoffProviderIdentity,
+  type HandoffProviderIdentity
+} from "../../check/handoff-provider-identity.ts";
 import { snapshotClosedArray } from "../../data-boundary/closed-values.ts";
 import {
   parseCheckAuthoringData,
@@ -23,6 +27,7 @@ export interface ParsedCheck {
   readonly displayName: string;
   readonly enabledByFlags: ParsedCheckFieldPrelude["enabledByFlags"];
   readonly execution: ParsedCheckFieldPrelude["execution"];
+  readonly handoff: HandoffProviderIdentity | null;
   readonly maxParallel: number | undefined;
   readonly mutex: ParsedCheckCollection | undefined;
   readonly observes: ParsedCheckCollection | undefined;
@@ -70,9 +75,10 @@ export function parseCheckTreeAuthoring(value: unknown): ParsedCheckTree | undef
 }
 
 function parseCheck(value: unknown, path: string, state: ParseState): ParsedCheck | undefined {
+  const handoffProviderIdentity = getDefinedHandoffProviderIdentity(value);
   const data = parseCheckAuthoringData(value);
   if (data === undefined) return undefined;
-  const prelude = parseCheckFieldPrelude(data);
+  const prelude = parseCheckFieldPrelude(data, handoffProviderIdentity);
   if (prelude === undefined) return undefined;
   const checks = parseChildren(data, path, state);
   if (checks === undefined) return undefined;
@@ -90,6 +96,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     displayName: data.displayName,
     enabledByFlags: fields.enabledByFlags,
     execution: fields.execution,
+    handoff: fields.handoff,
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex,
     observes: scheduling.observes,

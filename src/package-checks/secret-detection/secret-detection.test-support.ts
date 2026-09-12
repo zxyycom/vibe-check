@@ -6,6 +6,7 @@ import { join } from "node:path";
 import type {
   CheckDependencies,
   CheckExecutionContext,
+  CheckHandoffProvider,
   CheckResult,
   DeepReadonly
 } from "../../check/check.ts";
@@ -21,8 +22,14 @@ export const EXPLICIT_FILES: ProjectFileSelection = Object.freeze({
 export const CANARY = "MIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 const CANARY_DIGEST = createHash("sha256").update(CANARY).digest("hex");
 const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
-  get: (checkId: string) =>
-    Object.freeze({ error: { checkId, code: "dependency-not-declared" as const }, ok: false }),
+  get: (dependency: string | CheckHandoffProvider) =>
+    Object.freeze({
+      error: {
+        checkId: typeof dependency === "string" ? dependency : dependency.checkId,
+        code: "dependency-not-declared" as const
+      },
+      ok: false
+    }),
   list: () => Object.freeze([])
 });
 

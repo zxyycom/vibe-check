@@ -154,6 +154,7 @@ function projectCandidateFixtureEvidence(
     functionMetricsData: evidence.functionMetricsData,
     functionMetricsOutcome,
     functionMetricsRecords: evidence.functionMetricsRecords,
+    handoffPublished: evidence.handoffPublished,
     humanOutput: humanOutput,
     kind,
     machineSchemaVersion: evidence.machineSchemaVersion,

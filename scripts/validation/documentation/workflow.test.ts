@@ -5,6 +5,11 @@ import { createDocsValidationCheck } from "../../project/gate/checks/docs-valida
 import { expectedDocsValidationFailure, type DocsValidationDiagnostic } from "./diagnostics.ts";
 import { validateDocs, type DocsValidationResult } from "./workflow.ts";
 
+type DependencyNotDeclaredResult = Readonly<{
+  readonly ok: false;
+  readonly error: Readonly<{ readonly code: "dependency-not-declared"; readonly checkId: string }>;
+}>;
+
 test("docs validation library reports success only through an explicit reporter", async () => {
   const directConsoleMessages: string[] = [];
   const reportedMessages: string[] = [];
@@ -182,10 +187,7 @@ async function invokeDocsValidationCheck(
   const result = await check.execution({
     artifactDirectory: null,
     dependencies: {
-      get: (checkId: string) => ({
-        ok: false,
-        error: { code: "dependency-not-declared", checkId }
-      }),
+      get: dependencyNotDeclared,
       list: () => Object.freeze([])
     },
     invocationId,
@@ -197,4 +199,20 @@ async function invokeDocsValidationCheck(
     signal: new AbortController().signal
   });
   return Object.freeze({ records, result });
+}
+
+function dependencyNotDeclared<Id extends string>(
+  provider: Readonly<{ readonly checkId: Id; readonly handoff: unknown }>
+): DependencyNotDeclaredResult;
+function dependencyNotDeclared(checkId: string): DependencyNotDeclaredResult;
+function dependencyNotDeclared(
+  dependency: Readonly<{ readonly checkId: string }> | string
+): DependencyNotDeclaredResult {
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({
+      code: "dependency-not-declared" as const,
+      checkId: typeof dependency === "string" ? dependency : dependency.checkId
+    })
+  });
 }

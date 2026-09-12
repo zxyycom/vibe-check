@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import { CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE } from "./check-options-type-acceptance.ts";
 import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admission-strategy-type-acceptance.ts";
+import { CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE } from "./handoff-type-acceptance.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
 
@@ -43,7 +44,7 @@ function assertInstalledDeclarationDocumentation(consumerDirectory: string): voi
     CURRENT_PUBLIC_CONTRACT.packageImport
   );
   const defineCheckDocs = readAdjacentDeclarationDocumentation({
-    declarationMarker: `export declare function ${CURRENT_PUBLIC_CONTRACT.operations.defineCheck}`,
+    declarationMarker: `export declare function ${CURRENT_PUBLIC_CONTRACT.operations.defineCheck}<`,
     declarationPath: join(packageDirectory, defineCheckDeclarationPath)
   });
   assert.match(defineCheckDocs, /定义一个 Check/);
@@ -193,6 +194,7 @@ const directCheck = defineCheck({
       : { status: "failed", data: { selected } };
   }
 });
+${CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE}
 ${CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE}
 interface ChangedFilesData {
   readonly files: readonly string[];

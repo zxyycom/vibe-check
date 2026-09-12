@@ -1,5 +1,6 @@
 import type { CanonicalJsonObject, CanonicalJsonValue } from "../data-boundary/canonical-json.ts";
 import type { InheritableCheckCollection } from "./inherited-collection.ts";
+import { registerHandoffProviderIdentity } from "./handoff-provider-identity.ts";
 
 export {
   inherit,
@@ -50,6 +51,8 @@ export interface CheckResultMessages {
   readonly messages?: readonly CheckMessage[] | undefined;
 }
 
+type HandoffForbidden = Readonly<{ readonly handoff?: never }>;
+
 /** 已结算 Check 在人读 progress 中的可见性。 */
 export type CheckVisibility = "always" | "attention";
 
@@ -79,35 +82,64 @@ export interface CheckFlagEnablement {
  * @remarks `not-applicable` 与 `unavailable` 不携带 final data；普通 callback、Record 或取消失败由
  * Product 转换为 `unavailable`，而不是抛出为 Run 的成功结果。
  */
-export type CheckResult<FinalData extends object = object> = Readonly<
+export type CheckResult<
+  FinalData extends object = object,
+  Handoff extends object = never
+> = Readonly<
   (
-    | {
-        /** Check 已产生通过的 final data。 */
-        readonly status: "passed";
-        /** 此 Check 的主要终态事实。 */
-        readonly data: FinalData;
-      }
-    | {
+    | ([Handoff] extends [never]
+        ? {
+            /** Check 已产生通过的 final data。 */
+            readonly status: "passed";
+            /** 此 Check 的主要终态事实。 */
+            readonly data: FinalData;
+          } & HandoffForbidden
+        : {
+            /** Check 已产生通过的 final data。 */
+            readonly status: "passed";
+            /** 此 Check 的主要终态事实。 */
+            readonly data: FinalData;
+            /** 仅由声明 `handoff: true` 的 provider 交接给 direct dependents 的 reference。 */
+            readonly handoff: Handoff;
+          })
+    | ({
         /** Check 已产生失败的 final data。 */
         readonly status: "failed";
         /** 此 Check 的主要终态事实。 */
         readonly data: FinalData;
-      }
-    | {
+      } & HandoffForbidden)
+    | ({
         /** Check 在当前 invocation 中不适用。 */
         readonly status: "not-applicable";
         /** 不适用的可选受控原因。 */
         readonly reason?: CheckNotApplicableReason;
-      }
-    | {
+      } & HandoffForbidden)
+    | ({
         /** Check 不能提供 terminal data。 */
         readonly status: "unavailable";
         /** 不可用的受控原因。 */
         readonly reason: CheckDeclaredUnavailableReason;
-      }
+      } & HandoffForbidden)
   ) &
     CheckResultMessages
 >;
+
+declare const CHECK_HANDOFF_PROVIDER_BRAND: unique symbol;
+
+/**
+ * A Check returned by `defineCheck({ handoff: true })`. The type-only brand lets
+ * `dependencies.get(provider)` infer the reference returned by that provider.
+ *
+ * @internal This is used by public callback types but authors never construct it.
+ */
+export type CheckHandoffProvider<
+  Id extends string = string,
+  Handoff extends object = object
+> = Readonly<{
+  readonly checkId: Id;
+  readonly handoff: true;
+  readonly [CHECK_HANDOFF_PROVIDER_BRAND]: Handoff;
+}>;
 
 /** 已 materialize 到 Core snapshot 的 Check terminal outcome。 */
 export type CheckOutcome = Readonly<
@@ -194,6 +226,35 @@ export type DependencyReadResult = Readonly<
     }
 >;
 
+/** `dependsOn` provider-object handoff read 的受控结果。 */
+export type DependencyHandoffReadResult<Id extends string, Handoff extends object> = Readonly<
+  | {
+      /** 同一 execution graph 中接受的 provider handoff。 */
+      readonly ok: true;
+      readonly checkId: Id;
+      readonly status: "passed";
+      /** Core-owned canonical provider final data。 */
+      readonly data: CanonicalJsonObject;
+      /** Provider 交接且未由 Product clone、freeze 或 serialize 的引用。 */
+      readonly handoff: Handoff;
+    }
+  | {
+      readonly ok: false;
+      readonly error: Readonly<
+        | {
+            /** 当前 Check 未将 provider 声明为 direct `dependsOn`。 */
+            readonly code: "dependency-not-declared";
+            readonly checkId: string;
+          }
+        | {
+            /** 已授权 provider 没有与其 Definition-internal identity 对应的已接受 passed handoff。 */
+            readonly code: "upstream-handoff-unavailable";
+            readonly checkId: string;
+          }
+      >;
+    }
+>;
+
 /** 当前 Check 的一个已规范化直接 relation 及其完整终态事实。 */
 export type DependencyObservation = Readonly<{
   /** 已规范化、稳定排序的 direct relation ID。 */
@@ -204,6 +265,18 @@ export type DependencyObservation = Readonly<{
 
 /** 当前 Check 的已规范化直接 relation outcomes 的 data reader。 */
 export interface CheckDependencies {
+  /**
+   * Reads a `handoff: true` provider's accepted invocation-private handoff.
+   *
+   * @returns Only an effective direct `dependsOn` provider declared with `handoff: true`, whose
+   * Definition-internal identity has accepted `passed` data, returns canonical data plus its typed
+   * reference. `observes`, string IDs, lookalikes and unavailable handoffs fail closed without
+   * upstream data.
+   */
+  get<Id extends string, Handoff extends object>(
+    provider: CheckHandoffProvider<Id, Handoff>
+  ): DependencyHandoffReadResult<Id, Handoff>;
+
   /**
    * 读取一个直接 relation 的 canonical final data。
    *
@@ -332,7 +405,13 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   execution?(
     this: void,
     context: CheckExecutionContext<PreparedOptions>
-  ): CheckResult | Promise<CheckResult>;
+  ):
+    | CheckResult
+    | CheckResult<Readonly<Record<never, never>>, object>
+    | Promise<CheckResult>
+    | Promise<CheckResult<Readonly<Record<never, never>>, object>>;
+  /** `true` declares an invocation-private handoff on this executable Check. */
+  readonly handoff?: true;
   /** 继承 scheduling context 的 child Checks，不会单独形成 container result。 */
   readonly checks?: readonly Check[];
   /** 必须全部 `passed` 才能开始当前 Check author work 的直接 prerequisite Check IDs。 */
@@ -406,7 +485,10 @@ type CheckAuthoringBase<
   Id extends string,
   AuthoredOptions extends object,
   PreparedOptions extends object
-> = Omit<CheckBase<AuthoredOptions, PreparedOptions>, "checkId" | "execution" | "options"> &
+> = Omit<
+  CheckBase<AuthoredOptions, PreparedOptions>,
+  "checkId" | "execution" | "handoff" | "options"
+> &
   CheckPreflightField<AuthoredOptions, PreparedOptions> &
   Readonly<{ readonly checkId: Id }>;
 
@@ -415,6 +497,7 @@ interface OrdinaryCheckFields<PreparedOptions extends object> {
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ): CheckResult | Promise<CheckResult>;
+  readonly handoff?: never;
   readonly parseData?: undefined;
 }
 
@@ -452,7 +535,66 @@ interface TypedCheckFields<PreparedOptions extends object, Parser extends CheckD
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ): CheckResult<NoInfer<ReturnType<Parser>>> | Promise<CheckResult<NoInfer<ReturnType<Parser>>>>;
+  readonly handoff?: never;
 }
+
+interface HandoffCheckFields<PreparedOptions extends object, Handoff extends object> {
+  readonly handoff: true;
+  execution(
+    this: void,
+    context: CheckExecutionContext<PreparedOptions>
+  ): CheckResult<object, Handoff> | Promise<CheckResult<object, Handoff>>;
+  readonly parseData?: undefined;
+}
+
+interface TypedHandoffCheckFields<
+  PreparedOptions extends object,
+  Parser extends CheckDataParser,
+  Handoff extends object
+> {
+  readonly handoff: true;
+  readonly parseData: Parser;
+  execution(
+    this: void,
+    context: CheckExecutionContext<PreparedOptions>
+  ):
+    | CheckResult<NoInfer<ReturnType<Parser>>, Handoff>
+    | Promise<CheckResult<NoInfer<ReturnType<Parser>>, Handoff>>;
+}
+
+/** Extracts the private reference type from an already-validated passed terminal result. */
+type HandoffFromTerminalResult<Result> =
+  Extract<Awaited<Result>, { readonly status: "passed" }> extends {
+    readonly handoff: infer Handoff;
+  }
+    ? Handoff extends object
+      ? Handoff
+      : never
+    : never;
+
+type PassedHandoffResult<Result> = Extract<Awaited<Result>, { readonly status: "passed" }>;
+
+/** Every passed branch must accept the complete inferred handoff type, not just one union member. */
+type PassedHandoffBranchIsConsistent<Passed, Handoff> = Passed extends {
+  readonly handoff: infer BranchHandoff;
+}
+  ? [Handoff] extends [BranchHandoff]
+    ? true
+    : false
+  : false;
+
+type HandoffTerminalResultConstraint<Result> =
+  false extends PassedHandoffBranchIsConsistent<
+    PassedHandoffResult<Result>,
+    HandoffFromTerminalResult<Result>
+  >
+    ? never
+    : unknown;
+
+type HandoffExecution<PreparedOptions extends object, FinalData extends object = object> = (
+  this: void,
+  context: CheckExecutionContext<PreparedOptions>
+) => CheckResult<FinalData, object> | Promise<CheckResult<FinalData, object>>;
 
 export type TypedCheckWithOptions<
   Id extends string,
@@ -473,6 +615,40 @@ export type TypedCheckWithoutOptions<
   Readonly<{
     readonly options?: never;
   }>;
+
+export type HandoffCheckWithOptions<
+  Id extends string,
+  AuthoredOptions extends object,
+  Handoff extends object,
+  PreparedOptions extends object = AuthoredOptions
+> = CheckAuthoringBase<Id, AuthoredOptions, PreparedOptions> &
+  HandoffCheckFields<PreparedOptions, Handoff> &
+  Readonly<{ readonly options: AuthoredOptions }>;
+
+export type HandoffCheckWithoutOptions<
+  Id extends string,
+  Handoff extends object
+> = CheckAuthoringBase<Id, EmptyCheckOptions, EmptyCheckOptions> &
+  HandoffCheckFields<EmptyCheckOptions, Handoff> &
+  Readonly<{ readonly options?: never }>;
+
+export type TypedHandoffCheckWithOptions<
+  Id extends string,
+  AuthoredOptions extends object,
+  Parser extends CheckDataParser,
+  Handoff extends object,
+  PreparedOptions extends object = AuthoredOptions
+> = CheckAuthoringBase<Id, AuthoredOptions, PreparedOptions> &
+  TypedHandoffCheckFields<PreparedOptions, Parser, Handoff> &
+  Readonly<{ readonly options: AuthoredOptions }>;
+
+export type TypedHandoffCheckWithoutOptions<
+  Id extends string,
+  Parser extends CheckDataParser,
+  Handoff extends object
+> = CheckAuthoringBase<Id, EmptyCheckOptions, EmptyCheckOptions> &
+  TypedHandoffCheckFields<EmptyCheckOptions, Parser, Handoff> &
+  Readonly<{ readonly options?: never }>;
 
 /**
  * 定义一个 Check，同时保留 literal `checkId`、options 与 typed-provider parser 的 inference。
@@ -522,6 +698,79 @@ export type TypedCheckWithoutOptions<
 export function defineCheck<
   const Id extends string,
   AuthoredOptions extends object,
+  const Execution extends HandoffExecution<PreparedOptions>,
+  PreparedOptions extends object = AuthoredOptions
+>(
+  value: CheckAuthoringBase<Id, AuthoredOptions, PreparedOptions> &
+    Readonly<{
+      readonly handoff: true;
+      readonly options: AuthoredOptions;
+      readonly parseData?: undefined;
+      readonly execution: Execution;
+    }> &
+    HandoffTerminalResultConstraint<ReturnType<Execution>>
+): HandoffCheckWithOptions<
+  Id,
+  AuthoredOptions,
+  HandoffFromTerminalResult<ReturnType<Execution>>,
+  PreparedOptions
+> &
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+export function defineCheck<
+  const Id extends string,
+  const Execution extends HandoffExecution<EmptyCheckOptions>
+>(
+  value: CheckAuthoringBase<Id, EmptyCheckOptions, EmptyCheckOptions> &
+    Readonly<{
+      readonly handoff: true;
+      readonly options?: never;
+      readonly parseData?: undefined;
+      readonly execution: Execution;
+    }> &
+    HandoffTerminalResultConstraint<ReturnType<Execution>>
+): HandoffCheckWithoutOptions<Id, HandoffFromTerminalResult<ReturnType<Execution>>> &
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+export function defineCheck<
+  const Id extends string,
+  AuthoredOptions extends object,
+  const Parser extends CheckDataParser,
+  const Execution extends HandoffExecution<PreparedOptions, NoInfer<ReturnType<Parser>>>,
+  PreparedOptions extends object = AuthoredOptions
+>(
+  value: CheckAuthoringBase<Id, AuthoredOptions, PreparedOptions> &
+    Readonly<{
+      readonly handoff: true;
+      readonly options: AuthoredOptions;
+      readonly parseData: Parser;
+      readonly execution: Execution;
+    }> &
+    HandoffTerminalResultConstraint<ReturnType<Execution>>
+): TypedHandoffCheckWithOptions<
+  Id,
+  AuthoredOptions,
+  Parser,
+  HandoffFromTerminalResult<ReturnType<Execution>>,
+  PreparedOptions
+> &
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+export function defineCheck<
+  const Id extends string,
+  const Parser extends CheckDataParser,
+  const Execution extends HandoffExecution<EmptyCheckOptions, NoInfer<ReturnType<Parser>>>
+>(
+  value: CheckAuthoringBase<Id, EmptyCheckOptions, EmptyCheckOptions> &
+    Readonly<{
+      readonly handoff: true;
+      readonly options?: never;
+      readonly parseData: Parser;
+      readonly execution: Execution;
+    }> &
+    HandoffTerminalResultConstraint<ReturnType<Execution>>
+): TypedHandoffCheckWithoutOptions<Id, Parser, HandoffFromTerminalResult<ReturnType<Execution>>> &
+  CheckHandoffProvider<Id, HandoffFromTerminalResult<ReturnType<Execution>>>;
+export function defineCheck<
+  const Id extends string,
+  AuthoredOptions extends object,
   PreparedOptions extends object = AuthoredOptions
 >(
   value: CheckWithOptions<Id, AuthoredOptions, PreparedOptions>
@@ -541,5 +790,8 @@ export function defineCheck<const Id extends string, const Parser extends CheckD
   value: TypedCheckWithoutOptions<Id, Parser>
 ): TypedCheckWithoutOptions<Id, Parser>;
 export function defineCheck(value: Check): Check {
+  if (value.handoff === true) {
+    registerHandoffProviderIdentity(value);
+  }
   return value;
 }

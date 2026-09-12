@@ -3,9 +3,10 @@ import {
   type CheckVisibility,
   type CheckFlagEnablement,
   type CheckFlagEnablementMode,
-  type CheckExecution,
+  type Check,
   type CheckPreflight
 } from "../../check/check.ts";
+import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import { validateCheckDescriptor } from "../../check/descriptor-validation.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
@@ -21,7 +22,8 @@ export interface CheckAuthoringData extends Readonly<Record<string, unknown>> {
 export interface ParsedCheckFields {
   readonly definition: CheckDescriptor | null;
   readonly enabledByFlags: CheckFlagEnablement | null;
-  readonly execution: CheckExecution | null;
+  readonly execution: NonNullable<Check["execution"]> | null;
+  readonly handoff: HandoffProviderIdentity | null;
   readonly options: object | null;
   readonly parseData: TrustedDataParser | null;
   readonly preflight: CheckPreflight | null;
@@ -30,7 +32,8 @@ export interface ParsedCheckFields {
 
 export interface ParsedCheckFieldPrelude {
   readonly enabledByFlags: CheckFlagEnablement | null;
-  readonly execution: CheckExecution | null;
+  readonly execution: NonNullable<Check["execution"]> | null;
+  readonly handoff: HandoffProviderIdentity | null;
   readonly parseData: TrustedDataParser | null;
   readonly preflight: CheckPreflight | null;
 }
@@ -49,6 +52,7 @@ const CHECK_KEYS = [
   "displayName",
   "enabledByFlags",
   "execution",
+  "handoff",
   "maxParallel",
   "mutex",
   "options",
@@ -64,6 +68,7 @@ const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   definition: null,
   enabledByFlags: null,
   execution: null,
+  handoff: null,
   options: null,
   parseData: null,
   preflight: null,
@@ -88,10 +93,13 @@ function hasValidCheckIdentity(
 }
 
 export function parseCheckFieldPrelude(
-  data: CheckAuthoringData
+  data: CheckAuthoringData,
+  handoffProviderIdentity: HandoffProviderIdentity | undefined
 ): ParsedCheckFieldPrelude | undefined {
   const execution = parseExecution(data);
   if (execution === undefined) return undefined;
+  const handoff = parseHandoff(data, handoffProviderIdentity);
+  if (handoff === undefined) return undefined;
   const parseData = parseDataParser(data);
   if (parseData === undefined) return undefined;
   const preflight = parsePreflight(data);
@@ -99,7 +107,7 @@ export function parseCheckFieldPrelude(
   const enabledByFlags = parseEnabledByFlags(data);
   return enabledByFlags === undefined
     ? undefined
-    : Object.freeze({ enabledByFlags, execution, parseData, preflight });
+    : Object.freeze({ enabledByFlags, execution, handoff, parseData, preflight });
 }
 
 export function parseCheckFields(
@@ -107,14 +115,31 @@ export function parseCheckFields(
   prelude: ParsedCheckFieldPrelude
 ): ParsedCheckFields | undefined {
   if (prelude.execution === null) {
-    return Object.hasOwn(data, "options") ||
-      Object.hasOwn(data, "enabledByFlags") ||
-      Object.hasOwn(data, "visibility") ||
-      prelude.parseData !== null ||
-      prelude.preflight !== null
-      ? undefined
-      : CONTAINER_CHECK_FIELDS;
+    return containerHasExecutableFields(data, prelude) ? undefined : CONTAINER_CHECK_FIELDS;
   }
+  return parseExecutableCheckFields(data, prelude);
+}
+
+/** Container nodes cannot carry values that only an executable callback can consume. */
+function containerHasExecutableFields(
+  data: CheckAuthoringData,
+  prelude: ParsedCheckFieldPrelude
+): boolean {
+  return (
+    Object.hasOwn(data, "options") ||
+    Object.hasOwn(data, "enabledByFlags") ||
+    prelude.handoff !== null ||
+    Object.hasOwn(data, "visibility") ||
+    prelude.parseData !== null ||
+    prelude.preflight !== null
+  );
+}
+
+/** Parses the callback-owned fields that form one executable Check definition. */
+function parseExecutableCheckFields(
+  data: CheckAuthoringData,
+  prelude: ParsedCheckFieldPrelude
+): ParsedCheckFields | undefined {
   const definition = parseDefinition(data);
   if (definition === undefined) return undefined;
   const options = parseOptions(data);
@@ -125,6 +150,7 @@ export function parseCheckFields(
     definition,
     enabledByFlags: prelude.enabledByFlags,
     execution: prelude.execution,
+    handoff: prelude.handoff,
     options,
     parseData: prelude.parseData,
     preflight: prelude.preflight,
@@ -136,9 +162,23 @@ function hasOnlyCheckKeys(data: Readonly<Record<string, unknown>>): boolean {
   return Object.keys(data).every((key) => CHECK_KEYS.some((checkKey) => checkKey === key));
 }
 
-function parseExecution(data: CheckAuthoringData): CheckExecution | null | undefined {
+function parseExecution(
+  data: CheckAuthoringData
+): NonNullable<Check["execution"]> | null | undefined {
   if (!Object.hasOwn(data, "execution")) return null;
-  return isTrustedFunction<CheckExecution>(data.execution) ? data.execution : undefined;
+  return isTrustedFunction<NonNullable<Check["execution"]>>(data.execution)
+    ? data.execution
+    : undefined;
+}
+
+function parseHandoff(
+  data: CheckAuthoringData,
+  handoffProviderIdentity: HandoffProviderIdentity | undefined
+): HandoffProviderIdentity | null | undefined {
+  if (!Object.hasOwn(data, "handoff")) return null;
+  return data.handoff === true && handoffProviderIdentity !== undefined
+    ? handoffProviderIdentity
+    : undefined;
 }
 
 function parseDataParser(data: CheckAuthoringData): TrustedDataParser | null | undefined {

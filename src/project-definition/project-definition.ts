@@ -3,12 +3,12 @@ import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDescriptor } from "../check/descriptor.ts";
 import type {
   Check,
-  CheckExecution,
   CheckFlagEnablement,
   CheckPreflight,
   CheckResourceClaims,
   CheckVisibility
 } from "../check/check.ts";
+import type { HandoffProviderIdentity } from "../check/handoff-provider-identity.ts";
 import { DEFAULT_PROJECT_OUTPUTS, resolveProgressRenderingOutput } from "./output-defaults.ts";
 import type {
   ProgressRenderingOutput,
@@ -159,7 +159,8 @@ export interface NormalizedCheckDeclaration {
   readonly visibility: CheckVisibility;
 }
 export interface NormalizedCheck extends NormalizedCheckDeclaration {
-  readonly execution: CheckExecution;
+  readonly execution: NonNullable<Check["execution"]>;
+  readonly handoff?: HandoffProviderIdentity;
   readonly preflight?: CheckPreflight;
 }
 export interface DeclarativeProjectSnapshot {
@@ -289,6 +290,7 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     dependsOn: leaf.dependsOn,
     ...(leaf.enabledByFlags === undefined ? {} : { enabledByFlags: leaf.enabledByFlags }),
     execution: leaf.execution,
+    ...(leaf.handoff === undefined ? {} : { handoff: leaf.handoff }),
     maxParallel: leaf.maxParallel,
     mutex: leaf.mutex,
     observes: leaf.observes,

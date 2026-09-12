@@ -2,6 +2,7 @@ import type {
   CheckDependencies,
   CheckExecution,
   CheckExecutionContext,
+  CheckHandoffProvider,
   CheckResult,
   DeepReadonly
 } from "../check/check.ts";
@@ -9,11 +10,14 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
-  get: (checkId: string) =>
+export const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
+  get: (dependency: string | CheckHandoffProvider) =>
     Object.freeze({
       ok: false,
-      error: Object.freeze({ code: "dependency-not-declared", checkId })
+      error: Object.freeze({
+        code: "dependency-not-declared" as const,
+        checkId: typeof dependency === "string" ? dependency : dependency.checkId
+      })
     }),
   list: () => Object.freeze([])
 });

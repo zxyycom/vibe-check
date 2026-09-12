@@ -54,6 +54,11 @@
   省略时不传播，`observes` 不参与扩展。`checkAggregation.checks: "effective"` 聚合本次有效选择。
 - **新增 `dependencies.list()`**：返回冻结、稳定排序的直接 `dependsOn ∪ observes` 四态 observation；
   `get()` 同样以该直接关系集合授权。
+- **新增 invocation-private dependency handoff**：provider 可用 `defineCheck({ handoff: true, ... })` 声明只在
+  `passed` branch 交付的 same-Run object/function reference；direct `dependsOn` consumer 用
+  `dependencies.get(provider)` 同时读取 canonical data 和 typed handoff。该引用不进入 Definition
+  fingerprint、Check facts、RunResult、machine/progress/diagnostic、aggregation 或 cache；Product 在 graph
+  关闭时只清除自己的引用，不替代 producer/caller 的 immutable-observation 或 resource cleanup 责任。
 
 用法见[自定义 Check](./guides/extending-check-lifecycle.md)与[依赖和类型化数据](./guides/check-dependencies.md)。
 

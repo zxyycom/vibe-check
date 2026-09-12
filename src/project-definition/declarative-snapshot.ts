@@ -18,7 +18,10 @@ export function createDeclarativeProjectSnapshot(
   checks: readonly NormalizedCheck[]
 ): DeclarativeProjectSnapshot {
   const declarations = checks
-    .map(({ execution: _execution, preflight: _preflight, ...declaration }) => declaration)
+    .map(
+      ({ execution: _execution, handoff: _handoff, preflight: _preflight, ...declaration }) =>
+        declaration
+    )
     .sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));
   return deepFreeze({
     apiVersion: definition.apiVersion,

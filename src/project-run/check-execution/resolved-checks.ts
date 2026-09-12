@@ -81,28 +81,32 @@ async function executePreparedResolvedChecks(
     diagnosticLogger: input.diagnosticLogger,
     lifecycle: input.lifecycle
   });
-  const flagControlSettlements = resolveFlagControlSettlements({
-    checks: input.checks,
-    ...(input.diagnosticLogger === undefined ? {} : { diagnosticLogger: input.diagnosticLogger }),
-    effectiveCheckIds,
-    signal: input.signal
-  });
-  for (const settlement of flagControlSettlements) {
-    settleFlagControlOutcome(state, settlement);
-  }
-  input.lifecycle?.flagControlCompleted();
-  const graphRun = await runScheduledChecks({
-    execution: input,
-    flagControlSettlements,
-    state
-  });
+  try {
+    const flagControlSettlements = resolveFlagControlSettlements({
+      checks: input.checks,
+      ...(input.diagnosticLogger === undefined ? {} : { diagnosticLogger: input.diagnosticLogger }),
+      effectiveCheckIds,
+      signal: input.signal
+    });
+    for (const settlement of flagControlSettlements) {
+      settleFlagControlOutcome(state, settlement);
+    }
+    input.lifecycle?.flagControlCompleted();
+    const graphRun = await runScheduledChecks({
+      execution: input,
+      flagControlSettlements,
+      state
+    });
 
-  return closeResolvedChecks({
-    allChecks: input.checks,
-    effectiveCheckIds,
-    graphRun,
-    state
-  });
+    return closeResolvedChecks({
+      allChecks: input.checks,
+      effectiveCheckIds,
+      graphRun,
+      state
+    });
+  } finally {
+    state.handoffsByCheckId.clear();
+  }
 }
 
 function createExecutionState(
@@ -114,6 +118,7 @@ function createExecutionState(
 ): CheckExecutionState {
   return {
     diagnosticLogger: input.diagnosticLogger,
+    handoffsByCheckId: new Map(),
     settledFactsByCheckId: new Map<string, SettledCheckFacts>(),
     lifecycle: input.lifecycle,
     session: createCoreCheckSession(

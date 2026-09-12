@@ -142,3 +142,85 @@ function _typeCheckProviderRejections() {
     }
   });
 }
+
+function _typeCheckHandoffProviderAuthoring() {
+  const provider = defineCheck({
+    checkId: "handoff-provider",
+    displayName: "Handoff provider",
+    handoff: true,
+    execution: () => ({
+      status: "passed",
+      data: { version: 1 },
+      handoff: { close: () => undefined }
+    })
+  });
+  const typedProvider = defineCheck({
+    checkId: "typed-handoff-provider",
+    displayName: "Typed handoff provider",
+    handoff: true,
+    parseData: (data) => ({ version: data.version === 1 ? 1 : 0 }),
+    execution: () => ({
+      status: "passed",
+      data: { version: 1 },
+      handoff: { close: () => undefined }
+    })
+  });
+  const callableProvider = defineCheck({
+    checkId: "callable-handoff-provider",
+    displayName: "Callable handoff provider",
+    handoff: true,
+    execution: () => ({ status: "passed", data: {}, handoff: () => undefined })
+  });
+  const preparedHandoffProvider = defineCheck({
+    checkId: "prepared-handoff-provider",
+    displayName: "Prepared handoff provider",
+    handoff: true,
+    options: { prefix: "src/" },
+    preflight: (options) => ({ status: "success", preparedOptions: options }),
+    async execution({ options }) {
+      const path = `${options.prefix}index.ts`;
+      return {
+        status: "passed",
+        data: { path },
+        handoff: new Map([[path, new Uint8Array()]])
+      };
+    }
+  });
+  defineCheck({
+    checkId: "missing-handoff-result",
+    displayName: "Missing handoff result",
+    // @ts-expect-error a marked provider cannot use the ordinary authoring branch.
+    handoff: true,
+    execution: () => ({ status: "passed", data: {} })
+  });
+  defineCheck({
+    checkId: "ordinary-handoff-result",
+    displayName: "Ordinary handoff result",
+    // @ts-expect-error ordinary providers cannot return a handoff.
+    execution: () => ({ status: "passed", data: {}, handoff: {} })
+  });
+  defineCheck({
+    checkId: "failed-handoff-result",
+    displayName: "Failed handoff result",
+    // @ts-expect-error only passed branches may carry a declared handoff.
+    handoff: true,
+    // @ts-expect-error only passed branches may carry a declared handoff.
+    execution: () => ({ status: "failed", data: {}, handoff: { close: () => undefined } })
+  });
+  const chooseMapHandoff = Math.random() > 0.5;
+  defineCheck({
+    checkId: "inconsistent-passed-handoffs",
+    displayName: "Inconsistent passed handoffs",
+    // @ts-expect-error every passed branch must return the same handoff type.
+    handoff: true,
+    execution: () =>
+      // @ts-expect-error every passed branch must return the same handoff type.
+      chooseMapHandoff
+        ? { status: "passed" as const, data: {}, handoff: new Map<string, Uint8Array>() }
+        : { status: "passed" as const, data: {}, handoff: { close: () => undefined } }
+  });
+  void provider;
+  void typedProvider;
+  void callableProvider;
+  void preparedHandoffProvider;
+}

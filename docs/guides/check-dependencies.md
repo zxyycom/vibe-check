@@ -1,6 +1,15 @@
 # 读取 Check 依赖与类型化数据
 
-需要把一项 Check 的结果交给另一项使用时，先声明 direct `dependsOn` 或 `observes`，再通过 dependency reader 读取上游结果，并用 provider parser 恢复业务类型。需要上游通过才开始时选择 `dependsOn`；需要审计任意终态时选择 `observes`。这些关系还约束 Scheduler 准入，调度预算见[调度 Check](scheduling.md)。
+需要把一项 Check 的结果交给另一项使用时，先声明 direct `dependsOn` 或 `observes`，再通过 dependency reader 读取上游结果，并用 provider parser 恢复业务类型。需要上游通过才开始时选择 `dependsOn`；需要审计任意终态时选择 `observes`。若同一次 Run 的 direct prerequisite 还必须交接不能 canonicalize 的 reference（例如 `Map` 或 typed bytes），provider 在 `defineCheck` 中声明 `handoff: true`，consumer 才能以 provider object 读取它。这些关系还约束 Scheduler 准入，调度预算见[调度 Check](scheduling.md)。
+
+## 先选择读取契约
+
+| consumer 要解决的问题 | provider 声明与 consumer 读取 | 不能获得的能力 |
+| --- | --- | --- |
+| 只需要已结算的 canonical final data，或需要审计任意终态 | 以 `dependsOn` 或 `observes` 声明 relation；使用 string `get(checkId)` 或 `list()` | 不保留原始 reference identity，也不能读取未声明或传递 provider。 |
+| 必须在同一次 Run 内交接不可 canonicalize 的 reference | provider 声明 `handoff: true`，在 `passed` 返回 `handoff`；consumer 将 provider 设为 direct `dependsOn` 并调用 `get(provider)` | 不授权 `observes`、string ID、传递 provider 或任何 Run 外读取；reference 不会发布。 |
+
+`handoff: true` 是唯一的 authoring declaration：它必须写在 `defineCheck(...)` 的 executable provider 上，不是数据、parser、serializer 或 author 创建的 token。Product 在 package-runtime 内部的 WeakMap 注册该 provider identity；identity 只连接已定义 provider、Definition 与 execution，不是 package API 或跨 package instance 的兼容协议。每次 Run 的 private store 才暂存已接受的 handoff reference。`handoff` 只可为 executable provider 的精确 `true`；container、其它值和自有 `undefined` 都会在 Definition validation 被拒绝。
 
 ## 完整运行示例
 
@@ -17,6 +26,8 @@ type ChangedFilesData = Readonly<{
 const changedFiles = defineCheck({
   checkId: "changed-files",
   displayName: "Changed files",
+  // `true` 是唯一的 runtime declaration；返回值的 handoff 类型由 execution 自动推断。
+  handoff: true,
   parseData(data): ChangedFilesData {
     if (
       data.version !== CHANGED_FILES_DATA_VERSION ||
@@ -28,9 +39,13 @@ const changedFiles = defineCheck({
     return { files: data.files, version: data.version };
   },
   execution() {
+    const bytesByPath = new Map<string, Uint8Array>([
+      ["src/index.ts", new TextEncoder().encode("export {}\n")]
+    ]);
     return {
       status: "passed",
-      data: { files: ["src/index.ts"], version: CHANGED_FILES_DATA_VERSION }
+      data: { files: ["src/index.ts"], version: CHANGED_FILES_DATA_VERSION },
+      handoff: bytesByPath
     };
   }
 });
@@ -40,11 +55,20 @@ const analyzeChangedFiles = defineCheck({
   displayName: "Analyze changed files",
   dependsOn: [changedFiles.checkId],
   execution({ dependencies }) {
-    const read = dependencies.get(changedFiles.checkId);
+    const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 
+    // canonical data 仍在 parser 边界；handoff 保留 same-Run reference identity。
     const data = changedFiles.parseData(read.data);
-    return { status: "passed", data: { analyzedFileCount: data.files.length } };
+    const firstFile = data.files[0];
+    const firstFileBytes = firstFile === undefined ? undefined : read.handoff.get(firstFile);
+    if (firstFileBytes === undefined) {
+      return { status: "unavailable", reason: { code: "changed-file-bytes-unavailable" } };
+    }
+    return {
+      status: "passed",
+      data: { analyzedByteCount: firstFileBytes.byteLength, analyzedFileCount: data.files.length }
+    };
   }
 });
 
@@ -61,7 +85,13 @@ const result = await run(definition);
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 ```
 
-上例先收窄 `get` 的 `ok`，再显式调用 producer 的 `parseData`。`dependsOn` 保证 callback 只在 provider `passed` 后开始；`!read.ok` 仍作为读取边界防御。八个随包 Check 都提供 `parseData` 和同实现的 package-root parser，名称与类型见各自指南。
+上例的 `handoff: true` 是 provider 的最小 runtime declaration；`passed` result 中的 `Map<string, Uint8Array>` 自动成为 provider-aware read 的 handoff 类型。provider 只能在 `passed` branch 返回同型、non-null 的 `handoff`；`dependencies.get(changedFiles)` 只在 current Run 中由 direct `dependsOn` consumer 成功，返回 provider 的 canonical `data` 和同一 `Map` reference。fan-out consumer 读取的也是这个引用，而 repeated Run 不共享它。
+
+先收窄 `get` 的 `ok`，再显式调用 producer 的 `parseData(read.data)`：parser 继续只负责 detached、deep-frozen canonical data，绝不解析或 clone `handoff`。`dependsOn` 保证 callback 只在 provider `passed` 后开始；`!read.ok` 仍是读取边界防御。八个随包 Check 都提供 `parseData` 和同实现的 package-root parser，名称与类型见各自指南。
+
+provider-object read 的失败不返回上游 `data` 或 `handoff`：输入不是 `handoff: true` 定义的 provider，或不是 effective direct `dependsOn` 时，错误为 `dependency-not-declared`；已获 direct authorization 但本次 execution 没有接受到该 provider 的 `passed` handoff 时，错误为 `upstream-handoff-unavailable`。consumer 必须像示例一样先处理 `!read.ok`，不能把 TypeScript 推断当作运行时授权。
+
+handoff 保留 identity，因此 Product 不会 freeze、clone、serialize、缓存或验证其领域含义。producer 与所有 consumer 必须把它作为 immutable observation：上例不调用 `Map#set`，也不改写其中的 `Uint8Array`。execution graph 结束时 Product 清空自己的 private-store reference；该 `clear()` **不是** disposer，不会调用 `close`、`dispose` 或任意 symbol hook。真实资源的创建者/调用方必须以显式 graph ordering、consumer `try/finally` 或 Run 外层 lifecycle 在最后一个 consumer 后清理，不能依赖 handoff store、GC 或 machine/diagnostic publication。
 
 ## 批量审计 direct outcomes
 
@@ -117,5 +147,6 @@ parser 接收 Check-facts-owned 的 detached、deep-frozen canonical object，�
 - `dependsOn` 与 `observes` 命名同一 Definition 中的 executable Check。两者各自可继承父 collection；精确数组完整替换（`[]` 清空），`inherit({ add, remove })` 显式增删后去重。一个 provider 不得同时出现在两类 relation 中。
 - `dependsOn` 等所有 direct provider 通过才允许本 Check 的 preflight/execution；任一 provider 非 `passed` 时，本 Check 在 author work 前成为 `unavailable / dependency-not-passed`，reason 带 direct blocker `checkIds`，duration 为 `null`。`observes` 只等待终态，不要求通过。
 - `get(checkId)` 是 non-generic string read，只授权 normalized effective `dependsOn ∪ observes` 的 direct ID（包括各自继承项）。未声明、传递或 malformed ID 返回不泄露 upstream fact 的 `dependency-not-declared`。
+- `get(provider)` 是 provider-aware read，只接受以 `handoff: true` 定义的 provider object，并且只授权 normalized effective direct `dependsOn`。成功时固定为该 provider literal `checkId`、`status: "passed"`、canonical `data` 与 typed `handoff`；direct `observes`、transitive、未声明、lookalike provider 或本次未接受 handoff 都 fail closed，不泄露 upstream data/reference。它不改变 string `get(checkId)` 或 `list()` 的授权、shape 与四态 observation。
 - 已声明 provider 的 `passed` / `failed` 返回 `ok: true`、status 与 canonical data；`not-applicable` / `unavailable` 返回 `ok: false`、该 status 与 `upstream-data-unavailable`。TypeScript 类型本身不授予访问权。
 - `list()` 无参返回同一 direct union 的完整四态 observations，按 normalized effective direct ID 稳定排序并去重；数组、每项与 Core-owned outcome 都冻结。不读取传递、未声明或 ambient executed Checks，也不提供 Records、scheduler timing 或全局历史。

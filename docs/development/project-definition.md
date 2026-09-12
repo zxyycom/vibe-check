@@ -118,7 +118,9 @@ Definition 只提供 normalized static graph metadata，不能给 callback 暴�
 
 ### Typed dependency data
 
-公开的 provider 类型、parser 责任与 `dependencies.get` / `list` 契约由[依赖数据指南](../guides/check-dependencies.md)拥有。维护时区分三个边界：`defineCheck` overload 保留 synchronous parser 与 execution data 的类型关系；Definition validator 仅保存 executable object 的合法 function（自有 `undefined` 规范化为省略）；runtime handoff 根据 normalized direct relation union 提供已冻结 facts，不调用 parser。
+公开的 provider 类型、parser 责任与 `dependencies.get` / `list` 契约由[依赖数据指南](../guides/check-dependencies.md)拥有。维护时区分三个边界：`defineCheck` overload 保留 synchronous parser 与 execution data 的类型关系；Definition validator 仅保存 executable object 的合法 function（自有 `undefined` 规范化为省略）；runtime dependency reader 的 string read/list 按 normalized direct relation union 返回已冻结 facts，而 provider-aware handoff read 另只按 effective direct `dependsOn` 授权，两者都不调用 parser。
+
+`handoff: true` 只能声明在 executable provider；其它值、container 使用与自有 `undefined` 都在 Definition boundary fail closed。normalization 为 execution 在内部 WeakMap 保留 provider identity，但 declarative snapshot/fingerprint 显式剥离它：identity/value/presence 不是 Definition facts，也不形成跨 package instance compatibility contract。
 
 类型证据需覆盖 PromiseLike 拒绝与普通 recursive Check 仍合法；运行时证据需覆盖 direct 授权、四态可用性、稳定列表和 immutable handoff。[Architecture](architecture.md) 拥有 handoff 实现，[Check 结果](check-results.md)拥有 canonical settlement 不变量。
 

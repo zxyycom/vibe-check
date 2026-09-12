@@ -1,4 +1,8 @@
-import type { CheckExecution, CheckProjectContext } from "../../check/check.ts";
+import {
+  getDefinedHandoffProviderIdentity,
+  type HandoffProviderIdentity
+} from "../../check/handoff-provider-identity.ts";
+import type { CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import type { DiagnosticLogger, DiagnosticObservation } from "../diagnostic-logging/logger.ts";
 import { executeResolvedChecks, type CheckExecutionClock } from "./resolved-checks.ts";
@@ -12,11 +16,12 @@ export const PROJECT = Object.freeze({
 }) satisfies CheckProjectContext;
 
 export function normalized(
-  execution: CheckExecution,
+  execution: NormalizedCheck["execution"],
   overrides: Readonly<{
     readonly checkId?: string;
     readonly dependsOn?: readonly string[];
     readonly displayName?: string;
+    readonly handoff?: HandoffProviderIdentity;
     readonly maxParallel?: number;
     readonly observes?: readonly string[];
     readonly preflight?: NormalizedCheck["preflight"];
@@ -35,6 +40,7 @@ export function normalized(
     definition: { checkId: resolved.checkId, displayName },
     dependsOn: resolved.dependsOn,
     execution,
+    ...(resolved.handoff === undefined ? {} : { handoff: resolved.handoff }),
     maxParallel: resolved.maxParallel,
     mutex: [],
     observes: resolved.observes,
@@ -45,8 +51,15 @@ export function normalized(
   };
 }
 
+/** Obtains the Definition-private identity needed by direct execution fixtures. */
+export function definedHandoff(provider: unknown): HandoffProviderIdentity {
+  const identity = getDefinedHandoffProviderIdentity(provider);
+  if (identity === undefined) throw new Error("Expected a defined handoff provider");
+  return identity;
+}
+
 export function execute(
-  execution: CheckExecution,
+  execution: NormalizedCheck["execution"],
   options: Readonly<{
     readonly clock?: CheckExecutionClock;
     readonly diagnosticLogger?: DiagnosticLogger;

@@ -49,8 +49,10 @@ export async function executeReadyCheck(input: ReadyCheckExecutionInput): Promis
     check,
     dependencies: createCheckDependencies({
       checkId,
+      directDependsOnCheckIds: check.dependsOn,
       diagnosticLogger: input.diagnosticLogger,
       directRelationCheckIds: directRelationCheckIds(check),
+      handoffsByCheckId: input.handoffsByCheckId,
       session: input.session
     }),
     ...(input.diagnosticLogger === undefined ? {} : { diagnosticLogger: input.diagnosticLogger }),
@@ -63,8 +65,10 @@ export async function executeReadyCheck(input: ReadyCheckExecutionInput): Promis
     callback,
     checkId,
     diagnosticLogger: input.diagnosticLogger,
+    handoff: check.handoff,
     preflightMessages: check.preflightMessages,
-    scope
+    scope,
+    state: input
   });
   recordSettledCheck({
     check: identity,

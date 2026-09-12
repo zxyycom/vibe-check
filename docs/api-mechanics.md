@@ -66,7 +66,7 @@ prepared strategy 的 `prepare / decide / complete` 顺序、失败与取消边�
 
 ### 定义与调用如何处理输入
 
-- `defineCheck(value)` 保留 literal `checkId`、options 和 typed-provider parser 的 TypeScript inference。它与同 shape 普通 Check object 具有相同 runtime 语义。
+- `defineCheck(value)` 保留 literal `checkId`、options、typed-provider parser 和 `handoff: true` 的 TypeScript inference。它与同 shape 普通 Check object 具有相同 runtime 语义。
 - `defineConfig(value)` 形成带默认 `apiVersion`、outputs 和 scheduler policy 的 Project Definition。
 - `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom strategy 的 inference；它与同形 inline policy value 等价。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
@@ -80,6 +80,8 @@ Check 在获准入后执行自己的 `preflight(options, signal)`，再以 prepa
 ## terminal result、Records 与 messages
 
 每个可执行 Check 返回一个 terminal result：`passed` / `failed` 带 Check-owned object final data；`not-applicable` 表示本次无适用工作，可省略 reason；`unavailable` 表示无法形成可信结论，必须带非空 `reason.code`。两者都没有 final data；无领域 data 的成功/失败结果可返回 `{}`。settlement 会 detach、canonicalize 并关闭 final data；callback throw、malformed result 或 noncanonical data 对应 `unavailable` outcome。
+
+需要在同一 Run 的 direct prerequisite 间保留引用 identity 时，provider 在 `defineCheck({ handoff: true, ... })` 作最小声明，并只在 accepted `passed` result 返回 non-null object/function reference。handoff 类型由该 result 自动推断；direct `dependsOn` consumer 以 `dependencies.get(provider)` 一次取得 canonical data 和 typed reference。provider 的 `parseData` 仍只处理 canonical data。`handoff: true` 背后的 WeakMap identity 是 Product 内部细节；handoff 是 invocation-private capability，不属于 terminal Check facts。
 
 final data 与 Record data 使用 canonical JSON object：root 不能是数组，拒绝不支持的 prototype/descriptor、getter、cycles、sparse arrays 和 non-finite numbers，不调用 `toJSON`。接受后形成 detached、deep-frozen 的 null-prototype facts；不要依赖 JavaScript own-key enumeration 推断 canonical 文本顺序。
 
@@ -97,7 +99,7 @@ progress 只呈现这些事实，不修改它们。预览默认值、formatter�
 
 ## 类型化依赖数据
 
-使用 direct `dependsOn` 取得成功 prerequisite，使用 direct `observes` 等待并审计任意终态；从 `dependencies.get` / `list` 读取冻结事实，再由 producing Check 的 `parseData` 恢复业务类型。完整的[依赖数据指南](guides/check-dependencies.md)说明读取授权、继承、parser 边界与运行示例。
+使用 direct `dependsOn` 取得成功 prerequisite，使用 direct `observes` 等待并审计任意终态；从 string `dependencies.get` / `list` 读取冻结事实，再由 producing Check 的 `parseData` 恢复业务类型。以 `handoff: true` 声明的 provider object 可用于 `dependencies.get(provider)`，向 direct prerequisite consumer 同时交付 frozen canonical data 与 same-Run reference。完整的[依赖数据指南](guides/check-dependencies.md)说明读取授权、继承、parser、identity 与 cleanup 边界，并给出运行示例。
 
 ## RunControls 与 Check aggregation
 
@@ -121,7 +123,7 @@ aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整
 
 | 分支 | 可用 facts 与处理方式 |
 | --- | --- |
-| `completed` | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。 |
+| `completed` | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。handoff 已在 execution graph 关闭时清除，不在此结果中。 |
 | `output` | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。 |
 | `cancelled` / `phase: "execution"` | 取消时关闭的 snapshot、durations 与 messages；按 cancellation result 处理。 |
 | `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。 |

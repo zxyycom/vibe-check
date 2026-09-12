@@ -70,7 +70,7 @@ setup、prediction 或 score construction failure 使用 static decision fallbac
 
 `defineConfig` 返回普通 Definition value；递归 Check tree 的 executable 与 container 经 validation/normalization 形成 canonical catalog。容器只提供 scheduling inheritance，不产生独立 facts/output entity；Product 不识别随包 Check ID 或 options domain shape。
 
-[Project Definition](project-definition.md)完整维护 closed grammar、canonical options、scheduling/flags 和 declarative fingerprint。validation 必须在 execution、scanner、cache、progress 或 output work 前闭合；trusted preflight/execution/parseData 函数只保留 identity，不执行，也不进入声明性或机器投影。公开参数与组合规则见[API 机制](../api-mechanics.md)。
+[Project Definition](project-definition.md)完整维护 closed grammar、canonical options、scheduling/flags 和 declarative fingerprint。validation 必须在 execution、scanner、cache、progress 或 output work 前闭合；trusted preflight/execution/parseData 函数只保留 identity，不执行，也不进入声明性或机器投影。`handoff: true` 只作为 executable provider 的最小声明；其内部 runtime identity 只保留给 execution seam，且在 declarative snapshot/fingerprint 前剥离。公开参数与组合规则见[API 机制](../api-mechanics.md)。
 
 ## Execution boundary
 
@@ -84,7 +84,7 @@ Invocation 拥有 prepare/complete，Scheduler 只接收同步 policy，并在 d
 
 ### Check execution 与 settlement handoff
 
-每个 admitted callback 只接收 [Project Run](project-run.md#invocation-and-results)投影的 Check-local capability。execution owner 验证 terminal result 和 messages attachment，将 stripped four-state result 交给 settlement；只有 settlement 接受后，accepted Records 与 detached author messages 才进入 private lifecycle feedback，messages 另进入 RunResult readback。非法 attachment 不接受 partial author messages。
+每个 admitted callback 只接收 [Project Run](project-run.md#invocation-and-results)投影的 Check-local capability。execution owner 验证 terminal result 和 messages attachment，将 stripped four-state result 交给 settlement；只有 settlement 接受后，accepted Records 与 detached author messages 才进入 private lifecycle feedback，messages 另进入 RunResult readback。声明 `handoff: true` 的 provider 还会在 accepted `passed` 后向 execution-private store 提交内部 identity/value；store 只让 effective direct `dependsOn` consumer 的 provider-object read 在同一 graph 中取得原始 reference。非法 attachment、非 `passed` branch、canonical settlement 拒绝或取消都不提交 partial handoff。
 
 async console capture 独立于 author attachment：throw 或 malformed result 不丢弃已经捕获的文本。console router 的安装/恢复、分阶段 message 顺序和唯一 progress preview owner 见[人读输出](human-output.md#check-console-capture-maintenance)。renderer 只能消费反馈，不能回写 accepted facts、RunResult 或 machine publication。
 
@@ -94,9 +94,9 @@ ordinary throw、malformed result、Record misuse 和 cancellation 在 owning ex
 
 ## Check facts
 
-`check-settlement/**` 为每个 canonical executable Check 恰好 register 一次，接受 terminal result 和 Check-owned supplemental Records，最后只冻结 `{ checks, records }`。canonical validation、Record identity、accepted-record retention 与 terminal closure 由 [Check 结果](check-results.md#check-and-record-facts)拥有；Task identity、callback、scheduler bookkeeping 和 scanner-private payload 不是 Check facts。
+`check-settlement/**` 为每个 canonical executable Check 恰好 register 一次，接受 terminal result 和 Check-owned supplemental Records，最后只冻结 `{ checks, records }`。canonical validation、Record identity、accepted-record retention 与 terminal closure 由 [Check 结果](check-results.md#check-and-record-facts)拥有；Task identity、callback、scheduler bookkeeping、scanner-private payload 和 invocation-private handoff 不是 Check facts。
 
-callback-local dependency view 仅授权 normalized direct `dependsOn ∪ observes`。它从 package-private settled Check seam 取得原有 canonical final-data 引用，不调用 provider parser、不读取 supplemental Records，也不建立第二套 facts store；公开 get/list 类型与失败边界由[依赖数据指南](../guides/check-dependencies.md)定义。
+callback-local dependency view 的 string read/list 仅授权 normalized direct `dependsOn ∪ observes`。它从 package-private settled Check seam 取得原有 canonical final-data 引用，不调用 provider parser、不读取 supplemental Records，也不建立第二套 facts store。provider-object read 另以内部 provider-identity-matched store 只授权 effective direct `dependsOn`，并同时返回 Core-owned canonical data 与 original handoff reference；它不扩大 `observes`、transitive 或 string read。公开 get/list 类型与失败边界由[依赖数据指南](../guides/check-dependencies.md)定义。
 
 Run 只在 explicit aggregation 配置下读取选定 settled statuses；effective aggregation 与 flag control 使用同一 private selection，不发布 activation metadata。aggregate 不隐藏或改写 raw facts，接线与 Gate mapping 见[Check 结果](check-results.md#explicit-aggregation-and-repository-gate-mapping)。
 
@@ -114,7 +114,7 @@ file collection/exact membership 由 [Project files](project-files.md)提供，�
 
 ## Output and downstream boundary
 
-completion 从 sealed Check facts 创建一个 validated machine v4 model，再投影 two-file candidate；它不解释 Check-local data、不重算 status/aggregation。candidate validation 与 publication cleanup 见[机器输出维护](output-maintenance.md)，完整机器契约见 [Output](../output.md)。
+completion 从 sealed Check facts 创建一个 validated machine v4 model，再投影 two-file candidate；它不解释 Check-local data、不重算 status/aggregation。handoff 的内部 provider identity、value 或 presence metadata 不进入 Check facts、Core snapshot、RunResult、machine、progress、diagnostic、aggregation、cache 或 fingerprint；execution-store `clear()` 只释放 Product reference，绝不充当 resource disposer。candidate validation 与 publication cleanup 见[机器输出维护](output-maintenance.md)，完整机器契约见 [Output](../output.md)。
 
 console capture、progress renderer 和 core/scheduler diagnostic channels 由[人读输出实现](human-output.md)分别拥有。diagnostics 在 Product 已知事实形成时追加，不从终态 snapshot 或 process transcript 重建过程；Scheduler graph 只记录一次，后续 decision 引用 fingerprint。summary 是 human-only observation，不成为 machine/result/progress 字段或自动调参输入。
 

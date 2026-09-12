@@ -36,7 +36,7 @@ Run 在 work 前拒绝 unknown、duplicate 或 non-normalized ID-list selection�
 
 callback capability 按上表投影；完整 context shape 由[Check authoring 指南](../guides/extending-check-lifecycle.md)定义。Check artifactDirectory 从 stable Check ID 确定性派生，采用 bounded filesystem-safe encoding，避免 traversal、component-length 和直接 sanitize collision；raw ID 留在 Check facts。
 
-options 为 canonical authored snapshot 或 invocation-local prepared/fallback；file selection、领域 policy 与 cache 留在 owning options。dependencies 只授权 normalized direct relation union，不授予 transitive 或未声明访问。artifact base、sibling namespace、output target 和 scheduler/cross-Run state 不进入 callback context。
+options 为 canonical authored snapshot 或 invocation-local prepared/fallback；file selection、领域 policy 与 cache 留在 owning options。dependencies 的 string read/list 只授权 normalized direct relation union，不授予 transitive 或未声明访问；`handoff: true` provider-object read 只授权 effective direct `dependsOn`，并且 reference 只在这次 execution graph 内可见。execution owner 在 graph close 的 `finally` 中 clear private store，无论 completed、cancelled、admission-policy 或 invariant exit；这只丢弃 Product reference，不执行 producer/caller resource cleanup。artifact base、sibling namespace、output target 和 scheduler/cross-Run state 不进入 callback context。
 
 invalid Definition、controls 或 aggregation selection 在 author work 前返回 configuration result。ordinary callback throw、
 malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、

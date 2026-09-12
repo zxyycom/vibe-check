@@ -10,6 +10,7 @@ import { CoreInvariantFailure, type TrustedCheckScope } from "../../check-settle
 import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 import { invokeWithCapturedConsole } from "./console-capture.ts";
+import { diagnosticCallbackResult } from "./terminal-result.ts";
 
 const EMPTY_MESSAGES: readonly CheckMessage[] = Object.freeze([]);
 
@@ -69,7 +70,7 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
       input.diagnosticLogger?.observe({
         event: "callback.cancelled",
         tags: diagnosticTags(...checkTags, "CANCELLED"),
-        details: { result: callbackResult }
+        details: { result: diagnosticCallbackResult(callbackResult, input.check.handoff) }
       });
     }
     result = input.signal.aborted

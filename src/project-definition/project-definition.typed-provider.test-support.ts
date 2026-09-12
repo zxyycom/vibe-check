@@ -85,3 +85,59 @@ export function assertUndefinedParserIsOmitted(): void {
     assert.equal(Object.hasOwn(explicitUndefined.value.checks[0] ?? {}, "parseData"), false);
   }
 }
+
+export function assertExecutableProviderRetainsHandoffAndExcludesItFromDeclarativeIdentity(): void {
+  const createProvider = () =>
+    defineConfig({
+      checks: [
+        defineCheck({
+          checkId: "handoff-provider",
+          displayName: "Handoff provider",
+          handoff: true,
+          execution: () => ({ status: "passed", data: {}, handoff: { source: "provider" } })
+        })
+      ]
+    });
+  const firstProvider = createProvider();
+  const validated = validateProjectDefinition(firstProvider);
+  assert.equal(validated.ok, true);
+  if (validated.ok) {
+    assert.notEqual(validated.value.checks[0]?.handoff, undefined);
+    const normalized = normalizeProjectDefinition(validated.value);
+    assert.notEqual(normalized.checks[0]?.handoff, undefined);
+    assert.equal(Object.hasOwn(normalized.declarative.checks[0] ?? {}, "handoff"), false);
+    assert.equal(
+      createDeclarativeFingerprint(normalized.declarative),
+      createDeclarativeFingerprint(normalizeProjectDefinition(createProvider()).declarative)
+    );
+  }
+}
+
+export function assertInvalidHandoffDeclarationsAreRejected(): void {
+  const base = defineConfig({});
+  for (const check of [
+    { checkId: "container-handoff", displayName: "Container handoff", handoff: true },
+    {
+      checkId: "undefined-handoff",
+      displayName: "Undefined handoff",
+      execution: passed,
+      handoff: undefined
+    },
+    { checkId: "false-handoff", displayName: "False handoff", execution: passed, handoff: false },
+    { checkId: "forged-handoff", displayName: "Forged handoff", execution: passed, handoff: {} },
+    {
+      checkId: "array-handoff",
+      displayName: "Array handoff",
+      execution: passed,
+      handoff: [true]
+    },
+    {
+      checkId: "unregistered-handoff",
+      displayName: "Unregistered handoff",
+      execution: passed,
+      handoff: true
+    }
+  ]) {
+    assert.equal(validateProjectDefinition({ ...base, checks: [check] }).ok, false);
+  }
+}

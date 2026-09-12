@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 import { defineConfig } from "./project-definition.ts";
 import {
   assertExecutableProviderRetainsParser,
+  assertExecutableProviderRetainsHandoffAndExcludesItFromDeclarativeIdentity,
+  assertInvalidHandoffDeclarationsAreRejected,
   assertInvalidParserDeclarationsAreRejected,
   assertParsersDoNotChangeDeclarativeIdentity,
   assertUndefinedParserIsOmitted
@@ -21,6 +23,8 @@ describe("Project Definition", () => {
     assertParsersDoNotChangeDeclarativeIdentity(firstDataParser, secondDataParser);
     assertInvalidParserDeclarationsAreRejected(firstDataParser);
     assertUndefinedParserIsOmitted();
+    assertExecutableProviderRetainsHandoffAndExcludesItFromDeclarativeIdentity();
+    assertInvalidHandoffDeclarationsAreRejected();
   });
 
   // @ts-expect-error defineConfig rejects retired policy authoring.

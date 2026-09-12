@@ -6,7 +6,6 @@ import { describe, it } from "node:test";
 
 import type { ResolvedJsonValidationOptions } from "./options.ts";
 import type {
-  CheckDependencies,
   CheckExecutionContext,
   CheckProjectContext,
   CheckResult,
@@ -16,6 +15,7 @@ import { executeJsonValidation } from "./json-validation.ts";
 import { jsonValidation } from "./default-check.ts";
 import { parseJsonValidationData } from "./final-data.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
+import { NO_DEPENDENCIES } from "../check-execution.test-support.ts";
 
 const DEFAULT_FILES = Object.freeze({
   exclude: Object.freeze([]),
@@ -23,15 +23,6 @@ const DEFAULT_FILES = Object.freeze({
   source: "filesystem" as const
 });
 const DEFAULT_OPTIONS = Object.freeze({ maximumBytes: 1_048_576 });
-const NO_DEPENDENCIES: CheckDependencies = Object.freeze({
-  get: (checkId: string) =>
-    Object.freeze({
-      ok: false,
-      error: Object.freeze({ code: "dependency-not-declared", checkId })
-    }),
-  list: () => Object.freeze([])
-});
-
 interface ObservedRecord {
   readonly data: object;
   readonly identity: Readonly<{ readonly id: string }>;

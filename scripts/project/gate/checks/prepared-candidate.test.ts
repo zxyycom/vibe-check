@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 import { defineConfig, run as packageRun } from "@zxyycom/vibe-check";
 
+import { NO_DECLARED_DEPENDENCIES } from "./check-execution.test-support.ts";
 import { sha256File } from "../../../package/pack.ts";
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 import {
@@ -152,13 +153,7 @@ async function invokeCheck(
   if (execution === undefined) throw new Error("fixture Check must be executable");
   return execution({
     artifactDirectory: null,
-    dependencies: {
-      get: (checkId) => ({
-        ok: false,
-        error: { code: "dependency-not-declared", checkId }
-      }),
-      list: () => Object.freeze([])
-    },
+    dependencies: NO_DECLARED_DEPENDENCIES,
     invocationId: "invocation/v1:fixture-prepared-candidate",
     options: {},
     project: { flags: [], root: process.cwd() },

@@ -1,10 +1,11 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
 import type {
-  CheckExecution,
+  Check,
   CheckFlagEnablement,
   CheckPreflight,
   CheckVisibility
 } from "../../check/check.ts";
+import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import {
   parseCheckTreeAuthoring,
   type MeaninglessCheckWarning,
@@ -21,7 +22,8 @@ export interface ResolvedCheckTreeLeaf {
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
   readonly enabledByFlags?: CheckFlagEnablement;
-  readonly execution: CheckExecution;
+  readonly execution: NonNullable<Check["execution"]>;
+  readonly handoff?: HandoffProviderIdentity;
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly observes: readonly string[];
@@ -129,6 +131,7 @@ function resolvedLeafFor(
       dependsOn: scheduling.dependsOn,
       ...(check.enabledByFlags === null ? {} : { enabledByFlags: check.enabledByFlags }),
       execution: check.execution,
+      ...(check.handoff === null ? {} : { handoff: check.handoff }),
       maxParallel: scheduling.maxParallel,
       mutex: scheduling.mutex,
       observes: scheduling.observes,

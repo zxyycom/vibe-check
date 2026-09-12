@@ -10,6 +10,7 @@
 | 执行前验证或把 authoring options 变成 invocation-local 的准备值 | `preflight(options, signal)` 后接 `execution(context)` | 它不是全局启动 hook；只在本 Check 已获准入后运行。 |
 | 保存不决定终态的逐项事实 | `context.records.report({ id }, data)` | Record 不能替代 `passed`、`failed`、`not-applicable` 或 `unavailable`。 |
 | 读取已声明上游结果 | `dependsOn` 或 `observes`，再从 `context.dependencies` 读取 | 不能读取未声明、传递或任意已运行的 Check。 |
+| 向 direct prerequisite consumer 交接 same-Run reference | 在 provider 上声明 `handoff: true`，并在 `passed` result 返回 `handoff` | 不能用它发布到 RunResult、machine、progress、diagnostic 或 cache；不扩大 `observes` 权限。 |
 
 `defineCheck(...)` 定义的 object 是公开 authoring surface。`execution`、`preflight`、`parseData` 都是调用方实现的受信任回调。Product 只提供各自声明的输入；回调独立执行的 I/O 仍由调用方负责。
 
@@ -97,11 +98,11 @@ const licensePolicy = defineCheck({
 | `records` | 发布 object-shaped supplemental facts。 | 每个 ID 仅在本 Check 内唯一，且不会决定 status。 |
 | `signal` | 在可等待工作中协作退出。 | 取消后不要启动背景工作或把部分结果伪装为通过。 |
 
-成功与失败都必须返回 object-shaped final `data`；`not-applicable` 表示当前没有适用工作，`unavailable` 表示无法形成可信结果并必须带稳定 `reason.code`。`messages` 是有序的人读补充信息，不保证每个 outcome 都有；把完整或敏感详情留在调用方拥有的安全位置，不要依赖 progress 文本保存事实。
+成功与失败都必须返回 object-shaped final `data`；`not-applicable` 表示当前没有适用工作，`unavailable` 表示无法形成可信结果并必须带稳定 `reason.code`。声明 `handoff: true` 的 provider 还必须在 `passed` 返回同型 non-null object/function `handoff`；其它 branch 和 ordinary Check 不能携带该字段。`messages` 是有序的人读补充信息，不保证每个 outcome 都有；把完整或敏感详情留在调用方拥有的安全位置，不要依赖 progress 文本保存事实。
 
 ## 依赖与取消的实践
 
-必须取得上游成功 data 才能开始时，声明 `dependsOn`，并先检查 `dependencies.get(id).ok`；上游未提供 data 时返回 `unavailable`，而不是猜测空值。需要等上游无论何种终态都结算后再审计时，声明 `observes`，用 `dependencies.list()` 处理各项 outcome。需要恢复 provider 的业务类型时，调用 provider Check 的 `parseData`。完整示例和读取授权见[依赖数据指南](check-dependencies.md)。
+必须取得上游成功 data 才能开始时，声明 `dependsOn`，并先检查 `dependencies.get(id).ok`；上游未提供 data 时返回 `unavailable`，而不是猜测空值。需要等上游无论何种终态都结算后再审计时，声明 `observes`，用 `dependencies.list()` 处理各项 outcome。需要保留 provider reference identity 时，provider-aware `dependencies.get(provider)` 只对 direct `dependsOn` 成功；继续调用 provider Check 的 `parseData(read.data)`，不要把 parser 用于 `read.handoff`。完整示例、immutable observation 和 explicit resource cleanup 边界见[依赖数据指南](check-dependencies.md)。
 
 对 `fetch`、子进程或自有异步 API，把 `signal` 传下去；若已取消，尽快停止并返回 `unavailable`。Vibe Check 不会取消调用方没有连接 signal 的外部工作，也不替调用方回收文件、网络或子进程资源。
 

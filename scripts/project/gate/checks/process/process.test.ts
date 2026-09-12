@@ -22,6 +22,29 @@ const definition: ProcessCheckDescriptor = Object.freeze({
   environment: {}
 });
 
+type HandoffProvider<Id extends string = string> = Readonly<{
+  readonly checkId: Id;
+  readonly handoff: true;
+}>;
+type DependencyNotDeclaredResult = Readonly<{
+  readonly ok: false;
+  readonly error: Readonly<{ readonly code: "dependency-not-declared"; readonly checkId: string }>;
+}>;
+type DependencyDataResult = Readonly<{
+  readonly ok: true;
+  readonly checkId: string;
+  readonly status: "passed" | "failed";
+  readonly data: Readonly<{ readonly version: number }>;
+}>;
+type DependencyUnavailableResult = Readonly<{
+  readonly ok: false;
+  readonly error: Readonly<{
+    readonly code: "upstream-data-unavailable";
+    readonly checkId: string;
+    readonly status: "unavailable";
+  }>;
+}>;
+
 describe("Project Gate process Check", () => {
   it("publishes closed success data only after a settled transcript", async () => {
     const root = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-"));
@@ -84,12 +107,7 @@ describe("Project Gate process Check", () => {
       const executionContext = () => ({
         artifactDirectory: fixtureArtifactDirectory(root),
         dependencies: {
-          get: (checkId: string) => ({
-            ok: true as const,
-            checkId,
-            status: "passed" as const,
-            data: { version: 1 }
-          }),
+          get: passedDependency({ version: 1 }),
           list: () => Object.freeze([])
         },
         invocationId: "invocation/v1:fixture-process",
@@ -269,56 +287,29 @@ describe("Project Gate process Check", () => {
           signal: new AbortController().signal
         });
 
-      assert.deepEqual(
-        await invokeDependency((checkId) => ({
-          ok: true,
-          checkId,
-          status: "passed",
-          data: { version: 1 }
-        })),
-        { status: "passed", data: { exitCode: 0 } }
-      );
+      assert.deepEqual(await invokeDependency(dependencyData({ version: 1 }, "passed")), {
+        status: "passed",
+        data: { exitCode: 0 }
+      });
       assert.equal(observedEnvironment?.PROJECT_GATE_TYPED_FIXTURE, "1");
       dependencyEnvironmentValid = false;
-      assert.deepEqual(
-        await invokeDependency((checkId) => ({
-          ok: true,
-          checkId,
-          status: "passed",
-          data: { version: 1 }
-        })),
-        { status: "unavailable", reason: { code: "dependency-data-invalid" } }
-      );
+      assert.deepEqual(await invokeDependency(dependencyData({ version: 1 }, "passed")), {
+        status: "unavailable",
+        reason: { code: "dependency-data-invalid" }
+      });
       dependencyEnvironmentValid = true;
-      assert.deepEqual(
-        await invokeDependency((checkId) => ({
-          ok: true,
-          checkId,
-          status: "passed",
-          data: { version: 2 }
-        })),
-        { status: "unavailable", reason: { code: "dependency-data-invalid" } }
-      );
-      assert.deepEqual(
-        await invokeDependency((checkId) => ({
-          ok: true,
-          checkId,
-          status: "failed",
-          data: { version: 1 }
-        })),
-        { status: "unavailable", reason: { code: "dependency-failed" } }
-      );
-      assert.deepEqual(
-        await invokeDependency((checkId) => ({
-          ok: false,
-          error: {
-            code: "upstream-data-unavailable",
-            checkId,
-            status: "unavailable"
-          }
-        })),
-        { status: "unavailable", reason: { code: "dependency-unavailable" } }
-      );
+      assert.deepEqual(await invokeDependency(dependencyData({ version: 2 }, "passed")), {
+        status: "unavailable",
+        reason: { code: "dependency-data-invalid" }
+      });
+      assert.deepEqual(await invokeDependency(dependencyData({ version: 1 }, "failed")), {
+        status: "unavailable",
+        reason: { code: "dependency-failed" }
+      });
+      assert.deepEqual(await invokeDependency(unavailableDataDependency), {
+        status: "unavailable",
+        reason: { code: "dependency-unavailable" }
+      });
       assert.equal(starts, 1);
     } finally {
       rmSync(root, { force: true, recursive: true });
@@ -767,6 +758,56 @@ interface ReportedRecord {
   readonly identity: Readonly<{ readonly id: string }>;
 }
 
+function passedDependency(data: Readonly<{ readonly version: number }>) {
+  return dependencyData(data, "passed");
+}
+
+function dependencyData(data: Readonly<{ readonly version: number }>, status: "passed" | "failed") {
+  function get<Id extends string>(provider: HandoffProvider<Id>): DependencyNotDeclaredResult;
+  function get(checkId: string): DependencyDataResult;
+  function get(
+    dependency: string | HandoffProvider
+  ): DependencyDataResult | DependencyNotDeclaredResult {
+    if (typeof dependency === "string") {
+      return Object.freeze({ ok: true, checkId: dependency, status, data });
+    }
+    return dependencyNotDeclared(dependency);
+  }
+  return get;
+}
+
+function unavailableDataDependency<Id extends string>(
+  provider: HandoffProvider<Id>
+): DependencyNotDeclaredResult;
+function unavailableDataDependency(checkId: string): DependencyUnavailableResult;
+function unavailableDataDependency(
+  dependency: string | HandoffProvider
+): DependencyUnavailableResult | DependencyNotDeclaredResult {
+  if (typeof dependency !== "string") return dependencyNotDeclared(dependency);
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({
+      code: "upstream-data-unavailable" as const,
+      checkId: dependency,
+      status: "unavailable" as const
+    })
+  });
+}
+
+function dependencyNotDeclared<Id extends string>(
+  provider: HandoffProvider<Id>
+): DependencyNotDeclaredResult;
+function dependencyNotDeclared(checkId: string): DependencyNotDeclaredResult;
+function dependencyNotDeclared(dependency: string | HandoffProvider): DependencyNotDeclaredResult {
+  return Object.freeze({
+    ok: false,
+    error: Object.freeze({
+      code: "dependency-not-declared" as const,
+      checkId: typeof dependency === "string" ? dependency : dependency.checkId
+    })
+  });
+}
+
 async function invoke(
   check: ReturnType<typeof createProcessCheck>,
   records: ReportedRecord[],
@@ -779,11 +820,7 @@ async function invoke(
   return check.execution({
     artifactDirectory,
     dependencies: Object.freeze({
-      get: (checkId: string) =>
-        Object.freeze({
-          ok: false,
-          error: Object.freeze({ code: "dependency-not-declared", checkId })
-        }),
+      get: dependencyNotDeclared,
       list: () => Object.freeze([])
     }),
     invocationId: "invocation/v1:fixture-process",
