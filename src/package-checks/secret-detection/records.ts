@@ -1,4 +1,4 @@
-import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { MaterializedFindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 import type {
   FindingWaiverRecordAudit,
   FindingWaiverAuditRecordData

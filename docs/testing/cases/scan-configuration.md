@@ -60,6 +60,16 @@ Entities:
 - An ancestry-external TypeScript consumer imports and typechecks that public surface without casts or manual dependency-read generics; the same acceptance reads the installed declaration owners directly and requires the documented `defineCheck` / `run` summaries, remarks, parameters, returns and example rather than constructing a second compiler program after `tsgo`. The consumer can declare `observes`, enumerate its direct settled outcome through the callback-local `dependencies.list()` surface, and still uses the producing parser for final data. It can create standalone immutable admission graph branches and read the same callback `admissionState`, while the closed strategy result remains only `select(taskId)` or `wait`. It can author a simple or prepared custom strategy over frozen graph/decision/terminal DTOs: `decide` must synchronously return exact `select(taskId)` or `wait`, prepared may asynchronously form its Run-local closure and optional complete, and retired `proposeAdmission` plus unknown nested fields are rejected in installed declarations. It can import the learned strategy factory, pass caller-owned history identity and model options, and install its returned prepared strategy through the same custom hook. The caller-keyed cache parser must likewise synchronously return a non-thenable typed value. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
 - Under `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes`, installed callback declarations preserve non-empty and discriminated tuple structure while retaining `unknown` leaf uncertainty; the consumer fixture does not inherit implementation-only control-flow rules.
 
+## Case API-ADMISSION-POLICY-AUTHORING-001: Admission policy helper preserves exact public authoring
+
+Owner: `docs/guides/scheduling.md#自定义准入-policy`
+Entities:
+
+- `bun|src/package-tools/admission-policy/define-admission-policy.test.ts|admission policy authoring > preserves policy identity and closed generic authoring types`
+  Proves:
+
+- `defineAdmissionPolicy` returns the original policy value while preserving static and custom literal inference. Its generic authoring surface contextually types simple and synchronous/asynchronous prepared callbacks, admits only synchronous decision proposals, and rejects unknown fields at the static, custom-policy and prepared-result boundaries.
+
 ## Case AUX-MARKDOWN-LINK-OPTIONS-001: Markdown Link authoring defaults remain partial and bounded
 
 Owner: `docs/checks/markdown-link-validation.md#参数与默认配置`

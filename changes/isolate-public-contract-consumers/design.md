@@ -1,146 +1,99 @@
 # Design
 
-本 Plan 将 Finding presentation 与 `defineAdmissionPolicy` 迁入 `src/package-tools/<domain-owner>/`，建立两向依赖门禁，并保持公开 API 与行为兼容。
+以面向外部用户的公开数据契约完成五个可选工具的隔离；Core 保留单份数据基础和机制 owner，工具目录内实现全部接受两向门禁。
 
 ## Context
 
-- [`src/index.ts`](../../src/index.ts) 是唯一 public package entry；[Architecture](../../docs/development/architecture.md#source-module-boundaries)拥有当前领域分工。
-- 源码审计覆盖 28 个 runtime exports 和 127 个 type-only exports，结合调用关系、静态 imports 与类型探针形成下文判断。完整分类、基线和证据限制见 [Audit Reference](#audit-reference)。
-- [两向依赖 Decision](../../docs/decisions/keep-core-independent-of-package-tools.md)拥有长期分类与依赖方向；本 Plan 拥有两个工具的迁移、门禁实施和验收。
+首批 Finding presentation 与 admission authoring 的迁移曾通过阶段验收；当前 candidate 已把 cache、waiver 和
+learned 纳入同一范围。该阶段证据只说明首批迁移，不替代五个工具、公开数据 API、包材料和完整 Gate 的本次验收。
+Core 的实际生产依赖闭包不引用这五个具体工具；此前的私有数据依赖是需要以公开数据契约解除的耦合，不改变工具的
+Non-core 身份。
+
+用户允许新增 API，并要求外部用户能独立使用，不仅供内部工具通行；完整应用方案可以后续演进，首版仍须有清晰契约和可执行证据。旧计划的“不新增 API”不是用户限制。
 
 ## Goals / Non-Goals
 
-目标是让 Core 独立于可选工具成立，并让统一目录自动约束 Non-core 的全部生产实现。各工具继续拥有自己的算法、I/O 和失败契约。
-
-本 Change 调整源码归属与依赖接线，保持公开导出、签名语义、产品行为和单一算法实现。新增 API、deep-import surface、兼容 wrapper 与工具算法改造均不在范围内。
+- 五个工具及其独立支撑实现进入统一目录，既有 API、算法、输入/输出和失败语义兼容。
+- 新增最小数据 API，从唯一 package root 提供中文说明、支持类型、独立示例和安装后验收。
+- 不迁走 Core 所需数据基础，不复制算法，不增加私有白名单、deep import、兼容 wrapper、第三方依赖或新 package。
+- 不开展 learned 算法优化，不提前实施 collection 的 Invocation 接线。
 
 ## Decisions
 
 ### Intended Change
 
-#### 分类规则
+#### 工具归属与位置
 
-Core 包含 ordinary Check contract、Definition、Invocation、Scheduler、settlement 及其所需基础机制；package-provided Checks 是该机制的消费者。
-
-| 角色 | 判据 | 归属 |
+| 对象 | 目标 owner | 处理 |
 | --- | --- | --- |
-| Non-core tool | 移除具体工具及其 facade 导出后，Core 的契约、默认行为和机制仍完整，无需替代实现 | 统一工具目录中的领域子 owner |
-| Core tool | Core 直接依赖该能力，或公开接口直接开放核心机制且缺少合理的独立拆分位置 | 实际 Core 机制 owner |
-| Core API | 拥有产品 authoring、identity、defaults 或运行协议 | 对应产品 owner |
-| Check constructor / parser | 构造具体 Check 或解释其数据契约 | 对应 Check owner |
+| Finding presentation | src/package-tools/finding-presentation/ | 保留首批迁移与公开类型推导 |
+| defineAdmissionPolicy | src/package-tools/admission-policy/ | 保留首批提取与 exact types |
+| cacheJsonByKey | src/package-tools/cache/ | 迁移，使用公开数据能力 |
+| reconcileFindingWaivers | src/package-tools/finding-waivers/ | 迁移，保持 canonical identity 与 audit 语义 |
+| createLearnedCriticalPathStrategy | src/package-tools/learned-critical-path/ | 迁移完整 history/model/strategy；仅供 learned 使用的 critical-path-ranking 同迁 |
+| canonical/closed data | src/data-boundary/ | 保留 Core owner，公开下述最小面；私有 helper 仍私有 |
+| createAdmissionGraph | 实际 Scheduler owner | 保留共享 state/reducer/effects 的 Core tool |
 
-分类核对必要职责，目录准入核对实际依赖：可选工具仍有 Core-private import 时，先解决耦合再迁入。Core 需要的基础实现继续属于 Core，即使该实现本身纯净。
+工具身份取决于 Core 是否需要具体工具；现有私有 imports 不能成为排除理由。package Checks 使用工具属于消费者关系；Core 调用 caller 注入的公共策略不等于依赖 learned 实现。
 
-Core 调用 caller 注入的公共 strategy/Check 协议，不构成对某个具体工具的依赖；硬编码 import、默认实例化和具体工具类型则属于依赖。package facade 的组合导出也与“直接开放已有 Core 机制”分别判断。
+#### 首版公开数据契约
 
-#### 实施范围
-
-| 对象 | 当前判断与依据 | 本 Plan 处理 |
-| --- | --- | --- |
-| Finding presentation | Core 不调用；package Checks 使用；仅需公开 Check 类型 | 迁入，文件内 `appendCheckMessages` 随迁并供现有 Checks 使用 |
-| `defineAdmissionPolicy` | Core 不调用；identity helper 和 exact authoring 类型依赖现有公开策略类型 | 提取，保持类型推断 |
-| Cache、waiver、learned | Core 不依赖具体工具，但工具仍使用共享 canonical/closed-data 私有实现 | 范围外；后续加入目录前解决共享基础依赖 |
-| `data-boundary` | Definition、Check snapshot、settlement 和 output 直接依赖 | 保留 Core 基础 owner |
-| `createAdmissionGraph` | 与真实 Scheduler 共用 private state、reducer、forced microsteps 和 effects | 保留 Core tool，遵循[既有 Decision](../../docs/decisions/provide-immutable-admission-graph-state.md) |
-| Collection、default selection 与相关 host adapters | 当前由 package Checks 使用；已确认的 file-input 方向将使 Invocation 依赖共享机制 | 范围外；由 file-input Change 收敛 Core 侧责任 |
-
-本 Plan 的交付范围是两个工具与完整门禁。其他工具、data-boundary 和 collection/host 保留现有位置，不计为本次隔离成员。
-
-目标位置：
-
-```text
-src/package-tools/
-├── finding-presentation/finding-presentation.ts
-└── admission-policy/define-admission-policy.ts
-```
-
-具体接线：
-
-- 将 `src/check/finding-presentation.ts` 及近邻测试迁入目标目录，使用公开 `CheckResult` 推导 `CheckMessage`。`FindingOverflowContext` 与非公开 `appendCheckMessages` 随文件移动，更新 root 和 package Check imports。
-- 从 `src/project-definition/project-definition.ts` 提取 `defineAdmissionPolicy`、五个 exact 类型及 JSDoc；只导入现有公开策略类型。`defineConfig`、Product defaults、validation 和 normalization 保留原 owner，原文件不保留兼容 re-export。
-- 更新 `src/project-definition/project-definition.authoring-defaults.test.ts` 的 helper import，保留 Definition 集成断言；在工具近邻补充 identity 和 authoring 类型证据。既有 Case 的 Owner/Proves 与新增证据按测试策略维护。
-- `src/index.ts` 只调整工具 value/type 的来源，保持 28 个 runtime exports 与 127 个 type-only exports 的集合；以 `scripts/package/public-api-inventory.ts` 核对。
-
-#### 两向依赖边界
-
-在 `scripts/validation/` 实现 `package-tools-boundary.ts`，接入现有 `validateRepositoryLayout`。受检集合由目录自动发现，规则集中维护。
-
-| 依赖方向 | 门禁规则 |
+| Runtime export | 外部用户可独立完成的任务 |
 | --- | --- |
-| Core → Non-core | 禁止直接或经 helper、barrel、相邻 owner 间接依赖，覆盖 value/type imports 与 re-exports |
-| Non-core → Product | 仅允许真正从 package root 公开的符号，按符号身份及 value/type 身份解析 |
-| Non-core → 目录内实现 | 允许；支撑模块同样受检 |
-| Non-core → 宿主 / 第三方 | 按确切 module、package/subpath 审核，并核对随包依赖投影 |
-| package Checks → Non-core | 允许，保持 Check 自身行为 owner |
+| canonicalizeJsonValue | 将 unknown 数据安全 materialize 为 detached、deep-frozen canonical JSON value，失败返回 undefined |
+| canonicalizeJsonObject | 对需要 object payload 的边界采用同一 materialization，拒绝非 object root |
+| canonicalJsonText | 生成项目定义的确定性 JSON 文本；不能 materialize 时抛 TypeError |
+| canonicalJsonBytes | 取得同一 canonical 文本的 UTF-8 bytes，用于 caller 自有 fingerprint 或存储 |
+| snapshotExactClosedRecord | 接受恰好具备声明 own keys 的闭合普通对象，返回浅冻结快照，失败返回 undefined |
+| snapshotClosedArray | 接受 dense、无额外 own 属性的普通数组，返回浅冻结快照，失败返回 undefined |
 
-公共符号从定义处具名导入，跟随 alias 解析；内部不经 package root 回环导入。公开 API 背后的合法私有实现由该 API owner 负责，不能将整个来源文件作为公开符号白名单。
+公开 supporting types 为 CanonicalJsonPrimitive、CanonicalJsonValue、CanonicalJsonObject。既有 28 value / 127 type 基线保留，新增后预期 34 value / 130 type；以实际 inventory、声明和 installed consumer 核对，不沿用旧计数硬编码。
 
-Core 受检 roots 固定为以下目录中的生产 TypeScript 文件，目标工具迁出后按新位置分类：
+cache 与 learned 的 snapshotClosedRecord + hasExactPlainRecordKeys 合并使用既有 snapshotExactClosedRecord，避免公开私有 predicate；局部调用调整必须保持返回/失败与属性观察语义。测量中的私有 admission 类型从公开 SchedulerRawMeasurement 推导；其他私有类型逐项核对，不复制协议定义。
 
-```text
-src/check/
-src/check-settlement/
-src/data-boundary/
-src/machine-output/
-src/project-definition/
-src/project-run/
-```
+用户文档必须区分 canonical 深快照与 closed 浅快照、undefined 与 TypeError、getter/toJSON 不调用与 Proxy 反射仍可能触发 trap。canonical 文本是本项目顺序规则，不宣称 RFC 8785 或通用安全沙箱。首版可小，但不能省略这些行为边界。
 
-以这些 roots 为起点遍历仓库内 type/value import、具名 re-export 和可解析的 literal 加载边；中间 owner 也进入遍历。`src/index.ts` 是组合 facade，不是起点，但 Core 若经中间模块导入它，仍继续检查其依赖。bare Node/npm 模块作为已知外部叶子，不展开其实现。路径规范化后检查目标，未解析的仓库依赖和加载语法报告违规。
+#### 两向门禁
 
-生产集合排除 `.test.ts`、`.type-test.ts`、`.test-support.ts`、`test-support/` 与 `fixtures/` 材料；生产图指向这些材料时报告违规而非跳过边。新增 `src` 顶层 owner 仍受 layout 的闭合集约束，加入时必须明确其 Core roots 或非 Core 角色。
+现有入口 scripts/validation/package-tools-boundary.ts 编排公开符号审计；module-graph 负责语法与工程 module resolution，core-closure 负责 Core 六类 roots 与 no-emit。稳定规则由 [Architecture](../../docs/development/architecture.md#source-module-boundaries) 与 [Workspace tooling](../../docs/tooling/workspace.md#source-owners-and-dependency-direction) 拥有。
 
-使用 TypeScript Program/TypeChecker 按当前工程 module resolution 解析 root 的公开符号与 alias，保留 value/type 身份后比对工具 imports；同名私有符号不放行。工具的两份生产模块没有宿主或第三方 import，本 Plan 初始外部允许集合为空，测试所需 Node 模块按测试角色处理。
-
-Core-private helper、`scripts/**`、测试和 fixture 均不属于工具生产依赖允许集合。生产模块不能借被排除的测试材料绕行。语法处理与 fixture 要求见[门禁证据](#门禁证据)。
+- 统一扫描 src/package-tools/ 内全部生产模块；目录内支撑模块同样受检，不能借测试或 fixture 绕行。
+- 工具消费 Product 时按 package-root 符号身份、alias 和 type/value 身份审计，定义处具名导入；不能经 package root 回环或整文件白名单。
+- Core roots 保持 check、check-settlement、data-boundary、machine-output、project-definition、project-run；按实际 tsconfig 解析仓库内相对、绝对、alias、type/value/re-export 与 Core literal loading edge，传递阻止工具依赖。
+- 工具动态加载、import type query、namespace/default Product import、star/side-effect import、require/import-equals 均拒绝；Core literal dynamic import 可遍历，非 literal 或 require/import-equals 拒绝。解析失败 fail closed。
+- 宿主依赖按实际使用的确切 node: specifier 集中允许，并核对现有随包环境；不借本次引入新 npm dependency。该集合不是 Core-private 例外。
+- 生产集合排除 .test.ts、.type-test.ts、.test-support.ts、test-support/ 与 fixtures/；生产图指向这些材料时必须报错。
 
 ### Resulting Impacts
 
-| 责任 | 本 Plan 处理 | 范围外关联 |
-| --- | --- | --- |
-| [Architecture](../../docs/development/architecture.md#source-module-boundaries)与 [Workspace tooling](../../docs/tooling/workspace.md#source-owners-and-dependency-direction) | 声明两向边界、Core 路径集合和两个工具 owner；更新 layout 检查 | 随新成员重验依赖闭包 |
-| 工具用户说明与内部设计 | 更新 presentation、admission-policy 的源码定位、JSDoc 和 authoring 说明；Definition defaults 保持原 owner | collection 需同步 [Project files](../../docs/development/project-files.md)的范围、收集、exact-input 与验证章节，保持 Check-local fingerprint/acceptance 责任 |
-| [包材料](../../docs/tooling/package-artifact.md)与[包验收](../../docs/tooling/package-lifecycle.md) | 更新 root 来源路径，核对 inventory、声明、source maps、shipped sources、compiler roots 与 installed consumer | 按最终成员追加相同验收 |
-| [测试与 Case](../../docs/testing/strategy.md) | 迁移近邻测试及 Case links，保留 Proves/Owner 语义，新增两向门禁证据 | 保持各工具行为证据，不借目录迁移删减测试 |
-| [知识治理](../../docs/governance/knowledge-maintenance.md) | 维护两向依赖 Decision 的对齐状态；由非实施代理基于实际 diff 反查用户说明与内部设计 | 各候选的新增取舍单独核对 |
+- root 与 tooling inventory 同步新增公开值/类型、迁移 export 来源；compiler roots 仍是已有 package entry 与内部 worker，不建立工具 subpath。
+- 公开数据专题/JSDoc/示例及随包 registry、README/navigation 形成可发现的用户入口；外部 consumer 只从安装后的 package root 获取能力，不依赖仓库路径。
+- architecture、workspace、learned/cache/waiver 源码定位、Case entities 和相邻脚本引用随迁移更新。package Checks 仅调整 imports，不改变行为 owner。
+- 维护 [公开数据契约 Decision](../../docs/decisions/provide-public-data-boundaries-for-tool-isolation.md) 的未对齐方向，完整验收后才标记 aligned；保留两向规则的已实现事实，不用其状态代替本次扩展目标完成度。
+- learned optimization 仍按其恢复门禁暂停；当前只移动既有算法，不采纳历史优化方案。file-input Change 继续独立拥有 collection/Invocation 责任。
 
-公开用法和行为保持兼容，用户指南以路径、链接和示例影响为主要审查对象；内部 owner 随源码归属同步。语义审查与机械检查分别提供证据。
-
-相邻 Changes 的分工：
-
-- [File-input](../batch-declared-project-file-inputs/design.md)负责 Invocation barrier、slot、来源失败、取消及 settlement。其 active/unaligned [Decision](../../docs/decisions/batch-declared-project-file-inputs-at-invocation-boundary.md)要求唯一共享收集机制；若 Invocation 直接依赖它，公开单份入口按 Core tool 判断。“中立 owner”表示脱离特定 Check，不等于 Non-core。
-- [Learned optimization](../optimize-learned-admission-strategy/design.md)保留算法和性能采用责任；该 Change 落地后需重验 learned 候选的 imports。
-- [Scheduler performance reference](../add-scheduler-performance-reference/design.md)作为后续候选遵循同一目录边界，其公开方式和指标语义由自身 Change 决定。
-
-实施验证顺序：
-
-1. 修改测试前后运行 `bun run test-evidence -- check --root .`，执行工具和边界的最窄测试。
-2. 以 Core roots 的生产闭包证明不存在工具依赖；用仅以该闭包为 roots 的内存 TypeScript Program 完成 no-emit 检查，并执行默认 Definition/Run 的代表性回归。Core-only 证据与同一完整包的 consumer 验收分别提供，不通过删除工作树文件构造环境。
-3. 完成[门禁证据](#门禁证据)中的正反 fixture；对迁移前后声明作结构比对（允许模块位置和等价类型 alias 改变），验收 identity、static/simple/prepared 同步/异步推断、额外字段拒绝与 callback contextual types。
-4. 运行 `bun run validate`、目标 typecheck/lint 和 Change check；维护 Decision 后运行 `bun run decisions -- check`。
-5. 运行 `bun run check`，再以 `bun run check -- --all` 验收同一 candidate 的产物、声明和隔离 consumer。
+验证依次覆盖目标测试/Test Evidence、全部五工具边界和实际 Core-only no-emit、旧行为兼容及新 API 独立类型/runtime/docs consumer、语义审查、最终文档与代码优化、默认 Gate 与同一 candidate 的 --all 完整包验收。
 
 ## Risks / Trade-offs
 
-- 两个工具足以建立真实硬边界；共享基础依赖仍会限制其他工具加入。复用方案需保持单一实现、公开面和 Core 独立性，不能通过复制算法或私有白名单换取目录合规。
-- 符号可能与私有 exports 同文件，且 Core 可能经中间 owner 依赖工具；两向解析和 Core-only 验收均是必要证据。
-- 路径和类型提取会影响声明、Case 与包材料。静态探针只支持可行性判断；门禁服务受信仓库治理，不是 JavaScript 安全沙箱。
+新增公开能力承担长期兼容责任，因此以小且可解释的 surface 替代模块全公开。安全快照涉及 getter、descriptor、Proxy 与 shallow/deep 差异，必须按真实实现表达，不将宽泛“安全”措辞代替边界。共享存储/identity 算法保持单份且不改变旧 bytes，不把目录迁移混同于行为重写。
 
 ## Open Questions
 
-无阻止本 Plan 推进的未决选择。cache/waiver/learned 的共享基础复用及 collection/host 的最终 Core 归属均在本次范围外；其后续调整不改变本 Plan 的两个工具与两向门禁验收。
+无需要用户再决定的方向：已授权最小公开 API，具体实现、文档和验证由本任务完成。完整用户方案的后续演进不阻塞首版明确可用的契约。
 
 ## Audit Reference
 
 ### 基线与覆盖
 
-审计基线为 2026-09-12 工作树，Product source 对应 HEAD `e27e42c4ee2cb7feffb69afc91195ffbf16bee25`。AST 核对 `src/index.ts` 与 [tooling-owned inventory](../../scripts/package/public-api-inventory.ts)：28 个 runtime values、127 个 type-only exports 的名称集合一致。实施前重验基线差异。
+审计基线为 2026-09-12 工作树，Product source 对应 HEAD `e27e42c4ee2cb7feffb69afc91195ffbf16bee25`。AST 核对 `src/index.ts` 与 [tooling-owned inventory](../../scripts/package/public-api-inventory.ts)：28 个 runtime values、127 个 type-only exports 的名称集合一致。该计数是基线核对结果，不表示本 Plan 的 Gate 已完成；实施前后均须重验实际差异。
 
-下表保留逐项角色与源码定位；它是本 Plan 的审计材料，长期 public inventory 仍由 tooling 拥有。路径相对 `src/`。
+下表保留逐项角色与**审计基线中的**源码定位；它不定义实施后的现行 owner。现行 owner 由本 Plan 的实施范围、Architecture
+和实际源码共同确定；长期 public inventory 仍由 tooling 拥有。路径相对 `src/`。
 
 ### Runtime inventory
 
-| Export | 当前 owner / 关键职责 | 分类依据 |
+| Export | 基线 owner / 关键职责 | 分类依据 |
 | --- | --- | --- |
 | `cacheJsonByKey` | `cache/cache-json-by-key.ts`；caller key/parser/compute 与存储 | 可选工具；共享数据依赖待解 |
 | `presentCheckFindings` | `check/finding-presentation.ts`；有界 messages | Non-core 迁移对象 |

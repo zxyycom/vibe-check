@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import type { SchedulerRawMeasurement } from "../../project-definition/project-definition.ts";
+import type { SchedulerRawMeasurement } from "../../../project-definition/project-definition.ts";
 import {
   emptySchedulerHistory,
   MAX_SCHEDULER_HISTORY_SERIES,

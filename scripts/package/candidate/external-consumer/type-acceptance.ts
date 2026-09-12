@@ -8,6 +8,7 @@ import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
 import { CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE } from "./check-options-type-acceptance.ts";
 import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admission-strategy-type-acceptance.ts";
 import { CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE } from "./handoff-type-acceptance.ts";
+import { DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE } from "./data-boundary-type-acceptance.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
 
@@ -124,6 +125,10 @@ function publicImports(): string {
 
 const PUBLIC_IMPORTS_TEMPLATE = `import {
   cacheJsonByKey,
+  canonicalizeJsonObject,
+  canonicalizeJsonValue,
+  canonicalJsonBytes,
+  canonicalJsonText,
   collectProjectFiles,
   createAdmissionGraph,
   createLearnedCriticalPathStrategy,
@@ -149,6 +154,8 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   presentCheckFindings,
   run,
   secretDetection,
+  snapshotClosedArray,
+  snapshotExactClosedRecord,
   parseSecretDetectionData,
 __VIBE_CHECK_PUBLIC_TYPE_IMPORTS__
 } from "${CURRENT_PUBLIC_CONTRACT.packageImport}";
@@ -171,6 +178,7 @@ const cacheOptions: CacheJsonByKeyOptions<{ readonly count: number }> = {
   version: "1"
 };
 const cacheResult: Promise<CacheJsonByKeyResult<{ readonly count: number }>> = cacheJsonByKey(cacheOptions);
+${DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE}
 const asyncCacheParser = async (_value: unknown) => ({ count: 1 });
 cacheJsonByKey({
   compute: () => ({ count: 1 }),
@@ -457,6 +465,10 @@ function observeRunOutputs(runResult: RunResult): void {
 
 void [
   cacheJsonByKey,
+  canonicalizeJsonObject,
+  canonicalizeJsonValue,
+  canonicalJsonBytes,
+  canonicalJsonText,
   collectProjectFiles,
   createLearnedCriticalPathStrategy,
   defineAdmissionPolicy,

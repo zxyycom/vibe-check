@@ -365,6 +365,6 @@ function declaredRuntimeExports(entryPath: string): string {
       );
     })
     .filter((name): name is string => name !== undefined)
-    .sort((left, right) => left.localeCompare(right));
+    .sort();
   return JSON.stringify(exports);
 }

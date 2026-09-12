@@ -50,7 +50,7 @@ relations:
 - BnB 只 fork public `AdmissionState.select/settle`，分支为 legal select 与（有 running work 时的）wait。预测模型假设 all-satisfied、无 contention slowdown，并在每个真实 boundary 把 running remaining 保守重估为完整冻结 prediction；忽略关系、资源和 scope 的下界仅是乐观下界。`complete` 仅表示该假设模型、该 state 和 select-plus-wait action space 的最优。
 - **冻结协议偏差（保留协议与其 hash，不作修订）：** 协议写的是“legal CP-greedy incumbent fallback”，但实际 `solveBnb` 每次都先以 `greedyCompletion` 的 prediction-descending **LPT** 完成一个 incumbent；CP 的 `fallbackAction` 仅在该 incumbent 的 `firstAction` 为 null 时才用。截断时返回当前 legal incumbent 的 first action，可能已经被搜索改善，并不必然是 CP fallback。本轮因此只测得 **LPT-seeded BnB**，未验证 CP-seeded BnB；若需比较后者，应另开实验而非篡改本轮算法或冻结协议。
 - 紧凑材料与 `run-manifest.json` 均持久记录实际 public candidate：`@zxyycom/vibe-check` `0.0.0-local.47404e90e692`，entry SHA-256 `sha256:dab388d17ab9ea57a34bd32921267a9d2162fa1954c91bafbd4d9d42b52522e4`。两份 retained raw 都含此同一 identity，且其逐 record 的 makespan、slotTimeMs、resourceUnitTimeMs 和 commitment 投影一致。
-- 调度规则的实现依据是 [baseline strategy](../../src/learned-critical-path/strategy.ts)、[scope 选择分层](../../src/learned-critical-path/selection-layers.ts) 与随附候选源码。本轮未修改这些 Product 源码；后续源码若变化，应以记录的 candidate identity 和本轮资源核对，不能把未来实现代入本轮解释。
+- 调度规则的实现依据是 [baseline strategy](../../src/package-tools/learned-critical-path/strategy.ts)、[scope 选择分层](../../src/package-tools/learned-critical-path/selection-layers.ts) 与随附候选源码。链接跟随源码归属移动；本轮未修改这些 Product 源码，形成时实现仍须以记录的 candidate identity 和本轮资源核对，不能把未来实现代入本轮解释。
 
 ## 调查结果与边界
 

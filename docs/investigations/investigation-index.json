@@ -932,6 +932,21 @@
         "tooling-ecosystem"
       ],
       "title": "Markdown lint 工具、效果与生态调查"
+    },
+    "260912-investigate-core-package-tools-boundary-validation-gap": {
+      "formedAt": "2026-09-12T08:12:45Z",
+      "name": "investigate-core-package-tools-boundary-validation-gap",
+      "question": "在本轮尚未提交的 Package Tools 边界校验器候选中，Core 依赖闭包为何会漏掉绝对 workspace literal import，动态 literal import 的处理又是否符合预定边界；在修复与正反证据尚未完成时，Project Gate 能形成何种可信结论？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "investigate-core-package-tools-boundary-validation-gap.md",
+      "tags": [
+        "core-boundary",
+        "package-tools",
+        "project-gate",
+        "validation"
+      ],
+      "title": "新 Package Tools Core 边界校验器的闭包漏检调查"
     }
   },
   "metadata": {},
@@ -978,10 +993,11 @@
       "260907-recheck-cold-candidate-bootstrap-gate-import": "sha256:dbb9ee37650b6ef4b6d33a82a668855dc585491b83667d6dba52949e71fe2c82",
       "260908-audit-0-0-2-upgrade-differences": "sha256:10a9074c71bfb647b32f2cc4178d4b83203b6b65fb93292b7e81ac32fa7f10d2",
       "260908-calibrate-gate-duration-variation": "sha256:a306e4ce1893e6f88ac1f21eaae84333058b9a23d8fb5692adcf115c9aae8459",
-      "260908-compare-simple-admission-algorithms": "sha256:e3e5f7878dddf5dbd0c5a7c0de30c721adc0d2cb4f9f9975cd4c31793c058253",
+      "260908-compare-simple-admission-algorithms": "sha256:89cb8a95c76631a571705afa56b7e9750d61166159da37bbc24488eaa85b0b98",
       "260908-explain-learned-heuristic-rejection": "sha256:2968e598eb49087fb0fd6db88cf041e36b8673e52c337e170df45d6263919342",
       "260910-diagnose-deep-readonly-option-type-erasure": "sha256:184ed071bd20597468622bd209d3e1d046119a41a0281c565867359a35f83a9e",
-      "260911-survey-markdown-lint-tools": "sha256:7334f26051fa650c7129934177117f31fe72ba9c96c6f9872374f086c1d942fe"
+      "260911-survey-markdown-lint-tools": "sha256:7334f26051fa650c7129934177117f31fe72ba9c96c6f9872374f086c1d942fe",
+      "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:7b281ffa269cc03017bd93b1d55bab1ab6d40326f9a71c1be7330c804734e614"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

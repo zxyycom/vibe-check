@@ -3,6 +3,7 @@
     { "id": "readme", "sourcePath": "README.md", "packagePath": "README.md" },
     { "id": "changelog", "sourcePath": "docs/changelog.md", "packagePath": "docs/changelog.md" },
     { "id": "api-mechanics", "sourcePath": "docs/api-mechanics.md", "packagePath": "docs/api-mechanics.md" },
+    { "id": "data-boundaries", "sourcePath": "docs/guides/data-boundaries.md", "packagePath": "docs/guides/data-boundaries.md" },
     { "id": "run-outputs", "sourcePath": "docs/guides/run-outputs.md", "packagePath": "docs/guides/run-outputs.md" },
     { "id": "check-dependencies", "sourcePath": "docs/guides/check-dependencies.md", "packagePath": "docs/guides/check-dependencies.md" },
     { "id": "learned-scheduling", "sourcePath": "docs/guides/learned-scheduling.md", "packagePath": "docs/guides/learned-scheduling.md" },

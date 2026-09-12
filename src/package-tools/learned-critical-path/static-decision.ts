@@ -2,7 +2,7 @@ import type {
   AdmissionPolicyContext,
   AdmissionProposal,
   SchedulerGraphSnapshot
-} from "../project-definition/project-definition.ts";
+} from "../../project-definition/project-definition.ts";
 import { learnedSelectionLayers, scopeForCandidate } from "./selection-layers.ts";
 
 type Candidate = AdmissionPolicyContext["candidates"][number];

@@ -1,7 +1,7 @@
 import type {
   AdmissionPolicyContext,
   SchedulerGraphSnapshot
-} from "../project-definition/project-definition.ts";
+} from "../../project-definition/project-definition.ts";
 
 type Candidate = AdmissionPolicyContext["candidates"][number];
 type Task = SchedulerGraphSnapshot["tasks"][number];

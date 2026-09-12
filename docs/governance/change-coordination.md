@@ -22,7 +22,7 @@
 
 | 轨道 | 当前 Change | 协调边界 |
 | --- | --- | --- |
-| 工具边界 | [`isolate-public-contract-consumers`](../../changes/isolate-public-contract-consumers/proposal.md) | 独立实施 presentation、admission-policy 与两向门禁；不等待 learned 或 file-input。涉及公共类型文件、root、layout、Case 和 architecture 的并行改动按共享 owner 串行合入。 |
+| 工具边界 | [`isolate-public-contract-consumers`](../../changes/isolate-public-contract-consumers/proposal.md) | 完成五个可选工具、面向外部用户的公开数据能力与两向门禁；只迁移既有 learned 算法，不恢复其优化方案；不等待 file-input。涉及公共类型文件、root、layout、Case 和 architecture 的并行改动按共享 owner 串行合入。 |
 | Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停；保留其原有恢复门禁，不继承旧 private baseline，也不因新对照已结束而取得实施授权。 |
 | Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。实施后须重新验证受影响的算法 corpus 和 terminal evidence。 |
 | Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |

@@ -76,7 +76,14 @@ export function snapshotClosedRecord(
   }
 }
 
-/** Snapshots a closed plain record only when it has exactly the declared own keys. */
+/**
+ * 快照一个 key 集合恰好匹配 caller grammar 的闭合 plain record。
+ *
+ * 输入必须是 Object/null-prototype 的 non-array object，所有 own key 都是 enumerable data property；
+ * accessor、额外/缺失 key、非 enumerable key 和反射失败返回 `undefined`。返回 container 是冻结的浅
+ * snapshot：嵌套值不会被复制、冻结或 canonicalize，调用方仍须逐字段验证。`keys` 应是 caller-owned
+ * 的稳定 string list。
+ */
 export function snapshotExactClosedRecord(
   value: unknown,
   keys: readonly string[]
@@ -104,6 +111,12 @@ function closedArrayItems(shape: OwnDataShape, length: number): readonly unknown
   return Object.freeze(items);
 }
 
+/**
+ * 快照一个标准 dense array，供调用方逐项验证 untrusted parsed data。
+ *
+ * array 必须使用 `Array.prototype`，且没有 sparse hole、额外 own key 或 accessor；失败返回 `undefined`。
+ * 返回 array 是冻结的浅 snapshot，元素不会被复制、冻结或 canonicalize。
+ */
 export function snapshotClosedArray(value: unknown): readonly unknown[] | undefined {
   try {
     if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) return undefined;

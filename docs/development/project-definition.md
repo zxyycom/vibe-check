@@ -87,7 +87,13 @@ export default defineConfig({
 
 公开 resource mapping、policy grammar 和 callback proposals 由[调度指南](../guides/scheduling.md)定义。validator 在 work 前关闭 scheduler grammar：resource ID 必须含非空白字符，capacities/claims 使用正 safe integer；每个 effective claim 必须引用已声明资源且不超过 capacity。normalizer 将省略 capacities 变为冻结 `{}`，并将 canonical capacities/effective claims 纳入 fingerprint。
 
-省略 admissionPolicy 与显式 static 规范化为同一值；`defineAdmissionPolicy` 只改善 inference。custom simple/prepared 的 strategy kind 进入 snapshot/fingerprint，function identity/source/closure 不进入。closed validation 拒绝 unknown fields；同步 decide 的 runtime result 检查拒绝 async/thenable。prepare failure 由 Invocation 在 Scheduler 启动前映射，不是 Definition validation 执行 callback。维护时同时核对 authoring types、direct-value validation 和 [Scheduler handoff](scheduler.md)。
+省略 admissionPolicy 与显式 static 规范化为同一值；`defineAdmissionPolicy` 只改善 inference。该 helper 的 exact
+authoring types 与声明 JSDoc 由
+`src/package-tools/admission-policy/define-admission-policy.ts` 拥有；Definition 仍拥有已提供 policy 的 validation、
+normalization、snapshot 与 fingerprint。custom simple/prepared 的 strategy kind 进入 snapshot/fingerprint，function
+identity/source/closure 不进入。closed validation 拒绝 unknown fields；同步 decide 的 runtime result 检查拒绝
+async/thenable。prepare failure 由 Invocation 在 Scheduler 启动前映射，不是 Definition validation 执行 callback。维护时
+同时核对 helper authoring types、direct-value validation 和 [Scheduler handoff](scheduler.md)。
 
 #### Learned critical-path strategy helper
 

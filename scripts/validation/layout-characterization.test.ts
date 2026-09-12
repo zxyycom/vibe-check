@@ -5,16 +5,15 @@ import { join } from "node:path";
 import { it } from "node:test";
 
 import { validateRepositoryLayout } from "./layout-characterization.ts";
+import { validatePackageToolsCoreNoEmit } from "./package-tools-boundary.ts";
 
 const PRODUCT_OWNERS = [
-  "cache",
   "check",
   "check-settlement",
   "data-boundary",
-  "finding-waivers",
-  "learned-critical-path",
   "machine-output",
   "package-checks",
+  "package-tools",
   "project-definition",
   "project-run"
 ];
@@ -24,9 +23,12 @@ const PRIVATE_FUNCTION_METRICS_ANALYZER_IMPORT = [
   "pipeline.ts"
 ].join("/");
 
-it("characterizes repository layout and dependency boundaries", () => {
+it("characterizes repository layout and dependency boundaries", { timeout: 60_000 }, () => {
   assert.doesNotThrow(() => {
     validateRepositoryLayout();
+  });
+  assert.doesNotThrow(() => {
+    validatePackageToolsCoreNoEmit(process.cwd());
   });
   const representativeLayout = createTargetLayout();
   try {
@@ -383,8 +385,287 @@ it("characterizes repository layout and dependency boundaries", () => {
   }
 });
 
+it("enforces package-tool public contracts and Core closure", { timeout: 30_000 }, () => {
+  const validRoot = createTargetLayout();
+  try {
+    writePackageToolContract(validRoot);
+    writeSource(
+      validRoot,
+      "src/check/dynamic.ts",
+      'const publicContract = import("./public-contract.ts");\nvoid publicContract;\n'
+    );
+    assert.doesNotThrow(() => {
+      validateRepositoryLayout({ repositoryRoot: validRoot });
+    });
+    assert.doesNotThrow(() => {
+      validatePackageToolsCoreNoEmit(validRoot);
+    });
+  } finally {
+    rmSync(validRoot, { force: true, recursive: true });
+  }
+
+  const violations: readonly Readonly<{
+    readonly expected: string;
+    readonly mutate: (root: string) => void;
+  }>[] = [
+    {
+      expected:
+        "package-tools-core-imports-non-core: src/check/direct.ts -> ../package-tools/consumer/tool.ts",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/check/direct.ts",
+          'import { packageTool } from "../package-tools/consumer/tool.ts";\nvoid packageTool;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-core-imports-non-core: src/machine-output/bridge.ts -> ../package-tools/consumer/tool.ts",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/check/direct.ts",
+          'import { packageTool } from "../machine-output/bridge.ts";\nvoid packageTool;\n'
+        );
+        writeSource(
+          root,
+          "src/machine-output/bridge.ts",
+          'export { packageTool } from "../package-tools/consumer/tool.ts";\n'
+        );
+      }
+    },
+    {
+      expected: "package-tools-core-imports-non-core: src/check/absolute.ts -> ",
+      mutate: (root) => {
+        const toolPath = join(root, "src/package-tools/consumer/tool.ts");
+        writeSource(
+          root,
+          "src/check/absolute.ts",
+          `import { packageTool } from ${JSON.stringify(toolPath)};\nvoid packageTool;\n`
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-core-imports-non-core: src/check/alias.ts -> @workspace/package-tools/consumer/tool.ts",
+      mutate: (root) => {
+        writeFileSync(
+          join(root, "tsconfig.json"),
+          JSON.stringify({
+            compilerOptions: {
+              allowImportingTsExtensions: true,
+              baseUrl: ".",
+              module: "nodenext",
+              moduleResolution: "nodenext",
+              paths: { "@workspace/*": ["src/*"] }
+            }
+          })
+        );
+        writeSource(
+          root,
+          "src/check/alias.ts",
+          'import { packageTool } from "@workspace/package-tools/consumer/tool.ts";\nvoid packageTool;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-core-imports-non-core: src/check/dynamic.ts -> ../package-tools/consumer/tool.ts",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/check/dynamic.ts",
+          'const packageTool = import("../package-tools/consumer/tool.ts");\nvoid packageTool;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-core-unsupported-module-syntax: src/check/dynamic.ts (nonliteral dynamic import)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/check/dynamic.ts",
+          'const specifier = "./public-contract.ts";\nconst publicContract = import(specifier);\nvoid publicContract;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-core-unsupported-module-syntax: src/check/import-equals.ts (import equals)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/check/import-equals.ts",
+          'import packageTool = require("../package-tools/consumer/tool.ts");\nvoid packageTool;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-private-product-symbol: src/package-tools/new-tool/new-tool.ts -> ../../check/public-contract.ts (PrivateContract)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/new-tool/new-tool.ts",
+          'import type { PrivateContract } from "../../check/public-contract.ts";\nexport type { PrivateContract };\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-private-product-symbol: src/package-tools/consumer/private-helper.ts -> ../../check/public-contract.ts (PrivateContract)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/new-tool/new-tool.ts",
+          'import type { PrivateContract } from "../consumer/private-helper.ts";\nexport type { PrivateContract };\n'
+        );
+        writeSource(
+          root,
+          "src/package-tools/consumer/private-helper.ts",
+          'import type { PrivateContract } from "../../check/public-contract.ts";\nexport type { PrivateContract };\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-imports-test-material: src/package-tools/consumer/tool.ts -> ../test-support/helper.ts",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/test-support/helper.ts",
+          "export interface Helper {}\n"
+        );
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'import type { Helper } from "../test-support/helper.ts";\nexport type { Helper };\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (default import)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'import publicValue from "../../check/public-contract.ts";\nvoid publicValue;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (namespace import)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'import * as contract from "../../check/public-contract.ts";\nvoid contract;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (side-effect import)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'import "../../check/public-contract.ts";\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (export star)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'export * from "../../check/public-contract.ts";\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (dynamic import)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'const contract = import("../../check/public-contract.ts");\nvoid contract;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (require)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'const contract = require("../../check/public-contract.ts");\nvoid contract;\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unsupported-module-syntax: src/package-tools/consumer/tool.ts (import type query)",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'type Contract = import("../../check/public-contract.ts").PublicContract;\nexport type { Contract };\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unresolved-repository-import: src/package-tools/consumer/tool.ts -> ../../check/missing.ts",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'import type { Missing } from "../../check/missing.ts";\nexport type { Missing };\n'
+        );
+      }
+    },
+    {
+      expected:
+        "package-tools-unapproved-external-import: src/package-tools/consumer/tool.ts -> node:child_process",
+      mutate: (root) => {
+        writeSource(
+          root,
+          "src/package-tools/consumer/tool.ts",
+          'import type { ChildProcess } from "node:child_process";\nexport type { ChildProcess };\n'
+        );
+      }
+    }
+  ];
+
+  for (const violation of violations) {
+    const root = createTargetLayout();
+    try {
+      writePackageToolContract(root);
+      violation.mutate(root);
+      assert.throws(
+        () => {
+          validateRepositoryLayout({ repositoryRoot: root });
+        },
+        new RegExp(escapeRegExp(violation.expected))
+      );
+    } finally {
+      rmSync(root, { force: true, recursive: true });
+    }
+  }
+});
+
 function createTargetLayout(): string {
   const root = mkdtempSync(join(tmpdir(), "vibe-check-layout-characterization-"));
+  writeFileSync(join(root, "package.json"), '{"type":"module"}\n', "utf8");
   writeSource(root, "src/index.ts", "export {};\n");
   for (const owner of PRODUCT_OWNERS) {
     writeSource(root, `src/${owner}/${owner}.ts`, "export {};\n");
@@ -457,6 +738,49 @@ function createTargetLayout(): string {
   }
   writeSource(root, "scripts/package/candidate/prepare.ts", "export {};\n");
   return root;
+}
+
+function writePackageToolContract(root: string): void {
+  writeSource(
+    root,
+    "src/check/public-contract.ts",
+    [
+      "export interface PublicContract {",
+      "  readonly value: string;",
+      "}",
+      "export interface PrivateContract {",
+      "  readonly privateValue: string;",
+      "}",
+      'export const publicValue = "public";',
+      "export const publicCallback = (value: string): string => value;"
+    ].join("\n")
+  );
+  writeSource(
+    root,
+    "src/index.ts",
+    [
+      'export { publicCallback, publicValue } from "./check/public-contract.ts";',
+      'export type { PublicContract as ConsumerContract } from "./check/public-contract.ts";'
+    ].join("\n")
+  );
+  writeSource(
+    root,
+    "src/package-tools/consumer/tool.ts",
+    [
+      'import { createHash } from "node:crypto";',
+      'import { promises as fs } from "node:fs";',
+      'import { join } from "node:path";',
+      'import { publicCallback, publicValue } from "../../check/public-contract.ts";',
+      'import type { PublicContract } from "../../check/public-contract.ts";',
+      "",
+      "void createHash;",
+      "void fs;",
+      "void join;",
+      "export const packageTool = publicCallback(publicValue);",
+      "export type ConsumerContract = PublicContract;",
+      'export type { PublicContract as PackageToolContract } from "../../check/public-contract.ts";'
+    ].join("\n")
+  );
 }
 
 function writeSource(root: string, relativePath: string, source: string): void {

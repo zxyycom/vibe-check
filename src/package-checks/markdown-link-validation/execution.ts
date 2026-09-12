@@ -5,7 +5,7 @@ import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
-import { appendCheckMessages } from "../../check/finding-presentation.ts";
+import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import { createMarkdownLocalResolver, type MarkdownLocalResolver } from "./local-resolver.ts";
 import type { MarkdownLinkValidationFinalData } from "./final-data.ts";
 import { markdownFindingMessages } from "./finding-messages.ts";

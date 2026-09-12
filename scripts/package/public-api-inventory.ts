@@ -6,6 +6,10 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   }),
   operations: Object.freeze({
     cacheJsonByKey: "cacheJsonByKey",
+    canonicalizeJsonObject: "canonicalizeJsonObject",
+    canonicalizeJsonValue: "canonicalizeJsonValue",
+    canonicalJsonBytes: "canonicalJsonBytes",
+    canonicalJsonText: "canonicalJsonText",
     collectProjectFiles: "collectProjectFiles",
     createAdmissionGraph: "createAdmissionGraph",
     createLearnedCriticalPathStrategy: "createLearnedCriticalPathStrategy",
@@ -23,7 +27,9 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     presentCheckFindings: "presentCheckFindings",
     reconcileFindingWaivers: "reconcileFindingWaivers",
     run: "run",
-    secretDetection: "secretDetection"
+    secretDetection: "secretDetection",
+    snapshotClosedArray: "snapshotClosedArray",
+    snapshotExactClosedRecord: "snapshotExactClosedRecord"
   }),
   parsers: Object.freeze({
     parseDuplicateDetectionData: "parseDuplicateDetectionData",
@@ -60,6 +66,9 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     CustomAdmissionStrategy: "CustomAdmissionStrategy",
     PreparedCustomAdmissionStrategy: "PreparedCustomAdmissionStrategy",
     CacheJsonByKeyOptions: "CacheJsonByKeyOptions",
+    CanonicalJsonObject: "CanonicalJsonObject",
+    CanonicalJsonPrimitive: "CanonicalJsonPrimitive",
+    CanonicalJsonValue: "CanonicalJsonValue",
     CollectProjectFilesOptions: "CollectProjectFilesOptions",
     CacheJsonByKeyResult: "CacheJsonByKeyResult",
     Check: "Check",

@@ -1,5 +1,5 @@
 import type { CheckMessage } from "../../check/check.ts";
-import { presentCheckFindings } from "../../check/finding-presentation.ts";
+import { presentCheckFindings } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import type { MarkdownLinkRecordCandidate } from "./records.ts";
 
 const PRESENTED_FINDING_LIMIT = 10;

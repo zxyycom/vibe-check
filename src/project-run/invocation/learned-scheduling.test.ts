@@ -10,7 +10,7 @@ import type { Check } from "../../check/check.ts";
 import {
   createLearnedCriticalPathStrategy,
   type LearnedCriticalPathObservation
-} from "../../learned-critical-path/strategy.ts";
+} from "../../package-tools/learned-critical-path/strategy.ts";
 import {
   defineConfig,
   type SchedulerMeasurementHook

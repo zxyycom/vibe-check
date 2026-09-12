@@ -4,11 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import { createAdmissionGraph } from "../project-run/task-scheduler/admission-core/core.ts";
+import { createAdmissionGraph } from "../../project-run/task-scheduler/admission-core/core.ts";
 import type {
   AdmissionPolicyContext,
   SchedulerGraphSnapshot
-} from "../project-definition/project-definition.ts";
+} from "../../project-definition/project-definition.ts";
 import { createLearnedCriticalPathStrategy } from "./strategy.ts";
 
 describe("public learned critical-path strategy", () => {

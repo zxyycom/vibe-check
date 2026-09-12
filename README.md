@@ -107,6 +107,7 @@ node quality.ts
 | --- | --- | --- |
 | 按一份完整 selection 收集项目文件 path | `collectProjectFiles(...)` 在普通项目代码或 custom Check 内返回冻结的 relative path 快照 | [收集项目文件](./docs/guides/collecting-project-files.md) |
 | 按完整语义 key 复用本地 JSON 计算 | `cacheJsonByKey(...)` 在普通项目代码或 Check 内返回一次调用的缓存结果 | [缓存计算结果](./docs/guides/cache-results.md) |
+| 将不可信 JSON materialize 为深层 canonical value，或只关闭外层 shape | canonical JSON / closed snapshot helper 可从 package root 独立使用，不需要 Check、Definition 或 Run | [安全 JSON 与数据快照](./docs/guides/data-boundaries.md) |
 | 对账完整 Finding 集合与 waiver audit | `reconcileFindingWaivers(...)` 在 Finding 形成后返回 disposition 与 audit | [对账 Finding waiver](./docs/guides/finding-waivers.md) |
 | 生成有限的 Finding 人读摘要 | `presentCheckFindings(...)` 返回 `CheckMessage[]`，由 producing Check 附到自己的 terminal result | [呈现 Check Finding](./docs/guides/presenting-findings.md) |
 | 在不执行 Check 的前提下分析静态 admission 分支 | `createAdmissionGraph(...)` 独立创建 immutable simulation，不需要 `run(...)` 或 custom policy | [模拟 AdmissionGraph](./docs/guides/simulating-admission.md) |

@@ -6,19 +6,18 @@ import { walkFiles } from "../repository-files/files.ts";
 import { FILE_SYSTEM } from "./documentation/task-contract.ts";
 import { validateFunctionMetricsAnalyzerBoundary } from "./function-metrics-analyzer-boundary.ts";
 import { relativePath, validateImportBoundaries } from "./import-boundaries.ts";
+import { validatePackageToolsBoundary } from "./package-tools-boundary.ts";
 import { validateProjectGateRoot } from "./project-gate-layout.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const PRODUCT_OWNER_DIRECTORIES = Object.freeze([
-  "cache",
   "check",
   "check-settlement",
   "data-boundary",
-  "finding-waivers",
-  "learned-critical-path",
   "machine-output",
   "package-checks",
+  "package-tools",
   "project-definition",
   "project-run"
 ]);
@@ -74,6 +73,7 @@ export function validateRepositoryLayout(
   validateSourceNames(root, sourceFiles, violations);
   validateImportBoundaries(root, sourceFiles, violations);
   validateFunctionMetricsAnalyzerBoundary(root, sourceFiles, violations);
+  validatePackageToolsBoundary(root, violations);
   validatePackageArtifactEntry(root, violations);
 
   if (violations.length > 0) {

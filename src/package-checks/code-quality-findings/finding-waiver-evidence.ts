@@ -5,7 +5,7 @@ import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
 import type {
   FindingWaiverAudit,
   FindingWaiverReconciliation
-} from "../../finding-waivers/reconciliation.ts";
+} from "../../package-tools/finding-waivers/reconciliation.ts";
 
 interface CodeQualityFindingCandidate {
   readonly data: Readonly<{ readonly blocking: boolean }>;

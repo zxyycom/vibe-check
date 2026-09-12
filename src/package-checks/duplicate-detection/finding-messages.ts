@@ -1,9 +1,9 @@
 import type { CheckMessage } from "../../check/check.ts";
-import { presentCheckFindings } from "../../check/finding-presentation.ts";
+import { presentCheckFindings } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import type {
   FindingWaiverAudit,
   FindingWaiverReconciliation
-} from "../../finding-waivers/reconciliation.ts";
+} from "../../package-tools/finding-waivers/reconciliation.ts";
 import type { DuplicateDetectionFindingLocation } from "./options.ts";
 import { duplicateDetectionWaiverIdentity, type DuplicateRecordCandidate } from "./records.ts";
 

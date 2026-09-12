@@ -1,6 +1,9 @@
 import { createHash } from "node:crypto";
 
-import { canonicalJsonBytes, type CanonicalJsonValue } from "../../data-boundary/canonical-data.ts";
+import {
+  canonicalJsonBytes,
+  type CanonicalJsonValue
+} from "../../../data-boundary/canonical-data.ts";
 import {
   SCHEDULER_HISTORY_MODEL_VERSION,
   schedulerHistorySeries,

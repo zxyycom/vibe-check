@@ -4,7 +4,7 @@ import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import {
   reconcileFindingWaivers,
   type FindingWaiverReconciliation
-} from "../../finding-waivers/reconciliation.ts";
+} from "../../package-tools/finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { fingerprintProjectFiles } from "../project-files/file-fingerprint.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
@@ -12,7 +12,7 @@ import {
   reportFindingWaiverAudits,
   reportReconciledCodeQualityFindingRecords
 } from "../code-quality-findings/finding-waiver-evidence.ts";
-import { appendCheckMessages } from "../../check/finding-presentation.ts";
+import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import { duplicateFindingMessages, duplicateWaiverMessages } from "./finding-messages.ts";
 import { getGitSha } from "./project-revision.ts";
 import { measureDuplicateDetection, type DuplicateMeasurementResult } from "./measurement.ts";

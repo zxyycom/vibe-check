@@ -1,4 +1,4 @@
-import type { SchedulerMeasurementContext } from "../../project-definition/project-definition.ts";
+import type { SchedulerMeasurementContext } from "../../../project-definition/project-definition.ts";
 import { recordSchedulerHistory, type SchedulerHistoryRecordingObservation } from "./recording.ts";
 import {
   createSchedulerPredictionSnapshot,

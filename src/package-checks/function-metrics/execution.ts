@@ -2,7 +2,7 @@ import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../che
 import {
   reconcileFindingWaivers,
   type FindingWaiverReconciliation
-} from "../../finding-waivers/reconciliation.ts";
+} from "../../package-tools/finding-waivers/reconciliation.ts";
 import { collectProjectFileSets, requireProjectFileSet } from "../project-files/collection.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import { settleFindings } from "../code-quality-findings/policy.ts";
@@ -10,7 +10,7 @@ import {
   reportFindingWaiverAudits,
   reportReconciledCodeQualityFindingRecords
 } from "../code-quality-findings/finding-waiver-evidence.ts";
-import { appendCheckMessages } from "../../check/finding-presentation.ts";
+import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
 import { functionFindingMessages, functionWaiverMessages } from "./finding-messages.ts";
 import { analyzeFunctionMetrics } from "./analysis.ts";
 import {

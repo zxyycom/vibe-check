@@ -9,20 +9,34 @@ export type {
 const encoder = new TextEncoder();
 
 /**
- * Materializes arbitrary author data without property reads or JSON hooks.
- * The returned graph is detached, prototype-safe, and deeply frozen before it
- * becomes a Core fact. Canonical text order is applied explicitly at serialization.
+ * 将任意输入安全 materialize 为 detached、deep-frozen 的 canonical JSON object。
+ *
+ * 用于需要 object payload 的本地 identity、evidence 或持久化边界。只接受普通/null-prototype
+ * object、标准 dense array、有限 JSON primitive；不会调用 getter 或 `toJSON`。无效输入、cycle
+ * 或反射失败返回 `undefined`；Proxy trap 仍可能在反射期间执行，因此 hostile Proxy 不是无副作用边界。
  */
 export function canonicalizeJsonObject(value: unknown): CanonicalJsonObject | undefined {
   const canonical = canonicalize(value, new Set<object>());
   return canonical !== undefined && isCanonicalJsonObject(canonical) ? canonical : undefined;
 }
 
+/**
+ * 将任意输入安全 materialize 为 detached、deep-frozen 的 canonical JSON value。
+ *
+ * 成功结果将 `-0` 规范化为 `0`；拒绝 accessor、`toJSON` hook、sparse array、非 enumerable own
+ * property、非有限 number 和不支持的 prototype。失败返回 `undefined`，不以 TypeScript 类型断言代替
+ * runtime materialization。
+ */
 export function canonicalizeJsonValue(value: unknown): CanonicalJsonValue | undefined {
   return canonicalize(value, new Set<object>());
 }
 
-/** Serializes detached canonical JSON with explicit lexical object-key ordering. */
+/**
+ * 将安全 materialize 后的 JSON 输出为确定性的无空白文本。
+ *
+ * object key 使用当前实现的 lexical `<` 顺序（不是外部 canonical-JSON 标准承诺）；无效输入抛
+ * `TypeError`。适合稳定的本地 identity 或审计文本，不为 secret 提供保护。
+ */
 export function canonicalJsonText(value: unknown): string {
   const canonical = canonicalizeJsonValue(value);
   if (canonical === undefined) {
@@ -31,7 +45,11 @@ export function canonicalJsonText(value: unknown): string {
   return canonicalText(canonical);
 }
 
-/** Emits canonical UTF-8 JSON without invoking author getters or `toJSON`. */
+/**
+ * 以 UTF-8 bytes 输出与 `canonicalJsonText` 相同的确定性 JSON。
+ *
+ * 无效输入抛 `TypeError`；可作为 hash 或二进制持久化输入，但不提供签名、认证或保密性。
+ */
 export function canonicalJsonBytes(value: unknown): Uint8Array {
   return encoder.encode(canonicalJsonText(value));
 }

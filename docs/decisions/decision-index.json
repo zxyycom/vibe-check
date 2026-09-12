@@ -334,7 +334,8 @@
       "260910-separate-live-file-collection-from-shared-snapshots": "sha256:8d9fe60ddda59dcd2e9d782d5d542b080525a1aca954bc8ffea7be295dec10f4",
       "260911-adopt-soundness-oriented-typescript-typecheck-profiles": "sha256:06a158bbefd07b3ae88be7cba5da6fb45a9b57c95521473fe3c1ceec72fe8517",
       "260911-use-blocking-tiered-oxlint-policy": "sha256:904e70fc51dfc65362e15be9c2d7baea9206a380e01b11160f84926f3f9e6f3d",
-      "260912-keep-core-independent-of-package-tools": "sha256:9a094581677a08d923c602ad61f5ebf52ab0c47adb6a1cf3ad985539cf43a8db"
+      "260912-keep-core-independent-of-package-tools": "sha256:b86fa5f200fdf7a1f641b3bdc423f7e583d135dc618716c67dc582f7daf26cc0",
+      "260912-provide-public-data-boundaries-for-tool-isolation": "sha256:02fc2d864de1b1c995bbc8d964d668692c80805b4ccae421adfb0939c0433fe0"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6888,11 +6889,27 @@
       "sourcePath": "keep-core-independent-of-package-tools.md",
       "title": "以两向依赖边界隔离可选随包工具",
       "status": "active",
-      "alignment": "unaligned",
+      "alignment": "aligned",
       "createdAt": "2026-09-12T07:36:08Z",
       "purpose": "让 Core 独立于可选工具成立，并让目录自动约束工具权限。",
       "background": "分散工具容易混淆公开身份、Core 必需能力与可选实现，仅检查工具出向依赖不足以证明独立性。",
       "decision": "采用统一 Non-core 工具目录与两向门禁，Core tools 留在实际机制 owner，保持公共入口和单一实现。",
+      "tags": [
+        "dependency-policy",
+        "product-contract"
+      ],
+      "relations": []
+    },
+    "260912-provide-public-data-boundaries-for-tool-isolation": {
+      "name": "provide-public-data-boundaries-for-tool-isolation",
+      "sourcePath": "provide-public-data-boundaries-for-tool-isolation.md",
+      "title": "以面向用户的数据契约完成可选工具隔离",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-12T09:22:19Z",
+      "purpose": "让外部用户与随包工具通过同一公开数据契约复用单份实现。",
+      "background": "可选工具仍使用 Core 私有数据能力，目录迁移不能靠私有例外或复制算法完成。",
+      "decision": "公开最小可独立使用的数据能力，保留 Core owner，并将三个可选工具纳入统一边界。",
       "tags": [
         "dependency-policy",
         "product-contract"

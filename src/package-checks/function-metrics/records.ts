@@ -3,7 +3,7 @@ import {
   type FunctionMetricAnalysis,
   type FunctionMetricInstance
 } from "./analysis.ts";
-import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { MaterializedFindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
 import {
   buildHashedFindingWaiverAuditRecord,

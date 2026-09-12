@@ -4,8 +4,23 @@
  *
  * @packageDocumentation
  */
-export { cacheJsonByKey } from "./cache/cache-json-by-key.ts";
-export type { CacheJsonByKeyOptions, CacheJsonByKeyResult } from "./cache/cache-json-by-key.ts";
+export { cacheJsonByKey } from "./package-tools/cache/cache-json-by-key.ts";
+export type {
+  CacheJsonByKeyOptions,
+  CacheJsonByKeyResult
+} from "./package-tools/cache/cache-json-by-key.ts";
+export {
+  canonicalizeJsonObject,
+  canonicalizeJsonValue,
+  canonicalJsonBytes,
+  canonicalJsonText
+} from "./data-boundary/canonical-data.ts";
+export type {
+  CanonicalJsonObject,
+  CanonicalJsonPrimitive,
+  CanonicalJsonValue
+} from "./data-boundary/canonical-data.ts";
+export { snapshotClosedArray, snapshotExactClosedRecord } from "./data-boundary/closed-values.ts";
 export { duplicateDetection } from "./package-checks/duplicate-detection/default-check.ts";
 export { parseDuplicateDetectionData } from "./package-checks/duplicate-detection/final-data.ts";
 export type { DuplicateDetectionFinalData } from "./package-checks/duplicate-detection/final-data.ts";
@@ -106,8 +121,8 @@ export type { MarkdownLinkValidationUnavailableReason } from "./package-checks/m
 export type { MarkdownLinkValidationRecordData } from "./package-checks/markdown-link-validation/records.ts";
 export type { MarkdownLinkFindingReason } from "./package-checks/markdown-link-validation/local-resolver.ts";
 export type { FindingPolicy } from "./package-checks/code-quality-findings/policy.ts";
-export { reconcileFindingWaivers } from "./finding-waivers/reconciliation.ts";
-export { presentCheckFindings } from "./check/finding-presentation.ts";
+export { reconcileFindingWaivers } from "./package-tools/finding-waivers/reconciliation.ts";
+export { presentCheckFindings } from "./package-tools/finding-presentation/finding-presentation.ts";
 export type {
   FindingWaiver,
   FindingWaiverAudit,
@@ -115,7 +130,7 @@ export type {
   MaterializedFindingWaiver,
   ReconciledFinding,
   ReconcileFindingWaiversOptions
-} from "./finding-waivers/reconciliation.ts";
+} from "./package-tools/finding-waivers/reconciliation.ts";
 export { defaultProjectFileSelection } from "./package-checks/project-files/configuration.ts";
 export { collectProjectFiles } from "./package-checks/project-files/public-collection.ts";
 export type { CollectProjectFilesOptions } from "./package-checks/project-files/public-collection.ts";
@@ -138,12 +153,13 @@ export type {
   CheckUnavailableReason,
   InheritableCheckCollection
 } from "./check/check.ts";
-export { defineAdmissionPolicy, defineConfig } from "./project-definition/project-definition.ts";
-export { createLearnedCriticalPathStrategy } from "./learned-critical-path/strategy.ts";
+export { defineAdmissionPolicy } from "./package-tools/admission-policy/define-admission-policy.ts";
+export { defineConfig } from "./project-definition/project-definition.ts";
+export { createLearnedCriticalPathStrategy } from "./package-tools/learned-critical-path/strategy.ts";
 export type {
   LearnedCriticalPathObservation,
   LearnedCriticalPathStrategyOptions
-} from "./learned-critical-path/strategy.ts";
+} from "./package-tools/learned-critical-path/strategy.ts";
 export { createAdmissionGraph } from "./project-run/task-scheduler/admission-core/core.ts";
 export type {
   AdmissionPolicy,

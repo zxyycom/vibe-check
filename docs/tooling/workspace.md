@@ -24,6 +24,26 @@ Project Gate、package artifact lifecycle 和 documentation/package material 分
 | `scripts/project/**` | 唯一 private candidate consumer root；其 Gate child owner 见[Project Gate and Test Evidence child owners](#project-gate-and-test-evidence-child-owners)。 |
 | `scripts/maintenance/**` | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。 |
 
+#### package-tools 依赖边界
+
+`scripts/validation/package-tools-boundary.ts` 是 repository layout validation 的一部分。受检对象是
+`src/package-tools/**` 与 [Architecture 所列 Core roots](../development/architecture.md#source-module-boundaries)中的生产
+TypeScript 模块；`.test.ts`、`.type-test.ts`、`.test-support.ts`、`test-support/` 与 `fixtures/` 不属于生产集合，生产边
+指向这些材料仍是违规。它检查两个方向：
+
+1. Core roots `src/check/**`、`src/check-settlement/**`、`src/data-boundary/**`、`src/machine-output/**`、
+   `src/project-definition/**` 与 `src/project-run/**` 不得直接或经仓库内中间模块依赖 package tools。
+2. package tool 只可使用目录内实现和按 value/type 符号身份确认的公开 Product symbol；Core-private、test、fixture 与
+   `scripts/**` material 均不允许。
+
+Core 闭包按 root `tsconfig.json` 的 TypeScript resolution 处理所有 literal specifier：解析到 workspace 的 relative、绝对
+和 `paths` alias edge 都继续分类和遍历；Core literal dynamic import 同样继续遍历。工具侧 dynamic import 则不允许，
+nonliteral loading、`require`、`import = require(...)`、解析失败和未知 workspace 目标均 fail closed。工具生产模块的唯一
+允许宿主外部叶子是 `node:crypto`、`node:fs` 与 `node:path`；不允许 npm 或其它 Node specifier。
+
+本节拥有受检生产材料和 fail-closed 规则；`package-tools-boundary.ts` 与其边界测试只实现并验证这些规则，不是第二
+规则来源。新增工具成员或改变 Architecture 的模块分类后，必须重新通过该 layout validation。
+
 ### package 子模块职责
 
 - `artifact/**` 构建和审计 tarball。

@@ -67,6 +67,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "data-boundaries",
+    regionId: "data-boundaries",
+    sourcePath: "docs/examples/package-api/data-boundaries.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "data-boundaries",
+        headingPath: Object.freeze(["最小用法"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "独立 materialize canonical JSON 与闭合数据快照"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "markdown-link-validation",
     regionId: "markdown-link-validation",
     sourcePath: "docs/examples/package-api/markdown-link-validation.ts",

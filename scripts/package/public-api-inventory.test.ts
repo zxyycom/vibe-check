@@ -7,6 +7,10 @@ import { describe, it } from "node:test";
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 import {
   cacheJsonByKey,
+  canonicalizeJsonObject,
+  canonicalizeJsonValue,
+  canonicalJsonBytes,
+  canonicalJsonText,
   collectProjectFiles,
   createAdmissionGraph,
   defineAdmissionPolicy,
@@ -29,7 +33,9 @@ import {
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
   presentCheckFindings,
-  reconcileFindingWaivers
+  reconcileFindingWaivers,
+  snapshotClosedArray,
+  snapshotExactClosedRecord
 } from "../../src/index.ts";
 import { run } from "../../src/project-run/run.ts";
 
@@ -51,6 +57,16 @@ describe("public API inventory", () => {
       "**/fixtures/**"
     );
     assert.equal(cacheJsonByKey.name, CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey);
+    assert.equal(
+      canonicalizeJsonObject.name,
+      CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonObject
+    );
+    assert.equal(
+      canonicalizeJsonValue.name,
+      CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonValue
+    );
+    assert.equal(canonicalJsonBytes.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonBytes);
+    assert.equal(canonicalJsonText.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonText);
     assert.equal(collectProjectFiles.name, CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles);
     assert.equal(
       createAdmissionGraph.name,
@@ -89,6 +105,10 @@ describe("public API inventory", () => {
     );
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.run);
     assert.equal(typeof cacheJsonByKey, "function");
+    assert.equal(typeof canonicalizeJsonObject, "function");
+    assert.equal(typeof canonicalizeJsonValue, "function");
+    assert.equal(typeof canonicalJsonBytes, "function");
+    assert.equal(typeof canonicalJsonText, "function");
     assert.equal(typeof collectProjectFiles, "function");
     assert.equal(typeof createAdmissionGraph, "function");
     assert.equal(typeof defineAdmissionPolicy, "function");
@@ -100,6 +120,8 @@ describe("public API inventory", () => {
     assert.equal(typeof markdownLinkValidation, "function");
     assert.equal(typeof presentCheckFindings, "function");
     assert.equal(typeof reconcileFindingWaivers, "function");
+    assert.equal(typeof snapshotClosedArray, "function");
+    assert.equal(typeof snapshotExactClosedRecord, "function");
     assert.equal(
       parseDuplicateDetectionData.name,
       CURRENT_PUBLIC_CONTRACT.parsers.parseDuplicateDetectionData
@@ -150,7 +172,7 @@ describe("public API inventory", () => {
     assert.match(packageEntrySource, /^\/\*[\s\S]*?@packageDocumentation[\s\S]*?\*\//);
     assert.deepEqual(
       packageTypeExportNames(packageEntrySource),
-      Object.values(CURRENT_PUBLIC_CONTRACT.types).sort((left, right) => left.localeCompare(right))
+      Object.values(CURRENT_PUBLIC_CONTRACT.types).sort()
     );
     assert.deepEqual(
       packageValueExportNames(packageEntrySource),
@@ -158,7 +180,7 @@ describe("public API inventory", () => {
         ...Object.values(CURRENT_PUBLIC_CONTRACT.defaults),
         ...Object.values(CURRENT_PUBLIC_CONTRACT.operations),
         ...Object.values(CURRENT_PUBLIC_CONTRACT.parsers)
-      ].sort((left, right) => left.localeCompare(right))
+      ].sort()
     );
     const ownerSource = readFileSync(
       fileURLToPath(new URL("./public-api-inventory.ts", import.meta.url)),
@@ -245,7 +267,7 @@ function packageExportNames(source: string, pattern: RegExp): string[] {
         .map((name) => name.trim())
         .filter((name) => name.length > 0);
     })
-    .sort((left, right) => left.localeCompare(right));
+    .sort();
 }
 // Supporting implementation types must not become future package-entry roots.
 type ProjectModule = typeof import("../../src/project-definition/project-definition.ts");

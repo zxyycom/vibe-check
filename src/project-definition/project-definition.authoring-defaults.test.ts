@@ -2,11 +2,8 @@ import assert from "node:assert/strict";
 import { resolve } from "node:path";
 import { describe, it } from "node:test";
 
-import {
-  defineAdmissionPolicy,
-  defineConfig,
-  normalizeProjectDefinition
-} from "./project-definition.ts";
+import { defineAdmissionPolicy } from "../package-tools/admission-policy/define-admission-policy.ts";
+import { defineConfig, normalizeProjectDefinition } from "./project-definition.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 import type { ProjectDefinition } from "./project-definition.ts";
 

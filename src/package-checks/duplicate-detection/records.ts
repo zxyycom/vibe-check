@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 import { canonicalJsonBytes } from "../../data-boundary/canonical-data.ts";
-import type { MaterializedFindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { MaterializedFindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 import {
   buildHashedFindingWaiverAuditRecord,
   type FindingWaiverAuditRecordData,

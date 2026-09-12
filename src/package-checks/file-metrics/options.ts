@@ -3,7 +3,7 @@ import type {
   ProjectFileSelectionOptions
 } from "../project-files/configuration.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
-import type { FindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { FindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 
 /** `fileMetrics` 构造函数可省略的 SCC 可执行文件策略。 */
 export interface FileMetricsScannerOptions {

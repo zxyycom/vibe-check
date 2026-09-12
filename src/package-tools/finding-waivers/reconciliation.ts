@@ -3,7 +3,7 @@ import {
   canonicalJsonText,
   type CanonicalJsonObject,
   type CanonicalJsonValue
-} from "../data-boundary/canonical-data.ts";
+} from "../../data-boundary/canonical-data.ts";
 
 /** 由采用方声明、用于匹配一个 finding 的语义身份与豁免理由。 */
 export interface FindingWaiver<Identity> {

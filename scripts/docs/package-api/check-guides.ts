@@ -13,6 +13,10 @@ const README_PATH = "README.md";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles,
   CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey,
+  CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonObject,
+  CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonValue,
+  CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonBytes,
+  CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonText,
   CURRENT_PUBLIC_CONTRACT.operations.createAdmissionGraph,
   CURRENT_PUBLIC_CONTRACT.operations.createLearnedCriticalPathStrategy,
   CURRENT_PUBLIC_CONTRACT.operations.defineAdmissionPolicy,
@@ -21,7 +25,9 @@ const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.inherit,
   CURRENT_PUBLIC_CONTRACT.operations.presentCheckFindings,
   CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers,
-  CURRENT_PUBLIC_CONTRACT.operations.run
+  CURRENT_PUBLIC_CONTRACT.operations.run,
+  CURRENT_PUBLIC_CONTRACT.operations.snapshotClosedArray,
+  CURRENT_PUBLIC_CONTRACT.operations.snapshotExactClosedRecord
 ]);
 const GUIDE_HEADINGS = Object.freeze([
   "## 用途",

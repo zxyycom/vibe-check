@@ -1,4 +1,4 @@
-import type { FindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { FindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 
 /** `secretDetection(options)` 的明确 authoring policy。 */

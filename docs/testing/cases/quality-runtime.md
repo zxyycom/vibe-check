@@ -5,21 +5,32 @@
 Owner: `docs/guides/cache-results.md#缓存计算结果`
 Entities:
 
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > validates a closed absolute input grammar before reading or computing`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > uses a digest-only identity and returns a parser-backed hit without recomputing`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > isolates namespace, payload version, and key identities`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > recovers malformed, mismatched, parser-rejected, and read-failed entries by computing once`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > rejects thenable parsers at runtime without writing an entry`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > counts only an EEXIST rename with a valid reread as stored`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > classifies an ordinary rename failure as failed without rereading a target`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > uses the same canonical payload/parser boundary for computation and cache hits`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > does not publish thrown, cancelled, noncanonical, or parser-rejected computations`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > keeps computed values when the target directory cannot be published`
-- `bun|src/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > permits concurrent computation while exposing only a complete cached target`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > validates a closed absolute input grammar before reading or computing`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > uses a digest-only identity and returns a parser-backed hit without recomputing`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > isolates namespace, payload version, and key identities`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > recovers malformed, mismatched, parser-rejected, and read-failed entries by computing once`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > rejects thenable parsers at runtime without writing an entry`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > counts only an EEXIST rename with a valid reread as stored`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > classifies an ordinary rename failure as failed without rereading a target`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > uses the same canonical payload/parser boundary for computation and cache hits`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > does not publish thrown, cancelled, noncanonical, or parser-rejected computations`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > keeps computed values when the target directory cannot be published`
+- `bun|src/package-tools/cache/cache-json-by-key.test.ts|caller-keyed JSON cache > permits concurrent computation while exposing only a complete cached target`
   Proves:
 - A closed absolute caller directory plus non-empty namespace, payload version and key identify one digest-only entry; raw key material is absent from names and envelopes, and namespace/version/key changes isolate values.
 - The public parser type and runtime both reject thenable parser output. Only a complete envelope with matching identity, canonical object payload and synchronous caller parser is a hit. Missing, malformed, mismatched, parser-rejected or unreadable state computes exactly once; computed values pass the same detached canonical payload/parser boundary, while compute/parser failure never publishes an entry.
 - Publication uses same-directory unique temporary files and atomic rename. Only a deterministic `EEXIST` target conflict can reread a complete valid target as stored; ordinary filesystem failure preserves the accepted computed value with `write: "failed"`. Concurrent misses may duplicate compute but only leave a complete readable target without lock, single-flight or global cache state.
+
+## Case API-DATA-BOUNDARIES-001: Public data snapshots close only the outer untrusted shape
+
+Owner: `docs/guides/data-boundaries.md#闭合快照`
+Entities:
+
+- `bun|src/data-boundary/closed-values.test.ts|public closed data snapshots > accepts only exact own data shapes without evaluating accessors or reflection failures`
+- `bun|src/data-boundary/closed-values.test.ts|public closed data snapshots > accepts only dense standard arrays and keeps items as shallow references`
+  Proves:
+- `snapshotExactClosedRecord` accepts only the caller-declared exact own data-key set and rejects missing/extra fields, accessor authoring and contained reflection faults without evaluating an accessor.
+- `snapshotClosedArray` accepts only dense standard arrays without extra own fields or accessors. Both helpers freeze only the returned container: nested values retain their original identity and mutability, rather than being represented as detached canonical data.
 
 ## Case WB-RUNTIME-CHECK-RECORD-001: Check and Record foundation is exact and closed
 
@@ -45,10 +56,10 @@ Entities:
 Owner: `docs/guides/finding-waivers.md#对账-finding-waiver`
 Entities:
 
-- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > matches caller-defined structural identities, preserves reasons, and audits unused waivers`
-- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > materializes waiver identity and reason without copying caller findings`
-- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > does not waive findings when one caller-defined identity matches more than once`
-- `bun|src/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > rejects malformed and hostile waiver boundaries without invoking caller accessors`
+- `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > matches caller-defined structural identities, preserves reasons, and audits unused waivers`
+- `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > materializes waiver identity and reason without copying caller findings`
+- `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > does not waive findings when one caller-defined identity matches more than once`
+- `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > rejects malformed and hostile waiver boundaries without invoking caller accessors`
   Proves:
 - The public helper reconciles each configured waiver against the complete caller-provided finding collection by caller-defined canonical structural identity, preserving finding order and original finding references. Zero, one, and multiple matches respectively produce unused, applied, and overmatched audit outcomes; overmatched identities do not waive findings.
 - Applied evidence is a detached, deep-frozen materialization of the authored waiver rather than a mutable authored object. Duplicate, malformed, noncanonical, or hostile waiver authoring and invalid finding identity fail with `TypeError` without invoking author accessors.
@@ -58,7 +69,7 @@ Entities:
 Owner: `docs/guides/presenting-findings.md#输入与投影`
 Entities:
 
-- `bun|src/check/finding-presentation.test.ts|Check Finding presentation > lets the producing Check own the visible limit and overflow navigation`
+- `bun|src/package-tools/finding-presentation/finding-presentation.test.ts|Check Finding presentation > lets the producing Check own the visible limit and overflow navigation`
   Proves:
 - The public helper formats only the caller-selected stable prefix, freezes its messages, and calls the overflow hook once with exact omitted/presented/total counts and the original omitted Finding references.
 - A custom Check can choose a zero or positive limit and provide its actual full-detail location without Product knowledge of Finding shape or storage; an invalid limit fails before any Finding hook runs.
@@ -345,11 +356,11 @@ Entities:
 Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
-- `bun|src/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
-- `bun|src/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > does not create samples when timing is unavailable`
-- `bun|src/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > evicts the oldest series beyond capacity`
-- `bun|src/learned-critical-path/duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > round-trips closed digest-only history`
-- `bun|src/learned-critical-path/duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > contains read and write faults with concurrent writers`
+- `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
+- `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > does not create samples when timing is unavailable`
+- `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > evicts the oldest series beyond capacity`
+- `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > round-trips closed digest-only history`
+- `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-storage.test.ts|scheduler duration storage > contains read and write faults with concurrent writers`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a caller-owned absolute state directory`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > uses caller-owned observations and contains local history write failure`
   Proves:
@@ -362,8 +373,8 @@ Entities:
 Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
-- `bun|src/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
-- `bun|src/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > uses learned means before a median project prior and cold start`
+- `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
+- `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > uses learned means before a median project prior and cold start`
   Proves:
 
 - An identity derived from model version, Check ID, canonical authored options, and canonical effective flags yields a frozen digest-only prediction snapshot. Its learned estimates retain sample count, arithmetic mean, and nearest-rank p90 without retaining source options or flags.
@@ -374,7 +385,7 @@ Entities:
 Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
-- `bun|src/project-run/task-scheduler/critical-path-ranking.test.ts|critical-path ranking > scores both dependency and observation downstream paths once`
+- `bun|src/package-tools/learned-critical-path/critical-path-ranking.test.ts|critical-path ranking > scores both dependency and observation downstream paths once`
   Proves:
 
 - Before admission, the immutable score table adds each Task estimate to the maximum direct downstream score across both `dependsOn` and `observes` relations; it is frozen and does not reinterpret Task priority or runtime capacity facts.
@@ -384,9 +395,9 @@ Entities:
 Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
 Entities:
 
-- `bun|src/learned-critical-path/strategy.test.ts|public learned critical-path strategy > uses the public scope layers and returns wait for an unavailable learned preference`
-- `bun|src/learned-critical-path/strategy.test.ts|public learned critical-path strategy > rejects a non-absolute history path and contains rejected caller observations`
-- `bun|src/learned-critical-path/strategy.test.ts|public learned critical-path strategy > orders score, priority, canonical IDs, constrained scope caps, continuations, and static fallback through public data`
+- `bun|src/package-tools/learned-critical-path/strategy.test.ts|public learned critical-path strategy > uses the public scope layers and returns wait for an unavailable learned preference`
+- `bun|src/package-tools/learned-critical-path/strategy.test.ts|public learned critical-path strategy > rejects a non-absolute history path and contains rejected caller observations`
+- `bun|src/package-tools/learned-critical-path/strategy.test.ts|public learned critical-path strategy > orders score, priority, canonical IDs, constrained scope caps, continuations, and static fallback through public data`
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > learns admitted Task durations through a caller-owned absolute state directory`
   Proves:
 

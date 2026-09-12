@@ -1,13 +1,16 @@
 import { isAbsolute } from "node:path";
 
-import { canonicalizeJsonValue, type CanonicalJsonValue } from "../data-boundary/canonical-data.ts";
+import {
+  canonicalizeJsonValue,
+  type CanonicalJsonValue
+} from "../../data-boundary/canonical-data.ts";
 import type {
   AdmissionPolicyContext,
   AdmissionProposal,
   CustomAdmissionStrategy,
   SchedulerGraphSnapshot,
   SchedulerMeasurementContext
-} from "../project-definition/project-definition.ts";
+} from "../../project-definition/project-definition.ts";
 import { prepareSchedulerDurationModel } from "./duration-model/preparation.ts";
 import { learnedSelectionLayers } from "./selection-layers.ts";
 import { staticDecision } from "./static-decision.ts";
@@ -20,7 +23,7 @@ import {
   createSchedulerCriticalPathSnapshot,
   criticalPathScoreForTask,
   type SchedulerCriticalPathSnapshot
-} from "../project-run/task-scheduler/critical-path-ranking.ts";
+} from "./critical-path-ranking.ts";
 
 /** 公开 learned critical-path prepared strategy 的调用方配置。 */
 export interface LearnedCriticalPathStrategyOptions {

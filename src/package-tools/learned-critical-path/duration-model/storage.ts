@@ -2,12 +2,11 @@ import { promises as fs } from "node:fs";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 
-import { canonicalJsonText } from "../../data-boundary/canonical-data.ts";
+import { canonicalJsonText } from "../../../data-boundary/canonical-data.ts";
 import {
-  hasExactPlainRecordKeys,
   snapshotClosedArray,
-  snapshotClosedRecord
-} from "../../data-boundary/closed-values.ts";
+  snapshotExactClosedRecord
+} from "../../../data-boundary/closed-values.ts";
 import {
   emptySchedulerHistory,
   freezeSchedulerHistoryModel,
@@ -126,8 +125,8 @@ type ParsedEnvelope =
   | Readonly<{ readonly kind: "incompatible" }>;
 
 function parseSchedulerHistoryEnvelope(value: unknown): ParsedEnvelope {
-  const envelope = snapshotClosedRecord(value);
-  if (envelope === undefined || !hasExactPlainRecordKeys(envelope, ENVELOPE_KEYS)) {
+  const envelope = snapshotExactClosedRecord(value, ENVELOPE_KEYS);
+  if (envelope === undefined) {
     return Object.freeze({ kind: "invalid" });
   }
   if (
@@ -179,8 +178,8 @@ function parseSeries(value: unknown): readonly SchedulerHistorySeries[] | undefi
 }
 
 function parseSeriesEntry(value: unknown): SchedulerHistorySeries | undefined {
-  const record = snapshotClosedRecord(value);
-  if (record === undefined || !hasExactPlainRecordKeys(record, SERIES_KEYS)) return undefined;
+  const record = snapshotExactClosedRecord(value, SERIES_KEYS);
+  if (record === undefined) return undefined;
   if (
     !isSchedulerHistoryIdentityDigest(record.identityDigest) ||
     !isObservationSequence(record.latestObservationSequence)
@@ -223,8 +222,8 @@ function parseSamples(value: unknown): readonly SchedulerHistorySample[] | undef
 }
 
 function parseSample(value: unknown): SchedulerHistorySample | undefined {
-  const record = snapshotClosedRecord(value);
-  if (record === undefined || !hasExactPlainRecordKeys(record, SAMPLE_KEYS)) return undefined;
+  const record = snapshotExactClosedRecord(value, SAMPLE_KEYS);
+  if (record === undefined) return undefined;
   if (
     !isBoundedDurationMs(record.durationMs) ||
     !isPositiveObservationSequence(record.observationSequence) ||

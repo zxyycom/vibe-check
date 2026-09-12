@@ -18,29 +18,55 @@
 `src/` 的 Product module 按以下 owner 划分：
 
 - `src/check/**` 拥有 ordinary Check contract、Definition/identity validation 与 options snapshot；
-- `src/check/finding-presentation.ts` 提供由 Check owner 配置上限和格式化 hook 的通用 Finding message
-  投影；它不拥有 Finding facts 或明细位置；
 - `src/project-definition/**` 拥有 Project Definition tree、defaults、validation、normalization 与 fingerprint；
 - `src/check-settlement/**` 拥有 terminal Check/Record facts、session、store 与 fact validation；
 - `src/project-run/**` 拥有 Run entry、aggregation、project context 与 result；其下级 owner 见
   [Project Run child owners](#project-run-child-owners)；
 - `src/machine-output/v4/**` 拥有从 Check facts 向 versioned machine artifacts 的 publication；
-- `src/cache/**` 拥有 caller-keyed canonical JSON object 的 identity、untrusted disk envelope、read/compute/write observation 与 atomic local publication；它不拥有 caller key correctness、payload domain 或 Check adoption；
-- `src/finding-waivers/**` 拥有按调用方语义 identity 对账 finding waiver 的公开纯函数；它不发布
-  Record、不决定 Check outcome，也不依赖 Core 或 Gate；
 - `src/package-checks/<check-owner>/**` 拥有 package-provided ordinary Checks 与 Check-owned scanners；其同级 `project-files/**`、`host-environment/**` 是该 delivery owner 的真实共同能力；
 - `src/package-checks/function-metrics/analyzer/**` 是 function-metrics Check 私有的 source-aligned Lizard port；其
   实作边界见 [Function-metrics analyzer](#function-metrics-analyzer)；
-- `src/data-boundary/**` 拥有 canonical JSON/data、closed-value snapshot 与跨 core owner 的 type guards；
+- `src/data-boundary/**` 拥有 canonical JSON/data、closed-value snapshot 与跨 Core owner 的 type guards；
+  `canonicalizeJsonValue`、`canonicalizeJsonObject`、`canonicalJsonText`、`canonicalJsonBytes`、
+  `snapshotExactClosedRecord`、`snapshotClosedArray` 及三个 Canonical JSON supporting types 是面向外部调用方的
+  独立能力，Core 仍保留其单份实现；
 - `scripts/docs/package-api/**` 拥有 package、文档与 candidate tooling 共用的 public-root inventory。
 
-生产依赖方向由 `src/index.ts` 组合 public roots；Project Definition 与 Check facts 不相互依赖，二者都只依赖
-ordinary Check contract。task scheduler 只是 Run 的 private child，不形成第二个顶层产品模块。源码不为这些模块额外建立
-`index.ts` barrel 或 compatibility re-export。
+`src/package-tools/<domain-owner>/**` 是 Non-core tool 的目录。移除具体工具及其 facade export 后，若 Core 的
+contract、默认行为和机制仍完整且无需替代实现，该工具才可进入此目录。目录只承接工具自身算法及其公开 authoring /
+presentation 语义，不是“所有不在 Core 的代码”的收集处。当前成员为：
+
+- `finding-presentation/finding-presentation.ts` 拥有 `presentCheckFindings(...)`、其私有
+  `appendCheckMessages` 与 Finding message 投影；Check owner 仍拥有 Finding facts、明细位置和 terminal outcome。
+- `admission-policy/define-admission-policy.ts` 拥有 `defineAdmissionPolicy(...)` 的 exact authoring types、
+  inference 与声明 JSDoc；Project Definition 继续拥有 defaults、validation、normalization 与 fingerprint。
+- `cache/cache-json-by-key.ts` 拥有 caller-keyed canonical JSON object 的 identity、untrusted disk envelope、
+  read/compute/write observation 与 atomic local publication；它不拥有 caller key correctness、payload meaning 或
+  Check adoption。
+- `finding-waivers/reconciliation.ts` 拥有按调用方语义 identity 对账 Finding waiver 的纯函数；它不发布 Record、
+  不决定 Check outcome，也不依赖 Core 或 Gate。
+- `learned-critical-path/**` 拥有 `createLearnedCriticalPathStrategy(...)`、caller-owned duration-history model 与仅供
+  该工具使用的 `critical-path-ranking.ts`；它不取得 Scheduler 的 legality、Product options、flags、project root 或
+  diagnostic channels 的 owner。
+
+Core roots 是 `src/check/**`、`src/check-settlement/**`、`src/data-boundary/**`、`src/machine-output/**`、
+`src/project-definition/**` 和 `src/project-run/**` 的生产模块。它们不得直接或经仓库内中间模块依赖
+`src/package-tools/**`。Non-core tool 只可消费目录内实现和按公开身份确认的 Product symbol，不能消费 Core-private
+helper。`src/index.ts` 只组合 public roots：它既不改变该方向，也不增加 deep-import surface。
+
+Project Definition 与 Check facts 不相互依赖，二者都只依赖 ordinary Check contract。task scheduler 只是 Run 的
+private child，不形成第二个顶层产品模块。源码不为这些模块额外建立 `index.ts` barrel 或 compatibility re-export。
+目录准入和两向依赖的自动检查由 [Workspace tooling](../tooling/workspace.md#source-owners-and-dependency-direction)
+拥有；collection 及其共享基础实现不因本次工具隔离进入 `package-tools`。
 
 ### Learned critical-path helper owner
 
-`src/learned-critical-path/**` 拥有 exported `createLearnedCriticalPathStrategy(...)` 与其 caller-owned duration-history model：factory 验证调用方提供的绝对 state directory、identity projection 和有界 model controls，在普通 public prepared-strategy lifecycle 中准备 immutable prediction/critical-path selection closure，并在 terminal Hooks 完成后记录下一次 Run 可用的样本。它不读取 Product options、flags、project root 或 diagnostic channels，也不改变 Scheduler 的 legality owner；`duration-model/**` 只承接该 helper 的 bounded history、prediction、recording 与 storage mechanics。
+`src/package-tools/learned-critical-path/**` 拥有 exported `createLearnedCriticalPathStrategy(...)` 与其 caller-owned
+duration-history model：factory 验证调用方提供的绝对 state directory、identity projection 和有界 model controls，在普通
+public prepared-strategy lifecycle 中准备 immutable prediction/critical-path selection closure，并在 terminal Hooks 完成后
+记录下一次 Run 可用的样本。它不读取 Product options、flags、project root 或 diagnostic channels，也不改变 Scheduler 的
+legality owner；`duration-model/**` 只承接该 helper 的 bounded history、prediction、recording 与 storage mechanics，
+`critical-path-ranking.ts` 只承接此 helper 的 ranking。
 
 helper 从 frozen public graph 的 `dependsOn` / `observes` 形成 critical-path score。history identity 由调用方的
 canonical projection 与 model settings 组成；持久材料保留 digest、admitted-to-settled duration、settlement kind 与
@@ -102,7 +128,11 @@ Run 只在 explicit aggregation 配置下读取选定 settled statuses；effecti
 
 ## Caller-keyed cache boundary
 
-`src/cache/**` 是独立 package-root helper：它只拥有 caller-keyed canonical JSON object 的本地存储 mechanics，不拥有 caller key correctness、payload meaning 或缓存 observation 如何影响 Check/项目行为的 policy。它既不发现项目输入，也不获得 project root、scanner、Check facts、diagnostic logger、output 或 Run lifecycle capability；cache hit 也不跳过 execution 或重放 Check settlement。完整 public contract 由[缓存计算结果](../guides/cache-results.md)拥有。
+`src/package-tools/cache/**` 是独立 package-root helper：它只拥有 caller-keyed canonical JSON object 的本地存储
+mechanics，不拥有 caller key correctness、payload meaning 或缓存 observation 如何影响 Check/项目行为的 policy。它既不发现
+项目输入，也不获得 project root、scanner、Check facts、diagnostic logger、output 或 Run lifecycle capability；cache hit
+也不跳过 execution 或重放 Check settlement。它用 `src/data-boundary/**` 的公开数据能力 materialize payload 与 identity，
+但该数据 owner 不因 cache consumer 而成为工具私有实现。完整 public contract 由[缓存计算结果](../guides/cache-results.md)拥有。
 
 cache directory 是 caller-trusted disposable local state。atomic temporary publication 只保护完整 target，不引入 lock、single-flight、cleanup、remote sharing、tamper resistance 或 secret protection。duplicate detection 的 Check-local raw fragment cache 继续由该 Check 的 scanner/availability owner 解释，不因 standalone helper 而迁移或改变 unavailable mapping。
 
@@ -118,7 +148,7 @@ completion 从 sealed Check facts 创建一个 validated machine v4 model，再�
 
 console capture、progress renderer 和 core/scheduler diagnostic channels 由[人读输出实现](human-output.md)分别拥有。diagnostics 在 Product 已知事实形成时追加，不从终态 snapshot 或 process transcript 重建过程；Scheduler graph 只记录一次，后续 decision 引用 fingerprint。summary 是 human-only observation，不成为 machine/result/progress 字段或自动调参输入。
 
-RunResult owner 组合 warnings、branch-specific diagnostic、可用的 final snapshot、durations/messages、aggregate 和 output statuses。public inventory 只导出 authoring/run values 与 types，不暴露 settlement capability、scanner adapter、task engine 或 renderer/stream/clock handoff；公开结果分支见[API 机制](../api-mechanics.md#runresult-分支)。
+RunResult owner 组合 warnings、branch-specific diagnostic、可用的 final snapshot、durations/messages、aggregate 和 output statuses。public inventory 导出 authoring/run values 与 types，以及有独立用户契约的 standalone tools/data；它不暴露 settlement capability、scanner adapter、task engine 或 renderer/stream/clock handoff；公开结果分支见[API 机制](../api-mechanics.md#runresult-分支)。
 
 ## Runtime boundary
 

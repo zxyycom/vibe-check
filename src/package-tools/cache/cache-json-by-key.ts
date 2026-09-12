@@ -7,8 +7,8 @@ import {
   canonicalizeJsonObject,
   canonicalJsonBytes,
   type CanonicalJsonObject
-} from "../data-boundary/canonical-data.ts";
-import { hasExactPlainRecordKeys, snapshotClosedRecord } from "../data-boundary/closed-values.ts";
+} from "../../data-boundary/canonical-data.ts";
+import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
 
 const CACHE_API_VERSION = "caller-keyed-json-v1";
 const CACHE_ENVELOPE_KEYS = ["cacheFormatVersion", "identityDigest", "payload"] as const;
@@ -113,18 +113,15 @@ type ParsedOptions<T extends object> = Readonly<{
 }>;
 
 function parseOptions<T extends object>(value: CacheJsonByKeyOptions<T>): ParsedOptions<T> {
-  const record = snapshotClosedRecord(value);
-  if (
-    record === undefined ||
-    !hasExactPlainRecordKeys(record, [
-      "compute",
-      "directory",
-      "key",
-      "namespace",
-      "parse",
-      "version"
-    ])
-  ) {
+  const record = snapshotExactClosedRecord(value, [
+    "compute",
+    "directory",
+    "key",
+    "namespace",
+    "parse",
+    "version"
+  ]);
+  if (record === undefined) {
     throw new TypeError("cacheJsonByKey options must be a closed object");
   }
   const { compute, directory, key, namespace, parse, version } = record;
@@ -219,9 +216,8 @@ function parseEnvelope(
   value: unknown,
   identityDigest: string
 ): Readonly<{ readonly payload: CanonicalJsonObject }> | undefined {
-  const record = snapshotClosedRecord(value);
-  if (record === undefined || !hasExactPlainRecordKeys(record, CACHE_ENVELOPE_KEYS))
-    return undefined;
+  const record = snapshotExactClosedRecord(value, CACHE_ENVELOPE_KEYS);
+  if (record === undefined) return undefined;
   if (record.cacheFormatVersion !== CACHE_API_VERSION || record.identityDigest !== identityDigest) {
     return undefined;
   }

@@ -1,7 +1,4 @@
-import type {
-  SchedulerMeasurementAdmission,
-  SchedulerRawMeasurement
-} from "../../project-definition/project-definition.ts";
+import type { SchedulerRawMeasurement } from "../../../project-definition/project-definition.ts";
 import {
   freezeSchedulerHistoryModel,
   isBoundedDurationMs,
@@ -12,6 +9,10 @@ import {
   type SchedulerHistorySeries
 } from "./bounded-history.ts";
 import { predictionForTask, type SchedulerPredictionSnapshot } from "./prediction.ts";
+
+type SchedulerMeasurementAdmission = NonNullable<
+  SchedulerRawMeasurement["timingFacts"]
+>["admissions"][number];
 
 export type SchedulerHistoryRecordingObservation =
   | Readonly<{

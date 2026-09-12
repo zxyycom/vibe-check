@@ -2,7 +2,7 @@
 title: 以两向依赖边界隔离可选随包工具
 id: 260912-keep-core-independent-of-package-tools
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-12T07:36:08Z
 purpose: 让 Core 独立于可选工具成立，并让目录自动约束工具权限。
 background: 分散工具容易混淆公开身份、Core 必需能力与可选实现，仅检查工具出向依赖不足以证明独立性。

@@ -1,4 +1,6 @@
-import type { CheckMessage, CheckResult } from "./check.ts";
+import type { CheckResult } from "../../check/check.ts";
+
+type CheckMessage = NonNullable<CheckResult["messages"]>[number];
 
 /**
  * 将 Check-owned Finding 投影为有界 terminal messages 所需的超限上下文。

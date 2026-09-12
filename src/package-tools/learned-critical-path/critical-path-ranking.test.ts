@@ -8,7 +8,7 @@ import {
 import {
   schedulerGraphSnapshot,
   schedulerGraphTask
-} from "./scheduler-graph-snapshot.test-support.ts";
+} from "../../project-run/task-scheduler/scheduler-graph-snapshot.test-support.ts";
 
 describe("critical-path ranking", () => {
   it("scores both dependency and observation downstream paths once", () => {

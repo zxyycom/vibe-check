@@ -18,6 +18,7 @@
 | [README](../README.md) | 唯一用户总入口：安装、支持范围、最小路径与专题直链。 |
 | [变更日志](changelog.md) | 版本净变化、升级影响与提交追溯；具体行为规范由对应专题拥有。 |
 | [API 机制](api-mechanics.md) | Run 生命周期、Definition/Controls、组合、aggregation 和结果分支。 |
+| [安全 JSON 与数据快照](guides/data-boundaries.md) | 可独立使用的 canonical 深层 materialization、确定性序列化与 closed 外层 shape snapshot。 |
 | [回调位置](guides/callbacks.md) | 按任务选扩展点；具体契约引用对应专题。 |
 | [自定义 Check](guides/extending-check-lifecycle.md) | preflight/execution authoring、callback context、flags 与协作取消。 |
 | [依赖与类型化数据](guides/check-dependencies.md) | direct relations、get/list 授权、typed provider 与 parser。 |

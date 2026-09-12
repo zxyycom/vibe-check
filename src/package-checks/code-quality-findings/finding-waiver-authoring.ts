@@ -4,7 +4,7 @@ import {
   snapshotClosedPolicyRecord
 } from "../../data-boundary/closed-values.ts";
 import { isNonEmptyString } from "../../data-boundary/value-shapes.ts";
-import type { FindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { FindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 
 /**
  * Snapshots the shared closed waiver envelope while leaving identity grammar to the producing Check.

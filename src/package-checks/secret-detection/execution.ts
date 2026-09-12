@@ -1,6 +1,6 @@
 import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
-import { appendCheckMessages } from "../../check/finding-presentation.ts";
-import { reconcileFindingWaivers } from "../../finding-waivers/reconciliation.ts";
+import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
+import { reconcileFindingWaivers } from "../../package-tools/finding-waivers/reconciliation.ts";
 import { reportFindingWaiverAudits } from "../code-quality-findings/finding-waiver-evidence.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import type { SecretDetectionFinalData } from "./final-data.ts";

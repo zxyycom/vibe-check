@@ -3,7 +3,7 @@ import type {
   ProjectFileSelectionOptions
 } from "../project-files/configuration.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
-import type { FindingWaiver } from "../../finding-waivers/reconciliation.ts";
+import type { FindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 
 export type DuplicateDetectionScannerCommand =
   /** 使用随 `@zxyycom/vibe-check` 安装的 jscpd。 */
