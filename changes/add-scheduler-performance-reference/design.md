@@ -9,7 +9,7 @@
 - active Decision `260902-unify-default-summary-with-terminal-measurement-hooks` 当前不支持 public summary API；若本 Change 公开窄 schedule reference，需要显式修订该边界。active Decision `260907-provide-learned-admission-through-public-strategy` 同时要求 optional helper 只通过普通 public graph/context 工作。
 - [Scheduler owner](../../docs/development/scheduler.md#measurement-collector-与-immutable-context)与 [human output owner](../../docs/development/human-output.md#scheduler-summary-projections)定义现有 integrals、queue/delay 分类和可重叠边界；新的 reference 需要直接从公共一阶事实建模，而不是把现有摘要值相加重建 wall time。
 - `changes/optimize-learned-admission-strategy/` 拥有特定 admission 候选的预注册比较与采用条件；本 Change 的 reference 在形成公共契约前不进入该候选的既有验收。
-- `changes/isolate-public-contract-consumers/` 将决定 public-contract consumer 的最终目录和静态依赖门禁；本 Change 独立拥有指标语义与价值证据，但最终源码归属须服从该边界结论。
+- [源码边界](../../docs/development/architecture.md#source-module-boundaries)与[依赖门禁](../../docs/tooling/workspace.md#source-owners-and-dependency-direction)已定义 Core 与可选工具的两向规则；本 Change 独立拥有指标语义与价值证据，最终源码归属须符合该规则。
 
 ## Goals / Non-Goals
 
@@ -38,7 +38,7 @@
 - **Documentation owner:** 调度指南说明公式、coverage、假设、显式 Hook 用法、failure 与不可比较边界；不得把 reference 描述为 performance budget、exact optimum 或跨 Run telemetry。
 - **Testing/evidence owner:** 使用 chain、parallel、mutex、weighted resource、suboptimal ordering、zero-span、timing-unavailable 和 partial execution fixtures；按测试证据流程维护新增或修改的测试，并以重复真实 workload 审查解释价值。
 - **Existing optimization Change:** `optimize-learned-admission-strategy` 保持独立 Outcome 和验收口径；该 Change 只有显式修订并重新预注册时，才可把已公开 reference 作为附加归因指标。
-- **Package-tool boundary:** 实现位置与 import validation 服从 `isolate-public-contract-consumers` 的结果；本 Change 不借新增能力预先决定全局 `tool` 目录。
+- **Package-tool boundary:** 实现位置与 import validation 服从既有 Core / `package-tools` 两向规则；本 Change 不借新增能力重新定义该目录边界。
 
 ## Risks / Trade-offs
 
