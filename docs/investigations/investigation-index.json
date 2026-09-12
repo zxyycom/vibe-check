@@ -933,6 +933,21 @@
       ],
       "title": "Markdown lint 工具、效果与生态调查"
     },
+    "260912-diagnose-file-metrics-scc-windows-argument-limit": {
+      "formedAt": "2026-09-12T10:08:33Z",
+      "name": "diagnose-file-metrics-scc-windows-argument-limit",
+      "question": "fileMetrics 为什么会在 Windows 上因 SCC 精确路径 argv 过长而失败，并应在哪一边界引入分批传输与完整汇合？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "diagnose-file-metrics-scc-windows-argument-limit.md",
+      "tags": [
+        "file-metrics",
+        "process-boundaries",
+        "scc",
+        "windows"
+      ],
+      "title": "fileMetrics 的 SCC Windows argv 失败诊断"
+    },
     "260912-investigate-core-package-tools-boundary-validation-gap": {
       "formedAt": "2026-09-12T08:12:45Z",
       "name": "investigate-core-package-tools-boundary-validation-gap",
@@ -997,6 +1012,7 @@
       "260908-explain-learned-heuristic-rejection": "sha256:2968e598eb49087fb0fd6db88cf041e36b8673e52c337e170df45d6263919342",
       "260910-diagnose-deep-readonly-option-type-erasure": "sha256:184ed071bd20597468622bd209d3e1d046119a41a0281c565867359a35f83a9e",
       "260911-survey-markdown-lint-tools": "sha256:7334f26051fa650c7129934177117f31fe72ba9c96c6f9872374f086c1d942fe",
+      "260912-diagnose-file-metrics-scc-windows-argument-limit": "sha256:73de952fc53f776ada7d09c2f25dfafea95a10996fbb4fdbc1a86db6aff63f79",
       "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:7b281ffa269cc03017bd93b1d55bab1ab6d40326f9a71c1be7330c804734e614"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
