@@ -17,33 +17,66 @@
 
 ## 当前 Change 协调
 
-下表只列存在跨 Change 约束的轨道，不是完整成员或状态清单；完整当前集合由 `bun run change-plan -- list changes` 查询。
-已完成 Change 在 owner 接管、验证闭合且获当次删除授权后通过 `complete` 退出；历史仅在明确审计时提供线索。
+完整当前集合由 `bun run change-plan -- list changes` 查询。本节让执行者恢复三项协调信息：下一项工作、
+跨 Change 前置和共享 owner 的合入顺序。目标 Change 的 stage、Readiness、开放问题和实施授权仍由其
+artifacts 决定。
 
-| 轨道 | 当前 Change | 协调边界 |
+### 主队列
+
+主队列按当前推荐合入顺序排列。相邻 Change 可以并行完成调查和 Plan 收敛；修改相同 Definition、Run、
+package material、lockfile 或稳定文档 owner 时，按序位串行实施与合入。
+
+| 序位 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| Scheduler 旧比较方案 | [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) | 继续暂停；保留其原有恢复门禁，不继承旧 private baseline，也不因新对照已结束而取得实施授权。 |
-| Scheduler 条件分支 | [`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) | 只有真实 workload 证明收益并闭合 pending outcome、observer 与 drain 规则后才恢复。实施后须重新验证受影响的算法 corpus 和 terminal evidence。 |
-| Link 条件分支 | [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 等待真实 consumer、source kinds、attributes 与 parser/corpus 证据，不静默扩张 Markdown Link Check。 |
-| Link 条件分支 | [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 恢复前等待真实 consumer、安全输入 acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据，恢复时必须重新 plan。 |
-| Scanner 判断 | [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 没有真实 consumer outcome 时保持 executable-only，不占生产实现 worktree。 |
+| 1 | [`batch-file-metrics-scc-exact-input`](../../changes/batch-file-metrics-scc-exact-input/proposal.md) | 先收敛 command-line 与累计资源预算，再修复已有 Windows SCC exact-input transport 故障；它直接消费已批准路径，与 invocation-wide project-file batching 独立。 |
+| 2 | [`refine-quiet-pass-progress-presentation`](../../changes/refine-quiet-pass-progress-presentation/proposal.md) | 固定 public grammar、`visibility` 兼容路径和计数文案，在后续 Definition grammar 扩张前完成这项窄行为。 |
+| 3 | [`add-project-change-flags`](../../changes/add-project-change-flags/proposal.md) | 固定 change source、expression、unknown 语义与 preparation lifecycle，产出可复用的 effective Check selection。 |
+| 4 | [`batch-declared-project-file-inputs`](../../changes/batch-declared-project-file-inputs/proposal.md) | 以前一项的 effective selection 为输入，在 Check author work 前建立 project-file input barrier；保持 change semantics 由其上游 owner 定义。 |
+| 5 | [`add-markdown-lint-check`](../../changes/add-markdown-lint-check/proposal.md) | 在标准 file-input 路径稳定后交付无 persistent cache 的 Markdown lint Check，并冻结 rule、adapter、Finding 与资源边界。 |
+| 6 | [`add-public-command-check`](../../changes/add-public-command-check/proposal.md) | 分别固定 result projection、output、environment 和 resource defaults，交付独立的 command Check 语义。 |
+| 7 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 依据已冻结的 Markdown lint contract 和 workload 数据作出 cache adopt 或 not-adopt 决定；key matrix 与 storage spike 可提前准备。 |
+| 8 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以已交付的 feature families、字段 owner 和真实 Gate 构建路径固定 fragment grammar、冲突规则与 Gate projection。 |
 
-### Scheduler 轨道
+[`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) 作为独立文档线现在即可推进。
+它只使用实施时已验证的 Current API，并在序位 8 形成 Plan 前完成，以真实构建路径检验配置组合需求。
+若它与主队列共享 README、package document registry、examples 或 installed-consumer 材料，则与对应主队列
+提交串行合入。
 
-Scheduler 的稳定行为仍由 runtime、Architecture、API mechanics 与
-[统一 Invocation 策略生命周期 Decision](../decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)承接；跨 Change 的虚拟评估方向由[以可复现虚拟负载为主评估准入启发式](../decisions/evaluate-admission-heuristics-with-seeded-virtual-workloads.md)承接。Change artifacts 只保存各自当前实施边界。
+主队列包含三条硬前置：
 
-资源输入由 [Gate 配置 owner](../tooling/project-gate.md#并发与优先级)维护，基线提交为 `b30477b6`；[虚拟平台 owner](../tooling/workspace.md#virtual-admission-workbench) 的基线提交为 `f7e9f353`。[算法对照](../tooling/workspace.md#learned-admission-heuristic-对照记录)在这两个输入上以不采用收敛，稳定提交为 `fd8923c8`，Product 继续使用原算法。
+1. Project change preparation 先形成 effective Check selection，project-file input barrier 再消费该结果。
+2. Markdown lint contract 先冻结，cache Change 再作采用判断。
+3. 已交付 feature families 与 Gate building guide 先提供真实组合场景，config package Change 再固定公共抽象。
 
-[Gate 时长调查](../investigations/calibrate-gate-duration-variation.md)保存形成时的经验范围与后续建议，不是当前资源配置的实测门禁。资源分类由 Gate owner 承接，profile、竞争模型、证据接口与已结束的对照边界由 [Workspace workbench owner](../tooling/workspace.md#virtual-admission-workbench) 承接。资源变化只使对应 Gate 场景重新验收，不反向改变通用模拟模型或候选采用标准。
+### Scheduler 证据队列
 
-[`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md)继续暂停；未来恢复仍须其原有 Readiness 与新的范围确认。`add-invocation-fail-fast-policy` 若改变 candidate、terminal 或 drain facts，须使受影响 baseline、trace 和比较证据重新有效。
+Scheduler 的当前行为由 runtime、Architecture、API mechanics、
+[统一 Invocation 策略生命周期 Decision](../decisions/keep-invocation-lifecycle-free-of-learned-special-cases.md)
+和[虚拟评估 Decision](../decisions/evaluate-admission-heuristics-with-seeded-virtual-workloads.md)承接。以下队列只协调
+当前 Change 的证据顺序：
 
-### Link 与 Scanner 轨道
+1. [`add-scheduler-performance-reference`](../../changes/add-scheduler-performance-reference/proposal.md) 现在可以完成
+   consumer 价值、measurement sufficiency 与命名门禁。
+2. [`adapt-admission-optimization-to-effective-opportunity`](../../changes/adapt-admission-optimization-to-effective-opportunity/proposal.md)
+   在 `add-project-change-flags` 固定 effective selection 后，建立分层 workload、opportunity facts、算法成本和
+   adoption/non-regression 门槛。Performance reference 只在具有独立判断价值时进入该证据。
+3. [`optimize-learned-admission-strategy`](../../changes/optimize-learned-admission-strategy/proposal.md) 保持暂停；上一步
+   收敛后，根据新证据重写、拆分或以 not-adopt 结束旧 Plan。
 
-HTML 与 Network Link 方向都不进入当前实现批次。前者必须先明确独立的 format-aware occurrence owner；后者必须先闭合显式授权、敏感输入、transport、SSRF、redirect、rate/resource 与 nondeterminism 边界。两者都不能从旧材料恢复实现授权。
+[`add-invocation-fail-fast-policy`](../../changes/add-invocation-fail-fast-policy/proposal.md) 取得真实 workload，并闭合
+pending outcome、observer 与 drain 语义后才能激活。若它先激活，应在新的 Scheduler corpus、terminal evidence
+与 timing baseline 冻结前完成，因为这些结果会成为后续比较的新输入。
 
-SCC public expansion 只评审新的 consumer outcome；当前 `fileMetrics` consumer contract 与 scanner-private boundary 分别由其稳定文档 owner 持有。未来 upstream 同步、性能优化或 extension adoption 应各自建立独立 Change。
+### 等待恢复条件
+
+下列 Change 当前只进行解除恢复条件所需的有界调查：
+
+| 当前 Change | 恢复条件 |
+| --- | --- |
+| [`add-html-link-validation`](../../changes/add-html-link-validation/proposal.md) | 命名 consumer 与 corpus 已明确 source kinds、supported attributes、parser 和本地 target 语义。 |
+| [`add-network-link-validation`](../../changes/add-network-link-validation/proposal.md) | 命名 consumer、安全 input acquisition、显式网络授权和 hermetic SSRF/redirect/DNS 证据齐备；恢复时重新形成 Plan。 |
+| [`decide-file-metrics-public-scc-expansion`](../../changes/decide-file-metrics-public-scc-expansion/proposal.md) | 出现当前 executable-only contract 无法满足的具体 consumer outcome，再评审独立 public contract。 |
+| [`refine-agent-document-routing`](../../changes/refine-agent-document-routing/proposal.md) | 用户明确恢复后，以代表性任务重新评估 AGENTS、导航和领域 owner 的路由边界。 |
 
 ## Worktree 与合入规则
 
