@@ -147,7 +147,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-FAILURE-001: Product contains ordinary callback failures safely
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
@@ -158,7 +158,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-ORCHESTRATION-001: Direct Check relations run through the shared graph
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
 - `bun|src/project-run/run-planning.test.ts|Package Run > rejects an invalid projected Check relation graph before any Check callback runs`
@@ -173,7 +173,7 @@ Entities:
 
 ## Case WB-RUNTIME-DEPENDENCY-BLOCKING-001: Non-passed prerequisites settle dependents without author work
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
 - `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
@@ -185,7 +185,7 @@ Entities:
 
 ## Case WB-RUNTIME-DEPENDENCY-OBSERVATION-001: Observers read direct terminal outcomes
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
 - `bun|src/project-run/run-dependency-data.test.ts|Package Run > observes an unavailable Check and exposes its read failure`
@@ -196,7 +196,7 @@ Entities:
 
 ## Case WB-RUNTIME-DEPENDENCY-HANDOFF-001: Direct prerequisites share accepted invocation-private references
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.handoff.test.ts|Package Run direct Check execution > delivers accepted provider handoffs only to direct dependents and clears them after each Run`
@@ -208,7 +208,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECK-DURATION-001: Product Run closes private lifecycle and duration facts
 
-Owner: `docs/development/architecture.md#execution-boundary`
+Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > hands final Check-facts outcomes and one finite duration to the private lifecycle`
@@ -233,7 +233,7 @@ Entities:
 
 ## Case WB-RUNTIME-CHECKPOINT-001: Frozen Check-facts snapshot is a two-entity projection
 
-Owner: `docs/development/architecture.md#check-facts`
+Owner: `docs/development/check-results.md#check-and-record-facts`
 Entities:
 
 - `bun|src/check-settlement/session-lifecycle.test.ts|check-record Core Check session > closes every registered Check exactly once and freezes canonical Check and Record facts`
@@ -363,7 +363,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-HISTORY-001: Local Scheduler history remains bounded and failure-contained
 
-Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
+Owner: `docs/development/package-tools.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-recording.test.ts|scheduler duration recording > retains bounded admitted samples`
@@ -376,11 +376,11 @@ Entities:
   Proves:
 
 - Caller-owned learned history accepts only valid admitted-to-settled intervals, retains settlement kind and monotonic observation sequence, applies the configured sample/series bounds, and persists digest-only closed state through same-directory atomic replacement.
-- Missing, malformed, incompatible, and read-failed state forms an empty model; post-drain write failure and concurrent last-writer activity only reduce future samples. Caller-owned identity projections and optional observations do not expose Product options, flags, or a Product diagnostic channel. The Architecture/API owner, not this Case, defines static fallback when prediction cannot be formed.
+- Missing, malformed, incompatible, and read-failed state forms an empty model; post-drain write failure and concurrent last-writer activity only reduce future samples. Caller-owned identity projections and optional observations do not expose Product options, flags, or a Product diagnostic channel. The tool/API owner, not this Case, defines static fallback when prediction cannot be formed.
 
 ## Case WB-RUNTIME-SCHEDULER-PREDICTION-001: Frozen duration predictions use a deterministic bounded prior
 
-Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
+Owner: `docs/development/package-tools.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/package-tools/learned-critical-path/duration-model/scheduler-duration-prediction.test.ts|scheduler duration prediction > forms a frozen digest-only summary`
@@ -392,7 +392,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-CRITICAL-PATH-001: Directed readiness relations form one reverse critical-path score
 
-Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
+Owner: `docs/development/package-tools.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/package-tools/learned-critical-path/critical-path-ranking.test.ts|critical-path ranking > scores both dependency and observation downstream paths once`
@@ -402,7 +402,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-ADMISSION-001: Public learned strategy preserves generic Scheduler legality
 
-Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
+Owner: `docs/development/package-tools.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/package-tools/learned-critical-path/strategy.test.ts|public learned critical-path strategy > uses the public scope layers and returns wait for an unavailable learned preference`
@@ -415,7 +415,7 @@ Entities:
 
 ## Case WB-RUNTIME-SCHEDULER-LEARNED-DIAGNOSTICS-001: Learned caller observations stay bounded and non-quality-bearing
 
-Owner: `docs/development/architecture.md#learned-critical-path-helper-owner`
+Owner: `docs/development/package-tools.md#learned-critical-path-helper-owner`
 Entities:
 
 - `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > uses caller-owned observations and contains local history write failure`

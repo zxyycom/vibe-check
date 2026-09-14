@@ -101,7 +101,7 @@ async/thenable。prepare failure 由 Invocation 在 Scheduler 启动前映射，
 `{ kind: "custom", strategy }`。Definition 按同一 custom grammar 验证它；factory 自己验证 history directory、
 caller identity projection 与 model controls。调用方提供的配置和 closure 遵循本页的 runtime/declarative 分工。
 具体参数、安全、退化及 observation 语义由[调度指南](../guides/learned-scheduling.md)拥有，
-模型与 lifecycle 的实现归属见[架构](architecture.md#learned-critical-path-helper-owner)。
+模型与 lifecycle 的实现归属见[随包工具实现](package-tools.md#learned-critical-path-helper-owner)。
 
 ### Scheduler measurement Hooks
 
@@ -128,7 +128,7 @@ Definition 只提供 normalized static graph metadata，不能给 callback 暴�
 
 `handoff: true` 只能声明在 executable provider；其它值、container 使用与自有 `undefined` 都在 Definition boundary fail closed。normalization 为 execution 在内部 WeakMap 保留 provider identity，但 declarative snapshot/fingerprint 显式剥离它：identity/value/presence 不是 Definition facts，也不形成跨 package instance compatibility contract。
 
-类型证据需覆盖 PromiseLike 拒绝与普通 recursive Check 仍合法；运行时证据需覆盖 direct 授权、四态可用性、稳定列表和 immutable handoff。[Architecture](architecture.md) 拥有 handoff 实现，[Check 结果](check-results.md)拥有 canonical settlement 不变量。
+类型证据需覆盖 PromiseLike 拒绝与普通 recursive Check 仍合法；运行时证据需覆盖 direct 授权、四态可用性、稳定列表和 immutable handoff。[Project Run](project-run.md#check-执行与依赖交接) 拥有 handoff 实现，[Check 结果](check-results.md)拥有 canonical settlement 不变量。
 
 ### Message attachment validation
 

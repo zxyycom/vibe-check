@@ -1,158 +1,114 @@
 # 架构
 
-本文拥有 Vibe Check Product runtime 的组件职责与调用边界。支持的调用方向是：
+Vibe Check 是可嵌入项目代码的检查运行时：项目声明要执行的 Checks，Product 负责把这些声明变成一次有约束、
+可结算、可观察的运行。本文说明系统边界、能力分层、组件协作和顶层源码归属；具体协议与实现由各领域文档维护。
+
+## 设计思路
+
+架构围绕四个分离展开：
+
+- **项目策略与通用机制分离。** 项目决定检查什么、怎样组合和怎样解释整体结果；Product 提供统一的声明、执行与结算机制。
+  因而同一运行时既能服务本仓库 Gate，也能被其它项目集成，而无需识别项目文件布局或具体 Check ID。
+- **核心机制与领域能力分离。** Core 理解普通 Check 协议，具体检查和可选工具通过公开契约接入。
+  增加领域检查或替换策略实现，应主要改变该能力自身，而不是扩展 Core 的特殊分支。
+- **执行权限与策略决定分离。** 策略提供选择，运行时掌握准入、执行和取消。可替换策略由此复用同一组合法性约束，
+  而不是各自实现一套调度与资源控制。
+- **执行事实与结果解释分离。** Check 结算形成稳定事实，聚合与输出消费这些事实。质量结论、呈现方式和输出失败可以
+  分别解释，避免某种报表或缓存机制反过来定义检查结果。
+
+这些分离决定组件边界；目录、公开 API 和依赖检查是对边界的表达与约束。
+
+## 系统边界
+
+系统有三个责任范围：
+
+| 范围 | 责任 |
+| --- | --- |
+| 项目代码 | 拥有 TypeScript Project Definition 和绑定它的 Project Run，选择 Checks、工具与策略，并解释项目层结果。 |
+| Product runtime | 接收 Definition 与本次 Run Controls，完成验证、调度、Check 执行、事实结算和结果交付。 |
+| 仓库工具 | 拥有开发、验证、打包和 Gate 等工作流；本仓库 Gate 也是 Product 的公开 API 消费者。 |
+
+Product 的正式集成方式是程序化 API，不提供 CLI/bin，也不负责发现或重新加载项目配置模块。
+Check 和策略回调作为调用方的可信代码执行；运行时提供能力投影与协作取消，不提供进程级沙箱或强制终止能力。
+公开集成契约见[API 机制](../api-mechanics.md)，仓库接线见[Project Gate](../tooling/project-gate.md)。
+
+## 能力分层与扩展方式
+
+**Core** 拥有普通 Check、Project Definition、Run、结算和输出所需的共同机制。**Core API** 是其中对外公开的契约，
+既包括运行和编写入口，也包括可独立复用的 **Core 工具**。例如公开的数据工具与 Core 共用数据边界实现；
+便利函数可以承接局部任务或常用组合，其实现仍由实际机制 owner 维护。
+
+**随包 Check** 与用户自定义 Check 使用同一协议。每项 Check 拥有领域选项、测量、结果和不可用原因；
+Core 负责通用生命周期。scanner 和共同的文件收集能力因此位于检查领域，而不是独立的核心执行体系。
+
+**Non-core 工具** 提供可选算法、编写或呈现能力。其准入判据是：移除具体工具及其公开导出后，Core 的契约、
+默认行为和机制仍完整，且无需替代实现。工具及其私有支撑归入独立工具层，Core 不得直接或间接依赖它。
+工具只消费该层内实现、按公开身份确认的 Product 符号以及[依赖门禁](../tooling/workspace.md#package-tools-依赖边界)允许的外部模块，不能消费 Core-private helper。
+Core 通过公共 Check/strategy 协议调用项目注入的能力，与依赖某个具体随包实现分别判断。
+
+共同能力的归属由它维护的不变量决定。工具需要 Core-private 能力时，应先审查真实耦合；只有能力对外部调用方也有
+可用契约时，才在原 Core owner 公开并复用单份实现。复制核心算法、增加私有例外或机械导出私有模块都不能替代边界设计。
+
+**公开 API、随包交付与 Core 归属是不同维度。** 公开 API 包含 Core、工具和 Check 的公开面；“随包工具”可以是
+Core 工具，也可以是 Non-core 工具。源文件中的 `export` 只声明模块导出，公共身份以 package root 为准。
+具体使用从[用户指南](../navigation.md#随包用户材料)进入，可选工具的内部职责见[随包工具实现](package-tools.md)。
+
+## 组件如何协作
+
+正常执行的主链路把项目声明逐步变成稳定事实，再交付给调用方；配置错误等提前返回分支由[API 机制](../api-mechanics.md#runresult-分支)定义：
 
 ```text
-调用方 → 项目 Run → Product run
-                    ├─ Definition validation 与 canonical Check catalog
-                    ├─ invocation-wide flag control barrier
-                    ├─ Scheduler admission + task-local Check preflight
-                    ├─ Check direct execution / blocked-dependent settlement
-                    └─ frozen Check facts → optional aggregation / publication / outputs / RunResult
+项目代码：Definition + Run Controls
+                  │
+                  ▼
+Product：验证与归一化 → Run（调度 → Check 执行 → 结算）
+                                                │
+                                                ▼
+                                         冻结的 Check facts
+                                                │
+                                                ▼
+                                      显式聚合 / 机器输出 / RunResult
 ```
 
-当前实现是 <code>src/project-run/run.ts</code> 的 <code>run(ProjectDefinition, RunControls)</code>，并由 <code>src/index.ts</code> 作为唯一 public package entry 导出。项目拥有 TypeScript Definition 和绑定它的 Run wrapper；Product 不拥有项目模块路径、配置发现或重新加载。
+**声明边界负责确定本次运行的合法输入。** Definition 表达项目组合，Controls 表达本次调用。
+声明验证与归一化在执行工作前闭合；回调作为可信运行能力保留，而不是声明性数据。
+详细规则由[Project Definition](project-definition.md)拥有。
+
+**Run 负责一次调用的协调，Scheduler 是它的内部组件。** Run 建立调用上下文并完成统一的 flag control，
+Scheduler 根据依赖和资源约束准入工作，Check execution 在被准入的任务中完成 preflight、执行和结算交接。
+策略只提交决定，Scheduler 保留合法性、资源、取消与 drain 的权威。
+调用接线见[Project Run](project-run.md)，调度机制见[Scheduler](scheduler.md)。
+
+**Check settlement 是终态事实的唯一形成边界。** Check 提供自己的结果与 supplemental Records，Core 验证并封闭它们。
+冻结快照只包含 Checks 与 Records；调度状态、回调、scanner 原始数据和 invocation-private 引用各留在其所属生命周期。
+事实不变量由[Check 结果](check-results.md)拥有，调用内依赖交接由[Project Run](project-run.md#check-执行与依赖交接)拥有。
+
+**聚合与输出是事实的消费者。** 显式聚合解释所选 Check 状态，机器输出投影已封闭事实；二者都不重算领域结果。
+进度与诊断另从运行时观察自身拥有的过程事实，不经机器文件反推过程，也不回写 Check 结论。
+这样，输出故障可以与质量结果区分，新增观察方式也无需改变 Check 模型。
+具体接线见[聚合](check-results.md#explicit-aggregation-and-repository-gate-mapping)、[机器输出](output-maintenance.md)与[人读输出](human-output.md)。
 
 ## Source module boundaries
 
-`src/` 的 Product module 按以下 owner 划分：
+顶层源码按上述稳定责任组织。表中标为 Core 的六项中的生产模块构成依赖门禁使用的 Core roots：
 
-- `src/check/**` 拥有 ordinary Check contract、Definition/identity validation 与 options snapshot；
-- `src/project-definition/**` 拥有 Project Definition tree、defaults、validation、normalization 与 fingerprint；
-- `src/check-settlement/**` 拥有 terminal Check/Record facts、session、store 与 fact validation；
-- `src/project-run/**` 拥有 Run entry、aggregation、project context 与 result；其下级 owner 见
-  [Project Run child owners](#project-run-child-owners)；
-- `src/machine-output/v4/**` 拥有从 Check facts 向 versioned machine artifacts 的 publication；
-- `src/package-checks/<check-owner>/**` 拥有 package-provided ordinary Checks 与 Check-owned scanners；其同级 `project-files/**`、`host-environment/**` 是该 delivery owner 的真实共同能力；
-- `src/package-checks/function-metrics/analyzer/**` 是 function-metrics Check 私有的 source-aligned Lizard port；其
-  实作边界见 [Function-metrics analyzer](#function-metrics-analyzer)；
-- `src/data-boundary/**` 拥有 canonical JSON/data、closed-value snapshot 与跨 Core owner 的 type guards；
-  `canonicalizeJsonValue`、`canonicalizeJsonObject`、`canonicalJsonText`、`canonicalJsonBytes`、
-  `snapshotExactClosedRecord`、`snapshotClosedArray` 及三个 Canonical JSON supporting types 构成两组公开 Core tool：
-  JSON 规范化/确定性序列化与外层结构快照。前者复制并规范化 JSON 数据，后者保留字段值和元素引用，亦可处理含回调的
-  配置。Core 与外部调用方复用同一实现和[公开契约](../guides/data-boundaries.md)，不要求每个便利变体独立承接业务流程；
-- `scripts/docs/package-api/**` 拥有 package、文档与 candidate tooling 共用的 public-root inventory。
+| 范围 | 源码归属 | 架构责任 |
+| --- | --- | --- |
+| Core | `src/check/**` | 普通 Check 协议与身份。 |
+| Core | `src/project-definition/**` | 项目声明、验证与归一化。 |
+| Core | `src/project-run/**` | 一次 Run 的协调、调度与执行。 |
+| Core | `src/check-settlement/**` | Check/Record 事实与终态闭合。 |
+| Core | `src/data-boundary/**` | 跨 Core 组件共同的数据不变量。 |
+| Core | `src/machine-output/**` | 已封闭事实的版本化机器投影。 |
+| 随包检查 | `src/package-checks/**` | 领域 Checks、Check-owned scanners 及其共同能力。 |
+| 可选工具 | `src/package-tools/**` | 可移除的工具及其私有支撑。 |
 
-`src/package-tools/<domain-owner>/**` 是 Non-core tool 的目录。移除具体工具及其 facade export 后，若 Core 的
-contract、默认行为和机制仍完整且无需替代实现，该工具才可进入此目录。目录只承接工具自身算法及其公开 authoring /
-presentation 语义，不是“所有不在 Core 的代码”的收集处。当前成员为：
+Project Definition 与 Check facts 不相互依赖，二者都依赖普通 Check 协议。Scheduler 属于 Project Run，
+Check-owned analyzer 属于具体 Check；目录深度表达这种父子责任，同级目录表达同一父级下的不同职责。
+私有实现跟随所属模块，共享实现按共同契约归属，而不是按函数形状集中到全局工具目录。
 
-- `finding-presentation/finding-presentation.ts` 拥有 `presentCheckFindings(...)`、其私有
-  `appendCheckMessages` 与 Finding message 投影；Check owner 仍拥有 Finding facts、明细位置和 terminal outcome。
-- `admission-policy/define-admission-policy.ts` 拥有 `defineAdmissionPolicy(...)` 的 exact authoring types、
-  inference 与声明 JSDoc；Project Definition 继续拥有 defaults、validation、normalization 与 fingerprint。
-- `cache/cache-json-by-key.ts` 拥有 caller-keyed canonical JSON object 的 identity、untrusted disk envelope、
-  read/compute/write observation 与 atomic local publication；它不拥有 caller key correctness、payload meaning 或
-  Check adoption。
-- `finding-waivers/reconciliation.ts` 拥有按调用方语义 identity 对账 Finding waiver 的纯函数；它不发布 Record、
-  不决定 Check outcome，也不依赖 Core 或 Gate。
-- `learned-critical-path/**` 拥有 `createLearnedCriticalPathStrategy(...)`、caller-owned duration-history model 与仅供
-  该工具使用的 `critical-path-ranking.ts`；它不取得 Scheduler 的 legality、Product options、flags、project root 或
-  diagnostic channels 的 owner。
-
-Core roots 是 `src/check/**`、`src/check-settlement/**`、`src/data-boundary/**`、`src/machine-output/**`、
-`src/project-definition/**` 和 `src/project-run/**` 的生产模块。它们不得直接或经仓库内中间模块依赖
-`src/package-tools/**`。Non-core tool 只可消费目录内实现和按公开身份确认的 Product symbol，不能消费 Core-private
-helper。`src/index.ts` 只组合 public roots：它既不改变该方向，也不增加 deep-import surface。
-
-Project Definition 与 Check facts 不相互依赖，二者都只依赖 ordinary Check contract。task scheduler 只是 Run 的
-private child，不形成第二个顶层产品模块。源码不为这些模块额外建立 `index.ts` barrel 或 compatibility re-export。
-目录准入和两向依赖的自动检查由 [Workspace tooling](../tooling/workspace.md#source-owners-and-dependency-direction)
-拥有；collection 及其共享基础实现不因本次工具隔离进入 `package-tools`。
-
-### Learned critical-path helper owner
-
-`src/package-tools/learned-critical-path/**` 拥有 exported `createLearnedCriticalPathStrategy(...)` 与其 caller-owned
-duration-history model：factory 验证调用方提供的绝对 state directory、identity projection 和有界 model controls，在普通
-public prepared-strategy lifecycle 中准备 immutable prediction/critical-path selection closure，并在 terminal Hooks 完成后
-记录下一次 Run 可用的样本。它不读取 Product options、flags、project root 或 diagnostic channels，也不改变 Scheduler 的
-legality owner；`duration-model/**` 只承接该 helper 的 bounded history、prediction、recording 与 storage mechanics，
-`critical-path-ranking.ts` 只承接此 helper 的 ranking。
-
-helper 从 frozen public graph 的 `dependsOn` / `observes` 形成 critical-path score。history identity 由调用方的
-canonical projection 与 model settings 组成；持久材料保留 digest、admitted-to-settled duration、settlement kind 与
-observation sequence。missing、malformed、incompatible 或 read-failed history 形成 empty model；invalid identity、
-setup、prediction 或 score construction failure 使用 static decision fallback。record/write failure 与并发 last-writer
-只影响后续样本；observer failure 由 helper 包含。参数、安全与使用方法由[调度指南](../guides/learned-scheduling.md)拥有。
-
-### Project Run child owners
-
-`src/project-run/**` 的目录层级表达下列父子关系；表中职责不改变 Product public entry 或 RunResult owner。
-
-| 路径                               | 下级 owner 的职责                                                                                                                                     |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `invocation/**`                    | 一次 invocation 的创建、路径、Scheduler handoff、execution candidate 与 progress counter。                                                            |
-| `completion/**`                    | sealed Check facts 之后的 machine publication 与 terminal result。                                                                                    |
-| `outputs/**`                       | Run output 的选择与 status。                                                                                                                          |
-| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。                                                                                     |
-| `task-scheduler/measurement/**`    | timing、summary 与 diagnostic measurement。                                                                                                           |
-| `task-scheduler/**` 父层           | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。                                                                               |
-| 其它直接子 owner                   | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**`与 `admission-strategy-provider/**` 继续各自拥有其既有领域职责。 |
-
-### Function-metrics analyzer
-
-`src/package-checks/function-metrics/analyzer/**` 只处理 supplied source 的 Lizard-domain analysis。Product admission、I/O、cancellation 与 metric mapping 留在目录外；唯一外部生产 façade、Worker/adapter 责任、source-alignment 和 provenance 验证见[Scanner dependencies](scanner-dependencies.md#owner-local-adapters)。
-
-## Definition boundary
-
-`defineConfig` 返回普通 Definition value；递归 Check tree 的 executable 与 container 经 validation/normalization 形成 canonical catalog。容器只提供 scheduling inheritance，不产生独立 facts/output entity；Product 不识别随包 Check ID 或 options domain shape。
-
-[Project Definition](project-definition.md)完整维护 closed grammar、canonical options、scheduling/flags 和 declarative fingerprint。validation 必须在 execution、scanner、cache、progress 或 output work 前闭合；trusted preflight/execution/parseData 函数只保留 identity，不执行，也不进入声明性或机器投影。`handoff: true` 只作为 executable provider 的最小声明；其内部 runtime identity 只保留给 execution seam，且在 declarative snapshot/fingerprint 前剥离。公开参数与组合规则见[API 机制](../api-mechanics.md)。
-
-## Execution boundary
-
-Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；Scheduler 再对 admitted Task 运行 task-local preflight 和 execution。独立 ready preflight 可并行，不能形成全局 barrier。路径/callback capability 见 [Project Run](project-run.md)，preflight snapshot 与 flag selection 见 [Project Definition](project-definition.md)。
-
-Scheduler 是 Run-private child，使用共同 immutable admission reducer 维护 graph、relations、mutex、root/scoped/named capacity、cancellation 与 settlement；real shell 独占真实 Task/Promise 和 effects。policy 只交回决定，不获得执行权限。reducer、simulation、hard guards、measurement 与 terminal handoff 由[Scheduler 实现](scheduler.md)完整拥有。
-
-### Public prepared admission-strategy lifecycle
-
-Invocation 拥有 prepare/complete，Scheduler 只接收同步 policy，并在 drain 后 seal measurement、交付 generic Hooks；返回 sealed context 后 Invocation 才 complete。[完整生命周期与 failure containment](scheduler.md#public-prepared-admission-strategy-lifecycle)说明两层的交接，公开使用见[调度指南](../guides/scheduling.md)。
-
-### Check execution 与 settlement handoff
-
-每个 admitted callback 只接收 [Project Run](project-run.md#invocation-and-results)投影的 Check-local capability。execution owner 验证 terminal result 和 messages attachment，将 stripped four-state result 交给 settlement；只有 settlement 接受后，accepted Records 与 detached author messages 才进入 private lifecycle feedback，messages 另进入 RunResult readback。声明 `handoff: true` 的 provider 还会在 accepted `passed` 后向 execution-private store 提交内部 identity/value；store 只让 effective direct `dependsOn` consumer 的 provider-object read 在同一 graph 中取得原始 reference。非法 attachment、非 `passed` branch、canonical settlement 拒绝或取消都不提交 partial handoff。
-
-async console capture 独立于 author attachment：throw 或 malformed result 不丢弃已经捕获的文本。console router 的安装/恢复、分阶段 message 顺序和唯一 progress preview owner 见[人读输出](human-output.md#check-console-capture-maintenance)。renderer 只能消费反馈，不能回写 accepted facts、RunResult 或 machine publication。
-
-execution owner 在 author execution 前开始 monotonic per-Check timing，在 result/Record validation 与 settlement 后结束；同一 `{ checkId, durationMs | null }` 事实供 lifecycle feedback 和 `RunResult.checkDurations` 使用。flag-control、preflight-blocked 与 prerequisite-blocked 没有 started fact，duration 为 null；timing/messages 都不进入 CheckOutcome、Record 或 machine model。
-
-ordinary throw、malformed result、Record misuse 和 cancellation 在 owning execution boundary 结算 unavailable。Scheduler 对 non-passed prerequisites 阻止 author work，对 observes 只等待 terminal；cancellation 停止新 admission 并向 started callbacks 传同一 signal，drain 后保留已 settled facts、安全关闭剩余 Check。host runtime 不能强停 non-cooperative callback。
-
-## Check facts
-
-`check-settlement/**` 为每个 canonical executable Check 恰好 register 一次，接受 terminal result 和 Check-owned supplemental Records，最后只冻结 `{ checks, records }`。canonical validation、Record identity、accepted-record retention 与 terminal closure 由 [Check 结果](check-results.md#check-and-record-facts)拥有；Task identity、callback、scheduler bookkeeping、scanner-private payload 和 invocation-private handoff 不是 Check facts。
-
-callback-local dependency view 的 string read/list 仅授权 normalized direct `dependsOn ∪ observes`。它从 package-private settled Check seam 取得原有 canonical final-data 引用，不调用 provider parser、不读取 supplemental Records，也不建立第二套 facts store。provider-object read 另以内部 provider-identity-matched store 只授权 effective direct `dependsOn`，并同时返回 Core-owned canonical data 与 original handoff reference；它不扩大 `observes`、transitive 或 string read。公开 get/list 类型与失败边界由[依赖数据指南](../guides/check-dependencies.md)定义。
-
-Run 只在 explicit aggregation 配置下读取选定 settled statuses；effective aggregation 与 flag control 使用同一 private selection，不发布 activation metadata。aggregate 不隐藏或改写 raw facts，接线与 Gate mapping 见[Check 结果](check-results.md#explicit-aggregation-and-repository-gate-mapping)。
-
-## Caller-keyed cache boundary
-
-`src/package-tools/cache/**` 是独立 package-root helper：它只拥有 caller-keyed canonical JSON object 的本地存储
-mechanics，不拥有 caller key correctness、payload meaning 或缓存 observation 如何影响 Check/项目行为的 policy。它既不发现
-项目输入，也不获得 project root、scanner、Check facts、diagnostic logger、output 或 Run lifecycle capability；cache hit
-也不跳过 execution 或重放 Check settlement。它用 `src/data-boundary/**` 的公开数据能力 materialize payload 与 identity，
-但该数据 owner 不因 cache consumer 而成为工具私有实现。完整 public contract 由[缓存计算结果](../guides/cache-results.md)拥有。
-
-cache directory 是 caller-trusted disposable local state。atomic temporary publication 只保护完整 target，不引入 lock、single-flight、cleanup、remote sharing、tamper resistance 或 secret protection。duplicate detection 的 Check-local raw fragment cache 继续由该 Check 的 scanner/availability owner 解释，不因 standalone helper 而迁移或改变 unavailable mapping。
-
-## Package-provided Checks and exact inputs
-
-随包 constructors 返回 ordinary Check，没有 Definition/settlement 特权。每个 Check 拥有 options validation、preflight、领域 measurement/Finding、Record 和 unavailable vocabulary；三个 area-based quality Checks 仅共享真正共同的 policy、area overlap 和 Finding counting，Core 不解释这些领域模型。
-
-file collection/exact membership 由 [Project files](project-files.md)提供，选择和 code-area policy 留在 owning options。jscpd、SCC 与内置 function analyzer 各由唯一 producing Check 拥有；adapter 只收 accepted exact input，任何 out-of-set batch 在 conversion 前拒绝。raw scanner payload 不进入 facts/publication；tool/provenance 边界见 [Scanner dependencies](scanner-dependencies.md)，公开契约从[Check 指南](../navigation.md#随包-check-指南)进入。
-
-## Output and downstream boundary
-
-completion 从 sealed Check facts 创建一个 validated machine v4 model，再投影 two-file candidate；它不解释 Check-local data、不重算 status/aggregation。handoff 的内部 provider identity、value 或 presence metadata 不进入 Check facts、Core snapshot、RunResult、machine、progress、diagnostic、aggregation、cache 或 fingerprint；execution-store `clear()` 只释放 Product reference，绝不充当 resource disposer。candidate validation 与 publication cleanup 见[机器输出维护](output-maintenance.md)，完整机器契约见 [Output](../output.md)。
-
-console capture、progress renderer 和 core/scheduler diagnostic channels 由[人读输出实现](human-output.md)分别拥有。diagnostics 在 Product 已知事实形成时追加，不从终态 snapshot 或 process transcript 重建过程；Scheduler graph 只记录一次，后续 decision 引用 fingerprint。summary 是 human-only observation，不成为 machine/result/progress 字段或自动调参输入。
-
-RunResult owner 组合 warnings、branch-specific diagnostic、可用的 final snapshot、durations/messages、aggregate 和 output statuses。public inventory 导出 authoring/run values 与 types，以及有独立用户契约的 standalone tools/data；它不暴露 settlement capability、scanner adapter、task engine 或 renderer/stream/clock handoff；公开结果分支见[API 机制](../api-mechanics.md#runresult-分支)。
-
-## Runtime boundary
-
-项目 callback 在调用方的 Node runtime 中执行。Product 不序列化 callback、不重启 module、不创建 whole-invocation worker，也不保证隔离 `process.exit`、infinite synchronous loop、global mutation 或 non-cooperative work。Product source 不 import `scripts/**`、docs、fixture 或 toolkit code。
-
-Repository Gate 单向地从 exact installed public entry 导入 run，拥有 candidate preparation 与项目 evidence root；通过同一次 Controls 分配 Product outputs 和 Check artifact namespaces，不解析它们重建结果。完整接线由[Project Gate](../tooling/project-gate.md)维护。Workspace tooling 不获得 Product settlement capability；测试只使用并清理自己的 fixture directory。
+`src/index.ts` 是唯一 public package entry，只组合公开面；它不改变组件归属，也不形成 deep-import API。
+源码模块默认通过具体职责文件协作，不额外建立 barrel 或 compatibility re-export。仓库脚本由 `scripts/**` 拥有，
+Product 不反向依赖脚本、文档、fixture 或测试工具。文件命名与拆分原则见[编码规范](coding-style.md#8-目录文件与模块命名)，
+具体 Run 子模块见[Project Run](project-run.md#run-子模块)，工具子模块见[随包工具实现](package-tools.md)，
+脚本布局与机械约束见[工作区工具](../tooling/workspace.md#source-owners-and-dependency-direction)。

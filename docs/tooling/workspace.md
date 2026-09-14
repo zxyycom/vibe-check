@@ -10,6 +10,9 @@ Project Gate、package artifact lifecycle 和 documentation/package material 分
 
 `scripts/**` 按实际 workflow 与生命周期组织。目录层级只表达父子 owner，具体文件继续由所在目录和文件名共同表达职责。
 
+Product 与仓库工作流的责任划分见[系统边界](../development/architecture.md#系统边界)；
+通用层级、命名与拆分规则见[编码规范](../development/coding-style.md#8-目录文件与模块命名)。
+
 下列映射是当前 owner、入口和允许依赖方向的权威来源。
 
 ### 工作流责任方

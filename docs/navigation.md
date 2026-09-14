@@ -53,6 +53,8 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 修改对象 | 内部 owner / 验证线索 |
 | --- | --- |
 | 总体架构、组件职责、依赖方向 | [Architecture](development/architecture.md)与相邻组件测试 |
+| 能力分层、公开面与目录组织 | [架构框架](development/architecture.md#能力分层与扩展方式)与[顶层源码归属](development/architecture.md#source-module-boundaries)；文件命名与拆分见[编码规范第 8 节](development/coding-style.md#8-目录文件与模块命名) |
+| Non-core 随包工具、learned model 或缓存实现 | [随包工具实现](development/package-tools.md)与对应工具测试、公开指南 |
 | Project Definition、validation、normalization、inherit | [Project Definition](development/project-definition.md)与 authoring tests |
 | Run adapter、root、Controls 与接线 | [Project Run](development/project-run.md)与 Run tests |
 | Check 状态、Record facts 与 aggregation | [Check results](development/check-results.md)与 settlement tests |

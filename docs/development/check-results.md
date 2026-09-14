@@ -7,6 +7,11 @@ generic scheduler 或 human presentation grammar。
 
 ## Check and Record facts
 
+`check-settlement/**` 为每个 canonical executable Check 恰好 register 一次，接受 terminal result 和 Check-owned supplemental Records，最后只冻结 `{ checks, records }`。Task identity、callback、scheduler bookkeeping、scanner-private payload 和 invocation-private handoff 不是 Check facts。
+
+package-private settled Check seam 与冻结快照复用同一 canonical final-data 引用，供运行时依赖读取使用，不建立第二份事实来源。
+
+
 Definition 先 flatten canonical executable catalog，`check-settlement/**` 为每项保存一个 terminal fact。公开[四态与 data grammar](../api-mechanics.md#terminal-resultrecords-与-messages)在这里闭合：passed/failed 必须有 canonical final data；not-applicable/unavailable 不伪造 data。
 
 Scheduler 将 observes 的任意终态与 dependsOn 的 all-passed prerequisite 区分处理。prerequisite-blocked settlement 必须保留 direct non-passed checkIds、null duration，且没有 author work；dependency view 的 string read/list 只从已冻结 facts 读可用 final data，不制造 provider 结果。invocation-private handoff 不写入这些 facts：它只在 accepted passed settlement 后由 execution seam 暂存，供同一 graph 的 direct `dependsOn` `handoff: true` provider-object read 使用。
