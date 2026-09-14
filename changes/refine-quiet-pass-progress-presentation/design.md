@@ -1,82 +1,92 @@
 # Design
 
-本设计为 quiet-pass 省略建立一条从 authoring 到 progress 输出的明确契约，并沿用现有 TTY running region 与 append-only settled writer。
+本设计是 quiet-pass progress presentation 的实施契约：以 normalized Check presentation fact 为唯一事实源，将 authoring、private lifecycle handoff、renderer 行策略、文档和验证闭合到同一 Outcome。
 
 ## Context
 
-- **Quiet pass**：Check outcome 为 `passed`，且没有 accepted Record 或 message；passed final data 不属于 progress detail。
-- 当前 `visibility: "attention"` 省略 quiet pass 的 settled block，但它的 TTY running row 与普通 Check 共用 `[n/total]` 格式。
-- `totalChecks` 与 completion count 包含全部 executable Checks；presentation 省略不改变 settlement、dependency、aggregation 或 machine facts。
-- `prepared` feedback 目前只有总量，`started` feedback 没有 presentation policy，`settled` feedback 才携带 visibility 和终态明细。
-- TTY 刷新 running region；plain output 与 `TERM=dumb` 只追加 settled presentation。本 Change 继续使用这两个既有写入模型。
-- 当前 active/aligned Decision `260907-configure-bounded-progress-previews-with-text-formatter` 保留了现有 attention 行为。字段或呈现契约发生变化时，由 Decision 后继承接长期取舍；本 Draft 只记录当前 Change 的实施方向。
+- **Quiet pass**：Check outcome 为 `passed`，且 settlement 接受的 Records 与 messages 均为空。passed final data 不是 progress detail；preview count、formatter 文本与终端截断只影响呈现内容，不改变 accepted facts。
+- 当前 `visibility: "attention"` 省略 quiet pass 的 settled block，但 TTY running row 与普通 Check 共用 `[n/total]`。`totalChecks` 和 completion count 已包含所有 executable Checks。
+- progress `prepared` feedback 当前只有 `totalChecks`，`started` feedback 只有 identity，`settled` feedback 才携带 visibility 和终态 detail。normalized Definition 在 Run 开始前已经具备计算 configured count 和向 start handoff 策略的全部事实。
+- TTY 使用可重绘的 running region；plain output 与 `TERM=dumb` 只追加 settled presentation。本 Change 不建立第二套 live/results 模型。
+- active/unaligned Decision `260914-configure-progress-previews-and-quiet-pass-presentation` 完整保留已对齐的 preview、formatter、安全与 failure 边界，并以本 Plan 的字段和 row policy 修订旧 attention 行为。
+- package 的公开兼容承诺明确不保证 `0.0.x` patch 间 package-level compatibility，且仓库内所有 `visibility` 用法可在同一 Change 原子迁移。保留 alias 会让同一行为拥有两个入口，却没有独立消费者需求。
 
 ## Goals / Non-Goals
 
 **Goals**
 
-- 用可直接预估输出效果的 authoring 字段表达 quiet-pass 省略。
-- 让启用策略的 Check 在运行中可见，并使它的 running 与 retained settled rows 使用一致的无编号格式。
-- 在开始和结束输出中分别说明静态配置数量与实际省略数量。
-- 保持完整 Check lifecycle facts 及现有 TTY、plain、tee 和 writer-failure 边界。
+- 让 Check author 从字段名和单一 opt-in value 直接预估 quiet-pass row 的效果。
+- 让 policy-enabled Check 在 TTY 运行期间持续可见，并使其 running 与 retained settled rows 一致地不参与 `[n/total]` 编号呈现。
+- 分别报告 Definition 的 configured count 与本次 Run 的 actual omitted count，同时保持普通 row 的全局 progress accounting。
+- 保持完整 Check lifecycle facts、默认输出、TTY/plain/dumb、tee、escaping、preview 和 writer-failure 边界。
 
 **Non-Goals**
 
-- 展示策略只由 author 显式声明，不新增 Check 角色，也不从 dependency、handoff、resource claim、名称或 callback 内容推断。
-- 输出继续采用现有 TTY running region 和 append-only 模型，不增加名称清单、verbose 模式、交互折叠、宽度感知或 non-TTY heartbeat。
-- 不改变 flag-condition-not-matched 分组和 aggregation membership。
+- 不从 dependency、handoff、resource claim、display name、callback 内容或 Check 角色推断 presentation policy。
+- 不增加名称清单、verbose mode、交互折叠、宽度感知、non-TTY heartbeat、public progress event 或 RunResult/machine readback。
+- 不改变 flag-condition-not-matched 分组、Check selection、execution、settlement、aggregation membership 或 machine schema。
+- 不为未来假想的第三种 row policy 建立 enum，不为旧 `visibility` 建立 alias、warning 或兼容期。
 
 ## Decisions
 
 ### Intended Change
 
-下列行为方向已经确认；字段最终形状、兼容路径和输出文案仍在 Draft 中收敛。
+1. **Public grammar 使用单向效果字段。** executable Check 增加 `readonly omitQuietPassedRow?: true`，删除 `visibility` 与内部 `CheckVisibility`。closed runtime parser 接受 absent、own `undefined` 或 `true`；前两者规范化为 `false`，`true` 规范化为 `true`，container declaration、`false`、旧字段和其它值失败。该字段不继承给 children。
 
-1. **直接声明展示效果。** 当前字段候选为 `omitQuietPassedRow?: true`。省略或 `undefined` 使用默认编号行；显式 `true` 启用 quiet-pass 省略。公开名称不表达调用方无法从输出验证的领域角色。
+2. **Normalized boolean 是唯一策略事实。** `NormalizedCheckDeclaration` 与 declarative snapshot 始终保存 `omitQuietPassedRow: boolean`；默认 `false` 与显式 authoring omission 具有相同 fingerprint，`true` 与它不同。执行、facts、machine output 和 public RunResult 不复制这项 presentation policy。
 
-2. **启用策略的 Check 始终使用无编号行。** 除既有 flag-condition-not-matched 分组外，同一规则覆盖 running 和所有可见 settled outcomes，失败时不会临时加入编号系列：
+3. **Private feedback 在需要策略的最早位置携带事实。** Run 以全部 normalized executable Checks 计算 `quietPassOmissionConfiguredCount` 并随 `prepared` feedback 交给 renderer；`started` 与 `settled` feedback 都携带当前 Check 的 normalized boolean。renderer 不回查 Definition，也不从 settled outcome 推断 authoring intent。
 
-   | Check 状态 | TTY running row | Settled row |
-   | --- | --- | --- |
-   | quiet pass | 无编号、刷新 elapsed | 省略 |
-   | passed 且有 Record/message | 无编号、刷新 elapsed | 无编号、保留 detail |
-   | failed / not-applicable / unavailable | 无编号、刷新 elapsed | 无编号、保留状态与原因 |
+4. **Policy-enabled rows 始终无编号。** 除既有 flag-condition-not-matched 聚合块外，renderer 使用下表。无编号 row 仍使用相同 indentation、escaped display name、status、duration、reason、Records/messages preview 与 color pipeline。
 
-3. **编号继续表达全局进度。** 普通行保留 `[n/total]`；`total` 是完整 executable Check 数量，`n` 随全部 settlement 推进，包括没有 retained row 的 quiet pass。它是输出时刻的 progress accounting，不是永久行 ID。
+   | Normalized policy 与 Check 状态 | TTY running row | Settled presentation | Omitted count |
+   | --- | --- | --- | --- |
+   | `false`，任意状态 | 既有 `[n/total]` row | 既有 `[n/total]` block | 不增加 |
+   | `true`，quiet pass | `  · <name> \| running[ \| <elapsed>]` | 省略 | 增加 1 |
+   | `true`，passed 且有 accepted Record/message | 同上 | `  · <name> \| passed \| <duration>`，保留 detail | 不增加 |
+   | `true`，failed / not-applicable / unavailable | 同上（实际启动时） | `  · <name> \| <status> \| <duration-or-not-run>[ \| <reason>]` | 不增加 |
 
-4. **配置计数与结果计数分开命名。** 开始输出报告启用策略的 Check 数量；结束输出报告本次实际省略的 quiet-pass row 数量。失败或带 detail 的 Check 属于前者但不属于后者。
+5. **Quiet-pass 判定发生在 preview pipeline 之前。** 判定只读取 settlement 的 outcome、完整 accepted Records 和 accepted messages。`recordPreviewLimit: 0`、`messagePreviewLimit: 0`、formatter 返回空字符串、detail 被数量限制或文本截断都不把已有 detail 的 pass 变成 quiet pass；final data 始终不阻止省略。
 
-5. **策略只进入人读输出链路。** Preparation 提供静态策略数量，started feedback 提供无编号 running row 所需的规范化策略，settled feedback 继续提供 outcome、duration、Records 与 messages。Renderer 拥有计数和文本；`RunResult`、machine schema、dependency activation 与 aggregation 继续包含所有 Checks。
+6. **普通编号继续表示全局 accounting。** renderer 对每个 settlement 递增唯一 completion counter，包括 quiet pass 与 flag mismatch。普通 running/settled row 继续使用该 counter 和完整 `totalChecks`，所以 retained rows 的编号允许跳跃；policy-enabled row 不临时加入编号系列，也不在失败时改回编号格式。
 
-预期的 TTY 片段如下，其中无编号行仍推动其它行的全局进度：
+7. **配置数与结果数使用不同文案。** 当 configured count 为零时，header/final bytes 不变。当其大于零时：
 
-```text
-Vibe Check
-total 12 checks · 3 configured for quiet-pass omission
+   ```text
+   Vibe Check
+   total 12 checks · 3 configured for quiet-pass omission
 
-  [6/12] TypeScript lint | running | 3.2s
-  · Prepare environment | running | 8.4s
-```
+   Checks:
+   ```
 
-`Prepare environment` quiet pass 后移除，下一次 redraw 可以显示 `[7/12]`；若它失败，则以无编号 settled row 保留。
+   final summary 在现有 `elapsed` 前增加：
+
+   ```text
+     quiet-pass rows omitted: 2
+   ```
+
+   configured count 是全部 normalized executable Checks 中 policy 为 `true` 的数量，包括本次因 flags 未匹配而未启动的 Checks；actual count 仅在 renderer 确实省略 policy-enabled quiet pass 时增加。flag mismatch 聚合块、writer failure 前未完成的潜在省略与任何 retained row 都不增加 actual count。
+
+8. **旧 grammar 直接退出。** 在同一实施中迁移 package Checks、docs examples、API projection source、machine example Definition 与 external-consumer fixtures；runtime closed grammar 对 `visibility` 报 unknown key，TypeScript declarations 不再提供该字段。当前 `0.0.x` 政策不要求 alias；下一次 release changelog 负责按实际净 diff 说明升级。
 
 ### Resulting Impacts
 
-- Check authoring type、runtime validation、normalization、declarative snapshot 与 fingerprint 需要围绕一个规范化策略事实源更新。
-- Check execution 到 progress renderer 的 private feedback 需要在 start 前携带策略，并支持静态配置计数、无编号格式和实际省略计数。
-- 公开 run-output/authoring 指南、内部 Human output/Project Definition owner、类型 JSDoc 与相关示例需要同步当前契约。
-- Tests 需要覆盖 TTY redraw、plain/dumb output、quiet pass、带 detail 的 pass、三类非成功终态、final summary、tee、escaping 和 writer failure；测试修改按 test-evidence 流程审阅。
-- 公开字段变化需要完成兼容判断并维护相关 Decision；行为交付按项目规则接受独立文档影响反查。
+- `check-fields-authoring` 的 key set、executable/container validation、tree resolution/materialization、normalized declaration 和 fingerprint tests 都要围绕 `omitQuietPassedRow` 更新；测试需区分 TypeScript literal opt-in 与 runtime own-`undefined` compatibility。
+- execution identity/lifecycle 与 progress feedback 类型需要交付 normalized policy；`prepared(totalChecks)` 需要同时交付 configured count。inert/disabled progress 继续不创建 writer、schedule 或 renderer。
+- renderer formatting 需要抽出 indexed 与 unnumbered row 路径，并在 settlement 时先处理 flag grouping、再执行 quiet-pass omission、最后处理 retained row；completion count 无条件推进，omitted count 只在第二步推进。
+- final formatting 需要读取 configured/actual counts，且零配置时不改变当前 bytes。terminal 与 progress tee 继续消费同一 rendered bytes；任一 writer/formatter failure 仍沿既有 output-failure containment 停止后续写入。
+- `maintenanceReminders`、两个随包示例、installed consumer 类型/runtime fixture 及 source JSDoc 要迁移字段；generated API/doc projections 必须从 owner source 重建而非手改派生内容。
+- Test Evidence 中 visibility/attention 命名的 entity 与 `Proves` 要改成当前 quiet-pass policy；测试重命名、拆分或合并只在独立证明义务变化时进行，不为机械替换制造重复 Case。
+- active/unaligned Decision `260914-configure-progress-previews-and-quiet-pass-presentation` 已记录 direct opt-in、无 alias、accepted-fact predicate、unnumbered rows 和双计数边界；实现、owner 文档和完整证据闭合后才标记 aligned。
 
 ## Risks / Trade-offs
 
-- quiet pass 会让普通 `[n/total]` 出现跳跃；如果用户仍把它理解为行号，字段改名和计数说明不足以解决体验问题。
-- 开始时的 configured count 与结束时的 omitted count 可以不同，输出必须用不同名词表达 configuration 与 outcome。
-- 直接字段最容易预估，但会固化当前唯一行为；可扩展 enum 增加未来空间，也增加本次无现实依据的抽象。
-- 旧 `visibility` 与新字段若并存，会形成两个表达同一行为的入口；直接删除则产生 public compatibility 影响。
+- 普通 `[n/total]` 仍会因无 retained row 的 settlement 出现跳号；header/final counts 和用户指南必须明确这是全局 progress accounting，而不是 retained-row ID。
+- `omitQuietPassedRow` 直接表达主要 outcome，但无编号 retained row 是实现该 outcome 时的配套 presentation contract；JSDoc 和指南必须同时说明，不能只写“通过时隐藏”。
+- 单向 literal 字段不接受调用方直接传入普通 boolean。它换取 closed legal state 和清晰 opt-in；需要条件启用时，调用方应通过对象组合省略或加入字段，而不是传 `false`。
+- 直接删除 `visibility` 会要求现有 `0.0.x` consumer 迁移。当前兼容政策允许该选择；保留双入口的长期认知和 validation 成本高于本轮一次性迁移成本。
+- configured count 包含 flag-disabled Check，而 actual count 不包含它们；文案与测试必须使用 `configured`/`omitted`，不能用同一个“quiet checks”数量暗示二者相等。
 
 ## Open Questions
 
-- Public grammar 采用 `omitQuietPassedRow?: true` 还是 settled-row enum；旧 `visibility` 应直接移除还是提供有期限的兼容输入？
-- 开始与结束输出采用什么精确文案；普通 `[n/total]` 是否需要显式标注为 progress accounting？
-- formatter limit 为零、formatter 返回空文本和 accepted detail 被终端预览省略时，是否仍按 accepted Record/message 判定非 quiet pass？
+无。若实施中出现会改变 public grammar、quiet-pass predicate、计数集合、exact text、默认 bytes、owner 边界或成功标准的新事实，先重新审阅并同步 Plan 的 proposal、design 与 tasks；普通局部实现选择不重新打开产品决策。
