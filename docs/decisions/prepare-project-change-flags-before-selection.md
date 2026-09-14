@@ -4,9 +4,9 @@ id: 260909-prepare-project-change-flags-before-selection
 status: active
 alignment: unaligned
 createdAt: 2026-09-09T11:43:21Z
-purpose: 以可选根配置一次准备文件变更，并复用统一 flag expression 在调度前选择 Check
-background: provider Check 与独立 enabledByChanges 都增加使用和契约重叠，而运行中由普通 Check 修改 flags 会破坏静态选择与显式关系
-decision: 根 changes 配置在 selection 前派生保留 flags，并向 preflight/execution 提供同源 change 查询
+purpose: 以文件区域派生受保护的 change flags，并通过统一 DSL 在调度前选择 Check
+background: caller flags 不能表达项目文件区域变化，provider Check 或 execution 内跳过也无法缩小调度前工作集
+decision: 根 changes 配置一次匹配 Git changed paths、派生受保护 flags，并以统一 DSL 和可判别 context 驱动安全选择
 tags:
   - configuration
   - performance
@@ -17,27 +17,25 @@ relations:
     summary: 为显式根 changes 增加唯一 project-wide 例外
   - type: 替代
     target: 260909-provide-file-change-marker-context
-    summary: 以根级动态 flags 取代 provider/wrapper
+    summary: 以根级 change flags 取代 provider/wrapper
 ---
 
 ## 目的
 
-- 让项目按需配置一次文件变更来源和 markers，并让所有 Check 使用同一个 flag selection 入口。
-- 在 Scheduler 前排除确定无关的高成本 Check，同时为完整运行和不可信输入提供安全退化。
-- 让声明式选择、preflight 和 execution 读取同一 invocation snapshot。
+- 让 Project author 声明“change flag ID → 文件区域”，由 Product 在 selection 前一次生成本次 flags。
+- 让普通 caller flags 与 change flags 通过同一个声明式 DSL 驱动 effective selection。
+- 在检测失败时保守运行，同时让 callback 明确区分可信文件 records 与 unavailable。
 
 ## 背景
 
-- 既有边界把 Check-specific options 留在 owning Check，并把 caller flags 作为 immutable invocation controls；当时 changed-file facts 没有显式的 project-wide source 与 baseline contract。
-- 后续 provider Check 与 execution wrapper 方案要求每个 consumer 接线 relation、解析 dependency 并在 execution 内自行跳过，也无法影响调度前 selection。独立 `enabledByChanges` 则会复制 predicate、dependency propagation、control settlement 和 aggregation 语义。
-- Change marker 与 caller flag 在 selection 层都是调度前 token，但来源和可信状态不同。Project 内置 preparation 可以先形成 marker 状态，再复用既有 Project-file selection、config-glob matcher 和 effective-selection owner。
+当前 `RunControls.flags` 只表达 caller intent，`enabledByFlags` 只能应用扁平集合 mode。由普通 Check 提供 changed files 会晚于 selection；独立 change enablement 又会复制 dependency propagation、control settlement 和 aggregation。Project-owned preparation 可以先取得 changed paths、匹配既有 path/glob 语义，再复用同一 effective selection。
 
 ## 决策
 
-- 采用: Project Definition 提供可选根 `changes`，拥有一个 project-wide source、baseline、path 和 marker contract。Product 在完整 Definition/graph validation 后、flag control settlement 与 Scheduler admission 前准备一次 snapshot。省略配置时保持当前 Run 和 callback context；V1 只提供一个 view。
-- 采用: Change owner 规范化 paths，并以现有 `ProjectFileSelection` include/exclude 语义和唯一 config-glob matcher 计算 markers。可信 snapshot 的 markers 投影为 Product-owned reserved flags，与 caller flags 在来源可辨的冻结 selection input 中组合；RunControls 拒绝 caller 使用保留命名空间。
-- 采用: Check 通过扩展后的 `enabledByFlags` 表达 caller-flag 与 change-marker 条件。公共值是封闭、可序列化、可规范化的 expression AST，builder 只构造同一 AST；现有 `{ flags, mode }` 是 shorthand。Definition 引用 change marker 时必须配置根 `changes`。
-- 采用: Change-marker atom 使用 true/false/unknown。可信 snapshot 决定 true/false；不可信 acquisition、baseline 或 normalization 形成可观察的 unavailable/unknown。Effective selection 只排除明确为 false 的 Check，并继续驱动 `dependsOn` closure、control settlement 与 effective aggregation。
-- 采用: 配置 `changes` 时，preflight 和 execution 获得同一冻结、可辨别 unavailable/available 的 `change` query。Preflight 通过向后兼容的可选 context 参数读取，并可结算 `not-applicable`；其现有 admission 和 hard-prerequisite 时机保持不变。
-- 采用: 实施以模块化测试 lane 作为首个 workload，观测 preparation、selection、query、memory 和端到端 wall time，再确定索引与性能 guard。该场景证明通用能力，但不限制其它 Check 使用。
-- 不采用: 普通 Check 修改 invocation flags、package-level changed-files provider、execution wrapper、独立 `enabledByChanges`、第二套 glob matcher，或尚无现实 consumer 的多 baseline/view。普通 Check 的结果继续通过显式 relation 组合。
+- 采用: `ProjectDefinition.changes` 声明一个 Git comparison 与 change flag regions。每个 flag ID 生成 `vibe-check:change:<id>`；RunControls 拒绝 caller 提供该保留前缀。V1 使用一个 project root 与一个 comparison view。
+- 采用: Product 在完整输入与 graph validation 后、effective selection 和 Scheduler admission 前至多准备一次 changed paths。新增、修改、删除与 rename 的相关路径参与所有 regions；一个 path 可以产生多个 flags。
+- 采用: `enabledByFlags` 扩展为 closed recursive DSL，直接提供 flag、all、any、none、not-all、exactly-one 与 unary not。当前 `{ flags, mode, propagateDependsOn? }` 保持合法；shorthand tokens 维持既有去重排序，raw DSL 保留 child 顺序与 multiplicity，避免 normalization 改变 exactly-one 语义。
+- 采用: Caller flags 与 derived flags 只形成一次 effective selection，并继续驱动 `dependsOn` propagation、control settlement、progress 与 effective aggregation。`project.flags` 保留 caller input；change evidence 使用独立 context。
+- 采用: 成功 context 以稳定 file-centric records 直接关联每个命中 path 与其全部 flags。可信零命中返回空 records；检测不可用时 context 返回 reason 且没有 records，selection 则把全部声明 change flags 视为 present。
+- 采用: `prepare` 与 `execute` 读取同一冻结 change result。Preparation 保持 task-local admission 时机，不重新检测 changes；change context 不自动进入 machine、diagnostic、cache 或跨 Run state。
+- 采用: Project Gate 的 product-runtime test lane 是首个 consumer；其 region 保守覆盖 `src/**`，默认 required selection 结合对应 change flag，显式 test/full flags 独立强制运行。用 region completeness、unchanged、changed、unavailable 和 force workloads 验证正确性与固定成本。

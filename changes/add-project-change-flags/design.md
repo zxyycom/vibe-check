@@ -1,69 +1,141 @@
 # Design
 
-本设计用一个端到端 Change 交付以下链路：根级 change preparation → change-derived flags → `enabledByFlags` expression → Check `prepare` / `execute` change query。
+本设计固定 V1 的配置、结果与 flag DSL，使实现可以沿“changed paths → protected flags → one effective selection”直接推进。
 
 ## Context
 
-- **Selection owner:** [`extending-check-lifecycle.md`](../../docs/guides/extending-check-lifecycle.md#按-flag-选择-check) 与 [`project-definition.md`](../../docs/development/project-definition.md#flag-enabled-checks) 定义 caller-supplied immutable flags、调度前 effective selection、`dependsOn` closure 和 effective aggregation。当前 `{ flags, mode }` 只能表达一个扁平集合谓词。
-- **Callback lifecycle:** `prepare` 在 Scheduler admission 和 hard prerequisites 之后运行，只接收 authored options 与 signal；`execute` 接收 Product-owned context。Preparation 可结算 `unavailable`，尚不能直接结算 `not-applicable`。
-- **File matching owner:** [`collecting-project-files.md`](../../docs/guides/collecting-project-files.md) 定义 `ProjectFileSelection` 的 source/include/exclude 契约；package-private `matchesAnyConfigGlob` 统一 slash-path 与 dot-path matching。
-- **First consumer:** 模块化测试 lane 是首个性能验收场景，但公共能力不限定 Check 领域。
-- **Decision owner:** [`prepare-project-change-flags-before-selection.md`](../../docs/decisions/prepare-project-change-flags-before-selection.md) 修订旧 provider 边界并替代 provider/wrapper 方向；本 Draft 细化其交付范围。
+当前 Product 已拥有 caller flags、四种集合 mode、`propagateDependsOn` 与一次 private effective selection；缺少的是 selection 前的 change flag derivation。文件区域继续使用 [`ProjectFileSelection`](../../docs/guides/collecting-project-files.md) 已定义的 relative slash path、include/exclude、dot-path 和 exclude-first glob 语义，但 change detection 自己提供 candidates，不重新枚举 project files。
+
+首个 consumer 是 Project Gate 的 `tests-product-runtime`。默认 required Run 只在 Product runtime 区域变化时选择它；显式 `--test` 或 `--all` 独立强制选择。该场景同时需要 `AND`、`OR` 和受保护的 change flag，足以检验 V1 DSL。
 
 ## Goals / Non-Goals
 
 ### Goals
 
-1. 可选配置并一次准备一个可信的 project-wide change view。
-2. 让 caller flags 与 change-derived flags 共用一个封闭、可序列化、可规范化的选择表达式。
-3. 让声明式选择、`prepare` 和 `execute` 使用同一 invocation snapshot。
-4. 复用现有文件匹配语义，并用代表性 workload 证明增量收益覆盖准备成本。
+1. Project author 只声明一次 comparison、flag ID 与文件区域。
+2. Product 只获取并匹配一次 changed paths，所有 Check 复用同一冻结结果。
+3. DSL 直接表达常用集合逻辑，同时保留当前 shorthand。
+4. Selection fallback 与文件 evidence 分开：检测失败扩大运行，但不伪造 records。
+5. 一个真实 Gate consumer 证明正确性与增量价值。
 
-### Responsibility Boundaries
+### Non-Goals
 
-| Owner | Responsibility |
-| --- | --- |
-| Project `changes` | 拥有单一 source、baseline、路径语义、marker declarations、取消与不可用策略。 |
-| Flag expression | 表达 caller-flag 与 change-marker 的无副作用布尔条件。 |
-| Effective selection | 在 Scheduler 前消费冻结输入，并拥有 dependency closure 与 aggregation identity。 |
-| Callback context | 向 `prepare` 和 `execute` 提供同一只读 change query。 |
-| File matching | 以 `ProjectFileSelection` 和唯一 config-glob matcher 解释 marker declarations。 |
-
-普通 Check 的版本、环境和运行结果仍通过显式 relation 组合；它们不修改 invocation flags。V1 提供一个 project-wide change view，领域 owner 可在局部处理其它 baseline/source。
+V1 提供一个 Git comparison view、一个 project root、region flags、file-centric callback records 和声明式 DSL。Rich diff、patch 内容、多个 comparison views、remote source、跨 Run cache 与 machine publication 留给具有独立 consumer 的后续 Change。
 
 ## Decisions
 
 ### Intended Change
 
-1. **Preparation boundary.** `ProjectDefinition` 新增可选根级 `changes`。Product 在完整 Definition/graph validation 后、flag control settlement 与 Scheduler admission 前准备一次 snapshot。省略配置时不采集 change facts，也不向 callback 注入 change capability。Source、baseline 与 comparison options 的封闭 shape 在进入 Plan 前确定。
-2. **Matching and derived flags.** Change owner 规范化 changed paths，并通过现有 `ProjectFileSelection` 和 `matchesAnyConfigGlob` 计算 marker set。可信 snapshot 的 markers 投影为 Product-owned reserved flags；caller flags 与派生 flags 保持来源可辨，并共同形成冻结的 selection input。RunControls 拒绝 caller 使用保留命名空间。
-3. **One expression and one selection.** `enabledByFlags` 扩展为封闭 expression AST，并提供只构造该 AST 的无副作用 builder。最小节点包括 caller-flag atom、change-marker atom、`all`、`any` 和否定组合；现有 `{ flags, mode }` 规范化为同一形式。Definition 引用 change marker 时必须配置根 `changes`。Evaluator 仍只形成一次 effective Check ID 集，再复用既有 dependency propagation、control settlement 和 aggregation。
-4. **Conservative availability semantics.** Change-marker atom 使用 true/false/unknown。可信 snapshot 决定 true/false；acquisition、baseline 或 normalization 不可信时为 unknown。Selection 只排除明确为 false 的 Check，unknown 保守进入；caller-only false 分支不受无关 unknown 影响。完整运行由显式 caller-flag expression branch 表达。
-5. **Shared query.** 启用根配置时，Product 构造冻结且可辨别 unavailable/available 的 `change` query。`execute` 直接读取；`prepare` 通过可选 context 参数读取，并新增 `not-applicable` result branch。Preparation 保持现有时机，不改变 graph 或 effective selection。
-6. **Evidence-led delivery.** 实施先以模块化测试 lane 建立 zero/small/representative-large/stress workload，观测 preparation、selection、query、memory 与端到端 wall time，再确定 eager/lazy index 和性能 guard。同步受影响的 exports/JSDoc、owner docs、示例、schema、changelog、package material 与 Semantic Cases；current docs 在实现前不宣称 API 已存在。
+#### 1. Project change configuration
+
+`ProjectDefinition.changes` 使用以下语义形状；最终类型保持 closed、readonly，并接受同 shape 普通 value：
+
+```ts
+{
+  source: {
+    kind: "git",
+    compareWith: "origin/main"
+  },
+  flags: {
+    "product-runtime": {
+      include: ["src/**"],
+      exclude: []
+    }
+  }
+}
+```
+
+`flags` 的 key 是非空 change flag ID。Product 生成 `vibe-check:change:<id>`；Definition 引用未知 ID 或 caller controls 提供该前缀时，在 author work 前失败。一个 path 可以命中多个 regions；每个 declaration 产生一个 flag，同名 key 由 record grammar 自然保持唯一。
+
+Git source 将 `compareWith...HEAD` 的 committed delta 与当前 staged、unstaged、untracked paths 合并。新增和修改使用当前 path，删除使用旧 path，rename 的旧、新 path 都参与 region matching。Git revision、command、repository 或 path normalization 不能形成可信结果时返回 unavailable。
+
+#### 2. Change result context
+
+配置 `changes` 时，`execute` 的 `project.changes` 与 `prepare` 新增的 Product context 读取同一冻结 result：
+
+```ts
+type ProjectChanges =
+  | Readonly<{
+      ok: true;
+      files: readonly Readonly<{
+        path: string;
+        flags: readonly string[];
+      }>[];
+    }>
+  | Readonly<{
+      ok: false;
+      reason: Readonly<{ code: string }>;
+    }>;
+```
+
+成功 records 只包含命中至少一个声明 region 的 changed paths。Records 按 path 排序，内部 flags 排序去重；可信零命中是 `{ ok: true, files: [] }`。失败分支没有 `files`；selection 单独把全部声明 change flags 视为 present。未配置 `changes` 时不提供该 context capability，也不运行 Git source。
+
+`prepare` 保留 authored options 与 signal 两个现有参数，并追加一个只读 Product context 参数；现有二参数 callback 继续合法。Preparation 仍保持 task-local admission 时机，不成为第二次 change preparation。
+
+#### 3. Flag DSL
+
+`enabledByFlags` 接受当前 shorthand，或 `{ when, propagateDependsOn? }`。`when` 是 closed recursive value：
+
+```ts
+type FlagCondition =
+  | Readonly<{ kind: "flag"; flag: string }>
+  | Readonly<{
+      kind: "all" | "any" | "none" | "not-all" | "exactly-one";
+      conditions: readonly [FlagCondition, ...FlagCondition[]];
+    }>
+  | Readonly<{ kind: "not"; condition: FlagCondition }>;
+```
+
+集合节点要求非空、dense conditions。`all` 要求全部为真，`any` 要求至少一个为真，`none` 要求零个为真，`not-all` 要求至少一个为假，`exactly-one` 要求恰好一个为真；`not` 反转一个子表达式。Validator 对节点数量和深度使用统一有界限制，避免不受控递归；具体常量由相邻实现与测试共同拥有。
+
+当前 `{ flags, mode, propagateDependsOn? }` 先保持既有的 token 去重与稳定排序，再降级到等价 DSL。Raw DSL normalization 冻结节点但保留每个集合节点的 child 顺序与 multiplicity，因此 `exactly-one(flag(a), flag(a))` 仍按两个 true children 求值为 false。Normalization 不去重 raw children，也不做交换、结合或其它代数重写；只有降级后结构完全相同的 shorthand 与 raw value 共享 canonical identity。
+
+#### 4. Effective selection and Gate use
+
+Caller flags 与 derived change flags 共同作为 evaluator input；`project.flags` 继续只表示 caller input，change evidence 从 `project.changes` 读取。Evaluator 只把最终 boolean 交给现有 effective selection；dependency propagation、control outcome、progress 和 aggregation 保持单一 owner。
+
+首个 Gate expression 使用以下 raw DSL；builder 只构造同一结构，不建立第二种表达：
+
+```ts
+{
+  when: {
+    kind: "any",
+    conditions: [
+      {
+        kind: "all",
+        conditions: [
+          { kind: "flag", flag: "project-gate:required" },
+          { kind: "flag", flag: "vibe-check:change:product-runtime" }
+        ]
+      },
+      { kind: "flag", flag: "project-gate:preset=test" },
+      { kind: "flag", flag: "project-gate:all" }
+    ]
+  },
+  propagateDependsOn: true
+}
+```
+
+Change source unavailable 时 `vibe-check:change:product-runtime` 保守 present；`project.changes.ok` 仍为 false。`product-runtime` region 保守覆盖 `src/**`，与当前 lane resolver 对非 `src/package-checks/**` tests 的分区一起接受完整性验证；未来收窄 region 必须先证明所有 runtime lane tests 及其 Product upstream 仍被覆盖。
 
 ### Resulting Impacts
 
-- **Public definition:** 根 `changes`、marker declarations 和递归 flag expression 需要 exact validation、normalization、freezing、snapshot/fingerprint 与 Check inheritance 规则。
-- **Invocation lifecycle:** preparation 需要固定与 cancellation、output initialization、custom admission preparation 和 failure mapping 的顺序。
-- **Callback lifecycle:** preparation signature/result grammar 与 execution context 成为兼容面；preparation `not-applicable` 与 control-level unselected 是不同事实。
-- **Path safety:** owner 需要覆盖 tracked/untracked/staged/working-tree、comparison reference、rename/delete、outside-root、case/separator、symlink、I/O failure 与 cancellation；不可信状态映射为 unavailable/unknown。
-- **Performance:** 所有启用 change 的 Run 都承担 preparation 和 expression evaluation 成本；索引保持 invocation-private，除非 Plan 证明 publication 需求。
+| Owner | Required change | Evidence |
+| --- | --- | --- |
+| Project Definition | `changes` 与 recursive DSL 的 validation、normalization、freeze、snapshot 和 fingerprint | authoring、invalid input、equivalent identity 与 bounds tests |
+| Project Run | Git preparation、reserved Controls rejection、selection input 与 callback context | lifecycle、failure、cancellation、zero/multi-match tests |
+| Check callbacks | `prepare` Product context 与 `execute.project.changes` | type inference、runtime identity 与 unavailable handling |
+| Project Gate | `product-runtime` region、combined expression 与 force branches | definition、selection 与 bound Run tests |
+| Public materials | exports、JSDoc、guides、examples、changelog 与 package acceptance | documentation validation 与 installed consumer tests |
+| Test evidence | 新增和修改的语义 Case owner | ledger check 与最窄目标 tests |
 
 ## Risks / Trade-offs
 
-- 递归 expression 提高组合能力，也扩大公共 grammar；Plan 需要限制节点类型、深度、大小与规范化规则。
-- Combined flags 便于 introspection，但会改变 `project.flags` 只表示 caller input 的含义；代表性 authoring cases 应决定是组合暴露还是分别暴露来源。
-- Unknown 的保守求值防止漏检，但 source 故障时可能运行更多 Check；这是增量优化的安全退化。
-- Preflight 自定义跳过发生在 admission 和 dependencies 之后，不能当作 planning-level selection 衡量。
+- `vibe-check:change:` 成为新的保留 namespace；Controls 通过早期诊断避免把旧自定义 token 静默解释为 Product fact。
+- Git unavailable 会扩大选择并增加运行时间，这是防止漏检的安全退化；`ProjectChanges` 保留真实 evidence 状态。
+- 递归 DSL 提高表达力，也增加 authoring surface；closed nodes、非空 children 与统一 bounds 限制复杂度。
+- Region 配置决定选择完整性；Gate 对共享 runtime paths 使用保守 include，并以 unavailable/full branches 保留恢复路径。
 
 ## Open Questions
 
-| Topic | 进入 Plan 前必须确定 |
-| --- | --- |
-| Source and baseline | 封闭 Git/filesystem source 或受信 resolver 的选择，以及 invocation-specific comparison reference。 |
-| Expression contract | AST/builder 命名、节点上限、旧 shorthand 映射、canonical ordering 和 unknown 真值表。 |
-| Reserved flags | Namespace、RunControls 拒绝规则、marker 引用验证及 caller/effective/change flags 可见性。 |
-| Preparation lifecycle | 与 validation、output initialization、custom admission、diagnostics 和 cancellation 的精确顺序及失败结果。 |
-| Change query | Path/kind/rename、unavailable reason、最小方法集合、冻结边界及 machine/diagnostic publication。 |
-| Performance gate | 代表性规模、采样协议，以及 timing、memory、build-count guard 或可复跑 observation 的选择。 |
+无。实现中的字段拆分、helper 名称、递归 bounds 常量和 Git 命令编排由本 Plan 的对应 owner 在不改变上述公共语义的前提下确定。
