@@ -1,8 +1,8 @@
 # Core 数据工具：JSON 规范化与结构快照
 
-这些公开 Core tool 让调用方复用 Core 的数据处理规则：取得独立的 JSON 数据副本、生成确定性文本或字节，
-或检查配置对象和数组的外层结构。它们从 package root 导入，无需创建 Check、Project Definition 或 Run。
-工具负责下表中的数据处理；调用方仍负责字段含义、取值范围和业务规则。
+这两组公开 Core 工具让调用方复用 Core 的数据处理规则：取得独立的 JSON 数据副本、生成确定性文本或字节，
+或检查配置对象和数组的外层结构。它们都从 package root 导入，无需创建 Check、Project Definition 或 Run。
+工具只负责下表所列的数据处理；调用方仍负责字段含义、取值范围和业务规则。
 
 ## 选择工具
 
@@ -10,11 +10,12 @@
 
 | 需要的结果 | 选择 | 成功结果 | 不符合输入规则时 |
 | --- | --- | --- | --- |
-| 独立、递归冻结的 JSON 数据副本 | `canonicalizeJsonValue`；顶层必须是对象时用 `canonicalizeJsonObject` | 规范化后的 JSON 值或对象 | 返回 `undefined` |
+| 独立、递归冻结的 JSON 数据副本 | `canonicalizeJsonValue`；顶层必须是非数组对象时用 `canonicalizeJsonObject` | 规范化后的 JSON 值或对象 | 返回 `undefined` |
 | 确定性 JSON 文本或 UTF-8 字节 | `canonicalJsonText` / `canonicalJsonBytes` | 文本 / `Uint8Array`，内部已执行规范化，无须先调用 `canonicalize*` | 抛出 `TypeError` |
 | 字段恰好匹配的配置对象，或无空洞的标准数组 | `snapshotExactClosedRecord` / `snapshotClosedArray` | 冻结的浅副本，保留字段值或元素的引用 | 返回 `undefined` |
 
-JSON 工具只接受下文定义的 JSON 数据。结构快照不要求字段值或元素是 JSON，因而也适合包含回调的配置。
+JSON 规范化/序列化工具只接受下文定义的 JSON 数据；结构快照不要求字段值或元素是 JSON，因而也适合包含
+回调的配置。两组工具可分别使用：不先做结构快照，也能规范化或序列化；不先规范化，也能做结构快照。
 输入可以是程序构造的值，也可以是解析得到的数据；是否来自外部，不改变各工具的输入规则。
 
 ## 取得独立的 JSON 副本
@@ -101,9 +102,9 @@ if (task.onComplete !== onComplete || task.paths !== authoredTask.paths) {
 数值 `-0` 转换为 `0`。结果中的对象使用 **null prototype**，没有继承的对象方法；检查属性时使用
 `Object.hasOwn`，不要调用 `result.hasOwnProperty`。结果数组仍使用 `Array.prototype`。
 
-`CanonicalJsonPrimitive`、`CanonicalJsonValue` 和 `CanonicalJsonObject` 描述静态数据结构，便于声明参数和结果。
-它们不是运行时验证凭证：例如普通 `number` 类型仍可表示 `NaN`，对象类型也不能证明数据已冻结或没有循环。
-有限数值和其它输入约束由规范化函数在运行时检查，不通过类型标注或断言取得。
+`CanonicalJsonPrimitive`、`CanonicalJsonValue` 和 `CanonicalJsonObject` 只描述静态数据结构，便于声明参数和结果。
+它们不是运行时验证凭证：例如普通 `number` 类型仍可表示 `NaN`，对象类型也不能证明数据已冻结、具有 null prototype
+或没有循环。有限数值和其它输入约束只能由规范化函数在运行时检查，不能通过类型标注或断言取得。
 
 ### 确定性序列化
 

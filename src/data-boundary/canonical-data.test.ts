@@ -73,14 +73,17 @@ describe("check-record canonical data", () => {
   });
 
   it("rejects accessors, sparse arrays, and reflection failures without invoking author hooks", () => {
+    let accessorRead = false;
     const accessor = {};
     Object.defineProperty(accessor, "value", {
       enumerable: true,
       get: () => {
-        throw new Error("must not execute");
+        accessorRead = true;
+        return "must not execute";
       }
     });
     assert.throws(() => canonicalJsonBytes(accessor), /Canonical JSON/);
+    assert.equal(accessorRead, false);
     const sparse: unknown[] = [];
     sparse.length = 2;
     sparse[1] = 1;

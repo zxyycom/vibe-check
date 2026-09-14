@@ -9,11 +9,12 @@ export type {
 const encoder = new TextEncoder();
 
 /**
- * 将输入规范化为独立、递归冻结的 canonical JSON object 副本。
+ * 将输入规范化为独立且递归冻结的 canonical JSON 对象副本。
  *
- * 只接受普通/null-prototype object、标准 dense array、有限 JSON primitive；输出中的每个 object 都是
- * null-prototype，所有输出 object/array container 都是 detached、deep-frozen。不会调用 getter 或
- * `toJSON`。无效输入、cycle 或反射失败返回 `undefined`；Proxy trap 仍可能在反射期间执行。
+ * 递归内容只接受普通对象或 null-prototype 对象、标准无空洞数组和有限 JSON 基本值；仅当顶层结果是
+ * 非数组对象时返回该副本。输出对象使用 null prototype，输出对象和数组均独立于输入且递归冻结。不调用
+ * getter 或 `toJSON`；无效输入、循环引用或反射失败返回 `undefined`。反射 Proxy 时仍可能执行其 trap，
+ * 不隔离 trap 的副作用。
  */
 export function canonicalizeJsonObject(value: unknown): CanonicalJsonObject | undefined {
   const canonical = canonicalize(value, new Set<object>());
@@ -21,23 +22,24 @@ export function canonicalizeJsonObject(value: unknown): CanonicalJsonObject | un
 }
 
 /**
- * 将输入规范化为独立、递归冻结的 canonical JSON value 副本。
+ * 将输入规范化为独立且递归冻结的 canonical JSON 值副本。
  *
- * 成功结果将 `-0` 规范化为 `0`，并以 null-prototype object 与 deep-frozen container 输出；拒绝
- * accessor、`toJSON` hook、sparse array、非 enumerable own property、非有限 number 和不支持的
- * prototype。`CanonicalJsonPrimitive` 的 `number` 在静态上仍可表示 `NaN`，只有 runtime materialization
- * 检查有限值。失败返回 `undefined`，不以 TypeScript 类型断言代替 runtime materialization。
+ * 接受 `null`、boolean、string、有限 number、普通对象或 null-prototype 对象，以及标准无空洞数组；
+ * `-0` 转换为 `0`，输出对象使用 null prototype。拒绝存取器、稀疏数组、不可枚举的自有属性、非有限
+ * number 和其它 prototype。不调用 getter 或 `toJSON`；无效输入、循环引用或反射失败返回 `undefined`。
+ * 反射 Proxy 时仍可能执行其 trap，不隔离 trap 的副作用。`CanonicalJsonPrimitive` 的 `number` 在
+ * TypeScript 中仍可表示 `NaN`，有限性只能由本函数在运行时检查。
  */
 export function canonicalizeJsonValue(value: unknown): CanonicalJsonValue | undefined {
   return canonicalize(value, new Set<object>());
 }
 
 /**
- * 直接规范化输入并生成确定性的无空白 JSON 文本。
+ * 规范化输入后生成确定性的无额外空白 JSON 文本。
  *
- * object key 使用固定 lexical `<` 顺序（不是外部 canonical-JSON 标准承诺）；即使同一 canonical object，
- * `JSON.stringify` 仍会按 ECMAScript 的 integer-index key 顺序输出，因而不保证与本 helper 文本相同。
- * 无效输入抛 `TypeError`。
+ * 对象键按固定的 lexical `<` 顺序输出，不承诺遵循外部 canonical-JSON 标准。即使同一对象已经过
+ * 规范化，`JSON.stringify` 仍按 ECMAScript 的整数索引键顺序输出，不能替代本函数。输入规则与 Proxy
+ * 边界同 `canonicalizeJsonValue`；无效输入或无法反射的 Proxy 均抛出 `TypeError`。
  */
 export function canonicalJsonText(value: unknown): string {
   const canonical = canonicalizeJsonValue(value);
@@ -48,10 +50,10 @@ export function canonicalJsonText(value: unknown): string {
 }
 
 /**
- * 直接规范化输入并生成与 `canonicalJsonText` 相同的确定性 UTF-8 JSON bytes。
+ * 规范化输入后生成与 `canonicalJsonText` 相同的确定性 UTF-8 JSON 字节。
  *
- * 此 helper 自行执行相同的 materialization 与固定 lexical key 排序，而非要求调用方先传入 canonical value；
- * 无效输入抛 `TypeError`。
+ * 函数自行完成规范化与固定键排序，不要求调用方先取得 canonical JSON 值。输入规则、Proxy 边界和
+ * `TypeError` 失败方式与 `canonicalJsonText` 相同。
  */
 export function canonicalJsonBytes(value: unknown): Uint8Array {
   return encoder.encode(canonicalJsonText(value));

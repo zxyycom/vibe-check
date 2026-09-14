@@ -77,13 +77,13 @@ export function snapshotClosedRecord(
 }
 
 /**
- * 取得 key 集合恰好匹配 caller grammar 的闭合 plain record 外层浅快照。
+ * 取得字段集合恰好匹配调用方字段表的闭合普通记录外层浅快照。
  *
- * 输入必须是 Object/null-prototype 的 non-array object，所有 own key 都是 enumerable data property；
- * accessor、额外/缺失 key、非 enumerable key 和反射失败返回 `undefined`。返回 container 是冻结的浅
- * snapshot：只检查外层 shape，不检查嵌套值；callback、`undefined` 和嵌套 object/array 都会按原引用
- * 保留，不会被复制、冻结或 canonicalize，调用方仍须逐字段验证。`keys` 应是 caller-owned 的稳定 string
- * list。它不是 JSON validator。
+ * 输入必须是使用 `Object.prototype` 或 null prototype 的非数组对象，且每个自有属性都是可枚举数据属性。
+ * 调用方持有的 `keys` 必须是稳定、无重复的字符串列表；缺字段、多字段、symbol 键、存取器或不可枚举属性
+ * 均返回 `undefined`。成功结果是使用 `Object.prototype` 的冻结浅副本：只固定外层字段，保留 callback、
+ * `undefined` 与嵌套对象或数组的原引用，调用方仍须逐字段验证。这不是 JSON 验证器；不调用 getter，
+ * 但反射 Proxy 可能执行其 trap，反射失败时返回 `undefined`。
  */
 export function snapshotExactClosedRecord(
   value: unknown,
@@ -113,11 +113,12 @@ function closedArrayItems(shape: OwnDataShape, length: number): readonly unknown
 }
 
 /**
- * 取得标准 dense array 的外层浅快照。
+ * 取得标准无空洞数组的外层浅快照。
  *
- * array 必须使用 `Array.prototype`，且没有 sparse hole、额外 own key 或 accessor；失败返回 `undefined`。
- * 返回 array 是冻结的浅 snapshot：只检查外层 array，不检查 item；callback、`undefined` 和嵌套引用会
- * 保留，元素不会被复制、冻结或 canonicalize；它不是 JSON validator。
+ * 输入必须使用 `Array.prototype`，除标准 `length` 和可枚举索引外没有其它自有属性，也不能包含存取器；
+ * 稀疏数组、额外属性或其它不符合条件的输入返回 `undefined`。成功结果是冻结浅副本，只固定数组结构，
+ * 保留 callback、`undefined` 与嵌套值的原引用，不检查元素的业务类型或 JSON 合法性。不调用存取器，
+ * 但反射 Proxy 可能执行其 trap，反射失败时返回 `undefined`。
  */
 export function snapshotClosedArray(value: unknown): readonly unknown[] | undefined {
   try {

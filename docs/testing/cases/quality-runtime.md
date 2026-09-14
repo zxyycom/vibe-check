@@ -21,7 +21,7 @@ Entities:
 - The public parser type and runtime both reject thenable parser output. Only a complete envelope with matching identity, canonical object payload and synchronous caller parser is a hit. Missing, malformed, mismatched, parser-rejected or unreadable state computes exactly once; computed values pass the same detached canonical payload/parser boundary, while compute/parser failure never publishes an entry.
 - Publication uses same-directory unique temporary files and atomic rename. Only a deterministic `EEXIST` target conflict can reread a complete valid target as stored; ordinary filesystem failure preserves the accepted computed value with `write: "failed"`. Concurrent misses may duplicate compute but only leave a complete readable target without lock, single-flight or global cache state.
 
-## Case API-DATA-BOUNDARIES-001: Public data snapshots close only the outer untrusted shape
+## Case API-DATA-BOUNDARIES-001: Public data snapshots close only the outer structure
 
 Owner: `docs/guides/data-boundaries.md#闭合快照`
 Entities:
@@ -30,15 +30,25 @@ Entities:
 - `bun|src/data-boundary/closed-values.test.ts|public closed data snapshots > accepts only dense standard arrays and keeps items as shallow references`
   Proves:
 - `snapshotExactClosedRecord` accepts only the caller-declared exact own data-key set and rejects missing/extra fields, accessor authoring and contained reflection faults without evaluating an accessor.
-- `snapshotClosedArray` accepts only dense standard arrays without extra own fields or accessors. Both helpers close and freeze only the outer container: callback and `undefined` values, plus nested values, retain their original identity and mutability rather than being represented as detached canonical data.
+- `snapshotClosedArray` accepts only dense standard arrays without extra own fields or accessors. Both helpers freeze only the outer container: callbacks retain their identity, own properties and array elements containing `undefined` remain present, and nested objects retain their identity and mutability.
+
+## Case API-CANONICAL-JSON-001: Canonical JSON tools create independent data and deterministic representations
+
+Owner: `docs/guides/data-boundaries.md#canonical-json`
+Entities:
+
+- `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > emits detached deep-frozen canonical UTF-8 JSON for safe values`
+- `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > rejects accessors, sparse arrays, and reflection failures without invoking author hooks`
+  Proves:
+- Canonicalization creates detached, recursively frozen data with null-prototype objects; later mutations of input objects do not change the result.
+- Text and UTF-8 bytes use lexical key order, including numeric keys whose `JSON.stringify` order differs. A structurally typed `CanonicalJsonPrimitive` can hold `NaN`, but runtime normalization rejects it.
+- Accessors are rejected without executing their getters; sparse arrays, non-JSON values and throwing reflection traps fail normalization or serialization.
 
 ## Case WB-RUNTIME-CHECK-RECORD-001: Check and Record foundation is exact and closed
 
 Owner: `docs/development/check-results.md#check-and-record-facts`
 Entities:
 
-- `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > emits detached deep-frozen canonical UTF-8 JSON for safe values`
-- `bun|src/data-boundary/canonical-data.test.ts|check-record canonical data > rejects accessors, sparse arrays, and reflection failures without invoking author hooks`
 - `bun|src/check-settlement/facts.test.ts|check-record foundation model > accepts exactly one four-state terminal outcome for each Core Check`
 - `bun|src/check-settlement/facts.test.ts|check-record foundation model > validates an exact canonical two-entity snapshot with structural Record identity`
 - `bun|src/check-settlement/facts.test.ts|check-record foundation model > materializes canonical final and Record data without evaluating author properties`
@@ -48,7 +58,7 @@ Entities:
 - `bun|src/check-settlement/fact-validation.test.ts|check-record foundation runtime validation > rejects non-canonical final or Record data and invalid ownership`
   Proves:
 - Check definitions, final data, and Record data admit only closed canonical JSON facts; callback execution and reporter ownership stay outside the frozen snapshot.
-- Canonical data is detached, deep-frozen, and uses null-prototype objects; its fixed lexical text ordering remains distinct from `JSON.stringify` integer-index ordering. The structural `CanonicalJsonPrimitive` type can express `NaN`, but runtime materialization rejects non-finite number. Canonical bytes and detached data reject accessors, sparse arrays, and non-JSON values without evaluating author hooks; reflection faults, including a Proxy that throws from a reflection trap, fail materialization, while a Proxy trap may execute during reflection.
+- Accepted final and Record data are detached, deep-frozen, null-prototype facts; invalid data is rejected without evaluating accessors.
 - A Check-facts Check has exactly one closed `passed`, `failed`, `not-applicable`, or `unavailable` outcome, and a snapshot contains only canonical Checks and structural `(checkId, id)` Records.
 
 ## Case API-FINDING-WAIVER-RECONCILIATION-001: Public helper reconciles caller-defined finding identities

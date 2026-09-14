@@ -11,14 +11,15 @@ describe("public closed data snapshots", () => {
       { callback, kind: "bundle", missing: undefined, nested },
       ["callback", "kind", "missing", "nested"] as const
     );
+    assert.ok(exact !== undefined);
     assert.deepEqual(exact, { callback, kind: "bundle", missing: undefined, nested });
     assert.equal(Object.isFrozen(exact), true);
-    assert.equal(exact?.callback, callback);
-    assert.equal(Object.hasOwn(exact ?? {}, "missing"), true);
-    assert.equal(exact?.missing, undefined);
-    assert.equal(exact?.nested, nested);
+    assert.equal(exact.callback, callback);
+    assert.equal(Object.hasOwn(exact, "missing"), true);
+    assert.equal(exact.missing, undefined);
+    assert.equal(exact.nested, nested);
     nested.retained = false;
-    assert.deepEqual(exact?.nested, { retained: false });
+    assert.deepEqual(exact.nested, { retained: false });
 
     assert.equal(snapshotExactClosedRecord({ kind: "bundle" }, ["kind", "version"]), undefined);
     assert.equal(snapshotExactClosedRecord({ extra: true, kind: "bundle" }, ["kind"]), undefined);
@@ -50,12 +51,14 @@ describe("public closed data snapshots", () => {
     const callback = () => "retained";
     const nested = { retained: true };
     const snapshot = snapshotClosedArray([callback, undefined, nested]);
+    assert.ok(snapshot !== undefined);
     assert.equal(Object.isFrozen(snapshot), true);
-    assert.equal(snapshot?.[0], callback);
-    assert.equal(snapshot?.[1], undefined);
-    assert.equal(snapshot?.[2], nested);
+    assert.equal(snapshot[0], callback);
+    assert.equal(Object.hasOwn(snapshot, "1"), true);
+    assert.equal(snapshot[1], undefined);
+    assert.equal(snapshot[2], nested);
     nested.retained = false;
-    assert.deepEqual(snapshot?.[2], { retained: false });
+    assert.deepEqual(snapshot[2], { retained: false });
 
     const sparse: unknown[] = [];
     sparse.length = 2;
@@ -66,13 +69,16 @@ describe("public closed data snapshots", () => {
     Object.defineProperty(named, "other", { enumerable: true, value: true });
     assert.equal(snapshotClosedArray(named), undefined);
 
+    let accessorRead = false;
     const accessor = ["item"];
     Object.defineProperty(accessor, "0", {
       enumerable: true,
       get() {
-        throw new Error("must not run");
+        accessorRead = true;
+        return "must not run";
       }
     });
     assert.equal(snapshotClosedArray(accessor), undefined);
+    assert.equal(accessorRead, false);
   });
 });
