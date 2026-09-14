@@ -9,7 +9,7 @@
 - `checks` 与 `terminalEffects` 是有序 collection，`admissionPolicy` 是单一策略，resource capacities 是全局 mapping，output fields 还有 Definition default 与 invocation override 的既有边界；composer 需要按字段语义工作。
 - [`provide-learned-admission-through-public-strategy.md`](../../docs/decisions/provide-learned-admission-through-public-strategy.md) 已证明显式 import factory 可以通过普通公共 contract 启用可选功能。
 - [`narrow-project-gate-to-result-contribution.md`](../../docs/decisions/narrow-project-gate-to-result-contribution.md) 规定 adapter 从中央配置取得唯一 `resultContributor`，且该函数只能贡献消息。若多个功能配置参与 Gate 后处理，项目层 composer 必须先按自己的稳定顺序合成消息，再向 adapter 输出一个 contributor。
-- [`organize-project-extension-lifecycle`](../organize-project-extension-lifecycle/) 是设计前置，负责通过完整生命周期盘点确定可组合、独占和 root-owned 的扩展槽位及合法依赖表达。
+- [回调生命周期指南](../../docs/guides/callbacks.md) 已固定当前公开、内部及仅逻辑保留的位置；本设计只能组合其中已有的普通 contract，不得把逻辑保留位置预建为扩展槽位。
 
 ## Goals / Non-Goals
 

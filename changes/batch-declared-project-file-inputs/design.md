@@ -5,7 +5,7 @@
 ## Context
 
 - [`project-files.md`](../../docs/development/project-files.md) 当前拥有 source/include/exclude、候选枚举、exact membership 和 package Check 使用方式；跨 Check 尚无共同 invocation input view。
-- 前置 [`organize-project-extension-lifecycle`](../organize-project-extension-lifecycle/design.md) 固定的 Run 边界是 Definition/graph validation、invocation-wide flag selection、Scheduler admission 和 task-local `prepare` / `execute`。Definition validation 必须继续不执行 workspace I/O。
+- [Project Run owner](../../docs/development/project-run.md) 固定的 Run 边界是 Definition/graph validation、invocation-wide flag selection、Scheduler admission 和 task-local `prepare` / `execute`。Definition validation 必须继续不执行 workspace I/O。
 - [`batch-declared-project-file-inputs-at-invocation-boundary.md`](../../docs/decisions/batch-declared-project-file-inputs-at-invocation-boundary.md) 已确定未来方向：Check 自含声明，Product 在 effective selection 后批量准备路径输入。
 - [`keep-format-aware-check-capabilities-independent.md`](../../docs/decisions/keep-format-aware-check-capabilities-independent.md) 仍要求每项格式/风险能力独立拥有 eligibility、权限、解析、Finding 和结算。本 Change 只共享路径 selection/acquisition，不建立 generic scanner 或 Project-wide domain policy。
 - Project Gate 四项 repository-quality Check 当前共有 11 份 filesystem selection。合并候选取得会减少目录读取；`git-worktree` 场景才会直接减少重复 Git process。
