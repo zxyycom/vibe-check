@@ -32,7 +32,7 @@ describe("Package Run flag dependency selection", () => {
           {
             checkId: "provider",
             displayName: "Provider",
-            enabledByFlags: { flags: ["provider"], mode: "all" },
+            enabledByFlags: { when: "provider" },
             execute: () => {
               providerCalls += 1;
               return PASSED;
@@ -42,7 +42,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "root",
             displayName: "Root",
             dependsOn: ["provider"],
-            enabledByFlags: { flags: ["root"], mode: "all" },
+            enabledByFlags: { when: "root" },
             execute: () => {
               rootCalls += 1;
               return PASSED;
@@ -96,7 +96,7 @@ describe("Package Run flag dependency selection", () => {
           {
             checkId: "provider",
             displayName: "Provider",
-            enabledByFlags: { flags: ["provider"], mode: "all" },
+            enabledByFlags: { when: "provider" },
             prepare: (options) => ({ status: "success", preparedOptions: options }),
             execute: () => {
               providerCalls += 1;
@@ -107,7 +107,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "middle",
             displayName: "Middle",
             dependsOn: ["provider"],
-            enabledByFlags: { flags: ["middle"], mode: "all" },
+            enabledByFlags: { when: "middle" },
             execute: () => {
               middleCalls += 1;
               return PASSED;
@@ -116,7 +116,7 @@ describe("Package Run flag dependency selection", () => {
           {
             checkId: "observer",
             displayName: "Observer",
-            enabledByFlags: { flags: ["observer"], mode: "all" },
+            enabledByFlags: { when: "observer" },
             execute: () => {
               observerCalls += 1;
               return PASSED;
@@ -127,11 +127,7 @@ describe("Package Run flag dependency selection", () => {
             displayName: "Root one",
             dependsOn: ["middle"],
             observes: ["observer"],
-            enabledByFlags: {
-              flags: ["root-one"],
-              mode: "all",
-              propagateDependsOn: true
-            },
+            enabledByFlags: { when: "root-one", propagateDependsOn: true },
             execute: () => {
               rootOneCalls += 1;
               return PASSED;
@@ -141,11 +137,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "root-two",
             displayName: "Root two",
             dependsOn: ["middle"],
-            enabledByFlags: {
-              flags: ["root-two"],
-              mode: "all",
-              propagateDependsOn: true
-            },
+            enabledByFlags: { when: "root-two", propagateDependsOn: true },
             execute: () => {
               rootTwoCalls += 1;
               return PASSED;
@@ -190,7 +182,7 @@ describe("Package Run flag dependency selection", () => {
           {
             checkId: "provider",
             displayName: "Provider",
-            enabledByFlags: { flags: ["provider"], mode: "all" },
+            enabledByFlags: { when: "provider" },
             execute: () => {
               providerCalls += 1;
               return PASSED;
@@ -200,7 +192,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "middle",
             displayName: "Middle",
             dependsOn: ["provider"],
-            enabledByFlags: { flags: ["middle"], mode: "all" },
+            enabledByFlags: { when: "middle" },
             execute: () => {
               middleCalls += 1;
               return PASSED;
@@ -210,11 +202,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "root",
             displayName: "Root",
             dependsOn: ["middle"],
-            enabledByFlags: {
-              flags: ["root"],
-              mode: "all",
-              propagateDependsOn: true
-            },
+            enabledByFlags: { when: "root", propagateDependsOn: true },
             execute: () => {
               rootCalls += 1;
               return PASSED;
@@ -248,7 +236,7 @@ describe("Package Run flag dependency selection", () => {
         {
           checkId: "provider",
           displayName: "Provider",
-          enabledByFlags: { flags: ["provider"], mode: "all" },
+          enabledByFlags: { when: "provider" },
           execute: () => {
             calls += 1;
             return PASSED;
@@ -258,11 +246,7 @@ describe("Package Run flag dependency selection", () => {
           checkId: "root",
           displayName: "Root",
           dependsOn: ["provider"],
-          enabledByFlags: {
-            flags: ["root"],
-            mode: "all",
-            propagateDependsOn: true
-          },
+          enabledByFlags: { when: "root", propagateDependsOn: true },
           execute: () => {
             calls += 1;
             return PASSED;

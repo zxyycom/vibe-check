@@ -28,7 +28,7 @@ describe("Package Run project changes", () => {
             {
               checkId: "change-aware",
               displayName: "Change aware",
-              enabledByFlags: { when: { flag: RUNTIME_CHANGE_FLAG, kind: "flag" } },
+              enabledByFlags: { when: RUNTIME_CHANGE_FLAG },
               prepare: (options, _signal, project) => {
                 preparedProject = project;
                 return { preparedOptions: options, status: "success" };
@@ -49,7 +49,7 @@ describe("Package Run project changes", () => {
       assert.equal(result.kind, "completed");
       if (result.kind === "completed") assert.equal(result.aggregate, "passed");
       assert.equal(preparedProject, executedProject);
-      assert.deepEqual(executedProject?.flags, ["caller"]);
+      assert.deepEqual(executedProject?.flags, ["caller", RUNTIME_CHANGE_FLAG]);
       assert.equal(Object.isFrozen(executedProject?.flags), true);
       assert.equal(Object.isFrozen(executedProject?.changes), true);
       assert.deepEqual(executedProject?.changes, {
@@ -72,7 +72,7 @@ describe("Package Run project changes", () => {
       defineConfig({
         changes: {
           flags: { runtime: { exclude: [], include: ["src/**"] } },
-          source: { compareWith: "--output=unexpected", kind: "git" }
+          source: { compareWith: "--output=unexpected" }
         },
         checks: [
           {
@@ -115,7 +115,7 @@ describe("Package Run project changes", () => {
             {
               checkId: "change-aware",
               displayName: "Change aware",
-              enabledByFlags: { when: { flag: RUNTIME_CHANGE_FLAG, kind: "flag" } },
+              enabledByFlags: { when: RUNTIME_CHANGE_FLAG },
               execute: ({ project }) => {
                 observed = project;
                 return { data: {}, status: "passed" };
@@ -128,7 +128,7 @@ describe("Package Run project changes", () => {
       );
 
       assert.equal(result.kind, "completed");
-      assert.deepEqual(observed?.flags, []);
+      assert.deepEqual(observed?.flags, [RUNTIME_CHANGE_FLAG]);
       assert.deepEqual(observed?.changes, {
         ok: false,
         reason: { code: GIT_CHANGES_UNAVAILABLE_CODE }
@@ -145,7 +145,7 @@ function runtimeChanges() {
     flags: {
       runtime: { exclude: [], include: ["src/**"] }
     },
-    source: { compareWith: "HEAD~1", kind: "git" as const }
+    source: { compareWith: "HEAD~1" }
   };
 }
 

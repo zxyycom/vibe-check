@@ -81,7 +81,7 @@ fingerprint 使用 normalized declarative fields；preparation、execution 与 c
 
 `changes` 由 Project Definition 声明一个 Git comparison 和一个或多个 project-relative、exclude-first glob region。effective `projectRoot` 可以是 repository 内的嵌套目录；Git candidates 与 region path 都相对这个 root。每个命中的文件会产生对应 `vibe-check:change:<id>` flag；一个文件可命中多个 region。成功 evidence 按 path 和 flag 稳定排序，只有命中至少一个 region 的文件出现。可信零命中是 `{ ok: true, files: [] }`；Git revision、repository 或 path 不能形成可信结果时为 `{ ok: false, reason }`，不带 `files`，但 selection 会保守启用所有声明 flag。
 
-调用方 controls 只能提供自己的普通 flags，不能传入 `vibe-check:change:` prefix。`project.flags` 保留规范化后的 caller flags；同一 immutable `project.changes` 同时交给 `prepare` 和 `execute`。不配置 `changes` 时 Product 不获取 Git、callback 也没有 `project.changes`，既有 caller-flag selection 保持不变。这份 evidence 只说明本次 Git acquisition，不是环境、权限或 patch-content capability。
+调用方 controls 只能提供自己的普通 flags，不能传入 `vibe-check:change:` prefix。change preparation 后，caller 与 derived flags 去重、排序并冻结为同一 effective set；它同时驱动 selection，并作为 `project.flags` 交给 `prepare` 和 `execute`。同一 immutable `project.changes` 继续单独提供文件或 unavailable evidence。不配置 `changes` 时 Product 不获取 Git、callback 也没有 `project.changes`，`project.flags` 仍是 caller flags。这份 evidence 只说明本次 Git acquisition，不是环境、权限或 patch-content capability。
 
 ```ts
 import { changeFlag, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
@@ -99,6 +99,7 @@ const sourceChanged = defineCheck({
       status: "passed",
       data: {
         evidence: changes.ok ? "matched" : "unavailable-conservative",
+        effectiveFlags: project.flags,
         matchedPaths: changes.ok ? changes.files.map(({ path }) => path) : []
       }
     };
@@ -107,7 +108,8 @@ const sourceChanged = defineCheck({
 
 const definition = defineConfig({
   changes: {
-    source: { kind: "git", compareWith: "origin/main" },
+    // The sole source field is the Git comparison revision; there is no source kind.
+    source: { compareWith: "origin/main" },
     flags: {
       source: { include: ["src/**"], exclude: ["src/generated/**"] }
     }

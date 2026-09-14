@@ -76,13 +76,13 @@ export default defineConfig({
 
 公开 authoring grammar、递归 predicate、传递选择和用户边界由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)定义。本节只拥有将其转换为 invocation 输入的实现不变量：
 
-- validator 仅在 executable 节点接受 closed `enabledByFlags`，并在递归每层将非空字符串 atom 规范化为 `{ kind: "flag", flag }`；它拒绝 container、空/sparse child 列表、空 token、非法 kind/mode、非 literal-true propagation 和 unknown fields。递归树最多 16 层、256 个节点；超过任一界限在 author work 前失败。
-- legacy `{ flags, mode }` 先复制、去重、按文本排序并降级为同型 `{ when }`；builder output 与 raw AST 都复制并冻结每个节点，保留每个 set node 的 child 顺序和 multiplicity，不作交换、结合或去重。authoring form 不形成第二 identity：`when: "a"`、等价 raw flag node 与包含该 atom 的 builder output 都进入同一 object-only canonical AST；因而 `exactlyOne("a", "a")` 与等价 raw AST 都仍有两个 true child。只有规范化后结构完全相同的 input（包括降级后的 legacy）共享 canonical identity。
+- validator 仅在 executable 节点接受 closed `{ when, propagateDependsOn? }` `enabledByFlags`。`when` 的非空字符串是唯一 leaf，set/unary operator 递归形成同一 AST；它拒绝 container、空/sparse child 列表、空 token、非法 kind、非 literal-true propagation 和 unknown fields。递归树最多 16 层、256 个节点；超过任一界限在 author work 前失败。
+- builder output 与 raw AST 都复制并冻结每个节点，保留每个 set node 的 child 顺序和 multiplicity，不作交换、结合或去重。builder 已返回正式 AST，Definition 不转换 leaf；因而 `exactlyOne("a", "a")` 与等价 raw AST 都仍有两个 true child，且只有结构完全相同的 frozen AST 共享 canonical identity/fingerprint。
 - normalized `{ when, propagateDependsOn? }` 进入 declarative snapshot/fingerprint；省略 propagation 与显式 opt-in 保持可区分，不能在 normalization 时隐式开启传播。
 - Run 在任何 control settlement 或 author work 前验证完整 executable graph，再计算唯一 private effective selection。matching opt-in roots 的 normalized dependsOn closure 取去重并集，以 canonical Check order 消费；不读取 observes，也不再次验证或运行 provider。
 - effective selection 同时供 flag settlement 与 effective aggregation 消费；未匹配且不在 selection 中的 Check 才结算为 flag-condition-not-matched。被激活的 dependency 保留普通 pending/admission 路径，all-passed prerequisite 仍由 Scheduler 重检。
 - cancellation precedence 在 flag control 之前，不把 cancelled Task 伪造成 flag miss；pre-admission result 留在同一 graph、dependency readback 和终态 snapshot 中，没有 started fact，duration 为 null。
-- selection 保持 invocation-private，不投影新的 ID list、callback capability 或 machine/diagnostic telemetry。callback 仍读取完整 canonical project.flags；人读压缩由[输出指南](../guides/run-outputs.md#progress-rendering)定义。
+- selection 保持 invocation-private，不投影新的 ID list、callback capability 或 machine/diagnostic telemetry。callback 只读取同一完整 canonical effective `project.flags`，而不是 selection 的成员表；人读压缩由[输出指南](../guides/run-outputs.md#progress-rendering)定义。
 
 ### Project changes
 
@@ -90,14 +90,14 @@ export default defineConfig({
 
 ```ts
 {
-  source: { kind: "git", compareWith: "origin/main" },
+  source: { compareWith: "origin/main" },
   flags: {
     "product-runtime": { include: ["src/**"], exclude: [] }
   }
 }
 ```
 
-`source` 只能是带非空、无 U+0000 且不以 `-` 开头的 `compareWith` 的 Git source；`flags` 必须是至少一个非空 ID 到 exact
+`source` 是 closed Git comparison object，且只能含带非空、无 U+0000、不以 `-` 开头的 `compareWith`；它没有 `kind` 或 provider discriminator。`flags` 必须是至少一个非空 ID 到 exact
 `{ include, exclude }` region 的映射。两个 glob 数组都必须 dense 且每项为非空字符串；其
 project-root-relative slash-path、dot path 和 exclude-first 匹配语义由[文件选择](../guides/collecting-project-files.md#共享的-files-选择语义)拥有，Definition 不读取 Git 或自行枚举文件。
 

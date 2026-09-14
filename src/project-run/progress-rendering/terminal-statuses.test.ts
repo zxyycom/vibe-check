@@ -37,7 +37,7 @@ function checkDisabledByMissingFlag(
   return check({
     checkId: input.checkId,
     displayName: input.displayName,
-    enabledByFlags: { flags: [input.flag], mode: "all" },
+    enabledByFlags: { when: input.flag },
     execute: () => {
       input.onUnexpectedExecution();
       return { status: "passed", data: {} };
@@ -153,7 +153,7 @@ describe("Package Run progress terminal statuses", () => {
         check({
           checkId: "provider",
           displayName: "Provider",
-          enabledByFlags: { flags: ["provider"], mode: "all" },
+          enabledByFlags: { when: "provider" },
           execute: () => {
             providerCalls += 1;
             return { status: "passed", data: {} };
@@ -163,7 +163,7 @@ describe("Package Run progress terminal statuses", () => {
           checkId: "root",
           displayName: "Root",
           dependsOn: ["provider"],
-          enabledByFlags: { flags: ["root"], mode: "all", propagateDependsOn: true },
+          enabledByFlags: { when: "root", propagateDependsOn: true },
           execute: () => {
             rootCalls += 1;
             return { status: "passed", data: {} };
@@ -172,7 +172,7 @@ describe("Package Run progress terminal statuses", () => {
         check({
           checkId: "deferred",
           displayName: "Deferred",
-          enabledByFlags: { flags: ["deferred"], mode: "all" },
+          enabledByFlags: { when: "deferred" },
           execute: () => {
             deferredCalls += 1;
             return { status: "passed", data: {} };

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdtempSync, renameSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -15,7 +16,7 @@ const changes: ProjectChangesConfiguration = {
     source: { exclude: ["src/generated/**"], include: ["src/**/*.ts"] },
     unmatched: { exclude: [], include: ["never/**"] }
   },
-  source: { compareWith: "HEAD~1", kind: "git" }
+  source: { compareWith: "HEAD~1" }
 };
 
 describe("Project Run Git changes", () => {
@@ -58,6 +59,21 @@ describe("Project Run Git changes", () => {
       ]);
       assert(prepared.projectChanges.files.every((entry) => Object.isFrozen(entry)));
       assert(prepared.projectChanges.files.every((entry) => Object.isFrozen(entry.flags)));
+
+      const baseline = gitText(repository, ["rev-parse", "HEAD"]);
+      git(repository, ["branch", "comparison-base", baseline]);
+      git(repository, ["tag", "comparison-tag", baseline]);
+      for (const compareWith of ["comparison-base", baseline, "HEAD~1", "comparison-tag"]) {
+        const revisionPrepared = prepareProjectChanges({
+          callerFlags: [],
+          changes: {
+            flags: { source: { exclude: [], include: ["src/**"] } },
+            source: { compareWith }
+          },
+          projectRoot: repository
+        });
+        assert.equal(revisionPrepared.projectChanges.ok, true);
+      }
     } finally {
       rmSync(repository, { force: true, recursive: true });
     }
@@ -98,7 +114,7 @@ describe("Project Run Git changes", () => {
         callerFlags: ["caller"],
         changes: {
           flags: { source: { exclude: [], include: ["src/**"] } },
-          source: { compareWith: "HEAD~1", kind: "git" }
+          source: { compareWith: "HEAD~1" }
         },
         projectRoot: repository
       });
@@ -122,7 +138,7 @@ describe("Project Run Git changes", () => {
         callerFlags: ["caller"],
         changes: {
           flags: { all: { exclude: ["src/generated/**"], include: ["**/*"] } },
-          source: { compareWith: "HEAD", kind: "git" }
+          source: { compareWith: "HEAD" }
         },
         projectRoot: repository
       });
@@ -159,7 +175,7 @@ describe("Project Run Git changes", () => {
         callerFlags: [],
         changes: {
           flags: { all: { exclude: [], include: ["**/*"] } },
-          source: { compareWith: "HEAD~1", kind: "git" }
+          source: { compareWith: "HEAD~1" }
         },
         projectRoot
       });
@@ -218,4 +234,10 @@ function nestedRepositoryFixture(): string {
   write(repository, "docs/unchanged.md", "# unchanged\n");
   commit(repository, "nested baseline");
   return repository;
+}
+
+function gitText(repository: string, args: readonly string[]): string {
+  const result = spawnSync("git", args, { cwd: repository, encoding: "utf8" });
+  assert.equal(result.status, 0, `git ${args.join(" ")} failed: ${result.stderr}`);
+  return result.stdout.trim();
 }

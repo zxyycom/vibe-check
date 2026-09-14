@@ -39,7 +39,7 @@ relations:
 
 ## 决策
 
-- 采用: `enabledByFlags` 增加仅可显式填写为 `true` 的 `propagateDependsOn` authoring opt-in；省略保持 `false`，不提供冗余 `false`、RunControls propagation 开关、第二套 predicate 或 token vocabulary。该字段和已有 flags/mode 一起是 canonical declarative identity。它属于 executable Check：作者以同一处声明 direct flag root 及其依赖启动意图，普通 caller 只传 flags。
+- 采用: `enabledByFlags` 增加仅可显式填写为 `true` 的 `propagateDependsOn` authoring opt-in；省略保持 `false`，不提供冗余 `false`、RunControls propagation 开关、第二套 predicate 或 token vocabulary。该字段和 `when` condition 一起是 canonical declarative identity。它属于 executable Check：作者以同一处声明 direct flag root 及其依赖启动意图，普通 caller 只传 flags。
 - 采用: 在完整静态图通过后，Run 只构造一次私有 effective selection。没有 `enabledByFlags` 的 executable Check 与 predicate 匹配的 flag Check 直接选中；每个 predicate 匹配且 `propagateDependsOn: true` 的 flag root 还加入其 normalized `dependsOn` 传递闭包。多个 roots 的结果取去重并集，使用既有 canonical Check order；`observes` 永不进入闭包。若 invocation 在 control 前已经取消，该私有集合不产生 flag-control settlement、aggregate 或公共输出。
 - 采用: 被闭包加入的 dependency 即使自己的 `enabledByFlags` predicate 未匹配，也作为 dependency-activated Check 保留在 effective selection，并继续其普通 Scheduler、preflight、execution 和 all-passed prerequisite 语义。只有不在 effective selection 的 predicate 未匹配 Check 才形成既有 `not-applicable / flag-condition-not-matched`；未声明 `enabledByFlags` 的 Check 不因本能力失去默认直接选择。静态 graph 无效时仍在 selection 前失败，故不创建 dynamic cycle 处理、图改写或 author work。
 - 采用: `checkAggregation.checks` 在保留 `"all"` 与显式 canonical ID list 原语和默认 `aggregate: null` 的同时，增加显式 `"effective"` selector。它只消费同一次 private effective selection 的 settled statuses；空集合仍由现有 `empty` policy 结算。Product 不公开 resolver、effective ID list、第二 selection DSL 或 caller-local callback，显式 ID/all 行为及其 validation 不变。

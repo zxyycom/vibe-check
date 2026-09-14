@@ -231,6 +231,20 @@ const builderConditionCheck = defineCheck({
   },
   execute: () => ({ status: "passed", data: {} })
 });
+const rawConditionCheck = defineCheck({
+  checkId: "installed-raw-condition",
+  displayName: "Installed raw condition",
+  enabledByFlags: {
+    when: {
+      kind: "any",
+      conditions: [
+        { kind: "all", conditions: ["builder:all", "builder:nested"] },
+        { kind: "not", condition: "builder:disabled" }
+      ]
+    }
+  },
+  execute: () => ({ status: "passed", data: {} })
+});
 
 const result = await run(
   defineConfig({
@@ -264,6 +278,7 @@ const result = await run(
       secondChangedFilesConsumer,
       blockedChangedFilesConsumer,
       builderConditionCheck,
+      rawConditionCheck,
       terminalNote
     ],
     outputs: {
@@ -332,6 +347,10 @@ const builderConditionCheckResult =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === builderConditionCheck.checkId)
     : undefined;
+const rawConditionCheckResult =
+  result.kind === "completed"
+    ? result.snapshot.checks.find((check) => check.checkId === rawConditionCheck.checkId)
+    : undefined;
 
 function settledFinalData(check) {
   if (check?.outcome.status !== "passed" && check?.outcome.status !== "failed") return null;
@@ -348,6 +367,7 @@ process.stdout.write(
       secondCacheRead: cacheEvidence.secondRead,
       blockedChangedFilesConsumer: blockedConsumerCheck?.outcome ?? null,
       builderConditionOutcome: builderConditionCheckResult?.outcome.status ?? null,
+      rawConditionOutcome: rawConditionCheckResult?.outcome.status ?? null,
       blockedChangedFilesConsumerCalls,
       changedFilesCalls,
       changedFilesFromMachine: parsedChangedFilesFromMachine,

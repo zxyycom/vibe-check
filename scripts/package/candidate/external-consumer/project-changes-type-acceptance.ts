@@ -16,14 +16,27 @@ const sourceChanges: ProjectChangesConfiguration = {
       include: ["src/**"]
     } satisfies ProjectChangeFlagRegion
   },
-  source: { compareWith: "origin/main", kind: "git" } satisfies ProjectChangeSource
+  source: { compareWith: "origin/main" } satisfies ProjectChangeSource
 };
 const changeEvidence: ProjectChanges = { ok: true, files: [] };
 const sourceChangeFlag: "vibe-check:change:source" = changeFlag("source");
-const changeCondition: CheckFlagConditionInput = any(
+const changeCondition: CheckFlagCondition = any(
   all("caller-requested", sourceChangeFlag),
   none(notAll("maintenance", not("force")), exactlyOne("fast-path", "slow-path"))
 );
+const rawChangeCondition: CheckFlagCondition = {
+  kind: "any",
+  conditions: [
+    { kind: "all", conditions: ["caller-requested", sourceChangeFlag] },
+    {
+      kind: "none",
+      conditions: [
+        { kind: "not-all", conditions: ["maintenance", { kind: "not", condition: "force" }] },
+        { kind: "exactly-one", conditions: ["fast-path", "slow-path"] }
+      ]
+    }
+  ]
+};
 const changeAwareCheck = defineCheck({
   checkId: "isolated-change-aware",
   displayName: "Isolated change aware",
@@ -48,5 +61,5 @@ const changeAwareDefinition = defineConfig({
   changes: sourceChanges,
   checks: [changeAwareCheck]
 });
-void [changeAwareDefinition, changeEvidence];
+void [changeAwareDefinition, changeEvidence, rawChangeCondition];
 `;

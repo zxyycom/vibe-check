@@ -14,6 +14,7 @@ const sourceChanged = defineCheck({
       status: "passed",
       data: {
         evidence: changes.ok ? "matched" : "unavailable-conservative",
+        effectiveFlags: project.flags,
         matchedPaths: changes.ok ? changes.files.map(({ path }) => path) : []
       }
     };
@@ -22,7 +23,8 @@ const sourceChanged = defineCheck({
 
 const definition = defineConfig({
   changes: {
-    source: { kind: "git", compareWith: "origin/main" },
+    // The sole source field is the Git comparison revision; there is no source kind.
+    source: { compareWith: "origin/main" },
     flags: {
       source: { include: ["src/**"], exclude: ["src/generated/**"] }
     }

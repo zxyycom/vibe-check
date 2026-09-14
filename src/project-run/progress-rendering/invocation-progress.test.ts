@@ -35,7 +35,7 @@ describe("Package Run progress rendering outputs", () => {
             check({ checkId: "executed" }),
             check({
               checkId: "not-run",
-              enabledByFlags: { flags: ["selected"], mode: "all" }
+              enabledByFlags: { when: "selected" }
             })
           ],
           true

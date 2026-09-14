@@ -148,7 +148,6 @@ export type {
   CheckExecutionContext,
   CheckFlagCondition,
   CheckFlagEnablement,
-  CheckFlagEnablementMode,
   CheckPreparation,
   CheckPreparationResult,
   CheckProjectContext,
@@ -159,7 +158,6 @@ export type {
   CheckUnavailableReason,
   InheritableCheckCollection
 } from "./check/check.ts";
-export type { CheckFlagConditionInput } from "./check/flag-enablement.ts";
 export { defineAdmissionPolicy } from "./package-tools/admission-policy/define-admission-policy.ts";
 export { defineConfig } from "./project-definition/project-definition.ts";
 export { createLearnedCriticalPathStrategy } from "./package-tools/learned-critical-path/strategy.ts";

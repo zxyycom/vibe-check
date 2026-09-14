@@ -6,7 +6,6 @@ import {
 
 /** Project 自有的 Git comparison，用于为一次 Run 推导 change flags。 */
 export interface ProjectChangeSource {
-  readonly kind: "git";
   /** 作为 comparison base 的 Git revision。 */
   readonly compareWith: string;
 }
@@ -42,13 +41,12 @@ function parseSource(value: unknown): ProjectChangeSource | undefined {
   const source = snapshotClosedRecord(value);
   if (
     source === undefined ||
-    !hasExactPlainRecordKeys(source, ["compareWith", "kind"]) ||
-    source.kind !== "git" ||
+    !hasExactPlainRecordKeys(source, ["compareWith"]) ||
     !isGitComparisonRevision(source.compareWith)
   ) {
     return undefined;
   }
-  return Object.freeze({ compareWith: source.compareWith, kind: "git" });
+  return Object.freeze({ compareWith: source.compareWith });
 }
 
 function parseFlags(value: unknown): Readonly<Record<string, ProjectChangeFlagRegion>> | undefined {

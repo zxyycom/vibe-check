@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import { defineConfig } from "../../project-definition/project-definition.ts";
-import type { Check, CheckFlagEnablementMode, CheckOutcome } from "../../check/check.ts";
+import type { Check, CheckOutcome } from "../../check/check.ts";
 import { run } from "../run.ts";
 
 const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}) });
@@ -26,7 +26,7 @@ function requireCompletedRun(result: Awaited<ReturnType<typeof run>>) {
 
 async function assertFlagEnablementMode(
   input: Readonly<{
-    readonly mode: CheckFlagEnablementMode;
+    readonly mode: "all" | "any" | "none" | "not-all";
     readonly matchingFlags: readonly string[];
     readonly nonmatchingFlags: readonly string[];
   }>
@@ -41,7 +41,7 @@ async function assertFlagEnablementMode(
     {
       checkId: "flag-controlled",
       displayName: "Flag-controlled",
-      enabledByFlags: { flags: CONTROL_FLAGS, mode: input.mode },
+      enabledByFlags: { when: conditionForMode(input.mode, CONTROL_FLAGS) },
       prepare: (options) => {
         preparationCalls += 1;
         return { status: "success", preparedOptions: options };
@@ -105,6 +105,13 @@ async function assertFlagEnablementMode(
       reason: { code: "dependency-not-passed", checkIds: ["flag-controlled"] }
     }
   );
+}
+
+function conditionForMode(
+  kind: "all" | "any" | "none" | "not-all",
+  conditions: readonly [string, ...string[]]
+): NonNullable<Check["enabledByFlags"]>["when"] {
+  return { kind, conditions };
 }
 
 describe("Package Run flags", () => {

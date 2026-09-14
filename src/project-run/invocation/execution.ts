@@ -15,6 +15,8 @@ import { cancelledBeforeExecution, executionResult } from "./candidates.ts";
 import type { Invocation } from "./run.ts";
 import { executeScheduler, type SchedulerExecution } from "./scheduler.ts";
 
+const EMPTY_EFFECTIVE_FLAGS: readonly string[] = Object.freeze([]);
+
 /** Executes the post-validation invocation phases, from change preparation through Scheduler completion. */
 export async function executePlannedInvocation(
   invocation: Invocation,
@@ -29,22 +31,22 @@ export async function executePlannedInvocation(
           changes: invocation.normalized.changes,
           projectRoot: invocation.paths.projectRoot
         });
+  const effectiveFlags =
+    preparedChanges?.effectiveFlags ?? invocation.controls.flags ?? EMPTY_EFFECTIVE_FLAGS;
   return executePreparedInvocation(
     invocation,
     aggregation,
     createProjectContext({
       ...(preparedChanges === undefined ? {} : { changes: preparedChanges.projectChanges }),
-      controls: invocation.controls,
+      flags: effectiveFlags,
       paths: invocation.paths
-    }),
-    preparedChanges?.effectiveFlags ?? invocation.controls.flags ?? []
+    })
   );
 }
 async function executePreparedInvocation(
   invocation: Invocation,
   aggregation: CheckAggregation | undefined,
-  project: CheckProjectContext,
-  effectiveFlags: readonly string[]
+  project: CheckProjectContext
 ): Promise<NonConfigurationRunResult> {
   if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "planning");
   let preparedStrategy: PreparedAdmissionStrategy;
@@ -64,12 +66,7 @@ async function executePreparedInvocation(
     invocation.normalized.checks.filter((check) => check.omitQuietPassedRow).length
   );
   const executionStartedAt = invocation.clock.now();
-  const executed = await executeScheduler({
-    effectiveFlags,
-    invocation,
-    preparedStrategy,
-    project
-  });
+  const executed = await executeScheduler({ invocation, preparedStrategy, project });
   if (isExecutionRunResult(executed)) return executed;
   await completeAdmissionStrategyAfterTerminalMeasurement(
     preparedStrategy,

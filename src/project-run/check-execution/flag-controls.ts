@@ -126,9 +126,8 @@ function matchesFlagCondition(
   condition: CheckFlagCondition,
   runFlags: ReadonlySet<string>
 ): boolean {
+  if (typeof condition === "string") return runFlags.has(condition);
   switch (condition.kind) {
-    case "flag":
-      return runFlags.has(condition.flag);
     case "all":
       return condition.conditions.every((child) => matchesFlagCondition(child, runFlags));
     case "any":

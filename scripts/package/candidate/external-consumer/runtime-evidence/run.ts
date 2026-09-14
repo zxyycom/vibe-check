@@ -144,6 +144,7 @@ function projectCandidateFixtureEvidence(
     blockedChangedFilesConsumer: evidence.blockedChangedFilesConsumer,
     blockedChangedFilesConsumerCalls: evidence.blockedChangedFilesConsumerCalls,
     builderConditionOutcome: evidence.builderConditionOutcome,
+    rawConditionOutcome: evidence.rawConditionOutcome,
     firstCacheRead: evidence.firstCacheRead,
     secondCacheRead: evidence.secondCacheRead,
     changedFilesFromMachine: evidence.changedFilesFromMachine,

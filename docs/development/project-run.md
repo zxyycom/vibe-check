@@ -25,7 +25,7 @@ Definition validation、normalization 与 fingerprint 实现由 [Project Definit
 
 Run 先验证 Definition 和 closed Controls，再生成 invocation-private inputs。公开字段归属见[参数位置](../api-mechanics.md#参数应该放在哪里)：唯一重叠是 Definition output defaults 被当前 Controls 逐字段覆盖，不是对象 merge，也不能借 Controls 改写 Checks 或 scheduler。
 
-flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。caller 不得提供 `vibe-check:change:` 保留前缀；它在任何 author work 前同样形成 closed Controls failure。Product 只解释声明的 presence predicates，不定义其它 token vocabulary；完整 canonical caller flags 继续交给 callback project context。
+caller flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。caller 不得提供 `vibe-check:change:` 保留前缀；它在任何 author work 前同样形成 closed Controls failure。配置 changes 后，Product 以 `caller flags ∪ derived change flags` 规范化出唯一 frozen effective flags：这个集合同时供 flag selection 和 callback `project.flags` 使用。Product 只解释其声明的 presence predicates，不定义其它 token vocabulary。
 
 `checkAggregation` 没有默认值，是唯一的多 Check aggregation 输入：
 
@@ -46,6 +46,7 @@ Run 在 work 前拒绝 unknown、duplicate 或 non-normalized ID-list selection�
 | Fact                                                                     | Authoring authority                                                     | Frozen invocation projection                                                              | Check callback visibility                                              |
 | ------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
 | project root                                                             | `RunControls.projectRoot`，省略时为 Product current working directory   | absolute effective root                                                                   | `project.root`                                                         |
+| project flags                                                            | caller `RunControls.flags`，以及配置 changes 后的 Product-derived flags | 去重、排序、冻结的唯一 effective set；未配置 changes 时等于 canonical caller flags           | `project.flags`                                                        |
 | project changes                                                          | Definition 的可选 `changes`                                             | 冻结的成功 file evidence 或 unavailable reason；不配置时不运行 Git             | 配置时的 `project.changes`；prepare 与 execute 见同一 context identity |
 | Check artifact base                                                      | 仅 `RunControls.checkArtifactBaseDirectory`                             | absolute base 或 `null`，不进入 Definition fingerprint                                    | 当前 Check 的 `artifactDirectory` 或 `null`                            |
 | Gate exact Check base                                                    | Gate 选择 exact absolute `<invocation>/checks/` 后作为同一 control 传入 | Product 直接使用该 base，不创建另一层 invocation directory                                | 当前 Check 仍只见自己的 directory                                      |
@@ -64,7 +65,7 @@ messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，
 
 ## Check 执行与依赖交接
 
-Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；配置的 changes preparation 先把 caller 与 derived flags 合成为 selector 的私有输入，`project.flags` 不混入 derived flags。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution。独立 ready preparation 可并行，不能形成全局 barrier；每项 `prepare(options, signal, project)` 和后续 execute 接收同一个冻结 project context。路径与 callback capability 由[本次调用](#invocation-and-results)投影，preparation snapshot 与 flag selection 见[Project Definition](project-definition.md)。
+Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；配置的 changes preparation 先把 caller 与 derived flags 合成为唯一 frozen effective input。该集合同时驱动 selector，并作为 `project.flags` 交给 `prepare` 与 `execute`；`project.changes` 继续单独提供文件或 unavailable evidence。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution。独立 ready preparation 可并行，不能形成全局 barrier；每项 `prepare(options, signal, project)` 和后续 execute 接收同一个冻结 project context。路径与 callback capability 由[本次调用](#invocation-and-results)投影，preparation snapshot 与 flag selection 见[Project Definition](project-definition.md)。
 
 Scheduler 是 Run-private child，使用共同 immutable admission reducer 维护 graph、relations、mutex、root/scoped/named capacity、cancellation 与 settlement；real shell 独占真实 Task/Promise 和 effects。policy 只交回决定，不获得执行权限。reducer、simulation、hard guards、measurement 与 terminal handoff 由[Scheduler 实现](scheduler.md)完整拥有。
 

@@ -19,7 +19,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
     {
       checkId: "deferred",
       displayName: "Deferred",
-      enabledByFlags: { flags: ["deferred"], mode: "all" },
+      enabledByFlags: { when: "deferred" },
       execute: () => {
         calls.push("deferred");
         return PASSED;
@@ -28,7 +28,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
     {
       checkId: "provider",
       displayName: "Provider",
-      enabledByFlags: { flags: ["provider"], mode: "all" },
+      enabledByFlags: { when: "provider" },
       execute: () => {
         calls.push("provider");
         return PASSED;
@@ -38,7 +38,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
       checkId: "root",
       displayName: "Root",
       dependsOn: ["provider"],
-      enabledByFlags: { flags: ["root"], mode: "all", propagateDependsOn: true },
+      enabledByFlags: { when: "root", propagateDependsOn: true },
       execute: () => {
         calls.push("root");
         return PASSED;
@@ -75,7 +75,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
       {
         checkId: "deferred",
         displayName: "Deferred",
-        enabledByFlags: { flags: ["deferred"], mode: "all" },
+        enabledByFlags: { when: "deferred" },
         execute: () => PASSED
       }
     ]),

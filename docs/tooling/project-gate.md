@@ -89,7 +89,7 @@ selection 参数只包含 `--typecheck`、`--lint`、`--test`、`--docs`、`--qu
 
 #### 依赖选择与关系闭合
 
-entry manifest 为每项 Check 投影 Product 原生 `enabledByFlags`，并以 literal `propagateDependsOn: true` 允许命中的下游 Check 启动其 `dependsOn` prerequisite。未选中的 Check 仍保留 `not-applicable / flag-condition-not-matched` fact；被启动的 prerequisite 走普通 Product lifecycle。该 field 的公开 grammar、默认选择与“flags 不是权限”边界由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；内部 validation/normalization 见 [Project Definition](../development/project-definition.md#flag-enabled-checks)。
+entry manifest 为每项 Check 投影 Product 原生 `{ when, propagateDependsOn? }` `enabledByFlags`，并以 literal `propagateDependsOn: true` 允许命中的下游 Check 启动其 `dependsOn` prerequisite。Gate 使用与公开 authoring 相同的 string-leaf AST，不建立 shorthand 或第二种 selector。未选中的 Check 仍保留 `not-applicable / flag-condition-not-matched` fact；被启动的 prerequisite 走普通 Product lifecycle。该 field 的公开 grammar、默认选择与“flags 不是权限”边界由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；内部 validation/normalization 见 [Project Definition](../development/project-definition.md#flag-enabled-checks)。
 
 Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 required 与每个 preset 的选择闭合，以保证观察输入可用。Product 不从 `observes` 传播选择。任一 owner 自带 `enabledByFlags` 时仍拒绝组合，避免 Gate 覆盖其原有条件。
 

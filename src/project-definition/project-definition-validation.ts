@@ -104,11 +104,11 @@ function hasOnlyKnownChangeFlagConditionReferences(
   condition: import("../check/check.ts").CheckFlagCondition,
   changes: ReturnType<typeof parseProjectChangesConfiguration>
 ): boolean {
-  if (condition.kind === "flag") {
+  if (typeof condition === "string") {
     const prefix = "vibe-check:change:";
     return (
-      !condition.flag.startsWith(prefix) ||
-      (changes !== undefined && Object.hasOwn(changes.flags, condition.flag.slice(prefix.length)))
+      !condition.startsWith(prefix) ||
+      (changes !== undefined && Object.hasOwn(changes.flags, condition.slice(prefix.length)))
     );
   }
   if (condition.kind === "not") {

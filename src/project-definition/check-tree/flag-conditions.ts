@@ -1,4 +1,4 @@
-import type { CheckFlagCondition, CheckFlagEnablementMode } from "../../check/check.ts";
+import type { CheckFlagCondition } from "../../check/check.ts";
 import { snapshotClosedArray, snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
 
 const FLAG_CONDITION_MAX_DEPTH = 16;
@@ -17,51 +17,24 @@ export function hasOnlyKeys(
   return Object.keys(value).every((key) => keys.includes(key));
 }
 
-/** Narrows the compatibility shorthand's closed predicate kinds. */
-export function isCheckFlagEnablementMode(value: unknown): value is CheckFlagEnablementMode {
-  return value === "all" || value === "any" || value === "none" || value === "not-all";
-}
-
 function parseBoundedFlagCondition(
   value: unknown,
   depth: number,
   state: { nodes: number }
 ): CheckFlagCondition | undefined {
   if (exceedsFlagConditionBounds(depth, state)) return undefined;
-  if (isNonEmptyIdentifier(value)) return Object.freeze({ flag: value, kind: "flag" });
+  if (isNonEmptyIdentifier(value)) return value;
   const condition = snapshotClosedRecord(value);
   const kind = condition?.kind;
   if (condition === undefined || typeof kind !== "string") return undefined;
-  return parseKnownFlagCondition(condition, kind, depth, state);
+  return kind === "not"
+    ? parseFlagNegationCondition(condition, depth, state)
+    : parseFlagConditionSet(condition, kind, depth, state);
 }
 
 function exceedsFlagConditionBounds(depth: number, state: { nodes: number }): boolean {
   state.nodes += 1;
   return depth > FLAG_CONDITION_MAX_DEPTH || state.nodes > FLAG_CONDITION_MAX_NODES;
-}
-
-function parseKnownFlagCondition(
-  condition: Readonly<Record<string, unknown>>,
-  kind: string,
-  depth: number,
-  state: { nodes: number }
-): CheckFlagCondition | undefined {
-  switch (kind) {
-    case "flag":
-      return parseFlagPresenceCondition(condition);
-    case "not":
-      return parseFlagNegationCondition(condition, depth, state);
-    default:
-      return parseFlagConditionSet(condition, kind, depth, state);
-  }
-}
-
-function parseFlagPresenceCondition(
-  condition: Readonly<Record<string, unknown>>
-): CheckFlagCondition | undefined {
-  return hasOnlyKeys(condition, ["flag", "kind"]) && isNonEmptyIdentifier(condition.flag)
-    ? Object.freeze({ flag: condition.flag, kind: "flag" })
-    : undefined;
 }
 
 function parseFlagNegationCondition(
@@ -113,6 +86,14 @@ function isNonEmptyIdentifier(value: unknown): value is string {
   return typeof value === "string" && value.length > 0;
 }
 
-function isFlagConditionSetKind(value: string): value is CheckFlagEnablementMode | "exactly-one" {
-  return isCheckFlagEnablementMode(value) || value === "exactly-one";
+function isFlagConditionSetKind(
+  value: string
+): value is "all" | "any" | "none" | "not-all" | "exactly-one" {
+  return (
+    value === "all" ||
+    value === "any" ||
+    value === "none" ||
+    value === "not-all" ||
+    value === "exactly-one"
+  );
 }

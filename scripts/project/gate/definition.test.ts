@@ -7,7 +7,7 @@ import { describe, it } from "node:test";
 
 import { defineCheck, markdownLinkValidation, run as packageRun } from "@zxyycom/vibe-check";
 import type {
-  CheckFlagConditionInput,
+  CheckFlagCondition,
   CheckFlagEnablement,
   CheckProjectContext
 } from "@zxyycom/vibe-check";
@@ -255,8 +255,10 @@ describe("Project Gate Definition", () => {
     const qualityEntry = entries.find(({ check }) => check.checkId === "duplicate-detection");
     assert.ok(qualityEntry);
     assert.deepEqual(projectGateFlagControlledCheck(qualityEntry).enabledByFlags, {
-      flags: ["project-gate:all", "project-gate:required", "project-gate:preset=quality"],
-      mode: "any",
+      when: {
+        kind: "any",
+        conditions: ["project-gate:all", "project-gate:required", "project-gate:preset=quality"]
+      },
       propagateDependsOn: true
     });
 
@@ -378,7 +380,7 @@ describe("Project Gate Definition", () => {
     const existingFlagControl = defineCheck({
       checkId: "fixture-existing-flag-control",
       displayName: "Fixture existing flag control",
-      enabledByFlags: { flags: ["fixture"], mode: "any" }
+      enabledByFlags: { when: "fixture" }
     });
     assert.throws(
       () => defineProjectGateEntries([{ check: existingFlagControl, presets: [], required: true }]),
@@ -451,8 +453,10 @@ describe("Project Gate Definition", () => {
     for (const check of definition.checks) {
       assert.equal(check.enabledByFlags?.propagateDependsOn, true);
       if (check.checkId === "tests-product-runtime") continue;
-      assert.equal(check.enabledByFlags?.mode, "any");
-      assert.equal(check.enabledByFlags?.flags.includes("project-gate:all"), true);
+      assert.equal(
+        matchesFlagEnablement(check.enabledByFlags, new Set(["project-gate:all"])),
+        true
+      );
     }
     assert.deepEqual(
       definition.checks.find(({ checkId }) => checkId === "tests-product-runtime")?.enabledByFlags,
@@ -477,8 +481,7 @@ describe("Project Gate Definition", () => {
       assert.equal(entry.required, false);
       assert.deepEqual(entry.presets, []);
       assert.deepEqual(projectGateFlagControlledCheck(entry).enabledByFlags, {
-        flags: ["project-gate:all"],
-        mode: "any",
+        when: { kind: "any", conditions: ["project-gate:all"] },
         propagateDependsOn: true
       });
     }
@@ -931,35 +934,20 @@ function matchesFlagEnablement(
   flags: ReadonlySet<string>
 ): boolean {
   if (enablement === undefined) return true;
-  if (enablement.when !== undefined) return matchesFlagCondition(enablement.when, flags);
-  switch (enablement.mode) {
-    case "all":
-      return enablement.flags.every((flag) => flags.has(flag));
-    case "any":
-      return enablement.flags.some((flag) => flags.has(flag));
-    case "none":
-      return enablement.flags.every((flag) => !flags.has(flag));
-    case "not-all":
-      return enablement.flags.some((flag) => !flags.has(flag));
-  }
+  return matchesFlagCondition(enablement.when, flags);
 }
 
-function matchesFlagCondition(
-  condition: CheckFlagConditionInput,
-  flags: ReadonlySet<string>
-): boolean {
+function matchesFlagCondition(condition: CheckFlagCondition, flags: ReadonlySet<string>): boolean {
   if (typeof condition === "string") return flags.has(condition);
   switch (condition.kind) {
-    case "flag":
-      return flags.has(condition.flag);
     case "all":
       return condition.conditions.every((child) => matchesFlagCondition(child, flags));
     case "any":
       return condition.conditions.some((child) => matchesFlagCondition(child, flags));
     case "none":
-      return condition.conditions.every((child) => !matchesFlagCondition(child, flags));
+      return !condition.conditions.some((child) => matchesFlagCondition(child, flags));
     case "not-all":
-      return condition.conditions.some((child) => !matchesFlagCondition(child, flags));
+      return !condition.conditions.every((child) => matchesFlagCondition(child, flags));
     case "exactly-one":
       return (
         condition.conditions.filter((child) => matchesFlagCondition(child, flags)).length === 1

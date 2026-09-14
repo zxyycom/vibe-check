@@ -25,11 +25,7 @@ function invalidRelationChecks(execute: () => typeof PASSED) {
     [
       check({
         dependsOn: ["missing-check"],
-        enabledByFlags: {
-          flags: ["never-enabled"],
-          mode: "all",
-          propagateDependsOn: true
-        },
+        enabledByFlags: { when: "never-enabled", propagateDependsOn: true },
         execute
       })
     ],

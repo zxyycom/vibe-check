@@ -16,7 +16,7 @@ export function assertMalformedFlagEnablementRejected(): void {
     {
       checkId: "invalid-shorthand-and-expression",
       displayName: "Invalid combined forms",
-      enabledByFlags: { flags: ["analysis"], mode: "all", when: { kind: "flag", flag: "x" } },
+      enabledByFlags: { flags: ["analysis"], mode: "all", when: "x" },
       execute: passed
     },
     {
@@ -52,13 +52,13 @@ export function assertMalformedFlagEnablementRejected(): void {
     {
       checkId: "invalid-propagation-false",
       displayName: "Invalid propagation false",
-      enabledByFlags: { when: { kind: "flag", flag: "analysis" }, propagateDependsOn: false },
+      enabledByFlags: { when: "analysis", propagateDependsOn: false },
       execute: passed
     },
     {
       checkId: "invalid-container-flags",
       displayName: "Invalid container flags",
-      enabledByFlags: { when: { kind: "flag", flag: "analysis" } },
+      enabledByFlags: { when: "analysis" },
       checks: []
     },
     {
@@ -71,7 +71,7 @@ export function assertMalformedFlagEnablementRejected(): void {
     assert.equal(validateProjectDefinition({ ...defineConfig({}), checks: [check] }).ok, false);
   }
 
-  let tooDeep: unknown = { kind: "flag", flag: "analysis" };
+  let tooDeep: unknown = "analysis";
   for (let depth = 0; depth < 16; depth += 1) tooDeep = { kind: "not", condition: tooDeep };
   assert.equal(
     validateProjectDefinition({
@@ -87,10 +87,7 @@ export function assertMalformedFlagEnablementRejected(): void {
     }).ok,
     false
   );
-  const atNodeLimit = Array.from({ length: 255 }, (_, index) => ({
-    kind: "flag" as const,
-    flag: `flag-${index}`
-  }));
+  const atNodeLimit = Array.from({ length: 255 }, (_, index) => `flag-${index}`);
   assert.equal(
     validateProjectDefinition({
       ...defineConfig({}),
@@ -115,7 +112,7 @@ export function assertMalformedFlagEnablementRejected(): void {
           enabledByFlags: {
             when: {
               kind: "all",
-              conditions: [...atNodeLimit, { kind: "flag", flag: "one-too-many" }]
+              conditions: [...atNodeLimit, "one-too-many"]
             }
           },
           execute: passed
@@ -128,7 +125,7 @@ export function assertMalformedFlagEnablementRejected(): void {
   for (const changes of [
     undefined,
     {
-      source: { kind: "git", compareWith: "origin/main" },
+      source: { compareWith: "origin/main" },
       flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
     }
   ]) {
@@ -141,7 +138,7 @@ export function assertMalformedFlagEnablementRejected(): void {
             checkId: "unknown-change-flag",
             displayName: "Unknown change flag",
             enabledByFlags: {
-              when: { kind: "flag", flag: "vibe-check:change:unknown" }
+              when: "vibe-check:change:unknown"
             },
             execute: passed
           }
@@ -151,21 +148,21 @@ export function assertMalformedFlagEnablementRejected(): void {
     );
   }
   for (const changes of [
-    { source: { kind: "git", compareWith: "origin/main" }, flags: {} },
+    { source: { compareWith: "origin/main" }, flags: {} },
     {
-      source: { kind: "git", compareWith: "origin/main", unexpected: true },
+      source: { compareWith: "origin/main", unexpected: true },
       flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
     },
     {
-      source: { kind: "git", compareWith: "origin/main" },
+      source: { compareWith: "origin/main" },
       flags: { "product-runtime": { include: [], exclude: [], unexpected: true } }
     },
     {
-      source: { kind: "git", compareWith: "--output=unexpected" },
+      source: { compareWith: "--output=unexpected" },
       flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
     },
     {
-      source: { kind: "git", compareWith: "origin/main\0unexpected" },
+      source: { compareWith: "origin/main\0unexpected" },
       flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
     }
   ]) {

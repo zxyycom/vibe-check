@@ -6,22 +6,24 @@
 
 ### Project change flags
 
-- **新增 `ProjectDefinition.changes`**：Project author 可声明一次 Git comparison 与一个或多个文件区域；每次 Run 在
-  effective selection 前取得一份冻结的 changed-path evidence，并为命中区域生成受保护的
+- **`ProjectDefinition.changes` 统一为 Git revision configuration**：`source` 的完整形状是
+  `{ compareWith: string }`；它不再含 `kind` 或 provider discriminator。`compareWith` 是安全的 Git revision
+  （branch、commit hash、relative revision 与 tag 均可用），Definition 另声明一个或多个文件区域。每次 Run 在 effective
+  selection 前取得一份冻结的 changed-path evidence，并为命中区域生成受保护的
   `vibe-check:change:<id>` flags。可信零命中保留空 `files`；Git evidence 不可用时保留可判别 reason，
-  但保守启用全部已声明 change flags，避免遗漏 Check。
-- **`enabledByFlags` 支持递归 `when` DSL**：除既有 shorthand 外，支持 `flag`、`all`、`any`、`none`、
-  `not-all`、`exactly-one` 与 `not`。raw children 的顺序和重复次数保留；特别是重复 child 会影响
-  `exactly-one`。已有 shorthand 保持兼容。
-- **新增 flag condition builders**：package root 直接导出 `all`、`any`、`none`、`notAll`、`exactlyOne`、
-  `not` 与 `changeFlag`；`when` 和递归 child 可直接使用字符串 atom，`changeFlag("source")` 生成
-  `vibe-check:change:source`。raw AST 仍可用于序列化或生成器，不导出 `flag()` 或 builder namespace。
-- **Check callbacks 可读取同一 change evidence**：配置 changes 后，`prepare(options, signal, project?)` 与
-  `execute({ project })` 读取同一个 frozen `project.changes`；`project.flags` 仍只包含 caller-provided flags。
-  Controls 传入 `vibe-check:change:` prefix 会在 author callback 前失败。
+  但保守注入全部已声明 change flags，避免遗漏 Check。
+- **`enabledByFlags` 只有一种递归 AST**：`when` 使用字符串 atom 以及 `all`、`any`、`none`、`not-all`、
+  `exactly-one` 与 `not` operator。package root 的直接 builders 返回该正式 AST；raw JSON AST 也使用字符串
+  leaf，保留 child 顺序和重复次数（重复项会影响 `exactly-one`）。不再接受 `{ kind: "flag" }` node、
+  `{ flags, mode }` shorthand 或 `CheckFlagConditionInput` / `CheckFlagEnablementMode` type roots；仍不导出
+  `flag()` 或 builder namespace。
+- **Check callbacks 使用 effective flags**：change preparation 后，`prepare(options, signal, project?)` 与
+  `execute({ project })` 在 `project.flags` 看到同一冻结的 caller 与 derived token 集，并在
+  `project.changes` 读取独立的 files/unavailable evidence。Controls 传入 `vibe-check:change:` prefix 会在
+  author callback 前失败。
 
 升级时，如原先在每个 Check 内自行运行 Git 或解释 changed path，可迁移到 Definition 的 `changes` 与
-`enabledByFlags.when`；必须处理 `{ ok: false }` 的保守选择，同时不能把它误写为可信 files。未设置
+`enabledByFlags.when`；必须处理 `{ ok: false }` 的保守注入，同时不能把它误写为可信 files。未设置
 `changes` 的 Definition 继续只按 caller flags 选择 Check，也不会获取 Git evidence。
 
 ## 0.0.2

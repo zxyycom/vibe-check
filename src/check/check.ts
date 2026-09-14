@@ -58,14 +58,7 @@ type HandoffForbidden = Readonly<{ readonly handoff?: never }>;
 /** Check Task 在 admission 到 settlement 期间持有的静态 named resource units。 */
 export type CheckResourceClaims = Readonly<Record<string, number>>;
 
-export type {
-  CheckFlagCondition,
-  CheckFlagEnablement,
-  CheckFlagEnablementExpression,
-  CheckFlagEnablementMode,
-  CheckFlagEnablementShorthand,
-  NormalizedCheckFlagEnablement
-} from "./flag-enablement.ts";
+export type { CheckFlagCondition, CheckFlagEnablement } from "./flag-enablement.ts";
 export type { ProjectChanges } from "./project-changes.ts";
 export type { CheckProjectContext } from "./project-context.ts";
 

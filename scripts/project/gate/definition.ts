@@ -332,7 +332,6 @@ export function createProjectGateDefinition(
     checks: entries.map(projectGateFlagControlledCheck),
     changes: {
       source: {
-        kind: "git",
         compareWith: "origin/main"
       },
       flags: {

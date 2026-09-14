@@ -290,7 +290,7 @@
       "260904-render-record-and-message-previews-in-product-progress": "sha256:bcbd648f1291757d2360e2071821a6a2994551976b6e5d58e508711025e1b6e7",
       "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes": "sha256:225dada187603fbf1ca08509cbbbe8db79710ae1b94b6a38b6576538a67bedc5",
       "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:de56f33381ee073f405c3463c9e958d832351a8c868fd57024bd158764bab73e",
-      "260904-unify-effective-flag-selection-and-aggregation": "sha256:6d3b6509a9e5ac562f4fda5c331d573b0fcb450089ed17a139a678d87653d6a9",
+      "260904-unify-effective-flag-selection-and-aggregation": "sha256:3bed9a468337854ec803e9b34213d55709508f2a1177afe1c8855cede34aa901",
       "260904-use-project-check-command-with-focused-gate-presets": "sha256:39c5ba6bb62abbc55c6733a42f7510741a245237b30cf1b04e90d62f292ad60b",
       "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": "sha256:190d49e7240fda2a8d3b27495ac74cf09361fdb3573846fbd1fafc44a0cb1f3a",
       "260905-organize-maintainer-documentation-by-responsibility": "sha256:b36f7ca3cb4bef003336bc529b0bfda2e280ed61e412257ba8830691a1a8f7a1",
@@ -319,7 +319,7 @@
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
-      "260909-prepare-project-change-flags-before-selection": "sha256:a5edafb0996cc34fa73b8a653e9515005006d7370093fd725458bbee078f03d5",
+      "260909-prepare-project-change-flags-before-selection": "sha256:3bd48ca7885f56037d6e9ea14b17721fc7ee84392885ce0303727296c6faa274",
       "260909-provide-file-change-marker-context": "sha256:90fab6cc62c59c357a4249efd5937fc4fac683107fdfa3320d3252e3f8cc57a1",
       "260909-provide-invocation-private-dependency-handoff": "sha256:104ed0fafaa7b21424db1933ef4699ceb391d6fae9b7455d134b0cadba6b0165",
       "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",
@@ -340,6 +340,7 @@
       "260914-keep-check-observation-as-logical-lifecycle-positions": "sha256:37e476daeafc31783a842ee01d0cb46bc87abe8925af86065e2973b644d5f7b1",
       "260914-name-scheduler-terminal-consumers-as-effects": "sha256:954a86bcb99d6b398cdb0a775fe4517b3ed27ffd8847148be917c5ef9e8bb1e2",
       "260914-narrow-project-gate-to-result-contribution": "sha256:b06f59f897dcc392efd90c2702d927f164cdd3ca0e92b65234cf50b19d41bb27",
+      "260914-unify-project-change-flags-as-effective-flags": "sha256:f61d2b400b55f35d459c0933b611c9ab28468421307c55b4ad85a73557fbcd4d",
       "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
@@ -6596,9 +6597,9 @@
     },
     "260909-prepare-project-change-flags-before-selection": {
       "name": "prepare-project-change-flags-before-selection",
-      "sourcePath": "prepare-project-change-flags-before-selection.md",
+      "sourcePath": "archive/prepare-project-change-flags-before-selection.md",
       "title": "在 Project preparation 中派生 change flags",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-09T11:43:21Z",
       "purpose": "以文件区域派生受保护的 change flags，并通过统一 DSL 在调度前选择 Check",
@@ -7007,6 +7008,28 @@
           "type": "修订",
           "target": "260831-centralize-project-gate-after-hook-configuration",
           "summary": "保留中央配置并收窄为消息贡献"
+        }
+      ]
+    },
+    "260914-unify-project-change-flags-as-effective-flags": {
+      "name": "unify-project-change-flags-as-effective-flags",
+      "sourcePath": "unify-project-change-flags-as-effective-flags.md",
+      "title": "将 Project change flags 统一为 effective flags",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-14T14:36:47Z",
+      "purpose": "以字符串 AST 和同一 effective flags 统一 change preparation、选择与 callback",
+      "background": "旧 condition 分层、caller-only context 与单值 Git kind 增加无能力收益的契约",
+      "decision": "change token 只在注入和保护时特殊，之后作为普通 effective flag 使用",
+      "tags": [
+        "configuration",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260909-prepare-project-change-flags-before-selection",
+          "summary": "统一 AST、effective flags 与 Git source"
         }
       ]
     },

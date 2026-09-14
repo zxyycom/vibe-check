@@ -1,17 +1,10 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
-import {
-  type CheckFlagEnablementMode,
-  type Check,
-  type CheckPreparation,
-  type CheckFlagCondition,
-  type NormalizedCheckFlagEnablement
-} from "../../check/check.ts";
+import { type Check, type CheckFlagEnablement, type CheckPreparation } from "../../check/check.ts";
 import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import { validateCheckDescriptor } from "../../check/descriptor-validation.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
 import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
-import { parseUniqueIdentifiers } from "./collection-authoring.ts";
-import { hasOnlyKeys, isCheckFlagEnablementMode, parseFlagCondition } from "./flag-conditions.ts";
+import { hasOnlyKeys, parseFlagCondition } from "./flag-conditions.ts";
 
 export type TrustedDataParser = (this: void, ...parameters: never[]) => unknown;
 
@@ -22,7 +15,7 @@ export interface CheckAuthoringData extends Readonly<Record<string, unknown>> {
 
 export interface ParsedCheckFields {
   readonly definition: CheckDescriptor | null;
-  readonly enabledByFlags: NormalizedCheckFlagEnablement | null;
+  readonly enabledByFlags: CheckFlagEnablement | null;
   readonly execute: NonNullable<Check["execute"]> | null;
   readonly handoff: HandoffProviderIdentity | null;
   readonly options: object | null;
@@ -32,17 +25,11 @@ export interface ParsedCheckFields {
 }
 
 export interface ParsedCheckFieldPrelude {
-  readonly enabledByFlags: NormalizedCheckFlagEnablement | null;
+  readonly enabledByFlags: CheckFlagEnablement | null;
   readonly execute: NonNullable<Check["execute"]> | null;
   readonly handoff: HandoffProviderIdentity | null;
   readonly parseData: TrustedDataParser | null;
   readonly prepare: CheckPreparation | null;
-}
-
-interface ParsedFlagEnablementShorthand extends Readonly<Record<string, unknown>> {
-  readonly flags: unknown;
-  readonly mode: CheckFlagEnablementMode;
-  readonly propagateDependsOn?: true;
 }
 
 const CHECK_KEYS = [
@@ -63,7 +50,6 @@ const CHECK_KEYS = [
   "resourceClaims",
   "omitQuietPassedRow"
 ] as const;
-const FLAG_ENABLEMENT_SHORTHAND_KEYS = ["flags", "mode", "propagateDependsOn"] as const;
 const FLAG_ENABLEMENT_EXPRESSION_KEYS = ["when", "propagateDependsOn"] as const;
 
 const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
@@ -218,81 +204,33 @@ function parseOptions(data: CheckAuthoringData): object | undefined {
   return snapshotJsonObject(options);
 }
 
-function parseEnabledByFlags(
-  data: CheckAuthoringData
-): NormalizedCheckFlagEnablement | null | undefined {
+function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | null | undefined {
   if (!Object.hasOwn(data, "enabledByFlags")) return null;
   return parseFlagEnablementControl(data.enabledByFlags);
 }
 
-function parseFlagEnablementControl(value: unknown): NormalizedCheckFlagEnablement | undefined {
+function parseFlagEnablementControl(value: unknown): CheckFlagEnablement | undefined {
   const control = snapshotClosedRecord(value);
-  if (control === undefined) return undefined;
-  const propagateDependsOn = parsePropagation(control);
-  if (propagateDependsOn === undefined) return undefined;
-  const rawCondition = parseRawFlagConditionControl(control);
-  if (rawCondition !== undefined) {
-    return Object.freeze({
-      when: rawCondition,
-      ...(propagateDependsOn ? { propagateDependsOn: true as const } : {})
-    });
-  }
-  const shorthand = parseFlagEnablementShorthandControl(control);
-  if (shorthand === undefined) return undefined;
-  const flags = parseUniqueIdentifiers(shorthand.flags);
-  return flags === undefined
-    ? undefined
-    : canonicalFlagEnablement(shorthand, flags, propagateDependsOn);
-}
-
-function parseRawFlagConditionControl(
-  control: Readonly<Record<string, unknown>>
-): CheckFlagCondition | undefined {
-  if (!hasOnlyKeys(control, FLAG_ENABLEMENT_EXPRESSION_KEYS) || !Object.hasOwn(control, "when")) {
+  if (
+    control === undefined ||
+    !hasOnlyKeys(control, FLAG_ENABLEMENT_EXPRESSION_KEYS) ||
+    !Object.hasOwn(control, "when")
+  ) {
     return undefined;
   }
-  return parseFlagCondition(control.when);
-}
-
-function parseFlagEnablementShorthandControl(
-  control: Readonly<Record<string, unknown>>
-): ParsedFlagEnablementShorthand | undefined {
-  if (!hasOnlyKeys(control, FLAG_ENABLEMENT_SHORTHAND_KEYS)) return undefined;
-  if (!Object.hasOwn(control, "flags") || !Object.hasOwn(control, "mode")) return undefined;
-  const { flags, mode, propagateDependsOn } = control;
-  return isCheckFlagEnablementMode(mode)
-    ? Object.freeze({ flags, mode, ...(propagateDependsOn === true ? { propagateDependsOn } : {}) })
-    : undefined;
+  const when = parseFlagCondition(control.when);
+  const propagateDependsOn = parsePropagation(control);
+  return when === undefined || propagateDependsOn === undefined
+    ? undefined
+    : Object.freeze({
+        when,
+        ...(propagateDependsOn ? { propagateDependsOn: true as const } : {})
+      });
 }
 
 function parsePropagation(control: Readonly<Record<string, unknown>>): boolean | undefined {
   if (!Object.hasOwn(control, "propagateDependsOn")) return false;
   return control.propagateDependsOn === true ? true : undefined;
-}
-
-function canonicalFlagEnablement(
-  control: ParsedFlagEnablementShorthand,
-  flags: readonly string[],
-  propagateDependsOn: boolean
-): NormalizedCheckFlagEnablement | undefined {
-  const [firstFlag, ...remainingFlags] = [...flags].sort();
-  if (firstFlag === undefined) return undefined;
-  const canonicalFlags = Object.freeze([firstFlag, ...remainingFlags]);
-  const [firstCondition, ...remainingConditions] = canonicalFlags.map((flag) =>
-    Object.freeze({ kind: "flag" as const, flag })
-  );
-  if (firstCondition === undefined) return undefined;
-  const conditions: [CheckFlagCondition, ...CheckFlagCondition[]] = [
-    firstCondition,
-    ...remainingConditions
-  ];
-  return Object.freeze({
-    when: Object.freeze({
-      kind: control.mode,
-      conditions: Object.freeze(conditions)
-    }),
-    ...(propagateDependsOn ? { propagateDependsOn: true as const } : {})
-  });
 }
 
 function parseOmitQuietPassedRow(data: CheckAuthoringData): boolean | undefined {

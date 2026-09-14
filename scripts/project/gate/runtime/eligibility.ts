@@ -25,8 +25,7 @@ export function projectGateFlagControlledCheck(entry: ProjectGateEntry): Check {
       entry.check.checkId === PROJECT_GATE_PRODUCT_RUNTIME_TEST_CHECK_ID
         ? productRuntimeTestEnablement()
         : Object.freeze({
-            flags: Object.freeze(flags),
-            mode: "any" as const,
+            when: any(...flags),
             propagateDependsOn: true
           })
   });

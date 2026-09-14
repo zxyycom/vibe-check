@@ -1,7 +1,7 @@
 ---
 title: 在 Project preparation 中派生 change flags
 id: 260909-prepare-project-change-flags-before-selection
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-09T11:43:21Z
 purpose: 以文件区域派生受保护的 change flags，并通过统一 DSL 在调度前选择 Check

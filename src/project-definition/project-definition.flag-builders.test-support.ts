@@ -8,7 +8,7 @@ import {
   none,
   not,
   notAll,
-  type CheckFlagConditionInput
+  type CheckFlagCondition
 } from "../check/flag-enablement.ts";
 import { defineCheck } from "../check/check.ts";
 import {
@@ -21,7 +21,7 @@ import { passed } from "./project-definition.test-support.ts";
 
 /** Proves builders retain authoring input while Definition owns the normalized identity. */
 export function assertFlagBuilderAuthoringAndCanonicalization(): void {
-  const recursiveInput: CheckFlagConditionInput = {
+  const recursiveInput: CheckFlagCondition = {
     kind: "all",
     conditions: ["analysis:deep", { kind: "not", condition: "analysis:slow" }]
   };
@@ -59,54 +59,27 @@ export function assertFlagBuilderAuthoringAndCanonicalization(): void {
   type FlagBuilderAcceptsEmptyConditions = [] extends Parameters<typeof all> ? true : false;
   const flagBuilderAcceptsEmptyConditions: FlagBuilderAcceptsEmptyConditions = false;
   assert.equal(flagBuilderAcceptsEmptyConditions, false);
-  assert.equal(
-    validateProjectDefinition(
-      defineConfig({
-        checks: [
-          defineCheck({
-            checkId: "untrusted-builder-input",
-            displayName: "Untrusted builder input",
-            enabledByFlags: {
-              when: all({
-                kind: "not",
-                condition: "analysis",
-                unexpected: true
-              } as CheckFlagConditionInput)
-            },
-            execute: passed
-          })
-        ]
-      })
-    ).ok,
-    false
-  );
-  assertEquivalentConditions(
-    { checkId: "single-flag", when: "analysis" },
-    { checkId: "single-flag", when: { kind: "flag", flag: "analysis" } }
-  );
+
   assertEquivalentConditions(
     { checkId: "nested-strings", when: recursiveInput },
     {
       checkId: "nested-strings",
       when: {
         kind: "all",
-        conditions: [
-          { kind: "flag", flag: "analysis:deep" },
-          { kind: "not", condition: { kind: "flag", flag: "analysis:slow" } }
-        ]
+        conditions: ["analysis:deep", { kind: "not", condition: "analysis:slow" }]
       }
     }
   );
   assertEquivalentConditions(
     {
       checkId: "not-analysis",
-      when: { kind: "not", condition: { kind: "flag", flag: "analysis" } }
+      when: { kind: "not", condition: "analysis" }
     },
     { checkId: "not-analysis", when: not("analysis") }
   );
   const configuredChanges = defineConfig({
     changes: {
-      source: { kind: "git", compareWith: "origin/main" },
+      source: { compareWith: "origin/main" },
       flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
     },
     checks: [
@@ -123,7 +96,7 @@ export function assertFlagBuilderAuthoringAndCanonicalization(): void {
   if (validatedChanges.ok) {
     const changes = normalizeProjectDefinition(validatedChanges.value).changes;
     assert.deepEqual(changes, {
-      source: { kind: "git", compareWith: "origin/main" },
+      source: { compareWith: "origin/main" },
       flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
     });
     assert.equal(Object.isFrozen(changes), true);
@@ -132,7 +105,7 @@ export function assertFlagBuilderAuthoringAndCanonicalization(): void {
   }
   const differentComparison = defineConfig({
     changes: {
-      source: { kind: "git", compareWith: "origin/release" },
+      source: { compareWith: "origin/release" },
       flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
     }
   });
@@ -143,11 +116,11 @@ export function assertFlagBuilderAuthoringAndCanonicalization(): void {
 }
 
 function assertEquivalentConditions(
-  left: Readonly<{ readonly checkId: string; readonly when: CheckFlagConditionInput }>,
-  right: Readonly<{ readonly checkId: string; readonly when: CheckFlagConditionInput }>
+  left: Readonly<{ readonly checkId: string; readonly when: CheckFlagCondition }>,
+  right: Readonly<{ readonly checkId: string; readonly when: CheckFlagCondition }>
 ): void {
   const define = (
-    input: Readonly<{ readonly checkId: string; readonly when: CheckFlagConditionInput }>
+    input: Readonly<{ readonly checkId: string; readonly when: CheckFlagCondition }>
   ) =>
     defineConfig({
       checks: [

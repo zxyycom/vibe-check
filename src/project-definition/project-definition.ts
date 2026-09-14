@@ -5,7 +5,7 @@ import type {
   Check,
   CheckPreparation,
   CheckResourceClaims,
-  NormalizedCheckFlagEnablement
+  CheckFlagEnablement
 } from "../check/check.ts";
 import type { HandoffProviderIdentity } from "../check/handoff-provider-identity.ts";
 import { DEFAULT_PROJECT_OUTPUTS, resolveProgressRenderingOutput } from "./output-defaults.ts";
@@ -153,8 +153,8 @@ export interface NormalizedCheckDeclaration {
   readonly admissionPriority: number;
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
-  /** 所有接受的 authoring form 都会降级为此 recursive DSL。 */
-  readonly enabledByFlags?: NormalizedCheckFlagEnablement;
+  /** Definition 已验证、snapshot 并冻结的单一 recursive flag-condition control。 */
+  readonly enabledByFlags?: CheckFlagEnablement;
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly observes: readonly string[];

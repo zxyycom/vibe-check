@@ -79,7 +79,7 @@ formatter 返回的文本和终端截断也不会把已有 accepted detail 变�
 
 ## 按 flag 选择 Check
 
-`enabledByFlags` 只决定本次 Run 是否选择 executable Check；它不是权限、环境检测或 callback 内的条件替代。兼容 shorthand 继续可用；新的 expression 优先直接导入 builder，以字符串作为 atom：
+`enabledByFlags` 只决定本次 Run 是否选择 executable Check；它不是权限、环境检测或 callback 内的条件替代。它的完整 authoring object 只能是 `{ when, propagateDependsOn? }`：`when` 是递归 condition，优先直接导入 builder，并以字符串作为 atom：
 
 ```ts
 import { all, any, changeFlag, defineCheck } from "@zxyycom/vibe-check";
@@ -97,9 +97,9 @@ const sourceAware = defineCheck({
 
 直接导出的 `all`、`any`、`none`、`notAll` 与 `exactlyOne` 接受至少一个字符串或嵌套条件，`not` 接受一个条件；单个 token 直接写成 `when: "token"`。字符串 token 必须非空，这一要求由 Definition validation 执行。`changeFlag(id)` 只生成受保护前缀的字符串 token（对 literal `id` 保留 `vibe-check:change:<id>` literal type），不创建专用 AST node，也不在调用时确认 ID。将该 token 用作 `when` 时，Definition 必须在同一 `changes.flags` 声明该 ID；否则在 author work 前失败。
 
-`CheckFlagConditionInput` 是字符串或递归 raw AST input。raw AST 仍是可序列化、生成器等场景的兼容输入：atom 为 `{ kind: "flag", flag: "token" }`，set 为 `{ kind: "all" | "any" | "none" | "not-all" | "exactly-one", conditions: [/* 至少一个条件 */] }`，unary 为 `{ kind: "not", condition: /* 条件 */ }`；这些递归位置同样可以使用字符串 atom。builder 只构造 operator authoring node，并原样保留它收到的字符串和 raw child；它不遍历、验证或规范化 child。Definition 才复制、验证并把所有 authoring input 规范化为同一 object-only canonical AST。没有 `flag()` 或 builder namespace；发生名称冲突时按普通 ESM import alias 处理。
+`CheckFlagCondition` 是唯一的递归 AST：非空字符串是 atom；raw JSON 的 set 为 `{ kind: "all" | "any" | "none" | "not-all" | "exactly-one", conditions: [/* 至少一个条件 */] }`，unary 为 `{ kind: "not", condition: /* 条件 */ }`。raw AST 仍适用于序列化或生成器，builder 则直接返回同一种 AST；没有 `{ kind: "flag" }` node 或 authoring/canonical 双层类型。Definition 只复制、验证并冻结该 AST，保留 child 顺序和 multiplicity，不改写 leaf。没有 `flag()` 或 builder namespace；发生名称冲突时按普通 ESM import alias 处理。
 
-`enabledByFlags` 只可写在 executable Check 上，container 不接受也不向 children 继承它；额外字段、空/sparse child、空字符串、非法 kind/mode 或非 literal-true propagation 都会在 author work 前使 Definition validation 失败。legacy `flags` 必须是无空洞的非空列表，每个 token 是非空字符串；Product 会复制、去重、稳定排序后降级为等价 `when`。builder output 与 raw AST 都进入同一 normalization：set child 顺序和重复次数保留，重复项会影响 `exactly-one`，顺序也保留在 declarative identity 中。没有 `enabledByFlags` 的 executable Check 默认被选择。
+`enabledByFlags` 只可写在 executable Check 上，container 不接受也不向 children 继承它；额外字段、空/sparse child、空字符串、非法 kind 或非 literal-true propagation 都会在 author work 前使 Definition validation 失败。builder output 与 raw AST 都进入同一 validation/freeze boundary：set child 顺序和重复次数保留，重复项会影响 `exactly-one`，顺序也保留在 declarative identity 中。没有 `enabledByFlags` 的 executable Check 默认被选择。
 
 `all` 要求全部 child 为真，`any` 要求至少一个为真，`none` 要求零个为真，`notAll` 要求至少一个为假，`exactlyOne` 要求恰好一个为真，`not` 反转其唯一 child。每个 atom 只测试 token presence；普通 token 仍由 caller 定义。predicate 不命中且未被下述依赖传播带入时，Check 在自己的 preparation / execution 前以 `not-applicable / flag-condition-not-matched` 结算，duration 为 `null`。
 
@@ -123,7 +123,7 @@ const sourceAware = defineCheck({
 | --- | --- | --- |
 | `invocationId` | 关联本次 Run 的工作。 | 同一次 Run 的 callback 使用相同 ID，不是跨 Run state。 |
 | `options` | 使用本 Check 已准备的 options。 | 不修改；不是原始 authoring object。 |
-| `project.root` / `project.flags` / `project.changes` | 使用本次规范化的绝对根目录、caller flags，以及已配置时同一次冻结的 change result。 | Product 只按 token presence 做选择；project.flags 不混入 derived change token，changes evidence 不证明环境或权限。 |
+| `project.root` / `project.flags` / `project.changes` | 使用本次规范化的绝对根目录、同一 effective flag 集，以及已配置时同一次冻结的 change result。 | caller token 与 derived change token 在注入后都只按 presence 参与选择和 callback；`changes` evidence 不证明环境或权限。 |
 | `dependencies` | 读取已声明 direct `dependsOn` / `observes` 的终态。 | `get` 不授权未声明或传递依赖；`list` 不是全局执行历史。 |
 | `artifactDirectory` | 写本 Check 的 invocation-local artifact；未授权时为 `null`。 | 不推导 sibling、machine、diagnostic 或跨 Run state 的路径。 |
 | `records` | 发布 object-shaped supplemental facts。 | 每个 ID 仅在本 Check 内唯一，且不会决定 status。 |
