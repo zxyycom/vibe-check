@@ -28,7 +28,7 @@ package material、lockfile 或稳定文档 owner 时，按序位串行实施与
 
 | 序位 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| 1 | [`batch-file-metrics-scc-exact-input`](../../changes/batch-file-metrics-scc-exact-input/proposal.md) | 先收敛 command-line 与累计资源预算，再修复已有 Windows SCC exact-input transport 故障；它直接消费已批准路径，与 invocation-wide project-file batching 独立。 |
+| 1 | [`batch-file-metrics-scc-exact-input`](../../changes/batch-file-metrics-scc-exact-input/proposal.md) | 先按 stock SCC cold-start/batch-size 曲线在 `28_000` hard maximum 内选择私有 ceiling，再以共享 deadline 与累计 output budget 修复 Windows exact-input transport；真实 Windows runner 不作为合入硬门禁。它直接消费已批准路径，与 invocation-wide project-file batching 独立。 |
 | 2 | [`refine-quiet-pass-progress-presentation`](../../changes/refine-quiet-pass-progress-presentation/proposal.md) | 固定 public grammar、`visibility` 兼容路径和计数文案，在后续 Definition grammar 扩张前完成这项窄行为。 |
 | 3 | [`add-project-change-flags`](../../changes/add-project-change-flags/proposal.md) | 固定 change source、expression、unknown 语义与 preparation lifecycle，产出可复用的 effective Check selection。 |
 | 4 | [`batch-declared-project-file-inputs`](../../changes/batch-declared-project-file-inputs/proposal.md) | 以前一项的 effective selection 为输入，在 Check author work 前建立 project-file input barrier；保持 change semantics 由其上游 owner 定义。 |

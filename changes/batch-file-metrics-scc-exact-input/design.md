@@ -1,64 +1,67 @@
 # Design
 
-本设计把 SCC 的 OS 参数传输从完整 `fileMetrics` measurement 中划为私有有界批次，再在 adapter 内恢复一个全有或全无的统一结果。
+保守 argv 规划、性能校准、顺序执行、批内验收和最终汇合共同实现一次有界且全有或全无的 SCC logical measurement。
 
 ## Context
 
-- [Windows argv 调查](../../docs/investigations/diagnose-file-metrics-scc-windows-argument-limit.md)记录调用方约 620 个文件/34,941 字符的现场、Microsoft `CreateProcess` 上限、SCC 4.0.0 输入探针、根因和替代方案。
-- [`fileMetrics` owner](../../docs/checks/file-metrics.md)当前要求所有 area 先形成稳定 exact-path 去重并集；[`scanner dependency owner`](../../docs/development/scanner-dependencies.md)要求 scanner 不重新发现或扩大输入，任何不可信 batch 在 Record conversion 前整批拒绝。
-- [`scanner.ts`](../../src/package-checks/file-metrics/scc/scanner.ts)当前把固定参数与全部 `includePaths` 一次性交给同步 process；[`measurement.ts`](../../src/package-checks/file-metrics/measurement.ts)只接受统一 `SccScanResult`，并在完整 approved set 上执行 exact-input acceptance。
-- SCC 4.0.0 的 by-file `Code` 与 `Complexity` 是逐文件 measurements；Product 不消费跨文件 aggregate row。因此 transport 分批可以保持当前 metric 语义，但必须显式恢复稳定顺序、唯一性、资源总预算和 all-or-nothing failure。
-- 活动 Change `batch-declared-project-file-inputs` 处理 invocation 内多个 Check 的路径 acquisition 复用；本 Change 只处理一项 `fileMetrics` 已获批 exact input 到 SCC process 的传输，不修改该调用级方向。`decide-file-metrics-public-scc-expansion` 只评审未来 public SCC capability，本修复不扩大 public options。
+- [Windows argv 调查](../../docs/investigations/diagnose-file-metrics-scc-windows-argument-limit.md)保存约 620 个文件/34,941 字符的调用方现场、`CreateProcessW` 上限、SCC 4.0.0 输入探针与方案比较。该现场数值不是当前 Linux 工作区的复测结果。
+- [SCC v4 CLI Decision](../../docs/decisions/use-scc-v4-file-metrics-cli-protocol.md)要求 adapter 固定 SCC 4.0.0、`--no-config`、by-file CSV 和 approved exact paths，public scanner 只选择 executable；[file-metrics area Decision](../../docs/decisions/let-file-metrics-areas-own-files-and-thresholds.md)要求所有 area 的 exact paths 去重并集作为一次逻辑扫描输入。该 Change 遵守两项已对齐判断，不建立新的长期 Decision。
+- [`fileMetrics` owner](../../docs/checks/file-metrics.md)与[scanner dependency owner](../../docs/development/scanner-dependencies.md)分别拥有用户可观察行为和私有 command/exact-input 边界。稳定 owner 只在 runtime 行为实现并验证后同步，Change artifact 不提前改写当前事实。
+- [`measurement.ts`](../../src/package-checks/file-metrics/measurement.ts)当前在 measurement 前执行一次 availability probe，并在 scanner 返回后对完整 approved union 做 exact-input acceptance；[`scanner.ts`](../../src/package-checks/file-metrics/scc/scanner.ts)当前把固定参数与全部 paths 一次交给同步 process。
+- SCC 4.0.0 by-file `Code` 与 `Complexity` 是逐文件 measurements，Product 不消费跨文件 aggregate row。合法但不受 SCC 支持的文件可以不产生 row，因此可信完整结果不等于“每个 approved path 必须恰有一条 row”。
+- `batch-declared-project-file-inputs` 优化一次 invocation 内多个 Check 的 file acquisition；该 Change 只处理已经批准的 `fileMetrics` exact paths 到 SCC process 的传输。`decide-file-metrics-public-scc-expansion` 只在出现真实 consumer outcome 时评审 public SCC capability，不阻塞本私有修复。
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 让一个大型 exact-path union 在 Windows-safe command-line 边界内传给 stock SCC 4.0.0。
-- 保持一个逻辑 measurement、一次 availability probe、完整 exact scope、稳定结果和现有 Check failure taxonomy。
-- 使任意批次失败都不能泄漏部分 metric、Finding、waiver audit 或 Record。
-- 用平台无关的纯 partition 证据和 fake SCC integration 在当前 Linux 开发环境证明 transport 与汇合语义。
+- 让 stock SCC 4.0.0 在 Windows command-line 边界内接收大型 approved exact-path union。
+- 保持一次 availability probe、一次逻辑 measurement、完整 exact scope、稳定结果、总资源预算和现有 failure taxonomy。
+- 使任一 batch 失败都不能泄漏部分 metric、Finding、waiver audit 或 Record。
+- 让当前非 Windows 环境可以用纯 planner 和 fake SCC integration 直接证明 transport、汇合与 fail-closed 语义。
+- 用 stock SCC 的可复现 batch-size/cold-start 曲线平衡上限附近的传输裕量与多进程启动成本，并保存可独立复核的调查报告。
 
 ### Non-Goals
 
-- approved exact paths 继续是唯一 scanner 输入；目录、shell glob、临时 mirror tree 和 SCC 自主 discovery
-  不进入本 Change。
-- SCC 版本与 public contract 保持不变，不增加 response-file、stdin manifest、public args、batch-size option
-  或 scanner registry。
-- file selection、area policy、Record/final data、cache identity、Project Gate policy 和 invocation-wide
-  project-file batching 分别留在现有 owner；本 Change 只修复 SCC transport compatibility。
+- 不改传目录、shell glob、临时 mirror tree，也不允许 SCC 自主 discovery。
+- 不升级或 fork SCC，不增加 response-file、stdin manifest、public args、batch-size option、retry 或 degraded-success 状态。
+- 不改变 file selection、area policy、Record/final data、cache identity、Project Gate policy、invocation-wide project-file batching 或通用 process runtime。
 
 ## Decisions
 
 ### Intended Change
 
-1. 在 `src/package-checks/file-metrics/scc/**` 内建立私有 command-line partition boundary。planner 接收 executable、固定 SCC 参数和稳定 exact paths，按保守的 Windows UTF-16 command-line 成本形成有序、非空、互不重叠的 batches；普通小输入仍只有一批。
-2. 成本模型计入 executable、固定参数、分隔和 quoting/escaping，并在系统上限以下保留安全 headroom。不得只按文件数分组；一个路径无法在空批次内安全编码时，在启动任何 measurement process 前返回 execution failure。
-3. `scanWithScc` 在一次 availability probe 后顺序执行每个 batch，所有调用继续使用固定 `--no-config --by-file --format csv`，不允许 caller 改写协议。
-4. 每批独立检查 process termination、解析 SCC 4.0.0 CSV，并将 scanner-declared source paths 限定在该批 exact set。批次只产生 adapter-private candidate measurements，不进入 Check context 或 Record publication。
-5. 全部批次成功后，adapter 拒绝重复 measurement path、按 path 稳定排序并返回一个统一 `SccScanResult`；`measurement.ts` 保留完整 union 的最终 exact-input acceptance，Record conversion 继续只消费完整结果。
-6. 任一批执行或结果失败时立即拒绝整个 logical scan，丢弃内存中的前序 batch candidates，并沿现有 `execution` / `invalid-result` 分类结算；不增加 partial、retry 或 degraded-success 状态。
-7. 现有 scan timeout 与 output buffer/resource bound 作为一个 logical scan 的累计预算实现，不能按批次无条件重置并倍增。availability probe 仍保持自己的既有边界。
-8. batching plan、阈值、批次数、批次输出和内部失败细节保持 SCC adapter 私有；public authoring/resolved options、fingerprint、machine output 和 Records 均不新增字段。
+1. **用保守上界规划 argv。** planner 的输入是 `scanner.executable`、固定 SCC arguments、稳定 exact paths 和 adapter-private ceiling。对每个 argument 使用 `2 × argument.length + 2` 作为 Windows quoting/escaping 上界，再加 argument 间单个空格和终止 NUL；hard maximum 是 `28_000` UTF-16 code units，至少为系统 32,767 上限保留 4,767 code units，同时上界已按每个原始 code unit 最多翻倍计入 quoting。
+2. **所有平台采用同一确定性 planner。** 逐路径按输入顺序贪心填充当前 batch；下一路径会超预算时结束当前 batch。输出必须有序、非空、互不重叠并覆盖全部输入。小输入自然得到一批；单个路径连同 executable 与固定参数都无法装入空 batch 时，planner 在任何 measurement process 启动前返回 `execution` failure。
+3. **先建立可复现性能曲线。** 在修改 production scanner 前，benchmark harness 使用 stock SCC 4.0.0、约 620 个小型 TypeScript files 和合计约 34,941 个字符的稳定相对路径，固定 binary、runtime、host、fixture 与输出验证。它分别测量当前 `scanWithScc` 单进程 baseline、单文件 process cold start、显式 batch sizes `1/5/10/25/50/100/200/310/620`，以及 ceilings `8_000/12_000/16_000/20_000/24_000/28_000`；2 轮 warm-up 不计入结果，随后至少 10 轮记录完整 logical scan wall-time median/p95、invocation count 和 measurement digest。
+4. **用曲线选择更小的有效 ceiling。** 安全约束优先于吞吐。在不超过 `28_000` 的候选中选择 median 不高于最快候选 `110%` 且 p95 不高于最快候选 `115%` 的最小 ceiling；这使性能接近最优时优先取得更多 command-line headroom。噪声或结果无法支持选择时，先修正 workload、测量方法或 Plan，不默认采用最大值。
+5. **性能证据形成独立后继 Investigation。** 报告说明 workload、fixture、host、runtime、SCC version、warm-up/rounds、原始与汇总数据、输出等价 guard、阈值选择、最终 runtime 复测和 Windows 不可外推边界；受管资源保留实际执行的 harness、CSV/text 数据和 batch size/ceiling 对 wall time 的曲线图。初始曲线形成后创建完整 candidate，最终复测后发布并以 `补充` 关系指向 `260912-diagnose-file-metrics-scc-windows-argument-limit`；没有实际测量时不创建空 candidate。
+6. **保留一次 availability，顺序执行 measurement batches。** `measureFileMetrics` 继续先调用一次 `checkScc`；成功后才进入 `scanWithScc`。scanner 不重复 probe，所有 batches 都使用同一 executable、cwd 与固定 `--no-config --by-file --format csv`，也不提供 caller 可改写的 protocol seam。
+7. **批内验证先于汇合。** 每批先检查 process termination，再解析 SCC CSV，并以该 batch 的 exact set 调用现有 exact-input acceptance。越界 source path 或 malformed CSV 立即返回 `invalid-result`。解析结果只保存在 adapter-local candidate collection 中，不进入 Check context。
+8. **最终汇合保持全有或全无。** 全部 batches 成功后，按 `payload.path` 拒绝重复 measurement，并稳定排序后返回一个 `SccScanResult`。`measurement.ts` 保留对完整 approved union 的最终 acceptance，后续 area policy、waiver 与 Record conversion 不感知 batches。SCC 合法省略未测量文件仍被允许；该 Change 只拒绝已产生但不可信的 rows。
+9. **共享 logical-scan deadline。** 在第一个 measurement batch 前读取 monotonic time，形成 300 秒 deadline；每批只取得剩余毫秒。剩余时间不大于零时不再启动 process 并返回 `execution` failure。availability probe 不计入该 deadline，保持当前独立边界。
+10. **累计 output budget。** stdout 与 stderr 各自从 64 MiB 开始计账。每次 process 的 `maxBuffer` 使用两者剩余预算中的较小值，完成后按 UTF-8 byte length 分别扣减；任一预算不足或超出即返回 `execution` failure。该保守投影无需扩张通用 process runner，也避免 batches 把一次 logical scan 的现有 output bound 倍增。
+11. **保持私有与可审查。** command-line budget、估算函数、batch plan、deadline/output accounting 和失败细节都属于 `src/package-checks/file-metrics/scc/**`。实际执行的 benchmark harness 与数据随性能 Investigation 作为受管资源保存，不建立 Product 或 workspace public command；production helper 不从 package root 导出，也不进入 options、fingerprint、schema、Records 或 machine output。
+12. **Windows 端到端证据非阻断。** 有 runner 时补测 stock SCC 4.0.0 超预算 exact-path workload；没有 runner 时明确记录该边界即可完成 Change。任何当前平台 planner、fake scanner 或 stock SCC 数据都不得冒充真实 Windows acceptance。
 
 ### Resulting Impacts
 
-- `src/package-checks/file-metrics/scc/scanner.ts` 将从单 process wrapper 变为有序 batch workflow；必要的 planner/aggregate helper 保留在同一 owner，除非实现证明存在独立职责才拆相邻模块。
-- `src/package-checks/file-metrics/scc/scanner.test.ts` 需新增 oversized argv、稳定 partition/merge、后续批失败、单路径不可传输和累计资源边界证据；修改前后维护现有 Test Evidence Case，并运行最窄 SCC/file-metrics tests。
-- `docs/checks/file-metrics.md` 需把“全部路径交给 SCC 一次”改为“一次逻辑 scan、一个或多个有界 process batches”；`docs/development/scanner-dependencies.md` 需说明 transport batching 不改变 exact-input ownership 与整批拒绝语义。
-- 由于用户可观察到 Windows 大输入从 unavailable 恢复为正常结果，完成前须由非实施代理从实际 diff 反查用户说明、内部 owner、测试和未改变的 public API；没有 Windows runner 时明确保留平台验收缺口。
-- 该修复不修改 `scripts/project/gate/checks/repository-quality.ts`、通用 process runner、project-files collection、schema、示例或 package exports；若实施发现必须触及这些边界，应先修订 Change 而不是顺手扩大范围。
+- scanner owner 新增 partition 与 aggregate 状态，但 availability、parser、measurement 和 Record owner 的职责顺序不变。
+- adapter tests 需要构造总估算超过最终 production ceiling 的 paths，记录 fake SCC 收到的每个 argv，并证明单批兼容、多批覆盖/顺序/汇合、batch-local 越界、重复 row、第二批失败、单路径过长、deadline 和 output budget。
+- 性能 harness 与后继 Investigation 共同拥有形成时曲线；runtime constant 只消费报告支持的选择，不复制整份 benchmark 数据。
+- `AUX-SCC-ADAPTER-OUTCOMES-001` 应扩展为 transport 与 all-or-nothing adapter 证据；`WB-SCANNER-FILE-METRICS-SCOPE-001` 的 `Proves` 应把“one SCC invocation”改为“one logical SCC scan”，但只有测试实际证明对应结果时才调整 Case。
+- runtime 生效后同步用户 owner 与内部 owner；文档明确 process batching 是私有实现，不暗示 batch 配置、结果或诊断成为 public capability。
+- 完成前按项目文档影响审查要求，由非实施代理从 runtime/test diff 反查公开说明、内部 owner、Case 和无需修改的 schema/exports。
 
 ## Risks / Trade-offs
 
-- 多批次增加 SCC process startup 和 CSV parse 次数，但该成本是超过 transport budget 的大型输入为保持 exactness 支付的兼容成本，不改变本 Change 的非性能定位。
-- command-line quoting 的实际规则由 Windows process creation 和 Node/Execa encoding 共同决定；过紧估算仍可能失败，过保守则增加批次数。planner 应使用可审阅的保守上界而不是追求填满 32,767。
-- 分批会自然诱发“每批 300 秒/64 MiB”的资源放大；若不维护 logical-scan 总预算，修复会改变拒绝边界和最坏资源占用。
-- SCC 对合法但不支持的文件可以不产生 row，所以“完整汇合”不能错误地要求每个 approved path 恰有 measurement；它要求所有已产生 rows 均可信、无重复且所有批次正常结束。
-- 当前开发环境只能模拟 Windows-safe partition，不能证明真实 `CreateProcessW`、路径 quoting 和 stock SCC 的 Windows binary 已通过；该限制必须保留到取得 Windows acceptance evidence。
+- 保守估算可能比真实 Windows serialization 更早切批，增加 SCC startup 与 CSV parse 次数；这是超过 transport budget 的大型输入为保持 exactness 支付的成本。预算不公开，后续可在不改变产品契约的前提下依据证据调整。
+- `28_000` 只是可选 ceiling 的 hard maximum，不是 `CreateProcessW` 的替代规范；最终 production ceiling 可能更小。Node/Execa/Windows transport 变化时必须重新核对 estimator 和性能曲线。
+- Linux cold-start 曲线可以比较 batch 数量成本，但不能证明 Windows process startup 或 quoting 开销相同；它用于选择安全候选，不把平台差异消除为一个数字。
+- 顺序 batches 会把单进程 timeout 误放大为批次数倍数，因此必须传递剩余 deadline；同步 process 无法在执行中共享可变 deadline，只能在每批启动前计算剩余值。
+- 64 MiB output accounting 使用解码后字符串的 UTF-8 byte length。stock SCC 输出是 UTF-8 CSV；malformed encoding 最终仍会被 parser 拒绝，不能据此外推 arbitrary custom executable 的二进制输出兼容性。
+- 当前环境不能证明真实 `CreateProcessW`、Node/Execa quoting 与 stock SCC Windows binary 的端到端行为；强保守 planner 降低风险，但不替代真实 Windows acceptance。
 
 ## Open Questions
 
-- 私有安全预算采用多少 code units/headroom，以及用精确 Windows quoting estimator 还是更保守的上界；进入 Plan 前需用调用方现场规模、最长路径和构造性边界测试确定。
-- 当前 300 秒 timeout 与 64 MiB process max buffer 如何精确投影为 logical-scan 累计预算，尤其 stdout/stderr 分开计量和最后一批的剩余预算；进入 Plan 前需读取 host process contract 并形成可测试选择。
-- 当前交付是否具备真实 Windows runner。若没有，Plan 必须把纯 planner、Linux fake scanner 与未验证 Windows acceptance 明确分开，不能把模拟通过表述为平台修复已经生效。
+无。
