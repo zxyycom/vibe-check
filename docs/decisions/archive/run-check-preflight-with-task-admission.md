@@ -1,7 +1,7 @@
 ---
 title: 在 Check Task 准入后执行 preflight
 id: 260901-run-check-preflight-with-task-admission
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-01T10:43:19Z
 purpose: 让 preflight 与 execution 同受每个 Check 的调度、依赖和取消生命周期约束。

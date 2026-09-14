@@ -27,7 +27,7 @@
 2. available 结果声明固定 observed-duration 模型、`full-graph` 或 `realized-work-only` coverage、constraint floor、各组成下界、dominant constraint、gap-to-floor 与中性命名的 floor-to-observed ratio。timing 或 coverage 不足时返回封闭的 unavailable/not-comparable reason。
 3. 初版候选下界取互不相加组成项的最大值：precedence longest path、root work/capacity、mutex serialized load 与 named-resource weighted load。scope activation/capacity 仅在 public context 足以证明下界时纳入。
 4. internal diagnostic summary 在相同 public context 上调用该 projector，并选择性呈现 reference；日志专属 top-N 与格式继续由 internal summary 拥有。
-5. caller 通过普通 `measurementHooks: [context => consume(derive...(context))]` 显式接线。只有至少两个真实 consumer 共享 lifecycle/failure 代码时，才增加接受显式 sink 的薄 Hook factory。普通 static Run 的 collector laziness 与现有 sink failure 语义保持不变。
+5. caller 通过普通 `terminalEffects: [context => consume(derive...(context))]` 显式接线。只有至少两个真实 consumer 共享 lifecycle/failure 代码时，才增加接受显式 sink 的薄 effect factory。普通 static Run 的 collector laziness 与现有 sink failure 语义保持不变。
 6. public API value gate 同时验证：代表性虚拟场景中的下界不超过 observed span（容许明确的浮点 epsilon）、dominant constraint 符合场景设计、故意较差的合法 schedule 能产生现有单一 utilization 或 tail 无法稳定表达的 gap，以及重复真实 workload 中该信号能支持可说明的调度判断。任一项不能成立时，保留现有 raw/context 与内部 summary，不增加 public root 导出。
 
 ### Resulting Impacts

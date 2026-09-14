@@ -1,7 +1,7 @@
 ---
 title: 由中央 Definition 配置 Project Gate afterGate
 id: 260831-centralize-project-gate-after-hook-configuration
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-31T16:03:14Z
 purpose: 让维护者从 Gate 的中央 Definition 直接发现并维护唯一项目自有的结果后处理配置，同时保持 exact candidate 边界。

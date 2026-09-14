@@ -5,10 +5,10 @@
 ## Context
 
 - [`docs/development/project-definition.md`](../../docs/development/project-definition.md) 规定 `defineConfig` 生成普通 `ProjectDefinition`，package-provided constructors 生成 ordinary Checks，Product 不发现或重载配置模块。
-- `defineConfig` 会补齐 `apiVersion`、outputs、static admission policy、`maxParallel`、空 `measurementHooks` 和空 resource capacities。配置组合必须发生在这些默认值产生之前。
-- `checks` 与 `measurementHooks` 是有序 collection，`admissionPolicy` 是单一策略，resource capacities 是全局 mapping，output fields 还有 Definition default 与 invocation override 的既有边界；composer 需要按字段语义工作。
+- `defineConfig` 会补齐 `apiVersion`、outputs、static admission policy、`maxParallel`、空 `terminalEffects` 和空 resource capacities。配置组合必须发生在这些默认值产生之前。
+- `checks` 与 `terminalEffects` 是有序 collection，`admissionPolicy` 是单一策略，resource capacities 是全局 mapping，output fields 还有 Definition default 与 invocation override 的既有边界；composer 需要按字段语义工作。
 - [`provide-learned-admission-through-public-strategy.md`](../../docs/decisions/provide-learned-admission-through-public-strategy.md) 已证明显式 import factory 可以通过普通公共 contract 启用可选功能。
-- [`centralize-project-gate-after-hook-configuration.md`](../../docs/decisions/centralize-project-gate-after-hook-configuration.md) 规定 adapter 从中央配置取得唯一 `afterGate`。若功能配置参与 Gate 后处理，项目层 composer 仍需输出一个 `afterGate`，并为新的内部组合方式建立后继判断。
+- [`narrow-project-gate-to-result-contribution.md`](../../docs/decisions/narrow-project-gate-to-result-contribution.md) 规定 adapter 从中央配置取得唯一 `resultContributor`，且该函数只能贡献消息。若多个功能配置参与 Gate 后处理，项目层 composer 必须先按自己的稳定顺序合成消息，再向 adapter 输出一个 contributor。
 - [`organize-project-extension-lifecycle`](../organize-project-extension-lifecycle/) 是设计前置，负责通过完整生命周期盘点确定可组合、独占和 root-owned 的扩展槽位及合法依赖表达。
 
 ## Goals / Non-Goals
@@ -45,7 +45,7 @@
 
 3. 配置工厂 options 是功能自定义入口；套装组合普通 contributions，并保留每个来源身份、冲突和权限要求。
 4. composer diagnostics 指向 contribution ID 与冲突字段。最终 Definition 继续由现有 validation/normalization 关闭 grammar；plugin ID 不自动进入 declarative fingerprint。
-5. 项目层可以把 Product contribution 与 Gate contribution 分别投影为一个 Definition input 和一个 `afterGate`。Gate 内部优先区分可累加 observer 与唯一 result policy。
+5. 项目层可以把 Product contribution 与 Gate contribution 分别投影为一个 Definition input 和一个 `resultContributor`。多个功能的 Gate 消息在项目层按已声明顺序合成；adapter 仍只接收一个 contributor，且 status 继续由 Gate 内部 owner 决定。
 6. 三个首批功能族分别证明启用/省略、自定义 options、base-config 合并、冲突失败、零隐藏 I/O 和 installed-consumer 路径。
 
 ### Resulting Impacts

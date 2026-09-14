@@ -1,7 +1,7 @@
 ---
 title: 提供以 Check 为中心的生命周期观察
 id: 260910-expose-check-centric-lifecycle-hooks
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-09-10T07:43:04Z
 purpose: 让调用方观察逐 Check 生命周期且不取得执行控制权

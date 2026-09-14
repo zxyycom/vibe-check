@@ -152,7 +152,7 @@
       "260824-publish-readable-esm-package-layout": "sha256:7825d9a4ca50df3acde7504aa83ef1185c64dd685a5358f46a9a3a0118c3fc6c",
       "260824-use-chinese-as-primary-language-for-public-documentation": "sha256:e6f9fdc953b0f46daf8b2614fb76b12c0957a8e2fa23a1bd12ca2451d1f292af",
       "260824-use-momoa-for-strict-json-document-boundary": "sha256:9c75ef84dd447734a6b1ac515c74afe667a2e51825afa890713ae5e3abc203ed",
-      "260825-adopt-low-level-markdown-link-parser-architecture": "sha256:0ffdd36176464ee9265c259b47805fb5969ef267b9ebbc50f58f65eb66c6ae51",
+      "260825-adopt-low-level-markdown-link-parser-architecture": "sha256:bd9ab19f8b7f4474f9d272a457c6dff960b9ffb1224ed77ca62ccfe04e9d9725",
       "260825-allow-controlled-json-schema-reference-sources": "sha256:405472beec2d42911ae96cbc3fdf030028cd163e6f8ed3364ae2b9213f3e2faa",
       "260825-define-offline-markdown-link-target-boundaries": "sha256:403e0b26f7668681666704098f79c7737a44de2bc31d5d5daf1045d737da6095",
       "260825-exclude-undefined-markdown-references-from-link-check": "sha256:05f5b4838c80e32abea18427fc6a40e8a4de0e1fd7107a81e0f22f8cfa522efb",
@@ -226,7 +226,7 @@
       "260830-share-strict-json-document-boundary-between-json-checks": "sha256:4e438b9dffe88d1e5a53ab7d61e96aff5f969cf9e47afce9643cd31903f41102",
       "260830-use-chinese-as-primary-language-for-package-consumer-documentation": "sha256:075abe08636cd67fd158fd6a9b1dca5151f4e3a856b2403a5601a50bccb5f718",
       "260830-waive-historical-v2-schema-file-metric-with-preserved-evidence": "sha256:c9d11cc9d75cc3b108e5078f27e9fc8f7cce2d56ad5812eb42ce05b860069169",
-      "260831-centralize-project-gate-after-hook-configuration": "sha256:60b4c19fa5504d7e059466035dc36187e140b13878ea7be63ed8e5a1142764d4",
+      "260831-centralize-project-gate-after-hook-configuration": "sha256:626076af735f1d6a03b315144af782642259d528d606261c9e5f4e87fc136cdc",
       "260831-centralize-project-gate-definition-and-separate-adapters": "sha256:cd442fac1bb82d82c5eb8ed6e93982be7ead2742216e01851ed48d43556a4785",
       "260831-enumerate-normalized-direct-dependency-outcomes": "sha256:88ea41a97172c05111b5837c220f699445eeae704e43e57f7cad12aa5ec0ca72",
       "260831-install-check-console-router-before-preflight": "sha256:19bea852e069d9553de008ff2a377c4632260e3900a447516233fa9f67b182e5",
@@ -246,7 +246,7 @@
       "260901-keep-gate-run-evidence-complete-with-stateless-scheduler-context": "sha256:d0748064088edafa8fd6efe375e84e75429c63d72e8241c385e597c773a35e87",
       "260901-provide-caller-keyed-json-cache-without-run-caching": "sha256:7edd42041239d8c3cd879f677343b84ddd45bd41be0cbf3c9109265671ab4298",
       "260901-retain-running-parallel-limits-and-order-ready-admission-by-priority": "sha256:c5812dcf73a332da7ad93d91162b13112dac11244d4111e9e90c9e9ad1efc857",
-      "260901-run-check-preflight-with-task-admission": "sha256:4a932405f5777aa73a2b846d197ddee8333ecb81269604c39734e207dc6a939b",
+      "260901-run-check-preflight-with-task-admission": "sha256:80e756fd7fac0bbb8d5cbbe6bc475c8762bf0cd5887a8f56a5380e41e85402ff",
       "260901-separate-admission-policy-from-scheduler-state-machine": "sha256:80ebe629b57e589fc6477e537cc26c2e9e1a68c16bde090a6146dfe89283a024",
       "260901-separate-passed-dependencies-from-settled-observations": "sha256:ea6e376b900cc8f28f6536287adc5ab7fe58f71470f37bc6c0f2976fea05126b",
       "260901-settle-non-passed-dependents-as-unavailable": "sha256:ac0023d8d350c4cb1d2e7ba0526216636ff2e5d20155c35e0ab1fc1de8ba9f12",
@@ -273,7 +273,7 @@
       "260903-adopt-invocation-scoped-custom-admission-strategy-authoring": "sha256:abffd56175789f508fdcfccef2dc76d605776afda9e7449129c35df84d6eb7ad",
       "260903-adopt-selected-lizard-extensions-in-product-owned-analyzer": "sha256:8aa2ce7bd9cb962ff08b8452ed326fb9ed1c2d599cdb2da744176f5c510e6b7b",
       "260903-exclude-lizard-port-from-repository-quality-metrics": "sha256:b97f3486b13f7111df8ce1ee80c4d1cf10ef678e09238bc849b74a5db4697647",
-      "260903-extend-measurement-hook-output-to-prepared-complete": "sha256:771b339a689a6ebaa94e7d681ea1178e6b22e21c2f35d84ef232ba3e266cab4d",
+      "260903-extend-measurement-hook-output-to-prepared-complete": "sha256:c188534936e5ed0586041403c06770b057709eca2d4346ff65fdeb2bc9c70ccd",
       "260903-introduce-invocation-scoped-admission-strategy-lifecycle": "sha256:7d8bb3c9ee0e22792e73f0aa8b0999549bb3549beff8a4655b1e13e86ca56a92",
       "260903-keep-lizard-advisory-explicit-with-selected-extension-adoption": "sha256:e2273cb34fc6bff342f2843c55ef3e6a1e36f3b3948fa1a2c017636736c4bf17",
       "260903-permit-evidence-backed-host-primitive-optimization-in-lizard-port": "sha256:04385438dcb575170f7bfa298eb146a693e3a9b5835fd937471c28052ce80a6f",
@@ -327,7 +327,7 @@
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
       "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3",
       "260910-batch-declared-project-file-inputs-at-invocation-boundary": "sha256:981a6f4177279f54bd932d7c14d83a82db1fe2049973202c711463160a2f5eb5",
-      "260910-expose-check-centric-lifecycle-hooks": "sha256:062359c894851b1f8ef0c6b6722e393f0b5a935482f09d0e690d9b9a4d2d3e7e",
+      "260910-expose-check-centric-lifecycle-hooks": "sha256:c5eb496b7c2efd7336f0a2dfec00d313b55409ed9ac48c16dd87e7f0ffc967c7",
       "260910-model-project-file-refresh-as-immutable-generations": "sha256:42edb7327edd8e8c95593d03d61ad0cbcf7e277c2d9fbae907371f9e5c82eaa3",
       "260910-provide-invocation-project-input-context": "sha256:f3ab35ac48abcc5c53e4a582dd99c733e50a7ca9114ec5e6b4d5cfa2166dd136",
       "260910-separate-imperative-file-collection-from-declarative-snapshots": "sha256:29db338772e729f44478f2579df2cc1d4f7d80bddca689a418c232e87020d1c3",
@@ -335,7 +335,11 @@
       "260911-adopt-soundness-oriented-typescript-typecheck-profiles": "sha256:06a158bbefd07b3ae88be7cba5da6fb45a9b57c95521473fe3c1ceec72fe8517",
       "260911-use-blocking-tiered-oxlint-policy": "sha256:904e70fc51dfc65362e15be9c2d7baea9206a380e01b11160f84926f3f9e6f3d",
       "260912-keep-core-independent-of-package-tools": "sha256:b86fa5f200fdf7a1f641b3bdc423f7e583d135dc618716c67dc582f7daf26cc0",
-      "260912-provide-public-data-boundaries-for-tool-isolation": "sha256:627f25a57429c48cfd7a459310cbc664a566f7c775e2ac90246a111902df5f3e"
+      "260912-provide-public-data-boundaries-for-tool-isolation": "sha256:627f25a57429c48cfd7a459310cbc664a566f7c775e2ac90246a111902df5f3e",
+      "260914-keep-check-observation-as-logical-lifecycle-positions": "sha256:22cc81e9f8d8903f9d967f3ca31c8c8316e2a6cfd86bf98f51fabe506b2e7962",
+      "260914-name-scheduler-terminal-consumers-as-effects": "sha256:d6f02caa577e5f5f2cbfdcca490270a23d3788310119d1dc6c0ab8c2e09aa36b",
+      "260914-narrow-project-gate-to-result-contribution": "sha256:216098d390ba54cacb90474db6893e74c0a5fb0cf6e3990e60026e46def2b909",
+      "260914-use-prepare-and-execute-check-authoring-names": "sha256:1278603e3bd048348c0cb13eead64259fb3104af1c18cbfb08d5358b6e9070b9"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -4678,9 +4682,9 @@
     },
     "260831-centralize-project-gate-after-hook-configuration": {
       "name": "centralize-project-gate-after-hook-configuration",
-      "sourcePath": "centralize-project-gate-after-hook-configuration.md",
+      "sourcePath": "archive/centralize-project-gate-after-hook-configuration.md",
       "title": "由中央 Definition 配置 Project Gate afterGate",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-31T16:03:14Z",
       "purpose": "让维护者从 Gate 的中央 Definition 直接发现并维护唯一项目自有的结果后处理配置，同时保持 exact candidate 边界。",
@@ -5074,9 +5078,9 @@
     },
     "260901-run-check-preflight-with-task-admission": {
       "name": "run-check-preflight-with-task-admission",
-      "sourcePath": "run-check-preflight-with-task-admission.md",
+      "sourcePath": "archive/run-check-preflight-with-task-admission.md",
       "title": "在 Check Task 准入后执行 preflight",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-01T10:43:19Z",
       "purpose": "让 preflight 与 execution 同受每个 Check 的调度、依赖和取消生命周期约束。",
@@ -5667,9 +5671,9 @@
     },
     "260903-extend-measurement-hook-output-to-prepared-complete": {
       "name": "extend-measurement-hook-output-to-prepared-complete",
-      "sourcePath": "extend-measurement-hook-output-to-prepared-complete.md",
+      "sourcePath": "archive/extend-measurement-hook-output-to-prepared-complete.md",
       "title": "将 prepared complete 纳入 measurement Hook output",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-03T06:15:21Z",
       "purpose": "让 generic Hooks 与 prepared complete 共用 terminal pipeline，并保留既有 RunResult output。",
@@ -6741,9 +6745,9 @@
     },
     "260910-expose-check-centric-lifecycle-hooks": {
       "name": "expose-check-centric-lifecycle-hooks",
-      "sourcePath": "expose-check-centric-lifecycle-hooks.md",
+      "sourcePath": "archive/expose-check-centric-lifecycle-hooks.md",
       "title": "提供以 Check 为中心的生命周期观察",
-      "status": "active",
+      "status": "archived",
       "alignment": "unaligned",
       "createdAt": "2026-09-10T07:43:04Z",
       "purpose": "让调用方观察逐 Check 生命周期且不取得执行控制权",
@@ -6915,6 +6919,94 @@
         "product-contract"
       ],
       "relations": []
+    },
+    "260914-keep-check-observation-as-logical-lifecycle-positions": {
+      "name": "keep-check-observation-as-logical-lifecycle-positions",
+      "sourcePath": "keep-check-observation-as-logical-lifecycle-positions.md",
+      "title": "将 Check 观察保留为逻辑生命周期位置",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-14T05:55:54Z",
+      "purpose": "让完整模型保留逐 Check 观察位置，同时由未来真实场景决定是否建立公开实际契约",
+      "background": "既有方向提前采用 public Check lifecycle observation，但整体模型尚未区分逻辑位置与具有私有上下文和顺序的实际执行契约",
+      "decision": "采用完整逻辑位置、保持当前内部契约并推迟公开接口，由未来 Change 基于实际消费者重新设计",
+      "tags": [
+        "product-contract",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260910-expose-check-centric-lifecycle-hooks",
+          "summary": "以完整逻辑位置替代提前采用公开 Check 观察接口"
+        }
+      ]
+    },
+    "260914-name-scheduler-terminal-consumers-as-effects": {
+      "name": "name-scheduler-terminal-consumers-as-effects",
+      "sourcePath": "name-scheduler-terminal-consumers-as-effects.md",
+      "title": "将 Scheduler 终态消费者命名为 terminal effects",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-14T06:21:06Z",
+      "purpose": "让 Definition 与 prepared strategy 的终态函数按只读副作用职责共享准确输出身份",
+      "background": "现有 measurement Hooks 与 prepared complete 已共享终态流水线和输出，但名称混合数据、时点与生命周期完成含义",
+      "decision": "直接切换为 terminalEffects 与 terminalEffect，保留 sealed measurement、顺序交付、故障聚合和主结果优先级",
+      "tags": [
+        "product-contract",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260903-extend-measurement-hook-output-to-prepared-complete",
+          "summary": "保留终态流水线语义并更正 effect 与 output 命名"
+        }
+      ]
+    },
+    "260914-narrow-project-gate-to-result-contribution": {
+      "name": "narrow-project-gate-to-result-contribution",
+      "sourcePath": "narrow-project-gate-to-result-contribution.md",
+      "title": "将 Project Gate 后处理收窄为结果贡献",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-14T06:21:10Z",
+      "purpose": "让中央 Gate 配置只暴露当前性能提示需要的消息贡献权限",
+      "background": "当前 afterGate 类型可替换完整结果，但唯一实际消费者只追加 advisory message，额外状态策略没有当前责任",
+      "decision": "以单一 resultContributor 替代 afterGate，由 adapter 验证并追加消息、保留初步状态且对故障 fail closed",
+      "tags": [
+        "configuration",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260831-centralize-project-gate-after-hook-configuration",
+          "summary": "保留中央配置并收窄为消息贡献"
+        }
+      ]
+    },
+    "260914-use-prepare-and-execute-check-authoring-names": {
+      "name": "use-prepare-and-execute-check-authoring-names",
+      "sourcePath": "use-prepare-and-execute-check-authoring-names.md",
+      "title": "用 prepare 与 execute 表达 Check authoring 权限",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-14T06:21:03Z",
+      "purpose": "让 Check 作者函数名称直接表达准备输入与执行领域工作的权限",
+      "background": "现有 preflight 与 execution 名称弱化实际职责，生命周期整理要求按当前权限直接切换且不保留兼容层",
+      "decision": "将字段直接改为 prepare 与 execute，保留 task-local 时序、结果语义和 execution context",
+      "tags": [
+        "configuration",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260901-run-check-preflight-with-task-admission",
+          "summary": "保留 task-local 准备语义并直接切换公开命名"
+        }
+      ]
     }
   }
 }

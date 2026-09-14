@@ -1,7 +1,7 @@
 ---
 title: 将 prepared complete 纳入 measurement Hook output
 id: 260903-extend-measurement-hook-output-to-prepared-complete
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-03T06:15:21Z
 purpose: 让 generic Hooks 与 prepared complete 共用 terminal pipeline，并保留既有 RunResult output。

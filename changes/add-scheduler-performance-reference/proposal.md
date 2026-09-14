@@ -4,7 +4,7 @@
 
 ## Why
 
-当前公共 `scheduler.measurementHooks` 接收冻结的 `{ graph, execution, rawMeasurement }`，而 diagnostic-enabled internal summary 会计算 span、slot utilization、admission delay totals 与 completion tail。调用方若要判断一次 schedule 是否接近依赖、并行、mutex 和 named-resource 约束共同允许的模型下界，目前只能自行重复计算，也无法复用内置 diagnostic 的公式 owner。
+公共 `scheduler.terminalEffects` 接收冻结的 `{ graph, execution, rawMeasurement }`，而 diagnostic-enabled internal summary 会计算 span、slot utilization、admission delay totals 与 completion tail。调用方若要判断一次 schedule 是否接近依赖、并行、mutex 和 named-resource 约束共同允许的模型下界，目前只能自行重复计算，也无法复用内置 diagnostic 的公式 owner。
 
 仅增加一个“理论最低开销”数字会产生虚假精度：Scheduler control overhead 没有有意义的非零理论下界，任务时长也可能随 contention 和环境变化。需要先证明一个明确命名、假设闭合、只读 public context 的 schedule reference 能在代表性场景中回答现有指标未回答的问题，再决定随包公开。
 

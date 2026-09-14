@@ -1,50 +1,51 @@
 # Proposal
 
-本 Draft 重新评估 Product 与 Project Gate 的正式扩展生命周期，并按使用者结果、控制权和失败语义选择职责清楚的最小扩展模型。
+本 Plan 固定 Product 与 Project Gate 的两层生命周期模型，并据此直接调整当前已经存在的函数、内部接口和稳定说明；没有当前消费者的位置只保留逻辑职责。
 
 ## Why
 
-当前可配置函数覆盖 Check 准备/执行、准入策略、Scheduler 终态度量、进度展示和 Gate 结果策略。它们的调用时点、权限、组合方式与失败映射各不相同，单凭回调形状或 `Hook` 后缀无法形成可靠的统一抽象。
+当前可配置函数覆盖 Check 准备与执行、Scheduler 准入、Scheduler 终态作用、进度展示和 Gate 结果贡献。它们在调用时点、上下文、控制权、组合方式和失败映射上各不相同，`Hook` 后缀或相邻时点不能证明它们属于同一执行槽位。
 
-内部 `CheckExecutionLifecycle` 还同时承载调用级选择屏障与逐 Check 状态转换。后续由 Change 产生的事实、调用绑定的 Project 文件和有效任务图准入优化需要明确的选择前后阶段，因此应先恢复每项能力的真实归属，再决定共享边界。
+内部 `CheckExecutionLifecycle` 还同时承载调用级选择屏障与逐 Check 状态转换。相邻 Change 将在选择前后增加 Project 准备、共享输入和有效任务图阶段；如果不先区分逻辑位置与实际执行契约，后续实现会继续把不同 owner、优先级和依赖压入同一接口。
 
-既有实现与 Decision 用于解释现状及兼容成本；目标由本 Change 基于当前使用者重新选择。详细的现状→目标工作账目见 [`lifecycle-inventory.md`](./lifecycle-inventory.md)。
+既有名称也没有稳定表达权限：Check 的 `preflight` / `execution` 实际承担准备 / 执行，Scheduler `measurementHooks` 与 prepared `complete` 实际构成只读终态作用流水线，Gate `afterGate` 当前只贡献提示消息却可以替换完整结果。需要以当前消费者为依据直接收窄这些契约，而不是为未来完整性增加兼容层或新扩展点。
 
 ## Outcome
 
-1. 软件包用户与维护者可从同一份稳定文档恢复完整生命周期函数模型，并区分公开可配置、内部已存在与仅保留逻辑位置的函数。
-2. Definition 与 Project Gate 作者使用按职责命名的策略、执行、观察作用、格式化、收尾或结果决策函数；具有不同义务的能力保持显式边界。
-3. Invocation 准备、有效选择、逐 Check 工作、Scheduler 终态、Run 完成与 Gate 结果决策形成可引用的阶段模型。
-4. 每个生命周期位置都有职责、声明或接线路径、可用状态和采用条件；已启用扩展点另有使用者依据、精确契约和兼容结论。同一领域结构用于形成期清单和最终稳定指南。
+完成后，软件包使用者和维护者可以从同一份稳定指南恢复完整逻辑生命周期，并能对每个当前实际契约确定其完整路径、专用上下文、调用顺序、控制权、失败映射和 owner。当前 Check、Scheduler 与 Gate 函数使用与其权限一致的名称和边界；逻辑保留位置不会产生公开字段、内部分发或输出状态。
 
 ## Scope
 
 ### Intended Change
 
-- 从源码、测试、稳定归属文档与活动 Decision 恢复现状时间线和完整函数清单。
-- 建立生命周期职责模型，并将调用级屏障与逐 Check 状态转换分配给各自归属。
-- 对现有扩展点和候选 Check 观察函数比较保留、重命名/重定位、拆分与保持局部等方案。
-- 为每个位置固定 Definition、Check、返回对象、Controls、Project Gate 或内部接口中的声明/接线路径；为最终采用的扩展点继续固定输入数据、调用方式、失败/输出、fingerprint 和兼容契约。
-- 以当前清单的领域结构重整随包的 [`docs/guides/callbacks.md`](../../docs/guides/callbacks.md)：保留完整生命周期位置并标明可用状态；仅对已启用项提供配置入口与精确契约链接。同时同步公开时间线、相邻内部归属文档、声明、JSDoc、示例、changelog 与已安装调用方证据。
+- 在 `docs/guides/callbacks.md` 建立按 Product Check、Project / Invocation、Admission / Scheduler、Run output 和 Project Gate 组织的两层生命周期模型：逻辑位置负责说明阶段与职责，实际执行契约负责说明路径、上下文、顺序和失败。
+- 将 Check authoring 字段 `preflight` / `execution` 直接切换为 `prepare` / `execute`，同步公开类型、内部命名、诊断词汇、默认 Checks、示例和调用方；不提供旧名别名或双读。
+- 将 invocation-wide selection barrier 从逐 Check 生命周期接口中拆出；`InvocationLifecycle.selectionSettled` 与 `CheckExecutionLifecycle.started` / `settled` 使用独立内部接线，不改变本 Change 之外的阶段顺序。
+- 将 `Definition.scheduler.measurementHooks[]`、`SchedulerMeasurementHook`、`PreparedCustomAdmissionStrategy.complete` 和 `outputs.measurementHooks` 直接切换为 `terminalEffects[]`、`SchedulerTerminalEffect`、`terminalEffect` 和 `outputs.terminalEffects`；保留 sealed measurement context、内部摘要优先、公开数组顺序等待、全部获得调用机会、prepared 作用最后运行及主结果优先级。
+- 将 Project Gate 当前唯一的 `afterGate` 收窄为 `PROJECT_GATE_RUN_CONFIG.resultContributor`：它只返回消息贡献，不能改变初步状态；Gate adapter 验证贡献、追加消息并对 throw 或非法返回 fail closed。最终状态继续由内部 Run-result 映射与 exit 映射拥有，不新增 `resultPolicy`、数组注册或插件入口。
+- 保持当前 declarative fingerprint 的语义边界：运行时函数及其存在性不进入 snapshot；改名后的等价 Definition 继续产生既有声明式 fingerprint。
 
 ### Resulting Impacts
 
-- Project Definition、公开导出、Run 输出与 Gate 配置可能保留、移动、替换或增加类型明确的槽位；精确目标和兼容方式在进入 Plan 前固定。
-- Invocation/check-execution 的选择屏障与逐 Check 状态转换将分配给独立内部归属；公开观察作用只从已确认事实派生。
-- 相邻 Change 继续拥有 change flags、Project 文件取得、准入算法与配置组合的领域实现；Project Gate 结果策略继续留在项目层。
-- `docs/guides/callbacks.md` 将从公开回调选择页扩展为完整生命周期模型与当前接入指南。它已在 `docs/package-documents.json` 注册并由 README 直链，本 Change 复用该路径并同步导航、软件包材料与安装后文档验收。
+- 软件包根导出、Definition closed grammar、规范化结构、Check 执行模块、Scheduler engine 接线、Run output 状态与稳定 diagnostic/event code 需要同步切换；仓库内旧字段必须在类型或运行时验证边界明确失败。
+- 随包默认 Checks、Project Gate、测试支持、machine example、外部消费者 fixture、README、changelog、API 生成材料及领域 owner 文档必须在同一实施批次迁移。
+- Scheduler 终态作用仍共享一个 output participant；任一公开 terminal effect 或 prepared terminal effect 失败时，`outputs.terminalEffects.status` 为 `failed`，正常完成分支映射为 `kind: "output"` 与 `scheduler-terminal-effects-failed`，已有 primary failure 不被覆盖。
+- Gate contributor 失败或返回非法消息列表时，最终 Gate 结果为 `unavailable`；合法贡献只追加到初步消息，不能改变初步 `status`。
+- `add-project-change-flags`、`batch-declared-project-file-inputs`、`optimize-learned-admission-strategy` 和配置组合 Change 继续拥有各自未来运行时调整；本 Change 只在稳定模型中保留其逻辑位置和采用条件。
 
 ## Success Criteria
 
-- Proposal、Design 与函数清单分别拥有结果/范围、目标决策、工作账目，并明确区分现状事实、目标候选、已确认选择和未决项。
-- 函数清单覆盖软件包根入口可达的调用方函数、回调能力、公开辅助回调、已绑定 Gate 函数及必要内部接口，并记录每项分类依据。
-- 最终生命周期矩阵覆盖公开、内部与逻辑保留位置，并为每项说明归属、职责、完整键路径或内部接线路径、可用状态和采用条件；已启用项还说明输入、控制权、组合、调用条件和失败映射，目标 API 草图与代表性用法可据此派生。
-- 测试覆盖调用次数与顺序、并发/取消、结算、作用函数故障隔离、主结果优先级、fingerprint 及进度/度量/Gate 回归。
-- 用户说明和内部归属文档按实际差异同步；目标测试与项目规定的 typecheck、lint、依赖/入口、Decision、文档和跨边界检查通过。
+- `docs/guides/callbacks.md` 覆盖所有逻辑位置，并明确区分当前公开、当前 Project、当前内部、相邻 Change 拥有和逻辑保留；只有当前实际契约具有可调用路径与签名。
+- `lifecycle-inventory.md` 中每个当前函数都能反向映射到唯一职责和最终去向；完整 API/内部接线、顺序、取消、失败、输出和 fingerprint 契约与 `design.md` 一致。
+- 旧的 `preflight`、`execution`、`measurementHooks`、prepared `complete` 与 Gate `afterGate` 用法不再被当前 authoring/runtime 接受；新名称覆盖根导出、默认 Checks、Project Gate、示例和安装后消费者。
+- 目标测试证明 Check 调用次数与 task-local 顺序、选择屏障拆分、Scheduler 终态顺序与全部调用、取消/无 sealed context、输出失败优先级、Gate 贡献验证及 fingerprint 不变性。
+- 用户说明、内部 owner 文档、长期 Decision、changelog 和包材料同步；非实施代理基于实际产品 diff 完成行为文档影响反查。
+- `bun run test-evidence -- check --root .`、目标测试、`bun run decisions -- check`、`bun run change-plan -- check changes/organize-project-extension-lifecycle`、`bun run validate` 与 `bun run check` 通过。
 
 ## Affected Owners
 
-- 稳定生命周期模型：[`docs/guides/callbacks.md`](../../docs/guides/callbacks.md) 承接按领域和位置组织的完整函数集合、可用状态与当前接入入口；[`docs/api-mechanics.md`](../../docs/api-mechanics.md) 及相关专题继续拥有现行时间线与已启用函数的精确契约。
-- 运行时：Definition、Invocation、Check 执行、Scheduler、Run 输出与人读输出的开发文档及相邻测试。
-- Project 边界：[`docs/tooling/project-gate.md`](../../docs/tooling/project-gate.md)、已绑定 Gate 定义、Gate 运行时与测试。
-- 下游引用：`add-project-change-flags`、`batch-declared-project-file-inputs`、`optimize-learned-admission-strategy` 与 `add-composable-feature-config-packages`。
+- 稳定生命周期入口：`docs/guides/callbacks.md`；当前 Run 时间线与精确公开语义：`docs/api-mechanics.md`、`docs/development/project-definition.md`、`docs/development/project-run.md`、`docs/development/scheduler.md`、`docs/development/human-output.md`。
+- Product runtime：`src/check/**`、`src/project-definition/**`、`src/project-run/**`、`src/package-checks/**`、`src/package-tools/**` 与 `src/index.ts`。
+- Project Gate：`scripts/project/gate/definition.ts`、`scripts/project/gate/run.ts`、`scripts/project/gate/runtime/**`、Gate Checks 与相邻测试。
+- 发布与消费者材料：`README.md`、`CHANGELOG.md`、`docs/package-documents.json`、machine examples、package API 材料及 `scripts/package/candidate/external-consumer/**`。
+- 长期判断：Check 准备/执行命名、Check 观察位置、Scheduler terminal effects 与 Gate result contribution 的活动 Decision。

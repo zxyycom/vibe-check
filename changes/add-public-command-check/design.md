@@ -26,7 +26,7 @@ Product 内置 Check 已通过 `src/package-checks/host-environment/process/**` 
 
 ### Intended Change
 
-1. 从 `src/index.ts` 导出 `commandCheck` 及 consumer 需要命名的 public types。Constructor 接受 caller-owned `checkId`、`displayName`、独立 executable 和 dense arguments，并通过 ordinary Check preflight 实施 runtime validation。
+1. 从 `src/index.ts` 导出 `commandCheck` 及 consumer 需要命名的 public types。Constructor 接受 caller-owned `checkId`、`displayName`、独立 executable 和 dense arguments，并通过 ordinary Check preparation 实施 runtime validation。
 2. 抽取 Product 现有 process mechanics 作为内置 Check 与公共构造器的共同 owner，同时保持 execa 和内部 runner 为 package-private implementation。
 3. 为 exit `0`、nonzero exit、startup failure、signal、timeout、output overflow 和 caller cancellation 建立封闭分支。Open Questions 中的 result projection、output policy、environment 与 defaults 在进入 Plan 前固定。
 4. 增加随包说明和可执行示例，并同步 package API mapping、README/navigation、JSDoc、changelog 与 installed-consumer acceptance。

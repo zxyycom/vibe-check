@@ -1,151 +1,227 @@
 # Design
 
-本设计以真实使用者和阶段归属为主线：现状用于确定事实与兼容成本；已确认规则、目标候选和未决项分别记录。详细函数账目由 [`lifecycle-inventory.md`](./lifecycle-inventory.md) 独立维护。
+本设计用“逻辑位置 → 实际执行契约”恢复完整生命周期，再为本 Change 触及的现有函数固定可直接实施的名称、接线、顺序、故障和迁移边界。
 
 ## Context
 
-### 权威来源与阅读路径
+### 文档消费契约与权威性
 
-- 现行公开行为由 [`api-mechanics.md`](../../docs/api-mechanics.md)、[`guides/callbacks.md`](../../docs/guides/callbacks.md)、各专题归属文档、已安装声明、源码与测试共同约束；Change 文档只保存本次目标、取舍和任务。
-- `api-mechanics.md` 当前维护软件包用户的一次 Run 主时间线，`guides/callbacks.md` 当前只维护可用公开回调的选择矩阵。Definition、Invocation、Scheduler、人读输出与 Project Gate 的归属文档维护各自精确不变量；跨领域的完整生命周期位置尚待交给稳定文档。
-- [Check 生命周期观察](../../docs/decisions/expose-check-centric-lifecycle-hooks.md)、[终态流水线](../../docs/decisions/extend-measurement-hook-output-to-prepared-complete.md) 与 [Gate 配置](../../docs/decisions/centralize-project-gate-after-hook-configuration.md) Decision 解释现行或已确认方向。若目标改变长期边界，本 Change 以可回放的后继 Decision 记录新判断。
+- 本 Change 的直接消费者是后续实施代理和审查代理。它们必须仅凭 `proposal.md`、本文件、`lifecycle-inventory.md` 与 `tasks.md` 判断改什么、按什么顺序改、什么不改以及如何证明完成。
+- Change artifacts 拥有本次目标、设计和实施账目；当前事实仍由源码、测试与稳定 owner 文档拥有。完成后，跨领域模型写入 `docs/guides/callbacks.md`，精确行为分别回写对应领域 owner。
+- “逻辑位置”只说明职责相对领域事实的阶段。“实际执行契约”才拥有函数路径、上下文、优先级、调用顺序、失败和输出。一个逻辑位置可以映射零个、一个或多个实际契约；时点相近不产生共享插槽。
+- `lifecycle-inventory.md` 是形成期的闭合账目。实施时如果源码出现未列入的函数型入口，先按相同分类规则补入清单和任务，再修改实现。
 
-### 现状时间线
+### 当前实现时间线
 
-下表只描述当前实现。目标顺序在后文单独记录。
+下表是本 Change 实施前的事实；它不表示目标命名。
 
-| 顺序 | 现有阶段 | 现有回调或投影 | 关键事实 |
+| 顺序 | 当前阶段 | 当前接线 | 事实边界 |
 | --- | --- | --- | --- |
-| 1 | Definition / Controls 验证和规范化 | — | 作者函数从合法且已规范化的输入开始。 |
-| 2 | 工作前取消 → 静态 Task 图验证 → 规划取消 | — | 这些早期结论尚未形成 Scheduler 终态上下文。 |
-| 3 | 准入策略准备 | 预备型策略 `prepare`，至多一次 | 接收完整静态任务图，时点早于内部有效选择。 |
-| 4 | 有效选择和 flag 未命中结算 | 内部 `flagControlCompleted` | 调用级选择事实当前经 `CheckExecutionLifecycle` 投影给进度展示。 |
-| 5 | Scheduler 准入 | 策略 `decide`，零次或多次 | 策略提交提案；Scheduler 拥有合法性校验、Task、取消和排空。 |
-| 6 | 已准入 Check 工作 | Check `preflight` → `execution` | `started` 在领域执行回调前投影；被 `preflight` 阻止的 Check 直接进入结算。 |
-| 7 | Product 结算 | 内部 `settled`，每个可执行 Check 一次 | 控制、依赖、准备、执行与取消关闭共用唯一终态事实。 |
-| 8 | Scheduler 终态 | 内部汇总 → `scheduler.measurementHooks` | 上下文已封闭并冻结；配置的回调按顺序等待完成，故障分别映射。 |
-| 9 | 已准备策略的终态动作 | `complete`，至多一次 | 终态上下文存在时在 `scheduler.measurementHooks` 后运行；故障汇入 `outputs.measurementHooks`。 |
-| 10 | 分支对应的 Run 完成 | 进度结束、聚合、输出完成与关闭 | 输出故障遵循 Run 输出归属方维护的主结果优先级。 |
-| 11 | Project Gate 结果决策 | 项目内部 `afterGate` | 基于精确候选对应的 Product Run 初步 Gate 结果形成最终项目结果。 |
+| 1 | Definition / Controls 验证和规范化 | 无作者回调 | 非法 closed grammar 在任何作者函数前失败。 |
+| 2 | pre-work 取消与静态 Task 图验证 | 无终态 measurement context | 早期取消或图失败不运行策略准备、Check 作者函数或终态作用。 |
+| 3 | custom strategy 准备 | prepared strategy `prepare` 至多一次 | 当前接收完整静态图；有效图调整由相邻准入 Change 拥有。 |
+| 4 | flag 有效选择与未命中结算 | `CheckExecutionLifecycle.flagControlCompleted` | invocation-wide 选择屏障当前混入逐 Check 生命周期接口。 |
+| 5 | Scheduler 准入与 Check 工作 | `decide`；Check `preflight` → `execution` | 每个 Check 只有获准入后才运行自己的准备与执行。 |
+| 6 | Check 结算 | `CheckExecutionLifecycle.settled` | 每个可执行 Check 只有一个 Product 接受的终态事实。 |
+| 7 | Scheduler 终态 | internal summary → `scheduler.measurementHooks[]` | sealed context 一次形成；公开 Hooks 按声明顺序等待且全部获得调用机会。 |
+| 8 | prepared strategy 终态 | prepared `complete` | sealed context 存在时在公开 Hooks 后至多一次；与公开 Hooks 共用 output aggregate。 |
+| 9 | Run 完成 | progress、aggregate、machine/diagnostic outputs | output failure 遵循 RunResult 的 primary-result 优先级。 |
+| 10 | Project Gate 后处理 | project `afterGate` | 当前默认实现只追加性能提示，但类型允许替换完整 `{status,messages}`。 |
+
+### 完整逻辑阶段模型
+
+稳定指南按以下相对顺序保存生命周期位置：
+
+```text
+Project 准备
+  → 有效选择
+  → Product 管理的有效 Check 输入准备 / 预结算
+  → 有效 Scheduler 图与准入策略准备
+  → Scheduler 准入
+      ↳ accepted action 后的内部 measurement observation
+      ↳ 每个已准入 Check 的 prepare → execute → settle
+  → Scheduler sealed terminal measurement 与 terminal effects
+  → Run 结果形成与输出关闭
+  → Project Gate 结果贡献 → 内部最终状态 / exit 映射
+```
+
+这是一组逻辑位置，不是通用回调流水线。Project 准备、共享 Check 输入和有效图策略准备由已记录的相邻 Change 决定实际契约；本 Change 不重排当前运行时。Scheduler accepted action 后的 collector 依赖私有状态，下一次 `decide` 只读取其冻结 captured prefix，二者也不共享公开 callback context。
 
 ### 已确认的相邻方向
 
-- 由 Change 产生的事实在有效选择前由 Project 准备阶段形成。
-- 与一次调用绑定的 Project 文件在选择后、任一 Check 作者函数前形成一次 Product 输入屏障；取得失败只预结算依赖对应来源的有效 Checks。
-- 准入优化按选择后的有效调度机会准备策略和基线。
-- 配置组合依据每个槽位的有序多个、唯一、按键合并或根配置拥有规则组合。
+- `add-project-change-flags`：Project 在有效选择前形成 change facts。
+- `batch-declared-project-file-inputs`：选择后、任一 Check 作者函数前批量取得声明输入；失败只预结算依赖相应来源的有效 Checks。
+- `optimize-learned-admission-strategy`：策略最终基于选择后的有效调度机会和图准备。
+- 配置组合：依据每个最终槽位的多值有序、唯一、按键合并或根配置拥有规则组合。
 
-这些方向提供真实阶段需求和边界约束；对应 Change 继续拥有领域实现。
-
-### 文档归属
-
-- [`lifecycle-inventory.md`](./lifecycle-inventory.md) 是形成期函数账目，覆盖生命周期扩展函数、相邻回调、回调能力、内部接口和构造/测试接口；进入 Plan 前须与软件包声明、配置语法、公开辅助函数、已绑定 Gate 定义和内部编排闭合。
-- 本 Change 完成后，[`docs/guides/callbacks.md`](../../docs/guides/callbacks.md) 是稳定生命周期模型的落点。它沿用清单的领域与生命周期位置结构，保留公开可配置、内部已存在和仅保留逻辑位置的完整函数集合，并继续使用 [`docs/package-documents.json`](../../docs/package-documents.json) 与 README 中的现有登记。
-- 稳定模型把已启用项连接到配置入口、类型声明与精确专题契约；逻辑保留项只确立位置、职责和采用条件。字段存在性、运行时分发与兼容义务以启用后的领域契约为准。Project Gate 的精确结果契约写入 [`docs/tooling/project-gate.md`](../../docs/tooling/project-gate.md)，内部事实源写入相应开发文档。
-
-该分配沿用[以用户任务组织随包文档](../../docs/decisions/structure-package-documentation-by-user-task.md)、[区分受众、发布范围与契约归属](../../docs/decisions/declare-document-audience-publication-and-contract-ownership.md)和[在 docs 中声明随包文档映射](../../docs/decisions/configure-package-document-mappings-in-docs.md)的既有判断。
+这些方向只解释逻辑阶段的采用条件，不授权本 Change 建立其候选路径或实现。
 
 ## Goals / Non-Goals
 
-### 目标
+### Goals
 
-1. 让读者从本 Change 恢复现状、目标、归属、已确认约束、未决选择和 Plan 入口。
-2. 按领域和位置保存全部生命周期函数，并明确每项的声明/接线路径、职责、可用状态、提供方、调用方、范围、权限与所属事实。
-3. 为相邻 Change 提供稳定的阶段分类，同时只实现有使用者依据的最小公开/内部接口。
+1. 让稳定文档完整表达生命周期，同时让实现者不会把逻辑位置误当成公开 API 或单一实际插槽。
+2. 让当前实际函数的名称、上下文与权限一致，并把完整迁移范围、调用顺序、失败映射和 fingerprint 规则固定到可执行粒度。
+3. 拆开 invocation-wide selection barrier 与逐 Check transition，保留各自内部上下文和消费顺序。
+4. 只调整已有实际消费者；未来位置继续由未来 Change 基于真实场景设计。
 
-### 范围边界
+### Non-Goals
 
-- 通用事件总线、阶段/优先级注册表、运行时插件系统与跨角色回调集合不在本 Change 范围内；各角色继续使用类型明确的契约。
-- Check duration 的范围保持为执行度量；outcome、Record、聚合和公开墙钟时间线维持现有边界。
-- change flags、Project 文件取得、准入算法、配置组合器和 Gate 工作流继续由各自归属实现。
+- 不新增通用事件总线、阶段/优先级注册表、运行时插件系统、公开 Check observation、prepared `dispose`、RunResult effect/policy、Gate result policy 或 contributor 数组。
+- 不在本 Change 中实现 Project change facts、Project 文件输入屏障、有效 Scheduler 图准备、准入算法优化或配置组合器。
+- 不改变 Check 四态结果、Records、aggregation、execution duration、Scheduler measurement payload、machine schema 版本或 Gate exit status vocabulary。
+- 不保留旧字段别名、兼容适配器、双读、双写或 deprecation 周期。
 
 ## Decisions
 
 ### Intended Change
 
-1. **名称跟随权限。** 名称首先表达函数能改变什么，其次表达发生时点。
+#### 1. 两层模型与共享边界
 
-   | 职责 | 现有例子 | 共同义务 | 独立权限 |
-   | --- | --- | --- | --- |
-   | 准备策略 | Check `preflight`、策略 `prepare` | 为本范围形成后续输入或状态 | Check 范围与 Run 范围的准备保持独立。 |
-   | 控制策略 | 策略 `decide` | 基于只读事实提出决定 | Scheduler 验证提案并执行真实状态转换。 |
-   | 领域执行 | Check `execution` | 形成所属领域结果 | 可写当前 Check 的结果、消息、Records 与交接数据。 |
-   | 生命周期观察 | `scheduler.measurementHooks`、候选 Check 观察 | 消费已确认事实；观察故障与事实产生分离 | 终态观察与逐状态转换观察分别定义调用方式。 |
-   | 展示格式化 | 进度格式化函数 | 映射单一展示值 | 职责止于同步映射展示值。 |
-   | 策略终态动作 | 已准备策略的 `complete` | 消费终态事实并更新策略局部状态 | 观察动作与必达资源释放分别建模。 |
-   | Gate 结果策略 | `afterGate` | 从初步事实形成最终 Gate 结果 | 项目层策略拥有唯一状态决策权。 |
+每个逻辑位置先找事实产生 owner，再按上下文能力、依赖、调用顺序、同步/异步和故障边界划分实际契约，最后只向公开或 Project 函数投影其职责需要的最小冻结输入。只有这些义务全部一致时才复用同一实际契约。
 
-2. **每项事实只有一个产生方。** Scheduler 度量、Check 结算、RunResult 与 Gate 结果各由唯一归属产生；多个使用者从同一已确认事实并列投影。
-3. **完整模型与精确契约分层维护。** `guides/callbacks.md` 保存跨领域的完整生命周期位置和可用状态；已启用函数的精确契约与内部不变量仍留在各领域归属文档，Change 只保存目标与交付路径。
-4. **兼容成本显式参与设计。** 每个现有字段依据使用者价值决定保留或调整；采用变化时固定一次切换或有期限适配器、旧用法失败方式与已安装调用方证据。
-5. **逻辑位置可以先于 API 启用。** 阶段身份、归属、职责和采用条件先进入稳定模型；公开字段、运行时分发、输出状态与兼容处理随已采用场景落地。逻辑保留状态只承诺模型位置，不承诺 API 或未来启用。
-6. **模型成员与可用状态独立。** 生命周期边界与归属决定模型成员，可用状态单独维护。后续启用现有位置时更新状态并补齐契约，沿用已有生命周期分类。
-7. **路径是函数身份的一部分。** 每个位置必须写出从所属配置根到函数或声明字段的完整键路径；`prepare` 返回值、Controls 覆盖和 Project Gate 使用各自根。作者不可配置的阶段记录内部接口路径，避免悬空函数名被理解为 Definition 字段。
+因此，Scheduler action collector 与下一次 `decide` 不共享公开 observer；Scheduler internal summary、公开 terminal effects 与 prepared terminal effect 保持三个有序 participant；Check `started` / `settled` 和 invocation `selectionSettled` 不再共享 lifecycle interface。
 
-#### 目标阶段模型
+#### 2. Check authoring 直接切换
 
-当前推荐的目标顺序是：
+目标公开形状为：
 
-```text
-Project 准备
-  → 有效选择
-  → Product 管理的有效 Check 输入准备/预结算
-  → 有效 Scheduler 任务图和准入策略准备
-  → Scheduler 准入与逐 Check 准备/执行/结算
-  → Scheduler 终态观察
-  → 已准备策略的终态动作
-  → Run 结果和输出关闭
-  → Gate 结果贡献与决策
+```ts
+defineCheck({
+  checkId: "example",
+  displayName: "Example",
+  options: { source: "input" },
+  prepare(options, signal): CheckPreparationResult {
+    return { status: "success", preparedOptions: options };
+  },
+  execute(context) {
+    return { status: "passed", data: {} };
+  }
+});
 ```
 
-该顺序已作为 Draft 推荐值，用于核对相邻方向；进入 Plan 前仍需关闭有效任务图、取消与阶段失败的精确语义。它不引入可任意插入的阶段注册表。
+固定契约：
 
-#### 内部接口规则
+- `Check.preflight` → `Check.prepare`；`CheckPreflight` / `CheckPreflightResult` → `CheckPreparation` / `CheckPreparationResult`。结果分支和 `preparedOptions` / `fallback` 字段保持不变。
+- `Check.execution` → `Check.execute`。`CheckExecution` 与 `CheckExecutionContext` 保留，因为它们准确描述 execute 所属领域，不是 Hook 名。
+- `prepare` 仍在当前 Check 获准入后、`execute` 前至多一次；省略时直接使用 authored options。`block`、throw 或非法结果结算 owning Check 为 `unavailable` 且不调用 `execute`；`continue` 用 canonical frozen fallback 继续。
+- 内部文件/类型/变量、JSDoc、诊断事件 `preflight.*`、reason code `preflight-threw` / `invalid-preflight-result` 与 settlement phase `preflight` 同步切换到 `preparation.*`、`preparation-threw` / `invalid-preparation-result` 与 `preparation`。
+- closed grammar 只接受 `prepare` / `execute`。旧字段、同时出现新旧字段或陌生字段都使 Definition 验证失败；旧类型 import 在类型检查失败。
 
-调用级选择屏障与逐 Check 状态转换分属不同内部接口。每个内部接口表达一个已有归属接受的事实，并允许进度展示或未来采用的观察函数并列消费；内部进度展示始终直接消费该已确认事实。
+#### 3. 内部 lifecycle 按范围拆分
+
+目标内部接线为：
+
+```ts
+interface InvocationLifecycle {
+  selectionSettled(): void;
+}
+interface CheckExecutionLifecycle {
+  started(fact: CheckStartedFact): void;
+  settled(fact: CheckSettledFact): void;
+}
+```
+
+- `ResolvedCheckExecutionInput` 分别接收 `invocationLifecycle` 与 `checkLifecycle`；execution settlement state 只保存 `checkLifecycle`。
+- 所有 flag-control settlements 被 Product 接受后、Scheduler graph run 开始前，同步调用 `selectionSettled()` 一次；未到达该边界时零次。它不等待异步工作且不能改变 selection。
+- `started` 在调用 `execute` 前同步投影；被 `prepare` 阻止的 Check 不产生 `started`。`settled` 在 Core 接受唯一终态事实后同步投影，包括 control、dependency、preparation、execution 和 cancellation 结算。
+- `ProgressRendering` 暴露独立的 `invocationLifecycle` 与 `checkLifecycle` 私有投影。拆分不改变当前 strategy preparation、selection 或 Check work 的相对顺序，也不增加公开观察函数。
+
+#### 4. Scheduler terminal effects 直接切换
+
+目标公开形状为：
+
+```ts
+defineConfig({
+  scheduler: {
+    terminalEffects: [async (context: SchedulerMeasurementContext) => {}],
+    admissionPolicy: {
+      kind: "custom",
+      strategy: {
+        kind: "prepared",
+        async prepare() {
+          return {
+            decide() { return { kind: "wait" }; },
+            async terminalEffect(context) {}
+          };
+        }
+      }
+    }
+  }
+});
+```
+
+固定契约：
+
+- `Definition.scheduler.measurementHooks[]` → `Definition.scheduler.terminalEffects[]`；`SchedulerMeasurementHook` → `SchedulerTerminalEffect`。`SchedulerMeasurementContext`、measurement DTO 和 collection demand 保留。
+- `PreparedCustomAdmissionStrategy.complete` → `terminalEffect`。它仍属于 prepared strategy，不并入 Definition 数组，也不是必达资源释放；没有 sealed context 时不调用。
+- sealed context 一次形成后：internal summary 先运行并自行 containment；公开 effects 按声明顺序逐个 `await`，某项 throw/reject 不阻止后续项；随后 prepared effect 至多一次。它们只读冻结事实，不能修改 Scheduler 或 Check 结果。
+- `RunOutputStatuses.measurementHooks` → `terminalEffects`，内部 tracker 与 task-engine handoff 同步命名。任一公开或 prepared effect 存在时 enabled；到达 sealed sequence 前为 `not-run`；全部成功为 `succeeded`；任一失败为 `failed`。
+- 正常完成分支的 effect failure 产生 `kind: "output"` 与 `scheduler-terminal-effects-failed`。取消、策略准备/决策或其他 primary failure 保持原 result kind，仅由 output status 反映已发生的 effect failure。诊断事件改为 `scheduler.terminal-effect-failed`。
+- declarative snapshot 排除 `terminalEffects`，prepared strategy 只保留 declarative `kind`；函数身份、闭包和存在性不进入 fingerprint。
+
+#### 5. Project Gate 收窄为结果贡献
+
+目标 Project 接线为：
+
+```ts
+interface ProjectGateResultContributionContext extends ProjectGateContext {
+  readonly initialResult: ProjectGateResult;
+}
+type ProjectGateResultContributor = (
+  context: ProjectGateResultContributionContext
+) => readonly ProjectGateMessage[] | Promise<readonly ProjectGateMessage[]>;
+
+PROJECT_GATE_RUN_CONFIG.resultContributor = contributeProjectGatePerformanceMessages;
+```
+
+固定契约：
+
+- 删除 `ProjectGateAfterHook` 与独立 `afterGate` export。`definition.ts` 的唯一中央配置项是 `PROJECT_GATE_RUN_CONFIG.resultContributor`；candidate-bound `runtime/bound-run.ts` 只投影该函数和 Product `run`。
+- adapter 先以 exact candidate 的 Product Run 形成冻结 `initialResult` 与 context，再调用 contributor 至多一次。合法返回值是经 `ProjectGateMessage` closed grammar 验证并冻结的消息数组；adapter 按返回顺序追加到 initial messages，并原样保留 initial status。
+- performance contributor 返回当前唯一的一条 advisory / not-comparable 消息；它可读取 initial status、timing、selection、candidate 与 Run facts，但不能返回状态。
+- throw/reject 映射为 `unavailable` + `result-contributor-failed`；非数组、非法 message 或 hostile terminal text 映射为 `unavailable` + `result-contributor-invalid-result`。失败不保留未经验证的贡献。
+- `createInitialProjectGateResult` 继续唯一映射 Product Run、Definition warnings 与 progress status；`projectGateExitStatus` 继续唯一映射最终状态到 `0/1/2`。不新增 result policy、第二配置来源、数组、优先级或插件发现。
+
+#### 6. 稳定文档结构
+
+`docs/guides/callbacks.md` 保留路径并改为“生命周期位置与函数契约”入口，按以下结构组织：
+
+1. 定义逻辑位置、实际执行契约和当前公开、当前 Project、当前内部、相邻 Change、逻辑保留五种状态。
+2. 给出完整逻辑时间线，并明确当前 runtime 与相邻未对齐方向的差异。
+3. 按五个领域提供矩阵，列为逻辑位置、状态、实际路径、职责/控制权、调用顺序与故障、精确 owner。
+4. 对已启用函数给出代表性用法；逻辑保留项不提供签名或候选路径。
+5. 链接 `api-mechanics.md` 与各领域 owner；README、navigation、package mapping 和安装后材料只同步入口描述，不复制精确契约。
 
 ### Resulting Impacts
 
-- 最终采用的函数集合需要封闭验证/规范化，并固定函数身份、来源、闭包、存在标记与 fingerprint 的关系。
-- 逐状态转换的异步观察函数需要定义回调开始顺序、完成、背压、终态排空与取消；仅同步的变体则以较窄能力换取稳定调度。
-- 每类观察故障需要职责相符的输出/诊断与主结果优先级；只有共享相同语义的故障才进入同一聚合。
-- 配置组合器从最终声明路径与槽位契约读取合并规则，不从函数形状或末级字段名推断组合方式。
-- 随包指南沿用现有 `docs/guides/callbacks.md` 路径和发布登记，并增加完整位置、声明路径、可用状态与采用条件；导航、README、包材料与安装后文档验收同步验证该入口。
+#### 迁移与兼容
+
+这是一次直接切换。一个实施批次必须同时修改公开声明、closed grammar、仓库默认值、Project Gate、tests/fixtures、随包示例、安装后消费者和 changelog。验收包含负向证据：旧字段、旧类型导出、旧 output key 与旧 Gate module field 不再通过对应类型或运行时边界。
+
+#### 当前顺序与相邻 Change
+
+本 Change 不重排现有 strategy preparation 与 effective selection；只在 stable model 中说明最终逻辑位置和相邻 owner。后续相邻 Change 落地时更新稳定指南的状态与当前时间线，但不得复用本 Change 未建立的候选路径。
+
+#### 测试与 Case 证据
+
+首次修改测试前运行 `bun run test-evidence -- check --root .` 建立基线；改名、拆分或合并测试时按语义 Case 保留独立证明价值，完成后再次运行同一检查和最窄目标测试。不能用机械全局替换跳过旧用法负向测试、并发顺序或 primary-result 优先级。
+
+#### 文档影响复核
+
+行为实现后，由未参与实现的代理基于实际 diff 反查用户说明与内部设计 owner。复核结果指出已同步路径、无需修改路径及理由；该语义复核与机械文档检查分别提供证据。
 
 ## Risks / Trade-offs
 
-| 取舍 | 控制方式 |
+| 风险或取舍 | 控制方式 |
 | --- | --- |
-| 实时观察函数可提供即时消费，也会占用 Scheduler 槽位或引入排空成本。 | 以已证明的时效/输入输出场景选择同步、等待异步完成或最终结果消费。 |
-| 内部进度事实比公开使用者所需信息更丰富。 | 从已确认来源派生最小事件数据，并逐项审查 Records、消息、可见性与体积。 |
-| 阶段重排会改变取消、零调用和有效任务图语义。 | 为每个边界建立直接测试，再验证完整时间线。 |
-| 公开改名提升职责可读性，同时产生升级成本。 | 逐项比较保留与改名收益，并固定清晰的一次切换或有期限适配器。 |
-| 随包文档中的逻辑位置可能被误读为已存在 API 或产品路线承诺。 | 状态列明确区分公开、内部与逻辑保留；逻辑保留项把路径标为目标候选，不提供可调用示例或已存在签名，并显式写明采用条件。 |
+| 直接改名会同时破坏源码、测试、示例和安装后消费者。 | 一个实施批次迁移全部盘点路径，并以旧用法负向测试与 external consumer evidence 证明无双名状态。 |
+| terminal effect 改名可能误改 measurement facts。 | 保留 `SchedulerMeasurementContext` 与 measurement DTO，只改 consumer/effect、output 和诊断身份。 |
+| lifecycle 拆分可能改变 selection 或 progress 时点。 | 保持原调用语句位置，并以零/一次、control settlement 与并发 Check 顺序测试证明。 |
+| Gate 收窄可能丢失初步消息或让 contributor 改状态。 | adapter 自己追加经验证贡献并复制 initial status；测试全部 status、existing messages、throw、invalid 与 hostile text。 |
+| 逻辑模型可能被误读为路线承诺。 | 每行标注状态；逻辑保留只写职责、消费者缺失和采用条件，不写路径、签名或示例。 |
+| 相邻 Change 会改变当前时间线。 | 稳定指南分别标注当前事实与未对齐方向；未来实现由对应 owner 更新。 |
 
 ## Open Questions
 
-下表只保留会改变稳定模型、公开契约、运行时顺序或验收的 Plan 阻塞项。“建议方向”是 Draft 建议，不表示已采用。
-
-| 决策 | 建议方向 | 关闭所需证据 |
-| --- | --- | --- |
-| 使用者与清单完整性 | 对完整生命周期位置和全部函数型入口反向核对；逻辑保留项记录采用条件，已启用项建立真实使用者结果。 | 每个相邻项的分类依据；已启用项的使用者任务、所需时效/事实/输入输出/失败。 |
-| 目标职责与名称 | 使用职责优先的概念名称保存完整模型；只有已启用项固定代码标识和接口。 | 每个位置的职责、概念名、可用状态；已启用项的最终字段/类型树、范围/权限/时点、合并规则与兼容结论。 |
-| 声明与接线路径 | 按责任根保存完整路径；作者不可配置的阶段标注内部归属方，返回对象字段保持自己的对象根。 | 每项的目标键路径、当前路径或“内部不可配置”结论，以及路径变化的验证、组合与兼容影响。 |
-| 目标阶段顺序 | 采用上文推荐顺序，并让策略看到有效 Scheduler 任务图。 | 定义任务图是否排除选择未命中/输入不可用的 Checks；覆盖每个取消或失败点的后续调用次数。 |
-| Check 事件契约 | 优先评估执行即将开始与结算完成；事件数据从稳定标识、outcome 和执行 `durationMs` 起步。 | 相对最终 `RunResult` 的即时价值、没有开始但会结算的路径、事件数据边界。 |
-| 观察函数调用与失败 | 提取只读、事实不回写的核心，再按逐状态转换、终态与 Gate 变体定义调用方式。 | 并发顺序、背压、`throw` / `reject`、后续观察函数、排空、输出状态与结果优先级。 |
-| Gate 组合 | 分别评估结果贡献与最终结果策略。 | 性能/状态使用者、`invalid` / `throw` 映射、精确候选与中央配置。 |
-| 兼容方式 | 软件包级变化优先采用一次清晰切换；仅在外部兼容义务成立时增加有期限适配器。 | 逐项列出旧用法、失败方式、changelog、声明、示例与已安装调用方证据。 |
-
-目标改变长期公开或 Gate 边界时，按可独立演进的方向维护后继 Decision；不同回调职责不合并成一条泛化生命周期决策。
-
-## 进入 Plan 的条件
-
-Draft 在以下证据齐备后派生 `tasks.md` 并进入 Plan：
-
-1. 函数清单与软件包声明、配置语法、辅助函数、Gate 定义和内部编排闭合。
-2. 每个生命周期扩展函数具有使用者 × 义务结论、完整声明/接线路径，并明确最终去向：保留、调整、拆分、移除或维持现状。
-3. 目标 API 草图、代表性用法、阶段顺序、失败映射和兼容方式已固定。
-4. `docs/guides/callbacks.md` 的目标目录、表格栏目与完整生命周期位置已固定；每项的声明/接线路径、可用状态、逻辑保留项的采用条件、已启用项的配置入口和专题链接均已列明，Project Gate 与内部文档的精确落点分别标注。
-5. 受影响的长期 Decision 已更新，稳定归属文档的预期差异与验证边界已列明。
-6. Change、Decision 和文档检查通过，三份 Change 文档对同一目标收敛。
+无。当前函数去向、目标名称、接线、顺序、取消、故障、输出、fingerprint、兼容方式、文档落点与验证出口均已固定；实施中若发现会改变这些选择的新事实，必须先把 Change 退回设计审阅并同步 proposal、design、inventory、tasks 与相关 Decision。

@@ -10,4 +10,4 @@
 
 ## Outcome
 
-完成后，package consumer 可以显式导入并定制质量检查、智能调度、文档检查等功能配置包，将它们与项目基础配置组合为一个经现有 validation/normalization 的 `ProjectDefinition`。省略配置包即不启用其 Checks、Hooks、策略或 I/O；需要 Project Gate 能力的仓库集成仍输出独立且唯一的 `afterGate`。
+完成后，package consumer 可以显式导入并定制质量检查、智能调度、文档检查等功能配置包，将它们与项目基础配置组合为一个经现有 validation/normalization 的 `ProjectDefinition`。省略配置包即不启用其 Checks、terminal effects、策略或 I/O；需要 Project Gate 能力的仓库集成仍输出独立且唯一的 `resultContributor`。
