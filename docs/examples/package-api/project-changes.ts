@@ -23,7 +23,6 @@ const sourceChanged = defineCheck({
 
 const definition = defineConfig({
   changes: {
-    // The sole source field is the Git comparison revision; there is no source kind.
     source: { compareWith: "origin/main" },
     flags: {
       source: { include: ["src/**"], exclude: ["src/generated/**"] }

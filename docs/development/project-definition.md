@@ -74,19 +74,22 @@ export default defineConfig({
 
 ### Flag-enabled Checks
 
-公开 authoring grammar、递归 predicate、传递选择和用户边界由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)定义。本节只拥有将其转换为 invocation 输入的实现不变量：
+公开 authoring、builders、propagation 的使用语义由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
+本节只定义 Definition validation、normalization 与 fingerprint 的边界。
 
-- validator 仅在 executable 节点接受 closed `{ when, propagateDependsOn? }` `enabledByFlags`。`when` 的非空字符串是唯一 leaf，set/unary operator 递归形成同一 AST；它拒绝 container、空/sparse child 列表、空 token、非法 kind、非 literal-true propagation 和 unknown fields。递归树最多 16 层、256 个节点；超过任一界限在 author work 前失败。
-- builder output 与 raw AST 都复制并冻结每个节点，保留每个 set node 的 child 顺序和 multiplicity，不作交换、结合或去重。builder 已返回正式 AST，Definition 不转换 leaf；因而 `exactlyOne("a", "a")` 与等价 raw AST 都仍有两个 true child，且只有结构完全相同的 frozen AST 共享 canonical identity/fingerprint。
-- normalized `{ when, propagateDependsOn? }` 进入 declarative snapshot/fingerprint；省略 propagation 与显式 opt-in 保持可区分，不能在 normalization 时隐式开启传播。
-- Run 在任何 control settlement 或 author work 前验证完整 executable graph，再计算唯一 private effective selection。matching opt-in roots 的 normalized dependsOn closure 取去重并集，以 canonical Check order 消费；不读取 observes，也不再次验证或运行 provider。
-- effective selection 同时供 flag settlement 与 effective aggregation 消费；未匹配且不在 selection 中的 Check 才结算为 flag-condition-not-matched。被激活的 dependency 保留普通 pending/admission 路径，all-passed prerequisite 仍由 Scheduler 重检。
-- cancellation precedence 在 flag control 之前，不把 cancelled Task 伪造成 flag miss；pre-admission result 留在同一 graph、dependency readback 和终态 snapshot 中，没有 started fact，duration 为 null。
-- selection 保持 invocation-private，不投影新的 ID list、callback capability 或 machine/diagnostic telemetry。callback 只读取同一完整 canonical effective `project.flags`，而不是 selection 的成员表；人读压缩由[输出指南](../guides/run-outputs.md#progress-rendering)定义。
+- validator 仅在 executable 节点接受 closed `{ when, propagateDependsOn? }`。`when` 的唯一 leaf 是非空字符串；
+  set/unary operator 递归组成同一 AST。container、empty/sparse child、empty token、unknown field、非法 operator 和非
+  literal-true propagation 都在 author work 前失败。递归上限为 16 层、256 nodes。
+- normalizer 复制并冻结 AST 和 enablement object，完整保留 leaf、set child 顺序和 multiplicity，
+  并将它们纳入 canonical declarative identity/fingerprint；`exactlyOne("a", "a")` 因而保留两个 true
+  children。省略 propagation 与 explicit `true` 是不同的 identity。
+- Definition 先关闭完整 executable graph，并把 normalized condition、direct relations 与 protected-token references
+  交给 Run。effective selection、dependency activation 和 callback `project.flags` 由 [Project Run](project-run.md#change-preparation-and-flag-projection)
+  解释；Definition 不公开 selection ID list。
 
 ### Project changes
 
-`changes` 是可选的 closed Definition field，用一次 Git comparison 声明可派生的 change flags：
+`changes` 是可选的 closed Definition field：它声明 Git comparison 与可派生 change flags，不执行 Git acquisition。
 
 ```ts
 {
@@ -97,15 +100,15 @@ export default defineConfig({
 }
 ```
 
-`source` 是 closed Git comparison object，且只能含带非空、无 U+0000、不以 `-` 开头的 `compareWith`；它没有 `kind` 或 provider discriminator。`flags` 必须是至少一个非空 ID 到 exact
-`{ include, exclude }` region 的映射。两个 glob 数组都必须 dense 且每项为非空字符串；其
-project-root-relative slash-path、dot path 和 exclude-first 匹配语义由[文件选择](../guides/collecting-project-files.md#共享的-files-选择语义)拥有，Definition 不读取 Git 或自行枚举文件。
+- `source` 是仅含 `compareWith` 的 closed `{ compareWith: string }` object。`compareWith` 非空、不含 U+0000、
+  且不以 `-` 开头。
+- `flags` 至少声明一个非空 ID 到 exact `{ include, exclude }` region；两个 glob arrays 必须 dense，且每项是非空 string。
+  project-root-relative slash-path、dot path 与 exclude-first matching 由[文件选择](../guides/collecting-project-files.md#共享的-files-选择语义)拥有。
+- normalizer 复制、冻结 source、mapping、regions 与 arrays，并将它们完整纳入 snapshot/fingerprint。递归 `when` 中的
+  `vibe-check:change:<id>` 必须引用同一 `changes.flags` 已声明的 ID；未配置 changes 或未知 ID 都是 Definition failure。
 
-normalization 会复制、冻结 source、mapping、region 和数组；该静态值完整进入 declarative
-snapshot/fingerprint。`vibe-check:change:<id>` 是 Definition-owned 保留 token：递归 `when` 中的每个该类
-引用都必须在同一 `changes.flags` 声明已知 `<id>`，未配置 changes 或未知 ID 都在 author work 前使 Definition
-validation 失败。普通 caller token 不在此处受词汇表限制；Git acquisition、derived-token selection、unavailable
-fallback 与 callback context 由 Project Run owner 实现。
+Git revision resolution、derived-token injection、unavailable fallback 和 callback context 是 [Project Run](project-run.md#change-preparation-and-flag-projection)
+的责任；普通 caller tokens 不受 Definition 词汇表限制。
 
 ### Scheduler 配置
 

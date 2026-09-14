@@ -79,9 +79,22 @@ fingerprint 使用 normalized declarative fields；preparation、execution 与 c
 
 ## 按文件变化选择 Check
 
-`changes` 由 Project Definition 声明一个 Git comparison 和一个或多个 project-relative、exclude-first glob region。effective `projectRoot` 可以是 repository 内的嵌套目录；Git candidates 与 region path 都相对这个 root。每个命中的文件会产生对应 `vibe-check:change:<id>` flag；一个文件可命中多个 region。成功 evidence 按 path 和 flag 稳定排序，只有命中至少一个 region 的文件出现。可信零命中是 `{ ok: true, files: [] }`；Git revision、repository 或 path 不能形成可信结果时为 `{ ok: false, reason }`，不带 `files`，但 selection 会保守启用所有声明 flag。
+`changes` 让 Definition 从一次 Git comparison 派生选择用的 change flags。`source` 的完整形状是
+`{ compareWith: string }`；`compareWith` 是 Git revision。`flags` 把非空 region ID 映射到 project-root-relative、
+exclude-first glob region。有效 `projectRoot` 可以嵌套在 repository 内；Git paths 与 region matching 都相对这个 root。
 
-调用方 controls 只能提供自己的普通 flags，不能传入 `vibe-check:change:` prefix。change preparation 后，caller 与 derived flags 去重、排序并冻结为同一 effective set；它同时驱动 selection，并作为 `project.flags` 交给 `prepare` 和 `execute`。同一 immutable `project.changes` 继续单独提供文件或 unavailable evidence。不配置 `changes` 时 Product 不获取 Git、callback 也没有 `project.changes`，`project.flags` 仍是 caller flags。这份 evidence 只说明本次 Git acquisition，不是环境、权限或 patch-content capability。
+一次 invocation 的数据流固定如下：
+
+```text
+caller flags ─────────────────────────────┐
+Git snapshot → matched change flags ──────┼→ canonical effective flags → selection and project.flags
+Git snapshot ─────────────────────────────└→ project.changes (files or unavailable reason)
+```
+
+可信 snapshot 只发布命中至少一个 region 的稳定 `{ path, flags }` records；一个 path 可命中多个 regions。可信零命中为
+`{ ok: true, files: [] }`，因此不派生 change flag。Git revision、repository 或 path evidence 不可信时为
+`{ ok: false, reason }`，不带 `files`，但会把全部声明的 change flags 加入 effective flags，以保守选择可能依赖它们的 Check。
+Controls 只能传普通 caller flags，不能传入 `vibe-check:change:` prefix。
 
 ```ts
 import { changeFlag, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
@@ -108,7 +121,6 @@ const sourceChanged = defineCheck({
 
 const definition = defineConfig({
   changes: {
-    // The sole source field is the Git comparison revision; there is no source kind.
     source: { compareWith: "origin/main" },
     flags: {
       source: { include: ["src/**"], exclude: ["src/generated/**"] }
@@ -131,7 +143,9 @@ if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
 }
 ```
 
-命中 `src/**`（除 `src/generated/**`）时，Check 会运行并在 `changes.files` 读取匹配 path；可信但无命中时它以 `not-applicable` 结算。Git evidence 不可用时，Check 仍会因保守 selection 运行，但必须通过 `changes.ok === false` 将结果与可信 files 区分开。
+这个示例的 Check 由 `changeFlag("source")` 选择：命中时读取可信 paths，可信零命中时结算为
+`not-applicable`，unavailable evidence 时仍运行但以 `changes.ok === false` 区分结果。`project.flags` 始终是上图的 canonical effective set；`project.changes` 才是 files 或 unavailable reason 的
+evidence channel。要编写 condition、`prepare` 或 `execute`，继续阅读[Check lifecycle](guides/extending-check-lifecycle.md)。
 
 ## options preparation 与 execution
 

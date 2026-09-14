@@ -4,27 +4,24 @@
 
 ## 未发布
 
-### Project change flags
+### Project change flags：升级前的 source change
 
-- **`ProjectDefinition.changes` 统一为 Git revision configuration**：`source` 的完整形状是
-  `{ compareWith: string }`；它不再含 `kind` 或 provider discriminator。`compareWith` 是安全的 Git revision
-  （branch、commit hash、relative revision 与 tag 均可用），Definition 另声明一个或多个文件区域。每次 Run 在 effective
-  selection 前取得一份冻结的 changed-path evidence，并为命中区域生成受保护的
-  `vibe-check:change:<id>` flags。可信零命中保留空 `files`；Git evidence 不可用时保留可判别 reason，
-  但保守注入全部已声明 change flags，避免遗漏 Check。
-- **`enabledByFlags` 只有一种递归 AST**：`when` 使用字符串 atom 以及 `all`、`any`、`none`、`not-all`、
-  `exactly-one` 与 `not` operator。package root 的直接 builders 返回该正式 AST；raw JSON AST 也使用字符串
-  leaf，保留 child 顺序和重复次数（重复项会影响 `exactly-one`）。不再接受 `{ kind: "flag" }` node、
-  `{ flags, mode }` shorthand 或 `CheckFlagConditionInput` / `CheckFlagEnablementMode` type roots；仍不导出
-  `flag()` 或 builder namespace。
-- **Check callbacks 使用 effective flags**：change preparation 后，`prepare(options, signal, project?)` 与
-  `execute({ project })` 在 `project.flags` 看到同一冻结的 caller 与 derived token 集，并在
-  `project.changes` 读取独立的 files/unavailable evidence。Controls 传入 `vibe-check:change:` prefix 会在
-  author callback 前失败。
+本次在首个公开 release 前收敛 authoring surface；升级代码时按以下顺序替换：
 
-升级时，如原先在每个 Check 内自行运行 Git 或解释 changed path，可迁移到 Definition 的 `changes` 与
-`enabledByFlags.when`；必须处理 `{ ok: false }` 的保守注入，同时不能把它误写为可信 files。未设置
-`changes` 的 Definition 继续只按 caller flags 选择 Check，也不会获取 Git evidence。
+1. 把旧 condition input 改为唯一 `CheckFlagCondition`：atom 直接写字符串，组合条件使用 `all`、`any`、`none`、
+   `notAll`、`exactlyOne` 或 `not`。`enabledByFlags` 只写 `{ when, propagateDependsOn? }`。
+2. 把 `changes.source` 改为 `{ compareWith }`。`compareWith` 是 Git revision，可使用 branch、commit hash、relative
+   revision 或 tag；不再填写 `kind`。
+3. 如果 callback 曾把 `project.flags` 当成 caller-only input，改为把它视为 caller 与 derived change tokens 的 canonical
+   effective set；文件或 unavailable evidence 仍只从 `project.changes` 读取。
+
+`CheckFlagConditionInput`、`CheckFlagEnablementMode`、`{ kind: "flag" }` leaf 和 `{ flags, mode }` shorthand 已删除，
+不是可选的 compatibility form。可信零命中保留 `{ ok: true, files: [] }` 且不派生 change flag；Git evidence unavailable
+不伪造 files，但保守注入全部已声明 change flags。Controls 仍拒绝 `vibe-check:change:` prefix。
+
+完成迁移后，运行 typecheck 与代表性 Run，并核对：builder/raw AST 使用同一 string leaf、selection 与 callback 读取同一
+`project.flags`，以及 unavailable evidence 没有被误写为可信 files。完整 authoring 和 Git evidence 说明分别见
+[Check lifecycle](guides/extending-check-lifecycle.md#按-flag-选择-check) 与 [API 机制](api-mechanics.md#按文件变化选择-check)。
 
 ## 0.0.2
 

@@ -25,7 +25,7 @@ Definition validation、normalization 与 fingerprint 实现由 [Project Definit
 
 Run 先验证 Definition 和 closed Controls，再生成 invocation-private inputs。公开字段归属见[参数位置](../api-mechanics.md#参数应该放在哪里)：唯一重叠是 Definition output defaults 被当前 Controls 逐字段覆盖，不是对象 merge，也不能借 Controls 改写 Checks 或 scheduler。
 
-caller flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。caller 不得提供 `vibe-check:change:` 保留前缀；它在任何 author work 前同样形成 closed Controls failure。配置 changes 后，Product 以 `caller flags ∪ derived change flags` 规范化出唯一 frozen effective flags：这个集合同时供 flag selection 和 callback `project.flags` 使用。Product 只解释其声明的 presence predicates，不定义其它 token vocabulary。
+caller flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。caller 不得提供 `vibe-check:change:` 保留前缀；它在任何 author work 前同样形成 closed Controls failure。
 
 `checkAggregation` 没有默认值，是唯一的多 Check aggregation 输入：
 
@@ -39,7 +39,27 @@ caller flags 在进入 control barrier 前复制、去重、排序并冻结；�
 }
 ```
 
-Run 在 work 前拒绝 unknown、duplicate 或 non-normalized ID-list selection；effective selector 复用唯一 private flag-and-dependsOn closure，不公开成员表或建立第二 resolver。signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 pre-work cancellation 结束；若在 graph validation 期间取消，后续 pre-work check 同样阻止 Git acquisition。否则，配置 `changes` 时，Run 在该 selector 前只取得一次 Git changed-path snapshot：effective project root 可以嵌套在 repository 内，Git candidates 仍规范化为相对该 root 的路径；committed `compareWith...HEAD`、staged、unstaged 与 untracked paths 合并，rename 的 old/new 和 delete 的 old path 都参加区域匹配。可信成功只把命中 region 的稳定 `{ path, flags }` file records 投影给 callback；可信零命中是空 `files`。Git/repository/revision/path 不能形成可信结果时，context 保留 unavailable reason，而 selector 保守取得全部已声明 derived flags。快照后若 signal 已取消，Run 在 admission strategy 前以 planning cancellation 结束。状态派生接线见 [Check results](check-results.md#explicit-aggregation-and-repository-gate-mapping)，公开折叠规则见 [API 机制](../api-mechanics.md)。
+Run 在 work 前拒绝 unknown、duplicate 或 non-normalized ID-list selection；`effective` selector 复用唯一 private flag-and-dependsOn closure，不公开成员表或建立第二 resolver。signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 pre-work cancellation 结束；若在 graph validation 期间取消，后续 pre-work check 同样阻止 Git acquisition。
+
+### Change preparation and flag projection
+
+配置 `changes` 时，Run 在 effective selection 和 Scheduler admission 前至多取得一次 Git changed-path snapshot。数据流是：
+
+```text
+canonical caller flags ────────────────────┐
+Git snapshot → derived change flags ───────┼→ canonical effective flags → selection and project.flags
+Git snapshot ──────────────────────────────└→ project.changes (files or unavailable reason)
+```
+
+同一个 frozen `project` context 交给 `prepare` 和 `execute`。可信成功只把命中 region 的稳定 `{ path, flags }` records
+放进 `project.changes.files`；可信零命中为空 files，effective flags 因而只含 caller flags。Git/repository/revision/path
+不能形成可信结果时，`project.changes` 只含 unavailable reason，全部 declared change flags 仍注入同一个 effective
+set，以保守选择。未配置 changes 时不获取 Git、`project.changes` 为 `undefined`，effective flags 等于 canonical caller flags。
+
+有效 project root 可以嵌套在 repository 内，Git paths 会规范化为相对该 root；committed `compareWith...HEAD`、staged、
+unstaged 与 untracked paths 合并，rename 的 old/new 和 delete 的 old path 都参与 region matching。Definition 只拥有
+`changes` grammar 与 protected-token reference；Git acquisition 和此处的 projection 是 Run owner。状态派生接线见
+[Check results](check-results.md#explicit-aggregation-and-repository-gate-mapping)，公开折叠规则见 [API 机制](../api-mechanics.md)。
 
 所有 invocation path facts 在 callback 前冻结，后续只消费其 absolute representation，不再次解释 caller directory text。Check artifact base 与其它 directory target 使用同一 trusted grammar，不提供 containment、cleanup 或跨 Run state capability；省略时 callback artifactDirectory 为 null。
 
@@ -65,7 +85,7 @@ messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，
 
 ## Check 执行与依赖交接
 
-Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；配置的 changes preparation 先把 caller 与 derived flags 合成为唯一 frozen effective input。该集合同时驱动 selector，并作为 `project.flags` 交给 `prepare` 与 `execute`；`project.changes` 继续单独提供文件或 unavailable evidence。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution。独立 ready preparation 可并行，不能形成全局 barrier；每项 `prepare(options, signal, project)` 和后续 execute 接收同一个冻结 project context。路径与 callback capability 由[本次调用](#invocation-and-results)投影，preparation snapshot 与 flag selection 见[Project Definition](project-definition.md)。
+Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution；独立 ready preparation 可并行，不能形成全局 barrier。每项 `prepare(options, signal, project)` 和后续 `execute` 接收同一个冻结 project context。change flag flow 见[Change preparation and flag projection](#change-preparation-and-flag-projection)，preparation snapshot 与 Definition grammar 见[Project Definition](project-definition.md)。
 
 Scheduler 是 Run-private child，使用共同 immutable admission reducer 维护 graph、relations、mutex、root/scoped/named capacity、cancellation 与 settlement；real shell 独占真实 Task/Promise 和 effects。policy 只交回决定，不获得执行权限。reducer、simulation、hard guards、measurement 与 terminal handoff 由[Scheduler 实现](scheduler.md)完整拥有。
 
