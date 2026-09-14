@@ -15,8 +15,8 @@ import {
   type SchedulerGraphSnapshot
 } from "@zxyycom/vibe-check";
 
-import type { ProjectGateAfterHook } from "./runtime/after-gate.ts";
-import { observeProjectGatePerformance } from "./runtime/performance-observation.ts";
+import type { ProjectGateResultContributor } from "./runtime/result-contributor.ts";
+import { contributeProjectGatePerformanceMessages } from "./runtime/performance-observation.ts";
 import { createDecisionRecordsCheck } from "./checks/decision-records.ts";
 import { createDocsValidationCheck } from "./checks/docs-validation.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
@@ -57,14 +57,11 @@ const projectGateRepositoryScanResourceClaims = Object.freeze({
  * This is trusted repository code: it may use normal Bun/JavaScript capabilities,
  * must return the only final Gate result, and may be synchronous or asynchronous.
  */
-export type { ProjectGateAfterHook } from "./runtime/after-gate.ts";
-
-/** Default Gate post-processing keeps performance observation explicit in central configuration. */
-export const afterGate: ProjectGateAfterHook = (initialResult, context) =>
-  observeProjectGatePerformance(initialResult, context);
 
 /** Run-level policy kept beside the central Check composition manifest. */
 export const PROJECT_GATE_RUN_CONFIG = Object.freeze({
+  resultContributor:
+    contributeProjectGatePerformanceMessages satisfies ProjectGateResultContributor,
   aggregation: Object.freeze({
     empty: "failed" as const,
     mode: "all" as const,

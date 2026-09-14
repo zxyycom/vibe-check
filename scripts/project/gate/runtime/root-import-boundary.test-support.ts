@@ -28,7 +28,7 @@ const status: unknown = await invokeProjectGateRoot([], {
   loadRunModule: async () => {
     if (!candidatePrepared) throw new Error("bound module loaded before candidate preparation");
     return {
-      afterGate: (initialResult: unknown) => initialResult,
+      resultContributor: () => [],
       resolvedEntryPath: preparedCandidate.resolvedEntryPath,
       run: async () => ({
         aggregate: "passed",

@@ -29,7 +29,7 @@ import {
 const licenses = defineCheck({
   checkId: "licenses",
   displayName: "Dependency licenses",
-  async execution({ records, signal }) {
+  async execute({ records, signal }) {
     if (signal.aborted)
       return { status: "unavailable", reason: { code: "cancelled" } };
 
@@ -70,7 +70,7 @@ export default defineConfig({
 });
 ```
 
-`defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execution` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
+`defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execute` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
 
 ### Flag-enabled Checks
 
@@ -103,23 +103,23 @@ caller identity projection 与 model controls。调用方提供的配置和 clos
 具体参数、安全、退化及 observation 语义由[调度指南](../guides/learned-scheduling.md)拥有，
 模型与 lifecycle 的实现归属见[随包工具实现](package-tools.md#learned-critical-path-helper-owner)。
 
-### Scheduler measurement Hooks
+### Scheduler terminal effects
 
-`scheduler.measurementHooks` 是 Definition-owned runtime function array。validation 只接受 exact function entries；normalization 复制、冻结列表，省略时为空。callback identity/source/closure 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
+`scheduler.terminalEffects` 是 Definition-owned runtime function array。validation 只接受 exact function entries；normalization 复制、冻结列表，省略时为空。callback identity/source/closure 不进入 snapshot/fingerprint，RunControls.outputs 不能注入或覆盖它。
 
-context、ordered delivery 和 prepared complete 的接线见 [Scheduler terminal handoff](scheduler.md#terminal-hooks-与-completion)；公开 status 与 failure priority 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
+context、ordered delivery 和 prepared `terminalEffect` 的接线见 [Scheduler terminal-effect delivery](scheduler.md#terminal-effects-与-delivery)；公开 status 与 failure priority 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
 ### Admission policy context
 
 Definition 只提供 normalized static graph metadata，不能给 callback 暴露 authored options/functions/data。Invocation 内唯一 frozen graph DTO 与每次 callback 的 detached dynamic context、lazy admissionState 和 captured-prefix measurement 由[Scheduler collector](scheduler.md#measurement-collector-与-immutable-context)构造；字段、inspection 与 proposal 的公开使用规则由[调度指南](../guides/scheduling.md#自定义准入-policy)定义。
 
-### Check options preflight
+### Check options preparation
 
-公开的 authoring 与结果 grammar 由[自定义 Check 指南](../guides/extending-check-lifecycle.md#preflight准备阻止或带-fallback-继续)定义；通用 final data/Record/messages 由 [API 机制](../api-mechanics.md#terminal-resultrecords-与-messages)定义。本节维护 Definition 与 invocation 之间的实现边界：
+公开的 authoring 与结果 grammar 由[自定义 Check 的 `prepare` 契约](../guides/extending-check-lifecycle.md#prepare准备阻止或带-fallback-继续)定义；通用 final data/Record/messages 由 [API 机制](../api-mechanics.md#terminal-resultrecords-与-messages)定义。本节维护 Definition 与 invocation 之间的实现边界：
 
-- Definition 只保留 trusted preflight function，不执行它，也不把 callback identity/source/closure 放入 declarative fingerprint。Run 完成 graph validation 与 flag control 后，才由 admitted Task 执行 preflight；它使用同一次 cancellation signal，受 direct relations、mutex、capacity 和 priority 约束。
-- prepared/fallback 重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value，不回写 authored options 或 fingerprint。throw 映射 preflight-threw；malformed result/message/reason 或 noncanonical prepared/fallback 映射 invalid-preflight-result；失败只结算 owning Check，不升级为 Definition configuration failure。
-- preflight block 没有 author-execution started fact、duration 为 null，但保留 accepted preparation messages、terminal fact、aggregation 和 settled lifecycle。prerequisite-blocked Task 则不运行 preflight/execution，也没有 author Record/message；direct blocker facts 由 settlement 保存。
+- Definition 只保留 trusted preparation function，不执行它，也不把 callback identity/source/closure 放入 declarative fingerprint。Run 完成 graph validation 与 flag control 后，才由 admitted Task 执行 preparation；它使用同一次 cancellation signal，受 direct relations、mutex、capacity 和 priority 约束。
+- prepared/fallback 重新 snapshot 为 detached、canonical、deep-frozen 的 invocation-local value，不回写 authored options 或 fingerprint。throw 映射 preparation-threw；malformed result/message/reason 或 noncanonical prepared/fallback 映射 invalid-preparation-result；失败只结算 owning Check，不升级为 Definition configuration failure。
+- preparation block 没有 author-execution started fact、duration 为 null，但保留 accepted preparation messages、terminal fact、aggregation 和 settled lifecycle。prerequisite-blocked Task 则不运行 preparation/execution，也没有 author Record/message；direct blocker facts 由 settlement 保存。
 - console/author message 依照 preparation、execution 的先后次序交付；即使 execution 后续抛错，已经接受的 preparation messages 仍保留。通用 terminal grammar 由 settlement 验证，Definition 不解释任何 Check 领域 data。
 
 ### Typed dependency data
@@ -140,7 +140,7 @@ validation 要求全树唯一 checkId 和非空 displayName。execution 与 cont
 
 root maxParallel 为正 safe integer，省略默认 4；admissionPriority 为有符号 safe integer，默认 0。normalization 按父子关系解析以下继承，具体 authoring 范围见[调度指南](../guides/scheduling.md)：maxParallel 和 admissionPriority 继承最近显式值；resourceClaims 继承整个 mapping，显式 `{}` 清空，不逐 key merge；dependsOn/observes/mutex 的 exact collection 完整替换（含空数组），inherit 则在父集合上 add/remove 后排序去重。normalized direct dependsOn 与 observes 不得包含同一 provider，二者只引用 executable IDs。
 
-effective priority/claims 是 immutable graph metadata；admission 时原子取得全部 claims，贯穿 preflight/execution，任意 settlement 一起释放。declaration order 不代替 execution order，也不绕过 prerequisite、mutex、capacity 或 cancellation。
+effective priority/claims 是 immutable graph metadata；admission 时原子取得全部 claims，贯穿 preparation/execution，任意 settlement 一起释放。declaration order 不代替 execution order，也不绕过 prerequisite、mutex、capacity 或 cancellation。
 
 The following field fragments are the only three collection forms. They belong on an ordinary Check; they are not a second configuration format. Use Check IDs that are executable in the same Definition.
 
@@ -171,4 +171,4 @@ const editedScheduling = {
 
 各 constructor 同步验证 authoring input 并物化完整、冻结的 resolved options；哪些输入可省略由对应[Check 指南](../navigation.md#随包-check-指南)定义。其结果仍是 ordinary executable Check，没有 Core registry 或 ID 特权。
 
-constructor 后通过原生对象组合替换 options 时，owning preflight 仍须拒绝缺失、unknown 或非法 resolved shape。Definition 只保存 canonical authored JSON，不把领域错误升级为全局 configuration failure。默认 file-selection 的共同机制见 [Project files](project-files.md#check-owned-file-selection)，scanner protocol 与 unavailable mapping 见 [Scanner dependencies](scanner-dependencies.md)；这些不是 Definition/Controls 的共享 override。
+constructor 后通过原生对象组合替换 options 时，owning preparation 仍须拒绝缺失、unknown 或非法 resolved shape。Definition 只保存 canonical authored JSON，不把领域错误升级为全局 configuration failure。默认 file-selection 的共同机制见 [Project files](project-files.md#check-owned-file-selection)，scanner protocol 与 unavailable mapping 见 [Scanner dependencies](scanner-dependencies.md)；这些不是 Definition/Controls 的共享 override。

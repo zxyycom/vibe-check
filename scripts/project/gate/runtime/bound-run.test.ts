@@ -8,18 +8,18 @@ import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 import { isNonArrayRecord } from "../../../value-guards.ts";
 import {
-  afterGate as definitionAfterGate,
+  PROJECT_GATE_RUN_CONFIG,
   projectGateInvocationOutputControls,
   projectGateOutputOverrides
 } from "../definition.ts";
-import { afterGate, run as runProjectGate } from "./bound-run.ts";
+import { resultContributor, run as runProjectGate } from "./bound-run.ts";
 
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
 
 // Keep the test-name literal on its registration line so Test Evidence locations agree.
 // prettier-ignore
-it("projects the central afterGate configuration with candidate-bound run", () => {
-  assert.equal(afterGate, definitionAfterGate);
+it("projects the central resultContributor configuration with candidate-bound run", () => {
+  assert.equal(resultContributor, PROJECT_GATE_RUN_CONFIG.resultContributor);
   assert.equal(typeof runProjectGate, "function");
 });
 
@@ -36,7 +36,7 @@ it("binds owner-specific Product outputs and Check artifacts to the Gate invocat
           defineCheck({
             checkId: "fixture-output-override",
             displayName: "Fixture output override",
-            execution: () => ({ status: "passed", data: { completed: true } })
+            execute: () => ({ status: "passed", data: { completed: true } })
           })
         ],
         outputs: { progressRendering: { enabled: false } }

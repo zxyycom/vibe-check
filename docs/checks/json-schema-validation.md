@@ -103,7 +103,7 @@ fragment 的精确 HTTPS origin；`pathPrefix` 最长 256 字符，从 `/` 开�
 
 ## 工作原理
 
-constructor 补齐并冻结 closed options；获 Scheduler admission 后先 preflight，再建立 selected path set、加载 registry、
+constructor 补齐并冻结 closed options；获 Scheduler admission 后先 preparation，再建立 selected path set、加载 registry、
 按 identity policy 编译并验证 bindings。selected set 外的声明路径形成 `out-of-scope` issue，不扩大读取范围。
 schema document、compile 与 instance issues 均形成 Records。
 
@@ -181,7 +181,7 @@ binding 数量为零时结算为 `not-applicable / no-bindings`。`unavailable.r
 
 任一 `unavailable` 分支都不提供 final data；此前已经接受的 issue Records 继续保留。
 
-通用 preflight 语法见 [options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
+通用 preparation 语法见 [options preparation 与 execution](../api-mechanics.md#options-preparation-与-execution)。
 
 ## I/O 与安全边界
 

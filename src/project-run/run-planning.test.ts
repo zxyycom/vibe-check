@@ -20,7 +20,7 @@ describe("Package Run", () => {
   });
 });
 
-function invalidRelationChecks(execution: () => typeof PASSED) {
+function invalidRelationChecks(execute: () => typeof PASSED) {
   return [
     [
       check({
@@ -30,18 +30,18 @@ function invalidRelationChecks(execution: () => typeof PASSED) {
           mode: "all",
           propagateDependsOn: true
         },
-        execution
+        execute
       })
     ],
-    [check({ observes: ["missing-check"], execution })],
+    [check({ observes: ["missing-check"], execute: execute })],
     [
-      check({ checkId: "source", execution }),
-      check({ checkId: "overlap", dependsOn: ["source"], observes: ["source"], execution })
+      check({ checkId: "source", execute: execute }),
+      check({ checkId: "overlap", dependsOn: ["source"], observes: ["source"], execute: execute })
     ],
     [
-      check({ checkId: "depends", dependsOn: ["observes"], execution }),
-      check({ checkId: "observes", observes: ["depends"], execution })
+      check({ checkId: "depends", dependsOn: ["observes"], execute: execute }),
+      check({ checkId: "observes", observes: ["depends"], execute: execute })
     ],
-    [check({ checkId: "self", observes: ["self"], execution })]
+    [check({ checkId: "self", observes: ["self"], execute: execute })]
   ];
 }

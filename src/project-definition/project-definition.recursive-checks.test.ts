@@ -11,8 +11,8 @@ describe("Project Definition", () => {
       checkId: "child-check",
       displayName: "Child check",
       options: { maximum: 3 },
-      preflight: (preparedOptions) => ({ status: "success", preparedOptions }),
-      execution({ options }) {
+      prepare: (preparedOptions) => ({ status: "success", preparedOptions }),
+      execute({ options }) {
         assert.equal(options.maximum, 3);
         return passed();
       }
@@ -23,7 +23,7 @@ describe("Project Definition", () => {
       dependsOn: ["prepare"],
       mutex: ["analysis"],
       observes: ["release-status"],
-      execution: passed,
+      execute: passed,
       checks: [child]
     });
     const informationRoot = {
@@ -49,7 +49,7 @@ describe("Project Definition", () => {
     assert.equal(normalized.checks[0]?.maxParallel, 2);
     assert.equal(normalized.checks[1]?.maxParallel, 2);
     assert.equal(
-      normalized.declarative.checks.some((check) => "execution" in check),
+      normalized.declarative.checks.some((check) => "execute" in check),
       false
     );
   });

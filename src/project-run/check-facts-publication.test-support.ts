@@ -52,7 +52,7 @@ function publishedChecks(dependent: () => void): Check[] {
       checkId: "attention-support",
       displayName: "Attention support",
       visibility: "attention",
-      execution: (context) => {
+      execute: (context) => {
         context.records.report({ id: "support-record" }, { retained: true });
         return { status: "passed", data: { supporting: true } };
       }
@@ -60,7 +60,7 @@ function publishedChecks(dependent: () => void): Check[] {
     {
       checkId: "message-source",
       displayName: "Message source",
-      execution: () => ({
+      execute: () => ({
         status: "passed",
         data: { source: true },
         messages: [{ level: "warning", code: "source-message", message: "Source needs review" }]
@@ -70,7 +70,7 @@ function publishedChecks(dependent: () => void): Check[] {
       checkId: "dependent",
       displayName: "Dependent",
       dependsOn: ["message-source"],
-      execution: () => {
+      execute: () => {
         dependent();
         return { status: "passed", data: { dependent: true } };
       }

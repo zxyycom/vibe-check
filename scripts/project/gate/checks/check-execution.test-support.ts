@@ -20,7 +20,7 @@ export interface DirectCheckInvocation {
     readonly data: object;
     readonly identity: { readonly id: string };
   }>[];
-  readonly result: Awaited<ReturnType<NonNullable<Check["execution"]>>>;
+  readonly result: Awaited<ReturnType<NonNullable<Check["execute"]>>>;
 }
 
 /** Executes one Check callback with the smallest closed Project Gate context. */
@@ -38,15 +38,14 @@ export async function invokeCheckWithRecords(
   signal = new AbortController().signal,
   artifactDirectory: string | null = null
 ): Promise<DirectCheckInvocation> {
-  if (check.execution === undefined)
-    throw new Error("fixture Check must have an execution callback");
+  if (check.execute === undefined) throw new Error("fixture Check must have an execute callback");
   const records: Array<
     Readonly<{
       readonly data: object;
       readonly identity: { readonly id: string };
     }>
   > = [];
-  const result = await check.execution({
+  const result = await check.execute({
     artifactDirectory,
     dependencies: NO_DECLARED_DEPENDENCIES,
     invocationId: "invocation/v1:fixture-check",

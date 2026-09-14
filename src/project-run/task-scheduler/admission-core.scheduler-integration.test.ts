@@ -182,7 +182,7 @@ describe("Scheduler admission core integration", () => {
       },
       graph: { tasks: graph.tasks.slice(0, 3) },
       maxParallel: 1,
-      measurementHooks: [
+      terminalEffects: [
         (context) => {
           terminalLastSettledTaskId = context.rawMeasurement.discrete.lastSettledTaskId;
         }

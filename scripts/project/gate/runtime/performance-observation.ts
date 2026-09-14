@@ -1,10 +1,9 @@
-import type { ProjectGateContext } from "./after-gate.ts";
+import type {
+  ProjectGateContext,
+  ProjectGateResultContributionContext
+} from "./result-contributor.ts";
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import {
-  createProjectGateResult,
-  type ProjectGateMessage,
-  type ProjectGateResult
-} from "./result.ts";
+import { type ProjectGateMessage, type ProjectGateResult } from "./result.ts";
 import {
   PROJECT_GATE_PERFORMANCE_BASELINES,
   type ProjectGatePerformanceBaseline,
@@ -24,40 +23,36 @@ interface CheckDuration {
   readonly durationMs: number | null;
 }
 
-/** Appends one advisory elapsed observation without changing the Gate's outcome. */
-export function observeProjectGatePerformance(
-  initialResult: ProjectGateResult,
-  context: ProjectGateContext,
+/** Contributes one advisory elapsed observation without changing the Gate outcome. */
+export function contributeProjectGatePerformanceMessages(
+  context: ProjectGateResultContributionContext,
   baselines: readonly ProjectGatePerformanceBaseline[] = PROJECT_GATE_PERFORMANCE_BASELINES,
   runtime: ProjectGatePerformanceRuntime = systemPerformanceRuntime()
-): ProjectGateResult {
+): readonly ProjectGateMessage[] {
+  const initialResult = context.initialResult;
   const elapsedMs = context.timing.elapsedToInitialResultMs;
   if (!isDuration(elapsedMs))
-    return appendObservation(
-      initialResult,
+    return observationMessages(
       "elapsed-to-initial-result timing was not comparable (invalid total timing)"
     );
   if (!hasValidPhaseTiming(context.timing))
-    return appendObservation(
-      initialResult,
+    return observationMessages(
       "elapsed-to-initial-result timing was not comparable (invalid phase timing)"
     );
 
   const comparison = comparableBaseline(initialResult, context, baselines, runtime);
   if (comparison.kind === "not-comparable")
-    return appendObservation(
-      initialResult,
+    return observationMessages(
       `${timingDescription(context.timing)} was not comparable (${comparison.reason})`
     );
 
   if (elapsedMs <= comparison.baseline.thresholdMs) {
-    return appendObservation(
-      initialResult,
+    return observationMessages(
       `${timingDescription(context.timing)} was within advisory range (threshold ${formatDuration(comparison.baseline.thresholdMs)})`
     );
   }
 
-  return appendOutsideRangeObservation(initialResult, context.timing, comparison);
+  return outsideRangeObservationMessages(context.timing, comparison);
 }
 
 type BaselineComparison =
@@ -112,11 +107,10 @@ function matchingBaseline(
   );
 }
 
-function appendOutsideRangeObservation(
-  initialResult: ProjectGateResult,
+function outsideRangeObservationMessages(
   timing: ProjectGateContext["timing"],
   comparison: Extract<BaselineComparison, { readonly kind: "comparable" }>
-): ProjectGateResult {
+): readonly ProjectGateMessage[] {
   const slowestChecks = comparison.run.checkDurations
     .filter(
       (duration): duration is Readonly<{ readonly checkId: string; readonly durationMs: number }> =>
@@ -126,8 +120,7 @@ function appendOutsideRangeObservation(
     .slice(0, 3)
     .map(({ checkId, durationMs }) => `${checkId}=${formatDuration(durationMs)}`);
   const suffix = slowestChecks.length === 0 ? "" : `; slowest Checks: ${slowestChecks.join(", ")}`;
-  return createProjectGateResult(initialResult.status, [
-    ...initialResult.messages,
+  return Object.freeze([
     Object.freeze({
       code: "project-gate-performance-outside-range",
       level: "warning",
@@ -136,11 +129,8 @@ function appendOutsideRangeObservation(
   ]);
 }
 
-function appendObservation(initialResult: ProjectGateResult, message: string): ProjectGateResult {
-  return createProjectGateResult(initialResult.status, [
-    ...initialResult.messages,
-    observationMessage(message)
-  ]);
+function observationMessages(message: string): readonly ProjectGateMessage[] {
+  return Object.freeze([observationMessage(message)]);
 }
 
 function observationMessage(message: string): ProjectGateMessage {

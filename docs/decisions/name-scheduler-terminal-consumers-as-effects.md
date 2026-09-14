@@ -2,7 +2,7 @@
 title: 将 Scheduler 终态消费者命名为 terminal effects
 id: 260914-name-scheduler-terminal-consumers-as-effects
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-14T06:21:06Z
 purpose: 让 Definition 与 prepared strategy 的终态函数按只读副作用职责共享准确输出身份
 background: 现有 measurement Hooks 与 prepared complete 已共享终态流水线和输出，但名称混合数据、时点与生命周期完成含义

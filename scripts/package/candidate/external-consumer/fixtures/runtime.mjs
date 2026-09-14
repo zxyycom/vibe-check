@@ -101,7 +101,7 @@ const terminalNote = defineCheck({
   checkId: "installed-terminal-note",
   displayName: "Installed terminal note",
   visibility: "attention",
-  execution: () => ({
+  execute: () => ({
     status: "passed",
     data: {},
     messages: [
@@ -139,7 +139,7 @@ const changedFiles = defineCheck({
     }
     return { files: data.files, version: 1 };
   },
-  execution: () => {
+  execute: () => {
     changedFilesCalls += 1;
     changedFileBytes = new Map([
       ["src/duplicate-a.ts", new TextEncoder().encode("duplicate-a")],
@@ -157,7 +157,7 @@ const failedChangedFiles = defineCheck({
   checkId: "failed-changed-files",
   displayName: "Failed changed files",
   parseData: changedFiles.parseData,
-  execution: () => ({
+  execute: () => ({
     status: "failed",
     data: { files: ["src/failed-change.ts"], version: 1 }
   })
@@ -167,7 +167,7 @@ const firstChangedFilesConsumer = defineCheck({
   checkId: "first-changed-files-consumer",
   displayName: "First changed-files consumer",
   observes: [failedChangedFiles.checkId],
-  execution: ({ dependencies }) => {
+  execute: ({ dependencies }) => {
     const observation = dependencies
       .list()
       .find(({ checkId }) => checkId === failedChangedFiles.checkId);
@@ -189,7 +189,7 @@ const secondChangedFilesConsumer = defineCheck({
   checkId: "second-changed-files-consumer",
   displayName: "Second changed-files consumer",
   dependsOn: [changedFiles.checkId],
-  execution: ({ dependencies }) => {
+  execute: ({ dependencies }) => {
     const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
     const parsedChangedFiles = changedFiles.parseData(read.data);
@@ -214,7 +214,7 @@ const blockedChangedFilesConsumer = defineCheck({
   checkId: "blocked-changed-files-consumer",
   displayName: "Blocked changed-files consumer",
   dependsOn: [failedChangedFiles.checkId],
-  execution: () => {
+  execute: () => {
     blockedChangedFilesConsumerCalls += 1;
     return { status: "passed", data: {} };
   }
@@ -443,7 +443,7 @@ async function observeAdmissionSimulation(projectRoot) {
   const first = defineCheck({
     checkId: "installed-simulation-first",
     displayName: "Installed simulation first",
-    execution: () => {
+    execute: () => {
       started.push("installed-simulation-first");
       return { status: "passed", data: {} };
     }
@@ -451,7 +451,7 @@ async function observeAdmissionSimulation(projectRoot) {
   const second = defineCheck({
     checkId: "installed-simulation-second",
     displayName: "Installed simulation second",
-    execution: () => {
+    execute: () => {
       started.push("installed-simulation-second");
       return { status: "passed", data: {} };
     }
@@ -498,7 +498,7 @@ async function observeAdmissionSimulation(projectRoot) {
   const guarded = defineCheck({
     checkId: "installed-simulation-guarded",
     displayName: "Installed simulation guarded",
-    execution: () => {
+    execute: () => {
       hardGuardExecutionCount += 1;
       return { status: "passed", data: {} };
     }
@@ -576,7 +576,7 @@ async function observeLearnedScheduling(projectRoot) {
     checkId: "installed-learned-fast",
     displayName: "Installed learned fast",
     options: { marker: "installed-private-option" },
-    async execution() {
+    async execute() {
       await delay(1);
       return { status: "passed", data: {} };
     }
@@ -585,7 +585,7 @@ async function observeLearnedScheduling(projectRoot) {
     checkId: "installed-learned-slow",
     displayName: "Installed learned slow",
     options: { marker: "installed-private-option" },
-    async execution() {
+    async execute() {
       await delay(20);
       return { status: "passed", data: {} };
     }

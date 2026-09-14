@@ -4,7 +4,7 @@ import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 const bundleSize = defineCheck({
   checkId: "bundle-size",
   displayName: "Bundle size",
-  execution() {
+  execute() {
     const actualBytes = 82_000;
     const maximumBytes = 100_000;
     const data = {

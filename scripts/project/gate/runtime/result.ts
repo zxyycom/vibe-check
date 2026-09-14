@@ -20,7 +20,7 @@ export interface ProjectGateResult {
   readonly status: ProjectGateResultStatus;
 }
 
-/** Maps one Package Run result into the immutable result given to afterGate. */
+/** Maps one Package Run result into the immutable initial Gate result. */
 export function createInitialProjectGateResult(runResult: unknown): ProjectGateResult {
   if (!isCompletedResult(runResult)) return createProjectGateResult("unavailable");
   if (
@@ -32,18 +32,12 @@ export function createInitialProjectGateResult(runResult: unknown): ProjectGateR
   return createProjectGateResult(runResult.aggregate === "passed" ? "passed" : "failed");
 }
 
-/** Validates and freezes the value returned by the project-private afterGate stage. */
-export function parseProjectGateResult(value: unknown): ProjectGateResult | undefined {
-  if (
-    !isNonArrayRecord(value) ||
-    !hasExactKeys(value, ["messages", "status"]) ||
-    !isProjectGateResultStatus(value.status) ||
-    !Array.isArray(value.messages) ||
-    !value.messages.every(isProjectGateMessage)
-  ) {
-    return undefined;
-  }
-  return createProjectGateResult(value.status, value.messages);
+/** Validates and freezes one project contributor message list. */
+export function parseProjectGateMessageContribution(
+  value: unknown
+): readonly ProjectGateMessage[] | undefined {
+  if (!Array.isArray(value) || !value.every(isProjectGateMessage)) return undefined;
+  return Object.freeze(value.map((message) => Object.freeze({ ...message })));
 }
 
 export function createProjectGateResult(
@@ -84,10 +78,6 @@ function isCheckAggregate(
     value === "passed" ||
     value === "unavailable"
   );
-}
-
-function isProjectGateResultStatus(value: unknown): value is ProjectGateResultStatus {
-  return value === "failed" || value === "passed" || value === "unavailable";
 }
 
 function isProgressOutputStatus(value: unknown): boolean {

@@ -169,7 +169,7 @@ describe("task engine admission policy", () => {
           {
             checkId: "started",
             displayName: "Started",
-            execution: async () => {
+            execute: async () => {
               executions.push("started");
               started.resolve();
               await release.promise;
@@ -179,7 +179,7 @@ describe("task engine admission policy", () => {
           {
             checkId: "pending",
             displayName: "Pending",
-            execution: () => {
+            execute: () => {
               executions.push("pending");
               return { status: "passed", data: {} };
             }
@@ -245,7 +245,7 @@ describe("task engine admission policy", () => {
           {
             checkId: "never-started",
             displayName: "Never started",
-            execution: () => {
+            execute: () => {
               executions += 1;
               return { status: "passed", data: {} };
             }

@@ -7,7 +7,7 @@ import { runTaskGraph } from "../scheduler.ts";
 import { assertFrozenSchedulerGraphSnapshot, scriptedClock } from "../task-engine.test-support.ts";
 import { DECLARATIVE_FINGERPRINT } from "./diagnostics.test-support.ts";
 
-describe("Scheduler measurement hooks", () => {
+describe("Scheduler terminal effects", () => {
   it("awaits ordered hooks over one immutable terminal context without exposing Task values", async () => {
     const calls: string[] = [];
     let successes = 0;
@@ -20,7 +20,7 @@ describe("Scheduler measurement hooks", () => {
         clock: scriptedClock(),
         declarativeFingerprint: DECLARATIVE_FINGERPRINT
       }),
-      measurementHooks: [
+      terminalEffects: [
         async (context) => {
           calls.push("first-start");
           contexts.push(context);
@@ -32,7 +32,7 @@ describe("Scheduler measurement hooks", () => {
           contexts.push(context);
         }
       ],
-      onMeasurementHooksSettled: () => {
+      onTerminalEffectsSettled: () => {
         successes += 1;
       }
     });
@@ -45,7 +45,7 @@ describe("Scheduler measurement hooks", () => {
     assertTerminalMeasurementContext(context);
   });
 
-  it("delivers the internal summary Hook before caller Hooks through one runner", async () => {
+  it("delivers the internal summary Hook before caller terminal effects through one runner", async () => {
     const calls: string[] = [];
     const logger = {
       close: () => "succeeded" as const,
@@ -62,7 +62,7 @@ describe("Scheduler measurement hooks", () => {
         declarativeFingerprint: DECLARATIVE_FINGERPRINT,
         logger
       }),
-      measurementHooks: [
+      terminalEffects: [
         async () => {
           await Promise.resolve();
           calls.push("caller");
@@ -72,7 +72,7 @@ describe("Scheduler measurement hooks", () => {
     assert.deepEqual(calls, ["summary", "caller"]);
   });
 
-  it("contains summary writer failure while preserving caller Hook failure delivery", async () => {
+  it("contains summary writer failure while preserving caller terminal effect failure delivery", async () => {
     let callerFailureCount = 0;
     const calls: string[] = [];
     const run = await runTaskGraph({
@@ -89,13 +89,13 @@ describe("Scheduler measurement hooks", () => {
           }
         }
       }),
-      measurementHooks: [
+      terminalEffects: [
         () => {
           calls.push("caller");
           throw new Error("caller failure");
         }
       ],
-      onMeasurementHookFailure: () => {
+      onTerminalEffectFailure: () => {
         callerFailureCount += 1;
       }
     });
@@ -116,7 +116,7 @@ describe("Scheduler measurement hooks", () => {
         clock: scriptedClock(),
         declarativeFingerprint: DECLARATIVE_FINGERPRINT
       }),
-      measurementHooks: [
+      terminalEffects: [
         () => {
           calls.push("sync");
           throw new Error("sync failure");
@@ -127,10 +127,10 @@ describe("Scheduler measurement hooks", () => {
         },
         () => calls.push("after")
       ],
-      onMeasurementHookFailure: () => {
+      onTerminalEffectFailure: () => {
         failures += 1;
       },
-      onMeasurementHooksSettled: () => {
+      onTerminalEffectsSettled: () => {
         successes += 1;
       }
     });

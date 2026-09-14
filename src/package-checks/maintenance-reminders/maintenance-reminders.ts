@@ -140,9 +140,9 @@ export function maintenanceReminders(
   return defineCheck({
     checkId: MAINTENANCE_REMINDERS_CHECK_ID,
     displayName: "Maintenance reminders",
-    execution: executeMaintenanceReminders,
+    execute: executeMaintenanceReminders,
     parseData: parseMaintenanceRemindersData,
-    preflight: (options) =>
+    prepare: (options) =>
       validMaintenanceReminderOptions(options)
         ? { status: "success", preparedOptions: options }
         : {

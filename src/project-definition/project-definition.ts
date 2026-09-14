@@ -4,7 +4,7 @@ import type { CheckDescriptor } from "../check/descriptor.ts";
 import type {
   Check,
   CheckFlagEnablement,
-  CheckPreflight,
+  CheckPreparation,
   CheckResourceClaims,
   CheckVisibility
 } from "../check/check.ts";
@@ -92,7 +92,7 @@ export type {
   SchedulerMeasurementAdmission,
   SchedulerMeasurementContext,
   SchedulerMeasurementEffect,
-  SchedulerMeasurementHook,
+  SchedulerTerminalEffect,
   SchedulerMeasurementIntervalContribution,
   SchedulerMeasurementPeakCounts,
   SchedulerMeasurementTiming,
@@ -156,9 +156,9 @@ export interface NormalizedCheckDeclaration {
   readonly visibility: CheckVisibility;
 }
 export interface NormalizedCheck extends NormalizedCheckDeclaration {
-  readonly execution: NonNullable<Check["execution"]>;
+  readonly execute: NonNullable<Check["execute"]>;
   readonly handoff?: HandoffProviderIdentity;
-  readonly preflight?: CheckPreflight;
+  readonly prepare?: CheckPreparation;
 }
 export interface DeclarativeProjectSnapshot {
   readonly apiVersion: "1";
@@ -205,7 +205,7 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
     scheduler: {
       admissionPolicy: value.scheduler?.admissionPolicy ?? STATIC_ADMISSION_POLICY,
       maxParallel: value.scheduler?.maxParallel ?? 4,
-      measurementHooks: value.scheduler?.measurementHooks ?? [],
+      terminalEffects: value.scheduler?.terminalEffects ?? [],
       resourceCapacities: value.scheduler?.resourceCapacities ?? EMPTY_RESOURCE_UNIT_MAPPING
     }
   };
@@ -238,13 +238,13 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     definition: leaf.definition,
     dependsOn: leaf.dependsOn,
     ...(leaf.enabledByFlags === undefined ? {} : { enabledByFlags: leaf.enabledByFlags }),
-    execution: leaf.execution,
+    execute: leaf.execute,
     ...(leaf.handoff === undefined ? {} : { handoff: leaf.handoff }),
     maxParallel: leaf.maxParallel,
     mutex: leaf.mutex,
     observes: leaf.observes,
     options: leaf.options,
-    ...(leaf.preflight === undefined ? {} : { preflight: leaf.preflight }),
+    ...(leaf.prepare === undefined ? {} : { prepare: leaf.prepare }),
     resourceClaims: leaf.resourceClaims,
     visibility: leaf.visibility
   });
@@ -266,7 +266,7 @@ function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {
   return Object.freeze({
     admissionPolicy,
     maxParallel: policy.maxParallel,
-    measurementHooks: Object.freeze([...policy.measurementHooks]),
+    terminalEffects: Object.freeze([...policy.terminalEffects]),
     resourceCapacities
   });
 }

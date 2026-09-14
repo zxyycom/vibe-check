@@ -2,7 +2,7 @@
 title: 用 prepare 与 execute 表达 Check authoring 权限
 id: 260914-use-prepare-and-execute-check-authoring-names
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-14T06:21:03Z
 purpose: 让 Check 作者函数名称直接表达准备输入与执行领域工作的权限
 background: 现有 preflight 与 execution 名称弱化实际职责，生命周期整理要求按当前权限直接切换且不保留兼容层

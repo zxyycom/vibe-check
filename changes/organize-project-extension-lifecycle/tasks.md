@@ -12,19 +12,21 @@
 
 ## Implementation
 
-- [ ] 1.1 在首次修改测试前运行 `bun run test-evidence -- check --root .` 保存当前 Case 基线；后续 test rename/split/merge 保持语义 Case 的 Owner / Proves 与独立证明价值。
-- [ ] 1.2 将 Check `preflight` / `execution` 全量切换为 `prepare` / `execute`：更新公开类型与根导出、closed validation、check tree/materialization/normalization、preparation/execute runtime 命名、诊断与 reason vocabulary、package Checks、Project Gate Checks、tests/support 和 fingerprint exclusion；增加旧字段与旧导出的负向证据。
-- [ ] 1.3 将 `flagControlCompleted` 从 `CheckExecutionLifecycle` 拆为 `InvocationLifecycle.selectionSettled`，让 resolved execution 与 progress rendering 分别接收 invocation/check lifecycle，并以原调用位置保持 selection、started、settled 与并发顺序。
-- [ ] 1.4 将 Scheduler `measurementHooks`、`SchedulerMeasurementHook`、prepared `complete` 和 Run `outputs.measurementHooks` 全量切换到 `terminalEffects`、`SchedulerTerminalEffect`、prepared `terminalEffect` 和 `outputs.terminalEffects`；同步 provider、engine、internal summary runner、learned strategy、diagnostic/event、result priority、exports 与 tests，并保留 sealed measurement payload 和调用顺序。
-- [ ] 1.5 将 Gate `afterGate` full-result transform 收窄为 `PROJECT_GATE_RUN_CONFIG.resultContributor`：建立 message-list contribution context/type/parser，迁移 central definition、bound module、root adapter 与 performance contributor，删除旧 export，并覆盖 status preservation、message append、throw/invalid/hostile fail-closed 和 exit/transcript 行为。
-- [ ] 1.6 迁移 machine example、package API material、external consumer fixture、仓库脚本和所有其他已安装调用方；用路径限定搜索确认只有历史 Decision/Change 现状说明仍可出现旧名，运行时代码、当前示例和测试输入无兼容残留。
-- [ ] 1.7 按 design 的固定结构重写 `docs/guides/callbacks.md`，同步 `docs/api-mechanics.md`、Project Definition/Run/Scheduler/Human Output、Project Gate、README、navigation、package document mapping 与 changelog；逻辑保留项不得出现候选路径或签名。
-- [ ] 1.8 将本 Plan 的未对齐 Decision 与实际实现逐条核对；完整方向已成为当前事实时才标为 aligned，并同步 Decision index。
+- [x] 1.1 在首次修改测试前运行 `bun run test-evidence -- check --root .` 保存当前 Case 基线；后续 test rename/split/merge 保持语义 Case 的 Owner / Proves 与独立证明价值。
+- [x] 1.2 将 Check `preflight` / `execution` 全量切换为 `prepare` / `execute`：更新公开类型与根导出、closed validation、check tree/materialization/normalization、preparation/execute runtime 命名、诊断与 reason vocabulary、package Checks、Project Gate Checks、tests/support 和 fingerprint exclusion；增加旧字段与旧导出的负向证据。
+- [x] 1.3 将 `flagControlCompleted` 从 `CheckExecutionLifecycle` 拆为 `InvocationLifecycle.selectionSettled`，让 resolved execution 与 progress rendering 分别接收 invocation/check lifecycle，并以原调用位置保持 selection、started、settled 与并发顺序。
+- [x] 1.4 将 Scheduler `measurementHooks`、`SchedulerMeasurementHook`、prepared `complete` 和 Run `outputs.measurementHooks` 全量切换到 `terminalEffects`、`SchedulerTerminalEffect`、prepared `terminalEffect` 和 `outputs.terminalEffects`；同步 provider、engine、internal summary runner、learned strategy、diagnostic/event、result priority、exports 与 tests，并保留 sealed measurement payload 和调用顺序。
+- [x] 1.5 将 Gate `afterGate` full-result transform 收窄为 `PROJECT_GATE_RUN_CONFIG.resultContributor`：建立 message-list contribution context/type/parser，迁移 central definition、bound module、root adapter 与 performance contributor，删除旧 export，并覆盖 status preservation、message append、throw/invalid/hostile fail-closed 和 exit/transcript 行为。
+- [x] 1.6 迁移 machine example、package API material、external consumer fixture、仓库脚本和所有其他已安装调用方；用路径限定搜索确认只有历史 Decision/Change 现状说明仍可出现旧名，运行时代码、当前示例和测试输入无兼容残留。
+- [x] 1.7 按 design 的固定结构重写 `docs/guides/callbacks.md`，同步 `docs/api-mechanics.md`、Project Definition/Run/Scheduler/Human Output、Project Gate、README、navigation、package document mapping 与 changelog；逻辑保留项不得出现候选路径或签名。
+- [x] 1.8 将本 Plan 的未对齐 Decision 与实际实现逐条核对；完整方向已成为当前事实时才标为 aligned，并同步 Decision index。
 
 ## Verification
 
-- [ ] 2.1 运行最窄 Check authoring/preparation/execution、fingerprint、internal lifecycle/progress、Scheduler terminal delivery/prepared lifecycle/output priority 与 Gate result contribution/bound-run/root-run 测试，并记录所有命令与结果。
-- [ ] 2.2 运行 `bun run test-evidence -- check --root .`、`bun run typecheck`、`bun run lint`、`bun run docs:api` 与 `bun run validate`，修复所有 Case、类型、lint、API material、文档结构/链接/schema/example 失败。
-- [ ] 2.3 运行 package build/candidate external-consumer acceptance，证明根导出、安装后 TypeScript authoring、运行时 closed grammar、随包文档和直接切换行为均来自 exact candidate，而非工作区源码旁路。
-- [ ] 2.4 由未参与实现的代理基于实际 diff 反查用户说明与内部设计 owner，记录已同步路径、无需修改路径及理由，并处理其行为/责任边界发现。
-- [ ] 2.5 运行 `bun run decisions -- check`、`bun run change-plan -- check changes/organize-project-extension-lifecycle` 与 `bun run check`；复核局部 diff 只包含本 Change，并确认 Success Criteria 全部有直接证据后再请求完成/删除授权。
+- [x] 2.1 运行最窄 Check authoring/preparation/execution、fingerprint、internal lifecycle/progress、Scheduler terminal delivery/prepared lifecycle/output priority 与 Gate result contribution/bound-run/root-run 测试，并记录所有命令与结果。
+- [x] 2.2 运行 `bun run test-evidence -- check --root .`、`bun run typecheck`、`bun run lint`、`bun run docs:api` 与 `bun run validate`，修复所有 Case、类型、lint、API material、文档结构/链接/schema/example 失败。
+- [x] 2.3 运行 package build/candidate external-consumer acceptance，证明根导出、安装后 TypeScript authoring、运行时 closed grammar、随包文档和直接切换行为均来自 exact candidate，而非工作区源码旁路。
+- [x] 2.4 由未参与实现的代理基于实际 diff 反查用户说明与内部设计 owner，记录已同步路径、无需修改路径及理由，并处理其行为/责任边界发现。
+  - 审查证据：已同步用户入口/示例、稳定生命周期/API、Definition/Run/Scheduler/输出、Project Gate、导航/changelog/Case owner；machine schema 未公开这些 runtime function 名称，相邻 Change 只记录逻辑位置，Decision/Investigation 是形成时历史，故无需修改。
+- [x] 2.5 运行 `bun run decisions -- check`、`bun run change-plan -- check changes/organize-project-extension-lifecycle` 与 `bun run check`；复核局部 diff 只包含本 Change，并确认 Success Criteria 全部有直接证据后再请求完成/删除授权。
+  - 验收证据：`bun run check -- --all` 36/36 通过；Decision、Change Plan 与 diff 检查通过，独立审查已批准并确认 191 个改动路径均属本 Change。

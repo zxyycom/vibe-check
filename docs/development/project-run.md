@@ -63,13 +63,13 @@ messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，
 
 ## Check 执行与依赖交接
 
-Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；Scheduler 再对 admitted Task 运行 task-local preflight 和 execution。独立 ready preflight 可并行，不能形成全局 barrier。路径与 callback capability 由[本次调用](#invocation-and-results)投影，preflight snapshot 与 flag selection 见[Project Definition](project-definition.md)。
+Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；Scheduler 再对 admitted Task 运行 task-local preparation 和 execution。独立 ready preparation 可并行，不能形成全局 barrier。路径与 callback capability 由[本次调用](#invocation-and-results)投影，preparation snapshot 与 flag selection 见[Project Definition](project-definition.md)。
 
 Scheduler 是 Run-private child，使用共同 immutable admission reducer 维护 graph、relations、mutex、root/scoped/named capacity、cancellation 与 settlement；real shell 独占真实 Task/Promise 和 effects。policy 只交回决定，不获得执行权限。reducer、simulation、hard guards、measurement 与 terminal handoff 由[Scheduler 实现](scheduler.md)完整拥有。
 
 ### 策略生命周期
 
-Invocation 拥有 prepare/complete，Scheduler 只接收同步 policy，并在 drain 后 seal measurement、交付 generic Hooks；返回 sealed context 后 Invocation 才 complete。[完整生命周期与 failure containment](scheduler.md#public-prepared-admission-strategy-lifecycle)说明两层的交接，公开使用见[调度指南](../guides/scheduling.md)。
+Invocation 拥有 `prepare` / `terminalEffect`，Scheduler 只接收同步 policy，并在 drain 后 seal measurement、交付 generic effects；返回 sealed context 后 Invocation 才交付 `terminalEffect`。[完整生命周期与 failure containment](scheduler.md#public-prepared-admission-strategy-lifecycle)说明两层的交接，公开使用见[调度指南](../guides/scheduling.md)。
 
 ### Check 执行与结算
 
@@ -79,7 +79,7 @@ execution owner 验证 terminal result 和 messages attachment，将 stripped fo
 
 async console capture 独立于 author attachment：throw 或 malformed result 不丢弃已经捕获的文本。console router 的安装/恢复、分阶段 message 顺序和唯一 progress preview owner 见[人读输出](human-output.md#check-console-capture-maintenance)。renderer 只能消费反馈，不能回写 accepted facts、RunResult 或 machine publication。
 
-execution owner 在 author execution 前开始 monotonic per-Check timing，在 result/Record validation 与 settlement 后结束；同一 `{ checkId, durationMs | null }` 事实供 lifecycle feedback 和 `RunResult.checkDurations` 使用。flag-control、preflight-blocked 与 prerequisite-blocked 没有 started fact，duration 为 null；timing/messages 都不进入 CheckOutcome、Record 或 machine model。
+execution owner 在 author execution 前开始 monotonic per-Check timing，在 result/Record validation 与 settlement 后结束；同一 `{ checkId, durationMs | null }` 事实供 lifecycle feedback 和 `RunResult.checkDurations` 使用。flag-control、preparation-blocked 与 prerequisite-blocked 没有 started fact，duration 为 null；timing/messages 都不进入 CheckOutcome、Record 或 machine model。
 
 ordinary throw、malformed result、Record misuse 和 cancellation 在 owning execution boundary 结算 unavailable。Scheduler 对 non-passed prerequisites 阻止 author work，对 observes 只等待 terminal；cancellation 停止新 admission 并向 started callbacks 传同一 signal，drain 后保留已 settled facts、安全关闭剩余 Check。host runtime 不能强停 non-cooperative callback。
 
@@ -112,7 +112,7 @@ Controls output parser 保留各 output object / leaf 的 typed failure，并将
 
 Definition、controls 或 aggregation selection 无效时尚无可信 effective output configuration，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由输出指南完整表达。
 
-项目可以绑定 Definition/固定 Controls，向自己的调用方只暴露必要输入；这不新增 Product 配置层。Product 不发现配置文件或提供 CLI/bin，领域 baseline/comparison 由 producing Check 的 options/composition 承接。Gate afterGate 位于 Product RunResult 之后，其配置和失败规则仅见 [Project Gate](../tooling/project-gate.md#gate-result-post-processing-and-exits)，不是 Definition/Controls hook。
+项目可以绑定 Definition/固定 Controls，向自己的调用方只暴露必要输入；这不新增 Product 配置层。Product 不发现配置文件或提供 CLI/bin，领域 baseline/comparison 由 producing Check 的 options/composition 承接。Gate resultContributor 位于 Product RunResult 之后，其配置和失败规则仅见 [Project Gate](../tooling/project-gate.md#gate-result-post-processing-and-exits)，不是 Definition/Controls hook。
 
 ### Diagnostic file naming
 

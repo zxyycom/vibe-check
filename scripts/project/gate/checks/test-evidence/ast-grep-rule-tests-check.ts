@@ -24,7 +24,7 @@ const UNAVAILABLE_REASON_CODE = Object.freeze({
 } as const);
 
 type UnavailableReasonCode = (typeof UNAVAILABLE_REASON_CODE)[keyof typeof UNAVAILABLE_REASON_CODE];
-type RuleTestCheckContext = Parameters<NonNullable<Check["execution"]>>[0];
+type RuleTestCheckContext = Parameters<NonNullable<Check["execute"]>>[0];
 
 interface RuleTestExecution {
   readonly invocations: TestEvidenceRuleTestInvocations;
@@ -52,7 +52,7 @@ export function createTestEvidenceRuleTestsCheck(
   return defineCheck({
     checkId: "test-evidence-rule-tests",
     displayName: "Test evidence ast-grep rule tests",
-    execution: async (context): Promise<CheckResult> => {
+    execute: async (context): Promise<CheckResult> => {
       if (context.signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
 
       const execution = await executeRuleTestWorkflow(
@@ -93,7 +93,7 @@ async function executeRuleTestWorkflow(
 }
 
 function writeRuleTestTranscript(
-  execution: RuleTestExecution,
+  execute: RuleTestExecution,
   artifactDirectory: string | null,
   dependencies: TestEvidenceRuleTestsCheckDependencies
 ): TranscriptWriteResult {
@@ -104,7 +104,7 @@ function writeRuleTestTranscript(
       path: dependencies.writeTranscript({
         artifactDirectory,
         checkId: "test-evidence-rule-tests",
-        steps: ruleTestTranscriptSteps(execution)
+        steps: ruleTestTranscriptSteps(execute)
       })
     };
   } catch {
@@ -112,8 +112,8 @@ function writeRuleTestTranscript(
   }
 }
 
-function ruleTestTranscriptSteps(execution: RuleTestExecution) {
-  const { invocations, result } = execution;
+function ruleTestTranscriptSteps(execute: RuleTestExecution) {
+  const { invocations, result } = execute;
   return [
     {
       definition: transcriptDefinition(invocations.version),

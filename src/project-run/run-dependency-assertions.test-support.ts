@@ -9,11 +9,11 @@ export async function assertUnavailableDependencyRead(): Promise<void> {
   let read: DependencyReadResult | undefined;
   const result = await run(
     definition([
-      check({ checkId: "unavailable", execution: unavailableSource }),
+      check({ checkId: "unavailable", execute: unavailableSource }),
       check({
         checkId: "dependent",
         observes: ["unavailable"],
-        execution: (context) => {
+        execute: (context) => {
           dependentCalls += 1;
           read = context.dependencies.get("unavailable");
           return read.ok ? PASSED : { status: "unavailable", reason: { code: read.error.code } };
@@ -37,7 +37,7 @@ export async function assertInheritedDependencyRead(): Promise<void> {
     definition([
       check({
         checkId: "inherited-source",
-        execution: () => ({ status: "passed", data: { inherited: true } })
+        execute: () => ({ status: "passed", data: { inherited: true } })
       }),
       inheritedContainer((read) => {
         inheritedRead = read;
@@ -89,7 +89,7 @@ function inheritedContainer(setRead: (read: DependencyReadResult) => void) {
     checks: [
       check({
         checkId: "inherited-dependent",
-        execution: (context) => {
+        execute: (context) => {
           const read = context.dependencies.get("inherited-source");
           setRead(read);
           return { status: "passed", data: { dependent: true } };

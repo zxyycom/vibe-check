@@ -102,7 +102,7 @@ describe("Project Gate process Check", () => {
           }
         }
       );
-      const execution = check.execution;
+      const execution = check.execute;
       if (execution === undefined) throw new Error("provider fixture must be executable");
       const executionContext = () => ({
         artifactDirectory: fixtureArtifactDirectory(root),
@@ -274,7 +274,7 @@ describe("Project Gate process Check", () => {
           }
         }
       );
-      const execution = check.execution;
+      const execution = check.execute;
       if (execution === undefined) throw new Error("dependent fixture Check must be executable");
       const invokeDependency = (get: Parameters<typeof execution>[0]["dependencies"]["get"]) =>
         execution({
@@ -815,9 +815,8 @@ async function invoke(
   signal: AbortSignal | undefined = new AbortController().signal,
   artifactDirectory: string | null = null
 ) {
-  if (check.execution === undefined)
-    throw new Error("fixture Check must have an execution callback");
-  return check.execution({
+  if (check.execute === undefined) throw new Error("fixture Check must have an execution callback");
+  return check.execute({
     artifactDirectory,
     dependencies: Object.freeze({
       get: dependencyNotDeclared,

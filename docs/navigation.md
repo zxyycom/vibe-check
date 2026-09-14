@@ -20,7 +20,7 @@
 | [API 机制](api-mechanics.md) | Run 生命周期、Definition/Controls、组合、aggregation 和结果分支。 |
 | [Core 数据工具](guides/data-boundaries.md) | JSON 规范化副本与确定性序列化；另提供可保留回调和嵌套引用的外层结构快照。 |
 | [回调位置](guides/callbacks.md) | 按任务选扩展点；具体契约引用对应专题。 |
-| [自定义 Check](guides/extending-check-lifecycle.md) | preflight/execution authoring、callback context、flags 与协作取消。 |
+| [自定义 Check](guides/extending-check-lifecycle.md) | `prepare`/`execute` authoring、callback context、flags 与协作取消。 |
 | [依赖与类型化数据](guides/check-dependencies.md) | direct relations、get/list 授权、typed provider 与 parser。 |
 | [Run 输出与诊断](guides/run-outputs.md) | 输出配置、progress/console/diagnostic、readback 与失败优先级。 |
 | [调度 Check](guides/scheduling.md) | 资源与准入、simple/prepared lifecycle、终态 measurement。 |
@@ -70,7 +70,7 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 修改对象 | owner / 验证入口 |
 | --- | --- |
 | 根命令、脚本目录、共享 capability、环境 | [Workspace tooling](tooling/workspace.md)与 scripts tests |
-| Gate selection、candidate binding、afterGate、exit | [Project Gate](tooling/project-gate.md)与 adapter tests |
+| Gate selection、candidate binding、resultContributor、exit | [Project Gate](tooling/project-gate.md)与 adapter tests |
 | Gate native/process diagnostics、Record 投影 | [Gate diagnostics](tooling/gate-diagnostics.md)与各 producing owner tests |
 | 本地候选包状态、准备、安装与 external consumer | [Package lifecycle](tooling/package-lifecycle.md)与 candidate / consumer acceptance |
 | package 构建、manifest、ESM 布局与随包法律材料 | [Package artifact](tooling/package-artifact.md)与 artifact acceptance |

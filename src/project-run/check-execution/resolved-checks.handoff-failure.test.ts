@@ -55,12 +55,12 @@ async function assertMalformedHandoffResults(): Promise<void> {
       checkId: "malformed-handoff",
       displayName: "Malformed handoff",
       handoff: true,
-      execution: () => malformedHandoffResult(malformedResult.mutate)
+      execute: () => malformedHandoffResult(malformedResult.mutate)
     });
     let read: unknown;
     const result = await executeResolvedChecks({
       checks: [
-        normalized(provider.execution, {
+        normalized(provider.execute, {
           checkId: provider.checkId,
           displayName: provider.displayName,
           handoff: definedHandoff(provider)
@@ -93,13 +93,13 @@ async function assertUnflaggedHandoffResults(): Promise<void> {
     const provider = defineCheck({
       checkId: "unflagged-handoff",
       displayName: "Unflagged handoff",
-      execution: () => unflaggedHandoffResult(status)
+      execute: () => unflaggedHandoffResult(status)
     });
     let read: unknown;
     const observations: DiagnosticObservation[] = [];
     const result = await executeResolvedChecks({
       checks: [
-        normalized(provider.execution!, {
+        normalized(provider.execute!, {
           checkId: provider.checkId,
           displayName: provider.displayName
         }),

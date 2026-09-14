@@ -70,7 +70,7 @@ Oxlint 的 `error` / `warning` severity 原样进入 Record；lint invocation �
 
 | Channel        | 它包含的事实                                                                                                                           | 它不包含的事实                                                       |
 | -------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
-| `gate.log`     | Gate adapter 的 candidate/selection/aggregation/execution messages、`afterGate` final messages，以及唯一 final directory/result/exit。 | Product progress、Check presentation 与 child output。               |
+| `gate.log`     | Gate adapter 的 candidate/selection/aggregation/execution messages、`resultContributor` final messages，以及唯一 final directory/result/exit。 | Product progress、Check presentation 与 child output。               |
 | terminal       | 一条 candidate/source/selection 启动摘要、Product progress、Gate warning/error、logs path 与最终 result。                              | candidate、aggregation 或 post-processing 的完整 Gate adapter info。 |
 | `progress.log` | Product progress owner 生成并与 terminal 双投递的 progress text。                                                                      | Gate adapter transcript 或 child transcript。                        |
 

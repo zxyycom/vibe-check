@@ -7,12 +7,12 @@ export const PASSED = Object.freeze({
 });
 
 export function check(
-  overrides: Readonly<{ readonly checkId?: string; readonly execution?: CheckExecution }> = {}
+  overrides: Readonly<{ readonly checkId?: string; readonly execute?: CheckExecution }> = {}
 ): Check {
   return {
     checkId: overrides.checkId ?? "custom",
     displayName: overrides.checkId ?? "Custom",
-    execution: overrides.execution ?? (() => PASSED)
+    execute: overrides.execute ?? (() => PASSED)
   };
 }
 

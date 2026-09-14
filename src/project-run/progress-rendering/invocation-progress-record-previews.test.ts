@@ -25,7 +25,7 @@ describe("Package Run progress rendering outputs", () => {
           check({
             checkId: "attention-records",
             visibility: "attention",
-            execution: ({ records }) => {
+            execute: ({ records }) => {
               for (let index = 1; index <= 6; index += 1) {
                 records.report({ id: `record-${index}` }, { index, text: "x".repeat(260) });
               }
@@ -79,7 +79,7 @@ describe("Package Run progress rendering outputs", () => {
         [
           check({
             checkId: "configured-preview",
-            execution: ({ records }) => {
+            execute: ({ records }) => {
               records.report({ id: "one" }, { order: 1 });
               records.report({ id: "two" }, { order: 2 });
               return {

@@ -9,7 +9,7 @@ Gate 的 candidate 绑定、aggregation 和诊断接线在此定义；Product Ru
 
 ```text
 scripts/project/gate/
-├── definition.ts        # 完整组合 manifest、selection、aggregate、outputs、scheduler 与 afterGate
+├── definition.ts        # 完整组合 manifest、selection、aggregate、outputs、scheduler 与 resultContributor
 ├── run.ts               # argv、candidate、transcript 与 process exit adapter
 ├── checks/              # 各领域 Check 对象/对象组、options 与 adapter
 └── runtime/             # bound Run、selection、aggregation、result 与 transcript mechanics
@@ -19,9 +19,9 @@ scripts/project/gate/
 
 `definition.ts` 是阅读完整 Gate 组合的入口：从稳定顺序的 entry manifest 可以恢复全部 Check identity、
 required/preset membership、Gate 自有的 `observes` 闭合，以及 run-level aggregate、outputs、scheduler 和唯一
-project-owned `afterGate`。组合入口可以引用 `checks/**` owner 已定义的普通 Check 对象或闭合对象组；领域
+project-owned `resultContributor`。组合入口可以引用 `checks/**` owner 已定义的普通 Check 对象或闭合对象组；领域
 options、scanner protocol、test file partition 和 execution mechanics 留在对应 owner，不为追求物理单文件而
-复制。`runtime/**` 不另行拥有 Check membership、领域 policy、`dependsOn` 传播或第二个 Hook 配置面。
+复制。`runtime/**` 不另行拥有 Check membership、领域 policy、`dependsOn` 传播或第二个 result-contributor 配置面。
 
 一次运行先解析参数并准备 exact local candidate，或在 `--all --release-receipt <path>` 下重验显式 release receipt；之后才动态导入
 `runtime/bound-run.ts`。`run.ts` 必须先确定 candidate，bound Run 才能通过已解析的
@@ -166,19 +166,23 @@ import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](.
 
 #### 调用顺序与性能观察
 
-1. exact candidate 准备后，`run.ts` 动态加载 `runtime/bound-run.ts`，取得它投影的 `resolvedEntryPath`、Product `run` 和 `definition.ts` 配置的唯一 `afterGate`。
+1. exact candidate 准备后，`run.ts` 动态加载 `runtime/bound-run.ts`，取得它投影的 `resolvedEntryPath`、Product `run` 和 `definition.ts` 配置的唯一 `resultContributor`。
 2. `run.ts` 验证该 entry 等于 prepared candidate 的 exact entry，再运行 Product Run。
-3. 从同一个 RunResult 形成初步 Gate result，然后调用 `afterGate`。
+3. 从同一个 RunResult 形成初步 Gate result，然后调用 `resultContributor`。
 
-默认 Hook 显式调用 elapsed/per-phase performance observer。只有 workload identity 与 checked-in baseline 匹配时才比较；
+默认 performance contributor 显式调用 elapsed/per-phase performance observer。只有 workload identity 与 checked-in baseline 匹配时才比较；
 结果是 advisory，不能修改 Check facts、aggregate 或 process exit。observer 不读取、解析或归约 Product diagnostic log 的
 `scheduler.summary`，也不把它变成新的 warning、budget、autotune 或比较输入。
 
-#### Hook 边界与退出码
+#### Result-contributor 边界与退出码
 
-`afterGate` 是 result post-processing，不是 Check `preflight`：后者是 Product Run 内每项 Check 在 execution 前的 options 准备边界，而前者只在整个 candidate-backed Run 已形成初步 Gate result 后执行。Hook 是受信任的项目 JavaScript/Bun 代码，可同步或异步执行项目授权范围内的工作；它不是 package API、plugin、sandbox 或 registry，也没有 `beforeGate` 对应物。正式配置只在 `definition.ts`，`run.ts` 的 loader、clock 与 transcript injection 仅为 adapter 测试 seam，不能用作另一配置入口。
+`resultContributor` 是 result post-processing，不是 Check preparation：后者是 Product Run 内每项 Check 在 execution 前的 options 准备边界，而前者只在整个 candidate-backed Run 已形成初步 Gate result 后执行。它是受信任的项目 JavaScript/Bun 函数，可同步或异步执行项目授权范围内的工作；不是 package API、plugin、sandbox 或 registry，也没有 `beforeGate` 对应物。正式配置只在 `definition.ts`，`run.ts` 的 loader、clock 与 transcript injection 仅为 adapter 测试 seam，不能用作另一配置入口。
 
-Hook 必须返回闭合的 `{ status, messages }`，且不能改写 context 或 RunResult；抛错或返回非法 shape 时 fail closed 为 `unavailable`。
+`resultContributor` 接收 frozen 的初步 Gate result 与 invocation context，只能同步或异步返回闭合的
+`readonly ProjectGateMessage[]`。adapter 按顺序将已验证消息追加到初步消息，**原样保留**初步 status；它不能改写
+context、RunResult、Check facts、aggregate 或 exit 决定。抛错、reject、非数组、非法 message 或 hostile terminal text
+都会 fail closed 为 `unavailable`，并仅记录 `result-contributor-failed` 或
+`result-contributor-invalid-result` 诊断。
 
 | 最终状态      | process exit |
 | ------------- | ------------ |
@@ -190,6 +194,6 @@ Hook 必须返回闭合的 `{ status, messages }`，且不能改写 context 或 
 
 #### Gate terminal and transcript
 
-`gate.log` 保存 adapter 与 `afterGate` 的最终事实，`progress.log` 保存 Product progress，child 输出留在各 Check 的 transcript。
+`gate.log` 保存 adapter 与 `resultContributor` 的最终事实，`progress.log` 保存 Product progress，child 输出留在各 Check 的 transcript。
 通道完整边界见[Gate 诊断](gate-diagnostics.md#gate-terminal-and-transcript)。Gate 不解析这些文件来重建结果。
 成功关闭时 `gate.log` 追加 invocation directory、唯一最终 result 与 exit；关闭失败仍返回 `unavailable` / exit `2`。

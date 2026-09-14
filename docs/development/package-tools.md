@@ -21,7 +21,7 @@
 
 `src/package-tools/learned-critical-path/**` 拥有 exported `createLearnedCriticalPathStrategy(...)` 与其 caller-owned
 duration-history model：factory 验证调用方提供的绝对 state directory、identity projection 和有界 model controls，在普通
-public prepared-strategy lifecycle 中准备 immutable prediction/critical-path selection closure，并在 terminal Hooks 完成后
+public prepared-strategy lifecycle 中准备 immutable prediction/critical-path selection closure，并在 terminal effects 交付后
 记录下一次 Run 可用的样本。它不读取 Product options、flags、project root 或 diagnostic channels，也不改变 Scheduler 的
 legality owner；`duration-model/**` 只承接该 helper 的 bounded history、prediction、recording 与 storage mechanics，
 `critical-path-ranking.ts` 只承接此 helper 的 ranking。

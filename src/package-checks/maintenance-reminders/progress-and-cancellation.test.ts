@@ -96,11 +96,10 @@ describe("maintenance reminders", () => {
         records: { report: () => undefined },
         signal: controller.signal
       };
-      assert.notEqual(check.execution, undefined);
-      if (check.execution === undefined)
-        throw new Error("maintenance reminders must be executable");
+      assert.notEqual(check.execute, undefined);
+      if (check.execute === undefined) throw new Error("maintenance reminders must be executable");
       assert.deepEqual(
-        await check.execution({
+        await check.execute({
           ...context,
           options: { ...check.options, git: { executable: "" } },
           signal: new AbortController().signal
@@ -118,7 +117,7 @@ describe("maintenance reminders", () => {
           ]
         }
       );
-      assert.deepEqual(await check.execution(context), {
+      assert.deepEqual(await check.execute(context), {
         status: "unavailable",
         reason: { code: "execution-cancelled" },
         messages: [

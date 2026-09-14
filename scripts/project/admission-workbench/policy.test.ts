@@ -77,7 +77,7 @@ test("formal simple and prepared adapters prepare once and never complete virtua
       prepare: () => {
         prepareCount += 1;
         return Object.freeze({
-          complete: () => {
+          terminalEffect: () => {
             completeCount += 1;
           },
           decide: (context: AdmissionPolicyContext) => {

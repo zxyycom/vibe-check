@@ -119,7 +119,7 @@ describe("Package Run diagnostic logging output", () => {
   });
 });
 
-describe("Scheduler measurement Hook output", () => {
+describe("Scheduler terminal effect output", () => {
   it("keeps settled facts while making Hook failures visible", async () => {
     const calls: string[] = [];
     const result = await executeValidatedRun(
@@ -131,7 +131,7 @@ describe("Scheduler measurement Hook output", () => {
           progressRendering: { enabled: false }
         },
         scheduler: {
-          measurementHooks: [
+          terminalEffects: [
             () => {
               calls.push("failed");
               throw new Error("measurement failure");
@@ -148,14 +148,14 @@ describe("Scheduler measurement Hook output", () => {
     assert.equal(result.kind, "output");
     if (result.kind !== "output") return;
     assert.deepEqual(result.diagnostic, {
-      code: "scheduler-measurement-hooks-failed"
+      code: "scheduler-terminal-effects-failed"
     });
-    assert.equal(result.outputs.measurementHooks.status, "failed");
+    assert.equal(result.outputs.terminalEffects.status, "failed");
     assert.deepEqual(result.snapshot.checks, []);
   });
 });
 
-describe("Scheduler measurement Hook output", () => {
+describe("Scheduler terminal effect output", () => {
   it("marks all successfully settled configured Hooks as succeeded", async () => {
     let calls = 0;
     const result = await executeValidatedRun(
@@ -167,7 +167,7 @@ describe("Scheduler measurement Hook output", () => {
           progressRendering: { enabled: false }
         },
         scheduler: {
-          measurementHooks: [
+          terminalEffects: [
             () => {
               calls += 1;
             }
@@ -180,13 +180,13 @@ describe("Scheduler measurement Hook output", () => {
 
     assert.equal(calls, 1);
     assert.equal(result.kind, "completed");
-    assert.deepEqual(result.outputs.measurementHooks, {
+    assert.deepEqual(result.outputs.terminalEffects, {
       enabled: true,
       status: "succeeded"
     });
   });
 
-  it("preserves execution cancellation when a measurement Hook fails after drain", async () => {
+  it("preserves execution cancellation when a terminal effect fails after drain", async () => {
     const controller = new AbortController();
     let entered: (() => void) | undefined;
     const executionEntered = new Promise<void>((resolve) => {
@@ -198,7 +198,7 @@ describe("Scheduler measurement Hook output", () => {
           {
             checkId: "waiting",
             displayName: "Waiting",
-            execution: async ({ signal }) => {
+            execute: async ({ signal }) => {
               entered?.();
               await new Promise<void>((resolve) => {
                 signal.addEventListener(
@@ -219,7 +219,7 @@ describe("Scheduler measurement Hook output", () => {
           progressRendering: { enabled: false }
         },
         scheduler: {
-          measurementHooks: [() => Promise.reject(new Error("measurement failure"))]
+          terminalEffects: [() => Promise.reject(new Error("measurement failure"))]
         }
       }),
       { signal: controller.signal },
@@ -233,18 +233,18 @@ describe("Scheduler measurement Hook output", () => {
     assert.equal(result.kind, "cancelled");
     if (result.kind !== "cancelled") return;
     assert.equal(result.phase, "execution");
-    assert.equal(result.outputs.measurementHooks.status, "failed");
+    assert.equal(result.outputs.terminalEffects.status, "failed");
     assert.equal("diagnostic" in result, false);
   });
 
-  it("preserves an admission-policy failure when a measurement Hook fails after drain", async () => {
+  it("preserves an admission-policy failure when a terminal effect fails after drain", async () => {
     const result = await executeValidatedRun(
       defineConfig({
         checks: [
           {
             checkId: "never-started",
             displayName: "Never started",
-            execution: () => ({ data: {}, status: "passed" })
+            execute: () => ({ data: {}, status: "passed" })
           }
         ],
         outputs: {
@@ -262,7 +262,7 @@ describe("Scheduler measurement Hook output", () => {
               }
             }
           },
-          measurementHooks: [() => Promise.reject(new Error("measurement failure"))]
+          terminalEffects: [() => Promise.reject(new Error("measurement failure"))]
         }
       }),
       {},
@@ -272,6 +272,6 @@ describe("Scheduler measurement Hook output", () => {
     assert.equal(result.kind, "execution");
     if (result.kind !== "execution") return;
     assert.deepEqual(result.diagnostic, { code: "admission-policy-failed" });
-    assert.equal(result.outputs.measurementHooks.status, "failed");
+    assert.equal(result.outputs.terminalEffects.status, "failed");
   });
 });

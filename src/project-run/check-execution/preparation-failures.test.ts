@@ -14,16 +14,16 @@ import {
 } from "./resolved-checks.test-support.ts";
 
 describe("Package Run direct Check execution", () => {
-  it("fails closed for thrown, malformed, and noncanonical preflight results", async () => {
-    const fixture = await executePreflightFailureFixture();
-    assertPreflightFailureOutcomes(fixture);
-    assertPreflightFailureDiagnostics(fixture);
+  it("fails closed for thrown, malformed, and noncanonical preparation results", async () => {
+    const fixture = await executePreparationFailureFixture();
+    assertPreparationFailureOutcomes(fixture);
+    assertPreparationFailureDiagnostics(fixture);
   });
 
-  async function executePreflightFailureFixture() {
+  async function executePreparationFailureFixture() {
     const cyclicPreparedOptions: { self?: unknown } = {};
     cyclicPreparedOptions.self = cyclicPreparedOptions;
-    const preflightError = { code: "contained-preflight-failure" };
+    const preparationError = { code: "contained-preparation-failure" };
     const noncanonicalOutput = {
       status: "success" as const,
       preparedOptions: cyclicPreparedOptions
@@ -33,7 +33,7 @@ describe("Package Run direct Check execution", () => {
       action: "continue" as const,
       reason: { code: "fallback" },
       fallback: {},
-      messages: [{ level: "warning" as const, code: "preflight", message: "Invalid level" }]
+      messages: [{ level: "warning" as const, code: "preparation", message: "Invalid level" }]
     };
     Object.defineProperty(malformedMessageOutput.messages[0], "level", { value: "notice" });
     const executions: string[] = [];
@@ -47,9 +47,9 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "throwing",
-            preflight: () => {
+            prepare: () => {
               // oxlint-disable-next-line typescript/only-throw-error -- This adversarial fixture must preserve a plain thrown object as unknown diagnostic evidence.
-              throw preflightError;
+              throw preparationError;
             }
           }
         ),
@@ -60,7 +60,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "block-with-fallback",
-            preflight: () => {
+            prepare: () => {
               const blocked = {
                 status: "failure" as const,
                 action: "block" as const,
@@ -78,7 +78,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "noncanonical-options",
-            preflight: () => noncanonicalOutput
+            prepare: () => noncanonicalOutput
           }
         ),
         normalized(
@@ -88,7 +88,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "malformed-message",
-            preflight: () => malformedMessageOutput
+            prepare: () => malformedMessageOutput
           }
         )
       ],
@@ -102,59 +102,61 @@ describe("Package Run direct Check execution", () => {
       malformedMessageOutput,
       noncanonicalOutput,
       observations,
-      preflightError,
+      preparationError,
       result
     };
   }
 
-  type PreflightFailureFixture = Awaited<ReturnType<typeof executePreflightFailureFixture>>;
+  type PreparationFailureFixture = Awaited<ReturnType<typeof executePreparationFailureFixture>>;
 
-  function assertPreflightFailureOutcomes(fixture: PreflightFailureFixture): void {
+  function assertPreparationFailureOutcomes(fixture: PreparationFailureFixture): void {
     const { executions, result } = fixture;
     assert.equal(result.kind, "completed");
     assert.deepEqual(executions, []);
     assert.deepEqual(outcomeFor(result, "throwing"), {
       status: "unavailable",
-      reason: { code: "preflight-threw" }
+      reason: { code: "preparation-threw" }
     });
     for (const checkId of ["block-with-fallback", "malformed-message", "noncanonical-options"]) {
       assert.deepEqual(outcomeFor(result, checkId), {
         status: "unavailable",
-        reason: { code: "invalid-preflight-result" }
+        reason: { code: "invalid-preparation-result" }
       });
     }
   }
 
-  function assertPreflightFailureDiagnostics(fixture: PreflightFailureFixture): void {
-    const { malformedMessageOutput, noncanonicalOutput, observations, preflightError } = fixture;
-    const preflightObservations = observations.filter(
-      (observation) => observation.event === "preflight.resolved"
+  function assertPreparationFailureDiagnostics(fixture: PreparationFailureFixture): void {
+    const { malformedMessageOutput, noncanonicalOutput, observations, preparationError } = fixture;
+    const preparationObservations = observations.filter(
+      (observation) => observation.event === "preparation.resolved"
     );
-    assert.equal(preflightObservations.length, 4);
-    assert.equal(new Set(preflightObservations.map(checkDiagnosticTag)).size, 4);
+    assert.equal(preparationObservations.length, 4);
+    assert.equal(new Set(preparationObservations.map(checkDiagnosticTag)).size, 4);
     assert.equal(
       observations.some(
         (observation) =>
-          observation.event === "preflight.started" || observation.event === "preflight.finished"
+          observation.event === "preparation.started" ||
+          observation.event === "preparation.finished"
       ),
       false
     );
     const throwingDetails = observations.find((observation) =>
-      hasDiagnosticTags(observation, "CHECK:throwing", "PREFLIGHT")
+      hasDiagnosticTags(observation, "CHECK:throwing", "PREPARATION")
     )?.details;
     const noncanonicalDetails = observations.find((observation) =>
-      hasDiagnosticTags(observation, "CHECK:noncanonical-options", "PREFLIGHT")
+      hasDiagnosticTags(observation, "CHECK:noncanonical-options", "PREPARATION")
     )?.details;
     const malformedMessageDetails = observations.find((observation) =>
-      hasDiagnosticTags(observation, "CHECK:malformed-message", "PREFLIGHT")
+      hasDiagnosticTags(observation, "CHECK:malformed-message", "PREPARATION")
     )?.details;
-    assert.equal(diagnosticDetailsRecord(throwingDetails).error, preflightError);
+    assert.equal(diagnosticDetailsRecord(throwingDetails).error, preparationError);
     assert.equal(diagnosticDetailsRecord(noncanonicalDetails).raw, noncanonicalOutput);
     assert.equal(diagnosticDetailsRecord(malformedMessageDetails).raw, malformedMessageOutput);
     assert.equal(
       observations.filter(
         (observation) =>
-          observation.event === "preflight.resolved" && hasDiagnosticTags(observation, "MALFORMED")
+          observation.event === "preparation.resolved" &&
+          hasDiagnosticTags(observation, "MALFORMED")
       ).length,
       3
     );

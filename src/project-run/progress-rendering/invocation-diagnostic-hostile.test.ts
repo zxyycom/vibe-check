@@ -23,14 +23,14 @@ describe("Package Run diagnostic logging output", () => {
       const source = definition(
         [
           {
-            checkId: "hostile-preflight",
-            displayName: "Hostile preflight",
-            execution: () => PASSED,
-            preflight: () => ({ status: "success", preparedOptions: hostile })
+            checkId: "hostile-preparation",
+            displayName: "Hostile preparation",
+            execute: () => PASSED,
+            prepare: () => ({ status: "success", preparedOptions: hostile })
           },
           check({
             checkId: "hostile-callback",
-            execution: ({ records }) => {
+            execute: ({ records }) => {
               records.report({ id: "hostile" }, hostile);
               return { status: "passed", data: hostile };
             }

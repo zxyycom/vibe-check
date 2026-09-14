@@ -63,7 +63,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/renderer-formatting-color.test.ts|Package Run progress terminal formatting > uses ANSI color only for message level labels on color-capable TTY writers`
 - `bun|src/project-run/progress-rendering/renderer-formatting-final.test.ts|Package Run progress terminal formatting > renders an empty final TTY running region after zero-Check or fully settled progress`
 - `bun|src/project-run/progress-rendering/renderer-formatting-writer-failure.test.ts|Package Run progress terminal formatting > propagates writer failures without swallowing them or attempting later writes`
-- `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > groups flag-disabled Check names before execution while preserving their terminal facts`
+- `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > groups flag-disabled Check names before execute while preserving their terminal facts`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > groups only flag-disabled Checks outside an activated dependency closure`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed not-applicable Check without a reason`
 - `bun|src/project-run/progress-rendering/terminal-statuses.test.ts|Package Run progress terminal statuses > renders a duration-bearing row for an executed unavailable Check`

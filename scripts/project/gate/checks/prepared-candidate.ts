@@ -52,7 +52,7 @@ export function createPreparedCandidateCheck(candidate: PreparedPackageCandidate
     checkId: "prepared-package-candidate",
     displayName: "Prepared package candidate",
     parseData: parseProjectGatePreparedCandidateData,
-    execution() {
+    execute() {
       try {
         const data = candidateData(candidate);
         validatePreparedCandidateFiles(data);

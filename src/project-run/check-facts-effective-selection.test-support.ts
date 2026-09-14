@@ -4,14 +4,14 @@ import type { CheckAggregation } from "./controls/contract.ts";
 import { definition, PASSED } from "./check-facts-integration.test-support.ts";
 import { run } from "./run.ts";
 
-/** Proves that effective aggregation reads the same private flag dependency selection as execution. */
+/** Proves that effective aggregation reads the same private flag dependency selection as execute. */
 export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
   const calls: string[] = [];
   const source = definition([
     {
       checkId: "always",
       displayName: "Always",
-      execution: () => {
+      execute: () => {
         calls.push("always");
         return PASSED;
       }
@@ -20,7 +20,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
       checkId: "deferred",
       displayName: "Deferred",
       enabledByFlags: { flags: ["deferred"], mode: "all" },
-      execution: () => {
+      execute: () => {
         calls.push("deferred");
         return PASSED;
       }
@@ -29,7 +29,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
       checkId: "provider",
       displayName: "Provider",
       enabledByFlags: { flags: ["provider"], mode: "all" },
-      execution: () => {
+      execute: () => {
         calls.push("provider");
         return PASSED;
       }
@@ -39,7 +39,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
       displayName: "Root",
       dependsOn: ["provider"],
       enabledByFlags: { flags: ["root"], mode: "all", propagateDependsOn: true },
-      execution: () => {
+      execute: () => {
         calls.push("root");
         return PASSED;
       }
@@ -76,7 +76,7 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
         checkId: "deferred",
         displayName: "Deferred",
         enabledByFlags: { flags: ["deferred"], mode: "all" },
-        execution: () => PASSED
+        execute: () => PASSED
       }
     ]),
     { checkAggregation: effectiveAggregation("effective", "not-applicable") }

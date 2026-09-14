@@ -15,13 +15,13 @@ const licensePolicy = defineCheck({
   checkId: "license-policy",
   displayName: "License policy",
   options: { denied: ["GPL-3.0-only"] },
-  preflight(options) {
+  prepare(options) {
     return hasValidLicensePolicyOptions(options)
       ? { status: "success", preparedOptions: options }
       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
   },
   visibility: "attention",
-  execution({ options, records, signal }) {
+  execute({ options, records, signal }) {
     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
 
     const deniedCount = options.denied.length;

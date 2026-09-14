@@ -31,9 +31,9 @@ export function jsonSchemaValidation(
   }
   return defineCheck({
     ...JSON_SCHEMA_VALIDATION_CHECK_DEFINITION,
-    execution: executeJsonSchemaValidation,
+    execute: executeJsonSchemaValidation,
     parseData: parseJsonSchemaValidationData,
-    preflight: (preparedOptions) =>
+    prepare: (preparedOptions) =>
       validJsonSchemaValidationOptions(preparedOptions)
         ? { status: "success", preparedOptions }
         : {

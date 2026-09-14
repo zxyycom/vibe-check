@@ -67,11 +67,11 @@ describe("functionMetrics constructor", () => {
       );
     }
 
-    const invalidPreflight = await check.preflight!(
+    const invalidPreparation = await check.prepare!(
       { ...check.options, codeAreas: {} },
       new AbortController().signal
     );
-    assert.equal(invalidPreflight.status, "failure");
+    assert.equal(invalidPreparation.status, "failure");
 
     const specialAreaId = "__proto__";
     const specialAreaCheck = functionMetrics({

@@ -15,7 +15,7 @@ export function check(
   overrides: Readonly<{
     readonly checkId?: string;
     readonly enabledByFlags?: Check["enabledByFlags"];
-    readonly execution?: CheckExecution;
+    readonly execute?: CheckExecution;
     readonly maxParallel?: number;
     readonly visibility?: Check["visibility"];
   }> = {}
@@ -23,7 +23,7 @@ export function check(
   return {
     checkId: overrides.checkId ?? "custom",
     displayName: overrides.checkId ?? "Custom",
-    execution: overrides.execution ?? (() => PASSED),
+    execute: overrides.execute ?? (() => PASSED),
     ...(overrides.enabledByFlags === undefined ? {} : { enabledByFlags: overrides.enabledByFlags }),
     ...(overrides.maxParallel === undefined ? {} : { maxParallel: overrides.maxParallel }),
     ...(overrides.visibility === undefined ? {} : { visibility: overrides.visibility })

@@ -90,21 +90,21 @@ Owner: `docs/development/human-output.md#check-console-capture-maintenance`
 Entities:
 
 - `bun|src/project-run/check-execution/console-capture.test.ts|Package Run Check console capture > attributes concurrent console calls and presents them only after Check settlement`
-- `bun|src/project-run/check-execution/console-capture.test.ts|Package Run Check console capture > retains preflight and execution console calls when the author callback throws`
+- `bun|src/project-run/check-execution/console-capture.test.ts|Package Run Check console capture > retains preparation and execution console calls when the author callback throws`
   Proves:
 - Concurrent awaited Check console calls remain attributed to their async Check contexts, become method-coded messages in canonical Check order, appear only in settled progress blocks, and leave no stale TTY running rows; progress-disabled Runs retain the same readback without direct console output, and the original host console method is restored after capture.
-- One router is installed before preflight, reused by preflight and execution capture contexts, and restored only after resolved Check execution closes. Captured output preserves phase order and remains readable when execution throws, while author-provided preflight messages keep their relative place and terminal control bytes are escaped only by presentation.
+- One router is installed before preparation, reused by preparation and execution capture contexts, and restored only after resolved Check execution closes. Captured output preserves phase order and remains readable when execution throws, while author-provided preparation messages keep their relative place and terminal control bytes are escaped only by presentation.
 
 ## Case WB-RUNTIME-CHECK-CATALOG-001: Package Run validates and executes direct Checks
 
 Owner: `docs/development/project-run.md#invocation-and-results`
 Entities:
 
-- `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
-- `bun|src/project-run/run-preflight-cancellation.test.ts|Package Run > returns execution cancellation when an admitted preflight aborts`
+- `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preparation settles unavailable before execution`
+- `bun|src/project-run/run-preparation-cancellation.test.ts|Package Run > returns execution cancellation when an admitted preparation aborts`
 - `bun|src/project-run/run-callback-context.test.ts|Package Run > executes each normalized Check directly with the public callback context`
-- `bun|src/project-run/check-execution/preflight-failures.test.ts|Package Run direct Check execution > fails closed for thrown, malformed, and noncanonical preflight results`
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
+- `bun|src/project-run/check-execution/preparation-failures.test.ts|Package Run direct Check execution > fails closed for thrown, malformed, and noncanonical preparation results`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > runs each independent preparation inside its admitted Task lifecycle`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > rejects invalid flag input before any Check callback`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > provides canonical immutable callback snapshots`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables all mode only when every configured flag is present`
@@ -118,8 +118,8 @@ Entities:
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > reuses effective flag selection for explicit aggregation`
   Proves:
-- Package Run validates closed definitions and controls before execution callbacks or outputs, rejecting unknown Run control keys. Its invocation control barrier checks cancellation and all declarative flag conditions before Scheduler admission; nonmatching Checks settle without author work. An admitted remaining Check runs optional preflight with detached frozen authored options and the invocation signal before its own callback; independent admitted Tasks can prepare concurrently, while block, throw, malformed messages/descriptors, and noncanonical prepared/fallback values settle only the owning Check unavailable without callback execution. Cancellation closes the execution phase without admitting new author work. Every ready executable Check receives only its public context, whose `project` value contains normalized `root` and canonical `flags`; trusted preflight/execution callbacks stay outside frozen facts, and Run derives no aggregate unless controls explicitly select one.
-- The mapped `flags.test.ts` entities specifically prove pre-callback rejection for invalid flag input, the canonical immutable `project.flags` callback snapshot, and all four declarative `enabledByFlags` predicates. The mapped `flag-dependency-selection.test.ts` entities specifically prove the separately owned dependency-selection behavior: matching opt-in roots activate their transitive `dependsOn` closure; activated dependencies may run despite their own unmet predicate; directly selected intermediates still expand when required; repeated roots deduplicate shared prerequisites; `observes` remains outside the closure; and pre-work cancellation remains earlier. Matching conditions otherwise execute the ordinary task-local preflight/callback path; nonmatching conditions settle before author work and enter the Scheduler as pre-admission non-passed Task results. This private selection appears in neither callback capabilities nor stable RunResult, machine or diagnostic fields.
+- Package Run validates closed definitions and controls before execution callbacks or outputs, rejecting unknown Run control keys. Its invocation control barrier checks cancellation and all declarative flag conditions before Scheduler admission; nonmatching Checks settle without author work. An admitted remaining Check runs optional preparation with detached frozen authored options and the invocation signal before its own callback; independent admitted Tasks can prepare concurrently, while block, throw, malformed messages/descriptors, and noncanonical prepared/fallback values settle only the owning Check unavailable without callback execution. Cancellation closes the execution phase without admitting new author work. Every ready executable Check receives only its public context, whose `project` value contains normalized `root` and canonical `flags`; trusted preparation/execution callbacks stay outside frozen facts, and Run derives no aggregate unless controls explicitly select one.
+- The mapped `flags.test.ts` entities specifically prove pre-callback rejection for invalid flag input, the canonical immutable `project.flags` callback snapshot, and all four declarative `enabledByFlags` predicates. The mapped `flag-dependency-selection.test.ts` entities specifically prove the separately owned dependency-selection behavior: matching opt-in roots activate their transitive `dependsOn` closure; activated dependencies may run despite their own unmet predicate; directly selected intermediates still expand when required; repeated roots deduplicate shared prerequisites; `observes` remains outside the closure; and pre-work cancellation remains earlier. Matching conditions otherwise execute the ordinary task-local preparation/callback path; nonmatching conditions settle before author work and enter the Scheduler as pre-admission non-passed Task results. This private selection appears in neither callback capabilities nor stable RunResult, machine or diagnostic fields.
 
 ## Case WB-RUNTIME-CHECK-LIFECYCLE-001: Each executable Check closes as one Check-facts fact
 
@@ -162,25 +162,25 @@ Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
 - `bun|src/project-run/run-planning.test.ts|Package Run > rejects an invalid projected Check relation graph before any Check callback runs`
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > runs each independent preparation inside its admitted Task lifecycle`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables all mode only when every configured flag is present`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables any mode when at least one configured flag is present`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables none mode only when no configured flag is present`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables not-all mode when at least one configured flag is absent`
   Proves:
-- Direct executable Checks project both `dependsOn` and `observes` into one statically validated shared graph before any author work. Invocation flag control settlements remain Tasks in that graph as pre-admission terminal results and are not admitted again; task-local preflight is admitted work subject to direct relation readiness, mutex, capacity, priority and cancellation rather than a Definition-order preflight barrier.
-- A nonmatching `enabledByFlags` predicate settles `not-applicable / flag-condition-not-matched` before author work. It blocks `dependsOn` consumers as a non-passed prerequisite while remaining visible to explicit `observes` consumers; matching predicates execute the normal preflight/callback path.
+- Direct executable Checks project both `dependsOn` and `observes` into one statically validated shared graph before any author work. Invocation flag control settlements remain Tasks in that graph as pre-admission terminal results and are not admitted again; task-local preparation is admitted work subject to direct relation readiness, mutex, capacity, priority and cancellation rather than a Definition-order preparation barrier.
+- A nonmatching `enabledByFlags` predicate settles `not-applicable / flag-condition-not-matched` before author work. It blocks `dependsOn` consumers as a non-passed prerequisite while remaining visible to explicit `observes` consumers; matching predicates execute the normal preparation/callback path.
 
 ## Case WB-RUNTIME-DEPENDENCY-BLOCKING-001: Non-passed prerequisites settle dependents without author work
 
 Owner: `docs/development/project-run.md#check-执行与依赖交接`
 Entities:
 
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > settles every direct non-passed prerequisite before dependent author work`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > blocks success dependents before their preparation and lets observers read the terminal result`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > settles every direct non-passed prerequisite before dependent author work`
 - `bun|src/project-run/controls/flags.test.ts|Package Run flags > enables all mode only when every configured flag is present`
   Proves:
-- A `failed`, `not-applicable`, or `unavailable` direct `dependsOn` outcome prevents both the dependent preflight and callback. Product, rather than the generic Scheduler, then closes that Check as `unavailable` with `dependency-not-passed`, only stable direct blocker IDs, no author message/Record, and `null` duration.
+- A `failed`, `not-applicable`, or `unavailable` direct `dependsOn` outcome prevents both the dependent preparation and callback. Product, rather than the generic Scheduler, then closes that Check as `unavailable` with `dependency-not-passed`, only stable direct blocker IDs, no author message/Record, and `null` duration.
 - Prerequisite blocking does not cancel the invocation or suppress an explicit observer; cancellation-before-start and generic executor failure remain separate scheduler boundaries.
 
 ## Case WB-RUNTIME-DEPENDENCY-OBSERVATION-001: Observers read direct terminal outcomes
@@ -190,7 +190,7 @@ Entities:
 
 - `bun|src/project-run/run-dependency-data.test.ts|Package Run > observes an unavailable Check and exposes its read failure`
 - `bun|src/project-run/check-execution/resolved-checks.dependencies.test.ts|Package Run direct Check execution > waits for direct observations and limits readback to direct relations`
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > makes a scheduler-blocked outcome available to its terminal observer`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > makes a scheduler-blocked outcome available to its terminal observer`
   Proves:
 - `observes` waits for each direct Check to reach any of the four terminal outcomes and then admits ordinary author work. Callback-local `get` and `list` authorize exactly the normalized direct union of `dependsOn` and `observes`: passed/failed retain canonical data, unavailable/not-applicable retain the closed data-read failure, and list values are frozen in stable ID order without ambient, transitive or scheduler-history access.
 
@@ -214,7 +214,7 @@ Entities:
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > hands final Check-facts outcomes and one finite duration to the private lifecycle`
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > settles cancellation-before-start Checks without starting them`
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > blocks success dependents before their preparation and lets observers read the terminal result`
 - `bun|src/project-run/progress-rendering/timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
   Proves:
 - Package Run emits private started/settled facts only from its Check execution boundary: executed Checks settle with their final Check-facts outcome and a finite duration, while cancellation-before-start and Product-owned prerequisite-blocked Checks settle without a start and use `null`/`not run` duration.
@@ -346,20 +346,20 @@ Entities:
 - `bun|src/project-run/task-scheduler/measurement/diagnostics-terminal.test.ts|Scheduler performance diagnostics terminal drains > emits exactly one summary after caller cancellation drains admitted work`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > hands enabled diagnostics to the Scheduler for one terminal human summary`
 - `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Package Run diagnostic logging output > does not sample Scheduler diagnostics when diagnostic logging is disabled`
-- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > awaits ordered hooks over one immutable terminal context without exposing Task values`
-- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > continues after synchronous and asynchronous hook failures`
-- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > delivers the internal summary Hook before caller Hooks through one runner`
-- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler measurement hooks > contains summary writer failure while preserving caller Hook failure delivery`
-- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > keeps settled facts while making Hook failures visible`
-- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > marks all successfully settled configured Hooks as succeeded`
-- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > preserves execution cancellation when a measurement Hook fails after drain`
-- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler measurement Hook output > preserves an admission-policy failure when a measurement Hook fails after drain`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler terminal effects > awaits ordered hooks over one immutable terminal context without exposing Task values`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler terminal effects > continues after synchronous and asynchronous hook failures`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler terminal effects > delivers the internal summary Hook before caller terminal effects through one runner`
+- `bun|src/project-run/task-scheduler/measurement/diagnostics-hooks.test.ts|Scheduler terminal effects > contains summary writer failure while preserving caller terminal effect failure delivery`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler terminal effect output > keeps settled facts while making Hook failures visible`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler terminal effect output > marks all successfully settled configured Hooks as succeeded`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler terminal effect output > preserves execution cancellation when a terminal effect fails after drain`
+- `bun|src/project-run/progress-rendering/invocation-diagnostic-runtime.test.ts|Scheduler terminal effect output > preserves an admission-policy failure when a terminal effect fails after drain`
   Proves:
 - An explicitly enabled Scheduler-only diagnostic handoff emits one bounded human summary after terminal drain. It separates shell control work from decision observation, integrates Scheduler slot/capacity state without claiming wall/CPU utilization, and records accepted policy waits rather than passive drains.
 - For pending Tasks whose prerequisites completed and observations settled, each interval classifies every Task exactly once as mutex-blocked, capacity-blocked, or currently admissible. Root, scoped and named-resource shortages share the capacity-blocked class. The corresponding task·ms and peaks expose queue pressure; each reported top admission delay uses the same three components to construct its complete delay without inferring a policy reason.
 - The last admission boundary's logical post-state active snapshot retains its complete discrete count and at most three settlement-delta contributors, including the newly admitted Task. These contributors explain the observed completion tail but do not claim dependency critical-path ownership. The invocation-owned declarative fingerprint remains only a declarative-configuration matching signal and does not identify RunControls, code/candidate/tool/runtime/host, terminal outcomes, or a custom callback.
-- Named scripted clock phases distinguish valid zero spans from invalid clock samples; timing failure retains the fingerprint, admitted and accepted-wait counts, max-running, last-settled Task ID, queue peaks, and tail active count without fabricating time. Only when the policy is static, diagnostics are disabled, and the caller Hook list is empty does Scheduler add no measurement collector or clock reads; a custom policy needs decision-boundary measurement even without terminal consumers. Summary writer failures cannot revise the settled Scheduler result.
-- Internal default summary Hook and each caller measurement Hook share one ordered terminal runner; the default wrapper contains writer failure before caller failure/output policy applies. Each caller measurement Hook receives the same recursively frozen terminal context after admission stops and started work drains. It exposes canonical graph, admitted/settled kind-only observations, and first-order raw measurement without Task values/errors/callbacks, summary top-N projections, mutable internals, or an interval event log. Sync/async generic Hooks run in configuration order and all settle. When they are the only output participants, their all-successful sequence marks `measurementHooks` succeeded; a generic throw/rejection still gives later generic Hooks their chance and marks the aggregate failed. A normal completed Run with that failure becomes the facts-preserving `scheduler-measurement-hooks-failed` output result; cancellation and admission-policy failure retain their primary result/diagnostic with the Hook status still visible.
+- Named scripted clock phases distinguish valid zero spans from invalid clock samples; timing failure retains the fingerprint, admitted and accepted-wait counts, max-running, last-settled Task ID, queue peaks, and tail active count without fabricating time. Only when the policy is static, diagnostics are disabled, and the caller terminal effect list is empty does Scheduler add no measurement collector or clock reads; a custom policy needs decision-boundary measurement even without terminal consumers. Summary writer failures cannot revise the settled Scheduler result.
+- Internal default summary Hook and each caller terminal effect share one ordered terminal runner; the default wrapper contains writer failure before caller failure/output policy applies. Each caller terminal effect receives the same recursively frozen terminal context after admission stops and started work drains. It exposes canonical graph, admitted/settled kind-only observations, and first-order raw measurement without Task values/errors/callbacks, summary top-N projections, mutable internals, or an interval event log. Sync/async generic terminal effects run in configuration order and all settle. When they are the only output participants, their all-successful sequence marks `terminalEffects` succeeded; a generic throw/rejection still gives later generic terminal effects their chance and marks the aggregate failed. A normal completed Run with that failure becomes the facts-preserving `scheduler-terminal-effects-failed` output result; cancellation and admission-policy failure retain their primary result/diagnostic with the Hook status still visible.
 
 ## Case WB-RUNTIME-SCHEDULER-HISTORY-001: Local Scheduler history remains bounded and failure-contained
 
@@ -429,21 +429,21 @@ Owner: `docs/development/scheduler.md#public-prepared-admission-strategy-lifecyc
 Entities:
 
 - `bun|src/project-run/admission-strategy-provider/provider.test.ts|admission strategy provider > prepares one closed static or custom policy without widening public configuration`
-- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal Hooks on normal execution`
-- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when cancellation drains started work`
-- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal Hooks when an admission policy fault drains`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > prepares once, decides synchronously, and completes after terminal effects on normal execute`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal effects when cancellation drains started work`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > completes after terminal effects when an admission policy fault drains`
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > does not complete when pre-terminal task-engine setup fails`
-- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps a prepared completion output enabled but not-run without a sealed context`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps a prepared terminal effect output enabled but not-run without a sealed context`
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps prepared policy closures independent across overlapping Runs`
-- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > runs a public prepared strategy once and completes after generic terminal Hooks`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > runs a public prepared strategy once and completes after generic terminal effects`
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > keeps public prepared closures isolated across overlapping Runs`
 - `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > fails public preparation before Scheduler start and preserves its output boundary`
-- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > aggregates public completion failures without rewriting a sealed primary result`
-- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > enables measurement output only for generic Hooks or an actual prepared completion`
-- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > prepares before admission and records only after terminal measurement Hooks settle`
-- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > records a cancelled Run only after its terminal measurement Hook settles`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > aggregates public terminal-effect failures without rewriting a sealed primary result`
+- `bun|src/project-run/invocation/invocation-admission-strategy-lifecycle.test.ts|Package Run admission strategy lifecycle > enables measurement output only for generic terminal effects or an actual prepared terminal effect`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > prepares before admission and records only after terminal effects settle`
+- `bun|src/project-run/invocation/learned-scheduling.test.ts|Package Run learned Scheduler admission > records a cancelled Run only after its terminal terminal effect settles`
   Proves:
 
-- Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver completion at most once after admission stops, started work drains and generic terminal Hooks settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no completion delivery.
-- Generic Hooks all receive their chance before public complete. Their actual settlement, plus optional complete, is the sole input to the existing measurement output: generic-only no-context stays enabled/`not-run`; simple and prepared-without-complete do not independently enable it; a completion failure cannot overwrite sealed primary facts, and later complete success cannot overwrite a generic failure.
+- Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver terminalEffect at most once after admission stops, started work drains and generic terminal effects settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no terminal-effect delivery.
+- Generic terminal effects all receive their chance before public `terminalEffect`. Their actual settlement, plus optional `terminalEffect`, is the sole input to `terminalEffects`: generic-only no-context stays enabled/`not-run`; simple and prepared-without-terminalEffect do not independently enable it; a terminal-effect failure cannot overwrite sealed primary facts, and later terminalEffect success cannot overwrite a generic failure.
 - A learned factory is an ordinary public prepared strategy: it prepares immutable prediction before Scheduler decisions and records its terminal sample only after terminal delivery, without a private Invocation lifecycle.

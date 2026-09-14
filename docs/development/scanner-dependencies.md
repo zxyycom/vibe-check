@@ -33,7 +33,7 @@ version probe 是 external adapter provenance，不是 consumer version policy�
 报告无效，都由对应 external-command Check fail closed 为 `unavailable`，不会形成成功空结果。`functionMetrics`
 不执行这类 probe：分析失败与资源上限在其自身结果模型中结算。
 
-constructor 与 task-local resolved-options preflight 的分工见[Project Definition](project-definition.md#package-provided-check-composition)；领域 options 不通过 Definition、Controls 或环境注册跨 Check backend。
+constructor 与 task-local resolved-options preparation 的分工见[Project Definition](project-definition.md#package-provided-check-composition)；领域 options 不通过 Definition、Controls 或环境注册跨 Check backend。
 
 ### Gate-bound repository observations
 

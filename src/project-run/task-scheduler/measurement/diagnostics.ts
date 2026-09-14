@@ -3,7 +3,7 @@ import type {
   SchedulerDecisionMeasurementCumulative,
   SchedulerMeasurementAdmission,
   SchedulerMeasurementEffect,
-  SchedulerMeasurementHook,
+  SchedulerTerminalEffect,
   SchedulerRawMeasurement
 } from "../../../project-definition/project-definition.ts";
 import { diagnosticTags, type DiagnosticLogger } from "../../diagnostic-logging/logger.ts";
@@ -147,7 +147,7 @@ export class SchedulerPerformanceDiagnostics {
   }
 
   /** Internal default terminal hook; it contains writer failure without runner special-casing. */
-  public defaultSummaryHook(): SchedulerMeasurementHook | undefined {
+  public defaultSummaryHook(): SchedulerTerminalEffect | undefined {
     if (this.#logger === undefined) return undefined;
     const logger = this.#logger;
     return (context) => {

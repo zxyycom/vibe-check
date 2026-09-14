@@ -138,14 +138,14 @@ describe("JSON validation default Check", () => {
           }),
         /jsonValidation final data/
       );
-      const invalidPreflight = await defaultCheck.preflight!(
+      const invalidPreparation = await defaultCheck.prepare!(
         {
           ...defaultCheck.options,
           maximumBytes: 0
         },
         new AbortController().signal
       );
-      assert.equal(invalidPreflight.status, "failure");
+      assert.equal(invalidPreparation.status, "failure");
       assert.deepEqual(runJsonValidation({ root, options: { maximumBytes: 0 } }).result, {
         status: "unavailable",
         reason: { code: "invalid-options" },

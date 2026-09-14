@@ -18,7 +18,7 @@ describe("Project Definition", () => {
       dependsOn: inherit({ remove: ["legacy"], add: ["compile", "compile"] }),
       mutex: inherit({ add: ["compiler", "compiler"] }),
       observes: inherit({ remove: ["legacy-observation"], add: ["audit", "audit"] }),
-      execution: passed
+      execute: passed
     });
     const parent = {
       checkId: "analysis",
@@ -40,7 +40,7 @@ describe("Project Definition", () => {
           {
             checkId: "legacy",
             displayName: "Legacy",
-            execution: passed,
+            execute: passed,
             recordTypes: []
           }
         ]
@@ -61,7 +61,7 @@ describe("Project Definition", () => {
             checkId: "invalid-inherited-shape",
             displayName: "Invalid inherited shape",
             dependsOn: inheritedWithUnknownKey,
-            execution: passed
+            execute: passed
           }
         ]
       }).ok,
@@ -73,13 +73,13 @@ describe("Project Definition", () => {
     const inherited = defineCheck({
       checkId: "inherited-priority",
       displayName: "Inherited priority",
-      execution: passed
+      execute: passed
     });
     const overridden = defineCheck({
       admissionPriority: 7,
       checkId: "overridden-priority",
       displayName: "Overridden priority",
-      execution: passed
+      execute: passed
     });
     const parent = {
       admissionPriority: -3,
@@ -93,7 +93,7 @@ describe("Project Definition", () => {
           defineCheck({
             checkId: "default-priority",
             displayName: "Default priority",
-            execution: passed
+            execute: passed
           })
         ]
       })
@@ -105,7 +105,7 @@ describe("Project Definition", () => {
             admissionPriority: 0,
             checkId: "default-priority",
             displayName: "Default priority",
-            execution: passed
+            execute: passed
           })
         ]
       })
@@ -142,7 +142,7 @@ describe("Project Definition", () => {
               admissionPriority,
               checkId: "invalid-priority",
               displayName: "Invalid priority",
-              execution: passed
+              execute: passed
             }
           ]
         }).ok,
@@ -163,18 +163,18 @@ describe("Project Definition", () => {
             defineCheck({
               checkId: "inherited-resource-claims",
               displayName: "Inherited resource claims",
-              execution: passed
+              execute: passed
             }),
             defineCheck({
               checkId: "cleared-resource-claims",
               displayName: "Cleared resource claims",
-              execution: passed,
+              execute: passed,
               resourceClaims: {}
             }),
             defineCheck({
               checkId: "replaced-resource-claims",
               displayName: "Replaced resource claims",
-              execution: passed,
+              execute: passed,
               resourceClaims: { browser: 2 }
             })
           ]
@@ -207,7 +207,7 @@ describe("Project Definition", () => {
           defineCheck({
             checkId: "unknown-resource",
             displayName: "Unknown resource",
-            execution: passed,
+            execute: passed,
             resourceClaims: { database: 1 }
           })
         ]
@@ -218,7 +218,7 @@ describe("Project Definition", () => {
           defineCheck({
             checkId: "oversized-claim",
             displayName: "Oversized claim",
-            execution: passed,
+            execute: passed,
             resourceClaims: { browser: 2 }
           })
         ]

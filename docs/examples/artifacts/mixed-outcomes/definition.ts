@@ -12,7 +12,7 @@ const packageManifest = jsonValidation({
   files: { include: ["package.json"] }
 });
 
-// 一个 typed provider：preflight 用 fallback 准备 invocation-local options。
+// 一个 typed provider：preparation 用 fallback 准备 invocation-local options。
 const releaseInputs = defineCheck({
   checkId: "example-release-inputs",
   displayName: "Example release inputs",
@@ -29,7 +29,7 @@ const releaseInputs = defineCheck({
     }
     return { files: [...files], version: 1 };
   },
-  preflight(options) {
+  prepare(options) {
     if (options.files.length > 0) {
       return { status: "success", preparedOptions: options };
     }
@@ -48,7 +48,7 @@ const releaseInputs = defineCheck({
     };
   },
   visibility: "attention",
-  execution({ options, signal }) {
+  execute({ options, signal }) {
     if (signal.aborted) {
       return { status: "unavailable", reason: { code: "execution-cancelled" } };
     }
@@ -66,7 +66,7 @@ const releasePolicy = defineCheck({
   observes: inherit({ add: [releaseInputs.checkId] }),
   options: { minimumFileCount: 2 },
   visibility: "attention",
-  execution({ dependencies, options, records }) {
+  execute({ dependencies, options, records }) {
     const manifestRead = dependencies.get(packageManifest.checkId);
     if (!manifestRead.ok) {
       return {
@@ -145,18 +145,18 @@ const optionalDocumentation = defineCheck({
   checkId: "example-optional-documentation",
   displayName: "Example optional documentation",
   options: { enabled: false },
-  execution: ({ options }) =>
+  execute: ({ options }) =>
     options.enabled
       ? { status: "passed", data: { reviewed: true } }
       : { status: "not-applicable", reason: { code: "documentation-disabled" } }
 });
 
-// block preflight 只阻止本 Check 的 execution，并将其结算为 unavailable；不相关的 Check 仍可并行。
+// block preparation 只阻止本 Check 的 execution，并将其结算为 unavailable；不相关的 Check 仍可并行。
 const externalReview = defineCheck({
   checkId: "example-external-review",
   displayName: "Example external review",
   options: { serviceConfigured: false },
-  preflight(options) {
+  prepare(options) {
     if (options.serviceConfigured) {
       return { status: "success", preparedOptions: options };
     }
@@ -173,7 +173,7 @@ const externalReview = defineCheck({
       ]
     };
   },
-  execution: () => ({ status: "passed", data: { reviewed: true } })
+  execute: () => ({ status: "passed", data: { reviewed: true } })
 });
 
 // 组织节点自身不产生 outcome；children 继承 packageManifest observation 和并行预算。

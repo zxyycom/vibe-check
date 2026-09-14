@@ -25,7 +25,7 @@ export interface RunControls {
   readonly flags?: readonly string[];
   /** 项目相对输入与 output target 的解析根；省略时使用调用进程的当前工作目录。 */
   readonly projectRoot?: string;
-  /** 供 planning、preflight 与 execution 协作响应的 caller cancellation signal。 */
+  /** 供 planning、preparation 与 execution 协作响应的 caller cancellation signal。 */
   readonly signal?: AbortSignal;
 }
 /** Diagnostic 文件名选择；不改变目录、日志内容或 invocation identity。 */

@@ -34,7 +34,7 @@ export function createNativeOperationCheck(
   return defineCheck({
     checkId: input.checkId,
     displayName: input.displayName,
-    execution: async ({ project, records, signal }): Promise<CheckResult> => {
+    execute: async ({ project, records, signal }): Promise<CheckResult> => {
       if (signal.aborted) return unavailable(UNAVAILABLE_REASON_CODE.executionCancelled);
       try {
         const operationResult: unknown = await input.operation(project.root, signal);

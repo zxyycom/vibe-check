@@ -1,6 +1,6 @@
 import type {
   SchedulerMeasurementContext,
-  SchedulerMeasurementHook
+  SchedulerTerminalEffect
 } from "../../project-definition/project-definition.ts";
 import type { PlannedTask, PlannedTaskGraph, PlannedTaskScope, TaskGraph } from "./graph.ts";
 import {
@@ -63,9 +63,9 @@ export interface RunTaskGraphOptions<TResult> {
   /** Explicit enabled-only handoff; no Scheduler behavior is inferred from a logger shape. */
   readonly performanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
   /** Runtime-only terminal consumers; their context is formed after Scheduler drain. */
-  readonly measurementHooks?: readonly SchedulerMeasurementHook[];
-  readonly onMeasurementHookFailure?: () => void;
-  readonly onMeasurementHooksSettled?: () => void;
+  readonly terminalEffects?: readonly SchedulerTerminalEffect[];
+  readonly onTerminalEffectFailure?: () => void;
+  readonly onTerminalEffectsSettled?: () => void;
   /** Product-private test observer; no package consumer can supply this through `run`. */
   readonly onAdmissionCoreEffect?: (effect: SchedulerAdmissionCoreEffect) => void;
   readonly graph: TaskGraph;

@@ -38,7 +38,7 @@ const changedFiles = defineCheck({
     }
     return { files: data.files, version: data.version };
   },
-  execution() {
+  execute() {
     const bytesByPath = new Map<string, Uint8Array>([
       ["src/index.ts", new TextEncoder().encode("export {}\n")]
     ]);
@@ -54,7 +54,7 @@ const analyzeChangedFiles = defineCheck({
   checkId: "analyze-changed-files",
   displayName: "Analyze changed files",
   dependsOn: [changedFiles.checkId],
-  execution({ dependencies }) {
+  execute({ dependencies }) {
     const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 
@@ -102,7 +102,7 @@ const auditChangedFiles = defineCheck({
   checkId: "audit-changed-files",
   displayName: "Audit changed files",
   observes: [changedFiles.checkId, analyzeChangedFiles.checkId],
-  execution({ dependencies }) {
+  execute({ dependencies }) {
     const observations = dependencies.list();
     const readable = observations.filter(
       ({ outcome }) =>
@@ -134,7 +134,7 @@ const auditChangedFiles = defineCheck({
 
 ## Provider 类型与解析边界
 
-通过 `defineCheck({ execution, parseData })` 建立 typed provider：同步 parser 的返回类型同时约束该 Check 的 `passed` / `failed` data，返回值保留必需的 `parseData`。普通递归 `Check` 类型本身不声明 parser；仅写 `satisfies Check` 或 inline `defineConfig` 不建立该类型关系。没有 parser 的普通 Check 仍合法，container 则不能声明 parser。
+通过 `defineCheck({ execute, parseData })` 建立 typed provider：同步 parser 的返回类型同时约束该 Check 的 `passed` / `failed` data，返回值保留必需的 `parseData`。普通递归 `Check` 类型本身不声明 parser；仅写 `satisfies Check` 或 inline `defineConfig` 不建立该类型关系。没有 parser 的普通 Check 仍合法，container 则不能声明 parser。
 
 TypeScript 拒绝 async 或返回 `PromiseLike` 的 parser，即使推断结果类型很宽。canonical JSON 中非 callable 的 `then` 字段仍是普通数据。JavaScript 或显式 cast author object 上的 function parser 可以通过 runtime Definition validation，但不会因此取得 TypeScript 关系；自有 `parseData: undefined` 规范化为省略。
 
@@ -145,7 +145,7 @@ parser 接收 Check-facts-owned 的 detached、deep-frozen canonical object，�
 ## Direct relation 与读取规则
 
 - `dependsOn` 与 `observes` 命名同一 Definition 中的 executable Check。两者各自可继承父 collection；精确数组完整替换（`[]` 清空），`inherit({ add, remove })` 显式增删后去重。一个 provider 不得同时出现在两类 relation 中。
-- `dependsOn` 等所有 direct provider 通过才允许本 Check 的 preflight/execution；任一 provider 非 `passed` 时，本 Check 在 author work 前成为 `unavailable / dependency-not-passed`，reason 带 direct blocker `checkIds`，duration 为 `null`。`observes` 只等待终态，不要求通过。
+- `dependsOn` 等所有 direct provider 通过才允许本 Check 的 preparation/execution；任一 provider 非 `passed` 时，本 Check 在 author work 前成为 `unavailable / dependency-not-passed`，reason 带 direct blocker `checkIds`，duration 为 `null`。`observes` 只等待终态，不要求通过。
 - `get(checkId)` 是 non-generic string read，只授权 normalized effective `dependsOn ∪ observes` 的 direct ID（包括各自继承项）。未声明、传递或 malformed ID 返回不泄露 upstream fact 的 `dependency-not-declared`。
 - `get(provider)` 是 provider-aware read，只接受以 `handoff: true` 定义的 provider object，并且只授权 normalized effective direct `dependsOn`。成功时固定为该 provider literal `checkId`、`status: "passed"`、canonical `data` 与 typed `handoff`；direct `observes`、transitive、未声明、lookalike provider 或本次未接受 handoff 都 fail closed，不泄露 upstream data/reference。它不改变 string `get(checkId)` 或 `list()` 的授权、shape 与四态 observation。
 - 已声明 provider 的 `passed` / `failed` 返回 `ok: true`、status 与 canonical data；`not-applicable` / `unavailable` 返回 `ok: false`、该 status 与 `upstream-data-unavailable`。TypeScript 类型本身不授予访问权。

@@ -1,34 +1,91 @@
-# 按作用位置选择回调（Hook）
+# 生命周期位置与函数契约
 
-当你知道想在“执行前准备”“检查时决定结果”“显示时调整文本”或“结束后处理统计”，却不确定应该使用哪个回调时，从本文选择接入位置。本文按接入位置说明公开回调的分工；字段签名以 installed declarations 为准，项目定义与本次运行的参数归属见 [API 机制](../api-mechanics.md#参数应该放在哪里)。
+本页用“逻辑位置 → 实际执行契约”定位 Vibe Check 的扩展点。逻辑位置只说明某项职责相对领域事实发生的阶段；实际执行契约才定义路径、输入、调用次数、顺序、控制权和失败。相邻时点不表示共享 Hook。
 
-## 先按三条链路理解位置
+状态标记为：**当前公开**（package API）、**当前 Project**（Project Gate 自有）、**当前内部**（运行时私有）、**相邻 Change**（已有 owner、尚未接线）或**逻辑保留**（没有当前消费者）。只有当前实际契约给出可调用路径和签名。
 
-- **单项 Check**：被 Scheduler 准入 → `preflight` 准备 options → `execution` 形成结果 → Product 验证并结算。某项准备被阻断时不会继续 execution；不同 Check 可以并发。
-- **人读说明**：Check 用 `presentCheckFindings` 将 Finding 转成 messages 并附到自己的结果 → Product 显示明细时用 progress `formatter` 调整预览文本。前者在 Check 生成说明的位置，后者在终端显示的位置，两者都不替代检查结果的判定。
-- **调度策略**：graph 准备好后，可选 `prepare` 形成当前 Run 的策略 → Scheduler 调用 `decide` 零次或多次，每次同步返回一个 select / wait proposal → Scheduler 停止准入、等待已启动任务并封闭统计 → `measurementHooks` 观察终态 → 存在 terminal context 时调用可选 `complete`。simple strategy 不经过 `prepare`。
+## 当前时间线
 
-完整 Run 的验证、取消与输出衔接仍由 [API 生命周期](../api-mechanics.md#一次-run-的生命周期)说明。
+```text
+Definition / Controls validation
+→ effective flag selection
+→ static graph and admission-strategy preparation
+→ Scheduler admission
+  → admitted Check: prepare → execute → settle
+→ sealed Scheduler measurement
+  → internal summary → terminalEffects[] → prepared terminalEffect
+→ Run result and output closure
+→ Project Gate initial result → resultContributor → exit/transcript
+```
 
-## 回调的配置位置与权限
+早期取消、无效图和策略准备失败不会形成 sealed terminal measurement。Check `prepare` 只在该 Check 获准入后运行；它不是 invocation-wide hook。
 
-先确定要在什么位置做什么，再选择对应字段。下表用于定位，不是一条所有回调都会执行的串行流程：不同 Check 可以并发，progress 也会随运行持续呈现。
+## Product Check
 
-| 作用位置与目的 | 写在哪里 | 接收什么、产生什么 | 能改变的范围 |
+| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
 | --- | --- | --- | --- |
-| **调度开始前：准备本次调度策略** | Definition 的 [`scheduler.admissionPolicy.strategy`](scheduling.md#已准备的-custom-strategy) 选择 `kind: "prepared"`，提供 `prepare` | 接收静态 graph，返回本次使用的 `decide` 与可选 `complete` | 准备策略自己的运行状态，不执行 Check。 |
-| **调度选择时：决定建议先运行哪项** | [simple strategy 的 `decide`](scheduling.md#自定义准入-policy)，或 `prepare` 返回值中的 `decide` | 接收当前准入 context，同步返回 select / wait proposal | 只提出选择，Scheduler 仍检查依赖、互斥、容量与取消。 |
-| **单项 Check 被准入后、执行前：准备 options** | [`preflight`](extending-check-lifecycle.md#preflight准备阻止或带-fallback-继续) | 接收 authored options 和 signal，返回 prepared options、fallback 或阻断结果 | 影响这项 Check 是否继续及其 execution 输入，不是整个 Run 的前置 hook。 |
-| **单项 Check 执行时：检查并决定自己的结果** | [`defineCheck({ execution, ... })`](extending-check-lifecycle.md) | 接收 Check context，返回四态 terminal result，可报告 Records | 形成这项 Check 的领域结果；Product 验证并封闭事实，不开放事后改写结果的通用 hook。 |
-| **Check 生成 Finding 说明时：选择如何描述发现** | [`presentCheckFindings({ message, omittedMessage, ... })`](presenting-findings.md) | 单项 Finding 或省略集合转成 `CheckMessage`，helper 返回 messages | 由 Check 将说明附到自己的结果；不是终端 renderer，也不负责决定通过或失败。 |
-| **终端显示已结算 Check 的明细时：调整预览文本** | Definition 或 Controls 的 [`outputs.progressRendering.formatter`](run-outputs.md#配置-preview-文本) | 接收选中项的默认文本和预算，同步返回替代文本 | 只改变终端预览，不改写完整 Records、messages 或 Check outcome。 |
-| **调度停止且已启动任务结束后：观察终态统计** | Definition 的 [`scheduler.measurementHooks`](scheduling.md#观察终态-measurement) | 接收冻结的 graph、settlement observations 与 raw measurement | 消费或保存终态观察，不能重跑任务或改写 Check facts。 |
-| **终态观察交付后：完成本次已准备策略** | `prepare` 返回值中的可选 `complete` | 存在 sealed terminal context 时接收该 context，至多调用一次 | 完成策略自己的终态工作；不是保证所有失败路径都会调用的通用 `finally`。 |
+| 单项 options 准备 | **当前公开**：`Definition.checks[].prepare`，`CheckPreparation` | admitted Check 至多一次、早于 `execute`；block、throw 或非法结果只将该 Check 结算为 unavailable。 | [自定义 Check](extending-check-lifecycle.md) |
+| 开始执行 | **当前内部**：`CheckExecutionLifecycle.started` | prepare 成功后、execute 前同步投影；不能控制结果。 | Product Run |
+| 领域执行 | **当前公开**：`Definition.checks[].execute` | 形成本 Check result、messages 与 Records。 | [自定义 Check](extending-check-lifecycle.md) |
+| 单项结算 | **当前内部**：`CheckExecutionLifecycle.settled` | Core 接受唯一终态事实后同步一次，覆盖 control、dependency、preparation、execution 和取消。 | Product result model |
 
-## 结算结果与结算后工作
+```ts
+const check = defineCheck({
+  checkId: "license-policy",
+  displayName: "License policy",
+  options: { denied: ["GPL-3.0-only"] },
+  prepare(options) {
+    return { status: "success", preparedOptions: options };
+  },
+  execute({ options }) {
+    return { status: "passed", data: { deniedCount: options.denied.length } };
+  }
+});
+```
 
-**“结算结果”和“结算后做事”不同。** Check 的 `execution` 与领域 policy 决定本项结果；本次 `checkAggregation` 从已结算状态派生 Run aggregate，它是配置而不是回调。若要根据完整 `RunResult` 决定 CI 退出码或做项目后处理，在项目代码 `await run(...)` 之后处理；这不是 Product 提供的另一组生命周期 hook。
+## Project / invocation
 
-## 回调失败如何反馈
+| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
+| --- | --- | --- | --- |
+| Project facts 准备 | **相邻 Change** | `add-project-change-flags` 拥有选择前 Project facts；本 Change 不建立 callback。 | Project Definition owner |
+| 有效选择完成 | **当前内部**：`InvocationLifecycle.selectionSettled()` | 所有 flag-control settlements 被接受后、Scheduler graph run 前一次；与逐 Check 生命周期分离。 | Project Run owner |
+| 批量有效输入准备 | **相邻 Change** | `batch-declared-project-file-inputs` 拥有选择后的输入屏障。 | Project Run owner |
 
-`preflight` / `execution` 的失败由 owning Check 结算。progress formatter、measurement Hooks 与 prepared `complete` 的失败通过对应 output status 反馈，并保留已形成的 Check facts；原本正常完成的 Run 会成为 `kind: "output"`，已有取消或执行失败则保留主结果。完整优先级见[输出状态与失败处理](run-outputs.md#输出状态与失败处理)。
+## Admission / Scheduler
+
+| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
+| --- | --- | --- | --- |
+| 策略准备 | **当前公开**：prepared strategy `prepare(context)` | static graph 有效后至多一次，返回 `decide` 和可选 `terminalEffect`。 | [调度 Check](scheduling.md) |
+| 准入决策 | **当前公开**：simple/prepared `.decide(context)` | 每个 decision boundary 同步提出 select/wait；Scheduler 验证并转换状态。 | Scheduler |
+| accepted action 测量 | **当前内部**：private collector | accepted transition 后记录，下一次 decide 只读取冻结 prefix。 | Scheduler owner |
+| 终态摘要 | **当前内部**：summary participant | sealed context 后最先运行并自行 contain writer failure。 | Scheduler owner |
+| 终态作用 | **当前公开**：`scheduler.terminalEffects[]` | internal summary 后依声明顺序 await；任一失败不阻止后续作用。 | [调度 Check](scheduling.md) |
+| prepared 策略终态作用 | **当前公开**：prepared `terminalEffect` | public effects 后、sealed context 存在时至多一次；与数组共享 `outputs.terminalEffects`。 | Scheduler owner |
+| 必达资源释放 | **逻辑保留** | 没有当前公开消费者；terminalEffect 不是 `finally`。 | future Change |
+
+terminal effect 可读取冻结 `SchedulerMeasurementContext`，不能修改 Scheduler 或 Check 结果。任一公开或 prepared effect 失败会使 `outputs.terminalEffects` 为 failed；正常 completed Run 映射为 `kind: "output"` / `scheduler-terminal-effects-failed`，取消或其它 primary failure 保持原结果。
+
+## Run output
+
+| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
+| --- | --- | --- | --- |
+| Check preview | **当前公开**：`outputs.progressRendering.formatter` | 只格式化受预算限制的显示文本。 | [Run outputs](run-outputs.md) |
+| terminal-effect readback | **当前公开**：`RunResult.outputs.terminalEffects` | 汇总 Definition effects 与 prepared effect；Controls 不能注入。 | Run output owner |
+| Run result handling / policy | **逻辑保留** | 调用方在 `await run(...)` 后自行处理；Product 未提供内部 policy hook。 | future Change |
+
+## Project Gate
+
+| 逻辑位置 | 状态与路径 | 职责、顺序与失败 | owner |
+| --- | --- | --- | --- |
+| Gate 结果贡献 | **当前 Project**：`PROJECT_GATE_RUN_CONFIG.resultContributor(context)` | exact candidate Run 形成 `initialResult` 后至多一次；只能返回已验证 message list。 | Project Gate |
+| Gate 结果决定 | **当前内部**：initial result → contribution → exit mapper | adapter 追加 messages、原样保留 initial status；throw 或非法列表为 unavailable。 | Project Gate owner |
+| transcript 完成 | **当前内部**：`ProjectGateTranscript.complete` | final result 与 exit 已确定后写入一次；失败 fail closed。 | Project Gate owner |
+
+`resultContributor` 不是 package API、插件系统或完整结果 transform。它能读 `initialResult`、selection、candidate、timing 与 Run facts，但不能重写 status。
+
+## 精确契约
+
+- Check authoring、取消、reason 和 callback context： [自定义 Check](extending-check-lifecycle.md)。
+- Definition validation、closed grammar 和 fingerprint：Project Definition owner（工作区维护材料）。
+- Scheduler measurement、策略及 output priority： [调度 Check](scheduling.md) 与 [Run outputs](run-outputs.md)。
+- Gate candidate binding、result contribution、exit 与 transcript：Project Gate owner（工作区维护材料）。

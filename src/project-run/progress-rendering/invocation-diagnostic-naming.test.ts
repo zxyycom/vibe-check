@@ -22,7 +22,7 @@ describe("Package Run diagnostic file naming", () => {
     let authorCalls = 0;
     const source = definition([
       check({
-        execution: () => {
+        execute: () => {
           authorCalls += 1;
           return { status: "passed", data: {} };
         }
@@ -115,7 +115,7 @@ describe("Package Run diagnostic file naming", () => {
     const first = run(
       definition([
         check({
-          execution: async () => {
+          execute: async () => {
             entered.resolve();
             await release.promise;
             return { status: "passed", data: { owner: "first" } };

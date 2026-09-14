@@ -53,9 +53,9 @@ export function markdownLinkValidation(
   }
   return defineCheck({
     ...MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION,
-    execution: executeMarkdownLinkValidation,
+    execute: executeMarkdownLinkValidation,
     parseData: parseMarkdownLinkValidationData,
-    preflight: (preparedOptions) =>
+    prepare: (preparedOptions) =>
       validMarkdownLinkValidationOptions(preparedOptions)
         ? { status: "success", preparedOptions }
         : {

@@ -27,7 +27,7 @@ async function assertContainedDiagnosticOmitsHandoff(): Promise<void> {
     checkId: "contained-handoff-provider",
     displayName: "Contained handoff provider",
     handoff: true,
-    execution: ({ records }) => {
+    execute: ({ records }) => {
       records.report({ id: "duplicate" }, { ordinal: 1 });
       records.report({ id: "duplicate" }, { ordinal: 2 });
       return { status: "passed", data: { visible: true }, handoff };
@@ -57,7 +57,7 @@ async function assertCancelledDiagnosticOmitsHandoff(): Promise<void> {
     checkId: "cancelled-handoff-provider",
     displayName: "Cancelled handoff provider",
     handoff: true,
-    execution: () => {
+    execute: () => {
       controller.abort();
       return { status: "passed", data: { visible: true }, handoff };
     }
@@ -93,14 +93,14 @@ function executeHandoffProvider(
   provider: Readonly<{
     readonly checkId: string;
     readonly displayName: string;
-    readonly execution: NormalizedCheck["execution"];
+    readonly execute: NormalizedCheck["execute"];
   }>,
   observations: DiagnosticObservation[],
   signal: AbortSignal | undefined
 ) {
   return executeResolvedChecks({
     checks: [
-      normalized(provider.execution, {
+      normalized(provider.execute, {
         checkId: provider.checkId,
         displayName: provider.displayName,
         handoff: definedHandoff(provider)

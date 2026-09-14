@@ -1,7 +1,7 @@
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
 import type { ProjectGateSelection } from "./controls.ts";
-import type { ProjectGateResult } from "./result.ts";
+import type { ProjectGateMessage, ProjectGateResult } from "./result.ts";
 
 /** Immutable timing facts from one candidate-backed Gate invocation. */
 export interface ProjectGateTiming {
@@ -13,7 +13,7 @@ export interface ProjectGateTiming {
   readonly startedAtMs: number;
 }
 
-/** Immutable facts supplied to project-owned result post-processing. */
+/** Immutable facts supplied to the project-owned result contribution. */
 export interface ProjectGateContext {
   readonly invocationLogDirectory: string;
   readonly preparedCandidate: PreparedPackageCandidate;
@@ -23,8 +23,12 @@ export interface ProjectGateContext {
   readonly timing: ProjectGateTiming;
 }
 
-/** A project-owned synchronous or asynchronous transformation of one Gate result. */
-export type ProjectGateAfterHook = (
-  result: ProjectGateResult,
-  context: ProjectGateContext
-) => ProjectGateResult | Promise<ProjectGateResult>;
+/** The frozen Product-derived Gate result that a contributor may inspect but never replace. */
+export interface ProjectGateResultContributionContext extends ProjectGateContext {
+  readonly initialResult: ProjectGateResult;
+}
+
+/** Project-owned synchronous or asynchronous contribution of validated Gate messages. */
+export type ProjectGateResultContributor = (
+  context: ProjectGateResultContributionContext
+) => readonly ProjectGateMessage[] | Promise<readonly ProjectGateMessage[]>;

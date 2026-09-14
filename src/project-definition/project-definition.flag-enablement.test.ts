@@ -21,7 +21,7 @@ describe("Project Definition", () => {
             flags: ["analysis:slow", "analysis:deep", "analysis:slow"],
             mode: "all"
           },
-          execution: passed
+          execute: passed
         })
       ]
     });
@@ -36,7 +36,7 @@ describe("Project Definition", () => {
               flags: ["analysis:deep", "analysis:slow"],
               mode: "all"
             },
-            execution: passed
+            execute: passed
           })
         ]
       })
@@ -88,7 +88,7 @@ describe("Project Definition", () => {
             mode: "all",
             propagateDependsOn: true
           },
-          execution: passed
+          execute: passed
         })
       ]
     });
@@ -102,7 +102,7 @@ describe("Project Definition", () => {
             mode: "all",
             propagateDependsOn: true
           },
-          execution: passed
+          execute: passed
         })
       ]
     });
@@ -112,7 +112,7 @@ describe("Project Definition", () => {
           checkId: "deep-analysis",
           displayName: "Deep analysis",
           enabledByFlags: { flags: ["analysis:deep", "analysis:slow"], mode: "all" },
-          execution: passed
+          execute: passed
         })
       ]
     });
@@ -142,43 +142,43 @@ describe("Project Definition", () => {
         checkId: "invalid-empty-flags",
         displayName: "Invalid empty flags",
         enabledByFlags: { flags: [], mode: "all" },
-        execution: passed
+        execute: passed
       },
       {
         checkId: "invalid-flag-token",
         displayName: "Invalid flag token",
         enabledByFlags: { flags: [""], mode: "any" },
-        execution: passed
+        execute: passed
       },
       {
         checkId: "invalid-flags-type",
         displayName: "Invalid flags type",
         enabledByFlags: { flags: "analysis", mode: "none" },
-        execution: passed
+        execute: passed
       },
       {
         checkId: "invalid-flag-mode",
         displayName: "Invalid flag mode",
         enabledByFlags: { flags: ["analysis"], mode: "exactly-one" },
-        execution: passed
+        execute: passed
       },
       {
         checkId: "invalid-control-key",
         displayName: "Invalid control key",
         enabledByFlags: { flags: ["analysis"], mode: "not-all", unexpected: true },
-        execution: passed
+        execute: passed
       },
       {
         checkId: "invalid-propagation-false",
         displayName: "Invalid propagation false",
         enabledByFlags: { flags: ["analysis"], mode: "all", propagateDependsOn: false },
-        execution: passed
+        execute: passed
       },
       {
         checkId: "invalid-propagation-value",
         displayName: "Invalid propagation value",
         enabledByFlags: { flags: ["analysis"], mode: "all", propagateDependsOn: "true" },
-        execution: passed
+        execute: passed
       },
       {
         checkId: "invalid-container-flags",
@@ -190,7 +190,7 @@ describe("Project Definition", () => {
         checkId: "retired-single-flag",
         displayName: "Retired single flag",
         enabledByFlag: "analysis",
-        execution: passed
+        execute: passed
       }
     ]) {
       assert.equal(validateProjectDefinition({ ...defineConfig({}), checks: [check] }).ok, false);

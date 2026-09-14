@@ -15,8 +15,8 @@ import {
 } from "./resolved-checks.test-support.ts";
 
 describe("Package Run direct Check execution", () => {
-  it("runs each independent preflight inside its admitted Task lifecycle", async () => {
-    const firstPreflight = deferred<{
+  it("runs each independent preparation inside its admitted Task lifecycle", async () => {
+    const firstPreparation = deferred<{
       readonly status: "success";
       readonly preparedOptions: object;
     }>();
@@ -31,9 +31,9 @@ describe("Package Run direct Check execution", () => {
           {
             checkId: "first",
             maxParallel: 2,
-            preflight: async (_options) => {
-              events.push("first-preflight");
-              return firstPreflight.promise;
+            prepare: async (_options) => {
+              events.push("first-preparation");
+              return firstPreparation.promise;
             }
           }
         ),
@@ -45,31 +45,32 @@ describe("Package Run direct Check execution", () => {
           {
             checkId: "second",
             maxParallel: 2,
-            preflight: (options) => {
-              events.push("second-preflight");
+            prepare: (options) => {
+              events.push("second-preparation");
               return { status: "success", preparedOptions: options };
             }
           }
         )
       ],
+      invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 2,
       project: PROJECT,
       signal: undefined
     });
     await Promise.resolve();
-    assert.deepEqual(events, ["first-preflight", "second-preflight"]);
-    firstPreflight.resolve({ status: "success", preparedOptions: {} });
+    assert.deepEqual(events, ["first-preparation", "second-preparation"]);
+    firstPreparation.resolve({ status: "success", preparedOptions: {} });
     const result = await execution;
     assert.equal(result.kind, "completed");
     assert.deepEqual(events, [
-      "first-preflight",
-      "second-preflight",
+      "first-preparation",
+      "second-preparation",
       "second-execution",
       "first-execution"
     ]);
   });
 
-  it("blocks success dependents before their preflight and lets observers read the terminal result", async () => {
+  it("blocks success dependents before their preparation and lets observers read the terminal result", async () => {
     const started: CheckStartedFact[] = [];
     const settled: CheckSettledFact[] = [];
     const observations: DiagnosticObservation[] = [];
@@ -81,7 +82,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "blocked",
-            preflight: () => ({
+            prepare: () => ({
               status: "failure",
               action: "block",
               reason: { code: "invalid-options" },
@@ -98,8 +99,8 @@ describe("Package Run direct Check execution", () => {
           {
             checkId: "dependent",
             dependsOn: ["blocked"],
-            preflight: () => {
-              throw new Error("blocked dependent preflight must not execute");
+            prepare: () => {
+              throw new Error("blocked dependent preparation must not execute");
             }
           }
         ),
@@ -119,11 +120,11 @@ describe("Package Run direct Check execution", () => {
         )
       ],
       diagnosticLogger: recordingLogger(observations),
-      lifecycle: {
-        flagControlCompleted: () => undefined,
+      checkLifecycle: {
         started: (fact) => started.push(fact),
         settled: (fact) => settled.push(fact)
       },
+      invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 1,
       project: PROJECT,
       signal: undefined
@@ -158,8 +159,8 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(
       observations.find(
         (observation) =>
-          hasDiagnosticTags(observation, "CHECK:blocked", "PREFLIGHT") &&
-          observation.event === "preflight.resolved"
+          hasDiagnosticTags(observation, "CHECK:blocked", "PREPARATION") &&
+          observation.event === "preparation.resolved"
       )?.details,
       {
         messages: [{ level: "warning", code: "invalid-options", message: "Use valid options" }],
@@ -170,21 +171,21 @@ describe("Package Run direct Check execution", () => {
     assert.equal(
       observations.filter(
         (observation) =>
-          hasDiagnosticTags(observation, "CHECK:blocked", "PREFLIGHT") &&
-          observation.event === "preflight.resolved"
+          hasDiagnosticTags(observation, "CHECK:blocked", "PREPARATION") &&
+          observation.event === "preparation.resolved"
       ).length,
       1
     );
     assert.deepEqual(
       observations.find(
         (observation) =>
-          hasDiagnosticTags(observation, "CHECK:blocked", "PREFLIGHT") &&
+          hasDiagnosticTags(observation, "CHECK:blocked", "PREPARATION") &&
           observation.event === "check.finished"
       )?.details,
       {
         durationMs: null,
         messageCount: 1,
-        phase: "preflight",
+        phase: "preparation",
         reasonCode: "invalid-options",
         status: "unavailable"
       }
@@ -193,7 +194,7 @@ describe("Package Run direct Check execution", () => {
 
   it("settles every direct non-passed prerequisite before dependent author work", async () => {
     for (const terminalResult of nonPassedResults()) {
-      let dependentPreflightCalls = 0;
+      let dependentPreparationCalls = 0;
       let dependentExecutionCalls = 0;
       const result = await executeResolvedChecks({
         checks: [
@@ -206,20 +207,21 @@ describe("Package Run direct Check execution", () => {
             {
               checkId: "dependent",
               dependsOn: ["source"],
-              preflight: () => {
-                dependentPreflightCalls += 1;
+              prepare: () => {
+                dependentPreparationCalls += 1;
                 return { status: "success", preparedOptions: {} };
               }
             }
           )
         ],
+        invocationLifecycle: { selectionSettled: () => undefined },
         maxParallel: 1,
         project: PROJECT,
         signal: undefined
       });
 
       assert.equal(result.kind, "completed");
-      assert.equal(dependentPreflightCalls, 0);
+      assert.equal(dependentPreparationCalls, 0);
       assert.equal(dependentExecutionCalls, 0);
       assert.deepEqual(outcomeFor(result, "dependent"), {
         status: "unavailable",
@@ -249,6 +251,7 @@ describe("Package Run direct Check execution", () => {
           { checkId: "observer", observes: ["blocked"] }
         )
       ],
+      invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 1,
       project: PROJECT,
       signal: undefined

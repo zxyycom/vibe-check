@@ -25,7 +25,7 @@ describe("task engine admission policy", () => {
         clock: Object.freeze({ now: () => 0 }),
         declarativeFingerprint: "measurement-sharing"
       }),
-      measurementHooks: [
+      terminalEffects: [
         (context) => {
           terminalTiming = context.rawMeasurement.timing;
         }

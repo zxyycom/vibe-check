@@ -56,7 +56,7 @@ final data、Records、messages、definition warnings、output statuses 或 prog
 repository Gate 负责在自己的 Project Definition/Run adapter 中绑定 flags 和显式 `checks: "effective"` aggregation，并从最终
 `RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate
 只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写
-Product Check outcomes。当前 required/preset/all selection、`afterGate` hook、transcript 与 exit mapping 只见
+Product Check outcomes。当前 required/preset/all selection、`resultContributor` hook、transcript 与 exit mapping 只见
 [脚本工具的 Project Gate](../tooling/project-gate.md)。
 
 ## Verification

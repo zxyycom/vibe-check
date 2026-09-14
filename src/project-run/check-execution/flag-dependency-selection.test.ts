@@ -33,7 +33,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "provider",
             displayName: "Provider",
             enabledByFlags: { flags: ["provider"], mode: "all" },
-            execution: () => {
+            execute: () => {
               providerCalls += 1;
               return PASSED;
             }
@@ -43,7 +43,7 @@ describe("Package Run flag dependency selection", () => {
             displayName: "Root",
             dependsOn: ["provider"],
             enabledByFlags: { flags: ["root"], mode: "all" },
-            execution: () => {
+            execute: () => {
               rootCalls += 1;
               return PASSED;
             }
@@ -88,7 +88,7 @@ describe("Package Run flag dependency selection", () => {
           {
             checkId: "always",
             displayName: "Always",
-            execution: () => {
+            execute: () => {
               alwaysCalls += 1;
               return PASSED;
             }
@@ -97,8 +97,8 @@ describe("Package Run flag dependency selection", () => {
             checkId: "provider",
             displayName: "Provider",
             enabledByFlags: { flags: ["provider"], mode: "all" },
-            preflight: (options) => ({ status: "success", preparedOptions: options }),
-            execution: () => {
+            prepare: (options) => ({ status: "success", preparedOptions: options }),
+            execute: () => {
               providerCalls += 1;
               return PASSED;
             }
@@ -108,7 +108,7 @@ describe("Package Run flag dependency selection", () => {
             displayName: "Middle",
             dependsOn: ["provider"],
             enabledByFlags: { flags: ["middle"], mode: "all" },
-            execution: () => {
+            execute: () => {
               middleCalls += 1;
               return PASSED;
             }
@@ -117,7 +117,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "observer",
             displayName: "Observer",
             enabledByFlags: { flags: ["observer"], mode: "all" },
-            execution: () => {
+            execute: () => {
               observerCalls += 1;
               return PASSED;
             }
@@ -132,7 +132,7 @@ describe("Package Run flag dependency selection", () => {
               mode: "all",
               propagateDependsOn: true
             },
-            execution: () => {
+            execute: () => {
               rootOneCalls += 1;
               return PASSED;
             }
@@ -146,7 +146,7 @@ describe("Package Run flag dependency selection", () => {
               mode: "all",
               propagateDependsOn: true
             },
-            execution: () => {
+            execute: () => {
               rootTwoCalls += 1;
               return PASSED;
             }
@@ -191,7 +191,7 @@ describe("Package Run flag dependency selection", () => {
             checkId: "provider",
             displayName: "Provider",
             enabledByFlags: { flags: ["provider"], mode: "all" },
-            execution: () => {
+            execute: () => {
               providerCalls += 1;
               return PASSED;
             }
@@ -201,7 +201,7 @@ describe("Package Run flag dependency selection", () => {
             displayName: "Middle",
             dependsOn: ["provider"],
             enabledByFlags: { flags: ["middle"], mode: "all" },
-            execution: () => {
+            execute: () => {
               middleCalls += 1;
               return PASSED;
             }
@@ -215,7 +215,7 @@ describe("Package Run flag dependency selection", () => {
               mode: "all",
               propagateDependsOn: true
             },
-            execution: () => {
+            execute: () => {
               rootCalls += 1;
               return PASSED;
             }
@@ -249,7 +249,7 @@ describe("Package Run flag dependency selection", () => {
           checkId: "provider",
           displayName: "Provider",
           enabledByFlags: { flags: ["provider"], mode: "all" },
-          execution: () => {
+          execute: () => {
             calls += 1;
             return PASSED;
           }
@@ -263,7 +263,7 @@ describe("Package Run flag dependency selection", () => {
             mode: "all",
             propagateDependsOn: true
           },
-          execution: () => {
+          execute: () => {
             calls += 1;
             return PASSED;
           }

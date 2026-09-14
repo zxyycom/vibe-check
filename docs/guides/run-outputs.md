@@ -49,7 +49,7 @@ const headAndTail: ProgressPreviewFormatter = ({ text, maxCodePoints }) => {
 const detail = defineCheck({
   checkId: "detail",
   displayName: "Detail",
-  execution: ({ records }) => {
+  execute: ({ records }) => {
     records.report({ id: "long-detail" }, { text: "a verbose diagnostic value" });
     return { status: "passed", data: {} };
   }
@@ -124,22 +124,22 @@ getter 来寻找更深字段。诊断不回显被拒绝的值；unknown key 诊�
 
 channel setup、write 或 close failure 只使对应 output failed，不改写已经形成的 Check/Record facts，也不阻断其它 output 结算。
 
-当 primary Run 已正常完成时，output failure 使结果成为 `kind: "output"`；多个 failure 依次选择 progress rendering、machine publication、diagnostic logging、measurement hooks 的第一个作为 diagnostic。`scheduler-measurement-hooks-failed` 因而只表示 measurement hook 是按该顺序选中的 failure；cancellation 或 execution diagnostic 保持原有 primary result，hook failure 仍在 `outputs.measurementHooks.status` 可见。
+当 primary Run 已正常完成时，output failure 使结果成为 `kind: "output"`；多个 failure 依次选择 progress rendering、machine publication、diagnostic logging、terminal effects 的第一个作为 diagnostic。`scheduler-terminal-effects-failed` 因而只表示 terminal effect 是按该顺序选中的 failure；cancellation 或 execution diagnostic 保持原有 primary result，terminal-effect failure 仍在 `outputs.terminalEffects.status` 可见。
 
 ### Diagnostic channel 状态
 
 `outputs.diagnosticLogging` 的形状为 `{ enabled, status, channels }`，其中 `channels` 是 `core`、`scheduler` 的 `{ enabled, status, file }` map。禁用 channel 的 `file` 为 `null`；启用 channel 即使创建文件失败也保留预先计算的 `path.relative(projectRoot, resolvedFile)`，因此 root 外 target 可含 `..`，跨卷时平台可以返回 absolute path。任一 enabled channel failed 时 aggregate status 为 `failed`，只有全部 enabled channel succeeded 时为 `succeeded`。
 
-### Measurement hook 状态
+### Terminal effect 状态
 
-`scheduler.measurementHooks` 在 Definition 中配置，不能由 RunControls 注入或覆盖。终态观察交付给调用方配置的 generic Hooks 与 prepared strategy 的 public `complete`；调用顺序和 context 见[调度专题](scheduling.md#观察终态-measurement)。
+`scheduler.terminalEffects` 在 Definition 中配置，不能由 RunControls 注入或覆盖。终态观察交付给调用方配置的 Definition effects 与 prepared strategy 的 public `terminalEffect`；调用顺序和 context 见[调度专题](scheduling.md#交付终态-measurement)。
 
-`outputs.measurementHooks` 的形状为 `{ enabled, status }`：
+`outputs.terminalEffects` 的形状为 `{ enabled, status }`：
 
 | 条件 | `enabled` / `status` |
 | --- | --- |
-| normalized `scheduler.measurementHooks` 非空，或 successful prepared strategy 实际提供 `complete` | `enabled: true`。 |
+| normalized `scheduler.terminalEffects` 非空，或 successful prepared strategy 实际提供 `terminalEffect` | `enabled: true`。 |
 | 两者都没有 | `enabled: false`，`status: "disabled"`。 |
 | enabled Run 没有 sealed terminal sequence | `status: "not-run"`。 |
-| sealed sequence 中所有 generic Hooks 与可选 public `complete` 都成功 | `status: "succeeded"`。 |
-| 任一 generic Hook 或 `complete` throw/reject | `status: "failed"`；后续 `complete` success 不会覆盖已记录的 generic failure。 |
+| sealed sequence 中所有 Definition effects 与可选 public `terminalEffect` 都成功 | `status: "succeeded"`。 |
+| 任一 Definition effect 或 `terminalEffect` throw/reject | `status: "failed"`；后续 `terminalEffect` success 不会覆盖已记录的 Definition-effect failure。 |

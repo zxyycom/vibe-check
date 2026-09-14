@@ -17,7 +17,7 @@ describe("Package Run diagnostic logging output", () => {
       const result = await executeValidatedRun(
         definition([
           check({
-            execution: ({ records }) => {
+            execute: ({ records }) => {
               records.report({ id: "accepted" }, { source: "callback" });
               return { status: "passed", data: { accepted: true } };
             }

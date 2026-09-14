@@ -9,7 +9,7 @@ export interface ProjectGateTranscriptCompletion {
 
 export interface ProjectGateTranscript {
   complete(completion: ProjectGateTranscriptCompletion): "failed" | "succeeded";
-  /** Records one Gate-adapter or afterGate message without intercepting Product output. */
+  /** Records one Gate-adapter or result-contributor message without intercepting Product output. */
   writeGateMessage(
     input: Readonly<{
       readonly level: "error" | "info" | "warning";

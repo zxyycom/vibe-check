@@ -202,7 +202,10 @@ export interface PreparedCustomAdmissionStrategy {
   /** Scheduler 每轮同步调用；不得返回 Promise 或 thenable。 */
   readonly decide: (this: void, context: AdmissionPolicyContext) => AdmissionProposal;
   /** Scheduler 的 generic Hooks 完成后，才以 sealed terminal context 调用一次。 */
-  readonly complete?: (this: void, context: SchedulerMeasurementContext) => void | Promise<void>;
+  readonly terminalEffect?: (
+    this: void,
+    context: SchedulerMeasurementContext
+  ) => void | Promise<void>;
 }
 
 /** custom 的 closed authoring grammar。 */
@@ -525,7 +528,7 @@ export interface SchedulerMeasurementContext {
 }
 
 /** 一次 terminal Scheduler measurement 的 caller-owned sync/async consumer。 */
-export type SchedulerMeasurementHook =
+export type SchedulerTerminalEffect =
   | ((this: void, context: SchedulerMeasurementContext) => void)
   | ((this: void, context: SchedulerMeasurementContext) => Promise<void>);
 
@@ -536,7 +539,7 @@ export interface SchedulerPolicy {
   /** 同时 running 的 root Check 上限。 */
   readonly maxParallel: number;
   /** terminal measurement 的 caller-owned consumers，按配置顺序调用。 */
-  readonly measurementHooks: readonly SchedulerMeasurementHook[];
+  readonly terminalEffects: readonly SchedulerTerminalEffect[];
   /** 本次 Definition 中可由 Check 原子占用的 named resource 总 units。 */
   readonly resourceCapacities: Readonly<Record<string, number>>;
 }

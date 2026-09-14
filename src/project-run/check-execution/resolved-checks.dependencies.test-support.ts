@@ -120,7 +120,7 @@ export async function assertDirectDependencyLists(): Promise<void> {
 
 export async function assertEmptyDependencyList(): Promise<void> {
   let observedList: readonly DependencyObservation[] | undefined;
-  const execution = await executeResolvedChecks({
+  const execute = await executeResolvedChecks({
     checks: [
       normalized(({ dependencies }) => {
         observedList = dependencies.list();
@@ -131,7 +131,7 @@ export async function assertEmptyDependencyList(): Promise<void> {
     project: PROJECT,
     signal: undefined
   });
-  assert.equal(execution.kind, "completed");
+  assert.equal(execute.kind, "completed");
   assert.deepEqual(observedList, []);
   assert.equal(Object.isFrozen(observedList), true);
 }

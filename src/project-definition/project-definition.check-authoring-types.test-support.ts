@@ -2,7 +2,7 @@ import {
   defineCheck,
   type Check,
   type CheckExecution,
-  type CheckPreflightResult,
+  type CheckPreparationResult,
   type CheckWithOptions
 } from "../check/check.ts";
 
@@ -15,31 +15,31 @@ function _typeCheckPreparedOptionConversion() {
     checkId: "prepared-from-optional-authored",
     displayName: "Prepared from optional authored",
     options: {},
-    preflight(authored, signal) {
+    prepare(authored, signal) {
       const maybeMaximum: number | undefined = authored.maximum;
       void maybeMaximum;
       void signal.aborted;
       return { status: "success", preparedOptions: { maximum: authored.maximum ?? 1 } };
     },
-    execution({ options }) {
+    execute({ options }) {
       const requiredMaximum: number = options.maximum;
       void requiredMaximum;
       return { status: "passed", data: {} };
     }
   });
-  const invalidBlockedPreflight: CheckPreflightResult = {
+  const invalidBlockedPreparation: CheckPreparationResult = {
     status: "failure",
     action: "block",
     reason: { code: "invalid-options" },
-    // @ts-expect-error block preflight results physically omit fallback, including undefined.
+    // @ts-expect-error block preparation results physically omit fallback, including undefined.
     fallback: undefined
   };
   void preparedFromOptionalAuthored;
-  void invalidBlockedPreflight;
+  void invalidBlockedPreparation;
 }
 
 function _typeCheckPreparedOptionConversionIsRequired() {
-  // @ts-expect-error a distinct prepared shape requires a preflight conversion.
+  // @ts-expect-error a distinct prepared shape requires a preparation conversion.
   const missingPreparedConversion: Check<
     { readonly maximum?: number },
     { readonly maximum: number }
@@ -47,7 +47,7 @@ function _typeCheckPreparedOptionConversionIsRequired() {
     checkId: "missing-prepared-conversion",
     displayName: "Missing prepared conversion",
     options: {},
-    execution: ({ options }) => ({ status: "passed", data: { maximum: options.maximum } })
+    execute: ({ options }) => ({ status: "passed", data: { maximum: options.maximum } })
   };
   // @ts-expect-error CheckWithOptions retains the same required conversion invariant.
   const missingPreparedCheckWithOptions: CheckWithOptions<
@@ -68,8 +68,8 @@ function _typeCheckCheckExecutionContext() {
     checkId: "typed-check",
     displayName: "Typed check",
     options: { maximum: 5 },
-    preflight: (options) => ({ status: "success", preparedOptions: options }),
-    execution({ options, project, records, signal }) {
+    prepare: (options) => ({ status: "success", preparedOptions: options }),
+    execute({ options, project, records, signal }) {
       const maximum: number = options.maximum;
       void maximum;
       void project.root;
@@ -83,8 +83,8 @@ function _typeCheckCheckExecutionContext() {
   const noOptions = defineCheck({
     checkId: "no-options",
     displayName: "No options",
-    execution({ dependencies, options }) {
-      // @ts-expect-error no-options execution receives an empty options object.
+    execute({ dependencies, options }) {
+      // @ts-expect-error no-options execute receives an empty options object.
       void options.unknown;
       const read = dependencies.get("typed-check");
       // @ts-expect-error dependency reads do not accept a caller-selected Data generic.
@@ -145,7 +145,7 @@ function _typeCheckClosedExecutionResults() {
     checkId: "messaged-check",
     displayName: "Messaged check",
     visibility: "attention",
-    execution: () => ({
+    execute: () => ({
       status: "not-applicable",
       messages: [{ code: "not-needed", level: "info", message: "Not needed" }]
     })
@@ -153,8 +153,8 @@ function _typeCheckClosedExecutionResults() {
   const invalid = defineCheck({
     checkId: "invalid-result",
     displayName: "Invalid result",
-    // @ts-expect-error execution results have a closed status vocabulary.
-    execution: () => ({ status: "unknown" })
+    // @ts-expect-error execute results have a closed status vocabulary.
+    execute: () => ({ status: "unknown" })
   });
   void invalid;
   void messaged;
@@ -165,7 +165,7 @@ function _typeCheckProviderHandoffRead() {
     checkId: "handoff-provider",
     displayName: "Handoff provider",
     handoff: true,
-    execution: () => ({
+    execute: () => ({
       status: "passed",
       data: { version: 1 },
       handoff: { close: () => undefined }
@@ -174,13 +174,13 @@ function _typeCheckProviderHandoffRead() {
   const ordinaryProvider = defineCheck({
     checkId: "ordinary-provider",
     displayName: "Ordinary provider",
-    execution: () => ({ status: "passed", data: {} })
+    execute: () => ({ status: "passed", data: {} })
   });
   const consumer = defineCheck({
     checkId: "handoff-consumer",
     displayName: "Handoff consumer",
     dependsOn: ["handoff-provider"],
-    execution({ dependencies }) {
+    execute({ dependencies }) {
       const read = dependencies.get(provider);
       if (read.ok) {
         const checkId: "handoff-provider" = read.checkId;

@@ -13,7 +13,7 @@ import {
 } from "../../package-tools/learned-critical-path/strategy.ts";
 import {
   defineConfig,
-  type SchedulerMeasurementHook
+  type SchedulerTerminalEffect
 } from "../../project-definition/project-definition.ts";
 import { executeValidatedRun } from "./run.ts";
 
@@ -99,7 +99,7 @@ describe("Package Run learned Scheduler admission", () => {
     }
   });
 
-  it("prepares before admission and records only after terminal measurement Hooks settle", async () => {
+  it("prepares before admission and records only after terminal effects settle", async () => {
     const root = await mkdtemp(join(tmpdir(), "vibe-check-learned-lifecycle-"));
     try {
       const events: string[] = [];
@@ -108,7 +108,7 @@ describe("Package Run learned Scheduler admission", () => {
         learnedDefinition({
           observe: (event) => events.push(event.kind),
           stateDirectory: join(root, "scheduler-state"),
-          measurementHooks: [terminalHistory.hook],
+          terminalEffects: [terminalHistory.hook],
           order: []
         }),
         { projectRoot: root },
@@ -127,7 +127,7 @@ describe("Package Run learned Scheduler admission", () => {
     }
   });
 
-  it("records a cancelled Run only after its terminal measurement Hook settles", async () => {
+  it("records a cancelled Run only after its terminal terminal effect settles", async () => {
     const root = await mkdtemp(join(tmpdir(), "vibe-check-learned-cancelled-lifecycle-"));
     try {
       const controller = new AbortController();
@@ -139,7 +139,7 @@ describe("Package Run learned Scheduler admission", () => {
             {
               checkId: "started",
               displayName: "Started",
-              execution: () => {
+              execute: () => {
                 controller.abort();
                 return PASSED;
               }
@@ -147,12 +147,12 @@ describe("Package Run learned Scheduler admission", () => {
             {
               checkId: "cancelled-before-start",
               displayName: "Cancelled before start",
-              execution: () => PASSED
+              execute: () => PASSED
             }
           ],
           observe: (event) => events.push(event.kind),
           stateDirectory: join(root, "scheduler-state"),
-          measurementHooks: [terminalHistory.hook],
+          terminalEffects: [terminalHistory.hook],
           order: []
         }),
         { projectRoot: root, signal: controller.signal },
@@ -176,7 +176,7 @@ function learnedDefinition(input: {
   readonly order: string[];
   readonly checks?: readonly Check[];
   readonly observe?: (event: LearnedCriticalPathObservation) => void;
-  readonly measurementHooks?: readonly SchedulerMeasurementHook[];
+  readonly terminalEffects?: readonly SchedulerTerminalEffect[];
   readonly sampleWindow?: number;
   readonly stateDirectory: string;
 }) {
@@ -198,7 +198,7 @@ function learnedDefinition(input: {
         })
       },
       maxParallel: 1,
-      measurementHooks: input.measurementHooks ?? []
+      terminalEffects: input.terminalEffects ?? []
     }
   });
 }
@@ -208,7 +208,7 @@ function learnedChecks(order: string[]): readonly Check[] {
     {
       checkId: "fast",
       displayName: "Fast",
-      execution: async () => {
+      execute: async () => {
         order.push("fast");
         await delay(2);
         return PASSED;
@@ -218,7 +218,7 @@ function learnedChecks(order: string[]): readonly Check[] {
     {
       checkId: "slow",
       displayName: "Slow",
-      execution: async () => {
+      execute: async () => {
         order.push("slow");
         await delay(30);
         return PASSED;
@@ -231,7 +231,7 @@ function learnedChecks(order: string[]): readonly Check[] {
 function historyDuringTerminalHook(
   events: string[],
   stateDirectory: string
-): Readonly<{ readonly hook: SchedulerMeasurementHook; readonly visible: boolean }> {
+): Readonly<{ readonly hook: SchedulerTerminalEffect; readonly visible: boolean }> {
   let visible = true;
   return Object.freeze({
     hook: async () => {

@@ -62,7 +62,7 @@ export async function executeCheckCallback(input: CheckCallbackInput): Promise<C
       records: reporter.records,
       signal: input.signal
     });
-    const invocation = await invokeWithCapturedConsole(() => input.check.execution(context));
+    const invocation = await invokeWithCapturedConsole(() => input.check.execute(context));
     consoleMessages = invocation.messages;
     if (invocation.kind === "threw") throw invocation.error;
     const callbackResult = invocation.output;

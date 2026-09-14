@@ -96,7 +96,7 @@ describe("default Check direct callbacks", () => {
       /markdownLinkValidation final data/
     );
     assert.equal(
-      (await defaultCheck.preflight!(MARKDOWN_LINK_OPTIONS, new AbortController().signal)).status,
+      (await defaultCheck.prepare!(MARKDOWN_LINK_OPTIONS, new AbortController().signal)).status,
       "success"
     );
     for (const options of [

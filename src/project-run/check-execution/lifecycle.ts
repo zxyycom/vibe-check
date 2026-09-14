@@ -1,10 +1,14 @@
 import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
 import type { CoreRecord } from "../../check-settlement/facts.ts";
 
-/** Private Run handoff for Check lifecycle presentation and accounting. */
+/** Private invocation-wide barrier that is independent from per-Check lifecycle facts. */
+export type InvocationLifecycle = Readonly<{
+  /** Fires once after Product accepts every flag-control settlement and before Scheduler work. */
+  readonly selectionSettled: () => void;
+}>;
+
+/** Private per-Check lifecycle presentation and accounting channel. */
 export type CheckExecutionLifecycle = Readonly<{
-  /** Fires after the invocation-wide flag-control phase and before Scheduler execution starts. */
-  readonly flagControlCompleted: () => void;
   readonly started: (fact: CheckStartedFact) => void;
   readonly settled: (fact: CheckSettledFact) => void;
 }>;

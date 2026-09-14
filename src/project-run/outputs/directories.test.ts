@@ -11,7 +11,7 @@ import { run } from "../run.ts";
 const CHECK = Object.freeze({
   checkId: "output-directory-check",
   displayName: "Output directory check",
-  execution: () => ({ status: "passed" as const, data: Object.freeze({}) })
+  execute: () => ({ status: "passed" as const, data: Object.freeze({}) })
 });
 
 describe("Package Run output directories", () => {

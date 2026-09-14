@@ -70,7 +70,7 @@ describe("quality jscpd wrapper failure projection", () => {
     }
   });
 
-  it("classifies commands missing after preflight as execution failures", () => {
+  it("classifies commands missing after preparation as execution failures", () => {
     const result = scanWithJscpd({
       files: ["scripts/a.ts", "scripts/b.ts"],
       cwd: REPO_ROOT,

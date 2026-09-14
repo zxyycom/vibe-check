@@ -203,8 +203,8 @@ selected path 数量为零时结算为 `not-applicable / no-eligible-input`。se
 | `cancelled`                  | invocation signal 取消本 Check；不要把结果解释为 clean validation。                                                                      |
 
 这些边界不发布 partial link-finding Records，也不提供 final data；若 selected classification 已完成，已发布的
-rejected-input Records 与对应 warning 仍保留。通用 preflight 语法见
-[options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
+rejected-input Records 与对应 warning 仍保留。通用 preparation 语法见
+[options preparation 与 execution](../api-mechanics.md#options-preparation-与-execution)。
 
 ## I/O 与安全边界
 

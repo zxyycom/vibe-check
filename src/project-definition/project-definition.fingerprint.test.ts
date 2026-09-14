@@ -18,13 +18,13 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { threshold: 2, nested: { mode: "strict" } },
-          preflight: (options) => ({
+          prepare: (options) => ({
             status: "success",
             preparedOptions: options
           }),
           dependsOn: ["prepare", "compile"],
           observes: ["release", "audit"],
-          execution: passed
+          execute: passed
         })
       ]
     });
@@ -34,13 +34,13 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { nested: { mode: "strict" }, threshold: 2 },
-          preflight: (options) => ({
+          prepare: (options) => ({
             status: "success",
             preparedOptions: options
           }),
           dependsOn: ["compile", "prepare", "compile"],
           observes: ["audit", "release", "audit"],
-          execution: async () => passed()
+          execute: async () => passed()
         })
       ]
     });
@@ -56,12 +56,12 @@ describe("Project Definition", () => {
           checkId: "check",
           displayName: "Check",
           options: { threshold: 2, nested: { mode: "strict" } },
-          preflight: (options) => ({
+          prepare: (options) => ({
             status: "success",
             preparedOptions: options
           }),
           dependsOn: ["prepare", "compile"],
-          execution: passed
+          execute: passed
         })
       ]
     });
@@ -104,10 +104,10 @@ describe("Project Definition", () => {
       }
     });
     const hooksOne = defineConfig({
-      scheduler: { measurementHooks: [() => undefined] }
+      scheduler: { terminalEffects: [() => undefined] }
     });
     const hooksTwo = defineConfig({
-      scheduler: { measurementHooks: [async () => undefined] }
+      scheduler: { terminalEffects: [async () => undefined] }
     });
     const staticPolicy = defineConfig({
       scheduler: { admissionPolicy: { kind: "static" } }
@@ -145,7 +145,7 @@ describe("Project Definition", () => {
         defineCheck({
           checkId: "resource-check",
           displayName: "Resource check",
-          execution: passed,
+          execute: passed,
           resourceClaims: { memory: 2, browser: 1 }
         })
       ]
@@ -156,7 +156,7 @@ describe("Project Definition", () => {
         defineCheck({
           checkId: "resource-check",
           displayName: "Resource check",
-          execution: passed,
+          execute: passed,
           resourceClaims: { browser: 1, memory: 2 }
         })
       ]
@@ -232,9 +232,9 @@ describe("Project Definition", () => {
           {
             checkId: "own-prototype-key",
             displayName: "Own prototype key",
-            execution: passed,
+            execute: passed,
             options,
-            preflight: (preparedOptions) => ({
+            prepare: (preparedOptions) => ({
               status: "success",
               preparedOptions
             })

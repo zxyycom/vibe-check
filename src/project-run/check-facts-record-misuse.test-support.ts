@@ -16,7 +16,7 @@ export async function assertAcceptedAuthorReasonMessage(): Promise<void> {
   const result = await run(
     definition([
       check({
-        execution: () => ({
+        execute: () => ({
           status: "unavailable",
           reason: { code: "invalid-execution-result" },
           messages: [
@@ -49,7 +49,7 @@ export async function assertInvalidRecordUseIsContained(): Promise<void> {
   const result = await run(
     definition([
       check({
-        execution: (context) => {
+        execute: (context) => {
           retainedReporter = context.records;
           context.records.report({ id: "retained" }, { value: true });
           context.records.report({ id: "retained" }, { value: false });
@@ -84,12 +84,12 @@ export async function assertCancellationRetainsPriorMessages(): Promise<void> {
     { checkId: "accepted", level: "info", code: "settled", message: "Accepted before stop" }
   ]);
 }
-async function assertRejectedCallback(execution: unknown): Promise<void> {
+async function assertRejectedCallback(execute: unknown): Promise<void> {
   const invalidCheck = check();
-  Object.defineProperty(invalidCheck, "execution", {
+  Object.defineProperty(invalidCheck, "execute", {
     configurable: true,
     enumerable: true,
-    value: execution,
+    value: execute,
     writable: true
   });
   const result = await run(definition([invalidCheck]));
@@ -108,7 +108,7 @@ function cancellationDefinition(controller: AbortController) {
       {
         checkId: "accepted",
         displayName: "Accepted",
-        execution: () => ({
+        execute: () => ({
           status: "passed",
           data: {},
           messages: [{ level: "info", code: "settled", message: "Accepted before stop" }]
@@ -118,12 +118,12 @@ function cancellationDefinition(controller: AbortController) {
         checkId: "stop",
         displayName: "Stop",
         dependsOn: ["accepted"],
-        execution: () => {
+        execute: () => {
           controller.abort();
           return PASSED;
         }
       },
-      { checkId: "waiting", displayName: "Waiting", execution: () => PASSED }
+      { checkId: "waiting", displayName: "Waiting", execute: () => PASSED }
     ],
     outputs: { machinePublication: { enabled: false }, progressRendering: { enabled: false } },
     scheduler: { maxParallel: 1 }

@@ -6,7 +6,7 @@ import type { PreparedPackageCandidate } from "../../../package/candidate/prepar
 
 import { selectionFromFlags } from "./controls.ts";
 import {
-  afterGate,
+  PROJECT_GATE_RUN_CONFIG,
   createProjectGateDefinition,
   createProjectGateEntries,
   projectGateAggregation,
@@ -49,5 +49,5 @@ export async function run(controls: ProjectGateRunControls): Promise<RunResult> 
   }
 }
 
-/** Projects central post-processing configuration with this candidate-bound Run. */
-export { afterGate };
+/** Projects the sole central result contributor with this candidate-bound Run. */
+export const resultContributor = PROJECT_GATE_RUN_CONFIG.resultContributor;

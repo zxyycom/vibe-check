@@ -63,7 +63,7 @@ const configJsonValidation = jsonValidation({
 
 ## 工作原理
 
-constructor 补齐并冻结 closed options，获 Scheduler admission 后先 preflight，再按本页 suffix 规则完整分类输入。
+constructor 补齐并冻结 closed options，获 Scheduler admission 后先 preparation，再按本页 suffix 规则完整分类输入。
 每个 rejected path 先发布 Record；accepted path 才读取、解析，无效文档另发 Record。
 
 strict-document boundary 先按 byte length 应用 `maximumBytes`，再依次区分 BOM、fatal UTF-8、strict JSON grammar 与 decoded
@@ -132,8 +132,8 @@ Records 与 warning 的 `passed` 结算。`unavailable.reason.code` 只使用以
 | `execution-cancelled` | invocation signal 在可观察工作边界取消本 Check | 检查调用方取消原因，不把结果解释为 clean validation |
 
 后续文件导致 `unavailable` 时，分类阶段的 rejected-input Records 与先前已接受的 invalid-file Records 均保留，但本 Check
-不提供 final data；对应 rejection warning 也随 terminal error message 一起保留。通用 preflight 语法见
-[options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
+不提供 final data；对应 rejection warning 也随 terminal error message 一起保留。通用 preparation 语法见
+[options preparation 与 execution](../api-mechanics.md#options-preparation-与-execution)。
 
 ## I/O 与安全边界
 

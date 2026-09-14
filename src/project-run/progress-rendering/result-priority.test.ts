@@ -22,8 +22,8 @@ function definition(checks: readonly Check[]) {
   });
 }
 
-function check(checkId = "custom", execution: Check["execution"] = () => PASSED): Check {
-  return { checkId, displayName: "Custom", execution };
+function check(checkId = "custom", execute: Check["execute"] = () => PASSED): Check {
+  return { checkId, displayName: "Custom", execute: execute };
 }
 
 function failingProgressWriter(): ProgressWriter {
@@ -54,13 +54,13 @@ function capturedProgressWriter(throwAtWrite: number) {
 }
 
 describe("Package Run progress result priority", () => {
-  it("keeps an execution failure distinct when progress presentation has failed", async () => {
+  it("keeps an execute failure distinct when progress presentation has failed", async () => {
     let reads = 0;
     const clock = Object.freeze({
       now: (): number => {
         reads += 1;
         if (reads === 1) return 0;
-        throw new Error("execution clock failed");
+        throw new Error("execute clock failed");
       }
     });
     const result = await executeValidatedRun(definition([check()]), {}, [], {
@@ -125,7 +125,7 @@ describe("Package Run progress result priority", () => {
         {
           checkId: "started",
           displayName: "Started",
-          execution: () => {
+          execute: () => {
             controller.abort();
             return PASSED;
           }
@@ -147,7 +147,7 @@ describe("Package Run progress result priority", () => {
     const unclosedOutputs = outputStatuses();
     const completed = completedCandidate(unclosedOutputs);
     for (const [outputs, expectedDiagnostic] of [
-      [outputStatuses({ measurementHooks: "failed" }), "scheduler-measurement-hooks-failed"],
+      [outputStatuses({ terminalEffects: "failed" }), "scheduler-terminal-effects-failed"],
       [outputStatuses({ diagnosticLogging: "failed" }), "diagnostic-logging-failed"],
       [outputStatuses({ machinePublication: "failed" }), "machine-publication-failed"],
       [
@@ -227,7 +227,7 @@ function outputStatuses(
       })
     }),
     machinePublication: statusFor("machinePublication"),
-    measurementHooks: statusFor("measurementHooks"),
+    terminalEffects: statusFor("terminalEffects"),
     progressRendering: statusFor("progressRendering")
   });
 }

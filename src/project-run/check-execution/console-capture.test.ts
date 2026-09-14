@@ -17,7 +17,7 @@ describe("Package Run Check console capture", () => {
         {
           checkId: "first",
           displayName: "First",
-          async execution() {
+          async execute() {
             console.log("first started");
             await releaseFirst.promise;
             console.warn("first settled");
@@ -27,7 +27,7 @@ describe("Package Run Check console capture", () => {
         {
           checkId: "second",
           displayName: "Second",
-          execution() {
+          execute() {
             console.error("second settled");
             releaseFirst.resolve();
             return { status: "passed", data: {} };
@@ -77,7 +77,7 @@ describe("Package Run Check console capture", () => {
           {
             checkId: "disabled-progress",
             displayName: "Disabled progress",
-            execution() {
+            execute() {
               console.log("retained without progress");
               return { status: "passed", data: {} };
             }
@@ -101,7 +101,7 @@ describe("Package Run Check console capture", () => {
     }
   });
 
-  it("retains preflight and execution console calls when the author callback throws", async () => {
+  it("retains preparation and execution console calls when the author callback throws", async () => {
     const output = capturedProgressWriter();
     const originalLog = console.log;
     const routedLogMethods: Array<typeof console.log> = [];
@@ -111,16 +111,16 @@ describe("Package Run Check console capture", () => {
           checkId: "throwing",
           displayName: "Throwing",
           options: { ready: true },
-          preflight(options) {
+          prepare(options) {
             routedLogMethods.push(console.log);
-            console.info("preflight ready", Reflect.get(options, "ready"));
+            console.info("preparation ready", Reflect.get(options, "ready"));
             return {
               status: "success",
               preparedOptions: options,
               messages: [{ code: "prepared", level: "info", message: "Prepared" }]
             };
           },
-          execution() {
+          execute() {
             routedLogMethods.push(console.log);
             console.group("execution detail");
             console.log({ attempt: 1 });
@@ -150,7 +150,7 @@ describe("Package Run Check console capture", () => {
         checkId: "throwing",
         code: "console-info",
         level: "info",
-        message: "preflight ready true"
+        message: "preparation ready true"
       },
       { checkId: "throwing", code: "prepared", level: "info", message: "Prepared" },
       {

@@ -40,7 +40,7 @@ const preparedCustomAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({
             ? { kind: "wait" }
             : { kind: "select", taskId: candidate.taskId };
         },
-        async complete(terminal): Promise<void> {
+        async terminalEffect(terminal): Promise<void> {
           const sealed: SchedulerMeasurementContext = terminal;
           void sealed.execution.settledTasks;
         }
@@ -54,7 +54,7 @@ const strategy: CustomAdmissionStrategy = {
 };
 const preparedStrategy: PreparedCustomAdmissionStrategy = {
   decide: () => ({ kind: "wait" }),
-  complete: () => undefined
+  terminalEffect: () => undefined
 };
 const preparationContext = (context: CustomAdmissionPreparationContext): SchedulerGraphSnapshot =>
   context.graph;

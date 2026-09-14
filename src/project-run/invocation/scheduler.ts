@@ -31,17 +31,18 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
       ...(performanceDiagnostics === undefined
         ? {}
         : { schedulerPerformanceDiagnostics: performanceDiagnostics }),
-      schedulerMeasurementHooks: invocation.normalized.scheduler.measurementHooks,
-      onSchedulerMeasurementHookFailure: () => {
-        invocation.outputs.failed("measurementHooks");
+      schedulerTerminalEffects: invocation.normalized.scheduler.terminalEffects,
+      onSchedulerTerminalEffectFailure: () => {
+        invocation.outputs.failed("terminalEffects");
       },
-      onSchedulerMeasurementHooksSettled: () => {
-        invocation.outputs.succeeded("measurementHooks");
+      onSchedulerTerminalEffectsSettled: () => {
+        invocation.outputs.succeeded("terminalEffects");
       },
       maxParallel: invocation.normalized.declarative.scheduler.maxParallel,
       resourceCapacities: invocation.normalized.declarative.scheduler.resourceCapacities,
       invocationId: invocation.invocationId,
-      lifecycle: invocation.progressRendering.lifecycle,
+      checkLifecycle: invocation.progressRendering.checkLifecycle,
+      invocationLifecycle: invocation.progressRendering.invocationLifecycle,
       paths: invocation.paths,
       project: input.project,
       signal: invocation.controls.signal
@@ -55,7 +56,7 @@ function schedulerPerformanceDiagnostics(input: SchedulerAdapterInput) {
   const { invocation, preparedStrategy } = input;
   const shouldCollectSchedulerPerformanceDiagnostics =
     invocation.diagnosticLoggingEnabled ||
-    invocation.normalized.scheduler.measurementHooks.length > 0 ||
+    invocation.normalized.scheduler.terminalEffects.length > 0 ||
     preparedStrategy.admissionPolicy.requiresMeasurement === true ||
     preparedStrategy.requiresTerminalMeasurement;
   if (!shouldCollectSchedulerPerformanceDiagnostics) return undefined;

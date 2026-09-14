@@ -49,7 +49,7 @@ type SettleCallbackInput = Readonly<{
   readonly checkId: string;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
   readonly handoff: HandoffProviderIdentity | undefined;
-  readonly preflightMessages: readonly CheckMessage[];
+  readonly preparationMessages: readonly CheckMessage[];
   readonly scope: ReturnType<CoreCheckSession["openCheckScope"]>;
   readonly state: CheckExecutionSettlementState;
 }>;
@@ -74,7 +74,7 @@ function settleProductCallback(
 ): SettledCallback {
   const outcome = input.scope.settleProduct(callback.result);
   return Object.freeze({
-    messages: combineCheckMessages(input.preflightMessages, callback.consoleMessages),
+    messages: combineCheckMessages(input.preparationMessages, callback.consoleMessages),
     outcome
   });
 }
@@ -109,8 +109,12 @@ function settleAuthorCallback(
   return Object.freeze({
     messages:
       terminal !== undefined && settlement.authorResultAccepted
-        ? combineCheckMessages(input.preflightMessages, callback.consoleMessages, terminal.messages)
-        : combineCheckMessages(input.preflightMessages, callback.consoleMessages),
+        ? combineCheckMessages(
+            input.preparationMessages,
+            callback.consoleMessages,
+            terminal.messages
+          )
+        : combineCheckMessages(input.preparationMessages, callback.consoleMessages),
     outcome: settlement.outcome
   });
 }
@@ -143,7 +147,7 @@ export function recordSettledCheck(
     readonly durationMs: number | null;
     readonly messages: readonly CheckMessage[];
     readonly outcome: CheckOutcome;
-    readonly phase: "control" | "dependency" | "execution" | "preflight";
+    readonly phase: "control" | "dependency" | "execution" | "preparation";
     readonly state: CheckExecutionSettlementState;
   }>
 ): void {

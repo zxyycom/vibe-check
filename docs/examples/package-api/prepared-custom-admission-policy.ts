@@ -7,7 +7,7 @@ function scheduledCheck(checkId: string) {
   return defineCheck({
     checkId,
     displayName: checkId,
-    execution: () => ({ status: "passed" as const, data: {} })
+    execute: () => ({ status: "passed" as const, data: {} })
   });
 }
 
@@ -27,7 +27,7 @@ const strategy = defineAdmissionPolicy({
             ? { kind: "wait" as const }
             : { kind: "select" as const, taskId: next.taskId };
         },
-        complete(terminal) {
+        terminalEffect(terminal) {
           settledTaskCount = terminal.execution.settledTasks.length;
         }
       };

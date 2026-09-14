@@ -10,7 +10,7 @@ function scheduledCheck(checkId: string) {
   return defineCheck({
     checkId,
     displayName: checkId,
-    execution: () => ({ status: "passed" as const, data: {} })
+    execute: () => ({ status: "passed" as const, data: {} })
   });
 }
 

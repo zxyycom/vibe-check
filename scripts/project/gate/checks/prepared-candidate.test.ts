@@ -148,8 +148,8 @@ function createCandidateFixture(): Readonly<{
 
 async function invokeCheck(
   check: ReturnType<typeof createPreparedCandidateCheck>
-): Promise<Awaited<ReturnType<NonNullable<typeof check.execution>>>> {
-  const execution = check.execution;
+): Promise<Awaited<ReturnType<NonNullable<typeof check.execute>>>> {
+  const execution = check.execute;
   if (execution === undefined) throw new Error("fixture Check must be executable");
   return execution({
     artifactDirectory: null,

@@ -53,7 +53,7 @@ describe("Package Run progress rendering outputs", () => {
       definition(
         [
           check({
-            execution: () => {
+            execute: () => {
               calls += 1;
               return PASSED;
             }
@@ -80,7 +80,7 @@ describe("Package Run progress rendering outputs", () => {
       definition(
         [
           check({
-            execution: ({ records }) => {
+            execute: ({ records }) => {
               records.report({ id: "accepted" }, { source: "callback" });
               return PASSED;
             }
@@ -138,7 +138,7 @@ describe("Package Run progress rendering outputs", () => {
       const source = definition(
         [
           check({
-            execution: ({ records }) => {
+            execute: ({ records }) => {
               records.report({ id: "accepted" }, { source: "callback" });
               return {
                 ...PASSED,
@@ -180,7 +180,7 @@ describe("Package Run progress rendering outputs", () => {
       definition(
         [
           check({
-            execution: ({ records }) => {
+            execute: ({ records }) => {
               records.report({ id: "accepted" }, { source: "callback" });
               const untypedReporter: Readonly<{
                 report(identity: unknown, data: unknown): void;
@@ -221,7 +221,7 @@ describe("Package Run progress rendering outputs", () => {
         [
           check({
             checkId: "slow",
-            execution: async (context) => {
+            execute: async (context) => {
               context.records.report({ id: "sample" }, { metric: "score" });
               slowStarted.resolve(undefined);
               await slow.promise;

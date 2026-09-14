@@ -33,7 +33,7 @@ describe("Package Run default outputs", () => {
             {
               checkId: "custom",
               displayName: "Custom",
-              execution: () => ({ status: "passed", data: {} })
+              execute: () => ({ status: "passed", data: {} })
             }
           ]
         }),

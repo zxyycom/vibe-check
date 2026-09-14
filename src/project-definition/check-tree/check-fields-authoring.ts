@@ -4,7 +4,7 @@ import {
   type CheckFlagEnablement,
   type CheckFlagEnablementMode,
   type Check,
-  type CheckPreflight
+  type CheckPreparation
 } from "../../check/check.ts";
 import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import { validateCheckDescriptor } from "../../check/descriptor-validation.ts";
@@ -22,20 +22,20 @@ export interface CheckAuthoringData extends Readonly<Record<string, unknown>> {
 export interface ParsedCheckFields {
   readonly definition: CheckDescriptor | null;
   readonly enabledByFlags: CheckFlagEnablement | null;
-  readonly execution: NonNullable<Check["execution"]> | null;
+  readonly execute: NonNullable<Check["execute"]> | null;
   readonly handoff: HandoffProviderIdentity | null;
   readonly options: object | null;
   readonly parseData: TrustedDataParser | null;
-  readonly preflight: CheckPreflight | null;
+  readonly prepare: CheckPreparation | null;
   readonly visibility: CheckVisibility | null;
 }
 
 export interface ParsedCheckFieldPrelude {
   readonly enabledByFlags: CheckFlagEnablement | null;
-  readonly execution: NonNullable<Check["execution"]> | null;
+  readonly execute: NonNullable<Check["execute"]> | null;
   readonly handoff: HandoffProviderIdentity | null;
   readonly parseData: TrustedDataParser | null;
-  readonly preflight: CheckPreflight | null;
+  readonly prepare: CheckPreparation | null;
 }
 
 interface ParsedFlagEnablementControl extends Readonly<Record<string, unknown>> {
@@ -51,14 +51,14 @@ const CHECK_KEYS = [
   "dependsOn",
   "displayName",
   "enabledByFlags",
-  "execution",
+  "execute",
   "handoff",
   "maxParallel",
   "mutex",
   "options",
   "observes",
   "parseData",
-  "preflight",
+  "prepare",
   "resourceClaims",
   "visibility"
 ] as const;
@@ -67,11 +67,11 @@ const FLAG_ENABLEMENT_KEYS = ["flags", "mode", "propagateDependsOn"] as const;
 const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   definition: null,
   enabledByFlags: null,
-  execution: null,
+  execute: null,
   handoff: null,
   options: null,
   parseData: null,
-  preflight: null,
+  prepare: null,
   visibility: null
 });
 
@@ -102,19 +102,25 @@ export function parseCheckFieldPrelude(
   if (handoff === undefined) return undefined;
   const parseData = parseDataParser(data);
   if (parseData === undefined) return undefined;
-  const preflight = parsePreflight(data);
-  if (preflight === undefined) return undefined;
+  const preparation = parsePreparation(data);
+  if (preparation === undefined) return undefined;
   const enabledByFlags = parseEnabledByFlags(data);
   return enabledByFlags === undefined
     ? undefined
-    : Object.freeze({ enabledByFlags, execution, handoff, parseData, preflight });
+    : Object.freeze({
+        enabledByFlags,
+        execute: execution,
+        handoff,
+        parseData,
+        prepare: preparation
+      });
 }
 
 export function parseCheckFields(
   data: CheckAuthoringData,
   prelude: ParsedCheckFieldPrelude
 ): ParsedCheckFields | undefined {
-  if (prelude.execution === null) {
+  if (prelude.execute === null) {
     return containerHasExecutableFields(data, prelude) ? undefined : CONTAINER_CHECK_FIELDS;
   }
   return parseExecutableCheckFields(data, prelude);
@@ -131,7 +137,7 @@ function containerHasExecutableFields(
     prelude.handoff !== null ||
     Object.hasOwn(data, "visibility") ||
     prelude.parseData !== null ||
-    prelude.preflight !== null
+    prelude.prepare !== null
   );
 }
 
@@ -149,11 +155,11 @@ function parseExecutableCheckFields(
   return Object.freeze({
     definition,
     enabledByFlags: prelude.enabledByFlags,
-    execution: prelude.execution,
+    execute: prelude.execute,
     handoff: prelude.handoff,
     options,
     parseData: prelude.parseData,
-    preflight: prelude.preflight,
+    prepare: prelude.prepare,
     visibility
   });
 }
@@ -164,11 +170,9 @@ function hasOnlyCheckKeys(data: Readonly<Record<string, unknown>>): boolean {
 
 function parseExecution(
   data: CheckAuthoringData
-): NonNullable<Check["execution"]> | null | undefined {
-  if (!Object.hasOwn(data, "execution")) return null;
-  return isTrustedFunction<NonNullable<Check["execution"]>>(data.execution)
-    ? data.execution
-    : undefined;
+): NonNullable<Check["execute"]> | null | undefined {
+  if (!Object.hasOwn(data, "execute")) return null;
+  return isTrustedFunction<NonNullable<Check["execute"]>>(data.execute) ? data.execute : undefined;
 }
 
 function parseHandoff(
@@ -186,9 +190,9 @@ function parseDataParser(data: CheckAuthoringData): TrustedDataParser | null | u
   return isTrustedFunction<TrustedDataParser>(data.parseData) ? data.parseData : undefined;
 }
 
-function parsePreflight(data: CheckAuthoringData): CheckPreflight | null | undefined {
-  if (!Object.hasOwn(data, "preflight")) return null;
-  return isTrustedFunction<CheckPreflight>(data.preflight) ? data.preflight : undefined;
+function parsePreparation(data: CheckAuthoringData): CheckPreparation | null | undefined {
+  if (!Object.hasOwn(data, "prepare")) return null;
+  return isTrustedFunction<CheckPreparation>(data.prepare) ? data.prepare : undefined;
 }
 
 function isTrustedFunction<FunctionType extends (...parameters: never[]) => unknown>(

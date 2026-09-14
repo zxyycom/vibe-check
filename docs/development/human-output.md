@@ -13,14 +13,14 @@
 
 ## Check console capture maintenance
 
-`check-execution/**` 在完整静态 graph 校验后、任何 author preflight/execution 前安装一次 global `console.*`
+`check-execution/**` 在完整静态 graph 校验后、任何 author preparation/execution 前安装一次 global `console.*`
 router，覆盖 flag control 和全部 Check work；所有 Checks 闭合后恢复原 method descriptors。每个 awaited callback
 使用独立 async capture context；context 外调用继续使用原方法。缓存的 method reference、自行替换的 console 与
 floating work 不在可靠归属范围内。Product 保持 host-wide stdout/stderr 原状；直接 stream 或 inherited child stdio
 由调用方转交自己的 file/transcript，避免与 progress TTY cursor updates 交错。
 
 console 使用非彩色 Console formatting：log/info/debug 映射 info，warn 映射 warning，error/trace/failed assert
-映射 error。preflight console 先于 preflight author messages，execution console 先于 terminal author messages；
+映射 error。preparation console 先于 preparation author messages，execution console 先于 terminal author messages；
 callback throw/cancel/malformed result 仍保留已捕获文本，而非法 author message attachment 整体拒绝。
 settlement 后，private lifecycle handoff 将 accepted Records/messages 交给 enabled progress renderer；captured console
 以 `console-<method>` code 保留于 `RunResult.checkMessages`，不进入 Check final data 或 machine publication。
@@ -65,7 +65,7 @@ output failed，同时保持 terminal delivery。writer failure 必须可观察�
 ## Diagnostic logging maintenance
 
 只有 diagnostic logging 或 machine publication 启用时，Invocation 才捕获一次 immutable wall-clock `startedAtUtc`。
-machine 将其用于 `invocation.timestamp`；diagnostic logging 在 preflight 前将同一 instant 与 UUID 用于 core/scheduler
+machine 将其用于 `invocation.timestamp`；diagnostic logging 在 preparation 前将同一 instant 与 UUID 用于 core/scheduler
 默认 `unique` filename；invocation-only `channel` 命名仅选择 `core.log` / `scheduler.log`，不取消时间与 UUID 的生成或 observation correlation。完整命名和非事务 collision 边界见 [Project Run](project-run.md#diagnostic-file-naming)。两项均关闭时不读取/序列化 wall clock。
 
 router 为每次 observation 赋予 invocation-wide sequence、monotonic elapsed 与 invocation ID；renderer 以 filterable
@@ -87,7 +87,7 @@ channel setup/write/close failure 分别收敛，完整 facts 与其它输出继
 ## Scheduler summary projections
 
 diagnostic-enabled Scheduler shell 在 normal、cancelled 或 policy-fault drain 的 terminal path 中，将 summary wrapper
-和 caller Hooks 交给同一 ordered runner。wrapper 包含 projection/writer failure；pre-work/planning failure 没有这次
+和 caller terminal effects 交给同一 ordered runner。wrapper 包含 projection/writer failure；pre-work/planning failure 没有这次
 summary。collector 的采样边界与 terminal handoff 由[Scheduler measurement collector](scheduler.md#measurement-collector-与-immutable-context)定义。
 
 summary 分开投影 control path、decision observations、slot·ms/capacity ratio、accepted wait、queue pressure、admission

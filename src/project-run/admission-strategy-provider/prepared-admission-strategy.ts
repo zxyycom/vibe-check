@@ -12,8 +12,8 @@ export type PreparedAdmissionStrategyCompletion =
       readonly complete: (context: InternalAdmissionStrategyCompleteContext) => Promise<void>;
     }>
   | Readonly<{
-      readonly kind: "measurement-hook";
-      readonly complete: (context: SchedulerMeasurementContext) => void | Promise<void>;
+      readonly kind: "terminal-effect";
+      readonly terminalEffect: (context: SchedulerMeasurementContext) => void | Promise<void>;
     }>;
 
 /** The invocation-scoped handoff from an admission provider to Scheduler and terminal delivery. */

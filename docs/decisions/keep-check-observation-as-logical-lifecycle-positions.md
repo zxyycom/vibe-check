@@ -2,7 +2,7 @@
 title: 将 Check 观察保留为逻辑生命周期位置
 id: 260914-keep-check-observation-as-logical-lifecycle-positions
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-14T05:55:54Z
 purpose: 让完整模型保留逐 Check 观察位置，同时由未来真实场景决定是否建立公开实际契约
 background: 既有方向提前采用 public Check lifecycle observation，但整体模型尚未区分逻辑位置与具有私有上下文和顺序的实际执行契约

@@ -7,7 +7,7 @@ import {
   type ProjectDefinitionValidationResult,
   type AdmissionPolicy,
   type CustomAdmissionStrategy,
-  type SchedulerMeasurementHook,
+  type SchedulerTerminalEffect,
   type SchedulerPolicy
 } from "./project-definition.ts";
 import {
@@ -101,7 +101,7 @@ function exactRecord(
 
 function parseScheduler(value: unknown): SchedulerPolicy | undefined {
   const data = snapshotClosedPolicyRecord(value, {
-    optional: ["admissionPolicy", "measurementHooks", "resourceCapacities"],
+    optional: ["admissionPolicy", "terminalEffects", "resourceCapacities"],
     required: ["maxParallel"]
   });
   if (data === undefined) return undefined;
@@ -109,33 +109,33 @@ function parseScheduler(value: unknown): SchedulerPolicy | undefined {
     ? parseAdmissionPolicy(data.admissionPolicy)
     : Object.freeze({ kind: "static" as const });
   if (admissionPolicy === undefined) return undefined;
-  const measurementHooks = parseMeasurementHooks(data.measurementHooks);
-  if (measurementHooks === undefined) return undefined;
+  const terminalEffects = parseTerminalEffects(data.terminalEffects);
+  if (terminalEffects === undefined) return undefined;
   const resourceCapacities = snapshotResourceUnitMapping(
     Object.hasOwn(data, "resourceCapacities") ? data.resourceCapacities : {}
   );
   if (resourceCapacities === undefined) return undefined;
   const maxParallel = positiveSafeInteger(data.maxParallel);
   if (maxParallel === undefined) return undefined;
-  return Object.freeze({ admissionPolicy, maxParallel, measurementHooks, resourceCapacities });
+  return Object.freeze({ admissionPolicy, maxParallel, terminalEffects, resourceCapacities });
 }
 
 function positiveSafeInteger(value: unknown): number | undefined {
   return typeof value === "number" && Number.isSafeInteger(value) && value > 0 ? value : undefined;
 }
 
-function parseMeasurementHooks(value: unknown): readonly SchedulerMeasurementHook[] | undefined {
+function parseTerminalEffects(value: unknown): readonly SchedulerTerminalEffect[] | undefined {
   if (value === undefined) return Object.freeze([]);
   if (!Array.isArray(value)) return undefined;
-  const hooks: SchedulerMeasurementHook[] = [];
+  const hooks: SchedulerTerminalEffect[] = [];
   for (const hook of value) {
-    if (!isMeasurementHook(hook)) return undefined;
+    if (!isTerminalEffect(hook)) return undefined;
     hooks.push(hook);
   }
   return Object.freeze(hooks);
 }
 
-function isMeasurementHook(value: unknown): value is SchedulerMeasurementHook {
+function isTerminalEffect(value: unknown): value is SchedulerTerminalEffect {
   return typeof value === "function";
 }
 

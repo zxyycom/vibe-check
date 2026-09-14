@@ -306,7 +306,7 @@ export interface CheckProjectContext {
 /**
  * Check callback 收到的 Product-owned execution context。
  *
- * @typeParam Options - 此 Check preflight 后传给 execution 的 options shape。
+ * @typeParam Options - 此 Check preparation 后传给 execution 的 options shape。
  */
 export interface CheckExecutionContext<Options extends object> {
   /** 当前 Check 的 absolute invocation artifact directory；caller 未授予时为 `null`。 */
@@ -342,9 +342,9 @@ export type CheckExecution<Options extends object = object> = (
  * @remarks `signal` 与同一次 callback execution 使用同一个 cancellation signal；实现应在可等待工作中
  * 协作退出，而不是留下悬挂 work。bivariant callback 保持具体 options Check 可进入普通递归 Check
  * collection；Product 仍只会用该 Check 自己的 authored options 调用它。精确结果见
- * {@link CheckPreflightResult}。
+ * {@link CheckPreparationResult}。
  */
-export type CheckPreflight<
+export type CheckPreparation<
   AuthoredOptions extends object = object,
   PreparedOptions extends object = AuthoredOptions
 > = {
@@ -352,11 +352,11 @@ export type CheckPreflight<
     this: void,
     options: DeepReadonly<AuthoredOptions>,
     signal: AbortSignal
-  ): CheckPreflightResult<PreparedOptions> | Promise<CheckPreflightResult<PreparedOptions>>;
+  ): CheckPreparationResult<PreparedOptions> | Promise<CheckPreparationResult<PreparedOptions>>;
 }["bivarianceHack"];
 
 /**
- * Check-owned preflight 的判别结果。
+ * Check-owned preparation 的判别结果。
  *
  * `failure/block` 不允许 fallback，直接以 owning reason 结算为 unavailable；`failure/continue` 必须给出
  * fallback 并继续 execution。两种进入 execution 的值都只属于本次 invocation，Product canonicalize/freeze
@@ -364,7 +364,7 @@ export type CheckPreflight<
  * 是 Check-owned diagnostic identity，当前不会单独 materialize 为 outcome，调用方通过 messages 与后续
  * outcome 观察结果；block 物理上不含 fallback 字段。
  */
-export type CheckPreflightResult<PreparedOptions extends object = object> = Readonly<
+export type CheckPreparationResult<PreparedOptions extends object = object> = Readonly<
   | {
       readonly status: "success";
       readonly preparedOptions: PreparedOptions;
@@ -389,8 +389,8 @@ export type CheckPreflightResult<PreparedOptions extends object = object> = Read
  * 普通递归 Check authoring value 的共享字段。
  *
  * @typeParam AuthoredOptions - Definition 中的 declarative options shape。
- * @typeParam PreparedOptions - preflight 后 callback 接收的 invocation-local options shape。
- * @remarks 该值可以同时有 `execution` 和 `checks`；只有 executable node 产生 final Check fact。
+ * @typeParam PreparedOptions - preparation 后 callback 接收的 invocation-local options shape。
+ * @remarks 该值可以同时有 `execute` 和 `checks`；只有 executable node 产生 final Check fact。
  */
 interface CheckBase<AuthoredOptions extends object, PreparedOptions extends object> {
   /** 在 Definition 内唯一的 stable Check ID。 */
@@ -402,7 +402,7 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   /** 仅当多 flag presence predicate 匹配时启用 executable Check；省略时始终启用。 */
   readonly enabledByFlags?: CheckFlagEnablement;
   /** 可执行节点的 callback；省略时此节点只承载递归 children。 */
-  execution?(
+  execute?(
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ):
@@ -441,26 +441,26 @@ type HasSameOptionsShape<AuthoredOptions extends object, PreparedOptions extends
     : false
   : false;
 
-/** Prepared shape 不同时，preflight 是建立安全转换的必填边界。 */
-type CheckPreflightField<AuthoredOptions extends object, PreparedOptions extends object> =
+/** Prepared shape 不同时，preparation 是建立安全转换的必填边界。 */
+type CheckPreparationField<AuthoredOptions extends object, PreparedOptions extends object> =
   HasSameOptionsShape<AuthoredOptions, PreparedOptions> extends true
-    ? Readonly<{ readonly preflight?: CheckPreflight<AuthoredOptions, PreparedOptions> }>
-    : Readonly<{ readonly preflight: CheckPreflight<AuthoredOptions, PreparedOptions> }>;
+    ? Readonly<{ readonly prepare?: CheckPreparation<AuthoredOptions, PreparedOptions> }>
+    : Readonly<{ readonly prepare: CheckPreparation<AuthoredOptions, PreparedOptions> }>;
 
 /**
  * Project Definition 中的普通递归 Check authoring value。
  *
  * @typeParam AuthoredOptions - Definition 中的 declarative options shape。
- * @typeParam PreparedOptions - preflight 后 callback 接收的 invocation-local options shape。
+ * @typeParam PreparedOptions - preparation 后 callback 接收的 invocation-local options shape。
  * @remarks Definition 只闭合 authored JSON options；每个 admitted Check 先在自身 Task lifecycle 内执行
- * preflight，随后才执行 callback。`PreparedOptions` 与 `AuthoredOptions` 不同时必须提供 preflight；同形时可以
+ * preparation，随后才执行 callback。`PreparedOptions` 与 `AuthoredOptions` 不同时必须提供 preparation；同形时可以
  * 省略。它不进入 declarative fingerprint 或 machine output。
  */
 export type Check<
   AuthoredOptions extends object = object,
   PreparedOptions extends object = AuthoredOptions
 > = CheckBase<AuthoredOptions, PreparedOptions> &
-  CheckPreflightField<AuthoredOptions, PreparedOptions>;
+  CheckPreparationField<AuthoredOptions, PreparedOptions>;
 
 export type EmptyCheckOptions = Readonly<Record<never, never>>;
 
@@ -487,13 +487,13 @@ type CheckAuthoringBase<
   PreparedOptions extends object
 > = Omit<
   CheckBase<AuthoredOptions, PreparedOptions>,
-  "checkId" | "execution" | "handoff" | "options"
+  "checkId" | "execute" | "handoff" | "options"
 > &
-  CheckPreflightField<AuthoredOptions, PreparedOptions> &
+  CheckPreparationField<AuthoredOptions, PreparedOptions> &
   Readonly<{ readonly checkId: Id }>;
 
 interface OrdinaryCheckFields<PreparedOptions extends object> {
-  execution?(
+  execute?(
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ): CheckResult | Promise<CheckResult>;
@@ -531,7 +531,7 @@ interface TypedCheckFields<PreparedOptions extends object, Parser extends CheckD
    */
   readonly parseData: Parser;
 
-  execution(
+  execute(
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ): CheckResult<NoInfer<ReturnType<Parser>>> | Promise<CheckResult<NoInfer<ReturnType<Parser>>>>;
@@ -540,7 +540,7 @@ interface TypedCheckFields<PreparedOptions extends object, Parser extends CheckD
 
 interface HandoffCheckFields<PreparedOptions extends object, Handoff extends object> {
   readonly handoff: true;
-  execution(
+  execute(
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ): CheckResult<object, Handoff> | Promise<CheckResult<object, Handoff>>;
@@ -554,7 +554,7 @@ interface TypedHandoffCheckFields<
 > {
   readonly handoff: true;
   readonly parseData: Parser;
-  execution(
+  execute(
     this: void,
     context: CheckExecutionContext<PreparedOptions>
   ):
@@ -672,13 +672,13 @@ export type TypedHandoffCheckWithoutOptions<
  *   checkId: "license-policy",
  *   displayName: "License policy",
  *   options: { denied: ["GPL-3.0-only"] },
- *   preflight(options) {
+ *   prepare(options) {
  *     return hasValidLicensePolicyOptions(options)
  *       ? { status: "success", preparedOptions: options }
  *       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
  *   },
  *   visibility: "attention",
- *   execution({ options, records, signal }) {
+ *   execute({ options, records, signal }) {
  *     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
  *
  *     const deniedCount = options.denied.length;
@@ -706,7 +706,7 @@ export function defineCheck<
       readonly handoff: true;
       readonly options: AuthoredOptions;
       readonly parseData?: undefined;
-      readonly execution: Execution;
+      readonly execute: Execution;
     }> &
     HandoffTerminalResultConstraint<ReturnType<Execution>>
 ): HandoffCheckWithOptions<
@@ -725,7 +725,7 @@ export function defineCheck<
       readonly handoff: true;
       readonly options?: never;
       readonly parseData?: undefined;
-      readonly execution: Execution;
+      readonly execute: Execution;
     }> &
     HandoffTerminalResultConstraint<ReturnType<Execution>>
 ): HandoffCheckWithoutOptions<Id, HandoffFromTerminalResult<ReturnType<Execution>>> &
@@ -742,7 +742,7 @@ export function defineCheck<
       readonly handoff: true;
       readonly options: AuthoredOptions;
       readonly parseData: Parser;
-      readonly execution: Execution;
+      readonly execute: Execution;
     }> &
     HandoffTerminalResultConstraint<ReturnType<Execution>>
 ): TypedHandoffCheckWithOptions<
@@ -763,7 +763,7 @@ export function defineCheck<
       readonly handoff: true;
       readonly options?: never;
       readonly parseData: Parser;
-      readonly execution: Execution;
+      readonly execute: Execution;
     }> &
     HandoffTerminalResultConstraint<ReturnType<Execution>>
 ): TypedHandoffCheckWithoutOptions<Id, Parser, HandoffFromTerminalResult<ReturnType<Execution>>> &

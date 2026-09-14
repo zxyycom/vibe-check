@@ -25,15 +25,15 @@ Invocation: graph ready → simple closure | await prepared prepare once
 Scheduler: receives frozen synchronous policy → decide 0..N times → stops admission → drains
                                         │
                                         ▼
-Scheduler: seals terminal measurement → internal summary → configured generic Hooks
+Scheduler: seals terminal measurement → internal summary → configured generic terminal effects
                                         │
-                         terminal context returned? ── no → no completion delivery
+                         terminal context returned? ── no → no terminal-effect delivery
                                         │ yes
                                         ▼
-Invocation: public prepared complete once → aggregate output
+Invocation: public prepared terminalEffect once → aggregate output
 ```
 
-Invocation 为每 Run 解析一次 simple closure 或 prepared result；prepare failure 在 Scheduler 前形成 `admission-strategy-preparation-failed`。Scheduler 只收到 frozen synchronous policy，不接触 public prepare/complete。它停止 admission 并 drain started work，交付 sealed context 后，Invocation 才至多一次调用 complete。跨 Run 学习由[learned helper](package-tools.md#learned-critical-path-helper-owner)承接，不获得 Scheduler 特权。
+Invocation 为每 Run 解析一次 simple closure 或 prepared result；prepare failure 在 Scheduler 前形成 `admission-strategy-preparation-failed`。Scheduler 只收到 frozen synchronous policy，不接触 public `prepare` / `terminalEffect`。它停止 admission 并 drain started work，交付 sealed context 后，Invocation 才至多一次交付 `terminalEffect`。跨 Run 学习由[learned helper](package-tools.md#learned-critical-path-helper-owner)承接，不获得 Scheduler 特权。
 
 在任何 admission 前，Invocation 先处理 cancellation precedence，再完成[唯一 flag selection/control](project-definition.md#flag-enabled-checks)。这些 pre-admission settlements 留在同一 graph；Scheduler 仍负责 dependent blocking 和 observation readiness，不另建传播图。
 
@@ -41,7 +41,7 @@ custom throw、thenable、malformed proposal、illegal select 或不可 drain wa
 
 ## Measurement collector 与 immutable context
 
-存在 effective diagnostics、nonempty generic Hook list、custom per-decision measurement 或 prepared terminal demand 时才创建 invocation-local collector。它通过 private handoff 接收 clock 和已有 declarative fingerprint；无 demand 的 plain static 不创建 collector 或读取额外 clock。
+存在 effective diagnostics、nonempty generic terminal effect list、custom per-decision measurement 或 prepared terminal demand 时才创建 invocation-local collector。它通过 private handoff 接收 clock 和已有 declarative fingerprint；无 demand 的 plain static 不创建 collector 或读取额外 clock。
 
 每次实际 custom callback 前，collector flush open interval、append 已完成 action observation，再创建 captured-prefix reader。一个 Run 只冻结一次 graph DTO；context 的 `measurementCount` 固定 end-count，`measurementAt(index)` 同步读取此前 prefix，越界返回 undefined，旧 context 不能看见以后 append。cumulative view 只含 bounded scalar/peak/discrete facts，避免每轮复制 graph、完整 per-Task table 或 history。
 
@@ -51,15 +51,15 @@ collector 在 admission、pending/running settlement、accepted wait 和 termina
 
 terminal raw facts 保留 declarative fingerprint、离散 lifecycle、queue peaks；timing 可用时另含 shell/slot/capacity/wait accumulations、每个 admission-viable Task 的分类 delay table 与 admission/settlement boundaries。Task value/error/callback、clock、mutable collection 和 human summary projections 不进入 raw facts。summary 的 top-N、ratio、queue total 与 tail contributor 由[人读输出 owner](human-output.md#scheduler-summary-projections)推导。
 
-## Terminal Hooks 与 completion
+## Terminal effects 与 delivery
 
-停止 admission 且全部 started work drain 后，Scheduler 一次递归冻结 context，包含 canonical graph、admitted/settled kind-only observation 和 raw measurement。diagnostic-enabled internal summary wrapper 与 caller Hooks 使用同一 ordered runner 和**同一 context object identity**；summary wrapper 包含 projection/writer failure，runner 只执行各 wrapper 的 failure policy，不识别 summary identity。
+停止 admission 且全部 started work drain 后，Scheduler 一次递归冻结 context，包含 canonical graph、admitted/settled kind-only observation 和 raw measurement。diagnostic-enabled internal summary wrapper 与 caller terminal effects 使用同一 ordered runner 和**同一 context object identity**；summary wrapper 包含 projection/writer failure，runner 只执行各 wrapper 的 failure policy，不识别 summary identity。
 
-sync/async Hooks 逐个 await，Hook elapsed 不计 raw measurement；一个 caller Hook throw/reject 不阻止后续 Hook，也不改写 sealed facts。Scheduler 返回完成 delivery 的 context 后，Invocation 才调用 complete；成功 complete 不能覆盖已记录的 generic Hook failure。
+sync/async terminal effects 逐个 await，effect elapsed 不计 raw measurement；一个 caller terminal effect throw/reject 不阻止后续 terminal effect，也不改写 sealed facts。Scheduler 返回完成 delivery 的 context 后，Invocation 才交付 `terminalEffect`；成功 terminalEffect 不能覆盖已记录的 generic terminal effect failure。
 
-nonempty caller Hooks 或 successful prepared result 实际含 complete 才启用 measurementHooks output；无 sealed context 时 enabled output 保持 not-run。所有实际 participants 成功才 succeeded，任一失败即 failed。无 primary failure 时按输出指南形成保留完整 facts 的 output failure；已有 cancellation、policy fault 或其它 primary failure 时只记录 Hook status，不覆盖 primary kind/diagnostic。pre-work/planning 没有 context，不交付 Hooks；summary writer failure 属于 diagnostic writer containment，不是 caller Hook failure。
+nonempty caller terminal effects 或 successful prepared result 实际含 terminalEffect 才启用 terminalEffects output；无 sealed context 时 enabled output 保持 not-run。所有实际 participants 成功才 succeeded，任一失败即 failed。无 primary failure 时按输出指南形成保留完整 facts 的 output failure；已有 cancellation、policy fault 或其它 primary failure 时只记录 terminal effect status，不覆盖 primary kind/diagnostic。pre-work/planning 没有 context，不交付 terminal effects；summary writer failure 属于 diagnostic writer containment，不是 caller terminal effect failure。
 
-Hook identity/source/closure 不进入 fingerprint；该 seam 不创建 Hook registry、machine/progress/Check facts 或自动学习。修改此链路时核对相邻 scheduler、invocation 与 output tests；capacity/hard-guard 变动还须同步审查[summary denominator、queue 分类与 boundary](human-output.md#scheduler-summary-projections)。
+terminal effect identity/source/closure 不进入 fingerprint；该 seam 不创建 effect registry、machine/progress/Check facts 或自动学习。修改此链路时核对相邻 scheduler、invocation 与 output tests；capacity/hard-guard 变动还须同步审查[summary denominator、queue 分类与 boundary](human-output.md#scheduler-summary-projections)。
 
 ## 验证边界
 

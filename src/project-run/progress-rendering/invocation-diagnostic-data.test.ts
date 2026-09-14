@@ -14,7 +14,7 @@ describe("Package Run diagnostic logging output", () => {
     try {
       const files = Array.from({ length: 700 }, (_, index) => `package/file-${index}.ts`);
       const result = await executeValidatedRun(
-        definition([check({ execution: () => ({ status: "passed", data: { files } }) })]),
+        definition([check({ execute: () => ({ status: "passed", data: { files } }) })]),
         {
           outputs: { diagnosticLogging: { directory: "diagnostic", enabled: true } },
           projectRoot: root
@@ -46,14 +46,14 @@ describe("Package Run diagnostic logging output", () => {
       checkId: "handoff-provider",
       displayName: "Handoff provider",
       handoff: true,
-      execution: () => ({ status: "passed", data: { version: 1 }, handoff: fileBytes })
+      execute: () => ({ status: "passed", data: { version: 1 }, handoff: fileBytes })
     });
     let consumerReadSameReference = false;
     const consumer = defineCheck({
       checkId: "handoff-consumer",
       displayName: "Handoff consumer",
       dependsOn: [provider.checkId],
-      execution: ({ dependencies }) => {
+      execute: ({ dependencies }) => {
         const read = dependencies.get(provider);
         if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
         consumerReadSameReference = read.handoff === fileBytes;

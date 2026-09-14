@@ -1,11 +1,11 @@
-/** Handles one admitted Check's preflight boundary and ready callback handoff. */
+/** Handles one admitted Check's preparation boundary and ready callback handoff. */
 
 import type { CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import type { ResolvedInvocationPaths } from "../invocation/paths.ts";
 import { checkIdentity } from "./execution-finalization.ts";
 import { recordSettledCheck, type CheckExecutionState } from "./execution-settlement.ts";
-import { prepareCheck, type CheckPreflightResolution } from "./preflight.ts";
+import { prepareCheck, type CheckPreparationResolution } from "./preparation.ts";
 import { executeReadyCheck } from "./ready-check-execution.ts";
 
 export type CheckExecutionClock = Readonly<{ now(): number }>;
@@ -23,30 +23,30 @@ export type AdmittedCheckExecutionInput = CheckExecutionState &
 
 export async function executeAdmittedCheck(input: AdmittedCheckExecutionInput): Promise<boolean> {
   observeAdmittedCheck(input);
-  const preflight = await prepareCheck({
+  const preparation = await prepareCheck({
     check: input.check,
     diagnosticLogger: input.diagnosticLogger,
     signal: input.signal
   });
-  if (preflight.kind === "blocked") {
-    settleBlockedPreflight(input, preflight);
+  if (preparation.kind === "blocked") {
+    settleBlockedPreparation(input, preparation);
     return false;
   }
-  return executeReadyCheck({ ...input, preflight });
+  return executeReadyCheck({ ...input, prepare: preparation });
 }
 
-function settleBlockedPreflight(
+function settleBlockedPreparation(
   state: CheckExecutionState,
-  preflight: Extract<CheckPreflightResolution, { readonly kind: "blocked" }>
+  prepare: Extract<CheckPreparationResolution, { readonly kind: "blocked" }>
 ): void {
-  const scope = state.session.openCheckScope(preflight.check.definition.checkId);
-  const outcome = scope.settleProduct(preflight.outcome);
+  const scope = state.session.openCheckScope(prepare.check.definition.checkId);
+  const outcome = scope.settleProduct(prepare.outcome);
   recordSettledCheck({
-    check: checkIdentity(preflight.check),
+    check: checkIdentity(prepare.check),
     durationMs: null,
-    messages: preflight.check.preflightMessages,
+    messages: prepare.check.preparationMessages,
     outcome,
-    phase: "preflight",
+    phase: "preparation",
     state
   });
 }

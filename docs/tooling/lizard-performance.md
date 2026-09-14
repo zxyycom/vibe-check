@@ -34,7 +34,7 @@ bun scripts/development/lizard-performance/command.ts --mode full --layer A --te
 
 B 要求显式 fixed upstream `308b1c3…` checkout；provision 时间不计入样本，evidence 仅保留最小 formation provenance。
 
-B 先 canonicalize Product 消费的 file/name/location/NLOC/CCN/parameter fields，再对每一个计数样本复核 preflight digest。它同时报告：
+B 先 canonicalize Product 消费的 file/name/location/NLOC/CCN/parameter fields，再对每一个计数样本复核 preparation digest。它同时报告：
 
 - 160-byte TS/JS tiny cold-start；
 - 27 reader-family representative fixtures 的 normal+edge（不含 malformed）各复制 64 次的 representative batch；

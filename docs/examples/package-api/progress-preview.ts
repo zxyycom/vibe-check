@@ -17,7 +17,7 @@ const headAndTail: ProgressPreviewFormatter = ({ text, maxCodePoints }) => {
 const detail = defineCheck({
   checkId: "detail",
   displayName: "Detail",
-  execution: ({ records }) => {
+  execute: ({ records }) => {
     records.report({ id: "long-detail" }, { text: "a verbose diagnostic value" });
     return { status: "passed", data: {} };
   }

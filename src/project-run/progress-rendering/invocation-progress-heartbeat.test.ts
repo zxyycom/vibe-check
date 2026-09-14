@@ -22,7 +22,7 @@ describe("Package Run progress rendering outputs", () => {
       definition(
         [
           check({
-            execution: async () => {
+            execute: async () => {
               slowStarted.resolve(undefined);
               await slow.promise;
               return PASSED;

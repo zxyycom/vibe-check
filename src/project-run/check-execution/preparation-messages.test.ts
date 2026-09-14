@@ -12,7 +12,7 @@ import {
 } from "./resolved-checks.test-support.ts";
 
 describe("Package Run direct Check execution", () => {
-  it("canonicalizes continue fallbacks and retains preflight messages through execution settlement", async () => {
+  it("canonicalizes continue fallbacks and retains preparation messages through execution settlement", async () => {
     let frozenFallback = false;
     const observations: DiagnosticObservation[] = [];
     const result = await executeResolvedChecks({
@@ -29,12 +29,12 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "continued",
-            preflight: () => ({
+            prepare: () => ({
               status: "failure",
               action: "continue",
               reason: { code: "fallback" },
               fallback: { value: 2 },
-              messages: [{ level: "warning", code: "preflight", message: "Preflight message" }]
+              messages: [{ level: "warning", code: "preparation", message: "Preparation message" }]
             })
           }
         ),
@@ -44,10 +44,10 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "throws",
-            preflight: () => ({
+            prepare: () => ({
               status: "success",
               preparedOptions: {},
-              messages: [{ level: "warning", code: "preflight", message: "Retained on throw" }]
+              messages: [{ level: "warning", code: "preparation", message: "Retained on throw" }]
             })
           }
         )
@@ -60,9 +60,14 @@ describe("Package Run direct Check execution", () => {
     assert.equal(result.kind, "completed");
     assert.equal(frozenFallback, true);
     assert.deepEqual(result.checkMessages, [
-      { checkId: "continued", level: "warning", code: "preflight", message: "Preflight message" },
+      {
+        checkId: "continued",
+        level: "warning",
+        code: "preparation",
+        message: "Preparation message"
+      },
       { checkId: "continued", level: "info", code: "execution", message: "Execution message" },
-      { checkId: "throws", level: "warning", code: "preflight", message: "Retained on throw" }
+      { checkId: "throws", level: "warning", code: "preparation", message: "Retained on throw" }
     ]);
     assert.deepEqual(outcomeFor(result, "throws"), {
       status: "unavailable",
@@ -71,17 +76,17 @@ describe("Package Run direct Check execution", () => {
     assert.deepEqual(
       observations.find(
         (observation) =>
-          hasDiagnosticTags(observation, "CHECK:continued", "PREFLIGHT") &&
-          observation.event === "preflight.resolved"
+          hasDiagnosticTags(observation, "CHECK:continued", "PREPARATION") &&
+          observation.event === "preparation.resolved"
       )?.details,
       {
-        messages: [{ level: "warning", code: "preflight", message: "Preflight message" }],
+        messages: [{ level: "warning", code: "preparation", message: "Preparation message" }],
         options: { availability: "available", bytes: 11, keys: 1, shape: "object" },
         reason: { code: "fallback" }
       }
     );
     assert.equal(
-      observations.some((observation) => observation.event === "preflight.resolved"),
+      observations.some((observation) => observation.event === "preparation.resolved"),
       true
     );
     assert.equal(

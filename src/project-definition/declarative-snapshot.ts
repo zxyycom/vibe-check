@@ -19,7 +19,7 @@ export function createDeclarativeProjectSnapshot(
 ): DeclarativeProjectSnapshot {
   const declarations = checks
     .map(
-      ({ execution: _execution, handoff: _handoff, preflight: _preflight, ...declaration }) =>
+      ({ execute: _execution, handoff: _handoff, prepare: _preparation, ...declaration }) =>
         declaration
     )
     .sort((left, right) => compareText(left.definition.checkId, right.definition.checkId));

@@ -16,7 +16,7 @@ npm 负责安装 package；应用代码和质量脚本的最低运行要求是 *
 
 ## 随包提供的 Check
 
-如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execution`。除 `maintenanceReminders(entries)` 与 `secretDetection({ files })` 有必填输入外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。
+如果项目需要的是常见质量检查，可以先从以下函数开始，而不必自己实现 `execute`。除 `maintenanceReminders(entries)` 与 `secretDetection({ files })` 有必填输入外，其余函数都可以无参调用；每份指南都包含最小用法、options、默认值、结果和安全边界。
 
 | 你想检查什么 | 使用的导出 | 额外环境准备 |
 | --- | --- | --- |
@@ -43,7 +43,7 @@ import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 const bundleSize = defineCheck({
   checkId: "bundle-size",
   displayName: "Bundle size",
-  execution() {
+  execute() {
     const actualBytes = 82_000;
     const maximumBytes = 100_000;
     const data = {

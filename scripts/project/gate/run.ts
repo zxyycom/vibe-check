@@ -19,11 +19,14 @@ import {
 import {
   createInitialProjectGateResult,
   createProjectGateResult,
-  parseProjectGateResult,
+  parseProjectGateMessageContribution,
   type ProjectGateResult
 } from "./runtime/result.ts";
 import { startProjectGateTranscript, type ProjectGateTranscript } from "./runtime/transcript.ts";
-import type { ProjectGateAfterHook, ProjectGateContext } from "./runtime/after-gate.ts";
+import type {
+  ProjectGateContext,
+  ProjectGateResultContributor
+} from "./runtime/result-contributor.ts";
 import {
   reportGateAdapterMessage,
   reportGateInvocationStarted,
@@ -31,7 +34,7 @@ import {
 } from "./runtime/reporting.ts";
 
 interface GateRunModule {
-  readonly afterGate: ProjectGateAfterHook;
+  readonly resultContributor: ProjectGateResultContributor;
   readonly resolvedEntryPath: string;
   run(input: {
     readonly flags: readonly string[];
@@ -49,7 +52,12 @@ interface ProjectGateSteps {
   readonly startTranscript: typeof startProjectGateTranscript;
 }
 
-export type { ProjectGateContext, ProjectGateTiming } from "./runtime/after-gate.ts";
+export type {
+  ProjectGateContext,
+  ProjectGateResultContributionContext,
+  ProjectGateResultContributor,
+  ProjectGateTiming
+} from "./runtime/result-contributor.ts";
 
 interface ProjectGateClock {
   now(): number;
@@ -165,7 +173,11 @@ export async function runProjectGate(
       startedAtMs: gateStartedAtMs,
       productRunStartedAtMs
     });
-    finalResult = await applyAfterGate(runModule.afterGate, initialResult, context);
+    finalResult = await applyResultContribution(
+      runModule.resultContributor,
+      initialResult,
+      context
+    );
     reportProjectGateMessages(finalResult.messages, transcript);
   } catch (error: unknown) {
     finalResult = createProjectGateResult("unavailable");
@@ -231,26 +243,37 @@ export function createInvocationLogDirectory(): string {
   return directory;
 }
 
-async function applyAfterGate(
-  afterGate: ProjectGateAfterHook,
+async function applyResultContribution(
+  resultContributor: ProjectGateResultContributor,
   initialResult: ProjectGateResult,
   context: ProjectGateContext
 ): Promise<ProjectGateResult> {
   try {
-    const transformed = parseProjectGateResult(await afterGate(initialResult, context));
-    if (transformed !== undefined) return transformed;
-    return afterGateFailure("after-gate-invalid-result", "afterGate returned an invalid result");
+    const messages = parseProjectGateMessageContribution(
+      await resultContributor(Object.freeze({ ...context, initialResult }))
+    );
+    if (messages === undefined)
+      return resultContributorFailure(
+        "result-contributor-invalid-result",
+        "result contributor returned an invalid message list"
+      );
+    return createProjectGateResult(initialResult.status, [...initialResult.messages, ...messages]);
   } catch {
-    return afterGateFailure(
-      "after-gate-failed",
-      "afterGate failed before producing a final result"
+    return resultContributorFailure(
+      "result-contributor-failed",
+      "result contributor failed before producing messages"
     );
   }
 }
 
-type AfterGateFailureCode = "after-gate-failed" | "after-gate-invalid-result";
+type ResultContributorFailureCode =
+  | "result-contributor-failed"
+  | "result-contributor-invalid-result";
 
-function afterGateFailure(code: AfterGateFailureCode, message: string): ProjectGateResult {
+function resultContributorFailure(
+  code: ResultContributorFailureCode,
+  message: string
+): ProjectGateResult {
   return createProjectGateResult("unavailable", [{ level: "error", code, message }]);
 }
 

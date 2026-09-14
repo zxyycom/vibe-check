@@ -10,12 +10,12 @@ import {
   invalidJsonSchemaValidationOptions,
   invalidJsonValidationOptions,
   validJsonSchemaValidationOptions
-} from "./project-definition.options-preflight.test-support.ts";
+} from "./project-definition.options-preparation.test-support.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 import { passed } from "./project-definition.test-support.ts";
 
 describe("Project Definition", () => {
-  it("accepts ordinary authored JSON options while their Check preflight owns domain validation", () => {
+  it("accepts ordinary authored JSON options while their Check preparation owns domain validation", () => {
     for (const options of invalidJsonValidationOptions) {
       assert.equal(definitionAcceptsJsonValidationOptions(options), true);
     }
@@ -25,13 +25,13 @@ describe("Project Definition", () => {
         defineConfig({
           checks: [
             defineCheck({
-              checkId: "throwing-preflight",
-              displayName: "Throwing preflight",
+              checkId: "throwing-preparation",
+              displayName: "Throwing preparation",
               options: { accepted: true },
-              preflight: () => {
-                throw new Error("preflight failure");
+              prepare: () => {
+                throw new Error("preparation failure");
               },
-              execution: passed
+              execute: passed
             })
           ]
         })
@@ -40,7 +40,7 @@ describe("Project Definition", () => {
     );
   });
 
-  it("accepts ordinary JSON Schema options while their Check preflight owns domain validation", () => {
+  it("accepts ordinary JSON Schema options while their Check preparation owns domain validation", () => {
     assert.equal(
       definitionAcceptsJsonSchemaValidationOptions(validJsonSchemaValidationOptions),
       true

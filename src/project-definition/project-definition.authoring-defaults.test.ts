@@ -7,12 +7,15 @@ import { defineConfig, normalizeProjectDefinition } from "./project-definition.t
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 import type { ProjectDefinition } from "./project-definition.ts";
 
+const passed = () => ({ status: "passed" as const, data: {} });
+
 describe("Project Definition", () => {
   it("creates a plain value with Product-owned authoring defaults", () => {
     const definition = defineConfig({});
     assertDefinitionDefaults(definition);
     assertCustomAdmissionPolicy();
     assertSchedulerValidation(definition);
+    assertLegacyLifecycleAuthoringRejected(definition);
     assertOutputDirectoryValidation(definition);
     assert.equal(Object.getPrototypeOf(definition), Object.prototype);
   });
@@ -34,7 +37,7 @@ function assertDefinitionDefaults(definition: ProjectDefinition): void {
   assert.equal(definition.apiVersion, "1");
   assert.equal(definition.scheduler.maxParallel, 4);
   assert.deepEqual(definition.scheduler.admissionPolicy, { kind: "static" });
-  assert.deepEqual(definition.scheduler.measurementHooks, []);
+  assert.deepEqual(definition.scheduler.terminalEffects, []);
   assert.deepEqual(definition.scheduler.resourceCapacities, {});
   assert.equal(Object.isFrozen(definition.scheduler.resourceCapacities), true);
   assertProgressRenderingValidation(definition);
@@ -42,6 +45,39 @@ function assertDefinitionDefaults(definition: ProjectDefinition): void {
     normalizeProjectDefinition(defineConfig({})).declarative.scheduler,
     normalizeProjectDefinition(defineConfig({ scheduler: { admissionPolicy: { kind: "static" } } }))
       .declarative.scheduler
+  );
+}
+
+function assertLegacyLifecycleAuthoringRejected(definition: ProjectDefinition): void {
+  for (const check of [
+    {
+      checkId: "legacy-preflight",
+      displayName: "Legacy preflight",
+      execute: passed,
+      preflight: () => ({ status: "success", preparedOptions: {} })
+    },
+    {
+      checkId: "legacy-execution",
+      displayName: "Legacy execution",
+      execution: passed
+    },
+    {
+      checkId: "mixed-lifecycle-fields",
+      displayName: "Mixed lifecycle fields",
+      execute: passed,
+      execution: passed,
+      prepare: () => ({ status: "success", preparedOptions: {} }),
+      preflight: () => ({ status: "success", preparedOptions: {} })
+    }
+  ]) {
+    assert.equal(validateProjectDefinition({ ...definition, checks: [check] }).ok, false);
+  }
+  assert.equal(
+    validateProjectDefinition({
+      ...definition,
+      scheduler: { ...definition.scheduler, measurementHooks: [] }
+    }).ok,
+    false
   );
 }
 
@@ -214,7 +250,7 @@ function assertSchedulerValidation(definition: ProjectDefinition): void {
     {
       admissionPolicy: { kind: "static" },
       maxParallel: 1,
-      measurementHooks: ["invalid"]
+      terminalEffects: ["invalid"]
     },
     { admissionPolicy: { kind: "static" }, maxParallel: 1, unexpected: true },
     { admissionPolicy: { kind: "static" }, maxParallel: 1, resourceCapacities: { browser: 0 } },

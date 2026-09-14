@@ -18,7 +18,7 @@ function materializeCheck(check: ParsedCheck): Check {
   const mutex = materializeCollection(check.mutex);
   const observes = materializeCollection(check.observes);
   const visibility = check.visibility;
-  const preflight = check.preflight;
+  const preparation = check.prepare;
   const scheduling = {
     ...(check.admissionPriority === undefined
       ? {}
@@ -31,7 +31,7 @@ function materializeCheck(check: ParsedCheck): Check {
   };
   if (
     check.definition === null ||
-    check.execution === null ||
+    check.execute === null ||
     check.options === null ||
     visibility === null
   ) {
@@ -47,11 +47,11 @@ function materializeCheck(check: ParsedCheck): Check {
     checks,
     displayName: check.displayName,
     ...(enabledByFlags === null ? {} : { enabledByFlags }),
-    execution: check.execution,
+    execute: check.execute,
     ...(check.handoff === null ? {} : { handoff: true }),
     ...(check.parseData === null ? {} : { parseData: check.parseData }),
     options: check.options,
-    ...(preflight === null ? {} : { preflight }),
+    ...(preparation === null ? {} : { prepare: preparation }),
     ...scheduling,
     visibility
   });

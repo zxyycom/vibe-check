@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import type { DiagnosticObservation } from "../diagnostic-logging/logger.ts";
-import { prepareCheck } from "./preflight.ts";
+import { prepareCheck } from "./preparation.ts";
 import { executeResolvedChecks } from "./resolved-checks.ts";
 import {
   PROJECT,
@@ -14,7 +14,7 @@ import {
 } from "./resolved-checks.test-support.ts";
 
 describe("Package Run direct Check execution", () => {
-  it("passes the invocation signal to admitted preflights and closes cancelled Check Tasks", async () => {
+  it("passes the invocation signal to admitted preparations and closes cancelled Check Tasks", async () => {
     const observations: DiagnosticObservation[] = [];
     await prepareCheck({
       check: normalized(() => ({ status: "passed", data: {} }), { checkId: "skipped" }),
@@ -43,20 +43,20 @@ describe("Package Run direct Check execution", () => {
       })),
       [
         {
-          event: "preflight.resolved",
+          event: "preparation.resolved",
           details: {
             options: { availability: "available", bytes: 2, keys: 0, shape: "object" },
             source: "authored"
           }
         },
         {
-          event: "preflight.resolved",
+          event: "preparation.resolved",
           details: {
             outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
           }
         },
         {
-          event: "preflight.resolved",
+          event: "preparation.resolved",
           details: {
             outcome: { status: "unavailable", reason: { code: "execution-cancelled" } }
           }
@@ -66,7 +66,8 @@ describe("Package Run direct Check execution", () => {
     assert.equal(
       observations.some(
         (observation) =>
-          observation.event === "preflight.started" || observation.event === "preflight.finished"
+          observation.event === "preparation.started" ||
+          observation.event === "preparation.finished"
       ),
       false
     );
@@ -76,7 +77,7 @@ describe("Package Run direct Check execution", () => {
     await prepareCheck({
       check: normalized(() => ({ status: "passed", data: {} }), {
         checkId: "cancelled-after-callback",
-        preflight: () => {
+        prepare: () => {
           afterCallbackController.abort();
           return afterCallbackOutput;
         }
@@ -89,7 +90,7 @@ describe("Package Run direct Check execution", () => {
     assert.equal(afterCallbackDetails.raw, afterCallbackOutput);
 
     const allBlockedController = new AbortController();
-    const cooperativePreflightEntered = deferred<void>();
+    const cooperativePreparationEntered = deferred<void>();
     let observedAllBlockedSignal: AbortSignal | undefined;
     let allBlockedExecutions = 0;
     const allBlocked = executeResolvedChecks({
@@ -101,7 +102,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "declared-block",
-            preflight: () => ({
+            prepare: () => ({
               status: "failure",
               action: "block",
               reason: { code: "invalid-options" }
@@ -115,9 +116,9 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "cooperative-block",
-            preflight: async (_options, signal) => {
+            prepare: async (_options, signal) => {
               observedAllBlockedSignal = signal;
-              cooperativePreflightEntered.resolve();
+              cooperativePreparationEntered.resolve();
               await new Promise<void>((resolve) => {
                 signal.addEventListener(
                   "abort",
@@ -136,7 +137,7 @@ describe("Package Run direct Check execution", () => {
       project: PROJECT,
       signal: allBlockedController.signal
     });
-    await cooperativePreflightEntered.promise;
+    await cooperativePreparationEntered.promise;
     assert.equal(observedAllBlockedSignal, allBlockedController.signal);
     allBlockedController.abort();
     const allBlockedResult = await allBlocked;
@@ -151,11 +152,11 @@ describe("Package Run direct Check execution", () => {
     );
 
     const partialReadyController = new AbortController();
-    const deferredPreflight = deferred<{
+    const deferredPreparation = deferred<{
       readonly status: "success";
       readonly preparedOptions: object;
     }>();
-    const deferredPreflightEntered = deferred<void>();
+    const deferredPreparationEntered = deferred<void>();
     let partialExecutions = 0;
     const partialReady = executeResolvedChecks({
       checks: [
@@ -166,7 +167,7 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "ready",
-            preflight: () => ({
+            prepare: () => ({
               status: "success",
               preparedOptions: {},
               messages: [
@@ -182,10 +183,10 @@ describe("Package Run direct Check execution", () => {
           },
           {
             checkId: "deferred",
-            preflight: (_options, signal) => {
+            prepare: (_options, signal) => {
               assert.equal(signal, partialReadyController.signal);
-              deferredPreflightEntered.resolve();
-              return deferredPreflight.promise;
+              deferredPreparationEntered.resolve();
+              return deferredPreparation.promise;
             }
           }
         )
@@ -194,9 +195,9 @@ describe("Package Run direct Check execution", () => {
       project: PROJECT,
       signal: partialReadyController.signal
     });
-    await deferredPreflightEntered.promise;
+    await deferredPreparationEntered.promise;
     partialReadyController.abort();
-    deferredPreflight.resolve({ status: "success", preparedOptions: {} });
+    deferredPreparation.resolve({ status: "success", preparedOptions: {} });
     const partialReadyResult = await partialReady;
     assert.equal(partialReadyResult.kind, "cancelled");
     assert.equal(partialExecutions, 0);

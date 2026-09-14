@@ -5,23 +5,23 @@ import { check, definition, deferred, PASSED } from "./run.test-support.ts";
 import { run } from "./run.ts";
 
 describe("Package Run", () => {
-  it("returns execution cancellation when an admitted preflight aborts", async () => {
+  it("returns execution cancellation when an admitted preparation aborts", async () => {
     const controller = new AbortController();
-    const preflightEntered = deferred();
+    const preparationEntered = deferred();
     let callbackCalls = 0;
     const cancelled = run(
       definition([
         {
           ...check({
-            execution: () => {
+            execute: () => {
               callbackCalls += 1;
               return PASSED;
             }
           }),
           options: {},
-          preflight: async (_options, signal) => {
+          prepare: async (_options, signal) => {
             assert.equal(signal, controller.signal);
-            preflightEntered.resolve();
+            preparationEntered.resolve();
             await new Promise<void>((resolve) => {
               signal.addEventListener(
                 "abort",
@@ -37,7 +37,7 @@ describe("Package Run", () => {
       ]),
       { signal: controller.signal }
     );
-    await preflightEntered.promise;
+    await preparationEntered.promise;
     controller.abort();
     const result = await cancelled;
     assert.equal(result.kind, "cancelled");

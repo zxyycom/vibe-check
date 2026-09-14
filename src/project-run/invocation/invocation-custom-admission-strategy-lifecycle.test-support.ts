@@ -38,7 +38,7 @@ export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
                   events.push("decide");
                   return selectFirstCandidate(decision);
                 },
-                complete(terminal) {
+                terminalEffect(terminal) {
                   assert.equal(Object.isFrozen(terminal), true);
                   assert.equal("terminalMeasurement" in terminal, false);
                   events.push("complete");
@@ -47,7 +47,7 @@ export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
             }
           }
         },
-        measurementHooks: [() => events.push("generic")]
+        terminalEffects: [() => events.push("generic")]
       }
     }),
     {},
@@ -58,7 +58,7 @@ export async function assertPublicPreparedStrategyRunsOnce(): Promise<void> {
   assertEventsInOrder({ events, required: ["prepare", "decide", "generic", "complete"] });
   assert.equal(events.filter((event) => event === "prepare").length, 1);
   assert.equal(events.filter((event) => event === "complete").length, 1);
-  assert.deepEqual(result.outputs.measurementHooks, { enabled: true, status: "succeeded" });
+  assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "succeeded" });
 }
 
 /** Proves each overlapping invocation owns only the closure its prepared strategy returned. */
@@ -94,7 +94,7 @@ export async function assertPublicPreparedClosuresStayIsolated(): Promise<void> 
                 events.push(`decide-${runId}`);
                 return selectFirstCandidate(context);
               },
-              complete() {
+              terminalEffect() {
                 events.push(`complete-${runId}`);
               }
             };
@@ -166,7 +166,7 @@ export async function assertPublicPreparationFailure(): Promise<void> {
       "admission-strategy-preparation-failed",
       name
     );
-    assert.deepEqual(result.outputs.measurementHooks, expectedOutput, name);
+    assert.deepEqual(result.outputs.terminalEffects, expectedOutput, name);
   }
 }
 
@@ -182,7 +182,7 @@ export async function assertPublicCompletionFailurePreservesPrimaryResult(): Pro
             events.push("decide");
             throw new Error("policy failure");
           },
-          complete: () => {
+          terminalEffect: () => {
             events.push("complete");
             throw new Error("completion failure");
           }
@@ -204,7 +204,7 @@ export async function assertPublicCompletionFailurePreservesPrimaryResult(): Pro
     "admission-policy-failed"
   );
   assertEventsInOrder({ events, required: ["decide", "generic", "complete"] });
-  assert.deepEqual(result.outputs.measurementHooks, { enabled: true, status: "failed" });
+  assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "failed" });
 }
 
 /** Proves only concrete generic Hooks or a returned completion can enable terminal measurement output. */
@@ -226,7 +226,7 @@ export async function assertMeasurementOutputParticipants(): Promise<void> {
     customDefinition(
       {
         kind: "prepared",
-        prepare: () => ({ decide: selectFirstCandidate, complete: () => undefined })
+        prepare: () => ({ decide: selectFirstCandidate, terminalEffect: () => undefined })
       },
       [() => Promise.reject(new Error("generic failure"))]
     ),
@@ -234,17 +234,17 @@ export async function assertMeasurementOutputParticipants(): Promise<void> {
     []
   );
 
-  assert.deepEqual(resultWithOutputs(simple).outputs.measurementHooks, {
+  assert.deepEqual(resultWithOutputs(simple).outputs.terminalEffects, {
     enabled: false,
     status: "disabled"
   });
-  assert.deepEqual(resultWithOutputs(preparedWithoutComplete).outputs.measurementHooks, {
+  assert.deepEqual(resultWithOutputs(preparedWithoutComplete).outputs.terminalEffects, {
     enabled: false,
     status: "disabled"
   });
   assert.equal(genericFailureWithSuccessfulComplete.kind, "output");
   assert.deepEqual(
-    resultWithOutputs(genericFailureWithSuccessfulComplete).outputs.measurementHooks,
+    resultWithOutputs(genericFailureWithSuccessfulComplete).outputs.terminalEffects,
     {
       enabled: true,
       status: "failed"
@@ -254,18 +254,18 @@ export async function assertMeasurementOutputParticipants(): Promise<void> {
 
 function customDefinition(
   strategy: CustomAdmissionStrategy,
-  measurementHooks: readonly (() => void | Promise<void>)[] = [],
-  execution: Check["execution"] = () => PASSED
+  terminalEffects: readonly (() => void | Promise<void>)[] = [],
+  execute: Check["execute"] = () => PASSED
 ) {
   return defineConfig({
-    checks: [check("check", execution)],
+    checks: [check("check", execute)],
     outputs: {
       machinePublication: { enabled: false },
       progressRendering: { enabled: false }
     },
     scheduler: {
       admissionPolicy: { kind: "custom", strategy },
-      measurementHooks
+      terminalEffects
     }
   });
 }
@@ -286,8 +286,8 @@ function resultWithOutputs(
   return result;
 }
 
-function check(checkId: string, execution: NonNullable<Check["execution"]>): Check {
-  return { checkId, displayName: checkId, execution };
+function check(checkId: string, execute: NonNullable<Check["execute"]>): Check {
+  return { checkId, displayName: checkId, execute: execute };
 }
 
 export { assertEventsInOrder as assertOrdered } from "./invocation-event-order.test-support.ts";

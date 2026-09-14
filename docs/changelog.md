@@ -47,7 +47,7 @@
 - **区分成功前置和终态观测**：`dependsOn` 要求所有直接 provider 为 `passed`；否则 dependent
   跳过回调，结算为 `unavailable / dependency-not-passed`。
   新增 `observes`，供需要等待上游任意终态的汇总或审计使用。
-- **`preflight` 随所属 Check 准入执行**：由整次 Run 的全局 barrier 改为本 Check 的执行前阶段，
+- **`prepare` 随所属 Check 准入执行**：由整次 Run 的全局 barrier 改为本 Check 的执行前阶段，
   受依赖、互斥、容量和取消约束；独立 Check 的准备可以并发。
 - **新增 `enabledByFlags`**：支持 `all`、`any`、`none`、`not-all`。匹配的 root 显式设置
   `propagateDependsOn: true` 时，传递选中其 `dependsOn` 前置，即使前置自身 flag 条件未命中；
@@ -65,12 +65,12 @@
 #### 调度与观测
 
 - **声明资源与顺序偏好**：Check 增加 `resourceClaims`、`admissionPriority`，scheduler 增加
-  `resourceCapacities`；资源从 `preflight` 到 settlement 原子持有，priority 在合法 ready 候选中排序。
+  `resourceCapacities`；资源从 `prepare` 到 settlement 原子持有，priority 在合法 ready 候选中排序。
 - **自定义准入策略**：`scheduler.admissionPolicy` 支持 `custom/simple` 与调用级 `custom/prepared`
   生命周期；`defineAdmissionPolicy` 辅助类型推导，策略可取得动作后性能 observation。
-- **终态测量 hook**：`scheduler.measurementHooks` 接收调度测量，状态从
-  `RunResult.outputs.measurementHooks` 读取。正常完成 Run 的 hook 失败可按输出失败优先级形成
-  `kind: "output"`、`scheduler-measurement-hooks-failed`；已有取消或执行诊断保持优先。
+- **终态作用**：`scheduler.terminalEffects` 接收调度测量，状态从
+  `RunResult.outputs.terminalEffects` 读取。正常完成 Run 的 terminal effect 失败可按输出失败优先级形成
+  `kind: "output"`、`scheduler-terminal-effects-failed`；已有取消或执行诊断保持优先。
 - **独立模拟与本地历史策略**：`createAdmissionGraph` 构造不可变静态调度模拟；
   `createLearnedCriticalPathStrategy` 将调用方管理的时长历史接入 prepared strategy。
 
@@ -82,7 +82,7 @@
   `diagnosticLogging.channels.core.file` 与 `.scheduler.file`，各有独立 status。
   `diagnosticLogFileNaming` 支持默认 `unique` 与固定 `channel`；固定名称冲突时失败，保留原文件。
 - **完善 progress 与 console 呈现**：捕获 Check 回调及其已等待异步工作中的 `console.*`，覆盖
-  `preflight` 并在 settlement 后呈现；直接 stdout/stderr、stream 或子进程输出独立于该捕获机制。
+  `prepare` 并在 settlement 后呈现；直接 stdout/stderr、stream 或子进程输出独立于该捕获机制。
   新增 `presentCheckFindings` 生成有界消息摘要，并增加 Record 预览。`progressRendering` 支持
   formatter、条数和文本长度限制，配置错误定位到具体字段。
 - **提供调用级路径上下文**：新增 `invocationId`、Check 专属 `artifactDirectory`，以及 Controls 的
@@ -103,7 +103,7 @@
 
 - **私有实现优化**：分析器 reader 采用 suffix fast path；admission core 采用不可变选择索引、
   反向索引、计数器和持久 frontier，保持公开 DTO、顺序与回调契约。
-- **Gate 配置集中化**：统一 definition manifest，分离 checks/runtime，`afterGate` 归 definition
+- **Gate 配置集中化**：统一 definition manifest，分离 checks/runtime，`resultContributor` 归 definition
   所有；命令收敛为 `bun run check`，提供默认 required、focused flags 与独占 `--all` 选择。
 - **Gate 选择与质量策略**：复用 flag 传递和 effective aggregation；仓库质量 Finding 设为 blocking。
   root `maxParallel` 为 `3`，Bun test runners 与 repository scans 各最多并行 `2` 个。
@@ -142,7 +142,7 @@
 | Finding waiver | `8c6eddb0` |
 | Markdown 解析缓存 | `bf49676f`、`00c364b5` |
 | `dependsOn` / `observes` | `88160edd` |
-| `preflight` 时序 | `88160edd`、`da6ea93f` |
+| `prepare` 时序 | `88160edd`、`da6ea93f` |
 | flags 与 effective aggregation | `8fdb840b`、`da6ea93f`、`fb695143` |
 | `dependencies.list()` | `7bcd56d4`、`88160edd` |
 | 资源容量与准入优先级 | `29438d69`、`4ee8ca30` |

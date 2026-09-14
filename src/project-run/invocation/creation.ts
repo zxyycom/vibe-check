@@ -51,7 +51,7 @@ export function createInvocation(input: InvocationCreationInput): Invocation {
   const outputs = createOutputStatuses(
     outputConfiguration,
     paths.diagnosticLoggingReadbackFiles,
-    input.normalized.scheduler.measurementHooks.length > 0
+    input.normalized.scheduler.terminalEffects.length > 0
   );
   const diagnosticLogging = createDiagnosticLoggingRouter({
     clock,

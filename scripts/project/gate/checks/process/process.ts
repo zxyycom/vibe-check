@@ -5,7 +5,7 @@ import {
   defineCheck,
   type Check,
   type CheckExecutionContext,
-  type CheckPreflight,
+  type CheckPreparation,
   type CheckResult
 } from "@zxyycom/vibe-check";
 
@@ -60,7 +60,7 @@ const defaultProcessCheckDependencies: ProcessCheckDependencies = Object.freeze(
   writeTextFile
 });
 
-const prepareProcessDescriptor: CheckPreflight<ProcessCheckDescriptor> = (options) =>
+const prepareProcessDescriptor: CheckPreparation<ProcessCheckDescriptor> = (options) =>
   validProcessCheckDescriptor(options)
     ? { status: "success", preparedOptions: options }
     : {
@@ -78,8 +78,8 @@ export function createProcessCheck(
     checkId: definition.checkId,
     displayName: definition.displayName,
     options: definition,
-    preflight: prepareProcessDescriptor,
-    execution: async (context): Promise<CheckResult> => executeProcessCheck(context, dependencies)
+    prepare: prepareProcessDescriptor,
+    execute: async (context): Promise<CheckResult> => executeProcessCheck(context, dependencies)
   });
 }
 
@@ -93,8 +93,8 @@ export function createProcessCheckWithFailureProjection(
     checkId: definition.checkId,
     displayName: definition.displayName,
     options: definition,
-    preflight: prepareProcessDescriptor,
-    execution: async (context): Promise<CheckResult> =>
+    prepare: prepareProcessDescriptor,
+    execute: async (context): Promise<CheckResult> =>
       executeProcessCheck(context, dependencies, { failureProjection })
   });
 }
@@ -110,8 +110,8 @@ export function createProcessCheckWithDataDependency<Data extends object>(
     dependsOn: [dependency.checkId],
     displayName: definition.displayName,
     options: definition,
-    preflight: prepareProcessDescriptor,
-    execution: async (
+    prepare: prepareProcessDescriptor,
+    execute: async (
       context: CheckExecutionContext<ProcessCheckDescriptor>
     ): Promise<CheckResult> => {
       const resolved = resolveDependencyProcessOptions(context, dependency);
@@ -141,8 +141,8 @@ export function createProcessCheckWithDataDependencyAndSuccessData<
     displayName: definition.displayName,
     options: definition,
     parseData: successData.parseData,
-    preflight: prepareProcessDescriptor,
-    execution: async (
+    prepare: prepareProcessDescriptor,
+    execute: async (
       context: CheckExecutionContext<ProcessCheckDescriptor>
     ): Promise<CheckResult<SuccessData>> => {
       const resolved = resolveDependencyProcessOptions(context, dependency);

@@ -17,7 +17,7 @@ function changedFilesProvider(files: readonly string[] = []) {
           }
         : { files: [], version: 1 };
     },
-    execution(): CheckResult<ChangedFilesData> {
+    execute(): CheckResult<ChangedFilesData> {
       return { status: "passed", data: { files, version: 1 } };
     }
   });
@@ -40,7 +40,7 @@ function _typeCheckProviderParserReuse() {
   const variableProvider = defineCheck({
     checkId: "variable-provider",
     displayName: "Variable provider",
-    execution(): CheckResult<ChangedFilesData> {
+    execute(): CheckResult<ChangedFilesData> {
       return { status: "passed", data: { files: [], version: 1 } };
     },
     parseData: variableParser
@@ -49,7 +49,7 @@ function _typeCheckProviderParserReuse() {
   const explicitUndefined = defineCheck({
     checkId: "undefined-parser",
     displayName: "Undefined parser",
-    execution: () => ({ status: "passed", data: {} }),
+    execute: () => ({ status: "passed", data: {} }),
     parseData: undefined
   });
   const _omittedParser: undefined = explicitUndefined.parseData;
@@ -62,11 +62,11 @@ function _typeCheckProviderOptionsAndComposition() {
     checkId: "typed-options",
     displayName: "Typed options",
     options: { maximum: 5 },
-    preflight: (options) => ({ status: "success", preparedOptions: options }),
+    prepare: (options) => ({ status: "success", preparedOptions: options }),
     parseData(data): { readonly count: number } {
       return { count: typeof data.count === "number" ? data.count : 0 };
     },
-    execution({ options }) {
+    execute({ options }) {
       return { status: "passed", data: { count: options.maximum } };
     }
   });
@@ -91,7 +91,7 @@ function _typeCheckProviderRejections() {
   const broadCheck = {
     checkId: "broad-check",
     displayName: "Broad check",
-    execution: () => ({ status: "passed" as const, data: {} }),
+    execute: () => ({ status: "passed" as const, data: {} }),
     // @ts-expect-error broad Check is ordinary; typed providers use defineCheck.
     parseData(_data: Readonly<Record<string, unknown>>) {
       return {};
@@ -105,8 +105,8 @@ function _typeCheckProviderRejections() {
     parseData(_data): ChangedFilesData {
       return { files: [], version: 1 };
     },
-    // @ts-expect-error execution final data must match this provider's parser return.
-    execution: () => ({ status: "passed", data: { paths: [], version: 1 } })
+    // @ts-expect-error execute final data must match this provider's parser return.
+    execute: () => ({ status: "passed", data: { paths: [], version: 1 } })
   });
 
   defineCheck({
@@ -116,7 +116,7 @@ function _typeCheckProviderRejections() {
     async parseData(_data) {
       return { files: [], version: 1 } satisfies ChangedFilesData;
     },
-    execution: () => ({ status: "passed", data: { files: [], version: 1 } })
+    execute: () => ({ status: "passed", data: { files: [], version: 1 } })
   });
 
   const maybeAsyncParser = (
@@ -126,14 +126,14 @@ function _typeCheckProviderRejections() {
     checkId: "maybe-async-parser",
     displayName: "Maybe async parser",
     // @ts-expect-error a maybe-async parser cannot define synchronous final data.
-    execution(): CheckResult<ChangedFilesData | Promise<ChangedFilesData>> {
+    execute(): CheckResult<ChangedFilesData | Promise<ChangedFilesData>> {
       return { status: "passed", data: { files: [], version: 1 } };
     },
     // @ts-expect-error every typed provider parser return constituent must be synchronous.
     parseData: maybeAsyncParser
   });
 
-  // @ts-expect-error a typed provider parser requires execution.
+  // @ts-expect-error a typed provider parser requires execute.
   defineCheck({
     checkId: "parser-container",
     displayName: "Parser container",
@@ -148,7 +148,7 @@ function _typeCheckHandoffProviderAuthoring() {
     checkId: "handoff-provider",
     displayName: "Handoff provider",
     handoff: true,
-    execution: () => ({
+    execute: () => ({
       status: "passed",
       data: { version: 1 },
       handoff: { close: () => undefined }
@@ -159,7 +159,7 @@ function _typeCheckHandoffProviderAuthoring() {
     displayName: "Typed handoff provider",
     handoff: true,
     parseData: (data) => ({ version: data.version === 1 ? 1 : 0 }),
-    execution: () => ({
+    execute: () => ({
       status: "passed",
       data: { version: 1 },
       handoff: { close: () => undefined }
@@ -169,15 +169,15 @@ function _typeCheckHandoffProviderAuthoring() {
     checkId: "callable-handoff-provider",
     displayName: "Callable handoff provider",
     handoff: true,
-    execution: () => ({ status: "passed", data: {}, handoff: () => undefined })
+    execute: () => ({ status: "passed", data: {}, handoff: () => undefined })
   });
   const preparedHandoffProvider = defineCheck({
     checkId: "prepared-handoff-provider",
     displayName: "Prepared handoff provider",
     handoff: true,
     options: { prefix: "src/" },
-    preflight: (options) => ({ status: "success", preparedOptions: options }),
-    async execution({ options }) {
+    prepare: (options) => ({ status: "success", preparedOptions: options }),
+    async execute({ options }) {
       const path = `${options.prefix}index.ts`;
       return {
         status: "passed",
@@ -191,13 +191,13 @@ function _typeCheckHandoffProviderAuthoring() {
     displayName: "Missing handoff result",
     // @ts-expect-error a marked provider cannot use the ordinary authoring branch.
     handoff: true,
-    execution: () => ({ status: "passed", data: {} })
+    execute: () => ({ status: "passed", data: {} })
   });
   defineCheck({
     checkId: "ordinary-handoff-result",
     displayName: "Ordinary handoff result",
     // @ts-expect-error ordinary providers cannot return a handoff.
-    execution: () => ({ status: "passed", data: {}, handoff: {} })
+    execute: () => ({ status: "passed", data: {}, handoff: {} })
   });
   defineCheck({
     checkId: "failed-handoff-result",
@@ -205,7 +205,7 @@ function _typeCheckHandoffProviderAuthoring() {
     // @ts-expect-error only passed branches may carry a declared handoff.
     handoff: true,
     // @ts-expect-error only passed branches may carry a declared handoff.
-    execution: () => ({ status: "failed", data: {}, handoff: { close: () => undefined } })
+    execute: () => ({ status: "failed", data: {}, handoff: { close: () => undefined } })
   });
   const chooseMapHandoff = Math.random() > 0.5;
   defineCheck({
@@ -213,7 +213,7 @@ function _typeCheckHandoffProviderAuthoring() {
     displayName: "Inconsistent passed handoffs",
     // @ts-expect-error every passed branch must return the same handoff type.
     handoff: true,
-    execution: () =>
+    execute: () =>
       // @ts-expect-error every passed branch must return the same handoff type.
       chooseMapHandoff
         ? { status: "passed" as const, data: {}, handoff: new Map<string, Uint8Array>() }

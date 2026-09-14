@@ -13,7 +13,7 @@ function executableWithVisibility(visibility?: "always" | "attention") {
   return {
     checkId: "visible-check",
     displayName: "Visible check",
-    execution: passed,
+    execute: passed,
     ...(visibility === undefined ? {} : { visibility })
   };
 }
@@ -86,7 +86,7 @@ describe("Project Definition", () => {
             {
               checkId: "default-visible-check",
               displayName: "Default visible check",
-              execution: passed
+              execute: passed
             }
           ]
         })

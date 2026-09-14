@@ -1,4 +1,4 @@
-/** Executes and settles a Check after its task-local preflight has admitted it. */
+/** Executes and settles a Check after its task-local preparation has admitted it. */
 
 import type { CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
@@ -12,7 +12,7 @@ import {
   settleCallback,
   type CheckExecutionState
 } from "./execution-settlement.ts";
-import type { ReadyCheckPreflightResolution } from "./preflight.ts";
+import type { ReadyCheckPreparationResolution } from "./preparation.ts";
 
 export type ReadyCheckExecutionInput = CheckExecutionState &
   Readonly<{
@@ -20,13 +20,13 @@ export type ReadyCheckExecutionInput = CheckExecutionState &
     readonly clock: Readonly<{ now(): number }>;
     readonly invocationId: string;
     readonly paths: ResolvedInvocationPaths | undefined;
-    readonly preflight: ReadyCheckPreflightResolution;
+    readonly prepare: ReadyCheckPreparationResolution;
     readonly project: CheckProjectContext;
     readonly signal: AbortSignal;
   }>;
 
 export async function executeReadyCheck(input: ReadyCheckExecutionInput): Promise<boolean> {
-  const check = input.preflight.check;
+  const check = input.prepare.check;
   const checkId = check.definition.checkId;
   const scope = input.session.openCheckScope(checkId);
   const identity = checkIdentity(check);
@@ -66,7 +66,7 @@ export async function executeReadyCheck(input: ReadyCheckExecutionInput): Promis
     checkId,
     diagnosticLogger: input.diagnosticLogger,
     handoff: check.handoff,
-    preflightMessages: check.preflightMessages,
+    preparationMessages: check.preparationMessages,
     scope,
     state: input
   });

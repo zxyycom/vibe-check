@@ -194,7 +194,7 @@ const directCheck = defineCheck({
   admissionPriority: 2,
   checkId: "isolated-public-import",
   displayName: "Isolated public import",
-  execution: (context) => {
+  execute: (context) => {
     const selected = context.project.flags.includes("isolated-consumer");
     context.records.report({ id: "selection" }, { selected });
     return selected
@@ -238,7 +238,7 @@ const changedFiles = defineCheck({
     }
     return { files: data.files, version: 1 };
   },
-  execution: () => ({
+  execute: () => ({
     status: "passed",
     data: changedFilesData
   })
@@ -250,7 +250,7 @@ const asyncChangedFilesParser = async (
 defineCheck({
   checkId: "isolated-async-provider",
   displayName: "Isolated async provider",
-  execution: () => ({ status: "passed", data: changedFilesData }),
+  execute: () => ({ status: "passed", data: changedFilesData }),
   // @ts-expect-error emitted provider declarations require a synchronous parser.
   parseData: asyncChangedFilesParser
 });
@@ -259,7 +259,7 @@ const changedFilesConsumer = defineCheck({
   checkId: "isolated-changed-files-consumer",
   displayName: "Isolated changed-files consumer",
   observes: [changedFiles.checkId],
-  execution: ({ dependencies }) => {
+  execute: ({ dependencies }) => {
     if (!directRelationIds(dependencies).includes(changedFiles.checkId)) {
       return { status: "unavailable", reason: { code: "changed-files-data-not-declared" } };
     }
@@ -399,7 +399,7 @@ const messagedResult: CheckResult = {
 const attentionCheck: Check = {
   checkId: "isolated-attention",
   displayName: "Isolated attention",
-  execution: () => messagedResult,
+  execute: () => messagedResult,
   visibility: "attention"
 };
 const findingMessages = presentCheckFindings({

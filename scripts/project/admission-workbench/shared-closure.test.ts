@@ -18,7 +18,7 @@ describe("admission workbench shared closure", () => {
           defineCheck({
             checkId: "running-check",
             displayName: "Running Check",
-            execution: async ({ signal }) => {
+            execute: async ({ signal }) => {
               events.push("running");
               entered.resolve();
               controller.abort();
@@ -31,7 +31,7 @@ describe("admission workbench shared closure", () => {
           defineCheck({
             checkId: "pending-check",
             displayName: "Pending Check",
-            execution: () => {
+            execute: () => {
               pendingExecutionCount += 1;
               return { status: "passed", data: {} };
             }

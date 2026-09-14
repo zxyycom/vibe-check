@@ -6,7 +6,7 @@ const executionOrder: string[] = [];
 const compile = defineCheck({
   checkId: "compile",
   displayName: "Compile",
-  execution() {
+  execute() {
     executionOrder.push("compile");
     return { status: "passed", data: {} };
   }
@@ -17,7 +17,7 @@ const publish = defineCheck({
   checkId: "publish",
   dependsOn: [compile.checkId],
   displayName: "Publish",
-  execution() {
+  execute() {
     executionOrder.push("publish");
     return { status: "passed", data: {} };
   }

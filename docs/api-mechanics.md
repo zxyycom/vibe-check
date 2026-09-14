@@ -1,6 +1,6 @@
 # 深入理解 Vibe Check API 机制
 
-本文说明 package 的通用 invocation lifecycle：自定义 Check 如何经过 Definition validation、options preflight、execution 与 settlement，以及一次 Run 如何形成 dependency data、aggregation、outputs 和可判别结果。首次集成先阅读[package README](../README.md)；随包 Check 的 options、业务效果和安全边界由各自指南说明；单个 public 字段与函数签名以 installed declarations 为准。
+本文说明 package 的通用 invocation lifecycle：自定义 Check 如何经过 Definition validation、options preparation、execution 与 settlement，以及一次 Run 如何形成 dependency data、aggregation、outputs 和可判别结果。首次集成先阅读[package README](../README.md)；随包 Check 的 options、业务效果和安全边界由各自指南说明；单个 public 字段与函数签名以 installed declarations 为准。
 
 ## 一次 Run 的生命周期
 
@@ -19,30 +19,30 @@
     initial control settlements + complete static Task graph
       │ Scheduler applies direct relations, mutex and parallel scheduling
       ▼
-    task-local preflight / Product-owned blocked unavailable outcomes
+    task-local preparation / Product-owned blocked unavailable outcomes
       │ admitted Checks continue to author callback
       ▼
     author execution + terminal settlement
       ▼
     snapshot + messages + durations
-      │ terminal measurement Hooks settle; if terminal context exists, prepared strategy completes once
+      │ terminal effects settle; if terminal context exists, prepared strategy delivers terminalEffect once
       │ optional aggregation + enabled output completion
       ▼
     RunResult
 
 ### Selection 与 Scheduler readiness
 
-Run 先验证包含全部可执行 Check 的静态 graph，再处理 invocation cancellation 与 flag selection。[flag 规则](guides/extending-check-lifecycle.md#按-flag-选择-check)产生一次 private effective selection；未被选择项先结算为 `not-applicable / flag-condition-not-matched`，不会再次 admission。它们仍属于同一张 graph：`dependsOn` dependent 在 preflight 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 则可等待并读取该终态。
+Run 先验证包含全部可执行 Check 的静态 graph，再处理 invocation cancellation 与 flag selection。[flag 规则](guides/extending-check-lifecycle.md#按-flag-选择-check)产生一次 private effective selection；未被选择项先结算为 `not-applicable / flag-condition-not-matched`，不会再次 admission。它们仍属于同一张 graph：`dependsOn` dependent 在 preparation 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 则可等待并读取该终态。
 
-### Task-local preflight 与 execution
+### Task-local preparation 与 execution
 
-其余 Check 被 Scheduler 在 direct relation、mutex 与 capacity 允许后 admission，并在自己的 task 中执行 preflight，随后才执行 author callback。没有互相约束的 preflight 可以并行；它们不构成 Definition 顺序的全局 barrier。
+其余 Check 被 Scheduler 在 direct relation、mutex 与 capacity 允许后 admission，并在自己的 task 中执行 preparation，随后才执行 author callback。没有互相约束的 preparation 可以并行；它们不构成 Definition 顺序的全局 barrier。
 
 ### Terminal snapshot、aggregation 与 outputs
 
 Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
 
-prepared strategy 的 `prepare / decide / complete` 顺序、失败与取消边界由[调度专题](guides/scheduling.md#已准备的-custom-strategy)定义；这些回调不能回写已结算 Check facts。
+prepared strategy 的 `prepare / decide / terminalEffect` 顺序、失败与取消边界由[调度专题](guides/scheduling.md#已准备的-custom-strategy)定义；这些回调不能回写已结算 Check facts。
 
 ## Definition 与 invocation 的责任
 
@@ -53,7 +53,7 @@ prepared strategy 的 `prepare / decide / complete` 顺序、失败与取消边�
 | 想设置什么 | 参数位置 | 与另一份输入的关系 |
 | --- | --- | --- |
 | 检查内容、领域 options、依赖与 Check 约束 | Definition 的 `checks` 中各项 Check | Controls 不能替换 Checks 或覆盖 Check options；领域输入继续由 owning Check 或显式 provider 承接。 |
-| 调度并行预算、资源总量、策略与终态观察回调 | Definition 的 `scheduler` | Controls 没有 scheduler override，也不能注入 `measurementHooks`。 |
+| 调度并行预算、资源总量、策略与终态观察回调 | Definition 的 `scheduler` | Controls 没有 scheduler override，也不能注入 `terminalEffects`。 |
 | 默认 machine、diagnostic 与 progress 输出方式 | Definition 的 `outputs` | 建立可重复使用的默认值；默认目录、预览数量和 formatter 都可在这里配置。 |
 | 本次根目录、选择 flags 与协作取消 | Controls 的 `projectRoot`、`flags`、`signal` | 只属于本次调用，不是 `defineConfig` 字段。 |
 | 本次 Check 产物与 progress 日志目标、diagnostic 文件命名 | Controls 的 `checkArtifactBaseDirectory`、`progressLogFile`、`diagnosticLogFileNaming` | 只属于本次调用；它们本身不是 Definition outputs 的默认值或 override。 |
@@ -71,11 +71,11 @@ prepared strategy 的 `prepare / decide / complete` 顺序、失败与取消边�
 - `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom strategy 的 inference；它与同形 inline policy value 等价。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
 
-fingerprint 使用 normalized declarative fields；preflight、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static` 与 `custom`，且不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
+fingerprint 使用 normalized declarative fields；preparation、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static` 与 `custom`，且不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
 
-## options preflight 与 execution
+## options preparation 与 execution
 
-Check 在获准入后执行自己的 `preflight(options, signal)`，再以 prepared options 或 fallback 进入 `execution`；block 或非法准备结果使本项 `unavailable`。不同 prepared shape 的类型要求、三种返回形式、冻结与取消边界见[自定义 Check 的 preflight](guides/extending-check-lifecycle.md#preflight准备阻止或带-fallback-继续)。
+Check 在获准入后执行自己的 `prepare(options, signal)`，再以 prepared options 或 fallback 进入 `execute`；block 或非法准备结果使本项 `unavailable`。不同 prepared shape 的类型要求、三种返回形式、冻结与取消边界见[自定义 Check 的 `prepare`](guides/extending-check-lifecycle.md#prepare准备阻止或带-fallback-继续)。
 
 ## terminal result、Records 与 messages
 
@@ -95,7 +95,7 @@ progress 只呈现这些事实，不修改它们。预览默认值、formatter�
 
 ## 递归组合与继承
 
-每个节点使用唯一 `checkId` 和非空 `displayName`；可执行节点也可以包含子节点，containment 只贡献 scheduling scope，不额外产生 snapshot 层级。带 `execution` 的节点形成自己的 outcome；没有 `execution` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn`、`observes` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、passed prerequisites、terminal observations、mutexes、visibility、parallel budget 与 admission priority。
+每个节点使用唯一 `checkId` 和非空 `displayName`；可执行节点也可以包含子节点，containment 只贡献 scheduling scope，不额外产生 snapshot 层级。带 `execute` 的节点形成自己的 outcome；没有 `execute` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn`、`observes` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、passed prerequisites、terminal observations、mutexes、visibility、parallel budget 与 admission priority。
 
 ## 类型化依赖数据
 
@@ -109,7 +109,7 @@ progress 只呈现这些事实，不修改它们。预览默认值、formatter�
 - `flags` 是可省略的 dense 非空 string-token 数组，省略、`undefined` 或 `[]` 得到冻结空数组；合法 tokens 被复制、去重并稳定排序，完整集合进入 callback project context。
 - `checkArtifactBaseDirectory` 是可选、invocation-only 的 Check artifact base；它使用非空且无 U+0000 的受信任 directory grammar，relative text 从 effective `projectRoot` 解析，absolute text 直接作为 target。它不进入 Definition fingerprint，不创建 output status，也不授予 Check 读取 base、sibling directory、machine/diagnostic output 或 cross-Run state 的能力；没有配置时 callback 的 `artifactDirectory` 为 `null`。
 - `progressLogFile` 是可选、invocation-only 的 terminal-progress tee target，使用同一非空且无 U+0000 target grammar；它不会改变 Definition outputs、Definition fingerprint 或 Check callback capability。
-- `signal` 供 preflight 与 execution 协作取消；取消结果记录对应 phase。
+- `signal` 供 preparation 与 execution 协作取消；取消结果记录对应 phase。
 - `diagnosticLogFileNaming` 可选 `"unique"`（默认）或 `"channel"`，只控制本次 core/scheduler 日志 basename，不启用 diagnostics、不进入 Definition fingerprint。
 - `checkAggregation` 显式选择 `checks: "all"`、Check-ID list 或 `"effective"`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。`"effective"` 只复用本次 private flag-and-dependency selection；`"all"` 和 ID list 不模拟或修改它。
 

@@ -1,7 +1,7 @@
 import type { CheckMessage, CheckProjectContext } from "../../check/check.ts";
 import type {
   NormalizedCheck,
-  SchedulerMeasurementHook
+  SchedulerTerminalEffect
 } from "../../project-definition/project-definition.ts";
 import type { ResourceUnitMapping } from "../../project-definition/resource-unit-mapping.ts";
 import { createCoreCheckSession } from "../../check-settlement/session.ts";
@@ -17,7 +17,7 @@ import {
   type SettledCheckFacts
 } from "./execution-settlement.ts";
 import { checkIdentity, closeResolvedChecks } from "./execution-finalization.ts";
-import type { CheckExecutionLifecycle } from "./lifecycle.ts";
+import type { CheckExecutionLifecycle, InvocationLifecycle } from "./lifecycle.ts";
 import { planStaticCheckGraph } from "./plan.ts";
 import {
   selectEffectiveCheckIds,
@@ -52,10 +52,11 @@ export type ResolvedCheckExecutionInput = Readonly<{
   readonly schedulerDiagnosticLogger?: DiagnosticLogger;
   /** Explicit enabled-only diagnostics handoff from the invocation output owner. */
   readonly schedulerPerformanceDiagnostics?: SchedulerPerformanceDiagnosticsInput;
-  readonly schedulerMeasurementHooks?: readonly SchedulerMeasurementHook[];
-  readonly onSchedulerMeasurementHookFailure?: () => void;
-  readonly onSchedulerMeasurementHooksSettled?: () => void;
-  readonly lifecycle?: CheckExecutionLifecycle;
+  readonly schedulerTerminalEffects?: readonly SchedulerTerminalEffect[];
+  readonly onSchedulerTerminalEffectFailure?: () => void;
+  readonly onSchedulerTerminalEffectsSettled?: () => void;
+  readonly checkLifecycle?: CheckExecutionLifecycle;
+  readonly invocationLifecycle?: InvocationLifecycle;
   /** Provider-owned bounded learned admission diagnostics, delivered by invocation. */
   readonly onAdmittedCheck?: (check: NormalizedCheck) => void;
 }>;
@@ -79,7 +80,7 @@ async function executePreparedResolvedChecks(
   const state = createExecutionState({
     checks: input.checks,
     diagnosticLogger: input.diagnosticLogger,
-    lifecycle: input.lifecycle
+    lifecycle: input.checkLifecycle
   });
   try {
     const flagControlSettlements = resolveFlagControlSettlements({
@@ -91,7 +92,7 @@ async function executePreparedResolvedChecks(
     for (const settlement of flagControlSettlements) {
       settleFlagControlOutcome(state, settlement);
     }
-    input.lifecycle?.flagControlCompleted();
+    input.invocationLifecycle?.selectionSettled();
     const graphRun = await runScheduledChecks({
       execution: input,
       flagControlSettlements,

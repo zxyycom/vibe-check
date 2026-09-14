@@ -16,7 +16,7 @@ export const PROJECT = Object.freeze({
 }) satisfies CheckProjectContext;
 
 export function normalized(
-  execution: NormalizedCheck["execution"],
+  callback: NormalizedCheck["execute"],
   overrides: Readonly<{
     readonly checkId?: string;
     readonly dependsOn?: readonly string[];
@@ -24,7 +24,7 @@ export function normalized(
     readonly handoff?: HandoffProviderIdentity;
     readonly maxParallel?: number;
     readonly observes?: readonly string[];
-    readonly preflight?: NormalizedCheck["preflight"];
+    readonly prepare?: NormalizedCheck["prepare"];
   }> = {}
 ): NormalizedCheck {
   const resolved = {
@@ -39,19 +39,19 @@ export function normalized(
     admissionPriority: 0,
     definition: { checkId: resolved.checkId, displayName },
     dependsOn: resolved.dependsOn,
-    execution,
+    execute: callback,
     ...(resolved.handoff === undefined ? {} : { handoff: resolved.handoff }),
     maxParallel: resolved.maxParallel,
     mutex: [],
     observes: resolved.observes,
     options: {},
     resourceClaims: Object.freeze({}),
-    ...(resolved.preflight === undefined ? {} : { preflight: resolved.preflight }),
+    ...(resolved.prepare === undefined ? {} : { prepare: resolved.prepare }),
     visibility: "always"
   };
 }
 
-/** Obtains the Definition-private identity needed by direct execution fixtures. */
+/** Obtains the Definition-private identity needed by direct execute fixtures. */
 export function definedHandoff(provider: unknown): HandoffProviderIdentity {
   const identity = getDefinedHandoffProviderIdentity(provider);
   if (identity === undefined) throw new Error("Expected a defined handoff provider");
@@ -59,20 +59,20 @@ export function definedHandoff(provider: unknown): HandoffProviderIdentity {
 }
 
 export function execute(
-  execution: NormalizedCheck["execution"],
+  callback: NormalizedCheck["execute"],
   options: Readonly<{
     readonly clock?: CheckExecutionClock;
     readonly diagnosticLogger?: DiagnosticLogger;
-    readonly lifecycle?: CheckExecutionLifecycle;
+    readonly checkLifecycle?: CheckExecutionLifecycle;
   }> = {}
 ) {
   return executeResolvedChecks({
-    checks: [normalized(execution)],
+    checks: [normalized(callback)],
     ...(options.clock === undefined ? {} : { clock: options.clock }),
     ...(options.diagnosticLogger === undefined
       ? {}
       : { diagnosticLogger: options.diagnosticLogger }),
-    ...(options.lifecycle === undefined ? {} : { lifecycle: options.lifecycle }),
+    ...(options.checkLifecycle === undefined ? {} : { checkLifecycle: options.checkLifecycle }),
     maxParallel: 1,
     project: PROJECT,
     signal: undefined
@@ -109,10 +109,10 @@ export function checkDiagnosticTag(observation: DiagnosticObservation): string |
 }
 
 export function outcomeFor(
-  execution: Awaited<ReturnType<typeof executeResolvedChecks>>,
+  resolved: Awaited<ReturnType<typeof executeResolvedChecks>>,
   checkId: string
-): NonNullable<(typeof execution.snapshot.checks)[number]>["outcome"] {
-  const outcome = execution.snapshot.checks.find((check) => check.checkId === checkId)?.outcome;
+): NonNullable<(typeof resolved.snapshot.checks)[number]>["outcome"] {
+  const outcome = resolved.snapshot.checks.find((check) => check.checkId === checkId)?.outcome;
   if (outcome === undefined) throw new Error(`Missing outcome for ${checkId}`);
   return outcome;
 }

@@ -10,7 +10,7 @@ import { PROJECT, definedHandoff, normalized } from "./resolved-checks.test-supp
 type HandoffProvider = CheckHandoffProvider<string, Map<string, Uint8Array>> &
   Readonly<{
     readonly displayName: string;
-    readonly execution: NormalizedCheck["execution"];
+    readonly execute: NormalizedCheck["execute"];
   }>;
 
 describe("Package Run direct Check execution", () => {
@@ -21,7 +21,7 @@ describe("Package Run direct Check execution", () => {
       checkId: "handoff-provider",
       displayName: "Foreign handoff provider",
       handoff: true,
-      execution: () => ({ status: "passed", data: {}, handoff: new Map<string, Uint8Array>() })
+      execute: () => ({ status: "passed", data: {}, handoff: new Map<string, Uint8Array>() })
     });
     const handoffs = [firstHandoff, secondHandoff];
     let providerCalls = 0;
@@ -29,7 +29,7 @@ describe("Package Run direct Check execution", () => {
       checkId: "handoff-provider",
       displayName: "Handoff provider",
       handoff: true,
-      execution: () => {
+      execute: () => {
         const handoff = handoffs[providerCalls];
         providerCalls += 1;
         if (handoff === undefined) throw new Error("missing test handoff");
@@ -73,7 +73,7 @@ describe("Package Run direct Check execution", () => {
     let transitiveProviderRead: unknown;
     const execution = await executeResolvedChecks({
       checks: [
-        normalized(provider.execution, {
+        normalized(provider.execute, {
           checkId: provider.checkId,
           displayName: provider.displayName,
           handoff: definedHandoff(provider)

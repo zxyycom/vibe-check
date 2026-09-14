@@ -6,7 +6,7 @@ import { check, definition, PASSED } from "./run-fixtures.test-support.ts";
 export async function assertInvalidRunControlsAndDefinition(calls: () => number): Promise<void> {
   const source = definition([
     check({
-      execution: () => {
+      execute: () => {
         calls();
         return PASSED;
       }
@@ -69,7 +69,7 @@ export async function assertInvalidRunControlsAndDefinition(calls: () => number)
   assert.equal(invalidDefinition.kind, "configuration");
 }
 
-export async function assertBlockedPreflight(
+export async function assertBlockedPreparation(
   calls: () => number,
   observed: (value: boolean) => void
 ): Promise<void> {
@@ -77,13 +77,13 @@ export async function assertBlockedPreflight(
     definition([
       {
         ...check({
-          execution: () => {
+          execute: () => {
             calls();
             return PASSED;
           }
         }),
         options: { accepted: false },
-        preflight: (options) => {
+        prepare: (options) => {
           observed(Object.isFrozen(options));
           return { status: "failure", action: "block", reason: { code: "invalid-options" } };
         }

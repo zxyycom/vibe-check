@@ -234,7 +234,7 @@ Run progress 预览边界见 [呈现 Check Finding](../guides/presenting-finding
 
 上述 `unavailable` 都发生在完整 Finding 集合形成前，因此不发布 applied/unused/overmatched waiver audit。
 
-通用 preflight 机制见 [options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
+通用 preparation 机制见 [options preparation 与 execution](../api-mechanics.md#options-preparation-与-execution)。
 
 ## I/O 与安全边界
 

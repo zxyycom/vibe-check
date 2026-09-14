@@ -95,14 +95,14 @@ describe("JSON Schema validation default Check", () => {
         bindings: [{ id: "bad", instancePath: "bad.json", schemaId }],
         schemas: [{ id: schemaId, path: "schema.json" }]
       });
-      const invalidPreflight = await defaultCheck.preflight!(
+      const invalidPreparation = await defaultCheck.prepare!(
         {
           ...invalidOptions,
           maximumBytes: 0
         },
         new AbortController().signal
       );
-      assert.equal(invalidPreflight.status, "failure");
+      assert.equal(invalidPreparation.status, "failure");
       assert.deepEqual(
         (
           await runJsonSchemaValidation({

@@ -1,6 +1,6 @@
 export { check, definition, deferred, PASSED } from "./run-fixtures.test-support.ts";
 export {
-  assertBlockedPreflight,
+  assertBlockedPreparation,
   assertInvalidRunControlsAndDefinition
 } from "./run-control-validation.test-support.ts";
 export {

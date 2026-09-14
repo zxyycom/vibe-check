@@ -40,7 +40,7 @@ progress 直接消费 Run lifecycle，不从 machine files 恢复结果；consol
 `docs/examples/artifacts/mixed-outcomes/definition.ts` 是唯一随包 machine example 的可执行 Project Definition。
 `scripts/docs/machine-artifacts/examples/**` 将当前 source public API 作为内存 module 提供给其 package-root import，通过
 完整 public `run` 在隔离的有效 project manifest 上执行一个 `jsonValidation` 与递归自定义 workflow。Definition 的
-preflight、dependency、typed readback、messages 和 Records 都经过普通 Product path；生成器只替换固定 invocation metadata，
+preparation、dependency、typed readback、messages 和 Records 都经过普通 Product path；生成器只替换固定 invocation metadata，
 再写出同目录的 `run.json` 与 `records.ndjson`。Definition 保持为人工维护的 source；regeneration 只清理 retired example
 directories 与当前两份 generated outputs。
 

@@ -75,7 +75,7 @@ Product：验证与归一化 → Run（调度 → Check 执行 → 结算）
 详细规则由[Project Definition](project-definition.md)拥有。
 
 **Run 负责一次调用的协调，Scheduler 是它的内部组件。** Run 建立调用上下文并完成统一的 flag control，
-Scheduler 根据依赖和资源约束准入工作，Check execution 在被准入的任务中完成 preflight、执行和结算交接。
+Scheduler 根据依赖和资源约束准入工作，Check execution 在被准入的任务中完成 preparation、执行和结算交接。
 策略只提交决定，Scheduler 保留合法性、资源、取消与 drain 的权威。
 调用接线见[Project Run](project-run.md)，调度机制见[Scheduler](scheduler.md)。
 

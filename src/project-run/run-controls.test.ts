@@ -2,22 +2,22 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
 import {
-  assertBlockedPreflight,
+  assertBlockedPreparation,
   assertInvalidRunControlsAndDefinition
 } from "./run.test-support.ts";
 
 describe("Package Run", () => {
-  it("rejects invalid closed controls while a blocked preflight settles unavailable before execution", async () => {
+  it("rejects invalid closed controls while a blocked preparation settles unavailable before execution", async () => {
     let calls = 0;
-    let preflightReceivedFrozenOptions = false;
+    let preparationReceivedFrozenOptions = false;
     await assertInvalidRunControlsAndDefinition(() => ++calls);
-    await assertBlockedPreflight(
+    await assertBlockedPreparation(
       () => ++calls,
       (frozen) => {
-        preflightReceivedFrozenOptions = frozen;
+        preparationReceivedFrozenOptions = frozen;
       }
     );
-    assert.equal(preflightReceivedFrozenOptions, true);
+    assert.equal(preparationReceivedFrozenOptions, true);
     assert.equal(calls, 0);
   });
 });

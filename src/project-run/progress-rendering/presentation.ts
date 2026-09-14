@@ -3,6 +3,7 @@ import { dirname } from "node:path";
 
 import type {
   CheckExecutionLifecycle,
+  InvocationLifecycle,
   CheckSettledFact,
   CheckStartedFact
 } from "../check-execution/lifecycle.ts";
@@ -19,7 +20,8 @@ export interface ProgressRendering {
   /** Closes only an already-created file tee; it never creates a writer after pre-work termination. */
   readonly close: () => void;
   readonly final: (input: ProgressFinalFeedback) => void;
-  readonly lifecycle: CheckExecutionLifecycle;
+  readonly checkLifecycle: CheckExecutionLifecycle;
+  readonly invocationLifecycle: InvocationLifecycle;
   readonly prepared: (totalChecks: number) => void;
 }
 export interface ProgressFinalFeedback {
@@ -165,10 +167,12 @@ export function createProgressRendering(
     prepared: (totalChecks: number) => {
       render(Object.freeze({ kind: "prepared", totalChecks }));
     },
-    lifecycle: Object.freeze({
-      flagControlCompleted: () => {
+    invocationLifecycle: Object.freeze({
+      selectionSettled: () => {
         render(Object.freeze({ kind: "flag-control-completed" }));
-      },
+      }
+    }),
+    checkLifecycle: Object.freeze({
       settled: (fact: CheckSettledFact) => {
         render(
           Object.freeze({
@@ -208,15 +212,18 @@ export function createProgressRendering(
   });
 }
 function inertProgressRendering(): ProgressRendering {
-  const lifecycle = Object.freeze({
-    flagControlCompleted: (): void => undefined,
+  const invocationLifecycle = Object.freeze({
+    selectionSettled: (): void => undefined
+  });
+  const checkLifecycle = Object.freeze({
     settled: (_fact: CheckSettledFact): void => undefined,
     started: (_fact: CheckStartedFact): void => undefined
   });
   return Object.freeze({
     close: (): void => undefined,
     prepared: (_totalChecks: number): void => undefined,
-    lifecycle,
+    checkLifecycle,
+    invocationLifecycle,
     final: (_input: ProgressFinalFeedback): void => undefined
   });
 }

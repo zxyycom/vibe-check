@@ -27,9 +27,9 @@ export function secretDetection(
   }
   return defineCheck({
     ...SECRET_DETECTION_CHECK_DEFINITION,
-    execution: executeSecretDetection,
+    execute: executeSecretDetection,
     parseData: parseSecretDetectionData,
-    preflight: (preparedOptions) =>
+    prepare: (preparedOptions) =>
       validSecretDetectionOptions(preparedOptions)
         ? { status: "success", preparedOptions }
         : {

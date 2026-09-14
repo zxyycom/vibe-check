@@ -10,11 +10,11 @@ export async function assertInheritedDependencyList(): Promise<void> {
     definition([
       check({
         checkId: "inherited-list-alpha",
-        execution: () => ({ status: "passed", data: { source: "alpha" } })
+        execute: () => ({ status: "passed", data: { source: "alpha" } })
       }),
       check({
         checkId: "inherited-list-omega",
-        execution: () => ({ status: "failed", data: { source: "omega" } })
+        execute: () => ({ status: "failed", data: { source: "omega" } })
       }),
       {
         checkId: "inherited-list-container",
@@ -23,7 +23,7 @@ export async function assertInheritedDependencyList(): Promise<void> {
         checks: [
           check({
             checkId: "inherited-list-dependent",
-            execution: ({ dependencies }) => {
+            execute: ({ dependencies }) => {
               observedList = dependencies.list();
               return { status: "passed", data: { dependent: true } };
             }

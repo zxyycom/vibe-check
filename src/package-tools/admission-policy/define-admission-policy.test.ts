@@ -41,7 +41,7 @@ describe("admission policy authoring", () => {
                 ? { kind: "wait" as const }
                 : { kind: "select" as const, taskId: candidate.taskId };
             },
-            complete(terminal) {
+            terminalEffect(terminal) {
               void terminal.execution.settledTasks;
             }
           };
@@ -56,7 +56,7 @@ describe("admission policy authoring", () => {
           void context.graph;
           return {
             decide: () => ({ kind: "wait" as const }),
-            async complete(terminal) {
+            async terminalEffect(terminal) {
               void terminal.execution.settledTasks;
             }
           };

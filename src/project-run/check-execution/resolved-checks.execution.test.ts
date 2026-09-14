@@ -20,7 +20,6 @@ describe("Package Run direct Check execution", () => {
     const started: unknown[] = [];
     const settled: unknown[] = [];
     const lifecycle: CheckExecutionLifecycle = Object.freeze({
-      flagControlCompleted: () => undefined,
       started: (fact: CheckStartedFact): void => {
         started.push(fact);
       },
@@ -30,7 +29,7 @@ describe("Package Run direct Check execution", () => {
     });
     const result = await execute(() => ({ status: "failed", data: { failures: 1 } }), {
       clock: scriptedClock([12, 27]),
-      lifecycle
+      checkLifecycle: lifecycle
     });
     const canonicalFailureData = canonicalizeJsonObject({ failures: 1 });
     if (canonicalFailureData === undefined) throw new Error("fixture data must be canonical");
@@ -85,8 +84,7 @@ describe("Package Run direct Check execution", () => {
         )
       ],
       clock: scriptedClock([10, 20, 30, 40]),
-      lifecycle: Object.freeze({
-        flagControlCompleted: () => undefined,
+      checkLifecycle: Object.freeze({
         started: (fact: CheckStartedFact): void => {
           events.push(`started:${fact.checkId}`);
         },
@@ -95,6 +93,7 @@ describe("Package Run direct Check execution", () => {
           if (fact.checkId === "z-fast") fastSettled.resolve(undefined);
         }
       }),
+      invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 2,
       project: PROJECT,
       signal: undefined
@@ -144,6 +143,7 @@ describe("Package Run direct Check execution", () => {
         })
       ],
       diagnosticLogger: recordingLogger(observations),
+      invocationLifecycle: { selectionSettled: () => undefined },
       maxParallel: 1,
       project: PROJECT,
       signal: controller.signal

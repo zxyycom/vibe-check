@@ -61,11 +61,11 @@ export async function assertInvalidOptionsAreRejected(
   root: string,
   executable: string
 ): Promise<void> {
-  const invalidPreflight = await check.preflight!(
+  const invalidPreparation = await check.prepare!(
     { ...options, codeAreas: {} },
     new AbortController().signal
   );
-  assert.equal(invalidPreflight.status, "failure");
+  assert.equal(invalidPreparation.status, "failure");
   const sourceArea = options.codeAreas.source;
   assert.notEqual(sourceArea, undefined);
   for (const invalidOptions of [

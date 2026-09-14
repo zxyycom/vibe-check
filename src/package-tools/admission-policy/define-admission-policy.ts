@@ -38,7 +38,7 @@ type ExactCustomPreparationResult<T> =
     : ExactPreparedCustomAdmissionStrategy<T>;
 
 type ExactPreparedCustomAdmissionStrategy<T> = T extends PreparedCustomAdmissionStrategy
-  ? T & Record<Exclude<keyof T, "decide" | "complete">, never>
+  ? T & Record<Exclude<keyof T, "decide" | "terminalEffect">, never>
   : never;
 
 /**

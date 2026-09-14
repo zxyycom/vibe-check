@@ -12,7 +12,7 @@ function check(
     readonly displayName?: string;
     readonly dependsOn?: Check["dependsOn"];
     readonly enabledByFlags?: Check["enabledByFlags"];
-    readonly execution: NonNullable<Check["execution"]>;
+    readonly execute: NonNullable<Check["execute"]>;
     readonly observes?: Check["observes"];
   }>
 ): Check {
@@ -21,7 +21,7 @@ function check(
     displayName: input.displayName ?? input.checkId,
     ...(input.dependsOn === undefined ? {} : { dependsOn: input.dependsOn }),
     ...(input.enabledByFlags === undefined ? {} : { enabledByFlags: input.enabledByFlags }),
-    execution: input.execution,
+    execute: input.execute,
     ...(input.observes === undefined ? {} : { observes: input.observes })
   };
 }
@@ -38,7 +38,7 @@ function checkDisabledByMissingFlag(
     checkId: input.checkId,
     displayName: input.displayName,
     enabledByFlags: { flags: [input.flag], mode: "all" },
-    execution: () => {
+    execute: () => {
       input.onUnexpectedExecution();
       return { status: "passed", data: {} };
     }
@@ -98,7 +98,7 @@ function assertFlagDisabledFacts(result: Awaited<ReturnType<typeof executeValida
 }
 
 describe("Package Run progress terminal statuses", () => {
-  it("groups flag-disabled Check names before execution while preserving their terminal facts", async () => {
+  it("groups flag-disabled Check names before execute while preserving their terminal facts", async () => {
     const output = capturedProgressWriter();
     let disabledCalls = 0;
     const result = await executeValidatedRun(
@@ -122,7 +122,7 @@ describe("Package Run progress terminal statuses", () => {
         check({
           checkId: "always-on",
           displayName: "Always on",
-          execution: () => ({ status: "passed", data: {} })
+          execute: () => ({ status: "passed", data: {} })
         })
       ]),
       {},
@@ -154,7 +154,7 @@ describe("Package Run progress terminal statuses", () => {
           checkId: "provider",
           displayName: "Provider",
           enabledByFlags: { flags: ["provider"], mode: "all" },
-          execution: () => {
+          execute: () => {
             providerCalls += 1;
             return { status: "passed", data: {} };
           }
@@ -164,7 +164,7 @@ describe("Package Run progress terminal statuses", () => {
           displayName: "Root",
           dependsOn: ["provider"],
           enabledByFlags: { flags: ["root"], mode: "all", propagateDependsOn: true },
-          execution: () => {
+          execute: () => {
             rootCalls += 1;
             return { status: "passed", data: {} };
           }
@@ -173,7 +173,7 @@ describe("Package Run progress terminal statuses", () => {
           checkId: "deferred",
           displayName: "Deferred",
           enabledByFlags: { flags: ["deferred"], mode: "all" },
-          execution: () => {
+          execute: () => {
             deferredCalls += 1;
             return { status: "passed", data: {} };
           }
@@ -208,7 +208,7 @@ describe("Package Run progress terminal statuses", () => {
       progressDefinition([
         check({
           checkId: "not-applicable",
-          execution: () => ({ status: "not-applicable" })
+          execute: () => ({ status: "not-applicable" })
         })
       ]),
       {},
@@ -229,7 +229,7 @@ describe("Package Run progress terminal statuses", () => {
       progressDefinition([
         check({
           checkId: "unavailable",
-          execution: () => ({ status: "unavailable", reason: { code: "source-unavailable" } })
+          execute: () => ({ status: "unavailable", reason: { code: "source-unavailable" } })
         })
       ]),
       {},
@@ -253,14 +253,14 @@ describe("Package Run progress terminal statuses", () => {
         [
           check({
             checkId: "started",
-            execution: () => {
+            execute: () => {
               controller.abort();
               return { status: "passed", data: {} };
             }
           }),
           check({
             checkId: "unstarted",
-            execution: () => {
+            execute: () => {
               unstartedCalls += 1;
               return { status: "passed", data: {} };
             }

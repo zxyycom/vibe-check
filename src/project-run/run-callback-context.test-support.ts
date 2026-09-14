@@ -9,7 +9,7 @@ export async function runWithCapturedContext(root: string) {
   let received: CapturedContext | undefined;
   const source = definition([
     check({
-      execution: (context) => {
+      execute: (context) => {
         received = {
           artifactDirectory: context.artifactDirectory,
           contextFrozen: Object.isFrozen(context),
@@ -62,7 +62,7 @@ export async function assertCheckArtifactPathContext(root: string): Promise<void
     checkIds.map((checkId) =>
       check({
         checkId,
-        execution: (context) => {
+        execute: (context) => {
           observations.push(
             Object.freeze({
               artifactDirectory: context.artifactDirectory,

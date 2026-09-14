@@ -5,7 +5,7 @@ import {
 import type { CheckMessage } from "../../check/check.ts";
 import { parseCheckMessages } from "./messages.ts";
 
-export type ParsedCheckPreflightResult =
+export type ParsedCheckPreparationResult =
   | Readonly<{
       readonly status: "success";
       readonly preparedOptions: unknown;
@@ -25,30 +25,32 @@ export type ParsedCheckPreflightResult =
       readonly messages: readonly CheckMessage[];
     }>;
 
-/** Parses the closed result vocabulary returned by one trusted Check preflight. */
-export function parseCheckPreflightResult(value: unknown): ParsedCheckPreflightResult | undefined {
-  const preflightResult = snapshotClosedRecord(value);
-  if (preflightResult === undefined) {
+/** Parses the closed result vocabulary returned by one trusted Check preparation. */
+export function parseCheckPreparationResult(
+  value: unknown
+): ParsedCheckPreparationResult | undefined {
+  const preparationResult = snapshotClosedRecord(value);
+  if (preparationResult === undefined) {
     return undefined;
   }
-  const messages = parseCheckMessages(preflightResult.messages);
+  const messages = parseCheckMessages(preparationResult.messages);
   if (messages === undefined) return undefined;
-  switch (preflightResult.status) {
+  switch (preparationResult.status) {
     case "success":
-      return parseSuccessfulPreflight(preflightResult, messages);
+      return parseSuccessfulPreparation(preparationResult, messages);
     case "failure":
-      return parseFailedPreflight(preflightResult, messages);
+      return parseFailedPreparation(preparationResult, messages);
     default:
       return undefined;
   }
 }
 
-function parseSuccessfulPreflight(
-  preflightResult: Readonly<Record<string, unknown>>,
+function parseSuccessfulPreparation(
+  preparationResult: Readonly<Record<string, unknown>>,
   messages: readonly CheckMessage[]
-): ParsedCheckPreflightResult | undefined {
+): ParsedCheckPreparationResult | undefined {
   if (
-    !hasRequiredAndOptionalRecordKeys(preflightResult, {
+    !hasRequiredAndOptionalRecordKeys(preparationResult, {
       optional: ["messages"],
       required: ["status", "preparedOptions"]
     })
@@ -57,35 +59,35 @@ function parseSuccessfulPreflight(
   }
   return Object.freeze({
     status: "success",
-    preparedOptions: preflightResult.preparedOptions,
+    preparedOptions: preparationResult.preparedOptions,
     messages
   });
 }
 
-function parseFailedPreflight(
-  preflightResult: Readonly<Record<string, unknown>>,
+function parseFailedPreparation(
+  preparationResult: Readonly<Record<string, unknown>>,
   messages: readonly CheckMessage[]
-): ParsedCheckPreflightResult | undefined {
-  if (typeof preflightResult.action !== "string") return undefined;
-  const reason = parsePreflightReason(preflightResult.reason);
+): ParsedCheckPreparationResult | undefined {
+  if (typeof preparationResult.action !== "string") return undefined;
+  const reason = parsePreparationReason(preparationResult.reason);
   if (reason === undefined) return undefined;
-  switch (preflightResult.action) {
+  switch (preparationResult.action) {
     case "block":
-      return parseBlockedPreflight(preflightResult, reason, messages);
+      return parseBlockedPreparation(preparationResult, reason, messages);
     case "continue":
-      return parseContinuedPreflight(preflightResult, reason, messages);
+      return parseContinuedPreparation(preparationResult, reason, messages);
     default:
       return undefined;
   }
 }
 
-function parseBlockedPreflight(
-  preflightResult: Readonly<Record<string, unknown>>,
+function parseBlockedPreparation(
+  preparationResult: Readonly<Record<string, unknown>>,
   reason: Readonly<{ readonly code: string }>,
   messages: readonly CheckMessage[]
-): ParsedCheckPreflightResult | undefined {
+): ParsedCheckPreparationResult | undefined {
   if (
-    !hasRequiredAndOptionalRecordKeys(preflightResult, {
+    !hasRequiredAndOptionalRecordKeys(preparationResult, {
       optional: ["messages"],
       required: ["status", "action", "reason"]
     })
@@ -95,13 +97,13 @@ function parseBlockedPreflight(
   return Object.freeze({ status: "failure", action: "block", reason, messages });
 }
 
-function parseContinuedPreflight(
-  preflightResult: Readonly<Record<string, unknown>>,
+function parseContinuedPreparation(
+  preparationResult: Readonly<Record<string, unknown>>,
   reason: Readonly<{ readonly code: string }>,
   messages: readonly CheckMessage[]
-): ParsedCheckPreflightResult | undefined {
+): ParsedCheckPreparationResult | undefined {
   if (
-    !hasRequiredAndOptionalRecordKeys(preflightResult, {
+    !hasRequiredAndOptionalRecordKeys(preparationResult, {
       optional: ["messages"],
       required: ["status", "action", "fallback", "reason"]
     })
@@ -111,13 +113,13 @@ function parseContinuedPreflight(
   return Object.freeze({
     status: "failure",
     action: "continue" as const,
-    fallback: preflightResult.fallback,
+    fallback: preparationResult.fallback,
     reason,
     messages
   });
 }
 
-function parsePreflightReason(value: unknown): Readonly<{ readonly code: string }> | undefined {
+function parsePreparationReason(value: unknown): Readonly<{ readonly code: string }> | undefined {
   const reason = snapshotClosedRecord(value);
   if (
     reason === undefined ||

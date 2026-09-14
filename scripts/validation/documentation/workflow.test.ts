@@ -180,11 +180,11 @@ async function invokeDocsValidationCheck(
   check: ReturnType<typeof createDocsValidationCheck>,
   invocationId: string
 ) {
-  if (check.execution === undefined) throw new Error("Docs Check has no execution callback");
+  if (check.execute === undefined) throw new Error("Docs Check has no execution callback");
   const records: Array<
     Readonly<{ readonly data: object; readonly identity: { readonly id: string } }>
   > = [];
-  const result = await check.execution({
+  const result = await check.execute({
     artifactDirectory: null,
     dependencies: {
       get: dependencyNotDeclared,

@@ -18,7 +18,7 @@ export function providerDefinitionWithParser(
       defineCheck({
         checkId: "provider",
         displayName: "Provider",
-        execution: passed,
+        execute: passed,
         parseData
       })
     ]
@@ -60,7 +60,7 @@ export function assertInvalidParserDeclarationsAreRejected(
     {
       checkId: "invalid-parser",
       displayName: "Invalid parser",
-      execution: passed,
+      execute: passed,
       parseData: null
     }
   ]) {
@@ -75,7 +75,7 @@ export function assertUndefinedParserIsOmitted(): void {
       {
         checkId: "undefined-parser",
         displayName: "Undefined parser",
-        execution: passed,
+        execute: passed,
         parseData: undefined
       }
     ]
@@ -94,7 +94,7 @@ export function assertExecutableProviderRetainsHandoffAndExcludesItFromDeclarati
           checkId: "handoff-provider",
           displayName: "Handoff provider",
           handoff: true,
-          execution: () => ({ status: "passed", data: {}, handoff: { source: "provider" } })
+          execute: () => ({ status: "passed", data: {}, handoff: { source: "provider" } })
         })
       ]
     });
@@ -120,21 +120,21 @@ export function assertInvalidHandoffDeclarationsAreRejected(): void {
     {
       checkId: "undefined-handoff",
       displayName: "Undefined handoff",
-      execution: passed,
+      execute: passed,
       handoff: undefined
     },
-    { checkId: "false-handoff", displayName: "False handoff", execution: passed, handoff: false },
-    { checkId: "forged-handoff", displayName: "Forged handoff", execution: passed, handoff: {} },
+    { checkId: "false-handoff", displayName: "False handoff", execute: passed, handoff: false },
+    { checkId: "forged-handoff", displayName: "Forged handoff", execute: passed, handoff: {} },
     {
       checkId: "array-handoff",
       displayName: "Array handoff",
-      execution: passed,
+      execute: passed,
       handoff: [true]
     },
     {
       checkId: "unregistered-handoff",
       displayName: "Unregistered handoff",
-      execution: passed,
+      execute: passed,
       handoff: true
     }
   ]) {

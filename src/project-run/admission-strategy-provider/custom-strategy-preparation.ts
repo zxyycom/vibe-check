@@ -35,18 +35,18 @@ async function prepareCustomStrategy(
     throw new AdmissionStrategyPreparationFailure();
   }
   const record = snapshotClosedPolicyRecord(prepared, {
-    optional: ["complete"],
+    optional: ["terminalEffect"],
     required: ["decide"]
   });
   if (record === undefined || !isPreparedCustomDecision(record.decide)) {
     throw new AdmissionStrategyPreparationFailure();
   }
-  if (record.complete !== undefined && !isPreparedCustomCompletion(record.complete)) {
+  if (record.terminalEffect !== undefined && !isPreparedCustomCompletion(record.terminalEffect)) {
     throw new AdmissionStrategyPreparationFailure();
   }
   return Object.freeze({
     decide: record.decide,
-    ...(record.complete === undefined ? {} : { complete: record.complete })
+    ...(record.terminalEffect === undefined ? {} : { terminalEffect: record.terminalEffect })
   });
 }
 
@@ -58,21 +58,24 @@ function isPreparedCustomDecision(
 
 function isPreparedCustomCompletion(
   value: unknown
-): value is NonNullable<PreparedCustomAdmissionStrategy["complete"]> {
+): value is NonNullable<PreparedCustomAdmissionStrategy["terminalEffect"]> {
   return typeof value === "function";
 }
 
 function preparedCustomAdmissionStrategy(
-  strategy: Pick<PreparedCustomAdmissionStrategy, "decide" | "complete">
+  strategy: Pick<PreparedCustomAdmissionStrategy, "decide" | "terminalEffect">
 ): PreparedAdmissionStrategy {
   const completion =
-    strategy.complete === undefined
+    strategy.terminalEffect === undefined
       ? Object.freeze({ kind: "none" as const })
-      : Object.freeze({ kind: "measurement-hook" as const, complete: strategy.complete });
+      : Object.freeze({
+          kind: "terminal-effect" as const,
+          terminalEffect: strategy.terminalEffect
+        });
   return Object.freeze({
     admissionPolicy: admissionSelectionPolicyFor(strategy.decide),
     completion,
-    requiresTerminalMeasurement: completion.kind === "measurement-hook"
+    requiresTerminalMeasurement: completion.kind === "terminal-effect"
   });
 }
 

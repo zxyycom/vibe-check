@@ -2,7 +2,7 @@ import type { CheckDescriptor } from "../../check/descriptor.ts";
 import type {
   Check,
   CheckFlagEnablement,
-  CheckPreflight,
+  CheckPreparation,
   CheckVisibility
 } from "../../check/check.ts";
 import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
@@ -22,13 +22,13 @@ export interface ResolvedCheckTreeLeaf {
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
   readonly enabledByFlags?: CheckFlagEnablement;
-  readonly execution: NonNullable<Check["execution"]>;
+  readonly execute: NonNullable<Check["execute"]>;
   readonly handoff?: HandoffProviderIdentity;
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly observes: readonly string[];
   readonly options: object;
-  readonly preflight?: CheckPreflight;
+  readonly prepare?: CheckPreparation;
   readonly resourceClaims: ResourceUnitMapping;
   readonly visibility: CheckVisibility;
 }
@@ -120,7 +120,7 @@ function resolvedLeafFor(
 ): ResolvedCheckTreeLeaf | undefined {
   const visibility = check.visibility;
   if (
-    check.execution !== null &&
+    check.execute !== null &&
     check.definition !== null &&
     check.options !== null &&
     visibility !== null
@@ -130,13 +130,13 @@ function resolvedLeafFor(
       definition: check.definition,
       dependsOn: scheduling.dependsOn,
       ...(check.enabledByFlags === null ? {} : { enabledByFlags: check.enabledByFlags }),
-      execution: check.execution,
+      execute: check.execute,
       ...(check.handoff === null ? {} : { handoff: check.handoff }),
       maxParallel: scheduling.maxParallel,
       mutex: scheduling.mutex,
       observes: scheduling.observes,
       options: check.options,
-      ...(check.preflight === null ? {} : { preflight: check.preflight }),
+      ...(check.prepare === null ? {} : { prepare: check.prepare }),
       resourceClaims: scheduling.resourceClaims,
       visibility
     });

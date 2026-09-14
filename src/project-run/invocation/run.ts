@@ -190,8 +190,8 @@ async function executePreparedInvocation(
     }
     throw error;
   }
-  if (preparedStrategy.completion.kind === "measurement-hook") {
-    invocation.outputs.enableMeasurementHooks();
+  if (preparedStrategy.completion.kind === "terminal-effect") {
+    invocation.outputs.enableTerminalEffects();
   }
   invocation.progressRendering.prepared(invocation.normalized.checks.length);
   const executionStartedAt = invocation.clock.now();
@@ -248,12 +248,12 @@ async function completeAdmissionStrategyAfterTerminalMeasurement(
         // Private learned lifecycle cannot revise sealed execution or public output facts.
       }
       return;
-    case "measurement-hook":
+    case "terminal-effect":
       try {
-        await preparedStrategy.completion.complete(terminalMeasurement);
-        outputs.succeeded("measurementHooks");
+        await preparedStrategy.completion.terminalEffect(terminalMeasurement);
+        outputs.succeeded("terminalEffects");
       } catch {
-        outputs.failed("measurementHooks");
+        outputs.failed("terminalEffects");
       }
   }
 }

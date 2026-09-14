@@ -78,9 +78,9 @@ visibility 的系统，应在 Vibe Check 契约之外建立自己的读取协议
 
 示例的输入与结果可按三条路径核对：
 
-- `jsonValidation` 显式检查 `package.json`，保留默认 source/exclude；自定义 provider 在空 authored files 时以 preflight fallback 继续并通过。
+- `jsonValidation` 显式检查 `package.json`，保留默认 source/exclude；自定义 provider 在空 authored files 时以 preparation fallback 继续并通过。
 - 递归 workflow 继承 manifest dependency；policy 用 `inherit` 追加 provider，解析两份 upstream data，再形成 failed data 与两条 Records。container 不产生 Check row。
-- 另两项分别直接 `not-applicable` 与被本项 preflight block 为 `unavailable`，不阻挡无 relation 的其它 Check。preflight 和 policy messages 仅进入 `RunResult.checkMessages`。
+- 另两项分别直接 `not-applicable` 与被本项 preparation block 为 `unavailable`，不阻挡无 relation 的其它 Check。preparation 和 policy messages 仅进入 `RunResult.checkMessages`。
 
 checked-in outputs 在只含有效 `package.json` 的隔离 root 中执行该 Definition 后生成，仅把 invocation ID 与 timestamp 固定为文档值。直接 `run(definition)` 会根据你的实际 `package.json` 形成结果和本次 metadata，并更新 project root 下 `artifacts/vibe-check` 中的两份 canonical files；示例 facts 不是对任意项目结果的保证。
 

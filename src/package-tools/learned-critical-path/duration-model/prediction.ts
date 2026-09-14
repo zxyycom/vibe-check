@@ -51,7 +51,7 @@ export function createSchedulerHistoryIdentity(input: {
   });
 }
 
-/** Forms learned means first, then one project median prior, without invoking preflight. */
+/** Forms learned means first, then one project median prior, without invoking preparation. */
 export function createSchedulerPredictionSnapshot(
   history: SchedulerHistoryModel,
   inputs: readonly SchedulerPredictionInput[],

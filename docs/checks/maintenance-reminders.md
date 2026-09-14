@@ -62,7 +62,7 @@ ReadonlyArray<{
 - `mode` 省略时为 `advisory`；`enforcing` 使到期或不可测量的条目令所属 Check 失败。
 
 constructor 把输入固定为完整 options `{ entries, git: { executable: "git" } }`。所属 Check 获 Scheduler admission 后，其 task-local
-preflight 在自身 execution 前验证 unknown、sparse、duplicate 或 malformed entries；失败时当前 Check 以
+preparation 在自身 execution 前验证 unknown、sparse、duplicate 或 malformed entries；失败时当前 Check 以
 `unavailable / invalid-options` 结算。
 
 ## 工作原理
@@ -157,7 +157,7 @@ Git/历史测量的普通失败会保留完整 final data，并把受影响条�
 每个 whole-Check `unavailable` 都携带与 `reason.code` 相同 code 的 error message，并指出应恢复 options、检查取消原因或
 检查 package/runtime integrity。entry-level `unavailable` 仍按上一节保留 final data 与项目编写的提醒正文。
 
-通用 preflight 语法见 [options preflight 与 execution](../api-mechanics.md#options-preflight-与-execution)。
+通用 preparation 语法见 [options preparation 与 execution](../api-mechanics.md#options-preparation-与-execution)。
 
 ## I/O 与安全边界
 

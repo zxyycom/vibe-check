@@ -23,7 +23,7 @@ const changedFiles = defineCheck({
     }
     return { files: data.files, version: data.version };
   },
-  execution() {
+  execute() {
     const bytesByPath = new Map<string, Uint8Array>([
       ["src/index.ts", new TextEncoder().encode("export {}\n")]
     ]);
@@ -39,7 +39,7 @@ const analyzeChangedFiles = defineCheck({
   checkId: "analyze-changed-files",
   displayName: "Analyze changed files",
   dependsOn: [changedFiles.checkId],
-  execution({ dependencies }) {
+  execute({ dependencies }) {
     const read = dependencies.get(changedFiles);
     if (!read.ok) return { status: "unavailable", reason: { code: read.error.code } };
 

@@ -31,7 +31,7 @@ async function assertFlagEnablementMode(
     readonly nonmatchingFlags: readonly string[];
   }>
 ): Promise<void> {
-  let preflightCalls = 0;
+  let preparationCalls = 0;
   let controlledCalls = 0;
   let dependentCalls = 0;
   let observerCalls = 0;
@@ -42,11 +42,11 @@ async function assertFlagEnablementMode(
       checkId: "flag-controlled",
       displayName: "Flag-controlled",
       enabledByFlags: { flags: CONTROL_FLAGS, mode: input.mode },
-      preflight: (options) => {
-        preflightCalls += 1;
+      prepare: (options) => {
+        preparationCalls += 1;
         return { status: "success", preparedOptions: options };
       },
-      execution: ({ project }) => {
+      execute: ({ project }) => {
         controlledCalls += 1;
         observedFlags.push(project.flags);
         return PASSED;
@@ -56,7 +56,7 @@ async function assertFlagEnablementMode(
       checkId: "dependent",
       displayName: "Dependent",
       dependsOn: ["flag-controlled"],
-      execution: () => {
+      execute: () => {
         dependentCalls += 1;
         return PASSED;
       }
@@ -65,7 +65,7 @@ async function assertFlagEnablementMode(
       checkId: "observer",
       displayName: "Observer",
       observes: ["flag-controlled"],
-      execution: ({ dependencies }) => {
+      execute: ({ dependencies }) => {
         observerCalls += 1;
         const [observation] = dependencies.list();
         assert(observation !== undefined);
@@ -77,7 +77,7 @@ async function assertFlagEnablementMode(
 
   const enabled = requireCompletedRun(await run(source, { flags: input.matchingFlags }));
   const disabled = requireCompletedRun(await run(source, { flags: input.nonmatchingFlags }));
-  assert.equal(preflightCalls, 1);
+  assert.equal(preparationCalls, 1);
   assert.equal(controlledCalls, 1);
   assert.equal(dependentCalls, 1);
   assert.equal(observerCalls, 2);
@@ -114,7 +114,7 @@ describe("Package Run flags", () => {
       {
         checkId: "flag-aware",
         displayName: "Flag-aware",
-        execution: () => {
+        execute: () => {
           calls += 1;
           return PASSED;
         }
@@ -152,7 +152,7 @@ describe("Package Run flags", () => {
       {
         checkId: "flag-aware",
         displayName: "Flag-aware",
-        execution: (context) => {
+        execute: (context) => {
           assert.equal(Object.isFrozen(context.project.flags), true);
           assert.throws(
             () => Object.defineProperty(context.project.flags, "0", { value: "mutated" }),

@@ -15,9 +15,9 @@ type AggregationCase = Readonly<{
 
 export async function assertRawAndSelectedAggregate(): Promise<void> {
   const source = definition([
-    check({ checkId: "passed", execution: () => ({ status: "passed", data: { count: 1 } }) }),
-    check({ checkId: "failed", execution: () => ({ status: "failed", data: { count: 0 } }) }),
-    check({ checkId: "na", execution: () => ({ status: "not-applicable" }) })
+    check({ checkId: "passed", execute: () => ({ status: "passed", data: { count: 1 } }) }),
+    check({ checkId: "failed", execute: () => ({ status: "failed", data: { count: 0 } }) }),
+    check({ checkId: "na", execute: () => ({ status: "not-applicable" }) })
   ]);
   const raw = await run(source);
   assert.equal(raw.kind, "completed");
@@ -75,7 +75,7 @@ function aggregation(
 
 function aggregateSource(statuses: readonly AggregationStatus[]): Check[] {
   return statuses.map((status, index) =>
-    check({ checkId: `${status}-${index}`, execution: executionFor(status) })
+    check({ checkId: `${status}-${index}`, execute: executionFor(status) })
   );
 }
 
@@ -86,26 +86,23 @@ function executionFor(status: AggregationStatus): CheckExecution {
   return () => ({ status: "unavailable", reason: { code: "declared-unavailable" } });
 }
 
-async function invalidSelection(execution: CheckExecution, checks: CheckAggregation["checks"]) {
-  return run(definition([check({ execution })]), {
+async function invalidSelection(execute: CheckExecution, checks: CheckAggregation["checks"]) {
+  return run(definition([check({ execute: execute })]), {
     checkAggregation: aggregation(checks, "any", "fail", "exclude", "not-applicable")
   });
 }
 
-async function assertDuplicateSelection(
-  expected: unknown,
-  execution: CheckExecution
-): Promise<void> {
-  assert.deepEqual(await invalidSelection(execution, ["custom", "custom"]), expected);
+async function assertDuplicateSelection(expected: unknown, execute: CheckExecution): Promise<void> {
+  assert.deepEqual(await invalidSelection(execute, ["custom", "custom"]), expected);
 }
 
 async function assertMalformedSelections(
   expected: unknown,
-  execution: CheckExecution
+  execute: CheckExecution
 ): Promise<void> {
   for (const checks of malformedChecks()) {
     const controls = malformedControls(checks);
-    assert.deepEqual(await run(definition([check({ execution })]), controls), expected);
+    assert.deepEqual(await run(definition([check({ execute: execute })]), controls), expected);
   }
 }
 

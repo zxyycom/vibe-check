@@ -1,4 +1,4 @@
-/** Maps normalized Checks into the Scheduler's opaque Task execution contract. */
+/** Maps normalized Checks into the Scheduler's opaque Task execute contract. */
 
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { runTaskGraph, type RunTaskGraphOptions } from "../task-scheduler/scheduler.ts";
@@ -61,15 +61,15 @@ function schedulerOptionsFor(
     ...(execution.schedulerPerformanceDiagnostics === undefined
       ? {}
       : { performanceDiagnostics: execution.schedulerPerformanceDiagnostics }),
-    ...(execution.schedulerMeasurementHooks === undefined
+    ...(execution.schedulerTerminalEffects === undefined
       ? {}
-      : { measurementHooks: execution.schedulerMeasurementHooks }),
-    ...(execution.onSchedulerMeasurementHookFailure === undefined
+      : { terminalEffects: execution.schedulerTerminalEffects }),
+    ...(execution.onSchedulerTerminalEffectFailure === undefined
       ? {}
-      : { onMeasurementHookFailure: execution.onSchedulerMeasurementHookFailure }),
-    ...(execution.onSchedulerMeasurementHooksSettled === undefined
+      : { onTerminalEffectFailure: execution.onSchedulerTerminalEffectFailure }),
+    ...(execution.onSchedulerTerminalEffectsSettled === undefined
       ? {}
-      : { onMeasurementHooksSettled: execution.onSchedulerMeasurementHooksSettled }),
+      : { onTerminalEffectsSettled: execution.onSchedulerTerminalEffectsSettled }),
     preAdmissionTaskResults: Object.freeze(
       input.flagControlSettlements.map((settlement) =>
         Object.freeze({ taskId: settlement.check.definition.checkId, value: false })

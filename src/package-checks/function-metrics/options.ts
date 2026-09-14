@@ -74,7 +74,7 @@ export interface FunctionMetricsOptions {
   readonly findingWaivers?: readonly FunctionMetricsFindingWaiver[];
 }
 
-/** 构造函数生成并由 Check preflight/execution 消费的完整 options。 */
+/** 构造函数生成并由 Check preparation/execution 消费的完整 options。 */
 export interface ResolvedFunctionMetricsOptions {
   readonly codeAreas: Readonly<Record<string, ResolvedFunctionMetricsCodeAreaOptions>>;
   readonly findingWaivers: readonly FunctionMetricsFindingWaiver[];

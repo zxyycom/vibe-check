@@ -26,7 +26,7 @@ export interface ParsedCheck {
   readonly dependsOn: ParsedCheckCollection | undefined;
   readonly displayName: string;
   readonly enabledByFlags: ParsedCheckFieldPrelude["enabledByFlags"];
-  readonly execution: ParsedCheckFieldPrelude["execution"];
+  readonly execute: ParsedCheckFieldPrelude["execute"];
   readonly handoff: HandoffProviderIdentity | null;
   readonly maxParallel: number | undefined;
   readonly mutex: ParsedCheckCollection | undefined;
@@ -35,7 +35,7 @@ export interface ParsedCheck {
   readonly options: object | null;
   readonly path: string;
   readonly parseData: TrustedDataParser | null;
-  readonly preflight: ParsedCheckFieldPrelude["preflight"];
+  readonly prepare: ParsedCheckFieldPrelude["prepare"];
   readonly visibility: ParsedCheckFields["visibility"];
 }
 
@@ -95,7 +95,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     dependsOn: scheduling.dependsOn,
     displayName: data.displayName,
     enabledByFlags: fields.enabledByFlags,
-    execution: fields.execution,
+    execute: fields.execute,
     handoff: fields.handoff,
     maxParallel: scheduling.maxParallel,
     mutex: scheduling.mutex,
@@ -104,7 +104,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     options: fields.options,
     path,
     parseData: fields.parseData,
-    preflight: fields.preflight,
+    prepare: fields.prepare,
     visibility: fields.visibility
   });
 }
@@ -133,6 +133,6 @@ function warnForMeaninglessCheck(
   path: string,
   state: ParseState
 ): void {
-  if (fields.execution !== null || checks.length > 0) return;
+  if (fields.execute !== null || checks.length > 0) return;
   state.warnings.push(Object.freeze({ code: "meaningless-check", path, checkId: data.checkId }));
 }

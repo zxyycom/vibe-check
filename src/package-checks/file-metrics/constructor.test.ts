@@ -131,11 +131,11 @@ describe("fileMetrics constructor and direct callback", () => {
         /fileMetrics options must match/
       );
     }
-    const invalidPreflight = await defaultCheck.preflight!(
+    const invalidPreparation = await defaultCheck.prepare!(
       { ...defaultCheck.options, codeAreas: {} },
       new AbortController().signal
     );
-    assert.equal(invalidPreflight.status, "failure");
+    assert.equal(invalidPreparation.status, "failure");
     const root = createRoot("vibe-check-invalid-file-metrics-");
     try {
       assert.deepEqual(

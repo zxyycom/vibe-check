@@ -42,7 +42,7 @@ function providerFor(input: { readonly policy: AdmissionPolicy }) {
       {
         checkId: "check",
         displayName: "Check",
-        execution: () => PASSED
+        execute: () => PASSED
       }
     ],
     outputs: {

@@ -23,7 +23,7 @@ import {
 const PASSED = Object.freeze({ data: Object.freeze({}), status: "passed" as const });
 
 describe("Package Run admission strategy lifecycle", () => {
-  it("prepares once, decides synchronously, and completes after terminal Hooks on normal execution", async () => {
+  it("prepares once, decides synchronously, and completes after terminal effects on normal execute", async () => {
     const events: string[] = [];
     const result = await runWithPreparedStrategy(
       lifecycleDefinition([check("check", () => PASSED)], events),
@@ -38,7 +38,7 @@ describe("Package Run admission strategy lifecycle", () => {
     assert.equal(events.filter((event) => event === "complete").length, 1);
   });
 
-  it("completes after terminal Hooks when cancellation drains started work", async () => {
+  it("completes after terminal effects when cancellation drains started work", async () => {
     const controller = new AbortController();
     const events: string[] = [];
     const result = await runWithPreparedStrategy(
@@ -62,7 +62,7 @@ describe("Package Run admission strategy lifecycle", () => {
     assert.equal(events.filter((event) => event === "complete").length, 1);
   });
 
-  it("completes after terminal Hooks when an admission policy fault drains", async () => {
+  it("completes after terminal effects when an admission policy fault drains", async () => {
     const events: string[] = [];
     const faultingPolicy: AdmissionSelectionPolicy = Object.freeze({
       decide: () => {
@@ -108,7 +108,7 @@ describe("Package Run admission strategy lifecycle", () => {
     assert.deepEqual(events, ["prepare"]);
   });
 
-  it("keeps a prepared completion output enabled but not-run without a sealed context", async () => {
+  it("keeps a prepared terminal effect output enabled but not-run without a sealed context", async () => {
     const events: string[] = [];
     const malformedPolicy: AdmissionSelectionPolicy = Object.freeze({
       get decide(): AdmissionSelectionPolicy["decide"] {
@@ -132,8 +132,8 @@ describe("Package Run admission strategy lifecycle", () => {
               Object.freeze({
                 admissionPolicy: malformedPolicy,
                 completion: Object.freeze({
-                  kind: "measurement-hook" as const,
-                  complete: () => {
+                  kind: "terminal-effect" as const,
+                  terminalEffect: () => {
                     events.push("complete");
                   }
                 }),
@@ -150,7 +150,7 @@ describe("Package Run admission strategy lifecycle", () => {
       "task-engine-failed"
     );
     assert.deepEqual(events, []);
-    assert.deepEqual(result.outputs.measurementHooks, { enabled: true, status: "not-run" });
+    assert.deepEqual(result.outputs.terminalEffects, { enabled: true, status: "not-run" });
   });
 
   it("keeps prepared policy closures independent across overlapping Runs", async () => {
@@ -216,15 +216,15 @@ describe("Package Run admission strategy lifecycle", () => {
     ]);
   });
 
-  it("runs a public prepared strategy once and completes after generic terminal Hooks", async () =>
+  it("runs a public prepared strategy once and completes after generic terminal effects", async () =>
     assertPublicPreparedStrategyRunsOnce());
   it("keeps public prepared closures isolated across overlapping Runs", async () =>
     assertPublicPreparedClosuresStayIsolated());
   it("fails public preparation before Scheduler start and preserves its output boundary", async () =>
     assertPublicPreparationFailure());
-  it("aggregates public completion failures without rewriting a sealed primary result", async () =>
+  it("aggregates public terminal-effect failures without rewriting a sealed primary result", async () =>
     assertPublicCompletionFailurePreservesPrimaryResult());
-  it("enables measurement output only for generic Hooks or an actual prepared completion", async () =>
+  it("enables measurement output only for generic terminal effects or an actual prepared terminal effect", async () =>
     assertMeasurementOutputParticipants());
 });
 
@@ -264,14 +264,14 @@ function lifecycleDefinition(checks: readonly Check[], events: string[]) {
       progressRendering: { enabled: false }
     },
     scheduler: {
-      measurementHooks: [async () => events.push("terminal-hook")],
+      terminalEffects: [async () => events.push("terminal-hook")],
       maxParallel: 1
     }
   });
 }
 
-function check(checkId: string, execution: NonNullable<Check["execution"]>): Check {
-  return { checkId, displayName: checkId, execution };
+function check(checkId: string, execute: NonNullable<Check["execute"]>): Check {
+  return { checkId, displayName: checkId, execute: execute };
 }
 
 function recordingPolicy(events: string[]): AdmissionSelectionPolicy {

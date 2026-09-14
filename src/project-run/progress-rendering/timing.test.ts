@@ -12,14 +12,14 @@ const PASSED = Object.freeze({ status: "passed" as const, data: Object.freeze({}
 function check(
   overrides: Readonly<{
     readonly checkId: string;
-    readonly execution: CheckExecution;
+    readonly execute: CheckExecution;
     readonly maxParallel: number;
   }>
 ): Check {
   return {
     checkId: overrides.checkId,
     displayName: overrides.checkId,
-    execution: overrides.execution,
+    execute: overrides.execute,
     maxParallel: overrides.maxParallel
   };
 }
@@ -48,7 +48,7 @@ describe("Package Run progress timing", () => {
       checks: [
         check({
           checkId: "slow",
-          execution: async () => {
+          execute: async () => {
             slowStarted.resolve(undefined);
             await slow.promise;
             return PASSED;
@@ -57,7 +57,7 @@ describe("Package Run progress timing", () => {
         }),
         check({
           checkId: "fast",
-          execution: async () => {
+          execute: async () => {
             fastStarted.resolve(undefined);
             await fast.promise;
             return PASSED;

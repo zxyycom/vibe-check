@@ -33,15 +33,15 @@ export interface RunOutputStatuses {
   /** core 与 scheduler diagnostic channels 的 aggregate 状态。 */
   readonly diagnosticLogging: RunDiagnosticLoggingOutputStatus;
   /**
-   * Definition generic Hooks 与 prepared custom strategy 的 optional `complete` 所形成的 terminal participant
+   * Definition generic effects 与 prepared custom strategy 的 optional `terminalEffect` 所形成的 terminal participant
    * 状态；它不能由 RunControls 注入或覆盖。
    */
-  readonly measurementHooks: RunOutputStatus;
+  readonly terminalEffects: RunOutputStatus;
 }
 
 export interface OutputStatuses {
   /** Enables a runtime-only terminal participant after successful preparation. */
-  readonly enableMeasurementHooks: () => void;
+  readonly enableTerminalEffects: () => void;
   /** A diagnostic channel failure is isolated but updates the aggregate diagnostic output. */
   readonly failedDiagnosticChannel: (channel: DiagnosticChannel) => void;
   readonly failed: (output: keyof RunOutputStatuses) => void;
@@ -53,9 +53,9 @@ export interface OutputStatuses {
 export function createOutputStatuses(
   configuration: ProjectOutputs,
   diagnosticLoggingFiles: Readonly<Record<DiagnosticChannel, string | null>>,
-  initialMeasurementHooksEnabled: boolean
+  initialTerminalEffectsEnabled: boolean
 ): OutputStatuses {
-  let measurementHooksEnabled = initialMeasurementHooksEnabled;
+  let terminalEffectsEnabled = initialTerminalEffectsEnabled;
   const diagnosticChannelEnabled: Readonly<Record<DiagnosticChannel, boolean>> = Object.freeze({
     core: configuration.diagnosticLogging.enabled,
     scheduler: configuration.diagnosticLogging.enabled
@@ -64,14 +64,14 @@ export function createOutputStatuses(
     machinePublication: initialStatus(configuration.machinePublication.enabled),
     progressRendering: initialStatus(configuration.progressRendering.enabled),
     diagnosticLogging: initialStatus(configuration.diagnosticLogging.enabled),
-    measurementHooks: initialStatus(measurementHooksEnabled)
+    terminalEffects: initialStatus(terminalEffectsEnabled)
   };
   const diagnosticChannelStatuses: Record<DiagnosticChannel, RunOutputStatus["status"]> = {
     core: initialStatus(diagnosticChannelEnabled.core),
     scheduler: initialStatus(diagnosticChannelEnabled.scheduler)
   };
   const enabled = (output: keyof RunOutputStatuses): boolean =>
-    output === "measurementHooks" ? measurementHooksEnabled : configuration[output].enabled;
+    output === "terminalEffects" ? terminalEffectsEnabled : configuration[output].enabled;
   const refreshDiagnosticAggregate = (): void => {
     const enabledStatuses = DIAGNOSTIC_CHANNELS.filter(
       (channel) => diagnosticChannelEnabled[channel]
@@ -89,10 +89,10 @@ export function createOutputStatuses(
       : "not-run";
   };
   return Object.freeze({
-    enableMeasurementHooks: () => {
-      if (measurementHooksEnabled) return;
-      measurementHooksEnabled = true;
-      statuses.measurementHooks = "not-run";
+    enableTerminalEffects: () => {
+      if (terminalEffectsEnabled) return;
+      terminalEffectsEnabled = true;
+      statuses.terminalEffects = "not-run";
     },
     failedDiagnosticChannel: (channel: DiagnosticChannel) => {
       if (!diagnosticChannelEnabled[channel]) return;
@@ -129,9 +129,9 @@ export function createOutputStatuses(
           enabled: configuration.diagnosticLogging.enabled,
           status: statuses.diagnosticLogging
         }),
-        measurementHooks: Object.freeze({
-          enabled: measurementHooksEnabled,
-          status: statuses.measurementHooks
+        terminalEffects: Object.freeze({
+          enabled: terminalEffectsEnabled,
+          status: statuses.terminalEffects
         })
       })
   });
@@ -150,7 +150,7 @@ export function failedOutput(statuses: RunOutputStatuses): keyof RunOutputStatus
     "progressRendering",
     "machinePublication",
     "diagnosticLogging",
-    "measurementHooks"
+    "terminalEffects"
   ] as const)
     if (statuses[output].status === "failed") return output;
   return undefined;

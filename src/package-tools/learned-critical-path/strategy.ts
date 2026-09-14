@@ -97,7 +97,7 @@ export function createLearnedCriticalPathStrategy(
       return Object.freeze({
         decide: (context: AdmissionPolicyContext) =>
           learnedDecision(context, durationModel.prediction, criticalPath, options),
-        complete: async (context: SchedulerMeasurementContext) => {
+        terminalEffect: async (context: SchedulerMeasurementContext) => {
           const recorded = await durationModel.record(context);
           if (recorded.kind === "failed" || recorded.writeObservation === "failed") {
             observe(options, { kind: "recording-unavailable" });

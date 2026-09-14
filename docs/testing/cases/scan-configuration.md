@@ -34,16 +34,16 @@ Entities:
 - An executable Check's non-empty `enabledByFlags` set is copied, de-duplicated, sorted and frozen with its closed mode. Equivalent declarations share a fingerprint; mode or the literal opt-in `propagateDependsOn: true` changes declarative identity, while omission preserves direct-selection compatibility.
 - Empty or malformed flag sets, unknown modes or control fields, non-literal propagation values, container declarations and the retired singular field fail Definition validation.
 
-## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preflight
+## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preparation
 
 Owner: `docs/development/project-definition.md#package-provided-check-composition`
 Entities:
 
-- `bun|src/project-definition/project-definition.options-preflight.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preflight owns domain validation`
-- `bun|src/project-definition/project-definition.options-preflight.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preflight owns domain validation`
+- `bun|src/project-definition/project-definition.options-preparation.test.ts|Project Definition > accepts ordinary authored JSON options while their Check preparation owns domain validation`
+- `bun|src/project-definition/project-definition.options-preparation.test.ts|Project Definition > accepts ordinary JSON Schema options while their Check preparation owns domain validation`
   Proves:
 
-- Definition preserves authored package Check options as declarative JSON without interpreting their domain shape; the owning Check preflight, not Definition normalization, decides whether ordinary JSON or JSON Schema options are valid before execution.
+- Definition preserves authored package Check options as declarative JSON without interpreting their domain shape; the owning Check preparation, not Definition normalization, decides whether ordinary JSON or JSON Schema options are valid before execution.
 
 ## Case AUX-PUBLIC-AUTHORING-TYPES-001: Public authoring values and declarations remain usable from an installed package
 
@@ -57,7 +57,7 @@ Entities:
 
 - The public package uses the `@zxyycom/vibe-check` import specifier and exposes only the documented generic authoring/run/Finding-presentation/waiver/cache/admission-simulation operations, the `defineAdmissionPolicy` inference helper, one composable default project-file selection, eight package-provided Check functions, eight named final-data parsers, and their required authoring/resolved/final/Record/reason/cache/admission-policy/admission-state type roots.
 - An installed consumer can declare `handoff: true` on a `defineCheck` provider, infer provider-aware `dependencies.get(provider)` data/reference types without manual generics, and observe strict identity only within the authorized current Run. The returned reference is absent from installed Run and machine evidence rather than becoming a published contract.
-- An ancestry-external TypeScript consumer imports and typechecks that public surface without casts or manual dependency-read generics; the same acceptance reads the installed declaration owners directly and requires the documented `defineCheck` / `run` summaries, remarks, parameters, returns and example rather than constructing a second compiler program after `tsgo`. The consumer can declare `observes`, enumerate its direct settled outcome through the callback-local `dependencies.list()` surface, and still uses the producing parser for final data. It can create standalone immutable admission graph branches and read the same callback `admissionState`, while the closed strategy result remains only `select(taskId)` or `wait`. It can author a simple or prepared custom strategy over frozen graph/decision/terminal DTOs: `decide` must synchronously return exact `select(taskId)` or `wait`, prepared may asynchronously form its Run-local closure and optional complete, and retired `proposeAdmission` plus unknown nested fields are rejected in installed declarations. It can import the learned strategy factory, pass caller-owned history identity and model options, and install its returned prepared strategy through the same custom hook. The caller-keyed cache parser must likewise synchronously return a non-thenable typed value. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
+- An ancestry-external TypeScript consumer imports and typechecks that public surface without casts or manual dependency-read generics; the same acceptance reads the installed declaration owners directly and requires the documented `defineCheck` / `run` summaries, remarks, parameters, returns and example rather than constructing a second compiler program after `tsgo`. The consumer can declare `observes`, enumerate its direct settled outcome through the callback-local `dependencies.list()` surface, and still uses the producing parser for final data. It can create standalone immutable admission graph branches and read the same callback `admissionState`, while the closed strategy result remains only `select(taskId)` or `wait`. It can author a simple or prepared custom strategy over frozen graph/decision/terminal DTOs: `decide` must synchronously return exact `select(taskId)` or `wait`, prepared may asynchronously form its Run-local closure and optional `terminalEffect`, and retired `proposeAdmission` plus unknown nested fields are rejected in installed declarations. It can import the learned strategy factory, pass caller-owned history identity and model options, and install its returned prepared strategy through the same custom hook. The caller-keyed cache parser must likewise synchronously return a non-thenable typed value. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
 - Under `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes`, installed callback declarations preserve non-empty and discriminated tuple structure while retaining `unknown` leaf uncertainty; the consumer fixture does not inherit implementation-only control-flow rules.
 
 ## Case API-ADMISSION-POLICY-AUTHORING-001: Admission policy helper preserves exact public authoring
@@ -87,7 +87,7 @@ Entities:
 - `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > constructs one fixed Check, validates full composed policy, and fingerprints entries`
   Proves:
 - `maintenanceReminders(entries)` creates exactly one fixed-ID, attention ordinary Check with package-owned Git options; it does not create a child Check collection.
-- Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. It exposes a discriminated final-data parser; invalid/unknown replacement data settles the owning Check unavailable in preflight with an actionable message, while policy changes affect the declarative fingerprint.
+- Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. It exposes a discriminated final-data parser; invalid/unknown replacement data settles the owning Check unavailable in preparation with an actionable message, while policy changes affect the declarative fingerprint.
 
 ## Case WB-PROGRESS-PREVIEW-DEFINITION-001: Progress preview Definition is defaulted and callback-free declarative identity
 
@@ -117,7 +117,7 @@ Owner: `docs/development/project-run.md#run-outputs-and-compatibility-boundary`
 Entities:
 
 - `bun|src/project-run/controls/outputs-override-validation.test.ts|Package Run output overrides > locates rejected output fields with closed expectations and without reading accessors`
-- `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preflight settles unavailable before execution`
+- `bun|src/project-run/run-controls.test.ts|Package Run > rejects invalid closed controls while a blocked preparation settles unavailable before execution`
   Proves:
 
 - 无效 output object 与已知 leaf 返回对应 controls path、invalid-value 和封闭的合法值提示；unknown key 返回具体字段 path 与 unknown-key，不附加 expected 或回显被拒绝值。
@@ -137,7 +137,7 @@ Entities:
 - `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > contains formatter failure and observes returned Promise rejection without revising accepted facts`
 - `bun|src/project-run/progress-rendering/invocation-progress-failures.test.ts|Package Run progress rendering outputs > previews only accepted Records when Record misuse settles its Check unavailable`
 - `bun|src/project-run/progress-rendering/invocation-progress-heartbeat.test.ts|Package Run progress rendering outputs > schedules one 5-second TTY heartbeat and cancels it after the last Check settles`
-- `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps an execution failure distinct when progress presentation has failed`
+- `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > keeps an execute failure distinct when progress presentation has failed`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > resolves closed output statuses without replacing primary results`
 - `bun|src/project-run/progress-rendering/default-outputs.test.ts|Package Run default outputs > keeps default progress and publication outputs independently successful`
@@ -154,7 +154,7 @@ Entities:
 - Enabled TTY progress owns one 5-second heartbeat while Checks are running and cancels it when the last running Check settles; the refresh remains inside presentation and does not alter Check facts.
 - A progress writer failure, including one raised by a Record preview or scheduled TTY heartbeat rewrite, cancels the heartbeat, marks only `outputs.progressRendering` failed, and retains closed Check/Record facts. A caller-selected `progressLogFile` tees the same bytes after terminal output, preserving visible settled-row duration and final execution/counts/elapsed; complete canonical Check durations, including `null`, remain in `RunResult`, and a file target failure cannot suppress terminal output.
 - Every settled block independently previews its configured number of accepted Records and messages. By default, a Record uses only its local ID plus canonical JSON data; both kinds terminal-escape then truncate at their configured Unicode code-point budget with the marker included and report their own exact omitted count. A synchronous formatter sees frozen default text only for count-selected items, Records precede messages, and its empty string remains presented; it cannot change labels, ordering or facts. Only Records accepted before settlement are previewed; rejected or fabricated Record data never appears. Formatter throw/non-string results—including real rejected Promises with a caller-owned `then`—fail only progress rendering without reading arbitrary thenables or revising snapshot Records/`RunResult.checkMessages`; an attention passed Check with either kind remains visible.
-- Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. After all output owners close, result resolution is pure: a completed candidate upgrades to `output` using failed-output priority—progress rendering, machine publication, diagnostic logging, then measurement hooks; an existing `output` candidate reselects that same priority; `planning`, `cancelled` and `execution` candidates retain their primary kind while exposing every closed status. When progress rendering and machine publication both fail, both statuses remain observable and the result diagnostic selects progress rendering.
+- Machine publication failure marks `outputs.machinePublication` failed and returns `kind: "output"` with final facts. After all output owners close, result resolution is pure: a completed candidate upgrades to `output` using failed-output priority—progress rendering, machine publication, diagnostic logging, then terminal effects; an existing `output` candidate reselects that same priority; `planning`, `cancelled` and `execution` candidates retain their primary kind while exposing every closed status. When progress rendering and machine publication both fail, both statuses remain observable and the result diagnostic selects progress rendering.
 
 ## Case WB-DIAGNOSTIC-LOGGING-OUTPUT-001: Diagnostic logging is a Product-owned Run output
 
@@ -192,10 +192,10 @@ Entities:
 
 - `bun|src/project-run/check-execution/resolved-checks.test.ts|Package Run direct Check execution > retains supplemental Records independently from a passed final result`
 - `bun|src/project-run/check-execution/resolved-checks.execution.test.ts|Package Run direct Check execution > keeps completed lifecycle feedback in settlement order but durations in canonical order`
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > runs each independent preflight inside its admitted Task lifecycle`
-- `bun|src/project-run/check-execution/task-local-preflight.test.ts|Package Run direct Check execution > blocks success dependents before their preflight and lets observers read the terminal result`
-- `bun|src/project-run/check-execution/preflight-cancellation.test.ts|Package Run direct Check execution > passes the invocation signal to admitted preflights and closes cancelled Check Tasks`
-- `bun|src/project-run/check-execution/preflight-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preflight messages through execution settlement`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > runs each independent preparation inside its admitted Task lifecycle`
+- `bun|src/project-run/check-execution/task-local-preparation.test.ts|Package Run direct Check execution > blocks success dependents before their preparation and lets observers read the terminal result`
+- `bun|src/project-run/check-execution/preparation-cancellation.test.ts|Package Run direct Check execution > passes the invocation signal to admitted preparations and closes cancelled Check Tasks`
+- `bun|src/project-run/check-execution/preparation-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preparation messages through execution settlement`
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
 - `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > reuses effective flag selection for explicit aggregation`
@@ -203,7 +203,7 @@ Entities:
   Proves:
 - Completed, output failure, and execution-phase-cancelled final-snapshot `RunResult` values expose only accepted detached `{ checkId, level, code, message }` items. Invalid attachments and author results rejected by Record settlement expose no partial messages.
 - `checkMessages` preserves author order within each Check and canonical snapshot Check order across parallel settlement; disabling progress or a settled progress writer failure does not remove it.
-- Task-local preflight receives the invocation signal only after admission; cooperative cancellation closes the existing execution phase as `cancelled` without admitting pending author work.
+- Task-local preparation receives the invocation signal only after admission; cooperative cancellation closes the existing execution phase as `cancelled` without admitting pending author work.
 - A real Run preserves attention-Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor visibility. The explicit `effective` selector reuses the invocation's private flag selection, including activated prerequisites, without projecting that selection into the result.
 
 ## Case ADD-SECRET-DETECTION-AUTHORING-001: Secret detection requires an explicit closed files policy

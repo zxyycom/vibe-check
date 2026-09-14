@@ -22,9 +22,9 @@ describe("Check execution plan", () => {
             displayName: "Lowered",
             observes: ["defaulted"],
             resourceClaims: { browser: 1 },
-            execution: passed
+            execute: passed
           }),
-          defineCheck({ checkId: "defaulted", displayName: "Defaulted", execution: passed })
+          defineCheck({ checkId: "defaulted", displayName: "Defaulted", execute: passed })
         ]
       })
     );

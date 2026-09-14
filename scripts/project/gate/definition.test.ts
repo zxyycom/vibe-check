@@ -182,12 +182,12 @@ describe("Project Gate Definition", () => {
     assert.deepEqual(
       {
         maxParallel: definition.scheduler.maxParallel,
-        measurementHooks: definition.scheduler.measurementHooks,
+        terminalEffects: definition.scheduler.terminalEffects,
         resourceCapacities: definition.scheduler.resourceCapacities
       },
       {
         maxParallel: 3,
-        measurementHooks: [],
+        terminalEffects: [],
         resourceCapacities: {
           "project-gate-bun-test-runners": 2,
           "project-gate-repository-scans": 2
@@ -469,7 +469,7 @@ describe("Project Gate Definition", () => {
           check: defineCheck({
             checkId: "fixture-required",
             displayName: "Fixture required",
-            execution: () => {
+            execute: () => {
               calls.push("fixture-required");
               return { status: "passed", data: {} };
             }
@@ -481,7 +481,7 @@ describe("Project Gate Definition", () => {
           check: defineCheck({
             checkId: "fixture-quality",
             displayName: "Fixture quality",
-            execution: () => {
+            execute: () => {
               calls.push("fixture-quality");
               return { status: "passed", data: {} };
             }
@@ -600,7 +600,7 @@ describe("Project Gate Definition", () => {
           check: defineCheck({
             checkId: "fixture-prerequisite",
             displayName: "Fixture prerequisite",
-            execution: () => {
+            execute: () => {
               calls.push("fixture-prerequisite");
               return { status: "passed", data: {} };
             }
@@ -613,7 +613,7 @@ describe("Project Gate Definition", () => {
             checkId: "fixture-downstream",
             dependsOn: ["fixture-prerequisite"],
             displayName: "Fixture downstream",
-            execution: () => {
+            execute: () => {
               calls.push("fixture-downstream");
               return { status: "passed", data: {} };
             }
@@ -625,7 +625,7 @@ describe("Project Gate Definition", () => {
           check: defineCheck({
             checkId: "fixture-unselected",
             displayName: "Fixture unselected",
-            execution: () => {
+            execute: () => {
               calls.push("fixture-unselected");
               return { status: "passed", data: {} };
             }
