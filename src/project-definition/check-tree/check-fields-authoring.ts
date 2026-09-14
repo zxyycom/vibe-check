@@ -1,6 +1,5 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
 import {
-  type CheckVisibility,
   type CheckFlagEnablement,
   type CheckFlagEnablementMode,
   type Check,
@@ -27,7 +26,7 @@ export interface ParsedCheckFields {
   readonly options: object | null;
   readonly parseData: TrustedDataParser | null;
   readonly prepare: CheckPreparation | null;
-  readonly visibility: CheckVisibility | null;
+  readonly omitQuietPassedRow: boolean | null;
 }
 
 export interface ParsedCheckFieldPrelude {
@@ -60,7 +59,7 @@ const CHECK_KEYS = [
   "parseData",
   "prepare",
   "resourceClaims",
-  "visibility"
+  "omitQuietPassedRow"
 ] as const;
 const FLAG_ENABLEMENT_KEYS = ["flags", "mode", "propagateDependsOn"] as const;
 
@@ -72,7 +71,7 @@ const CONTAINER_CHECK_FIELDS: ParsedCheckFields = Object.freeze({
   options: null,
   parseData: null,
   prepare: null,
-  visibility: null
+  omitQuietPassedRow: null
 });
 
 export function parseCheckAuthoringData(value: unknown): CheckAuthoringData | undefined {
@@ -135,7 +134,7 @@ function containerHasExecutableFields(
     Object.hasOwn(data, "options") ||
     Object.hasOwn(data, "enabledByFlags") ||
     prelude.handoff !== null ||
-    Object.hasOwn(data, "visibility") ||
+    Object.hasOwn(data, "omitQuietPassedRow") ||
     prelude.parseData !== null ||
     prelude.prepare !== null
   );
@@ -150,8 +149,8 @@ function parseExecutableCheckFields(
   if (definition === undefined) return undefined;
   const options = parseOptions(data);
   if (options === undefined) return undefined;
-  const visibility = parseVisibility(data);
-  if (visibility === undefined) return undefined;
+  const omitQuietPassedRow = parseOmitQuietPassedRow(data);
+  if (omitQuietPassedRow === undefined) return undefined;
   return Object.freeze({
     definition,
     enabledByFlags: prelude.enabledByFlags,
@@ -160,7 +159,7 @@ function parseExecutableCheckFields(
     options,
     parseData: prelude.parseData,
     prepare: prelude.prepare,
-    visibility
+    omitQuietPassedRow
   });
 }
 
@@ -262,10 +261,9 @@ function isCheckFlagEnablementMode(value: unknown): value is CheckFlagEnablement
   return value === "all" || value === "any" || value === "none" || value === "not-all";
 }
 
-function parseVisibility(data: CheckAuthoringData): CheckVisibility | undefined {
-  if (!Object.hasOwn(data, "visibility")) return "always";
-  const visibility = data.visibility;
-  return visibility === undefined || visibility === "always" || visibility === "attention"
-    ? (visibility ?? "always")
+function parseOmitQuietPassedRow(data: CheckAuthoringData): boolean | undefined {
+  if (!Object.hasOwn(data, "omitQuietPassedRow")) return false;
+  return data.omitQuietPassedRow === undefined || data.omitQuietPassedRow === true
+    ? (data.omitQuietPassedRow ?? false)
     : undefined;
 }

@@ -1,4 +1,4 @@
-import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { CoreRecord } from "../../check-settlement/facts.ts";
 
 /** Private invocation-wide barrier that is independent from per-Check lifecycle facts. */
@@ -13,7 +13,11 @@ export type CheckExecutionLifecycle = Readonly<{
   readonly settled: (fact: CheckSettledFact) => void;
 }>;
 
-export type CheckStartedFact = Readonly<{ checkId: string; displayName: string }>;
+export type CheckStartedFact = Readonly<{
+  checkId: string;
+  displayName: string;
+  omitQuietPassedRow: boolean;
+}>;
 
 export type CheckSettledFact = CheckStartedFact &
   Readonly<{
@@ -21,5 +25,5 @@ export type CheckSettledFact = CheckStartedFact &
     messages: readonly CheckMessage[];
     records: readonly CoreRecord[];
     outcome: CheckOutcome;
-    visibility: CheckVisibility;
+    omitQuietPassedRow: boolean;
   }>;

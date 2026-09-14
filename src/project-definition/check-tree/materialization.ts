@@ -17,7 +17,7 @@ function materializeCheck(check: ParsedCheck): Check {
   const enabledByFlags = check.enabledByFlags;
   const mutex = materializeCollection(check.mutex);
   const observes = materializeCollection(check.observes);
-  const visibility = check.visibility;
+  const omitQuietPassedRow = check.omitQuietPassedRow;
   const preparation = check.prepare;
   const scheduling = {
     ...(check.admissionPriority === undefined
@@ -33,7 +33,7 @@ function materializeCheck(check: ParsedCheck): Check {
     check.definition === null ||
     check.execute === null ||
     check.options === null ||
-    visibility === null
+    omitQuietPassedRow === null
   ) {
     return Object.freeze({
       checkId: check.checkId,
@@ -53,7 +53,7 @@ function materializeCheck(check: ParsedCheck): Check {
     options: check.options,
     ...(preparation === null ? {} : { prepare: preparation }),
     ...scheduling,
-    visibility
+    ...(omitQuietPassedRow ? { omitQuietPassedRow: true as const } : {})
   });
   if (check.handoff !== null) bindHandoffProviderIdentity(materialized, check.handoff);
   return materialized;

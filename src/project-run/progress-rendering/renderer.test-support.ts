@@ -1,4 +1,4 @@
-import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { CoreRecord } from "../../check-settlement/facts.ts";
 import type { ProgressFeedback, ProgressWriter } from "./renderer.ts";
 
@@ -25,7 +25,7 @@ export function settled(
   presentation: Readonly<{
     readonly messages?: readonly CheckMessage[] | undefined;
     readonly records?: readonly CoreRecord[];
-    readonly visibility?: CheckVisibility;
+    readonly omitQuietPassedRow?: boolean;
   }> = {}
 ): ProgressFeedback {
   return {
@@ -36,7 +36,7 @@ export function settled(
     outcome,
     messages: presentation.messages ?? [],
     records: presentation.records ?? [],
-    visibility: presentation.visibility ?? "always"
+    omitQuietPassedRow: presentation.omitQuietPassedRow ?? false
   };
 }
 

@@ -213,14 +213,16 @@ function assertParserEvidence(value: unknown): void {
 }
 
 function assertHumanOutput(output: string): void {
-  assert.match(output, /total\s+11\s+checks/i);
+  assert.match(output, /^Vibe Check\ntotal 11 checks · 1 configured for quiet-pass omission$/mu);
   assert.match(output, /Checks:/);
   assert.match(output, /\[1\/11\].*duplicate detection/i);
   assert.match(output, /\[2\/11\].*Function metrics/i);
   assert.match(output, /\[8\/11\].*Blocked changed-files consumer/i);
-  assert.match(output, /\[11\/11\].*Installed terminal note/i);
+  assert.match(output, /^ {2}· Installed terminal note \| passed \| \d+(?:\.\d+)?(?:ms|s)$/mu);
+  assert.doesNotMatch(output, /\[\d+\/11\].*Installed terminal note/i);
   assert.match(output, /\[info\] Installed candidate terminal message\./);
   assert.match(output, /Execution summary:/);
+  assert.match(output, /^ {2}quiet-pass rows omitted: 0$/mu);
   assert.equal(output.includes("\u001B"), false);
 }
 

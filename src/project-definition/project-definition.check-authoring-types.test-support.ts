@@ -144,7 +144,7 @@ function _typeCheckClosedExecutionResults() {
   const messaged: Check = {
     checkId: "messaged-check",
     displayName: "Messaged check",
-    visibility: "attention",
+    omitQuietPassedRow: true,
     execute: () => ({
       status: "not-applicable",
       messages: [{ code: "not-needed", level: "info", message: "Not needed" }]
@@ -156,8 +156,31 @@ function _typeCheckClosedExecutionResults() {
     // @ts-expect-error execute results have a closed status vocabulary.
     execute: () => ({ status: "unknown" })
   });
+  const invalidQuietPassPolicy: Check = {
+    checkId: "invalid-quiet-pass-policy",
+    displayName: "Invalid quiet-pass policy",
+    // @ts-expect-error quiet-pass omission is an opt-in literal, not a runtime boolean switch.
+    omitQuietPassedRow: false,
+    execute: () => ({ status: "passed", data: {} })
+  };
+  // @ts-expect-error quiet-pass omission belongs only to executable Check branches.
+  const invalidQuietPassContainer: Check = {
+    checkId: "invalid-quiet-pass-container",
+    displayName: "Invalid quiet-pass container",
+    omitQuietPassedRow: true
+  };
+  const retiredVisibility: Check = {
+    checkId: "retired-visibility",
+    displayName: "Retired visibility",
+    // @ts-expect-error visibility has no authoring alias.
+    visibility: "attention",
+    execute: () => ({ status: "passed", data: {} })
+  };
   void invalid;
+  void invalidQuietPassContainer;
+  void invalidQuietPassPolicy;
   void messaged;
+  void retiredVisibility;
 }
 
 function _typeCheckProviderHandoffRead() {

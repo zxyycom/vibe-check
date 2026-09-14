@@ -36,7 +36,7 @@ export interface ParsedCheck {
   readonly path: string;
   readonly parseData: TrustedDataParser | null;
   readonly prepare: ParsedCheckFieldPrelude["prepare"];
-  readonly visibility: ParsedCheckFields["visibility"];
+  readonly omitQuietPassedRow: ParsedCheckFields["omitQuietPassedRow"];
 }
 
 export interface ParsedCheckTree {
@@ -105,7 +105,7 @@ function parseCheck(value: unknown, path: string, state: ParseState): ParsedChec
     path,
     parseData: fields.parseData,
     prepare: fields.prepare,
-    visibility: fields.visibility
+    omitQuietPassedRow: fields.omitQuietPassedRow
   });
 }
 

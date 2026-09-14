@@ -8,8 +8,13 @@ describe("Package Run progress terminal formatting", () => {
   it("uses ANSI color only for message level labels on color-capable TTY writers", () => {
     const colorTTY = createWriter({ color: true, isTTY: true });
     const renderer = createProgressRenderer(colorTTY.writer);
-    renderer.render({ kind: "prepared", totalChecks: 1 });
-    renderer.render({ kind: "started", checkId: "failed", displayName: "Failed" });
+    renderer.render({ kind: "prepared", quietPassOmissionConfiguredCount: 0, totalChecks: 1 });
+    renderer.render({
+      kind: "started",
+      omitQuietPassedRow: false,
+      checkId: "failed",
+      displayName: "Failed"
+    });
     renderer.render(
       settled("failed", "Failed", { status: "failed", data: {} }, 1, {
         messages: [
@@ -28,7 +33,7 @@ describe("Package Run progress terminal formatting", () => {
 
     const plain = createWriter({ color: true, isTTY: false });
     const plainRenderer = createProgressRenderer(plain.writer);
-    plainRenderer.render({ kind: "prepared", totalChecks: 1 });
+    plainRenderer.render({ kind: "prepared", quietPassOmissionConfiguredCount: 0, totalChecks: 1 });
     plainRenderer.render(
       settled("failed", "Failed", { status: "failed", data: {} }, 1, {
         messages: [{ level: "error", code: "failure", message: "failure" }]
@@ -42,9 +47,10 @@ describe("Package Run progress terminal formatting", () => {
 function assertTTYTerminalTextIsEscaped(): void {
   const unsafeTTY = createWriter({ isTTY: true });
   const renderer = createProgressRenderer(unsafeTTY.writer);
-  renderer.render({ kind: "prepared", totalChecks: 1 });
+  renderer.render({ kind: "prepared", quietPassOmissionConfiguredCount: 0, totalChecks: 1 });
   renderer.render({
     kind: "started",
+    omitQuietPassedRow: false,
     checkId: "unsafe",
     displayName: "Unsafe\nlabel\u001B[31m"
   });

@@ -100,7 +100,7 @@ const parserEvidence = {
 const terminalNote = defineCheck({
   checkId: "installed-terminal-note",
   displayName: "Installed terminal note",
-  visibility: "attention",
+  omitQuietPassedRow: true,
   execute: () => ({
     status: "passed",
     data: {},

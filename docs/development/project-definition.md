@@ -165,7 +165,16 @@ const editedScheduling = {
 };
 ```
 
-`visibility` 只允许 executable 声明，不继承给 children；省略/undefined 规范化为 always，unknown values 失败。normalized declarations 始终携带该值，因此显式/省略 always 有相同 fingerprint，attention 则不同。它不改变 execution 或 facts；呈现由[progress owner](human-output.md#progress-presentation-maintenance)消费。
+`omitQuietPassedRow` 只允许 executable 声明，不继承给 children。closed validator 接受字段省略、自有
+`undefined` 或字面量 `true`：前两者归一为 `false`，`true` 归一为 `true`；container、`false`、旧
+`visibility` 字段和其它值都失败。调用方需要条件启用时以对象组合加入或省略
+`{ omitQuietPassedRow: true }`，不传入计算出的 boolean。
+
+每个 normalized executable declaration 始终携带这个 boolean presentation fact；默认与 authoring
+omission 有相同 declarative snapshot/fingerprint，`true` 有不同 fingerprint。它不改变 execution、
+selection、依赖、aggregation、duration 或 Check facts，且不进入 public `RunResult` 或 machine schema。
+prepared/started/settled 的 private lifecycle handoff 与 renderer 消费边界由
+[progress owner](human-output.md#progress-presentation-maintenance)维护。
 
 ## Package-provided Check composition
 

@@ -29,11 +29,10 @@ package material、lockfile 或稳定文档 owner 时，按序位串行实施与
 | 序位 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
 | 1 | [`batch-file-metrics-scc-exact-input`](../../changes/batch-file-metrics-scc-exact-input/proposal.md) | 先收敛 command-line 与累计资源预算，再修复已有 Windows SCC exact-input transport 故障；它直接消费已批准路径，与 invocation-wide project-file batching 独立。 |
-| 2 | [`refine-quiet-pass-progress-presentation`](../../changes/refine-quiet-pass-progress-presentation/proposal.md) | 按已固定的 `omitQuietPassedRow?: true`、直接移除 `visibility` 和 configured/actual 计数契约实施，在后续 Definition grammar 扩张前完成。 |
-| 3 | [`add-project-change-flags`](../../changes/add-project-change-flags/proposal.md) | 固定 change source、expression、unknown 语义与 preparation lifecycle，产出可复用的 effective Check selection。 |
-| 4 | [`batch-declared-project-file-inputs`](../../changes/batch-declared-project-file-inputs/proposal.md) | 以前一项的 effective selection 为输入，在 Check author work 前建立 project-file input barrier；保持 change semantics 由其上游 owner 定义。 |
-| 5 | [`add-markdown-lint-check`](../../changes/add-markdown-lint-check/proposal.md) | 在标准 file-input 路径稳定后交付无 persistent cache 的 Markdown lint Check，并冻结 rule、adapter、Finding 与资源边界。 |
-| 6 | [`add-public-command-check`](../../changes/add-public-command-check/proposal.md) | 分别固定 result projection、output、environment 和 resource defaults，交付独立的 command Check 语义。 |
+| 2 | [`add-project-change-flags`](../../changes/add-project-change-flags/proposal.md) | 固定 change source、expression、unknown 语义与 preparation lifecycle，产出可复用的 effective Check selection。 |
+| 3 | [`batch-declared-project-file-inputs`](../../changes/batch-declared-project-file-inputs/proposal.md) | 以前一项的 effective selection 为输入，在 Check author work 前建立 project-file input barrier；保持 change semantics 由其上游 owner 定义。 |
+| 4 | [`add-markdown-lint-check`](../../changes/add-markdown-lint-check/proposal.md) | 在标准 file-input 路径稳定后交付无 persistent cache 的 Markdown lint Check，并冻结 rule、adapter、Finding 与资源边界。 |
+| 5 | [`add-public-command-check`](../../changes/add-public-command-check/proposal.md) | 分别固定 result projection、output、environment 和 resource defaults，交付独立的 command Check 语义。 |
 | 7 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 依据已冻结的 Markdown lint contract 和 workload 数据作出 cache adopt 或 not-adopt 决定；key matrix 与 storage spike 可提前准备。 |
 | 8 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以已交付的 feature families、字段 owner 和真实 Gate 构建路径固定 fragment grammar、冲突规则与 Gate projection。 |
 

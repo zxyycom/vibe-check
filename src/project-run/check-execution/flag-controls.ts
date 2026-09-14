@@ -3,7 +3,7 @@ import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/log
 
 export const FLAG_CONDITION_NOT_MATCHED_CODE = "flag-condition-not-matched";
 
-type FlagControlledCheck = Pick<NormalizedCheck, "definition" | "visibility">;
+type FlagControlledCheck = Pick<NormalizedCheck, "definition" | "omitQuietPassedRow">;
 type FlagControlOutcome = Readonly<{
   readonly status: "not-applicable";
   readonly reason: Readonly<{ readonly code: typeof FLAG_CONDITION_NOT_MATCHED_CODE }>;
@@ -85,7 +85,7 @@ function resolveFlagControl(
   return Object.freeze({
     check: Object.freeze({
       definition: check.definition,
-      visibility: check.visibility
+      omitQuietPassedRow: check.omitQuietPassedRow
     }),
     outcome: Object.freeze({
       status: "not-applicable",

@@ -90,12 +90,12 @@ export function closeCancelledExecution(
 }
 
 export function checkIdentity(
-  check: Pick<NormalizedCheck, "definition" | "visibility">
+  check: Pick<NormalizedCheck, "definition" | "omitQuietPassedRow">
 ): CheckIdentity {
   return Object.freeze({
     checkId: check.definition.checkId,
     displayName: check.definition.displayName,
-    visibility: check.visibility
+    omitQuietPassedRow: check.omitQuietPassedRow
   });
 }
 

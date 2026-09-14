@@ -5,8 +5,7 @@ import type {
   Check,
   CheckFlagEnablement,
   CheckPreparation,
-  CheckResourceClaims,
-  CheckVisibility
+  CheckResourceClaims
 } from "../check/check.ts";
 import type { HandoffProviderIdentity } from "../check/handoff-provider-identity.ts";
 import { DEFAULT_PROJECT_OUTPUTS, resolveProgressRenderingOutput } from "./output-defaults.ts";
@@ -153,7 +152,7 @@ export interface NormalizedCheckDeclaration {
   readonly observes: readonly string[];
   readonly options: object;
   readonly resourceClaims: CheckResourceClaims;
-  readonly visibility: CheckVisibility;
+  readonly omitQuietPassedRow: boolean;
 }
 export interface NormalizedCheck extends NormalizedCheckDeclaration {
   readonly execute: NonNullable<Check["execute"]>;
@@ -246,7 +245,7 @@ function normalizeCheck(leaf: ResolvedCheckTreeLeaf): NormalizedCheck {
     options: leaf.options,
     ...(leaf.prepare === undefined ? {} : { prepare: leaf.prepare }),
     resourceClaims: leaf.resourceClaims,
-    visibility: leaf.visibility
+    omitQuietPassedRow: leaf.omitQuietPassedRow
   });
 }
 function normalizeSchedulerPolicy(policy: SchedulerPolicy): SchedulerPolicy {

@@ -95,7 +95,7 @@ progress 只呈现这些事实，不修改它们。预览默认值、formatter�
 
 ## 递归组合与继承
 
-每个节点使用唯一 `checkId` 和非空 `displayName`；可执行节点也可以包含子节点，containment 只贡献 scheduling scope，不额外产生 snapshot 层级。带 `execute` 的节点形成自己的 outcome；没有 `execute` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn`、`observes` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、passed prerequisites、terminal observations、mutexes、visibility、parallel budget 与 admission priority。
+每个节点使用唯一 `checkId` 和非空 `displayName`；可执行节点也可以包含子节点，containment 只贡献 scheduling scope，不额外产生 snapshot 层级。带 `execute` 的节点形成自己的 outcome；没有 `execute` 的节点只组织子 Check 和 scheduling scope。普通对象字段表示显式 replacement；`inherit({ add, remove })` 只用于在父 `dependsOn`、`observes` 或 `mutex` collection 上增删。解析后，每个可执行节点拥有自己的 effective options、passed prerequisites、terminal observations、mutexes、normalized `omitQuietPassedRow` 人读呈现策略、parallel budget 与 admission priority。该策略不继承给 children，也不属于 terminal facts；它只供 progress renderer 决定 quiet-pass row 的保留与编号格式。
 
 ## 类型化依赖数据
 

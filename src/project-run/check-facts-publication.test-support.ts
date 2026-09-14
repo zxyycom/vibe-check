@@ -49,9 +49,9 @@ async function publishedIntegration(root: string) {
 function publishedChecks(dependent: () => void): Check[] {
   return [
     {
-      checkId: "attention-support",
-      displayName: "Attention support",
-      visibility: "attention",
+      checkId: "quiet-pass-support",
+      displayName: "Quiet-pass support",
+      omitQuietPassedRow: true,
       execute: (context) => {
         context.records.report({ id: "support-record" }, { retained: true });
         return { status: "passed", data: { supporting: true } };
@@ -87,20 +87,20 @@ function assertPublishedRunFacts(
   assert.deepEqual(
     result.snapshot.checks.map(({ checkId, outcome }) => ({ checkId, outcome })),
     [
-      { checkId: "attention-support", outcome: { status: "passed", data: { supporting: true } } },
       { checkId: "dependent", outcome: { status: "passed", data: { dependent: true } } },
-      { checkId: "message-source", outcome: { status: "passed", data: { source: true } } }
+      { checkId: "message-source", outcome: { status: "passed", data: { source: true } } },
+      { checkId: "quiet-pass-support", outcome: { status: "passed", data: { supporting: true } } }
     ]
   );
   assert.deepEqual(result.snapshot.records, [
-    { checkId: "attention-support", id: "support-record", data: { retained: true } }
+    { checkId: "quiet-pass-support", id: "support-record", data: { retained: true } }
   ]);
   assert.deepEqual(
     result.checkDurations.map(({ checkId, durationMs }) => [checkId, typeof durationMs]),
     [
-      ["attention-support", "number"],
       ["dependent", "number"],
-      ["message-source", "number"]
+      ["message-source", "number"],
+      ["quiet-pass-support", "number"]
     ]
   );
   assert.deepEqual(result.checkMessages, [
@@ -120,13 +120,13 @@ function assertPublishedMachineFacts(root: string): void {
   assert.deepEqual(
     value.run.checks.map(({ checkId, outcome }) => [checkId, outcome.status]),
     [
-      ["attention-support", "passed"],
       ["dependent", "passed"],
-      ["message-source", "passed"]
+      ["message-source", "passed"],
+      ["quiet-pass-support", "passed"]
     ]
   );
   assert.doesNotMatch(
     `${runJson}${recordsNdjson}${JSON.stringify(value)}`,
-    /"(?:messages|visibility)"/
+    /"(?:messages|omitQuietPassedRow)"/
   );
 }

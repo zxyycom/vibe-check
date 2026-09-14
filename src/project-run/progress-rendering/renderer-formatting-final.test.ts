@@ -8,7 +8,7 @@ describe("Package Run progress terminal formatting", () => {
   it("renders an empty final TTY running region after zero-Check or fully settled progress", () => {
     const zero = createWriter({ isTTY: true });
     const zeroRenderer = createProgressRenderer(zero.writer);
-    zeroRenderer.render({ kind: "prepared", totalChecks: 0 });
+    zeroRenderer.render({ kind: "prepared", quietPassOmissionConfiguredCount: 0, totalChecks: 0 });
     zeroRenderer.render({
       kind: "final",
       counts: { failed: 0, notApplicable: 0, passed: 0, unavailable: 0 },
@@ -23,9 +23,19 @@ describe("Package Run progress terminal formatting", () => {
 
     const completed = createWriter({ isTTY: true });
     const renderer = createProgressRenderer(completed.writer);
-    renderer.render({ kind: "prepared", totalChecks: 2 });
-    renderer.render({ kind: "started", checkId: "first", displayName: "First" });
-    renderer.render({ kind: "started", checkId: "second", displayName: "Second" });
+    renderer.render({ kind: "prepared", quietPassOmissionConfiguredCount: 0, totalChecks: 2 });
+    renderer.render({
+      kind: "started",
+      omitQuietPassedRow: false,
+      checkId: "first",
+      displayName: "First"
+    });
+    renderer.render({
+      kind: "started",
+      omitQuietPassedRow: false,
+      checkId: "second",
+      displayName: "Second"
+    });
     renderer.render(settled("second", "Second", { status: "passed", data: {} }, 1));
     renderer.render(settled("first", "First", { status: "passed", data: {} }, 1));
     renderer.render({

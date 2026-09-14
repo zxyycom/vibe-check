@@ -79,7 +79,7 @@ describe("maintenance reminders", () => {
       assert.deepEqual(value.records, []);
       assert.doesNotMatch(
         runJson,
-        /maintenance-reminder-due|Review published maintenance|messages|visibility/
+        /maintenance-reminder-due|Review published maintenance|messages|omitQuietPassedRow/
       );
       assert.equal(recordsNdjson, "");
     } finally {

@@ -1,4 +1,4 @@
-import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { CoreRecord } from "../../check-settlement/facts.ts";
 import type { ResolvedProgressRenderingOutput } from "../../project-definition/project-definition.ts";
 import { resolveProgressRenderingOutput } from "../../project-definition/output-defaults.ts";
@@ -15,6 +15,7 @@ export interface ProgressWriter {
 export type ProgressFeedback = Readonly<
   | {
       readonly kind: "prepared";
+      readonly quietPassOmissionConfiguredCount: number;
       readonly totalChecks: number;
     }
   | {
@@ -24,6 +25,7 @@ export type ProgressFeedback = Readonly<
       readonly kind: "started";
       readonly checkId: string;
       readonly displayName: string;
+      readonly omitQuietPassedRow: boolean;
     }
   | {
       readonly kind: "settled";
@@ -31,7 +33,7 @@ export type ProgressFeedback = Readonly<
       readonly displayName: string;
       readonly outcome: CheckOutcome;
       readonly durationMs: number | null;
-      readonly visibility: CheckVisibility;
+      readonly omitQuietPassedRow: boolean;
       readonly messages: readonly CheckMessage[];
       readonly records: readonly CoreRecord[];
     }

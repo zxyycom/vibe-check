@@ -2,7 +2,7 @@
 title: 配置受管 preview 与 quiet-pass progress presentation
 id: 260914-configure-progress-previews-and-quiet-pass-presentation
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-14T08:11:59Z
 purpose: 让调用方配置有界 progress preview 和 quiet-pass row 省略，同时保留完整事实与终端安全责任。
 background: 旧 attention 只隐藏 settled row，编号仍推进；现有 preview、writer 与 failure 边界继续有效。

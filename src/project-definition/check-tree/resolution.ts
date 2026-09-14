@@ -1,10 +1,5 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
-import type {
-  Check,
-  CheckFlagEnablement,
-  CheckPreparation,
-  CheckVisibility
-} from "../../check/check.ts";
+import type { Check, CheckFlagEnablement, CheckPreparation } from "../../check/check.ts";
 import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import {
   parseCheckTreeAuthoring,
@@ -30,7 +25,7 @@ export interface ResolvedCheckTreeLeaf {
   readonly options: object;
   readonly prepare?: CheckPreparation;
   readonly resourceClaims: ResourceUnitMapping;
-  readonly visibility: CheckVisibility;
+  readonly omitQuietPassedRow: boolean;
 }
 
 export interface ResolvedCheckTree {
@@ -118,12 +113,12 @@ function resolvedLeafFor(
   check: ParsedCheck,
   scheduling: InheritedScheduling
 ): ResolvedCheckTreeLeaf | undefined {
-  const visibility = check.visibility;
+  const omitQuietPassedRow = check.omitQuietPassedRow;
   if (
     check.execute !== null &&
     check.definition !== null &&
     check.options !== null &&
-    visibility !== null
+    omitQuietPassedRow !== null
   ) {
     return Object.freeze({
       admissionPriority: scheduling.admissionPriority,
@@ -138,7 +133,7 @@ function resolvedLeafFor(
       options: check.options,
       ...(check.prepare === null ? {} : { prepare: check.prepare }),
       resourceClaims: scheduling.resourceClaims,
-      visibility
+      omitQuietPassedRow
     });
   }
   return undefined;

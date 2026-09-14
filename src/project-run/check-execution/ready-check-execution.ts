@@ -40,7 +40,11 @@ export async function executeReadyCheck(input: ReadyCheckExecutionInput): Promis
     }
   });
   input.lifecycle?.started(
-    Object.freeze({ checkId: identity.checkId, displayName: identity.displayName })
+    Object.freeze({
+      checkId: identity.checkId,
+      displayName: identity.displayName,
+      omitQuietPassedRow: identity.omitQuietPassedRow
+    })
   );
   const startedAt = input.clock.now();
   const callback = await executeCheckCallback({
