@@ -126,8 +126,8 @@ SCC CSV 的 `Complexity` 字段是 file-metrics 使用的 decision-token measure
 
 1. Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文件，再为每个 area 应用自己的 `include` / `exclude`，
    并保存 path 到全部实际 area IDs 的 membership。
-2. Check 对全部路径稳定排序、去重，只把这个 exact-path union 交给 SCC 一次。
-3. 每条 SCC measurement 必须声明属于该 union 的 source path；任一越界 measurement 会拒绝整批结果。
+2. Check 对全部路径稳定排序、去重，并把这个 union 作为一次 logical SCC scan。adapter 按私有的 Windows UTF-16 argv 上界传输：安全的小输入仍由一个 process 承载；较大输入按原顺序分成一个或多个非空 exact-path batches。分批不会让 SCC 重新发现路径，也不形成新的 options、Records 或公开结果。
+3. 每个 process batch 都必须先完成 CSV 与该 batch 的 exact-scope 验收；全部 batch 成功后 adapter 才拒绝重复 measurement path、稳定排序并交回统一结果。任一 process、CSV、scope 或汇合失败都会拒绝整个 logical scan，不发布已完成 batch 的部分 measurement。
 4. 对属于多个区域的文件，Check 分别计算各区域的有效代码行上限，并使用其中最小的严格上限：
 
    ```text
@@ -150,8 +150,8 @@ const customFileMetrics = fileMetrics({
 custom executable 必须直接接受 SCC CLI 参数。public scanner policy 只选择 executable；owning adapter 固定执行以下协议：
 
 - availability probe：`--version`
-- measurement：`--no-config --by-file --format csv <approved exact paths...>`
-- process timeout：由 adapter 固定，不属于项目策略
+- measurement：每个私有 batch 都执行 `--no-config --by-file --format csv <approved exact paths...>`；全部 batch 仍是一份 logical measurement
+- process timeout 与 stdout/stderr output budget：由 adapter 固定并覆盖完整 logical scan，不属于项目策略
 
 需要 prefix arguments 的通用 runtime（例如 `node path/to/tool.js`）不是受支持的直接 command；项目应提供一个已授权的
 专用 wrapper executable。当前 adapter 只接受 SCC `4.0.0` 的 version output 与对应 CSV header contract。

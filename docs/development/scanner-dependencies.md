@@ -23,8 +23,12 @@ translated core/readers/shared/extensions 以 source fidelity 为先；手写 fa
 [随包 Check 指南](../navigation.md#随包-check-指南)拥有初始 options；[Configuration](project-definition.md#package-provided-check-composition)
 只拥有普通 Project Definition 的组合边界。
 
-- `fileMetrics.scanner` 只接受 executable。SCC adapter 固定执行精确 `scc version 4.0.0` probe 与
-  `--no-config --by-file --format csv` exact-path protocol；不允许 arguments passthrough。
+- `fileMetrics.scanner` 只接受 executable，且不得 arguments passthrough。SCC adapter 固定执行一次精确
+  `scc version 4.0.0` probe；measurement 以 `--no-config --by-file --format csv` 将 approved exact paths
+  作为一次 logical scan 传输。
+  - adapter 私有地按保守 Windows UTF-16 argv 上界稳定分 batch，逐 batch 验收，并且只在全部 batch 成功后汇合。
+  - 300 秒 shared deadline、stdout/stderr 各 64 MiB 的累计预算和 command-line ceiling 都是 adapter 实现细节，
+    不进入 options。
 - `duplicateDetection.scanner` 由其指南定义 package/custom command 的完整 policy；adapter 拥有 version
   probe、exact-input config、JSON report 与 worker policy。
 - `functionMetrics` 无 command override；固定 reader registry、closed limits、资源上限与结果由 [Check 指南](../checks/function-metrics.md)拥有。
@@ -51,7 +55,7 @@ advisory。显式维护查询见 [Lizard upstream advisory](../tooling/lizard-up
 都使用每个 `codeAreas[id].files` 的去重并集。外部 adapter 与内置 analyzer 都不接收 project root 来重新发现或扩大
 输入。
 
-area membership 的恢复与 eligibility 在 owning Check 完成，见[Project files](project-files.md#package-provided-check-exact-inputs)；adapter 不计算共享领域 policy。任何 out-of-set batch 或不完整分析结果必须在 conversion/Record publication 前整批拒绝。
+area membership 的恢复与 eligibility 在 owning Check 完成，见[Project files](project-files.md#package-provided-check-exact-inputs)；adapter 不计算共享领域 policy。SCC 的私有 transport batch 必须有序、非空且不重叠地覆盖 approved union；每批只接受其 own exact paths。最终重复 measurement 或任一 batch 失败都必须在 conversion/Record publication 前拒绝完整 logical scan；合法但 SCC 不支持的 approved file 可以不产生 row。
 
 一次 Check invocation 只使用冻结 options 与 exact input。external command data、raw output、parser internals 和
 analyzer token state 都不进入 declarative fingerprint、Core facts、public output 或 Run Controls。

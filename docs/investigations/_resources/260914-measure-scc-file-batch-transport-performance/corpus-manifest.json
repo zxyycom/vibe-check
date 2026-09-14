@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "kind": "deterministic-generated-small-typescript-corpus",
+  "fileCount": 620,
+  "totalRelativePathCharacters": 34941,
+  "pathConstruction": "inputs/f<zero-padded-index>-<distributed x padding>.ts; padding is distributed in index order so the aggregate relative path length is exactly 34,941 UTF-16/ASCII code units",
+  "fixturePathDigest": "f790b67942eb21f8980b22865c655bbba6d3db044750be2cc9e5217bef30c218",
+  "fileBodyTemplate": "export const measuredValue<index> = <index>;\\n",
+  "fileBodyDigest": "b4091ceb3d9449597183540df28a714ed59b5ce3c24c77c82860b5bd312ad3c0",
+  "fixtureLifetime": "A fresh fixture is created under the host temporary directory for one harness execution and removed by that harness after all conditions complete.",
+  "harnesses": {
+    "initial": "initial-curve-harness.ts is the byte-identical initial direct-SCC harness snapshot (Git blob a30cdf15d86268a99309d6d35acf926fece9d8dc); it has no dependency on final runtime modules.",
+    "runtime": "runtime-remeasure-harness.ts is the later final-runtime harness and imports scanWithScc plus planSccBatches; it is intentionally not executable against the initial source baseline."
+  }
+}

@@ -25,7 +25,7 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
   Proves:
-- Each file-metrics area owns its file selection, code-line policy and effective finding policy. One SCC invocation receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking.
+- Each file-metrics area owns its file selection, code-line policy and effective finding policy. One logical SCC scan receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking.
 
 ## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function Check owns area, finding, and unavailable policy
 
@@ -112,11 +112,22 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > sends --no-config and rejects a successful scc invocation that produces no CSV header`
 - `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > returns empty metrics without invoking scc when exact inputs are empty`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > plans a conservative UTF-16 argv partition without reordering or overlap`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > rejects one infeasible path before starting a measurement process`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > uses one compatible process for small input and merges ordered batch-local measurements`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > merges successful oversized batches into one stable exact result`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > covers oversized exact input in sequential batches and rejects a batch-local out-of-scope row`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > rejects duplicate rows only after all batch-local validation has completed`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > fails the complete logical scan when a later process fails`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > does not start a later batch after the shared monotonic deadline expires`
+- `bun|src/package-checks/file-metrics/scc/scanner.test.ts|quality scc exact input projection > accounts stdout and stderr cumulatively before a later batch can start`
 - `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > parses scc 4.0 Provider paths and rejects unknown CSV headers`
 - `bun|src/package-checks/file-metrics/scc/parser.test.ts|quality scanner output parsing > rejects malformed scc rows without losing valid zero-file output`
   Proves:
 
-- The file-metrics-owned SCC 4.0 adapter skips invocation for empty exact input, always sends `--no-config` before its fixed by-file CSV protocol, accepts only the supported complete CSV shape, and preserves valid zero-file output while rejecting missing headers, unknown headers, or malformed rows.
+- The file-metrics-owned SCC 4.0 adapter skips invocation for empty exact input, always sends `--no-config` before its fixed by-file CSV protocol, and preserves valid zero-file output while rejecting missing headers, unknown headers, or malformed rows.
+- Its private conservative UTF-16 estimator partitions approved paths without reorder or overlap, rejects a path that cannot fit before any process starts, and keeps small compatible inputs to one process.
+- For a multi-batch logical scan, each batch accepts only its exact scope. An out-of-scope row, duplicate measurement, process failure, expired shared deadline, or exhausted cumulative output budget rejects the complete scan; stable merged metrics return only after every sequential batch succeeds.
 
 ## Case AUX-SCC-V4-AVAILABILITY-001: SCC v4 exact executable contract
 

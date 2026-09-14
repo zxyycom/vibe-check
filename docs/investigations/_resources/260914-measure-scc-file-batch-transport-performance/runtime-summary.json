@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "benchmark": "scc-file-metrics-batch-transport-runtime-remeasure",
+  "formedAt": "2026-09-14T08:47:39Z",
+  "environment": {
+    "platform": "linux",
+    "arch": "x64",
+    "bunVersion": "1.3.14",
+    "sccPath": "/home/dev/.local/share/mise/installs/go/1.26.4/bin/scc",
+    "sccVersion": "scc version 4.0.0",
+    "kernel": "Linux 6.18.33.2-microsoft-standard-WSL2",
+    "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M",
+    "cpuCount": 4
+  },
+  "corpus": {
+    "fixture": "deterministic generated small TypeScript files",
+    "fileCount": 620,
+    "totalRelativePathCharacters": 34941,
+    "fixturePathDigest": "f790b67942eb21f8980b22865c655bbba6d3db044750be2cc9e5217bef30c218",
+    "fileBodyDigest": "b4091ceb3d9449597183540df28a714ed59b5ce3c24c77c82860b5bd312ad3c0"
+  },
+  "protocol": {
+    "invocation": "<mise-resolved stock scc> --no-config --by-file --format csv <exact relative paths...>",
+    "timing": "process.hrtime.bigint surrounds all measurement invocations in one logical scan; CSV parsing/digest guard is included",
+    "warmupRoundsPerCondition": 2,
+    "measuredRoundsPerCondition": 10,
+    "runtimeHarness": "runtime-remeasure-harness.ts imports the final scanWithScc and planSccBatches implementation; it cannot execute against the pre-runtime source baseline.",
+    "initialEvidence": "initial-summary.json and initial-raw-samples.csv contain the earlier direct-SCC curve used to select the ceiling."
+  },
+  "condition": {
+    "id": "runtime-production-ceiling-28000",
+    "kind": "runtime",
+    "batchCount": 3,
+    "batchPathCounts": [
+      238,
+      241,
+      141
+    ],
+    "windowsArgvEstimates": [
+      27997,
+      27900,
+      16400
+    ],
+    "measuredRounds": 10,
+    "wallMs": {
+      "median": 37.5846715,
+      "p95": 45.186261,
+      "min": 34.139075,
+      "max": 45.186261
+    },
+    "invocationCount": 3,
+    "measurementDigest": "b4abd7f5703bae07fee30b88fc2fec20027b3bb78b90c11b0f5fc9d20f86f037"
+  },
+  "provenance": {
+    "source": "the runtime row split from historical combined runtime run output",
+    "sourceFiles": [
+      "runtime-raw-samples.csv",
+      "runtime-remeasure-harness.ts"
+    ],
+    "note": "This is a final-runtime verification condition, not a seventh candidate ceiling and not input to the original ceiling selection."
+  }
+}
