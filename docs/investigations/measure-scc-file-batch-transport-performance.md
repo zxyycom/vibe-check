@@ -18,7 +18,7 @@ relations:
 
 [Windows argv 根因调查](diagnose-file-metrics-scc-windows-argument-limit.md)已确认约 620 条 exact paths、合计约 34,941 字符会令当前单 SCC process 在 Windows 上越过进程创建边界；它推荐由 file-metrics SCC adapter 私有地分批传输、逐批验收、最后全有或全无汇合。本轮先落实 Change `batch-file-metrics-scc-exact-input` 的 Implementation 1.1/1.2：用 stock SCC 4.0.0 的实际曲线选择私有 ceiling，随后在 runtime 实现后对同一 corpus 执行最终复测，避免只因“分批一定较慢”或“越大越好”作无数据的取舍。
 
-> **权威性与边界：** 本报告保存 2026-09-14 形成时的性能 observations、ceiling 选择依据和可复现资源；它不拥有当前 runtime 行为或 Change 完成状态。当前行为由 [file-metrics Check 指南](../checks/file-metrics.md) 与 [scanner dependency owner](../development/scanner-dependencies.md)拥有，完成证据由当前 Change 的代码、测试和任务记录拥有。没有 Windows runner 的端到端 stock-SCC acceptance 仍是非阻断未验证边界。
+> **权威性与边界：** 本报告保存 2026-09-14 形成时的性能 observations、ceiling 选择依据和可复现资源；它不拥有当前 runtime 行为。当前行为由 [file-metrics Check 指南](../checks/file-metrics.md) 与 [scanner dependency owner](../development/scanner-dependencies.md)拥有，实现证据由当前代码和测试承接，已完成 Change 的任务历史只通过 Git 恢复。没有 Windows runner 的端到端 stock-SCC acceptance 仍是非阻断未验证边界。
 
 计划已固定 hard maximum `28,000` UTF-16 code units、candidate ceilings `8,000/12,000/16,000/20,000/24,000/28,000`，以及优先安全裕量的规则：以 candidate 中最低 median 的条件为最快条件，选择 median 不超过其 `110%`、p95 不超过其 `115%` 的**最小** ceiling。当前 runner 是 Linux x64 WSL2，不是 Windows runner；本报告只能测量此 host 的 SCC process startup 和分批曲线，不能把它表述为 Windows `CreateProcessW` 验收。
 

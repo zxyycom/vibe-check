@@ -17,7 +17,10 @@ relations: []
 
 形成时的稳定实现边界是：[`fileMetrics` 指南](../checks/file-metrics.md)要求 owning Check 先形成全部 area 的 exact-path 去重并集，[scanner dependency owner](../development/scanner-dependencies.md)要求 SCC 不重新发现或扩大输入；[`scanner.ts`](../../src/package-checks/file-metrics/scc/scanner.ts)则把固定 `--no-config --by-file --format csv` 参数和完整 `includePaths` 一次性交给 `runProcessSync`。因此症状发生在“逻辑 exact input → OS process argv”的 adapter transport 边界，而不是 area selection、SCC measurement 或 Record conversion。
 
-本轮只调查根因、SCC 4.0.0 可用输入通道和修复责任。对应实施范围由 [`batch-file-metrics-scc-exact-input`](../../changes/batch-file-metrics-scc-exact-input/proposal.md) Change 拥有；本报告保存形成时依据和建议，不证明修复已经实现。
+本轮只调查根因、SCC 4.0.0 可用输入通道和修复责任。本报告保存形成时依据和建议；当前 transport contract
+由 [`fileMetrics` 指南](../checks/file-metrics.md)和
+[scanner dependency owner](../development/scanner-dependencies.md)承接，性能取舍证据见
+[SCC 分批传输性能调查](measure-scc-file-batch-transport-performance.md)。
 
 ## 调查目的
 
