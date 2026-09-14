@@ -1,15 +1,10 @@
 // #region package-api-example:project-changes
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { changeFlag, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const sourceChanged = defineCheck({
   checkId: "source-changed",
   displayName: "Source changed",
-  enabledByFlags: {
-    when: {
-      kind: "flag",
-      flag: "vibe-check:change:source"
-    }
-  },
+  enabledByFlags: { when: changeFlag("source") },
   execute: ({ project }) => {
     const changes = project.changes;
     if (changes === undefined) {

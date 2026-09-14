@@ -1,5 +1,15 @@
 /** Type-level external-consumer fixtures for project changes and the change-aware preparation context. */
-export const PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE = `const sourceChanges: ProjectChangesConfiguration = {
+export const PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE = `import {
+  all,
+  any,
+  changeFlag,
+  exactlyOne,
+  none,
+  not,
+  notAll
+} from "@zxyycom/vibe-check";
+
+const sourceChanges: ProjectChangesConfiguration = {
   flags: {
     source: {
       exclude: ["src/generated/**"],
@@ -9,17 +19,16 @@ export const PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE = `const sourceChanges: Proj
   source: { compareWith: "origin/main", kind: "git" } satisfies ProjectChangeSource
 };
 const changeEvidence: ProjectChanges = { ok: true, files: [] };
+const sourceChangeFlag: "vibe-check:change:source" = changeFlag("source");
+const changeCondition: CheckFlagConditionInput = any(
+  all("caller-requested", sourceChangeFlag),
+  none(notAll("maintenance", not("force")), exactlyOne("fast-path", "slow-path"))
+);
 const changeAwareCheck = defineCheck({
   checkId: "isolated-change-aware",
   displayName: "Isolated change aware",
   enabledByFlags: {
-    when: {
-      kind: "all",
-      conditions: [
-        { kind: "flag", flag: "caller-requested" },
-        { kind: "flag", flag: "vibe-check:change:source" }
-      ]
-    } satisfies CheckFlagCondition,
+    when: changeCondition,
     propagateDependsOn: true
   } satisfies CheckFlagEnablement,
   options: { evidenceAvailable: false },

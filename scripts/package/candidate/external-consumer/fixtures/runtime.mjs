@@ -5,6 +5,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 import {
+  all,
+  any,
   cacheJsonByKey,
   collectProjectFiles,
   defaultProjectFileSelection,
@@ -25,6 +27,7 @@ import {
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
   parseSecretDetectionData,
+  not,
   secretDetection,
   run
 } from "@zxyycom/vibe-check";
@@ -220,6 +223,15 @@ const blockedChangedFilesConsumer = defineCheck({
   }
 });
 
+const builderConditionCheck = defineCheck({
+  checkId: "installed-builder-condition",
+  displayName: "Installed builder condition",
+  enabledByFlags: {
+    when: any(all("builder:all", "builder:nested"), not("builder:disabled"))
+  },
+  execute: () => ({ status: "passed", data: {} })
+});
+
 const result = await run(
   defineConfig({
     checks: [
@@ -251,6 +263,7 @@ const result = await run(
       firstChangedFilesConsumer,
       secondChangedFilesConsumer,
       blockedChangedFilesConsumer,
+      builderConditionCheck,
       terminalNote
     ],
     outputs: {
@@ -315,6 +328,10 @@ const blockedConsumerCheck =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === blockedChangedFilesConsumer.checkId)
     : undefined;
+const builderConditionCheckResult =
+  result.kind === "completed"
+    ? result.snapshot.checks.find((check) => check.checkId === builderConditionCheck.checkId)
+    : undefined;
 
 function settledFinalData(check) {
   if (check?.outcome.status !== "passed" && check?.outcome.status !== "failed") return null;
@@ -330,6 +347,7 @@ process.stdout.write(
       firstCacheRead: cacheEvidence.firstRead,
       secondCacheRead: cacheEvidence.secondRead,
       blockedChangedFilesConsumer: blockedConsumerCheck?.outcome ?? null,
+      builderConditionOutcome: builderConditionCheckResult?.outcome.status ?? null,
       blockedChangedFilesConsumerCalls,
       changedFilesCalls,
       changedFilesFromMachine: parsedChangedFilesFromMachine,

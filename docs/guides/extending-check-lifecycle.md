@@ -79,28 +79,29 @@ formatter 返回的文本和终端截断也不会把已有 accepted detail 变�
 
 ## 按 flag 选择 Check
 
-`enabledByFlags` 只决定本次 Run 是否选择 executable Check；它不是权限、环境检测或 callback 内的条件替代。它接受兼容 shorthand，或带 recursive `when` 的 expression：
+`enabledByFlags` 只决定本次 Run 是否选择 executable Check；它不是权限、环境检测或 callback 内的条件替代。兼容 shorthand 继续可用；新的 expression 优先直接导入 builder，以字符串作为 atom：
 
 ```ts
-{
-  flags: ["token", ...],
-  mode: "all" | "any" | "none" | "not-all",
-  propagateDependsOn?: true
-}
+import { all, any, changeFlag, defineCheck } from "@zxyycom/vibe-check";
 
-// 或
-{
-  when:
-    | { kind: "flag", flag: "token" }
-    | { kind: "all" | "any" | "none" | "not-all" | "exactly-one", conditions: [/* 非空 FlagCondition */] }
-    | { kind: "not", condition: /* FlagCondition */ },
-  propagateDependsOn?: true
-}
+const sourceAware = defineCheck({
+  checkId: "source-aware",
+  displayName: "Source aware",
+  enabledByFlags: {
+    when: any(all("required", changeFlag("source")), "force"),
+    propagateDependsOn: true
+  },
+  execute: () => ({ status: "passed", data: {} })
+});
 ```
 
-`enabledByFlags` 只可写在 executable Check 上，container 不接受也不向 children 继承它；额外字段、空/sparse child、非法 kind/mode 或非 literal-true propagation 都会在 author work 前使 Definition validation 失败。legacy `flags` 必须是无空洞的非空列表，每个 token 是非空字符串；Product 会复制、去重、稳定排序后降级为等价 `when`。raw DSL 的 child 顺序和重复次数保留：重复项会影响 `exactly-one`，顺序也保留在 declarative identity 中。没有 `enabledByFlags` 的 executable Check 默认被选择。
+直接导出的 `all`、`any`、`none`、`notAll` 与 `exactlyOne` 接受至少一个字符串或嵌套条件，`not` 接受一个条件；单个 token 直接写成 `when: "token"`。字符串 token 必须非空，这一要求由 Definition validation 执行。`changeFlag(id)` 只生成受保护前缀的字符串 token（对 literal `id` 保留 `vibe-check:change:<id>` literal type），不创建专用 AST node，也不在调用时确认 ID。将该 token 用作 `when` 时，Definition 必须在同一 `changes.flags` 声明该 ID；否则在 author work 前失败。
 
-`all` 要求全部 child 为真，`any` 要求至少一个为真，`none` 要求零个为真，`not-all` 要求至少一个为假，`exactly-one` 要求恰好一个为真，`not` 反转其唯一 child。每个 `flag` 只测试 token presence；普通 token 仍由 caller 定义。配置 `changes` 的 Definition 可引用其已声明 ID 的 `vibe-check:change:<id>`，但未知 ID 或未配置 changes 的此类引用会使 Definition validation 失败。predicate 不命中且未被下述依赖传播带入时，Check 在自己的 preparation / execution 前以 `not-applicable / flag-condition-not-matched` 结算，duration 为 `null`。
+`CheckFlagConditionInput` 是字符串或递归 raw AST input。raw AST 仍是可序列化、生成器等场景的兼容输入：atom 为 `{ kind: "flag", flag: "token" }`，set 为 `{ kind: "all" | "any" | "none" | "not-all" | "exactly-one", conditions: [/* 至少一个条件 */] }`，unary 为 `{ kind: "not", condition: /* 条件 */ }`；这些递归位置同样可以使用字符串 atom。builder 只构造 operator authoring node，并原样保留它收到的字符串和 raw child；它不遍历、验证或规范化 child。Definition 才复制、验证并把所有 authoring input 规范化为同一 object-only canonical AST。没有 `flag()` 或 builder namespace；发生名称冲突时按普通 ESM import alias 处理。
+
+`enabledByFlags` 只可写在 executable Check 上，container 不接受也不向 children 继承它；额外字段、空/sparse child、空字符串、非法 kind/mode 或非 literal-true propagation 都会在 author work 前使 Definition validation 失败。legacy `flags` 必须是无空洞的非空列表，每个 token 是非空字符串；Product 会复制、去重、稳定排序后降级为等价 `when`。builder output 与 raw AST 都进入同一 normalization：set child 顺序和重复次数保留，重复项会影响 `exactly-one`，顺序也保留在 declarative identity 中。没有 `enabledByFlags` 的 executable Check 默认被选择。
+
+`all` 要求全部 child 为真，`any` 要求至少一个为真，`none` 要求零个为真，`notAll` 要求至少一个为假，`exactlyOne` 要求恰好一个为真，`not` 反转其唯一 child。每个 atom 只测试 token presence；普通 token 仍由 caller 定义。predicate 不命中且未被下述依赖传播带入时，Check 在自己的 preparation / execution 前以 `not-applicable / flag-condition-not-matched` 结算，duration 为 `null`。
 
 只有字面量 `propagateDependsOn: true` 才会把命中 root 的**传递** `dependsOn` prerequisite 一并加入本次选择；省略字段保持仅选择 direct match 的行为，不能写 `false`。这份传递闭包覆盖其中 dependency 自己的 flag predicate miss：被带入的 dependency 会继续正常调度，而不会先因 flag 结算为 `not-applicable`。`observes` 不参与该扩展选择；未被选择的 dependency 才仍可成为 `not-applicable` outcome，dependent 的 hard prerequisite 是否通过仍由 Scheduler 处理。嵌套条件和“恰好一个”直接使用 DSL；只有需要解释 token 的值、外部状态或其它非 presence 事实时，才在 `prepare` / `execute` 中处理并结算对应条件。
 

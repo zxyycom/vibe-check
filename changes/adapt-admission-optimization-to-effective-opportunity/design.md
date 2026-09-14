@@ -4,7 +4,7 @@
 
 ## Context
 
-- **Effective selection:** [`add-project-change-flags`](../add-project-change-flags/design.md) 计划在 Scheduler admission 前用 change-derived flags 缩小 effective Check 集；当前普通 flags 已通过 [`project-definition.md`](../../docs/development/project-definition.md#flag-enabled-checks) 形成一次 selection。
+- **Effective selection:** [Project Definition](../../docs/development/project-definition.md#flag-enabled-checks) 当前在完整 graph validation 与 configured change preparation 后，由 Check execution boundary 在 flag control settlement 与 Check author work 前形成唯一 invocation-private effective selection；它同时驱动 flag settlement 与 effective aggregation。[Project preparation Decision](../../docs/decisions/prepare-project-change-flags-before-selection.md)拥有 derived change flags 的 preparation、保守 fallback 与 callback context 边界。
 - **Current preparation order:** public prepared strategy 当前在完整静态 graph 上准备，effective flag selection 随后在 Check execution owner 内形成。[`provide-learned-admission-through-public-strategy.md`](../../docs/decisions/provide-learned-admission-through-public-strategy.md) 将 learned helper 的输入限定为普通 public graph/context。
 - **Scheduler responsibility:** [`scheduler.md`](../../docs/development/scheduler.md) 继续拥有 relation readiness、mutex/resource/root capacity、cancellation、settlement 和 proposal hard guards；算法只选择下一合法 admission。
 - **Existing evidence tools:** [`evaluate-admission-heuristics-with-seeded-virtual-workloads.md`](../../docs/decisions/evaluate-admission-heuristics-with-seeded-virtual-workloads.md) 与 `scripts/project/admission-workbench/**` 已用 public `AdmissionState`、虚拟时间和 seeded workload 比较策略，可以承接穷举与混合路由的前置证据。

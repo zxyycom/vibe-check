@@ -13,6 +13,9 @@
 - **`enabledByFlags` 支持递归 `when` DSL**：除既有 shorthand 外，支持 `flag`、`all`、`any`、`none`、
   `not-all`、`exactly-one` 与 `not`。raw children 的顺序和重复次数保留；特别是重复 child 会影响
   `exactly-one`。已有 shorthand 保持兼容。
+- **新增 flag condition builders**：package root 直接导出 `all`、`any`、`none`、`notAll`、`exactlyOne`、
+  `not` 与 `changeFlag`；`when` 和递归 child 可直接使用字符串 atom，`changeFlag("source")` 生成
+  `vibe-check:change:source`。raw AST 仍可用于序列化或生成器，不导出 `flag()` 或 builder namespace。
 - **Check callbacks 可读取同一 change evidence**：配置 changes 后，`prepare(options, signal, project?)` 与
   `execute({ project })` 读取同一个 frozen `project.changes`；`project.flags` 仍只包含 caller-provided flags。
   Controls 传入 `vibe-check:change:` prefix 会在 author callback 前失败。

@@ -6,16 +6,20 @@ import { describe, it } from "node:test";
 
 import { CURRENT_PUBLIC_CONTRACT } from "./public-api-inventory.ts";
 import {
+  all,
+  any,
   cacheJsonByKey,
   canonicalizeJsonObject,
   canonicalizeJsonValue,
   canonicalJsonBytes,
   canonicalJsonText,
+  changeFlag,
   collectProjectFiles,
   createAdmissionGraph,
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,
+  exactlyOne,
   defaultProjectFileSelection,
   duplicateDetection,
   fileMetrics,
@@ -23,6 +27,9 @@ import {
   markdownLinkValidation,
   inherit,
   maintenanceReminders,
+  none,
+  not,
+  notAll,
   jsonSchemaValidation,
   jsonValidation,
   parseDuplicateDetectionData,
@@ -56,6 +63,8 @@ describe("public API inventory", () => {
       }.exclude.at(-1),
       "**/fixtures/**"
     );
+    assert.equal(all.name, CURRENT_PUBLIC_CONTRACT.operations.all);
+    assert.equal(any.name, CURRENT_PUBLIC_CONTRACT.operations.any);
     assert.equal(cacheJsonByKey.name, CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey);
     assert.equal(
       canonicalizeJsonObject.name,
@@ -67,6 +76,7 @@ describe("public API inventory", () => {
     );
     assert.equal(canonicalJsonBytes.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonBytes);
     assert.equal(canonicalJsonText.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonText);
+    assert.equal(changeFlag.name, CURRENT_PUBLIC_CONTRACT.operations.changeFlag);
     assert.equal(collectProjectFiles.name, CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles);
     assert.equal(
       createAdmissionGraph.name,
@@ -78,6 +88,7 @@ describe("public API inventory", () => {
     );
     assert.equal(defineCheck.name, CURRENT_PUBLIC_CONTRACT.operations.defineCheck);
     assert.equal(defineConfig.name, CURRENT_PUBLIC_CONTRACT.operations.defineConfig);
+    assert.equal(exactlyOne.name, CURRENT_PUBLIC_CONTRACT.operations.exactlyOne);
     assert.equal(duplicateDetection.name, CURRENT_PUBLIC_CONTRACT.operations.duplicateDetection);
     assert.equal(fileMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.fileMetrics);
     assert.equal(functionMetrics.name, CURRENT_PUBLIC_CONTRACT.operations.functionMetrics);
@@ -87,6 +98,9 @@ describe("public API inventory", () => {
     );
     assert.equal(jsonValidation.name, CURRENT_PUBLIC_CONTRACT.operations.jsonValidation);
     assert.equal(inherit.name, CURRENT_PUBLIC_CONTRACT.operations.inherit);
+    assert.equal(none.name, CURRENT_PUBLIC_CONTRACT.operations.none);
+    assert.equal(not.name, CURRENT_PUBLIC_CONTRACT.operations.not);
+    assert.equal(notAll.name, CURRENT_PUBLIC_CONTRACT.operations.notAll);
     assert.equal(
       maintenanceReminders.name,
       CURRENT_PUBLIC_CONTRACT.operations.maintenanceReminders
@@ -104,20 +118,27 @@ describe("public API inventory", () => {
       CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers
     );
     assert.equal(run.name, CURRENT_PUBLIC_CONTRACT.operations.run);
+    assert.equal(typeof all, "function");
+    assert.equal(typeof any, "function");
     assert.equal(typeof cacheJsonByKey, "function");
     assert.equal(typeof canonicalizeJsonObject, "function");
     assert.equal(typeof canonicalizeJsonValue, "function");
     assert.equal(typeof canonicalJsonBytes, "function");
     assert.equal(typeof canonicalJsonText, "function");
+    assert.equal(typeof changeFlag, "function");
     assert.equal(typeof collectProjectFiles, "function");
     assert.equal(typeof createAdmissionGraph, "function");
     assert.equal(typeof defineAdmissionPolicy, "function");
+    assert.equal(typeof exactlyOne, "function");
     assert.equal(typeof duplicateDetection, "function");
     assert.equal(typeof fileMetrics, "function");
     assert.equal(typeof functionMetrics, "function");
     assert.equal(typeof jsonSchemaValidation, "function");
     assert.equal(typeof jsonValidation, "function");
     assert.equal(typeof markdownLinkValidation, "function");
+    assert.equal(typeof none, "function");
+    assert.equal(typeof not, "function");
+    assert.equal(typeof notAll, "function");
     assert.equal(typeof presentCheckFindings, "function");
     assert.equal(typeof reconcileFindingWaivers, "function");
     assert.equal(typeof snapshotClosedArray, "function");

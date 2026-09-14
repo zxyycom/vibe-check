@@ -20,6 +20,18 @@ export function assertMalformedFlagEnablementRejected(): void {
       execute: passed
     },
     {
+      checkId: "invalid-empty-string-condition",
+      displayName: "Invalid empty string condition",
+      enabledByFlags: { when: "" },
+      execute: passed
+    },
+    {
+      checkId: "invalid-empty-nested-string-condition",
+      displayName: "Invalid empty nested string condition",
+      enabledByFlags: { when: { kind: "all", conditions: ["analysis", ""] } },
+      execute: passed
+    },
+    {
       checkId: "invalid-empty-conditions",
       displayName: "Invalid empty conditions",
       enabledByFlags: { when: { kind: "all", conditions: [] } },

@@ -9,10 +9,13 @@ import {
 } from "./project-definition.ts";
 import { validateProjectDefinition } from "./project-definition-validation.ts";
 import { passed } from "./project-definition.test-support.ts";
+import { assertFlagBuilderAuthoringAndCanonicalization } from "./project-definition.flag-builders.test-support.ts";
 import { assertMalformedFlagEnablementRejected } from "./project-definition.flag-enablement.test-support.ts";
 
 describe("Project Definition", () => {
   it("normalizes executable flag enablement as declarative identity", () => {
+    assertFlagBuilderAuthoringAndCanonicalization();
+
     const shorthand = defineConfig({
       checks: [
         defineCheck({
@@ -110,47 +113,6 @@ describe("Project Definition", () => {
         expected
       );
     }
-
-    const configuredChanges = defineConfig({
-      changes: {
-        source: { kind: "git", compareWith: "origin/main" },
-        flags: {
-          "product-runtime": { include: ["src/**"], exclude: [] }
-        }
-      },
-      checks: [
-        defineCheck({
-          checkId: "changed-runtime",
-          displayName: "Changed runtime",
-          enabledByFlags: {
-            when: { kind: "flag", flag: "vibe-check:change:product-runtime" }
-          },
-          execute: passed
-        })
-      ]
-    });
-    const validatedChanges = validateProjectDefinition(configuredChanges);
-    assert.equal(validatedChanges.ok, true);
-    if (validatedChanges.ok) {
-      const changes = normalizeProjectDefinition(validatedChanges.value).changes;
-      assert.deepEqual(changes, {
-        source: { kind: "git", compareWith: "origin/main" },
-        flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
-      });
-      assert.equal(Object.isFrozen(changes), true);
-      assert.equal(Object.isFrozen(changes?.flags), true);
-      assert.equal(Object.isFrozen(changes?.flags["product-runtime"]?.include), true);
-    }
-    const differentComparison = defineConfig({
-      changes: {
-        source: { kind: "git", compareWith: "origin/release" },
-        flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
-      }
-    });
-    assert.notEqual(
-      createDeclarativeFingerprint(normalizeProjectDefinition(configuredChanges).declarative),
-      createDeclarativeFingerprint(normalizeProjectDefinition(differentComparison).declarative)
-    );
   });
 
   it("normalizes opt-in dependency propagation as declarative identity", () => {

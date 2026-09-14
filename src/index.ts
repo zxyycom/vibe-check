@@ -140,6 +140,7 @@ export type {
   ProjectFileSource
 } from "./package-checks/project-files/configuration.ts";
 export { defineCheck, inherit } from "./check/check.ts";
+export { all, any, changeFlag, exactlyOne, none, not, notAll } from "./check/flag-enablement.ts";
 export type {
   Check,
   CheckDependencies,
@@ -158,6 +159,7 @@ export type {
   CheckUnavailableReason,
   InheritableCheckCollection
 } from "./check/check.ts";
+export type { CheckFlagConditionInput } from "./check/flag-enablement.ts";
 export { defineAdmissionPolicy } from "./package-tools/admission-policy/define-admission-policy.ts";
 export { defineConfig } from "./project-definition/project-definition.ts";
 export { createLearnedCriticalPathStrategy } from "./package-tools/learned-critical-path/strategy.ts";

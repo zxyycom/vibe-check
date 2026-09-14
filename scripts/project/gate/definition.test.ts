@@ -7,7 +7,7 @@ import { describe, it } from "node:test";
 
 import { defineCheck, markdownLinkValidation, run as packageRun } from "@zxyycom/vibe-check";
 import type {
-  CheckFlagCondition,
+  CheckFlagConditionInput,
   CheckFlagEnablement,
   CheckProjectContext
 } from "@zxyycom/vibe-check";
@@ -462,13 +462,10 @@ describe("Project Gate Definition", () => {
           conditions: [
             {
               kind: "all",
-              conditions: [
-                { kind: "flag", flag: "project-gate:required" },
-                { kind: "flag", flag: "vibe-check:change:product-runtime" }
-              ]
+              conditions: ["project-gate:required", "vibe-check:change:product-runtime"]
             },
-            { kind: "flag", flag: "project-gate:preset=test" },
-            { kind: "flag", flag: "project-gate:all" }
+            "project-gate:preset=test",
+            "project-gate:all"
           ]
         },
         propagateDependsOn: true
@@ -947,7 +944,11 @@ function matchesFlagEnablement(
   }
 }
 
-function matchesFlagCondition(condition: CheckFlagCondition, flags: ReadonlySet<string>): boolean {
+function matchesFlagCondition(
+  condition: CheckFlagConditionInput,
+  flags: ReadonlySet<string>
+): boolean {
+  if (typeof condition === "string") return flags.has(condition);
   switch (condition.kind) {
     case "flag":
       return flags.has(condition.flag);

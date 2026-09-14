@@ -17,6 +17,7 @@ export type CandidateFixtureEvidence = Readonly<{
   changedFilesCalls: unknown;
   blockedChangedFilesConsumer: unknown;
   blockedChangedFilesConsumerCalls: unknown;
+  builderConditionOutcome: unknown;
   firstCacheRead: unknown;
   secondCacheRead: unknown;
   changedFilesFromMachine: unknown;
@@ -92,6 +93,7 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
   });
   assert.equal(runEvidence.changedFilesCalls, 1);
   assert.equal(runEvidence.blockedChangedFilesConsumerCalls, 0);
+  assert.equal(runEvidence.builderConditionOutcome, "passed");
   assert.deepEqual(runEvidence.blockedChangedFilesConsumer, {
     status: "unavailable",
     reason: {
@@ -129,6 +131,7 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
     "failed-changed-files",
     "first-changed-files-consumer",
     "second-changed-files-consumer",
+    "installed-builder-condition",
     "installed-terminal-note"
   ]) {
     assertCanonicalExecutedDuration(runEvidence.checkDurations, checkId);
@@ -213,13 +216,13 @@ function assertParserEvidence(value: unknown): void {
 }
 
 function assertHumanOutput(output: string): void {
-  assert.match(output, /^Vibe Check\ntotal 11 checks · 1 configured for quiet-pass omission$/mu);
+  assert.match(output, /^Vibe Check\ntotal 12 checks · 1 configured for quiet-pass omission$/mu);
   assert.match(output, /Checks:/);
-  assert.match(output, /\[1\/11\].*duplicate detection/i);
-  assert.match(output, /\[2\/11\].*Function metrics/i);
-  assert.match(output, /\[8\/11\].*Blocked changed-files consumer/i);
+  assert.match(output, /\[1\/12\].*duplicate detection/i);
+  assert.match(output, /\[2\/12\].*Function metrics/i);
+  assert.match(output, /\[8\/12\].*Blocked changed-files consumer/i);
   assert.match(output, /^ {2}· Installed terminal note \| passed \| \d+(?:\.\d+)?(?:ms|s)$/mu);
-  assert.doesNotMatch(output, /\[\d+\/11\].*Installed terminal note/i);
+  assert.doesNotMatch(output, /\[\d+\/12\].*Installed terminal note/i);
   assert.match(output, /\[info\] Installed candidate terminal message\./);
   assert.match(output, /Execution summary:/);
   assert.match(output, /^ {2}quiet-pass rows omitted: 0$/mu);

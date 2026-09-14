@@ -319,7 +319,7 @@
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
-      "260909-prepare-project-change-flags-before-selection": "sha256:0cbe96fbed04d3d574ad2bc5b881a486e4640090cbb00068d7b9a79f194bfe64",
+      "260909-prepare-project-change-flags-before-selection": "sha256:a5edafb0996cc34fa73b8a653e9515005006d7370093fd725458bbee078f03d5",
       "260909-provide-file-change-marker-context": "sha256:90fab6cc62c59c357a4249efd5937fc4fac683107fdfa3320d3252e3f8cc57a1",
       "260909-provide-invocation-private-dependency-handoff": "sha256:104ed0fafaa7b21424db1933ef4699ceb391d6fae9b7455d134b0cadba6b0165",
       "260909-provide-public-command-check": "sha256:d01d8bffbf4ef9c92c65713ea586339cb921ccd70c52136bc9783138bfc4c372",

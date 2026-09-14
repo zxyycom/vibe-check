@@ -28,6 +28,7 @@ function parseBoundedFlagCondition(
   state: { nodes: number }
 ): CheckFlagCondition | undefined {
   if (exceedsFlagConditionBounds(depth, state)) return undefined;
+  if (isNonEmptyIdentifier(value)) return Object.freeze({ flag: value, kind: "flag" });
   const condition = snapshotClosedRecord(value);
   const kind = condition?.kind;
   if (condition === undefined || typeof kind !== "string") return undefined;

@@ -11,6 +11,10 @@ import {
 
 const README_PATH = "README.md";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
+  CURRENT_PUBLIC_CONTRACT.operations.all,
+  CURRENT_PUBLIC_CONTRACT.operations.any,
+  CURRENT_PUBLIC_CONTRACT.operations.changeFlag,
+  CURRENT_PUBLIC_CONTRACT.operations.exactlyOne,
   CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles,
   CURRENT_PUBLIC_CONTRACT.operations.cacheJsonByKey,
   CURRENT_PUBLIC_CONTRACT.operations.canonicalizeJsonObject,
@@ -23,6 +27,9 @@ const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.defineCheck,
   CURRENT_PUBLIC_CONTRACT.operations.defineConfig,
   CURRENT_PUBLIC_CONTRACT.operations.inherit,
+  CURRENT_PUBLIC_CONTRACT.operations.none,
+  CURRENT_PUBLIC_CONTRACT.operations.not,
+  CURRENT_PUBLIC_CONTRACT.operations.notAll,
   CURRENT_PUBLIC_CONTRACT.operations.presentCheckFindings,
   CURRENT_PUBLIC_CONTRACT.operations.reconcileFindingWaivers,
   CURRENT_PUBLIC_CONTRACT.operations.run,

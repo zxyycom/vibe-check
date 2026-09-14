@@ -76,8 +76,8 @@ export default defineConfig({
 
 公开 authoring grammar、递归 predicate、传递选择和用户边界由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)定义。本节只拥有将其转换为 invocation 输入的实现不变量：
 
-- validator 仅在 executable 节点接受 closed `enabledByFlags`，拒绝 container、空/sparse child 列表、空 token、非法 kind/mode、非 literal-true propagation 和 unknown fields。递归树最多 16 层、256 个节点；超过任一界限在 author work 前失败。
-- legacy `{ flags, mode }` 先复制、去重、按文本排序并降级为同型 `{ when }`；raw DSL 则复制并冻结每个节点，保留每个 set node 的 child 顺序和 multiplicity，不作交换、结合或去重。因而 raw `exactly-one(flag(a), flag(a))` 仍有两个 true child；只有降级后的 legacy 和结构完全相同的 raw DSL 共享 canonical identity。
+- validator 仅在 executable 节点接受 closed `enabledByFlags`，并在递归每层将非空字符串 atom 规范化为 `{ kind: "flag", flag }`；它拒绝 container、空/sparse child 列表、空 token、非法 kind/mode、非 literal-true propagation 和 unknown fields。递归树最多 16 层、256 个节点；超过任一界限在 author work 前失败。
+- legacy `{ flags, mode }` 先复制、去重、按文本排序并降级为同型 `{ when }`；builder output 与 raw AST 都复制并冻结每个节点，保留每个 set node 的 child 顺序和 multiplicity，不作交换、结合或去重。authoring form 不形成第二 identity：`when: "a"`、等价 raw flag node 与包含该 atom 的 builder output 都进入同一 object-only canonical AST；因而 `exactlyOne("a", "a")` 与等价 raw AST 都仍有两个 true child。只有规范化后结构完全相同的 input（包括降级后的 legacy）共享 canonical identity。
 - normalized `{ when, propagateDependsOn? }` 进入 declarative snapshot/fingerprint；省略 propagation 与显式 opt-in 保持可区分，不能在 normalization 时隐式开启传播。
 - Run 在任何 control settlement 或 author work 前验证完整 executable graph，再计算唯一 private effective selection。matching opt-in roots 的 normalized dependsOn closure 取去重并集，以 canonical Check order 消费；不读取 observes，也不再次验证或运行 provider。
 - effective selection 同时供 flag settlement 与 effective aggregation 消费；未匹配且不在 selection 中的 Check 才结算为 flag-condition-not-matched。被激活的 dependency 保留普通 pending/admission 路径，all-passed prerequisite 仍由 Scheduler 重检。

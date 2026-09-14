@@ -34,7 +34,7 @@ relations:
 
 - 采用: `ProjectDefinition.changes` 声明一个 Git comparison 与 change flag regions。每个 flag ID 生成 `vibe-check:change:<id>`；RunControls 拒绝 caller 提供该保留前缀。V1 使用一个 project root 与一个 comparison view。
 - 采用: Product 在完整输入与 graph validation 后、effective selection 和 Scheduler admission 前至多准备一次 changed paths。新增、修改、删除与 rename 的相关路径参与所有 regions；嵌套 project root 只接收自身相对路径，一个 path 可以产生多个 flags。
-- 采用: `enabledByFlags` 扩展为 closed recursive DSL，直接提供 flag、all、any、none、not-all、exactly-one 与 unary not。当前 `{ flags, mode, propagateDependsOn? }` 保持合法；shorthand tokens 维持既有去重排序，raw DSL 保留 child 顺序与 multiplicity，避免 normalization 改变 exactly-one 语义。
+- 采用: `enabledByFlags` 扩展为 closed recursive DSL。authoring 中普通字符串直接表示 flag atom，`changeFlag(id)` 返回受保护前缀的字符串 token；package root 直接导出 `all`、`any`、`none`、`notAll`、`exactlyOne` 与 unary `not` builder，不增加 `flag()` 或 namespace。raw object AST 与当前 `{ flags, mode, propagateDependsOn? }` 保持合法，并与 builder/string 输入规范化为同一 object-only canonical AST；shorthand tokens 维持既有去重排序，raw DSL 保留 child 顺序与 multiplicity，避免 normalization 改变 exactly-one 语义。
 - 采用: Caller flags 与 derived flags 只形成一次 effective selection，并继续驱动 `dependsOn` propagation、control settlement、progress 与 effective aggregation。`project.flags` 保留 caller input；change evidence 使用独立 context。
 - 采用: 成功 context 以稳定 file-centric records 直接关联每个命中 path 与其全部 flags。可信零命中返回空 records；检测不可用时 context 返回 reason 且没有 records，selection 则把全部声明 change flags 视为 present。
 - 采用: `prepare` 与 `execute` 读取同一冻结 change result。Product 总向 `prepare` 传 project context，公开第三参数仅为兼容既有直接调用而保持 optional。Preparation 保持 task-local admission 时机，不重新检测 changes；change context 不自动进入 machine、diagnostic、cache 或跨 Run state。

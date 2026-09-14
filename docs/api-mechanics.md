@@ -84,17 +84,12 @@ fingerprint 使用 normalized declarative fields；preparation、execution 与 c
 调用方 controls 只能提供自己的普通 flags，不能传入 `vibe-check:change:` prefix。`project.flags` 保留规范化后的 caller flags；同一 immutable `project.changes` 同时交给 `prepare` 和 `execute`。不配置 `changes` 时 Product 不获取 Git、callback 也没有 `project.changes`，既有 caller-flag selection 保持不变。这份 evidence 只说明本次 Git acquisition，不是环境、权限或 patch-content capability。
 
 ```ts
-import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+import { changeFlag, defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
 
 const sourceChanged = defineCheck({
   checkId: "source-changed",
   displayName: "Source changed",
-  enabledByFlags: {
-    when: {
-      kind: "flag",
-      flag: "vibe-check:change:source"
-    }
-  },
+  enabledByFlags: { when: changeFlag("source") },
   execute: ({ project }) => {
     const changes = project.changes;
     if (changes === undefined) {
