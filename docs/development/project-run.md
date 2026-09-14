@@ -8,15 +8,15 @@ Definition validation、normalization 与 fingerprint 实现由 [Project Definit
 
 以下路径相对于 `src/project-run/`，列出 Run 内部的职责划分：
 
-| 路径 | 下级 owner 的职责 |
-| --- | --- |
-| `invocation/**` | 一次 invocation 的创建、路径、Scheduler handoff、execution candidate 与 progress counter。 |
-| `completion/**` | sealed Check facts 之后的 machine publication 与 terminal result。 |
-| `outputs/**` | Run output 的选择与 status。 |
-| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。 |
-| `task-scheduler/measurement/**` | timing、summary 与 diagnostic measurement。 |
-| `task-scheduler/**` 父层 | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。 |
-| 其它直接子 owner | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `admission-strategy-provider/**` 各自拥有对应领域职责。 |
+| 路径                               | 下级 owner 的职责                                                                                                                                |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `invocation/**`                    | 一次 invocation 的创建、路径、Scheduler handoff、execution candidate 与 progress counter。                                                       |
+| `completion/**`                    | sealed Check facts 之后的 machine publication 与 terminal result。                                                                               |
+| `outputs/**`                       | Run output 的选择与 status。                                                                                                                     |
+| `task-scheduler/admission-core/**` | immutable admission graph/state 的编译、查询、选择与 transition。                                                                                |
+| `task-scheduler/measurement/**`    | timing、summary 与 diagnostic measurement。                                                                                                      |
+| `task-scheduler/**` 父层           | 实际 Scheduler lifecycle、graph validation 与两个子簇间的 integration。                                                                          |
+| 其它直接子 owner                   | `check-execution/**`、`controls/**`、`diagnostic-logging/**`、`progress-rendering/**` 与 `admission-strategy-provider/**` 各自拥有对应领域职责。 |
 
 ## Invocation and results
 
@@ -25,7 +25,7 @@ Definition validation、normalization 与 fingerprint 实现由 [Project Definit
 
 Run 先验证 Definition 和 closed Controls，再生成 invocation-private inputs。公开字段归属见[参数位置](../api-mechanics.md#参数应该放在哪里)：唯一重叠是 Definition output defaults 被当前 Controls 逐字段覆盖，不是对象 merge，也不能借 Controls 改写 Checks 或 scheduler。
 
-flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。Product 只解释声明的 presence predicates，不定义 token vocabulary；完整 canonical flags 继续交给 callback project context。
+flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。caller 不得提供 `vibe-check:change:` 保留前缀；它在任何 author work 前同样形成 closed Controls failure。Product 只解释声明的 presence predicates，不定义其它 token vocabulary；完整 canonical caller flags 继续交给 callback project context。
 
 `checkAggregation` 没有默认值，是唯一的多 Check aggregation 输入：
 
@@ -39,18 +39,19 @@ flags 在进入 control barrier 前复制、去重、排序并冻结；省略/un
 }
 ```
 
-Run 在 work 前拒绝 unknown、duplicate 或 non-normalized ID-list selection；effective selector 复用唯一 private flag-and-dependsOn closure，不公开成员表或建立第二 resolver。状态派生接线见 [Check results](check-results.md#explicit-aggregation-and-repository-gate-mapping)，公开折叠规则见 [API 机制](../api-mechanics.md)。
+Run 在 work 前拒绝 unknown、duplicate 或 non-normalized ID-list selection；effective selector 复用唯一 private flag-and-dependsOn closure，不公开成员表或建立第二 resolver。signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 pre-work cancellation 结束；若在 graph validation 期间取消，后续 pre-work check 同样阻止 Git acquisition。否则，配置 `changes` 时，Run 在该 selector 前只取得一次 Git changed-path snapshot：effective project root 可以嵌套在 repository 内，Git candidates 仍规范化为相对该 root 的路径；committed `compareWith...HEAD`、staged、unstaged 与 untracked paths 合并，rename 的 old/new 和 delete 的 old path 都参加区域匹配。可信成功只把命中 region 的稳定 `{ path, flags }` file records 投影给 callback；可信零命中是空 `files`。Git/repository/revision/path 不能形成可信结果时，context 保留 unavailable reason，而 selector 保守取得全部已声明 derived flags。快照后若 signal 已取消，Run 在 admission strategy 前以 planning cancellation 结束。状态派生接线见 [Check results](check-results.md#explicit-aggregation-and-repository-gate-mapping)，公开折叠规则见 [API 机制](../api-mechanics.md)。
 
 所有 invocation path facts 在 callback 前冻结，后续只消费其 absolute representation，不再次解释 caller directory text。Check artifact base 与其它 directory target 使用同一 trusted grammar，不提供 containment、cleanup 或跨 Run state capability；省略时 callback artifactDirectory 为 null。
 
-| Fact | Authoring authority | Frozen invocation projection | Check callback visibility |
-| --- | --- | --- | --- |
-| project root | `RunControls.projectRoot`，省略时为 Product current working directory | absolute effective root | `project.root` |
-| Check artifact base | 仅 `RunControls.checkArtifactBaseDirectory` | absolute base 或 `null`，不进入 Definition fingerprint | 当前 Check 的 `artifactDirectory` 或 `null` |
-| Gate exact Check base | Gate 选择 exact absolute `<invocation>/checks/` 后作为同一 control 传入 | Product 直接使用该 base，不创建另一层 invocation directory | 当前 Check 仍只见自己的 directory |
-| machine / diagnostic target | Definition defaults 加对应 output override | owner-private absolute target；diagnostic 按 owner-channel `RunResult` file readback 投影 | 不可见 |
-| progress transcript target | 仅 `RunControls.progressLogFile` | current-Run absolute target 或 `null`；terminal 仍为 primary presentation | 不可见 |
-| scheduler history、Check cache、candidate state、external-tool workspace | 各自 owner 的 options / lifecycle | 不属于 invocation path representation | 不可见 |
+| Fact                                                                     | Authoring authority                                                     | Frozen invocation projection                                                              | Check callback visibility                                              |
+| ------------------------------------------------------------------------ | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| project root                                                             | `RunControls.projectRoot`，省略时为 Product current working directory   | absolute effective root                                                                   | `project.root`                                                         |
+| project changes                                                          | Definition 的可选 `changes`                                             | 冻结的成功 file evidence 或 unavailable reason；不配置时不运行 Git             | 配置时的 `project.changes`；prepare 与 execute 见同一 context identity |
+| Check artifact base                                                      | 仅 `RunControls.checkArtifactBaseDirectory`                             | absolute base 或 `null`，不进入 Definition fingerprint                                    | 当前 Check 的 `artifactDirectory` 或 `null`                            |
+| Gate exact Check base                                                    | Gate 选择 exact absolute `<invocation>/checks/` 后作为同一 control 传入 | Product 直接使用该 base，不创建另一层 invocation directory                                | 当前 Check 仍只见自己的 directory                                      |
+| machine / diagnostic target                                              | Definition defaults 加对应 output override                              | owner-private absolute target；diagnostic 按 owner-channel `RunResult` file readback 投影 | 不可见                                                                 |
+| progress transcript target                                               | 仅 `RunControls.progressLogFile`                                        | current-Run absolute target 或 `null`；terminal 仍为 primary presentation                 | 不可见                                                                 |
+| scheduler history、Check cache、candidate state、external-tool workspace | 各自 owner 的 options / lifecycle                                       | 不属于 invocation path representation                                                     | 不可见                                                                 |
 
 callback capability 按上表投影；完整 context shape 由[Check authoring 指南](../guides/extending-check-lifecycle.md)定义。Check artifactDirectory 从 stable Check ID 确定性派生，采用 bounded filesystem-safe encoding，避免 traversal、component-length 和直接 sanitize collision；raw ID 留在 Check facts。
 
@@ -63,7 +64,7 @@ messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，
 
 ## Check 执行与依赖交接
 
-Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；Scheduler 再对 admitted Task 运行 task-local preparation 和 execution。独立 ready preparation 可并行，不能形成全局 barrier。路径与 callback capability 由[本次调用](#invocation-and-results)投影，preparation snapshot 与 flag selection 见[Project Definition](project-definition.md)。
+Invocation 冻结 root/output/artifact paths、验证完整 graph，并在 cancellation precedence 之后完成一次 flag-control barrier；配置的 changes preparation 先把 caller 与 derived flags 合成为 selector 的私有输入，`project.flags` 不混入 derived flags。Scheduler 再对 admitted Task 运行 task-local preparation 和 execution。独立 ready preparation 可并行，不能形成全局 barrier；每项 `prepare(options, signal, project)` 和后续 execute 接收同一个冻结 project context。路径与 callback capability 由[本次调用](#invocation-and-results)投影，preparation snapshot 与 flag selection 见[Project Definition](project-definition.md)。
 
 Scheduler 是 Run-private child，使用共同 immutable admission reducer 维护 graph、relations、mutex、root/scoped/named capacity、cancellation 与 settlement；real shell 独占真实 Task/Promise 和 effects。policy 只交回决定，不获得执行权限。reducer、simulation、hard guards、measurement 与 terminal handoff 由[Scheduler 实现](scheduler.md)完整拥有。
 

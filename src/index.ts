@@ -145,10 +145,15 @@ export type {
   CheckDependencies,
   CheckExecution,
   CheckExecutionContext,
+  CheckFlagCondition,
+  CheckFlagEnablement,
+  CheckFlagEnablementMode,
   CheckPreparation,
   CheckPreparationResult,
+  CheckProjectContext,
   CheckResourceClaims,
   CheckOutcome,
+  ProjectChanges,
   CheckResult,
   CheckUnavailableReason,
   InheritableCheckCollection
@@ -197,6 +202,11 @@ export type {
   SchedulerRawMeasurement,
   SchedulerPolicy
 } from "./project-definition/project-definition.ts";
+export type {
+  ProjectChangeFlagRegion,
+  ProjectChangeSource,
+  ProjectChangesConfiguration
+} from "./project-definition/project-changes.ts";
 export type {
   CheckAggregate,
   CheckAggregation,

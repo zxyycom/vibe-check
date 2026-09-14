@@ -2,7 +2,7 @@
 
 本文拥有 project-owned TypeScript Definition 的 validation、normalization、声明性 snapshot 与 fingerprint 不变量。公开 authoring 由 [API 机制](../api-mechanics.md)、[Check lifecycle](../guides/extending-check-lifecycle.md)、[依赖数据](../guides/check-dependencies.md)及[调度指南](../guides/scheduling.md)定义；Run Controls 和 capability 投影见 [Project Run](project-run.md)。
 
-Definition 仅含 ordinary Check tree、scheduler 与默认 outputs；file selection、领域 policy 和 scanner options 留在 owning Check，不按随包 Check ID 解释。`defineConfig` 生成普通 value，Product 不发现或重载配置模块。
+Definition 仅含 ordinary Check tree、可选 changes、scheduler 与默认 outputs；file selection、领域 policy 和 scanner options 留在 owning Check，不按随包 Check ID 解释。`defineConfig` 生成普通 value，Product 不发现或重载配置模块。
 
 ## Progress preview 配置
 
@@ -74,14 +74,38 @@ export default defineConfig({
 
 ### Flag-enabled Checks
 
-公开 authoring grammar、四种 predicate、传递选择和用户边界由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)定义。本节只拥有将其转换为 invocation 输入的实现不变量：
+公开 authoring grammar、递归 predicate、传递选择和用户边界由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)定义。本节只拥有将其转换为 invocation 输入的实现不变量：
 
-- validator 仅在 executable 节点接受 closed enabledByFlags，拒绝 container、空/sparse token 列表、非法 mode、非 literal-true propagation 和 unknown fields；normalizer 复制、去重、按文本排序并冻结 token，不向 children 继承字段。
-- normalized control 进入 declarative snapshot/fingerprint；省略 propagation 与显式 opt-in 保持可区分，不能在 normalization 时隐式开启传播。
+- validator 仅在 executable 节点接受 closed `enabledByFlags`，拒绝 container、空/sparse child 列表、空 token、非法 kind/mode、非 literal-true propagation 和 unknown fields。递归树最多 16 层、256 个节点；超过任一界限在 author work 前失败。
+- legacy `{ flags, mode }` 先复制、去重、按文本排序并降级为同型 `{ when }`；raw DSL 则复制并冻结每个节点，保留每个 set node 的 child 顺序和 multiplicity，不作交换、结合或去重。因而 raw `exactly-one(flag(a), flag(a))` 仍有两个 true child；只有降级后的 legacy 和结构完全相同的 raw DSL 共享 canonical identity。
+- normalized `{ when, propagateDependsOn? }` 进入 declarative snapshot/fingerprint；省略 propagation 与显式 opt-in 保持可区分，不能在 normalization 时隐式开启传播。
 - Run 在任何 control settlement 或 author work 前验证完整 executable graph，再计算唯一 private effective selection。matching opt-in roots 的 normalized dependsOn closure 取去重并集，以 canonical Check order 消费；不读取 observes，也不再次验证或运行 provider。
 - effective selection 同时供 flag settlement 与 effective aggregation 消费；未匹配且不在 selection 中的 Check 才结算为 flag-condition-not-matched。被激活的 dependency 保留普通 pending/admission 路径，all-passed prerequisite 仍由 Scheduler 重检。
 - cancellation precedence 在 flag control 之前，不把 cancelled Task 伪造成 flag miss；pre-admission result 留在同一 graph、dependency readback 和终态 snapshot 中，没有 started fact，duration 为 null。
 - selection 保持 invocation-private，不投影新的 ID list、callback capability 或 machine/diagnostic telemetry。callback 仍读取完整 canonical project.flags；人读压缩由[输出指南](../guides/run-outputs.md#progress-rendering)定义。
+
+### Project changes
+
+`changes` 是可选的 closed Definition field，用一次 Git comparison 声明可派生的 change flags：
+
+```ts
+{
+  source: { kind: "git", compareWith: "origin/main" },
+  flags: {
+    "product-runtime": { include: ["src/**"], exclude: [] }
+  }
+}
+```
+
+`source` 只能是带非空、无 U+0000 且不以 `-` 开头的 `compareWith` 的 Git source；`flags` 必须是至少一个非空 ID 到 exact
+`{ include, exclude }` region 的映射。两个 glob 数组都必须 dense 且每项为非空字符串；其
+project-root-relative slash-path、dot path 和 exclude-first 匹配语义由[文件选择](../guides/collecting-project-files.md#共享的-files-选择语义)拥有，Definition 不读取 Git 或自行枚举文件。
+
+normalization 会复制、冻结 source、mapping、region 和数组；该静态值完整进入 declarative
+snapshot/fingerprint。`vibe-check:change:<id>` 是 Definition-owned 保留 token：递归 `when` 中的每个该类
+引用都必须在同一 `changes.flags` 声明已知 `<id>`，未配置 changes 或未知 ID 都在 author work 前使 Definition
+validation 失败。普通 caller token 不在此处受词汇表限制；Git acquisition、derived-token selection、unavailable
+fallback 与 callback context 由 Project Run owner 实现。
 
 ### Scheduler 配置
 

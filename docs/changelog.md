@@ -2,6 +2,25 @@
 
 本页随包提供版本变化与升级影响，按版本组织。
 
+## 未发布
+
+### Project change flags
+
+- **新增 `ProjectDefinition.changes`**：Project author 可声明一次 Git comparison 与一个或多个文件区域；每次 Run 在
+  effective selection 前取得一份冻结的 changed-path evidence，并为命中区域生成受保护的
+  `vibe-check:change:<id>` flags。可信零命中保留空 `files`；Git evidence 不可用时保留可判别 reason，
+  但保守启用全部已声明 change flags，避免遗漏 Check。
+- **`enabledByFlags` 支持递归 `when` DSL**：除既有 shorthand 外，支持 `flag`、`all`、`any`、`none`、
+  `not-all`、`exactly-one` 与 `not`。raw children 的顺序和重复次数保留；特别是重复 child 会影响
+  `exactly-one`。已有 shorthand 保持兼容。
+- **Check callbacks 可读取同一 change evidence**：配置 changes 后，`prepare(options, signal, project?)` 与
+  `execute({ project })` 读取同一个 frozen `project.changes`；`project.flags` 仍只包含 caller-provided flags。
+  Controls 传入 `vibe-check:change:` prefix 会在 author callback 前失败。
+
+升级时，如原先在每个 Check 内自行运行 Git 或解释 changed path，可迁移到 Definition 的 `changes` 与
+`enabledByFlags.when`；必须处理 `{ ok: false }` 的保守选择，同时不能把它误写为可信 files。未设置
+`changes` 的 Definition 继续只按 caller flags 选择 Check，也不会获取 Git evidence。
+
 ## 0.0.2
 
 发布日期：2026-09-09。

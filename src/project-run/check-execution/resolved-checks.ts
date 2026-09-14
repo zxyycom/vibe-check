@@ -43,6 +43,8 @@ export type ResolvedCheckExecutionInput = Readonly<{
   readonly invocationId?: string;
   /** 冻结的 invocation paths；仅 private direct-execution tests 可以省略。 */
   readonly paths?: ResolvedInvocationPaths;
+  /** Product-private caller-and-derived flags used only by the single effective selector. */
+  readonly effectiveFlags?: readonly string[];
   readonly project: CheckProjectContext;
   readonly signal: AbortSignal | undefined;
   readonly clock?: CheckExecutionClock;
@@ -69,7 +71,10 @@ export async function executeResolvedChecks(
   input: ResolvedCheckExecutionInput
 ): Promise<ResolvedCheckExecution> {
   prepareTaskGraph(planStaticCheckGraph(input.checks, input.resourceCapacities), input.maxParallel);
-  const effectiveCheckIds = selectEffectiveCheckIds(input.checks, input.project.flags);
+  const effectiveCheckIds = selectEffectiveCheckIds(
+    input.checks,
+    input.effectiveFlags ?? input.project.flags
+  );
   return runWithCheckConsoleRouter(() => executePreparedResolvedChecks(input, effectiveCheckIds));
 }
 

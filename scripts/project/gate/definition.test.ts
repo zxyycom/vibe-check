@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { defineCheck, markdownLinkValidation, run as packageRun } from "@zxyycom/vibe-check";
+import type {
+  CheckFlagCondition,
+  CheckFlagEnablement,
+  CheckProjectContext
+} from "@zxyycom/vibe-check";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
@@ -99,7 +105,7 @@ const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "tests-package-consumer-runtime"
 ]);
 const expectedRequiredCheckIds = expectedCheckIds.filter(
-  (checkId) => !packageAcceptanceCheckIds.has(checkId)
+  (checkId) => !packageAcceptanceCheckIds.has(checkId) && checkId !== "tests-product-runtime"
 );
 
 const expectedCheckIdsBySelection: readonly Readonly<{
@@ -436,17 +442,38 @@ describe("Project Gate Definition", () => {
       const flags = new Set(selectionFlags(expectation.selection));
       assert.deepEqual(
         definition.checks
-          .filter((check) => check.enabledByFlags?.flags.some((flag) => flags.has(flag)) === true)
+          .filter((check) => matchesFlagEnablement(check.enabledByFlags, flags))
           .map(({ checkId }) => checkId),
         expectation.checkIds
       );
     }
 
     for (const check of definition.checks) {
+      assert.equal(check.enabledByFlags?.propagateDependsOn, true);
+      if (check.checkId === "tests-product-runtime") continue;
       assert.equal(check.enabledByFlags?.mode, "any");
       assert.equal(check.enabledByFlags?.flags.includes("project-gate:all"), true);
-      assert.equal(check.enabledByFlags?.propagateDependsOn, true);
     }
+    assert.deepEqual(
+      definition.checks.find(({ checkId }) => checkId === "tests-product-runtime")?.enabledByFlags,
+      {
+        when: {
+          kind: "any",
+          conditions: [
+            {
+              kind: "all",
+              conditions: [
+                { kind: "flag", flag: "project-gate:required" },
+                { kind: "flag", flag: "vibe-check:change:product-runtime" }
+              ]
+            },
+            { kind: "flag", flag: "project-gate:preset=test" },
+            { kind: "flag", flag: "project-gate:all" }
+          ]
+        },
+        propagateDependsOn: true
+      }
+    );
     for (const packageCheckId of packageAcceptanceCheckIds) {
       const entry = entries.find(({ check }) => check.checkId === packageCheckId);
       assert.ok(entry, `${packageCheckId} must exist`);
@@ -458,6 +485,96 @@ describe("Project Gate Definition", () => {
         propagateDependsOn: true
       });
     }
+  });
+
+  it("selects the product-runtime lane only for a runtime change, unavailable source, or explicit force path", async () => {
+    for (const scenario of [
+      { kind: "unchanged", flags: ["project-gate:required"], runs: false },
+      { kind: "changed", flags: ["project-gate:required"], runs: true },
+      { kind: "unavailable", flags: ["project-gate:required"], runs: true },
+      { kind: "test", flags: ["project-gate:preset=test"], runs: true },
+      { kind: "all", flags: ["project-gate:all"], runs: true }
+    ] as const) {
+      const fixture =
+        scenario.kind === "unavailable"
+          ? mkdtempSync(join(tmpdir(), "vibe-check-gate-changes-"))
+          : gitFixture();
+      let calls = 0;
+      let project: CheckProjectContext | undefined;
+      try {
+        if (scenario.kind === "changed") commitRuntimeChange(fixture);
+        const definition = createProjectGateDefinition(
+          defineProjectGateEntries([
+            {
+              check: defineCheck({
+                checkId: "tests-product-runtime",
+                displayName: "Fixture Product runtime tests",
+                execute: ({ project: context }) => {
+                  calls += 1;
+                  project = context;
+                  return { data: {}, status: "passed" };
+                }
+              }),
+              presets: ["test"],
+              required: true
+            }
+          ])
+        );
+        const result = await packageRun(definition, {
+          flags: scenario.flags,
+          outputs: {
+            diagnosticLogging: { enabled: false },
+            machinePublication: { enabled: false },
+            progressRendering: { enabled: false }
+          },
+          projectRoot: fixture
+        });
+        assert.equal(result.kind, "completed", scenario.kind);
+        assert.equal(calls, scenario.runs ? 1 : 0, scenario.kind);
+        const outcome =
+          result.kind === "completed" ? result.snapshot.checks[0]?.outcome : undefined;
+        assert.equal(outcome?.status, scenario.runs ? "passed" : "not-applicable", scenario.kind);
+        if (scenario.kind === "unchanged") {
+          assert.deepEqual(project, undefined);
+          continue;
+        }
+        assert.equal(
+          project?.changes?.ok,
+          scenario.kind === "unavailable" ? false : true,
+          scenario.kind
+        );
+        if (scenario.kind === "changed") {
+          assert.deepEqual(project?.changes, {
+            files: [{ flags: ["vibe-check:change:product-runtime"], path: "src/runtime.ts" }],
+            ok: true
+          });
+        }
+        if (scenario.kind === "unavailable") {
+          assert.deepEqual(project?.changes, {
+            ok: false,
+            reason: { code: "git-changes-unavailable" }
+          });
+        }
+      } finally {
+        rmSync(fixture, { force: true, recursive: true });
+      }
+    }
+  });
+
+  it("keeps the product-runtime change region complete for the lane resolver", () => {
+    const lanes = resolveProjectGateTestLanes(process.cwd());
+    const allProductRuntimeFiles = Object.values(lanes)
+      .flat()
+      .filter((file) => file.startsWith("src/") && !file.startsWith("src/package-checks/"));
+    assert.deepEqual(lanes.productRuntime, allProductRuntimeFiles);
+    assert.equal(
+      lanes.productRuntime.every((file) => file.startsWith("src/")),
+      true
+    );
+    assert.equal(
+      lanes.productRuntime.some((file) => file.startsWith("src/package-checks/")),
+      false
+    );
   });
 
   it("executes only Product flag-selected Checks and aggregates the same identities", async () => {
@@ -811,6 +928,71 @@ describe("Project Gate Definition", () => {
     }
   });
 });
+
+function matchesFlagEnablement(
+  enablement: CheckFlagEnablement | undefined,
+  flags: ReadonlySet<string>
+): boolean {
+  if (enablement === undefined) return true;
+  if (enablement.when !== undefined) return matchesFlagCondition(enablement.when, flags);
+  switch (enablement.mode) {
+    case "all":
+      return enablement.flags.every((flag) => flags.has(flag));
+    case "any":
+      return enablement.flags.some((flag) => flags.has(flag));
+    case "none":
+      return enablement.flags.every((flag) => !flags.has(flag));
+    case "not-all":
+      return enablement.flags.some((flag) => !flags.has(flag));
+  }
+}
+
+function matchesFlagCondition(condition: CheckFlagCondition, flags: ReadonlySet<string>): boolean {
+  switch (condition.kind) {
+    case "flag":
+      return flags.has(condition.flag);
+    case "all":
+      return condition.conditions.every((child) => matchesFlagCondition(child, flags));
+    case "any":
+      return condition.conditions.some((child) => matchesFlagCondition(child, flags));
+    case "none":
+      return condition.conditions.every((child) => !matchesFlagCondition(child, flags));
+    case "not-all":
+      return condition.conditions.some((child) => !matchesFlagCondition(child, flags));
+    case "exactly-one":
+      return (
+        condition.conditions.filter((child) => matchesFlagCondition(child, flags)).length === 1
+      );
+    case "not":
+      return !matchesFlagCondition(condition.condition, flags);
+  }
+}
+
+function gitFixture(): string {
+  const root = mkdtempSync(join(tmpdir(), "vibe-check-gate-changes-"));
+  git(root, ["init", "--quiet"]);
+  git(root, ["config", "user.email", "gate-changes@example.invalid"]);
+  git(root, ["config", "user.name", "Gate changes Test"]);
+  mkdirSync(join(root, "src"));
+  writeFileSync(join(root, "src", "runtime.ts"), "export const runtime = 1;\n", "utf8");
+  git(root, ["add", "."]);
+  git(root, ["commit", "--quiet", "-m", "baseline"]);
+  const baseline = git(root, ["rev-parse", "HEAD"]);
+  git(root, ["update-ref", "refs/remotes/origin/main", baseline]);
+  return root;
+}
+
+function commitRuntimeChange(root: string): void {
+  writeFileSync(join(root, "src", "runtime.ts"), "export const runtime = 2;\n", "utf8");
+  git(root, ["add", "src/runtime.ts"]);
+  git(root, ["commit", "--quiet", "-m", "runtime change"]);
+}
+
+function git(root: string, args: readonly string[]): string {
+  const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
+  assert.equal(result.status, 0, `git ${args.join(" ")} failed: ${result.stderr}`);
+  return result.stdout.trim();
+}
 
 function expectedResourceClaimsFor(checkId: string): Readonly<Record<string, number>> | undefined {
   if (bunTestRunnerCheckIds.includes(checkId)) {

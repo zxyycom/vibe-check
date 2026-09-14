@@ -1,7 +1,7 @@
 /** Path and Git-output projections shared by revision traversal helpers. */
 
 import { toSlashPath } from "../host-environment/path.ts";
-import { matchesAnyConfigGlob } from "./config-glob.ts";
+import { matchesAnyConfigGlob } from "../../data-boundary/config-glob.ts";
 
 export function uniqueSortedPaths(files: readonly string[]): string[] {
   return [...new Set(files.map(toSlashPath))].sort();

@@ -330,6 +330,18 @@ export function createProjectGateDefinition(
 ): ProjectDefinition {
   return defineConfig({
     checks: entries.map(projectGateFlagControlledCheck),
+    changes: {
+      source: {
+        kind: "git",
+        compareWith: "origin/main"
+      },
+      flags: {
+        "product-runtime": {
+          exclude: [],
+          include: ["src/**"]
+        }
+      }
+    },
     outputs: PROJECT_GATE_RUN_CONFIG.definitionOutputs,
     scheduler: PROJECT_GATE_RUN_CONFIG.scheduler
   });

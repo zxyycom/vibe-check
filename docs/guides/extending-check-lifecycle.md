@@ -7,7 +7,7 @@
 | 需求 | 使用方式 | 不要用它做什么 |
 | --- | --- | --- |
 | 规则可直接测量并结算 | `execute(context)` | 不要在 callback 外留下未等待的工作。 |
-| 执行前验证或把 authoring options 变成 invocation-local 的准备值 | `prepare(options, signal)` 后接 `execute(context)` | 它不是全局启动 hook；只在本 Check 已获准入后运行。 |
+| 执行前验证或把 authoring options 变成 invocation-local 的准备值 | `prepare(options, signal, project?)` 后接 `execute(context)` | 它不是全局启动 hook；只在本 Check 已获准入后运行。 |
 | 保存不决定终态的逐项事实 | `context.records.report({ id }, data)` | Record 不能替代 `passed`、`failed`、`not-applicable` 或 `unavailable`。 |
 | 读取已声明上游结果 | `dependsOn` 或 `observes`，再从 `context.dependencies` 读取 | 不能读取未声明、传递或任意已运行的 Check。 |
 | 向 direct prerequisite consumer 交接 same-Run reference | 在 provider 上声明 `handoff: true`，并在 `passed` result 返回 `handoff` | 不能用它发布到 RunResult、machine、progress、diagnostic 或 cache；不扩大 `observes` 权限。 |
@@ -79,7 +79,7 @@ formatter 返回的文本和终端截断也不会把已有 accepted detail 变�
 
 ## 按 flag 选择 Check
 
-`enabledByFlags` 只决定本次 Run 是否选择 executable Check；它不是权限、环境检测或 callback 内的条件替代。该字段的完整公开 grammar 是：
+`enabledByFlags` 只决定本次 Run 是否选择 executable Check；它不是权限、环境检测或 callback 内的条件替代。它接受兼容 shorthand，或带 recursive `when` 的 expression：
 
 ```ts
 {
@@ -87,15 +87,26 @@ formatter 返回的文本和终端截断也不会把已有 accepted detail 变�
   mode: "all" | "any" | "none" | "not-all",
   propagateDependsOn?: true
 }
+
+// 或
+{
+  when:
+    | { kind: "flag", flag: "token" }
+    | { kind: "all" | "any" | "none" | "not-all" | "exactly-one", conditions: [/* 非空 FlagCondition */] }
+    | { kind: "not", condition: /* FlagCondition */ },
+  propagateDependsOn?: true
+}
 ```
 
-`enabledByFlags` 只可写在 executable Check 上，container 不接受也不向 children 继承它；额外字段或非法 mode 会在 author work 前使 Definition validation 失败。`flags` 必须是无空洞的非空列表，每个 token 是非空字符串；Product 会复制、去重、稳定排序并冻结它。其它未声明 tokens 不影响 predicate。没有 `enabledByFlags` 的 executable Check 默认被选择。 `all` 要求全部声明 token 存在，`any` 要求至少一个存在，`none` 要求全部不存在，`not-all` 要求至少一个不存在；它们都不是“恰好一个”的条件。predicate 不命中且未被下述依赖传播带入时，Check 在自己的 preparation / execution 前以 `not-applicable / flag-condition-not-matched` 结算，duration 为 `null`。
+`enabledByFlags` 只可写在 executable Check 上，container 不接受也不向 children 继承它；额外字段、空/sparse child、非法 kind/mode 或非 literal-true propagation 都会在 author work 前使 Definition validation 失败。legacy `flags` 必须是无空洞的非空列表，每个 token 是非空字符串；Product 会复制、去重、稳定排序后降级为等价 `when`。raw DSL 的 child 顺序和重复次数保留：重复项会影响 `exactly-one`，顺序也保留在 declarative identity 中。没有 `enabledByFlags` 的 executable Check 默认被选择。
 
-只有字面量 `propagateDependsOn: true` 才会把命中 root 的**传递** `dependsOn` prerequisite 一并加入本次选择；省略字段保持仅选择 direct match 的行为，不能写 `false`。这份传递闭包覆盖其中 dependency 自己的 flag predicate miss：被带入的 dependency 会继续正常调度，而不会先因 flag 结算为 `not-applicable`。`observes` 不参与该扩展选择；未被选择的 dependency 才仍可成为 `not-applicable` outcome，dependent 的 hard prerequisite 是否通过仍由 Scheduler 处理。需要带值 flag、恰好一个或嵌套布尔条件时，在 `execute` 中基于 `context.project.flags` 做项目自己的解释，并继续用 preparation/execution 结算真正的环境条件。
+`all` 要求全部 child 为真，`any` 要求至少一个为真，`none` 要求零个为真，`not-all` 要求至少一个为假，`exactly-one` 要求恰好一个为真，`not` 反转其唯一 child。每个 `flag` 只测试 token presence；普通 token 仍由 caller 定义。配置 `changes` 的 Definition 可引用其已声明 ID 的 `vibe-check:change:<id>`，但未知 ID 或未配置 changes 的此类引用会使 Definition validation 失败。predicate 不命中且未被下述依赖传播带入时，Check 在自己的 preparation / execution 前以 `not-applicable / flag-condition-not-matched` 结算，duration 为 `null`。
+
+只有字面量 `propagateDependsOn: true` 才会把命中 root 的**传递** `dependsOn` prerequisite 一并加入本次选择；省略字段保持仅选择 direct match 的行为，不能写 `false`。这份传递闭包覆盖其中 dependency 自己的 flag predicate miss：被带入的 dependency 会继续正常调度，而不会先因 flag 结算为 `not-applicable`。`observes` 不参与该扩展选择；未被选择的 dependency 才仍可成为 `not-applicable` outcome，dependent 的 hard prerequisite 是否通过仍由 Scheduler 处理。嵌套条件和“恰好一个”直接使用 DSL；只有需要解释 token 的值、外部状态或其它非 presence 事实时，才在 `prepare` / `execute` 中处理并结算对应条件。
 
 ## `prepare`：准备、阻止或带 fallback 继续
 
-`prepare(options, signal)` 收到 authoring options 的深度只读视图和这次 Run 的同一取消 signal。authored 与 prepared options 同形时可省略 `prepare`；两种 shape 不同时，TypeScript 要求提供它。它只能返回以下三种结果（每种都可附有序 `messages`）：
+`prepare(options, signal, project?)` 收到 authoring options 的深度只读视图、这次 Run 的同一取消 signal，以及同 `execute` 一致的只读 project context。Product 每次 Run 都传入第三参数；公开 callback 类型把它标为 optional，以兼容调用方直接调用既有两参数 callback。需要读取它时先处理 optional value，而不是推断配置 `changes` 时 Product 会省略 project。authored 与 prepared options 同形时可省略 `prepare`；两种 shape 不同时，TypeScript 要求提供它。它只能返回以下三种结果（每种都可附有序 `messages`）：
 
 - `{ status: "success", preparedOptions }`：把准备后的 object 交给 `execute` 的 `context.options`。
 - `{ status: "failure", action: "block", reason }`：本 Check 使用该 reason 直接结算为 `unavailable`，不接受 `fallback`，不会运行 `execute`。
@@ -111,7 +122,7 @@ formatter 返回的文本和终端截断也不会把已有 accepted detail 变�
 | --- | --- | --- |
 | `invocationId` | 关联本次 Run 的工作。 | 同一次 Run 的 callback 使用相同 ID，不是跨 Run state。 |
 | `options` | 使用本 Check 已准备的 options。 | 不修改；不是原始 authoring object。 |
-| `project.root` / `project.flags` | 使用本次规范化的绝对根目录和 flags。 | Product 只按 token presence 做选择；项目可自行解释完整 flags，但它们不证明环境或权限。 |
+| `project.root` / `project.flags` / `project.changes` | 使用本次规范化的绝对根目录、caller flags，以及已配置时同一次冻结的 change result。 | Product 只按 token presence 做选择；project.flags 不混入 derived change token，changes evidence 不证明环境或权限。 |
 | `dependencies` | 读取已声明 direct `dependsOn` / `observes` 的终态。 | `get` 不授权未声明或传递依赖；`list` 不是全局执行历史。 |
 | `artifactDirectory` | 写本 Check 的 invocation-local artifact；未授权时为 `null`。 | 不推导 sibling、machine、diagnostic 或跨 Run state 的路径。 |
 | `records` | 发布 object-shaped supplemental facts。 | 每个 ID 仅在本 Check 内唯一，且不会决定 status。 |

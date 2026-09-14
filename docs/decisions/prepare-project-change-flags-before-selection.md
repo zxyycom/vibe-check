@@ -2,7 +2,7 @@
 title: 在 Project preparation 中派生 change flags
 id: 260909-prepare-project-change-flags-before-selection
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-09T11:43:21Z
 purpose: 以文件区域派生受保护的 change flags，并通过统一 DSL 在调度前选择 Check
 background: caller flags 不能表达项目文件区域变化，provider Check 或 execution 内跳过也无法缩小调度前工作集
@@ -33,9 +33,10 @@ relations:
 ## 决策
 
 - 采用: `ProjectDefinition.changes` 声明一个 Git comparison 与 change flag regions。每个 flag ID 生成 `vibe-check:change:<id>`；RunControls 拒绝 caller 提供该保留前缀。V1 使用一个 project root 与一个 comparison view。
-- 采用: Product 在完整输入与 graph validation 后、effective selection 和 Scheduler admission 前至多准备一次 changed paths。新增、修改、删除与 rename 的相关路径参与所有 regions；一个 path 可以产生多个 flags。
+- 采用: Product 在完整输入与 graph validation 后、effective selection 和 Scheduler admission 前至多准备一次 changed paths。新增、修改、删除与 rename 的相关路径参与所有 regions；嵌套 project root 只接收自身相对路径，一个 path 可以产生多个 flags。
 - 采用: `enabledByFlags` 扩展为 closed recursive DSL，直接提供 flag、all、any、none、not-all、exactly-one 与 unary not。当前 `{ flags, mode, propagateDependsOn? }` 保持合法；shorthand tokens 维持既有去重排序，raw DSL 保留 child 顺序与 multiplicity，避免 normalization 改变 exactly-one 语义。
 - 采用: Caller flags 与 derived flags 只形成一次 effective selection，并继续驱动 `dependsOn` propagation、control settlement、progress 与 effective aggregation。`project.flags` 保留 caller input；change evidence 使用独立 context。
 - 采用: 成功 context 以稳定 file-centric records 直接关联每个命中 path 与其全部 flags。可信零命中返回空 records；检测不可用时 context 返回 reason 且没有 records，selection 则把全部声明 change flags 视为 present。
-- 采用: `prepare` 与 `execute` 读取同一冻结 change result。Preparation 保持 task-local admission 时机，不重新检测 changes；change context 不自动进入 machine、diagnostic、cache 或跨 Run state。
+- 采用: `prepare` 与 `execute` 读取同一冻结 change result。Product 总向 `prepare` 传 project context，公开第三参数仅为兼容既有直接调用而保持 optional。Preparation 保持 task-local admission 时机，不重新检测 changes；change context 不自动进入 machine、diagnostic、cache 或跨 Run state。
+- 采用: Core 与 package Checks 共同复用 `src/data-boundary` 中唯一的 slash-path/config-glob 实现；Project Run 只在自己的 change owner 内适配 Git process，不依赖具体 package Check。
 - 采用: Project Gate 的 product-runtime test lane 是首个 consumer；其 region 保守覆盖 `src/**`，默认 required selection 结合对应 change flag，显式 test/full flags 独立强制运行。用 region completeness、unchanged、changed、unavailable 和 force workloads 验证正确性与固定成本。

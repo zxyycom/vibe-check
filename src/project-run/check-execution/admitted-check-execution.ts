@@ -26,6 +26,7 @@ export async function executeAdmittedCheck(input: AdmittedCheckExecutionInput): 
   const preparation = await prepareCheck({
     check: input.check,
     diagnosticLogger: input.diagnosticLogger,
+    project: input.project,
     signal: input.signal
   });
   if (preparation.kind === "blocked") {

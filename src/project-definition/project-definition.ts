@@ -3,9 +3,9 @@ import type { MeaninglessCheckWarning } from "./check-tree/authoring.ts";
 import type { CheckDescriptor } from "../check/descriptor.ts";
 import type {
   Check,
-  CheckFlagEnablement,
   CheckPreparation,
-  CheckResourceClaims
+  CheckResourceClaims,
+  NormalizedCheckFlagEnablement
 } from "../check/check.ts";
 import type { HandoffProviderIdentity } from "../check/handoff-provider-identity.ts";
 import { DEFAULT_PROJECT_OUTPUTS, resolveProgressRenderingOutput } from "./output-defaults.ts";
@@ -18,6 +18,10 @@ import {
   EMPTY_RESOURCE_UNIT_MAPPING,
   snapshotResourceUnitMapping
 } from "./resource-unit-mapping.ts";
+import {
+  parseProjectChangesConfiguration,
+  type ProjectChangesConfiguration
+} from "./project-changes.ts";
 export { createDeclarativeFingerprint } from "./declarative-snapshot.ts";
 
 /** 一次 Project Run 的明确输出配置。 */
@@ -115,12 +119,15 @@ import type {
 export interface ProjectDefinition {
   readonly apiVersion: "1";
   readonly checks: readonly Check[];
+  /** 可选的静态 Git comparison 与本次 Run 的 change-flag regions。 */
+  readonly changes?: ProjectChangesConfiguration;
   readonly outputs: ProjectOutputs;
   readonly scheduler: SchedulerPolicy;
 }
 type ProjectDefinitionInput = Readonly<{
   apiVersion?: "1";
   checks?: readonly Check[];
+  changes?: ProjectChangesConfiguration;
   outputs?: Partial<{
     machinePublication: Partial<ProjectOutputs["machinePublication"]>;
     progressRendering: Partial<ProjectOutputs["progressRendering"]>;
@@ -146,7 +153,8 @@ export interface NormalizedCheckDeclaration {
   readonly admissionPriority: number;
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
-  readonly enabledByFlags?: CheckFlagEnablement;
+  /** 所有接受的 authoring form 都会降级为此 recursive DSL。 */
+  readonly enabledByFlags?: NormalizedCheckFlagEnablement;
   readonly maxParallel: number;
   readonly mutex: readonly string[];
   readonly observes: readonly string[];
@@ -162,11 +170,13 @@ export interface NormalizedCheck extends NormalizedCheckDeclaration {
 export interface DeclarativeProjectSnapshot {
   readonly apiVersion: "1";
   readonly checks: readonly NormalizedCheckDeclaration[];
+  readonly changes?: ProjectChangesConfiguration;
   readonly outputs: DeclarativeProjectOutputs;
   readonly scheduler: DeclarativeSchedulerPolicy;
 }
 export interface NormalizedProjectDefinition {
   readonly checks: readonly NormalizedCheck[];
+  readonly changes?: ProjectChangesConfiguration;
   readonly declarative: DeclarativeProjectSnapshot;
   readonly definitionWarnings: readonly DefinitionWarning[];
   /** Runtime scheduler policy；custom callback 保留在此处。 */
@@ -182,6 +192,7 @@ export function defineConfig<const T extends ProjectDefinitionInput>(
   return {
     apiVersion: value.apiVersion ?? "1",
     checks: value.checks ?? [],
+    ...(value.changes === undefined ? {} : { changes: value.changes }),
     outputs: {
       machinePublication: {
         directory:
@@ -221,12 +232,22 @@ export function normalizeProjectDefinition(
   if (tree === undefined)
     throw new TypeError("Project Definition Check tree failed closed normalization");
   const checks = Object.freeze(tree.leaves.map(normalizeCheck));
+  const changes =
+    definition.changes === undefined
+      ? undefined
+      : parseProjectChangesConfiguration(definition.changes);
+  if (definition.changes !== undefined && changes === undefined) {
+    throw new TypeError("Project Definition changes failed closed normalization");
+  }
+  const normalizedDefinition = Object.freeze({
+    ...definition,
+    ...(changes === undefined ? {} : { changes }),
+    scheduler
+  });
   return Object.freeze({
     checks,
-    declarative: createDeclarativeProjectSnapshot(
-      Object.freeze({ ...definition, scheduler }),
-      checks
-    ),
+    ...(changes === undefined ? {} : { changes }),
+    declarative: createDeclarativeProjectSnapshot(normalizedDefinition, checks),
     definitionWarnings: tree.warnings,
     scheduler
   });

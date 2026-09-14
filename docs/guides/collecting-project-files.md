@@ -25,7 +25,7 @@ if (!Object.isFrozen(selectedPaths)) {
 
 ## 共享的 files 选择语义
 
-需要选择项目文件的随包 Check 使用 `{ source, include, exclude }`：`source` 明确选择 `filesystem` 或 `git-worktree`，include/exclude 使用 project-root-relative、`/` 分隔的 minimatch glob，点号开头的路径也参与匹配，exclude 优先。来源不可用时不切换来源；Check 将它结算为 `unavailable`，下方独立工具则同步 throw。
+需要选择项目文件的随包 Check 使用 `{ source, include, exclude }`：`source` 明确选择 `filesystem` 或 `git-worktree`，include/exclude 使用 project-root-relative、`/` 分隔的 minimatch glob，点号开头的路径也参与匹配，exclude 优先。Project change regions 复用同一 include/exclude matcher，但只对 Git 已得出的 changed-path candidates 匹配，不重新枚举 project files。来源不可用时不切换来源；Check 将它结算为 `unavailable`，下方独立工具则同步 throw。
 
 `defaultProjectFileSelection` 是深冻结、可组合的基线，不是全局配置。它排除常见 VCS/Product state、dependencies、build/generated、cache、coverage、log、temporary 与 virtual-environment paths。`duplicateDetection`、`fileMetrics` 与 `jsonSchemaValidation` 原样采用该基线；`functionMetrics`、`jsonValidation` 与 `markdownLinkValidation` 保留 source/exclude，按支持文件类型派生默认 include。`secretDetection` 要求显式完整 selection。精确默认列表可从导出值读取，各 Check 的实际默认与 eligibility 见其指南。
 
@@ -35,12 +35,12 @@ Check constructor 接受省略字段时，由 owning Check 物化默认值；显
 
 每次调用都必须给出 `projectRoot` 与完整 `selection: { source, include, exclude }`：
 
-| 输入 | 要求与作用 |
-| --- | --- |
-| `projectRoot` | 非空且不含 U+0000 的路径；相对路径从调用时的工作目录解析，绝对路径直接使用。示例的 `"."` 是调用方显式选择当前目录，并非省略字段的默认值。 |
-| `selection.source` | 只能是 `"filesystem"` 或 `"git-worktree"`，决定候选路径来源。 |
-| `selection.include` | 无空洞的字符串数组，每项是相对 root、使用 `/` 的 glob；路径至少命中一项才被选中，`[]` 不选择任何路径。 |
-| `selection.exclude` | 同样是无空洞的字符串数组；命中任一 glob 就排除，`[]` 不增加排除条件。排除优先于包含。 |
+| 输入                | 要求与作用                                                                                                                                |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `projectRoot`       | 非空且不含 U+0000 的路径；相对路径从调用时的工作目录解析，绝对路径直接使用。示例的 `"."` 是调用方显式选择当前目录，并非省略字段的默认值。 |
+| `selection.source`  | 只能是 `"filesystem"` 或 `"git-worktree"`，决定候选路径来源。                                                                             |
+| `selection.include` | 无空洞的字符串数组，每项是相对 root、使用 `/` 的 glob；路径至少命中一项才被选中，`[]` 不选择任何路径。                                    |
+| `selection.exclude` | 同样是无空洞的字符串数组；命中任一 glob 就排除，`[]` 不增加排除条件。排除优先于包含。                                                     |
 
 这些对象只接受列出的自有数据字段，不接受额外字段或 getter/setter；数组也不接受额外属性或 accessor 元素。工具不在遗漏 root 时替调用方选择目录；显式 root 不是路径隔离、文件系统沙箱或文件内容可读性的承诺。
 

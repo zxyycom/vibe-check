@@ -9,6 +9,7 @@ import { CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE } from "./check-options-type-accep
 import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admission-strategy-type-acceptance.ts";
 import { CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE } from "./handoff-type-acceptance.ts";
 import { DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE } from "./data-boundary-type-acceptance.ts";
+import { PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE } from "./project-changes-type-acceptance.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
 
@@ -275,6 +276,7 @@ const changedFilesConsumer = defineCheck({
   }
 });
 
+${PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE}
 function directRelationIds(dependencies: CheckDependencies): readonly string[] {
   return dependencies.list().map((observation) => observation.checkId);
 }
@@ -345,7 +347,7 @@ const definition: ProjectDefinition = defineConfig({
     changedFiles,
     changedFilesConsumer,
     configuredJsonSchemaCheck
-  ]
+  ],
 });
 ${CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE}
 const learnedCriticalPathAdmissionPolicy: AdmissionPolicy = defineAdmissionPolicy({

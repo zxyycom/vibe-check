@@ -1,3 +1,4 @@
+import type { CheckFlagCondition } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { diagnosticTags, type DiagnosticLogger } from "../diagnostic-logging/logger.ts";
 
@@ -118,15 +119,29 @@ function matchesFlagEnablement(
   enablement: NonNullable<NormalizedCheck["enabledByFlags"]>,
   runFlags: readonly string[]
 ): boolean {
-  const isPresentInRun = (flag: string): boolean => runFlags.includes(flag);
-  switch (enablement.mode) {
+  return matchesFlagCondition(enablement.when, new Set(runFlags));
+}
+
+function matchesFlagCondition(
+  condition: CheckFlagCondition,
+  runFlags: ReadonlySet<string>
+): boolean {
+  switch (condition.kind) {
+    case "flag":
+      return runFlags.has(condition.flag);
     case "all":
-      return enablement.flags.every(isPresentInRun);
+      return condition.conditions.every((child) => matchesFlagCondition(child, runFlags));
     case "any":
-      return enablement.flags.some(isPresentInRun);
+      return condition.conditions.some((child) => matchesFlagCondition(child, runFlags));
     case "none":
-      return !enablement.flags.some(isPresentInRun);
+      return !condition.conditions.some((child) => matchesFlagCondition(child, runFlags));
     case "not-all":
-      return !enablement.flags.every(isPresentInRun);
+      return !condition.conditions.every((child) => matchesFlagCondition(child, runFlags));
+    case "exactly-one":
+      return (
+        condition.conditions.filter((child) => matchesFlagCondition(child, runFlags)).length === 1
+      );
+    case "not":
+      return !matchesFlagCondition(condition.condition, runFlags);
   }
 }

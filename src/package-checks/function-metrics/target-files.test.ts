@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { matchesAnyConfigGlob } from "../project-files/config-glob.ts";
+import { matchesAnyConfigGlob } from "../../data-boundary/config-glob.ts";
 import { FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS } from "./analyzer-adapter.ts";
 import { FUNCTION_METRICS_SUPPORTED_FILE_GLOBS, isFunctionMetricsTarget } from "./target-files.ts";
 

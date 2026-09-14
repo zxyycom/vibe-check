@@ -1,4 +1,4 @@
-import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
+import type { CheckMessage, CheckOutcome, CheckProjectContext } from "../../check/check.ts";
 import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
 import { snapshotJsonObject } from "../../check/options-snapshot.ts";
 import {
@@ -51,6 +51,7 @@ type PreparationResolutionResult =
 type PrepareCheckInput = Readonly<{
   readonly check: NormalizedCheck;
   readonly diagnosticLogger: DiagnosticLogger | undefined;
+  readonly project: CheckProjectContext;
   readonly signal: AbortSignal | undefined;
 }>;
 
@@ -70,7 +71,7 @@ export async function prepareCheck(input: PrepareCheckInput): Promise<CheckPrepa
   if (input.check.prepare === undefined) {
     return resolveAuthoredOptions(input);
   }
-  return resolvePreparationInvocation(input, await invokePreparation(input.check, input.signal));
+  return resolvePreparationInvocation(input, await invokePreparation(input));
 }
 
 function resolveAuthoredOptions(input: PrepareCheckInput): CheckPreparationResolution {
@@ -190,11 +191,10 @@ function resolveReadyPreparationResult(
   return resolution;
 }
 
-async function invokePreparation(
-  check: NormalizedCheck,
-  signal: AbortSignal | undefined
-): Promise<PreparationInvocation> {
-  return invokeWithCapturedConsole(() => check.prepare!(check.options, signal ?? INERT_SIGNAL));
+async function invokePreparation(input: PrepareCheckInput): Promise<PreparationInvocation> {
+  return invokeWithCapturedConsole(() =>
+    input.check.prepare!(input.check.options, input.signal ?? INERT_SIGNAL, input.project)
+  );
 }
 
 function observeBlockedPreparation(

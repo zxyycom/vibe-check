@@ -12,9 +12,12 @@
     Project Definition
       │ run: validate Definition + RunControls, then normalize the Check tree
       ▼
-    validated Definition + complete static graph
-      │ before execution: apply cancellation and flag selection
-      │ prepared admission strategy readies one Run-local decision function when configured
+    validated Definition + normalized Check tree
+      │ before work: stop if cancelled; otherwise validate the complete static graph
+      ▼
+    complete static graph
+      │ when configured: prepare one Git change snapshot and derived flags
+      │ recheck cancellation, prepare the admission strategy, then form effective flag selection
       ▼
     initial control settlements + complete static Task graph
       │ Scheduler applies direct relations, mutex and parallel scheduling
@@ -32,7 +35,7 @@
 
 ### Selection 与 Scheduler readiness
 
-Run 先验证包含全部可执行 Check 的静态 graph，再处理 invocation cancellation 与 flag selection。[flag 规则](guides/extending-check-lifecycle.md#按-flag-选择-check)产生一次 private effective selection；未被选择项先结算为 `not-applicable / flag-condition-not-matched`，不会再次 admission。它们仍属于同一张 graph：`dependsOn` dependent 在 preparation 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 则可等待并读取该终态。
+Run 先验证 Definition 与 Controls 并规范化 Check tree；若 signal 已取消，会在静态 graph validation 和获取 Git 前结束调用。否则 Product 验证包含全部可执行 Check 的静态 graph。Definition 配置 `changes` 时，Product 随后只取得一次 Git changed-path snapshot，按声明 region 生成受保护的 `vibe-check:change:<id>` flags；可信零命中保留空 evidence，获取失败保留 unavailable evidence 并保守提供所有已声明 change flags。再次检查 cancellation 后，caller/derived flags 共同形成一次 private effective selection。[flag 规则](guides/extending-check-lifecycle.md#按-flag-选择-check)定义其条件；未被选择项先结算为 `not-applicable / flag-condition-not-matched`，不会再次 admission。它们仍属于同一张 graph：`dependsOn` dependent 在 preparation 前结算为 `unavailable / dependency-not-passed`，`observes` consumer 则可等待并读取该终态。
 
 ### Task-local preparation 与 execution
 
@@ -53,6 +56,7 @@ prepared strategy 的 `prepare / decide / terminalEffect` 顺序、失败与取�
 | 想设置什么 | 参数位置 | 与另一份输入的关系 |
 | --- | --- | --- |
 | 检查内容、领域 options、依赖与 Check 约束 | Definition 的 `checks` 中各项 Check | Controls 不能替换 Checks 或覆盖 Check options；领域输入继续由 owning Check 或显式 provider 承接。 |
+| Git comparison 与 change-flag regions | Definition 的 `changes` | 每次 Run 在 selection 前获取一次 Git evidence；Controls 不能伪造或直接提供 `vibe-check:change:` flag。 |
 | 调度并行预算、资源总量、策略与终态观察回调 | Definition 的 `scheduler` | Controls 没有 scheduler override，也不能注入 `terminalEffects`。 |
 | 默认 machine、diagnostic 与 progress 输出方式 | Definition 的 `outputs` | 建立可重复使用的默认值；默认目录、预览数量和 formatter 都可在这里配置。 |
 | 本次根目录、选择 flags 与协作取消 | Controls 的 `projectRoot`、`flags`、`signal` | 只属于本次调用，不是 `defineConfig` 字段。 |
@@ -67,15 +71,74 @@ prepared strategy 的 `prepare / decide / terminalEffect` 顺序、失败与取�
 ### 定义与调用如何处理输入
 
 - `defineCheck(value)` 保留 literal `checkId`、options、typed-provider parser 和 `handoff: true` 的 TypeScript inference。它与同 shape 普通 Check object 具有相同 runtime 语义。
-- `defineConfig(value)` 形成带默认 `apiVersion`、outputs 和 scheduler policy 的 Project Definition。
+- `defineConfig(value)` 形成带默认 `apiVersion`、outputs 和 scheduler policy 的 Project Definition；可选 `changes` 声明 Git comparison 与 change-flag regions。
 - `defineAdmissionPolicy(value)` 只保留 closed admission policy literal、特别是 custom strategy 的 inference；它与同形 inline policy value 等价。
 - `run(definition, controls?)` 拥有 invocation validation 与 normalization：它关闭递归 Check grammar，detach / canonicalize authored options，并形成 declarative snapshot 与 fingerprint。
 
 fingerprint 使用 normalized declarative fields；preparation、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static` 与 `custom`，且不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
 
+## 按文件变化选择 Check
+
+`changes` 由 Project Definition 声明一个 Git comparison 和一个或多个 project-relative、exclude-first glob region。effective `projectRoot` 可以是 repository 内的嵌套目录；Git candidates 与 region path 都相对这个 root。每个命中的文件会产生对应 `vibe-check:change:<id>` flag；一个文件可命中多个 region。成功 evidence 按 path 和 flag 稳定排序，只有命中至少一个 region 的文件出现。可信零命中是 `{ ok: true, files: [] }`；Git revision、repository 或 path 不能形成可信结果时为 `{ ok: false, reason }`，不带 `files`，但 selection 会保守启用所有声明 flag。
+
+调用方 controls 只能提供自己的普通 flags，不能传入 `vibe-check:change:` prefix。`project.flags` 保留规范化后的 caller flags；同一 immutable `project.changes` 同时交给 `prepare` 和 `execute`。不配置 `changes` 时 Product 不获取 Git、callback 也没有 `project.changes`，既有 caller-flag selection 保持不变。这份 evidence 只说明本次 Git acquisition，不是环境、权限或 patch-content capability。
+
+```ts
+import { defineCheck, defineConfig, run } from "@zxyycom/vibe-check";
+
+const sourceChanged = defineCheck({
+  checkId: "source-changed",
+  displayName: "Source changed",
+  enabledByFlags: {
+    when: {
+      kind: "flag",
+      flag: "vibe-check:change:source"
+    }
+  },
+  execute: ({ project }) => {
+    const changes = project.changes;
+    if (changes === undefined) {
+      return { status: "unavailable", reason: { code: "changes-not-configured" } };
+    }
+    return {
+      status: "passed",
+      data: {
+        evidence: changes.ok ? "matched" : "unavailable-conservative",
+        matchedPaths: changes.ok ? changes.files.map(({ path }) => path) : []
+      }
+    };
+  }
+});
+
+const definition = defineConfig({
+  changes: {
+    source: { kind: "git", compareWith: "origin/main" },
+    flags: {
+      source: { include: ["src/**"], exclude: ["src/generated/**"] }
+    }
+  },
+  checks: [sourceChanged],
+  outputs: {
+    diagnosticLogging: { enabled: false },
+    machinePublication: { enabled: false },
+    progressRendering: { enabled: false }
+  }
+});
+
+const result = await run(definition);
+if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
+const outcome = result.snapshot.checks.find(({ checkId }) => checkId === sourceChanged.checkId)
+  ?.outcome;
+if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
+  throw new Error("Change-aware Check did not settle successfully");
+}
+```
+
+命中 `src/**`（除 `src/generated/**`）时，Check 会运行并在 `changes.files` 读取匹配 path；可信但无命中时它以 `not-applicable` 结算。Git evidence 不可用时，Check 仍会因保守 selection 运行，但必须通过 `changes.ok === false` 将结果与可信 files 区分开。
+
 ## options preparation 与 execution
 
-Check 在获准入后执行自己的 `prepare(options, signal)`，再以 prepared options 或 fallback 进入 `execute`；block 或非法准备结果使本项 `unavailable`。不同 prepared shape 的类型要求、三种返回形式、冻结与取消边界见[自定义 Check 的 `prepare`](guides/extending-check-lifecycle.md#prepare准备阻止或带-fallback-继续)。
+Check 在获准入后执行自己的 `prepare(options, signal, project?)`，再以 prepared options 或 fallback 进入 `execute`；block 或非法准备结果使本项 `unavailable`。不同 prepared shape 的类型要求、三种返回形式、冻结与取消边界见[自定义 Check 的 `prepare`](guides/extending-check-lifecycle.md#prepare准备阻止或带-fallback-继续)。
 
 ## terminal result、Records 与 messages
 

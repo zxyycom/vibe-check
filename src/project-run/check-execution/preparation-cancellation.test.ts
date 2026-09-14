@@ -19,6 +19,7 @@ describe("Package Run direct Check execution", () => {
     await prepareCheck({
       check: normalized(() => ({ status: "passed", data: {} }), { checkId: "skipped" }),
       diagnosticLogger: recordingLogger(observations),
+      project: PROJECT,
       signal: undefined
     });
     const controller = new AbortController();
@@ -28,6 +29,7 @@ describe("Package Run direct Check execution", () => {
         prepareCheck({
           check: normalized(() => ({ status: "passed", data: {} }), { checkId }),
           diagnosticLogger: recordingLogger(observations),
+          project: PROJECT,
           signal: controller.signal
         })
       )
@@ -83,6 +85,7 @@ describe("Package Run direct Check execution", () => {
         }
       }),
       diagnosticLogger: recordingLogger(afterCallbackObservations),
+      project: PROJECT,
       signal: afterCallbackController.signal
     });
     const afterCallbackDetails = diagnosticDetailsRecord(afterCallbackObservations[0]?.details);

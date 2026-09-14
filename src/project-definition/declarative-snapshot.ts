@@ -26,6 +26,7 @@ export function createDeclarativeProjectSnapshot(
   return deepFreeze({
     apiVersion: definition.apiVersion,
     checks: declarations,
+    ...(definition.changes === undefined ? {} : { changes: definition.changes }),
     outputs: declarativeOutputs(definition),
     scheduler: Object.freeze({
       admissionPolicy: declarativeAdmissionPolicy(definition.scheduler.admissionPolicy),

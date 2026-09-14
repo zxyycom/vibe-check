@@ -10,6 +10,7 @@ export type SchedulerExecution =
   | Extract<NonConfigurationRunResult, { readonly kind: "execution" }>;
 
 type SchedulerAdapterInput = Readonly<{
+  readonly effectiveFlags: readonly string[];
   readonly invocation: Invocation;
   readonly preparedStrategy: PreparedAdmissionStrategy;
   readonly project: CheckProjectContext;
@@ -42,6 +43,7 @@ export async function executeScheduler(input: SchedulerAdapterInput): Promise<Sc
       resourceCapacities: invocation.normalized.declarative.scheduler.resourceCapacities,
       invocationId: invocation.invocationId,
       checkLifecycle: invocation.progressRendering.checkLifecycle,
+      effectiveFlags: input.effectiveFlags,
       invocationLifecycle: invocation.progressRendering.invocationLifecycle,
       paths: invocation.paths,
       project: input.project,

@@ -25,6 +25,20 @@ export interface PackageApiExampleProjection {
 export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   Object.freeze({
     evidence: "runtime",
+    id: "project-changes",
+    regionId: "project-changes",
+    sourcePath: "docs/examples/package-api/project-changes.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "api-mechanics",
+        headingPath: Object.freeze(["按文件变化选择 Check"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "用 Git 文件区域生成 change flags 并读取冻结 evidence"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "quick-start",
     regionId: "quick-start",
     sourcePath: "docs/examples/package-api/quick-start.ts",

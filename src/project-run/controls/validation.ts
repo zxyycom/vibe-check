@@ -2,6 +2,7 @@ import { snapshotClosedArray } from "../../data-boundary/closed-values.ts";
 import { isOutputDirectory } from "../../project-definition/output-validation.ts";
 import { isNonArrayRecord, isUnknownArray } from "../../data-boundary/value-shapes.ts";
 import { parseOutputsOverride } from "./outputs-override-validation.ts";
+import { CHANGE_FLAG_PREFIX } from "../changes/git.ts";
 import type { RunControlDiagnostic, RunControlValidationResult } from "./validation-result.ts";
 import type { CheckAggregation, DiagnosticLogFileNaming, RunControls } from "./contract.ts";
 
@@ -159,7 +160,7 @@ function parseFlags(value: unknown): RunControlValidationResult<readonly string[
   for (let index = 0; index < length; index += 1) {
     if (!Object.hasOwn(value, index)) return invalidControls("controls.flags");
     const flag = value[index];
-    if (typeof flag !== "string" || flag.length === 0) {
+    if (typeof flag !== "string" || flag.length === 0 || flag.startsWith(CHANGE_FLAG_PREFIX)) {
       return invalidControls("controls.flags");
     }
     flags.push(flag);

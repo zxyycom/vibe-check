@@ -1,5 +1,5 @@
 import type { CheckDescriptor } from "../../check/descriptor.ts";
-import type { Check, CheckFlagEnablement, CheckPreparation } from "../../check/check.ts";
+import type { Check, CheckPreparation, NormalizedCheckFlagEnablement } from "../../check/check.ts";
 import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import {
   parseCheckTreeAuthoring,
@@ -16,7 +16,7 @@ export interface ResolvedCheckTreeLeaf {
   readonly admissionPriority: number;
   readonly definition: CheckDescriptor;
   readonly dependsOn: readonly string[];
-  readonly enabledByFlags?: CheckFlagEnablement;
+  readonly enabledByFlags?: NormalizedCheckFlagEnablement;
   readonly execute: NonNullable<Check["execute"]>;
   readonly handoff?: HandoffProviderIdentity;
   readonly maxParallel: number;

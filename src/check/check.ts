@@ -1,5 +1,7 @@
 import type { CanonicalJsonObject, CanonicalJsonValue } from "../data-boundary/canonical-json.ts";
 import type { InheritableCheckCollection } from "./inherited-collection.ts";
+import type { CheckFlagEnablement } from "./flag-enablement.ts";
+import type { CheckProjectContext } from "./project-context.ts";
 import { registerHandoffProviderIdentity } from "./handoff-provider-identity.ts";
 
 export {
@@ -56,21 +58,16 @@ type HandoffForbidden = Readonly<{ readonly handoff?: never }>;
 /** Check Task 在 admission 到 settlement 期间持有的静态 named resource units。 */
 export type CheckResourceClaims = Readonly<Record<string, number>>;
 
-/** 多 flag Check 启用条件使用的集合 predicate。 */
-export type CheckFlagEnablementMode = "all" | "any" | "none" | "not-all";
-
-/** executable Check 的声明式多 flag 启用条件。 */
-export interface CheckFlagEnablement {
-  /** 非空 flag token 集合；Definition 会去重并稳定排序。 */
-  readonly flags: readonly [string, ...string[]];
-  /** 对声明 token 与本次 Run flags 执行的 presence predicate。 */
-  readonly mode: CheckFlagEnablementMode;
-  /**
-   * 条件命中时是否启动本 Check 的传递 `dependsOn` prerequisite；省略时保持只选择直接命中 Check 的兼容行为。
-   * `observes` 不参与此选择，且 dependency 自己的 flag 条件不会阻止本次已启动的 prerequisite。
-   */
-  readonly propagateDependsOn?: true;
-}
+export type {
+  CheckFlagCondition,
+  CheckFlagEnablement,
+  CheckFlagEnablementExpression,
+  CheckFlagEnablementMode,
+  CheckFlagEnablementShorthand,
+  NormalizedCheckFlagEnablement
+} from "./flag-enablement.ts";
+export type { ProjectChanges } from "./project-changes.ts";
+export type { CheckProjectContext } from "./project-context.ts";
 
 /**
  * Check callback 的 terminal result。
@@ -297,14 +294,6 @@ export interface CheckDependencies {
   list(): readonly DependencyObservation[];
 }
 
-/** callback 可读取的、由 Product 规范化的项目上下文。 */
-export interface CheckProjectContext {
-  /** 本次 Run 使用的绝对项目根目录。 */
-  readonly root: string;
-  /** 已去重、排序的 caller-supplied flags。 */
-  readonly flags: readonly string[];
-}
-
 /**
  * Check callback 收到的 Product-owned execution context。
  *
@@ -341,9 +330,9 @@ export type CheckExecution<Options extends object = object> = (
 /**
  * 在 Check execution 前，可选地为本次 invocation 准备 options。
  *
- * @remarks `signal` 与同一次 callback execution 使用同一个 cancellation signal；实现应在可等待工作中
- * 协作退出，而不是留下悬挂 work。bivariant callback 保持具体 options Check 可进入普通递归 Check
- * collection；Product 仍只会用该 Check 自己的 authored options 调用它。精确结果见
+ * @remarks `signal` 与同一次 callback execution 使用同一个 cancellation signal；`project` 与 execution
+ * 收到同一个冻结 project context。实现应在可等待工作中协作退出，而不是留下悬挂 work。bivariant callback
+ * 保持具体 options Check 可进入普通递归 Check collection；Product 仍只会用该 Check 自己的 authored options 调用它。精确结果见
  * {@link CheckPreparationResult}。
  */
 export type CheckPreparation<
@@ -353,7 +342,8 @@ export type CheckPreparation<
   bivarianceHack(
     this: void,
     options: DeepReadonly<AuthoredOptions>,
-    signal: AbortSignal
+    signal: AbortSignal,
+    project?: CheckProjectContext
   ): CheckPreparationResult<PreparedOptions> | Promise<CheckPreparationResult<PreparedOptions>>;
 }["bivarianceHack"];
 

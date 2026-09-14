@@ -7,6 +7,7 @@ import {
   type ProjectDefinitionValidationResult,
   type AdmissionPolicy,
   type CustomAdmissionStrategy,
+  type NormalizedCheck,
   type SchedulerTerminalEffect,
   type SchedulerPolicy
 } from "./project-definition.ts";
@@ -16,13 +17,20 @@ import {
   snapshotClosedRecord
 } from "../data-boundary/closed-values.ts";
 import { snapshotResourceUnitMapping } from "./resource-unit-mapping.ts";
+import { parseProjectChangesConfiguration } from "./project-changes.ts";
 
 type DefinitionValidationResult<T> = Readonly<
   | { readonly ok: true; readonly value: T }
   | { readonly ok: false; readonly error: ProjectDefinitionDiagnostic }
 >;
 
-const PROJECT_DEFINITION_KEYS = ["apiVersion", "checks", "outputs", "scheduler"] as const;
+const PROJECT_DEFINITION_KEYS = [
+  "apiVersion",
+  "changes",
+  "checks",
+  "outputs",
+  "scheduler"
+] as const;
 
 /**
  * Validates one closed Definition before Run can invoke any project callback.
@@ -47,6 +55,12 @@ function parseProjectDefinitionFields(
 ): ProjectDefinitionValidationResult {
   const scheduler = parseScheduler(data.scheduler);
   if (scheduler === undefined) return invalidDefinition("definition.scheduler");
+  const changes = Object.hasOwn(data, "changes")
+    ? parseProjectChangesConfiguration(data.changes)
+    : undefined;
+  if (Object.hasOwn(data, "changes") && changes === undefined) {
+    return invalidDefinition("definition.changes");
+  }
   const checks = snapshotClosedArray(data.checks);
   if (checks === undefined) return invalidDefinition("definition.checks");
   const parsedChecks = parseCheckTreeAuthoring(checks);
@@ -57,6 +71,9 @@ function parseProjectDefinitionFields(
     scheduler.resourceCapacities
   );
   if (tree === undefined) return invalidDefinition("definition.checks");
+  if (!hasOnlyKnownChangeFlagReferences(tree.leaves, changes)) {
+    return invalidDefinition("definition.checks");
+  }
   const outputs = parseOutputs(data.outputs);
   if (outputs === undefined) return invalidDefinition("definition.outputs");
   return Object.freeze({
@@ -64,11 +81,42 @@ function parseProjectDefinitionFields(
     value: {
       apiVersion: "1" as const,
       checks: materializeCheckTreeAuthoring(parsedChecks),
+      ...(changes === undefined ? {} : { changes }),
       outputs,
       scheduler
     },
     warnings: tree.warnings
   });
+}
+
+function hasOnlyKnownChangeFlagReferences(
+  checks: readonly NormalizedCheck[],
+  changes: ReturnType<typeof parseProjectChangesConfiguration>
+): boolean {
+  return checks.every(
+    (check) =>
+      check.enabledByFlags === undefined ||
+      hasOnlyKnownChangeFlagConditionReferences(check.enabledByFlags.when, changes)
+  );
+}
+
+function hasOnlyKnownChangeFlagConditionReferences(
+  condition: import("../check/check.ts").CheckFlagCondition,
+  changes: ReturnType<typeof parseProjectChangesConfiguration>
+): boolean {
+  if (condition.kind === "flag") {
+    const prefix = "vibe-check:change:";
+    return (
+      !condition.flag.startsWith(prefix) ||
+      (changes !== undefined && Object.hasOwn(changes.flags, condition.flag.slice(prefix.length)))
+    );
+  }
+  if (condition.kind === "not") {
+    return hasOnlyKnownChangeFlagConditionReferences(condition.condition, changes);
+  }
+  return condition.conditions.every((child) =>
+    hasOnlyKnownChangeFlagConditionReferences(child, changes)
+  );
 }
 
 function exactProjectDefinition(

@@ -146,6 +146,40 @@ describe("Package Run flags", () => {
     assert.equal(calls, 0);
   });
 
+  it("rejects caller attempts to supply Product-reserved change flags before preparation", async () => {
+    let preparationCalls = 0;
+    let executionCalls = 0;
+    const result = await run(
+      definition([
+        {
+          checkId: "change-aware",
+          displayName: "Change aware",
+          prepare: (options) => {
+            preparationCalls += 1;
+            return { preparedOptions: options, status: "success" };
+          },
+          execute: () => {
+            executionCalls += 1;
+            return PASSED;
+          }
+        }
+      ]),
+      { flags: ["vibe-check:change:caller-forged"] }
+    );
+
+    assert.deepEqual(result, {
+      kind: "configuration",
+      definitionWarnings: [],
+      diagnostic: {
+        kind: "invalid-run-controls",
+        path: "controls.flags",
+        reason: "invalid-value"
+      }
+    });
+    assert.equal(preparationCalls, 0);
+    assert.equal(executionCalls, 0);
+  });
+
   it("provides canonical immutable callback snapshots", async () => {
     const snapshots: (readonly string[])[] = [];
     const source = definition([

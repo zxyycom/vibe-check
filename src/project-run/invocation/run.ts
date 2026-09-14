@@ -1,4 +1,3 @@
-import type { CheckProjectContext } from "../../check/check.ts";
 import {
   normalizeProjectDefinition,
   type DefinitionWarning,
@@ -7,16 +6,10 @@ import {
   type ResolvedProjectOutputs
 } from "../../project-definition/project-definition.ts";
 import type { CheckAggregation, RunControls } from "../controls/contract.ts";
-import {
-  createAdmissionStrategyProvider,
-  type AdmissionStrategyProviderFactory
-} from "../admission-strategy-provider/provider.ts";
-import { AdmissionStrategyPreparationFailure } from "../admission-strategy-provider/custom-strategy-preparation.ts";
-import type { PreparedAdmissionStrategy } from "../admission-strategy-provider/prepared-admission-strategy.ts";
+import type { AdmissionStrategyProviderFactory } from "../admission-strategy-provider/provider.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
 import { validateCheckAggregationSelection } from "../aggregation.ts";
 import { type CheckExecutionClock } from "../check-execution/resolved-checks.ts";
-import type { ResolvedCheckExecution } from "../check-execution/resolved-execution-result.ts";
 import { planStaticCheckGraph } from "../check-execution/plan.ts";
 import {
   type ProgressRefreshScheduler,
@@ -24,16 +17,9 @@ import {
   type ProgressWriterFactory
 } from "../progress-rendering/presentation.ts";
 import { finalizeInvocation } from "../completion/completion.ts";
-import { createProjectContext } from "../project-context.ts";
 import type { ResolvedInvocationPaths } from "./paths.ts";
-import {
-  isCancelled,
-  planning,
-  preExecutionCancellation,
-  type NonConfigurationRunResult,
-  type RunDiagnostic,
-  type RunResult
-} from "../result.ts";
+import type { OutputStatuses } from "../outputs/status.ts";
+import { isCancelled, type NonConfigurationRunResult, type RunResult } from "../result.ts";
 import {
   diagnosticTags,
   summarizeDiagnosticValue,
@@ -41,9 +27,8 @@ import {
   type DiagnosticLoggingRouter
 } from "../diagnostic-logging/logger.ts";
 import { createInvocation } from "./creation.ts";
-import type { OutputStatuses } from "../outputs/status.ts";
-import { executeScheduler, type SchedulerExecution } from "./scheduler.ts";
-import { mapResolvedExecutionToRunCandidate } from "./candidate.ts";
+import { cancelledBeforeExecution, executionResult, planningResult } from "./candidates.ts";
+import { executePlannedInvocation } from "./execution.ts";
 export type Invocation = Readonly<{
   /** Product-private test seam; package `run` never accepts a provider factory. */
   readonly admissionStrategyProviderFactory: AdmissionStrategyProviderFactory | undefined;
@@ -163,149 +148,4 @@ function validateTaskGraph(invocation: Invocation): boolean {
     });
     return false;
   }
-}
-async function executePlannedInvocation(
-  invocation: Invocation,
-  aggregation: CheckAggregation | undefined
-): Promise<NonConfigurationRunResult> {
-  if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "pre-work");
-  return executePreparedInvocation(
-    invocation,
-    aggregation,
-    createProjectContext({ controls: invocation.controls, paths: invocation.paths })
-  );
-}
-async function executePreparedInvocation(
-  invocation: Invocation,
-  aggregation: CheckAggregation | undefined,
-  project: CheckProjectContext
-): Promise<NonConfigurationRunResult> {
-  if (isCancelled(invocation.controls)) return cancelledBeforeExecution(invocation, "planning");
-  let preparedStrategy: PreparedAdmissionStrategy;
-  try {
-    preparedStrategy = await prepareAdmissionStrategy(invocation);
-  } catch (error) {
-    if (error instanceof AdmissionStrategyPreparationFailure) {
-      return executionResult(invocation, "admission-strategy-preparation-failed");
-    }
-    throw error;
-  }
-  if (preparedStrategy.completion.kind === "terminal-effect") {
-    invocation.outputs.enableTerminalEffects();
-  }
-  invocation.progressRendering.prepared(
-    invocation.normalized.checks.length,
-    invocation.normalized.checks.filter((check) => check.omitQuietPassedRow).length
-  );
-  const executionStartedAt = invocation.clock.now();
-  const executed = await executeScheduler({ invocation, preparedStrategy, project });
-  if (isExecutionRunResult(executed)) return executed;
-  await completeAdmissionStrategyAfterTerminalMeasurement(
-    preparedStrategy,
-    executed,
-    invocation.outputs
-  );
-  return mapResolvedExecutionToRunCandidate({
-    aggregation,
-    executed,
-    executionStartedAt,
-    invocation
-  });
-}
-
-/** Composes one invocation-local strategy only after the static Task graph is valid. */
-async function prepareAdmissionStrategy(
-  invocation: Invocation
-): Promise<PreparedAdmissionStrategy> {
-  const graph = prepareTaskGraph(
-    planStaticCheckGraph(
-      invocation.normalized.checks,
-      invocation.normalized.declarative.scheduler.resourceCapacities
-    ),
-    invocation.normalized.declarative.scheduler.maxParallel
-  );
-  const admissionStrategyProviderFactory =
-    invocation.admissionStrategyProviderFactory ?? createAdmissionStrategyProvider;
-  const provider = admissionStrategyProviderFactory({
-    admissionPolicy: invocation.normalized.scheduler.admissionPolicy,
-    graph: graph.schedulerGraphSnapshot
-  });
-  return provider.prepare();
-}
-
-/** The prepared provider closes only after Scheduler terminal measurement and Hooks have settled. */
-async function completeAdmissionStrategyAfterTerminalMeasurement(
-  preparedStrategy: PreparedAdmissionStrategy,
-  executed: ResolvedCheckExecution,
-  outputs: OutputStatuses
-): Promise<void> {
-  const terminalMeasurement = executed.terminalSchedulerMeasurement;
-  if (terminalMeasurement === undefined) return;
-  switch (preparedStrategy.completion.kind) {
-    case "none":
-      return;
-    case "internal":
-      try {
-        await preparedStrategy.completion.complete(Object.freeze({ terminalMeasurement }));
-      } catch {
-        // Private learned lifecycle cannot revise sealed execution or public output facts.
-      }
-      return;
-    case "terminal-effect":
-      try {
-        await preparedStrategy.completion.terminalEffect(terminalMeasurement);
-        outputs.succeeded("terminalEffects");
-      } catch {
-        outputs.failed("terminalEffects");
-      }
-  }
-}
-
-function cancelledBeforeExecution(
-  invocation: Invocation,
-  phase: "pre-work" | "planning"
-): NonConfigurationRunResult {
-  invocation.diagnosticLogging.core.observe({
-    event: "run.cancelled",
-    tags: diagnosticTags("RUN", "CANCELLED"),
-    details: { phase }
-  });
-  return preExecutionCancellation(
-    invocation.declarativeFingerprint,
-    invocation.definitionWarnings,
-    invocation.outputs.value(),
-    phase
-  );
-}
-
-function planningResult(
-  invocation: Invocation,
-  code: Extract<RunDiagnostic["code"], "task-graph-invalid">
-): NonConfigurationRunResult {
-  return planning(
-    invocation.declarativeFingerprint,
-    invocation.definitionWarnings,
-    invocation.outputs.value(),
-    code
-  );
-}
-function executionResult(
-  invocation: Invocation,
-  code: Extract<
-    RunDiagnostic["code"],
-    "admission-strategy-preparation-failed" | "task-engine-failed"
-  >
-): NonConfigurationRunResult {
-  return Object.freeze({
-    kind: "execution",
-    declarativeFingerprint: invocation.declarativeFingerprint,
-    definitionWarnings: invocation.definitionWarnings,
-    diagnostic: Object.freeze({ code }),
-    outputs: invocation.outputs.value()
-  });
-}
-function isExecutionRunResult(
-  value: SchedulerExecution
-): value is Extract<NonConfigurationRunResult, { readonly kind: "execution" }> {
-  return "declarativeFingerprint" in value;
 }

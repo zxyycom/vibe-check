@@ -70,7 +70,7 @@ type ProjectChanges =
 
 成功 records 只包含命中至少一个声明 region 的 changed paths。Records 按 path 排序，内部 flags 排序去重；可信零命中是 `{ ok: true, files: [] }`。失败分支没有 `files`；selection 单独把全部声明 change flags 视为 present。未配置 `changes` 时不提供该 context capability，也不运行 Git source。
 
-`prepare` 保留 authored options 与 signal 两个现有参数，并追加一个只读 Product context 参数；现有二参数 callback 继续合法。Preparation 仍保持 task-local admission 时机，不成为第二次 change preparation。
+`prepare` 保留 authored options 与 signal 两个现有参数，并追加一个只读 Product context 参数。Product 运行时总传该参数；公开类型只为兼容既有两参数直接调用而将其标为 optional。Preparation 仍保持 task-local admission 时机，不成为第二次 change preparation。
 
 #### 3. Flag DSL
 
@@ -128,6 +128,20 @@ Change source unavailable 时 `vibe-check:change:product-runtime` 保守 present
 | Project Gate | `product-runtime` region、combined expression 与 force branches | definition、selection 与 bound Run tests |
 | Public materials | exports、JSDoc、guides、examples、changelog 与 package acceptance | documentation validation 与 installed consumer tests |
 | Test evidence | 新增和修改的语义 Case owner | ledger check 与最窄目标 tests |
+
+### Validation Evidence
+
+固定 candidate `0.0.0-local.8ac3ef2e5dd6` 在 Bun 1.3.14、Linux x64 下以同一最小 Gate definition 运行五种场景。每场预热一次、测量 11 次并取中位数；该 observation 没有硬预算，也不用于外推完整测试 lane 的耗时。
+
+| Scenario | Preparation median | Outer Run median | `tests-product-runtime` | Change evidence |
+| --- | ---: | ---: | --- | --- |
+| unchanged | 12.425 ms | 14.944 ms | unselected | `ok: true`, empty files |
+| runtime changed | 11.273 ms | 14.170 ms | selected | one matched `src/changed.ts` record |
+| source unavailable | 2.157 ms | 4.566 ms | selected | `ok: false`, conservative flag fallback |
+| explicit `test` | 11.464 ms | 13.580 ms | selected | `ok: true`, empty files |
+| explicit `all` | 10.402 ms | 12.331 ms | selected | `ok: true`, empty files |
+
+Git acquisition 与 package Checks 共同使用 `src/data-boundary` 拥有的单一 slash-path/config-glob 实现；嵌套 project root 只接收自身范围内的 relative paths，跨根 rename 只保留位于范围内的一侧。
 
 ## Risks / Trade-offs
 

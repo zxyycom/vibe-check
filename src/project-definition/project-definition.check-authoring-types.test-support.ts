@@ -2,6 +2,7 @@ import {
   defineCheck,
   type Check,
   type CheckExecution,
+  type CheckPreparation,
   type CheckPreparationResult,
   type CheckWithOptions
 } from "../check/check.ts";
@@ -15,10 +16,14 @@ function _typeCheckPreparedOptionConversion() {
     checkId: "prepared-from-optional-authored",
     displayName: "Prepared from optional authored",
     options: {},
-    prepare(authored, signal) {
+    prepare(authored, signal, project) {
       const maybeMaximum: number | undefined = authored.maximum;
       void maybeMaximum;
       void signal.aborted;
+      const root = project?.root;
+      const changes = project?.changes;
+      void root;
+      void changes;
       return { status: "success", preparedOptions: { maximum: authored.maximum ?? 1 } };
     },
     execute({ options }) {
@@ -34,8 +39,24 @@ function _typeCheckPreparedOptionConversion() {
     // @ts-expect-error block preparation results physically omit fallback, including undefined.
     fallback: undefined
   };
+  const optionalProjectPreparation: CheckPreparation<{ readonly maximum: number }> = (
+    options,
+    signal,
+    project
+  ) => {
+    const optionalRoot: string | undefined = project?.root;
+    void options.maximum;
+    void signal.aborted;
+    void optionalRoot;
+    return { status: "success", preparedOptions: options };
+  };
+  const oldTwoArgumentDirectCall = optionalProjectPreparation(
+    { maximum: 1 },
+    new AbortController().signal
+  );
   void preparedFromOptionalAuthored;
   void invalidBlockedPreparation;
+  if (oldTwoArgumentDirectCall instanceof Promise) oldTwoArgumentDirectCall.catch(() => undefined);
 }
 
 function _typeCheckPreparedOptionConversionIsRequired() {
