@@ -162,7 +162,7 @@ export function maintenanceReminders(
       entries,
       git: { executable: "git" }
     },
-    visibility: "attention"
+    omitQuietPassedRow: true
   });
 }
 

@@ -12,7 +12,51 @@ import { executeValidatedRun } from "../invocation/run.ts";
 import { capturedProgressWriter, check, definition } from "./invocation.test-support.ts";
 
 describe("Package Run progress rendering outputs", () => {
-  it("renders accepted attention Records while retaining complete Records and messages in final facts", async () => {
+  it("omits a quiet pass before preview formatting without changing its final facts", async () => {
+    const output = capturedProgressWriter();
+    let formatterCalls = 0;
+    const source = definition(
+      [
+        check({
+          checkId: "quiet-final-data",
+          omitQuietPassedRow: true,
+          execute: () => ({ status: "passed", data: { retained: "final-data" } })
+        })
+      ],
+      true
+    );
+    const result = await executeValidatedRun(
+      {
+        ...source,
+        outputs: {
+          ...source.outputs,
+          progressRendering: {
+            ...source.outputs.progressRendering,
+            formatter: () => {
+              formatterCalls += 1;
+              return "must not be called";
+            }
+          }
+        }
+      },
+      {},
+      [],
+      { progressWriterFactory: () => output.writer }
+    );
+
+    assert.equal(result.kind, "completed");
+    if (result.kind !== "completed") return;
+    assert.equal(formatterCalls, 0);
+    assert.deepEqual(result.snapshot.checks[0]?.outcome, {
+      status: "passed",
+      data: { retained: "final-data" }
+    });
+    assert.match(
+      output.writes.join(""),
+      /^Vibe Check\ntotal 1 checks · 1 configured for quiet-pass omission\n\nChecks:\n\nExecution summary:\n {2}execution: completed\n {2}total checks: 1\n {2}passed: 1\n {2}failed: 0\n {2}not applicable: 0\n {2}unavailable: 0\n {2}quiet-pass rows omitted: 1\n {2}elapsed: \d+(?:\.\d+)?(?:ms|s)\n$/
+    );
+  });
+  it("renders accepted quiet-pass Records while retaining complete Records and messages in final facts", async () => {
     const output = capturedProgressWriter();
     const messages = Array.from({ length: 6 }, (_, index) => ({
       level: "error" as const,
@@ -23,8 +67,8 @@ describe("Package Run progress rendering outputs", () => {
       definition(
         [
           check({
-            checkId: "attention-records",
-            visibility: "attention",
+            checkId: "quiet-pass-records",
+            omitQuietPassedRow: true,
             execute: ({ records }) => {
               for (let index = 1; index <= 6; index += 1) {
                 records.report({ id: `record-${index}` }, { index, text: "x".repeat(260) });
@@ -46,7 +90,7 @@ describe("Package Run progress rendering outputs", () => {
     assert.deepEqual(
       result.checkMessages,
       messages.map((message) => ({
-        checkId: "attention-records",
+        checkId: "quiet-pass-records",
         ...message
       }))
     );
@@ -66,7 +110,7 @@ describe("Package Run progress rendering outputs", () => {
       true
     );
     assert.equal(transcript.includes("… [truncated]"), true);
-    assert.equal(transcript.includes("  [1/1] attention-records | passed |"), true);
+    assert.equal(transcript.includes("  · quiet-pass-records | passed |"), true);
   });
 
   it("applies RunControls preview limits and formatter to terminal and tee bytes without changing facts", async () => {

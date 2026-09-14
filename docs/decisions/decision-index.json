@@ -303,7 +303,7 @@
       "260906-publish-node-readable-esm-package-layout": "sha256:89f6b0a8636185faa76d7bd851057b2300cbaabf3d076d05f89df2e0f098624a",
       "260906-support-node-as-the-package-host": "sha256:518e5db4650c3bb037c91d2a11078e1a5024065609340a09d5c4c9d24d7bb4cc",
       "260906-treat-node-engine-as-a-minimum-version": "sha256:0b6ef3605fa7bbb3ecd8ecee85999d53401f899a18fde74e273b92cf91151456",
-      "260907-configure-bounded-progress-previews-with-text-formatter": "sha256:5369f3191bb18f24f1e5a0e5f5929461908a448996e901b0eb309451511673a1",
+      "260907-configure-bounded-progress-previews-with-text-formatter": "sha256:0567eea3b18541a873acb167fb7bde32738af2014cd1aaf5655f6a8cbd7e7be4",
       "260907-keep-invocation-lifecycle-free-of-learned-special-cases": "sha256:cd0d37d61e5cb8bfb34ad3f0d415a3dc288d053e26faa134f6ed75c7a58d8967",
       "260907-keep-run-diagnostics-independent-of-optional-strategies": "sha256:70e4cbd558a6e7f8922d7e70703212bc3f0f607fb86480fdb095f9a9f07ef6ea",
       "260907-provide-learned-admission-through-public-strategy": "sha256:19a79cd46fd7d75899b50108f0e6045bcde96cdd72e9872a149de5dff0d37f88",
@@ -336,6 +336,7 @@
       "260911-use-blocking-tiered-oxlint-policy": "sha256:904e70fc51dfc65362e15be9c2d7baea9206a380e01b11160f84926f3f9e6f3d",
       "260912-keep-core-independent-of-package-tools": "sha256:b86fa5f200fdf7a1f641b3bdc423f7e583d135dc618716c67dc582f7daf26cc0",
       "260912-provide-public-data-boundaries-for-tool-isolation": "sha256:627f25a57429c48cfd7a459310cbc664a566f7c775e2ac90246a111902df5f3e",
+      "260914-configure-progress-previews-and-quiet-pass-presentation": "sha256:591c3f6c75f2d3dd1f57156bcc0ec04d4984809eeadfc8e188cb0a2dba748bd4",
       "260914-keep-check-observation-as-logical-lifecycle-positions": "sha256:37e476daeafc31783a842ee01d0cb46bc87abe8925af86065e2973b644d5f7b1",
       "260914-name-scheduler-terminal-consumers-as-effects": "sha256:954a86bcb99d6b398cdb0a775fe4517b3ed27ffd8847148be917c5ef9e8bb1e2",
       "260914-narrow-project-gate-to-result-contribution": "sha256:b06f59f897dcc392efd90c2702d927f164cdd3ca0e92b65234cf50b19d41bb27",
@@ -6295,9 +6296,9 @@
     },
     "260907-configure-bounded-progress-previews-with-text-formatter": {
       "name": "configure-bounded-progress-previews-with-text-formatter",
-      "sourcePath": "configure-bounded-progress-previews-with-text-formatter.md",
+      "sourcePath": "archive/configure-bounded-progress-previews-with-text-formatter.md",
       "title": "提供可配置且受管的 progress 文本预览",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-07T10:30:45Z",
       "purpose": "让调用方调整 Record 与 message 预览并定制文本，同时保留完整事实和终端安全责任。",
@@ -6919,6 +6920,29 @@
         "product-contract"
       ],
       "relations": []
+    },
+    "260914-configure-progress-previews-and-quiet-pass-presentation": {
+      "name": "configure-progress-previews-and-quiet-pass-presentation",
+      "sourcePath": "configure-progress-previews-and-quiet-pass-presentation.md",
+      "title": "配置受管 preview 与 quiet-pass progress presentation",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-14T08:11:59Z",
+      "purpose": "让调用方配置有界 progress preview 和 quiet-pass row 省略，同时保留完整事实与终端安全责任。",
+      "background": "旧 attention 只隐藏 settled row，编号仍推进；现有 preview、writer 与 failure 边界继续有效。",
+      "decision": "保留受管 preview 契约，并以显式单向字段统一 quiet-pass running、settled row 与双计数呈现。",
+      "tags": [
+        "configuration",
+        "product-contract",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260907-configure-bounded-progress-previews-with-text-formatter",
+          "summary": "以显式 quiet-pass policy 修订 attention 行为"
+        }
+      ]
     },
     "260914-keep-check-observation-as-logical-lifecycle-positions": {
       "name": "keep-check-observation-as-logical-lifecycle-positions",

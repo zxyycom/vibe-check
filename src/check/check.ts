@@ -53,9 +53,6 @@ export interface CheckResultMessages {
 
 type HandoffForbidden = Readonly<{ readonly handoff?: never }>;
 
-/** 已结算 Check 在人读 progress 中的可见性。 */
-export type CheckVisibility = "always" | "attention";
-
 /** Check Task 在 admission 到 settlement 期间持有的静态 named resource units。 */
 export type CheckResourceClaims = Readonly<Record<string, number>>;
 
@@ -123,6 +120,11 @@ export type CheckResult<
   ) &
     CheckResultMessages
 >;
+
+/** Check callback 的同步或异步 terminal result。 */
+type CheckExecutionResult<FinalData extends object = object, Handoff extends object = never> =
+  | CheckResult<FinalData, Handoff>
+  | Promise<CheckResult<FinalData, Handoff>>;
 
 declare const CHECK_HANDOFF_PROVIDER_BRAND: unique symbol;
 
@@ -334,7 +336,7 @@ export interface CheckExecutionContext<Options extends object> {
 export type CheckExecution<Options extends object = object> = (
   this: void,
   context: CheckExecutionContext<Options>
-) => CheckResult | Promise<CheckResult>;
+) => CheckExecutionResult;
 
 /**
  * 在 Check execution 前，可选地为本次 invocation 准备 options。
@@ -392,7 +394,7 @@ export type CheckPreparationResult<PreparedOptions extends object = object> = Re
  * @typeParam PreparedOptions - preparation 后 callback 接收的 invocation-local options shape。
  * @remarks 该值可以同时有 `execute` 和 `checks`；只有 executable node 产生 final Check fact。
  */
-interface CheckBase<AuthoredOptions extends object, PreparedOptions extends object> {
+interface CheckBase<AuthoredOptions extends object, _PreparedOptions extends object> {
   /** 在 Definition 内唯一的 stable Check ID。 */
   readonly checkId: string;
   /** 人读 progress 与 output 使用的非空名称。 */
@@ -401,15 +403,6 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   readonly options?: AuthoredOptions;
   /** 仅当多 flag presence predicate 匹配时启用 executable Check；省略时始终启用。 */
   readonly enabledByFlags?: CheckFlagEnablement;
-  /** 可执行节点的 callback；省略时此节点只承载递归 children。 */
-  execute?(
-    this: void,
-    context: CheckExecutionContext<PreparedOptions>
-  ):
-    | CheckResult
-    | CheckResult<Readonly<Record<never, never>>, object>
-    | Promise<CheckResult>
-    | Promise<CheckResult<Readonly<Record<never, never>>, object>>;
   /** `true` declares an invocation-private handoff on this executable Check. */
   readonly handoff?: true;
   /** 继承 scheduling context 的 child Checks，不会单独形成 container result。 */
@@ -426,9 +419,23 @@ interface CheckBase<AuthoredOptions extends object, PreparedOptions extends obje
   readonly mutex?: InheritableCheckCollection<string>;
   /** 静态 named resource claims；省略时继承，显式 mapping 完整替换。 */
   readonly resourceClaims?: CheckResourceClaims;
-  /** 已结算 Check 的人读可见性；可执行节点默认 `always`。 */
-  readonly visibility?: CheckVisibility;
 }
+
+interface ExecutableCheckFields<
+  PreparedOptions extends object,
+  ExecutionResult = CheckExecutionResult
+> {
+  /** 可执行节点的 callback；拥有本字段的节点产生一个 terminal Check fact。 */
+  execute(this: void, context: CheckExecutionContext<PreparedOptions>): ExecutionResult;
+  /**
+   * `true` 时，progress renderer 不保留没有 accepted Record 或 message 的 passed row；运行中与所有保留的
+   * 终态 row 都无编号。该 policy 只属于 executable Check，不继承给 child Checks。
+   */
+  readonly omitQuietPassedRow?: true;
+}
+
+/** Container 只承载 children 与 scheduling，不能执行或设置 executable presentation policy。 */
+type ContainerCheckFields = Readonly<{ execute?: never; omitQuietPassedRow?: never }>;
 
 /**
  * 判断两个 options shape 是否互相可赋值；互相可赋值时 execution 不需要 preparation 转换。
@@ -460,7 +467,14 @@ export type Check<
   AuthoredOptions extends object = object,
   PreparedOptions extends object = AuthoredOptions
 > = CheckBase<AuthoredOptions, PreparedOptions> &
-  CheckPreparationField<AuthoredOptions, PreparedOptions>;
+  CheckPreparationField<AuthoredOptions, PreparedOptions> &
+  (
+    | ExecutableCheckFields<
+        PreparedOptions,
+        CheckExecutionResult | CheckExecutionResult<Readonly<Record<never, never>>, object>
+      >
+    | ContainerCheckFields
+  );
 
 export type EmptyCheckOptions = Readonly<Record<never, never>>;
 
@@ -485,21 +499,16 @@ type CheckAuthoringBase<
   Id extends string,
   AuthoredOptions extends object,
   PreparedOptions extends object
-> = Omit<
-  CheckBase<AuthoredOptions, PreparedOptions>,
-  "checkId" | "execute" | "handoff" | "options"
-> &
+> = Omit<CheckBase<AuthoredOptions, PreparedOptions>, "checkId" | "handoff" | "options"> &
   CheckPreparationField<AuthoredOptions, PreparedOptions> &
   Readonly<{ readonly checkId: Id }>;
 
-interface OrdinaryCheckFields<PreparedOptions extends object> {
-  execute?(
-    this: void,
-    context: CheckExecutionContext<PreparedOptions>
-  ): CheckResult | Promise<CheckResult>;
-  readonly handoff?: never;
-  readonly parseData?: undefined;
-}
+/** Ordinary Check branches cannot declare typed-provider parsing or private handoff. */
+type OrdinaryCheckRestrictions = HandoffForbidden & Readonly<{ parseData?: undefined }>;
+
+type OrdinaryCheckFields<PreparedOptions extends object> =
+  | (ExecutableCheckFields<PreparedOptions> & OrdinaryCheckRestrictions)
+  | (ContainerCheckFields & OrdinaryCheckRestrictions);
 
 export type CheckWithOptions<
   Id extends string,
@@ -521,7 +530,13 @@ export type CheckWithoutOptions<Id extends string> = CheckAuthoringBase<
     readonly options?: never;
   }>;
 
-interface TypedCheckFields<PreparedOptions extends object, Parser extends CheckDataParser> {
+interface TypedCheckFields<
+  PreparedOptions extends object,
+  Parser extends CheckDataParser
+> extends ExecutableCheckFields<
+  PreparedOptions,
+  CheckExecutionResult<NoInfer<ReturnType<Parser>>>
+> {
   /**
    * 将 canonical runtime data 还原为 provider data。
    *
@@ -531,19 +546,14 @@ interface TypedCheckFields<PreparedOptions extends object, Parser extends CheckD
    */
   readonly parseData: Parser;
 
-  execute(
-    this: void,
-    context: CheckExecutionContext<PreparedOptions>
-  ): CheckResult<NoInfer<ReturnType<Parser>>> | Promise<CheckResult<NoInfer<ReturnType<Parser>>>>;
   readonly handoff?: never;
 }
 
-interface HandoffCheckFields<PreparedOptions extends object, Handoff extends object> {
+interface HandoffCheckFields<
+  PreparedOptions extends object,
+  Handoff extends object
+> extends ExecutableCheckFields<PreparedOptions, CheckExecutionResult<object, Handoff>> {
   readonly handoff: true;
-  execute(
-    this: void,
-    context: CheckExecutionContext<PreparedOptions>
-  ): CheckResult<object, Handoff> | Promise<CheckResult<object, Handoff>>;
   readonly parseData?: undefined;
 }
 
@@ -551,15 +561,12 @@ interface TypedHandoffCheckFields<
   PreparedOptions extends object,
   Parser extends CheckDataParser,
   Handoff extends object
+> extends ExecutableCheckFields<
+  PreparedOptions,
+  CheckExecutionResult<NoInfer<ReturnType<Parser>>, Handoff>
 > {
   readonly handoff: true;
   readonly parseData: Parser;
-  execute(
-    this: void,
-    context: CheckExecutionContext<PreparedOptions>
-  ):
-    | CheckResult<NoInfer<ReturnType<Parser>>, Handoff>
-    | Promise<CheckResult<NoInfer<ReturnType<Parser>>, Handoff>>;
 }
 
 /** Extracts the private reference type from an already-validated passed terminal result. */
@@ -594,7 +601,7 @@ type HandoffTerminalResultConstraint<Result> =
 type HandoffExecution<PreparedOptions extends object, FinalData extends object = object> = (
   this: void,
   context: CheckExecutionContext<PreparedOptions>
-) => CheckResult<FinalData, object> | Promise<CheckResult<FinalData, object>>;
+) => CheckExecutionResult<FinalData, object>;
 
 export type TypedCheckWithOptions<
   Id extends string,
@@ -677,7 +684,7 @@ export type TypedHandoffCheckWithoutOptions<
  *       ? { status: "success", preparedOptions: options }
  *       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
  *   },
- *   visibility: "attention",
+ *   omitQuietPassedRow: true,
  *   execute({ options, records, signal }) {
  *     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
  *

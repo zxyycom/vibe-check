@@ -41,12 +41,12 @@ describe("Package Run progress Record and message previews", () => {
       }))
     ];
 
-    renderer.render({ kind: "prepared", totalChecks: 1 });
+    renderer.render({ kind: "prepared", quietPassOmissionConfiguredCount: 1, totalChecks: 1 });
     renderer.render(
       settled("records", "Records", { status: "passed", data: {} }, 1, {
         messages,
         records,
-        visibility: "attention"
+        omitQuietPassedRow: true
       })
     );
 
@@ -56,7 +56,7 @@ describe("Package Run progress Record and message previews", () => {
     const messageLines = lines.filter(
       (line) => line.startsWith("    [error]") || line.startsWith("    [info]")
     );
-    assert.equal(lines[0], "  [1/1] Records | passed | 1ms");
+    assert.equal(lines[0], "  · Records | passed | 1ms");
     assert.equal(recordLines.length, 5);
     assert.equal(messageLines.length, 5);
     assert.equal(
@@ -100,12 +100,16 @@ describe("Package Run progress Record and message previews", () => {
       recordPreviewLimit: 1,
       textPreviewCodePointLimit: 1
     });
-    formattedRenderer.render({ kind: "prepared", totalChecks: 1 });
+    formattedRenderer.render({
+      kind: "prepared",
+      quietPassOmissionConfiguredCount: 1,
+      totalChecks: 1
+    });
     formattedRenderer.render(
       settled("formatted", "Formatted", { status: "passed", data: {} }, 1, {
         messages: messages.slice(0, 2),
         records: records.slice(0, 2),
-        visibility: "attention"
+        omitQuietPassedRow: true
       })
     );
     const formattedBlock = formattedOutput.writes[1] ?? "";
@@ -119,6 +123,7 @@ describe("Package Run progress Record and message previews", () => {
     ]);
     assert.equal(formattedBlock.includes("    [record] …\n"), true);
     assert.equal(formattedBlock.includes("    [error] \n"), true);
+    assert.equal(formattedBlock.startsWith("  · Formatted | passed | 1ms\n"), true);
     assert.equal(
       formattedBlock.includes(
         "    [records] 1 additional record(s) were omitted from terminal preview.\n"

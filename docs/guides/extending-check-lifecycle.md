@@ -40,7 +40,7 @@ const licensePolicy = defineCheck({
       ? { status: "success", preparedOptions: options }
       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
   },
-  visibility: "attention",
+  omitQuietPassedRow: true,
   execute({ options, records, signal }) {
     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
 
@@ -57,6 +57,25 @@ const licensePolicy = defineCheck({
   }
 });
 ```
+
+### 省略安静通过行
+
+把 `omitQuietPassedRow: true` 写在 **executable Check** 上，可在它安静通过时省略其
+settled row。它不是一般 boolean 开关：公开类型和 closed runtime grammar 只接受字面量
+`true`；省略或自有 `undefined` 都表示默认 `false`。container 不能声明它，它也不会继承给
+children；`false`、旧 `visibility` 字段和其它值都会使 Definition validation 失败。
+
+需要按调用方自己的条件启用时，组合对象以加入或省略字段，不要把条件结果赋给该字段：
+
+例如，在 Check object 中写
+`...(shouldReduceSuccessfulOutput ? { omitQuietPassedRow: true as const } : {})`；条件为否时字段不存在，
+条件为真时才加入 literal opt-in。
+
+这里的**安静通过**精确定义为 `status: "passed"`，且该次 settlement 接受的 Records 和
+messages 都为空。final `data` 不参与判定；`recordPreviewLimit`、`messagePreviewLimit`、
+formatter 返回的文本和终端截断也不会把已有 accepted detail 变成安静通过。非通过 outcome，
+或带任一 accepted Record/message 的通过，都会保留 settled presentation。具体终端格式、计数
+与默认输出边界见[进度呈现](run-outputs.md#progress-rendering)。
 
 ## 按 flag 选择 Check
 

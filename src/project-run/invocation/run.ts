@@ -193,7 +193,10 @@ async function executePreparedInvocation(
   if (preparedStrategy.completion.kind === "terminal-effect") {
     invocation.outputs.enableTerminalEffects();
   }
-  invocation.progressRendering.prepared(invocation.normalized.checks.length);
+  invocation.progressRendering.prepared(
+    invocation.normalized.checks.length,
+    invocation.normalized.checks.filter((check) => check.omitQuietPassedRow).length
+  );
   const executionStartedAt = invocation.clock.now();
   const executed = await executeScheduler({ invocation, preparedStrategy, project });
   if (isExecutionRunResult(executed)) return executed;

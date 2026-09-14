@@ -24,21 +24,23 @@ const NAMED_CONTROL_ESCAPES: Readonly<Partial<Record<string, string>>> = Object.
 
 export function formatRunningRow(
   input: Readonly<{
-    readonly displayIndex: number;
+    readonly displayIndex: number | undefined;
     readonly displayName: string;
     readonly elapsedMs: number | null;
     readonly totalChecks: number;
   }>
 ): string {
   const elapsed = input.elapsedMs === null ? "" : ` | ${formatDuration(input.elapsedMs)}`;
-  return `  [${input.displayIndex}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | running${elapsed}\n`;
+  const ordinal =
+    input.displayIndex === undefined ? "·" : `[${input.displayIndex}/${input.totalChecks}]`;
+  return `  ${ordinal} ${escapeTerminalText(input.displayName)} | running${elapsed}\n`;
 }
 
 export function shouldPresentSettledFeedback(
   feedback: Extract<ProgressFeedback, { readonly kind: "settled" }>
 ): boolean {
   return (
-    feedback.visibility !== "attention" ||
+    !feedback.omitQuietPassedRow ||
     feedback.outcome.status !== "passed" ||
     feedback.messages.length > 0 ||
     feedback.records.length > 0
@@ -71,7 +73,7 @@ export function formatFlagConditionNotMatchedBlock(
 
 export function formatSettledBlock(
   input: Readonly<{
-    readonly completionOrdinal: number;
+    readonly completionOrdinal: number | undefined;
     readonly displayName: string;
     readonly durationMs: number | null;
     readonly messages: readonly CheckMessage[];
@@ -86,14 +88,22 @@ export function formatSettledBlock(
   const reason = reasonForOutcome(input.outcome);
   const duration = input.durationMs === null ? "not run" : formatDuration(input.durationMs);
   const reasonSuffix = reason === undefined ? "" : ` | ${escapeTerminalText(reason)}`;
-  const row = `  [${input.completionOrdinal}/${input.totalChecks}] ${escapeTerminalText(input.displayName)} | ${status} | ${duration}${reasonSuffix}\n`;
+  const ordinal =
+    input.completionOrdinal === undefined
+      ? "·"
+      : `[${input.completionOrdinal}/${input.totalChecks}]`;
+  const row = `  ${ordinal} ${escapeTerminalText(input.displayName)} | ${status} | ${duration}${reasonSuffix}\n`;
   const recordPreview = formatRecords(input.records, input.progressRendering);
   const messagePreview = formatMessages(input.messages, input.usesColor, input.progressRendering);
   return `${row}${recordPreview}${messagePreview}`;
 }
 
 export function formatFinalSummary(
-  input: Extract<ProgressFeedback, { readonly kind: "final" }>
+  input: Extract<ProgressFeedback, { readonly kind: "final" }> &
+    Readonly<{
+      readonly quietPassOmissionConfiguredCount: number;
+      readonly quietPassOmittedCount: number;
+    }>
 ): string {
   return [
     "",
@@ -104,6 +114,9 @@ export function formatFinalSummary(
     `  failed: ${input.counts.failed}`,
     `  not applicable: ${input.counts.notApplicable}`,
     `  unavailable: ${input.counts.unavailable}`,
+    ...(input.quietPassOmissionConfiguredCount === 0
+      ? []
+      : [`  quiet-pass rows omitted: ${input.quietPassOmittedCount}`]),
     `  elapsed: ${formatDuration(input.elapsedMs)}`,
     ""
   ].join("\n");

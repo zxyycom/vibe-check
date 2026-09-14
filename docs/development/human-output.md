@@ -27,8 +27,32 @@ settlement 后，private lifecycle handoff 将 accepted Records/messages 交给 
 
 ## Progress presentation maintenance
 
-renderer 从 settled lifecycle feedback 读取 outcome、duration、Records 与 messages。`attention` 仅省略 passed
-且没有 accepted Record/message 的 settled row；它保持 running row 和 accounting ordinal。
+renderer 从 prepared feedback 读取 `totalChecks` 与全部 normalized executable Check 的
+`quietPassOmissionConfiguredCount`，再从 started/settled lifecycle feedback 读取当前 Check 的 normalized
+`omitQuietPassedRow`、outcome、duration、accepted Records 与 messages。renderer 不回查 Definition，也不从
+settled outcome 推断 authoring intent。
+
+策略为 `true` 时，quiet pass 是 `passed` 且 accepted Records/messages 均为空；final data、preview
+limit、formatter 返回文本和终端截断不参与判定。除既有 flag-condition-not-matched 聚合块外，行策略如下：
+
+| 策略与状态 | TTY running | settled presentation | omitted count |
+| --- | --- | --- | --- |
+| `false`，任意状态 | 既有 `[n/total]` row | 既有 `[n/total]` block | 不增加 |
+| `true`，quiet pass | 无编号 `· <name> \| running[ \| <elapsed>]` | 省略 | 增加 1 |
+| `true`，passed 且有 accepted detail | 同上 | 无编号 `· <name> \| passed \| <duration>`，保留 detail | 不增加 |
+| `true`，failed / not-applicable / unavailable | 实际启动时同上 | 无编号保留既有 status、duration/reason 与 detail | 不增加 |
+
+plain output 与 `TERM=dumb` 不输出 running row；TTY 保持策略 enabled Check 的 running feedback。completion
+counter 对每次 settlement 都推进，包括 quiet pass 与 flag mismatch，并继续为普通 row 提供 `[n/total]`；
+因此可见普通 row 可以跳号，不能把编号解释为 retained-row ID。flag-condition-not-matched 分组先于
+quiet-pass 判定，按 Definition 顺序聚合，且不增加 actual omitted count。
+
+当 configured count 大于零，renderer 在 header 写入
+`total <total> checks · <configured> configured for quiet-pass omission`，在既有 `elapsed` 前写入
+`quiet-pass rows omitted: <actual>`。configured 包含所有 normalized executable opt-in（包括 flag
+mismatch）；actual 只包含 renderer 省略的 quiet pass。零 configured 时不得改变 header、final summary、
+terminal 或 tee bytes。此策略只影响 renderer；Check lifecycle facts、public `RunResult` 和 machine publication
+保持原形状。
 
 ### Preview pipeline
 
@@ -37,7 +61,7 @@ renderer 从 settled lifecycle feedback 读取 outcome、duration、Records 与 
 
 1. **选择 detail**：每个 settled block 分别按 `recordPreviewLimit` 和 `messagePreviewLimit` 选取 Records/messages，
    保持 canonical local Record ID 与 accepted message order。`0` 不呈现该类 detail，但仍统计 omitted count；
-   settled row 的 attention 判断继续基于 accepted facts，而不是预览数量。
+   settled row 的 quiet-pass 判断继续基于 accepted facts，而不是预览数量。
 2. **生成正文**：Record 默认文本为 local ID/canonical JSON，message 默认文本为正文。存在 formatter 时，仅对
    selected item 按 Records 后 messages 的顺序调用一次，传入冻结、未 escape/未截断的 `{ kind, text, maxCodePoints }`。
    omitted items、summary、running row 和 TTY refresh 不调用 formatter；空字符串仍是有效正文。
@@ -57,7 +81,7 @@ readback 而非终端正文。final summary 展示 execution、counts 和 elapse
 
 flag-control barrier 后，renderer 将 Product-created `not-applicable / flag-condition-not-matched`、null duration
 且无 Records/messages 的 Checks 合并为一个原因块，按 Definition 顺序列出 escaped display names；dependency-activated
-Check 保持 ordinary lifecycle row。该分组与 attention 都只压缩展示，保持所有 terminal facts 和计数。
+Check 保持 ordinary lifecycle row。该分组与 quiet-pass omission 都只压缩展示，保持所有 terminal facts 和计数。
 
 可选 progress tee 将同一 rendered bytes 先写 terminal、再写 file；file setup/write/close failure 标记 progress
 output failed，同时保持 terminal delivery。writer failure 必须可观察，失败后的 writer 不再接收后续 writes。

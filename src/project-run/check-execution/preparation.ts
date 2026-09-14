@@ -19,7 +19,7 @@ const INERT_SIGNAL = new AbortController().signal;
 export type PreparedCheck = Omit<NormalizedCheck, "options" | "prepare"> &
   Readonly<{ readonly options: object; readonly preparationMessages: readonly CheckMessage[] }>;
 
-type BlockedCheck = Pick<NormalizedCheck, "definition" | "visibility"> &
+type BlockedCheck = Pick<NormalizedCheck, "definition" | "omitQuietPassedRow"> &
   Readonly<{ readonly preparationMessages: readonly CheckMessage[] }>;
 
 export type ReadyCheckPreparationResolution = Readonly<{
@@ -299,7 +299,7 @@ function blockedResolution(
     check: Object.freeze({
       definition: input.check.definition,
       preparationMessages: input.messages,
-      visibility: input.check.visibility
+      omitQuietPassedRow: input.check.omitQuietPassedRow
     }),
     outcome: Object.freeze({
       status: "unavailable",

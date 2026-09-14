@@ -35,7 +35,9 @@ describe("Package Run direct Check execution", () => {
     if (canonicalFailureData === undefined) throw new Error("fixture data must be canonical");
 
     assert.equal(result.kind, "completed");
-    assert.deepEqual(started, [{ checkId: "direct-check", displayName: "direct-check" }]);
+    assert.deepEqual(started, [
+      { checkId: "direct-check", displayName: "direct-check", omitQuietPassedRow: false }
+    ]);
     assert.deepEqual(settled, [
       {
         checkId: "direct-check",
@@ -44,7 +46,7 @@ describe("Package Run direct Check execution", () => {
         durationMs: 15,
         messages: [],
         records: [],
-        visibility: "always"
+        omitQuietPassedRow: false
       }
     ]);
     assert.deepEqual(result.checkDurations, [{ checkId: "direct-check", durationMs: 15 }]);

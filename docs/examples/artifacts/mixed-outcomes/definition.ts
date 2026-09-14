@@ -47,7 +47,7 @@ const releaseInputs = defineCheck({
       ]
     };
   },
-  visibility: "attention",
+  omitQuietPassedRow: true,
   execute({ options, signal }) {
     if (signal.aborted) {
       return { status: "unavailable", reason: { code: "execution-cancelled" } };
@@ -65,7 +65,7 @@ const releasePolicy = defineCheck({
   displayName: "Example release policy",
   observes: inherit({ add: [releaseInputs.checkId] }),
   options: { minimumFileCount: 2 },
-  visibility: "attention",
+  omitQuietPassedRow: true,
   execute({ dependencies, options, records }) {
     const manifestRead = dependencies.get(packageManifest.checkId);
     if (!manifestRead.ok) {

@@ -17,6 +17,7 @@ import {
 interface RunningCheck {
   readonly checkId: string;
   readonly displayName: string;
+  readonly omitQuietPassedRow: boolean;
   readonly startedAtMs: number;
   elapsedMs: number | null;
 }
@@ -29,6 +30,8 @@ export class ProgressRendererController implements ProgressRenderer {
   private readonly writer: ProgressWriter;
   private completedCount = 0;
   private readonly flagConditionNotMatchedDisplayNames: string[] = [];
+  private quietPassOmissionConfiguredCount = 0;
+  private quietPassOmittedCount = 0;
   private preparedTotal: number | undefined;
   private renderedRunningRows = 0;
   private readonly running: RunningCheck[] = [];
@@ -58,7 +61,7 @@ export class ProgressRendererController implements ProgressRenderer {
   render(feedback: ProgressFeedback): void {
     switch (feedback.kind) {
       case "prepared":
-        this.prepare(feedback.totalChecks);
+        this.prepare(feedback.totalChecks, feedback.quietPassOmissionConfiguredCount);
         return;
       case "flag-control-completed":
         this.completeFlagControl();
@@ -74,10 +77,15 @@ export class ProgressRendererController implements ProgressRenderer {
     }
   }
 
-  private prepare(totalChecks: number): void {
+  private prepare(totalChecks: number, quietPassOmissionConfiguredCount: number): void {
     if (this.preparedTotal !== undefined) throw new Error("Progress feedback was prepared twice");
     this.preparedTotal = totalChecks;
-    this.writer.write(`Vibe Check\ntotal ${totalChecks} checks\n\nChecks:\n`);
+    this.quietPassOmissionConfiguredCount = quietPassOmissionConfiguredCount;
+    const configuredSuffix =
+      quietPassOmissionConfiguredCount === 0
+        ? ""
+        : ` · ${quietPassOmissionConfiguredCount} configured for quiet-pass omission`;
+    this.writer.write(`Vibe Check\ntotal ${totalChecks} checks${configuredSuffix}\n\nChecks:\n`);
   }
 
   private start(feedback: Extract<ProgressFeedback, { readonly kind: "started" }>): void {
@@ -87,6 +95,7 @@ export class ProgressRendererController implements ProgressRenderer {
     this.running.push({
       checkId: feedback.checkId,
       displayName: feedback.displayName,
+      omitQuietPassedRow: feedback.omitQuietPassedRow,
       elapsedMs: null,
       startedAtMs: this.clock.now()
     });
@@ -103,7 +112,7 @@ export class ProgressRendererController implements ProgressRenderer {
     } else if (shouldPresentSettledFeedback(feedback)) {
       this.writer.write(
         formatSettledBlock({
-          completionOrdinal: this.completedCount,
+          completionOrdinal: feedback.omitQuietPassedRow ? undefined : this.completedCount,
           displayName: feedback.displayName,
           durationMs: feedback.durationMs,
           messages: feedback.messages,
@@ -114,6 +123,8 @@ export class ProgressRendererController implements ProgressRenderer {
           progressRendering: this.progressRendering
         })
       );
+    } else {
+      this.quietPassOmittedCount += 1;
     }
     if (this.refreshesRunningRegion) this.redrawRunningRegion();
   }
@@ -124,7 +135,13 @@ export class ProgressRendererController implements ProgressRenderer {
       throw new Error("Progress feedback finalized while Checks are still running");
     }
     this.flushFlagConditionNotMatchedChecks();
-    this.writer.write(formatFinalSummary(feedback));
+    this.writer.write(
+      formatFinalSummary({
+        ...feedback,
+        quietPassOmissionConfiguredCount: this.quietPassOmissionConfiguredCount,
+        quietPassOmittedCount: this.quietPassOmittedCount
+      })
+    );
   }
 
   private completeFlagControl(): void {
@@ -156,9 +173,9 @@ export class ProgressRendererController implements ProgressRenderer {
     for (const [index, check] of this.running.entries()) {
       this.writer.write(
         formatRunningRow({
-          displayIndex: this.completedCount + index + 1,
           displayName: check.displayName,
           elapsedMs: check.elapsedMs,
+          displayIndex: check.omitQuietPassedRow ? undefined : this.completedCount + index + 1,
           totalChecks
         })
       );

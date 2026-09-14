@@ -31,8 +31,9 @@ Check-local parser。
 也启用，二者共享该 instant。两项 output 都禁用时，Run 不读取或序列化 wall clock。每个 Check row 包含
 `checkId`、`displayName` 和一种 terminal outcome：`passed` / `failed` 带 object-shaped final `data`；
 `not-applicable` / `unavailable` 带受控 reason，前者可以省略 reason。Aggregation、所有 Run output status 与
-diagnostic channel files、duration、author terminal messages、Product-captured Check console messages、visibility 和
-progress presentation 不属于 machine fields。
+diagnostic channel files、duration、author terminal messages、Product-captured Check console messages、
+`omitQuietPassedRow` 人读呈现策略和 progress presentation 不属于 machine fields。quiet-pass row 的省略、
+无编号格式及 configured/actual 计数都不改变 terminal Check facts 或 v4 publication。
 
 每个 `records.ndjson` row 的结构是：
 
@@ -63,7 +64,7 @@ canonical replacement 已发生后的 handled failure 会清理可能混合的 c
 
 两个 canonical files 是独立 filesystem paths，rename 不提供跨路径原子可见性。并发 reader 可能观察到 mixed
 generation，因此必须按完整集合执行 fingerprint validation；需要 generation pointer、reader lock 或跨路径 atomic
-visibility 的系统，应在 Vibe Check 契约之外建立自己的读取协议。
+原子可见性的系统，应在 Vibe Check 契约之外建立自己的读取协议。
 
 ## 随包材料与版本
 

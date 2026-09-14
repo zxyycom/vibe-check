@@ -396,11 +396,11 @@ const messagedResult: CheckResult = {
   status: "not-applicable",
   messages: [{ code: "not-required", level: "info", message: "Not required" }]
 };
-const attentionCheck: Check = {
-  checkId: "isolated-attention",
-  displayName: "Isolated attention",
+const quietPassCheck: Check = {
+  checkId: "isolated-quiet-pass",
+  displayName: "Isolated quiet pass",
   execute: () => messagedResult,
-  visibility: "attention"
+  omitQuietPassedRow: true
 };
 const findingMessages = presentCheckFindings({
   findings: [{ path: "src/example.ts" }],
@@ -490,7 +490,7 @@ void [
   parseSecretDetectionData,
   run,
   aggregation,
-  attentionCheck,
+  quietPassCheck,
   authorResult,
   changedFiles,
   changedFilesData,

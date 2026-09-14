@@ -20,7 +20,7 @@ const licensePolicy = defineCheck({
       ? { status: "success", preparedOptions: options }
       : { status: "failure", action: "block", reason: { code: "invalid-options" } };
   },
-  visibility: "attention",
+  omitQuietPassedRow: true,
   execute({ options, records, signal }) {
     if (signal.aborted) return { status: "unavailable", reason: { code: "cancelled" } };
 

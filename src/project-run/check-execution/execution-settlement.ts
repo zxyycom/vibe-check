@@ -1,4 +1,4 @@
-import type { CheckMessage, CheckOutcome, CheckVisibility } from "../../check/check.ts";
+import type { CheckMessage, CheckOutcome } from "../../check/check.ts";
 import type { HandoffProviderIdentity } from "../../check/handoff-provider-identity.ts";
 import type { CoreCheckSession } from "../../check-settlement/session.ts";
 import {
@@ -18,7 +18,7 @@ import type { executeCheckCallback } from "./callback.ts";
 export type CheckIdentity = Readonly<{
   readonly checkId: string;
   readonly displayName: string;
-  readonly visibility: CheckVisibility;
+  readonly omitQuietPassedRow: boolean;
 }>;
 
 export interface SettledCheckFacts {
@@ -181,7 +181,7 @@ export function recordSettledCheck(
       durationMs: input.durationMs,
       messages: input.messages,
       records: input.state.session.readSettledCheckRecords(input.check.checkId),
-      visibility: input.check.visibility
+      omitQuietPassedRow: input.check.omitQuietPassedRow
     })
   );
 }

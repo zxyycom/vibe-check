@@ -47,7 +47,7 @@ export function normalized(
     options: {},
     resourceClaims: Object.freeze({}),
     ...(resolved.prepare === undefined ? {} : { prepare: resolved.prepare }),
-    visibility: "always"
+    omitQuietPassedRow: false
   };
 }
 

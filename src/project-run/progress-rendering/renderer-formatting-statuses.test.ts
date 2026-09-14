@@ -17,7 +17,7 @@ describe("Package Run progress terminal formatting", () => {
   it("formats every terminal status with measured duration or not run and only the safe reason code", () => {
     const output = createWriter();
     const renderer = createProgressRenderer(output.writer);
-    renderer.render({ kind: "prepared", totalChecks: 4 });
+    renderer.render({ kind: "prepared", quietPassOmissionConfiguredCount: 0, totalChecks: 4 });
     renderer.render(settled("passed", "Passed", { status: "passed", data: {} }, 10));
     renderer.render(settled("failed", "Failed", { status: "failed", data: {} }, 1_000));
     renderer.render(
@@ -50,7 +50,11 @@ describe("Package Run progress terminal formatting", () => {
 
     const unsafePlain = createWriter();
     const unsafePlainRenderer = createProgressRenderer(unsafePlain.writer);
-    unsafePlainRenderer.render({ kind: "prepared", totalChecks: 1 });
+    unsafePlainRenderer.render({
+      kind: "prepared",
+      quietPassOmissionConfiguredCount: 0,
+      totalChecks: 1
+    });
     unsafePlainRenderer.render(
       settled(
         "unsafe",

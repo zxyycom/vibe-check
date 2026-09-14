@@ -22,7 +22,7 @@ export interface ProgressRendering {
   readonly final: (input: ProgressFinalFeedback) => void;
   readonly checkLifecycle: CheckExecutionLifecycle;
   readonly invocationLifecycle: InvocationLifecycle;
-  readonly prepared: (totalChecks: number) => void;
+  readonly prepared: (totalChecks: number, quietPassOmissionConfiguredCount: number) => void;
 }
 export interface ProgressFinalFeedback {
   readonly counts: ProgressOutcomeCounts;
@@ -164,8 +164,8 @@ export function createProgressRendering(
 
   return Object.freeze({
     close,
-    prepared: (totalChecks: number) => {
-      render(Object.freeze({ kind: "prepared", totalChecks }));
+    prepared: (totalChecks: number, quietPassOmissionConfiguredCount: number) => {
+      render(Object.freeze({ kind: "prepared", quietPassOmissionConfiguredCount, totalChecks }));
     },
     invocationLifecycle: Object.freeze({
       selectionSettled: () => {
@@ -183,7 +183,7 @@ export function createProgressRendering(
             messages: fact.messages,
             outcome: fact.outcome,
             records: fact.records,
-            visibility: fact.visibility
+            omitQuietPassedRow: fact.omitQuietPassedRow
           })
         );
         runningCheckIds.delete(fact.checkId);
@@ -192,7 +192,12 @@ export function createProgressRendering(
       started: (fact: CheckStartedFact) => {
         runningCheckIds.add(fact.checkId);
         render(
-          Object.freeze({ kind: "started", checkId: fact.checkId, displayName: fact.displayName })
+          Object.freeze({
+            kind: "started",
+            checkId: fact.checkId,
+            displayName: fact.displayName,
+            omitQuietPassedRow: fact.omitQuietPassedRow
+          })
         );
         startRefresh();
       }
@@ -221,7 +226,7 @@ function inertProgressRendering(): ProgressRendering {
   });
   return Object.freeze({
     close: (): void => undefined,
-    prepared: (_totalChecks: number): void => undefined,
+    prepared: (_totalChecks: number, _quietPassOmissionConfiguredCount: number): void => undefined,
     checkLifecycle,
     invocationLifecycle,
     final: (_input: ProgressFinalFeedback): void => undefined

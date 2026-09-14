@@ -56,8 +56,9 @@ Entities:
 
 - `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > maintains a TTY-only running region and assigns completion ordinals by settlement order`
 - `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > keeps plain and dumb-terminal output append-only without running rows`
-- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > applies the settled visibility matrix consistently in plain and dumb terminals`
-- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > hides only attention passed rows after clearing TTY running rows and writes each visible block atomically`
+- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > applies quiet-pass omission and unnumbered retained rows consistently in plain and dumb terminals`
+- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > clears quiet-pass running rows and retains unnumbered outcome blocks atomically`
+- `bun|src/project-run/progress-rendering/renderer.lifecycle.test.ts|Package Run progress lifecycle presentation > reports configured policy separately from actual omissions and groups flag mismatches first`
 - `bun|src/project-run/progress-rendering/renderer-formatting-statuses.test.ts|Package Run progress terminal formatting > formats a singular flag-condition group with a terminal-safe Check name`
 - `bun|src/project-run/progress-rendering/renderer-formatting-statuses.test.ts|Package Run progress terminal formatting > formats every terminal status with measured duration or not run and only the safe reason code`
 - `bun|src/project-run/progress-rendering/renderer-formatting-color.test.ts|Package Run progress terminal formatting > uses ANSI color only for message level labels on color-capable TTY writers`
@@ -71,8 +72,8 @@ Entities:
 - `bun|src/project-run/progress-rendering/timing.test.ts|Package Run progress timing > uses the shared monotonic interval for elapsed progress rather than summing parallel Check durations`
   Proves:
 
-- Product-owned progress presents lifecycle status, measured duration or `not run`, controlled reason codes, and accepted terminal messages from Run facts only; it does not derive presentation from final or Record data. At preparation completion, Product-created flag-condition mismatches form one atomic reason block with terminal-escaped Check names instead of repeated settled rows while retaining their terminal facts and counts; dependency-activated Checks retain their ordinary lifecycle rows and never enter that block. Other visible settled rows keep author-ordered message lines in one atomic block, while a message code is not terminal text.
-- `attention` omits only a passed/no-message settled row, never a running row or accounting ordinal. TTY running rows use a single monotonic elapsed interval and heartbeat; plain/dumb output stays append-only without running rows and may include the preparation-complete flag summary. Capability-specific color applies only to level labels, human text is terminal-escaped, and writer failures remain observable.
+- Product-owned progress presents lifecycle status, measured duration or `not run`, controlled reason codes, and accepted terminal messages from lifecycle facts. It does not derive status or quiet-pass eligibility from final data or Record payloads: eligibility uses only the settled outcome and whether accepted Records/messages are present. At preparation completion, Product-created flag-condition mismatches form one atomic reason block with terminal-escaped Check names instead of repeated settled rows while retaining their terminal facts and counts; dependency-activated Checks retain their ordinary lifecycle rows and never enter that block. Other visible settled rows keep author-ordered message lines in one atomic block, while a message code is not terminal text.
+- `omitQuietPassedRow` omits only a passed row with no accepted Record or message, never a running row or completion accounting. Its TTY running and retained settled rows are unnumbered; plain/dumb output stays append-only without running rows. The configured policy count remains distinct from actual renderer omissions, including flag-condition mismatches. TTY running rows use a single monotonic elapsed interval and heartbeat; capability-specific color applies only to level labels, human text is terminal-escaped, and writer failures remain observable.
 
 ## Case AUX-DOCS-MACHINE-ARTIFACTS-001: Independent v4 example acceptance
 
@@ -101,4 +102,4 @@ Entities:
 
 - `bun|src/package-checks/maintenance-reminders/machine-publication.test.ts|maintenance reminders > publishes one generic final-data Check row without Records or messages`
   Proves:
-- A due advisory maintenance reminder publishes exactly one ordinary `maintenance-reminders` passed Check outcome with its ordered assessment final data. It publishes no supplemental Records, entry-level machine rows, terminal messages, or visibility fields.
+- A due advisory maintenance reminder publishes exactly one ordinary `maintenance-reminders` passed Check outcome with its ordered assessment final data. It publishes no supplemental Records, entry-level machine rows, terminal messages, or quiet-pass presentation fields.

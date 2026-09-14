@@ -93,14 +93,14 @@ describe("maintenance reminders", () => {
         displayName: first.displayName,
         git: first.options.git,
         hasChecks: Object.hasOwn(first, "checks"),
-        visibility: first.visibility
+        omitQuietPassedRow: first.omitQuietPassedRow
       },
       {
         checkId: "maintenance-reminders",
         displayName: "Maintenance reminders",
         git: { executable: "git" },
         hasChecks: false,
-        visibility: "attention"
+        omitQuietPassedRow: true
       }
     );
     assert.notEqual(

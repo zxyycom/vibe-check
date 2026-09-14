@@ -1,7 +1,7 @@
 ---
 title: 提供可配置且受管的 progress 文本预览
 id: 260907-configure-bounded-progress-previews-with-text-formatter
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-07T10:30:45Z
 purpose: 让调用方调整 Record 与 message 预览并定制文本，同时保留完整事实和终端安全责任。
