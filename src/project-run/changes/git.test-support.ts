@@ -17,7 +17,8 @@ export function commit(repository: string, message: string): void {
 }
 
 /** Runs a Git fixture command and fails the test with Git's diagnostic on nonzero exit. */
-export function git(repository: string, args: readonly string[]): void {
+export function git(repository: string, args: readonly string[]): string {
   const result = spawnSync("git", args, { cwd: repository, encoding: "utf8" });
   assert.equal(result.status, 0, `git ${args.join(" ")} failed: ${result.stderr}`);
+  return result.stdout.trim();
 }

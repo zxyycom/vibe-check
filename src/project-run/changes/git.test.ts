@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
 import { mkdtempSync, renameSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -60,7 +59,7 @@ describe("Project Run Git changes", () => {
       assert(prepared.projectChanges.files.every((entry) => Object.isFrozen(entry)));
       assert(prepared.projectChanges.files.every((entry) => Object.isFrozen(entry.flags)));
 
-      const baseline = gitText(repository, ["rev-parse", "HEAD"]);
+      const baseline = git(repository, ["rev-parse", "HEAD"]);
       git(repository, ["branch", "comparison-base", baseline]);
       git(repository, ["tag", "comparison-tag", baseline]);
       for (const compareWith of ["comparison-base", baseline, "HEAD~1", "comparison-tag"]) {
@@ -234,10 +233,4 @@ function nestedRepositoryFixture(): string {
   write(repository, "docs/unchanged.md", "# unchanged\n");
   commit(repository, "nested baseline");
   return repository;
-}
-
-function gitText(repository: string, args: readonly string[]): string {
-  const result = spawnSync("git", args, { cwd: repository, encoding: "utf8" });
-  assert.equal(result.status, 0, `git ${args.join(" ")} failed: ${result.stderr}`);
-  return result.stdout.trim();
 }
