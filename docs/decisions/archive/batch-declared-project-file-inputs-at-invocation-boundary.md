@@ -1,7 +1,7 @@
 ---
 title: 在调用输入边界批量准备 Check 声明的项目文件
 id: 260910-batch-declared-project-file-inputs-at-invocation-boundary
-status: active
+status: archived
 alignment: unaligned
 createdAt: 2026-09-10T07:01:28Z
 purpose: 让 Check 自含文件声明并由 Product 对本次有效集合统一收集

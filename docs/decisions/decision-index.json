@@ -326,7 +326,7 @@
       "260909-select-admission-optimization-by-effective-opportunity": "sha256:bf99839c860bf74d5776fb8ce041d7bb7e9b110a00bc884565688eb72915c289",
       "260909-ship-changelog-with-package": "sha256:916e16b7eff6c4413a743b2b2cdf74852b9266a4fa4f11d22fff8c2131618058",
       "260909-standardize-package-release-procedure": "sha256:c695ab74b6ca60f04cac2be3966371aae0a6decadfd926eed431d52017d47ac3",
-      "260910-batch-declared-project-file-inputs-at-invocation-boundary": "sha256:981a6f4177279f54bd932d7c14d83a82db1fe2049973202c711463160a2f5eb5",
+      "260910-batch-declared-project-file-inputs-at-invocation-boundary": "sha256:7c48de3d0894c617f4b85bb68cc3df379fceb56a2f6cde2a640ad894ccfcfb9e",
       "260910-expose-check-centric-lifecycle-hooks": "sha256:c5eb496b7c2efd7336f0a2dfec00d313b55409ed9ac48c16dd87e7f0ffc967c7",
       "260910-model-project-file-refresh-as-immutable-generations": "sha256:42edb7327edd8e8c95593d03d61ad0cbcf7e277c2d9fbae907371f9e5c82eaa3",
       "260910-provide-invocation-project-input-context": "sha256:f3ab35ac48abcc5c53e4a582dd99c733e50a7ca9114ec5e6b4d5cfa2166dd136",
@@ -341,7 +341,8 @@
       "260914-name-scheduler-terminal-consumers-as-effects": "sha256:954a86bcb99d6b398cdb0a775fe4517b3ed27ffd8847148be917c5ef9e8bb1e2",
       "260914-narrow-project-gate-to-result-contribution": "sha256:b06f59f897dcc392efd90c2702d927f164cdd3ca0e92b65234cf50b19d41bb27",
       "260914-unify-project-change-flags-as-effective-flags": "sha256:f61d2b400b55f35d459c0933b611c9ab28468421307c55b4ad85a73557fbcd4d",
-      "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0"
+      "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0",
+      "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -6723,9 +6724,9 @@
     },
     "260910-batch-declared-project-file-inputs-at-invocation-boundary": {
       "name": "batch-declared-project-file-inputs-at-invocation-boundary",
-      "sourcePath": "batch-declared-project-file-inputs-at-invocation-boundary.md",
+      "sourcePath": "archive/batch-declared-project-file-inputs-at-invocation-boundary.md",
       "title": "在调用输入边界批量准备 Check 声明的项目文件",
-      "status": "active",
+      "status": "archived",
       "alignment": "unaligned",
       "createdAt": "2026-09-10T07:01:28Z",
       "purpose": "让 Check 自含文件声明并由 Product 对本次有效集合统一收集",
@@ -7052,6 +7053,29 @@
           "type": "修订",
           "target": "260901-run-check-preflight-with-task-admission",
           "summary": "保留 task-local 准备语义并直接切换公开命名"
+        }
+      ]
+    },
+    "260915-retain-on-demand-project-file-collection": {
+      "name": "retain-on-demand-project-file-collection",
+      "sourcePath": "retain-on-demand-project-file-collection.md",
+      "title": "保持按需项目文件收集",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-15T02:35:18Z",
+      "purpose": "以单次收集与 Check 内批处理维持简单输入边界",
+      "background": "跨 Check 批处理有方向性收益，但现有证据不支持其公共契约与 Run 生命周期成本",
+      "decision": "保持按需收集，并仅在真实瓶颈或共享路径快照需求得到证明后重新立项",
+      "tags": [
+        "performance",
+        "product-contract",
+        "product-priority"
+      ],
+      "relations": [
+        {
+          "type": "替代",
+          "target": "260910-batch-declared-project-file-inputs-at-invocation-boundary",
+          "summary": "恢复按需收集并为共享机制设置证据门槛"
         }
       ]
     }

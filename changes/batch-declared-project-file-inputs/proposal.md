@@ -1,13 +1,15 @@
 # Proposal
 
-本 Draft 为 ordinary executable Check 增加标准项目文件输入声明，并由 Product 在每次 Run 的 effective Check 集合确定后统一收集、向各 Check 分发自己的命名路径集合。
+本 Draft 保存对调用级声明式项目文件批处理的评估；当前处置是保持按需收集，不进入 Plan。
 
 ## Why
 
-目前多个 Check 会对相同 project root/source 重复遍历目录或执行 Git discovery。让项目作者另外声明 snapshot Provider 虽可共享结果，却会拆散原本应由 Check 自含的声明，并引入 Provider ID、selection reference 和 dependency 接线样板。
+该方向原本希望减少多个 Check 对同一项目文件来源的重复获取，并为一次 Run 提供共同的路径成员时间切面。复审确认，现有 Check 已在各自边界内批量处理多个 selections，剩余的跨 Check 收益尚无可复现的真实瓶颈证据。
 
-在每个 Check 前单独收集无法消除重复 acquisition；在 Definition 构建或静态图结构锁定时收集则会把可重用定义绑定到过早的 workspace 状态。稳定的边界是每次 invocation 中 effective selection 已固定、任何 Check-owned work 尚未开始的时点。
+实现该方向需要同时扩展公开 Check 声明、Definition identity、Run barrier、失败与取消结算、Core owner 和随包 constructor 一致性。相较当前已观察到的收益，这些长期设计成本以及最终 authoring 用法都不够合算。
+
+长期取舍由 [`retain-on-demand-project-file-collection`](../../docs/decisions/retain-on-demand-project-file-collection.md) 承接。
 
 ## Outcome
 
-Check 在标准 `projectFiles` 字段中声明命名 selections。Product 只对本次 effective Checks 执行一次 invocation input preparation：每个 source 只取得一份 candidate observation，candidate 命中时直接物化 Check/slot membership，随后向各 Check 分发冻结路径集合而不重新运行 include/exclude matcher。这一快照只固定路径 membership，每次 Run 重新取得；需要消费同一 Run 内生成物的 Check 继续在依赖后使用命令式收集，不伪装成初始批次。
+本 Draft 不产生产品行为、公共契约或 owner 迁移。项目继续使用同步单次 `collectProjectFiles(...)` 和各 owning Check 内的批量收集；只有真实 workload 证明显著瓶颈，或出现共享调用级路径时间切面的独立消费者时，才以新的 Change 重新评估最小方案。
