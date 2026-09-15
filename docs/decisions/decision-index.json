@@ -342,6 +342,7 @@
       "260914-narrow-project-gate-to-result-contribution": "sha256:b06f59f897dcc392efd90c2702d927f164cdd3ca0e92b65234cf50b19d41bb27",
       "260914-unify-project-change-flags-as-effective-flags": "sha256:f61d2b400b55f35d459c0933b611c9ab28468421307c55b4ad85a73557fbcd4d",
       "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0",
+      "260915-provide-bounded-markdown-lint-check": "sha256:71822d6d2544df31219cce99364cf8798af0979a7925c217c5ec00154ace8147",
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
@@ -7055,6 +7056,24 @@
           "summary": "保留 task-local 准备语义并直接切换公开命名"
         }
       ]
+    },
+    "260915-provide-bounded-markdown-lint-check": {
+      "name": "provide-bounded-markdown-lint-check",
+      "sourcePath": "provide-bounded-markdown-lint-check.md",
+      "title": "提供闭合规则的 Markdown lint Check",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-15T03:16:48Z",
+      "purpose": "让 package consumer 以闭合高信号规则、受控输入和稳定结果运行 Markdown lint。",
+      "background": "现有 Markdown Link 只验证本地引用完整性，结构与明确内容缺陷仍缺少随包 Check。",
+      "decision": "新增独立 markdownLint，固定九项规则与私有 backend，并保持 package advisory 与 Gate 分离。",
+      "tags": [
+        "configuration",
+        "dependency-policy",
+        "product-contract",
+        "product-priority"
+      ],
+      "relations": []
     },
     "260915-retain-on-demand-project-file-collection": {
       "name": "retain-on-demand-project-file-collection",

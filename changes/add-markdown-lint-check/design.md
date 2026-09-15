@@ -1,68 +1,128 @@
 # Design
 
-本设计以 `markdownlint` 程序内 API 作为私有 backend，为新的随包 Check 定义规则、输入、诊断和结算边界。
+本设计把 Markdown lint 限定为独立、无缓存、使用 Product-owned 规则与结果契约的 package Check。
 
 ## Context
 
-[`survey-markdown-lint-tools.md`](../../docs/investigations/survey-markdown-lint-tools.md) 将 `markdownlint` 程序内 API 选为通用 TypeScript 集成基线。Draft 当前针对 `markdownlint@0.41.1`：使用 `markdownlint/promise` 的 `strings` API 取得结构化 lint errors，其 Node engine 要求与 Package 宿主范围兼容。
-
-[`keep-format-aware-check-capabilities-independent.md`](../../docs/decisions/keep-format-aware-check-capabilities-independent.md) 要求不同格式风险保留独立 Check owner，并在出现明确产品优先级时重新基线。本 Change 提供了 Markdown lint 的独立结果、规则和验收边界。
-
-现有 [`markdownLinkValidation`](../../docs/checks/markdown-link-validation.md) 继续拥有本地 target、same/cross-document anchor、root containment 与 I/O 授权。活动决策 [`exclude-undefined-markdown-references-from-link-check.md`](../../docs/decisions/exclude-undefined-markdown-references-from-link-check.md) 将未定义 reference 留给独立 lint 能力，因此新 Check 可以覆盖该规则；`MD051` 默认关闭，避免重复报告 same-document fragment。
-
-缓存由 [`design-markdown-check-caching`](../design-markdown-check-caching/) 单独设计，不进入本 Change 的实现或验收。
+- [`survey-markdown-lint-tools.md`](../../docs/investigations/survey-markdown-lint-tools.md) 选择
+  `markdownlint` 程序内 API 作为 TypeScript 集成基线，并完成 `markdownlint@0.41.1` Promise API spike。
+- [`provide-bounded-markdown-lint-check`](../../docs/decisions/provide-bounded-markdown-lint-check.md) 是本设计的
+  长期权威：独立 Check、九项闭合规则、私有 backend、有界执行、package advisory default、Gate 分离。
+- [`markdownLinkValidation`](../../docs/checks/markdown-link-validation.md) 继续拥有本地 target 与 anchor 完整性；
+  本 Check 拥有 Markdown 结构和明确内容缺陷。`link-fragments` 默认关闭，避免重复 evidence。
+- [`design-markdown-check-caching`](../design-markdown-check-caching/) 只消费本 Change 稳定后的 rule、adapter、
+  range、Finding 与资源契约。
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 提供可无参构造、默认产生高信号诊断的 package-provided Check。
-- 固定默认规则和受支持规则集合，同时允许消费者有界启用或禁用规则。
-- 通过 Check-owned adapter 将第三方结果转换为 Product-owned Records、消息和四态结果。
-- 沿用项目文件选择、输入资格对账、资源限制、取消和 Finding policy 约定。
+- 提供可无参构造、默认产生高信号诊断的 package Check。
+- 让 consumer 通过非空闭合列表完整选择首版支持的规则，不接触 backend 配置语言。
+- 把 exact authorized inputs 转换为可排序、可验证且不含 source 的 Product Records、消息和四态结果。
+- 沿用 project-file selection、输入资格对账、资源限制、取消和 Finding policy 的现有约定。
 
 ### Non-Goals
 
-- Link target、跨文档 anchor、网络与 HTML link 继续由独立能力负责。
-- Cache 由相邻 Change 设计；修复、格式化、拼写、术语、事实和代码示例执行不属于本 Change。
-- `markdownlint` 配置文件、`extends`、`customRules`、任意 rule object、parser plugin 和 AST 保持私有或不可用。
-- 首版只提供 Check 级 `findingPolicy`，不增加 per-rule severity 或工作区写入。
+- Link target、跨文档 anchor、网络和 HTML link 仍由其它能力负责。
+- 首版不覆盖排版偏好、拼写、术语、事实、代码示例执行、自动修复、waiver 或 persistent cache。
+- Backend 配置文件、preset/tag、custom rule、任意 rule object、rule 参数、parser plugin、AST 和原始诊断
+  不构成公共能力。
+- Repository Gate adoption 不属于本 Change。
 
 ## Decisions
 
 ### Intended Change
 
-以下是当前设计方向；标为“暂定”的公共名称、集合和数值需在形成 Plan 前闭合。
+#### Public Configuration and Rules
 
-1. **公共身份。** 暂定 constructor 为 `markdownLint(options?)`、Check ID 为 `markdown-lint`。根入口导出普通 `TypedCheckWithOptions`、final-data parser 和必要公共类型，不增加 CLI、`bin` 或 package subpath。
-2. **私有 backend。** 新增 `markdownlint@0.41.1` production dependency；adapter 只调用 `markdownlint/promise` 的 `strings` API。Product 提供已授权的 exact inputs，backend 不发现文件或配置。Plan readiness 复核精确版本、license、transitive graph 和 installed-consumer execution。
-3. **闭合规则配置。** 暂定 options 为 `rules: { preset?, enable?, disable? }`。省略时使用 Product-owned `recommended`；增减列表只接受公共 `MarkdownLintRuleName`，并拒绝未知、重复、冲突或最终为空的配置。`all`、`none` 和 supported catalog 的精确范围仍待闭合；依赖升级不会自动扩大它们。
-4. **高信号默认集。** 候选规则是 `MD001`、`MD011`、`MD018`、`MD040`、`MD042`、`MD045`、`MD052` 与 `MD056`；`MD051` 和排版风格规则默认关闭。形成 Plan 前用排除 archive、generated 和保真资源的维护语料核对 Finding 数量、误报和 Link 重叠。
-5. **固定 parser policy。** adapter 设置 `noInlineConfig: true`；Front matter、GFM 和其它方言行为由固定 policy 与 fixture 锁定，不随 backend 默认变化。
-6. **有界逐文件执行。** 默认选择 `.md`/`.markdown` 大小写变体；显式选中的其他路径形成 non-blocking `input-rejected` Record。文件按稳定顺序逐一处理，以便在文件之间检查 cancellation。单文件 byte 上限、全次 Finding 上限及对应 unavailable reason 在 Plan 前闭合；失败不发布 partial lint Findings。
-7. **稳定结果。** Lint Record 暂定包含 project-relative path、公共 rule name 和 one-based UTF-16 range，ID 由 path、rule 与 occurrence index 构成。Product 提供规则摘要和消息，不发布第三方 message/context 或 source。省略 `findingPolicy` 时普通 Finding 为 `non-blocking`；zero selected、all-rejected 和 blocking settlement 沿用现有文件型质量 Check 语义。Final data 暂定为 `sourceFileCount`、`findingCount` 与 `rejectedInputCount`。
+Constructor 固定为 `markdownLint(options?)`，Check ID 为 `markdown-lint`，display name 为 `Markdown lint`。
+根入口导出 constructor、`parseMarkdownLintData`、options/resolved options、rule name、final data、Record data 与
+unavailable reason 类型；不增加 CLI、`bin` 或 package subpath。
+
+`MarkdownLintOptions` 只接受 `files?`、`findingPolicy?`、`rules?` 和 `limits?`：
+
+- `rules` 省略时使用 recommended；显式数组完整替换默认集，必须非空、无 sparse item、无重复且只含下表名称。
+  Resolved 顺序固定为 Product catalog 顺序。
+- `limits` 的 `maxMarkdownBytes` / `maxFindings` 默认值为 `1_048_576` / `10_000`，必须为正安全整数，
+  最大值为 `16_777_216` / `100_000`。
+- `files` 默认选择大小写不敏感的 `.md` / `.markdown`；`findingPolicy` 默认为 `non-blocking`。
+
+| Public rule | Backend configuration | Default | Product meaning |
+| --- | --- | --- | --- |
+| `heading-increment` | `MD001: { front_matter_title: "^\\s*title\\s*[:=]" }` | 是 | 标题层级一次最多增加一级 |
+| `no-reversed-links` | `MD011: true` | 是 | 反向 `()[]` 链接语法 |
+| `no-missing-space-atx` | `MD018: true` | 是 | ATX 标题 marker 后缺少空格 |
+| `fenced-code-language` | `MD040: { allowed_languages: [], language_only: false }` | 是 | 围栏代码块缺少语言 |
+| `no-empty-links` | `MD042: true` | 是 | 空 link destination 或空 fragment |
+| `no-alt-text` | `MD045: true` | 是 | Markdown image 缺少 alt text |
+| `link-fragments` | `MD051: { ignore_case: false, ignored_pattern: "" }` | 否 | same-document fragment 未匹配标题 |
+| `reference-links-images` | `MD052: { ignored_labels: ["x"], shortcut_syntax: false }` | 是 | full/collapsed reference 缺少 definition |
+| `table-column-count` | `MD056: true` | 是 | GFM pipe table 各行列数不一致 |
+
+Adapter 从 `default: false` 开始，只启用 resolved rules；每项配置值都由 Product fixture 锁定。
+
+#### Private Backend and Markdown Dialect
+
+生产依赖固定为 exact `markdownlint@0.41.1`，adapter 只调用 `markdownlint/promise` 的 `strings` API。
+Backend 不取得路径或文件系统权限。每次调用设置 `noInlineConfig: true`，并显式传入以下 front matter RegExp：
+
+```js
+/((^---[^\S\r\n\u2028\u2029]*$[\s\S]+?^---\s*)|(^\+\+\+[^\S\r\n\u2028\u2029]*$[\s\S]+?^(\+\+\+|\.\.\.)\s*)|(^\{[^\S\r\n\u2028\u2029]*$[\s\S]+?^\}\s*))(\r\n|\r|\n|$)/m
+```
+
+该方言识别文件开头的 YAML、TOML 和 JSON metadata，并使用 backend 0.41.1 的 CommonMark/GFM constructs。
+Fixture 锁定 front matter、inline directives、pipe table、HTML comments 和不支持扩展的实际行为；不承诺与任意 renderer 等价。
+
+#### Inputs, Limits, and Cancellation
+
+Check 每次 execution 只收集一次 selected paths 并稳定排序。`.md` / `.markdown` 大小写变体进入 accepted sources；
+其它路径逐项发布 non-blocking `input-rejected / unsupported-file-type` Record。
+
+每个 accepted source 必须在 project root containment 内安全读取为 regular UTF-8 file，且不超过
+`maxMarkdownBytes`。文件依次交给 backend，在每个文件前后检查 cancellation。Lint candidates 先缓冲并完成
+全量 traversal、`maxFindings` 检查和 adapter validation，随后一次发布；失败不留下 partial lint Findings。
+
+#### Product Output and Settlement
+
+Adapter 只接受 selected MD code、落在对应 source line 内的正一基 `lineNumber`，以及 `null` 或由正安全整数
+`[column, length]` 构成且不越过该行 UTF-16 边界的 `errorRange`。
+Public lint Record 为 `{ kind: "lint-finding", path, rule, range }`，range 使用一基 UTF-16 line/column 和
+同一行 end-exclusive position；缺少 `errorRange` 时使用该行 column 1 的 point range。
+
+Record ID 编码 path、public rule、start line/column 和同位置 tie ordinal。排序依次使用 path、range、catalog rule、
+tie ordinal。Product 为每条规则提供固定摘要；Finding detail 只含 path、start position、public rule 和摘要。
+Backend message、context、source、fix、URL、severity 和异常均不发布。
+
+Final data 固定为 `{ sourceFileCount, findingCount, rejectedInputCount }`。`sourceFileCount` 是成功 lint 的 accepted
+source 数量；`findingCount` 是 lint Findings 与 rejected inputs 的合计，因此不小于 `rejectedInputCount`。
+
+- Zero selected：`not-applicable / no-eligible-input`。
+- All rejected：带 non-blocking Findings 的 `passed`。
+- Lint Findings：`non-blocking` 时 `passed`，`blocking` 时 `failed`；无 Finding 时 `passed`。
+- `project-root-unavailable`、`source-unavailable`、`source-too-large`、`finding-limit-exceeded`、
+  `backend-failed`、`backend-protocol-invalid` 和 `cancelled`：`unavailable`，不含 final data 或 partial lint Findings。
 
 ### Resulting Impacts
 
-- **Product runtime 与依赖。** 新 owner 位于 `src/package-checks/markdown-lint/**`，并影响 `src/index.ts`、根 `package.json`、`pnpm-lock.yaml`、release manifest、public API inventory、artifact/candidate dependency probes 和 installed-consumer evidence。普通 npm dependency 不复制进本仓 `licenses/`，但实际安装的 license 与解析版本必须通过现有 package audit。
-- **公开材料。** 新增 `docs/checks/markdown-lint.md`，并同步 README Check 索引、`docs/package-documents.json` 的 `checkGuides`、导航摘要、可执行示例、type acceptance 与 changelog。指南完整拥有 options、默认规则、结果、Records/messages、不可用、方言、资源与非目标边界。
-- **测试证据。** 原生 tests 覆盖 constructor/options、默认规则、rule 增减、inline config、方言、range/Record identity、输入对账、limits、取消、backend failure、四态结算和排序；测试正文变化同步维护 Case ledger。
-- **长期决策。** 形成 Plan 前建立 Markdown lint Check 的长期方向，并核对 package quality defaults 与 Gate selection 判断是否需要演进。
-- **Project Gate。** Package Check 不自动加入本仓 Gate。若同一 Change 采用 dogfood，则同步 repository-quality options、`--quality`/`--docs` selection 与 aggregate tests，并处理严格模式下的维护语料 Findings。
-- **相邻 Change。** [`design-markdown-check-caching`](../design-markdown-check-caching/) 拥有 cache identity、失效和性能验收；本 Change 只证明无 cache 的完整行为。
+- `src/package-checks/markdown-lint/**` 独立拥有配置、traversal、backend adapter、output 和 unavailable reasons；
+  只消费公共 project-file/result mechanisms。
+- 根 dependency、lockfile 与 release manifest 声明 exact backend；package audit、candidate artifact 和 installed consumer
+  证明 ESM subpath、Node engine、license、transitive graph 与实际执行。
+- `docs/checks/markdown-lint.md` 完整拥有公共说明；README、导航、document registry、示例、type acceptance、
+  API inventory 和 changelog 维护相应投影。
+- Native tests 与 Case evidence 覆盖配置、九项规则、方言、range/identity/order、输入对账、limits、取消、
+  backend/protocol failure、no-partial publication 和四态结算。
+- Project Gate 与 `design-markdown-check-caching` 均保持自己的 owner 和后续验收。
 
 ## Risks / Trade-offs
 
-- 默认集需要在信号覆盖与迁移噪声之间取舍，真实维护语料是 Plan readiness 的判断依据。
-- 公共 rule name 与 preset 会成为版本化契约；语义名称降低 backend 锁定，但增加映射和升级审计成本。
-- 顺序逐文件执行便于取消和隔离 backend 的 module-local cache，但大型 corpus 会重复解析未变化文件。
-- 消费者显式启用 `MD051` 时可能同时取得 Link Check 的 fragment 证据，指南需说明该重叠。
+- 九个语义规则名成为版本化 Product contract；它降低 backend 锁定与噪声，但 backend 升级需要 mapping 与 fixture 审计。
+- 完整替换数组没有 preset 简写，但在九项 catalog 下避免了 enable/disable 冲突和 preset 演进歧义。
+- 固定 dialect 不能代表所有 Markdown renderer；公开指南必须描述本 Check 实际识别的 constructs。
+- 顺序执行与结果缓冲简化取消、limit 和 no-partial 保证；重复解析的成本只在取得 workload 证据后由 cache Change 处理。
+- 显式启用 `link-fragments` 可能与 `markdownLinkValidation` 重复报告；默认关闭并在指南中说明组合边界。
 
 ## Open Questions
 
-- 公共 constructor、Check ID、类型名和 rule 名称是否采用本 Draft 的暂定命名。
-- `recommended` 的最终规则清单是什么；首版是否提供 `all`/`none` preset，以及 supported catalog 是否只覆盖审阅过的高信号规则。
-- Front matter 与 GFM 的固定方言是什么，哪些 parser 行为需要 Product-owned fixture 锁定。
-- 单文件 byte 上限、全次 Finding 上限、range fallback 和 final-data 计数不变量是什么。
-- 是否在同一 Change 中把新 Check 加入本仓 Project Gate 的 `--quality` 与 `--docs` selection；该选择不影响随包 Check 本身的首版目标。
-- 长期 Decision 只建立 Markdown lint 方向，还是同时演进 package-quality default 与 Gate selection 判断。
+无。
