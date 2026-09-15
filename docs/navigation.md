@@ -31,7 +31,7 @@
 | [缓存计算结果](guides/cache-results.md) | cacheJsonByKey 的 key、结果、并发与信任边界。 |
 | [Finding waiver](guides/finding-waivers.md) | 通用 reconciliation 与 audit；Check-specific identity 引用各指南。 |
 | [Finding 呈现](guides/presenting-findings.md) | message helper、数量与省略结果，不定义 Check outcome。 |
-| [八项 Check 指南](../README.md#随包提供的-check) | 每篇完整拥有该 Check 的 options、默认值、执行、结果、Records/messages、不可用及安全边界。 |
+| [九项 Check 指南](../README.md#随包提供的-check) | 每篇完整拥有该 Check 的 options、默认值、执行、结果、Records/messages、不可用及安全边界。 |
 | [机器输出契约](output.md) | publication set、DTO 语义、版本与消费边界。 |
 
 随包文档由 [JSON 映射](package-documents.json)声明源文件与包内路径：current [schemas](schemas/) 拥有精确机器结构；[artifact example](examples/artifacts/mixed-outcomes/)与 API example sources 证明用法，不新增规则。

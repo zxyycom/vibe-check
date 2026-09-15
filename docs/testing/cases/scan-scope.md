@@ -161,3 +161,27 @@ Proves:
 
 - Selecting the `win32` branch no longer rejects a stable regular file solely because the platform lacks `O_NOFOLLOW`: with compatible host `node:fs` identity facts, the probe completes detector settlement instead of returning `source-unavailable`.
 - This forced-branch probe runs on the current host filesystem. It does not prove native Windows device/inode or reparse behavior and therefore does not establish a Windows support contract.
+
+## Case SCAN-SCOPE-MARKDOWN-LINT-RULES: Markdown lint rule mapping
+
+Owner: `docs/checks/markdown-lint.md#工作原理`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/adapter.test.ts|Markdown lint adapter > maps each Product rule through its fixed backend configuration`
+
+Proves:
+
+- Each closed public Markdown lint rule produces Product-owned mapped evidence through its fixed backend configuration.
+
+## Case SCAN-SCOPE-MARKDOWN-LINT-DIALECT: Fixed Markdown lint dialect
+
+Owner: `docs/checks/markdown-lint.md#工作原理`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/adapter.test.ts|Markdown lint adapter > uses fixed front matter and ignores inline configuration`
+- `bun|src/package-checks/markdown-lint/adapter.test.ts|Markdown lint adapter > warms MD052 parsing without leaking its helper rule`
+
+Proves:
+
+- Fixed front matter recognition and disabled inline backend configuration preserve the Product-selected rule behavior.
+- MD052 initializes its private parser token cache when it is the sole selected rule, while diagnostics from the parser-only helper remain filtered.

@@ -119,6 +119,16 @@ export type {
   MaintenanceReminderUnavailableReason,
   MaintenanceRemindersFinalData
 } from "./package-checks/maintenance-reminders/final-data.ts";
+export { markdownLint } from "./package-checks/markdown-lint/default-check.ts";
+export { parseMarkdownLintData } from "./package-checks/markdown-lint/final-data.ts";
+export type { MarkdownLintFinalData } from "./package-checks/markdown-lint/final-data.ts";
+export type {
+  MarkdownLintOptions,
+  MarkdownLintRuleName,
+  ResolvedMarkdownLintOptions
+} from "./package-checks/markdown-lint/options.ts";
+export type { MarkdownLintRecordData } from "./package-checks/markdown-lint/records.ts";
+export type { MarkdownLintUnavailableReason } from "./package-checks/markdown-lint/execution.ts";
 export { markdownLinkValidation } from "./package-checks/markdown-link-validation/default-check.ts";
 export { parseMarkdownLinkValidationData } from "./package-checks/markdown-link-validation/final-data.ts";
 export type { MarkdownLinkValidationFinalData } from "./package-checks/markdown-link-validation/final-data.ts";

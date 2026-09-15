@@ -9,6 +9,11 @@
 - **新增 [`commandCheck`](./guides/command-check.md)**：以单一 no-shell executable 和独立 arguments 构造 ordinary Check。每项必须声明 timeout 与 stdout/stderr byte limit；exit `0` 结算为 `passed`，numeric nonzero exit 结算为 `failed`，启动失败、timeout、output limit、signal、transcript failure 与取消按稳定 unavailable reason code 结算。
 - **默认收紧进程边界**：environment 为 exact-empty，child output 为 discard。只有显式选择 `environment: { mode: "inherit" }` 或 `output: { mode: "transcript" }` 才会使用 invocation-start ambient environment 或在 Check artifact 中写入 `process.log`；调用方应复核凭据与 raw output 的访问、保留和清理。
 
+### `markdownLint`：新增受限 Markdown 结构 Check
+
+- 新增 [`markdownLint`](./checks/markdown-lint.md) 与 `parseMarkdownLintData`，以固定 `markdownlint@0.41.1` backend 检查八项默认规则；`link-fragments` 仅在显式选择时启用。
+- 默认 Finding 为 non-blocking；需要阻断时设置 `findingPolicy: "blocking"`。该 Check 不替代本地 target/anchor 的 `markdownLinkValidation`，也不加入 Project Gate selection。
+
 ### Project change flags：升级前的 source change
 
 本次在首个公开 release 前收敛 authoring surface；升级代码时按以下顺序替换：

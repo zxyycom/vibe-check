@@ -4,7 +4,9 @@
 
 ## Context
 
-[`add-markdown-lint-check`](../add-markdown-lint-check/) 先交付不含 persistent cache 的随包 lint Check。本 Change 依赖其 rule catalog、adapter policy、Finding schema 和资源边界，但不阻塞初版 Check。
+已交付的 [`markdownLint`](../../docs/checks/markdown-lint.md) 不含 persistent cache；
+[`provide-bounded-markdown-lint-check`](../../docs/decisions/provide-bounded-markdown-lint-check.md) 固定其首版方向。
+本 Change 消费现有 rule catalog、adapter policy、Finding schema 和资源边界，不反向扩大这些契约。
 
 [`cache-results.md`](../../docs/guides/cache-results.md) 已提供 `cacheJsonByKey(...)` 的 canonical envelope、读取校验和 atomic publication。调用方仍拥有 semantic key、payload parser 与 computation；活动决策 [`provide-caller-keyed-json-cache-without-run-caching.md`](../../docs/decisions/provide-caller-keyed-json-cache-without-run-caching.md) 明确排除 Run settlement cache。
 
@@ -52,7 +54,8 @@
 
 ### Resulting Impacts
 
-- **Change 依赖。** `add-markdown-lint-check` 先冻结 rule、adapter、range 和 result contract；本 Change 可并行完成 workload、key matrix 和 storage spike。
+- **当前基线。** `markdownLint` 已交付 rule、adapter、range 和 result contract；本 Change 可据此完成 workload、
+  key matrix 和 storage spike。
 - **Product 与材料。** 实施会修改 `src/package-checks/markdown-lint/**`、options、guide、JSDoc、type acceptance、candidate consumer evidence 和 changelog。共享 storage mechanics 仍由现有 cache owner 承接。
 - **Link owner。** 现有 parse cache、target memo、options 和公共结果保持不变；新的 Link persistence 需要独立证据和决策。
 - **安全与运维。** 指南说明 cache 可含 source-derived ranges/diagnostics；调用方负责目录信任、容量和删除。Key 不包含 secret、credential 或低熵敏感原文。

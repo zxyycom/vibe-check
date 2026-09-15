@@ -505,3 +505,34 @@ Entities:
 - `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > leaves caller cancellation to the ordinary Core execution outcome`
   Proves:
 - A caller abort observed during command execution is settled by the ordinary Core lifecycle as `execution-cancelled`, rather than exposing a command-specific child lifecycle diagnostic.
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT: 有界 Markdown lint 结果发布
+
+Owner: `docs/checks/markdown-lint.md#效果与结果`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal`
+  Proves:
+- A completed lint traversal reports only Product-owned public rules and produces a blocking failed outcome with canonical source, finding and rejected-input counts.
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-BOUNDARIES: Markdown lint terminal boundaries
+
+Owner: `docs/checks/markdown-lint.md#not-applicable-与-unavailable`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > settles zero input, rejected input, limits, and cancellation without partial lint publication`
+
+Proves:
+
+- Empty selections are not applicable, rejected selected inputs remain successful evidence, and limits or cancellation make the Check unavailable without publishing partial lint Findings.
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-REFERENCES: Markdown lint MD052 public result
+
+Owner: `docs/checks/markdown-lint.md#效果与结果`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > reports MD052 reference forms through the public single-rule Check`
+
+Proves:
+
+- Selecting only `reference-links-images` reports unresolved full, collapsed and image references as public MD052 findings, while ignored task labels, shortcut syntax and the private parser helper do not leak into Records.

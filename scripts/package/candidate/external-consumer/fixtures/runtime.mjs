@@ -18,6 +18,7 @@ import {
   functionMetrics,
   jsonSchemaValidation,
   jsonValidation,
+  markdownLint,
   markdownLinkValidation,
   parseDuplicateDetectionData,
   parseFileMetricsData,
@@ -272,6 +273,7 @@ const result = await run(
       markdownLinkValidation({
         cache: { enabled: true, directory: markdownLinkCacheDirectory }
       }),
+      markdownLint({ files: { include: ["link-source.md"] } }),
       changedFiles,
       failedChangedFiles,
       firstChangedFilesConsumer,
@@ -313,6 +315,10 @@ const jsonSchemaCheck =
 const markdownLink =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === "markdown-link-validation")
+    : undefined;
+const markdownLintCheck =
+  result.kind === "completed"
+    ? result.snapshot.checks.find((check) => check.checkId === "markdown-lint")
     : undefined;
 const runChangedFilesCheck =
   result.kind === "completed"
@@ -398,7 +404,9 @@ process.stdout.write(
       admissionSimulation: admissionSimulationEvidence,
       markdownLinkData: settledFinalData(markdownLink),
       markdownLinkCacheJsonl: markdownLinkCacheJsonlEvidence(markdownLinkCacheDirectory),
-      markdownLinkOutcome: markdownLink?.outcome.status ?? null
+      markdownLinkOutcome: markdownLink?.outcome.status ?? null,
+      markdownLintData: settledFinalData(markdownLintCheck),
+      markdownLintOutcome: markdownLintCheck?.outcome.status ?? null
     })
 );
 

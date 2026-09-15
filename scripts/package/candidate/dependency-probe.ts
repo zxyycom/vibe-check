@@ -4,7 +4,12 @@ import { dirname, join, resolve } from "node:path";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import { readReleaseManifestDependency } from "../artifact/manifest.ts";
-import { AJV_PACKAGE_NAME, JSCPD_BIN_NAME, JSCPD_PACKAGE_NAME } from "../package-contract.ts";
+import {
+  AJV_PACKAGE_NAME,
+  JSCPD_BIN_NAME,
+  JSCPD_PACKAGE_NAME,
+  MARKDOWNLINT_PACKAGE_NAME
+} from "../package-contract.ts";
 import {
   isAcceptedPackageDependencyVersion,
   packageDependencyVersionRequirementText,
@@ -15,6 +20,7 @@ import { auditInstalledDependencyLicenses } from "./dependency-license-audit.ts"
 export interface CandidateDependencyProbe {
   readonly ajvPackageManifestPath: string;
   readonly jscpdPackageManifestPath: string;
+  readonly markdownlintPackageManifestPath: string;
 }
 
 /** Validates the installed runtime dependencies against the static release manifest. */
@@ -32,6 +38,15 @@ export function verifyCandidateRuntimeDependencies(input: {
     consumerDirectory: input.consumerDirectory,
     packageManifestPath: input.probe.jscpdPackageManifestPath,
     requirement: readReleaseManifestDependency(input.repositoryRoot, JSCPD_PACKAGE_NAME)
+  });
+  verifyDependency({
+    consumerDirectory: input.consumerDirectory,
+    packageManifestPath: input.probe.markdownlintPackageManifestPath,
+    packageName: MARKDOWNLINT_PACKAGE_NAME,
+    versionRequirement: {
+      kind: "exact",
+      version: readReleaseManifestDependency(input.repositoryRoot, MARKDOWNLINT_PACKAGE_NAME)
+    }
   });
   verifyDependency({
     consumerDirectory: input.consumerDirectory,

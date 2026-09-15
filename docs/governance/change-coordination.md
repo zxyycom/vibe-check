@@ -28,20 +28,17 @@ package material、lockfile 或稳定文档 owner 时，按序位串行实施与
 
 | 序位 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| 1 | [`batch-declared-project-file-inputs`](../../changes/batch-declared-project-file-inputs/proposal.md) | 以 [Project Definition](../development/project-definition.md#flag-enabled-checks) 已拥有的唯一 private effective selection 为输入，在 Check author work 前建立 project-file input barrier；change semantics 仍由当前 Definition / Project Run owner 定义。 |
-| 2 | [`add-markdown-lint-check`](../../changes/add-markdown-lint-check/proposal.md) | 在标准 file-input 路径稳定后交付无 persistent cache 的 Markdown lint Check，并冻结 rule、adapter、Finding 与资源边界。 |
-| 3 | [`add-public-command-check`](../../changes/add-public-command-check/proposal.md) | 分别固定 result projection、output、environment 和 resource defaults，交付独立的 command Check 语义。 |
-| 4 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 依据已冻结的 Markdown lint contract 和 workload 数据作出 cache adopt 或 not-adopt 决定；key matrix 与 storage spike 可提前准备。 |
-| 5 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以已交付的 feature families、字段 owner 和真实 Gate 构建路径固定 fragment grammar、冲突规则与 Gate projection。 |
+| 1 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 以已交付的 Markdown lint contract 为基线，依据 workload 数据作出 cache adopt 或 not-adopt 决定；key matrix 与 storage spike 可提前准备。 |
+| 2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以已交付的 feature families、字段 owner 和真实 Gate 构建路径固定 fragment grammar、冲突规则与 Gate projection。 |
 
 [`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) 作为独立文档线现在即可推进。
-它只使用实施时已验证的 Current API，并在序位 5 形成 Plan 前完成，以真实构建路径检验配置组合需求。
+它只使用实施时已验证的 Current API，并在序位 2 形成 Plan 前完成，以真实构建路径检验配置组合需求。
 若它与主队列共享 README、package document registry、examples 或 installed-consumer 材料，则与对应主队列
 提交串行合入。
 
-主队列包含两条硬前置：
+主队列包含两条约束：
 
-1. Markdown lint contract 先冻结，cache Change 再作采用判断。
+1. Cache Change 只消费已交付的 Markdown lint contract，不反向扩大首版规则、Finding 或资源边界。
 2. 已交付 feature families 与 Gate building guide 先提供真实组合场景，config package Change 再固定公共抽象。
 
 ### Scheduler 证据队列

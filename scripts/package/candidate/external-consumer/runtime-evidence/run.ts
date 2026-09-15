@@ -102,6 +102,10 @@ function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidenc
     evidence.jsonSchemaOutcome,
     "isolated JSON Schema outcome"
   );
+  const markdownLintOutcome = optionalOutcome(
+    evidence.markdownLintOutcome,
+    "isolated Markdown lint outcome"
+  );
   const markdownLinkOutcome = optionalOutcome(
     evidence.markdownLinkOutcome,
     "isolated Markdown Link outcome"
@@ -113,6 +117,7 @@ function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidenc
     duplicateOutcome,
     functionMetricsOutcome,
     jsonSchemaOutcome,
+    markdownLintOutcome,
     markdownLinkOutcome
   });
 }
@@ -141,6 +146,7 @@ function projectCandidateFixtureEvidence(
     readonly duplicateOutcome: string | null;
     readonly functionMetricsOutcome: string | null;
     readonly jsonSchemaOutcome: string | null;
+    readonly markdownLintOutcome: string | null;
     readonly markdownLinkOutcome: string | null;
   }>
 ): CandidateFixtureEvidence {
@@ -151,6 +157,7 @@ function projectCandidateFixtureEvidence(
     duplicateOutcome,
     functionMetricsOutcome,
     jsonSchemaOutcome,
+    markdownLintOutcome,
     markdownLinkOutcome
   } = input;
   return Object.freeze({
@@ -182,6 +189,8 @@ function projectCandidateFixtureEvidence(
     jsonSchemaData: evidence.jsonSchemaData,
     jsonSchemaOutcome,
     learnedScheduling: evidence.learnedScheduling,
+    markdownLintData: evidence.markdownLintData,
+    markdownLintOutcome,
     markdownLinkData: evidence.markdownLinkData,
     markdownLinkCacheJsonl: evidence.markdownLinkCacheJsonl,
     markdownLinkOutcome,

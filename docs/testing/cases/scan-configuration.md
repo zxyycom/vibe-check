@@ -232,3 +232,12 @@ Entities:
 - Only omitted/undefined, `unique` and `channel` controls are accepted; invalid values fail before author work, valid controls are frozen, and undefined is omitted from the snapshot.
 - Default and explicit unique modes preserve UTC/UUID basenames; channel mode selects only `core.log` / `scheduler.log`, preserves invocation correlation and Definition fingerprint, and does not enable disabled diagnostics or create their directory.
 - Concurrent and repeated channel targets fail without overwriting or appending existing bytes, while settled Check facts survive. A pre-existing core file fails only that channel, retains its real target readback, allows scheduler success and produces aggregate diagnostic failure; no pair-atomic rollback is promised.
+
+## Case SCAN-CONFIG-MARKDOWN-LINT: 闭合 Markdown lint policy
+
+Owner: `docs/checks/markdown-lint.md#参数与默认配置`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring`
+  Proves:
+- `markdownLint(options?)` materializes the eight recommended Product rules and default advisory policy, exposes its final-data parser, and rejects empty, duplicate or unknown closed authoring fields before execution.
