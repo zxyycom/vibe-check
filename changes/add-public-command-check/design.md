@@ -1,52 +1,99 @@
 # Design
 
-本设计将通用 process lifecycle 放入 Product-owned ordinary Check constructor，并把尚未确定的公共语义集中在 Open Questions。
+`commandCheck(...)` 是 ordinary Check authoring 的 process-backed constructor：Product 负责 command lifecycle，caller 负责工具语义。
 
 ## Context
 
-长期方向由 [`provide-public-command-check.md`](../../docs/decisions/provide-public-command-check.md) 承接。普通 Check 的 canonical data、execution、cancellation、artifact 与 settlement 边界由 [`api-mechanics.md`](../../docs/api-mechanics.md) 和 [`extending-check-lifecycle.md`](../../docs/guides/extending-check-lifecycle.md) 承接；[`human-output.md`](../../docs/development/human-output.md) 只允许 child output 进入 Check-owned artifact 或受控投影。
-
-Product 内置 Check 已通过 `src/package-checks/host-environment/process/**` 复用 execa-backed mechanics；Project Gate 的 `scripts/project/gate/checks/process/**` 继续拥有 Gate transcript、safe failure 和结果投影。公共构造器复用前者的生命周期能力，不合并两者的持久化或工具语义。
+- Active/unaligned Decision [`provide-public-command-check.md`](../../docs/decisions/provide-public-command-check.md) 确定 package-root constructor、Product-owned process lifecycle 与 caller-owned tool semantics。
+- Ordinary Check 的 lifecycle、canonical data、cancellation、artifact capability 与 settlement 由 [`api-mechanics.md`](../../docs/api-mechanics.md) 和 [`extending-check-lifecycle.md`](../../docs/guides/extending-check-lifecycle.md) 拥有。
+- Product helper `src/package-checks/host-environment/process/**` 已提供 no-shell execa execution、plain-text environment、timeout 与 bounded capture。其 async path 需要转发 `AbortSignal`，并把 cancellation、timeout 与 max-buffer flags 保留为 private closed result。
+- Product 内置 process consumers 保留 tool-specific parsing 与 availability；`scripts/project/gate/checks/process/**` 保留 Gate transcript、safe failure 与 result projection。
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 从 package root 提供类型精确且经过 runtime validation 的 `commandCheck(...)`。
-- 统一 command execution、cancellation、timeout、bounded output 和 terminal mapping。
-- 以普通 Check 四态与 canonical facts 运行，并用 installed consumer 证明公共 API。
+- 在 constructor 与 preparation 两个入口验证同一 closed command policy，并保留 literal `checkId`。
+- 复用 ordinary selection、dependency、resource、scheduling 与 settlement contract。
+- 统一 child lifecycle，仅发布 exit code、stable reason code 和显式 Check transcript，并由 installed consumer 证明 package-root 路径。
 
-### Boundaries
+### Non-Goals
 
-- Caller 拥有工具协议、结构化 output parser、Records 与 Gate policy。
-- Product 保持程序化 API；CLI、`bin`、shell-string grammar 与 process-exit adapter 属于 caller surface。
-- Raw process material 只有经过本 Draft 选定的安全策略后才能离开 execution owner。
+本 Change 不建立 shell/pipeline/workflow runtime，也不建立第二套 parser、Records projection、typed provider 或 process-exit adapter。Tool-specific Product Checks 与 Project Gate 继续使用各自 owner。
 
 ## Decisions
 
 ### Intended Change
 
-1. 从 `src/index.ts` 导出 `commandCheck` 及 consumer 需要命名的 public types。Constructor 接受 caller-owned `checkId`、`displayName`、独立 executable 和 dense arguments，并通过 ordinary Check preparation 实施 runtime validation。
-2. 抽取 Product 现有 process mechanics 作为内置 Check 与公共构造器的共同 owner，同时保持 execa 和内部 runner 为 package-private implementation。
-3. 为 exit `0`、nonzero exit、startup failure、signal、timeout、output overflow 和 caller cancellation 建立封闭分支。Open Questions 中的 result projection、output policy、environment 与 defaults 在进入 Plan 前固定。
-4. 增加随包说明和可执行示例，并同步 package API mapping、README/navigation、JSDoc、changelog 与 installed-consumer acceptance。
+#### Public constructor and input
+
+`commandCheck<Id>(input: CommandCheckInput<Id>): CommandCheck<Id>` 位于 `src/package-checks/command-check/**` 并从 package root 导出。Public named types 固定为 `CommandCheckInput`、`CommandCheckEnvironment`、`CommandCheckOutput`、`CommandCheckFinalData`、`CommandCheckUnavailableReasonCode` 与 `CommandCheck`。
+
+`CommandCheckInput` 同时接受 ordinary executable Check 的 `enabledByFlags`、`checks`、`dependsOn`、`observes`、`maxParallel`、`admissionPriority`、`mutex`、`resourceClaims` 与 `omitQuietPassedRow`。Constructor 拒绝 unknown fields 和非法值，返回 detached、frozen resolved options；`prepare` 再验证 resolved shape。非法 constructor input 抛 `TypeError`，非法 prepared options 返回 `unavailable / invalid-options`。
+
+| Field | Contract | Omission |
+| --- | --- | --- |
+| `checkId` | 非空 string，保留 literal type | required |
+| `displayName` | 非空 string | required |
+| `executable` | 非空且无 NUL 的单一 no-shell executable | required |
+| `arguments` | dense readonly string array；item 可为空但不得含 NUL | `[]` |
+| `workingDirectory` | 非空且无 NUL；relative value 从 project root 解析，absolute value 保持原 target | project root |
+| `environment` | `CommandCheckEnvironment` | `{ mode: "exact" }` |
+| `timeoutMs` | 正安全整数 | required |
+| `outputByteLimit` | 正安全整数；分别作为 stdout 与 stderr 的 byte ceiling | required |
+| `output` | `CommandCheckOutput` | `{ mode: "discard" }` |
+
+Executable 可使用 absolute path 或 platform-resolved name；实际 resolution 由 no-shell child process 与最终 environment 决定。Package acceptance 使用 `process.execPath`。一次执行最多在内存中保留两倍 `outputByteLimit` 的 child output。
+
+#### Environment and output
+
+| Policy | Behavior |
+| --- | --- |
+| `environment: { mode: "exact", variables? }` | 只使用 `Record<string, string>` variables；omission 等同 exact-empty。 |
+| `environment: { mode: "inherit", overrides? }` | 在 execution start snapshot `process.env`，以 string 覆盖并用 `null` 删除 key。 |
+| `output: { mode: "discard" }` | 在 bounded invocation memory 捕获 output，完成 classification 后释放。 |
+| `output: { mode: "transcript" }` | 在 Check `artifactDirectory` 中原子维护固定 `process.log`：spawn 前写 running state，settlement 后写 closed status metadata、raw stdout 与 raw stderr。 |
+
+Environment branches 拒绝 unknown fields、accessor/prototype tricks、undefined、非 string values 及 name/value 中的 NUL；Product 最后覆盖 plain-text/no-color variables。Resolved environment 不进入 facts 或 diagnostics。
+
+Transcript 不写 executable、arguments、environment 或 native error text。缺少 artifact capability 或 running/final write 失败时返回 `command-transcript-unavailable`，且不把 raw material 投影到 final data、Records、messages、console、diagnostic 或 machine publication。
+
+#### Terminal mapping
+
+| Process cause | Check result |
+| --- | --- |
+| exit code `0` | `passed / { exitCode: 0 }` |
+| numeric nonzero exit | `failed / { exitCode }` |
+| startup failure | `unavailable / command-start-failed` |
+| timeout | `unavailable / command-timeout` |
+| stdout 或 stderr 达到 byte limit | `unavailable / command-output-limit-exceeded` |
+| non-timeout、non-cancellation signal | `unavailable / command-terminated-by-signal` |
+| transcript capability 或 write failure | `unavailable / command-transcript-unavailable` |
+| invalid prepared options | `unavailable / invalid-options` |
+| caller cancellation observed by Core | Product-owned `unavailable / execution-cancelled` |
+
+Private process normalization 使用 `numeric exit > cancellation > timeout > max-buffer > signal > startup failure` 的 cause priority，且不读取 native error text。Numeric exit 因此不会被稍后到达 process adapter 的 abort 重分类；Core 在 callback 返回时观察到 aborted signal 时仍按既有规则产生 `execution-cancelled`。
+
+#### Ownership and delivery
+
+Private process runner 保留在 `src/package-checks/host-environment/process/**`，command-specific types、validation、execution、transcript 与 mapping 由 `src/package-checks/command-check/**` 完整拥有。若该依赖方向不成立，先修订 architecture owner 再继续。
+
+新增 packaged command guide，完整拥有 input、environment、output、terminal mapping 与 security boundary。README/navigation 只提供入口；registry-managed example 同时投影到 guide 与 constructor JSDoc。Root exports、public inventory、declarations、package materials 与 installed consumer 使用同一组名称和示例。
 
 ### Resulting Impacts
 
-- Package-root inventory、declarations、JSDoc projection、package material audit 和 external-consumer evidence 需要同步。
-- 共同 process owner 必须保持既有 Git、jscpd 与 SCC Check 的 availability 和 failure classification。
-- 验证需覆盖 hostile options、全部 process terminal branches、cancellation race、output limit 和敏感信息边界；transcript 方案还需覆盖 artifact capability 与写入失败。
+1. Process owner 增加 cancellation forwarding 与 closed cause flags，同时保持 sync runner 和既有 consumers 的语义。
+2. Command owner 新增 public contract、artifact lifecycle 与直接测试，但不进入 Core settlement 或 Gate policy。
+3. Default execution 不持久化 child material；ambient environment 与 raw transcript 只通过显式 branch 进入 caller 选择的边界。
+4. Test Evidence、docs/JSDoc、public inventory、artifact audit 与 installed-consumer evidence 随实现同步闭合。
 
 ## Risks / Trade-offs
 
-- 固定为 exit-code mapping 容易使用，但可能不足以支持需要结构化 output 的 consumer；通用 projection callback 又可能形成第二套 Check authoring API。
-- 诊断价值与敏感 output 隔离存在直接取舍，必须先确定一致策略再冻结 final-data 与 reason-code contract。
+- Fixed exit mapping 只覆盖 exit-status protocol；structured-output consumer 继续使用 `defineCheck`。
+- Required timeout 与 byte limit 避免固化任意 workload defaults，但增加每个 command 的配置。
+- Explicit environment inheritance 与 transcript 提供实用能力，也允许 ambient credentials 或 raw output 进入 caller 选择的边界；exact-empty 与 discard 保持安全默认值。
+- Platform-resolved executable 依赖 invocation environment；contract 只保证传递和分类，不保证工具发现。
 
 ## Open Questions
 
-| Topic | 进入 Plan 前需固定的选择 |
-| --- | --- |
-| Result projection | 仅提供固定 exit-to-Check mapping，或允许受信任的 bounded projection callback |
-| Output policy | 丢弃 stdout/stderr、写入可选 Check transcript，或提供显式 closed policy；同时确定 transcript 失败的结算语义 |
-| Environment | 使用 invocation-start ambient snapshot 加 caller overrides，或要求 exact explicit environment；同时固定 plain-text/color defaults |
-| Public defaults | 固定 `cwd` resolution、timeout、output-byte limit、absolute-path policy，以及 final-data/parser/reason-code 词汇 |
+无。Public contract、owner、security defaults、opt-in branches、terminal mapping 与 verification boundary 已固定，可直接执行 tasks。
