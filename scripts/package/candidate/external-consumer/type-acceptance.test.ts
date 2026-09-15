@@ -29,6 +29,7 @@ test("external consumer type fixture uses only its public strictness profile", (
         verbatimModuleSyntax: true
       },
       include: [
+        "node-globals.d.ts",
         "public-imports.ts",
         "docs/examples/package-api/*.ts",
         "node_modules/@zxyycom/vibe-check/docs/examples/artifacts/mixed-outcomes/definition.ts"

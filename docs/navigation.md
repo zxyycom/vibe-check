@@ -21,6 +21,7 @@
 | [Core 数据工具](guides/data-boundaries.md) | JSON 规范化副本与确定性序列化；另提供可保留回调和嵌套引用的外层结构快照。 |
 | [回调位置](guides/callbacks.md) | 按任务选扩展点；具体契约引用对应专题。 |
 | [自定义 Check](guides/extending-check-lifecycle.md) | `prepare`/`execute` authoring、callback context、flags 与协作取消。 |
+| [执行外部命令的 Check](guides/command-check.md) | `commandCheck` 的 input、environment/output policy、terminal mapping 与安全边界。 |
 | [依赖与类型化数据](guides/check-dependencies.md) | direct relations、get/list 授权、typed provider 与 parser。 |
 | [Run 输出与诊断](guides/run-outputs.md) | 输出配置、progress/console/diagnostic、readback 与失败优先级。 |
 | [调度 Check](guides/scheduling.md) | 资源与准入、simple/prepared lifecycle、终态 measurement。 |

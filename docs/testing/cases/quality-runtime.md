@@ -460,3 +460,48 @@ Entities:
 - Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver terminalEffect at most once after admission stops, started work drains and generic terminal effects settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no terminal-effect delivery.
 - Generic terminal effects all receive their chance before public `terminalEffect`. Their actual settlement, plus optional `terminalEffect`, is the sole input to `terminalEffects`: generic-only no-context stays enabled/`not-run`; simple and prepared-without-terminalEffect do not independently enable it; a terminal-effect failure cannot overwrite sealed primary facts, and later terminalEffect success cannot overwrite a generic failure.
 - A learned factory is an ordinary public prepared strategy: it prepares immutable prediction before Scheduler decisions and records its terminal sample only after terminal delivery, without a private Invocation lifecycle.
+
+## Case API-COMMAND-CHECK-CONSTRUCTOR-001: Command Check closes its public authoring input
+
+Owner: `docs/guides/command-check.md#输入与-ordinary-check-组合`
+Entities:
+
+- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > closes command input, freezes defaults, and preserves ordinary Check composition`
+  Proves:
+- `commandCheck` retains literal identity and ordinary Check composition while materializing detached defaults, rejecting hostile/unknown command input, and blocking invalid prepared options rather than executing them.
+
+## Case API-COMMAND-CHECK-ENVIRONMENT-001: Command Check resolves its execution directory and environment explicitly
+
+Owner: `docs/guides/command-check.md#环境`
+Entities:
+
+- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > uses no-shell arguments, resolved cwd, and exact or inherited environment without publishing child material`
+  Proves:
+- A command receives dense no-shell argv, a project-root-relative working directory, exact variables without ambient leakage, or an execution-start inherited environment with declared deletions; child output remains absent from the default terminal result.
+
+## Case API-COMMAND-CHECK-TERMINAL-001: Command Check maps child lifecycle causes to closed terminal outcomes
+
+Owner: `docs/guides/command-check.md#终态与-final-data`
+Entities:
+
+- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > maps numeric exit, startup, timeout, output limit, and signal terminal branches`
+  Proves:
+- Numeric nonzero exit publishes only its exit code as failed data, while startup failure, timeout, bounded-output overflow, and signal termination settle as their stable unavailable reason without child diagnostics.
+
+## Case API-COMMAND-CHECK-TRANSCRIPT-001: Command Check persists raw output only through an explicit artifact capability
+
+Owner: `docs/guides/command-check.md#输出`
+Entities:
+
+- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > requires artifact capability for transcripts and atomically retains only opted-in raw output`
+  Proves:
+- Transcript mode requires a writable Check-local artifact capability, atomically replaces only fixed `process.log` with closed raw stdout/stderr material, and converts unavailable capability or write failure into the stable transcript-unavailable outcome without exposing command input material.
+
+## Case API-COMMAND-CHECK-CANCELLATION-001: Command Check delegates caller cancellation to ordinary Check settlement
+
+Owner: `docs/guides/command-check.md#终态与-final-data`
+Entities:
+
+- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > leaves caller cancellation to the ordinary Core execution outcome`
+  Proves:
+- A caller abort observed during command execution is settled by the ordinary Core lifecycle as `execution-cancelled`, rather than exposing a command-specific child lifecycle diagnostic.

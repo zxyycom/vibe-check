@@ -6,6 +6,11 @@ const ISOLATED_JSON_SCHEMA_ID = "https://schemas.vibe-check.example/person";
 /** Writes tool-resolution and Run-evidence inputs contributed by runtime acceptance. */
 export function writeExternalConsumerRuntimeFixture(consumerDirectory: string): void {
   writeFileSync(join(consumerDirectory, "run-fixture.mjs"), runFixture(), "utf8");
+  writeFileSync(
+    join(consumerDirectory, "command-check-fixture.mjs"),
+    commandCheckFixture(),
+    "utf8"
+  );
   writeFileSync(join(consumerDirectory, "duplicate-a.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-b.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "function-metrics.ts"), functionMetricsSource(), "utf8");
@@ -37,6 +42,13 @@ function runFixture(): string {
     "utf8"
   );
   return source.replaceAll("__VIBE_CHECK_ISOLATED_JSON_SCHEMA_ID__", ISOLATED_JSON_SCHEMA_ID);
+}
+
+function commandCheckFixture(): string {
+  return readFileSync(
+    fileURLToPath(new URL("./fixtures/command-check-runtime.mjs", import.meta.url)),
+    "utf8"
+  );
 }
 
 function duplicateSource(): string {

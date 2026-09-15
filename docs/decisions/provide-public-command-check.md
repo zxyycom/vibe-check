@@ -2,7 +2,7 @@
 title: 提供公共 commandCheck 构造器
 id: 260909-provide-public-command-check
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-09T08:32:44Z
 purpose: 让项目用普通 Check 执行外部命令而不重复实现进程生命周期
 background: 现有自定义 Check 需自行处理 spawn、取消、超时、输出上限与四态映射

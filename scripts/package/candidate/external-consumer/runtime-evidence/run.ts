@@ -16,6 +16,7 @@ import { assertExternalConsumerCommandSucceeded } from "../command-result.ts";
 import { externalConsumerNodeCommand } from "../node-command.ts";
 import type { ExternalConsumerMaterial } from "../material.ts";
 import { assertCandidateRunEvidence, type CandidateFixtureEvidence } from "./assertions.ts";
+import { assertCommandCheckRuntimeEvidence } from "./command-check.ts";
 import {
   isRecord,
   optionalOutcome,
@@ -45,6 +46,7 @@ export function assertExternalConsumerRuntime(
     true
   );
   assertCandidateRunEvidence(runCandidateFixture(material.consumerDirectory));
+  assertCommandCheckRuntimeEvidence(runCommandCheckFixture(material.consumerDirectory));
 }
 
 function resolveCandidateJscpd(candidateEntryPath: string): Readonly<{
@@ -113,6 +115,22 @@ function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidenc
     jsonSchemaOutcome,
     markdownLinkOutcome
   });
+}
+
+function runCommandCheckFixture(consumerDirectory: string): Readonly<Record<string, unknown>> {
+  const result = spawnSync(
+    externalConsumerNodeCommand(),
+    ["command-check-fixture.mjs", consumerDirectory],
+    { cwd: consumerDirectory, encoding: "utf8" }
+  );
+  assertExternalConsumerCommandSucceeded(result, "isolated command Check Run");
+  const marker = "__VIBE_CHECK_COMMAND_CHECK_RUN__";
+  const markerIndex = result.stdout.lastIndexOf(marker);
+  assert.notEqual(markerIndex, -1, "isolated command Check Run did not emit its evidence marker");
+  return parseJsonRecord(
+    result.stdout.slice(markerIndex + marker.length),
+    "isolated command Check Run output"
+  );
 }
 
 function projectCandidateFixtureEvidence(

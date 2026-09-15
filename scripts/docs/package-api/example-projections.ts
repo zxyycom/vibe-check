@@ -25,6 +25,25 @@ export interface PackageApiExampleProjection {
 export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   Object.freeze({
     evidence: "runtime",
+    id: "command-check",
+    regionId: "command-check",
+    sourcePath: "docs/examples/package-api/command-check.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "command-check",
+        headingPath: Object.freeze(["最小用法"]),
+        kind: "markdown"
+      }),
+      Object.freeze({
+        declarationName: "commandCheck",
+        kind: "jsdoc",
+        sourcePath: "src/package-checks/command-check/command-check.ts"
+      })
+    ]),
+    title: "以 process.execPath 构造无 shell command Check"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "project-changes",
     regionId: "project-changes",
     sourcePath: "docs/examples/package-api/project-changes.ts",

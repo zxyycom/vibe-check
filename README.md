@@ -96,6 +96,7 @@ node quality.ts
 - [API 机制](./docs/api-mechanics.md)：Run 生命周期、组合继承、结果与 aggregation。
 - [选择回调位置](./docs/guides/callbacks.md)：确定执行前、检查中、显示时或结束后的接入点。
 - [自定义 Check](./docs/guides/extending-check-lifecycle.md)：options 准备、callback context、Records 与协作取消。
+- [执行外部命令的 Check](./docs/guides/command-check.md)：以单一 executable 和独立 arguments 接入 exit-status command，配置 environment、输出与终态边界。
 - [Check 依赖与类型化数据](./docs/guides/check-dependencies.md)：`dependsOn` / `observes`、读取授权与 provider parser。
 - [Run 输出与诊断](./docs/guides/run-outputs.md)：输出配置、progress、日志与失败处理。
 - [调度 Check](./docs/guides/scheduling.md)：并发资源、准入策略与终态观察。

@@ -82,6 +82,7 @@ const PRODUCT_PACKAGE_TEST_LANES = Object.freeze([
   Object.freeze({
     lane: "productSupportingChecks",
     prefixes: Object.freeze([
+      "src/package-checks/command-check/",
       "src/package-checks/host-environment/",
       "src/package-checks/maintenance-reminders/",
       "src/package-checks/project-files/"

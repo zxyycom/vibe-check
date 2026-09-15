@@ -12,9 +12,12 @@ export interface ProcessFailure extends Error {
 
 export type ProcessResult = {
   readonly error?: Error;
+  readonly isCanceled?: true;
+  readonly isMaxBuffer?: true;
   readonly signal: NodeJS.Signals | null;
   readonly status: number | null;
   readonly stderr: string;
+  readonly timedOut?: true;
   readonly stdout: string;
 };
 
@@ -32,8 +35,11 @@ export type RunProcessSyncOptions = {
 
 export type RunProcessOptions = {
   readonly args?: readonly string[];
+  readonly cancelSignal?: AbortSignal;
   readonly command: string;
   readonly cwd?: string | URL;
+  /** `false` uses only the supplied `env`; omission preserves Execa's inherited default. */
+  readonly extendEnv?: boolean;
   readonly env?: NodeJS.ProcessEnv;
   readonly label?: string;
   readonly maxBuffer?: number;
@@ -46,6 +52,7 @@ export type ExecaResultLike = {
   readonly code?: string | undefined;
   readonly exitCode?: number | undefined;
   readonly failed?: boolean | undefined;
+  readonly isCanceled?: boolean | undefined;
   readonly isMaxBuffer?: boolean | undefined;
   readonly message?: string | undefined;
   readonly originalMessage?: string | undefined;

@@ -4,7 +4,7 @@
 
 ## Context
 
-- Active/unaligned Decision [`provide-public-command-check.md`](../../docs/decisions/provide-public-command-check.md) 确定 package-root constructor、Product-owned process lifecycle 与 caller-owned tool semantics。
+- Decision [`provide-public-command-check.md`](../../docs/decisions/provide-public-command-check.md) 确定 package-root constructor、Product-owned process lifecycle 与 caller-owned tool semantics；本 Change 通过验收后已与该方向对齐。
 - Ordinary Check 的 lifecycle、canonical data、cancellation、artifact capability 与 settlement 由 [`api-mechanics.md`](../../docs/api-mechanics.md) 和 [`extending-check-lifecycle.md`](../../docs/guides/extending-check-lifecycle.md) 拥有。
 - Product helper `src/package-checks/host-environment/process/**` 已提供 no-shell execa execution、plain-text environment、timeout 与 bounded capture。其 async path 需要转发 `AbortSignal`，并把 cancellation、timeout 与 max-buffer flags 保留为 private closed result。
 - Product 内置 process consumers 保留 tool-specific parsing 与 availability；`scripts/project/gate/checks/process/**` 保留 Gate transcript、safe failure 与 result projection。
@@ -72,7 +72,7 @@ Transcript 不写 executable、arguments、environment 或 native error text。�
 | invalid prepared options | `unavailable / invalid-options` |
 | caller cancellation observed by Core | Product-owned `unavailable / execution-cancelled` |
 
-Private process normalization 使用 `numeric exit > cancellation > timeout > max-buffer > signal > startup failure` 的 cause priority，且不读取 native error text。Numeric exit 因此不会被稍后到达 process adapter 的 abort 重分类；Core 在 callback 返回时观察到 aborted signal 时仍按既有规则产生 `execution-cancelled`。
+Private process normalization 使用 `nonzero numeric exit > cancellation > timeout > max-buffer > signal > startup failure > zero exit` 的 cause priority，且不读取 native error text。只有 nonzero numeric exit 因此不会被稍后到达 process adapter 的 abort 重分类；`max-buffer` 即使可同时带有 zero exit status，也在该 status 之前结算。Core 在 callback 返回时观察到 aborted signal 时仍按既有规则产生 `execution-cancelled`。
 
 #### Ownership and delivery
 

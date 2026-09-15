@@ -14,6 +14,7 @@ import {
   canonicalJsonBytes,
   canonicalJsonText,
   changeFlag,
+  commandCheck,
   collectProjectFiles,
   createAdmissionGraph,
   defineAdmissionPolicy,
@@ -77,6 +78,7 @@ describe("public API inventory", () => {
     assert.equal(canonicalJsonBytes.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonBytes);
     assert.equal(canonicalJsonText.name, CURRENT_PUBLIC_CONTRACT.operations.canonicalJsonText);
     assert.equal(changeFlag.name, CURRENT_PUBLIC_CONTRACT.operations.changeFlag);
+    assert.equal(commandCheck.name, CURRENT_PUBLIC_CONTRACT.operations.commandCheck);
     assert.equal(collectProjectFiles.name, CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles);
     assert.equal(
       createAdmissionGraph.name,
@@ -126,6 +128,7 @@ describe("public API inventory", () => {
     assert.equal(typeof canonicalJsonBytes, "function");
     assert.equal(typeof canonicalJsonText, "function");
     assert.equal(typeof changeFlag, "function");
+    assert.equal(typeof commandCheck, "function");
     assert.equal(typeof collectProjectFiles, "function");
     assert.equal(typeof createAdmissionGraph, "function");
     assert.equal(typeof defineAdmissionPolicy, "function");

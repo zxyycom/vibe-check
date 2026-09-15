@@ -9,6 +9,7 @@
     { "id": "learned-scheduling", "sourcePath": "docs/guides/learned-scheduling.md", "packagePath": "docs/guides/learned-scheduling.md" },
     { "id": "callbacks", "sourcePath": "docs/guides/callbacks.md", "packagePath": "docs/guides/callbacks.md" },
     { "id": "extending-check-lifecycle", "sourcePath": "docs/guides/extending-check-lifecycle.md", "packagePath": "docs/guides/extending-check-lifecycle.md" },
+    { "id": "command-check", "sourcePath": "docs/guides/command-check.md", "packagePath": "docs/guides/command-check.md" },
     { "id": "scheduling", "sourcePath": "docs/guides/scheduling.md", "packagePath": "docs/guides/scheduling.md" },
     { "id": "simulating-admission", "sourcePath": "docs/guides/simulating-admission.md", "packagePath": "docs/guides/simulating-admission.md" },
     { "id": "collecting-project-files", "sourcePath": "docs/guides/collecting-project-files.md", "packagePath": "docs/guides/collecting-project-files.md" },

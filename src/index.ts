@@ -98,6 +98,15 @@ export type {
   JsonValidationRecordReason,
   JsonValidationUnavailableCode
 } from "./package-checks/json-validation/json-validation.ts";
+export { commandCheck } from "./package-checks/command-check/command-check.ts";
+export type {
+  CommandCheck,
+  CommandCheckEnvironment,
+  CommandCheckFinalData,
+  CommandCheckInput,
+  CommandCheckOutput,
+  CommandCheckUnavailableReasonCode
+} from "./package-checks/command-check/command-check.ts";
 export { maintenanceReminders } from "./package-checks/maintenance-reminders/maintenance-reminders.ts";
 export type {
   MaintenanceReminder,

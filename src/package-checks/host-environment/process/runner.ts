@@ -26,9 +26,11 @@ export function runProcessSync(options: RunProcessSyncOptions): ProcessResult {
 export function runProcess(options: RunProcessOptions): Promise<ProcessResult> {
   const {
     args = [],
+    cancelSignal,
     command,
     cwd,
     env,
+    extendEnv,
     label = command,
     maxBuffer = DEFAULT_PROCESS_MAX_BUFFER_BYTES,
     timeout,
@@ -36,7 +38,9 @@ export function runProcess(options: RunProcessOptions): Promise<ProcessResult> {
   } = options;
 
   return execa(command, args, {
+    ...(cancelSignal === undefined ? {} : { cancelSignal }),
     ...(cwd === undefined ? {} : { cwd }),
+    ...(extendEnv === undefined ? {} : { extendEnv }),
     env: plainTextProcessEnv(env === undefined ? {} : { env }),
     maxBuffer,
     reject: false,

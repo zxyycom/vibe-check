@@ -5,11 +5,16 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { assertExternalConsumerCommandSucceeded } from "./command-result.ts";
+import { COMMAND_CHECK_TYPE_ACCEPTANCE_SOURCE } from "./command-check-type-acceptance.ts";
 import { CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE } from "./check-options-type-acceptance.ts";
 import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admission-strategy-type-acceptance.ts";
 import { CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE } from "./handoff-type-acceptance.ts";
 import { DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE } from "./data-boundary-type-acceptance.ts";
 import { PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE } from "./project-changes-type-acceptance.ts";
+import {
+  EXTERNAL_CONSUMER_NODE_GLOBALS_DECLARATION,
+  externalConsumerTypecheckConfig
+} from "./typecheck-fixture.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
 
@@ -20,7 +25,16 @@ const runDeclarationPath = `${PACKAGE_TYPES_DIRECTORY}/project-run/run.d.ts`;
 
 /** Writes declaration fixtures contributed by type acceptance. */
 export function writeExternalConsumerTypesFixture(consumerDirectory: string): void {
-  writeFileSync(join(consumerDirectory, "tsconfig.json"), typecheckConfig(), "utf8");
+  writeFileSync(
+    join(consumerDirectory, "node-globals.d.ts"),
+    EXTERNAL_CONSUMER_NODE_GLOBALS_DECLARATION,
+    "utf8"
+  );
+  writeFileSync(
+    join(consumerDirectory, "tsconfig.json"),
+    externalConsumerTypecheckConfig(CURRENT_PUBLIC_CONTRACT.packageImport),
+    "utf8"
+  );
   writeFileSync(join(consumerDirectory, "public-imports.ts"), publicImports(), "utf8");
 }
 
@@ -90,30 +104,6 @@ function readAdjacentDeclarationDocumentation(input: {
   return source.slice(commentStart, commentEnd + 2);
 }
 
-function typecheckConfig(): string {
-  return `${JSON.stringify(
-    {
-      compilerOptions: {
-        module: "nodenext",
-        moduleResolution: "nodenext",
-        exactOptionalPropertyTypes: true,
-        noUncheckedIndexedAccess: true,
-        noEmit: true,
-        strict: true,
-        target: "esnext",
-        verbatimModuleSyntax: true
-      },
-      include: [
-        "public-imports.ts",
-        "docs/examples/package-api/*.ts",
-        `node_modules/${CURRENT_PUBLIC_CONTRACT.packageImport}/docs/examples/artifacts/mixed-outcomes/definition.ts`
-      ]
-    },
-    null,
-    2
-  )}\n`;
-}
-
 const PUBLIC_TYPE_IMPORTS_MARKER = "__VIBE_CHECK_PUBLIC_TYPE_IMPORTS__";
 
 function publicImports(): string {
@@ -131,6 +121,7 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   canonicalJsonBytes,
   canonicalJsonText,
   collectProjectFiles,
+  commandCheck,
   createAdmissionGraph,
   createLearnedCriticalPathStrategy,
   defineAdmissionPolicy,
@@ -203,6 +194,7 @@ const directCheck = defineCheck({
       : { status: "failed", data: { selected } };
   }
 });
+${COMMAND_CHECK_TYPE_ACCEPTANCE_SOURCE}
 ${CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE}
 ${CHECK_OPTIONS_TYPE_ACCEPTANCE_SOURCE}
 interface ChangedFilesData {

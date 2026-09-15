@@ -1,5 +1,17 @@
 # check-owned-scanners
 
+## Case AUX-HOST-ENVIRONMENT-PROCESS-LIFECYCLE-001: Product process capability retains closed lifecycle causes
+
+Owner: `docs/development/architecture.md#source-module-boundaries`
+Entities:
+
+- `bun|src/package-checks/host-environment/process/result.test.ts|Product process result normalization > uses closed terminal-cause priority without reading native error text`
+- `bun|src/package-checks/host-environment/process/runner.test.ts|Product process runner > forwards cancellation and preserves async terminal discriminants`
+- `bun|src/package-checks/host-environment/process/runner.test.ts|Product process runner > retains synchronous numeric exits and captured output`
+  Proves:
+
+- The Product-private host-environment process capability resolves competing terminal markers, without reading native error text, in this closed order: nonzero numeric exit, cancellation, timeout, output-limit, signal, startup failure, then zero exit. Async execution forwards its caller-owned cancellation signal and exposes only the closed cancellation, timeout and output-limit discriminants alongside existing status, signal and captured output; an Execa output-limit result can retain status `0`, so its discriminant remains observable before success mapping. The synchronous runner retains numeric exit and output behavior for existing Git, jscpd and SCC consumers.
+
 ## Case WB-SCANNER-EXACT-RESULT-SCOPE-001: Scanner exact input scope
 
 Owner: `docs/development/scanner-dependencies.md#exact-input-handoff`
