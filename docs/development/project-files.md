@@ -79,7 +79,7 @@ Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-
 
 - [Duplicate detection](../checks/duplicate-detection.md) 与 [File metrics](../checks/file-metrics.md) 各自一次提交 area paths 的稳定去重并集。前者按 fragment locations 的共同 area 还原归属，后者按 path 的全部 matching areas 还原归属；共同 collection 不计算阈值或 Findings。
 - [Function metrics](../checks/function-metrics.md) 的默认 include 与 eligibility 来自同一 Check-local reader registry。先分类再分析 accepted union；rejected path 保留全部排序 area IDs，不能落入通用 source fallback。
-- [JSON validation](../checks/json-validation.md) 以 case-sensitive `.json` predicate 分类；[Markdown Link](../checks/markdown-link-validation.md) 对 `.md` / `.markdown` 使用大小写不敏感语义，direct target 不成为新的 source。
+- [JSON validation](../checks/json-validation.md) 以 case-sensitive `.json` predicate 分类；[Markdown lint](../checks/markdown-lint.md) 与 [Markdown Link](../checks/markdown-link-validation.md) 对 `.md` / `.markdown` 使用大小写不敏感语义。Markdown lint 只处理 selected Markdown source；Markdown Link 的 direct target 不成为新的 source。
 - [JSON Schema](../checks/json-schema-validation.md) 只读取显式 schemas/bindings 且在 selection 内的 path，不从 suffix、`$schema` 或目录发现 work。
 - [Secret detection](../checks/secret-detection.md) 没有普通 suffix rejection；它在 detector 前对每个 selected path 完成
   path/descriptor identity-checked bounded-read/coverage settlement；受支持 POSIX runtime 还要求 no-follow open。Windows 分支

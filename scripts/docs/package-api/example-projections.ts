@@ -137,6 +137,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "markdown-lint",
+    regionId: "markdown-lint",
+    sourcePath: "docs/examples/package-api/markdown-lint.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        declarationName: "markdownLint",
+        kind: "jsdoc",
+        sourcePath: "src/package-checks/markdown-lint/default-check.ts"
+      })
+    ]),
+    title: "最小用法"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "custom-check-definition",
     regionId: "custom-check-definition",
     sourcePath: "docs/examples/package-api/custom-check.ts",

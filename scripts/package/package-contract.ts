@@ -14,6 +14,7 @@ export const PACKAGE_PUBLISH_ACCESS = "public";
 export const PACKAGE_PUBLISH_REGISTRY = "https://registry.npmjs.org/";
 export const PACKAGE_REPOSITORY_MANIFEST_URL = "git+https://github.com/zxyycom/vibe-check.git";
 export const AJV_PACKAGE_NAME = "ajv";
+export const MARKDOWNLINT_PACKAGE_NAME = "markdownlint";
 export const JSCPD_BIN_NAME = "jscpd";
 export const JSCPD_PACKAGE_NAME = "jscpd";
 export const PACKAGE_DOCUMENTATION_DIRECTORY = "docs";

@@ -7,7 +7,12 @@ import type { PackageMachineMaterial } from "../../docs/machine-artifacts/packag
 import { errorMessage } from "../../error-message.ts";
 import { isPathWithin } from "../../repository-files/paths.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
-import { AJV_PACKAGE_NAME, JSCPD_PACKAGE_NAME, PACKAGE_NAME } from "../package-contract.ts";
+import {
+  AJV_PACKAGE_NAME,
+  JSCPD_PACKAGE_NAME,
+  MARKDOWNLINT_PACKAGE_NAME,
+  PACKAGE_NAME
+} from "../package-contract.ts";
 import { runBun, sha256File } from "../pack.ts";
 import {
   verifyCandidateRuntimeDependencies,
@@ -150,9 +155,17 @@ function assertInstalledCandidateManifest(
 
 function probeCandidateInstallation(consumerDirectory: string): CandidateInstallationProbe {
   const output = runBun({
-    args: [
-      "-e",
-      `import { createRequire } from "node:module";
+    args: candidateInstallationProbeCommand(),
+    cwd: consumerDirectory,
+    phase: `resolve candidate and dependencies in ${consumerDirectory}`
+  });
+  return parseCandidateInstallationProbe(output, consumerDirectory);
+}
+
+function candidateInstallationProbeCommand(): readonly string[] {
+  return [
+    "-e",
+    `import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 const candidateEntryUrl = import.meta.resolve(process.argv[1]);
 const candidateEntryPath = fileURLToPath(candidateEntryUrl);
@@ -160,15 +173,20 @@ const requireFromCandidate = createRequire(candidateEntryPath);
 process.stdout.write(JSON.stringify({
   ajvPackageManifestPath: requireFromCandidate.resolve(process.argv[2] + "/package.json"),
   candidateEntryUrl,
-  jscpdPackageManifestPath: requireFromCandidate.resolve(process.argv[3] + "/package.json")
+  jscpdPackageManifestPath: requireFromCandidate.resolve(process.argv[3] + "/package.json"),
+  markdownlintPackageManifestPath: requireFromCandidate.resolve(process.argv[4] + "/package.json")
 }));`,
-      PACKAGE_NAME,
-      AJV_PACKAGE_NAME,
-      JSCPD_PACKAGE_NAME
-    ],
-    cwd: consumerDirectory,
-    phase: `resolve candidate and dependencies in ${consumerDirectory}`
-  });
+    PACKAGE_NAME,
+    AJV_PACKAGE_NAME,
+    JSCPD_PACKAGE_NAME,
+    MARKDOWNLINT_PACKAGE_NAME
+  ];
+}
+
+function parseCandidateInstallationProbe(
+  output: string,
+  consumerDirectory: string
+): CandidateInstallationProbe {
   let value: unknown;
   try {
     value = JSON.parse(output);
@@ -178,13 +196,7 @@ process.stdout.write(JSON.stringify({
       { cause: error }
     );
   }
-  if (
-    !isNonArrayRecord(value) ||
-    typeof value.candidateEntryUrl !== "string" ||
-    typeof value.ajvPackageManifestPath !== "string" ||
-    typeof value.jscpdPackageManifestPath !== "string" ||
-    Object.keys(value).length !== 3
-  ) {
+  if (!validCandidateInstallationProbe(value)) {
     throw new Error(
       `candidate installation resolution returned an invalid result from ${consumerDirectory}`
     );
@@ -192,8 +204,25 @@ process.stdout.write(JSON.stringify({
   return Object.freeze({
     ajvPackageManifestPath: value.ajvPackageManifestPath,
     candidateEntryUrl: value.candidateEntryUrl,
-    jscpdPackageManifestPath: value.jscpdPackageManifestPath
+    jscpdPackageManifestPath: value.jscpdPackageManifestPath,
+    markdownlintPackageManifestPath: value.markdownlintPackageManifestPath
   });
+}
+
+function validCandidateInstallationProbe(value: unknown): value is Readonly<{
+  readonly ajvPackageManifestPath: string;
+  readonly candidateEntryUrl: string;
+  readonly jscpdPackageManifestPath: string;
+  readonly markdownlintPackageManifestPath: string;
+}> {
+  return (
+    isNonArrayRecord(value) &&
+    typeof value.candidateEntryUrl === "string" &&
+    typeof value.ajvPackageManifestPath === "string" &&
+    typeof value.jscpdPackageManifestPath === "string" &&
+    typeof value.markdownlintPackageManifestPath === "string" &&
+    Object.keys(value).length === 4
+  );
 }
 
 function resolveInstalledCandidateEntry(packageDirectory: string, resolvedUrl: string): string {

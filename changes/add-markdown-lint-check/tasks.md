@@ -15,28 +15,28 @@
 
 ## Implementation
 
-- [ ] 1.1 用 `pnpm` 更新根 production dependency、`pnpm-lock.yaml` 与 release manifest，并同步
+- [x] 1.1 用 `pnpm` 更新根 production dependency、`pnpm-lock.yaml` 与 release manifest，并同步
   dependency/artifact audit 的 exact requirements。
-- [ ] 1.2 在 `src/package-checks/markdown-lint/**` 实现闭合 options/resolved options、九项 Product rule catalog、
+- [x] 1.2 在 `src/package-checks/markdown-lint/**` 实现闭合 options/resolved options、九项 Product rule catalog、
   constructor/preparation 与 root export types/parser。
-- [ ] 1.3 实现一次 file selection、资格对账、安全有界 UTF-8 读取、有序逐文件 cancellation 和 no-partial traversal。
-- [ ] 1.4 实现 `markdownlint/promise` private adapter、固定 dialect/rule parameters、backend protocol validation、
+- [x] 1.3 实现一次 file selection、资格对账、安全有界 UTF-8 读取、有序逐文件 cancellation 和 no-partial traversal。
+- [x] 1.4 实现 `markdownlint/promise` private adapter、固定 dialect/rule parameters、backend protocol validation、
   range fallback 与稳定排序/Record identity。
-- [ ] 1.5 实现 Product-owned Records、bounded messages、final-data invariants、unavailable reasons，以及
+- [x] 1.5 实现 Product-owned Records、bounded messages、final-data invariants、unavailable reasons，以及
   not-applicable/passed/failed/unavailable settlement。
-- [ ] 1.6 新增 `docs/checks/markdown-lint.md`，同步 README、导航、package document registry、可执行示例、
+- [x] 1.6 新增 `docs/checks/markdown-lint.md`，同步 README、导航、package document registry、可执行示例、
   type acceptance、public API inventory 与 changelog。
 
 ## Verification
 
-- [ ] 2.1 修改测试前后运行 `bun run test-evidence -- check --root .`，并完成配置、九项 rules、方言、
+- [x] 2.1 修改测试前后运行 `bun run test-evidence -- check --root .`，并完成配置、九项 rules、方言、
   range/identity/order、input/limits/cancel/backend/no-partial 和四态结果的最窄原生 tests。
-- [ ] 2.2 运行受影响的 typecheck、lint、dependency 与 public-entry checks，证明 Core 不反向依赖新 Check 私有实现，
+- [x] 2.2 运行受影响的 typecheck、lint、dependency 与 public-entry checks，证明 Core 不反向依赖新 Check 私有实现，
   且根 API 闭合。
-- [ ] 2.3 运行 `bun run validate -- docs`、API/example/type acceptance 与 package artifact/candidate/installed-consumer
+- [x] 2.3 运行 `bun run validate -- docs`、API/example/type acceptance 与 package artifact/candidate/installed-consumer
   验收，证明 backend 实际随包解析和执行。
-- [ ] 2.4 运行 `bun run check`，确认 `markdownLinkValidation`、Project Gate selection 与无 cache 基线没有行为回归。
-- [ ] 2.5 在实现与公开材料验证完成后，把 `provide-bounded-markdown-lint-check` Decision 标记为 aligned，
+- [x] 2.4 运行 `bun run check`，确认 `markdownLinkValidation`、Project Gate selection 与无 cache 基线没有行为回归。
+- [x] 2.5 在实现与公开材料验证完成后，把 `provide-bounded-markdown-lint-check` Decision 标记为 aligned，
   并运行 `bun run decisions -- check`。
-- [ ] 2.6 由非实施代理依据实际 diff 反查公开承诺、内部 owner、Decision、Case、package material 和交付边界；
+- [x] 2.6 由非实施代理依据实际 diff 反查公开承诺、内部 owner、Decision、Case、package material 和交付边界；
   处理发现后逐项核对 Success Criteria。

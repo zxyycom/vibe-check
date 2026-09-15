@@ -73,7 +73,10 @@ const PRODUCT_PACKAGE_TEST_LANES = Object.freeze([
   }),
   Object.freeze({
     lane: "productMarkdownLinks",
-    prefixes: Object.freeze(["src/package-checks/markdown-link-validation/"])
+    prefixes: Object.freeze([
+      "src/package-checks/markdown-link-validation/",
+      "src/package-checks/markdown-lint/"
+    ])
   }),
   Object.freeze({
     lane: "productSecretDetection",

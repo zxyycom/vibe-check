@@ -25,11 +25,12 @@ npm 负责安装 package；应用代码和质量脚本的最低运行要求是 *
 | 函数规模、复杂度、最大嵌套和参数数量 | [`functionMetrics(options?)`](./docs/checks/function-metrics.md) | 无需另装分析器。 |
 | JSON 语法和输入范围 | [`jsonValidation(options?)`](./docs/checks/json-validation.md) | 无。 |
 | JSON 与 Schema 的匹配关系 | [`jsonSchemaValidation(options?)`](./docs/checks/json-schema-validation.md) | 使用远程 Schema 时，需显式允许对应 HTTPS source 并具备网络访问条件。 |
+| Markdown 结构与明确内容缺陷 | [`markdownLint(options?)`](./docs/checks/markdown-lint.md) | 无。 |
 | 本地 Markdown 链接与锚点 | [`markdownLinkValidation(options?)`](./docs/checks/markdown-link-validation.md) | 无。 |
 | 基于 Git 历史的维护提醒 | [`maintenanceReminders(entries)`](./docs/checks/maintenance-reminders.md) | 项目根目录是 Git repository，且环境可以执行 `git`。 |
 | 高置信 PEM private key | [`secretDetection({ files })`](./docs/checks/secret-detection.md) | 无需另装分析器。 |
 
-`duplicateDetection`、`fileMetrics`、`functionMetrics` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
+`duplicateDetection`、`fileMetrics`、`functionMetrics`、`markdownLint` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
 
 ## 自定义 Check 快速开始
 

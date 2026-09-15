@@ -2,7 +2,7 @@
 title: 提供闭合规则的 Markdown lint Check
 id: 260915-provide-bounded-markdown-lint-check
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-15T03:16:48Z
 purpose: 让 package consumer 以闭合高信号规则、受控输入和稳定结果运行 Markdown lint。
 background: 现有 Markdown Link 只验证本地引用完整性，结构与明确内容缺陷仍缺少随包 Check。

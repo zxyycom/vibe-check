@@ -460,3 +460,34 @@ Entities:
 - Graph-ready public prepared authoring prepares once per Run from frozen graph facts and returns an isolated closure; normal, cancelled and admission-policy-failed Runs keep Scheduler decisions synchronous and deliver terminalEffect at most once after admission stops, started work drains and generic terminal effects settle. Preparation failure forms `admission-strategy-preparation-failed` before Scheduler start; pre-terminal task-engine failure has no terminal-effect delivery.
 - Generic terminal effects all receive their chance before public `terminalEffect`. Their actual settlement, plus optional `terminalEffect`, is the sole input to `terminalEffects`: generic-only no-context stays enabled/`not-run`; simple and prepared-without-terminalEffect do not independently enable it; a terminal-effect failure cannot overwrite sealed primary facts, and later terminalEffect success cannot overwrite a generic failure.
 - A learned factory is an ordinary public prepared strategy: it prepares immutable prediction before Scheduler decisions and records its terminal sample only after terminal delivery, without a private Invocation lifecycle.
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT: 有界 Markdown lint 结果发布
+
+Owner: `docs/checks/markdown-lint.md#效果与结果`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal`
+  Proves:
+- A completed lint traversal reports only Product-owned public rules and produces a blocking failed outcome with canonical source, finding and rejected-input counts.
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-BOUNDARIES: Markdown lint terminal boundaries
+
+Owner: `docs/checks/markdown-lint.md#not-applicable-与-unavailable`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > settles zero input, rejected input, limits, and cancellation without partial lint publication`
+
+Proves:
+
+- Empty selections are not applicable, rejected selected inputs remain successful evidence, and limits or cancellation make the Check unavailable without publishing partial lint Findings.
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-REFERENCES: Markdown lint MD052 public result
+
+Owner: `docs/checks/markdown-lint.md#效果与结果`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > reports MD052 reference forms through the public single-rule Check`
+
+Proves:
+
+- Selecting only `reference-links-images` reports unresolved full, collapsed and image references as public MD052 findings, while ignored task labels, shortcut syntax and the private parser helper do not leak into Records.

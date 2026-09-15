@@ -60,7 +60,7 @@ unavailable reason 类型；不增加 CLI、`bin` 或 package subpath。
 | `reference-links-images` | `MD052: { ignored_labels: ["x"], shortcut_syntax: false }` | 是 | full/collapsed reference 缺少 definition |
 | `table-column-count` | `MD056: true` | 是 | GFM pipe table 各行列数不一致 |
 
-Adapter 从 `default: false` 开始，只启用 resolved rules；每项配置值都由 Product fixture 锁定。
+Adapter 从 `default: false` 开始，只启用 resolved rules。backend 为完成所选规则而需要的 parser 辅助行为保持私有，辅助诊断不发布；每项配置值和该不泄漏边界均由 Product fixture 锁定。
 
 #### Private Backend and Markdown Dialect
 

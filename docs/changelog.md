@@ -4,6 +4,11 @@
 
 ## 未发布
 
+### `markdownLint`：新增受限 Markdown 结构 Check
+
+- 新增 [`markdownLint`](./checks/markdown-lint.md) 与 `parseMarkdownLintData`，以固定 `markdownlint@0.41.1` backend 检查八项默认规则；`link-fragments` 仅在显式选择时启用。
+- 默认 Finding 为 non-blocking；需要阻断时设置 `findingPolicy: "blocking"`。该 Check 不替代本地 target/anchor 的 `markdownLinkValidation`，也不加入 Project Gate selection。
+
 ### Project change flags：升级前的 source change
 
 本次在首个公开 release 前收敛 authoring surface；升级代码时按以下顺序替换：

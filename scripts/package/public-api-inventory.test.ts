@@ -24,6 +24,7 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLint,
   markdownLinkValidation,
   inherit,
   maintenanceReminders,
@@ -38,6 +39,7 @@ import {
   parseJsonSchemaValidationData,
   parseJsonValidationData,
   parseMaintenanceRemindersData,
+  parseMarkdownLintData,
   parseMarkdownLinkValidationData,
   presentCheckFindings,
   reconcileFindingWaivers,
@@ -135,6 +137,7 @@ describe("public API inventory", () => {
     assert.equal(typeof functionMetrics, "function");
     assert.equal(typeof jsonSchemaValidation, "function");
     assert.equal(typeof jsonValidation, "function");
+    assert.equal(typeof markdownLint, "function");
     assert.equal(typeof markdownLinkValidation, "function");
     assert.equal(typeof none, "function");
     assert.equal(typeof not, "function");
@@ -164,6 +167,7 @@ describe("public API inventory", () => {
       parseMaintenanceRemindersData.name,
       CURRENT_PUBLIC_CONTRACT.parsers.parseMaintenanceRemindersData
     );
+    assert.equal(parseMarkdownLintData.name, CURRENT_PUBLIC_CONTRACT.parsers.parseMarkdownLintData);
     assert.equal(
       parseMarkdownLinkValidationData.name,
       CURRENT_PUBLIC_CONTRACT.parsers.parseMarkdownLinkValidationData
@@ -174,6 +178,7 @@ describe("public API inventory", () => {
       functionMetrics(),
       jsonSchemaValidation(),
       jsonValidation(),
+      markdownLint(),
       markdownLinkValidation()
     ]) {
       assert.equal(Object.hasOwn(packageCheck, "replace"), false);

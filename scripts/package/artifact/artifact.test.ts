@@ -147,6 +147,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       "github-slugger": "2.0.0",
       immutable: "5.1.9",
       jscpd: "^5.1.1",
+      markdownlint: "0.41.1",
       "mdast-util-from-markdown": "2.0.3",
       "mdast-util-frontmatter": "2.0.1",
       "mdast-util-gfm": "3.1.0",
