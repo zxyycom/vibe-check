@@ -91,13 +91,6 @@ describe("functionMetrics analyzer execution", () => {
         "utf8"
       );
       const result = await run(defineConfig({ checks: [functionMetrics()] }), {
-        checkAggregation: {
-          checks: "all",
-          empty: "failed",
-          mode: "all",
-          notApplicable: "fail",
-          unavailable: "fail"
-        },
         projectRoot: root
       });
 

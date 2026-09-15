@@ -280,7 +280,7 @@
       "260903-provide-immutable-admission-graph-state": "sha256:2fabf1fccc6b360ddfc4e7ef7cf11a262a19dcc8909b3bbdbcc1404b4f4d86f6",
       "260903-retain-private-invocation-admission-strategy-lifecycle": "sha256:0f73f3ba9e9db4ba8c44e0d27c8f1f09d0b5c81fa50f96c417e061958d64cf01",
       "260903-use-a-verified-fast-path-for-lizard-reader-resolution": "sha256:027d3ec01308a2bb79acdab981fa00e13a3ef3ba36adef78b22bd11d8f0df989",
-      "260904-delegate-project-gate-selection-to-product-effective-selection": "sha256:2e81c666e3760673e1d51eb235706ab1b1c55fec419ad83053d5ae31c211e4c1",
+      "260904-delegate-project-gate-selection-to-product-effective-selection": "sha256:716a62fc9be37bcf1616c2d3e213904bc4823a8218a998cf4dc8d59ad7f09390",
       "260904-exclude-test-functions-but-keep-test-maintainability-evidence": "sha256:c18da0f30eeeca20227ca37bf5945250223ea0490586b0b6551166b52e6eadea",
       "260904-keep-gate-run-evidence-complete-with-owner-scoped-scheduler-context": "sha256:5e75d5acbcf0a5ac54c0d1956e2832b19211e3e1ae2a39be987cd3b6b3bfe9b5",
       "260904-organize-owner-aware-project-run-and-gate-diagnostics": "sha256:fb802075c4aac332ff7306a68ce00a111bd5215af875719cf8c48c794aec9530",
@@ -290,9 +290,9 @@
       "260904-render-record-and-message-previews-in-product-progress": "sha256:bcbd648f1291757d2360e2071821a6a2994551976b6e5d58e508711025e1b6e7",
       "260904-require-selected-repository-quality-remediation-in-active-cleanup-changes": "sha256:225dada187603fbf1ca08509cbbbe8db79710ae1b94b6a38b6576538a67bedc5",
       "260904-reuse-gate-prepared-candidate-without-detached-lifecycle": "sha256:de56f33381ee073f405c3463c9e958d832351a8c868fd57024bd158764bab73e",
-      "260904-unify-effective-flag-selection-and-aggregation": "sha256:3bed9a468337854ec803e9b34213d55709508f2a1177afe1c8855cede34aa901",
+      "260904-unify-effective-flag-selection-and-aggregation": "sha256:bf8c3e22a82bbf05a7a19681c4c3fbc8d75546e8ae2c1168d9d5f43fcfaff9ce",
       "260904-use-project-check-command-with-focused-gate-presets": "sha256:39c5ba6bb62abbc55c6733a42f7510741a245237b30cf1b04e90d62f292ad60b",
-      "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": "sha256:190d49e7240fda2a8d3b27495ac74cf09361fdb3573846fbd1fafc44a0cb1f3a",
+      "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": "sha256:ff0bb1d9104b3d745b2a0cb9bd72f503be9889a389b5ceadca774f9c696613aa",
       "260905-organize-maintainer-documentation-by-responsibility": "sha256:b36f7ca3cb4bef003336bc529b0bfda2e280ed61e412257ba8830691a1a8f7a1",
       "260905-review-documentation-impact-by-audience": "sha256:ce10c6b265f5ccbafc5981f966284b7289fd19fbf50bd2bd12b0e0df6506e2f6",
       "260905-structure-package-documentation-by-user-task": "sha256:388736f612019652cbc797934fc169d64872115b9a02a60d0b8d223cc1b99e75",
@@ -342,6 +342,9 @@
       "260914-narrow-project-gate-to-result-contribution": "sha256:b06f59f897dcc392efd90c2702d927f164cdd3ca0e92b65234cf50b19d41bb27",
       "260914-unify-project-change-flags-as-effective-flags": "sha256:f61d2b400b55f35d459c0933b611c9ab28468421307c55b4ad85a73557fbcd4d",
       "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0",
+      "260915-default-effective-check-aggregation-with-caller-local-callback": "sha256:39a3a13259fe1b74a0be2d95ecd22eb8c36f3c8419b2970701f0916011ee31f8",
+      "260915-delegate-project-gate-direct-presets-to-effective-selection": "sha256:dd3e1cf0dfdfb215544443abdc71f3de6183b92430ac3fb246b7dedad1349b66",
+      "260915-keep-package-quality-advisory-with-default-gate-aggregation": "sha256:4c0a18626f0d036c1ff12934e6a3922d21da581263e5d42b83f2e77a28a1dcd2",
       "260915-provide-bounded-markdown-lint-check": "sha256:37fb68f0951b63c35527be3ec0c95d6af659f29eeca2abc22a7570a75f77a36d",
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b"
     },
@@ -5819,9 +5822,9 @@
     },
     "260904-delegate-project-gate-selection-to-product-effective-selection": {
       "name": "delegate-project-gate-selection-to-product-effective-selection",
-      "sourcePath": "delegate-project-gate-selection-to-product-effective-selection.md",
+      "sourcePath": "archive/delegate-project-gate-selection-to-product-effective-selection.md",
       "title": "让 Project Gate 委托 Product 处理依赖选择",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-04T09:21:35Z",
       "purpose": "让 Gate 的 preset 只表达 direct intent，并由 Product 统一补齐已 opt-in 的 dependsOn prerequisite。",
@@ -6026,9 +6029,9 @@
     },
     "260904-unify-effective-flag-selection-and-aggregation": {
       "name": "unify-effective-flag-selection-and-aggregation",
-      "sourcePath": "unify-effective-flag-selection-and-aggregation.md",
+      "sourcePath": "archive/unify-effective-flag-selection-and-aggregation.md",
       "title": "统一 flag 有效选择、依赖启动与 aggregation",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-04T08:38:14Z",
       "purpose": "让 flag 选择可按 Check authoring 启动其 dependsOn 闭包，并让 aggregation 复用同一有效选择。",
@@ -6076,9 +6079,9 @@
     },
     "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict": {
       "name": "keep-package-quality-defaults-advisory-and-make-project-gate-strict",
-      "sourcePath": "keep-package-quality-defaults-advisory-and-make-project-gate-strict.md",
+      "sourcePath": "archive/keep-package-quality-defaults-advisory-and-make-project-gate-strict.md",
       "title": "保持 Package 质量默认 advisory 并使 Project Gate 的质量 Finding 阻断",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-05T08:49:10Z",
       "purpose": "保持 Package 默认 advisory，同时让 Project Gate 的未豁免质量 Finding 通过所属 Check status 阻断。",
@@ -7054,6 +7057,76 @@
           "type": "修订",
           "target": "260901-run-check-preflight-with-task-admission",
           "summary": "保留 task-local 准备语义并直接切换公开命名"
+        }
+      ]
+    },
+    "260915-default-effective-check-aggregation-with-caller-local-callback": {
+      "name": "default-effective-check-aggregation-with-caller-local-callback",
+      "sourcePath": "default-effective-check-aggregation-with-caller-local-callback.md",
+      "title": "默认有效 Check 聚合并允许调用方同步解释",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-15T10:20:22Z",
+      "purpose": "让每次完成结算的 Run 无需 policy 即得到严格默认聚合，并允许调用方同步解释同一有效 Check 列表。",
+      "background": "现有有效选择已统一 flag、依赖启动与 aggregation 输入，却仍要求闭合 policy 并默认 aggregate 为 null。",
+      "decision": "以默认 strict-all 和 caller-local 同步 callback 直接替换旧 policy，保留完整 snapshot 与 Run 生命周期责任。",
+      "tags": [
+        "configuration",
+        "product-contract",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260904-unify-effective-flag-selection-and-aggregation",
+          "summary": "替换旧 policy 与 null 默认聚合"
+        }
+      ]
+    },
+    "260915-delegate-project-gate-direct-presets-to-effective-selection": {
+      "name": "delegate-project-gate-direct-presets-to-effective-selection",
+      "sourcePath": "delegate-project-gate-direct-presets-to-effective-selection.md",
+      "title": "让 Project Gate 以默认聚合委托有效选择",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-15T10:33:17Z",
+      "purpose": "让 Gate 保持 direct preset intent 与 Product 依赖选择的统一，同时使用 Product 默认严格聚合。",
+      "background": "Gate 已不再传入 effective selector 或 all policy；这些已由 Product 的默认有效列表折叠取代。",
+      "decision": "保留 Gate direct presets 和 dependsOn propagation，省略 aggregation controls 并消费 Product 默认严格结果。",
+      "tags": [
+        "configuration",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260904-delegate-project-gate-selection-to-product-effective-selection",
+          "summary": "以 Product 默认聚合替换 Gate policy"
+        }
+      ]
+    },
+    "260915-keep-package-quality-advisory-with-default-gate-aggregation": {
+      "name": "keep-package-quality-advisory-with-default-gate-aggregation",
+      "sourcePath": "keep-package-quality-advisory-with-default-gate-aggregation.md",
+      "title": "保持 Package 质量 advisory 与默认严格 Gate 聚合",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-15T10:33:21Z",
+      "purpose": "让 Package 默认 quality evidence 保持 advisory，同时由 Product 默认严格聚合传播 Gate blocking Check 的结果。",
+      "background": "Gate 已移除显式 effective/all aggregation policy，但质量 Check 的 blocking 责任和 selection 范围不变。",
+      "decision": "保留 Package advisory 与 Gate blocking，使用默认有效列表的 strict-all 聚合而非 Gate policy。",
+      "tags": [
+        "configuration",
+        "product-contract",
+        "product-priority",
+        "repository-automation",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict",
+          "summary": "以默认严格聚合替换 all policy"
         }
       ]
     },

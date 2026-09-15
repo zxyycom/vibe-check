@@ -37,7 +37,7 @@ describe("Package Run diagnostic logging output", () => {
       );
       const diagnosticLog = readFileSync(join(root, file), "utf8");
       assert.equal([...diagnosticLog.matchAll(/\[RUN\] \[STARTED\].*run\.started /g)].length, 1);
-      assert.match(diagnosticLog, /aggregation=null/);
+      assert.match(diagnosticLog, /aggregation="default"/);
       assert.match(diagnosticLog, /checkCount=70/);
       assert.match(diagnosticLog, /flags\.availability="available"/);
       assert.match(diagnosticLog, /flags\.items=1/);

@@ -198,14 +198,14 @@ Entities:
 - `bun|src/project-run/check-execution/preparation-cancellation.test.ts|Package Run direct Check execution > passes the invocation signal to admitted preparations and closes cancelled Check Tasks`
 - `bun|src/project-run/check-execution/preparation-messages.test.ts|Package Run direct Check execution > canonicalizes continue fallbacks and retains preparation messages through execution settlement`
 - `bun|src/project-run/check-facts-record-misuse.test.ts|Package Run Check facts integration > contains invalid callback outcomes and Record misuse in the owning Check`
-- `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > publishes raw facts and derives an aggregate only from explicit selected statuses`
-- `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > reuses effective flag selection for explicit aggregation`
+- `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > derives a default strict aggregate and accepts a synchronous custom aggregate`
+- `bun|src/project-run/check-facts-aggregation.test.ts|Package Run Check facts integration > reuses effective flag selection for custom aggregation`
 - `bun|src/project-run/progress-rendering/result-priority.test.ts|Package Run progress result priority > mutes ordinary progress events after a settled writer failure while preserving final facts`
   Proves:
 - Completed, output failure, and execution-phase-cancelled final-snapshot `RunResult` values expose only accepted detached `{ checkId, level, code, message }` items. Invalid attachments and author results rejected by Record settlement expose no partial messages.
 - `checkMessages` preserves author order within each Check and canonical snapshot Check order across parallel settlement; disabling progress or a settled progress writer failure does not remove it.
 - Task-local preparation receives the invocation signal only after admission; cooperative cancellation closes the existing execution phase as `cancelled` without admitting pending author work.
-- A real Run preserves policy-enabled Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor the quiet-pass presentation policy. The explicit `effective` selector reuses the invocation's private flag selection, including activated prerequisites, without projecting that selection into the result.
+- A real Run preserves policy-enabled Check Records, dependent admission, aggregation, canonical durations and machine-v4 facts while returning accepted messages separately; validated machine bytes and models contain neither messages nor the quiet-pass presentation policy. The default and custom aggregation consume the invocation's private effective flag selection, including activated prerequisites, without projecting that selection into the result.
 
 ## Case ADD-SECRET-DETECTION-AUTHORING-001: Secret detection requires an explicit closed files policy
 

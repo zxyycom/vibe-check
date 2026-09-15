@@ -1,8 +1,9 @@
 import type { ProjectOutputs } from "../../project-definition/project-definition.ts";
+import type { CoreCheck } from "../../check-settlement/facts.ts";
 /**
  * `run(definition, controls?)` 的第二个参数，只指定这一次怎么运行。
  *
- * root、flags、signal、Check 产物与日志目标以及显式 aggregation 属于本次调用；`outputs` 只逐字段
+ * root、flags、signal、Check 产物与日志目标以及 aggregation 属于本次调用；`outputs` 只逐字段
  * 覆盖 Definition 的输出默认值，不修改原 Definition。Checks、Check options 与 scheduler 仍在
  * `defineConfig(...)` 中声明，不能从这里替换；这些 Controls 不进入 Definition fingerprint。
  */
@@ -13,7 +14,7 @@ export interface RunControls {
   readonly progressLogFile?: string;
   /** caller 选择的 Check-owned invocation artifact base；省略时不授予 artifact capability。 */
   readonly checkArtifactBaseDirectory?: string;
-  /** 为本次 Run 选择并折叠 Check statuses；省略时结果的 `aggregate` 为 `null`。 */
+  /** 为本次 Run 解释有效 Check facts；省略时使用严格的 all-passed 默认折叠。 */
   readonly checkAggregation?: CheckAggregation;
   /** 仅为本次调用覆盖 Run-owned outputs。 */
   readonly outputs?: Partial<{
@@ -30,18 +31,7 @@ export interface RunControls {
 }
 /** Diagnostic 文件名选择；不改变目录、日志内容或 invocation identity。 */
 export type DiagnosticLogFileNaming = "unique" | "channel";
-/** 将选定 Check statuses 折叠为 invocation aggregate 的规则。 */
-export interface CheckAggregation {
-  /** `all` 选择全部 Check，ID 数组选择明确集合，`effective` 复用本 invocation 的 flag-and-dependency selection。 */
-  readonly checks: "all" | "effective" | readonly string[];
-  /** `all` 要求所有纳入状态通过；`any` 只要求至少一个纳入状态通过。 */
-  readonly mode: "all" | "any";
-  /** 将 `unavailable` 原样传播、按失败纳入，或从 `all`/`any` 计算中排除。 */
-  readonly unavailable: "propagate" | "fail" | "exclude";
-  /** 将 `not-applicable` 从计算中排除，或按通过/失败纳入。 */
-  readonly notApplicable: "exclude" | "pass" | "fail";
-  /** 选择为空或所有状态都被排除时返回的明确 aggregate。 */
-  readonly empty: "passed" | "failed" | "not-applicable";
-}
 /** `CheckAggregation` 计算出的 invocation 级结果。 */
 export type CheckAggregate = "passed" | "failed" | "not-applicable" | "unavailable";
+/** 同步解释本次有效 Check facts 的 caller-local aggregation。 */
+export type CheckAggregation = (checks: readonly CoreCheck[]) => CheckAggregate;

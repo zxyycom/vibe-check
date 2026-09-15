@@ -35,8 +35,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 将占位 commit ID 换成项目 first-parent history 中的真实复核 commit；不存在的基线产生条目 `unavailable`。
 示例使用 `enforcing`，会因到期或不可测量失败；默认 `advisory` 只提醒。
 
-本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。若需接受 `not-applicable` 或聚合多个 Check，
-显式配置并读取 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation)；`run(...)` 返回本身不表示通过。
+本例只接受 `completed` Run 中的 `passed` Check，否则退出非零。多个有效 Check 的调用级结论可读取默认严格 `aggregate`；需要不同领域解释时，提供同步 [`checkAggregation`](../api-mechanics.md#runcontrols-与-check-aggregation) 函数。`run(...)` 返回本身不表示通过。
 
 ## 参数与默认配置
 
@@ -166,5 +165,4 @@ request 数为零，baseline 更新由维护者提交。
 
 ## 适用边界
 
-该 Check 适用于按 commit count 或 changed-line count 提醒维护复核。是否把 `enforcing` failure 转为调用级阻断，
-由 `RunControls.checkAggregation` policy 决定。
+该 Check 适用于按 commit count 或 changed-line count 提醒维护复核。有效的 `enforcing` failure 会使默认严格 `aggregate` 为 `failed`；调用方负责把该调用级结论映射为自己的阻断或退出行为。只有需要不同领域解释时，才提供 `RunControls.checkAggregation` 同步函数。

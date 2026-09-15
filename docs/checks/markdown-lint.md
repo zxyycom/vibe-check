@@ -104,7 +104,7 @@ if (outcome.status === "not-applicable") console.warn("No Markdown input selecte
 
 <!-- /package-api-example:markdown-lint -->
 
-本例对 blocking Finding 和其它 Check 失败退出非零；`not-applicable` 仅表示没有可检查的 Markdown，不是 lint 通过的证据。要把零输入也视为 Gate 失败，调用方应在自己的 Gate 入口显式拒绝该状态或配置并读取相应 aggregation；仅有 `RunResult.kind === "completed"` 不代表 Check 通过。
+本例对 blocking Finding 和其它 Check 失败退出非零；`not-applicable` 仅表示没有可检查的 Markdown，不是 lint 通过的证据。默认严格 `aggregate` 会把有效的 `not-applicable` 结论为 `failed`，调用方可将其映射为 Gate 失败；需要不同领域解释时才提供同步 `checkAggregation` 函数。仅有 `RunResult.kind === "completed"` 不代表 Check 通过。
 
 ## 适用边界
 

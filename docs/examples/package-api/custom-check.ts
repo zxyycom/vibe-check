@@ -48,13 +48,9 @@ const definition = defineConfig({
 });
 
 const result = await run(definition, {
-  checkAggregation: {
-    checks: "all",
-    mode: "all",
-    unavailable: "propagate",
-    notApplicable: "exclude",
-    empty: "passed"
-  }
+  // 只接收本次有效、已结算的 Check；这里按领域只把 failed 视为失败。
+  checkAggregation: (checks) =>
+    checks.some((check) => check.outcome.status === "failed") ? "failed" : "passed"
 });
 if (result.kind !== "completed") throw new Error(`Run did not complete: ${result.kind}`);
 if (result.aggregate !== "failed") throw new Error("Expected the selected Checks to fail");

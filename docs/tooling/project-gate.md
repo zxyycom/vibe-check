@@ -9,16 +9,16 @@ Gate 的 candidate 绑定、aggregation 和诊断接线在此定义；Product Ru
 
 ```text
 scripts/project/gate/
-├── definition.ts        # 完整组合 manifest、selection、aggregate、outputs、scheduler 与 resultContributor
+├── definition.ts        # 完整组合 manifest、selection、outputs、scheduler 与 resultContributor
 ├── run.ts               # argv、candidate、transcript 与 process exit adapter
 ├── checks/              # 各领域 Check 对象/对象组、options 与 adapter
-└── runtime/             # bound Run、selection、aggregation、result 与 transcript mechanics
+└── runtime/             # bound Run、selection、result 与 transcript mechanics
 ```
 
 ### 组合配置与 candidate 绑定
 
 `definition.ts` 是阅读完整 Gate 组合的入口：从稳定顺序的 entry manifest 可以恢复全部 Check identity、
-required/preset membership、Gate 自有的 `observes` 闭合，以及 run-level aggregate、outputs、scheduler 和唯一
+required/preset membership、Gate 自有的 `observes` 闭合，以及 run-level outputs、scheduler、Product 默认聚合的使用和唯一
 project-owned `resultContributor`。组合入口可以引用 `checks/**` owner 已定义的普通 Check 对象或闭合对象组；领域
 options、scanner protocol、test file partition 和 execution mechanics 留在对应 owner，不为追求物理单文件而
 复制。`runtime/**` 不另行拥有 Check membership、领域 policy、`dependsOn` 传播或第二个 result-contributor 配置面。
@@ -101,7 +101,7 @@ Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missin
 
 #### 聚合结果
 
-所有 effective Check status 进入同一个显式 `effective` aggregate（不是 `--all` selection）：它复用同次 Product flag-and-dependency selection，必须全部 `passed`；`failed` 使 aggregate failed，`unavailable` propagate，`not-applicable` fail，空 selection failed。findings、messages、Records 与 final data 不直接参与 aggregate。
+bound Run 不传入 aggregation policy，而使用 Product 的默认 strict-all aggregate。它复用同次 flag-and-dependency effective selection（不是 `--all` selection），要求每项均为 `passed`；任何其它终态或空 selection 都使 aggregate failed。findings、messages、Records 与 final data 不直接参与 aggregate。
 
 #### 并发与优先级
 
@@ -136,7 +136,7 @@ Gate 对四项显式使用 `blocking` finding policy：
 
 安全摘要由 owning Check 有上限地输出，超过摘要上限时只追加精确 omitted count。完整 Finding facts 以 machine Records 为准。
 
-四项都是 required 与 `quality` preset 的成员，故其未豁免 normal Finding 会通过现有 status-only `effective` / `all` aggregate 阻断 required、`--quality` 与 `--all` invocation；`markdown-link-validation` 还是 `docs` preset 成员，因此同样阻断 `--docs`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private explicit policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
+四项都是 required 与 `quality` preset 的成员，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断 required、`--quality` 与 `--all` invocation；`markdown-link-validation` 还是 `docs` preset 成员，因此同样阻断 `--docs`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
 
 同一 `blocking` policy 适用于 required、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
 

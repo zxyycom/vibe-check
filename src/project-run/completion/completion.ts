@@ -26,7 +26,7 @@ type OutcomeCounts = {
 
 /** Settled Check facts consumed by completion and output publication. */
 export type CoreExecution = Readonly<{
-  readonly aggregate: CheckAggregate | null;
+  readonly aggregate: CheckAggregate;
   readonly checkDurations: readonly CheckDuration[];
   readonly checkMessages: readonly CheckRunMessage[];
   readonly snapshot: CoreSnapshot;
@@ -136,9 +136,23 @@ export function finalizeInvocation(
   return resolveFinalRunResult(candidate, invocation.outputs.value());
 }
 
+/** Closes invocation-owned writers after aggregation rejects without fabricating a terminal Run result. */
+export function closeAggregationFailure(invocation: Invocation): void {
+  try {
+    invocation.diagnosticLogging.close();
+  } catch {
+    // Cleanup must not replace the callback error returned to the caller.
+  }
+  try {
+    invocation.progressRendering.close();
+  } catch {
+    // Cleanup must not replace the callback error returned to the caller.
+  }
+}
+
 function terminalStatusTag(candidate: NonConfigurationRunResult): string {
-  if ("aggregate" in candidate && candidate.aggregate !== null)
-    return candidate.aggregate.toUpperCase();
+  if (candidate.kind === "output") return "OUTPUT";
+  if ("aggregate" in candidate) return candidate.aggregate.toUpperCase();
   if (candidate.kind === "cancelled") return "CANCELLED";
   return candidate.kind.toUpperCase();
 }

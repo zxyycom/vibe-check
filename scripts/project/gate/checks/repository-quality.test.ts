@@ -11,7 +11,7 @@ import {
   PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS,
   repositoryQualityScannerCommands
 } from "./repository-quality.ts";
-import { createProjectGateDefinition, projectGateAggregation } from "../definition.ts";
+import { createProjectGateDefinition } from "../definition.ts";
 import { selectionFlags } from "../runtime/controls.ts";
 import { defineProjectGateEntries } from "../runtime/entries.ts";
 
@@ -291,7 +291,6 @@ async function runRepositoryQualityFixture(projectRoot: string) {
   ]);
 
   return packageRun(createProjectGateDefinition(entries), {
-    checkAggregation: projectGateAggregation(),
     flags: selectionFlags({ kind: "focused", presets: ["quality"] }),
     outputs: {
       diagnosticLogging: { enabled: false },

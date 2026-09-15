@@ -19,7 +19,6 @@ import { selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts
 import {
   createProjectGateDefinition,
   createProjectGateEntries,
-  projectGateAggregation,
   PROJECT_GATE_RUN_CONFIG
 } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
@@ -432,13 +431,7 @@ describe("Project Gate Definition", () => {
       preparedCandidate
     });
     const definition = createProjectGateDefinition(entries);
-    assert.deepEqual(projectGateAggregation(), {
-      checks: "effective",
-      empty: "failed",
-      mode: "all",
-      notApplicable: "fail",
-      unavailable: "propagate"
-    });
+    assert.equal("aggregation" in PROJECT_GATE_RUN_CONFIG, false);
 
     for (const expectation of expectedCheckIdsBySelection) {
       const flags = new Set(selectionFlags(expectation.selection));
@@ -625,7 +618,6 @@ describe("Project Gate Definition", () => {
       ]) {
         calls.length = 0;
         const result = await packageRun(createProjectGateDefinition(entries), {
-          checkAggregation: projectGateAggregation(),
           flags: selectionFlags(scenario.selection),
           outputs: {
             diagnosticLogging: { enabled: false },
@@ -677,7 +669,6 @@ describe("Project Gate Definition", () => {
       const definition = createProjectGateDefinition(entries);
       const runQuality = () =>
         packageRun(definition, {
-          checkAggregation: projectGateAggregation(),
           flags: selectionFlags({ kind: "focused", presets: ["quality"] }),
           outputs: {
             diagnosticLogging: { enabled: false },
@@ -753,7 +744,6 @@ describe("Project Gate Definition", () => {
       ]);
 
       const result = await packageRun(createProjectGateDefinition(entries), {
-        checkAggregation: projectGateAggregation(),
         flags: selectionFlags({ kind: "focused", presets: ["quality"] }),
         outputs: {
           diagnosticLogging: { enabled: false },

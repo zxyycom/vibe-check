@@ -1,4 +1,3 @@
-import { snapshotClosedArray } from "../../data-boundary/closed-values.ts";
 import { isOutputDirectory } from "../../project-definition/output-validation.ts";
 import { isNonArrayRecord, isUnknownArray } from "../../data-boundary/value-shapes.ts";
 import { parseOutputsOverride } from "./outputs-override-validation.ts";
@@ -16,10 +15,6 @@ const RUN_CONTROL_KEYS = [
   "projectRoot",
   "signal"
 ] as const;
-const CHECK_AGGREGATION_MODES = ["all", "any"] as const;
-const UNAVAILABLE_HANDLING = ["propagate", "fail", "exclude"] as const;
-const NOT_APPLICABLE_HANDLING = ["exclude", "pass", "fail"] as const;
-const EMPTY_AGGREGATION_RESULTS = ["passed", "failed", "not-applicable"] as const;
 
 interface ParsedInvocationOutputTargets {
   readonly diagnosticLogFileNaming: DiagnosticLogFileNaming | undefined;
@@ -175,66 +170,17 @@ function parseOptionalCheckAggregation(
   value: unknown
 ): RunControlValidationResult<CheckAggregation | undefined> {
   if (value === undefined) return Object.freeze({ ok: true, value: undefined });
-  const data = exactKeys(value, ["checks", "mode", "unavailable", "notApplicable", "empty"]);
-  if (data === undefined) return invalidControls("controls.checkAggregation");
-  const checks =
-    data.checks === "all" || data.checks === "effective"
-      ? data.checks
-      : parseClosedCheckIds(data.checks);
-  if (checks === undefined) return invalidControls("controls.checkAggregation.checks");
-  const mode = parseLiteral(data.mode, CHECK_AGGREGATION_MODES);
-  const unavailable = parseLiteral(data.unavailable, UNAVAILABLE_HANDLING);
-  const notApplicable = parseLiteral(data.notApplicable, NOT_APPLICABLE_HANDLING);
-  const empty = parseLiteral(data.empty, EMPTY_AGGREGATION_RESULTS);
-  if (
-    mode === undefined ||
-    unavailable === undefined ||
-    notApplicable === undefined ||
-    empty === undefined
-  )
-    return invalidControls("controls.checkAggregation");
-  return Object.freeze({
-    ok: true,
-    value: Object.freeze({
-      checks,
-      mode,
-      unavailable,
-      notApplicable,
-      empty
-    })
-  });
+  return isCheckAggregation(value)
+    ? Object.freeze({ ok: true, value })
+    : invalidControls("controls.checkAggregation");
 }
 
-function parseClosedCheckIds(value: unknown): readonly string[] | undefined {
-  const values = snapshotClosedArray(value);
-  if (values === undefined) return undefined;
-  const checkIds: string[] = [];
-  for (const checkId of values) {
-    if (typeof checkId !== "string" || checkId.length === 0) return undefined;
-    checkIds.push(checkId);
-  }
-  return Object.freeze(checkIds);
-}
-
-function parseLiteral<Value extends string>(
-  value: unknown,
-  allowed: readonly Value[]
-): Value | undefined {
-  return typeof value === "string" ? allowed.find((option) => option === value) : undefined;
+function isCheckAggregation(value: unknown): value is CheckAggregation {
+  return typeof value === "function";
 }
 
 function isRunControlKey(value: string): boolean {
   return RUN_CONTROL_KEYS.some((key) => key === value);
-}
-
-function exactKeys(
-  value: unknown,
-  keys: readonly string[]
-): Readonly<Record<string, unknown>> | undefined {
-  if (!isNonArrayRecord(value)) return undefined;
-  return Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key))
-    ? value
-    : undefined;
 }
 
 function isAbortSignal(value: unknown): value is AbortSignal {

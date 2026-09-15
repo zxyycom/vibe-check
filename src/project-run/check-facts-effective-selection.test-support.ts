@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
 
-import type { CheckAggregation } from "./controls/contract.ts";
 import { definition, PASSED } from "./check-facts-integration.test-support.ts";
 import { run } from "./run.ts";
 
-/** Proves that effective aggregation reads the same private flag dependency selection as execute. */
+/** Proves aggregation receives the same private flag dependency selection that executes. */
 export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
   const calls: string[] = [];
   const source = definition([
@@ -46,29 +45,20 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
     }
   ]);
 
+  let selectedCheckIds: readonly string[] | undefined;
   const effective = await run(source, {
     flags: ["root"],
-    checkAggregation: effectiveAggregation("effective", "not-applicable")
+    checkAggregation: (checks) => {
+      selectedCheckIds = checks.map((check) => check.checkId);
+      return "passed";
+    }
   });
   assert.equal(effective.kind, "completed");
   if (effective.kind !== "completed") return;
   assert.equal(effective.aggregate, "passed");
   assert.equal("effectiveCheckIds" in effective, false);
   assert.deepEqual([...calls].sort(), ["always", "provider", "root"]);
-
-  const all = await run(source, {
-    flags: ["root"],
-    checkAggregation: effectiveAggregation("all", "not-applicable")
-  });
-  assert.equal(all.kind, "completed");
-  if (all.kind === "completed") assert.equal(all.aggregate, "failed");
-
-  const explicit = await run(source, {
-    flags: ["root"],
-    checkAggregation: effectiveAggregation(["root"], "failed")
-  });
-  assert.equal(explicit.kind, "completed");
-  if (explicit.kind === "completed") assert.equal(explicit.aggregate, "passed");
+  assert.deepEqual(selectedCheckIds, ["always", "provider", "root"]);
 
   const empty = await run(
     definition([
@@ -78,22 +68,8 @@ export async function assertEffectiveFlagSelectionAggregation(): Promise<void> {
         enabledByFlags: { when: "deferred" },
         execute: () => PASSED
       }
-    ]),
-    { checkAggregation: effectiveAggregation("effective", "not-applicable") }
+    ])
   );
   assert.equal(empty.kind, "completed");
-  if (empty.kind === "completed") assert.equal(empty.aggregate, "not-applicable");
-}
-
-function effectiveAggregation(
-  checks: CheckAggregation["checks"],
-  empty: CheckAggregation["empty"]
-): CheckAggregation {
-  return Object.freeze({
-    checks,
-    mode: "all",
-    unavailable: "propagate",
-    notApplicable: "fail",
-    empty
-  });
+  if (empty.kind === "completed") assert.equal(empty.aggregate, "failed");
 }

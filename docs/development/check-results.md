@@ -45,23 +45,17 @@ registry 或 machine artifact reader。
 
 领域字段、Finding identity、状态映射和 messages 完整由各[Check 指南](../navigation.md#随包-check-指南)拥有。Check-owned Finding 摘要与 generic Record preview 是独立呈现：前者选择安全字段、上限和明细入口，后者只读 local ID/canonical JSON，不解释 Finding。共享 helper 见[呈现指南](../guides/presenting-findings.md)，exact-input 接线见 [Project files](project-files.md)。
 
-## Explicit aggregation and repository Gate mapping
+## Effective aggregation and repository Gate mapping
 
-aggregation 是 invocation-derived result，不是 Check-facts status 或隐式质量策略。公开 selectors 与折叠规则由[API 机制](../api-mechanics.md)定义；Run 在 work 前验证 selection，未配置则 aggregate 为 null。effective selector 必须复用唯一 private flag-and-dependsOn selection（含 activated prerequisites），不重新解析或发布成员列表。
+aggregation 是 invocation-derived result，不是 Check-facts status 或隐式质量策略。完整 settlement 后，Run 从唯一 private flag-and-`dependsOn` effective selection（含 activated prerequisites）按 canonical order 取出 `CoreCheck[]`；不会重新解析、公开成员 resolver 或投影未选 Check。公开函数与默认折叠由[API 机制](../api-mechanics.md)定义。
 
-aggregation 只读取 selected settled Check statuses 并返回 `passed | failed | not-applicable | unavailable`。它不复制或解释
-final data、Records、messages、definition warnings、output statuses 或 progress presentation；这些原始 facts 不因 aggregate
-存在而隐藏或改写。
+默认折叠只在有效列表非空且全部为 `passed` 时返回 `passed`，其余情况返回 `failed`。提供的 caller-local 同步函数可返回任一四态；它读取完整的 selected `CoreCheck`（包括 passed/failed final data），却不能复制或改写 final data、Records、messages、definition warnings、output statuses、progress presentation 或任何原始 facts。函数错误或非法返回拒绝整个 `run` Promise，而不伪造有 aggregate 的 RunResult。
 
-repository Gate 负责在自己的 Project Definition/Run adapter 中绑定 flags 和显式 `checks: "effective"` aggregation，并从最终
-`RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate
-只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写
-Product Check outcomes。当前 required/preset/all selection、`resultContributor` hook、transcript 与 exit mapping 只见
-[脚本工具的 Project Gate](../tooling/project-gate.md)。
+repository Gate 负责绑定 flags，并从 Product 默认严格 `RunResult.aggregate` 映射 process result。Product 因而从同一次私有选择获得已选 `dependsOn` prerequisite 与 aggregate membership；Gate 只保留 `observes` 的本地 selection-closure 校验。Gate 不得遍历 snapshot Checks、Findings 或 Records 重建 aggregate，也不得改写 Product Check outcomes。当前 required/preset/all selection、`resultContributor` hook、transcript 与 exit mapping 只见[脚本工具的 Project Gate](../tooling/project-gate.md)。
 
 ## Verification
 
 current evidence 覆盖 recursive Definition validation、direct callback four-state outcomes、canonical final/Record data、
-Check-facts ownership/terminal closure、prerequisites/cancellation、explicit aggregation、Check-owned scanner exact inputs/cache 和
+Check-facts ownership/terminal closure、prerequisites/cancellation、effective aggregation、Check-owned scanner exact inputs/cache 和
 Gate exit mapping。machine schema/example/publication evidence 见 [Output](../output.md)；Case catalog 与验证入口见
 [Testing](../testing/strategy.md)。

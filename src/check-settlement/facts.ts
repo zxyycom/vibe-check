@@ -8,7 +8,7 @@ export type {
 } from "../data-boundary/canonical-data.ts";
 export type { CheckDescriptor, CheckOutcome };
 
-/** A Core Check has exactly one terminal outcome and no execution bookkeeping. */
+/** Core Check 恰有一个 terminal outcome，不携带 execution bookkeeping。 */
 export interface CoreCheck extends CheckDescriptor {
   readonly outcome: CheckOutcome;
 }

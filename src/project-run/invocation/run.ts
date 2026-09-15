@@ -8,7 +8,7 @@ import {
 import type { CheckAggregation, RunControls } from "../controls/contract.ts";
 import type { AdmissionStrategyProviderFactory } from "../admission-strategy-provider/provider.ts";
 import { prepareTaskGraph } from "../task-scheduler/graph.ts";
-import { validateCheckAggregationSelection } from "../aggregation.ts";
+import { CheckAggregationFailure } from "../aggregation.ts";
 import { type CheckExecutionClock } from "../check-execution/resolved-checks.ts";
 import { planStaticCheckGraph } from "../check-execution/plan.ts";
 import {
@@ -16,7 +16,7 @@ import {
   type ProgressRendering,
   type ProgressWriterFactory
 } from "../progress-rendering/presentation.ts";
-import { finalizeInvocation } from "../completion/completion.ts";
+import { closeAggregationFailure, finalizeInvocation } from "../completion/completion.ts";
 import type { ResolvedInvocationPaths } from "./paths.ts";
 import type { OutputStatuses } from "../outputs/status.ts";
 import { isCancelled, type NonConfigurationRunResult, type RunResult } from "../result.ts";
@@ -68,17 +68,6 @@ export async function executeValidatedRun(
   dependencies: RunInvocationDependencies = {}
 ): Promise<RunResult> {
   const normalized = normalizeProjectDefinition(definition);
-  const aggregation = validateCheckAggregationSelection(
-    controls.checkAggregation,
-    normalized.checks.map((check) => check.definition.checkId)
-  );
-  if (!aggregation.ok)
-    return Object.freeze({
-      kind: "configuration",
-      definitionWarnings: Object.freeze([...definitionWarnings]),
-      diagnostic: aggregation.error
-    });
-
   const invocation = createInvocation({
     controls,
     definition,
@@ -88,15 +77,19 @@ export async function executeValidatedRun(
   });
   let candidate: NonConfigurationRunResult;
   try {
-    observeInvocationStarted(invocation, aggregation.value);
+    observeInvocationStarted(invocation, controls.checkAggregation);
     if (isCancelled(controls)) {
       candidate = cancelledBeforeExecution(invocation, "pre-work");
     } else if (!validateTaskGraph(invocation)) {
       candidate = planningResult(invocation, "task-graph-invalid");
     } else {
-      candidate = await executePlannedInvocation(invocation, aggregation.value);
+      candidate = await executePlannedInvocation(invocation, controls.checkAggregation);
     }
-  } catch {
+  } catch (error) {
+    if (error instanceof CheckAggregationFailure) {
+      closeAggregationFailure(invocation);
+      throw error.originalError;
+    }
     candidate = executionResult(invocation, "task-engine-failed");
   }
   return finalizeInvocation(invocation, candidate);
@@ -110,7 +103,7 @@ function observeInvocationStarted(
     event: "run.started",
     tags: diagnosticTags("RUN", "STARTED"),
     details: {
-      aggregation: aggregation ?? null,
+      aggregation: aggregation === undefined ? "default" : "custom",
       checkCount: invocation.normalized.checks.length,
       flags: summarizeDiagnosticValue(invocation.controls.flags ?? []),
       outputs: invocation.outputConfiguration,

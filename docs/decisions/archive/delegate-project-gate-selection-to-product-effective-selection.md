@@ -1,7 +1,7 @@
 ---
 title: 让 Project Gate 委托 Product 处理依赖选择
 id: 260904-delegate-project-gate-selection-to-product-effective-selection
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T09:21:35Z
 purpose: 让 Gate 的 preset 只表达 direct intent，并由 Product 统一补齐已 opt-in 的 dependsOn prerequisite。

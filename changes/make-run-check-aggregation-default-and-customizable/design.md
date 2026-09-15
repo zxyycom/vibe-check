@@ -4,10 +4,10 @@
 
 ## Context
 
-- [API 机制](../../docs/api-mechanics.md#runcontrols-与-check-aggregation)和[Check 结果 owner](../../docs/development/check-results.md#explicit-aggregation-and-repository-gate-mapping)定义当前显式 policy、`aggregate: null` 默认及四态 Check facts；这些是现状，不是目标契约。
-- `src/project-run/invocation/candidate.ts` 已在完整 snapshot 形成后计算聚合；`ResolvedCheckExecution.effectiveCheckIds` 保存本次 flag-and-`dependsOn` 选择。有效选择不等于全量 snapshot：未选 Check 也有 `not-applicable` facts。
-- `src/project-run/invocation/run.ts` 当前把一般异常捕获为 `task-engine-failed`；`finalizeInvocation` 负责关闭诊断与 progress 输出。`candidate.ts` 当前先渲染 execution final summary 再计算 aggregate，拒绝路径需避免以该 summary 暗示 Run 汇总成功。Gate root 已捕获 bound Run 的拒绝，并映射为 unavailable/nonzero exit；bound Run 的 consumer lease 已由 `finally` 清理。
-- [effective-selection Decision](../../docs/decisions/unify-effective-flag-selection-and-aggregation.md)当前要求同源选择，但保留显式 policy、`aggregate: null` 并排除 callback；实施须形成覆盖新方向的后继判断。
+- [API 机制](../../docs/api-mechanics.md#runcontrols-与-check-aggregation)和[Check 结果 owner](../../docs/development/check-results.md#effective-aggregation-and-repository-gate-mapping)拥有公开汇总与四态 Check facts。本 Plan 的实施前基线要求显式 policy，省略时为 `aggregate: null`；当前 runtime 已直接替换为默认严格聚合和可选同步 callback。
+- 当前 `src/project-run/invocation/candidate.ts` 在完整 snapshot 形成后，按 `ResolvedCheckExecution.effectiveCheckIds` 的 flag-and-`dependsOn` 有效选择计算聚合，再呈现正常 final progress 并进入 completion/machine publication。有效选择不等于全量 snapshot：未选 Check 仍保留 `not-applicable` facts。
+- 当前 `src/project-run/invocation/run.ts` 仍把一般异常收敛为 `task-engine-failed`，但会识别聚合边界错误、关闭 diagnostics 和 progress writer 后向 caller 重新抛出原错误；正常结果由 `finalizeInvocation` 关闭输出。Gate root 捕获 bound Run 的拒绝并映射为 unavailable/nonzero exit，bound Run 的 consumer lease 由 `finally` 清理。
+- [默认聚合后继 Decision](../../docs/decisions/default-effective-check-aggregation-with-caller-local-callback.md)现为 active/aligned：同源有效选择、严格默认、同步四态 callback 与直接抛错均已由当前 runtime 对齐。
 
 ## Goals / Non-Goals
 

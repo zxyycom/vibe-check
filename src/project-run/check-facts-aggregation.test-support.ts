@@ -1,76 +1,189 @@
 import assert from "node:assert/strict";
+import { existsSync, mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 import type { Check, CheckExecution } from "../check/check.ts";
-import type { CheckAggregate, CheckAggregation, RunControls } from "./controls/contract.ts";
-import { check, definition, PASSED } from "./check-facts-integration.test-support.ts";
+import { defineConfig } from "../project-definition/project-definition.ts";
+import type { CheckAggregate, CheckAggregation } from "./controls/contract.ts";
+import { check, definition } from "./check-facts-integration.test-support.ts";
+import { executeValidatedRun } from "./invocation/run.ts";
 import { run } from "./run.ts";
 
 type AggregationStatus = "passed" | "failed" | "not-applicable" | "unavailable";
 
-type AggregationCase = Readonly<{
-  readonly aggregation: CheckAggregation;
+type DefaultAggregationCase = Readonly<{
   readonly expected: CheckAggregate;
   readonly statuses: readonly AggregationStatus[];
 }>;
 
-export async function assertRawAndSelectedAggregate(): Promise<void> {
+export async function assertDefaultAndCustomAggregation(): Promise<void> {
+  await assertDefaultStrictAggregation();
+  await assertCustomAggregationReceivesCanonicalFacts();
+  await assertInvalidAggregationControl();
+}
+
+export async function assertAggregationFailureBoundaries(): Promise<void> {
+  const source = definition([check()]);
+  const callbackError = new Error("expected aggregation callback failure");
+  await assert.rejects(
+    run(source, {
+      checkAggregation: () => {
+        throw callbackError;
+      }
+    }),
+    (error: unknown) => error === callbackError
+  );
+  await assert.rejects(
+    run(source, { checkAggregation: nonErrorThrowingAggregation() }),
+    /Check aggregation threw a non-Error value/
+  );
+  await assert.rejects(
+    run(source, { checkAggregation: aggregationReturning(Promise.resolve("passed")) }),
+    /Check aggregation must synchronously return a CheckAggregate/
+  );
+  await assert.rejects(
+    run(source, {
+      checkAggregation: aggregationReturning(Promise.reject(new Error("ignored promise failure")))
+    }),
+    /Check aggregation must synchronously return a CheckAggregate/
+  );
+
+  const ordinaryFailure = await run(
+    definition([
+      check({
+        execute: () => {
+          throw new Error("ordinary Check failure");
+        }
+      })
+    ])
+  );
+  assert.equal(ordinaryFailure.kind, "completed");
+  if (ordinaryFailure.kind === "completed") assert.equal(ordinaryFailure.aggregate, "failed");
+  await assertAggregationFailureCleanup();
+}
+
+function nonErrorThrowingAggregation(): CheckAggregation {
+  return () => {
+    const throwable = new Error("a value with a removed Error prototype");
+    Object.setPrototypeOf(throwable, null);
+    throw throwable;
+  };
+}
+
+function aggregationReturning(promise: Promise<CheckAggregate>): CheckAggregation {
+  // Preserve the actual native Promise so the rejection-observation boundary is exercised.
+  const invalidCallbackReturn: { readonly aggregate: CheckAggregate } = { aggregate: "passed" };
+  Object.defineProperty(invalidCallbackReturn, "aggregate", { value: promise });
+  return () => invalidCallbackReturn.aggregate;
+}
+
+async function assertAggregationFailureCleanup(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), "vibe-check-aggregation-cleanup-"));
+  const originalError = new Error("expected aggregation error");
+  const events: string[] = [];
+  const writes: string[] = [];
+  try {
+    await assert.rejects(
+      executeValidatedRun(
+        defineConfig({
+          checks: [check()],
+          outputs: {
+            diagnosticLogging: { directory: "diagnostic", enabled: true },
+            machinePublication: { directory: "machine", enabled: true },
+            progressRendering: { enabled: true }
+          }
+        }),
+        {
+          checkAggregation: () => {
+            throw originalError;
+          },
+          projectRoot: root
+        },
+        [],
+        {
+          diagnosticLoggerFactory: () =>
+            Object.freeze({
+              close: () => {
+                events.push("diagnostic.close");
+                throw new Error("cleanup failure must not replace aggregation failure");
+              },
+              observe: () => undefined
+            }),
+          progressWriterFactory: () =>
+            Object.freeze({
+              color: false,
+              isTTY: false,
+              term: undefined,
+              write: (content: string) => writes.push(content),
+              close: () => {
+                events.push("progress.close");
+                throw new Error("progress cleanup failure must not replace aggregation failure");
+              }
+            })
+        }
+      ),
+      (error: unknown) => error === originalError
+    );
+    assert.deepEqual(events, ["diagnostic.close", "diagnostic.close", "progress.close"]);
+    assert.equal(
+      writes.some((content) => content.includes("Execution summary:")),
+      false
+    );
+    assert.equal(existsSync(join(root, "machine", "run.json")), false);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+function assertDefaultStrictAggregation(): Promise<void> {
+  return Promise.all(
+    defaultAggregationCases.map(async ({ expected, statuses }) => {
+      const result = await run(definition(aggregateSource(statuses)));
+      assert.equal(result.kind, "completed");
+      if (result.kind === "completed") assert.equal(result.aggregate, expected);
+    })
+  ).then(() => undefined);
+}
+
+async function assertCustomAggregationReceivesCanonicalFacts(): Promise<void> {
   const source = definition([
     check({ checkId: "passed", execute: () => ({ status: "passed", data: { count: 1 } }) }),
     check({ checkId: "failed", execute: () => ({ status: "failed", data: { count: 0 } }) }),
     check({ checkId: "na", execute: () => ({ status: "not-applicable" }) })
   ]);
-  const raw = await run(source);
-  assert.equal(raw.kind, "completed");
-  if (raw.kind !== "completed") return;
-  assert.equal(raw.aggregate, null);
-  assert.deepEqual(
-    raw.snapshot.checks.map((coreCheck) => coreCheck.outcome.status),
-    ["failed", "not-applicable", "passed"]
-  );
-  const aggregate = await run(source, {
-    checkAggregation: aggregation(["passed", "na"], "all", "propagate", "pass", "failed")
-  });
-  assert.equal(aggregate.kind, "completed");
-  if (aggregate.kind === "completed") assert.equal(aggregate.aggregate, "passed");
-}
-
-export async function assertAggregationPolicyMatrix(): Promise<void> {
-  for (const testCase of aggregationCases) {
-    const result = await run(definition(aggregateSource(testCase.statuses)), {
-      checkAggregation: testCase.aggregation
-    });
+  const observed: string[][] = [];
+  for (const expected of ["passed", "failed", "not-applicable", "unavailable"] as const) {
+    const aggregation: CheckAggregation = (checks) => {
+      observed.push(checks.map((coreCheck) => coreCheck.checkId));
+      assert.equal(Object.isFrozen(checks), true);
+      return expected;
+    };
+    const result = await run(source, { checkAggregation: aggregation });
     assert.equal(result.kind, "completed");
-    if (result.kind === "completed") assert.equal(result.aggregate, testCase.expected);
+    if (result.kind === "completed") assert.equal(result.aggregate, expected);
   }
+  assert.deepEqual(observed, [
+    ["failed", "na", "passed"],
+    ["failed", "na", "passed"],
+    ["failed", "na", "passed"],
+    ["failed", "na", "passed"]
+  ]);
 }
 
-export async function assertInvalidAggregationSelections(): Promise<void> {
-  let calls = 0;
-  const expected = await invalidSelection(() => {
-    calls += 1;
-    return PASSED;
-  }, ["missing"]);
-  assert.equal(calls, 0);
-  await assertDuplicateSelection(expected, () => {
-    calls += 1;
-    return PASSED;
+async function assertInvalidAggregationControl(): Promise<void> {
+  const result = await run(definition([check()]), {
+    checkAggregation: { callback: "not-a-function" }
   });
-  assert.equal(calls, 0);
-  await assertMalformedSelections(expected, () => {
-    calls += 1;
-    return PASSED;
+  assert.deepEqual(result, {
+    definitionWarnings: [],
+    diagnostic: {
+      kind: "invalid-run-controls",
+      path: "controls.checkAggregation",
+      reason: "invalid-value"
+    },
+    kind: "configuration"
   });
-  assert.equal(calls, 0);
-}
-
-function aggregation(
-  checks: CheckAggregation["checks"],
-  mode: CheckAggregation["mode"],
-  unavailable: CheckAggregation["unavailable"],
-  notApplicable: CheckAggregation["notApplicable"],
-  empty: CheckAggregation["empty"]
-): CheckAggregation {
-  return Object.freeze({ checks, mode, unavailable, notApplicable, empty });
 }
 
 function aggregateSource(statuses: readonly AggregationStatus[]): Check[] {
@@ -86,147 +199,11 @@ function executionFor(status: AggregationStatus): CheckExecution {
   return () => ({ status: "unavailable", reason: { code: "declared-unavailable" } });
 }
 
-async function invalidSelection(execute: CheckExecution, checks: CheckAggregation["checks"]) {
-  return run(definition([check({ execute: execute })]), {
-    checkAggregation: aggregation(checks, "any", "fail", "exclude", "not-applicable")
-  });
-}
-
-async function assertDuplicateSelection(expected: unknown, execute: CheckExecution): Promise<void> {
-  assert.deepEqual(await invalidSelection(execute, ["custom", "custom"]), expected);
-}
-
-async function assertMalformedSelections(
-  expected: unknown,
-  execute: CheckExecution
-): Promise<void> {
-  for (const checks of malformedChecks()) {
-    const controls = malformedControls(checks);
-    assert.deepEqual(await run(definition([check({ execute: execute })]), controls), expected);
-  }
-}
-
-function malformedChecks(): readonly unknown[] {
-  const sparse: unknown[] = [];
-  sparse.length = 2;
-  sparse[1] = "custom";
-  const named = ["custom"];
-  Object.defineProperty(named, "named", { enumerable: true, value: true });
-  return [sparse, named];
-}
-
-function malformedControls(checks: unknown): RunControls {
-  const controls: RunControls = {
-    checkAggregation: {
-      checks: ["custom"],
-      mode: "all",
-      unavailable: "propagate",
-      notApplicable: "exclude",
-      empty: "not-applicable"
-    }
-  };
-  Object.defineProperty(controls.checkAggregation, "checks", {
-    configurable: true,
-    enumerable: true,
-    value: checks,
-    writable: true
-  });
-  return controls;
-}
-const aggregationCases: readonly AggregationCase[] = [
-  {
-    statuses: ["passed"],
-    aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
-    expected: "passed"
-  },
-  {
-    statuses: ["failed"],
-    aggregation: aggregation("all", "any", "propagate", "exclude", "passed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["passed", "failed"],
-    aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["passed", "failed"],
-    aggregation: aggregation("all", "any", "propagate", "exclude", "failed"),
-    expected: "passed"
-  },
-  {
-    statuses: ["passed", "failed"],
-    aggregation: aggregation(["passed-0"], "all", "propagate", "exclude", "failed"),
-    expected: "passed"
-  },
-  {
-    statuses: [],
-    aggregation: aggregation("all", "all", "propagate", "exclude", "passed"),
-    expected: "passed"
-  },
-  {
-    statuses: ["passed"],
-    aggregation: aggregation([], "any", "propagate", "exclude", "failed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["passed"],
-    aggregation: aggregation([], "all", "propagate", "exclude", "not-applicable"),
-    expected: "not-applicable"
-  },
-  {
-    statuses: ["passed", "unavailable"],
-    aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
-    expected: "unavailable"
-  },
-  {
-    statuses: ["passed", "unavailable"],
-    aggregation: aggregation("all", "all", "fail", "exclude", "failed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["passed", "unavailable"],
-    aggregation: aggregation("all", "any", "fail", "exclude", "failed"),
-    expected: "passed"
-  },
-  {
-    statuses: ["passed", "unavailable"],
-    aggregation: aggregation("all", "all", "exclude", "exclude", "failed"),
-    expected: "passed"
-  },
-  {
-    statuses: ["failed", "unavailable"],
-    aggregation: aggregation("all", "any", "exclude", "exclude", "passed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["not-applicable"],
-    aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["failed", "not-applicable"],
-    aggregation: aggregation("all", "all", "propagate", "pass", "failed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["failed", "not-applicable"],
-    aggregation: aggregation("all", "any", "propagate", "pass", "failed"),
-    expected: "passed"
-  },
-  {
-    statuses: ["passed", "not-applicable"],
-    aggregation: aggregation("all", "all", "propagate", "fail", "failed"),
-    expected: "failed"
-  },
-  {
-    statuses: ["passed", "not-applicable"],
-    aggregation: aggregation("all", "any", "propagate", "fail", "failed"),
-    expected: "passed"
-  },
-  {
-    statuses: ["passed", "not-applicable"],
-    aggregation: aggregation("all", "all", "propagate", "exclude", "failed"),
-    expected: "passed"
-  }
+const defaultAggregationCases: readonly DefaultAggregationCase[] = [
+  { statuses: ["passed"], expected: "passed" },
+  { statuses: [], expected: "failed" },
+  { statuses: ["failed"], expected: "failed" },
+  { statuses: ["not-applicable"], expected: "failed" },
+  { statuses: ["unavailable"], expected: "failed" },
+  { statuses: ["passed", "failed"], expected: "failed" }
 ];

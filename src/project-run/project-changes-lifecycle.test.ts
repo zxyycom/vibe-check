@@ -42,7 +42,7 @@ describe("Package Run project changes", () => {
           ],
           outputs: disabledOutputs()
         }),
-        { checkAggregation: effectiveAggregation(), flags: ["caller"], projectRoot: repository }
+        { flags: ["caller"], projectRoot: repository }
       );
 
       assert.equal(calls, 1);
@@ -153,16 +153,6 @@ function disabledOutputs() {
   return {
     machinePublication: { enabled: false },
     progressRendering: { enabled: false }
-  };
-}
-
-function effectiveAggregation() {
-  return {
-    checks: "effective" as const,
-    empty: "not-applicable" as const,
-    mode: "all" as const,
-    notApplicable: "exclude" as const,
-    unavailable: "propagate" as const
   };
 }
 

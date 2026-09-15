@@ -41,8 +41,8 @@ export interface CheckRunMessage {
 
 /** 只有已形成 terminal Check facts 的 Run branch 才具备的完整结果 readback。 */
 export interface RunResultFacts {
-  /** 调用方未配置 aggregation 时为 `null`；否则是选中 Check statuses 的 invocation-level conclusion。 */
-  readonly aggregate: CheckAggregate | null;
+  /** 有完整 terminal Check facts 时，由有效 Check 列表形成的 invocation-level conclusion。 */
+  readonly aggregate: CheckAggregate;
   /** 按 canonical Check order 的 duration facts；未执行 Check 仍以 `null` 保留。 */
   readonly checkDurations: readonly CheckDuration[];
   /** 已接受的 author 与 console-capture messages，不决定 Check outcome。 */

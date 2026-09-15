@@ -84,11 +84,11 @@ node quality.ts
 
 ## 运行、配置与读取结果
 
-`defineConfig(...)` 定义可复用的 Checks、options、依赖、scheduler 和默认 outputs；`run(definition, controls?)` 的第二个参数只设置本次根目录、flags、取消、产物与日志目标、output overrides 和显式 aggregation。Controls 不能替换 Check 或 scheduler；字段位置和覆盖规则见 [API 机制](./docs/api-mechanics.md#参数应该放在哪里)。
+`defineConfig(...)` 定义可复用的 Checks、options、依赖、scheduler 和默认 outputs；`run(definition, controls?)` 的第二个参数只设置本次根目录、flags、取消、产物与日志目标、output overrides 和可选的本地 aggregation 函数。Controls 不能替换 Check 或 scheduler；字段位置和覆盖规则见 [API 机制](./docs/api-mechanics.md#参数应该放在哪里)。
 
 默认最多并行运行四个 Check，显示进度并把 machine files 写入 `artifacts/vibe-check`；diagnostic logging 默认关闭。上例显式关闭 machine publication。配置方法见[输出指南](./docs/guides/run-outputs.md)与[调度指南](./docs/guides/scheduling.md)。
 
-先判断 `RunResult.kind`；对有 snapshot 的结果，再按 `checkId` 读取 `snapshot.checks[].outcome` 的 `passed`、`failed`、`not-applicable` 或 `unavailable`。`completed` 不代表质量通过：CI 应显式判断目标 outcomes，或配置并读取 [`checkAggregation`](./docs/api-mechanics.md#runcontrols-与-check-aggregation)，再决定退出码。
+先判断 `RunResult.kind`；`completed` 和 `output` 才同时提供完整 facts 与 `aggregate`，随后再按 `checkId` 读取 `snapshot.checks[].outcome` 的 `passed`、`failed`、`not-applicable` 或 `unavailable`。执行阶段取消也有 snapshot，但没有 aggregate。省略定制函数时，aggregate 仅在有效 Check 列表非空且全部 `passed` 时为 `passed`，否则为 `failed`。`completed` 不代表质量通过；CI 可读取这个严格默认值，或在 [`checkAggregation`](./docs/api-mechanics.md#runcontrols-与-check-aggregation) 中同步解释同一有效列表，再决定退出码。
 
 ## 按任务继续阅读
 

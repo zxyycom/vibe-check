@@ -11,7 +11,6 @@ import type { DocsValidationDiagnostic } from "../../../validation/documentation
 import { defineConfig, run as packageRun } from "@zxyycom/vibe-check";
 
 import { createDocsValidationCheck } from "./docs-validation.ts";
-import { projectGateAggregation } from "../definition.ts";
 
 describe("Project Gate documentation native diagnostics", () => {
   it("publishes complete docs native diagnostic Records while terminal progress stays bounded", async () => {
@@ -65,7 +64,6 @@ describe("Project Gate documentation native diagnostics", () => {
         }),
         {
           checkArtifactBaseDirectory: join(artifactRoot, "checks"),
-          checkAggregation: projectGateAggregation(),
           progressLogFile: join(artifactRoot, "progress.log"),
           projectRoot: artifactRoot
         }

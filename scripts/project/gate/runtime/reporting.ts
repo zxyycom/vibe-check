@@ -24,7 +24,7 @@ export function reportGateInvocationStarted(
   transcript.writeGateMessage({ level: "info", text: `project gate selection: ${selection}` });
   transcript.writeGateMessage({
     level: "info",
-    text: "project gate aggregation: mode=all over effective Check statuses; failed/not-applicable/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
+    text: "project gate aggregation: Product default strict-all over effective Check statuses; any non-passed status or an empty effective selection makes the aggregate failed; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs"
   });
   console.log(
     `project gate start: candidate=${input.candidateVersion}; source=${input.candidateSource}; ${selection}`

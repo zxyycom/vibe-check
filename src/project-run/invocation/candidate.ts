@@ -1,4 +1,4 @@
-import { aggregateCheckOutcomes } from "../aggregation.ts";
+import { aggregateEffectiveChecks } from "../aggregation.ts";
 import { completeInvocation, type CoreExecution } from "../completion/completion.ts";
 import type { CheckAggregation } from "../controls/contract.ts";
 import { diagnosticTags } from "../diagnostic-logging/logger.ts";
@@ -21,14 +21,20 @@ export function mapResolvedExecutionToRunCandidate(
   const { executed, invocation } = input;
   if (executed.kind === "admission-policy-failed") return admissionPolicyFailure(invocation);
 
-  invocation.progressRendering.final({
-    counts: outcomeCounts(executed.snapshot),
-    elapsedMs: elapsedSince(input.executionStartedAt, invocation.clock),
-    execution: executed.kind
-  });
-
-  if (executed.kind === "cancelled") return cancelledExecutionCandidate(invocation, executed);
-  return completedExecutionCandidate(invocation, input.aggregation, executed);
+  if (executed.kind === "cancelled") {
+    invocation.progressRendering.final({
+      counts: outcomeCounts(executed.snapshot),
+      elapsedMs: elapsedSince(input.executionStartedAt, invocation.clock),
+      execution: executed.kind
+    });
+    return cancelledExecutionCandidate(invocation, executed);
+  }
+  return completedExecutionCandidate(
+    invocation,
+    input.aggregation,
+    executed,
+    input.executionStartedAt
+  );
 }
 
 function admissionPolicyFailure(
@@ -65,22 +71,29 @@ function cancelledExecutionCandidate(
 function completedExecutionCandidate(
   invocation: Invocation,
   aggregation: CheckAggregation | undefined,
-  executed: Extract<ResolvedCheckExecution, { readonly kind: "completed" }>
+  executed: Extract<ResolvedCheckExecution, { readonly kind: "completed" }>,
+  executionStartedAt: number
 ): NonConfigurationRunResult {
-  const aggregate =
-    aggregation === undefined
-      ? null
-      : aggregateCheckOutcomes(executed.snapshot, aggregation, executed.effectiveCheckIds);
+  const aggregate = aggregateEffectiveChecks(
+    executed.snapshot,
+    executed.effectiveCheckIds,
+    aggregation
+  );
   invocation.diagnosticLogging.core.observe({
     event: "run.aggregation.completed",
     tags: diagnosticTags("RUN", "AGGREGATION", "COMPLETED"),
-    details: { aggregate, selection: aggregation ?? null }
+    details: { aggregate, aggregation: aggregation === undefined ? "default" : "custom" }
   });
   const core: CoreExecution = Object.freeze({
     aggregate,
     checkDurations: executed.checkDurations,
     checkMessages: executed.checkMessages,
     snapshot: executed.snapshot
+  });
+  invocation.progressRendering.final({
+    counts: outcomeCounts(executed.snapshot),
+    elapsedMs: elapsedSince(executionStartedAt, invocation.clock),
+    execution: "completed"
   });
   return completeInvocation(invocation, core);
 }

@@ -29,7 +29,7 @@
       ▼
     snapshot + messages + durations
       │ terminal effects settle; if terminal context exists, prepared strategy delivers terminalEffect once
-      │ optional aggregation + enabled output completion
+      │ default or caller-local aggregation + enabled output completion
       ▼
     RunResult
 
@@ -43,7 +43,7 @@ Run 先验证 Definition 与 Controls 并规范化 Check tree；若 signal 已�
 
 ### Terminal snapshot、aggregation 与 outputs
 
-Run snapshot 保存 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files；optional aggregate 也在 terminal facts 结算后计算。
+Run snapshot 保存所有 Check facts；progress rendering 呈现 execution lifecycle；machine publication 在 terminal snapshot 形成后写入 machine files。aggregation 在完整 terminal facts 结算后、正常 final progress 和 machine publication 前，读取本次有效 Check 列表；默认或 caller-local 函数都不改写 snapshot。
 
 prepared strategy 的 `prepare / decide / terminalEffect` 顺序、失败与取消边界由[调度专题](guides/scheduling.md#已准备的-custom-strategy)定义；这些回调不能回写已结算 Check facts。
 
@@ -62,7 +62,7 @@ prepared strategy 的 `prepare / decide / terminalEffect` 顺序、失败与取�
 | 本次根目录、选择 flags 与协作取消 | Controls 的 `projectRoot`、`flags`、`signal` | 只属于本次调用，不是 `defineConfig` 字段。 |
 | 本次 Check 产物与 progress 日志目标、diagnostic 文件命名 | Controls 的 `checkArtifactBaseDirectory`、`progressLogFile`、`diagnosticLogFileNaming` | 只属于本次调用；它们本身不是 Definition outputs 的默认值或 override。 |
 | 本次开关输出、更换 machine / diagnostic 目录、调整 progress 预览 | Controls 的 `outputs` | 只覆盖当前调用明确提供的字段，其余继承 Definition 默认值。 |
-| 本次选择哪些 Check statuses、按什么规则形成 aggregate | Controls 的 `checkAggregation` | 显式、无默认值；省略时 `aggregate: null`，不改写各项 Check outcome。 |
+| 本次怎样解释有效 Check facts | Controls 的 `checkAggregation` | 可选同步函数；省略时使用严格默认折叠，不改写各项 Check outcome。 |
 
 **两处 `outputs` 是默认值和逐字段覆盖值。** 只关闭本次 machine publication 不影响 progress、diagnostics 或下次调用；省略/`undefined` 不覆盖，`false`、预览数量 `0` 和清除 formatter 的 `null` 有效。字段默认值和示例见[输出指南](guides/run-outputs.md)。
 
@@ -185,9 +185,21 @@ progress 只呈现这些事实，不修改它们。预览默认值、formatter�
 - `progressLogFile` 是可选、invocation-only 的 terminal-progress tee target，使用同一非空且无 U+0000 target grammar；它不会改变 Definition outputs、Definition fingerprint 或 Check callback capability。
 - `signal` 供 preparation 与 execution 协作取消；取消结果记录对应 phase。
 - `diagnosticLogFileNaming` 可选 `"unique"`（默认）或 `"channel"`，只控制本次 core/scheduler 日志 basename，不启用 diagnostics、不进入 Definition fingerprint。
-- `checkAggregation` 显式选择 `checks: "all"`、Check-ID list 或 `"effective"`，并以 `all` / `any`、`unavailable`、`notApplicable` 与 `empty` policy 形成 invocation aggregate。`"effective"` 只复用本次 private flag-and-dependency selection；`"all"` 和 ID list 不模拟或修改它。
+- `checkAggregation` 可选为同步 `CheckAggregation` 函数：`(checks: readonly CoreCheck[]) => CheckAggregate`。Product 只在完整结算后按 canonical Check order 传入本次有效列表；它不传入未选 Check、完整 snapshot、Records、messages、输出状态或控制对象。`CoreCheck` 提供 `checkId`、四态 `outcome`，以及 passed/failed outcome 的既有 final data。
 
-aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整 terminal facts 结算后产生 `passed`、`failed`、`not-applicable` 或 `unavailable`；未配置 policy 时 `aggregate` 为 `null`。`"effective"` 的 empty selection 仍由 caller `empty` policy 结算，且不会把 private selection projection 到 `RunResult`、machine、diagnostic 或 callback。consumer 需要调用级结论时显式选择 policy，同时保留每项 Check outcome。
+aggregation 是 terminal outcomes 之外的 invocation-level fact。省略函数时，非空有效列表且所有 Check 都为 `passed` 得到 `passed`；空列表或任一 `failed`、`unavailable`、`not-applicable` 得到 `failed`。提供函数时，它可以同步返回闭合四态 `passed`、`failed`、`not-applicable` 或 `unavailable`，以调用方的领域规则解释同一列表。函数不能等待、选择 Check、修改 facts 或进入 Definition fingerprint。
+
+例如，下面的调用方只把有效列表中的 `failed` 视为本次领域失败；函数直接返回字面量，不能标记为 `async`：
+
+```ts
+const result = await run(definition, {
+  checkAggregation(checks) {
+    return checks.some((check) => check.outcome.status === "failed") ? "failed" : "passed";
+  }
+});
+```
+
+函数抛错、抛出非 `Error` 值、返回 Promise/thenable 或其它值会使 `run(...)` 的 Promise 直接拒绝；这不是 `RunResult` 的 configuration、execution 或 output branch。Product 关闭本次 diagnostic/progress writer，不呈现正常成功 summary，也不发布正常 machine result。调用方应在 `await run(...)` 周围按自己的错误边界处理这类 authoring fault；普通 Definition、Controls、planning、Check execution 和 output 故障仍按既有 `RunResult` 分支结算。
 
 ## RunResult 分支
 
@@ -197,11 +209,11 @@ aggregation 是 terminal outcomes 之外的 invocation-level fact。它在完整
 
 | 分支 | 可用 facts 与处理方式 |
 | --- | --- |
-| `completed` | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与可选 `aggregate`；继续读取单项 Check outcome。handoff 已在 execution graph 关闭时清除，不在此结果中。 |
-| `output` | 完整 Check facts 与 output failure diagnostic；消费 facts 并处理失败的 output。 |
-| `cancelled` / `phase: "execution"` | 取消时关闭的 snapshot、durations 与 messages；按 cancellation result 处理。 |
+| `completed` | 完整 `snapshot`、`checkDurations`、`checkMessages`、`outputs` 与非空四态 `aggregate`；继续读取单项 Check outcome。handoff 已在 execution graph 关闭时清除，不在此结果中。 |
+| `output` | 完整 `snapshot`、`checkDurations`、`checkMessages` 与四态 `aggregate`，另有 output failure diagnostic；消费 facts 并处理失败的 output。 |
+| `cancelled` / `phase: "execution"` | 取消时关闭的 snapshot、durations 与 messages；没有 aggregate，按 cancellation result 处理。 |
 | `cancelled` / `phase: "pre-work"` 或 `"planning"` | invocation metadata 与 cancellation phase；按 phase 结束调用。 |
-| `configuration` | Definition、controls 或 aggregation selection diagnostic；project callback 执行数为零。 |
+| `configuration` | Definition 或 Controls diagnostic；project callback 执行数为零。 |
 | `planning` | task-graph diagnostic 与 invocation metadata。 |
 | `execution` | Product execution-settlement diagnostic 与 invocation metadata。`diagnostic.code === "admission-policy-failed"` 表示 custom policy 已停止 admission、取消 pending 并 drain started work；它不是 Check terminal status，也不携带 partial snapshot。 |
 

@@ -27,19 +27,7 @@ Run 先验证 Definition 和 closed Controls，再生成 invocation-private inpu
 
 caller flags 在进入 control barrier 前复制、去重、排序并冻结；省略/undefined/空数组形成同一空集合，malformed dense-token input 形成 invalid-run-controls。caller 不得提供 `vibe-check:change:` 保留前缀；它在任何 author work 前同样形成 closed Controls failure。
 
-`checkAggregation` 没有默认值，是唯一的多 Check aggregation 输入：
-
-```ts
-{
-  checks: "all" | "effective" | readonly string[],
-  mode: "all" | "any",
-  unavailable: "propagate" | "fail" | "exclude",
-  notApplicable: "exclude" | "pass" | "fail",
-  empty: "passed" | "failed" | "not-applicable"
-}
-```
-
-Run 在 work 前拒绝 unknown、duplicate 或 non-normalized ID-list selection；`effective` selector 复用唯一 private flag-and-dependsOn closure，不公开成员表或建立第二 resolver。signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 pre-work cancellation 结束；若在 graph validation 期间取消，后续 pre-work check 同样阻止 Git acquisition。
+`checkAggregation` 是可选的 caller-local 同步函数 `(checks: readonly CoreCheck[]) => CheckAggregate`。Controls parser 只接受 function，并保留其 identity；它不进入 Definition fingerprint。完整结算后，Run 从唯一 private flag-and-`dependsOn` effective selection 按 canonical Check order 投影同一份 settled `CoreCheck[]` 给默认或定制折叠，不公开 selection resolver。省略函数时，非空且全部 `passed` 为 `passed`，空列表或任一其它终态为 `failed`。signal 已取消时，Run 在静态 graph validation 和 Git acquisition 前以 pre-work cancellation 结束；若在 graph validation 期间取消，后续 pre-work check 同样阻止 Git acquisition。
 
 ### Change preparation and flag projection
 
@@ -59,7 +47,7 @@ set，以保守选择。未配置 changes 时不获取 Git、`project.changes` �
 有效 project root 可以嵌套在 repository 内，Git paths 会规范化为相对该 root；committed `compareWith...HEAD`、staged、
 unstaged 与 untracked paths 合并，rename 的 old/new 和 delete 的 old path 都参与 region matching。Definition 只拥有
 `changes` grammar 与 protected-token reference；Git acquisition 和此处的 projection 是 Run owner。状态派生接线见
-[Check results](check-results.md#explicit-aggregation-and-repository-gate-mapping)，公开折叠规则见 [API 机制](../api-mechanics.md)。
+[Check results](check-results.md#effective-aggregation-and-repository-gate-mapping)，公开折叠规则见 [API 机制](../api-mechanics.md)。
 
 所有 invocation path facts 在 callback 前冻结，后续只消费其 absolute representation，不再次解释 caller directory text。Check artifact base 与其它 directory target 使用同一 trusted grammar，不提供 containment、cleanup 或跨 Run state capability；省略时 callback artifactDirectory 为 null。
 
@@ -79,9 +67,7 @@ callback capability 按上表投影；完整 context shape 由[Check authoring �
 options 为 canonical authored snapshot 或 invocation-local prepared/fallback；file selection、领域 policy 与 cache 留在 owning options。
 dependencies 的授权与引用生命周期见[依赖交接](#依赖读取与引用生命周期)。artifact base、sibling namespace、output target 和 scheduler/cross-Run state 不进入 callback context。
 
-invalid Definition、controls 或 aggregation selection 在 author work 前返回 configuration result。ordinary callback throw、
-malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、
-messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，output failure priority 和 readback 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
+invalid Definition 或 Controls 在 author work 前返回 configuration result。aggregation 函数只在完整 settlement 后执行；抛错、非 `Error` throwable、Promise/thenable 或非法四态返回会越过普通 Run catch，使 `run` Promise 拒绝。拒绝路径关闭 invocation-owned diagnostics 和 progress writer，且不让清理错误掩盖原 aggregation error。ordinary callback throw、malformed result、Record misuse 与 cancellation 按 owning execution boundary 结算；精确 `RunResult` branches、durations、messages 与 Run 分支见 [API 机制](../api-mechanics.md#runresult-分支)，output failure priority 和 readback 见[输出指南](../guides/run-outputs.md#输出状态与失败处理)。
 
 ## Check 执行与依赖交接
 
@@ -132,7 +118,7 @@ Controls output parser 保留各 output object / leaf 的 typed failure，并将
 `expected` 提示，不读取 accessor 或回显原值。Definition 使用同一 progress grammar，但仍把 failure 折叠为
 既有 `definition.outputs` 诊断，不依赖 Controls error type。消费者的定位方式与提示值由[输出配置诊断](../guides/run-outputs.md#排查输出配置错误)拥有。
 
-Definition、controls 或 aggregation selection 无效时尚无可信 effective output configuration，因此不会创建 output。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由输出指南完整表达。
+Definition 或 Controls 无效时尚无可信 effective output configuration，因此不会创建 output。aggregation rejection 则发生在完整 facts 后、正常 final presentation/publication 前：它关闭 writer 而不形成 `RunResult`。三项 output 的 status、failure isolation、machine/non-machine 边界与读取顺序由输出指南完整表达。
 
 项目可以绑定 Definition/固定 Controls，向自己的调用方只暴露必要输入；这不新增 Product 配置层。Product 不发现配置文件或提供 CLI/bin，领域 baseline/comparison 由 producing Check 的 options/composition 承接。Gate resultContributor 位于 Product RunResult 之后，其配置和失败规则仅见 [Project Gate](../tooling/project-gate.md#gate-result-post-processing-and-exits)，不是 Definition/Controls hook。
 

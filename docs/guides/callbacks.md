@@ -14,6 +14,7 @@ Definition / Controls validation
   → admitted Check: prepare → execute → settle
 → sealed Scheduler measurement
   → internal summary → terminalEffects[] → prepared terminalEffect
+→ effective Check aggregation
 → Run result and output closure
 → Project Gate initial result → resultContributor → exit/transcript
 ```
@@ -50,6 +51,7 @@ const check = defineCheck({
 | Project facts 准备 | **相邻 Change** | `add-project-change-flags` 拥有选择前 Project facts；本 Change 不建立 callback。 | Project Definition owner |
 | 有效选择完成 | **当前内部**：`InvocationLifecycle.selectionSettled()` | 所有 flag-control settlements 被接受后、Scheduler graph run 前一次；与逐 Check 生命周期分离。 | Project Run owner |
 | 批量有效输入准备 | **相邻 Change** | `batch-declared-project-file-inputs` 拥有选择后的输入屏障。 | Project Run owner |
+| 有效 Check 汇总 | **当前公开**：`RunControls.checkAggregation(checks)` | 完整结算后至多一次；接收只读、canonical-order 的有效 `CoreCheck[]`，必须同步返回四态。省略时 Product strict-all；throw、Promise 或非法返回直接拒绝 `run`，不是 `RunResult` hook。 | [API 机制](../api-mechanics.md#runcontrols-与-check-aggregation) |
 
 ## Admission / Scheduler
 

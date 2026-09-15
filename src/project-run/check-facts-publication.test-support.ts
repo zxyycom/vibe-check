@@ -32,16 +32,7 @@ async function publishedIntegration(root: string) {
         progressRendering: { enabled: false }
       }
     }),
-    {
-      checkAggregation: {
-        checks: "all",
-        mode: "all",
-        unavailable: "propagate",
-        notApplicable: "exclude",
-        empty: "failed"
-      },
-      projectRoot: root
-    }
+    { projectRoot: root }
   );
   return { dependentCalls, result };
 }

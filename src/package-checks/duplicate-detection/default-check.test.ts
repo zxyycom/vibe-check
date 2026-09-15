@@ -75,7 +75,7 @@ describe("default Check direct callbacks", () => {
     }
   });
 
-  it("detects project-relative duplicates through the public Check and fails an explicit all aggregate", async function detectsProjectRelativeDuplicatesThroughPublicCheck() {
+  it("detects project-relative duplicates through the public Check and fails the default strict aggregate", async function detectsProjectRelativeDuplicatesThroughPublicCheck() {
     const root = createRealDuplicateRoot();
     try {
       const result = await run(
@@ -92,16 +92,7 @@ describe("default Check direct callbacks", () => {
             progressRendering: { enabled: false }
           }
         }),
-        {
-          checkAggregation: {
-            checks: "all",
-            empty: "failed",
-            mode: "all",
-            notApplicable: "fail",
-            unavailable: "fail"
-          },
-          projectRoot: root
-        }
+        { projectRoot: root }
       );
       assert.equal(result.kind, "completed");
       if (result.kind !== "completed") return;

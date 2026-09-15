@@ -204,7 +204,7 @@ const EMPTY_SNAPSHOT: CoreSnapshot = Object.freeze({
   records: Object.freeze([])
 });
 const FINAL_FACTS: RunResultFacts = Object.freeze({
-  aggregate: null,
+  aggregate: "failed",
   checkDurations: Object.freeze([{ checkId: "custom", durationMs: 1 }]),
   checkMessages: Object.freeze([
     { checkId: "custom", code: "retained", level: "info" as const, message: "retained message" }

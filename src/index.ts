@@ -226,6 +226,7 @@ export type {
   ProjectChangeSource,
   ProjectChangesConfiguration
 } from "./project-definition/project-changes.ts";
+export type { CoreCheck } from "./check-settlement/facts.ts";
 export type {
   CheckAggregate,
   CheckAggregation,

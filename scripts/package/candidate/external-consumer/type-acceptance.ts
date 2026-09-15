@@ -373,13 +373,11 @@ const reminder = maintenanceReminders([
     message: "Review isolated consumer maintenance."
   }
 ]);
-const aggregation: CheckAggregation = {
-  checks: [directCheck.checkId],
-  empty: "failed",
-  mode: "all",
-  notApplicable: "fail",
-  unavailable: "propagate"
-};
+const aggregation: CheckAggregation = (checks: readonly CoreCheck[]) =>
+  checks.some((check) => check.outcome.status === "failed") ? "failed" : "passed";
+const asynchronousAggregation = async (_checks: readonly CoreCheck[]) => "passed" as const;
+// @ts-expect-error Check aggregation must synchronously return a four-state aggregate.
+const rejectedAsynchronousAggregation: CheckAggregation = asynchronousAggregation;
 const result: Promise<RunResult> = run(definition, {
   checkAggregation: aggregation,
   flags: ["isolated-consumer"]
@@ -433,7 +431,7 @@ function observeFinalDurations(runResult: RunResult): void {
     void durations;
     void messages;
     if (runResult.kind === "completed" || runResult.kind === "output") {
-      const aggregate: CheckAggregate | null = runResult.aggregate;
+      const aggregate: CheckAggregate = runResult.aggregate;
       void aggregate;
     }
   }
@@ -484,6 +482,7 @@ void [
   parseSecretDetectionData,
   run,
   aggregation,
+  rejectedAsynchronousAggregation,
   quietPassCheck,
   authorResult,
   changedFiles,

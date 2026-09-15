@@ -1,95 +1,72 @@
-import type {
-  RunControlDiagnostic,
-  RunControlValidationResult
-} from "./controls/validation-result.ts";
-import type { CheckAggregate, CheckAggregation } from "./controls/contract.ts";
 import type { CoreCheck, CoreSnapshot } from "../check-settlement/facts.ts";
+import type { CheckAggregate, CheckAggregation } from "./controls/contract.ts";
 
-type AggregateStatus = Exclude<CheckAggregate, "not-applicable">;
+/** Identifies a callback failure so the invocation boundary can close outputs before rethrowing it. */
+export class CheckAggregationFailure extends Error {
+  readonly originalError: Error;
 
-/** Validates that aggregation selects only normalized executable Check IDs. */
-export function validateCheckAggregationSelection(
-  aggregation: CheckAggregation | undefined,
-  checkIds: readonly string[]
-): RunControlValidationResult<CheckAggregation | undefined> {
-  if (aggregation === undefined) return Object.freeze({ ok: true, value: undefined });
-  if (aggregation.checks === "all" || aggregation.checks === "effective") {
-    return Object.freeze({ ok: true, value: aggregation });
+  public constructor(originalError: Error) {
+    super("Check aggregation failed", { cause: originalError });
+    this.originalError = originalError;
   }
-  const knownCheckIds = new Set(checkIds);
-  const selectedCheckIds = new Set<string>();
-  for (const checkId of aggregation.checks) {
-    if (!knownCheckIds.has(checkId) || selectedCheckIds.has(checkId)) {
-      return invalidControls("controls.checkAggregation.checks");
-    }
-    selectedCheckIds.add(checkId);
-  }
-  return Object.freeze({ ok: true, value: aggregation });
 }
 
-/** Derives one explicit consumer-selected aggregate from settled Check statuses only. */
-export function aggregateCheckOutcomes(
+/** Builds the canonical ordered, read-only effective Check list and derives its invocation aggregate. */
+export function aggregateEffectiveChecks(
   snapshot: CoreSnapshot,
-  aggregation: CheckAggregation,
-  effectiveCheckIds: readonly string[]
+  effectiveCheckIds: readonly string[],
+  aggregation: CheckAggregation | undefined
 ): CheckAggregate {
-  const statuses = selectedChecks(snapshot, aggregation.checks, effectiveCheckIds).map((check) =>
-    aggregateStatus(check, aggregation)
-  );
-  if (statuses.includes("unavailable")) return "unavailable";
-  return aggregateSelectedStatuses(
-    statuses.filter(
-      (status): status is Exclude<AggregateStatus, "unavailable"> =>
-        status !== null && status !== "unavailable"
-    ),
-    aggregation
-  );
+  const checks = effectiveChecks(snapshot, effectiveCheckIds);
+  return aggregation === undefined
+    ? strictAggregate(checks)
+    : invokeAggregation(aggregation, checks);
 }
 
-function selectedChecks(
+function effectiveChecks(
   snapshot: CoreSnapshot,
-  selection: CheckAggregation["checks"],
   effectiveCheckIds: readonly string[]
 ): readonly CoreCheck[] {
-  if (selection === "all") return snapshot.checks;
-  const selectedCheckIds = selection === "effective" ? effectiveCheckIds : selection;
-  return selectedCheckIds.map((checkId) => {
-    const check = snapshot.checks.find((candidate) => candidate.checkId === checkId);
-    if (check === undefined) throw new TypeError("Aggregation selection was not validated");
-    return check;
-  });
+  const effectiveCheckIdSet = new Set(effectiveCheckIds);
+  return Object.freeze(snapshot.checks.filter((check) => effectiveCheckIdSet.has(check.checkId)));
 }
 
-function aggregateStatus(check: CoreCheck, aggregation: CheckAggregation): AggregateStatus | null {
-  switch (check.outcome.status) {
-    case "passed":
-    case "failed":
-      return check.outcome.status;
-    case "unavailable": {
-      if (aggregation.unavailable === "propagate") return "unavailable";
-      return aggregation.unavailable === "fail" ? "failed" : null;
-    }
-    case "not-applicable": {
-      if (aggregation.notApplicable === "pass") return "passed";
-      return aggregation.notApplicable === "fail" ? "failed" : null;
-    }
-  }
+function strictAggregate(checks: readonly CoreCheck[]): CheckAggregate {
+  return checks.length > 0 && checks.every((check) => check.outcome.status === "passed")
+    ? "passed"
+    : "failed";
 }
 
-function aggregateSelectedStatuses(
-  statuses: readonly Exclude<AggregateStatus, "unavailable">[],
-  aggregation: CheckAggregation
+function invokeAggregation(
+  aggregation: CheckAggregation,
+  checks: readonly CoreCheck[]
 ): CheckAggregate {
-  if (statuses.length === 0) return aggregation.empty;
-  if (aggregation.mode === "all") return statuses.includes("failed") ? "failed" : "passed";
-  return statuses.includes("passed") ? "passed" : "failed";
+  let aggregate: unknown;
+  try {
+    aggregate = aggregation(checks);
+  } catch (error) {
+    throw new CheckAggregationFailure(errorFromThrownValue(error));
+  }
+  if (isCheckAggregate(aggregate)) return aggregate;
+  discardPromiseRejection(aggregate);
+  throw new CheckAggregationFailure(
+    new TypeError("Check aggregation must synchronously return a CheckAggregate")
+  );
 }
 
-function invalidControls(path: string): RunControlValidationResult<never> {
-  const error: RunControlDiagnostic = Object.freeze({
-    kind: "invalid-run-controls",
-    path,
-    reason: "invalid-value"
-  });
-  return Object.freeze({ ok: false, error });
+function isCheckAggregate(value: unknown): value is CheckAggregate {
+  return (
+    value === "passed" ||
+    value === "failed" ||
+    value === "not-applicable" ||
+    value === "unavailable"
+  );
+}
+
+function discardPromiseRejection(value: unknown): void {
+  if (value instanceof Promise) void value.catch(() => undefined);
+}
+
+function errorFromThrownValue(value: unknown): Error {
+  return value instanceof Error ? value : new Error("Check aggregation threw a non-Error value");
 }

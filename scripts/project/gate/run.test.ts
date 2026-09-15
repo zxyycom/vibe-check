@@ -523,6 +523,35 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
+  it("maps a rejected bound Run to the existing unavailable adapter boundary", async () => {
+    const output = captureConsole();
+    try {
+      const status = await runProjectGateWithoutTranscript([], {
+        createInvocationLogDirectory: () => "/tmp/project-gate-run-rejection",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          resultContributor: defaultResultContributor,
+          run: async () => {
+            throw new Error("fixture aggregation callback rejection");
+          }
+        }),
+        prepareCandidate: async () => prepared
+      });
+
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.unavailable);
+      assert.match(
+        output.errors.join("\n"),
+        /project gate execution failed: fixture aggregation callback rejection/
+      );
+      assert.equal(
+        output.logs.filter((line) => line === "project gate result: unavailable").length,
+        1
+      );
+    } finally {
+      output.restore();
+    }
+  });
+
   it("post-processes one initial Gate result before reporting the final exit", async () => {
     const runResult = completedResult("passed", {
       checkDurations: [{ checkId: "fixture", durationMs: 40 }]
@@ -603,7 +632,7 @@ describe("Project Gate adapter closure", () => {
       );
       assert.match(
         transcriptMessages.map((message) => message.text).join("\n"),
-        /project gate aggregation: mode=all over effective Check statuses; failed\/not-applicable\/empty => aggregate failed; unavailable => aggregate unavailable; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs/
+        /project gate aggregation: Product default strict-all over effective Check statuses; any non-passed status or an empty effective selection makes the aggregate failed; findings, messages, and Records are reported by their owning Checks but are not aggregation inputs/
       );
       assert.match(
         output.logs.join("\n"),

@@ -84,6 +84,7 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     Check: "Check",
     CheckAggregate: "CheckAggregate",
     CheckAggregation: "CheckAggregation",
+    CoreCheck: "CoreCheck",
     CheckDependencies: "CheckDependencies",
     CheckExecution: "CheckExecution",
     CheckExecutionContext: "CheckExecutionContext",

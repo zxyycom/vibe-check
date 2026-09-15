@@ -1,7 +1,7 @@
 ---
 title: 统一 flag 有效选择、依赖启动与 aggregation
 id: 260904-unify-effective-flag-selection-and-aggregation
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-04T08:38:14Z
 purpose: 让 flag 选择可按 Check authoring 启动其 dependsOn 闭包，并让 aggregation 复用同一有效选择。

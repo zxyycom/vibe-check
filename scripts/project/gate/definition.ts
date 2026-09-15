@@ -9,7 +9,6 @@ import { typecheckInvocation } from "../../development/typecheck.ts";
 import {
   createLearnedCriticalPathStrategy,
   defineConfig,
-  type CheckAggregation,
   type ProjectDefinition,
   type RunControls,
   type SchedulerGraphSnapshot
@@ -58,16 +57,10 @@ const projectGateRepositoryScanResourceClaims = Object.freeze({
  * must return the only final Gate result, and may be synchronous or asynchronous.
  */
 
-/** Run-level policy kept beside the central Check composition manifest. */
+/** Run-level configuration kept beside the central Check composition manifest. */
 export const PROJECT_GATE_RUN_CONFIG = Object.freeze({
   resultContributor:
     contributeProjectGatePerformanceMessages satisfies ProjectGateResultContributor,
-  aggregation: Object.freeze({
-    empty: "failed" as const,
-    mode: "all" as const,
-    notApplicable: "fail" as const,
-    unavailable: "propagate" as const
-  }),
   definitionOutputs: Object.freeze({
     diagnosticLogging: Object.freeze({ enabled: false }),
     machinePublication: Object.freeze({ enabled: false }),
@@ -374,13 +367,5 @@ export function projectGateInvocationOutputControls(
     diagnosticLogFileNaming: "channel",
     outputs: projectGateOutputOverrides(invocationLogDirectory),
     progressLogFile: join(invocationLogDirectory, "progress.log")
-  });
-}
-
-/** Binds aggregation to Product's private flag-and-dependency effective selection. */
-export function projectGateAggregation(): CheckAggregation {
-  return Object.freeze({
-    checks: "effective",
-    ...PROJECT_GATE_RUN_CONFIG.aggregation
   });
 }

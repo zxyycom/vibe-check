@@ -9,7 +9,6 @@ import {
   PROJECT_GATE_RUN_CONFIG,
   createProjectGateDefinition,
   createProjectGateEntries,
-  projectGateAggregation,
   projectGateInvocationOutputControls
 } from "../definition.ts";
 import { createExternalConsumerMaterialLease } from "../checks/external-consumer-material.ts";
@@ -38,7 +37,6 @@ export async function run(controls: ProjectGateRunControls): Promise<RunResult> 
   });
   try {
     return await packageRun(createProjectGateDefinition(entries), {
-      checkAggregation: projectGateAggregation(),
       ...projectGateInvocationOutputControls(controls.invocationLogDirectory),
       flags: controls.flags,
       projectRoot: repositoryRoot,

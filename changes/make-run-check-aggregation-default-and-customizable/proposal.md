@@ -34,4 +34,4 @@
 
 - Product API 与 Run：`src/project-run/**`、`src/index.ts`、`docs/api-mechanics.md`、`docs/development/project-run.md`、`docs/development/check-results.md`。
 - Gate：`scripts/project/gate/**`、`docs/tooling/project-gate.md`。
-- 随包使用材料、package 类型验收与长期判断：`docs/guides/callbacks.md`、`docs/guides/run-outputs.md`、`docs/examples/package-api/custom-check.ts`、`scripts/package/public-api-inventory.ts`、`scripts/package/candidate/external-consumer/type-acceptance.ts`、`docs/decisions/unify-effective-flag-selection-and-aggregation.md`。
+- 随包使用材料、package 类型验收与长期判断：`docs/guides/callbacks.md`、`docs/guides/run-outputs.md`、`docs/examples/package-api/custom-check.ts`、`scripts/package/public-api-inventory.ts`、`scripts/package/candidate/external-consumer/type-acceptance.ts`、`docs/decisions/default-effective-check-aggregation-with-caller-local-callback.md`。

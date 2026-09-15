@@ -1,7 +1,7 @@
 ---
 title: 保持 Package 质量默认 advisory 并使 Project Gate 的质量 Finding 阻断
 id: 260905-keep-package-quality-defaults-advisory-and-make-project-gate-strict
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-05T08:49:10Z
 purpose: 保持 Package 默认 advisory，同时让 Project Gate 的未豁免质量 Finding 通过所属 Check status 阻断。

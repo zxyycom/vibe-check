@@ -83,10 +83,10 @@ Scheduler 根据依赖和资源约束准入工作，Check execution 在被准入
 冻结快照只包含 Checks 与 Records；调度状态、回调、scanner 原始数据和 invocation-private 引用各留在其所属生命周期。
 事实不变量由[Check 结果](check-results.md)拥有，调用内依赖交接由[Project Run](project-run.md#check-执行与依赖交接)拥有。
 
-**聚合与输出是事实的消费者。** 显式聚合解释所选 Check 状态，机器输出投影已封闭事实；二者都不重算领域结果。
+**聚合与输出是事实的消费者。** 默认或调用方本地聚合解释有效 Check 状态，机器输出投影已封闭事实；二者都不重算领域结果。
 进度与诊断另从运行时观察自身拥有的过程事实，不经机器文件反推过程，也不回写 Check 结论。
 这样，输出故障可以与质量结果区分，新增观察方式也无需改变 Check 模型。
-具体接线见[聚合](check-results.md#explicit-aggregation-and-repository-gate-mapping)、[机器输出](output-maintenance.md)与[人读输出](human-output.md)。
+具体接线见[聚合](check-results.md#effective-aggregation-and-repository-gate-mapping)、[机器输出](output-maintenance.md)与[人读输出](human-output.md)。
 
 ## Source module boundaries
 
