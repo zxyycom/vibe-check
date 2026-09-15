@@ -1,43 +1,38 @@
 # Design
 
-本 Draft 以 Run 的 terminal Check facts 为唯一输入源，在已存在的结算后聚合位置提供简单默认折叠和可选 caller strategy；公开形状与迁移细节尚待审阅。
+本设计把 Run 汇总限定为对**本次有效 Check 列表**的调用级折叠；默认规则和同步定制函数共用同一事实源。
 
 ## Context
 
-- [API 机制](../../docs/api-mechanics.md#runcontrols-与-check-aggregation)和[Project Run owner](../../docs/development/project-run.md#invocation-and-results)规定当前 `checkAggregation` 只在 RunControls，省略时 `aggregate: null`；[Check results owner](../../docs/development/check-results.md#explicit-aggregation-and-repository-gate-mapping)将聚合定位为 invocation-derived result，不是 Check fact。
-- `src/project-run/invocation/candidate.ts` 已在完整 Check snapshot 形成后、terminal output closure 前计算 aggregate；`run` 是执行、调度和输出的异步入口，不是纯函数。单独的状态折叠可以保持纯计算。
-- [effective-selection Decision](../../docs/decisions/unify-effective-flag-selection-and-aggregation.md)让聚合消费 Product 的同一 private flag-and-dependsOn selection，明确保持 `aggregate: null` 默认并排除 caller-local callback。拟议方向须作为公开契约修订审查，不能把历史决策当作当前 API 已支持的证据。
-- [Gate owner](../../docs/tooling/project-gate.md#聚合结果)当前以显式 `mode: all / unavailable: propagate` 聚合全部 effective statuses，再由 Gate adapter 将非 passed aggregate 映射为失败。Gate 退出/验收策略由 Gate 拥有。
+- [API 机制](../../docs/api-mechanics.md#runcontrols-与-check-aggregation)和[Check 结果 owner](../../docs/development/check-results.md#explicit-aggregation-and-repository-gate-mapping)定义当前显式 policy、`aggregate: null` 默认及四态 Check facts；这些是现状，不是目标契约。
+- `src/project-run/invocation/candidate.ts` 已在完整 snapshot 形成后计算聚合；`ResolvedCheckExecution.effectiveCheckIds` 保存本次 flag-and-`dependsOn` 选择。有效选择不等于全量 snapshot：未选 Check 也有 `not-applicable` facts。
+- `src/project-run/invocation/run.ts` 当前把一般异常捕获为 `task-engine-failed`；`finalizeInvocation` 负责关闭诊断与 progress 输出。`candidate.ts` 当前先渲染 execution final summary 再计算 aggregate，拒绝路径需避免以该 summary 暗示 Run 汇总成功。Gate root 已捕获 bound Run 的拒绝，并映射为 unavailable/nonzero exit；bound Run 的 consumer lease 已由 `finally` 清理。
+- [effective-selection Decision](../../docs/decisions/unify-effective-flag-selection-and-aggregation.md)当前要求同源选择，但保留显式 policy、`aggregate: null` 并排除 callback；实施须形成覆盖新方向的后继判断。
 
 ## Goals / Non-Goals
 
-目标是让 Run 使用者获得可复核的默认严格摘要和本次调用定制能力，而 Check facts、Run operational branch、effective selection 与 Gate process exit 各保留唯一 owner。不把聚合移到 Check Definition、Core entity、Scheduler、machine publisher 或 command Check；不恢复旧 Record/reference 通用评估器。
+Product 负责形成有效列表、调用同步汇总、验证四态返回和关闭 Run 生命周期；调用方负责定制解释。完整 Check/Record snapshot 仍是原始事实，`aggregate` 只供本次 Run 的消费者使用。Scheduler、Check settlement、Definition 和 machine publication 沿用各自职责；ast-grep 的 Check 拆分由独立 Change 处理。
 
 ## Decisions
 
 ### Intended Change
 
-1. **暂定**：在 `RunResult` 已拥有完整 terminal Check facts 的分支保留 `snapshot.checks` / `snapshot.records` 为事实源；`aggregate` 仍是单独的 invocation-derived readback，不把 `RunResult.kind = completed` 改写成“所有 Check 通过”。配置、planning 或无完整 facts 的 execution 失败不能伪装为空 Check 列表。
-2. **暂定默认**：省略本次自定义聚合函数时，Run 使用 Product 已形成的 effective Check 集合做 strict-all fold；集合非空且每项 `passed` 才 `passed`，任何 `failed`、`unavailable`、`not-applicable` 或空集合均 `failed`。这只是默认验收摘要，不声称不可用事实已变成可信失败；原四态仍在 Check 列表。
-3. **暂定定制**：RunControls 允许 trusted caller 提供聚合函数，Product 在已冻结、canonical-ordered 的选中 Check facts 上调用，并验证返回的闭合聚合结果。调用方拥有解释规则；Product 拥有选择、时序、返回边界与 facts 保全。函数不进入 Definition 的 declarative fingerprint，也不修改 Check 状态、Record 或调度。
-4. 保留 selection 与汇总同源：默认使用 `effective`；对现有 `all` / Check-ID list 消费者的兼容方案在公开签名审阅时确定，不让 Gate 从 `not-applicable` reason 或 Check 列表重建 effective membership。
+1. Product 从已结算 snapshot 按 canonical Check order 选出 `effectiveCheckIds` 对应的只读 `CoreCheck[]`。`snapshot.checks` / `snapshot.records` 继续保存全量事实；默认和定制函数只消费这一个有效列表。
+2. 默认折叠返回 `CheckAggregate`：有效列表**非空且全部 `passed`**时为 `passed`，空列表或任何 `failed`、`unavailable`、`not-applicable` 时为 `failed`。各 Check 原终态不变。
+3. `RunControls.checkAggregation?: CheckAggregation` 直接替换旧 policy；公开 `CheckAggregation` 为同步 `(checks: readonly CoreCheck[]) => CheckAggregate`。列表项保留 `checkId`、`outcome` 和 passed/failed final data；将 `CoreCheck` 作为可从 package root 导入的公开类型。函数仅在完整 settlement 后调用，不进入 Definition fingerprint。
+4. Product 在聚合边界验证闭合四态返回；Promise、其他值或 callback 抛错均形成 Error 并让 `run` 的 Promise 拒绝。callback 抛出的 Error 保留原错误；非 Error throwable 与非法返回转换为可定位的 Error。普通配置、planning、Check callback、execution 与 output 失败仍由原 `RunResult` 分支表达。
 
 ### Resulting Impacts
 
-- `RunControls` validation、`RunResult.aggregate` 默认、现有 `CheckAggregation` 公开类型、聚合矩阵与 effective-selection tests，以及指南/内部 owner/Decision 需要同步。当前“省略即 null”是可观察行为；必须明确 raw-only consumer 如何选择不聚合或迁移。
-- custom callback 若抛错、返回非法值或试图改变输入，必须有独立、稳定的聚合失败结算，且不能让 `executeValidatedRun` 的顶层 catch 把已形成的 snapshot 丢成无 facts 的 execution failure。callback 同步/异步、信任与取消边界也需验收。
-- `completed` 与保留完整 facts 的 `output` branch 应使用一致的聚合 readback；execution cancellation 的现有无 aggregate 语义和 machine publication 是否展示该摘要需明确，不得从聚合反向决定 output status。
-- Gate 可消费新默认 strict-all 结果，或在自己的 RunControls 中选择领域策略；需复查 Gate 文本、测试和 exit mapping。ast-grep version/rule-tests 的语义拆分是独立实施，不是默认聚合 Change 的隐式工作。
+- Controls 验证接受 trusted function 并保留函数 identity；`RunResultFacts.aggregate` 在有完整 facts 的分支改为非 null `CheckAggregate`。cancellation 和无完整 facts 的分支继续沿用现有语义。同步函数返回 Promise 按非法返回处理，不等待其结算，并避免未处理的 Promise rejection。
+- 当前通用 catch 必须仅识别聚合边界的错误并传播到 caller；聚合先于正常 final progress 成功呈现，拒绝路径关闭诊断与 progress writer，不调用正常 RunResult 的 terminal publication。清理失败不得掩盖原聚合错误。调用方不从拒绝的 Promise 获得 snapshot；已结算 facts 不被改写。
+- Gate bound Run 省略 `checkAggregation` 并消费默认严格结果；root 已有 Promise-rejection catch，须以故障注入验证错误报告和非零 exit。Gate 原始 Check facts、选择、resultContributor 与 candidate binding 保持原责任。
+- 公开 API、用户指南/示例、内部 owner、package inventory/type acceptance、聚合矩阵/effective-selection tests 和 Decision 在同一实施中同步；按[文档影响审查](../../docs/governance/knowledge-maintenance.md#行为变更的交付审查)由非实施代理依据实际 diff 反查。
 
 ## Risks / Trade-offs
 
-简单默认可以消除配置负担及 `failed + unavailable` 的验收歧义，但会失去 aggregate 层面的不可用区分；原 Check facts 是保留该证据的权威位置。自定义函数增加灵活性，也引入运行时 callback failure、非确定性和安全输入边界。不能把调用方的摘要误命名为 Product 的普遍最终质量结果。
-
-该设计与 `make-command-check-cover-process-backed-checks` 独立：前者处理 Run 汇总，后者处理单次命令与调用方领域执行。两者可以分别验证和交付。
+默认 `failed` 是严格验收摘要，不把 Check `unavailable` 的事实变成可信 Check failure；完整 snapshot 仍显示原四态。直接抛错可避免定制规则失败后出现伪成功，但这次调用不返回已结算 snapshot。关闭资源的失败路径和 Gate 的异常报告必须由测试证明。trusted 函数的非确定性与独立副作用由调用方负责；Product 只验证返回边界。
 
 ## Open Questions
 
-1. 公开定制 API 的字段名、回调签名和返回类型：只允许 `CheckAggregate`，还是另有 caller-owned typed summary？回调只读 selected `{ checkId, outcome }`，还是完整 Check facts？
-2. `all` / 显式 ID selection 与现有闭合 policy 的兼容路径，以及显式关闭默认聚合的机制是什么？是否需要迁移期双入口？
-3. callback 异常/非法返回如何表示 aggregate failure，同时保留已结算 snapshot 与 output branch；是否只支持同步纯计算？
-4. Gate 是否仅需要默认 strict-all 验收，还是仍需要区分验收失败与证据覆盖不完整？这是 Gate 消费目标，不预先规定 Product 默认。
+无。实施中若发现现行 owner 或测试证明四态返回、有效列表或同步调用不足以承接现实消费者，应先修订本 Plan，再扩大公开契约。
