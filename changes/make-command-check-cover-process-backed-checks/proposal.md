@@ -25,7 +25,7 @@
 
 - command Check 的输入校验、公开类型、执行顺序、unavailable reason、测试和 package-root acceptance fixture 需要同步。
 - typed `afterCommand.parseData` 必须投影为返回 Check 的普通 provider parser；本 Change 不增加 handoff 模式。
-- Gate 保留自己的 transcript 与工具投影 owner，只让两个命名 consumer 改用公共进程生命周期。
+- 两个命名 consumer 改用 Product `commandCheck` 的 Check-local `process.log`：它在 `afterCommand` 前以 Product settled format 写成并保持 artifact 隔离；它们不保留 legacy Gate process adapter 的 transcript schema 或 `transcript-unavailable` reason。未迁移 adapter 继续拥有该 schema、reason 与 generic fallback；工具投影和 provider provenance 仍由 Gate owner 保留。
 - command Check 指南、package API 投影和相关 Decision 必须说明新能力及安全边界。
 
 ## Success Criteria
@@ -34,7 +34,7 @@
 2. `resolveEnvironment` 只能读取本次 options、project、direct dependencies 和 signal；非法返回或非取消异常稳定结算为 `command-environment-resolution-failed`，不启动进程、不回退 ambient environment、不发布环境值。
 3. `afterCommand.execute` 仅收到完整 numeric-exit 结果；它可返回 typed final data、messages 和安全 Records，throw、非法结果与取消沿用 ordinary Check 结算。
 4. package-root fixture 证明默认 `{ exitCode }`、ordinary `afterCommand`、typed `afterCommand.parseData`，并拒绝静态与动态 environment 同时配置。
-5. 两个命名 Gate consumer 完成迁移，现有 Gate transcript、结构化 Records 和 provider provenance 行为保持通过。
+5. 两个命名 Gate consumer 完成迁移：使用 Product Check-local `process.log` format/path、artifact isolation 与 settled-before-callback 准入；`lint-product` 的结构化 Records/generic fallback 与 external-consumer provider provenance 保持通过。未迁移 Gate adapter 保持自己的 transcript schema。
 6. 目标测试、类型检查、文档检查、Decision 检查和完整 Project Gate 通过。
 
 ## Affected Owners

@@ -2,10 +2,12 @@ import { isAbsolute, resolve } from "node:path";
 
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { runProcess } from "../host-environment/process.ts";
-import { isValidResolvedCommandCheckOptions } from "./options.ts";
+import { isValidResolvedCommandCheckOptions, resolveCommandCheckEnvironment } from "./options.ts";
 import { closedTranscript, runningTranscript, writeCommandTranscript } from "./transcript.ts";
 import type {
+  AfterCommand,
   CommandCheckFinalData,
+  CommandEnvironmentResolver,
   CommandCheckUnavailableReasonCode,
   ResolvedCommandCheckOptions
 } from "./contract.ts";
@@ -15,18 +17,32 @@ type CommandProcessResult = Awaited<ReturnType<typeof runProcess>> &
 
 /** Executes one validated no-shell command and releases all child material after optional transcript persistence. */
 export async function executeCommandCheck(
-  context: CheckExecutionContext<ResolvedCommandCheckOptions>
-): Promise<CheckResult<CommandCheckFinalData>> {
+  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  executionExtensions: Readonly<{
+    readonly afterCommand?: AfterCommand | undefined;
+    readonly resolveEnvironment?: CommandEnvironmentResolver | undefined;
+  }> = {}
+): Promise<CheckResult> {
   if (!isValidResolvedCommandCheckOptions(context.options)) return unavailable("invalid-options");
 
-  const options = context.options;
-  if (options.output.mode === "transcript") {
-    if (
-      context.artifactDirectory === null ||
-      !(await writeCommandTranscript(context.artifactDirectory, runningTranscript()))
-    ) {
-      return unavailable("command-transcript-unavailable");
-    }
+  const environment = await resolveExecutionEnvironment(
+    context,
+    executionExtensions.resolveEnvironment
+  );
+  if (environment === undefined) return unavailable("command-environment-resolution-failed");
+
+  return executeResolvedCommand(context, environment, executionExtensions.afterCommand);
+}
+
+/** Runs one resolved command, preserving requested transcripts before caller-owned settlement. */
+async function executeResolvedCommand(
+  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  environment: ResolvedCommandCheckOptions["environment"],
+  afterCommand: AfterCommand | undefined
+): Promise<CheckResult> {
+  const { options } = context;
+  if (!(await writeRunningCommandTranscript(context.artifactDirectory, options.output.mode))) {
+    return unavailable("command-transcript-unavailable");
   }
 
   const result = await runProcess({
@@ -34,7 +50,7 @@ export async function executeCommandCheck(
     cancelSignal: context.signal,
     command: options.executable,
     cwd: resolveWorkingDirectory(options.workingDirectory, context.project.root),
-    env: executionEnvironment(options.environment),
+    env: executionEnvironment(environment),
     extendEnv: false,
     label: "command Check",
     maxBuffer: options.outputByteLimit,
@@ -42,16 +58,84 @@ export async function executeCommandCheck(
   });
   const terminal = terminalResult(result);
   if (
-    options.output.mode === "transcript" &&
-    (context.artifactDirectory === null ||
-      !(await writeCommandTranscript(
-        context.artifactDirectory,
-        closedTranscript({ status: terminal.status, stderr: result.stderr, stdout: result.stdout })
-      )))
+    !(await writeClosedCommandTranscript(
+      context.artifactDirectory,
+      options.output.mode,
+      terminal.status,
+      result
+    ))
   ) {
     return unavailable("command-transcript-unavailable");
   }
-  return terminal.result;
+  return settleCommandResult(context, result, terminal.result, afterCommand);
+}
+
+/** Writes the running marker only where output policy and artifact capability both allow it. */
+async function writeRunningCommandTranscript(
+  artifactDirectory: string | null,
+  outputMode: ResolvedCommandCheckOptions["output"]["mode"]
+): Promise<boolean> {
+  if (outputMode === "discard") return true;
+  return (
+    artifactDirectory !== null && writeCommandTranscript(artifactDirectory, runningTranscript())
+  );
+}
+
+/** Replaces the running marker with final child material before any caller-owned callback observes it. */
+async function writeClosedCommandTranscript(
+  artifactDirectory: string | null,
+  outputMode: ResolvedCommandCheckOptions["output"]["mode"],
+  status: "passed" | "failed" | "unavailable",
+  result: CommandProcessResult
+): Promise<boolean> {
+  if (outputMode === "discard") return true;
+  return (
+    artifactDirectory !== null &&
+    writeCommandTranscript(
+      artifactDirectory,
+      closedTranscript({ status, stderr: result.stderr, stdout: result.stdout })
+    )
+  );
+}
+
+/** Lets the caller settle only complete numeric exits; all other terminal causes remain Product-owned. */
+function settleCommandResult(
+  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  result: CommandProcessResult,
+  defaultResult: CheckResult<CommandCheckFinalData>,
+  afterCommand: AfterCommand | undefined
+): CheckResult | Promise<CheckResult> {
+  if (afterCommand === undefined || !isCompleteCommandResult(result)) return defaultResult;
+  return afterCommand.execute(
+    Object.freeze({
+      ...context,
+      command: Object.freeze({
+        exitCode: result.status,
+        stderr: result.stderr,
+        stdout: result.stdout
+      })
+    })
+  );
+}
+
+async function resolveExecutionEnvironment(
+  context: CheckExecutionContext<ResolvedCommandCheckOptions>,
+  resolver: CommandEnvironmentResolver | undefined
+): Promise<ResolvedCommandCheckOptions["environment"] | undefined> {
+  if (resolver === undefined) return context.options.environment;
+  try {
+    const environment = await resolver(
+      Object.freeze({
+        dependencies: context.dependencies,
+        options: context.options,
+        project: context.project,
+        signal: context.signal
+      })
+    );
+    return resolveCommandCheckEnvironment(environment);
+  } catch {
+    return undefined;
+  }
 }
 
 function resolveWorkingDirectory(workingDirectory: string | null, projectRoot: string): string {
@@ -70,6 +154,18 @@ function executionEnvironment(
     else inherited[name] = value;
   }
   return inherited;
+}
+
+function isCompleteCommandResult(result: CommandProcessResult): result is CommandProcessResult & {
+  readonly status: number;
+} {
+  return (
+    typeof result.status === "number" &&
+    result.isCanceled !== true &&
+    result.isMaxBuffer !== true &&
+    result.timedOut !== true &&
+    result.signal === null
+  );
 }
 
 function terminalResult(result: CommandProcessResult): Readonly<{

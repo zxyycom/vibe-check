@@ -2,7 +2,7 @@
 title: 让 commandCheck 承接调用方完成阶段
 id: 260920-extend-command-check-with-caller-owned-completion
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-09-20T05:59:14Z
 purpose: 让单次命令 Check 在受控进程结果后执行调用方领域结算。
 background: 退出码模式无法复用 Product 进程边界完成 typed data、Records 与依赖派生环境。
@@ -28,4 +28,5 @@ relations: []
 - 采用: 增加 `afterCommand: { execute, parseData? }`。只有命令完整结束、输出未截断且具有 numeric exit 时，Product 才提供有界 `{ exitCode, stdout, stderr }`；调用方 `execute` 返回普通 `CheckResult`，可形成领域 data、messages 和安全 Records。
 - 采用: `afterCommand.parseData` 将返回 Check 声明为 typed provider。完成阶段对象用于绑定 callback 与 parser，并与返回 Check 上 Product-owned 的 execution 分开；没有现实 consumer 的 handoff 不进入本次公共 contract。
 - 采用: 省略新扩展点时保留当前 `{ exitCode }` 模式、closed defaults 和终态分类。Raw output、解析出的环境值和工具语义不会自动进入 final data、Records、messages、diagnostics 或 machine publication。
+- 采用: 选择 `output: { mode: "transcript" }` 时，Product 将 Check-local `process.log` 在 `afterCommand` 前写成；artifact capability 或写入失败结算为 `command-transcript-unavailable` 且不调用 callback。迁移 consumer 使用该 Product transcript，未迁移 Gate adapter 继续拥有其独立 schema、reason 与 fallback。
 - 采用: 首轮以一个 dependency-backed typed stdout provider 和一个 owner-approved failure projection 验收公共边界，不迁移多步骤工具协议或整个 Gate adapter。

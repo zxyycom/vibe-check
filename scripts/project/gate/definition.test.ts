@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 import { describe, it } from "node:test";
 
 import { defineCheck, markdownLinkValidation, run as packageRun } from "@zxyycom/vibe-check";
@@ -17,12 +17,14 @@ import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entri
 import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
 import { selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
 import {
+  createLintProductCheck,
   createProjectGateDefinition,
   createProjectGateEntries,
   PROJECT_GATE_RUN_CONFIG
 } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
 import { invokeCheck, invokeCheckWithRecords } from "./checks/check-execution.test-support.ts";
+import { createOxlintFailureProjection } from "./checks/oxlint-failure-records.ts";
 import { writeProcessTranscript } from "./checks/process/process.ts";
 import {
   createTestEvidenceRuleTestsCheck,
@@ -423,6 +425,95 @@ describe("Project Gate Definition", () => {
       () => defineProjectGateEntries([{ check: missingObservation, presets: [], required: true }]),
       /observes relation is missing: fixture-missing-observation -> fixture-absent/
     );
+  });
+
+  it("settles lint-product with structured oxlint Records or exactly one generic fallback", async () => {
+    const failureProjection = createOxlintFailureProjection({
+      scope: "product",
+      workspaceRoot: process.cwd()
+    });
+    const fixtureRoot = mkdtempSync(join(tmpdir(), "vibe-check-lint-product-wiring-"));
+    const executeFixture = (stdout: string, artifactName: string) =>
+      invokeCheckWithRecords(
+        createLintProductCheck({
+          failureProjection,
+          invocation: {
+            args: ["--eval", `process.stdout.write(${JSON.stringify(stdout)}); process.exit(1);`],
+            command: process.execPath,
+            cwd: process.cwd()
+          }
+        }),
+        new AbortController().signal,
+        join(fixtureRoot, artifactName)
+      );
+    try {
+      const structured = await executeFixture(
+        oxlintOutput("eslint(no-unused-vars)"),
+        "lint-product-structured"
+      );
+      assert.deepEqual(structured.result, {
+        status: "failed",
+        data: { exitCode: 1 },
+        messages: [
+          {
+            level: "error",
+            code: "command-failed",
+            message:
+              "Command exited with code 1; signal: none; transcript: checks/lint-product-structured/process.log."
+          }
+        ]
+      });
+      assert.equal(
+        JSON.stringify(structured.records),
+        JSON.stringify([
+          {
+            data: {
+              kind: "oxlint-diagnostic",
+              location: { column: 2, line: 3 },
+              occurrence: 1,
+              path: "src/fixture.ts",
+              rule: "eslint(no-unused-vars)",
+              severity: "error"
+            },
+            identity: { id: "oxlint:src%2Ffixture.ts:3:2:eslint%28no-unused-vars%29:1" }
+          }
+        ])
+      );
+      assert.match(
+        readFileSync(join(fixtureRoot, "lint-product-structured", "process.log"), "utf8"),
+        /status=failed/
+      );
+
+      const fallbackOutputs = ["not JSON", oxlintOutput("eslint(https://user:token@example.test)")];
+      for (const [index, stdout] of fallbackOutputs.entries()) {
+        const artifactName = `lint-product-fallback-${index + 1}`;
+        const fallback = await executeFixture(stdout, artifactName);
+        assert.deepEqual(fallback.result, {
+          status: "failed",
+          data: { exitCode: 1 },
+          messages: [
+            {
+              level: "error",
+              code: "command-failed",
+              message: `Command exited with code 1; signal: none; transcript: checks/${artifactName}/process.log.`
+            }
+          ]
+        });
+        assert.deepEqual(fallback.records, [
+          {
+            identity: { id: "command-failure" },
+            data: {
+              command: basename(process.execPath),
+              exitCode: 1,
+              log: `checks/${artifactName}/process.log`,
+              signal: "none"
+            }
+          }
+        ]);
+      }
+    } finally {
+      rmSync(fixtureRoot, { force: true, recursive: true });
+    }
   });
 
   it("keeps required, all, and focused membership golden while aggregation uses Product selection", () => {
@@ -1012,6 +1103,26 @@ function processResult(
   readonly stdout: string;
 }> {
   return Object.freeze({ signal: null, status, stderr: "", stdout });
+}
+
+function oxlintOutput(code: string): string {
+  return JSON.stringify({
+    diagnostics: [
+      {
+        code,
+        filename: "src/fixture.ts",
+        help: "fixture help",
+        labels: [{ span: { column: 2, length: 1, line: 3, offset: 0 } }],
+        message: "fixture message",
+        severity: "error",
+        url: "https://example.test/rule"
+      }
+    ],
+    number_of_files: 1,
+    number_of_rules: 120,
+    start_time: 1,
+    threads_count: 1
+  });
 }
 
 function ruleTestArtifactDirectory(root: string): string {

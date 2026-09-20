@@ -28,6 +28,58 @@ const installedCommandExecute: (
   context: Parameters<typeof installedCommandCheck.execute>[0]
 ) => CheckResult<CommandCheckFinalData> | Promise<CheckResult<CommandCheckFinalData>> =
   installedCommandCheck.execute;
+const ordinaryAfterCommand = commandCheck({
+  ...commandInput,
+  checkId: "ordinary-after-command",
+  afterCommand: {
+    execute: ({ command, records }) => {
+      records.report({ id: "ordinary-after-command" }, { stderrLength: command.stderr.length });
+      return { status: "passed", data: { stdout: command.stdout } };
+    }
+  }
+});
+const ordinaryAfterCommandExecute: (
+  context: Parameters<typeof ordinaryAfterCommand.execute>[0]
+) => CheckResult<{ readonly stdout: string }> | Promise<CheckResult<{ readonly stdout: string }>> =
+  ordinaryAfterCommand.execute;
+const typedAfterCommand = commandCheck({
+  ...commandInput,
+  checkId: "typed-after-command",
+  afterCommand: {
+    execute: ({ command }) => ({ status: "passed", data: { source: command.stdout } }),
+    parseData: (data) => {
+      if (typeof data.source !== "string") throw new TypeError("typed command data is invalid");
+      return { source: data.source };
+    }
+  }
+});
+const typedAfterCommandParser: (data: CanonicalJsonObject) => { readonly source: string } =
+  typedAfterCommand.parseData;
+// @ts-expect-error static and invocation-time environment policies are mutually exclusive.
+commandCheck({
+  ...commandInput,
+  environment: exactCommandEnvironment,
+  resolveEnvironment: () => exactCommandEnvironment
+});
+commandCheck({
+  ...commandInput,
+  // @ts-expect-error afterCommand does not permit combining static and invocation-time environments.
+  afterCommand: { execute: () => ({ status: "passed", data: { source: "ordinary" } }) },
+  environment: exactCommandEnvironment,
+  resolveEnvironment: () => exactCommandEnvironment
+});
+const mismatchedCommandParser = (data: CanonicalJsonObject) => {
+  if (typeof data.source !== "string") throw new TypeError("mismatched command data is invalid");
+  return { source: data.source };
+};
+commandCheck({
+  ...commandInput,
+  // @ts-expect-error typed parser final data must match afterCommand.execute data.
+  afterCommand: {
+    execute: () => ({ status: "passed", data: { count: 1 } }),
+    parseData: mismatchedCommandParser
+  }
+});
 const commandFinalData: CommandCheckFinalData = { exitCode: 0 };
 const commandUnavailableReason: CommandCheckUnavailableReasonCode =
   "command-output-limit-exceeded";
@@ -37,6 +89,10 @@ void [
   commandInput,
   commandUnavailableReason,
   installedCommandCheck,
-  installedCommandExecute
+  installedCommandExecute,
+  ordinaryAfterCommand,
+  ordinaryAfterCommandExecute,
+  typedAfterCommand,
+  typedAfterCommandParser
 ];
 `;

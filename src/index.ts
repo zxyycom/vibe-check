@@ -101,12 +101,20 @@ export type {
 } from "./package-checks/json-validation/json-validation.ts";
 export { commandCheck } from "./package-checks/command-check/command-check.ts";
 export type {
+  AfterCommand,
+  AfterCommandContext,
+  AfterCommandExecution,
   CommandCheck,
   CommandCheckEnvironment,
+  CommandCheckWithAfterCommand,
+  CommandEnvironmentContext,
+  CommandEnvironmentResolver,
+  CompletedCommand,
   CommandCheckFinalData,
   CommandCheckInput,
   CommandCheckOutput,
-  CommandCheckUnavailableReasonCode
+  CommandCheckUnavailableReasonCode,
+  TypedCommandCheck
 } from "./package-checks/command-check/command-check.ts";
 export { maintenanceReminders } from "./package-checks/maintenance-reminders/maintenance-reminders.ts";
 export type {

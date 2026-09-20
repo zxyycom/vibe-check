@@ -1,15 +1,34 @@
 import { executeCommandCheck } from "./execution.ts";
+import type { Check, CheckDataParser } from "../../check/check.ts";
 import { resolveCommandCheckInput } from "./options.ts";
-import type { CommandCheck, CommandCheckInput, ResolvedCommandCheckOptions } from "./contract.ts";
+import type {
+  AfterCommand,
+  AfterCommandExecution,
+  CommandCheck,
+  CommandCheckInput,
+  CommandCheckWithAfterCommand,
+  ResolvedCommandCheckOptions,
+  TypedCommandCheck
+} from "./contract.ts";
 
 export type {
+  AfterCommand,
+  AfterCommandContext,
+  AfterCommandExecution,
+  CommandCheckWithAfterCommand,
+  CommandEnvironmentContext,
+  CommandEnvironmentResolver,
+  CompletedCommand,
   CommandCheck,
   CommandCheckEnvironment,
   CommandCheckFinalData,
   CommandCheckInput,
   CommandCheckOutput,
-  CommandCheckUnavailableReasonCode
+  CommandCheckUnavailableReasonCode,
+  TypedCommandCheck
 } from "./contract.ts";
+
+type CommandCheckImplementationInput = CommandCheckInput<string, AfterCommand | undefined>;
 
 /**
  * 构造一个单一 no-shell executable 的 ordinary Check。
@@ -47,9 +66,29 @@ export type {
  * }
  * ```
  */
+export function commandCheck<const Id extends string, const FinalData extends object>(
+  input: CommandCheckInput<
+    Id,
+    Readonly<{
+      readonly execute: AfterCommandExecution<FinalData>;
+      readonly parseData?: never;
+    }>
+  >
+): CommandCheckWithAfterCommand<Id, FinalData>;
+export function commandCheck<const Id extends string, const Parser extends CheckDataParser>(
+  input: CommandCheckInput<
+    Id,
+    Readonly<{
+      readonly execute: AfterCommandExecution<NoInfer<ReturnType<Parser>>>;
+      readonly parseData: Parser;
+    }>
+  >
+): TypedCommandCheck<Id, Parser>;
 export function commandCheck<const Id extends string>(
   input: CommandCheckInput<Id>
-): CommandCheck<Id> {
+): CommandCheck<Id>;
+export function commandCheck(input: CommandCheckImplementationInput): Check {
+  const commandInput = input;
   const resolved = resolveCommandCheckInput(input);
   if (resolved === undefined) {
     throw new TypeError(
@@ -57,28 +96,39 @@ export function commandCheck<const Id extends string>(
     );
   }
   return {
-    ...(input.admissionPriority === undefined
+    ...(commandInput.admissionPriority === undefined
       ? {}
-      : { admissionPriority: input.admissionPriority }),
-    ...(input.checks === undefined ? {} : { checks: input.checks }),
-    ...(input.dependsOn === undefined ? {} : { dependsOn: input.dependsOn }),
-    ...(input.enabledByFlags === undefined ? {} : { enabledByFlags: input.enabledByFlags }),
-    ...(input.maxParallel === undefined ? {} : { maxParallel: input.maxParallel }),
-    ...(input.mutex === undefined ? {} : { mutex: input.mutex }),
-    ...(input.observes === undefined ? {} : { observes: input.observes }),
-    ...(input.omitQuietPassedRow === undefined
+      : { admissionPriority: commandInput.admissionPriority }),
+    ...(commandInput.checks === undefined ? {} : { checks: commandInput.checks }),
+    ...(commandInput.dependsOn === undefined ? {} : { dependsOn: commandInput.dependsOn }),
+    ...(commandInput.enabledByFlags === undefined
       ? {}
-      : { omitQuietPassedRow: input.omitQuietPassedRow }),
-    ...(input.resourceClaims === undefined ? {} : { resourceClaims: input.resourceClaims }),
-    checkId: input.checkId,
-    displayName: input.displayName,
-    execute: executeCommandCheck,
+      : { enabledByFlags: commandInput.enabledByFlags }),
+    ...(commandInput.maxParallel === undefined ? {} : { maxParallel: commandInput.maxParallel }),
+    ...(commandInput.mutex === undefined ? {} : { mutex: commandInput.mutex }),
+    ...(commandInput.observes === undefined ? {} : { observes: commandInput.observes }),
+    ...(commandInput.omitQuietPassedRow === undefined
+      ? {}
+      : { omitQuietPassedRow: commandInput.omitQuietPassedRow }),
+    ...(commandInput.resourceClaims === undefined
+      ? {}
+      : { resourceClaims: commandInput.resourceClaims }),
+    checkId: commandInput.checkId,
+    displayName: commandInput.displayName,
+    execute: (context: Parameters<CommandCheck["execute"]>[0]) =>
+      executeCommandCheck(context, {
+        afterCommand: resolved.afterCommand,
+        resolveEnvironment: resolved.resolveEnvironment
+      }),
     options: resolved.options,
     prepare: (options: ResolvedCommandCheckOptions) =>
-      isRevalidatedCommandOptions(options, input.checkId, input.displayName)
+      isRevalidatedCommandOptions(options, commandInput.checkId, commandInput.displayName)
         ? { status: "success", preparedOptions: options }
-        : { status: "failure", action: "block", reason: { code: "invalid-options" } }
-  } satisfies CommandCheck<Id>;
+        : { status: "failure", action: "block", reason: { code: "invalid-options" } },
+    ...(resolved.afterCommand?.parseData === undefined
+      ? {}
+      : { parseData: resolved.afterCommand.parseData })
+  };
 }
 
 function isRevalidatedCommandOptions<Id extends string>(

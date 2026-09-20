@@ -6,9 +6,12 @@ import { workspaceFormatInvocation } from "../../development/format.ts";
 import { workspaceFormatTargets } from "../../development/format-targets.ts";
 import { lintInvocation } from "../../development/lint.ts";
 import { typecheckInvocation } from "../../development/typecheck.ts";
+import type { ProcessInvocation } from "../../process-execution/command.ts";
 import {
+  commandCheck,
   createLearnedCriticalPathStrategy,
   defineConfig,
+  type AfterCommandContext,
   type ProjectDefinition,
   type RunControls,
   type SchedulerGraphSnapshot
@@ -33,6 +36,11 @@ import { createPreparedCandidateCheck } from "./checks/prepared-candidate.ts";
 import { createProjectGateRepositoryQualityChecks } from "./checks/repository-quality.ts";
 import { createOxfmtFailureProjection } from "./checks/oxfmt-failure-records.ts";
 import { createOxlintFailureProjection } from "./checks/oxlint-failure-records.ts";
+import {
+  safeProcessFailureRecords,
+  type ProcessFailureProjection
+} from "./checks/process/failure-projection.ts";
+import { failedProcessResult, processTranscriptPath } from "./checks/process/transcript.ts";
 import { createTestEvidenceRuleTestsCheck } from "./checks/test-evidence/ast-grep-rule-tests-check.ts";
 import { createTestEvidenceCheck } from "./checks/test-evidence/semantic-case-check.ts";
 import { createProjectGateTestEntries } from "./checks/test-execution/entries.ts";
@@ -42,6 +50,8 @@ import { resolveProjectGateTestLanes } from "./checks/test-execution/lanes.ts";
 const documentationMaterialsMutex = ["project-gate-documentation-materials"] as const;
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
 const packageAcceptanceTimeoutMs = 30_000;
+const projectGateCommandTimeoutMs = 30_000;
+const gateCommandOutputByteLimit = 1024 * 1024;
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const projectGateBunTestRunnerResourceClaims = Object.freeze({
   "project-gate-bun-test-runners": 1
@@ -111,14 +121,8 @@ function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGate
       presets: ["typecheck"],
       required: true
     }),
-    createProjectGateProcessEntry({
-      failureProjection: createOxlintFailureProjection({
-        scope: "product",
-        workspaceRoot: repositoryRoot
-      }),
-      invocation: lintInvocation("product", "json"),
-      checkId: "lint-product",
-      displayName: "TypeScript product lint",
+    createProjectGateCommonEntry({
+      check: createLintProductCheck(),
       presets: ["lint"],
       required: true
     }),
@@ -152,6 +156,72 @@ function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGate
       required: true
     })
   ];
+}
+
+interface LintProductCheckInput {
+  readonly failureProjection: ProcessFailureProjection;
+  readonly invocation: Pick<ProcessInvocation, "args" | "command" | "cwd">;
+}
+
+/** Uses Product command lifecycle while retaining Gate-owned oxlint failure projection. */
+export function createLintProductCheck(input?: LintProductCheckInput) {
+  const invocation = input?.invocation ?? lintInvocation("product", "json");
+  const failureProjection =
+    input?.failureProjection ??
+    createOxlintFailureProjection({
+      scope: "product",
+      workspaceRoot: repositoryRoot
+    });
+  return commandCheck({
+    arguments: invocation.args,
+    checkId: "lint-product",
+    displayName: "TypeScript product lint",
+    environment: { mode: "inherit" },
+    executable: invocation.command,
+    output: { mode: "transcript" },
+    outputByteLimit: gateCommandOutputByteLimit,
+    timeoutMs: projectGateCommandTimeoutMs,
+    workingDirectory: invocation.cwd,
+    afterCommand: {
+      execute: (context) =>
+        settleLintProductCommand({
+          command: invocation.command,
+          context,
+          failureProjection
+        })
+    }
+  });
+}
+
+/** Maps one settled lint command into Gate-owned failure projection without exposing child output. */
+export function settleLintProductCommand(
+  input: Readonly<{
+    readonly command: string;
+    readonly context: AfterCommandContext;
+    readonly failureProjection: ProcessFailureProjection;
+  }>
+) {
+  const { command, context, failureProjection } = input;
+  if (context.artifactDirectory === null) {
+    return Object.freeze({
+      status: "unavailable" as const,
+      reason: Object.freeze({ code: "command-transcript-unavailable" })
+    });
+  }
+  if (context.command.exitCode === 0) {
+    return Object.freeze({
+      status: "passed" as const,
+      data: Object.freeze({ exitCode: 0 })
+    });
+  }
+  const failureRecords = safeProcessFailureRecords(failureProjection, context.command.stdout);
+  return failedProcessResult(context, {
+    command,
+    exitCode: context.command.exitCode,
+    logPath: processTranscriptPath(context.artifactDirectory),
+    signal: null,
+    ...(failureRecords === undefined ? {} : { failureRecords })
+  });
 }
 
 /** Combines invocation-local package preparation with all test-lane entries that consume it. */

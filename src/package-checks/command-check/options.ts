@@ -5,10 +5,15 @@ import {
   snapshotExactClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import { isNonEmptyString, isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
-import type { CommandCheckInput, ResolvedCommandCheckOptions } from "./contract.ts";
+import type {
+  AfterCommand,
+  CommandEnvironmentResolver,
+  ResolvedCommandCheckOptions
+} from "./contract.ts";
 
 const COMMAND_INPUT_OPTIONAL_KEYS = [
   "admissionPriority",
+  "afterCommand",
   "arguments",
   "checks",
   "dependsOn",
@@ -20,6 +25,7 @@ const COMMAND_INPUT_OPTIONAL_KEYS = [
   "omitQuietPassedRow",
   "output",
   "resourceClaims",
+  "resolveEnvironment",
   "workingDirectory"
 ] as const;
 const COMMAND_INPUT_REQUIRED_KEYS = [
@@ -40,12 +46,11 @@ const RESOLVED_OPTION_KEYS = [
 ] as const;
 
 /** Snapshots one closed constructor input and materializes every command-owned omission. */
-export function resolveCommandCheckInput<Id extends string>(
-  input: CommandCheckInput<Id>
-):
+export function resolveCommandCheckInput(input: unknown):
   | Readonly<{
-      readonly input: Readonly<Record<string, unknown>>;
+      readonly afterCommand: AfterCommand | undefined;
       readonly options: ResolvedCommandCheckOptions;
+      readonly resolveEnvironment: CommandEnvironmentResolver | undefined;
     }>
   | undefined {
   const snapshot = snapshotClosedPolicyRecord(input, {
@@ -53,8 +58,31 @@ export function resolveCommandCheckInput<Id extends string>(
     required: COMMAND_INPUT_REQUIRED_KEYS
   });
   if (snapshot === undefined) return undefined;
+  const afterCommand = resolveAfterCommand(snapshot.afterCommand);
+  const environmentResolver = resolveEnvironmentResolver(snapshot.resolveEnvironment);
+  if (
+    (snapshot.afterCommand !== undefined && afterCommand === undefined) ||
+    (snapshot.resolveEnvironment !== undefined && environmentResolver === undefined) ||
+    (snapshot.environment !== undefined && snapshot.resolveEnvironment !== undefined)
+  ) {
+    return undefined;
+  }
   const options = resolveCommandOptions(snapshot);
-  return options === undefined ? undefined : Object.freeze({ input: snapshot, options });
+  return options === undefined
+    ? undefined
+    : Object.freeze({
+        afterCommand,
+        options,
+        resolveEnvironment: environmentResolver
+      });
+}
+
+/** Resolves one callback-produced environment to the same complete closed shape as static input. */
+export function resolveCommandCheckEnvironment(
+  value: unknown
+): ResolvedCommandCheckOptions["environment"] | undefined {
+  if (value === undefined) return undefined;
+  return resolveEnvironment(value);
 }
 
 /** Revalidates the complete resolved shape before execution. */
@@ -81,6 +109,39 @@ function resolveCommandOptions(
   const options = resolveCommandExecutionOptions(input);
   if (options === undefined) return undefined;
   return isValidResolvedCommandCheckOptions(options) ? options : undefined;
+}
+
+function resolveAfterCommand(value: unknown): AfterCommand | undefined {
+  if (value === undefined) return undefined;
+  const afterCommand = snapshotClosedPolicyRecord(value, {
+    optional: ["parseData"],
+    required: ["execute"]
+  });
+  if (afterCommand === undefined || !isAfterCommandExecution(afterCommand.execute))
+    return undefined;
+  if (afterCommand.parseData !== undefined && !isCheckDataParser(afterCommand.parseData)) {
+    return undefined;
+  }
+  return Object.freeze({
+    execute: afterCommand.execute,
+    ...(afterCommand.parseData === undefined ? {} : { parseData: afterCommand.parseData })
+  });
+}
+
+function resolveEnvironmentResolver(value: unknown): CommandEnvironmentResolver | undefined {
+  return isCommandEnvironmentResolver(value) ? value : undefined;
+}
+
+function isAfterCommandExecution(value: unknown): value is AfterCommand["execute"] {
+  return typeof value === "function";
+}
+
+function isCheckDataParser(value: unknown): value is NonNullable<AfterCommand["parseData"]> {
+  return typeof value === "function";
+}
+
+function isCommandEnvironmentResolver(value: unknown): value is CommandEnvironmentResolver {
+  return typeof value === "function";
 }
 
 /** Resolves command-owned execution fields after the ordinary Check identity is known valid. */

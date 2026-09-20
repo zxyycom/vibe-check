@@ -27,44 +27,37 @@ native adapter 收到空、重复或不安全的 `{ id, data }` diagnostics，�
 - **Decision Records：** 只发布经 capability 验证的 decision ID、repo-relative source/index path 与 owner-authored classification；不转交可能含 YAML、schema 或 filesystem detail 的 `errors: string[]`。
 - **Test Evidence：** 只接受封闭 origin/code allowlist，并依 code-specific policy 投影已验证的 repo-relative path/location、Case ID 和 `runner: "bun"`；child output、parser/error message、JUnit target/selector/entity key 与其它自由文本不进入 Record。
 
-### 外部命令 transcript
+### 两种 command transcript owner
 
-每个 external-command Check 只从自己的 `CheckExecutionContext.artifactDirectory` 读取路径能力；未授予时以 `transcript-unavailable` fail closed。已授予时，它在启动 child 前写入 `checks/<encoded-check-id>/process.log` 的 running transcript，并在结算后将同一路径改写为 command、stdout/stderr、exit/signal/timeout 与安全 error summary；startup 写入失败时不得启动 child。process 与 ast-grep rule-test Check 不从 Gate Definition closure 或 invocation root 获取路径，也不能写 sibling Check artifact。
+Gate 有两条互不混用的 command 路径：
 
-### Project Gate 的结构化非零 process Records
+| 路径 | 当前 Check | transcript 与 failure owner |
+| --- | --- | --- |
+| private process adapter | `typecheck-*`、`lint-scripts`、`format-check`、test lanes、`git-diff-whitespace` | `scripts/project/gate/checks/process/**` 拥有 running/final format、`transcript-unavailable` 和 generic fallback。 |
+| Product `commandCheck` | `lint-product`、`prepared-external-package-consumer` | Product 拥有 `process.log` format 和 `command-transcript-unavailable`；Gate 只拥有 completion callback 的领域结果。 |
 
-这套投影只适用于**已经结算为 nonzero exit** 的 Gate process Check；它不是 generic process adapter 按 command、argv 或人读输出猜测工具语义的机制。process base 仍是 child execution、transcript、four-state outcome 与 generic fallback 的唯一 owner；工具 owner 只负责将自己的已验证 stdout 协议转换为完整的 safe Record 集合；Core 继续是唯一的 Record preview owner。
+private adapter 从自己的 `CheckExecutionContext.artifactDirectory` 取得路径能力，启动 child 前写 running transcript，结算后以自己的 command、stdout/stderr、exit/signal/timeout 与安全 error summary 格式改写。没有 capability 时它以 adapter 的 `transcript-unavailable` fail closed。其格式、reason code 与 fallback 不属于 `commandCheck` contract。
 
-当前的显式选择只有下表三项。没有列在表中的 process Check 不拥有 structured failure protocol。
+private adapter 的结构化 nonzero projection 只适用于明确选择该 projector 的 entry，不根据 command、argv 或人读输出猜测工具语义：
 
-| Gate Check     | 工具 owner protocol                                                | 接受后发布的 Record data                                                    |
-| -------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| `lint-product` | oxlint `--format=json`；只接受 `src/**` 内的诊断                   | `{ kind: "oxlint-diagnostic", path, location, rule, severity, occurrence }` |
-| `lint-scripts` | oxlint `--format=json`；只接受 `scripts/**` 内的诊断               | `{ kind: "oxlint-diagnostic", path, location, rule, severity, occurrence }` |
-| `format-check` | oxfmt `--list-different`；只接受 `workspaceFormatTargets` 中的路径 | `{ kind: "oxfmt-difference", path }`                                        |
+| Gate Check | 工具 owner protocol | 接受后发布的 Record data |
+| --- | --- | --- |
+| `lint-scripts` | oxlint `--format=json`；只接受 `scripts/**` 内诊断 | `{ kind: "oxlint-diagnostic", path, location, rule, severity, occurrence }` |
+| `format-check` | oxfmt `--list-different`；只接受 `workspaceFormatTargets` 中路径 | `{ kind: "oxfmt-difference", path }` |
 
-每次适用的 nonzero result 都按以下固定顺序处理：
+projector 必须先构造、排序和验证完整候选 Record 集合。unknown field、JSON/path-list 形状错误、scope/target escape、重复 identity 或 parser exception 会拒绝整组候选；entry 保持 failed，并只发布一个 generic `command-failure` Record。generic Record 与 terminal message 只引用 `checks/<encoded-check-id>/process.log`，且只使用 basename command label。Bun test、tsgo、Git whitespace 与 ast-grep rule-test 没有 stable owner protocol，保留 generic adapter failure。
 
-1. process base 先成功写入完整 settled `checks/<encoded-check-id>/process.log`；若没有 artifact capability、transcript 不能写入、执行被取消、spawn/error、status 为 null 或 timeout，则结算为既有 `unavailable`，不尝试投影。
-2. 只有表中 Gate entry 显式提供的工具 owner projector 才可读取该次 stdout。它必须先构造、排序并验证**整组**候选 Records，之后才可替换 generic Record。
-3. 任何候选不完整或不安全、unknown field、JSON/path-list 形状错误、workspace/scope/target escape、重复 identity 或 parser exception 都拒绝整组候选；Check 仍失败，并且只发布一个 generic `command-failure` Record。
+oxlint projector（`lint-scripts` 及下文的 `lint-product`）只接受 scope 内 canonical relative path、正 line/column、`error`/`warning` severity 和安全 `code` grammar；label 不进入 Record。oxfmt projector 只接受完整、非空、无重复的已授权 target path。两者只发布由 ASCII 字母、数字、`.`、`_`、`-`、`/` 组成的 relative path；child output、tool help/snippet、absolute root、arguments、credential URL 与 digest 不进入 Record 或 terminal message。Core 拥有 structured Record preview。
 
-**oxlint 协议。** closed JSON schema 要求每个诊断具有：
+### 已迁移的 commandCheck consumers
 
-- `error` 或 `warning` severity；
-- scope 内 canonical relative path；
-- 正 line/column；
-- 匹配 `/^[a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)?(?:\([a-z][a-z0-9-]*(?:\/[a-z][a-z0-9-]*)?\))?$/` 的 `code`。
+`lint-product` 与 `prepared-external-package-consumer` 不经过 private adapter。二者选择 `output: { mode: "transcript" }`，因此 `checks/<encoded-check-id>/process.log` 使用 Product format：running 为 `status=running`；final command status 后是 `stdout:` 和 `stderr:` 段。这个 status 是 Product 的 command terminal classification，不是 callback 可能返回的最终 Check outcome。final write 必须先于 `afterCommand`；没有 artifact capability 或写入失败时，Product 结算 `unavailable / command-transcript-unavailable`，不调用 Gate callback。
 
-安装的 oxlint 1.78 允许 label 只有 `{ span }`，所以 `label` 可缺失或为 string，但永不进入 Record。
+`lint-product` 的 completion callback 只在完整 numeric exit 后运行：exit `0` 结算 passed，nonzero 可由 Gate-owned oxlint projector 形成 safe Records，或回退为 Gate-owned generic failure，并维持 commandCheck 的 Product transcript 引用。这个 callback/projection 不是 private adapter schema。
 
-Oxlint 的 `error` / `warning` severity 原样进入 Record；lint invocation 的 `--deny-warnings` 已决定两者都以 nonzero exit 阻断。Gate 不重分级、二次过滤或将这些位置易变的 process diagnostics 接入 Product Finding waiver；规则、scope、directive audit 和例外仍由 `.oxlintrc.json` 与 Oxlint invocation 拥有。
+`prepared-external-package-consumer` 是 typed provider。其完整 nonzero exit 不表示 generic failed process Check：callback 保留安全的 generic command-failure message/log reference，但将 provider 结算为 `unavailable / external-consumer-provider-failed`，因为没有可发布的已验证 external-consumer material。exit `0` 时才解析 stdout、验证物理材料及其 candidate/provenance；解析或验证失败为 `unavailable / process-output-invalid`。这两个 external-consumer reason code 是该 consumer 的专有 result contract，不是 Product `commandCheck` unavailable code。
 
-**oxfmt 协议。** 输出必须是完整、非空、无重复的 list-different 路径集合；每行都必须是已授权 target 内的 canonical relative path。
-
-两种工具 owner 都只能发布由 ASCII 字母、数字、`.`、`_`、`-`、`/` 组成的 workspace-relative path；因此 `:`、`@`、`?`、`#`、`=` 等 credential 或 query 风险字符不能进入 data 或 identity。structured Record 与所有 terminal message 均不得复制 child output、tool message/help/snippet、absolute root、command arguments、credential URL 或 digest。结构化 Records 使用本节前述的 Core 默认 preview；工具 adapter 不控制 preview 的条数、排序、截断或文本格式。
-
-没有成功 structured projection 的 process Check，其 failure Record 和 terminal message 只引用 `checks/<encoded-check-id>/process.log`。generic failure Record 的 `command` 是 basename label，不是可执行文件完整路径；完整 command/args 只保留在私有 transcript。Bun test、tsgo、Git whitespace 与 ast-grep rule-test 没有本 Gate 采用的 stable owner protocol，因此保持 generic command failure；ast-grep version mismatch 仍只发布 expected version、固定 mismatch classification、version exit code 与 invocation-relative log reference。Product diagnostic channel、Gate transcript、progress transcript 与 child transcript 各自记录不同层次，不互相解析或复制。
+Product diagnostic channel、Gate transcript、progress transcript、private adapter transcript 与 Product `commandCheck` transcript 各自记录不同层次，不互相解析或复制。
 
 ## Gate terminal and transcript
 

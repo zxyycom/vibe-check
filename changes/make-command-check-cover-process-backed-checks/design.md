@@ -30,7 +30,7 @@
 - constructor snapshot 允许函数扩展点，但 declarative `ResolvedCommandCheckOptions`、fingerprint 和 machine facts 仍只保存闭合命令数据；函数 identity、解析出的环境值和 raw child material 不进入这些边界。
 - `executeCommandCheck` 分离默认 terminal mapping、after-command eligibility、transcript finalization 和 caller settlement，确保 transcript failure 先于 caller callback。
 - `output: discard` 仍不持久化 child material；配置 `afterCommand` 时，有界 stdout/stderr 只进入 trusted invocation-local callback。
-- Gate consumer 迁移同步其 factory wiring 和行为测试，不移动 Gate transcript schema、oxlint projection validator 或 external-consumer provenance validator。
+- Gate consumer 迁移同步其 factory wiring 和行为测试：两个 consumer 使用 Product Check-local `process.log` format/path 与 artifact isolation，且 settled transcript write 先于 callback；它们不继承 legacy Gate adapter transcript schema 或 `transcript-unavailable` reason。未迁移 adapter 保持自己的 transcript schema、reason 与 generic fallback。oxlint projection validator 与 external-consumer provenance validator 仍由 Gate owner 保留。
 - 用户指南与 API projection 同步默认模式、自定义完成模式、resolver 互斥关系、安全边界和稳定 reason code。
 
 ## Risks / Trade-offs

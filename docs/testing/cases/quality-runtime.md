@@ -466,7 +466,7 @@ Entities:
 Owner: `docs/guides/command-check.md#输入与-ordinary-check-组合`
 Entities:
 
-- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > closes command input, freezes defaults, and preserves ordinary Check composition`
+- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck authoring > closes command input, freezes defaults, and preserves ordinary Check composition`
   Proves:
 - `commandCheck` retains literal identity and ordinary Check composition while materializing detached defaults, rejecting hostile/unknown command input, and blocking invalid prepared options rather than executing them.
 
@@ -475,16 +475,19 @@ Entities:
 Owner: `docs/guides/command-check.md#环境`
 Entities:
 
-- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > uses no-shell arguments, resolved cwd, and exact or inherited environment without publishing child material`
+- `bun|src/package-checks/command-check/command-check.environment.test.ts|commandCheck environment > uses no-shell arguments, resolved cwd, and exact or inherited environment without publishing child material`
+- `bun|src/package-checks/command-check/command-check.environment.test.ts|commandCheck environment > resolves a closed invocation environment and lets afterCommand own complete numeric-exit settlement`
+- `bun|src/package-checks/command-check/command-check.environment.test.ts|commandCheck environment > fails closed when the environment resolver throws or returns an invalid policy before spawn`
   Proves:
-- A command receives dense no-shell argv, a project-root-relative working directory, exact variables without ambient leakage, or an execution-start inherited environment with declared deletions; child output remains absent from the default terminal result.
+- A command receives dense no-shell argv, a project-root-relative working directory, exact variables without ambient leakage, an execution-start inherited environment with declared deletions, or a resolver-produced closed environment from the permitted invocation context; child output remains absent from the default terminal result.
+- Static and resolver environment policies are mutually exclusive. A resolver throw or invalid return fails closed before spawn with `command-environment-resolution-failed`, without ambient fallback or environment publication.
 
 ## Case API-COMMAND-CHECK-TERMINAL-001: Command Check maps child lifecycle causes to closed terminal outcomes
 
-Owner: `docs/guides/command-check.md#终态与-final-data`
+Owner: `docs/guides/command-check.md#默认终态与失败边界`
 Entities:
 
-- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > maps numeric exit, startup, timeout, output limit, and signal terminal branches`
+- `bun|src/package-checks/command-check/command-check.terminal.test.ts|commandCheck terminal settlement > maps numeric exit, startup, timeout, output limit, and signal terminal branches`
   Proves:
 - Numeric nonzero exit publishes only its exit code as failed data, while startup failure, timeout, bounded-output overflow, and signal termination settle as their stable unavailable reason without child diagnostics.
 
@@ -493,18 +496,28 @@ Entities:
 Owner: `docs/guides/command-check.md#输出`
 Entities:
 
-- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > requires artifact capability for transcripts and atomically retains only opted-in raw output`
+- `bun|src/package-checks/command-check/command-check.transcript.test.ts|commandCheck transcripts > requires artifact capability for transcripts and atomically retains only opted-in raw output`
   Proves:
-- Transcript mode requires a writable Check-local artifact capability, atomically replaces only fixed `process.log` with closed raw stdout/stderr material, and converts unavailable capability or write failure into the stable transcript-unavailable outcome without exposing command input material.
+- Transcript mode requires a writable Check-local artifact capability, atomically replaces only fixed `process.log` with closed raw stdout/stderr material, and converts unavailable capability or write failure into the stable transcript-unavailable outcome without exposing command input material or entering `afterCommand`.
 
 ## Case API-COMMAND-CHECK-CANCELLATION-001: Command Check delegates caller cancellation to ordinary Check settlement
 
-Owner: `docs/guides/command-check.md#终态与-final-data`
+Owner: `docs/guides/command-check.md#默认终态与失败边界`
 Entities:
 
-- `bun|src/package-checks/command-check/command-check.test.ts|commandCheck constructor and execution > leaves caller cancellation to the ordinary Core execution outcome`
+- `bun|src/package-checks/command-check/command-check.terminal.test.ts|commandCheck terminal settlement > leaves caller cancellation to the ordinary Core execution outcome`
+- `bun|src/package-checks/command-check/command-check.terminal.test.ts|commandCheck terminal settlement > leaves resolver cancellation to the ordinary Core execution outcome`
   Proves:
 - A caller abort observed during command execution is settled by the ordinary Core lifecycle as `execution-cancelled`, rather than exposing a command-specific child lifecycle diagnostic.
+
+## Case API-COMMAND-CHECK-AFTER-COMMAND-001: Command Check gives complete child output to caller-owned settlement
+
+Owner: `docs/guides/command-check.md#调用方完成阶段`
+Entities:
+
+- `bun|src/package-checks/command-check/command-check.terminal.test.ts|commandCheck terminal settlement > does not invoke afterCommand for incomplete process results and delegates callback settlement to Core`
+  Proves:
+- Only a complete numeric-exit child result reaches `afterCommand`; timeout and other incomplete process results retain Product-owned terminal mapping. Once called, ordinary callback containment owns thrown settlement rather than leaking the callback error.
 
 ## Case QUALITY-RUNTIME-MARKDOWN-LINT: 有界 Markdown lint 结果发布
 

@@ -14,9 +14,13 @@ import {
   validateExternalConsumerMaterialPhysical
 } from "../../../package/candidate/external-consumer/input.ts";
 import {
-  createProcessCheckWithDataDependencyAndSuccessData,
-  type ProcessCheckDataDependency
-} from "./process/process.ts";
+  commandCheck,
+  type AfterCommandContext,
+  type CheckDependencies,
+  type CheckResult
+} from "@zxyycom/vibe-check";
+import { failedProcessResult, processTranscriptPath } from "./process/transcript.ts";
+import type { ProcessInvocation } from "../../../process-execution/command.ts";
 import {
   parseProjectGatePreparedCandidateData,
   type ProjectGatePreparedCandidateData
@@ -26,6 +30,12 @@ const providerAdapterPath = fileURLToPath(
   new URL("../../../package/candidate/external-consumer/provider.ts", import.meta.url)
 );
 const repositoryRoot = resolve(fileURLToPath(new URL("../../../..", import.meta.url)));
+const externalConsumerOutputByteLimit = 64 * 1024;
+const externalConsumerProviderInvocation = Object.freeze({
+  args: Object.freeze([providerAdapterPath]),
+  command: process.execPath,
+  cwd: repositoryRoot
+});
 
 /** Owns the one temporary root for a bound Gate Run, including cancelled child setup. */
 export interface ExternalConsumerMaterialLease {
@@ -56,33 +66,38 @@ export function createExternalConsumerMaterialCheck(
     readonly lease: ExternalConsumerMaterialLease;
     readonly preparedCandidateCheckId: string;
     readonly timeoutMs: number;
-  }>
+  }>,
+  invocation: Pick<
+    ProcessInvocation,
+    "args" | "command" | "cwd"
+  > = externalConsumerProviderInvocation
 ) {
-  return createProcessCheckWithDataDependencyAndSuccessData(
-    {
-      args: [providerAdapterPath],
-      checkId: "prepared-external-package-consumer",
-      command: process.execPath,
-      cwd: repositoryRoot,
-      displayName: "Prepared external package consumer",
-      timeoutMs: input.timeoutMs
-    },
-    providerDependency(input.preparedCandidateCheckId, input.lease),
-    {
-      fromStdout(stdout): unknown {
-        return JSON.parse(stdout);
-      },
-      parseData: parseExternalConsumerMaterialData,
-      validateDependencyData: (data, candidate) => {
-        validateExternalConsumerMaterialPhysical(data);
-        return validateExternalConsumerProviderProvenance(
-          data,
-          candidate,
-          input.lease.providerRoot()
-        );
-      }
+  return commandCheck({
+    arguments: invocation.args,
+    checkId: "prepared-external-package-consumer",
+    dependsOn: [input.preparedCandidateCheckId],
+    displayName: "Prepared external package consumer",
+    executable: invocation.command,
+    output: { mode: "transcript" },
+    outputByteLimit: externalConsumerOutputByteLimit,
+    resolveEnvironment: ({ dependencies }) =>
+      resolveExternalConsumerProviderEnvironment({
+        dependencies,
+        lease: input.lease,
+        preparedCandidateCheckId: input.preparedCandidateCheckId
+      }),
+    timeoutMs: input.timeoutMs,
+    workingDirectory: invocation.cwd,
+    afterCommand: {
+      execute: (context) =>
+        settleExternalConsumerProviderCommand({
+          context,
+          lease: input.lease,
+          preparedCandidateCheckId: input.preparedCandidateCheckId
+        }),
+      parseData: parseExternalConsumerMaterialData
     }
-  );
+  });
 }
 
 /** Binds child stdout to this exact prepared artifact and this invocation's owned root. */
@@ -101,19 +116,97 @@ export function validateExternalConsumerProviderProvenance(
   return data;
 }
 
-function providerDependency(
-  checkId: string,
-  lease: ExternalConsumerMaterialLease
-): ProcessCheckDataDependency<ProjectGatePreparedCandidateData> {
+/** Resolves the provider's inherited host environment and exact candidate-owned overrides. */
+export function resolveExternalConsumerProviderEnvironment(
+  input: Readonly<{
+    readonly dependencies: CheckDependencies;
+    readonly lease: ExternalConsumerMaterialLease;
+    readonly preparedCandidateCheckId: string;
+  }>
+) {
   return Object.freeze({
-    checkId,
-    environment(candidate: ProjectGatePreparedCandidateData): Readonly<Record<string, string>> {
-      return Object.freeze({
-        [CANDIDATE_ARTIFACT_PATH_ENV]: candidate.artifactPath,
-        [CANDIDATE_ARTIFACT_SHA256_ENV]: candidate.sha256,
-        [EXTERNAL_CONSUMER_ROOT_ENV]: lease.providerRoot()
-      });
-    },
-    parseData: parseProjectGatePreparedCandidateData
+    mode: "inherit" as const,
+    overrides: providerEnvironment(
+      preparedCandidateFromDependencies(input.dependencies, input.preparedCandidateCheckId),
+      input.lease
+    )
+  });
+}
+
+/** Settles provider output only after Product has finalized the command transcript. */
+export function settleExternalConsumerProviderCommand(
+  input: Readonly<{
+    readonly context: AfterCommandContext;
+    readonly lease: ExternalConsumerMaterialLease;
+    readonly preparedCandidateCheckId: string;
+  }>
+): CheckResult<ExternalConsumerMaterialData> {
+  const { context, lease, preparedCandidateCheckId } = input;
+  if (context.artifactDirectory === null)
+    return unavailableExternalConsumerMaterial("command-transcript-unavailable");
+  if (context.command.exitCode !== 0) return unavailableExternalConsumerCommand(context);
+  try {
+    const data = parseExternalConsumerMaterialData(JSON.parse(context.command.stdout));
+    validateExternalConsumerMaterialPhysical(data);
+    return Object.freeze({
+      status: "passed",
+      data: validateExternalConsumerProviderProvenance(
+        data,
+        preparedCandidateFromDependencies(context.dependencies, preparedCandidateCheckId),
+        lease.providerRoot()
+      )
+    });
+  } catch {
+    return unavailableExternalConsumerMaterial("process-output-invalid");
+  }
+}
+
+function preparedCandidateFromDependencies(
+  dependencies: CheckDependencies,
+  checkId: string
+): ProjectGatePreparedCandidateData {
+  const read = dependencies.get(checkId);
+  if (!read.ok || read.status !== "passed") {
+    throw new TypeError("prepared candidate dependency is unavailable");
+  }
+  return parseProjectGatePreparedCandidateData(read.data);
+}
+
+function providerEnvironment(
+  candidate: ProjectGatePreparedCandidateData,
+  lease: ExternalConsumerMaterialLease
+): Readonly<Record<string, string>> {
+  return Object.freeze({
+    [CANDIDATE_ARTIFACT_PATH_ENV]: candidate.artifactPath,
+    [CANDIDATE_ARTIFACT_SHA256_ENV]: candidate.sha256,
+    [EXTERNAL_CONSUMER_ROOT_ENV]: lease.providerRoot()
+  });
+}
+
+function unavailableExternalConsumerMaterial(
+  code:
+    | "command-transcript-unavailable"
+    | "external-consumer-provider-failed"
+    | "process-output-invalid"
+): CheckResult<ExternalConsumerMaterialData> {
+  return Object.freeze({ status: "unavailable", reason: Object.freeze({ code }) });
+}
+
+/** Retains generic failure evidence without claiming typed provider material after a nonzero command. */
+function unavailableExternalConsumerCommand(
+  context: AfterCommandContext
+): CheckResult<ExternalConsumerMaterialData> {
+  if (context.artifactDirectory === null)
+    return unavailableExternalConsumerMaterial("command-transcript-unavailable");
+  const failed = failedProcessResult(context, {
+    command: context.options.executable,
+    exitCode: context.command.exitCode,
+    logPath: processTranscriptPath(context.artifactDirectory),
+    signal: null
+  });
+  return Object.freeze({
+    status: "unavailable",
+    reason: Object.freeze({ code: "external-consumer-provider-failed" }),
+    ...(failed.messages === undefined ? {} : { messages: failed.messages })
   });
 }
