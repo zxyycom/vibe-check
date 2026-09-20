@@ -1,44 +1,44 @@
 # Design
 
-本 Draft 以普通 Check 的 `execute` 为主线：`commandCheck` 可先从 direct dependencies 解析环境，再完成自己的命令，将完整结果加入原 execution context 后调用用户函数。[API 草图](api-sketch.md)只说明拟议形状。
+`commandCheck` 继续拥有单次进程生命周期，并以两个闭合扩展点承接调用方环境解析和命令完成后的领域结算。
 
 ## Context
 
-- 当前 [command Check 指南](../../docs/guides/command-check.md)和 `src/package-checks/command-check/**` 拥有单次 no-shell 命令、environment/output policy、取消、预算与默认退出码结果。
-- [普通 Check authoring](../../docs/guides/extending-check-lifecycle.md)拥有 `prepare`、`execute`、direct dependencies、Records、messages、signal 与四态结果。包装层应沿用它们的时序和结算语义。
-- Gate 的结构化失败和 typed stdout provider 需要后置领域处理。[公共 command Check Decision](../../docs/decisions/provide-public-command-check.md)约束通用进程职责与 raw output 边界；[Gate Records Decision](../../docs/decisions/publish-owner-structured-process-check-records.md)约束 owner 投影。
+- [command Check 指南](../../docs/guides/command-check.md)与 `src/package-checks/command-check/**` 当前拥有 no-shell spawn、closed environment、取消、超时、有界输出、transcript 和 `{ exitCode }` 终态。
+- [ordinary Check lifecycle](../../docs/guides/extending-check-lifecycle.md)拥有 execution context、direct dependency readback、Records、messages、typed-provider parser 和 callback settlement。
+- Gate process adapter 同时承载通用进程机械逻辑与调用方领域逻辑。`prepared-external-package-consumer` 需要 dependency-derived environment 和 typed stdout；`lint-product` 需要 owner-approved oxlint failure projection。
+- [公共 command Check Decision](../../docs/decisions/provide-public-command-check.md)要求 Product 只解释通用进程生命周期，不自动发布 raw output 或猜测工具语义。新增的 [调用方完成阶段 Decision](../../docs/decisions/extend-command-check-with-caller-owned-completion.md)记录本 Change 的未来公共方向。
 
 ## Goals / Non-Goals
 
-目标是让 **Check-owned 的单次命令**复用 Product 进程生命周期：调用方可在启动前从 direct dependencies 解析环境，并在完成后用普通 `execute` 形成领域结果；省略两类函数时保留简单退出码模式。多步骤工具协议、非 Check 脚本与 Gate 的聚合/退出策略保持各自 owner。
+目标是让 Check-owned 的单次命令共享 Product 进程生命周期，同时由调用方形成领域结果和闭合环境。范围保持在一次 spawn 与一次完成回调；多步骤工具协议、通用 parser、自动脱敏、批量 Record 事务、handoff、Gate 聚合和整个 Gate adapter 迁移各自留在现有 owner。
 
 ## Decisions
 
 ### Intended Change
 
-1. 保留公开 `commandCheck` 的 executable/arguments 输入和 ordinary Check 组合。其返回 Check 的 `execute` 由 Product 包装：完成命令后，将只读、有界的 `{ exitCode, stdout, stderr }` 加到原 `CheckExecutionContext`，再调用可选的用户 `execute`。公开字段命名和泛型尚待验收。
-2. 后置函数只收到**正常结束、输出完整且有 numeric exit**的命令结果；startup、timeout、取消、signal、输出超限和 transcript failure 由 Product 结算。调用资格独立于默认退出码分类，避免把 numeric nonzero 误作输出完整的证明。
-3. 用户函数返回普通 `CheckResult<Data>`，可读取 direct dependencies、使用 signal、返回 messages 并通过普通 reporter 报告 Records。它独自拥有领域终态；省略时使用当前 `{ exitCode }` 映射。本次不预设另一个 Record 转换或结果转换公共分支。
-4. 增加可选的**pre-spawn environment resolver**：在普通 `prepare` 成功、direct dependencies 可读后，命令启动前调用；只提供解析环境所需的 options、project、dependencies 和 signal，不开放 Records reporter 或 raw child material。它返回当前 `CommandCheckEnvironment` 的闭合 exact/inherit policy，与静态 `environment` 二选一，不隐式合并；未提供时仍为 exact-empty。Product 在启动前验证、detach 并冻结返回 policy，再叠加现有固定 plain-text variables。resolver 不改变 executable、arguments、workingDirectory 或其它命令字段。
+1. **环境解析。** `resolveEnvironment(context)` 与静态 `environment` 构成互斥输入。context 只包含 prepared command options、project、direct dependencies 和 signal；resolver 返回现有 `CommandCheckEnvironment`。两者都省略时保持 exact-empty。
+2. **完成阶段。** `afterCommand` 是包含 `execute` 与可选 `parseData` 的对象。对象层级把同一完成阶段的 callback 与 typed-provider parser 绑定，并避免把 caller callback 与返回 Check 上 Product-owned 的 `execute` 混为一谈。配置 `parseData` 时，返回 Check 在顶层暴露该 parser；本 Change 不提供 handoff 变体。
+3. **完成输入。** Product 在 transcript final write 成功后，只将无 cancellation、timeout、max-buffer、signal 或 startup failure 且具有 numeric exit 的结果交给 `afterCommand.execute`。numeric nonzero exit 同样属于完整结果，由调用方决定 `passed`、`failed` 或其它普通 Check 终态。
+4. **默认兼容。** 省略 `afterCommand` 时继续使用现有 terminal classification 顺序和 `{ exitCode }` data。完整性判断是自定义完成阶段的独立准入，不改变默认模式对复合 process flags 的既有优先级。
+5. **失败边界。** resolver 返回值在 spawn 前按现有 closed environment validator 完整 snapshot；非法返回或非取消异常结算为 `command-environment-resolution-failed`。Core 继续把任一阶段观察到的取消结算为 `execution-cancelled`。`afterCommand.execute` 的 throw、非法结果、messages 与 Records 使用 ordinary callback settlement。
+6. **首轮消费者。** `prepared-external-package-consumer` 验证 resolver、typed stdout 和 provenance；`lint-product` 验证 numeric nonzero、完整投影后发布安全 Records，以及投影失败时的既有 generic failure。其它 Gate process Checks 保持原 adapter。
 
 ### Resulting Impacts
 
-- Input/declarations、constructor validation、现有内部 `prepare` 复验、resolver 的准入/返回验证、wrapped execution、typed final data、`parseData`/handoff 与 callback 异常语义需一起核对。两种函数和闭包不进入 declarative options 或 fingerprint；resolver 只在本次 invocation 解析环境值，不把值写入 Check facts。
-- `output: discard` 仍表示不持久化，但后置函数可读有界 child material；transcript 的**进程状态**与用户函数返回的 **Check 结果**需分清。Raw output 不自动进入 final data、Records、messages 或 machine output。
-- 用户函数使用普通逐条 `records.report`。调用方可先完整验证安全投影再发布；若要求提交阶段也 all-or-none，需要另证批量事务能力。
-- Gate 的 dependency-derived environment 可由 resolver 在 spawn 前解决；解析异常、非法 policy 或取消必须 fail closed，不退回静态/ambient 环境，也不得在诊断中泄露值。Gate 专属 transcript 字段不会自动迁入 Product。迁移范围确定后，同步相应 owner、用户指南、示例、类型和验收测试，并按项目规则进行独立文档反查。
+- `CommandCheckInput` 需要 default、ordinary-after-command 和 typed-after-command 三种可推断输入；返回类型分别保留固定 `{ exitCode }`、ordinary data 和 typed provider parser。实现时以 package-root fixture 作为公共声明验收。
+- constructor snapshot 允许函数扩展点，但 declarative `ResolvedCommandCheckOptions`、fingerprint 和 machine facts 仍只保存闭合命令数据；函数 identity、解析出的环境值和 raw child material 不进入这些边界。
+- `executeCommandCheck` 分离默认 terminal mapping、after-command eligibility、transcript finalization 和 caller settlement，确保 transcript failure 先于 caller callback。
+- `output: discard` 仍不持久化 child material；配置 `afterCommand` 时，有界 stdout/stderr 只进入 trusted invocation-local callback。
+- Gate consumer 迁移同步其 factory wiring 和行为测试，不移动 Gate transcript schema、oxlint projection validator 或 external-consumer provenance validator。
+- 用户指南与 API projection 同步默认模式、自定义完成模式、resolver 互斥关系、安全边界和稳定 reason code。
 
 ## Risks / Trade-offs
 
-这种包装覆盖 typed stdout、工具专属安全 Records、dependency-derived environment 与额外领域 I/O，却不会替可信 callback 自动脱敏、取消其未连接 signal 的工作或保证 Record 事务提交。直接 `Record[]` 转换和独立结果转换只有证明与普通 `execute` 不同的消费者义务时才考虑公开。
-
-ast-grep 的 pinned-version 检查是 rule tests 的真实前置条件；将两步表达为 `dependsOn` 有语义依据，不需要版本 Check 的独立消费者。它仍是两步工具协议，不属于本 Change 的单命令包装；拆分后 `failed` 与 dependent `unavailable` 的调用级解释应由独立的 `make-run-check-aggregation-default-and-customizable` 审查，不为保持现有 aggregate 而否定合法依赖。
-
-当前实现的默认分类优先保留 numeric nonzero exit，即使 process result 还有 timeout/max-buffer 等标记。新 callback 的完整性检查必须与旧默认分类分开；改变旧分类属于另一项可观察行为调整。
+- `afterCommand` 扩大 trusted callback 可见的 child material；通过显式 opt-in、既有 byte limit、无自动发布和调用方安全投影维持边界。
+- resolver 是 invocation-time trusted code；统一的失败 reason 有意不暴露异常或环境值，具体业务诊断应由调用方在不含敏感值的 owner 语义中表达。
+- 首轮只迁移两个互补 consumer，能验证公共抽象而不把 Gate 专属协议带入 Product；其余迁移需按各 consumer 的独立收益另行决定。
 
 ## Open Questions
 
-1. 公开后置函数使用顶层 `execute` 还是 `afterCommand.execute`；如何让 typed final data、`parseData`/handoff 和无用户函数的 `{ exitCode }` 模式正确推断？
-2. Environment resolver 的公开字段名、context 精确类型、throw/非法返回的稳定 unavailable reason，以及 Gate 专属 transcript 是否进入本次迁移验收？
-3. 实施前审查当前公共 Decision 的 exit-only 范围，确定是否需要长期后继修订。
-4. ast-grep 的 version/rule-tests 拆分可按自身语义独立审查；与 `make-run-check-aggregation-default-and-customizable` 的实施顺序是否有 Gate 验收依赖？两者不扩入本 Draft 的单命令 API。
+无。实现可以调整私有 helper 和内部类型名称，但不得改变上述公共输入形状、失败边界、首轮 consumer 或成功标准。

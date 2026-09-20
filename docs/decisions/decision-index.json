@@ -347,7 +347,8 @@
       "260915-keep-package-quality-advisory-with-default-gate-aggregation": "sha256:4c0a18626f0d036c1ff12934e6a3922d21da581263e5d42b83f2e77a28a1dcd2",
       "260915-provide-bounded-markdown-lint-check": "sha256:37fb68f0951b63c35527be3ec0c95d6af659f29eeca2abc22a7570a75f77a36d",
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b",
-      "260920-configure-package-checks-through-constructor-options": "sha256:c45c93f46e0435fd1ec5de0403366d078a839b0b802fc30a142d8c7ba6bd0958"
+      "260920-configure-package-checks-through-constructor-options": "sha256:c45c93f46e0435fd1ec5de0403366d078a839b0b802fc30a142d8c7ba6bd0958",
+      "260920-extend-command-check-with-caller-owned-completion": "sha256:bc1b4e49f4821eb2d9f0b23119487518ca5acd23f6f86b4db14b81b92ddb9ce1"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7182,6 +7183,22 @@
       "purpose": "让固定身份的随包 Check 在一次构造调用中同时表达领域政策与项目声明。",
       "background": "随包构造器已返回完整类型化 Check，但固定声明字段迫使多实例项目在构造后重新组合对象。",
       "decision": "固定身份构造器以顶层选项接收共享声明字段，并保留原生执行、结果与默认身份。",
+      "tags": [
+        "configuration",
+        "product-contract"
+      ],
+      "relations": []
+    },
+    "260920-extend-command-check-with-caller-owned-completion": {
+      "name": "extend-command-check-with-caller-owned-completion",
+      "sourcePath": "extend-command-check-with-caller-owned-completion.md",
+      "title": "让 commandCheck 承接调用方完成阶段",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-09-20T05:59:14Z",
+      "purpose": "让单次命令 Check 在受控进程结果后执行调用方领域结算。",
+      "background": "退出码模式无法复用 Product 进程边界完成 typed data、Records 与依赖派生环境。",
+      "decision": "增加闭合环境解析与 afterCommand 完成阶段，同时保留默认退出码模式和输出边界。",
       "tags": [
         "configuration",
         "product-contract"
