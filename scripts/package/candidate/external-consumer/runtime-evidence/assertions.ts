@@ -43,7 +43,9 @@ export type CandidateFixtureEvidence = Readonly<{
   markdownLinkOutcome: string | null;
   machineSchemaVersion: unknown;
   parserEvidence: unknown;
+  primaryFileMetricsOutcome: string | null;
   runtime: unknown;
+  secondaryFileMetricsOutcome: string | null;
   secondChangedFilesConsumer: unknown;
 }>;
 
@@ -70,6 +72,8 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
   assert.equal(runEvidence.functionMetricsOutcome, "passed");
   assert.deepEqual(runEvidence.functionMetricsData, { blockingFindingCount: 0, findingCount: 1 });
   assertTrustedNonBlockingFunctionMetricsRecord(runEvidence.functionMetricsRecords);
+  assert.equal(runEvidence.primaryFileMetricsOutcome, "passed");
+  assert.equal(runEvidence.secondaryFileMetricsOutcome, "passed");
   assert.equal(runEvidence.jsonSchemaOutcome, "passed");
   assert.deepEqual(runEvidence.jsonSchemaData, {
     bindingCount: 1,
@@ -134,6 +138,8 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
   assertHumanOutput(runEvidence.humanOutput);
   for (const checkId of [
     "duplicate-detection",
+    "installed-file-metrics-primary",
+    "installed-file-metrics-secondary",
     "function-metrics",
     "json-schema-validation",
     "markdown-lint",
@@ -228,13 +234,13 @@ function assertParserEvidence(value: unknown): void {
 }
 
 function assertHumanOutput(output: string): void {
-  assert.match(output, /^Vibe Check\ntotal 14 checks · 1 configured for quiet-pass omission$/mu);
+  assert.match(output, /^Vibe Check\ntotal 16 checks · 1 configured for quiet-pass omission$/mu);
   assert.match(output, /Checks:/);
-  assert.match(output, /\[1\/14\].*duplicate detection/i);
-  assert.match(output, /\[2\/14\].*Function metrics/i);
-  assert.match(output, /\[9\/14\].*Blocked changed-files consumer/i);
+  assert.match(output, /\[\d+\/16\].*duplicate detection/i);
+  assert.match(output, /\[\d+\/16\].*Function metrics/i);
+  assert.match(output, /\[\d+\/16\].*Blocked changed-files consumer/i);
   assert.match(output, /^ {2}· Installed terminal note \| passed \| \d+(?:\.\d+)?(?:ms|s)$/mu);
-  assert.doesNotMatch(output, /\[\d+\/14\].*Installed terminal note/i);
+  assert.doesNotMatch(output, /\[\d+\/16\].*Installed terminal note/i);
   assert.match(output, /\[info\] Installed candidate terminal message\./);
   assert.match(output, /Execution summary:/);
   assert.match(output, /^ {2}quiet-pass rows omitted: 0$/mu);

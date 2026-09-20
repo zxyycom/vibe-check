@@ -30,6 +30,33 @@ npm 负责安装 package；应用代码和质量脚本的最低运行要求是 *
 | 基于 Git 历史的维护提醒 | [`maintenanceReminders(entries)`](./docs/checks/maintenance-reminders.md) | 项目根目录是 Git repository，且环境可以执行 `git`。 |
 | 高置信 PEM private key | [`secretDetection({ files })`](./docs/checks/secret-detection.md) | 无需另装分析器。 |
 
+### 为随包 Check 声明项目行为
+
+八个 object-policy 构造器都在原有顶层 options 接受领域 policy 和项目声明。`maintenanceReminders` 保留
+`maintenanceReminders(entries)`，并增加包含 `entries` 的 object input；为同类 Check 创建多个实例时，直接提供 `checkId`。
+
+```ts
+import { defineConfig, fileMetrics } from "@zxyycom/vibe-check";
+
+const definition = defineConfig({
+  checks: [
+    fileMetrics({
+      checkId: "source-file-metrics",
+      enabledByFlags: { when: "source-changed" },
+      codeAreas: { source: { files: { include: ["src/**/*.ts"] } } }
+    }),
+    fileMetrics({
+      checkId: "test-file-metrics",
+      codeAreas: { tests: { files: { include: ["test/**/*.ts"] } } }
+    })
+  ]
+});
+```
+
+`PackageCheckAuthoringOptions` 可作为可复用的项目声明片段从 package root 导入。构造器返回原生 typed
+Check：项目字段成为 Check 声明，领域字段才形成 `.options` 和 execution `context.options`。完整字段、默认、
+关系与验证责任见 [API 机制](./docs/api-mechanics.md#随包-check-的构造器项目声明)；每个领域字段见对应 Check 指南。
+
 `duplicateDetection`、`fileMetrics`、`functionMetrics`、`markdownLint` 和 `markdownLinkValidation` 默认把普通 Finding 作为 non-blocking 警告保留下来；需要让 Finding 直接使 Check 失败时，在对应 options 中设置 `findingPolicy: "blocking"`。文件选择、阈值、外部工具和具体结果字段以各 Check 指南为准。
 
 ## 自定义 Check 快速开始

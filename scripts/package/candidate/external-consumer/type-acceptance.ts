@@ -12,6 +12,10 @@ import { CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE } from "./handoff-type-acceptance.
 import { DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE } from "./data-boundary-type-acceptance.ts";
 import { PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE } from "./project-changes-type-acceptance.ts";
 import {
+  MAINTENANCE_REMINDERS_TYPE_ACCEPTANCE_SOURCE,
+  PACKAGE_CHECK_CONSTRUCTOR_TYPE_ACCEPTANCE_SOURCE
+} from "./package-check-constructor-options-type-acceptance.ts";
+import {
   EXTERNAL_CONSUMER_NODE_GLOBALS_DECLARATION,
   externalConsumerTypecheckConfig
 } from "./typecheck-fixture.ts";
@@ -105,7 +109,6 @@ function readAdjacentDeclarationDocumentation(input: {
 }
 
 const PUBLIC_TYPE_IMPORTS_MARKER = "__VIBE_CHECK_PUBLIC_TYPE_IMPORTS__";
-
 function publicImports(): string {
   const typeImports = Object.values(CURRENT_PUBLIC_CONTRACT.types)
     .sort((left, right) => left.localeCompare(right))
@@ -298,6 +301,7 @@ const configuredJsonSchemaCheck = jsonSchemaValidation({
   schemaIdentity: jsonSchemaIdentity,
   schemas: jsonSchemaResources
 });
+${PACKAGE_CHECK_CONSTRUCTOR_TYPE_ACCEPTANCE_SOURCE}
 const disabledOutput: RunOutputStatus = { enabled: false, status: "disabled" };
 
 function outputParticipantNames(outputs: RunOutputStatuses): readonly string[] {
@@ -329,8 +333,9 @@ const definition: ProjectDefinition = defineConfig({
         }
       }
     }),
-    fileMetrics(),
-    functionMetrics(),
+    isolatedPrimaryFileMetrics,
+    isolatedSecondaryFileMetrics,
+    isolatedFunctionMetrics,
     markdownLinkValidation({
       cache: { enabled: true, directory: "/tmp/isolated-markdown-link-parse-cache" }
     }),
@@ -365,14 +370,7 @@ defineAdmissionPolicy({
 });
 
 const inheritedCheckIds = inherit({ add: [directCheck.checkId] });
-const reminder = maintenanceReminders([
-  {
-    id: "isolated-maintenance-reminder",
-    baseCommit: "0000000000000000000000000000000000000000",
-    limits: { commits: 1 },
-    message: "Review isolated consumer maintenance."
-  }
-]);
+${MAINTENANCE_REMINDERS_TYPE_ACCEPTANCE_SOURCE}
 const aggregation: CheckAggregation = (checks: readonly CoreCheck[]) =>
   checks.some((check) => check.outcome.status === "failed") ? "failed" : "passed";
 const asynchronousAggregation = async (_checks: readonly CoreCheck[]) => "passed" as const;
@@ -471,6 +469,9 @@ void [
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  isolatedFunctionMetrics,
+  isolatedPrimaryFileMetrics,
+  isolatedSecondaryFileMetrics,
   markdownLinkValidation,
   inherit,
   maintenanceReminders,
@@ -500,6 +501,7 @@ void [
   findingMessages,
   presentCheckFindings,
   reminder,
+  reminderInput,
   result
 ];
 `;

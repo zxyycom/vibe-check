@@ -8,7 +8,7 @@ import {
 } from "../../project-definition/project-definition.ts";
 import { run } from "../../project-run/run.ts";
 import { parseMaintenanceRemindersData } from "./final-data.ts";
-import { maintenanceReminders } from "./maintenance-reminders.ts";
+import { maintenanceReminders, type MaintenanceRemindersInput } from "./maintenance-reminders.ts";
 import { FULL_BASE, definition } from "./maintenance-reminders.test-support.ts";
 
 describe("maintenance reminders", () => {
@@ -194,5 +194,57 @@ describe("maintenance reminders", () => {
         ]);
       }
     }
+  });
+
+  it("accepts object input while preserving the entries overload and package-owned Git options", () => {
+    const entries = [
+      {
+        id: "docs-review",
+        baseCommit: FULL_BASE,
+        limits: { commits: 10 },
+        message: "Review documentation"
+      }
+    ] as const;
+    const input: MaintenanceRemindersInput<"maintenance-review"> & {
+      readonly checkId: "maintenance-review";
+    } = {
+      checkId: "maintenance-review",
+      entries,
+      maxParallel: 1,
+      omitQuietPassedRow: false,
+      resourceClaims: { git: 1 }
+    };
+    const configured = maintenanceReminders(input);
+    const legacy = maintenanceReminders(entries);
+
+    assert.deepEqual(
+      {
+        checkId: configured.checkId,
+        displayName: configured.displayName,
+        maxParallel: configured.maxParallel,
+        omitQuietPassedRow: Object.hasOwn(configured, "omitQuietPassedRow"),
+        resourceClaims: configured.resourceClaims,
+        options: configured.options
+      },
+      {
+        checkId: "maintenance-review",
+        displayName: "Maintenance reminders",
+        maxParallel: 1,
+        omitQuietPassedRow: false,
+        resourceClaims: { git: 1 },
+        options: { entries, git: { executable: "git" } }
+      }
+    );
+    assert.deepEqual(legacy.options, configured.options);
+    assert.equal(legacy.omitQuietPassedRow, true);
+    assert.throws(
+      () =>
+        maintenanceReminders({
+          entries,
+          // @ts-expect-error object input does not expose package-owned Git configuration.
+          git: { executable: "not-git" }
+        }),
+      /maintenanceReminders input/
+    );
   });
 });

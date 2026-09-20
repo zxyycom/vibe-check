@@ -4,6 +4,32 @@
 
 `maintenanceReminders(entries)` 创建固定 ID 为 `maintenance-reminders` 的 Check，用 Git first-parent history 提醒定期复核。
 
+## 构造器项目声明
+
+`maintenanceReminders` 保留 `maintenanceReminders(entries)`，并为 object input 提供三类 overload：
+`MaintenanceRemindersInput<"maintenance-reminders">` 保留默认 literal；带必填
+`{ checkId: Id }` 的 `MaintenanceRemindersInput<Id>` 保留 custom literal；宽化为
+`MaintenanceRemindersInput` 的变量返回 `string` identity。默认 `checkId` 是 `maintenance-reminders`，默认
+`displayName` 是 `Maintenance reminders`；`entries` 是唯一领域 policy，object input 的其余顶层字段用于项目声明。
+
+例如，为需要单独选择的提醒设置 identity 与 flag 条件：
+
+```ts
+const dependencyReview = maintenanceReminders({
+  checkId: "dependency-review",
+  enabledByFlags: { when: "dependencies-changed" },
+  entries: [{
+    id: "dependencies",
+    baseCommit: "0123456789abcdef0123456789abcdef01234567",
+    limits: { commits: 40 },
+    message: "Review dependency updates."
+  }]
+});
+```
+
+两种调用形式都返回原生 typed Check。项目声明字段不会进入 `.options` 或执行时的 `context.options`；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+
 ## 最小用法
 
 示例保留终端进度，不写 machine files。

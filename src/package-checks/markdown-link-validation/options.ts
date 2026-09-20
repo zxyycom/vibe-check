@@ -1,3 +1,4 @@
+import type { PackageCheckAuthoringOptions } from "../check-authoring.ts";
 import type {
   ProjectFileSelection,
   ProjectFileSelectionOptions
@@ -22,7 +23,9 @@ export interface MarkdownLinkValidationLimitOptions {
 }
 
 /** `markdownLinkValidation(options?)` 接受的可省略 authoring policy。 */
-export interface MarkdownLinkValidationOptions {
+export interface MarkdownLinkValidationOptions<
+  Id extends string = string
+> extends PackageCheckAuthoringOptions<Id> {
   /** 参与本 Check 的 Markdown source selection；省略字段使用 package defaults。 */
   readonly files?: ProjectFileSelectionOptions;
   /** local-reference finding 是否使本 Check failed；省略时为 non-blocking。 */

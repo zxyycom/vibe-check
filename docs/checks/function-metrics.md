@@ -5,6 +5,26 @@
 `functionMetrics` 是普通 Check，评估每个函数的 NLOC、cyclomatic complexity（CCN）、最大 nesting depth 与 parameter count。
 它使用随包 TypeScript analyzer 分析所选的受支持源文件。
 
+## 构造器项目声明
+
+`functionMetrics` 有三类 overload：`functionMetrics(options?: FunctionMetricsOptions<"function-metrics">)`
+保留默认 literal；`functionMetrics<Id>(options: FunctionMetricsOptions<Id> & { checkId: Id })` 保留 custom literal；
+已宽化为 `FunctionMetricsOptions` 的变量返回 `string` identity。默认 `checkId` 是 `function-metrics`，默认 `displayName` 是 `Function metrics`；`codeAreas`、
+`findingPolicy` 与 `findingWaivers` 仍是本 Check 的领域 options。
+
+例如，按关系等待生成步骤后执行一个独立的函数指标实例：
+
+```ts
+const generatedFunctionMetrics = functionMetrics({
+  checkId: "generated-function-metrics",
+  dependsOn: ["generate-sources"],
+  codeAreas: { generated: { files: { include: ["generated/**/*.ts"] } } }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的 `context.options`；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+
 ## 最小用法
 
 示例保留终端进度，不写 machine files。

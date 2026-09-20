@@ -1,4 +1,8 @@
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
+import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
 import { MARKDOWN_LINT_CHECK_DEFINITION, executeMarkdownLint } from "./execution.ts";
 import { parseMarkdownLintData } from "./final-data.ts";
 import type { MarkdownLintOptions, ResolvedMarkdownLintOptions } from "./options.ts";
@@ -35,18 +39,35 @@ import { validMarkdownLintOptions } from "./options-validation.ts";
  * ```
  */
 export function markdownLint(
-  options: MarkdownLintOptions = {}
+  options?: MarkdownLintOptions<"markdown-lint">
 ): TypedCheckWithOptions<
   "markdown-lint",
   ResolvedMarkdownLintOptions,
   typeof parseMarkdownLintData
-> {
-  const resolvedOptions = resolveMarkdownLintOptions(options);
+>;
+export function markdownLint<const Id extends string>(
+  options: MarkdownLintOptions<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<Id, ResolvedMarkdownLintOptions, typeof parseMarkdownLintData>;
+export function markdownLint(
+  options: MarkdownLintOptions
+): TypedCheckWithOptions<string, ResolvedMarkdownLintOptions, typeof parseMarkdownLintData>;
+export function markdownLint(
+  options: MarkdownLintOptions = {}
+): TypedCheckWithOptions<string, ResolvedMarkdownLintOptions, typeof parseMarkdownLintData> {
+  const input = resolvePackageCheckAuthoringInput(
+    options,
+    ["files", "findingPolicy", "rules", "limits"],
+    MARKDOWN_LINT_CHECK_DEFINITION
+  );
+  if (input === undefined) {
+    throw new TypeError("markdownLint options must match the documented closed policy");
+  }
+  const resolvedOptions = resolveMarkdownLintOptions(input.domainOptions);
   if (resolvedOptions === undefined) {
     throw new TypeError("markdownLint options must match the documented closed policy");
   }
   return defineCheck({
-    ...MARKDOWN_LINT_CHECK_DEFINITION,
+    ...input.definition,
     execute: executeMarkdownLint,
     parseData: parseMarkdownLintData,
     prepare: (preparedOptions) =>

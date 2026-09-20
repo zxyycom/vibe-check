@@ -1,8 +1,11 @@
+import type { PackageCheckAuthoringOptions } from "../check-authoring.ts";
 import type { FindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
 import type { ProjectFileSelection } from "../project-files/configuration.ts";
 
 /** `secretDetection(options)` 的明确 authoring policy。 */
-export interface SecretDetectionOptions {
+export interface SecretDetectionOptions<
+  Id extends string = string
+> extends PackageCheckAuthoringOptions<Id> {
   /** 必填的完整 project-file policy；只有它选中的 path 可以被读取或传给 detector。 */
   readonly files: ProjectFileSelection;
   /** 单个输入允许的最大 raw byte 数；超过时形成不可豁免的 coverage gap。 */

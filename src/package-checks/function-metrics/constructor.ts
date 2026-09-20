@@ -1,4 +1,8 @@
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
+import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
 import { executeFunctionMetrics } from "./execution.ts";
 import { parseFunctionMetricsData } from "./final-data.ts";
 import type { FunctionMetricsOptions, ResolvedFunctionMetricsOptions } from "./options.ts";
@@ -18,20 +22,39 @@ const FUNCTION_METRICS_CHECK_DEFINITION = {
  * @throws {TypeError} input 含未知字段、空 area、非法 finding policy/waiver 或非法 limit 时抛出。
  */
 export function functionMetrics(
-  options: FunctionMetricsOptions = {}
+  options?: FunctionMetricsOptions<"function-metrics">
 ): TypedCheckWithOptions<
   "function-metrics",
   ResolvedFunctionMetricsOptions,
   typeof parseFunctionMetricsData
-> {
-  const resolvedOptions = resolveFunctionMetricsOptions(options);
+>;
+export function functionMetrics<const Id extends string>(
+  options: FunctionMetricsOptions<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<Id, ResolvedFunctionMetricsOptions, typeof parseFunctionMetricsData>;
+export function functionMetrics(
+  options: FunctionMetricsOptions
+): TypedCheckWithOptions<string, ResolvedFunctionMetricsOptions, typeof parseFunctionMetricsData>;
+export function functionMetrics(
+  options: FunctionMetricsOptions = {}
+): TypedCheckWithOptions<string, ResolvedFunctionMetricsOptions, typeof parseFunctionMetricsData> {
+  const input = resolvePackageCheckAuthoringInput(
+    options,
+    ["codeAreas", "findingPolicy", "findingWaivers"],
+    FUNCTION_METRICS_CHECK_DEFINITION
+  );
+  if (input === undefined) {
+    throw new TypeError(
+      "functionMetrics options must use the documented closed policy: a non-empty area map, recognized finding policies and waivers, and positive safe-integer limits"
+    );
+  }
+  const resolvedOptions = resolveFunctionMetricsOptions(input.domainOptions);
   if (resolvedOptions === undefined) {
     throw new TypeError(
       "functionMetrics options must use the documented closed policy: a non-empty area map, recognized finding policies and waivers, and positive safe-integer limits"
     );
   }
   return defineCheck({
-    ...FUNCTION_METRICS_CHECK_DEFINITION,
+    ...input.definition,
     execute: executeFunctionMetrics,
     parseData: parseFunctionMetricsData,
     prepare: (preparedOptions) =>

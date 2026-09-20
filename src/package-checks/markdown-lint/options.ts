@@ -1,3 +1,4 @@
+import type { PackageCheckAuthoringOptions } from "../check-authoring.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
 import type {
   ProjectFileSelection,
@@ -29,7 +30,9 @@ export interface MarkdownLintLimitOptions {
 }
 
 /** `markdownLint(options?)` 可接受的闭合 authoring policy。 */
-export interface MarkdownLintOptions {
+export interface MarkdownLintOptions<
+  Id extends string = string
+> extends PackageCheckAuthoringOptions<Id> {
   /** 参与本 Check 的 source selection；省略时使用 package defaults。 */
   readonly files?: ProjectFileSelectionOptions;
   /** lint finding 是否使本 Check failed；省略时为 non-blocking。 */

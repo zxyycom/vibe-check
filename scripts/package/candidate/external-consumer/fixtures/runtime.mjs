@@ -15,6 +15,7 @@ import {
   defineCheck,
   defineConfig,
   duplicateDetection,
+  fileMetrics,
   functionMetrics,
   jsonSchemaValidation,
   jsonValidation,
@@ -124,6 +125,18 @@ const installedFunctionMetrics = functionMetrics({
       files: { include: ["function-metrics.ts"] },
       limits: { cyclomaticComplexity: { maximum: 1 } }
     }
+  }
+});
+const installedPrimaryFileMetrics = fileMetrics({
+  checkId: "installed-file-metrics-primary",
+  codeAreas: {
+    source: { files: { include: ["duplicate-a.ts", "duplicate-b.ts"] } }
+  }
+});
+const installedSecondaryFileMetrics = fileMetrics({
+  checkId: "installed-file-metrics-secondary",
+  codeAreas: {
+    source: { files: { include: ["duplicate-a.ts", "duplicate-b.ts"] } }
   }
 });
 
@@ -258,6 +271,8 @@ const result = await run(
           }
         }
       }),
+      installedPrimaryFileMetrics,
+      installedSecondaryFileMetrics,
       installedFunctionMetrics,
       jsonCheck,
       jsonSchemaValidation({
@@ -301,6 +316,16 @@ const duplicateRecords =
 const functionMetricsCheck =
   result.kind === "completed"
     ? result.snapshot.checks.find((check) => check.checkId === installedFunctionMetrics.checkId)
+    : undefined;
+const primaryFileMetricsCheck =
+  result.kind === "completed"
+    ? result.snapshot.checks.find((check) => check.checkId === installedPrimaryFileMetrics.checkId)
+    : undefined;
+const secondaryFileMetricsCheck =
+  result.kind === "completed"
+    ? result.snapshot.checks.find(
+        (check) => check.checkId === installedSecondaryFileMetrics.checkId
+      )
     : undefined;
 const functionMetricsRecords =
   result.kind === "completed"
@@ -398,6 +423,8 @@ process.stdout.write(
       functionMetricsData: settledFinalData(functionMetricsCheck),
       functionMetricsOutcome: functionMetricsCheck?.outcome.status ?? null,
       functionMetricsRecords,
+      primaryFileMetricsOutcome: primaryFileMetricsCheck?.outcome.status ?? null,
+      secondaryFileMetricsOutcome: secondaryFileMetricsCheck?.outcome.status ?? null,
       jsonSchemaData: settledFinalData(jsonSchemaCheck),
       jsonSchemaOutcome: jsonSchemaCheck?.outcome.status ?? null,
       learnedScheduling: learnedSchedulingEvidence,

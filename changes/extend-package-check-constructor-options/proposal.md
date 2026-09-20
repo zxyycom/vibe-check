@@ -20,7 +20,7 @@
 
 - 新增并从 package root 导出 `PackageCheckAuthoringOptions<Id>`，字段为 `checkId`、`displayName`、`enabledByFlags`、`checks`、`dependsOn`、`observes`、`maxParallel`、`admissionPriority`、`mutex`、`resourceClaims` 和 `omitQuietPassedRow`。
 - 将 `fileMetrics`、`functionMetrics`、`duplicateDetection`、`jsonValidation`、`jsonSchemaValidation`、`markdownLinkValidation`、`markdownLint`、`secretDetection` 与 `maintenanceReminders` 接入同一解析与投影规则。
-- 让现有 authored options 类型包含共享字段，并让构造函数从可选 `checkId` 推断返回 identity；resolved options 类型保持领域专用且不包含项目字段。
+- 让现有 authored options 类型包含共享字段；构造器以 default、custom-required-`checkId` 与 broad-options overload 分别返回默认 literal、自定义 literal 与 `string` identity。resolved options 类型保持领域专用且不包含项目字段。
 - 保留 `maintenanceReminders(entries)`，并增加 `{ entries, ...projectFields }` object input；两种形式使用同一默认 policy 和执行实现。
 - 保持 `commandCheck` 的现有公共 contract；它作为已具备同类 ordinary Check 字段的行为基线。
 

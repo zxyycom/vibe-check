@@ -1,5 +1,9 @@
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
+import {
   MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION,
   executeMarkdownLinkValidation
 } from "./execution.ts";
@@ -41,18 +45,57 @@ import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
  * ```
  */
 export function markdownLinkValidation(
-  options: MarkdownLinkValidationOptions = {}
+  options?: MarkdownLinkValidationOptions<"markdown-link-validation">
 ): TypedCheckWithOptions<
   "markdown-link-validation",
   ResolvedMarkdownLinkValidationOptions,
   typeof parseMarkdownLinkValidationData
+>;
+export function markdownLinkValidation<const Id extends string>(
+  options: MarkdownLinkValidationOptions<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<
+  Id,
+  ResolvedMarkdownLinkValidationOptions,
+  typeof parseMarkdownLinkValidationData
+>;
+export function markdownLinkValidation(
+  options: MarkdownLinkValidationOptions
+): TypedCheckWithOptions<
+  string,
+  ResolvedMarkdownLinkValidationOptions,
+  typeof parseMarkdownLinkValidationData
+>;
+export function markdownLinkValidation(
+  options: MarkdownLinkValidationOptions = {}
+): TypedCheckWithOptions<
+  string,
+  ResolvedMarkdownLinkValidationOptions,
+  typeof parseMarkdownLinkValidationData
 > {
-  const resolvedOptions = resolveMarkdownLinkValidationOptions(options);
+  const input = resolvePackageCheckAuthoringInput(
+    options,
+    [
+      "files",
+      "findingPolicy",
+      "requireExistingTargets",
+      "validateSameDocumentAnchors",
+      "validateCrossDocumentAnchors",
+      "rootExternalTargetMode",
+      "requireNonEmptyDirectories",
+      "limits",
+      "cache"
+    ],
+    MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION
+  );
+  if (input === undefined) {
+    throw new TypeError("markdownLinkValidation options must match the documented closed policy");
+  }
+  const resolvedOptions = resolveMarkdownLinkValidationOptions(input.domainOptions);
   if (resolvedOptions === undefined) {
     throw new TypeError("markdownLinkValidation options must match the documented closed policy");
   }
   return defineCheck({
-    ...MARKDOWN_LINK_VALIDATION_CHECK_DEFINITION,
+    ...input.definition,
     execute: executeMarkdownLinkValidation,
     parseData: parseMarkdownLinkValidationData,
     prepare: (preparedOptions) =>

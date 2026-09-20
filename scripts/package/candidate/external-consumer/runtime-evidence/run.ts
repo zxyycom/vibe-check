@@ -110,6 +110,14 @@ function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidenc
     evidence.markdownLinkOutcome,
     "isolated Markdown Link outcome"
   );
+  const primaryFileMetricsOutcome = optionalOutcome(
+    evidence.primaryFileMetricsOutcome,
+    "isolated primary file metrics outcome"
+  );
+  const secondaryFileMetricsOutcome = optionalOutcome(
+    evidence.secondaryFileMetricsOutcome,
+    "isolated secondary file metrics outcome"
+  );
   return projectCandidateFixtureEvidence({
     evidence,
     humanOutput: output.humanOutput,
@@ -118,7 +126,9 @@ function runCandidateFixture(consumerDirectory: string): CandidateFixtureEvidenc
     functionMetricsOutcome,
     jsonSchemaOutcome,
     markdownLintOutcome,
-    markdownLinkOutcome
+    markdownLinkOutcome,
+    primaryFileMetricsOutcome,
+    secondaryFileMetricsOutcome
   });
 }
 
@@ -148,6 +158,8 @@ function projectCandidateFixtureEvidence(
     readonly jsonSchemaOutcome: string | null;
     readonly markdownLintOutcome: string | null;
     readonly markdownLinkOutcome: string | null;
+    readonly primaryFileMetricsOutcome: string | null;
+    readonly secondaryFileMetricsOutcome: string | null;
   }>
 ): CandidateFixtureEvidence {
   const {
@@ -158,7 +170,9 @@ function projectCandidateFixtureEvidence(
     functionMetricsOutcome,
     jsonSchemaOutcome,
     markdownLintOutcome,
-    markdownLinkOutcome
+    markdownLinkOutcome,
+    primaryFileMetricsOutcome,
+    secondaryFileMetricsOutcome
   } = input;
   return Object.freeze({
     admissionSimulation: evidence.admissionSimulation,
@@ -195,7 +209,9 @@ function projectCandidateFixtureEvidence(
     markdownLinkCacheJsonl: evidence.markdownLinkCacheJsonl,
     markdownLinkOutcome,
     parserEvidence: evidence.parserEvidence,
-    secondChangedFilesConsumer: evidence.secondChangedFilesConsumer
+    primaryFileMetricsOutcome,
+    secondChangedFilesConsumer: evidence.secondChangedFilesConsumer,
+    secondaryFileMetricsOutcome
   });
 }
 

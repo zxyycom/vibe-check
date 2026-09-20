@@ -22,6 +22,7 @@ export type {
 } from "./data-boundary/canonical-data.ts";
 export { snapshotClosedArray, snapshotExactClosedRecord } from "./data-boundary/closed-values.ts";
 export { duplicateDetection } from "./package-checks/duplicate-detection/default-check.ts";
+export type { PackageCheckAuthoringOptions } from "./package-checks/check-authoring.ts";
 export { parseDuplicateDetectionData } from "./package-checks/duplicate-detection/final-data.ts";
 export type { DuplicateDetectionFinalData } from "./package-checks/duplicate-detection/final-data.ts";
 export type {
@@ -111,6 +112,7 @@ export { maintenanceReminders } from "./package-checks/maintenance-reminders/mai
 export type {
   MaintenanceReminder,
   MaintenanceReminderOptions,
+  MaintenanceRemindersInput,
   MaintenanceRemindersUnavailableCode
 } from "./package-checks/maintenance-reminders/maintenance-reminders.ts";
 export { parseMaintenanceRemindersData } from "./package-checks/maintenance-reminders/final-data.ts";

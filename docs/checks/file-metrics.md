@@ -8,6 +8,26 @@ waiver 在完整 Finding 集合上对账，不从 SCC 输入排除路径。
 运行环境须提供默认 `scc` command，或配置已授权的 `scanner.executable`；两者均须支持精确 SCC 4.0.0 version output
 与 CSV contract。安装与协议见[定制 SCC executable](#定制-scc-executable)。
 
+## 构造器项目声明
+
+`fileMetrics` 有三类 overload：`fileMetrics(options?: FileMetricsOptions<"file-metrics">)` 保留默认 literal；
+`fileMetrics<Id>(options: FileMetricsOptions<Id> & { checkId: Id })` 保留 custom literal；已宽化为
+`FileMetricsOptions` 的变量返回 `string` identity。默认 `checkId` 是 `file-metrics`，默认 `displayName` 是 `File metrics`；`codeAreas`、`findingPolicy`、
+`findingWaivers` 与 `scanner` 仍是本 Check 的领域 options。
+
+例如，可在同一 Definition 中用独立 identity 选择 source 指标，并保留默认展示名：
+
+```ts
+const sourceMetrics = fileMetrics({
+  checkId: "source-file-metrics",
+  enabledByFlags: { when: "source-changed" },
+  codeAreas: { source: { files: { include: ["src/**/*.ts"] } } }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `sourceMetrics.options` 或执行时的
+`context.options`；完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+
 ## 最小用法
 
 示例保留终端进度，不写 machine files。

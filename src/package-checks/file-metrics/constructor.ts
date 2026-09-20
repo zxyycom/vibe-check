@@ -1,4 +1,8 @@
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
+import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
 import { FILE_METRICS_CHECK_DEFINITION, executeFileMetrics } from "./execution.ts";
 import { parseFileMetricsData } from "./final-data.ts";
 import type { FileMetricsOptions, ResolvedFileMetricsOptions } from "./options.ts";
@@ -13,16 +17,35 @@ import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
  * @throws {TypeError} input 含未知字段、空 area、非法代码行 policy、非法 waiver 或空 executable 时抛出。
  */
 export function fileMetrics(
+  options?: FileMetricsOptions<"file-metrics">
+): TypedCheckWithOptions<"file-metrics", ResolvedFileMetricsOptions, typeof parseFileMetricsData>;
+export function fileMetrics<const Id extends string>(
+  options: FileMetricsOptions<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<Id, ResolvedFileMetricsOptions, typeof parseFileMetricsData>;
+export function fileMetrics(
+  options: FileMetricsOptions
+): TypedCheckWithOptions<string, ResolvedFileMetricsOptions, typeof parseFileMetricsData>;
+export function fileMetrics(
   options: FileMetricsOptions = {}
-): TypedCheckWithOptions<"file-metrics", ResolvedFileMetricsOptions, typeof parseFileMetricsData> {
-  const resolvedOptions = resolveFileMetricsOptions(options);
+): TypedCheckWithOptions<string, ResolvedFileMetricsOptions, typeof parseFileMetricsData> {
+  const input = resolvePackageCheckAuthoringInput(
+    options,
+    ["codeAreas", "findingPolicy", "findingWaivers", "scanner"],
+    FILE_METRICS_CHECK_DEFINITION
+  );
+  if (input === undefined) {
+    throw new TypeError(
+      "fileMetrics options must match the documented closed { codeAreas?, findingPolicy?, findingWaivers?, scanner? } constructor policy"
+    );
+  }
+  const resolvedOptions = resolveFileMetricsOptions(input.domainOptions);
   if (resolvedOptions === undefined) {
     throw new TypeError(
       "fileMetrics options must match the documented closed { codeAreas?, findingPolicy?, findingWaivers?, scanner? } constructor policy"
     );
   }
   return defineCheck({
-    ...FILE_METRICS_CHECK_DEFINITION,
+    ...input.definition,
     execute: executeFileMetrics,
     parseData: parseFileMetricsData,
     prepare: (preparedOptions) =>

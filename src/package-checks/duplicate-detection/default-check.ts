@@ -1,4 +1,8 @@
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
+import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
 import { DUPLICATE_DETECTION_CHECK_DEFINITION, executeDuplicateDetection } from "./execution.ts";
 import { parseDuplicateDetectionData } from "./final-data.ts";
 import type { DuplicateDetectionOptions, ResolvedDuplicateDetectionOptions } from "./options.ts";
@@ -13,20 +17,47 @@ import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts"
  * @throws {TypeError} input 含未知字段、空 area、非法阈值、非法 cache 或 scanner policy 时抛出。
  */
 export function duplicateDetection(
-  options: DuplicateDetectionOptions = {}
+  options?: DuplicateDetectionOptions<"duplicate-detection">
 ): TypedCheckWithOptions<
   "duplicate-detection",
   ResolvedDuplicateDetectionOptions,
   typeof parseDuplicateDetectionData
+>;
+export function duplicateDetection<const Id extends string>(
+  options: DuplicateDetectionOptions<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<Id, ResolvedDuplicateDetectionOptions, typeof parseDuplicateDetectionData>;
+export function duplicateDetection(
+  options: DuplicateDetectionOptions
+): TypedCheckWithOptions<
+  string,
+  ResolvedDuplicateDetectionOptions,
+  typeof parseDuplicateDetectionData
+>;
+export function duplicateDetection(
+  options: DuplicateDetectionOptions = {}
+): TypedCheckWithOptions<
+  string,
+  ResolvedDuplicateDetectionOptions,
+  typeof parseDuplicateDetectionData
 > {
-  const resolvedOptions = resolveDuplicateDetectionOptions(options);
+  const input = resolvePackageCheckAuthoringInput(
+    options,
+    ["codeAreas", "cache", "findingPolicy", "findingWaivers", "scanner"],
+    DUPLICATE_DETECTION_CHECK_DEFINITION
+  );
+  if (input === undefined) {
+    throw new TypeError(
+      "duplicateDetection options are invalid; use the documented closed constructor policy including exact finding waivers"
+    );
+  }
+  const resolvedOptions = resolveDuplicateDetectionOptions(input.domainOptions);
   if (resolvedOptions === undefined) {
     throw new TypeError(
       "duplicateDetection options are invalid; use the documented closed constructor policy including exact finding waivers"
     );
   }
   return defineCheck({
-    ...DUPLICATE_DETECTION_CHECK_DEFINITION,
+    ...input.definition,
     execute: executeDuplicateDetection,
     parseData: parseDuplicateDetectionData,
     prepare: (preparedOptions) =>

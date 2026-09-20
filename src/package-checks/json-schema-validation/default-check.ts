@@ -1,5 +1,9 @@
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
 import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
+import {
   JSON_SCHEMA_VALIDATION_CHECK_DEFINITION,
   executeJsonSchemaValidation
 } from "./json-schema-validation.ts";
@@ -19,18 +23,47 @@ import { validJsonSchemaValidationOptions } from "./options-validation.ts";
  * @throws {TypeError} input 不符合 closed authoring policy、identity 或 binding 不变量时抛出。
  */
 export function jsonSchemaValidation(
-  options: JsonSchemaValidationOptions = {}
+  options?: JsonSchemaValidationOptions<"json-schema-validation">
 ): TypedCheckWithOptions<
   "json-schema-validation",
   ResolvedJsonSchemaValidationOptions,
   typeof parseJsonSchemaValidationData
+>;
+export function jsonSchemaValidation<const Id extends string>(
+  options: JsonSchemaValidationOptions<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<
+  Id,
+  ResolvedJsonSchemaValidationOptions,
+  typeof parseJsonSchemaValidationData
+>;
+export function jsonSchemaValidation(
+  options: JsonSchemaValidationOptions
+): TypedCheckWithOptions<
+  string,
+  ResolvedJsonSchemaValidationOptions,
+  typeof parseJsonSchemaValidationData
+>;
+export function jsonSchemaValidation(
+  options: JsonSchemaValidationOptions = {}
+): TypedCheckWithOptions<
+  string,
+  ResolvedJsonSchemaValidationOptions,
+  typeof parseJsonSchemaValidationData
 > {
-  const resolvedOptions = resolveJsonSchemaValidationOptions(options);
+  const input = resolvePackageCheckAuthoringInput(
+    options,
+    ["files", "maximumBytes", "schemaIdentity", "referenceResolution", "schemas", "bindings"],
+    JSON_SCHEMA_VALIDATION_CHECK_DEFINITION
+  );
+  if (input === undefined) {
+    throw new TypeError("jsonSchemaValidation options must match the documented closed policy");
+  }
+  const resolvedOptions = resolveJsonSchemaValidationOptions(input.domainOptions);
   if (resolvedOptions === undefined) {
     throw new TypeError("jsonSchemaValidation options must match the documented closed policy");
   }
   return defineCheck({
-    ...JSON_SCHEMA_VALIDATION_CHECK_DEFINITION,
+    ...input.definition,
     execute: executeJsonSchemaValidation,
     parseData: parseJsonSchemaValidationData,
     prepare: (preparedOptions) =>

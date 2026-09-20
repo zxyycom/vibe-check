@@ -7,6 +7,26 @@
 
 默认使用随 package 安装的 jscpd v5（manifest 范围 `^5.1.1`），无需另配 executable。
 
+## 构造器项目声明
+
+`duplicateDetection` 有三类 overload：`duplicateDetection(options?: DuplicateDetectionOptions<"duplicate-detection">)`
+保留默认 literal；`duplicateDetection<Id>(options: DuplicateDetectionOptions<Id> & { checkId: Id })` 保留 custom literal；
+已宽化为 `DuplicateDetectionOptions` 的变量返回 `string` identity。默认 `checkId` 是 `duplicate-detection`，默认 `displayName` 是 `Duplicate detection`；`codeAreas`、
+`findingPolicy`、`findingWaivers`、`cache` 与 `scanner` 仍是本 Check 的领域 options。
+
+例如，为较昂贵的扫描声明较低并行度和独立 identity：
+
+```ts
+const duplicateScan = duplicateDetection({
+  checkId: "source-duplicate-scan",
+  maxParallel: 1,
+  codeAreas: { source: { files: { include: ["src/**/*.ts"] } } }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的 `context.options`；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+
 ## 最小用法
 
 示例保留终端进度，不写 machine files。

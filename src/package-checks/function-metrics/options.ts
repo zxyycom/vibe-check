@@ -1,3 +1,4 @@
+import type { PackageCheckAuthoringOptions } from "../check-authoring.ts";
 import type {
   ProjectFileSelection,
   ProjectFileSelectionOptions
@@ -65,7 +66,9 @@ export interface FunctionMetricsFindingIdentity {
 export type FunctionMetricsFindingWaiver = FindingWaiver<FunctionMetricsFindingIdentity>;
 
 /** `functionMetrics(options?)` 接受并补齐默认值的公开策略。 */
-export interface FunctionMetricsOptions {
+export interface FunctionMetricsOptions<
+  Id extends string = string
+> extends PackageCheckAuthoringOptions<Id> {
   /** 省略时建立默认 `project` 区域；显式映射必须非空，且每个区域必须声明 `files`。 */
   readonly codeAreas?: Readonly<Record<string, FunctionMetricsCodeAreaOptions>>;
   /** 省略时为 `non-blocking`；区域可局部覆盖。 */

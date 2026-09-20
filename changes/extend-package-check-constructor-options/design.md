@@ -49,15 +49,21 @@
 
    该类型有独立 consumer 用途：项目可以命名并复用 selection、relation 与 scheduling 配置片段。`omitQuietPassedRow` 在构造输入中接受 boolean；`true` 投影为 raw Check field，`false` 投影为省略，使 package 的 `true` 默认值也能被显式关闭。
 
-2. **构造器签名。** 现有 authored options 类型扩展共享类型并接受 identity generic；构造函数 generic 的默认值是当前 package ID。例如：
+2. **构造器签名。** 现有 authored options 类型扩展共享类型。每个 object-policy constructor 用三个 overload 保留可证明的 identity；例如：
 
    ```ts
-   function fileMetrics<const Id extends string = "file-metrics">(
-     options?: FileMetricsOptions<Id>
+   function fileMetrics(
+     options?: FileMetricsOptions<"file-metrics">
+   ): TypedCheckWithOptions<"file-metrics", ResolvedFileMetricsOptions, typeof parseFileMetricsData>;
+   function fileMetrics<const Id extends string>(
+     options: FileMetricsOptions<Id> & { readonly checkId: Id }
    ): TypedCheckWithOptions<Id, ResolvedFileMetricsOptions, typeof parseFileMetricsData>;
+   function fileMetrics(
+     options: FileMetricsOptions
+   ): TypedCheckWithOptions<string, ResolvedFileMetricsOptions, typeof parseFileMetricsData>;
    ```
 
-   没有 `checkId` 输入时使用默认 generic 和 runtime ID；literal `checkId` 同时决定返回类型与 runtime identity。省略 `displayName` 时继续使用 package default，自定义 identity 不派生新的名称。
+   默认 overload 使用 package ID；custom overload 要求静态类型含必填 literal `checkId`，并将它传播到返回 identity；已宽化的 options 变量使用 broad overload 并返回 `string` identity。省略 `displayName` 时继续使用 package default，自定义 identity 不派生新的名称。
 
 3. **输入分流。** 共享 resolver 对输入建立 closed snapshot，分离项目字段与构造器声明的领域 keys。领域 resolver 只接收领域 projection，并继续生成原有完整冻结 options；项目 projection 与 package 默认 definition 合并后传给 `defineCheck()`。未知顶层 key 同步拒绝，项目字段不进入 `.options`、preparation 或 execution context。
 

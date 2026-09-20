@@ -1,14 +1,20 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { defaultProjectFileSelection } from "../project-files/configuration.ts";
+import {
+  defineConfig,
+  normalizeProjectDefinition
+} from "../../project-definition/project-definition.ts";
+import { run } from "../../project-run/run.ts";
 import { fileMetrics } from "./constructor.ts";
 import { executeFileMetrics } from "./execution.ts";
 import { parseFileMetricsData } from "./final-data.ts";
 import { FILES, createRoot, execute, scanner } from "./file-metrics.test-support.ts";
 import { isValidResolvedFileMetricsOptions } from "./options-validation.ts";
+import { jsonValidation } from "../json-validation/default-check.ts";
 
 describe("fileMetrics constructor and direct callback", () => {
   it("materializes closed defaults and rejects malformed authored or resolved policy", async () => {
@@ -40,6 +46,32 @@ describe("fileMetrics constructor and direct callback", () => {
       scanner: { executable: "scc" }
     });
     assert.equal(Object.isFrozen(defaultCheck.options), true);
+
+    const customCheck = fileMetrics({
+      checkId: "file-metrics-custom",
+      displayName: "Custom file metrics",
+      enabledByFlags: { when: "custom" },
+      checks: [defaultCheck],
+      dependsOn: ["upstream"],
+      observes: ["observed"],
+      maxParallel: 2,
+      admissionPriority: 3,
+      mutex: ["scanner"],
+      resourceClaims: { cpu: 1 },
+      omitQuietPassedRow: false
+    });
+    const customCheckId: "file-metrics-custom" = customCheck.checkId;
+    assert.equal(customCheckId, "file-metrics-custom");
+    assert.equal(customCheck.displayName, "Custom file metrics");
+    assert.deepEqual(customCheck.enabledByFlags, { when: "custom" });
+    assert.deepEqual(customCheck.dependsOn, ["upstream"]);
+    assert.deepEqual(customCheck.observes, ["observed"]);
+    assert.equal(customCheck.maxParallel, 2);
+    assert.equal(customCheck.admissionPriority, 3);
+    assert.deepEqual(customCheck.mutex, ["scanner"]);
+    assert.deepEqual(customCheck.resourceClaims, { cpu: 1 });
+    assert.equal(customCheck.omitQuietPassedRow, undefined);
+    assert.deepEqual(customCheck.options, defaultCheck.options);
     assert.deepEqual(
       fileMetrics({
         codeAreas: {
@@ -124,7 +156,16 @@ describe("fileMetrics constructor and direct callback", () => {
       },
       { files: FILES },
       { scanner: { executable: "" } },
-      { scanner: { executable: "scc", availabilityArgs: ["--version"] } }
+      { scanner: { executable: "scc", availabilityArgs: ["--version"] } },
+      { checkId: "" },
+      { displayName: "" },
+      { enabledByFlags: { when: "", propagateDependsOn: false } },
+      { observes: {} },
+      { maxParallel: 0 },
+      { admissionPriority: 1.5 },
+      { resourceClaims: { cpu: 0 } },
+      { checks: {} },
+      { omitQuietPassedRow: "false" }
     ]) {
       assert.throws(
         () => Reflect.apply(fileMetrics, undefined, [invalidInput]),
@@ -156,6 +197,116 @@ describe("fileMetrics constructor and direct callback", () => {
       );
     } finally {
       rmSync(root, { recursive: true, force: true });
+    }
+
+    const integrationRoot = createRoot("vibe-check-file-metrics-constructor-integration-");
+    writeFileSync(join(integrationRoot, "source.json"), "{}\n", "utf8");
+    const executable = scanner(
+      integrationRoot,
+      [
+        "if (process.argv.includes('--version')) process.stdout.write('scc version 4.0.0\\n');",
+        "else process.stdout.write('Language,Provider,Filename,Lines,Code,Comments,Blanks,Complexity,Bytes,ULOC\\n');"
+      ].join("\n")
+    );
+    try {
+      const json = jsonValidation({
+        checkId: "custom-json-input",
+        enabledByFlags: { when: "metrics" },
+        resourceClaims: { scanner: 1 }
+      });
+      const primary = fileMetrics({
+        checkId: "custom-file-metrics-primary",
+        dependsOn: [json.checkId],
+        enabledByFlags: { when: "metrics" },
+        maxParallel: 1,
+        resourceClaims: { scanner: 1 },
+        scanner: { executable }
+      });
+      const secondary = fileMetrics({
+        checkId: "custom-file-metrics-secondary",
+        enabledByFlags: { when: "metrics" },
+        observes: [primary.checkId],
+        resourceClaims: { scanner: 1 },
+        scanner: { executable }
+      });
+      const definition = defineConfig({
+        checks: [json, primary, secondary],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        },
+        scheduler: { maxParallel: 2, resourceCapacities: { scanner: 1 } }
+      });
+      assert.deepEqual(
+        normalizeProjectDefinition(definition).checks.map(
+          ({
+            definition: leaf,
+            dependsOn,
+            enabledByFlags,
+            maxParallel,
+            observes,
+            resourceClaims
+          }) => ({
+            checkId: leaf.checkId,
+            dependsOn,
+            enabledByFlags,
+            maxParallel,
+            observes,
+            resourceClaims
+          })
+        ),
+        [
+          {
+            checkId: "custom-json-input",
+            dependsOn: [],
+            enabledByFlags: { when: "metrics" },
+            maxParallel: 2,
+            observes: [],
+            resourceClaims: { scanner: 1 }
+          },
+          {
+            checkId: "custom-file-metrics-primary",
+            dependsOn: ["custom-json-input"],
+            enabledByFlags: { when: "metrics" },
+            maxParallel: 1,
+            observes: [],
+            resourceClaims: { scanner: 1 }
+          },
+          {
+            checkId: "custom-file-metrics-secondary",
+            dependsOn: [],
+            enabledByFlags: { when: "metrics" },
+            maxParallel: 2,
+            observes: ["custom-file-metrics-primary"],
+            resourceClaims: { scanner: 1 }
+          }
+        ]
+      );
+      const withoutMetrics = await run(definition, { projectRoot: integrationRoot });
+      assert.equal(withoutMetrics.kind, "completed");
+      if (withoutMetrics.kind === "completed") {
+        assert.deepEqual(
+          withoutMetrics.snapshot.checks.map((check) => check.outcome.status),
+          ["not-applicable", "not-applicable", "not-applicable"]
+        );
+      }
+      const result = await run(definition, { flags: ["metrics"], projectRoot: integrationRoot });
+      assert.equal(result.kind, "completed");
+      if (result.kind === "completed") {
+        assert.deepEqual(
+          result.snapshot.checks.map((check) => `${check.checkId}:${check.outcome.status}`).sort(),
+          [
+            "custom-file-metrics-primary:passed",
+            "custom-file-metrics-secondary:passed",
+            "custom-json-input:passed"
+          ]
+        );
+      }
+      assert.equal(Object.hasOwn(primary.options, "resourceClaims"), false);
+      assert.equal(Object.hasOwn(secondary.options, "dependsOn"), false);
+    } finally {
+      rmSync(integrationRoot, { recursive: true, force: true });
     }
   });
 

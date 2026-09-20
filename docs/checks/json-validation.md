@@ -5,6 +5,26 @@
 `jsonValidation(options?)` 构造普通 Check，严格验证所选小写 `.json` 文档的完整性，报告 syntax error、duplicate key
 与 incomplete document。
 
+## 构造器项目声明
+
+`jsonValidation` 有三类 overload：`jsonValidation(options?: JsonValidationOptions<"json-validation">)`
+保留默认 literal；`jsonValidation<Id>(options: JsonValidationOptions<Id> & { checkId: Id })` 保留 custom literal；
+已宽化为 `JsonValidationOptions` 的变量返回 `string` identity。默认 `checkId` 是 `json-validation`，默认 `displayName` 是 `JSON validation`；`files` 与
+`maximumBytes` 仍是本 Check 的领域 options。
+
+例如，用明确的项目 identity 和展示名只检查配置文件：
+
+```ts
+const configJson = jsonValidation({
+  checkId: "config-json",
+  displayName: "Configuration JSON",
+  files: { include: ["config/**/*.json"] }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的 `context.options`；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+
 ## 最小用法
 
 示例保留终端进度，不写 machine files。

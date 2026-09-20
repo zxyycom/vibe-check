@@ -1,3 +1,4 @@
+import type { PackageCheckAuthoringOptions } from "../check-authoring.ts";
 import type {
   ProjectFileSelection,
   ProjectFileSelectionOptions
@@ -61,7 +62,9 @@ export interface DuplicateDetectionCodeAreaOptions {
 }
 
 /** `duplicateDetection(options?)` 接受并补齐默认值的公开策略。 */
-export interface DuplicateDetectionOptions {
+export interface DuplicateDetectionOptions<
+  Id extends string = string
+> extends PackageCheckAuthoringOptions<Id> {
   /** 省略时建立默认 `project` 区域；显式映射必须非空。 */
   readonly codeAreas?: Readonly<Record<string, DuplicateDetectionCodeAreaOptions>>;
   readonly cache?: DuplicateDetectionCacheOptions;

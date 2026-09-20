@@ -1,3 +1,4 @@
+import type { PackageCheckAuthoringOptions } from "../check-authoring.ts";
 import type {
   ProjectFileSelection,
   ProjectFileSelectionOptions
@@ -63,7 +64,9 @@ export interface JsonSchemaInstanceBinding {
 }
 
 /** `jsonSchemaValidation(options?)` 接受的可省略 authoring policy。 */
-export interface JsonSchemaValidationOptions {
+export interface JsonSchemaValidationOptions<
+  Id extends string = string
+> extends PackageCheckAuthoringOptions<Id> {
   /** schema/instance declarations 必须属于的 repository-file selection。 */
   readonly files?: ProjectFileSelectionOptions;
   /** 每个 local schema/instance document 允许的最大 raw byte 数；省略时为 1 MiB。 */

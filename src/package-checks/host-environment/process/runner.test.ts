@@ -36,7 +36,7 @@ describe("Product process runner", () => {
       assert.equal(timedOut.isMaxBuffer, undefined);
 
       const outputLimited = await runProcess({
-        args: ["-e", "process.stdout.write('x'.repeat(4_000_000))"],
+        args: ["-e", maxBufferOutputSource()],
         command: process.execPath,
         maxBuffer: 32
       });
@@ -73,6 +73,14 @@ describe("Product process runner", () => {
     assert.equal(result.stderr, "err");
   });
 });
+
+/** Writes more bytes than the configured buffer through synchronous fd output before the child exits. */
+function maxBufferOutputSource(): string {
+  return [
+    "const { writeSync } = require('node:fs');",
+    "for (let byte = 0; byte < 64; byte += 1) writeSync(1, 'x');"
+  ].join("");
+}
 
 function waitForCancellationSource(startedPath: string): string {
   return [

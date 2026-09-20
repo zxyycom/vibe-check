@@ -1,4 +1,8 @@
 import { defineCheck, type TypedCheckWithOptions } from "../../check/check.ts";
+import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
 import { JSON_VALIDATION_CHECK_DEFINITION, executeJsonValidation } from "./json-validation.ts";
 import { parseJsonValidationData } from "./final-data.ts";
 import type { JsonValidationOptions, ResolvedJsonValidationOptions } from "./options.ts";
@@ -13,18 +17,35 @@ import { validJsonValidationOptions } from "./options-validation.ts";
  * @throws {TypeError} input 含未知字段、非法文件选择或非法 byte limit 时抛出。
  */
 export function jsonValidation(
-  options: JsonValidationOptions = {}
+  options?: JsonValidationOptions<"json-validation">
 ): TypedCheckWithOptions<
   "json-validation",
   ResolvedJsonValidationOptions,
   typeof parseJsonValidationData
-> {
-  const resolvedOptions = resolveJsonValidationOptions(options);
+>;
+export function jsonValidation<const Id extends string>(
+  options: JsonValidationOptions<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<Id, ResolvedJsonValidationOptions, typeof parseJsonValidationData>;
+export function jsonValidation(
+  options: JsonValidationOptions
+): TypedCheckWithOptions<string, ResolvedJsonValidationOptions, typeof parseJsonValidationData>;
+export function jsonValidation(
+  options: JsonValidationOptions = {}
+): TypedCheckWithOptions<string, ResolvedJsonValidationOptions, typeof parseJsonValidationData> {
+  const input = resolvePackageCheckAuthoringInput(
+    options,
+    ["files", "maximumBytes"],
+    JSON_VALIDATION_CHECK_DEFINITION
+  );
+  if (input === undefined) {
+    throw new TypeError("jsonValidation options must match the documented closed policy");
+  }
+  const resolvedOptions = resolveJsonValidationOptions(input.domainOptions);
   if (resolvedOptions === undefined) {
     throw new TypeError("jsonValidation options must match the documented closed policy");
   }
   return defineCheck({
-    ...JSON_VALIDATION_CHECK_DEFINITION,
+    ...input.definition,
     execute: executeJsonValidation,
     parseData: parseJsonValidationData,
     prepare: (preparedOptions) =>

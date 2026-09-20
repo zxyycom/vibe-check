@@ -6,6 +6,27 @@
 
 它与 [`markdownLinkValidation`](./markdown-link-validation.md) 分工互补：`markdownLint` 检查本页列出的结构与内容规则；`markdownLinkValidation` 检查本地 link target 与 anchor 完整性。需要两类 evidence 时，将两个 Check 一起放入 `checks`；`link-fragments` 默认不启用，避免默认产生与链接 Check 重复的 same-document anchor evidence。
 
+## 构造器项目声明
+
+`markdownLint` 有三类 overload：`markdownLint(options?: MarkdownLintOptions<"markdown-lint">)` 保留默认 literal；
+`markdownLint<Id>(options: MarkdownLintOptions<Id> & { checkId: Id })` 保留 custom literal；已宽化为
+`MarkdownLintOptions` 的变量返回 `string` identity。默认 `checkId` 是 `markdown-lint`，默认 `displayName` 是 `Markdown lint`；`files`、`findingPolicy`、`rules`
+与 `limits` 仍是本 Check 的领域 options。
+
+例如，为文档 lint 声明项目展示和进度呈现策略：
+
+```ts
+const documentationLint = markdownLint({
+  checkId: "documentation-lint",
+  displayName: "Documentation lint",
+  omitQuietPassedRow: true,
+  files: { include: ["docs/**/*.md"] }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的 `context.options`；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+
 ## 参数与默认配置
 
 `markdownLint` 只接受以下闭合 options。未知字段、未知或重复规则、空规则数组，以及不是正安全整数或超过上限的 limit，会在构造 Check 时以 `TypeError` 拒绝。

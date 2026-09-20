@@ -4,6 +4,27 @@
 
 `markdownLinkValidation(options?)` 构造普通 Check，离线验证所选 Markdown 中的本机链接、图片目标与标题锚点。
 
+## 构造器项目声明
+
+`markdownLinkValidation` 有三类 overload：
+`markdownLinkValidation(options?: MarkdownLinkValidationOptions<"markdown-link-validation">)` 保留默认 literal；
+`markdownLinkValidation<Id>(options: MarkdownLinkValidationOptions<Id> & { checkId: Id })` 保留 custom literal；
+已宽化为 `MarkdownLinkValidationOptions` 的变量返回 `string` identity。默认 `checkId` 是 `markdown-link-validation`，默认 `displayName` 是 `Markdown link validation`；`files`、
+`findingPolicy`、target policy、`cache` 与 `limits` 仍是本 Check 的领域 options。
+
+例如，让文档链接检查观察生成文档并使用独立 identity：
+
+```ts
+const docsLinks = markdownLinkValidation({
+  checkId: "documentation-links",
+  observes: ["generate-docs"],
+  files: { include: ["docs/**/*.md"] }
+});
+```
+
+返回值仍是原生 typed Check。项目声明字段不会进入 `.options` 或执行时的 `context.options`；
+完整字段集合、投影和校验边界见[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)。
+
 ## 最小用法
 
 示例保留终端进度，不写 machine files。

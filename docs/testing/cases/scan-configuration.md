@@ -81,13 +81,14 @@ Entities:
 
 ## Case WB-MAINTENANCE-REMINDER-CONFIGURATION-001: Specialized maintenance reminder authoring is one closed ordinary Check
 
-Owner: `docs/checks/maintenance-reminders.md#参数与默认配置`
+Owner: `docs/checks/maintenance-reminders.md#构造器项目声明`
 Entities:
 
 - `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > constructs one fixed Check, validates full composed policy, and fingerprints entries`
+- `bun|src/package-checks/maintenance-reminders/maintenance-reminders.test.ts|maintenance reminders > accepts object input while preserving the entries overload and package-owned Git options`
   Proves:
-- `maintenanceReminders(entries)` creates exactly one fixed-ID ordinary Check with `omitQuietPassedRow: true` and package-owned Git options; it does not create a child Check collection.
-- Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. It exposes a discriminated final-data parser; invalid/unknown replacement data settles the owning Check unavailable in preparation with an actionable message, while policy changes affect the declarative fingerprint.
+- `maintenanceReminders(entries)` creates exactly one fixed-ID ordinary Check with `omitQuietPassedRow: true` and package-owned Git options; it does not create a child Check collection. Its object input preserves the entries overload, accepts a custom identity plus ordinary project declaration fields, retains the default display name, and projects `omitQuietPassedRow: false` as an omitted raw Check field.
+- The object input keeps Git package-owned: returned resolved options retain the fixed Git executable, and a supplied `git` branch is rejected. Its complete composed options accept only dense, uniquely identified reminder policies with full immutable bases, positive limits, non-empty messages, recognized modes, and a complete Git executable branch. It exposes a discriminated final-data parser; invalid/unknown replacement data settles the owning Check unavailable in preparation with an actionable message, while policy changes affect the declarative fingerprint.
 
 ## Case WB-PROGRESS-PREVIEW-DEFINITION-001: Progress preview Definition is defaulted and callback-free declarative identity
 

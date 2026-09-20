@@ -28,7 +28,7 @@ Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > materializes closed defaults and rejects malformed authored or resolved policy`
   Proves:
-- `fileMetrics(options?)` materializes frozen area defaults with non-blocking findings, code-line maximum `360`, low-decision allowance `600/12`, and executable `scc`; it rejects unknown or invalid authored input synchronously and retains defensive resolved preparation/execution validation without public SCC argument passthrough. Its attached/named parser validates exact finding-count invariants, and Check-owned invalid options are actionable messages rather than silent unavailable results.
+- `fileMetrics(options?)` materializes frozen area defaults with non-blocking findings, code-line maximum `360`, low-decision allowance `600/12`, and executable `scc`; it rejects unknown or invalid authored input synchronously and retains defensive resolved preparation/execution validation without public SCC argument passthrough. Its attached/named parser validates exact finding-count invariants, and Check-owned invalid options are actionable messages rather than silent unavailable results. Normalized custom file-metrics and JSON leaves retain their flag conditions, relations, identity, scheduling and resource claims while excluding project fields from resolved options; a no-flag Run does not select them, and the matching-flag Run executes both file-metrics instances through the declared relation and resource schedule.
 
 ## Case WB-SCANNER-FILE-METRICS-SCOPE-001: File metrics applies area-owned exact scope
 

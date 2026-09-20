@@ -5,6 +5,11 @@ import {
   type TypedCheckWithOptions
 } from "../../check/check.ts";
 import {
+  resolvePackageCheckAuthoringInput,
+  type PackageCheckAuthoringOptions,
+  type PackageCheckIdentityInput
+} from "../check-authoring.ts";
+import {
   MAINTENANCE_REMINDER_UNAVAILABLE_REASON,
   parseMaintenanceRemindersData,
   type MaintenanceReminderAssessment,
@@ -59,6 +64,14 @@ export interface MaintenanceReminderOptions {
   }>;
 }
 
+/** `maintenanceReminders` 的对象式构造输入，组合提醒政策与项目 Check 声明。 */
+export interface MaintenanceRemindersInput<
+  Id extends string = string
+> extends PackageCheckAuthoringOptions<Id> {
+  /** 保留作者声明顺序的提醒政策条目。 */
+  readonly entries: readonly MaintenanceReminder[];
+}
+
 /** `maintenance-reminders` whole-Check unavailable outcome 的稳定 reason code。 */
 export type MaintenanceRemindersUnavailableCode =
   (typeof WHOLE_CHECK_UNAVAILABLE_CODE)[keyof typeof WHOLE_CHECK_UNAVAILABLE_CODE];
@@ -93,9 +106,9 @@ export type ReminderMeasurement =
   | Readonly<{ readonly kind: "succeeded"; readonly value: ReminderEvaluation }>;
 
 /**
- * 创建一个固定 ID 的普通 Check，并在其局部最终数据中评估多条维护提醒。
+ * 创建一个维护提醒普通 Check，并在其局部最终数据中评估多条维护提醒。
  *
- * @remarks 构造函数只接收项目无法可靠推断的提醒政策；它补齐 Git 可执行文件、身份、可见性和直接执行逻辑。返回值仍是普通 Check，可按现有原生对象组合规则替换完整 `options` 分支。
+ * @remarks 传入 entries 数组会保留默认 identity；对象输入可同时声明项目 Check 字段。构造函数补齐 Git 可执行文件、默认展示和直接执行逻辑，返回值仍是普通 Check，可按现有原生对象组合规则替换完整 `options` 分支。
  * @example 创建一个单一 Check 的维护提醒
  * ```ts
  * import { defineConfig, maintenanceReminders, run } from "@zxyycom/vibe-check";
@@ -136,10 +149,52 @@ export function maintenanceReminders(
   typeof MAINTENANCE_REMINDERS_CHECK_ID,
   MaintenanceReminderOptions,
   typeof parseMaintenanceRemindersData
-> {
+>;
+export function maintenanceReminders(
+  input: MaintenanceRemindersInput<typeof MAINTENANCE_REMINDERS_CHECK_ID>
+): TypedCheckWithOptions<
+  typeof MAINTENANCE_REMINDERS_CHECK_ID,
+  MaintenanceReminderOptions,
+  typeof parseMaintenanceRemindersData
+>;
+export function maintenanceReminders<const Id extends string>(
+  input: MaintenanceRemindersInput<Id> & PackageCheckIdentityInput<Id>
+): TypedCheckWithOptions<Id, MaintenanceReminderOptions, typeof parseMaintenanceRemindersData>;
+export function maintenanceReminders(
+  input: MaintenanceRemindersInput
+): TypedCheckWithOptions<string, MaintenanceReminderOptions, typeof parseMaintenanceRemindersData>;
+export function maintenanceReminders(
+  input: readonly MaintenanceReminder[] | MaintenanceRemindersInput
+): TypedCheckWithOptions<string, MaintenanceReminderOptions, typeof parseMaintenanceRemindersData> {
+  if (isMaintenanceReminderEntries(input)) {
+    return createMaintenanceRemindersCheck(
+      {
+        checkId: MAINTENANCE_REMINDERS_CHECK_ID,
+        displayName: "Maintenance reminders",
+        omitQuietPassedRow: true
+      },
+      input
+    );
+  }
+  const resolvedInput = resolveMaintenanceRemindersInput(input);
+  if (resolvedInput === undefined) {
+    throw new TypeError(
+      "maintenanceReminders input must be entries or a closed { entries, checkId?, displayName?, enabledByFlags?, checks?, dependsOn?, observes?, maxParallel?, admissionPriority?, mutex?, resourceClaims?, omitQuietPassedRow? } object"
+    );
+  }
+  return createMaintenanceRemindersCheck(resolvedInput.definition, resolvedInput.entries);
+}
+
+type PackageCheckDefinition<Id extends string> = NonNullable<
+  ReturnType<typeof resolvePackageCheckAuthoringInput<Id>>
+>["definition"];
+
+function createMaintenanceRemindersCheck<Id extends string>(
+  definition: PackageCheckDefinition<Id>,
+  entries: readonly MaintenanceReminder[]
+): TypedCheckWithOptions<Id, MaintenanceReminderOptions, typeof parseMaintenanceRemindersData> {
   return defineCheck({
-    checkId: MAINTENANCE_REMINDERS_CHECK_ID,
-    displayName: "Maintenance reminders",
+    ...definition,
     execute: executeMaintenanceReminders,
     parseData: parseMaintenanceRemindersData,
     prepare: (options) =>
@@ -161,9 +216,34 @@ export function maintenanceReminders(
     options: {
       entries,
       git: { executable: "git" }
-    },
+    }
+  });
+}
+
+function isMaintenanceReminderEntries(
+  input: readonly MaintenanceReminder[] | MaintenanceRemindersInput
+): input is readonly MaintenanceReminder[] {
+  return Array.isArray(input);
+}
+
+function resolveMaintenanceRemindersInput<Id extends string>(
+  input: MaintenanceRemindersInput<Id>
+):
+  | Readonly<{
+      readonly definition: PackageCheckDefinition<Id>;
+      readonly entries: readonly MaintenanceReminder[];
+    }>
+  | undefined {
+  const resolved = resolvePackageCheckAuthoringInput(input, ["entries"], {
+    checkId: MAINTENANCE_REMINDERS_CHECK_ID,
+    displayName: "Maintenance reminders",
     omitQuietPassedRow: true
   });
+  if (resolved === undefined) return undefined;
+  const entries = resolved.domainOptions.entries;
+  if (!Array.isArray(entries)) return undefined;
+  const reminderEntries: readonly MaintenanceReminder[] = entries;
+  return Object.freeze({ definition: resolved.definition, entries: reminderEntries });
 }
 
 /** 在普通对象组合后验证完整的选项形状。 */

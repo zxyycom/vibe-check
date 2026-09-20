@@ -72,6 +72,23 @@ export default defineConfig({
 
 `defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execute` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
 
+### 随包构造器的项目声明边界
+
+九个固定身份的随包构造器把 `PackageCheckAuthoringOptions` 的项目字段投影为 ordinary Check 声明；完整字段集合、
+输入分流、默认 identity/display name 和 package-owned execution 边界由
+[API 机制](../api-mechanics.md#随包-check-的构造器项目声明)拥有。本页拥有这些字段进入 Definition 后的同一套语义。
+
+构造器只关闭自己的顶层 input、复制安全值并补齐领域 options。它不替代 Definition normalization，也不预先决定
+跨 Check 的合法性。`defineConfig`/`run` 必须仍然验证并规范化完整 tree：所有 `checkId` 唯一、`displayName` 合法、
+container/executable 形状、children、flag condition、direct relations、mutex、parallel budget、priority 和 resource claim
+都按 ordinary Check grammar 处理。因而多个同类随包 Check 可共存，但每个实例必须有唯一 `checkId`；relation、selection
+和调度只在完整 Definition 中取得意义。
+
+投影后的项目字段进入 declarative snapshot 与 fingerprint，遵循对应 ordinary Check 字段既有的 inclusion 规则；
+领域 options 保持为 constructor-resolved `.options`，并在 admitted task 中作为 execution `context.options` 使用。构造器
+返回的 native typed Check 没有额外 adapter 或第二 execution model；改变项目声明不会改变 package-owned `prepare`、
+`execute`、`parseData` 或 handoff。
+
 ### Flag-enabled Checks
 
 公开 authoring、builders、propagation 的使用语义由[按 flag 选择 Check](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；

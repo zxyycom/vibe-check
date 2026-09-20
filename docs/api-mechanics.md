@@ -77,6 +77,36 @@ prepared strategy 的 `prepare / decide / terminalEffect` 顺序、失败与取�
 
 fingerprint 使用 normalized declarative fields；preparation、execution 与 custom admission callbacks 都保持为执行行为。scheduler fingerprint 区分 `static` 与 `custom`，且不包含 callback identity、source 或 closure。同一份 Definition 可以重复调用，每次 Run 都从 authored input 派生自己的 project context、prepared options、terminal facts 和 output statuses。
 
+## 随包 Check 的构造器项目声明
+
+九个固定身份的随包构造器在现有顶层 options 同时接收领域 policy 与项目 Check 声明：
+`duplicateDetection`、`fileMetrics`、`functionMetrics`、`jsonValidation`、`jsonSchemaValidation`、
+`markdownLinkValidation`、`markdownLint`、`secretDetection` 与 `maintenanceReminders`。前八项使用原有
+object input；`maintenanceReminders(entries)` 保持可用，并增加含 `entries` 的 object input。`commandCheck`
+保持自己的既有 contract。
+
+`PackageCheckAuthoringOptions<Id extends string = string>` 是从 package root 导出的可复用项目声明类型。它的全部字段如下；
+每个字段与 ordinary Check 上的同名字段具有相同含义：
+
+| 字段 | 作用 | 详细规则 owner |
+| --- | --- | --- |
+| `checkId?` | 为实例声明 identity；省略时使用该构造器的默认 literal ID。 | Project Definition 的 validation |
+| `displayName?` | 覆盖该构造器的默认显示名。自定义 `checkId` 不会派生新名称。 | 同上 |
+| `enabledByFlags?` | 声明 selection condition。 | [按 flag 选择 Check](guides/extending-check-lifecycle.md#按-flag-选择-check) |
+| `checks?` | 声明 children，使可执行 Check 同时承担 containment scope。 | [递归组合与继承](#递归组合与继承) |
+| `dependsOn?`、`observes?` | 声明 direct relation；可使用 `inherit(...)`。 | [Check 依赖与类型化数据](guides/check-dependencies.md) |
+| `maxParallel?`、`admissionPriority?`、`mutex?`、`resourceClaims?` | 声明 scheduling 与资源需求。 | [调度 Check](guides/scheduling.md) |
+| `omitQuietPassedRow?` | 控制 progress 中 quiet passed row 的呈现。 | [递归组合与继承](#递归组合与继承) |
+
+构造器 input 是 closed top-level object：它只接受所属 Check 的领域字段和这组项目字段。构造器负责安全快照、
+默认 identity/display name、可在本地判断的字段 shape，以及两类字段的分流。默认 overload 返回该 Check 的默认 literal；
+custom overload 要求 input 的静态类型含必填 `{ checkId: Id }`，并返回同一 `Id`；已宽化为通用 options 类型的变量使用
+broad overload，返回 `string` identity。各 Check guide 给出本 Check 的三个签名、默认 identity/display name 与领域字段。
+
+项目字段投影到最终 Check 声明；它们不进入 resolved `.options`、`prepare`、`execute` 或 execution
+`context.options`。随包构造器仍拥有 `prepare`、`execute`、`parseData` 与 handoff 行为，不能通过这些 options 覆盖。
+`defineConfig`/`run` 随后负责完整 tree 的语义校验、normalization 与运行。
+
 ## 按文件变化选择 Check
 
 `changes` 让 Definition 从一次 Git comparison 派生选择用的 change flags。`source` 的完整形状是

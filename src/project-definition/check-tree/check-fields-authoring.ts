@@ -209,7 +209,8 @@ function parseEnabledByFlags(data: CheckAuthoringData): CheckFlagEnablement | nu
   return parseFlagEnablementControl(data.enabledByFlags);
 }
 
-function parseFlagEnablementControl(value: unknown): CheckFlagEnablement | undefined {
+/** Parses one closed flag-enablement field without validating its Project flag references. */
+export function parseFlagEnablementControl(value: unknown): CheckFlagEnablement | undefined {
   const control = snapshotClosedRecord(value);
   if (
     control === undefined ||
