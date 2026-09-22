@@ -43,6 +43,22 @@ document registry、examples 或 installed-consumer 材料，则在对应 Gate/P
 1. P0 的三个 Change 可以并行进行调查和 Plan 收敛，但它们都修改 Gate manifest、repository material owner 或稳定 Gate 文档，实施与合入按 P0-0 → P0-1 → P0-2 串行。
 2. Cache Change 只消费 P0-2 的真实 workload，不反向扩大首版规则、Finding 或资源边界；config package 只在真实组合已证明重复成本后固定公共抽象。
 
+### 本轮最终安排
+
+本轮只启动一个实施 Change：`reorganize-repository-material-gate-checks`（P0-0）。它先冻结材料 owner、
+`materials` 入口、Check identity、输入 corpus 和公共 JSON/schema Check 的复用边界；在这些事实形成前，
+不修改 P0-1/P0-2 的共享 Gate owner。
+
+| 状态 | Change | 当前动作 |
+| --- | --- | --- |
+| 现在推进 | P0-0 repository material reorganization | 完成 Readiness 0.1–0.4；证据充分后再实施 1.x。 |
+| 排队等待 | P0-1 change flags + DSL | 只准备隔离 fixture 和设计审阅；等待 P0-0 稳定 identity 与输入范围。 |
+| 暂不激活 | P0-2 Markdown lint dogfood | 保持 Draft；等待材料 owner 和 selection 事实，再决定是否形成 Plan。 |
+| 不进入本轮 | 其它 Draft/Plan | 不启动实施；只有解除条件或用户明确调整优先级时重新排队。 |
+
+P0-0 的 Readiness 完成前允许独立阅读和 corpus 调查，但不得把调查结果直接写入共享 Gate manifest、
+Case ledger 或稳定 owner 文档；需要写入时按 P0-0 的实施顺序合入。
+
 ### 优先级与并行矩阵
 
 优先级按“能否立即在本项目获得反馈”而不是 API 新旧排序。调查/Plan 可并行，代码、Case 账本、Gate manifest、lockfile
