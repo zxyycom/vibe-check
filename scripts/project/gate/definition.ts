@@ -11,7 +11,6 @@ import {
   commandCheck,
   createLearnedCriticalPathStrategy,
   defineConfig,
-  type AfterCommandContext,
   type ProjectDefinition,
   type RunControls,
   type SchedulerGraphSnapshot
@@ -30,17 +29,14 @@ import {
 } from "./checks/external-consumer-material.ts";
 import {
   createProjectGateCommonEntry,
-  createProjectGateProcessEntry
+  createProjectGateCommandEntry
 } from "./checks/entry-factories.ts";
 import { createPreparedCandidateCheck } from "./checks/prepared-candidate.ts";
 import { createProjectGateRepositoryQualityChecks } from "./checks/repository-quality.ts";
 import { createOxfmtFailureProjection } from "./checks/oxfmt-failure-records.ts";
 import { createOxlintFailureProjection } from "./checks/oxlint-failure-records.ts";
-import {
-  safeProcessFailureRecords,
-  type ProcessFailureProjection
-} from "./checks/process/failure-projection.ts";
-import { failedProcessResult, processTranscriptPath } from "./checks/process/transcript.ts";
+import type { ProcessFailureProjection } from "./checks/process/failure-projection.ts";
+import { settleProjectGateCommand } from "./checks/command-result.ts";
 import { createTestEvidenceRuleTestsCheck } from "./checks/test-evidence/ast-grep-rule-tests-check.ts";
 import { createTestEvidenceCheck } from "./checks/test-evidence/semantic-case-check.ts";
 import { createProjectGateTestEntries } from "./checks/test-execution/entries.ts";
@@ -114,7 +110,7 @@ export interface ProjectGateRuntime {
 /** Creates the ordinary typecheck, lint, and format entries of the required Gate assurance. */
 function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGateEntry[] {
   return [
-    createProjectGateProcessEntry({
+    createProjectGateCommandEntry({
       invocation: typecheckInvocation("product"),
       checkId: "typecheck-product",
       displayName: "TypeScript product typecheck and import boundary",
@@ -126,14 +122,14 @@ function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGate
       presets: ["lint"],
       required: true
     }),
-    createProjectGateProcessEntry({
+    createProjectGateCommandEntry({
       invocation: typecheckInvocation("scripts"),
       checkId: "typecheck-scripts",
       displayName: "TypeScript script typecheck",
       presets: ["typecheck"],
       required: true
     }),
-    createProjectGateProcessEntry({
+    createProjectGateCommandEntry({
       failureProjection: createOxlintFailureProjection({
         scope: "scripts",
         workspaceRoot: repositoryRoot
@@ -144,7 +140,7 @@ function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGate
       presets: ["lint"],
       required: true
     }),
-    createProjectGateProcessEntry({
+    createProjectGateCommandEntry({
       failureProjection: createOxfmtFailureProjection({
         targets: workspaceFormatTargets,
         workspaceRoot: repositoryRoot
@@ -184,43 +180,12 @@ export function createLintProductCheck(input?: LintProductCheckInput) {
     workingDirectory: invocation.cwd,
     afterCommand: {
       execute: (context) =>
-        settleLintProductCommand({
+        settleProjectGateCommand({
           command: invocation.command,
           context,
           failureProjection
         })
     }
-  });
-}
-
-/** Maps one settled lint command into Gate-owned failure projection without exposing child output. */
-export function settleLintProductCommand(
-  input: Readonly<{
-    readonly command: string;
-    readonly context: AfterCommandContext;
-    readonly failureProjection: ProcessFailureProjection;
-  }>
-) {
-  const { command, context, failureProjection } = input;
-  if (context.artifactDirectory === null) {
-    return Object.freeze({
-      status: "unavailable" as const,
-      reason: Object.freeze({ code: "command-transcript-unavailable" })
-    });
-  }
-  if (context.command.exitCode === 0) {
-    return Object.freeze({
-      status: "passed" as const,
-      data: Object.freeze({ exitCode: 0 })
-    });
-  }
-  const failureRecords = safeProcessFailureRecords(failureProjection, context.command.stdout);
-  return failedProcessResult(context, {
-    command,
-    exitCode: context.command.exitCode,
-    logPath: processTranscriptPath(context.artifactDirectory),
-    signal: null,
-    ...(failureRecords === undefined ? {} : { failureRecords })
   });
 }
 
@@ -373,7 +338,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     ...createProjectGateCandidateAndTestEntries(preparedCandidate, externalConsumer, testLanes),
     ...createProjectGateRepositoryQualityEntries(repositoryQuality),
     ...createProjectGateDocumentationAndGovernanceEntries(),
-    createProjectGateProcessEntry({
+    createProjectGateCommandEntry({
       invocation: {
         args: ["diff", "--check"],
         command: "git",

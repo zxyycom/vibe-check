@@ -13,8 +13,8 @@ import {
   failedProcessResult,
   processTranscriptReference,
   writeProcessTranscript,
-  type ProcessCheckDescriptor
-} from "../process/process.ts";
+  type ProcessTranscriptDefinition
+} from "../process/transcript.ts";
 
 const UNAVAILABLE_REASON_CODE = Object.freeze({
   executionCancelled: "execution-cancelled",
@@ -219,11 +219,8 @@ function firstFailedProcessResult(result: TestEvidenceRuleTestResult):
 }
 
 function transcriptDefinition(
-  invocation: Pick<ProcessCheckDescriptor, "args" | "command">
-): Readonly<{
-  readonly args: readonly string[];
-  readonly command: string;
-}> {
+  invocation: ProcessTranscriptDefinition
+): ProcessTranscriptDefinition {
   return Object.freeze({ args: invocation.args, command: invocation.command });
 }
 

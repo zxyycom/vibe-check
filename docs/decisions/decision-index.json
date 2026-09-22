@@ -348,7 +348,8 @@
       "260915-provide-bounded-markdown-lint-check": "sha256:37fb68f0951b63c35527be3ec0c95d6af659f29eeca2abc22a7570a75f77a36d",
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b",
       "260920-configure-package-checks-through-constructor-options": "sha256:c45c93f46e0435fd1ec5de0403366d078a839b0b802fc30a142d8c7ba6bd0958",
-      "260920-extend-command-check-with-caller-owned-completion": "sha256:d31e73e1254bad1dc7805296b64317b4676e3f1b00b54f66df8a8259c1b71a55"
+      "260920-extend-command-check-with-caller-owned-completion": "sha256:d31e73e1254bad1dc7805296b64317b4676e3f1b00b54f66df8a8259c1b71a55",
+      "260922-migrate-project-gate-process-checks-to-command-check": "sha256:5fb2011b6a55b3c96ca4ff9ae8b216a64ca52dda356d7ec03832c98f4b3ac884"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7202,6 +7203,23 @@
       "tags": [
         "configuration",
         "product-contract"
+      ],
+      "relations": []
+    },
+    "260922-migrate-project-gate-process-checks-to-command-check": {
+      "name": "migrate-project-gate-process-checks-to-command-check",
+      "sourcePath": "migrate-project-gate-process-checks-to-command-check.md",
+      "title": "让 Project Gate 单命令复用 commandCheck",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-22T05:50:58Z",
+      "purpose": "统一 Gate 单命令的 Product 进程生命周期与证据边界。",
+      "background": "Gate 私有 adapter 与 Product commandCheck 重复维护单命令执行。",
+      "decision": "单命令使用 Product commandCheck，Gate 保留领域结算；多步骤 workflow 保留专有实现。",
+      "tags": [
+        "configuration",
+        "repository-automation",
+        "workflow-policy"
       ],
       "relations": []
     }

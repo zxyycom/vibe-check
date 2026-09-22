@@ -6,12 +6,17 @@ import { writeTextFile } from "../../../../repository-files/files.ts";
 import type { ProcessResult } from "../../../../process-execution/execution.ts";
 import type { CheckExecutionContext, CheckResult } from "@zxyycom/vibe-check";
 
-import type { ProcessCheckDescriptor } from "./process.ts";
 import type { ProcessFailureRecord } from "./failure-projection.ts";
+
+/** One command invocation shape recorded by a Gate-owned multi-step transcript. */
+export interface ProcessTranscriptDefinition {
+  readonly args: readonly string[];
+  readonly command: string;
+}
 
 /** One completed child-process step included in a Check-owned transcript. */
 export interface ProcessTranscriptStep {
-  readonly definition: Pick<ProcessCheckDescriptor, "args" | "command">;
+  readonly definition: ProcessTranscriptDefinition;
   readonly label: string;
   readonly result: ProcessResult;
 }
@@ -32,31 +37,6 @@ export function writeProcessTranscript(
     filePath: logPath
   });
   return logPath;
-}
-
-/** Records the process command before it starts so an interrupted Gate retains context. */
-export function writeProcessStartupTranscript(
-  input: Readonly<{
-    readonly definition: ProcessCheckDescriptor;
-    readonly artifactDirectory: string;
-    readonly writeTextFile: typeof writeTextFile;
-  }>
-): void {
-  const { definition } = input;
-  const logPath = processTranscriptPath(input.artifactDirectory);
-  mkdirSync(dirname(logPath), { recursive: true });
-  const command = [definition.command, ...definition.args].map(commandToken).join(" ");
-  input.writeTextFile({
-    content: [
-      `check: ${definition.checkId}`,
-      "",
-      "step: command",
-      `command: ${command}`,
-      "status: running",
-      `timeout: ${definition.timeoutMs === undefined ? "none" : formatTimeout(definition.timeoutMs)}`
-    ].join("\n"),
-    filePath: logPath
-  });
 }
 
 export function processTranscriptPath(artifactDirectory: string): string {
@@ -104,10 +84,6 @@ export function failedProcessResult(
       })
     ])
   });
-}
-
-export function formatTimeout(timeoutMs: number): string {
-  return timeoutMs % 1_000 === 0 ? `${timeoutMs / 1_000}s` : `${timeoutMs}ms`;
 }
 
 function transcriptStep(step: ProcessTranscriptStep): string {

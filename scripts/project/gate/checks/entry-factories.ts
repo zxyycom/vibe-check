@@ -1,24 +1,35 @@
 import type { ProcessInvocation } from "../../../process-execution/command.ts";
-import type { Check } from "@zxyycom/vibe-check";
+import { PLAIN_TEXT_PROCESS_ENV } from "../../../process-execution/execution.ts";
+import {
+  commandCheck,
+  type AfterCommandContext,
+  type Check,
+  type CheckDependencies
+} from "@zxyycom/vibe-check";
 
 import type { ProjectGatePreset } from "../runtime/catalog.ts";
-import {
-  createProcessCheck,
-  createProcessCheckWithFailureProjection,
-  createProcessCheckWithDataDependency,
-  type ProcessCheckDataDependency,
-  type ProcessFailureProjection
-} from "./process/process.ts";
+import type { ProcessFailureProjection } from "./process/failure-projection.ts";
 import type { ProjectGateEntry } from "../runtime/entries.ts";
+import { settleProjectGateCommand } from "./command-result.ts";
 
-/** A process Check is plain, dependency-backed, or failure-projecting, never both adapters. */
-type ProcessEntryAdapter<Data extends object> =
+const DEFAULT_GATE_COMMAND_TIMEOUT_MS = 120_000;
+const GATE_COMMAND_OUTPUT_BYTE_LIMIT = 64 * 1024 * 1024;
+
+/** One direct dependency that supplies validated environment variables to a Gate command. */
+export interface GateCommandDataDependency<Data extends object> {
+  readonly checkId: string;
+  readonly environment: (data: Data) => Readonly<Record<string, string>>;
+  readonly parseData: (data: unknown) => Data;
+}
+
+/** A Gate command is plain, dependency-backed, or failure-projecting, never both adapters. */
+type CommandEntryAdapter<Data extends object> =
   | {
       readonly dataDependency?: never;
       readonly failureProjection?: never;
     }
   | {
-      readonly dataDependency: ProcessCheckDataDependency<Data>;
+      readonly dataDependency: GateCommandDataDependency<Data>;
       readonly failureProjection?: never;
     }
   | {
@@ -26,8 +37,8 @@ type ProcessEntryAdapter<Data extends object> =
       readonly failureProjection: ProcessFailureProjection;
     };
 
-/** Builds one ordinary process-backed Gate entry from its already-resolved invocation. */
-export function createProjectGateProcessEntry<Data extends object = object>(
+/** Builds one Product commandCheck entry from one resolved Gate invocation. */
+export function createProjectGateCommandEntry<Data extends object = object>(
   input: Readonly<{
     readonly invocation: ProcessInvocation;
     readonly checkId: string;
@@ -37,7 +48,7 @@ export function createProjectGateProcessEntry<Data extends object = object>(
     readonly required: boolean;
     readonly timeoutMs?: number;
   }> &
-    ProcessEntryAdapter<Data>
+    CommandEntryAdapter<Data>
 ): ProjectGateEntry {
   const {
     checkId,
@@ -52,25 +63,50 @@ export function createProjectGateProcessEntry<Data extends object = object>(
   } = input;
   if (dataDependency !== undefined && failureProjection !== undefined) {
     throw new TypeError(
-      "A process Check cannot combine dependency and structured failure adapters"
+      "A Gate command Check cannot combine dependency and structured failure adapters"
     );
   }
-  const descriptor = {
-    args: invocation.args,
+  const invocationEnvironmentOverrides = definedEnvironmentOverrides(invocation.env);
+  const environmentOverrides = Object.freeze({
+    ...invocationEnvironmentOverrides,
+    ...PLAIN_TEXT_PROCESS_ENV
+  });
+  const commonInput = {
+    arguments: invocation.args,
     checkId,
-    command: invocation.command,
-    cwd: invocation.cwd,
     displayName,
-    ...(invocation.env === undefined ? {} : { environment: definedEnvironment(invocation.env) }),
-    ...(timeoutMs === undefined ? {} : { timeoutMs })
+    executable: invocation.command,
+    output: { mode: "transcript" as const },
+    outputByteLimit: GATE_COMMAND_OUTPUT_BYTE_LIMIT,
+    timeoutMs: timeoutMs ?? DEFAULT_GATE_COMMAND_TIMEOUT_MS,
+    workingDirectory: invocation.cwd
   };
+  const settle = (context: AfterCommandContext) =>
+    settleProjectGateCommand({
+      command: invocation.command,
+      context,
+      ...(failureProjection === undefined ? {} : { failureProjection })
+    });
   let check: Check;
   if (dataDependency !== undefined) {
-    check = createProcessCheckWithDataDependency(descriptor, dataDependency);
-  } else if (failureProjection !== undefined) {
-    check = createProcessCheckWithFailureProjection(descriptor, failureProjection);
+    check = commandCheck({
+      ...commonInput,
+      dependsOn: [dataDependency.checkId],
+      resolveEnvironment: (context) =>
+        resolveDependencyEnvironment(
+          context.dependencies,
+          dataDependency,
+          invocationEnvironmentOverrides,
+          environmentOverrides
+        ),
+      afterCommand: { execute: settle }
+    });
   } else {
-    check = createProcessCheck(descriptor);
+    check = commandCheck({
+      ...commonInput,
+      environment: inheritedEnvironment(environmentOverrides),
+      afterCommand: { execute: settle }
+    });
   }
   return createProjectGateCommonEntry({
     check,
@@ -98,10 +134,52 @@ export function createProjectGateCommonEntry(
   });
 }
 
-function definedEnvironment(environment: NodeJS.ProcessEnv): Readonly<Record<string, string>> {
+/** Preserves the old Gate runner's inherited environment while retaining explicit invocation overrides. */
+function inheritedEnvironment(overrides: Readonly<Record<string, string>>) {
+  return Object.freeze({
+    mode: "inherit" as const,
+    ...(Object.keys(overrides).length === 0 ? {} : { overrides })
+  });
+}
+
+/** Reads the direct provider only at execution time and rejects malformed, failed, or colliding input. */
+function resolveDependencyEnvironment<Data extends object>(
+  dependencies: CheckDependencies,
+  dependency: GateCommandDataDependency<Data>,
+  invocationOverrides: Readonly<Record<string, string>>,
+  baseOverrides: Readonly<Record<string, string>>
+) {
+  const read = dependencies.get(dependency.checkId);
+  if (!read.ok || read.status !== "passed") {
+    throw new TypeError("Gate command dependency is unavailable");
+  }
+  const variables = dependency.environment(dependency.parseData(read.data));
+  if (
+    !isStringRecord(variables) ||
+    Object.keys(variables).some((name) => Object.hasOwn(invocationOverrides, name))
+  ) {
+    throw new TypeError("Gate command dependency environment is invalid");
+  }
+  return inheritedEnvironment(
+    Object.freeze({ ...baseOverrides, ...variables, ...PLAIN_TEXT_PROCESS_ENV })
+  );
+}
+
+function definedEnvironmentOverrides(
+  environment: NodeJS.ProcessEnv | undefined
+): Readonly<Record<string, string>> {
   const values: Record<string, string> = {};
-  for (const [name, value] of Object.entries(environment)) {
+  for (const [name, value] of Object.entries(environment ?? {})) {
     if (value !== undefined) values[name] = value;
   }
   return Object.freeze(values);
+}
+
+function isStringRecord(value: unknown): value is Readonly<Record<string, string>> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    !Array.isArray(value) &&
+    Object.values(value).every((item) => typeof item === "string")
+  );
 }

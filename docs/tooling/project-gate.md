@@ -165,7 +165,23 @@ import-boundary 或行为测试。边界见 [Check-owned scanner dependencies](.
 
 ### Process evidence
 
-外部命令将完整过程写入其 Check artifact 的 `process.log`；native Checks 发布 typed safe Records。
+所有单一、无 shell 外部命令都由 Product `commandCheck` 启动并将完整过程写入其 Check artifact 的 `process.log`；Gate
+只通过 `resolveEnvironment` 派生依赖环境，并通过 `afterCommand` 完成工具领域结算。Gate 的 selection、依赖关系、
+safe failure projector、`gate.log` 与最终退出码仍由 Gate owner 维护。native Checks 不创建单进程 transcript，只发布
+typed safe Records。
+
+Gate command 的进程边界固定为：
+
+- environment 使用继承宿主环境并叠加 Product plain-text/no-color variables；依赖数据只能作为显式 overrides 进入 child。
+- stdout/stderr 的上限固定为 `64 MiB`；当前 Gate command entry 不向各 invocation 暴露另一套 output limit 配置。
+- 未单独配置 timeout 的 Gate 单命令使用 `120_000 ms`；package acceptance 与 `lint-product` 保持 `30_000 ms`。
+  这个默认值是新增 bounded policy，不等价于旧 adapter 的无 timeout 行为。
+- Product 在最终 transcript 写入成功后，才调用 Gate completion callback；resolver、取消、timeout、output limit、signal
+  和 transcript failure 使用 Product reason code，不由 Gate 复制一套 process reason code。
+
+`test-evidence-rule-tests` 是唯一多步骤 process workflow 例外：它在一个 Check 中运行 ast-grep version 与 rule-tests，
+保留专有 transcript 和版本不匹配 Record，不通过 shell、pipeline 或通用 process adapter 表达。
+
 维护字段投影、失败降级或终端预览时见[Gate 诊断与进程证据](gate-diagnostics.md#process-evidence)。
 
 ### Gate result post-processing and exits

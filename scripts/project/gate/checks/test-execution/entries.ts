@@ -9,7 +9,6 @@ import {
 import type { Check } from "@zxyycom/vibe-check";
 
 import type { ProjectGatePreset } from "../../runtime/catalog.ts";
-import type { ProcessCheckDataDependency } from "../process/process.ts";
 import type { ProjectGateEntry } from "../../runtime/entries.ts";
 import {
   EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV,
@@ -21,7 +20,10 @@ import {
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
 } from "../../../../package/candidate/external-consumer/input.ts";
-import { createProjectGateProcessEntry } from "../entry-factories.ts";
+import {
+  createProjectGateCommandEntry,
+  type GateCommandDataDependency
+} from "../entry-factories.ts";
 import {
   parseProjectGatePreparedCandidateData,
   type ProjectGatePreparedCandidateData
@@ -107,14 +109,14 @@ function createProjectGateTestEntry(input: {
     required: definition.required,
     ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };
-  if (definition.candidateInput === undefined) return createProjectGateProcessEntry(processEntry);
+  if (definition.candidateInput === undefined) return createProjectGateCommandEntry(processEntry);
   if (definition.candidateInput === "artifact") {
-    return createProjectGateProcessEntry<ProjectGatePreparedCandidateData>({
+    return createProjectGateCommandEntry<ProjectGatePreparedCandidateData>({
       ...processEntry,
       dataDependency: preparedCandidateProcessDependency(preparedCandidate.checkId)
     });
   }
-  return createProjectGateProcessEntry<ExternalConsumerMaterialData>({
+  return createProjectGateCommandEntry<ExternalConsumerMaterialData>({
     ...processEntry,
     dataDependency: externalConsumerProcessDependency(externalConsumer.checkId)
   });
@@ -122,7 +124,7 @@ function createProjectGateTestEntry(input: {
 
 function preparedCandidateProcessDependency(
   checkId: string
-): ProcessCheckDataDependency<ProjectGatePreparedCandidateData> {
+): GateCommandDataDependency<ProjectGatePreparedCandidateData> {
   return Object.freeze({
     checkId,
     environment: artifactCandidateEnvironment,
@@ -143,7 +145,7 @@ function artifactCandidateEnvironment(
 
 function externalConsumerProcessDependency(
   checkId: string
-): ProcessCheckDataDependency<ExternalConsumerMaterialData> {
+): GateCommandDataDependency<ExternalConsumerMaterialData> {
   return Object.freeze({
     checkId,
     environment: externalConsumerEnvironment,

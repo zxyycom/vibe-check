@@ -303,33 +303,25 @@ Entities:
 - `bun|scripts/project/gate/checks/docs-validation.test.ts|Project Gate documentation native diagnostics > publishes complete docs native diagnostic Records while terminal progress stays bounded`
 - `bun|scripts/project/gate/checks/native-projections.test.ts|Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
-- `bun|scripts/project/gate/checks/entry-factories.test.ts|constructs exclusive process entry adapters and rejects mixed adapters`
+- `bun|scripts/project/gate/checks/entry-factories.test.ts|wires one plain command through Product execution and Gate failure evidence`
+- `bun|scripts/project/gate/checks/entry-factories.test.ts|resolves a direct dependency environment and rejects unavailable providers before spawn`
+- `bun|scripts/project/gate/checks/entry-factories.test.ts|projects a complete nonzero command through the Gate-owned failure projector`
+- `bun|scripts/project/gate/checks/entry-factories.test.ts|rejects mixed dependency and failure projection adapters at runtime`
   Proves:
 
 - Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`，也不再承载 diagnostic presentation。docs fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；Product terminal 与 progress tee 用 generic Record preview 只显示五条、将每条 terminal-control-escaped text 限制为 240 Unicode code points，并说明另有七条 omitted。preview 不改变 failed status、final data、accepted focused-command message 或 effective aggregate。
 - 空、重复或不安全 diagnostics，以及 operation throw，均 fail closed 为 unavailable；不会创建 synthetic failed Record 或 native transcript。
 - Decision Records 只把已验证的 source/index/relationship facts 投影为 typed safe diagnostics，不转交 YAML、schema 或 filesystem `errors` 原文。semantic Test Evidence 只按 origin/code allowlist 和 code-specific policy 发布已验证的 path/location、Case ID 与 `runner: "bun"`；`topic.heading-unexpected` fixture 证明一条显式批准的 unexpected-heading Record。child/parser text、target、selector 和 entity key 不进入 native Record；generic Product preview 不读取或猜测 data fields。未知输入 fail closed 为 unavailable。
 - Test Evidence rule validation 把 cancellation 交给真实 ast-grep process，并只在自身 `checks/test-evidence-rule-tests/process.log` 保留 version/rule-test evidence。nonzero、version mismatch 和 unavailable 仍可区分；version-mismatch Record 只含 expected version、fixed mismatch classification、exit code 和 invocation-relative log reference，不复制 stdout/stderr。
-- Gate process entry factory 只接受 plain、typed dependency 或 structured failure projection 中的一种 adapter；每种合法 entry 保留 provider `dependsOn` 与 selection metadata，且 entry、mutex 与 presets 保持冻结。两个 adapter 同时存在时，TypeScript authoring 和 runtime guard 都拒绝该 entry，不能由 process factory 拼出混合证据路径。
+- Gate command entry factory 只把单一无 shell invocation、ordinary selection metadata、继承环境和安全完成阶段组合到 Product `commandCheck`；plain、typed dependency 或 structured failure projection 中的一种 adapter 仍保持互斥。typed dependency 通过 `dependsOn` 与执行时 resolver 读取，provider 不可用时不启动 child；混合 adapter 在 TypeScript authoring 和 runtime guard 都被拒绝。
 
 ## Case AUX-PROJECT-GATE-PROCESS-001: Project Gate 保留命令与 transcript 事实
 
 Owner: `docs/tooling/gate-diagnostics.md#process-evidence`
 Entities:
 
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > publishes closed success data only after a settled transcript`
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > writes one complete transcript and passes only a zero command exit`
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > writes a running transcript before process start and replaces it after settlement`
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > derives process environment from one typed provider dependency`
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > reports a safe failure Record and command-failed message for nonzero exit without copying child output`
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > requires an explicit timeout before reporting safe timeout evidence`
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > avoids starting cancelled work and maps process/log boundaries to unavailable`
-- `bun|scripts/project/gate/checks/process/process.test.ts|Project Gate process Check > maps a settled cancellation fact to transcript evidence and unavailable`
 - `bun|scripts/project/gate/checks/external-consumer-material.test.ts|external consumer provider binds typed output to invocation provenance`
 - `bun|scripts/project/gate/checks/external-consumer-material.test.ts|external consumer provider keeps nonzero output unavailable with generic evidence`
-- `bun|scripts/project/gate/checks/process/structured-failure.test.ts|Project Gate structured process failure projection > writes settled evidence before publishing complete owner Records`
-- `bun|scripts/project/gate/checks/process/structured-failure.test.ts|Project Gate structured process failure projection > falls back once without partial owner Records when projection declines the child output`
-- `bun|scripts/project/gate/checks/process/structured-failure.test.ts|Project Gate structured process failure projection > falls back once without partial owner Records when the projection produces duplicate identities`
 - `bun|scripts/project/gate/checks/oxlint-failure-records.test.ts|Project Gate oxlint failure Records > projects every complete scoped JSON diagnostic with installed-protocol label spans`
 - `bun|scripts/project/gate/checks/oxlint-failure-records.test.ts|Project Gate oxlint failure Records > declines malformed, out-of-scope, and incomplete diagnostic protocols as one whole`
 - `bun|scripts/project/gate/checks/oxfmt-failure-records.test.ts|Project Gate oxfmt failure Records > projects every authorized list-different path as a relative Record`
@@ -337,10 +329,10 @@ Entities:
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > settles lint-product with structured oxlint Records or exactly one generic fallback`
   Proves:
 
-- **Private process adapter：**仍由 `createProjectGateProcessEntry` 构造的 Check 在启动前写 adapter-owned running `process.log`，并以 adapter format 结算。缺少 artifact capability、startup/transcript failure、timeout 和取消都保留 adapter 的既有 unavailable/cancellation boundary。nonzero exit 产生安全 generic evidence，或只由 `lint-scripts`/`format-check` 的显式 owner projector 替换为完整 safe Record 集合；任一 projection validation 失败时恰好回退一个 generic Record。
-- **Migrated Product command Checks：**`lint-product` 与 `prepared-external-package-consumer` 使用 `commandCheck` 的 Product `process.log` format 和 `command-transcript-unavailable` boundary。Product 必须在 `afterCommand` 前写完 transcript；两个 factory test 通过真实 `commandCheck.execute` 覆盖 resolver 或 completion wiring 的断开。
+- **Migrated Product command Checks：**所有单一无 shell Gate command（包括 development checks、test lanes、`lint-product` 与 `prepared-external-package-consumer`）使用 `commandCheck` 的 Product `process.log` format 和 `command-transcript-unavailable` boundary。Gate 只绑定 explicit inherit/plain-text environment、120 秒默认 timeout（package acceptance 与 lint-product 保留 30 秒）、64 MiB output limit、direct dependency resolver 和安全完成投影；Product 必须在 `afterCommand` 前写完 transcript。
+- **保留的多步骤 workflow：**`test-evidence-rule-tests` 仍由 owner-specific Check 运行 ast-grep version 与 rule-tests 两步，并复用 Gate multi-step transcript/failure helper；它不是单一 command，不能压缩为一个 `commandCheck`。
 - **Consumer-owned settlement：**`lint-product` 以 Gate oxlint projector 形成 safe Records，或回退一个 generic failure。external consumer 从 prepared-candidate dependency 派生 environment；仅 zero exit 解析并验证 stdout、physical material 和 provenance 后发布 typed data。nonzero exit 为 `unavailable / external-consumer-provider-failed`；解析或验证失败为 `unavailable / process-output-invalid`，不发布 typed data。这些 reason 与 projection 不属于 Product `commandCheck` contract。
-- 同一个 nonzero private adapter Check 经 Product Run 执行时保留完整 failure Record 与 `RunResult.checkMessages` item；adapter transcript material 不进入 progress preview。迁移 consumer 的 direct-execute evidence 由前两条分别提供。
+- command entry 的 direct-execute evidence 覆盖 Product transcript、generic failure Record/message、dependency environment 成功与 provider fail-closed；`lint-product` 及 oxlint/oxfmt projector tests 覆盖 owner-specific structured Records 与 generic fallback。Product commandCheck 自身的 timeout、output limit、signal、取消和 transcript capability tests 是这些边界的唯一生命周期证据，Gate 不复制一套 runner。
 
 ## Case AUX-PROJECT-GATE-PREPARED-CANDIDATE-001: Gate 将已准备 candidate 保留为 typed fact
 

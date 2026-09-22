@@ -78,7 +78,7 @@ candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 | --- | --- |
 | `scripts/project/gate/definition.ts` | Gate 组合配置及 invocation runtime material 的类型。 |
 | `scripts/project/gate/run.ts` | 唯一 Gate process entry。 |
-| `scripts/project/gate/checks/entry-factories.ts` | 将已解析的 process invocation 或 native Check 封装为带 selection metadata 的 Gate entry。process entry 只能是 plain、typed data dependency 或 structured failure projection 之一；TypeScript union 与 runtime guard 都拒绝混用两个 adapter。 |
+| `scripts/project/gate/checks/entry-factories.ts` | 将 commandCheck 或 native Check 封装为带 selection metadata 的 Gate entry；commandCheck 的 ordinary fields、依赖环境与 completion projection 由各领域 owner 提供，文件不拥有 process lifecycle。 |
 | 其它 `scripts/project/gate/checks/**` | 各领域 Check 配置与 adapter。 |
 | `scripts/project/gate/runtime/**` | bound runtime mechanics。 |
 | `scripts/test-evidence/profile.ts` | runner profile schema/value validation。 |

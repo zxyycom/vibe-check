@@ -25,7 +25,7 @@ import {
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
 import { invokeCheck, invokeCheckWithRecords } from "./checks/check-execution.test-support.ts";
 import { createOxlintFailureProjection } from "./checks/oxlint-failure-records.ts";
-import { writeProcessTranscript } from "./checks/process/process.ts";
+import { writeProcessTranscript } from "./checks/process/transcript.ts";
 import {
   createTestEvidenceRuleTestsCheck,
   type TestEvidenceRuleTestsCheckDependencies
@@ -286,12 +286,21 @@ describe("Project Gate Definition", () => {
       const entry = entries.find(({ check }) => check.checkId === checkId);
       assert.ok(entry, `${checkId} must exist`);
       assert.ok(isNonArrayRecord(entry.check.options));
-      assert.equal(entry.check.options.command, process.execPath);
-      assert.deepEqual(entry.check.options.args, ["test", ...files, "--reporter=dots"]);
-      assert.equal(entry.check.options.args.includes("--parallel"), false);
+      assert.equal(entry.check.options.executable, process.execPath);
+      assert.deepEqual(entry.check.options.arguments, ["test", ...files, "--reporter=dots"]);
+      assert.equal(entry.check.options.arguments.includes("--parallel"), false);
+      assert.equal(entry.check.options.workingDirectory, process.cwd());
+      assert.deepEqual(entry.check.options.output, { mode: "transcript" });
+      assert.ok(isNonArrayRecord(entry.check.options.environment));
+      const dependencyBacked = packageAcceptanceCheckIds.has(checkId);
+      assert.equal(entry.check.options.environment.mode, dependencyBacked ? "exact" : "inherit");
+      if (!dependencyBacked) {
+        assert.ok(isNonArrayRecord(entry.check.options.environment.overrides));
+        assert.equal(entry.check.options.environment.overrides.NO_COLOR, "1");
+      }
       assert.equal(
         entry.check.options.timeoutMs,
-        packageAcceptanceCheckIds.has(checkId) ? 30_000 : undefined
+        packageAcceptanceCheckIds.has(checkId) ? 30_000 : 120_000
       );
     }
     const packageLifecycleEntry = entries.find(
