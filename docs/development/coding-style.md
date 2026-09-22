@@ -316,7 +316,7 @@ details、测试构造和局部 glue code；外部输入先以 `unknown` 接收�
 2. 公共入口或跨组件集成边界有集成测试或等价入口验证。
 3. 触及 owner schema 或示例时保持二者可互相映射，并运行既有 runtime validation 和契约测试。
 4. 输出层边界和 stderr/stdout 边界有测试或脚本检查。
-5. 纯文档改动至少用 `bun run validate -- docs`、局部 diff、关键词搜索或等价方式确认结构和范围。
+5. 纯文档改动至少用 `bun run validate -- materials`、局部 diff、关键词搜索或等价方式确认结构和范围。
 6. 无法运行的验证必须在交付说明中明确原因和风险。
 
 实现代码变更还应按影响面运行当前工具链提供的 dependency boundary、typecheck、lint 和 test。

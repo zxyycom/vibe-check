@@ -150,7 +150,7 @@ Entities:
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 
-Owner: `docs/tooling/documentation-validation.md#随包材料验收`
+Owner: `docs/tooling/repository-material-validation.md#随包材料验收`
 Entities:
 
 - `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
@@ -191,31 +191,34 @@ Entities:
 
 - The installed dependency license audit enumerates top-level, scoped and nested package directories, accepts repeated legacy `licenses[].type` entries only when every value is the same non-empty whitespace-normalized identity, and returns the complete accepted license distribution to its direct caller. It rejects candidate path escape, malformed manifests, package-name mismatch, missing/malformed/unsupported declarations, and symbolic-link package or nested `node_modules` layouts instead of treating a selective set of mirrored texts as dependency coverage.
 
-## Case AUX-DOCS-VALIDATION-CLI-001: Root validation preserves default and focused docs selection
+## Case AUX-DOCS-VALIDATION-CLI-001: Root validation preserves default and focused material selection
 
-Owner: `docs/tooling/documentation-validation.md#文档-task`
+Owner: `docs/tooling/repository-material-validation.md#material-task`
 Entities:
 
-- `bun|scripts/validation/workspace.test.ts|root validate CLI runs every docs task by default`
-- `bun|scripts/validation/workspace.test.ts|root validate CLI forwards focused docs selections`
+- `bun|scripts/validation/workspace.test.ts|root validate CLI runs every material task by default`
+- `bun|scripts/validation/workspace.test.ts|root validate CLI forwards focused material selections`
+- `bun|scripts/validation/workspace.test.ts|root validate CLI rejects the retired docs entrypoint`
   Proves:
 
-- The root validation adapter runs every declared documentation task by default and forwards an explicit focused selection without silently broadening or skipping it.
+- The root validation adapter runs every declared repository-material task by default and forwards an explicit focused selection without silently broadening or skipping it.
 
-## Case AUX-DOCS-VALIDATION-REPORTING-001: In-process docs validation keeps output reporter-owned
+## Case AUX-DOCS-VALIDATION-REPORTING-001: In-process material validation keeps output reporter-owned
 
-Owner: `docs/tooling/documentation-validation.md#文档-task`
+Owner: `docs/tooling/repository-material-validation.md#material-task`
 Entities:
 
-- `bun|scripts/validation/documentation/workflow.test.ts|docs validation library reports success only through an explicit reporter`
-- `bun|scripts/validation/documentation/workflow.test.ts|docs validation returns typed expected failures and keeps the Gate path console-silent`
-- `bun|scripts/validation/documentation/workflow.test.ts|docs direct validation fails closed while the Gate adapter projects its safe Record subset`
-- `bun|scripts/validation/documentation/links.test.ts|documentation link validation retains every missing local-link occurrence in stable order`
+- `bun|scripts/validation/repository-material/workflow.test.ts|material validation library reports success only through an explicit reporter`
+- `bun|scripts/validation/repository-material/workflow.test.ts|material validation returns typed expected failures and keeps the Gate path console-silent`
+- `bun|scripts/validation/repository-material/workflow.test.ts|material direct validation fails closed while the Gate adapter projects its safe Record subset`
+- `bun|scripts/validation/repository-material/links.test.ts|documentation link validation retains every missing local-link occurrence in stable order`
+- `bun|scripts/validation/repository-material/schema/strict-json.test.ts|workspace strict JSON validation matches public JSON Check BOM, encoding, and duplicate-key failures`
   Proves:
 
-- Documentation workflow uses an explicit reporter only for success summaries and returns provider-approved typed expected diagnostics without recovering Gate facts from thrown text. Its direct CLI and workspace caller write each failed diagnostic presentation to stderr and exit nonzero. Without a reporter, the in-process Gate path remains console-silent.
+- The repository-material workflow uses an explicit reporter only for success summaries and returns provider-approved typed expected diagnostics without recovering Gate facts from thrown text. Its direct CLI and workspace caller write each failed diagnostic presentation to stderr and exit nonzero. Without a reporter, the in-process Gate path remains console-silent.
 - Empty collections, noncanonical data, duplicate IDs and unsafe one-line presentation fail before direct CLI presentation. The Gate adapter deliberately projects only its safe `{ id, data }` subset, so a direct-CLI-only unsafe presentation cannot suppress the corresponding failed Record or focused command message.
 - JSON, schema, examples and links own their task-local ID/data/presentation. The link fixture proves every missing local-link occurrence has canonical repository-relative source/target, line, column and occurrence, in deterministic source-location order.
+- Workspace JSON validation creates one independent Product Run with the public `jsonValidation` constructor; BOM, invalid UTF-8 and duplicate-key fixtures prove it does not silently fall back to `JSON.parse` semantics or invoke the Project Gate.
 
 ## Case AUX-REPOSITORY-LAYOUT-001: Repository layout preserves module ownership and dependency direction
 
@@ -261,9 +264,9 @@ Entities:
   Proves:
 
 - 唯一正式根命令 `bun run check` 通过 mise 进入锁定 scanner 环境；两个 Codex environment 配置直接调用该命令，旧 `verify:vibe-check-workspace`、`:required` 与 `:full` 已删除。
-- 根级 `definition.ts` 是单一 Gate 组合入口：稳定 manifest 展示完整 entries、required/preset membership、Gate-owned `observes` closure、run-level scheduler/outputs 与 Product 默认聚合的接线 与唯一 `resultContributor`；test lane-to-Check descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有，再以普通对象组进入同一个 Project Definition。Gate entry validation 对 `dependsOn` 与 `observes` 一视同仁地检查 exact collection、self/missing target；只有 `observes` 保持 required/preset selection closure，以确保被选 observer 的输入可用。每个 Gate 投影的 `enabledByFlags` 以 `propagateDependsOn: true` 把已选 downstream Check 的 prerequisite closure 交给 Product，且不会传播 `observes`；Check 自带的 `enabledByFlags` 仍被拒绝，避免覆盖其原有条件。Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、包含快速 candidate contracts 的轻量 package-supporting Check、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities；detached cold integration 不进入 routine test preset。直接的 duplicate/file/function/Markdown repository-quality Checks 由 quality preset 选择；每个 effective Check 的 terminal status 与其它同次 Product effective identity 一同进入 Product default strict aggregate（不是 `--all` selection），findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。artifact 直接消费 root prepared candidate，external provider 独占 named lifecycle mutex，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 documentation-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。Gate 保留 root `maxParallel: 3` 与 default admission priority，并声明两个 capacity `2` 的逻辑 named resources：全部 `tests-*` lane 各 claim `project-gate-bun-test-runners: 1`，四项直接 repository-quality Check 各 claim `project-gate-repository-scans: 1`。前者限制同类 Bun child runner 最多占两个 root slot，后者限制递归 workspace collection/read 的重叠而不将四项全串行；两者均非 CPU/RSS/实测竞争参数。typecheck、lint、format、provider 和 native Check 不属于这两个预算，保持无 claim；既有 mutex 仍负责其独占关系。任何非零 priority 仍须先用成对测量证明不会伤害 required 与 complete workload 的 median，且只排序 ready admission，不能凌驾于 dependency、mutex 或 capacity 边界。
-- Gate 自有 quality 构造显式保留 repository-specific files 与 duplicate thresholds、file-metrics `300 + 500/10`、function-metrics `50 + 150/below 5 + CC 10 + parameters 5`，并将四项 normal Finding 配置为 blocking；未豁免 Finding 令 owning Check failed 后由 Product default strict aggregate failed，不从 Records/messages/Finding 重算，也不继承更宽松的 package consumer advisory defaults。四项都是 required 与 `--quality` 成员，完整 `--all` 也包含它们；只有 Markdown Link validation 还是 `--docs` 成员。duplicate/file/function 三项的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；配置测试证明 port-root 内 translated source、façade、tests 与 development harness 均未被这些 metrics 选择，而目录外 implementation 继续被选择。Function metrics 另外排除 Product test/test-support，duplicate/file 仍选择代表性测试文件以保留重复与文件长度证据。该 selection 不从 provenance ledger 动态生成，也不替代 analyzer 或测试的 lint、format、typecheck、source identity、oracle、provenance、import-boundary 或行为测试。CPD 不选择 Markdown，duplicate/file metrics 不选择 historical Schemas 且不再需要历史 waiver；current Schemas 仍被选择。Markdown Link selection 只包含 `docs/**/*.md` 与 `changes/**/*.md`，不会用 TypeScript scope 制造 input-rejection noise。
-- adapter 无参时默认 required；`--typecheck`、`--lint`、`--test`、`--docs` 与 `--quality` 可重复、可组合并替换默认选择，规范化后成为 Product opaque flags；`--all` 独占 preset 并选择完整 Gate。独立 `--help` 在任何 candidate/log 工作前返回完整 preset 与示例说明。
+- 根级 `definition.ts` 是单一 Gate 组合入口：稳定 manifest 展示完整 entries、required/preset membership、Gate-owned `observes` closure、run-level scheduler/outputs 与 Product 默认聚合的接线 与唯一 `resultContributor`；test lane-to-Check descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有，再以普通对象组进入同一个 Project Definition。Gate entry validation 对 `dependsOn` 与 `observes` 一视同仁地检查 exact collection、self/missing target；只有 `observes` 保持 required/preset selection closure，以确保被选 observer 的输入可用。每个 Gate 投影的 `enabledByFlags` 以 `propagateDependsOn: true` 把已选 downstream Check 的 prerequisite closure 交给 Product，且不会传播 `observes`；Check 自带的 `enabledByFlags` 仍被拒绝，避免覆盖其原有条件。Test Evidence entity closure、prepared candidate typed provider、按 Product 行为 owner 细分的 test 子 Checks、包含快速 candidate contracts 的轻量 package-supporting Check、artifact、external-consumer provider，以及 types/docs/runtime consumer Checks 都使用独立 assurance identities；detached cold integration 不进入 routine test preset。直接的 duplicate/file/function/Markdown repository-quality Checks 由 quality preset 选择；每个 effective Check 的 terminal status 与其它同次 Product effective identity 一同进入 Product default strict aggregate（不是 `--all` selection），findings/messages/Records/final data 不参与 aggregate，也不启动 nested repository Run。Definition 同时把 package `Markdown link validation` 与 docs path task `Documentation path existence validation` 显示为不同 Check，避免把 source validation 与文档 acceptance 混为同一能力。artifact 直接消费 root prepared candidate，external provider 独占 named lifecycle mutex，三个 consumer 只读 provider material；`tests-scripts-validation` 与只会因 temporary generated-material drift 而改变结果的 docs schema/example validators 共享独立 repository-materials mutex。JSON grammar 和 Markdown path validators 不持有该 mutex，保持可并行。Gate 保留 root `maxParallel: 3` 与 default admission priority，并声明两个 capacity `2` 的逻辑 named resources：全部 `tests-*` lane 各 claim `project-gate-bun-test-runners: 1`，四项直接 repository-quality Check 各 claim `project-gate-repository-scans: 1`。前者限制同类 Bun child runner 最多占两个 root slot，后者限制递归 workspace collection/read 的重叠而不将四项全串行；两者均非 CPU/RSS/实测竞争参数。typecheck、lint、format、provider 和 native Check 不属于这两个预算，保持无 claim；既有 mutex 仍负责其独占关系。任何非零 priority 仍须先用成对测量证明不会伤害 required 与 complete workload 的 median，且只排序 ready admission，不能凌驾于 dependency、mutex 或 capacity 边界。
+- Gate 自有 quality 构造显式保留 repository-specific files 与 duplicate thresholds、file-metrics `300 + 500/10`、function-metrics `50 + 150/below 5 + CC 10 + parameters 5`，并将四项 normal Finding 配置为 blocking；未豁免 Finding 令 owning Check failed 后由 Product default strict aggregate failed，不从 Records/messages/Finding 重算，也不继承更宽松的 package consumer advisory defaults。四项都是 required 与 `--quality` 成员，完整 `--all` 也包含它们；只有 Markdown Link validation 还是 `--materials` 成员。duplicate/file/function 三项的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；配置测试证明 port-root 内 translated source、façade、tests 与 development harness 均未被这些 metrics 选择，而目录外 implementation 继续被选择。Function metrics 另外排除 Product test/test-support，duplicate/file 仍选择代表性测试文件以保留重复与文件长度证据。该 selection 不从 provenance ledger 动态生成，也不替代 analyzer 或测试的 lint、format、typecheck、source identity、oracle、provenance、import-boundary 或行为测试。CPD 不选择 Markdown，duplicate/file metrics 不选择 historical Schemas 且不再需要历史 waiver；current Schemas 仍被选择。Markdown Link selection 只包含 `docs/**/*.md` 与 `changes/**/*.md`，不会用 TypeScript scope 制造 input-rejection noise。
+- adapter 无参时默认 required；`--typecheck`、`--lint`、`--test`、`--materials` 与 `--quality` 可重复、可组合并替换默认选择，规范化后成为 Product opaque flags；`--all` 独占 preset 并选择完整 Gate。独立 `--help` 在任何 candidate/log 工作前返回完整 preset 与示例说明。
 - Product Run integration 证明同一 entry manifest 只投影原生 string-leaf `enabledByFlags` AST；Product 以它形成 private effective selection，同时驱动 `dependsOn` prerequisite 与 Product default aggregation。未选择 Check 不执行并保留 `not-applicable / flag-condition-not-matched`，dependency-activated prerequisite 仍走普通 lifecycle，aggregate 只消费同次 effective identities。
 - Gate Definition 声明唯一 Git comparison `origin/main` 和保守 `product-runtime: src/**` region。lane resolver 的 complete profile 反查证明 `productRuntime` 恰好包含不属于 `src/package-checks/**` 的 `src/**` test entities；同一 region 因而覆盖该 lane 的测试和全部 Product source，而不是根据当前文件清单维护第二套 allowlist。`tests-product-runtime` 使用 builder `(required AND changeFlag("product-runtime")) OR preset=test OR all`，并保留 `propagateDependsOn: true`：可信零命中时日常 required 不启动它，`src/runtime.ts` change 启动它，Git evidence unavailable 时只以 `{ ok: false, reason }` 保守启动而不伪造 files，`--test` 和 `--all` 在无变更时仍是显式 force paths。
 - `--release-receipt` 是 selection 之外的显式 candidate source，只接受一个非空 path，并要求完整 `--all`；其它调用仍使用 local candidate source。
@@ -300,7 +303,7 @@ Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/checks/process/native-operation.test.ts|Project Gate native operation > keeps native Check outcomes transcript-free`
-- `bun|scripts/project/gate/checks/docs-validation.test.ts|Project Gate documentation native diagnostics > publishes complete docs native diagnostic Records while terminal progress stays bounded`
+- `bun|scripts/project/gate/checks/materials-validation.test.ts|Project Gate repository material native diagnostics > publishes complete material native diagnostic Records while terminal progress stays bounded`
 - `bun|scripts/project/gate/checks/native-projections.test.ts|Project Gate owner-safe native projections > publishes only owner-approved Decision and Test Evidence diagnostics`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > preserves two-step ast-grep process evidence and failures`
 - `bun|scripts/project/gate/checks/entry-factories.test.ts|wires one plain command through Product execution and Gate failure evidence`
@@ -309,7 +312,7 @@ Entities:
 - `bun|scripts/project/gate/checks/entry-factories.test.ts|rejects mixed dependency and failure projection adapters at runtime`
   Proves:
 
-- Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`，也不再承载 diagnostic presentation。docs fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；Product terminal 与 progress tee 用 generic Record preview 只显示五条、将每条 terminal-control-escaped text 限制为 240 Unicode code points，并说明另有七条 omitted。preview 不改变 failed status、final data、accepted focused-command message 或 effective aggregate。
+- Native operation 将 owner-approved safe diagnostics 逐项发布为完整 Check-local Records；它不创建 native `process.log`，也不再承载 diagnostic presentation。repository-material fixture 的 12 条 diagnostics 全部进入 Run snapshot 和 published `records.ndjson`；Product terminal 与 progress tee 用 generic Record preview 只显示五条、将每条 terminal-control-escaped text 限制为 240 Unicode code points，并说明另有七条 omitted。preview 不改变 failed status、final data、accepted focused-command message 或 effective aggregate。
 - 空、重复或不安全 diagnostics，以及 operation throw，均 fail closed 为 unavailable；不会创建 synthetic failed Record 或 native transcript。
 - Decision Records 只把已验证的 source/index/relationship facts 投影为 typed safe diagnostics，不转交 YAML、schema 或 filesystem `errors` 原文。semantic Test Evidence 只按 origin/code allowlist 和 code-specific policy 发布已验证的 path/location、Case ID 与 `runner: "bun"`；`topic.heading-unexpected` fixture 证明一条显式批准的 unexpected-heading Record。child/parser text、target、selector 和 entity key 不进入 native Record；generic Product preview 不读取或猜测 data fields。未知输入 fail closed 为 unavailable。
 - Test Evidence rule validation 把 cancellation 交给真实 ast-grep process，并只在自身 `checks/test-evidence-rule-tests/process.log` 保留 version/rule-test evidence。nonzero、version mismatch 和 unavailable 仍可区分；version-mismatch Record 只含 expected version、fixed mismatch classification、exit code 和 invocation-relative log reference，不复制 stdout/stderr。

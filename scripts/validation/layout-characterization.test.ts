@@ -56,9 +56,13 @@ it("characterizes repository layout and dependency boundaries", { timeout: 60_00
       }
     },
     {
-      expected: "retired-source-directory: scripts/validation/documentation/repository",
+      expected: "retired-source-directory: scripts/validation/repository-material/repository",
       mutate: (root) => {
-        writeSource(root, "scripts/validation/documentation/repository/legacy.ts", "export {};\n");
+        writeSource(
+          root,
+          "scripts/validation/repository-material/repository/legacy.ts",
+          "export {};\n"
+        );
       }
     },
     {

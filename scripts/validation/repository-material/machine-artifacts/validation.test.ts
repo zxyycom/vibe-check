@@ -6,7 +6,7 @@ import { checkPublishedMachineExamples } from "../../../docs/machine-artifacts/e
 import { checkPublishedMachineSchemas } from "../../../docs/machine-artifacts/schemas.ts";
 import { toDocumentationAbsolutePath } from "../repository-paths.ts";
 import {
-  validateDocsMachineArtifactSet,
+  validateRepositoryMaterialsMachineArtifactSet,
   validatePublishedMachineArtifactExamples,
   type DocsMachineValidationDiagnostic
 } from "./validation.ts";
@@ -29,7 +29,7 @@ interface ExpectedDiagnostic {
   readonly relationship?: DocsMachineValidationDiagnostic["relationship"];
 }
 
-describe("independent docs machine artifact validation", () => {
+describe("independent repository material machine artifact validation", () => {
   it("accepts exactly the current v4 example and positive JSON grammar variants", () => {
     assert.equal(validatePublishedMachineArtifactExamples(), 1);
     const context = loadContext();
@@ -37,7 +37,9 @@ describe("independent docs machine artifact validation", () => {
     context.artifacts.recordsNdjson = encoder.encode(
       `${context.records.map((record) => JSON.stringify(record)).join("\r\n")}\r\n`
     );
-    expectSuccess(validateDocsMachineArtifactSet(context.artifacts, "positive/reordered"));
+    expectSuccess(
+      validateRepositoryMaterialsMachineArtifactSet(context.artifacts, "positive/reordered")
+    );
   });
 
   it("rejects historical v2/v3 and focused v4 set mutations without a partial accepted set", () => {
@@ -183,7 +185,10 @@ describe("independent docs machine artifact validation", () => {
       testCase.mutate(context);
       assertExpectedDiagnostic(
         expectFailure(
-          validateDocsMachineArtifactSet(context.artifacts, `mutation/${testCase.label}`)
+          validateRepositoryMaterialsMachineArtifactSet(
+            context.artifacts,
+            `mutation/${testCase.label}`
+          )
         ),
         testCase.expected,
         testCase.label
@@ -280,12 +285,14 @@ function assertExpectedDiagnostic(
   }
 }
 
-function expectSuccess(result: ReturnType<typeof validateDocsMachineArtifactSet>): void {
+function expectSuccess(
+  result: ReturnType<typeof validateRepositoryMaterialsMachineArtifactSet>
+): void {
   assert.equal(result.ok, true, result.ok ? "" : result.diagnostic.message);
 }
 
 function expectFailure(
-  result: ReturnType<typeof validateDocsMachineArtifactSet>
+  result: ReturnType<typeof validateRepositoryMaterialsMachineArtifactSet>
 ): DocsMachineValidationDiagnostic {
   assert.equal(result.ok, false, result.ok ? "expected failure" : "");
   if (result.ok) throw new Error("Expected failure");

@@ -80,18 +80,18 @@ Entities:
 Owner: `docs/development/output-maintenance.md#package-材料的维护与验证`
 Entities:
 
-- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants`
-- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
-- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > detects generated schema and example drift`
+- `bun|scripts/validation/repository-material/machine-artifacts/validation.test.ts|independent repository material machine artifact validation > accepts exactly the current v4 example and positive JSON grammar variants`
+- `bun|scripts/validation/repository-material/machine-artifacts/validation.test.ts|independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
+- `bun|scripts/validation/repository-material/machine-artifacts/validation.test.ts|independent repository material machine artifact validation > detects generated schema and example drift`
   Proves:
-- The independent docs validator accepts only the checked-in mixed-outcomes Definition/output set and current v4 schemas. It executes the Definition through the public Run to close built-in/custom Check and dependency-derived output drift, then independently verifies framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator as its artifact acceptance authority.
+- The independent material validator accepts only the checked-in mixed-outcomes Definition/output set and current v4 schemas. It executes the Definition through the public Run to close built-in/custom Check and dependency-derived output drift, then independently verifies framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator as its artifact acceptance authority.
 
 ## Case AUX-DOCS-HISTORICAL-MACHINE-SCHEMAS-001: Current v4 example validation rejects historical machine identities
 
 Owner: `docs/development/output-maintenance.md#package-材料的维护与验证`
 Entities:
 
-- `bun|scripts/validation/documentation/machine-artifacts/validation.test.ts|independent docs machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
+- `bun|scripts/validation/repository-material/machine-artifacts/validation.test.ts|independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
   Proves:
 - The current docs artifact validator rejects v2 and v3 run/Record schema identities; it accepts current v4 artifacts only.
 

@@ -46,7 +46,7 @@ Scheduler 的 scripted-clock、queue/delay/tail、history 和资源核算证明�
 文档、schema、example 或 Case 改动运行：
 
 ```bash
-bun run validate -- docs
+bun run validate -- materials
 bun run test-evidence -- check --root .
 ```
 

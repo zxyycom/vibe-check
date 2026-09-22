@@ -35,7 +35,7 @@ relations:
 
 - 采用: package-provided duplicate、file metrics、function metrics 与 Markdown link Check 的 constructor 默认 `findingPolicy` 继续为 `non-blocking`；不改变 defaults、公开契约、阈值、scope、exclusion、waiver、flag、required 配置、Check outcome 或 Record shape。
 - 采用: Project Gate 对同四项 repository-quality Check 的顶层显式 `findingPolicy` 统一为 `blocking`。在既有 Gate selection 内，未被该 Check 的 waiver/exclusion 语义消除的 normal Finding 令 owning Check failed；zero Finding 令它 passed。
-- 采用: 四项 quality Check 属于 required 与 `--quality` selection，完整 `--all` 也包含它们；仅 Markdown link validation 还属于 `--docs`。Gate bound Run 省略 aggregation controls，消费 Product 默认严格 aggregate；任何 failed、unavailable 或 not-applicable effective quality Check，以及空 effective selection，均由该普通链路使 aggregate failed。Gate 不从 Records、messages 或 Finding 重算 outcome。
+- 采用: 四项 quality Check 属于 required 与 `--quality` selection，完整 `--all` 也包含它们；仅 Markdown link validation 还属于 `--materials`。Gate bound Run 省略 aggregation controls，消费 Product 默认严格 aggregate；任何 failed、unavailable 或 not-applicable effective quality Check，以及空 effective selection，均由该普通链路使 aggregate failed。Gate 不从 Records、messages 或 Finding 重算 outcome。
 - 采用: scanner、source、parse、I/O、containment、limit 和其它 unavailable/failure 路径继续由 owning Check 的既有语义结算；本 Decision 不将它们降级为 quality warning，也不新增 Gate-level waiver 或 release-only policy。
 - 采用: 活动 repository-quality remediation Change 仍须消除其明确选定的记录，并保存 deferred inventory；严格 Gate 不授权以抬高阈值、改变 selection 或新增 waiver 代替实际修复。
 - 不采用: 将 package constructor 默认改回 `blocking`、只对 release 或部分质量 Check 提升 policy、恢复显式 Gate aggregation policy、改变 strict thresholds 或 selection 边界、从 Gate presentation facts 重算 outcome，或维持未豁免 normal Finding 仍可通过 Gate 的过渡基线。

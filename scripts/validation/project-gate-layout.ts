@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { FILE_SYSTEM } from "./documentation/task-contract.ts";
+import { FILE_SYSTEM } from "./repository-material/task-contract.ts";
 
 const PROJECT_GATE_ROOT_DIRECTORIES = Object.freeze(["checks", "runtime"]);
 const PROJECT_GATE_ROOT_FILES = Object.freeze([

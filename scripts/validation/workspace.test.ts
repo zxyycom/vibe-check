@@ -6,30 +6,30 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
-import { runDocsValidationCli } from "./documentation/workflow.ts";
+import { runMaterialValidationCli } from "./repository-material/workflow.ts";
 
 const moduleDirectory = dirname(fileURLToPath(import.meta.url));
 const entrypoint = resolve(moduleDirectory, "workspace.ts");
 const workspaceRoot = resolve(moduleDirectory, "..", "..");
 
-test("root validate CLI runs every docs task by default", () => {
-  const result = runValidate("docs");
+test("root validate CLI runs every material task by default", () => {
+  const result = runValidate("materials");
 
   assert.equal(result.status, 0);
   assert.equal(result.stderr, "");
-  assert.match(result.stdout, /json syntax ok:/);
+  assert.match(result.stdout, /strict JSON validation ok:/);
   assert.match(result.stdout, /current machine artifact examples ok: 1 set\(s\)/);
   assert.match(result.stdout, /schema strict compile ok:/);
   assert.match(result.stdout, /report examples ok:/);
   assert.match(result.stdout, /markdown links ok:/);
 });
 
-test("root validate CLI forwards focused docs selections", async () => {
-  const result = runValidate("docs", "json");
+test("root validate CLI forwards focused material selections", async () => {
+  const result = runValidate("materials", "json");
 
   assert.equal(result.status, 0);
   assert.equal(result.stderr, "");
-  assert.match(result.stdout, /json syntax ok:/);
+  assert.match(result.stdout, /strict JSON validation ok:/);
   assert.doesNotMatch(
     result.stdout,
     /current machine artifact examples ok:|schema strict compile ok:|report examples ok:|markdown links ok:/
@@ -47,7 +47,7 @@ test("root validate CLI forwards focused docs selections", async () => {
 
     const stdout: string[] = [];
     const stderr: string[] = [];
-    const exitCode = await runDocsValidationCli({
+    const exitCode = await runMaterialValidationCli({
       argv: ["links"],
       linkRepositoryRoot: documentationRoot,
       writeStderr: (message) => stderr.push(message),
@@ -65,6 +65,12 @@ test("root validate CLI forwards focused docs selections", async () => {
   } finally {
     rmSync(documentationRoot, { force: true, recursive: true });
   }
+});
+
+test("root validate CLI rejects the retired docs entrypoint", () => {
+  const result = runValidate("docs");
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /unknown|usage/i);
 });
 
 type CliResult = {

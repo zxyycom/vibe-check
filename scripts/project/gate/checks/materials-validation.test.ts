@@ -7,21 +7,21 @@ import { describe, it } from "node:test";
 import { pathToFileURL } from "node:url";
 
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import type { DocsValidationDiagnostic } from "../../../validation/documentation/diagnostics.ts";
+import type { MaterialValidationDiagnostic } from "../../../validation/repository-material/diagnostics.ts";
 import { defineConfig, run as packageRun } from "@zxyycom/vibe-check";
 
-import { createDocsValidationCheck } from "./docs-validation.ts";
+import { createMaterialValidationCheck } from "./materials-validation.ts";
 
-describe("Project Gate documentation native diagnostics", () => {
-  it("publishes complete docs native diagnostic Records while terminal progress stays bounded", async () => {
-    const artifactRoot = mkdtempSync(join(tmpdir(), "vibe-check-native-docs-records-"));
+describe("Project Gate repository material native diagnostics", () => {
+  it("publishes complete material native diagnostic Records while terminal progress stays bounded", async () => {
+    const artifactRoot = mkdtempSync(join(tmpdir(), "vibe-check-native-material-records-"));
     const sourcePath = "docs/native-diagnostic-records-fixture.md";
     const longTarget = `native-missing-${"x".repeat(320)}.md`;
     const targets = [
       longTarget,
       ...Array.from({ length: 11 }, (_, index) => `native-missing-${index + 2}.md`)
     ];
-    const diagnostics: readonly DocsValidationDiagnostic[] = Object.freeze(
+    const diagnostics: readonly MaterialValidationDiagnostic[] = Object.freeze(
       targets.map((target, index) =>
         Object.freeze({
           data: Object.freeze({
@@ -41,20 +41,15 @@ describe("Project Gate documentation native diagnostics", () => {
       const productRun = await packageRun(
         defineConfig({
           checks: [
-            createDocsValidationCheck(
-              {
-                checkId: "docs-links-validator",
-                displayName: "Documentation path existence validation",
-                task: "links"
-              },
-              {
-                validateDocs: async (options) => {
-                  validationCalls += 1;
-                  assert.deepEqual(options, { tasks: ["links"] });
-                  return Object.freeze({ diagnostics, status: "failed" as const });
-                }
+            createMaterialValidationCheck({
+              checkId: "materials-links-validator",
+              displayName: "Repository material link validation",
+              focusedCommand: "bun run validate -- materials links",
+              validate: async () => {
+                validationCalls += 1;
+                return Object.freeze({ diagnostics, status: "failed" as const });
               }
-            )
+            })
           ],
           outputs: {
             diagnosticLogging: { enabled: false },
@@ -76,21 +71,21 @@ describe("Project Gate documentation native diagnostics", () => {
       assert.equal(productRun.outputs.machinePublication.status, "succeeded");
       assert.equal(productRun.outputs.progressRendering.status, "succeeded");
       const outcome = productRun.snapshot.checks[0]?.outcome;
-      if (outcome?.status !== "failed") throw new Error("fixture docs Check must fail");
+      if (outcome?.status !== "failed") throw new Error("fixture material Check must fail");
       assert.deepEqual(jsonRoundTrip(outcome.data), {
-        diagnosticCode: "docs-links-validator-invalid",
+        diagnosticCode: "materials-links-validator-invalid",
         diagnosticCount: 12,
         outcome: "failed"
       });
       assert.equal(Object.getPrototypeOf(outcome.data), null);
       assert.equal(productRun.snapshot.records.length, 12);
       assert.equal(
-        existsSync(join(artifactRoot, "checks", "docs-links-validator", "process.log")),
+        existsSync(join(artifactRoot, "checks", "materials-links-validator", "process.log")),
         false
       );
 
       const expectedRecords = diagnostics.map(({ data, id }) => ({
-        checkId: "docs-links-validator",
+        checkId: "materials-links-validator",
         data,
         id
       }));
@@ -110,19 +105,19 @@ describe("Project Gate documentation native diagnostics", () => {
       assert.deepEqual(
         machineRecords.map(machineRecordFact).sort(compareRecordIdentity),
         diagnostics
-          .map(({ data, id }) => ({ checkId: "docs-links-validator", data, id }))
+          .map(({ data, id }) => ({ checkId: "materials-links-validator", data, id }))
           .sort(compareRecordIdentity)
       );
 
       const checkMessages = productRun.checkMessages.filter(
-        (message) => message.checkId === "docs-links-validator"
+        (message) => message.checkId === "materials-links-validator"
       );
       assert.deepEqual(checkMessages, [
         {
-          checkId: "docs-links-validator",
+          checkId: "materials-links-validator",
           level: "error",
-          code: "docs-links-validator-invalid",
-          message: "Run: bun run validate -- docs links."
+          code: "materials-links-validator-invalid",
+          message: "Run: bun run validate -- materials links."
         }
       ]);
 
@@ -142,18 +137,20 @@ describe("Project Gate documentation native diagnostics", () => {
               join(process.cwd(), "scripts/project/node_modules/@zxyycom/vibe-check/index.mjs")
             ).href
           )};`,
-          `import { createDocsValidationCheck } from ${JSON.stringify(
-            pathToFileURL(join(process.cwd(), "scripts/project/gate/checks/docs-validation.ts"))
-              .href
+          `import { createMaterialValidationCheck } from ${JSON.stringify(
+            pathToFileURL(
+              join(process.cwd(), "scripts/project/gate/checks/materials-validation.ts")
+            ).href
           )};`,
           `const diagnostics = ${JSON.stringify(diagnostics)};`,
           "await run(",
           "  defineConfig({",
-          "    checks: [createDocsValidationCheck({",
-          '      checkId: "docs-links-validator",',
-          '      displayName: "Documentation path existence validation",',
-          '      task: "links"',
-          '    }, { validateDocs: async () => ({ diagnostics, status: "failed" }) })],',
+          "    checks: [createMaterialValidationCheck({",
+          '      checkId: "materials-links-validator",',
+          '      displayName: "Repository material link validation",',
+          '      focusedCommand: "bun run validate -- materials links",',
+          '      validate: async () => ({ diagnostics, status: "failed" })',
+          "    })],",
           "    outputs: {",
           "      diagnosticLogging: { enabled: false },",
           "      machinePublication: { enabled: false },",

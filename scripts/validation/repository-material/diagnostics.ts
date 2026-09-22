@@ -8,39 +8,39 @@ import {
 } from "../../diagnostic-safety.ts";
 import { isNonArrayRecord } from "../../value-guards.ts";
 
-const DOCS_DIAGNOSTIC_KEYS = ["data", "id", "presentation"] as const;
+const MATERIAL_DIAGNOSTIC_KEYS = ["data", "id", "presentation"] as const;
 
-/** A provider-approved, machine-safe fact about an expected documentation validation failure. */
-export interface DocsValidationDiagnostic {
+/** A provider-approved, machine-safe fact about an expected material validation failure. */
+export interface MaterialValidationDiagnostic {
   readonly data: CanonicalScriptJsonObject;
   readonly id: string;
   readonly presentation: string;
 }
 
 /** A typed expected failure; workflow consumers use diagnostics, never this error's text. */
-export class ExpectedDocsValidationFailure extends Error {
-  public readonly diagnostics: readonly DocsValidationDiagnostic[];
+export class ExpectedMaterialValidationFailure extends Error {
+  public readonly diagnostics: readonly MaterialValidationDiagnostic[];
 
-  public constructor(diagnostics: readonly DocsValidationDiagnostic[]) {
+  public constructor(diagnostics: readonly MaterialValidationDiagnostic[]) {
     const safeDiagnostics = validateExpectedDiagnostics(diagnostics);
     super(safeDiagnostics.map((diagnostic) => diagnostic.presentation).join("\n"));
     this.diagnostics = safeDiagnostics;
   }
 }
 
-export function expectedDocsValidationFailure(
-  diagnostics: readonly DocsValidationDiagnostic[]
-): ExpectedDocsValidationFailure {
-  return new ExpectedDocsValidationFailure(diagnostics);
+export function expectedMaterialValidationFailure(
+  diagnostics: readonly MaterialValidationDiagnostic[]
+): ExpectedMaterialValidationFailure {
+  return new ExpectedMaterialValidationFailure(diagnostics);
 }
 
 function validateExpectedDiagnostics(
-  diagnostics: readonly DocsValidationDiagnostic[]
-): readonly DocsValidationDiagnostic[] {
+  diagnostics: readonly MaterialValidationDiagnostic[]
+): readonly MaterialValidationDiagnostic[] {
   if (!Array.isArray(diagnostics) || diagnostics.length === 0) throw invalidDiagnostics();
 
   const identifiers = new Set<string>();
-  const safeDiagnostics: DocsValidationDiagnostic[] = [];
+  const safeDiagnostics: MaterialValidationDiagnostic[] = [];
   for (const diagnostic of diagnostics) {
     const safeDiagnostic = validateExpectedDiagnostic(diagnostic);
     if (identifiers.has(safeDiagnostic.id)) throw invalidDiagnostics();
@@ -50,8 +50,8 @@ function validateExpectedDiagnostics(
   return Object.freeze(safeDiagnostics);
 }
 
-function validateExpectedDiagnostic(value: unknown): DocsValidationDiagnostic {
-  if (!isNonArrayRecord(value) || !hasExactKeys(value, DOCS_DIAGNOSTIC_KEYS))
+function validateExpectedDiagnostic(value: unknown): MaterialValidationDiagnostic {
+  if (!isNonArrayRecord(value) || !hasExactKeys(value, MATERIAL_DIAGNOSTIC_KEYS))
     throw invalidDiagnostics();
   const data = ownDataValue(value, "data");
   const id = ownDataValue(value, "id");
@@ -89,5 +89,5 @@ function ownDataValue(value: Readonly<Record<string, unknown>>, key: string): un
 }
 
 function invalidDiagnostics(): Error {
-  return new Error("Documentation validation diagnostics are invalid");
+  return new Error("Repository material validation diagnostics are invalid");
 }

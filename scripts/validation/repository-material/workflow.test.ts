@@ -1,16 +1,19 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createDocsValidationCheck } from "../../project/gate/checks/docs-validation.ts";
-import { expectedDocsValidationFailure, type DocsValidationDiagnostic } from "./diagnostics.ts";
-import { validateDocs, type DocsValidationResult } from "./workflow.ts";
+import { createMaterialValidationCheck } from "../../project/gate/checks/materials-validation.ts";
+import {
+  expectedMaterialValidationFailure,
+  type MaterialValidationDiagnostic
+} from "./diagnostics.ts";
+import { validateRepositoryMaterials, type MaterialValidationResult } from "./workflow.ts";
 
 type DependencyNotDeclaredResult = Readonly<{
   readonly ok: false;
   readonly error: Readonly<{ readonly code: "dependency-not-declared"; readonly checkId: string }>;
 }>;
 
-test("docs validation library reports success only through an explicit reporter", async () => {
+test("material validation library reports success only through an explicit reporter", async () => {
   const directConsoleMessages: string[] = [];
   const reportedMessages: string[] = [];
   const originalLog = console.log;
@@ -18,8 +21,8 @@ test("docs validation library reports success only through an explicit reporter"
     directConsoleMessages.push(values.map(String).join(" "));
   };
   try {
-    const silent = await validateDocs({ tasks: ["examples"] });
-    const reported = await validateDocs({
+    const silent = await validateRepositoryMaterials({ tasks: ["examples"] });
+    const reported = await validateRepositoryMaterials({
       tasks: ["examples"],
       report: (message) => reportedMessages.push(message)
     });
@@ -34,8 +37,8 @@ test("docs validation library reports success only through an explicit reporter"
   assert.match(reportedMessages.join("\n"), /report examples ok:/);
 });
 
-test("docs validation returns typed expected failures and keeps the Gate path console-silent", async () => {
-  const failure = expectedDocsValidationFailure([
+test("material validation returns typed expected failures and keeps the Gate path console-silent", async () => {
+  const failure = expectedMaterialValidationFailure([
     {
       data: {
         kind: "missing-local-link",
@@ -49,26 +52,19 @@ test("docs validation returns typed expected failures and keeps the Gate path co
         "docs/typed-validation-link-fixture.md:1:1 missing local Markdown link target: docs/missing-target.md."
     }
   ]);
-  const workflowResult: DocsValidationResult = Object.freeze({
+  const workflowResult: MaterialValidationResult = Object.freeze({
     diagnostics: failure.diagnostics,
     status: "failed"
   });
   const diagnostic = failure.diagnostics[0];
   if (diagnostic === undefined) throw new Error("fixture must have one typed diagnostic");
-  const check = createDocsValidationCheck(
-    {
-      checkId: "docs-links-validator",
-      displayName: "Documentation path existence validation",
-      task: "links"
-    },
-    {
-      validateDocs: async (options) => {
-        assert.deepEqual(options, { tasks: ["links"] });
-        return workflowResult;
-      }
-    }
-  );
-  const invocation = await invokeDocsValidationCheck(check, "fixture/docs-validation");
+  const check = createMaterialValidationCheck({
+    checkId: "materials-links-validator",
+    displayName: "Repository material link validation",
+    focusedCommand: "bun run validate -- materials links",
+    validate: async () => workflowResult
+  });
+  const invocation = await invokeMaterialValidationCheck(check, "fixture/materials-validation");
   assert.deepEqual(jsonRoundTrip(invocation.records), [
     {
       data: jsonRoundTrip(diagnostic.data),
@@ -77,62 +73,62 @@ test("docs validation returns typed expected failures and keeps the Gate path co
   ]);
   assert.deepEqual(jsonRoundTrip(invocation.result), {
     data: {
-      diagnosticCode: "docs-links-validator-invalid",
+      diagnosticCode: "materials-links-validator-invalid",
       diagnosticCount: 1,
       outcome: "failed"
     },
     messages: [
       {
-        code: "docs-links-validator-invalid",
+        code: "materials-links-validator-invalid",
         level: "error",
-        message: "Run: bun run validate -- docs links."
+        message: "Run: bun run validate -- materials links."
       }
     ],
     status: "failed"
   });
 });
 
-test("docs direct validation fails closed while the Gate adapter projects its safe Record subset", async () => {
+test("material direct validation fails closed while the Gate adapter projects its safe Record subset", async () => {
   assert.throws(
-    () => expectedDocsValidationFailure([]),
-    /Documentation validation diagnostics are invalid/
+    () => expectedMaterialValidationFailure([]),
+    /Repository material validation diagnostics are invalid/
   );
-  const noncanonicalData: DocsValidationDiagnostic["data"] = { kind: "fixture" };
+  const noncanonicalData: MaterialValidationDiagnostic["data"] = { kind: "fixture" };
   Object.defineProperty(noncanonicalData, "unsafe", { enumerable: true, value: undefined });
   assert.throws(
     () =>
-      expectedDocsValidationFailure([
+      expectedMaterialValidationFailure([
         {
           data: noncanonicalData,
           id: "fixture:noncanonical-data",
           presentation: "fixture diagnostic."
         }
       ]),
-    /Documentation validation diagnostics are invalid/
+    /Repository material validation diagnostics are invalid/
   );
-  const duplicate: DocsValidationDiagnostic = {
+  const duplicate: MaterialValidationDiagnostic = {
     data: { kind: "fixture" },
     id: "fixture:duplicate",
     presentation: "fixture diagnostic."
   };
   assert.throws(
-    () => expectedDocsValidationFailure([duplicate, duplicate]),
-    /Documentation validation diagnostics are invalid/
+    () => expectedMaterialValidationFailure([duplicate, duplicate]),
+    /Repository material validation diagnostics are invalid/
   );
 
   assert.throws(
     () =>
-      expectedDocsValidationFailure([
+      expectedMaterialValidationFailure([
         {
           data: { kind: "fixture" },
           id: "fixture:unsafe-presentation",
           presentation: "unsafe\npresentation"
         }
       ]),
-    /Documentation validation diagnostics are invalid/
+    /Repository material validation diagnostics are invalid/
   );
 
-  const unsafeResult: DocsValidationResult = {
+  const unsafeResult: MaterialValidationResult = {
     diagnostics: [
       {
         data: { kind: "fixture" },
@@ -142,28 +138,27 @@ test("docs direct validation fails closed while the Gate adapter projects its sa
     ],
     status: "failed"
   };
-  const check = createDocsValidationCheck(
-    {
-      checkId: "docs-links-validator",
-      displayName: "Documentation path existence validation",
-      task: "links"
-    },
-    {
-      validateDocs: async () => unsafeResult
-    }
+  const check = createMaterialValidationCheck({
+    checkId: "materials-links-validator",
+    displayName: "Repository material link validation",
+    focusedCommand: "bun run validate -- materials links",
+    validate: async () => unsafeResult
+  });
+  const invocation = await invokeMaterialValidationCheck(
+    check,
+    "fixture/materials-validation-unsafe"
   );
-  const invocation = await invokeDocsValidationCheck(check, "fixture/docs-validation-unsafe");
   assert.deepEqual(jsonRoundTrip(invocation.result), {
     data: {
-      diagnosticCode: "docs-links-validator-invalid",
+      diagnosticCode: "materials-links-validator-invalid",
       diagnosticCount: 1,
       outcome: "failed"
     },
     messages: [
       {
-        code: "docs-links-validator-invalid",
+        code: "materials-links-validator-invalid",
         level: "error",
-        message: "Run: bun run validate -- docs links."
+        message: "Run: bun run validate -- materials links."
       }
     ],
     status: "failed"
@@ -181,11 +176,12 @@ function jsonRoundTrip(value: unknown): unknown {
   return JSON.parse(JSON.stringify(value)) as unknown;
 }
 
-async function invokeDocsValidationCheck(
-  check: ReturnType<typeof createDocsValidationCheck>,
+async function invokeMaterialValidationCheck(
+  check: ReturnType<typeof createMaterialValidationCheck>,
   invocationId: string
 ) {
-  if (check.execute === undefined) throw new Error("Docs Check has no execution callback");
+  if (check.execute === undefined)
+    throw new Error("Repository material Check has no execution callback");
   const records: Array<
     Readonly<{ readonly data: object; readonly identity: { readonly id: string } }>
   > = [];

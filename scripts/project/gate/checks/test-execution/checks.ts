@@ -19,7 +19,7 @@ interface PackageTestDefinition extends RoutineTestDefinition {
 /** Creates the complete test-lane Check descriptor group with Gate-owned overrides. */
 export function createProjectGateTestCheckDefinitions(
   input: Readonly<{
-    readonly documentationMaterialsMutex: readonly string[];
+    readonly repositoryMaterialsMutex: readonly string[];
     readonly packageAcceptanceTimeoutMs: number;
   }>
 ): readonly ProjectGateTestCheckDefinition[] {
@@ -113,7 +113,7 @@ export function createProjectGateTestCheckDefinitions(
         displayName: "Bun validation tooling tests",
         lane: "scriptsValidation"
       }),
-      mutex: input.documentationMaterialsMutex
+      mutex: input.repositoryMaterialsMutex
     },
     routineTest({
       checkId: "tests-scripts-tooling",

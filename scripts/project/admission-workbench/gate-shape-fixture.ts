@@ -40,7 +40,7 @@ const gateTasks = [
   ...GATE_MAPPING.testTaskIds.map((taskId) =>
     task(taskId, {
       claims: bunRunnerClaim,
-      mutex: taskId === "tests-scripts-validation" ? ["project-gate-documentation-materials"] : []
+      mutex: taskId === "tests-scripts-validation" ? ["project-gate-repository-materials"] : []
     })
   ),
   ...GATE_MAPPING.qualityTaskIds.map((taskId) => task(taskId, { claims: repositoryScanClaim }))

@@ -1,18 +1,21 @@
 import { reportProcessOutput, runAsyncMain, runCommand } from "../process-execution/command.ts";
-import { TASK_NAMES } from "./documentation/task-contract.ts";
+import { MATERIAL_TASK_NAMES } from "./repository-material/task-contract.ts";
 import { validateRepositoryLayout } from "./layout-characterization.ts";
-import { parseDocsValidationTasks, runDocsValidationCli } from "./documentation/workflow.ts";
+import {
+  parseMaterialValidationTasks,
+  runMaterialValidationCli
+} from "./repository-material/workflow.ts";
 
 async function validate(argv: readonly string[]): Promise<void> {
-  if (argv.length > 0 && argv[0] !== "docs") {
+  if (argv.length > 0 && argv[0] !== "materials") {
     throw new Error(
-      `usage: bun scripts/validation/workspace.ts [docs [json|schema|examples|links|${TASK_NAMES.packageApiDocumentation}]...]`
+      `usage: bun scripts/validation/workspace.ts [materials [json|schema|examples|links|${MATERIAL_TASK_NAMES.packageApiDocumentation}]...]`
     );
   }
 
-  const docsOnly = argv[0] === "docs";
-  const tasks = parseDocsValidationTasks(argv.slice(docsOnly ? 1 : 0));
-  const documentationExitCode = await runDocsValidationCli({
+  const materialsOnly = argv[0] === "materials";
+  const tasks = parseMaterialValidationTasks(argv.slice(materialsOnly ? 1 : 0));
+  const materialsExitCode = await runMaterialValidationCli({
     argv: tasks,
     writeStderr: (message) => {
       console.error(message);
@@ -21,11 +24,11 @@ async function validate(argv: readonly string[]): Promise<void> {
       console.log(message);
     }
   });
-  if (documentationExitCode !== 0) {
-    process.exitCode = documentationExitCode;
+  if (materialsExitCode !== 0) {
+    process.exitCode = materialsExitCode;
     return;
   }
-  if (!docsOnly) {
+  if (!materialsOnly) {
     validateRepositoryLayout();
     runCommand("git", ["diff", "--check"], { report: reportProcessOutput });
   }

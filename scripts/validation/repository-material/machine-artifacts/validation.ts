@@ -1,6 +1,6 @@
 import fs from "node:fs";
 
-import { expectedDocsValidationFailure } from "../diagnostics.ts";
+import { expectedMaterialValidationFailure } from "../diagnostics.ts";
 import { toDocumentationAbsolutePath } from "../repository-paths.ts";
 import { artifactPath } from "./diagnostics.ts";
 import { validateArtifactSetInvariants } from "./invariants.ts";
@@ -27,7 +27,7 @@ export function validatePublishedMachineArtifactExamples(): number {
   assertExactExampleInventory();
   const schemas = createCurrentSchemaValidators();
   const artifactRoot = `${CURRENT_MACHINE_EXAMPLES_ROOT}/${CURRENT_MACHINE_EXAMPLE}`;
-  const result = validateDocsMachineArtifactSetWithSchemas(
+  const result = validateRepositoryMaterialsMachineArtifactSetWithSchemas(
     {
       runJson: readArtifactBytes(artifactRoot, RUN_ARTIFACT),
       recordsNdjson: readArtifactBytes(artifactRoot, RECORDS_ARTIFACT)
@@ -36,7 +36,7 @@ export function validatePublishedMachineArtifactExamples(): number {
     schemas
   );
   if (!result.ok) {
-    throw expectedDocsValidationFailure([
+    throw expectedMaterialValidationFailure([
       Object.freeze({
         data: Object.freeze({
           category: result.diagnostic.category,
@@ -52,18 +52,18 @@ export function validatePublishedMachineArtifactExamples(): number {
   return 1;
 }
 
-export function validateDocsMachineArtifactSet(
+export function validateRepositoryMaterialsMachineArtifactSet(
   artifacts: DocsMachineArtifactBytes,
   artifactRoot: string
 ): DocsMachineValidationResult {
-  return validateDocsMachineArtifactSetWithSchemas(
+  return validateRepositoryMaterialsMachineArtifactSetWithSchemas(
     artifacts,
     artifactRoot,
     createCurrentSchemaValidators()
   );
 }
 
-function validateDocsMachineArtifactSetWithSchemas(
+function validateRepositoryMaterialsMachineArtifactSetWithSchemas(
   artifacts: DocsMachineArtifactBytes,
   artifactRoot: string,
   schemas: ReturnType<typeof createCurrentSchemaValidators>
@@ -160,7 +160,7 @@ function readArtifactBytes(artifactRoot: string, logicalArtifact: string): Buffe
 }
 
 function machineArtifactFailure(kind: string, path: string): Error {
-  return expectedDocsValidationFailure([
+  return expectedMaterialValidationFailure([
     Object.freeze({
       data: Object.freeze({ kind, path }),
       id: `machine-artifact:${kind}:${encodeURIComponent(path)}`,

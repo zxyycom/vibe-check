@@ -17,7 +17,7 @@ ownership 和 complete Record-set fingerprint。Check rows 按 `checkId` 排序�
 不是 NDJSON bytes。
 
 Machine candidate validation 是 producing-path safety check，不是 public reader API。Check-facts canonicalization 与 output
-candidate validation 是两个边界；独立 docs validator 才从 raw checked-in artifact bytes 验收 package materials，且不
+candidate validation 是两个边界；独立 material validator 才从 raw checked-in artifact bytes 验收 package materials，且不
 import Product validator 作为 acceptance authority。
 
 ## 发布生命周期实现
@@ -47,11 +47,11 @@ directories 与当前两份 generated outputs。
 [文档发布映射](../package-documents.json)的 `machineMaterials` 登记 output guide、两份 current v4 schemas，以及
 `mixed-outcomes` 的 Definition 和 two-file output；`scripts/docs/machine-artifacts/package-materials.ts` 按映射读取原始 bytes。
 
-`scripts/validation/documentation/machine-artifacts/**` 使用 checked-in schemas 从 raw bytes 独立验证 framing、canonical JSON、
+`scripts/validation/repository-material/machine-artifacts/**` 使用 checked-in schemas 从 raw bytes 独立验证 framing、canonical JSON、
 field schema、ordering、ownership 和 fingerprint，再检查 schema/example generation drift。`src/machine-output/v4/**` tests
 另行确认 runtime schema source、projection 和 serializer；两条验证路径不把对方的 validator 当作 acceptance authority。
 
-Candidate fingerprint、staging allowlist、packed tar audit、installation audit 与 ancestry-external docs acceptance 都使用同一
+Candidate fingerprint、staging allowlist、packed tar audit、installation audit 与 ancestry-external material acceptance 都使用同一
 JSON 文件映射；installed consumer typecheck 直接包含随包 Definition，documentation acceptance 还把它交给
 candidate `run`，核对 package-provided/custom outcomes、三条 RunResult messages、两条 Records 和已配置的 machine
 publication。该映射的随包范围止于 current guide、schemas 与 example；historical schemas、repository tooling、

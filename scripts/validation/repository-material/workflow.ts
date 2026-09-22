@@ -1,10 +1,10 @@
 import { assert } from "./assertions.ts";
 import {
-  ExpectedDocsValidationFailure,
-  expectedDocsValidationFailure,
-  type DocsValidationDiagnostic
+  ExpectedMaterialValidationFailure,
+  expectedMaterialValidationFailure,
+  type MaterialValidationDiagnostic
 } from "./diagnostics.ts";
-import { TASK_NAMES } from "./task-contract.ts";
+import { MATERIAL_TASK_NAMES } from "./task-contract.ts";
 import { validateMarkdownLinks } from "./links.ts";
 import {
   validateJsonSyntax,
@@ -21,57 +21,58 @@ import {
 import { runPackageApiDocumentationCli } from "../../docs/package-api/command.ts";
 import { runAsyncMain } from "../../process-execution/command.ts";
 
-/** Documentation acceptance task names; providers remain under scripts/docs. */
-export type DocsValidationTask = (typeof TASK_NAMES)[keyof typeof TASK_NAMES];
+/** Repository material acceptance task names; providers remain under scripts/docs. */
+export type MaterialValidationTask = (typeof MATERIAL_TASK_NAMES)[keyof typeof MATERIAL_TASK_NAMES];
 
-export type DocsValidationResult =
+export type MaterialValidationResult =
   | Readonly<{
-      readonly diagnostics: readonly DocsValidationDiagnostic[];
+      readonly diagnostics: readonly MaterialValidationDiagnostic[];
       readonly status: "passed";
     }>
   | Readonly<{
-      readonly diagnostics: readonly DocsValidationDiagnostic[];
+      readonly diagnostics: readonly MaterialValidationDiagnostic[];
       readonly status: "failed";
     }>;
 
-interface DocsValidationTaskOptions {
+interface MaterialValidationTaskOptions {
   readonly linkRepositoryRoot?: string;
   readonly report?: (message: string) => void;
 }
 
-export interface DocsValidationCliOptions {
+export interface MaterialValidationCliOptions {
   readonly argv: readonly string[];
   readonly linkRepositoryRoot?: string;
   readonly writeStderr: (message: string) => void;
   readonly writeStdout: (message: string) => void;
 }
 
-type DocsValidationAction = (options: DocsValidationTaskOptions) => void | Promise<void>;
+type MaterialValidationAction = (options: MaterialValidationTaskOptions) => void | Promise<void>;
 
-const tasks: Readonly<Record<DocsValidationTask, DocsValidationAction>> = {
-  [TASK_NAMES.json]: ({ report }) => {
-    validateJsonSyntax(report);
-  },
-  [TASK_NAMES.schema]: validatePublishedSchemas,
-  [TASK_NAMES.examples]: validatePublishedExamples,
-  [TASK_NAMES.links]: ({ linkRepositoryRoot, report }) => {
+const tasks: Readonly<Record<MaterialValidationTask, MaterialValidationAction>> = {
+  [MATERIAL_TASK_NAMES.json]: ({ report }) =>
+    validateJsonSyntax(report === undefined ? {} : { report }),
+  [MATERIAL_TASK_NAMES.schema]: validatePublishedSchemas,
+  [MATERIAL_TASK_NAMES.examples]: validatePublishedExamples,
+  [MATERIAL_TASK_NAMES.links]: ({ linkRepositoryRoot, report }) => {
     validateMarkdownLinks({
       ...(report === undefined ? {} : { report }),
       ...(linkRepositoryRoot === undefined ? {} : { repositoryRoot: linkRepositoryRoot })
     });
   },
-  [TASK_NAMES.packageApiDocumentation]: validatePackageApiDocumentation
+  [MATERIAL_TASK_NAMES.packageApiDocumentation]: validatePackageApiDocumentation
 };
 
-export function parseDocsValidationTasks(argv: readonly string[]): readonly DocsValidationTask[] {
-  const selectedTasks: DocsValidationTask[] = [];
+export function parseMaterialValidationTasks(
+  argv: readonly string[]
+): readonly MaterialValidationTask[] {
+  const selectedTasks: MaterialValidationTask[] = [];
   for (const task of argv) {
     switch (task) {
-      case TASK_NAMES.json:
-      case TASK_NAMES.schema:
-      case TASK_NAMES.examples:
-      case TASK_NAMES.links:
-      case TASK_NAMES.packageApiDocumentation:
+      case MATERIAL_TASK_NAMES.json:
+      case MATERIAL_TASK_NAMES.schema:
+      case MATERIAL_TASK_NAMES.examples:
+      case MATERIAL_TASK_NAMES.links:
+      case MATERIAL_TASK_NAMES.packageApiDocumentation:
         selectedTasks.push(task);
         break;
       default:
@@ -81,19 +82,47 @@ export function parseDocsValidationTasks(argv: readonly string[]): readonly Docs
   return selectedTasks;
 }
 
-export async function validateDocs(
+export async function validateRepositoryMaterials(
   options: Readonly<{
     linkRepositoryRoot?: string;
-    tasks?: readonly DocsValidationTask[];
+    tasks?: readonly MaterialValidationTask[];
     report?: (message: string) => void;
   }> = {}
-): Promise<DocsValidationResult> {
+): Promise<MaterialValidationResult> {
   const selectedTasks =
-    options.tasks === undefined ? Object.values(TASK_NAMES) : [...new Set(options.tasks)];
-  const diagnostics: DocsValidationDiagnostic[] = [];
-  for (const taskName of selectedTasks) {
+    options.tasks === undefined ? Object.values(MATERIAL_TASK_NAMES) : [...new Set(options.tasks)];
+  const selectedActions = selectedTasks.map((taskName) => {
     const task = tasks[taskName];
     assert(task !== undefined, `unknown validation task: ${taskName}`);
+    return task;
+  });
+  return validateMaterialActions(selectedActions, options);
+}
+
+/** Direct Gate provider for the project-owned machine publication and example boundary. */
+export function validateRepositoryMaterialExamples(): Promise<MaterialValidationResult> {
+  return validateMaterialActions([validateCurrentMachineExamples], {});
+}
+
+/** Direct Gate provider for the project-owned schema inventory and publication-drift boundary. */
+export function validateRepositoryMaterialSchemaPublication(): Promise<MaterialValidationResult> {
+  return validateMaterialActions([validatePublishedSchemas], {});
+}
+
+/** Direct Gate provider for repository-local Markdown link material. */
+export function validateRepositoryMaterialLinks(): Promise<MaterialValidationResult> {
+  return validateMaterialActions([tasks[MATERIAL_TASK_NAMES.links]], {});
+}
+
+async function validateMaterialActions(
+  selectedActions: readonly MaterialValidationAction[],
+  options: Readonly<{
+    linkRepositoryRoot?: string;
+    report?: (message: string) => void;
+  }>
+): Promise<MaterialValidationResult> {
+  const diagnostics: MaterialValidationDiagnostic[] = [];
+  for (const task of selectedActions) {
     try {
       await task({
         ...(options.linkRepositoryRoot === undefined
@@ -102,7 +131,7 @@ export async function validateDocs(
         ...(options.report === undefined ? {} : { report: options.report })
       });
     } catch (error: unknown) {
-      if (!(error instanceof ExpectedDocsValidationFailure)) throw error;
+      if (!(error instanceof ExpectedMaterialValidationFailure)) throw error;
       diagnostics.push(...error.diagnostics);
     }
   }
@@ -115,10 +144,12 @@ export async function validateDocs(
   return result;
 }
 
-/** Runs the real docs workflow and owns its success/failure output channels. */
-export async function runDocsValidationCli(options: DocsValidationCliOptions): Promise<number> {
-  const requestedTasks = parseDocsValidationTasks(options.argv);
-  const result = await validateDocs({
+/** Runs the repository-material workflow and owns its success/failure output channels. */
+export async function runMaterialValidationCli(
+  options: MaterialValidationCliOptions
+): Promise<number> {
+  const requestedTasks = parseMaterialValidationTasks(options.argv);
+  const result = await validateRepositoryMaterials({
     ...(requestedTasks.length === 0 ? {} : { tasks: requestedTasks }),
     ...(options.linkRepositoryRoot === undefined
       ? {}
@@ -130,31 +161,37 @@ export async function runDocsValidationCli(options: DocsValidationCliOptions): P
   return 1;
 }
 
-function validatePackageApiDocumentation(_options: DocsValidationTaskOptions): void {
+function validatePackageApiDocumentation(_options: MaterialValidationTaskOptions): void {
   const result = runPackageApiDocumentationCli(["--check"]);
   if (result.exitCode !== 0) throw new Error(result.diagnostics.join("\n"));
 }
 
-async function validatePublishedExamples({ report }: DocsValidationTaskOptions): Promise<void> {
+async function validatePublishedExamples({ report }: MaterialValidationTaskOptions): Promise<void> {
+  await validateCurrentMachineExamples(report === undefined ? {} : { report });
+  validateReportExamples(report);
+}
+
+async function validateCurrentMachineExamples({
+  report
+}: MaterialValidationTaskOptions): Promise<void> {
   const artifactSetCount = validatePublishedMachineArtifactExamples();
   try {
     await checkPublishedMachineExamples();
   } catch (error: unknown) {
     if (error instanceof MachineExamplePublicationFailure) {
-      throw expectedDocsValidationFailure([machineExampleDiagnostic(error)]);
+      throw expectedMaterialValidationFailure([machineExampleDiagnostic(error)]);
     }
     throw error;
   }
   report?.(`current machine artifact examples ok: ${artifactSetCount} set(s)`);
-  validateReportExamples(report);
 }
 
-function validatePublishedSchemas({ report }: DocsValidationTaskOptions): void {
+function validatePublishedSchemas({ report }: MaterialValidationTaskOptions): void {
   try {
     checkPublishedMachineSchemas();
   } catch (error: unknown) {
     if (error instanceof MachineSchemaPublicationFailure) {
-      throw expectedDocsValidationFailure([machineSchemaDiagnostic(error)]);
+      throw expectedMaterialValidationFailure([machineSchemaDiagnostic(error)]);
     }
     throw error;
   }
@@ -163,7 +200,7 @@ function validatePublishedSchemas({ report }: DocsValidationTaskOptions): void {
 
 function machineExampleDiagnostic(
   failure: MachineExamplePublicationFailure
-): DocsValidationDiagnostic {
+): MaterialValidationDiagnostic {
   return Object.freeze({
     data: Object.freeze({ kind: failure.kind, path: failure.path }),
     id: `machine-example:${failure.kind}:${encodeURIComponent(failure.path)}`,
@@ -173,7 +210,7 @@ function machineExampleDiagnostic(
 
 function machineSchemaDiagnostic(
   failure: MachineSchemaPublicationFailure
-): DocsValidationDiagnostic {
+): MaterialValidationDiagnostic {
   return Object.freeze({
     data: Object.freeze({ kind: failure.kind, path: failure.path }),
     id: `machine-schema:${failure.kind}:${encodeURIComponent(failure.path)}`,
@@ -183,7 +220,7 @@ function machineSchemaDiagnostic(
 
 if (import.meta.main) {
   await runAsyncMain(async () => {
-    process.exitCode = await runDocsValidationCli({
+    process.exitCode = await runMaterialValidationCli({
       argv: process.argv.slice(2),
       writeStderr: (message) => {
         console.error(message);

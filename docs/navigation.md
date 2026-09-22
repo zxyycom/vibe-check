@@ -78,7 +78,7 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 正式发布、冻结 source、receipt 与发布后交接 | [Package release](tooling/package-release.md)与同产物完整 Gate |
 | translated source inventory、identity 与派生 pin | [来源映射维护](tooling/source-mapping.md)与 source identity audit |
 | Markdown 正文、Check 指南、可执行示例 | [Documentation](tooling/documentation.md)、目标正文与示例源 |
-| 示例投影器、docs 校验器或材料验收 | [Documentation validation](tooling/documentation-validation.md)、provider/validator 与测试 |
+| 示例投影器、repository-material 校验器或材料验收 | [Repository material validation](tooling/repository-material-validation.md)、provider/validator 与测试 |
 | Lizard 性能测量 | [性能测量](tooling/lizard-performance.md)的显式 evidence workflow |
 | Lizard 上游维护查询 | [上游查询](tooling/lizard-upstream.md)；仅显式运行时联网 |
 | 测试、fixture、Case 或测试工具 | [测试策略](testing/strategy.md)、[Case 维护](testing/case-maintenance.md)、行为 owner 与目标测试 |
@@ -115,7 +115,7 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 
 | 改动面 | 验证入口 |
 | --- | --- |
-| 文档、schema、examples 或 whitespace | `bun run validate`；局部文档可先 `bun run validate -- docs` |
+| 文档、schema、examples 或 whitespace | `bun run validate`；局部文档可先 `bun run validate -- materials` |
 | Decision | `bun run decisions -- check` |
 | Change | `bun run change-plan -- check changes/<change>` |
 | Investigation | `bun run investigations` |

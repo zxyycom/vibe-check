@@ -78,10 +78,11 @@ const expectedCheckIds = [
   "file-metrics",
   "function-metrics",
   "markdown-link-validation",
-  "docs-json-validator",
-  "docs-schema-validator",
-  "docs-example-validator",
-  "docs-links-validator",
+  "materials-json-validator",
+  "materials-schema-validator",
+  "materials-schema-publication-validator",
+  "materials-examples-validator",
+  "materials-links-validator",
   "decision-records",
   "test-evidence",
   "test-evidence-rule-tests",
@@ -128,12 +129,13 @@ const expectedCheckIdsBySelection: readonly Readonly<{
       "file-metrics",
       "function-metrics",
       "markdown-link-validation",
-      "docs-json-validator",
-      "docs-schema-validator",
-      "docs-example-validator",
-      "docs-links-validator"
+      "materials-json-validator",
+      "materials-schema-validator",
+      "materials-schema-publication-validator",
+      "materials-examples-validator",
+      "materials-links-validator"
     ],
-    selection: { kind: "focused", presets: ["docs", "quality"] }
+    selection: { kind: "focused", presets: ["materials", "quality"] }
   },
   {
     checkIds: [
@@ -207,15 +209,43 @@ describe("Project Gate Definition", () => {
     assert.deepEqual(PROJECT_GATE_RUN_CONFIG.selection, {
       complete: "all",
       default: "required",
-      presets: ["docs", "lint", "quality", "test", "typecheck"]
+      presets: ["materials", "lint", "quality", "test", "typecheck"]
     });
     assert.equal(Object.hasOwn(definition, "policies"), false);
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
 
-    const nativeDocsCheck = definition.checks.find(
-      ({ checkId }) => checkId === "docs-json-validator"
+    const nativeMaterialCheck = definition.checks.find(
+      ({ checkId }) => checkId === "materials-json-validator"
     );
-    assert.equal(nativeDocsCheck?.options, undefined);
+    assert.deepEqual(nativeMaterialCheck?.options, {
+      files: {
+        exclude: [
+          "**/.cache/**",
+          "**/.git",
+          "**/.git/**",
+          "**/.log/**",
+          "**/.pytest_cache/**",
+          "**/.tmp/**",
+          "**/.venv/**",
+          "**/.vibe-check/**",
+          "**/__pycache__/**",
+          "**/artifacts/**",
+          "**/build/**",
+          "**/coverage/**",
+          "**/dist/**",
+          "**/generated/**",
+          "**/*.generated.*",
+          "**/node_modules/**",
+          "**/target/**",
+          "**/tmp/**",
+          "**/vendor/**",
+          "**/venv/**"
+        ],
+        include: ["docs/**/*.json"],
+        source: "filesystem"
+      },
+      maximumBytes: 2097152
+    });
     assert.equal(
       definition.checks.find(({ checkId }) => checkId === "markdown-link-validation")?.displayName,
       "Markdown link validation"
@@ -226,24 +256,25 @@ describe("Project Gate Definition", () => {
       undefined
     );
     assert.equal(
-      definition.checks.find(({ checkId }) => checkId === "docs-links-validator")?.displayName,
-      "Documentation path existence validation"
+      definition.checks.find(({ checkId }) => checkId === "materials-links-validator")?.displayName,
+      "Repository material link validation"
     );
     for (const checkId of [
-      "docs-schema-validator",
-      "docs-example-validator",
+      "materials-schema-validator",
+      "materials-schema-publication-validator",
+      "materials-examples-validator",
       "tests-scripts-validation"
     ]) {
       assert.deepEqual(entries.find(({ check }) => check.checkId === checkId)?.check.mutex, [
-        "project-gate-documentation-materials"
+        "project-gate-repository-materials"
       ]);
     }
     assert.equal(
-      entries.find(({ check }) => check.checkId === "docs-links-validator")?.check.mutex,
+      entries.find(({ check }) => check.checkId === "materials-links-validator")?.check.mutex,
       undefined
     );
     assert.equal(
-      entries.find(({ check }) => check.checkId === "docs-json-validator")?.check.mutex,
+      entries.find(({ check }) => check.checkId === "materials-json-validator")?.check.mutex,
       undefined
     );
 
@@ -359,7 +390,7 @@ describe("Project Gate Definition", () => {
       () =>
         defineProjectGateEntries([
           { check: prerequisite, presets: [], required: true },
-          { check: observer, presets: ["docs"], required: true }
+          { check: observer, presets: ["materials"], required: true }
         ]),
       /observes relation is not preset-selection closed: fixture-observer -> fixture-prerequisite/
     );
@@ -838,7 +869,7 @@ describe("Project Gate Definition", () => {
               return { status: "passed", data: {} };
             }
           }),
-          presets: ["docs"],
+          presets: ["materials"],
           required: false
         }
       ]);

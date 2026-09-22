@@ -1,12 +1,15 @@
-// Vibe Check docs validators keep validation paths and task names in one place.
+// Vibe Check material validators keep validation paths and task names in one place.
 // Product semantics remain owned by the product runtime and owner docs.
-export const TASK_NAMES = {
+export const MATERIAL_TASK_NAMES = {
   json: "json",
   schema: "schema",
   examples: "examples",
   links: "links",
   packageApiDocumentation: "package-api-documentation"
 } as const;
+
+/** Shared per-file limit for the repository material JSON validators. */
+export const REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES = 2 * 1024 * 1024;
 
 export const FILE_SYSTEM = {
   docsDir: "docs",

@@ -3,7 +3,7 @@ import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { walkFiles } from "../repository-files/files.ts";
-import { FILE_SYSTEM } from "./documentation/task-contract.ts";
+import { FILE_SYSTEM } from "./repository-material/task-contract.ts";
 import { validateFunctionMetricsAnalyzerBoundary } from "./function-metrics-analyzer-boundary.ts";
 import { relativePath, validateImportBoundaries } from "./import-boundaries.ts";
 import { validatePackageToolsBoundary } from "./package-tools-boundary.ts";
@@ -28,7 +28,7 @@ const RETIRED_SOURCE_DIRECTORIES = Object.freeze([
   "scripts/diagnostics",
   "scripts/data-boundary",
   "scripts/process-execution/process",
-  "scripts/validation/documentation/repository",
+  "scripts/validation/repository-material/repository",
   "scripts/package-candidate",
   "scripts/quality",
   "scripts/project-gate"

@@ -78,7 +78,7 @@ describe("Project Gate native operation", () => {
             displayName: "Fixture native docs diagnostic",
             operation: () => ({
               passed: false,
-              code: "docs-example-validator-invalid",
+              code: "materials-examples-validator-invalid",
               diagnostics: [
                 {
                   data: {
@@ -88,21 +88,21 @@ describe("Project Gate native operation", () => {
                   id: "machine-artifact:syntax:docs%2Fexamples%2Fartifacts%2Fmixed-outcomes%2Frun.json"
                 }
               ],
-              focusedCommand: "bun run validate -- docs examples"
+              focusedCommand: "bun run validate -- materials examples"
             })
           }),
           expected: {
             status: "failed",
             data: {
               outcome: "failed",
-              diagnosticCode: "docs-example-validator-invalid",
+              diagnosticCode: "materials-examples-validator-invalid",
               diagnosticCount: 1
             },
             messages: [
               {
                 level: "error",
-                code: "docs-example-validator-invalid",
-                message: "Run: bun run validate -- docs examples."
+                code: "materials-examples-validator-invalid",
+                message: "Run: bun run validate -- materials examples."
               }
             ]
           },

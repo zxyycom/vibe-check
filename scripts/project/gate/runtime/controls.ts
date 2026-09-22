@@ -55,7 +55,7 @@ export function projectGateHelp(): string {
     "  --typecheck               Run product and script typechecks.",
     "  --lint                    Run product and script lint.",
     "  --test                    Run routine tests without package acceptance.",
-    "  --docs                    Run documentation validation.",
+    "  --materials                    Run repository material validation.",
     "  --quality                 Run repository quality Checks.",
     "  --all                     Run the complete Gate; cannot be combined with presets.",
     "  --release-receipt <path>  Consume one closed formal receipt; requires --all.",
@@ -67,7 +67,7 @@ export function projectGateHelp(): string {
     "Examples:",
     "  bun run check -- --typecheck --lint",
     "  bun run check -- --test",
-    "  bun run check -- --docs --quality",
+    "  bun run check -- --materials --quality",
     "  bun run check -- --all",
     "  bun run check -- --all --release-receipt build/releases/zxyycom-vibe-check-0.0.1.release.json"
   ].join("\n");

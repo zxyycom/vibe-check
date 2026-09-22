@@ -21,8 +21,8 @@ Product 与仓库工作流的责任划分见[系统边界](../development/archit
 | --- | --- |
 | `scripts/development/**` | `format.ts`、`lint.ts`、`typecheck.ts` 与 `test.ts` 选择开发期 scope；`scripts/process-execution/command.ts` 提供其进程命令边界。 |
 | `scripts/environment/manage.ts` | `env:setup` 和 `env:check` 的 mise、依赖与 CodeGraph 环境管理，以及 `env:setup` 返回前完成的 local package candidate 自举。 |
-| `scripts/validation/**` | workspace root、repository layout 与 `documentation/**` 的 docs acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。 |
-| `scripts/docs/**` | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 docs validation orchestration。 |
+| `scripts/validation/**` | workspace root、repository layout 与 `documentation/**` 的 material acceptance workflow、task contract、links、JSON/schema/machine-artifact validation。它调用 `scripts/docs/**` 的 check-only provider，不把 workflow 放回 provider。 |
+| `scripts/docs/**` | machine artifact schema/example 与 package Markdown fenced example、JSDoc example、Check guide 的投影或收集 provider；不拥有 package 文档正文或 material validation orchestration。 |
 | `scripts/package/**` | parent owner 持有 public contract、file inventory、Bun pack/digest 与 artifact/candidate/release 共用 package-material audit；子模块职责与 candidate fingerprint 边界见[package 子模块职责](#package-子模块职责)。 |
 | `scripts/project/**` | 唯一 private candidate consumer root；其 Gate child owner 见[Project Gate and Test Evidence child owners](#project-gate-and-test-evidence-child-owners)。 |
 | `scripts/maintenance/**` | 仅承接由对应 root maintenance command 显式选择的仓库维护查询；每个脚本固定自己的外部 target、transport 与 advisory result，不进入 Product 或默认 Gate。 |
@@ -96,11 +96,11 @@ candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 | package candidate | `bun run package:status`；`bun run package:build`；`bun run package:verify`；显式物理集成 `bun run package:candidate:integration` |
 | formal package release | `bun run package:release:prepare -- --version <0.0.PATCH> --tag <tag>`；`bun run package:release:verify -- --receipt <path>` |
 | package API projections | `bun run docs:api`；显式写入 `bun run docs:api:write` |
-| docs/workspace validation | `bun run validate`；`bun run validate -- docs [json \| schema \| examples \| links \| package-api-documentation]` |
+| docs/workspace validation | `bun run validate`；`bun run validate -- materials [json \| schema \| examples \| links \| package-api-documentation]` |
 | governance | `bun run decisions -- <command>`；`bun run change-plan -- <command>`；`bun run investigations`；`bun run test-evidence -- <command>` |
 | maintenance advisory | `bun run maintenance:lizard-upstream` |
 | virtual admission workbench | `bun run admission:simulate <fixture-id-or-scenario.json> [--policy static\|learned] [--seed N] [--replicates N] [--out new-file]`；仅仓库维护者使用，不是 Product CLI 或 Gate selector |
-| Project Gate | `bun run check [-- --typecheck \| --lint \| --test \| --docs \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>` |
+| Project Gate | `bun run check [-- --typecheck \| --lint \| --test \| --materials \| --quality \| --all]`；formal receipt：`bun run check -- --all --release-receipt <path>` |
 
 ### Virtual admission workbench
 
@@ -324,7 +324,7 @@ Product Check 的 scanner command、availability command 和 unavailable behavio
 ```bash
 bun run typecheck -- scripts
 bun run lint -- scripts
-bun run validate -- docs
+bun run validate -- materials
 bun run test-evidence -- check --root .
 ```
 

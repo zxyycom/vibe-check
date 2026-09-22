@@ -1,6 +1,6 @@
 # 文档与包材料
 
-维护 package 文档时，从本文确定编辑位置、更新投影并核对发布材料。正文和示例的内容规则由各自 owner 维护；实现校验器时另见[文档验证](documentation-validation.md)。
+维护 package 文档时，从本文确定编辑位置、更新投影并核对发布材料。正文和示例的内容规则由各自 owner 维护；实现校验器时另见[仓库材料验证](repository-material-validation.md)。
 
 ## 修改文档与示例
 
@@ -25,7 +25,7 @@ README、API 专题与 Check 指南都发布 checked-in Markdown。文件映射�
 1. 修改正文或链接时，直接编辑最终 Markdown；修改 Check 指南时，直接编辑对应指南。
 2. 修改受管示例时，编辑白名单内的 TypeScript 源文件。新增、移动或重命名目标章节时，同时更新 registry 的 heading path 或源码 JSDoc 目标。
 3. 运行 `bun run docs:api:write`，更新 Markdown 示例代码块和 JSDoc 示例尾部。
-4. 运行 `bun run docs:api`。默认 check mode 不写文件；任一 checked-in 投影过期都会失败。目标章节的精确语法与失败条件见[示例投影规则](documentation-validation.md#示例投影规则)。
+4. 运行 `bun run docs:api`。默认 check mode 不写文件；任一 checked-in 投影过期都会失败。目标章节的精确语法与失败条件见[示例投影规则](repository-material-validation.md#示例投影规则)。
 
 新增、移动或改变发布项时，还需同步核对导航、README 和发布清单，并通过 package material / consumer 验收。
 [文档导航](../navigation.md#读者发布范围与规则归属)映射读者和规则责任，不决定发布范围。
@@ -80,14 +80,14 @@ Change 中的计划、调查过程与运行日志继续留在工作区。
 legacy schemas、historical examples、generator sources 与 validation scripts 不发布。
 
 实现与材料维护的责任见[机器输出维护](../development/output-maintenance.md)；精确 bytes、独立 schema 和安装后执行的
-验收见[随包材料验收](documentation-validation.md#随包材料验收)。
+验收见[随包材料验收](repository-material-validation.md#随包材料验收)。
 
-## 文档验证
+## 仓库材料验证
 
 | 命令 | 执行范围 |
 | --- | --- |
 | `bun run docs:api` | 只读检查 API 文档投影是否与源一致 |
-| `bun run validate -- docs` | 只运行文档 task，不执行 layout 或 diff 检查 |
-| `bun run validate` | 先运行全部文档 task，再执行 repository layout characterization，最后运行 `git diff --check` |
+| `bun run validate -- materials` | 只运行全部 repository-material task，不执行 layout 或 diff 检查 |
+| `bun run validate` | 先运行全部 repository-material task，再执行 repository layout characterization，最后运行 `git diff --check` |
 
-各 task 的结果、诊断与独立验收边界见[文档验证实现](documentation-validation.md)。
+各 task 的结果、诊断与独立验收边界见[仓库材料验证](repository-material-validation.md)。

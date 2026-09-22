@@ -147,7 +147,7 @@ owner 或删除。
 
 | 改动范围                                    | 验证入口                                                                   |
 | ------------------------------------------- | -------------------------------------------------------------------------- |
-| 本文档、标题、路径或文档路由                | `bun run validate -- docs`                                                 |
+| 本文档、标题、路径或文档路由                | `bun run validate -- materials`                                                 |
 | Investigation Report 正文、资源、关系或索引 | `bun run investigations`                                                   |
 | Decision Markdown、生命周期、关系或索引     | `bun run decisions -- check`                                               |
 | Change Plan                                 | `bun run change-plan -- check changes/<change>`；生命周期操作按 skill 验证 |

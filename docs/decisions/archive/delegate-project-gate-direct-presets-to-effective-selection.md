@@ -1,7 +1,7 @@
 ---
 title: 让 Project Gate 以默认聚合委托有效选择
 id: 260915-delegate-project-gate-direct-presets-to-effective-selection
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-15T10:33:17Z
 purpose: 让 Gate 保持 direct preset intent 与 Product 依赖选择的统一，同时使用 Product 默认严格聚合。

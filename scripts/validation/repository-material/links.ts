@@ -1,14 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { expectedDocsValidationFailure, type DocsValidationDiagnostic } from "./diagnostics.ts";
+import {
+  expectedMaterialValidationFailure,
+  type MaterialValidationDiagnostic
+} from "./diagnostics.ts";
 import { FILE_SYSTEM } from "./task-contract.ts";
 import { walkDocumentationFiles } from "./repository-files.ts";
 import { toDocumentationAbsolutePath } from "./repository-paths.ts";
 
 const linkPattern = /\[[^\]]+\]\(([^)]+)\)/g;
 
-interface MissingLocalLinkDiagnostic extends DocsValidationDiagnostic {
+interface MissingLocalLinkDiagnostic extends MaterialValidationDiagnostic {
   readonly data: Readonly<{
     readonly kind: "missing-local-link";
     readonly location: Readonly<{ readonly column: number; readonly line: number }>;
@@ -36,7 +39,7 @@ export function validateMarkdownLinks(
   }> = {}
 ): void {
   const result = collectMarkdownLinkDiagnostics(options);
-  if (result.diagnostics.length > 0) throw expectedDocsValidationFailure(result.diagnostics);
+  if (result.diagnostics.length > 0) throw expectedMaterialValidationFailure(result.diagnostics);
   options.report?.(`markdown links ok: ${result.fileCount} file(s)`);
 }
 
@@ -50,7 +53,7 @@ export function collectMarkdownLinkDiagnostics(
     readonly repositoryRoot?: string;
   }> = {}
 ): Readonly<{
-  readonly diagnostics: readonly DocsValidationDiagnostic[];
+  readonly diagnostics: readonly MaterialValidationDiagnostic[];
   readonly fileCount: number;
 }> {
   const repositoryRoot = path.resolve(options.repositoryRoot ?? toDocumentationAbsolutePath("."));

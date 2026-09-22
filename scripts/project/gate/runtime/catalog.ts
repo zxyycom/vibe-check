@@ -1,6 +1,6 @@
 /** Closed focused selections exposed by the Project Gate command. */
 export const PROJECT_GATE_PRESETS = Object.freeze([
-  "docs",
+  "materials",
   "lint",
   "quality",
   "test",

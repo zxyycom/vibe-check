@@ -123,4 +123,4 @@ pending outcome、observer 与 drain 语义后才能激活。若它先激活，�
 
 1. 运行 `bun run change-plan -- list changes` 和 `bun run change-plan -- check-all changes`。
 2. 读取发生变化的目标 artifacts，只维护当前依赖、允许工作、轨道和合入顺序；不复制动态任务计数或已完成材料。
-3. 运行 `bun run validate -- docs`、`bun run decisions -- check` 和 `git diff --check`。
+3. 运行 `bun run validate -- materials`、`bun run decisions -- check` 和 `git diff --check`。

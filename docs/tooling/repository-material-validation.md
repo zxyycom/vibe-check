@@ -1,6 +1,6 @@
-# 文档投影与验证
+# 仓库材料验证
 
-修改文档生成器、校验器或 Gate 的 native docs adapter 时，从本文恢复投影语法、失败结果和验收责任。
+修改文档生成器、repository-material 校验器或 Gate 的 native material adapter 时，从本文恢复投影语法、失败结果和验收责任。
 编辑正文、示例与发布清单的日常流程见[文档与包材料](documentation.md)。
 
 ## 示例投影规则
@@ -23,7 +23,7 @@
 
 ### 投影一致性验收
 
-`scripts/validation/documentation/workflow.ts` 在 `package-api-documentation` task 中调用 check mode。
+`scripts/validation/repository-material/workflow.ts` 在 `package-api-documentation` task 中调用 check mode。
 artifact audit 再次计算投影，要求 checked-in Markdown/JSDoc 与计算结果一致，然后把同一 Markdown
 交给 package material collector。
 
@@ -35,25 +35,24 @@ Markdown 的源码检查使用 `sourcePath`，包内链接和 staging/tar/instal
 包内链接检查也覆盖 machine 材料中的 Markdown 正文，避免 schema 或示例重定位后留下旧链接；其发布仍保留原始 bytes。
 
 验收覆盖[文档发布映射](documentation.md#documentation-validation-and-package-material)声明的 README、API 专题、changelog、Check 指南、机器契约、current schemas 和示例。
-`scripts/validation/documentation/machine-artifacts/**` 独立验收其中的 machine artifact；验证区分三种证据：
+`scripts/validation/repository-material/machine-artifacts/**` 独立验收其中的 machine artifact；验证区分三种证据：
 
 1. **材料一致性：** package build、packed tar audit、candidate reuse、installed package audit 和 ancestry-external consumer acceptance 按同一 JSON 映射比较目标路径与精确 bytes。
 2. **类型与运行：** installed consumer typecheck 直接检查 Definition；documentation acceptance 使用 mise 锁定、由消费者拥有的 Node child，按确定顺序执行全部 runtime examples 和 machine Definition。
 3. **结果核对：** Example 或 Definition import 失败时保留对应 source identity；执行成功后，再核对文档承诺的 built-in/custom facts、RunResult messages 与 machine publication。
 
-## 文档 task
+## material task
 
-文档 task 的唯一名称是 `json`、`schema`、`examples`、`links` 和 `package-api-documentation`。
+material task 的唯一名称是 `json`、`schema`、`examples`、`links` 和 `package-api-documentation`。
 根 validation adapter 默认运行全部 task；显式 focused selection 原样转发，不静默扩张或跳过。
 
 schema/examples task 同时检查 current published material 的 generation drift，并用 checked-in schema 与 raw example bytes
-独立验证完整 v4 二文件集合；验收实现不 import Product validator。历史 schema/example 材料只走显式 historical
+独立验证完整 v4 二文件集合；machine-artifact validator 不 import Product validator。历史 schema/example 材料只走显式 historical
 validation path，不进入 current traversal 或 runtime input。
 
 ### 完成与失败结果
 
-文档验证库函数返回 Promise，调用方必须等待完成。四个 native Gate docs task（`json`、`schema`、`examples`、`links`）
-区分两种失败：
+仓库材料验证库函数返回 Promise，调用方必须等待完成。workspace workflow 组合全部五项 material task；Gate 不调用这个 dispatcher：`jsonValidation` 直接验证同一 `docs/**/*.json` corpus，`jsonSchemaValidation` 直接验证注册 schema 与 report-example bindings，project-native schema-publication provider 负责 schema inventory/publication drift，machine-example provider 负责 machine artifact set，links provider 负责 links。它们都区分两种失败：
 
 - **可预期的内容验证失败：** 返回由 task 拥有、已排序的 safe diagnostics；不从 Error text 恢复 machine 或 terminal facts。
 - **非预期 I/O、编程错误或安全边界失败：** 继续 throw。
@@ -63,10 +62,10 @@ validation path，不进入 current traversal 或 runtime input。
 
 ### 调用方如何呈现结果
 
-- **`validateDocs({ report })`：** 只通过显式 reporter 发布 success；typed failed result 不调用 reporter。
+- **`validateRepositoryMaterials({ report })`：** 只通过显式 reporter 发布 success；typed failed result 不调用 reporter。
 - **workflow 的 direct CLI 与 workspace caller：** 读取 failed result 后，逐条将 safe presentation 写到 stderr，并以非零退出。
-- **Project Gate 的 in-process docs Checks：** 不提供 reporter，而是把同一 diagnostics 交给 native Check Record adapter，避免在 Product 拥有 TTY running region 时向 stdout 插入未登记内容。
+- **Project Gate 的 project-native material Checks：** 直接调用各自窄 provider、不提供 reporter，而是把其 diagnostics 交给 native Check Record adapter，避免在 Product 拥有 TTY running region 时向 stdout 插入未登记内容。公共 JSON/Schema Checks 使用其自身的 Records 与终态，不嵌套 workflow Run。
 
 ## 验证入口
 
-运行目标校验器测试和 `bun run validate -- docs`；涉及 package 或 consumer 验收时运行 `bun run check -- --all`。
+运行目标校验器测试和 `bun run validate -- materials`；涉及 package 或 consumer 验收时运行 `bun run check -- --all`。

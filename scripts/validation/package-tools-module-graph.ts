@@ -4,7 +4,7 @@ import { join, relative, resolve } from "node:path";
 import * as ts from "typescript";
 
 import { walkFiles } from "../repository-files/files.ts";
-import { FILE_SYSTEM } from "./documentation/task-contract.ts";
+import { FILE_SYSTEM } from "./repository-material/task-contract.ts";
 
 export interface ModuleEdge {
   readonly bindings: readonly ModuleBinding[];

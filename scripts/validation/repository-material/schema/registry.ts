@@ -2,7 +2,10 @@ import { Ajv2020 } from "ajv/dist/2020.js";
 import type { AnySchema, ValidateFunction } from "ajv";
 
 import { isRecord } from "../../../value-guards.ts";
-import { ExpectedDocsValidationFailure, expectedDocsValidationFailure } from "../diagnostics.ts";
+import {
+  ExpectedMaterialValidationFailure,
+  expectedMaterialValidationFailure
+} from "../diagnostics.ts";
 import { CURRENT_SCHEMAS, HISTORICAL_SCHEMAS } from "../task-contract.ts";
 import { readJson } from "../json/files.ts";
 import { JsonSyntaxError } from "../json/value.ts";
@@ -51,7 +54,7 @@ export function compileRegisteredSchema<Value>(
     if (validate === undefined) throw schemaFailure("schema-not-registered", schemaRelPath);
     return validate;
   } catch (error: unknown) {
-    if (error instanceof ExpectedDocsValidationFailure) throw error;
+    if (error instanceof ExpectedMaterialValidationFailure) throw error;
     throw schemaFailure("schema-compile-invalid", schemaRelPath);
   }
 }
@@ -69,7 +72,7 @@ function readSchema(schemaRelPath: string): AnySchema {
 }
 
 function schemaFailure(kind: string, path: string): Error {
-  return expectedDocsValidationFailure([
+  return expectedMaterialValidationFailure([
     Object.freeze({
       data: Object.freeze({ kind, path }),
       id: `schema:${kind}:${encodeURIComponent(path)}`,

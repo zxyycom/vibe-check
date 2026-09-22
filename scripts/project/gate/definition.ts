@@ -11,6 +11,8 @@ import {
   commandCheck,
   createLearnedCriticalPathStrategy,
   defineConfig,
+  jsonSchemaValidation,
+  jsonValidation,
   type ProjectDefinition,
   type RunControls,
   type SchedulerGraphSnapshot
@@ -19,7 +21,13 @@ import {
 import type { ProjectGateResultContributor } from "./runtime/result-contributor.ts";
 import { contributeProjectGatePerformanceMessages } from "./runtime/performance-observation.ts";
 import { createDecisionRecordsCheck } from "./checks/decision-records.ts";
-import { createDocsValidationCheck } from "./checks/docs-validation.ts";
+import { createMaterialValidationCheck } from "./checks/materials-validation.ts";
+import {
+  validateRepositoryMaterialExamples,
+  validateRepositoryMaterialLinks,
+  validateRepositoryMaterialSchemaPublication
+} from "../../validation/repository-material/workflow.ts";
+import { REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES } from "../../validation/repository-material/task-contract.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
 import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
 import { PROJECT_GATE_SELECTION } from "./runtime/catalog.ts";
@@ -43,7 +51,7 @@ import { createProjectGateTestEntries } from "./checks/test-execution/entries.ts
 import { createProjectGateTestCheckDefinitions } from "./checks/test-execution/checks.ts";
 import { resolveProjectGateTestLanes } from "./checks/test-execution/lanes.ts";
 
-const documentationMaterialsMutex = ["project-gate-documentation-materials"] as const;
+const repositoryMaterialsMutex = ["project-gate-repository-materials"] as const;
 const packageLifecycleMutex = ["project-gate-package-lifecycle"] as const;
 const packageAcceptanceTimeoutMs = 30_000;
 const projectGateCommandTimeoutMs = 30_000;
@@ -55,6 +63,53 @@ const projectGateBunTestRunnerResourceClaims = Object.freeze({
 const projectGateRepositoryScanResourceClaims = Object.freeze({
   "project-gate-repository-scans": 1
 });
+
+/** Reuses the public strict JSON Check for repository-owned JSON material. */
+function createRepositoryJsonMaterialCheck() {
+  return jsonValidation({
+    checkId: "materials-json-validator",
+    files: { include: ["docs/**/*.json"] },
+    maximumBytes: REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES
+  });
+}
+
+/** Reuses the public Schema Check for the registered schemas and report-example bindings. */
+function createRepositorySchemaMaterialCheck() {
+  return jsonSchemaValidation({
+    bindings: [
+      "diagnostic-report",
+      "empty-scope-report",
+      "gate-failing-report",
+      "passing-report"
+    ].map((id) => ({
+      id,
+      instancePath: `docs/examples/json/${id}.json`,
+      schemaId: "https://vibe-check.local/schemas/vibe-check-report.schema.json"
+    })),
+    checkId: "materials-schema-validator",
+    files: { include: ["docs/schemas/**/*.json", "docs/examples/json/*-report.json"] },
+    maximumBytes: REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES,
+    schemas: [
+      {
+        id: "urn:vibe-check:schema:record:v4",
+        path: "docs/schemas/vibe-check-record.schema.json"
+      },
+      {
+        id: "https://vibe-check.local/schemas/vibe-check-report.schema.json",
+        path: "docs/schemas/vibe-check-report.schema.json"
+      },
+      { id: "urn:vibe-check:schema:run:v4", path: "docs/schemas/vibe-check-run.schema.json" },
+      {
+        id: "urn:vibe-check:schema:record:v2",
+        path: "docs/schemas/historical/v2/vibe-check-record.schema.json"
+      },
+      {
+        id: "urn:vibe-check:schema:run:v2",
+        path: "docs/schemas/historical/v2/vibe-check-run.schema.json"
+      }
+    ]
+  });
+}
 
 /**
  * Project-owned post-processing run after one candidate-backed Product result.
@@ -97,7 +152,7 @@ export const PROJECT_GATE_RUN_CONFIG = Object.freeze({
 });
 
 const projectGateTestChecks = createProjectGateTestCheckDefinitions({
-  documentationMaterialsMutex,
+  repositoryMaterialsMutex,
   packageAcceptanceTimeoutMs
 });
 
@@ -243,7 +298,7 @@ function createProjectGateRepositoryQualityEntries(
       }),
       createProjectGateCommonEntry({
         check: repositoryQuality.markdownLinkValidation,
-        presets: ["docs", "quality"],
+        presets: ["materials", "quality"],
         required: true
       })
     ],
@@ -264,45 +319,50 @@ function withProjectGateResourceClaims(
   );
 }
 
-/** Creates native documentation validation and repository-governance entries. */
-function createProjectGateDocumentationAndGovernanceEntries(): readonly ProjectGateEntry[] {
+/** Creates native repository-material validation and repository-governance entries. */
+function createProjectGateMaterialsAndGovernanceEntries(): readonly ProjectGateEntry[] {
   return [
     createProjectGateCommonEntry({
-      check: createDocsValidationCheck({
-        checkId: "docs-json-validator",
-        displayName: "Docs JSON validator",
-        task: "json"
-      }),
-      presets: ["docs"],
+      check: createRepositoryJsonMaterialCheck(),
+      presets: ["materials"],
       required: true
     }),
     createProjectGateCommonEntry({
-      check: createDocsValidationCheck({
-        checkId: "docs-schema-validator",
-        displayName: "Docs schema validator",
-        task: "schema"
-      }),
-      mutex: documentationMaterialsMutex,
-      presets: ["docs"],
+      check: createRepositorySchemaMaterialCheck(),
+      mutex: repositoryMaterialsMutex,
+      presets: ["materials"],
       required: true
     }),
     createProjectGateCommonEntry({
-      check: createDocsValidationCheck({
-        checkId: "docs-example-validator",
-        displayName: "Docs example validator",
-        task: "examples"
+      check: createMaterialValidationCheck({
+        checkId: "materials-schema-publication-validator",
+        displayName: "Repository schema publication material validator",
+        focusedCommand: "bun run validate -- materials schema",
+        validate: validateRepositoryMaterialSchemaPublication
       }),
-      mutex: documentationMaterialsMutex,
-      presets: ["docs"],
+      mutex: repositoryMaterialsMutex,
+      presets: ["materials"],
       required: true
     }),
     createProjectGateCommonEntry({
-      check: createDocsValidationCheck({
-        checkId: "docs-links-validator",
-        displayName: "Documentation path existence validation",
-        task: "links"
+      check: createMaterialValidationCheck({
+        checkId: "materials-examples-validator",
+        displayName: "Repository publication and machine example material validator",
+        focusedCommand: "bun run validate -- materials examples",
+        validate: validateRepositoryMaterialExamples
       }),
-      presets: ["docs"],
+      mutex: repositoryMaterialsMutex,
+      presets: ["materials"],
+      required: true
+    }),
+    createProjectGateCommonEntry({
+      check: createMaterialValidationCheck({
+        checkId: "materials-links-validator",
+        displayName: "Repository material link validation",
+        focusedCommand: "bun run validate -- materials links",
+        validate: validateRepositoryMaterialLinks
+      }),
+      presets: ["materials"],
       required: true
     }),
     createProjectGateCommonEntry({
@@ -337,7 +397,7 @@ export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly 
     ...createProjectGateDevelopmentVerificationEntries(),
     ...createProjectGateCandidateAndTestEntries(preparedCandidate, externalConsumer, testLanes),
     ...createProjectGateRepositoryQualityEntries(repositoryQuality),
-    ...createProjectGateDocumentationAndGovernanceEntries(),
+    ...createProjectGateMaterialsAndGovernanceEntries(),
     createProjectGateCommandEntry({
       invocation: {
         args: ["diff", "--check"],

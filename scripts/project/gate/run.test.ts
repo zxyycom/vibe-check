@@ -121,10 +121,11 @@ const expectedCheckIds = [
   "file-metrics",
   "function-metrics",
   "markdown-link-validation",
-  "docs-json-validator",
-  "docs-schema-validator",
-  "docs-example-validator",
-  "docs-links-validator",
+  "materials-json-validator",
+  "materials-schema-validator",
+  "materials-schema-publication-validator",
+  "materials-examples-validator",
+  "materials-links-validator",
   "decision-records",
   "test-evidence",
   "test-evidence-rule-tests",
@@ -181,16 +182,16 @@ describe("Project Gate entries, root binding, and controls", () => {
       action: "run",
       value: { kind: "required" }
     });
-    const parsed = parseProjectGateArguments(["--quality", "--docs", "--docs"]);
+    const parsed = parseProjectGateArguments(["--quality", "--materials", "--materials"]);
 
     assert.deepEqual(parsed, {
       ok: true,
       action: "run",
-      value: { kind: "focused", presets: ["docs", "quality"] }
+      value: { kind: "focused", presets: ["materials", "quality"] }
     });
     if (!parsed.ok || parsed.action !== "run") return;
     assert.deepEqual(selectionFlags(parsed.value), [
-      "project-gate:preset=docs",
+      "project-gate:preset=materials",
       "project-gate:preset=quality"
     ]);
     assert.deepEqual(selectionFromFlags(selectionFlags(parsed.value)), parsed.value);
@@ -206,7 +207,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     assert.match(help, /--typecheck/);
     assert.match(help, /--lint/);
     assert.match(help, /--test/);
-    assert.match(help, /--docs/);
+    assert.match(help, /--materials/);
     assert.match(help, /--quality/);
     assert.match(help, /--all/);
     assert.match(help, /Focused presets can be combined/);
@@ -216,15 +217,15 @@ describe("Project Gate entries, root binding, and controls", () => {
       "selection=required; package-acceptance=not-selected"
     );
     assert.equal(
-      projectGateSelectionSummary({ kind: "focused", presets: ["docs", "quality"] }),
-      "selection=focused; presets=docs,quality; package-acceptance=not-selected"
+      projectGateSelectionSummary({ kind: "focused", presets: ["materials", "quality"] }),
+      "selection=focused; presets=materials,quality; package-acceptance=not-selected"
     );
     assert.equal(parseProjectGateArguments(["unexpected"]).ok, false);
     assert.equal(parseProjectGateArguments(["--profile", "full"]).ok, false);
     assert.equal(parseProjectGateArguments(["--enable-tag", "docs"]).ok, false);
-    assert.equal(parseProjectGateArguments(["--all", "--docs"]).ok, false);
+    assert.equal(parseProjectGateArguments(["--all", "--materials"]).ok, false);
     assert.equal(
-      selectionFromFlags(["project-gate:preset=quality", "project-gate:preset=docs"]),
+      selectionFromFlags(["project-gate:preset=quality", "project-gate:preset=materials"]),
       undefined
     );
     assert.equal(selectionFromFlags(["project-gate:all", "project-gate:required"]), undefined);
@@ -256,7 +257,7 @@ describe("Project Gate entries, root binding, and controls", () => {
     );
     assert.equal(
       parseProjectGateInvocationArguments([
-        "--docs",
+        "--materials",
         "--release-receipt",
         "build/releases/zxyycom-vibe-check-0.0.1.release.json"
       ]).ok,
@@ -477,28 +478,31 @@ describe("Project Gate adapter closure", () => {
           readonly preparedCandidate: PreparedPackageCandidate;
         }>
       | undefined;
-    const status = await runProjectGateWithoutTranscript(["--quality", "--docs", "--docs"], {
-      createInvocationLogDirectory: (): string => {
-        createdLogs += 1;
-        return "/tmp/project-gate-logs";
-      },
-      loadRunModule: async () => {
-        loaded += 1;
-        return {
-          resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: defaultResultContributor,
-          run: async (input) => {
-            ran += 1;
-            runInput = input;
-            return complete;
-          }
-        };
-      },
-      prepareCandidate: async () => {
-        preparedCandidates += 1;
-        return prepared;
+    const status = await runProjectGateWithoutTranscript(
+      ["--quality", "--materials", "--materials"],
+      {
+        createInvocationLogDirectory: (): string => {
+          createdLogs += 1;
+          return "/tmp/project-gate-logs";
+        },
+        loadRunModule: async () => {
+          loaded += 1;
+          return {
+            resolvedEntryPath: prepared.resolvedEntryPath,
+            resultContributor: defaultResultContributor,
+            run: async (input) => {
+              ran += 1;
+              runInput = input;
+              return complete;
+            }
+          };
+        },
+        prepareCandidate: async () => {
+          preparedCandidates += 1;
+          return prepared;
+        }
       }
-    });
+    );
 
     assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
     assert.equal(preparedCandidates, 1);
@@ -506,7 +510,7 @@ describe("Project Gate adapter closure", () => {
     assert.equal(createdLogs, 1);
     assert.equal(ran, 1);
     assert.deepEqual(runInput, {
-      flags: ["project-gate:preset=docs", "project-gate:preset=quality"],
+      flags: ["project-gate:preset=materials", "project-gate:preset=quality"],
       invocationLogDirectory: "/tmp/project-gate-logs",
       preparedCandidate: prepared
     });

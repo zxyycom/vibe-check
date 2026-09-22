@@ -46,5 +46,4 @@
 - bootstrap validator 与 Gate 双路径有维护成本；通过同一 corpus、registry 和对照测试控制漂移。
 
 ## Open Questions
-
-实施前需要用当前代码和消费者证据冻结三项内容：最终 `materials-*` identity 清单、公共 JSON Check 的文件范围/大小上限、package API projection 的 Gate owner。它们是 Plan Readiness，不需要另建用户决策；证据不足时暂停实现而不是猜测。
+已闭合：最终 identity 为 `materials-json-validator`、`materials-schema-validator`、`materials-schema-publication-validator`、`materials-examples-validator`、`materials-links-validator`；公共 JSON Check 采用 `jsonValidation`，覆盖同一 `docs/**/*.json` corpus，2 MiB 上限覆盖当前最大 1,203,838 bytes 的调查资源；公共 `jsonSchemaValidation` 注册五份 schema 并绑定四份 report example。schema inventory/publication drift、machine artifact 集合和 links diagnostics 继续由直接调用的 repository-material provider 负责，不经过 workflow dispatcher。真实 corpus 当前包含 89 个 JSON、5 个 schema、4 个 report examples 和 471 个本地链接材料，材料 focused Gate 与完整 required Gate 均通过。package API projection 仍由 package-material tooling 与 package acceptance owning Case 负责，不加入材料 Gate Check。
