@@ -77,11 +77,12 @@ describe("Project Gate documentation native diagnostics", () => {
       assert.equal(productRun.outputs.progressRendering.status, "succeeded");
       const outcome = productRun.snapshot.checks[0]?.outcome;
       if (outcome?.status !== "failed") throw new Error("fixture docs Check must fail");
-      assert.deepEqual(outcome.data, {
+      assert.deepEqual(jsonRoundTrip(outcome.data), {
         diagnosticCode: "docs-links-validator-invalid",
         diagnosticCount: 12,
         outcome: "failed"
       });
+      assert.equal(Object.getPrototypeOf(outcome.data), null);
       assert.equal(productRun.snapshot.records.length, 12);
       assert.equal(
         existsSync(join(artifactRoot, "checks", "docs-links-validator", "process.log")),
@@ -95,10 +96,11 @@ describe("Project Gate documentation native diagnostics", () => {
       }));
       assert.deepEqual(
         productRun.snapshot.records
-          .map(({ checkId, data, id }) => ({ checkId, data, id }))
+          .map((record) => machineRecordFact(jsonRoundTrip(record)))
           .sort(compareRecordIdentity),
         expectedRecords.sort(compareRecordIdentity)
       );
+      assert.equal(Object.getPrototypeOf(productRun.snapshot.records[0]?.data), null);
 
       const machineRecords = readFileSync(join(artifactRoot, "machine", "records.ndjson"), "utf8")
         .trim()
@@ -107,7 +109,9 @@ describe("Project Gate documentation native diagnostics", () => {
       assert.equal(machineRecords.length, 12);
       assert.deepEqual(
         machineRecords.map(machineRecordFact).sort(compareRecordIdentity),
-        expectedRecords.sort(compareRecordIdentity)
+        diagnostics
+          .map(({ data, id }) => ({ checkId: "docs-links-validator", data, id }))
+          .sort(compareRecordIdentity)
       );
 
       const checkMessages = productRun.checkMessages.filter(
@@ -202,4 +206,8 @@ function machineRecordFact(value: unknown): Readonly<{
     throw new Error("Machine publication must contain a diagnostic Record");
   }
   return { checkId: value.checkId, data: value.data, id: value.id };
+}
+
+function jsonRoundTrip(value: unknown): unknown {
+  return JSON.parse(JSON.stringify(value)) as unknown;
 }

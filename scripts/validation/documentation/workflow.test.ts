@@ -69,13 +69,13 @@ test("docs validation returns typed expected failures and keeps the Gate path co
     }
   );
   const invocation = await invokeDocsValidationCheck(check, "fixture/docs-validation");
-  assert.deepEqual(invocation.records, [
+  assert.deepEqual(jsonRoundTrip(invocation.records), [
     {
-      data: diagnostic.data,
+      data: jsonRoundTrip(diagnostic.data),
       identity: { id: "missing-local-link:docs%2Ftyped-validation-link-fixture.md:1:1:1" }
     }
   ]);
-  assert.deepEqual(invocation.result, {
+  assert.deepEqual(jsonRoundTrip(invocation.result), {
     data: {
       diagnosticCode: "docs-links-validator-invalid",
       diagnosticCount: 1,
@@ -153,7 +153,7 @@ test("docs direct validation fails closed while the Gate adapter projects its sa
     }
   );
   const invocation = await invokeDocsValidationCheck(check, "fixture/docs-validation-unsafe");
-  assert.deepEqual(invocation.result, {
+  assert.deepEqual(jsonRoundTrip(invocation.result), {
     data: {
       diagnosticCode: "docs-links-validator-invalid",
       diagnosticCount: 1,
@@ -168,13 +168,18 @@ test("docs direct validation fails closed while the Gate adapter projects its sa
     ],
     status: "failed"
   });
-  assert.deepEqual(invocation.records, [
+  assert.deepEqual(jsonRoundTrip(invocation.records), [
     {
       data: { kind: "fixture" },
       identity: { id: "fixture:unsafe-presentation" }
     }
   ]);
+  assert.equal(Object.getPrototypeOf(invocation.records[0]?.data), null);
 });
+
+function jsonRoundTrip(value: unknown): unknown {
+  return JSON.parse(JSON.stringify(value)) as unknown;
+}
 
 async function invokeDocsValidationCheck(
   check: ReturnType<typeof createDocsValidationCheck>,
