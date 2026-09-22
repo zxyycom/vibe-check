@@ -349,6 +349,7 @@
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b",
       "260920-configure-package-checks-through-constructor-options": "sha256:c45c93f46e0435fd1ec5de0403366d078a839b0b802fc30a142d8c7ba6bd0958",
       "260920-extend-command-check-with-caller-owned-completion": "sha256:d31e73e1254bad1dc7805296b64317b4676e3f1b00b54f66df8a8259c1b71a55",
+      "260922-adopt-repository-material-change-selection": "sha256:ef8366881d4e74e5c259fed3371ac66c93c33a10229b7430878a23523b65444d",
       "260922-migrate-project-gate-process-checks-to-command-check": "sha256:5fb2011b6a55b3c96ca4ff9ae8b216a64ca52dda356d7ec03832c98f4b3ac884",
       "260922-reorganize-project-gate-material-selection": "sha256:b5985d5c79783387c8ab58662d813837a1cdc599dde500d2df6a67775a8a81ce"
     },
@@ -7204,6 +7205,23 @@
       "tags": [
         "configuration",
         "product-contract"
+      ],
+      "relations": []
+    },
+    "260922-adopt-repository-material-change-selection": {
+      "name": "adopt-repository-material-change-selection",
+      "sourcePath": "adopt-repository-material-change-selection.md",
+      "title": "采用 repository-material 变化选择",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-22T17:02:29Z",
+      "purpose": "让 Gate 的输入闭合材料 Checks 共享保守的变更选择边界",
+      "background": "材料生成会读取 Product 与 shared scripts，但默认 required 仍静态执行",
+      "decision": "用覆盖 src 和 scripts 的 repository-material region 选择闭合 Check，并让 links 保持全量",
+      "tags": [
+        "configuration",
+        "repository-automation",
+        "workflow-policy"
       ],
       "relations": []
     },

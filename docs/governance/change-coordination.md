@@ -49,7 +49,7 @@ document registry、examples 或 installed-consumer 材料，则在对应 Gate/P
 
 | 状态 | Change | 当前动作 |
 | --- | --- | --- |
-| 现在推进 | P0-1 change flags + DSL | 冻结 changed-path corpus 与 selection 矩阵，接入现有 flag DSL。 |
+| 现在推进 | P0-1 change flags + DSL | `repository-material` corpus 已冻结并接入现有 flag DSL；完成当前 Change 的全量 Gate 验证后，P0-2 才能消费该选择事实。 |
 | 排队等待 | P0-2 Markdown lint dogfood | 先调查 corpus；继承 P0-1 的选择事实后形成 Plan 并实施。 |
 | 不进入本轮 | 其它 Draft/Plan | 只有解除条件或用户明确调整优先级时重新排队。 |
 

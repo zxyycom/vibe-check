@@ -18,7 +18,7 @@ Project Definition 已能从 `origin/main` 形成变更文件事实，也已提�
 
 ### Intended Change
 
-在 P0-0 的 `materials` preset 和稳定 Check identity 上新增 `repository-material` region，冻结 include/exclude corpus，并在 Gate eligibility 中使用现有 `changeFlag`、`all`、`any` 和 `propagateDependsOn`。
+在稳定的 [repository-material owner](../../docs/tooling/repository-material-validation.md) 所定义的 `materials` preset、Check identity 与输入边界上新增 `repository-material` region，冻结 include/exclude corpus，并在 Gate eligibility 中使用现有 `changeFlag`、`all`、`any` 和 `propagateDependsOn`。
 
 ### Resulting Impacts
 

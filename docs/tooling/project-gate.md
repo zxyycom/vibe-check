@@ -95,6 +95,12 @@ string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，
 运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
 Gate 只拥有 manifest projection 与其验证。
 
+required 的四个输入闭合材料 Checks 使用 `(required AND changeFlag("repository-material")) OR materials OR all`；
+region 保守包括 `src/**` 和 `scripts/**`，因为 schema/example publication 的生成会读取 Product schema、serializer 和
+执行模型，而不只读取 checked-in `docs/**`。可信零匹配时它们保留 not-applicable，Git unavailable 时 Product 注入 flag 而保守执行。`materials-links-validator`
+不使用该增量条件，因为 Markdown 链接可引用 region 外 target，反向依赖尚未建模；它继续是 required 和 `materials`
+成员。`quality` focused path 仍只由 quality preset 选择，绝不依赖材料 change flag。
+
 Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 required 与
 每个 preset 的选择闭合，以保证观察输入可用。`observes` 不传播选择。任一 owner 自带 `enabledByFlags` 时 Gate 拒绝组合，
 避免覆盖 owner 的 condition。

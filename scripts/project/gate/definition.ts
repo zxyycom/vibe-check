@@ -426,6 +426,25 @@ export function createProjectGateDefinition(
         "product-runtime": {
           exclude: [],
           include: ["src/**"]
+        },
+        "repository-material": {
+          exclude: [],
+          include: [
+            "AGENTS.md",
+            "README.md",
+            ".oxfmtrc.json",
+            ".oxlintrc.json",
+            "changes/**",
+            "docs/**",
+            "mise.lock",
+            "mise.toml",
+            "package.json",
+            "pnpm-lock.yaml",
+            "pnpm-workspace.yaml",
+            "scripts/**",
+            "src/**",
+            "tsconfig.json"
+          ]
         }
       }
     },

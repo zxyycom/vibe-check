@@ -60,6 +60,21 @@ validation path，不进入 current traversal 或 runtime input。
 每项 diagnostic 都包含稳定的 task-local ID、非数组 Record data 和单行 presentation。
 `links` 为每个缺失本地链接的 occurrence 保留 canonical repository-relative source / target、line、column 与 occurrence。
 
+### Gate 增量选择
+
+Project Gate 的 `repository-material` change region 是保守、可复核的材料输入 corpus：`AGENTS.md`、`README.md`、
+`.oxfmtrc.json`、`.oxlintrc.json`、`changes/**`、`docs/**`、`mise.lock`、`mise.toml`、`package.json`、
+`pnpm-lock.yaml`、`pnpm-workspace.yaml`、`tsconfig.json`、`scripts/**` 和 `src/**`。后两项有意宽于直接 validator：schema/example publication 会读取 Product 的 `src/index.ts`、
+machine-output v4 schema、serializer 和执行模型，shared scripts 也会改变 provider 的输入或投影。它以
+exclude-first 的 Project Definition region 产生同一 effective flag，因而 committed、staged、unstaged、untracked、
+rename 和 deletion 都按同一 corpus 判断；Git evidence unavailable 时 Product 保守注入该 flag，不能把失败伪装成零变化。
+
+`materials-json-validator`、`materials-schema-validator`、`materials-schema-publication-validator` 和
+`materials-examples-validator` 的输入在此保守 corpus 中闭合。它们仅在 required 且 region changed 时增量执行；
+`--materials` 和 `--all` 始终强制执行，已选 Check 的 `dependsOn` closure 仍由 Product 处理。
+`materials-links-validator` 不采用该条件：Markdown source 对 repository 内任意 target 的反向依赖尚未建模，
+所以 required、`--materials` 与 `--all` 继续完整运行它。此限制同样避免 `--quality` 的质量 Check 因材料零变化被抑制。
+
 ### 调用方如何呈现结果
 
 - **`validateRepositoryMaterials({ report })`：** 只通过显式 reporter 发布 success；typed failed result 不调用 reporter。

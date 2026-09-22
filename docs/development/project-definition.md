@@ -127,6 +127,10 @@ container/executable 形状、children、flag condition、direct relations、mut
 Git revision resolution、derived-token injection、unavailable fallback 和 callback context 是 [Project Run](project-run.md#change-preparation-and-flag-projection)
 的责任；普通 caller tokens 不受 Definition 词汇表限制。
 
+Project-specific region 只能在其 owner 已证明完整输入边界后用于增量 selection；region 外会影响结果的反向依赖必须保留全量
+membership。Project Gate 的 `repository-material` corpus、闭合 Check 与 links 的保守例外由
+[仓库材料验证](../tooling/repository-material-validation.md#gate-增量选择)拥有。
+
 ### Scheduler 配置
 
 公开 resource mapping、policy grammar 和 callback proposals 由[调度指南](../guides/scheduling.md)定义。validator 在 work 前关闭 scheduler grammar：resource ID 必须含非空白字符，capacities/claims 使用正 safe integer；每个 effective claim 必须引用已声明资源且不超过 capacity。normalizer 将省略 capacities 变为冻结 `{}`，并将 canonical capacities/effective claims 纳入 fingerprint。

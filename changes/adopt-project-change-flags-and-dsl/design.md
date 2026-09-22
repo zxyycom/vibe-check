@@ -7,7 +7,7 @@
 - `definition.ts` 当前声明 `product-runtime: src/**`；`eligibility.ts` 已将 required、focused preset 和 all 投影为 public flag conditions。
 - `controls.ts` 已将 focused argv 映射为 `project-gate:preset=<name>`，本 Change 不增加 argv translator。
 - Product 一次准备 committed、staged、unstaged、untracked、rename 和 deletion evidence；可信零命中与 unavailable 分开表达。
-- P0-0 先冻结 `materials` preset、Check identity、输入清单和 mutex；P0-1 只消费这份事实。
+- [repository-material owner](../../docs/tooling/repository-material-validation.md) 已定义 `materials` preset、Check identity、输入清单和 mutex；本 Change 只消费这些稳定事实。
 
 ## Goals / Non-Goals
 
@@ -20,7 +20,7 @@
 
 ### Intended Change
 
-1. 以 P0-0 的材料输入清单为 region 候选，覆盖实际影响材料验收的 docs、changes、schemas/examples、validator/provider、package/config 文件；最终 glob 与 exclude 由 corpus 冻结，优先避免漏检。
+1. 以 repository-material owner 的材料输入清单为 region 候选，覆盖实际影响材料验收的 docs、changes、schemas/examples、validator/provider、package/config 文件；最终 glob 与 exclude 由 corpus 冻结，优先避免漏检。
 2. 为每个材料 Check 标注两项事实：输入是否完全由 region 覆盖，以及是否存在 region 外的反向依赖。只有输入闭合且没有未建模反向依赖的 Check 才进入默认增量选择；links 等需要全仓反向关系的 Check 维持全量 membership，直到有证据支持更细策略。
 3. 材料 preset 和 all 是显式全量路径；required 的增量条件只影响直接 root，`propagateDependsOn: true` 仍由 Product 处理依赖。focused `materials`、focused `quality` 和组合 preset 继续表达 caller intent，不复制 closure。
 4. 使用现有条件组合表达选择：`any(all(PROJECT_GATE_REQUIRED_FLAG, changeFlag("repository-material")), projectGatePresetFlag("materials"), PROJECT_GATE_ALL_FLAG)`；只有真实矩阵需要时才增加其它 operator。
@@ -41,4 +41,4 @@
 
 ## Open Questions
 
-实施前需从 P0-0 结果确认可增量 Check 清单、region glob/exclude 和 links 的反向依赖证据；这些是 readiness 证据，不要求额外用户决策。
+`repository-material` 已保守覆盖 `src/**`、`scripts/**` 与相关根配置；隔离副本中的真实 schema-publication provider 证明 Product schema drift 会在 default required 被选择并失败。links 的反向 target dependency 仍未建模，故保留全量 membership，不是开放的增量授权。
