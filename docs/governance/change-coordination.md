@@ -28,18 +28,37 @@ package material、lockfile 或稳定文档 owner 时，按序位串行实施与
 
 | 序位 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| 1 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 以已交付的 Markdown lint contract 为基线，依据 workload 数据作出 cache adopt 或 not-adopt 决定；key matrix 与 storage spike 可提前准备。 |
-| 2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以已交付的 feature families、字段 owner 和真实 Gate 构建路径固定 fragment grammar、冲突规则与 Gate projection。 |
+| P0-0 | [`reorganize-repository-material-gate-checks`](../../changes/reorganize-repository-material-gate-checks/proposal.md) | 先完成 repository-material 的责任拆分、canonical `materials` 入口和新 Check identity；当前入口采用一次性语义切换。 |
+| P0-1 | [`adopt-project-change-flags-and-dsl`](../../changes/adopt-project-change-flags-and-dsl/proposal.md) | 继承 P0-0 的 `materials`/`repository-material` 语义，冻结 changed-path corpus 和选择矩阵，再让 Gate 使用第二类 change region 与现有 flag DSL。 |
+| P0-2 | [`adopt-markdown-lint-in-project-gate`](../../changes/adopt-markdown-lint-in-project-gate/proposal.md) | 继承 P0-0/P0-1 的材料 owner 与 selection 事实，接入真实 Markdown corpus，记录 Findings/成本，再决定 advisory、blocking 或有界 not-adopt。 |
+| P1-1 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 只消费 P0-2 已形成的真实 lint workload；据此作出 cache adopt 或 not-adopt 决定，不反向扩大 lint contract。 |
+| P1-2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以 P0 的真实 Gate 组合和 [`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) 为输入，固定 fragment grammar、冲突规则与 Gate projection。 |
 
 [`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) 作为独立文档线现在即可推进。
-它只使用实施时已验证的 Current API，并在序位 2 形成 Plan 前完成，以真实构建路径检验配置组合需求。
-若它与主队列共享 README、package document registry、examples 或 installed-consumer 材料，则与对应主队列
-提交串行合入。
+它只使用实施时已验证的 Current API；可与 P0-0/P0-1/P0-2 并行完成调查和 Plan 收敛，但若共享 README、package
+document registry、examples 或 installed-consumer 材料，则在对应 Gate/Package Change 后串行合入。
 
 主队列包含两条约束：
 
-1. Cache Change 只消费已交付的 Markdown lint contract，不反向扩大首版规则、Finding 或资源边界。
-2. 已交付 feature families 与 Gate building guide 先提供真实组合场景，config package Change 再固定公共抽象。
+1. P0 的三个 Change 可以并行进行调查和 Plan 收敛，但它们都修改 Gate manifest、repository material owner 或稳定 Gate 文档，实施与合入按 P0-0 → P0-1 → P0-2 串行。
+2. Cache Change 只消费 P0-2 的真实 workload，不反向扩大首版规则、Finding 或资源边界；config package 只在真实组合已证明重复成本后固定公共抽象。
+
+### 优先级与并行矩阵
+
+优先级按“能否立即在本项目获得反馈”而不是 API 新旧排序。调查/Plan 可并行，代码、Case 账本、Gate manifest、lockfile
+和稳定文档共享 owner 时必须串行。
+
+| 轨道 | 优先级 | 可与谁并行 | 必须等待/串行原因 |
+| --- | --- | --- | --- |
+| Repository material reorganization | P0 | flags/DSL、Markdown lint 的 corpus 调查；Gate building guide | 先冻结 canonical owner/preset，避免新功能继续挂到 `docs` 语义下。 |
+| Change flags + DSL | P0 | material reorganization、Markdown lint corpus 调查；Gate building guide | 等 P0-0 冻结 `materials` owner、Check identity 和 `repository-material` region 后确定 effective selection。 |
+| Markdown lint dogfood | P0 | material reorganization、flags/DSL 的 corpus 调查 | 接入 material owner、独立 lint identity、`repository-quality.ts`/`definition.ts` 后与其它 Gate manifest 改动串行。 |
+| Project Gate building guide | P1 | 全部 P0 调查、scheduler 证据 | 只消费已验证 API；共享 package docs 时按实际 diff 串行。 |
+| Markdown lint cache | P1 | config package 的设计讨论 | 必须先有 lint 实际 workload；不与 lint 首次接线并行实施。 |
+| Config packages | P2 | scheduler 证据、Gate guide 调查 | 需要 P0 的真实组合场景，且会改变 package authoring/Definition owner。 |
+| Scheduler evidence queue | P1/P2 | P0 的文档/安全 corpus | 不修改 Gate quality manifest；若改 scheduler/runtime，按 scheduler 队列内部顺序串行。 |
+
+P0 不是授权立即修改 Product 或把所有新 Check 设为 blocking；每个 Change 仍须按自身 artifacts、测试和用户授权实施。
 
 ### Scheduler 证据队列
 
