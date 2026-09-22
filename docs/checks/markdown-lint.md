@@ -129,4 +129,4 @@ if (outcome.status === "not-applicable") console.warn("No Markdown input selecte
 
 ## 适用边界
 
-本 Check 默认 advisory，不加入 Project Gate selection 或 quality preset。repository dogfood、blocking migration 与 persistent cache 均由独立 Change 决定；不能据此推断本 Check 已被仓库 Gate 执行。
+本 Check 的 package 默认仍为 advisory。Project Gate 当前以独立的 `markdown-lint` identity 采用它：完整 `docs/**/*.md` 与 `changes/**/*.md` corpus 固定使用八项默认规则、保留 non-blocking Finding policy，并在 repository-material changed 的 required path 以及 `--materials`、`--quality`、`--all` force path 执行。该仓库策略不改变 consumer 默认值、backend、规则或 cache，也不替代独立的 Markdown link validation；blocking migration 与 persistent cache 仍由独立 Change 决定。

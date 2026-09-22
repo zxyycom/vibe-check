@@ -89,6 +89,7 @@ const expectedCheckIds = [
   "duplicate-detection",
   "file-metrics",
   "function-metrics",
+  "markdown-lint",
   "markdown-link-validation",
   "materials-json-validator",
   "materials-schema-validator",
@@ -105,6 +106,7 @@ const qualityCheckIds: ReadonlySet<string> = new Set([
   "duplicate-detection",
   "file-metrics",
   "function-metrics",
+  "markdown-lint",
   "markdown-link-validation"
 ]);
 const bunTestRunnerCheckIds: readonly string[] = expectedCheckIds.filter((checkId) =>
@@ -119,6 +121,7 @@ const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "tests-package-consumer-runtime"
 ]);
 const incrementalRepositoryMaterialCheckIds: ReadonlySet<string> = new Set([
+  "markdown-lint",
   "materials-json-validator",
   "materials-schema-validator",
   "materials-schema-publication-validator",
@@ -149,6 +152,7 @@ const expectedCheckIdsBySelection: readonly Readonly<{
       "duplicate-detection",
       "file-metrics",
       "function-metrics",
+      "markdown-lint",
       "markdown-link-validation",
       "materials-json-validator",
       "materials-schema-validator",
@@ -646,6 +650,7 @@ describe("Project Gate Definition", () => {
       }
     );
     for (const checkId of incrementalRepositoryMaterialCheckIds) {
+      if (checkId === "markdown-lint") continue;
       assert.deepEqual(
         definition.checks.find((check) => check.checkId === checkId)?.enabledByFlags,
         {
@@ -664,6 +669,24 @@ describe("Project Gate Definition", () => {
         }
       );
     }
+    assert.deepEqual(
+      definition.checks.find((check) => check.checkId === "markdown-lint")?.enabledByFlags,
+      {
+        when: {
+          kind: "any",
+          conditions: [
+            {
+              kind: "all",
+              conditions: ["project-gate:required", "vibe-check:change:repository-material"]
+            },
+            "project-gate:preset=materials",
+            "project-gate:preset=quality",
+            "project-gate:all"
+          ]
+        },
+        propagateDependsOn: true
+      }
+    );
     for (const packageCheckId of packageAcceptanceCheckIds) {
       const entry = entries.find(({ check }) => check.checkId === packageCheckId);
       assert.ok(entry, `${packageCheckId} must exist`);

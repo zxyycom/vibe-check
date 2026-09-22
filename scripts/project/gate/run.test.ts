@@ -120,6 +120,7 @@ const expectedCheckIds = [
   "duplicate-detection",
   "file-metrics",
   "function-metrics",
+  "markdown-lint",
   "markdown-link-validation",
   "materials-json-validator",
   "materials-schema-validator",

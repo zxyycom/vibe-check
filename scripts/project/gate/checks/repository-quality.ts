@@ -4,10 +4,12 @@ import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLint,
   markdownLinkValidation,
   type DuplicateDetectionOptions,
   type FileMetricsOptions,
   type FunctionMetricsOptions,
+  type MarkdownLintOptions,
   type MarkdownLinkValidationOptions
 } from "@zxyycom/vibe-check";
 
@@ -62,11 +64,22 @@ const productFunctionMetricTestExclusions = [
   "src/**/*.test.ts",
   "src/**/*.test-support.ts"
 ] as const;
+const repositoryMarkdownLintRules = [
+  "heading-increment",
+  "no-reversed-links",
+  "no-missing-space-atx",
+  "fenced-code-language",
+  "no-empty-links",
+  "no-alt-text",
+  "reference-links-images",
+  "table-column-count"
+] as const satisfies NonNullable<MarkdownLintOptions["rules"]>;
 
 export interface RepositoryQualityCheckOptions {
   readonly duplicateDetection: DuplicateDetectionOptions;
   readonly fileMetrics: Omit<FileMetricsOptions, "scanner">;
   readonly functionMetrics: FunctionMetricsOptions;
+  readonly markdownLint: MarkdownLintOptions;
   readonly markdownLinkValidation: MarkdownLinkValidationOptions;
 }
 
@@ -74,6 +87,7 @@ export interface RepositoryQualityChecks {
   readonly duplicateDetection: ReturnType<typeof duplicateDetection>;
   readonly fileMetrics: ReturnType<typeof fileMetrics>;
   readonly functionMetrics: ReturnType<typeof functionMetrics>;
+  readonly markdownLint: ReturnType<typeof markdownLint>;
   readonly markdownLinkValidation: ReturnType<typeof markdownLinkValidation>;
 }
 
@@ -187,6 +201,12 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
     },
     findingPolicy: "blocking"
   },
+  markdownLint: {
+    checkId: "markdown-lint",
+    files: { exclude: [], include: ["docs/**/*.md", "changes/**/*.md"] },
+    findingPolicy: "non-blocking",
+    rules: repositoryMarkdownLintRules
+  },
   markdownLinkValidation: {
     files: {
       ...areaFileDefaults,
@@ -205,7 +225,7 @@ export function repositoryQualityScannerCommands(
   });
 }
 
-/** Binds the root Definition's repository policy to the four package Check constructors. */
+/** Binds the root Definition's repository policy to its package Check constructors. */
 export function createRepositoryQualityChecks(
   options: RepositoryQualityCheckOptions,
   scanners: RepositoryQualityScannerCommands = repositoryQualityScannerCommands()
@@ -217,6 +237,7 @@ export function createRepositoryQualityChecks(
       scanner: { executable: absoluteScannerCommand(scanners.scc, MISE_SCC_COMMAND_ENV) }
     }),
     functionMetrics: functionMetrics(options.functionMetrics),
+    markdownLint: markdownLint(options.markdownLint),
     markdownLinkValidation: markdownLinkValidation(options.markdownLinkValidation)
   });
 }

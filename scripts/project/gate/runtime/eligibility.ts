@@ -9,6 +9,7 @@ import type { ProjectGateEntry } from "./entries.ts";
 
 const PROJECT_GATE_PRODUCT_RUNTIME_TEST_CHECK_ID = "tests-product-runtime";
 const PROJECT_GATE_INCREMENTAL_REPOSITORY_MATERIAL_CHECK_IDS = new Set([
+  "markdown-lint",
   "materials-json-validator",
   "materials-schema-validator",
   "materials-schema-publication-validator",
@@ -43,7 +44,8 @@ export function projectGateFlagControlledCheck(entry: ProjectGateEntry): Check {
 
 /**
  * Limits only material Checks whose complete inputs are described by the
- * repository-material region. Link validation stays on its normal full path:
+ * repository-material region. Markdown lint also runs on the quality force path.
+ * Link validation stays on its normal full path:
  * a changed target outside a Markdown source is a reverse dependency that the
  * region does not model.
  */
@@ -57,6 +59,7 @@ function incrementalRepositoryMaterialEnablement(
     when: any(
       all(PROJECT_GATE_REQUIRED_FLAG, changeFlag("repository-material")),
       projectGatePresetFlag("materials"),
+      ...(entry.check.checkId === "markdown-lint" ? [projectGatePresetFlag("quality")] : []),
       PROJECT_GATE_ALL_FLAG
     ),
     propagateDependsOn: true as const

@@ -5,7 +5,7 @@ import { isAbsolute, join } from "node:path";
 import { describe, it } from "node:test";
 import { minimatch } from "minimatch";
 
-import { run as packageRun } from "@zxyycom/vibe-check";
+import { defineConfig, markdownLint, run as packageRun } from "@zxyycom/vibe-check";
 import {
   createRepositoryQualityChecks,
   PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS,
@@ -26,21 +26,52 @@ describe("repository quality Checks", () => {
         checks.duplicateDetection.checkId,
         checks.fileMetrics.checkId,
         checks.functionMetrics.checkId,
+        checks.markdownLint.checkId,
         checks.markdownLinkValidation.checkId
       ],
-      ["duplicate-detection", "file-metrics", "function-metrics", "markdown-link-validation"]
+      [
+        "duplicate-detection",
+        "file-metrics",
+        "function-metrics",
+        "markdown-lint",
+        "markdown-link-validation"
+      ]
     );
-    const { duplicateDetection, fileMetrics, functionMetrics, markdownLinkValidation } = checks;
+    const {
+      duplicateDetection,
+      fileMetrics,
+      functionMetrics,
+      markdownLint: markdownLintCheck,
+      markdownLinkValidation
+    } = checks;
     assert.equal(duplicateDetection.options.codeAreas["product-source"]?.findingPolicy, "blocking");
     assert.equal(fileMetrics.options.codeAreas["product-source"]?.findingPolicy, "blocking");
     assert.equal(markdownLinkValidation.options.findingPolicy, "blocking");
-    assert.deepEqual(markdownLinkValidation.options.files, {
-      exclude: duplicateDetection.options.codeAreas["product-source"]?.files.exclude.filter(
+    assert.equal(markdownLintCheck.options.findingPolicy, "non-blocking");
+    assert.deepEqual(markdownLintCheck.options.rules, [
+      "heading-increment",
+      "no-reversed-links",
+      "no-missing-space-atx",
+      "fenced-code-language",
+      "no-empty-links",
+      "no-alt-text",
+      "reference-links-images",
+      "table-column-count"
+    ]);
+    assert.deepEqual(markdownLintCheck.options.files.exclude, []);
+    assert.deepEqual(markdownLintCheck.options.files.include, ["docs/**/*.md", "changes/**/*.md"]);
+    assert.equal(markdownLintCheck.options.files.source, "filesystem");
+    assert.deepEqual(
+      markdownLinkValidation.options.files.exclude,
+      duplicateDetection.options.codeAreas["product-source"]?.files.exclude.filter(
         (path) => !path.startsWith(analyzerPathPrefix)
-      ),
-      include: ["docs/**/*.md", "changes/**/*.md"],
-      source: "filesystem"
-    });
+      )
+    );
+    assert.deepEqual(markdownLinkValidation.options.files.include, [
+      "docs/**/*.md",
+      "changes/**/*.md"
+    ]);
+    assert.equal(markdownLinkValidation.options.files.source, "filesystem");
     assert.equal(fileMetrics.options.scanner.executable, "/tools/scc");
     assert.equal(Object.hasOwn(functionMetrics.options, "scanner"), false);
     assert.equal(functionMetrics.options.codeAreas["product-source"]?.findingPolicy, "blocking");
@@ -198,7 +229,7 @@ describe("repository quality Checks", () => {
     assert.equal(Object.hasOwn(checks.functionMetrics.options, "scanner"), false);
   });
 
-  it("settles all four blocking repository-quality Checks through the existing Gate aggregate", async () => {
+  it("settles four blocking Checks while retaining advisory Markdown lint Findings", async () => {
     const cleanRoot = createRepositoryQualityFixture(false);
     const findingRoot = createRepositoryQualityFixture(true);
     try {
@@ -210,6 +241,7 @@ describe("repository quality Checks", () => {
         "duplicate-detection": "passed",
         "file-metrics": "passed",
         "function-metrics": "passed",
+        "markdown-lint": "passed",
         "markdown-link-validation": "passed"
       });
       assert.equal(zeroFindings.snapshot.records.length, 0);
@@ -221,6 +253,7 @@ describe("repository quality Checks", () => {
         "duplicate-detection": "failed",
         "file-metrics": "failed",
         "function-metrics": "failed",
+        "markdown-lint": "passed",
         "markdown-link-validation": "failed"
       });
       assert.equal(normalFindings.aggregate, "failed");
@@ -228,6 +261,40 @@ describe("repository quality Checks", () => {
     } finally {
       rmSync(cleanRoot, { force: true, recursive: true });
       rmSync(findingRoot, { force: true, recursive: true });
+    }
+  });
+
+  it("preserves Product-owned empty and unavailable Markdown lint outcomes", async () => {
+    const emptyRoot = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-markdown-empty-"));
+    const missingRoot = join(emptyRoot, "missing-root");
+    try {
+      const check = markdownLint({ files: { include: ["docs/**/*.md"] } });
+      const definition = defineConfig({
+        checks: [check],
+        outputs: {
+          diagnosticLogging: { enabled: false },
+          machinePublication: { enabled: false },
+          progressRendering: { enabled: false }
+        }
+      });
+      const empty = await packageRun(definition, { projectRoot: emptyRoot });
+      const unavailable = await packageRun(definition, { projectRoot: missingRoot });
+
+      assert.equal(empty.kind, "completed");
+      assert.equal(unavailable.kind, "completed");
+      if (empty.kind !== "completed" || unavailable.kind !== "completed") return;
+      assert.deepEqual(empty.snapshot.checks[0]?.outcome, {
+        status: "not-applicable",
+        reason: { code: "no-eligible-input" }
+      });
+      assert.deepEqual(unavailable.snapshot.checks[0]?.outcome, {
+        status: "unavailable",
+        reason: { code: "source-unavailable" }
+      });
+      assert.deepEqual(empty.snapshot.records, []);
+      assert.deepEqual(unavailable.snapshot.records, []);
+    } finally {
+      rmSync(emptyRoot, { force: true, recursive: true });
     }
   });
 });
@@ -279,6 +346,11 @@ async function runRepositoryQualityFixture(projectRoot: string) {
       markdownLinkValidation: {
         files: { exclude: [], include: ["docs/**/*.md"], source: "filesystem" },
         findingPolicy: "blocking"
+      },
+      markdownLint: {
+        files: { exclude: [], include: ["docs/**/*.md"], source: "filesystem" },
+        findingPolicy: "non-blocking",
+        rules: ["no-missing-space-atx"]
       }
     },
     { scc: join(projectRoot, "scc.mjs") }
@@ -287,6 +359,7 @@ async function runRepositoryQualityFixture(projectRoot: string) {
     { check: checks.duplicateDetection, presets: ["quality"], required: false },
     { check: checks.fileMetrics, presets: ["quality"], required: false },
     { check: checks.functionMetrics, presets: ["quality"], required: false },
+    { check: checks.markdownLint, presets: ["quality"], required: false },
     { check: checks.markdownLinkValidation, presets: ["quality"], required: false }
   ]);
 
@@ -319,7 +392,7 @@ function createRepositoryQualityFixture(withNormalFindings: boolean): string {
   writeFileSync(join(docsDirectory, "target.md"), "# Target\n", "utf8");
   writeFileSync(
     join(docsDirectory, "guide.md"),
-    withNormalFindings ? "[missing](missing.md)\n" : "[target](target.md)\n",
+    withNormalFindings ? "#Heading\n\n[missing](missing.md)\n" : "[target](target.md)\n",
     "utf8"
   );
   writeQualityFixtureScanner(projectRoot, "jscpd.mjs", duplicateScannerSource(withNormalFindings));

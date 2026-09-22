@@ -297,6 +297,11 @@ function createProjectGateRepositoryQualityEntries(
         required: true
       }),
       createProjectGateCommonEntry({
+        check: repositoryQuality.markdownLint,
+        presets: ["materials", "quality"],
+        required: true
+      }),
+      createProjectGateCommonEntry({
         check: repositoryQuality.markdownLinkValidation,
         presets: ["materials", "quality"],
         required: true

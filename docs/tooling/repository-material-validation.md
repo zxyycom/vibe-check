@@ -69,9 +69,9 @@ machine-output v4 schema、serializer 和执行模型，shared scripts 也会改
 exclude-first 的 Project Definition region 产生同一 effective flag，因而 committed、staged、unstaged、untracked、
 rename 和 deletion 都按同一 corpus 判断；Git evidence unavailable 时 Product 保守注入该 flag，不能把失败伪装成零变化。
 
-`materials-json-validator`、`materials-schema-validator`、`materials-schema-publication-validator` 和
-`materials-examples-validator` 的输入在此保守 corpus 中闭合。它们仅在 required 且 region changed 时增量执行；
-`--materials` 和 `--all` 始终强制执行，已选 Check 的 `dependsOn` closure 仍由 Product 处理。
+`materials-json-validator`、`materials-schema-validator`、`materials-schema-publication-validator`、
+`materials-examples-validator` 和 `markdown-lint` 的输入在此保守 corpus 中闭合。它们仅在 required 且 region changed 时增量执行；
+`--materials` 和 `--all` 始终强制执行，`markdown-lint` 还由 `--quality` 强制执行，已选 Check 的 `dependsOn` closure 仍由 Product 处理。
 `materials-links-validator` 不采用该条件：Markdown source 对 repository 内任意 target 的反向依赖尚未建模，
 所以 required、`--materials` 与 `--all` 继续完整运行它。此限制同样避免 `--quality` 的质量 Check 因材料零变化被抑制。
 

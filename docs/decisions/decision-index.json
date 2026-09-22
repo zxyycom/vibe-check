@@ -349,6 +349,7 @@
       "260915-retain-on-demand-project-file-collection": "sha256:ceffd3287dab422e016d8f366ffee3a4a3d416673419dd6f3c21924196e7e37b",
       "260920-configure-package-checks-through-constructor-options": "sha256:c45c93f46e0435fd1ec5de0403366d078a839b0b802fc30a142d8c7ba6bd0958",
       "260920-extend-command-check-with-caller-owned-completion": "sha256:d31e73e1254bad1dc7805296b64317b4676e3f1b00b54f66df8a8259c1b71a55",
+      "260922-adopt-project-gate-markdown-lint-advisory": "sha256:917a90bfb946b4904adfc4ec44d4fc940007c867eb774fc3196e5dcd22c228ac",
       "260922-adopt-repository-material-change-selection": "sha256:ef8366881d4e74e5c259fed3371ac66c93c33a10229b7430878a23523b65444d",
       "260922-migrate-project-gate-process-checks-to-command-check": "sha256:5fb2011b6a55b3c96ca4ff9ae8b216a64ca52dda356d7ec03832c98f4b3ac884",
       "260922-reorganize-project-gate-material-selection": "sha256:b5985d5c79783387c8ab58662d813837a1cdc599dde500d2df6a67775a8a81ce"
@@ -7205,6 +7206,23 @@
       "tags": [
         "configuration",
         "product-contract"
+      ],
+      "relations": []
+    },
+    "260922-adopt-project-gate-markdown-lint-advisory": {
+      "name": "adopt-project-gate-markdown-lint-advisory",
+      "sourcePath": "adopt-project-gate-markdown-lint-advisory.md",
+      "title": "采用 Project Gate Markdown lint advisory",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-22T17:33:12Z",
+      "purpose": "让 Gate 真实持续提供 Markdown lint evidence 而不把既有资源噪声变成阻断。",
+      "background": "公开 lint 已交付但尚未接入 Gate，真实 docs/changes corpus 发现集中资源 Finding。",
+      "decision": "Gate 以完整材料范围和 advisory policy 采用独立 markdown-lint。",
+      "tags": [
+        "configuration",
+        "repository-automation",
+        "workflow-policy"
       ],
       "relations": []
     },

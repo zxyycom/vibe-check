@@ -95,11 +95,11 @@ string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，
 运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
 Gate 只拥有 manifest projection 与其验证。
 
-required 的四个输入闭合材料 Checks 使用 `(required AND changeFlag("repository-material")) OR materials OR all`；
+四个既有的输入闭合材料 Checks 使用 `(required AND changeFlag("repository-material")) OR materials OR all`；
 region 保守包括 `src/**` 和 `scripts/**`，因为 schema/example publication 的生成会读取 Product schema、serializer 和
 执行模型，而不只读取 checked-in `docs/**`。可信零匹配时它们保留 not-applicable，Git unavailable 时 Product 注入 flag 而保守执行。`materials-links-validator`
 不使用该增量条件，因为 Markdown 链接可引用 region 外 target，反向依赖尚未建模；它继续是 required 和 `materials`
-成员。`quality` focused path 仍只由 quality preset 选择，绝不依赖材料 change flag。
+成员。`markdown-lint` 的完整 docs/changes input 同样由该 region 闭合，但使用 `(required AND changeFlag("repository-material")) OR materials OR quality OR all`；`quality` focused path 因而总是运行 lint，绝不依赖材料 change flag。links 仍保持全量。
 
 Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 required 与
 每个 preset 的选择闭合，以保证观察输入可用。`observes` 不传播选择。任一 owner 自带 `enabledByFlags` 时 Gate 拒绝组合，
@@ -118,7 +118,7 @@ Gate 保留 root `maxParallel: 3`，并使用两个**逻辑** named-resource bud
 | Resource ID                     | Capacity / unit              | Claiming Checks                                                                                     | 静态分类理由                                                                                                                             |
 | ------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
 | `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有 `tests-*` test-lane Check，各 claim `1`                                                        | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
-| `project-gate-repository-scans` | 2 个并发递归 repository scan | `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-link-validation`，各 claim `1` | 四项都会递归收集或读取 repository inputs；前三项还会运行 scanner 或 worker。预算避免让三项以上同类全树读取重叠，同时不把四项全部串行化。 |
+| `project-gate-repository-scans` | 2 个并发递归 repository scan | `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint`、`markdown-link-validation`，各 claim `1` | 五项都会递归收集或读取 repository inputs；前三项还会运行 scanner 或 worker。预算避免让三项以上同类全树读取重叠，同时不把五项全部串行化。 |
 
 typecheck、lint、format、candidate provider、external-consumer provider 与 native repository-material/governance Checks 不声明 named-resource claim：它们不属于以上同类工作预算；已有 package-lifecycle/repository-material mutex 仍单独表达各自的独占关系。新声明必须先有同样可从 owner 恢复的共享工作特征和逻辑单位；不得因单次时长、高方差或“所有 Check 都用 CPU”扩大这些 budget。Product 继续验证 capacity/claim 合法性并原子持有/释放 units；模拟器可读取版本化映射，但必须自行定义竞争减速，不得从该表推断物理竞争或性能收益。
 
@@ -129,12 +129,12 @@ Gate 只为 file metrics 读取 mise-bound SCC command。
 
 ### Direct repository-quality Checks
 
-`checks/repository-quality.ts` 拥有 `duplicate-detection`、`file-metrics`、`function-metrics` 与
+`checks/repository-quality.ts` 拥有 `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint` 与
 `markdown-link-validation` 的 repository-private options，并向 `definition.ts` 返回一个具名对象组。它们是同一 Project Definition 中可逐项审阅和选择的普通 package Checks，没有独立 quality command 或嵌套 Run。
 
 #### Finding 与状态
 
-Gate 对四项显式使用 `blocking` finding policy：
+Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` finding policy：
 
 - 未被 owning Check 既有 waiver 或 selection exclusion 消除的 normal Finding 保留完整 final data / Records，并令 owning Check `failed`。
 - zero Finding 仍令 Check `passed`。
@@ -142,7 +142,9 @@ Gate 对四项显式使用 `blocking` finding policy：
 
 安全摘要由 owning Check 有上限地输出，超过摘要上限时只追加精确 omitted count。完整 Finding facts 以 machine Records 为准。
 
-四项都是 required 与 `quality` preset 的成员，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断 required、`--quality` 与 `--all` invocation；`markdown-link-validation` 还是 `materials` preset 成员，因此同样阻断 `--materials`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
+这四项都是 required 与 `quality` preset 的成员，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断 required、`--quality` 与 `--all` invocation；`markdown-link-validation` 还是 `materials` preset 成员，因此同样阻断 `--materials`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
+
+`markdown-lint` 是第五个、独立的 docs/changes Check，属于 required、`materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：所有 lint Finding 继续以该 Check 的 Records、消息和 final data 输出，却不使 owning Check 或 aggregate failed。2026-09-22 的 502-source corpus 有 59 条 Finding，集中于三个 investigation/resource source（43 条 table column、16 条 reference link/image）；因此当前没有静默 exclusion、规则更改或 blocking migration。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算；未来若要 blocking，必须由独立 Change 消除或重审该 corpus。
 
 同一 `blocking` policy 适用于 required、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
 
