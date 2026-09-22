@@ -21,50 +21,32 @@
 跨 Change 前置和共享 owner 的合入顺序。目标 Change 的 stage、Readiness、开放问题和实施授权仍由其
 artifacts 决定。
 
-### 主队列
+### 待启动主队列
 
-主队列按当前推荐合入顺序排列。相邻 Change 可以并行完成调查和 Plan 收敛；修改相同 Definition、Run、
-package material、lockfile 或稳定文档 owner 时，按序位串行实施与合入。
+当前材料入口、变更选择和 Markdown lint adoption 已由
+[Project Gate](../tooling/project-gate.md) 与
+[repository-material owner](../tooling/repository-material-validation.md) 承接。
+下列条目是后续候选，不因前置能力已交付而自动获得实施授权。
 
-| 序位 | 当前 Change | 进入条件与完成出口 |
+| 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| P0-2 | [`adopt-markdown-lint-in-project-gate`](../../changes/adopt-markdown-lint-in-project-gate/proposal.md) | 继承当前材料 owner 与已生效的 selection 事实，接入真实 Markdown corpus，记录 Findings/成本，再决定 advisory、blocking 或有界 not-adopt。 |
-| P1-1 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 只消费 P0-2 已形成的真实 lint workload；据此作出 cache adopt 或 not-adopt 决定，不反向扩大 lint contract。 |
-| P1-2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以 P0 的真实 Gate 组合和 [`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) 为输入，固定 fragment grammar、冲突规则与 Gate projection。 |
+| P1 | [`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) | 使用已验证 API 和本项目实际构建路径形成 consumer 指南；与 package docs 共享 owner 的改动串行合入。 |
+| P1 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 以真实 lint workload 为输入，补充重复运行与失效证据后作出 cache adopt 或 not-adopt 决定；不反向扩大 lint contract。 |
+| P2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 在真实 Gate 组合与 building guide 已证明重复成本后，固定 fragment grammar、冲突规则与 Gate projection。 |
 
-[`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) 作为独立文档线现在即可推进。
-它只使用实施时已验证的 Current API；可与 P0-2 并行完成调查和 Plan 收敛，但若共享 README、package
-document registry、examples 或 installed-consumer 材料，则在对应 Gate/Package Change 后串行合入。
+### 并行与合入边界
 
-主队列包含两条约束：
+调查和 Plan 收敛可以并行。代码、Case 账本、Gate manifest、lockfile、package material 和稳定文档共享
+owner 时，实施与合入必须串行。
 
-1. Markdown lint 与其它 Gate 工作可以并行调查，但共享 manifest、材料 owner 或稳定文档时串行实施与合入。
-2. Cache Change 只消费 P0-2 的真实 workload，不反向扩大首版规则、Finding 或资源边界；config package 只在真实组合已证明重复成本后固定公共抽象。
-
-### 本轮最终安排
-
-本轮下一项为 P0-2 Markdown lint。材料入口、Check identity 和职责边界由
-[repository-material owner](../tooling/repository-material-validation.md) 承接，后续实施直接消费当前事实。
-
-| 状态 | Change | 当前动作 |
+| 轨道 | 可并行工作 | 实施前置与共享边界 |
 | --- | --- | --- |
-| 现在推进 | P0-2 Markdown lint dogfood | 调查真实 corpus，基于当前选择事实形成 Plan 并实施。 |
-| 不进入本轮 | 其它 Draft/Plan | 只有解除条件或用户明确调整优先级时重新排队。 |
+| Project Gate building guide | cache workload 调查、scheduler 证据 | 只消费已验证 API；共享 package docs 时按实际 diff 串行。 |
+| Markdown lint cache | config package 设计讨论 | 已有 lint adoption；仍需证明重复执行成本与失效语义。 |
+| Config packages | scheduler 证据、Gate guide 调查 | 需要真实组合成本证据，且会改变 package authoring/Definition owner。 |
+| Scheduler evidence queue | 文档和独立 corpus 调查 | 若改 scheduler/runtime，按以下证据队列内部顺序串行。 |
 
-### 优先级与并行矩阵
-
-优先级按“能否立即在本项目获得反馈”而不是 API 新旧排序。调查/Plan 可并行，代码、Case 账本、Gate manifest、lockfile
-和稳定文档共享 owner 时必须串行。
-
-| 轨道 | 优先级 | 可与谁并行 | 必须等待/串行原因 |
-| --- | --- | --- | --- |
-| Markdown lint dogfood | P0 | Gate guide 调查 | 接入 material owner、独立 lint identity、`repository-quality.ts`/`definition.ts` 后与其它 Gate manifest 改动串行。 |
-| Project Gate building guide | P1 | 全部 P0 调查、scheduler 证据 | 只消费已验证 API；共享 package docs 时按实际 diff 串行。 |
-| Markdown lint cache | P1 | config package 的设计讨论 | 必须先有 lint 实际 workload；不与 lint 首次接线并行实施。 |
-| Config packages | P2 | scheduler 证据、Gate guide 调查 | 需要 P0 的真实组合场景，且会改变 package authoring/Definition owner。 |
-| Scheduler evidence queue | P1/P2 | P0 的文档/安全 corpus | 不修改 Gate quality manifest；若改 scheduler/runtime，按 scheduler 队列内部顺序串行。 |
-
-P0 不是授权立即修改 Product 或把所有新 Check 设为 blocking；每个 Change 仍须按自身 artifacts、测试和用户授权实施。
+每个 Change 仍须按自身 artifacts、测试和用户授权实施；新的 blocking policy 或公共抽象须有独立证据。
 
 ### Scheduler 证据队列
 
