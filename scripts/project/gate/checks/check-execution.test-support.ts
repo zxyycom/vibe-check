@@ -117,6 +117,11 @@ export async function invokeCheckWithRecords(
   return Object.freeze({ records, result });
 }
 
+/** Exposes captured Records' JSON fields without asserting their private object prototypes. */
+export function recordJsonFacts(records: DirectCheckInvocation["records"]): unknown {
+  return JSON.parse(JSON.stringify(records)) as unknown;
+}
+
 function dependencyNotDeclared<Id extends string>(
   provider: HandoffProvider<Id>
 ): DependencyNotDeclaredResult;

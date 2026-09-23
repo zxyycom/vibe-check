@@ -5,7 +5,11 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import { createNativeOperationCheck, type NativeOperationResult } from "./native-operation.ts";
-import { invokeCheck, invokeCheckWithRecords } from "../check-execution.test-support.ts";
+import {
+  invokeCheck,
+  invokeCheckWithRecords,
+  recordJsonFacts
+} from "../check-execution.test-support.ts";
 
 describe("Project Gate native operation", () => {
   it("keeps native Check outcomes transcript-free", async () => {
@@ -189,7 +193,7 @@ describe("Project Gate native operation", () => {
       for (const scenario of scenarios) {
         const invocation = await invokeCheckWithRecords(scenario.check);
         assert.deepEqual(invocation.result, scenario.expected);
-        assert.deepEqual(invocation.records, scenario.records ?? []);
+        assert.deepEqual(recordJsonFacts(invocation.records), scenario.records ?? []);
         assert.equal(
           existsSync(join(logDirectory, "process", `${scenario.check.checkId}.log`)),
           false

@@ -31,7 +31,7 @@ type FixtureHandoffReadResult = Readonly<{
   }>;
 }>;
 
-import { invokeCheckWithRecords } from "./check-execution.test-support.ts";
+import { invokeCheckWithRecords, recordJsonFacts } from "./check-execution.test-support.ts";
 import {
   createProjectGateCommandEntry,
   type GateCommandDataDependency
@@ -157,7 +157,7 @@ it("projects a complete nonzero command through the Gate-owned failure projector
     });
     const execution = await invokeCheckWithRecords(entry.check, undefined, root);
     assert.equal(execution.result.status, "failed");
-    assert.deepEqual(execution.records, [
+    assert.deepEqual(recordJsonFacts(execution.records), [
       { identity: { id: "fixture-output" }, data: { outputLength: 14 } }
     ]);
     const fallbackEntry = createProjectGateCommandEntry({

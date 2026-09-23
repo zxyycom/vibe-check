@@ -6,7 +6,11 @@ import { describe, it } from "node:test";
 import { validateDecisionRecordsForGate } from "../../../decision-records/command.ts";
 
 import { createDecisionRecordsCheck } from "./decision-records.ts";
-import { invokeCheck, invokeCheckWithRecords } from "./check-execution.test-support.ts";
+import {
+  invokeCheck,
+  invokeCheckWithRecords,
+  recordJsonFacts
+} from "./check-execution.test-support.ts";
 import { createTestEvidenceCheck } from "./test-evidence/semantic-case-check.ts";
 
 describe("Project Gate owner-safe native projections", () => {
@@ -35,7 +39,7 @@ describe("Project Gate owner-safe native projections", () => {
       const decision = await invokeCheckWithRecords(
         createDecisionRecordsCheck({ validateForGate: async () => validation })
       );
-      assert.deepEqual(decision.records, [
+      assert.deepEqual(recordJsonFacts(decision.records), [
         {
           data: {
             decisionId: "unsafe-source.md",
@@ -130,7 +134,7 @@ relations:
           })
         })
       );
-      assert.deepEqual(testEvidence.records, [
+      assert.deepEqual(recordJsonFacts(testEvidence.records), [
         {
           data: {
             caseId: "AUX-EXAMPLE-001",
@@ -170,7 +174,7 @@ relations:
           })
         })
       );
-      assert.deepEqual(unexpectedTopicHeading.records, [
+      assert.deepEqual(recordJsonFacts(unexpectedTopicHeading.records), [
         {
           data: {
             code: "topic.heading-unexpected",
