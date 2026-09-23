@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { join, relative } from "node:path";
 import { describe, it } from "node:test";
 
 import { validateDecisionRecordsForGate } from "../../../decision-records/command.ts";
@@ -14,7 +14,9 @@ describe("Project Gate owner-safe native projections", () => {
     const decisionRoot = mkdtempSync(join(process.cwd(), "vibe-check-decision-records-"));
     try {
       writeFileSync(join(decisionRoot, "unsafe-source.md"), "secret parser input\n", "utf8");
-      const validation = await validateDecisionRecordsForGate({ decisionsDir: decisionRoot });
+      const validation = await validateDecisionRecordsForGate({
+        decisionsDir: relative(process.cwd(), decisionRoot)
+      });
       assert.deepEqual(validation, {
         status: "failed",
         diagnostics: [
@@ -80,7 +82,9 @@ relations:
           "utf8"
         );
         assert.deepEqual(
-          await validateDecisionRecordsForGate({ decisionsDir: datedDecisionRoot }),
+          await validateDecisionRecordsForGate({
+            decisionsDir: relative(process.cwd(), datedDecisionRoot)
+          }),
           {
             diagnostics: [
               {

@@ -31,7 +31,7 @@
 - 处理大型 Markdown 或层级文档时，可用 `docnav outline <path>` 和
   `docnav read <path> --ref "<ref>"`；不可运行时回退到常规文件读取。
 - 新增 Node/TypeScript 依赖使用 `pnpm`，运行项目脚本使用 `bun run`，Python 工具使用 `uv`。
-- 修改后检查局部 diff，只保留目标范围；不得把未授权的 Git add、commit、Change complete/delete 或外部写入视为
+- 修改后检查局部 diff，只保留目标范围；不得把未授权的 Git add、commit、Change finalize/delete 或外部写入视为
   实施步骤。
 
 ## 子代理模型

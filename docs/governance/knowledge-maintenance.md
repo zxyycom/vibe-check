@@ -129,7 +129,7 @@ owner 或删除。
 
 交付时把已成为当前规则的结果交给文档 owner，实现与证明交给代码、测试及 artifact，跨 Change 方向交给 Decision；
 本次范围、进度与恢复条件留给当前 Change。先完成 owner 同步与语义验收，再核对 alignment。
-只有取得本次明确删除授权且 `complete` 门禁通过，才删除 Change 目录。
+只有取得本次明确删除授权且 `finalize` 门禁通过，才删除 Change 目录。
 
 载体有差异时，按[权威载体](#按用途选择权威载体)定位失配来源；调查、Change 或历史材料不能反向覆盖当前事实。
 

@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "53"
+  version: "61"
 ---
 
 # Decision Records
@@ -32,7 +32,7 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查记�
 
 ## 读取路径
 
-1. 先读目标工作区指令和任务直接相关的当前事实来源，按 `--root` 和可选 `--decisions-dir` 定位集合。集合整体不存在时视为尚未初始化。
+1. 先读目标工作区指令和任务直接相关的当前事实来源，定位集合：在目标工作区内执行时省略 `--root`（默认当前目录）；跨工作区调用才显式提供 `--root <workspace-root>`，领域目录始终使用工作区内相对 `--decisions-dir`。集合整体不存在时视为尚未初始化。
 2. 按下表定位相关记录；摘要足够时停止扩大读取，只有需要历史或完整演进图时才继续追溯。
 3. 候选写入、已建立记录维护、身份更正、暂存快照或结构审阅前，完整读取[决策记录规则](references/decision-record-rules.md)。它承接身份、正文、生命周期、关系和维护不变量；索引精确机器结构由 [Schema](references/decision-index.schema.json) 承接，命令参数与输出查 `--help`。
 4. 首次候选集合、工具不可用、索引异常或写入中断时，读取[状态与维护恢复](references/maintenance-recovery.md)，按实际状态选择验证或恢复路径。
@@ -41,13 +41,17 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查记�
 | --- | --- |
 | 审核尚未建立的候选 | `candidates` → `show-candidate <selector>` |
 | 准确 Decision ID 或唯一 name | `show <selector>` |
-| 状态、alignment、tag、形成时间或直接关系 | `list`；按需筛选、翻页或用 `--detail` 展开摘要 |
-| 主题、概念、理由或正文措辞 | `search <text>` → 用结果中的完整 ID 继续读取 |
-| 完整演进关系 | `trace <selector>` |
+| 状态、alignment、tag、形成时间或直接关系 | `list`；有关系条件时读取返回的命中边依据，普通列表按需筛选、翻页或用 `--detail` 展开记录概览 |
+| 主题、概念、理由或正文措辞 | `search <text>`；文本命中与关系筛选依据分别读取，再用完整 ID 继续读取 |
+| 受限切片内的演进关系 | `trace <selector>` |
 
 Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位文件。查询后使用返回的完整 ID 继续操作。
 
-`list` 与 `search` 默认查 active 已建立记录；需要历史或更多结果时显式筛选并扩展窗口。默认搜索读取权威 Markdown，`--in metadata` 只反映已发布索引快照。遇到降级或截断 warning 时，先按[派生索引与查询](references/decision-record-rules.md#派生索引与查询)确认来源与结果边界，再据此下结论。
+`trace` 只读取一次受检索引快照，默认输出终端关系图：header 回显 anchor、direction、depth、complete 与记录总数；`L0/L1/...` 展示成员，`*` 是递归 trace 成员，`~` 是为闭合拆分、纯归并或重划事件加入的 context。图尾仅在不完整时输出 coverage、frontier 与可选 blockedEvent。`--json` 返回**同一份查询成功结果**的稳定 JSON 切片，包含 `anchorId`、实际 `direction`、`limits`、`coverage`、成员 ID、`frontier`、可选 `blockedEvent` 和 `entries`；无限深度的 `limits.depth` 为 `"all"`。默认查询为 `both`、深度 5、最多 50 条唯一记录；`--depth all` 取消深度限制，`--max-records <n>` 调整预算。`traceIds` 是实际递归成员，`contextIds` 只闭合完整事件，二者恰好对应 `entries` 的键。
+
+每个 entry 保留完整直接 `relations`，target 在切片外不是缺失证明；已有 `summary` 原样保留，缺失时省略，trace 不推断或补写。先用 `coverage.complete`、`stoppedBy` 和 `frontier` 判断边界：`frontier` 的 `fromId`、方向与 `nextIds` 可作为下一次 trace 的 anchor 和 direction，不是可跨快照续用的 cursor。`blockedEvent` 表示完整事件受记录预算阻断；将预算提高到其 `requiredMaxRecords` 后重查，不能把局部成员当作完整演进事实。
+
+`list` 与 `search` 默认查 active 已建立记录；需要历史或更多结果时显式筛选并扩展窗口。关系筛选依据、文本证据分工和 `filterRelations` 的读取边界见[派生索引与查询](references/decision-record-rules.md#派生索引与查询)。完整正文和完整直接关系仍用 `show` 读取。默认搜索读取权威 Markdown，`--in metadata` 只反映已发布索引快照；遇到降级或截断 warning 时，先按该节确认来源和结果边界。
 
 ## 工作流程
 
@@ -95,9 +99,19 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 | 更正 ID/name | `rename`，由事务统一维护身份、引用、位置和索引。 |
 | 明确删除记录 | `discard`；与演进原子组合时显式使用 `evolve --discard <decision-id>`。成功结果报告为删除，而非归档。 |
 
-已建立记录的生命周期、alignment 和关系通过 CLI 事务维护；已建立来源出现非法 alignment 时，才可按恢复手册取得针对字段的授权后原位修复。索引从 Markdown 派生。需要只读预演时，`activate/evolve --preflight` 使用本次完整参数验证；正式执行仍须重新提供参数并重新验证。
+已建立记录的生命周期、alignment 和关系通过 CLI 事务维护；非法 alignment 只能按恢复手册取得字段授权后原位修复。索引从 Markdown 派生。
 
-拆分或重划须选择完整后继集合；先按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，再按 CLI help 组合参数。
+需要只读预演时，新候选使用 `activate` 或 `evolve --preflight` 以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。重新激活 archived 记录保留既有关系，不适用该核对。
+
+拆分或重划先用重复 `--successor` 选择完整后继集合；这是本次闭合事件的成员，不表示各成员必须使用相同关系。再按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，并为每个成员确定其完整最终 relations：
+
+| 需要的最终关系 | `evolve` 输入选择 |
+| --- | --- |
+| 首次建立的候选，或关系应保留各自 Markdown 的原值 | 省略所有关系覆盖选项。 |
+| 所有已选后继都替换为同一完整集合 | 不使用 `--relations-for`，提供统一的 `--relation`、可选 `--relation-summary`，或 `--clear-relations`。 |
+| 不同后继需要不同完整集合、摘要或清空结果 | 用 `--relations-for <successor-selector>` 为每个要替换的后继开始一组；组内提供其完整 `--relation` 与可选摘要，或 `--clear-relations`。未分组的已选后继保留各自原值。 |
+
+统一覆盖与分组互斥；分组中的 relation、summary 和 clear 只属于该组。完整 replacement 不合并旧关系，未随 replacement 提供的摘要会移除。组的精确参数、顺序和诊断以 `evolve --help` 为准；完整成员、分组载荷和失败边界见[完整替换与摘要绑定](references/decision-record-rules.md#完整替换与摘要绑定)。
 
 由 CLI 检查 Git 维护门禁。命令暂停时，核对受检 ID、操作与写入状态，按[维护范围与确认](references/decision-record-rules.md#维护范围与确认)自行复核历史价值及授权后显式选择；需要用户决定时才询问。中断或恢复不完整时按恢复手册处理。
 
@@ -113,7 +127,11 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 从 skill 目录运行，或使用脚本绝对路径：
 
 ```text
-node scripts/decision-records.mjs <command> [options] --root <resolution-root>
+node scripts/decision-records.mjs [global-options] <command> [command-options]
+node scripts/decision-records.mjs help [command]
 ```
 
-操作前通过 `--help` 获取当前命令参数。本文负责判断和动作选择，精确结构与维护约束沿“读取路径”取得。
+- 规范调用把全局选项放在 command 之前；在目标工作区内执行时省略 `--root`，默认以当前目录为工作区根，跨工作区调用才显式提供 `--root <workspace-root>`。
+- `--decisions-dir` 只接受解析后仍在工作区内的相对路径；把集合目录误传给 `--root` 时，诊断会给出 `--root <workspace> --decisions-dir <relative-collection>` 的恢复形态。
+- `help [command]` 与 `<command> --help` 只渲染帮助，不读取集合状态；省略 command 时渲染顶层帮助并以参数错误结束。
+- 操作前通过 `--help` 获取当前命令参数。本文负责判断和动作选择，精确结构与维护约束沿“读取路径”取得。

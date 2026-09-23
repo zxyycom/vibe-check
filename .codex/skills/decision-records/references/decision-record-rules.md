@@ -130,7 +130,7 @@ relations:
 
 ### 后继集合与语义闭合
 
-`evolve` 通过重复 `--successor` 显式选择完整后继集合，并在同一事务中维护关系、候选建立与活动前序归档。新候选也可通过 `activate` 的单后继入口建立相同关系事务。
+`evolve` 通过重复 `--successor` 显式选择完整后继集合；每个 successor 是关系 source。该选择集只声明本次闭合事件的完整成员，并不要求成员采用同一最终 relations。事务在同一次处理中为全部成员计算各自完整最终关系，再维护关系、候选建立与活动前序归档。新候选也可通过 `activate` 的单后继入口建立相同关系事务。
 
 | 演进形状 | 最终集合要求 |
 | --- | --- |
@@ -142,16 +142,27 @@ relations:
 
 ### 完整替换与摘要绑定
 
-关系维护以完整集合为单位。各后继来源或摘要不同时，先在各 candidate 中写好，再让建立命令保留各自集合。
+关系维护以每个 successor 的完整集合为单位。先选择完整 successor 集合，再为每个成员确定最终 relations：未覆盖的成员保留自身权威 Markdown 的完整原值；覆盖只替换其所属成员的整个集合，不合并旧关系。新集合未提供 summary 的边省略该字段，因而移除旧摘要。
 
-| 输入意图 | 作用 |
+| 输入意图 | 最终关系来源 |
 | --- | --- |
-| 首次 activate 或 evolve 省略关系覆盖 | 保留各候选自身完整 relations 与 summary。 |
-| 提供 `--relation` | 完整替换；evolve 将同一集合应用于全部所选后继，包括重划。新集合未提供摘要的边省略该字段。 |
-| 提供 `--clear-relations` | 显式清空关系集合。 |
+| 首次 activate 或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
+| 无分组的 `--relation` 与可选 `--relation-summary` | 同一完整 replacement 应用于全部所选后继。 |
+| 无分组的 `--clear-relations` | 全部所选后继使用显式空集合。 |
+| 以 `--relations-for <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
 | 重新激活 archived 记录 | 保留既有关系，拒绝关系或摘要覆盖。 |
 
-`--relation-summary <selector=summary>` 必须绑定同次完整 `--relation` 集合中的唯一 target；按首个 `=` 分隔，后续 `=` 属于摘要。`new` 同样按此规则绑定。仅提供摘要、重复绑定、目标未命中或与清空关系组合均拒绝。已建立关系通过完整 CLI 事务修订。
+`--relations-for` 开始一个后继组，直到下一个同名选项或命令结束；只有 `--relation`、`--relation-summary` 和 `--clear-relations` 随组归属，其他选项仍作用于整个事务。分组与统一覆盖互斥：出现分组后，首组之前不能有关系选项，且未分组成员不接收统一默认 replacement。
+
+每个组必须在解析后唯一地指向一个已选 successor，并提供至少一条 `--relation` 或一个 `--clear-relations`。摘要可在同组 relation 前后出现；它按首个 `=` 分隔，后续 `=` 属于摘要，并且只绑定同组完整 `--relation` 集合中的唯一 target。不同组可对同一 target 写入不同摘要。
+
+首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。
+
+新候选的 `activate` 与 `evolve` 以 `relationReview` 承接关系核对：
+
+- review 按规范 source ID 排列，覆盖全部所选后继（包括未分组或最终相同的成员）。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
+- renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整 replacement 未提供摘要即清除旧摘要。
+- `--preflight` 返回 `phase: preflight` 的预计 review 且零写入；正式成功才返回 `phase: committed`。失败不附成功 review，预检不构成提交凭据。
 
 ## 维护范围与确认
 
@@ -188,7 +199,15 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 - status、alignment、重复 tags 和时间条件取交集；重复 tags 为 AND，时间范围包含端点。空页只说明当前筛选与窗口无结果。
 - `--related-to` 指定的目标先独立解析，再按相对目标的 predecessors、successors 或 both 筛选直接邻居；方向必须与目标同用。
 - relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
-- `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 恢复演进图。后续操作继续使用完整 ID。
+- `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 从同一次受检索引快照派生默认终端关系图，使用 `--json` 时返回同一份 trace 查询成功结果的稳定 JSON 关系切片。后续操作继续使用完整 ID。
+
+关系条件的查询结果另以可选 `filterRelations` 返回**导致该记录命中的完整边集合**。只有传入 `--related-to` 或 `--relation-type` 时才出现；它从本次筛选使用的同一来源快照投影，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列。前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集；type-only 选择结果来源的指定类型出边，组合条件必须命中同一条边。记录集合、排序、total 与分页不因该投影改变。该字段属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。
+
+搜索的文本证据与 `filterRelations` 分开：`matchedFields`、`matchedRelations` 只报告实际文本命中，`matchedRelations: none` 不否定关系筛选命中。CLI 默认每条预览最多三条命中边，`list --detail` 展开当前页全部命中边；领域查询结果保留完整集合。需要完整正文或完整直接关系时，继续用 `show` 读取来源记录。
+
+`trace` 默认 `direction=both`、`depth=5`、`maxRecords=50`。有限深度可为非负安全整数，`--depth all` 不设深度限制；记录预算必须是正安全整数。默认终端图稳定显示 header、`L0/L1/...` trace 图层、关系或事件组、`* trace` 与 `~ context`；它不是旧的平铺文本或 Mermaid。不完整时在图尾显示 frontier 和 blockedEvent。`--json` 才输出同一份 trace 查询成功结果的稳定 JSON envelope，回显 `anchorId`、实际 direction 与 limits；无限深度在 `limits.depth` 中表示为 `"all"`。输出的 `traceIds` 是递归遍历成员，`contextIds` 只闭合一次已跨越的完整拆分、纯归并或重划事件；二者互斥，且并集与 `entries` 的键相同。entry 的 `relations` 永远是索引中的完整直接关系，切片外 target 仍是原始事实；存在的 `summary` 原样投影，缺失时省略，trace 不推断摘要。终端图只展开两端都在切片内的边；已读取但缺少摘要显示 `[无摘要]`，摘要按 JSON 转义的完整单行文本显示。主体块承接其 source 边；复杂事件中 source 仅为 context 时，事件按边显示完整 source、type、target 与摘要，不能以匿名摘要代替。context 成员不递归扩展，且它与 trace 成员的边归属不改变 `coverage`、成员选择或 JSON。
+
+`coverage.complete` 只在请求方向未受深度或记录预算限制、且已接纳事件完整时为真。`stoppedBy` 与 `frontier` 说明尚未跨越的直接邻居；以 frontier 的 `fromId`、direction 和 `nextIds` 发起新查询，不能将它视为 cursor。记录预算阻断一个多记录事件时，`blockedEvent` 给出完整成员与最小 `requiredMaxRecords`；该事件没有部分接纳。普通单记录接纳受预算阻断时只形成 `max-records` frontier，不产生 `blockedEvent`。
 
 | 搜索范围 | 依据与适用边界 |
 | --- | --- |

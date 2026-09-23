@@ -64,6 +64,7 @@ candidate fingerprint 覆盖整个 package lifecycle，以保守失效。
 | `scripts/repository-files/**` | repository 文件遍历、文本读写和路径 containment；不拥有 JSON validation 或 generic serialization。 |
 | `scripts/canonical-json.ts`、`scripts/diagnostic-safety.ts`、`scripts/error-message.ts` 与 `scripts/value-guards.ts` | 跨 scripts owner 复用的根级安全 capability：canonical JSON machine facts、owner-local diagnostic ID/单行 presentation 的安全不变量，以及明确的诊断字符串和值形状小边界。它们不拥有字段语义、排序或 Product contract。 |
 | `scripts/decision-records/command.ts` | 将仓库根绑定到已安装 decision-records capability 的 repository adapter。 |
+| `scripts/investigation-report/command.ts` | 将仓库根和默认全量检查绑定到已安装 investigation-report CLI 的 repository adapter。 |
 | `scripts/test-evidence/command.ts` | current test entity discovery、Case 查询与闭合检查的 command/API owner；其 child owner 见[Project Gate and Test Evidence child owners](#project-gate-and-test-evidence-child-owners)。 |
 
 ### 公开入口与私有使用方边界
@@ -218,7 +219,7 @@ raw output 不改变这一边界。
 
 ### 治理、来源映射与 Project Gate 调用
 
-`bun run investigations` 默认执行完整检查。列出或同步 Investigation 索引时使用 `bun run investigations -- list` 或 `bun run investigations -- sync-index`；命令从当前仓库根目录推定 root。只有需要覆盖该默认值时才把 `--root <path>` 放在子命令之后，例如 `bun run investigations -- list --root <path>`。
+`bun run investigations` 默认执行完整检查。列出或同步 Investigation 索引时使用 `bun run investigations -- list` 或 `bun run investigations -- sync-index`；项目 adapter 将默认 root 绑定到当前仓库。只有需要覆盖该默认值时才在子命令之前传入 `--root <path>`，例如 `bun run investigations -- --root <path> list`。
 
 Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 的 `YYMMDD-<name>`；文件 basename 只是可独立变化的 source locator，身份迁移必须使用所属 skill 的 `rename` 事务。
 
@@ -311,9 +312,9 @@ Product Check 的 scanner command、availability command 和 unavailable behavio
 
 ## Governance and Test Evidence adapters
 
-`scripts/decision-records/command.ts` 把 repository root 绑定到已安装 capability，并转发其 CLI 或暴露同一 typed operation；`change-plan` 与 `investigations` root commands 直接调用各自 skill 的 CLI。它们不复制 parser、metadata、index 或 lifecycle 语义。
+`scripts/decision-records/command.ts` 把 repository root 绑定到已安装 capability，并转发其 CLI 或暴露同一 typed operation；`scripts/investigation-report/command.ts` 保留项目默认全量检查并转发已安装 CLI；`change-plan` root command 直接调用其 skill CLI。它们不复制 parser、metadata、index 或 lifecycle 语义。
 
-写入由相应 subcommand/skill 和当前任务授权决定；Change 完成后只在明确删除授权下使用 `complete`，成功即删除整个目录，不建立完成态 archive。
+写入由相应 subcommand/skill 和当前任务授权决定；Change 结项只在明确删除授权下使用 `finalize`，成功即删除整个目录，不建立完成态 archive。
 
 `scripts/test-evidence/command.ts` 拥有 current test entity discovery、Case query 和 closure check。它把同一 caller `AbortSignal` 传给 ast-grep static scan 与 Bun registration report process，要求完整测试清单的每个 runner entity 都以 skipped testcase 报告；测试正文由 Gate process 子 Checks 或最窄目标命令执行。测试分层和 Case maintenance 继续由[测试策略](../testing/strategy.md)与[测试证据维护](../testing/case-maintenance.md)owner 定义。
 

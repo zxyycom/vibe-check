@@ -20,6 +20,23 @@ export type InvestigationRelation = {
   summary?: string;
 };
 
+export type InvestigationRelationReview = {
+  phase: "preflight" | "committed";
+  sources: ReadonlyArray<{
+    sourceId: string;
+    action: "establish" | "replace" | "unchanged";
+    before: readonly InvestigationRelation[];
+    after: readonly InvestigationRelation[];
+  }>;
+};
+
+export type InvestigationFilterRelation = {
+  sourceId: string;
+  type: InvestigationRelationType;
+  target: string;
+  summary?: string;
+};
+
 export type InvestigationCandidateReadiness = {
   bodyReady: boolean;
   resourceReady: boolean;
@@ -36,7 +53,7 @@ export type InvestigationCandidate = {
 };
 
 export type InvestigationCandidateCreateOptions = {
-  formedAt: string;
+  formedAt?: string;
   id: string;
   investigationsDir?: string;
   question: string;
@@ -92,6 +109,7 @@ export type InvestigationCandidatePublishResult = {
   ids: string[];
   indexPath: string;
   preflight: boolean;
+  relationReview?: InvestigationRelationReview;
   warnings: string[];
 };
 
@@ -249,7 +267,11 @@ export type InvestigationIndexQueryOptions = {
 };
 
 export type InvestigationIndexQueryResult = {
-  entries: Array<{ id: string; state: InvestigationIndexState }>;
+  entries: Array<{
+    id: string;
+    state: InvestigationIndexState;
+    filterRelations?: readonly InvestigationFilterRelation[];
+  }>;
   errors: string[];
   indexPath: string;
   limit: number;
@@ -264,6 +286,7 @@ export type InvestigationRelationReplacement = {
 
 export type InvestigationRelationSetOptions = {
   investigationsDir?: string;
+  preflight?: boolean;
   replacements: readonly InvestigationRelationReplacement[];
   workspaceRoot: string;
 };
@@ -272,6 +295,8 @@ export type InvestigationRelationSetResult = {
   changed: boolean;
   errors: string[];
   indexPath: string;
+  preflight: boolean;
+  relationReview?: InvestigationRelationReview;
   sourceIds: string[];
 };
 
@@ -294,26 +319,80 @@ export type InvestigationReportTraceOptions = {
   direction?: "predecessors" | "successors" | "both";
   id: string;
   investigationsDir?: string;
-  maxDepth?: number;
+  maxDepth?: number | null;
+  maxRecords?: number;
   workspaceRoot: string;
 };
 
-export type InvestigationReportTraceResult = {
-  edges: Array<{
-    source: string;
-    target: string;
-    type: InvestigationRelationType;
-    summary?: string;
-  }>;
-  errors: string[];
-  id: string;
-  indexPath: string;
-  reportIds: string[];
-  status: "ok" | "error";
+export type InvestigationTraceEntry = {
+  title: string;
+  formedAt: string;
+  question: string;
+  tags: readonly string[];
+  relations: readonly InvestigationRelation[];
 };
 
+export type InvestigationRelationEdge = {
+  source: string;
+  target: string;
+  type: InvestigationRelationType;
+  summary?: string;
+};
+
+export type InvestigationReportTraceSuccess = {
+  status: "ok";
+  anchorId: string;
+  direction: "predecessors" | "successors" | "both";
+  limits: {
+    depth: number | "all";
+    maxRecords: number;
+  };
+  coverage: {
+    complete: boolean;
+    stoppedBy: readonly ("depth" | "max-records")[];
+  };
+  traceIds: readonly string[];
+  contextIds: readonly string[];
+  frontier: readonly {
+    fromId: string;
+    direction: "predecessors" | "successors";
+    reason: "depth" | "max-records";
+    nextIds: readonly string[];
+  }[];
+  blockedEvent?: {
+    kind: "split" | "merge";
+    recordIds: readonly string[];
+    requiredMaxRecords: number;
+  };
+  entries: Readonly<Record<string, InvestigationTraceEntry>>;
+};
+
+export type InvestigationReportTraceResult =
+  | InvestigationReportTraceSuccess
+  | {
+      edges: InvestigationRelationEdge[];
+      diagnostics: Array<{
+        code: string;
+        reason: string;
+        recovery: string;
+        target: string;
+      }>;
+      errors: string[];
+      id: string;
+      indexPath: string;
+      reportIds: string[];
+      status: "error";
+    };
+
 export declare function runInvestigationReportCheckCli(
-  argv?: readonly string[]
+  argv?: readonly string[],
+  options?: {
+    cwd?: string;
+    io?: {
+      stderr: (text: string) => void;
+      stdout: (text: string) => void;
+    };
+  }
 ): Promise<number>;
 export declare function synchronizeInvestigationIndex(
   options: InvestigationIndexSyncOptions
@@ -403,6 +482,7 @@ export type InvestigationContentSearchEntry = {
   sourcePath: string;
   tags: readonly string[];
   title: string;
+  filterRelations?: readonly InvestigationFilterRelation[];
 };
 export type InvestigationMetadataSearchField =
   | "id"
@@ -424,6 +504,7 @@ export type InvestigationMetadataSearchEntry = {
   sourcePath: string;
   tags: readonly string[];
   title: string;
+  filterRelations?: readonly InvestigationFilterRelation[];
 };
 export type InvestigationSearchEntry =
   | InvestigationContentSearchEntry

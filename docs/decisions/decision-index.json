@@ -312,7 +312,7 @@
       "260908-allow-channel-only-diagnostic-filenames-in-invocation-controls": "sha256:8c1319df99eb0ba9161b1f18677eb9ac89177222971d3b0c48e3232567ddb817",
       "260908-declare-document-audience-publication-and-contract-ownership": "sha256:c5217fda251cff7bd7808f638aa41be4558c3c6b073d4cd8523b29c5ef688289",
       "260908-default-project-subagents-to-terra": "sha256:7352807fbe93cbd2ad80e64eb9b17ab7d1a99a446578f5ae640df903cc1ed98d",
-      "260908-delete-completed-change-and-openspec-history": "sha256:8ca3fe78785746f54540378dd798facfce40fea5cdae44842205a8b146271a48",
+      "260908-delete-completed-change-and-openspec-history": "sha256:955ab068ec4e5c8ce4e8ed152470b3c5539eae046f74899ffa3fd45b7045ab9d",
       "260908-evaluate-admission-heuristics-with-seeded-virtual-workloads": "sha256:11475cc20ddd692112f1f5ccd4b33980cff0977971446d8e88712d443b5c82dc",
       "260908-isolate-package-release-source-from-change-work": "sha256:424e622408e55c648ea02973f61ab49125777e1114794fbd3ad2b05412c75f88",
       "260908-provide-synchronous-single-selection-file-collection": "sha256:c0803574b26a55984f85f8f35af860789ac6a945f619c900da3ab720d8dc80ab",
@@ -6493,7 +6493,7 @@
       "alignment": "aligned",
       "createdAt": "2026-09-08T04:03:42Z",
       "purpose": "让仓库只保留当前 Change，并由稳定 owner 承接完成后的现行事实。",
-      "background": "最新版 Change Plan 以 complete 删除完成目录，用户也明确要求清除既有 Change 与 OpenSpec 归档。",
+      "background": "Change Plan 以 finalize 删除结项目录，用户也明确要求清除既有 Change 与 OpenSpec 归档。",
       "decision": "完成 Change 不保留目录，既有 Change archive 与 OpenSpec 历史树一次性删除。",
       "tags": [
         "workflow-policy"
