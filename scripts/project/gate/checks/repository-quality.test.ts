@@ -130,7 +130,18 @@ describe("repository quality Checks", () => {
     );
     assert.deepEqual(fileMetrics.options.findingWaivers, []);
     assert.deepEqual(duplicateDetection.options.findingWaivers, []);
-    assert.deepEqual(functionMetrics.options.findingWaivers, []);
+    assert.deepEqual(functionMetrics.options.findingWaivers, [
+      {
+        identity: {
+          functionName: "createProjectGateEntries",
+          metric: "function-code-density",
+          path: "scripts/project/gate/definition.ts",
+          startLine: 201
+        },
+        reason:
+          "Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。"
+      }
+    ]);
     assert.equal(Object.hasOwn(markdownLinkValidation.options, "findingWaivers"), false);
     assert.equal(
       selectsPath(schemasExamples.files, "docs/schemas/vibe-check-run.schema.json"),

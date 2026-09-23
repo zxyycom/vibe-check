@@ -146,9 +146,15 @@ Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` fin
 
 `markdown-lint` 是第五个、独立的 docs/changes Check，属于 required、`materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：lint Finding 以 owning Check 的 Records、消息和 final data 输出，不使 owning Check 或 aggregate failed。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算。
 
-2026-09-22 的 502-source 基线曾有 59 条 Finding。将两份 CPU profile 原样渲染改作 `.txt` 资源、补存原生采样并修正余下报告表格后，2026-09-23 的 required Gate 对 503 个 Markdown source 得到 0 条 Finding、0 个 rejected input。项目没有为清零而排除文件或规则；`non-blocking` policy 仍不变。若要改为 blocking，须依据届时 corpus 单独审查 policy。
+将 `markdown-lint` 改为 blocking 前，须按届时的仓库 Markdown corpus 审查其 Finding 与 rejected input；当前配置保持 non-blocking。
 
 同一 `blocking` policy 适用于 required、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
+
+#### Gate manifest 的函数行数 Finding
+
+`createProjectGateEntries` 保持一份顺序完整的声明清单，使 Check 顺序、selection metadata 和资源声明可以沿同一阅读路径恢复。该函数的 `function-code-density` Finding 来自清单行数，而非条件分支或失败恢复；把清单拆成组装函数会遮蔽这些关系。
+
+`scripts/project/gate/checks/repository-quality.ts` 为这一 Finding 配置精确 waiver，identity 限定路径、函数名、起始行和指标。`functionMetrics` 仍发布原 Finding Record，并标记为非阻断；其它函数和指标继续按 `blocking` policy 结算。起始行变化或 Finding 消失时，Check 会发布 unused-waiver audit Record 和 warning，维护者据此重审 identity 与理由；该 audit 本身不使 Check 失败。
 
 #### 仓库选择范围
 

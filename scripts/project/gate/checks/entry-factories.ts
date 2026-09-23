@@ -9,7 +9,7 @@ import {
 
 import type { ProjectGatePreset } from "../runtime/catalog.ts";
 import type { ProcessFailureProjection } from "./process/failure-projection.ts";
-import type { ProjectGateEntry } from "../runtime/entries.ts";
+import type { ProjectGateEntryDeclaration } from "../runtime/entries.ts";
 import { settleProjectGateCommand } from "./command-result.ts";
 
 const DEFAULT_GATE_COMMAND_TIMEOUT_MS = 120_000;
@@ -46,10 +46,11 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     readonly mutex?: readonly string[];
     readonly presets: readonly ProjectGatePreset[];
     readonly required: boolean;
+    readonly resourceClaims?: Readonly<Record<string, number>>;
     readonly timeoutMs?: number;
   }> &
     CommandEntryAdapter<Data>
-): ProjectGateEntry {
+): ProjectGateEntryDeclaration {
   const {
     checkId,
     dataDependency,
@@ -59,6 +60,7 @@ export function createProjectGateCommandEntry<Data extends object = object>(
     mutex,
     presets,
     required,
+    resourceClaims,
     timeoutMs
   } = input;
   if (dataDependency !== undefined && failureProjection !== undefined) {
@@ -108,30 +110,13 @@ export function createProjectGateCommandEntry<Data extends object = object>(
       afterCommand: { execute: settle }
     });
   }
-  return createProjectGateCommonEntry({
+  return {
     check,
     ...(mutex === undefined ? {} : { mutex }),
     presets,
-    required
-  });
-}
-
-/** Owns Gate selection metadata and optional mutex freezing for an already constructed Check. */
-export function createProjectGateCommonEntry(
-  input: Readonly<{
-    readonly check: Check;
-    readonly mutex?: readonly string[];
-    readonly presets: readonly ProjectGatePreset[];
-    readonly required: boolean;
-  }>
-): ProjectGateEntry {
-  const { check, mutex, presets, required } = input;
-  return Object.freeze({
-    check:
-      mutex === undefined ? check : Object.freeze({ ...check, mutex: Object.freeze([...mutex]) }),
-    presets: Object.freeze([...presets]),
-    required
-  });
+    required,
+    ...(resourceClaims === undefined ? {} : { resourceClaims })
+  };
 }
 
 /** Preserves the old Gate runner's inherited environment while retaining explicit invocation overrides. */

@@ -35,12 +35,12 @@ import {
   createExternalConsumerMaterialCheck,
   type ExternalConsumerMaterialLease
 } from "./checks/external-consumer-material.ts";
-import {
-  createProjectGateCommonEntry,
-  createProjectGateCommandEntry
-} from "./checks/entry-factories.ts";
+import { createProjectGateCommandEntry } from "./checks/entry-factories.ts";
 import { createPreparedCandidateCheck } from "./checks/prepared-candidate.ts";
-import { createProjectGateRepositoryQualityChecks } from "./checks/repository-quality.ts";
+import {
+  createRepositoryQualityChecks,
+  PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS
+} from "./checks/repository-quality.ts";
 import { createOxfmtFailureProjection } from "./checks/oxfmt-failure-records.ts";
 import { createOxlintFailureProjection } from "./checks/oxlint-failure-records.ts";
 import type { ProcessFailureProjection } from "./checks/process/failure-projection.ts";
@@ -162,53 +162,6 @@ export interface ProjectGateRuntime {
   readonly preparedCandidate: PreparedPackageCandidate;
 }
 
-/** Creates the ordinary typecheck, lint, and format entries of the required Gate assurance. */
-function createProjectGateDevelopmentVerificationEntries(): readonly ProjectGateEntry[] {
-  return [
-    createProjectGateCommandEntry({
-      invocation: typecheckInvocation("product"),
-      checkId: "typecheck-product",
-      displayName: "TypeScript product typecheck and import boundary",
-      presets: ["typecheck"],
-      required: true
-    }),
-    createProjectGateCommonEntry({
-      check: createLintProductCheck(),
-      presets: ["lint"],
-      required: true
-    }),
-    createProjectGateCommandEntry({
-      invocation: typecheckInvocation("scripts"),
-      checkId: "typecheck-scripts",
-      displayName: "TypeScript script typecheck",
-      presets: ["typecheck"],
-      required: true
-    }),
-    createProjectGateCommandEntry({
-      failureProjection: createOxlintFailureProjection({
-        scope: "scripts",
-        workspaceRoot: repositoryRoot
-      }),
-      invocation: lintInvocation("scripts", "json"),
-      checkId: "lint-scripts",
-      displayName: "TypeScript script lint",
-      presets: ["lint"],
-      required: true
-    }),
-    createProjectGateCommandEntry({
-      failureProjection: createOxfmtFailureProjection({
-        targets: workspaceFormatTargets,
-        workspaceRoot: repositoryRoot
-      }),
-      invocation: workspaceFormatInvocation("list-different"),
-      checkId: "format-check",
-      displayName: "Source format",
-      presets: [],
-      required: true
-    })
-  ];
-}
-
 interface LintProductCheckInput {
   readonly failureProjection: ProcessFailureProjection;
   readonly invocation: Pick<ProcessInvocation, "args" | "command" | "cwd">;
@@ -244,101 +197,115 @@ export function createLintProductCheck(input?: LintProductCheckInput) {
   });
 }
 
-/** Combines invocation-local package preparation with all test-lane entries that consume it. */
-function createProjectGateCandidateAndTestEntries(
-  preparedCandidate: ReturnType<typeof createPreparedCandidateCheck>,
-  externalConsumer: ReturnType<typeof createExternalConsumerMaterialCheck>,
-  testLanes: ReturnType<typeof resolveProjectGateTestLanes>
-): readonly ProjectGateEntry[] {
-  return [
-    createProjectGateCommonEntry({
-      check: preparedCandidate,
+/** Declares the complete Gate in execution-independent display order. */
+export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly ProjectGateEntry[] {
+  const testLanes = resolveProjectGateTestLanes(repositoryRoot);
+  const preparedCandidate = createPreparedCandidateCheck(runtime.preparedCandidate);
+  const repositoryQuality = createRepositoryQualityChecks(PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS);
+  const externalConsumer = createExternalConsumerMaterialCheck({
+    lease: runtime.externalConsumerLease,
+    preparedCandidateCheckId: preparedCandidate.checkId,
+    timeoutMs: packageAcceptanceTimeoutMs
+  });
+  return defineProjectGateEntries([
+    createProjectGateCommandEntry({
+      invocation: typecheckInvocation("product"),
+      checkId: "typecheck-product",
+      displayName: "TypeScript product typecheck and import boundary",
+      presets: ["typecheck"],
+      required: true
+    }),
+    {
+      check: createLintProductCheck(),
+      presets: ["lint"],
+      required: true
+    },
+    createProjectGateCommandEntry({
+      invocation: typecheckInvocation("scripts"),
+      checkId: "typecheck-scripts",
+      displayName: "TypeScript script typecheck",
+      presets: ["typecheck"],
+      required: true
+    }),
+    createProjectGateCommandEntry({
+      failureProjection: createOxlintFailureProjection({
+        scope: "scripts",
+        workspaceRoot: repositoryRoot
+      }),
+      invocation: lintInvocation("scripts", "json"),
+      checkId: "lint-scripts",
+      displayName: "TypeScript script lint",
+      presets: ["lint"],
+      required: true
+    }),
+    createProjectGateCommandEntry({
+      failureProjection: createOxfmtFailureProjection({
+        targets: workspaceFormatTargets,
+        workspaceRoot: repositoryRoot
+      }),
+      invocation: workspaceFormatInvocation("list-different"),
+      checkId: "format-check",
+      displayName: "Source format",
       presets: [],
       required: true
     }),
-    createProjectGateCommonEntry({
+    { check: preparedCandidate, presets: [], required: true },
+    {
       check: externalConsumer,
       mutex: packageLifecycleMutex,
       presets: [],
       required: false
+    },
+    ...createProjectGateTestEntries({
+      definitions: projectGateTestChecks,
+      externalConsumer,
+      lanes: testLanes,
+      preparedCandidate,
+      repositoryRoot,
+      resourceClaims: projectGateBunTestRunnerResourceClaims
     }),
-    ...withProjectGateResourceClaims(
-      createProjectGateTestEntries({
-        definitions: projectGateTestChecks,
-        externalConsumer,
-        lanes: testLanes,
-        preparedCandidate,
-        repositoryRoot
-      }),
-      projectGateBunTestRunnerResourceClaims
-    )
-  ];
-}
-
-/** Creates direct repository-quality Checks while keeping their owner-provided definitions together. */
-function createProjectGateRepositoryQualityEntries(
-  repositoryQuality: ReturnType<typeof createProjectGateRepositoryQualityChecks>
-): readonly ProjectGateEntry[] {
-  return withProjectGateResourceClaims(
-    [
-      createProjectGateCommonEntry({
-        check: repositoryQuality.duplicateDetection,
-        presets: ["quality"],
-        required: true
-      }),
-      createProjectGateCommonEntry({
-        check: repositoryQuality.fileMetrics,
-        presets: ["quality"],
-        required: true
-      }),
-      createProjectGateCommonEntry({
-        check: repositoryQuality.functionMetrics,
-        presets: ["quality"],
-        required: true
-      }),
-      createProjectGateCommonEntry({
-        check: repositoryQuality.markdownLint,
-        presets: ["materials", "quality"],
-        required: true
-      }),
-      createProjectGateCommonEntry({
-        check: repositoryQuality.markdownLinkValidation,
-        presets: ["materials", "quality"],
-        required: true
-      })
-    ],
-    projectGateRepositoryScanResourceClaims
-  );
-}
-
-/** Adds one Gate-owned logical resource claim to a homogeneous entry group. */
-function withProjectGateResourceClaims(
-  entries: readonly ProjectGateEntry[],
-  resourceClaims: Readonly<Record<string, number>>
-): readonly ProjectGateEntry[] {
-  return entries.map((entry) =>
-    Object.freeze({
-      ...entry,
-      check: Object.freeze({ ...entry.check, resourceClaims })
-    })
-  );
-}
-
-/** Creates native repository-material validation and repository-governance entries. */
-function createProjectGateMaterialsAndGovernanceEntries(): readonly ProjectGateEntry[] {
-  return [
-    createProjectGateCommonEntry({
+    {
+      check: repositoryQuality.duplicateDetection,
+      presets: ["quality"],
+      required: true,
+      resourceClaims: projectGateRepositoryScanResourceClaims
+    },
+    {
+      check: repositoryQuality.fileMetrics,
+      presets: ["quality"],
+      required: true,
+      resourceClaims: projectGateRepositoryScanResourceClaims
+    },
+    {
+      check: repositoryQuality.functionMetrics,
+      presets: ["quality"],
+      required: true,
+      resourceClaims: projectGateRepositoryScanResourceClaims
+    },
+    {
+      check: repositoryQuality.markdownLint,
+      presets: ["materials", "quality"],
+      required: true,
+      resourceClaims: projectGateRepositoryScanResourceClaims
+    },
+    {
+      check: repositoryQuality.markdownLinkValidation,
+      presets: ["materials", "quality"],
+      required: true,
+      resourceClaims: projectGateRepositoryScanResourceClaims
+    },
+    {
       check: createRepositoryJsonMaterialCheck(),
       presets: ["materials"],
       required: true
-    }),
-    createProjectGateCommonEntry({
+    },
+    {
       check: createRepositorySchemaMaterialCheck(),
       mutex: repositoryMaterialsMutex,
       presets: ["materials"],
       required: true
-    }),
-    createProjectGateCommonEntry({
+    },
+    {
       check: createMaterialValidationCheck({
         checkId: "materials-schema-publication-validator",
         displayName: "Repository schema publication material validator",
@@ -348,8 +315,8 @@ function createProjectGateMaterialsAndGovernanceEntries(): readonly ProjectGateE
       mutex: repositoryMaterialsMutex,
       presets: ["materials"],
       required: true
-    }),
-    createProjectGateCommonEntry({
+    },
+    {
       check: createMaterialValidationCheck({
         checkId: "materials-examples-validator",
         displayName: "Repository publication and machine example material validator",
@@ -359,8 +326,8 @@ function createProjectGateMaterialsAndGovernanceEntries(): readonly ProjectGateE
       mutex: repositoryMaterialsMutex,
       presets: ["materials"],
       required: true
-    }),
-    createProjectGateCommonEntry({
+    },
+    {
       check: createMaterialValidationCheck({
         checkId: "materials-links-validator",
         displayName: "Repository material link validation",
@@ -369,40 +336,22 @@ function createProjectGateMaterialsAndGovernanceEntries(): readonly ProjectGateE
       }),
       presets: ["materials"],
       required: true
-    }),
-    createProjectGateCommonEntry({
+    },
+    {
       check: createDecisionRecordsCheck(),
       presets: [],
       required: true
-    }),
-    createProjectGateCommonEntry({
+    },
+    {
       check: createTestEvidenceCheck(),
       presets: ["test"],
       required: true
-    }),
-    createProjectGateCommonEntry({
+    },
+    {
       check: createTestEvidenceRuleTestsCheck(),
       presets: ["test"],
       required: true
-    })
-  ];
-}
-
-/** Creates this invocation's project-private ordinary Check entries. */
-export function createProjectGateEntries(runtime: ProjectGateRuntime): readonly ProjectGateEntry[] {
-  const testLanes = resolveProjectGateTestLanes(repositoryRoot);
-  const preparedCandidate = createPreparedCandidateCheck(runtime.preparedCandidate);
-  const repositoryQuality = createProjectGateRepositoryQualityChecks();
-  const externalConsumer = createExternalConsumerMaterialCheck({
-    lease: runtime.externalConsumerLease,
-    preparedCandidateCheckId: preparedCandidate.checkId,
-    timeoutMs: packageAcceptanceTimeoutMs
-  });
-  return defineProjectGateEntries([
-    ...createProjectGateDevelopmentVerificationEntries(),
-    ...createProjectGateCandidateAndTestEntries(preparedCandidate, externalConsumer, testLanes),
-    ...createProjectGateRepositoryQualityEntries(repositoryQuality),
-    ...createProjectGateMaterialsAndGovernanceEntries(),
+    },
     createProjectGateCommandEntry({
       invocation: {
         args: ["diff", "--check"],

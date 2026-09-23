@@ -15,14 +15,37 @@ export interface ProjectGateEntry {
   readonly required: boolean;
 }
 
-/** Freezes entries after validating their selection metadata and static relation inputs. */
+/** Gate-owned scheduling metadata supplied before manifest normalization. */
+export interface ProjectGateEntryDeclaration extends ProjectGateEntry {
+  readonly mutex?: readonly string[];
+  readonly resourceClaims?: Readonly<Record<string, number>>;
+}
+
+/** Validates the manifest, then projects Gate-owned scheduling fields onto ordinary Checks. */
 export function defineProjectGateEntries(
-  entries: readonly ProjectGateEntry[]
+  entries: readonly ProjectGateEntryDeclaration[]
 ): readonly ProjectGateEntry[] {
   const entriesByCheckId = new Map<string, ProjectGateEntry>();
   for (const entry of entries) validateProjectGateEntryMetadata(entry, entriesByCheckId);
   for (const entry of entries) validateProjectGateEntryRelations(entry, entriesByCheckId);
-  return Object.freeze([...entries]);
+  return Object.freeze(
+    entries.map(({ check, mutex, presets, required, resourceClaims }) =>
+      Object.freeze({
+        check:
+          mutex === undefined && resourceClaims === undefined
+            ? check
+            : Object.freeze({
+                ...check,
+                ...(mutex === undefined ? {} : { mutex: Object.freeze([...mutex]) }),
+                ...(resourceClaims === undefined
+                  ? {}
+                  : { resourceClaims: Object.freeze({ ...resourceClaims }) })
+              }),
+        presets: Object.freeze([...presets]),
+        required
+      })
+    )
+  );
 }
 
 function validateProjectGateEntryRelations(

@@ -9,7 +9,7 @@ import {
 import type { Check } from "@zxyycom/vibe-check";
 
 import type { ProjectGatePreset } from "../../runtime/catalog.ts";
-import type { ProjectGateEntry } from "../../runtime/entries.ts";
+import type { ProjectGateEntryDeclaration } from "../../runtime/entries.ts";
 import {
   EXTERNAL_CONSUMER_ARTIFACT_PATH_ENV,
   EXTERNAL_CONSUMER_ARTIFACT_SHA256_ENV,
@@ -20,10 +20,7 @@ import {
   type ExternalConsumerMaterialData,
   validateExternalConsumerMaterialPhysical
 } from "../../../../package/candidate/external-consumer/input.ts";
-import {
-  createProjectGateCommandEntry,
-  type GateCommandDataDependency
-} from "../entry-factories.ts";
+import { createProjectGateCommandEntry } from "../entry-factories.ts";
 import {
   parseProjectGatePreparedCandidateData,
   type ProjectGatePreparedCandidateData
@@ -55,8 +52,9 @@ export function createProjectGateTestEntries(
     readonly lanes: ProjectGateTestLanes;
     readonly preparedCandidate: Check;
     readonly repositoryRoot: string;
+    readonly resourceClaims: Readonly<Record<string, number>>;
   }>
-): readonly ProjectGateEntry[] {
+): readonly ProjectGateEntryDeclaration[] {
   return Object.freeze(
     input.definitions.map((definition) =>
       createProjectGateTestEntry({
@@ -64,7 +62,8 @@ export function createProjectGateTestEntries(
         externalConsumer: input.externalConsumer,
         files: input.lanes[definition.lane],
         preparedCandidate: input.preparedCandidate,
-        repositoryRoot: input.repositoryRoot
+        repositoryRoot: input.repositoryRoot,
+        resourceClaims: input.resourceClaims
       })
     )
   );
@@ -98,8 +97,10 @@ function createProjectGateTestEntry(input: {
   readonly files: readonly string[];
   readonly preparedCandidate: Check;
   readonly repositoryRoot: string;
-}): ProjectGateEntry {
-  const { definition, externalConsumer, files, preparedCandidate, repositoryRoot } = input;
+  readonly resourceClaims: Readonly<Record<string, number>>;
+}): ProjectGateEntryDeclaration {
+  const { definition, externalConsumer, files, preparedCandidate, repositoryRoot, resourceClaims } =
+    input;
   const processEntry = {
     checkId: definition.checkId,
     displayName: definition.displayName,
@@ -107,28 +108,27 @@ function createProjectGateTestEntry(input: {
     ...(definition.mutex === undefined ? {} : { mutex: definition.mutex }),
     presets: definition.presets,
     required: definition.required,
+    resourceClaims,
     ...(definition.timeoutMs === undefined ? {} : { timeoutMs: definition.timeoutMs })
   };
   if (definition.candidateInput === undefined) return createProjectGateCommandEntry(processEntry);
   if (definition.candidateInput === "artifact") {
     return createProjectGateCommandEntry<ProjectGatePreparedCandidateData>({
       ...processEntry,
-      dataDependency: preparedCandidateProcessDependency(preparedCandidate.checkId)
+      dataDependency: {
+        checkId: preparedCandidate.checkId,
+        environment: artifactCandidateEnvironment,
+        parseData: parseProjectGatePreparedCandidateData
+      }
     });
   }
   return createProjectGateCommandEntry<ExternalConsumerMaterialData>({
     ...processEntry,
-    dataDependency: externalConsumerProcessDependency(externalConsumer.checkId)
-  });
-}
-
-function preparedCandidateProcessDependency(
-  checkId: string
-): GateCommandDataDependency<ProjectGatePreparedCandidateData> {
-  return Object.freeze({
-    checkId,
-    environment: artifactCandidateEnvironment,
-    parseData: parseProjectGatePreparedCandidateData
+    dataDependency: {
+      checkId: externalConsumer.checkId,
+      environment: externalConsumerEnvironment,
+      parseData: parseExternalConsumerMaterialData
+    }
   });
 }
 
@@ -140,16 +140,6 @@ function artifactCandidateEnvironment(
     [CANDIDATE_ARTIFACT_SHA256_ENV]: data.sha256,
     [CANDIDATE_STAGING_DIRECTORY_ENV]: data.stagingDirectory,
     [CANDIDATE_VERSION_ENV]: data.candidateVersion
-  });
-}
-
-function externalConsumerProcessDependency(
-  checkId: string
-): GateCommandDataDependency<ExternalConsumerMaterialData> {
-  return Object.freeze({
-    checkId,
-    environment: externalConsumerEnvironment,
-    parseData: parseExternalConsumerMaterialData
   });
 }
 

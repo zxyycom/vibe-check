@@ -77,7 +77,7 @@ it("wires one plain command through Product execution and Gate failure evidence"
     });
     assert.match(readFileSync(join(root, "process.log"), "utf8"), /status=failed/);
     assert.deepEqual(entry.check.dependsOn ?? [], []);
-    assert.deepEqual(entry.check.mutex, ["fixture-resource"]);
+    assert.deepEqual(entry.mutex, ["fixture-resource"]);
     assert.deepEqual(entry.presets, ["test"]);
     assert.equal(entry.required, true);
   } finally {

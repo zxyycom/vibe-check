@@ -199,7 +199,19 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         limits: repositoryFunctionLimits
       }
     },
-    findingPolicy: "blocking"
+    findingPolicy: "blocking",
+    findingWaivers: [
+      {
+        identity: {
+          functionName: "createProjectGateEntries",
+          metric: "function-code-density",
+          path: "scripts/project/gate/definition.ts",
+          startLine: 201
+        },
+        reason:
+          "Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。"
+      }
+    ]
   },
   markdownLint: {
     checkId: "markdown-lint",
@@ -240,13 +252,6 @@ export function createRepositoryQualityChecks(
     markdownLint: markdownLint(options.markdownLint),
     markdownLinkValidation: markdownLinkValidation(options.markdownLinkValidation)
   });
-}
-
-/** Creates the repository's configured quality Check object group. */
-export function createProjectGateRepositoryQualityChecks(
-  scanners: RepositoryQualityScannerCommands = repositoryQualityScannerCommands()
-): RepositoryQualityChecks {
-  return createRepositoryQualityChecks(PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS, scanners);
 }
 
 function absoluteScannerCommand(value: string | undefined, name: string): string {

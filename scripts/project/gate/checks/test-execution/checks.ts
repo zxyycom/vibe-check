@@ -1,22 +1,6 @@
-import {
-  defineProjectGateTestChecks,
-  type PreparedCandidateProcessInput,
-  type ProjectGateTestCheckDefinition
-} from "./entries.ts";
-import type { ProjectGateTestLaneName } from "./lanes.ts";
+import { defineProjectGateTestChecks, type ProjectGateTestCheckDefinition } from "./entries.ts";
 
-interface RoutineTestDefinition {
-  readonly checkId: string;
-  readonly displayName: string;
-  readonly lane: ProjectGateTestLaneName;
-}
-
-interface PackageTestDefinition extends RoutineTestDefinition {
-  readonly candidateInput: PreparedCandidateProcessInput;
-  readonly timeoutMs: number;
-}
-
-/** Creates the complete test-lane Check descriptor group with Gate-owned overrides. */
+/** Declares the closed test-lane group and its Gate selection metadata. */
 export function createProjectGateTestCheckDefinitions(
   input: Readonly<{
     readonly repositoryMaterialsMutex: readonly string[];
@@ -24,117 +8,133 @@ export function createProjectGateTestCheckDefinitions(
   }>
 ): readonly ProjectGateTestCheckDefinition[] {
   return defineProjectGateTestChecks([
-    routineTest({
+    {
       checkId: "tests-package-supporting",
       displayName: "Bun package calculation and material tests",
-      lane: "packageSupporting"
-    }),
-    packageTest({
+      lane: "packageSupporting",
+      presets: ["test"],
+      required: true
+    },
+    {
       candidateInput: "artifact",
       checkId: "tests-package-artifact",
       displayName: "Bun package artifact acceptance",
       lane: "packageArtifact",
+      presets: [],
+      required: false,
       timeoutMs: input.packageAcceptanceTimeoutMs
-    }),
-    packageTest({
+    },
+    {
       candidateInput: "external-consumer",
       checkId: "tests-package-consumer-types",
       displayName: "Bun external package consumer type acceptance",
       lane: "packageConsumerTypes",
+      presets: [],
+      required: false,
       timeoutMs: input.packageAcceptanceTimeoutMs
-    }),
-    packageTest({
+    },
+    {
       candidateInput: "external-consumer",
       checkId: "tests-package-consumer-docs",
       displayName: "Bun external package consumer documentation acceptance",
       lane: "packageConsumerDocs",
+      presets: [],
+      required: false,
       timeoutMs: input.packageAcceptanceTimeoutMs
-    }),
-    packageTest({
+    },
+    {
       candidateInput: "external-consumer",
       checkId: "tests-package-consumer-runtime",
       displayName: "Bun external package consumer runtime acceptance",
       lane: "packageConsumerRuntime",
+      presets: [],
+      required: false,
       timeoutMs: input.packageAcceptanceTimeoutMs
-    }),
-    routineTest({
+    },
+    {
       checkId: "tests-product-duplicate-detection",
       displayName: "Bun Product duplicate detection tests",
-      lane: "productDuplicateDetection"
-    }),
-    routineTest({
+      lane: "productDuplicateDetection",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-product-file-metrics",
       displayName: "Bun Product file metrics tests",
-      lane: "productFileMetrics"
-    }),
-    routineTest({
+      lane: "productFileMetrics",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-product-function-metrics",
       displayName: "Bun Product function metrics tests",
-      lane: "productFunctionMetrics"
-    }),
-    routineTest({
+      lane: "productFunctionMetrics",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-product-json",
       displayName: "Bun Product JSON tests",
-      lane: "productJsonChecks"
-    }),
-    routineTest({
+      lane: "productJsonChecks",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-product-markdown-links",
       displayName: "Bun Product Markdown link tests",
-      lane: "productMarkdownLinks"
-    }),
-    routineTest({
+      lane: "productMarkdownLinks",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-product-secret-detection",
       displayName: "Bun Product secret detection tests",
-      lane: "productSecretDetection"
-    }),
-    routineTest({
+      lane: "productSecretDetection",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-product-supporting-checks",
       displayName: "Bun Product supporting Check tests",
-      lane: "productSupportingChecks"
-    }),
-    routineTest({
+      lane: "productSupportingChecks",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-product-runtime",
       displayName: "Bun Product runtime tests",
-      lane: "productRuntime"
-    }),
-    routineTest({
+      lane: "productRuntime",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-scripts-project",
       displayName: "Bun Project tooling tests",
-      lane: "scriptsProject"
-    }),
-    routineTest({
+      lane: "scriptsProject",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-scripts-test-evidence",
       displayName: "Bun Test Evidence tooling tests",
-      lane: "scriptsTestEvidence"
-    }),
-    {
-      ...routineTest({
-        checkId: "tests-scripts-validation",
-        displayName: "Bun validation tooling tests",
-        lane: "scriptsValidation"
-      }),
-      mutex: input.repositoryMaterialsMutex
+      lane: "scriptsTestEvidence",
+      presets: ["test"],
+      required: true
     },
-    routineTest({
+    {
+      checkId: "tests-scripts-validation",
+      displayName: "Bun validation tooling tests",
+      lane: "scriptsValidation",
+      mutex: input.repositoryMaterialsMutex,
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-scripts-tooling",
       displayName: "Bun ordinary script tooling tests",
-      lane: "scriptsTooling"
-    })
+      lane: "scriptsTooling",
+      presets: ["test"],
+      required: true
+    }
   ]);
-}
-
-function routineTest(input: RoutineTestDefinition): ProjectGateTestCheckDefinition {
-  return Object.freeze({
-    ...input,
-    presets: Object.freeze(["test"] as const),
-    required: true
-  });
-}
-
-function packageTest(input: PackageTestDefinition): ProjectGateTestCheckDefinition {
-  return Object.freeze({
-    ...input,
-    presets: Object.freeze([]),
-    required: false
-  });
 }
