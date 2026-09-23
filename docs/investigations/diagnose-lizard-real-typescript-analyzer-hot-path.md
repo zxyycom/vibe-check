@@ -49,6 +49,8 @@ relations:
 - 这里的 analyzer-only 边界包括 reader selection、tokenization、reader/state machine、processor 和 function-metric projection；不包括 file discovery/read/decode、request JSON parse、Worker transport、Product adapter/finding/settlement 或 process startup。它仍不能代表完整 Product 性能。
 - TypeScript 调查在 Bun 1.3.14 上运行；Python 调查在 CPython 3.12.13 / upstream Lizard 1.24.0 / Pygments 2.18.0 上运行。`provenance.json` 记录整理本报告时的 worktree identity（HEAD `49b57cbf99747d516c4d95390b5d01ffb2f2b40d`、tree `c4812449ad73fb208b066c397d024c09f219e4c3` 及四个相关 source SHA-256），以及 request、driver 和采样输出来源/哈希。原始 `/tmp` evidence 未在执行时嵌入 HEAD/tree/source hash，故这些 consolidation-time identity **不能追溯证明** profile/反事实执行时正是该版本。
 
+**2026-09-23 资源补存（不属于形成时新增观测）：**原先随附的 Bun profile Markdown 渲染与 `/tmp/vibe-lizard-real-ts-profile-20260903/bun-facade.cpuprofile.md` 逐字节一致，现原样保存为 `.txt`（SHA-256 `fe6b431ec3e7da672de4ad8deedbefec3199ae69e6f1440770838de1634b1c3c`）；同目录仍存的原生 JSON 格式采样文件包含 20,854 个 samples，补存为 `.cpuprofile`（SHA-256 `15f5fca7640ae33a6abab10b70ef6cdac7acd029933badb6078dc2ec6193ddd8`）。`provenance.json` 保留当时未入库的事实并记录本次补存；采样文件本身仍未嵌入执行时的 source identity，不能据此加强上述版本归属结论。
+
 ### TypeScript：resolver 排除和分层观测
 
 1. 对当前 `analyzeLizardSource` instrumentation，254 个真实 ASCII `.ts` path 的 `matchFilename` 调用数为 **0**，输出 guard 仍通过。这是当前 façade fast path 命中的直接计数证据。
@@ -105,7 +107,8 @@ Python cProfile 的热点也位于 tokenization、processors 和 TypeScript stat
 - [python stage driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-driver.py)
 - [python stage measurement](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/python-stage-measurement.json)
 - [typescript base tokenizer](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-base-tokenizer.json)
-- [typescript Bun CPU profile](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.md)
+- [typescript Bun CPU profile 原生采样](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.cpuprofile)
+- [typescript Bun CPU profile 原样文本渲染](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-bun-cpu-profile.txt)
 - [typescript CPU profile run](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-cpu-profile-run.json)
 - [typescript façade direct counterfactual](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-counterfactual.json)
 - [typescript façade direct driver](./_resources/260903-diagnose-lizard-real-typescript-analyzer-hot-path/typescript-facade-direct-driver.ts)

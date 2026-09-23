@@ -144,7 +144,9 @@ Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` fin
 
 这四项都是 required 与 `quality` preset 的成员，故其未豁免 normal Finding 会由 owning Check 结算为 failed，并通过默认 strict-all aggregate 阻断 required、`--quality` 与 `--all` invocation；`markdown-link-validation` 还是 `materials` preset 成员，因此同样阻断 `--materials`。Gate 不从 Finding、message 或 Record 重算这个结果。此处的 repository-private blocking policy 不改变 package constructor：duplicate detection、file metrics、function metrics 与 Markdown Link 在 consumer 省略 `findingPolicy` 时继续使用 `non-blocking` advisory default。
 
-`markdown-lint` 是第五个、独立的 docs/changes Check，属于 required、`materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：所有 lint Finding 继续以该 Check 的 Records、消息和 final data 输出，却不使 owning Check 或 aggregate failed。2026-09-22 的 502-source corpus 有 59 条 Finding，集中于三个 investigation/resource source（43 条 table column、16 条 reference link/image）；因此当前没有静默 exclusion、规则更改或 blocking migration。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算；未来若要 blocking，必须由独立 Change 消除或重审该 corpus。
+`markdown-lint` 是第五个、独立的 docs/changes Check，属于 required、`materials` 与 `quality`。它固定八项默认规则而不启用 `link-fragments`，并显式保持 `non-blocking`：lint Finding 以 owning Check 的 Records、消息和 final data 输出，不使 owning Check 或 aggregate failed。空输入和 source/backend failure 仍按 package 的 `not-applicable` / `unavailable` 语义结算。
+
+2026-09-22 的 502-source 基线曾有 59 条 Finding。将两份 CPU profile 原样渲染改作 `.txt` 资源、补存原生采样并修正余下报告表格后，2026-09-23 的 required Gate 对 503 个 Markdown source 得到 0 条 Finding、0 个 rejected input。项目没有为清零而排除文件或规则；`non-blocking` policy 仍不变。若要改为 blocking，须依据届时 corpus 单独审查 policy。
 
 同一 `blocking` policy 适用于 required、`--all` 和正式 release receipt 验证；它不新增 release-only reducer 或 waiver，既有 waiver/exclusion 仍只由 owning Check 解释。external-command/source/parse/analysis unavailable、其它 failed Check、candidate 不一致或发布授权缺失不属于普通质量 Finding，仍按各自 owner 阻断。
 

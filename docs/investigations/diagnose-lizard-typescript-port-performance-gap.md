@@ -55,6 +55,8 @@ relations:
 - **探索性隔离实验：**分别测 reader dispatch，并以只在 `/tmp` 执行的 suffix index 反事实实现与当前 façade 交替计时。反事实先通过 3,456 files 的 byte-identical JSON output preflight。该实验不是 fresh-process、15-block 正式 before/after benchmark，只用于判断候选是否值得进入后续 Change。
 - **runtime 筛查：**用 `bun build --target=node` 生成同一个 bundle（SHA-256 `ebdb65e5e60615910d6aca5f27c69f489a2c150eaa937565fe251caa84c2baf6`），分别由 Bun 1.3.14 与项目 engine range 内的 Node 24.18.0 运行同一个 request（SHA-256 `7b0c68abab42a12e1f6799d94f8e23f777600dcca1a8e484d18048b5c0bf68ff`）。命令、可执行文件版本、bundle identity 和 Bun `process.version` 兼容值见随附方法记录。该 9-sample 顺序筛查不是跨 runtime ABBA，也不构成更换 Product runtime 的建议。
 
+**2026-09-23 资源补存（不属于形成时新增观测）：**原先随附的 Bun profile Markdown 渲染与 `/tmp/vibe-lizard-profile/harness.cpuprofile.md` 逐字节一致，现原样保存为 `.txt`（SHA-256 `02703f9cd84ccf668d0edde563145b21ede425f1195811b3264513ad0ebd4671`）；同目录仍存的原生 JSON 格式采样文件包含 13,992 个 samples，与渲染摘要一致，补存为 `.cpuprofile`（SHA-256 `d1d1686d1b0eb3d1ee94e4d3ab7e48b9e2328ab6c1a9e462b16edb7acbf764c9`）。这是事后恢复的采样字节，不追溯证明形成时的执行环境或版本身份。
+
 另以 pre-resolved reader 对 27 families 各执行 15 次 warmed observation，用于排列剩余 core hotspot。Python 与 TypeScript 分别顺序采样，未做跨 runtime ABBA，故只报告方向和候选集中度，不将 family 数字当作发布性能承诺。
 
 ## 调查结果与边界
@@ -141,7 +143,8 @@ TypeScript profile 也把 shared tokenizer regex、native `regExpExec`、Fortran
 - [runtime control entry](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-entry.ts)
 - [runtime control 方法与版本](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-method.md)
 - [runtime control Node 24 结果](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/runtime-control-node-24.json)
-- [TypeScript Bun CPU profile](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.md)
+- [TypeScript Bun CPU profile 原生采样](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.cpuprofile)
+- [TypeScript Bun CPU profile 原样文本渲染](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-cpu-profile.txt)
 - [TypeScript dispatch 反事实证据](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-dispatch-counterfactual.json)
 - [TypeScript RegExp construction raw 观测](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-regexp-construction.json)
 - [TypeScript upstream reader selection raw 观测](./_resources/260903-diagnose-lizard-typescript-port-performance-gap/typescript-selection.json)
