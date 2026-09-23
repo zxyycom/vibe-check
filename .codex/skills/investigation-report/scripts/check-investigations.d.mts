@@ -115,7 +115,7 @@ export type InvestigationCandidatePublishResult = {
 
 export type InvestigationCandidateDiscardOptions = {
   deleteOwnedResources?: boolean;
-  deleteRecordedCandidate?: boolean;
+  deleteRecorded?: boolean;
   id: string;
   investigationsDir?: string;
   workspaceRoot: string;
@@ -178,7 +178,7 @@ export type InvestigationReportCheckResult = {
 
 export type InvestigationIndexSyncOptions = {
   investigationsDir?: string;
-  mode?: "check" | "write";
+  preflight?: boolean;
   selectors?: readonly string[];
   workspaceRoot: string;
 };
@@ -201,45 +201,69 @@ export type InvestigationIndexSyncResult = {
   warnings: string[];
 };
 
-export type InvestigationIndexStageOptions = {
+export type InvestigationStageScope = "all" | "index" | "domain";
+
+export type InvestigationStageOptions = {
   investigationsDir?: string;
   reportIds: readonly string[];
+  scope?: InvestigationStageScope;
   workspaceRoot: string;
 };
 
-export type InvestigationIndexStageDiagnostic = {
+export type InvestigationStageDiagnostic = {
   code: string;
   message: string;
   path: string | null;
   stateId: string | null;
 };
 
-type InvestigationIndexStageBase = {
-  diagnostics: InvestigationIndexStageDiagnostic[];
+type InvestigationStageBase = {
+  diagnostics: InvestigationStageDiagnostic[];
   indexPath: string;
   namespace: string;
   selectedIds: string[];
 };
 
-export type InvestigationIndexStageResult =
-  | (InvestigationIndexStageBase & {
+type InvestigationStagePendingMutation = {
+  outcome: "no-change" | "partial-or-unknown";
+  scope: string;
+};
+
+export type InvestigationStageResult =
+  | (InvestigationStageBase & {
+      callerOwnedPaths: readonly string[];
       changed: true;
+      preservedPendingPaths: readonly string[];
+      scope: InvestigationStageScope;
       state: "staged";
       status: "ok";
+      writtenPaths: readonly string[];
     })
-  | (InvestigationIndexStageBase & {
+  | (InvestigationStageBase & {
+      callerOwnedPaths: readonly string[];
       changed: false;
+      preservedPendingPaths: readonly string[];
+      scope: InvestigationStageScope;
       state: "unchanged";
       status: "ok";
+      writtenPaths: readonly string[];
     })
-  | (InvestigationIndexStageBase & {
+  | (InvestigationStageBase & {
       changed: false;
       state: string;
       status: "error";
     })
-  | (InvestigationIndexStageBase & {
+  | (InvestigationStageBase & {
       changed: null;
+      pending: InvestigationStagePendingMutation;
       state: "pending-recovery-failed";
+      status: "error";
+    })
+  | (InvestigationStageBase & {
+      changed: false;
+      pending?: InvestigationStagePendingMutation;
+      scope: InvestigationStageScope;
+      state: string;
       status: "error";
     });
 
@@ -397,9 +421,9 @@ export declare function runInvestigationReportCheckCli(
 export declare function synchronizeInvestigationIndex(
   options: InvestigationIndexSyncOptions
 ): Promise<InvestigationIndexSyncResult>;
-export declare function stageInvestigationIndex(
-  options: InvestigationIndexStageOptions
-): Promise<InvestigationIndexStageResult>;
+export declare function stageInvestigationReports(
+  options: InvestigationStageOptions
+): Promise<InvestigationStageResult>;
 export declare function queryInvestigationIndex(
   options: InvestigationIndexQueryOptions
 ): Promise<InvestigationIndexQueryResult>;
@@ -418,7 +442,7 @@ export declare function validateInvestigationReports(
 
 export type InvestigationReportDiscardOptions = {
   deleteOwnedResources?: boolean;
-  deleteRecordedReport?: boolean;
+  deleteRecorded?: boolean;
   id: string;
   investigationsDir?: string;
   workspaceRoot: string;
@@ -433,9 +457,11 @@ export type InvestigationReportDiscardResult = {
   requiresRecordedDeletionConfirmation: boolean;
 };
 
-export declare function discardInvestigationReport(
+export declare function discardInvestigationRecord(
   input: unknown
-): Promise<InvestigationReportDiscardResult>;
+): Promise<
+  InvestigationReportDiscardResult | InvestigationCandidateDiscardResult
+>;
 
 export declare function createInvestigationCandidate(
   input: unknown
@@ -449,9 +475,6 @@ export declare function showInvestigationCandidate(
 export declare function publishInvestigationCandidates(
   input: unknown
 ): Promise<InvestigationCandidatePublishResult>;
-export declare function discardInvestigationCandidate(
-  input: unknown
-): Promise<InvestigationCandidateDiscardResult>;
 export declare function renameInvestigationRecord(
   options: InvestigationRenameOptions
 ): Promise<InvestigationRenameResult>;

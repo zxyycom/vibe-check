@@ -5,7 +5,7 @@ description: >-
   兼容性、风险处理或验收方式的决定，恢复或审阅既有长期判断，拟议决定与
   既有决定冲突，或明确构造决策待提交快照时使用。
 metadata:
-  version: "61"
+  version: "66"
 ---
 
 # Decision Records
@@ -33,7 +33,7 @@ agent 在当前请求或生效项目规则授权的范围内，自行审查记�
 ## 读取路径
 
 1. 先读目标工作区指令和任务直接相关的当前事实来源，定位集合：在目标工作区内执行时省略 `--root`（默认当前目录）；跨工作区调用才显式提供 `--root <workspace-root>`，领域目录始终使用工作区内相对 `--decisions-dir`。集合整体不存在时视为尚未初始化。
-2. 按下表定位相关记录；摘要足够时停止扩大读取，只有需要历史或完整演进图时才继续追溯。
+2. 按当前已知信息选择信息损失最小的入口定位相关记录，不固定 candidate-first 或正式记录优先；摘要足够时停止扩大读取，只有需要历史或完整演进图时才继续追溯。查询在足以区分继续候选、完善原记录、建立独立记录或无需记录时停止。
 3. 候选写入、已建立记录维护、身份更正、暂存快照或结构审阅前，完整读取[决策记录规则](references/decision-record-rules.md)。它承接身份、正文、生命周期、关系和维护不变量；索引精确机器结构由 [Schema](references/decision-index.schema.json) 承接，命令参数与输出查 `--help`。
 4. 首次候选集合、工具不可用、索引异常或写入中断时，读取[状态与维护恢复](references/maintenance-recovery.md)，按实际状态选择验证或恢复路径。
 
@@ -64,7 +64,7 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 
 ### 2. 恢复并使用已有判断
 
-恢复全部直接相关的 active 判断，从其目的、背景和决策恢复长期结果、选择依据与限制，再对照当前事实来源分类处理：
+先按“读取路径”选择最小查询入口并完整读取全部直接相关的 active 判断，从其目的、背景和决策恢复长期结果、选择依据与限制，再对照当前事实来源分类处理：
 
 | 情形 | 处理 |
 | --- | --- |
@@ -83,7 +83,7 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 3. 内容是判断或取舍，而非事实、任务、进度或执行结果。
 4. 能作为整体独立演进和判断对齐。
 
-先按[记录边界与有效演进](references/decision-record-rules.md#记录边界与有效演进)区分原地完善、独立新判断与真实后继；Git 提交或出现纠正本身不构成演进依据。需要新建且已获授权时，用 `new` 创建候选，完成“目的、背景、决策”正文，使摘要、tags 与直接关系都有正文依据。创建成功后继续编辑并查看 readiness；未就绪表示需要完善现有候选，而非重跑 `new`。
+先按[记录边界与有效演进](references/decision-record-rules.md#记录边界与有效演进)区分原地完善、独立新判断与真实后继；Git 提交或出现纠正本身不构成演进依据。准备新建时，先用最小查询同时确认没有相关 candidate 与已建立记录覆盖同一判断：命中未完成候选时继续该候选，应原地完善时完善原记录，确认独立后才新建，查询已说明无需记录时停止维护。需要新建且已获授权时，用 `new` 创建候选，完成“目的、背景、决策”正文，使摘要、tags 与直接关系都有正文依据。创建成功后继续编辑并查看 readiness；未就绪表示需要完善现有候选，而非重跑 `new`。
 
 新建或调整真实直接关系时，依据两端正文为每条边填写 `summary`，简述相对前序的具体变化或承接范围；格式与示例见[演进关系](references/decision-record-rules.md#演进关系)。
 
@@ -91,35 +91,36 @@ Decision ID 是 frontmatter `id` 声明的稳定身份，`sourcePath` 只定位�
 
 | 需要的结果 | 操作与边界 |
 | --- | --- |
-| 建立已审核、body-ready 的候选 | `activate`；多个后继或完整演进用 `evolve`。 |
+| 建立已审核、body-ready 的候选 | `publish`；多个后继或完整演进用 `evolve`。 |
 | 既有方向发生真实取舍变化，前后判断均有独立回放价值 | 创建新记录；真实承接前序时才建立演进关系，拆分或重划须覆盖前序继续有效的长期含义。 |
 | 记录误述、理由补足或表述纠正，采用方向与范围未实质变化 | 完善原记录，再同步索引；候选收敛也继续编辑原候选。 |
 | 完整未来方向已成为当前事实 | 核对事实后用 `mark-aligned`。 |
-| 退出当前依据或重新启用历史记录 | `archive` 或 `activate`，保留既有历史边界。 |
+| 退出当前依据或重新启用历史记录 | `archive` 或 `reactivate`，保留既有历史边界。 |
+| 只修正已建立记录的正式关系（含清空与摘要），不改变任何生命周期 | `set-relations`，按 `--source` 分组完整替换；同一判断需要同时改变生命周期时才用 `evolve`。 |
 | 更正 ID/name | `rename`，由事务统一维护身份、引用、位置和索引。 |
 | 明确删除记录 | `discard`；与演进原子组合时显式使用 `evolve --discard <decision-id>`。成功结果报告为删除，而非归档。 |
 
 已建立记录的生命周期、alignment 和关系通过 CLI 事务维护；非法 alignment 只能按恢复手册取得字段授权后原位修复。索引从 Markdown 派生。
 
-需要只读预演时，新候选使用 `activate` 或 `evolve --preflight` 以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。重新激活 archived 记录保留既有关系，不适用该核对。
+需要只读预演时，新候选使用 `publish --preflight` 或 `evolve --preflight`，正式记录的原地关系修正使用 `set-relations --preflight`，均以本次完整参数验证，并返回预计的完整 `relationReview`。预检零写入，不能作为正式执行的提交凭据；正式执行仍须重新提供参数、重新验证，并只以 `committed` review 确认已提交的完整关系。`reactivate` 只执行 `archived` → `active`，保留既有关系与 createdAt，不进入该关系核对。
 
 拆分或重划先用重复 `--successor` 选择完整后继集合；这是本次闭合事件的成员，不表示各成员必须使用相同关系。再按[后继集合与语义闭合](references/decision-record-rules.md#后继集合与语义闭合)核对承接范围，并为每个成员确定其完整最终 relations：
 
 | 需要的最终关系 | `evolve` 输入选择 |
 | --- | --- |
 | 首次建立的候选，或关系应保留各自 Markdown 的原值 | 省略所有关系覆盖选项。 |
-| 所有已选后继都替换为同一完整集合 | 不使用 `--relations-for`，提供统一的 `--relation`、可选 `--relation-summary`，或 `--clear-relations`。 |
-| 不同后继需要不同完整集合、摘要或清空结果 | 用 `--relations-for <successor-selector>` 为每个要替换的后继开始一组；组内提供其完整 `--relation` 与可选摘要，或 `--clear-relations`。未分组的已选后继保留各自原值。 |
+| 所有已选后继都替换为同一完整集合 | 不使用 `--source` 分组，提供统一的 `--relation`、可选 `--relation-summary`，或 `--clear-relations`。 |
+| 不同后继需要不同完整集合、摘要或清空结果 | 用 `--source <successor-selector>` 为每个要替换的后继开始一组；组内提供其完整 `--relation` 与可选摘要，或 `--clear-relations`。未分组的已选后继保留各自原值。 |
 
-统一覆盖与分组互斥；分组中的 relation、summary 和 clear 只属于该组。完整 replacement 不合并旧关系，未随 replacement 提供的摘要会移除。组的精确参数、顺序和诊断以 `evolve --help` 为准；完整成员、分组载荷和失败边界见[完整替换与摘要绑定](references/decision-record-rules.md#完整替换与摘要绑定)。
+统一覆盖与分组互斥；分组中的 relation、summary 和 clear 只属于该组。完整 replacement 不合并旧关系，未随 replacement 提供的摘要会移除。分组语法与 Investigation Report 的 `set-relations` 一致。组的精确参数、顺序和诊断以 `evolve --help` 为准；完整成员、分组载荷和失败边界见[完整替换与摘要绑定](references/decision-record-rules.md#完整替换与摘要绑定)。
 
 由 CLI 检查 Git 维护门禁。命令暂停时，核对受检 ID、操作与写入状态，按[维护范围与确认](references/decision-record-rules.md#维护范围与确认)自行复核历史价值及授权后显式选择；需要用户决定时才询问。中断或恢复不完整时按恢复手册处理。
 
 ### 5. 同步、验证与交付
 
-1. 手工修改已建立 Markdown、怀疑索引陈旧或准备维护时，先运行严格 `check`。definition 过期而来源合法时，按[索引恢复](references/maintenance-recovery.md#索引恢复)全量重建；非法已建立来源先按该手册修复原位字段，不能以同步、旧索引或默认值补齐。`--select` 只用于可信基线上的已知局部合法变化，添加 `--write` 才发布投影。
+1. 已知合法来源变化先 `sync-index` 再运行严格 `check`；未解释的索引异常先严格 `check` 诊断，再同步或修复。definition 过期而来源合法时，按[索引恢复](references/maintenance-recovery.md#索引恢复)全量重建；非法已建立来源先按该手册修复原位字段，不能以同步、旧索引或默认值补齐。`sync-index` 默认写入并发布完整索引，`--preflight` 零写入预演；`--select` 只用于可信基线上的已知局部合法变化，仍发布完整索引。
 2. 已建立集合的维护结束时运行严格 `check`。首次候选集合按恢复手册验收结构，保持候选准备、语义审核与建立三者独立。
-3. 任务要求 Git pending 快照时，用 `stage <selector...>` 选择完整 Decision ID；它只构造待提交快照，不替代同步或改变生命周期。
+3. 任务要求 Git pending 快照时，用 `stage <selector...> [--scope all|index|domain]` 选择完整 Decision ID；它只构造待提交快照，不替代同步或改变生命周期。默认 `all` 原子写入所选索引投影与所选正式 Markdown；`index` 只写入索引投影；`domain` 只写入所选正式 Markdown 并保持 pending 索引字节不变。索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。删除与重命名按同一 selector 模型：基线-only 旧 ID 写入删除，重命名显式同时选择旧 ID 与新 ID。pending、commit 与 push 仍由调用方按授权显式完成。
 4. 按任务出口交付：只读任务说明适用判断及结果边界；候选任务说明回放价值与 readiness；维护任务说明实际状态、关系、删除或对齐变化及验证证据；暂存任务说明选中的完整 ID 与 pending 结果。验证无法完成时明确未证明的范围。
 
 ## CLI 入口

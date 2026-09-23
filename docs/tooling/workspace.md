@@ -219,7 +219,9 @@ raw output 不改变这一边界。
 
 ### 治理、来源映射与 Project Gate 调用
 
-`bun run investigations` 默认执行完整检查。列出或同步 Investigation 索引时使用 `bun run investigations -- list` 或 `bun run investigations -- sync-index`；项目 adapter 将默认 root 绑定到当前仓库。只有需要覆盖该默认值时才在子命令之前传入 `--root <path>`，例如 `bun run investigations -- --root <path> list`。
+`bun run investigations` 默认执行完整检查，`bun run investigations -- list` 只读。`bun run investigations -- sync-index` 与 `bun run decisions -- sync-index` 均默认写入并发布完整派生索引；只读预演须显式添加 `--preflight`。同步条件与恢复顺序分别由 [Investigation Report](../../.codex/skills/investigation-report/SKILL.md) 和 [Decision Records](../../.codex/skills/decision-records/SKILL.md) 拥有。
+
+项目 adapter 将默认 root 绑定到当前仓库。只有需要覆盖该默认值时才在子命令之前传入 `--root <path>`，例如 `bun run investigations -- --root <path> list`。
 
 Decision 与 Investigation 的正式身份均为 frontmatter 中 calendar-valid 的 `YYMMDD-<name>`；文件 basename 只是可独立变化的 source locator，身份迁移必须使用所属 skill 的 `rename` 事务。
 

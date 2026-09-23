@@ -98,9 +98,9 @@ writer 在候选、active 与 archive 位置都可用时优先选 name basename�
 
 所有已建立记录都必须有非空 alignment：`aligned` 表示完整方向已经成为当前事实并经核对；`unaligned` 表示已确认、会约束相关选择的未来方向，实施范围由当前任务另行授权。归档保留最后的非空值。alignment 不表示部分落地、任务优先级或实施授权。
 
-`activate` 首次建立只接受 body-ready candidate，写入非空 alignment 与不可变 createdAt。完整未来方向成为当前事实并核对后，用 `mark-aligned` 更新 alignment。重新激活 archived 记录保留原 createdAt 和关系，并由本次 CLI 参数显式确认 alignment。Git 提交与暂存只保存版本管理状态，建立事实由 Markdown 生命周期表达。
+`publish` 首次建立只接受 body-ready candidate，写入非空 alignment 与不可变 createdAt，并按候选声明的关系归档其活动前序。完整未来方向成为当前事实并核对后，用 `mark-aligned` 更新 alignment。`reactivate` 只执行 `archived` → `active`，保留原 createdAt 和关系，并由本次 CLI 参数显式确认 alignment。Git 提交与暂存只保存版本管理状态，建立事实由 Markdown 生命周期表达。
 
-已建立来源的 alignment 缺失、为 `null` 或不在枚举中均非法，不是归档的未知状态。唯一的非 CLI 例外是历史来源的原位字段修复：按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)保留可信 Git 基线和能证明既有状态的历史材料，取得覆盖该字段的针对性授权后才修复；不得通过 activate、archive 或其他生命周期操作补造事件，也不得默认 `unaligned`。
+已建立来源的 alignment 缺失、为 `null` 或不在枚举中均非法，不是归档的未知状态。唯一的非 CLI 例外是历史来源的原位字段修复：按[维护恢复](maintenance-recovery.md#已建立-alignment-无效)保留可信 Git 基线和能证明既有状态的历史材料，取得覆盖该字段的针对性授权后才修复；不得通过 publish、archive 或其他生命周期操作补造事件，也不得默认 `unaligned`。
 
 alignment 始终作用于整条决策：完整方向成为当前事实并核对后，才能由 unaligned 标记为 aligned。可分别修订、归档或对齐的部分应拆成自包含后继；不可独立演进的局部落地仍保持整条 unaligned。已对齐记录后来偏离当前事实时报告一致性问题，保留对齐历史；新的未来目标另建记录。
 
@@ -130,7 +130,7 @@ relations:
 
 ### 后继集合与语义闭合
 
-`evolve` 通过重复 `--successor` 显式选择完整后继集合；每个 successor 是关系 source。该选择集只声明本次闭合事件的完整成员，并不要求成员采用同一最终 relations。事务在同一次处理中为全部成员计算各自完整最终关系，再维护关系、候选建立与活动前序归档。新候选也可通过 `activate` 的单后继入口建立相同关系事务。
+`evolve` 通过重复 `--successor` 显式选择完整后继集合；每个 successor 是关系 source。该选择集只声明本次闭合事件的完整成员，并不要求成员采用同一最终 relations。事务在同一次处理中为全部成员计算各自完整最终关系，再维护关系、候选建立与活动前序归档。单个候选的首次建立用 `publish` 表达，不带关系覆盖输入。
 
 | 演进形状 | 最终集合要求 |
 | --- | --- |
@@ -146,23 +146,31 @@ relations:
 
 | 输入意图 | 最终关系来源 |
 | --- | --- |
-| 首次 activate 或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
+| 首次 publish，或 evolve 省略所有关系覆盖 | 每个后继保留自身完整 relations 与 summary。候选首次建立优先使用此路径。 |
 | 无分组的 `--relation` 与可选 `--relation-summary` | 同一完整 replacement 应用于全部所选后继。 |
 | 无分组的 `--clear-relations` | 全部所选后继使用显式空集合。 |
-| 以 `--relations-for <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
+| 以 `--source <successor-selector>` 开始的组 | 该组 source 使用组内完整 replacement；未分组的所选后继仍保留自身原值。组内可用 `--clear-relations` 显式提供空集合。 |
 | 重新激活 archived 记录 | 保留既有关系，拒绝关系或摘要覆盖。 |
 
-`--relations-for` 开始一个后继组，直到下一个同名选项或命令结束；只有 `--relation`、`--relation-summary` 和 `--clear-relations` 随组归属，其他选项仍作用于整个事务。分组与统一覆盖互斥：出现分组后，首组之前不能有关系选项，且未分组成员不接收统一默认 replacement。
+`--source` 开始一个后继组，直到下一个同名选项或命令结束；只有 `--relation`、`--relation-summary` 和 `--clear-relations` 随组归属，其他选项仍作用于整个事务。分组与统一覆盖互斥：出现分组后，首组之前不能有关系选项，且未分组成员不接收统一默认 replacement。
 
 每个组必须在解析后唯一地指向一个已选 successor，并提供至少一条 `--relation` 或一个 `--clear-relations`。摘要可在同组 relation 前后出现；它按首个 `=` 分隔，后续 `=` 属于摘要，并且只绑定同组完整 `--relation` 集合中的唯一 target。不同组可对同一 target 写入不同摘要。
 
-首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。
+首组前关系选项、空组、只含摘要、clear 与 relation 或 summary 混用、原始重复 source 或 target、以及摘要形状错误属于参数错误：退出 `2` 且零写入。selector 不存在或歧义、解析后重复 source/target、source 未选中、摘要未命中、alignment 不匹配、最终关系形状或闭合错误属于集合解析与领域预演失败：退出 `1` 且零写入。历史确认、锁或写入阶段沿维护恢复的实际 outcome 报告，不能把写入后失败声称为零写入。精确参数顺序与诊断以 `evolve --help` 为准。被取代的 `--relations-for` 分组参数按普通无效参数处理，不保留兼容别名。
 
-新候选的 `activate` 与 `evolve` 以 `relationReview` 承接关系核对：
+新候选的 `publish` 与 `evolve` 以 `relationReview` 承接关系核对：
 
 - review 按规范 source ID 排列，覆盖全部所选后继（包括未分组或最终相同的成员）。每个 source 给出 `action`、同次准备读取的完整 `before` 和规范化完整 `after`；空集合为 `[]`。新候选的 action 恒为 `establish`，正式来源为 `replace` 或 `unchanged`。
 - renderer 只从这组 before/after 推导新增、移除及摘要新增、变更或移除。完整 replacement 未提供摘要即清除旧摘要。
 - `--preflight` 返回 `phase: preflight` 的预计 review 且零写入；正式成功才返回 `phase: committed`。失败不附成功 review，预检不构成提交凭据。
+
+### 正式关系的原地维护
+
+`set-relations` 以 `--source <decision-selector>` 分组完整替换一个或多个**已建立**记录的直接关系，并在同一可恢复事务中重建派生索引。它只修改所选正式 Markdown 的 relations 与派生索引，不建立候选、不归档前序、不改变 status、alignment 或 createdAt；候选的关系继续在候选来源中维护并在 publish 时审核。
+
+选择条件只有一条：只修正关系用 `set-relations`，同一事务需要同时改变生命周期（建立后继、归档前序、删除记录）用 `evolve`。因此 `set-relations` 的最终关系目标必须已经满足领域图约束（目标须为已归档的已建立记录）；需要指向活动前序时，该事件属于 `evolve`。
+
+输入分组、完整替换、清空、摘要绑定、排序和审核结果与 Investigation Report 的 `set-relations` 使用同一协议：每组表示该 source 的完整直接关系集合，重复 source/target、空分组、摘要失配和 clear 混用按参数错误分类；预检与正式成功都返回按规范 source ID 排序、含 `phase`、`action`、完整 `before` 与 `after` 的 `relationReview`。多个 source 在同一请求中形成单一事务，任一 source 失败即整体零写入或恢复。
 
 ## 维护范围与确认
 
@@ -178,7 +186,7 @@ Git 工作树的 unborn HEAD 按空基线处理；Git 工作树外没有此确�
 
 `discard` 删除完整、结构合法且最终集合中无剩余引用的 candidate、active 或 archived 记录。`evolve --discard <id>` 可把删除与演进原子组合：被删 ID 与所选后继互斥，最终关系也须移除该 ID，并继续满足普通演进的形状与闭合规则。
 
-已进入 HEAD 的删除对象，首次未带 `--delete-recorded-decision` 调用在其余条件通过后零写入暂停；取得覆盖删除目标与影响的明确授权后按提示重试。该参数选择本次删除，但不绕过同次 evolve 对其他前序的历史确认。非 Git 工作树、unborn HEAD 或 ID 未进入 HEAD 时正常删除；无确认参数且 HEAD 无法读取时，保持零写入。成功时报告实际删除对象和最终关系。
+已进入 HEAD 的删除对象，首次未带 `--delete-recorded` 调用在其余条件通过后零写入暂停；取得覆盖删除目标与影响的明确授权后按提示重试。该参数选择本次删除，但不绕过同次 evolve 对其他前序的历史确认。非 Git 工作树、unborn HEAD 或 ID 未进入 HEAD 时正常删除；无确认参数且 HEAD 无法读取时，保持零写入。成功时报告实际删除对象和最终关系。
 
 ### 身份更正
 
@@ -201,6 +209,8 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 - relation type 单独使用时匹配任一该类型直接边；与目标同用时，两者须命中同一条边。结构条件先于排序、分页和文本匹配。
 - `show` 由索引定位并确认目标 ID 后读取 Markdown；`trace` 从同一次受检索引快照派生默认终端关系图，使用 `--json` 时返回同一份 trace 查询成功结果的稳定 JSON 关系切片。后续操作继续使用完整 ID。
 
+持久索引陈旧时，`list`、`trace` 与 metadata 搜索继续返回最后一次发布快照并发出 warning；`show` 由索引定位并验证当前文件仍声明目标 ID，通过后返回当前正文，warning 区分索引快照 metadata 与当前正文来源，验证失败为 error。warning 标识结果数据源与 `sync-index` 恢复命令；快照结果只代表该快照，不能支持对当前全集的否定性结论。
+
 关系条件的查询结果另以可选 `filterRelations` 返回**导致该记录命中的完整边集合**。只有传入 `--related-to` 或 `--relation-type` 时才出现；它从本次筛选使用的同一来源快照投影，按 `(sourceId, type, target)` 去重并以 UTF-16 code-unit 词法序排列。前驱边由 anchor 指向结果，后继边由结果指向 anchor，both 取并集；type-only 选择结果来源的指定类型出边，组合条件必须命中同一条边。记录集合、排序、total 与分页不因该投影改变。该字段属于 Decision 内部 list/search 查询记录，不进入索引、Schema 或公开导出边界。
 
 搜索的文本证据与 `filterRelations` 分开：`matchedFields`、`matchedRelations` 只报告实际文本命中，`matchedRelations: none` 不否定关系筛选命中。CLI 默认每条预览最多三条命中边，`list --detail` 展开当前页全部命中边；领域查询结果保留完整集合。需要完整正文或完整直接关系时，继续用 `show` 读取来源记录。
@@ -220,14 +230,16 @@ Markdown 是权威来源，索引保存已建立记录的定位、状态、非�
 
 ### 同步与待提交快照
 
-手工修改已建立 Markdown、怀疑索引陈旧或准备维护时先严格 `check`，确认合法变化后同步。领域 definition 升级后，只有全部已建立 Markdown 已满足当前契约时才以无 selector 的 `sync-index --write` 全量重建；不能信任旧 definition 的索引，也不能把该升级作为 selected 同步。`sync-index` 无 selector 时全量重建；selected 模式仍完整验证来源，按以下条件接纳：
+已知合法来源变化先 `sync-index` 再严格 `check`；未解释的索引异常先严格 `check` 诊断，再同步或修复。领域 definition 升级后，只有全部已建立 Markdown 已满足当前契约时才以无 selector 的 `sync-index` 全量重建；不能信任旧 definition 的索引，也不能把该升级作为 selected 同步。`sync-index` 无 selector 时全量重建，默认写入并发布完整索引，`--preflight` 零写入预演同一验证；selected 模式仍完整验证来源，按以下条件接纳：
 
 1. baseline 索引可信，集合 metadata 与其 revision 不变。
 2. selector 从 baseline 与待发布投影的 name 映射并集解析；标准 ID 仍只精确匹配。
 3. 全部 entry/revision 变化的 ID 都已选中；新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID。
-4. 默认只检查，添加 `--write` 才发布完整索引投影。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
+4. 默认写入并发布完整索引投影，`--preflight` 零写入预演同一验证。未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式改用全量同步。
 
-`stage` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造完整 Git pending 决策快照。它不改变生命周期，也不替代同步。位置变化仍选同一 ID；身份变更须由相应事务完整处理。写前 revision、pending 或所选来源漂移时拒绝写入。
+`stage <selector...> [--scope all|index|domain]` 在同一 HEAD/工作区 staging 快照中按标准 ID 或唯一 name 选择记录，构造 Git pending 决策快照。它不改变生命周期，也不替代同步。staging 要求持久索引与权威来源一致：索引缺失保持首次建立路径，索引无效或陈旧时零写入停止，按诊断先 `check` 诊断、`sync-index` 发布后再重试。
+
+selector 在当前正式集合与 `HEAD` 基线的 ID 并集中解析：当前 ID 表示新增或更新，基线-only ID 写入删除；重命名显式同时选择旧 ID 与新 ID，位置变化仍选同一 ID。scope 决定 pending 写入路径：`all`（默认）在一个原子替换中写入所选索引投影与所选正式 Markdown；`index` 只替换 pending 索引投影，要求 pending 索引与 `HEAD` 基线一致；`domain` 只写入所选正式 Markdown，pending 索引按当前字节原样保留。所有 scope 都在写前验证 `HEAD` revision、pending 快照与所选来源字节漂移并保护无关 pending 内容；结果报告实际写入路径、保留的无关 pending 范围与仍由调用方负责的路径。pending、commit 与 push 由调用方按授权显式完成，`stage` 不提交或推送。
 
 ## 验证与异常交付
 

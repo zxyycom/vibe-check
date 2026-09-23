@@ -196,7 +196,7 @@ writer 在候选和正式位置均可用时优先使用 name locator，否则使
 
 ### 完整替换关系
 
-`set-relations` 的每个 `--source` 开始一个替换组，直到下一个 source；同一来源只出现一次。组内二选一：重复 `--relation` 给出全部最终关系，或 `--clear-relations` 明确清空。
+`set-relations` 的每个 `--source` 开始一个替换组，直到下一个 source；同一来源只出现一次。组内二选一：重复 `--relation` 给出全部最终关系，或 `--clear-relations` 明确清空。重复 source、组内重复 target、空分组、只含摘要、clear 混用与摘要失配按与 Decision Records `set-relations` 相同的错误分类处理：输入形态问题在 CLI 边界以参数错误拒绝，需要集合知识的解析与绑定结果属于领域失败。
 
 摘要绑定最近的 source group，可与组内关系任意排序；与清空同组时拒绝。完整替换时，未提供摘要的边清除旧摘要。
 
@@ -214,8 +214,7 @@ writer 在候选和正式位置均可用时优先使用 name locator，否则使
 
 | 操作 | 删除范围与确认 |
 | --- | --- |
-| `discard` | 一个完整正式报告及明确选择的自有资源；要求正式集合、关系、资源和当前索引有效，更新正式索引。已被 HEAD 记录时须确认 `--delete-recorded-report`。 |
-| `discard-candidate` | 一个候选及明确选择的自有资源，保持正式报告、关系和索引不变。已被 HEAD 记录时须确认 `--delete-recorded-candidate`。 |
+| `discard` | 一个候选或一个完整正式报告及明确选择的自有资源；按稳定 ID 自动识别目标种类，候选删除保持正式报告、关系和索引不变，正式报告删除要求正式集合、关系、资源和当前索引有效并更新正式索引。目标或其资源已被 HEAD 记录时须确认 `--delete-recorded`；同一语义名同时命中候选与正式报告时要求完整 ID。 |
 
 删除同时满足以下条件：
 
@@ -265,6 +264,8 @@ rename 自行完成索引更新，不把同步或暂存当作第二阶段；成�
 
 search 的 limit 只限制返回的命中报告，不提供 offset 分页或 total。截断 warning 表示结果或预览受限，收紧筛选或继续读取已返回 ID；未显示或无结果不证明不存在匹配。降级只服务本次查询，持久索引仍须显式恢复。
 
+持久索引陈旧时，只读查询按数据来源降级并发出 warning：`list`、metadata `search` 与 `trace` 返回最后一次发布快照；`show` 用索引定位并验证当前文件仍声明目标 ID，通过后返回当前正文，warning 区分索引 metadata 快照与当前正文来源，验证失败为 error；默认 content 搜索完整验证正式来源后以只读内存投影服务当前文本命中。warning 标识结果数据源与 `sync-index` 恢复命令，快照结果不支持对当前全集的否定性结论。严格 `check`、发布、关系与生命周期 mutation、删除和 staging 要求持久索引与权威来源一致，陈旧或无效时零写入停止并给出恢复动作。
+
 ### 检查与同步
 
 | 操作 | 证明或更新范围 |
@@ -272,17 +273,21 @@ search 的 limit 只限制返回的命中报告，不提供 offset 分页或 tot
 | 默认全量 `check` | 正式报告、完整关系图、资源和索引；合法 candidate 只做成员安全、身份冲突和准备诊断。 |
 | `check --id` | 所选正式报告及直接资源的局部合法性，不证明完整图、拆分闭合、未引用资源集合或索引新鲜度。 |
 | 全量 `sync-index` | 完整验证正式来源后重建索引，接纳手工正式来源变化；合法候选留在集合外。 |
-| selected `sync-index` | 同样完整验证，但只接纳明确选中 ID 的变化，默认检查，添加 `--write` 才发布。 |
+| selected `sync-index` | 同样完整验证，但只接纳明确选中 ID 的已知来源变化，默认写入并发布完整索引；`--preflight` 对同一验证零写入预演。 |
 
-一批手工正式编辑可先共同完成，期间用局部 check 或读取 Markdown；在索引查询、已有关系事务、正式删除、全量验收或暂存需要当前集合前同步一次。全量同步可恢复旧索引缺失、损坏或陈旧，来源或候选成员安全问题仍须先解决。
+一批手工正式编辑可先共同完成，期间用局部 check 或读取 Markdown；在索引查询、已有关系事务、正式删除、全量验收或暂存需要当前集合前同步一次。全量同步可恢复旧索引缺失、损坏或陈旧，来源或候选成员安全问题仍须先解决。`sync-index` 默认写入完整有效索引，`--preflight` 零写入执行同一准备与验证；被移除的 `--write` 按普通无效参数处理。已知合法来源变化的规范顺序是同步后全量 `check`；未解释的索引异常先 `check` 诊断，再同步或修复。
 
 selected 同步须有可信 baseline，集合 metadata 及其 revision 保持不变，全部变化 ID 都被选择。selector 从 baseline 与待发布投影的 name 映射并集解析，标准 ID 只精确匹配。新增选新 ID，删除选旧 ID，身份更正同时选旧/新 ID；未选择变化、未知 ID 或坏 baseline 均零写入，先补充选择或显式全量同步。
 
-### 待提交索引快照
+### 待提交快照
 
-同步并通过全量 check 后，`stage-index` 在同一 HEAD/工作区索引快照中按标准 ID 或唯一 name 选择正式报告。只组合所选 entry 进入 pending，报告 Markdown、候选和资源由调用方按交付范围另行暂存。
+同步并通过全量 check 后，`stage <investigation-id...> [--scope all|index|domain]` 在同一 HEAD/工作区快照中按标准 ID 或唯一 name 选择正式报告，构造 Git pending 调查快照。stage 先检查工作区索引新鲜度：索引缺失保持其自身诊断路径，索引无效或陈旧时零写入停止，诊断给出 `check`、`sync-index` 再重试的顺序。
 
-选择项须存在且无歧义，解析后 ID 不重复；sourcePath 变化仍选择同一 ID。已有同一索引 pending 时失败并保留原内容，目标外 pending 保持不变。stage-index 不重读报告与资源，其成功只证明暂存操作，不能代替来源验证。
+selector 在当前正式集合与 `HEAD` 基线索引的 ID 并集中解析。选择项须存在且无歧义，解析后 ID 不重复；sourcePath 变化仍选择同一 ID；基线-only 旧 ID 写入删除；重命名显式同时选择旧 ID 与新 ID，不从名称相似度推断。候选不进入 stage 范围。
+
+scope 决定 pending 写入路径。`all`（默认）在一个原子替换中写入所选索引投影、所选正式报告 Markdown 及其完整 owner 资源树。`index` 只替换 pending 索引投影；已有同一索引 pending 时失败并保留原内容，目标外 pending 保持不变。`domain` 只写入所选正式报告 Markdown 与其完整 owner 资源树——成员取工作区与 `HEAD` 的路径并集，未引用成员也进入范围——并把 pending 索引按当前字节原样保留；其他 owner 的资源、候选和未选报告的 pending 内容保持不变。
+
+所有 scope 在写前验证 `HEAD` revision、pending 快照、所选报告字节和 owner 资源成员漂移；结果报告实际写入路径、保留的无关 pending 范围与仍由调用方负责的路径。`index` scope 不重读报告与资源，其成功只证明暂存操作，不能代替来源验证。pending、commit 与 push 由调用方按授权显式完成，`stage` 不提交或推送。被移除的 `stage-index` 入口按普通未知命令处理。
 
 ## 诊断与验收
 
