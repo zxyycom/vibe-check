@@ -996,6 +996,32 @@
         "scc"
       ],
       "title": "测量 SCC fileMetrics 分批传输的冷启动与 ceiling 曲线"
+    },
+    "260924-audit-incremental-project-gate-selection-and-cold-cost": {
+      "formedAt": "2026-09-24T07:41:03Z",
+      "name": "audit-incremental-project-gate-selection-and-cold-cost",
+      "question": "为什么默认 check 仍偏慢；change flag 实际跳过哪些 Check、如何强制运行，以及当前 43 项在冷/热条件下各有多大开销？",
+      "relations": [
+        {
+          "summary": "在43项新组合与本机硬阈值下复测Gate耗时",
+          "target": "260908-calibrate-gate-duration-variation",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "260924-audit-incremental-project-gate-selection-and-cold-cost/cold-all-check-durations.csv",
+        "260924-audit-incremental-project-gate-selection-and-cold-cost/required-check-timings.csv",
+        "260924-audit-incremental-project-gate-selection-and-cold-cost/selection-matrix.csv"
+      ],
+      "sourcePath": "audit-incremental-project-gate-selection-and-cold-cost.md",
+      "tags": [
+        "change-selection",
+        "package-candidate",
+        "performance",
+        "project-gate",
+        "test-execution"
+      ],
+      "title": "审计增量 Project Gate 的选择与冷启动开销"
     }
   },
   "metadata": {},
@@ -1048,7 +1074,8 @@
       "260911-survey-markdown-lint-tools": "sha256:7334f26051fa650c7129934177117f31fe72ba9c96c6f9872374f086c1d942fe",
       "260912-diagnose-file-metrics-scc-windows-argument-limit": "sha256:8d07bdbeec3e3531069ff58665aa66dd1f73e63f8dbcbfdfafeffd4d7ee505d0",
       "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:7b281ffa269cc03017bd93b1d55bab1ab6d40326f9a71c1be7330c804734e614",
-      "260914-measure-scc-file-batch-transport-performance": "sha256:ac5735aa2a9e437e43273458626dd46f546d216d804ddb92666b4262abf7852b"
+      "260914-measure-scc-file-batch-transport-performance": "sha256:ac5735aa2a9e437e43273458626dd46f546d216d804ddb92666b4262abf7852b",
+      "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:6a9a97f68d85469707fc51f6345b60c775dcf664d92c0d002e302b10867904f3"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
