@@ -10,8 +10,9 @@ import {
   readRegularFile
 } from "../markdown-link-validation/filesystem-probes.ts";
 import { isRootRelativePath } from "../markdown-link-validation/local-resolution.ts";
-import { lintMarkdownString, type MarkdownLintBackendFinding } from "./adapter.ts";
+import type { MarkdownLintBackendFinding } from "./adapter.ts";
 import type { MarkdownLintFinalData } from "./final-data.ts";
+import { lintMarkdownWithCache } from "./findings-cache.ts";
 import { markdownLintFindingMessages } from "./finding-messages.ts";
 import type { ResolvedMarkdownLintOptions } from "./options.ts";
 import { validMarkdownLintOptions } from "./options-validation.ts";
@@ -152,7 +153,14 @@ async function traverseSources(
     if (!source.ok) return unavailableTraversal(source.reason);
     const text = source.text;
     if (signal.aborted) return unavailableTraversal("cancelled");
-    const findings = await lintMarkdownString(sourcePath, text, options.rules);
+    const linted = await lintMarkdownWithCache({
+      sourcePath,
+      sourceText: text,
+      rules: options.rules,
+      cache: options.cache,
+      signal
+    });
+    const findings = typeof linted === "string" ? linted : linted.findings;
     if (typeof findings === "string") return unavailableTraversal(findings);
     if (signal.aborted) return unavailableTraversal("cancelled");
     sourceFileCount += 1;

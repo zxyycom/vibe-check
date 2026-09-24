@@ -1,4 +1,5 @@
 import type { PackageCheckAuthoringOptions } from "../check-authoring.ts";
+import type { LocalCacheOptions } from "../local-cache-options.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
 import type {
   ProjectFileSelection,
@@ -29,6 +30,9 @@ export interface MarkdownLintLimitOptions {
   readonly maxFindings?: number;
 }
 
+/** 调用方拥有的逐文件 lint findings 本地缓存；省略时关闭。 */
+export type MarkdownLintCacheOptions = LocalCacheOptions;
+
 /** `markdownLint(options?)` 可接受的闭合 authoring policy。 */
 export interface MarkdownLintOptions<
   Id extends string = string
@@ -41,6 +45,8 @@ export interface MarkdownLintOptions<
   readonly rules?: readonly MarkdownLintRuleName[];
   /** 每次 execution 的 Markdown 内容与 finding work 上限。 */
   readonly limits?: MarkdownLintLimitOptions;
+  /** 可删除、可信 absolute directory；只缓存由当前 bytes 和规则计算的逐文件 findings。 */
+  readonly cache?: MarkdownLintCacheOptions;
 }
 
 /** `markdown-lint` execution 消费的完整冻结 policy。 */
@@ -48,6 +54,7 @@ export interface ResolvedMarkdownLintOptions {
   readonly files: ProjectFileSelection;
   readonly findingPolicy: FindingPolicy;
   readonly rules: readonly MarkdownLintRuleName[];
+  readonly cache: MarkdownLintCacheOptions;
   readonly limits: Readonly<{
     readonly maxMarkdownBytes: number;
     readonly maxFindings: number;

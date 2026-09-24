@@ -110,6 +110,8 @@ Gate 只拥有 manifest projection 与其验证。
 
 `prepared-package-candidate`、repository material links 与 Git diff whitespace 始终属于 required。Markdown link validation 在任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径；发布前运行 `--all`。
 
+Markdown lint 保持完整 corpus 与现有 non-blocking policy；Gate 显式启用 Product 的逐文件 findings 缓存，目录为本地可删除的 `.cache/vibe-check/markdown-lint-findings/`。当前 bytes、选择与终态每次重新核对；冷态可能增加缓存写入成本，缓存命中不是跳过 Check 的依据。
+
 材料 JSON、Schema、Schema publication 与 machine example Checks 各自使用 `(required AND changeFlag(<own-input>)) OR materials OR all`。`markdown-lint` 使用自己的 docs/changes Markdown input，并额外由 `quality` focused path 强制执行。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会启动它。具体 region 由 `runtime/eligibility.ts` 声明；可信零匹配时 Check 保留 not-applicable，Git unavailable 时 Product 注入 flag 并保守执行。
 
 `materials-links-validator` 始终属于 required，因为 Markdown 链接可引用任意 region 外 target。Markdown link validation 也可由 focused `materials` / `quality` 与 `--all` 强制运行。

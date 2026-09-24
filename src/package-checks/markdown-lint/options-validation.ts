@@ -1,18 +1,26 @@
 import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
 import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
+import { validLocalCacheOptions } from "../local-cache-options.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { MARKDOWN_LINT_RULE_NAMES, type ResolvedMarkdownLintOptions } from "./options.ts";
 
 const KNOWN_RULES = new Set<string>(MARKDOWN_LINT_RULE_NAMES);
 
 export function validMarkdownLintOptions(value: unknown): value is ResolvedMarkdownLintOptions {
-  const options = snapshotExactClosedRecord(value, ["files", "findingPolicy", "rules", "limits"]);
+  const options = snapshotExactClosedRecord(value, [
+    "files",
+    "findingPolicy",
+    "rules",
+    "limits",
+    "cache"
+  ]);
   if (
     options === undefined ||
     !validProjectFileSelection(options.files) ||
     !validFindingPolicy(options.findingPolicy) ||
-    !validRules(options.rules)
+    !validRules(options.rules) ||
+    !validLocalCacheOptions(options.cache)
   ) {
     return false;
   }

@@ -10,8 +10,8 @@
 
 `markdownLint` 有三类 overload：`markdownLint(options?: MarkdownLintOptions<"markdown-lint">)` 保留默认 literal；
 `markdownLint<Id>(options: MarkdownLintOptions<Id> & { checkId: Id })` 保留 custom literal；已宽化为
-`MarkdownLintOptions` 的变量返回 `string` identity。默认 `checkId` 是 `markdown-lint`，默认 `displayName` 是 `Markdown lint`；`files`、`findingPolicy`、`rules`
-与 `limits` 仍是本 Check 的领域 options。
+`MarkdownLintOptions` 的变量返回 `string` identity。默认 `checkId` 是 `markdown-lint`，默认 `displayName` 是 `Markdown lint`。
+`files`、`findingPolicy`、`rules`、`limits` 与 `cache` 是本 Check 的领域 options，不属于项目展示字段。
 
 例如，为文档 lint 声明项目展示和进度呈现策略：
 
@@ -38,6 +38,7 @@ const documentationLint = markdownLint({
 | `rules` | 下表八项默认规则 | 省略时使用默认集；提供非空数组时完整替换默认集。数组只可含下表九个名称，resolved 顺序固定为 Product catalog 顺序。|
 | `limits.maxMarkdownBytes` | `1_048_576`，最大 `16_777_216` | 单个 source 的 UTF-8 字节上限。|
 | `limits.maxFindings` | `10_000`，最大 `100_000` | 整次 execution 可形成的 lint Finding 上限。|
+| `cache` | `{ enabled: false }` | 显式启用时为 `{ enabled: true, directory }`；directory 必须是调用方拥有的绝对路径。见下方缓存边界。|
 
 ### 规则 catalog
 
@@ -57,13 +58,25 @@ backend 规则名、preset、rule object、rule 参数、parser plugin 和自动
 
 ## 工作原理
 
-每次 execution 只收集一次 `files` 选中的路径并稳定排序。选中但后缀不是 `.md` 或 `.markdown` 的路径不会读取内容，而是各发布一条 non-blocking `input-rejected / unsupported-file-type` Record。accepted source 必须位于 project root 内、是 regular file、可作为 UTF-8 读取且不超过 `maxMarkdownBytes`；Check 按路径顺序逐文件执行，并在文件前后响应取消。它不使用 persistent cache。
+每次 execution 只收集一次 `files` 选中的路径并稳定排序。选中但后缀不是 `.md` 或 `.markdown` 的路径不会读取内容，而是各发布一条 non-blocking `input-rejected / unsupported-file-type` Record。accepted source 必须位于 project root 内、是 regular file、可作为 UTF-8 读取且不超过 `maxMarkdownBytes`；Check 按路径顺序逐文件执行，并在文件前后响应取消。
 
 私有 adapter 使用随包固定的 `markdownlint@0.41.1` Promise `strings` API，只接收已读取的 source text，不接收项目路径或文件系统权限。inline config 固定禁用；文件开头的 YAML、TOML 和 JSON front matter 受支持。pipe table、HTML comment 与未支持扩展的识别以该固定 backend 版本的实际行为为准，不承诺与任意 Markdown renderer 等价。
 
+### 逐文件 findings 缓存
+
+缓存默认关闭，不访问缓存目录。显式启用后，每次 execution 仍完成以下工作：
+
+1. 按当前 `files` 选择路径，确认每份 source 位于 project root 内、符合大小限制，并读取、解码当前 UTF-8 内容。
+2. 对未变化的 source 复用已验证的逐文件 findings；内容、所选规则或 backend 版本变化时重新 lint。缓存身份还包含 source path 与内部 adapter 契约版本。
+3. 根据本次完整遍历结算 Finding 总量限制、记录顺序、Finding policy、Records、消息与终态。缓存命中不复用 Check outcome。
+
+只有成功计算的 findings 可写入缓存。损坏或不可用的缓存会重新计算，不会被视为空结果；取消、source 读取失败、backend 失败及超限仍按原有终态结算。adapter 的规则配置或 finding 解释变化时，维护者必须提升内部缓存契约版本。
+
+缓存目录由调用方指定，保存由 source 派生的 findings 和 identity 摘要，不保存原文。调用方应使用可信、可删除的绝对目录并管理容量；该目录不提供防篡改、机密性或自动清理保证。
+
 ## I/O 与安全边界
 
-Check 不读取 backend 配置文件，不访问网络，不读取 project root 外的 source，也不写入项目。调用方通过 `files` 决定 source 范围。
+Check 不读取 backend 配置文件，不访问网络，不读取 project root 外的 source；默认不写入项目，显式启用缓存时只写调用方指定的缓存目录。调用方通过 `files` 决定 source 范围。
 
 ## 效果与结果
 
@@ -129,4 +142,4 @@ if (outcome.status === "not-applicable") console.warn("No Markdown input selecte
 
 ## 适用边界
 
-本 Check 的 package 默认仍为 advisory。Project Gate 当前以独立的 `markdown-lint` identity 采用它：完整 `docs/**/*.md` 与 `changes/**/*.md` corpus 固定使用八项默认规则、保留 non-blocking Finding policy，并在 repository-material changed 的 required path 以及 `--materials`、`--quality`、`--all` force path 执行。该仓库策略不改变 consumer 默认值、backend、规则或 cache，也不替代独立的 Markdown link validation；blocking migration 与 persistent cache 仍由独立 Change 决定。
+本 Check 的 package 默认仍为 advisory，缓存默认关闭。Project Gate 以独立的 `markdown-lint` identity 使用八项默认规则、完整 `docs/**/*.md` 与 `changes/**/*.md` corpus，以及 non-blocking Finding policy。required 在 Markdown 文档或其实现输入变更时运行；`--materials`、`--quality`、`--all` 可强制运行。Gate 显式使用 `.cache/vibe-check/markdown-lint-findings/` 复用逐文件 findings，不缩小检查范围或改变 consumer 默认值；独立的 Markdown link validation 仍负责链接目标完整性。

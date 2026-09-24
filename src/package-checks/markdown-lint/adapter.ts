@@ -104,7 +104,7 @@ function parseBackendFinding(
 ): MarkdownLintBackendFinding | undefined {
   const fields = validatedBackendFindingFields(value, lines);
   if (fields === undefined) return undefined;
-  const range = parseRange(fields.errorRange, fields.line);
+  const range = parseMarkdownLintRange(fields.errorRange, fields.line);
   return range === undefined
     ? undefined
     : Object.freeze({ lineNumber: fields.lineNumber, range, rule: fields.rule });
@@ -144,7 +144,11 @@ function ruleForBackend(backendRule: string): MarkdownLintRuleName | undefined {
   return MARKDOWN_LINT_RULE_NAMES.find((rule) => BACKEND_BY_RULE[rule] === backendRule);
 }
 
-function parseRange(value: unknown, line: string): readonly [number, number] | null | undefined {
+/** Validates one backend or restored-cache range against the current source line. */
+export function parseMarkdownLintRange(
+  value: unknown,
+  line: string
+): readonly [number, number] | null | undefined {
   if (value === null) return null;
   const range = snapshotClosedArray(value);
   if (range?.length !== 2) return undefined;

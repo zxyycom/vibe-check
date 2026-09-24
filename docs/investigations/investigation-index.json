@@ -1023,6 +1023,27 @@
       ],
       "title": "审计增量 Project Gate 的选择与冷启动开销"
     },
+    "260924-measure-and-cache-markdown-lint-findings": {
+      "formedAt": "2026-09-24T10:28:18Z",
+      "name": "measure-and-cache-markdown-lint-findings",
+      "question": "不缩小完整 corpus 的前提下，逐文件 findings 缓存能否降低热运行开销？",
+      "relations": [
+        {
+          "summary": "在默认选择收窄后量化 Markdown lint 缓存边界",
+          "target": "260924-review-local-head-gate-selection-and-document-inputs",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "measure-and-cache-markdown-lint-findings.md",
+      "tags": [
+        "cache-design",
+        "markdown-lint",
+        "performance",
+        "project-gate"
+      ],
+      "title": "量化并缓存 Markdown lint 逐文件结果"
+    },
     "260924-review-cold-candidate-variance-and-compiler-cache": {
       "formedAt": "2026-09-24T09:25:45Z",
       "name": "review-cold-candidate-variance-and-compiler-cache",
@@ -1118,6 +1139,7 @@
       "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:7b281ffa269cc03017bd93b1d55bab1ab6d40326f9a71c1be7330c804734e614",
       "260914-measure-scc-file-batch-transport-performance": "sha256:ac5735aa2a9e437e43273458626dd46f546d216d804ddb92666b4262abf7852b",
       "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:6a9a97f68d85469707fc51f6345b60c775dcf664d92c0d002e302b10867904f3",
+      "260924-measure-and-cache-markdown-lint-findings": "sha256:c0ac9ca787dff1112b69dcb8a9b538094b50bd0c90f571cdbd3ec89b2f7c55fe",
       "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b",
       "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150"
     },

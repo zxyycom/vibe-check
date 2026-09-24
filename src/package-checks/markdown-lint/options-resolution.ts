@@ -9,6 +9,7 @@ import {
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
 import { DEFAULT_FINDING_POLICY, resolveFindingPolicy } from "../code-quality-findings/policy.ts";
+import { resolveOptionalLocalCacheOptions } from "../local-cache-options.ts";
 import {
   MARKDOWN_LINT_RULE_NAMES,
   type MarkdownLintRuleName,
@@ -35,7 +36,7 @@ export function resolveMarkdownLintOptions(
   if (
     input === undefined ||
     !hasRequiredAndOptionalRecordKeys(input, {
-      optional: ["files", "findingPolicy", "rules", "limits"],
+      optional: ["files", "findingPolicy", "rules", "limits", "cache"],
       required: []
     })
   ) {
@@ -48,11 +49,13 @@ export function resolveMarkdownLintOptions(
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
   const rules = resolveRules(input.rules);
   const limits = resolveLimits(input.limits);
+  const cache = resolveOptionalLocalCacheOptions(input.cache);
   if (
     files === undefined ||
     findingPolicy === undefined ||
     rules === undefined ||
-    limits === undefined
+    limits === undefined ||
+    cache === undefined
   ) {
     return undefined;
   }
@@ -60,7 +63,8 @@ export function resolveMarkdownLintOptions(
     files,
     findingPolicy,
     rules,
-    limits
+    limits,
+    cache
   });
   return validMarkdownLintOptions(candidate) ? candidate : undefined;
 }

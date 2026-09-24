@@ -56,7 +56,7 @@ export function markdownLint(
 ): TypedCheckWithOptions<string, ResolvedMarkdownLintOptions, typeof parseMarkdownLintData> {
   const input = resolvePackageCheckAuthoringInput(
     options,
-    ["files", "findingPolicy", "rules", "limits"],
+    ["files", "findingPolicy", "rules", "limits", "cache"],
     MARKDOWN_LINT_CHECK_DEFINITION
   );
   if (input === undefined) {

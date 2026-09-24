@@ -27,6 +27,7 @@ describe("Markdown lint Check", () => {
       "table-column-count"
     ]);
     assert.equal(check.options.findingPolicy, "non-blocking");
+    assert.deepEqual(check.options.cache, { enabled: false });
     assert.equal(check.parseData, parseMarkdownLintData);
     assert.throws(() => markdownLint({ rules: [] }), /documented closed policy/);
     assert.throws(
@@ -35,6 +36,10 @@ describe("Markdown lint Check", () => {
     );
     assert.throws(
       () => Reflect.apply(markdownLint, undefined, [{ unknown: true }]),
+      /documented closed policy/
+    );
+    assert.throws(
+      () => markdownLint({ cache: { enabled: true, directory: "relative-cache" } }),
       /documented closed policy/
     );
   });

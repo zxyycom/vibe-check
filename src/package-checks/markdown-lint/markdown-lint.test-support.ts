@@ -25,6 +25,7 @@ export const MARKDOWN_LINT_OPTIONS: ResolvedMarkdownLintOptions = Object.freeze(
     "reference-links-images",
     "table-column-count"
   ] as const),
+  cache: Object.freeze({ enabled: false }),
   limits: Object.freeze({ maxMarkdownBytes: 1_048_576, maxFindings: 10_000 })
 });
 

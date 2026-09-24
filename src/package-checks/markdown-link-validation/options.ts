@@ -4,16 +4,12 @@ import type {
   ProjectFileSelectionOptions
 } from "../project-files/configuration.ts";
 import type { FindingPolicy } from "../code-quality-findings/policy.ts";
+import type { LocalCacheOptions } from "../local-cache-options.ts";
 
 export type MarkdownRootExternalTargetMode = "ignore" | "report" | "validate";
 
 /** 调用方显式拥有的 Link-private parse-facts local cache policy。 */
-type MarkdownLinkValidationCacheOptions =
-  | Readonly<{ readonly enabled: false }>
-  | Readonly<{
-      readonly enabled: true;
-      readonly directory: string;
-    }>;
+type MarkdownLinkValidationCacheOptions = LocalCacheOptions;
 
 /** 可省略的 Markdown validation work limits。 */
 export interface MarkdownLinkValidationLimitOptions {

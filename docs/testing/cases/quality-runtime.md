@@ -549,3 +549,36 @@ Entities:
 Proves:
 
 - Selecting only `reference-links-images` reports unresolved full, collapsed and image references as public MD052 findings, while ignored task labels, shortcut syntax and the private parser helper do not leak into Records.
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-CACHE-PARITY: Markdown lint 缓存保留完整结果
+
+Owner: `docs/checks/markdown-lint.md#逐文件-findings-缓存`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > preserves complete Check results on cold and warm traversal`
+
+Proves:
+
+- 冷缓存、热缓存以及文件内容变化时，完整 Check 结果与 Records 和无缓存路径一致。
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-CACHE-KEY: Markdown lint 缓存身份
+
+Owner: `docs/checks/markdown-lint.md#逐文件-findings-缓存`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > keys per-file findings by source content and selected rules`
+
+Proves:
+
+- 未变化的逐文件结果命中缓存；内容或所选规则变化时重新计算。
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-CACHE-FAULTS: Markdown lint 缓存故障回退
+
+Owner: `docs/checks/markdown-lint.md#逐文件-findings-缓存`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > recomputes invalid or unwritable cache entries and respects cancellation`
+
+Proves:
+
+- 损坏或不可写的缓存退回实时 lint，取消不会伪装为命中。

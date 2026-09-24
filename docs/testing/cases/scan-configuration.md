@@ -241,4 +241,4 @@ Entities:
 
 - `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring`
   Proves:
-- `markdownLint(options?)` materializes the eight recommended Product rules and default advisory policy, exposes its final-data parser, and rejects empty, duplicate or unknown closed authoring fields before execution.
+- `markdownLint(options?)` materializes the eight recommended Product rules, default advisory policy and disabled cache, exposes its final-data parser, and rejects empty, duplicate, unknown or invalid-cache authoring fields before execution.

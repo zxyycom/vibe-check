@@ -1,4 +1,5 @@
-import { isAbsolute, resolve } from "node:path";
+import { dirname, isAbsolute, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import {
   duplicateDetection,
@@ -14,7 +15,9 @@ import {
 } from "@zxyycom/vibe-check";
 
 const MISE_SCC_COMMAND_ENV = "VIBE_CHECK_SCC_CMD";
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const unavailableScannerDirectory = resolve(
+  repositoryRoot,
   ".cache",
   "vibe-check",
   "unavailable-repository-quality-scanner"
@@ -217,7 +220,11 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
     checkId: "markdown-lint",
     files: { exclude: [], include: ["docs/**/*.md", "changes/**/*.md"] },
     findingPolicy: "non-blocking",
-    rules: repositoryMarkdownLintRules
+    rules: repositoryMarkdownLintRules,
+    cache: {
+      enabled: true,
+      directory: resolve(repositoryRoot, ".cache", "vibe-check", "markdown-lint-findings")
+    }
   },
   markdownLinkValidation: {
     files: {

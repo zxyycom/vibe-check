@@ -3,6 +3,7 @@ import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:f
 import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { minimatch } from "minimatch";
 
 import { defineConfig, markdownLint, run as packageRun } from "@zxyycom/vibe-check";
@@ -14,6 +15,8 @@ import {
 import { createProjectGateDefinition } from "../definition.ts";
 import { selectionFlags } from "../runtime/controls.ts";
 import { defineProjectGateEntries } from "../runtime/entries.ts";
+
+const repositoryRoot = fileURLToPath(new URL("../../../..", import.meta.url));
 
 describe("repository quality Checks", () => {
   it("uses the strict repository policy and binds only the mise-provided SCC command", () => {
@@ -48,6 +51,14 @@ describe("repository quality Checks", () => {
     assert.equal(fileMetrics.options.codeAreas["product-source"]?.findingPolicy, "blocking");
     assert.equal(markdownLinkValidation.options.findingPolicy, "blocking");
     assert.equal(markdownLintCheck.options.findingPolicy, "non-blocking");
+    assert.equal(markdownLintCheck.options.cache.enabled, true);
+    if (markdownLintCheck.options.cache.enabled) {
+      assert.equal(isAbsolute(markdownLintCheck.options.cache.directory), true);
+      assert.equal(
+        markdownLintCheck.options.cache.directory,
+        join(repositoryRoot, ".cache", "vibe-check", "markdown-lint-findings")
+      );
+    }
     assert.deepEqual(markdownLintCheck.options.rules, [
       "heading-increment",
       "no-reversed-links",
@@ -229,6 +240,16 @@ describe("repository quality Checks", () => {
     });
 
     assert.equal(isAbsolute(commands.scc), true);
+    assert.equal(
+      commands.scc,
+      join(
+        repositoryRoot,
+        ".cache",
+        "vibe-check",
+        "unavailable-repository-quality-scanner",
+        "VIBE_CHECK_SCC_CMD"
+      )
+    );
     assert.notEqual(commands.scc, "scc");
     assert.equal(Object.hasOwn(commands, "lizard"), false);
 

@@ -1,6 +1,5 @@
 import { canonicalizeJsonObject } from "../../data-boundary/canonical-data.ts";
 import {
-  hasExactPlainRecordKeys,
   hasRequiredAndOptionalRecordKeys,
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
@@ -10,6 +9,7 @@ import {
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
 import { DEFAULT_FINDING_POLICY, resolveFindingPolicy } from "../code-quality-findings/policy.ts";
+import { resolveOptionalLocalCacheOptions } from "../local-cache-options.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 import { validMarkdownLinkValidationOptions } from "./options-validation.ts";
 
@@ -33,7 +33,7 @@ export function resolveMarkdownLinkValidationOptions(
   const limits = resolvedLimits(input.limits);
   const files = resolvedFiles(input.files);
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
-  const cache = resolvedCache(input.cache);
+  const cache = resolveOptionalLocalCacheOptions(input.cache);
   if (
     limits === undefined ||
     files === undefined ||
@@ -92,23 +92,6 @@ function isMarkdownLinkValidationInput(
       required: []
     })
   );
-}
-
-function resolvedCache(value: unknown): ResolvedMarkdownLinkValidationOptions["cache"] | undefined {
-  if (value === undefined) return Object.freeze({ enabled: false as const });
-  const cache = snapshotClosedRecord(value);
-  if (cache === undefined) return undefined;
-  if (hasExactPlainRecordKeys(cache, ["enabled"]) && cache.enabled === false) {
-    return Object.freeze({ enabled: false as const });
-  }
-  if (
-    hasExactPlainRecordKeys(cache, ["enabled", "directory"]) &&
-    cache.enabled === true &&
-    typeof cache.directory === "string"
-  ) {
-    return Object.freeze({ enabled: true as const, directory: cache.directory });
-  }
-  return undefined;
 }
 
 function resolvedFiles(value: unknown) {

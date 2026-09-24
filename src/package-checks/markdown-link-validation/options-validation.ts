@@ -1,9 +1,8 @@
-import { isAbsolute } from "node:path";
-
 import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
 import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
+import { validLocalCacheOptions } from "../local-cache-options.ts";
 import type { ResolvedMarkdownLinkValidationOptions } from "./options.ts";
 
 function boundedPositiveSafeInteger(value: unknown, maximum: number): value is number {
@@ -32,21 +31,8 @@ function validOptionFields(options: Readonly<Record<string, unknown>>): boolean 
     validProjectFileSelection(options.files) &&
     validFindingPolicy(options.findingPolicy) &&
     validAnchorValidationOptions(options) &&
-    validMarkdownLinkCache(options.cache) &&
+    validLocalCacheOptions(options.cache) &&
     validMarkdownLinkLimits(options.limits)
-  );
-}
-
-function validMarkdownLinkCache(value: unknown): boolean {
-  const disabled = snapshotExactClosedRecord(value, ["enabled"]);
-  if (disabled?.enabled === false) return true;
-  const enabled = snapshotExactClosedRecord(value, ["enabled", "directory"]);
-  return (
-    enabled?.enabled === true &&
-    typeof enabled.directory === "string" &&
-    enabled.directory.length > 0 &&
-    !enabled.directory.includes("\0") &&
-    isAbsolute(enabled.directory)
   );
 }
 
