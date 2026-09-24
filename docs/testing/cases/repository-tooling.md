@@ -38,6 +38,16 @@ Entities:
 - The scoped `licenses/analyzer-translations-NOTICE.md` is copied from its repository source rather than generated from fixed narrative phrases. Material acceptance compares actual source/staging/tar/installed notice bytes while preserving the independent provenance and three upstream-license identity pins.
 - The direct legal-material audit exposes the first reachable material-identity, missing-attribution, inventory, translated-target/header, untracked-header or deferred-body error. It does not require hand-written attribution to restate internal extension counts or installation-audit procedures.
 
+## Case AUX-PACKAGE-COMPILER-CACHE-001: Candidate compiler intermediates cannot bypass exact artifact audit
+
+Owner: `docs/tooling/package-lifecycle.md#local-candidate-lifecycle`
+Entities:
+
+- `bun|scripts/package/artifact/compiler-cache.test.ts|candidate compiler cache reuses docs-only emit and rejects changed or corrupt inputs`
+  Proves:
+
+- Unchanged Product compiler inputs reuse verified local raw emit when only documentation changes. A changed source graph may retain incremental compiler state, but corrupt cached output/build info or a changed source-file set forces a cold emit. This cache is not the package staging, tarball, installed candidate or a replacement for their full audits.
+
 ## Case AUX-TRANSLATED-SOURCE-MAPPING-001: Source mapping maintenance updates only selected derived material
 
 Owner: `docs/tooling/source-mapping.md#translated-source-mapping`

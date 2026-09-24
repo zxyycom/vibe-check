@@ -165,7 +165,6 @@ export function clearCandidateState(paths: CandidatePaths): void {
   rmSync(paths.legacyArtifactDirectory, { force: true, recursive: true });
   rmSync(paths.legacyStagingDirectory, { force: true, recursive: true });
   rmSync(paths.receiptPath, { force: true });
-  rmSync(paths.tsBuildInfoPath, { force: true });
   mkdirSync(paths.stateDirectory, { recursive: true });
 }
 

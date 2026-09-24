@@ -2,6 +2,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSyn
 import { basename, dirname, join, relative, sep } from "node:path";
 
 import { auditStagingRuntime } from "./staging-audit.ts";
+import { prepareCompilerEmit } from "./compiler-cache.ts";
 import { auditCandidateArtifact } from "./packed-tar-audit.ts";
 import type { ArtifactDocumentation } from "./documentation-audit.ts";
 import {
@@ -79,46 +80,55 @@ export async function buildCandidateArtifact(input: {
   copyLegalMaterials({ repositoryRoot, stagingDirectory });
   const expectedAttributionNotice = readTranslatedAnalyzerAttributionNotice(repositoryRoot);
 
-  runBun({
-    args: [
-      "x",
-      "--no-install",
-      "tsgo",
-      "--ignoreConfig",
-      "--allowImportingTsExtensions",
-      "--erasableSyntaxOnly",
-      "--module",
-      "nodenext",
-      "--moduleResolution",
-      "nodenext",
-      "--strict",
-      "--noUncheckedIndexedAccess",
-      "--exactOptionalPropertyTypes",
-      "--noImplicitOverride",
-      "--noImplicitReturns",
-      "--allowUnreachableCode",
-      "false",
-      "--target",
-      "esnext",
-      "--types",
-      "node",
-      "--verbatimModuleSyntax",
-      "--rewriteRelativeImportExtensions",
-      "--declaration",
-      "--declarationDir",
-      join(stagingDirectory, "types"),
-      "--outDir",
-      join(stagingDirectory, PACKAGE_RUNTIME_DIRECTORY),
-      "--rootDir",
-      join(repositoryRoot, "src"),
-      "--sourceMap",
-      "--inlineSources",
-      "--tsBuildInfoFile",
-      tsBuildInfoPath,
-      ...PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS.map((sourcePath) => join(repositoryRoot, sourcePath))
-    ],
-    cwd: repositoryRoot,
-    phase: "emit readable runtime and declarations"
+  prepareCompilerEmit({
+    repositoryRoot,
+    stagingDirectory,
+    tsBuildInfoPath,
+    compile: ({ declarationDirectory, runtimeDirectory }) =>
+      runBun({
+        args: [
+          "x",
+          "--no-install",
+          "tsgo",
+          "--ignoreConfig",
+          "--allowImportingTsExtensions",
+          "--erasableSyntaxOnly",
+          "--module",
+          "nodenext",
+          "--moduleResolution",
+          "nodenext",
+          "--strict",
+          "--noUncheckedIndexedAccess",
+          "--exactOptionalPropertyTypes",
+          "--noImplicitOverride",
+          "--noImplicitReturns",
+          "--allowUnreachableCode",
+          "false",
+          "--target",
+          "esnext",
+          "--types",
+          "node",
+          "--verbatimModuleSyntax",
+          "--rewriteRelativeImportExtensions",
+          "--declaration",
+          "--declarationDir",
+          declarationDirectory,
+          "--outDir",
+          runtimeDirectory,
+          "--rootDir",
+          join(repositoryRoot, "src"),
+          "--sourceMap",
+          "--inlineSources",
+          "--incremental",
+          "--tsBuildInfoFile",
+          tsBuildInfoPath,
+          ...PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS.map((sourcePath) =>
+            join(repositoryRoot, sourcePath)
+          )
+        ],
+        cwd: repositoryRoot,
+        phase: "emit readable runtime and declarations"
+      })
   });
   copyRuntimeSources({ repositoryRoot, stagingDirectory });
   normalizeEmittedRuntime({ stagingDirectory });

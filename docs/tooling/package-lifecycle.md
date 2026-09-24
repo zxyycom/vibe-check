@@ -33,9 +33,11 @@ Preparation 先作不修改文件系统的状态判断，再执行对应动作�
 
 ### 证据路径与清理范围
 
-`scripts/package/build-contract.ts` 拥有默认路径：`build/package/` 是唯一完整 unpacked build evidence，`build/artifacts/` 保存 versioned `.tgz`。`.cache/vibe-check/package-candidate/` 只保存 preparation receipt、`candidate.tsbuildinfo` 等 cache state；不得放置 staging/tarball、挪用根 `artifacts/` 或复制 cache staging 建立第二份 evidence。
+`scripts/package/build-contract.ts` 拥有默认路径：`build/package/` 是唯一完整 unpacked build evidence，`build/artifacts/` 保存 versioned `.tgz`。`.cache/vibe-check/package-candidate/` 保存 preparation receipt、`candidate.tsbuildinfo` 和带摘要的原始 compiler emit；它们都是可丢弃的中间状态，不构成第二份 staging 或 tarball。
 
-fixture 的 `buildDirectory` 与 `stateDirectory` 必须 test-local 隔离，contract 拒绝重叠。cold rebuild 只清理精确拥有的 build paths 与 cache-owned receipt/compiler state。
+compiler cache 按输入和输出摘要校验。文档变化可复用 raw emit；同一源码文件集合的内容变化可使用 tsgo 增量状态；文件集合、工具链变化或缓存损坏则冷 emit。每次 candidate rebuild 都重新组装唯一 staging，并完成审计、pack、tarball 审计与 exact candidate 安装。
+
+fixture 的 `buildDirectory` 与 `stateDirectory` 必须 test-local 隔离，contract 拒绝重叠。cold rebuild 只清理精确拥有的 build paths 与 cache-owned receipt；compiler state 仅由其输入和输出摘要校验决定保留或清理。
 
 ### Gate 复用与物理集成
 
