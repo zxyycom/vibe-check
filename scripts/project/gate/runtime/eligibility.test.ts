@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it } from "node:test";
 import { minimatch } from "minimatch";
 
+import { loadPackageDocuments } from "../../../docs/package-documents.ts";
 import { resolveProjectGateTestLanes } from "../checks/test-execution/lanes.ts";
 import { PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS } from "./eligibility.ts";
 
@@ -40,6 +43,8 @@ describe("Project Gate change regions", () => {
         path: "scripts/project/gate/runtime/eligibility.test.ts",
         selected: ["project-selection-tests", "layout-tests"]
       },
+      { path: "docs/package-documents.json", selected: ["project-selection-tests"] },
+      { path: "docs/testing/cases/repository-tooling.md", selected: ["project-selection-tests"] },
       {
         path: "scripts/validation/repository-material/workflow.ts",
         selected: ["project-tests", "layout-tests", "validation-tests"]
@@ -161,5 +166,52 @@ describe("Project Gate change regions", () => {
       ),
       true
     );
+  });
+
+  it("selects package and Case checks only for their documented source boundaries", () => {
+    const regions = ["package-tests", "test-surface"] as const;
+    const scenarios = [
+      { path: "docs/investigations/performance.md", selected: [] },
+      { path: "docs/decisions/select-gate-check-specific-change-regions.md", selected: [] },
+      { path: "docs/tooling/project-gate.md", selected: ["test-surface"] },
+      { path: "docs/checks/markdown-lint.md", selected: [...regions] },
+      { path: "docs/package-documents.json", selected: ["package-tests"] },
+      { path: "docs/examples/package-api/basic.ts", selected: ["package-tests"] },
+      { path: "README.md", selected: ["package-tests"] },
+      { path: "LICENSE", selected: ["package-tests"] }
+    ] as const;
+    for (const { path, selected } of scenarios) {
+      assert.deepEqual(matchingRegions(path, regions), selected, path);
+    }
+  });
+
+  it("covers every registered package source and current Case owner", () => {
+    const root = process.cwd();
+    const documents = loadPackageDocuments(root);
+    const packageSources = [
+      ...documents.markdownDocuments,
+      ...documents.checkGuides,
+      ...documents.machineMaterials
+    ].map(({ sourcePath }) => sourcePath);
+    assert.equal(packageSources.length > 0, true);
+    for (const path of packageSources) {
+      assert.deepEqual(matchingRegions(path, ["package-tests"]), ["package-tests"], path);
+    }
+
+    const casesDirectory = join(root, "docs/testing/cases");
+    const ownerPaths = readdirSync(casesDirectory)
+      .filter((name) => name.endsWith(".md"))
+      .flatMap((name) =>
+        [
+          ...readFileSync(join(casesDirectory, name), "utf8").matchAll(
+            /^Owner: `([^#`]+)#[^`]+`$/gmu
+          )
+        ].map((match) => match[1])
+      );
+    assert.equal(ownerPaths.length > 0, true);
+    for (const path of ownerPaths) {
+      assert.ok(path !== undefined);
+      assert.deepEqual(matchingRegions(path, ["test-surface"]), ["test-surface"], path);
+    }
   });
 });

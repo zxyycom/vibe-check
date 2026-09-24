@@ -115,8 +115,20 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   "package-tests": {
     include: [
       "scripts/package/**",
+      "scripts/docs/**",
       "src/**",
-      "docs/**",
+      "README.md",
+      "LICENSE",
+      "licenses/**",
+      "docs/package-documents.json",
+      "docs/api-mechanics.md",
+      "docs/changelog.md",
+      "docs/output.md",
+      "docs/checks/**",
+      "docs/guides/**",
+      "docs/schemas/**",
+      "docs/examples/artifacts/**",
+      "docs/examples/package-api/**",
       "package.json",
       "pnpm-lock.yaml",
       "pnpm-workspace.yaml",
@@ -172,6 +184,8 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/project/gate/checks/test-execution/entries.ts",
       "scripts/test-evidence/discovery/**",
       "scripts/test-evidence/profile.ts",
+      "docs/package-documents.json",
+      "docs/testing/cases/**",
       "src/project-definition/**",
       "src/project-run/**",
       "src/check-settlement/**",
@@ -355,7 +369,17 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
     exclude: []
   },
   "test-surface": {
-    include: ["src/**", "scripts/**", "docs/testing/cases/**", "docs/**/*.md"],
+    include: [
+      "src/**",
+      "scripts/**",
+      "docs/testing/cases/**",
+      "docs/*.md",
+      "docs/checks/**",
+      "docs/development/**",
+      "docs/guides/**",
+      "docs/testing/*.md",
+      "docs/tooling/**"
+    ],
     exclude: []
   },
   "validation-tests": {

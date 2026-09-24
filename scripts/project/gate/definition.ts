@@ -376,7 +376,7 @@ export function createProjectGateDefinition(
     checks: entries.map(projectGateFlagControlledCheck),
     changes: {
       source: {
-        compareWith: "origin/main"
+        compareWith: "HEAD~1"
       },
       flags: PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS
     },

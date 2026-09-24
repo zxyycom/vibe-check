@@ -1043,6 +1043,27 @@
         "project-gate"
       ],
       "title": "复核失效候选波动与编译缓存边界"
+    },
+    "260924-review-local-head-gate-selection-and-document-inputs": {
+      "formedAt": "2026-09-24T09:54:04Z",
+      "name": "review-local-head-gate-selection-and-document-inputs",
+      "question": "默认 Gate 是否应依赖远端比较基准，以及 package/Case 测试是否会被无关文档唤起？",
+      "relations": [
+        {
+          "summary": "改用本地最近提交并收窄两组文档输入",
+          "target": "260924-audit-incremental-project-gate-selection-and-cold-cost",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "review-local-head-gate-selection-and-document-inputs.md",
+      "tags": [
+        "change-selection",
+        "performance",
+        "project-gate",
+        "test-execution"
+      ],
+      "title": "复核本地最近提交与文档输入的 Gate 选择"
     }
   },
   "metadata": {},
@@ -1097,7 +1118,8 @@
       "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:7b281ffa269cc03017bd93b1d55bab1ab6d40326f9a71c1be7330c804734e614",
       "260914-measure-scc-file-batch-transport-performance": "sha256:ac5735aa2a9e437e43273458626dd46f546d216d804ddb92666b4262abf7852b",
       "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:6a9a97f68d85469707fc51f6345b60c775dcf664d92c0d002e302b10867904f3",
-      "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b"
+      "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b",
+      "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

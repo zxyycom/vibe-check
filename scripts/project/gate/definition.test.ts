@@ -232,7 +232,7 @@ describe("Project Gate Definition", () => {
     assert.equal(Object.hasOwn(definition, "policies"), false);
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
     assert.deepEqual(definition.changes, {
-      source: { compareWith: "origin/main" },
+      source: { compareWith: "HEAD~1" },
       flags: PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS
     });
 

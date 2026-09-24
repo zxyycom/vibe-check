@@ -75,12 +75,12 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 
 测试按证明责任分别结算：package supporting/artifact/external-consumer、各 Product Check owner 与 runtime、Project Gate selection 与其余 tooling、admission workbench、Test Evidence、repository layout、package-tools/Core 闭包、machine artifacts、其余 material validation，以及 ordinary scripts。拆分依据是各 lane 的输入和证明义务，不是增加并行度。
 
-| Lane | 默认 required 的输入与证明边界 |
-| --- | --- |
-| Project Gate selection | 对 Gate region 数据运行轻量路径矩阵，使用与 Product config-glob 相同的 `minimatch` 选项；选择规则、Definition、lane registry 或 Product 变更选择机制变化时运行。真实 Git changed-path、rename 和 unavailable fallback 由 Product tests 证明。 |
-| Repository layout | 扫描当前 `src/**` / `scripts/**` 源文件的结构、import 与 package-tools 边界；任何源码变化均选择它。 |
-| Package-tools/Core 闭包 | 独立 fixture；验证器、共享 fixture、依赖或运行配置变化时选择。 |
-| Machine artifacts | 直接测试文件或实际材料、生成器、validator、Product Definition 输入变化时选择；其测试文件变化不启动其余 material tests。 |
+几项容易混淆的默认 required test lane 各有自己的输入和证明边界：
+
+- **Project Gate selection：** 对 Gate region 数据运行轻量路径矩阵，使用与 Product config-glob 相同的 `minimatch` 选项；选择规则、Definition、lane registry 或 Product 变更选择机制变化时运行。真实 Git changed-path、rename 和 unavailable fallback 由 Product tests 证明。
+- **Repository layout：** 扫描当前 `src/**` / `scripts/**` 源文件的结构、import 与 package-tools 边界；任何源码变化均选择它。
+- **Package-tools/Core 闭包：** 使用独立 fixture；验证器、共享 fixture、依赖或运行配置变化时选择。
+- **Machine artifacts：** 实际材料、生成器、validator、Product Definition 输入或该 lane 测试文件变化时选择；其测试文件变化不启动其余 material tests。
 
 显式 `--test` 和 `--all` 运行全部 test lane；缺少可信 Git evidence 时保守选择。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package supporting；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
 
@@ -104,7 +104,9 @@ string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，
 运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
 Gate 只拥有 manifest projection 与其验证。
 
-默认 required 为 typecheck、lint、format、test lanes、质量扫描、Decision 与 Test Evidence 选择各自的保守输入 region；映射由 `runtime/eligibility.ts` 维护。一次 Git snapshot 覆盖 committed、staged、unstaged 与 untracked 变化。共享 material source 可选择多个实际消费者；Test Evidence 还覆盖 Case Owner Markdown 标题，因为它会核对这些引用。
+默认 required 的 typecheck、lint、format、test lanes、质量扫描、Decision 与 Test Evidence 各按自己的保守输入 region 选择，映射由 `runtime/eligibility.ts` 维护。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可解析的本地父提交或其它 Git 证据时，走保守选择。
+
+共享 material source 可选择多个实际消费者。package supporting lane 由已登记随包材料及其生成/构建输入选择，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
 
 `prepared-package-candidate`、repository material links 与 Git diff whitespace 始终属于 required。Markdown link validation 在任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径；发布前运行 `--all`。
 
