@@ -1,7 +1,7 @@
 ---
 title: 将 Project Gate 后处理收窄为结果贡献
 id: 260914-narrow-project-gate-to-result-contribution
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-14T06:21:10Z
 purpose: 让中央 Gate 配置只暴露当前性能提示需要的消息贡献权限

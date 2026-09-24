@@ -1,7 +1,7 @@
 ---
 title: 用 Gate-owned Hook 提示标准运行的性能偏移
 id: 260829-monitor-project-gate-performance-advisory
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-29T15:36:05Z
 purpose: 让标准 Project Gate invocation 显示可比较的 elapsed observation，并在明显偏离实测基线时提示审阅。

@@ -84,7 +84,7 @@ Entities:
 - `bun|scripts/validation/repository-material/machine-artifacts/validation.test.ts|independent repository material machine artifact validation > rejects historical v2/v3 and focused v4 set mutations without a partial accepted set`
 - `bun|scripts/validation/repository-material/machine-artifacts/validation.test.ts|independent repository material machine artifact validation > detects generated schema and example drift`
   Proves:
-- The independent material validator accepts only the checked-in mixed-outcomes Definition/output set and current v4 schemas. It executes the Definition through the public Run to close built-in/custom Check and dependency-derived output drift, then independently verifies framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator as its artifact acceptance authority.
+- The independent material validator accepts only the checked-in mixed-outcomes Definition/output set and current v4 schemas. It executes the Definition through the public Run to close built-in/custom Check and dependency-derived output drift, then independently verifies framing, schema, canonical JSON finite-number safety, composite identity/order, ownership and complete-set fingerprint invariants without importing the Product validator as its artifact acceptance authority. Published-schema and example byte drift are rejected by their generators.
 
 ## Case AUX-DOCS-HISTORICAL-MACHINE-SCHEMAS-001: Current v4 example validation rejects historical machine identities
 

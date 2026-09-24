@@ -43,7 +43,9 @@ export function validatePackageToolsBoundary(root: string, violations: string[])
 
   const options = compilerOptions(root, violations);
   const program = ts.createProgram({
-    options,
+    // Symbol and module-boundary checks do not need standard-library declarations;
+    // the separate Core no-emit proof still uses the complete compiler options.
+    options: { ...options, noLib: true },
     rootNames: productionSourceFilesUnder(root, "src")
   });
   const checker = program.getTypeChecker();

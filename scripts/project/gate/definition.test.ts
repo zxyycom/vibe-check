@@ -1,31 +1,18 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import {
-  cpSync,
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  symlinkSync,
-  writeFileSync
-} from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { describe, it } from "node:test";
 
 import { defineCheck, markdownLinkValidation, run as packageRun } from "@zxyycom/vibe-check";
-import type {
-  CheckFlagCondition,
-  CheckFlagEnablement,
-  CheckProjectContext
-} from "@zxyycom/vibe-check";
+import type { CheckFlagCondition, CheckFlagEnablement } from "@zxyycom/vibe-check";
 import { isNonArrayRecord } from "../../value-guards.ts";
 import type { TestEvidenceRuleTestInvocations } from "../../test-evidence/ast-grep/rule-tests.ts";
-import type { MaterialValidationResult } from "../../validation/repository-material/workflow.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
-import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
+import {
+  PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS,
+  projectGateFlagControlledCheck
+} from "./runtime/eligibility.ts";
 import { selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
 import {
   createLintProductCheck,
@@ -34,7 +21,6 @@ import {
   PROJECT_GATE_RUN_CONFIG
 } from "./definition.ts";
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
-import { createMaterialValidationCheck } from "./checks/materials-validation.ts";
 import { invokeCheck, invokeCheckWithRecords } from "./checks/check-execution.test-support.ts";
 import { createOxlintFailureProjection } from "./checks/oxlint-failure-records.ts";
 import { writeProcessTranscript } from "./checks/process/transcript.ts";
@@ -82,8 +68,13 @@ const expectedCheckIds = [
   "tests-product-secret-detection",
   "tests-product-supporting-checks",
   "tests-product-runtime",
+  "tests-scripts-admission-workbench",
   "tests-scripts-project",
+  "tests-scripts-project-selection",
   "tests-scripts-test-evidence",
+  "tests-scripts-layout",
+  "tests-scripts-machine-artifacts",
+  "tests-scripts-package-tools-boundary",
   "tests-scripts-validation",
   "tests-scripts-tooling",
   "duplicate-detection",
@@ -120,18 +111,15 @@ const packageAcceptanceCheckIds: ReadonlySet<string> = new Set([
   "tests-package-consumer-docs",
   "tests-package-consumer-runtime"
 ]);
-const incrementalRepositoryMaterialCheckIds: ReadonlySet<string> = new Set([
-  "markdown-lint",
-  "materials-json-validator",
-  "materials-schema-validator",
-  "materials-schema-publication-validator",
-  "materials-examples-validator"
-]);
+const materialChangeFlagByCheckId = {
+  "markdown-lint": "markdown-lint-input",
+  "materials-json-validator": "material-json-input",
+  "materials-schema-validator": "material-schema-input",
+  "materials-schema-publication-validator": "material-schema-publication-input",
+  "materials-examples-validator": "material-examples-input"
+} as const;
 const expectedRequiredCheckIds = expectedCheckIds.filter(
-  (checkId) =>
-    !packageAcceptanceCheckIds.has(checkId) &&
-    checkId !== "tests-product-runtime" &&
-    !incrementalRepositoryMaterialCheckIds.has(checkId)
+  (checkId) => !packageAcceptanceCheckIds.has(checkId)
 );
 
 const expectedCheckIdsBySelection: readonly Readonly<{
@@ -173,8 +161,13 @@ const expectedCheckIdsBySelection: readonly Readonly<{
       "tests-product-secret-detection",
       "tests-product-supporting-checks",
       "tests-product-runtime",
+      "tests-scripts-admission-workbench",
       "tests-scripts-project",
+      "tests-scripts-project-selection",
       "tests-scripts-test-evidence",
+      "tests-scripts-layout",
+      "tests-scripts-machine-artifacts",
+      "tests-scripts-package-tools-boundary",
       "tests-scripts-validation",
       "tests-scripts-tooling",
       "test-evidence",
@@ -240,28 +233,7 @@ describe("Project Gate Definition", () => {
     assert.equal(Object.hasOwn(definition, "selectedPolicy"), false);
     assert.deepEqual(definition.changes, {
       source: { compareWith: "origin/main" },
-      flags: {
-        "product-runtime": { exclude: [], include: ["src/**"] },
-        "repository-material": {
-          exclude: [],
-          include: [
-            "AGENTS.md",
-            "README.md",
-            ".oxfmtrc.json",
-            ".oxlintrc.json",
-            "changes/**",
-            "docs/**",
-            "mise.lock",
-            "mise.toml",
-            "package.json",
-            "pnpm-lock.yaml",
-            "pnpm-workspace.yaml",
-            "scripts/**",
-            "src/**",
-            "tsconfig.json"
-          ]
-        }
-      }
+      flags: PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS
     });
 
     const nativeMaterialCheck = definition.checks.find(
@@ -313,6 +285,7 @@ describe("Project Gate Definition", () => {
       "materials-schema-validator",
       "materials-schema-publication-validator",
       "materials-examples-validator",
+      "tests-scripts-machine-artifacts",
       "tests-scripts-validation"
     ]) {
       assert.deepEqual(entries.find(({ check }) => check.checkId === checkId)?.check.mutex, [
@@ -339,7 +312,14 @@ describe("Project Gate Definition", () => {
     assert.deepEqual(projectGateFlagControlledCheck(qualityEntry).enabledByFlags, {
       when: {
         kind: "any",
-        conditions: ["project-gate:all", "project-gate:required", "project-gate:preset=quality"]
+        conditions: [
+          {
+            kind: "all",
+            conditions: ["project-gate:required", "vibe-check:change:duplicate-input"]
+          },
+          "project-gate:preset=quality",
+          "project-gate:all"
+        ]
       },
       propagateDependsOn: true
     });
@@ -354,8 +334,13 @@ describe("Project Gate Definition", () => {
       ["tests-product-secret-detection", expectedTestLanes.productSecretDetection],
       ["tests-product-supporting-checks", expectedTestLanes.productSupportingChecks],
       ["tests-product-runtime", expectedTestLanes.productRuntime],
+      ["tests-scripts-admission-workbench", expectedTestLanes.scriptsAdmissionWorkbench],
       ["tests-scripts-project", expectedTestLanes.scriptsProject],
+      ["tests-scripts-project-selection", expectedTestLanes.scriptsProjectSelection],
       ["tests-scripts-test-evidence", expectedTestLanes.scriptsTestEvidence],
+      ["tests-scripts-layout", expectedTestLanes.scriptsLayout],
+      ["tests-scripts-machine-artifacts", expectedTestLanes.scriptsMachineArtifacts],
+      ["tests-scripts-package-tools-boundary", expectedTestLanes.scriptsPackageToolsBoundary],
       ["tests-scripts-validation", expectedTestLanes.scriptsValidation],
       ["tests-scripts-tooling", expectedTestLanes.scriptsTooling],
       ["tests-package-supporting", expectedTestLanes.packageSupporting],
@@ -368,7 +353,14 @@ describe("Project Gate Definition", () => {
       assert.ok(entry, `${checkId} must exist`);
       assert.ok(isNonArrayRecord(entry.check.options));
       assert.equal(entry.check.options.executable, process.execPath);
-      assert.deepEqual(entry.check.options.arguments, ["test", ...files, "--reporter=dots"]);
+      assert.deepEqual(entry.check.options.arguments, [
+        "test",
+        ...files,
+        "--reporter=dots",
+        ...(["tests-scripts-project", "tests-scripts-project-selection"].includes(checkId)
+          ? ["--timeout=15000"]
+          : [])
+      ]);
       assert.equal(entry.check.options.arguments.includes("--parallel"), false);
       assert.equal(entry.check.options.workingDirectory, process.cwd());
       assert.deepEqual(entry.check.options.output, { mode: "transcript" });
@@ -615,7 +607,14 @@ describe("Project Gate Definition", () => {
     assert.equal("aggregation" in PROJECT_GATE_RUN_CONFIG, false);
 
     for (const expectation of expectedCheckIdsBySelection) {
-      const flags = new Set(selectionFlags(expectation.selection));
+      const flags = new Set([
+        ...selectionFlags(expectation.selection),
+        ...(expectation.selection.kind === "required"
+          ? Object.keys(PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS).map(
+              (flag) => `vibe-check:change:${flag}`
+            )
+          : [])
+      ]);
       assert.deepEqual(
         definition.checks
           .filter((check) => matchesFlagEnablement(check.enabledByFlags, flags))
@@ -623,6 +622,14 @@ describe("Project Gate Definition", () => {
         expectation.checkIds
       );
     }
+    assert.deepEqual(
+      definition.checks
+        .filter((check) =>
+          matchesFlagEnablement(check.enabledByFlags, new Set(["project-gate:required"]))
+        )
+        .map(({ checkId }) => checkId),
+      ["prepared-package-candidate", "materials-links-validator", "git-diff-whitespace"]
+    );
 
     for (const check of definition.checks) {
       assert.equal(check.enabledByFlags?.propagateDependsOn, true);
@@ -649,7 +656,7 @@ describe("Project Gate Definition", () => {
         propagateDependsOn: true
       }
     );
-    for (const checkId of incrementalRepositoryMaterialCheckIds) {
+    for (const [checkId, changeFlag] of Object.entries(materialChangeFlagByCheckId)) {
       if (checkId === "markdown-lint") continue;
       assert.deepEqual(
         definition.checks.find((check) => check.checkId === checkId)?.enabledByFlags,
@@ -659,7 +666,7 @@ describe("Project Gate Definition", () => {
             conditions: [
               {
                 kind: "all",
-                conditions: ["project-gate:required", "vibe-check:change:repository-material"]
+                conditions: ["project-gate:required", `vibe-check:change:${changeFlag}`]
               },
               "project-gate:preset=materials",
               "project-gate:all"
@@ -677,7 +684,7 @@ describe("Project Gate Definition", () => {
           conditions: [
             {
               kind: "all",
-              conditions: ["project-gate:required", "vibe-check:change:repository-material"]
+              conditions: ["project-gate:required", "vibe-check:change:markdown-lint-input"]
             },
             "project-gate:preset=materials",
             "project-gate:preset=quality",
@@ -697,482 +704,6 @@ describe("Project Gate Definition", () => {
         propagateDependsOn: true
       });
     }
-  });
-
-  it("selects the product-runtime lane only for a runtime change, unavailable source, or explicit force path", async () => {
-    for (const scenario of [
-      { kind: "unchanged", flags: ["project-gate:required"], runs: false },
-      { kind: "changed", flags: ["project-gate:required"], runs: true },
-      { kind: "unavailable", flags: ["project-gate:required"], runs: true },
-      { kind: "test", flags: ["project-gate:preset=test"], runs: true },
-      { kind: "all", flags: ["project-gate:all"], runs: true }
-    ] as const) {
-      const fixture =
-        scenario.kind === "unavailable"
-          ? mkdtempSync(join(tmpdir(), "vibe-check-gate-changes-"))
-          : gitFixture();
-      let calls = 0;
-      let project: CheckProjectContext | undefined;
-      try {
-        if (scenario.kind === "changed") commitRuntimeChange(fixture);
-        const definition = createProjectGateDefinition(
-          defineProjectGateEntries([
-            {
-              check: defineCheck({
-                checkId: "tests-product-runtime",
-                displayName: "Fixture Product runtime tests",
-                execute: ({ project: context }) => {
-                  calls += 1;
-                  project = context;
-                  return { data: {}, status: "passed" };
-                }
-              }),
-              presets: ["test"],
-              required: true
-            }
-          ])
-        );
-        const result = await packageRun(definition, {
-          flags: scenario.flags,
-          outputs: {
-            diagnosticLogging: { enabled: false },
-            machinePublication: { enabled: false },
-            progressRendering: { enabled: false }
-          },
-          projectRoot: fixture
-        });
-        assert.equal(result.kind, "completed", scenario.kind);
-        assert.equal(calls, scenario.runs ? 1 : 0, scenario.kind);
-        const outcome =
-          result.kind === "completed" ? result.snapshot.checks[0]?.outcome : undefined;
-        assert.equal(outcome?.status, scenario.runs ? "passed" : "not-applicable", scenario.kind);
-        if (scenario.kind === "unchanged") {
-          assert.deepEqual(project, undefined);
-          continue;
-        }
-        assert.equal(
-          project?.changes?.ok,
-          scenario.kind === "unavailable" ? false : true,
-          scenario.kind
-        );
-        if (scenario.kind === "changed") {
-          assert.deepEqual(project?.changes, {
-            files: [
-              {
-                flags: [
-                  "vibe-check:change:product-runtime",
-                  "vibe-check:change:repository-material"
-                ],
-                path: "src/runtime.ts"
-              }
-            ],
-            ok: true
-          });
-        }
-        if (scenario.kind === "unavailable") {
-          assert.deepEqual(project?.changes, {
-            ok: false,
-            reason: { code: "git-changes-unavailable" }
-          });
-        }
-      } finally {
-        rmSync(fixture, { force: true, recursive: true });
-      }
-    }
-  });
-
-  it("selects closed repository-material Checks from one change snapshot while links remain full", async () => {
-    const scenarios = [
-      {
-        kind: "unchanged",
-        flags: ["project-gate:required"],
-        change: "none",
-        material: false,
-        expected: ["materials-links-validator", "fixture-quality"]
-      },
-      {
-        kind: "committed",
-        flags: ["project-gate:required"],
-        change: "commit",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality"
-        ]
-      },
-      {
-        kind: "rename",
-        flags: ["project-gate:required"],
-        change: "rename",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality"
-        ]
-      },
-      {
-        kind: "delete",
-        flags: ["project-gate:required"],
-        change: "delete",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality"
-        ]
-      },
-      {
-        kind: "staged",
-        flags: ["project-gate:required"],
-        change: "staged",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality"
-        ]
-      },
-      {
-        kind: "unstaged",
-        flags: ["project-gate:required"],
-        change: "unstaged",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality"
-        ]
-      },
-      {
-        kind: "untracked",
-        flags: ["project-gate:required"],
-        change: "untracked",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality"
-        ]
-      },
-      {
-        kind: "pnpm-lock",
-        flags: ["project-gate:required"],
-        change: "pnpm-lock",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality"
-        ]
-      },
-      {
-        kind: "outside-link-target",
-        flags: ["project-gate:required"],
-        change: "outside",
-        material: false,
-        expected: ["materials-links-validator", "fixture-quality"]
-      },
-      {
-        kind: "runtime-material-overlap",
-        flags: ["project-gate:required"],
-        change: "overlap",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality",
-          "tests-product-runtime"
-        ]
-      },
-      {
-        kind: "materials",
-        flags: ["project-gate:preset=materials"],
-        change: "none",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator"
-        ]
-      },
-      {
-        kind: "quality",
-        flags: ["project-gate:preset=quality"],
-        change: "none",
-        material: false,
-        expected: ["fixture-quality"]
-      },
-      {
-        kind: "all",
-        flags: ["project-gate:all"],
-        change: "none",
-        material: true,
-        expected: [
-          "fixture-material-prerequisite",
-          "materials-json-validator",
-          "materials-links-validator",
-          "fixture-quality",
-          "tests-product-runtime"
-        ]
-      }
-    ] as const;
-
-    for (const scenario of scenarios) {
-      const root = gitFixture();
-      const calls: string[] = [];
-      let materialProject: CheckProjectContext | undefined;
-      try {
-        applyRepositoryMaterialChange(root, scenario.change);
-        const entries = defineProjectGateEntries([
-          {
-            check: defineCheck({
-              checkId: "fixture-material-prerequisite",
-              displayName: "Fixture material prerequisite",
-              execute: () => {
-                calls.push("fixture-material-prerequisite");
-                return { data: {}, status: "passed" };
-              }
-            }),
-            presets: [],
-            required: false
-          },
-          {
-            check: defineCheck({
-              checkId: "materials-json-validator",
-              dependsOn: ["fixture-material-prerequisite"],
-              displayName: "Fixture material validator",
-              execute: ({ project }) => {
-                calls.push("materials-json-validator");
-                materialProject = project;
-                return { data: {}, status: "passed" };
-              }
-            }),
-            presets: ["materials"],
-            required: true
-          },
-          {
-            check: defineCheck({
-              checkId: "materials-links-validator",
-              displayName: "Fixture material links",
-              execute: () => {
-                calls.push("materials-links-validator");
-                return { data: {}, status: "passed" };
-              }
-            }),
-            presets: ["materials"],
-            required: true
-          },
-          {
-            check: defineCheck({
-              checkId: "fixture-quality",
-              displayName: "Fixture quality",
-              execute: () => {
-                calls.push("fixture-quality");
-                return { data: {}, status: "passed" };
-              }
-            }),
-            presets: ["quality"],
-            required: true
-          },
-          {
-            check: defineCheck({
-              checkId: "tests-product-runtime",
-              displayName: "Fixture Product runtime",
-              execute: () => {
-                calls.push("tests-product-runtime");
-                return { data: {}, status: "passed" };
-              }
-            }),
-            presets: ["test"],
-            required: true
-          }
-        ]);
-        const result = await packageRun(createProjectGateDefinition(entries), {
-          flags: scenario.flags,
-          outputs: {
-            diagnosticLogging: { enabled: false },
-            machinePublication: { enabled: false },
-            progressRendering: { enabled: false }
-          },
-          projectRoot: root
-        });
-        assert.equal(result.kind, "completed", scenario.kind);
-        if (result.kind !== "completed") continue;
-        assert.equal(result.aggregate, "passed", scenario.kind);
-        assert.deepEqual([...calls].sort(), [...scenario.expected].sort(), scenario.kind);
-        if (scenario.material) {
-          assert.ok(
-            calls.indexOf("fixture-material-prerequisite") <
-              calls.indexOf("materials-json-validator"),
-            scenario.kind
-          );
-        }
-        assert.equal(materialProject !== undefined, scenario.material, scenario.kind);
-        assert.equal(
-          result.snapshot.checks.find(({ checkId }) => checkId === "materials-json-validator")
-            ?.outcome.status,
-          scenario.material ? "passed" : "not-applicable",
-          scenario.kind
-        );
-        if (materialProject !== undefined) {
-          assert.equal(
-            materialProject.flags.includes("vibe-check:change:repository-material"),
-            scenario.flags[0] === "project-gate:required",
-            scenario.kind
-          );
-          assert.equal(materialProject.changes?.ok, true, scenario.kind);
-        }
-      } finally {
-        rmSync(root, { force: true, recursive: true });
-      }
-    }
-
-    for (const unavailable of ["missing-ref", "non-git"] as const) {
-      const unavailableRoot =
-        unavailable === "missing-ref"
-          ? gitFixture()
-          : mkdtempSync(join(tmpdir(), "vibe-check-gate-materials-unavailable-"));
-      try {
-        if (unavailable === "missing-ref") {
-          git(unavailableRoot, ["update-ref", "-d", "refs/remotes/origin/main"]);
-        }
-        let calls = 0;
-        let project: CheckProjectContext | undefined;
-        const result = await packageRun(
-          createProjectGateDefinition(
-            defineProjectGateEntries([
-              {
-                check: defineCheck({
-                  checkId: "materials-json-validator",
-                  displayName: "Unavailable material validator",
-                  execute: ({ project: context }) => {
-                    calls += 1;
-                    project = context;
-                    return { data: {}, status: "passed" };
-                  }
-                }),
-                presets: ["materials"],
-                required: true
-              }
-            ])
-          ),
-          {
-            flags: ["project-gate:required"],
-            outputs: {
-              diagnosticLogging: { enabled: false },
-              machinePublication: { enabled: false },
-              progressRendering: { enabled: false }
-            },
-            projectRoot: unavailableRoot
-          }
-        );
-        assert.equal(result.kind, "completed", unavailable);
-        assert.equal(calls, 1, unavailable);
-        assert.deepEqual(
-          project?.changes,
-          { ok: false, reason: { code: "git-changes-unavailable" } },
-          unavailable
-        );
-        assert.equal(
-          project?.flags.includes("vibe-check:change:repository-material"),
-          true,
-          unavailable
-        );
-      } finally {
-        rmSync(unavailableRoot, { force: true, recursive: true });
-      }
-    }
-  });
-
-  it("fails the real schema-publication provider when a Product schema change causes generated drift", async () => {
-    const providerRoot = mkdtempSync(join(tmpdir(), "vibe-check-material-provider-"));
-    try {
-      for (const directory of ["docs", "scripts", "src"] as const) {
-        cpSync(join(process.cwd(), directory), join(providerRoot, directory), { recursive: true });
-      }
-      symlinkSync(join(process.cwd(), "node_modules"), join(providerRoot, "node_modules"));
-      initializeGitFixture(providerRoot);
-      const copiedSchemaPath = join(providerRoot, "src", "machine-output", "v4", "schema.ts");
-      const copiedSchema = readFileSync(copiedSchemaPath, "utf8");
-      writeFileSync(
-        copiedSchemaPath,
-        copiedSchema.replace('title: "Vibe Check machine run v4"', 'title: "Drifted run schema"'),
-        "utf8"
-      );
-      git(providerRoot, ["add", "src/machine-output/v4/schema.ts"]);
-      git(providerRoot, ["commit", "--quiet", "-m", "schema source change"]);
-      const loadedWorkflow: unknown = await import(
-        pathToFileURL(
-          join(providerRoot, "scripts", "validation", "repository-material", "workflow.ts")
-        ).href
-      );
-      const validate = async (): Promise<MaterialValidationResult> => {
-        if (!isNonArrayRecord(loadedWorkflow))
-          throw new Error("copied material workflow is invalid");
-        const provider = loadedWorkflow.validateRepositoryMaterialSchemaPublication;
-        if (!isMaterialProvider(provider)) throw new Error("copied schema provider is invalid");
-        const result: unknown = await provider();
-        if (!isMaterialValidationResult(result))
-          throw new Error("copied schema provider result is invalid");
-        return result;
-      };
-      const definition = createProjectGateDefinition(
-        defineProjectGateEntries([
-          {
-            check: createMaterialValidationCheck({
-              checkId: "materials-schema-publication-validator",
-              displayName: "Fixture schema publication validator",
-              focusedCommand: "fixture schema publication",
-              validate
-            }),
-            presets: ["materials"],
-            required: true
-          }
-        ])
-      );
-      const result = await packageRun(definition, {
-        flags: ["project-gate:required"],
-        outputs: {
-          diagnosticLogging: { enabled: false },
-          machinePublication: { enabled: false },
-          progressRendering: { enabled: false }
-        },
-        projectRoot: providerRoot
-      });
-      assert.equal(result.kind, "completed");
-      if (result.kind !== "completed") return;
-      assert.equal(result.aggregate, "failed");
-      assert.deepEqual(result.snapshot.checks[0]?.outcome.status, "failed");
-      assert.equal(result.snapshot.records.length, 1);
-    } finally {
-      rmSync(providerRoot, { force: true, recursive: true });
-    }
-  });
-
-  it("keeps the product-runtime change region complete for the lane resolver", () => {
-    const lanes = resolveProjectGateTestLanes(process.cwd());
-    const allProductRuntimeFiles = Object.values(lanes)
-      .flat()
-      .filter((file) => file.startsWith("src/") && !file.startsWith("src/package-checks/"));
-    assert.deepEqual(lanes.productRuntime, allProductRuntimeFiles);
-    assert.equal(
-      lanes.productRuntime.every((file) => file.startsWith("src/")),
-      true
-    );
-    assert.equal(
-      lanes.productRuntime.some((file) => file.startsWith("src/package-checks/")),
-      false
-    );
   });
 
   it("executes only Product flag-selected Checks and aggregates the same identities", async () => {
@@ -1550,121 +1081,6 @@ function matchesFlagCondition(condition: CheckFlagCondition, flags: ReadonlySet<
     case "not":
       return !matchesFlagCondition(condition.condition, flags);
   }
-}
-
-function gitFixture(): string {
-  const root = mkdtempSync(join(tmpdir(), "vibe-check-gate-changes-"));
-  git(root, ["init", "--quiet"]);
-  git(root, ["config", "user.email", "gate-changes@example.invalid"]);
-  git(root, ["config", "user.name", "Gate changes Test"]);
-  mkdirSync(join(root, "src"));
-  mkdirSync(join(root, "docs"));
-  writeFileSync(join(root, "NOTICE"), "Fixture notice\n", "utf8");
-  writeFileSync(join(root, "docs", "guide.md"), "[target](../NOTICE)\n", "utf8");
-  writeFileSync(join(root, "docs", "material.json"), "{}\n", "utf8");
-  writeFileSync(join(root, "src", "runtime.ts"), "export const runtime = 1;\n", "utf8");
-  initializeGitFixture(root);
-  return root;
-}
-
-function initializeGitFixture(root: string): void {
-  git(root, ["init", "--quiet"]);
-  git(root, ["config", "user.email", "gate-changes@example.invalid"]);
-  git(root, ["config", "user.name", "Gate changes Test"]);
-  git(root, ["add", "."]);
-  git(root, ["commit", "--quiet", "-m", "baseline"]);
-  git(root, ["update-ref", "refs/remotes/origin/main", git(root, ["rev-parse", "HEAD"])]);
-}
-
-function applyRepositoryMaterialChange(
-  root: string,
-  change:
-    | "commit"
-    | "delete"
-    | "none"
-    | "outside"
-    | "overlap"
-    | "pnpm-lock"
-    | "rename"
-    | "staged"
-    | "unstaged"
-    | "untracked"
-): void {
-  const materialPath = join(root, "docs", "material.json");
-  switch (change) {
-    case "none":
-      return;
-    case "commit":
-      writeFileSync(materialPath, '{"changed":true}\n', "utf8");
-      git(root, ["add", "docs/material.json"]);
-      git(root, ["commit", "--quiet", "-m", "material change"]);
-      return;
-    case "rename":
-      git(root, ["mv", "docs/material.json", "docs/renamed-material.json"]);
-      git(root, ["commit", "--quiet", "-m", "material rename"]);
-      return;
-    case "delete":
-      rmSync(materialPath);
-      git(root, ["add", "-A"]);
-      git(root, ["commit", "--quiet", "-m", "material delete"]);
-      return;
-    case "staged":
-      writeFileSync(materialPath, '{"staged":true}\n', "utf8");
-      git(root, ["add", "docs/material.json"]);
-      return;
-    case "unstaged":
-      writeFileSync(materialPath, '{"unstaged":true}\n', "utf8");
-      return;
-    case "untracked":
-      writeFileSync(join(root, "docs", "untracked-material.json"), "{}\n", "utf8");
-      return;
-    case "pnpm-lock":
-      writeFileSync(join(root, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n", "utf8");
-      git(root, ["add", "pnpm-lock.yaml"]);
-      git(root, ["commit", "--quiet", "-m", "dependency lock change"]);
-      return;
-    case "outside":
-      rmSync(join(root, "NOTICE"));
-      git(root, ["add", "-A"]);
-      git(root, ["commit", "--quiet", "-m", "linked target deletion"]);
-      return;
-    case "overlap":
-      writeFileSync(join(root, "src", "runtime.ts"), "export const runtime = 2;\n", "utf8");
-      git(root, ["add", "src/runtime.ts"]);
-      git(root, ["commit", "--quiet", "-m", "runtime material overlap"]);
-      return;
-  }
-}
-
-function commitRuntimeChange(root: string): void {
-  writeFileSync(join(root, "src", "runtime.ts"), "export const runtime = 2;\n", "utf8");
-  git(root, ["add", "src/runtime.ts"]);
-  git(root, ["commit", "--quiet", "-m", "runtime change"]);
-}
-
-function git(root: string, args: readonly string[]): string {
-  const result = spawnSync("git", args, { cwd: root, encoding: "utf8" });
-  assert.equal(result.status, 0, `git ${args.join(" ")} failed: ${result.stderr}`);
-  return result.stdout.trim();
-}
-
-function isMaterialValidationResult(value: unknown): value is MaterialValidationResult {
-  return (
-    isNonArrayRecord(value) &&
-    (value.status === "passed" || value.status === "failed") &&
-    Array.isArray(value.diagnostics) &&
-    value.diagnostics.every(
-      (diagnostic) =>
-        isNonArrayRecord(diagnostic) &&
-        isNonArrayRecord(diagnostic.data) &&
-        typeof diagnostic.id === "string" &&
-        typeof diagnostic.presentation === "string"
-    )
-  );
-}
-
-function isMaterialProvider(value: unknown): value is () => Promise<unknown> {
-  return typeof value === "function";
 }
 
 function expectedResourceClaimsFor(checkId: string): Readonly<Record<string, number>> | undefined {

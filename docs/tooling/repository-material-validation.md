@@ -62,16 +62,21 @@ validation path，不进入 current traversal 或 runtime input。
 
 ### Gate 增量选择
 
-Project Gate 的 `repository-material` change region 是保守、可复核的材料输入 corpus：`AGENTS.md`、`README.md`、
-`.oxfmtrc.json`、`.oxlintrc.json`、`changes/**`、`docs/**`、`mise.lock`、`mise.toml`、`package.json`、
-`pnpm-lock.yaml`、`pnpm-workspace.yaml`、`tsconfig.json`、`scripts/**` 和 `src/**`。后两项有意宽于直接 validator：schema/example publication 会读取 Product 的 `src/index.ts`、
-machine-output v4 schema、serializer 和执行模型，shared scripts 也会改变 provider 的输入或投影。它以
-exclude-first 的 Project Definition region 产生同一 effective flag，因而 committed、staged、unstaged、untracked、
-rename 和 deletion 都按同一 corpus 判断；Git evidence unavailable 时 Product 保守注入该 flag，不能把失败伪装成零变化。
+Project Gate 对四项材料 Checks 分别声明 `material-json-input`、`material-schema-input`、
+`material-schema-publication-input` 和 `material-examples-input`；Markdown lint 单独使用
+`markdown-lint-input`。前两项分别按 `docs/**/*.json` 与注册 schema/report example 路径及 owning Check 实现闭合；
+schema-publication 覆盖发布 schema、v4 schema source 与 provider；machine example 覆盖 artifact、schema、
+生成器和 Product 非测试 `src/**`，因为它实际执行 Product Definition 并序列化输出；Product
+`*.test.ts` / `*.test-support.ts` 不进入生成结果，因此不触发该 validator；provider 实现目录下的
+脚本 test/test-support 文件也不触发 schema publication 或 machine example validator。共用的 package Check
+file-collection/data-boundary、JSON 字节上限配置及 provider 的 repository-files/value-guards helper 也必须进入受影响 region。
+共同依赖如 package lock 可同时命中多项，
+但无关 Markdown、scripts 或普通源码不再启动所有材料检查。具体 path region 由
+`scripts/project/gate/runtime/eligibility.ts` 拥有。committed、staged、unstaged、untracked、rename 和 deletion
+仍由同一 Git snapshot 判断；Git evidence unavailable 时 Product 保守注入相关 flags。
 
-`materials-json-validator`、`materials-schema-validator`、`materials-schema-publication-validator`、
-`materials-examples-validator` 和 `markdown-lint` 的输入在此保守 corpus 中闭合。它们仅在 required 且 region changed 时增量执行；
-`--materials` 和 `--all` 始终强制执行，`markdown-lint` 还由 `--quality` 强制执行，已选 Check 的 `dependsOn` closure 仍由 Product 处理。
+它们仅在 required 且各自 region changed 时增量执行；`--materials` 和 `--all` 始终强制执行，
+`markdown-lint` 还由 `--quality` 强制执行，已选 Check 的 `dependsOn` closure 仍由 Product 处理。
 `materials-links-validator` 不采用该条件：Markdown source 对 repository 内任意 target 的反向依赖尚未建模，
 所以 required、`--materials` 与 `--all` 继续完整运行它。此限制同样避免 `--quality` 的质量 Check 因材料零变化被抑制。
 

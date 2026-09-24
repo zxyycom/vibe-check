@@ -83,7 +83,7 @@ project gate candidate import failed: ResolveMessage: Cannot find module '@zxyyc
 
 用户若绕过 `env:setup`，直接在从未准备过 candidate 的 clean checkout 首次执行 `bun run verify:vibe-check-workspace`，Bun 1.3.14 的同进程问题仍可能出现。项目没有要求这条未自举路径可用，因此它不是 `env:setup` 修复后的剩余产品缺口，也不需要为此增加兼容逻辑、fallback 或第二套 root workflow。
 
-不采用让 Gate 在 candidate preparation 后自动启动 fresh Bun process。该机制只服务未承诺场景，还会引入 private handoff、失败映射和额外进程生命周期；活动 Decision [`refine-project-gate-context-timing-phases.md`](../decisions/refine-project-gate-context-timing-phases.md) 又要求 candidate preparation、adapter setup 与 Product Run 属于同一 monotonic interval，跨进程实现会改变已确认的 timing 事实。在当前需求下，这些成本没有用户或开发者结果支撑。
+不采用让 Gate 在 candidate preparation 后自动启动 fresh Bun process。该机制只服务未承诺场景，还会引入 private handoff、失败映射和额外进程生命周期；形成时的 Decision [`refine-project-gate-context-timing-phases.md`](../decisions/archive/refine-project-gate-context-timing-phases.md) 又要求 candidate preparation、adapter setup 与 Product Run 属于同一 monotonic interval，跨进程实现会改变已确认的 timing 事实。在当前需求下，这些成本没有用户或开发者结果支撑。
 
 ### 形成时建议的实施验证
 

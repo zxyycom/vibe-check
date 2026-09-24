@@ -1,7 +1,7 @@
 ---
 title: 用连续阶段解释 Gate 初步结果耗时
 id: 260830-refine-project-gate-context-timing-phases
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-30T04:14:37Z
 purpose: 让 Gate-owned context 用连续三阶段解释 elapsed-to-initial-result。

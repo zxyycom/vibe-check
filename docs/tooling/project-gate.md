@@ -73,7 +73,16 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 
 `checks/test-execution/lanes.ts` 将 Test Evidence 已知的 Bun test files 投影为互斥且非空的 execution lanes；每个文件必须恰好属于一个 lane，未知 Product owner 在启动测试前失败。`checks/test-execution/checks.ts` 拥有 lane 到 Check ID、显示名、candidate input、mutex、timeout 与 Gate selection metadata 的闭合对象组；`definition.ts` 显式引用该组并把它放入完整 Gate manifest，避免复制 identity 或执行配置。
 
-Package supporting、artifact acceptance、三个 external-consumer acceptance、各 Product Check owner、Product runtime、Project tooling、Test Evidence、validation 与 ordinary scripts 分别结算。快速 candidate contract 属于 package supporting；显式 `candidate.integration.ts` 不符合 routine `*.test.ts` 身份，因此不由 `--test` 发现，其正式入口是 `package:candidate:integration`。External-consumer provider 是独立 Check，不伪装成 test lane。
+测试按证明责任分别结算：package supporting/artifact/external-consumer、各 Product Check owner 与 runtime、Project Gate selection 与其余 tooling、admission workbench、Test Evidence、repository layout、package-tools/Core 闭包、machine artifacts、其余 material validation，以及 ordinary scripts。拆分依据是各 lane 的输入和证明义务，不是增加并行度。
+
+| Lane | 默认 required 的输入与证明边界 |
+| --- | --- |
+| Project Gate selection | 对 Gate region 数据运行轻量路径矩阵，使用与 Product config-glob 相同的 `minimatch` 选项；选择规则、Definition、lane registry 或 Product 变更选择机制变化时运行。真实 Git changed-path、rename 和 unavailable fallback 由 Product tests 证明。 |
+| Repository layout | 扫描当前 `src/**` / `scripts/**` 源文件的结构、import 与 package-tools 边界；任何源码变化均选择它。 |
+| Package-tools/Core 闭包 | 独立 fixture；验证器、共享 fixture、依赖或运行配置变化时选择。 |
+| Machine artifacts | 直接测试文件或实际材料、生成器、validator、Product Definition 输入变化时选择；其测试文件变化不启动其余 material tests。 |
+
+显式 `--test` 和 `--all` 运行全部 test lane；缺少可信 Git evidence 时保守选择。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package supporting；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
 
 ### Selection presets and scheduling
 
@@ -84,7 +93,7 @@ selection 参数只包含 `--typecheck`、`--lint`、`--test`、`--materials`、
 `--all` 不能与 focused preset 组合。`--release-receipt <path>` 是 selection 之外的 formal candidate input，只能与
 `--all` 组合。help 在 candidate preparation、package import 和 log directory creation 前退出。
 
-- required 是日常完整检查，但不选择高成本 package artifact 与 external-consumer acceptance；`--all` 选择完整 Gate。
+- required 是按 Git 变更 region 选择的日常增量检查；`--all` 强制选择完整 Gate（含 package acceptance）。没有可信 Git 变更证据时，changeFlag 按保守路径选择相应 Checks，而不是当作零变更。
 - focused preset 只选择相应闭合集：`typecheck`、`lint`、routine `test`、repository `materials` 或 `quality`。`--test` 不隐式加入 package acceptance。
 
 #### 依赖选择与关系闭合
@@ -95,11 +104,13 @@ string-leaf AST，且对每个投影写入 literal `propagateDependsOn: true`，
 运行被带入的 prerequisite。公开 grammar 与默认 selection 由[Check authoring 指南](../guides/extending-check-lifecycle.md#按-flag-选择-check)拥有；
 Gate 只拥有 manifest projection 与其验证。
 
-四个既有的输入闭合材料 Checks 使用 `(required AND changeFlag("repository-material")) OR materials OR all`；
-region 保守包括 `src/**` 和 `scripts/**`，因为 schema/example publication 的生成会读取 Product schema、serializer 和
-执行模型，而不只读取 checked-in `docs/**`。可信零匹配时它们保留 not-applicable，Git unavailable 时 Product 注入 flag 而保守执行。`materials-links-validator`
-不使用该增量条件，因为 Markdown 链接可引用 region 外 target，反向依赖尚未建模；它继续是 required 和 `materials`
-成员。`markdown-lint` 的完整 docs/changes input 同样由该 region 闭合，但使用 `(required AND changeFlag("repository-material")) OR materials OR quality OR all`；`quality` focused path 因而总是运行 lint，绝不依赖材料 change flag。links 仍保持全量。
+默认 required 为 typecheck、lint、format、test lanes、质量扫描、Decision 与 Test Evidence 选择各自的保守输入 region；映射由 `runtime/eligibility.ts` 维护。一次 Git snapshot 覆盖 committed、staged、unstaged 与 untracked 变化。共享 material source 可选择多个实际消费者；Test Evidence 还覆盖 Case Owner Markdown 标题，因为它会核对这些引用。
+
+`prepared-package-candidate`、repository material links 与 Git diff whitespace 始终属于 required。Markdown link validation 在任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径；发布前运行 `--all`。
+
+材料 JSON、Schema、Schema publication 与 machine example Checks 各自使用 `(required AND changeFlag(<own-input>)) OR materials OR all`。`markdown-lint` 使用自己的 docs/changes Markdown input，并额外由 `quality` focused path 强制执行。schema-publication 的输入包含发布 schema 与 v4 schema source；machine example 的生成读取完整 Product 执行与输出模型，因此它保守覆盖 Product 非测试 `src/**`，但普通 scripts 或无关 docs 不会启动它。具体 region 由 `runtime/eligibility.ts` 声明；可信零匹配时 Check 保留 not-applicable，Git unavailable 时 Product 注入 flag 并保守执行。
+
+`materials-links-validator` 始终属于 required，因为 Markdown 链接可引用任意 region 外 target。Markdown link validation 也可由 focused `materials` / `quality` 与 `--all` 强制运行。
 
 Gate 对 `dependsOn` 与 `observes` 都验证 exact collection、self 和 missing target；只有 `observes` 继续验证 required 与
 每个 preset 的选择闭合，以保证观察输入可用。`observes` 不传播选择。任一 owner 自带 `enabledByFlags` 时 Gate 拒绝组合，
@@ -115,9 +126,9 @@ scheduler 的 root `maxParallel`、named-resource budget 与跨 owner mutex 名�
 
 Gate 保留 root `maxParallel: 3`，并使用两个**逻辑** named-resource budget；unit 既不是 CPU core、内存量，也不是实测竞争系数：
 
-| Resource ID                     | Capacity / unit              | Claiming Checks                                                                                     | 静态分类理由                                                                                                                             |
-| ------------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有 `tests-*` test-lane Check，各 claim `1`                                                        | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
+| Resource ID                     | Capacity / unit              | Claiming Checks                                                                                                      | 静态分类理由                                                                                                                             |
+| ------------------------------- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `project-gate-bun-test-runners` | 2 个并发 `bun test` runner   | 所有 `tests-*` test-lane Check，各 claim `1`                                                                         | 每个 lane 都启动一个 Bun test child runner。预算限制这一同类 runner 最多占用两个 root slot，而不保证某一异类 Check 一定获准入。          |
 | `project-gate-repository-scans` | 2 个并发递归 repository scan | `duplicate-detection`、`file-metrics`、`function-metrics`、`markdown-lint`、`markdown-link-validation`，各 claim `1` | 五项都会递归收集或读取 repository inputs；前三项还会运行 scanner 或 worker。预算避免让三项以上同类全树读取重叠，同时不把五项全部串行化。 |
 
 typecheck、lint、format、candidate provider、external-consumer provider 与 native repository-material/governance Checks 不声明 named-resource claim：它们不属于以上同类工作预算；已有 package-lifecycle/repository-material mutex 仍单独表达各自的独占关系。新声明必须先有同样可从 owner 恢复的共享工作特征和逻辑单位；不得因单次时长、高方差或“所有 Check 都用 CPU”扩大这些 budget。Product 继续验证 capacity/claim 合法性并原子持有/释放 units；模拟器可读取版本化映射，但必须自行定义竞争减速，不得从该表推断物理竞争或性能收益。
@@ -208,17 +219,44 @@ Gate command 的进程边界固定为：
 2. `run.ts` 验证该 entry 等于 prepared candidate 的 exact entry，再运行 Product Run。
 3. 从同一个 RunResult 形成初步 Gate result，然后调用 `resultContributor`。
 
-默认 performance contributor 显式调用 elapsed/per-phase performance observer。只有 workload identity 与 checked-in baseline 匹配时才比较；
-结果是 advisory，不能修改 Check facts、aggregate 或 process exit。observer 不读取、解析或归约 Product diagnostic log 的
-`scheduler.summary`，也不把它变成新的 warning、budget、autotune 或比较输入。
+默认 performance contributor 对 required / `--all` 应用本机手动配置的总耗时硬阈值。Gate 启动前必须存在
+`.cache/vibe-check/project-gate/performance-baseline.json`，其 `baselines` 中须有当前 selection 与
+`platform` / `architecture` / Bun version 对应的记录；缺失或无效时在 candidate preparation 前失败。
+记录还必须与本次 Product Run 的 `declarativeFingerprint` 精确匹配，匹配失败或
+`elapsed-to-initial-result` 超过 `maxElapsedMs` 时最终 Gate `failed`。focused preset 不受总耗时门禁约束。
+文件是被 Git 忽略的本机配置，只能由维护者手动写入或更新；Gate 不学习运行时数据、不自动重置阈值。
+阈值由各工作区的本机配置决定，不随仓库同步。下例只展示首次建立 required 记录的结构：runtime 和
+`20000` ms 是示例值，fingerprint 是临时全零值。实际配置须填写本机 runtime 与人工选定的阈值；
+`--all` 也须单独确定。后续改变阈值须重新作出人工决定并修改本机文件：
+
+```json
+{
+  "schemaVersion": 1,
+  "baselines": [
+    {
+      "profile": "required",
+      "runtime": { "platform": "linux", "architecture": "x64", "bunVersion": "1.3.14" },
+      "declarativeFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+      "maxElapsedMs": 20000
+    }
+  ]
+}
+```
+
+运行工作负载、工具链或 Definition 变化后，维护者需核对实际 fingerprint 和测量，再明确决定是否更新本机记录；不能把
+`no matching baseline` 当作放行。observer 不解析 Product diagnostic log，也不将并行 Check 耗时相加为墙钟耗时。
+首次建立时，维护者先手工写入当前 runtime、profile、明确选定的 `maxElapsedMs` 和示例中的临时零 fingerprint
+（64 个 `0` 字符；正式值必须是 64 个小写十六进制字符）；
+随后运行标准 Gate。Checks 全部通过时，`no matching local performance baseline` 错误会打印本次真实 fingerprint；
+维护者核对本次耗时后手工替换临时值，再运行标准 Gate 验证。focused preset 不评估总耗时，也不提供这种匹配诊断。
 
 #### Result-contributor 边界与退出码
 
 `resultContributor` 是 result post-processing，不是 Check preparation：后者是 Product Run 内每项 Check 在 execution 前的 options 准备边界，而前者只在整个 candidate-backed Run 已形成初步 Gate result 后执行。它是受信任的项目 JavaScript/Bun 函数，可同步或异步执行项目授权范围内的工作；不是 package API、plugin、sandbox 或 registry，也没有 `beforeGate` 对应物。正式配置只在 `definition.ts`，`run.ts` 的 loader、clock 与 transcript injection 仅为 adapter 测试 seam，不能用作另一配置入口。
 
 `resultContributor` 接收 frozen 的初步 Gate result 与 invocation context，只能同步或异步返回闭合的
-`readonly ProjectGateMessage[]`。adapter 按顺序将已验证消息追加到初步消息，**原样保留**初步 status；它不能改写
-context、RunResult、Check facts、aggregate 或 exit 决定。抛错、reject、非数组、非法 message 或 hostile terminal text
+`{ blocks, messages }`。adapter 按顺序追加已验证消息，且只能将初步 `passed` 降为 `failed`；不能提升失败、改写
+context、RunResult、Check facts 或 Product aggregate。抛错、reject、非法贡献、非法 message 或 hostile terminal text
 都会 fail closed 为 `unavailable`，并仅记录 `result-contributor-failed` 或
 `result-contributor-invalid-result` 诊断。
 

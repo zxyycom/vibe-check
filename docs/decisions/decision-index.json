@@ -192,7 +192,7 @@
       "260829-add-ephemeral-project-run-diagnostic-logging": "sha256:79cbfc656f6c94c7a2bad3bfa6626763628b00e4428f0ecbdabed559d9362b54",
       "260829-consolidate-project-gate-run-evidence": "sha256:fd64159c441716d5a1b0eddbca2f13d7809d223e43d662225ccbb385b7080447",
       "260829-keep-package-machine-docs-consumer-focused": "sha256:c8151869759a6e6801d30f24ef9899850dcd5783d0e03021d3d9543b6102182c",
-      "260829-monitor-project-gate-performance-advisory": "sha256:37a2d2b049bd799dfa5d27f560668c83beafd2e9611faa5f42397c35db62f953",
+      "260829-monitor-project-gate-performance-advisory": "sha256:726545f05696a2b1b3e764c97583e0699864af36c60e3ac34c1ea6bf7d0cfb0e",
       "260829-observe-repository-quality-checks-inside-project-gate": "sha256:02f8a2a68ddb6e333bd36904015a64b0590d15703164366f14d1a050b547633c",
       "260829-publish-project-gate-machine-facts-with-invocation-evidence": "sha256:1cb42ed44b35e4b93b586d8eb74357be5ab533d579e69daa24bddb49fb0e7f48",
       "260829-run-repository-quality-checks-inside-project-gate": "sha256:85d3e5361996450191200d14e16bbb546c8bff595799ecb68420722f1afa704c",
@@ -216,7 +216,7 @@
       "260830-publish-invocation-creation-timestamp-without-check-telemetry": "sha256:8c2997dcbd340c0f080f5ea8a9cb40e554e2e190f085f3a6e4f7ac3b640d3d45",
       "260830-reconcile-finding-waivers-with-caller-defined-identities": "sha256:f9a58184b5bac1e7ce6e646479ca6c060e14fa4d308d69f9f39a5c82e38704a9",
       "260830-reconcile-selected-files-with-check-eligibility": "sha256:c465b273581071144afc5a4a67b7df31e773db1d186fb0c81680ac7b3a88c927",
-      "260830-refine-project-gate-context-timing-phases": "sha256:99c0d11c0846c8d03da445f783ff1794bc27c09dede93ad5be5bc2093a14d9d9",
+      "260830-refine-project-gate-context-timing-phases": "sha256:186a67ddd21826498c461ed7ab387cf7d1f661489a22d87c1def7bdec9350a9e",
       "260830-report-per-check-duration-without-changing-check-facts": "sha256:04feb451369a6863b439ddf0d2935a93903bc18e89cd91e82fe92d8ecf2cb041",
       "260830-require-complete-project-gate-evidence-before-public-release": "sha256:e9ca819b9a3cd86dc572cb3d4b8d603e20425f708a719a65d68d3cd29ac574c5",
       "260830-require-known-repository-quality-remediation-before-public-release": "sha256:b7c2fa0f90170e32e7b95d385309066028cab68ae922b809765877073d78bb01",
@@ -339,7 +339,7 @@
       "260914-configure-progress-previews-and-quiet-pass-presentation": "sha256:591c3f6c75f2d3dd1f57156bcc0ec04d4984809eeadfc8e188cb0a2dba748bd4",
       "260914-keep-check-observation-as-logical-lifecycle-positions": "sha256:37e476daeafc31783a842ee01d0cb46bc87abe8925af86065e2973b644d5f7b1",
       "260914-name-scheduler-terminal-consumers-as-effects": "sha256:954a86bcb99d6b398cdb0a775fe4517b3ed27ffd8847148be917c5ef9e8bb1e2",
-      "260914-narrow-project-gate-to-result-contribution": "sha256:b06f59f897dcc392efd90c2702d927f164cdd3ca0e92b65234cf50b19d41bb27",
+      "260914-narrow-project-gate-to-result-contribution": "sha256:c8093695eeae49b9fe58b9f50cd350481a298c4e706b7b35a7a95cf06d663c4e",
       "260914-unify-project-change-flags-as-effective-flags": "sha256:f61d2b400b55f35d459c0933b611c9ab28468421307c55b4ad85a73557fbcd4d",
       "260914-use-prepare-and-execute-check-authoring-names": "sha256:a4f1c485d6be5e4998df6915ef8b83ad7b0bc8c802ec773be304c2f6f0b3f3e0",
       "260915-default-effective-check-aggregation-with-caller-local-callback": "sha256:39a3a13259fe1b74a0be2d95ecd22eb8c36f3c8419b2970701f0916011ee31f8",
@@ -350,9 +350,12 @@
       "260920-configure-package-checks-through-constructor-options": "sha256:c45c93f46e0435fd1ec5de0403366d078a839b0b802fc30a142d8c7ba6bd0958",
       "260920-extend-command-check-with-caller-owned-completion": "sha256:d31e73e1254bad1dc7805296b64317b4676e3f1b00b54f66df8a8259c1b71a55",
       "260922-adopt-project-gate-markdown-lint-advisory": "sha256:ed1894b1d12ca3452942282ceb2beca1b43f90b704b81cf4505e088171a03ac1",
-      "260922-adopt-repository-material-change-selection": "sha256:ef8366881d4e74e5c259fed3371ac66c93c33a10229b7430878a23523b65444d",
+      "260922-adopt-repository-material-change-selection": "sha256:ff6c031fbeeb91834bf60da131f5010161b9828ee20d6d9a5b21c4352e187890",
       "260922-migrate-project-gate-process-checks-to-command-check": "sha256:5fb2011b6a55b3c96ca4ff9ae8b216a64ca52dda356d7ec03832c98f4b3ac884",
-      "260922-reorganize-project-gate-material-selection": "sha256:b5985d5c79783387c8ab58662d813837a1cdc599dde500d2df6a67775a8a81ce"
+      "260922-reorganize-project-gate-material-selection": "sha256:b5985d5c79783387c8ab58662d813837a1cdc599dde500d2df6a67775a8a81ce",
+      "260923-enforce-manual-local-project-gate-time-budget": "sha256:4a47f896eaf7b72de5f81c6814494bce88069c75ae3ce2cf5332b586d0ef9016",
+      "260923-select-project-gate-required-checks-by-change": "sha256:6001aadac6d9f63f4e0a64ce0c733886d0c624eb8f84cdcfd87947627ccb09d2",
+      "260924-select-gate-check-specific-change-regions": "sha256:62ac1e06b90033244193afde8422bca29f9e649e9df674c21d31ee8d7dccac9a"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -3980,9 +3983,9 @@
     },
     "260829-monitor-project-gate-performance-advisory": {
       "name": "monitor-project-gate-performance-advisory",
-      "sourcePath": "monitor-project-gate-performance-advisory.md",
+      "sourcePath": "archive/monitor-project-gate-performance-advisory.md",
       "title": "用 Gate-owned Hook 提示标准运行的性能偏移",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-29T15:36:05Z",
       "purpose": "让标准 Project Gate invocation 显示可比较的 elapsed observation，并在明显偏离实测基线时提示审阅。",
@@ -4480,9 +4483,9 @@
     },
     "260830-refine-project-gate-context-timing-phases": {
       "name": "refine-project-gate-context-timing-phases",
-      "sourcePath": "refine-project-gate-context-timing-phases.md",
+      "sourcePath": "archive/refine-project-gate-context-timing-phases.md",
       "title": "用连续阶段解释 Gate 初步结果耗时",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-30T04:14:37Z",
       "purpose": "让 Gate-owned context 用连续三阶段解释 elapsed-to-initial-result。",
@@ -7002,9 +7005,9 @@
     },
     "260914-narrow-project-gate-to-result-contribution": {
       "name": "narrow-project-gate-to-result-contribution",
-      "sourcePath": "narrow-project-gate-to-result-contribution.md",
+      "sourcePath": "archive/narrow-project-gate-to-result-contribution.md",
       "title": "将 Project Gate 后处理收窄为结果贡献",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-14T06:21:10Z",
       "purpose": "让中央 Gate 配置只暴露当前性能提示需要的消息贡献权限",
@@ -7228,9 +7231,9 @@
     },
     "260922-adopt-repository-material-change-selection": {
       "name": "adopt-repository-material-change-selection",
-      "sourcePath": "adopt-repository-material-change-selection.md",
+      "sourcePath": "archive/adopt-repository-material-change-selection.md",
       "title": "采用 repository-material 变化选择",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-22T17:02:29Z",
       "purpose": "让 Gate 的输入闭合材料 Checks 共享保守的变更选择边界",
@@ -7280,6 +7283,85 @@
           "type": "修订",
           "target": "260915-delegate-project-gate-direct-presets-to-effective-selection",
           "summary": "采用 materials preset 与 identity"
+        }
+      ]
+    },
+    "260923-enforce-manual-local-project-gate-time-budget": {
+      "name": "enforce-manual-local-project-gate-time-budget",
+      "sourcePath": "enforce-manual-local-project-gate-time-budget.md",
+      "title": "以本机手动硬阈值约束标准 Project Gate",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-23T10:39:50Z",
+      "purpose": "让标准 Gate 耗时退化成为显式失败且不自动改写预算",
+      "background": "原 advisory observer 与仅消息贡献无法阻断已超过用户预算的 Gate",
+      "decision": "以本机只读基线和单一受限 resultContributor 阻断标准 workload 的超时、缺失或不可比较状态",
+      "tags": [
+        "configuration",
+        "performance",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "归并",
+          "target": "260829-monitor-project-gate-performance-advisory",
+          "summary": "由 advisory 比较改为本机硬门槛"
+        },
+        {
+          "type": "归并",
+          "target": "260830-refine-project-gate-context-timing-phases",
+          "summary": "保留三段连续 timing 解释并改为硬门槛"
+        },
+        {
+          "type": "归并",
+          "target": "260914-narrow-project-gate-to-result-contribution",
+          "summary": "保持单一贡献者并加入仅降级权限"
+        }
+      ]
+    },
+    "260923-select-project-gate-required-checks-by-change": {
+      "name": "select-project-gate-required-checks-by-change",
+      "sourcePath": "archive/select-project-gate-required-checks-by-change.md",
+      "title": "按变更选择 Project Gate 日常 required 检查",
+      "status": "archived",
+      "alignment": "aligned",
+      "createdAt": "2026-09-23T10:39:53Z",
+      "purpose": "使默认 Gate 只执行与当前变更相关的检查并保留完整强制入口",
+      "background": "原 changeFlag 只覆盖少数材料和 Product runtime 检查，日常 required 仍执行大多数耗时检查",
+      "decision": "以单次可信 Git 变更证据映射保守输入 region 到 required Checks；focused 与 all 强制选择且 Git 不可用时保守运行",
+      "tags": [
+        "performance",
+        "repository-automation",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260922-adopt-repository-material-change-selection",
+          "summary": "保留材料选择并扩展默认增量范围"
+        }
+      ]
+    },
+    "260924-select-gate-check-specific-change-regions": {
+      "name": "select-gate-check-specific-change-regions",
+      "sourcePath": "select-gate-check-specific-change-regions.md",
+      "title": "按 Check 真实输入细化 Project Gate 变更选择",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-24T02:46:22Z",
+      "purpose": "避免共享宽泛 region 让无关 Check 占用日常 Gate 时间",
+      "background": "材料及质量 Checks 共用宽 flag，普通源码或文档变更会唤起不读取该变更的扫描",
+      "decision": "为各 Check 声明保守且可审查的实际输入 region，同时保留强制选择与 Git 不可用回退",
+      "tags": [
+        "performance",
+        "repository-automation",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260923-select-project-gate-required-checks-by-change",
+          "summary": "以逐项输入 region 取代共享宽泛 flag"
         }
       ]
     }

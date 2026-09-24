@@ -13,13 +13,19 @@ import { errorMessage } from "../../error-message.ts";
 
 import { projectGateHelp, selectionFlags, type ProjectGateSelection } from "./runtime/controls.ts";
 import {
+  loadLocalPerformanceBaselines,
+  preflightPerformanceBaselines,
+  type LocalPerformanceBaselines,
+  type ProjectGatePerformanceBaseline
+} from "./runtime/performance-baseline.ts";
+import {
   parseProjectGateInvocationArguments,
   type ProjectGateCandidateInput
 } from "./runtime/invocation.ts";
 import {
   createInitialProjectGateResult,
   createProjectGateResult,
-  parseProjectGateMessageContribution,
+  parseProjectGateResultContribution,
   type ProjectGateResult
 } from "./runtime/result.ts";
 import { startProjectGateTranscript, type ProjectGateTranscript } from "./runtime/transcript.ts";
@@ -47,6 +53,7 @@ interface ProjectGateSteps {
   readonly clock: ProjectGateClock;
   readonly createInvocationLogDirectory: () => string;
   readonly loadRunModule: () => Promise<GateRunModule>;
+  readonly loadPerformanceBaselines: () => LocalPerformanceBaselines;
   readonly prepareCandidate: () => Promise<PreparedPackageCandidate>;
   readonly prepareReleaseCandidate: (receiptPath: string) => Promise<PreparedPackageCandidate>;
   readonly startTranscript: typeof startProjectGateTranscript;
@@ -63,9 +70,7 @@ interface ProjectGateClock {
   now(): number;
 }
 
-const SYSTEM_PROJECT_GATE_CLOCK: ProjectGateClock = Object.freeze({
-  now: () => performance.now()
-});
+const SYSTEM_PROJECT_GATE_CLOCK: ProjectGateClock = Object.freeze({ now: () => performance.now() });
 
 const PROJECT_GATE_REPOSITORY_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 
@@ -73,6 +78,7 @@ const defaultSteps: ProjectGateSteps = Object.freeze({
   clock: SYSTEM_PROJECT_GATE_CLOCK,
   createInvocationLogDirectory,
   loadRunModule: async (): Promise<GateRunModule> => import("./runtime/bound-run.ts"),
+  loadPerformanceBaselines: () => loadLocalPerformanceBaselines(PROJECT_GATE_REPOSITORY_ROOT),
   prepareCandidate: preparePackageCandidate,
   prepareReleaseCandidate: (receiptPath: string) =>
     prepareReleaseCandidateFromReceipt({ receiptPath }),
@@ -106,6 +112,11 @@ export async function runProjectGate(
     console.log(projectGateHelp());
     return PROJECT_GATE_EXIT_STATUS.passed;
   }
+  const performanceBaselines = preflightPerformanceBaselines(
+    parsed.selection,
+    steps.loadPerformanceBaselines
+  );
+  if (performanceBaselines === undefined) return PROJECT_GATE_EXIT_STATUS.failed;
   const gateStartedAtMs = steps.clock.now();
 
   let prepared: PreparedPackageCandidate;
@@ -168,6 +179,7 @@ export async function runProjectGate(
       initialResultAtMs,
       invocationLogDirectory,
       preparedCandidate: prepared,
+      performanceBaselines,
       runResult,
       selection: parsed.selection,
       startedAtMs: gateStartedAtMs,
@@ -249,15 +261,17 @@ async function applyResultContribution(
   context: ProjectGateContext
 ): Promise<ProjectGateResult> {
   try {
-    const messages = parseProjectGateMessageContribution(
+    const contribution = parseProjectGateResultContribution(
       await resultContributor(Object.freeze({ ...context, initialResult }))
     );
-    if (messages === undefined)
+    if (contribution === undefined)
       return resultContributorFailure(
         "result-contributor-invalid-result",
-        "result contributor returned an invalid message list"
+        "result contributor returned an invalid contribution"
       );
-    return createProjectGateResult(initialResult.status, [...initialResult.messages, ...messages]);
+    const status =
+      initialResult.status === "passed" && contribution.blocks ? "failed" : initialResult.status;
+    return createProjectGateResult(status, [...initialResult.messages, ...contribution.messages]);
   } catch {
     return resultContributorFailure(
       "result-contributor-failed",
@@ -283,6 +297,7 @@ function createProjectGateContext(
     readonly initialResultAtMs: number;
     readonly invocationLogDirectory: string;
     readonly preparedCandidate: PreparedPackageCandidate;
+    readonly performanceBaselines: readonly ProjectGatePerformanceBaseline[];
     readonly runResult: unknown;
     readonly selection: ProjectGateSelection;
     readonly startedAtMs: number;
@@ -292,6 +307,7 @@ function createProjectGateContext(
   return Object.freeze({
     invocationLogDirectory: input.invocationLogDirectory,
     preparedCandidate: input.preparedCandidate,
+    performanceBaselines: input.performanceBaselines,
     repositoryRoot: PROJECT_GATE_REPOSITORY_ROOT,
     runResult: input.runResult,
     selection: input.selection,

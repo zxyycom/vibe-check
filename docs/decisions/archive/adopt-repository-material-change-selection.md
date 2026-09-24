@@ -1,7 +1,7 @@
 ---
 title: 采用 repository-material 变化选择
 id: 260922-adopt-repository-material-change-selection
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-22T17:02:29Z
 purpose: 让 Gate 的输入闭合材料 Checks 共享保守的变更选择边界

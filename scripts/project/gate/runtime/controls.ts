@@ -61,7 +61,7 @@ export function projectGateHelp(): string {
     "  --release-receipt <path>  Consume one closed formal receipt; requires --all.",
     "  -h, --help                Show this help without preparing or running a candidate.",
     "",
-    "No selection option runs the required daily Gate. Focused presets can be combined",
+    "No selection option runs the incremental required Gate. Focused presets can be combined",
     "and replace the default required selection.",
     "",
     "Examples:",

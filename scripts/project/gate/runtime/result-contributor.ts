@@ -1,6 +1,7 @@
 import type { PreparedPackageCandidate } from "../../../package/candidate/prepare.ts";
 
 import type { ProjectGateSelection } from "./controls.ts";
+import type { ProjectGatePerformanceBaseline } from "./performance-baseline.ts";
 import type { ProjectGateMessage, ProjectGateResult } from "./result.ts";
 
 /** Immutable timing facts from one candidate-backed Gate invocation. */
@@ -17,6 +18,7 @@ export interface ProjectGateTiming {
 export interface ProjectGateContext {
   readonly invocationLogDirectory: string;
   readonly preparedCandidate: PreparedPackageCandidate;
+  readonly performanceBaselines: readonly ProjectGatePerformanceBaseline[];
   readonly repositoryRoot: string;
   readonly runResult: unknown;
   readonly selection: ProjectGateSelection;
@@ -28,7 +30,13 @@ export interface ProjectGateResultContributionContext extends ProjectGateContext
   readonly initialResult: ProjectGateResult;
 }
 
-/** Project-owned synchronous or asynchronous contribution of validated Gate messages. */
+/** A contributor may only add messages and downgrade a passing Gate result. */
+export interface ProjectGateResultContribution {
+  readonly blocks: boolean;
+  readonly messages: readonly ProjectGateMessage[];
+}
+
+/** Project-owned synchronous or asynchronous contribution to the final Gate result. */
 export type ProjectGateResultContributor = (
   context: ProjectGateResultContributionContext
-) => readonly ProjectGateMessage[] | Promise<readonly ProjectGateMessage[]>;
+) => ProjectGateResultContribution | Promise<ProjectGateResultContribution>;

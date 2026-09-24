@@ -107,12 +107,36 @@ export function createProjectGateTestCheckDefinitions(
       presets: ["test"],
       required: true
     },
+    ...scriptTestChecks(input.repositoryMaterialsMutex)
+  ]);
+}
+
+function scriptTestChecks(
+  repositoryMaterialsMutex: readonly string[]
+): readonly ProjectGateTestCheckDefinition[] {
+  return [
     {
-      checkId: "tests-scripts-project",
-      displayName: "Bun Project tooling tests",
-      lane: "scriptsProject",
+      checkId: "tests-scripts-admission-workbench",
+      displayName: "Bun admission workbench tests",
+      lane: "scriptsAdmissionWorkbench",
       presets: ["test"],
       required: true
+    },
+    {
+      checkId: "tests-scripts-project",
+      displayName: "Bun Project Gate tooling tests",
+      lane: "scriptsProject",
+      presets: ["test"],
+      required: true,
+      testTimeoutMs: 15_000
+    },
+    {
+      checkId: "tests-scripts-project-selection",
+      displayName: "Bun Project Gate change selection tests",
+      lane: "scriptsProjectSelection",
+      presets: ["test"],
+      required: true,
+      testTimeoutMs: 15_000
     },
     {
       checkId: "tests-scripts-test-evidence",
@@ -122,10 +146,32 @@ export function createProjectGateTestCheckDefinitions(
       required: true
     },
     {
+      checkId: "tests-scripts-layout",
+      displayName: "Bun repository layout tests",
+      lane: "scriptsLayout",
+      presets: ["test"],
+      required: true
+    },
+    {
+      checkId: "tests-scripts-machine-artifacts",
+      displayName: "Bun machine artifact validation tests",
+      lane: "scriptsMachineArtifacts",
+      mutex: repositoryMaterialsMutex,
+      presets: ["test"],
+      required: true
+    },
+    {
+      checkId: "tests-scripts-package-tools-boundary",
+      displayName: "Bun package-tools boundary tests",
+      lane: "scriptsPackageToolsBoundary",
+      presets: ["test"],
+      required: true
+    },
+    {
       checkId: "tests-scripts-validation",
-      displayName: "Bun validation tooling tests",
+      displayName: "Bun repository material validation tests",
       lane: "scriptsValidation",
-      mutex: input.repositoryMaterialsMutex,
+      mutex: repositoryMaterialsMutex,
       presets: ["test"],
       required: true
     },
@@ -136,5 +182,5 @@ export function createProjectGateTestCheckDefinitions(
       presets: ["test"],
       required: true
     }
-  ]);
+  ];
 }

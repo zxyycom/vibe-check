@@ -1,117 +1,90 @@
-import type {
-  ProjectGateContext,
-  ProjectGateResultContributionContext
-} from "./result-contributor.ts";
 import { isNonArrayRecord } from "../../../value-guards.ts";
-import { type ProjectGateMessage, type ProjectGateResult } from "./result.ts";
 import {
-  PROJECT_GATE_PERFORMANCE_BASELINES,
-  type ProjectGatePerformanceBaseline,
+  currentProjectGatePerformanceRuntime,
+  LOCAL_PERFORMANCE_BASELINE_PATH,
   type ProjectGatePerformanceRuntime
 } from "./performance-baseline.ts";
-import { projectGateStandardProfile } from "./controls.ts";
+import type {
+  ProjectGateResultContribution,
+  ProjectGateResultContributionContext
+} from "./result-contributor.ts";
+import type { ProjectGateMessage } from "./result.ts";
 
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 
-interface ComparableRunFacts {
+type CheckDuration = Readonly<{ readonly checkId: string; readonly durationMs: number | null }>;
+type ComparableRunFacts = Readonly<{
   readonly checkDurations: readonly CheckDuration[];
   readonly declarativeFingerprint: string;
-}
+}>;
 
-interface CheckDuration {
-  readonly checkId: string;
-  readonly durationMs: number | null;
-}
-
-/** Contributes one advisory elapsed observation without changing the Gate outcome. */
-export function contributeProjectGatePerformanceMessages(
+/** Applies a manually maintained local hard limit without learning from this run. */
+export function evaluateProjectGatePerformance(
   context: ProjectGateResultContributionContext,
-  baselines: readonly ProjectGatePerformanceBaseline[] = PROJECT_GATE_PERFORMANCE_BASELINES,
-  runtime: ProjectGatePerformanceRuntime = systemPerformanceRuntime()
-): readonly ProjectGateMessage[] {
-  const initialResult = context.initialResult;
-  const elapsedMs = context.timing.elapsedToInitialResultMs;
-  if (!isDuration(elapsedMs))
-    return observationMessages(
-      "elapsed-to-initial-result timing was not comparable (invalid total timing)"
-    );
-  if (!hasValidPhaseTiming(context.timing))
-    return observationMessages(
-      "elapsed-to-initial-result timing was not comparable (invalid phase timing)"
-    );
-
-  const comparison = comparableBaseline(initialResult, context, baselines, runtime);
-  if (comparison.kind === "not-comparable")
-    return observationMessages(
-      `${timingDescription(context.timing)} was not comparable (${comparison.reason})`
-    );
-
-  if (elapsedMs <= comparison.baseline.thresholdMs) {
-    return observationMessages(
-      `${timingDescription(context.timing)} was within advisory range (threshold ${formatDuration(comparison.baseline.thresholdMs)})`
-    );
+  runtime: ProjectGatePerformanceRuntime = currentProjectGatePerformanceRuntime()
+): ProjectGateResultContribution {
+  const profile = context.selection.kind;
+  if (profile === "focused") {
+    return contribution({
+      blocks: false,
+      level: "info",
+      code: "project-gate-performance-focused-selection",
+      message: "focused preset selection has no total-time limit"
+    });
+  }
+  if (context.initialResult.status !== "passed") {
+    return contribution({
+      blocks: false,
+      level: "info",
+      code: "project-gate-performance-not-evaluated",
+      message: "performance limit was not evaluated because the initial Gate result was not passed"
+    });
+  }
+  if (
+    !isDuration(context.timing.elapsedToInitialResultMs) ||
+    !hasValidPhaseTiming(context.timing)
+  ) {
+    return contribution({
+      blocks: true,
+      level: "error",
+      code: "project-gate-performance-invalid-timing",
+      message: "elapsed-to-initial-result timing was invalid; hard limit could not be evaluated"
+    });
+  }
+  const run = readComparableRunFacts(context.runResult);
+  if (run === undefined) {
+    return contribution({
+      blocks: true,
+      level: "error",
+      code: "project-gate-performance-invalid-run-facts",
+      message: "Product Run facts were incomplete; hard limit could not be evaluated"
+    });
+  }
+  const baseline = context.performanceBaselines.find(
+    (candidate) =>
+      candidate.profile === profile &&
+      candidate.declarativeFingerprint === run.declarativeFingerprint &&
+      runtimeMatches(candidate.runtime, runtime)
+  );
+  if (baseline === undefined) {
+    return contribution({
+      blocks: true,
+      level: "error",
+      code: "project-gate-performance-baseline-missing",
+      message: `no matching local performance baseline for ${profile} (fingerprint ${run.declarativeFingerprint}; ${runtime.platform}/${runtime.architecture}; Bun ${runtime.bunVersion}); manually update ${LOCAL_PERFORMANCE_BASELINE_PATH}`
+    });
   }
 
-  return outsideRangeObservationMessages(context.timing, comparison);
-}
-
-type BaselineComparison =
-  | Readonly<{
-      readonly baseline: ProjectGatePerformanceBaseline;
-      readonly kind: "comparable";
-      readonly run: ComparableRunFacts;
-    }>
-  | Readonly<{ readonly kind: "not-comparable"; readonly reason: string }>;
-
-function comparableBaseline(
-  initialResult: ProjectGateResult,
-  context: ProjectGateContext,
-  baselines: readonly ProjectGatePerformanceBaseline[],
-  runtime: ProjectGatePerformanceRuntime
-): BaselineComparison {
-  if (initialResult.status !== "passed") return notComparable("initial result was not passed");
-  const profile = projectGateStandardProfile(context.selection);
-  if (profile === undefined) return notComparable("focused preset selection");
-  if (!isReusableCandidate(context)) return notComparable("candidate was not reused");
-
-  const run = readComparableRunFacts(context.runResult);
-  if (run === undefined) return notComparable("Run facts were incomplete");
-
-  const baseline = matchingBaseline(baselines, profile, run, runtime);
-  return baseline === undefined
-    ? notComparable("no matching baseline")
-    : Object.freeze({ baseline, kind: "comparable", run });
-}
-
-function isReusableCandidate(context: ProjectGateContext): boolean {
-  const candidate = context.preparedCandidate;
-  return (
-    candidate.preparationAction === "reuse" &&
-    candidate.preparationReason === "installation-current" &&
-    candidate.reused === true
-  );
-}
-
-function matchingBaseline(
-  baselines: readonly ProjectGatePerformanceBaseline[],
-  profile: "full" | "required",
-  run: ComparableRunFacts,
-  runtime: ProjectGatePerformanceRuntime
-): ProjectGatePerformanceBaseline | undefined {
-  return baselines.find(
-    (candidate) =>
-      isValidBaseline(candidate) &&
-      candidate.workload.profile === profile &&
-      candidate.workload.declarativeFingerprint === run.declarativeFingerprint &&
-      runtimeMatches(candidate.workload.runtime, runtime)
-  );
-}
-
-function outsideRangeObservationMessages(
-  timing: ProjectGateContext["timing"],
-  comparison: Extract<BaselineComparison, { readonly kind: "comparable" }>
-): readonly ProjectGateMessage[] {
-  const slowestChecks = comparison.run.checkDurations
+  const description = timingDescription(context.timing);
+  if (context.timing.elapsedToInitialResultMs <= baseline.maxElapsedMs) {
+    return contribution({
+      blocks: false,
+      level: "info",
+      code: "project-gate-performance-within-limit",
+      message: `${description} was within hard limit ${formatDuration(baseline.maxElapsedMs)}`
+    });
+  }
+  const slowest = run.checkDurations
     .filter(
       (duration): duration is Readonly<{ readonly checkId: string; readonly durationMs: number }> =>
         duration.durationMs !== null
@@ -119,66 +92,40 @@ function outsideRangeObservationMessages(
     .sort(compareCheckDurations)
     .slice(0, 3)
     .map(({ checkId, durationMs }) => `${checkId}=${formatDuration(durationMs)}`);
-  const suffix = slowestChecks.length === 0 ? "" : `; slowest Checks: ${slowestChecks.join(", ")}`;
-  return Object.freeze([
-    Object.freeze({
-      code: "project-gate-performance-outside-range",
-      level: "warning",
-      message: `${timingDescription(timing)} exceeded advisory threshold ${formatDuration(comparison.baseline.thresholdMs)}${suffix}`
-    })
-  ]);
-}
-
-function observationMessages(message: string): readonly ProjectGateMessage[] {
-  return Object.freeze([observationMessage(message)]);
-}
-
-function observationMessage(message: string): ProjectGateMessage {
-  return Object.freeze({
-    code: "project-gate-performance-elapsed-to-initial-result",
-    level: "info",
-    message
+  const suffix = slowest.length === 0 ? "" : `; slowest Checks: ${slowest.join(", ")}`;
+  return contribution({
+    blocks: true,
+    level: "error",
+    code: "project-gate-performance-limit-exceeded",
+    message: `${description} exceeded hard limit ${formatDuration(baseline.maxElapsedMs)}${suffix}`
   });
 }
 
-function hasValidPhaseTiming(timing: ProjectGateContext["timing"]): boolean {
-  if (
-    !isDuration(timing.candidatePreparationMs) ||
-    !isDuration(timing.adapterSetupMs) ||
-    !isDuration(timing.productRunMs)
-  ) {
-    return false;
-  }
-  const phaseTotal = timing.candidatePreparationMs + timing.adapterSetupMs + timing.productRunMs;
-  // Subtractions from the same monotonic timestamps can re-associate by a few ULPs.
-  const timestampMagnitude = Math.max(
-    1,
-    Math.abs(timing.startedAtMs),
-    Math.abs(timing.initialResultAtMs),
-    Math.abs(phaseTotal),
-    Math.abs(timing.elapsedToInitialResultMs)
-  );
-  return (
-    Math.abs(phaseTotal - timing.elapsedToInitialResultMs) <=
-    Number.EPSILON * timestampMagnitude * 8
-  );
-}
-
-function timingDescription(timing: ProjectGateContext["timing"]): string {
-  return `elapsed-to-initial-result ${formatDuration(timing.elapsedToInitialResultMs)} (candidate preparation ${formatDuration(timing.candidatePreparationMs)}; adapter/setup ${formatDuration(timing.adapterSetupMs)}; Product Run ${formatDuration(timing.productRunMs)})`;
+function contribution(input: {
+  readonly blocks: boolean;
+  readonly level: ProjectGateMessage["level"];
+  readonly code: string;
+  readonly message: string;
+}): ProjectGateResultContribution {
+  const { blocks, code, level, message } = input;
+  return Object.freeze({
+    blocks,
+    messages: Object.freeze([Object.freeze({ code, level, message })])
+  });
 }
 
 function readComparableRunFacts(value: unknown): ComparableRunFacts | undefined {
   if (
     !isNonArrayRecord(value) ||
     value.kind !== "completed" ||
-    typeof value.declarativeFingerprint !== "string"
-  )
+    typeof value.declarativeFingerprint !== "string" ||
+    !/^[a-f0-9]{64}$/u.test(value.declarativeFingerprint) ||
+    !Array.isArray(value.checkDurations)
+  ) {
     return undefined;
-  const checkDurations = value.checkDurations;
-  if (!Array.isArray(checkDurations)) return undefined;
+  }
   const parsedDurations: CheckDuration[] = [];
-  for (const duration of checkDurations) {
+  for (const duration of value.checkDurations) {
     const parsed = parseCheckDuration(duration);
     if (parsed === undefined) return undefined;
     parsedDurations.push(parsed);
@@ -202,52 +149,27 @@ function parseCheckDuration(value: unknown): CheckDuration | undefined {
   return Object.freeze({ checkId, durationMs });
 }
 
-function isValidBaseline(value: ProjectGatePerformanceBaseline): boolean {
-  return hasValidBaselineShape(value) && hasConsistentBaselineStatistics(value);
-}
-
-function hasValidBaselineShape(value: ProjectGatePerformanceBaseline): boolean {
-  return (
-    hasComparableWorkload(value) &&
-    hasValidSamples(value.samplesMs) &&
-    isDuration(value.medianMs) &&
-    isDuration(value.p90Ms) &&
-    isDuration(value.thresholdMs)
-  );
-}
-
-function hasComparableWorkload(value: ProjectGatePerformanceBaseline): boolean {
-  const { workload } = value;
-  return (
-    workload.candidatePreparation === "reuse" &&
-    typeof workload.declarativeFingerprint === "string" &&
-    workload.declarativeFingerprint.length > 0 &&
-    (workload.profile === "required" || workload.profile === "full") &&
-    isRuntime(workload.runtime)
-  );
-}
-
-function hasValidSamples(samplesMs: readonly number[]): boolean {
-  return samplesMs.length > 0 && samplesMs.every(isDuration);
-}
-
-function hasConsistentBaselineStatistics(value: ProjectGatePerformanceBaseline): boolean {
-  const orderedSamples = [...value.samplesMs].sort((left, right) => left - right);
-  const middleIndex = Math.floor(orderedSamples.length / 2);
-  const upperMiddle = orderedSamples[middleIndex];
-  const lowerMiddle = orderedSamples[middleIndex - 1];
-  const p90Index = Math.ceil(orderedSamples.length * 0.9) - 1;
-  const p90Ms = orderedSamples[p90Index];
-  if (upperMiddle === undefined || p90Ms === undefined) return false;
-  let medianMs: number;
-  if (orderedSamples.length % 2 === 0) {
-    if (lowerMiddle === undefined) return false;
-    medianMs = (lowerMiddle + upperMiddle) / 2;
-  } else {
-    medianMs = upperMiddle;
+function hasValidPhaseTiming(timing: ProjectGateResultContributionContext["timing"]): boolean {
+  if (
+    !isDuration(timing.candidatePreparationMs) ||
+    !isDuration(timing.adapterSetupMs) ||
+    !isDuration(timing.productRunMs)
+  ) {
+    return false;
   }
-  const thresholdMs = Math.ceil(Math.max(p90Ms * 1.25, medianMs * 1.5));
-  return value.medianMs === medianMs && value.p90Ms === p90Ms && value.thresholdMs === thresholdMs;
+  const phaseTotal = timing.candidatePreparationMs + timing.adapterSetupMs + timing.productRunMs;
+  const magnitude = Math.max(
+    1,
+    Math.abs(timing.startedAtMs),
+    Math.abs(timing.initialResultAtMs),
+    Math.abs(phaseTotal),
+    Math.abs(timing.elapsedToInitialResultMs)
+  );
+  return Math.abs(phaseTotal - timing.elapsedToInitialResultMs) <= Number.EPSILON * magnitude * 8;
+}
+
+function timingDescription(timing: ProjectGateResultContributionContext["timing"]): string {
+  return `elapsed-to-initial-result ${formatDuration(timing.elapsedToInitialResultMs)} (candidate preparation ${formatDuration(timing.candidatePreparationMs)}; adapter/setup ${formatDuration(timing.adapterSetupMs)}; Product Run ${formatDuration(timing.productRunMs)})`;
 }
 
 function runtimeMatches(
@@ -258,17 +180,6 @@ function runtimeMatches(
     expected.platform === actual.platform &&
     expected.architecture === actual.architecture &&
     expected.bunVersion === actual.bunVersion
-  );
-}
-
-function isRuntime(value: ProjectGatePerformanceRuntime): boolean {
-  return (
-    typeof value.platform === "string" &&
-    value.platform.length > 0 &&
-    typeof value.architecture === "string" &&
-    value.architecture.length > 0 &&
-    typeof value.bunVersion === "string" &&
-    value.bunVersion.length > 0
   );
 }
 
@@ -287,16 +198,4 @@ function compareCheckDurations(left: CheckDuration, right: CheckDuration): numbe
 
 function formatDuration(durationMs: number): string {
   return `${durationMs.toFixed(1)}ms`;
-}
-
-function notComparable(reason: string): BaselineComparison {
-  return Object.freeze({ kind: "not-comparable", reason });
-}
-
-function systemPerformanceRuntime(): ProjectGatePerformanceRuntime {
-  return Object.freeze({
-    architecture: process.arch,
-    bunVersion: process.versions.bun ?? "unavailable",
-    platform: process.platform
-  });
 }

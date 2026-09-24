@@ -16,6 +16,16 @@ const PACKAGE_TEST_LANES = new Map<string, ProjectGateTestLaneName>([
   [PACKAGE_CONSUMER_RUNTIME_TEST_FILE, "packageConsumerRuntime"]
 ]);
 
+const SCRIPT_SPECIAL_TEST_LANES = new Map<string, ProjectGateTestLaneName>([
+  ["scripts/project/gate/runtime/eligibility.test.ts", "scriptsProjectSelection"],
+  [
+    "scripts/validation/repository-material/machine-artifacts/validation.test.ts",
+    "scriptsMachineArtifacts"
+  ],
+  ["scripts/validation/layout-characterization.test.ts", "scriptsLayout"],
+  ["scripts/validation/package-tools-core-closure.test.ts", "scriptsPackageToolsBoundary"]
+]);
+
 export const PROJECT_GATE_TEST_LANE_NAMES = [
   "packageArtifact",
   "packageConsumerDocs",
@@ -30,7 +40,12 @@ export const PROJECT_GATE_TEST_LANE_NAMES = [
   "productSecretDetection",
   "productRuntime",
   "productSupportingChecks",
+  "scriptsAdmissionWorkbench",
+  "scriptsLayout",
+  "scriptsMachineArtifacts",
+  "scriptsPackageToolsBoundary",
   "scriptsProject",
+  "scriptsProjectSelection",
   "scriptsTestEvidence",
   "scriptsTooling",
   "scriptsValidation"
@@ -121,7 +136,10 @@ function testLaneForFile(file: string): ProjectGateTestLaneName {
 
 function scriptTestLane(file: string): ProjectGateTestLaneName | undefined {
   if (!file.startsWith("scripts/")) return undefined;
-  if (file.startsWith("scripts/project/")) return "scriptsProject";
+  const specialLane = SCRIPT_SPECIAL_TEST_LANES.get(file);
+  if (specialLane !== undefined) return specialLane;
+  if (file.startsWith("scripts/project/gate/")) return "scriptsProject";
+  if (file.startsWith("scripts/project/admission-workbench/")) return "scriptsAdmissionWorkbench";
   if (file.startsWith("scripts/test-evidence/")) return "scriptsTestEvidence";
   if (file.startsWith("scripts/validation/")) return "scriptsValidation";
   return "scriptsTooling";
@@ -156,7 +174,12 @@ function emptyTestLaneFiles(): Record<ProjectGateTestLaneName, string[]> {
     productSecretDetection: [],
     productRuntime: [],
     productSupportingChecks: [],
+    scriptsAdmissionWorkbench: [],
+    scriptsLayout: [],
+    scriptsMachineArtifacts: [],
+    scriptsPackageToolsBoundary: [],
     scriptsProject: [],
+    scriptsProjectSelection: [],
     scriptsTestEvidence: [],
     scriptsTooling: [],
     scriptsValidation: []
@@ -180,7 +203,12 @@ function freezeTestLanes(
     productSecretDetection: Object.freeze([...laneFiles.productSecretDetection]),
     productRuntime: Object.freeze([...laneFiles.productRuntime]),
     productSupportingChecks: Object.freeze([...laneFiles.productSupportingChecks]),
+    scriptsAdmissionWorkbench: Object.freeze([...laneFiles.scriptsAdmissionWorkbench]),
+    scriptsLayout: Object.freeze([...laneFiles.scriptsLayout]),
+    scriptsMachineArtifacts: Object.freeze([...laneFiles.scriptsMachineArtifacts]),
+    scriptsPackageToolsBoundary: Object.freeze([...laneFiles.scriptsPackageToolsBoundary]),
     scriptsProject: Object.freeze([...laneFiles.scriptsProject]),
+    scriptsProjectSelection: Object.freeze([...laneFiles.scriptsProjectSelection]),
     scriptsTestEvidence: Object.freeze([...laneFiles.scriptsTestEvidence]),
     scriptsTooling: Object.freeze([...laneFiles.scriptsTooling]),
     scriptsValidation: Object.freeze([...laneFiles.scriptsValidation])

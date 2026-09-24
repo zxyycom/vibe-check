@@ -41,6 +41,7 @@ export interface ProjectGateTestCheckDefinition {
   readonly mutex?: readonly string[];
   readonly presets: readonly ProjectGatePreset[];
   readonly required: boolean;
+  readonly testTimeoutMs?: number;
   readonly timeoutMs?: number;
 }
 
@@ -104,7 +105,7 @@ function createProjectGateTestEntry(input: {
   const processEntry = {
     checkId: definition.checkId,
     displayName: definition.displayName,
-    invocation: bunTestInvocation(files, repositoryRoot),
+    invocation: bunTestInvocation(files, repositoryRoot, definition.testTimeoutMs),
     ...(definition.mutex === undefined ? {} : { mutex: definition.mutex }),
     presets: definition.presets,
     required: definition.required,
@@ -156,9 +157,18 @@ function externalConsumerEnvironment(
   });
 }
 
-function bunTestInvocation(files: readonly string[], repositoryRoot: string) {
+function bunTestInvocation(
+  files: readonly string[],
+  repositoryRoot: string,
+  testTimeoutMs?: number
+) {
   return Object.freeze({
-    args: Object.freeze(["test", ...files, "--reporter=dots"]),
+    args: Object.freeze([
+      "test",
+      ...files,
+      "--reporter=dots",
+      ...(testTimeoutMs === undefined ? [] : [`--timeout=${testTimeoutMs}`])
+    ]),
     command: process.execPath,
     cwd: repositoryRoot
   });

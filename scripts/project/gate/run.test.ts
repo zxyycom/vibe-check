@@ -41,10 +41,11 @@ import {
   type ProjectGateResult
 } from "./runtime/result.ts";
 import type { ProjectGatePerformanceBaseline } from "./runtime/performance-baseline.ts";
-import { contributeProjectGatePerformanceMessages } from "./runtime/performance-observation.ts";
+import { currentProjectGatePerformanceRuntime } from "./runtime/performance-baseline.ts";
 import { PROJECT_GATE_RUN_CONFIG, createProjectGateEntries } from "./definition.ts";
 
 const defaultResultContributor = PROJECT_GATE_RUN_CONFIG.resultContributor;
+const passThroughResultContributor = () => ({ blocks: false, messages: [] });
 import { createExternalConsumerMaterialLease } from "./checks/external-consumer-material.ts";
 import type {
   ProjectGateTranscript,
@@ -74,22 +75,12 @@ const preparedRelease = Object.freeze({
   reused: false
 });
 
-const performanceRuntime = Object.freeze({
-  architecture: "x64",
-  bunVersion: "1.3.14",
-  platform: "linux"
-});
+const performanceRuntime = currentProjectGatePerformanceRuntime();
 const performanceBaseline = Object.freeze({
-  medianMs: 90,
-  p90Ms: 100,
-  samplesMs: Object.freeze([80, 90, 100]),
-  thresholdMs: 135,
-  workload: Object.freeze({
-    candidatePreparation: "reuse" as const,
-    declarativeFingerprint: "performance-fixture",
-    profile: "required" as const,
-    runtime: performanceRuntime
-  })
+  declarativeFingerprint: "a".repeat(64),
+  maxElapsedMs: 135,
+  profile: "required" as const,
+  runtime: performanceRuntime
 } satisfies ProjectGatePerformanceBaseline);
 
 const expectedCheckIds = [
@@ -113,8 +104,13 @@ const expectedCheckIds = [
   "tests-product-secret-detection",
   "tests-product-supporting-checks",
   "tests-product-runtime",
+  "tests-scripts-admission-workbench",
   "tests-scripts-project",
+  "tests-scripts-project-selection",
   "tests-scripts-test-evidence",
+  "tests-scripts-layout",
+  "tests-scripts-machine-artifacts",
+  "tests-scripts-package-tools-boundary",
   "tests-scripts-validation",
   "tests-scripts-tooling",
   "duplicate-detection",
@@ -381,7 +377,7 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-release",
         loadRunModule: async () => ({
           resolvedEntryPath: preparedRelease.resolvedEntryPath,
-          resultContributor: defaultResultContributor,
+          resultContributor: passThroughResultContributor,
           run: async ({ preparedCandidate }) => {
             observedCandidate = preparedCandidate;
             return completedResult("passed");
@@ -417,7 +413,7 @@ describe("Project Gate adapter closure", () => {
         resolvedEntryPath: "/tmp/other/index.mjs",
         resultContributor: () => {
           resultContributorRan = true;
-          return [];
+          return { blocks: false, messages: [] };
         },
         run: async () => {
           ran = true;
@@ -441,7 +437,7 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-transcript-setup-failure",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: defaultResultContributor,
+          resultContributor: passThroughResultContributor,
           run: async () => {
             ran = true;
             return completedResult("passed");
@@ -490,7 +486,7 @@ describe("Project Gate adapter closure", () => {
           loaded += 1;
           return {
             resolvedEntryPath: prepared.resolvedEntryPath,
-            resultContributor: defaultResultContributor,
+            resultContributor: passThroughResultContributor,
             run: async (input) => {
               ran += 1;
               runInput = input;
@@ -535,7 +531,7 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-run-rejection",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: defaultResultContributor,
+          resultContributor: passThroughResultContributor,
           run: async () => {
             throw new Error("fixture aggregation callback rejection");
           }
@@ -589,13 +585,16 @@ describe("Project Gate adapter closure", () => {
             assert.equal(Object.isFrozen(context.initialResult.messages), true);
             assert.equal(Object.isFrozen(context), true);
             assert.equal(Object.isFrozen(context.timing), true);
-            return [
-              {
-                code: "fixture-post-processing",
-                level: "warning",
-                message: "Fixture post-processing rejected the initial result"
-              }
-            ];
+            return {
+              blocks: false,
+              messages: [
+                {
+                  code: "fixture-post-processing",
+                  level: "warning" as const,
+                  message: "Fixture post-processing rejected the initial result"
+                }
+              ]
+            };
           },
           run: async () => runResult
         }),
@@ -618,6 +617,7 @@ describe("Project Gate adapter closure", () => {
       assert.deepEqual(observedContext, {
         invocationLogDirectory: "/tmp/project-gate-result-contributor",
         preparedCandidate: prepared,
+        performanceBaselines: [performanceBaseline, { ...performanceBaseline, profile: "all" }],
         repositoryRoot,
         runResult,
         selection: { kind: "required" },
@@ -664,7 +664,7 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-transcript-failure",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: defaultResultContributor,
+          resultContributor: passThroughResultContributor,
           run: async () => completedResult("passed")
         }),
         prepareCandidate: async () => prepared,
@@ -695,80 +695,60 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
-  it("uses the default performance observer and keeps advisory warnings non-blocking", async () => {
+  it("enforces the local performance limit without revising Product Check facts", async () => {
     const runResult = completedResult("passed", {
       checkDurations: [
         { checkId: "lint-product", durationMs: 70 },
         { checkId: "typecheck-scripts", durationMs: 60 }
       ],
-      declarativeFingerprint: "performance-fixture"
+      declarativeFingerprint: "a".repeat(64)
     });
-    const defaultOutput = captureConsole();
-    const defaultTranscriptMessages: Array<
-      Readonly<{ readonly level: "error" | "info" | "warning"; readonly text: string }>
-    > = [];
+    const withinTranscript: string[] = [];
+    const withinOutput = captureConsole();
     try {
-      const defaultStatus = await runProjectGateWithoutTranscript([], {
+      const status = await runProjectGateWithoutTranscript([], {
         clock: scriptedClock([100, 110, 125, 145]),
-        createInvocationLogDirectory: () => "/tmp/project-gate-default-performance",
+        createInvocationLogDirectory: () => "/tmp/project-gate-within-performance",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
           resultContributor: defaultResultContributor,
           run: async () => runResult
         }),
         prepareCandidate: async () => prepared,
-        startTranscript: () =>
-          Object.freeze({
-            complete: () => "succeeded" as const,
-            writeGateMessage: (message: Parameters<ProjectGateTranscript["writeGateMessage"]>[0]) =>
-              defaultTranscriptMessages.push(message)
-          })
+        startTranscript: () => ({
+          complete: () => "succeeded" as const,
+          writeGateMessage: (message) => withinTranscript.push(message.text)
+        })
       });
-
-      assert.equal(defaultStatus, PROJECT_GATE_EXIT_STATUS.passed);
-      assert.match(
-        defaultTranscriptMessages.map((message) => message.text).join("\n"),
-        /project gate info \[project-gate-performance-elapsed-to-initial-result]: elapsed-to-initial-result 45\.0ms \(candidate preparation 10\.0ms; adapter\/setup 15\.0ms; Product Run 20\.0ms\) was not comparable \(no matching baseline\)/
-      );
-      assert.doesNotMatch(
-        defaultOutput.logs.join("\n"),
-        /project gate info \[project-gate-performance-elapsed-to-initial-result]/
-      );
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
+      assert.match(withinTranscript.join("\n"), /within hard limit 135\.0ms/);
+      assert.equal(withinOutput.errors.length, 0);
     } finally {
-      defaultOutput.restore();
+      withinOutput.restore();
     }
 
-    const warningOutput = captureConsole();
+    const exceededOutput = captureConsole();
     try {
-      const warningStatus = await runProjectGateWithoutTranscript([], {
+      const status = await runProjectGateWithoutTranscript([], {
         clock: scriptedClock([100, 120, 150, 236]),
-        createInvocationLogDirectory: () => "/tmp/project-gate-warning-performance",
+        createInvocationLogDirectory: () => "/tmp/project-gate-exceeded-performance",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: (context) =>
-            contributeProjectGatePerformanceMessages(
-              context,
-              [performanceBaseline],
-              performanceRuntime
-            ),
+          resultContributor: defaultResultContributor,
           run: async () => runResult
         }),
         prepareCandidate: async () => prepared
       });
-
-      assert.equal(warningStatus, PROJECT_GATE_EXIT_STATUS.passed);
-      assert.deepEqual(warningOutput.warnings, [
-        "project gate warning [project-gate-performance-outside-range]: elapsed-to-initial-result 136.0ms (candidate preparation 20.0ms; adapter/setup 30.0ms; Product Run 86.0ms) exceeded advisory threshold 135.0ms; slowest Checks: lint-product=70.0ms, typecheck-scripts=60.0ms"
-      ]);
-      assert.equal(warningOutput.errors.length, 0);
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+      assert.match(
+        exceededOutput.errors.join("\n"),
+        /elapsed-to-initial-result 136\.0ms .* exceeded hard limit 135\.0ms; slowest Checks: lint-product=70\.0ms, typecheck-scripts=60\.0ms/
+      );
     } finally {
-      warningOutput.restore();
+      exceededOutput.restore();
     }
 
-    const invalidTimingOutput = captureConsole();
-    const invalidTimingTranscriptMessages: Array<
-      Readonly<{ readonly level: "error" | "info" | "warning"; readonly text: string }>
-    > = [];
+    const invalidOutput = captureConsole();
     try {
       const status = await runProjectGateWithoutTranscript([], {
         clock: scriptedClock([100, Number.NaN, Number.NaN, Number.NaN]),
@@ -776,29 +756,70 @@ describe("Project Gate adapter closure", () => {
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
           resultContributor: defaultResultContributor,
+          run: async () => runResult
+        }),
+        prepareCandidate: async () => prepared
+      });
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+      assert.match(invalidOutput.errors.join("\n"), /hard limit could not be evaluated/);
+    } finally {
+      invalidOutput.restore();
+    }
+  });
+
+  it("fails before candidate preparation without a local standard-workload baseline", async () => {
+    for (const arguments_ of [[], ["--all"]]) {
+      let preparedCandidate = false;
+      const output = captureConsole();
+      try {
+        const status = await runProjectGateWithoutTranscript(arguments_, {
+          loadPerformanceBaselines: () => ({ kind: "missing" }),
+          prepareCandidate: async () => {
+            preparedCandidate = true;
+            return prepared;
+          }
+        });
+        assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+        assert.equal(preparedCandidate, false);
+        assert.match(output.errors.join("\n"), /performance baseline missing/);
+      } finally {
+        output.restore();
+      }
+    }
+    let preparedCandidate = false;
+    const output = captureConsole();
+    try {
+      const status = await runProjectGateWithoutTranscript(["--all"], {
+        loadPerformanceBaselines: () => ({ kind: "loaded", baselines: [performanceBaseline] }),
+        prepareCandidate: async () => {
+          preparedCandidate = true;
+          return prepared;
+        }
+      });
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+      assert.equal(preparedCandidate, false);
+      assert.match(output.errors.join("\n"), /performance baseline missing for all/);
+    } finally {
+      output.restore();
+    }
+  });
+
+  it("leaves focused selections outside the total-time budget", async () => {
+    const output = captureConsole();
+    try {
+      const status = await runProjectGateWithoutTranscript(["--typecheck"], {
+        loadPerformanceBaselines: () => ({ kind: "missing" }),
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          resultContributor: defaultResultContributor,
           run: async () => completedResult("passed")
         }),
-        prepareCandidate: async () => prepared,
-        startTranscript: () =>
-          Object.freeze({
-            complete: () => "succeeded" as const,
-            writeGateMessage: (message: Parameters<ProjectGateTranscript["writeGateMessage"]>[0]) =>
-              invalidTimingTranscriptMessages.push(message)
-          })
+        prepareCandidate: async () => prepared
       });
-
       assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
-      assert.match(
-        invalidTimingTranscriptMessages.map((message) => message.text).join("\n"),
-        /elapsed-to-initial-result timing was not comparable \(invalid total timing\)/
-      );
-      assert.doesNotMatch(
-        invalidTimingOutput.logs.join("\n"),
-        /elapsed-to-initial-result timing was not comparable \(invalid total timing\)/
-      );
-      assert.doesNotMatch(invalidTimingOutput.logs.join("\n"), /within advisory range/);
+      assert.equal(output.errors.length, 0);
     } finally {
-      invalidTimingOutput.restore();
+      output.restore();
     }
   });
 
@@ -842,7 +863,7 @@ describe("Project Gate adapter closure", () => {
         createInvocationLogDirectory: () => "/tmp/project-gate-result-contributor",
         loadRunModule: async () => ({
           resolvedEntryPath: prepared.resolvedEntryPath,
-          resultContributor: () => malformedMessages,
+          resultContributor: () => ({ blocks: false, messages: malformedMessages }),
           run: async () => completedResult("passed")
         }),
         prepareCandidate: async () => prepared
@@ -900,6 +921,10 @@ function runProjectGateWithoutTranscript(
   stepOverrides: Parameters<typeof runProjectGate>[1] = {}
 ): Promise<ProjectGateExitStatus> {
   return runProjectGate(arguments_, {
+    loadPerformanceBaselines: () => ({
+      kind: "loaded",
+      baselines: [performanceBaseline, { ...performanceBaseline, profile: "all" }]
+    }),
     startTranscript: () =>
       Object.freeze({
         complete: () => "succeeded" as const,

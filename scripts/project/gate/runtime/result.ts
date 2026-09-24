@@ -1,4 +1,5 @@
 import { isNonArrayRecord } from "../../../value-guards.ts";
+import type { ProjectGateResultContribution } from "./result-contributor.ts";
 
 export const PROJECT_GATE_RESULT_STATUS = Object.freeze({
   failed: "failed",
@@ -38,6 +39,22 @@ export function parseProjectGateMessageContribution(
 ): readonly ProjectGateMessage[] | undefined {
   if (!Array.isArray(value) || !value.every(isProjectGateMessage)) return undefined;
   return Object.freeze(value.map((message) => Object.freeze({ ...message })));
+}
+
+/** Accepts only an explicit downgrade decision and a closed message list. */
+export function parseProjectGateResultContribution(
+  value: unknown
+): ProjectGateResultContribution | undefined {
+  if (
+    !isNonArrayRecord(value) ||
+    !hasExactKeys(value, ["blocks", "messages"]) ||
+    typeof value.blocks !== "boolean"
+  ) {
+    return undefined;
+  }
+  const messages = parseProjectGateMessageContribution(value.messages);
+  if (messages === undefined) return undefined;
+  return Object.freeze({ blocks: value.blocks, messages });
 }
 
 export function createProjectGateResult(

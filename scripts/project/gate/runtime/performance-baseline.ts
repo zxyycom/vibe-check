@@ -1,59 +1,165 @@
-/** The runtime identity under which one Gate performance workload was measured. */
+import { lstatSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { isNonArrayRecord } from "../../../value-guards.ts";
+import type { ProjectGateSelection } from "./controls.ts";
+
+export const LOCAL_PERFORMANCE_BASELINE_PATH =
+  ".cache/vibe-check/project-gate/performance-baseline.json";
+
+/** A manually maintained, machine-local hard limit for one standard Gate workload. */
+export interface ProjectGatePerformanceBaseline {
+  readonly declarativeFingerprint: string;
+  readonly maxElapsedMs: number;
+  readonly profile: "all" | "required";
+  readonly runtime: ProjectGatePerformanceRuntime;
+}
+
 export interface ProjectGatePerformanceRuntime {
   readonly architecture: string;
   readonly bunVersion: string;
   readonly platform: string;
 }
 
-/** A reproducible standard Gate workload whose elapsed samples may be compared. */
-export interface ProjectGatePerformanceWorkload {
-  readonly candidatePreparation: "reuse";
-  readonly declarativeFingerprint: string;
-  readonly profile: "full" | "required";
-  readonly runtime: ProjectGatePerformanceRuntime;
+export function currentProjectGatePerformanceRuntime(): ProjectGatePerformanceRuntime {
+  return Object.freeze({
+    architecture: process.arch,
+    bunVersion: process.versions.bun ?? "unavailable",
+    platform: process.platform
+  });
 }
 
-/**
- * Auditable advisory evidence for one standard Gate workload. Samples remain raw so
- * threshold changes can be reviewed against the measurement distribution.
- */
-export interface ProjectGatePerformanceBaseline {
-  readonly medianMs: number;
-  readonly p90Ms: number;
-  readonly samplesMs: readonly number[];
-  readonly thresholdMs: number;
-  readonly workload: ProjectGatePerformanceWorkload;
+export type LocalPerformanceBaselines =
+  | Readonly<{
+      readonly kind: "loaded";
+      readonly baselines: readonly ProjectGatePerformanceBaseline[];
+    }>
+  | Readonly<{ readonly kind: "missing" | "invalid" }>;
+
+/** Reads local policy only; Gate never creates, learns, or rewrites the hard limit. */
+export function loadLocalPerformanceBaselines(repositoryRoot: string): LocalPerformanceBaselines {
+  const path = join(repositoryRoot, LOCAL_PERFORMANCE_BASELINE_PATH);
+  let source: string;
+  try {
+    if (!lstatSync(path).isFile()) return Object.freeze({ kind: "invalid" });
+    source = readFileSync(path, "utf8");
+  } catch (error: unknown) {
+    if (isMissingFile(error)) return Object.freeze({ kind: "missing" });
+    return Object.freeze({ kind: "invalid" });
+  }
+
+  let value: unknown;
+  try {
+    value = JSON.parse(source) as unknown;
+  } catch {
+    return Object.freeze({ kind: "invalid" });
+  }
+  return parseLocalPerformanceBaselines(value);
 }
 
-/**
- * Advisory baselines collected on 2026-09-02 with five interleaved, sequential
- * public learned prepared-strategy invocations per profile. The threshold is the greater of p90 * 1.25 and
- * median * 1.5 so ordinary workstation noise remains non-blocking.
- */
-export const PROJECT_GATE_PERFORMANCE_BASELINES: readonly ProjectGatePerformanceBaseline[] =
-  Object.freeze([
-    {
-      medianMs: 11_205.7,
-      p90Ms: 14_943.4,
-      samplesMs: Object.freeze([10_739.5, 12_186.6, 14_943.4, 11_205.7, 9_345.3]),
-      thresholdMs: 18_680,
-      workload: Object.freeze({
-        candidatePreparation: "reuse",
-        declarativeFingerprint: "4a76afb8bedd38e01c3c4c5f9ddb716d49e3d0a5d4cb425059168cc8c9079141",
-        profile: "required",
-        runtime: Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" })
-      })
-    },
-    {
-      medianMs: 17_581.6,
-      p90Ms: 32_950.2,
-      samplesMs: Object.freeze([16_666.3, 16_435.8, 32_950.2, 18_262.4, 17_581.6]),
-      thresholdMs: 41_188,
-      workload: Object.freeze({
-        candidatePreparation: "reuse",
-        declarativeFingerprint: "4a76afb8bedd38e01c3c4c5f9ddb716d49e3d0a5d4cb425059168cc8c9079141",
-        profile: "full",
-        runtime: Object.freeze({ architecture: "x64", bunVersion: "1.3.14", platform: "linux" })
-      })
-    }
-  ]);
+function parseLocalPerformanceBaselines(value: unknown): LocalPerformanceBaselines {
+  if (!isNonArrayRecord(value) || !hasExactKeys(value, ["schemaVersion", "baselines"])) {
+    return Object.freeze({ kind: "invalid" });
+  }
+  if (value.schemaVersion !== 1 || !Array.isArray(value.baselines)) {
+    return Object.freeze({ kind: "invalid" });
+  }
+  const parsed: ProjectGatePerformanceBaseline[] = [];
+  for (const item of value.baselines) {
+    const baseline = parsePerformanceBaseline(item);
+    if (baseline === undefined) return Object.freeze({ kind: "invalid" });
+    parsed.push(baseline);
+  }
+  const identities = parsed.map(
+    ({ profile, runtime, declarativeFingerprint }) =>
+      `${profile}\0${runtime.platform}\0${runtime.architecture}\0${runtime.bunVersion}\0${declarativeFingerprint}`
+  );
+  if (new Set(identities).size !== identities.length) {
+    return Object.freeze({ kind: "invalid" });
+  }
+  return Object.freeze({ kind: "loaded", baselines: Object.freeze(parsed) });
+}
+
+/** Fails before candidate preparation when a standard workload has no local limit. */
+export function preflightPerformanceBaselines(
+  selection: ProjectGateSelection,
+  load: () => LocalPerformanceBaselines
+): readonly ProjectGatePerformanceBaseline[] | undefined {
+  const profile = selection.kind;
+  if (profile === "focused") return Object.freeze([]);
+  let local: LocalPerformanceBaselines;
+  try {
+    local = load();
+  } catch {
+    console.error(
+      `project gate performance baseline could not be read: ${LOCAL_PERFORMANCE_BASELINE_PATH}`
+    );
+    return undefined;
+  }
+  if (local.kind !== "loaded") {
+    console.error(
+      `project gate performance baseline ${local.kind}: manually create or repair ${LOCAL_PERFORMANCE_BASELINE_PATH}`
+    );
+    return undefined;
+  }
+  const runtime = currentProjectGatePerformanceRuntime();
+  if (
+    !local.baselines.some(
+      (baseline) =>
+        baseline.profile === profile &&
+        baseline.runtime.platform === runtime.platform &&
+        baseline.runtime.architecture === runtime.architecture &&
+        baseline.runtime.bunVersion === runtime.bunVersion
+    )
+  ) {
+    console.error(
+      `project gate performance baseline missing for ${profile} on ${runtime.platform}/${runtime.architecture} Bun ${runtime.bunVersion}: manually update ${LOCAL_PERFORMANCE_BASELINE_PATH}`
+    );
+    return undefined;
+  }
+  return local.baselines;
+}
+
+function parsePerformanceBaseline(value: unknown): ProjectGatePerformanceBaseline | undefined {
+  if (
+    !isNonArrayRecord(value) ||
+    !hasExactKeys(value, ["profile", "runtime", "declarativeFingerprint", "maxElapsedMs"]) ||
+    (value.profile !== "required" && value.profile !== "all") ||
+    typeof value.declarativeFingerprint !== "string" ||
+    !/^[a-f0-9]{64}$/u.test(value.declarativeFingerprint) ||
+    !Number.isSafeInteger(value.maxElapsedMs) ||
+    Number(value.maxElapsedMs) <= 0 ||
+    !isPerformanceRuntime(value.runtime)
+  ) {
+    return undefined;
+  }
+  return Object.freeze({
+    declarativeFingerprint: value.declarativeFingerprint,
+    maxElapsedMs: Number(value.maxElapsedMs),
+    profile: value.profile,
+    runtime: Object.freeze({ ...value.runtime })
+  });
+}
+
+function isPerformanceRuntime(value: unknown): value is ProjectGatePerformanceRuntime {
+  return (
+    isNonArrayRecord(value) &&
+    hasExactKeys(value, ["platform", "architecture", "bunVersion"]) &&
+    typeof value.platform === "string" &&
+    value.platform.length > 0 &&
+    typeof value.architecture === "string" &&
+    value.architecture.length > 0 &&
+    typeof value.bunVersion === "string" &&
+    value.bunVersion.length > 0
+  );
+}
+
+function hasExactKeys(value: Readonly<Record<string, unknown>>, keys: readonly string[]): boolean {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index]);
+}
+
+function isMissingFile(error: unknown): boolean {
+  return isNonArrayRecord(error) && error.code === "ENOENT";
+}

@@ -236,7 +236,7 @@ Owner: `docs/development/coding-style.md#2-owner-与实现归属先行`
 Entities:
 
 - `bun|scripts/validation/layout-characterization.test.ts|characterizes repository layout and dependency boundaries`
-- `bun|scripts/validation/layout-characterization.test.ts|enforces package-tool public contracts and Core closure`
+- `bun|scripts/validation/package-tools-core-closure.test.ts|enforces package-tool public contracts and Core closure`
   Proves:
 
 - Workspace validation keeps the Product owner inventory closed, including the declared Core and non-Core tool owners, and rejects retired source roots, a Gate root other than `definition.ts` / `run.ts` plus their root-contract tests and `checks/**` / `runtime/**`, unapproved `index.ts` files, generic module basenames, unexpected Product owners, forbidden Product/Project/package dependency directions, direct imports of private process-execution implementation files, an environment bootstrap dependency on process-execution, and a package compiler-root contract other than exactly public `src/index.ts` plus the internal function-metrics Worker root (which does not add a public entry).
@@ -252,44 +252,49 @@ Entities:
   Proves:
 - Product lint and workspace format retain every normal `src` target while excluding only the checked-in generated function-analyzer oracle fixture directory; no translated-only lint or format exception is allowed. Typecheck likewise has no translated-only exception. Gate-specific lint explicitly selects oxlint JSON while standalone development lint preserves its default output; Gate format explicitly selects list-different while standalone `format check` preserves `--check`.
 
-## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的 catalog、root binding 与 controls 闭合
+## Case AUX-PROJECT-GATE-CATALOG-001: Project Gate 的组合、root binding 与质量 policy 闭合
 
 Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > binds the sole project check command to the mise-backed Gate root`
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > keeps the explicit assurance identities and current selection metadata closed`
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags`
-- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > projects the central composition manifest into an ordinary Project Definition`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > uses the strict repository policy and binds only the mise-provided SCC command`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > settles four blocking Checks while retaining advisory Markdown lint Findings`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > preserves Product-owned empty and unavailable Markdown lint outcomes`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > settles a blocking normal quality Finding through its owning Check and effective aggregate`
 - `bun|scripts/project/gate/checks/repository-quality.test.ts|repository quality Checks > substitutes an unavailable absolute SCC command without a function-metrics command`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > selects the product-runtime lane only for a runtime change, unavailable source, or explicit force path`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > selects closed repository-material Checks from one change snapshot while links remain full`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > fails the real schema-publication provider when a Product schema change causes generated drift`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps the product-runtime change region complete for the lane resolver`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities`
-- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection`
   Proves:
 
 - `bun run check` 通过 mise 使用仓库锁定的环境；`scripts/project/gate/run.ts` 是唯一 root process entry。
 - `definition.ts` 用一份稳定顺序的 manifest 组合普通 Check；test lane descriptor 和 repository-quality options 分别由 `checks/test-execution/checks.ts` 与 `checks/repository-quality.ts` 拥有。entry validation 校验 `dependsOn` / `observes` 的 exact collection、self 与 missing target；`observes` 还保持 required/preset selection closure。
-- Prepared candidate、external-consumer provider、test lanes 和质量 Check 保持独立 identity。Artifact 使用 prepared candidate；external provider 独占 package-lifecycle mutex，三个 consumer 只读 provider material。`tests-scripts-validation` 与 schema/example validators 共享 repository-materials mutex；JSON grammar 和 Markdown path validators 不持有它。
+- Prepared candidate、external-consumer provider、test lanes 和质量 Check 保持独立 identity。Artifact 使用 prepared candidate；external provider 独占 package-lifecycle mutex，三个 consumer 只读 provider material。Project Gate change selection 与其余 tooling、admission workbench、repository layout、package-tools/Core fixture、machine-artifact acceptance 与其余 material validation 分别为独立 test lanes；两组 material tests 与 schema/example validators 共享 repository-materials mutex，JSON grammar 和 Markdown path validators 不持有它。
 - Scheduler 的 `maxParallel` 为 `3`，两个逻辑资源的 capacity 均为 `2`：所有 `tests-*` lane 各 claim 一个 Bun runner unit，五项直接仓库质量 Check 各 claim 一个 repository-scan unit。其它 typecheck、lint、format、provider 和 native Check 不声明这两个 claim；mutex 仍独立表达独占关系。
 - Duplicate、file、function metrics 与 Markdown Link 的 normal Finding 使用 blocking policy，未豁免 Finding 经 owning Check 和默认 aggregate 阻断 Gate。Function metrics 保留 `50 + 150/below 5 + CC 10 + parameters 5` 限值，只对 `createProjectGateEntries` 当前起始行的 `function-code-density` 使用一项精确 waiver；其它函数与指标继续阻断。
-- `markdown-lint` 独立使用八项固定规则、`docs/**/*.md` / `changes/**/*.md` 范围和 non-blocking policy；Finding 仍进入 Records 与 final data，空输入及不可用仍由 Product 结算。它在 required 的材料变更路径和 materials/quality/all force path 运行；Markdown Link validation 仍全量参与 required/materials/quality/all。
+- `markdown-lint` 独立使用八项固定规则、`docs/**/*.md` / `changes/**/*.md` 范围和 non-blocking policy；Finding 仍进入 Records 与 final data，空输入及不可用仍由 Product 结算。
 - 三项 metrics 的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；function metrics 额外排除 Product test/test-support，duplicate/file 仍选择这些测试文件。Duplicate detection 不选择 Markdown；duplicate/file metrics 不选择 historical Schemas，但继续选择 current Schemas。两个 Markdown Check 的范围均限于 `docs/**/*.md` 与 `changes/**/*.md`。
-- adapter 无参时默认 required；`--typecheck`、`--lint`、`--test`、`--materials` 与 `--quality` 可重复、可组合并替换默认选择，规范化后成为 Product opaque flags；`--all` 独占 preset 并选择完整 Gate。独立 `--help` 在任何 candidate/log 工作前返回完整 preset 与示例说明。
-- Product Run integration 证明同一 entry manifest 只投影原生 string-leaf `enabledByFlags` AST；Product 以它形成 private effective selection，同时驱动 `dependsOn` prerequisite 与 Product default aggregation。未选择 Check 不执行并保留 `not-applicable / flag-condition-not-matched`，dependency-activated prerequisite 仍走普通 lifecycle，aggregate 只消费同次 effective identities。
-- Gate Definition 声明唯一 Git comparison `origin/main` 和保守 `product-runtime: src/**` region。lane resolver 的 complete profile 反查证明 `productRuntime` 恰好包含不属于 `src/package-checks/**` 的 `src/**` test entities；同一 region 因而覆盖该 lane 的测试和全部 Product source，而不是根据当前文件清单维护第二套 allowlist。`tests-product-runtime` 使用 builder `(required AND changeFlag("product-runtime")) OR preset=test OR all`，并保留 `propagateDependsOn: true`：可信零命中时日常 required 不启动它，`src/runtime.ts` change 启动它，Git evidence unavailable 时只以 `{ ok: false, reason }` 保守启动而不伪造 files，`--test` 和 `--all` 在无变更时仍是显式 force paths。
-- Gate 同时声明保守的 `repository-material` corpus，其中 `src/**` 和 `scripts/**` 覆盖 schema/example publication 所读取的 Product schema、serializer、执行模型与 shared provider 输入。输入闭合的 JSON、schema、schema-publication 和 machine-example Checks 使用 `(required AND changeFlag("repository-material")) OR materials OR all`；隔离 Git fixture 证明 committed、rename、delete、staged、unstaged、untracked、`pnpm-lock.yaml` only 与同时命中 product-runtime/material 的 `src/**` 变化都从同一次 `project.changes` 注入 effective flag。复制后的同一 Git root 还以真实 schema-publication provider 证明 Product schema drift 被 default required 选择并 failed；可信零匹配与 region 外 link target 不会启动这些 Checks，missing-ref 和非 Git root 则保守启动并保留 unavailable evidence。materials/all force path、callback context、not-applicable fact、`dependsOn` closure 与 strict aggregate 同时受测；links 的未建模反向 target dependency 保持全量 required/materials membership，quality focused 也不会被材料条件抑制。
-- `--release-receipt` 是 selection 之外的显式 candidate source，只接受一个非空 path，并要求完整 `--all`；其它调用仍使用 local candidate source。
-- Required 默认不选择 artifact、external-consumer provider 与 types/docs/runtime consumer Checks；prepared candidate typed provider 和快速 package-supporting contracts 仍在 required 中。只有 `--all` 纳入 package acceptance；未选择 Check 保留 Product 的 `flag-condition-not-matched` fact，aggregate 只消费同次 selection 的 eligible identities。启动 summary 明确 required、focused 或 all 及 package acceptance 是否选择。
 - Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine `--test` preset。
+
+## Case AUX-PROJECT-GATE-SELECTION-001: Project Gate 按输入变更选择闭合 Checks
+
+Owner: `docs/tooling/project-gate.md#project-gate`
+Entities:
+
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > defaults to required and normalizes combinable focused presets into opaque flags`
+- `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects independent script test lanes from their changed inputs`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps quality and material regions specific to their inputs`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps the product-runtime region complete for the lane resolver`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > executes only Product flag-selected Checks and aggregates the same identities`
+- `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > starts a downstream-only Gate Check with its prerequisite and aggregates Product selection`
+  Proves:
+
+- 无 selection 参数时采用 required；focused preset 可重复、组合并替换默认选择，`--all` 独占并选择完整 Gate。显式 release receipt 只与 `--all` 同用；启动摘要反映实际选择。
+- required 通过 Gate 的 region 数据与 Product 所用的 `minimatch` 选项选择各 Check 的输入：Product 源码、文档、schema/example、Case Owner 和规则变化各触发对应检查，可信零命中不运行无关 Check。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；Gate 不重复构造 Git/Run 矩阵。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
+- JSON、Schema、publication、machine example、Markdown、质量扫描和规则测试保持各自的输入边界；schema source 变化会选择 publication validator，独立材料测试证明发布漂移被拒绝。Markdown links 因反向目标依赖仍检查完整 corpus，focused preset 与 `--all` 提供不依赖变更的强制路径。
+- Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。required 保留 prepared candidate provider，但高成本 package acceptance 只由 `--all` 选择。
 
 ## Case AUX-PROJECT-GATE-DIAGNOSTIC-LOGGING-001: Project Gate 将 Product owner outputs 放入 invocation namespaces
 
@@ -396,22 +401,25 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails closed when resultContributor returns an invalid result`
   Proves:
 
-- candidate-bound module 从中央 `definition.ts` 投影唯一 `resultContributor` 与 Product `run`；entry identity 验证后，Hook 在 bound Run 返回并形成初步 Gate 结果后执行一次。它可以同步或异步接收冻结的初步结果，以及包含 normalized selection、repository root、prepared candidate、invocation logs、原始 RunResult、Gate started、initial-result timestamp、总 `elapsed-to-initial-result` 与 candidate preparation / adapter-setup / Product Run 三个连续 phase 的只读 Gate context，并以同类型新结果决定唯一终端状态与 exit。
-- Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖；invalid 或 non-monotonic phase timing 只能形成不可比较 observation，不能被归一化为 0ms 后进入 baseline comparison。
+- candidate-bound module 从中央 `definition.ts` 投影唯一 `resultContributor` 与 Product `run`；entry identity 验证后，Hook 在 bound Run 返回并形成初步 Gate 结果后执行一次。它可以同步或异步接收冻结的初步结果，以及包含 normalized selection、repository root、prepared candidate、invocation logs、原始 RunResult、Gate started、initial-result timestamp、总 `elapsed-to-initial-result` 与 candidate preparation / adapter-setup / Product Run 三个连续 phase 的只读 Gate context；返回闭合的 `{blocks,messages}`，adapter 只允许初步 passed 降为 failed，并由唯一最终状态映射 exit。
+- Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖；invalid 或 non-monotonic phase timing 不能被归一化为 0ms 后进入 threshold comparison，初步 passed 时必须阻断。
 - Hook 抛错或返回无效结果形成带受控诊断的 unavailable 最终结果，不静默放行，也不对外暴露 base/acceptances/final 并行结果集合。
 
-## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 性能观察保持 advisory
+## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 本机硬阈值阻断超时或缺失基线
 
 Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance observation > contributes one advisory message without changing the initial Gate result`
-- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > uses the default performance observer and keeps advisory warnings non-blocking`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > blocks missing, invalid, or exceeded standard-workload limits and preserves initial facts`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > loads only an explicit regular local JSON file with fixed, unique limits`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > enforces the local performance limit without revising Product Check facts`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > leaves focused selections outside the total-time budget`
   Proves:
 
-- Gate-owned observer 每次形成单条 `elapsed-to-initial-result` observation，并显示 candidate preparation、adapter/setup 与 Product Run phase：没有同一标准 workload baseline、使用 focused preset、初步非 passed 或不完整 Run timing 时明确为 not-comparable；它不读取 diagnostics log 或将并行 Check duration 相加为 Gate wall time。
-- 可比较的标准 workload 以总 `elapsed-to-initial-result` 在 threshold 内形成 info，超界只形成一条含总值、三段 phase、threshold 和至多三个最慢 Check 的 warning；两种 observation 都保留初步 Gate status、既有消息和 process exit，不能成为第二个硬性能预算。
-- `definition.ts` 的默认 `resultContributor` 实际调用 observer；adapter 测试可通过 loader seam 提供 fixture Hook，但该 seam 不构成配置入口。正式 baseline 已记录标准 required/all selection 的开发机样本，仍仅用于匹配 workload 的 advisory comparison，不能被测试 fixture、custom hook 或单次执行改写为性能 budget。
+- required / all 的本机 JSON 基线缺失、无效或没有当前 profile/runtime 时，在 candidate preparation 前失败；初步 passed 后仍必须核对 exact declarative fingerprint。baseline 只读，不从单次运行学习或自动提高。
+- `elapsed-to-initial-result` 包括 candidate preparation、adapter/setup 与 Product Run；等于阈值通过，超过阈值以单条包含阶段和最慢三个 Check 的 error 阻断，不将并行 Check duration 相加成墙钟耗时。无匹配 fingerprint、无效 timing 或不完整 Run facts 也阻断初步 passed；初步非 passed 不改写已有结论；focused preset 不适用总耗时预算。
+- `definition.ts` 的默认 `resultContributor` 实际调用 observer；adapter 只可将初步 passed 降为 failed，不改写 Product Check facts 或 aggregate。loader seam 仅用于测试，不构成配置入口。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 

@@ -19,7 +19,7 @@ import {
 } from "@zxyycom/vibe-check";
 
 import type { ProjectGateResultContributor } from "./runtime/result-contributor.ts";
-import { contributeProjectGatePerformanceMessages } from "./runtime/performance-observation.ts";
+import { evaluateProjectGatePerformance } from "./runtime/performance-observation.ts";
 import { createDecisionRecordsCheck } from "./checks/decision-records.ts";
 import { createMaterialValidationCheck } from "./checks/materials-validation.ts";
 import {
@@ -29,7 +29,10 @@ import {
 } from "../../validation/repository-material/workflow.ts";
 import { REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES } from "../../validation/repository-material/task-contract.ts";
 import { defineProjectGateEntries, type ProjectGateEntry } from "./runtime/entries.ts";
-import { projectGateFlagControlledCheck } from "./runtime/eligibility.ts";
+import {
+  PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS,
+  projectGateFlagControlledCheck
+} from "./runtime/eligibility.ts";
 import { PROJECT_GATE_SELECTION } from "./runtime/catalog.ts";
 import {
   createExternalConsumerMaterialCheck,
@@ -114,14 +117,13 @@ function createRepositorySchemaMaterialCheck() {
 /**
  * Project-owned post-processing run after one candidate-backed Product result.
  *
- * This is trusted repository code: it may use normal Bun/JavaScript capabilities,
- * must return the only final Gate result, and may be synchronous or asynchronous.
+ * This trusted repository function returns a synchronous or asynchronous
+ * restricted contribution; the adapter constructs the sole final Gate result.
  */
 
 /** Run-level configuration kept beside the central Check composition manifest. */
 export const PROJECT_GATE_RUN_CONFIG = Object.freeze({
-  resultContributor:
-    contributeProjectGatePerformanceMessages satisfies ProjectGateResultContributor,
+  resultContributor: evaluateProjectGatePerformance satisfies ProjectGateResultContributor,
   definitionOutputs: Object.freeze({
     diagnosticLogging: Object.freeze({ enabled: false }),
     machinePublication: Object.freeze({ enabled: false }),
@@ -376,31 +378,7 @@ export function createProjectGateDefinition(
       source: {
         compareWith: "origin/main"
       },
-      flags: {
-        "product-runtime": {
-          exclude: [],
-          include: ["src/**"]
-        },
-        "repository-material": {
-          exclude: [],
-          include: [
-            "AGENTS.md",
-            "README.md",
-            ".oxfmtrc.json",
-            ".oxlintrc.json",
-            "changes/**",
-            "docs/**",
-            "mise.lock",
-            "mise.toml",
-            "package.json",
-            "pnpm-lock.yaml",
-            "pnpm-workspace.yaml",
-            "scripts/**",
-            "src/**",
-            "tsconfig.json"
-          ]
-        }
-      }
+      flags: PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS
     },
     outputs: PROJECT_GATE_RUN_CONFIG.definitionOutputs,
     scheduler: PROJECT_GATE_RUN_CONFIG.scheduler
