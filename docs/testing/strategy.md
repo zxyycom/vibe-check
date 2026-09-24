@@ -43,10 +43,10 @@ Scheduler 的 scripted-clock、queue/delay/tail、history 和资源核算证明�
 
 ## 验证入口
 
-文档、schema、example 或 Case 改动运行：
+文档、schema、example 或 Case 改动按[交付验证](../navigation.md#交付验证)运行材料校验与 Test Evidence；后者还核对 Case 的 owner 引用：
 
 ```bash
-bun run validate -- materials
+bun run validate
 bun run test-evidence -- check --root .
 ```
 

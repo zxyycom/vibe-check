@@ -83,4 +83,5 @@ rename 和 deletion 都按同一 corpus 判断；Git evidence unavailable 时 Pr
 
 ## 验证入口
 
-运行目标校验器测试和 `bun run validate -- materials`；涉及 package 或 consumer 验收时运行 `bun run check -- --all`。
+运行目标校验器测试和 `bun run validate`，并按[交付验证](../navigation.md#交付验证)叠加受影响入口；
+`bun run validate -- materials` 只作局部反馈。涉及 package 或 consumer 验收时运行 `bun run check -- --all`。

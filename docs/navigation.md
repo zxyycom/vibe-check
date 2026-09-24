@@ -107,19 +107,18 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 当前 owner 文档定义稳定规则，代码、测试和 release artifact 证明实现；活动 Decision 承接长期方向，当前 Change 承接本次实施，Investigation 保存形成时认识。
 完整载体边界见[知识治理](governance/knowledge-maintenance.md)。历史只在明确审计任务中从版本历史取得，不参与当前规范、计划或验证。
 
-目标性 `MUST` / `SHALL` 不证明当前二进制已支持，除非文档明确标为 Current 或已实现。材料不一致时先判断其类型，再修正对应 owner。
-
 ## 交付验证
 
-先选最窄覆盖边界的命令，跨边界再升级：
+先选最窄覆盖边界的命令，跨边界再升级；同一改动命中多行时叠加验证，相同命令只需运行一次：
 
 | 改动面 | 验证入口 |
 | --- | --- |
-| 文档、schema、examples 或 whitespace | `bun run validate`；局部文档可先 `bun run validate -- materials` |
+| 文档、schema 或 examples | `bun run validate`，并运行 `bun run test-evidence -- check --root .`；局部材料可先运行 `bun run validate -- materials` |
+| 仅 whitespace 的其它文件 | `bun run validate`；若还触及其它行，叠加其验证 |
 | Decision | `bun run decisions -- check` |
 | Change | `bun run change-plan -- check changes/<change>` |
 | Investigation | `bun run investigations` |
-| 测试或 Case | 最窄目标测试，再运行 `bun run test-evidence -- check --root .` |
+| 测试或 Case | 最窄目标测试，再运行 `bun run test-evidence -- check --root .`；Case 文档同时适用文档行 |
 | 产品或脚本 | owner 的 test、typecheck、lint、dependency 与入口检查 |
 | 跨产品行为、Change、schema、示例、输出或多个包 | `bun run check` |
 | 发布前或大范围重构 | `bun run check -- --all`，包含 package artifact / external consumer 验收 |
