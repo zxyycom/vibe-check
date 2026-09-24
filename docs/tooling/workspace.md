@@ -179,9 +179,8 @@ Gate 加速。
 
 ### Learned admission heuristic 对照记录
 
-`learned-heuristic-evaluation.ts` 是一次已结束的维护者对照，不是第二个 root command、Product API、Gate
-selector 或持续性能承诺。它只接受两个已构建 package directory 的公开 `index.mjs`，分别动态导入
-`createLearnedCriticalPathStrategy`；复现命令为：
+`learned-heuristic-evaluation.ts` 是维护者复放双 artifact 对照的私有脚本，不是 root command、Product API
+或 Gate selector。调用方须提供两个已构建 package directory 的公开 `index.mjs`：
 
 ```sh
 bun scripts/project/admission-workbench/learned-heuristic-evaluation.ts \
@@ -190,32 +189,16 @@ bun scripts/project/admission-workbench/learned-heuristic-evaluation.ts \
   --out <new-evidence.json>
 ```
 
-v1 先冻结 12 个 fixture、基线和两个小候选：c1 只将 scored choice 按 public `canAdmit` 过滤，未产生
-可采用的虚拟收益；c2 再以 public resource-claim backlog 解决同 score/priority 的并列，在 `gate-shape-v1`
-从 `1000` 到 `900`，但这不是采用依据。v2 保留旧输入、加入
-`learned-heuristic-weighted-shared-dependency-regression.json`（固定 9 个 task、`maxParallel=2`、`shared=2`、
-`queue=2`），并修正成本边界。
+[冻结协议](../../scripts/project/admission-workbench/learned-heuristic-evaluation.protocol.json)拥有场景、主指标与成本门禁：每个场景、
+每次 replicate 的 makespan 退化均拒绝候选，即使独立的 1.25× host-cost guard 通过。成本 corpus 只从基线
+公开 policy 捕获；两个 artifact 各自新建 prepared policy，计时区间只调用原始 public `decide`，fallback
+在计时外检查，发生 sticky failure 时使本次对照无效。虚拟结果与宿主成本分开报告，均不证明真实 Gate 加速。
 
-成本 corpus 只能由基线公开 policy 捕获；捕获 handle 随即释放，两个 artifact 为每张图新建同配置
-prepared policy，计时区间只调用原始 public `decide`。记录 corpus hash/count、raw samples、nearest-rank
-p95 与 1.25× guard；fallback 以 O(1) sticky failure 在计时外检查。virtual 结果与宿主成本仍是不同证据，
-均不表示真实 Gate 加速。
-
-c2 在 v2 的固定 5 个 replicate 中均把该反例的 makespan 从基线 `204` 增至 `300`，所以无论之后的
-成本 guard 对它有利与否，结论都是 **保留基线（no adoption）**，且未改变 Product 行为。
-`learned-heuristic-*.evidence.json` 中 `historical-non-gating` 的 v1 或 wrapper-cost 记录只保存探索来历，
-不得用于采用判断；当前 `current-replay` 双 artifact evidence 才是结论的可复核输入。它保留逐场景指标、
-反例的完整代表 trace、artifact/protocol/context hashes 和有效成本 samples；忽略的原始全量输出并非复现前提。
-
-追溯材料中的 c1/c2 规则足以辨识曾评估的对象，但仓库不会从已还原的 Product source 自动重建历史候选。
-若要重放历史结果，调用方必须自行提供与 evidence identity 相符的两个公开 package artifact；清理 ignored
-raw output 不改变这一边界。
-
-形成时的方案对照、反例解释及 baseline→c2 源码差异见
-[启发式未采用调查报告](../investigations/explain-learned-heuristic-rejection.md)。报告保存本轮认识，
-不替代本节的当前工具契约，也不授权采用历史候选。
-后续 [简单算法比较调查报告](../investigations/compare-simple-admission-algorithms.md) 扩展了 SPT、LPT、
-关键路径贪婪与有界搜索的实验范围；其资源仅供该轮调查复核，未替换 Product 策略或本节的工具入口。
+重放历史对照须提供与 evidence identity 相符的两个公开 package artifact；仓库不从当前 Product source
+自动重建旧候选。`historical-non-gating` evidence 只保存探索来历，不能替代
+[双 artifact 对照证据](../../scripts/project/admission-workbench/learned-heuristic-dual-artifact.evidence.json)。已结束的
+c1/c2 结果、反例解释和未采用理由见[调查报告](../investigations/explain-learned-heuristic-rejection.md)，
+不作为当前 Product 行为或新的优化授权。
 
 ### 治理、来源映射与 Project Gate 调用
 
