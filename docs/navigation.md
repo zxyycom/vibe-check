@@ -81,14 +81,14 @@ Decision、当前 Change 与 Investigation 按明确任务进入，不作用户�
 | 示例投影器、repository-material 校验器或材料验收 | [Repository material validation](tooling/repository-material-validation.md)、provider/validator 与测试 |
 | Lizard 性能测量 | [性能测量](tooling/lizard-performance.md)的显式 evidence workflow |
 | Lizard 上游维护查询 | [上游查询](tooling/lizard-upstream.md)；仅显式运行时联网 |
-| 测试、fixture、Case 或测试工具 | [测试策略](testing/strategy.md)、[Case 维护](testing/case-maintenance.md)、行为 owner 与目标测试 |
+| 测试、fixture、Case 或测试工具 | [测试策略](testing/strategy.md)、[Case 维护](testing/case-maintenance.md)、行为 owner 与目标测试；修改或审查测试/Case 时使用 `test-evidence-review` skill |
 
 ### 知识与变更
 
 | 任务 | 先做什么 |
 | --- | --- |
-| 恢复、审阅或维护长期判断 | `decision-records` skill；`bun run decisions -- list` |
-| 跨文件或 owner 的当前 Change | `change-plan` skill；`bun run change-plan -- list changes`，再读目标 artifacts |
+| 形成、恢复、审阅或维护长期判断 | `decision-records` skill；`bun run decisions -- list` |
+| 需跨文件、owner 或验证阶段持久交接的变更 | `change-plan` skill；`bun run change-plan -- list changes`，再读目标 artifacts |
 | 协调 Change 依赖、合入或 worktree | [Change 协调](governance/change-coordination.md)与目标 artifacts |
 | 复杂/严重 Bug 或用户明确要求持久报告 | [自动沉淀条件](governance/knowledge-maintenance.md#复杂或严重-bug-的自动调查沉淀)与 `investigation-report` skill |
 
