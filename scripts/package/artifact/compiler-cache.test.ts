@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { test } from "node:test";
 
 import { prepareCompilerEmit } from "./compiler-cache.ts";
@@ -18,6 +18,19 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     mkdirSync(join(repositoryRoot, "src"), { recursive: true });
     mkdirSync(join(repositoryRoot, "scripts/package"), { recursive: true });
     mkdirSync(join(repositoryRoot, "docs"), { recursive: true });
+    for (const path of [
+      "scripts/package/artifact/build.ts",
+      "scripts/package/artifact/compiler-cache.ts",
+      "scripts/package/file-inventory.ts",
+      "scripts/package/pack.ts",
+      "scripts/package/package-contract.ts",
+      "scripts/package/public-api-inventory.ts",
+      "scripts/value-guards.ts"
+    ]) {
+      const filePath = join(repositoryRoot, path);
+      mkdirSync(dirname(filePath), { recursive: true });
+      writeFileSync(filePath, "fixture compiler input\n");
+    }
     writeFileSync(join(repositoryRoot, "package.json"), "{}\n");
     writeFileSync(join(repositoryRoot, "pnpm-lock.yaml"), "lockfileVersion: '9.0'\n");
     writeFileSync(sourcePath, "export const value = 1;\n");
@@ -51,11 +64,29 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     prepare();
     assert.deepEqual(compileHadBuildInfo, [false], "documentation must not re-run compiler emit");
 
+    const candidateScriptPath = join(repositoryRoot, "scripts/package/candidate/install.ts");
+    mkdirSync(dirname(candidateScriptPath), { recursive: true });
+    writeFileSync(candidateScriptPath, "candidate installation changed\n");
+    prepare();
+    assert.deepEqual(
+      compileHadBuildInfo,
+      [false],
+      "candidate lifecycle changes must rebuild the candidate without re-running compiler emit"
+    );
+
+    writeFileSync(join(repositoryRoot, "scripts/package/artifact/build.ts"), "emit changed\n");
+    prepare();
+    assert.deepEqual(
+      compileHadBuildInfo,
+      [false, false],
+      "compiler invocation changes need a cold emit"
+    );
+
     writeFileSync(sourcePath, "export const value = 2;\n");
     prepare();
     assert.deepEqual(
       compileHadBuildInfo,
-      [false, true],
+      [false, false, true],
       "same source graph may reuse incremental state"
     );
     assert.equal(
@@ -67,7 +98,7 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     prepare();
     assert.deepEqual(
       compileHadBuildInfo,
-      [false, true, false],
+      [false, false, true, false],
       "corrupt output must force a cold emit"
     );
 
@@ -75,7 +106,7 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     prepare();
     assert.deepEqual(
       compileHadBuildInfo,
-      [false, true, false, false],
+      [false, false, true, false, false],
       "corrupt build info must force a cold emit"
     );
 
@@ -83,7 +114,7 @@ test("candidate compiler cache reuses docs-only emit and rejects changed or corr
     prepare();
     assert.deepEqual(
       compileHadBuildInfo,
-      [false, true, false, false, false],
+      [false, false, true, false, false, false],
       "changed source set must force a cold emit"
     );
   } finally {

@@ -1022,6 +1022,27 @@
         "test-execution"
       ],
       "title": "审计增量 Project Gate 的选择与冷启动开销"
+    },
+    "260924-review-cold-candidate-variance-and-compiler-cache": {
+      "formedAt": "2026-09-24T09:25:45Z",
+      "name": "review-cold-candidate-variance-and-compiler-cache",
+      "question": "70秒失效候选全量 Gate 的波动来自哪里，候选脚本变化是否必须重跑原始编译？",
+      "relations": [
+        {
+          "summary": "分解70秒样本并验证候选脚本变更的编译缓存收窄",
+          "target": "260924-audit-incremental-project-gate-selection-and-cold-cost",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [],
+      "sourcePath": "review-cold-candidate-variance-and-compiler-cache.md",
+      "tags": [
+        "cache-design",
+        "package-candidate",
+        "performance",
+        "project-gate"
+      ],
+      "title": "复核失效候选波动与编译缓存边界"
     }
   },
   "metadata": {},
@@ -1075,7 +1096,8 @@
       "260912-diagnose-file-metrics-scc-windows-argument-limit": "sha256:8d07bdbeec3e3531069ff58665aa66dd1f73e63f8dbcbfdfafeffd4d7ee505d0",
       "260912-investigate-core-package-tools-boundary-validation-gap": "sha256:7b281ffa269cc03017bd93b1d55bab1ab6d40326f9a71c1be7330c804734e614",
       "260914-measure-scc-file-batch-transport-performance": "sha256:ac5735aa2a9e437e43273458626dd46f546d216d804ddb92666b4262abf7852b",
-      "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:6a9a97f68d85469707fc51f6345b60c775dcf664d92c0d002e302b10867904f3"
+      "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:6a9a97f68d85469707fc51f6345b60c775dcf664d92c0d002e302b10867904f3",
+      "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

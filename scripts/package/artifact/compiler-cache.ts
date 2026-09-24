@@ -24,6 +24,16 @@ import {
 const CACHE_VERSION = 2;
 const COMPILER_OPTIONS_VERSION = "nodenext-esnext-strict-incremental-v1";
 const CACHE_OUTPUT_DIRECTORIES = [PACKAGE_RUNTIME_DIRECTORY, PACKAGE_TYPES_DIRECTORY] as const;
+/** The emit invocation and its local input/runner closure; candidate identity has a wider fingerprint. */
+const COMPILER_INPUT_SOURCES = Object.freeze([
+  "scripts/package/artifact/build.ts",
+  "scripts/package/artifact/compiler-cache.ts",
+  "scripts/package/file-inventory.ts",
+  "scripts/package/pack.ts",
+  "scripts/package/package-contract.ts",
+  "scripts/package/public-api-inventory.ts",
+  "scripts/value-guards.ts"
+]);
 
 type CompilerCacheRecord = Readonly<{
   readonly version: typeof CACHE_VERSION;
@@ -110,9 +120,10 @@ function fingerprintCompilerInputs(repositoryRoot: string): Readonly<{
 }> {
   const sourceFiles = collectRuntimeSourceFilePaths(join(repositoryRoot, PACKAGE_SOURCE_DIRECTORY));
   const sourcePaths = sourceFiles.map((path) => slash(relative(repositoryRoot, path)));
-  const packageSources = collectFilePaths(
-    join(repositoryRoot, "scripts/package"),
-    (path) => path.endsWith(".ts") && !path.endsWith(".test.ts")
+  const processSources = collectFilePaths(
+    join(repositoryRoot, "scripts/process-execution"),
+    (path) =>
+      path.endsWith(".ts") && !path.endsWith(".test.ts") && !path.endsWith(".test-support.ts")
   );
   const compilerPackages = ["@typescript/native-preview", "typescript", "@types/node"].map((name) =>
     fileURLToPath(import.meta.resolve(`${name}/package.json`))
@@ -121,7 +132,8 @@ function fingerprintCompilerInputs(repositoryRoot: string): Readonly<{
     configFingerprint: digestFiles(
       repositoryRoot,
       [
-        ...packageSources,
+        ...COMPILER_INPUT_SOURCES.map((path) => join(repositoryRoot, path)),
+        ...processSources,
         ...compilerPackages,
         join(repositoryRoot, "package.json"),
         join(repositoryRoot, "pnpm-lock.yaml")
