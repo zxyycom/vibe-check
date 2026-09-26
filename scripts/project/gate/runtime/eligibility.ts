@@ -6,6 +6,7 @@ import {
   projectGatePresetFlag
 } from "./controls.ts";
 import type { ProjectGateEntry } from "./entries.ts";
+import { PROJECT_GATE_PRODUCT_TEST_REGIONS } from "./product-test-regions.ts";
 
 const PROJECT_GATE_PRODUCT_RUNTIME_TEST_CHECK_ID = "tests-product-runtime";
 /** Shared implementation that can change the selected package Checks' input or settlement. */
@@ -36,13 +37,13 @@ const REQUIRED_CHANGE_FLAGS_BY_CHECK_ID: Readonly<Record<string, string>> = Obje
   "lint-scripts": "script-source",
   "format-check": "format-input",
   "tests-package-supporting": "package-tests",
-  "tests-product-duplicate-detection": "product-tests",
-  "tests-product-file-metrics": "product-tests",
-  "tests-product-function-metrics": "product-tests",
-  "tests-product-json": "product-tests",
-  "tests-product-markdown-links": "product-tests",
-  "tests-product-secret-detection": "product-tests",
-  "tests-product-supporting-checks": "product-tests",
+  "tests-product-duplicate-detection": "product-duplicate-detection-tests",
+  "tests-product-file-metrics": "product-file-metrics-tests",
+  "tests-product-function-metrics": "product-function-metrics-tests",
+  "tests-product-json": "product-json-tests",
+  "tests-product-markdown-links": "product-markdown-tests",
+  "tests-product-secret-detection": "product-secret-detection-tests",
+  "tests-product-supporting-checks": "product-supporting-check-tests",
   "tests-scripts-project": "project-tests",
   "tests-scripts-project-selection": "project-selection-tests",
   "tests-scripts-admission-workbench": "admission-workbench-tests",
@@ -147,7 +148,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
     ],
     exclude: []
   },
-  "product-tests": { include: ["src/**", "package.json", "pnpm-lock.yaml"], exclude: [] },
+  ...PROJECT_GATE_PRODUCT_TEST_REGIONS,
   "project-tests": {
     include: [
       "scripts/project/gate/**",
@@ -175,6 +176,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
     include: [
       "scripts/project/gate/runtime/eligibility.ts",
       "scripts/project/gate/runtime/eligibility.test.ts",
+      "scripts/project/gate/runtime/product-test-regions.ts",
       "scripts/project/gate/runtime/controls.ts",
       "scripts/project/gate/runtime/catalog.ts",
       "scripts/project/gate/runtime/entries.ts",

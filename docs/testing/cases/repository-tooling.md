@@ -285,6 +285,8 @@ Entities:
 - `bun|scripts/project/gate/run.test.ts|Project Gate entries, root binding, and controls > requires the complete all selection for one explicit formal release receipt`
 - `bun|scripts/project/gate/definition.test.ts|Project Gate Definition > keeps required, all, and focused membership golden while aggregation uses Product selection`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects independent script test lanes from their changed inputs`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects Product Check test lanes without losing shared or cross-owner inputs`
+- `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > covers every Product Check lane test file with its own change region`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps quality and material regions specific to their inputs`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > keeps the product-runtime region complete for the lane resolver`
 - `bun|scripts/project/gate/runtime/eligibility.test.ts|Project Gate change regions > selects package and Case checks only for their documented source boundaries`
@@ -295,6 +297,7 @@ Entities:
 
 - 无 selection 参数时采用 required；focused preset 可重复、组合并替换默认选择，`--all` 独占并选择完整 Gate。显式 release receipt 只与 `--all` 同用；启动摘要反映实际选择。
 - required 通过 Gate 的 region 数据与 Product 所用的 `minimatch` 选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；Gate 不重复构造 Git/Run 矩阵。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
+- 七个 Product Check test lane 分别绑定自己的 change flag，私有实现、测试或 fixture 路径不再选择无关组；file metrics 保留 JSON validation/document 输入，function metrics 因 source-identity 全树证明继续覆盖全部 Product source。根导出、共享 helper/runtime、未知新模块和测试工具链仍宽选，每组完整测试文件清单都能触发自身；显式 test/all 不受这些 change flags 抑制。
 - JSON、Schema、publication、machine example、Markdown、质量扫描和规则测试保持各自的输入边界；schema source 变化会选择 publication validator，独立材料测试证明发布漂移被拒绝。Markdown links 因反向目标依赖仍检查完整 corpus，focused preset 与 `--all` 提供不依赖变更的强制路径。
 - Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。required 保留 prepared candidate provider，但高成本 package acceptance 只由 `--all` 选择。
 

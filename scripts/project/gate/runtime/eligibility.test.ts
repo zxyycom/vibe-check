@@ -22,6 +22,104 @@ function matchingRegions(path: string, names: readonly RegionName[]): readonly R
 }
 
 describe("Project Gate change regions", () => {
+  it("selects Product Check test lanes without losing shared or cross-owner inputs", () => {
+    const regions = [
+      "product-duplicate-detection-tests",
+      "product-file-metrics-tests",
+      "product-function-metrics-tests",
+      "product-json-tests",
+      "product-markdown-tests",
+      "product-secret-detection-tests",
+      "product-supporting-check-tests"
+    ] as const;
+    const functionRegion = "product-function-metrics-tests";
+    const privateInputs = [
+      ["duplicate-detection", ["product-duplicate-detection-tests", functionRegion]],
+      ["file-metrics", ["product-file-metrics-tests", functionRegion]],
+      ["function-metrics", [functionRegion]],
+      ["json-document", ["product-file-metrics-tests", functionRegion, "product-json-tests"]],
+      ["json-validation", ["product-file-metrics-tests", functionRegion, "product-json-tests"]],
+      ["json-schema-validation", [functionRegion, "product-json-tests"]],
+      ["markdown-lint", [functionRegion, "product-markdown-tests"]],
+      ["markdown-link-validation", [functionRegion, "product-markdown-tests"]],
+      ["secret-detection", [functionRegion, "product-secret-detection-tests"]],
+      ["command-check", [functionRegion, "product-supporting-check-tests"]],
+      ["maintenance-reminders", [functionRegion, "product-supporting-check-tests"]]
+    ] as const;
+    // Include test-only edits and paths that need not still exist after rename/deletion.
+    for (const [directory, selected] of privateInputs) {
+      for (const file of [
+        "default-check.ts",
+        "regression.test.ts",
+        "fixtures/removed/input.json"
+      ]) {
+        const path = `src/package-checks/${directory}/${file}`;
+        assert.deepEqual(matchingRegions(path, regions), selected, path);
+      }
+    }
+
+    const sharedInputs = [
+      "src/index.ts",
+      "src/check/check.ts",
+      "src/check-settlement/check-result.ts",
+      "src/project-definition/project-definition.ts",
+      "src/project-run/project-run.ts",
+      "src/machine-output/v4/schema.ts",
+      "src/data-boundary/json.ts",
+      "src/package-tools/cache/cache.ts",
+      "src/package-tools/finding-waivers/reconcile.ts",
+      "src/package-checks/check-authoring.ts",
+      "src/package-checks/check-execution.test-support.ts",
+      "src/package-checks/code-quality-findings/findings.ts",
+      "src/package-checks/host-environment/environment.ts",
+      "src/package-checks/project-files/selection.ts",
+      "src/package-checks/new-check/default-check.ts",
+      "src/package-checks/file-metrics-extra/input.ts",
+      "src/new-runtime-owner/implementation.ts",
+      "scripts/project/gate/checks/test-execution/lanes.ts",
+      "scripts/test-evidence/discovery/bun-files.ts",
+      "scripts/test-evidence/profile.ts",
+      "scripts/test-evidence/relative-path.ts",
+      "scripts/test-evidence/supported-runner-profile.json",
+      "scripts/value-guards.ts",
+      "package.json",
+      "pnpm-lock.yaml",
+      "pnpm-workspace.yaml",
+      "tsconfig.product.json",
+      "bunfig.toml",
+      "mise.toml",
+      "mise.lock"
+    ];
+    for (const path of sharedInputs) {
+      assert.deepEqual(matchingRegions(path, regions), [...regions], path);
+    }
+    assert.deepEqual(matchingRegions("licenses/lizard-1.24.0-provenance.json", regions), [
+      functionRegion
+    ]);
+    for (const path of ["README.md", "docs/tooling/project-gate.md", "scripts/unrelated.ts"]) {
+      assert.deepEqual(matchingRegions(path, regions), [], path);
+    }
+  });
+
+  it("covers every Product Check lane test file with its own change region", () => {
+    const lanes = resolveProjectGateTestLanes(process.cwd());
+    const laneRegions = [
+      ["productDuplicateDetection", "product-duplicate-detection-tests"],
+      ["productFileMetrics", "product-file-metrics-tests"],
+      ["productFunctionMetrics", "product-function-metrics-tests"],
+      ["productJsonChecks", "product-json-tests"],
+      ["productMarkdownLinks", "product-markdown-tests"],
+      ["productSecretDetection", "product-secret-detection-tests"],
+      ["productSupportingChecks", "product-supporting-check-tests"]
+    ] as const;
+    for (const [lane, region] of laneRegions) {
+      assert.ok(lanes[lane].length > 0, lane);
+      for (const path of lanes[lane]) {
+        assert.deepEqual(matchingRegions(path, [region]), [region], path);
+      }
+    }
+  });
+
   it("selects independent script test lanes from their changed inputs", () => {
     const lanes = [
       "admission-workbench-tests",
@@ -42,6 +140,10 @@ describe("Project Gate change regions", () => {
       {
         path: "scripts/project/gate/runtime/eligibility.test.ts",
         selected: ["project-selection-tests", "layout-tests"]
+      },
+      {
+        path: "scripts/project/gate/runtime/product-test-regions.ts",
+        selected: ["project-tests", "project-selection-tests", "layout-tests"]
       },
       { path: "docs/package-documents.json", selected: ["project-selection-tests"] },
       { path: "docs/testing/cases/repository-tooling.md", selected: ["project-selection-tests"] },

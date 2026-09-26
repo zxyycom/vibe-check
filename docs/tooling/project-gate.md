@@ -82,6 +82,14 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 - **Package-tools/Core 闭包：** 使用独立 fixture；验证器、共享 fixture、依赖或运行配置变化时选择。
 - **Machine artifacts：** 实际材料、生成器、validator、Product Definition 输入或该 lane 测试文件变化时选择；其测试文件变化不启动其余 material tests。
 
+七个 Product Check test lanes 的 required 输入由 `runtime/product-test-regions.ts` 分别声明，不再共用一个 `src/**` flag；execution lane、测试正文和 Case 分区不变。region 从完整 Product source 与 test runner/工具链输入出发，只排除已确认无关的私有 Check 目录。根导出、Core/runtime、package tools、共用 Check helper、project-files、host-environment 及尚未分类的新模块仍保守触发全部七组；私有目录自身的测试、fixture、删除或重命名路径也属于该组输入。
+
+- duplicate、file metrics、JSON、Markdown、secret 与 supporting Checks 各自保留本组私有输入；Markdown lint 与 links 保持同组。
+- file metrics 的 constructor tests 还消费 JSON validation/document，因此这两个目录同时触发 file metrics 与 JSON 组。
+- function metrics 的 source-identity evidence 扫描全部 `src/**`，并读取 Lizard provenance；该组继续宽选，不能只按 analyzer 的 import 图缩窄。其它组的私有源码改动通常仍会同时选择此组。
+
+维护 region 时须核对实际 import 与非 import 的文件读取，而不是仅按测试目录裁剪。路径矩阵证明组间隔离、共享与跨 owner 输入，完整 lane 清单证明每个测试文件仍能触发自身；新私有依赖必须同步其消费组。Git rename/delete、unavailable fallback 与强制路径继续由原有选择机制承接。
+
 显式 `--test` 和 `--all` 运行全部 test lane；缺少可信 Git evidence 时保守选择。两组材料测试与 schema/example validators 共享 mutex，避免对 checked-in 材料的测试改写与验证并发。快速 candidate contract 属于 package supporting；`candidate.integration.ts` 的正式入口是 `package:candidate:integration`，不属于 routine `*.test.ts`。External-consumer provider 是独立 Check。
 
 ### Selection presets and scheduling

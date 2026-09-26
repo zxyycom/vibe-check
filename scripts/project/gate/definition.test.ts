@@ -639,6 +639,28 @@ describe("Project Gate Definition", () => {
         true
       );
     }
+    const productTestRegions = {
+      "tests-product-duplicate-detection": "product-duplicate-detection-tests",
+      "tests-product-file-metrics": "product-file-metrics-tests",
+      "tests-product-function-metrics": "product-function-metrics-tests",
+      "tests-product-json": "product-json-tests",
+      "tests-product-markdown-links": "product-markdown-tests",
+      "tests-product-secret-detection": "product-secret-detection-tests",
+      "tests-product-supporting-checks": "product-supporting-check-tests"
+    } as const;
+    for (const [checkId, region] of Object.entries(productTestRegions)) {
+      const check = definition.checks.find((candidate) => candidate.checkId === checkId);
+      assert.ok(check);
+      assert.ok(region in PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS);
+      for (const activeRegion of Object.values(productTestRegions)) {
+        const flags = new Set(["project-gate:required", `vibe-check:change:${activeRegion}`]);
+        assert.equal(matchesFlagEnablement(check.enabledByFlags, flags), activeRegion === region);
+      }
+      assert.equal(
+        matchesFlagEnablement(check.enabledByFlags, new Set(["project-gate:preset=test"])),
+        true
+      );
+    }
     assert.deepEqual(
       definition.checks.find(({ checkId }) => checkId === "tests-product-runtime")?.enabledByFlags,
       {
