@@ -356,7 +356,8 @@
       "260923-enforce-manual-local-project-gate-time-budget": "sha256:546a9d78d047e34c46331aee54376cf242c500e79138a122bf15e6b7d0d0959f",
       "260923-select-project-gate-required-checks-by-change": "sha256:6001aadac6d9f63f4e0a64ce0c733886d0c624eb8f84cdcfd87947627ccb09d2",
       "260924-select-gate-check-specific-change-regions": "sha256:62ac1e06b90033244193afde8422bca29f9e649e9df674c21d31ee8d7dccac9a",
-      "260926-apply-gate-time-budgets-without-fingerprint-gating": "sha256:64c7824ec53e799f90dd1db3c81da1cc41fb234d578b5b707ff2f94809c6666b"
+      "260926-apply-gate-time-budgets-without-fingerprint-gating": "sha256:a1b8378d6dde2a34bed4b25f720e55d3082dd85b5f508a3a97bbc92d6198ed27",
+      "260926-warn-on-gate-and-check-duration-budgets": "sha256:f5986cabb08daade172ab5cd63fb95def34ad1b4cd04c9f7f5585734b944d98b"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7368,9 +7369,9 @@
     },
     "260926-apply-gate-time-budgets-without-fingerprint-gating": {
       "name": "apply-gate-time-budgets-without-fingerprint-gating",
-      "sourcePath": "apply-gate-time-budgets-without-fingerprint-gating.md",
+      "sourcePath": "archive/apply-gate-time-budgets-without-fingerprint-gating.md",
       "title": "按运行模式与环境应用 Gate 硬预算，不以指纹变化阻断",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-26T06:31:11Z",
       "purpose": "解除配置指纹变化造成的无效阻断，同时保留人工硬预算",
@@ -7386,6 +7387,29 @@
           "type": "修订",
           "target": "260923-enforce-manual-local-project-gate-time-budget",
           "summary": "移除指纹一致性前置条件，保留手动硬预算、分段计时与结果只降级边界"
+        }
+      ]
+    },
+    "260926-warn-on-gate-and-check-duration-budgets": {
+      "name": "warn-on-gate-and-check-duration-budgets",
+      "sourcePath": "warn-on-gate-and-check-duration-budgets.md",
+      "title": "以留有余量的 Gate 与 Check 分布预算告警",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-26T10:43:41Z",
+      "purpose": "保持多数 Check 轻量并观察总反馈时间，不让环境波动阻断正确性验收",
+      "background": "固定总耗时硬阻断混淆反馈体验与单项架构成本，用户授权先验预算并要求余量",
+      "decision": "按显式总耗时、Check 均值与 P95 预算告警；保留无效配置和测量的失败边界",
+      "tags": [
+        "configuration",
+        "performance",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260926-apply-gate-time-budgets-without-fingerprint-gating",
+          "summary": "总耗时超标改为警告并增加带余量的均值与P95预算"
         }
       ]
     }

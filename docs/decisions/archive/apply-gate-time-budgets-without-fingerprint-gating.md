@@ -1,7 +1,7 @@
 ---
 title: 按运行模式与环境应用 Gate 硬预算，不以指纹变化阻断
 id: 260926-apply-gate-time-budgets-without-fingerprint-gating
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-26T06:31:11Z
 purpose: 解除配置指纹变化造成的无效阻断，同时保留人工硬预算

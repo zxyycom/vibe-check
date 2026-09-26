@@ -7,11 +7,15 @@ import type { ProjectGateSelection } from "./controls.ts";
 export const LOCAL_PERFORMANCE_BASELINE_PATH =
   ".cache/vibe-check/project-gate/performance-baseline.json";
 
-/** A manually maintained, machine-local hard limit for one Gate profile and runtime. */
+const DEFAULT_CHECK_BUDGETS = Object.freeze({ maxMeanCheckMs: 2000, maxP95CheckMs: 5000 });
+
+/** Normalized, machine-local warning budgets for one Gate profile and runtime. */
 export interface ProjectGatePerformanceBaseline {
-  /** Optional legacy metadata: validated when present, never used to select the hard limit. */
+  /** Optional legacy metadata: validated when present, never used to select the budgets. */
   readonly declarativeFingerprint?: string;
   readonly maxElapsedMs: number;
+  readonly maxMeanCheckMs: number;
+  readonly maxP95CheckMs: number;
   readonly profile: "all" | "required";
   readonly runtime: ProjectGatePerformanceRuntime;
 }
@@ -37,7 +41,7 @@ export type LocalPerformanceBaselines =
     }>
   | Readonly<{ readonly kind: "missing" | "invalid" }>;
 
-/** Reads local policy only; Gate never creates, learns, or rewrites the hard limit. */
+/** Reads local policy with declared Check defaults; never learns or rewrites budgets. */
 export function loadLocalPerformanceBaselines(repositoryRoot: string): LocalPerformanceBaselines {
   const path = join(repositoryRoot, LOCAL_PERFORMANCE_BASELINE_PATH);
   let source: string;
@@ -81,7 +85,7 @@ function parseLocalPerformanceBaselines(value: unknown): LocalPerformanceBaselin
   return Object.freeze({ kind: "loaded", baselines: Object.freeze(parsed) });
 }
 
-/** Fails before candidate preparation when a standard workload has no local limit. */
+/** Fails before candidate preparation when a standard workload has no valid local policy. */
 export function preflightPerformanceBaselines(
   selection: ProjectGateSelection,
   load: () => LocalPerformanceBaselines
@@ -126,24 +130,39 @@ function parsePerformanceBaseline(value: unknown): ProjectGatePerformanceBaselin
     !isNonArrayRecord(value) ||
     !hasValidBaselineFields(value) ||
     (value.profile !== "required" && value.profile !== "all") ||
-    !Number.isSafeInteger(value.maxElapsedMs) ||
-    Number(value.maxElapsedMs) <= 0 ||
+    !isBudget(value.maxElapsedMs) ||
     !isPerformanceRuntime(value.runtime)
   ) {
     return undefined;
   }
+  const maxMeanCheckMs = parseCheckBudget(value, "maxMeanCheckMs");
+  const maxP95CheckMs = parseCheckBudget(value, "maxP95CheckMs");
+  if (maxMeanCheckMs === undefined || maxP95CheckMs === undefined) return undefined;
   return Object.freeze({
     ...(typeof value.declarativeFingerprint === "string"
       ? { declarativeFingerprint: value.declarativeFingerprint }
       : {}),
-    maxElapsedMs: Number(value.maxElapsedMs),
+    maxElapsedMs: value.maxElapsedMs,
+    maxMeanCheckMs,
+    maxP95CheckMs,
     profile: value.profile,
     runtime: Object.freeze({ ...value.runtime })
   });
 }
 
+function parseCheckBudget(
+  value: Readonly<Record<string, unknown>>,
+  field: keyof typeof DEFAULT_CHECK_BUDGETS
+): number | undefined {
+  const budget = Object.hasOwn(value, field) ? value[field] : DEFAULT_CHECK_BUDGETS[field];
+  return isBudget(budget) ? budget : undefined;
+}
+
 function hasValidBaselineFields(value: Readonly<Record<string, unknown>>): boolean {
   const keys = ["profile", "runtime", "maxElapsedMs"];
+  for (const key of ["maxMeanCheckMs", "maxP95CheckMs"]) {
+    if (Object.hasOwn(value, key)) keys.push(key);
+  }
   if (Object.hasOwn(value, "declarativeFingerprint")) {
     keys.push("declarativeFingerprint");
     if (
@@ -154,6 +173,10 @@ function hasValidBaselineFields(value: Readonly<Record<string, unknown>>): boole
     }
   }
   return hasExactKeys(value, keys);
+}
+
+function isBudget(value: unknown): value is number {
+  return typeof value === "number" && Number.isSafeInteger(value) && value > 0;
 }
 
 function isPerformanceRuntime(value: unknown): value is ProjectGatePerformanceRuntime {

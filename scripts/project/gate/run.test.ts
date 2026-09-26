@@ -79,6 +79,8 @@ const performanceRuntime = currentProjectGatePerformanceRuntime();
 const performanceBaseline = Object.freeze({
   declarativeFingerprint: "a".repeat(64),
   maxElapsedMs: 135,
+  maxMeanCheckMs: 2000,
+  maxP95CheckMs: 5000,
   profile: "required" as const,
   runtime: performanceRuntime
 } satisfies ProjectGatePerformanceBaseline);
@@ -695,7 +697,7 @@ describe("Project Gate adapter closure", () => {
     }
   });
 
-  it("enforces the local performance limit without revising Product Check facts", async () => {
+  it("warns on total and Check budgets without revising Product facts or successful exit", async () => {
     const runResult = completedResult("passed", {
       checkDurations: [
         { checkId: "lint-product", durationMs: 70 },
@@ -721,7 +723,11 @@ describe("Project Gate adapter closure", () => {
         })
       });
       assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
-      assert.match(withinTranscript.join("\n"), /within hard limit 135\.0ms/);
+      assert.match(withinTranscript.join("\n"), /within warning budget 135\.0ms/);
+      assert.match(
+        withinTranscript.join("\n"),
+        /executed Checks=2; cumulative execution 130\.0ms \(not wall time\); mean 65\.0ms/
+      );
       assert.equal(withinOutput.errors.length, 0);
     } finally {
       withinOutput.restore();
@@ -739,13 +745,57 @@ describe("Project Gate adapter closure", () => {
         }),
         prepareCandidate: async () => prepared
       });
-      assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
       assert.match(
-        exceededOutput.errors.join("\n"),
-        /elapsed-to-initial-result 136\.0ms .* exceeded hard limit 135\.0ms; slowest Checks: lint-product=70\.0ms, typecheck-scripts=60\.0ms/
+        exceededOutput.warnings.join("\n"),
+        /elapsed-to-initial-result 136\.0ms .* exceeded warning budget 135\.0ms/
       );
+      assert.equal(exceededOutput.errors.length, 0);
+      assert.match(exceededOutput.logs.join("\n"), /project gate result: passed/);
     } finally {
       exceededOutput.restore();
+    }
+
+    const distributionOutput = captureConsole();
+    const distributionTranscript: string[] = [];
+    try {
+      const status = await runProjectGateWithoutTranscript([], {
+        clock: scriptedClock([100, 110, 125, 145]),
+        createInvocationLogDirectory: () => "/tmp/project-gate-check-budgets",
+        loadPerformanceBaselines: () => ({
+          kind: "loaded",
+          baselines: [{ ...performanceBaseline, maxMeanCheckMs: 50, maxP95CheckMs: 65 }]
+        }),
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          resultContributor: defaultResultContributor,
+          run: async () => runResult
+        }),
+        prepareCandidate: async () => prepared,
+        startTranscript: () => ({
+          complete: () => "succeeded" as const,
+          writeGateMessage: (message) =>
+            distributionTranscript.push(`${message.level}: ${message.text}`)
+        })
+      });
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
+      assert.equal(distributionOutput.errors.length, 0);
+      assert.match(
+        distributionOutput.warnings.join("\n"),
+        /exceeded Check warning budgets: mean, p95/
+      );
+      assert.match(
+        distributionTranscript.join("\n"),
+        /warning: .*slowest Checks: lint-product=70\.0ms, typecheck-scripts=60\.0ms/
+      );
+      assert.match(distributionOutput.logs.join("\n"), /project gate result: passed/);
+      assert.deepEqual(runResult.checkDurations, [
+        { checkId: "lint-product", durationMs: 70 },
+        { checkId: "typecheck-scripts", durationMs: 60 }
+      ]);
+      assert.equal(runResult.aggregate, "passed");
+    } finally {
+      distributionOutput.restore();
     }
 
     const mismatchOutput = captureConsole();
@@ -790,7 +840,7 @@ describe("Project Gate adapter closure", () => {
         prepareCandidate: async () => prepared
       });
       assert.equal(status, PROJECT_GATE_EXIT_STATUS.failed);
-      assert.match(invalidOutput.errors.join("\n"), /hard limit could not be evaluated/);
+      assert.match(invalidOutput.errors.join("\n"), /performance budgets could not be evaluated/);
     } finally {
       invalidOutput.restore();
     }

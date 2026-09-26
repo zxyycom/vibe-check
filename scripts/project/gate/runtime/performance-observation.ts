@@ -2,6 +2,7 @@ import { isNonArrayRecord } from "../../../value-guards.ts";
 import {
   currentProjectGatePerformanceRuntime,
   LOCAL_PERFORMANCE_BASELINE_PATH,
+  type ProjectGatePerformanceBaseline,
   type ProjectGatePerformanceRuntime
 } from "./performance-baseline.ts";
 import type {
@@ -11,13 +12,23 @@ import type {
 import type { ProjectGateMessage } from "./result.ts";
 
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
+const CHECK_DURATION_PERCENTILE = 0.95;
+const SLOWEST_CHECK_COUNT = 3;
 
 type CheckDuration = Readonly<{ readonly checkId: string; readonly durationMs: number | null }>;
-type CompletedRunFacts = Readonly<{
-  readonly checkDurations: readonly CheckDuration[];
-}>;
+type MeasuredCheckDuration = CheckDuration & Readonly<{ readonly durationMs: number }>;
+type CheckDurationSummary =
+  | Readonly<{ readonly kind: "empty" }>
+  | Readonly<{
+      readonly kind: "measured";
+      readonly count: number;
+      readonly totalMs: number;
+      readonly meanMs: number;
+      readonly p95Ms: number;
+      readonly slowest: readonly MeasuredCheckDuration[];
+    }>;
 
-/** Applies a manually maintained local hard limit without learning from this run. */
+/** Warns on explicit budgets while rejecting invalid measurements and configuration. */
 export function evaluateProjectGatePerformance(
   context: ProjectGateResultContributionContext,
   runtime: ProjectGatePerformanceRuntime = currentProjectGatePerformanceRuntime()
@@ -28,7 +39,7 @@ export function evaluateProjectGatePerformance(
       blocks: false,
       level: "info",
       code: "project-gate-performance-focused-selection",
-      message: "focused preset selection has no total-time limit"
+      message: "focused preset selection has no performance budget evaluation"
     });
   }
   if (context.initialResult.status !== "passed") {
@@ -36,7 +47,8 @@ export function evaluateProjectGatePerformance(
       blocks: false,
       level: "info",
       code: "project-gate-performance-not-evaluated",
-      message: "performance limit was not evaluated because the initial Gate result was not passed"
+      message:
+        "performance budgets were not evaluated because the initial Gate result was not passed"
     });
   }
   if (
@@ -47,16 +59,18 @@ export function evaluateProjectGatePerformance(
       blocks: true,
       level: "error",
       code: "project-gate-performance-invalid-timing",
-      message: "elapsed-to-initial-result timing was invalid; hard limit could not be evaluated"
+      message:
+        "elapsed-to-initial-result timing was invalid; performance budgets could not be evaluated"
     });
   }
-  const run = readCompletedRunFacts(context.runResult);
-  if (run === undefined) {
+  const durations = readCompletedCheckDurations(context.runResult);
+  const summary = durations === undefined ? undefined : summarizeCheckDurations(durations);
+  if (summary === undefined) {
     return contribution({
       blocks: true,
       level: "error",
       code: "project-gate-performance-invalid-run-facts",
-      message: "Product Run facts were incomplete; hard limit could not be evaluated"
+      message: "Product Run duration facts were invalid; performance budgets could not be evaluated"
     });
   }
   const description = timingDescription(context.timing);
@@ -72,28 +86,70 @@ export function evaluateProjectGatePerformance(
     });
   }
 
-  if (context.timing.elapsedToInitialResultMs <= baseline.maxElapsedMs) {
-    return contribution({
-      blocks: false,
+  const exceeded = context.timing.elapsedToInitialResultMs > baseline.maxElapsedMs;
+  const totalMessage: ProjectGateMessage = Object.freeze({
+    level: exceeded ? "warning" : "info",
+    code: exceeded
+      ? "project-gate-performance-limit-exceeded"
+      : "project-gate-performance-within-limit",
+    message: `${description} ${exceeded ? "exceeded" : "was within"} warning budget ${formatDuration(baseline.maxElapsedMs)}`
+  });
+  return Object.freeze({
+    blocks: false,
+    messages: Object.freeze([totalMessage, checkDurationMessage(summary, baseline)])
+  });
+}
+
+function summarizeCheckDurations(
+  durations: readonly CheckDuration[]
+): CheckDurationSummary | undefined {
+  const measured = durations
+    .filter((duration): duration is MeasuredCheckDuration => duration.durationMs !== null)
+    .sort(compareCheckDurations);
+  if (measured.length === 0) return Object.freeze({ kind: "empty" });
+  let totalMs = 0;
+  for (const duration of measured) totalMs += duration.durationMs;
+  if (!isDuration(totalMs)) return undefined;
+  // Nearest rank in ascending order, projected into this descending duration list.
+  const p95 = measured[measured.length - Math.ceil(measured.length * CHECK_DURATION_PERCENTILE)];
+  if (p95 === undefined) return undefined;
+  return Object.freeze({
+    kind: "measured",
+    count: measured.length,
+    totalMs,
+    meanMs: totalMs / measured.length,
+    p95Ms: p95.durationMs,
+    slowest: Object.freeze(measured.slice(0, SLOWEST_CHECK_COUNT))
+  });
+}
+
+function checkDurationMessage(
+  summary: CheckDurationSummary,
+  budget: ProjectGatePerformanceBaseline
+): ProjectGateMessage {
+  const code = "project-gate-performance-check-durations";
+  if (summary.kind === "empty") {
+    return Object.freeze({
+      code,
       level: "info",
-      code: "project-gate-performance-within-limit",
-      message: `${description} was within hard limit ${formatDuration(baseline.maxElapsedMs)}`
+      message:
+        "executed Checks=0; cumulative execution 0.0ms (not wall time); mean=n/a; p95=n/a; Check budgets not evaluated"
     });
   }
-  const slowest = run.checkDurations
-    .filter(
-      (duration): duration is Readonly<{ readonly checkId: string; readonly durationMs: number }> =>
-        duration.durationMs !== null
-    )
-    .sort(compareCheckDurations)
-    .slice(0, 3)
-    .map(({ checkId, durationMs }) => `${checkId}=${formatDuration(durationMs)}`);
-  const suffix = slowest.length === 0 ? "" : `; slowest Checks: ${slowest.join(", ")}`;
-  return contribution({
-    blocks: true,
-    level: "error",
-    code: "project-gate-performance-limit-exceeded",
-    message: `${description} exceeded hard limit ${formatDuration(baseline.maxElapsedMs)}${suffix}`
+  const exceeded: string[] = [];
+  if (summary.meanMs > budget.maxMeanCheckMs) exceeded.push("mean");
+  if (summary.p95Ms > budget.maxP95CheckMs) exceeded.push("p95");
+  const assessment =
+    exceeded.length === 0
+      ? "within Check warning budgets"
+      : `exceeded Check warning budgets: ${exceeded.join(", ")}`;
+  const slowest = summary.slowest
+    .map(({ checkId, durationMs }) => `${checkId}=${formatDuration(durationMs)}`)
+    .join(", ");
+  return Object.freeze({
+    code,
+    level: exceeded.length === 0 ? "info" : "warning",
+    message: `executed Checks=${summary.count}; cumulative execution ${formatDuration(summary.totalMs)} (not wall time); mean ${formatDuration(summary.meanMs)} (budget ${formatDuration(budget.maxMeanCheckMs)}); p95 ${formatDuration(summary.p95Ms)} (nearest-rank; budget ${formatDuration(budget.maxP95CheckMs)}); ${assessment}; slowest Checks: ${slowest}`
   });
 }
 
@@ -110,7 +166,7 @@ function contribution(input: {
   });
 }
 
-function readCompletedRunFacts(value: unknown): CompletedRunFacts | undefined {
+function readCompletedCheckDurations(value: unknown): readonly CheckDuration[] | undefined {
   if (
     !isNonArrayRecord(value) ||
     value.kind !== "completed" ||
@@ -121,14 +177,14 @@ function readCompletedRunFacts(value: unknown): CompletedRunFacts | undefined {
     return undefined;
   }
   const parsedDurations: CheckDuration[] = [];
+  const checkIds = new Set<string>();
   for (const duration of value.checkDurations) {
     const parsed = parseCheckDuration(duration);
-    if (parsed === undefined) return undefined;
+    if (parsed === undefined || checkIds.has(parsed.checkId)) return undefined;
+    checkIds.add(parsed.checkId);
     parsedDurations.push(parsed);
   }
-  return Object.freeze({
-    checkDurations: Object.freeze(parsedDurations)
-  });
+  return Object.freeze(parsedDurations);
 }
 
 function parseCheckDuration(value: unknown): CheckDuration | undefined {
@@ -182,10 +238,8 @@ function isDuration(value: unknown): value is number {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }
 
-function compareCheckDurations(left: CheckDuration, right: CheckDuration): number {
-  const leftDuration = left.durationMs ?? -1;
-  const rightDuration = right.durationMs ?? -1;
-  if (leftDuration !== rightDuration) return rightDuration - leftDuration;
+function compareCheckDurations(left: MeasuredCheckDuration, right: MeasuredCheckDuration): number {
+  if (left.durationMs !== right.durationMs) return right.durationMs - left.durationMs;
   if (left.checkId < right.checkId) return -1;
   if (left.checkId > right.checkId) return 1;
   return 0;

@@ -411,23 +411,25 @@ Entities:
 - Hook context 不因当前性能用例退化成 elapsed 参数集合，也不暴露 loader、clock、console writer 或 candidate preparer 等执行依赖；invalid 或 non-monotonic phase timing 不能被归一化为 0ms 后进入 threshold comparison，初步 passed 时必须阻断。
 - Hook 抛错或返回无效结果形成带受控诊断的 unavailable 最终结果，不静默放行，也不对外暴露 base/acceptances/final 并行结果集合。
 
-## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 本机硬阈值阻断超时或缺失基线
+## Case AUX-PROJECT-GATE-PERFORMANCE-001: Project Gate 预算告警与无效测量阻断
 
-Owner: `docs/tooling/project-gate.md#project-gate`
+Owner: `docs/tooling/project-gate.md#性能预算与-check-耗时分布`
 Entities:
 
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > blocks missing, invalid, or exceeded standard-workload limits and preserves initial facts`
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them`
-- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > loads only an explicit regular local JSON file with fixed, unique limits`
-- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > enforces the local performance limit without revising Product Check facts`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > warns on exceeded budgets but blocks missing policy or invalid measurements`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > summarizes current Check costs and evaluates mean and nearest-rank p95 independently`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > rejects malformed, duplicate, or overflowing Check duration facts without emitting statistics`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance budgets > loads only an explicit regular local JSON file with fixed, unique limits`
+- `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > warns on total and Check budgets without revising Product facts or successful exit`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > leaves focused selections outside the total-time budget`
   Proves:
 
-- required / all 的本机 JSON 基线缺失、无效或没有当前 profile/runtime 时，在 candidate preparation 前失败；预算按 profile/runtime 唯一，不同指纹不能区分重复预算。既有合法指纹字段可保留，也可省略；baseline 只读，不从运行学习或自动提高。
-- `elapsed-to-initial-result` 包括 candidate preparation、adapter/setup 与 Product Run；等于阈值通过，超过阈值以单条包含阶段和最慢三个 Check 的 error 阻断，不将并行 Check duration 相加成墙钟耗时。无效 timing 或不完整 Run facts 也阻断初步 passed；初步非 passed 不改写已有结论；focused preset 不适用总耗时预算。
-- required/all 的声明指纹与本机元数据不一致时，仍正常评估原预算：未超限通过、超限失败，均输出三段 timing，不报缺失基线、不改写预算。adapter 将未超限的诊断写入 transcript、在终端报告 passed 并退出成功；无效 timing 不输出伪测量。
-- `definition.ts` 的默认 `resultContributor` 实际调用 observer；adapter 只可将初步 passed 降为 failed，不改写 Product Check facts 或 aggregate。loader seam 仅用于测试，不构成配置入口。
+- required / all 的本机 JSON 缺失、无效或没有当前 profile/runtime 时，在 candidate preparation 前失败；相同 profile/runtime 的不同指纹仍是重复预算。旧记录省略 Check 预算时规范化为均值 2000ms、P95 5000ms，显式覆盖分别生效，非法值不回退；读取不改写文件或学习运行结果。
+- `elapsed-to-initial-result` 包括三个连续阶段；等于总预算为 info，超标为 warning，均不改变成功退出。声明指纹不影响预算选择；缺失 policy、无效 timing 或 duration facts 仍阻断，初步非 passed 不提升，focused preset 不评估性能预算。
+- Check 分布不计 null，但计入真实零值；输出执行数量、累计执行耗时和独立判断的均值/P95，累计值明确不等于墙钟。nearest-rank 对小集合、20 项和 34 项具有确定结果，空集合显示 n/a，最慢三项按耗时及 ID 确定排序。重复 ID、非法耗时和累计溢出不产生伪统计。
+- 默认 contributor 的总耗时或分布超标 warning 在终端和 transcript 可见；未超标的 timing 与分布留在 transcript，最终仍为 passed / exit 0，Product Check durations 与 aggregate 不改写。无效测量仍按原失败边界处理，loader seam 不构成配置入口。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约
 

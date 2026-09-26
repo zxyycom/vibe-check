@@ -152,7 +152,7 @@ Markdown lint 当前完整 corpus 可命中，正式 Run 内约 2.25–2.95 秒�
 
 ### 7. 后续补证：阻断解除与测试成本分解
 
-**预算匹配与真实性能分别处理。** 用户进一步明确解除指纹阻断后，Gate 按 profile/runtime 唯一选择原有硬预算；合法旧指纹可保留为元数据，不必重写本机文件。当时的[预算决策](../decisions/apply-gate-time-budgets-without-fingerprint-gating.md)修订原判断，但保留缺失配置、无效测量和超时阻断。required 仍为 20 秒、all 仍为 60 秒；指纹变化不会放宽预算，也不跳过比较。
+**预算匹配与真实性能分别处理。** 用户进一步明确解除指纹阻断后，Gate 按 profile/runtime 唯一选择原有硬预算；合法旧指纹可保留为元数据，不必重写本机文件。当时的[预算决策](../decisions/archive/apply-gate-time-budgets-without-fingerprint-gating.md)修订原判断，但保留缺失配置、无效测量和超时阻断。required 仍为 20 秒、all 仍为 60 秒；指纹变化不会放宽预算，也不跳过比较。
 
 七组 Product tests 已分别接入保守 region；Markdown 私有改动的选择矩阵由七组降为 Markdown 与 function-metrics 两组。后者存在全 `src/**` 的 source-identity 证明，不能只因名字像独立 Check 就过滤掉。当前工作树还涉及根导出和共享输入，实际广负载仍选择七组，未宣称整体墙钟因此降低。
 

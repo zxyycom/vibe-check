@@ -231,16 +231,31 @@ Gate command 的进程边界固定为：
 2. `run.ts` 验证该 entry 等于 prepared candidate 的 exact entry，再运行 Product Run。
 3. 从同一个 RunResult 形成初步 Gate result，然后调用 `resultContributor`。
 
-默认 performance contributor 对 required / `--all` 应用本机手动配置的总耗时硬阈值。Gate 启动前必须存在
-`.cache/vibe-check/project-gate/performance-baseline.json`，其 `baselines` 中须有当前 selection 与
-`platform` / `architecture` / Bun version 对应的记录；缺失或无效时在 candidate preparation 前失败。
-每个 profile/runtime 组合只能有一个预算。初步结果通过且 timing/Run facts 完整时，以
-`elapsed-to-initial-result` 与 `maxElapsedMs` 比较；等于预算通过，超过预算时最终 Gate `failed`。
-Definition 的 `declarativeFingerprint` 变化不影响预算选择，也不独立造成失败；focused preset 不受总耗时门禁约束。
-文件是被 Git 忽略的本机配置，只能由维护者手动写入或更新；Gate 不学习运行时数据、不自动重置阈值。
-阈值由各工作区的本机配置决定，不随仓库同步。下例只展示首次建立 required 记录的结构：runtime 和
-`20000` ms 是示例值。实际配置须填写本机 runtime 与人工选定的阈值；
-`--all` 也须单独确定。后续改变阈值须重新作出人工决定并修改本机文件：
+#### 性能预算与 Check 耗时分布
+
+默认 performance contributor 对 required / `--all` 使用三项**告警预算**：总反馈时间、Check 平均执行时间和
+Check P95 执行时间。它们表达先验架构要求，不是从历史样本学习的性能基线；多数 Check 应保持轻量，
+少数重项可以存在，预算需为进程启动、I/O 和并发竞争留余量。超标只追加 `warning`，不改变已经通过的
+Gate 或退出码；等于预算视为达标。真实 Check 失败、无效配置和无效测量不因此放行。
+
+Gate 启动前必须存在普通本机文件 `.cache/vibe-check/project-gate/performance-baseline.json`，其中每个
+required / all 与 `platform` / `architecture` / Bun version 组合只能有一条记录。缺失、不可读、无效或没有
+当前组合时，在 candidate preparation 前失败。文件被 Git 忽略，只能由维护者在授权范围内显式维护；
+Gate 不创建、回写或根据运行结果调整它。focused preset 不评估这三项预算。
+
+schemaVersion 1 的每条记录包含 `profile`、`runtime` 和以下字段：
+
+| 字段 | 含义与省略规则 |
+| --- | --- |
+| `maxElapsedMs` | 必填；从 Gate 启动到初步结果的总预算，包含 candidate preparation、adapter/setup 和 Product Run，不包含 contributor 自身耗时。 |
+| `maxMeanCheckMs` | 可选；单次 Run 内实际执行 Check 的均值预算，省略时使用显式架构默认值 `2000` ms。 |
+| `maxP95CheckMs` | 可选；同一集合的 P95 预算，省略时使用显式架构默认值 `5000` ms。 |
+
+三个预算都必须是正 safe integer 毫秒数；显式 `null` 或非法值失败，不按省略处理。
+Check 默认值使旧记录无需改写也能获得分布观察，维护者可分别显式覆盖；总耗时没有隐式默认值。
+本次本机选择 required `30000` ms、all `90000` ms，并为两者显式配置均值 `2000` ms、P95 `5000` ms。
+这是半分钟级日常反馈、分钟级完整验收和秒级单项成本的留余量目标，不是当前成绩拟合值或其它机器的必填阈值。
+首次建立 required 记录可参考下例，实际填写本机 runtime；all 记录须独立配置：
 
 ```json
 {
@@ -249,21 +264,35 @@ Definition 的 `declarativeFingerprint` 变化不影响预算选择，也不独�
     {
       "profile": "required",
       "runtime": { "platform": "linux", "architecture": "x64", "bunVersion": "1.3.14" },
-      "maxElapsedMs": 20000
+      "maxElapsedMs": 30000,
+      "maxMeanCheckMs": 2000,
+      "maxP95CheckMs": 5000
     }
   ]
 }
 ```
 
-首次建立时手工写入上述 profile/runtime 与预算即可，不需要先失败一次取得指纹。
-schemaVersion 1 的已有记录仍可保留可选 `declarativeFingerprint`（若提供须为 64 个小写十六进制字符）；
-它只是旧配置元数据，不参与预算匹配，Gate 不自动删除或更新它。相同 profile/runtime 即使指纹不同也属于重复预算，必须拒绝，不能按数组顺序选一个阈值。
+已有记录可保留合法的可选 `declarativeFingerprint`（64 个小写十六进制字符），它只作旧配置元数据，
+不参与匹配；相同 profile/runtime 即使指纹不同仍是重复预算。Definition 或实际负载变化不自动改预算，
+runtime 改变而没有对应记录时仍需明确配置。声明指纹相等也不能证明前后性能实验可比。
 
-预算是绝对耗时上限，不是历史 workload 可比性的证明。Definition 或实际选择负载变化后仍应用同一预算；
-工具链 runtime 改变而没有对应记录时仍需维护者明确配置。Product Run 中的指纹继续用于声明身份，不能单独证明性能前后可比。
-observer 不解析 Product diagnostic log，也不将并行 Check 耗时相加为墙钟耗时。
-通过、超时和评估阶段缺少 profile/runtime 预算的诊断均展示总耗时与 candidate preparation、adapter/setup、Product Run 三段 timing。
-无效 timing 或不完整 Run facts 仍阻断初步 passed，不输出伪测量；focused preset 不评估总耗时。
+Check 分布直接读取同次 `RunResult.checkDurations`：
+
+- 只计 `durationMs !== null` 的实际 execution，真实零耗时仍计入；未执行项不按零稀释。
+  这不是排队、Check preparation、整次 Gate 时间或 CPU 用量，不能把工作移到这些阶段来宣称单项优化。
+- 均值为执行耗时之和除以执行数量 `N`；P95 使用升序第 `ceil(0.95 × N)` 项（nearest-rank），不插值。
+  它描述本次完整集合，不要求历史样本；`N < 20` 时 P95 等于最大值。空集合显示 `mean=n/a`、`p95=n/a`，
+  不评估 Check 预算，总耗时仍评估。
+- 每次有效评估都输出 `N`、累计执行耗时、均值与 P95 的预算对照，以及最慢的最多三项；同耗时按 Check ID 排序。
+  累计值不是墙钟，帮助区分数量增长与单项变重；均值和 P95 分别判断，任一超标即生成分布 warning。
+- 不通过拆分、合并或跳过 Check 改善指标；Check 粒度仍服从行为 owner 和独立验收责任。
+  总耗时、分布、准备阶段共同解释结果，不能仅凭分布达标认定 Gate 足够快。
+
+每次有效评估生成两条独立消息：一条包含总耗时及三个连续阶段，另一条包含 Check 分布。
+两条消息分别按总耗时预算和 Check 分布预算决定 info/warning；info 留在 Gate transcript，warning 同时在终端可见。
+性能消息不改变 Product facts、aggregate 或 machine publication。
+无效 timing、不完整或重复的 Check duration facts、不可表示的累计值仍阻断初步 passed，不输出伪统计；
+初步结果非 passed 时不评估性能，也不提升已有结果。observer 不解析 Product diagnostic log、不读历史调整预算。
 
 #### Result-contributor 边界与退出码
 

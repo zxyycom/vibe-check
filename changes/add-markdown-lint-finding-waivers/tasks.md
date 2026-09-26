@@ -18,7 +18,7 @@
 
 - [x] 2.1 运行受影响的最窄测试，证明无配置 parity、失败完整性、cache hit 实时 waiver 与精确匹配。
 - [x] 2.2 通过 Test Evidence 全树闭合、Change 检查、文档投影/材料、typecheck、lint 和 dependency 验证。
-- [ ] 2.3 完成 required 与 complete Gate 的最终门禁验收，包含当前 profile/runtime 的本机硬时间预算。
+- [ ] 2.3 完成 required 与 complete Gate 的最终门禁验收，按现行预算告警策略单独报告性能，不把预算变化当作优化收益。
 - [x] 2.4 完成非实施代理基于实际 diff 的产品/文档独立反查并处理阻断项。
 
 ## Verification Evidence
@@ -35,7 +35,7 @@
 
 上述两次标准 Gate 最终均因 `project-gate-performance-baseline-missing` 退出非零。当时声明指纹为 `4b41682dc1c549ff125403f5691fea7db5ff7b01eb8999fc4216a551213d3d02`，与已有本机配置不匹配。未修改 `.cache/vibe-check/project-gate/performance-baseline.json` 或 required 20 秒 / all 60 秒阈值。required 的上述 Run 时间已超过 20 秒，不能把指纹更新视为时间门槛达成。
 
-后续用户另行授权解除不必要的指纹阻断；[当前 Gate 预算决策](../../docs/decisions/apply-gate-time-budgets-without-fingerprint-gating.md)改为按 profile/runtime 比较原有硬预算，无需刷新本机指纹。该 Gate policy 修订不属于本 waiver 的产品实现，也不代表耗时已经达标；任务 2.3 仍等待预算内的 required / complete 最终验收，不结项删除。
+后续用户另行授权解除不必要的指纹阻断；[当时的 Gate 预算决策](../../docs/decisions/archive/apply-gate-time-budgets-without-fingerprint-gating.md)改为按 profile/runtime 比较原有硬预算，无需刷新本机指纹。之后[现行预算告警决策](../../docs/decisions/warn-on-gate-and-check-duration-budgets.md)将性能超标改为警告，后续复验按 Gate owner 的现行规则判断。两次 Gate policy 修订均不属于本 waiver 的产品实现，也不代表实际耗时已优化；任务 2.3 的最终验证仍单独交付，不因本次策略变更勾选或结项删除。
 
 06:39 / 06:40 UTC 两次 `bun run check` 已不再因指纹失败，均为 34 passed / 9 N/A；总预算计量分别 20,534.8 / 20,503.5ms，仍略超原 20 秒上限而退出 1。本阶段未重跑 complete Gate；性能候选与证据见[后续调查](../../docs/investigations/diagnose-required-gate-head-of-line-wait.md#7-后续补证阻断解除与测试成本分解)，任务 2.3 保持未完成。
 
