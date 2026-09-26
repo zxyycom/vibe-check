@@ -31,7 +31,7 @@ artifacts 决定。
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
 | P1 | [`add-project-gate-building-guide`](../../changes/add-project-gate-building-guide/proposal.md) | 使用已验证 API 和本项目实际构建路径形成 consumer 指南；与 package docs 共享 owner 的改动串行合入。 |
-| P1 | [`design-markdown-check-caching`](../../changes/design-markdown-check-caching/proposal.md) | 以真实 lint workload 为输入，补充重复运行与失效证据后作出 cache adopt 或 not-adopt 决定；不反向扩大 lint contract。 |
+| P1 | [`add-markdown-lint-finding-waivers`](../../changes/add-markdown-lint-finding-waivers/proposal.md) | 在完整 lint facts 后采用精确 Finding waiver；与 Check options、Records、公开指南和 Case 账本的改动串行，不改变 Gate policy。 |
 | P2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 在真实 Gate 组合与 building guide 已证明重复成本后，固定 fragment grammar、冲突规则与 Gate projection。 |
 
 ### 并行与合入边界
@@ -41,8 +41,8 @@ owner 时，实施与合入必须串行。
 
 | 轨道 | 可并行工作 | 实施前置与共享边界 |
 | --- | --- | --- |
-| Project Gate building guide | cache workload 调查、scheduler 证据 | 只消费已验证 API；共享 package docs 时按实际 diff 串行。 |
-| Markdown lint cache | config package 设计讨论 | 已有 lint adoption；仍需证明重复执行成本与失效语义。 |
+| Project Gate building guide | Markdown lint waiver 方案收敛、scheduler 证据 | 只消费已验证 API；共享 package docs 时按实际 diff 串行。 |
+| Markdown lint waiver | config package 设计讨论 | 复用完整候选集对账；缓存只提供 lint facts，waiver 在每次 invocation 重新应用。 |
 | Config packages | scheduler 证据、Gate guide 调查 | 需要真实组合成本证据，且会改变 package authoring/Definition owner。 |
 | Scheduler evidence queue | 文档和独立 corpus 调查 | 若改 scheduler/runtime，按以下证据队列内部顺序串行。 |
 
