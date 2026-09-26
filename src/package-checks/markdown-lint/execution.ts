@@ -3,6 +3,8 @@ import { realpath } from "node:fs/promises";
 
 import type { CheckExecutionContext, CheckResult } from "../../check/check.ts";
 import { appendCheckMessages } from "../../package-tools/finding-presentation/finding-presentation.ts";
+import { reconcileFindingWaivers } from "../../package-tools/finding-waivers/reconciliation.ts";
+import { reportFindingWaiverAudits } from "../code-quality-findings/finding-waiver-evidence.ts";
 import { collectProjectFiles } from "../project-files/collection.ts";
 import { partitionProjectFilesByEligibility } from "../project-files/input-eligibility.ts";
 import {
@@ -13,11 +15,13 @@ import { isRootRelativePath } from "../markdown-link-validation/local-resolution
 import type { MarkdownLintBackendFinding } from "./adapter.ts";
 import type { MarkdownLintFinalData } from "./final-data.ts";
 import { lintMarkdownWithCache } from "./findings-cache.ts";
-import { markdownLintFindingMessages } from "./finding-messages.ts";
+import { markdownLintFindingMessages, markdownLintWaiverMessages } from "./finding-messages.ts";
 import type { ResolvedMarkdownLintOptions } from "./options.ts";
 import { validMarkdownLintOptions } from "./options-validation.ts";
 import {
   buildMarkdownLintInputRejectedRecord,
+  markdownLintFindingIdentity,
+  markdownLintWaiverAuditRecord,
   orderedMarkdownLintCandidates,
   type MarkdownLintRecordCandidate
 } from "./records.ts";
@@ -78,33 +82,49 @@ async function executeResolvedMarkdownLint(
   return publishMarkdownLintTraversal(context, traversal, discovered.rejectedPaths);
 }
 
-function publishMarkdownLintTraversal(
+/** Reconciles only a complete traversal, then publishes all evidence and the live policy outcome. */
+export function publishMarkdownLintTraversal(
   context: CheckExecutionContext<ResolvedMarkdownLintOptions>,
   traversal: Extract<Traversal, { readonly kind: "complete" }>,
   rejectedPaths: readonly string[]
 ): CheckResult<MarkdownLintFinalData> {
-  for (const candidate of traversal.candidates)
-    context.records.report({ id: candidate.id }, candidate.data);
+  const reconciliation = reconcileFindingWaivers({
+    findings: traversal.candidates,
+    identify: markdownLintFindingIdentity,
+    waivers: context.options.findingWaivers
+  });
+  const actionable: MarkdownLintRecordCandidate[] = [];
+  for (const finding of reconciliation.findings) {
+    const data =
+      finding.disposition === "waived"
+        ? Object.freeze({
+            ...finding.finding.data,
+            waiver: Object.freeze({ reason: finding.waiver.reason })
+          })
+        : finding.finding.data;
+    context.records.report({ id: finding.finding.id }, data);
+    if (finding.disposition !== "waived") actionable.push(finding.finding);
+  }
+  reportFindingWaiverAudits(context, reconciliation, markdownLintWaiverAuditRecord);
   const findingCount = traversal.candidates.length + rejectedPaths.length;
+  const blocking = context.options.findingPolicy === "blocking";
   const result: CheckResult<MarkdownLintFinalData> = Object.freeze({
-    status:
-      traversal.candidates.length > 0 && context.options.findingPolicy === "blocking"
-        ? "failed"
-        : "passed",
+    status: actionable.length > 0 && blocking ? "failed" : "passed",
     data: Object.freeze({
       sourceFileCount: traversal.sourceFileCount,
       findingCount,
       rejectedInputCount: rejectedPaths.length
     })
   });
-  return appendCheckMessages(
-    result,
-    markdownLintFindingMessages(
-      traversal.candidates,
+  return appendCheckMessages(result, [
+    ...markdownLintFindingMessages(
+      actionable,
       rejectedPaths,
-      context.options.findingPolicy === "blocking"
-    )
-  );
+      // Preserve legacy summaries without waivers; fully waived lint must not make rejected-input summaries errors.
+      blocking && (reconciliation.waiverAudits.length === 0 || actionable.length > 0)
+    ),
+    ...markdownLintWaiverMessages(reconciliation)
+  ]);
 }
 
 function discoverSources(context: CheckExecutionContext<ResolvedMarkdownLintOptions>):

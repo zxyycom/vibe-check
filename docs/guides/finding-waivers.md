@@ -39,7 +39,41 @@ configured waiver 都在完整集合上获得 audit：`0` 次匹配是 `unused`�
 ## 随包 Check 的采用边界
 
 [`fileMetrics`](../checks/file-metrics.md)、[`functionMetrics`](../checks/function-metrics.md)、
-[`duplicateDetection`](../checks/duplicate-detection.md) 与 [`secretDetection`](../checks/secret-detection.md)
+[`duplicateDetection`](../checks/duplicate-detection.md)、[`secretDetection`](../checks/secret-detection.md)
+与 [`markdownLint`](../checks/markdown-lint.md)
 提供原生 `findingWaivers` option，其 authoring 为 closed `{ identity, reason }`。它们先形成完整、可信的 Finding 集合再对账；waiver 不缩小 scanner/detector input、不删除原 Finding，也不把 `unavailable` 伪装成 audit。其它随包 Check 暂无同名原生 option。
 
 各 Check 指南完整定义自己的 identity grammar、可 waiver scope、Record/message/final-data 与 status effect。`secretDetection` 的 identity 不含 secret 值、message、line 或 hash，且不能豁免 coverage gap 或 `unavailable`；reason 会作为 evidence 发布，不能包含敏感材料。
+
+## 为 Markdown lint 声明精确例外
+
+人工确认某条 lint Finding 是可接受的例外后，将其公开 Record data 的 `path`、`rule`、完整 `range` 复制到 identity，再说明接受原因。下例 Record 值仅作示意；实际应复制本次检查的证据，不应动态豁免所有扫描结果。
+
+```ts
+import {
+  markdownLint as lintWithWaivers,
+  type MarkdownLintRecordData,
+  type MarkdownLintFindingWaiver
+} from "@zxyycom/vibe-check";
+
+// 示例：已人工复核的一条 Record data，实际使用时复制自己检查得到的值。
+const reviewedFinding: MarkdownLintRecordData = {
+  kind: "lint-finding",
+  path: "docs/legacy.md",
+  rule: "fenced-code-language",
+  range: { start: { line: 8, column: 1 }, end: { line: 8, column: 1 } }
+};
+const { path, rule, range } = reviewedFinding;
+const acceptedException: MarkdownLintFindingWaiver = {
+  identity: { path, rule, range },
+  reason: "此处演示未指定语言的原始围栏，保留例外并继续检查其它 Finding。"
+};
+const lintWithAcceptedException = lintWithWaivers({
+  findingPolicy: "blocking",
+  findingWaivers: [acceptedException]
+});
+// 将 lintWithAcceptedException 加入项目 checks；不是删除原 Finding。
+void lintWithAcceptedException;
+```
+
+将返回的 Check 放入项目的 `checks` 后，完整 lint 才会对账。唯一匹配保留 Finding 并附 waiver reason，未匹配或多匹配产生可见 audit；行列漂移不会自动迁移配置。计数、缓存组合及失败边界由 [Markdown lint 指南](../checks/markdown-lint.md#精确-finding-waiver)完整定义。

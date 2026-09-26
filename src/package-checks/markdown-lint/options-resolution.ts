@@ -9,7 +9,9 @@ import {
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
 import { DEFAULT_FINDING_POLICY, resolveFindingPolicy } from "../code-quality-findings/policy.ts";
+import { resolveFindingWaiverAuthoring } from "../code-quality-findings/finding-waiver-authoring.ts";
 import { resolveOptionalLocalCacheOptions } from "../local-cache-options.ts";
+import { resolveMarkdownLintFindingIdentity } from "./finding-waiver-identity.ts";
 import {
   MARKDOWN_LINT_RULE_NAMES,
   type MarkdownLintRuleName,
@@ -36,7 +38,7 @@ export function resolveMarkdownLintOptions(
   if (
     input === undefined ||
     !hasRequiredAndOptionalRecordKeys(input, {
-      optional: ["files", "findingPolicy", "rules", "limits", "cache"],
+      optional: ["files", "findingPolicy", "findingWaivers", "rules", "limits", "cache"],
       required: []
     })
   ) {
@@ -47,21 +49,17 @@ export function resolveMarkdownLintOptions(
       ? snapshotProjectFileSelection(DEFAULT_FILES)
       : resolveProjectFileSelection(input.files, DEFAULT_FILES);
   const findingPolicy = resolveFindingPolicy(input.findingPolicy, DEFAULT_FINDING_POLICY);
+  const findingWaivers = resolveFindingWaiverAuthoring(
+    input.findingWaivers,
+    resolveMarkdownLintFindingIdentity
+  );
   const rules = resolveRules(input.rules);
   const limits = resolveLimits(input.limits);
   const cache = resolveOptionalLocalCacheOptions(input.cache);
-  if (
-    files === undefined ||
-    findingPolicy === undefined ||
-    rules === undefined ||
-    limits === undefined ||
-    cache === undefined
-  ) {
-    return undefined;
-  }
-  const candidate: ResolvedMarkdownLintOptions = Object.freeze({
+  const candidate = Object.freeze({
     files,
     findingPolicy,
+    findingWaivers,
     rules,
     limits,
     cache

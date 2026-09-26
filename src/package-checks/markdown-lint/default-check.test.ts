@@ -28,6 +28,8 @@ describe("Markdown lint Check", () => {
     ]);
     assert.equal(check.options.findingPolicy, "non-blocking");
     assert.deepEqual(check.options.cache, { enabled: false });
+    assert.deepEqual(check.options.findingWaivers, []);
+    assert.equal(Object.isFrozen(check.options.findingWaivers), true);
     assert.equal(check.parseData, parseMarkdownLintData);
     assert.throws(() => markdownLint({ rules: [] }), /documented closed policy/);
     assert.throws(
@@ -87,6 +89,43 @@ describe("Markdown lint Check", () => {
           })
         ]
       );
+      assert.deepEqual(
+        result.records.map(({ identity }) => identity.id),
+        [
+          "path:docs%2Fbroken.md:rule:no-missing-space-atx:line:1:column:1:ordinal:1",
+          "path:docs%2Fbroken.md:rule:fenced-code-language:line:3:column:1:ordinal:1",
+          "path:docs%2Fbroken.md:rule:no-alt-text:line:7:column:1:ordinal:1"
+        ]
+      );
+      assert.deepEqual(result.result.messages, [
+        {
+          code: "finding-detail",
+          level: "error",
+          message:
+            "docs/broken.md:1:1 no-missing-space-atx: ATX heading markers require a following space."
+        },
+        {
+          code: "finding-detail",
+          level: "error",
+          message: "docs/broken.md:3:1 fenced-code-language: fenced code blocks require a language."
+        },
+        {
+          code: "finding-detail",
+          level: "error",
+          message: "docs/broken.md:7:1 no-alt-text: images require alternative text."
+        }
+      ]);
+      for (const findingWaivers of [undefined, []]) {
+        const check = markdownLint({
+          files: MARKDOWN_LINT_OPTIONS.files,
+          findingPolicy: "blocking",
+          ...(findingWaivers === undefined ? {} : { findingWaivers })
+        });
+        assert.deepEqual(
+          await executeMarkdownLintCheck(executeMarkdownLint, check.options, root),
+          result
+        );
+      }
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

@@ -11,6 +11,7 @@ import { CUSTOM_ADMISSION_STRATEGY_TYPE_ACCEPTANCE_SOURCE } from "./custom-admis
 import { CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE } from "./handoff-type-acceptance.ts";
 import { DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE } from "./data-boundary-type-acceptance.ts";
 import { PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE } from "./project-changes-type-acceptance.ts";
+import { MARKDOWN_LINT_TYPE_ACCEPTANCE_SOURCE } from "./markdown-lint-type-acceptance.ts";
 import {
   MAINTENANCE_REMINDERS_TYPE_ACCEPTANCE_SOURCE,
   PACKAGE_CHECK_CONSTRUCTOR_TYPE_ACCEPTANCE_SOURCE
@@ -134,6 +135,7 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   duplicateDetection,
   fileMetrics,
   functionMetrics,
+  markdownLint,
   markdownLinkValidation,
   inherit,
   maintenanceReminders,
@@ -302,6 +304,7 @@ const configuredJsonSchemaCheck = jsonSchemaValidation({
   schemas: jsonSchemaResources
 });
 ${PACKAGE_CHECK_CONSTRUCTOR_TYPE_ACCEPTANCE_SOURCE}
+${MARKDOWN_LINT_TYPE_ACCEPTANCE_SOURCE}
 const disabledOutput: RunOutputStatus = { enabled: false, status: "disabled" };
 
 function outputParticipantNames(outputs: RunOutputStatuses): readonly string[] {

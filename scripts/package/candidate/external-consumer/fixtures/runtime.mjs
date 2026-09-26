@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -52,6 +52,7 @@ assert.throws(
 );
 const learnedSchedulingEvidence = await observeLearnedScheduling(projectRoot);
 const admissionSimulationEvidence = await observeAdmissionSimulation(projectRoot);
+await assertInstalledMarkdownLintWaivers();
 
 const jsonCheck = jsonValidation();
 const parserEvidence = {
@@ -436,6 +437,83 @@ process.stdout.write(
       markdownLintOutcome: markdownLintCheck?.outcome.status ?? null
     })
 );
+
+async function assertInstalledMarkdownLintWaivers() {
+  const root = await mkdtemp(join(tmpdir(), "vibe-check-installed-lint-waivers-"));
+  try {
+    await writeFile(join(root, "source.md"), "#missing\n", "utf8");
+    const options = {
+      files: { include: ["source.md"] },
+      rules: ["no-missing-space-atx"],
+      findingPolicy: "blocking",
+      cache: { enabled: true, directory: join(root, "lint-cache") }
+    };
+    const execute = async (findingWaivers) => {
+      const check = markdownLint({ ...options, findingWaivers });
+      const result = await run(
+        defineConfig({
+          checks: [check],
+          outputs: {
+            diagnosticLogging: { enabled: false },
+            progressRendering: { enabled: false },
+            machinePublication: { enabled: true, directory: "machine" }
+          }
+        }),
+        { projectRoot: root }
+      );
+      assert.equal(result.kind, "completed");
+      assert.equal(result.outputs.machinePublication.status, "succeeded");
+      const outcome = result.snapshot.checks[0].outcome;
+      assert.deepEqual(check.parseData(outcome.data), {
+        sourceFileCount: 1,
+        findingCount: 1,
+        rejectedInputCount: 0
+      });
+      const publishedRecords = readFileSync(join(root, "machine", "records.ndjson"), "utf8")
+        .trimEnd().split("\n").map((line) => JSON.parse(line));
+      // Compare JSON values, not the null prototypes/frozen descriptors of live canonical data.
+      const records = JSON.parse(JSON.stringify(result.snapshot.records));
+      assert.deepEqual(
+        publishedRecords,
+        records.map((record) => ({ schemaVersion: "vibe-check.record.v4", ...record }))
+      );
+      return { outcome, records, messages: result.checkMessages };
+    };
+    const fresh = await execute([]);
+    assert.equal(fresh.outcome.status, "failed");
+    assert.equal(fresh.records.length, 1);
+    const { path, rule, range } = fresh.records[0].data;
+    assert.equal(path, "source.md");
+    assert.equal(rule, "no-missing-space-atx");
+    const identity = { path, rule, range };
+    for (const reason of ["Reviewed source example.", "Updated acceptance reason."]) {
+      const waived = await execute([{ identity, reason }]);
+      assert.equal(waived.outcome.status, "passed");
+      assert.deepEqual(waived.records[0].data, { ...fresh.records[0].data, waiver: { reason } });
+      assert.equal(waived.records[0].id, fresh.records[0].id);
+      assert.equal(waived.records.length, 1);
+      assert.ok(waived.messages.some(({ code }) => code === "finding-waived"));
+      assert.ok(waived.messages.every(({ level }) => level !== "error"));
+    }
+    const unused = await execute([{
+      identity: { ...identity, path: "other.md" },
+      reason: "Stale source identity."
+    }]);
+    assert.equal(unused.outcome.status, "failed");
+    assert.deepEqual(
+      unused.records.find(({ data }) => data.kind === "lint-finding")?.data,
+      fresh.records[0].data
+    );
+    assert.ok(unused.records.some(({ data }) =>
+      data.kind === "finding-waiver-audit" && data.status === "unused" && data.matchCount === 0
+    ));
+    const removed = await execute([]);
+    assert.equal(removed.outcome.status, "failed");
+    assert.deepEqual(removed.records.map(({ data }) => data), fresh.records.map(({ data }) => data));
+  } finally {
+    await rm(root, { force: true, recursive: true });
+  }
+}
 
 function markdownLinkCacheJsonlEvidence(directory) {
   if (!existsSync(directory)) {

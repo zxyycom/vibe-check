@@ -59,6 +59,7 @@ Entities:
 - An installed consumer can declare `handoff: true` on a `defineCheck` provider, infer provider-aware `dependencies.get(provider)` data/reference types without manual generics, and observe strict identity only within the authorized current Run. The returned reference is absent from installed Run and machine evidence rather than becoming a published contract.
 - An ancestry-external TypeScript consumer imports and typechecks that public surface without casts or manual dependency-read generics; the same acceptance reads the installed declaration owners directly and requires the documented `defineCheck` / `run` summaries, remarks, parameters, returns and example rather than constructing a second compiler program after `tsgo`. The consumer can declare a typed Git change configuration, build a nested string-atom condition with every direct builder, retain the `changeFlag("source")` literal type, read optional `project.changes` from the third `prepare` argument and `execute`, and distinguish successful files from unavailable evidence. It can declare `observes`, enumerate its direct settled outcome through the callback-local `dependencies.list()` surface, and still uses the producing parser for final data. It can create standalone immutable admission graph branches and read the same callback `admissionState`, while the closed strategy result remains only `select(taskId)` or `wait`. It can author a simple or prepared custom strategy over frozen graph/decision/terminal DTOs: `decide` must synchronously return exact `select(taskId)` or `wait`, prepared may asynchronously form its Run-local closure and optional `terminalEffect`, and retired `proposeAdmission` plus unknown nested fields are rejected in installed declarations. It can import the learned strategy factory, pass caller-owned history identity and model options, and install its returned prepared strategy through the same custom hook. The caller-keyed cache parser must likewise synchronously return a non-thenable typed value. The deeply frozen file-selection baseline composes into a consumer-owned selection, and every package Check export is callable and retains its typed parser relation.
 - Under `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes`, installed callback declarations preserve non-empty and discriminated tuple structure while retaining `unknown` leaf uncertainty; the consumer fixture does not inherit implementation-only control-flow rules. It declares a minimal Node `process.execPath` global solely to typecheck the installed command example, then verifies literal `checkId`, exact environment, discard output, final-data/unavailable-reason types, and every ordinary selection, relation and scheduling field accepted by `commandCheck`; its public `execute` return remains `CheckResult<CommandCheckFinalData>` or its Promise.
+- Installed Markdown lint declarations expose `MarkdownLintFindingIdentity`, `MarkdownLintFindingWaiver` and `MarkdownLintFindingWaiverAuditRecordData`; identity authoring requires the closed public rule and complete range, resolved waivers remain readonly, and consumers can narrow the lint/input-rejected/waiver-audit Record union by `kind`.
 
 ## Case API-ADMISSION-POLICY-AUTHORING-001: Admission policy helper preserves exact public authoring
 
@@ -241,4 +242,17 @@ Entities:
 
 - `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > materializes the closed recommended policy and rejects malformed authoring`
   Proves:
-- `markdownLint(options?)` materializes the eight recommended Product rules, default advisory policy and disabled cache, exposes its final-data parser, and rejects empty, duplicate, unknown or invalid-cache authoring fields before execution.
+- `markdownLint(options?)` materializes the eight recommended Product rules, default advisory policy, disabled cache and frozen empty waiver list, exposes its final-data parser, and rejects empty, duplicate, unknown or invalid-cache authoring fields before execution.
+
+## Case SCAN-CONFIG-MARKDOWN-LINT-WAIVERS: Markdown lint 精确 waiver 的闭合安全 authoring
+
+Owner: `docs/checks/markdown-lint.md#精确-finding-waiver`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/finding-waiver-authoring.test.ts|Markdown lint waiver authoring > snapshots closed full-range identities and keeps resolved waivers deeply frozen`
+- `bun|src/package-checks/markdown-lint/finding-waiver-authoring.test.ts|Markdown lint waiver authoring > rejects malformed ranges, noncanonical paths, duplicate identities and hostile authoring`
+
+Proves:
+
+- 精确 waiver 接受完整 public rule catalog、规范 root-relative path 和同行正安全位置，包括 point range；resolved 数组、waiver、identity、range 与两端位置均独立冻结，调用方后续修改不改变配置。
+- 未知字段、缺少位置、倒置或跨行 range、非法位置或路径、空 reason、重复结构 identity、稀疏数组、特殊属性及 hostile accessor/proxy 被闭合边界拒绝；不调用 getter，非法 resolved waiver 在读取 source 前结算为 `invalid-options`。

@@ -1,15 +1,24 @@
+import type { MaterializedFindingWaiver } from "../../package-tools/finding-waivers/reconciliation.ts";
+import {
+  buildHashedFindingWaiverAuditRecord,
+  type FindingWaiverAuditRecordData,
+  type FindingWaiverRecordAudit
+} from "../code-quality-findings/finding-waiver-evidence.ts";
 import type { MarkdownLintBackendFinding } from "./adapter.ts";
-import type { MarkdownLintRuleName } from "./options.ts";
+import { resolveMarkdownLintFindingIdentity } from "./finding-waiver-identity.ts";
+import type { MarkdownLintFindingIdentity, MarkdownLintRuleName } from "./options.ts";
 
-export type MarkdownLintFindingRecordData = Readonly<{
-  readonly kind: "lint-finding";
-  readonly path: string;
-  readonly rule: MarkdownLintRuleName;
-  readonly range: Readonly<{
-    readonly start: Readonly<{ readonly line: number; readonly column: number }>;
-    readonly end: Readonly<{ readonly line: number; readonly column: number }>;
-  }>;
-}>;
+/** 一条保留原位置的 lint Finding；唯一命中 waiver 时仅附加公开理由。 */
+export type MarkdownLintFindingRecordData = Readonly<
+  MarkdownLintFindingIdentity & {
+    readonly kind: "lint-finding";
+    readonly waiver?: Readonly<{ readonly reason: string }>;
+  }
+>;
+
+/** 未使用或匹配多个 Markdown lint Findings 的精确 waiver audit Record data。 */
+export type MarkdownLintFindingWaiverAuditRecordData =
+  FindingWaiverAuditRecordData<MarkdownLintFindingIdentity>;
 
 export type MarkdownLintInputRejectedRecordData = Readonly<{
   readonly kind: "input-rejected";
@@ -18,14 +27,39 @@ export type MarkdownLintInputRejectedRecordData = Readonly<{
   readonly reason: "unsupported-file-type";
 }>;
 
-/** Markdown lint 发布的 Finding 或 input-rejection Record data。 */
+/** Markdown lint 发布的 Finding、input-rejection 或 finding-waiver audit Record data。 */
 export type MarkdownLintRecordData =
   | MarkdownLintFindingRecordData
-  | MarkdownLintInputRejectedRecordData;
+  | MarkdownLintInputRejectedRecordData
+  | MarkdownLintFindingWaiverAuditRecordData;
 
 export interface MarkdownLintRecordCandidate {
   readonly id: string;
   readonly data: MarkdownLintFindingRecordData;
+}
+
+export function markdownLintFindingIdentity(
+  candidate: MarkdownLintRecordCandidate
+): MarkdownLintFindingIdentity {
+  const { path, rule, range } = candidate.data;
+  return Object.freeze({ path, rule, range });
+}
+
+export function markdownLintWaiverIdentity(
+  waiver: MaterializedFindingWaiver
+): MarkdownLintFindingIdentity {
+  const identity = resolveMarkdownLintFindingIdentity(waiver.identity);
+  if (identity === undefined) {
+    throw new TypeError("markdownLint waiver identity must retain a valid public finding location");
+  }
+  return identity;
+}
+
+export function markdownLintWaiverAuditRecord(audit: FindingWaiverRecordAudit): Readonly<{
+  readonly id: string;
+  readonly data: MarkdownLintFindingWaiverAuditRecordData;
+}> {
+  return buildHashedFindingWaiverAuditRecord(markdownLintWaiverIdentity(audit.waiver), audit);
 }
 
 export function orderedMarkdownLintCandidates(

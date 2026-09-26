@@ -1,6 +1,10 @@
 import type { CheckMessage } from "../../check/check.ts";
 import { presentCheckFindings } from "../../package-tools/finding-presentation/finding-presentation.ts";
-import type { MarkdownLintRecordCandidate } from "./records.ts";
+import type {
+  FindingWaiverAudit,
+  FindingWaiverReconciliation
+} from "../../package-tools/finding-waivers/reconciliation.ts";
+import { markdownLintWaiverIdentity, type MarkdownLintRecordCandidate } from "./records.ts";
 
 const SUMMARY: Readonly<Record<MarkdownLintRecordCandidate["data"]["rule"], string>> = {
   "heading-increment": "heading levels may increase by only one level",
@@ -48,4 +52,36 @@ export function markdownLintFindingMessages(
         message: `${omittedCount} additional Markdown lint finding(s) were not shown; inspect this Check's Records for the complete set.`
       })
   });
+}
+
+/** Explains every configured waiver without turning accepted findings into error messages. */
+export function markdownLintWaiverMessages(
+  reconciliation: FindingWaiverReconciliation<MarkdownLintRecordCandidate>
+): readonly CheckMessage[] {
+  return Object.freeze(reconciliation.waiverAudits.map(markdownLintWaiverMessage));
+}
+
+function markdownLintWaiverMessage(audit: FindingWaiverAudit): CheckMessage {
+  const { path, rule, range } = markdownLintWaiverIdentity(audit.waiver);
+  const subject = `${path}:${range.start.line}:${range.start.column}-${range.end.column} ${rule}`;
+  switch (audit.status) {
+    case "applied":
+      return Object.freeze({
+        code: "finding-waived",
+        level: "info",
+        message: `Markdown lint finding for ${subject} was waived: ${audit.waiver.reason}`
+      });
+    case "unused":
+      return Object.freeze({
+        code: "unused-finding-waiver",
+        level: "warning",
+        message: `Configured markdown-lint finding waiver for ${subject} matched no finding; remove it or update its identity. Reason: ${audit.waiver.reason}`
+      });
+    case "overmatched":
+      return Object.freeze({
+        code: "overmatched-finding-waiver",
+        level: "warning",
+        message: `Configured markdown-lint finding waiver for ${subject} matched ${audit.matchCount} findings and was not applied; inspect the duplicate identities. Reason: ${audit.waiver.reason}`
+      });
+  }
 }

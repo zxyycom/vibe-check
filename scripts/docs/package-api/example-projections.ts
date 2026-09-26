@@ -170,6 +170,20 @@ export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   }),
   Object.freeze({
     evidence: "runtime",
+    id: "markdown-lint-waivers",
+    regionId: "markdown-lint-waivers",
+    sourcePath: "docs/examples/package-api/markdown-lint.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "finding-waivers",
+        headingPath: Object.freeze(["为 Markdown lint 声明精确例外"]),
+        kind: "markdown"
+      })
+    ]),
+    title: "用公开 Markdown lint Finding 字段声明精确例外"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "custom-check-definition",
     regionId: "custom-check-definition",
     sourcePath: "docs/examples/package-api/custom-check.ts",

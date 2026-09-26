@@ -4,7 +4,7 @@ import {
   executeCheck,
   type ReportedCheckRecord
 } from "../check-execution.test-support.ts";
-import type { ResolvedMarkdownLintOptions } from "./options.ts";
+import type { MarkdownLintFindingWaiver, ResolvedMarkdownLintOptions } from "./options.ts";
 
 export const MARKDOWN_LINT_FILES = Object.freeze({
   exclude: Object.freeze([]),
@@ -15,6 +15,7 @@ export const MARKDOWN_LINT_FILES = Object.freeze({
 export const MARKDOWN_LINT_OPTIONS: ResolvedMarkdownLintOptions = Object.freeze({
   files: MARKDOWN_LINT_FILES,
   findingPolicy: "blocking",
+  findingWaivers: Object.freeze([]),
   rules: Object.freeze([
     "heading-increment",
     "no-reversed-links",
@@ -27,6 +28,18 @@ export const MARKDOWN_LINT_OPTIONS: ResolvedMarkdownLintOptions = Object.freeze(
   ] as const),
   cache: Object.freeze({ enabled: false }),
   limits: Object.freeze({ maxMarkdownBytes: 1_048_576, maxFindings: 10_000 })
+});
+
+export const MARKDOWN_LINT_HEADING_WAIVER: MarkdownLintFindingWaiver = Object.freeze({
+  identity: Object.freeze({
+    path: "docs/source.md",
+    rule: "no-missing-space-atx",
+    range: Object.freeze({
+      start: Object.freeze({ line: 1, column: 1 }),
+      end: Object.freeze({ line: 1, column: 3 })
+    })
+  }),
+  reason: "Reviewed legacy heading."
 });
 
 export function createMarkdownLintTestRoot(prefix: string): string {

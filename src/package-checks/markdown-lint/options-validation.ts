@@ -1,9 +1,11 @@
 import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
 import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import { validFindingPolicy } from "../code-quality-findings/policy.ts";
+import { validResolvedFindingWaivers } from "../code-quality-findings/finding-waiver-authoring.ts";
 import { validLocalCacheOptions } from "../local-cache-options.ts";
 import { validProjectFileSelection } from "../project-files/configuration.ts";
 import { MARKDOWN_LINT_RULE_NAMES, type ResolvedMarkdownLintOptions } from "./options.ts";
+import { resolveMarkdownLintFindingIdentity } from "./finding-waiver-identity.ts";
 
 const KNOWN_RULES = new Set<string>(MARKDOWN_LINT_RULE_NAMES);
 
@@ -11,6 +13,7 @@ export function validMarkdownLintOptions(value: unknown): value is ResolvedMarkd
   const options = snapshotExactClosedRecord(value, [
     "files",
     "findingPolicy",
+    "findingWaivers",
     "rules",
     "limits",
     "cache"
@@ -19,6 +22,7 @@ export function validMarkdownLintOptions(value: unknown): value is ResolvedMarkd
     options === undefined ||
     !validProjectFileSelection(options.files) ||
     !validFindingPolicy(options.findingPolicy) ||
+    !validResolvedFindingWaivers(options.findingWaivers, resolveMarkdownLintFindingIdentity) ||
     !validRules(options.rules) ||
     !validLocalCacheOptions(options.cache)
   ) {

@@ -11,10 +11,11 @@ import { validMarkdownLintOptions } from "./options-validation.ts";
 
 /**
  * 构造使用稳定闭合规则与受限输入的 Markdown 结构检查。
+ * 精确 findingWaivers 只在完整 traversal 后应用；原 Finding、计数与缓存 facts 保留。
  *
  * @param options - 省略时采用八项 recommended 规则；非空 rules 数组完整替换该集合。
- * @returns 固定 `markdown-lint` identity、完整冻结 options、parser 与执行逻辑。
- * @throws {TypeError} options 含未知字段、未知/重复规则或非法 limits 时抛出。
+ * @returns 使用默认或指定 checkId 的 typed Check，携带完整冻结 options、parser 与执行逻辑。
+ * @throws {TypeError} options 含未知字段、未知/重复规则、非法 limits 或 findingWaivers 时抛出。
  * @example 最小用法
  * ```ts
  * import { defineConfig, markdownLint, run } from "@zxyycom/vibe-check";
@@ -56,7 +57,7 @@ export function markdownLint(
 ): TypedCheckWithOptions<string, ResolvedMarkdownLintOptions, typeof parseMarkdownLintData> {
   const input = resolvePackageCheckAuthoringInput(
     options,
-    ["files", "findingPolicy", "rules", "limits", "cache"],
+    ["files", "findingPolicy", "findingWaivers", "rules", "limits", "cache"],
     MARKDOWN_LINT_CHECK_DEFINITION
   );
   if (input === undefined) {

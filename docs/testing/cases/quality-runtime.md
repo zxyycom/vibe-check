@@ -527,6 +527,7 @@ Entities:
 - `bun|src/package-checks/markdown-lint/default-check.test.ts|Markdown lint Check > publishes Product-owned findings only after a complete bounded traversal`
   Proves:
 - A completed lint traversal reports only Product-owned public rules and produces a blocking failed outcome with canonical source, finding and rejected-input counts.
+- Omitted and explicit empty waivers preserve the exact legacy Record data, IDs, ordering and terminal message text.
 
 ## Case QUALITY-RUNTIME-MARKDOWN-LINT-BOUNDARIES: Markdown lint terminal boundaries
 
@@ -556,10 +557,12 @@ Owner: `docs/checks/markdown-lint.md#逐文件-findings-缓存`
 Entities:
 
 - `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > preserves complete Check results on cold and warm traversal`
+- `bun|src/package-checks/markdown-lint/findings-cache.test.ts|Markdown lint findings cache > reconciles current waiver changes and raw finding limits after cache hits`
 
 Proves:
 
 - 冷缓存、热缓存以及文件内容变化时，完整 Check 结果与 Records 和无缓存路径一致。
+- waiver 的新增、理由更新、identity 漂移与移除每次实时结算；cache hit 不固化原 waiver，配置变化不改变逐文件 cache bytes。已豁免 Finding 仍计入 warm traversal 的 `maxFindings`，超限不发布 partial lint 或 waiver audit。
 
 ## Case QUALITY-RUNTIME-MARKDOWN-LINT-CACHE-KEY: Markdown lint 缓存身份
 
@@ -582,3 +585,18 @@ Entities:
 Proves:
 
 - 损坏或不可写的缓存退回实时 lint，取消不会伪装为命中。
+
+## Case QUALITY-RUNTIME-MARKDOWN-LINT-WAIVERS: Markdown lint 完整精确对账保留证据
+
+Owner: `docs/checks/markdown-lint.md#精确-finding-waiver`
+Entities:
+
+- `bun|src/package-checks/markdown-lint/finding-waivers.test.ts|Markdown lint finding waivers > retains exact finding evidence and counts while only unwaived findings block`
+- `bun|src/package-checks/markdown-lint/finding-waivers.test.ts|Markdown lint finding waivers > matches full ranges and leaves repeated identities actionable with a stable audit`
+- `bun|src/package-checks/markdown-lint/finding-waiver-boundaries.test.ts|Markdown lint finding waivers > audits only complete candidate sets and never waives rejected or unavailable inputs`
+
+Proves:
+
+- 唯一匹配仅为原 lint Record 增加 `waiver.reason`，保留全部原 ID、字段和三项 final counts；仅剩余 actionable Findings 按 blocking/non-blocking policy 决定结算，applied/unused 消息以及被省略的 rejected inputs 不制造错误级消息。
+- 完整公开 range 区分同起点不同终点的候选；synthetic publication 候选中的重复完整 identity 不按 ordinal 任挑一条豁免，而是保留全部 Finding、发布稳定 hashed `overmatched` audit 和 warning。此分支不宣称实际 backend 一定产生重复诊断。
+- 无 selected path 不对账；完整空 lint 集合（包括仅 rejected inputs）产生 unused audit，但不更改 rejected evidence 或 Finding 计数。source decode failure、字节/Finding 超限和取消保留已分类 rejected Record，不发布 partial lint、waiver audit 或 final data。
