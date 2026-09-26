@@ -413,14 +413,16 @@ Owner: `docs/tooling/project-gate.md#project-gate`
 Entities:
 
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > blocks missing, invalid, or exceeded standard-workload limits and preserves initial facts`
+- `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > enforces profile and runtime budgets independently of fingerprint metadata without rewriting them`
 - `bun|scripts/project/gate/runtime/performance-observation.test.ts|Project Gate performance limit > loads only an explicit regular local JSON file with fixed, unique limits`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > enforces the local performance limit without revising Product Check facts`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > fails before candidate preparation without a local standard-workload baseline`
 - `bun|scripts/project/gate/run.test.ts|Project Gate adapter closure > leaves focused selections outside the total-time budget`
   Proves:
 
-- required / all 的本机 JSON 基线缺失、无效或没有当前 profile/runtime 时，在 candidate preparation 前失败；初步 passed 后仍必须核对 exact declarative fingerprint。baseline 只读，不从单次运行学习或自动提高。
-- `elapsed-to-initial-result` 包括 candidate preparation、adapter/setup 与 Product Run；等于阈值通过，超过阈值以单条包含阶段和最慢三个 Check 的 error 阻断，不将并行 Check duration 相加成墙钟耗时。无匹配 fingerprint、无效 timing 或不完整 Run facts 也阻断初步 passed；初步非 passed 不改写已有结论；focused preset 不适用总耗时预算。
+- required / all 的本机 JSON 基线缺失、无效或没有当前 profile/runtime 时，在 candidate preparation 前失败；预算按 profile/runtime 唯一，不同指纹不能区分重复预算。既有合法指纹字段可保留，也可省略；baseline 只读，不从运行学习或自动提高。
+- `elapsed-to-initial-result` 包括 candidate preparation、adapter/setup 与 Product Run；等于阈值通过，超过阈值以单条包含阶段和最慢三个 Check 的 error 阻断，不将并行 Check duration 相加成墙钟耗时。无效 timing 或不完整 Run facts 也阻断初步 passed；初步非 passed 不改写已有结论；focused preset 不适用总耗时预算。
+- required/all 的声明指纹与本机元数据不一致时，仍正常评估原预算：未超限通过、超限失败，均输出三段 timing，不报缺失基线、不改写预算。adapter 将未超限的诊断写入 transcript、在终端报告 passed 并退出成功；无效 timing 不输出伪测量。
 - `definition.ts` 的默认 `resultContributor` 实际调用 observer；adapter 只可将初步 passed 降为 failed，不改写 Product Check facts 或 aggregate。loader seam 仅用于测试，不构成配置入口。
 
 ## Case AUX-PARALLEL-RUNNER-001: Static Task engine 保持通用调度契约

@@ -8,7 +8,7 @@
 - `defineConfig` 会补齐 `apiVersion`、outputs、static admission policy、`maxParallel`、空 `terminalEffects` 和空 resource capacities。配置组合必须发生在这些默认值产生之前。
 - `checks` 与 `terminalEffects` 是有序 collection，`admissionPolicy` 是单一策略，resource capacities 是全局 mapping，output fields 还有 Definition default 与 invocation override 的既有边界；composer 需要按字段语义工作。
 - [`provide-learned-admission-through-public-strategy.md`](../../docs/decisions/provide-learned-admission-through-public-strategy.md) 已证明显式 import factory 可以通过普通公共 contract 启用可选功能。
-- [`enforce-manual-local-project-gate-time-budget.md`](../../docs/decisions/enforce-manual-local-project-gate-time-budget.md) 规定 adapter 从中央配置取得唯一 `resultContributor`，且该函数只能贡献消息和受限的 passed→failed 降级决定。若多个功能配置参与 Gate 后处理，项目层 composer 必须先按自己的稳定顺序合成受限贡献，再向 adapter 输出一个 contributor。
+- [Gate 硬预算决策](../../docs/decisions/apply-gate-time-budgets-without-fingerprint-gating.md) 规定 adapter 从中央配置取得唯一 `resultContributor`，且该函数只能贡献消息和受限的 passed→failed 降级决定。若多个功能配置参与 Gate 后处理，项目层 composer 必须先按自己的稳定顺序合成受限贡献，再向 adapter 输出一个 contributor。
 - [回调生命周期指南](../../docs/guides/callbacks.md) 已固定当前公开、内部及仅逻辑保留的位置；本设计只能组合其中已有的普通 contract，不得把逻辑保留位置预建为扩展槽位。
 
 ## Goals / Non-Goals

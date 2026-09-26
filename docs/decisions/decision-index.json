@@ -353,9 +353,10 @@
       "260922-adopt-repository-material-change-selection": "sha256:ff6c031fbeeb91834bf60da131f5010161b9828ee20d6d9a5b21c4352e187890",
       "260922-migrate-project-gate-process-checks-to-command-check": "sha256:5fb2011b6a55b3c96ca4ff9ae8b216a64ca52dda356d7ec03832c98f4b3ac884",
       "260922-reorganize-project-gate-material-selection": "sha256:b5985d5c79783387c8ab58662d813837a1cdc599dde500d2df6a67775a8a81ce",
-      "260923-enforce-manual-local-project-gate-time-budget": "sha256:4a47f896eaf7b72de5f81c6814494bce88069c75ae3ce2cf5332b586d0ef9016",
+      "260923-enforce-manual-local-project-gate-time-budget": "sha256:546a9d78d047e34c46331aee54376cf242c500e79138a122bf15e6b7d0d0959f",
       "260923-select-project-gate-required-checks-by-change": "sha256:6001aadac6d9f63f4e0a64ce0c733886d0c624eb8f84cdcfd87947627ccb09d2",
-      "260924-select-gate-check-specific-change-regions": "sha256:62ac1e06b90033244193afde8422bca29f9e649e9df674c21d31ee8d7dccac9a"
+      "260924-select-gate-check-specific-change-regions": "sha256:62ac1e06b90033244193afde8422bca29f9e649e9df674c21d31ee8d7dccac9a",
+      "260926-apply-gate-time-budgets-without-fingerprint-gating": "sha256:64c7824ec53e799f90dd1db3c81da1cc41fb234d578b5b707ff2f94809c6666b"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7288,9 +7289,9 @@
     },
     "260923-enforce-manual-local-project-gate-time-budget": {
       "name": "enforce-manual-local-project-gate-time-budget",
-      "sourcePath": "enforce-manual-local-project-gate-time-budget.md",
+      "sourcePath": "archive/enforce-manual-local-project-gate-time-budget.md",
       "title": "以本机手动硬阈值约束标准 Project Gate",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-23T10:39:50Z",
       "purpose": "让标准 Gate 耗时退化成为显式失败且不自动改写预算",
@@ -7362,6 +7363,29 @@
           "type": "修订",
           "target": "260923-select-project-gate-required-checks-by-change",
           "summary": "以逐项输入 region 取代共享宽泛 flag"
+        }
+      ]
+    },
+    "260926-apply-gate-time-budgets-without-fingerprint-gating": {
+      "name": "apply-gate-time-budgets-without-fingerprint-gating",
+      "sourcePath": "apply-gate-time-budgets-without-fingerprint-gating.md",
+      "title": "按运行模式与环境应用 Gate 硬预算，不以指纹变化阻断",
+      "status": "active",
+      "alignment": "aligned",
+      "createdAt": "2026-09-26T06:31:11Z",
+      "purpose": "解除配置指纹变化造成的无效阻断，同时保留人工硬预算",
+      "background": "原匹配把固定耗时上限与历史 workload 可比性混为一谈",
+      "decision": "按 profile/runtime 唯一选择本机预算；指纹仅保留为可选元数据，超时与无效测量仍阻断",
+      "tags": [
+        "configuration",
+        "performance",
+        "workflow-policy"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "260923-enforce-manual-local-project-gate-time-budget",
+          "summary": "移除指纹一致性前置条件，保留手动硬预算、分段计时与结果只降级边界"
         }
       ]
     }

@@ -13,9 +13,8 @@ import type { ProjectGateMessage } from "./result.ts";
 const CHECK_ID_PATTERN = /^[a-z][a-z0-9-]*$/u;
 
 type CheckDuration = Readonly<{ readonly checkId: string; readonly durationMs: number | null }>;
-type ComparableRunFacts = Readonly<{
+type CompletedRunFacts = Readonly<{
   readonly checkDurations: readonly CheckDuration[];
-  readonly declarativeFingerprint: string;
 }>;
 
 /** Applies a manually maintained local hard limit without learning from this run. */
@@ -51,7 +50,7 @@ export function evaluateProjectGatePerformance(
       message: "elapsed-to-initial-result timing was invalid; hard limit could not be evaluated"
     });
   }
-  const run = readComparableRunFacts(context.runResult);
+  const run = readCompletedRunFacts(context.runResult);
   if (run === undefined) {
     return contribution({
       blocks: true,
@@ -60,22 +59,19 @@ export function evaluateProjectGatePerformance(
       message: "Product Run facts were incomplete; hard limit could not be evaluated"
     });
   }
+  const description = timingDescription(context.timing);
   const baseline = context.performanceBaselines.find(
-    (candidate) =>
-      candidate.profile === profile &&
-      candidate.declarativeFingerprint === run.declarativeFingerprint &&
-      runtimeMatches(candidate.runtime, runtime)
+    (candidate) => candidate.profile === profile && runtimeMatches(candidate.runtime, runtime)
   );
   if (baseline === undefined) {
     return contribution({
       blocks: true,
       level: "error",
       code: "project-gate-performance-baseline-missing",
-      message: `no matching local performance baseline for ${profile} (fingerprint ${run.declarativeFingerprint}; ${runtime.platform}/${runtime.architecture}; Bun ${runtime.bunVersion}); manually update ${LOCAL_PERFORMANCE_BASELINE_PATH}`
+      message: `no matching local performance baseline for ${profile} (${runtime.platform}/${runtime.architecture}; Bun ${runtime.bunVersion}); ${description}; manually update ${LOCAL_PERFORMANCE_BASELINE_PATH}`
     });
   }
 
-  const description = timingDescription(context.timing);
   if (context.timing.elapsedToInitialResultMs <= baseline.maxElapsedMs) {
     return contribution({
       blocks: false,
@@ -114,7 +110,7 @@ function contribution(input: {
   });
 }
 
-function readComparableRunFacts(value: unknown): ComparableRunFacts | undefined {
+function readCompletedRunFacts(value: unknown): CompletedRunFacts | undefined {
   if (
     !isNonArrayRecord(value) ||
     value.kind !== "completed" ||
@@ -131,8 +127,7 @@ function readComparableRunFacts(value: unknown): ComparableRunFacts | undefined 
     parsedDurations.push(parsed);
   }
   return Object.freeze({
-    checkDurations: Object.freeze(parsedDurations),
-    declarativeFingerprint: value.declarativeFingerprint
+    checkDurations: Object.freeze(parsedDurations)
   });
 }
 

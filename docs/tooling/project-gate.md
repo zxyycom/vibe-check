@@ -226,11 +226,12 @@ Gate command 的进程边界固定为：
 默认 performance contributor 对 required / `--all` 应用本机手动配置的总耗时硬阈值。Gate 启动前必须存在
 `.cache/vibe-check/project-gate/performance-baseline.json`，其 `baselines` 中须有当前 selection 与
 `platform` / `architecture` / Bun version 对应的记录；缺失或无效时在 candidate preparation 前失败。
-记录还必须与本次 Product Run 的 `declarativeFingerprint` 精确匹配，匹配失败或
-`elapsed-to-initial-result` 超过 `maxElapsedMs` 时最终 Gate `failed`。focused preset 不受总耗时门禁约束。
+每个 profile/runtime 组合只能有一个预算。初步结果通过且 timing/Run facts 完整时，以
+`elapsed-to-initial-result` 与 `maxElapsedMs` 比较；等于预算通过，超过预算时最终 Gate `failed`。
+Definition 的 `declarativeFingerprint` 变化不影响预算选择，也不独立造成失败；focused preset 不受总耗时门禁约束。
 文件是被 Git 忽略的本机配置，只能由维护者手动写入或更新；Gate 不学习运行时数据、不自动重置阈值。
 阈值由各工作区的本机配置决定，不随仓库同步。下例只展示首次建立 required 记录的结构：runtime 和
-`20000` ms 是示例值，fingerprint 是临时全零值。实际配置须填写本机 runtime 与人工选定的阈值；
+`20000` ms 是示例值。实际配置须填写本机 runtime 与人工选定的阈值；
 `--all` 也须单独确定。后续改变阈值须重新作出人工决定并修改本机文件：
 
 ```json
@@ -240,19 +241,21 @@ Gate command 的进程边界固定为：
     {
       "profile": "required",
       "runtime": { "platform": "linux", "architecture": "x64", "bunVersion": "1.3.14" },
-      "declarativeFingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
       "maxElapsedMs": 20000
     }
   ]
 }
 ```
 
-运行工作负载、工具链或 Definition 变化后，维护者需核对实际 fingerprint 和测量，再明确决定是否更新本机记录；不能把
-`no matching baseline` 当作放行。observer 不解析 Product diagnostic log，也不将并行 Check 耗时相加为墙钟耗时。
-首次建立时，维护者先手工写入当前 runtime、profile、明确选定的 `maxElapsedMs` 和示例中的临时零 fingerprint
-（64 个 `0` 字符；正式值必须是 64 个小写十六进制字符）；
-随后运行标准 Gate。Checks 全部通过时，`no matching local performance baseline` 错误会打印本次真实 fingerprint；
-维护者核对本次耗时后手工替换临时值，再运行标准 Gate 验证。focused preset 不评估总耗时，也不提供这种匹配诊断。
+首次建立时手工写入上述 profile/runtime 与预算即可，不需要先失败一次取得指纹。
+schemaVersion 1 的已有记录仍可保留可选 `declarativeFingerprint`（若提供须为 64 个小写十六进制字符）；
+它只是旧配置元数据，不参与预算匹配，Gate 不自动删除或更新它。相同 profile/runtime 即使指纹不同也属于重复预算，必须拒绝，不能按数组顺序选一个阈值。
+
+预算是绝对耗时上限，不是历史 workload 可比性的证明。Definition 或实际选择负载变化后仍应用同一预算；
+工具链 runtime 改变而没有对应记录时仍需维护者明确配置。Product Run 中的指纹继续用于声明身份，不能单独证明性能前后可比。
+observer 不解析 Product diagnostic log，也不将并行 Check 耗时相加为墙钟耗时。
+通过、超时和评估阶段缺少 profile/runtime 预算的诊断均展示总耗时与 candidate preparation、adapter/setup、Product Run 三段 timing。
+无效 timing 或不完整 Run facts 仍阻断初步 passed，不输出伪测量；focused preset 不评估总耗时。
 
 #### Result-contributor 边界与退出码
 

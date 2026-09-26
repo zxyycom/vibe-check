@@ -1,7 +1,7 @@
 ---
 title: 以本机手动硬阈值约束标准 Project Gate
 id: 260923-enforce-manual-local-project-gate-time-budget
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-23T10:39:50Z
 purpose: 让标准 Gate 耗时退化成为显式失败且不自动改写预算

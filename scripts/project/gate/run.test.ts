@@ -748,6 +748,35 @@ describe("Project Gate adapter closure", () => {
       exceededOutput.restore();
     }
 
+    const mismatchOutput = captureConsole();
+    const mismatchTranscript: string[] = [];
+    try {
+      const status = await runProjectGateWithoutTranscript([], {
+        clock: scriptedClock([100, 120, 150, 220]),
+        createInvocationLogDirectory: () => "/tmp/project-gate-mismatched-performance",
+        loadRunModule: async () => ({
+          resolvedEntryPath: prepared.resolvedEntryPath,
+          resultContributor: defaultResultContributor,
+          run: async () => ({ ...runResult, declarativeFingerprint: "b".repeat(64) })
+        }),
+        prepareCandidate: async () => prepared,
+        startTranscript: () => ({
+          complete: () => "succeeded" as const,
+          writeGateMessage: (message) => mismatchTranscript.push(message.text)
+        })
+      });
+      assert.equal(status, PROJECT_GATE_EXIT_STATUS.passed);
+      assert.equal(mismatchOutput.errors.length, 0);
+      assert.match(mismatchOutput.logs.join("\n"), /project gate result: passed/);
+      assert.match(mismatchTranscript.join("\n"), /project-gate-performance-within-limit/);
+      assert.match(
+        mismatchTranscript.join("\n"),
+        /elapsed-to-initial-result 120\.0ms \(candidate preparation 20\.0ms; adapter\/setup 30\.0ms; Product Run 70\.0ms\)/
+      );
+    } finally {
+      mismatchOutput.restore();
+    }
+
     const invalidOutput = captureConsole();
     try {
       const status = await runProjectGateWithoutTranscript([], {

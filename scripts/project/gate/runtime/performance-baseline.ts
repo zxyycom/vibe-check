@@ -7,9 +7,10 @@ import type { ProjectGateSelection } from "./controls.ts";
 export const LOCAL_PERFORMANCE_BASELINE_PATH =
   ".cache/vibe-check/project-gate/performance-baseline.json";
 
-/** A manually maintained, machine-local hard limit for one standard Gate workload. */
+/** A manually maintained, machine-local hard limit for one Gate profile and runtime. */
 export interface ProjectGatePerformanceBaseline {
-  readonly declarativeFingerprint: string;
+  /** Optional legacy metadata: validated when present, never used to select the hard limit. */
+  readonly declarativeFingerprint?: string;
   readonly maxElapsedMs: number;
   readonly profile: "all" | "required";
   readonly runtime: ProjectGatePerformanceRuntime;
@@ -71,8 +72,8 @@ function parseLocalPerformanceBaselines(value: unknown): LocalPerformanceBaselin
     parsed.push(baseline);
   }
   const identities = parsed.map(
-    ({ profile, runtime, declarativeFingerprint }) =>
-      `${profile}\0${runtime.platform}\0${runtime.architecture}\0${runtime.bunVersion}\0${declarativeFingerprint}`
+    ({ profile, runtime }) =>
+      `${profile}\0${runtime.platform}\0${runtime.architecture}\0${runtime.bunVersion}`
   );
   if (new Set(identities).size !== identities.length) {
     return Object.freeze({ kind: "invalid" });
@@ -123,10 +124,8 @@ export function preflightPerformanceBaselines(
 function parsePerformanceBaseline(value: unknown): ProjectGatePerformanceBaseline | undefined {
   if (
     !isNonArrayRecord(value) ||
-    !hasExactKeys(value, ["profile", "runtime", "declarativeFingerprint", "maxElapsedMs"]) ||
+    !hasValidBaselineFields(value) ||
     (value.profile !== "required" && value.profile !== "all") ||
-    typeof value.declarativeFingerprint !== "string" ||
-    !/^[a-f0-9]{64}$/u.test(value.declarativeFingerprint) ||
     !Number.isSafeInteger(value.maxElapsedMs) ||
     Number(value.maxElapsedMs) <= 0 ||
     !isPerformanceRuntime(value.runtime)
@@ -134,11 +133,27 @@ function parsePerformanceBaseline(value: unknown): ProjectGatePerformanceBaselin
     return undefined;
   }
   return Object.freeze({
-    declarativeFingerprint: value.declarativeFingerprint,
+    ...(typeof value.declarativeFingerprint === "string"
+      ? { declarativeFingerprint: value.declarativeFingerprint }
+      : {}),
     maxElapsedMs: Number(value.maxElapsedMs),
     profile: value.profile,
     runtime: Object.freeze({ ...value.runtime })
   });
+}
+
+function hasValidBaselineFields(value: Readonly<Record<string, unknown>>): boolean {
+  const keys = ["profile", "runtime", "maxElapsedMs"];
+  if (Object.hasOwn(value, "declarativeFingerprint")) {
+    keys.push("declarativeFingerprint");
+    if (
+      typeof value.declarativeFingerprint !== "string" ||
+      !/^[a-f0-9]{64}$/u.test(value.declarativeFingerprint)
+    ) {
+      return false;
+    }
+  }
+  return hasExactKeys(value, keys);
 }
 
 function isPerformanceRuntime(value: unknown): value is ProjectGatePerformanceRuntime {
