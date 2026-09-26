@@ -1,0 +1,920 @@
+{
+  "command": "bun run check",
+  "measurementWrapper": "mise exec -- bun (Bun.spawn bash -c TIMEFORMAT=...; time bun run check; monotonic performance.now around child)",
+  "sourceHead": "5206ae782a425e0d575b0b1b6664bbf72fb6aa22",
+  "candidate": "0.0.0-local.724cf1cf0577",
+  "runtime": "Linux x64; Bun 1.3.14; nproc=4; cgroup cpu.max=400000 100000",
+  "baselineMaxElapsedMs": 20000,
+  "baselineFingerprint": "197be7adcf7fe0deec3f930917cfbc025f240d761682eef2448831181cb6b70d",
+  "observedFingerprint": "4b41682dc1c549ff125403f5691fea7db5ff7b01eb8999fc4216a551213d3d02",
+  "rawObservationDirectory": ".log/gate-performance-investigation-2026-09-26T03-35-03.428Z",
+  "cacheSnapshot": {
+    "beforeFiles": 533,
+    "afterFiles": 533,
+    "changedOrNewFiles": 0
+  },
+  "cacheAudit": {
+    "sources": 509,
+    "sourceBytes": 2759500,
+    "hits": 509,
+    "misses": []
+  },
+  "samples": [
+    {
+      "i": 1,
+      "exitCode": 1,
+      "wallMs": 22500.103887,
+      "firstGateLineMs": 815.837411,
+      "log": "/workspace/vibe-check/.log/project-gate/2026-09-26T03-35-04.300Z-3367010-859e3108-ccdf-49c0-b350-1aa2a7d007e5",
+      "productElapsed": "21.4s",
+      "measure": "MEASUREMENT wall_s=22.497 user_s=52.370 system_s=17.920",
+      "metrics": {
+        "acceptedWaitMs": 21084.752,
+        "admissiblePendingTaskMs": 120647.196,
+        "admissionViablePendingTaskMs": 470009.72,
+        "capacityBlockedTaskMs": 339201.593,
+        "completionTailMs": 150.325,
+        "discrete.acceptedWaitCount": 31,
+        "discrete.admittedCount": 34,
+        "discrete.completionTailActiveTaskCount": 3,
+        "discrete.maxRunning": 3,
+        "effectiveCapacitySlotMs": 63951.624,
+        "effectiveSlotUtilization": 0.8654620491145151,
+        "mutexBlockedTaskMs": 10160.93,
+        "peakAdmissiblePendingTaskCount": 34,
+        "peakAdmissionViablePendingTaskCount": 34,
+        "peakCapacityBlockedTaskCount": 31,
+        "peakMutexBlockedTaskCount": 2,
+        "rootCapacitySlotMs": 63951.624,
+        "rootSlotUtilization": 0.8654620491145151,
+        "schedulerControlPathMs": 30.442,
+        "schedulerDecisionObservationMs": 15.709,
+        "schedulerSpanMs": 21317.208,
+        "taskSlotMs": 55347.703,
+        "topAdmissionDelays.0.admissiblePendingMs": 8401.311,
+        "topAdmissionDelays.0.admissionDelayMs": 21166.883,
+        "topAdmissionDelays.0.capacityBlockedMs": 12765.572,
+        "topAdmissionDelays.0.mutexBlockedMs": 0,
+        "topAdmissionDelays.0.taskActiveMs": 12.952,
+        "topAdmissionDelays.1.admissiblePendingMs": 6466.875,
+        "topAdmissionDelays.1.admissionDelayMs": 20956.849,
+        "topAdmissionDelays.1.capacityBlockedMs": 8869.41,
+        "topAdmissionDelays.1.mutexBlockedMs": 5620.564,
+        "topAdmissionDelays.1.taskActiveMs": 208.888,
+        "topAdmissionDelays.2.admissiblePendingMs": 8399.588,
+        "topAdmissionDelays.2.admissionDelayMs": 20954.715,
+        "topAdmissionDelays.2.capacityBlockedMs": 12555.127,
+        "topAdmissionDelays.2.mutexBlockedMs": 0,
+        "topAdmissionDelays.2.taskActiveMs": 361.257,
+        "topCompletionTailContributors.0.settledAfterLastAdmissionMs": 149.089,
+        "topCompletionTailContributors.1.settledAfterLastAdmissionMs": 112.88,
+        "topCompletionTailContributors.2.settledAfterLastAdmissionMs": 12.952
+      },
+      "cgroupDelta": {
+        "usage_usec": 73799112,
+        "user_usec": 54480550,
+        "system_usec": 19318562,
+        "nice_usec": 0,
+        "nr_periods": 225,
+        "nr_throttled": 93,
+        "throttled_usec": 8116151,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "statusCounts": {
+        "passed": 34,
+        "not-applicable": 9
+      },
+      "recordsFingerprint": "check-record/v2/records/sha256:3e6d56e3ccdc8e5c3cbac1889f70d5852308d9ee86cdba39febae5613b5f806e",
+      "recordCount": 1,
+      "markdownLintOutcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 509
+        }
+      },
+      "ordinaryAdmissibleWaitCount": 9,
+      "checkDurations": [
+        {
+          "id": "prepared-external-package-consumer",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-artifact",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-types",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-docs",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-runtime",
+          "durationMs": null
+        },
+        {
+          "id": "tests-scripts-package-tools-boundary",
+          "durationMs": null
+        },
+        {
+          "id": "materials-schema-validator",
+          "durationMs": null
+        },
+        {
+          "id": "materials-schema-publication-validator",
+          "durationMs": null
+        },
+        {
+          "id": "test-evidence-rule-tests",
+          "durationMs": null
+        },
+        {
+          "id": "prepared-package-candidate",
+          "durationMs": 5.348
+        },
+        {
+          "id": "tests-scripts-layout",
+          "durationMs": 3318.654
+        },
+        {
+          "id": "tests-scripts-project",
+          "durationMs": 3473.2
+        },
+        {
+          "id": "tests-product-supporting-checks",
+          "durationMs": 2560.969
+        },
+        {
+          "id": "tests-scripts-admission-workbench",
+          "durationMs": 2862.938
+        },
+        {
+          "id": "tests-product-function-metrics",
+          "durationMs": 3190.454
+        },
+        {
+          "id": "function-metrics",
+          "durationMs": 3531.082
+        },
+        {
+          "id": "tests-scripts-validation",
+          "durationMs": 4537.375
+        },
+        {
+          "id": "tests-package-supporting",
+          "durationMs": 1808.558
+        },
+        {
+          "id": "test-evidence",
+          "durationMs": 2014.999
+        },
+        {
+          "id": "tests-product-runtime",
+          "durationMs": 3605.738
+        },
+        {
+          "id": "tests-product-file-metrics",
+          "durationMs": 1522.359
+        },
+        {
+          "id": "markdown-lint",
+          "durationMs": 2954.988
+        },
+        {
+          "id": "markdown-link-validation",
+          "durationMs": 3198.556
+        },
+        {
+          "id": "tests-product-duplicate-detection",
+          "durationMs": 2263.236
+        },
+        {
+          "id": "lint-product",
+          "durationMs": 1625.385
+        },
+        {
+          "id": "decision-records",
+          "durationMs": 1612.17
+        },
+        {
+          "id": "lint-scripts",
+          "durationMs": 1010.758
+        },
+        {
+          "id": "tests-scripts-test-evidence",
+          "durationMs": 1440.477
+        },
+        {
+          "id": "tests-scripts-tooling",
+          "durationMs": 1678.655
+        },
+        {
+          "id": "duplicate-detection",
+          "durationMs": 154.31
+        },
+        {
+          "id": "tests-product-markdown-links",
+          "durationMs": 702.653
+        },
+        {
+          "id": "tests-scripts-machine-artifacts",
+          "durationMs": 1075.965
+        },
+        {
+          "id": "tests-scripts-project-selection",
+          "durationMs": 503.57
+        },
+        {
+          "id": "tests-product-json",
+          "durationMs": 620.183
+        },
+        {
+          "id": "typecheck-scripts",
+          "durationMs": 399.585
+        },
+        {
+          "id": "format-check",
+          "durationMs": 212.695
+        },
+        {
+          "id": "materials-json-validator",
+          "durationMs": 345.819
+        },
+        {
+          "id": "tests-product-secret-detection",
+          "durationMs": 1095.954
+        },
+        {
+          "id": "typecheck-product",
+          "durationMs": 751.389
+        },
+        {
+          "id": "materials-examples-validator",
+          "durationMs": 208.049
+        },
+        {
+          "id": "materials-links-validator",
+          "durationMs": 11.518
+        },
+        {
+          "id": "file-metrics",
+          "durationMs": 455.94
+        },
+        {
+          "id": "git-diff-whitespace",
+          "durationMs": 359.659
+        }
+      ]
+    },
+    {
+      "i": 2,
+      "exitCode": 1,
+      "wallMs": 20866.322526,
+      "firstGateLineMs": 733.4976800000004,
+      "log": "/workspace/vibe-check/.log/project-gate/2026-09-26T03-35-26.720Z-3369147-b2a9cd3f-79a4-4df9-8d93-4ef5826173b0",
+      "productElapsed": "19.8s",
+      "measure": "MEASUREMENT wall_s=20.864 user_s=48.216 system_s=16.486",
+      "metrics": {
+        "acceptedWaitMs": 19656.295,
+        "admissiblePendingTaskMs": 135512.734,
+        "admissionViablePendingTaskMs": 438107.36,
+        "capacityBlockedTaskMs": 295238.331,
+        "completionTailMs": 48.602,
+        "discrete.acceptedWaitCount": 31,
+        "discrete.admittedCount": 34,
+        "discrete.completionTailActiveTaskCount": 3,
+        "discrete.maxRunning": 3,
+        "effectiveCapacitySlotMs": 59341.329,
+        "effectiveSlotUtilization": 0.8440290920723315,
+        "mutexBlockedTaskMs": 7356.295,
+        "peakAdmissiblePendingTaskCount": 34,
+        "peakAdmissionViablePendingTaskCount": 34,
+        "peakCapacityBlockedTaskCount": 31,
+        "peakMutexBlockedTaskCount": 2,
+        "rootCapacitySlotMs": 59341.329,
+        "rootSlotUtilization": 0.8440290920723315,
+        "schedulerControlPathMs": 28.343,
+        "schedulerDecisionObservationMs": 14.467,
+        "schedulerSpanMs": 19780.443,
+        "taskSlotMs": 50085.808,
+        "topAdmissionDelays.0.admissiblePendingMs": 9163.607,
+        "topAdmissionDelays.0.admissionDelayMs": 19731.84,
+        "topAdmissionDelays.0.capacityBlockedMs": 10568.234,
+        "topAdmissionDelays.0.mutexBlockedMs": 0,
+        "topAdmissionDelays.0.taskActiveMs": 13.534,
+        "topAdmissionDelays.1.admissiblePendingMs": 6002.601,
+        "topAdmissionDelays.1.admissionDelayMs": 19536.019,
+        "topAdmissionDelays.1.capacityBlockedMs": 9434.945,
+        "topAdmissionDelays.1.mutexBlockedMs": 4098.474,
+        "topAdmissionDelays.1.taskActiveMs": 194.646,
+        "topAdmissionDelays.2.admissiblePendingMs": 9161.763,
+        "topAdmissionDelays.2.admissionDelayMs": 19533.48,
+        "topAdmissionDelays.2.capacityBlockedMs": 10371.717,
+        "topAdmissionDelays.2.mutexBlockedMs": 0,
+        "topAdmissionDelays.2.taskActiveMs": 245.629,
+        "topCompletionTailContributors.0.settledAfterLastAdmissionMs": 47.268,
+        "topCompletionTailContributors.1.settledAfterLastAdmissionMs": 18.242,
+        "topCompletionTailContributors.2.settledAfterLastAdmissionMs": 13.534
+      },
+      "cgroupDelta": {
+        "usage_usec": 66547548,
+        "user_usec": 49655203,
+        "system_usec": 16892346,
+        "nice_usec": 0,
+        "nr_periods": 209,
+        "nr_throttled": 65,
+        "throttled_usec": 7124867,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "statusCounts": {
+        "passed": 34,
+        "not-applicable": 9
+      },
+      "recordsFingerprint": "check-record/v2/records/sha256:3e6d56e3ccdc8e5c3cbac1889f70d5852308d9ee86cdba39febae5613b5f806e",
+      "recordCount": 1,
+      "markdownLintOutcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 509
+        }
+      },
+      "ordinaryAdmissibleWaitCount": 9,
+      "checkDurations": [
+        {
+          "id": "prepared-external-package-consumer",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-artifact",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-types",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-docs",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-runtime",
+          "durationMs": null
+        },
+        {
+          "id": "tests-scripts-package-tools-boundary",
+          "durationMs": null
+        },
+        {
+          "id": "materials-schema-validator",
+          "durationMs": null
+        },
+        {
+          "id": "materials-schema-publication-validator",
+          "durationMs": null
+        },
+        {
+          "id": "test-evidence-rule-tests",
+          "durationMs": null
+        },
+        {
+          "id": "prepared-package-candidate",
+          "durationMs": 5.057
+        },
+        {
+          "id": "tests-scripts-layout",
+          "durationMs": 3076.2
+        },
+        {
+          "id": "tests-scripts-project",
+          "durationMs": 3181.92
+        },
+        {
+          "id": "tests-product-supporting-checks",
+          "durationMs": 2519.613
+        },
+        {
+          "id": "tests-scripts-admission-workbench",
+          "durationMs": 2785.603
+        },
+        {
+          "id": "tests-product-function-metrics",
+          "durationMs": 2132.704
+        },
+        {
+          "id": "tests-scripts-validation",
+          "durationMs": 3255.179
+        },
+        {
+          "id": "tests-package-supporting",
+          "durationMs": 1734.932
+        },
+        {
+          "id": "function-metrics",
+          "durationMs": 2891.928
+        },
+        {
+          "id": "tests-product-runtime",
+          "durationMs": 2963.28
+        },
+        {
+          "id": "test-evidence",
+          "durationMs": 2464.051
+        },
+        {
+          "id": "markdown-lint",
+          "durationMs": 2736.918
+        },
+        {
+          "id": "markdown-link-validation",
+          "durationMs": 2952.377
+        },
+        {
+          "id": "tests-product-file-metrics",
+          "durationMs": 1602.734
+        },
+        {
+          "id": "lint-product",
+          "durationMs": 1545.101
+        },
+        {
+          "id": "tests-product-duplicate-detection",
+          "durationMs": 2118.41
+        },
+        {
+          "id": "decision-records",
+          "durationMs": 1376.522
+        },
+        {
+          "id": "tests-scripts-tooling",
+          "durationMs": 1599.071
+        },
+        {
+          "id": "lint-scripts",
+          "durationMs": 1076.827
+        },
+        {
+          "id": "duplicate-detection",
+          "durationMs": 171.088
+        },
+        {
+          "id": "tests-scripts-test-evidence",
+          "durationMs": 1561.772
+        },
+        {
+          "id": "tests-scripts-machine-artifacts",
+          "durationMs": 838.333
+        },
+        {
+          "id": "tests-product-markdown-links",
+          "durationMs": 633.768
+        },
+        {
+          "id": "tests-product-secret-detection",
+          "durationMs": 364.941
+        },
+        {
+          "id": "typecheck-product",
+          "durationMs": 373.157
+        },
+        {
+          "id": "tests-scripts-project-selection",
+          "durationMs": 568.523
+        },
+        {
+          "id": "format-check",
+          "durationMs": 242.129
+        },
+        {
+          "id": "materials-json-validator",
+          "durationMs": 341.833
+        },
+        {
+          "id": "file-metrics",
+          "durationMs": 210.27
+        },
+        {
+          "id": "tests-product-json",
+          "durationMs": 1193.057
+        },
+        {
+          "id": "materials-examples-validator",
+          "durationMs": 193.927
+        },
+        {
+          "id": "materials-links-validator",
+          "durationMs": 12.075
+        },
+        {
+          "id": "typecheck-scripts",
+          "durationMs": 1031.107
+        },
+        {
+          "id": "git-diff-whitespace",
+          "durationMs": 243.862
+        }
+      ]
+    },
+    {
+      "i": 3,
+      "exitCode": 1,
+      "wallMs": 19888.90612,
+      "firstGateLineMs": 689.9482290000014,
+      "log": "/workspace/vibe-check/.log/project-gate/2026-09-26T03-35-47.545Z-3371221-7df56e0d-8fbe-44e6-8039-46020829b393",
+      "productElapsed": "18.9s",
+      "measure": "MEASUREMENT wall_s=19.887 user_s=45.523 system_s=15.791",
+      "metrics": {
+        "acceptedWaitMs": 18655.387,
+        "admissiblePendingTaskMs": 139233.395,
+        "admissionViablePendingTaskMs": 415997.637,
+        "capacityBlockedTaskMs": 270044.663,
+        "completionTailMs": 149.592,
+        "discrete.acceptedWaitCount": 31,
+        "discrete.admittedCount": 34,
+        "discrete.completionTailActiveTaskCount": 3,
+        "discrete.maxRunning": 3,
+        "effectiveCapacitySlotMs": 56620.559,
+        "effectiveSlotUtilization": 0.8263460379552408,
+        "mutexBlockedTaskMs": 6719.579,
+        "peakAdmissiblePendingTaskCount": 34,
+        "peakAdmissionViablePendingTaskCount": 34,
+        "peakCapacityBlockedTaskCount": 31,
+        "peakMutexBlockedTaskCount": 2,
+        "rootCapacitySlotMs": 56620.559,
+        "rootSlotUtilization": 0.8263460379552408,
+        "schedulerControlPathMs": 26.099,
+        "schedulerDecisionObservationMs": 13.289,
+        "schedulerSpanMs": 18873.52,
+        "taskSlotMs": 46788.175,
+        "topAdmissionDelays.0.admissiblePendingMs": 9632.314,
+        "topAdmissionDelays.0.admissionDelayMs": 18723.928,
+        "topAdmissionDelays.0.capacityBlockedMs": 9091.614,
+        "topAdmissionDelays.0.mutexBlockedMs": 0,
+        "topAdmissionDelays.0.taskActiveMs": 13.817,
+        "topAdmissionDelays.1.admissiblePendingMs": 6302.589,
+        "topAdmissionDelays.1.admissionDelayMs": 18531.601,
+        "topAdmissionDelays.1.capacityBlockedMs": 8416.26,
+        "topAdmissionDelays.1.mutexBlockedMs": 3812.753,
+        "topAdmissionDelays.1.taskActiveMs": 191.119,
+        "topAdmissionDelays.2.admissiblePendingMs": 9630.706,
+        "topAdmissionDelays.2.admissionDelayMs": 18529.753,
+        "topAdmissionDelays.2.capacityBlockedMs": 8899.047,
+        "topAdmissionDelays.2.mutexBlockedMs": 0,
+        "topAdmissionDelays.2.taskActiveMs": 342.628,
+        "topCompletionTailContributors.0.settledAfterLastAdmissionMs": 148.453,
+        "topCompletionTailContributors.1.settledAfterLastAdmissionMs": 110.976,
+        "topCompletionTailContributors.2.settledAfterLastAdmissionMs": 13.817
+      },
+      "cgroupDelta": {
+        "usage_usec": 62966985,
+        "user_usec": 46734944,
+        "system_usec": 16232042,
+        "nice_usec": 0,
+        "nr_periods": 198,
+        "nr_throttled": 64,
+        "throttled_usec": 6478212,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "statusCounts": {
+        "passed": 34,
+        "not-applicable": 9
+      },
+      "recordsFingerprint": "check-record/v2/records/sha256:3e6d56e3ccdc8e5c3cbac1889f70d5852308d9ee86cdba39febae5613b5f806e",
+      "recordCount": 1,
+      "markdownLintOutcome": {
+        "status": "passed",
+        "data": {
+          "findingCount": 0,
+          "rejectedInputCount": 0,
+          "sourceFileCount": 509
+        }
+      },
+      "ordinaryAdmissibleWaitCount": 11,
+      "checkDurations": [
+        {
+          "id": "prepared-external-package-consumer",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-artifact",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-types",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-docs",
+          "durationMs": null
+        },
+        {
+          "id": "tests-package-consumer-runtime",
+          "durationMs": null
+        },
+        {
+          "id": "tests-scripts-package-tools-boundary",
+          "durationMs": null
+        },
+        {
+          "id": "materials-schema-validator",
+          "durationMs": null
+        },
+        {
+          "id": "materials-schema-publication-validator",
+          "durationMs": null
+        },
+        {
+          "id": "test-evidence-rule-tests",
+          "durationMs": null
+        },
+        {
+          "id": "prepared-package-candidate",
+          "durationMs": 4.715
+        },
+        {
+          "id": "tests-scripts-layout",
+          "durationMs": 3018.664
+        },
+        {
+          "id": "tests-scripts-project",
+          "durationMs": 3190.951
+        },
+        {
+          "id": "tests-product-supporting-checks",
+          "durationMs": 2416.687
+        },
+        {
+          "id": "tests-scripts-admission-workbench",
+          "durationMs": 2671.219
+        },
+        {
+          "id": "tests-product-runtime",
+          "durationMs": 2146.471
+        },
+        {
+          "id": "tests-scripts-validation",
+          "durationMs": 2904.52
+        },
+        {
+          "id": "test-evidence",
+          "durationMs": 1857.624
+        },
+        {
+          "id": "tests-product-function-metrics",
+          "durationMs": 2467.533
+        },
+        {
+          "id": "function-metrics",
+          "durationMs": 2937.619
+        },
+        {
+          "id": "tests-package-supporting",
+          "durationMs": 1501.127
+        },
+        {
+          "id": "markdown-link-validation",
+          "durationMs": 2915.308
+        },
+        {
+          "id": "markdown-lint",
+          "durationMs": 2247.597
+        },
+        {
+          "id": "tests-product-file-metrics",
+          "durationMs": 1263.799
+        },
+        {
+          "id": "decision-records",
+          "durationMs": 1433.385
+        },
+        {
+          "id": "lint-product",
+          "durationMs": 1491.334
+        },
+        {
+          "id": "tests-product-duplicate-detection",
+          "durationMs": 2048.105
+        },
+        {
+          "id": "lint-scripts",
+          "durationMs": 965.561
+        },
+        {
+          "id": "tests-scripts-tooling",
+          "durationMs": 1451.422
+        },
+        {
+          "id": "duplicate-detection",
+          "durationMs": 151.634
+        },
+        {
+          "id": "tests-scripts-test-evidence",
+          "durationMs": 1355.283
+        },
+        {
+          "id": "tests-product-json",
+          "durationMs": 415.211
+        },
+        {
+          "id": "tests-scripts-machine-artifacts",
+          "durationMs": 903.18
+        },
+        {
+          "id": "tests-product-secret-detection",
+          "durationMs": 352.45
+        },
+        {
+          "id": "tests-product-markdown-links",
+          "durationMs": 631.344
+        },
+        {
+          "id": "typecheck-scripts",
+          "durationMs": 375.003
+        },
+        {
+          "id": "format-check",
+          "durationMs": 312.199
+        },
+        {
+          "id": "materials-json-validator",
+          "durationMs": 280.465
+        },
+        {
+          "id": "typecheck-product",
+          "durationMs": 920.437
+        },
+        {
+          "id": "tests-scripts-project-selection",
+          "durationMs": 1101.567
+        },
+        {
+          "id": "materials-examples-validator",
+          "durationMs": 190.356
+        },
+        {
+          "id": "materials-links-validator",
+          "durationMs": 12.407
+        },
+        {
+          "id": "file-metrics",
+          "durationMs": 428.443
+        },
+        {
+          "id": "git-diff-whitespace",
+          "durationMs": 341.074
+        }
+      ]
+    }
+  ],
+  "reproduction": [
+    {
+      "policy": "learned",
+      "resultKind": "completed",
+      "elapsedMs": 252.02804700000002,
+      "events": [
+        {
+          "kind": "start",
+          "id": "a-runner",
+          "ms": 18.403975000000173
+        },
+        {
+          "kind": "start",
+          "id": "b-runner",
+          "ms": 18.63114600000017
+        },
+        {
+          "kind": "finish",
+          "id": "a-runner",
+          "ms": 99.61692500000004
+        },
+        {
+          "kind": "start",
+          "id": "c-runner",
+          "ms": 102.97875500000009
+        },
+        {
+          "kind": "start",
+          "id": "d-unclaimed",
+          "ms": 103.02810600000021
+        },
+        {
+          "kind": "finish",
+          "id": "b-runner",
+          "ms": 103.03888600000005
+        },
+        {
+          "kind": "start",
+          "id": "e-unclaimed",
+          "ms": 103.696056
+        },
+        {
+          "kind": "finish",
+          "id": "d-unclaimed",
+          "ms": 174.70378900000014
+        },
+        {
+          "kind": "start",
+          "id": "f-unclaimed",
+          "ms": 176.31978800000002
+        },
+        {
+          "kind": "finish",
+          "id": "e-unclaimed",
+          "ms": 176.3314200000002
+        },
+        {
+          "kind": "finish",
+          "id": "c-runner",
+          "ms": 178.06789300000014
+        },
+        {
+          "kind": "finish",
+          "id": "f-unclaimed",
+          "ms": 247.25620900000013
+        }
+      ]
+    },
+    {
+      "policy": "static",
+      "resultKind": "completed",
+      "elapsedMs": 161.1463429999999,
+      "events": [
+        {
+          "kind": "start",
+          "id": "a-runner",
+          "ms": 4.083920999999918
+        },
+        {
+          "kind": "start",
+          "id": "b-runner",
+          "ms": 4.12819300000001
+        },
+        {
+          "kind": "start",
+          "id": "d-unclaimed",
+          "ms": 4.153819999999996
+        },
+        {
+          "kind": "finish",
+          "id": "d-unclaimed",
+          "ms": 75.701145
+        },
+        {
+          "kind": "start",
+          "id": "e-unclaimed",
+          "ms": 76.95723699999985
+        },
+        {
+          "kind": "finish",
+          "id": "a-runner",
+          "ms": 84.24137799999994
+        },
+        {
+          "kind": "start",
+          "id": "c-runner",
+          "ms": 85.51533199999994
+        },
+        {
+          "kind": "finish",
+          "id": "b-runner",
+          "ms": 85.52236500000004
+        },
+        {
+          "kind": "start",
+          "id": "f-unclaimed",
+          "ms": 85.924622
+        },
+        {
+          "kind": "finish",
+          "id": "e-unclaimed",
+          "ms": 148.91127599999982
+        },
+        {
+          "kind": "finish",
+          "id": "f-unclaimed",
+          "ms": 156.2130299999999
+        },
+        {
+          "kind": "finish",
+          "id": "c-runner",
+          "ms": 160.61817199999996
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Three consecutive uncontrolled-host samples, not a reliable p95 or causal performance A/B.",
+    "CPU throttling is cgroup-wide and is not additive wall time.",
+    "Warm candidate and current lint findings caches retained; OS page cache and learned duration history not reset.",
+    "Product elapsed, command wall, slot-time integrals and Gate budget timing are different metrics.",
+    "Missing baseline branch did not emit Gate phase timings; no threshold or baseline fingerprint was changed."
+  ]
+}

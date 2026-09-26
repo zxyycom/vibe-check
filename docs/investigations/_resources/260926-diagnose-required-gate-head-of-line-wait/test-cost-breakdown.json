@@ -1,0 +1,640 @@
+{
+  "formedAt": "2026-09-26T06:29:49.653Z",
+  "sourceHead": "5206ae782a425e0d575b0b1b6664bbf72fb6aa22",
+  "worktree": "Finding waivers + seven Product test regions + fingerprint-independent budget policy; uncommitted. Profiling preceded the baseline field-parser shape refactor.",
+  "environment": {
+    "bunVersion": "1.3.14",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpuMax": "400000 100000",
+    "cache": "Retained candidate and OS/cache state; no cold reset; no CPU isolation"
+  },
+  "rawObservationDirectory": ".log/performance-investigation/2026-09-26-gate-budget",
+  "laneProtocol": {
+    "sourceGate": ".log/project-gate/2026-09-26T06-10-26.687Z-3439318-7597bbc4-fe46-4864-a866-632ebab2557c",
+    "selection": "17 tests-* Checks with passed outcomes in source Gate; 654 test entities in each repetition, disjoint files from resolveProjectGateTestLanes",
+    "command": "mise-bound Bun test <exact lane files> --reporter=junit --reporter-outfile=<lane>-<repetition>.xml; preserve per-lane --timeout=15000 when declared",
+    "ordering": "Two repetitions, each of the 17 lanes serially in createProjectGateTestCheckDefinitions order; no overlapping test processes launched by investigator",
+    "scope": "Component isolation, not a replacement Gate; JUnit instead of dots. Body time is sum of testcase durations. Remainder includes import/registration/hooks/runner/startup/exit, not pure import time; cannot add lane wall times to concurrent Gate makespan."
+  },
+  "laneSamples": [
+    {
+      "lane": "packageSupporting",
+      "checkId": "tests-package-supporting",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 1569.389587,
+      "testCount": 29,
+      "bodyTimeSumMs": 1043.983,
+      "runnerTimeMs": 1550.05,
+      "fileCount": 17
+    },
+    {
+      "lane": "productDuplicateDetection",
+      "checkId": "tests-product-duplicate-detection",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 1279.9159050000003,
+      "testCount": 18,
+      "bodyTimeSumMs": 1063.015,
+      "runnerTimeMs": 1270.453,
+      "fileCount": 5
+    },
+    {
+      "lane": "productFileMetrics",
+      "checkId": "tests-product-file-metrics",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 1254.2330510000002,
+      "testCount": 20,
+      "bodyTimeSumMs": 1026.002,
+      "runnerTimeMs": 1243.444,
+      "fileCount": 5
+    },
+    {
+      "lane": "productFunctionMetrics",
+      "checkId": "tests-product-function-metrics",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 2019.8129319999998,
+      "testCount": 97,
+      "bodyTimeSumMs": 1552.936,
+      "runnerTimeMs": 1994.048,
+      "fileCount": 34
+    },
+    {
+      "lane": "productJsonChecks",
+      "checkId": "tests-product-json",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 376.9914209999997,
+      "testCount": 24,
+      "bodyTimeSumMs": 231.841,
+      "runnerTimeMs": 367.078,
+      "fileCount": 9
+    },
+    {
+      "lane": "productMarkdownLinks",
+      "checkId": "tests-product-markdown-links",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 542.1090910000003,
+      "testCount": 44,
+      "bodyTimeSumMs": 309.96,
+      "runnerTimeMs": 530.204,
+      "fileCount": 14
+    },
+    {
+      "lane": "productSecretDetection",
+      "checkId": "tests-product-secret-detection",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 351.16947700000037,
+      "testCount": 10,
+      "bodyTimeSumMs": 143.804,
+      "runnerTimeMs": 342.012,
+      "fileCount": 1
+    },
+    {
+      "lane": "productSupportingChecks",
+      "checkId": "tests-product-supporting-checks",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 2332.124016999999,
+      "testCount": 37,
+      "bodyTimeSumMs": 2109.54,
+      "runnerTimeMs": 2320.554,
+      "fileCount": 17
+    },
+    {
+      "lane": "productRuntime",
+      "checkId": "tests-product-runtime",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 2073.5222479999993,
+      "testCount": 243,
+      "bodyTimeSumMs": 1495.99,
+      "runnerTimeMs": 2051.831,
+      "fileCount": 97
+    },
+    {
+      "lane": "scriptsAdmissionWorkbench",
+      "checkId": "tests-scripts-admission-workbench",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 2904.1891529999994,
+      "testCount": 23,
+      "bodyTimeSumMs": 2595.484,
+      "runnerTimeMs": 2889.223,
+      "fileCount": 5
+    },
+    {
+      "lane": "scriptsProject",
+      "checkId": "tests-scripts-project",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 2760.7977309999987,
+      "testCount": 52,
+      "bodyTimeSumMs": 1979.763,
+      "runnerTimeMs": 2722.8,
+      "fileCount": 14
+    },
+    {
+      "lane": "scriptsProjectSelection",
+      "checkId": "tests-scripts-project-selection",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 618.5979090000001,
+      "testCount": 7,
+      "bodyTimeSumMs": 227.73,
+      "runnerTimeMs": 600.068,
+      "fileCount": 1
+    },
+    {
+      "lane": "scriptsTestEvidence",
+      "checkId": "tests-scripts-test-evidence",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 969.5059450000008,
+      "testCount": 11,
+      "bodyTimeSumMs": 806.482,
+      "runnerTimeMs": 957.47,
+      "fileCount": 6
+    },
+    {
+      "lane": "scriptsLayout",
+      "checkId": "tests-scripts-layout",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 2371.2352629999987,
+      "testCount": 1,
+      "bodyTimeSumMs": 2133.369,
+      "runnerTimeMs": 2336.423,
+      "fileCount": 1
+    },
+    {
+      "lane": "scriptsMachineArtifacts",
+      "checkId": "tests-scripts-machine-artifacts",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 805.5337499999987,
+      "testCount": 3,
+      "bodyTimeSumMs": 475.911,
+      "runnerTimeMs": 780.909,
+      "fileCount": 1
+    },
+    {
+      "lane": "scriptsValidation",
+      "checkId": "tests-scripts-validation",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 3271.908483000003,
+      "testCount": 8,
+      "bodyTimeSumMs": 2689.068,
+      "runnerTimeMs": 3247.79,
+      "fileCount": 4
+    },
+    {
+      "lane": "scriptsTooling",
+      "checkId": "tests-scripts-tooling",
+      "repetition": 1,
+      "exitCode": 0,
+      "wallMs": 1139.171352999998,
+      "testCount": 27,
+      "bodyTimeSumMs": 979.203,
+      "runnerTimeMs": 1126.65,
+      "fileCount": 10
+    },
+    {
+      "lane": "packageSupporting",
+      "checkId": "tests-package-supporting",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 1407.6042349999989,
+      "testCount": 29,
+      "bodyTimeSumMs": 903.929,
+      "runnerTimeMs": 1387.515,
+      "fileCount": 17
+    },
+    {
+      "lane": "productDuplicateDetection",
+      "checkId": "tests-product-duplicate-detection",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 1266.0827600000011,
+      "testCount": 18,
+      "bodyTimeSumMs": 1069.208,
+      "runnerTimeMs": 1254.425,
+      "fileCount": 5
+    },
+    {
+      "lane": "productFileMetrics",
+      "checkId": "tests-product-file-metrics",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 1225.6264960000008,
+      "testCount": 20,
+      "bodyTimeSumMs": 1002.862,
+      "runnerTimeMs": 1214.125,
+      "fileCount": 5
+    },
+    {
+      "lane": "productFunctionMetrics",
+      "checkId": "tests-product-function-metrics",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 2025.2510150000016,
+      "testCount": 97,
+      "bodyTimeSumMs": 1542.439,
+      "runnerTimeMs": 1995.468,
+      "fileCount": 34
+    },
+    {
+      "lane": "productJsonChecks",
+      "checkId": "tests-product-json",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 387.8945969999986,
+      "testCount": 24,
+      "bodyTimeSumMs": 225.666,
+      "runnerTimeMs": 377.841,
+      "fileCount": 9
+    },
+    {
+      "lane": "productMarkdownLinks",
+      "checkId": "tests-product-markdown-links",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 540.1222330000019,
+      "testCount": 44,
+      "bodyTimeSumMs": 327.267,
+      "runnerTimeMs": 529.653,
+      "fileCount": 14
+    },
+    {
+      "lane": "productSecretDetection",
+      "checkId": "tests-product-secret-detection",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 323.6898230000006,
+      "testCount": 10,
+      "bodyTimeSumMs": 142.714,
+      "runnerTimeMs": 313.55,
+      "fileCount": 1
+    },
+    {
+      "lane": "productSupportingChecks",
+      "checkId": "tests-product-supporting-checks",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 2470.225280999999,
+      "testCount": 37,
+      "bodyTimeSumMs": 2227.535,
+      "runnerTimeMs": 2460.226,
+      "fileCount": 17
+    },
+    {
+      "lane": "productRuntime",
+      "checkId": "tests-product-runtime",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 2058.6192819999997,
+      "testCount": 243,
+      "bodyTimeSumMs": 1519.366,
+      "runnerTimeMs": 2035.375,
+      "fileCount": 97
+    },
+    {
+      "lane": "scriptsAdmissionWorkbench",
+      "checkId": "tests-scripts-admission-workbench",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 2703.6827059999996,
+      "testCount": 23,
+      "bodyTimeSumMs": 2361.325,
+      "runnerTimeMs": 2689.535,
+      "fileCount": 5
+    },
+    {
+      "lane": "scriptsProject",
+      "checkId": "tests-scripts-project",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 2418.6340199999977,
+      "testCount": 52,
+      "bodyTimeSumMs": 1639.021,
+      "runnerTimeMs": 2391.607,
+      "fileCount": 14
+    },
+    {
+      "lane": "scriptsProjectSelection",
+      "checkId": "tests-scripts-project-selection",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 527.4663499999951,
+      "testCount": 7,
+      "bodyTimeSumMs": 215.195,
+      "runnerTimeMs": 508.65,
+      "fileCount": 1
+    },
+    {
+      "lane": "scriptsTestEvidence",
+      "checkId": "tests-scripts-test-evidence",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 963.6185570000016,
+      "testCount": 11,
+      "bodyTimeSumMs": 808.152,
+      "runnerTimeMs": 950.963,
+      "fileCount": 6
+    },
+    {
+      "lane": "scriptsLayout",
+      "checkId": "tests-scripts-layout",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 2543.066209000004,
+      "testCount": 1,
+      "bodyTimeSumMs": 2281.335,
+      "runnerTimeMs": 2508.983,
+      "fileCount": 1
+    },
+    {
+      "lane": "scriptsMachineArtifacts",
+      "checkId": "tests-scripts-machine-artifacts",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 878.316439000002,
+      "testCount": 3,
+      "bodyTimeSumMs": 511.521,
+      "runnerTimeMs": 854.232,
+      "fileCount": 1
+    },
+    {
+      "lane": "scriptsValidation",
+      "checkId": "tests-scripts-validation",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 3035.395405000003,
+      "testCount": 8,
+      "bodyTimeSumMs": 2501.305,
+      "runnerTimeMs": 3010.939,
+      "fileCount": 4
+    },
+    {
+      "lane": "scriptsTooling",
+      "checkId": "tests-scripts-tooling",
+      "repetition": 2,
+      "exitCode": 0,
+      "wallMs": 1088.8242919999975,
+      "testCount": 27,
+      "bodyTimeSumMs": 939.782,
+      "runnerTimeMs": 1078.06,
+      "fileCount": 10
+    }
+  ],
+  "slowestEntitiesSecondRepetition": [
+    {
+      "lane": "scriptsLayout",
+      "file": "scripts/validation/layout-characterization.test.ts",
+      "name": "characterizes repository layout and dependency boundaries",
+      "durationMs": 2281.335
+    },
+    {
+      "lane": "scriptsAdmissionWorkbench",
+      "file": "scripts/project/admission-workbench/command.test.ts",
+      "name": "command rejects malformed arguments inputs and unsafe output targets",
+      "durationMs": 1101.997
+    },
+    {
+      "lane": "scriptsValidation",
+      "file": "scripts/validation/workspace.test.ts",
+      "name": "root validate CLI runs every material task by default",
+      "durationMs": 1072.125
+    },
+    {
+      "lane": "scriptsValidation",
+      "file": "scripts/validation/workspace.test.ts",
+      "name": "root validate CLI forwards focused material selections",
+      "durationMs": 686.712
+    },
+    {
+      "lane": "scriptsTestEvidence",
+      "file": "scripts/test-evidence/catalog.test.ts",
+      "name": "parses and queries topic-grouped semantic Cases",
+      "durationMs": 651.583
+    },
+    {
+      "lane": "productSupportingChecks",
+      "file": "src/package-checks/command-check/command-check.transcript.test.ts",
+      "name": "requires artifact capability for transcripts and atomically retains only opted-in raw output",
+      "durationMs": 588.394
+    },
+    {
+      "lane": "scriptsAdmissionWorkbench",
+      "file": "scripts/project/admission-workbench/command.test.ts",
+      "name": "command writes identified virtual stdout for static and isolated learned replicates",
+      "durationMs": 480.511
+    },
+    {
+      "lane": "scriptsAdmissionWorkbench",
+      "file": "scripts/project/admission-workbench/command.test.ts",
+      "name": "command exclusively creates an explicit output after complete serialization",
+      "durationMs": 469.672
+    },
+    {
+      "lane": "scriptsValidation",
+      "file": "scripts/validation/workspace.test.ts",
+      "name": "root validate CLI rejects the retired docs entrypoint",
+      "durationMs": 397.86
+    },
+    {
+      "lane": "packageSupporting",
+      "file": "scripts/package/artifact/manifest.test.ts",
+      "name": "release manifest bytes invalidate the candidate fingerprint",
+      "durationMs": 375.132
+    },
+    {
+      "lane": "scriptsTooling",
+      "file": "scripts/docs/package-documents.test.ts",
+      "name": "includes raw mapping bytes in the artifact fingerprint",
+      "durationMs": 373.372
+    },
+    {
+      "lane": "productFunctionMetrics",
+      "file": "src/package-checks/function-metrics/constructor.test.ts",
+      "name": "fails an over-limit exact input before records or waiver audit",
+      "durationMs": 326.611
+    },
+    {
+      "lane": "scriptsValidation",
+      "file": "scripts/validation/repository-material/workflow.test.ts",
+      "name": "material validation library reports success only through an explicit reporter",
+      "durationMs": 319.95
+    },
+    {
+      "lane": "scriptsProject",
+      "file": "scripts/project/gate/checks/repository-quality.test.ts",
+      "name": "settles four blocking Checks while retaining advisory Markdown lint Findings",
+      "durationMs": 319.05
+    },
+    {
+      "lane": "productFunctionMetrics",
+      "file": "src/package-checks/function-metrics/measurement.resource.test.ts",
+      "name": "uses actual bytes for the 8 MiB per-file boundary and fails closed above it",
+      "durationMs": 315.517
+    },
+    {
+      "lane": "scriptsProject",
+      "file": "scripts/project/gate/checks/materials-validation.test.ts",
+      "name": "publishes complete material native diagnostic Records while terminal progress stays bounded",
+      "durationMs": 297.002
+    }
+  ],
+  "layoutPassThroughMeasurement": {
+    "formedAt": "2026-09-26T06:32:46.376Z",
+    "kind": "Pass-through instrumented module analysis; not an optimization or Gate measurement",
+    "elapsedMs": 1973.3110239999999,
+    "parseMs": 892.5274479999999,
+    "calls": 1916,
+    "uniqueFiles": 878,
+    "callHistogram": [
+      {
+        "count": 1,
+        "files": 8
+      },
+      {
+        "count": 2,
+        "files": 702
+      },
+      {
+        "count": 3,
+        "files": 168
+      }
+    ],
+    "repeatedExamples": [
+      [
+        "scripts/canonical-json.ts",
+        2
+      ],
+      [
+        "scripts/decision-records/command.ts",
+        2
+      ],
+      [
+        "scripts/development/format-targets.ts",
+        2
+      ],
+      [
+        "scripts/development/format.ts",
+        2
+      ],
+      [
+        "scripts/development/lint.ts",
+        2
+      ],
+      [
+        "scripts/development/lizard-performance/analyzer-only.ts",
+        2
+      ]
+    ]
+  },
+  "layoutInstrumentationSource": "import { mock } from \"bun:test\";\nimport { writeFileSync } from \"node:fs\";\nconst modulePath = \"/workspace/vibe-check/scripts/validation/module-specifier-analysis.ts\";\nconst original = await import(modulePath);\nconst analyze = original.analyzeModuleSpecifiers;\nconst byPath = new Map<string, number>();\nlet parseMs = 0;\nmock.module(modulePath, () => ({...original, analyzeModuleSpecifiers(source: string, path: string) {\n  byPath.set(path, (byPath.get(path) ?? 0) + 1);\n  const start = performance.now();\n  try { return analyze(source,path); }\n  finally { parseMs += performance.now()-start; }\n}}));\nconst { validateRepositoryLayout } = await import(\"/workspace/vibe-check/scripts/validation/layout-characterization.ts\");\nconst started = performance.now();\nvalidateRepositoryLayout();\nconst calls = [...byPath.values()].reduce((a,b)=>a+b,0);\nconst result = {formedAt:new Date().toISOString(),kind:\"Pass-through instrumented module analysis; not an optimization or Gate measurement\",elapsedMs:performance.now()-started,parseMs,calls,uniqueFiles:byPath.size,callHistogram:[...new Set(byPath.values())].sort().map(count=>({count,files:[...byPath.values()].filter(x=>x===count).length})),repeatedExamples:[...byPath].filter(([p,n])=>n>1).slice(0,6)};\nwriteFileSync(\".log/performance-investigation/2026-09-26-gate-budget/layout-analysis-count.json\", JSON.stringify(result,null,2)+\"\\n\");\nconsole.log(JSON.stringify(result));\n",
+  "cpuProfile": {
+    "command": "mise exec -- bun --cpu-prof-md --cpu-prof-dir=<rawObservationDirectory> --cpu-prof-name=layout-direct-profile.md <rawObservationDirectory>/profile-layout.ts",
+    "workload": "Three validateRepositoryLayout() calls on the actual workspace in one fresh process",
+    "runsMs": [
+      2096.622346,
+      1520.637664,
+      1766.534099
+    ],
+    "durationSeconds": 5.57,
+    "samples": 4438,
+    "intervalMicroseconds": 1000,
+    "observedHotPath": "TypeScript parsing/traversal and Program construction, plus filesystem scans; inclusive recursive frames overlap and must not be summed",
+    "source": "import { writeFileSync } from \"node:fs\";\nimport { validateRepositoryLayout } from \"/workspace/vibe-check/scripts/validation/layout-characterization.ts\";\nconst runs = [];\nfor (let i = 0; i < 3; i++) {\n  const started = performance.now();\n  validateRepositoryLayout();\n  runs.push(performance.now() - started);\n}\nconsole.log(JSON.stringify({ formedAt: new Date().toISOString(), runs }));\n"
+  },
+  "unsuccessfulProbes": "bun test --cpu-prof-md and a test preload exit hook produced no requested profile/count artifact; their test passes are not used as profiling evidence.",
+  "budgetConfiguration": {
+    "path": ".cache/vibe-check/project-gate/performance-baseline.json",
+    "sha256": "b7e10bf4a8b276fb7245826810aea3256f0a2e23c86e9133c1649d2bea536f11",
+    "requiredMaxElapsedMs": 20000,
+    "allMaxElapsedMs": 60000,
+    "unchanged": true
+  },
+  "limitations": [
+    "N=2 lane observations are not p95 or a performance speedup claim.",
+    "Host load and Gate scheduling differ from serial isolation; no optimized implementation was benchmarked.",
+    "Parsing calls include pass-through mock wrapper overhead; the wrapper calls the real original function and performs no memoization.",
+    "All 654 selected entities passed twice; this is not a replacement for full 664-entity registration or package acceptance."
+  ],
+  "finalRequiredVerification": [
+    {
+      "startedAt": "2026-09-26T06:39:48Z",
+      "command": "bun run check",
+      "logDirectory": "/workspace/vibe-check/.log/project-gate/2026-09-26T06-39-49.165Z-3468147-6792d845-2341-4cac-8422-05d88453a680",
+      "outerTiming": "wall=20.825 user=48.559 sys=17.643",
+      "exitCode": 1,
+      "checkOutcomes": {
+        "passed": 34,
+        "failed": 0,
+        "not-applicable": 9,
+        "unavailable": 0
+      },
+      "elapsedToInitialResultMs": 20534.8,
+      "candidatePreparationMs": 149.2,
+      "adapterSetupMs": 401.8,
+      "productRunMs": 19983.7,
+      "budgetResult": "project-gate-performance-limit-exceeded",
+      "cgroupCpuDelta": {
+        "usage_usec": 68724592,
+        "user_usec": 50356094,
+        "system_usec": 18368498,
+        "nice_usec": 0,
+        "nr_periods": 208,
+        "nr_throttled": 75,
+        "throttled_usec": 7281931,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "recordedGateMessage": "[GATE] [ERROR] project gate error [project-gate-performance-limit-exceeded]: elapsed-to-initial-result 20534.8ms (candidate preparation 149.2ms; adapter/setup 401.8ms; Product Run 19983.7ms) exceeded hard limit 20000.0ms; slowest Checks: tests-scripts-validation=4098.4ms, tests-scripts-layout=3278.1ms, function-metrics=2964.7ms"
+    },
+    {
+      "startedAt": "2026-09-26T06:40:09Z",
+      "command": "bun run check",
+      "logDirectory": "/workspace/vibe-check/.log/project-gate/2026-09-26T06-40-09.967Z-3473537-9c339af3-467d-4a7f-b208-6b46c3f5d0bb",
+      "outerTiming": "wall=20.774 user=47.526 sys=16.495",
+      "exitCode": 1,
+      "checkOutcomes": {
+        "passed": 34,
+        "failed": 0,
+        "not-applicable": 9,
+        "unavailable": 0
+      },
+      "elapsedToInitialResultMs": 20503.5,
+      "candidatePreparationMs": 131.4,
+      "adapterSetupMs": 399.9,
+      "productRunMs": 19972.3,
+      "budgetResult": "project-gate-performance-limit-exceeded",
+      "cgroupCpuDelta": {
+        "usage_usec": 66018923,
+        "user_usec": 49120520,
+        "system_usec": 16898404,
+        "nice_usec": 0,
+        "nr_periods": 208,
+        "nr_throttled": 70,
+        "throttled_usec": 6936344,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "recordedGateMessage": "[GATE] [ERROR] project gate error [project-gate-performance-limit-exceeded]: elapsed-to-initial-result 20503.5ms (candidate preparation 131.4ms; adapter/setup 399.9ms; Product Run 19972.3ms) exceeded hard limit 20000.0ms; slowest Checks: markdown-link-validation=3996.7ms, tests-scripts-validation=3704.7ms, function-metrics=3346.1ms"
+    }
+  ],
+  "intermediateVerificationFailure": {
+    "note": "Two attempts before extracting hasValidBaselineFields failed the function-metrics Check (CC12/nesting10). Field-shape parsing was split without changing policy/threshold. They are not accepted performance-budget evaluations because initial Gate failed. Final runs above passed all 34 effective Checks.",
+    "rawAttempts": [
+      "gate-after-1.log",
+      "gate-after-2.log"
+    ]
+  }
+}

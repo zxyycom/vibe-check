@@ -1085,6 +1085,31 @@
         "test-execution"
       ],
       "title": "复核本地最近提交与文档输入的 Gate 选择"
+    },
+    "260926-diagnose-required-gate-head-of-line-wait": {
+      "formedAt": "2026-09-26T03:40:22Z",
+      "name": "diagnose-required-gate-head-of-line-wait",
+      "question": "在 Markdown lint 缓存可命中的当前工作树中，required Gate 为何仍贴近或超过 20 秒，应优先调整哪一层且怎样验证？",
+      "relations": [
+        {
+          "summary": "复查34项热态预算并定位learned同层队首等待",
+          "target": "260924-measure-and-cache-markdown-lint-findings",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "260926-diagnose-required-gate-head-of-line-wait/measurements.json",
+        "260926-diagnose-required-gate-head-of-line-wait/scheduler-excerpt.txt",
+        "260926-diagnose-required-gate-head-of-line-wait/test-cost-breakdown.json"
+      ],
+      "sourcePath": "diagnose-required-gate-head-of-line-wait.md",
+      "tags": [
+        "admission-scheduling",
+        "markdown-lint",
+        "performance",
+        "project-gate"
+      ],
+      "title": "诊断 required Gate 热态预算与调度队首等待"
     }
   },
   "metadata": {},
@@ -1141,7 +1166,8 @@
       "260924-audit-incremental-project-gate-selection-and-cold-cost": "sha256:6a9a97f68d85469707fc51f6345b60c775dcf664d92c0d002e302b10867904f3",
       "260924-measure-and-cache-markdown-lint-findings": "sha256:c0ac9ca787dff1112b69dcb8a9b538094b50bd0c90f571cdbd3ec89b2f7c55fe",
       "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b",
-      "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150"
+      "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150",
+      "260926-diagnose-required-gate-head-of-line-wait": "sha256:18cebbd22f8f329c2d9e5d2172a2abca37c2285a4ab7a08cfcb3072f33824180"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

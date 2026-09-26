@@ -1,0 +1,52 @@
+Source: .log/project-gate/2026-09-26T03-28-02.639Z-3360919-51f9de7e-d9a4-4eaf-b50f-d6452f47033f/scheduler.log
+Selection: required; root maxParallel=3; all check scopes maxParallel=3.
+Excerpt only: first avoidable wait, next admission, and terminal measurement.
+
+#000033 +00:00:00.250 [AWAIT-RUNNING] invocationId="invocation/v1:945da8b3-c550-4101-babd-98969294d50f" scheduler.decision blockers.dependency=0 blockers.mutex=0 blockers.resourceCapacity=15
+│ blockers.rootCapacity=false blockers.scopeCapacity=false candidates.0.canAdmit=true candidates.0.taskId="typecheck-product" candidates.1.canAdmit=true candidates.1.taskId="lint-product"
+│ candidates.2.canAdmit=true candidates.2.taskId="typecheck-scripts" candidates.3.canAdmit=true candidates.3.taskId="lint-scripts" candidates.4.canAdmit=true candidates.4.taskId="format-check"
+│ candidates.5.canAdmit=false candidates.5.taskId="tests-package-supporting" candidates.6.canAdmit=false candidates.6.taskId="tests-product-duplicate-detection" candidates.7.canAdmit=false
+│ candidates.7.taskId="tests-product-file-metrics" candidates.8.canAdmit=false candidates.8.taskId="tests-product-function-metrics" candidates.9.canAdmit=false candidates.9.taskId="tests-product-json"
+│ candidates.10.canAdmit=false candidates.10.taskId="tests-product-markdown-links" candidates.11.canAdmit=false candidates.11.taskId="tests-product-secret-detection" candidates.12.canAdmit=false
+│ candidates.12.taskId="tests-product-supporting-checks" candidates.13.canAdmit=false candidates.13.taskId="tests-product-runtime" candidates.14.canAdmit=false
+│ candidates.14.taskId="tests-scripts-admission-workbench" candidates.15.canAdmit=false candidates.15.taskId="tests-scripts-project-selection" candidates.16.canAdmit=false
+│ candidates.16.taskId="tests-scripts-test-evidence" candidates.17.canAdmit=false candidates.17.taskId="tests-scripts-machine-artifacts" candidates.18.canAdmit=false
+│ candidates.18.taskId="tests-scripts-validation" candidates.19.canAdmit=false candidates.19.taskId="tests-scripts-tooling" candidates.20.canAdmit=true candidates.20.taskId="duplicate-detection"
+│ candidates.21.canAdmit=true candidates.21.taskId="file-metrics" candidates.22.canAdmit=true candidates.22.taskId="function-metrics" candidates.23.canAdmit=true candidates.23.taskId="markdown-lint"
+│ candidates.24.canAdmit=true candidates.24.taskId="markdown-link-validation" candidates.25.canAdmit=true candidates.25.taskId="materials-json-validator" candidates.26.canAdmit=true
+│ candidates.26.taskId="materials-examples-validator" candidates.27.canAdmit=true candidates.27.taskId="materials-links-validator" candidates.28.canAdmit=true candidates.28.taskId="decision-records"
+│ candidates.29.canAdmit=true candidates.29.taskId="test-evidence" candidates.30.canAdmit=true candidates.30.taskId="git-diff-whitespace" capacity.effectiveMaxParallel=3 capacity.maxParallel=3
+│ capacity.running=2 eligibleCount=31 graphFingerprint="916941759c09e920eabd4e16e12de3b1e6c2533db710b4aaaab8c5673f91d6cd" hardGuard.kind="wait" hardGuard.runningCanDrain=true proposal.kind="wait"
+│ trigger.kind="task-settled" trigger.settlementKind="completed" trigger.taskId="prepared-package-candidate"
+
+#000035 +00:00:03.773 [ADMIT] [TASK:tests-product-supporting-checks] invocationId="invocation/v1:945da8b3-c550-4101-babd-98969294d50f" scheduler.decision admissionPriority=0 blockers.dependency=0
+│ blockers.mutex=0 blockers.resourceCapacity=0 blockers.rootCapacity=false blockers.scopeCapacity=false candidates.0.canAdmit=true candidates.0.taskId="typecheck-product" candidates.1.canAdmit=true
+│ candidates.1.taskId="lint-product" candidates.2.canAdmit=true candidates.2.taskId="typecheck-scripts" candidates.3.canAdmit=true candidates.3.taskId="lint-scripts" candidates.4.canAdmit=true
+│ candidates.4.taskId="format-check" candidates.5.canAdmit=true candidates.5.taskId="tests-package-supporting" candidates.6.canAdmit=true candidates.6.taskId="tests-product-duplicate-detection"
+│ candidates.7.canAdmit=true candidates.7.taskId="tests-product-file-metrics" candidates.8.canAdmit=true candidates.8.taskId="tests-product-function-metrics" candidates.9.canAdmit=true
+│ candidates.9.taskId="tests-product-json" candidates.10.canAdmit=true candidates.10.taskId="tests-product-markdown-links" candidates.11.canAdmit=true
+│ candidates.11.taskId="tests-product-secret-detection" candidates.12.canAdmit=true candidates.12.taskId="tests-product-supporting-checks" candidates.13.canAdmit=true
+│ candidates.13.taskId="tests-product-runtime" candidates.14.canAdmit=true candidates.14.taskId="tests-scripts-admission-workbench" candidates.15.canAdmit=true
+│ candidates.15.taskId="tests-scripts-project-selection" candidates.16.canAdmit=true candidates.16.taskId="tests-scripts-test-evidence" candidates.17.canAdmit=true
+│ candidates.17.taskId="tests-scripts-machine-artifacts" candidates.18.canAdmit=true candidates.18.taskId="tests-scripts-validation" candidates.19.canAdmit=true
+│ candidates.19.taskId="tests-scripts-tooling" candidates.20.canAdmit=true candidates.20.taskId="duplicate-detection" candidates.21.canAdmit=true candidates.21.taskId="file-metrics"
+│ candidates.22.canAdmit=true candidates.22.taskId="function-metrics" candidates.23.canAdmit=true candidates.23.taskId="markdown-lint" candidates.24.canAdmit=true
+│ candidates.24.taskId="markdown-link-validation" candidates.25.canAdmit=true candidates.25.taskId="materials-json-validator" candidates.26.canAdmit=true
+│ candidates.26.taskId="materials-examples-validator" candidates.27.canAdmit=true candidates.27.taskId="materials-links-validator" candidates.28.canAdmit=true candidates.28.taskId="decision-records"
+│ candidates.29.canAdmit=true candidates.29.taskId="test-evidence" candidates.30.canAdmit=true candidates.30.taskId="git-diff-whitespace" capacity.effectiveMaxParallel=3 capacity.maxParallel=3
+│ capacity.running=1 eligibleCount=31 graphFingerprint="916941759c09e920eabd4e16e12de3b1e6c2533db710b4aaaab8c5673f91d6cd" hardGuard.canAdmit=true hardGuard.isCandidate=true hardGuard.kind="select"
+│ hardGuard.lifecycleOpen=true hardGuard.taskId="tests-product-supporting-checks" proposal.kind="select" proposal.taskId="tests-product-supporting-checks"
+│ scopeToActivate="check/tests-product-supporting-checks" trigger.kind="task-settled" trigger.settlementKind="completed" trigger.taskId="tests-scripts-layout"
+
+#000194 +00:00:20.831 [SUMMARY] invocationId="invocation/v1:945da8b3-c550-4101-babd-98969294d50f" scheduler.summary acceptedWaitMs=20469.64 admissiblePendingTaskMs=133056.537
+│ admissionViablePendingTaskMs=457567.089 capacityBlockedTaskMs=316197.444 completionTailMs=43.115 declarativeFingerprint="4b41682dc1c549ff125403f5691fea7db5ff7b01eb8999fc4216a551213d3d02"
+│ discrete.acceptedWaitCount=31 discrete.admittedCount=34 discrete.completionTailActiveTaskCount=3 discrete.lastSettledTaskId="git-diff-whitespace" discrete.maxRunning=3
+│ effectiveCapacitySlotMs=61819.905 effectiveSlotUtilization=0.8453692823687171 mutexBlockedTaskMs=8313.108 peakAdmissiblePendingTaskCount=34 peakAdmissionViablePendingTaskCount=34
+│ peakCapacityBlockedTaskCount=31 peakMutexBlockedTaskCount=2 rootCapacitySlotMs=61819.905 rootSlotUtilization=0.8453692823687171 schedulerControlPathMs=33.911 schedulerDecisionObservationMs=17.583
+│ schedulerSpanMs=20606.635 taskSlotMs=52260.648 timing.availability="available" topAdmissionDelays.0.admissiblePendingMs=9472.038 topAdmissionDelays.0.admissionDelayMs=20563.519
+│ topAdmissionDelays.0.capacityBlockedMs=11091.481 topAdmissionDelays.0.mutexBlockedMs=0 topAdmissionDelays.0.taskActiveMs=14.871 topAdmissionDelays.0.taskId="materials-links-validator"
+│ topAdmissionDelays.1.admissiblePendingMs=4965.926 topAdmissionDelays.1.admissionDelayMs=20357.025 topAdmissionDelays.1.capacityBlockedMs=10662.004 topAdmissionDelays.1.mutexBlockedMs=4729.095
+│ topAdmissionDelays.1.taskActiveMs=205.181 topAdmissionDelays.1.taskId="materials-examples-validator" topAdmissionDelays.2.admissiblePendingMs=9469.808 topAdmissionDelays.2.admissionDelayMs=20267.361
+│ topAdmissionDelays.2.capacityBlockedMs=10797.552 topAdmissionDelays.2.mutexBlockedMs=0 topAdmissionDelays.2.taskActiveMs=337.667 topAdmissionDelays.2.taskId="git-diff-whitespace"
+│ topCompletionTailContributors.0.settledAfterLastAdmissionMs=41.508 topCompletionTailContributors.0.taskId="git-diff-whitespace" topCompletionTailContributors.1.settledAfterLastAdmissionMs=20.962
+│ topCompletionTailContributors.1.taskId="typecheck-scripts" topCompletionTailContributors.2.settledAfterLastAdmissionMs=14.871 topCompletionTailContributors.2.taskId="materials-links-validator"
