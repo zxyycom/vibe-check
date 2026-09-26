@@ -16,7 +16,7 @@ relations:
 
 ## 形成时背景
 
-Markdown lint Finding waiver 实施后的 required Gate 已出现 Product Run 21.5 秒、再次运行 20.7 秒；两次 Check 自身均为 34 passed / 9 not applicable，最终因本机性能基线的声明指纹不匹配而失败。用户最初要求检查性能并提出方案，不急于修复；初始阶段只运行调查、保存证据。后续用户授权补诊断、细化测试选择，并要求解除指纹阻断、继续分析测试成本；第 7 节单独记录这部分后续条件与证据，不回填为初始测量结论。
+Markdown lint Finding waiver 实施后的 required Gate 已出现 Product Run 21.5 秒、再次运行 20.7 秒；两次 Check 自身均为 34 passed / 9 not applicable，最终因本机性能基线的声明指纹不匹配而失败。用户最初要求检查性能并提出方案，不急于修复；初始阶段只运行调查、保存证据。后续用户授权补诊断、细化测试选择，并要求解除指纹阻断、继续分析测试成本；第 7 节单独记录这部分后续条件与证据。第 8 节记录固定提交后继续定位卡点的分阶段测量；这些依据均不回填为初始测量结论。
 
 前序[Markdown lint 缓存调查](./measure-and-cache-markdown-lint-findings.md)在 2026-09-24 已记录 34 项热态 required 的 18,770.9 / 19,863.3ms 总预算计量，以及候选失效时的明显超限。本轮在 Finding waiver 工作树上复查同类问题，并新增调度空档的直接证据；不能用两个时点的非配对结果宣称 waiver 引入了性能回归。
 
@@ -44,7 +44,7 @@ Markdown lint Finding waiver 实施后的 required Gate 已出现 Product Run 21
 
 三次均 34 passed / 9 N/A，发布 Record fingerprint 相同，最终均 exit 1，原因为 `project-gate-performance-baseline-missing`。三个对应 Gate evidence root 的时间为 `03-35-04.300Z`、`03-35-26.720Z`、`03-35-47.545Z`；完整路径保存在随附 JSON。
 
-**口径限制：** Product Run 显示值、外层命令墙钟和 `elapsed-to-initial-result` 不同。预算包含 candidate preparation、adapter/setup 与 Product Run，外层墙钟还含进程启动/退出。初始测量时的失配分支提前返回，未输出这三段已取得的 timing，因此不能从第二次外层 20.866 秒断言其预算计量一定超限。第一次数值已足以确认超过 20 秒；第三次整体外层墙钟低于 20 秒，但基线未匹配，不能称正式 Gate 已通过。N=3 的范围和中位数仅是本轮观察，不报告可靠 p95。
+**口径限制：** Product Run 显示值、外层命令墙钟和 `elapsed-to-initial-result` 不同。预算包含 candidate preparation、adapter/setup 与 Product Run，外层墙钟还含进程启动/退出。初始测量时的失配分支提前返回，未输出这三段已取得的 timing，因此不能从第二次外层 20.866 秒断言其预算计量一定超限。第一次数值已足以确认超过 20 秒；第三次整体外层墙钟低于 20 秒，但基线未匹配，不能称正式 Gate 已通过。N=3 的范围和中位数仅是本轮观察，不报告可靠的跨次 Gate 耗时 P95。
 
 ### 具体核对
 
@@ -57,7 +57,7 @@ Markdown lint Finding waiver 实施后的 required Gate 已出现 Product Run 21
 
 ## 调查结果与边界
 
-第 1–6 节保存初始调查及 05:46 的同轮补证、假设与原建议；不表示其中的待办或基线规则今天仍适用。第 7 节记录后续授权、实施和实测，包括指纹阻断解除及测试输入闭包对原方案的修正。现行选择与预算规则以 [Gate owner](../tooling/project-gate.md) 为准。
+第 1–6 节保存初始调查及 05:46 的同轮补证、假设与原建议；不表示其中的待办或基线规则今天仍适用。第 7 节记录后续授权、实施和实测，包括指纹阻断解除及测试输入闭包对原方案的修正。第 8 节保存提交后的最新分阶段测量及优先级修正。现行选择与预算规则以 [Gate owner](../tooling/project-gate.md) 为准。
 
 ### 1. 确认存在队首等待，但尚未证明取消等待能改善总工期
 
@@ -89,7 +89,7 @@ Markdown lint Finding waiver 实施后的 required Gate 已出现 Product Run 21
 
 ### 2. 缓存已热，但整体余量与环境波动仍需处理
 
-Markdown lint 当前完整 corpus 可命中，正式 Run 内约 2.25–2.95 秒；缓存命中后仍逐文件验证 containment、读取当前 bytes、UTF-8 decode、摘要和 cache payload。这个成本符合现有边界，不能从 Check duration 推断 backend 重跑，也不能用 mtime 跳过当前 source 校验。它不是本轮优先优化对象。
+Markdown lint 当前完整 corpus 可命中，正式 Run 内约 2.25–2.95 秒；缓存命中后仍逐文件验证 containment、读取当前 bytes、UTF-8 decode、摘要和 cache payload。这个成本符合现有边界，不能从 Check duration 推断 backend 重跑，也不能用 mtime 跳过当前 source 校验。初始阶段未将它列为优先优化对象；文件发现成本的后续补证及优先级修正见第 8 节。
 
 17 个 test lane 的 execution duration 累计分别约 36.26 / 32.13 / 29.84 秒，占全部 Check execution 累计约 64–66%；这些是并发任务时间，**不是串行墙钟**。初始测量时，`runtime/eligibility.ts` 把七个 Product Check test lane 共同映射到 `product-tests: src/**`；runtime、admission workbench、project tooling 等也保守覆盖 Product 源码。当时 required 因真实变更选择了广负载，不是常规小文档编辑的量级。能否安全缩小某一 lane 必须按输入闭包另行证明，不能据此直接删除或跳过测试；后续选择调整见第 7 节。
 
@@ -152,7 +152,7 @@ Markdown lint 当前完整 corpus 可命中，正式 Run 内约 2.25–2.95 秒�
 
 ### 7. 后续补证：阻断解除与测试成本分解
 
-**预算匹配与真实性能分别处理。** 用户进一步明确解除指纹阻断后，Gate 按 profile/runtime 唯一选择原有硬预算；合法旧指纹可保留为元数据，不必重写本机文件。新[预算决策](../decisions/apply-gate-time-budgets-without-fingerprint-gating.md)修订原判断，但保留缺失配置、无效测量和超时阻断。required 仍为 20 秒、all 仍为 60 秒；指纹变化不会放宽预算，也不跳过比较。
+**预算匹配与真实性能分别处理。** 用户进一步明确解除指纹阻断后，Gate 按 profile/runtime 唯一选择原有硬预算；合法旧指纹可保留为元数据，不必重写本机文件。当时的[预算决策](../decisions/apply-gate-time-budgets-without-fingerprint-gating.md)修订原判断，但保留缺失配置、无效测量和超时阻断。required 仍为 20 秒、all 仍为 60 秒；指纹变化不会放宽预算，也不跳过比较。
 
 七组 Product tests 已分别接入保守 region；Markdown 私有改动的选择矩阵由七组降为 Markdown 与 function-metrics 两组。后者存在全 `src/**` 的 source-identity 证明，不能只因名字像独立 Check 就过滤掉。当前工作树还涉及根导出和共享输入，实际广负载仍选择七组，未宣称整体墙钟因此降低。
 
@@ -169,7 +169,7 @@ Gate 列取 Check 的 `process.log` 中 Bun summary，不等于 Core Check durat
 
 布局 validator 的独立透传计数发现：一次真实仓库校验对 **878 个文件调用模块分析 1,916 次**，其中 702 个文件各两次、168 个各三次、8 个一次；真实分析函数累计约 **892.5ms / 总 1,973.3ms**。`validateImportBoundaries` 的多条规则与 `validateFunctionMetricsAnalyzerBoundary` 各自重新读取/解析；后续 package-tools 边界还构造独立 TypeScript Program。另一次三轮真实 validator CPU profile 的热点也落在 TypeScript parsing/traversal、Program 构建与文件系统；递归 inclusive 帧相互重叠，不累加其百分比。这里证明重复计算存在，不把 892.5ms 全部当作可节省时间。
 
-优先方案与验收边界：
+06:29 阶段的优先方案与验收边界：
 
 1. **优先复用单次布局校验的解析结果。** 由布局 owner 一次读取/分析每个文件，把静态、动态、value/type import 视图交给各规则；先不引入跨 invocation 缓存。保留 parser diagnostics、fixture 排除、非法语法与动态 import 证明。采用前对真实仓库及失败 fixture 做旧/新诊断等价验证，再用同样的布局测试与 required Gate 复测；不能仅以调用次数下降宣称墙钟收益。
 2. **减少 CLI 测试的重复启动和真实仓库扫描。** 材料 CLI 的参数分派目前静态加载 layout、schema、examples 等；错误参数仍支付完整加载成本。优先延后非所选任务加载，并审查哪些输入矩阵可在同一进程以小 fixture 证明。保留真正的 exit、stdout/stderr、exact candidate、独占文件与 symlink 拒绝端到端验收；workbench 不应把这十次 process 验证机械全删。当前只是有依据的候选，未实施、未量化收益。
@@ -179,8 +179,77 @@ Gate 列取 Check 的 `process.log` 中 Bun summary，不等于 Core Check durat
 
 **最终 required 复验（06:39:48 / 06:40:09 UTC）。** 两次均 34 passed / 9 N/A、没有失败 Check，预算分别实测 **20,534.8 / 20,503.5ms**，最终仅因 `project-gate-performance-limit-exceeded` 退出 1，不再出现指纹匹配错误。candidate preparation 为 149.2 / 131.4ms，adapter/setup 为 401.8 / 399.9ms，Product Run 为 19,983.7 / 19,972.3ms；界面显示的 19.7 秒不是总预算口径。原本机文件 SHA-256 保持 `b7e10bf4a8b276fb7245826810aea3256f0a2e23c86e9133c1649d2bea536f11`，未抬高 20 秒阈值。中间两次复验暴露新 parser 分支复杂度超限，已拆出字段形状校验并通过最终 Check；不把中间初步失败的运行当作预算评估样本。23 项预算/adapter 回归、664 entities / 160 Cases 完整注册、scripts typecheck/lint、文档与治理校验均通过。本阶段未重跑 `--all`，也未宣称已稳定达到性能预算。
 
+### 8. 提交后继续定位：文件发现、解析和实际时间线
+
+用户质疑 E2E 的开销是否足以成为首要瓶颈，要求先分析真实性能卡点。本节仍回答本报告的原问题，补充具体阶段成本并调整建议顺序，不因固定提交另建一轮报告。测量发生于 2026-09-26 09:58–10:07 UTC，先于本节和新资源写入；源码 HEAD 为 `c20540345e408fa2fb1c0573e47edb8d9973c8df`。既有无关 Decision 改动保留，Product、Gate、预算和测试均未修改。
+
+#### 同负载复测：执行成本与波动都存在
+
+连续三次调用正常入口 `bun run check`，实际均选中同样的 34 个 Check ID，结果为 34 passed / 9 N/A；没有失败 Check，最终均仅因 20 秒预算超限退出 1。三次均使用 candidate `0.0.0-local.b1b8dcad7e34`、Linux x64 / mise-bound Bun 1.3.14、4 核 cgroup 配额和 6 GiB 内存上限。没有清缓存或请求冷重建；正常 learned history 写入保留，因此是重复观察，不是冻结 history 的调度 A/B。
+
+| 样本 | 总预算计量 | Candidate 准备 | Adapter/setup | Product Run |
+| --- | ---: | ---: | ---: | ---: |
+| 1 | 30,261.9ms | 1,156.8ms | 1,428.8ms | 27,676.3ms |
+| 2 | 27,382.9ms | 153.9ms | 415.7ms | 26,813.3ms |
+| 3 | 20,486.2ms | 120.8ms | 378.7ms | 19,986.6ms |
+
+较晚的样本回到前一阶段约 20.5 秒的水平，但三次不足以宣称稳定热态或给出可靠的跨次 Gate 耗时 P95。第二次 candidate 已快而执行仍明显慢，排除了“所有超时仅来自 candidate 准备”这一解释；操作系统页缓存、宿主活动与 history 未冻结，不能把全部波动归因于单一因素。三次 shell user+system 分别约 80.69 / 86.96 / 65.70 秒，后两次 cgroup 的 277 / 207 个周期中分别有 104 / 91 次限流。后者包含其他工作区进程，不是 Gate 独占 CPU 统计，限流微秒不能直接当作增加的墙钟时间。
+
+第一轮 Gate 已正常完成后，外围观察脚本误把测试创建的无 `gate.log` 目录当成主 Gate 目录而报错；正式日志、stdout/stderr、shell timing 与前后 history 均已落盘。该轮丢失的外围 monotonic wall time 和 cgroup 差值保持缺失，未推算补齐；后两轮改为读取 Gate 自己报告的目录。这个采集错误不是产品失败。
+
+#### 时间线：开头准入等待明显，末尾不是单个巨长任务
+
+第三次 Product 时间线的主要结构为：
+
+| Product 相对时间 | 已观察到的工作 |
+| --- | --- |
+| 约 0.15–8.78s | 两个测试 runner 连续运行布局、材料、workbench、project、supporting 和 runtime 分组；第三个 root slot 未占用，仍有其他可准入任务。 |
+| 约 8.79–15.33s | function metrics、Test Evidence、mdlint、其余测试和 lint 陆续与两组工作重叠。 |
+| 约 15.33–18.64s | Markdown Link Check 运行约 3.30s；其余 slots 继续测试、lint 与短扫描。 |
+| 约 18.50–19.83s | typecheck、format、JSON、file metrics 和材料检查完成收尾。 |
+
+三次从 decision 日志累计得到的“root 未满且存在可准入任务，但策略返回 wait”区间分别约 **11.33 / 11.64 / 8.63 秒**。源码中的 learned 策略先选最高分 candidate，若该项 `canAdmit=false` 就返回 wait；前段最高分候选主要是受两个 runner 额度限制的测试。这个行为解释了空槽，不等于证明等待错误或补位必然有利。
+
+第三次 native summary 给出 scheduler span **19.69 秒**、task occupancy **50.16 slot·秒**、root slot utilization **84.9%**；控制路径约 **30ms**，最后一次准入后的 tail 约 **125ms**。accepted wait 的约 19.48 秒大多与运行中工作重叠，不能称为总空闲时间；tail 也不是 critical path。即使假设所有 Task 时长固定，`50.16 / 3 ≈ 16.72 秒` 也只是不考虑其他限制的宽松下界，不是可实现的优化结果。
+
+17 个 test lanes 的 execution duration 合计约 **32.03 秒**，占所有 Check execution 累计的约 **64%**；这是并发工作量，不能从 20.49 秒中减去，也不等于 E2E 工作量。当前没有全量 E2E 分类及反事实收益证据，不能以此支持删除 E2E 或把全量测试改写作为提速前提。
+
+#### 卡点一：mdlint 热态仍为不相关目录付出文件发现成本
+
+使用同一 installed candidate 的公开 `collectProjectFiles` 和 Gate 物化后的精确 selection，透传观察 `readdirSync`，两次均选出 **511** 个 Markdown paths，集合摘要一致；却读取 **15,400 个目录、49,106 个普通文件项**。其中 root `node_modules` 贡献 19,585 个文件项，`.log` 贡献 12,976 个，`.git` 贡献 4,609 个。这些根目录不可能命中当前 `docs/**/*.md` / `changes/**/*.md` include。
+
+两次收集阶段耗时约 **0.98 / 1.15 秒**。原因可以从接线恢复：Gate 为 mdlint 显式设置 `exclude: []`；filesystem collector 只从共同的完整目录 exclude 派生剪枝，先遍历 root，再执行 include/exclude 匹配和排序。profiling 同时指向目录枚举、glob 构造/匹配和排序；不是再次执行 lint backend 的证据。启用现有 findings cache 不会消除这部分工作，本地日志或依赖目录继续增长时还有放大风险。
+
+因此，本节修正第 2 节“mdlint 不是优先对象”的早期优先级：**值得优先缩小文件发现的无关工作，而不是重新实现 findings cache。** 方案要区分 Gate 私有配置与共享 collector 的责任。不能直接套用包含 `archive` 排除的其他 Check 配置，因为当前 511 份语料有意包含归档 Markdown；也不能为速度改变符号链接、不可读来源和空 include 的既有失败语义。
+
+#### 卡点二：Markdown Link 的重心是解析和安全路径探测
+
+透传包内函数进行两轮阶段计时，完整 Check 分别约 **2.03 / 1.73 秒**，均得到与正式 Gate 相同的 final data：279 sources、1,148 occurrences、837 logical target validations、0 Findings。
+
+- Markdown parser 调用 **314 次**、覆盖 **278 份不同内容摘要**，累计约 **1.07 / 0.91 秒**。
+- containment probe 调用 **1,116 次**，累计约 **0.57 / 0.52 秒**。
+- regular-file read 调用 **314 次**，累计约 **0.21 / 0.20 秒**。
+- 文件收集仅约 **0.08 / 0.05 秒**。计时中的嵌套项不能相加；837 是公开的逻辑 target 计数，不是物理读取次数。
+
+单独开启 CPU sampling 的三轮 public API Run 为约 2.49–2.58 秒，热点落在 Markdown tokenization/parsing 与文件探测；它与透传计时是不同 instrumented workload，不能当作优化前后对照。Gate 当前没有启用该 Check 已有的 parse-facts cache；后续可评估复用现有能力的成本与收益，不需要先设计新缓存。但本节没有启用它，也没有证明缓存收益能等量缩短整个 Gate；每个 occurrence 的安全授权仍须保留。
+
+#### 卡点三：function metrics 存在细粒度 timer 让出成本
+
+透传测得两轮 Check 约 **2.28 / 2.24 秒**，输入均为 **525 个文件、约 2.38 MB 文本**。其中 Worker transport/分析/响应验收这整个 await 阶段约 **1.46 秒**；父进程每个正字节读取 chunk 都执行 timer yield，本次共 **525 次 `setTimeout(0)`**，实际等待合计约 **0.63 秒**。文件收集约 0.08–0.11 秒。
+
+这定位了可独立评估的开销：研究按字节或时间片预算合并协作让出，同时维持取消响应、有界读取和完整输入验收。不能直接删除让出、改成可能饿死 timer 的微任务，或把 worker await 全算作分析器 CPU。本次主线程 CPU profile 没有完整覆盖 Worker，未据其异步归因宣称 response validator 本身耗费数秒。
+
+#### 当前建议与未验证边界
+
+1. **先验证 mdlint 文件发现范围。** 文件发现耗时约 1 秒，其中枚举规模主要来自无关目录；可优先研究这部分而不削减测试证明，但不能将整个收集耗时都算作可节省时间。以 selected paths、失败边界和完整 Finding/Record 等价为前提。
+2. **再分别评估 Link parse-facts 复用、布局单次解析复用与 function-metrics yield 粒度。** 布局重复解析仍以第 7 节证据为依据，本阶段只重跑正式布局测试，没有重新采样其 parser；三项不得混在一个 before/after 中归因。
+3. **调度保持独立实验。** 空槽与 CPU 竞争都已观察到；须先恢复第 5 节引用的有效机会约束，不直接实施补位、放宽 runner 上限或提高 root 并发。
+
+本阶段未修复实现、改测试、启用 Link cache、清理用户缓存、改预算、创建或结项 Change，也未新增 Git 提交。normal Gate 更新了自己的 history/运行产物；本报告只补充调查正文和资源。原始日志、CPU profiles 与透传 probe 留在 `.log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/`，作为本轮可删除的本地诊断材料；随附 JSON 保留关键测量、任务时间线、口径和 probe 摘要，旧资源不改写。未运行本阶段 `--all`，未取得任何实施后性能收益或 required 预算通过证据。
+
 ## 随附资源
 
+- [提交后 Gate 时间线、文件枚举与 Check 阶段成本](./_resources/260926-diagnose-required-gate-head-of-line-wait/execution-bottleneck-breakdown.json)
 - [三次正式测量、缓存审计及六任务复现事件](./_resources/260926-diagnose-required-gate-head-of-line-wait/measurements.json)
 - [正式 Gate 队首等待与终态占用摘要节选](./_resources/260926-diagnose-required-gate-head-of-line-wait/scheduler-excerpt.txt)
 - [后续测试分组计时、热点实体与布局解析调用证据](./_resources/260926-diagnose-required-gate-head-of-line-wait/test-cost-breakdown.json)

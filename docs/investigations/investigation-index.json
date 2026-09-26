@@ -1098,6 +1098,7 @@
         }
       ],
       "resourceIds": [
+        "260926-diagnose-required-gate-head-of-line-wait/execution-bottleneck-breakdown.json",
         "260926-diagnose-required-gate-head-of-line-wait/measurements.json",
         "260926-diagnose-required-gate-head-of-line-wait/scheduler-excerpt.txt",
         "260926-diagnose-required-gate-head-of-line-wait/test-cost-breakdown.json"
@@ -1167,7 +1168,7 @@
       "260924-measure-and-cache-markdown-lint-findings": "sha256:c0ac9ca787dff1112b69dcb8a9b538094b50bd0c90f571cdbd3ec89b2f7c55fe",
       "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b",
       "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150",
-      "260926-diagnose-required-gate-head-of-line-wait": "sha256:18cebbd22f8f329c2d9e5d2172a2abca37c2285a4ab7a08cfcb3072f33824180"
+      "260926-diagnose-required-gate-head-of-line-wait": "sha256:33284a1c9eeae3cec2a27d4cc1e3d0d7680874e1570680429f5334a739eb6d70"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

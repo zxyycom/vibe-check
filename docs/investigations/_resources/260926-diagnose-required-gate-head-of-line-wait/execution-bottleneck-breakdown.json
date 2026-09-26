@@ -1,0 +1,2113 @@
+{
+  "formedAt": "2026-09-26T10:11:06.068Z",
+  "sourceHead": "c20540345e408fa2fb1c0573e47edb8d9973c8df",
+  "runtime": {
+    "bun": "1.3.14",
+    "platform": "linux",
+    "architecture": "x64",
+    "cpuMax": "400000 100000",
+    "memoryMax": "6442450944"
+  },
+  "rawObservationDirectory": ".log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks",
+  "command": "bun run check",
+  "wrapper": "mise-bound Bun -> bash time -> normal root script",
+  "measurementWorktree": "M docs/decisions/decision-index.json\n D docs/decisions/default-project-subagents-to-terra.md\n?? docs/decisions/archive/default-project-subagents-to-terra.md",
+  "baselineSha256Before": "b7e10bf4a8b276fb7245826810aea3256f0a2e23c86e9133c1649d2bea536f11",
+  "baselineSha256After": "b7e10bf4a8b276fb7245826810aea3256f0a2e23c86e9133c1649d2bea536f11",
+  "methods": {
+    "formalGate": "Three serial invocations of the normal public root command. No cache clearing or policy change. Normal history updates remain. All selected Check IDs compared exactly.",
+    "cpu": "bash time user/system covers the command process tree; cgroup counters also include other workspace processes. Throttled microseconds are not wall time saved.",
+    "timeline": "Derived from observed diagnostic admission/settlement boundaries (millisecond text precision); summary values are native measurements, not recomputed. Waiting with a free root slot is not proof that filling it improves elapsed time.",
+    "isolated": "Three sequential public API Runs in each new process, same installed candidate and exact Gate Check options, output disabled; Bun --cpu-prof-md at default 1000us sampling. These are not formal Gate timings or before/after tests.",
+    "collection": "Public collectProjectFiles with exact resolved Check selection. fs.readdirSync pass-through observer counts directories and returned regular-file entries; no pruning or output substitution.",
+    "phases": "Installed-candidate module exports wrapped by bun:test mock.module; original functions execute unchanged. Function measurement zero-delay timers call the original setTimeout and callback; an observer accumulates actual delay. Instrumentation and profiler runs are different workloads.",
+    "limitations": [
+      "No alternate scheduler execution, cache configuration experiment, source change, or baseline change.",
+      "Function CPU profile samples the parent, not a full Worker CPU breakdown; async profile attribution is not treated as response-validation cost.",
+      "Nested phase timings overlap. Check-slot time, queue time, cgroup throttling, and wall time are different metrics.",
+      "Only three formal observations; no reliable cross-run Gate-duration P95 or causal attribution of all variance."
+    ]
+  },
+  "selectedCheckIds": [
+    "decision-records",
+    "duplicate-detection",
+    "file-metrics",
+    "format-check",
+    "function-metrics",
+    "git-diff-whitespace",
+    "lint-product",
+    "lint-scripts",
+    "markdown-link-validation",
+    "markdown-lint",
+    "materials-examples-validator",
+    "materials-json-validator",
+    "materials-links-validator",
+    "prepared-package-candidate",
+    "test-evidence",
+    "tests-package-supporting",
+    "tests-product-duplicate-detection",
+    "tests-product-file-metrics",
+    "tests-product-function-metrics",
+    "tests-product-json",
+    "tests-product-markdown-links",
+    "tests-product-runtime",
+    "tests-product-secret-detection",
+    "tests-product-supporting-checks",
+    "tests-scripts-admission-workbench",
+    "tests-scripts-layout",
+    "tests-scripts-machine-artifacts",
+    "tests-scripts-project",
+    "tests-scripts-project-selection",
+    "tests-scripts-test-evidence",
+    "tests-scripts-tooling",
+    "tests-scripts-validation",
+    "typecheck-product",
+    "typecheck-scripts"
+  ],
+  "formalSamples": [
+    {
+      "repetition": 1,
+      "startedAt": "2026-09-26T09:58:38.871Z",
+      "gateDirectory": "/workspace/vibe-check/.log/project-gate/2026-09-26T09-58-42.146Z-3595579-b267bd29-d223-4720-87f0-15fbd451fe1f",
+      "candidate": "0.0.0-local.b1b8dcad7e34",
+      "gateTimingMs": {
+        "total": 30261.9,
+        "candidate": 1156.8,
+        "setup": 1428.8,
+        "productRun": 27676.3
+      },
+      "exitCode": 1,
+      "statuses": {
+        "passed": 34,
+        "not-applicable": 9
+      },
+      "shellTiming": "MEASURE real_s=30.950 user_s=58.280 system_s=22.407",
+      "cpuDelta": null,
+      "historyBeforeSha256": "d0fdbcf6eefa1c606a0504799bcba7222738d5998c62e90a128dc7b6b6961b0b",
+      "historyAfterSha256": "a7c3ca4627fa3fb4b529062e8a366c94c4f525264879eba511221b03f048d0c9",
+      "observerRecoveryNote": "Gate completed normally; observation wrapper then failed while treating a test-created diagnostic directory as a primary Gate. Shell timing and Gate evidence retained; lost wrapper wall/cgroup deltas are not reconstructed.",
+      "schedulerSummary": {
+        "schedulerSpanMs": 26949.554,
+        "schedulerControlPathMs": 44.918,
+        "schedulerDecisionObservationMs": 31.009,
+        "rootCapacitySlotMs": 80848.662,
+        "taskSlotMs": 69258.125,
+        "rootSlotUtilization": 0.8566390972551394,
+        "acceptedWaitMs": 26695.675,
+        "completionTailMs": 129.657,
+        "admissiblePendingTaskMs": 177362.488,
+        "capacityBlockedTaskMs": 416002.193,
+        "mutexBlockedTaskMs": 13030.143
+      },
+      "partialWaitMs": 11328,
+      "partialWaits": [
+        {
+          "atMs": 437,
+          "untilMs": 5717,
+          "spanMs": 5280,
+          "running": 2,
+          "active": [
+            "tests-scripts-validation",
+            "tests-scripts-layout"
+          ],
+          "admissibleCount": 15
+        },
+        {
+          "atMs": 5720,
+          "untilMs": 6309,
+          "spanMs": 589,
+          "running": 2,
+          "active": [
+            "tests-scripts-validation",
+            "tests-scripts-admission-workbench"
+          ],
+          "admissibleCount": 15
+        },
+        {
+          "atMs": 6310,
+          "untilMs": 8894,
+          "spanMs": 2584,
+          "running": 2,
+          "active": [
+            "tests-scripts-admission-workbench",
+            "tests-product-supporting-checks"
+          ],
+          "admissibleCount": 16
+        },
+        {
+          "atMs": 8896,
+          "untilMs": 9085,
+          "spanMs": 189,
+          "running": 2,
+          "active": [
+            "tests-product-supporting-checks",
+            "tests-scripts-project"
+          ],
+          "admissibleCount": 16
+        },
+        {
+          "atMs": 9086,
+          "untilMs": 11772,
+          "spanMs": 2686,
+          "running": 2,
+          "active": [
+            "tests-scripts-project",
+            "tests-product-runtime"
+          ],
+          "admissibleCount": 16
+        }
+      ],
+      "activeCheckMs": 69096.13999999998,
+      "activeTestCheckMs": 41208.33899999999,
+      "tasks": [
+        {
+          "taskId": "prepared-package-candidate",
+          "admittedAtMs": 384,
+          "trigger": "execution-started",
+          "executionAtMs": 409,
+          "finishedAtMs": 427,
+          "durationMs": 17.872,
+          "settledAtMs": 437
+        },
+        {
+          "taskId": "tests-scripts-validation",
+          "admittedAtMs": 389,
+          "trigger": "admission-continued",
+          "executionAtMs": 428,
+          "finishedAtMs": 6307,
+          "durationMs": 5878.833,
+          "settledAtMs": 6309
+        },
+        {
+          "taskId": "tests-scripts-layout",
+          "admittedAtMs": 401,
+          "trigger": "admission-continued",
+          "executionAtMs": 429,
+          "finishedAtMs": 5713,
+          "durationMs": 5283.896,
+          "settledAtMs": 5717
+        },
+        {
+          "taskId": "tests-scripts-admission-workbench",
+          "admittedAtMs": 5717,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-layout",
+          "executionAtMs": 5722,
+          "finishedAtMs": 8892,
+          "durationMs": 3170.275,
+          "settledAtMs": 8894
+        },
+        {
+          "taskId": "tests-product-supporting-checks",
+          "admittedAtMs": 6309,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-validation",
+          "executionAtMs": 6311,
+          "finishedAtMs": 9084,
+          "durationMs": 2772.579,
+          "settledAtMs": 9085
+        },
+        {
+          "taskId": "tests-scripts-project",
+          "admittedAtMs": 8894,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-admission-workbench",
+          "executionAtMs": 8897,
+          "finishedAtMs": 11767,
+          "durationMs": 2869.836,
+          "settledAtMs": 11772
+        },
+        {
+          "taskId": "tests-product-runtime",
+          "admittedAtMs": 9085,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-supporting-checks",
+          "executionAtMs": 9088,
+          "finishedAtMs": 11937,
+          "durationMs": 2849.393,
+          "settledAtMs": 11940
+        },
+        {
+          "taskId": "tests-product-function-metrics",
+          "admittedAtMs": 11772,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-project",
+          "executionAtMs": 11780,
+          "finishedAtMs": 14632,
+          "durationMs": 2851.445,
+          "settledAtMs": 14636
+        },
+        {
+          "taskId": "function-metrics",
+          "admittedAtMs": 11774,
+          "trigger": "admission-continued",
+          "executionAtMs": 11783,
+          "finishedAtMs": 14846,
+          "durationMs": 3063.323,
+          "settledAtMs": 14848
+        },
+        {
+          "taskId": "tests-package-supporting",
+          "admittedAtMs": 11940,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-runtime",
+          "executionAtMs": 11943,
+          "finishedAtMs": 14385,
+          "durationMs": 2442.512,
+          "settledAtMs": 14388
+        },
+        {
+          "taskId": "test-evidence",
+          "admittedAtMs": 14388,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-package-supporting",
+          "executionAtMs": 14391,
+          "finishedAtMs": 20607,
+          "durationMs": 6215.521,
+          "settledAtMs": 20608
+        },
+        {
+          "taskId": "tests-product-duplicate-detection",
+          "admittedAtMs": 14636,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-function-metrics",
+          "executionAtMs": 14638,
+          "finishedAtMs": 19214,
+          "durationMs": 4576.626,
+          "settledAtMs": 19216
+        },
+        {
+          "taskId": "markdown-lint",
+          "admittedAtMs": 14848,
+          "trigger": "task-settled",
+          "triggerTaskId": "function-metrics",
+          "executionAtMs": 14850,
+          "finishedAtMs": 20225,
+          "durationMs": 5375.567,
+          "settledAtMs": 20226
+        },
+        {
+          "taskId": "tests-product-file-metrics",
+          "admittedAtMs": 19216,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-duplicate-detection",
+          "executionAtMs": 19218,
+          "finishedAtMs": 20798,
+          "durationMs": 1579.894,
+          "settledAtMs": 20801
+        },
+        {
+          "taskId": "lint-product",
+          "admittedAtMs": 20226,
+          "trigger": "task-settled",
+          "triggerTaskId": "markdown-lint",
+          "executionAtMs": 20228,
+          "finishedAtMs": 21776,
+          "durationMs": 1548.405,
+          "settledAtMs": 21778
+        },
+        {
+          "taskId": "decision-records",
+          "admittedAtMs": 20608,
+          "trigger": "task-settled",
+          "triggerTaskId": "test-evidence",
+          "executionAtMs": 20609,
+          "finishedAtMs": 22709,
+          "durationMs": 2100.299,
+          "settledAtMs": 22711
+        },
+        {
+          "taskId": "tests-scripts-tooling",
+          "admittedAtMs": 20801,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-file-metrics",
+          "executionAtMs": 20804,
+          "finishedAtMs": 22450,
+          "durationMs": 1645.657,
+          "settledAtMs": 22451
+        },
+        {
+          "taskId": "markdown-link-validation",
+          "admittedAtMs": 21778,
+          "trigger": "task-settled",
+          "triggerTaskId": "lint-product",
+          "executionAtMs": 21780,
+          "finishedAtMs": 25229,
+          "durationMs": 3449.15,
+          "settledAtMs": 25231
+        },
+        {
+          "taskId": "tests-scripts-test-evidence",
+          "admittedAtMs": 22451,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-tooling",
+          "executionAtMs": 22453,
+          "finishedAtMs": 23904,
+          "durationMs": 1450.848,
+          "settledAtMs": 23905
+        },
+        {
+          "taskId": "lint-scripts",
+          "admittedAtMs": 22711,
+          "trigger": "task-settled",
+          "triggerTaskId": "decision-records",
+          "executionAtMs": 22713,
+          "finishedAtMs": 23792,
+          "durationMs": 1079.76,
+          "settledAtMs": 23794
+        },
+        {
+          "taskId": "tests-scripts-machine-artifacts",
+          "admittedAtMs": 23794,
+          "trigger": "task-settled",
+          "triggerTaskId": "lint-scripts",
+          "executionAtMs": 23795,
+          "finishedAtMs": 25007,
+          "durationMs": 1211.356,
+          "settledAtMs": 25008
+        },
+        {
+          "taskId": "tests-product-markdown-links",
+          "admittedAtMs": 23905,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-test-evidence",
+          "executionAtMs": 23906,
+          "finishedAtMs": 24802,
+          "durationMs": 895.27,
+          "settledAtMs": 24803
+        },
+        {
+          "taskId": "duplicate-detection",
+          "admittedAtMs": 24803,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-markdown-links",
+          "executionAtMs": 24805,
+          "finishedAtMs": 26966,
+          "durationMs": 2159.986,
+          "settledAtMs": 26967
+        },
+        {
+          "taskId": "tests-scripts-project-selection",
+          "admittedAtMs": 25008,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-machine-artifacts",
+          "executionAtMs": 25010,
+          "finishedAtMs": 25665,
+          "durationMs": 654.788,
+          "settledAtMs": 25667
+        },
+        {
+          "taskId": "tests-product-secret-detection",
+          "admittedAtMs": 25231,
+          "trigger": "task-settled",
+          "triggerTaskId": "markdown-link-validation",
+          "executionAtMs": 25233,
+          "finishedAtMs": 25672,
+          "durationMs": 438.535,
+          "settledAtMs": 25673
+        },
+        {
+          "taskId": "tests-product-json",
+          "admittedAtMs": 25667,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-project-selection",
+          "executionAtMs": 25668,
+          "finishedAtMs": 26305,
+          "durationMs": 636.596,
+          "settledAtMs": 26306
+        },
+        {
+          "taskId": "typecheck-product",
+          "admittedAtMs": 25673,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-secret-detection",
+          "executionAtMs": 25675,
+          "finishedAtMs": 26085,
+          "durationMs": 409.847,
+          "settledAtMs": 26086
+        },
+        {
+          "taskId": "typecheck-scripts",
+          "admittedAtMs": 26086,
+          "trigger": "task-settled",
+          "triggerTaskId": "typecheck-product",
+          "executionAtMs": 26088,
+          "finishedAtMs": 26484,
+          "durationMs": 396,
+          "settledAtMs": 26485
+        },
+        {
+          "taskId": "format-check",
+          "admittedAtMs": 26306,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-json",
+          "executionAtMs": 26307,
+          "finishedAtMs": 26809,
+          "durationMs": 501.183,
+          "settledAtMs": 26810
+        },
+        {
+          "taskId": "materials-json-validator",
+          "admittedAtMs": 26485,
+          "trigger": "task-settled",
+          "triggerTaskId": "typecheck-scripts",
+          "executionAtMs": 26487,
+          "finishedAtMs": 26797,
+          "durationMs": 309.609,
+          "settledAtMs": 26798
+        },
+        {
+          "taskId": "git-diff-whitespace",
+          "admittedAtMs": 26798,
+          "trigger": "task-settled",
+          "triggerTaskId": "materials-json-validator",
+          "executionAtMs": 26800,
+          "finishedAtMs": 27321,
+          "durationMs": 521.198,
+          "settledAtMs": 27322
+        },
+        {
+          "taskId": "file-metrics",
+          "admittedAtMs": 26810,
+          "trigger": "task-settled",
+          "triggerTaskId": "format-check",
+          "executionAtMs": 26812,
+          "finishedAtMs": 27315,
+          "durationMs": 503.704,
+          "settledAtMs": 27316
+        },
+        {
+          "taskId": "materials-examples-validator",
+          "admittedAtMs": 26967,
+          "trigger": "task-settled",
+          "triggerTaskId": "duplicate-detection",
+          "executionAtMs": 26968,
+          "finishedAtMs": 27191,
+          "durationMs": 223.51,
+          "settledAtMs": 27193
+        },
+        {
+          "taskId": "materials-links-validator",
+          "admittedAtMs": 27193,
+          "trigger": "task-settled",
+          "triggerTaskId": "materials-examples-validator",
+          "executionAtMs": 27194,
+          "finishedAtMs": 27207,
+          "durationMs": 12.867,
+          "settledAtMs": 27208
+        }
+      ]
+    },
+    {
+      "repetition": 2,
+      "startedAt": "2026-09-26T09:59:37.679Z",
+      "gateDirectory": "/workspace/vibe-check/.log/project-gate/2026-09-26T09-59-38.513Z-3601201-7a5738a9-5cea-409c-9851-7191854becba",
+      "candidate": "0.0.0-local.b1b8dcad7e34",
+      "gateTimingMs": {
+        "total": 27382.9,
+        "candidate": 153.9,
+        "setup": 415.7,
+        "productRun": 26813.3
+      },
+      "exitCode": 1,
+      "statuses": {
+        "passed": 34,
+        "not-applicable": 9
+      },
+      "shellTiming": "MEASURE real_s=27.686 user_s=63.895 system_s=23.064",
+      "cpuDelta": {
+        "usage_usec": 92146840,
+        "user_usec": 67501554,
+        "system_usec": 24645285,
+        "nice_usec": 0,
+        "nr_periods": 277,
+        "nr_throttled": 104,
+        "throttled_usec": 9470550,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "pressureBefore": "some avg10=0.96 avg60=3.02 avg300=2.28 total=2031274574\nfull avg10=0.34 avg60=1.02 avg300=0.71 total=1180714758\n",
+      "pressureAfter": "some avg10=19.85 avg60=8.34 avg300=3.59 total=2036041896\nfull avg10=7.51 avg60=3.01 avg300=1.20 total=1182587820\n",
+      "historyBeforeSha256": "a7c3ca4627fa3fb4b529062e8a366c94c4f525264879eba511221b03f048d0c9",
+      "historyAfterSha256": "0680afeabc6e1cdd61dfd48f94e8863e663a523a7d5a73459ad36cdbe2112922",
+      "schedulerSummary": {
+        "schedulerSpanMs": 26475.975,
+        "schedulerControlPathMs": 33.142,
+        "schedulerDecisionObservationMs": 19.927,
+        "rootCapacitySlotMs": 79427.924,
+        "taskSlotMs": 67501.082,
+        "rootSlotUtilization": 0.8498406843548442,
+        "acceptedWaitMs": 26256.726,
+        "completionTailMs": 117.608,
+        "admissiblePendingTaskMs": 179535.915,
+        "capacityBlockedTaskMs": 414030.587,
+        "mutexBlockedTaskMs": 8876.652
+      },
+      "partialWaitMs": 11643,
+      "partialWaits": [
+        {
+          "atMs": 164,
+          "untilMs": 3323,
+          "spanMs": 3159,
+          "running": 2,
+          "active": [
+            "tests-scripts-validation",
+            "tests-scripts-layout"
+          ],
+          "admissibleCount": 15
+        },
+        {
+          "atMs": 3324,
+          "untilMs": 4146,
+          "spanMs": 822,
+          "running": 2,
+          "active": [
+            "tests-scripts-validation",
+            "tests-scripts-admission-workbench"
+          ],
+          "admissibleCount": 15
+        },
+        {
+          "atMs": 4147,
+          "untilMs": 6264,
+          "spanMs": 2117,
+          "running": 2,
+          "active": [
+            "tests-scripts-admission-workbench",
+            "tests-product-supporting-checks"
+          ],
+          "admissibleCount": 16
+        },
+        {
+          "atMs": 6265,
+          "untilMs": 6797,
+          "spanMs": 532,
+          "running": 2,
+          "active": [
+            "tests-product-supporting-checks",
+            "tests-scripts-project"
+          ],
+          "admissibleCount": 16
+        },
+        {
+          "atMs": 6798,
+          "untilMs": 11328,
+          "spanMs": 4530,
+          "running": 2,
+          "active": [
+            "tests-scripts-project",
+            "tests-product-runtime"
+          ],
+          "admissibleCount": 16
+        },
+        {
+          "atMs": 24812,
+          "untilMs": 24855,
+          "spanMs": 43,
+          "running": 2,
+          "active": [
+            "tests-product-markdown-links",
+            "tests-scripts-project-selection"
+          ],
+          "admissibleCount": 8
+        },
+        {
+          "atMs": 24856,
+          "untilMs": 25296,
+          "spanMs": 440,
+          "running": 2,
+          "active": [
+            "tests-scripts-project-selection",
+            "tests-product-json"
+          ],
+          "admissibleCount": 8
+        }
+      ],
+      "activeCheckMs": 67383.546,
+      "activeTestCheckMs": 42791.36400000001,
+      "tasks": [
+        {
+          "taskId": "prepared-package-candidate",
+          "admittedAtMs": 149,
+          "trigger": "execution-started",
+          "executionAtMs": 156,
+          "finishedAtMs": 161,
+          "durationMs": 4.959,
+          "settledAtMs": 164
+        },
+        {
+          "taskId": "tests-scripts-validation",
+          "admittedAtMs": 151,
+          "trigger": "admission-continued",
+          "executionAtMs": 162,
+          "finishedAtMs": 4145,
+          "durationMs": 3983.058,
+          "settledAtMs": 4146
+        },
+        {
+          "taskId": "tests-scripts-layout",
+          "admittedAtMs": 152,
+          "trigger": "admission-continued",
+          "executionAtMs": 162,
+          "finishedAtMs": 3322,
+          "durationMs": 3159.628,
+          "settledAtMs": 3323
+        },
+        {
+          "taskId": "tests-scripts-admission-workbench",
+          "admittedAtMs": 3323,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-layout",
+          "executionAtMs": 3325,
+          "finishedAtMs": 6262,
+          "durationMs": 2936.768,
+          "settledAtMs": 6264
+        },
+        {
+          "taskId": "tests-product-supporting-checks",
+          "admittedAtMs": 4146,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-validation",
+          "executionAtMs": 4148,
+          "finishedAtMs": 6795,
+          "durationMs": 2647.511,
+          "settledAtMs": 6797
+        },
+        {
+          "taskId": "tests-scripts-project",
+          "admittedAtMs": 6264,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-admission-workbench",
+          "executionAtMs": 6266,
+          "finishedAtMs": 11323,
+          "durationMs": 5056.854,
+          "settledAtMs": 11328
+        },
+        {
+          "taskId": "tests-product-runtime",
+          "admittedAtMs": 6797,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-supporting-checks",
+          "executionAtMs": 6799,
+          "finishedAtMs": 11927,
+          "durationMs": 5127.647,
+          "settledAtMs": 11929
+        },
+        {
+          "taskId": "tests-product-function-metrics",
+          "admittedAtMs": 11328,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-project",
+          "executionAtMs": 11336,
+          "finishedAtMs": 16743,
+          "durationMs": 5406.957,
+          "settledAtMs": 16746
+        },
+        {
+          "taskId": "function-metrics",
+          "admittedAtMs": 11331,
+          "trigger": "admission-continued",
+          "executionAtMs": 11336,
+          "finishedAtMs": 17992,
+          "durationMs": 6655.927,
+          "settledAtMs": 17995
+        },
+        {
+          "taskId": "test-evidence",
+          "admittedAtMs": 11929,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-runtime",
+          "executionAtMs": 11934,
+          "finishedAtMs": 16471,
+          "durationMs": 4536.899,
+          "settledAtMs": 16473
+        },
+        {
+          "taskId": "tests-package-supporting",
+          "admittedAtMs": 16473,
+          "trigger": "task-settled",
+          "triggerTaskId": "test-evidence",
+          "executionAtMs": 16477,
+          "finishedAtMs": 18793,
+          "durationMs": 2316.51,
+          "settledAtMs": 18796
+        },
+        {
+          "taskId": "markdown-lint",
+          "admittedAtMs": 16746,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-function-metrics",
+          "executionAtMs": 16749,
+          "finishedAtMs": 19010,
+          "durationMs": 2261.434,
+          "settledAtMs": 19012
+        },
+        {
+          "taskId": "tests-product-duplicate-detection",
+          "admittedAtMs": 17995,
+          "trigger": "task-settled",
+          "triggerTaskId": "function-metrics",
+          "executionAtMs": 17997,
+          "finishedAtMs": 20939,
+          "durationMs": 2941.533,
+          "settledAtMs": 20940
+        },
+        {
+          "taskId": "tests-product-file-metrics",
+          "admittedAtMs": 18796,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-package-supporting",
+          "executionAtMs": 18800,
+          "finishedAtMs": 21593,
+          "durationMs": 2792.734,
+          "settledAtMs": 21594
+        },
+        {
+          "taskId": "lint-product",
+          "admittedAtMs": 19012,
+          "trigger": "task-settled",
+          "triggerTaskId": "markdown-lint",
+          "executionAtMs": 19015,
+          "finishedAtMs": 21217,
+          "durationMs": 2201.788,
+          "settledAtMs": 21218
+        },
+        {
+          "taskId": "decision-records",
+          "admittedAtMs": 20940,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-duplicate-detection",
+          "executionAtMs": 20943,
+          "finishedAtMs": 22721,
+          "durationMs": 1778.19,
+          "settledAtMs": 22723
+        },
+        {
+          "taskId": "tests-scripts-tooling",
+          "admittedAtMs": 21218,
+          "trigger": "task-settled",
+          "triggerTaskId": "lint-product",
+          "executionAtMs": 21220,
+          "finishedAtMs": 22469,
+          "durationMs": 1248.123,
+          "settledAtMs": 22470
+        },
+        {
+          "taskId": "markdown-link-validation",
+          "admittedAtMs": 21594,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-file-metrics",
+          "executionAtMs": 21596,
+          "finishedAtMs": 24810,
+          "durationMs": 3213.89,
+          "settledAtMs": 24812
+        },
+        {
+          "taskId": "tests-scripts-test-evidence",
+          "admittedAtMs": 22470,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-tooling",
+          "executionAtMs": 22472,
+          "finishedAtMs": 23940,
+          "durationMs": 1467.749,
+          "settledAtMs": 23941
+        },
+        {
+          "taskId": "lint-scripts",
+          "admittedAtMs": 22723,
+          "trigger": "task-settled",
+          "triggerTaskId": "decision-records",
+          "executionAtMs": 22725,
+          "finishedAtMs": 23796,
+          "durationMs": 1070.53,
+          "settledAtMs": 23797
+        },
+        {
+          "taskId": "tests-scripts-machine-artifacts",
+          "admittedAtMs": 23797,
+          "trigger": "task-settled",
+          "triggerTaskId": "lint-scripts",
+          "executionAtMs": 23798,
+          "finishedAtMs": 24686,
+          "durationMs": 888.373,
+          "settledAtMs": 24688
+        },
+        {
+          "taskId": "duplicate-detection",
+          "admittedAtMs": 23941,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-test-evidence",
+          "executionAtMs": 23943,
+          "finishedAtMs": 24103,
+          "durationMs": 160.216,
+          "settledAtMs": 24104
+        },
+        {
+          "taskId": "tests-product-markdown-links",
+          "admittedAtMs": 24104,
+          "trigger": "task-settled",
+          "triggerTaskId": "duplicate-detection",
+          "executionAtMs": 24106,
+          "finishedAtMs": 24854,
+          "durationMs": 747.926,
+          "settledAtMs": 24855
+        },
+        {
+          "taskId": "tests-scripts-project-selection",
+          "admittedAtMs": 24688,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-machine-artifacts",
+          "executionAtMs": 24689,
+          "finishedAtMs": 25295,
+          "durationMs": 605.936,
+          "settledAtMs": 25296
+        },
+        {
+          "taskId": "tests-product-json",
+          "admittedAtMs": 24855,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-markdown-links",
+          "executionAtMs": 24857,
+          "finishedAtMs": 25321,
+          "durationMs": 463.979,
+          "settledAtMs": 25322
+        },
+        {
+          "taskId": "tests-product-secret-detection",
+          "admittedAtMs": 25296,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-project-selection",
+          "executionAtMs": 25299,
+          "finishedAtMs": 26299,
+          "durationMs": 1000.078,
+          "settledAtMs": 26300
+        },
+        {
+          "taskId": "typecheck-product",
+          "admittedAtMs": 25297,
+          "trigger": "admission-continued",
+          "executionAtMs": 25299,
+          "finishedAtMs": 25784,
+          "durationMs": 484.601,
+          "settledAtMs": 25785
+        },
+        {
+          "taskId": "typecheck-scripts",
+          "admittedAtMs": 25322,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-json",
+          "executionAtMs": 25324,
+          "finishedAtMs": 25847,
+          "durationMs": 523.11,
+          "settledAtMs": 25848
+        },
+        {
+          "taskId": "format-check",
+          "admittedAtMs": 25785,
+          "trigger": "task-settled",
+          "triggerTaskId": "typecheck-product",
+          "executionAtMs": 25786,
+          "finishedAtMs": 26521,
+          "durationMs": 734.791,
+          "settledAtMs": 26523
+        },
+        {
+          "taskId": "git-diff-whitespace",
+          "admittedAtMs": 25848,
+          "trigger": "task-settled",
+          "triggerTaskId": "typecheck-scripts",
+          "executionAtMs": 25860,
+          "finishedAtMs": 25897,
+          "durationMs": 36.681,
+          "settledAtMs": 25898
+        },
+        {
+          "taskId": "materials-json-validator",
+          "admittedAtMs": 25898,
+          "trigger": "task-settled",
+          "triggerTaskId": "git-diff-whitespace",
+          "executionAtMs": 25899,
+          "finishedAtMs": 26179,
+          "durationMs": 279.553,
+          "settledAtMs": 26180
+        },
+        {
+          "taskId": "file-metrics",
+          "admittedAtMs": 26180,
+          "trigger": "task-settled",
+          "triggerTaskId": "materials-json-validator",
+          "executionAtMs": 26182,
+          "finishedAtMs": 26619,
+          "durationMs": 436.846,
+          "settledAtMs": 26620
+        },
+        {
+          "taskId": "materials-examples-validator",
+          "admittedAtMs": 26300,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-secret-detection",
+          "executionAtMs": 26301,
+          "finishedAtMs": 26502,
+          "durationMs": 200.602,
+          "settledAtMs": 26503
+        },
+        {
+          "taskId": "materials-links-validator",
+          "admittedAtMs": 26503,
+          "trigger": "task-settled",
+          "triggerTaskId": "materials-examples-validator",
+          "executionAtMs": 26504,
+          "finishedAtMs": 26516,
+          "durationMs": 12.165,
+          "settledAtMs": 26517
+        }
+      ]
+    },
+    {
+      "repetition": 3,
+      "startedAt": "2026-09-26T10:00:05.371Z",
+      "gateDirectory": "/workspace/vibe-check/.log/project-gate/2026-09-26T10-00-06.108Z-3603362-17bddb1d-1081-4cbf-87b0-f74f29408d5b",
+      "candidate": "0.0.0-local.b1b8dcad7e34",
+      "gateTimingMs": {
+        "total": 20486.2,
+        "candidate": 120.8,
+        "setup": 378.7,
+        "productRun": 19986.6
+      },
+      "exitCode": 1,
+      "statuses": {
+        "passed": 34,
+        "not-applicable": 9
+      },
+      "shellTiming": "MEASURE real_s=20.767 user_s=48.924 system_s=16.777",
+      "cpuDelta": {
+        "usage_usec": 70067059,
+        "user_usec": 52295648,
+        "system_usec": 17771411,
+        "nice_usec": 0,
+        "nr_periods": 207,
+        "nr_throttled": 91,
+        "throttled_usec": 8261396,
+        "nr_bursts": 0,
+        "burst_usec": 0
+      },
+      "pressureBefore": "some avg10=19.85 avg60=8.34 avg300=3.59 total=2036041896\nfull avg10=7.51 avg60=3.01 avg300=1.20 total=1182587820\n",
+      "pressureAfter": "some avg10=22.06 avg60=11.38 avg300=4.59 total=2039964100\nfull avg10=8.20 avg60=4.12 avg300=1.57 total=1184127044\n",
+      "historyBeforeSha256": "0680afeabc6e1cdd61dfd48f94e8863e663a523a7d5a73459ad36cdbe2112922",
+      "historyAfterSha256": "3538d548fcff6fef38d3621a56a96c8440cd2dee774d649bf110d3e004c2f118",
+      "schedulerSummary": {
+        "schedulerSpanMs": 19693.084,
+        "schedulerControlPathMs": 30.206,
+        "schedulerDecisionObservationMs": 19.38,
+        "rootCapacitySlotMs": 59079.253,
+        "taskSlotMs": 50157.698,
+        "rootSlotUtilization": 0.8489900642786579,
+        "acceptedWaitMs": 19483.821,
+        "completionTailMs": 124.993,
+        "admissiblePendingTaskMs": 135105.951,
+        "capacityBlockedTaskMs": 291039.91,
+        "mutexBlockedTaskMs": 9164.465
+      },
+      "partialWaitMs": 8628,
+      "partialWaits": [
+        {
+          "atMs": 151,
+          "untilMs": 3311,
+          "spanMs": 3160,
+          "running": 2,
+          "active": [
+            "tests-scripts-validation",
+            "tests-scripts-layout"
+          ],
+          "admissibleCount": 15
+        },
+        {
+          "atMs": 3312,
+          "untilMs": 4101,
+          "spanMs": 789,
+          "running": 2,
+          "active": [
+            "tests-scripts-validation",
+            "tests-scripts-admission-workbench"
+          ],
+          "admissibleCount": 15
+        },
+        {
+          "atMs": 4102,
+          "untilMs": 6245,
+          "spanMs": 2143,
+          "running": 2,
+          "active": [
+            "tests-scripts-admission-workbench",
+            "tests-scripts-project"
+          ],
+          "admissibleCount": 16
+        },
+        {
+          "atMs": 6246,
+          "untilMs": 6691,
+          "spanMs": 445,
+          "running": 2,
+          "active": [
+            "tests-scripts-project",
+            "tests-product-supporting-checks"
+          ],
+          "admissibleCount": 16
+        },
+        {
+          "atMs": 6692,
+          "untilMs": 8783,
+          "spanMs": 2091,
+          "running": 2,
+          "active": [
+            "tests-product-supporting-checks",
+            "tests-product-runtime"
+          ],
+          "admissibleCount": 16
+        }
+      ],
+      "activeCheckMs": 50063.986,
+      "activeTestCheckMs": 32027.828,
+      "tasks": [
+        {
+          "taskId": "prepared-package-candidate",
+          "admittedAtMs": 137,
+          "trigger": "execution-started",
+          "executionAtMs": 143,
+          "finishedAtMs": 148,
+          "durationMs": 4.187,
+          "settledAtMs": 151
+        },
+        {
+          "taskId": "tests-scripts-validation",
+          "admittedAtMs": 139,
+          "trigger": "admission-continued",
+          "executionAtMs": 148,
+          "finishedAtMs": 4100,
+          "durationMs": 3951.291,
+          "settledAtMs": 4101
+        },
+        {
+          "taskId": "tests-scripts-layout",
+          "admittedAtMs": 140,
+          "trigger": "admission-continued",
+          "executionAtMs": 149,
+          "finishedAtMs": 3309,
+          "durationMs": 3160.282,
+          "settledAtMs": 3311
+        },
+        {
+          "taskId": "tests-scripts-admission-workbench",
+          "admittedAtMs": 3311,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-layout",
+          "executionAtMs": 3313,
+          "finishedAtMs": 6243,
+          "durationMs": 2929.534,
+          "settledAtMs": 6245
+        },
+        {
+          "taskId": "tests-scripts-project",
+          "admittedAtMs": 4101,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-validation",
+          "executionAtMs": 4103,
+          "finishedAtMs": 6690,
+          "durationMs": 2586.541,
+          "settledAtMs": 6691
+        },
+        {
+          "taskId": "tests-product-supporting-checks",
+          "admittedAtMs": 6245,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-admission-workbench",
+          "executionAtMs": 6247,
+          "finishedAtMs": 8779,
+          "durationMs": 2531.422,
+          "settledAtMs": 8783
+        },
+        {
+          "taskId": "tests-product-runtime",
+          "admittedAtMs": 6691,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-project",
+          "executionAtMs": 6693,
+          "finishedAtMs": 9019,
+          "durationMs": 2326.109,
+          "settledAtMs": 9021
+        },
+        {
+          "taskId": "tests-product-function-metrics",
+          "admittedAtMs": 8783,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-supporting-checks",
+          "executionAtMs": 8791,
+          "finishedAtMs": 11467,
+          "durationMs": 2675.937,
+          "settledAtMs": 11469
+        },
+        {
+          "taskId": "function-metrics",
+          "admittedAtMs": 8787,
+          "trigger": "admission-continued",
+          "executionAtMs": 8792,
+          "finishedAtMs": 12289,
+          "durationMs": 3497.839,
+          "settledAtMs": 12291
+        },
+        {
+          "taskId": "test-evidence",
+          "admittedAtMs": 9021,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-runtime",
+          "executionAtMs": 9023,
+          "finishedAtMs": 11032,
+          "durationMs": 2009.205,
+          "settledAtMs": 11033
+        },
+        {
+          "taskId": "tests-package-supporting",
+          "admittedAtMs": 11033,
+          "trigger": "task-settled",
+          "triggerTaskId": "test-evidence",
+          "executionAtMs": 11035,
+          "finishedAtMs": 12689,
+          "durationMs": 1654.03,
+          "settledAtMs": 12690
+        },
+        {
+          "taskId": "markdown-lint",
+          "admittedAtMs": 11469,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-function-metrics",
+          "executionAtMs": 11471,
+          "finishedAtMs": 13120,
+          "durationMs": 1649.536,
+          "settledAtMs": 13121
+        },
+        {
+          "taskId": "tests-product-duplicate-detection",
+          "admittedAtMs": 12291,
+          "trigger": "task-settled",
+          "triggerTaskId": "function-metrics",
+          "executionAtMs": 12292,
+          "finishedAtMs": 14152,
+          "durationMs": 1859.627,
+          "settledAtMs": 14153
+        },
+        {
+          "taskId": "tests-product-file-metrics",
+          "admittedAtMs": 12690,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-package-supporting",
+          "executionAtMs": 12692,
+          "finishedAtMs": 14829,
+          "durationMs": 2136.777,
+          "settledAtMs": 14830
+        },
+        {
+          "taskId": "lint-product",
+          "admittedAtMs": 13121,
+          "trigger": "task-settled",
+          "triggerTaskId": "markdown-lint",
+          "executionAtMs": 13123,
+          "finishedAtMs": 14826,
+          "durationMs": 1703.103,
+          "settledAtMs": 14827
+        },
+        {
+          "taskId": "decision-records",
+          "admittedAtMs": 14153,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-duplicate-detection",
+          "executionAtMs": 14154,
+          "finishedAtMs": 15324,
+          "durationMs": 1169.782,
+          "settledAtMs": 15326
+        },
+        {
+          "taskId": "tests-scripts-tooling",
+          "admittedAtMs": 14827,
+          "trigger": "task-settled",
+          "triggerTaskId": "lint-product",
+          "executionAtMs": 14829,
+          "finishedAtMs": 16239,
+          "durationMs": 1410.638,
+          "settledAtMs": 16244
+        },
+        {
+          "taskId": "tests-scripts-test-evidence",
+          "admittedAtMs": 14830,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-file-metrics",
+          "executionAtMs": 14831,
+          "finishedAtMs": 16079,
+          "durationMs": 1247.596,
+          "settledAtMs": 16081
+        },
+        {
+          "taskId": "markdown-link-validation",
+          "admittedAtMs": 15326,
+          "trigger": "task-settled",
+          "triggerTaskId": "decision-records",
+          "executionAtMs": 15330,
+          "finishedAtMs": 18635,
+          "durationMs": 3304.946,
+          "settledAtMs": 18637
+        },
+        {
+          "taskId": "lint-scripts",
+          "admittedAtMs": 16081,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-test-evidence",
+          "executionAtMs": 16083,
+          "finishedAtMs": 17191,
+          "durationMs": 1106.978,
+          "settledAtMs": 17192
+        },
+        {
+          "taskId": "tests-scripts-machine-artifacts",
+          "admittedAtMs": 16244,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-tooling",
+          "executionAtMs": 16246,
+          "finishedAtMs": 17488,
+          "durationMs": 1242.017,
+          "settledAtMs": 17490
+        },
+        {
+          "taskId": "duplicate-detection",
+          "admittedAtMs": 17192,
+          "trigger": "task-settled",
+          "triggerTaskId": "lint-scripts",
+          "executionAtMs": 17194,
+          "finishedAtMs": 17341,
+          "durationMs": 146.834,
+          "settledAtMs": 17342
+        },
+        {
+          "taskId": "tests-product-markdown-links",
+          "admittedAtMs": 17342,
+          "trigger": "task-settled",
+          "triggerTaskId": "duplicate-detection",
+          "executionAtMs": 17344,
+          "finishedAtMs": 18064,
+          "durationMs": 719.76,
+          "settledAtMs": 18065
+        },
+        {
+          "taskId": "tests-scripts-project-selection",
+          "admittedAtMs": 17490,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-machine-artifacts",
+          "executionAtMs": 17492,
+          "finishedAtMs": 18126,
+          "durationMs": 634.519,
+          "settledAtMs": 18127
+        },
+        {
+          "taskId": "tests-product-secret-detection",
+          "admittedAtMs": 18065,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-markdown-links",
+          "executionAtMs": 18067,
+          "finishedAtMs": 18502,
+          "durationMs": 435.1,
+          "settledAtMs": 18503
+        },
+        {
+          "taskId": "tests-product-json",
+          "admittedAtMs": 18127,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-scripts-project-selection",
+          "executionAtMs": 18128,
+          "finishedAtMs": 18655,
+          "durationMs": 526.648,
+          "settledAtMs": 18657
+        },
+        {
+          "taskId": "typecheck-product",
+          "admittedAtMs": 18503,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-secret-detection",
+          "executionAtMs": 18505,
+          "finishedAtMs": 19462,
+          "durationMs": 957.599,
+          "settledAtMs": 19464
+        },
+        {
+          "taskId": "typecheck-scripts",
+          "admittedAtMs": 18637,
+          "trigger": "task-settled",
+          "triggerTaskId": "markdown-link-validation",
+          "executionAtMs": 18639,
+          "finishedAtMs": 19722,
+          "durationMs": 1081.651,
+          "settledAtMs": 19723
+        },
+        {
+          "taskId": "format-check",
+          "admittedAtMs": 18657,
+          "trigger": "task-settled",
+          "triggerTaskId": "tests-product-json",
+          "executionAtMs": 18658,
+          "finishedAtMs": 18932,
+          "durationMs": 273.907,
+          "settledAtMs": 18934
+        },
+        {
+          "taskId": "git-diff-whitespace",
+          "admittedAtMs": 18934,
+          "trigger": "task-settled",
+          "triggerTaskId": "format-check",
+          "executionAtMs": 18935,
+          "finishedAtMs": 18964,
+          "durationMs": 28.602,
+          "settledAtMs": 18965
+        },
+        {
+          "taskId": "materials-json-validator",
+          "admittedAtMs": 18965,
+          "trigger": "task-settled",
+          "triggerTaskId": "git-diff-whitespace",
+          "executionAtMs": 18967,
+          "finishedAtMs": 19327,
+          "durationMs": 360.317,
+          "settledAtMs": 19328
+        },
+        {
+          "taskId": "file-metrics",
+          "admittedAtMs": 19328,
+          "trigger": "task-settled",
+          "triggerTaskId": "materials-json-validator",
+          "executionAtMs": 19331,
+          "finishedAtMs": 19825,
+          "durationMs": 493.842,
+          "settledAtMs": 19826
+        },
+        {
+          "taskId": "materials-examples-validator",
+          "admittedAtMs": 19464,
+          "trigger": "task-settled",
+          "triggerTaskId": "typecheck-product",
+          "executionAtMs": 19464,
+          "finishedAtMs": 19700,
+          "durationMs": 235.363,
+          "settledAtMs": 19701
+        },
+        {
+          "taskId": "materials-links-validator",
+          "admittedAtMs": 19701,
+          "trigger": "task-settled",
+          "triggerTaskId": "materials-examples-validator",
+          "executionAtMs": 19702,
+          "finishedAtMs": 19715,
+          "durationMs": 12.467,
+          "settledAtMs": 19716
+        }
+      ]
+    }
+  ],
+  "isolatedProfiledSamples": {
+    "markdownLinkValidation": [
+      {
+        "name": "markdownLinkValidation",
+        "repetition": 1,
+        "elapsedMs": 2511.844553,
+        "cpuMicroseconds": {
+          "user": 2767498,
+          "system": 1212254
+        },
+        "checkId": "markdown-link-validation",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "occurrenceCount": 1148,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 279,
+            "targetReadCount": 837
+          }
+        },
+        "records": 0
+      },
+      {
+        "name": "markdownLinkValidation",
+        "repetition": 2,
+        "elapsedMs": 2492.886589,
+        "cpuMicroseconds": {
+          "user": 2489303,
+          "system": 1115174
+        },
+        "checkId": "markdown-link-validation",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "occurrenceCount": 1148,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 279,
+            "targetReadCount": 837
+          }
+        },
+        "records": 0
+      },
+      {
+        "name": "markdownLinkValidation",
+        "repetition": 3,
+        "elapsedMs": 2584.711555,
+        "cpuMicroseconds": {
+          "user": 2085365,
+          "system": 1130730
+        },
+        "checkId": "markdown-link-validation",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "occurrenceCount": 1148,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 279,
+            "targetReadCount": 837
+          }
+        },
+        "records": 0
+      }
+    ],
+    "markdownLint": [
+      {
+        "name": "markdownLint",
+        "repetition": 1,
+        "elapsedMs": 1699.8532209999998,
+        "cpuMicroseconds": {
+          "user": 1394661,
+          "system": 885866
+        },
+        "checkId": "markdown-lint",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 511
+          }
+        },
+        "records": 0
+      },
+      {
+        "name": "markdownLint",
+        "repetition": 2,
+        "elapsedMs": 1593.3211359999998,
+        "cpuMicroseconds": {
+          "user": 1007199,
+          "system": 660975
+        },
+        "checkId": "markdown-lint",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 511
+          }
+        },
+        "records": 0
+      },
+      {
+        "name": "markdownLint",
+        "repetition": 3,
+        "elapsedMs": 1575.8718489999997,
+        "cpuMicroseconds": {
+          "user": 949601,
+          "system": 778242
+        },
+        "checkId": "markdown-lint",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 511
+          }
+        },
+        "records": 0
+      }
+    ],
+    "functionMetrics": [
+      {
+        "name": "functionMetrics",
+        "repetition": 1,
+        "elapsedMs": 2415.8211549999996,
+        "cpuMicroseconds": {
+          "user": 1828230,
+          "system": 1095083
+        },
+        "checkId": "function-metrics",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "blockingFindingCount": 0,
+            "findingCount": 1
+          }
+        },
+        "records": 1
+      },
+      {
+        "name": "functionMetrics",
+        "repetition": 2,
+        "elapsedMs": 2243.563291,
+        "cpuMicroseconds": {
+          "user": 1560101,
+          "system": 1051925
+        },
+        "checkId": "function-metrics",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "blockingFindingCount": 0,
+            "findingCount": 1
+          }
+        },
+        "records": 1
+      },
+      {
+        "name": "functionMetrics",
+        "repetition": 3,
+        "elapsedMs": 2266.1629219999995,
+        "cpuMicroseconds": {
+          "user": 1605709,
+          "system": 959507
+        },
+        "checkId": "function-metrics",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "blockingFindingCount": 0,
+            "findingCount": 1
+          }
+        },
+        "records": 1
+      }
+    ]
+  },
+  "collectionPassThrough": [
+    {
+      "name": "markdownLint",
+      "repetition": 1,
+      "elapsedMs": 977.296843,
+      "selection": {
+        "exclude": [],
+        "include": [
+          "docs/**/*.md",
+          "changes/**/*.md"
+        ],
+        "source": "filesystem"
+      },
+      "selectedCount": 511,
+      "selectedDigest": "ce1a4573043a662a751cdcb9886a3e0bd72437a01cc73b152cb07b11018df82d",
+      "totals": {
+        "directoriesRead": 15400,
+        "regularFileEntries": 49106
+      },
+      "groups": {
+        "node_modules": {
+          "directoriesRead": 2646,
+          "regularFileEntries": 19585
+        },
+        ".log": {
+          "directoriesRead": 10989,
+          "regularFileEntries": 12976
+        },
+        "scripts": {
+          "directoriesRead": 671,
+          "regularFileEntries": 5739
+        },
+        ".git": {
+          "directoriesRead": 475,
+          "regularFileEntries": 4609
+        },
+        "build": {
+          "directoriesRead": 274,
+          "regularFileEntries": 2188
+        },
+        ".cache": {
+          "directoriesRead": 119,
+          "regularFileEntries": 1939
+        },
+        "src": {
+          "directoriesRead": 83,
+          "regularFileEntries": 703
+        },
+        "docs": {
+          "directoriesRead": 46,
+          "regularFileEntries": 667
+        },
+        ".venv": {
+          "directoriesRead": 37,
+          "regularFileEntries": 554
+        },
+        ".codex": {
+          "directoriesRead": 26,
+          "regularFileEntries": 56
+        },
+        "changes": {
+          "directoriesRead": 16,
+          "regularFileEntries": 46
+        },
+        "(root)": {
+          "directoriesRead": 1,
+          "regularFileEntries": 16
+        },
+        "tmp": {
+          "directoriesRead": 11,
+          "regularFileEntries": 14
+        },
+        ".codegraph": {
+          "directoriesRead": 1,
+          "regularFileEntries": 6
+        },
+        "licenses": {
+          "directoriesRead": 1,
+          "regularFileEntries": 5
+        },
+        "artifacts": {
+          "directoriesRead": 2,
+          "regularFileEntries": 2
+        },
+        ".githooks": {
+          "directoriesRead": 1,
+          "regularFileEntries": 1
+        },
+        ".tmp": {
+          "directoriesRead": 1,
+          "regularFileEntries": 0
+        }
+      }
+    },
+    {
+      "name": "markdownLint",
+      "repetition": 2,
+      "elapsedMs": 1153.0418059999997,
+      "selection": {
+        "exclude": [],
+        "include": [
+          "docs/**/*.md",
+          "changes/**/*.md"
+        ],
+        "source": "filesystem"
+      },
+      "selectedCount": 511,
+      "selectedDigest": "ce1a4573043a662a751cdcb9886a3e0bd72437a01cc73b152cb07b11018df82d",
+      "totals": {
+        "directoriesRead": 15400,
+        "regularFileEntries": 49106
+      },
+      "groups": {
+        "node_modules": {
+          "directoriesRead": 2646,
+          "regularFileEntries": 19585
+        },
+        ".log": {
+          "directoriesRead": 10989,
+          "regularFileEntries": 12976
+        },
+        "scripts": {
+          "directoriesRead": 671,
+          "regularFileEntries": 5739
+        },
+        ".git": {
+          "directoriesRead": 475,
+          "regularFileEntries": 4609
+        },
+        "build": {
+          "directoriesRead": 274,
+          "regularFileEntries": 2188
+        },
+        ".cache": {
+          "directoriesRead": 119,
+          "regularFileEntries": 1939
+        },
+        "src": {
+          "directoriesRead": 83,
+          "regularFileEntries": 703
+        },
+        "docs": {
+          "directoriesRead": 46,
+          "regularFileEntries": 667
+        },
+        ".venv": {
+          "directoriesRead": 37,
+          "regularFileEntries": 554
+        },
+        ".codex": {
+          "directoriesRead": 26,
+          "regularFileEntries": 56
+        },
+        "changes": {
+          "directoriesRead": 16,
+          "regularFileEntries": 46
+        },
+        "(root)": {
+          "directoriesRead": 1,
+          "regularFileEntries": 16
+        },
+        "tmp": {
+          "directoriesRead": 11,
+          "regularFileEntries": 14
+        },
+        ".codegraph": {
+          "directoriesRead": 1,
+          "regularFileEntries": 6
+        },
+        "licenses": {
+          "directoriesRead": 1,
+          "regularFileEntries": 5
+        },
+        "artifacts": {
+          "directoriesRead": 2,
+          "regularFileEntries": 2
+        },
+        ".githooks": {
+          "directoriesRead": 1,
+          "regularFileEntries": 1
+        },
+        ".tmp": {
+          "directoriesRead": 1,
+          "regularFileEntries": 0
+        }
+      }
+    },
+    {
+      "name": "markdownLinkValidation",
+      "repetition": 1,
+      "elapsedMs": 65.3975019999998,
+      "selection": {
+        "exclude": [
+          "**/.git",
+          "**/.git/**",
+          "**/archive/**",
+          "**/target/**",
+          "**/node_modules/**",
+          "**/.venv/**",
+          "**/.uv-cache/**",
+          "**/.ruff_cache/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/vendor/**",
+          "**/generated/**",
+          "**/fixtures/**",
+          "**/.cache/**",
+          "**/cache/**",
+          "**/artifacts/**",
+          "**/.tmp/**",
+          "**/.log/**"
+        ],
+        "include": [
+          "docs/**/*.md",
+          "changes/**/*.md"
+        ],
+        "source": "filesystem"
+      },
+      "selectedCount": 279,
+      "selectedDigest": "58a2827bdd16db8e6a7236cc0f3aedd8499925376b32d9984296a4258e46b0a3",
+      "totals": {
+        "directoriesRead": 182,
+        "regularFileEntries": 1457
+      },
+      "groups": {
+        "src": {
+          "directoriesRead": 51,
+          "regularFileEntries": 578
+        },
+        "docs": {
+          "directoriesRead": 43,
+          "regularFileEntries": 432
+        },
+        "scripts": {
+          "directoriesRead": 39,
+          "regularFileEntries": 317
+        },
+        ".codex": {
+          "directoriesRead": 26,
+          "regularFileEntries": 56
+        },
+        "changes": {
+          "directoriesRead": 16,
+          "regularFileEntries": 46
+        },
+        "(root)": {
+          "directoriesRead": 1,
+          "regularFileEntries": 16
+        },
+        ".codegraph": {
+          "directoriesRead": 1,
+          "regularFileEntries": 6
+        },
+        "licenses": {
+          "directoriesRead": 1,
+          "regularFileEntries": 5
+        },
+        ".githooks": {
+          "directoriesRead": 1,
+          "regularFileEntries": 1
+        },
+        "tmp": {
+          "directoriesRead": 3,
+          "regularFileEntries": 0
+        }
+      }
+    },
+    {
+      "name": "markdownLinkValidation",
+      "repetition": 2,
+      "elapsedMs": 70.02262699999983,
+      "selection": {
+        "exclude": [
+          "**/.git",
+          "**/.git/**",
+          "**/archive/**",
+          "**/target/**",
+          "**/node_modules/**",
+          "**/.venv/**",
+          "**/.uv-cache/**",
+          "**/.ruff_cache/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/vendor/**",
+          "**/generated/**",
+          "**/fixtures/**",
+          "**/.cache/**",
+          "**/cache/**",
+          "**/artifacts/**",
+          "**/.tmp/**",
+          "**/.log/**"
+        ],
+        "include": [
+          "docs/**/*.md",
+          "changes/**/*.md"
+        ],
+        "source": "filesystem"
+      },
+      "selectedCount": 279,
+      "selectedDigest": "58a2827bdd16db8e6a7236cc0f3aedd8499925376b32d9984296a4258e46b0a3",
+      "totals": {
+        "directoriesRead": 182,
+        "regularFileEntries": 1457
+      },
+      "groups": {
+        "src": {
+          "directoriesRead": 51,
+          "regularFileEntries": 578
+        },
+        "docs": {
+          "directoriesRead": 43,
+          "regularFileEntries": 432
+        },
+        "scripts": {
+          "directoriesRead": 39,
+          "regularFileEntries": 317
+        },
+        ".codex": {
+          "directoriesRead": 26,
+          "regularFileEntries": 56
+        },
+        "changes": {
+          "directoriesRead": 16,
+          "regularFileEntries": 46
+        },
+        "(root)": {
+          "directoriesRead": 1,
+          "regularFileEntries": 16
+        },
+        ".codegraph": {
+          "directoriesRead": 1,
+          "regularFileEntries": 6
+        },
+        "licenses": {
+          "directoriesRead": 1,
+          "regularFileEntries": 5
+        },
+        ".githooks": {
+          "directoriesRead": 1,
+          "regularFileEntries": 1
+        },
+        "tmp": {
+          "directoriesRead": 3,
+          "regularFileEntries": 0
+        }
+      }
+    }
+  ],
+  "phasePassThrough": {
+    "markdownLinkValidation": [
+      {
+        "mode": "markdownLinkValidation",
+        "repetition": 1,
+        "elapsedMs": 2027.7801,
+        "measures": {
+          "collectProjectFileSets": {
+            "calls": 1,
+            "elapsedMs": 78.27402099999998
+          },
+          "collectProjectFiles": {
+            "calls": 1,
+            "elapsedMs": 78.526229
+          },
+          "probeRootContainedPath": {
+            "calls": 1116,
+            "elapsedMs": 573.2613729999935
+          },
+          "readRegularFile": {
+            "calls": 314,
+            "elapsedMs": 213.57736500000192
+          },
+          "parseMarkdownLinkFacts": {
+            "calls": 314,
+            "elapsedMs": 1065.0677059999994
+          }
+        },
+        "uniqueParsedContents": 278,
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "occurrenceCount": 1148,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 279,
+            "targetReadCount": 837
+          }
+        },
+        "records": 0,
+        "caveat": "Pass-through instrumented installed candidate; nested category timings overlap and must not be summed."
+      },
+      {
+        "mode": "markdownLinkValidation",
+        "repetition": 2,
+        "elapsedMs": 1733.3610709999998,
+        "measures": {
+          "collectProjectFileSets": {
+            "calls": 1,
+            "elapsedMs": 46.77705600000036
+          },
+          "collectProjectFiles": {
+            "calls": 1,
+            "elapsedMs": 46.840193
+          },
+          "probeRootContainedPath": {
+            "calls": 1116,
+            "elapsedMs": 521.5092260000056
+          },
+          "readRegularFile": {
+            "calls": 314,
+            "elapsedMs": 198.17992199999708
+          },
+          "parseMarkdownLinkFacts": {
+            "calls": 314,
+            "elapsedMs": 911.1544750000044
+          }
+        },
+        "uniqueParsedContents": 278,
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "findingCount": 0,
+            "occurrenceCount": 1148,
+            "rejectedInputCount": 0,
+            "sourceFileCount": 279,
+            "targetReadCount": 837
+          }
+        },
+        "records": 0,
+        "caveat": "Pass-through instrumented installed candidate; nested category timings overlap and must not be summed."
+      }
+    ],
+    "functionMetrics": [
+      {
+        "mode": "functionMetrics",
+        "repetition": 1,
+        "elapsedMs": 2275.536623,
+        "measures": {
+          "collectProjectFileSets": {
+            "calls": 1,
+            "elapsedMs": 112.194288
+          },
+          "zeroTimerDelay": {
+            "calls": 525,
+            "elapsedMs": 626.1285420000006
+          },
+          "analyzeAdmittedSources": {
+            "calls": 1,
+            "elapsedMs": 1455.7529870000003
+          },
+          "measureFunctionMetrics": {
+            "calls": 1,
+            "elapsedMs": 2113.867454
+          }
+        },
+        "uniqueParsedContents": 0,
+        "inputFiles": 525,
+        "inputBytes": 2379877,
+        "zeroTimerStack": "Error: first zero timer caller\n    at <anonymous> (/workspace/vibe-check/.log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/profile-phases.mjs:68:30)\n    at <anonymous> (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:84:9)\n    at new Promise (native:1:11)\n    at yieldAdmissionToTimer (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:83:16)\n    at readBoundedSource (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:67:19)\n    at readExactFunctionSources (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:31:30)\n    at measureFunctionMetrics (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:18:28)\n    at <anonymous> (/workspace/vibe-check/.log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/profile-phases.mjs:34:26)\n    at executePreparedFunctionMetrics (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/execution.mjs:40:31)\n    at executeFunctionMetrics (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/execution.mjs:28:12)",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "blockingFindingCount": 0,
+            "findingCount": 1
+          }
+        },
+        "records": 1,
+        "caveat": "Pass-through instrumented installed candidate; nested category timings overlap and must not be summed."
+      },
+      {
+        "mode": "functionMetrics",
+        "repetition": 2,
+        "elapsedMs": 2236.0675640000004,
+        "measures": {
+          "collectProjectFileSets": {
+            "calls": 1,
+            "elapsedMs": 77.38962899999979
+          },
+          "zeroTimerDelay": {
+            "calls": 525,
+            "elapsedMs": 629.2260479999964
+          },
+          "analyzeAdmittedSources": {
+            "calls": 1,
+            "elapsedMs": 1462.5254630000004
+          },
+          "measureFunctionMetrics": {
+            "calls": 1,
+            "elapsedMs": 2126.1892700000003
+          }
+        },
+        "uniqueParsedContents": 0,
+        "inputFiles": 525,
+        "inputBytes": 2379877,
+        "zeroTimerStack": "Error: first zero timer caller\n    at <anonymous> (/workspace/vibe-check/.log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/profile-phases.mjs:68:30)\n    at <anonymous> (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:84:9)\n    at new Promise (native:1:11)\n    at yieldAdmissionToTimer (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:83:16)\n    at readBoundedSource (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:67:19)\n    at readExactFunctionSources (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:31:30)\n    at measureFunctionMetrics (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/measurement.mjs:18:28)\n    at <anonymous> (/workspace/vibe-check/.log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/profile-phases.mjs:34:26)\n    at executePreparedFunctionMetrics (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/execution.mjs:40:31)\n    at executeFunctionMetrics (/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/dist/esm/package-checks/function-metrics/execution.mjs:28:12)",
+        "outcome": {
+          "status": "passed",
+          "data": {
+            "blockingFindingCount": 0,
+            "findingCount": 1
+          }
+        },
+        "records": 1,
+        "caveat": "Pass-through instrumented installed candidate; nested category timings overlap and must not be summed."
+      }
+    ]
+  },
+  "retainedLocalProbeSources": [
+    {
+      "path": ".log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/profile-check.mjs",
+      "sha256": "4b38b0f7a8df172c07aaa1297bd0e05dcd3a2ff9c5801d2ce54bed73b3f7c5d6"
+    },
+    {
+      "path": ".log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/profile-collection.mjs",
+      "sha256": "fa88d297546c54d2be69ffbba2977a3fbcc338271787ba5507bb0a8b46924c41"
+    },
+    {
+      "path": ".log/performance-investigation/2026-09-26T09-58-38.870Z-gate-bottlenecks/profile-phases.mjs",
+      "sha256": "d29895e88375eb743bf909945e85832018cf35539c0faa380c22a2467630107f"
+    }
+  ]
+}
