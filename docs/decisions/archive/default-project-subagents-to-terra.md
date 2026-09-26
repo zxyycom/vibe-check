@@ -1,7 +1,7 @@
 ---
 title: 项目子代理默认使用 Terra
 id: 260908-default-project-subagents-to-terra
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-08T06:34:52Z
 purpose: 让项目子代理模型选择遵循用户明确偏好
