@@ -1,6 +1,6 @@
 # Tasks
 
-先固定精确 identity 与完整对账边界，再实施、同步使用材料并验证；本 Change 本轮不结项删除。
+先固定精确 identity 与完整对账边界，再实施、同步使用材料并验证；两档 Gate 验收通过后结项。
 
 ## Readiness
 
@@ -18,7 +18,7 @@
 
 - [x] 2.1 运行受影响的最窄测试，证明无配置 parity、失败完整性、cache hit 实时 waiver 与精确匹配。
 - [x] 2.2 通过 Test Evidence 全树闭合、Change 检查、文档投影/材料、typecheck、lint 和 dependency 验证。
-- [ ] 2.3 完成 required 与 complete Gate 的最终门禁验收，按现行预算告警策略单独报告性能，不把预算变化当作优化收益。
+- [x] 2.3 完成 required 与 complete Gate 的最终门禁验收，按现行预算告警策略单独报告性能，不把预算变化当作优化收益。
 - [x] 2.4 完成非实施代理基于实际 diff 的产品/文档独立反查并处理阻断项。
 
 ## Verification Evidence
@@ -47,3 +47,9 @@
 - 随后的 `bun run check`：34 passed / 9 N/A、无失败 Check；总预算计量 20,497.7ms，仍因超出原 required 20 秒阈值最终 failed。日志：`.log/project-gate/2026-09-26T07-05-21.015Z-3493744-bdb8a39a-2332-4842-8a88-f4b401a525df/`。
 
 两次使用同一 candidate `0.0.0-local.b1b8dcad7e34`，本机预算文件未改写；没有据此宣称性能改善或稳定达标。任务 2.3 仅剩 required 预算验收，保持未完成；本次按用户要求先固定提交，布局与全部端到端测试的优化另行审查。
+
+### 最终结项验收（2026-09-27 05:43 UTC）
+
+- 在当前 `6cb67b65bfa353cad1061023df7f5dc31613d42a` 上运行 `mise exec -- bun run check`：4 项按当前 required 选择执行并通过、39 项 N/A，最终退出 0；总预算计量 4,016.7ms，Check mean 786.3ms、P95 2,420.9ms，均在现行告警预算内。日志：`.log/project-gate/2026-09-27T05-43-45.967Z-4077752-9b925e14-07de-4609-a3ee-28599aca7340/`。
+- 随后运行 `mise exec -- bun run check -- --all`：43/43 Checks 通过，最终退出 0；总预算计量 40,827.3ms，低于 90 秒告警预算。Check mean 2,524.1ms、P95 8,034.6ms 超过各自告警预算，按现行策略只产生警告，不改变 Gate 通过结果。日志：`.log/project-gate/2026-09-27T05-43-49.626Z-4077840-ce6616d5-a4f4-4b91-a279-51c11fa468a2/`。
+- 两档 Gate 使用同一 candidate `0.0.0-local.b1b8dcad7e34`；complete 覆盖 Markdown lint、package artifact、installed type/docs/runtime consumer 与全部仓库 Checks。上述结果完成任务 2.3，但不构成性能优化或稳定达标声明。
