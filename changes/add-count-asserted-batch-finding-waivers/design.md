@@ -5,9 +5,9 @@
 ## Context
 
 - [`docs/guides/finding-waivers.md`](../../docs/guides/finding-waivers.md) 定义通用 helper 的精确 identity、完整集合对账与 audit；[`src/package-tools/finding-waivers/reconciliation.ts`](../../src/package-tools/finding-waivers/reconciliation.ts) 是实现 owner。
-- 现有内置采用者是 `fileMetrics`、`functionMetrics`、`duplicateDetection` 与 `secretDetection`；各 Check 拥有自身安全 identity、Record、消息和 status。精确 identity 的通用类型允许 canonical JSON 值，批量选择候选仅适用于对象形状的 identity。
+- 现有内置采用者是 `fileMetrics`、`functionMetrics`、`duplicateDetection`、`secretDetection` 与 `markdownLint`；各 Check 拥有自身安全 identity、Record、消息和 status。精确 identity 的通用类型允许 canonical JSON 值，批量选择候选仅适用于对象形状的 identity。
 - 活动 Decision [`provide-generic-finding-waiver-reconciliation`](../../docs/decisions/provide-generic-finding-waiver-reconciliation.md) 将多于一条的精确 identity 命中定义为 overmatched 且不豁免。本 Change 应保留该精确模式，并在实施前为新增批量模式核对 Decision 的长期契约影响。
-- [`add-markdown-lint-finding-waivers`](../add-markdown-lint-finding-waivers/proposal.md) 单独规划 `markdownLint` 的首版精确 waiver 采用；它可以先实施，本 Change 不以它为前置。
+- [`markdownLint` 的精确 Finding waiver](../../docs/checks/markdown-lint.md#精确-finding-waiver)已经交付并继续使用既有精确对账模式；本 Change 不以其为前置，也不自动为它增加批量选项。
 
 ## Goals / Non-Goals
 
