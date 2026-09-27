@@ -177,9 +177,11 @@ Entities:
 - `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > requires one README-linked guide for every package-provided Check function`
 - `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects a missing direct README link and an extra Check guide page`
 - `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects package documentation without exactly one trailing LF`
+- `bun|scripts/docs/package-api/check-guides.test.ts|package Check guides > rejects package example projection markers in hand-written and machine Markdown`
   Proves:
 
-- Package documentation has exactly one README-linked guide for every package-provided Check function and a direct machine-output guide link; generated and hand-written Markdown use canonical LF text with one trailing LF, while the README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
+- Package documentation has exactly one README-linked guide for every package-provided Check function and a direct machine-output guide link. The README and exact guide directory cannot omit a direct link, publish an unregistered extra page, or restore a Check index layer.
+- Generated and hand-written Markdown use canonical LF text with one trailing LF. Renderer output, hand-written Check guides, and machine Markdown reject both opening and closing package example projection markers before package construction.
 - The published Markdown inventory includes the exact checked-in changelog bytes and rejects a missing README link to that document.
 
 ## Case AUX-PACKAGE-DEPENDENCY-VERSIONS-001: Candidate dependency requirements validate actual resolutions

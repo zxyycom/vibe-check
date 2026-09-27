@@ -32,7 +32,11 @@ interface MarkdownStructure {
   readonly headings: readonly MarkdownHeading[];
 }
 
-const PACKAGE_EXAMPLE_PROJECTION_MARKER = /^\s*<!-- package-api-example:/;
+const PACKAGE_API_EXAMPLE_PROJECTION_MARKER = /^\s*<!--\s*\/?package-api-example:/m;
+
+export function hasPackageApiExampleProjectionMarker(markdown: string): boolean {
+  return PACKAGE_API_EXAMPLE_PROJECTION_MARKER.test(markdown);
+}
 
 /** Replaces one fenced TypeScript example in each natural Markdown section target. */
 export function renderMarkdownExampleFences(
@@ -70,7 +74,7 @@ function assertMarkdownSourceText(documentPackagePath: string, sourceMarkdown: s
       `package Markdown source must use LF and one trailing LF: ${documentPackagePath}`
     );
   }
-  if (sourceMarkdown.split("\n").some((line) => PACKAGE_EXAMPLE_PROJECTION_MARKER.test(line))) {
+  if (hasPackageApiExampleProjectionMarker(sourceMarkdown)) {
     throw new Error(
       `package Markdown contains a package example projection marker: ${documentPackagePath}`
     );

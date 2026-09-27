@@ -103,4 +103,30 @@ describe("package Check guides", () => {
       rmSync(fixture, { force: true, recursive: true });
     }
   });
+
+  it("rejects package example projection markers in hand-written and machine Markdown", () => {
+    for (const sourcePath of ["docs/checks/duplicate-detection.md", "docs/output.md"]) {
+      for (const marker of [
+        "<!-- package-api-example:obsolete -->",
+        "<!-- /package-api-example:obsolete -->"
+      ]) {
+        const fixture = createPackageApiDocumentationFixture();
+        try {
+          const markdownPath = join(fixture, sourcePath);
+          const markdown = readFileSync(markdownPath, "utf8");
+          writeFileSync(markdownPath, markdown.replace(/\n$/, `\n${marker}\n`), "utf8");
+          const rendered = renderPackageApiDocumentation({ repositoryRoot: fixture });
+          assert.throws(
+            () => collectPackageDocumentation(fixture, rendered.markdownDocuments),
+            (error: unknown) =>
+              error instanceof Error &&
+              error.message ===
+                `package documentation contains a package API example projection marker: ${sourcePath}`
+          );
+        } finally {
+          rmSync(fixture, { force: true, recursive: true });
+        }
+      }
+    }
+  });
 });

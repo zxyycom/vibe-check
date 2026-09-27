@@ -12,14 +12,17 @@
 - path 按 H2–H6 从祖先到目标的标题文本排列；跳过数字层级不会产生空 path component。
 - 目标 section 必须恰好包含一个 `ts` 或 `typescript` fenced example。
 - renderer 逐字更新整个 code fence，保留标题、其它正文，以及按最终发布路径书写的普通 Markdown 链接。
-- 最终 Markdown 不保存 projection comment 或 target ID。
+- 投影后的 Markdown 不保存 projection comment 或 target ID。
 
 下列任一情况使投影失败：
 
 - 目标标题缺失或重复；
 - section 没有 TypeScript fence，或包含多个；
 - fence 未闭合；
-- 出现以 `<!-- package-api-example:` 开头的 projection marker。
+- 出现 `<!-- package-api-example:` 或 `<!-- /package-api-example:` projection marker。
+
+随包材料收集器对 renderer 输出、手写 Check guide 和 machine Markdown 执行同一 marker 拒绝规则，
+因此这类内部定位信息不会进入 staging、tarball 或 installed package。
 
 ### 投影一致性验收
 

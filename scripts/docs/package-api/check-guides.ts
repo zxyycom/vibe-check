@@ -8,6 +8,7 @@ import {
   repositoryPath,
   type PackageCheckGuide
 } from "../package-documents.ts";
+import { hasPackageApiExampleProjectionMarker } from "./markdown-example-fences.ts";
 
 const README_PATH = "README.md";
 const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
@@ -73,6 +74,9 @@ export function collectPackageDocumentation(
   const readme = requiredDocument(rendered, README_PATH);
   const publishedDocuments = rendered.filter((document) => document.packagePath !== README_PATH);
   const supportingDocuments = [...publishedDocuments, ...checkGuides];
+  const publishedMarkdownDocuments = [readme, ...supportingDocuments, ...machineMarkdown];
+  for (const document of publishedMarkdownDocuments)
+    assertNoPackageApiExampleProjectionMarker(document);
   assertGuideLinks(
     readme,
     supportingDocuments,
@@ -81,7 +85,7 @@ export function collectPackageDocumentation(
     mapping.machineMaterials.map((material) => material.packagePath)
   );
   assertLocalMarkdownLinks(
-    [readme, ...supportingDocuments, ...machineMarkdown],
+    publishedMarkdownDocuments,
     mapping.machineMaterials.map((material) => material.packagePath)
   );
   return Object.freeze(supportingDocuments);
@@ -206,6 +210,14 @@ function assertDocumentText(document: PackageDocumentationFile): void {
   ) {
     throw new Error(
       `package documentation must use LF and one trailing LF: ${document.packagePath}`
+    );
+  }
+}
+
+function assertNoPackageApiExampleProjectionMarker(document: PackageDocumentationFile): void {
+  if (hasPackageApiExampleProjectionMarker(document.content)) {
+    throw new Error(
+      `package documentation contains a package API example projection marker: ${document.packagePath}`
     );
   }
 }

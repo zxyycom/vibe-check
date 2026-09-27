@@ -138,8 +138,6 @@ Check 不读取 backend 配置文件，不访问网络，不读取 project root 
 
 ## 最小用法
 
-<!-- package-api-example:markdown-lint -->
-
 ```ts
 import { defineConfig, markdownLint, run } from "@zxyycom/vibe-check";
 
@@ -161,8 +159,6 @@ if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
 }
 if (outcome.status === "not-applicable") console.warn("No Markdown input selected; no lint evidence.");
 ```
-
-<!-- /package-api-example:markdown-lint -->
 
 本例对 blocking Finding 和其它 Check 失败退出非零；`not-applicable` 仅表示没有可检查的 Markdown，不是 lint 通过的证据。默认严格 `aggregate` 会把有效的 `not-applicable` 结论为 `failed`，调用方可将其映射为 Gate 失败；需要不同领域解释时才提供同步 `checkAggregation` 函数。仅有 `RunResult.kind === "completed"` 不代表 Check 通过。
 

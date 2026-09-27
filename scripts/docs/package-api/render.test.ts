@@ -124,6 +124,11 @@ describe("package API documentation renderer", () => {
         corruptSource: (source) =>
           source.replace(/\n$/, "\n<!-- package-api-example:start:obsolete -->\n"),
         diagnostic: /package Markdown contains a package example projection marker/
+      },
+      {
+        corruptSource: (source) =>
+          source.replace(/\n$/, "\n<!-- /package-api-example:obsolete -->\n"),
+        diagnostic: /package Markdown contains a package example projection marker/
       }
     ];
     for (const [index, failure] of markdownTargetFailures.entries()) {
