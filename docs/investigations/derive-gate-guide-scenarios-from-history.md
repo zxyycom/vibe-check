@@ -12,7 +12,7 @@ relations: []
 
 ## 形成时背景
 
-[Gate 构建指南 Draft](../../changes/add-project-gate-building-guide/proposal.md)希望帮助 package consumer 从质量目标形成 Check 图、运行 Gate 并判断结果；现有[设计](../../changes/add-project-gate-building-guide/design.md)主要围绕同一案例组织能力。本轮按用户要求，从过往 Gate 的不同问题和取舍提炼多场景素材，供后续选择和改编。
+调查时，`changes/add-project-gate-building-guide/` 中的 Draft 希望帮助 package consumer 从质量目标形成 Check 图、运行 Gate 并判断结果；当时设计主要围绕同一案例组织能力。本轮按用户要求，从过往 Gate 的不同问题和取舍提炼多场景素材，供后续选择和改编。该 Draft 的 `proposal.md` 与 `design.md` 按下述调查基线从 Git 恢复，不作为当前文档入口。
 
 调查基线为 `e1164d27177f4b4b010a0603ffe999ac6c98084d`。仓库已有性能、candidate 自举、增量选择与调度报告，可提供历史依据；其中既有采用的做法，也有撤回的解释和未采用的方案。
 

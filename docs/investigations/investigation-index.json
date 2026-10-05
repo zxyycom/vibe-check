@@ -1187,7 +1187,7 @@
       "260924-review-cold-candidate-variance-and-compiler-cache": "sha256:8e7b4db4231fc01d0761c12d023343c4f1542dedd38243721a3a0cf9db16f48b",
       "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150",
       "260926-diagnose-required-gate-head-of-line-wait": "sha256:9629e7657bfff16a33d4e8e63ab36d6015f98f07a3e40ee140520a1482081653",
-      "261005-derive-gate-guide-scenarios-from-history": "sha256:0b20115195e329f0bb37c5274a1bb63d28612bf0ccab350aa23a8eb0b825b595"
+      "261005-derive-gate-guide-scenarios-from-history": "sha256:11dbe03e16a6ac99704b11d4b56619f8547417561a8667b9fb1dae22e2d88fe7"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
