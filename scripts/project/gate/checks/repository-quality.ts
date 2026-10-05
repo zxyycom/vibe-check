@@ -177,7 +177,17 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
         }
       }
     },
-    findingPolicy: "blocking"
+    findingPolicy: "blocking",
+    findingWaivers: [
+      {
+        identity: {
+          metric: "code-lines",
+          path: "docs/guides/building-project-gate.md"
+        },
+        reason:
+          "用户确认保留单页九场景与十个独立可执行片段；行数来自同页教学路径，不以压缩代码或删除安全说明满足门限。仅豁免此文件的行数，保留测量与 Finding。"
+      }
+    ]
   },
   functionMetrics: {
     codeAreas: {
@@ -231,7 +241,8 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       ...areaFileDefaults,
       include: ["docs/**/*.md", "changes/**/*.md"]
     },
-    findingPolicy: "blocking"
+    findingPolicy: "blocking",
+    limits: { maxTargetReads: 1_500 }
   }
 } as const satisfies RepositoryQualityCheckOptions;
 

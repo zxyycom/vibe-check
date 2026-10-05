@@ -10,6 +10,7 @@ import { collectPackageMachineMaterials } from "./machine-artifacts/package-mate
 import { collectPackageDocumentation } from "./package-api/check-guides.ts";
 import { renderPackageApiDocumentation } from "./package-api/render.ts";
 import { createPackageApiDocumentationFixture } from "./package-api/test-support.ts";
+import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "./package-api/example-projections.ts";
 import { isNonArrayRecord } from "../value-guards.ts";
 import { loadPackageDocuments, PACKAGE_DOCUMENTS_CONFIG_PATH } from "./package-documents.ts";
 
@@ -129,6 +130,12 @@ describe("package document mappings", () => {
       const configPath = join(root, PACKAGE_DOCUMENTS_CONFIG_PATH);
       writeFileSync(configPath, `${readFileSync(configPath, "utf8")}\n`, "utf8");
       assert.notEqual(createArtifactFingerprint(root), before);
+      const mappedFingerprint = createArtifactFingerprint(root);
+      const supportPath = PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS[0];
+      assert.ok(supportPath !== undefined);
+      const supportFile = join(root, supportPath);
+      writeFileSync(supportFile, `${readFileSync(supportFile, "utf8")}\n`, "utf8");
+      assert.notEqual(createArtifactFingerprint(root), mappedFingerprint);
     } finally {
       rmSync(temporaryRoot, { force: true, recursive: true });
     }

@@ -121,6 +121,7 @@ node quality.ts
 
 只读当前任务需要的专题；精确 overload、泛型推断和字段 JSDoc 以安装包中的 `types/**.d.ts` 为准。
 
+- [从项目质量目标构建 Gate](./docs/guides/building-project-gate.md)：从最小入口出发，按实际问题接入脚本、共享准备、增量选择、自建缓存和诊断。
 - [API 机制](./docs/api-mechanics.md)：Run 生命周期、组合继承、结果与 aggregation。
 - [选择回调位置](./docs/guides/callbacks.md)：确定执行前、检查中、显示时或结束后的接入点。
 - [自定义 Check](./docs/guides/extending-check-lifecycle.md)：options 准备、callback context、Records 与协作取消。

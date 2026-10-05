@@ -49,6 +49,7 @@ export function prepareExternalConsumerMaterial(
   try {
     writeExternalConsumerFixture(consumerDirectory);
     installCandidate(consumerDirectory, artifact.artifactPath);
+    writeExternalConsumerTypesFixture(consumerDirectory);
     const resolvedEntryPath = resolvePublicEntry(consumerDirectory);
     const installedPackageDirectory = join(consumerDirectory, "node_modules", PACKAGE_NAME);
     const material = {
@@ -84,7 +85,6 @@ export function assertExternalConsumerInstallationIdentity(
 
 function writeExternalConsumerFixture(consumerDirectory: string): void {
   writePackageManifest(consumerDirectory, "vibe-check-isolated-consumer");
-  writeExternalConsumerTypesFixture(consumerDirectory);
   writeExternalConsumerDocumentationFixture(consumerDirectory, repositoryRoot);
   writeExternalConsumerRuntimeFixture(consumerDirectory);
 }

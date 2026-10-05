@@ -5,7 +5,10 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { collectPackageDocumentation } from "../../../docs/package-api/check-guides.ts";
-import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "../../../docs/package-api/example-projections.ts";
+import {
+  PACKAGE_API_EXAMPLE_PROJECTIONS,
+  PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS
+} from "../../../docs/package-api/example-projections.ts";
 import { renderPackageApiDocumentation } from "../../../docs/package-api/render.ts";
 import { collectPackageMachineMaterials } from "../../../docs/machine-artifacts/package-materials.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
@@ -65,7 +68,12 @@ export function assertExternalConsumerDocumentation(material: ExternalConsumerMa
 
 function packageApiExampleSourcePaths(): readonly string[] {
   return Object.freeze(
-    [...new Set(PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) => projection.sourcePath))].sort()
+    [
+      ...new Set([
+        ...PACKAGE_API_EXAMPLE_PROJECTIONS.map((projection) => projection.sourcePath),
+        ...PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS
+      ])
+    ].sort()
   );
 }
 

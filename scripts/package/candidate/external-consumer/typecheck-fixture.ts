@@ -1,11 +1,9 @@
-/** Fixed globals and compiler configuration for the isolated external-consumer typecheck. */
-export const EXTERNAL_CONSUMER_NODE_GLOBALS_DECLARATION = `declare const process: Readonly<{ readonly execPath: string }>;
-`;
-
+/** Consumer-owned strict compiler configuration, using the locked Node type materials. */
 export function externalConsumerTypecheckConfig(packageImport: string): string {
   return `${JSON.stringify(
     {
       compilerOptions: {
+        allowImportingTsExtensions: true,
         module: "nodenext",
         moduleResolution: "nodenext",
         exactOptionalPropertyTypes: true,
@@ -13,10 +11,10 @@ export function externalConsumerTypecheckConfig(packageImport: string): string {
         noEmit: true,
         strict: true,
         target: "esnext",
+        types: ["node"],
         verbatimModuleSyntax: true
       },
       include: [
-        "node-globals.d.ts",
         "public-imports.ts",
         "docs/examples/package-api/*.ts",
         `node_modules/${packageImport}/docs/examples/artifacts/mixed-outcomes/definition.ts`

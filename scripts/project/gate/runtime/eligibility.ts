@@ -130,6 +130,7 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "docs/schemas/**",
       "docs/examples/artifacts/**",
       "docs/examples/package-api/**",
+      "docs/examples/package-api-support/**",
       "package.json",
       "pnpm-lock.yaml",
       "pnpm-workspace.yaml",

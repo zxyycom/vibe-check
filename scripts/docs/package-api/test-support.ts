@@ -3,7 +3,10 @@ import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { PACKAGE_API_EXAMPLE_PROJECTIONS } from "./example-projections.ts";
+import {
+  PACKAGE_API_EXAMPLE_PROJECTIONS,
+  PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS
+} from "./example-projections.ts";
 import { loadPackageDocuments, PACKAGE_DOCUMENTS_CONFIG_PATH } from "../package-documents.ts";
 
 type PackageApiJSDocTarget = Readonly<{
@@ -40,6 +43,9 @@ export function createPackageApiDocumentationFixture(): string {
     copyFixtureFile(fixtureRoot, material.sourcePath);
   for (const projection of PACKAGE_API_EXAMPLE_PROJECTIONS) {
     copyFixtureFile(fixtureRoot, projection.sourcePath);
+  }
+  for (const sourcePath of PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS) {
+    copyFixtureFile(fixtureRoot, sourcePath);
   }
   for (const target of PACKAGE_API_JSDOC_TARGETS) writeJSDocTargetFixture(fixtureRoot, target);
   return fixtureRoot;

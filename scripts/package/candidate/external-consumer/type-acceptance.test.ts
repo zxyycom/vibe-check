@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -19,6 +19,7 @@ test("external consumer type fixture uses only its public strictness profile", (
     );
     assert.deepEqual(config, {
       compilerOptions: {
+        allowImportingTsExtensions: true,
         exactOptionalPropertyTypes: true,
         module: "nodenext",
         moduleResolution: "nodenext",
@@ -26,15 +27,18 @@ test("external consumer type fixture uses only its public strictness profile", (
         noEmit: true,
         strict: true,
         target: "esnext",
+        types: ["node"],
         verbatimModuleSyntax: true
       },
       include: [
-        "node-globals.d.ts",
         "public-imports.ts",
         "docs/examples/package-api/*.ts",
         "node_modules/@zxyycom/vibe-check/docs/examples/artifacts/mixed-outcomes/definition.ts"
       ]
     });
+    assert.equal(existsSync(join(consumerDirectory, "node_modules/@types/node/fs.d.ts")), true);
+    assert.equal(existsSync(join(consumerDirectory, "node_modules/undici-types/index.d.ts")), true);
+    assert.equal(existsSync(join(consumerDirectory, "node-globals.d.ts")), false);
   } finally {
     rmSync(consumerDirectory, { force: true, recursive: true });
   }

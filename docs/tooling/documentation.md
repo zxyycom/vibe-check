@@ -20,6 +20,10 @@ README、API 专题与 Check 指南都发布 checked-in Markdown。文件映射�
 可执行示例会投影到指定 Markdown 标题下的 TypeScript 代码块，或源码 JSDoc 的 `@example` 尾部。
 生成的类型声明保留 JSDoc 说明和投影后的示例。
 
+示例验收的共同输出策略、已完成 Run 读取与诊断断言可放在 `docs/examples/package-api-support/`；
+支持源路径由同一 projection registry 的显式白名单拥有，既有 consumer fixture 原路径复制并由 artifact fingerprint 纳入。
+这些源码只承接 region 外的验收职责，不投影、不随包发布，也不成为新的运行入口；教学 Definition、parser 和 adapter 仍在各独立 region。
+
 ### 修改与验证步骤
 
 1. 修改正文或链接时，直接编辑最终 Markdown；修改 Check 指南时，直接编辑对应指南。

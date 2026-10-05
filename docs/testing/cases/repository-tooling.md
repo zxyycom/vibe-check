@@ -143,6 +143,7 @@ Entities:
 
 - The renderer projects each allowlisted TypeScript payload byte-for-byte into the unique TypeScript fence under its declared natural heading path, or into a source JSDoc target. Its explicit published API-document registry keeps README as the sole entry, directly links each registered deeper guide from that entry, and closes those guides without treating arbitrary Markdown as package material. Published Markdown keeps headings, surrounding prose and ordinary links without projection comments.
 - The `project-changes` runtime example is registered against the API mechanics guide and demonstrates one Git revision/region, its `changeFlag("source")` protected condition, the callback-visible effective flag set, file-centric successful evidence, and honest unavailable fallback; it does not require the documentation consumer itself to be a Git repository in order to execute.
+- The Gate-building guide owns ten independently projected runtime regions, including separate text and JSON diagnostic adapters; its managed payloads exclude acceptance setup and assertions, and do not combine the scenarios into one Definition.
 - The registry and renderer reject duplicate source/region/target identities, unsafe JSDoc tails, malformed heading paths, missing or duplicate heading targets, ambiguous or unclosed example fences, and package example projection markers. Heading paths follow authored ancestry even when heading levels skip; removing a JSDoc target clears its obsolete managed tail.
 - Write mode updates only projected Markdown fences and JSDoc tails. Check mode writes nothing and fails when a checked-in projection is stale.
 
@@ -158,6 +159,7 @@ Entities:
 
 - Repository-local JSON maps Markdown, Check guide and machine-material sources to package paths. Distinct source and destination paths remain intact through rendering, raw machine-byte collection and package-local Markdown link validation, including a relocated machine schema; the candidate fingerprint changes for configuration-byte changes.
 - The loader rejects unknown fields, non-canonical or out-of-scope source/package paths, duplicate targets and file/ancestor target conflicts with the corresponding diagnostic.
+- Changes to the explicitly registered internal example-acceptance support bytes invalidate the artifact fingerprint, independently of Markdown mapping changes.
 
 ## Case AUX-PACKAGE-API-EXTERNAL-EXECUTION-001: Installed package documentation remains exact and executable
 
@@ -165,9 +167,12 @@ Owner: `docs/tooling/repository-material-validation.md#随包材料验收`
 Entities:
 
 - `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
+- `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer documentation fixture carries its registered acceptance support`
   Proves:
 
 - The ancestry-external installation carries the exact checked-in published-path README, every explicitly registered API guide, hand-written Check guides, machine output guide, current v4 schemas, and the mixed-outcomes Definition/output example. One consumer-owned, mise-locked Node runner executes every projected runtime example in deterministic order and then the installed Definition against that exact candidate, retaining source identity on import failure. The change-flags example is deliberately executable in this non-repository consumer: unavailable Git evidence conservatively injects its declared token into the same effective `project.flags` set that selects its Check, while keeping the files branch discriminable. The Definition runs the documented package-provided and custom `observes` workflow, publishes its configured machine output, and forms the documented four outcome states, three RunResult messages and two Records.
+- The independent Gate-building sources assert caller exit handling, ordinary command pass/fail/timeout, one shared preparation with independent consumer outcomes, success dependency blocking versus terminal observation, and preset selection. A source-owned temporary Git repository verifies configuration, schema, excluded scratch, deleted link target and shared-entry changes, plus zero-match, force and unavailable-evidence selection. Gzip acceptance distinguishes cold computation from warm reuse and applies a stricter current threshold to the cached measurement; resource acceptance observes two runner claims overlapping with unclaimed metadata. Both diagnostic adapters map valid tool output to the same bounded Record fields, discard private fields, and retain failure while rejecting an entire mixed valid/unsupported or outside-path group without publishing its first item.
+- The isolated documentation fixture carries the exact registered acceptance-support bytes at their source-relative import paths. Support code shares Run-reading and diagnostic acceptance assertions only; it is neither an additional runtime entry nor published teaching material.
 
 ## Case AUX-PACKAGE-CHECK-GUIDES-001: Package Check guides close the package-provided ordinary Check inventory
 
@@ -275,6 +280,8 @@ Entities:
 - Prepared candidate、external-consumer provider、test lanes 和质量 Check 保持独立 identity。Artifact 使用 prepared candidate；external provider 独占 package-lifecycle mutex，三个 consumer 只读 provider material。Project Gate change selection 与其余 tooling、admission workbench、repository layout、package-tools/Core fixture、machine-artifact acceptance 与其余 material validation 分别为独立 test lanes；两组 material tests 与 schema/example validators 共享 repository-materials mutex，JSON grammar 和 Markdown path validators 不持有它。
 - Scheduler 的 `maxParallel` 为 `3`，两个逻辑资源的 capacity 均为 `2`：所有 `tests-*` lane 各 claim 一个 Bun runner unit，五项直接仓库质量 Check 各 claim 一个 repository-scan unit。其它 typecheck、lint、format、provider 和 native Check 不声明这两个 claim；mutex 仍独立表达独占关系。
 - Duplicate、file、function metrics 与 Markdown Link 的 normal Finding 使用 blocking policy，未豁免 Finding 经 owning Check 和默认 aggregate 阻断 Gate。Function metrics 保留 `50 + 150/below 5 + CC 10 + parameters 5` 限值，只对 `createProjectGateEntries` 当前起始行的 `function-code-density` 使用一项精确 waiver；其它函数与指标继续阻断。
+- File metrics 保持全仓 `300 + 500/decision tokens ≤ 10` 行数策略；仅对 `docs/guides/building-project-gate.md` 的 `code-lines` 配置用户确认的单页教程 waiver，该文件仍在扫描范围内，其它路径不继承豁免。
+- Markdown Link 保持完整文档输入和 blocking policy，只在 Gate 配置有限的 `maxTargetReads: 1_500`，不改变 Product 默认值、其它资源限制或 root-external 授权。
 - `markdown-lint` 独立使用八项固定规则、`docs/**/*.md` / `changes/**/*.md` 范围和 non-blocking policy；Gate 显式启用可删除的逐文件 findings 缓存，不缩小检查范围。Finding 仍进入 Records 与 final data，空输入及不可用仍由 Product 结算。
 - 三项 metrics 的 `product-source` area 共同排除 `src/package-checks/function-metrics/analyzer/**`；function metrics 额外排除 Product test/test-support，duplicate/file 仍选择这些测试文件。Duplicate detection 不选择 Markdown；duplicate/file metrics 不选择 historical Schemas，但继续选择 current Schemas。两个 Markdown Check 的范围均限于 `docs/**/*.md` 与 `changes/**/*.md`。
 - Artifact、external-consumer provider、types consumer、docs consumer 与 runtime consumer 共五个 physical process 都带 30 秒外层 timeout；其它 test lanes 不继承该特定防挂死限制。显式 `package:candidate:integration` 另有 30 秒进程硬限制，但不属于 routine `--test` preset。
@@ -300,6 +307,7 @@ Entities:
 
 - 无 selection 参数时采用 required；focused preset 可重复、组合并替换默认选择，`--all` 独占并选择完整 Gate。显式 release receipt 只与 `--all` 同用；启动摘要反映实际选择。
 - required 通过 Gate 的 region 数据与 Product 所用的 `minimatch` 选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；Gate 不重复构造 Git/Run 矩阵。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
+- 已登记的 `docs/examples/package-api-support/**` 验收支持源变化会选择 package supporting lane，避免只修改共享验收逻辑时漏掉复制与 fingerprint 回归；支持源仍不是发布材料。
 - 七个 Product Check test lane 分别绑定自己的 change flag，私有实现、测试或 fixture 路径不再选择无关组；file metrics 保留 JSON validation/document 输入，function metrics 因 source-identity 全树证明继续覆盖全部 Product source。根导出、共享 helper/runtime、未知新模块和测试工具链仍宽选，每组完整测试文件清单都能触发自身；显式 test/all 不受这些 change flags 抑制。
 - JSON、Schema、publication、machine example、Markdown、质量扫描和规则测试保持各自的输入边界；schema source 变化会选择 publication validator，独立材料测试证明发布漂移被拒绝。Markdown links 因反向目标依赖仍检查完整 corpus，focused preset 与 `--all` 提供不依赖变更的强制路径。
 - Product effective selection 决定 Check 执行、prerequisite 和 aggregate；未选中 Check 保留 not-applicable fact。required 保留 prepared candidate provider，但高成本 package acceptance 只由 `--all` 选择。

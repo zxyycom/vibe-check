@@ -5,6 +5,7 @@ import { describe, it } from "node:test";
 import { minimatch } from "minimatch";
 
 import { loadPackageDocuments } from "../../../docs/package-documents.ts";
+import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "../../../docs/package-api/example-projections.ts";
 import { resolveProjectGateTestLanes } from "../checks/test-execution/lanes.ts";
 import { PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS } from "./eligibility.ts";
 
@@ -279,6 +280,10 @@ describe("Project Gate change regions", () => {
       { path: "docs/checks/markdown-lint.md", selected: [...regions] },
       { path: "docs/package-documents.json", selected: ["package-tests"] },
       { path: "docs/examples/package-api/basic.ts", selected: ["package-tests"] },
+      {
+        path: "docs/examples/package-api-support/gate-example-acceptance.ts",
+        selected: ["package-tests"]
+      },
       { path: "README.md", selected: ["package-tests"] },
       { path: "LICENSE", selected: ["package-tests"] }
     ] as const;
@@ -291,10 +296,13 @@ describe("Project Gate change regions", () => {
     const root = process.cwd();
     const documents = loadPackageDocuments(root);
     const packageSources = [
-      ...documents.markdownDocuments,
-      ...documents.checkGuides,
-      ...documents.machineMaterials
-    ].map(({ sourcePath }) => sourcePath);
+      ...[
+        ...documents.markdownDocuments,
+        ...documents.checkGuides,
+        ...documents.machineMaterials
+      ].map(({ sourcePath }) => sourcePath),
+      ...PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS
+    ];
     assert.equal(packageSources.length > 0, true);
     for (const path of packageSources) {
       assert.deepEqual(matchingRegions(path, ["package-tests"]), ["package-tests"], path);

@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { createRequire } from "node:module";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,10 +17,7 @@ import {
   MAINTENANCE_REMINDERS_TYPE_ACCEPTANCE_SOURCE,
   PACKAGE_CHECK_CONSTRUCTOR_TYPE_ACCEPTANCE_SOURCE
 } from "./package-check-constructor-options-type-acceptance.ts";
-import {
-  EXTERNAL_CONSUMER_NODE_GLOBALS_DECLARATION,
-  externalConsumerTypecheckConfig
-} from "./typecheck-fixture.ts";
+import { externalConsumerTypecheckConfig } from "./typecheck-fixture.ts";
 import { CURRENT_PUBLIC_CONTRACT } from "../../public-api-inventory.ts";
 import { PACKAGE_TYPES_DIRECTORY } from "../../package-contract.ts";
 
@@ -30,11 +28,16 @@ const runDeclarationPath = `${PACKAGE_TYPES_DIRECTORY}/project-run/run.d.ts`;
 
 /** Writes declaration fixtures contributed by type acceptance. */
 export function writeExternalConsumerTypesFixture(consumerDirectory: string): void {
-  writeFileSync(
-    join(consumerDirectory, "node-globals.d.ts"),
-    EXTERNAL_CONSUMER_NODE_GLOBALS_DECLARATION,
-    "utf8"
-  );
+  // Copy only existing locked declaration dependencies: no runtime ancestor fallback or install.
+  const nodeTypesSource = realpathSync(join(repositoryRoot, "node_modules/@types/node"));
+  const nodeTypesRequire = createRequire(join(nodeTypesSource, "package.json"));
+  const undiciTypesSource = dirname(nodeTypesRequire.resolve("undici-types/package.json"));
+  for (const [packageName, source] of [
+    ["@types/node", nodeTypesSource],
+    ["undici-types", undiciTypesSource]
+  ] as const) {
+    cpSync(source, join(consumerDirectory, "node_modules", packageName), { recursive: true });
+  }
   writeFileSync(
     join(consumerDirectory, "tsconfig.json"),
     externalConsumerTypecheckConfig(CURRENT_PUBLIC_CONTRACT.packageImport),

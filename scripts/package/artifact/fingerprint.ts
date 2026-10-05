@@ -4,6 +4,7 @@ import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { isNonArrayRecord } from "../../value-guards.ts";
+import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "../../docs/package-api/example-projections.ts";
 import { collectFilePaths, collectRuntimeSourceFilePaths } from "../file-inventory.ts";
 import {
   PACKAGE_LICENSE_SOURCE_PATH,
@@ -74,6 +75,7 @@ function documentationInputFiles(repositoryRoot: string): readonly string[] {
   const documents = loadPackageDocuments(repositoryRoot);
   return Object.freeze([
     ...DOCUMENTATION_INPUT_PATHS.map((path) => join(repositoryRoot, path)),
+    ...PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS.map((path) => join(repositoryRoot, path)),
     repositoryPath(
       repositoryRoot,
       PACKAGE_DOCUMENTS_CONFIG_PATH,

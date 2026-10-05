@@ -72,6 +72,8 @@ export default defineConfig({
 
 `defineCheck` 只改善 TypeScript inference。Definition validation 负责关闭 ordinary Check grammar、拒绝 unknown Check keys 或 malformed declarative fields，并把 authored `options` snapshot 为 canonical immutable JSON；它不解释 options 的领域 shape。没有 `execute` 的 Check 是 container，只能携带递归 `checks` 和 scheduling fields；空 container 会产生 definition warning，而不会被静默当作 executable Check。
 
+公共 authoring 的安装后类型验收同时编译受管示例和已安装 declarations；示例调用 Node 标准库时使用 consumer 内的真实 Node 类型材料。严格 profile 与隔离边界由[候选包安装验收](../tooling/package-lifecycle.md#候选包安装与外部使用方验收)拥有。
+
 ### 随包构造器的项目声明边界
 
 九个固定身份的随包构造器把 `PackageCheckAuthoringOptions` 的项目字段投影为 ordinary Check 声明；完整字段集合、

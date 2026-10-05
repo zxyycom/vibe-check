@@ -6,6 +6,7 @@
 
 ### 项目 Gate 构建与增量选择
 
+- 新增[从项目质量目标构建 Gate](./guides/building-project-gate.md)指南：最小运行入口与独立场景覆盖已有命令接入、共享准备、依赖与观察、选择、自建缓存、资源约束和两类诊断转换。
 - `changes.flags.*.exclude` 现在可省略，省略与 `[]` 都表示不排除匹配路径；已有显式配置无需修改。`include` 仍必填，显式 `undefined`、`null` 等非法输入仍拒绝。完整契约见[文件变化选择](./api-mechanics.md#按文件变化选择-check)。
 
 ### Public command Check

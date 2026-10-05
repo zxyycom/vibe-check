@@ -82,7 +82,7 @@ Gate 通过正式 RunControls 选择固定 channel basename；Product 默认仍�
 - **Package-tools/Core 闭包：** 使用独立 fixture；验证器、共享 fixture、依赖或运行配置变化时选择。
 - **Machine artifacts：** 实际材料、生成器、validator、Product Definition 输入或该 lane 测试文件变化时选择；其测试文件变化不启动其余 material tests。
 
-七个 Product Check test lanes 的 required 输入由 `runtime/product-test-regions.ts` 分别声明，不再共用一个 `src/**` flag；execution lane、测试正文和 Case 分区不变。region 从完整 Product source 与 test runner/工具链输入出发，只排除已确认无关的私有 Check 目录。根导出、Core/runtime、package tools、共用 Check helper、project-files、host-environment 及尚未分类的新模块仍保守触发全部七组；私有目录自身的测试、fixture、删除或重命名路径也属于该组输入。
+七个 Product Check test lanes 的 required 输入由 `runtime/product-test-regions.ts` 分别声明。region 从完整 Product source 与 test runner/工具链输入出发，只排除已确认无关的私有 Check 目录。根导出、Core/runtime、package tools、共用 Check helper、project-files、host-environment 及尚未分类的新模块仍保守触发全部七组；私有目录自身的测试、fixture、删除或重命名路径也属于该组输入。
 
 - duplicate、file metrics、JSON、Markdown、secret 与 supporting Checks 各自保留本组私有输入；Markdown lint 与 links 保持同组。
 - file metrics 的 constructor tests 还消费 JSON validation/document，因此这两个目录同时触发 file metrics 与 JSON 组。
@@ -114,7 +114,7 @@ Gate 只拥有 manifest projection 与其验证。
 
 默认 required 的 typecheck、lint、format、test lanes、质量扫描、Decision 与 Test Evidence 各按自己的保守输入 region 选择，映射由 `runtime/eligibility.ts` 维护。Git snapshot 取本地 `HEAD~1...HEAD` 的最近一次提交（merge commit 的第一父链），并合并 staged、unstaged 与 untracked 变化；它不依赖远端分支同步状态。缺少可解析的本地父提交或其它 Git 证据时，走保守选择。
 
-共享 material source 可选择多个实际消费者。package supporting lane 由已登记随包材料及其生成/构建输入选择，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
+共享 material source 可选择多个实际消费者。package supporting lane 由已登记随包材料及其生成/构建输入选择，包含受管示例的 `docs/examples/package-api-support/**` 验收支持源，不由调查或决策文档选择。Test Evidence 对 Case 账本及当前行为 owner 所在的文档目录保守选择，同目录内的非 owner 文档仍可能唤起它；新增 owner 路径须由 selection 测试闭合。调查和决策文档不是行为 owner。
 
 `prepared-package-candidate`、repository material links 与 Git diff whitespace 始终属于 required。Markdown link validation 在任意文件变更时扫描完整 corpus，覆盖 region 外链接目标的反向依赖。focused preset 和 `--all` 是不依赖 change flag 的强制路径；发布前运行 `--all`。
 
@@ -179,12 +179,20 @@ Gate 对 duplicate/file/function/Markdown Link 四项显式使用 `blocking` fin
 
 `scripts/project/gate/checks/repository-quality.ts` 为这一 Finding 配置精确 waiver，identity 限定路径、函数名、起始行和指标。`functionMetrics` 仍发布原 Finding Record，并标记为非阻断；其它函数和指标继续按 `blocking` policy 结算。起始行变化或 Finding 消失时，Check 会发布 unused-waiver audit Record 和 warning，维护者据此重审 identity 与理由；该 audit 本身不使 Check 失败。
 
+#### 单页 Gate 指南的文件行数 Finding
+
+用户确认将[构建项目 Gate](../guides/building-project-gate.md)保留为单页九场景教程；十个独立受管片段与相邻的适用条件、预期结果和安全边界共同承接阅读路径，不为满足行数门限而压缩代码或删减说明。
+
+`fileMetrics` 只为 `docs/guides/building-project-gate.md` 的 `code-lines` 配置一项精确 waiver，不排除该文件，也不提高全仓阈值。Check 继续发布实际行数、上限与原 Finding，并标记为非阻断；其它文件或指标仍按原 policy 结算。该例外不授权其它长文档自动豁免；后续扩展仍需审查是否保持同一任务边界。
+
 #### 仓库选择范围
 
 repository-private scope 只让 TypeScript、current Schemas 和 examples 进入 `duplicate-detection`；Markdown 由 file metrics
 与 Markdown link validation 观察，不进入重复检测。`docs/schemas/historical/**` 不进入 duplicate/file maintainability
 metrics，但仍由显式 documentation contract 严格验证。repository defaults 还排除 `**/archive/**`；这是本项目配置，不是
 package 的公共默认值。
+
+Markdown Link 保留完整的 `docs/**/*.md` / `changes/**/*.md` 输入与既有安全边界；Gate 显式设置 `limits.maxTargetReads: 1_500`，为仓库规模提供有限余量。该计数按 logical target occurrence 消耗，不等于实际文件读取次数；其余 limits 和 Product 默认值不变，达到预算仍结算为 `unavailable`，不降级放行。
 
 三个 metrics Check 的 `product-source` area 具有一个共同排除范围和一项差异：
 
