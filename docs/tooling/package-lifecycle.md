@@ -58,6 +58,8 @@ Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 
 
 `candidate/external-consumer/**` 建立一次隔离安装及 typed material，分别拥有 types、documentation 与 runtime 验收；父级 candidate lifecycle 不吸收这些职责。其 types fixture 用独立的 `strict + noUncheckedIndexedAccess + exactOptionalPropertyTypes` profile 验收安装后的公共 declarations，不承接 `noImplicitOverride`、`noImplicitReturns` 或 unreachable-code 等 implementation-only 规则，也不增加 compiler invocation 或重复安装。
 
+`typecheck-fixture.ts` 统一构造 consumer 的 tsconfig 与 public-import source，并组合各领域声明验收片段；`type-acceptance.ts` 负责安装隔离所需的声明依赖、写入 fixture、调用 compiler 和审计已安装 JSDoc。
+
 文档示例使用 Node 标准库时，types fixture 将当前锁定的 `@types/node` 及其 `undici-types` 依赖复制到隔离 consumer 内，以真实声明校验调用；传递依赖从 `@types/node` 的实际位置解析，不依赖根目录 hoist。类型验收不为 runtime 增加祖先依赖回退，也不修改 package 的发布依赖。
 
 Runtime 从 installed root import 调用 `functionMetrics`，要求 CCN `2` 的 non-blocking finding，证明 emitted Worker URL 指向安装包内 worker 且执行成功，不扩大 public exports。Types 用一次真实 `tsgo` consumer typecheck 覆盖 public imports、examples 与 Definition，直接核对 installed declaration owner 的相邻 JSDoc。Documentation 验收见[随包材料验收](repository-material-validation.md#随包材料验收)。
