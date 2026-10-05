@@ -143,7 +143,7 @@ describe("Package Run project changes", () => {
 function runtimeChanges() {
   return {
     flags: {
-      runtime: { exclude: [], include: ["src/**"] }
+      runtime: { include: ["src/**"] }
     },
     source: { compareWith: "HEAD~1" }
   };

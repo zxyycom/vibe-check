@@ -112,16 +112,18 @@ container/executable 形状、children、flag condition、direct relations、mut
 {
   source: { compareWith: "origin/main" },
   flags: {
-    "product-runtime": { include: ["src/**"], exclude: [] }
+    "product-runtime": { include: ["src/**"] }
   }
 }
 ```
 
 - `source` 是仅含 `compareWith` 的 closed `{ compareWith: string }` object。`compareWith` 非空、不含 U+0000、
   且不以 `-` 开头。
-- `flags` 至少声明一个非空 ID 到 exact `{ include, exclude }` region；两个 glob arrays 必须 dense，且每项是非空 string。
+- `flags` 至少声明一个非空 ID 到 closed `{ include, exclude? }` region；`include` 必填，`exclude` 省略时补齐冻结 `[]`，
+  自有 `exclude: undefined`、`null` 或非数组值仍失败。已提供的 glob arrays 必须 dense，且每项是非空 string。
   project-root-relative slash-path、dot path 与 exclude-first matching 由[文件选择](../guides/collecting-project-files.md#共享的-files-选择语义)拥有。
-- normalizer 复制、冻结 source、mapping、regions 与 arrays，并将它们完整纳入 snapshot/fingerprint。递归 `when` 中的
+- normalizer 复制、冻结 source、mapping、regions 与 arrays，并将补齐后的配置完整纳入 snapshot/fingerprint；省略 `exclude`
+  与显式 `[]` 具有相同 effective region 和 fingerprint，Run 只消费必含 `exclude` 的内部 normalized type。递归 `when` 中的
   `vibe-check:change:<id>` 必须引用同一 `changes.flags` 已声明的 ID；未配置 changes 或未知 ID 都是 Definition failure。
 
 Git revision resolution、derived-token injection、unavailable fallback 和 callback context 是 [Project Run](project-run.md#change-preparation-and-flag-projection)

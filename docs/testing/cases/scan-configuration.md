@@ -34,6 +34,18 @@ Entities:
 - `enabledByFlags.when` and its recursive children use nonempty string atoms as the only leaf, with compatible raw operator AST. Direct `all` / `any` / `none` / `notAll` / `exactlyOne` / `not` builders return that same AST and preserve nesting, child order and multiplicity, while `changeFlag` retains its protected literal token. Definition copies and freezes an unchanged AST for canonical identity and fingerprint; literal opt-in `propagateDependsOn: true` changes declarative identity, while omission preserves direct-selection behavior.
 - Empty or malformed operator sets, empty string atoms, unknown control fields, non-literal propagation values, container declarations, `{ kind: "flag" }` nodes and removed `{ flags, mode }` shorthand fail Definition validation. Configured Git change sources require only a safe nonempty comparison revision: option-like and U+0000-containing values fail Definition validation before author work.
 
+## Case WB-PROJECT-CHANGES-AUTHORING-001: Change regions default only omitted exclusions
+
+Owner: `docs/development/project-definition.md#project-changes`
+Entities:
+
+- `bun|src/project-definition/project-changes.test.ts|Project Definition changes > normalizes omitted exclusions to the same frozen identity as an explicit empty array`
+- `bun|src/project-definition/project-changes.test.ts|Project Definition changes > rejects malformed regions without relaxing required fields or closed input safety`
+  Proves:
+
+- Public change-region authoring accepts required `include` without `exclude`; Definition validation and direct normalization produce detached, deeply frozen regions containing `exclude: []`, with the same declarative fingerprint as an explicitly empty exclusion array. Mutating author arrays does not alter that normalized configuration.
+- Optional exclusions do not permit own `undefined`, `null`, malformed arrays, unknown fields, accessor reads or inherited input; missing `include`, `source` or comparison revision remains a Definition failure, and public exact-optional typing rejects own `undefined` exclusions.
+
 ## Case AUX-PACKAGE-CHECK-COMPOSITION-001: Package Check options remain Definition-opaque before preparation
 
 Owner: `docs/development/project-definition.md#package-provided-check-composition`

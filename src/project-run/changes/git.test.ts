@@ -4,11 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 
-import type { ProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
+import type { NormalizedProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
 import { CHANGE_FLAG_PREFIX, GIT_CHANGES_UNAVAILABLE_CODE, prepareProjectChanges } from "./git.ts";
 import { commit, git, write } from "./git.test-support.ts";
 
-const changes: ProjectChangesConfiguration = {
+const changes: NormalizedProjectChangesConfiguration = {
   flags: {
     all: { exclude: ["src/generated/**"], include: ["**/*"] },
     docs: { exclude: [], include: ["docs/**/*.md"] },

@@ -4,6 +4,10 @@
 
 ## 未发布
 
+### 项目 Gate 构建与增量选择
+
+- `changes.flags.*.exclude` 现在可省略，省略与 `[]` 都表示不排除匹配路径；已有显式配置无需修改。`include` 仍必填，显式 `undefined`、`null` 等非法输入仍拒绝。完整契约见[文件变化选择](./api-mechanics.md#按文件变化选择-check)。
+
 ### Public command Check
 
 - **新增 [`commandCheck`](./guides/command-check.md)**：以单一 no-shell executable 和独立 arguments 构造 ordinary Check。每项必须声明 timeout 与 stdout/stderr byte limit；exit `0` 结算为 `passed`，numeric nonzero exit 结算为 `failed`，启动失败、timeout、output limit、signal、transcript failure 与取消按稳定 unavailable reason code 结算。

@@ -5,7 +5,7 @@ import { execaSync } from "execa";
 import { matchesAnyConfigGlob } from "../../data-boundary/config-glob.ts";
 import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import type { ProjectChanges } from "../../check/check.ts";
-import type { ProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
+import type { NormalizedProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
 
 export const CHANGE_FLAG_PREFIX = "vibe-check:change:";
 export const GIT_CHANGES_UNAVAILABLE_CODE = "git-changes-unavailable";
@@ -19,7 +19,7 @@ export type PreparedProjectChanges = Readonly<{
 export function prepareProjectChanges(
   input: Readonly<{
     readonly callerFlags: readonly string[];
-    readonly changes: ProjectChangesConfiguration;
+    readonly changes: NormalizedProjectChangesConfiguration;
     readonly projectRoot: string;
   }>
 ): PreparedProjectChanges {
@@ -45,7 +45,7 @@ export function prepareProjectChanges(
   }
 }
 
-function declaredChangeFlags(changes: ProjectChangesConfiguration): readonly string[] {
+function declaredChangeFlags(changes: NormalizedProjectChangesConfiguration): readonly string[] {
   return Object.freeze(
     Object.keys(changes.flags)
       .sort(compareText)
@@ -176,7 +176,7 @@ function normalizedChangedPath(path: string): string {
 
 function matchedProjectChanges(
   paths: readonly string[],
-  changes: ProjectChangesConfiguration
+  changes: NormalizedProjectChangesConfiguration
 ): Extract<ProjectChanges, { readonly ok: true }> {
   const regions = Object.entries(changes.flags).sort(([left], [right]) => compareText(left, right));
   const files = paths.flatMap((path) => {
@@ -190,7 +190,7 @@ function matchedProjectChanges(
 
 function matchesRegion(
   path: string,
-  region: ProjectChangesConfiguration["flags"][string]
+  region: NormalizedProjectChangesConfiguration["flags"][string]
 ): boolean {
   return matchesAnyConfigGlob(path, region.include) && !matchesAnyConfigGlob(path, region.exclude);
 }

@@ -9,12 +9,15 @@ import type {
 } from "./project-definition.ts";
 import { resolveProgressRenderingOutput } from "./output-defaults.ts";
 import { isNonArrayRecord } from "../data-boundary/value-shapes.ts";
+import type { NormalizedProjectChangesConfiguration } from "./project-changes.ts";
 
 /**
  * Produces the immutable, callback-free Definition identity consumed by fingerprinting.
  */
 export function createDeclarativeProjectSnapshot(
-  definition: ProjectDefinition,
+  definition: Omit<ProjectDefinition, "changes"> & {
+    readonly changes?: NormalizedProjectChangesConfiguration;
+  },
   checks: readonly NormalizedCheck[]
 ): DeclarativeProjectSnapshot {
   const declarations = checks

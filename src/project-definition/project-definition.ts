@@ -20,6 +20,7 @@ import {
 } from "./resource-unit-mapping.ts";
 import {
   parseProjectChangesConfiguration,
+  type NormalizedProjectChangesConfiguration,
   type ProjectChangesConfiguration
 } from "./project-changes.ts";
 export { createDeclarativeFingerprint } from "./declarative-snapshot.ts";
@@ -170,13 +171,13 @@ export interface NormalizedCheck extends NormalizedCheckDeclaration {
 export interface DeclarativeProjectSnapshot {
   readonly apiVersion: "1";
   readonly checks: readonly NormalizedCheckDeclaration[];
-  readonly changes?: ProjectChangesConfiguration;
+  readonly changes?: NormalizedProjectChangesConfiguration;
   readonly outputs: DeclarativeProjectOutputs;
   readonly scheduler: DeclarativeSchedulerPolicy;
 }
 export interface NormalizedProjectDefinition {
   readonly checks: readonly NormalizedCheck[];
-  readonly changes?: ProjectChangesConfiguration;
+  readonly changes?: NormalizedProjectChangesConfiguration;
   readonly declarative: DeclarativeProjectSnapshot;
   readonly definitionWarnings: readonly DefinitionWarning[];
   /** Runtime scheduler policy；custom callback 保留在此处。 */
@@ -239,8 +240,9 @@ export function normalizeProjectDefinition(
   if (definition.changes !== undefined && changes === undefined) {
     throw new TypeError("Project Definition changes failed closed normalization");
   }
+  const { changes: _authoredChanges, ...baseDefinition } = definition;
   const normalizedDefinition = Object.freeze({
-    ...definition,
+    ...baseDefinition,
     ...(changes === undefined ? {} : { changes }),
     scheduler
   });
