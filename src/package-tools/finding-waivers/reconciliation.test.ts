@@ -10,6 +10,45 @@ function reconcileUnknownWaivers(waivers: unknown): void {
 }
 
 describe("finding waiver reconciliation", () => {
+  it("defaults absent waivers without skipping finding identity validation", () => {
+    const findings = [{ path: "src/first.ts" }, { path: "src/second.ts" }];
+    for (const configuration of [{}, { waivers: undefined }, { waivers: [] }]) {
+      const identified: typeof findings = [];
+      const result = reconcileFindingWaivers({
+        findings,
+        identify: (finding) => {
+          identified.push(finding);
+          return finding.path;
+        },
+        ...configuration
+      });
+      assert.deepEqual(result, {
+        findings: [
+          { disposition: "actionable", finding: findings[0] },
+          { disposition: "actionable", finding: findings[1] }
+        ],
+        waiverAudits: []
+      });
+      assert.deepEqual(identified, findings);
+      assert.equal(Object.isFrozen(result), true);
+      assert.equal(Object.isFrozen(result.findings), true);
+      assert.equal(Object.isFrozen(result.waiverAudits), true);
+      for (const [index, reconciled] of result.findings.entries()) {
+        assert.equal(identified[index], findings[index]);
+        assert.equal(reconciled.finding, findings[index]);
+        assert.equal(Object.isFrozen(reconciled), true);
+      }
+      assert.throws(
+        () => reconcileFindingWaivers({ findings, identify: () => undefined, ...configuration }),
+        { name: "TypeError", message: /finding identity must be canonical JSON/ }
+      );
+      assert.deepEqual(
+        reconcileFindingWaivers({ findings: [], identify: () => undefined, ...configuration }),
+        { findings: [], waiverAudits: [] }
+      );
+    }
+  });
+
   it("matches caller-defined structural identities, preserves reasons, and audits unused waivers", () => {
     const result = reconcileFindingWaivers({
       findings: [
@@ -164,6 +203,14 @@ describe("finding waiver reconciliation", () => {
   });
 
   it("rejects malformed and hostile waiver boundaries without invoking caller accessors", () => {
+    for (const invalid of [null, false, 0, "", {}, new Array(1)]) {
+      assert.throws(
+        () => {
+          reconcileUnknownWaivers(invalid);
+        },
+        { name: "TypeError", message: /canonical JSON arrays/ }
+      );
+    }
     const common = { path: "src/example.ts" };
     assert.throws(
       () =>

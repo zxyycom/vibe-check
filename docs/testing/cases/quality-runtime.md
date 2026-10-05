@@ -66,6 +66,7 @@ Entities:
 Owner: `docs/guides/finding-waivers.md#对账-finding-waiver`
 Entities:
 
+- `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > defaults absent waivers without skipping finding identity validation`
 - `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > matches caller-defined structural identities, preserves reasons, and audits unused waivers`
 - `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > materializes waiver identity and reason without copying caller findings`
 - `bun|src/package-tools/finding-waivers/reconciliation.test.ts|finding waiver reconciliation > does not waive findings when one caller-defined identity matches more than once`
@@ -73,6 +74,7 @@ Entities:
   Proves:
 - The public helper reconciles each configured waiver against the complete caller-provided finding collection by caller-defined canonical structural identity, preserving finding order and original finding references. Zero, one, and multiple matches respectively produce unused, applied, and overmatched audit outcomes; overmatched identities do not waive findings.
 - Applied evidence is a detached, deep-frozen materialization of the authored waiver rather than a mutable authored object. Duplicate, malformed, noncanonical, or hostile waiver authoring and invalid finding identity fail with `TypeError` without invoking author accessors.
+- Omitted, `undefined` and empty-array waiver inputs keep every Finding actionable in its original order and reference, return frozen complete results with empty audits, and still validate every Finding identity; `null` and malformed explicit inputs fail rather than use the default.
 
 ## Case API-FINDING-PRESENTATION-001: Producing Checks own bounded Finding presentation
 

@@ -61,8 +61,8 @@ export interface ReconcileFindingWaiversOptions<Finding, Identity> {
   readonly findings: readonly Finding[];
   /** 从完整 finding 提取调用方选择的稳定语义身份。 */
   readonly identify: (finding: Finding) => Identity;
-  /** 要与识别器输出进行 canonical structural matching 的 waiver。 */
-  readonly waivers: readonly FindingWaiver<Identity>[];
+  /** 要对账的 waiver；省略或 undefined 等同于空数组，仍验证全部 finding identity。 */
+  readonly waivers?: readonly FindingWaiver<Identity>[] | undefined;
 }
 
 /** 独立 waiver reconciliation 的完整输出，保留 finding 处置和每项配置审计。 */
@@ -124,9 +124,7 @@ export function reconcileFindingWaivers<Finding, Identity>(
   return Object.freeze({ findings, waiverAudits });
 }
 
-function materializeWaivers<Identity>(
-  waivers: readonly FindingWaiver<Identity>[]
-): readonly MaterializedFindingWaiver[] {
+function materializeWaivers(waivers: unknown = []): readonly MaterializedFindingWaiver[] {
   const canonicalWaivers = canonicalizeJsonValue(waivers);
   if (canonicalWaivers === undefined || !isCanonicalArray(canonicalWaivers)) {
     throw new TypeError("Finding waivers must be canonical JSON arrays");

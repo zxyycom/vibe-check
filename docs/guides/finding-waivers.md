@@ -21,6 +21,14 @@ const reconciled = reconcileFindingWaivers({
 });
 ```
 
+## 输入与默认值
+
+`waivers` 可省略；省略或传入 `undefined` 都等同于 `[]`，表示没有配置豁免。例如
+`reconcileFindingWaivers({ findings, identify })` 仍验证每项 Finding identity，将全部 Finding 标为
+`actionable`，返回空 `waiverAudits`，并保留原 Finding 的顺序与引用。
+
+`findings` 与 `identify` 仍必填；`null`、非数组及非法 waiver 配置仍抛出 `TypeError`，不会被当作无豁免。
+
 ## identity 与 audit
 
 `identify(finding)` 对输入顺序中的每个原 finding 接收完整 finding。调用方自行选择稳定的语义

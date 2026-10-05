@@ -15,6 +15,7 @@
 - `cache/cache-json-by-key.ts` 拥有 caller-keyed JSON 的本地缓存机制，见[缓存边界](#caller-keyed-cache-boundary)。
 - `finding-waivers/reconciliation.ts` 拥有按调用方语义 identity 对账 Finding waiver 的纯函数，使用公开 Core 数据工具
   规范化和比较身份；Record 发布和 Check outcome 由采用方负责，工具不拥有 Run 或 Gate 生命周期。
+  waiver materialization 入口拥有空数组默认化，向后续 reconciliation 提供完整冻结数组；公开输入与校验契约见[Finding waiver](../guides/finding-waivers.md#输入与默认值)。
 - `learned-critical-path/**` 拥有 learned strategy、私有时长模型与 critical-path ranking，见[策略实现](#learned-critical-path-helper-owner)。
 
 ## Learned critical-path helper owner

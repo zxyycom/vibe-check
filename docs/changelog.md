@@ -4,6 +4,11 @@
 
 ## 未发布
 
+### Finding waiver 输入精简
+
+- [`reconcileFindingWaivers`](./guides/finding-waivers.md#输入与默认值) 的 `waivers` 可省略，省略或显式 `undefined` 等同于 `[]`；仍验证全部 Finding identity，保留原 Finding 的顺序与引用。`null` 或其它非法 waiver 配置继续拒绝。
+- 已传数组的调用无需修改；读取 `ReconcileFindingWaiversOptions["waivers"]` 的类型消费者需处理新增的 `undefined` 分支，返回类型不变。
+
 ### 项目 Gate 构建与增量选择
 
 - 新增[从项目质量目标构建 Gate](./guides/building-project-gate.md)指南：最小运行入口与独立场景覆盖已有命令接入、共享准备、依赖与观察、选择、自建缓存、资源约束和两类诊断转换。

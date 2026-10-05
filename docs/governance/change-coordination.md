@@ -21,7 +21,7 @@
 跨 Change 前置和共享 owner 的合入顺序。目标 Change 的 stage、Readiness、开放问题和实施授权仍由其
 artifacts 决定。
 
-### 待启动主队列
+### 当前主队列
 
 当前材料入口、变更选择和 Markdown lint adoption 已由
 [Project Gate](../tooling/project-gate.md) 与
@@ -29,11 +29,11 @@ artifacts 决定。
 由 [Markdown lint](../checks/markdown-lint.md#精确-finding-waiver)与
 [Finding waiver 指南](../guides/finding-waivers.md#为-markdown-lint-声明精确例外)承接。
 [构建项目 Gate](../guides/building-project-gate.md)已承接 consumer 的多场景构建路径；change region 的可省略排除项由[API 机制](../api-mechanics.md#按文件变化选择-check)拥有。
-下列条目是后续候选，不因前置能力已交付而自动获得实施授权。
+下列条目按各自已获授权的范围推进；前置能力交付不自动授权其它候选。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| P1 | [`audit-public-authoring-optional-fields`](../../changes/audit-public-authoring-optional-fields/proposal.md) | 优先审阅 waiver 空数组的高置信候选；其它字段分别解决默认范围与现有契约问题，再按独立授权收敛实施 Plan。 |
+| P1 | [`audit-public-authoring-optional-fields`](../../changes/audit-public-authoring-optional-fields/proposal.md) | 已授权 Plan 仅实施 waiver 配置可省略，并以完整 identity 校验及安装后类型/runtime 验收闭合；collector、area files 与 catalog 保留现状，需另行授权。 |
 | P2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
 
 ### 并行与合入边界
@@ -43,7 +43,7 @@ owner 时，实施与合入必须串行。
 
 | 轨道 | 可并行工作 | 实施前置与共享边界 |
 | --- | --- | --- |
-| Public authoring optional fields | config package 设计讨论、scheduler 证据 | 当前只调查与收敛候选；获准实施后，公共声明、Check/工具 owner、Case 与 package material 按实际 diff 串行。 |
+| Public authoring optional fields | config package 设计讨论、scheduler 证据 | 已授权的 waiver 切面涉及公共声明、工具 owner、Case 与 package material，按实际 diff 串行；其它字段只保留调查依据。 |
 | Config packages | scheduler 证据、公开 API 使用调查 | 需要真实组合成本证据，且会改变 package authoring/Definition owner。 |
 | Scheduler evidence queue | 文档和独立 corpus 调查 | 若改 scheduler/runtime，按以下证据队列内部顺序串行。 |
 

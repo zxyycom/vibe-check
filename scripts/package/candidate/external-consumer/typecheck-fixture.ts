@@ -5,6 +5,7 @@ import { CHECK_HANDOFF_TYPE_ACCEPTANCE_SOURCE } from "./handoff-type-acceptance.
 import { DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE } from "./data-boundary-type-acceptance.ts";
 import { PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE } from "./project-changes-type-acceptance.ts";
 import { MARKDOWN_LINT_TYPE_ACCEPTANCE_SOURCE } from "./markdown-lint-type-acceptance.ts";
+import { FINDING_WAIVER_TYPE_ACCEPTANCE_SOURCE } from "./finding-waiver-type-acceptance.ts";
 import {
   MAINTENANCE_REMINDERS_TYPE_ACCEPTANCE_SOURCE,
   PACKAGE_CHECK_CONSTRUCTOR_TYPE_ACCEPTANCE_SOURCE
@@ -78,6 +79,7 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   parseMaintenanceRemindersData,
   parseMarkdownLinkValidationData,
   presentCheckFindings,
+  reconcileFindingWaivers,
   run,
   secretDetection,
   snapshotClosedArray,
@@ -105,6 +107,7 @@ const cacheOptions: CacheJsonByKeyOptions<{ readonly count: number }> = {
 };
 const cacheResult: Promise<CacheJsonByKeyResult<{ readonly count: number }>> = cacheJsonByKey(cacheOptions);
 ${DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE}
+${FINDING_WAIVER_TYPE_ACCEPTANCE_SOURCE}
 const asyncCacheParser = async (_value: unknown) => ({ count: 1 });
 cacheJsonByKey({
   compute: () => ({ count: 1 }),
