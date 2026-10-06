@@ -4,7 +4,7 @@
 
 ## 当前结论与输入
 
-**`@zxyycom/vibe-check@0.0.3` 已发布且分发验收通过，`latest=0.0.3`。** 两次同包正式 Gate 均 43/43 通过；从 canonical registry 下载的 tarball 与已授权正式产物逐字节一致，隔离安装后的 1420 个包文件及随包示例运行均通过。原始产物、两次正式日志与非敏感 evidence 快照按固定位置归档。当前按新增授权完成本地 Git 交接；下文 local candidate 与中间认证/processing 结果均为分阶段证据，不代表当前阻塞。
+**`@zxyycom/vibe-check@0.0.3` 已发布且分发验收通过，`latest=0.0.3`；本地版本标签和合回 `main` 已完成。** 两次同包正式 Gate 均 43/43 通过；从 canonical registry 下载的 tarball 与已授权正式产物逐字节一致，隔离安装后的 1420 个包文件及随包示例运行均通过。原始产物、两次正式日志与非敏感 evidence 快照按固定位置归档；合入后完整 local Gate 43/43 通过。下文 local candidate 与中间认证/processing 结果均为分阶段证据，不代表当前阻塞。未推送或清理，Plan 保留待独立结项授权。
 
 | 输入 | 已确认事实 |
 | --- | --- |
@@ -176,3 +176,8 @@
 - 按既有版本的 annotated tag 方式创建本地 `v0.0.3`；解引用精确指向 `S=4a830ef3dfd1aadde7219455760a27394040e812`。标签说明包含正式 tarball/receipt 摘要，没有指向后续准备提交或 main 的移动位置；未推送标签。
 - 冻结 worktree 仍为 clean detached `S`，本轮只补写治理记录，产品与随包材料不变。后续提交继续在准备分支完成，main 仅快进接收；未改变 hook 配置或绕过 hook。
 - 合入前准备工作区的 `validate`、Case、Change `check-all` 与 Decision `check` 均通过；完整 `bun run check -- --all` 退出 0，local candidate `0.0.0-local.b76cfa4b04ac`，43/43 passed、failed/not-applicable/unavailable 均为 0。日志为准备工作区 `.log/project-gate/2026-10-06T07-53-15.770Z-1887311-efabbb4b-6e71-4639-846f-19151872f8dc/`；summary 29.6 秒，总反馈 `30528.0 ms`、mean `1813.1 ms`，P95 `5295.7 ms` 高于 `5000 ms`，保留非阻断 warning。
+- 准备分支提交 `3581a62edd6dd585dcba5ce5b79fc5e82affe989`（`plan：记录 0.0.3 发布与分发验收`）保存五份治理记录；正常 post-commit hook 因非 `main` 明确跳过推送。再次核对 main 干净且未漂移后，执行 `git merge --ff-only release-0-0-3`，main 从 `8d522ebf` 快进到该提交，无冲突、无历史改写。
+- 在实际 main checkout 运行 `bun run check -- --all`，退出 0；同一 local candidate、43/43 passed，failed/not-applicable/unavailable 均为 0，包含 artifact 及安装后的 types/documentation/runtime。日志为 `/workspace/vibe-check/.log/project-gate/2026-10-06T07-57-08.450Z-1891160-4c02fda7-d677-4c33-8388-ea0ef4d55515/`。summary 32.3 秒，总反馈 `37507.2 ms`、mean `1968.5 ms`，P95 `5271.2 ms` 略高于 `5000 ms`，保留非阻断 warning；此 local Gate 不冒充新的正式 receipt 验收。
+- 2026-10-06T07:57:22.156Z 复核固定归档槽位：74 个原始文件（tarball、receipt、两轮正式日志）与 frozen 对应文件逐字节相同，三个既有 evidence 快照各自匹配文件名 SHA-256。交接记录沿用同槽位 `evidence/<sha256>.md` 另存新快照，旧快照不覆盖；不归档认证材料。
+- 复核 proposal 成功标准：净变化与迁移由 changelog 和公开 owner 承接，代表性阅读/消费证据、正式同包验收、精确授权、分发身份和 Git 交接均有上述记录。`S..3581a62e` 仅五份治理记录变化，不含产品或随包输入；协调入口仅同步本 Change 的交接边界，不修改长期发布规则或其它 Change。
+- 剩余保存动作只把本节合入验证、任务闭合和协调摘要提交后快进同步到 main，不重打包、不移动版本 tag。Plan 基线保持 `8d522ebf`，后续 Change 外距离增量来自协调入口；已逐项复核，不阻断当前 Plan。未推送、未执行 Change finalize，也未清理准备/冻结 worktree、分支、临时 consumer 或归档；这些操作仍需独立授权。

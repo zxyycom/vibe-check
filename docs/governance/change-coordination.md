@@ -33,7 +33,7 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| P1 | [`release-0-0-3`](../../changes/release-0-0-3/proposal.md) | 发布与分发验收已完成；当前按 release artifacts 的本地标签与合入授权完成 Git 交接，保留冻结输入和证据。推送、清理与结项另行授权；其它 Change 保持各自生命周期。 |
+| P1 | [`release-0-0-3`](../../changes/release-0-0-3/proposal.md) | 本地 Git 交接已完成，当前保留 Plan、冻结输入和证据，等待独立的推送、清理或结项授权；精确边界见 release artifacts。其它 Change 保持各自生命周期。 |
 | P2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
 
 Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与默认值)承接；

@@ -8,7 +8,7 @@
 - 正式冻结提交 `S` 为已完成本地验收的 `4a830ef3dfd1aadde7219455760a27394040e812`；独立 detached worktree 为 `/workspace/vibe-check-release-0-0-3-frozen`。后续进度只记录在准备工作区，不修改冻结输入。
 - 本次沿用 active/aligned 发布判断：[完整版本化产品单元](../../docs/decisions/release-one-versioned-npm-product-unit.md)、[预稳定 0.0.x](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)、[完整发布 Gate](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)、[冻结源码隔离](../../docs/decisions/isolate-package-release-source-from-change-work.md)、[固定发布流程](../../docs/decisions/standardize-package-release-procedure.md)。方向与 alignment 保持不变。
 - [Waiver 可省略 Change](../audit-public-authoring-optional-fields/proposal.md) 的实现已继承；其独立验收与结项由原 Change 承接。
-- 本地准备、文档/规范审查、同包正式验收、发布和分发验收均已完成；当前按新增授权执行本地版本标记和 Git 合入。各阶段证据见 [evidence](evidence.md)，任务进度见 [tasks](tasks.md)。
+- 本地准备、文档/规范审查、同包正式验收、发布、分发验收及本地 Git 交接均已完成；合入后 main 完整 Gate 43/43 通过。各阶段证据见 [evidence](evidence.md)，任务进度见 [tasks](tasks.md)。
 
 ### 当前授权
 
@@ -18,9 +18,9 @@
 
 ## Goals / Non-Goals
 
-当前目标：在 npm 发布和分发验收结果保持可追溯的前提下，将本地 `v0.0.3` 绑定原冻结提交 `S`，把发布说明、Plan 和非敏感证据合回 `main`，验证实际合入状态并保留交接证据。
+已完成目标：在 npm 发布和分发验收结果保持可追溯的前提下，将本地 `v0.0.3` 绑定原冻结提交 `S`，把发布说明、Plan 和非敏感证据合回 `main`，验证实际合入状态并保留交接证据。
 
-完整目标的剩余部分为上述本地 Git 交接与核对；完成后保留 Plan 和工作区，清理与 Change 结项另行授权。
+本次发布目标已完成，当前仅保存收尾记录；保留 Plan 和工作区，推送、清理与 Change 结项另行授权。
 
 非目标：推进其它 Change、扩大产品能力、建立公共 CLI、改变长期发布流程或增加 GitHub Release 渠道。
 
@@ -50,4 +50,4 @@
 
 ## Open Questions
 
-本轮本地标签与合入授权已明确，没有阻塞实施的开放问题。若 main 出现外来修改或不再能快进，先停止并核对，不自动 reset、rebase 或丢弃改动；push、清理和 Change 结项保持未授权。
+本轮本地标签、合入及验证已完成，没有阻塞本次交付的开放问题。收尾记录继续按同一授权保存；若 main 出现外来修改或不再能快进，先停止并核对，不自动 reset、rebase 或丢弃改动。push、清理和 Change 结项保持未授权。
