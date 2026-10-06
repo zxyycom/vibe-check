@@ -33,8 +33,12 @@ artifacts 决定。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
 | --- | --- | --- |
-| P1 | [`audit-public-authoring-optional-fields`](../../changes/audit-public-authoring-optional-fields/proposal.md) | 已授权 Plan 仅实施 waiver 配置可省略，并以完整 identity 校验及安装后类型/runtime 验收闭合；collector、area files 与 catalog 保留现状，需另行授权。 |
+| P1 | [`release-0-0-3`](../../changes/release-0-0-3/proposal.md) | 当前按 release artifacts 审核优化文档、复核规范与消费方证据，验证准备树并保存本地语义提交；后续按发布 owner 冻结、同包验收、发布与交接。已继承 waiver，其它 Change 不成为本版前置。 |
 | P2 | [`add-composable-feature-config-packages`](../../changes/add-composable-feature-config-packages/proposal.md) | 以真实 Gate 组合与 building guide 证明重复成本为前提，再固定 fragment grammar、冲突规则与 Gate projection；指南交付本身不证明需要新抽象。 |
+
+Waiver 可省略实现由[公开指南](../guides/finding-waivers.md#输入与默认值)承接；
+[`audit-public-authoring-optional-fields`](../../changes/audit-public-authoring-optional-fields/proposal.md)保留其独立验收与结项入口。
+collector、area files 与 catalog 的独立 Outcome 不纳入本版；其它 Change 的结项不作为发布准备前置。
 
 ### 并行与合入边界
 
@@ -43,7 +47,8 @@ owner 时，实施与合入必须串行。
 
 | 轨道 | 可并行工作 | 实施前置与共享边界 |
 | --- | --- | --- |
-| Public authoring optional fields | config package 设计讨论、scheduler 证据 | 已授权的 waiver 切面涉及公共声明、工具 owner、Case 与 package material，按实际 diff 串行；其它字段只保留调查依据。 |
+| Release 0.0.3 | 其它候选的独立调查与 Plan 收敛 | 准备 Change、changelog 和消费方证据涉及 package material 与稳定文档；拟纳入本版的变更串行审阅；冻结后 source/material 若变化，按发布 owner 重选 `S` 并重验。 |
+| Public authoring optional fields | config package 设计讨论、scheduler 证据 | 实现已由当前基线继承；独立结项与其它字段不自动进入发布，后续改动按公共声明、工具 owner、Case 与 package material 的实际重叠串行。 |
 | Config packages | scheduler 证据、公开 API 使用调查 | 需要真实组合成本证据，且会改变 package authoring/Definition owner。 |
 | Scheduler evidence queue | 文档和独立 corpus 调查 | 若改 scheduler/runtime，按以下证据队列内部顺序串行。 |
 
