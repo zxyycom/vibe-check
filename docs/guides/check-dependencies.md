@@ -87,7 +87,7 @@ if (result.kind !== "completed") throw new Error(`Run did not complete: ${result
 
 上例的 `handoff: true` 是 provider 的最小 runtime declaration；`passed` result 中的 `Map<string, Uint8Array>` 自动成为 provider-aware read 的 handoff 类型。provider 只能在 `passed` branch 返回同型、non-null 的 `handoff`；`dependencies.get(changedFiles)` 只在 current Run 中由 direct `dependsOn` consumer 成功，返回 provider 的 canonical `data` 和同一 `Map` reference。fan-out consumer 读取的也是这个引用，而 repeated Run 不共享它。
 
-先收窄 `get` 的 `ok`，再显式调用 producer 的 `parseData(read.data)`：parser 继续只负责 detached、deep-frozen canonical data，绝不解析或 clone `handoff`。`dependsOn` 保证 callback 只在 provider `passed` 后开始；`!read.ok` 仍是读取边界防御。八个随包 Check 都提供 `parseData` 和同实现的 package-root parser，名称与类型见各自指南。
+先收窄 `get` 的 `ok`，再显式调用 producer 的 `parseData(read.data)`：parser 继续只负责 detached、deep-frozen canonical data，绝不解析或 clone `handoff`。`dependsOn` 保证 callback 只在 provider `passed` 后开始；`!read.ok` 仍是读取边界防御。九个随包 Check 都提供 `parseData` 和同实现的 package-root parser，名称与类型见各自指南。
 
 provider-object read 的失败不返回上游 `data` 或 `handoff`：输入不是 `handoff: true` 定义的 provider，或不是 effective direct `dependsOn` 时，错误为 `dependency-not-declared`；已获 direct authorization 但本次 execution 没有接受到该 provider 的 `passed` handoff 时，错误为 `upstream-handoff-unavailable`。consumer 必须像示例一样先处理 `!read.ok`，不能把 TypeScript 推断当作运行时授权。
 
