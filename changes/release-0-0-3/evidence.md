@@ -4,7 +4,7 @@
 
 ## 当前结论与输入
 
-本轮文档优化、完整编码规范审查、独立 AI 阅读验证和最终材料的完整 local Gate 已通过，正在整理本地提交。下文的 `0.0.0-local.caa82d4f3bde` 是**前轮最终**准备树的通过记录，当前验证见本轮章节。正式发布阶段尚未执行。
+本轮文档优化、完整编码规范审查、独立 AI 阅读验证、最终材料的完整 local Gate 与本地语义提交已完成。当前证据支持进入正式发布准备，正式发布门禁仍待完成。下文的 `0.0.0-local.caa82d4f3bde` 是**前轮最终**准备树的记录，当前结果见本轮章节。
 
 | 输入 | 已确认事实 |
 | --- | --- |
@@ -50,7 +50,8 @@
 - 使用 mise 固定工具链的 `docs:api`、`validate`、`test-evidence -- check --root .`、Change `check-all` 和 Decision `check` 均通过：671 test entities / 161 Cases / 15 topics、14/14 Changes、353 Decisions。`git diff --check` 通过；未增加测试或改变验证规则。
 - 最终公开材料的 `bun run check -- --all` 退出 0：exact candidate `0.0.0-local.b76cfa4b04ac`，43/43 passed，failed/not-applicable/unavailable 均为 0，包含 artifact 及隔离安装后的 types/documentation/runtime。日志：`.log/project-gate/2026-10-06T06-41-53.635Z-1766506-f461db77-ebf2-4aa3-a110-322f65fde1bf/`。执行 summary 47 秒；mean 2735.1 ms、P95 6586.4 ms 超出 2000/5000 ms 告警预算，保持非阻断 warning，未放宽阈值。
 - 当前证据支持进入正式发布准备，不支持直接 publish：尚需授权后选定 clean `S`、冻结工作区中正式 prepare/verify、临发布 registry/authority 核验与精确发布授权。本轮验证覆盖当前 Linux 环境和仓库代表性消费者；没有实际下游项目或 Windows 真机回归输入。
-- 公开材料已保存为 `b89d7e4e72718c5871678b708abb0d8a0666d303`（`docs：收敛 0.0.3 变更日志与升级说明`），仅包含 changelog 与依赖指南。提交钩子因当前分支为 `release-0-0-3` 跳过推送，未发起远端请求；本 Change 与协调入口作为独立规划单元继续保存。
+- 公开材料提交 `b89d7e4e72718c5871678b708abb0d8a0666d303`（`docs：收敛 0.0.3 变更日志与升级说明`）仅包含 changelog 与依赖指南；规划提交 `87c91c2146014024126a67286ba75ab4128bb522`（`plan：建立 0.0.3 发布准备计划与验收记录`）保存本 Change 与协调入口。第二次提交后工作树干净；本条及任务勾选是随后补写的交接记录。提交钩子均因当前分支为 `release-0-0-3` 跳过推送，未发起远端请求。
+- 提交后按 mise 工具链核对 candidate 为 `current`，已验产品与随包材料保持不变；原 main checkout 未修改。当前准备提交没有被自动选为正式 `S`，未执行正式冻结、prepare/verify、publish、tag、push、merge 或清理。
 
 ## 后续正式证据
 
