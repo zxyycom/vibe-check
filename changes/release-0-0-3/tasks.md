@@ -1,6 +1,6 @@
 # Tasks
 
-本 Plan 覆盖准备到发布交接。原已勾选项记录前轮准备事实，本轮追加项证明当前优化树；权限以 [design](design.md#当前授权) 为准，证据见 [evidence](evidence.md)。
+本 Plan 覆盖准备到发布交接。已勾选项记录各阶段实际完成事实；正式验收、发布与分发验收已完成，当前按新增授权完成本地标签与合入，权限以 [design](design.md#当前授权) 为准，证据见 [evidence](evidence.md)。
 
 ## Readiness
 
@@ -9,16 +9,16 @@
 - [x] 0.3 核对已继承 waiver 变更和其它 12 项非本版前置，保留暂停条件及旧 Change；不从旧证据推导本轮通过。
 - [x] 0.4 标准 `bun run env:setup` 成功，记录新准备 checkout 的实际环境结果。
 - [x] 0.5 在授权范围完成 canonical registry 只读版本/dist-tag 观察，记录时间、请求与结果；不代替临发布复核。
-- [ ] 0.6 后续取得 detached 冻结 worktree 精确授权，选定 clean `S` 并确认 source/material 范围。
-- [ ] 0.7 临发布重新核对 registry/freshness/publisher authority，取得该 tarball、version/tag/access 的精确外部写入授权。
+- [x] 0.6 取得 detached 冻结 worktree 精确授权，选定 clean `S` 并确认 source/material 范围。
+- [x] 0.7 临发布重新核对 registry/freshness/publisher authority，取得该 tarball、version/tag/access 的精确外部写入授权。
 
 ## Implementation
 
 - [x] 1.1 建立本 Plan、非敏感 evidence 与协调入口，沿用既有发布约定，不新增长期 Decision。
 - [x] 1.2 收敛 `0.0.3` 相对 `0.0.2` 的 changelog 净变化、迁移与消费者边界；修正依赖指南数量残留，不伪造已发布事实。
-- [ ] 1.3 在授权后创建绑定 `S` 的独立 detached worktree 并 prepare 正式 `0.0.3`/`latest` tarball 和 receipt。
-- [ ] 1.4 正式 same-tarball 验收通过后，按发布 owner 归档 tarball、receipt、正式日志与 evidence，核对字节和摘要。
-- [ ] 1.5 在 0.7 与正式验收成立后，由发布者本地交互式 2FA 发布通过验收的同一 tarball，不从源码重打包。
+- [x] 1.3 在授权后创建绑定 `S` 的独立 detached worktree 并 prepare 正式 `0.0.3`/`latest` tarball 和 receipt。
+- [x] 1.4 正式 same-tarball 验收通过后，按发布 owner 归档 tarball、receipt、正式日志与 evidence，核对字节和摘要。
+- [x] 1.5 在 0.7 与正式验收成立后，由发布者本地交互式 2FA 发布通过验收的同一 tarball，不从源码重打包。
 - [ ] 1.6 发布及分发验证后按授权将 `v0.0.3` 绑定 `S`、交接合回 `main`，归档后续 evidence；清理与 Change finalize 仍须独立授权。
 
 - [x] 1.7 按 `ai-ready-docs` 优化本次文档，收敛 owner、当前授权、证据时点与阅读主线。
@@ -30,8 +30,8 @@
 - [x] 2.2 非实施代理反查净变化、公开 owner 和实际 diff，核对新用户仅凭随包材料的代表性集成路径；安装后的可执行示例由 documentation acceptance 验证。
 - [x] 2.3 核对 `0.0.2` 升级迁移说明及现有安装后类型、代表性 Run 的终态/Records/aggregation/diagnostic 验收证据；不替代未提供的实际下游项目升级验收。
 - [x] 2.4 对最终公开材料运行 `bun run check -- --all`，记录 exact local candidate、43项实际结果与日志，包含安装后 artifact/types/documentation/runtime；不作正式发布证据。
-- [ ] 2.5 在 frozen worktree 运行正式 `package:release:verify -- --receipt <receipt-path>`，完整 Gate 与 external consumer 绑定同一 tarball；记录实际 receipt/digests/日志。
-- [ ] 2.6 验证 registry 的 `0.0.3` 与 `latest`、integrity/tarball 身份及 registry 安装后的代表性消费；失败时停止 tag/合入，不用本地产物冒充分发成功。
+- [x] 2.5 在 frozen worktree 运行正式 `package:release:verify -- --receipt <receipt-path>`，完整 Gate 与 external consumer 绑定同一 tarball；记录实际 receipt/digests/日志。
+- [x] 2.6 验证 registry 的 `0.0.3` 与 `latest`、integrity/tarball 身份及 registry 安装后的代表性消费；失败时停止 tag/合入，不用本地产物冒充分发成功。
 - [ ] 2.7 核对归档 bytes、tag 指向 `S`、授权 Git 交接与稳定 owner 同步；复核成功标准、未决问题及后续清理权限，保留可持续交接。
 
 - [x] 2.8 按完整编码规范审核本次实际变更，记录适用范围、发现及整改或无阻断结论。

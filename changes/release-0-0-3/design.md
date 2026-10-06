@@ -5,21 +5,22 @@
 ## Context
 
 - 版本已选 `0.0.3`；准备分支 `release-0-0-3`，实现 worktree `/workspace/vibe-check-release-0-0-3`，Plan 基线 `8d522ebf21ccca3a55a01d5a8df439d4c0116861`。该基线不是正式冻结提交 `S`。
+- 正式冻结提交 `S` 为已完成本地验收的 `4a830ef3dfd1aadde7219455760a27394040e812`；独立 detached worktree 为 `/workspace/vibe-check-release-0-0-3-frozen`。后续进度只记录在准备工作区，不修改冻结输入。
 - 本次沿用 active/aligned 发布判断：[完整版本化产品单元](../../docs/decisions/release-one-versioned-npm-product-unit.md)、[预稳定 0.0.x](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)、[完整发布 Gate](../../docs/decisions/require-complete-project-gate-evidence-before-public-release.md)、[冻结源码隔离](../../docs/decisions/isolate-package-release-source-from-change-work.md)、[固定发布流程](../../docs/decisions/standardize-package-release-procedure.md)。方向与 alignment 保持不变。
 - [Waiver 可省略 Change](../audit-public-authoring-optional-fields/proposal.md) 的实现已继承；其独立验收与结项由原 Change 承接。
-- 前轮本地准备已有验收记录；本轮继续文档/规范审查、验证和提交。当前与前轮证据见 [evidence](evidence.md)，任务进度见 [tasks](tasks.md)。
+- 本地准备、文档/规范审查、同包正式验收、发布和分发验收均已完成；当前按新增授权执行本地版本标记和 Git 合入。各阶段证据见 [evidence](evidence.md)，任务进度见 [tasks](tasks.md)。
 
 ### 当前授权
 
-用户最新请求授权本轮审核优化文档、按完整编码规范审核本次变更、运行本地验证，并整理执行本地 `git add`/`git commit`。它更新前轮“止于本地验收、不提交”的边界；准备分支/worktree、本地修改和标准 `bun run env:setup` 的既有授权继续适用。
+用户在发布与分发验收完成后明确授权合回 `main`，并补充确认“一并创建本地标签，再合并”。当前范围包括保存本 Change 的非敏感发布/交接记录，创建指向固定 `S` 的本地 annotated tag `v0.0.3`，通过准备分支 `release-0-0-3` 快进合入 `main`，运行合入验证并补齐归档证据。
 
-本轮止于本地审查、验证与提交后的发布就绪判断。正式 detached 冻结 worktree、publish、tag、push、merge、分支/worktree 切换或清理、Change finalize/delete 和归档清理仍须对应明确授权。Plan 中的完整生命周期任务不扩大本轮权限。
+已完成的 npm 发布及其精确授权见 evidence，本轮不再次 publish。提交继续在准备分支产生，正常执行既有 post-commit hook；main 仅快进合入，不改写历史。不推送 main 或标签，不清理分支、worktree、临时 consumer 或归档，不执行 Change finalize/delete；这些均不由本次本地合入授权推导。
 
 ## Goals / Non-Goals
 
-本轮目标：文档能恢复真实净变化、当前权限和证据时点；代码审查与独立阅读结果可核对；最新准备树完成完整 local Gate 和语义提交，并明确能否进入正式发布准备。
+当前目标：在 npm 发布和分发验收结果保持可追溯的前提下，将本地 `v0.0.3` 绑定原冻结提交 `S`，把发布说明、Plan 和非敏感证据合回 `main`，验证实际合入状态并保留交接证据。
 
-完整目标：后续按发布 owner 完成 `0.0.3` 的冻结、同包验收、发布与交接。
+完整目标的剩余部分为上述本地 Git 交接与核对；完成后保留 Plan 和工作区，清理与 Change 结项另行授权。
 
 非目标：推进其它 Change、扩大产品能力、建立公共 CLI、改变长期发布流程或增加 GitHub Release 渠道。
 
@@ -28,9 +29,9 @@
 ### Intended Change
 
 1. **输入与内容。** 使用已选 `0.0.3`；package/registry/access 由 [release manifest](../../scripts/package/artifact/release-manifest.json)解析，固定发布约定由 [Package release](../../docs/tooling/package-release.md)拥有。Changelog 从 `v0.0.2`、实际 diff 和公开 owner 提炼净变化与迁移，标题表达版本内容，不填未确认发布日期。
-2. **本轮编辑与审查。** 编辑范围为本 Change、changelog、协调入口及依赖指南数量残留。文档按 `ai-ready-docs` 优化，按完整编码规范识别实际实现改动及适用规则，由非实施代理反查公开承诺并执行代表性 AI 阅读任务。若发现需要产品/脚本整改，先界定具体缺口与授权范围。
-3. **准备验证与保存。** 采用 mise 固定工具链运行受影响材料、Case/governance 检查和完整 local Gate，记录 exact candidate、输入范围与日志；据实际结果更新任务，然后整理本地语义提交。提交保存准备树，不自动选定正式 `S`。
-4. **正式验收。** 在后续授权阶段选定 clean `S`，创建独立 detached worktree，再执行 `bun run package:release:prepare -- --version 0.0.3 --tag latest` 与 `bun run package:release:verify -- --receipt <receipt-path>`。验收绑定同一正式 tarball，证据按 owner 归档。
+2. **已完成的编辑与审查。** 编辑范围为本 Change、changelog、协调入口及依赖指南数量残留。文档按 `ai-ready-docs` 优化，按完整编码规范识别实际实现改动及适用规则，由非实施代理反查公开承诺并执行代表性 AI 阅读任务。后续若发现需要产品/脚本整改，先界定具体缺口与授权范围。
+3. **已完成的准备验证与保存。** 采用 mise 固定工具链运行受影响材料、Case/governance 检查和完整 local Gate，记录 exact candidate、输入范围与日志；据实际结果更新任务并整理本地语义提交。本轮从已验准备树显式选定 Context 中的 `S`；新的治理记录仅保存在准备工作区，不进入冻结输入。
+4. **正式验收。** 本轮使用 Context 中已选定的 clean `S` 和独立 detached worktree，执行 `bun run package:release:prepare -- --version 0.0.3 --tag latest` 与 `bun run package:release:verify -- --receipt <receipt-path>`。同机 ignored 性能预算从准备工作区原样复制，阈值不变。验收绑定同一正式 tarball，证据按 owner 归档；如需修改 source 或随包材料，先停止沿用旧冻结证据。
 5. **发布交接。** 正式验收、临发布 freshness/registry/authority 核验和精确写入授权齐备后，由发布者本地交互式 2FA 发布已验 tarball。分发验证成功后按 owner 和实际授权完成 tag、合入与证据交接。
 
 ### Resulting Impacts
@@ -49,4 +50,4 @@
 
 ## Open Questions
 
-本轮文档/规范审查、独立阅读、最终材料验证与本地语义提交已完成，结果见 evidence。当前没有阻塞本轮交付的开放问题。进入正式发布阶段仍需精确授权、clean `S`、冻结路径、正式产物及临发布事实；版本和固定流程已有 owner，无需重复选型。
+本轮本地标签与合入授权已明确，没有阻塞实施的开放问题。若 main 出现外来修改或不再能快进，先停止并核对，不自动 reset、rebase 或丢弃改动；push、清理和 Change 结项保持未授权。

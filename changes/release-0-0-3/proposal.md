@@ -17,7 +17,7 @@
 - 在 `release-0-0-3` 实现 worktree 维护本 Plan、[evidence](evidence.md) 和 Change 协调入口。
 - 将 [changelog](../../docs/changelog.md) 收敛为相对 `0.0.2` 的净变化和迁移，修正[依赖指南](../../docs/guides/check-dependencies.md)随包 Check 数量残留，保持示例与产品契约。
 - 审核优化本次文档，按完整[编码规范](../../docs/development/coding-style.md)审查本次改动，独立检验 AI 阅读路径，验证准备树并整理本地语义提交。本轮权限见 [design](design.md#当前授权)。
-- 后续按 [Package release](../../docs/tooling/package-release.md)完成冻结、same-tarball 验收、发布和交接。
+- 按 [Package release](../../docs/tooling/package-release.md)完成正式冻结、same-tarball 验收、归档、发布与分发验收；后续在独立授权下完成 Git 交接。
 
 ### Resulting Impacts
 
