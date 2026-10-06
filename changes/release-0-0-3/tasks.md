@@ -1,6 +1,6 @@
 # Tasks
 
-本 Plan 覆盖准备到发布交接。全部任务已按实际证据完成，本地标签、合入、合入后验证与归档核对均已闭合；Plan 保留待独立结项授权。权限以 [design](design.md#当前授权) 为准，证据见 [evidence](evidence.md)。
+本 Plan 覆盖准备到发布交接。全部任务已按实际证据完成，本地标签、合入、合入后验证与归档核对均已闭合；用户已补充授权推送、结项与清理，当前按公开 finalize 入口收尾。权限以 [design](design.md#当前授权) 为准，证据见 [evidence](evidence.md)。
 
 ## Readiness
 
@@ -19,7 +19,7 @@
 - [x] 1.3 在授权后创建绑定 `S` 的独立 detached worktree 并 prepare 正式 `0.0.3`/`latest` tarball 和 receipt。
 - [x] 1.4 正式 same-tarball 验收通过后，按发布 owner 归档 tarball、receipt、正式日志与 evidence，核对字节和摘要。
 - [x] 1.5 在 0.7 与正式验收成立后，由发布者本地交互式 2FA 发布通过验收的同一 tarball，不从源码重打包。
-- [x] 1.6 发布及分发验证后按授权将 `v0.0.3` 绑定 `S`、交接合回 `main`，归档后续 evidence；清理与 Change finalize 仍须独立授权。
+- [x] 1.6 发布及分发验证后按授权将 `v0.0.3` 绑定 `S`、交接合回 `main`，归档后续 evidence；清理与 Change finalize 的独立授权按 design 核对。
 
 - [x] 1.7 按 `ai-ready-docs` 优化本次文档，收敛 owner、当前授权、证据时点与阅读主线。
 - [x] 1.8 按本轮授权整理本地语义提交，确认仅保存目标范围和可追溯验证结果。

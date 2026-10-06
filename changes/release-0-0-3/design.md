@@ -12,15 +12,15 @@
 
 ### 当前授权
 
-用户在发布与分发验收完成后明确授权合回 `main`，并补充确认“一并创建本地标签，再合并”。当前范围包括保存本 Change 的非敏感发布/交接记录，创建指向固定 `S` 的本地 annotated tag `v0.0.3`，通过准备分支 `release-0-0-3` 快进合入 `main`，运行合入验证并补齐归档证据。
+用户在本地标签和合入完成后，对“未推送远端、未清理工作区、未删除 Change；这些仍需单独授权”明确回复“都可以去推进了”。当前授权包括向既有 `origin` 非强制推送 `main` 与 `v0.0.3`，保存最终非敏感证据，按 `finalize --preflight` / `finalize` 结项本 Change，并清理本次发布的两个 worktree、已合入分支和临时 registry consumer。
 
-已完成的 npm 发布及其精确授权见 evidence，本轮不再次 publish。提交继续在准备分支产生，正常执行既有 post-commit hook；main 仅快进合入，不改写历史。不推送 main 或标签，不清理分支、worktree、临时 consumer 或归档，不执行 Change finalize/delete；这些均不由本次本地合入授权推导。
+已完成的 npm 发布及其精确授权见 evidence，本轮不再次 publish，也不移动版本标签。提交继续在准备分支产生，正常执行既有 post-commit hook；main 仅快进合入，不改写历史。仅清理经核对的本次短期工作物；保留 main checkout、正式 tarball/receipt/日志归档、历史 evidence 快照和其它 Change，不清理用户认证配置或共享工具状态。
 
 ## Goals / Non-Goals
 
 已完成目标：在 npm 发布和分发验收结果保持可追溯的前提下，将本地 `v0.0.3` 绑定原冻结提交 `S`，把发布说明、Plan 和非敏感证据合回 `main`，验证实际合入状态并保留交接证据。
 
-本次发布目标已完成，当前仅保存收尾记录；保留 Plan 和工作区，推送、清理与 Change 结项另行授权。
+本次发布目标已完成，当前按新增授权完成远端同步与结项清理；历史 Plan 从结项前的 Git revision 恢复，正式证据保留在发布 owner 约定的公共 Git 归档槽位。
 
 非目标：推进其它 Change、扩大产品能力、建立公共 CLI、改变长期发布流程或增加 GitHub Release 渠道。
 
@@ -50,4 +50,4 @@
 
 ## Open Questions
 
-本轮本地标签、合入及验证已完成，没有阻塞本次交付的开放问题。收尾记录继续按同一授权保存；若 main 出现外来修改或不再能快进，先停止并核对，不自动 reset、rebase 或丢弃改动。push、清理和 Change 结项保持未授权。
+推送、结项与本次短期工作物清理均已明确授权，没有阻塞当前实施的开放问题。若远端或 main 出现外来修改、标签冲突、未归档的唯一数据或不能快进，停止相应操作并核对，不自动 force、reset、rebase 或丢弃改动。持久归档不在清理范围。

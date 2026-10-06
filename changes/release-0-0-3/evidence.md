@@ -4,7 +4,7 @@
 
 ## 当前结论与输入
 
-**`@zxyycom/vibe-check@0.0.3` 已发布且分发验收通过，`latest=0.0.3`；本地版本标签和合回 `main` 已完成。** 两次同包正式 Gate 均 43/43 通过；从 canonical registry 下载的 tarball 与已授权正式产物逐字节一致，隔离安装后的 1420 个包文件及随包示例运行均通过。原始产物、两次正式日志与非敏感 evidence 快照按固定位置归档；合入后完整 local Gate 43/43 通过。下文 local candidate 与中间认证/processing 结果均为分阶段证据，不代表当前阻塞。未推送或清理，Plan 保留待独立结项授权。
+**`@zxyycom/vibe-check@0.0.3` 已发布且分发验收通过，`latest=0.0.3`；合入 `main` 及版本标签推送已完成。** 两次同包正式 Gate 均 43/43 通过；从 canonical registry 下载的 tarball 与已授权正式产物逐字节一致，隔离安装后的 1420 个包文件及随包示例运行均通过。原始产物、两次正式日志与非敏感 evidence 快照按固定位置归档；合入后完整 local Gate 43/43 通过。下文 local candidate 与中间认证/processing 结果均为分阶段证据，不代表当前阻塞。当前按新增授权保存最终记录，随后通过公开入口结项并清理短期工作物；持久归档保留。
 
 | 输入 | 已确认事实 |
 | --- | --- |
@@ -12,7 +12,7 @@
 | 准备工作区 | `/workspace/vibe-check-release-0-0-3`，branch `release-0-0-3`；Plan 基线 `8d522ebf21ccca3a55a01d5a8df439d4c0116861`，不是 frozen `S`。 |
 | 冻结输入 | `S=4a830ef3dfd1aadde7219455760a27394040e812`；独立 detached worktree `/workspace/vibe-check-release-0-0-3-frozen`。 |
 | package / registry / access | release manifest：`@zxyycom/vibe-check` / `https://registry.npmjs.org/` / `public`。 |
-| 规则与权限 | 精确授权的同一 tarball 已交互发布；用户随后授权本地 `v0.0.3` 与合回 `main`，不包含 push 或清理。精确边界由 design 的当前授权集中说明。 |
+| 规则与权限 | 精确授权的同一 tarball 已交互发布；用户随后依次授权本地标签/合入与远端推送/结项/清理。精确边界由 design 的当前授权集中说明。 |
 
 ## 前轮本地准备证据
 
@@ -171,6 +171,8 @@
 
 ## 本地 Git 交接
 
+本节记录先前仅本地交接阶段；后续新增授权与远端结果见下节。
+
 - 用户先授权合回 `main`，随后明确确认创建本地 `v0.0.3` 标签再合并；本轮不推送远端，不清理 worktree/分支或执行 Change finalize。
 - 合入前 main 为 clean `8d522ebf21ccca3a55a01d5a8df439d4c0116861`，准备分支为 `release-0-0-3`、HEAD `4a830ef3dfd1aadde7219455760a27394040e812`，仅有本 Change 和协调入口五份治理记录未提交，index 为空。main 是准备分支祖先，允许 `--ff-only`，无需改写历史或处理冲突。
 - 按既有版本的 annotated tag 方式创建本地 `v0.0.3`；解引用精确指向 `S=4a830ef3dfd1aadde7219455760a27394040e812`。标签说明包含正式 tarball/receipt 摘要，没有指向后续准备提交或 main 的移动位置；未推送标签。
@@ -181,3 +183,12 @@
 - 2026-10-06T07:57:22.156Z 复核固定归档槽位：74 个原始文件（tarball、receipt、两轮正式日志）与 frozen 对应文件逐字节相同，三个既有 evidence 快照各自匹配文件名 SHA-256。交接记录沿用同槽位 `evidence/<sha256>.md` 另存新快照，旧快照不覆盖；不归档认证材料。
 - 复核 proposal 成功标准：净变化与迁移由 changelog 和公开 owner 承接，代表性阅读/消费证据、正式同包验收、精确授权、分发身份和 Git 交接均有上述记录。`S..3581a62e` 仅五份治理记录变化，不含产品或随包输入；协调入口仅同步本 Change 的交接边界，不修改长期发布规则或其它 Change。
 - 剩余保存动作只把本节合入验证、任务闭合和协调摘要提交后快进同步到 main，不重打包、不移动版本 tag。Plan 基线保持 `8d522ebf`，后续 Change 外距离增量来自协调入口；已逐项复核，不阻断当前 Plan。未推送、未执行 Change finalize，也未清理准备/冻结 worktree、分支、临时 consumer 或归档；这些操作仍需独立授权。
+
+## 远端同步与结项交接
+
+- 本地收尾提交 `41cd200def60244b86421df5bf43c3a82664741e`（`plan：完成 0.0.3 本地 Git 交接`）已快进合回 main；三个 worktree 均干净。最终 main 完整 Gate 43/43 通过，日志为 `/workspace/vibe-check/.log/project-gate/2026-10-06T08-00-05.205Z-1898480-617d02f0-3b3e-4ecb-acdb-c5f753d6b9c1/`；summary 26.4 秒，总反馈 `27259.7 ms`、mean `1757.4 ms`、P95 `4494.0 ms`，均在原告警预算内。
+- 用户对前轮未推送、未清理、未删除 Change 的边界明确回复“都可以去推进了”；此次新增授权包含 origin/main、原 annotated tag、Change finalize 及本次短期工作物清理，不包含持久归档删除。
+- 推送前 `git ls-remote` 确认 origin/main 为 `0569f40dcefd2a5ac284932777d1348fb0308075`，远端不存在 `v0.0.3`；该 main 是本地 HEAD 祖先。执行显式 main/tag refspec 的 `git push --atomic --no-force --no-follow-tags` 退出 0，没有推送其它分支或标签。
+- 2026-10-06 16:04（北京时间）再次核对远端：main 为 `41cd200def60244b86421df5bf43c3a82664741e`，`v0.0.3` tag object 为 `5cc5b217475303a1243f51e949b379942bd1646d`，解引用仍为 `S=4a830ef3dfd1aadde7219455760a27394040e812`。后续结项提交继续非强制同步 main，不移动已发布 tag。
+- 本轮清理目标仅为 `/workspace/vibe-check-release-0-0-3`、`/workspace/vibe-check-release-0-0-3-frozen`、本地 `release-0-0-3` 分支及 `/tmp/vibe-check-release-0.0.3-registry-consumer-14p5ze`；核对无未提交或外来文件，ignored 内容为环境依赖、构建产物、缓存、索引和日志。正式产物与两轮正式日志已在公共 Git 目录归档，临时 consumer 的验收结果由本文件持久摘要承接。
+- 结项前先保存本次证据快照并核对原始 bytes，再由 `finalize --preflight` 给出当前 HEAD recovery revision；实际 `finalize` 成功后移除协调入口，验证、提交并快进 main。只有远端确认最终 main 且持久归档核对通过后才释放 worktree 和本地分支；当前 main、其它 Change、认证配置与共享工具状态不在清理范围。
