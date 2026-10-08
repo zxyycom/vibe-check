@@ -1174,6 +1174,32 @@
       ],
       "title": "Lizard 1.24.1 更新内容与升级价值调查"
     },
+    "261008-function-metrics-admission-yield": {
+      "formedAt": "2026-10-08T03:06:36Z",
+      "name": "function-metrics-admission-yield",
+      "question": "functionMetrics 为什么在读取中让步，setImmediate 或取消主动让步各改变什么，哪些取消、字节和清理边界需要保留？",
+      "relations": [
+        {
+          "summary": "补充父进程让步原意、当前边界与setImmediate对照",
+          "target": "260904-audit-project-gate-function-metrics-check-overhead",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261008-function-metrics-admission-yield/cancellation-scenarios-and-no-yield-probe.md",
+        "261008-function-metrics-admission-yield/chat-admission-observations.md",
+        "261008-function-metrics-admission-yield/history-evidence.md"
+      ],
+      "sourcePath": "function-metrics-admission-yield.md",
+      "tags": [
+        "cancellation",
+        "function-metrics",
+        "input-admission",
+        "performance",
+        "resource-boundaries"
+      ],
+      "title": "Function metrics 读取让步：取消场景、局部成本与简化取舍"
+    },
     "261008-trace-typescript-metrics-upstream-origin": {
       "formedAt": "2026-10-08T03:24:47Z",
       "name": "trace-typescript-metrics-upstream-origin",
@@ -1305,6 +1331,7 @@
       "261005-derive-gate-guide-scenarios-from-history": "sha256:11dbe03e16a6ac99704b11d4b56619f8547417561a8667b9fb1dae22e2d88fe7",
       "261006-compare-node-file-collection-backends": "sha256:7ec4e86892c76278ea1f821931155d218310a9243693ae40f1e1b97fbb00b4f9",
       "261008-assess-lizard-1-24-1-upgrade": "sha256:e051d2ef0eeb9bb1e3bc65ff3c75599b797a3ef16547b743d3b7879ace943293",
+      "261008-function-metrics-admission-yield": "sha256:fe026b3807dbb5af1f51bcf285ee44fe4d6bd600ed1c689b8521a1ac9ec24b66",
       "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
       "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d"

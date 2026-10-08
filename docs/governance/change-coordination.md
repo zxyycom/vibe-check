@@ -62,6 +62,12 @@ owner 时，实施与合入必须串行。
 
 升级不是修复的技术前提。若先在 `1.24.0` 修复，显式调整两个 Change 的顺序和偏差基线，升级时重验修正。各项进入实施仍以自身 artifacts、验证准备和当前授权为准。
 
+### 函数指标读取优化
+
+[`optimize-function-metrics-input-admission`](../../changes/optimize-function-metrics-input-admission/proposal.md)
+独立验收读取成本与取消边界，先收敛策略和真实 Check 对照条件。指标算法修复与源码升级不是硬前置；
+共享 measurement、测试、Case 或包 owner 时串行实施和合入。
+
 ### Scheduler 证据队列
 
 Scheduler 的当前行为由 runtime、Architecture、API mechanics、
