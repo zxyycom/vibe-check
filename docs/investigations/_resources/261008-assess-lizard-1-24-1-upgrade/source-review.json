@@ -1,0 +1,392 @@
+{
+  "capturedAt": "2026-10-08T04:01:04+00:00",
+  "sources": {
+    "capturedAt": "2026-10-08T04:01:04+00:00",
+    "baselineRevision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+    "latestRevision": "0488a260e74e73ceba3149d7c600faac6a3616e6",
+    "release": {
+      "tag_name": "1.24.1",
+      "published_at": "2026-10-05T22:49:31Z",
+      "html_url": "https://github.com/terryyin/lizard/releases/tag/1.24.1",
+      "body": "### New Features\n- **Cognitive Complexity** (`-Ecognitive`) — per-function Cognitive Complexity following SonarSource's specification (structural, hybrid, fundamental and nesting increments; `switch` and logical operator sequences count once; lambdas nest; direct recursion counts), with a `CogC` column, a `--CogC` threshold and a `cognitive_complexity` field for `-s`/`-T`. Implemented as an extension that leaves the language readers and all existing metrics untouched (issue #432)\n\n### Bug Fixes\n- Python: preserve function names and signatures for PEP 695 generic functions, including nested type parameter bounds (PR #492)\n- Kotlin: correctly finish expression-bodied functions and accessors, including bodies containing `when` expressions (issue #493)\n- Rust: count `match` arms toward cyclomatic complexity and handle nested match expressions (issue #494)\n- PHP: end trait methods at their closing brace instead of extending them to the end of the trait (issue #498)\n- TypeScript and TSX: preserve function boundaries after regex arguments and template interpolations containing quoted backticks (issue #497)\n- JavaScript, TypeScript, and TSX: tokenize regex literals containing quotes, escapes, and character classes without swallowing following code (PR #505)\n\n### Documentation\n- Document Cognitive Complexity usage, thresholds, and language coverage\n- Update contributor guidance and adopt the Open Dough agent workflow skills\n\n**Full changelog:** https://github.com/terryyin/lizard/compare/1.24.0...1.24.1\n"
+    },
+    "pypiUpload": "2026-10-05T22:50:11.007626Z",
+    "compare": {
+      "url": "https://github.com/terryyin/lizard/compare/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec...0488a260e74e73ceba3149d7c600faac6a3616e6",
+      "totalCommits": 25,
+      "fileCount": 300
+    },
+    "archives": [
+      {
+        "kind": "baseline",
+        "url": "https://codeload.github.com/terryyin/lizard/tar.gz/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+        "sha256": "6db256777f61f4fa1b4c5c57f13251a8d0c2aaa042cf418938b2f370605eb1b9",
+        "registrySha256": null
+      },
+      {
+        "kind": "latest",
+        "url": "https://codeload.github.com/terryyin/lizard/tar.gz/0488a260e74e73ceba3149d7c600faac6a3616e6",
+        "sha256": "1d0da5c723f170cd03bdabd0e079a2b40d448cddc533f33fe0d9b9c1bc45ae43",
+        "registrySha256": null
+      },
+      {
+        "kind": "pypi",
+        "url": "https://files.pythonhosted.org/packages/05/87/0352f911886e8b10b06b36dca674b9da91a25112bd08253b84346a1815e5/lizard-1.24.1.tar.gz",
+        "sha256": "c022cf1aac8170994b175e2a700f0535088f66da7e6bdf6c59fbd3b716cd10ac",
+        "registrySha256": "c022cf1aac8170994b175e2a700f0535088f66da7e6bdf6c59fbd3b716cd10ac"
+      }
+    ]
+  },
+  "completeArchiveDelta": {
+    "changedFiles": 445,
+    "classification": {
+      "agentGuidance": 419,
+      "documentation": 5,
+      "tests": 9,
+      "pythonRuntime": 11,
+      "nixPackaging": 1
+    },
+    "githubCompareApiFileCount": 300,
+    "githubCompareApiComplete": false,
+    "method": "Compare every non-cache file byte in the two exact commit archives; classify the complete 445-file delta, not the capped GitHub compare response."
+  },
+  "runtimeChanges": [
+    {
+      "path": "lizard.py",
+      "status": "modified",
+      "oldSha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "newSha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-90",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 91-98",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
+        },
+        {
+          "range": "lines 99-286",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 287-590",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/analysis-model.ts",
+          "additionalTargetPaths": [
+            "src/package-checks/function-metrics/analyzer/analysis-context.ts",
+            "src/package-checks/function-metrics/analyzer/pipeline.ts"
+          ]
+        },
+        {
+          "range": "lines 591-613",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 614-627",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
+        },
+        {
+          "range": "lines 628-629",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 630-632",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
+        },
+        {
+          "range": "lines 633-687",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 688-795",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/extension-output.ts"
+        },
+        {
+          "range": "lines 796-1044",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 1045-1055",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/pipeline.ts"
+        },
+        {
+          "range": "lines 1056-1113",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 1114-1135",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/extensions/registry.ts"
+        },
+        {
+          "range": "lines 1136-1188",
+          "status": "excluded-entry-surface"
+        },
+        {
+          "range": "lines 1189-1192",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/extension-output.ts"
+        },
+        {
+          "range": "lines 1193-1194",
+          "status": "excluded-entry-surface"
+        }
+      ]
+    },
+    {
+      "path": "lizard_ext/halstead_classifier.py",
+      "status": "modified",
+      "oldSha256": "a2e1193a1d7f6dea48cf0eb575be6675bbfda72bfaa5bcef31c69faf9ce1924c",
+      "newSha256": "f57d4e67a045a66c339696f1c4e187207f6840a8378ececa5bfa8fa232dcd005",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-135",
+          "status": "deferred-extension-body",
+          "targetPath": "src/package-checks/function-metrics/analyzer/extensions/halstead-classifier.ts"
+        }
+      ]
+    },
+    {
+      "path": "lizard_ext/lizardcognitive.py",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "e49f7d8b628eb7a943392ef36a8917e9174cbc8a81517be3fd56a574893f43a2",
+      "matchesPypi1241": true,
+      "baselineMapping": []
+    },
+    {
+      "path": "lizard_ext/version.py",
+      "status": "modified",
+      "oldSha256": "d17368a6881a7cec90561fffbb1512bada15daebaca8ec041cfd6d19a7a07911",
+      "newSha256": "27f953eae6c59436b4d93657c2e7c57b342737277388be9189880bbd15b36ebe",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-6",
+          "status": "excluded-entry-surface"
+        }
+      ]
+    },
+    {
+      "path": "lizard_languages/js_style_regex_expression.py",
+      "status": "modified",
+      "oldSha256": "5e0ca881c878c44958b421b812704abda9474e5ded8d13dc20870841145deb52",
+      "newSha256": "a16cea23ffec88a6599941630beb6b028a3b3e40f0f5a749928a67b998abff7c",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-53",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/shared/js-style-regex.ts"
+        }
+      ]
+    },
+    {
+      "path": "lizard_languages/kotlin.py",
+      "status": "modified",
+      "oldSha256": "2ad0ccda6dbcd2f316c3cf7785f56d67d47b8032b191b224d1a300da2be70b0f",
+      "newSha256": "9b4628bbeb9b0588258af501ba3a4caf2f0bfcbc6e4d9608e3bb5272bffe51d5",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-95",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/readers/kotlin.ts"
+        }
+      ]
+    },
+    {
+      "path": "lizard_languages/php_states.py",
+      "status": "modified",
+      "oldSha256": "f4ecbb88a491f5e181eacb616fff60f347a5709e15fe804f5a918bc69cdcb38f",
+      "newSha256": "c66fc7335ffaf829c17e0828a29bc6faae241ea941be4d2e145e4abc53a2308b",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-235",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/readers/php-states.ts"
+        }
+      ]
+    },
+    {
+      "path": "lizard_languages/python.py",
+      "status": "modified",
+      "oldSha256": "de5924da44829a358b42fc58d22a1e09e9e2970a74e67661c25de5504a1a06b2",
+      "newSha256": "920fa0672264d13744e14e88025e18e2b823c7727aaab1d1297732f64b0ab539",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-393",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/readers/python.ts"
+        }
+      ]
+    },
+    {
+      "path": "lizard_languages/rust.py",
+      "status": "modified",
+      "oldSha256": "2712654efeefb18412f355aae9d339ea00593c1954c871fcced7cb6c9f21554f",
+      "newSha256": "17f9e9d5cf30bb63a6c49d6ec94528081e489df14536498ea2a840a648beb2c0",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-34",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/readers/rust.ts"
+        }
+      ]
+    },
+    {
+      "path": "lizard_languages/tsx.py",
+      "status": "modified",
+      "oldSha256": "cfc6f3592835e81bf5c442548fd903536d213a03e983e1fee41efa48241011fd",
+      "newSha256": "f0b9437dfb47a872455073e7a14004d5297c20a13522902bfa8fa9059604807a",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-167",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/readers/tsx.ts"
+        }
+      ]
+    },
+    {
+      "path": "lizard_languages/typescript.py",
+      "status": "modified",
+      "oldSha256": "5e8867ab087e3bf8d64bdf86cabe0bd50771c4ba398f34778f9abc71039f6bc1",
+      "newSha256": "c073ffb9042b1debd9615dcb329c8dfa4b10e26f9bbeb46cfaa96705c9b39404",
+      "matchesPypi1241": true,
+      "baselineMapping": [
+        {
+          "range": "lines 1-641",
+          "status": "translated",
+          "targetPath": "src/package-checks/function-metrics/analyzer/readers/typescript.ts"
+        }
+      ]
+    }
+  ],
+  "testChanges": [
+    {
+      "path": "test/test_extensions/testCognitiveComplexity.py",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "04c76f53ff39df53e61f68acc782c48843dfa67b711419fccfeb6bc3df6e261d"
+    },
+    {
+      "path": "test/test_languages/kotlin_helpers.py",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "6ffa2cc4029bf2bfdc9ce286b0910a321eddd3370a64199b80121a3c2557a15c"
+    },
+    {
+      "path": "test/test_languages/testJavaScriptRegex.py",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "bdddd9800d07125331c3a3e8d814e937457b3ef351bc2d40b1b4bada0656efbe"
+    },
+    {
+      "path": "test/test_languages/testKotlin.py",
+      "status": "modified",
+      "oldSha256": "c8915e4323e3ce1dae7e741177e87ed3140a73771702cb32daeb8a192be96e7d",
+      "newSha256": "7e1aa382083e50533c47a1bce85b4b83c07a91f5759b46abb570b3dbd8157dfc"
+    },
+    {
+      "path": "test/test_languages/testKotlinExpressionBody.py",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "ce210012cf5b4a278a73323a5d19fa123dd1d0e30b56165e69b7117cd4da4403"
+    },
+    {
+      "path": "test/test_languages/testPHPModernFeatures.py",
+      "status": "modified",
+      "oldSha256": "6d19a383efcb9b11f82108788abed19c24cfca8d0d45b7f90327731caf77ac8d",
+      "newSha256": "4ec3e2a2940d9e5e7a14aab142b72e170115a67489d3f699e1c1ab1ae18a001f"
+    },
+    {
+      "path": "test/test_languages/testPythonTypeParameters.py",
+      "status": "added",
+      "oldSha256": null,
+      "newSha256": "761b162ee8246ba32c81a11596b2796ff4b73d5885bff9ec93c12841d01cc6cf"
+    },
+    {
+      "path": "test/test_languages/testRust.py",
+      "status": "modified",
+      "oldSha256": "bb3cebb34c3860c2a78b2a42d2724eb697ba482525ccc36d3bd359b035d6c9a8",
+      "newSha256": "63e301e0b467bf0ccf1b5c476a30177541d63864af07062cc3704ccc043250d4"
+    },
+    {
+      "path": "test/test_languages/testTypeScript.py",
+      "status": "modified",
+      "oldSha256": "ffc8e67ffc4836711571e407d99dccd6bb6bfd4fe7001f60782899e6a6bfa0aa",
+      "newSha256": "b9872bdb32ec7a8b713d41387d661fabcaa99e13ef75abc6a0fffc9f40d97076"
+    }
+  ],
+  "unchangedKeyFiles": [
+    "lizard_languages/code_reader.py",
+    "lizard_languages/__init__.py",
+    "lizard_ext/lizardcomplextags.py",
+    "lizard_ext/lizardnd.py",
+    "LICENSE.txt",
+    "setup.py"
+  ],
+  "changedMainModuleAstDefinitions": [
+    "_extension_arg",
+    "parse_args"
+  ],
+  "baselineLedgerAudit": {
+    "ledgerSha256": "f973ceea173a5eae638810523141110a9b3bee780ef53299561ea8ab818e4041",
+    "uniqueSourceFileCount": 68,
+    "allMatch": true
+  },
+  "currentPortIdentity": [
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/kotlin.ts",
+      "sha256": "fdbf2f4029f7e8f2719e14a3a9763ec31c363811c55335777c73da0f74484fb8"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/php-states.ts",
+      "sha256": "7caab634af4761f71e09cdf27f11b8bb56328658de4ef856716d5bd5d890f610"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/python.ts",
+      "sha256": "c5fcc74fbb63866ebd44ef647038dafaac26f4cad4cb5e251caa69c818e3311e"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/rust.ts",
+      "sha256": "913c2dacfbd417783de8ee0badb6f2f58c2bcb2f6ae1ede2cea3e1c9909e5c04"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/tsx.ts",
+      "sha256": "a369ba1897460b0561c81899dee61e8837b9bb5ff3f26aeb7d9880bdbb83bab8"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "077e460857c5be5b78447f50aac425677431af993aa80e6c966c3db09b9b05d0"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/shared/js-style-regex.ts",
+      "sha256": "7138b8438c5bb78062d1b64b2276d2a4103ffb5887feb1d68edb2ed4284d0b2d"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/port-facade.ts",
+      "sha256": "64c7bd169737c743bac8ddaf2f23b71e599c78ce529364d83816bc56c368a5e3"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts",
+      "sha256": "2e713b6d9aa6c26a2a70c66104a88323fa73673d1fc97a494957994f4840e1a6"
+    },
+    {
+      "path": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
+      "sha256": "77295c96b204bbeb229fb0ecea7388d3590e95429e485f8b6eadb660cd349110"
+    }
+  ]
+}

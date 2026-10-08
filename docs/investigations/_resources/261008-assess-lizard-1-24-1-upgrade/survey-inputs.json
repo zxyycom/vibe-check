@@ -1,0 +1,89 @@
+{
+  "origin": "Independent texts reconstructed from upstream regression trigger shapes; no fixture functions executed.",
+  "cases": [
+    {
+      "filename": "regex-argument.ts",
+      "group": "regex-argument",
+      "sourceCode": "function scan(text: string) {\n  const hit = text.match(/needle/);\n  return hit;\n}\nfunction after() { return 3; }\nfunction last() { return 4; }\n",
+      "basis": "test/test_languages/testTypeScript.py:Test_ts_function_end_after_literals.test_regex_literal_as_call_argument"
+    },
+    {
+      "filename": "template-backtick.ts",
+      "group": "template-backtick",
+      "sourceCode": "function labelText(label: string, enabled: boolean) {\n  return `${label}${enabled ? \" use `code`\" : \"\"}`;\n}\nfunction after() { return 3; }\nfunction last() { return 4; }\n",
+      "basis": "test/test_languages/testTypeScript.py:Test_ts_function_end_after_literals.test_backtick_in_string_inside_template_expression"
+    },
+    {
+      "filename": "regex-quote.js",
+      "group": "regex-quote",
+      "sourceCode": "function matches(value) {\n  const matcher = /[<>\"]/;\n  return matcher.test(value);\n}\nfunction after(value) {\n  return value === \"ready\" || value === null;\n}\n",
+      "basis": "test/test_languages/testJavaScriptRegex.py:TestJavaScriptRegex.test_quote_in_regex_preserves_following_function"
+    },
+    {
+      "filename": "regex-quote.jsx",
+      "group": "regex-quote",
+      "sourceCode": "function matches(value) {\n  const matcher = /[<>\"]/;\n  return matcher.test(value);\n}\nfunction after(value) {\n  return value === \"ready\" || value === null;\n}\n",
+      "basis": "test/test_languages/testJavaScriptRegex.py:TestJavaScriptRegex.test_quote_in_regex_preserves_following_function"
+    },
+    {
+      "filename": "regex-quote.ts",
+      "group": "regex-quote",
+      "sourceCode": "function matches(value) {\n  const matcher = /[<>\"]/;\n  return matcher.test(value);\n}\nfunction after(value) {\n  return value === \"ready\" || value === null;\n}\n",
+      "basis": "test/test_languages/testJavaScriptRegex.py:TestJavaScriptRegex.test_quote_in_regex_preserves_following_function"
+    },
+    {
+      "filename": "regex-quote.tsx",
+      "group": "regex-quote",
+      "sourceCode": "function matches(value) {\n  const matcher = /[<>\"]/;\n  return matcher.test(value);\n}\nfunction after(value) {\n  return value === \"ready\" || value === null;\n}\n",
+      "basis": "test/test_languages/testJavaScriptRegex.py:TestJavaScriptRegex.test_quote_in_regex_preserves_following_function"
+    },
+    {
+      "filename": "regex-quote.vue",
+      "group": "regex-quote",
+      "sourceCode": "<script>\nfunction matches(value) {\n  const matcher = /[<>\"]/;\n  return matcher.test(value);\n}\nfunction after(value) {\n  return value === \"ready\" || value === null;\n}\n</script>\n",
+      "basis": "test/test_languages/testJavaScriptRegex.py:TestJavaScriptRegex.test_shared_vue_reader_keeps_quotes_inside_regex"
+    },
+    {
+      "filename": "regex-quote.rb",
+      "group": "regex-quote",
+      "sourceCode": "def matches(value)\n  matcher = /[\"'/?]|\\//im\n  matcher.match?(value)\nend\ndef after(value)\n  value == \"ready\" || value.nil?\nend\n",
+      "basis": "test/test_languages/testJavaScriptRegex.py:TestJavaScriptRegex.test_shared_ruby_reader_keeps_quotes_inside_regex"
+    },
+    {
+      "filename": "division-control.js",
+      "group": "division-control",
+      "sourceCode": "function divide(value, other) {\n  const quotient = value / \"3\" / other;\n  return quotient > 1 && other > 0;\n}\nfunction after() { return 3; }\n",
+      "basis": "test/test_languages/testJavaScriptRegex.py:TestJavaScriptRegex.test_division_comments_and_strings_keep_conditions"
+    },
+    {
+      "filename": "generic-name.py",
+      "group": "python-generic",
+      "sourceCode": "def choose[T: list[int]](first: T, second: T) -> T:\n    if first:\n        return first\n    return second\n",
+      "basis": "test/test_languages/testPythonTypeParameters.py:Test_Python_type_parameters.test_type_parameter_with_nested_bound"
+    },
+    {
+      "filename": "expression-body.kt",
+      "group": "kotlin-expression",
+      "sourceCode": "fun expression(value: Int) = value + 3\nfun block() { }\n",
+      "basis": "test/test_languages/testKotlinExpressionBody.py:Test_parser_for_Kotlin_expression_body.test_expression_body_then_braced_function"
+    },
+    {
+      "filename": "expression-when.kt",
+      "group": "kotlin-when",
+      "sourceCode": "fun choose(value: Int) = when (value) {\n    0 -> 3\n    else -> 4\n}\nfun after() { }\n",
+      "basis": "test/test_languages/testKotlinExpressionBody.py:Test_parser_for_Kotlin_expression_body.test_expression_body_when_complexity"
+    },
+    {
+      "filename": "trait-methods.php",
+      "group": "php-trait",
+      "sourceCode": "<?php\ntrait Sample {\n    public function first() {\n        return 3;\n    }\n    public function second() {\n        return 4;\n    }\n}\n",
+      "basis": "test/test_languages/testPHPModernFeatures.py:TestPHPModernFeatures.test_each_trait_method_ends_at_its_own_brace"
+    },
+    {
+      "filename": "match-arms.rs",
+      "group": "rust-match",
+      "sourceCode": "fn classify(value: i32) -> i32 {\n    match value {\n        0 => 3,\n        1 => 4,\n        _ => 5,\n    }\n}\n",
+      "basis": "test/test_languages/testRust.py:TestRust.test_match_ccn_equals_arm_count"
+    }
+  ]
+}
