@@ -1,62 +1,67 @@
 # Design
 
-本 Draft 的当前方向是在既有显式项目文件收集机制之上提供双向、无 policy 的成员关系查询：先形成路径与 selection 的事实，再由调用方施加自己的规则。
+本 Draft 设计公共 Core 路径—区域关系工具：接收值输入，生成供多个消费者共享的只读双向查询快照。
 
 ## Context
 
-- [`docs/guides/collecting-project-files.md`](../../docs/guides/collecting-project-files.md) 拥有公开单份 `collectProjectFiles(...)` 的输入、来源、路径快照和失败语义；[`docs/development/project-files.md`](../../docs/development/project-files.md) 拥有内部收集与 exact-input 机制。
-- private `collectProjectFileSets(root, selections)` 已按 source 分组：每种 source 只枚举一次候选，再对每个具名 selection 应用完整的 include/exclude 语义。它不直接构成 package API。
-- 当前 `ProjectChanges` 以 `{ path, flags }` 保留一个路径的多重匹配事实；同样，`duplicateDetection`、`fileMetrics` 与 `functionMetrics` 的 `codeAreas` 可以重叠。成员数量必须由消费方解释。
-- active Decision [`retain-on-demand-project-file-collection`](../../docs/decisions/retain-on-demand-project-file-collection.md) 保持按需收集，并排除 Definition/Run 级 shared file context、pre-admission barrier 与公共 cache/refresh 契约；它允许因独立共享 path-membership consumer 以新的 Change 评估最小方案。
+- [架构](../../docs/development/architecture.md#能力分层与扩展方式)拥有 Core 工具及依赖方向；[共同 matcher](../../src/data-boundary/config-glob.ts)已被 Run changes 与 project-files 消费。
+- [project-files](../../docs/development/project-files.md)的 `collectProjectFileSets(...)` 返回区域到路径的集合；[file-metrics](../../src/package-checks/file-metrics/execution.ts)、[function-metrics](../../src/package-checks/function-metrics/records.ts)和[duplicate-detection](../../src/package-checks/duplicate-detection/area-policy.ts)各自构建反向索引。
+- [公开收集指南](../../docs/guides/collecting-project-files.md)拥有来源与失败语义；活动判断[显式来源](../../docs/decisions/select-check-files-from-explicit-sources.md)、[同步单份工具](../../docs/decisions/provide-synchronous-single-selection-file-collection.md)及[按需收集](../../docs/decisions/retain-on-demand-project-file-collection.md)构成输入获取与生命周期基线。
+- [收集 Change](../switch-project-file-collection-backend/design.md)正在评估统一枚举、文件事实策略和进入前剪枝；当前基线仍是双来源与 minimatch。
 
 ## Goals / Non-Goals
 
 ### Goals
 
-- 让一次显式调用能保留 inventory 中每条 path 与全部实际匹配具名 selection 的关系，包括零和多重命中。
-- 同时支持 path → selection IDs 与 selection ID → exact paths 的只读查询，不把两份完整关系数组作为公开 payload。
-- 保持当前 source/include/exclude 的实际语义；不同 source 的结果不能被简化为仅按 glob 推断。
-- 在同一 source 的 inventory 与 selections 间复用一次候选枚举，且查询阶段不再触发 I/O。
+- 提供一致的双向只读查询，保留零命中、重叠和已知空结果。
+- 让规则匹配与已知成员构造共用结果契约，同一次操作共享快照与索引。
+- 通过 Core、必要的既有消费者和外部 package caller 证明公共契约可独立使用。
 
 ### Non-Goals
 
-- 不新增内置 coverage Check、默认 Gate policy、唯一归属规则、waiver、Record 或 machine-output schema。
-- 不改变现有 `codeAreas`、Check-owned selection、exact-input acceptance 或 scanner behavior。
-- 不新增 Definition 字段、Run context、dependency provider、跨 Check cache、refresh/generation API、内容读取或原子文件系统快照承诺。
+- 路径枚举、剪枝、ignore/追踪/链接策略及来源失败归输入 owner；Check 筛选、领域策略和结算归消费者。
+- change flag 调试由独立 Change 交付；本项仅迁移证明共享契约所需的既有消费点。
+- 不增加实时更新、跨调用缓存、Definition 字段或 Run 全局文件上下文。
 
 ## Decisions
 
 ### Intended Change
 
-暂定新增一个 package-root 同步工具（名称待定），输入为 closed、显式的 `{ projectRoot, inventory, selections }`：
+已确认采用无状态计算与共享快照；公开名称、输入形状和迁移清单待 Plan 收敛。
 
-| 对象 | 作用 | 不承担的判断 |
-| --- | --- | --- |
-| `inventory` | 用 filesystem 形成调用方定义的受管 path 全集。 | 哪些路径应被视为覆盖、唯一或失败。 |
-| 具名 `selections` | 保留完整 `ProjectFileSelection` 的 source/include/exclude 语义，形成各配置的实际 exact paths。 | 相互独立或互斥。 |
-| 查询值 | 将 inventory path 映射到 0..n 个 selection IDs，并反向查询 selection 的 exact paths。 | Check status、Finding、Record 或 Gate 结果。 |
+| 对象 | 设计责任 |
+| --- | --- |
+| 规则匹配输入 | 显式候选路径与具名区域的 include/exclude，使用 Product 生效的共同 matcher；路径可尚不存在或已删除。 |
+| 已知成员输入 | 已取得的区域文件集合，直接建立关系，保留其实际来源和输入筛选结果。 |
+| 关系快照 | 保存路径域、区域域与成员关系；双向查询稳定排序去重，区分未知键与已知空结果。 |
 
-- 工具把 inventory 与所有 selections 一并交给内部批量 collector。相同 source 共用候选枚举；不同 source 独立采集并保留其真实结果，不能用纯 glob 近似替代。
-- 查询值不可变、稳定排序，且查询阶段不触发 I/O。它必须区分已知 inventory path 的空命中与未知 path，以及已知 selection 的空 path 集与未知 selection。
-- 公共查询契约不暴露内部索引布局。实现可根据基准选择线性、惰性或 eager 的反向查询策略。
-- 输入与 acquisition 失败沿用现有收集边界：非法 input 抛 `TypeError`，任一实际 source acquisition 失败抛普通 `Error`，不回退来源或伪造空 membership。查询不读取文件内容，结果只代表收集时的路径成员关系。
-- Tool 不把 0、1 或多个匹配映射为 status。Gate、custom Check 或普通脚本在自己的 policy 中消费查询结果，并承担 Finding、Record、terminal outcome 与任何唯一性定义。
+- **纯计算**：公共入口校验并复制值输入，构造和查询均无 I/O。规则输入使用共同 matcher；已知成员直接建索引，不能用全局 glob 重新推断。
+- **只读共享**：消费者共享同一查询对象及内部双向索引；封闭输入与结果的修改通道，索引布局保持私有，不直接暴露可变 Map。
+- **快照生命周期**：一次操作中的查询基于同一份输入；下一次操作由 owner 重新获取路径和规则并计算。结果只说明输入时点，不承诺实时文件状态或原子文件系统快照。
 
 ### Resulting Impacts
 
-- project-files owner 需要为多 selection public input、inventory 的 filesystem 边界、查询 identity、snapshot/freeze 和失败语义建立实现与测试；已有 `collectProjectFiles(...)` 保持单 selection API 和行为不变。
-- package root exports、type declarations、公开 project-files guide、README API index、JSDoc、API examples 与 package/external-consumer acceptance 需要同步；发布材料不得把成员事实表述为质量治理或 Check status。
-- 验证需要覆盖重叠、零命中、空 selection、未知 query key、source 差异、filesystem 未跟踪文件、稳定排序、同 source 一次候选枚举、query 无 I/O 及失败不伪造结果；再以代表性 workload 比较线性、惰性和 eager 反向查询策略。
+- **内部复用**：按[架构归属](../../docs/development/architecture.md#source-module-boundaries)固定最小迁移清单与依赖方向，保持生效基线的 collection API、候选共享、Check 筛选与领域语义。function-metrics 迁移仅涉及关系索引，保留 accepted/rejected 和 policy；measurement/Worker、取消与算法仍归其 owner。Run 复用保留[既有 change 语义](../../docs/api-mechanics.md#按文件变化选择-check)。
+- **公开材料**：同步 package root exports、声明、JSDoc、README 入口及受管示例；公开说明讲清输入与快照，内部 owner 按实际迁移更新。文档独立反查按[知识治理](../../docs/governance/knowledge-maintenance.md#行为变更的交付审查)。
+
+验收按[文档导航](../../docs/navigation.md#交付验证)，分别证明：
+
+| 边界 | 验收重点 |
+| --- | --- |
+| 关系与快照 | 双向一致、零/多重命中、空域、未知键、路径规范化、修改隔离；构造/查询无 I/O，包含不存在路径。 |
+| 消费复用 | 多个消费者共享结果；实际成员、accepted/rejected 与领域 policy 保持原义。 |
+| Run 与公开面 | 零匹配、rename/delete、unavailable 保持原义；安装后消费者独立使用公共契约。 |
 
 ## Risks / Trade-offs
 
-- inventory 选择由调用方定义。过窄的 include 或过宽的 exclude 不会自动成为“治理遗漏”；工具只提供可审计成员事实。
-- 不同 source 会保留 Git ignore、untracked files、submodule 与 filesystem 的差异，也可能增加 acquisition 成本。
-- 大型仓库中的索引与复制成本需要实测；filesystem collection 不跟随 symlink，也不提供跨查询后的内容或目录原子性。
+- 共享要求路径域、区域规则及筛选语义一致：全部文件、实际 Git 变更和经筛选的 Check 输入是不同快照，相同 root 不能证明可互换。
+- TypeScript 只读类型不能单独证明运行时不可修改，公开边界需直接验证修改隔离。
+- 收集 Change 可能改变 selection 与共同 grammar；关系输入与 source 形状解耦，匹配消费生效 matcher。共享 owner 的合入边界见[Change 协调](../../docs/governance/change-coordination.md)。
 
 ## Open Questions
 
-- 公开工具、输入字段和查询方法应如何命名，才能清晰区分 inventory、selection 与调用方 policy？
-- `inventory` 是固定的 `{ include, exclude }` filesystem grammar，还是接受完整 selection 后严格拒绝非-filesystem source？
-- selection IDs 采用普通 record keys 还是 ordered entries，才能同时明确顺序、原型安全和可用 ID 范围？
-- 哪一种索引策略在代表性 source/path/membership 分布下足以满足首个实现？是否真的需要额外 helper，还是普通 TypeScript 查询已足够？
+1. 两种生产方式采用独立入口还是输入变体？公开名称、区域 ID、非法输入及未知查询键如何定义？
+2. 已知成员集合的路径域如何定义？显式候选域与区域集合不一致时采用什么可审计处理？
+3. Core 模块 owner、最小内部复用清单和修改隔离实现是什么？哪些 policy 索引仍有独立职责？
+
+保持 `draft`；公共契约与复用范围收敛后再派生 tasks、进入 Plan。
