@@ -1,0 +1,120 @@
+{
+  "capturedAt": "2026-10-08T03:52:28+00:00",
+  "release": {
+    "tag_name": "1.24.1",
+    "published_at": "2026-10-05T22:49:31Z",
+    "html_url": "https://github.com/terryyin/lizard/releases/tag/1.24.1",
+    "body": "### New Features\n- **Cognitive Complexity** (`-Ecognitive`) — per-function Cognitive Complexity following SonarSource's specification (structural, hybrid, fundamental and nesting increments; `switch` and logical operator sequences count once; lambdas nest; direct recursion counts), with a `CogC` column, a `--CogC` threshold and a `cognitive_complexity` field for `-s`/`-T`. Implemented as an extension that leaves the language readers and all existing metrics untouched (issue #432)\n\n### Bug Fixes\n- Python: preserve function names and signatures for PEP 695 generic functions, including nested type parameter bounds (PR #492)\n- Kotlin: correctly finish expression-bodied functions and accessors, including bodies containing `when` expressions (issue #493)\n- Rust: count `match` arms toward cyclomatic complexity and handle nested match expressions (issue #494)\n- PHP: end trait methods at their closing brace instead of extending them to the end of the trait (issue #498)\n- TypeScript and TSX: preserve function boundaries after regex arguments and template interpolations containing quoted backticks (issue #497)\n- JavaScript, TypeScript, and TSX: tokenize regex literals containing quotes, escapes, and character classes without swallowing following code (PR #505)\n\n### Documentation\n- Document Cognitive Complexity usage, thresholds, and language coverage\n- Update contributor guidance and adopt the Open Dough agent workflow skills\n\n**Full changelog:** https://github.com/terryyin/lizard/compare/1.24.0...1.24.1\n"
+  },
+  "head": {
+    "sha": "d5228c1268ca6fa0fcd1b63283d981fedcf1fbc9",
+    "date": "2026-10-06T22:42:05Z",
+    "html_url": "https://github.com/terryyin/lizard/commit/d5228c1268ca6fa0fcd1b63283d981fedcf1fbc9"
+  },
+  "pypi": {
+    "version": "1.24.1",
+    "uploadTime": "2026-10-05T22:50:11.007626Z"
+  },
+  "archives": [
+    {
+      "kind": "release",
+      "url": "https://files.pythonhosted.org/packages/05/87/0352f911886e8b10b06b36dca674b9da91a25112bd08253b84346a1815e5/lizard-1.24.1.tar.gz",
+      "sha256": "c022cf1aac8170994b175e2a700f0535088f66da7e6bdf6c59fbd3b716cd10ac",
+      "expectedSha256": "c022cf1aac8170994b175e2a700f0535088f66da7e6bdf6c59fbd3b716cd10ac",
+      "files": [
+        {
+          "sourcePath": "lizard.py",
+          "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
+          "sameAsLocked1240": false
+        },
+        {
+          "sourcePath": "lizard_languages/code_reader.py",
+          "sha256": "0e7381e9f3161efd733f0ae9a718101ac4fc285438c69b98b69bfe281f9002cc",
+          "sameAsLocked1240": true
+        },
+        {
+          "sourcePath": "lizard_languages/typescript.py",
+          "sha256": "c073ffb9042b1debd9615dcb329c8dfa4b10e26f9bbeb46cfaa96705c9b39404",
+          "sameAsLocked1240": false
+        },
+        {
+          "sourcePath": "lizard_ext/lizardcomplextags.py",
+          "sha256": "cf826ccfc1cdc5b65784346e51e56735f82de59bf8158116da444f3b81b71771",
+          "sameAsLocked1240": true
+        },
+        {
+          "sourcePath": "lizard_ext/lizardnd.py",
+          "sha256": "fe8f8b03608e83844b3eea1c9fa27443eb8df031dd489162ec79ea7b2c2e96e6",
+          "sameAsLocked1240": true
+        }
+      ]
+    },
+    {
+      "kind": "head",
+      "url": "https://codeload.github.com/terryyin/lizard/tar.gz/d5228c1268ca6fa0fcd1b63283d981fedcf1fbc9",
+      "sha256": "9e862bf1429b88578a578e9a9fa49ea31852107e369c9dc49ae91ff27386b8bf",
+      "expectedSha256": null,
+      "files": [
+        {
+          "sourcePath": "lizard.py",
+          "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
+          "sameAsLocked1240": false
+        },
+        {
+          "sourcePath": "lizard_languages/code_reader.py",
+          "sha256": "0e7381e9f3161efd733f0ae9a718101ac4fc285438c69b98b69bfe281f9002cc",
+          "sameAsLocked1240": true
+        },
+        {
+          "sourcePath": "lizard_languages/typescript.py",
+          "sha256": "c073ffb9042b1debd9615dcb329c8dfa4b10e26f9bbeb46cfaa96705c9b39404",
+          "sameAsLocked1240": false
+        },
+        {
+          "sourcePath": "lizard_ext/lizardcomplextags.py",
+          "sha256": "cf826ccfc1cdc5b65784346e51e56735f82de59bf8158116da444f3b81b71771",
+          "sameAsLocked1240": true
+        },
+        {
+          "sourcePath": "lizard_ext/lizardnd.py",
+          "sha256": "fe8f8b03608e83844b3eea1c9fa27443eb8df031dd489162ec79ea7b2c2e96e6",
+          "sameAsLocked1240": true
+        }
+      ]
+    }
+  ],
+  "portIdentity": [
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "077e460857c5be5b78447f50aac425677431af993aa80e6c966c3db09b9b05d0",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "02218fdd18ea2c5d1d6e630834c4fd969074ef8480866a032655dc3dd50e856e",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/pipeline.ts",
+      "sha256": "71b192400c1a72817d8d8fad60faea8b62cb391c6c8a0c6da794b7096f0e8e16",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
+      "sha256": "77295c96b204bbeb229fb0ecea7388d3590e95429e485f8b6eadb660cd349110",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/port-facade.ts",
+      "sha256": "64c7bd169737c743bac8ddaf2f23b71e599c78ce529364d83816bc56c368a5e3",
+      "unchangedSincePredecessor": true
+    }
+  ],
+  "scope": "Five relevant files per source; release and master match each other in these files, not a full archive or full repository identity claim.",
+  "advisory": {
+    "baselineVersion": "1.24.0",
+    "code": "lizard-upstream-update-available",
+    "kind": "update-available",
+    "latestVersion": "1.24.1"
+  }
+}

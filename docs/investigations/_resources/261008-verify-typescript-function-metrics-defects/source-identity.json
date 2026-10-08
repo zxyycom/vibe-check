@@ -1,0 +1,55 @@
+{
+  "capturedAt": "2026-10-08T03:14:37.648Z",
+  "workspaceHead": "d266937d0c3e76dfeeee87f7b0901316e162dea3",
+  "package": {
+    "name": "@zxyycom/vibe-check",
+    "version": "0.0.3",
+    "engines": {
+      "node": ">=24.18"
+    },
+    "metadataUrl": "https://registry.npmjs.org/@zxyycom/vibe-check/0.0.3",
+    "tarballUrl": "https://registry.npmjs.org/@zxyycom/vibe-check/-/vibe-check-0.0.3.tgz",
+    "registryIntegrity": "sha512-ftoxzMCFeOBCZe/3e06GxSP517WNdjDwfR3p969AThDf1ADnZkxSdu23CvtZ+KuroXxvulzsM0rDbyTutVjPFQ==",
+    "downloadedIntegrity": "sha512-ftoxzMCFeOBCZe/3e06GxSP517WNdjDwfR3p969AThDf1ADnZkxSdu23CvtZ+KuroXxvulzsM0rDbyTutVjPFQ==",
+    "gitHead": null
+  },
+  "comparisonBoundary": "Five published source files equal their current workspace sources; compiled hashes identify the five executed release modules, not a rebuilt artifact or an all-package comparison.",
+  "dependencies": "Extracted release resolves npm dependencies from the existing workspace node_modules; no install and no independent recreation of the external consumer lockfile.",
+  "members": [
+    {
+      "source": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "publishedSourceSha256": "077e460857c5be5b78447f50aac425677431af993aa80e6c966c3db09b9b05d0",
+      "currentSourceSha256": "077e460857c5be5b78447f50aac425677431af993aa80e6c966c3db09b9b05d0",
+      "compiled": "dist/esm/package-checks/function-metrics/analyzer/readers/typescript.mjs",
+      "publishedCompiledSha256": "05b62b9800e09b88ec3851671acd9dd687c824ee8bd36d6f6e7ab7547077ae8b"
+    },
+    {
+      "source": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "publishedSourceSha256": "02218fdd18ea2c5d1d6e630834c4fd969074ef8480866a032655dc3dd50e856e",
+      "currentSourceSha256": "02218fdd18ea2c5d1d6e630834c4fd969074ef8480866a032655dc3dd50e856e",
+      "compiled": "dist/esm/package-checks/function-metrics/analyzer/shared/code-reader.mjs",
+      "publishedCompiledSha256": "5efa1458325545e0c27c3b0e2153b21146539dc67e90444578985bdaf51e122a"
+    },
+    {
+      "source": "src/package-checks/function-metrics/analyzer/pipeline.ts",
+      "publishedSourceSha256": "71b192400c1a72817d8d8fad60faea8b62cb391c6c8a0c6da794b7096f0e8e16",
+      "currentSourceSha256": "71b192400c1a72817d8d8fad60faea8b62cb391c6c8a0c6da794b7096f0e8e16",
+      "compiled": "dist/esm/package-checks/function-metrics/analyzer/pipeline.mjs",
+      "publishedCompiledSha256": "fdb6a66f75097209b0930091554cbe282cd211ced55841a6c4067e8fe1b5f364"
+    },
+    {
+      "source": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
+      "publishedSourceSha256": "77295c96b204bbeb229fb0ecea7388d3590e95429e485f8b6eadb660cd349110",
+      "currentSourceSha256": "77295c96b204bbeb229fb0ecea7388d3590e95429e485f8b6eadb660cd349110",
+      "compiled": "dist/esm/package-checks/function-metrics/analyzer/extensions/lizardnd.mjs",
+      "publishedCompiledSha256": "1c9e348ecbac3fab438d33daeccb66c4a8d64bde9af594b1aba656ccc321a8da"
+    },
+    {
+      "source": "src/package-checks/function-metrics/analyzer/port-facade.ts",
+      "publishedSourceSha256": "64c7bd169737c743bac8ddaf2f23b71e599c78ce529364d83816bc56c368a5e3",
+      "currentSourceSha256": "64c7bd169737c743bac8ddaf2f23b71e599c78ce529364d83816bc56c368a5e3",
+      "compiled": "dist/esm/package-checks/function-metrics/analyzer/port-facade.mjs",
+      "publishedCompiledSha256": "3a62caaf76f016610ff2d07be47e663ccac3af4d198da05c7bcffe1a5d997589"
+    }
+  ]
+}

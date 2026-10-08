@@ -1146,6 +1146,77 @@
         "software-selection"
       ],
       "title": "Node 文件收集后端选型：社区、依赖体积与失败边界"
+    },
+    "261008-trace-typescript-metrics-upstream-origin": {
+      "formedAt": "2026-10-08T03:24:47Z",
+      "name": "trace-typescript-metrics-upstream-origin",
+      "question": "已确认的函数结束边界污染与空值合并双计是 Lizard 1.24.0 上游已有行为，还是 Vibe Check TypeScript 移植或 Product 接线新增？",
+      "relations": [
+        {
+          "summary": "同样11项在锁定Python上游复现，确认缺陷来源",
+          "target": "261008-verify-typescript-function-metrics-defects",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261008-trace-typescript-metrics-upstream-origin/input-and-port-observations.json",
+        "261008-trace-typescript-metrics-upstream-origin/source-identity.json",
+        "261008-trace-typescript-metrics-upstream-origin/upstream-driver.py",
+        "261008-trace-typescript-metrics-upstream-origin/upstream-observations.json"
+      ],
+      "sourcePath": "trace-typescript-metrics-upstream-origin.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "source-alignment",
+        "typescript"
+      ],
+      "title": "TypeScript 指标缺陷的 Lizard 上游来源核验"
+    },
+    "261008-verify-lizard-latest-typescript-defects": {
+      "formedAt": "2026-10-08T03:53:23Z",
+      "name": "verify-lizard-latest-typescript-defects",
+      "question": "锁定 1.24.0 的两项 TypeScript 指标缺陷是否已在上游最新发布版或 master 修复，升级能否替代本项目修复？",
+      "relations": [
+        {
+          "summary": "核验1.24.1与master，确认升级不能消除两项缺陷",
+          "target": "261008-trace-typescript-metrics-upstream-origin",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261008-trace-typescript-metrics-upstream-origin/input-and-port-observations.json",
+        "261008-verify-lizard-latest-typescript-defects/latest-driver.py",
+        "261008-verify-lizard-latest-typescript-defects/observations.json",
+        "261008-verify-lizard-latest-typescript-defects/source-identity.json"
+      ],
+      "sourcePath": "verify-lizard-latest-typescript-defects.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "typescript",
+        "upstream-maintenance"
+      ],
+      "title": "Lizard 最新发布版与分支的 TypeScript 指标缺陷复查"
+    },
+    "261008-verify-typescript-function-metrics-defects": {
+      "formedAt": "2026-10-08T03:13:21Z",
+      "name": "verify-typescript-function-metrics-defects",
+      "question": "外部报告描述的 0.0.3 显式返回类型边界污染和空值合并双计是否可独立复现，当前源码是否仍存在，以及根因与修复候选的证据边界是什么？",
+      "relations": [],
+      "resourceIds": [
+        "261008-verify-typescript-function-metrics-defects/observations.json",
+        "261008-verify-typescript-function-metrics-defects/reproduce.mjs",
+        "261008-verify-typescript-function-metrics-defects/source-identity.json"
+      ],
+      "sourcePath": "verify-typescript-function-metrics-defects.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "tokenizer",
+        "typescript"
+      ],
+      "title": "TypeScript 函数边界与空值合并指标缺陷独立核验"
     }
   },
   "metadata": {},
@@ -1205,7 +1276,10 @@
       "260924-review-local-head-gate-selection-and-document-inputs": "sha256:2b7551926dd9784a1c52187904acf9ebca82e3b0cd53d00d351e8b6a87a9e150",
       "260926-diagnose-required-gate-head-of-line-wait": "sha256:9629e7657bfff16a33d4e8e63ab36d6015f98f07a3e40ee140520a1482081653",
       "261005-derive-gate-guide-scenarios-from-history": "sha256:11dbe03e16a6ac99704b11d4b56619f8547417561a8667b9fb1dae22e2d88fe7",
-      "261006-compare-node-file-collection-backends": "sha256:7ec4e86892c76278ea1f821931155d218310a9243693ae40f1e1b97fbb00b4f9"
+      "261006-compare-node-file-collection-backends": "sha256:7ec4e86892c76278ea1f821931155d218310a9243693ae40f1e1b97fbb00b4f9",
+      "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
+      "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
+      "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

@@ -1,0 +1,318 @@
+{
+  "target": {
+    "name": "vibe-check",
+    "version": "0.1.0",
+    "sourceMode": true,
+    "host": "bun",
+    "hostVersion": "1.4.2",
+    "nodeCompatibilityVersion": "v26.3.0"
+  },
+  "samples": {
+    "typed-only.ts": "function marker(): string {\n  return \"marker\";\n}\n",
+    "inferred-only.ts": "function marker() {\n  return \"marker\";\n}\n",
+    "typed-tail.ts": "function marker(): string {\n  return \"marker\";\n}\nif (true) {\n  for (const value of [1]) {\n    if (true) {\n      void value;\n    }\n  }\n}\n",
+    "inferred-tail.ts": "function marker() {\n  return \"marker\";\n}\nif (true) {\n  for (const value of [1]) {\n    if (true) {\n      void value;\n    }\n  }\n}\n",
+    "baseline-four.ts": "function defaults(a: number | undefined, b: number | undefined, c: number | undefined, d: number | undefined) {\n  return [a, b, c, d];\n}\n",
+    "coalesce-one.ts": "function defaults(a: number | undefined) {\n  return [a ?? 0];\n}\n",
+    "coalesce-four.ts": "function defaults(a: number | undefined, b: number | undefined, c: number | undefined, d: number | undefined) {\n  return [a ?? 0, b ?? 0, c ?? 0, d ?? 0];\n}\n",
+    "coalesce-compact.ts": "function defaults(a: number | undefined) {\n  return [a??0];\n}\n",
+    "optional-parameter.ts": "function defaults(a?: number) {\n  return [a];\n}\n",
+    "ternary-one.ts": "function defaults(a: number | undefined) {\n  return [a == null ? 0 : a];\n}\n",
+    "ternary-four.ts": "function defaults(a: number | undefined, b: number | undefined, c: number | undefined, d: number | undefined) {\n  return [a == null ? 0 : a, b == null ? 0 : b, c == null ? 0 : c, d == null ? 0 : d];\n}\n"
+  },
+  "analysis": [
+    {
+      "filename": "typed-only.ts",
+      "questionTokens": [],
+      "functions": [
+        {
+          "complex_tags": [],
+          "cyclomatic_complexity": 1,
+          "end_line": 3,
+          "filename": "typed-only.ts",
+          "name": "marker",
+          "nloc": 3,
+          "parameter_count": 0,
+          "max_nesting_depth": 0,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "inferred-only.ts",
+      "questionTokens": [],
+      "functions": [
+        {
+          "complex_tags": [],
+          "cyclomatic_complexity": 1,
+          "end_line": 3,
+          "filename": "inferred-only.ts",
+          "name": "marker",
+          "nloc": 3,
+          "parameter_count": 0,
+          "max_nesting_depth": 0,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "typed-tail.ts",
+      "questionTokens": [],
+      "functions": [
+        {
+          "complex_tags": [
+            [
+              "if",
+              4
+            ],
+            [
+              "for",
+              5
+            ],
+            [
+              "if",
+              6
+            ]
+          ],
+          "cyclomatic_complexity": 4,
+          "end_line": 10,
+          "filename": "typed-tail.ts",
+          "name": "marker",
+          "nloc": 10,
+          "parameter_count": 0,
+          "max_nesting_depth": 3,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "inferred-tail.ts",
+      "questionTokens": [],
+      "functions": [
+        {
+          "complex_tags": [],
+          "cyclomatic_complexity": 1,
+          "end_line": 3,
+          "filename": "inferred-tail.ts",
+          "name": "marker",
+          "nloc": 3,
+          "parameter_count": 0,
+          "max_nesting_depth": 0,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "baseline-four.ts",
+      "questionTokens": [],
+      "functions": [
+        {
+          "complex_tags": [],
+          "cyclomatic_complexity": 1,
+          "end_line": 3,
+          "filename": "baseline-four.ts",
+          "name": "defaults",
+          "nloc": 3,
+          "parameter_count": 4,
+          "max_nesting_depth": 0,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "coalesce-one.ts",
+      "questionTokens": [
+        "?",
+        "?"
+      ],
+      "functions": [
+        {
+          "complex_tags": [
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ]
+          ],
+          "cyclomatic_complexity": 3,
+          "end_line": 3,
+          "filename": "coalesce-one.ts",
+          "name": "defaults",
+          "nloc": 3,
+          "parameter_count": 1,
+          "max_nesting_depth": 2,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "coalesce-four.ts",
+      "questionTokens": [
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?",
+        "?"
+      ],
+      "functions": [
+        {
+          "complex_tags": [
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ]
+          ],
+          "cyclomatic_complexity": 9,
+          "end_line": 3,
+          "filename": "coalesce-four.ts",
+          "name": "defaults",
+          "nloc": 3,
+          "parameter_count": 4,
+          "max_nesting_depth": 8,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "coalesce-compact.ts",
+      "questionTokens": [
+        "a?",
+        "?"
+      ],
+      "functions": [
+        {
+          "complex_tags": [
+            [
+              "?",
+              2
+            ]
+          ],
+          "cyclomatic_complexity": 2,
+          "end_line": 3,
+          "filename": "coalesce-compact.ts",
+          "name": "defaults",
+          "nloc": 3,
+          "parameter_count": 1,
+          "max_nesting_depth": 1,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "optional-parameter.ts",
+      "questionTokens": [
+        "a?"
+      ],
+      "functions": [
+        {
+          "complex_tags": [],
+          "cyclomatic_complexity": 1,
+          "end_line": 3,
+          "filename": "optional-parameter.ts",
+          "name": "defaults",
+          "nloc": 3,
+          "parameter_count": 1,
+          "max_nesting_depth": 0,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "ternary-one.ts",
+      "questionTokens": [
+        "?"
+      ],
+      "functions": [
+        {
+          "complex_tags": [
+            [
+              "?",
+              2
+            ]
+          ],
+          "cyclomatic_complexity": 2,
+          "end_line": 3,
+          "filename": "ternary-one.ts",
+          "name": "defaults",
+          "nloc": 3,
+          "parameter_count": 1,
+          "max_nesting_depth": 1,
+          "start_line": 1
+        }
+      ]
+    },
+    {
+      "filename": "ternary-four.ts",
+      "questionTokens": [
+        "?",
+        "?",
+        "?",
+        "?"
+      ],
+      "functions": [
+        {
+          "complex_tags": [
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ],
+            [
+              "?",
+              2
+            ]
+          ],
+          "cyclomatic_complexity": 5,
+          "end_line": 3,
+          "filename": "ternary-four.ts",
+          "name": "defaults",
+          "nloc": 3,
+          "parameter_count": 4,
+          "max_nesting_depth": 4,
+          "start_line": 1
+        }
+      ]
+    }
+  ]
+}

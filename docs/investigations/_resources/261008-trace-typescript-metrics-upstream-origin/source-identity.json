@@ -1,0 +1,71 @@
+{
+  "capturedAt": "2026-10-08T03:25:29.584Z",
+  "sourceBaseline": {
+    "project": "terryyin/lizard",
+    "tag": "1.24.0",
+    "revision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec"
+  },
+  "archiveUrl": "https://codeload.github.com/terryyin/lizard/tar.gz/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
+  "downloadedArchiveSha256": "6db256777f61f4fa1b4c5c57f13251a8d0c2aaa042cf418938b2f370605eb1b9",
+  "comparisonBoundary": "Five key upstream source files verified against the existing root provenance hashes; not an all-upstream-tree comparison.",
+  "sourceIdentity": [
+    {
+      "sourcePath": "lizard.py",
+      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "ledgerMatches": true,
+      "url": "https://github.com/terryyin/lizard/blob/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec/lizard.py"
+    },
+    {
+      "sourcePath": "lizard_languages/code_reader.py",
+      "sha256": "0e7381e9f3161efd733f0ae9a718101ac4fc285438c69b98b69bfe281f9002cc",
+      "ledgerMatches": true,
+      "url": "https://github.com/terryyin/lizard/blob/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec/lizard_languages/code_reader.py"
+    },
+    {
+      "sourcePath": "lizard_languages/typescript.py",
+      "sha256": "5e8867ab087e3bf8d64bdf86cabe0bd50771c4ba398f34778f9abc71039f6bc1",
+      "ledgerMatches": true,
+      "url": "https://github.com/terryyin/lizard/blob/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec/lizard_languages/typescript.py"
+    },
+    {
+      "sourcePath": "lizard_ext/lizardcomplextags.py",
+      "sha256": "cf826ccfc1cdc5b65784346e51e56735f82de59bf8158116da444f3b81b71771",
+      "ledgerMatches": true,
+      "url": "https://github.com/terryyin/lizard/blob/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec/lizard_ext/lizardcomplextags.py"
+    },
+    {
+      "sourcePath": "lizard_ext/lizardnd.py",
+      "sha256": "fe8f8b03608e83844b3eea1c9fa27443eb8df031dd489162ec79ea7b2c2e96e6",
+      "ledgerMatches": true,
+      "url": "https://github.com/terryyin/lizard/blob/308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec/lizard_ext/lizardnd.py"
+    }
+  ],
+  "portIdentity": [
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/readers/typescript.ts",
+      "sha256": "077e460857c5be5b78447f50aac425677431af993aa80e6c966c3db09b9b05d0",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts",
+      "sha256": "02218fdd18ea2c5d1d6e630834c4fd969074ef8480866a032655dc3dd50e856e",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/pipeline.ts",
+      "sha256": "71b192400c1a72817d8d8fad60faea8b62cb391c6c8a0c6da794b7096f0e8e16",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
+      "sha256": "77295c96b204bbeb229fb0ecea7388d3590e95429e485f8b6eadb660cd349110",
+      "unchangedSincePredecessor": true
+    },
+    {
+      "sourcePath": "src/package-checks/function-metrics/analyzer/port-facade.ts",
+      "sha256": "64c7bd169737c743bac8ddaf2f23b71e599c78ce529364d83816bc56c368a5e3",
+      "unchangedSincePredecessor": true
+    }
+  ],
+  "sampleSha256": "3e9d9bc54743ee8f8143b3f49d5f7511fde7ac71deae835d9d2c6bd4060eaae9"
+}
