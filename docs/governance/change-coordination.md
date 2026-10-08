@@ -53,13 +53,14 @@ owner 时，实施与合入必须串行。
 
 ### Lizard 升级与 TypeScript 修复
 
-本节先登记源码升级；两项 TypeScript 缺陷拟由独立修复 Change 承接。升级与修复按独立 Outcome 验收、提交和回退，共享 analyzer、来源账本、Case 与包材料的实施和合入串行。
+两项 Change 按独立 Outcome 验收、提交和回退；共享 analyzer、来源账本、Case 与包材料，实施和合入串行。
 
-| Change | 独立交付 | 进入条件 |
+| Change | 独立交付 | 默认顺序与进入条件 |
 | --- | --- | --- |
 | [`upgrade-lizard-source-baseline`](../../changes/upgrade-lizard-source-baseline/proposal.md) | 跟进 `1.24.1` 既有 reader 更新，闭合来源、行为与包消费者证据。 | 先收敛 Rust 贡献、Kotlin 位置及翻译/性能采用门槛。 |
+| [`fix-typescript-function-metrics`](../../changes/fix-typescript-function-metrics/proposal.md) | 修复显式返回类型边界污染与 `??` 分类/计量。 | 默认继承升级已验收的稳定提交，先确定计量策略、受控偏差及验收范围。 |
 
-修复默认在升级已验收的稳定提交上实施；升级不是修复的技术前提，优先修复旧基线时在修复 Draft 明确顺序与偏差基线，升级时重验修正。进入实施以自身 artifacts、验证准备和当前授权为准。
+升级不是修复的技术前提。若先在 `1.24.0` 修复，显式调整两个 Change 的顺序和偏差基线，升级时重验修正。各项进入实施仍以自身 artifacts、验证准备和当前授权为准。
 
 ### Scheduler 证据队列
 
