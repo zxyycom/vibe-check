@@ -51,6 +51,20 @@ owner 时，实施与合入必须串行。
 
 每个 Change 仍须按自身 artifacts、测试和用户授权实施；新的 blocking policy 或公共抽象须有独立证据。
 
+### 文件关系与 change flag 调试
+
+关系、收集和调试分别验收；调试继承 Core 公共能力，收集迁移按实际采用的契约协调。
+
+| Change | 独立交付 | 实施前置 |
+| --- | --- | --- |
+| [`add-project-file-membership-queries`](../../changes/add-project-file-membership-queries/proposal.md) | 公共 Core 路径—区域关系及必要的既有消费复用。 | 自身 artifacts 的公开契约与复用范围收敛。 |
+| [`switch-project-file-collection-backend`](../../changes/switch-project-file-collection-backend/proposal.md) | 范围感知收集及选定的文件事实/迁移策略。 | 收集范围、公共契约与迁移收敛；进入前剪枝在本项验收。 |
+| [`add-change-flag-debugging`](../../changes/add-change-flag-debugging/proposal.md) | 所选当前文件全集到 change flags 的调试输出。 | Core 公共能力已验收，目标基线继承对应稳定提交；按生效收集契约明确全集。 |
+
+- **契约基线**：Core 计算值关系，与收集 source 形状解耦。调试可基于当前收集契约交付；同批采用新契约时，先收敛公开形状，再冻结调试输入，实施继承已验收迁移提交。
+- **共享 owner**：共同 matcher、project-files、包公开面、Case 或文档改动串行实施/合入，复核 collection/Core/Runtime 的生效 grammar 一致性。
+- **指标轨道**：函数指标升级、修复与读取优化独立于关系和调试；Core 若迁移其关系索引，按实际共享 owner 串行，保持 measurement/Worker 与算法职责。
+
 ### Lizard 升级与 TypeScript 修复
 
 两项 Change 按独立 Outcome 验收、提交和回退；共享 analyzer、来源账本、Case 与包材料，实施和合入串行。
@@ -72,7 +86,7 @@ owner 时，实施与合入必须串行。
 
 [`switch-project-file-collection-backend`](../../changes/switch-project-file-collection-backend/proposal.md)
 优先评估统一 filesystem 枚举与按需文件事实；先确定 Git 来源去留、ignore/tracked 优先级、链接和迁移。
-membership 与 change flag 调试保持独立，共享 matcher、包或文档 owner 时串行实施和合入。
+membership 与 change flag 调试保持独立，接口基线与合入边界见[文件关系与 change flag 调试](#文件关系与-change-flag-调试)。
 只有重构延期且旧 Git 来源需先修复时，才另建局部剪枝 Change。
 
 ### Scheduler 证据队列

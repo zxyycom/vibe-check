@@ -16,4 +16,4 @@
 - 同一次操作直接共享只读结果，查询复用内部索引且无 I/O；下一次操作重新提供输入并计算；
 - 复用 Product 生效的共同 matcher；路径获取与筛选归输入 owner，Core 只计算给定路径的关系。
 
-本 Change 独立交付 Core 契约、必要的内部复用与 package consumer 验收。
+本 Change 独立交付 Core 契约、必要的内部复用与 package consumer 验收。[change flag 调试工具](../add-change-flag-debugging/proposal.md)由下游 Change 交付。
