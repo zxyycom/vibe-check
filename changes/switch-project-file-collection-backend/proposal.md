@@ -1,18 +1,24 @@
 # Proposal
 
-本 Draft 规划用 Node 可用的文件收集后端替换手写 filesystem 遍历器，让输入范围在遍历阶段生效，并明确范围内失败。具体方案与待验证问题见 [Design](design.md)。
+本 Draft 规划收敛项目文件收集职责，让范围在进入目录前生效，并按需组合忽略规则、Git 追踪与变更事实。
+后端与公共契约的候选方向见 [Design](design.md)。
 
 ## Why
 
-当前 project-files 先枚举候选，再用 minimatch 过滤；提前剪枝只覆盖全部同源 selections 共同声明的 `**/<literal-directory>/**`。`.tmp/**` 等子树排除仍可能先进入目录，使只需要 `docs/**/*.md` 的检查被范围外目录的访问失败阻断。
+当前 filesystem 收集的提前剪枝只覆盖部分共同排除规则；Git 收集又在最终过滤前进入子仓库。
+因此范围外目录仍可能引发读取失败或无意义的 Git 调用。仅替换 filesystem walker 不能解决后一问题。
 
-[调查报告](../../docs/investigations/compare-node-file-collection-backends.md)将 fast-glob 列为优先候选：它提供同步 glob、目录排除与较严格的错误传递，但任务起点、符号链接和 ENOENT 边界仍需接入实测。此 Change 承接选型后的设计收敛。
+[后端选型](../../docs/investigations/compare-node-file-collection-backends.md)将 fast-glob 列为优先候选；
+[职责调查](../../docs/investigations/fast-glob-git-collection-boundaries.md)进一步区分路径枚举、忽略规则、追踪和变更。
+用户的核心需要是后三项文件事实，而非维护两套递归收集器。本 Change 在既有 Draft 内重新收敛范围。
 
 ## Outcome
 
-同步项目文件收集由标准 Node API 或第三方库与薄适配层完成，按项目最低 Node >=24.18 的支持边界验收，运行时不绑定 `Bun.*`：
+形成同步、按需且职责清楚的项目文件收集方案，并以支持宿主的实际接入证据证明：
 
-- **范围感知**：可证明不包含目标路径的子树在进入前剪枝，包括 `.tmp/**` 排除与仅包含 docs 的 selection。
-- **可信失败**：project root 不存在或不可读、可能包含目标的目录枚举失败时明确失败；合法无匹配返回冻结空数组。选中文件的内容读取及失败结算继续由 owning Check 负责。
-- **稳定输入**：保留显式 filesystem / git-worktree 来源、同步按需调用、Check 内同源共享候选，以及 project-relative slash paths 的排序、去重与冻结；不引入隐式来源回退。
-- **一致升级**：允许新匹配 grammar 的破坏性变更；相关消费方、依赖声明、公开与内部说明同步，并由 collection / Check 集成及 installed Node consumer 证据证明。
+- **范围感知**：证明无需求的子树在进入前剪枝，包括 `.tmp/**`、仅包含 docs 的 selection 和被排除子仓库。
+- **能力分层**：优先评估 filesystem 统一枚举，显式支持选定的 ignore、tracked/untracked 与链接策略；变更触发复用现有 `changes`。
+- **可信结果**：来源和所需事实失败明确报告，合法无匹配返回冻结空数组；保留相对 `/` 路径、排序去重及 owning Check 的 exact inputs。
+- **明确迁移**：是否移除 `git-worktree` 及改变 matcher grammar 在 Plan 前确定，同步契约、Decision、配置与安装后消费者验收。
+
+当前授权仅覆盖 Draft 整理；公共形状、最终策略及产品实施尚待收敛。

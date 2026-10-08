@@ -68,6 +68,13 @@ owner 时，实施与合入必须串行。
 独立验收读取成本与取消边界，先收敛策略和真实 Check 对照条件。指标算法修复与源码升级不是硬前置；
 共享 measurement、测试、Case 或包 owner 时串行实施和合入。
 
+### 项目文件收集收敛
+
+[`switch-project-file-collection-backend`](../../changes/switch-project-file-collection-backend/proposal.md)
+优先评估统一 filesystem 枚举与按需文件事实；先确定 Git 来源去留、ignore/tracked 优先级、链接和迁移。
+membership 与 change flag 调试保持独立，共享 matcher、包或文档 owner 时串行实施和合入。
+只有重构延期且旧 Git 来源需先修复时，才另建局部剪枝 Change。
+
 ### Scheduler 证据队列
 
 Scheduler 的当前行为由 runtime、Architecture、API mechanics、

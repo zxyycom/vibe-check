@@ -1174,6 +1174,34 @@
       ],
       "title": "Lizard 1.24.1 更新内容与升级价值调查"
     },
+    "261008-fast-glob-git-collection-boundaries": {
+      "formedAt": "2026-10-08T03:04:41Z",
+      "name": "fast-glob-git-collection-boundaries",
+      "question": "fast-glob 能替代哪些职责，Git 范围外子仓库为何仍被访问，统一 filesystem 收集并按需保留忽略、追踪和变更能力有哪些边界？",
+      "relations": [
+        {
+          "summary": "补充Git原生枚举与下沉前排除的责任边界",
+          "target": "261006-compare-node-file-collection-backends",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261008-fast-glob-git-collection-boundaries/collection-policy-and-integration-notes.md",
+        "261008-fast-glob-git-collection-boundaries/native-git-observations.json",
+        "261008-fast-glob-git-collection-boundaries/native-git-probe.mjs",
+        "261008-fast-glob-git-collection-boundaries/product-excluded-subtree-observation.md"
+      ],
+      "sourcePath": "fast-glob-git-collection-boundaries.md",
+      "tags": [
+        "file-collection",
+        "git",
+        "glob",
+        "ignore-rules",
+        "responsibility-boundaries",
+        "symbolic-links"
+      ],
+      "title": "项目文件收集：fast-glob 能力、Git 剪枝与职责拆分"
+    },
     "261008-function-metrics-admission-yield": {
       "formedAt": "2026-10-08T03:06:36Z",
       "name": "function-metrics-admission-yield",
@@ -1331,6 +1359,7 @@
       "261005-derive-gate-guide-scenarios-from-history": "sha256:11dbe03e16a6ac99704b11d4b56619f8547417561a8667b9fb1dae22e2d88fe7",
       "261006-compare-node-file-collection-backends": "sha256:7ec4e86892c76278ea1f821931155d218310a9243693ae40f1e1b97fbb00b4f9",
       "261008-assess-lizard-1-24-1-upgrade": "sha256:e051d2ef0eeb9bb1e3bc65ff3c75599b797a3ef16547b743d3b7879ace943293",
+      "261008-fast-glob-git-collection-boundaries": "sha256:bba8a1896e14af4aa52e162e74c36be63467250dba5dc44c34e6e2e723669ec1",
       "261008-function-metrics-admission-yield": "sha256:fe026b3807dbb5af1f51bcf285ee44fe4d6bd600ed1c689b8521a1ac9ec24b66",
       "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
