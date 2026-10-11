@@ -1,7 +1,7 @@
 ---
 title: 公开同步的单份项目文件收集工具
 id: 260908-provide-synchronous-single-selection-file-collection
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-09-08T01:32:42Z
 purpose: 让自定义 Check 和普通脚本复用显式文件选择，而不复制枚举逻辑或取得 Check 领域策略。

@@ -127,7 +127,7 @@ include 和最终 exclude 都在获取候选后生效。
   跳过、保留条目、读取目标可作为候选策略，读取目标时明确断链、越界、循环和重复；
   收集选项不能绕过 Check 自己的安全规则，例如 secret detection 的身份校验与 no-follow。
 - **迁移保持显式。** 取消 `git-worktree` 会改变已有配置与 ignore/子仓库/链接语义，
-  需要替代[显式双来源决策](../decisions/select-check-files-from-explicit-sources.md)并给出迁移说明，
+  需要替代[显式双来源决策](../decisions/archive/select-check-files-from-explicit-sources.md)并给出迁移说明，
   而不是把旧配置悄悄映射成另一来源。
 
 这些是本轮形成的设计建议，不是新公共字段或已确认的实现计划。纯 membership 继续只计算显式路径关系；

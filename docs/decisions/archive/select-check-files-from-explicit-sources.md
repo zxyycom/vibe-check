@@ -1,7 +1,7 @@
 ---
 title: 从显式来源选择 Check 文件
 id: 260828-select-check-files-from-explicit-sources
-status: active
+status: archived
 alignment: aligned
 createdAt: 2026-08-28T11:14:37Z
 purpose: 让读取文件的 Check 以稳定 source 和 include/exclude 完整表达候选文件与过滤规则，并在 owning Check 内复用同源枚举。

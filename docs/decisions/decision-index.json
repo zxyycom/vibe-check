@@ -185,7 +185,7 @@
       "260828-locate-package-examples-by-natural-markdown-headings": "sha256:7e2771d1f817560a3dbf19a0e3bd977cda22e9bbd6cc0309ae6cbf19e112d89f",
       "260828-provide-package-check-functions-parsers-and-actionable-messages": "sha256:1f480db9bfc874064554a4dd45f229d371c6690a8bcd704ab829943018af5252",
       "260828-scan-duplicate-code-once-across-code-areas": "sha256:749d268e09ec166fa2bbd995299d2a2686173b772cd716a786f90fdaabf92f60",
-      "260828-select-check-files-from-explicit-sources": "sha256:e447b059a01beb3e45fcfb93a0e12bba745a743650ba26a07a64fbee18bdfe79",
+      "260828-select-check-files-from-explicit-sources": "sha256:8b0ffd0a28e19993aad9d7b03cd66cc8e318ce245f469159213d6614dabe94d1",
       "260828-share-finding-policy-across-area-quality-checks": "sha256:534c7f2417e444b28be42bd50a33a1f07316e4aced2d255a737ed25b1b036429",
       "260828-ship-current-machine-contract-materials-in-the-package": "sha256:55186e810a8d38f24834e72a00aa3a28f7d9ded62d6ce05bd730db3cf316bbb4",
       "260828-treat-jscpd-version-as-adapter-provenance": "sha256:ad6578740e9b85fc107bd3ee4e27bafb3af67a5c1144b7c7799109a4e6ffc0ff",
@@ -315,7 +315,7 @@
       "260908-delete-completed-change-and-openspec-history": "sha256:955ab068ec4e5c8ce4e8ed152470b3c5539eae046f74899ffa3fd45b7045ab9d",
       "260908-evaluate-admission-heuristics-with-seeded-virtual-workloads": "sha256:11475cc20ddd692112f1f5ccd4b33980cff0977971446d8e88712d443b5c82dc",
       "260908-isolate-package-release-source-from-change-work": "sha256:424e622408e55c648ea02973f61ab49125777e1114794fbd3ad2b05412c75f88",
-      "260908-provide-synchronous-single-selection-file-collection": "sha256:c0803574b26a55984f85f8f35af860789ac6a945f619c900da3ab720d8dc80ab",
+      "260908-provide-synchronous-single-selection-file-collection": "sha256:6a1184b3c0c4223eb8b5a3ee2668b4025120dbe24cac482fa49220f6c8da0231",
       "260908-use-dated-governance-record-identities": "sha256:3f770fa3b5e6df244bb25ccada51ab35915691a8206b30ca8a080d758986c5cb",
       "260908-use-unprefixed-project-branch-names": "sha256:61bd49ac7342e0453604869ee917fa6976a824799de8dfc81916fd2ccbd9ccb3",
       "260909-configure-package-document-mappings-in-docs": "sha256:1d18bb90114c4377a784450382026c2fd60630ea40e00a36896a233e48c2a44f",
@@ -357,7 +357,10 @@
       "260923-select-project-gate-required-checks-by-change": "sha256:6001aadac6d9f63f4e0a64ce0c733886d0c624eb8f84cdcfd87947627ccb09d2",
       "260924-select-gate-check-specific-change-regions": "sha256:62ac1e06b90033244193afde8422bca29f9e649e9df674c21d31ee8d7dccac9a",
       "260926-apply-gate-time-budgets-without-fingerprint-gating": "sha256:a1b8378d6dde2a34bed4b25f720e55d3082dd85b5f508a3a97bbc92d6198ed27",
-      "260926-warn-on-gate-and-check-duration-budgets": "sha256:f5986cabb08daade172ab5cd63fb95def34ad1b4cd04c9f7f5585734b944d98b"
+      "260926-warn-on-gate-and-check-duration-budgets": "sha256:f5986cabb08daade172ab5cd63fb95def34ad1b4cd04c9f7f5585734b944d98b",
+      "261010-collect-project-files-only-from-filesystem": "sha256:09535a541cccc4047c51f307b7d2cd15802eb4166b19fdad3ef6c5d722d56a26",
+      "261010-provide-readonly-file-region-index": "sha256:37a3e47a7a2fe998fae4d646ca1ed9c528c7a54dde01851a113f2d1bd2e1fcb6",
+      "261010-unify-file-selection-with-default-excludes": "sha256:b6b207ccd6ba89895b5b4f8a80aea9c70d6eff906cd1d050d53e8c409ac02c8d"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -3840,9 +3843,9 @@
     },
     "260828-select-check-files-from-explicit-sources": {
       "name": "select-check-files-from-explicit-sources",
-      "sourcePath": "select-check-files-from-explicit-sources.md",
+      "sourcePath": "archive/select-check-files-from-explicit-sources.md",
       "title": "从显式来源选择 Check 文件",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-08-28T11:14:37Z",
       "purpose": "让读取文件的 Check 以稳定 source 和 include/exclude 完整表达候选文件与过滤规则，并在 owning Check 内复用同源枚举。",
@@ -6545,9 +6548,9 @@
     },
     "260908-provide-synchronous-single-selection-file-collection": {
       "name": "provide-synchronous-single-selection-file-collection",
-      "sourcePath": "provide-synchronous-single-selection-file-collection.md",
+      "sourcePath": "archive/provide-synchronous-single-selection-file-collection.md",
       "title": "公开同步的单份项目文件收集工具",
-      "status": "active",
+      "status": "archived",
       "alignment": "aligned",
       "createdAt": "2026-09-08T01:32:42Z",
       "purpose": "让自定义 Check 和普通脚本复用显式文件选择，而不复制枚举逻辑或取得 Check 领域策略。",
@@ -7410,6 +7413,70 @@
           "type": "修订",
           "target": "260926-apply-gate-time-budgets-without-fingerprint-gating",
           "summary": "总耗时超标改为警告并增加带余量的均值与P95预算"
+        }
+      ]
+    },
+    "261010-collect-project-files-only-from-filesystem": {
+      "name": "collect-project-files-only-from-filesystem",
+      "sourcePath": "archive/collect-project-files-only-from-filesystem.md",
+      "title": "仅从 filesystem 收集项目文件",
+      "status": "archived",
+      "alignment": "unaligned",
+      "createdAt": "2026-10-10T08:05:52Z",
+      "purpose": "用统一磁盘收集与显式范围降低文件选择、剪枝和诊断的语义成本",
+      "background": "双来源各自获取候选，范围提前生效不一致；叠加 ignore 与追踪例外会增加策略和查询成本",
+      "decision": "收集只使用 filesystem 和 include/exclude，移除 source 与 Git 枚举，不解释 ignore；保留同步工具和 Check 输入边界",
+      "tags": [
+        "configuration",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "归并",
+          "target": "260828-select-check-files-from-explicit-sources",
+          "summary": "以纯磁盘收集替代双来源，保留显式范围与Check内共享"
+        },
+        {
+          "type": "归并",
+          "target": "260908-provide-synchronous-single-selection-file-collection",
+          "summary": "同步工具改用无source选择，保留校验、快照与失败边界"
+        }
+      ]
+    },
+    "261010-provide-readonly-file-region-index": {
+      "name": "provide-readonly-file-region-index",
+      "sourcePath": "provide-readonly-file-region-index.md",
+      "title": "用统一文件—区域索引承接多来源数据",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-10-10T09:38:54Z",
+      "purpose": "让文件与区域关系统一构造、共享并从两个方向定位",
+      "background": "区域文件集合与各处反向索引重复处理成员关系，而数据获取和领域策略仍有各自职责",
+      "decision": "多来源合并为只读双向关系；显式追加来源合并已有值后重建，新旧视图独立且无 I/O",
+      "tags": [
+        "product-contract"
+      ],
+      "relations": []
+    },
+    "261010-unify-file-selection-with-default-excludes": {
+      "name": "unify-file-selection-with-default-excludes",
+      "sourcePath": "unify-file-selection-with-default-excludes.md",
+      "title": "用统一 patterns 与显式开关管理文件收集范围",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-10-10T08:57:34Z",
+      "purpose": "统一文件范围表达，并以默认排除避免误扫依赖、构建和缓存路径",
+      "background": "双数组不是统一匹配的必要条件，单数组替换又可能丢失已有默认排除，需要独立的防呆开关",
+      "decision": "纯磁盘收集使用单份 patterns，固定默认排除默认启用，只有显式 useDefaultExcludes=false 才关闭",
+      "tags": [
+        "configuration",
+        "product-contract"
+      ],
+      "relations": [
+        {
+          "type": "修订",
+          "target": "261010-collect-project-files-only-from-filesystem",
+          "summary": "保留纯磁盘边界，改用单数组并以显式开关关闭默认排除"
         }
       ]
     }
