@@ -53,17 +53,17 @@ owner 时，实施与合入必须串行。
 
 ### 文件关系与 change flag 调试
 
-文件轨道包含收集能力及 Core、调试两个下游 Change。收集的当前契约与机制归
+文件轨道已交付收集与 Core 能力，调试由剩余下游 Change 交付。收集的当前契约与机制归
 [收集指南](../guides/collecting-project-files.md)和[Project files](../development/project-files.md)，接入与修正证据归
 [Readiness 报告](../investigations/project-file-collection-readiness.md)。长期方向见
 [文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)与[索引决策](../decisions/provide-readonly-file-region-index.md)。
-Core 实现、独立正确性审查及最终优化/验证已完成，稳定提交待协调者保存；证据见
+Core 已验收并结项，稳定提交为 `7302349e`；证据见
 [索引 Readiness 报告](../investigations/project-file-region-index-readiness.md)。debug 尚未实施；
 索引 Decision 已对齐，文件范围 Decision 仍须等待 debug 才能完整对齐。
 
 | 能力 / 下游 Change | 独立交付 | 实施前置 |
 | --- | --- | --- |
-| [Core 索引](../guides/file-region-index.md) | 多来源合并、追加后重建与只读双向定位。 | 实施基线 `0aeb0d0e` 已继承收集 `2b2489cf`；完整验收后由协调者保存 Core 稳定提交，供 debug 实际继承。 |
+| [Core 索引](../guides/file-region-index.md) | 多来源合并、追加后重建与只读双向定位。 | 稳定提交 `7302349e` 已继承收集 `2b2489cf`；debug 实际继承两项提交后实施。 |
 | [文件收集](../guides/collecting-project-files.md) | 纯磁盘枚举、统一 patterns、默认防呆和进入前剪枝。 | 已验收并结项，稳定提交为 `2b2489cf`；Core/debug 在实际继承该提交后使用当前 matcher。Core 和调试不是收集前置。 |
 | [change flag 调试](../../changes/add-change-flag-debugging/proposal.md) | 所选当前文件全集的逐文件及按 flag 映射。 | 实施基线继承已验收 Core 与收集迁移的稳定提交。 |
 

@@ -10,7 +10,7 @@
   API/消费与验收依据见[索引 Readiness 报告](../../docs/investigations/project-file-region-index-readiness.md)；
   [收集指南](../../docs/guides/collecting-project-files.md)与[内部 owner](../../docs/development/project-files.md)拥有纯磁盘范围与共同 matcher。
   收集的接入、修正与成本见[收集 Readiness 报告](../../docs/investigations/project-file-collection-readiness.md)。
-  收集已验收提交为 `2b2489cf`；Core 稳定提交仍待协调者保存。实施须实际继承两项已验收稳定提交，
+  收集已验收提交为 `2b2489cf`；Core 已验收提交为 `7302349e`。实施须实际继承两项已验收稳定提交，
   不以当前工作树或报告通过代替该门禁。
 - [随包工具规则](../../docs/development/package-tools.md)、
   [effective flags 决策](../../docs/decisions/unify-project-change-flags-as-effective-flags.md)及
