@@ -86,6 +86,10 @@
 
 #### 依赖交接与数据工具
 
+- **新增 [Core 文件—区域索引](./guides/file-region-index.md)**：`createProjectFileRegionIndex` 接收多份纯值文件/区域来源，
+  提供冻结排序的双向关系，区分已知空与未知；`appendSources` 合并已接收值后重建新视图，旧视图不变。
+  规则使用共同完整 patterns，实际成员保持来源筛选；构造、查询与追加无 I/O，不应用扫描默认排除。
+
 - **新增同一次 Run 内的私有 handoff**：提供方以 `defineCheck({ handoff: true, ... })` 声明，
   在已接受的 `passed` 结果交付对象/函数引用；直接 `dependsOn` 消费方用 `dependencies.get(provider)`
   同时读取规范化 data 与类型化引用，不扩大 `observes` 或传递依赖的权限。

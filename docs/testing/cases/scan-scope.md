@@ -1,5 +1,59 @@
 # scan-scope
 
+## Case FILE-REGION-RELATION-001: 值来源建立完整只读双向关系
+
+Owner: `docs/guides/file-region-index.md#只读双向结果`
+Entities:
+
+- `bun|src/data-boundary/project-file-region-index.test.ts|project file-region index > retains one sorted bidirectional relation with overlaps, known empties and unknown keys`
+- `bun|src/data-boundary/project-file-region-index.test.ts|project file-region index > isolates source values, frozen query arrays and view methods from runtime mutation`
+  Proves:
+- 多份文件与实际成员形成去重排序文件域，双向关系保留所有重叠、零命中文件和空区域，合法未知键为 undefined。
+- 原输入后续修改不能改变结果，公开数组与视图字段不能运行时改写，解构方法仍能查询和追加。
+
+## Case FILE-REGION-SOURCE-BOUNDARY-001: 闭合输入、路径与区域身份拒绝非法值
+
+Owner: `docs/guides/file-region-index.md#追加与隔离`
+Entities:
+
+- `bun|src/data-boundary/project-file-region-index.boundary.test.ts|project file-region index > rejects malformed closed structures at every nesting level without evaluating getters`
+- `bun|src/data-boundary/project-file-region-index.boundary.test.ts|project file-region index > rejects path aliases and invalid or colliding region identities`
+- `bun|src/data-boundary/project-file-region-index.boundary.test.ts|project file-region index > preserves opaque nonempty region identities through queries and append`
+  Proves:
+- 记录/数组逐层拒绝多字段、accessor、symbol、非枚举、稀疏、其它原型、非法字段值与路径别名，不调用 getter；合法 null-prototype 来源可接受。
+- 非法查询键抛 TypeError；region ID 保留任何非空字符串（包括 NUL），构造、查询、排序和追加不采用路径字符限制。路径 NUL 仍拒绝；同源、跨源和跨种类重复 ID 均拒绝，不静默覆盖。
+
+## Case FILE-REGION-REBUILD-001: 追加值全量重建且保留来源和旧视图
+
+Owner: `docs/guides/file-region-index.md#追加与隔离`
+Entities:
+
+- `bun|src/data-boundary/project-file-region-index.test.ts|project file-region index > rebuilds batch and appended sources equally without expanding actual members or old views`
+  Proves:
+- 批量与逐次追加得到同一双向关系，新文件参与已有规则、新规则参与已有文件，但实际成员不扩大，旧视图和追加前原数据不受后续修改影响。
+- 空追加仍是独立等价视图，重复 ID 追加失败保留旧结果；原来源 Proxy 撤销后仍可追加，不重新反射旧来源。
+
+## Case FILE-REGION-NO-ACQUISITION-001: 关系计算不取得或刷新文件来源
+
+Owner: `docs/guides/file-region-index.md#计算成本与边界`
+Entities:
+
+- `bun|src/data-boundary/project-file-region-index.test.ts|project file-region index > constructs, queries and appends while filesystem and process acquisition are blocked`
+  Proves:
+- 独立宿主封锁 filesystem 与 process 获取能力后，构造、双向查询和追加仍成功；不存在/删除路径与显式 build 路径保持关系，实际成员不扩大。
+
+## Case FILE-REGION-PACKAGE-001: 安装后消费者从公开根使用独立关系工具
+
+Owner: `docs/guides/file-region-index.md#最小用法`
+Entities:
+
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
+- `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
+- `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
+  Proves:
+- approved public root 提供 createProjectFileRegionIndex 与三个对应类型；安装后严格 TypeScript consumer 可声明两类区域、批量来源、未知键联合和追加，不能静态改写结果数组或混合区域字段。
+- 安装后受管示例实际构造和查询重叠/零命中/未知关系，并追加新文件；规则重建、实际成员及旧视图保持原义，无需 Check 或 Run。
+
 ## Case AUX-QUALITY-FINGERPRINT-001: Quality input fingerprint 稳定
 
 Owner: `docs/development/project-files.md#exact-input-fingerprint`
@@ -32,10 +86,12 @@ Entities:
 
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > matches native complete lists consistently for collection and explicit paths`
 - `bun|src/project-run/changes/git.test.ts|Project Run Git changes > uses native pattern lists for regions without collection default exclusions`
+- `bun|src/data-boundary/project-file-region-index.test.ts|project file-region index > matches complete native lists including explicit default-excluded and nonexistent paths`
   Proves:
 - collection 和共同显式 path matcher 对 dot、brace、extglob、换行路径、负-only、空列表、`./` 动态/静态 pattern 及用户重新包含使用同一结果；共享选择也不保留后端的 `./` 候选前缀。
 - Run 对真实 Git delta 采用同一完整列表语义，支持 dot/brace/extglob/负-only/重新包含/空列表；build changed path 不套扫描默认排除。
 - 扫描前不存在的静态和动态 glob 起点是合法无匹配。
+- Core 对值文件域使用同一原生参数与列表语义，支持 brace/extglob/negative-only/reinclude/dot/大小写/换行路径和动态 ./ pattern；显式 build 文件不被默认排除。
 
 ## Case COLLECTION-PATH-IDENTITY-001: Selected pathname 保留真实身份
 

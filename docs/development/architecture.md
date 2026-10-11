@@ -37,6 +37,7 @@ Check 和策略回调作为调用方的可信代码执行；运行时提供能�
 **Core** 拥有普通 Check、Project Definition、Run、结算和输出所需的共同机制。**Core API** 是其中对外公开的契约，
 既包括运行和编写入口，也包括可独立复用的 **Core 工具**。例如公开的数据工具与 Core 共用数据边界实现；
 便利函数可以承接局部任务或常用组合，其实现仍由实际机制 owner 维护。
+无 I/O 的[文件—区域索引](../guides/file-region-index.md)也归 data-boundary：维护共同双向关系，不取得文件或解释领域 policy。
 
 **随包 Check** 与用户自定义 Check 使用同一协议。每项 Check 拥有领域选项、测量、结果和不可用原因；
 Core 负责通用生命周期。scanner 和共同的文件收集能力因此位于检查领域，而不是独立的核心执行体系。

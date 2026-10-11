@@ -42,6 +42,18 @@ Package-provided Checks 的 exact file selection 只由各自的顶层 `options.
 项目自定义的 diff、baseline 或其它 comparison facts 是普通 Check data：producing Check 拥有来源、options 与 data shape；
 下游需要成功 data 才能开始时通过 direct `dependsOn` 读取，需要在所有 observed upstream 各自结算后审计任意 terminal outcome 时通过 `observes` 读取。两者都不会改写 package-provided Check 的 file selection。
 
+## Core file-region relation
+
+`src/data-boundary/project-file-region-index.ts` 拥有无 I/O 的纯值双向关系；完整输入、查询、追加与只读边界由
+[公开索引指南](../guides/file-region-index.md)定义。获取不进入 Core，默认排除不作用于其显式输入。
+构造边界复用 closed-values 与 normalized project path 校验。普通 Maps 在闭包内维护同一关系，
+外层对象和公开数组冻结；已校验的 detached 值保留供追加使用，只解析新增来源并全量重建。
+
+file-metrics 将本次 batch collection 的每个 area 转为 members region；`filePaths` 作为 exact union，
+records 从 `regionsForFile` 取得全部 area IDs，阈值、waiver、blocking 与结算仍由该 Check 解释。
+duplicate 的 path policy Map 继续携带阈值，functionMetrics 继续拥有自己的关系与 eligibility。
+Run 对 Git changed paths 的规则消费见[Project Run](project-run.md#change-preparation-and-flag-projection)。
+
 ## Package-provided Check exact inputs
 
 每个 package-provided Check 独立调用 project-file mechanism，并从自己的 resolved candidates 形成 exact inputs；
@@ -79,3 +91,5 @@ payload 重建领域事实。
 ## 验证
 
 `src/package-checks/project-files/**` tests 覆盖 root/空 patterns、closed snapshot、默认开关、原生完整列表、静态/task base 剪枝、范围内/范围外失败、目录消失、各类 symlink、Check-local 共享、Git/ignore 独立性、fingerprint 和 exact inputs；各 Check 相邻 tests 证明 eligibility、安全读取与四态结算。
+`src/data-boundary/project-file-region-index*.test.ts` 直接证明双向/空/未知、闭合输入、隔离、重复 ID、规则与实际成员、追加等价；
+独立进程封锁 fs/process 获取能力证明构造、查询与追加无 I/O。file-metrics 与 Run 原有消费者 tests 分别证明 policy/exact-scope 与 Git 语义不变。

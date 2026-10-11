@@ -1,5 +1,9 @@
 import type { CheckExecutionContext, CheckMessage, CheckResult } from "../../check/check.ts";
 import {
+  createProjectFileRegionIndex,
+  type ProjectFileRegionIndex
+} from "../../data-boundary/project-file-region-index.ts";
+import {
   reconcileFindingWaivers,
   type FindingWaiverReconciliation
 } from "../../package-tools/finding-waivers/reconciliation.ts";
@@ -41,7 +45,7 @@ export type FileMetricsUnavailableReasonCode =
   | "source-unavailable";
 
 interface CollectedFileMetricsScope extends FileMetricsExactInputSet {
-  readonly areaIdsByPath: ReadonlyMap<string, readonly string[]>;
+  readonly membership: ProjectFileRegionIndex;
 }
 
 /** 使用 resolved area policy 和 scanner selection 执行一次完整的 file-metrics measurement。 */
@@ -62,7 +66,7 @@ export async function executeFileMetrics(
   const measurement = await measureFileMetrics(collectedScope, context.options.scanner);
   if (measurement.kind !== "complete") return measurementFailureResult(measurement);
   const candidates = buildFileRecordCandidates(measurement.metrics, {
-    areaIdsByPath: collectedScope.areaIdsByPath,
+    membership: collectedScope.membership,
     codeAreas: context.options.codeAreas
   });
   if (candidates === undefined) return unavailable("external-result-invalid");
@@ -161,26 +165,22 @@ function collectAreaScope(
   rootDir: string,
   codeAreas: Readonly<Record<string, ResolvedFileMetricsCodeAreaOptions>>
 ): CollectedFileMetricsScope {
-  const areaIdsByPath = new Map<string, string[]>();
   const filesByArea = collectProjectFileSets(
     rootDir,
     Object.fromEntries(Object.entries(codeAreas).map(([areaId, area]) => [areaId, area.files]))
   );
-  for (const [areaId] of Object.entries(codeAreas)) {
-    for (const path of requireProjectFileSet(filesByArea, areaId)) {
-      const areaIds = areaIdsByPath.get(path);
-      if (areaIds === undefined) areaIdsByPath.set(path, [areaId]);
-      else areaIds.push(areaId);
-    }
-  }
-
-  const normalizedMembership = new Map<string, readonly string[]>();
-  for (const [path, areaIds] of areaIdsByPath) {
-    normalizedMembership.set(path, Object.freeze(areaIds.sort(compareText)));
-  }
+  const membership = createProjectFileRegionIndex({
+    regionSources: [
+      Object.keys(codeAreas).map((id) => ({
+        files: requireProjectFileSet(filesByArea, id),
+        id,
+        kind: "members"
+      }))
+    ]
+  });
   return Object.freeze({
-    approvedExactPaths: Object.freeze([...normalizedMembership.keys()].sort(compareText)),
-    areaIdsByPath: normalizedMembership,
+    approvedExactPaths: membership.filePaths,
+    membership,
     rootDir
   });
 }
@@ -221,10 +221,4 @@ function unavailableMessage(code: FileMetricsUnavailableReasonCode): string {
     case "external-result-invalid":
       return "SCC output could not form a trusted complete result; check the executable version and CSV compatibility.";
   }
-}
-
-function compareText(left: string, right: string): number {
-  if (left < right) return -1;
-  if (left > right) return 1;
-  return 0;
 }

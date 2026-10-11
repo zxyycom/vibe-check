@@ -17,6 +17,7 @@ import {
   commandCheck,
   collectProjectFiles,
   createAdmissionGraph,
+  createProjectFileRegionIndex,
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,
@@ -83,6 +84,10 @@ describe("public API inventory", () => {
     assert.equal(commandCheck.name, CURRENT_PUBLIC_CONTRACT.operations.commandCheck);
     assert.equal(collectProjectFiles.name, CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles);
     assert.equal(
+      createProjectFileRegionIndex.name,
+      CURRENT_PUBLIC_CONTRACT.operations.createProjectFileRegionIndex
+    );
+    assert.equal(
       createAdmissionGraph.name,
       CURRENT_PUBLIC_CONTRACT.operations.createAdmissionGraph
     );
@@ -132,6 +137,7 @@ describe("public API inventory", () => {
     assert.equal(typeof changeFlag, "function");
     assert.equal(typeof commandCheck, "function");
     assert.equal(typeof collectProjectFiles, "function");
+    assert.equal(typeof createProjectFileRegionIndex, "function");
     assert.equal(typeof createAdmissionGraph, "function");
     assert.equal(typeof defineAdmissionPolicy, "function");
     assert.equal(typeof exactlyOne, "function");

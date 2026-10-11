@@ -6,9 +6,12 @@
 
 - [API 机制](../../docs/api-mechanics.md#按文件变化选择-check)拥有 change regions 与 token；
   当前 `project.changes` evidence 只包含命中的实际变更路径。
-- [Core Change](../add-project-file-membership-queries/design.md)拥有尚未交付的多来源只读关系；
+- [Core 索引指南](../../docs/guides/file-region-index.md)拥有多来源只读关系的公共契约，
+  API/消费与验收依据见[索引 Readiness 报告](../../docs/investigations/project-file-region-index-readiness.md)；
   [收集指南](../../docs/guides/collecting-project-files.md)与[内部 owner](../../docs/development/project-files.md)拥有纯磁盘范围与共同 matcher。
-  收集的接入、修正与成本见[Readiness 报告](../../docs/investigations/project-file-collection-readiness.md)；实施须继承其最终验收后的稳定提交，不以当前工作树或报告通过代替该门禁。
+  收集的接入、修正与成本见[收集 Readiness 报告](../../docs/investigations/project-file-collection-readiness.md)。
+  收集已验收提交为 `2b2489cf`；Core 稳定提交仍待协调者保存。实施须实际继承两项已验收稳定提交，
+  不以当前工作树或报告通过代替该门禁。
 - [随包工具规则](../../docs/development/package-tools.md)、
   [effective flags 决策](../../docs/decisions/unify-project-change-flags-as-effective-flags.md)及
   [按需收集](../../docs/decisions/retain-on-demand-project-file-collection.md)约束依赖、token 与调用生命周期。

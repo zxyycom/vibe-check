@@ -41,6 +41,9 @@ selection 使用 `{ patterns, useDefaultExcludes?: boolean }`。`patterns` 是�
 
 Run change regions 只使用 `{ patterns }`，对 Git changed-path facts 使用同一原生列表与参数，不枚举磁盘，也不应用扫描默认排除；删除和重命名路径仍可匹配。默认排除只控制收集范围，不是显式路径的全局过滤器。
 
+已经取得文件值后，可以用无 I/O 的[Core 文件—区域索引](file-region-index.md)组合多份来源、双向查询并追加重建；
+实际筛选结果作为 members regions 保留，规则区域作为 patterns regions 计算，不让 Core 再做 acquisition 或默认排除。
+
 ## 工具输入
 
 每次公开调用必须提供 `projectRoot` 与 `selection.patterns`，本工具不猜测 root 或 Check 的后缀默认。

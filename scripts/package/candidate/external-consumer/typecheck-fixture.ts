@@ -58,6 +58,7 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   commandCheck,
   createAdmissionGraph,
   createLearnedCriticalPathStrategy,
+  createProjectFileRegionIndex,
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,

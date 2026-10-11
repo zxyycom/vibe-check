@@ -1,6 +1,6 @@
 # Design
 
-本 Plan 设计公共 Core 文件—区域索引：多来源合并、显式追加后重建，以及共享只读双向查询。公共 API 尚未交付，先完成下述 Readiness 调查。
+本 Plan 交付公共 Core 文件—区域索引：多来源合并、显式追加后重建，以及共享只读双向查询；Readiness 已收敛精确 API。
 
 ## Context
 
@@ -81,26 +81,38 @@
 
 - 路径坐标与输入范围是共享前提；相同 root 不代表磁盘全集、Git 变更和 Check 实际输入可以互换。
 - TypeScript readonly 不等于运行时修改隔离，需直接验证输入、结果和旧视图。
-- 全量重建的复制与计算成本取决于文件、区域及关系总量；当前尚无测量，是否需要局部增量优化由证据决定。
+- 全量重建的复制与计算成本取决于文件、区域及关系总量；10k/50k 双宿主样本已保留于 Readiness 报告。
+  样本证明该 workload 可运行，不证明加速或 retained-memory 改善；更密集或更大数据按实际 workload 再调查。
 
 ## Open Questions
 
-无已知待用户决定项。精确名称/类型、普通输入校验、存储与消费点由 Readiness 工程调查收敛，
-不把它们转为新增公共策略；须改变既定行为、显著扩大成本或削减交付能力时再讨论。
+无已知待用户决定项。精确方案已由下述工程调查收敛；须改变既定行为、显著扩大成本或削减交付能力时再讨论。
 
 ## Readiness Investigation
 
-下一步是 `tasks.md` 的 0.3，按 investigation-report 创建并发布本轮 API/消费与重建准备报告：
+0.3 已发布[本轮报告](../../docs/investigations/project-file-region-index-readiness.md)，ID 为
+`261011-project-file-region-index-readiness`。实施基线 HEAD `0aeb0d0e` 实际继承已验收的收集提交
+`2b2489cf`（ancestor 检查成功），无旧 matcher 兼容。精确实施选择：
 
-- **问题与输入**：读取两条 active Decision、当前 Architecture、project-files 和相邻消费点，
-  明确公共入口/查询/追加类型、共同相对路径坐标、非法路径与 ID 冲突、已知空/未知键约定、
-  descriptor-safe 输入复制和结果修改隔离；列出最小内部复用与实际成员来源适配。
-- **产物**：报告给出可实现的签名/校验表、Core owner/私有存储选择、消费迁移清单和代表性重建 workload；
-  同步本 design 的精确方案及 tasks，指定局部测试、支持宿主安装后验收与成本评估方法。
-- **成功处理**：约束闭合且能以简单合并/重建满足契约后，解除 API 实施门禁。
-  报告不声称实现已验证；规则实现及最终验收须继承收集已验收的完整 matcher 迁移提交。
-- **失败处理**：记录不满足项及替代方案，保留未勾的实施门禁；若需要改变公开方向或显著增加复杂度，
-  说明影响并请求决定，不靠弱化只读/来源筛选或隐藏成本问题推进。
+- `createProjectFileRegionIndex(sources?: ProjectFileRegionSources): ProjectFileRegionIndex`，
+  sources 仅有可省略 `fileSources` / `regionSources`，分别为多份 path 数组与多份 region 数组。
+- `ProjectFileRegion` 为 `{ kind: "patterns", id, patterns }` / `{ kind: "members", id, files }`；
+  文件域为所有显式 fileSources 与 members.files 的并集；所有重复 ID 拒绝，包括同义定义。
+- 直接使用 normalized root-relative slash paths，不修正别名、不检查存在性；ID 为非空字符串（允许 NUL），
+  patterns 为 dense 非空字符串元素数组（数组可空）。每层 closed descriptor-safe detached snapshot；非法 TypeError。
+- `filePaths` / `regionIds` 冻结排序去重；`regionsForFile(path)` / `filesForRegion(id)` 返回冻结数组或 undefined，
+  合法未知键 undefined，已知空 []，非法键 TypeError。`appendSources(sources)` 返回重建后的新视图。
+- 归属 `src/data-boundary/project-file-region-index.ts`，普通 Map 仅在闭包内维护同一双向关系；
+  外层及所有公开数组冻结，已校验输入仅供追加保留；无 global cache/class/获取框架。
+- 最小复用 file-metrics 纯反向 Map 和 Run 规则投影；file-metrics acquisition 与 records policy、
+  Run Git baseline/rename/delete/unavailable 不动。duplicate policy Map 与 functionMetrics 保持原状。
+- workload 为 10k/50k 文件、20 patterns 和 20 members overlap 区域，追加 10% 文件和一条规则，
+  最低 Node24.18 / locked Bun1.3.14 独立采样，cold/十次 warm median、RSS/heapUsed；无 forced GC/旧 API baseline，不声称性能改善。
 
-纯值数据与 API Readiness 可先于收集实施；共享 matcher、project-files、Case、包材料与文档的改动串行。
-默认实现/合入顺序为收集完整迁移、Core 接线与验收、调试继承两项稳定提交。
+精确 API 与最小消费已实现，当前公开契约归[索引指南](../../docs/guides/file-region-index.md)，
+内部责任归[Project files](../../docs/development/project-files.md#core-file-region-relation)。报告保留形成时判断、
+合法 ID 域的独立审查纠正与成本证据，tasks 记录本 Plan 的实际验收。
+需要改变公开方向、显著增加复杂度或成本时，记录缺口并交回 owner 决定，不弱化只读或来源筛选边界。
+
+共享 matcher、project-files、Case、包材料与文档改动串行；收集 `2b2489cf` 已由实施基线继承。
+下一交接是完成 Core 验收并保存稳定提交，debug 实施须实际继承 Core 与收集两项已验收提交。

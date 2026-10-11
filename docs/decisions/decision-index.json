@@ -359,7 +359,7 @@
       "260926-apply-gate-time-budgets-without-fingerprint-gating": "sha256:a1b8378d6dde2a34bed4b25f720e55d3082dd85b5f508a3a97bbc92d6198ed27",
       "260926-warn-on-gate-and-check-duration-budgets": "sha256:f5986cabb08daade172ab5cd63fb95def34ad1b4cd04c9f7f5585734b944d98b",
       "261010-collect-project-files-only-from-filesystem": "sha256:09535a541cccc4047c51f307b7d2cd15802eb4166b19fdad3ef6c5d722d56a26",
-      "261010-provide-readonly-file-region-index": "sha256:37a3e47a7a2fe998fae4d646ca1ed9c528c7a54dde01851a113f2d1bd2e1fcb6",
+      "261010-provide-readonly-file-region-index": "sha256:2376fadd31010db1a71bf32463fbc343c32af553510457c8948cae08d33127f0",
       "261010-unify-file-selection-with-default-excludes": "sha256:b6b207ccd6ba89895b5b4f8a80aea9c70d6eff906cd1d050d53e8c409ac02c8d"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
@@ -7448,7 +7448,7 @@
       "sourcePath": "provide-readonly-file-region-index.md",
       "title": "用统一文件—区域索引承接多来源数据",
       "status": "active",
-      "alignment": "unaligned",
+      "alignment": "aligned",
       "createdAt": "2026-10-10T09:38:54Z",
       "purpose": "让文件与区域关系统一构造、共享并从两个方向定位",
       "background": "区域文件集合与各处反向索引重复处理成员关系，而数据获取和领域策略仍有各自职责",

@@ -30,6 +30,25 @@ export interface PackageApiExampleProjection {
 export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   Object.freeze({
     evidence: "runtime",
+    id: "project-file-region-index",
+    regionId: "project-file-region-index",
+    sourcePath: "docs/examples/package-api/project-file-region-index.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "file-region-index",
+        headingPath: Object.freeze(["最小用法"]),
+        kind: "markdown"
+      }),
+      Object.freeze({
+        declarationName: "createProjectFileRegionIndex",
+        kind: "jsdoc",
+        sourcePath: "src/data-boundary/project-file-region-index.ts"
+      })
+    ]),
+    title: "从值来源定位文件与区域并追加重建"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "gate-minimal",
     regionId: "gate-minimal",
     sourcePath: "docs/examples/package-api/gate-minimal.ts",

@@ -1,4 +1,5 @@
 import type { FileMetric } from "./measurement-model.ts";
+import type { ProjectFileRegionIndex } from "../../data-boundary/project-file-region-index.ts";
 import type { FileMetricsFindingIdentity, ResolvedFileMetricsCodeAreaOptions } from "./options.ts";
 import { isBlockingFinding } from "../code-quality-findings/policy.ts";
 import { isNormalizedProjectRelativePath } from "../host-environment/path.ts";
@@ -17,7 +18,7 @@ const FILE_CODE_LINES_METRIC = "code-lines" as const;
 const FINDING_WAIVER_AUDIT_RECORD_ID_PREFIX = "/finding-waiver-audit/";
 
 interface FileMetricsAreaPolicyContext {
-  readonly areaIdsByPath: ReadonlyMap<string, readonly string[]>;
+  readonly membership: ProjectFileRegionIndex;
   readonly codeAreas: Readonly<Record<string, ResolvedFileMetricsCodeAreaOptions>>;
 }
 
@@ -105,8 +106,7 @@ export function buildFileRecordCandidates(
 
 function isValidUniqueFileMetric(metric: FileMetric, seenPaths: ReadonlySet<string>): boolean {
   return (
-    typeof metric.path === "string" &&
-    metric.path.length > 0 &&
+    isNormalizedProjectRelativePath(metric.path) &&
     Number.isSafeInteger(metric.codeLines) &&
     metric.codeLines >= 0 &&
     !seenPaths.has(metric.path)
@@ -117,7 +117,7 @@ function effectiveFileRecordPolicy(
   metric: FileMetric,
   areaPolicy: FileMetricsAreaPolicyContext
 ): EffectiveFileRecordPolicy | undefined {
-  const areaIds = areaPolicy.areaIdsByPath.get(metric.path);
+  const areaIds = areaPolicy.membership.regionsForFile(metric.path);
   if (areaIds === undefined || areaIds.length === 0) return undefined;
   const matchingAreas: ResolvedFileMetricsCodeAreaOptions[] = [];
   let strictestMaximum: number | undefined;

@@ -2,7 +2,7 @@ import { isAbsolute, relative, resolve, sep } from "node:path";
 
 import { execaSync } from "execa";
 
-import { matchesConfigPatterns } from "../../data-boundary/config-glob.ts";
+import { createProjectFileRegionIndex } from "../../data-boundary/project-file-region-index.ts";
 import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import type { ProjectChanges } from "../../check/check.ts";
 import type { NormalizedProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
@@ -178,21 +178,23 @@ function matchedProjectChanges(
   paths: readonly string[],
   changes: NormalizedProjectChangesConfiguration
 ): Extract<ProjectChanges, { readonly ok: true }> {
-  const regions = Object.entries(changes.flags).sort(([left], [right]) => compareText(left, right));
+  const membership = createProjectFileRegionIndex({
+    fileSources: [paths],
+    regionSources: [
+      Object.entries(changes.flags).map(([id, region]) => ({
+        id,
+        kind: "patterns",
+        patterns: region.patterns
+      }))
+    ]
+  });
   const files = paths.flatMap((path) => {
-    const flags = regions.flatMap(([flagId, region]) =>
-      matchesRegion(path, region) ? [`${CHANGE_FLAG_PREFIX}${flagId}`] : []
-    );
+    const regionIds = membership.regionsForFile(path);
+    if (regionIds === undefined) throw new Error("changed path is outside the file-region index");
+    const flags = regionIds.map((flagId) => `${CHANGE_FLAG_PREFIX}${flagId}`);
     return flags.length === 0 ? [] : [Object.freeze({ flags: Object.freeze(flags), path })];
   });
   return Object.freeze({ ok: true, files: Object.freeze(files) });
-}
-
-function matchesRegion(
-  path: string,
-  region: NormalizedProjectChangesConfiguration["flags"][string]
-): boolean {
-  return matchesConfigPatterns(path, region.patterns);
 }
 
 function combineFlags(...sets: readonly (readonly string[])[]): readonly string[] {

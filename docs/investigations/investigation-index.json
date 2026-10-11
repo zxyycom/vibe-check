@@ -1355,6 +1355,23 @@
         "performance"
       ],
       "title": "项目文件收集后端接入与迁移准备"
+    },
+    "261011-project-file-region-index-readiness": {
+      "formedAt": "2026-10-11T10:09:50Z",
+      "name": "project-file-region-index-readiness",
+      "question": "如何以最小无 I/O Core 值数据 API 提供安全双向关系、追加重建和必要内部复用？",
+      "relations": [],
+      "resourceIds": [
+        "261011-project-file-region-index-readiness/rebuild-bun-observations.json",
+        "261011-project-file-region-index-readiness/rebuild-node-observations.json",
+        "261011-project-file-region-index-readiness/rebuild-workload.mjs"
+      ],
+      "sourcePath": "project-file-region-index-readiness.md",
+      "tags": [
+        "files",
+        "product-contract"
+      ],
+      "title": "文件—区域索引 API、消费与重建准备"
     }
   },
   "metadata": {},
@@ -1422,7 +1439,8 @@
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
       "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d",
       "261011-diagnose-investigation-pending-mode-conflict": "sha256:d373ce2000e94f934dca2e0894e7dde7e5fc5452acfa0dbc1fc18e70b1e92ff2",
-      "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94"
+      "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94",
+      "261011-project-file-region-index-readiness": "sha256:eec8745461486fb48b36858697b7bcb2402912af4bcb98803b48174a331c3859"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

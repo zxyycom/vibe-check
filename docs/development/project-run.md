@@ -49,6 +49,10 @@ unstaged 与 untracked paths 合并，rename 的 old/new 和 delete 的 old path
 `changes` grammar 与 protected-token reference；Git acquisition 和此处的 projection 是 Run owner。状态派生接线见
 [Check results](check-results.md#effective-aggregation-and-repository-gate-mapping)，公开折叠规则见 [API 机制](../api-mechanics.md)。
 
+匹配投影以 Git changed paths 为 file source、flags 为 patterns regions，复用
+[Core 文件—区域索引](../guides/file-region-index.md)。Core 只计算关系，Run 从全部 region IDs 映射 protected tokens；
+零命中文件不发布为 change evidence，获取不可用仍走上述保守分支，不应用扫描默认排除。
+
 所有 invocation path facts 在 callback 前冻结，后续只消费其 absolute representation，不再次解释 caller directory text。Check artifact base 与其它 directory target 使用同一 trusted grammar，不提供 containment、cleanup 或跨 Run state capability；省略时 callback artifactDirectory 为 null。
 
 | Fact                                                                     | Authoring authority                                                     | Frozen invocation projection                                                              | Check callback visibility                                              |

@@ -36,8 +36,10 @@ Owner: `docs/development/scanner-dependencies.md#exact-input-handoff`
 Entities:
 
 - `bun|src/package-checks/file-metrics/constructor.test.ts|fileMetrics constructor and direct callback > scans area-owned exact inputs once and applies the strictest overlapping area policy`
+- `bun|src/package-checks/file-metrics/constructor.region-identity.test.ts|fileMetrics region identity > preserves nonempty NUL area identities for empty selection and finding policy`
   Proves:
 - Each file-metrics area owns its file selection, code-line policy and effective finding policy. One logical SCC scan receives the stable deduplicated exact-path union; a path selected by multiple areas produces at most one finding under the strictest effective maximum, retains every matching area ID, and is blocking when any matching area is blocking.
+- Nonempty area IDs containing NUL remain valid: an empty selection settles `not-applicable/no-eligible-input` without invoking SCC, while matched findings retain the original ID and its blocking policy.
 
 ## Case WB-SCANNER-FUNCTION-METRICS-CHECK-001: Function Check owns area, finding, and unavailable policy
 

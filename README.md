@@ -136,6 +136,7 @@ node quality.ts
 | 目的 | 工具与接入方式 | 详解 |
 | --- | --- | --- |
 | 按一份完整 selection 收集项目文件 path | `collectProjectFiles(...)` 在普通项目代码或 custom Check 内返回冻结的 relative path 快照 | [收集项目文件](./docs/guides/collecting-project-files.md) |
+| 从多份值数据双向定位文件与区域 | `createProjectFileRegionIndex(...)` 无 I/O 构造只读关系，`appendSources(...)` 重建独立新视图 | [文件与区域索引](./docs/guides/file-region-index.md) |
 | 按完整语义 key 复用本地 JSON 计算 | `cacheJsonByKey(...)` 在普通项目代码或 Check 内返回一次调用的缓存结果 | [缓存计算结果](./docs/guides/cache-results.md) |
 | 取得独立 JSON 副本、生成确定性表示，或检查含回调的配置结构 | 两组公开 Core 工具分别负责 JSON 规范化/序列化与外层结构快照，无需创建 Check 或 Run | [Core 数据工具](./docs/guides/data-boundaries.md) |
 | 对账完整 Finding 集合与 waiver audit | `reconcileFindingWaivers(...)` 在 Finding 形成后返回 disposition 与 audit | [对账 Finding waiver](./docs/guides/finding-waivers.md) |

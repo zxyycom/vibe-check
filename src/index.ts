@@ -21,6 +21,12 @@ export type {
   CanonicalJsonValue
 } from "./data-boundary/canonical-data.ts";
 export { snapshotClosedArray, snapshotExactClosedRecord } from "./data-boundary/closed-values.ts";
+export { createProjectFileRegionIndex } from "./data-boundary/project-file-region-index.ts";
+export type {
+  ProjectFileRegion,
+  ProjectFileRegionIndex,
+  ProjectFileRegionSources
+} from "./data-boundary/project-file-region-index.ts";
 export { duplicateDetection } from "./package-checks/duplicate-detection/default-check.ts";
 export type { PackageCheckAuthoringOptions } from "./package-checks/check-authoring.ts";
 export { parseDuplicateDetectionData } from "./package-checks/duplicate-detection/final-data.ts";

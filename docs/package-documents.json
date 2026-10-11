@@ -14,6 +14,7 @@
     { "id": "scheduling", "sourcePath": "docs/guides/scheduling.md", "packagePath": "docs/guides/scheduling.md" },
     { "id": "simulating-admission", "sourcePath": "docs/guides/simulating-admission.md", "packagePath": "docs/guides/simulating-admission.md" },
     { "id": "collecting-project-files", "sourcePath": "docs/guides/collecting-project-files.md", "packagePath": "docs/guides/collecting-project-files.md" },
+    { "id": "file-region-index", "sourcePath": "docs/guides/file-region-index.md", "packagePath": "docs/guides/file-region-index.md" },
     { "id": "cache-results", "sourcePath": "docs/guides/cache-results.md", "packagePath": "docs/guides/cache-results.md" },
     { "id": "finding-waivers", "sourcePath": "docs/guides/finding-waivers.md", "packagePath": "docs/guides/finding-waivers.md" },
     { "id": "presenting-findings", "sourcePath": "docs/guides/presenting-findings.md", "packagePath": "docs/guides/presenting-findings.md" }

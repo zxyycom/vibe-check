@@ -2,7 +2,7 @@
 title: 用统一文件—区域索引承接多来源数据
 id: 261010-provide-readonly-file-region-index
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-10-10T09:38:54Z
 purpose: 让文件与区域关系统一构造、共享并从两个方向定位
 background: 区域文件集合与各处反向索引重复处理成员关系，而数据获取和领域策略仍有各自职责
@@ -23,7 +23,7 @@ relations: []
 - 追加的实际需要是接入更多文件源或区域源。合并已有数据后重建关系即可作为初始路径，
   尚无证据要求实时成员维护或复杂的局部增量算法。
 - 文件获取按[收集决策](unify-file-selection-with-default-excludes.md)独立演进。
-  本方向是尚未实现的公共 Core 能力，可先使用调用方提供的数据。
+  关系计算归公共 Core，直接消费调用方提供的值数据，不依赖文件获取的生命周期。
 
 ## 决策
 

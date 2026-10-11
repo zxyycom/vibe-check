@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 
 import type { NormalizedProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
+import { parseProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
 import { CHANGE_FLAG_PREFIX, GIT_CHANGES_UNAVAILABLE_CODE, prepareProjectChanges } from "./git.ts";
 import { commit, git, write } from "./git.test-support.ts";
 
@@ -164,6 +165,36 @@ describe("Project Run Git changes", () => {
       assert.equal(prepared.projectChanges.ok, true);
       if (!prepared.projectChanges.ok) return;
       assert.equal(Object.isFrozen(prepared.projectChanges.files), true);
+    } finally {
+      rmSync(repository, { force: true, recursive: true });
+    }
+  });
+
+  it("preserves nonempty NUL flag identities without mistaking zero matches for unavailable evidence", () => {
+    const repository = repositoryFixture();
+    const id = "nul\0id";
+    try {
+      write(repository, "src/new.ts", "export const value = 1;\n");
+      for (const patterns of [[], ["src/new.ts"]]) {
+        const configuration = parseProjectChangesConfiguration({
+          flags: { [id]: { patterns } },
+          source: { compareWith: "HEAD" }
+        });
+        assert(configuration !== undefined);
+        const prepared = prepareProjectChanges({
+          callerFlags: ["caller"],
+          changes: configuration,
+          projectRoot: repository
+        });
+        assert.deepEqual(prepared.projectChanges, {
+          files: patterns.length === 0 ? [] : [file("src/new.ts", [id])],
+          ok: true
+        });
+        assert.deepEqual(
+          prepared.effectiveFlags,
+          patterns.length === 0 ? ["caller"] : ["caller", `${CHANGE_FLAG_PREFIX}${id}`]
+        );
+      }
     } finally {
       rmSync(repository, { force: true, recursive: true });
     }

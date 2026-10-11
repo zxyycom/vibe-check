@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";
-import { dirname, join, resolve } from "node:path";
+import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
@@ -26,7 +26,7 @@ describe("package Check guides", () => {
       ].sort()
     );
     assert.equal(
-      documents.some((document) => document.packagePath.endsWith("index.md")),
+      documents.some((document) => basename(document.packagePath) === "index.md"),
       false
     );
     const changelog = documents.find((document) => document.packagePath === "docs/changelog.md");

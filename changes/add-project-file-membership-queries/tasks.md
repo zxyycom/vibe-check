@@ -1,25 +1,26 @@
 # Tasks
 
-先完成 API/消费与重建 Readiness 调查，再继承完整 matcher 迁移进行 Core 接线与验收；勾选只说明所列证据实际完成。
+Readiness 与上游继承已完成；以下勾选只表示对应实施或验收证据完成，不包含 Git 提交、Decision 对齐或结项动作。
 
 ## Readiness
 
-- [x] 0.1 范围与 owner 自审：核对 proposal/design、两条 active Decision、Architecture、当前收集指南、Project files 和协调入口，区分未来 Core 方向与当前实现。
-- [x] 0.2 契约自审：确认多来源值数据、双向定位、实际成员保留筛选、追加合并后重建/新旧视图隔离、无 I/O 和函数指标非强制迁移；临时输入不构成独立试算功能。
-- [ ] 0.3 按 Design 发布 API/消费与重建 Readiness Investigation：确定精确签名、路径/身份/错误校验、未知键、私有存储、最小消费清单和重建 workload，同步 design/tasks；失败按报告保留门禁。
-- [x] 0.4 由非实施代理独立审查实际文档 diff，确认 Plan 可恢复范围、依赖、调查失败处理和验收边界；自审不替代该项。
-- [ ] 0.5 规则实施前，记录并确认实施基线继承收集 Change 已验收的完整 matcher 迁移稳定提交，无旧 matcher 兼容。
+- [x] 0.1 范围与 owner 自审：核对 proposal/design、两条 active Decision、Architecture、收集指南、Project files 和协调入口，区分计划方向与当前实现。
+- [x] 0.2 契约自审：确认多来源值、双向关系、来源筛选、追加重建/视图隔离和无 I/O；函数指标不强制迁移，临时输入不创建独立试算功能。
+- [x] 0.3 发布 261011-project-file-region-index-readiness，收敛精确 API、输入边界、私有存储、最小消费与 10k/50k workload，同步 design；报告不替代实施证据。
+- [x] 0.4 非实施代理独立审查文档 diff，确认范围、依赖、调查失败处理和验收可恢复。
+- [x] 0.5 实施基线 HEAD 0aeb0d0e；git merge-base --is-ancestor 2b2489cf HEAD 返回 0，已继承完整 matcher 迁移。
 
 ## Implementation
 
-- [ ] 1.1 在 0.3/0.4 完成后实现公共 Core 值数据入口、批量合并与私有双向索引，封闭输入/结果修改通道，明确未知键与已知空结果。
-- [ ] 1.2 实现显式追加值来源、合并后重建、新只读视图与旧视图不变；已知实际成员不被新增路径扩大，不调用来源获取。
-- [ ] 1.3 在 0.5 完成后接入共同完整 patterns matcher；按 Readiness 清单迁移必要内部消费，保持 accepted/rejected、exact inputs、阈值与 policy。
-- [ ] 1.4 同步 root exports、声明/JSDoc、README 入口、受管示例、实际消费 owner 与 changelog；按 test-evidence-review 维护受影响测试/Case。
+- [x] 1.1 实现 createProjectFileRegionIndex、批量值合并与私有双向 Maps；closed/descriptor-safe detached 校验和运行时冻结，区分 unknown undefined 与 known empty []。
+- [x] 1.2 appendSources 合并值后重建独立新视图；实际成员不扩大，旧视图不变，不重取来源。
+- [x] 1.3 共用 selectConfigPaths 完整 matcher；仅迁移 fileMetrics 实际成员与 Run 规则投影，获取、policy 和 exact inputs 保持原义。
+- [x] 1.4 同步公开根、inventory、声明/JSDoc、公开指南、发布映射与受管示例、内部 owner 和 changelog；新增五个索引 Case 并扩充共同 matcher/消费 Case。
 
 ## Verification
 
-- [ ] 2.1 运行最窄 Core/实际消费测试，覆盖双向一致、零/多命中、空/未知键、路径/ID/非法输入及运行时修改隔离；显式不存在或已删除路径无 I/O。
-- [ ] 2.2 验证批量与逐次追加等价、新文件/旧规则和新规则/旧文件重建、实际成员筛选、旧视图稳定；构造/查询/重建不执行 I/O 或刷新。
-- [ ] 2.3 验证 collection/Core/Run 完整列表与参数一致及默认排除不删显式输入，消费策略不变；按报告测量代表性构造/查询/重建耗时与内存，记录结果/边界。
-- [ ] 2.4 运行 typecheck/lint/dependency、文档/Case、支持宿主安装后消费者与对应跨边界/包 Gate；独立反查公开承诺及内部 owner，完整验收后才交付稳定提交给 debug。
+- [x] 2.1 最终 Bun 局部 53 tests 与 Node24.18 Core 8 tests 通过；覆盖关系、closed 输入、path/ID 与运行时隔离。此前原 NUL predicate 下三个身份回归均失败，恢复修复后通过。
+- [x] 2.2 Core 测试覆盖批量/追加等价、规则重建、实际成员和旧视图；独立宿主封锁 fs/process 下构造、查询与追加通过。
+- [x] 2.3 collection/Core/Run matcher 与消费策略通过；两宿主 10k/50k 构造/全查询/追加成本保留于报告，不宣称加速或 retained-memory 改善。
+- [x] 2.4 最终完整 Gate 43/43 passed，candidate 0.0.0-local.b96090608982；同一 tarball 的 types/Node24.18 runtime/docs、两侧工程校验、材料和各 test lanes 通过，Case 680/169。精确日志、时间与边界见[最终验收](../../docs/investigations/project-file-region-index-readiness.md#最终独立优化与验收)。
+- [x] 2.5 非实施代理的公开承诺/内部 owner/正确性独立审查、身份域修复定向复核，以及最终独立优化与验证已完成。验收证据已备妥；稳定提交、Decision 对齐与结项由协调者随后执行，debug 的提交继承门禁保持。
