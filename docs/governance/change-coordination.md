@@ -61,7 +61,7 @@ owner 时，实施与合入必须串行。
 | 能力 / 下游 Change | 独立交付 | 实施前置 |
 | --- | --- | --- |
 | [Core 索引](../../changes/add-project-file-membership-queries/proposal.md) | 多来源合并、追加后重建与只读双向定位。 | 先做 API/消费与重建 Readiness 调查；纯值数据设计可先行，规则实施和验收继承收集的完整 matcher 迁移稳定提交。 |
-| [文件收集](../guides/collecting-project-files.md) | 纯磁盘枚举、统一 patterns、默认防呆和进入前剪枝。 | 已完成后端接入、独立正确性复核与最终完整包 Gate；待协调者保存稳定提交供下游继承。Core 和调试不是收集前置。 |
+| [文件收集](../guides/collecting-project-files.md) | 纯磁盘枚举、统一 patterns、默认防呆和进入前剪枝。 | 已验收并结项，稳定提交为 `2b2489cf`；Core/debug 在实际继承该提交后使用当前 matcher。Core 和调试不是收集前置。 |
 | [change flag 调试](../../changes/add-change-flag-debugging/proposal.md) | 所选当前文件全集的逐文件及按 flag 映射。 | 实施基线继承已验收 Core 与收集迁移的稳定提交。 |
 
 - **关系输入**：Core 组合已提供的文件/区域数据；来源追加先合并后重建，单一磁盘收集策略保持独立。
