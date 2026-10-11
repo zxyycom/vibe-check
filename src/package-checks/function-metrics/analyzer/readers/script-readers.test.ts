@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0 tests.
+ * Derived from terryyin/lizard 1.24.1 tests.
  * Sources: test/test_languages/testPython.py and related script-language tests.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: direct fixture and high-risk reader parity coverage.
  */
@@ -22,7 +22,7 @@ import { PythonReader } from "./python.ts";
 import { RReader } from "./r.ts";
 import { RubyReader } from "./ruby.ts";
 
-const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.0");
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.1");
 
 test("script readers preserve every registered suffix and normal/edge oracle fixture", () => {
   for (const fixture of ["normal.py", "edge.py"])

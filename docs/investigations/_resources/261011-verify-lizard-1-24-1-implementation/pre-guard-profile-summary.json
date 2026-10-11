@@ -1,0 +1,291 @@
+{
+  "scope": "Same decoded 597 sources; one warmup plus five counted facade traversals; separate profile processes, not full Check statistics or causal allocation proof.",
+  "profiles": {
+    "before": {
+      "sampledDurationMs": 2301.85,
+      "selfTimeTop": [
+        {
+          "function": "lineCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 219.162
+        },
+        {
+          "function": "generateTokens",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 183.326
+        },
+        {
+          "function": "generateTokensWithRegex",
+          "file": "js-style-regex.ts",
+          "sampledSelfMs": 181.013
+        },
+        {
+          "function": "withoutWhitespace",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 150.373
+        },
+        {
+          "function": "process",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 132.956
+        },
+        {
+          "function": "(garbage collector)",
+          "file": "",
+          "sampledSelfMs": 123.787
+        },
+        {
+          "function": "isPythonWhitespace",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 111.146
+        },
+        {
+          "function": "conditionCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 104.711
+        },
+        {
+          "function": "__call__",
+          "file": "lizardnd.ts",
+          "sampledSelfMs": 104.447
+        },
+        {
+          "function": "RegExp: (?:\\/\\*.*?\\*\\/|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?)|`.*?`|(?:\\d+')+\\d+|0x(?:[0-9A-Fa-f]+')+[0-9A-Fa-f]+|0b(?:[01]+')+[01]+|[\\p{L}\\p{N}_]+|\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*?'|\\/\\/(?:\\\\\\n|[^\\n])*|#|:=|::|\\*\\*|<(?=(?:[^<>?]*\\?)+[^<>]*>)(?:[\\w\\s,.?]|(?:extends))+>|<<=|>>=|\\|\\||&&|===|!==|==|!=|<=|>=|->|=>|\\+\\+|--|\\+=|-=|\\+|-|\\*|\\/|\\*=|\\/=|\\^=|&=|\\|=|\\.\\.\\.|\\\\\\n|\\n|(?:(?!\\n)(?:\\p{White_Space}|[\u001c-\u001f]))+|.)",
+          "file": "",
+          "sampledSelfMs": 98.19
+        },
+        {
+          "function": "_state_global",
+          "file": "typescript.ts",
+          "sampledSelfMs": 85.718
+        },
+        {
+          "function": "__call__",
+          "file": "lizardcomplextags.ts",
+          "sampledSelfMs": 71.938
+        },
+        {
+          "function": "commentCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 64.555
+        },
+        {
+          "function": "",
+          "file": "typescript.ts",
+          "sampledSelfMs": 62.78
+        },
+        {
+          "function": "tokenCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 58.697
+        },
+        {
+          "function": "analyzeSourceCode",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 55.522
+        },
+        {
+          "function": "consume",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 54.618
+        },
+        {
+          "function": "addToLongName",
+          "file": "analysis-model.ts",
+          "sampledSelfMs": 35.988
+        },
+        {
+          "function": "globalState",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 33.187
+        },
+        {
+          "function": "",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 29.392
+        },
+        {
+          "function": "RegExp: ^\\p{White_Space}$",
+          "file": "",
+          "sampledSelfMs": 26.034
+        },
+        {
+          "function": "",
+          "file": "port-facade.ts",
+          "sampledSelfMs": 14.953
+        },
+        {
+          "function": "",
+          "file": "analysis-context.ts",
+          "sampledSelfMs": 14.142
+        },
+        {
+          "function": "(program)",
+          "file": "",
+          "sampledSelfMs": 12.468
+        },
+        {
+          "function": "stripPythonWhitespace",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 11.949
+        }
+      ],
+      "portCost": {
+        "runtime": "v24.18.0",
+        "samples": [
+          361.97665099999995,
+          350.97038299999997,
+          344.2886189999999,
+          348.561009,
+          366.92578800000024
+        ],
+        "files": 597,
+        "functions": 5632,
+        "digest": "1bc86598bbc479aa3cf56accf721e96bb63b0c14f78236db1294abdf832ac9f0"
+      }
+    },
+    "after": {
+      "sampledDurationMs": 2880.87,
+      "selfTimeTop": [
+        {
+          "function": "generateTokensWithRegex",
+          "file": "js-style-regex.ts",
+          "sampledSelfMs": 276.458
+        },
+        {
+          "function": "generateTokens",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 272.369
+        },
+        {
+          "function": "RegExp: (?:\\/\\*.*?\\*\\/|(?:(?<![^])|(?<=[=,({[?:!&|;]))[\\p{White_Space}\\u001c-\\u001f]*\\/(?![/*])(?:\\\\[^\\r\\n]|\\[(?:\\\\[^\\r\\n]|[^\\\\\\]\\r\\n])*\\]|[^/\\\\[\\r\\n])+\\/[a-z]*|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?)|`(?:\\\\.|\\$\\{(?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|[^{}\"'`])*\\}|[^`\\\\])*`|(?:\\d+')+\\d+|0x(?:[0-9A-Fa-f]+')+[0-9A-Fa-f]+|0b(?:[01]+')+[01]+|[\\p{L}\\p{N}_]+|\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*?'|\\/\\/(?:\\\\\\n|[^\\n])*|#|:=|::|\\*\\*|<(?=(?:[^<>?]*\\?)+[^<>]*>)(?:[\\w\\s,.?]|(?:extends))+>|<<=|>>=|\\|\\||&&|===|!==|==|!=|<=|>=|->|=>|\\+\\+|--|\\+=|-=|\\+|-|\\*|\\/|\\*=|\\/=|\\^=|&=|\\|=|\\.\\.\\.|\\\\\\n|\\n|(?:(?!\\n)(?:\\p{White_Space}|[\u001c-\u001f]))+|.)",
+          "file": "",
+          "sampledSelfMs": 226.737
+        },
+        {
+          "function": "lineCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 218.017
+        },
+        {
+          "function": "withoutWhitespace",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 183.539
+        },
+        {
+          "function": "__call__",
+          "file": "lizardnd.ts",
+          "sampledSelfMs": 151.969
+        },
+        {
+          "function": "process",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 136.026
+        },
+        {
+          "function": "isPythonWhitespace",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 129.915
+        },
+        {
+          "function": "conditionCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 113.165
+        },
+        {
+          "function": "",
+          "file": "typescript.ts",
+          "sampledSelfMs": 108.924
+        },
+        {
+          "function": "_state_global",
+          "file": "typescript.ts",
+          "sampledSelfMs": 107.427
+        },
+        {
+          "function": "(garbage collector)",
+          "file": "",
+          "sampledSelfMs": 105.15
+        },
+        {
+          "function": "__call__",
+          "file": "lizardcomplextags.ts",
+          "sampledSelfMs": 83.845
+        },
+        {
+          "function": "commentCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 80.687
+        },
+        {
+          "function": "analyzeSourceCode",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 72.874
+        },
+        {
+          "function": "",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 65.483
+        },
+        {
+          "function": "consume",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 59.943
+        },
+        {
+          "function": "tokenCounter",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 48.991
+        },
+        {
+          "function": "RegExp: ^\\p{White_Space}$",
+          "file": "",
+          "sampledSelfMs": 44.56
+        },
+        {
+          "function": "globalState",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 40.757
+        },
+        {
+          "function": "addToLongName",
+          "file": "analysis-model.ts",
+          "sampledSelfMs": 32.693
+        },
+        {
+          "function": "tokenizerFlags",
+          "file": "code-reader.ts",
+          "sampledSelfMs": 18.588
+        },
+        {
+          "function": "",
+          "file": "port-facade.ts",
+          "sampledSelfMs": 17.558
+        },
+        {
+          "function": "stripPythonWhitespace",
+          "file": "pipeline.ts",
+          "sampledSelfMs": 14.15
+        },
+        {
+          "function": "",
+          "file": "port-cost-driver.mjs",
+          "sampledSelfMs": 11.428
+        }
+      ],
+      "portCost": {
+        "runtime": "v24.18.0",
+        "samples": [
+          465.153059,
+          441.32936900000004,
+          448.9599639999999,
+          453.28459599999996,
+          456.29599199999984
+        ],
+        "files": 597,
+        "functions": 5709,
+        "digest": "00ae7a572938062002a9e547abd417d2e445cc95b9deaa50bc96608639d4900a"
+      }
+    }
+  }
+}

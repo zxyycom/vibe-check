@@ -6,6 +6,12 @@
 
 本节记录 `0.0.3` 相对 `v0.0.2` 的净变化。Node `>=24.18` 的宿主要求与包根程序化入口保持不变。
 
+### 函数分析器源码升级
+
+[`functionMetrics`](checks/function-metrics.md) 的内置源码基线升级到 Lizard `1.24.1`，改善 regex 和 TS/TSX template 后的函数边界、Python PEP 695 泛型名、Kotlin expression/when 函数、PHP trait method 结束位置和 Rust match arm CCN。Rust 真实 arm 贡献与 Kotlin 正文位置按既有产品结果承诺局部校正。四项指标、默认 limits、27 readers / 55 suffixes、配置与公共 API 保持不变，不提供 Cognitive Complexity。
+
+同一源文件可能出现新增函数、不同名称/位置或指标，从而改变 Finding 及 blocking 结果。升级后请复核 Records 与精确 waiver；旧函数 identity 可能产生 unused audit。已知 TypeScript 返回类型后的尾部归属与 `??` 计量缺陷未由此次来源升级修复。
+
 ### 文件收集范围迁移
 
 项目文件选择统一为纯磁盘 `{ patterns, useDefaultExcludes? }`，移除 source/include/exclude 与 ProjectFileSource。默认排除固定且默认启用，只有 false 关闭；用户列表不能绕过这层。Run change regions 改为 `{ patterns }`，不应用扫描默认排除。被 Git 忽略的普通文件和子仓库目录可能进入范围，链接不入选；请复核候选、后缀 eligibility 与内容安全，而非机械替换来源。收集保持同步、冻结排序去重，并区分非法输入、必要 I/O 失败和合法无匹配。见[选择与收集项目文件](./guides/collecting-project-files.md)。

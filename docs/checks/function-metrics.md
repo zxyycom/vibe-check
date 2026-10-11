@@ -124,6 +124,10 @@ const metrics = functionMetrics({
 
 ## 工作原理
 
+内置 analyzer 的源码基线固定为 Lizard `1.24.1`，支持上述四项指标及 27 readers / 55 suffixes；不提供 Cognitive Complexity。
+Rust 每个 `match` scope 的首 arm 不增加 CCN，第二及后续 arm 在真实 `=>` 处增加，并发布对应 token/line 贡献。
+Kotlin expression body 的位置/NLOC 止于最后正文 token，不包含下一 declaration 或外层关闭符。
+
 Check 用内置 reader registry 将 selected paths 分为 accepted/rejected；suffix 大小写不敏感。
 Markdown、JSON、YAML、无扩展名等不支持路径不进入 analyzer，每项先发布 non-blocking input-rejected Record。
 accepted paths 经有界读取后整批分析，只使用本次 exact inputs，不重新发现文件；取消会停止分析。
@@ -136,7 +140,8 @@ accepted paths 经有界读取后整批分析，只使用本次 exact inputs，�
 
 metric Record 保留 `blocking`、`functionName`、`metric`、`value`、`limit`、`path`、`startLine` 与全部 matching `codeAreas`。
 metric 是 `function-code-density`、`cyclomatic-complexity`、`nesting-depth` 或 `parameter-count`。
-只有 CCN Record 另带完整 source-order `complexityContributors: Array<{ token, line }>`，说明各 reader condition token 的贡献；
+只有 CCN Record 另带完整 source-order `complexityContributors: Array<{ token, line }>`，说明各 reader condition token 及 Rust 实际增加 CCN 的 `=>` 贡献。
+该列表不是全部内部 CCN 事件的轨迹；例如 Kotlin `when` 的 `->` 不属于该 reader 的 condition token。
 它不独立形成 Finding、limit 或 waiver identity。CCN detail message 最多展示八项，余数仍在 Record 中。
 
 input-rejected Record 的 ID 为 `/input-rejected/<path>`，data 包含 `blocking: false`、`kind: "input-rejected"`、

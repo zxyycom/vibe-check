@@ -67,14 +67,16 @@ owner 时，实施与合入必须串行。
 
 ### Lizard 升级与 TypeScript 修复
 
-两项 Change 按独立 Outcome 验收、提交和回退；共享 analyzer、来源账本、Case 与包材料，实施和合入串行。
+固定 `1.24.1` 来源、Rust 真实 match-arm 贡献和 Kotlin 正文位置由
+[Function Metrics](../checks/function-metrics.md)、[Scanner dependencies](../development/scanner-dependencies.md)
+及[来源映射维护](../tooling/source-mapping.md)拥有；形成时验收见
+[实施调查](../investigations/verify-lizard-1-24-1-implementation.md)。本节不保留已交付升级的 Change 链接或阶段副本。
 
-| Change | 独立交付 | 默认顺序与进入条件 |
-| --- | --- | --- |
-| [`upgrade-lizard-source-baseline`](../../changes/upgrade-lizard-source-baseline/proposal.md) | 跟进固定 `1.24.1` 七模块更新，以有界偏差闭合 Rust 真实贡献、Kotlin 位置及来源、行为、包证据。 | 默认先执行；从冻结来源/原始 oracle 开始，按目标 artifacts 的审计、翻译与验收出口推进。 |
-| [`fix-typescript-function-metrics`](../../changes/fix-typescript-function-metrics/proposal.md) | 修复显式返回类型边界污染与 `??` 分类/计量。 | 默认继承升级已验收的稳定提交；[短路口径已确认](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)，按局部 callback、TS/TSX 与 reader-gated ND 路线实施并独立验收。 |
-
-升级不是修复的技术前提。若先在 `1.24.0` 修复，显式调整两个 Change 的顺序和偏差基线，升级时重验修正。各项进入实施仍以自身 artifacts、验证准备和当前授权为准。
+[`fix-typescript-function-metrics`](../../changes/fix-typescript-function-metrics/proposal.md)
+独立修复显式返回类型边界污染与 `??` 分类/计量；[短路口径已确认](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)，
+局部 callback、TS/TSX 与 reader-gated ND 路线仍按其 artifacts 实施并独立验收。
+默认继承已验收固定来源的稳定提交，实施前核对实际继承的 source identity；两项缺陷未由升级修复。
+共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和合入，不把固定来源交付当作修复或读取优化的自动授权。
 
 ### 函数指标读取优化
 

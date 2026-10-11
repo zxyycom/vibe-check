@@ -152,6 +152,9 @@ function assertMalformedCatalogDiagnostics(): void {
     "Entities:",
     `- \`${bunEntity}\``,
     `- \`${bunEntity}\``,
+    "- not-backticked",
+    `- \` ${bunEntity} \``,
+    `- \`${secondBunEntity}\``,
     "Proves:",
     ""
   ]);
@@ -212,7 +215,30 @@ function assertMalformedCatalogDiagnostics(): void {
   assertDiagnostic(catalog.diagnostics, "case.owner-missing");
   assertDiagnostic(catalog.diagnostics, "case.owner-unknown");
   assertDiagnostic(catalog.diagnostics, "case.owner-heading-unknown");
-  assertDiagnostic(catalog.diagnostics, "case.entity-duplicate");
+  assert.deepEqual(
+    catalog.diagnostics.find(({ code }) => code === "case.entity-duplicate"),
+    {
+      code: "case.entity-duplicate",
+      origin: "case",
+      severity: "error",
+      blocking: true,
+      message: `Case CASE-DUPLICATE-001 repeats test entity ${bunEntity}`,
+      caseId: "CASE-DUPLICATE-001",
+      entityKey: bunEntity,
+      path: "docs/testing/cases/contract.md",
+      line: 6
+    }
+  );
+  assert.deepEqual(
+    catalog.diagnostics
+      .filter(({ code }) => code === "case.entity-invalid")
+      .map(({ line }) => line),
+    [7, 8]
+  );
+  const parsedEntities = catalog.cases.find(
+    ({ sourcePath }) => sourcePath === "docs/testing/cases/contract.md"
+  );
+  assert.deepEqual(parsedEntities?.entityKeys, [bunEntity, secondBunEntity]);
   assertDiagnostic(catalog.diagnostics, "case.entities-empty");
   assertDiagnostic(catalog.diagnostics, "case.proves-empty");
   assertDiagnostic(catalog.diagnostics, "case.owner-heading-unknown", {

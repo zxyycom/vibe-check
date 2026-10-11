@@ -22,7 +22,7 @@ const expectedRunMessages: readonly ExpectedRunMessage[] = [
     code: "finding-detail",
     level: "warning",
     message:
-      "function-metrics.ts:1 workerProof: cyclomatic-complexity 2 exceeds the 1 limit (areas: worker). Complexity contributors: if at line 2."
+      "function-metrics.rs:1 workerProof: cyclomatic-complexity 3 exceeds the 1 limit (areas: worker). Complexity contributors: => at line 4, => at line 5."
   },
   {
     checkId: "duplicate-detection",

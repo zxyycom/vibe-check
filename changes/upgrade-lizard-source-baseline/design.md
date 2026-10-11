@@ -4,8 +4,8 @@
 
 ## Context
 
-- 当前生产来源仍为 `1.24.0` / `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`；[升级调查](../../docs/investigations/assess-lizard-1-24-1-upgrade.md)保存新版身份、七模块映射和 14 项收益/风险。
-- [准备度核对](../../docs/investigations/prepare-function-metrics-change-plans.md)以当前 owner、源码和本地精确 Git object 核对最小路线，资源保存七模块差异及 Rust/Kotlin/regex 原文/hash；移植与产品验收由 [Tasks](tasks.md)承接。
+- 实施前生产来源为 `1.24.0` / `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec`；[升级调查](../../docs/investigations/assess-lizard-1-24-1-upgrade.md)保存新版身份、七模块映射和 14 项收益/风险。实施进度及已取得证据由 [Tasks](tasks.md)记录，不从本节背景推断当前状态。
+- [准备度核对](../../docs/investigations/prepare-function-metrics-change-plans.md)以形成时 owner、源码和本地精确 Git object 核对最小路线，资源保存七模块差异及 Rust/Kotlin/regex 原文/hash；移植与产品验收由 [Tasks](tasks.md)承接。
 - [分析器 owner](../../docs/development/scanner-dependencies.md)优先 source fidelity；公开 CCN Record 要有完整有序贡献，位置用于 Finding/waiver。[扩展采用边界](../../docs/decisions/keep-lizard-advisory-explicit-with-selected-extension-adoption.md)保持 advisory 显式、新指标独立评估。
 
 ## Goals / Non-Goals

@@ -1,0 +1,282 @@
+{
+  "cold": {
+    "before": {
+      "medianMs": 3171.1533319976297,
+      "p95Ms": 3432.165261998307,
+      "samples": 30,
+      "minMs": 3122.1068390004802,
+      "maxMs": 3587.7744180033915
+    },
+    "after": {
+      "medianMs": 3227.7772820016253,
+      "p95Ms": 3272.183180000866,
+      "samples": 30,
+      "minMs": 3183.1130989885423,
+      "maxMs": 3277.7153099887073
+    },
+    "afterVsBeforeMedianPct": 1.7855948317808457,
+    "pairedBlocks": [
+      {
+        "block": 0,
+        "before": 3202.1416384959593,
+        "after": 3257.076813999447,
+        "differenceMs": 54.9351755034877,
+        "relativePct": 1.715576064564428
+      },
+      {
+        "block": 1,
+        "before": 3167.730262000987,
+        "after": 3222.018117499829,
+        "differenceMs": 54.287855498841964,
+        "relativePct": 1.7137777212302696
+      },
+      {
+        "block": 2,
+        "before": 3175.606094999239,
+        "after": 3219.601586490171,
+        "differenceMs": 43.99549149093218,
+        "relativePct": 1.3854203000873921
+      },
+      {
+        "block": 3,
+        "before": 3160.9239610043005,
+        "after": 3223.525717505254,
+        "differenceMs": 62.60175650095334,
+        "relativePct": 1.980489163082022
+      },
+      {
+        "block": 4,
+        "before": 3143.2299299995066,
+        "after": 3204.38756999647,
+        "differenceMs": 61.15763999696355,
+        "relativePct": 1.9456941222550928
+      },
+      {
+        "block": 5,
+        "before": 3175.7776554950397,
+        "after": 3244.7689045002335,
+        "differenceMs": 68.99124900519382,
+        "relativePct": 2.172420631709482
+      },
+      {
+        "block": 6,
+        "before": 3200.0002865024726,
+        "after": 3258.3618455028045,
+        "differenceMs": 58.36155900033191,
+        "relativePct": 1.8237985554719893
+      },
+      {
+        "block": 7,
+        "before": 3387.373325000226,
+        "after": 3248.9390804985305,
+        "differenceMs": -138.4342445016955,
+        "relativePct": -4.086772588069731
+      },
+      {
+        "block": 8,
+        "before": 3173.3451824984513,
+        "after": 3230.3999590003514,
+        "differenceMs": 57.05477650190005,
+        "relativePct": 1.7979379241995774
+      },
+      {
+        "block": 9,
+        "before": 3169.538864502101,
+        "after": 3223.0159105019993,
+        "differenceMs": 53.47704599989811,
+        "relativePct": 1.6872184972654969
+      },
+      {
+        "block": 10,
+        "before": 3222.7630264969775,
+        "after": 3250.4379019956104,
+        "differenceMs": 27.6748754986329,
+        "relativePct": 0.8587313206430247
+      },
+      {
+        "block": 11,
+        "before": 3309.7607890013023,
+        "after": 3246.6431930006365,
+        "differenceMs": -63.1175960006658,
+        "relativePct": -1.9070138304379092
+      },
+      {
+        "block": 12,
+        "before": 3288.4050180000486,
+        "after": 3196.1035064960015,
+        "differenceMs": -92.30151150404708,
+        "relativePct": -2.806877832834087
+      },
+      {
+        "block": 13,
+        "before": 3150.22834600677,
+        "after": 3206.8983229983132,
+        "differenceMs": 56.66997699154308,
+        "relativePct": 1.7989164837329374
+      },
+      {
+        "block": 14,
+        "before": 3176.407709499472,
+        "after": 3191.993733991694,
+        "differenceMs": 15.58602449222235,
+        "relativePct": 0.49068085452665944
+      }
+    ],
+    "pairedDifferenceMeanMs": 21.39600496496617,
+    "pairedDifferenceMedianMs": 54.287855498841964,
+    "pairedMeanDifferenceBootstrap95Ms": [
+      -14.081660868153753,
+      49.2046600629692
+    ],
+    "pairedBootstrapMethod": "5000 seeded (261011) block resamples, each block two observations per side; mean paired difference. No sample exclusions.",
+    "iqrOutliers": {
+      "before": [
+        3587.7744180033915,
+        3398.568085001898,
+        3432.165261998307
+      ],
+      "after": []
+    }
+  },
+  "warmed-operation": {
+    "before": {
+      "medianMs": 2395.974798,
+      "p95Ms": 2491.277127,
+      "samples": 30,
+      "minMs": 2359.0412010000005,
+      "maxMs": 2526.455348
+    },
+    "after": {
+      "medianMs": 2446.4948984999996,
+      "p95Ms": 2511.076757,
+      "samples": 30,
+      "minMs": 2400.306461,
+      "maxMs": 2515.508276
+    },
+    "afterVsBeforeMedianPct": 2.108540563205019,
+    "pairedBlocks": [
+      {
+        "block": 0,
+        "before": 2397.3686695,
+        "after": 2422.2236815000006,
+        "differenceMs": 24.855012000000443,
+        "relativePct": 1.0367621933252469
+      },
+      {
+        "block": 1,
+        "before": 2395.0916245000003,
+        "after": 2423.861293,
+        "differenceMs": 28.769668499999625,
+        "relativePct": 1.2011928147427575
+      },
+      {
+        "block": 2,
+        "before": 2372.3499215,
+        "after": 2440.6154030000002,
+        "differenceMs": 68.26548150000008,
+        "relativePct": 2.87754689480364
+      },
+      {
+        "block": 3,
+        "before": 2384.2500375,
+        "after": 2450.2851754999997,
+        "differenceMs": 66.03513799999973,
+        "relativePct": 2.7696398012534207
+      },
+      {
+        "block": 4,
+        "before": 2387.6269219999995,
+        "after": 2429.3892460000006,
+        "differenceMs": 41.76232400000117,
+        "relativePct": 1.7491143032102752
+      },
+      {
+        "block": 5,
+        "before": 2383.63652,
+        "after": 2480.5409739999996,
+        "differenceMs": 96.90445399999953,
+        "relativePct": 4.065403981979587
+      },
+      {
+        "block": 6,
+        "before": 2459.706341,
+        "after": 2457.5776925000005,
+        "differenceMs": -2.128648499999599,
+        "relativePct": -0.0865407575090571
+      },
+      {
+        "block": 7,
+        "before": 2395.471813,
+        "after": 2444.566821,
+        "differenceMs": 49.09500799999978,
+        "relativePct": 2.049492201643366
+      },
+      {
+        "block": 8,
+        "before": 2443.5148025,
+        "after": 2461.3751105,
+        "differenceMs": 17.86030800000026,
+        "relativePct": 0.7309269410493036
+      },
+      {
+        "block": 9,
+        "before": 2375.0946200000003,
+        "after": 2438.578833,
+        "differenceMs": 63.48421299999973,
+        "relativePct": 2.672913005882682
+      },
+      {
+        "block": 10,
+        "before": 2410.5008205000004,
+        "after": 2505.996187,
+        "differenceMs": 95.49536649999982,
+        "relativePct": 3.9616400744552083
+      },
+      {
+        "block": 11,
+        "before": 2399.778034,
+        "after": 2431.8386105,
+        "differenceMs": 32.060576500000025,
+        "relativePct": 1.3359809134747769
+      },
+      {
+        "block": 12,
+        "before": 2406.924384,
+        "after": 2441.205529,
+        "differenceMs": 34.281144999999924,
+        "relativePct": 1.424271789669973
+      },
+      {
+        "block": 13,
+        "before": 2400.9214340000003,
+        "after": 2493.3835165,
+        "differenceMs": 92.46208249999972,
+        "relativePct": 3.8511082116483575
+      },
+      {
+        "block": 14,
+        "before": 2388.5248014999997,
+        "after": 2457.7900250000002,
+        "differenceMs": 69.2652235000005,
+        "relativePct": 2.8999164445142833
+      }
+    ],
+    "pairedDifferenceMeanMs": 51.89782350000005,
+    "pairedDifferenceMedianMs": 49.09500799999978,
+    "pairedMeanDifferenceBootstrap95Ms": [
+      37.245888433333405,
+      66.6638633333333
+    ],
+    "pairedBootstrapMethod": "5000 seeded (261011) block resamples, each block two observations per side; mean paired difference. No sample exclusions.",
+    "iqrOutliers": {
+      "before": [
+        2526.455348,
+        2491.277127
+      ],
+      "after": [
+        2515.508276,
+        2511.076757
+      ]
+    }
+  }
+}

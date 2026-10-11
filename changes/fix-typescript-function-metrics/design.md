@@ -38,7 +38,7 @@ JavaScriptReader 和 VueReader 继承 TypeScript tokenizer/condition 集合，TS
 
 ### Resulting Impacts
 
-1. **基线/来源。** 默认在已验收升级提交上实施；若先修 `1.24.0`，明确更新协调顺序及两项 Change 偏差身份，升级重验。维护 code-reader/TS/TSX/ND 偏差说明、source identity/header、原始 oracle 与修正期望，再通过来源公共入口派生 pin；不把上游 hash 改为本地补丁 hash。
+1. **基线/来源。** 默认继承已验收固定 `1.24.1` 来源的稳定提交；以[来源 owner](../../docs/development/scanner-dependencies.md)及[实施调查](../../docs/investigations/verify-lizard-1-24-1-implementation.md)核对基线与局部偏差。维护 code-reader/TS/TSX/ND 偏差说明、source identity/header、原始 oracle 与修正期望，再通过来源公共入口派生 pin；不把上游 hash 改为本地补丁 hash。
 2. **测试/共享生命周期。** 四边界、七操作符原始样例作输入线索；增加上文状态矩阵及不同简单/对象/泛型返回类型、typed arrow/TSX 的直接影响探针。合法形态仍失败且根因超出本修正时明确记录，不扩成返回类型支持重写。共享回调修改必须覆盖 27-reader oracle、normal nesting、malformed 和 extension lifecycle；按测试 owner 管理 Case，不为样例行单独建 Case。
 3. **公开解释/结算。** adapter→真实 Worker→公开 Check 对照私有结果；诊断 profile 验证逐项字段，默认 profile 验证真实影响。四项 `??` 的旧 ND 8 blocking Finding 应消失或随已确认状态路径重算，不能预设短路 ND 总为零；完整 Record 不受 human message 八项展示上限截断。保持 waiver identity、rejection/取消和完整批次失败。
 4. **owner/包。** 实现并验证后同步指南的 `??`、condition 内外 ND 精确解释、内部 source-fidelity 偏差和 changelog；核对 Decision 完整方向才 mark-aligned，不在准备阶段勾 aligned。exact artifact、installed Node consumer 的 Worker/指标/贡献及完整 Gate 是独立出口。
@@ -48,7 +48,7 @@ JavaScriptReader 和 VueReader 继承 TypeScript tokenizer/condition 集合，TS
 - shared callback 改动会推翻现有 source-order 断言；保留 raw oracle 与修正直接期望，不能通过删除证据掩盖差异。
 - TSX/JS/Vue 继承和 ND 的语言 gating 必须直接验证，避免 Kotlin/其他语言取得未授权新计量。
 - ND 数值依赖实际状态；公共指南须在实施验证后明确 condition 内外边界，并与 Decision 的对齐状态一致。
-- 升级/修复共享 analyzer、来源、Case 和包 owner，串行实施、独立验收/提交；修复必要性独立于升级进度。
+- 后续修复共享 analyzer、来源、Case 和包 owner，串行实施、独立验收/提交；固定来源交付不改变修复必要性或本计划的实施授权。
 
 ## Open Questions
 

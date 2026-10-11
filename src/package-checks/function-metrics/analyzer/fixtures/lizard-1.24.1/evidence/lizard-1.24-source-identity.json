@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "provenancePath": "licenses/lizard-1.24.0-provenance.json",
+  "provenancePath": "licenses/lizard-1.24.1-provenance.json",
   "scope": "Every root-provenance entry whose status is translated; module definitions plus class identities, class fields, instance fields, callbacks, and named host seams only. Local variables remain out of scope.",
   "mappingVocabulary": [
     "direct",
@@ -16,7 +16,7 @@
   ],
   "counts": {
     "classes": 83,
-    "symbols": 820
+    "symbols": 841
   },
   "entries": [
     {
@@ -36,7 +36,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 287-590",
+      "sourceRange": "lines 289-592",
       "moduleFunctions": [
         {
           "sourceName": "preprocessing",
@@ -721,7 +721,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 614-627",
+      "sourceRange": "lines 616-629",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -744,7 +744,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 630-632",
+      "sourceRange": "lines 632-634",
       "moduleFunctions": [
         {
           "sourceName": "map_files_to_analyzer",
@@ -759,7 +759,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 688-795",
+      "sourceRange": "lines 690-797",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -885,7 +885,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 1045-1055",
+      "sourceRange": "lines 1047-1057",
       "moduleFunctions": [
         {
           "sourceName": "parse_args",
@@ -901,7 +901,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 1114-1135",
+      "sourceRange": "lines 1118-1139",
       "moduleFunctions": [
         {
           "sourceName": "get_extensions",
@@ -916,7 +916,7 @@
     },
     {
       "sourcePath": "lizard.py",
-      "sourceRange": "lines 1189-1192",
+      "sourceRange": "lines 1193-1196",
       "moduleFunctions": [
         {
           "sourceName": "print_extension_results",
@@ -2869,7 +2869,7 @@
     },
     {
       "sourcePath": "lizard_languages/kotlin.py",
-      "sourceRange": "lines 1-95",
+      "sourceRange": "lines 1-137",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -3027,6 +3027,41 @@
                 "symbol": "_when_cases"
               },
               "mapping": "direct"
+            },
+            {
+              "sourceName": "_start_when",
+              "target": {
+                "symbol": "_start_when"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_expression_body",
+              "target": {
+                "symbol": "_expression_body"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_is_expression_body_ender",
+              "target": {
+                "symbol": "_is_expression_body_ender"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_end_expression_body",
+              "target": {
+                "symbol": "_end_expression_body"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "statemachine_before_return",
+              "target": {
+                "symbol": "statemachine_before_return"
+              },
+              "mapping": "direct"
             }
           ],
           "classFields": [
@@ -3034,6 +3069,14 @@
               "sourceName": "FUNC_KEYWORD",
               "target": {
                 "symbol": "FUNC_KEYWORD",
+                "static": true
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_EXPRESSION_BODY_ENDERS",
+              "target": {
+                "symbol": "_EXPRESSION_BODY_ENDERS",
                 "static": true
               },
               "mapping": "direct"
@@ -3061,8 +3104,42 @@
               },
               "mapping": "inherited-source-storage",
               "reason": "The source state field is inherited from CodeStateMachine and retains its source-spelled alias or storage there."
+            },
+            {
+              "sourceName": "_expr_nesting",
+              "target": {
+                "symbol": "_expr_nesting"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_when_return_state",
+              "target": {
+                "symbol": "_when_return_state"
+              },
+              "mapping": "direct"
             }
           ]
+        }
+      ],
+      "targetSeams": [
+        {
+          "sourceName": "expression_body_measurement_boundary_consume",
+          "target": {
+            "className": "KotlinStates",
+            "symbol": "consume"
+          },
+          "mapping": "call-signature-host-seam",
+          "reason": "Approved Kotlin-local deviation snapshots the last consumed body token and restores only FunctionInfo endLine/NLOC before completion; global counters stay monotonic."
+        },
+        {
+          "sourceName": "expression_body_measurement_boundary_expressionBoundary",
+          "target": {
+            "className": "KotlinStates",
+            "symbol": "expressionBoundary"
+          },
+          "mapping": "call-signature-host-seam",
+          "reason": "Approved Kotlin-local deviation snapshots the last consumed body token and restores only FunctionInfo endLine/NLOC before completion; global counters stay monotonic."
         }
       ]
     },
@@ -3792,7 +3869,7 @@
     },
     {
       "sourcePath": "lizard_languages/php_states.py",
-      "sourceRange": "lines 1-235",
+      "sourceRange": "lines 1-237",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -3903,6 +3980,13 @@
               "sourceName": "_trait_declaration",
               "target": {
                 "symbol": "_trait_declaration"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_enter_function_body",
+              "target": {
+                "symbol": "_enter_function_body"
               },
               "mapping": "direct"
             }
@@ -4046,6 +4130,13 @@
               "target": {
                 "symbol": "trait_name",
                 "static": false
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "function_brace_level",
+              "target": {
+                "symbol": "function_brace_level"
               },
               "mapping": "direct"
             }
@@ -4361,7 +4452,7 @@
     },
     {
       "sourcePath": "lizard_languages/python.py",
-      "sourceRange": "lines 1-393",
+      "sourceRange": "lines 1-413",
       "moduleFunctions": [
         {
           "sourceName": "count_spaces",
@@ -4618,6 +4709,13 @@
               "sourceName": "_state_parameterized_type_annotation",
               "target": {
                 "symbol": "_state_parameterized_type_annotation"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_state_type_parameters",
+              "target": {
+                "symbol": "_state_type_parameters"
               },
               "mapping": "direct"
             }
@@ -4984,7 +5082,7 @@
     },
     {
       "sourcePath": "lizard_languages/rust.py",
-      "sourceRange": "lines 1-34",
+      "sourceRange": "lines 1-70",
       "moduleFunctions": [],
       "moduleFields": [],
       "classes": [
@@ -5085,7 +5183,37 @@
         {
           "sourceName": "RustStates",
           "targetName": "RustStates",
-          "methods": [],
+          "methods": [
+            {
+              "sourceName": "__init__",
+              "target": {
+                "symbol": "constructor"
+              },
+              "mapping": "python-constructor",
+              "reason": "TypeScript constructor preserves match-scope state initialization."
+            },
+            {
+              "sourceName": "_state_global",
+              "target": {
+                "symbol": "_state_global"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_match_subject",
+              "target": {
+                "symbol": "_match_subject"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_end_match",
+              "target": {
+                "symbol": "_end_match"
+              },
+              "mapping": "direct"
+            }
+          ],
           "classFields": [
             {
               "sourceName": "FUNC_KEYWORD",
@@ -5096,7 +5224,29 @@
               "mapping": "direct"
             }
           ],
-          "instanceFields": []
+          "instanceFields": [
+            {
+              "sourceName": "_in_match_arms",
+              "target": {
+                "symbol": "_in_match_arms"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_seen_match_arm",
+              "target": {
+                "symbol": "_seen_match_arm"
+              },
+              "mapping": "direct"
+            },
+            {
+              "sourceName": "_match_subject_nesting",
+              "target": {
+                "symbol": "_match_subject_nesting"
+              },
+              "mapping": "direct"
+            }
+          ]
         }
       ]
     },
@@ -5879,7 +6029,7 @@
                 "static": false,
                 "provenance": {
                   "sourcePath": "lizard_languages/typescript.py",
-                  "sourceRange": "lines 1-641"
+                  "sourceRange": "lines 1-647"
                 }
               },
               "mapping": "inherited-source-storage",
@@ -6004,7 +6154,7 @@
                 "static": false,
                 "provenance": {
                   "sourcePath": "lizard_languages/typescript.py",
-                  "sourceRange": "lines 1-641"
+                  "sourceRange": "lines 1-647"
                 }
               },
               "mapping": "inherited-source-storage",
@@ -6187,13 +6337,20 @@
     },
     {
       "sourcePath": "lizard_languages/typescript.py",
-      "sourceRange": "lines 1-641",
+      "sourceRange": "lines 1-647",
       "moduleFunctions": [],
       "moduleFields": [
         {
           "sourceName": "_TS_TYPE_KEYWORDS",
           "target": {
             "symbol": "_TS_TYPE_KEYWORDS"
+          },
+          "mapping": "direct"
+        },
+        {
+          "sourceName": "TEMPLATE_LITERAL",
+          "target": {
+            "symbol": "TEMPLATE_LITERAL"
           },
           "mapping": "direct"
         }
@@ -7578,7 +7735,7 @@
     },
     {
       "sourcePath": "lizard_languages/js_style_regex_expression.py",
-      "sourceRange": "lines 1-53",
+      "sourceRange": "lines 1-24",
       "moduleFunctions": [
         {
           "sourceName": "js_style_regex_expression",
@@ -7735,7 +7892,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7750,7 +7907,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7765,7 +7922,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7780,7 +7937,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7795,7 +7952,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7810,7 +7967,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7825,7 +7982,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7840,7 +7997,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7855,7 +8012,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7870,7 +8027,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7885,7 +8042,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7900,7 +8057,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7915,7 +8072,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7930,7 +8087,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7945,7 +8102,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7960,7 +8117,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7975,7 +8132,7 @@
             "className": "FileInfoBuilder",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             },
             "targetRole": "additional",
             "additionalTargetBasename": "analysis-context"
@@ -7990,7 +8147,7 @@
             "className": "FunctionInfo",
             "provenance": {
               "sourcePath": "lizard.py",
-              "sourceRange": "lines 287-590"
+              "sourceRange": "lines 289-592"
             }
           },
           "mapping": "field-initializer-host-seam",

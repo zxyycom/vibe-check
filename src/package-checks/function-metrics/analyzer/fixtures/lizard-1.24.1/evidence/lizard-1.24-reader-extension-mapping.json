@@ -1,8 +1,8 @@
 {
   "extensionCount": 55,
   "oracle": {
-    "revision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
-    "tag": "1.24.0",
+    "revision": "0488a260e74e73ceba3149d7c600faac6a3616e6",
+    "tag": "1.24.1",
     "versionCommand": ["lizard", "--version"]
   },
   "readerCount": 27,

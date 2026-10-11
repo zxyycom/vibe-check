@@ -4,7 +4,7 @@
 
 ## Readiness
 
-- [x] 0.1 已核对两缺陷、11 项原始证据、公开/私有 owner 和默认升级后修复顺序；升级非技术硬前置。
+- [x] 0.1 已核对两缺陷、11 项原始证据、公开/私有 owner 和默认继承已验收固定来源的顺序；基线恢复由来源 owner 与实施调查承接。
 - [x] 0.2 已恢复用户确认的 `??` 单 token/CCN/contributors/ND 方向及 active + unaligned 状态，不重新选择口径。
 - [x] 0.3 已收敛最小 callback、TS/TSX addition、reader-gated ND 路线及继承/共享验收面；原始 oracle 与偏差分离。
 - [x] 0.4 已完成非实施代理的独立准备度审计：范围、路线及必要影响可直接推进，无未决阻断。

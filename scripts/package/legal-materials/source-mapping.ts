@@ -8,11 +8,11 @@ import { reportProcessOutput, runProcessInvocationSync } from "../../process-exe
 import { parseTranslatedAnalyzerProvenanceInventory } from "./provenance-inventory.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const provenancePath = resolve(repositoryRoot, "licenses/lizard-1.24.0-provenance.json");
+const provenancePath = resolve(repositoryRoot, "licenses/lizard-1.24.1-provenance.json");
 const packageContractPath = resolve(repositoryRoot, "scripts/package/package-contract.ts");
 const identityManifestPath = resolve(
   repositoryRoot,
-  "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/lizard-1.24-source-identity.json"
+  "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/lizard-1.24-source-identity.json"
 );
 const sourceIdentityTestPath = resolve(
   repositoryRoot,

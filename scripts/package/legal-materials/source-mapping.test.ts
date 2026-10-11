@@ -13,10 +13,10 @@ import {
   type SourceMappingPaths
 } from "./source-mapping.ts";
 
-const provenanceRelativePath = "licenses/lizard-1.24.0-provenance.json";
+const provenanceRelativePath = "licenses/lizard-1.24.1-provenance.json";
 const packageContractRelativePath = "scripts/package/package-contract.ts";
 const identityRelativePath =
-  "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/lizard-1.24-source-identity.json";
+  "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/lizard-1.24-source-identity.json";
 const PACKAGE_PROVENANCE_PIN_PATTERN =
   /(PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_SHA256 =\n {2})"[a-f0-9]{64}"/u;
 

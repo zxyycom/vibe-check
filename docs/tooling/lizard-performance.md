@@ -14,7 +14,7 @@
 | Layer | 回答的问题 | 不可替代的边界 |
 | --- | --- | --- |
 | A — historical Product end-to-end | 迁移前后完整 Product invocation | 包含 1.23→1.24、I/O、subprocess/Worker 与 Product 边界变化 |
-| B — fixed Lizard 1.24 analyzer-only | 同一已解码 source 上的 Python API / current port cost | 不含 Product read/decode、Worker、CLI/CSV 或 settlement；tiny startup 与 representative batch 分开解释 |
+| B — fixed Lizard 1.24.0 analyzer-only | 同一已解码 source 上的 Python API / current port cost | 不含 Product read/decode、Worker、CLI/CSV 或 settlement；tiny startup 与 representative batch 分开解释 |
 | C — current Product decomposition | current path 的诊断定位 | stage 时间可重叠；不提供 historical 或 analyzer-only 替代值 |
 
 运行前确认写入、安装与必要的联网授权：A 会在指定历史 worktree 写入并尝试清理 `.lizard-performance-historical-driver.ts`，须保证该路径可由本次测量独占；B 在系统临时目录创建 venv，用 `uv` 安装固定 Pygments（可能访问包源），结束后清理 venv。
@@ -31,6 +31,12 @@ bun scripts/development/lizard-performance/command.ts --mode full --layer A --te
 ### 证据与测量方法
 
 测量材料写入 `--output`，其中 `evidence.json` 保存 raw samples、环境、scope 与统计，`summary.md` 用于定位；前述临时环境与 driver 不受该输出路径限制。入口不进入默认命令、普通 `bun test`、package payload 或 Gate；正式结论与外推边界由对应 Investigation Report 拥有，不能用 summary 替代。
+
+当前 Product 来源为 `1.24.1`，B 仍固定使用 `1.24.0` Python 对照。workload 的当前 fixture 路径不改变 B 的来源身份；
+只有具体输入的 canonical 字段实际相等时，样本才可比较。B 不证明整个新版的 source parity，也不能证明源码升级无性能回归。
+
+源码升级的 before/after 完整 Check 比较另须冻结相同真实 source manifest/content、runtime、configuration 与 temperature，
+记录输出差异、raw samples、median/p95；结论由对应实施调查拥有，不套用 B 的旧 Python baseline。
 
 B 要求显式 fixed upstream `308b1c3…` checkout；provision 时间不计入样本，evidence 仅保留最小 formation provenance。
 

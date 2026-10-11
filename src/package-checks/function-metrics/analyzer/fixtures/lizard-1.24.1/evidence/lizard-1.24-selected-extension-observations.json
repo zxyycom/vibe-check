@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "oracle": {
-    "tag": "1.24.0",
-    "revision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
-    "version": "1.24.0",
+    "tag": "1.24.1",
+    "revision": "0488a260e74e73ceba3149d7c600faac6a3616e6",
+    "version": "1.24.1",
     "versionCommand": [
       "lizard",
       "--version"
@@ -38,7 +38,7 @@
   "fixtureCount": 110,
   "fixtures": [
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/edge.c",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/edge.c",
       "kind": "edge",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -63,7 +63,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/malformed.c",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/malformed.c",
       "kind": "unterminated-brace-nesting",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -72,7 +72,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.c",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/normal.c",
       "kind": "normal",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -97,7 +97,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.cc",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/normal.cc",
       "kind": "normal",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -122,7 +122,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.cpp",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/normal.cpp",
       "kind": "normal",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -147,7 +147,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.cxx",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/normal.cxx",
       "kind": "normal",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -172,7 +172,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.h",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/normal.h",
       "kind": "normal",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -197,7 +197,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/c-like/normal.hpp",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/c-like/normal.hpp",
       "kind": "normal",
       "readerId": "c-like",
       "readerClass": "CLikeReader",
@@ -222,7 +222,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/edge.cs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/csharp/edge.cs",
       "kind": "edge",
       "readerId": "csharp",
       "readerClass": "CSharpReader",
@@ -247,7 +247,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/malformed.cs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/csharp/malformed.cs",
       "kind": "unterminated-block-comment",
       "readerId": "csharp",
       "readerClass": "CSharpReader",
@@ -256,7 +256,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/csharp/normal.cs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/csharp/normal.cs",
       "kind": "normal",
       "readerId": "csharp",
       "readerClass": "CSharpReader",
@@ -281,7 +281,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/edge.erl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/erlang/edge.erl",
       "kind": "edge",
       "readerId": "erlang",
       "readerClass": "ErlangReader",
@@ -301,7 +301,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/malformed.erl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/erlang/malformed.erl",
       "kind": "unterminated-case-expression",
       "readerId": "erlang",
       "readerClass": "ErlangReader",
@@ -321,7 +321,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.erl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/erlang/normal.erl",
       "kind": "normal",
       "readerId": "erlang",
       "readerClass": "ErlangReader",
@@ -341,7 +341,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.es",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/erlang/normal.es",
       "kind": "normal",
       "readerId": "erlang",
       "readerClass": "ErlangReader",
@@ -361,7 +361,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.escript",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/erlang/normal.escript",
       "kind": "normal",
       "readerId": "erlang",
       "readerClass": "ErlangReader",
@@ -381,7 +381,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/erlang/normal.hrl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/erlang/normal.hrl",
       "kind": "normal",
       "readerId": "erlang",
       "readerClass": "ErlangReader",
@@ -401,7 +401,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/edge.f70",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/edge.f70",
       "kind": "edge",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -426,7 +426,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/malformed.f90",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/malformed.f90",
       "kind": "missing-end-if-and-function",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -435,7 +435,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.f",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -460,7 +460,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f03",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.f03",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -485,7 +485,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f08",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.f08",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -510,7 +510,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f70",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.f70",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -535,7 +535,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f90",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.f90",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -560,7 +560,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.f95",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.f95",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -585,7 +585,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.for",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.for",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -610,7 +610,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.fpp",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.fpp",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -635,7 +635,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/fortran/normal.ftn",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/fortran/normal.ftn",
       "kind": "normal",
       "readerId": "fortran",
       "readerClass": "FortranReader",
@@ -660,7 +660,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/edge.gd",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/gdscript/edge.gd",
       "kind": "edge",
       "readerId": "gdscript",
       "readerClass": "GDScriptReader",
@@ -685,7 +685,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/malformed.gd",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/gdscript/malformed.gd",
       "kind": "unterminated-triple-string",
       "readerId": "gdscript",
       "readerClass": "GDScriptReader",
@@ -705,7 +705,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/gdscript/normal.gd",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/gdscript/normal.gd",
       "kind": "normal",
       "readerId": "gdscript",
       "readerClass": "GDScriptReader",
@@ -730,7 +730,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/edge.go",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/go/edge.go",
       "kind": "edge",
       "readerId": "go",
       "readerClass": "GoReader",
@@ -755,7 +755,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/malformed.go",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/go/malformed.go",
       "kind": "unterminated-block-comment",
       "readerId": "go",
       "readerClass": "GoReader",
@@ -764,7 +764,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/go/normal.go",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/go/normal.go",
       "kind": "normal",
       "readerId": "go",
       "readerClass": "GoReader",
@@ -789,7 +789,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/edge.java",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/java/edge.java",
       "kind": "edge",
       "readerId": "java",
       "readerClass": "JavaReader",
@@ -814,7 +814,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/malformed.java",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/java/malformed.java",
       "kind": "unterminated-string-literal",
       "readerId": "java",
       "readerClass": "JavaReader",
@@ -834,7 +834,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/java/normal.java",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/java/normal.java",
       "kind": "normal",
       "readerId": "java",
       "readerClass": "JavaReader",
@@ -859,7 +859,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/edge.js",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/javascript/edge.js",
       "kind": "edge",
       "readerId": "javascript",
       "readerClass": "JavaScriptReader",
@@ -884,7 +884,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/malformed.js",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/javascript/malformed.js",
       "kind": "unterminated-template-literal",
       "readerId": "javascript",
       "readerClass": "JavaScriptReader",
@@ -904,7 +904,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/normal.cjs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/javascript/normal.cjs",
       "kind": "normal",
       "readerId": "javascript",
       "readerClass": "JavaScriptReader",
@@ -929,7 +929,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/normal.js",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/javascript/normal.js",
       "kind": "normal",
       "readerId": "javascript",
       "readerClass": "JavaScriptReader",
@@ -954,7 +954,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/javascript/normal.mjs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/javascript/normal.mjs",
       "kind": "normal",
       "readerId": "javascript",
       "readerClass": "JavaScriptReader",
@@ -979,7 +979,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/edge.kt",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/kotlin/edge.kt",
       "kind": "edge",
       "readerId": "kotlin",
       "readerClass": "KotlinReader",
@@ -1004,7 +1004,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/malformed.kt",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/kotlin/malformed.kt",
       "kind": "unterminated-string-literal",
       "readerId": "kotlin",
       "readerClass": "KotlinReader",
@@ -1013,7 +1013,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/normal.kt",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/kotlin/normal.kt",
       "kind": "normal",
       "readerId": "kotlin",
       "readerClass": "KotlinReader",
@@ -1038,7 +1038,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/kotlin/normal.kts",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/kotlin/normal.kts",
       "kind": "normal",
       "readerId": "kotlin",
       "readerClass": "KotlinReader",
@@ -1063,7 +1063,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/edge.lua",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/lua/edge.lua",
       "kind": "edge",
       "readerId": "lua",
       "readerClass": "LuaReader",
@@ -1088,7 +1088,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/malformed.lua",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/lua/malformed.lua",
       "kind": "unterminated-long-comment",
       "readerId": "lua",
       "readerClass": "LuaReader",
@@ -1097,7 +1097,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/lua/normal.lua",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/lua/normal.lua",
       "kind": "normal",
       "readerId": "lua",
       "readerClass": "LuaReader",
@@ -1122,7 +1122,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/edge.m",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/objc/edge.m",
       "kind": "edge",
       "readerId": "objc",
       "readerClass": "ObjCReader",
@@ -1147,7 +1147,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/malformed.m",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/objc/malformed.m",
       "kind": "unterminated-block-comment",
       "readerId": "objc",
       "readerClass": "ObjCReader",
@@ -1156,7 +1156,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/normal.m",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/objc/normal.m",
       "kind": "normal",
       "readerId": "objc",
       "readerClass": "ObjCReader",
@@ -1181,7 +1181,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/objc/normal.mm",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/objc/normal.mm",
       "kind": "normal",
       "readerId": "objc",
       "readerClass": "ObjCReader",
@@ -1206,7 +1206,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/edge.pl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/perl/edge.pl",
       "kind": "edge",
       "readerId": "perl",
       "readerClass": "PerlReader",
@@ -1231,7 +1231,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/malformed.pl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/perl/malformed.pl",
       "kind": "unterminated-block-nesting",
       "readerId": "perl",
       "readerClass": "PerlReader",
@@ -1240,7 +1240,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/normal.pl",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/perl/normal.pl",
       "kind": "normal",
       "readerId": "perl",
       "readerClass": "PerlReader",
@@ -1265,7 +1265,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/perl/normal.pm",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/perl/normal.pm",
       "kind": "normal",
       "readerId": "perl",
       "readerClass": "PerlReader",
@@ -1290,7 +1290,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/edge.php",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/php/edge.php",
       "kind": "edge",
       "readerId": "php",
       "readerClass": "PHPReader",
@@ -1315,7 +1315,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/malformed.php",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/php/malformed.php",
       "kind": "unterminated-block-comment",
       "readerId": "php",
       "readerClass": "PHPReader",
@@ -1324,7 +1324,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/php/normal.php",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/php/normal.php",
       "kind": "normal",
       "readerId": "php",
       "readerClass": "PHPReader",
@@ -1349,7 +1349,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/edge.sql",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/edge.sql",
       "kind": "edge",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1374,7 +1374,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/malformed.sql",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/malformed.sql",
       "kind": "missing-end-if-and-function",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1383,7 +1383,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pck",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/normal.pck",
       "kind": "normal",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1408,7 +1408,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pkb",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/normal.pkb",
       "kind": "normal",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1433,7 +1433,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pks",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/normal.pks",
       "kind": "normal",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1458,7 +1458,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.plb",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/normal.plb",
       "kind": "normal",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1483,7 +1483,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.pls",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/normal.pls",
       "kind": "normal",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1508,7 +1508,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/plsql/normal.sql",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/plsql/normal.sql",
       "kind": "normal",
       "readerId": "plsql",
       "readerClass": "PLSQLReader",
@@ -1533,7 +1533,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/edge.py",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/python/edge.py",
       "kind": "edge",
       "readerId": "python",
       "readerClass": "PythonReader",
@@ -1558,7 +1558,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/malformed.py",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/python/malformed.py",
       "kind": "unterminated-declaration-bracket",
       "readerId": "python",
       "readerClass": "PythonReader",
@@ -1567,7 +1567,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/python/normal.py",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/python/normal.py",
       "kind": "normal",
       "readerId": "python",
       "readerClass": "PythonReader",
@@ -1592,7 +1592,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/edge.r",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/r/edge.r",
       "kind": "edge",
       "readerId": "r",
       "readerClass": "RReader",
@@ -1617,7 +1617,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/malformed.r",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/r/malformed.r",
       "kind": "unterminated-brace-nesting",
       "readerId": "r",
       "readerClass": "RReader",
@@ -1642,7 +1642,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/normal.R",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/r/normal.R",
       "kind": "normal",
       "readerId": "r",
       "readerClass": "RReader",
@@ -1667,7 +1667,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/r/normal.r",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/r/normal.r",
       "kind": "normal",
       "readerId": "r",
       "readerClass": "RReader",
@@ -1692,7 +1692,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/edge.rb",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/ruby/edge.rb",
       "kind": "edge",
       "readerId": "ruby",
       "readerClass": "RubyReader",
@@ -1717,7 +1717,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/malformed.rb",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/ruby/malformed.rb",
       "kind": "unterminated-string-literal",
       "readerId": "ruby",
       "readerClass": "RubyReader",
@@ -1726,7 +1726,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ruby/normal.rb",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/ruby/normal.rb",
       "kind": "normal",
       "readerId": "ruby",
       "readerClass": "RubyReader",
@@ -1751,7 +1751,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/edge.rs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/rust/edge.rs",
       "kind": "edge",
       "readerId": "rust",
       "readerClass": "RustReader",
@@ -1776,7 +1776,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/malformed.rs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/rust/malformed.rs",
       "kind": "unterminated-block-comment",
       "readerId": "rust",
       "readerClass": "RustReader",
@@ -1785,7 +1785,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/rust/normal.rs",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/rust/normal.rs",
       "kind": "normal",
       "readerId": "rust",
       "readerClass": "RustReader",
@@ -1810,7 +1810,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/edge.scala",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/scala/edge.scala",
       "kind": "edge",
       "readerId": "scala",
       "readerClass": "ScalaReader",
@@ -1835,7 +1835,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/malformed.scala",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/scala/malformed.scala",
       "kind": "unterminated-block-comment",
       "readerId": "scala",
       "readerClass": "ScalaReader",
@@ -1844,7 +1844,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/scala/normal.scala",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/scala/normal.scala",
       "kind": "normal",
       "readerId": "scala",
       "readerClass": "ScalaReader",
@@ -1869,7 +1869,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/edge.sol",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/solidity/edge.sol",
       "kind": "edge",
       "readerId": "solidity",
       "readerClass": "SolidityReader",
@@ -1894,7 +1894,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/malformed.sol",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/solidity/malformed.sol",
       "kind": "unterminated-block-comment",
       "readerId": "solidity",
       "readerClass": "SolidityReader",
@@ -1903,7 +1903,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/solidity/normal.sol",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/solidity/normal.sol",
       "kind": "normal",
       "readerId": "solidity",
       "readerClass": "SolidityReader",
@@ -1928,7 +1928,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/edge.st",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/st/edge.st",
       "kind": "edge",
       "readerId": "st",
       "readerClass": "StReader",
@@ -1948,7 +1948,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/malformed.st",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/st/malformed.st",
       "kind": "missing-end-if-and-function",
       "readerId": "st",
       "readerClass": "StReader",
@@ -1968,7 +1968,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/st/normal.st",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/st/normal.st",
       "kind": "normal",
       "readerId": "st",
       "readerClass": "StReader",
@@ -1988,7 +1988,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/edge.swift",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/swift/edge.swift",
       "kind": "edge",
       "readerId": "swift",
       "readerClass": "SwiftReader",
@@ -2013,7 +2013,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/malformed.swift",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/swift/malformed.swift",
       "kind": "unterminated-string-literal",
       "readerId": "swift",
       "readerClass": "SwiftReader",
@@ -2022,7 +2022,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/swift/normal.swift",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/swift/normal.swift",
       "kind": "normal",
       "readerId": "swift",
       "readerClass": "SwiftReader",
@@ -2047,7 +2047,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/edge.tsx",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/tsx/edge.tsx",
       "kind": "edge",
       "readerId": "tsx",
       "readerClass": "TSXReader",
@@ -2072,7 +2072,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/malformed.tsx",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/tsx/malformed.tsx",
       "kind": "unterminated-jsx-expression",
       "readerId": "tsx",
       "readerClass": "TSXReader",
@@ -2092,7 +2092,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/normal.jsx",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/tsx/normal.jsx",
       "kind": "normal",
       "readerId": "tsx",
       "readerClass": "TSXReader",
@@ -2117,7 +2117,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/tsx/normal.tsx",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/tsx/normal.tsx",
       "kind": "normal",
       "readerId": "tsx",
       "readerClass": "TSXReader",
@@ -2142,7 +2142,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/edge.ttcn",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/ttcn/edge.ttcn",
       "kind": "edge",
       "readerId": "ttcn",
       "readerClass": "TTCNReader",
@@ -2167,7 +2167,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/malformed.ttcn",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/ttcn/malformed.ttcn",
       "kind": "unterminated-function-nesting",
       "readerId": "ttcn",
       "readerClass": "TTCNReader",
@@ -2176,7 +2176,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/normal.ttcn",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/ttcn/normal.ttcn",
       "kind": "normal",
       "readerId": "ttcn",
       "readerClass": "TTCNReader",
@@ -2201,7 +2201,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/ttcn/normal.ttcnpp",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/ttcn/normal.ttcnpp",
       "kind": "normal",
       "readerId": "ttcn",
       "readerClass": "TTCNReader",
@@ -2226,7 +2226,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/edge.ts",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/typescript/edge.ts",
       "kind": "edge",
       "readerId": "typescript",
       "readerClass": "TypeScriptReader",
@@ -2251,7 +2251,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/malformed.ts",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/typescript/malformed.ts",
       "kind": "unterminated-expression-bracket",
       "readerId": "typescript",
       "readerClass": "TypeScriptReader",
@@ -2271,7 +2271,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/typescript/normal.ts",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/typescript/normal.ts",
       "kind": "normal",
       "readerId": "typescript",
       "readerClass": "TypeScriptReader",
@@ -2296,7 +2296,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/edge.vue",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/vue/edge.vue",
       "kind": "edge",
       "readerId": "vue",
       "readerClass": "VueReader",
@@ -2321,7 +2321,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/malformed.vue",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/vue/malformed.vue",
       "kind": "unterminated-script-string",
       "readerId": "vue",
       "readerClass": "VueReader",
@@ -2341,7 +2341,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/vue/normal.vue",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/vue/normal.vue",
       "kind": "normal",
       "readerId": "vue",
       "readerClass": "VueReader",
@@ -2366,7 +2366,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/edge.zig",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/zig/edge.zig",
       "kind": "edge",
       "readerId": "zig",
       "readerClass": "ZigReader",
@@ -2391,7 +2391,7 @@
       ]
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/malformed.zig",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/zig/malformed.zig",
       "kind": "unterminated-string-literal",
       "readerId": "zig",
       "readerClass": "ZigReader",
@@ -2400,7 +2400,7 @@
       "measurements": []
     },
     {
-      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/zig/normal.zig",
+      "fixture": "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/zig/normal.zig",
       "kind": "normal",
       "readerId": "zig",
       "readerClass": "ZigReader",

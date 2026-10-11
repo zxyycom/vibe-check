@@ -41,14 +41,14 @@ export const PACKAGE_RUNTIME_COMPILER_SOURCE_PATHS = Object.freeze([
   PACKAGE_FUNCTION_METRICS_WORKER_SOURCE_PATH
 ]);
 
-export const PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH = "licenses/lizard-1.24.0-provenance.json";
-export const PACKAGE_LIZARD_MIT_LICENSE_PATH = "licenses/Lizard-1.24.0-MIT.txt";
-export const PACKAGE_LIZARD_APACHE_LICENSE_PATH = "licenses/Lizard-1.24.0-lizard.py-Apache-2.0.txt";
+export const PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_PATH = "licenses/lizard-1.24.1-provenance.json";
+export const PACKAGE_LIZARD_MIT_LICENSE_PATH = "licenses/Lizard-1.24.1-MIT.txt";
+export const PACKAGE_LIZARD_APACHE_LICENSE_PATH = "licenses/Lizard-1.24.1-lizard.py-Apache-2.0.txt";
 export const PACKAGE_PYGMENTS_LICENSE_PATH = "licenses/Pygments-2.18.0-BSD-2-Clause.txt";
 export const PACKAGE_LICENSES_DIRECTORY = "licenses";
 
 export const PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_SHA256 =
-  "f973ceea173a5eae638810523141110a9b3bee780ef53299561ea8ab818e4041";
+  "ded73a9449492a1fc6fd23384e1866d423b2e22837ca843d9a571ebb33981594";
 export const PACKAGE_LIZARD_MIT_LICENSE_SHA256 =
   "d39663810f02975743f69d01856f93c7391ce6b842a20189544b9fd464f663f3";
 export const PACKAGE_LIZARD_APACHE_LICENSE_SHA256 =

@@ -37,4 +37,4 @@
 
 - [Function Metrics](../../docs/checks/function-metrics.md)、[scanner dependencies](../../docs/development/scanner-dependencies.md)：指标/贡献、公开结果与私有边界。
 - [短路计量 Decision](../../docs/decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)：已确认、未实施方向；[来源维护](../../docs/tooling/source-mapping.md)、[包材料](../../docs/tooling/package-artifact.md)、[包生命周期](../../docs/tooling/package-lifecycle.md)。
-- [测试策略](../../docs/testing/strategy.md)、[Case](../../docs/testing/case-maintenance.md)；[协调入口](../../docs/governance/change-coordination.md#lizard-升级与-typescript-修复)默认继承升级稳定提交，但升级不是技术硬前置。
+- [测试策略](../../docs/testing/strategy.md)、[Case](../../docs/testing/case-maintenance.md)；[协调入口](../../docs/governance/change-coordination.md#lizard-升级与-typescript-修复)默认继承已验收固定来源的稳定提交；当前来源与局部偏差见[Scanner dependencies](../../docs/development/scanner-dependencies.md)，形成时验收见[实施调查](../../docs/investigations/verify-lizard-1-24-1-implementation.md)。固定来源交付不替代两项缺陷的独立修复与验收。

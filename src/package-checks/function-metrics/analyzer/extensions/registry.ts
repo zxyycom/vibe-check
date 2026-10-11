@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0.
+ * Derived from terryyin/lizard 1.24.1.
  * Sources: lizard.py:get_extensions and lizard_ext/lizard*.py module names.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: Apache-2.0 AND MIT
  * Modified: translated to an analyzer-internal registration table. Deferred
  * bodies fail explicitly rather than pretending to process source.
@@ -38,9 +38,10 @@ export class DeferredExtensionBodyError extends Error {
   }
 }
 
-/** All 19 upstream Lizard extension bodies in the current translation scope. */
+/** All 20 upstream Lizard extension bodies in the current translation scope. */
 export const EXTENSION_REGISTRATIONS: readonly ExtensionRegistration[] = Object.freeze([
   deferred("boolcount"),
+  deferred("cognitive"),
   translated("complextags"),
   deferred("cpre"),
   deferred("dependencycount"),

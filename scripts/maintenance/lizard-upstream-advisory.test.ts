@@ -12,15 +12,15 @@ test("Lizard upstream advisory reports the pinned 1.24 baseline as current witho
   const result = await checkLizardUpstream({
     fetch: async (_input, init) => {
       request = init;
-      return jsonResponse({ tag_name: "v1.24.0" });
+      return jsonResponse({ tag_name: "v1.24.1" });
     }
   });
 
   assert.deepEqual(result, {
-    baselineVersion: "1.24.0",
+    baselineVersion: "1.24.1",
     code: "lizard-upstream-no-update",
     kind: "no-update",
-    latestVersion: "1.24.0"
+    latestVersion: "1.24.1"
   });
   assert.equal(
     LIZARD_RELEASE_API_URL,
@@ -39,7 +39,7 @@ test("Lizard upstream advisory reports a stable newer release without changing a
   });
 
   assert.deepEqual(result, {
-    baselineVersion: "1.24.0",
+    baselineVersion: "1.24.1",
     code: "lizard-upstream-update-available",
     kind: "update-available",
     latestVersion: "1.25.0"

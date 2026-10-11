@@ -1,8 +1,8 @@
 /**
- * Derived from terryyin/lizard 1.24.0 tests.
+ * Derived from terryyin/lizard 1.24.1 tests.
  * Sources: test/testTokenizer.py, lizard_languages/code_reader.py, and
  * lizard_ext/extension_base.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: compact TypeScript tokenizer parity coverage.
  */

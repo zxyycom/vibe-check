@@ -2,8 +2,8 @@
   "schemaVersion": 2,
   "upstream": {
     "project": "terryyin/lizard",
-    "tag": "1.24.0",
-    "revision": "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec"
+    "tag": "1.24.1",
+    "revision": "0488a260e74e73ceba3149d7c600faac6a3616e6"
   },
   "statusVocabulary": [
     "translated",
@@ -14,7 +14,7 @@
     {
       "sourcePath": "lizard.py",
       "range": "lines 1-90",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "CLI imports, argument parsing and process-facing setup remain outside the Product analyzer.",
@@ -24,7 +24,7 @@
     {
       "sourcePath": "lizard.py",
       "range": "lines 91-98",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "In-memory analyze_files construction and ordered cross-file processing. File discovery, decoding, reader selection, and multiprocessing remain outside this retained lifecycle.",
@@ -34,8 +34,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 99-286",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 99-288",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "CLI configuration and output-host setup remain Product entry-surface responsibilities.",
@@ -44,8 +44,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 287-590",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 289-592",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "Nesting and mutable function/file models, plus FileInfoBuilder context; the five analyzer processors remain in the linked pipeline lifecycle.",
@@ -59,8 +59,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 591-613",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 593-615",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "File-opening and command/report orchestration remain outside in-memory analysis.",
@@ -69,8 +69,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 614-627",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 616-629",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "In-memory FileAnalyzer.analyze_source_code lifecycle.",
@@ -80,8 +80,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 628-629",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 630-631",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "The blank separator and warning-filter entry boundary remain external to the in-memory analyzer.",
@@ -90,8 +90,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 630-632",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 632-634",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "In-memory map_files_to_analyzer handoff after the Product has supplied admitted source units; Product Worker scheduling owns the external multiprocessing replacement.",
@@ -101,8 +101,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 633-687",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 635-689",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "Warning filtering, whitelist processing, and the report entry boundary remain external to the in-memory analyzer.",
@@ -111,8 +111,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 688-795",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 690-797",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "Complete OutputScheme object: extension schema fields, custom FUNCTION_INFO columns, average patching, silent metadata, and pure formatting-string methods. Report invocation remains a separate entry surface.",
@@ -122,8 +122,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 796-1044",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 798-1046",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "Warning/report invocation, CLI parsing, discovery and file traversal remain explicitly excluded entry surfaces.",
@@ -132,8 +132,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 1045-1055",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 1047-1057",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "Extension set_args lifecycle hook.",
@@ -143,8 +143,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 1056-1113",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 1058-1117",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "CLI option and output-entry orchestration remain external.",
@@ -153,8 +153,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 1114-1135",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 1118-1139",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "Extension default-processor creation, name loading boundary and ordered insertion.",
@@ -164,8 +164,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 1136-1188",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 1140-1192",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "Command execution and filesystem/process entry behavior remain external.",
@@ -174,8 +174,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 1189-1192",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 1193-1196",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "translated",
       "boundary": "Extension print_result lifecycle hook.",
@@ -185,8 +185,8 @@
     },
     {
       "sourcePath": "lizard.py",
-      "range": "lines 1193-1194",
-      "sha256": "d0807a33d38976a5e5756b37d637e35aa8d2018dee0b87f059d003f3154a07af",
+      "range": "lines 1197-1198",
+      "sha256": "7dda92187a2b5a92d91cb41c6c8beba3ce1cf32954148f3c23aef8b4c2e3cc85",
       "spdx": "Apache-2.0",
       "status": "excluded-entry-surface",
       "boundary": "Top-level executable invocation remains excluded.",
@@ -222,7 +222,7 @@
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
-      "implementationEvidence": "verified target carries its dual Lizard 1.24.0 MIT plus Pygments 2.18.0 BSD-2-Clause derived-source header: src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+      "implementationEvidence": "verified target carries its dual Lizard 1.24.1 MIT plus Pygments 2.18.0 BSD-2-Clause derived-source header: src/package-checks/function-metrics/analyzer/readers/erlang.ts",
       "verification": "verified: bun test src/package-checks/function-metrics/analyzer/readers/erlang.test.ts; all four fixed-tag suffix fixtures, source/adversarial function-metrics observations, seven Pygments 2.18 rule token-and-metrics cases, and the exact lexer probe passed",
       "targetPath": "src/package-checks/function-metrics/analyzer/readers/erlang.ts"
     },
@@ -294,8 +294,8 @@
     },
     {
       "sourcePath": "lizard_languages/kotlin.py",
-      "range": "lines 1-95",
-      "sha256": "2ad0ccda6dbcd2f316c3cf7785f56d67d47b8032b191b224d1a300da2be70b0f",
+      "range": "lines 1-137",
+      "sha256": "9b4628bbeb9b0588258af501ba3a4caf2f0bfcbc6e4d9608e3bb5272bffe51d5",
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
@@ -349,8 +349,8 @@
     },
     {
       "sourcePath": "lizard_languages/php_states.py",
-      "range": "lines 1-235",
-      "sha256": "f4ecbb88a491f5e181eacb616fff60f347a5709e15fe804f5a918bc69cdcb38f",
+      "range": "lines 1-237",
+      "sha256": "c66fc7335ffaf829c17e0828a29bc6faae241ea941be4d2e145e4abc53a2308b",
       "spdx": "MIT",
       "status": "translated",
       "boundary": "PHP function, class, and match state machine retained as the PHP reader-local TypeScript state factory.",
@@ -371,8 +371,8 @@
     },
     {
       "sourcePath": "lizard_languages/python.py",
-      "range": "lines 1-393",
-      "sha256": "de5924da44829a358b42fc58d22a1e09e9e2970a74e67661c25de5504a1a06b2",
+      "range": "lines 1-413",
+      "sha256": "920fa0672264d13744e14e88025e18e2b823c7727aaab1d1297732f64b0ab539",
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
@@ -404,8 +404,8 @@
     },
     {
       "sourcePath": "lizard_languages/rust.py",
-      "range": "lines 1-34",
-      "sha256": "2712654efeefb18412f355aae9d339ea00593c1954c871fcced7cb6c9f21554f",
+      "range": "lines 1-70",
+      "sha256": "17f9e9d5cf30bb63a6c49d6ec94528081e489df14536498ea2a840a648beb2c0",
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
@@ -460,7 +460,7 @@
     {
       "sourcePath": "lizard_languages/tsx.py",
       "range": "lines 1-167",
-      "sha256": "cfc6f3592835e81bf5c442548fd903536d213a03e983e1fee41efa48241011fd",
+      "sha256": "f0b9437dfb47a872455073e7a14004d5297c20a13522902bfa8fa9059604807a",
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
@@ -481,8 +481,8 @@
     },
     {
       "sourcePath": "lizard_languages/typescript.py",
-      "range": "lines 1-641",
-      "sha256": "5e8867ab087e3bf8d64bdf86cabe0bd50771c4ba398f34778f9abc71039f6bc1",
+      "range": "lines 1-647",
+      "sha256": "c073ffb9042b1debd9615dcb329c8dfa4b10e26f9bbeb46cfaa96705c9b39404",
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
@@ -569,8 +569,8 @@
     },
     {
       "sourcePath": "lizard_languages/js_style_regex_expression.py",
-      "range": "lines 1-53",
-      "sha256": "5e0ca881c878c44958b421b812704abda9474e5ded8d13dc20870841145deb52",
+      "range": "lines 1-24",
+      "sha256": "a16cea23ffec88a6599941630beb6b028a3b3e40f0f5a749928a67b998abff7c",
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete shared reader dependency retained for source-aligned concrete readers.",
@@ -605,7 +605,7 @@
     {
       "sourcePath": "lizard_ext/halstead_classifier.py",
       "range": "lines 1-135",
-      "sha256": "a2e1193a1d7f6dea48cf0eb575be6675bbfda72bfaa5bcef31c69faf9ce1924c",
+      "sha256": "f57d4e67a045a66c339696f1c4e187207f6840a8378ececa5bfa8fa232dcd005",
       "spdx": "MIT",
       "status": "deferred-extension-body",
       "boundary": "Halstead operator/operand classifier remains an unshipped optional extension body.",
@@ -675,8 +675,8 @@
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Check-private token processor that records source-order complexity contributor token/current-line pairs. Product projection remains outside the port.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts retains the source LizardExtension processor; model.ts/analysis-context.ts/function façade hold only the necessary private facts.",
-      "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle and port-façade parity tests",
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts retains the source LizardExtension processor; model.ts/analysis-context.ts/function fa\u00e7ade hold only the necessary private facts.",
+      "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle and port-fa\u00e7ade parity tests",
       "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardcomplextags.ts"
     },
     {
@@ -808,7 +808,7 @@
       "status": "translated",
       "boundary": "Check-private maximum nesting-depth processor. The source import-time FileInfoBuilder/FunctionInfo monkey patches are narrowed to typed analysis-model.ts and analysis-context.ts host members; no extension loader or Product plugin surface is exposed.",
       "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts retains the processor, threshold, metadata and bracket helper; analysis-model.ts and analysis-context.ts host the typed per-function and FileInfoBuilder lifecycle seams.",
-      "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle, typed-host-seam and port-façade parity tests",
+      "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle, typed-host-seam and port-fa\u00e7ade parity tests",
       "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
       "additionalTargetPaths": [
         "src/package-checks/function-metrics/analyzer/analysis-context.ts",
@@ -913,7 +913,7 @@
     {
       "sourcePath": "lizard_ext/version.py",
       "range": "lines 1-6",
-      "sha256": "d17368a6881a7cec90561fffbb1512bada15daebaca8ec041cfd6d19a7a07911",
+      "sha256": "27f953eae6c59436b4d93657c2e7c57b342737277388be9189880bbd15b36ebe",
       "spdx": "MIT",
       "status": "excluded-entry-surface",
       "boundary": "CLI/output/version surface is excluded; Product/package owners provide any applicable boundary.",
@@ -929,6 +929,17 @@
       "boundary": "CLI/output/version surface is excluded; Product/package owners provide any applicable boundary.",
       "implementationEvidence": "explicitly excluded entry surface; Product owner provides the replacement boundary",
       "verification": "Product adapter/final-data evidence outside this analyzer scope"
+    },
+    {
+      "sourcePath": "lizard_ext/lizardcognitive.py",
+      "range": "lines 1-912",
+      "sha256": "e49f7d8b628eb7a943392ef36a8917e9174cbc8a81517be3fd56a574893f43a2",
+      "spdx": "MIT",
+      "status": "deferred-extension-body",
+      "boundary": "Cognitive Complexity is not adopted; this new optional upstream extension remains explicitly deferred.",
+      "implementationEvidence": "No translated body or Product metric; private registry rejects the deferred named extension.",
+      "verification": "extension registry deferred-body rejection and source inventory/legal audit",
+      "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardcognitive.ts"
     }
   ],
   "supplementalSources": [
@@ -947,9 +958,9 @@
       "status": "translated",
       "boundary": "The ErlangLexer class and root/string/directive/map token states are retained as the reader-local TypeScript lexer; Pygments generic lexer infrastructure and non-Erlang lexers are not translated.",
       "targetPath": "src/package-checks/function-metrics/analyzer/readers/erlang.ts",
-      "implementationEvidence": "verified target carries its dual Lizard 1.24.0 MIT plus Pygments 2.18.0 BSD-2-Clause derived-source header: src/package-checks/function-metrics/analyzer/readers/erlang.ts",
+      "implementationEvidence": "verified target carries its dual Lizard 1.24.1 MIT plus Pygments 2.18.0 BSD-2-Clause derived-source header: src/package-checks/function-metrics/analyzer/readers/erlang.ts",
       "verification": "verified: bun test src/package-checks/function-metrics/analyzer/readers/erlang.test.ts; all four fixed-tag suffix fixtures, source/adversarial function-metrics observations, seven Pygments 2.18 rule token-and-metrics cases, and the exact lexer probe passed",
-      "headerRequirement": "verified: erlang.ts identifies Lizard 1.24.0 MIT and Pygments 2.18.0 pygments/lexers/erlang.py BSD-2-Clause sources, Lizard revision, SPDX combination, and modified status; the ledger carries both inclusive ranges",
+      "headerRequirement": "verified: erlang.ts identifies Lizard 1.24.1 MIT and Pygments 2.18.0 pygments/lexers/erlang.py BSD-2-Clause sources, Lizard revision, SPDX combination, and modified status; the ledger carries both inclusive ranges",
       "licensePath": "pygments-2.18.0.dist-info/licenses/LICENSE",
       "licenseSha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17"
     }

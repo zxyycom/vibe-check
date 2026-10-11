@@ -1,0 +1,1202 @@
+[
+  {
+    "side": "before",
+    "block": 0,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3233.6960679967888,
+    "operationWallMs": 2601.254602,
+    "selectedWallMs": 3233.6960679967888,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 0,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3261.1031099950196,
+    "operationWallMs": 2609.8013960000003,
+    "selectedWallMs": 3261.1031099950196,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 0,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3253.0505180038745,
+    "operationWallMs": 2642.328965,
+    "selectedWallMs": 3253.0505180038745,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 0,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3170.58720899513,
+    "operationWallMs": 2552.157492,
+    "selectedWallMs": 3170.58720899513,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 1,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3158.302279000054,
+    "operationWallMs": 2562.070083,
+    "selectedWallMs": 3158.302279000054,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 1,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3253.940822003642,
+    "operationWallMs": 2644.363386,
+    "selectedWallMs": 3253.940822003642,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 1,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3190.0954129960155,
+    "operationWallMs": 2585.7154499999997,
+    "selectedWallMs": 3190.0954129960155,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 1,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3177.1582450019196,
+    "operationWallMs": 2561.552611,
+    "selectedWallMs": 3177.1582450019196,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 2,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3212.3919459991157,
+    "operationWallMs": 2584.918629,
+    "selectedWallMs": 3212.3919459991157,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 2,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3247.9470489925006,
+    "operationWallMs": 2625.270159,
+    "selectedWallMs": 3247.9470489925006,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 2,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3191.2561239878414,
+    "operationWallMs": 2594.037125,
+    "selectedWallMs": 3191.2561239878414,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 2,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3138.820243999362,
+    "operationWallMs": 2535.5354500000003,
+    "selectedWallMs": 3138.820243999362,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 3,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3163.039828010369,
+    "operationWallMs": 2563.232887,
+    "selectedWallMs": 3163.039828010369,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 3,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3234.83011200733,
+    "operationWallMs": 2615.038274,
+    "selectedWallMs": 3234.83011200733,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 3,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3212.2213230031775,
+    "operationWallMs": 2605.361535,
+    "selectedWallMs": 3212.2213230031775,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 3,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3158.808093998232,
+    "operationWallMs": 2527.798613,
+    "selectedWallMs": 3158.808093998232,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 4,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3122.1068390004802,
+    "operationWallMs": 2523.3754400000003,
+    "selectedWallMs": 3122.1068390004802,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 4,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3188.353235993418,
+    "operationWallMs": 2591.458905,
+    "selectedWallMs": 3188.353235993418,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 4,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3220.4219039995223,
+    "operationWallMs": 2609.7236980000002,
+    "selectedWallMs": 3220.4219039995223,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 4,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3164.353020998533,
+    "operationWallMs": 2567.589262,
+    "selectedWallMs": 3164.353020998533,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 5,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3141.536262992304,
+    "operationWallMs": 2557.483441,
+    "selectedWallMs": 3141.536262992304,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 5,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3229.8595830070553,
+    "operationWallMs": 2614.129578,
+    "selectedWallMs": 3229.8595830070553,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 5,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3259.6782259934116,
+    "operationWallMs": 2655.638484,
+    "selectedWallMs": 3259.6782259934116,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 5,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3210.0190479977755,
+    "operationWallMs": 2564.2018940000003,
+    "selectedWallMs": 3210.0190479977755,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 6,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3201.1748969962355,
+    "operationWallMs": 2574.294414,
+    "selectedWallMs": 3201.1748969962355,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 6,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3263.636226998642,
+    "operationWallMs": 2621.459148,
+    "selectedWallMs": 3263.636226998642,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 6,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3253.087464006967,
+    "operationWallMs": 2622.049091,
+    "selectedWallMs": 3253.087464006967,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 6,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3198.8256760087097,
+    "operationWallMs": 2589.603872,
+    "selectedWallMs": 3198.8256760087097,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 7,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3186.9722319970606,
+    "operationWallMs": 2560.961033,
+    "selectedWallMs": 3186.9722319970606,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 7,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3225.694980996195,
+    "operationWallMs": 2598.1565490000003,
+    "selectedWallMs": 3225.694980996195,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 7,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3272.183180000866,
+    "operationWallMs": 2650.246416,
+    "selectedWallMs": 3272.183180000866,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 7,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3587.7744180033915,
+    "operationWallMs": 2912.44265,
+    "selectedWallMs": 3587.7744180033915,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 8,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3190.9996600006707,
+    "operationWallMs": 2567.12534,
+    "selectedWallMs": 3190.9996600006707,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 8,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3239.3745470035356,
+    "operationWallMs": 2618.450625,
+    "selectedWallMs": 3239.3745470035356,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 8,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3221.425370997167,
+    "operationWallMs": 2616.9331730000004,
+    "selectedWallMs": 3221.425370997167,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 8,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3155.690704996232,
+    "operationWallMs": 2560.4436920000003,
+    "selectedWallMs": 3155.690704996232,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 9,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3167.358274004073,
+    "operationWallMs": 2564.1041619999996,
+    "selectedWallMs": 3167.358274004073,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 9,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3192.411936004646,
+    "operationWallMs": 2584.344227,
+    "selectedWallMs": 3192.411936004646,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 9,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3253.6198849993525,
+    "operationWallMs": 2614.800622,
+    "selectedWallMs": 3253.6198849993525,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 9,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3171.7194550001295,
+    "operationWallMs": 2565.062895,
+    "selectedWallMs": 3171.7194550001295,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 10,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3166.2059469963424,
+    "operationWallMs": 2561.56637,
+    "selectedWallMs": 3166.2059469963424,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 10,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3223.1604940025136,
+    "operationWallMs": 2578.342044,
+    "selectedWallMs": 3223.1604940025136,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 10,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3277.7153099887073,
+    "operationWallMs": 2638.9747159999997,
+    "selectedWallMs": 3277.7153099887073,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 10,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3279.3201059976127,
+    "operationWallMs": 2673.549974,
+    "selectedWallMs": 3279.3201059976127,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 11,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3398.568085001898,
+    "operationWallMs": 2710.983467,
+    "selectedWallMs": 3398.568085001898,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 11,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3246.110794003471,
+    "operationWallMs": 2621.266078,
+    "selectedWallMs": 3246.110794003471,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 11,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3247.1755919978023,
+    "operationWallMs": 2625.909522,
+    "selectedWallMs": 3247.1755919978023,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 11,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3220.9534930007067,
+    "operationWallMs": 2610.4042999999997,
+    "selectedWallMs": 3220.9534930007067,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 12,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3432.165261998307,
+    "operationWallMs": 2782.563572,
+    "selectedWallMs": 3432.165261998307,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 12,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3188.1944670021767,
+    "operationWallMs": 2585.843594,
+    "selectedWallMs": 3188.1944670021767,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 12,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3204.0125459898263,
+    "operationWallMs": 2605.13672,
+    "selectedWallMs": 3204.0125459898263,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 12,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3144.64477400179,
+    "operationWallMs": 2533.083563,
+    "selectedWallMs": 3144.64477400179,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 13,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3152.922502005822,
+    "operationWallMs": 2546.2623599999997,
+    "selectedWallMs": 3152.922502005822,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 13,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3215.743716995348,
+    "operationWallMs": 2622.451084,
+    "selectedWallMs": 3215.743716995348,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 13,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3198.0529290012782,
+    "operationWallMs": 2596.518858,
+    "selectedWallMs": 3198.0529290012782,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 13,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3147.5341900077183,
+    "operationWallMs": 2538.470561,
+    "selectedWallMs": 3147.5341900077183,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 14,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3162.4905680073425,
+    "operationWallMs": 2559.217839,
+    "selectedWallMs": 3162.4905680073425,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 14,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3200.874368994846,
+    "operationWallMs": 2594.620707,
+    "selectedWallMs": 3200.874368994846,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 14,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3183.1130989885423,
+    "operationWallMs": 2588.287793,
+    "selectedWallMs": 3183.1130989885423,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 14,
+    "temperature": "cold",
+    "wholeTargetWallMs": 3190.324850991601,
+    "operationWallMs": 2564.7173199999997,
+    "selectedWallMs": 3190.324850991601,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 0,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5510.22580100107,
+    "operationWallMs": 2362.5432419999997,
+    "selectedWallMs": 2362.5432419999997,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 0,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5623.799460998271,
+    "operationWallMs": 2429.228903,
+    "selectedWallMs": 2429.228903,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 0,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5651.1695079971105,
+    "operationWallMs": 2415.2184600000005,
+    "selectedWallMs": 2415.2184600000005,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 0,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5644.76781799749,
+    "operationWallMs": 2432.1940970000005,
+    "selectedWallMs": 2432.1940970000005,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 1,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5520.0320099975215,
+    "operationWallMs": 2365.5947650000003,
+    "selectedWallMs": 2365.5947650000003,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 1,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5597.727966989623,
+    "operationWallMs": 2400.306461,
+    "selectedWallMs": 2400.306461,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 1,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5641.913629995543,
+    "operationWallMs": 2447.4161249999997,
+    "selectedWallMs": 2447.4161249999997,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 1,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5664.563808997627,
+    "operationWallMs": 2424.5884840000003,
+    "selectedWallMs": 2424.5884840000003,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 2,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5509.705456002848,
+    "operationWallMs": 2365.9471790000002,
+    "selectedWallMs": 2365.9471790000002,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 2,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5838.206614003866,
+    "operationWallMs": 2449.5145780000003,
+    "selectedWallMs": 2449.5145780000003,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 2,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5673.262466007145,
+    "operationWallMs": 2431.7162280000002,
+    "selectedWallMs": 2431.7162280000002,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 2,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5514.878731002682,
+    "operationWallMs": 2378.7526639999996,
+    "selectedWallMs": 2378.7526639999996,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 3,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5631.312616998912,
+    "operationWallMs": 2409.458874,
+    "selectedWallMs": 2409.458874,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 3,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5743.574421998346,
+    "operationWallMs": 2451.946705,
+    "selectedWallMs": 2451.946705,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 3,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5715.125432005152,
+    "operationWallMs": 2448.6236459999996,
+    "selectedWallMs": 2448.6236459999996,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 3,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5512.0756100077415,
+    "operationWallMs": 2359.0412010000005,
+    "selectedWallMs": 2359.0412010000005,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 4,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5519.693576003192,
+    "operationWallMs": 2381.2849069999997,
+    "selectedWallMs": 2381.2849069999997,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 4,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5664.300140007981,
+    "operationWallMs": 2445.0108320000004,
+    "selectedWallMs": 2445.0108320000004,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 4,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5649.983882001834,
+    "operationWallMs": 2413.7676600000004,
+    "selectedWallMs": 2413.7676600000004,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 4,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5551.350695008296,
+    "operationWallMs": 2393.9689369999996,
+    "selectedWallMs": 2393.9689369999996,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 5,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5639.255732996389,
+    "operationWallMs": 2374.678621,
+    "selectedWallMs": 2374.678621,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 5,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5705.438338991371,
+    "operationWallMs": 2445.5736719999995,
+    "selectedWallMs": 2445.5736719999995,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 5,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5823.443754008622,
+    "operationWallMs": 2515.508276,
+    "selectedWallMs": 2515.508276,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 5,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5552.311740000732,
+    "operationWallMs": 2392.594419,
+    "selectedWallMs": 2392.594419,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 6,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5724.041091001709,
+    "operationWallMs": 2526.455348,
+    "selectedWallMs": 2526.455348,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 6,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5707.957577993511,
+    "operationWallMs": 2458.8359670000004,
+    "selectedWallMs": 2458.8359670000004,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 6,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5663.293739009532,
+    "operationWallMs": 2456.3194180000005,
+    "selectedWallMs": 2456.3194180000005,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 6,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5548.720703998697,
+    "operationWallMs": 2392.9573339999997,
+    "selectedWallMs": 2392.9573339999997,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 7,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5550.077574996976,
+    "operationWallMs": 2381.2242410000003,
+    "selectedWallMs": 2381.2242410000003,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 7,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5673.034077000921,
+    "operationWallMs": 2450.395753,
+    "selectedWallMs": 2450.395753,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 7,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5817.538018003688,
+    "operationWallMs": 2438.737889,
+    "selectedWallMs": 2438.737889,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 7,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5707.971014999202,
+    "operationWallMs": 2409.7193850000003,
+    "selectedWallMs": 2409.7193850000003,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 8,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5562.751806995948,
+    "operationWallMs": 2395.752478,
+    "selectedWallMs": 2395.752478,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 8,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5673.068401010823,
+    "operationWallMs": 2427.7909409999997,
+    "selectedWallMs": 2427.7909409999997,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 8,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5745.324016999803,
+    "operationWallMs": 2494.95928,
+    "selectedWallMs": 2494.95928,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 8,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5681.135542006814,
+    "operationWallMs": 2491.277127,
+    "selectedWallMs": 2491.277127,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 9,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5593.364676009514,
+    "operationWallMs": 2367.388084,
+    "selectedWallMs": 2367.388084,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 9,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5637.125200999435,
+    "operationWallMs": 2434.606334,
+    "selectedWallMs": 2434.606334,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 9,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5656.643387002987,
+    "operationWallMs": 2442.551332,
+    "selectedWallMs": 2442.551332,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 9,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5545.871454989538,
+    "operationWallMs": 2382.8011560000004,
+    "selectedWallMs": 2382.8011560000004,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 10,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5782.845339999767,
+    "operationWallMs": 2418.387965,
+    "selectedWallMs": 2418.387965,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 10,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5737.705835999805,
+    "operationWallMs": 2507.6609420000004,
+    "selectedWallMs": 2507.6609420000004,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 10,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5788.385040010326,
+    "operationWallMs": 2504.331432,
+    "selectedWallMs": 2504.331432,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 10,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5640.137462003622,
+    "operationWallMs": 2402.6136760000004,
+    "selectedWallMs": 2402.6136760000004,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 11,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5559.518865004065,
+    "operationWallMs": 2396.1971180000005,
+    "selectedWallMs": 2396.1971180000005,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 11,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5708.256654004799,
+    "operationWallMs": 2450.3797809999996,
+    "selectedWallMs": 2450.3797809999996,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 11,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5629.264346003765,
+    "operationWallMs": 2413.29744,
+    "selectedWallMs": 2413.29744,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 11,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5581.548677000683,
+    "operationWallMs": 2403.35895,
+    "selectedWallMs": 2403.35895,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 12,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5545.503765009926,
+    "operationWallMs": 2398.327902,
+    "selectedWallMs": 2398.327902,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 12,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5672.893850991386,
+    "operationWallMs": 2439.5447739999995,
+    "selectedWallMs": 2439.5447739999995,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 12,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5674.7999979997985,
+    "operationWallMs": 2442.8662839999997,
+    "selectedWallMs": 2442.8662839999997,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 12,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5629.960859005223,
+    "operationWallMs": 2415.5208660000003,
+    "selectedWallMs": 2415.5208660000003,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 13,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5563.229299004888,
+    "operationWallMs": 2397.8518520000002,
+    "selectedWallMs": 2397.8518520000002,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 13,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5817.808806008543,
+    "operationWallMs": 2511.076757,
+    "selectedWallMs": 2511.076757,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 13,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5837.252305995207,
+    "operationWallMs": 2475.6902760000003,
+    "selectedWallMs": 2475.6902760000003,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 13,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5538.45521400217,
+    "operationWallMs": 2403.9910160000004,
+    "selectedWallMs": 2403.9910160000004,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "before",
+    "block": 14,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5506.793205990107,
+    "operationWallMs": 2374.5319819999995,
+    "selectedWallMs": 2374.5319819999995,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  },
+  {
+    "side": "after",
+    "block": 14,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5623.136369002168,
+    "operationWallMs": 2419.648785,
+    "selectedWallMs": 2419.648785,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "after",
+    "block": 14,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5721.53810999589,
+    "operationWallMs": 2495.931265,
+    "selectedWallMs": 2495.931265,
+    "runtime": "v24.18.0",
+    "digest": "971c1522868d364d5aeadb5befe05499ed40122e991bc4ae72f2366c37a2ab67"
+  },
+  {
+    "side": "before",
+    "block": 14,
+    "temperature": "warmed-operation",
+    "wholeTargetWallMs": 5622.938750006142,
+    "operationWallMs": 2402.517621,
+    "selectedWallMs": 2402.517621,
+    "runtime": "v24.18.0",
+    "digest": "2e5f72f38a78ce90fcec83c3642584d1a2dac76f2aa66fa817df29bc9c0f86b2"
+  }
+]

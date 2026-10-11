@@ -43,7 +43,7 @@ export const PROJECT_GATE_PRODUCT_TEST_REGIONS = Object.freeze({
   ]),
   // Source identity evidence scans all src/** for archived Change reads, not just the analyzer.
   "product-function-metrics-tests": {
-    patterns: [...productTestInputs, "licenses/lizard-1.24.0-provenance.json"]
+    patterns: [...productTestInputs, "licenses/lizard-1.24.1-provenance.json"]
   },
   "product-json-tests": productCheckTestRegion([
     "json-document",

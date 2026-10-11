@@ -13,7 +13,7 @@ export function writeExternalConsumerRuntimeFixture(consumerDirectory: string): 
   );
   writeFileSync(join(consumerDirectory, "duplicate-a.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-b.ts"), duplicateSource(), "utf8");
-  writeFileSync(join(consumerDirectory, "function-metrics.ts"), functionMetricsSource(), "utf8");
+  writeFileSync(join(consumerDirectory, "function-metrics.rs"), functionMetricsSource(), "utf8");
   writeFileSync(
     join(consumerDirectory, "schema.json"),
     `${JSON.stringify({
@@ -75,9 +75,12 @@ function duplicateSource(): string {
 }
 
 function functionMetricsSource(): string {
-  return `export function workerProof(value: number): number {
-  if (value > 0) return value;
-  return -value;
+  return `fn workerProof(value: i32) -> i32 {
+  match value {
+    0 => 3,
+    1 => 4,
+    _ => 5,
+  }
 }
 `;
 }

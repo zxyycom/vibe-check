@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0 tests.
+ * Derived from terryyin/lizard 1.24.1 tests.
  * Sources: test/test_languages/testPHP.py and test/test_languages/testPLSQL.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: direct fixture and high-risk reader parity coverage.
  */
@@ -18,7 +18,7 @@ import type { ReaderConstructor } from "../contracts.ts";
 import { PHPReader } from "./php.ts";
 import { PLSQLReader } from "./plsql.ts";
 
-const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.0");
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.1");
 
 test("PHP and PL/SQL readers preserve every checked-in suffix and edge fixture", () => {
   for (const fixture of ["normal.php", "edge.php"]) {
@@ -63,8 +63,8 @@ $arrow = fn($value) => $value;
     ),
     [
       measurement("Box::method", 5, 5, 1, 3, 1),
-      measurement("Carrier::carry", 8, 9, 2, 1, 1),
-      measurement("Carrier::(anonymous)", 10, 10, 1, 1, 1)
+      measurement("Carrier::carry", 8, 8, 1, 1, 1),
+      measurement("$assigned", 10, 10, 1, 1, 1)
     ]
   );
 

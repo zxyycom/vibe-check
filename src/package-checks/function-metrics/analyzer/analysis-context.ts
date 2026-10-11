@@ -1,8 +1,8 @@
 /**
- * Derived from terryyin/lizard 1.24.0.
+ * Derived from terryyin/lizard 1.24.1.
  * Sources: lizard.py nesting stack and FileInfoBuilder lifecycle;
  * lizard_ext/lizardnd.py typed FileInfoBuilder lifecycle seam.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: Apache-2.0 AND MIT
  * Modified: mutable analysis context isolated from result models and pipeline.
  */

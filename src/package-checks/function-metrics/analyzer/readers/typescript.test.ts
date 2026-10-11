@@ -10,7 +10,7 @@ import { TypeScriptReader } from "./typescript.ts";
 
 const fixtureDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.24.0/typescript"
+  "../fixtures/lizard-1.24.1/typescript"
 );
 
 test("TypeScript reader preserves fixtures, type syntax, decorators, regexes, templates, methods, and arrows", () => {

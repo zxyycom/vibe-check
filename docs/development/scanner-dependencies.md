@@ -87,9 +87,13 @@ external adapter tests 证明 command、availability、parser 与 tool-specific 
 证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、由当前 provenance mapping 确定的 identity closure 和 archive-read guard；adapter/Worker tests
 证明私有调用链与 whole-input mapping，function-metrics integration tests 证明 adapter 到 Check result 的映射。
 
-当前 Lizard `1.24.0` baseline 的 oracle、malformed、reader mapping、identity 与 deviation evidence 位于
-`src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/`；
-`licenses/lizard-1.24.0-provenance.json` 拥有 source/range、hash、SPDX 与 translated-target mapping。
+当前 Lizard `1.24.1` baseline 的 oracle、malformed、reader mapping、identity 与 deviation evidence 位于
+`src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/`；
+`licenses/lizard-1.24.1-provenance.json` 拥有 source/range、hash、SPDX 与 translated-target mapping。
+源码忠实翻译之外，Rust 实际 match arm CCN 增量的 `=>` tags 与 Kotlin expression/when 的函数行/NLOC 边界具有两项局部偏差；
+具体机制、原始 oracle 与修正期望的分离见该目录的 `source-alignment-deviations.md` 和 `README.md`。
+公开 contributors 的语义由 [Check 指南](../checks/function-metrics.md#效果与结果)拥有，不等同全部内部 CCN 事件。
+上游 Cognitive Complexity body 在 inventory 中归为 deferred，不注册可执行 processor 或公共 metric。
 identity tests 从该 mapping 验证上述 source/target/symbol 闭合；测试 evidence 不参与 Product runtime 或 package payload。
 上游 release 查询由[显式 advisory 命令](../tooling/lizard-upstream.md#run)执行。采用新 baseline 或改变 translated
 source boundary 时，需另行批准，先更新根 provenance，再同步 current evidence、source-alignment review 并重跑相关证据。

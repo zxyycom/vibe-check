@@ -1,5 +1,5 @@
 /**
- * Lizard 1.24.0 malformed-source differential observations.
+ * Lizard 1.24.1 malformed-source differential observations.
  * The checked-in corpus is generated only by the pinned upstream oracle;
  * this test executes the Product-owned in-memory port against that corpus.
  */
@@ -18,7 +18,7 @@ import { get_reader_for, languages } from "../reader-registry.ts";
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../");
 const evidenceRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.24.0/evidence"
+  "../fixtures/lizard-1.24.1/evidence"
 );
 const malformedOracle = parseMalformedOracle(
   readJson(resolve(evidenceRoot, "lizard-1.24-malformed-reader-observations.json"))
@@ -34,8 +34,8 @@ test("every source-order reader preserves Lizard 1.24 malformed-source whole-fil
     readerClass: reader.name
   }));
 
-  assert.equal(malformedOracle.oracle.tag, "1.24.0");
-  assert.equal(malformedOracle.oracle.revision, "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec");
+  assert.equal(malformedOracle.oracle.tag, "1.24.1");
+  assert.equal(malformedOracle.oracle.revision, "0488a260e74e73ceba3149d7c600faac6a3616e6");
   assert.equal(malformedOracle.readerCount, 27);
   assert.equal(malformedOracle.extensionCount, 55);
   assert.equal(malformedOracle.fixtures.length, malformedOracle.readerCount);

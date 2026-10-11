@@ -8,8 +8,8 @@
 
 | Material | Owner / editable status | Purpose |
 | --- | --- | --- |
-| `licenses/lizard-1.24.0-provenance.json` | source/range/hash/SPDX→translated target inventory 的唯一人工编辑源 | 来源、范围和 translated target 改动时在此更新。 |
-| `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0/evidence/lizard-1.24-source-identity.json` | 单独人工维护的 identity evidence | 选择 source→symbol 或 named host seam，并保留 `classes`/`symbols` completeness signal；它不由 ledger 生成。 |
+| `licenses/lizard-1.24.1-provenance.json` | source/range/hash/SPDX→translated target inventory 的唯一人工编辑源 | 来源、范围和 translated target 改动时在此更新。 |
+| `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/lizard-1.24-source-identity.json` | 单独人工维护的 identity evidence | 选择 source→symbol 或 named host seam，并保留 `classes`/`symbols` completeness signal；它不由 ledger 生成。 |
 | `scripts/package/package-contract.ts` 的 `PACKAGE_TRANSLATED_ANALYZER_PROVENANCE_SHA256` | 由 ledger 字节派生的 package legal-material pin | package legal-material audit 消费该 pin；不要手改。 |
 
 ## 检查与同步

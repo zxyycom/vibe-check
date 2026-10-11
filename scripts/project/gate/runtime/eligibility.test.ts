@@ -94,7 +94,7 @@ describe("Project Gate change regions", () => {
     for (const path of sharedInputs) {
       assert.deepEqual(matchingRegions(path, regions), [...regions], path);
     }
-    assert.deepEqual(matchingRegions("licenses/lizard-1.24.0-provenance.json", regions), [
+    assert.deepEqual(matchingRegions("licenses/lizard-1.24.1-provenance.json", regions), [
       functionRegion
     ]);
     for (const path of ["README.md", "docs/tooling/project-gate.md", "scripts/unrelated.ts"]) {

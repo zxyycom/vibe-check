@@ -19,7 +19,7 @@ import {
 } from "./legal-materials.ts";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-const sourceHeader = "/**\n * Derived from terryyin/lizard 1.24.0.\n */\n";
+const sourceHeader = "/**\n * Derived from terryyin/lizard 1.24.1.\n */\n";
 const untrackedTargetPath = "src/untracked-translated-source.ts";
 const targetClosurePath = "src/translated-target-closure-drift.ts";
 

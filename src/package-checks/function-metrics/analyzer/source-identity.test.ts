@@ -1,5 +1,5 @@
 /**
- * Source-identity evidence for the Lizard 1.24.0 source-aligned port.
+ * Source-identity evidence for the Lizard 1.24.1 source-aligned port.
  * The root provenance inventory owns source hashes, SPDX, and target paths;
  * this fixture only names symbols and explicit host seams to verify.
  */
@@ -14,11 +14,11 @@ import * as ts from "typescript";
 const WORKSPACE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const EVIDENCE_ROOT = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "fixtures/lizard-1.24.0/evidence"
+  "fixtures/lizard-1.24.1/evidence"
 );
 const IDENTITY_MANIFEST_PATH = resolve(EVIDENCE_ROOT, "lizard-1.24-source-identity.json");
-const PROVENANCE_PATH = resolve(WORKSPACE_ROOT, "licenses/lizard-1.24.0-provenance.json");
-const PROVENANCE_RELATIVE_PATH = "licenses/lizard-1.24.0-provenance.json";
+const PROVENANCE_PATH = resolve(WORKSPACE_ROOT, "licenses/lizard-1.24.1-provenance.json");
+const PROVENANCE_RELATIVE_PATH = "licenses/lizard-1.24.1-provenance.json";
 const CURRENT_SOURCE_ROOT = resolve(WORKSPACE_ROOT, "src");
 const ARCHIVED_CHANGE_PATH_SEGMENT = ["changes", "archive"].join("/");
 
@@ -36,12 +36,12 @@ const MAPPING_VOCABULARY = new Set([
 ]);
 const FIXED_IDENTITY_COUNTS = {
   classes: 83,
-  symbols: 820
+  symbols: 841
 } as const;
 const FIXED_UPSTREAM = {
   project: "terryyin/lizard",
-  revision: "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec",
-  tag: "1.24.0"
+  revision: "0488a260e74e73ceba3149d7c600faac6a3616e6",
+  tag: "1.24.1"
 } as const;
 const FIXED_STATUS_VOCABULARY = [
   "deferred-extension-body",

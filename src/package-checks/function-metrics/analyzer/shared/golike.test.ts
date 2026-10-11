@@ -1,9 +1,9 @@
 /**
- * Derived from terryyin/lizard 1.24.0 tests.
+ * Derived from terryyin/lizard 1.24.1 tests.
  * Sources: lizard_languages/golike.py, lizard_languages/go.py,
  * lizard_languages/rust.py, lizard_languages/scala.py,
  * lizard_languages/solidity.py, and lizard_languages/kotlin.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: focused shared Go-like keyword-dispatch parity coverage.
  */

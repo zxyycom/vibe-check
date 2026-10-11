@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0.
+ * Derived from terryyin/lizard 1.24.1.
  * Source: lizard_languages/typescript.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: translated to the product-owned TypeScript analyzer.
  */
@@ -9,6 +9,9 @@
 import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CodeReader, CodeStateMachine, type TokenFactory } from "../shared/code-reader.ts";
 import { js_style_regex_expression } from "../shared/js-style-regex.ts";
+
+// Fixed source pattern shared by TypeScript and TSX (#497).
+export const TEMPLATE_LITERAL = String.raw`\`(?:\\.|\$\{(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|[^{}"'\`])*\}|[^\`\\])*\``;
 
 const _TS_TYPE_KEYWORDS = new Set([
   "string",
@@ -77,7 +80,7 @@ export class TypeScriptReader extends CodeReader {
       yield "`";
     }
 
-    const typeScriptAddition = `${addition}|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?)|\`.*?\``;
+    const typeScriptAddition = `${addition}|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?)|${TEMPLATE_LITERAL}`;
     for (const token of CodeReader.generateTokens(sourceCode, typeScriptAddition, tokenFactory)) {
       if (token.startsWith("`") && token.endsWith("`") && token.length > 1) {
         yield* splitTemplateLiteral(token);

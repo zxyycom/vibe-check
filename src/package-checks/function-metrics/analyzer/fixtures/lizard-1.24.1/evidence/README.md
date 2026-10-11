@@ -1,16 +1,16 @@
-# Lizard 1.24.0 current evidence
+# Lizard 1.24.1 current evidence
 
 此目录是 source-aligned analyzer 的**当前连续测试证据**。后续 agent 应从本 README 恢复 owner
 层级、identity contract 与更新顺序；具体 Product 行为仍由 `docs/checks/function-metrics.md` 和
-`docs/scanner-dependencies.md` 拥有。它只服务于 `src/package-checks/function-metrics/analyzer/**` 的
+`docs/development/scanner-dependencies.md` 拥有。它只服务于 `src/package-checks/function-metrics/analyzer/**` 的
 fidelity、reader 和 adapter 测试；不是 Product 运行时输入，也不随 package payload 发布。
 
 ## Owner 边界
 
-- [`licenses/lizard-1.24.0-provenance.json`](../../../../../../../licenses/lizard-1.24.0-provenance.json)
+- [`licenses/lizard-1.24.1-provenance.json`](../../../../../../../licenses/lizard-1.24.1-provenance.json)
   是唯一 machine-readable upstream source/range、hash、SPDX 与 translated target inventory。所有
   upstream revision、license 和 target-path 判断从那里读取。
-- 该 root inventory 完整分类 84 个上游 records：46 个 `translated`、22 个
+- 该 root inventory 完整分类 85 个上游 records：46 个 `translated`、23 个
   `deferred-extension-body` 与 16 个 `excluded-entry-surface`。这些分类是 ledger 事实；本目录只为
   translated closure 提供 current evidence，不能据此把 deferred 或 excluded record 解释为 Product capability。
 - 本目录只拥有 current oracle observations、reader mapping、symbol identity 与人读 deviation
@@ -25,17 +25,28 @@ fidelity、reader 和 adapter 测试；不是 Product 运行时输入，也不�
 | `lizard-1.24-oracle-observations.json`           | `analyzer-adapter.test.ts` 的 normal/edge source observations。                                                     |
 | `lizard-1.24-malformed-reader-observations.json` | `readers/malformed-source.test.ts` 的 27 个 reader-targeted malformed observations。                                |
 | `lizard-1.24-reader-extension-mapping.json`      | malformed differential test 的 source-order reader 与 canonical suffix mapping。                                    |
-| `lizard-1.24-source-identity.json`               | `source-identity.test.ts` 的 46 translated source/range references、83 class identities、820 symbol/seam mappings。 |
+| `lizard-1.24-source-identity.json`               | `source-identity.test.ts` 的 46 translated source/range references、83 class identities、841 symbol/seam mappings。 |
 | `lizard-1.24-selected-extension-observations.json` | `complextags` + `nd` adoption 的 fixed-tag oracle：110 个 current normal/edge/malformed fixtures 与 10 个专项语义输入。它是 translated-body parity test 的 expected-data owner，不是 Product runtime input。 |
+| `lizard-1.24.1-upgrade-observations.json` | `source-baseline-upgrade.test.ts` 的 14 项升级样例及两项既有 TypeScript 缺陷对照。保存原始上游结果，局部偏差由测试显式覆盖字段。 |
+| `lizard-1.24.1-token-observations.json` | `shared/js-style-regex.test.ts` 的六消费者、78 项原始 token 观察，证明 regex 的 streaming/空白及绝对 source-start 语义。 |
 | `source-alignment-deviations.md`                 | 非 direct host seam、source-alignment 边界和 future upstream-sync review 的人读说明。                               |
 
 `source-identity.test.ts` 以 root inventory 为唯一对照，fail-closed 地检查 exact 46 source/range set、41 个
-translated targets（包括 extension protocol 与 ND typed-host additional target）、83 个 class identity 与 820 个 symbol/host-seam
+translated targets（包括 extension protocol 与 ND typed-host additional target）、83 个 class identity 与 841 个 symbol/host-seam
 mappings。它也扫描 current `src/**/*.ts`，拒绝 archived-Change evidence path。
+
+## 升级原始观察与必要偏差
+
+两个升级 JSON 均由固定上游实际执行生成，不读取当前 TypeScript 实现生成期望。token 观察覆盖 CRLF/Python 空白、source-start/BOM 及合法跨行 division。
+两项 TypeScript 缺陷 controls 保留 typed-tail CCN 4/NLOC 10、四次 `??` CCN 9/ND 8；它们证明来源升级未修复这些缺陷，不是正确计量定义。
+
+`source-baseline-upgrade.test.ts` 对原始 Rust 三 arm CCN 3 叠加第 4/5 行两项真实 `=>` tags，对 Kotlin expression/when 只叠加最后正文结束行/NLOC。
+原始 JSON 保留空 tags 及 2/2、5/5 观察，不静默改写；其余字段/场景直接与原始来源一致。getter/setter 的获批正文边界在 Go-like direct tests 中独立断言。
+原始 normal/edge/malformed/selected 扩展 corpus 仍由表中既有消费者逐项验收。偏差机制见 [source-alignment deviations](source-alignment-deviations.md#1241-两项局部结果偏差)。
 
 ## Fixed-tag oracle generation
 
-这些 observations 由 detached Lizard `1.24.0` tag `308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec` 的实际 CSV
+这些 observations 由 detached Lizard `1.24.1` tag `0488a260e74e73ceba3149d7c600faac6a3616e6` 的实际 CSV
 输出生成，而不是由此前 JSON 改写。开发时从仓库根目录对每个 fixture 执行固定 checkout 的
 `python lizard.py <fixture> --csv`；Erlang reader 所需的 Pygments 只安装在临时 oracle 环境，不是
 Product dependency。`lizard-1.24-oracle-observations.json` 覆盖 55 个 normal suffix fixture 和 27 个
@@ -61,7 +72,7 @@ bun test src/package-checks/function-metrics/analyzer/readers/malformed-source.t
 bun test src/package-checks/function-metrics/analyzer-adapter.test.ts
 ```
 
-package artifact verification 另外证明整个 `analyzer/fixtures/lizard-1.24.0/` subtree 不进入候选包。
+package artifact verification 另外证明整个 `analyzer/fixtures/lizard-1.24.1/` subtree 不进入候选包。
 
 ## Upstream update rule
 

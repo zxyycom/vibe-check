@@ -62,7 +62,10 @@ Reuse 不重复扫描只服务 build evidence 的 staging；artifact acceptance 
 
 文档示例使用 Node 标准库时，types fixture 将当前锁定的 `@types/node` 及其 `undici-types` 依赖复制到隔离 consumer 内，以真实声明校验调用；传递依赖从 `@types/node` 的实际位置解析，不依赖根目录 hoist。类型验收不为 runtime 增加祖先依赖回退，也不修改 package 的发布依赖。
 
-Runtime 从 installed root import 调用 `functionMetrics`，要求 CCN `2` 的 non-blocking finding，证明 emitted Worker URL 指向安装包内 worker 且执行成功，不扩大 public exports。Types 用一次真实 `tsgo` consumer typecheck 覆盖 public imports、examples 与 Definition，直接核对 installed declaration owner 的相邻 JSDoc。Documentation 验收见[随包材料验收](repository-material-validation.md#随包材料验收)。
+Runtime 从 installed root import 调用 `functionMetrics`，用 Rust match fixture 验收 CCN `3`、第 4/5 行真实 `=>` contributors 的 non-blocking finding。
+这证明 emitted Worker URL 指向安装包内 worker 且执行成功，不扩大 public exports。
+Types 用一次真实 `tsgo` consumer typecheck 覆盖 public imports、examples 与 Definition，直接核对 installed declaration owner 的相邻 JSDoc。
+Documentation 验收见[随包材料验收](repository-material-validation.md#随包材料验收)。
 
 ### 实际安装的依赖
 

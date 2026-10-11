@@ -1,4 +1,4 @@
-const LIZARD_REVISION = "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec";
+const LIZARD_REVISION = "0488a260e74e73ceba3149d7c600faac6a3616e6";
 const PYGMENTS_ERLANG_PATH = "pygments/lexers/erlang.py";
 const PYGMENTS_ERLANG_RANGE = "lines 22-146";
 const PROVENANCE_STATUSES = Object.freeze([
@@ -10,7 +10,7 @@ const SPDX_LICENSES = Object.freeze(["Apache-2.0", "BSD-2-Clause", "MIT"] as con
 const SPDX_LICENSE_SET: ReadonlySet<string> = new Set(SPDX_LICENSES);
 const SOURCE_RANGE_PATTERN = /^lines ([1-9][0-9]*)-([1-9][0-9]*)$/u;
 const SHA256_PATTERN = /^[a-f0-9]{64}$/u;
-const DEFERRED_EXTENSION_BODY_COUNT = 20;
+const DEFERRED_EXTENSION_BODY_COUNT = 21;
 const DEFERRED_EXTENSION_SUPPORT_COUNT = 2;
 
 export const TRANSLATED_ANALYZER_LIZARD_REVISION = LIZARD_REVISION;
@@ -74,7 +74,7 @@ function assertFixedInventoryIdentity(value: Readonly<Record<string, unknown>>):
   assertSchemaVersion(value.schemaVersion);
   assertLizardUpstreamIdentity(value.upstream);
   assertStatusVocabulary(value.statusVocabulary);
-  assertInventoryArray(value.files, 84);
+  assertInventoryArray(value.files, 85);
   assertInventoryArray(value.supplementalSources, 1);
 }
 
@@ -85,7 +85,7 @@ function assertSchemaVersion(value: unknown): void {
 function assertLizardUpstreamIdentity(value: unknown): void {
   if (!isRecord(value)) throwUnexpectedFixedSourceIdentity();
   if (value.project !== "terryyin/lizard") throwUnexpectedFixedSourceIdentity();
-  if (value.tag !== "1.24.0") throwUnexpectedFixedSourceIdentity();
+  if (value.tag !== "1.24.1") throwUnexpectedFixedSourceIdentity();
   if (value.revision !== LIZARD_REVISION) throwUnexpectedFixedSourceIdentity();
 }
 

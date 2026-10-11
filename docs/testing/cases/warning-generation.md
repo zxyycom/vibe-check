@@ -36,6 +36,7 @@ Entities:
 - `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > validates closed identity authoring without invoking hostile accessors`
 - `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > audits unused waivers only after forming a complete empty candidate set`
 - `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > preserves applied and stale waiver evidence while settling only actionable metrics`
+- `bun|src/package-checks/function-metrics/upgrade.integration.test.ts|functionMetrics upgraded readers publish strict findings, real contributors, and exact waiver identities through the public Worker path`
 - `bun|src/package-checks/function-metrics/finding-waivers.test.ts|functionMetrics finding waivers > keeps duplicate analyzer function identities actionable when a waiver overmatches`
 
 Proves:

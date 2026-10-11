@@ -1,8 +1,8 @@
 /**
- * Derived from terryyin/lizard 1.24.0 tests.
+ * Derived from terryyin/lizard 1.24.1 tests.
  * Sources: test/test_languages/testErlang.py, lizard_languages/erlang.py,
  * and Pygments 2.18.0 pygments/lexers/erlang.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT AND BSD-2-Clause
  * Modified: direct source-observation and lexical-rule parity coverage.
  */
@@ -19,7 +19,7 @@ import { ErlangReader } from "./erlang.ts";
 
 const fixtureDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.24.0/erlang"
+  "../fixtures/lizard-1.24.1/erlang"
 );
 
 test("Erlang reader preserves every suffix, comments, branches, guards, nested fun, and macro complexity", () => {

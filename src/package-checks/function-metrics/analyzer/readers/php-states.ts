@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0.
+ * Derived from terryyin/lizard 1.24.1.
  * Source: lizard_languages/php_states.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: translated to the product-owned TypeScript analyzer while
  * retaining the source PHP function/class/match state machine.
@@ -21,6 +21,7 @@ export class PHPLanguageStates extends CodeStateMachine {
   private in_trait = false;
   private bracket_level = 0;
   private brace_level = 0;
+  private function_brace_level = 0;
   private started_function = false;
   private last_tokens = "";
   private is_function_declaration = false;
@@ -185,8 +186,7 @@ export class PHPLanguageStates extends CodeStateMachine {
     if (token === ":") {
       this._state = this._function_body_or_return_type;
     } else if (token === "{") {
-      this.brace_level += 1;
-      this._state = this._function_body;
+      this._enter_function_body();
     } else if (token === ";") {
       if (this.started_function) {
         this.context.endOfFunction();
@@ -198,9 +198,14 @@ export class PHPLanguageStates extends CodeStateMachine {
 
   private readonly _function_body_or_return_type = (token: string): void => {
     if (token === "{") {
-      this.brace_level += 1;
-      this._state = this._function_body;
+      this._enter_function_body();
     }
+  };
+
+  private readonly _enter_function_body = (): void => {
+    this.function_brace_level = this.brace_level;
+    this.brace_level += 1;
+    this._state = this._function_body;
   };
 
   private readonly _function_body = (token: string): void => {
@@ -208,7 +213,7 @@ export class PHPLanguageStates extends CodeStateMachine {
       this.brace_level += 1;
     } else if (token === "}") {
       this.brace_level -= 1;
-      if (this.brace_level === Number(this.in_class)) {
+      if (this.brace_level === this.function_brace_level) {
         if (this.started_function) {
           this.context.endOfFunction();
           this.started_function = false;

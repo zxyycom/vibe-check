@@ -8,9 +8,11 @@ Entities:
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > provides case-insensitive suffix capability and supplied-source Lizard-domain analysis`
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > matches source-order registry resolution for fast paths and explicit fallbacks`
 - `bun|src/package-checks/function-metrics/analyzer/port-facade.test.ts|Lizard port façade > matches the fixed-tag selected-extension corpus across every reader fixture and semantic case`
+- `bun|src/package-checks/function-metrics/analyzer/source-baseline-upgrade.test.ts|fixed 1.24.1 upgrade scenarios retain raw oracle separately from approved Rust/Kotlin deviations`
   Proves:
 
 - The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result. It privately composes the selected `complextags` and `nd` processors, retaining each function's complete source-ordered `[token, line]` contributors and maximum nesting depth. Its 27-reader/56-entry source-order coverage differentially compares both façade APIs and fixture analysis with `get_reader_for`, including `R/r` canonical deduplication, mixed case, multi-dot and slash/backslash paths.
+- 固定 1.24.1 的 14 项升级样例独立保存原始 oracle；Rust 真实 arm 贡献与 Kotlin 正文位置偏差只覆盖显式字段，其余字段逐项与原始来源一致。两项原始 TypeScript 缺陷 controls 保留尾部归属与空值合并观察，证明升级未修复这些缺陷。
 - Fixed-tag observations cover all 110 normal/edge/malformed reader fixtures and ten direct extension semantic cases, including contributor order/line, `else if`, ternary, first/subsequent logical operators, bracket/indent closure and per-function reset.
 - ASCII fast-path hits and misses, plus Unicode prefix/suffix and folds, every JavaScript line terminator, no suffix and unknown suffix all observably agree with the registry result through the façade APIs.
 - This Case does not prove Product admission, filesystem I/O, cancellation, Worker transport, `FunctionMetric` mapping, public export, or a replaceable analyzer interface.
@@ -48,7 +50,7 @@ Entities:
 Proves:
 
 - Core/internal extension protocol preserves default processor order, direct instance/class registration with Python-compatible ordering indexes, instance-then-static wordcount-style hook resolution, extension metadata and lifecycle hooks, and ExtensionBase context/state handoff. Descriptor/ordering fidelity additionally preserves subclass-static MRO priority before inherited instance metadata, same-instance-member priority, the source's special direct-call lookup that ignores an instance-own `__call__` while ordinary hooks use it, exact non-safe-integer `list.insert` clamping, invalid subclass static metadata shadowing rather than fallback, and selected ND `set_args` positional flags plus typed `help`/`type=int`/`dest`/`default` keywords.
-- Only `complextags` and `nd` resolve through the analyzer-internal named registry; the other 17 explicitly named extension bodies remain deferred and fail closed when loaded. This Case does not prove selected-body reader fidelity, Product integration, or hard cut.
+- Only `complextags` and `nd` resolve through the analyzer-internal named registry; the other 18 explicitly named extension bodies remain deferred and fail closed when loaded. This Case does not prove selected-body reader fidelity, Product integration, or hard cut.
 
 ## Case FM-ANALYZER-MALFORMED-DIFFERENTIAL-001: source-order readers retain complete malformed-source observations
 
@@ -71,6 +73,6 @@ Entities:
 
 Proves:
 
-- The root provenance inventory is the only machine-readable source/range/hash/SPDX→translated-target inventory and fail-closes all 46 translated source/range references and all 41 translated targets (including the extension-protocol and ND typed-host additional targets). The separate identity manifest supplies the 83 class identities and 820 named symbol/seam mappings which this AST test verifies at their TypeScript target or an explicitly named, narrow host seam.
+- The root provenance inventory is the only machine-readable source/range/hash/SPDX→translated-target inventory and fail-closes all 46 translated source/range references and all 41 translated targets (including the extension-protocol and ND typed-host additional targets). The separate identity manifest supplies the 83 class identities and 841 named symbol/seam mappings which this AST test verifies at their TypeScript target or an explicitly named, narrow host seam.
 - Source lifecycle class, field, and callback identities cannot silently disappear, and current `src` tests cannot read archived Change evidence. The manifest is static verification evidence only: it does not create a runtime registry, reflection surface, or Product plugin API.
 - This Case does not prove oracle semantic parity, deferred extension-body implementation, or Product adapter integration.

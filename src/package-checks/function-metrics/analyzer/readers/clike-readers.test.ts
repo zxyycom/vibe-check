@@ -13,7 +13,7 @@ import { JavaReader } from "./java.ts";
 import { ObjCReader } from "./objc.ts";
 import { TTCNReader } from "./ttcn.ts";
 
-const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.0");
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../fixtures/lizard-1.24.1");
 
 test("C-like shared reader preserves every C and C++ suffix plus the edge oracle", () => {
   for (const suffix of ["c", "cpp", "cc", "cxx", "h", "hpp"]) {

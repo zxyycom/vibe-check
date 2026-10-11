@@ -165,7 +165,7 @@ const upstreamCases: readonly UpstreamCase[] = [
     Reader: RustReader,
     extension: "rs",
     sourceCode: "\n        fn main() {\n            match a() {}\n        }\n        ",
-    expected: [{ ccn: 2, endLine: 4, name: "main", nloc: 3, parameterCount: 0, startLine: 2 }]
+    expected: [{ ccn: 1, endLine: 4, name: "main", nloc: 3, parameterCount: 0, startLine: 2 }]
   },
   {
     Reader: RustReader,
@@ -174,7 +174,7 @@ const upstreamCases: readonly UpstreamCase[] = [
       "\n        fn largest<T>(list: &[T]) -> T {\n            let mut largest = list[0];\n\n            for &item in list.iter() {\n                if item > largest {\n                    largest = item;\n                }\n            }\n\n            largest\n        }\n\n        fn main() {\n            match a() {}\n        }\n        ",
     expected: [
       { ccn: 3, endLine: 12, name: "largest", nloc: 9, parameterCount: 1, startLine: 2 },
-      { ccn: 2, endLine: 16, name: "main", nloc: 3, parameterCount: 0, startLine: 14 }
+      { ccn: 1, endLine: 16, name: "main", nloc: 3, parameterCount: 0, startLine: 14 }
     ]
   },
   {
@@ -210,7 +210,7 @@ const upstreamCases: readonly UpstreamCase[] = [
       '\n        fn handle_case_variable(case: i32) -> i32 {\n            let case_value = case;\n            match case_value {\n                1 => println!("one"),\n                2 => println!("two"),\n                _ => println!("other"),\n            }\n            case\n        }\n        ',
     expected: [
       {
-        ccn: 2,
+        ccn: 3,
         endLine: 10,
         name: "handle_case_variable",
         nloc: 9,
@@ -224,7 +224,7 @@ const upstreamCases: readonly UpstreamCase[] = [
     extension: "rs",
     sourceCode:
       '\n        fn categorize(value: i32) -> &\'static str {\n            match value {\n                1 | 2 | 3 => "small",\n                4 | 5 => "medium",\n                6..=10 => "large",\n                _ => "other",\n            }\n        }\n        ',
-    expected: [{ ccn: 2, endLine: 9, name: "categorize", nloc: 8, parameterCount: 1, startLine: 2 }]
+    expected: [{ ccn: 4, endLine: 9, name: "categorize", nloc: 8, parameterCount: 1, startLine: 2 }]
   },
   {
     Reader: ScalaReader,
@@ -723,7 +723,7 @@ const upstreamCases: readonly UpstreamCase[] = [
     extension: "kt",
     sourceCode:
       "\n            class Time\n            {\n                var seconds: Double = 17.0\n                var minutes: Double\n                    get() = seconds / 60\n            }\n                ",
-    expected: [{ ccn: 1, endLine: 7, name: "get", nloc: 2, parameterCount: 0, startLine: 6 }]
+    expected: [{ ccn: 1, endLine: 6, name: "get", nloc: 1, parameterCount: 0, startLine: 6 }]
   },
   {
     Reader: KotlinReader,
@@ -731,8 +731,8 @@ const upstreamCases: readonly UpstreamCase[] = [
     sourceCode:
       "\n            class Time\n            {\n                var seconds: Double = 17.0\n                var minutes: Double\n                    get() = seconds / 60\n                    set(newValue) {\n                        this.seconds = (newValue * 60)\n                    }\n            }\n                ",
     expected: [
-      { ccn: 1, endLine: 9, name: "set", nloc: 3, parameterCount: 0, startLine: 7 },
-      { ccn: 1, endLine: 10, name: "get", nloc: 3, parameterCount: 0, startLine: 6 }
+      { ccn: 1, endLine: 6, name: "get", nloc: 1, parameterCount: 0, startLine: 6 },
+      { ccn: 1, endLine: 9, name: "set", nloc: 3, parameterCount: 0, startLine: 7 }
     ]
   },
   {
@@ -741,8 +741,8 @@ const upstreamCases: readonly UpstreamCase[] = [
     sourceCode:
       "\n            var center: Point\n                get() = {\n                    val centerX = origin.x + (size.width / 2)\n                    val centerY = origin.y + (size.height / 2)\n                    return Point(x: centerX, y: centerY)\n                }\n                set(newCenter) {\n                    origin.x = newCenter.x - (size.width / 2)\n                    origin.y = newCenter.y - (size.height / 2)\n                }\n            }\n                ",
     expected: [
-      { ccn: 1, endLine: 11, name: "set", nloc: 4, parameterCount: 0, startLine: 8 },
-      { ccn: 1, endLine: 12, name: "get", nloc: 7, parameterCount: 0, startLine: 3 }
+      { ccn: 1, endLine: 7, name: "get", nloc: 5, parameterCount: 0, startLine: 3 },
+      { ccn: 1, endLine: 11, name: "set", nloc: 4, parameterCount: 0, startLine: 8 }
     ]
   },
   {
@@ -805,7 +805,7 @@ const upstreamCases: readonly UpstreamCase[] = [
   }
 ];
 
-const fixtureRoot = "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.0";
+const fixtureRoot = "src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1";
 const readers: readonly [string, string, ReaderConstructor, readonly Measurement[]][] = [
   [
     "go",

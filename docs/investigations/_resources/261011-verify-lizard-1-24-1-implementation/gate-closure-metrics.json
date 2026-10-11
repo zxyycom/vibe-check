@@ -1,0 +1,70 @@
+[
+  {
+    "complex_tags": [
+      [
+        "if",
+        173
+      ],
+      [
+        "?",
+        173
+      ],
+      [
+        "?",
+        178
+      ],
+      [
+        "for",
+        185
+      ],
+      [
+        "if",
+        187
+      ],
+      [
+        "||",
+        187
+      ],
+      [
+        "if",
+        189
+      ],
+      [
+        "if",
+        192
+      ]
+    ],
+    "cyclomatic_complexity": 9,
+    "end_line": 201,
+    "filename": "scripts/test-evidence/catalog/markdown.ts",
+    "name": "parseCaseEntities",
+    "nloc": 29,
+    "parameter_count": 1,
+    "max_nesting_depth": 3,
+    "start_line": 172
+  },
+  {
+    "complex_tags": [
+      [
+        "if",
+        208
+      ],
+      [
+        "||",
+        208
+      ],
+      [
+        "if",
+        217
+      ]
+    ],
+    "cyclomatic_complexity": 4,
+    "end_line": 237,
+    "filename": "scripts/test-evidence/catalog/markdown.ts",
+    "name": "parseCaseEntity",
+    "nloc": 36,
+    "parameter_count": 3,
+    "max_nesting_depth": 2,
+    "start_line": 201
+  }
+]

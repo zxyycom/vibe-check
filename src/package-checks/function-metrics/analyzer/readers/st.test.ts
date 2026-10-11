@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0 tests.
+ * Derived from terryyin/lizard 1.24.1 tests.
  * Sources: test/test_languages/testSt.py and lizard_languages/st.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: direct source-observation reader parity coverage.
  */
@@ -17,7 +17,7 @@ import { StReader } from "./st.ts";
 
 const fixtureDirectory = resolve(
   dirname(fileURLToPath(import.meta.url)),
-  "../fixtures/lizard-1.24.0/st"
+  "../fixtures/lizard-1.24.1/st"
 );
 
 test("Structured Text reader preserves fixtures and upstream function-block/function/action boundaries", () => {

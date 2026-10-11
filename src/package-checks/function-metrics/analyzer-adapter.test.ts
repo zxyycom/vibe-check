@@ -12,7 +12,7 @@ const oracle = parseOracleObservations(
   JSON.parse(
     readFileSync(
       new URL(
-        "./analyzer/fixtures/lizard-1.24.0/evidence/lizard-1.24-oracle-observations.json",
+        "./analyzer/fixtures/lizard-1.24.1/evidence/lizard-1.24-oracle-observations.json",
         import.meta.url
       ),
       "utf8"
@@ -24,8 +24,8 @@ describe("functionMetrics Product analyzer adapter", () => {
   it("maps all 27 reader families and 55 registered suffixes from supplied source", () => {
     const normalFixtures = oracle.fixtures.filter(({ fixture }) => fixture.includes("/normal."));
     const edgeFixtures = oracle.fixtures.filter(({ fixture }) => fixture.includes("/edge."));
-    assert.equal(oracle.oracle.tag, "1.24.0");
-    assert.equal(oracle.oracle.revision, "308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec");
+    assert.equal(oracle.oracle.tag, "1.24.1");
+    assert.equal(oracle.oracle.revision, "0488a260e74e73ceba3149d7c600faac6a3616e6");
     assert.equal(normalFixtures.length, 55);
     assert.equal(new Set(normalFixtures.map(({ fixture }) => fixture.split(".").at(-1))).size, 55);
     assert.equal(edgeFixtures.length, 27);

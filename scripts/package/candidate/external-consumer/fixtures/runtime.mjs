@@ -144,7 +144,7 @@ const terminalNote = defineCheck({
 const installedFunctionMetrics = functionMetrics({
   codeAreas: {
     worker: {
-      files: { patterns: ["function-metrics.ts"] },
+      files: { patterns: ["function-metrics.rs"] },
       limits: { cyclomaticComplexity: { maximum: 1 } }
     }
   }

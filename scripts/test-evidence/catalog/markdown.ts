@@ -185,33 +185,8 @@ function parseCaseEntities(parser: CaseBlockParser): string[] {
   for (;;) {
     const item = currentCaseContent(parser);
     if (item === undefined || item.text === "Proves:") break;
-    const match = /^- `([^`]+)`$/.exec(item.text);
-    const entityKey = match?.[1];
-    if (entityKey === undefined || entityKey.trim() !== entityKey)
-      reportCaseDiagnostic(
-        parser,
-        "case.entity-invalid",
-        `Case ${parser.id} Entities must contain exact backticked entity key bullets`,
-        item.line
-      );
-    else if (seen.has(entityKey))
-      parser.options.diagnostics.push(
-        diagnostic(
-          "case.entity-duplicate",
-          "case",
-          `Case ${parser.id} repeats test entity ${entityKey}`,
-          {
-            caseId: parser.id,
-            entityKey,
-            path: parser.options.sourcePath,
-            line: item.line
-          }
-        )
-      );
-    else {
-      seen.add(entityKey);
-      entities.push(entityKey);
-    }
+    const entityKey = parseCaseEntity(parser, item, seen);
+    if (entityKey !== undefined) entities.push(entityKey);
     parser.cursor += 1;
   }
   if (entities.length === 0)
@@ -221,6 +196,42 @@ function parseCaseEntities(parser: CaseBlockParser): string[] {
       `implemented Case ${parser.id} must reference at least one test entity`
     );
   return entities;
+}
+
+function parseCaseEntity(
+  parser: CaseBlockParser,
+  item: CaseContentLine,
+  seen: Set<string>
+): string | undefined {
+  const match = /^- `([^`]+)`$/.exec(item.text);
+  const entityKey = match?.[1];
+  if (entityKey === undefined || entityKey.trim() !== entityKey) {
+    reportCaseDiagnostic(
+      parser,
+      "case.entity-invalid",
+      `Case ${parser.id} Entities must contain exact backticked entity key bullets`,
+      item.line
+    );
+    return undefined;
+  }
+  if (seen.has(entityKey)) {
+    parser.options.diagnostics.push(
+      diagnostic(
+        "case.entity-duplicate",
+        "case",
+        `Case ${parser.id} repeats test entity ${entityKey}`,
+        {
+          caseId: parser.id,
+          entityKey,
+          path: parser.options.sourcePath,
+          line: item.line
+        }
+      )
+    );
+    return undefined;
+  }
+  seen.add(entityKey);
+  return entityKey;
 }
 
 function parseCaseProofs(parser: CaseBlockParser): string[] {

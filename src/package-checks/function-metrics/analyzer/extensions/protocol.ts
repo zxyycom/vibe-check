@@ -1,8 +1,8 @@
 /**
- * Derived from terryyin/lizard 1.24.0.
+ * Derived from terryyin/lizard 1.24.1.
  * Sources: lizard_ext/extension_base.py and lizard_ext/lizard*.py extension
  * contracts.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: translated to the analyzer-internal extension protocol; this is
  * not exported through the product API as a plugin surface.

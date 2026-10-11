@@ -1,9 +1,9 @@
-# Lizard 1.24 source-alignment deviations
+# Lizard 1.24.1 source-alignment deviations
 
-本文件解释当前 TypeScript host 为保留 Lizard 1.24 translated scope 所作的窄调整。它是人读
+本文件解释当前 TypeScript host 为保留 Lizard 1.24.1 translated scope 所作的窄调整。它是人读
 fidelity evidence，而非第二份 provenance ledger：source/range、hash、SPDX、translated target
 path 与 upstream revision 的唯一 machine-readable owner 是
-[`licenses/lizard-1.24.0-provenance.json`](../../../../../../../licenses/lizard-1.24.0-provenance.json)。
+[`licenses/lizard-1.24.1-provenance.json`](../../../../../../../licenses/lizard-1.24.1-provenance.json)。
 
 ## Closure rule
 
@@ -14,7 +14,7 @@ source/range。`source-identity.test.ts` 以这一个 filtered set 为准，要�
 2. 每个 reference 至少有一个 AST-verifiable source symbol 或 named host seam；
 3. root inventory 推导出的全部 41 个 target 都被验证：每项 primary target 加上
    `additionalTargetPaths`，其中 extension protocol 与 ND typed host 是 additional target；
-4. 这些 entries 共同闭合 83 个 class identity 与 820 个 symbol/host-seam mapping；
+4. 这些 entries 共同闭合 83 个 class identity 与 841 个 symbol/host-seam mapping；
 5. manifest 不得携带 hash、SPDX 或 target-path ledger，并且 current `src/**/*.ts` 不得读取
    archived Change 输入。
 
@@ -73,6 +73,22 @@ reason。它们不扩大为 scanner、filesystem、public parser 或 runtime plu
 supplied-source analysis 共用。它保持当前 registry selection 与 unsupported-input boundary；未由该 seam
 覆盖的输入仍交给 source-aligned registry。该 seam 不是 translated member、public contract、scanner
 protocol 或 consumer setting，且不改变 root provenance inventory 或 source-identity mapping。
+
+## 1.24.1 两项局部结果偏差
+
+- Rust 仅在 match scope 第二及后续真实 `=>` 的 `addCondition` 增量处，将 token/currentLine 追加到已由 `complextags` 建立的 tags。无扩展不采集；首 arm、非 match 箭头不计；嵌套 scope 各自独立。原始新版 CCN 与 ND 不变，不将所有箭头加到 static conditions。
+- Kotlin-local 的 `expressionBoundary` 持有当前 `FunctionInfo` 及最后已消费正文 token 的 endLine/nloc 快照，包含 when 子状态返回；在 declaration、外层 brace 或 EOF 完成前只恢复该函数边界，再重放 ender。全局 currentLine/file NLOC 不回退，其他 reader/adapter 不做位置后处理。
+
+两项偏差由 direct 矩阵、原始 oracle 的显式字段覆盖及真实 Worker/public Run 验收。
+贡献列表的公开语义见 [Check 指南](../../../../../../../docs/checks/function-metrics.md#效果与结果)；Kotlin `when` 的 `->` 不属于 reader conditions，不由这两项偏差补采。
+
+## Regex 的 source-start host 表达
+
+Python `\A` 使用绝对起点断言 `(?<![^])`。共享 tokenizer 有多行模式，JS `^` 会错误吞掉合法跨行 division；
+锁定 Bun 1.3.14 对 `(?<![\s\S])` 在 astral codepoint 后错误成功，而 `(?<![^])` 在该 Bun 与 Node 24.18 均仅匹配 offset 0。
+这属于 source fidelity 的 host 表达，不是第三项结果偏差；Unicode identifier division 的 raw/metric 回归与六消费者原始 token oracle 证明该边界。
+
+前缀拆分只对 slash 出现在非首位的 token 扫描 Python whitespace；无 slash 或 slash 为首字符时不可能发生拆分，保持原 token 与 generator/factory 生命周期。这一局部 guard 避免对所有普通 token 重复扫描，不改变 regex 识别或原始 oracle。
 
 ## Review trigger
 

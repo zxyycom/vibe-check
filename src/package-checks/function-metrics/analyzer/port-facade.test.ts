@@ -13,7 +13,7 @@ import {
 } from "./port-facade.ts";
 import { get_reader_for, languages } from "./reader-registry.ts";
 
-const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "fixtures/lizard-1.24.0");
+const fixtureRoot = resolve(dirname(fileURLToPath(import.meta.url)), "fixtures/lizard-1.24.1");
 const workspaceRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const selectedExtensionObservationsPath = resolve(
   fixtureRoot,

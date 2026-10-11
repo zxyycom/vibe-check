@@ -31,6 +31,58 @@ describe("functionMetrics analyzer Worker", () => {
         ]
       }
     );
+    assert.deepEqual(
+      await sendWorkerRequest({
+        files: [
+          {
+            path: "src/arms.rs",
+            source: "fn classify(value: i32) {\n match value {\n 0 => 3,\n 1 => 4,\n _ => 5,\n }\n}"
+          },
+          { path: "src/body.kt", source: "fun expression(value: Int) = value + 3\nfun after() {}" }
+        ]
+      }),
+      {
+        kind: "complete",
+        metrics: [
+          {
+            complexityContributors: [
+              { token: "=>", line: 4 },
+              { token: "=>", line: 5 }
+            ],
+            cyclomaticComplexity: { source: "typescript-analyzer", value: 3 },
+            endLine: 7,
+            file: "src/arms.rs",
+            lines: 7,
+            name: "classify",
+            nestingDepth: { source: "typescript-analyzer", value: 0 },
+            parameterCount: 1,
+            startLine: 1
+          },
+          {
+            complexityContributors: [],
+            cyclomaticComplexity: { source: "typescript-analyzer", value: 1 },
+            endLine: 1,
+            file: "src/body.kt",
+            lines: 1,
+            name: "expression",
+            nestingDepth: { source: "typescript-analyzer", value: 0 },
+            parameterCount: 1,
+            startLine: 1
+          },
+          {
+            complexityContributors: [],
+            cyclomaticComplexity: { source: "typescript-analyzer", value: 1 },
+            endLine: 2,
+            file: "src/body.kt",
+            lines: 1,
+            name: "after",
+            nestingDepth: { source: "typescript-analyzer", value: 0 },
+            parameterCount: 0,
+            startLine: 2
+          }
+        ]
+      }
+    );
     assert.deepEqual(await sendWorkerRequest({ files: [{ path: "src/a.ts" }] }), {
       kind: "analysis-failed"
     });

@@ -277,13 +277,16 @@ function assertTrustedNonBlockingFunctionMetricsRecord(value: unknown): void {
   assert.deepEqual(record.data, {
     blocking: false,
     codeAreas: ["worker"],
-    complexityContributors: [{ line: 2, token: "if" }],
+    complexityContributors: [
+      { line: 4, token: "=>" },
+      { line: 5, token: "=>" }
+    ],
     functionName: "workerProof",
     limit: 1,
     metric: "cyclomatic-complexity",
-    path: "function-metrics.ts",
+    path: "function-metrics.rs",
     startLine: 1,
-    value: 2
+    value: 3
   });
 }
 

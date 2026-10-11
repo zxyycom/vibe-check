@@ -1,8 +1,8 @@
 /**
- * Derived from terryyin/lizard 1.24.0 tests.
+ * Derived from terryyin/lizard 1.24.1 tests.
  * Sources: test/testExtension.py, test/testCPreprocessorExtension.py,
  * lizard_ext/extension_base.py, and lizard_ext/lizardwordcount.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: focused internal extension-protocol parity coverage.
  */
@@ -314,7 +314,7 @@ test("ExtensionBase receives reader context and can decorate nesting before read
 });
 
 test("only selected extension bodies resolve internally; all remaining bodies stay deferred", () => {
-  assert.equal(EXTENSION_REGISTRATIONS.length, 19);
+  assert.equal(EXTENSION_REGISTRATIONS.length, 20);
   assert.ok(
     EXTENSION_REGISTRATIONS.every(
       (registration) =>

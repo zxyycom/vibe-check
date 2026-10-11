@@ -1,0 +1,186 @@
+{
+  "sameFactsAsPreGuard": true,
+  "guardPortCost": {
+    "runtime": "v24.18.0",
+    "samples": [
+      450.967755,
+      408.36965899999996,
+      411.26510099999996,
+      407.0031570000001,
+      405.6211800000001
+    ],
+    "files": 597,
+    "functions": 5709,
+    "digest": "00ae7a572938062002a9e547abd417d2e445cc95b9deaa50bc96608639d4900a"
+  },
+  "guardProfileTop": [
+    {
+      "function": "generateTokens",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 260.172
+    },
+    {
+      "function": "lineCounter",
+      "file": "pipeline.ts",
+      "sampledSelfMs": 234.577
+    },
+    {
+      "function": "RegExp: (?:\\/\\*.*?\\*\\/|(?:(?<![^])|(?<=[=,({[?:!&|;]))[\\p{White_Space}\\u001c-\\u001f]*\\/(?![/*])(?:\\\\[^\\r\\n]|\\[(?:\\\\[^\\r\\n]|[^\\\\\\]\\r\\n])*\\]|[^/\\\\[\\r\\n])+\\/[a-z]*|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?)|`(?:\\\\.|\\$\\{(?:\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*'|[^{}\"'`])*\\}|[^`\\\\])*`|(?:\\d+')+\\d+|0x(?:[0-9A-Fa-f]+')+[0-9A-Fa-f]+|0b(?:[01]+')+[01]+|[\\p{L}\\p{N}_]+|\"(?:\\\\.|[^\"\\\\])*\"|'(?:\\\\.|[^'\\\\])*?'|\\/\\/(?:\\\\\\n|[^\\n])*|#|:=|::|\\*\\*|<(?=(?:[^<>?]*\\?)+[^<>]*>)(?:[\\w\\s,.?]|(?:extends))+>|<<=|>>=|\\|\\||&&|===|!==|==|!=|<=|>=|->|=>|\\+\\+|--|\\+=|-=|\\+|-|\\*|\\/|\\*=|\\/=|\\^=|&=|\\|=|\\.\\.\\.|\\\\\\n|\\n|(?:(?!\\n)(?:\\p{White_Space}|[\u001c-\u001f]))+|.)",
+      "file": "",
+      "sampledSelfMs": 193.9
+    },
+    {
+      "function": "withoutWhitespace",
+      "file": "pipeline.ts",
+      "sampledSelfMs": 165.176
+    },
+    {
+      "function": "generateTokensWithRegex",
+      "file": "js-style-regex.ts",
+      "sampledSelfMs": 149.319
+    },
+    {
+      "function": "__call__",
+      "file": "lizardnd.ts",
+      "sampledSelfMs": 146.767
+    },
+    {
+      "function": "process",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 128.729
+    },
+    {
+      "function": "",
+      "file": "typescript.ts",
+      "sampledSelfMs": 122.729
+    },
+    {
+      "function": "conditionCounter",
+      "file": "pipeline.ts",
+      "sampledSelfMs": 117.034
+    },
+    {
+      "function": "(garbage collector)",
+      "file": "",
+      "sampledSelfMs": 105.033
+    },
+    {
+      "function": "_state_global",
+      "file": "typescript.ts",
+      "sampledSelfMs": 99.005
+    },
+    {
+      "function": "isPythonWhitespace",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 95.949
+    },
+    {
+      "function": "commentCounter",
+      "file": "pipeline.ts",
+      "sampledSelfMs": 83.941
+    },
+    {
+      "function": "__call__",
+      "file": "lizardcomplextags.ts",
+      "sampledSelfMs": 80.917
+    },
+    {
+      "function": "tokenCounter",
+      "file": "pipeline.ts",
+      "sampledSelfMs": 72.199
+    },
+    {
+      "function": "consume",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 58.927
+    },
+    {
+      "function": "RegExp: ^\\p{White_Space}$",
+      "file": "",
+      "sampledSelfMs": 55.779
+    },
+    {
+      "function": "analyzeSourceCode",
+      "file": "pipeline.ts",
+      "sampledSelfMs": 44.207
+    },
+    {
+      "function": "addToLongName",
+      "file": "analysis-model.ts",
+      "sampledSelfMs": 43.531
+    },
+    {
+      "function": "globalState",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 42.673
+    },
+    {
+      "function": "",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 41.38
+    },
+    {
+      "function": "tokenizerFlags",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 18.577
+    },
+    {
+      "function": "",
+      "file": "port-facade.ts",
+      "sampledSelfMs": 17.599
+    },
+    {
+      "function": "_dec",
+      "file": "typescript.ts",
+      "sampledSelfMs": 14.155
+    },
+    {
+      "function": "invokeCurrentState",
+      "file": "code-reader.ts",
+      "sampledSelfMs": 11.017
+    }
+  ],
+  "isolatedTokenCost": {
+    "before": {
+      "runtime": "v24.18.0",
+      "samples": [
+        90.31841499999999,
+        91.55121099999997,
+        90.67723900000004,
+        89.27910300000002,
+        92.63339999999994,
+        92.524903,
+        91.1950129999999,
+        101.32409699999994,
+        91.53131099999996,
+        91.83679799999982
+      ],
+      "files": 597,
+      "result": {
+        "count": 784377,
+        "codeUnits": 2997000
+      }
+    },
+    "after": {
+      "runtime": "v24.18.0",
+      "samples": [
+        100.97993999999997,
+        103.33113600000001,
+        95.91371500000002,
+        95.44030099999998,
+        98.93902100000003,
+        95.94991000000005,
+        97.54344900000001,
+        94.34467999999993,
+        100.44158799999991,
+        95.78104099999996
+      ],
+      "files": 597,
+      "result": {
+        "count": 787446,
+        "codeUnits": 2997494
+      }
+    }
+  },
+  "boundary": "Sequential separate diagnostic runs, not paired full Check statistics; CPU profile samples are location evidence, not additive non-overlapping stage times."
+}

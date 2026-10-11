@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0.
+ * Derived from terryyin/lizard 1.24.1.
  * Source: lizard_languages/python.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: translated to TypeScript for the product-owned analyzer.
  */
@@ -385,12 +385,27 @@ export class PythonStates extends CodeStateMachine {
   };
 
   protected readonly _function = (token: string): void => {
-    if (token !== "(") {
+    if (token === "[") {
+      this.br_count = 0;
+      this.next(this._state_type_parameters, token);
+    } else if (token !== "(") {
       this.context.restartNewFunction(token);
-      this.context.addToLongFunctionName("(");
     } else {
+      this.context.addToLongFunctionName("(");
       this.next(this._dec);
     }
+  };
+
+  private readonly _state_type_parameters = (token: string): void => {
+    if (token === "def" || token === "class") {
+      this.br_count = 0;
+      this.next(this._state_global, token);
+      return;
+    }
+    this.context.addToLongFunctionName(` ${token}`);
+    if (token === "[") this.br_count += 1;
+    else if (token === "]") this.br_count -= 1;
+    if (this.br_count === 0) this.next(this._function);
   };
 
   private readonly _dec = (token: string): void => {

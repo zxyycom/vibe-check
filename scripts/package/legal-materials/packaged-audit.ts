@@ -11,10 +11,10 @@ import {
 } from "./provenance-inventory.ts";
 import type { PackagedLegalMaterial, PackagedLegalMaterialAccess } from "../legal-materials.ts";
 
-const TRANSLATED_SOURCE_HEADER = "Derived from terryyin/lizard 1.24.0.";
+const TRANSLATED_SOURCE_HEADER = "Derived from terryyin/lizard 1.24.1.";
 const SPDX_LICENSES = Object.freeze(["Apache-2.0", "BSD-2-Clause", "MIT"] as const);
 const SPDX_LICENSE_SET: ReadonlySet<string> = new Set(SPDX_LICENSES);
-const DEFERRED_EXTENSION_BODY_COUNT = 20;
+const DEFERRED_EXTENSION_BODY_COUNT = 21;
 const DEFERRED_EXTENSION_SUPPORT_COUNT = 2;
 
 export function assertExactLegalMaterialBytes(

@@ -1,7 +1,7 @@
 /**
- * Derived from terryyin/lizard 1.24.0.
+ * Derived from terryyin/lizard 1.24.1.
  * Source: lizard_languages/tsx.py.
- * Upstream revision: 308b1c3efd8c1c69bcc3eb82deeaec64fd3662ec.
+ * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: translated to the product-owned TypeScript analyzer.
  */
@@ -9,7 +9,7 @@
 import type { FileInfoBuilder } from "../analysis-context.ts";
 import { CodeReader, isPythonWhitespace, type TokenFactory } from "../shared/code-reader.ts";
 import { js_style_regex_expression } from "../shared/js-style-regex.ts";
-import { JSTokenizer, Tokenizer, TypeScriptReader } from "./typescript.ts";
+import { JSTokenizer, Tokenizer, TypeScriptReader, TEMPLATE_LITERAL } from "./typescript.ts";
 
 export class TSXReader extends TypeScriptReader {
   public static override ext = ["tsx", "jsx"];
@@ -24,7 +24,7 @@ export class TSXReader extends TypeScriptReader {
     addition = "",
     tokenFactory?: TokenFactory
   ): Generator<string> {
-    const tsxAddition = `${addition}|(?:<[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:<\\/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:#\\w+)|(?:\\$\\w+)|(?:<\\/\\w+>)|(?:=>)|\`.*?\``;
+    const tsxAddition = `${addition}|(?:<[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:<\\/[A-Za-z][A-Za-z0-9]*(?:\\.[A-Za-z][A-Za-z0-9]*)*>)|(?:#\\w+)|(?:\\$\\w+)|(?:<\\/\\w+>)|(?:=>)|${TEMPLATE_LITERAL}`;
     const tokenizer = new TSXTokenizer();
     for (const token of CodeReader.generateTokens(sourceCode, tsxAddition, tokenFactory)) {
       yield* tokenizer.__call__(token);
