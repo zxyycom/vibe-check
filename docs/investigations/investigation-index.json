@@ -1326,6 +1326,23 @@
       ],
       "title": "Investigation 暂存的可执行资源模式冲突"
     },
+    "261011-prepare-function-metrics-change-plans": {
+      "formedAt": "2026-10-11T13:33:23Z",
+      "name": "prepare-function-metrics-change-plans",
+      "question": "既有升级、TypeScript修复和读取优化调查在当前基线上能否收敛为无需重新选择产品策略的直接实施计划？",
+      "relations": [],
+      "resourceIds": [
+        "261011-prepare-function-metrics-change-plans/seven-module-delta.patch",
+        "261011-prepare-function-metrics-change-plans/source-route-evidence.md"
+      ],
+      "sourcePath": "prepare-function-metrics-change-plans.md",
+      "tags": [
+        "change-readiness",
+        "function-metrics",
+        "source-alignment"
+      ],
+      "title": "函数指标三项 Change 的实施准备度核对"
+    },
     "261011-project-file-collection-readiness": {
       "formedAt": "2026-10-11T08:45:20Z",
       "name": "project-file-collection-readiness",
@@ -1454,6 +1471,7 @@
       "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d",
       "261011-change-flag-debugging-readiness": "sha256:90b06843ccba3deaf1c1de108e4cbc54aa1c7174046cbaaee60f11e35284716a",
       "261011-diagnose-investigation-pending-mode-conflict": "sha256:d373ce2000e94f934dca2e0894e7dde7e5fc5452acfa0dbc1fc18e70b1e92ff2",
+      "261011-prepare-function-metrics-change-plans": "sha256:7534553a4eda133dd5bf47e5c850412904ba9789ca25809a0ab504dc21ef1755",
       "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94",
       "261011-project-file-region-index-readiness": "sha256:eec8745461486fb48b36858697b7bcb2402912af4bcb98803b48174a331c3859"
     },

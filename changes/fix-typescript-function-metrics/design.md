@@ -1,49 +1,55 @@
 # Design
 
-本 Draft 在私有分析器 owner 修复函数边界与操作符分类，分别证明来源偏差和公开结果正确性。
+在最小私有 owner 内修复 callback 与操作符路径，分别证明来源偏差和公开正确性；实施出口见 [Tasks](tasks.md)。
 
 ## Context
 
-- [行为核验](../../docs/investigations/verify-typescript-function-metrics-defects.md)、[来源核验](../../docs/investigations/trace-typescript-metrics-upstream-origin.md)及[最新复查](../../docs/investigations/verify-lizard-latest-typescript-defects.md)保存原因、候选和 11 项正反样例；候选尚未完成公开 Worker、跨 reader 与发布验收。
-- 类型注解回调重放 token，重入安装函数结束回调；外层消费随后清空新槽。共享 tokenizer 缺少 `??`，TypeScript 优先匹配 `\w+\?`，使问号分类受空白影响。
-- [分析器 owner](../../docs/development/scanner-dependencies.md)以 source fidelity 为先；[来源维护](../../docs/tooling/source-mapping.md)承接来源证据。[公开指南](../../docs/checks/function-metrics.md)定义 CCN 贡献解释与 ND，但尚未规定 `??` 计量策略。
+- [行为](../../docs/investigations/verify-typescript-function-metrics-defects.md)、[来源](../../docs/investigations/trace-typescript-metrics-upstream-origin.md)、[新版复查](../../docs/investigations/verify-lizard-latest-typescript-defects.md)保存 11 项对照、根因和回调候选；补丁及公开链验收由 [Tasks](tasks.md)承接。
+- [准备度核对](../../docs/investigations/prepare-function-metrics-change-plans.md)读取当前共享状态机、TS/TSX/JS/Vue、pipeline 与 ND/complextags。shared-state 测试仍明确断言原始清槽顺序；实施时保留原始来源证据，并按获批偏差更新产品期望。
+- [`??` Decision](../../docs/decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)为 active + unaligned，用户已确认单 token、每 token CCN +1、完整贡献和既有短路 ND；本 Change 承接该方向的工程路线。
 
 ## Goals / Non-Goals
 
-- **目标**：精确函数边界、空白不变的 `??` 分类及明确计量，取得私有与公开直接证据。
-- **保持**：可选参数、真实三元、正常嵌套及共享 reader 生命周期，既有 Finding、waiver、取消与资源边界。
-- **范围**：聚焦两项已确认缺陷；其他返回类型、箭头函数及 TSX 按实际影响补充取证，整库升级由相邻 Change 承接。
+- **目标**：函数边界精确、空白不变的 `??`，并在公开链证明指标/贡献及 Finding 结算。
+- **保持**：可选参数、真实三元、内部嵌套、共享 reader/extension、资源/取消及 waiver 身份契约。
+- **非目标**：整库升级、AST parser 重写、其他语言操作符重定义、默认阈值调整、新模式/公共配置或上游写入。
 
 ## Decisions
 
 ### Intended Change
 
-暂定以下最小修正；补丁与 `??` 策略在 Plan 前明确批准。
+#### 1. Callback 完成顺序
 
-1. 调用完成回调前保存并清空旧槽，再调用旧回调，保留重入安装的新槽。
-2. 调整组合符号及 TypeScript 可选标识符优先级，使带空格和紧凑 `??` 均为单个 token，并保持可选参数、真实三元分类。
-3. 显式确定 `??` 的 CCN、ND 及贡献解释期望，再实现计量。
+在 `analyzer/shared/code-reader.ts:CodeStateMachine.consume` completed 分支恢复 savedState 后，保存旧 callback、先清空槽、再 `oldCallback?.call(this)`；继续既有 lastToken/toExit 处理。避免清掉回调重入 `consume` 安装的新槽，保持 receiver，不建立 callback stack 或额外状态机框架。
 
-实施基线与顺序由[Change 协调](../../docs/governance/change-coordination.md#lizard-升级与-typescript-修复)承接，切换基线后重新证明修正成立。
+用显式/推断返回类型 × 有/无尾随块四对照，以及正常嵌套证明边界。共享状态机直接断言旧回调一次、receiver 正确、新槽跨下一 token 保留/完成、无 callback 和非重入不变；既有原始来源观察单列保真。
+
+#### 2. `??` 分类与 CCN
+
+不扩 shared tokenizer 全语言符号表。在 `readers/typescript.ts` addition 给 `??` 显式双问号优先匹配，并把可选标识符 `\w+\?` 收窄为 `\w+\?(?!\?)`；核对动态字符串转义与正则优先级。`readers/tsx.ts` 直接调用 CodeReader、不经 TS generateTokens，必须同步 `??` addition。TypeScript logicalOperators 加 `??`，conditionCounter/complextags 沿已有集合取得 CCN 和真实 line，不另建重复计数器。
+
+JavaScriptReader 和 VueReader 继承 TypeScript tokenizer/condition 集合，TSXReader 同时服务 `.tsx`/`.jsx`；这些是同一修正的必要影响面，分别验收正常 `??`/空白不变性及原有语法。Kotlin 已自有 `??` token，其他 reader 不变。
+
+#### 3. ND 复用实际路径
+
+在 `extensions/lizardnd.ts` 的现有 `&&`/`||` 分支增加“token 为 `??` 且 reader.logicalOperators 包含它”的局部条件；不全局将 `??` 加 DEFAULT_LOOPS。condition tracking、condition 内首个运算符、condition 外逐次处理、hidden bracket、括号深度、semicolon 和函数切换均沿既有状态。
+
+验收矩阵用独立期望和同形 `&&`/`||` 控制项：return condition 外单项/链、括号内单项/链、if condition、混合 `??` 与 `&&`/`||`、nested parentheses、分号后再次表达式、嵌套控制块及下一函数 reset；每项同时断言 CCN、完整 contributors 和 ND。合法 JS 混合语法使用括号。固定具体期望按状态路径推导，不用单一链概括所有 ND。
 
 ### Resulting Impacts
 
-| 影响 | 必要处理与验收 |
-| --- | --- |
-| 来源与 oracle | 维护获批 deviation、identity/来源材料和派生 pin；保留上游身份、原始结果与修正期望，分别证明偏差来源及正确性。 |
-| 指标与公开解释 | 核对 Finding、blocking 结算与 waiver 匹配变化，同步 `??` 计量说明，验证 contributor token/line 与 ND；稳定事实交接给公开指南和分析器 owner。 |
-| 直接行为证据 | 按[测试策略](../../docs/testing/strategy.md)从 11 项样例提取必要测试：边界四对照、`??` 空白不变性、可选参数与真实三元；覆盖正常嵌套及受影响共享 reader。 |
-| Product 与包 | 验证 analyzer→adapter→Worker→Check 的位置、指标、贡献及默认 limits 结算，再验收候选包、installed consumer 和完整 Gate。 |
+1. **基线/来源。** 默认在已验收升级提交上实施；若先修 `1.24.0`，明确更新协调顺序及两项 Change 偏差身份，升级重验。维护 code-reader/TS/TSX/ND 偏差说明、source identity/header、原始 oracle 与修正期望，再通过来源公共入口派生 pin；不把上游 hash 改为本地补丁 hash。
+2. **测试/共享生命周期。** 四边界、七操作符原始样例作输入线索；增加上文状态矩阵及不同简单/对象/泛型返回类型、typed arrow/TSX 的直接影响探针。合法形态仍失败且根因超出本修正时明确记录，不扩成返回类型支持重写。共享回调修改必须覆盖 27-reader oracle、normal nesting、malformed 和 extension lifecycle；按测试 owner 管理 Case，不为样例行单独建 Case。
+3. **公开解释/结算。** adapter→真实 Worker→公开 Check 对照私有结果；诊断 profile 验证逐项字段，默认 profile 验证真实影响。四项 `??` 的旧 ND 8 blocking Finding 应消失或随已确认状态路径重算，不能预设短路 ND 总为零；完整 Record 不受 human message 八项展示上限截断。保持 waiver identity、rejection/取消和完整批次失败。
+4. **owner/包。** 实现并验证后同步指南的 `??`、condition 内外 ND 精确解释、内部 source-fidelity 偏差和 changelog；核对 Decision 完整方向才 mark-aligned，不在准备阶段勾 aligned。exact artifact、installed Node consumer 的 Worker/指标/贡献及完整 Gate 是独立出口。
 
 ## Risks / Trade-offs
 
-- 回调槽由共享状态机拥有，可选标识符规则影响相邻问号形态；局部 TypeScript 通过之外，还需直接证明受影响 reader 无回归。
-- `??` 的 CCN/ND 属于待定计量选择。已确认的是分类及空白不变性错误，默认阈值保持原状。
-- 修复与升级共享实现、来源、Case 和包材料，按协调顺序串行；修复必要性独立于升级进度。
+- shared callback 改动会推翻现有 source-order 断言；保留 raw oracle 与修正直接期望，不能通过删除证据掩盖差异。
+- TSX/JS/Vue 继承和 ND 的语言 gating 必须直接验证，避免 Kotlin/其他语言取得未授权新计量。
+- ND 数值依赖实际状态；公共指南须在实施验证后明确 condition 内外边界，并与 Decision 的对齐状态一致。
+- 升级/修复共享 analyzer、来源、Case 和包 owner，串行实施、独立验收/提交；修复必要性独立于升级进度。
 
 ## Open Questions
 
-1. `??` 采用什么 CCN/ND 策略，贡献列表怎样解释？每个操作符若计一个 CCN 决策，四项为 5；这是候选值，ND 需另给依据。
-2. 受控偏差怎样记录，哪些共享 reader、返回类型和问号形态属于直接验收范围？
-
-保持 Draft；策略、偏差和影响范围收敛后派生 tasks，实施及上游 issue/PR 写入需另获授权。
+无。实现及验证按 [Tasks](tasks.md)推进；若发现必须改变其它语言策略、支持面或公开配置，先停止扩大范围并取得决定。

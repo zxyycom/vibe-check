@@ -1,23 +1,39 @@
 # Proposal
 
-本 Draft 规划简化 `functionMetrics` 的读取让步，在降低执行开销的同时明确取消响应边界。
+本 Change 以局部优化计划将 `functionMetrics` 读取让步从逐块 timer 改为逐块 `setImmediate`，保持取消与完整输入边界。
 
 ## Why
 
-当前父线程每读取一个非空 32 KiB chunk，就等待一次 `setTimeout(0)`。
-[调查报告](../../docs/investigations/function-metrics-admission-yield.md)的受控对照发现频繁 timer 等待增加读取阶段成本；
-历史依据支持协作取消，但没有证明当前 API 和频率是必要或最优选择。
-
-取消让步、改用 `setImmediate` 和降低频率会产生不同的取消响应，需要在真实 Check 路径上比较后选定。
-字节限制、完整结果和资源清理分别有自己的机制，应随优化一起验收。
+父线程每个非空 32 KiB chunk 都等待一次 `setTimeout(0)`。[调查](../../docs/investigations/function-metrics-admission-yield.md)在受控 admission 对照中定位了频繁 timer 的等待成本；协作取消需要让步机会，但不要求该 timer API。真实 Worker/Check 收益尚未证明，必须以同条件完整路径验收，不能外推局部加速比。
 
 ## Outcome
 
-`functionMetrics` 使用经证据选定的读取让步策略，减少不必要的等待，并做到：
+生产默认使用逐非空 chunk 的 `setImmediate`，减少不必要的 timer 等待，保留同线程取消执行机会、实际字节上限、完整批次结果及 FD/Worker 清理；同一真实输入和受控压力输入的支持 Node 完整 Check 取得可复核成本与取消证据，无未解释的可重复退化。
 
-- 读取中及 Worker 在途取消有明确的可观察边界；若改变读取阶段的响应承诺，先明确采用该取舍。
-- 保持实际读取字节的单文件 8 MiB、aggregate 64 MiB 限制，以及整批分析、失败结算和既有拒绝事实。
-- 文件描述符与 Worker port 按既有生命周期清理，成功时指标与 Findings 保持等价。
-- 在受支持的 Node 宿主，用同一代表性输入对照完整 Check 耗时与取消响应；Bun 源树诊断单独记录。
+## Scope
 
-当前交付限于 Draft；策略和验收条件收敛后形成 Plan，产品实施另行授权。
+### Intended Change
+
+- 仅替换 measurement 的私有默认 `yieldAdmission` helper；32 KiB chunk、逐非空 chunk 频率、checkpoint、read/decode 和 Worker port 不变。
+- 不删除/稀疏化让步，不建立时间片框架、公开调度 API 或配置，不改变 analyzer/文件收集/Run 调度。
+- 用生产默认、真实 Worker 和 public `functionMetrics`/`run` 对照基线与候选，固定 corpus、采用标准与观察边界见 [Design](design.md)。
+
+### Resulting Impacts
+
+- timer/I/O abort 的实际执行顺序会改变，须证明读取中、跨文件及 Worker 在途取消；32 KiB 不是毫秒响应保证。
+- input cap、失败结算、已有 rejection 和 FD/listener/terminate 清理须直接验收；不因加速发布 metric prefix 或伪造 waiver audit。
+- 直接测试/Case、支持宿主和安装后消费者须覆盖生产默认；变更日志与内部说明据实际结果同步，不将局部探针当 Gate 性能。
+
+## Success Criteria
+
+1. 默认不再逐块等待 timer，但每个非空 chunk 仍给宏任务取消机会；预先、读取中、跨文件及 Worker 在途取消按设计观察边界通过。
+2. exact 8 MiB/64 MiB 接受，超限 fail closed；读取/解码/Worker 失败无 partial metrics，先前 rejection 保留、无伪造 waiver audit。
+3. 所有成功打开 FD 在各终态关闭，listener 移除和 terminate 调用一次；不把 terminate 调用表述为等待物理线程退出。
+4. 同一 corpus/config/runtime 下完整 Check Records/outcome 等价；支持 Node 的 15-block ABBA 对照取得至少一个 timer-heavy 形态的可区分收益且没有可重复完整路径退化，真实仓库成本单独报告。不新增硬毫秒 budget。
+5. 行为/Case、exact artifact、installed Node consumer 及完整 Gate 验收通过；不满足采用条件时保留 timer 基线和未完成任务，不能默默改为无让步或降低频率。
+
+## Affected Owners
+
+- [Function Metrics](../../docs/checks/function-metrics.md)、[scanner dependencies](../../docs/development/scanner-dependencies.md)：exact inputs、完整结果、measurement/Worker 取消与清理。
+- [调用方 runtime 决策](../../docs/decisions/execute-check-functions-in-caller-runtime.md)、[Node 最低宿主](../../docs/decisions/treat-node-engine-as-a-minimum-version.md)：协作执行和支持宿主。
+- [测试策略](../../docs/testing/strategy.md)、[Case](../../docs/testing/case-maintenance.md)、[性能流程](../../docs/tooling/lizard-performance.md)、[包生命周期](../../docs/tooling/package-lifecycle.md)；[协调](../../docs/governance/change-coordination.md#函数指标读取优化)保持与升级/修复独立。

@@ -360,7 +360,8 @@
       "260926-warn-on-gate-and-check-duration-budgets": "sha256:f5986cabb08daade172ab5cd63fb95def34ad1b4cd04c9f7f5585734b944d98b",
       "261010-collect-project-files-only-from-filesystem": "sha256:09535a541cccc4047c51f307b7d2cd15802eb4166b19fdad3ef6c5d722d56a26",
       "261010-provide-readonly-file-region-index": "sha256:2376fadd31010db1a71bf32463fbc343c32af553510457c8948cae08d33127f0",
-      "261010-unify-file-selection-with-default-excludes": "sha256:b864debed85b047c249b2ef3867c41a99b648526a8c8c8d222015d8509b3b6e2"
+      "261010-unify-file-selection-with-default-excludes": "sha256:b864debed85b047c249b2ef3867c41a99b648526a8c8c8d222015d8509b3b6e2",
+      "261011-align-nullish-coalescing-with-short-circuit-function-metrics": "sha256:a525076de2a99c4864880d6aae817dd1c8bea7dfe65afc944151e115a7b3c237"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7479,6 +7480,23 @@
           "summary": "保留纯磁盘边界，改用单数组并以显式开关关闭默认排除"
         }
       ]
+    },
+    "261011-align-nullish-coalescing-with-short-circuit-function-metrics": {
+      "name": "align-nullish-coalescing-with-short-circuit-function-metrics",
+      "sourcePath": "align-nullish-coalescing-with-short-circuit-function-metrics.md",
+      "title": "让空值合并沿用现有短路运算符的函数指标口径",
+      "status": "active",
+      "alignment": "unaligned",
+      "createdAt": "2026-10-11T13:22:21Z",
+      "purpose": "保持 TypeScript 空值合并的 token、CCN 贡献与 ND 计量一致且不受空白影响。",
+      "background": "函数指标继承了将 ?? 拆为三元问号的缺陷；用户已确认采用现有短路运算符口径。",
+      "decision": "将真实 ?? 识别为单一 token，每项 CCN +1 并保留完整贡献位置；ND 复用现有短路路径，以受控偏差独立取证。",
+      "tags": [
+        "function-metrics",
+        "product-contract",
+        "source-fidelity"
+      ],
+      "relations": []
     }
   }
 }

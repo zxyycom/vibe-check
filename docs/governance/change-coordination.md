@@ -71,15 +71,15 @@ owner 时，实施与合入必须串行。
 
 | Change | 独立交付 | 默认顺序与进入条件 |
 | --- | --- | --- |
-| [`upgrade-lizard-source-baseline`](../../changes/upgrade-lizard-source-baseline/proposal.md) | 跟进 `1.24.1` 既有 reader 更新，闭合来源、行为与包消费者证据。 | 先收敛 Rust 贡献、Kotlin 位置及翻译/性能采用门槛。 |
-| [`fix-typescript-function-metrics`](../../changes/fix-typescript-function-metrics/proposal.md) | 修复显式返回类型边界污染与 `??` 分类/计量。 | 默认继承升级已验收的稳定提交，先确定计量策略、受控偏差及验收范围。 |
+| [`upgrade-lizard-source-baseline`](../../changes/upgrade-lizard-source-baseline/proposal.md) | 跟进固定 `1.24.1` 七模块更新，以有界偏差闭合 Rust 真实贡献、Kotlin 位置及来源、行为、包证据。 | 默认先执行；从冻结来源/原始 oracle 开始，按目标 artifacts 的审计、翻译与验收出口推进。 |
+| [`fix-typescript-function-metrics`](../../changes/fix-typescript-function-metrics/proposal.md) | 修复显式返回类型边界污染与 `??` 分类/计量。 | 默认继承升级已验收的稳定提交；[短路口径已确认](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)，按局部 callback、TS/TSX 与 reader-gated ND 路线实施并独立验收。 |
 
 升级不是修复的技术前提。若先在 `1.24.0` 修复，显式调整两个 Change 的顺序和偏差基线，升级时重验修正。各项进入实施仍以自身 artifacts、验证准备和当前授权为准。
 
 ### 函数指标读取优化
 
 [`optimize-function-metrics-input-admission`](../../changes/optimize-function-metrics-input-admission/proposal.md)
-独立验收读取成本与取消边界，先收敛策略和真实 Check 对照条件。指标算法修复与源码升级不是硬前置；
+固定逐非空 chunk 的 `setImmediate`，保留取消机会、频率与资源边界，按冻结输入的真实 Node Check 对照决定采用并独立验收。指标算法修复与源码升级不是硬前置；
 共享 measurement、测试、Case 或包 owner 时串行实施和合入。
 
 ### Scheduler 证据队列
