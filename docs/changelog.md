@@ -18,6 +18,12 @@
 TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡献处理，ND 沿用现有短路状态路径，空白不再改变结果。
 这些修正可移除误报或改变指标 Finding，默认阈值和公共配置保持不变；请一并复核上述 Records 与 waiver 升级影响。
 
+### 函数指标读取让步优化
+
+[`functionMetrics`](checks/function-metrics.md) 对每个非空读取块使用 `setImmediate` 替代 timer 等待，
+减少读取准入的额外等待，保留同线程协作取消、实际输入资源上限与完整批次结果。
+默认指标阈值、配置、公共 API 和 Records 语义不变；同步 I/O 仍不可抢占，不新增毫秒响应或 Gate 加速承诺。
+
 ### 文件收集范围迁移
 
 项目文件选择统一为纯磁盘 `{ patterns, useDefaultExcludes? }`，移除 source/include/exclude 与 ProjectFileSource。默认排除固定且默认启用，只有 false 关闭；用户列表不能绕过这层。Run change regions 改为 `{ patterns }`，不应用扫描默认排除。被 Git 忽略的普通文件和子仓库目录可能进入范围，链接不入选；请复核候选、后缀 eligibility 与内容安全，而非机械替换来源。收集保持同步、冻结排序去重，并区分非法输入、必要 I/O 失败和合法无匹配。见[选择与收集项目文件](./guides/collecting-project-files.md)。

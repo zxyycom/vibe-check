@@ -63,7 +63,7 @@ owner 时，实施与合入必须串行。
 长期取舍由[文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)与
 [索引决策](../decisions/provide-readonly-file-region-index.md)承接；本节不保留完成 Change 的阶段和验收副本。
 后续触及共同 matcher、Run 接线、包材料、Case 或文档 owner 时，仍按实际重叠串行实施与合入。
-函数指标升级、修复和读取优化独立推进；是否复用关系索引按各自 Outcome 和 owner 判断，不由本轨道交付自动触发。
+函数指标的来源、计量和读取边界各由对应 owner 拥有；后续是否复用关系索引按具体结果与责任判断，不由本轨道交付自动触发。
 
 ### Lizard 升级与 TypeScript 修复
 
@@ -76,13 +76,15 @@ owner 时，实施与合入必须串行。
 [Function Metrics](../checks/function-metrics.md)及[有界偏差 owner](../development/scanner-dependencies.md#typescript-函数指标的有界偏差)承接；
 [短路口径 Decision](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)已与完整方向对齐，形成时验收见
 [TypeScript 修复调查](../investigations/verify-typescript-metrics-implementation.md)。本节不保留修复 Change 的阶段或恢复副本。
-共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和合入，不把指标修复或固定来源交付当作读取优化的自动授权。
+共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和合入，已交付能力不自动授权扩大其它 owner 的范围。
 
 ### 函数指标读取优化
 
-[`optimize-function-metrics-input-admission`](../../changes/optimize-function-metrics-input-admission/proposal.md)
-固定逐非空 chunk 的 `setImmediate`，保留取消机会、频率与资源边界，按冻结输入的真实 Node Check 对照决定采用并独立验收。指标算法修复与源码升级不是硬前置；
-共享 measurement、测试、Case 或包 owner 时串行实施和合入。
+逐非空 chunk 的 `setImmediate`、协作取消与资源/完整输入边界由
+[内部 owner](../development/scanner-dependencies.md#package-maintenance-evidence)和
+[Function Metrics](../checks/function-metrics.md)承接；同条件精确安装对照与完整验收见
+[读取优化实施调查](../investigations/verify-function-metrics-admission-implementation.md)。本节不保留已完成 Change 的链接或阶段副本。
+共享 measurement、测试、Case 或包 owner 的后续变更仍串行实施和合入；来源升级、指标修复与读取策略分别验收。
 
 ### Scheduler 证据队列
 

@@ -1,0 +1,10 @@
+{
+  "before": "0.0.0-local.9b17c1319000",
+  "after": "0.0.0-local.8bcc6e4ba797",
+  "changed": [
+    {
+      "path": "package-checks/function-metrics/measurement.mjs",
+      "sha256": "e4baa02a955afb26b5af6a6ca07dc8c148533f6f7894afda3c8b976bd70035ef"
+    }
+  ]
+}

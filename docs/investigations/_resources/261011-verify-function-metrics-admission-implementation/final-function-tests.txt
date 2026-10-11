@@ -1,0 +1,210 @@
+bun test v1.3.14 (0d9b296a)
+
+src/package-checks/function-metrics/measurement.admission.test.ts:
+(pass) functionMetrics admission cancellation > does not open analysis or create a Worker for an already aborted invocation [0.39ms]
+(pass) functionMetrics admission cancellation > the production yield lets timer and I/O abort stop admission before any Worker batch [9.55ms]
+(pass) functionMetrics admission cancellation > stops after an early file chunk without submitting later exact paths [1.49ms]
+(pass) functionMetrics admission cancellation > cancels a submitted real Worker once and retains rejection facts without waiver audit [20.26ms]
+
+src/package-checks/function-metrics/constructor.area-findings.test.ts:
+(pass) functionMetrics area findings > records complete analyzer evidence and fails only for effective blocking findings [59.70ms]
+
+src/package-checks/function-metrics/constructor.test.ts:
+(pass) functionMetrics constructor > materializes frozen analyzer-owned defaults and rejects malformed closed policy [2.13ms]
+Vibe Check
+total 1 checks
+
+Checks:
+  [1/1] Function metrics | passed | 29.9ms
+
+Execution summary:
+  execution: completed
+  total checks: 1
+  passed: 1
+  failed: 0
+  not applicable: 0
+  unavailable: 0
+  elapsed: 38.3ms
+(pass) functionMetrics analyzer execution > runs from the Product-owned analyzer without an external scanner [50.29ms]
+(pass) functionMetrics analyzer execution > terminates an in-flight Worker before results or waiver audit [9.19ms]
+(pass) functionMetrics analyzer execution > fails an over-limit exact input before records or waiver audit [36.91ms]
+
+src/package-checks/function-metrics/analysis.test.ts:
+(pass) functionMetrics Product metric analysis > fails closed when a supplied metric omits or corrupts selected-extension facts [0.32ms]
+
+src/package-checks/function-metrics/target-files.test.ts:
+(pass) functionMetrics analyzer target files > selects every adapter-provided extension case-insensitively and excludes unsupported paths [1.69ms]
+
+src/package-checks/function-metrics/measurement.encoding.test.ts:
+(pass) functionMetrics source-byte admission > matches Lizard 1.24 auto_read byte and newline observations [0.41ms]
+
+src/package-checks/function-metrics/analyzer-adapter.test.ts:
+(pass) functionMetrics Product analyzer adapter > maps all 27 reader families and 55 registered suffixes from supplied source [56.20ms]
+(pass) functionMetrics Product analyzer adapter > maps fixed complexity contributors and nesting depth from the private port [1.27ms]
+(pass) functionMetrics Product analyzer adapter > fails the complete input when any supplied source has no translated reader [0.22ms]
+
+src/package-checks/function-metrics/constructor.input-rejection.test.ts:
+(pass) functionMetrics area findings > reports every rejected selected path once and sends only accepted paths to the analyzer [20.99ms]
+(pass) functionMetrics area findings > does not create analyzer metric records when every selected path is rejected [4.43ms]
+
+src/package-checks/function-metrics/measurement.resource.test.ts:
+(pass) functionMetrics resource admission > uses actual bytes for the 8 MiB per-file boundary and fails closed above it [319.96ms]
+(pass) functionMetrics resource admission > fails the whole exact input when aggregate bytes exceed 64 MiB without sending a prefix [157.46ms]
+(pass) functionMetrics resource admission > reports a missing admitted exact path as source-unavailable [1.62ms]
+(pass) functionMetrics resource admission > maps a synchronous Worker postMessage failure to one whole analysis failure [1.63ms]
+(pass) functionMetrics resource admission > fails closed for malformed Worker replies while retaining the current transport shape boundary [1.75ms]
+(pass) functionMetrics resource admission > yields during admission so cancellation prevents Worker startup, Records, and waiver audit [6.91ms]
+
+src/package-checks/function-metrics/analyzer-worker.test.ts:
+(pass) functionMetrics analyzer Worker > resolves the Product adapter from the source tree and rejects malformed transport [84.73ms]
+
+src/package-checks/function-metrics/upgrade.integration.test.ts:
+(pass) functionMetrics upgraded readers publish strict findings, real contributors, and exact waiver identities through the public Worker path [78.31ms]
+
+src/package-checks/function-metrics/finding-waivers.test.ts:
+(pass) functionMetrics finding waivers > validates closed identity authoring without invoking hostile accessors [0.98ms]
+(pass) functionMetrics finding waivers > audits unused waivers only after forming a complete empty candidate set [2.98ms]
+(pass) functionMetrics finding waivers > preserves applied and stale waiver evidence while settling only actionable metrics [21.73ms]
+(pass) functionMetrics finding waivers > keeps duplicate analyzer function identities actionable when a waiver overmatches [23.24ms]
+
+src/package-checks/function-metrics/typescript-metrics.integration.test.ts:
+(pass) functionMetrics TypeScript corrections reach public Worker findings, default limits, strict limits, and waiver reconciliation [103.94ms]
+(pass) functionMetrics retains every nullish contributor beyond the eight-item human preview [26.53ms]
+
+src/package-checks/function-metrics/analyzer/pipeline.test.ts:
+(pass) Lizard in-memory core > preserves basic C-like function information, NLOC, CCN, and parameters [0.93ms]
+(pass) Lizard in-memory core > keeps comment directives and generated-code stopping in upstream processor order [0.98ms]
+(pass) Lizard in-memory core > matches Python splitlines and whitespace token distinctions in the core pipeline [0.63ms]
+(pass) Lizard in-memory core > propagates an explicit undefined cross-file result instead of treating it as an absent hook [0.18ms]
+(pass) Lizard in-memory core > keeps FileAnalyzer's default no-extension processor pipeline equivalent to the direct source helper [0.39ms]
+
+src/package-checks/function-metrics/analyzer/reader-registry.test.ts:
+(pass) reader registry retains the 27-reader Lizard source order [0.10ms]
+(pass) reader registry dispatches every canonical suffix case-insensitively and leaves unknown suffixes unsupported [0.91ms]
+(pass) reader registry merges R/r only at case-insensitive dispatch while retaining source reader metadata [0.06ms]
+
+src/package-checks/function-metrics/analyzer/port-facade.test.ts:
+(pass) Lizard port façade > provides case-insensitive suffix capability and supplied-source Lizard-domain analysis [0.78ms]
+(pass) Lizard port façade > matches source-order registry resolution for fast paths and explicit fallbacks [79.35ms]
+(pass) Lizard port façade > matches the fixed-tag selected-extension corpus across every reader fixture and semantic case [37.71ms]
+
+src/package-checks/function-metrics/analyzer/typescript-metrics.test.ts:
+(pass) TypeScript function boundaries exclude trailing blocks for typed and inferred declarations and arrows [5.87ms]
+(pass) TypeScript nullish tokens preserve optional parameters and real ternaries with complete line contributions [2.37ms]
+(pass) Nullish nesting depth follows short-circuit condition, hidden-bracket, semicolon, and function-reset paths [8.35ms]
+(pass) Inherited JS JSX TSX and Vue readers share nullish corrections without granting Kotlin a logical operator [5.05ms]
+
+src/package-checks/function-metrics/analyzer/source-identity.test.ts:
+(pass) fixed Lizard reader/shared source identities map to translated symbols or named host seams [129.97ms]
+
+src/package-checks/function-metrics/analyzer/source-baseline-upgrade.test.ts:
+(pass) fixed 1.24.1 upgrade scenarios retain raw oracle separately from approved Rust/Kotlin deviations [8.80ms]
+(pass) Rust match increments and contributors share per-scope arm state across extension lifecycles [2.08ms]
+(pass) Kotlin expression boundaries exclude next declarations, outer braces, and trailing comments [1.34ms]
+
+src/package-checks/function-metrics/analyzer/model-context.test.ts:
+(pass) Lizard in-memory core > retains source-named model aliases through a static extension lifecycle [1.09ms]
+(pass) Lizard in-memory core > adapts source-spelled duplicate nesting decorators through FileInfoBuilder [0.68ms]
+
+src/package-checks/function-metrics/analyzer/extension-output.test.ts:
+(pass) Lizard in-memory core > patches FUNCTION_INFO averages for dynamic source-named extension metrics [0.66ms]
+(pass) Lizard in-memory core > retains OutputScheme fields, schema values, and retained formatting lifecycle [0.62ms]
+(pass) Lizard in-memory core > runs source analyze_files cross-file and print-result hooks in registration order [0.79ms]
+
+src/package-checks/function-metrics/analyzer/shared/code-reader.test.ts:
+(pass) Lizard shared tokenizer > preserves upstream macro, comment, string, and symbol token boundaries [0.54ms]
+(pass) Lizard shared tokenizer > clones the concrete state-machine class for later reader and extension substates [0.10ms]
+(pass) Lizard shared tokenizer > retains Python tokenizer whitespace and splitlines boundaries [1.40ms]
+(pass) Lizard shared tokenizer > retains CodeReader source fields and aliases with single shared storage [0.19ms]
+(pass) Lizard shared state machine > releases the completed callback once with its receiver and retains the reentrant replacement [0.25ms]
+(pass) Lizard shared state machine > retains source-spelled state fields and state hooks [0.12ms]
+(pass) Lizard shared state machine > retains source decorator factories for bracket and token-until states [0.29ms]
+
+src/package-checks/function-metrics/analyzer/shared/js-style-regex.test.ts:
+(pass) JavaScript-style regex literals preserve fixed-source raw tokens across all six consumers [8.79ms]
+(pass) JavaScript-style regex recognition preserves tokenFactory and yields without draining input [0.65ms]
+(pass) JavaScript-style regex source-start recognition does not consume cross-line division conditions [3.43ms]
+
+src/package-checks/function-metrics/analyzer/shared/golike.test.ts:
+(pass) Go-like shared states retain Go func behavior and resolve every source-derived keyword override [2.30ms]
+(pass) Go-like source override seams preserve super dispatch and state receiver binding [0.18ms]
+
+src/package-checks/function-metrics/analyzer/shared/rubylike.test.ts:
+(pass) Ruby-like states clone the runtime subclass and resolve its function keyword [0.39ms]
+(pass) Ruby-like states expose inherited _def callbacks to Lua anonymous _defs [0.27ms]
+
+src/package-checks/function-metrics/analyzer/shared/clike.test.ts:
+(pass) Lizard C-like shared states > keeps r-value-reference CCN corrections and namespace-qualified function state [0.75ms]
+(pass) Lizard C-like shared states > uses Unicode code points for C-like names and initializes all derived condition categories [0.44ms]
+(pass) Lizard C-like shared states > dispatches CLike source override seams through declaration and implementation transitions [0.39ms]
+
+src/package-checks/function-metrics/analyzer/extensions/extension-protocol.test.ts:
+(pass) internal extensions preserve default processor order plus object/class ordering_index registration [0.50ms]
+(pass) Lizard static extension hooks resolve after instance lookup with a wordcount-style class [0.76ms]
+(pass) extension descriptor lookup gives subclass statics MRO priority and same-instance members priority [0.10ms]
+(pass) extension call lookup ignores instance-own __call__ while ordinary hooks use it [0.13ms]
+(pass) extension registration rejects non-Python-compatible ordering indexes [0.17ms]
+(pass) extension ordering accepts exact non-safe integers with Python list.insert clamping [0.02ms]
+(pass) invalid subclass static metadata shadows inherited instance metadata instead of falling back [0.18ms]
+(pass) internal extension hooks retain FUNCTION_INFO, set_args, cross_file_process, print_result, and silent order [0.31ms]
+(pass) ExtensionBase receives reader context and can decorate nesting before reader states consume a brace [0.60ms]
+(pass) only selected extension bodies resolve internally; all remaining bodies stay deferred [0.18ms]
+(pass) selected nesting-depth set_args retains Python positional and keyword argument semantics [0.05ms]
+
+src/package-checks/function-metrics/analyzer/readers/golike-readers.test.ts:
+(pass) Go-like readers preserve every oracle suffix and edge fixture [3.63ms]
+(pass) Go-like readers preserve all Lizard 1.24 upstream language scenarios [30.83ms]
+
+src/package-checks/function-metrics/analyzer/readers/vue.test.ts:
+(pass) Vue reader preserves fixtures and script-only function boundaries, order, metrics, and ranges [2.27ms]
+
+src/package-checks/function-metrics/analyzer/readers/fortran.test.ts:
+(pass) Fortran reader preserves every registered suffix, edge fixture, and fixed/free form metrics [34.62ms]
+
+src/package-checks/function-metrics/analyzer/readers/clike-readers.test.ts:
+(pass) C-like shared reader preserves every C and C++ suffix plus the edge oracle [1.23ms]
+(pass) Java, C#, Objective-C, and TTCN preserve every reader suffix and edge oracle [2.59ms]
+(pass) C-like family retains class qualification, annotations, generic declarations, expression members, selectors, and TTCN control names [1.16ms]
+(pass) Java retains annotations, records, local and anonymous classes, static blocks, expression tokens, and old-C parameters [3.61ms]
+(pass) C# retains full source state behavior for class members, primary constructors, expression bodies, and condition categories [0.85ms]
+(pass) Objective-C retains C-like declarations, selectors, typedef skipping, and implementation methods [0.64ms]
+(pass) TTCN retains C-like preprocessing, declarations, qualified signatures, special names, and decision categories [0.92ms]
+
+src/package-checks/function-metrics/analyzer/readers/st.test.ts:
+(pass) Structured Text reader preserves fixtures and upstream function-block/function/action boundaries [13.76ms]
+
+src/package-checks/function-metrics/analyzer/readers/javascript.test.ts:
+(pass) JavaScript reader preserves every suffix, regex/template tokens, class methods, and arrows [5.42ms]
+
+src/package-checks/function-metrics/analyzer/readers/php-plsql.test.ts:
+(pass) PHP and PL/SQL readers preserve every checked-in suffix and edge fixture [1.96ms]
+(pass) PHP preserves code blocks, namespace/use skipping, traits, closures, arrow suppression, and conditions [1.13ms]
+(pass) PL/SQL preserves package procedures/functions/nesting/exception/control flow/parameters and triggers [0.79ms]
+
+src/package-checks/function-metrics/analyzer/readers/tsx.test.ts:
+(pass) TSX reader preserves every suffix, JSX nesting and attributes, typed component arrows, and ranges [6.39ms]
+
+src/package-checks/function-metrics/analyzer/readers/malformed-source.test.ts:
+(pass) every source-order reader preserves Lizard 1.24 malformed-source whole-file observations [9.13ms]
+
+src/package-checks/function-metrics/analyzer/readers/script-readers.test.ts:
+(pass) script readers preserve every registered suffix and normal/edge oracle fixture [3.59ms]
+(pass) Python and GDScript keep decorators, nested functions, multiline parameters, and inner branches [0.65ms]
+(pass) Ruby and Lua retain function block boundaries and branch complexity [0.39ms]
+(pass) Ruby keeps percent literals, symbols, variables, and interpolation token boundaries [0.18ms]
+(pass) Perl package-qualified named subroutines and R assigned functions retain source names [0.38ms]
+(pass) Python source groups preserve soft keywords, triple strings, indentation, and forgiveness [3.37ms]
+(pass) GDScript source group preserves func inheritance and elif complexity [0.42ms]
+(pass) Ruby and Lua source groups preserve tokenizer offsets, nested blocks, and anonymous functions [0.98ms]
+(pass) Perl source groups preserve prototypes, attributes, nested calls, and anonymous declarations [0.40ms]
+(pass) R source groups preserve left and right assignment, aliases, nesting, and logical complexity [0.50ms]
+
+src/package-checks/function-metrics/analyzer/readers/erlang.test.ts:
+(pass) Erlang reader preserves every suffix, comments, branches, guards, nested fun, and macro complexity [7.82ms]
+
+src/package-checks/function-metrics/analyzer/readers/typescript.test.ts:
+(pass) TypeScript reader preserves fixtures, type syntax, decorators, regexes, templates, methods, and arrows [6.60ms]
+
+ 113 pass
+ 0 fail
+Ran 113 tests across 39 files. [2.12s]

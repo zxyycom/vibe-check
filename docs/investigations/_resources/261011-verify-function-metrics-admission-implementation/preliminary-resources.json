@@ -1,0 +1,672 @@
+{
+  "node": "v24.18.0",
+  "entry": "/workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check",
+  "version": "0.0.0-local.8bcc6e4ba797",
+  "observations": [
+    {
+      "name": "empty",
+      "opened": [],
+      "closed": [],
+      "bytesRead": 0,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "submitted": [],
+      "result": {
+        "kind": "complete",
+        "metrics": []
+      }
+    },
+    {
+      "name": "exact8",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "input.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 8388608,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "submitted": [
+        {
+          "path": "input.ts",
+          "bytes": 8388608
+        }
+      ],
+      "result": {
+        "kind": "complete",
+        "metrics": []
+      }
+    },
+    {
+      "name": "exact64",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "cap-0.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-1.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-2.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-3.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-4.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-5.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-6.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-7.ts"
+        }
+      ],
+      "closed": [
+        18,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18
+      ],
+      "bytesRead": 67108864,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "submitted": [
+        {
+          "path": "cap-0.ts",
+          "bytes": 8388608
+        },
+        {
+          "path": "cap-1.ts",
+          "bytes": 8388608
+        },
+        {
+          "path": "cap-2.ts",
+          "bytes": 8388608
+        },
+        {
+          "path": "cap-3.ts",
+          "bytes": 8388608
+        },
+        {
+          "path": "cap-4.ts",
+          "bytes": 8388608
+        },
+        {
+          "path": "cap-5.ts",
+          "bytes": 8388608
+        },
+        {
+          "path": "cap-6.ts",
+          "bytes": 8388608
+        },
+        {
+          "path": "cap-7.ts",
+          "bytes": 8388608
+        }
+      ],
+      "result": {
+        "kind": "complete",
+        "metrics": []
+      }
+    },
+    {
+      "name": "aggregate-plus1",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "cap-0.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-1.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-2.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-3.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-4.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-5.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-6.ts"
+        },
+        {
+          "fd": 18,
+          "path": "cap-7.ts"
+        },
+        {
+          "fd": 18,
+          "path": "plus.ts"
+        }
+      ],
+      "closed": [
+        18,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18,
+        18
+      ],
+      "bytesRead": 67108865,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "result": {
+        "kind": "resource-limit-exceeded"
+      }
+    },
+    {
+      "name": "file-plus1",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "over.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 8388609,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "result": {
+        "kind": "resource-limit-exceeded"
+      }
+    },
+    {
+      "name": "missing",
+      "opened": [],
+      "closed": [],
+      "bytesRead": 0,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "result": {
+        "kind": "source-unavailable"
+      }
+    },
+    {
+      "name": "open-failure",
+      "opened": [],
+      "closed": [],
+      "bytesRead": 0,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "result": {
+        "kind": "source-unavailable"
+      }
+    },
+    {
+      "name": "read-failure",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "input.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 0,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "result": {
+        "kind": "source-unavailable"
+      }
+    },
+    {
+      "name": "utf8-bom-newlines",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "text.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 8,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "submitted": [
+        {
+          "path": "text.ts",
+          "bytes": 4
+        }
+      ],
+      "result": {
+        "kind": "complete",
+        "metrics": []
+      },
+      "source": "a\nb\n"
+    },
+    {
+      "name": "invalid-utf8-fallback",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "text.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 7,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "submitted": [
+        {
+          "path": "text.ts",
+          "bytes": 6
+        }
+      ],
+      "result": {
+        "kind": "complete",
+        "metrics": []
+      },
+      "source": "﻿a\r\n"
+    },
+    {
+      "name": "worker-failure-create",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "later.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 30,
+      "workers": 1,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "result": {
+        "kind": "analysis-failed"
+      }
+    },
+    {
+      "name": "worker-failure-post",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "later.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 30,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "result": {
+        "kind": "analysis-failed"
+      }
+    },
+    {
+      "name": "worker-failure-message",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "later.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 30,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "result": {
+        "kind": "analysis-failed"
+      }
+    },
+    {
+      "name": "worker-failure-error",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "later.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 30,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "result": {
+        "kind": "analysis-failed"
+      }
+    },
+    {
+      "name": "worker-failure-exit0",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "later.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 30,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "result": {
+        "kind": "analysis-failed"
+      }
+    },
+    {
+      "name": "worker-failure-exit1",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "later.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 30,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "result": {
+        "kind": "analysis-failed"
+      }
+    },
+    {
+      "name": "real-worker-signal-cleanup",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "later.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 30,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 1,
+      "terminated": 1,
+      "result": {
+        "kind": "cancelled"
+      },
+      "abortListenersAdded": 1,
+      "abortListenersRemoved": 1
+    },
+    {
+      "name": "pre-abort",
+      "opened": [],
+      "closed": [],
+      "bytesRead": 0,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "result": {
+        "kind": "cancelled"
+      }
+    },
+    {
+      "name": "default-timer-abort",
+      "opened": [
+        {
+          "fd": 22,
+          "path": "input.ts"
+        }
+      ],
+      "closed": [
+        22
+      ],
+      "bytesRead": 32768,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "callbackObserved": true,
+      "result": {
+        "kind": "cancelled"
+      },
+      "yields": 1
+    },
+    {
+      "name": "default-io-abort",
+      "opened": [
+        {
+          "fd": 22,
+          "path": "input.ts"
+        }
+      ],
+      "closed": [
+        22
+      ],
+      "bytesRead": 163840,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "callbackObserved": true,
+      "result": {
+        "kind": "cancelled"
+      },
+      "yields": 5
+    },
+    {
+      "name": "public-timer-abort",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "input.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 65536,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "callbackObserved": true,
+      "publicResult": {
+        "kind": "cancelled",
+        "records": [
+          {
+            "checkId": "function-metrics",
+            "id": "/input-rejected/rejected.md",
+            "data": {
+              "blocking": false,
+              "codeAreas": [
+                "source"
+              ],
+              "kind": "input-rejected",
+              "path": "rejected.md",
+              "reason": "unsupported-file-type"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "checkId": "function-metrics",
+            "displayName": "Function metrics",
+            "outcome": {
+              "status": "unavailable",
+              "reason": {
+                "code": "execution-cancelled"
+              }
+            }
+          }
+        ],
+        "messages": []
+      }
+    },
+    {
+      "name": "public-io-abort",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "input.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 163840,
+      "workers": 0,
+      "posts": 0,
+      "unsubscribed": 0,
+      "terminated": 0,
+      "callbackObserved": true,
+      "publicResult": {
+        "kind": "cancelled",
+        "records": [
+          {
+            "checkId": "function-metrics",
+            "id": "/input-rejected/rejected.md",
+            "data": {
+              "blocking": false,
+              "codeAreas": [
+                "source"
+              ],
+              "kind": "input-rejected",
+              "path": "rejected.md",
+              "reason": "unsupported-file-type"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "checkId": "function-metrics",
+            "displayName": "Function metrics",
+            "outcome": {
+              "status": "unavailable",
+              "reason": {
+                "code": "execution-cancelled"
+              }
+            }
+          }
+        ],
+        "messages": []
+      }
+    },
+    {
+      "name": "public-worker-abort",
+      "opened": [
+        {
+          "fd": 18,
+          "path": "input.ts"
+        }
+      ],
+      "closed": [
+        18
+      ],
+      "bytesRead": 8388608,
+      "workers": 1,
+      "posts": 1,
+      "unsubscribed": 0,
+      "terminated": 1,
+      "callbackObserved": true,
+      "offEvents": [
+        "message",
+        "error",
+        "exit"
+      ],
+      "publicResult": {
+        "kind": "cancelled",
+        "records": [
+          {
+            "checkId": "function-metrics",
+            "id": "/input-rejected/rejected.md",
+            "data": {
+              "blocking": false,
+              "codeAreas": [
+                "source"
+              ],
+              "kind": "input-rejected",
+              "path": "rejected.md",
+              "reason": "unsupported-file-type"
+            }
+          }
+        ],
+        "checks": [
+          {
+            "checkId": "function-metrics",
+            "displayName": "Function metrics",
+            "outcome": {
+              "status": "unavailable",
+              "reason": {
+                "code": "execution-cancelled"
+              }
+            }
+          }
+        ],
+        "messages": []
+      }
+    }
+  ]
+}

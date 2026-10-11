@@ -1404,6 +1404,57 @@
       ],
       "title": "文件—区域索引 API、消费与重建准备"
     },
+    "261011-verify-function-metrics-admission-implementation": {
+      "formedAt": "2026-10-11T15:58:32Z",
+      "name": "verify-function-metrics-admission-implementation",
+      "question": "逐块 setImmediate 是否保留完整输入、取消与清理，并在 exact installed Node 完整 Check 对照中满足采用标准？",
+      "relations": [
+        {
+          "summary": "以精确安装与完整 Check 复查局部让步收益和边界",
+          "target": "261008-function-metrics-admission-yield",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261011-verify-function-metrics-admission-implementation/acceptance.json",
+        "261011-verify-function-metrics-admission-implementation/before-identity.json",
+        "261011-verify-function-metrics-admission-implementation/benchmark.mjs",
+        "261011-verify-function-metrics-admission-implementation/corpus-manifest.json",
+        "261011-verify-function-metrics-admission-implementation/final-function-tests.txt",
+        "261011-verify-function-metrics-admission-implementation/final-gate.txt",
+        "261011-verify-function-metrics-admission-implementation/final-identity.json",
+        "261011-verify-function-metrics-admission-implementation/final-module-difference.json",
+        "261011-verify-function-metrics-admission-implementation/final-performance.json",
+        "261011-verify-function-metrics-admission-implementation/final-real-records-1.json",
+        "261011-verify-function-metrics-admission-implementation/final-real-records-2.json",
+        "261011-verify-function-metrics-admission-implementation/final-real-records-3.json",
+        "261011-verify-function-metrics-admission-implementation/final-real-records-4.json",
+        "261011-verify-function-metrics-admission-implementation/final-real-records-5.json",
+        "261011-verify-function-metrics-admission-implementation/final-resources.json",
+        "261011-verify-function-metrics-admission-implementation/freeze-corpora.mjs",
+        "261011-verify-function-metrics-admission-implementation/freeze-identities.mjs",
+        "261011-verify-function-metrics-admission-implementation/pack-performance.mjs",
+        "261011-verify-function-metrics-admission-implementation/preliminary-identity.json",
+        "261011-verify-function-metrics-admission-implementation/preliminary-performance.json",
+        "261011-verify-function-metrics-admission-implementation/preliminary-real-records-1.json",
+        "261011-verify-function-metrics-admission-implementation/preliminary-real-records-2.json",
+        "261011-verify-function-metrics-admission-implementation/preliminary-real-records-3.json",
+        "261011-verify-function-metrics-admission-implementation/preliminary-real-records-4.json",
+        "261011-verify-function-metrics-admission-implementation/preliminary-real-records-5.json",
+        "261011-verify-function-metrics-admission-implementation/preliminary-resources.json",
+        "261011-verify-function-metrics-admission-implementation/production-module-difference.json",
+        "261011-verify-function-metrics-admission-implementation/resources.mjs"
+      ],
+      "sourcePath": "verify-function-metrics-admission-implementation.md",
+      "tags": [
+        "cancellation",
+        "function-metrics",
+        "input-admission",
+        "performance",
+        "resource-boundaries"
+      ],
+      "title": "Function metrics 读取让步优化实施与验收"
+    },
     "261011-verify-lizard-1-24-1-implementation": {
       "formedAt": "2026-10-11T14:18:36Z",
       "name": "verify-lizard-1-24-1-implementation",
@@ -1554,8 +1605,9 @@
       "261011-prepare-function-metrics-change-plans": "sha256:7534553a4eda133dd5bf47e5c850412904ba9789ca25809a0ab504dc21ef1755",
       "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94",
       "261011-project-file-region-index-readiness": "sha256:eec8745461486fb48b36858697b7bcb2402912af4bcb98803b48174a331c3859",
+      "261011-verify-function-metrics-admission-implementation": "sha256:23fb194a518a0a626a30ffd432810c9de17407abe7846dd10a6779da1094bfab",
       "261011-verify-lizard-1-24-1-implementation": "sha256:0ccbf36d3dd6432d94bb9826e50943b325987b57b8ceeff5c4c4fe70dfac559a",
-      "261011-verify-typescript-metrics-implementation": "sha256:71deb48849ccef3b35294ccf1e762f67760f84e3554e734ba347423758e48964"
+      "261011-verify-typescript-metrics-implementation": "sha256:43f33409310f08d0c99ea9b02e318692073c9dd1796739fe760a2e53d7a9509d"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

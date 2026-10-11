@@ -73,7 +73,7 @@ hidden bracket、分号与函数 reset 均不重写。代表性独立期望为�
 | `return (a ?? b ?? c);` | 3 | 1 |
 | `if (a ?? b ?? c) { return a; }` | 4 | 2 |
 | `return ((a ?? b) ?? c);` | 3 | 1 |
-| `return (a ?? b) || c;` | 3 | 2 |
+| `return (a ?? b) \|\| c;` | 3 | 2 |
 | `return [(a ?? b), (b ?? c)];` | 3 | 2 |
 | `a ?? b; c ?? d;` | 3 | 2 |
 | `if (a ?? (b ?? c)) { return a; }` | 4 | 3 |

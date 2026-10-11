@@ -33,7 +33,7 @@ export interface FunctionMeasurementDependencies {
 
 const DEFAULT_FUNCTION_MEASUREMENT_DEPENDENCIES: FunctionMeasurementDependencies = Object.freeze({
   createWorker: createNodeFunctionMetricsWorker,
-  yieldAdmission: yieldAdmissionToTimer
+  yieldAdmission: yieldAdmissionToImmediate
 });
 
 /**
@@ -129,9 +129,9 @@ async function readBoundedSource(
   }
 }
 
-function yieldAdmissionToTimer(): Promise<void> {
+function yieldAdmissionToImmediate(): Promise<void> {
   return new Promise<void>((resolveYield) => {
-    setTimeout(resolveYield, 0);
+    setImmediate(resolveYield);
   });
 }
 

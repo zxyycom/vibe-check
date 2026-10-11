@@ -79,6 +79,11 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 
 `functionMetrics` 的 parent 有界读取 accepted source，再将完整 batch 交给 `node:worker_threads` Worker。Worker 只分析传入文本；取消终止 Worker，error 或未交付完整结果的 exit 映射为 analysis failure。私有 Worker `.mjs` 是必需包材料，artifact 与 installed-consumer 验收需证明其实际可执行。
 
+Parent 对每个非空、至多 `32 KiB` 的读取 chunk 使用私有 `setImmediate` Promise 让步，再由既有 checkpoint
+观察同线程 timer/I/O 取消。既有 checkpoint、实际 byte caps、decode 和整批提交保持不变。
+同步 open/read/concat/decode 仍不可抢占，chunk 大小不构成毫秒响应承诺。成功打开的 FD 在 finally 中关闭；
+Worker 结算移除 abort/transport listeners 并调用 terminate 一次；该结算不等待物理线程退出。
+
 `secretDetection` 的 Check owner 维护固定 Secretlint rule set、依赖升级与 synthetic corpus；Secretlint release、engine 或 dependency graph 改变时，重跑 candidate、installed consumer 与 leak-canary evidence。其用户安全承诺仍由[Secret Detection 指南](../checks/secret-detection.md)定义。
 
 ## Verification
@@ -86,6 +91,11 @@ finding exit 和 parser header 的具体解释，仍各自属于 external adapte
 external adapter tests 证明 command、availability、parser 与 tool-specific failure；对应 Check integration tests
 证明 options、exact-input handoff、Record 与 terminal result。function-metrics analyzer tests 证明 source-aligned internals、port façade、由当前 provenance mapping 确定的 identity closure 和 archive-read guard；adapter/Worker tests
 证明私有调用链与 whole-input mapping，function-metrics integration tests 证明 adapter 到 Check result 的映射。
+
+默认 admission 取消测试委托原 `setImmediate`，在首次实际 yield 安排 timer/I/O abort；私有 resolved-Promise
+seam 只隔离资源矩阵的调度成本，不能证明生产默认让步。early-file chunk 取消与真实 Worker 在途取消分别证明
+后续 exact inputs 不提交、已有 rejection 保留和一次清理；完整 Check 性能以精确安装、同一冻结语料和配置的
+显式对照取证，不能从 controlled port、源码测试或局部让步成本外推 Gate 收益。
 
 当前 Lizard `1.24.1` baseline 的 oracle、malformed、reader mapping、identity 与 deviation evidence 位于
 `src/package-checks/function-metrics/analyzer/fixtures/lizard-1.24.1/evidence/`；

@@ -40,7 +40,16 @@ describe("functionMetrics resource admission", () => {
       const aggregateCapPath = paths[8];
       if (aggregateCapPath === undefined) throw new Error("expected aggregate cap fixture path");
       writeFileSync(join(root, aggregateCapPath), " ");
-      assert.deepEqual(await measure(root, paths), { kind: "resource-limit-exceeded" });
+      assert.deepEqual(await measure(root, paths.slice(0, 8), {
+        createWorker: () => scriptedWorker({ postMessage: (listeners) => {
+          listeners.message({ kind: "complete", metrics: [] });
+        } })
+      }), { kind: "complete", metrics: [] });
+      let workers = 0;
+      assert.deepEqual(await measure(root, paths, {
+        createWorker: () => { workers += 1; throw new Error("over-limit batch must not start"); }
+      }), { kind: "resource-limit-exceeded" });
+      assert.equal(workers, 0);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
