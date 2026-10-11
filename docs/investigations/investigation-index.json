@@ -1299,6 +1299,20 @@
       ],
       "title": "TypeScript 函数边界与空值合并指标缺陷独立核验"
     },
+    "261011-change-flag-debugging-readiness": {
+      "formedAt": "2026-10-11T10:53:56Z",
+      "name": "change-flag-debugging-readiness",
+      "question": "如何仅消费已验收公共能力，交付完整当前文件全集的 change flag 调试结果？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "change-flag-debugging-readiness.md",
+      "tags": [
+        "package-tools",
+        "product-contract",
+        "project-files"
+      ],
+      "title": "Change flag 调试工具接口与验收 Readiness"
+    },
     "261011-diagnose-investigation-pending-mode-conflict": {
       "formedAt": "2026-10-11T07:48:22Z",
       "name": "diagnose-investigation-pending-mode-conflict",
@@ -1438,6 +1452,7 @@
       "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
       "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d",
+      "261011-change-flag-debugging-readiness": "sha256:90b06843ccba3deaf1c1de108e4cbc54aa1c7174046cbaaee60f11e35284716a",
       "261011-diagnose-investigation-pending-mode-conflict": "sha256:d373ce2000e94f934dca2e0894e7dde7e5fc5452acfa0dbc1fc18e70b1e92ff2",
       "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94",
       "261011-project-file-region-index-readiness": "sha256:eec8745461486fb48b36858697b7bcb2402912af4bcb98803b48174a331c3859"

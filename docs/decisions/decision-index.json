@@ -360,7 +360,7 @@
       "260926-warn-on-gate-and-check-duration-budgets": "sha256:f5986cabb08daade172ab5cd63fb95def34ad1b4cd04c9f7f5585734b944d98b",
       "261010-collect-project-files-only-from-filesystem": "sha256:09535a541cccc4047c51f307b7d2cd15802eb4166b19fdad3ef6c5d722d56a26",
       "261010-provide-readonly-file-region-index": "sha256:2376fadd31010db1a71bf32463fbc343c32af553510457c8948cae08d33127f0",
-      "261010-unify-file-selection-with-default-excludes": "sha256:b6b207ccd6ba89895b5b4f8a80aea9c70d6eff906cd1d050d53e8c409ac02c8d"
+      "261010-unify-file-selection-with-default-excludes": "sha256:b864debed85b047c249b2ef3867c41a99b648526a8c8c8d222015d8509b3b6e2"
     },
     "metadata": "sha256:f072a7f67ac9bc191153034906027cabefa5e80bd40e104327b177a6bf9e0d0f"
   },
@@ -7463,7 +7463,7 @@
       "sourcePath": "unify-file-selection-with-default-excludes.md",
       "title": "用统一 patterns 与显式开关管理文件收集范围",
       "status": "active",
-      "alignment": "unaligned",
+      "alignment": "aligned",
       "createdAt": "2026-10-10T08:57:34Z",
       "purpose": "统一文件范围表达，并以默认排除避免误扫依赖、构建和缓存路径",
       "background": "双数组不是统一匹配的必要条件，单数组替换又可能丢失已有默认排除，需要独立的防呆开关",

@@ -2,7 +2,7 @@
 title: 用统一 patterns 与显式开关管理文件收集范围
 id: 261010-unify-file-selection-with-default-excludes
 status: active
-alignment: unaligned
+alignment: aligned
 createdAt: 2026-10-10T08:57:34Z
 purpose: 统一文件范围表达，并以默认排除避免误扫依赖、构建和缓存路径
 background: 双数组不是统一匹配的必要条件，单数组替换又可能丢失已有默认排除，需要独立的防呆开关
@@ -26,8 +26,9 @@ relations:
 
 - 前序已确认纯磁盘方向。单份 glob 数组足以表达用户范围，但整份替换可能丢失已有默认排除。
 - 将默认防呆独立于用户规则，可以同时满足统一表达和显式控制。
-- [公开指南](../guides/collecting-project-files.md)与[内部 owner](../development/project-files.md)仍拥有当前实现；
-  本判断是未对齐的未来方向，完整对齐须经实现、材料和安装后验收。
+- [公开指南](../guides/collecting-project-files.md)与[内部 owner](../development/project-files.md)拥有收集契约与机制，
+  [Core 指南](../guides/file-region-index.md)和[调试指南](../guides/debugging-change-flags.md)拥有各自消费边界。
+  本记录保留统一规则与独立防呆层的选择理由；完整方向的对齐核对覆盖实现、材料和安装后验收。
 
 ## 决策
 
@@ -41,7 +42,7 @@ relations:
 - 采用: **默认防呆。** boolean `useDefaultExcludes` 省略或 `true` 都启用固定默认数组，仅 `false` 关闭，
   其它类型拒绝。有效范围为用户列表匹配结果减去启用的默认排除；替换、包含、重新包含或排列 patterns
   都不能绕过该层。关闭只移除默认数组，用户负 pattern、Check eligibility 与内容安全仍然生效。
-- 采用: **默认数组。** 以当前 `defaultProjectFileSelection.exclude` 的 VCS/Product state、dependencies、
+- 采用: **默认数组。** 以决策形成时旧 `defaultProjectFileSelection.exclude` 的 VCS/Product state、dependencies、
   build/generated、cache、coverage、log、temporary 和 virtual-environment 项为迁移基线，维护固定、冻结的普通 glob 数组。
   精确列表归产品默认值与公开说明，不读取配置或目录内容动态生成，也不自动扩大到 archive/historical 或业务目录。
   默认数组整体由开关控制，项目自有规则写入 patterns，不增加逐项默认豁免或另一份用户 exclude。
