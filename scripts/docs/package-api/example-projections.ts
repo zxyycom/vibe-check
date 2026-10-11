@@ -30,6 +30,25 @@ export interface PackageApiExampleProjection {
 export const PACKAGE_API_EXAMPLE_PROJECTIONS = Object.freeze([
   Object.freeze({
     evidence: "runtime",
+    id: "debug-change-flags",
+    regionId: "debug-change-flags",
+    sourcePath: "docs/examples/package-api/debug-change-flags.ts",
+    targets: Object.freeze([
+      Object.freeze({
+        documentId: "debugging-change-flags",
+        headingPath: Object.freeze(["最小用法"]),
+        kind: "markdown"
+      }),
+      Object.freeze({
+        declarationName: "debugChangeFlags",
+        kind: "jsdoc",
+        sourcePath: "src/package-tools/change-flag-debugging/change-flag-debugging.ts"
+      })
+    ]),
+    title: "查看当前所选文件的完整 change flag 映射并按需呈现"
+  }),
+  Object.freeze({
+    evidence: "runtime",
     id: "project-file-region-index",
     regionId: "project-file-region-index",
     sourcePath: "docs/examples/package-api/project-file-region-index.ts",

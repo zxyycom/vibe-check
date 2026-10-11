@@ -15,6 +15,8 @@ const NON_CHECK_OPERATIONS: readonly string[] = Object.freeze([
   CURRENT_PUBLIC_CONTRACT.operations.all,
   CURRENT_PUBLIC_CONTRACT.operations.any,
   CURRENT_PUBLIC_CONTRACT.operations.changeFlag,
+  CURRENT_PUBLIC_CONTRACT.operations.debugChangeFlags,
+  CURRENT_PUBLIC_CONTRACT.operations.formatChangeFlagDebugReport,
   CURRENT_PUBLIC_CONTRACT.operations.exactlyOne,
   CURRENT_PUBLIC_CONTRACT.operations.collectProjectFiles,
   CURRENT_PUBLIC_CONTRACT.operations.commandCheck,

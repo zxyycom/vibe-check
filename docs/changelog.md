@@ -66,6 +66,10 @@
   Controls 拒绝 `vibe-check:change:` 前缀。region 使用必填的完整 `patterns` 列表，非法输入仍拒绝。
   见[文件变化选择](./api-mechanics.md#按文件变化选择-check)。
 
+- **新增 [change flag 调试工具](./guides/debugging-change-flags.md)**：`debugChangeFlags` 显式接收 root、selection 和当前 regions，
+  重新收集当前文件全集，保留零/单/多命中，返回范围元数据、token 双向查询与命中数。
+  `formatChangeFlagDebugReport` 按需返回文本，不自动输出或分享；不替代实际 Git evidence、effective flags 或 Check 覆盖证明。
+
 #### 外部命令与 Markdown 检查
 
 - **新增 [`commandCheck`](./guides/command-check.md)**：以无 shell 的单个可执行程序与独立参数接入 Check，

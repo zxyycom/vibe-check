@@ -53,28 +53,17 @@ owner 时，实施与合入必须串行。
 
 ### 文件关系与 change flag 调试
 
-文件轨道已交付收集与 Core 能力，调试由剩余下游 Change 交付。收集的当前契约与机制归
-[收集指南](../guides/collecting-project-files.md)和[Project files](../development/project-files.md)，接入与修正证据归
-[Readiness 报告](../investigations/project-file-collection-readiness.md)。长期方向见
-[文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)与[索引决策](../decisions/provide-readonly-file-region-index.md)。
-Core 已验收并结项，稳定提交为 `7302349e`；证据见
-[索引 Readiness 报告](../investigations/project-file-region-index-readiness.md)。debug 尚未实施；
-索引 Decision 已对齐，文件范围 Decision 仍须等待 debug 才能完整对齐。
+文件轨道已交付三项能力：
 
-| 能力 / 下游 Change | 独立交付 | 实施前置 |
-| --- | --- | --- |
-| [Core 索引](../guides/file-region-index.md) | 多来源合并、追加后重建与只读双向定位。 | 稳定提交 `7302349e` 已继承收集 `2b2489cf`；debug 实际继承两项提交后实施。 |
-| [文件收集](../guides/collecting-project-files.md) | 纯磁盘枚举、统一 patterns、默认防呆和进入前剪枝。 | 已验收并结项，稳定提交为 `2b2489cf`；Core/debug 在实际继承该提交后使用当前 matcher。Core 和调试不是收集前置。 |
-| [change flag 调试](../../changes/add-change-flag-debugging/proposal.md) | 所选当前文件全集的逐文件及按 flag 映射。 | 实施基线继承已验收 Core 与收集迁移的稳定提交。 |
+- [文件收集](../guides/collecting-project-files.md)拥有纯磁盘范围、统一 patterns 与默认防呆，
+  内部机制归[Project files](../development/project-files.md)。
+- [Core 索引](../guides/file-region-index.md)拥有已取得值数据的合并、追加重建与只读双向关系。
+- [change flag 调试](../guides/debugging-change-flags.md)组合公共收集与 Core，展示当前所选全集的逐文件和按 token 映射。
 
-- **关系输入**：Core 组合已提供的文件/区域数据；来源追加先合并后重建，单一磁盘收集策略保持独立。
-  临时值输入可构造独立纯计算结果，不另列公共试算 API 或候选功能。
-- **共享 owner**：共同 matcher、project-files、Run 接线、包材料、Case 与文档交叉改动串行实施和合入，
-  整体核验 collection/Core/Runtime 的完整列表匹配与参数一致性。
-  默认顺序为收集完整迁移并验收提交、Core 接线并验收提交、调试继承两项提交；
-  上游 Readiness 与文档自审完成不解除下游的实施依赖。
-- **指标轨道**：函数指标升级、修复和读取优化独立推进，其关系索引迁移不是本轮必需项。
-  共同文件契约迁移涉及该 Check 时，仅处理输入接线；后续关系复用按实际 owner 重叠协调。
+长期取舍由[文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)与
+[索引决策](../decisions/provide-readonly-file-region-index.md)承接；本节不保留完成 Change 的阶段和验收副本。
+后续触及共同 matcher、Run 接线、包材料、Case 或文档 owner 时，仍按实际重叠串行实施与合入。
+函数指标升级、修复和读取优化独立推进；是否复用关系索引按各自 Outcome 和 owner 判断，不由本轨道交付自动触发。
 
 ### Lizard 升级与 TypeScript 修复
 

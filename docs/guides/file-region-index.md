@@ -99,3 +99,5 @@ Core 不应用扫描默认排除，显式 `build`、`node_modules` 等路径仍�
 
 初版追加采用全量关系重建；保存文件、区域与双向边，空间随它们总量增长，规则成本取决于完整 matcher 与输入。
 不承诺相对其它方案的性能改善；大规模使用前按实际文件、区域和边数测量。
+
+需要显式收集当前文件并按 change tokens 调试时，使用[调试 change flags](debugging-change-flags.md)；它组合公共收集与本关系，不扩展 Core 的 acquisition 责任。

@@ -16,6 +16,11 @@
 - `finding-waivers/reconciliation.ts` 拥有按调用方语义 identity 对账 Finding waiver 的纯函数，使用公开 Core 数据工具
   规范化和比较身份；Record 发布和 Check outcome 由采用方负责，工具不拥有 Run 或 Gate 生命周期。
   waiver materialization 入口拥有空数组默认化，向后续 reconciliation 提供完整冻结数组；公开输入与校验契约见[Finding waiver](../guides/finding-waivers.md#输入与默认值)。
+- `change-flag-debugging/change-flag-debugging.ts` 拥有同步 `debugChangeFlags(...)` 与纯
+  `formatChangeFlagDebugReport(...)`；仅用公开 collector/Core、closed snapshots 和 changeFlag，
+  每次重新收集并固定一个最终关系视图，完整保留所选零命中路径与实际范围。
+  公开输入、双向 token 查询、结果隔离和按需文本的契约由[调试指南](../guides/debugging-change-flags.md)拥有；
+  collection/Core 仍拥有获取/关系，Run 仍拥有 Git evidence、effective flags 和 Check 选择。
 - `learned-critical-path/**` 拥有 learned strategy、私有时长模型与 critical-path ranking，见[策略实现](#learned-critical-path-helper-owner)。
 
 ## Learned critical-path helper owner

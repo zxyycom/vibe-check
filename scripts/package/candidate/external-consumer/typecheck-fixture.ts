@@ -59,6 +59,8 @@ const PUBLIC_IMPORTS_TEMPLATE = `import {
   createAdmissionGraph,
   createLearnedCriticalPathStrategy,
   createProjectFileRegionIndex,
+  debugChangeFlags,
+  formatChangeFlagDebugReport,
   defineAdmissionPolicy,
   defineCheck,
   defineConfig,
@@ -108,6 +110,23 @@ const cacheOptions: CacheJsonByKeyOptions<{ readonly count: number }> = {
 };
 const cacheResult: Promise<CacheJsonByKeyResult<{ readonly count: number }>> = cacheJsonByKey(cacheOptions);
 ${DATA_BOUNDARY_TYPE_ACCEPTANCE_SOURCE}
+const debugOptions: DebugChangeFlagsOptions = {
+  projectRoot: ".", selection: { patterns: ["**/*"] }, regions: { source: { patterns: ["src/**"] } }
+};
+const debugReport: ChangeFlagDebugReport = debugChangeFlags(debugOptions);
+const debugFlags: readonly string[] | undefined = debugReport.flagsForFile("src/a.ts");
+const debugFiles: readonly string[] | undefined = debugReport.filesForFlag("vibe-check:change:source");
+const debugText: string = formatChangeFlagDebugReport(debugReport);
+// @ts-expect-error tool options require an explicit root.
+debugChangeFlags({ selection: { patterns: [] }, regions: { source: { patterns: [] } } });
+// @ts-expect-error file results are readonly.
+debugReport.files.push({ path: "a", flags: [], hitCount: 0 });
+// @ts-expect-error range metadata is readonly.
+debugReport.scope.patterns.push("extra");
+// @ts-expect-error region arrays are readonly.
+debugReport.regions[0]?.files.push("a");
+// @ts-expect-error closed region type has no members mode.
+debugChangeFlags({ ...debugOptions, regions: { source: { files: ["a"] } } });
 ${FINDING_WAIVER_TYPE_ACCEPTANCE_SOURCE}
 const asyncCacheParser = async (_value: unknown) => ({ count: 1 });
 cacheJsonByKey({

@@ -30,6 +30,7 @@
 | [本地时长历史调度](guides/learned-scheduling.md) | learned strategy 的 identity、history、安全、退化与 observation。 |
 | [选择与收集项目文件](guides/collecting-project-files.md) | 共同 selection、默认基线与同步 collectProjectFiles 的完整契约。 |
 | [定位文件与区域](guides/file-region-index.md) | Core 多来源值数据、只读双向关系与追加重建的完整契约。 |
+| [调试 change flags](guides/debugging-change-flags.md) | 当前所选文件全集、假想 change flag 映射、范围元数据与按需呈现。 |
 | [缓存计算结果](guides/cache-results.md) | cacheJsonByKey 的 key、结果、并发与信任边界。 |
 | [Finding waiver](guides/finding-waivers.md) | 通用 reconciliation 与 audit；Check-specific identity 引用各指南。 |
 | [Finding 呈现](guides/presenting-findings.md) | message helper、数量与省略结果，不定义 Check outcome。 |

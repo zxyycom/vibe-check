@@ -266,3 +266,48 @@ Proves:
 
 - Fixed front matter recognition and disabled inline backend configuration preserve the Product-selected rule behavior.
 - MD052 initializes its private parser token cache when it is the sole selected rule, while diagnostics from the parser-only helper remain filtered.
+
+## Case CHANGE-FLAG-DEBUG-RELATION-001: 当前所选全集保持零命中与双向 token 关系
+
+Owner: `docs/guides/debugging-change-flags.md#报告与双向查询`
+Entities:
+
+- `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > retains the full selected universe with zero, single and overlapping bidirectional hits`
+- `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > uses complete native lists and matches public Run for the same current paths`
+  Proves:
+- 全集不被 regions 并集缩减，逐文件保留零/单/重叠 tokens 和准确数量，两向查询一致，空区域与未知键可区分。
+- 同路径完整原生列表（brace、extglob、dot、纯负、重新包含、大小写和非 basename）与公共 Run 实际 evidence 一致；调试仍保留 Run 不发布的零命中当前文件。
+
+## Case CHANGE-FLAG-DEBUG-ACQUISITION-001: 显式获取范围可恢复且空与失败分离
+
+Owner: `docs/guides/debugging-change-flags.md#输入与失败`
+Entities:
+
+- `bun|src/package-tools/change-flag-debugging/change-flag-debugging.boundary.test.ts|change flag debugging > reports effective root and defaults while collecting only ordinary no-follow files`
+- `bun|src/package-tools/change-flag-debugging/change-flag-debugging.boundary.test.ts|change flag debugging > distinguishes valid empty snapshots from closed-input and necessary filesystem failures`
+  Proves:
+- root、原生 patterns、有效默认开关/实际数组和 ordinary/no-follow/快照边界可恢复，省略与 true 相同、false 可显式收集默认目录但链接不入选。
+- closed 输入和非法查询明确 TypeError、不运行 getter；空 patterns/无匹配为合法空，missing/file/symlink root 的必要获取失败是普通 Error，不伪装为空。
+
+## Case CHANGE-FLAG-DEBUG-LIFECYCLE-001: 冻结映射隔离并按需无 I/O 呈现
+
+Owner: `docs/guides/debugging-change-flags.md#生命周期与呈现`
+Entities:
+
+- `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > isolates inputs and frozen results and refreshes files and rules on each invocation`
+- `bun|src/package-tools/change-flag-debugging/change-flag-debugging.test.ts|change flag debugging > queries and formats the same snapshot with acquisition and output facilities blocked`
+  Proves:
+- 修改原 patterns/regions 和新增文件不影响旧报告，下次调用采用新全集/规则；任意非空 ID 包括 NUL/__proto__ 保留，公开嵌套字段冻结且方法可解构。
+- filesystem/process acquisition 与输出设施被封锁后仍可双向查询和反复格式化，同次快照不重新获取或自动输出，文本保留零命中、范围与边界并转义控制字符。
+
+## Case CHANGE-FLAG-DEBUG-PACKAGE-001: 安装后公开消费完整映射和按需文本
+
+Owner: `docs/guides/debugging-change-flags.md#最小用法`
+Entities:
+
+- `bun|scripts/package/public-api-inventory.test.ts|public API inventory > publishes only the approved runtime and type roots`
+- `bun|scripts/package/candidate/external-consumer/type-acceptance.test.ts|external consumer type acceptance`
+- `bun|scripts/package/candidate/external-consumer/documentation.test.ts|external consumer docs acceptance`
+  Proves:
+- 两个操作与 options/report 类型从 approved public root 发布，安装后严格类型验收验证必填 root、readonly 结果/元数据/区域和 closed region authoring。
+- 同一安装包的受管示例实际收集全域零/单/重叠、token 双向查询和 unknown path，按需返回文本，不要求 Check 或 Run；指南和 JSDoc 投影一致。

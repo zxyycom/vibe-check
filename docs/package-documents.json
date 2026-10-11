@@ -17,7 +17,8 @@
     { "id": "file-region-index", "sourcePath": "docs/guides/file-region-index.md", "packagePath": "docs/guides/file-region-index.md" },
     { "id": "cache-results", "sourcePath": "docs/guides/cache-results.md", "packagePath": "docs/guides/cache-results.md" },
     { "id": "finding-waivers", "sourcePath": "docs/guides/finding-waivers.md", "packagePath": "docs/guides/finding-waivers.md" },
-    { "id": "presenting-findings", "sourcePath": "docs/guides/presenting-findings.md", "packagePath": "docs/guides/presenting-findings.md" }
+    { "id": "presenting-findings", "sourcePath": "docs/guides/presenting-findings.md", "packagePath": "docs/guides/presenting-findings.md" },
+    { "id": "debugging-change-flags", "sourcePath": "docs/guides/debugging-change-flags.md", "packagePath": "docs/guides/debugging-change-flags.md" }
   ],
   "checkGuides": [
     { "checkId": "duplicate-detection", "exportName": "duplicateDetection", "sourcePath": "docs/checks/duplicate-detection.md", "packagePath": "docs/checks/duplicate-detection.md" },

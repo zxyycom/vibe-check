@@ -4,6 +4,14 @@
  *
  * @packageDocumentation
  */
+export {
+  debugChangeFlags,
+  formatChangeFlagDebugReport
+} from "./package-tools/change-flag-debugging/change-flag-debugging.ts";
+export type {
+  DebugChangeFlagsOptions,
+  ChangeFlagDebugReport
+} from "./package-tools/change-flag-debugging/change-flag-debugging.ts";
 export { cacheJsonByKey } from "./package-tools/cache/cache-json-by-key.ts";
 export type {
   CacheJsonByKeyOptions,

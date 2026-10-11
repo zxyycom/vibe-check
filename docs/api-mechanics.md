@@ -178,6 +178,8 @@ if (outcome?.status !== "passed" && outcome?.status !== "not-applicable") {
 `not-applicable`，unavailable evidence 时仍运行但以 `changes.ok === false` 区分结果。`project.flags` 始终是上图的 canonical effective set；`project.changes` 才是 files 或 unavailable reason 的
 evidence channel。要编写 condition、`prepare` 或 `execute`，继续阅读[Check lifecycle](guides/extending-check-lifecycle.md)。
 
+要审视未变更文件、零命中或重叠范围，可显式调用[change flag 调试工具](guides/debugging-change-flags.md)；它不替代本节的实际 Git evidence 或 effective flags。
+
 ## options preparation 与 execution
 
 Check 在获准入后执行自己的 `prepare(options, signal, project?)`，再以 prepared options 或 fallback 进入 `execute`；block 或非法准备结果使本项 `unavailable`。不同 prepared shape 的类型要求、三种返回形式、冻结与取消边界见[自定义 Check 的 `prepare`](guides/extending-check-lifecycle.md#prepare准备阻止或带-fallback-继续)。

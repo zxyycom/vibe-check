@@ -1,6 +1,6 @@
 # Design
 
-本 Plan 设计同步程序化调试工具：复用公共收集与 Core 索引，映射所选当前文件并按需呈现结果。公共 API 尚未交付，实施仍受上游验收门禁约束。
+本 Plan 设计同步程序化调试工具：复用公共收集与 Core 索引，映射所选当前文件并按需呈现结果。上游继承门禁已用 Git ancestry 确认，精确接口由 Readiness 调查收敛。
 
 ## Context
 
@@ -43,7 +43,13 @@
 | 展示 | 文件定位区域、区域定位文件和命中数共用同一视图，提供结果值与按需人读 formatter。 |
 
 Core 负责来源组合、区域身份和冲突校验；单份输入也可直接使用。
-调试输入遵守收集的默认防呆契约，公共名称与精确报告/呈现接口待工程收敛。
+调试输入遵守收集的默认防呆契约。采用 `debugChangeFlags({ projectRoot, selection, regions })`，
+regions 可直接传 Definition `changes.flags`，closed 非空映射保留 Run 的非空 ID 域。
+`ChangeFlagDebugReport` 包含 scope、完整 files `{ path, flags, hitCount }`、regions `{ id, flag, patterns, files }`，
+以及可解构的 `flagsForFile(path)` / `filesForFlag(token)`；已知空 [] 与合法未知 undefined 分离。
+`formatChangeFlagDebugReport(report)` 按需返回中文、JSON 转义的文本，不是机器协议。
+精确字段与输入/失败契约见[调试指南](../../docs/guides/debugging-change-flags.md)，
+适配依据和实际验收见[本轮报告](../../docs/investigations/change-flag-debugging-readiness.md)。
 
 #### 报告范围与生命周期
 
@@ -83,18 +89,24 @@ region patterns 与收集使用共同 grammar，但扫描默认排除只控制�
 
 ## Open Questions
 
-无已知待用户决定项。精确结果值、formatter 与 regions 适配类型由 Readiness 工程调查收敛；
+无已知待用户决定项。精确结果值、formatter 与 regions 适配类型已经由 Readiness 工程调查收敛；
 不新增公共试算机制，不借调试改变上游匹配、Run evidence 或 effective flags。
 
 ## Readiness Investigation
 
-可先做报告/示例的只读设计调查，Product 实施必须等待 `tasks.md` 的 0.3 上游继承门禁。
-下一步是按 investigation-report 记录 `tasks.md` 的 0.4：
+已发布[接口与验收 Readiness 报告](../../docs/investigations/change-flag-debugging-readiness.md)
+（`261011-change-flag-debugging-readiness`），基于实际继承的上游验收提交固定最小同步入口、closed regions、
+完整 files/scope/regions、token 双向查询和按需 formatter，未发现公共能力缺口，不复制 private engine。
+报告拥有本轮准备依据、实现探索转折和真实验收；稳定公开契约由[调试指南](../../docs/guides/debugging-change-flags.md)拥有。
+若后续发现缺口仍回到 owning Change；改变公开行为、显著扩展成本或削减交付能力时先讨论。
 
-- **问题与输入**：读取本 Plan、上游接口/验收报告、API mechanics 的 regions/token 及 package-tools owner，
-  确定最小同步入口、完整结果值、双向查询、formatter 与 closed regions 适配；以零/单/多命中示例检查范围元数据。
-- **产物**：报告给出精确签名/输入校验/报告字段、公共依赖清单、受管示例和相邻/安装后测试入口，
-  同步本 design 与 tasks。若上游接口尚未冻结，明确哪些内容只是设计输入而非已验收事实。
-- **成功处理**：上游已验收提交被实施基线继承且接口、完整范围与失败路径闭合后，才进入工具实施。
-- **失败处理**：缺少公共能力时记录差距并回到 owning Change，不复制 private matcher/collector 或偷换报告范围；
-  需要改变公开行为、显著扩展成本或削减交付能力时停下讨论，其余工程项自行收敛。
+## Implementation Observations
+
+实施基线 HEAD `41600617`：两次 `git merge-base --is-ancestor` 确认 `2b2489cf` 与 `7302349e`，退出均为 0。
+报告 scope 固定 absolute root、patterns、有效开关与实际默认列表及 regular/no-follow/per-call-non-atomic 边界。
+先用公共 Core 验证规则，再收集并追加文件；本次查询和 formatter 只采用最终一个冻结关系视图。
+
+实现与用户材料新增仅影响本工具：Run machine output、effective flags 和既有 matcher/collector 不变。
+README、导航和上游专题加任务入口，新随包指南完整定义工具，JSDoc/受管例子/包映射同步；
+changelog 记录净新增能力。主线程已汇合基于实际 diff 的独立正确性审查，无 blocker；
+最终独立优化保持产品语义，优化后的完整 Gate 与治理证据见本轮报告。
