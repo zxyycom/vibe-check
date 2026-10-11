@@ -1,215 +1,87 @@
-/** Project-root file discovery and selection helpers. */
+/** Check-local shared acquisition and independent selection of ordinary disk files. */
 
-import { lstatSync } from "node:fs";
 import { resolve } from "node:path";
+import fastGlob from "fast-glob";
 
-import { matchesAnyConfigGlob } from "../../data-boundary/config-glob.ts";
-import { collectSubmoduleWorktreeFiles } from "./revision-worktree-files.ts";
-import { errorMessage } from "../host-environment/error-message.ts";
-import { processFailed } from "../host-environment/process.ts";
-import { gitFailureDetail, runGit, splitNulDelimitedGitFileList } from "../host-environment/git.ts";
-import { toSlashPath } from "../host-environment/path.ts";
-import { walkFiles } from "../host-environment/filesystem.ts";
-import type { ProjectFileSelection, ProjectFileSource } from "./configuration.ts";
+import { selectConfigPaths } from "../../data-boundary/config-glob.ts";
+import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
+import {
+  createCollectionFilesystem,
+  collectionCandidatePatterns
+} from "./filesystem-collection.ts";
+import type { ProjectFileSelection } from "./configuration.ts";
+import { DEFAULT_PROJECT_FILE_EXCLUDES } from "./configuration.ts";
 
-type NamedProjectFileSelection = Readonly<{
-  readonly id: string;
-  readonly selection: ProjectFileSelection;
-}>;
-
-type SourceCandidateCollector = (
-  rootDir: string,
-  selections: readonly NamedProjectFileSelection[]
-) => readonly string[];
-
-const sourceCandidateCollectors = Object.freeze({
-  filesystem: collectFilesystemCandidates,
-  "git-worktree": collectGitWorktreeCandidates
-}) satisfies Readonly<Partial<Record<ProjectFileSource, SourceCandidateCollector>>>;
-
-const CONFIG_GLOB_MAGIC = /[\\*?[\]{}()!+@]/u;
-
-/**
- * Resolves multiple named file sets while enumerating each distinct candidate source once.
- */
 export function collectProjectFileSets(
   rootDir: string,
   selections: Readonly<Record<string, ProjectFileSelection>>
 ): ReadonlyMap<string, readonly string[]> {
-  const bySource = groupSelectionsBySource(selections);
-  const selectedFiles = new Map<string, readonly string[]>();
-
-  for (const [source, sourceSelections] of bySource) {
-    const candidates = collectSourceCandidates(rootDir, source, sourceSelections);
-    for (const { id, selection } of sourceSelections) {
-      selectedFiles.set(id, Object.freeze(filterProjectFiles(candidates, selection)));
+  const root = resolve(rootDir);
+  const entries = Object.entries(selections).sort(([left], [right]) => compareText(left, right));
+  const policies = entries.map(([, selection]) => selection);
+  const filesystem = createCollectionFilesystem(root, policies);
+  const patterns = collectionCandidatePatterns(policies);
+  const candidates =
+    patterns.length === 0
+      ? []
+      : fastGlob
+          .sync(patterns, {
+            cwd: root,
+            dot: true,
+            baseNameMatch: false,
+            braceExpansion: true,
+            caseSensitiveMatch: true,
+            extglob: true,
+            globstar: true,
+            onlyFiles: true,
+            followSymbolicLinks: false,
+            suppressErrors: false,
+            fs: filesystem
+          })
+          // Normalize the backend prefix only; real filename characters retain their identity.
+          .map((path) => path.replace(/^(?:\.\/)+/u, ""));
+  const selected = new Map<string, readonly string[]>();
+  for (const [id, selection] of entries) {
+    let paths = selectConfigPaths(candidates, selection.patterns);
+    if (selection.useDefaultExcludes !== false) {
+      const excluded = new Set(selectConfigPaths(paths, DEFAULT_PROJECT_FILE_EXCLUDES));
+      paths = paths.filter((path) => !excluded.has(path));
     }
+    selected.set(id, freezeProjectPaths(root, paths));
   }
-
-  return selectedFiles;
+  return selected;
 }
 
-export function collectProjectFiles(rootDir: string, selection: ProjectFileSelection): string[] {
-  return [...requireProjectFileSet(collectProjectFileSets(rootDir, { selection }), "selection")];
+export function collectProjectFiles(
+  rootDir: string,
+  selection: ProjectFileSelection
+): readonly string[] {
+  return requireProjectFileSet(collectProjectFileSets(rootDir, { selection }), "selection");
 }
 
-/** 返回已收集的命名文件集合；缺失表示收集完整性失效，不能解释为空集合。 */
+/** 缺少命名结果表示完整性失效，不是成功空集合。 */
 export function requireProjectFileSet(
   fileSets: ReadonlyMap<string, readonly string[]>,
   selectionId: string
 ): readonly string[] {
-  const selectedFiles = fileSets.get(selectionId);
-  if (selectedFiles === undefined) {
+  const files = fileSets.get(selectionId);
+  if (files === undefined)
     throw new Error(`project file collection did not produce selection ${selectionId}`);
-  }
-  return selectedFiles;
-}
-
-function groupSelectionsBySource(
-  selections: Readonly<Record<string, ProjectFileSelection>>
-): ReadonlyMap<ProjectFileSource, readonly NamedProjectFileSelection[]> {
-  const mutableGroups = new Map<ProjectFileSource, NamedProjectFileSelection[]>();
-  const entries = Object.entries(selections).sort(([left], [right]) => compareText(left, right));
-
-  for (const [id, selection] of entries) {
-    const group = mutableGroups.get(selection.source) ?? [];
-    group.push({ id, selection });
-    mutableGroups.set(selection.source, group);
-  }
-
-  return new Map(
-    [...mutableGroups].map(([source, group]) => [source, Object.freeze(group)] as const)
-  );
-}
-
-function collectSourceCandidates(
-  rootDir: string,
-  source: ProjectFileSource,
-  selections: readonly NamedProjectFileSelection[]
-): readonly string[] {
-  return sourceCandidateCollectorFor(source)(rootDir, selections);
-}
-
-function sourceCandidateCollectorFor(source: ProjectFileSource): SourceCandidateCollector {
-  const collector = sourceCandidateCollectors[source];
-  if (collector === undefined) return unsupportedProjectFileSource(source);
-  return collector;
-}
-
-function unsupportedProjectFileSource(source: ProjectFileSource): never {
-  throw new TypeError(`unsupported project file source: ${source}`);
-}
-
-function collectFilesystemCandidates(
-  rootDir: string,
-  selections: readonly NamedProjectFileSelection[]
-): readonly string[] {
-  return uniqueSorted(
-    walkFiles({
-      ignoredDirs: commonExcludedDirectoryNames(selections),
-      rootDir
-    }).map(toSlashPath)
-  );
-}
-
-function collectGitWorktreeCandidates(
-  rootDir: string,
-  selections: readonly NamedProjectFileSelection[]
-): readonly string[] {
-  const result = runGit({
-    args: ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--"],
-    cwd: rootDir
-  });
-  if (processFailed(result)) {
-    throw new Error(
-      `could not enumerate git-worktree files in ${rootDir}: ${gitFailureDetail(result)}`
-    );
-  }
-
-  const include = uniqueSorted(selections.flatMap(({ selection }) => [...selection.include]));
-  return uniqueSorted(
-    [
-      ...splitNulDelimitedGitFileList(result.stdout),
-      ...collectSubmoduleWorktreeFiles({ repository: rootDir, scanInputPaths: include })
-    ]
-      .map(toSlashPath)
-      .filter((filePath) => isGitWorktreeFile({ filePath, rootDir }))
-  );
-}
-
-function isGitWorktreeFile({
-  filePath,
-  rootDir
-}: Readonly<{ readonly filePath: string; readonly rootDir: string }>): boolean {
-  try {
-    const stats = lstatSync(resolve(rootDir, filePath));
-    return stats.isFile() || stats.isSymbolicLink();
-  } catch (error: unknown) {
-    if (missingPath(error)) return false;
-    throw new Error(
-      `could not inspect git-worktree candidate ${filePath} in ${rootDir}: ${errorMessage(error)}`,
-      { cause: error }
-    );
-  }
-}
-
-function missingPath(error: unknown): boolean {
-  const code = error instanceof Error && "code" in error ? error.code : undefined;
-  return code === "ENOENT" || code === "ENOTDIR";
-}
-
-function filterProjectFiles(
-  candidates: readonly string[],
-  selection: ProjectFileSelection
-): string[] {
-  return uniqueSorted(candidates.filter((filePath) => isProjectFile(filePath, selection)));
-}
-
-function isProjectFile(filePath: string, selection: ProjectFileSelection): boolean {
-  const normalized = toSlashPath(filePath);
-  return (
-    matchesAnyConfigGlob(normalized, selection.include) &&
-    !matchesAnyConfigGlob(normalized, selection.exclude)
-  );
-}
-
-/**
- * Recognizes only whole-directory exclusions with one literal directory segment. The
- * intersection is a traversal optimization; public semantics remain in `isProjectFile`.
- */
-function commonExcludedDirectoryNames(
-  selections: readonly NamedProjectFileSelection[]
-): readonly string[] {
-  let common: Set<string> | undefined;
-  for (const { selection } of selections) {
-    const names = new Set(selection.exclude.map(literalExcludedDirectoryName).filter(isString));
-    common =
-      common === undefined
-        ? names
-        : new Set([...common].filter((directoryName) => names.has(directoryName)));
-  }
-  return common === undefined ? [] : [...common].sort();
-}
-
-function literalExcludedDirectoryName(configGlob: string): string | undefined {
-  const prefix = "**/";
-  const suffix = "/**";
-  if (!configGlob.startsWith(prefix) || !configGlob.endsWith(suffix)) return undefined;
-  const directoryName = configGlob.slice(prefix.length, -suffix.length);
-  if (directoryName.length === 0 || directoryName.includes("/")) return undefined;
-  return CONFIG_GLOB_MAGIC.test(directoryName) ? undefined : directoryName;
-}
-
-function isString(value: string | undefined): value is string {
-  return value !== undefined;
-}
-
-function uniqueSorted(files: readonly string[]): string[] {
-  return [...new Set(files)].sort(compareText);
+  return files;
 }
 
 function compareText(left: string, right: string): number {
   if (left < right) return -1;
   if (left > right) return 1;
   return 0;
+}
+
+function freezeProjectPaths(root: string, paths: readonly string[]): readonly string[] {
+  for (const path of paths) {
+    if (!isNormalizedProjectRelativePath(path))
+      throw new Error(
+        `could not represent selected project path as a normalized relative path: ${resolve(root, path)}`
+      );
+  }
+  return Object.freeze([...new Set(paths)].sort(compareText));
 }

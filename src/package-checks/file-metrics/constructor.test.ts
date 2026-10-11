@@ -76,7 +76,7 @@ describe("fileMetrics constructor and direct callback", () => {
       fileMetrics({
         codeAreas: {
           source: {
-            files: { include: ["src/**/*.ts"] },
+            files: { patterns: ["src/**/*.ts"] },
             codeLines: { maximum: 200 }
           }
         }
@@ -90,9 +90,8 @@ describe("fileMetrics constructor and direct callback", () => {
           maximum: 200
         },
         files: {
-          exclude: defaultCheck.options.codeAreas.project.files.exclude,
-          include: ["src/**/*.ts"],
-          source: "filesystem"
+          patterns: ["src/**/*.ts"],
+          useDefaultExcludes: true
         },
         findingPolicy: "non-blocking"
       }
@@ -331,7 +330,7 @@ describe("fileMetrics constructor and direct callback", () => {
     const check = fileMetrics({
       codeAreas: {
         scripts: {
-          files: { ...FILES, include: ["scripts/**/*.ts"] },
+          files: { ...FILES, patterns: ["scripts/**/*.ts"] },
           codeLines: {
             maximum: 400,
             lowDecisionTokenAllowance: {
@@ -351,7 +350,7 @@ describe("fileMetrics constructor and direct callback", () => {
           }
         },
         source: {
-          files: { ...FILES, include: ["src/**/*.ts"] },
+          files: { ...FILES, patterns: ["src/**/*.ts"] },
           codeLines: {
             maximum: 300,
             lowDecisionTokenAllowance: {
@@ -437,11 +436,11 @@ describe("fileMetrics constructor and direct callback", () => {
           codeAreas: {
             source: {
               ...sourceArea,
-              files: { ...sourceArea.files, source: "git-worktree" }
+              files: { ...sourceArea.files }
             }
           }
         },
-        root
+        join(root, "missing")
       );
       assert.deepEqual(sourceUnavailable.result, {
         status: "unavailable",

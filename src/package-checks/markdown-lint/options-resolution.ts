@@ -4,7 +4,6 @@ import {
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
-  defaultProjectFileSelection,
   resolveProjectFileSelection,
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
@@ -20,9 +19,7 @@ import {
 import { validMarkdownLintOptions } from "./options-validation.ts";
 
 const DEFAULT_FILES = Object.freeze({
-  exclude: defaultProjectFileSelection.exclude,
-  include: Object.freeze(["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"]),
-  source: defaultProjectFileSelection.source
+  patterns: Object.freeze(["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"])
 });
 const DEFAULT_LIMITS = Object.freeze({ maxMarkdownBytes: 1_048_576, maxFindings: 10_000 });
 const DEFAULT_RULES = Object.freeze(

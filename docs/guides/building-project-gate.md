@@ -252,12 +252,12 @@ const definition = defineConfig({
   checks: [
     jsonValidation({
       checkId: "config",
-      files: { include: ["config/**/*.json"] },
+      files: { patterns: ["config/**/*.json"] },
       enabledByFlags: { when: any("local", "ci", "config") }
     }),
     markdownLint({
       checkId: "docs",
-      files: { include: ["handbook/**/*.md"] },
+      files: { patterns: ["handbook/**/*.md"] },
       findingPolicy: "blocking",
       enabledByFlags: { when: any("ci", "docs") }
     })
@@ -303,22 +303,20 @@ const definition = defineConfig({
   changes: {
     source: { compareWith: "HEAD" },
     flags: {
-      config: { include: [...shared, "config/**/*.json"] },
+      config: { patterns: [...shared, "config/**/*.json"] },
       schema: {
-        include: [...shared, "config/**/*.json", "schema/**/*.json"],
-        exclude: ["config/scratch/**"]
+        patterns: [...shared, "config/**/*.json", "schema/**/*.json", "!config/scratch/**"]
       }
     }
   },
   checks: [
     jsonValidation({
-      files: { include: ["config/**/*.json"] },
+      files: { patterns: ["config/**/*.json"] },
       enabledByFlags: { when: any(all("daily", changeFlag("config")), "force") }
     }),
     jsonSchemaValidation({
       files: {
-        include: ["config/**/*.json", "schema/**/*.json"],
-        exclude: ["config/scratch/**"]
+        patterns: ["config/**/*.json", "schema/**/*.json", "!config/scratch/**"]
       },
       schemas: [{ id: "urn:example:config", path: "schema/config.json" }],
       bindings: [
@@ -331,7 +329,7 @@ const definition = defineConfig({
       enabledByFlags: { when: any(all("daily", changeFlag("schema")), "force") }
     }),
     markdownLinkValidation({
-      files: { include: ["handbook/**/*.md"] },
+      files: { patterns: ["handbook/**/*.md"] },
       findingPolicy: "blocking",
       enabledByFlags: { when: any("daily", "force") }
     })
@@ -350,7 +348,7 @@ if (import.meta.main) await runGate();
 
 上例的日常调用需要 `daily`，改用 `["force"]` 可强制选择三项。schema 文件中的根 `$id` 应为 `urn:example:config`，实例是 `config/app.json`；这是本例显式声明的材料结构。
 
-`changes.flags.*` 的 region 要求提供 `include`，`exclude` 可省略，默认等同于 `[]`。上面的 config region 没有排除项，所以不写；schema region 则给出具体排除。随包 Check 的 `files.exclude` 同样可省略，实际文件选择仍需与 change region 的输入范围保持一致。
+`changes.flags.*` 的 region 要求提供完整 `patterns` 列表。负规则和正规则使用共同原生 matcher；扫描默认排除只作用于 Check files，不缩减 Git changed paths。显式同步两侧的业务规则，并在需要扫描默认排除目录时设置 `useDefaultExcludes: false`。
 
 本例约定 `config/scratch/**` 是不被正式实例或 schema 引用的草稿，只检查 JSON 语法，不参与 schema 验收。因此 schema 的变化 region 与实际文件选择都排除它；如果草稿后来成为正式输入，两处都需调整。
 

@@ -26,7 +26,7 @@ relations:
 后端，本轮补充 Git 原生 fixture 和责任边界。
 
 取证开始时的后端 Draft 采用 fast-glob 替换 filesystem walker，保留 Git 枚举；同轮讨论后，
-[该 Draft](../../changes/switch-project-file-collection-backend/design.md)改为评估统一收集与可选文件事实。
+该 Draft 改为评估统一收集与可选文件事实。
 职责拆分仍是设计候选，尚未成为产品行为或长期决策。
 
 ## 调查目的
@@ -44,7 +44,7 @@ relations:
 | --- | --- |
 | fast-glob 3.3.3 / micromatch 4.0.8 | 读取固定版本官方 API、filters 与 grammar；确认源码责任，尚未安装或接入。 |
 | Git 2.53.0 | 读取官方文档与源码；Linux / Node 24.18.0 隔离 fixture 执行八组查询，原脚本和 JSON 留存。 |
-| 当前 collector | 通过 CodeGraph 定位并读取 [collection](../../src/package-checks/project-files/collection.ts)、[submodule collector](../../src/package-checks/project-files/revision-worktree-files.ts)及相关 helpers，核对 include/exclude 顺序。 |
+| 当前 collector | 通过 CodeGraph 定位并读取 [collection](../../src/package-checks/project-files/collection.ts)、[submodule collector](https://github.com/zxyycom/vibe-check/blob/d266937d0c3e76dfeeee87f7b0901316e162dea3/src/package-checks/project-files/revision-worktree-files.ts)及相关 helpers，核对 include/exclude 顺序。 |
 | Product 子树 trace | 主代理执行 root/child/nested fixture 两次；保存条件和聚合结果，原 wrapper 与 fixture 已清理。 |
 | 能力拆分 | 核对[公开收集契约](../guides/collecting-project-files.md)、[内部 owner](../development/project-files.md)、[change flags](../api-mechanics.md#按文件变化选择-check)、[secret 读取规则](../checks/secret-detection.md)及仓库 Gate 默认。 |
 
@@ -148,8 +148,8 @@ ENOENT 和范围内错误策略仍需实际接入验证。Git exit 0 acquisition
 - **共同边界：**保持按需收集、完整结果与可信失败；验证范围剪枝、空 include、稳定路径、
   支持宿主和 owning Check 的 exact inputs。性能结论使用同一真实 workload 的 before/after。
 
-本轮取证未改变源码和依赖；后续产品范围、接入验收和迁移由
-[收集 Draft](../../changes/switch-project-file-collection-backend/proposal.md)承接。
+本轮取证未改变源码和依赖；后续实际接入与迁移见[Readiness 报告](project-file-collection-readiness.md)，
+当前产品范围由[收集指南](../guides/collecting-project-files.md)与[Project files](../development/project-files.md)承接。本报告保留本轮形成时认识，不将后续结论回填为当时事实。
 
 ## 随附资源
 

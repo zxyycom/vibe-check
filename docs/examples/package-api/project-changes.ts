@@ -25,7 +25,7 @@ const definition = defineConfig({
   changes: {
     source: { compareWith: "origin/main" },
     flags: {
-      source: { include: ["src/**"], exclude: ["src/generated/**"] }
+      source: { patterns: ["src/**", "!src/generated/**"] }
     }
   },
   checks: [sourceChanged],

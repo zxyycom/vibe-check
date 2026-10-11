@@ -55,22 +55,20 @@ const definition = defineConfig({
   changes: {
     source: { compareWith: "HEAD" },
     flags: {
-      config: { include: [...shared, "config/**/*.json"] },
+      config: { patterns: [...shared, "config/**/*.json"] },
       schema: {
-        include: [...shared, "config/**/*.json", "schema/**/*.json"],
-        exclude: ["config/scratch/**"]
+        patterns: [...shared, "config/**/*.json", "schema/**/*.json", "!config/scratch/**"]
       }
     }
   },
   checks: [
     jsonValidation({
-      files: { include: ["config/**/*.json"] },
+      files: { patterns: ["config/**/*.json"] },
       enabledByFlags: { when: any(all("daily", changeFlag("config")), "force") }
     }),
     jsonSchemaValidation({
       files: {
-        include: ["config/**/*.json", "schema/**/*.json"],
-        exclude: ["config/scratch/**"]
+        patterns: ["config/**/*.json", "schema/**/*.json", "!config/scratch/**"]
       },
       schemas: [{ id: "urn:example:config", path: "schema/config.json" }],
       bindings: [
@@ -83,7 +81,7 @@ const definition = defineConfig({
       enabledByFlags: { when: any(all("daily", changeFlag("schema")), "force") }
     }),
     markdownLinkValidation({
-      files: { include: ["handbook/**/*.md"] },
+      files: { patterns: ["handbook/**/*.md"] },
       findingPolicy: "blocking",
       enabledByFlags: { when: any("daily", "force") }
     })

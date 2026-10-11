@@ -121,7 +121,7 @@ describe("Markdown lint finding waivers", () => {
         executeMarkdownLint,
         {
           ...options,
-          files: { ...options.files, include: ["docs/*"] }
+          files: { ...options.files, patterns: ["docs/*"] }
         },
         root
       );

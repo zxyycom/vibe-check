@@ -1,0 +1,197 @@
+{
+  "node": "v24.3.0",
+  "bun": "1.3.14",
+  "files": 4800,
+  "selected": 1200,
+  "cache": "one initial trial then ten warm filesystem trials; no forced GC",
+  "warmMedianMs": 33.875945,
+  "trials": [
+    {
+      "ms": 81.012565,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 4666961,
+      "rssBytes": 159141888
+    },
+    {
+      "ms": 42.14841799999999,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 14519099,
+      "rssBytes": 162422784
+    },
+    {
+      "ms": 38.12795199999994,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 18414831,
+      "rssBytes": 175005696
+    },
+    {
+      "ms": 29.916292999999996,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 18414831,
+      "rssBytes": 178675712
+    },
+    {
+      "ms": 33.241626999999994,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 19422502,
+      "rssBytes": 178982912
+    },
+    {
+      "ms": 33.58146700000009,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 22937427,
+      "rssBytes": 181997568
+    },
+    {
+      "ms": 31.382631999999944,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 22937427,
+      "rssBytes": 184094720
+    },
+    {
+      "ms": 36.32709699999998,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 24619883,
+      "rssBytes": 187637760
+    },
+    {
+      "ms": 33.875945,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 25954861,
+      "rssBytes": 193142784
+    },
+    {
+      "ms": 29.356626000000006,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 25954861,
+      "rssBytes": 193798144
+    },
+    {
+      "ms": 34.62211100000002,
+      "reads": 42,
+      "stats": 1242,
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "invalidFileCount": 0,
+          "issueCount": 0,
+          "rejectedInputCount": 0,
+          "scannedFileCount": 1200,
+          "validFileCount": 1200
+        }
+      },
+      "heapBytes": 28391817,
+      "rssBytes": 192221184
+    }
+  ]
+}

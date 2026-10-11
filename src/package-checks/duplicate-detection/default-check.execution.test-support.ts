@@ -9,9 +9,7 @@ import { executeDuplicateDetection } from "./execution.ts";
 import { validResolvedDuplicateDetectionOptions } from "./options-validation.ts";
 
 export const FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"]),
-  source: "filesystem" as const
+  patterns: [...Object.freeze(["**/*.ts"])]
 });
 
 export const CODE_AREAS = Object.freeze({
@@ -227,11 +225,11 @@ export async function assertSourceAndCacheWriteFailures(
       codeAreas: {
         source: {
           ...sourceArea,
-          files: { ...sourceArea.files, source: "git-worktree" }
+          files: { ...sourceArea.files }
         }
       }
     },
-    root
+    join(root, "missing")
   );
   assert.deepEqual(sourceUnavailable.result, {
     status: "unavailable",

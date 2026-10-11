@@ -80,7 +80,7 @@ export function assertFlagBuilderAuthoringAndCanonicalization(): void {
   const configuredChanges = defineConfig({
     changes: {
       source: { compareWith: "origin/main" },
-      flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
+      flags: { "product-runtime": { patterns: ["src/**"] } }
     },
     checks: [
       defineCheck({
@@ -97,16 +97,16 @@ export function assertFlagBuilderAuthoringAndCanonicalization(): void {
     const changes = normalizeProjectDefinition(validatedChanges.value).changes;
     assert.deepEqual(changes, {
       source: { compareWith: "origin/main" },
-      flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
+      flags: { "product-runtime": { patterns: ["src/**"] } }
     });
     assert.equal(Object.isFrozen(changes), true);
     assert.equal(Object.isFrozen(changes?.flags), true);
-    assert.equal(Object.isFrozen(changes?.flags["product-runtime"]?.include), true);
+    assert.equal(Object.isFrozen(changes?.flags["product-runtime"]?.patterns), true);
   }
   const differentComparison = defineConfig({
     changes: {
       source: { compareWith: "origin/release" },
-      flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
+      flags: { "product-runtime": { patterns: ["src/**"] } }
     }
   });
   assert.notEqual(

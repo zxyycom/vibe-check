@@ -165,13 +165,15 @@ export type {
   ReconciledFinding,
   ReconcileFindingWaiversOptions
 } from "./package-tools/finding-waivers/reconciliation.ts";
-export { defaultProjectFileSelection } from "./package-checks/project-files/configuration.ts";
+export {
+  defaultProjectFileSelection,
+  DEFAULT_PROJECT_FILE_EXCLUDES
+} from "./package-checks/project-files/configuration.ts";
 export { collectProjectFiles } from "./package-checks/project-files/public-collection.ts";
 export type { CollectProjectFilesOptions } from "./package-checks/project-files/public-collection.ts";
 export type {
   ProjectFileSelection,
-  ProjectFileSelectionOptions,
-  ProjectFileSource
+  ProjectFileSelectionOptions
 } from "./package-checks/project-files/configuration.ts";
 export { defineCheck, inherit } from "./check/check.ts";
 export { all, any, changeFlag, exactlyOne, none, not, notAll } from "./check/flag-enablement.ts";

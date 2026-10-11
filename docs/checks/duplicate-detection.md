@@ -20,7 +20,7 @@
 const duplicateScan = duplicateDetection({
   checkId: "source-duplicate-scan",
   maxParallel: 1,
-  codeAreas: { source: { files: { include: ["src/**/*.ts"] } } }
+  codeAreas: { source: { files: { patterns: ["src/**/*.ts"] } } }
 });
 ```
 
@@ -77,7 +77,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 `defaultProjectFileSelection` 是 package root 公开的深冻结默认选择；constructor 会物化同值 files branch，无须手工复制。
 
 - 省略整个 `codeAreas` 时建立默认 `project` area。显式 map 必须至少包含一个非空 area id。
-- 每个显式 area 必须提供 `files` branch。共同 `{ source, include, exclude }` grammar、source failure 和数组替换见
+- 每个显式 area 必须提供 `files` branch。共同 `{ patterns, useDefaultExcludes? }` grammar、filesystem failure 和数组替换见
   [共享的 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)；本 Check 的 branch fields 可分别省略并使用公开的
   `defaultProjectFileSelection`。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
@@ -102,14 +102,13 @@ import { defaultProjectFileSelection, duplicateDetection } from "@zxyycom/vibe-c
 const sourceAndScriptsDuplicateDetection = duplicateDetection({
   codeAreas: {
     source: {
-      files: { include: ["src/**/*.ts"] },
+      files: { patterns: ["src/**/*.ts"] },
       minimumTokens: 20
     },
     scripts: {
       files: {
         ...defaultProjectFileSelection,
-        include: ["scripts/**/*.ts"],
-        exclude: [...defaultProjectFileSelection.exclude, "scripts/**/*.test.ts"]
+        patterns: ["scripts/**/*.ts"]
       },
       minimumLines: 10,
       minimumTokens: 100
@@ -170,8 +169,8 @@ custom 版本无需等于 package 版本，但实际版本会隔离 cache；不�
 
 ## 工作原理
 
-Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文件，再为各 `codeAreas[id].files` 应用自己的
-`include` / `exclude`，最后把全部路径去重成一个批准的精确范围。一个路径可同时属于多个 area；全部 exact paths 仍
+Check 在本次操作内共享必要纯磁盘候选，再为各 `codeAreas[id].files` 应用自己的
+`patterns` 与默认排除，最后把全部路径去重成一个批准的精确范围。一个路径可同时属于多个 area；全部 exact paths 仍
 一次性交给 jscpd，但 raw scanner 候选只有在全部 location 至少共享一个 area 时才进入 Finding：
 
 1. jscpd 使用所有实际输入 area 中最低的 line 阈值和最低的 token 阈值取得完整候选。
@@ -244,7 +243,7 @@ Run progress 预览边界见 [呈现 Check Finding](../guides/presenting-finding
 - 少于两个合格 exact inputs：完整 Finding 集合确定为空，结果为 `not-applicable / no-eligible-input`，configured waiver
   全部形成 `unused` audit。
 - constructor 后形成的 resolved options 不符合完整 shape：`unavailable / invalid-options`。
-- 所配置的 filesystem 或 git-worktree 来源无法形成候选快照：`unavailable / source-unavailable`。
+- 所配置的 filesystem 来源无法形成候选快照：`unavailable / source-unavailable`。
 - package/custom command 缺失、version probe 失败或无法形成可识别版本 provenance：
   `unavailable / external-dependency-unavailable`。
 - 已启动 jscpd 但进程执行失败：`unavailable / external-execution-failed`。

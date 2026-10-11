@@ -23,12 +23,12 @@ const definition = defineConfig({
   checks: [
     jsonValidation({
       checkId: "config",
-      files: { include: ["config/**/*.json"] },
+      files: { patterns: ["config/**/*.json"] },
       enabledByFlags: { when: any("local", "ci", "config") }
     }),
     markdownLint({
       checkId: "docs",
-      files: { include: ["handbook/**/*.md"] },
+      files: { patterns: ["handbook/**/*.md"] },
       findingPolicy: "blocking",
       enabledByFlags: { when: any("ci", "docs") }
     })

@@ -1311,6 +1311,50 @@
         "tooling"
       ],
       "title": "Investigation 暂存的可执行资源模式冲突"
+    },
+    "261011-project-file-collection-readiness": {
+      "formedAt": "2026-10-11T08:45:20Z",
+      "name": "project-file-collection-readiness",
+      "question": "fast-glob 与共同原生 matcher 的薄适配能否兑现纯磁盘剪枝、失败与 no-follow 契约？",
+      "relations": [
+        {
+          "summary": "补充最低宿主实际接入、薄适配与迁移边界",
+          "target": "261008-fast-glob-git-collection-boundaries",
+          "type": "补充"
+        }
+      ],
+      "resourceIds": [
+        "261011-project-file-collection-readiness/backend-adapter-probe.mjs",
+        "261011-project-file-collection-readiness/bun-readiness-observations.json",
+        "261011-project-file-collection-readiness/candidate-spelling-and-byte-identity.mjs",
+        "261011-project-file-collection-readiness/check-bun-after-review.json",
+        "261011-project-file-collection-readiness/check-final-bun.json",
+        "261011-project-file-collection-readiness/check-final-node.json",
+        "261011-project-file-collection-readiness/check-node-after-review.json",
+        "261011-project-file-collection-readiness/check-node-observations.json",
+        "261011-project-file-collection-readiness/check-workload.mjs",
+        "261011-project-file-collection-readiness/filesystem-after-byte-identity-bun.json",
+        "261011-project-file-collection-readiness/filesystem-after-byte-identity-node.json",
+        "261011-project-file-collection-readiness/filesystem-after-compiled-pruning.json",
+        "261011-project-file-collection-readiness/filesystem-after-review-bun.json",
+        "261011-project-file-collection-readiness/filesystem-after-review-node.json",
+        "261011-project-file-collection-readiness/filesystem-after.json",
+        "261011-project-file-collection-readiness/filesystem-before.json",
+        "261011-project-file-collection-readiness/filesystem-final-bun.json",
+        "261011-project-file-collection-readiness/filesystem-final-node.json",
+        "261011-project-file-collection-readiness/filesystem-workload.mjs",
+        "261011-project-file-collection-readiness/identity-review-bun-observations.json",
+        "261011-project-file-collection-readiness/identity-review-node-observations.json",
+        "261011-project-file-collection-readiness/node-readiness-observations.json"
+      ],
+      "sourcePath": "project-file-collection-readiness.md",
+      "tags": [
+        "file-collection",
+        "glob",
+        "nodejs",
+        "performance"
+      ],
+      "title": "项目文件收集后端接入与迁移准备"
     }
   },
   "metadata": {},
@@ -1372,12 +1416,13 @@
       "261005-derive-gate-guide-scenarios-from-history": "sha256:11dbe03e16a6ac99704b11d4b56619f8547417561a8667b9fb1dae22e2d88fe7",
       "261006-compare-node-file-collection-backends": "sha256:7ec4e86892c76278ea1f821931155d218310a9243693ae40f1e1b97fbb00b4f9",
       "261008-assess-lizard-1-24-1-upgrade": "sha256:e051d2ef0eeb9bb1e3bc65ff3c75599b797a3ef16547b743d3b7879ace943293",
-      "261008-fast-glob-git-collection-boundaries": "sha256:ac0609fba64a5fdc2edaa2bdb4e81d0b5283dc565d2602ecce0e03fcb9acf180",
+      "261008-fast-glob-git-collection-boundaries": "sha256:58c5cb1dd4c4488e10edb816a8697b964cc49e48d14c15f2e98a7b657dbb88b1",
       "261008-function-metrics-admission-yield": "sha256:fe026b3807dbb5af1f51bcf285ee44fe4d6bd600ed1c689b8521a1ac9ec24b66",
       "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
       "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d",
-      "261011-diagnose-investigation-pending-mode-conflict": "sha256:d373ce2000e94f934dca2e0894e7dde7e5fc5452acfa0dbc1fc18e70b1e92ff2"
+      "261011-diagnose-investigation-pending-mode-conflict": "sha256:d373ce2000e94f934dca2e0894e7dde7e5fc5452acfa0dbc1fc18e70b1e92ff2",
+      "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

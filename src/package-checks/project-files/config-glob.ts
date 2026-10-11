@@ -1,1 +1,1 @@
-export { matchesAnyConfigGlob } from "../../data-boundary/config-glob.ts";
+export { matchesConfigPatterns } from "../../data-boundary/config-glob.ts";

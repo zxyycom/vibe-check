@@ -2,13 +2,10 @@
 
 import { resolve } from "node:path";
 
-import {
-  snapshotClosedArray,
-  snapshotExactClosedRecord
-} from "../../data-boundary/closed-values.ts";
+import { snapshotExactClosedRecord } from "../../data-boundary/closed-values.ts";
 import { collectProjectFiles as collectTrustedProjectFiles } from "./collection.ts";
-import { PROJECT_FILE_SOURCES } from "./configuration.ts";
-import type { ProjectFileSelection, ProjectFileSource } from "./configuration.ts";
+import { snapshotCompleteProjectFileSelection } from "./configuration.ts";
+import type { ProjectFileSelection } from "./configuration.ts";
 
 /** 调用方请求一次项目文件收集时必须完整提供的 root 与 selection。 */
 export interface CollectProjectFilesOptions {
@@ -27,7 +24,7 @@ type ResolvedCollectProjectFilesOptions = Readonly<{
  * 按一份完整的显式 selection 同步收集 project-root-relative slash paths。
  *
  * 成功结果是冻结的稳定去重排序快照，空数组表示没有匹配路径。非法参数同步抛出
- * `TypeError`；选定 filesystem 或 Git source 的收集失败继续抛出普通 `Error`，不会回退来源。
+ * `TypeError`；必要 filesystem 读取失败抛出带路径上下文的普通 `Error`。
  */
 export function collectProjectFiles(
   authoredOptions: CollectProjectFilesOptions
@@ -51,10 +48,10 @@ function parseOptions(value: unknown): ResolvedCollectProjectFilesOptions {
     );
   }
 
-  const selection = parseSelection(options.selection);
+  const selection = snapshotCompleteProjectFileSelection(options.selection);
   if (selection === undefined) {
     throw new TypeError(
-      "collectProjectFiles selection must be a complete record with source, include, and exclude"
+      "collectProjectFiles selection must be a closed record with patterns and optional boolean useDefaultExcludes"
     );
   }
 
@@ -65,28 +62,4 @@ function parseProjectRoot(value: unknown): string | undefined {
   return typeof value === "string" && value.length > 0 && !value.includes("\0")
     ? resolve(value)
     : undefined;
-}
-
-function parseSelection(value: unknown): ProjectFileSelection | undefined {
-  const selection = snapshotExactClosedRecord(value, ["source", "include", "exclude"]);
-  if (selection === undefined) return undefined;
-
-  const include = snapshotStringArray(selection.include);
-  const exclude = snapshotStringArray(selection.exclude);
-  if (include === undefined || exclude === undefined || !isProjectFileSource(selection.source)) {
-    return undefined;
-  }
-
-  return Object.freeze({ exclude, include, source: selection.source });
-}
-
-function snapshotStringArray(value: unknown): readonly string[] | undefined {
-  const items = snapshotClosedArray(value);
-  return items?.every((item): item is string => typeof item === "string") === true
-    ? Object.freeze([...items])
-    : undefined;
-}
-
-function isProjectFileSource(value: unknown): value is ProjectFileSource {
-  return PROJECT_FILE_SOURCES.some((source) => source === value);
 }

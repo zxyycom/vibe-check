@@ -307,7 +307,7 @@ Entities:
   Proves:
 
 - 无 selection 参数时采用 required；focused preset 可重复、组合并替换默认选择，`--all` 独占并选择完整 Gate。显式 release receipt 只与 `--all` 同用；启动摘要反映实际选择。
-- required 通过 Gate 的 region 数据与 Product 所用的 `minimatch` 选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；Gate 不重复构造 Git/Run 矩阵。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
+- required 通过 Gate 的 region 数据与 Product 所用的 `micromatch` 完整列表选项选择各 Check 的输入：Product 源码、已登记随包材料、schema/example、当前 Case Owner 和规则变化各触发对应检查，调查或决策文档不唤起无关 package/Case test lane。所有已登记 package source 与当前 Case Owner 均受 region 覆盖。Product 的真实 Git 快照测试单独证明 changed path 与不可用回退；Gate 不重复构造 Git/Run 矩阵。Product runtime lane 的 region 覆盖其完整 test 分区及相关源码。
 - 已登记的 `docs/examples/package-api-support/**` 验收支持源变化会选择 package supporting lane，避免只修改共享验收逻辑时漏掉复制与 fingerprint 回归；支持源仍不是发布材料。
 - 七个 Product Check test lane 分别绑定自己的 change flag，私有实现、测试或 fixture 路径不再选择无关组；file metrics 保留 JSON validation/document 输入，function metrics 因 source-identity 全树证明继续覆盖全部 Product source。根导出、共享 helper/runtime、未知新模块和测试工具链仍宽选，每组完整测试文件清单都能触发自身；显式 test/all 不受这些 change flags 抑制。
 - JSON、Schema、publication、machine example、Markdown、质量扫描和规则测试保持各自的输入边界；schema source 变化会选择 publication validator，独立材料测试证明发布漂移被拒绝。Markdown links 因反向目标依赖仍检查完整 corpus，focused preset 与 `--all` 提供不依赖变更的强制路径。

@@ -1,14 +1,14 @@
 # Design
 
-本 Plan 将纯磁盘文件范围落到同步枚举、进入前剪枝与完整迁移。方向已确认，先调查后端接入可行性，尚未证明库满足契约。
+本 Plan 将纯磁盘文件范围落到同步枚举、进入前剪枝与完整迁移。Readiness、实施、独立正确性复核与最终优化验证已完成；可提交验收快照待协调者保存，证据由 tasks 跟踪。
 
 ## Context
 
-- [文件范围决策](../../docs/decisions/unify-file-selection-with-default-excludes.md)拥有目标契约；
-  [公开指南](../../docs/guides/collecting-project-files.md)与[内部 owner](../../docs/development/project-files.md)仍描述当前实现。
+- [文件范围决策](../../docs/decisions/unify-file-selection-with-default-excludes.md)拥有长期方向；
+  [公开指南](../../docs/guides/collecting-project-files.md)与[内部 owner](../../docs/development/project-files.md)拥有本次迁移后的当前契约和机制。
 - [后端选型](../../docs/investigations/compare-node-file-collection-backends.md)提出 fast-glob 候选；
   [职责调查](../../docs/investigations/fast-glob-git-collection-boundaries.md)证明最终过滤前仍会访问被排除子树。
-  调查保存形成时认识，库目前仅完成固定版本源码审查。
+  两份调查保存形成时认识，本轮实际接入、迁移和修正证据由[Readiness 报告](../../docs/investigations/project-file-collection-readiness.md)承接。
 - [按需收集](../../docs/decisions/retain-on-demand-project-file-collection.md)约束调用与 Check 内共享；
   [0.0.x 策略](../../docs/decisions/keep-prestable-package-releases-on-0-0-x.md)要求完整迁移而非兼容期。
 - 包验收遵守[最低宿主](../../docs/decisions/treat-node-engine-as-a-minimum-version.md) Node >=24.18；
@@ -47,12 +47,12 @@ selection 为 `{ patterns, useDefaultExcludes?: boolean }`，完整校验与失�
 
 #### 后端与剪枝
 
-| 职责 | 接入候选与要求 |
+| 职责 | 本次接入与边界 |
 | --- | --- |
-| 同步枚举 | 优先验证 fast-glob 3.3.3 加薄适配，核对 task base、静态正 pattern、root/base symlink 与 ENOENT 顺序。 |
-| 纯匹配 | 显式 micromatch 作为候选；collection、Core、Run 与调试整体消费同一完整正/负列表语义及匹配参数。 |
+| 同步枚举 | fast-glob 3.3.3 加薄适配，覆盖 task base、静态正 pattern、root/base symlink 与 ENOENT 顺序。 |
+| 纯匹配 | micromatch 4.0.8 整体解释完整正/负列表；collection 与 Run 共用参数，后续 Core/debug 须继承此边界。 |
 
-后端和版本由实际接入证据核定。剪枝根据本次共享候选的全部 selections 及各自开关决定：
+[接入报告](../../docs/investigations/project-file-collection-readiness.md)核定 fast-glob 3.3.3 仅枚举正候选 superset，micromatch 4.0.8 整体解释完整列表。共同参数与安全剪枝范围见该报告；不得把 fast-glob 的负规则优先算法代替原生 micromatch 列表语义。剪枝根据本次共享候选的全部 selections 及各自开关决定：
 只有全部无需求才跳过，无法证明时继续访问。task base、静态正 pattern 与子目录入口均须遵守；
 某 selection 关闭默认排除且需要目录时，其它 selection 的默认排除不能全局剪掉它。
 最终每份选择仍使用完整 matcher 和自己的默认排除状态。
@@ -103,22 +103,8 @@ selection 为 `{ patterns, useDefaultExcludes?: boolean }`，完整校验与失�
 无已知待用户决定项。库/版本、普通校验和适配路径由下述 Readiness 调查核定；
 不能满足已确认公开契约时，不把后端默认行为当作产品例外。
 
-## Readiness Investigation
+## Readiness 与交付交接
 
-下一步是 `tasks.md` 的 0.3，按 investigation-report 创建并发布接入可行性报告。
-既有两份后端调查是背景，不能替代这次接入证据：
+[接入报告](../../docs/investigations/project-file-collection-readiness.md)已闭合最低 Node/Bun 探针、迁移与共享 Git helper 清单、共同参数和同 filesystem 成本方法，支持薄适配进入完整迁移。随后独立审查发现的 `./` 候选拼写与有损 byte 身份问题已修复并通过复核；两宿主的单次 byte readdir 与 Bun lazy lstat bridge 属于必要身份边界，不以有损 string 读取降低成本。
 
-- **问题与输入**：在最低 Node 宿主及记录实际版本的 Bun 上，用候选固定版本和薄适配探针验证
-  task base、静态正 pattern、root/base symlink、ENOENT、root 校验及必要读取失败；
-  验证原生完整正/负列表、dot/brace/extglob、默认排除不可绕过及混合开关共享剪枝。
-- **产物**：报告保存实际版本/方法/样本/观察、后端与 matcher 选择及剩余未知；
-  给出全部 types/validators/defaults/constructors/Check/Gate/Run/公开材料迁移清单、共享 Git helper owner 清单、
-  固定默认数组基线、精确共同匹配参数，以及同一 filesystem 的宽/窄/混合 workload 和成本验收方法。
-  按报告同步本 design 与 tasks，不预先宣称访问或性能收益。
-- **成功处理**：薄适配可满足全部契约且迁移/验证入口闭合后，勾选相应 Readiness，进入完整迁移。
-  共同 matcher 与 collection/Run 一次迁移，不留下旧 matcher 兼容供 Core 或 debug 选择。
-- **失败处理**：记录失败路径与证据，选择满足同一契约的其它后端并重验；
-  若必须重建递归引擎、改变公开语义或显著扩大复杂度/成本，保留实施门禁并报告阻断/请求决定。
-
-本 Change 不以 Core 或 debug 为前置；共享 owner 串行实施。只有完成迁移、跨消费者验收并形成稳定提交，
-才向 Core 和 debug 提供已验收基线。
+稳定规则归[公开指南](../../docs/guides/collecting-project-files.md)和[内部 owner](../../docs/development/project-files.md)，形成时证据归报告，最终验证状态归 tasks。本 Change 不实现 Core/debug，也不将两条 Decision 标为完整对齐。完成迁移和最终验收后，由协调者保存稳定提交；Core/debug 实施基线须实际继承该提交，未提交工作树或 Readiness 通过不解除依赖。

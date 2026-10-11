@@ -17,11 +17,11 @@ describe("functionMetrics area findings", () => {
       const check = functionMetrics({
         codeAreas: {
           broad: {
-            files: { exclude: [], include: ["src/a.ts", "docs/**"], source: "filesystem" },
+            files: { patterns: ["src/a.ts", "docs/**"] },
             findingPolicy: "blocking"
           },
           overlap: {
-            files: { exclude: [], include: ["docs/guide.md"], source: "filesystem" },
+            files: { patterns: ["docs/guide.md"] },
             findingPolicy: "blocking"
           }
         }
@@ -72,7 +72,7 @@ describe("functionMetrics area findings", () => {
       const check = functionMetrics({
         codeAreas: {
           docs: {
-            files: { exclude: [], include: ["docs/**"], source: "filesystem" },
+            files: { patterns: ["docs/**"] },
             findingPolicy: "blocking"
           }
         }

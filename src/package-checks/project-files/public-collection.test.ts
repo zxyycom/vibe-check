@@ -12,8 +12,7 @@ describe("public project file collection", () => {
     const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-public-collection-"));
     const selection = {
       ...defaultProjectFileSelection,
-      exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
-      include: ["src/**/*.ts"]
+      patterns: ["src/**/*.ts", "!**/fixtures/**"]
     } as const;
 
     try {
@@ -45,7 +44,7 @@ describe("public project file collection", () => {
       writeFixtureFile(projectRoot, "src/value.ts", "export const value = true;\n");
       const selected = collectProjectFiles({
         projectRoot,
-        selection: { exclude: [], include: ["docs/**/*.md"], source: "filesystem" }
+        selection: { patterns: ["docs/**/*.md"] }
       });
 
       assert.deepEqual(selected, []);
@@ -60,41 +59,41 @@ describe("public project file collection", () => {
     let rootGetterCalled = false;
     let selectionGetterCalled = false;
     let arrayGetterCalled = false;
-    const selectionWithInvalidSource = validSelection();
+    const selectionWithInvalidSwitch = validSelection();
     const selectionWithExtraKey = validSelection();
-    const selectionWithoutInclude = validSelection();
-    const selectionWithNonStringInclude = validSelection();
-    const selectionWithSparseInclude = validSelection();
+    const selectionWithoutPatterns = validSelection();
+    const selectionWithNonStringPatterns = validSelection();
+    const selectionWithSparsePatterns = validSelection();
     const selectionWithGetter = validSelection();
     const selectionWithAccessorArray = validSelection();
     const missingRoot = { projectRoot, selection: validSelection() };
     const missingSelection = { projectRoot, selection: validSelection() };
     const optionsWithExtraKey = { projectRoot, selection: validSelection() };
     const optionsWithGetter = { projectRoot, selection: validSelection() };
-    const accessorInclude = ["**/*"];
+    const accessorPatterns = ["**/*"];
 
-    Reflect.set(selectionWithInvalidSource, "source", "other");
+    Reflect.set(selectionWithInvalidSwitch, "useDefaultExcludes", "other");
     Reflect.set(selectionWithExtraKey, "extra", true);
-    Reflect.deleteProperty(selectionWithoutInclude, "include");
-    Reflect.set(selectionWithNonStringInclude, "include", [0]);
-    Reflect.set(selectionWithSparseInclude, "include", new Array(1));
-    Reflect.deleteProperty(selectionWithGetter, "include");
-    Object.defineProperty(selectionWithGetter, "include", {
+    Reflect.deleteProperty(selectionWithoutPatterns, "patterns");
+    Reflect.set(selectionWithNonStringPatterns, "patterns", [0]);
+    Reflect.set(selectionWithSparsePatterns, "patterns", new Array(1));
+    Reflect.deleteProperty(selectionWithGetter, "patterns");
+    Object.defineProperty(selectionWithGetter, "patterns", {
       enumerable: true,
       get(): string[] {
         selectionGetterCalled = true;
         return ["**/*"];
       }
     });
-    Reflect.deleteProperty(accessorInclude, "0");
-    Object.defineProperty(accessorInclude, "0", {
+    Reflect.deleteProperty(accessorPatterns, "0");
+    Object.defineProperty(accessorPatterns, "0", {
       enumerable: true,
       get(): string {
         arrayGetterCalled = true;
         return "**/*";
       }
     });
-    Reflect.set(selectionWithAccessorArray, "include", accessorInclude);
+    Reflect.set(selectionWithAccessorArray, "patterns", accessorPatterns);
     Reflect.deleteProperty(missingRoot, "projectRoot");
     Reflect.deleteProperty(missingSelection, "selection");
     Reflect.set(optionsWithExtraKey, "extra", true);
@@ -113,11 +112,11 @@ describe("public project file collection", () => {
         missingSelection,
         { projectRoot: "", selection: validSelection() },
         { projectRoot: "\0", selection: validSelection() },
-        { projectRoot, selection: selectionWithInvalidSource },
+        { projectRoot, selection: selectionWithInvalidSwitch },
         { projectRoot, selection: selectionWithExtraKey },
-        { projectRoot, selection: selectionWithoutInclude },
-        { projectRoot, selection: selectionWithNonStringInclude },
-        { projectRoot, selection: selectionWithSparseInclude },
+        { projectRoot, selection: selectionWithoutPatterns },
+        { projectRoot, selection: selectionWithNonStringPatterns },
+        { projectRoot, selection: selectionWithSparsePatterns },
         { projectRoot, selection: selectionWithGetter },
         { projectRoot, selection: selectionWithAccessorArray },
         optionsWithExtraKey,
@@ -133,21 +132,40 @@ describe("public project file collection", () => {
     }
   });
 
-  it("keeps selected source failures distinct from invalid invocation", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-public-collection-source-"));
-
+  it("keeps required filesystem failures distinct from invalid invocation", () => {
+    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-public-collection-failure-"));
     try {
+      for (const patterns of [[], ["**/*"]])
+        assert.throws(
+          () =>
+            collectProjectFiles({
+              projectRoot: join(projectRoot, "missing"),
+              selection: { patterns }
+            }),
+          (error: unknown) =>
+            error instanceof Error &&
+            !(error instanceof TypeError) &&
+            error.message.includes("missing")
+        );
       assert.throws(
-        () =>
-          collectProjectFiles({
-            projectRoot,
-            selection: { exclude: [], include: ["**/*"], source: "git-worktree" }
-          }),
-        (error: unknown) =>
-          error instanceof Error &&
-          !(error instanceof TypeError) &&
-          /could not enumerate git-worktree files/u.test(error.message)
+        () => collectProjectFiles({ projectRoot, selection: { patterns: [""] } }),
+        TypeError
       );
+      for (const key of ["source", "include", "exclude"]) {
+        const selection = { patterns: ["**/*"], [key]: key === "source" ? "filesystem" : [] };
+        assert.throws(() => collectProjectFiles({ projectRoot, selection }), TypeError);
+      }
+      for (const useDefaultExcludes of [undefined, null, 0, "false"])
+        assert.throws(
+          () =>
+            Reflect.apply(collectProjectFiles, undefined, [
+              {
+                projectRoot,
+                selection: { patterns: [], useDefaultExcludes }
+              }
+            ]),
+          TypeError
+        );
     } finally {
       rmSync(projectRoot, { force: true, recursive: true });
     }
@@ -155,7 +173,7 @@ describe("public project file collection", () => {
 });
 
 function validSelection(): CollectProjectFilesOptions["selection"] {
-  return { exclude: [], include: ["**/*"], source: "filesystem" };
+  return { patterns: ["**/*"] };
 }
 
 function writeFixtureFile(rootDir: string, relativePath: string, content: string): void {

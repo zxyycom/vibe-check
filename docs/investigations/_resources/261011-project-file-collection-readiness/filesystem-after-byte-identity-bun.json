@@ -1,0 +1,372 @@
+{
+  "mode": "after",
+  "node": "v24.3.0",
+  "bun": "1.3.14",
+  "platform": "linux",
+  "files": 7200,
+  "cache": "one initial trial then ten warm filesystem trials; no forced GC",
+  "rows": [
+    {
+      "name": "wide",
+      "warmMedianMs": 48.47276199999999,
+      "warmMaxMs": 66.44948499999998,
+      "trials": [
+        {
+          "ms": 85.34802200000001,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 7282161,
+          "rssBytes": 106934272
+        },
+        {
+          "ms": 66.44948499999998,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 12285802,
+          "rssBytes": 114802688
+        },
+        {
+          "ms": 48.47276199999999,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 16016493,
+          "rssBytes": 120832000
+        },
+        {
+          "ms": 45.21683500000006,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 19775083,
+          "rssBytes": 125419520
+        },
+        {
+          "ms": 49.15191600000003,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 27586969,
+          "rssBytes": 131559424
+        },
+        {
+          "ms": 44.53074800000002,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 32416703,
+          "rssBytes": 136015872
+        },
+        {
+          "ms": 46.29670299999998,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 37547519,
+          "rssBytes": 139677696
+        },
+        {
+          "ms": 48.68127700000002,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 42014853,
+          "rssBytes": 145051648
+        },
+        {
+          "ms": 47.270012000000065,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 45756130,
+          "rssBytes": 147435520
+        },
+        {
+          "ms": 47.18628100000001,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 49567239,
+          "rssBytes": 152416256
+        },
+        {
+          "ms": 52.51039600000013,
+          "reads": 124,
+          "stats": 3724,
+          "counts": {
+            "all": 3600
+          },
+          "heapBytes": 57789194,
+          "rssBytes": 158617600
+        }
+      ]
+    },
+    {
+      "name": "narrow",
+      "warmMedianMs": 28.847425000000158,
+      "warmMaxMs": 30.126426000000038,
+      "trials": [
+        {
+          "ms": 28.188983000000007,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 57789194,
+          "rssBytes": 161501184
+        },
+        {
+          "ms": 28.36380299999996,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 57789194,
+          "rssBytes": 163074048
+        },
+        {
+          "ms": 28.437030999999934,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 7501685,
+          "rssBytes": 160059392
+        },
+        {
+          "ms": 29.08061399999997,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 11566787,
+          "rssBytes": 160059392
+        },
+        {
+          "ms": 27.85517200000004,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 15502962,
+          "rssBytes": 160059392
+        },
+        {
+          "ms": 29.632429999999886,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 19366365,
+          "rssBytes": 160321536
+        },
+        {
+          "ms": 29.93722300000013,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 23243125,
+          "rssBytes": 157601792
+        },
+        {
+          "ms": 30.126426000000038,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 27128725,
+          "rssBytes": 158912512
+        },
+        {
+          "ms": 28.847425000000158,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 30525215,
+          "rssBytes": 159174656
+        },
+        {
+          "ms": 28.50759600000015,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 33922184,
+          "rssBytes": 159092736
+        },
+        {
+          "ms": 25.848960000000034,
+          "reads": 82,
+          "stats": 2482,
+          "counts": {
+            "source": 2400
+          },
+          "heapBytes": 33922184,
+          "rssBytes": 159879168
+        }
+      ]
+    },
+    {
+      "name": "mixed",
+      "warmMedianMs": 37.28629599999999,
+      "warmMaxMs": 52.305914999999914,
+      "trials": [
+        {
+          "ms": 38.95693000000006,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 39181531,
+          "rssBytes": 160141312
+        },
+        {
+          "ms": 38.23699199999987,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 43348275,
+          "rssBytes": 157003776
+        },
+        {
+          "ms": 35.88728900000001,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 47527479,
+          "rssBytes": 157659136
+        },
+        {
+          "ms": 36.53338699999995,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 51526841,
+          "rssBytes": 161067008
+        },
+        {
+          "ms": 36.54489999999987,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 55666548,
+          "rssBytes": 163295232
+        },
+        {
+          "ms": 41.257307999999966,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 55666548,
+          "rssBytes": 164605952
+        },
+        {
+          "ms": 37.28629599999999,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 9266448,
+          "rssBytes": 156459008
+        },
+        {
+          "ms": 52.305914999999914,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 15444256,
+          "rssBytes": 157900800
+        },
+        {
+          "ms": 36.62244899999996,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 19629109,
+          "rssBytes": 158425088
+        },
+        {
+          "ms": 36.37771499999985,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 23595898,
+          "rssBytes": 158814208
+        },
+        {
+          "ms": 39.66340600000012,
+          "reads": 103,
+          "stats": 3103,
+          "counts": {
+            "docs": 600,
+            "source": 2400
+          },
+          "heapBytes": 26352387,
+          "rssBytes": 159338496
+        }
+      ]
+    }
+  ]
+}

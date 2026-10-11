@@ -1,0 +1,236 @@
+{
+  "node": "v24.18.0",
+  "bun": null,
+  "records": [
+    {
+      "name": "dot-brace-extglob",
+      "result": [
+        [
+          "src/.dot.ts",
+          "src/a.ts"
+        ]
+      ],
+      "reads": [
+        "",
+        "src"
+      ],
+      "inspections": [
+        "",
+        "src"
+      ]
+    },
+    {
+      "name": "native-reinclude",
+      "result": [
+        [
+          "src/.dot.ts",
+          "src/a.ts"
+        ]
+      ],
+      "reads": [
+        "",
+        "src"
+      ],
+      "inspections": [
+        "",
+        "src",
+        "src/a.ts"
+      ]
+    },
+    {
+      "name": "excluded-task-base",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        ""
+      ]
+    },
+    {
+      "name": "excluded-static",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        ""
+      ]
+    },
+    {
+      "name": "default-task-base",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        ""
+      ]
+    },
+    {
+      "name": "default-static",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        ""
+      ]
+    },
+    {
+      "name": "mixed-switch-shared",
+      "result": [
+        [],
+        [
+          "node_modules/a.ts"
+        ]
+      ],
+      "reads": [
+        "",
+        "node_modules"
+      ],
+      "inspections": [
+        "",
+        "node_modules"
+      ]
+    },
+    {
+      "name": "directory-link-base",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        "",
+        "link-dir"
+      ]
+    },
+    {
+      "name": "directory-link-static",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        "",
+        "link-dir"
+      ]
+    },
+    {
+      "name": "file-link-static",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        "",
+        "link-file.ts",
+        "broken.ts"
+      ]
+    },
+    {
+      "name": "root-link",
+      "error": "project root is not a real directory: /tmp/collection-readiness-opW96t/link-root",
+      "reads": [],
+      "inspections": [
+        "../link-root"
+      ]
+    },
+    {
+      "name": "root-missing-empty",
+      "error": "could not inspect /tmp/collection-readiness-opW96t/missing: ENOENT: no such file or directory, lstat '/tmp/collection-readiness-opW96t/missing'",
+      "reads": [],
+      "inspections": [
+        "../missing"
+      ]
+    },
+    {
+      "name": "required-read-failure",
+      "error": "could not read directory /tmp/collection-readiness-opW96t/root/blocked: injected required read failure",
+      "reads": [
+        "",
+        "blocked"
+      ],
+      "inspections": [
+        "",
+        "blocked"
+      ]
+    },
+    {
+      "name": "required-ENOENT",
+      "error": "could not inspect /tmp/collection-readiness-opW96t/root/blocked: injected inspection failure",
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        "",
+        "blocked"
+      ]
+    },
+    {
+      "name": "required-root-read-empty",
+      "error": "could not read directory /tmp/collection-readiness-opW96t/root: injected required read failure",
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        ""
+      ]
+    },
+    {
+      "name": "physical-EACCES-required",
+      "error": "could not read directory /tmp/collection-readiness-opW96t/root/blocked: EACCES: permission denied, scandir '/tmp/collection-readiness-opW96t/root/blocked'",
+      "reads": [
+        "",
+        "blocked"
+      ],
+      "inspections": [
+        "",
+        "blocked"
+      ]
+    },
+    {
+      "name": "physical-EACCES-outside",
+      "result": [
+        [
+          "src/.dot.ts",
+          "src/a.ts"
+        ]
+      ],
+      "reads": [
+        "",
+        "src"
+      ],
+      "inspections": [
+        "",
+        "src"
+      ]
+    },
+    {
+      "name": "physical-EACCES-excluded",
+      "result": [
+        []
+      ],
+      "reads": [
+        ""
+      ],
+      "inspections": [
+        ""
+      ]
+    }
+  ]
+}

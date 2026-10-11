@@ -9,9 +9,7 @@ import { executeFunctionMetrics } from "./execution.ts";
 import { createRoot, execute, type ReportedRecord } from "./constructor.test-support.ts";
 
 const SOURCE_FILES = {
-  exclude: [],
-  include: ["src/a.ts"],
-  source: "filesystem"
+  patterns: ["src/a.ts"]
 } as const;
 const PARAMETER_IDENTITY = {
   functionName: "a",
@@ -182,7 +180,7 @@ async function assertFunctionUnusedWaiverAudit(): Promise<void> {
   try {
     const check = functionMetrics({
       codeAreas: {
-        missing: { files: { exclude: [], include: ["missing/**/*.ts"], source: "filesystem" } }
+        missing: { files: { patterns: ["missing/**/*.ts"] } }
       },
       findingWaivers: [{ identity: PARAMETER_IDENTITY, reason: "Stale function policy." }]
     });

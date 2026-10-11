@@ -20,7 +20,7 @@ const documentationLint = markdownLint({
   checkId: "documentation-lint",
   displayName: "Documentation lint",
   omitQuietPassedRow: true,
-  files: { include: ["docs/**/*.md"] }
+  files: { patterns: ["docs/**/*.md"] }
 });
 ```
 

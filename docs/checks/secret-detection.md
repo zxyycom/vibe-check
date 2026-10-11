@@ -17,7 +17,7 @@
 const deploymentSecrets = secretDetection({
   checkId: "deployment-secrets",
   enabledByFlags: { when: "deployment-changed" },
-  files: { source: "filesystem", include: ["deploy/**/*"], exclude: [] }
+  files: { patterns: ["deploy/**/*"] }
 });
 ```
 
@@ -32,7 +32,7 @@ const deploymentSecrets = secretDetection({
 import { defineConfig, run, secretDetection } from "@zxyycom/vibe-check";
 
 const check = secretDetection({
-  files: { source: "filesystem", include: ["src/**/*"], exclude: ["**/generated/**"] }
+  files: { patterns: ["src/**/*", "!**/generated/**"] }
 });
 const result = await run(defineConfig({
   checks: [check],
@@ -51,11 +51,11 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 
 ## 参数与默认配置
 
-`files` 必填，且必须是完整 `{ source, include, exclude }` value；它是唯一的输入授权，不提供隐式全仓库 fallback。
+`files` 必填，且必须是完整 `{ patterns, useDefaultExcludes?: boolean }` value；它是唯一的输入授权，不提供隐式全仓库 fallback。
 
 ```ts
 {
-  files: { source: "filesystem", include: ["src/**/*", "config/**/*"], exclude: ["**/generated/**"] },
+  files: { patterns: ["src/**/*", "config/**/*", "!**/generated/**"] },
   maximumFileBytes: 1_048_576,
   maximumTotalBytes: 8_388_608,
   maximumFileCount: 2_048,
@@ -64,7 +64,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 ```
 
 代码块中的 `files` 是示例选择，其余为默认值。三个 limit 都是正安全整数，可收窄或显式提高。
-files grammar、source failure 与数组替换见[共享 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。
+files grammar、filesystem failure 与数组替换见[共享 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。
 options 不接受 arbitrary regex、command、baseline、detector allowlist 或 message suppression。
 
 ## 工作原理
@@ -110,7 +110,7 @@ unused/overmatched 附 warning。公开类型为 `SecretDetectionOptions`、`Res
 
 ```ts
 const check = secretDetection({
-  files: { source: "filesystem", include: ["src/**/*"], exclude: [] },
+  files: { patterns: ["src/**/*"] },
   findingWaivers: [
     {
       identity: {

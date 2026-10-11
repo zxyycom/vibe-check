@@ -18,9 +18,7 @@ import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import { NO_DEPENDENCIES } from "../check-execution.test-support.ts";
 
 const DEFAULT_FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*"]),
-  source: "filesystem" as const
+  patterns: [...Object.freeze(["**/*"])]
 });
 const DEFAULT_OPTIONS = Object.freeze({ maximumBytes: 1_048_576 });
 interface ObservedRecord {
@@ -89,15 +87,14 @@ describe("JSON validation default Check", () => {
 
       const defaultCheck = jsonValidation();
       assert.equal(defaultCheck.options.maximumBytes, 1_048_576);
-      assert.equal(defaultCheck.options.files.source, "filesystem");
-      assert.deepEqual(defaultCheck.options.files.include, ["**/*.json"]);
+      assert.equal(defaultCheck.options.files.useDefaultExcludes, true);
+      assert.deepEqual(defaultCheck.options.files.patterns, ["**/*.json"]);
       assert.deepEqual(
-        jsonValidation({ files: { include: ["config/**/*.json"] }, maximumBytes: 512 }).options,
+        jsonValidation({ files: { patterns: ["config/**/*.json"] }, maximumBytes: 512 }).options,
         {
           files: {
-            exclude: defaultCheck.options.files.exclude,
-            include: ["config/**/*.json"],
-            source: "filesystem"
+            patterns: ["config/**/*.json"],
+            useDefaultExcludes: true
           },
           maximumBytes: 512
         }
@@ -179,7 +176,7 @@ describe("JSON validation default Check", () => {
             code: "input-rejected",
             level: "warning",
             message:
-              "2 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude."
+              "2 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.patterns."
           }
         ]
       });
@@ -221,9 +218,10 @@ describe("JSON validation default Check", () => {
       writeFileSync(join(root, "generated", "invalid.json"), "{", "utf8");
       writeFileSync(join(root, "vendor", "invalid.json"), "{", "utf8");
       const files: ProjectFileSelection = Object.freeze({
-        exclude: Object.freeze(["**/vendor/**", "generated/**"]),
-        include: Object.freeze(["**/*"]),
-        source: "filesystem"
+        patterns: [
+          ...Object.freeze(["**/*"]),
+          ...Object.freeze(["**/vendor/**", "generated/**"]).map((pattern) => `!${pattern}`)
+        ]
       });
 
       assert.deepEqual(runJsonValidation({ fileConfiguration: files, root }), {
@@ -327,7 +325,7 @@ describe("JSON validation default Check", () => {
               code: "input-rejected",
               level: "warning",
               message:
-                "1 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude."
+                "1 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.patterns."
             }
           ]
         }
@@ -344,9 +342,7 @@ describe("JSON validation default Check", () => {
       assert.deepEqual(
         runJsonValidation({
           fileConfiguration: Object.freeze({
-            exclude: Object.freeze([]),
-            include: Object.freeze(["missing/**"]),
-            source: "filesystem"
+            patterns: [...Object.freeze(["missing/**"])]
           }),
           root
         }),
@@ -398,7 +394,7 @@ describe("JSON validation default Check", () => {
             code: "input-rejected",
             level: "warning",
             message:
-              "1 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude."
+              "1 selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.patterns."
           }
         ]
       });

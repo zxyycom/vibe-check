@@ -221,7 +221,7 @@ describe("functionMetrics resource admission", () => {
       const check = functionMetrics({
         codeAreas: {
           source: {
-            files: { exclude: [], include: ["src/input.ts"], source: "filesystem" }
+            files: { patterns: ["src/input.ts"] }
           }
         },
         findingWaivers: [

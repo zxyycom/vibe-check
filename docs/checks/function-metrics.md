@@ -18,7 +18,7 @@
 const generatedFunctionMetrics = functionMetrics({
   checkId: "generated-function-metrics",
   dependsOn: ["generate-sources"],
-  codeAreas: { generated: { files: { include: ["generated/**/*.ts"] } } }
+  codeAreas: { generated: { files: { patterns: ["generated/**/*.ts"], useDefaultExcludes: false } } }
 });
 ```
 
@@ -54,7 +54,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 
 `FunctionMetricsOptions` 接受 `codeAreas`、`findingPolicy` 与 `findingWaivers`；未知字段使 constructor 同步抛出 `TypeError`。
 
-无参调用建立冻结的 `project` area：`files` 使用 `defaultProjectFileSelection` 的 source/exclude，include 由内置 analyzer
+无参调用建立冻结的 `project` area：`files` 使用 `defaultProjectFileSelection` 的默认排除，patterns 由内置 analyzer
 支持的大小写不敏感 suffix 生成；finding policy 为 `non-blocking`，无 waiver。
 
 | `limits` 字段 | 默认值 |
@@ -75,9 +75,9 @@ source aggregate 最大 `64 MiB`。这两个上限不改变上述 metric limits�
 
 ### 区域与 finding policy
 
-显式 area map 非空，每个非空 ID 必须声明 `files`；其 grammar、source failure 与数组替换见
+显式 area map 非空，每个非空 ID 必须声明 `files`；其 grammar、filesystem failure 与数组替换见
 [共享的 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。area policy 省略时继承顶层值。
-路径按 source/include/exclude 收集后稳定去重，不重复分析或发布同一 metric Finding；重叠区域取最严格有效 limit，
+路径按 `patterns` 与默认排除收集后稳定去重，不重复分析或发布同一 metric Finding；重叠区域取最严格有效 limit，
 任一 matching area 为 `blocking` 时 Finding 就是 blocking。
 
 ```ts
@@ -87,7 +87,7 @@ const metrics = functionMetrics({
   findingPolicy: "non-blocking",
   codeAreas: {
     source: {
-      files: { include: ["src/**/*.ts"] },
+      files: { patterns: ["src/**/*.ts"] },
       findingPolicy: "blocking",
       limits: {
         cyclomaticComplexity: { maximum: 10 },
@@ -161,7 +161,7 @@ selected union 为空时为 `not-applicable / no-eligible-input`；非空但全 
 | reason code | 含义与恢复操作 |
 | --- | --- |
 | `invalid-options` | 完整 resolved options 被普通 object composition 破坏；重新通过 `functionMetrics(options)` 构造 Check。 |
-| `source-unavailable` | 无法形成 filesystem/git-worktree 候选快照或安全读取 source；检查 project root、权限和 selected files。 |
+| `source-unavailable` | 无法形成 filesystem 候选快照或安全读取 source；检查 project root、权限和 selected files。 |
 | `cancelled` | invocation signal 在可观察工作边界取消；检查调用方取消原因，必要时重试。 |
 | `resource-limit-exceeded` | 单文件超过 `8 MiB` 或 accepted aggregate 超过 `64 MiB`；缩小 selection 或减小 source input。 |
 | `analysis-failed` | 内置 analyzer 无法形成完整可信结果；检查选中的 source 并在修正后重试。 |

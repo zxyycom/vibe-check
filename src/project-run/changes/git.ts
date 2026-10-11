@@ -2,7 +2,7 @@ import { isAbsolute, relative, resolve, sep } from "node:path";
 
 import { execaSync } from "execa";
 
-import { matchesAnyConfigGlob } from "../../data-boundary/config-glob.ts";
+import { matchesConfigPatterns } from "../../data-boundary/config-glob.ts";
 import { isNormalizedProjectRelativePath } from "../../data-boundary/project-path.ts";
 import type { ProjectChanges } from "../../check/check.ts";
 import type { NormalizedProjectChangesConfiguration } from "../../project-definition/project-changes.ts";
@@ -192,7 +192,7 @@ function matchesRegion(
   path: string,
   region: NormalizedProjectChangesConfiguration["flags"][string]
 ): boolean {
-  return matchesAnyConfigGlob(path, region.include) && !matchesAnyConfigGlob(path, region.exclude);
+  return matchesConfigPatterns(path, region.patterns);
 }
 
 function combineFlags(...sets: readonly (readonly string[])[]): readonly string[] {

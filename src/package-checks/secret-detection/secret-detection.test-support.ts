@@ -15,9 +15,7 @@ import { executeSecretDetection, settleSecretDetectionFindings } from "./executi
 import type { ResolvedSecretDetectionOptions } from "./options.ts";
 
 export const EXPLICIT_FILES: ProjectFileSelection = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*"]),
-  source: "filesystem"
+  patterns: [...Object.freeze(["**/*"])]
 });
 export const CANARY = "MIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
 const CANARY_DIGEST = createHash("sha256").update(CANARY).digest("hex");

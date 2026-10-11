@@ -43,8 +43,7 @@ export const PROJECT_GATE_PRODUCT_TEST_REGIONS = Object.freeze({
   ]),
   // Source identity evidence scans all src/** for archived Change reads, not just the analyzer.
   "product-function-metrics-tests": {
-    include: [...productTestInputs, "licenses/lizard-1.24.0-provenance.json"],
-    exclude: []
+    patterns: [...productTestInputs, "licenses/lizard-1.24.0-provenance.json"]
   },
   "product-json-tests": productCheckTestRegion([
     "json-document",
@@ -62,9 +61,12 @@ export const PROJECT_GATE_PRODUCT_TEST_REGIONS = Object.freeze({
 
 function productCheckTestRegion(inputDirectories: readonly PrivateCheckDirectory[]) {
   return {
-    include: [...productTestInputs],
-    exclude: privateCheckDirectories
-      .filter((directory) => !inputDirectories.includes(directory))
-      .map((directory) => `src/package-checks/${directory}/**`)
+    patterns: [
+      ...[...productTestInputs],
+      ...privateCheckDirectories
+        .filter((directory) => !inputDirectories.includes(directory))
+        .map((directory) => `src/package-checks/${directory}/**`)
+        .map((pattern) => `!${pattern}`)
+    ]
   };
 }

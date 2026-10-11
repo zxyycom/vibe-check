@@ -53,6 +53,6 @@ function rejectedInputMessage(rejectedInputCount: number): CheckMessage {
   return Object.freeze({
     code: "input-rejected",
     level: "warning" as const,
-    message: `${rejectedInputCount} selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude.`
+    message: `${rejectedInputCount} selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.patterns.`
   });
 }

@@ -6,9 +6,9 @@
 
 - [API 机制](../../docs/api-mechanics.md#按文件变化选择-check)拥有 change regions 与 token；
   当前 `project.changes` evidence 只包含命中的实际变更路径。
-- [Core Change](../add-project-file-membership-queries/design.md)拥有多来源只读关系，
-  [收集 Change](../switch-project-file-collection-backend/design.md)按
-  [文件范围决策](../../docs/decisions/unify-file-selection-with-default-excludes.md)迁移纯磁盘范围，两项能力尚待交付。
+- [Core Change](../add-project-file-membership-queries/design.md)拥有尚未交付的多来源只读关系；
+  [收集指南](../../docs/guides/collecting-project-files.md)与[内部 owner](../../docs/development/project-files.md)拥有纯磁盘范围与共同 matcher。
+  收集的接入、修正与成本见[Readiness 报告](../../docs/investigations/project-file-collection-readiness.md)；实施须继承其最终验收后的稳定提交，不以当前工作树或报告通过代替该门禁。
 - [随包工具规则](../../docs/development/package-tools.md)、
   [effective flags 决策](../../docs/decisions/unify-project-change-flags-as-effective-flags.md)及
   [按需收集](../../docs/decisions/retain-on-demand-project-file-collection.md)约束依赖、token 与调用生命周期。

@@ -18,7 +18,7 @@
 const docsLinks = markdownLinkValidation({
   checkId: "documentation-links",
   observes: ["generate-docs"],
-  files: { include: ["docs/**/*.md"] }
+  files: { patterns: ["docs/**/*.md"] }
 });
 ```
 
@@ -55,9 +55,8 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 ```ts
 {
   files: {
-    source: "filesystem",
-    include: ["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"],
-    exclude: defaultProjectFileSelection.exclude
+    useDefaultExcludes: true,
+    patterns: ["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"]
   },
   findingPolicy: "non-blocking",
   requireExistingTargets: true,
@@ -76,7 +75,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 }
 ```
 
-无参调用物化上述完整 options，`exclude` 是公开 `defaultProjectFileSelection.exclude` 的独立副本。
+无参调用物化上述完整 options，默认启用固定排除。
 所有顶层字段及 `files`、`limits` 子字段都可省略。
 
 - `files` 遵循[共享 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。只有大小写不敏感的
@@ -103,8 +102,7 @@ import { defaultProjectFileSelection, markdownLinkValidation } from "@zxyycom/vi
 const documentationLinks = markdownLinkValidation({
   files: {
     ...defaultProjectFileSelection,
-    exclude: [...defaultProjectFileSelection.exclude, "docs/fixtures/**"],
-    include: ["docs/**/*.md", "docs/**/*.markdown"]
+    patterns: ["docs/**/*.md", "docs/**/*.markdown", "!docs/fixtures/**"]
   },
   rootExternalTargetMode: "ignore"
 });

@@ -12,8 +12,7 @@ export const PROJECT_CHANGES_TYPE_ACCEPTANCE_SOURCE = `import {
 const sourceChanges: ProjectChangesConfiguration = {
   flags: {
     source: {
-      exclude: ["src/generated/**"],
-      include: ["src/**"]
+      patterns: ["src/**", "!src/generated/**"]
     } satisfies ProjectChangeFlagRegion
   },
   source: { compareWith: "origin/main" } satisfies ProjectChangeSource

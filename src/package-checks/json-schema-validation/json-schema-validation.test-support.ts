@@ -12,9 +12,7 @@ import type { ProjectFileSelection } from "../project-files/configuration.ts";
 import { executeCheck, type ReportedCheckRecord } from "../check-execution.test-support.ts";
 
 export const DEFAULT_FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*"]),
-  source: "filesystem" as const
+  patterns: [...Object.freeze(["**/*"])]
 });
 
 interface RunInput {

@@ -11,8 +11,8 @@
   [function-metrics](../../src/package-checks/function-metrics/records.ts)和
   [duplicate-detection](../../src/package-checks/duplicate-detection/area-policy.ts)分别建立反向关系或 policy 索引。
 - [架构](../../docs/development/architecture.md#能力分层与扩展方式)拥有 Core 归属与依赖方向。
-  文件获取由[当前收集契约](../../docs/guides/collecting-project-files.md)及其后续迁移拥有；
-  本索引可先处理调用方提供的值数据，合入边界见[Change 协调](../../docs/governance/change-coordination.md#文件关系与-change-flag-调试)。
+  文件获取由[当前收集契约](../../docs/guides/collecting-project-files.md)拥有，完整 matcher 与宿主身份机制见[Project files](../../docs/development/project-files.md)。
+  本索引可先处理调用方提供的值数据；规则实施与验收须继承收集最终验收后的稳定提交，合入边界见[Change 协调](../../docs/governance/change-coordination.md#文件关系与-change-flag-调试)。
 
 ## Goals / Non-Goals
 
@@ -98,7 +98,7 @@
 - **产物**：报告给出可实现的签名/校验表、Core owner/私有存储选择、消费迁移清单和代表性重建 workload；
   同步本 design 的精确方案及 tasks，指定局部测试、支持宿主安装后验收与成本评估方法。
 - **成功处理**：约束闭合且能以简单合并/重建满足契约后，解除 API 实施门禁。
-  报告不声称实现已验证；规则实现及最终验收须继承收集 Change 已验收的完整 matcher 迁移提交。
+  报告不声称实现已验证；规则实现及最终验收须继承收集已验收的完整 matcher 迁移提交。
 - **失败处理**：记录不满足项及替代方案，保留未勾的实施门禁；若需要改变公开方向或显著增加复杂度，
   说明影响并请求决定，不靠弱化只读/来源筛选或隐藏成本问题推进。
 

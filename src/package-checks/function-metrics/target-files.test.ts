@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
 
-import { matchesAnyConfigGlob } from "../../data-boundary/config-glob.ts";
+import { matchesConfigPatterns } from "../../data-boundary/config-glob.ts";
 import { FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS } from "./analyzer-adapter.ts";
 import { FUNCTION_METRICS_SUPPORTED_FILE_GLOBS, isFunctionMetricsTarget } from "./target-files.ts";
 
@@ -30,13 +30,13 @@ describe("functionMetrics analyzer target files", () => {
     ]);
     assert.equal(FUNCTION_METRICS_SUPPORTED_FILE_GLOBS.length, 55);
     assert.equal(
-      matchesAnyConfigGlob("source/upper-case.CPP", FUNCTION_METRICS_SUPPORTED_FILE_GLOBS),
+      matchesConfigPatterns("source/upper-case.CPP", FUNCTION_METRICS_SUPPORTED_FILE_GLOBS),
       true
     );
     assert.equal(
-      matchesAnyConfigGlob("source/mixed.TsX", FUNCTION_METRICS_SUPPORTED_FILE_GLOBS),
+      matchesConfigPatterns("source/mixed.TsX", FUNCTION_METRICS_SUPPORTED_FILE_GLOBS),
       true
     );
-    assert.equal(matchesAnyConfigGlob("README.md", FUNCTION_METRICS_SUPPORTED_FILE_GLOBS), false);
+    assert.equal(matchesConfigPatterns("README.md", FUNCTION_METRICS_SUPPORTED_FILE_GLOBS), false);
   });
 });

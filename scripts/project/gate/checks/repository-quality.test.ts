@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { isAbsolute, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
-import { minimatch } from "minimatch";
+import micromatch from "micromatch";
 
 import { defineConfig, markdownLint, run as packageRun } from "@zxyycom/vibe-check";
 import {
@@ -69,20 +69,19 @@ describe("repository quality Checks", () => {
       "reference-links-images",
       "table-column-count"
     ]);
-    assert.deepEqual(markdownLintCheck.options.files.exclude, []);
-    assert.deepEqual(markdownLintCheck.options.files.include, ["docs/**/*.md", "changes/**/*.md"]);
-    assert.equal(markdownLintCheck.options.files.source, "filesystem");
+    assert.deepEqual(markdownLintCheck.options.files.patterns, ["docs/**/*.md", "changes/**/*.md"]);
+    assert.equal(markdownLintCheck.options.files.useDefaultExcludes, true);
     assert.deepEqual(
-      markdownLinkValidation.options.files.exclude,
-      duplicateDetection.options.codeAreas["product-source"]?.files.exclude.filter(
-        (path) => !path.startsWith(analyzerPathPrefix)
+      markdownLinkValidation.options.files.patterns.filter((pattern) => pattern.startsWith("!")),
+      duplicateDetection.options.codeAreas["product-source"]?.files.patterns.filter(
+        (path) => path.startsWith("!") && !path.startsWith("!" + analyzerPathPrefix)
       )
     );
-    assert.deepEqual(markdownLinkValidation.options.files.include, [
-      "docs/**/*.md",
-      "changes/**/*.md"
-    ]);
-    assert.equal(markdownLinkValidation.options.files.source, "filesystem");
+    assert.deepEqual(
+      markdownLinkValidation.options.files.patterns.filter((pattern) => !pattern.startsWith("!")),
+      ["docs/**/*.md", "changes/**/*.md"]
+    );
+    assert.equal(markdownLinkValidation.options.files.useDefaultExcludes, true);
     assert.deepEqual(markdownLinkValidation.options.limits, {
       maxMarkdownBytes: 1_048_576,
       maxOccurrences: 10_000,
@@ -133,7 +132,10 @@ describe("repository quality Checks", () => {
     );
     const schemasExamples = fileMetrics.options.codeAreas["schemas-examples"];
     assert.ok(schemasExamples !== undefined);
-    assert.deepEqual(schemasExamples.files.include, ["docs/schemas/**", "docs/examples/**"]);
+    assert.deepEqual(
+      schemasExamples.files.patterns.filter((pattern) => !pattern.startsWith("!")),
+      ["docs/schemas/**", "docs/examples/**"]
+    );
     assert.equal(
       selectsPath(schemasExamples.files, "docs/schemas/historical/v2/vibe-check-run.schema.json"),
       false
@@ -223,10 +225,10 @@ describe("repository quality Checks", () => {
       );
     }
     assert.deepEqual(
-      functionMetrics.options.codeAreas["product-source"].files.exclude.filter((path) =>
-        path.startsWith("src/**/")
+      functionMetrics.options.codeAreas["product-source"].files.patterns.filter((path) =>
+        path.startsWith("!src/**/")
       ),
-      ["src/**/*.test.ts", "src/**/*.test-support.ts"]
+      ["!src/**/*.test.ts", "!src/**/*.test-support.ts"]
     );
     for (const area of Object.values(fileMetrics.options.codeAreas)) {
       assert.deepEqual(area.codeLines, {
@@ -316,7 +318,7 @@ describe("repository quality Checks", () => {
     const emptyRoot = mkdtempSync(join(tmpdir(), "vibe-check-project-gate-markdown-empty-"));
     const missingRoot = join(emptyRoot, "missing-root");
     try {
-      const check = markdownLint({ files: { include: ["docs/**/*.md"] } });
+      const check = markdownLint({ files: { patterns: ["docs/**/*.md"] } });
       const definition = defineConfig({
         checks: [check],
         outputs: {
@@ -392,11 +394,11 @@ async function runRepositoryQualityFixture(projectRoot: string) {
         findingPolicy: "blocking"
       },
       markdownLinkValidation: {
-        files: { exclude: [], include: ["docs/**/*.md"], source: "filesystem" },
+        files: { patterns: ["docs/**/*.md"] },
         findingPolicy: "blocking"
       },
       markdownLint: {
-        files: { exclude: [], include: ["docs/**/*.md"], source: "filesystem" },
+        files: { patterns: ["docs/**/*.md"] },
         findingPolicy: "non-blocking",
         rules: ["no-missing-space-atx"]
       }
@@ -498,19 +500,14 @@ function qualityOutcomeStatuses(
 }
 
 const qualitySourceFiles = {
-  exclude: [],
-  include: ["src/**/*.ts"],
-  source: "filesystem" as const
+  patterns: ["src/**/*.ts"]
 };
 
 function selectsPath(
-  files: Readonly<{ readonly exclude: readonly string[]; readonly include: readonly string[] }>,
+  files: Readonly<{ readonly patterns: readonly string[] }>,
   path: string
 ): boolean {
-  return (
-    files.include.some((glob) => minimatch(path, glob, { dot: true })) &&
-    !files.exclude.some((glob) => minimatch(path, glob, { dot: true }))
-  );
+  return micromatch([path], [...files.patterns], { dot: true }).length > 0;
 }
 
 const analyzerPathPrefix = "src/package-checks/function-metrics/analyzer/";
@@ -535,10 +532,10 @@ const retainedProductTestPaths = [
 ] as const;
 
 function lizardPortQualityExclusions(
-  files:
-    | Readonly<{ readonly exclude: readonly string[]; readonly include: readonly string[] }>
-    | undefined
+  files: Readonly<{ readonly patterns: readonly string[] }> | undefined
 ): readonly string[] {
   assert.ok(files);
-  return files.exclude.filter((path) => path.startsWith(analyzerPathPrefix));
+  return files.patterns
+    .filter((path) => path.startsWith("!" + analyzerPathPrefix))
+    .map((path) => path.slice(1));
 }

@@ -4,7 +4,6 @@ import {
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
-  defaultProjectFileSelection,
   resolveProjectFileSelection,
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
@@ -19,9 +18,7 @@ const DEFAULT_LIMITS = Object.freeze({
   maxTargetReads: 1_000
 });
 const DEFAULT_FILES = Object.freeze({
-  exclude: defaultProjectFileSelection.exclude,
-  include: Object.freeze(["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"]),
-  source: defaultProjectFileSelection.source
+  patterns: Object.freeze(["**/*.[mM][dD]", "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"])
 });
 
 /** 将可省略 Markdown link policy 物化为完整、冻结的 execution options。 */

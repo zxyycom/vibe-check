@@ -15,8 +15,8 @@
 - 说明本次 root、patterns、默认排除生效值及实际列表，清楚界定报告范围。
 - 每次调用重新获取文件，同次查询和展示共享一个 Core 关系视图。
 
-实施继承已验收的[Core 索引](../add-project-file-membership-queries/proposal.md)与
-[文件收集](../switch-project-file-collection-backend/proposal.md)，具体报告与验收归 [Design](design.md)。
+实施基线须实际继承已验收的[Core 索引](../add-project-file-membership-queries/proposal.md)与
+[文件收集](../../docs/guides/collecting-project-files.md)稳定提交，具体报告与验收归 [Design](design.md)。
 
 ## Scope
 

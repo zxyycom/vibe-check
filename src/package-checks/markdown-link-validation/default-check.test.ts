@@ -24,7 +24,7 @@ describe("default Check direct callbacks", () => {
   it("materializes bounded Markdown Link defaults and rejects malformed resolved options", async () => {
     const defaultCheck = markdownLinkValidation();
     assert.equal(defaultCheck.options.findingPolicy, "non-blocking");
-    assert.deepEqual(defaultCheck.options.files.include, [
+    assert.deepEqual(defaultCheck.options.files.patterns, [
       "**/*.[mM][dD]",
       "**/*.[mM][aA][rR][kK][dD][oO][wW][nN]"
     ]);
@@ -33,16 +33,15 @@ describe("default Check direct callbacks", () => {
     assert.equal(Object.isFrozen(defaultCheck.options.cache), true);
     assert.deepEqual(
       markdownLinkValidation({
-        files: { include: ["docs/**/*.md"] },
+        files: { patterns: ["docs/**/*.md"] },
         limits: { maxTargetReads: 50 },
         rootExternalTargetMode: "ignore"
       }).options,
       {
         cache: { enabled: false },
         files: {
-          exclude: defaultCheck.options.files.exclude,
-          include: ["docs/**/*.md"],
-          source: "filesystem"
+          patterns: ["docs/**/*.md"],
+          useDefaultExcludes: true
         },
         findingPolicy: "non-blocking",
         limits: {
@@ -107,7 +106,7 @@ describe("default Check direct callbacks", () => {
       },
       {
         ...MARKDOWN_LINK_OPTIONS,
-        files: { excludeDirs: [], generatedFiles: [], include: ["**/*"] }
+        files: { excludeDirs: [], generatedFiles: [], patterns: ["**/*"] }
       },
       { ...MARKDOWN_LINK_OPTIONS, findingPolicy: "not-a-policy" },
       { ...MARKDOWN_LINK_OPTIONS, cache: { enabled: false, directory: cacheDirectory } },

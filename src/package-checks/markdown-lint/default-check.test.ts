@@ -144,7 +144,7 @@ describe("Markdown lint Check", () => {
           ...MARKDOWN_LINT_OPTIONS,
           files: Object.freeze({
             ...MARKDOWN_LINT_OPTIONS.files,
-            include: Object.freeze(["none/**/*.md"])
+            patterns: Object.freeze(["none/**/*.md"])
           })
         }),
         root
@@ -159,7 +159,7 @@ describe("Markdown lint Check", () => {
           ...MARKDOWN_LINT_OPTIONS,
           files: Object.freeze({
             ...MARKDOWN_LINT_OPTIONS.files,
-            include: Object.freeze(["docs/note.txt"])
+            patterns: Object.freeze(["docs/note.txt"])
           })
         }),
         root
@@ -207,7 +207,7 @@ describe("Markdown lint Check", () => {
         "utf8"
       );
       const options = markdownLint({
-        files: { include: ["docs/references.md"] },
+        files: { patterns: ["docs/references.md"] },
         rules: ["reference-links-images"]
       }).options;
       const result = await executeMarkdownLintCheck(executeMarkdownLint, options, root);

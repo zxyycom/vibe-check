@@ -41,7 +41,7 @@ describe("functionMetrics area findings", () => {
       const nonBlockingOptions = {
         codeAreas: {
           source: {
-            files: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" },
+            files: { patterns: ["src/**/*.ts"] },
             limits: STRICT_LIMITS
           }
         }
@@ -64,7 +64,7 @@ describe("functionMetrics area findings", () => {
         codeAreas: {
           source: nonBlockingOptions.codeAreas.source,
           overlap: {
-            files: { exclude: [], include: ["src/a.ts"], source: "filesystem" },
+            files: { patterns: ["src/a.ts"] },
             findingPolicy: "blocking",
             limits: RELAXED_LIMITS
           }
@@ -114,11 +114,11 @@ describe("functionMetrics area findings", () => {
           codeAreas: {
             source: {
               ...sourceArea,
-              files: { ...sourceArea.files, source: "git-worktree" }
+              files: { ...sourceArea.files }
             }
           }
         },
-        root
+        join(root, "missing")
       );
       assert.deepEqual(sourceUnavailable.result, {
         status: "unavailable",

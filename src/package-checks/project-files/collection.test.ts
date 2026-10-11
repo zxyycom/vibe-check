@@ -1,325 +1,257 @@
-import { strict as assert } from "node:assert";
-import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import assert from "node:assert/strict";
+import fs from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 import { describe, it } from "node:test";
 
-import { collectProjectFileSets, collectProjectFiles } from "./collection.ts";
+import { matchesConfigPatterns } from "../../data-boundary/config-glob.ts";
+import { collectProjectFiles, collectProjectFileSets } from "./collection.ts";
 import {
+  DEFAULT_PROJECT_FILE_EXCLUDES,
   defaultProjectFileSelection,
   snapshotDefaultProjectFileSelection
 } from "./configuration.ts";
-import type { ProjectFileSelection } from "./configuration.ts";
 
-describe("quality submodule input", () => {
-  it("includes initialized current submodule worktree files", { timeout: 20_000 }, () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-submodule-"));
-    const submoduleOrigin = join(tempDir, "submodule-origin");
-    const repository = join(tempDir, "repository");
-    const submodulePath = join(repository, "modules", "tool");
-    const committedPath = "modules/tool/src/committed.ts";
-    const untrackedPath = "modules/tool/src/untracked.ts";
-    const workingPath = "modules/tool/src/working.ts";
-    const selection = {
-      exclude: ["**/.git", "**/.git/**"],
-      include: ["modules/tool/**/*.ts"],
-      source: "git-worktree"
-    } satisfies ProjectFileSelection;
-
-    try {
-      initializeRepository(submoduleOrigin);
-      writeFixtureFile(submoduleOrigin, "src/committed.ts", "export const committed = 1;\n");
-      writeFixtureFile(submoduleOrigin, "src/working.ts", "export const working = 1;\n");
-      const baselineSubmoduleSha = commitAll(submoduleOrigin, "baseline");
-      writeFixtureFile(submoduleOrigin, "src/committed.ts", "export const committed = 2;\n");
-      const currentSubmoduleSha = commitAll(submoduleOrigin, "current");
-
-      initializeRepository(repository);
-      git(repository, [
-        "-c",
-        "protocol.file.allow=always",
-        "submodule",
-        "add",
-        submoduleOrigin,
-        "modules/tool"
-      ]);
-      git(submodulePath, ["checkout", "--detach", baselineSubmoduleSha]);
-      commitAll(repository, "baseline submodule");
-      git(submodulePath, ["checkout", "--detach", currentSubmoduleSha]);
-      commitAll(repository, "current submodule");
-      writeFixtureFile(submodulePath, "src/working.ts", "export const working = 2;\n");
-      writeFixtureFile(submodulePath, "src/untracked.ts", "export const untracked = true;\n");
-
-      assert.deepEqual(collectProjectFiles(repository, selection), [
-        committedPath,
-        untrackedPath,
-        workingPath
-      ]);
-      const broadSelection = { ...selection, include: ["**/*"] } as const;
-      assert.equal(collectProjectFiles(repository, broadSelection).includes("modules/tool"), false);
-    } finally {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-  });
-
-  it("does not re-enter parent from a replaced HEAD gitlink", { timeout: 5_000 }, () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-submodule-transition-"));
-    const submoduleOrigin = join(tempDir, "submodule-origin");
-    const repository = join(tempDir, "repository");
-    const submodulePath = join(repository, "modules", "tool");
-    const selection = {
-      exclude: ["**/.git", "**/.git/**"],
-      include: ["src/**/*.ts"],
-      source: "git-worktree"
-    } satisfies ProjectFileSelection;
-
-    try {
-      initializeRepository(submoduleOrigin);
-      writeFixtureFile(submoduleOrigin, "lib/submodule.ts", "export const submodule = true;\n");
-      commitAll(submoduleOrigin, "submodule");
-
-      initializeRepository(repository);
-      writeFixtureFile(repository, "src/kept.ts", "export const kept = true;\n");
-      git(repository, [
-        "-c",
-        "protocol.file.allow=always",
-        "submodule",
-        "add",
-        submoduleOrigin,
-        "modules/tool"
-      ]);
-      commitAll(repository, "submodule gitlink");
-
-      git(repository, ["rm", "--cached", "--force", "modules/tool"]);
-      rmSync(join(submodulePath, ".git"), { force: true });
-      writeFixtureFile(submodulePath, "lib/replaced.ts", "export const replaced = true;\n");
-      git(repository, ["add", "modules/tool"]);
-
-      assert.deepEqual(collectProjectFiles(repository, selection), ["src/kept.ts"]);
-    } finally {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-  });
-});
+function write(root: string, file: string): void {
+  fs.mkdirSync(dirname(join(root, file)), { recursive: true });
+  fs.writeFileSync(join(root, file), "content\n");
+}
 
 describe("quality input file collection", () => {
-  const gitSelection = {
-    exclude: ["**/.git", "**/.git/**", "**/generated/**", "**/vendor/**"],
-    include: ["src/**/*.ts"],
-    source: "git-worktree"
-  } satisfies ProjectFileSelection;
-
-  it("treats successful empty Git results as authoritative", () => {
-    const repository = mkdtempSync(join(tmpdir(), "vibe-check-quality-git-empty-"));
-
-    try {
-      initializeRepository(repository);
-      writeFixtureFile(repository, ".gitignore", "src/ignored.ts\n");
-      writeFixtureFile(repository, "src/ignored.ts", "export const ignored = true;\n");
-
-      assert.deepEqual(collectProjectFiles(repository, gitSelection), []);
-    } finally {
-      rmSync(repository, { recursive: true, force: true });
-    }
-  });
-
   it("enumerates the filesystem independently of Git ignore rules", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-filesystem-"));
-    const selection = { ...gitSelection, source: "filesystem" } as const;
-
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-git-"));
+    const originalPath = process.env.PATH;
     try {
-      writeFixtureFile(projectRoot, ".gitignore", "src/ignored.ts\n");
-      writeFixtureFile(projectRoot, "src/ignored.ts", "export const ignored = true;\n");
-      writeFixtureFile(projectRoot, "src/kept.ts", "export const kept = true;\n");
-      writeFixtureFile(
-        projectRoot,
-        "src/generated/excluded.ts",
-        "export const generated = true;\n"
-      );
-      writeFixtureFile(projectRoot, "src/vendor/excluded.ts", "export const vendor = true;\n");
-      writeFixtureFile(projectRoot, "docs/excluded.md", "# Not included\n");
-
-      assert.deepEqual(collectProjectFiles(projectRoot, selection), [
-        "src/ignored.ts",
-        "src/kept.ts"
-      ]);
-
-      assert.throws(
-        () => collectProjectFiles(join(projectRoot, "missing-root"), selection),
-        /could not read directory .*missing-root/u
-      );
+      write(root, ".gitignore");
+      fs.writeFileSync(join(root, ".gitignore"), "ignored.ts\nchild/\n");
+      write(root, "ignored.ts");
+      write(root, "child/.git/config");
+      write(root, "child/file.ts");
+      const expected = [".gitignore", "child/file.ts", "ignored.ts"];
+      assert.deepEqual(collectProjectFiles(root, { patterns: ["**/*"] }), expected);
+      assert.equal(spawnSync("git", ["init", "--quiet"], { cwd: root }).status, 0);
+      assert.deepEqual(collectProjectFiles(root, { patterns: ["**/*"] }), expected);
+      process.env.PATH = "";
+      assert.deepEqual(collectProjectFiles(root, { patterns: ["**/*"] }), expected);
     } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("fails closed when the selected Git source is unavailable", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-git-unavailable-"));
-
-    try {
-      writeFixtureFile(projectRoot, "src/kept.ts", "export const kept = true;\n");
-      assert.throws(
-        () => collectProjectFiles(projectRoot, gitSelection),
-        /could not enumerate git-worktree files/u
-      );
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("does not add exclusions outside the selected filesystem config", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-selected-config-"));
-    const selection = {
-      exclude: [],
-      include: ["vendor/**/*.ts"],
-      source: "filesystem"
-    } satisfies ProjectFileSelection;
-
-    try {
-      writeFixtureFile(projectRoot, "vendor/kept.ts", "export const kept = true;\n");
-      assert.deepEqual(collectProjectFiles(projectRoot, selection), ["vendor/kept.ts"]);
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
-    }
-  });
-
-  it("uses the same minimatch semantics for Git and filesystem candidates", () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "vibe-check-quality-glob-owner-"));
-    const repository = join(tempDir, "repository");
-    const filesystemRoot = join(tempDir, "filesystem");
-    const selection = {
-      exclude: ["**/.git", "**/.git/**"],
-      include: ["src/**/*.{ts,tsx}"],
-      source: "git-worktree"
-    } satisfies ProjectFileSelection;
-
-    try {
-      initializeRepository(repository);
-      for (const root of [repository, filesystemRoot]) {
-        writeFixtureFile(root, "src/component.tsx", "export const component = true;\n");
-        writeFixtureFile(root, "src/nested/module.ts", "export const module = true;\n");
-        writeFixtureFile(root, "src/ignored.js", "export const ignored = true;\n");
-        writeFixtureFile(root, "docs/outside.ts", "export const outside = true;\n");
-      }
-      commitAll(repository, "glob candidates");
-      writeFixtureFile(repository, "src/untracked.ts", "export const untracked = true;\n");
-      writeFixtureFile(filesystemRoot, "src/untracked.ts", "export const untracked = true;\n");
-
-      const expected = ["src/component.tsx", "src/nested/module.ts", "src/untracked.ts"];
-      assert.deepEqual(collectProjectFiles(repository, selection), expected);
-      assert.deepEqual(
-        collectProjectFiles(filesystemRoot, { ...selection, source: "filesystem" }),
-        expected
-      );
-    } finally {
-      rmSync(tempDir, { recursive: true, force: true });
-    }
-  });
-
-  it("resolves multiple filesystem sets from one named selection call", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-file-sets-"));
-
-    try {
-      writeFixtureFile(projectRoot, "src/product.ts", "export const product = true;\n");
-      writeFixtureFile(projectRoot, "scripts/tool.ts", "export const tool = true;\n");
-      const selected = collectProjectFileSets(projectRoot, {
-        product: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" },
-        tooling: { exclude: [], include: ["scripts/**/*.ts"], source: "filesystem" }
-      });
-
-      assert.deepEqual(selected.get("product"), ["src/product.ts"]);
-      assert.deepEqual(selected.get("tooling"), ["scripts/tool.ts"]);
-    } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
+      if (originalPath === undefined) delete process.env.PATH;
+      else process.env.PATH = originalPath;
+      fs.rmSync(root, { recursive: true, force: true });
     }
   });
 
   it("applies explicit default exclusions while retaining other dot files", () => {
-    const projectRoot = mkdtempSync(join(tmpdir(), "vibe-check-quality-default-files-"));
-
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-defaults-"));
     try {
-      writeFixtureFile(projectRoot, ".visible-config", "enabled=true\n");
-      writeFixtureFile(projectRoot, ".cache/state", "cached\n");
-      writeFixtureFile(projectRoot, ".git/config", "[core]\n");
-      writeFixtureFile(projectRoot, ".log/vibe-check/run.log", "diagnostic\n");
-      writeFixtureFile(projectRoot, ".pytest_cache/state", "cached\n");
-      writeFixtureFile(projectRoot, ".tmp/generated.ts", "export const temporary = true;\n");
-      writeFixtureFile(projectRoot, ".venv/module.py", "value = True\n");
-      writeFixtureFile(projectRoot, ".vibe-check/state", "generated\n");
-      writeFixtureFile(projectRoot, "__pycache__/module.pyc", "cached\n");
-      writeFixtureFile(projectRoot, "artifacts/report.json", "{}\n");
-      writeFixtureFile(projectRoot, "build/output.ts", "export const build = true;\n");
-      writeFixtureFile(projectRoot, "coverage/report.json", "{}\n");
-      writeFixtureFile(projectRoot, "dist/output.ts", "export const dist = true;\n");
-      writeFixtureFile(projectRoot, "generated/output.ts", "export const generated = true;\n");
-      writeFixtureFile(projectRoot, "node_modules/package/index.js", "module.exports = {};\n");
-      writeFixtureFile(projectRoot, "src/value.generated.ts", "export const generated = true;\n");
-      writeFixtureFile(projectRoot, "src/value.ts", "export const value = true;\n");
-      writeFixtureFile(projectRoot, "target/output.rs", "fn generated() {}\n");
-      writeFixtureFile(projectRoot, "tmp/generated.ts", "export const temporary = true;\n");
-      writeFixtureFile(projectRoot, "vendor/package/index.js", "module.exports = {};\n");
-      writeFixtureFile(projectRoot, "venv/module.py", "value = True\n");
-
-      assert.equal(Object.isFrozen(defaultProjectFileSelection), true);
-      assert.equal(Object.isFrozen(defaultProjectFileSelection.exclude), true);
-      assert.equal(Object.isFrozen(defaultProjectFileSelection.include), true);
+      for (const file of [
+        ".visible",
+        "src/a.ts",
+        "node_modules/a.ts",
+        "build/a.ts",
+        "nested/.git/config",
+        "src/a.generated.ts"
+      ])
+        write(root, file);
+      for (const useDefaultExcludes of [undefined, true]) {
+        assert.deepEqual(
+          collectProjectFiles(root, {
+            patterns: ["**/*", "!node_modules/**", "node_modules/a.ts"],
+            ...(useDefaultExcludes === undefined ? {} : { useDefaultExcludes })
+          }),
+          [".visible", "src/a.ts"]
+        );
+      }
+      assert.deepEqual(
+        collectProjectFiles(root, { patterns: ["**/*", "!build/**"], useDefaultExcludes: false }),
+        [".visible", "nested/.git/config", "node_modules/a.ts", "src/a.generated.ts", "src/a.ts"]
+      );
+      assert.equal(Object.isFrozen(DEFAULT_PROJECT_FILE_EXCLUDES), true);
+      assert.equal(Reflect.set(DEFAULT_PROJECT_FILE_EXCLUDES, 0, "**/*"), false);
       const snapshot = snapshotDefaultProjectFileSelection();
       assert.deepEqual(snapshot, defaultProjectFileSelection);
-      assert.notEqual(snapshot, defaultProjectFileSelection);
-      assert.notEqual(snapshot.exclude, defaultProjectFileSelection.exclude);
-      assert.notEqual(snapshot.include, defaultProjectFileSelection.include);
-      assert.deepEqual(collectProjectFiles(projectRoot, defaultProjectFileSelection), [
-        ".visible-config",
-        "src/value.ts"
-      ]);
+      assert.notEqual(snapshot.patterns, defaultProjectFileSelection.patterns);
     } finally {
-      rmSync(projectRoot, { recursive: true, force: true });
+      fs.rmSync(root, { recursive: true, force: true });
     }
   });
 
-  it("preserves NUL-delimited Git candidate paths containing newlines", () => {
-    const repository = mkdtempSync(join(tmpdir(), "vibe-check-quality-git-paths-"));
-    const newlinePath = "src/line\nbreak.ts";
-
+  it("shares necessary directory reads without conflating mixed selections", () => {
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-shared-"));
+    const originalRead = fs.readdirSync;
+    const reads: string[] = [];
     try {
-      initializeRepository(repository);
-      writeFixtureFile(repository, newlinePath, "export const newline = true;\n");
-      assert.deepEqual(collectProjectFiles(repository, gitSelection), [newlinePath]);
+      for (const file of ["src/a.ts", "src/b.tsx", "node_modules/a.ts"]) write(root, file);
+      Reflect.set(fs, "readdirSync", (target: fs.PathLike, options: { withFileTypes: true }) => {
+        reads.push(resolve(String(target)));
+        return originalRead(target, options);
+      });
+      const selected = collectProjectFileSets(root, {
+        source: { patterns: ["src/**/*.ts", "node_modules/**/*.ts"] },
+        overlap: { patterns: ["./src/a.ts", "./src/**/*.{ts,tsx}"] },
+        dependency: { patterns: ["node_modules/**/*.ts"], useDefaultExcludes: false },
+        empty: { patterns: [] }
+      });
+      assert.deepEqual(selected.get("source"), ["src/a.ts"]);
+      assert.deepEqual(selected.get("overlap"), ["src/a.ts", "src/b.tsx"]);
+      assert.deepEqual(selected.get("dependency"), ["node_modules/a.ts"]);
+      assert.deepEqual(selected.get("empty"), []);
+      assert.equal(new Set(reads).size, reads.length);
+      for (const files of selected.values()) assert.equal(Object.isFrozen(files), true);
     } finally {
-      rmSync(repository, { recursive: true, force: true });
+      Reflect.set(fs, "readdirSync", originalRead);
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("matches native complete lists consistently for collection and explicit paths", () => {
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-patterns-"));
+    const files = ["src/.dot.ts", "src/a.ts", "src/b.tsx", "docs/a.md", "src/line\nbreak.ts"];
+    try {
+      for (const file of files) write(root, file);
+      for (const patterns of [
+        ["src/**/*.{ts,tsx}", "!src/a.ts", "src/a.ts"],
+        ["src/**/@(a|b).@(ts|tsx)"],
+        ["!docs/**"],
+        ["**/*", "!src/**"],
+        ["**/*", "!src/**", "src/a.ts"],
+        ["!src/**", "!!src/**"],
+        ["!(docs)/**"],
+        ["./!(docs)/**"],
+        ["./src/*.ts"],
+        ["./src/a.ts"],
+        ["./src/*.ts", "!src/a.ts", "./src/a.ts"],
+        []
+      ]) {
+        const expected = files.filter((file) => matchesConfigPatterns(file, patterns)).sort();
+        assert.deepEqual(
+          collectProjectFiles(root, { patterns, useDefaultExcludes: false }),
+          expected
+        );
+      }
+      assert.deepEqual(
+        collectProjectFiles(root, { patterns: ["missing/**/*.ts", "missing.ts"] }),
+        []
+      );
+      write(root, "literal\\name.ts");
+      assert.deepEqual(collectProjectFiles(root, { patterns: ["src/**/*.ts"] }), [
+        "src/.dot.ts",
+        "src/a.ts",
+        "src/line\nbreak.ts"
+      ]);
+      assert.deepEqual(
+        collectProjectFiles(root, { patterns: ["**/*", "!literal*"] }),
+        files.filter((file) => matchesConfigPatterns(file, ["**/*", "!literal*"])).sort()
+      );
+      assert.throws(
+        () => collectProjectFiles(root, { patterns: ["**/*"] }),
+        (error: unknown) =>
+          error instanceof Error &&
+          !(error instanceof TypeError) &&
+          error.message.includes("literal\\name.ts")
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("prunes excluded task bases and static paths before inspection", () => {
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-prune-"));
+    const originalStat = fs.lstatSync,
+      originalRead = fs.readdirSync;
+    const accesses: string[] = [];
+    try {
+      for (const file of ["src/a.ts", "blocked/a.ts", "node_modules/a.ts"]) write(root, file);
+      Reflect.set(fs, "lstatSync", (target: fs.PathLike) => {
+        accesses.push(resolve(String(target)));
+        return originalStat(target);
+      });
+      Reflect.set(fs, "readdirSync", (target: fs.PathLike, options: { withFileTypes: true }) => {
+        accesses.push(resolve(String(target)));
+        return originalRead(target, options);
+      });
+      for (const patterns of [
+        ["blocked/**/*.ts", "!blocked/**"],
+        ["blocked/a.ts", "!blocked/**"],
+        ["node_modules/**/*.ts"],
+        ["node_modules/a.ts", "!node_modules/**", "node_modules/a.ts"]
+      ]) {
+        accesses.length = 0;
+        assert.deepEqual(
+          collectProjectFileSets(root, { selected: { patterns }, empty: { patterns: [] } }).get(
+            "selected"
+          ),
+          []
+        );
+        assert.deepEqual(
+          accesses.filter((target) => target !== root),
+          []
+        );
+      }
+    } finally {
+      Reflect.set(fs, "lstatSync", originalStat);
+      Reflect.set(fs, "readdirSync", originalRead);
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("distinguishes necessary access failures and disappearing directories from no-match", () => {
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-failure-"));
+    const originalRead = fs.readdirSync;
+    try {
+      write(root, "src/a.ts");
+      write(root, "blocked/a.ts");
+      fs.chmodSync(join(root, "blocked"), 0);
+      assert.deepEqual(collectProjectFiles(root, { patterns: ["src/**/*.ts"] }), ["src/a.ts"]);
+      assert.deepEqual(collectProjectFiles(root, { patterns: ["**/*", "!blocked/**"] }), [
+        "src/a.ts"
+      ]);
+      assert.throws(
+        () => collectProjectFiles(root, { patterns: ["blocked/**/*.ts"] }),
+        /could not read project directory .*blocked/u
+      );
+      fs.chmodSync(join(root, "blocked"), 0o755);
+      Reflect.set(fs, "readdirSync", (target: fs.PathLike, options: { withFileTypes: true }) => {
+        const entries = originalRead(target, options);
+        if (resolve(String(target)) === root) fs.rmSync(join(root, "blocked"), { recursive: true });
+        return entries;
+      });
+      assert.throws(
+        () => collectProjectFiles(root, { patterns: ["blocked/**/*.ts"] }),
+        /could not inspect project path .*blocked/u
+      );
+    } finally {
+      Reflect.set(fs, "readdirSync", originalRead);
+      if (fs.existsSync(join(root, "blocked"))) fs.chmodSync(join(root, "blocked"), 0o755);
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("does not follow root base file directory or broken symbolic links", () => {
+    const root = fs.mkdtempSync(join(tmpdir(), "collection-links-"));
+    try {
+      write(root, "src/a.ts");
+      fs.symlinkSync("src", join(root, "directory"));
+      fs.symlinkSync("src/a.ts", join(root, "file.ts"));
+      fs.symlinkSync("missing", join(root, "broken.ts"));
+      fs.symlinkSync(".", join(root, "root"));
+      for (const patterns of [
+        ["**/*.ts"],
+        ["directory/**/*.ts"],
+        ["directory/a.ts"],
+        ["file.ts", "broken.ts"]
+      ]) {
+        assert.deepEqual(
+          collectProjectFiles(root, { patterns }),
+          patterns[0] === "**/*.ts" ? ["src/a.ts"] : []
+        );
+      }
+      assert.throws(
+        () => collectProjectFiles(join(root, "root"), { patterns: [] }),
+        /not a real directory/u
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
     }
   });
 });
-
-function writeFixtureFile(rootDir: string, relPath: string, content: string): void {
-  const absPath = join(rootDir, relPath);
-  mkdirSync(dirname(absPath), { recursive: true });
-  writeFileSync(absPath, content, "utf8");
-}
-
-function initializeRepository(repository: string): void {
-  mkdirSync(repository, { recursive: true });
-  git(repository, ["init", "--quiet"]);
-  git(repository, ["config", "user.email", "quality-test@example.invalid"]);
-  git(repository, ["config", "user.name", "Quality Test"]);
-}
-
-function commitAll(repository: string, message: string): string {
-  git(repository, ["add", "."]);
-  git(repository, ["commit", "--quiet", "-m", message]);
-  return git(repository, ["rev-parse", "HEAD"]);
-}
-
-function git(repository: string, args: string[]): string {
-  const result = spawnSync("git", args, {
-    cwd: repository,
-    encoding: "utf8"
-  });
-  assert.equal(
-    result.status,
-    0,
-    `git ${args.join(" ")} failed\nstdout:\n${result.stdout}\nstderr:\n${result.stderr}`
-  );
-  return result.stdout.trim();
-}

@@ -20,7 +20,7 @@ describe("Markdown lint finding waivers", () => {
     try {
       mkdirSync(join(root, "docs"), { recursive: true });
       const options = markdownLint({
-        files: { ...MARKDOWN_LINT_OPTIONS.files, include: ["docs/*"] },
+        files: { ...MARKDOWN_LINT_OPTIONS.files, patterns: ["docs/*"] },
         findingPolicy: "blocking",
         findingWaivers: [WAIVER]
       }).options;

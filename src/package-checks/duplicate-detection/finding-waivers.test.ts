@@ -225,7 +225,7 @@ async function assertDuplicateUnusedWaiverAudit(): Promise<void> {
   try {
     const check = duplicateDetection({
       codeAreas: {
-        missing: { files: { exclude: [], include: ["missing/**/*.ts"], source: "filesystem" } }
+        missing: { files: { patterns: ["missing/**/*.ts"] } }
       },
       findingWaivers: [{ identity: DUPLICATE_IDENTITY, reason: "Stale duplicate policy." }]
     });

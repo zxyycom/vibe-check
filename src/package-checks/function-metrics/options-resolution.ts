@@ -1,7 +1,6 @@
 import { snapshotClosedPolicyRecord } from "../../data-boundary/closed-values.ts";
 import { isPositiveSafeInteger } from "../../data-boundary/value-shapes.ts";
 import {
-  defaultProjectFileSelection,
   resolveProjectFileSelection,
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
@@ -28,9 +27,7 @@ const DEFAULT_CYCLOMATIC_COMPLEXITY_MAXIMUM = 12;
 const DEFAULT_NESTING_DEPTH_MAXIMUM = 7;
 const DEFAULT_PARAMETER_MAXIMUM = 6;
 const DEFAULT_FILES = Object.freeze({
-  exclude: defaultProjectFileSelection.exclude,
-  include: FUNCTION_METRICS_SUPPORTED_FILE_GLOBS,
-  source: defaultProjectFileSelection.source
+  patterns: FUNCTION_METRICS_SUPPORTED_FILE_GLOBS
 });
 
 /** 校验 constructor input，并物化完整、冻结的 function-metrics options。 */

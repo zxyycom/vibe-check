@@ -184,7 +184,7 @@ describe("default Check direct callbacks", () => {
       );
       const sourceOnlyFiles = Object.freeze({
         ...MARKDOWN_FILES,
-        include: Object.freeze(["docs/source.md"])
+        patterns: Object.freeze(["docs/source.md"])
       });
 
       const result = await execute(

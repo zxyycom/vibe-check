@@ -9,7 +9,7 @@ const configuredReleaseInputFiles: readonly string[] = [];
 
 // 一个随包 Check：只验证 project root 的 package.json，并保留其它文件选择默认值。
 const packageManifest = jsonValidation({
-  files: { include: ["package.json"] }
+  files: { patterns: ["package.json"] }
 });
 
 // 一个 typed provider：preparation 用 fallback 准备 invocation-local options。

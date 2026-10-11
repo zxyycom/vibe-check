@@ -259,7 +259,7 @@ function appendRejected(
       Object.freeze({
         code: "input-rejected",
         level: "warning" as const,
-        message: `${rejectedInputCount} selected markdownLint input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude.`
+        message: `${rejectedInputCount} selected markdownLint input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.patterns.`
       })
     ])
   });

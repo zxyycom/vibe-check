@@ -70,24 +70,22 @@ const REQUIRED_CHANGE_FLAGS_BY_CHECK_ID: Readonly<Record<string, string>> = Obje
 /** Gate-owned regions used only by required selection; focused and --all force their members. */
 export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
   "admission-workbench-tests": {
-    include: ["scripts/project/admission-workbench/**", "src/**", "package.json", "pnpm-lock.yaml"],
-    exclude: []
+    patterns: ["scripts/project/admission-workbench/**", "src/**", "package.json", "pnpm-lock.yaml"]
   },
-  "any-change": { include: ["**/*", ".*", "**/.*", "**/.*/**"], exclude: [] },
-  "decision-input": { include: ["docs/decisions/**", "scripts/decision-records/**"], exclude: [] },
+  "any-change": { patterns: ["**/*", ".*", "**/.*", "**/.*/**"] },
+  "decision-input": { patterns: ["docs/decisions/**", "scripts/decision-records/**"] },
   "duplicate-input": {
-    include: [
+    patterns: [
       "src/**/*.ts",
       "scripts/**/*.ts",
       "docs/schemas/**",
       "docs/examples/**",
       "package.json",
       "pnpm-lock.yaml"
-    ],
-    exclude: []
+    ]
   },
   "file-metrics-input": {
-    include: [
+    patterns: [
       "src/**/*.ts",
       "scripts/**/*.ts",
       "docs/**/*.md",
@@ -95,12 +93,12 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "docs/schemas/**",
       "docs/examples/**",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: ["scripts/**/*.test.ts"]
+      "pnpm-lock.yaml",
+      "!scripts/**/*.test.ts"
+    ]
   },
   "format-input": {
-    include: [
+    patterns: [
       "src/**",
       "scripts/**",
       ".codex/config.toml",
@@ -110,11 +108,10 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "mise.toml",
       "pnpm-workspace.yaml",
       "vibe-check.code-workspace"
-    ],
-    exclude: []
+    ]
   },
   "package-tests": {
-    include: [
+    patterns: [
       "scripts/package/**",
       "scripts/docs/**",
       "src/**",
@@ -135,23 +132,21 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "pnpm-lock.yaml",
       "pnpm-workspace.yaml",
       "tsconfig*.json"
-    ],
-    exclude: []
+    ]
   },
   "product-source": {
-    include: [
+    patterns: [
       "src/**",
       "tsconfig.json",
       "tsconfig.product.json",
       "package.json",
       "pnpm-lock.yaml",
       ".oxlintrc.json"
-    ],
-    exclude: []
+    ]
   },
   ...PROJECT_GATE_PRODUCT_TEST_REGIONS,
   "project-tests": {
-    include: [
+    patterns: [
       "scripts/project/gate/**",
       "scripts/package/**",
       "scripts/development/**",
@@ -166,15 +161,13 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       ".oxfmtrc.json",
       "mise.toml",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: [
-      "scripts/project/gate/runtime/eligibility.test.ts",
-      "scripts/validation/repository-material/**/*.test.ts"
+      "pnpm-lock.yaml",
+      "!scripts/project/gate/runtime/eligibility.test.ts",
+      "!scripts/validation/repository-material/**/*.test.ts"
     ]
   },
   "project-selection-tests": {
-    include: [
+    patterns: [
       "scripts/project/gate/runtime/eligibility.ts",
       "scripts/project/gate/runtime/eligibility.test.ts",
       "scripts/project/gate/runtime/product-test-regions.ts",
@@ -195,16 +188,24 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "src/check/**",
       "src/data-boundary/**",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: ["src/**/*.test.ts", "src/**/*.test-support.ts"]
+      "pnpm-lock.yaml",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts"
+    ]
   },
   "function-input": {
-    include: ["src/**/*.ts", "scripts/**/*.ts", "package.json", "pnpm-lock.yaml"],
-    exclude: ["src/**/*.test.ts", "src/**/*.test-support.ts", "scripts/**/*.test.ts"]
+    patterns: [
+      "src/**/*.ts",
+      "scripts/**/*.ts",
+      "package.json",
+      "pnpm-lock.yaml",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts",
+      "!scripts/**/*.test.ts"
+    ]
   },
   "markdown-lint-input": {
-    include: [
+    patterns: [
       "docs/**/*.md",
       "changes/**/*.md",
       "src/package-checks/markdown-lint/**",
@@ -214,12 +215,13 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       ...sharedPackageCheckInputs,
       "scripts/project/gate/checks/repository-quality.ts",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: ["src/**/*.test.ts", "src/**/*.test-support.ts"]
+      "pnpm-lock.yaml",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts"
+    ]
   },
   "material-json-input": {
-    include: [
+    patterns: [
       "docs/**/*.json",
       "src/package-checks/json-validation/**",
       "src/package-checks/json-document/**",
@@ -227,12 +229,13 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/project/gate/definition.ts",
       "scripts/validation/repository-material/task-contract.ts",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: ["src/**/*.test.ts", "src/**/*.test-support.ts"]
+      "pnpm-lock.yaml",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts"
+    ]
   },
   "material-schema-input": {
-    include: [
+    patterns: [
       "docs/schemas/**",
       "docs/examples/json/*-report.json",
       "src/package-checks/json-schema-validation/**",
@@ -241,29 +244,28 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/project/gate/definition.ts",
       "scripts/validation/repository-material/task-contract.ts",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: ["src/**/*.test.ts", "src/**/*.test-support.ts"]
+      "pnpm-lock.yaml",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts"
+    ]
   },
   "material-schema-publication-input": {
-    include: [
+    patterns: [
       "docs/schemas/**",
       "src/machine-output/v4/schema*.ts",
       "scripts/docs/machine-artifacts/schemas.ts",
       "scripts/validation/repository-material/**",
       ...sharedMaterialProviderInputs,
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: [
-      "src/**/*.test.ts",
-      "src/**/*.test-support.ts",
-      "scripts/**/*.test.ts",
-      "scripts/**/*.test-support.ts"
+      "pnpm-lock.yaml",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts",
+      "!scripts/**/*.test.ts",
+      "!scripts/**/*.test-support.ts"
     ]
   },
   "material-examples-input": {
-    include: [
+    patterns: [
       "docs/examples/artifacts/**",
       "docs/schemas/**",
       "src/**",
@@ -271,49 +273,43 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/validation/repository-material/**",
       ...sharedMaterialProviderInputs,
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: [
-      "src/**/*.test.ts",
-      "src/**/*.test-support.ts",
-      "scripts/**/*.test.ts",
-      "scripts/**/*.test-support.ts"
+      "pnpm-lock.yaml",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts",
+      "!scripts/**/*.test.ts",
+      "!scripts/**/*.test-support.ts"
     ]
   },
   "script-source": {
-    include: [
+    patterns: [
       "scripts/**",
       "src/**",
       "tsconfig.json",
       "package.json",
       "pnpm-lock.yaml",
       ".oxlintrc.json"
-    ],
-    exclude: []
+    ]
   },
   "script-tooling-tests": {
-    include: [
+    patterns: [
       "scripts/**",
       "src/**",
       "tsconfig*.json",
       ".oxlintrc.json",
       ".oxfmtrc.json",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: [
-      "scripts/project/**",
-      "scripts/package/**",
-      "scripts/test-evidence/**",
-      "scripts/validation/**"
+      "pnpm-lock.yaml",
+      "!scripts/project/**",
+      "!scripts/package/**",
+      "!scripts/test-evidence/**",
+      "!scripts/validation/**"
     ]
   },
   "layout-tests": {
-    include: ["scripts/**", "src/**", "tsconfig.json", "package.json", "pnpm-lock.yaml"],
-    exclude: []
+    patterns: ["scripts/**", "src/**", "tsconfig.json", "package.json", "pnpm-lock.yaml"]
   },
   "machine-artifact-tests": {
-    include: [
+    patterns: [
       "scripts/validation/repository-material/machine-artifacts/**",
       "scripts/validation/repository-material/diagnostics.ts",
       "scripts/validation/repository-material/repository-files.ts",
@@ -332,19 +328,17 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "docs/examples/artifacts/**",
       "src/**",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: [
-      "scripts/validation/repository-material/schema/**/*.test.ts",
-      "scripts/validation/repository-material/json/**/*.test.ts",
-      "scripts/docs/machine-artifacts/**/*.test.ts",
-      "scripts/process-execution/**/*.test.ts",
-      "src/**/*.test.ts",
-      "src/**/*.test-support.ts"
+      "pnpm-lock.yaml",
+      "!scripts/validation/repository-material/schema/**/*.test.ts",
+      "!scripts/validation/repository-material/json/**/*.test.ts",
+      "!scripts/docs/machine-artifacts/**/*.test.ts",
+      "!scripts/process-execution/**/*.test.ts",
+      "!src/**/*.test.ts",
+      "!src/**/*.test-support.ts"
     ]
   },
   "package-tools-boundary-tests": {
-    include: [
+    patterns: [
       "scripts/validation/layout-characterization.ts",
       "scripts/validation/layout-characterization.test-support.ts",
       "scripts/validation/package-tools-core-closure.test.ts",
@@ -359,20 +353,18 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "tsconfig*.json",
       "package.json",
       "pnpm-lock.yaml"
-    ],
-    exclude: []
+    ]
   },
   "test-evidence-tests": {
-    include: [
+    patterns: [
       "scripts/test-evidence/**",
       "docs/testing/cases/**",
       "package.json",
       "pnpm-lock.yaml"
-    ],
-    exclude: []
+    ]
   },
   "test-surface": {
-    include: [
+    patterns: [
       "src/**",
       "scripts/**",
       "docs/testing/cases/**",
@@ -382,11 +374,10 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "docs/guides/**",
       "docs/testing/*.md",
       "docs/tooling/**"
-    ],
-    exclude: []
+    ]
   },
   "validation-tests": {
-    include: [
+    patterns: [
       "scripts/validation/repository-material/**",
       "scripts/validation/workspace.ts",
       "scripts/validation/workspace.test.ts",
@@ -395,12 +386,12 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "scripts/value-guards.ts",
       "src/machine-output/**",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: ["scripts/validation/repository-material/machine-artifacts/validation.test.ts"]
+      "pnpm-lock.yaml",
+      "!scripts/validation/repository-material/machine-artifacts/validation.test.ts"
+    ]
   },
   "test-evidence-rule-input": {
-    include: [
+    patterns: [
       "scripts/test-evidence/ast-grep/**",
       "scripts/project/gate/checks/test-evidence/ast-grep-rule-tests-check.ts",
       "scripts/project/gate/checks/process/**",
@@ -410,11 +401,12 @@ export const PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS = Object.freeze({
       "mise.toml",
       "mise.lock",
       "package.json",
-      "pnpm-lock.yaml"
-    ],
-    exclude: ["scripts/**/*.test.ts", "scripts/**/*.test-support.ts"]
+      "pnpm-lock.yaml",
+      "!scripts/**/*.test.ts",
+      "!scripts/**/*.test-support.ts"
+    ]
   },
-  "product-runtime": { include: ["src/**"], exclude: [] }
+  "product-runtime": { patterns: ["src/**"] }
 });
 /**
  * Adds the Gate-owned native flag condition without mutating the owning Check

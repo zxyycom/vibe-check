@@ -6,6 +6,10 @@
 
 本节记录 `0.0.3` 相对 `v0.0.2` 的净变化。Node `>=24.18` 的宿主要求与包根程序化入口保持不变。
 
+### 文件收集范围迁移
+
+项目文件选择统一为纯磁盘 `{ patterns, useDefaultExcludes? }`，移除 source/include/exclude 与 ProjectFileSource。默认排除固定且默认启用，只有 false 关闭；用户列表不能绕过这层。Run change regions 改为 `{ patterns }`，不应用扫描默认排除。被 Git 忽略的普通文件和子仓库目录可能进入范围，链接不入选；请复核候选、后缀 eligibility 与内容安全，而非机械替换来源。收集保持同步、冻结排序去重，并区分非法输入、必要 I/O 失败和合法无匹配。见[选择与收集项目文件](./guides/collecting-project-files.md)。
+
 ### 从 0.0.2 升级
 
 按项目实际使用的能力完成以下调整，再运行项目类型检查与代表性 Run，复核有效选择、单项终态、
@@ -59,7 +63,7 @@
   `changeFlag(id)`。每次 Run 在选择前获取一次证据；可信零命中为 `{ ok: true, files: [] }`，
   证据不可用时不伪造 files，而保守派生全部已声明 change flags。
   回调的 `project.flags` 包含调用方与派生 tokens，路径或不可用原因从 `project.changes` 读取；
-  Controls 拒绝 `vibe-check:change:` 前缀。`include` 必填，`exclude` 省略等同 `[]`，非法输入仍拒绝。
+  Controls 拒绝 `vibe-check:change:` 前缀。region 使用必填的完整 `patterns` 列表，非法输入仍拒绝。
   见[文件变化选择](./api-mechanics.md#按文件变化选择-check)。
 
 #### 外部命令与 Markdown 检查

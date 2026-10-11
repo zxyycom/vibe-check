@@ -7,9 +7,7 @@ import {
 import type { MarkdownLintFindingWaiver, ResolvedMarkdownLintOptions } from "./options.ts";
 
 export const MARKDOWN_LINT_FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.md", "**/*.markdown"]),
-  source: "filesystem" as const
+  patterns: [...Object.freeze(["**/*.md", "**/*.markdown"])]
 });
 
 export const MARKDOWN_LINT_OPTIONS: ResolvedMarkdownLintOptions = Object.freeze({

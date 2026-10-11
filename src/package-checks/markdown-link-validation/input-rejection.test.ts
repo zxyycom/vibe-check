@@ -35,9 +35,7 @@ describe("Markdown Link input rejection", () => {
     const root = createMarkdownTestRoot("vibe-check-direct-markdown-link-rejected-");
     try {
       const broadFiles = Object.freeze({
-        exclude: Object.freeze([]),
-        include: Object.freeze(["**/*"]),
-        source: "filesystem" as const
+        patterns: [...Object.freeze(["**/*"])]
       });
       const result = await execute(
         executeMarkdownLinkValidation,
@@ -60,7 +58,7 @@ describe("Markdown Link input rejection", () => {
             code: "input-rejected",
             level: "warning",
             message:
-              "2 selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude."
+              "2 selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.patterns."
           },
           {
             code: "finding-detail",
@@ -122,7 +120,7 @@ describe("Markdown Link input rejection", () => {
             code: "input-rejected",
             level: "warning",
             message:
-              "2 selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.include/exclude."
+              "2 selected markdownLinkValidation input file(s) were rejected because only .md/.markdown paths are supported; inspect this Check's Records and narrow files.patterns."
           }
         ]
       });

@@ -43,7 +43,7 @@ const MARKDOWN_LINK_CACHE_FILE = "markdown-link-parse-facts-v1.jsonl";
 const cacheEvidence = await observeCacheReuse();
 const publicCollectionSnapshot = collectProjectFiles({
   projectRoot,
-  selection: { ...defaultProjectFileSelection, include: ["duplicate-*.ts"] }
+  selection: { ...defaultProjectFileSelection, patterns: ["duplicate-*.ts"] }
 });
 assert.equal(Object.isFrozen(publicCollectionSnapshot), true);
 assert.deepEqual(publicCollectionSnapshot, ["duplicate-a.ts", "duplicate-b.ts"]);
@@ -120,7 +120,7 @@ const parserEvidence = {
     waivedFindingCount: 0
   }),
   secretCheckId: secretDetection({
-    files: { exclude: [], include: ["package.json"], source: "filesystem" }
+    files: { patterns: ["package.json"] }
   }).checkId
 };
 
@@ -144,7 +144,7 @@ const terminalNote = defineCheck({
 const installedFunctionMetrics = functionMetrics({
   codeAreas: {
     worker: {
-      files: { include: ["function-metrics.ts"] },
+      files: { patterns: ["function-metrics.ts"] },
       limits: { cyclomaticComplexity: { maximum: 1 } }
     }
   }
@@ -152,13 +152,13 @@ const installedFunctionMetrics = functionMetrics({
 const installedPrimaryFileMetrics = fileMetrics({
   checkId: "installed-file-metrics-primary",
   codeAreas: {
-    source: { files: { include: ["duplicate-a.ts", "duplicate-b.ts"] } }
+    source: { files: { patterns: ["duplicate-a.ts", "duplicate-b.ts"] } }
   }
 });
 const installedSecondaryFileMetrics = fileMetrics({
   checkId: "installed-file-metrics-secondary",
   codeAreas: {
-    source: { files: { include: ["duplicate-a.ts", "duplicate-b.ts"] } }
+    source: { files: { patterns: ["duplicate-a.ts", "duplicate-b.ts"] } }
   }
 });
 
@@ -288,7 +288,7 @@ const result = await run(
       duplicateDetection({
         codeAreas: {
           project: {
-            files: { include: ["duplicate-a.ts", "duplicate-b.ts"] },
+            files: { patterns: ["duplicate-a.ts", "duplicate-b.ts"] },
             minimumTokens: 20
           }
         }
@@ -310,7 +310,7 @@ const result = await run(
       markdownLinkValidation({
         cache: { enabled: true, directory: markdownLinkCacheDirectory }
       }),
-      markdownLint({ files: { include: ["link-source.md"] } }),
+      markdownLint({ files: { patterns: ["link-source.md"] } }),
       changedFiles,
       failedChangedFiles,
       firstChangedFilesConsumer,
@@ -464,7 +464,7 @@ async function assertInstalledMarkdownLintWaivers() {
   try {
     await writeFile(join(root, "source.md"), "#missing\n", "utf8");
     const options = {
-      files: { include: ["source.md"] },
+      files: { patterns: ["source.md"] },
       rules: ["no-missing-space-atx"],
       findingPolicy: "blocking",
       cache: { enabled: true, directory: join(root, "lint-cache") }

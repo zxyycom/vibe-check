@@ -43,11 +43,11 @@ const definition = defineConfig({
     fileMetrics({
       checkId: "source-file-metrics",
       enabledByFlags: { when: "source-changed" },
-      codeAreas: { source: { files: { include: ["src/**/*.ts"] } } }
+      codeAreas: { source: { files: { patterns: ["src/**/*.ts"] } } }
     }),
     fileMetrics({
       checkId: "test-file-metrics",
-      codeAreas: { tests: { files: { include: ["test/**/*.ts"] } } }
+      codeAreas: { tests: { files: { patterns: ["test/**/*.ts"] } } }
     })
   ]
 });

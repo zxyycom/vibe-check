@@ -2,7 +2,8 @@
 export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
   packageImport: "@zxyycom/vibe-check",
   defaults: Object.freeze({
-    defaultProjectFileSelection: "defaultProjectFileSelection"
+    defaultProjectFileSelection: "defaultProjectFileSelection",
+    DEFAULT_PROJECT_FILE_EXCLUDES: "DEFAULT_PROJECT_FILE_EXCLUDES"
   }),
   operations: Object.freeze({
     all: "all",
@@ -181,7 +182,6 @@ export const CURRENT_PUBLIC_CONTRACT = Object.freeze({
     ProjectChangeSource: "ProjectChangeSource",
     ProjectFileSelection: "ProjectFileSelection",
     ProjectFileSelectionOptions: "ProjectFileSelectionOptions",
-    ProjectFileSource: "ProjectFileSource",
     ProgressPreviewFormatter: "ProgressPreviewFormatter",
     ProjectOutputs: "ProjectOutputs",
     RegisteredJsonSchema: "RegisteredJsonSchema",

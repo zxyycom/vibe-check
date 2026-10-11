@@ -35,9 +35,9 @@ describe("functionMetrics constructor", () => {
       parameters: { maximum: 6 }
     });
     assert.equal(Object.isFrozen(check.options), true);
-    assert.equal(Object.isFrozen(check.options.codeAreas.project?.files.include), true);
-    assert.equal(check.options.codeAreas.project?.files.include.length, 55);
-    assert.equal(check.options.codeAreas.project?.files.include.includes("**/*.[tT][sS]"), true);
+    assert.equal(Object.isFrozen(check.options.codeAreas.project?.files.patterns), true);
+    assert.equal(check.options.codeAreas.project?.files.patterns.length, 55);
+    assert.equal(check.options.codeAreas.project?.files.patterns.includes("**/*.[tT][sS]"), true);
 
     const invalidInputs: readonly unknown[] = [
       { unknown: true },
@@ -198,7 +198,7 @@ describe("functionMetrics analyzer execution", () => {
       const check = functionMetrics({
         codeAreas: {
           source: {
-            files: { exclude: [], include: ["src/over-limit.ts"], source: "filesystem" }
+            files: { patterns: ["src/over-limit.ts"] }
           }
         },
         findingWaivers: [

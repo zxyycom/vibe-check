@@ -111,7 +111,7 @@ broad overload，返回 `string` identity。各 Check guide 给出本 Check 的�
 
 `changes` 让 Definition 从一次 Git comparison 派生选择用的 change flags。`source` 的完整形状是
 `{ compareWith: string }`；`compareWith` 是 Git revision。`flags` 把非空 region ID 映射到 project-root-relative、
-exclude-first glob region。region 的 `include` 必填，`exclude` 可省略且省略等同 `[]`；显式 `undefined`、`null` 或非数组值不合法。
+原生完整列表 glob region。region 仅接受必填 `patterns` 字符串数组，负规则也写在该列表中；扫描默认排除不作用于 Git changed-path facts。
 有效 `projectRoot` 可以嵌套在 repository 内；Git paths 与 region matching 都相对这个 root。
 
 一次 invocation 的数据流固定如下：
@@ -154,7 +154,7 @@ const definition = defineConfig({
   changes: {
     source: { compareWith: "origin/main" },
     flags: {
-      source: { include: ["src/**"], exclude: ["src/generated/**"] }
+      source: { patterns: ["src/**", "!src/generated/**"] }
     }
   },
   checks: [sourceChanged],

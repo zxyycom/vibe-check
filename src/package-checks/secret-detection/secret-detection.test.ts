@@ -29,7 +29,7 @@ describe("secretDetection", () => {
       /documented closed explicit file policy/
     );
     assert.throws(
-      () => Reflect.apply(secretDetection, undefined, [{ files: { include: ["**/*"] } }]),
+      () => Reflect.apply(secretDetection, undefined, [{ files: {} }]),
       /documented closed explicit file policy/
     );
     const check = secretDetection({ files: EXPLICIT_FILES });
@@ -78,9 +78,7 @@ describe("secretDetection", () => {
       writeFileSync(join(root, "outside", "secret.pem"), syntheticPrivateKey(), "utf8");
       const observed = await runSecretDetection(root, {
         files: Object.freeze({
-          exclude: Object.freeze([]),
-          include: Object.freeze(["approved/**"]),
-          source: "filesystem"
+          patterns: [...Object.freeze(["approved/**"])]
         })
       });
       assert.deepEqual(observed.result, {
@@ -405,7 +403,7 @@ describe("secretDetection", () => {
     );
   });
 
-  it("rejects an exact root-escaping final-leaf symlink without Records under the safe-read protocol", async () => {
+  it("does not select an exact root-escaping final-leaf symlink", async () => {
     const root = projectRoot();
     const outside = projectRoot();
     try {
@@ -415,25 +413,12 @@ describe("secretDetection", () => {
       execFileSync("git", ["-C", root, "add", "escaped.pem"]);
       const observed = await runSecretDetection(root, {
         files: Object.freeze({
-          exclude: Object.freeze([]),
-          include: Object.freeze(["escaped.pem"]),
-          source: "git-worktree"
+          patterns: [...Object.freeze(["escaped.pem"])]
         })
       });
       assert.deepEqual(observed, {
         records: [],
-        result: {
-          messages: [
-            {
-              code: "source-unavailable",
-              level: "error",
-              message:
-                "A selected secret detection input could not be read safely; check that it still exists, is readable, and was not replaced during the Run."
-            }
-          ],
-          reason: { code: "source-unavailable" },
-          status: "unavailable"
-        }
+        result: { status: "not-applicable", reason: { code: "no-eligible-input" } }
       });
       assertNoCanaryMaterial(JSON.stringify(observed));
     } finally {

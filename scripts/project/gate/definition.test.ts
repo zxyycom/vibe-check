@@ -240,32 +240,7 @@ describe("Project Gate Definition", () => {
       ({ checkId }) => checkId === "materials-json-validator"
     );
     assert.deepEqual(nativeMaterialCheck?.options, {
-      files: {
-        exclude: [
-          "**/.cache/**",
-          "**/.git",
-          "**/.git/**",
-          "**/.log/**",
-          "**/.pytest_cache/**",
-          "**/.tmp/**",
-          "**/.venv/**",
-          "**/.vibe-check/**",
-          "**/__pycache__/**",
-          "**/artifacts/**",
-          "**/build/**",
-          "**/coverage/**",
-          "**/dist/**",
-          "**/generated/**",
-          "**/*.generated.*",
-          "**/node_modules/**",
-          "**/target/**",
-          "**/tmp/**",
-          "**/vendor/**",
-          "**/venv/**"
-        ],
-        include: ["docs/**/*.json"],
-        source: "filesystem"
-      },
+      files: { patterns: ["docs/**/*.json"], useDefaultExcludes: true },
       maximumBytes: 2097152
     });
     assert.equal(
@@ -817,7 +792,7 @@ describe("Project Gate Definition", () => {
       const entries = defineProjectGateEntries([
         {
           check: markdownLinkValidation({
-            files: { include: ["docs/**/*.md"] },
+            files: { patterns: ["docs/**/*.md"] },
             findingPolicy: "blocking"
           }),
           presets: ["quality"],

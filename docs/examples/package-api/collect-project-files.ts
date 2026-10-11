@@ -5,8 +5,7 @@ const selectedPaths = collectProjectFiles({
   projectRoot: ".",
   selection: {
     ...defaultProjectFileSelection,
-    exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
-    include: ["src/**/*.ts"]
+    patterns: ["src/**/*.ts", "!**/fixtures/**"]
   }
 });
 

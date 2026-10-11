@@ -18,7 +18,7 @@
 const configJson = jsonValidation({
   checkId: "config-json",
   displayName: "Configuration JSON",
-  files: { include: ["config/**/*.json"] }
+  files: { patterns: ["config/**/*.json"] }
 });
 ```
 
@@ -53,30 +53,29 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 ```ts
 {
   files: {
-    source: "filesystem",
-    include: ["**/*.json"],
-    exclude: defaultProjectFileSelection.exclude
+    useDefaultExcludes: true,
+    patterns: ["**/*.json"]
   },
   maximumBytes: 1_048_576
 }
 ```
 
-无参调用物化上述完整 options，其中 `exclude` 是公开 `defaultProjectFileSelection.exclude` 的独立副本。
+无参调用物化上述完整 options，默认启用固定排除。
 `files`、其子字段和 `maximumBytes` 都可省略；`maximumBytes` 必须是正安全整数。
 
 文件来源、glob 与数组替换遵循[共享 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)。
-本 Check 只读取 case-sensitive `path.endsWith(".json")` 的 selected paths；宽泛 include 选中的其它路径发布拒绝 Finding，
+本 Check 只读取 case-sensitive `path.endsWith(".json")` 的 selected paths；宽泛 patterns 选中的其它路径发布拒绝 Finding，
 不静默过滤。constructor 后替换 `check.options` 时，必须提供完整 resolved shape。
 
 ### 定制 authoring options
 
-下面只把输入限制到 `config/**`；constructor 保留默认 source、exclude 与 `maximumBytes`：
+下面只把输入限制到 `config/**`；constructor 保留默认排除开关与 `maximumBytes`：
 
 ```ts
 import { jsonValidation } from "@zxyycom/vibe-check";
 
 const configJsonValidation = jsonValidation({
-  files: { include: ["config/**/*.json"] }
+  files: { patterns: ["config/**/*.json"] }
 });
 ```
 
@@ -146,7 +145,7 @@ Records 与 warning 的 `passed` 结算。`unavailable.reason.code` 只使用以
 | `reason.code` | 触发边界 | 调用方检查项 |
 | --- | --- | --- |
 | `invalid-options` | constructor 返回后形成的 replacement options 不是完整 closed resolved shape | 重新调用 `jsonValidation(options)`，或恢复完整 `files` 与 `maximumBytes` |
-| `scan-input-unavailable` | 所选 filesystem 或 git-worktree 无法形成候选集合 | 检查 project root、目录权限或 Git worktree 状态 |
+| `scan-input-unavailable` | 所选 filesystem 无法形成候选集合 | 检查 project root、目录权限 |
 | `document-unavailable` | 某个已选 JSON 文件无法完成受限读取 | 检查文件是否仍存在、是否可读，以及运行期间是否被替换 |
 | `execution-cancelled` | invocation signal 在可观察工作边界取消本 Check | 检查调用方取消原因，不把结果解释为 clean validation |
 

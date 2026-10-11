@@ -11,11 +11,9 @@ export interface ProjectChangeSource {
   readonly compareWith: string;
 }
 
-/** 一个 change flag 的 project-root-relative、exclude-first glob region。 */
+/** 一个 change flag 的 project-root-relative、原生完整列表 glob region。 */
 export interface ProjectChangeFlagRegion {
-  /** 可省略的排除 glob；省略等同空数组，显式 undefined 不是合法数组。 */
-  readonly exclude?: readonly string[];
-  readonly include: readonly string[];
+  readonly patterns: readonly string[];
 }
 
 /** 由 Project Definition 拥有的静态 change preparation 配置。 */
@@ -27,7 +25,7 @@ export interface ProjectChangesConfiguration {
 
 /** Definition 已验证、补齐并冻结的 region；Run 不再解释 authoring defaults。 */
 export interface NormalizedProjectChangeFlagRegion extends ProjectChangeFlagRegion {
-  readonly exclude: readonly string[];
+  readonly patterns: readonly string[];
 }
 
 /** 仅供 Definition snapshot 与 Run 消费的完整 change 配置。 */
@@ -83,17 +81,12 @@ function parseFlags(
 
 function parseRegion(value: unknown): NormalizedProjectChangeFlagRegion | undefined {
   const region = snapshotClosedPolicyRecord(value, {
-    optional: ["exclude"],
-    required: ["include"]
+    optional: [],
+    required: ["patterns"]
   });
   if (region === undefined) return undefined;
-  const exclude = Object.hasOwn(region, "exclude")
-    ? parseStringArray(region.exclude)
-    : Object.freeze([]);
-  const include = parseStringArray(region.include);
-  return exclude === undefined || include === undefined
-    ? undefined
-    : Object.freeze({ exclude, include });
+  const patterns = parseStringArray(region.patterns);
+  return patterns === undefined ? undefined : Object.freeze({ patterns });
 }
 
 function parseStringArray(value: unknown): readonly string[] | undefined {

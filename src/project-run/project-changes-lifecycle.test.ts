@@ -71,7 +71,7 @@ describe("Package Run project changes", () => {
     const result = await run(
       defineConfig({
         changes: {
-          flags: { runtime: { exclude: [], include: ["src/**"] } },
+          flags: { runtime: { patterns: ["src/**"] } },
           source: { compareWith: "--output=unexpected" }
         },
         checks: [
@@ -143,7 +143,7 @@ describe("Package Run project changes", () => {
 function runtimeChanges() {
   return {
     flags: {
-      runtime: { include: ["src/**"] }
+      runtime: { patterns: ["src/**"] }
     },
     source: { compareWith: "HEAD~1" }
   };

@@ -1,0 +1,145 @@
+{
+  "node": "v24.3.0",
+  "bun": "1.3.14",
+  "byteReadShape": [
+    {
+      "hasDirentMetadata": false,
+      "rawBytes": "626164ff2e7473"
+    },
+    {
+      "hasDirentMetadata": false,
+      "rawBytes": "676f6f64efbfbd2e7473"
+    },
+    {
+      "hasDirentMetadata": false,
+      "rawBytes": "666f6f"
+    }
+  ],
+  "rawNames": [
+    "626164ff2e7473",
+    "666f6f",
+    "676f6f64efbfbd2e7473"
+  ],
+  "rows": [
+    {
+      "id": "dynamic-dot-prefix",
+      "patterns": [
+        "./foo/*.ts"
+      ],
+      "result": [
+        "foo/a.ts",
+        "foo/b.ts"
+      ],
+      "frozen": true,
+      "exists": true
+    },
+    {
+      "id": "static-dot-prefix",
+      "patterns": [
+        "./foo/a.ts"
+      ],
+      "result": [
+        "foo/a.ts"
+      ],
+      "frozen": true,
+      "exists": true
+    },
+    {
+      "id": "shared-dot-prefix",
+      "sets": {
+        "dynamic": [
+          "foo/a.ts",
+          "foo/b.ts"
+        ],
+        "static": [
+          "foo/a.ts"
+        ]
+      },
+      "reads": [
+        "/tmp/collection-review-identity-rngJBv",
+        "/tmp/collection-review-identity-rngJBv/foo"
+      ]
+    },
+    {
+      "id": "wide-lossy-name",
+      "patterns": [
+        "**/*"
+      ],
+      "error": "could not read project directory /tmp/collection-review-identity-rngJBv: could not faithfully represent project entry at /tmp/collection-review-identity-rngJBv: name bytes 626164ff2e7473",
+      "kind": "Error"
+    },
+    {
+      "id": "pattern-lossy-name",
+      "patterns": [
+        "bad*.ts"
+      ],
+      "error": "could not read project directory /tmp/collection-review-identity-rngJBv: could not faithfully represent project entry at /tmp/collection-review-identity-rngJBv: name bytes 626164ff2e7473",
+      "kind": "Error"
+    },
+    {
+      "id": "static-lossy-name",
+      "patterns": [
+        "./bad�.ts"
+      ],
+      "error": "could not read project directory /tmp/collection-review-identity-rngJBv: could not faithfully represent project entry at /tmp/collection-review-identity-rngJBv: name bytes 626164ff2e7473",
+      "kind": "Error"
+    },
+    {
+      "id": "negative-only-outside-scope",
+      "patterns": [
+        "!bad*"
+      ],
+      "result": [
+        "foo/a.ts",
+        "foo/b.ts",
+        "good�.ts"
+      ],
+      "frozen": true,
+      "exists": true
+    },
+    {
+      "id": "explicit-negative-outside-scope",
+      "patterns": [
+        "**/*",
+        "!bad*"
+      ],
+      "result": [
+        "foo/a.ts",
+        "foo/b.ts",
+        "good�.ts"
+      ],
+      "frozen": true,
+      "exists": true
+    },
+    {
+      "id": "real-replacement-character-collision",
+      "patterns": [
+        "./bad�.ts"
+      ],
+      "error": "could not read project directory /tmp/collection-review-identity-rngJBv: could not faithfully represent project entry at /tmp/collection-review-identity-rngJBv: name bytes 626164ff2e7473",
+      "kind": "Error"
+    },
+    {
+      "id": "dynamic-collision",
+      "patterns": [
+        "bad*.ts"
+      ],
+      "error": "could not read project directory /tmp/collection-review-identity-rngJBv: could not faithfully represent project entry at /tmp/collection-review-identity-rngJBv: name bytes 626164ff2e7473",
+      "kind": "Error"
+    },
+    {
+      "id": "real-replacement-character-is-legal",
+      "patterns": [
+        "**/*"
+      ],
+      "result": [
+        "bad�.ts",
+        "foo/a.ts",
+        "foo/b.ts",
+        "good�.ts"
+      ],
+      "frozen": true,
+      "exists": true
+    }
+  ]
+}

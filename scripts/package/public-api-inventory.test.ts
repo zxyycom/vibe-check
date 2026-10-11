@@ -56,15 +56,15 @@ describe("public API inventory", () => {
       CURRENT_PUBLIC_CONTRACT.defaults.defaultProjectFileSelection,
       "defaultProjectFileSelection"
     );
-    assert.equal(defaultProjectFileSelection.source, "filesystem");
+    assert.equal(defaultProjectFileSelection.useDefaultExcludes, true);
     assert.equal(Object.isFrozen(defaultProjectFileSelection), true);
-    assert.equal(Object.isFrozen(defaultProjectFileSelection.exclude), true);
+    assert.equal(Object.isFrozen(defaultProjectFileSelection.patterns), true);
     assert.equal(
       {
         ...defaultProjectFileSelection,
-        exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"]
-      }.exclude.at(-1),
-      "**/fixtures/**"
+        patterns: [...defaultProjectFileSelection.patterns, "!**/fixtures/**"]
+      }.patterns.at(-1),
+      "!**/fixtures/**"
     );
     assert.equal(all.name, CURRENT_PUBLIC_CONTRACT.operations.all);
     assert.equal(any.name, CURRENT_PUBLIC_CONTRACT.operations.any);

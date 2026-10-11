@@ -21,7 +21,7 @@ waiver 在完整 Finding 集合上对账，不从 SCC 输入排除路径。
 const sourceMetrics = fileMetrics({
   checkId: "source-file-metrics",
   enabledByFlags: { when: "source-changed" },
-  codeAreas: { source: { files: { include: ["src/**/*.ts"] } } }
+  codeAreas: { source: { files: { patterns: ["src/**/*.ts"] } } }
 });
 ```
 
@@ -83,7 +83,7 @@ if (result.kind !== "completed" || outcome?.status !== "passed") {
 
 - 省略整个 `codeAreas` 时，constructor 建立默认 `project` 区域。显式 `codeAreas` 必须至少包含一个
   非空 area ID。
-- 每个显式区域必须提供 `files`。共同 `{ source, include, exclude }` grammar、source failure 和数组替换见
+- 每个显式区域必须提供 `files`。共同 `{ patterns, useDefaultExcludes? }` grammar、filesystem failure 和数组替换见
   [共享的 files 选择语义](../guides/collecting-project-files.md#共享的-files-选择语义)；本 Check 的 branch fields 省略时使用公开的
   `defaultProjectFileSelection`。
 - 顶层 `findingPolicy` 只能是 `"blocking" | "non-blocking"`，默认 `non-blocking`；area 可覆盖，省略时继承顶层值。
@@ -106,14 +106,13 @@ import { defaultProjectFileSelection, fileMetrics } from "@zxyycom/vibe-check";
 const sourceAndTests = fileMetrics({
   codeAreas: {
     source: {
-      files: { include: ["src/**/*.ts"] },
+      files: { patterns: ["src/**/*.ts"] },
       codeLines: { maximum: 300 }
     },
     tests: {
       files: {
         ...defaultProjectFileSelection,
-        exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
-        include: ["test/**/*.ts", "src/**/*.test.ts"]
+        patterns: ["test/**/*.ts", "src/**/*.test.ts", "!**/fixtures/**"]
       },
       codeLines: {
         maximum: 600,
@@ -143,7 +142,7 @@ SCC CSV 的 `Complexity` 字段是 file-metrics 使用的 decision-token measure
 
 ## 工作原理
 
-1. Check 先按文件 `source` 分组；每种不同来源只枚举一次候选文件，再为每个 area 应用自己的 `include` / `exclude`，
+1. Check 在本次操作内共享必要的纯磁盘候选，再为每个 area 应用自己的 `patterns` 与默认排除，
    并保存 path 到全部实际 area IDs 的 membership。
 2. Check 对全部路径稳定排序、去重，并把这个 union 作为一次 logical SCC scan。adapter 按私有的 Windows UTF-16 argv 上界传输：安全的小输入仍由一个 process 承载；较大输入按原顺序分成一个或多个非空 exact-path batches。分批不会让 SCC 重新发现路径，也不形成新的 options、Records 或公开结果。
 3. 每个 process batch 都必须先完成 CSV 与该 batch 的 exact-scope 验收；全部 batch 成功后 adapter 才拒绝重复 measurement path、稳定排序并交回统一结果。任一 process、CSV、scope 或汇合失败都会拒绝整个 logical scan，不发布已完成 batch 的部分 measurement。
@@ -233,7 +232,7 @@ audit Record ID 使用 `/finding-waiver-audit/<identity.path>`，该 leading-sla
 | ---------------------------------------------------------------- | ----------------------------------------------- |
 | 全部区域的 exact-path union 为空                                 | `not-applicable / no-eligible-input`；已配置 waiver 仍产生 unused audit |
 | resolved options 不符合完整 closed shape                         | `unavailable / invalid-options`                 |
-| 所配置的 filesystem 或 git-worktree 来源无法形成候选集合         | `unavailable / source-unavailable`              |
+| 所配置的 filesystem 来源无法形成候选集合         | `unavailable / source-unavailable`              |
 | SCC command 缺失、version probe 失败或版本不匹配                 | `unavailable / external-dependency-unavailable` |
 | SCC measurement process 执行失败                                 | `unavailable / external-execution-failed`       |
 | CSV、measurement scope 或 Record conversion 不能形成可信完整结果 | `unavailable / external-result-invalid`         |

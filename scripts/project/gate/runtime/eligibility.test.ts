@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { minimatch } from "minimatch";
+import micromatch from "micromatch";
 
 import { loadPackageDocuments } from "../../../docs/package-documents.ts";
 import { PACKAGE_API_EXAMPLE_SUPPORT_SOURCE_PATHS } from "../../../docs/package-api/example-projections.ts";
@@ -11,13 +11,13 @@ import { PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS } from "./eligibility.ts";
 
 type RegionName = keyof typeof PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS;
 
-/** Product config-glob uses minimatch with dot paths enabled; test only slash paths here. */
+/** Exercise Gate-owned native pattern policy over explicit slash paths. */
 function matchingRegions(path: string, names: readonly RegionName[]): readonly RegionName[] {
   return names.filter((name) => {
     const region = PROJECT_GATE_INCREMENTAL_CHANGE_REGIONS[name];
     return (
-      region.include.some((pattern) => minimatch(path, pattern, { dot: true })) &&
-      !region.exclude.some((pattern) => minimatch(path, pattern, { dot: true }))
+      micromatch([path], region.patterns, { dot: true, posix: true, strictSlashes: false }).length >
+      0
     );
   });
 }

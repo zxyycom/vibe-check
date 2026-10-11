@@ -22,33 +22,26 @@ const unavailableScannerDirectory = resolve(
   "vibe-check",
   "unavailable-repository-quality-scanner"
 );
-const repositoryFileDefaults = {
-  exclude: [
-    "**/.git",
-    "**/.git/**",
-    "**/archive/**",
-    "**/target/**",
-    "**/node_modules/**",
-    "**/.venv/**",
-    "**/.uv-cache/**",
-    "**/.ruff_cache/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/vendor/**",
-    "**/generated/**",
-    "**/fixtures/**",
-    "**/.cache/**",
-    "**/cache/**",
-    "**/artifacts/**",
-    "**/.tmp/**",
-    "**/.log/**"
-  ],
-  source: "filesystem"
-} as const;
-const areaFileDefaults = {
-  exclude: repositoryFileDefaults.exclude,
-  source: repositoryFileDefaults.source
-} as const;
+const repositoryExcludedPatterns = [
+  "**/.git",
+  "**/.git/**",
+  "**/archive/**",
+  "**/target/**",
+  "**/node_modules/**",
+  "**/.venv/**",
+  "**/.uv-cache/**",
+  "**/.ruff_cache/**",
+  "**/dist/**",
+  "**/build/**",
+  "**/vendor/**",
+  "**/generated/**",
+  "**/fixtures/**",
+  "**/.cache/**",
+  "**/cache/**",
+  "**/artifacts/**",
+  "**/.tmp/**",
+  "**/.log/**"
+].map((pattern) => `!${pattern}`);
 const repositoryFileCodeLines = {
   lowDecisionTokenAllowance: { maximumCodeLines: 500, maximumDecisionTokens: 10 },
   maximum: 300
@@ -104,32 +97,37 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
     codeAreas: {
       "product-source": {
         files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, lizardPortQualityExclusion],
-          include: ["src/**/*.ts"]
+          useDefaultExcludes: true,
+          patterns: ["src/**/*.ts", ...repositoryExcludedPatterns, `!${lizardPortQualityExclusion}`]
         },
         minimumLines: 3,
         minimumTokens: 75
       },
       "schemas-examples": {
         files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, "docs/schemas/historical/**"],
-          include: ["docs/schemas/**", "docs/examples/**"]
+          useDefaultExcludes: true,
+          patterns: [
+            "docs/schemas/**",
+            "docs/examples/**",
+            ...repositoryExcludedPatterns,
+            "!docs/schemas/historical/**"
+          ]
         },
         minimumLines: 3,
         minimumTokens: 150
       },
       "script-tests": {
-        files: { ...areaFileDefaults, include: ["scripts/**/*.test.ts"] },
+        files: {
+          useDefaultExcludes: true,
+          patterns: ["scripts/**/*.test.ts", ...repositoryExcludedPatterns]
+        },
         minimumLines: 3,
         minimumTokens: 100
       },
       "script-tooling": {
         files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],
-          include: ["scripts/**/*.ts"]
+          useDefaultExcludes: true,
+          patterns: ["scripts/**/*.ts", ...repositoryExcludedPatterns, "!scripts/**/*.test.ts"]
         },
         minimumLines: 3,
         minimumTokens: 75
@@ -142,38 +140,41 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
       "docs-specs": {
         codeLines: repositoryFileCodeLines,
         files: {
-          ...areaFileDefaults,
-          exclude: [
-            ...areaFileDefaults.exclude,
-            "docs/examples/**",
-            "docs/investigations/_resources/**",
-            "docs/schemas/**"
-          ],
-          include: ["docs/**/*.md", "changes/**/*.md"]
+          useDefaultExcludes: true,
+          patterns: [
+            "docs/**/*.md",
+            "changes/**/*.md",
+            ...repositoryExcludedPatterns,
+            "!docs/examples/**",
+            "!docs/investigations/_resources/**",
+            "!docs/schemas/**"
+          ]
         }
       },
       "product-source": {
         codeLines: repositoryFileCodeLines,
         files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, lizardPortQualityExclusion],
-          include: ["src/**/*.ts"]
+          useDefaultExcludes: true,
+          patterns: ["src/**/*.ts", ...repositoryExcludedPatterns, `!${lizardPortQualityExclusion}`]
         }
       },
       "schemas-examples": {
         codeLines: repositoryFileCodeLines,
         files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, "docs/schemas/historical/**"],
-          include: ["docs/schemas/**", "docs/examples/**"]
+          useDefaultExcludes: true,
+          patterns: [
+            "docs/schemas/**",
+            "docs/examples/**",
+            ...repositoryExcludedPatterns,
+            "!docs/schemas/historical/**"
+          ]
         }
       },
       "script-tooling": {
         codeLines: repositoryFileCodeLines,
         files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],
-          include: ["scripts/**/*.ts"]
+          useDefaultExcludes: true,
+          patterns: ["scripts/**/*.ts", ...repositoryExcludedPatterns, "!scripts/**/*.test.ts"]
         }
       }
     },
@@ -193,21 +194,20 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
     codeAreas: {
       "product-source": {
         files: {
-          ...areaFileDefaults,
-          exclude: [
-            ...areaFileDefaults.exclude,
-            lizardPortQualityExclusion,
-            ...productFunctionMetricTestExclusions
-          ],
-          include: ["src/**/*.ts"]
+          useDefaultExcludes: true,
+          patterns: [
+            "src/**/*.ts",
+            ...repositoryExcludedPatterns,
+            `!${lizardPortQualityExclusion}`,
+            ...productFunctionMetricTestExclusions.map((pattern) => `!${pattern}`)
+          ]
         },
         limits: repositoryFunctionLimits
       },
       "script-tooling": {
         files: {
-          ...areaFileDefaults,
-          exclude: [...areaFileDefaults.exclude, "scripts/**/*.test.ts"],
-          include: ["scripts/**/*.ts"]
+          useDefaultExcludes: true,
+          patterns: ["scripts/**/*.ts", ...repositoryExcludedPatterns, "!scripts/**/*.test.ts"]
         },
         limits: repositoryFunctionLimits
       }
@@ -228,7 +228,7 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
   },
   markdownLint: {
     checkId: "markdown-lint",
-    files: { exclude: [], include: ["docs/**/*.md", "changes/**/*.md"] },
+    files: { patterns: ["docs/**/*.md", "changes/**/*.md"] },
     findingPolicy: "non-blocking",
     rules: repositoryMarkdownLintRules,
     cache: {
@@ -238,8 +238,8 @@ export const PROJECT_GATE_REPOSITORY_QUALITY_OPTIONS = {
   },
   markdownLinkValidation: {
     files: {
-      ...areaFileDefaults,
-      include: ["docs/**/*.md", "changes/**/*.md"]
+      useDefaultExcludes: true,
+      patterns: ["docs/**/*.md", "changes/**/*.md", ...repositoryExcludedPatterns]
     },
     findingPolicy: "blocking",
     limits: { maxTargetReads: 1_500 }

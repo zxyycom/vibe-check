@@ -10,10 +10,10 @@ import { commit, git, write } from "./git.test-support.ts";
 
 const changes: NormalizedProjectChangesConfiguration = {
   flags: {
-    all: { exclude: ["src/generated/**"], include: ["**/*"] },
-    docs: { exclude: [], include: ["docs/**/*.md"] },
-    source: { exclude: ["src/generated/**"], include: ["src/**/*.ts"] },
-    unmatched: { exclude: [], include: ["never/**"] }
+    all: { patterns: ["**/*", "!src/generated/**"] },
+    docs: { patterns: ["docs/**/*.md"] },
+    source: { patterns: ["src/**/*.ts", "!src/generated/**"] },
+    unmatched: { patterns: ["never/**"] }
   },
   source: { compareWith: "HEAD~1" }
 };
@@ -66,13 +66,54 @@ describe("Project Run Git changes", () => {
         const revisionPrepared = prepareProjectChanges({
           callerFlags: [],
           changes: {
-            flags: { source: { exclude: [], include: ["src/**"] } },
+            flags: { source: { patterns: ["src/**"] } },
             source: { compareWith }
           },
           projectRoot: repository
         });
         assert.equal(revisionPrepared.projectChanges.ok, true);
       }
+    } finally {
+      rmSync(repository, { force: true, recursive: true });
+    }
+  });
+
+  it("uses native pattern lists for regions without collection default exclusions", () => {
+    const repository = repositoryFixture();
+    try {
+      for (const path of [
+        "build/a.ts",
+        "docs/new.md",
+        "src/.hidden.ts",
+        "src/generated/new.ts",
+        "src/plain.ts"
+      ])
+        write(repository, path, "new content\n");
+      const prepared = prepareProjectChanges({
+        callerFlags: [],
+        changes: {
+          source: { compareWith: "HEAD" },
+          flags: {
+            all: { patterns: ["**/*"] },
+            brace: { patterns: ["{build,src}/**/*.ts"] },
+            empty: { patterns: [] },
+            extglob: { patterns: ["src/**/@(plain|.hidden).ts"] },
+            negative: { patterns: ["!docs/**"] },
+            reinclude: { patterns: ["src/**", "!src/generated/**", "src/generated/new.ts"] }
+          }
+        },
+        projectRoot: repository
+      });
+      assert.equal(prepared.projectChanges.ok, true);
+      if (!prepared.projectChanges.ok) return;
+      assert.deepEqual(prepared.projectChanges.files, [
+        file("build/a.ts", ["all", "brace", "negative"]),
+        file("docs/new.md", ["all"]),
+        file("src/.hidden.ts", ["all", "brace", "extglob", "negative", "reinclude"]),
+        file("src/generated/new.ts", ["all", "brace", "negative", "reinclude"]),
+        file("src/plain.ts", ["all", "brace", "extglob", "negative", "reinclude"])
+      ]);
+      assert.equal(prepared.effectiveFlags.includes(`${CHANGE_FLAG_PREFIX}empty`), false);
     } finally {
       rmSync(repository, { force: true, recursive: true });
     }
@@ -112,7 +153,7 @@ describe("Project Run Git changes", () => {
       const prepared = prepareProjectChanges({
         callerFlags: ["caller"],
         changes: {
-          flags: { source: { exclude: [], include: ["src/**"] } },
+          flags: { source: { patterns: ["src/**"] } },
           source: { compareWith: "HEAD~1" }
         },
         projectRoot: repository
@@ -136,7 +177,7 @@ describe("Project Run Git changes", () => {
       const prepared = prepareProjectChanges({
         callerFlags: ["caller"],
         changes: {
-          flags: { all: { exclude: ["src/generated/**"], include: ["**/*"] } },
+          flags: { all: { patterns: ["**/*", "!src/generated/**"] } },
           source: { compareWith: "HEAD" }
         },
         projectRoot: repository
@@ -173,7 +214,7 @@ describe("Project Run Git changes", () => {
       const prepared = prepareProjectChanges({
         callerFlags: [],
         changes: {
-          flags: { all: { exclude: [], include: ["**/*"] } },
+          flags: { all: { patterns: ["**/*"] } },
           source: { compareWith: "HEAD~1" }
         },
         projectRoot

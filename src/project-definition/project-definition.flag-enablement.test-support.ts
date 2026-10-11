@@ -126,7 +126,7 @@ export function assertMalformedFlagEnablementRejected(): void {
     undefined,
     {
       source: { compareWith: "origin/main" },
-      flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
+      flags: { "product-runtime": { patterns: ["src/**"] } }
     }
   ]) {
     assert.equal(
@@ -151,19 +151,19 @@ export function assertMalformedFlagEnablementRejected(): void {
     { source: { compareWith: "origin/main" }, flags: {} },
     {
       source: { compareWith: "origin/main", unexpected: true },
-      flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
+      flags: { "product-runtime": { patterns: ["src/**"] } }
     },
     {
       source: { compareWith: "origin/main" },
-      flags: { "product-runtime": { include: [], exclude: [], unexpected: true } }
+      flags: { "product-runtime": { patterns: [], unexpected: true } }
     },
     {
       source: { compareWith: "--output=unexpected" },
-      flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
+      flags: { "product-runtime": { patterns: ["src/**"] } }
     },
     {
       source: { compareWith: "origin/main\0unexpected" },
-      flags: { "product-runtime": { include: ["src/**"], exclude: [] } }
+      flags: { "product-runtime": { patterns: ["src/**"] } }
     }
   ]) {
     assert.equal(validateProjectDefinition({ ...defineConfig({}), changes }).ok, false);

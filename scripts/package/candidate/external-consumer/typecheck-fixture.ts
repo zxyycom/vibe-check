@@ -141,8 +141,7 @@ interface ChangedFilesData {
 
 const sourceFiles: ProjectFileSelection = {
   ...defaultProjectFileSelection,
-  exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
-  include: ["src/**/*.ts"]
+  patterns: ["src/**/*.ts", "!**/fixtures/**"]
 };
 
 const selectedProjectFiles: readonly string[] = collectProjectFiles({
@@ -246,7 +245,7 @@ function outputParticipantNames(outputs: RunOutputStatuses): readonly string[] {
 }
 
 const secretCheck = secretDetection({
-  files: { exclude: [], include: ["src/**/*.ts"], source: "filesystem" }
+  files: { patterns: ["src/**/*.ts"] }
 });
 const secretData: SecretDetectionFinalData = parseSecretDetectionData({
   coverageGapCount: 0,
@@ -263,7 +262,7 @@ const definition: ProjectDefinition = defineConfig({
         source: {
           files: {
             ...sourceFiles,
-            source: "git-worktree"
+            useDefaultExcludes: false
           }
         }
       }

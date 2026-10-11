@@ -29,7 +29,7 @@ async function runProduct(input: Request): Promise<unknown> {
   const check = functionMetrics({
     codeAreas: {
       benchmark: {
-        files: { include: input.paths },
+        files: { patterns: input.paths },
         limits: {
           codeLines: {
             lowComplexityAllowance: { cyclomaticComplexityBelow: 6, maximum: 1 },

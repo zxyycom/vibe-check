@@ -5,9 +5,7 @@ import { join } from "node:path";
 import { executeCheck, type ReportedCheckRecord } from "../check-execution.test-support.ts";
 
 export const FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"]),
-  source: "filesystem" as const
+  patterns: [...Object.freeze(["**/*.ts"])]
 });
 
 export const execute = executeCheck;

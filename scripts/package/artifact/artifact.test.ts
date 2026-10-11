@@ -144,6 +144,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       ajv: "8.20.0",
       "csv-parse": "7.0.1",
       execa: "9.6.1",
+      "fast-glob": "3.3.3",
       "github-slugger": "2.0.0",
       immutable: "5.1.9",
       jscpd: "^5.1.1",
@@ -153,7 +154,7 @@ describe("package artifact", { concurrency: false, timeout: 20_000 }, () => {
       "mdast-util-gfm": "3.1.0",
       "micromark-extension-frontmatter": "2.0.0",
       "micromark-extension-gfm": "3.0.0",
-      minimatch: "10.2.5",
+      micromatch: "4.0.8",
       neverthrow: "8.2.0",
       typebox: "1.3.9"
     });

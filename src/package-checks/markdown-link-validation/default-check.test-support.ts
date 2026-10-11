@@ -8,15 +8,11 @@ import {
 } from "../check-execution.test-support.ts";
 
 const FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.ts"]),
-  source: "filesystem" as const
+  patterns: [...Object.freeze(["**/*.ts"])]
 });
 
 export const MARKDOWN_FILES = Object.freeze({
-  exclude: Object.freeze([]),
-  include: Object.freeze(["**/*.md", "**/*.markdown"]),
-  source: "filesystem" as const
+  patterns: [...Object.freeze(["**/*.md", "**/*.markdown"])]
 });
 
 export const MARKDOWN_LINK_OPTIONS: ResolvedMarkdownLinkValidationOptions = Object.freeze({

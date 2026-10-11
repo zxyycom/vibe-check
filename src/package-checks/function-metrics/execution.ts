@@ -255,7 +255,7 @@ function appendInputRejectedMessage(
   const message: CheckMessage = Object.freeze({
     code: "input-rejected",
     level: "warning",
-    message: `${rejectedInputCount} selected functionMetrics input file(s) were rejected because their file type is unsupported; inspect this Check's Records and narrow files.include/exclude.`
+    message: `${rejectedInputCount} selected functionMetrics input file(s) were rejected because their file type is unsupported; inspect this Check's Records and narrow files.patterns.`
   });
   return Object.freeze({
     ...result,

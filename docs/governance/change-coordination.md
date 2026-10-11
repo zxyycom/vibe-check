@@ -28,7 +28,7 @@ artifacts 决定。
 [repository-material owner](../tooling/repository-material-validation.md) 承接；已交付的精确 Finding waiver
 由 [Markdown lint](../checks/markdown-lint.md#精确-finding-waiver)与
 [Finding waiver 指南](../guides/finding-waivers.md#为-markdown-lint-声明精确例外)承接。
-[构建项目 Gate](../guides/building-project-gate.md)已承接 consumer 的多场景构建路径；change region 的可省略排除项由[API 机制](../api-mechanics.md#按文件变化选择-check)拥有。
+[构建项目 Gate](../guides/building-project-gate.md)已承接 consumer 的多场景构建路径；change region 的完整 `patterns` 列表由[API 机制](../api-mechanics.md#按文件变化选择-check)拥有。
 下列条目按各自已获授权的范围推进；前置能力交付不自动授权其它候选。
 
 | 优先级 | 当前 Change | 进入条件与完成出口 |
@@ -53,13 +53,15 @@ owner 时，实施与合入必须串行。
 
 ### 文件关系与 change flag 调试
 
-文件轨道由三个独立 Change 交付。长期方向见[文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)
-与[索引决策](../decisions/provide-readonly-file-region-index.md)，具体接口和验收归各 Change。
+文件轨道包含收集能力及 Core、调试两个下游 Change。收集的当前契约与机制归
+[收集指南](../guides/collecting-project-files.md)和[Project files](../development/project-files.md)，接入与修正证据归
+[Readiness 报告](../investigations/project-file-collection-readiness.md)。长期方向见
+[文件范围决策](../decisions/unify-file-selection-with-default-excludes.md)与[索引决策](../decisions/provide-readonly-file-region-index.md)；Core/debug 尚未交付，两条 Decision 保持未对齐。
 
-| Change | 独立交付 | 实施前置 |
+| 能力 / 下游 Change | 独立交付 | 实施前置 |
 | --- | --- | --- |
 | [Core 索引](../../changes/add-project-file-membership-queries/proposal.md) | 多来源合并、追加后重建与只读双向定位。 | 先做 API/消费与重建 Readiness 调查；纯值数据设计可先行，规则实施和验收继承收集的完整 matcher 迁移稳定提交。 |
-| [文件收集](../../changes/switch-project-file-collection-backend/proposal.md) | 纯磁盘枚举、统一 patterns、默认防呆和进入前剪枝。 | 先做后端接入 Readiness 调查，以实际失败/剪枝/共同匹配证据核定后端；Core 和调试不是硬前置。 |
+| [文件收集](../guides/collecting-project-files.md) | 纯磁盘枚举、统一 patterns、默认防呆和进入前剪枝。 | 已完成后端接入、独立正确性复核与最终完整包 Gate；待协调者保存稳定提交供下游继承。Core 和调试不是收集前置。 |
 | [change flag 调试](../../changes/add-change-flag-debugging/proposal.md) | 所选当前文件全集的逐文件及按 flag 映射。 | 实施基线继承已验收 Core 与收集迁移的稳定提交。 |
 
 - **关系输入**：Core 组合已提供的文件/区域数据；来源追加先合并后重建，单一磁盘收集策略保持独立。

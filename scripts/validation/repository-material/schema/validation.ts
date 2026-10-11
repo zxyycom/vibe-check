@@ -29,7 +29,7 @@ export async function validateJsonSyntax(
       checks: [
         jsonValidation({
           checkId: "repository-material-json-validation",
-          files: { include: ["docs/**/*.json"] },
+          files: { patterns: ["docs/**/*.json"] },
           maximumBytes: REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES
         })
       ],

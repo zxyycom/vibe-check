@@ -149,7 +149,7 @@ describe("fileMetrics finding waivers", () => {
     const check = fileMetrics({
       codeAreas: {
         missing: {
-          files: { ...FILES, include: ["missing/**/*.ts"] }
+          files: { ...FILES, patterns: ["missing/**/*.ts"] }
         }
       },
       findingWaivers: [

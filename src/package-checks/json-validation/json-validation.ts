@@ -158,7 +158,7 @@ function appendRejectedInputMessage(
   const message: CheckMessage = Object.freeze({
     code: "input-rejected",
     level: "warning",
-    message: `${rejectedInputCount} selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.include/exclude.`
+    message: `${rejectedInputCount} selected jsonValidation input file(s) were rejected because only lower-case .json paths are supported; inspect this Check's Records and narrow files.patterns.`
   });
   return Object.freeze({
     ...result,

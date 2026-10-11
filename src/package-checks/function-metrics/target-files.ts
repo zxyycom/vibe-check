@@ -3,7 +3,7 @@ import {
   isFunctionMetricsAnalyzerSourceSupported
 } from "./analyzer-adapter.ts";
 
-/** functionMetrics default files.include uses the adapter's case-insensitive suffix capability. */
+/** functionMetrics default files.patterns uses the adapter's case-insensitive suffix capability. */
 export const FUNCTION_METRICS_SUPPORTED_FILE_GLOBS = Object.freeze(
   FUNCTION_METRICS_SUPPORTED_FILE_EXTENSIONS.map(
     (extension) => `**/*.${caseInsensitiveExtensionPattern(extension)}`

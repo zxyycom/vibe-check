@@ -8,56 +8,35 @@ Check final status、Record、aggregation、machine output 或 scanner protocol�
 
 ## Check-owned file selection
 
-需要读取项目文件的 Check 在自己的完整 `options` 中拥有以下 `files` shape；三个 metric constructor 接受每个
-`codeAreas[id].files` 的可省略字段并物化成该完整 shape，其它 file-reading Checks 放在顶层 `options.files`：
-
-```ts
-{
-  source: "filesystem" | "git-worktree";
-  include: readonly string[];
-  exclude: readonly string[];
-}
-```
-
-`ProjectDefinition` 和 `CheckProjectContext` 都不保存全局文件选择。两个 Check 或两个 duplicate code areas 即使使用相同
-结构，也分别验证、冻结和消费自己的 policy；项目若希望它们选择相同文件，应以普通 TypeScript value 和 object
-composition 显式复用，而不是依赖 Product 的 hidden global configuration。同一个 area-based Check 会按 `source` 复用
-候选枚举；这个复用不创建 provider Check、dependency fact 或跨 Check hidden cache。
-
-默认基线与原生组合由[文件选择指南](../guides/collecting-project-files.md#共享的-files-选择语义)定义，各 Check 的精准 include 和 area policy 由对应[Check 指南](../navigation.md#随包-check-指南)定义。实现只共享 collection/exact-membership，不让 Definition 按 Check ID 解释领域 policy。
+Check 自己拥有完整 `{ patterns, useDefaultExcludes? }` selection，area-based Check 为每个 area 分别物化、验证并冻结。精确公开语义由[收集指南](../guides/collecting-project-files.md#共享的-files-选择语义)拥有；Definition 和 callback context 不增加全局文件选择。
 
 ## File collection mechanism
 
-`src/package-checks/project-files/collection.ts` 的内部 `collectProjectFileSets(root, selections)` 先按 `source` 分组，每种不同来源只建立一次稳定候选快照，再为每个命名选择应用
-自己的 `include` 与 `exclude`。`collectProjectFiles(root, files)` 是同一模块供 Check 使用的 trusted 单份入口，不是 package root API。公开调用必须使用[下节](#public-single-selection-collection)的 `collectProjectFiles({ projectRoot, selection })`，由公共边界先校验输入。最终路径相对项目根目录并使用 `/`，
-经过稳定去重排序；路径必须命中至少一个 `include` 且不能命中任一 `exclude`，因此 `exclude` 优先。两组数组使用同一个
-minimatch glob grammar；点号开头的路径也参与显式 glob 匹配，不存在额外的隐藏 dotfile 规则。
+### 候选与最终选择
 
-- `filesystem`（默认）递归枚举 project root 下的普通文件，不跟随 symlink，也不解释 `.gitignore`。实现可以从全部命名
-  选择共同拥有的完整目录排除规则安全派生遍历剪枝，但最终选择仍只由完整 glob 判断。
-- `git-worktree` 执行 `git ls-files -z --cached --others --exclude-standard --`，因此候选包含已跟踪文件和未被 Git 标准
-  忽略规则排除的未跟踪文件；它还加入可安全下沉的已初始化 submodule worktree 当前文件，但 gitlink 目录本身不作为
-  文件候选。Git 成功空输出是合法空候选。
+private `collectProjectFileSets(root, selections)` 在一个 Check 本次操作内共享必要 filesystem entries，枚举普通文件、不跟随链接、零 Git/ignore 策略。fast-glob 3.3.3 只获得候选 superset，完整列表由共同 `data-boundary/config-glob` 的 micromatch 4.0.8 参数解释，每 selection 单独减去启用的固定默认数组；结果冻结、稳定排序去重。用户原生重包含不改变固定防呆层。
 
-两种来源都会在失败时停止并报告错误。filesystem 无法读取 root 或遍历目录时报告包含该目录的读取错误；Git command、
-repository 或 gitlink inspection 失败时报告 Git 来源不可用。文件收集不会自动切换到另一来源，也不会把来源失败伪装成
-空集合。
+### 访问剪枝与失败
+
+fs adapter 在 task base、静态路径及目录下沉前检查本次全部 selections：全部无需求才剪枝，空 selection 不制造需求，无法证明时继续访问。安全用户子树剪枝限末段负规则的整子树排除；不重建递归引擎，不把用户负规则永久下发为 fast-glob ignore。混合开关保持各自候选与输出。
+
+root 即使空 patterns 也必须是真实可读目录。glob 起点在父目录枚举中不存在时是无匹配；已观察到的必要路径 inspection/read 失败（含消失的 ENOENT）翻译为带绝对目标与 cause 的普通 Error，防止库吞掉真实错误。policy 跳过才允许 synthetic ENOENT。task 起点与静态后代验证路径分量，不能绕过目录链接的 no-follow。共享状态 operation-local，不承诺文件内容/原子快照或恶意并发替换隔离。
+
+### 路径身份与宿主适配
+
+候选进入完整 matcher 前只移除后端 `./` 前缀，不改写文件名。选中路径必须满足 `isNormalizedProjectRelativePath` 的既有 stable slash-path 边界。目录单次获取保留 raw name bytes，以 UTF-8 decode→encode roundtrip 判断名称忠实性；只有最终入选的有损 UTF-8 普通文件在候选去重前失败，未入选的同类文件不失败。必要目录路径分量也检查 byte 身份，不能借真正 U+FFFD 的 spelling 读到另一目录。
+
+Node byte Dirent 提供元数据；locked Bun 1.3.14 对 byte overload 实际返回 bare Uint8Array names，薄 Dirent bridge 按需要 lazy lstat 并在 entry 内缓存。两宿主仍每目录一次获取、no-follow、必要 I/O 错误透明，不建立第二个 walker。
 
 ### Public single-selection collection
 
-公开 `collectProjectFiles({ projectRoot, selection })` 是同步 façade；[收集指南](../guides/collecting-project-files.md)完整定义输入、路径、异常和结果。它先对 closed options/full selection 做 descriptor-safe snapshot，再将显式 root resolve 后交给同一 internal collection mechanism，返回 detached、冻结且排序去重的 relative slash paths。它不调用 Check constructor 补 defaults，也不把 source failure 转为空集合。
-
-named batch、`Map`、候选快照和遍历优化继续 private。façade 只验证/快照输入，不承接 eligibility、content read、Check settlement 或 scanner work；扩展共同机制时同时验证公开与 Check-private 两个入口。
+package root 的同步 `collectProjectFiles({ projectRoot, selection })` 先执行 closed、descriptor-safe detached snapshot，再 resolve root、进入同一 private 机制。非法输入 TypeError、必要 I/O Error、冻结成功空数组分别可识别。named batch、Map、候选与 fs adapter 都 private；façade 不物化 Check 后缀默认，不处理 eligibility、内容读取、结算或 scanner。
 
 ### Exact-input fingerprint
 
 需要按输入内容隔离 cache 的 Check 调用 `fingerprintProjectFiles(root, paths)`。该机制先稳定排序 exact relative paths，
 再以 LF-normalized 当前文件内容形成 SHA-256；文件顺序不改变 fingerprint，路径或内容变化会改变 fingerprint。不可读文件
 使用明确 sentinel 参与 fingerprint，后续 scanner/read 边界仍负责把实际不可读输入结算为不可用，而不是把它解释为空文件。
-
-Git tree 中的 `160000` gitlink 只有在 child path 是独立初始化的 Git worktree 时才会下沉。child 的 canonical
-Git top-level 必须等于 child 自身 canonical path；普通目录即使替换了 HEAD gitlink，也不属于 child worktree，
-遍历不得回到 parent repository。该规则只描述 current worktree collection。
 
 Package-provided Checks 的 exact file selection 只由各自的顶层 `options.files` 或 `codeAreas[id].files` 决定。
 项目自定义的 diff、baseline 或其它 comparison facts 是普通 Check data：producing Check 拥有来源、options 与 data shape；
@@ -68,9 +47,9 @@ Package-provided Checks 的 exact file selection 只由各自的顶层 `options.
 每个 package-provided Check 独立调用 project-file mechanism，并从自己的 resolved candidates 形成 exact inputs；
 不同 Check 可以有不同 file selection。scanner 不接收 project root 来重新发现或扩大输入。
 
-`source/include/exclude` 首先形成 selected paths。若 owning Check 随后还有受支持文件类型 predicate，它必须把 selected set
+`patterns` 与默认排除首先形成 selected paths。若 owning Check 随后还有受支持文件类型 predicate，它必须把 selected set
 完整分为互不相交的 accepted 与 rejected paths，且两者并集等于 selected。每个 rejected path 发布一条 non-blocking
-`input-rejected / unsupported-file-type` Record 和一条 Check-level 汇总 warning；显式宽泛 include 不因数量较多而省略
+`input-rejected / unsupported-file-type` Record 和一条 Check-level 汇总 warning；显式宽泛 patterns 不因数量较多而省略
 Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-rejected 表示分类已完成，返回带拒绝 Finding 的
 `passed`。这项规则只覆盖 Product-owned eligibility filter；backend 已收到 accepted exact path 后是否返回 measurement，
 必须由对应 adapter 的协议判断，不能推断为 input rejection。
@@ -78,7 +57,7 @@ Record。真正 zero selected 才是 `not-applicable / no-eligible-input`；all-
 各 Check 的 input adapter 保持以下不同责任；完整状态、Finding 和安全规则见各自指南：
 
 - [Duplicate detection](../checks/duplicate-detection.md) 与 [File metrics](../checks/file-metrics.md) 各自一次提交 area paths 的稳定去重并集。前者按 fragment locations 的共同 area 还原归属，后者按 path 的全部 matching areas 还原归属；共同 collection 不计算阈值或 Findings。
-- [Function metrics](../checks/function-metrics.md) 的默认 include 与 eligibility 来自同一 Check-local reader registry。先分类再分析 accepted union；rejected path 保留全部排序 area IDs，不能落入通用 source fallback。
+- [Function metrics](../checks/function-metrics.md) 的默认 patterns 与 eligibility 来自同一 Check-local reader registry。先分类再分析 accepted union；rejected path 保留全部排序 area IDs，不能落入通用 source fallback。
 - [JSON validation](../checks/json-validation.md) 以 case-sensitive `.json` predicate 分类；[Markdown lint](../checks/markdown-lint.md) 与 [Markdown Link](../checks/markdown-link-validation.md) 对 `.md` / `.markdown` 使用大小写不敏感语义。Markdown lint 只处理 selected Markdown source；Markdown Link 的 direct target 不成为新的 source。
 - [JSON Schema](../checks/json-schema-validation.md) 只读取显式 schemas/bindings 且在 selection 内的 path，不从 suffix、`$schema` 或目录发现 work。
 - [Secret detection](../checks/secret-detection.md) 没有普通 suffix rejection；它在 detector 前对每个 selected path 完成
@@ -99,6 +78,4 @@ payload 重建领域事实。
 
 ## 验证
 
-`src/package-checks/project-files/**` tests 覆盖显式来源、include/exclude、Git 成功空集合、filesystem 与 ignore 规则独立、
-来源失败、命名集合、点号路径、NUL 路径、fingerprint、已初始化 submodule worktree 收集和 exact-input acceptance；各
-Check 相邻 tests 证明 supported extensions、own options、scanner no-expansion 与 four-state settlement。
+`src/package-checks/project-files/**` tests 覆盖 root/空 patterns、closed snapshot、默认开关、原生完整列表、静态/task base 剪枝、范围内/范围外失败、目录消失、各类 symlink、Check-local 共享、Git/ignore 独立性、fingerprint 和 exact inputs；各 Check 相邻 tests 证明 eligibility、安全读取与四态结算。

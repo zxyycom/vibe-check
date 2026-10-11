@@ -3,7 +3,6 @@ import {
   snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 import {
-  defaultProjectFileSelection,
   resolveProjectFileSelection,
   snapshotProjectFileSelection
 } from "../project-files/configuration.ts";
@@ -12,9 +11,7 @@ import { validJsonValidationOptions } from "./options-validation.ts";
 
 const DEFAULT_MAXIMUM_BYTES = 1_048_576;
 const DEFAULT_FILES = Object.freeze({
-  exclude: defaultProjectFileSelection.exclude,
-  include: Object.freeze(["**/*.json"]),
-  source: defaultProjectFileSelection.source
+  patterns: Object.freeze(["**/*.json"])
 });
 
 /** 将可省略 JSON validation policy 物化为完整、冻结的 execution options。 */

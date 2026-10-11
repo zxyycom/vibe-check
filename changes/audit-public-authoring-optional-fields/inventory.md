@@ -61,7 +61,7 @@
 
 形成时依据是[原 collector Decision](../../docs/decisions/archive/provide-synchronous-single-selection-file-collection.md)的完整 selection 契约。
 后续文件范围已按[统一 patterns 与默认排除决策](../../docs/decisions/unify-file-selection-with-default-excludes.md)另行收敛，
-迁移由[收集 Change](../switch-project-file-collection-backend/design.md)承接，旧 exclude 的省略候选不再作为该方向的设计前提。
+迁移后的完整 selection 由[收集指南](../../docs/guides/collecting-project-files.md)定义，旧 exclude 的省略候选不再作为该方向的设计前提。
 当前运行时用法仍以[收集指南](../../docs/guides/collecting-project-files.md)为准；本审计只保留当时观察。
 
 ### jsonSchemaValidation 的 `referenceResolution.sources[].catalog`（bundled branch）

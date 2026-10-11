@@ -1,8 +1,6 @@
 # 选择与收集项目文件
 
-本文说明随包 Check 共用的文件选择规则，以及独立收集 path 的工具。只配置现有 Check 时，直接阅读[共享的 files 选择语义](#共享的-files-选择语义)；需要自行取得文件列表时使用下方工具。
-
-`collectProjectFiles(...)` 是 package root 的同步工具，供普通项目脚本或自定义 Check 按 Vibe Check 的显式文件选择规则取得**一份**项目文件 path 快照。它只收集 path；调用方仍拥有 Check eligibility、内容读取、安全边界、Finding、Record 和终态结算。
+本文完整定义共同文件 selection、固定默认排除与同步 `collectProjectFiles`。收集只提供普通文件路径；Check eligibility、内容安全、Finding、Record 与终态仍由 owning Check 负责。
 
 ## 最小用法
 
@@ -13,8 +11,7 @@ const selectedPaths = collectProjectFiles({
   projectRoot: ".",
   selection: {
     ...defaultProjectFileSelection,
-    exclude: [...defaultProjectFileSelection.exclude, "**/fixtures/**"],
-    include: ["src/**/*.ts"]
+    patterns: ["src/**/*.ts", "!**/fixtures/**"]
   }
 });
 
@@ -25,35 +22,59 @@ if (!Object.isFrozen(selectedPaths)) {
 
 ## 共享的 files 选择语义
 
-需要选择项目文件的随包 Check 使用 `{ source, include, exclude }`：`source` 明确选择 `filesystem` 或 `git-worktree`，include/exclude 使用 project-root-relative、`/` 分隔的 minimatch glob，点号开头的路径也参与匹配，exclude 优先。Project change regions 复用同一 include/exclude matcher，但只对 Git 已得出的 changed-path candidates 匹配，不重新枚举 project files。来源不可用时不切换来源；Check 将它结算为 `unavailable`，下方独立工具则同步 throw。
+selection 使用 `{ patterns, useDefaultExcludes?: boolean }`。`patterns` 是相对 project root、使用 `/` 的完整 micromatch 4.0.8 原生正/负列表。点号路径参与匹配；brace、extglob、globstar 和大小写敏感语义由同一后端解释。固定参数为 `dot: true`、`matchBase: false`、`nobrace: false`、`nocase: false`、`noext: false`、`noglobstar: false`、`posix: true`、`strictSlashes: false`。
 
-`defaultProjectFileSelection` 是深冻结、可组合的基线，不是全局配置。它排除常见 VCS/Product state、dependencies、build/generated、cache、coverage、log、temporary 与 virtual-environment paths。`duplicateDetection`、`fileMetrics` 与 `jsonSchemaValidation` 原样采用该基线；`functionMetrics`、`jsonValidation` 与 `markdownLinkValidation` 保留 source/exclude，按支持文件类型派生默认 include。`secretDetection` 要求显式完整 selection。精确默认列表可从导出值读取，各 Check 的实际默认与 eligibility 见其指南。
+原生列表可以用 `!` 排除；后续正 pattern 可以重新包含用户负规则排除的路径。只有负规则的列表选择相应补集；空数组始终不选择路径。所有规则整体交给同一个 matcher，不对单个负 pattern 做 any 匹配。
 
-Check constructor 接受省略字段时，由 owning Check 物化默认值；显式 `include` / `exclude` 数组完整替换相应默认值，`include: []` 不选择路径，`exclude: []` 不排除路径。需要追加排除时像上例一样 spread；多个 Check 共享范围时显式复用 TypeScript value。各 Check 的 area policy、accepted/rejected input 与内容安全边界仍各自独立。
+`useDefaultExcludes` 省略或 `true` 启用固定防呆层，只有 `false` 关闭，其它类型拒绝。最终范围是用户列表结果减去启用的默认排除；用户包含、重新包含或排列规则都不能绕过这一层。关闭仅移除默认数组，用户负规则、eligibility 与内容安全仍生效。
 
-## 工具输入、来源与结果
+`DEFAULT_PROJECT_FILE_EXCLUDES` 是冻结的固定普通 glob 数组，覆盖 VCS/Product state、dependencies、build/generated、cache、coverage、log、temporary 与 virtual-environment 路径。它沿用以下基线，不自动加入 archive/historical 或业务规则：
 
-每次调用都必须给出 `projectRoot` 与完整 `selection: { source, include, exclude }`：
+```text
+**/.cache/**  **/.git  **/.git/**  **/.log/**  **/.pytest_cache/**
+**/.tmp/**  **/.venv/**  **/.vibe-check/**  **/__pycache__/**
+**/artifacts/**  **/build/**  **/coverage/**  **/dist/**  **/generated/**
+**/*.generated.*  **/node_modules/**  **/target/**  **/tmp/**  **/vendor/**  **/venv/**
+```
 
-| 输入                | 要求与作用                                                                                                                                |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `projectRoot`       | 非空且不含 U+0000 的路径；相对路径从调用时的工作目录解析，绝对路径直接使用。示例的 `"."` 是调用方显式选择当前目录，并非省略字段的默认值。 |
-| `selection.source`  | 只能是 `"filesystem"` 或 `"git-worktree"`，决定候选路径来源。                                                                             |
-| `selection.include` | 无空洞的字符串数组，每项是相对 root、使用 `/` 的 glob；路径至少命中一项才被选中，`[]` 不选择任何路径。                                    |
-| `selection.exclude` | 同样是无空洞的字符串数组；命中任一 glob 就排除，`[]` 不增加排除条件。排除优先于包含。                                                     |
+`defaultProjectFileSelection` 是深冻结的 `{ patterns: ["**/*"], useDefaultExcludes: true }` 基线，不是全局配置。Check constructor 物化省略的 patterns，显式数组完整替换该默认；追加用户规则时显式 spread patterns。`functionMetrics`、`jsonValidation`、`markdownLint` 与 `markdownLinkValidation` 按支持后缀派生默认 patterns；其它使用基线的 Check 与各 area 的实际默认见对应指南。`secretDetection` 要求显式完整 selection。
 
-这些对象只接受列出的自有数据字段，不接受额外字段或 getter/setter；数组也不接受额外属性或 accessor 元素。工具不在遗漏 root 时替调用方选择目录；显式 root 不是路径隔离、文件系统沙箱或文件内容可读性的承诺。
+Run change regions 只使用 `{ patterns }`，对 Git changed-path facts 使用同一原生列表与参数，不枚举磁盘，也不应用扫描默认排除；删除和重命名路径仍可匹配。默认排除只控制收集范围，不是显式路径的全局过滤器。
 
-本工具不物化 `ProjectFileSelectionOptions` 的省略字段；要使用基线，像示例一样显式 spread `defaultProjectFileSelection`。匹配和替换规则见上节。
+## 工具输入
 
-返回值是相对解析后 root、使用 `/`、按稳定文本顺序排序并去重的冻结数组。没有匹配 path 时，返回冻结的空数组；返回后文件是否仍存在、是否可读或内容是否变化不在此工具承诺范围内。它不会读取文件内容，也不与 Check 或其它调用共享原子快照。
+每次公开调用必须提供 `projectRoot` 与 `selection.patterns`，本工具不猜测 root 或 Check 的后缀默认。
 
-`filesystem` 递归枚举 root 下普通文件，不跟随符号链接，也不解释 `.gitignore`。
+| 输入 | 契约 |
+| --- | --- |
+| `projectRoot` | 非空、无 U+0000 的字符串；相对路径按调用时 cwd 解析，绝对路径直接使用。 |
+| `selection.patterns` | 无空洞的非空字符串数组（数组本身可为空），整体解释为相对 root 的 slash glob 列表。 |
+| `selection.useDefaultExcludes` | 可省略的 boolean；省略或 true 启用固定默认层。 |
 
-`git-worktree` 使用 Git 已跟踪文件和未被 Git 标准忽略规则排除的未跟踪文件。已初始化且确为独立 Git worktree 的 submodule 当前文件也会加入，并返回相对本次 project root 的路径；gitlink 目录本身不是文件候选。两种来源都在候选收集后应用上述 glob 选择；即使 `include: []`，来源不可用仍是失败，不会被当作成功空结果。
+对象只接受列出的自有可枚举数据字段；不接受 getter/setter、额外字段或 symbol。数组不接受空洞、accessor 元素或额外属性。校验形成 detached、冻结快照，不修改调用方输入；反射 Proxy 仍可能执行自身 trap，不构成不可信对象沙箱。
+
+## 磁盘来源与访问范围
+
+候选来自纯磁盘普通文件枚举，不跟随文件/目录 symlink，root symlink 作为不可用 root 失败。子仓库按普通目录处理；不发现、读取或转换 ignore 策略，不调用 Git，也不查询 tracked/untracked、HEAD、index 或 repository 身份。ignore 文件本身可以作为普通路径入选。
+
+读取前只在能证明本次全部 selections 均无需求时剪枝；无法证明时继续访问。混合开关下仍需要默认排除目录的 selection 不会被其它 selection 剪掉。共享只限一个 Check 的本次操作，公开工具仍是同步单份调用；没有跨 Check hidden cache 或全局候选上下文。
+
+## 结果与路径身份
+
+结果是相对解析后 root、使用 `/`、按稳定文本顺序排序、去重并冻结的数组。候选进入完整 matcher 前只移除后端的 `./` 前缀，不改写真实文件名字符。
+
+POSIX 上实际名称含反斜杠、drive-like 前缀，或 byte name 不能忠实转换为 UTF-8 等、无法表示为 Product normalized relative path 的 selected 文件导致普通 acquisition Error，不伪造别名或静默丢弃。真正含 U+FFFD 的合法名称仍可返回；同名有损 byte entry 不能借它隐藏，也不能用有损 spelling 访问另一真实目录。未入选普通文件和已证明无需求的目录不导致这类失败；字节名 Error 给出所在绝对目录与 raw name hex。
+
+合法无匹配返回冻结空数组；空 patterns 仍验证 root 存在、真实目录和可读取。扫描前已不存在的 glob 路径是合法无匹配；已观察到且必要访问的目录在扫描中消失属于失败。
+
+不读取文件内容，不承诺返回后存在性、内容可读性、跨调用/文件系统原子快照、sandbox 或恶意并发路径替换隔离。
 
 ## 失败与调用边界
 
-options、root 或完整 selection 不合法时，调用同步抛出 `TypeError`；例如缺失/多余字段、accessor value、非法 source、非 string glob、空 root 或含 U+0000 的 root 都不被接受。选定 filesystem 无法遍历或 Git source 不可用时，同步抛出带失败路径或 Git 来源上下文的普通 `Error`；工具绝不改用另一来源或把失败伪装成空数组。
+非法 options/root/selection 同步抛 `TypeError`；必要 filesystem inspection 或目录读取失败抛带目标路径上下文及 cause 的普通 `Error`，不返回 partial paths，不回退来源。无匹配与不可用不是同一结果。Check 在自己的生命周期边界将收集失败结算为 unavailable，后续内容读取与 exact-input 安全继续由它负责。
 
-每次同步收集一份完整 selection，不接受 `AbortSignal`，不支持中途取消。需要处理多份 selection 时分别调用，并由调用方决定合并语义；内容读取与检查结果仍由调用方负责。
+## 迁移旧配置
+
+旧 `source`、`include`、`exclude` 及 `ProjectFileSource` 已移除；closed validation 明确拒绝旧字段，不提供 alias、双读或隐式映射。将正 include 与用户排除改为一个列表，如 `["src/**", "!src/fixtures/**"]`。需选择依赖、build 或 vendor 路径时，显式设置 `useDefaultExcludes: false`，再自行给出用户负规则。
+
+旧 Git 来源没有等价替代开关：被 Git 忽略的普通文件也可能入选，子仓库普通目录会展开，链接不会入选。复核实际候选而不是仅替换字段；Git 变更选择仍使用独立的 Run `changes`。

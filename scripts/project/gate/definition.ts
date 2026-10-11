@@ -71,7 +71,7 @@ const projectGateRepositoryScanResourceClaims = Object.freeze({
 function createRepositoryJsonMaterialCheck() {
   return jsonValidation({
     checkId: "materials-json-validator",
-    files: { include: ["docs/**/*.json"] },
+    files: { patterns: ["docs/**/*.json"] },
     maximumBytes: REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES
   });
 }
@@ -90,7 +90,7 @@ function createRepositorySchemaMaterialCheck() {
       schemaId: "https://vibe-check.local/schemas/vibe-check-report.schema.json"
     })),
     checkId: "materials-schema-validator",
-    files: { include: ["docs/schemas/**/*.json", "docs/examples/json/*-report.json"] },
+    files: { patterns: ["docs/schemas/**/*.json", "docs/examples/json/*-report.json"] },
     maximumBytes: REPOSITORY_MATERIAL_JSON_MAXIMUM_BYTES,
     schemas: [
       {

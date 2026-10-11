@@ -46,17 +46,17 @@ export function createCommonAreaCheck(root: string) {
   );
   const codeAreas = {
     scripts: {
-      files: { ...FILES, include: ["scripts/**/*.ts"] },
+      files: { ...FILES, patterns: ["scripts/**/*.ts"] },
       minimumLines: 10,
       minimumTokens: 100
     },
     shared: {
-      files: { ...FILES, include: ["scripts/b.ts", "src/a.ts"] },
+      files: { ...FILES, patterns: ["scripts/b.ts", "src/a.ts"] },
       minimumLines: 10,
       minimumTokens: 90
     },
     source: {
-      files: { ...FILES, include: ["src/**/*.ts"] },
+      files: { ...FILES, patterns: ["src/**/*.ts"] },
       minimumLines: 3,
       minimumTokens: 20
     }
@@ -99,13 +99,12 @@ export function assertDefaultCheckComposition(): void {
   assert.equal(Object.isFrozen(defaultCheck.options), true);
   assert.deepEqual(
     duplicateDetection({
-      codeAreas: { source: { files: { include: ["src/**/*.ts"] } } }
+      codeAreas: { source: { files: { patterns: ["src/**/*.ts"] } } }
     }).options.codeAreas.source,
     {
       files: {
-        exclude: defaultCheck.options.codeAreas.project.files.exclude,
-        include: ["src/**/*.ts"],
-        source: "filesystem"
+        patterns: ["src/**/*.ts"],
+        useDefaultExcludes: true
       },
       findingPolicy: "non-blocking",
       minimumLines: 4,

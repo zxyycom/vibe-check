@@ -10,38 +10,64 @@ Entities:
 - quality input fingerprint 使用排序后的文件内容生成稳定 SHA-256。
 - 文件内容变化会改变 fingerprint，文件顺序变化不会改变 fingerprint。
 
-## Case WB-SCOPE-GIT-CANDIDATES-001: Git worktree candidate identity 与 config glob 语义稳定
-
-Owner: `docs/development/project-files.md#file-collection-mechanism`
-Entities:
-
-- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > preserves NUL-delimited Git candidate paths containing newlines`
-- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > uses the same minimatch semantics for Git and filesystem candidates`
-- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > treats successful empty Git results as authoritative`
-- `bun|src/package-checks/project-files/collection.test.ts|quality submodule input > includes initialized current submodule worktree files`
-- `bun|src/package-checks/project-files/collection.test.ts|quality submodule input > does not re-enter parent from a replaced HEAD gitlink`
-  Proves:
-- Git 只以 NUL-delimited protocol 枚举 ignore-aware candidate paths，换行不会改变文件身份。
-- include/exclude 只由同一个 config glob contract 解释；brace、globstar 与 dot-path semantics 不因 explicit source 改变。
-- Git 成功空输出是合法空候选；已初始化的子 worktree 文件可下沉。
-- gitlink 目录本身不成为文件候选；被普通目录替换的 gitlink 也不会回到父 worktree。
-
-## Case WB-SCOPE-FILE-COLLECTION-001: Product explicit file sources 与 named selections 稳定
+## Case WB-SCOPE-FILE-COLLECTION-001: 纯磁盘候选与 Check-local 选择保持独立
 
 Owner: `docs/development/project-files.md#file-collection-mechanism`
 Entities:
 
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > enumerates the filesystem independently of Git ignore rules`
-- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > fails closed when the selected Git source is unavailable`
-- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > does not add exclusions outside the selected filesystem config`
-- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > resolves multiple filesystem sets from one named selection call`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > shares necessary directory reads without conflating mixed selections`
 - `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > applies explicit default exclusions while retaining other dot files`
 - `bun|src/package-checks/project-files/input-eligibility.test.ts|project file eligibility partition > assigns every selected path once while preserving accepted and rejected order`
   Proves:
-- Filesystem source 不解释 `.gitignore`，只应用 selection 自己的 include/exclude；公开、深冻结的默认 selection 明确移除 common VCS/Product state、dependency、build/generated、cache、coverage、log、temporary 与 virtual-environment paths，同时其它 dot files 仍可选择。
-- 每个明确选择的来源都在失败时停止，不会在 Git 与 filesystem 之间自动切换；目录读取或 Git 来源失败与合法空集合不同。
-- 一个 named-selection 调用可从同一 source snapshot 形成多个稳定 file sets，且不会增加 config 之外的 hidden exclusions。
-- Check-owned eligibility partition 按 selected 顺序只评估每个 path 一次，并把它恰好保留在 accepted 或 rejected 一侧；结果与两侧数组均冻结。
+- Git 可用、不可用与非仓库不改变相同磁盘结果；ignore 文件和子仓库普通文件不因策略身份漏选。
+- 同次必要目录只读取一次；命名选择冻结、去重排序，混合默认开关独立输出且空 selection 不制造需求。
+- 默认防呆 omitted/true 不可重包含绕过；false 仅移除固定层，用户负规则仍有效，默认数组被冻结隔离。
+- selected 每个路径恰好保留在 owning Check 的 accepted/rejected 一侧，不扩大 approved exact set。
+
+## Case COLLECTION-NATIVE-PATTERNS-001: 完整原生列表语义一致
+
+Owner: `docs/guides/collecting-project-files.md#共享的-files-选择语义`
+Entities:
+
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > matches native complete lists consistently for collection and explicit paths`
+- `bun|src/project-run/changes/git.test.ts|Project Run Git changes > uses native pattern lists for regions without collection default exclusions`
+  Proves:
+- collection 和共同显式 path matcher 对 dot、brace、extglob、换行路径、负-only、空列表、`./` 动态/静态 pattern 及用户重新包含使用同一结果；共享选择也不保留后端的 `./` 候选前缀。
+- Run 对真实 Git delta 采用同一完整列表语义，支持 dot/brace/extglob/负-only/重新包含/空列表；build changed path 不套扫描默认排除。
+- 扫描前不存在的静态和动态 glob 起点是合法无匹配。
+
+## Case COLLECTION-PATH-IDENTITY-001: Selected pathname 保留真实身份
+
+Owner: `docs/guides/collecting-project-files.md#结果与路径身份`
+Entities:
+
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > matches native complete lists consistently for collection and explicit paths`
+- `bun|src/package-checks/project-files/collection-path-identity.test.ts|quality input file collection > preserves pathname identity without admitting lossy UTF-8 aliases`
+  Proves:
+- selected POSIX 反斜杠文件名不能被改写为虚假目录路径；不可表示时普通 Error，未入选时仍正常。
+- POSIX byte name 无法忠实转换为 UTF-8 时，仅入选普通文件或必要目录访问失败，Error 保留真实 name bytes；窄选择、用户排除及空 patterns 不误报。
+- 真正含 U+FFFD 的合法文件正常返回；有损字节名不能借同名合法 spelling 绕过检查或被去重隐藏，必要同名目录也不能被读成另一目录。
+
+## Case COLLECTION-ACCESS-FAILURES-001: 访问前剪枝与必要失败可区分
+
+Owner: `docs/development/project-files.md#file-collection-mechanism`
+Entities:
+
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > prunes excluded task bases and static paths before inspection`
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > distinguishes necessary access failures and disappearing directories from no-match`
+  Proves:
+- 已证明无需求的 task base、静态路径和默认排除子树在 inspection/read 之前跳过，空 selection 不阻挡剪枝。
+- 范围外真实不可读目录不导致失败；范围内 EACCES 和已观察目录消失的 ENOENT 抛带路径 Error，不返回 partial 或成功空集合。
+
+## Case COLLECTION-NO-FOLLOW-001: 链接不成为普通候选
+
+Owner: `docs/guides/collecting-project-files.md#磁盘来源与访问范围`
+Entities:
+
+- `bun|src/package-checks/project-files/collection.test.ts|quality input file collection > does not follow root base file directory or broken symbolic links`
+  Proves:
+- 文件、断链、目录链接起点与静态后代都不入选；显式 root 链接在空 patterns 下仍失败。
 
 ## Case PUBLIC-PROJECT-FILE-COLLECTION-001: Public single selection collection retains validated immutable path snapshots
 
@@ -51,11 +77,10 @@ Entities:
 - `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > collects a frozen detached selection snapshot from an explicit root`
 - `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > retains a successful empty selection as a frozen result`
 - `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > rejects malformed input without invoking accessor hooks`
-- `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > keeps selected source failures distinct from invalid invocation`
+- `bun|src/package-checks/project-files/public-collection.test.ts|public project file collection > keeps required filesystem failures distinct from invalid invocation`
   Proves:
-- public collection requires a descriptor-safe closed options/full-selection snapshot, accepts explicit default composition, and never invokes selection or array accessor input while rejecting missing/extra fields, malformed root, non-string/sparse arrays, or illegal source as `TypeError`.
-- a successful public call returns a detached frozen, stable project-relative path snapshot; a frozen empty array remains a successful no-match result.
-- selected Git source unavailability remains an ordinary collection failure, distinct from invalid invocation and never represented as an empty result or fallback.
+- closed、descriptor-safe 输入拒绝 accessor、空洞、额外/旧字段与非法默认开关，不执行 getter；root 与 patterns 显式必填。
+- 公共结果 detached、冻结、排序去重，合法空结果与必要 filesystem 普通 Error、非法输入 TypeError 可区分；空 patterns 仍验证 root。
 
 ## Case ADD-FUNCTION-METRICS-LIZARD-SCOPE-001: Function metrics selects exactly translated analyzer inputs
 
@@ -141,14 +166,14 @@ Entities:
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > keeps synthetic canary material out of completed Run facts and published outputs`
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > fails closed for deterministic coverage gaps without treating them as waived findings`
 - `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > accounts for non-text reads in the total budget and applies the selected-file limit`
-- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > rejects an exact root-escaping final-leaf symlink without Records under the safe-read protocol`
+- `bun|src/package-checks/secret-detection/secret-detection.test.ts|secretDetection > does not select an exact root-escaping final-leaf symlink`
 
 Proves:
 
 - Secret detection reads and detects only its explicit selected paths; excluded paths are never rediscovered or reported.
 - NUL, invalid UTF-8, and bounded resource gaps remain explicit failed coverage facts rather than clean or waived inputs.
 - Every successfully read raw byte, including a later non-text gap, consumes the total byte budget; file-count and remaining-total exhaustion stop detector work with explicit coverage facts.
-- A selected final-leaf symlink cannot make the Check read beyond its project-root path: POSIX no-follow and path/descriptor identity verification make the whole Check unavailable without partial Records. Intermediate-directory symlink or reparse traversal is outside this evidence. Synthetic canary material is absent from Run facts, machine publication, Records stream, and diagnostic output.
+- Final-leaf symlinks are not collected, so a symlink-only selection settles as no-eligible-input without reading its target or emitting Records. This does not prove malicious concurrent replacement isolation. Synthetic canary material is absent from Run facts, machine publication, Records stream, and diagnostic output.
 
 ## Case FIX-SECRET-DETECTION-WINDOWS-001: Windows branch does not pre-reject regular inputs
 

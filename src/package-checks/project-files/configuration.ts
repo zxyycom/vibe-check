@@ -1,66 +1,53 @@
 import {
   hasRequiredAndOptionalRecordKeys,
   snapshotClosedArray,
-  snapshotClosedRecord,
-  snapshotExactClosedRecord
+  snapshotClosedRecord
 } from "../../data-boundary/closed-values.ts";
 
-export const PROJECT_FILE_SOURCES = Object.freeze(["filesystem", "git-worktree"] as const);
-
-/** 文件选择可使用的显式候选来源。 */
-export type ProjectFileSource = (typeof PROJECT_FILE_SOURCES)[number];
-
-/** 读取项目文件的 Check 所拥有的文件选择输入。 */
+/** Check authoring 的文件范围；显式 patterns 完整替换 owning Check 默认。 */
 export interface ProjectFileSelectionOptions {
-  /** 候选文件来源；省略时使用 owning Check 的来源默认值，当前随包 Check 均为 `filesystem`。 */
-  readonly source?: ProjectFileSource;
-  /** 相对项目根目录且使用 `/` 的 glob；省略时使用 owning Check 的 include 默认值，显式数组完整替换。 */
-  readonly include?: readonly string[];
-  /** 优先于 `include` 的 glob；省略时使用 owning Check 的 exclude 默认值，显式数组完整替换。 */
-  readonly exclude?: readonly string[];
+  readonly patterns?: readonly string[];
+  /** 省略或 true 启用固定默认排除，只有 false 关闭。 */
+  readonly useDefaultExcludes?: boolean;
 }
 
-/** Check execution 消费的完整项目文件选择。 */
+/** 同步文件收集的完整选择；patterns 必填，默认防呆不属于用户规则。 */
 export interface ProjectFileSelection {
-  readonly exclude: readonly string[];
-  readonly include: readonly string[];
-  readonly source: ProjectFileSource;
+  readonly patterns: readonly string[];
+  readonly useDefaultExcludes?: boolean;
 }
 
-/**
- * Package-provided Checks 共用的通用文件选择基线。
- *
- * 对象与数组均不可变；需要保留默认排除并追加项目规则时，使用对象与数组 spread 建立新值。
- * 个别 Check 会从此 baseline 派生更精准的默认 include；显式组合此 value 仍表示通配全部路径。
- */
-export const defaultProjectFileSelection: ProjectFileSelection = deepFreeze({
-  exclude: [
-    "**/.cache/**",
-    "**/.git",
-    "**/.git/**",
-    "**/.log/**",
-    "**/.pytest_cache/**",
-    "**/.tmp/**",
-    "**/.venv/**",
-    "**/.vibe-check/**",
-    "**/__pycache__/**",
-    "**/artifacts/**",
-    "**/build/**",
-    "**/coverage/**",
-    "**/dist/**",
-    "**/generated/**",
-    "**/*.generated.*",
-    "**/node_modules/**",
-    "**/target/**",
-    "**/tmp/**",
-    "**/vendor/**",
-    "**/venv/**"
-  ],
-  include: ["**/*"],
-  source: "filesystem"
+/** 固定、冻结的防呆路径基线；用户正规则不能绕过启用的这一层。 */
+export const DEFAULT_PROJECT_FILE_EXCLUDES: readonly string[] = Object.freeze([
+  "**/.cache/**",
+  "**/.git",
+  "**/.git/**",
+  "**/.log/**",
+  "**/.pytest_cache/**",
+  "**/.tmp/**",
+  "**/.venv/**",
+  "**/.vibe-check/**",
+  "**/__pycache__/**",
+  "**/artifacts/**",
+  "**/build/**",
+  "**/coverage/**",
+  "**/dist/**",
+  "**/generated/**",
+  "**/*.generated.*",
+  "**/node_modules/**",
+  "**/target/**",
+  "**/tmp/**",
+  "**/vendor/**",
+  "**/venv/**"
+]);
+
+/** 所有普通路径的冻结基线；各 Check 可派生更精准的 patterns。 */
+export const defaultProjectFileSelection: ProjectFileSelection = Object.freeze({
+  patterns: Object.freeze(["**/*"]),
+  useDefaultExcludes: true
 });
 
-/** 按 owning Check 提供的可信完整 defaults 解析并冻结一份 authoring selection。 */
+/** 对 closed authoring selection 建立 detached、冻结的完整快照。 */
 export function resolveProjectFileSelection(
   value: unknown,
   defaults: ProjectFileSelection = defaultProjectFileSelection
@@ -69,73 +56,69 @@ export function resolveProjectFileSelection(
   if (
     selection === undefined ||
     !hasRequiredAndOptionalRecordKeys(selection, {
-      optional: ["exclude", "include", "source"],
+      optional: ["patterns", "useDefaultExcludes"],
       required: []
     })
-  ) {
+  )
     return undefined;
-  }
 
-  const exclude = resolveStringArray(selection.exclude, defaults.exclude);
-  const include = resolveStringArray(selection.include, defaults.include);
-  const source = selection.source ?? defaults.source;
-  if (exclude === undefined || include === undefined || !isProjectFileSource(source)) {
+  const patterns =
+    selection.patterns === undefined
+      ? Object.freeze([...defaults.patterns])
+      : snapshotStringPatterns(selection.patterns);
+  const useDefaultExcludes = resolveDefaultExcludes(selection, defaults);
+  if (patterns === undefined || useDefaultExcludes === undefined) return undefined;
+  return Object.freeze({ patterns, useDefaultExcludes });
+}
+
+/** 公开完整 selection 的校验；不补 patterns 默认值。 */
+export function snapshotCompleteProjectFileSelection(
+  value: unknown
+): ProjectFileSelection | undefined {
+  const selection = snapshotClosedRecord(value);
+  if (
+    selection === undefined ||
+    !hasRequiredAndOptionalRecordKeys(selection, {
+      required: ["patterns"],
+      optional: ["useDefaultExcludes"]
+    })
+  )
     return undefined;
-  }
+  if (snapshotStringPatterns(selection.patterns) === undefined) return undefined;
+  return resolveProjectFileSelection(selection);
+}
 
-  return Object.freeze({ exclude, include, source });
+export function validProjectFileSelection(value: unknown): value is ProjectFileSelection {
+  return snapshotCompleteProjectFileSelection(value) !== undefined;
 }
 
 export function snapshotDefaultProjectFileSelection(): ProjectFileSelection {
   return snapshotProjectFileSelection(defaultProjectFileSelection);
 }
 
-/** 为 owning Check 对可信的完整 selection 建立 detached、冻结快照。 */
 export function snapshotProjectFileSelection(
   selection: ProjectFileSelection
 ): ProjectFileSelection {
   return Object.freeze({
-    exclude: Object.freeze([...selection.exclude]),
-    include: Object.freeze([...selection.include]),
-    source: selection.source
+    patterns: Object.freeze([...selection.patterns]),
+    useDefaultExcludes: selection.useDefaultExcludes ?? true
   });
 }
 
-export function validProjectFileSelection(value: unknown): value is ProjectFileSelection {
-  const selection = snapshotExactClosedRecord(value, ["exclude", "include", "source"]);
-  return (
-    selection !== undefined &&
-    validStringArray(selection.exclude) &&
-    validStringArray(selection.include) &&
-    isProjectFileSource(selection.source)
-  );
-}
-
-function isProjectFileSource(value: unknown): value is ProjectFileSource {
-  return PROJECT_FILE_SOURCES.some((source) => source === value);
-}
-
-function resolveStringArray(
-  value: unknown,
-  fallback: readonly string[]
-): readonly string[] | undefined {
-  if (value === undefined) return Object.freeze([...fallback]);
+function snapshotStringPatterns(value: unknown): readonly string[] | undefined {
   const items = snapshotClosedArray(value);
-  if (items === undefined || !items.every(isString)) return undefined;
-  return Object.freeze([...items]);
+  return items?.every((item): item is string => typeof item === "string" && item.length > 0) ===
+    true
+    ? Object.freeze([...items])
+    : undefined;
 }
 
-function validStringArray(value: unknown): boolean {
-  const items = snapshotClosedArray(value);
-  return items?.every(isString) === true;
-}
-
-function isString(value: unknown): value is string {
-  return typeof value === "string";
-}
-
-function deepFreeze<T>(value: T): T {
-  if (typeof value !== "object" || value === null || Object.isFrozen(value)) return value;
-  for (const nested of Object.values(value)) deepFreeze(nested);
-  return Object.freeze(value);
+function resolveDefaultExcludes(
+  selection: Readonly<Record<string, unknown>>,
+  defaults: ProjectFileSelection
+): boolean | undefined {
+  if (!Object.hasOwn(selection, "useDefaultExcludes")) return defaults.useDefaultExcludes ?? true;
+  return typeof selection.useDefaultExcludes === "boolean"
+    ? selection.useDefaultExcludes
+    : undefined;
 }

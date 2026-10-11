@@ -7,19 +7,19 @@ export const PACKAGE_CHECK_CONSTRUCTOR_TYPE_ACCEPTANCE_SOURCE = String.raw`const
 const isolatedPrimaryFileMetrics = fileMetrics({
   ...primaryFileMetricsDeclaration,
   codeAreas: {
-    source: { files: { include: ["src/**/*.ts"] } }
+    source: { files: { patterns: ["src/**/*.ts"] } }
   }
 });
 const isolatedSecondaryFileMetrics = fileMetrics({
   checkId: "isolated-file-metrics-secondary",
   codeAreas: {
-    source: { files: { include: ["src/**/*.ts"] } }
+    source: { files: { patterns: ["src/**/*.ts"] } }
   }
 });
 const isolatedFunctionMetrics = functionMetrics({
   checkId: "isolated-function-metrics",
   codeAreas: {
-    source: { files: { include: ["src/**/*.ts"] } }
+    source: { files: { patterns: ["src/**/*.ts"] } }
   }
 });
 const defaultFileMetricsCheckId: "file-metrics" = fileMetrics().checkId;
