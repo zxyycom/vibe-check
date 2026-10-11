@@ -138,8 +138,8 @@ measurement 未完整完成时，Check 返回 `unavailable`，不发布 metric p
 当前测试与探针支持原意、控制流和局部成本判断。FD fault injection、终止完成时刻、真实 E2E 性能
 及稳定 latency/RSS budget 仍待取证。
 
-后续策略和验收讨论由[读取优化 Draft](../../changes/optimize-function-metrics-input-admission/proposal.md)承接；
-报告中的样本保存取证时结果。
+本报告保存形成时结论与样本；后续读取策略的实施、精确安装对照与完整验收证据见正式后继
+[读取优化实施与验收](./verify-function-metrics-admission-implementation.md)。
 
 ## 随附资源
 

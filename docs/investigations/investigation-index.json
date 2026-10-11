@@ -1596,7 +1596,7 @@
       "261006-compare-node-file-collection-backends": "sha256:7ec4e86892c76278ea1f821931155d218310a9243693ae40f1e1b97fbb00b4f9",
       "261008-assess-lizard-1-24-1-upgrade": "sha256:e051d2ef0eeb9bb1e3bc65ff3c75599b797a3ef16547b743d3b7879ace943293",
       "261008-fast-glob-git-collection-boundaries": "sha256:58c5cb1dd4c4488e10edb816a8697b964cc49e48d14c15f2e98a7b657dbb88b1",
-      "261008-function-metrics-admission-yield": "sha256:fe026b3807dbb5af1f51bcf285ee44fe4d6bd600ed1c689b8521a1ac9ec24b66",
+      "261008-function-metrics-admission-yield": "sha256:1230189edd9b43da77bca687d38e385f45ad656e8a932308d109237f7ad7dc15",
       "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
       "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d",
