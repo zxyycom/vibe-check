@@ -1298,6 +1298,19 @@
         "typescript"
       ],
       "title": "TypeScript 函数边界与空值合并指标缺陷独立核验"
+    },
+    "261011-diagnose-investigation-pending-mode-conflict": {
+      "formedAt": "2026-10-11T07:48:22Z",
+      "name": "diagnose-investigation-pending-mode-conflict",
+      "question": "目标索引 pending 与 HEAD 相同且集合检查通过时，为什么 all 暂存仍报 pending-conflict，index/domain 分步能否安全恢复？",
+      "relations": [],
+      "resourceIds": [],
+      "sourcePath": "diagnose-investigation-pending-mode-conflict.md",
+      "tags": [
+        "investigation-report",
+        "tooling"
+      ],
+      "title": "Investigation 暂存的可执行资源模式冲突"
     }
   },
   "metadata": {},
@@ -1363,7 +1376,8 @@
       "261008-function-metrics-admission-yield": "sha256:fe026b3807dbb5af1f51bcf285ee44fe4d6bd600ed1c689b8521a1ac9ec24b66",
       "261008-trace-typescript-metrics-upstream-origin": "sha256:50ff372cfd91c4ecee8f6c3e5fc4c11b775bdcb48e414db9ac8de8c072d0649b",
       "261008-verify-lizard-latest-typescript-defects": "sha256:b1129056854cc86b0814bfbd62b884b65df04c7fb9e33829708e589e8e6c019c",
-      "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d"
+      "261008-verify-typescript-function-metrics-defects": "sha256:680898d834234f413e36596f394375b75f8a9eeb1b1c4d3aa5b57a93604d889d",
+      "261011-diagnose-investigation-pending-mode-conflict": "sha256:d373ce2000e94f934dca2e0894e7dde7e5fc5452acfa0dbc1fc18e70b1e92ff2"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }
