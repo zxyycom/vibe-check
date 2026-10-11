@@ -153,3 +153,16 @@ Entities:
 - `bun|src/package-checks/file-metrics/scc/availability.test.ts|SCC availability > accepts only the SCC 4.0.0 executable contract`
   Proves:
 - The file-metrics adapter accepts only exact `scc version 4.0.0`; a custom SCC 3.7.0 executable is an actionable contract error rather than a fallback measurement source.
+
+## Case FM-TYPESCRIPT-PUBLIC-FINDINGS-001: TypeScript 修正经真实 Worker 与公开 Run 结算
+
+Owner: `docs/checks/function-metrics.md#效果与结果`
+Entities:
+
+- `bun|src/package-checks/function-metrics/typescript-metrics.integration.test.ts|functionMetrics TypeScript corrections reach public Worker findings, default limits, strict limits, and waiver reconciliation`
+- `bun|src/package-checks/function-metrics/typescript-metrics.integration.test.ts|functionMetrics retains every nullish contributor beyond the eight-item human preview`
+
+Proves:
+
+- typed-tail 不发布函数外 Findings；四项 ?? 的诊断 profile 给出 CCN 5 / ND 4 与恰四项完整贡献，默认 limits 与严格等限 profile 均 passed；blocking、精确 applied waiver 和修复后旧身份 unused audit 各按完整 Finding 集合结算。
+- 九项真实 ?? 的完整 Record 保留全部有序行号，而 human message 只展示八项并准确报告余项，不以展示限截断证据。

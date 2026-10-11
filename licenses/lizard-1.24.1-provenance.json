@@ -464,8 +464,8 @@
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
-      "implementationEvidence": "translated target present in the current worktree",
-      "verification": "source-derived analyzer tests and target-path review",
+      "implementationEvidence": "translated target present in the current worktree. Independent CodeReader tokenizer addition recognizes ?? while retaining source JSX processing; the inherited TypeScript condition set owns CCN classification.",
+      "verification": "tsx.test.ts source scenarios and typescript-metrics.test.ts TSX/JSX nullish inheritance controls",
       "targetPath": "src/package-checks/function-metrics/analyzer/readers/tsx.ts"
     },
     {
@@ -486,8 +486,8 @@
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete reader module retained as a source-aligned analyzer dependency.",
-      "implementationEvidence": "translated target present in the current worktree",
-      "verification": "source-derived analyzer tests and target-path review",
+      "implementationEvidence": "translated target present in the current worktree. Reader-local ?? token addition, optional-identifier negative lookahead, and logicalOperators membership correct nullish CCN and contributor classification; inherited JS/Vue consumers share the approved deviation.",
+      "verification": "typescript-metrics.test.ts typed/inferred boundaries, optional/ternary controls, short-circuit ND matrix and inherited consumers; original oracle remains unchanged",
       "targetPath": "src/package-checks/function-metrics/analyzer/readers/typescript.ts"
     },
     {
@@ -530,8 +530,8 @@
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Complete shared reader dependency retained for source-aligned concrete readers.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts retains CodeStateMachine and CodeReader state, source-spelled fields/aliases (including languages and extra_subclasses), and both source decorator factories alongside necessary TypeScript state helpers.",
-      "verification": "code-reader.test.ts tokenizer/state/source-field/decorator tests plus source-derived reader-family tests",
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts retains CodeStateMachine and CodeReader state, source-spelled fields/aliases (including languages and extra_subclasses), and both source decorator factories alongside necessary TypeScript state helpers. Completed callbacks release their single slot before receiver-bound invocation so token replay preserves a replacement; this approved product correction is independent of upstream source identity.",
+      "verification": "code-reader.test.ts receiver/reentrant callback tests; typescript-metrics.test.ts exact function-tail boundaries; 27-reader and extension corpus",
       "targetPath": "src/package-checks/function-metrics/analyzer/shared/code-reader.ts"
     },
     {
@@ -807,8 +807,8 @@
       "spdx": "MIT",
       "status": "translated",
       "boundary": "Check-private maximum nesting-depth processor. The source import-time FileInfoBuilder/FunctionInfo monkey patches are narrowed to typed analysis-model.ts and analysis-context.ts host members; no extension loader or Product plugin surface is exposed.",
-      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts retains the processor, threshold, metadata and bracket helper; analysis-model.ts and analysis-context.ts host the typed per-function and FileInfoBuilder lifecycle seams.",
-      "verification": "selected-extension fixed-tag oracle observations plus extension lifecycle, typed-host-seam and port-fa\u00e7ade parity tests",
+      "implementationEvidence": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts retains the processor, threshold, metadata and bracket helper; analysis-model.ts and analysis-context.ts host the typed per-function and FileInfoBuilder lifecycle seams. Reader-gated ?? handling reuses the existing &&/|| condition, hidden-bracket and per-function lifecycle without adding it to the all-language loop set.",
+      "verification": "selected-extension raw oracle and lifecycle tests; typescript-metrics.test.ts explicit ND matrix with &&/|| controls and Kotlin gating",
       "targetPath": "src/package-checks/function-metrics/analyzer/extensions/lizardnd.ts",
       "additionalTargetPaths": [
         "src/package-checks/function-metrics/analyzer/analysis-context.ts",

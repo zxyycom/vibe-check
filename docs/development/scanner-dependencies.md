@@ -98,3 +98,17 @@ identity tests 从该 mapping 验证上述 source/target/symbol 闭合；测试 
 上游 release 查询由[显式 advisory 命令](../tooling/lizard-upstream.md#run)执行。采用新 baseline 或改变 translated
 source boundary 时，需另行批准，先更新根 provenance，再同步 current evidence、source-alignment review 并重跑相关证据。
 Product runtime 与 package payload 只使用随包材料，不以归档、临时 clone 或网络获取替代当前 analyzer。
+
+### TypeScript 函数指标的有界偏差
+
+共享 `CodeStateMachine.consume` 在完成时先释放旧 callback 槽，再以原 receiver 调用一次；
+重入 token replay 安装的新槽保留，`lastToken`/`toExit` 生命周期不变，继续使用单 callback 槽。
+TypeScript-local addition 单 token 识别 `??`，可选标识符规则不吞其首个问号；TSX 的独立 addition 同步。
+TypeScript `logicalOperators` 由现有 `conditionCounter`/`complextags` 提供每 token CCN +1 和真实 source-order line。
+JavaScript、TSX/JSX、Vue 的继承影响属于同一偏差；其他 reader 不获得新的操作符计量。
+
+`lizardnd` 仅为 `logicalOperators` 已声明 `??` 的 reader 复用现有 `&&`/`||` 路径，全语言 `DEFAULT_LOOPS` 保持不变。
+每次打开括号重置首项标记，condition 内只处理当前标记下的首个短路运算符，condition 外逐项处理；
+hidden bracket、分号和函数 reset 继续由既有状态机维护。公开 ND 解释与数值示例见[指南](../checks/function-metrics.md#参数与默认配置)；直接矩阵、
+27-reader/55-suffix oracle、malformed/extension lifecycle、真实 Worker 和 installed consumer 分别验收相应边界。
+原始固定 oracle 保留不改，产品修正期望独立声明；source inventory 的 upstream hash 指向来源字节，与本地 patch 分开。

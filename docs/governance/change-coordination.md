@@ -72,11 +72,11 @@ owner 时，实施与合入必须串行。
 及[来源映射维护](../tooling/source-mapping.md)拥有；形成时验收见
 [实施调查](../investigations/verify-lizard-1-24-1-implementation.md)。本节不保留已交付升级的 Change 链接或阶段副本。
 
-[`fix-typescript-function-metrics`](../../changes/fix-typescript-function-metrics/proposal.md)
-独立修复显式返回类型边界污染与 `??` 分类/计量；[短路口径已确认](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)，
-局部 callback、TS/TSX 与 reader-gated ND 路线仍按其 artifacts 实施并独立验收。
-默认继承已验收固定来源的稳定提交，实施前核对实际继承的 source identity；两项缺陷未由升级修复。
-共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和合入，不把固定来源交付当作修复或读取优化的自动授权。
+显式返回类型函数的真实边界与 `??` 单 token/短路计量由
+[Function Metrics](../checks/function-metrics.md)及[有界偏差 owner](../development/scanner-dependencies.md#typescript-函数指标的有界偏差)承接；
+[短路口径 Decision](../decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)已与完整方向对齐，形成时验收见
+[TypeScript 修复调查](../investigations/verify-typescript-metrics-implementation.md)。本节不保留修复 Change 的阶段或恢复副本。
+共享 analyzer、来源账本、Case 与包材料的后续变更仍串行实施和合入，不把指标修复或固定来源交付当作读取优化的自动授权。
 
 ### 函数指标读取优化
 

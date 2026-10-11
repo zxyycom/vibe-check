@@ -6,6 +6,7 @@
  * Modified: translated to the Check-private TypeScript port. Python's
  * import-time FileInfoBuilder/FunctionInfo monkey patches are represented by
  * typed private members on those host classes in analysis-context.ts and analysis-model.ts.
+ * Product correction: readers declaring ?? reuse the existing short-circuit path.
  */
 
 import type { AnalyzerReader, TokenStream } from "../contracts.ts";
@@ -70,7 +71,11 @@ export class LizardExtension implements LizardExtensionProtocol {
           reader.context.set_in_condition(false);
           reader.context.set_logical_operator_added(false);
         }
-      } else if (token === "&&" || token === "||") {
+      } else if (
+        token === "&&" ||
+        token === "||" ||
+        (token === "??" && reader.logicalOperators.has(token))
+      ) {
         if (reader.context.get_in_condition()) {
           if (!reader.context.get_logical_operator_added()) {
             nestingDepth = reader.context.add_nd_condition();

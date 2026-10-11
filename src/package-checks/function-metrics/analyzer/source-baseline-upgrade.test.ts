@@ -25,9 +25,30 @@ assertUpgradeOracle(oracle);
 test("fixed 1.24.1 upgrade scenarios retain raw oracle separately from approved Rust/Kotlin deviations", () => {
   assert.equal(oracle.cases.length, 14);
   assert.equal(oracle.inheritedTypeScriptDefectControls.length, 2);
-  // These are fixed upstream controls, not claims that upgrading repaired them.
+  // Preserve raw upstream defects; product corrections are separate expectations.
   for (const entry of oracle.inheritedTypeScriptDefectControls) {
-    assert.deepEqual(analyzeLizardSource(entry)?.function_list, entry.functions);
+    const raw = entry.functions[0];
+    assert.ok(raw !== undefined);
+    const typedTail = entry.filename === "typed-tail.ts";
+    assert.equal(raw.cyclomatic_complexity, typedTail ? 4 : 9);
+    assert.equal(raw.max_nesting_depth, typedTail ? 3 : 8);
+    assert.deepEqual(analyzeLizardSource(entry)?.function_list, [
+      {
+        ...raw,
+        end_line: 3,
+        nloc: 3,
+        cyclomatic_complexity: typedTail ? 1 : 5,
+        max_nesting_depth: typedTail ? 0 : 4,
+        complex_tags: typedTail
+          ? []
+          : [
+              ["??", 2],
+              ["??", 2],
+              ["??", 2],
+              ["??", 2]
+            ]
+      }
+    ]);
   }
   for (const entry of oracle.cases) {
     const expected = entry.functions.map((functionInfo) => ({ ...functionInfo }));

@@ -10,7 +10,13 @@
 
 [`functionMetrics`](checks/function-metrics.md) 的内置源码基线升级到 Lizard `1.24.1`，改善 regex 和 TS/TSX template 后的函数边界、Python PEP 695 泛型名、Kotlin expression/when 函数、PHP trait method 结束位置和 Rust match arm CCN。Rust 真实 arm 贡献与 Kotlin 正文位置按既有产品结果承诺局部校正。四项指标、默认 limits、27 readers / 55 suffixes、配置与公共 API 保持不变，不提供 Cognitive Complexity。
 
-同一源文件可能出现新增函数、不同名称/位置或指标，从而改变 Finding 及 blocking 结果。升级后请复核 Records 与精确 waiver；旧函数 identity 可能产生 unused audit。已知 TypeScript 返回类型后的尾部归属与 `??` 计量缺陷未由此次来源升级修复。
+同一源文件可能出现新增函数、不同名称/位置或指标，从而改变 Finding 及 blocking 结果。升级后请复核 Records 与精确 waiver；旧函数 identity 可能产生 unused audit。
+
+### TypeScript 函数指标修复
+
+独立于来源升级，[`functionMetrics`](checks/function-metrics.md) 修正显式返回类型后的函数边界，尾随控制流不再进入该函数的位置或指标。
+TS/JS、TSX/JSX 与 Vue 的真实 `??` 按单 token、每项 CCN +1 和完整贡献处理，ND 沿用现有短路状态路径，空白不再改变结果。
+这些修正可移除误报或改变指标 Finding，默认阈值和公共配置保持不变；请一并复核上述 Records 与 waiver 升级影响。
 
 ### 文件收集范围迁移
 

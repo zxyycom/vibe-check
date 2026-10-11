@@ -4,7 +4,9 @@
  * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: translated to TypeScript while retaining the tokenizer and
- * state-machine sequencing used by concrete Lizard language readers.
+ * state-machine lifecycle used by concrete Lizard language readers.
+ * Product correction: release completed callback before receiver-bound replay,
+ * preserving a callback installed by reentry.
  */
 
 import type { AnalyzerReader, TokenStream } from "../contracts.ts";
@@ -217,11 +219,11 @@ export class CodeStateMachine {
     const completed = this.invokeCurrentState(token);
     if (completed) {
       this.next(this.savedState);
-      // Keep the source ordering: a callback installed by this callback is
-      // still cleared afterwards, because CodeStateMachine has one callback
-      // slot rather than a callback stack.
-      this.callback?.();
+      // A completed callback may replay a token and install the next substate.
+      // Release only the completed slot, preserving its replacement on reentry.
+      const completedCallback = this.callback;
       this.callback = undefined;
+      completedCallback?.call(this);
     }
     this.lastToken = token;
     return this.toExit;

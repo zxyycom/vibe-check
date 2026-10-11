@@ -1,0 +1,56 @@
+{
+  "baselineCommit": "39d9d55d65228bacfd32ef4ec9037a207d8394b4",
+  "upstreamRevision": "0488a260e74e73ceba3149d7c600faac6a3616e6",
+  "candidateVersion": "0.0.0-local.9b17c1319000",
+  "tarballPath": "build/artifacts/zxyycom-vibe-check-0.0.0-local.9b17c1319000.tgz",
+  "tarballSha256": "b06e518ba7c5148d656e02eba7caf6e0f482e7ec737dbde458dd2c7be862f055",
+  "packageStatus": "package candidate version: 0.0.0-local.9b17c1319000\npackage freshness: current\npackage unpacked path: /workspace/vibe-check/build/package\npackage tarball path: /workspace/vibe-check/build/artifacts/zxyycom-vibe-check-0.0.0-local.9b17c1319000.tgz\npackage installed entry: /workspace/vibe-check/scripts/project/node_modules/@zxyycom/vibe-check/index.mjs\n",
+  "runtime": {
+    "bun": "1.3.14",
+    "node": "v24.18.0"
+  },
+  "functionMetricsTests": {
+    "passed": 109,
+    "failed": 0,
+    "files": 38
+  },
+  "testEvidence": {
+    "entities": 698,
+    "cases": 176,
+    "topics": 15
+  },
+  "gate": {
+    "command": "mise exec -- bun run check -- --all",
+    "exitCode": 0,
+    "passed": 43,
+    "failed": 0,
+    "logPath": "/workspace/vibe-check/.log/project-gate/2026-10-11T15-46-03.632Z-1610049-7fe9d9ce-ab83-4e65-bbe1-491c9e456ade"
+  },
+  "installedPublicProfiles": [
+    {
+      "name": "diagnostic-limits",
+      "outcome": {
+        "status": "failed",
+        "data": {
+          "blockingFindingCount": 7,
+          "findingCount": 7
+        }
+      }
+    },
+    {
+      "name": "default-limits",
+      "outcome": {
+        "status": "passed",
+        "data": {
+          "blockingFindingCount": 0,
+          "findingCount": 0
+        }
+      }
+    }
+  ],
+  "decision": {
+    "id": "261011-align-nullish-coalescing-with-short-circuit-function-metrics",
+    "status": "active",
+    "alignment": "aligned"
+  }
+}

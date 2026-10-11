@@ -1454,6 +1454,35 @@
         "verification"
       ],
       "title": "Lizard 1.24.1 移植与完整 Check 升级成本验收"
+    },
+    "261011-verify-typescript-metrics-implementation": {
+      "formedAt": "2026-10-11T15:23:55Z",
+      "name": "verify-typescript-metrics-implementation",
+      "question": "固定 Lizard 1.24.1 基线上的 callback 与空值合并修正是否满足完整私有、公有与安装后验收？",
+      "relations": [
+        {
+          "summary": "以实际补丁与完整验收复查已确认修复路线",
+          "target": "261011-prepare-function-metrics-change-plans",
+          "type": "复查"
+        }
+      ],
+      "resourceIds": [
+        "261011-verify-typescript-metrics-implementation/acceptance.json",
+        "261011-verify-typescript-metrics-implementation/baseline-observations.json",
+        "261011-verify-typescript-metrics-implementation/final-gate.txt",
+        "261011-verify-typescript-metrics-implementation/installed-observations.json",
+        "261011-verify-typescript-metrics-implementation/preliminary-gate.txt",
+        "261011-verify-typescript-metrics-implementation/reproduce.mjs",
+        "261011-verify-typescript-metrics-implementation/source-observations.json"
+      ],
+      "sourcePath": "verify-typescript-metrics-implementation.md",
+      "tags": [
+        "function-metrics",
+        "lizard",
+        "source-fidelity",
+        "typescript"
+      ],
+      "title": "TypeScript 函数指标修复实施与验收"
     }
   },
   "metadata": {},
@@ -1525,7 +1554,8 @@
       "261011-prepare-function-metrics-change-plans": "sha256:7534553a4eda133dd5bf47e5c850412904ba9789ca25809a0ab504dc21ef1755",
       "261011-project-file-collection-readiness": "sha256:5b24bc7039c102534880329a4b8e8518057747d6eabe5acbd4b298e31ae79a94",
       "261011-project-file-region-index-readiness": "sha256:eec8745461486fb48b36858697b7bcb2402912af4bcb98803b48174a331c3859",
-      "261011-verify-lizard-1-24-1-implementation": "sha256:0ccbf36d3dd6432d94bb9826e50943b325987b57b8ceeff5c4c4fe70dfac559a"
+      "261011-verify-lizard-1-24-1-implementation": "sha256:0ccbf36d3dd6432d94bb9826e50943b325987b57b8ceeff5c4c4fe70dfac559a",
+      "261011-verify-typescript-metrics-implementation": "sha256:71deb48849ccef3b35294ccf1e762f67760f84e3554e734ba347423758e48964"
     },
     "metadata": "sha256:ad239f69455040edff99a6eaf4b9225367dda57fc00a297a785bfbc73a34be7b"
   }

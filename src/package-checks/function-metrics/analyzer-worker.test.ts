@@ -83,6 +83,33 @@ describe("functionMetrics analyzer Worker", () => {
         ]
       }
     );
+    assert.deepEqual(
+      await sendWorkerRequest({
+        files: [
+          {
+            path: "src/nullish.ts",
+            source:
+              "function defaults(a,b,c,d): number[] {\n return [a ?? 0,b??0,c ?? 0,d??0];\n}\nif (true) { for (const x of [1]) { if (x) {} } }"
+          }
+        ]
+      }),
+      {
+        kind: "complete",
+        metrics: [
+          {
+            complexityContributors: [2, 2, 2, 2].map((line) => ({ line, token: "??" })),
+            cyclomaticComplexity: { source: "typescript-analyzer", value: 5 },
+            endLine: 3,
+            file: "src/nullish.ts",
+            lines: 3,
+            name: "defaults",
+            nestingDepth: { source: "typescript-analyzer", value: 4 },
+            parameterCount: 4,
+            startLine: 1
+          }
+        ]
+      }
+    );
     assert.deepEqual(await sendWorkerRequest({ files: [{ path: "src/a.ts" }] }), {
       kind: "analysis-failed"
     });

@@ -82,6 +82,22 @@ protocol 或 consumer setting，且不改变 root provenance inventory 或 sourc
 两项偏差由 direct 矩阵、原始 oracle 的显式字段覆盖及真实 Worker/public Run 验收。
 贡献列表的公开语义见 [Check 指南](../../../../../../../docs/checks/function-metrics.md#效果与结果)；Kotlin `when` 的 `->` 不属于 reader conditions，不由这两项偏差补采。
 
+## TypeScript callback 与空值合并的受控偏差
+
+- `CodeStateMachine.consume` 完成时保存并清空旧 callback，然后 `call(this)` 调用。旧槽仅完成一次，
+  token replay 安装的新 callback 保留；不改变 receiver、lastToken/toExit 或建立 callback stack。
+- TypeScript tokenizer 在局部 addition 识别 `??`，`\w+\?` 以 `(?!\?)` 避免吞掉紧凑写法的第一问号。
+  TSX 直接使用 CodeReader，因而独立 addition 同步；TypeScript logicalOperators 新增 `??`，
+  CCN 与 complextags 沿原 processor 每个真实 token 增加一并保留真实 source line。
+- ND 仅在 reader 已声明 `??` 为 logical operator 时复用现有 `&&`/`||` 分支。
+  condition 内外、打开括号重置首项标记、hidden bracket、分号和函数 reset 均不重写；
+  不把 `??` 加到 DEFAULT_LOOPS 或授权其他语言的新口径。JS、JSX/TSX 与 Vue 的继承属于必要影响。
+
+`typescript-metrics.test.ts` 保存独立边界、七操作符与实际 ND 状态矩阵，`source-baseline-upgrade.test.ts`
+只覆盖产品期望，原始 1.24.1 两项缺陷 control 的错误观察保持不变；它们不再充当产品正确期望。
+完整 metrics、贡献、Finding 与 waiver 经真实 Worker/public Run 验收，installed Node consumer 同时覆盖 typed-tail 与四项 `??`。
+本偏差不扩成返回类型 parser 重写，不宣称未探测合法形态受完整语法支持。
+
 ## Regex 的 source-start host 表达
 
 Python `\A` 使用绝对起点断言 `(?<![^])`。共享 tokenizer 有多行模式，JS `^` 会错误吞掉合法跨行 division；

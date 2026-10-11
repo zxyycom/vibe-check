@@ -14,6 +14,7 @@ export function writeExternalConsumerRuntimeFixture(consumerDirectory: string): 
   writeFileSync(join(consumerDirectory, "duplicate-a.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "duplicate-b.ts"), duplicateSource(), "utf8");
   writeFileSync(join(consumerDirectory, "function-metrics.rs"), functionMetricsSource(), "utf8");
+  writeFileSync(join(consumerDirectory, "function-metrics.ts"), nullishMetricsSource(), "utf8");
   writeFileSync(
     join(consumerDirectory, "schema.json"),
     `${JSON.stringify({
@@ -80,6 +81,18 @@ function functionMetricsSource(): string {
     0 => 3,
     1 => 4,
     _ => 5,
+  }
+}
+`;
+}
+
+function nullishMetricsSource(): string {
+  return `function nullishProof(a,b,c,d): number[] {
+  return [a ?? 0, b??0, c ?? 0, d??0];
+}
+if (true) {
+  for (const value of [1]) {
+    if (true) { void value; }
   }
 }
 `;

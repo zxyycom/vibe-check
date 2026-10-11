@@ -5,8 +5,8 @@
 ## Context
 
 - [行为](../../docs/investigations/verify-typescript-function-metrics-defects.md)、[来源](../../docs/investigations/trace-typescript-metrics-upstream-origin.md)、[新版复查](../../docs/investigations/verify-lizard-latest-typescript-defects.md)保存 11 项对照、根因和回调候选；补丁及公开链验收由 [Tasks](tasks.md)承接。
-- [准备度核对](../../docs/investigations/prepare-function-metrics-change-plans.md)读取当前共享状态机、TS/TSX/JS/Vue、pipeline 与 ND/complextags。shared-state 测试仍明确断言原始清槽顺序；实施时保留原始来源证据，并按获批偏差更新产品期望。
-- [`??` Decision](../../docs/decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)为 active + unaligned，用户已确认单 token、每 token CCN +1、完整贡献和既有短路 ND；本 Change 承接该方向的工程路线。
+- [准备度核对](../../docs/investigations/prepare-function-metrics-change-plans.md)读取当前共享状态机、TS/TSX/JS/Vue、pipeline 与 ND/complextags。实施前 shared-state 测试明确断言原始清槽顺序；当前测试按获批偏差更新，原始来源观察独立保留。
+- [`??` Decision](../../docs/decisions/align-nullish-coalescing-with-short-circuit-function-metrics.md)确认单 token、每 token CCN +1、完整贡献和既有短路 ND；本 Change 承接该方向的工程路线。实施前为 active + unaligned，现已基于直接行为、owner 与安装证据核对为 aligned；本项最终组合 Gate 仍由 [Tasks](tasks.md)单独验收。
 
 ## Goals / Non-Goals
 

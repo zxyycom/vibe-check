@@ -4,6 +4,7 @@
  * Upstream revision: 0488a260e74e73ceba3149d7c600faac6a3616e6.
  * SPDX-License-Identifier: MIT
  * Modified: translated to the product-owned TypeScript analyzer.
+ * Product correction: reader-local nullish tokens and logical CCN classification.
  */
 
 import type { FileInfoBuilder } from "../analysis-context.ts";
@@ -28,7 +29,7 @@ export class TypeScriptReader extends CodeReader {
   public static override ext = ["ts"];
   public static override languageNames = ["typescript", "ts"];
   public static override controlFlowKeywords = new Set(["if", "elseif", "for", "while", "catch"]);
-  public static override logicalOperators = new Set(["&&", "||"]);
+  public static override logicalOperators = new Set(["&&", "||", "??"]);
   public static override caseKeywords = new Set(["case"]);
   public static override ternaryOperators = new Set(["?"]);
 
@@ -80,7 +81,7 @@ export class TypeScriptReader extends CodeReader {
       yield "`";
     }
 
-    const typeScriptAddition = `${addition}|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?)|${TEMPLATE_LITERAL}`;
+    const typeScriptAddition = `${addition}|(?:\\?\\?)|(?:#\\w+)|(?:\\$\\w+)|(?:\\w+\\?(?!\\?))|${TEMPLATE_LITERAL}`;
     for (const token of CodeReader.generateTokens(sourceCode, typeScriptAddition, tokenFactory)) {
       if (token.startsWith("`") && token.endsWith("`") && token.length > 1) {
         yield* splitTemplateLiteral(token);

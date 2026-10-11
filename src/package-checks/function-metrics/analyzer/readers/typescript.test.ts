@@ -68,7 +68,7 @@ test("TypeScript reader preserves fixtures, type syntax, decorators, regexes, te
       ].join("\n")
     ).map(toMeasurement),
     [
-      { ccn: 2, endLine: 16, name: "function1", nloc: 13, parameterCount: 4, startLine: 2 },
+      { ccn: 2, endLine: 14, name: "function1", nloc: 12, parameterCount: 4, startLine: 2 },
       { ccn: 1, endLine: 18, name: "function2", nloc: 3, parameterCount: 2, startLine: 16 }
     ]
   );

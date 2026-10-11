@@ -146,6 +146,13 @@ const installedFunctionMetrics = functionMetrics({
     worker: {
       files: { patterns: ["function-metrics.rs"] },
       limits: { cyclomaticComplexity: { maximum: 1 } }
+    },
+    typescript: {
+      files: { patterns: ["function-metrics.ts"] },
+      limits: {
+        cyclomaticComplexity: { maximum: 1 },
+        codeLines: {maximum: 3, lowComplexityAllowance: {cyclomaticComplexityBelow: 6, maximum: 3}}
+      }
     }
   }
 });

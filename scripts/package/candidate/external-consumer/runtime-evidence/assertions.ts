@@ -6,6 +6,7 @@ import {
 } from "./durations.ts";
 import { assertDuplicateAndTerminalMessages } from "./messages.ts";
 import { assertLearnedScheduling } from "./learned-scheduling.ts";
+import { assertTrustedNonBlockingFunctionMetricsRecord } from "./function-metrics.ts";
 import { assertNodeRuntime } from "./runtime-host.ts";
 import { isRecord, isUnknownArray, requiredString } from "./values.ts";
 
@@ -70,7 +71,7 @@ export function assertCandidateRunEvidence(runEvidence: CandidateFixtureEvidence
   assert.deepEqual(runEvidence.duplicateData, { blockingFindingCount: 0, findingCount: 1 });
   assertTrustedNonBlockingDuplicateRecord(runEvidence.duplicateRecords);
   assert.equal(runEvidence.functionMetricsOutcome, "passed");
-  assert.deepEqual(runEvidence.functionMetricsData, { blockingFindingCount: 0, findingCount: 1 });
+  assert.deepEqual(runEvidence.functionMetricsData, { blockingFindingCount: 0, findingCount: 2 });
   assertTrustedNonBlockingFunctionMetricsRecord(runEvidence.functionMetricsRecords);
   assert.equal(runEvidence.primaryFileMetricsOutcome, "passed");
   assert.equal(runEvidence.secondaryFileMetricsOutcome, "passed");
@@ -262,32 +263,6 @@ function assertTrustedNonBlockingDuplicateRecord(value: unknown): void {
   }
   assert.equal(record.data.blocking, false);
   assert.equal(hasFixtureDuplicateLocations(record.data.locations), true);
-}
-
-function assertTrustedNonBlockingFunctionMetricsRecord(value: unknown): void {
-  if (!isUnknownArray(value))
-    throw new TypeError("isolated function-metrics records must be an array");
-  assert.equal(value.length, 1);
-  const record = value[0];
-  if (!isRecord(record)) throw new TypeError("isolated function-metrics record must be an object");
-  assert.equal(record.checkId, "function-metrics");
-  if (!isRecord(record.data)) {
-    throw new TypeError("isolated function-metrics record data must be an object");
-  }
-  assert.deepEqual(record.data, {
-    blocking: false,
-    codeAreas: ["worker"],
-    complexityContributors: [
-      { line: 4, token: "=>" },
-      { line: 5, token: "=>" }
-    ],
-    functionName: "workerProof",
-    limit: 1,
-    metric: "cyclomatic-complexity",
-    path: "function-metrics.rs",
-    startLine: 1,
-    value: 3
-  });
 }
 
 function hasFixtureDuplicateLocations(value: unknown): boolean {

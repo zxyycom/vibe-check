@@ -12,7 +12,7 @@ Entities:
   Proves:
 
 - The Check-private façade exposes the fixed 55-suffix, case-insensitive capability and analyzes only caller-supplied in-memory source into frozen Lizard-domain function facts; an unsupported suffix returns no analysis rather than a coerced empty result. It privately composes the selected `complextags` and `nd` processors, retaining each function's complete source-ordered `[token, line]` contributors and maximum nesting depth. Its 27-reader/56-entry source-order coverage differentially compares both façade APIs and fixture analysis with `get_reader_for`, including `R/r` canonical deduplication, mixed case, multi-dot and slash/backslash paths.
-- 固定 1.24.1 的 14 项升级样例独立保存原始 oracle；Rust 真实 arm 贡献与 Kotlin 正文位置偏差只覆盖显式字段，其余字段逐项与原始来源一致。两项原始 TypeScript 缺陷 controls 保留尾部归属与空值合并观察，证明升级未修复这些缺陷。
+- 固定 1.24.1 的 14 项升级样例独立保存原始 oracle；Rust 真实 arm 贡献与 Kotlin 正文位置偏差只覆盖显式字段，其余字段逐项与原始来源一致。两项原始 TypeScript 缺陷 controls 保留来源的错误尾部归属与空值合并观察；产品期望独立覆盖真实边界和四项 ?? 的 CCN 5 / ND 4，不改写上游事实。
 - Fixed-tag observations cover all 110 normal/edge/malformed reader fixtures and ten direct extension semantic cases, including contributor order/line, `else if`, ternary, first/subsequent logical operators, bracket/indent closure and per-function reset.
 - ASCII fast-path hits and misses, plus Unicode prefix/suffix and folds, every JavaScript line terminator, no suffix and unknown suffix all observably agree with the registry result through the façade APIs.
 - This Case does not prove Product admission, filesystem I/O, cancellation, Worker transport, `FunctionMetric` mapping, public export, or a replaceable analyzer interface.

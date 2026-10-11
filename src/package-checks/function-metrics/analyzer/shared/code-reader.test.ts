@@ -120,14 +120,27 @@ describe("Lizard shared tokenizer", () => {
 });
 
 describe("Lizard shared state machine", () => {
-  it("invokes the completed-state callback before clearing it, preserving recursive callback replacement", () => {
+  it("releases the completed callback once with its receiver and retains the reentrant replacement", () => {
     const state = new RecursiveCallbackState(new FileInfoBuilder("callback.cpp"));
     state.start();
 
     state.consume("first");
+    assert.equal(typeof state.callback, "function");
+    assert.equal(state.lastToken, "first");
+    state.consume("second");
     state.consume("second");
 
-    assert.deepEqual(state.callbackEvents, ["first"]);
+    assert.deepEqual(state.callbackEvents, ["first", "recursive"]);
+    assert.equal(state.callback, undefined);
+    assert.equal(state.lastToken, "second");
+    assert.equal(state.to_exit, false);
+
+    const plain = new CodeStateMachine(new FileInfoBuilder("plain.cpp"));
+    plain.subState(() => true);
+    assert.equal(plain.consume("done"), false);
+    assert.equal(plain.callback, undefined);
+    plain.to_exit = true;
+    assert.equal(plain.consume("after"), true);
 
     const bracketState = new BoundBracketActionState(new FileInfoBuilder("brackets.cpp"));
     bracketState.start();
@@ -195,9 +208,14 @@ class RecursiveCallbackState extends CodeStateMachine {
   public readonly callbackEvents: string[] = [];
 
   public start(): void {
-    this.subState(this.completeFirst, () => {
+    this.subState(this.completeFirst, function (this: RecursiveCallbackState) {
+      assert.equal(this.callback, undefined);
       this.callbackEvents.push("first");
-      this.subState(this.completeSecond, () => this.callbackEvents.push("recursive"));
+      this.subState(this.completeSecond, function (this: RecursiveCallbackState) {
+        assert.equal(this.callback, undefined);
+        this.callbackEvents.push("recursive");
+      });
+      this.consume("replayed");
     });
   }
 

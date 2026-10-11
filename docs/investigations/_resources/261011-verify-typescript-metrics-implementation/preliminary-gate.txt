@@ -1,0 +1,68 @@
+$ mise exec -- bun scripts/project/gate/run.ts --all
+project gate start: candidate=0.0.0-local.bbe4f1af5e95; source=local; selection=all; package-acceptance=selected
+Vibe Check
+total 43 checks
+
+Checks:
+  [1/43] Prepared package candidate | passed | 3.9ms
+  [2/43] Prepared external package consumer | passed | 1.5s
+  [3/43] Bun repository material validation tests | passed | 4s
+  [4/43] Bun package-tools boundary tests | passed | 4.9s
+  [5/43] Bun external package consumer type acceptance | passed | 4.3s
+  [6/43] Bun package artifact acceptance | passed | 3.9s
+  [7/43] Bun repository layout tests | passed | 3.3s
+  [8/43] Bun admission workbench tests | passed | 3.9s
+  [9/43] Markdown link validation | passed | 4.1s
+  [10/43] Bun Project Gate tooling tests | passed | 3s
+  [11/43] Bun Product runtime tests | passed | 3.1s
+  [12/43] Function metrics | passed | 5.2s
+    [record] function:{"file":"scripts/project/gate/definition.ts","name":"createProjectGateEntries"}:function-code-density | {"blocking":false,"codeAreas":["script-tooling"],"functionName":"createProjectGateEntries","limit":150,"metric":"f… [truncated]
+    [info] Function metric finding for scripts/project/gate/definition.ts:203 createProjectGateEntries function-code-density was waived: Gate 的完整顺序 manifest 是低分支的声明清单；按行数拆分会隐藏 Check 顺序和选择，其他函数指标仍阻断。
+  [13/43] Bun Product supporting Check tests | passed | 2.6s
+  [14/43] Bun Product function metrics tests | passed | 3s
+  [15/43] Bun package calculation and material tests | passed | 1.8s
+  [16/43] Semantic Case ledger | passed | 1.8s
+  [17/43] Bun external package consumer documentation acceptance | passed | 1.9s
+  [18/43] Bun external package consumer runtime acceptance | passed | 1.7s
+  [19/43] Bun Product duplicate detection tests | passed | 1.5s
+  [20/43] Bun Product file metrics tests | passed | 1.6s
+  [21/43] Duplicate detection | passed | 1.7s
+  [22/43] Bun ordinary script tooling tests | passed | 1.5s
+  [23/43] Markdown lint | passed | 1.2s
+  [24/43] TypeScript product lint | passed | 1.4s
+  [25/43] Decision records | passed | 1.3s
+  [26/43] Bun machine artifact validation tests | passed | 1.1s
+  [27/43] Bun Test Evidence tooling tests | passed | 1.5s
+  [28/43] TypeScript script lint | passed | 1.5s
+  [29/43] Bun Project Gate change selection tests | passed | 1s
+  [30/43] Bun Product Markdown link tests | passed | 1.2s
+  [31/43] TypeScript script typecheck | passed | 426.3ms
+  [32/43] Bun Product JSON tests | passed | 545.4ms
+  [33/43] Bun Product secret detection tests | passed | 664.7ms
+  [34/43] Source format | passed | 398.4ms
+  [35/43] TypeScript product typecheck and import boundary | passed | 460.3ms
+  [36/43] JSON validation | passed | 371.2ms
+  [37/43] Repository publication and machine example material validator | passed | 212.7ms
+  [38/43] JSON Schema validation | passed | 93.5ms
+  [39/43] Repository schema publication material validator | passed | 90.9ms
+  [40/43] File metrics | failed | 1.1s
+    [record] docs/guides/building-project-gate.md | {"blocking":false,"codeAreas":["docs-specs"],"codeLines":558,"limit":500,"metric":"code-lines","path":"docs/guides/building-project-gate.md","waiver":{"reason":"用户确认保留单页九场景与十个独立可执行片段；行数来自同… [truncated]
+    [record] scripts/package/candidate/external-consumer/runtime-evidence/assertions.ts | {"blocking":true,"codeAreas":["script-tooling"],"codeLines":310,"limit":300,"metric":"code-lines","path":"scripts/package/candidate/external-consumer/… [truncated]
+    [error] 1 blocking finding(s) require attention; inspect this Check's Records for affected paths and measurements, then update the code or policy.
+    [error] scripts/package/candidate/external-consumer/runtime-evidence/assertions.ts: 310 code lines exceeds the 300 line limit (areas: script-tooling).
+    [info] File metric finding for docs/guides/building-project-gate.md was waived: 用户确认保留单页九场景与十个独立可执行片段；行数来自同页教学路径，不以压缩代码或删除安全说明满足门限。仅豁免此文件的行数，保留测量与 Finding。
+  [41/43] Repository material link validation | passed | 15.1ms
+  [42/43] Test evidence ast-grep rule tests | passed | 131.7ms
+  [43/43] Git diff whitespace | passed | 915.3ms
+
+Execution summary:
+  execution: completed
+  total checks: 43
+  passed: 42
+  failed: 1
+  not applicable: 0
+  unavailable: 0
+  elapsed: 28.6s
+project gate logs: /workspace/vibe-check/.log/project-gate/2026-10-11T15-32-53.117Z-1589756-9c363ff6-0873-4198-8990-bebd21344e0c
+project gate result: failed
+error: script "check" exited with code 1
