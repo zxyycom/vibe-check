@@ -1,11 +1,11 @@
 # Proposal
 
-把已识别的低风险局部索引与分配优化作为同一批实施、测量和验收，不混入需要重新决定契约或调度策略的优化。
+本 Change 集中实施和验收低风险局部索引与分配优化；范围和成功标准由本文限定，实际结果见[验收交接](acceptance.md)。
 
 ## Why
 
 [复杂度调查](../../docs/investigations/audit-checks-core-algorithmic-complexity.md)中仍有重复 membership、线性 lookup 和累计数组分配。
-[当前 Run 测量](../../docs/investigations/profile-post-optimization-run-stages.md)表明 R04 不是当前主要耗时，因而不以跨阶段复用或快照重构扩大本批风险。
+[形成时 Run 测量](../../docs/investigations/profile-post-optimization-run-stages.md)表明 R04 不是当前主要耗时，因而不以跨阶段复用或快照重构扩大本批风险。
 用户已授权集中推进低风险项，并指定仅由 GPT‑6.1‑sol 子代理承担实施与独立审查；主线程负责范围、编排和验收。
 
 ## Outcome
@@ -19,7 +19,7 @@
 - C01/C03：identifier 去重与 blocker 重复拒绝的局部 membership。
 - R08：flags、direct relation 和 artifact directory 的同生命周期 lookup；R04：单次 prepare 内的 scope/task 分组。
 - K04/K07/K14：code-area membership、SCC argv 滚动成本和 Finding 排序的临时对象分配。
-- T01/T02：learned prepared closure 内不可变 graph、prediction、score 与 history 索引。
+- T01/T02：learned prepared closure 内的 graph/prediction/score 索引、单次 prediction 的 history 索引及单次 recording 的 prediction 索引；生命周期与可变 history 边界见[设计](design.md#intended-change)。
 - C05：仅在保护常见小型 schema 的测量支持下采用；否则记录本批不采用。
 
 R05、跨阶段 graph 复用、调度算法与策略、跨 Run 状态、缓存政策、文件系统安全和深度预算均不在本批。
@@ -37,7 +37,7 @@ R05、跨阶段 graph 复用、调度算法与策略、跨 Run 状态、缓存�
 2. 同条件 before/after 比较先通过输出与错误/顺序等价检查，保留 small/scaled 原始测量与分布；不宣称未测收益。
 3. 未引入 public API/schema、调度结果、跨 Run 状态或错误优先序变化；C05 不以大输入收益掩盖常见 schema 成本。
 4. 指定模型子代理完成实施与独立审查，实质阻断清除；完整 Case 检查、受影响静态检查及跨 owner Gate 通过。
-5. owner 交接、临时物归宿、未运行验证及剩余风险均有可恢复记录；未经本次删除授权不 finalize Change。
+5. owner 交接、证据身份、临时物归宿、未运行验证和剩余风险可恢复；集成与结项按当前授权分别处理。
 
 ## Affected Owners
 
