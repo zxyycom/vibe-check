@@ -1,0 +1,3702 @@
+{
+  "protocol": "whole-process-bun-cpu-profile-context-v1",
+  "generatedAt": "2026-10-12T06:02:51.828Z",
+  "analyzerSha256": "ffec2552aaf6edeb6f8cc94287f3977aa7d0d293b456d005028026f89c8d4030",
+  "sampling": "Bun1.3.14 --cpu-prof, default1000us, N512, three warmup and nine measured complete Runs, one process per shape",
+  "scope": "Entire process includes imports/source hashing/defineConfig/assertions/digest/warmups/stdout; async ancestry can be incomplete; NOT Run-only CPU, exact CPU time, allocation or a before/after comparison",
+  "attribution": "Self leaf counts partition all samples; inclusive counts include descendants and overlap. Target union counts any matching named R05 observation ancestry once. timeDeltas weighted attribution is an approximate observed interval measure, not precise CPU milliseconds. Native freeze attribution needs its enclosing stack, not the intrinsic name alone.",
+  "summaries": [
+    {
+      "shape": "independent",
+      "profile": "/tmp/vibe-check-r04-profile-F7GWnj/cpu/independent-512.cpuprofile",
+      "profileSha256": "5c14fa80ae6e3777332ac1653e6fcc70931ab814144313c5c4981814d76ce37b",
+      "nodes": 1133,
+      "sampleCount": 6947,
+      "profilerWallRangeUs": 8348369.25,
+      "attributedSampleIntervalUs": 8345766,
+      "targets": [
+        {
+          "frame": {
+            "functionName": "snapshotSchedulerState",
+            "url": "/task-scheduler/execution-state.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 26,
+          "inclusiveSamples": 1163,
+          "selfIntervalUs": 30939,
+          "inclusiveIntervalUs": 1385162,
+          "selfSamplePercent": 0.37426227148409386,
+          "inclusiveSamplePercent": 16.741039297538507,
+          "selfIntervalPercent": 0.37071492299208963,
+          "inclusiveIntervalPercent": 16.597182331735638
+        },
+        {
+          "frame": {
+            "functionName": "schedulerInspectionForCore",
+            "url": "/admission-core/projection.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 46,
+          "inclusiveSamples": 1094,
+          "selfIntervalUs": 55812,
+          "inclusiveIntervalUs": 1301894,
+          "selfSamplePercent": 0.6621563264718584,
+          "inclusiveSamplePercent": 15.747804807830718,
+          "selfIntervalPercent": 0.6687462840439092,
+          "inclusiveIntervalPercent": 15.599454861303323
+        },
+        {
+          "frame": {
+            "functionName": "decisionContext",
+            "url": "/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 2,
+          "inclusiveSamples": 655,
+          "selfIntervalUs": 2385,
+          "inclusiveIntervalUs": 781391,
+          "selfSamplePercent": 0.02878940549877645,
+          "inclusiveSamplePercent": 9.428530300849287,
+          "selfIntervalPercent": 0.02857736485782132,
+          "inclusiveIntervalPercent": 9.362723565458221
+        },
+        {
+          "frame": {
+            "functionName": "summarizeSchedulerBlockers",
+            "url": "/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 68,
+          "inclusiveSamples": 469,
+          "selfIntervalUs": 80950,
+          "inclusiveIntervalUs": 559698,
+          "selfSamplePercent": 0.9788397869583993,
+          "inclusiveSamplePercent": 6.751115589463078,
+          "selfIntervalPercent": 0.9699529078577089,
+          "inclusiveIntervalPercent": 6.706370631527411
+        },
+        {
+          "frame": {
+            "functionName": "effectiveMaxParallelFor",
+            "url": "/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 124,
+          "inclusiveSamples": 181,
+          "selfIntervalUs": 146660,
+          "inclusiveIntervalUs": 215782,
+          "selfSamplePercent": 1.7849431409241399,
+          "inclusiveSamplePercent": 2.605441197639269,
+          "selfIntervalPercent": 1.7572982515924842,
+          "inclusiveIntervalPercent": 2.5855266011532074
+        },
+        {
+          "frame": {
+            "functionName": "decideScheduler",
+            "url": "/task-scheduler/scheduler-decision.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 5,
+          "inclusiveSamples": 1764,
+          "selfIntervalUs": 5911,
+          "inclusiveIntervalUs": 2101334,
+          "selfSamplePercent": 0.07197351374694112,
+          "inclusiveSamplePercent": 25.39225564992083,
+          "selfIntervalPercent": 0.07082633277760243,
+          "inclusiveIntervalPercent": 25.17844377616147
+        },
+        {
+          "frame": {
+            "functionName": "prepareTaskGraph",
+            "url": "/task-scheduler/graph.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 140,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 170322,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 2.0152583849143517,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 2.040819260928236
+        },
+        {
+          "frame": {
+            "functionName": "planStaticCheckGraph",
+            "url": "/check-execution/plan.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 15,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 17874,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 0.21592054124082338,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 0.21416847776465336
+        },
+        {
+          "frame": {
+            "functionName": "compilePreparedAdmissionGraph",
+            "url": "/admission-core/compiled-graph.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 20,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 24685,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 0.2878940549877645,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 0.29577872180935816
+        }
+      ],
+      "r05ObservationUnion": {
+        "samples": 2912,
+        "samplePercent": 41.917374406218514,
+        "attributedIntervalUs": 3468447,
+        "intervalPercent": 41.559360758497185
+      },
+      "graphPreparationUnion": {
+        "samples": 155,
+        "samplePercent": 2.231178926155175,
+        "attributedIntervalUs": 188196,
+        "intervalPercent": 2.2549877386928894
+      },
+      "topSelfFrames": [
+        {
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 3392,
+          "inclusiveSamples": 3392,
+          "selfIntervalUs": 4036644,
+          "inclusiveIntervalUs": 4036644,
+          "selfSamplePercent": 48.82683172592486,
+          "inclusiveSamplePercent": 48.82683172592486,
+          "selfIntervalPercent": 48.36756745875693,
+          "inclusiveIntervalPercent": 48.36756745875693
+        },
+        {
+          "frame": {
+            "functionName": "map",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 323,
+          "inclusiveSamples": 1130,
+          "selfIntervalUs": 386398,
+          "inclusiveIntervalUs": 1348997,
+          "selfSamplePercent": 4.649488988052397,
+          "inclusiveSamplePercent": 16.266014106808694,
+          "selfIntervalPercent": 4.629868606428697,
+          "inclusiveIntervalPercent": 16.163848830652572
+        },
+        {
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 254,
+          "inclusiveSamples": 257,
+          "selfIntervalUs": 302975,
+          "inclusiveIntervalUs": 306624,
+          "selfSamplePercent": 3.6562544983446092,
+          "inclusiveSamplePercent": 3.699438606592774,
+          "selfIntervalPercent": 3.6302839068337165,
+          "inclusiveIntervalPercent": 3.6740066759600016
+        },
+        {
+          "frame": {
+            "functionName": "Map",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 202,
+          "inclusiveSamples": 202,
+          "selfIntervalUs": 242305,
+          "inclusiveIntervalUs": 242305,
+          "selfSamplePercent": 2.9077299553764213,
+          "inclusiveSamplePercent": 2.9077299553764213,
+          "selfIntervalPercent": 2.903328466194715,
+          "inclusiveIntervalPercent": 2.903328466194715
+        },
+        {
+          "frame": {
+            "functionName": "requiredScopeForCompiled",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-seed.ts",
+            "lineNumber": 268,
+            "columnNumber": 40
+          },
+          "selfSamples": 195,
+          "inclusiveSamples": 195,
+          "selfIntervalUs": 229696,
+          "inclusiveIntervalUs": 229696,
+          "selfSamplePercent": 2.806967036130704,
+          "inclusiveSamplePercent": 2.806967036130704,
+          "selfIntervalPercent": 2.75224586934261,
+          "inclusiveIntervalPercent": 2.75224586934261
+        },
+        {
+          "frame": {
+            "functionName": "get",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 3505,
+            "columnNumber": 40
+          },
+          "selfSamples": 144,
+          "inclusiveSamples": 286,
+          "selfIntervalUs": 170639,
+          "inclusiveIntervalUs": 337835,
+          "selfSamplePercent": 2.0728371959119043,
+          "inclusiveSamplePercent": 4.116884986325032,
+          "selfIntervalPercent": 2.044617594118982,
+          "inclusiveIntervalPercent": 4.047980736579483
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 138,
+          "inclusiveSamples": 6887,
+          "selfIntervalUs": 175358,
+          "inclusiveIntervalUs": 8222262,
+          "selfSamplePercent": 1.986468979415575,
+          "inclusiveSamplePercent": 99.1363178350367,
+          "selfIntervalPercent": 2.1011612355294886,
+          "inclusiveIntervalPercent": 98.52015980318643
+        },
+        {
+          "frame": {
+            "functionName": "listNodeFor",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 4003,
+            "columnNumber": 24
+          },
+          "selfSamples": 130,
+          "inclusiveSamples": 136,
+          "selfIntervalUs": 153239,
+          "inclusiveIntervalUs": 160100,
+          "selfSamplePercent": 1.8713113574204692,
+          "inclusiveSamplePercent": 1.9576795739167987,
+          "selfIntervalPercent": 1.8361286429550026,
+          "inclusiveIntervalPercent": 1.918337993181213
+        },
+        {
+          "frame": {
+            "functionName": "effectiveMaxParallelFor",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": 50,
+            "columnNumber": 32
+          },
+          "selfSamples": 124,
+          "inclusiveSamples": 181,
+          "selfIntervalUs": 146660,
+          "inclusiveIntervalUs": 215782,
+          "selfSamplePercent": 1.7849431409241399,
+          "inclusiveSamplePercent": 2.605441197639269,
+          "selfIntervalPercent": 1.7572982515924842,
+          "inclusiveIntervalPercent": 2.5855266011532074
+        },
+        {
+          "frame": {
+            "functionName": "filter",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 110,
+          "inclusiveSamples": 115,
+          "selfIntervalUs": 138639,
+          "inclusiveIntervalUs": 144603,
+          "selfSamplePercent": 1.5834173024327047,
+          "inclusiveSamplePercent": 1.6553908161796458,
+          "selfIntervalPercent": 1.6611896379553417,
+          "inclusiveIntervalPercent": 1.73265102328534
+        },
+        {
+          "frame": {
+            "functionName": "scopeCapacityBlockerFor",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "lineNumber": 199,
+            "columnNumber": 32
+          },
+          "selfSamples": 104,
+          "inclusiveSamples": 355,
+          "selfIntervalUs": 123637,
+          "inclusiveIntervalUs": 419369,
+          "selfSamplePercent": 1.4970490859363754,
+          "inclusiveSamplePercent": 5.11011947603282,
+          "selfIntervalPercent": 1.481433819256375,
+          "inclusiveIntervalPercent": 5.024931204637178
+        },
+        {
+          "frame": {
+            "functionName": "performIteration",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 93,
+          "inclusiveSamples": 154,
+          "selfIntervalUs": 108930,
+          "inclusiveIntervalUs": 182037,
+          "selfSamplePercent": 1.3387073556931048,
+          "inclusiveSamplePercent": 2.216784223405787,
+          "selfIntervalPercent": 1.305212727028292,
+          "inclusiveIntervalPercent": 2.1811898392550186
+        },
+        {
+          "frame": {
+            "functionName": "tighteningScopeForTask",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-scope-layers.ts",
+            "lineNumber": 12,
+            "columnNumber": 38
+          },
+          "selfSamples": 90,
+          "inclusiveSamples": 107,
+          "selfIntervalUs": 106851,
+          "inclusiveIntervalUs": 128026,
+          "selfSamplePercent": 1.2955232474449403,
+          "inclusiveSamplePercent": 1.5402331941845402,
+          "selfIntervalPercent": 1.2803018920012854,
+          "inclusiveIntervalPercent": 1.5340233598689443
+        },
+        {
+          "frame": {
+            "functionName": "summarizeSchedulerBlockers",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": 4,
+            "columnNumber": 42
+          },
+          "selfSamples": 68,
+          "inclusiveSamples": 469,
+          "selfIntervalUs": 80950,
+          "inclusiveIntervalUs": 559698,
+          "selfSamplePercent": 0.9788397869583993,
+          "inclusiveSamplePercent": 6.751115589463078,
+          "selfIntervalPercent": 0.9699529078577089,
+          "inclusiveIntervalPercent": 6.706370631527411
+        },
+        {
+          "frame": {
+            "functionName": "selectTighteningCandidate",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-selection-policy.ts",
+            "lineNumber": 61,
+            "columnNumber": 34
+          },
+          "selfSamples": 61,
+          "inclusiveSamples": 168,
+          "selfIntervalUs": 73274,
+          "inclusiveIntervalUs": 201300,
+          "selfSamplePercent": 0.8780768677126818,
+          "inclusiveSamplePercent": 2.418310061897222,
+          "selfIntervalPercent": 0.8779781268729557,
+          "inclusiveIntervalPercent": 2.4120014867419
+        },
+        {
+          "frame": {
+            "functionName": "next",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 60,
+          "inclusiveSamples": 315,
+          "selfIntervalUs": 71755,
+          "inclusiveIntervalUs": 375942,
+          "selfSamplePercent": 0.8636821649632935,
+          "inclusiveSamplePercent": 4.534331366057291,
+          "selfIntervalPercent": 0.8597772810788129,
+          "inclusiveIntervalPercent": 4.504583521752227
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": 75,
+            "columnNumber": 43
+          },
+          "selfSamples": 59,
+          "inclusiveSamples": 60,
+          "selfIntervalUs": 71082,
+          "inclusiveIntervalUs": 72425,
+          "selfSamplePercent": 0.8492874622139053,
+          "inclusiveSamplePercent": 0.8636821649632935,
+          "selfIntervalPercent": 0.8517133118757463,
+          "inclusiveIntervalPercent": 0.8678053039109891
+        },
+        {
+          "frame": {
+            "functionName": "includes",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 56,
+          "inclusiveSamples": 56,
+          "selfIntervalUs": 67758,
+          "inclusiveIntervalUs": 67758,
+          "selfSamplePercent": 0.8061033539657406,
+          "inclusiveSamplePercent": 0.8061033539657406,
+          "selfIntervalPercent": 0.8118847329292482,
+          "inclusiveIntervalPercent": 0.8118847329292482
+        },
+        {
+          "frame": {
+            "functionName": "selectOrdinaryReadyCandidate",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-selection-policy.ts",
+            "lineNumber": 107,
+            "columnNumber": 37
+          },
+          "selfSamples": 55,
+          "inclusiveSamples": 138,
+          "selfIntervalUs": 66683,
+          "inclusiveIntervalUs": 168607,
+          "selfSamplePercent": 0.7917086512163524,
+          "inclusiveSamplePercent": 1.986468979415575,
+          "selfIntervalPercent": 0.7990039500268759,
+          "inclusiveIntervalPercent": 2.0202699189025908
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+            "lineNumber": 208,
+            "columnNumber": 41
+          },
+          "selfSamples": 54,
+          "inclusiveSamples": 54,
+          "selfIntervalUs": 64182,
+          "inclusiveIntervalUs": 64182,
+          "selfSamplePercent": 0.7773139484669641,
+          "inclusiveSamplePercent": 0.7773139484669641,
+          "selfIntervalPercent": 0.7690366588279614,
+          "inclusiveIntervalPercent": 0.7690366588279614
+        },
+        {
+          "frame": {
+            "functionName": "selectConstrainedContinuation",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-selection-policy.ts",
+            "lineNumber": 84,
+            "columnNumber": 38
+          },
+          "selfSamples": 52,
+          "inclusiveSamples": 97,
+          "selfIntervalUs": 61553,
+          "inclusiveIntervalUs": 115001,
+          "selfSamplePercent": 0.7485245429681877,
+          "inclusiveSamplePercent": 1.3962861666906579,
+          "selfIntervalPercent": 0.7375356558043923,
+          "inclusiveIntervalPercent": 1.3779561995867127
+        },
+        {
+          "frame": {
+            "functionName": "copyDataProperties",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 48,
+          "inclusiveSamples": 48,
+          "selfIntervalUs": 57993,
+          "inclusiveIntervalUs": 57993,
+          "selfSamplePercent": 0.6909457319706348,
+          "inclusiveSamplePercent": 0.6909457319706348,
+          "selfIntervalPercent": 0.6948792956811873,
+          "inclusiveIntervalPercent": 0.6948792956811873
+        },
+        {
+          "frame": {
+            "functionName": "schedulerInspectionForCore",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+            "lineNumber": 79,
+            "columnNumber": 42
+          },
+          "selfSamples": 46,
+          "inclusiveSamples": 1094,
+          "selfIntervalUs": 55812,
+          "inclusiveIntervalUs": 1301894,
+          "selfSamplePercent": 0.6621563264718584,
+          "inclusiveSamplePercent": 15.747804807830718,
+          "selfIntervalPercent": 0.6687462840439092,
+          "inclusiveIntervalPercent": 15.599454861303323
+        },
+        {
+          "frame": {
+            "functionName": "requiredTaskResourceClaimsForCompiled",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/compiled-graph-lookup.ts",
+            "lineNumber": 23,
+            "columnNumber": 53
+          },
+          "selfSamples": 46,
+          "inclusiveSamples": 46,
+          "selfIntervalUs": 55303,
+          "inclusiveIntervalUs": 55303,
+          "selfSamplePercent": 0.6621563264718584,
+          "inclusiveSamplePercent": 0.6621563264718584,
+          "selfIntervalPercent": 0.6626473831161813,
+          "inclusiveIntervalPercent": 0.6626473831161813
+        },
+        {
+          "frame": {
+            "functionName": "scopeForTask",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-scope-layers.ts",
+            "lineNumber": 4,
+            "columnNumber": 28
+          },
+          "selfSamples": 43,
+          "inclusiveSamples": 43,
+          "selfIntervalUs": 51908,
+          "inclusiveIntervalUs": 51908,
+          "selfSamplePercent": 0.6189722182236936,
+          "inclusiveSamplePercent": 0.6189722182236936,
+          "selfIntervalPercent": 0.621968073391945,
+          "inclusiveIntervalPercent": 0.621968073391945
+        }
+      ],
+      "topInclusiveFrames": [
+        {
+          "frame": {
+            "functionName": "(root)",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 6947,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 8345766,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 100,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 100
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 138,
+          "inclusiveSamples": 6887,
+          "selfIntervalUs": 175358,
+          "inclusiveIntervalUs": 8222262,
+          "selfSamplePercent": 1.986468979415575,
+          "inclusiveSamplePercent": 99.1363178350367,
+          "selfIntervalPercent": 2.1011612355294886,
+          "inclusiveIntervalPercent": 98.52015980318643
+        },
+        {
+          "frame": {
+            "functionName": "processTicksAndRejections",
+            "url": "",
+            "lineNumber": 6,
+            "columnNumber": 38
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 6887,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 8222262,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 99.1363178350367,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 98.52015980318643
+        },
+        {
+          "frame": {
+            "functionName": "runTaskGraph",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+            "lineNumber": 50,
+            "columnNumber": 34
+          },
+          "selfSamples": 11,
+          "inclusiveSamples": 6146,
+          "selfIntervalUs": 12953,
+          "inclusiveIntervalUs": 7324664,
+          "selfSamplePercent": 0.15834173024327047,
+          "inclusiveSamplePercent": 88.46984309774002,
+          "selfIntervalPercent": 0.15520444738086353,
+          "inclusiveIntervalPercent": 87.76502959704358
+        },
+        {
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 3392,
+          "inclusiveSamples": 3392,
+          "selfIntervalUs": 4036644,
+          "inclusiveIntervalUs": 4036644,
+          "selfSamplePercent": 48.82683172592486,
+          "inclusiveSamplePercent": 48.82683172592486,
+          "selfIntervalPercent": 48.36756745875693,
+          "inclusiveIntervalPercent": 48.36756745875693
+        },
+        {
+          "frame": {
+            "functionName": "decideAdmission",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+            "lineNumber": 31,
+            "columnNumber": 31
+          },
+          "selfSamples": 2,
+          "inclusiveSamples": 2384,
+          "selfIntervalUs": 2628,
+          "inclusiveIntervalUs": 2837126,
+          "selfSamplePercent": 0.02878940549877645,
+          "inclusiveSamplePercent": 34.31697135454153,
+          "selfIntervalPercent": 0.03148902089993896,
+          "inclusiveIntervalPercent": 33.99479448621013
+        },
+        {
+          "frame": {
+            "functionName": "decideScheduler",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+            "lineNumber": 31,
+            "columnNumber": 31
+          },
+          "selfSamples": 5,
+          "inclusiveSamples": 1764,
+          "selfIntervalUs": 5911,
+          "inclusiveIntervalUs": 2101334,
+          "selfSamplePercent": 0.07197351374694112,
+          "inclusiveSamplePercent": 25.39225564992083,
+          "selfIntervalPercent": 0.07082633277760243,
+          "inclusiveIntervalPercent": 25.17844377616147
+        },
+        {
+          "frame": {
+            "functionName": "snapshotSchedulerState",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+            "lineNumber": 193,
+            "columnNumber": 47
+          },
+          "selfSamples": 26,
+          "inclusiveSamples": 1163,
+          "selfIntervalUs": 30939,
+          "inclusiveIntervalUs": 1385162,
+          "selfSamplePercent": 0.37426227148409386,
+          "inclusiveSamplePercent": 16.741039297538507,
+          "selfIntervalPercent": 0.37071492299208963,
+          "inclusiveIntervalPercent": 16.597182331735638
+        },
+        {
+          "frame": {
+            "functionName": "map",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 323,
+          "inclusiveSamples": 1130,
+          "selfIntervalUs": 386398,
+          "inclusiveIntervalUs": 1348997,
+          "selfSamplePercent": 4.649488988052397,
+          "inclusiveSamplePercent": 16.266014106808694,
+          "selfIntervalPercent": 4.629868606428697,
+          "inclusiveIntervalPercent": 16.163848830652572
+        },
+        {
+          "frame": {
+            "functionName": "schedulerInspectionForCore",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+            "lineNumber": 79,
+            "columnNumber": 42
+          },
+          "selfSamples": 46,
+          "inclusiveSamples": 1094,
+          "selfIntervalUs": 55812,
+          "inclusiveIntervalUs": 1301894,
+          "selfSamplePercent": 0.6621563264718584,
+          "inclusiveSamplePercent": 15.747804807830718,
+          "selfIntervalPercent": 0.6687462840439092,
+          "inclusiveIntervalPercent": 15.599454861303323
+        },
+        {
+          "frame": {
+            "functionName": "admissionCandidatesForCore",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "lineNumber": 227,
+            "columnNumber": 42
+          },
+          "selfSamples": 28,
+          "inclusiveSamples": 999,
+          "selfIntervalUs": 32944,
+          "inclusiveIntervalUs": 1184274,
+          "selfSamplePercent": 0.4030516769828703,
+          "inclusiveSamplePercent": 14.380308046638836,
+          "selfIntervalPercent": 0.3947390808704677,
+          "inclusiveIntervalPercent": 14.190117479929343
+        },
+        {
+          "frame": {
+            "functionName": "decisionContext",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": 30,
+            "columnNumber": 31
+          },
+          "selfSamples": 2,
+          "inclusiveSamples": 655,
+          "selfIntervalUs": 2385,
+          "inclusiveIntervalUs": 781391,
+          "selfSamplePercent": 0.02878940549877645,
+          "inclusiveSamplePercent": 9.428530300849287,
+          "selfIntervalPercent": 0.02857736485782132,
+          "inclusiveIntervalPercent": 9.362723565458221
+        },
+        {
+          "frame": {
+            "functionName": "summarizeSchedulerBlockers",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": 4,
+            "columnNumber": 42
+          },
+          "selfSamples": 68,
+          "inclusiveSamples": 469,
+          "selfIntervalUs": 80950,
+          "inclusiveIntervalUs": 559698,
+          "selfSamplePercent": 0.9788397869583993,
+          "inclusiveSamplePercent": 6.751115589463078,
+          "selfIntervalPercent": 0.9699529078577089,
+          "inclusiveIntervalPercent": 6.706370631527411
+        },
+        {
+          "frame": {
+            "functionName": "hasCapacityForPendingTask",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "lineNumber": 125,
+            "columnNumber": 34
+          },
+          "selfSamples": 5,
+          "inclusiveSamples": 452,
+          "selfIntervalUs": 6466,
+          "inclusiveIntervalUs": 536155,
+          "selfSamplePercent": 0.07197351374694112,
+          "inclusiveSamplePercent": 6.506405642723478,
+          "selfIntervalPercent": 0.07747641139231558,
+          "inclusiveIntervalPercent": 6.424275494903643
+        },
+        {
+          "frame": {
+            "functionName": "decideStaticAdmission",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-selection-policy.ts",
+            "lineNumber": 44,
+            "columnNumber": 30
+          },
+          "selfSamples": 3,
+          "inclusiveSamples": 416,
+          "selfIntervalUs": 3498,
+          "inclusiveIntervalUs": 500262,
+          "selfSamplePercent": 0.043184108248164675,
+          "inclusiveSamplePercent": 5.988196343745502,
+          "selfIntervalPercent": 0.04191346845813793,
+          "inclusiveIntervalPercent": 5.99420113144797
+        },
+        {
+          "frame": {
+            "functionName": "scopeCapacityBlockerFor",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "lineNumber": 199,
+            "columnNumber": 32
+          },
+          "selfSamples": 104,
+          "inclusiveSamples": 355,
+          "selfIntervalUs": 123637,
+          "inclusiveIntervalUs": 419369,
+          "selfSamplePercent": 1.4970490859363754,
+          "inclusiveSamplePercent": 5.11011947603282,
+          "selfIntervalPercent": 1.481433819256375,
+          "inclusiveIntervalPercent": 5.024931204637178
+        },
+        {
+          "frame": {
+            "functionName": "next",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 60,
+          "inclusiveSamples": 315,
+          "selfIntervalUs": 71755,
+          "inclusiveIntervalUs": 375942,
+          "selfSamplePercent": 0.8636821649632935,
+          "inclusiveSamplePercent": 4.534331366057291,
+          "selfIntervalPercent": 0.8597772810788129,
+          "inclusiveIntervalPercent": 4.504583521752227
+        },
+        {
+          "frame": {
+            "functionName": "awaitDecision",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+            "lineNumber": 83,
+            "columnNumber": 22
+          },
+          "selfSamples": 1,
+          "inclusiveSamples": 305,
+          "selfIntervalUs": 1066,
+          "inclusiveIntervalUs": 363702,
+          "selfSamplePercent": 0.014394702749388226,
+          "inclusiveSamplePercent": 4.3903843385634085,
+          "selfIntervalPercent": 0.012772943789701268,
+          "inclusiveIntervalPercent": 4.357922328519635
+        },
+        {
+          "frame": {
+            "functionName": "get",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 3505,
+            "columnNumber": 40
+          },
+          "selfSamples": 144,
+          "inclusiveSamples": 286,
+          "selfIntervalUs": 170639,
+          "inclusiveIntervalUs": 337835,
+          "selfSamplePercent": 2.0728371959119043,
+          "inclusiveSamplePercent": 4.116884986325032,
+          "selfIntervalPercent": 2.044617594118982,
+          "inclusiveIntervalPercent": 4.047980736579483
+        },
+        {
+          "frame": {
+            "functionName": "admitDecision",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+            "lineNumber": 57,
+            "columnNumber": 22
+          },
+          "selfSamples": 1,
+          "inclusiveSamples": 271,
+          "selfIntervalUs": 978,
+          "inclusiveIntervalUs": 323169,
+          "selfSamplePercent": 0.014394702749388226,
+          "inclusiveSamplePercent": 3.900964445084209,
+          "selfIntervalPercent": 0.011718516910251258,
+          "inclusiveIntervalPercent": 3.872250911420234
+        },
+        {
+          "frame": {
+            "functionName": "candidateFacts",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+            "lineNumber": 102,
+            "columnNumber": 23
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 260,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 308418,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 3.7426227148409383,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 3.695502605752426
+        },
+        {
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 254,
+          "inclusiveSamples": 257,
+          "selfIntervalUs": 302975,
+          "inclusiveIntervalUs": 306624,
+          "selfSamplePercent": 3.6562544983446092,
+          "inclusiveSamplePercent": 3.699438606592774,
+          "selfIntervalPercent": 3.6302839068337165,
+          "inclusiveIntervalPercent": 3.6740066759600016
+        },
+        {
+          "frame": {
+            "functionName": "executeReadyCheck",
+            "url": "file:///workspace/vibe-check/src/project-run/check-execution/ready-check-execution.ts",
+            "lineNumber": 27,
+            "columnNumber": 91
+          },
+          "selfSamples": 8,
+          "inclusiveSamples": 236,
+          "selfIntervalUs": 9589,
+          "inclusiveIntervalUs": 281963,
+          "selfSamplePercent": 0.1151576219951058,
+          "inclusiveSamplePercent": 3.397149848855621,
+          "selfIntervalPercent": 0.11489658348916085,
+          "inclusiveIntervalPercent": 3.3785155251177663
+        },
+        {
+          "frame": {
+            "functionName": "Map",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 202,
+          "inclusiveSamples": 202,
+          "selfIntervalUs": 242305,
+          "inclusiveIntervalUs": 242305,
+          "selfSamplePercent": 2.9077299553764213,
+          "inclusiveSamplePercent": 2.9077299553764213,
+          "selfIntervalPercent": 2.903328466194715,
+          "inclusiveIntervalPercent": 2.903328466194715
+        },
+        {
+          "frame": {
+            "functionName": "executePreparedInvocation",
+            "url": "file:///workspace/vibe-check/src/project-run/invocation/execution.ts",
+            "lineNumber": 49,
+            "columnNumber": 38
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 197,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 240613,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 2.8357564416294805,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 2.8830547130125623
+        }
+      ],
+      "topSelfCallContexts": [
+        {
+          "nodeId": 518,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 719,
+          "selfIntervalUs": 857164,
+          "selfSamplePercent": 10.349791276810134,
+          "selfIntervalPercent": 10.270645019282831,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "snapshotSchedulerState",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+              "lineNumber": 193,
+              "columnNumber": 47
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 494,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 689,
+          "selfIntervalUs": 814065,
+          "selfSamplePercent": 9.917950194328487,
+          "selfIntervalPercent": 9.754227472948559,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "decideAdmission",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 463,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 682,
+          "selfIntervalUs": 812059,
+          "selfSamplePercent": 9.81718727508277,
+          "selfIntervalPercent": 9.73019133294655,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "schedulerInspectionForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+              "lineNumber": 79,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 528,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 224,
+          "selfIntervalUs": 265809,
+          "selfSamplePercent": 3.2244134158629625,
+          "selfIntervalPercent": 3.1849562999969088,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "admissionCandidatesForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 227,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideAdmission",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 571,
+          "frame": {
+            "functionName": "Map",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 194,
+          "selfIntervalUs": 231571,
+          "selfSamplePercent": 2.7925723333813157,
+          "selfIntervalPercent": 2.774712351149074,
+          "stackLeafToRoot": [
+            {
+              "functionName": "Map",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "summarizeSchedulerBlockers",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+              "lineNumber": 4,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decisionContext",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 30,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 550,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 173,
+          "selfIntervalUs": 207937,
+          "selfSamplePercent": 2.490283575644163,
+          "selfIntervalPercent": 2.491526841274965,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "map",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "decideAdmission",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 527,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 156,
+          "selfIntervalUs": 186584,
+          "selfSamplePercent": 2.245573628904563,
+          "selfIntervalPercent": 2.235672555401146,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "awaitDecision",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 83,
+              "columnNumber": 22
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 465,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 146,
+          "selfIntervalUs": 175340,
+          "selfSamplePercent": 2.101626601410681,
+          "selfIntervalPercent": 2.1009455573041467,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "admitDecision",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 57,
+              "columnNumber": 22
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 590,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 145,
+          "selfIntervalUs": 174078,
+          "selfSamplePercent": 2.0872318986612926,
+          "selfIntervalPercent": 2.085824117282943,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "map",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "snapshotSchedulerState",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+              "lineNumber": 193,
+              "columnNumber": 47
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 220,
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 138,
+          "selfIntervalUs": 175358,
+          "selfSamplePercent": 1.986468979415575,
+          "selfIntervalPercent": 2.1011612355294886,
+          "stackLeafToRoot": [
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 545,
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 134,
+          "selfIntervalUs": 157843,
+          "selfSamplePercent": 1.9288901684180222,
+          "selfIntervalPercent": 1.8912943401480464,
+          "stackLeafToRoot": [
+            {
+              "functionName": "arrayIteratorNextHelper",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "next",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "schedulerInspectionForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+              "lineNumber": 79,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 547,
+          "frame": {
+            "functionName": "effectiveMaxParallelFor",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": 50,
+            "columnNumber": 32
+          },
+          "selfSamples": 124,
+          "selfIntervalUs": 146660,
+          "selfSamplePercent": 1.7849431409241399,
+          "selfIntervalPercent": 1.7572982515924842,
+          "stackLeafToRoot": [
+            {
+              "functionName": "effectiveMaxParallelFor",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 50,
+              "columnNumber": 32
+            },
+            {
+              "functionName": "capacityFor",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 42,
+              "columnNumber": 27
+            },
+            {
+              "functionName": "decisionContext",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 30,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 632,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 120,
+          "selfIntervalUs": 142497,
+          "selfSamplePercent": 1.727364329926587,
+          "selfIntervalPercent": 1.7074166709203205,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "map",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "schedulerInspectionForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+              "lineNumber": 79,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 562,
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 109,
+          "selfIntervalUs": 131080,
+          "selfSamplePercent": 1.5690225996833165,
+          "selfIntervalPercent": 1.5706167654353118,
+          "stackLeafToRoot": [
+            {
+              "functionName": "arrayIteratorNextHelper",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "next",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "admissionCandidatesForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 227,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideAdmission",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 499,
+          "frame": {
+            "functionName": "scopeCapacityBlockerFor",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "lineNumber": 199,
+            "columnNumber": 32
+          },
+          "selfSamples": 101,
+          "selfIntervalUs": 119919,
+          "selfSamplePercent": 1.4538649776882107,
+          "selfIntervalPercent": 1.436884283599612,
+          "stackLeafToRoot": [
+            {
+              "functionName": "scopeCapacityBlockerFor",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 199,
+              "columnNumber": 32
+            },
+            {
+              "functionName": "hasCapacityForPendingTask",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 125,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "admissionCandidatesForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 227,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideAdmission",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "shape": "chain",
+      "profile": "/tmp/vibe-check-r04-profile-F7GWnj/cpu/chain-512.cpuprofile",
+      "profileSha256": "ae8c8b46ec89bc19efc40fe6319eee3a4f1b6d0055500d806c3d0f92f798140f",
+      "nodes": 1131,
+      "sampleCount": 4376,
+      "profilerWallRangeUs": 5296087,
+      "attributedSampleIntervalUs": 5294449,
+      "targets": [
+        {
+          "frame": {
+            "functionName": "snapshotSchedulerState",
+            "url": "/task-scheduler/execution-state.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 32,
+          "inclusiveSamples": 1172,
+          "selfIntervalUs": 38153,
+          "inclusiveIntervalUs": 1403197,
+          "selfSamplePercent": 0.7312614259597806,
+          "inclusiveSamplePercent": 26.782449725776964,
+          "selfIntervalPercent": 0.7206226748052535,
+          "inclusiveIntervalPercent": 26.503173418045957
+        },
+        {
+          "frame": {
+            "functionName": "schedulerInspectionForCore",
+            "url": "/admission-core/projection.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 41,
+          "inclusiveSamples": 1140,
+          "selfIntervalUs": 49957,
+          "inclusiveIntervalUs": 1361567,
+          "selfSamplePercent": 0.9369287020109689,
+          "inclusiveSamplePercent": 26.051188299817184,
+          "selfIntervalPercent": 0.9435731650262379,
+          "inclusiveIntervalPercent": 25.716878186946367
+        },
+        {
+          "frame": {
+            "functionName": "decisionContext",
+            "url": "/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 708,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 849224,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 16.179159049360145,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 16.03989385864327
+        },
+        {
+          "frame": {
+            "functionName": "summarizeSchedulerBlockers",
+            "url": "/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 65,
+          "inclusiveSamples": 528,
+          "selfIntervalUs": 77038,
+          "inclusiveIntervalUs": 630343,
+          "selfSamplePercent": 1.4853747714808043,
+          "inclusiveSamplePercent": 12.06581352833638,
+          "selfIntervalPercent": 1.4550711509356309,
+          "inclusiveIntervalPercent": 11.905733722243808
+        },
+        {
+          "frame": {
+            "functionName": "effectiveMaxParallelFor",
+            "url": "/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 115,
+          "inclusiveSamples": 175,
+          "selfIntervalUs": 138615,
+          "inclusiveIntervalUs": 213367,
+          "selfSamplePercent": 2.6279707495429614,
+          "inclusiveSamplePercent": 3.9990859232175504,
+          "selfIntervalPercent": 2.618119468144844,
+          "inclusiveIntervalPercent": 4.030013321499555
+        },
+        {
+          "frame": {
+            "functionName": "decideScheduler",
+            "url": "/task-scheduler/scheduler-decision.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 3,
+          "inclusiveSamples": 1883,
+          "selfIntervalUs": 3570,
+          "inclusiveIntervalUs": 2251615,
+          "selfSamplePercent": 0.06855575868372943,
+          "inclusiveSamplePercent": 43.030164533820844,
+          "selfIntervalPercent": 0.06742911302007064,
+          "inclusiveIntervalPercent": 42.52784378506621
+        },
+        {
+          "frame": {
+            "functionName": "prepareTaskGraph",
+            "url": "/task-scheduler/graph.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 1,
+          "inclusiveSamples": 169,
+          "selfIntervalUs": 1251,
+          "inclusiveIntervalUs": 204462,
+          "selfSamplePercent": 0.022851919561243144,
+          "inclusiveSamplePercent": 3.8619744058500913,
+          "selfIntervalPercent": 0.02362852111711719,
+          "inclusiveIntervalPercent": 3.861818293083945
+        },
+        {
+          "frame": {
+            "functionName": "planStaticCheckGraph",
+            "url": "/check-execution/plan.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 14,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 16405,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 0.31992687385740404,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 0.3098528288779437
+        },
+        {
+          "frame": {
+            "functionName": "compilePreparedAdmissionGraph",
+            "url": "/admission-core/compiled-graph.ts",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 21,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 25400,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 0.47989031078610606,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 0.47974775089910204
+        }
+      ],
+      "r05ObservationUnion": {
+        "samples": 3020,
+        "samplePercent": 69.01279707495429,
+        "attributedIntervalUs": 3613988,
+        "intervalPercent": 68.25994546363559
+      },
+      "graphPreparationUnion": {
+        "samples": 183,
+        "samplePercent": 4.181901279707495,
+        "attributedIntervalUs": 220867,
+        "intervalPercent": 4.1716711219618885
+      },
+      "topSelfFrames": [
+        {
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 1911,
+          "inclusiveSamples": 1911,
+          "selfIntervalUs": 2281086,
+          "inclusiveIntervalUs": 2281086,
+          "selfSamplePercent": 43.67001828153565,
+          "inclusiveSamplePercent": 43.67001828153565,
+          "selfIntervalPercent": 43.08448339005626,
+          "inclusiveIntervalPercent": 43.08448339005626
+        },
+        {
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 306,
+          "inclusiveSamples": 306,
+          "selfIntervalUs": 365559,
+          "inclusiveIntervalUs": 365559,
+          "selfSamplePercent": 6.992687385740402,
+          "inclusiveSamplePercent": 6.992687385740402,
+          "selfIntervalPercent": 6.904571183894679,
+          "inclusiveIntervalPercent": 6.904571183894679
+        },
+        {
+          "frame": {
+            "functionName": "Map",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 201,
+          "inclusiveSamples": 201,
+          "selfIntervalUs": 239686,
+          "inclusiveIntervalUs": 239686,
+          "selfSamplePercent": 4.593235831809872,
+          "inclusiveSamplePercent": 4.593235831809872,
+          "selfIntervalPercent": 4.5271188748819755,
+          "inclusiveIntervalPercent": 4.5271188748819755
+        },
+        {
+          "frame": {
+            "functionName": "map",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 182,
+          "inclusiveSamples": 650,
+          "selfIntervalUs": 219948,
+          "inclusiveIntervalUs": 776578,
+          "selfSamplePercent": 4.159049360146252,
+          "inclusiveSamplePercent": 14.853747714808044,
+          "selfIntervalPercent": 4.154313319478571,
+          "inclusiveIntervalPercent": 14.667777515658381
+        },
+        {
+          "frame": {
+            "functionName": "get",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 3505,
+            "columnNumber": 40
+          },
+          "selfSamples": 159,
+          "inclusiveSamples": 206,
+          "selfIntervalUs": 192557,
+          "inclusiveIntervalUs": 248685,
+          "selfSamplePercent": 3.63345521023766,
+          "inclusiveSamplePercent": 4.707495429616087,
+          "selfIntervalPercent": 3.6369601444834014,
+          "inclusiveIntervalPercent": 4.6970893477300475
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 131,
+          "inclusiveSamples": 4326,
+          "selfIntervalUs": 160112,
+          "inclusiveIntervalUs": 5188886,
+          "selfSamplePercent": 2.993601462522852,
+          "inclusiveSamplePercent": 98.85740402193784,
+          "selfIntervalPercent": 3.0241484996833474,
+          "inclusiveIntervalPercent": 98.0061570146393
+        },
+        {
+          "frame": {
+            "functionName": "effectiveMaxParallelFor",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": 50,
+            "columnNumber": 32
+          },
+          "selfSamples": 115,
+          "inclusiveSamples": 175,
+          "selfIntervalUs": 138615,
+          "inclusiveIntervalUs": 213367,
+          "selfSamplePercent": 2.6279707495429614,
+          "inclusiveSamplePercent": 3.9990859232175504,
+          "selfIntervalPercent": 2.618119468144844,
+          "inclusiveIntervalPercent": 4.030013321499555
+        },
+        {
+          "frame": {
+            "functionName": "some",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 112,
+          "inclusiveSamples": 129,
+          "selfIntervalUs": 133721,
+          "inclusiveIntervalUs": 154786,
+          "selfSamplePercent": 2.5594149908592323,
+          "inclusiveSamplePercent": 2.9478976234003658,
+          "selfIntervalPercent": 2.5256830314164893,
+          "inclusiveIntervalPercent": 2.9235525736483625
+        },
+        {
+          "frame": {
+            "functionName": "performIteration",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 97,
+          "inclusiveSamples": 158,
+          "selfIntervalUs": 116547,
+          "inclusiveIntervalUs": 189793,
+          "selfSamplePercent": 2.216636197440585,
+          "inclusiveSamplePercent": 3.610603290676417,
+          "selfIntervalPercent": 2.2013055560644745,
+          "inclusiveIntervalPercent": 3.5847545230863496
+        },
+        {
+          "frame": {
+            "functionName": "summarizeSchedulerBlockers",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": 4,
+            "columnNumber": 42
+          },
+          "selfSamples": 65,
+          "inclusiveSamples": 528,
+          "selfIntervalUs": 77038,
+          "inclusiveIntervalUs": 630343,
+          "selfSamplePercent": 1.4853747714808043,
+          "inclusiveSamplePercent": 12.06581352833638,
+          "selfIntervalPercent": 1.4550711509356309,
+          "inclusiveIntervalPercent": 11.905733722243808
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+            "lineNumber": 208,
+            "columnNumber": 41
+          },
+          "selfSamples": 62,
+          "inclusiveSamples": 62,
+          "selfIntervalUs": 72958,
+          "inclusiveIntervalUs": 72958,
+          "selfSamplePercent": 1.416819012797075,
+          "inclusiveSamplePercent": 1.416819012797075,
+          "selfIntervalPercent": 1.3780093074841215,
+          "inclusiveIntervalPercent": 1.3780093074841215
+        },
+        {
+          "frame": {
+            "functionName": "includes",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 60,
+          "inclusiveSamples": 60,
+          "selfIntervalUs": 74752,
+          "inclusiveIntervalUs": 74752,
+          "selfSamplePercent": 1.3711151736745886,
+          "inclusiveSamplePercent": 1.3711151736745886,
+          "selfIntervalPercent": 1.4118938533547116,
+          "inclusiveIntervalPercent": 1.4118938533547116
+        },
+        {
+          "frame": {
+            "functionName": "next",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 56,
+          "inclusiveSamples": 359,
+          "selfIntervalUs": 67017,
+          "inclusiveIntervalUs": 428970,
+          "selfSamplePercent": 1.2797074954296161,
+          "inclusiveSamplePercent": 8.203839122486288,
+          "selfIntervalPercent": 1.2657974418112252,
+          "inclusiveIntervalPercent": 8.102259555243615
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": 75,
+            "columnNumber": 43
+          },
+          "selfSamples": 53,
+          "inclusiveSamples": 53,
+          "selfIntervalUs": 65341,
+          "inclusiveIntervalUs": 65341,
+          "selfSamplePercent": 1.2111517367458866,
+          "inclusiveSamplePercent": 1.2111517367458866,
+          "selfIntervalPercent": 1.234141645334576,
+          "inclusiveIntervalPercent": 1.234141645334576
+        },
+        {
+          "frame": {
+            "functionName": "listNodeFor",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 4003,
+            "columnNumber": 24
+          },
+          "selfSamples": 42,
+          "inclusiveSamples": 44,
+          "selfIntervalUs": 50302,
+          "inclusiveIntervalUs": 52852,
+          "selfSamplePercent": 0.9597806215722121,
+          "inclusiveSamplePercent": 1.0054844606946984,
+          "selfIntervalPercent": 0.9500894238475052,
+          "inclusiveIntervalPercent": 0.9982530760046985
+        },
+        {
+          "frame": {
+            "functionName": "schedulerInspectionForCore",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+            "lineNumber": 79,
+            "columnNumber": 42
+          },
+          "selfSamples": 41,
+          "inclusiveSamples": 1140,
+          "selfIntervalUs": 49957,
+          "inclusiveIntervalUs": 1361567,
+          "selfSamplePercent": 0.9369287020109689,
+          "inclusiveSamplePercent": 26.051188299817184,
+          "selfIntervalPercent": 0.9435731650262379,
+          "inclusiveIntervalPercent": 25.716878186946367
+        },
+        {
+          "frame": {
+            "functionName": "anonymous",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 40,
+          "inclusiveSamples": 43,
+          "selfIntervalUs": 88855,
+          "inclusiveIntervalUs": 93594,
+          "selfSamplePercent": 0.9140767824497258,
+          "inclusiveSamplePercent": 0.9826325411334552,
+          "selfIntervalPercent": 1.6782671813440833,
+          "inclusiveIntervalPercent": 1.7677760235295494
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": 9,
+            "columnNumber": 27
+          },
+          "selfSamples": 35,
+          "inclusiveSamples": 35,
+          "selfIntervalUs": 42317,
+          "inclusiveIntervalUs": 42317,
+          "selfSamplePercent": 0.79981718464351,
+          "inclusiveSamplePercent": 0.79981718464351,
+          "selfIntervalPercent": 0.799271085621941,
+          "inclusiveIntervalPercent": 0.799271085621941
+        },
+        {
+          "frame": {
+            "functionName": "copyDataProperties",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 34,
+          "inclusiveSamples": 34,
+          "selfIntervalUs": 41105,
+          "inclusiveIntervalUs": 41105,
+          "selfSamplePercent": 0.7769652650822669,
+          "inclusiveSamplePercent": 0.7769652650822669,
+          "selfIntervalPercent": 0.7763791850672279,
+          "inclusiveIntervalPercent": 0.7763791850672279
+        },
+        {
+          "frame": {
+            "functionName": "snapshotSchedulerState",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+            "lineNumber": 193,
+            "columnNumber": 47
+          },
+          "selfSamples": 32,
+          "inclusiveSamples": 1172,
+          "selfIntervalUs": 38153,
+          "inclusiveIntervalUs": 1403197,
+          "selfSamplePercent": 0.7312614259597806,
+          "inclusiveSamplePercent": 26.782449725776964,
+          "selfIntervalPercent": 0.7206226748052535,
+          "inclusiveIntervalPercent": 26.503173418045957
+        },
+        {
+          "frame": {
+            "functionName": "hasUnsatisfiedRelation",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": 45,
+            "columnNumber": 31
+          },
+          "selfSamples": 31,
+          "inclusiveSamples": 151,
+          "selfIntervalUs": 36039,
+          "inclusiveIntervalUs": 180433,
+          "selfSamplePercent": 0.7084095063985375,
+          "inclusiveSamplePercent": 3.450639853747715,
+          "selfIntervalPercent": 0.6806940627816039,
+          "inclusiveIntervalPercent": 3.4079655881093576
+        },
+        {
+          "frame": {
+            "functionName": "stringify",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 24,
+          "inclusiveSamples": 24,
+          "selfIntervalUs": 28761,
+          "inclusiveIntervalUs": 28761,
+          "selfSamplePercent": 0.5484460694698354,
+          "inclusiveSamplePercent": 0.5484460694698354,
+          "selfIntervalPercent": 0.5432293332129556,
+          "inclusiveIntervalPercent": 0.5432293332129556
+        },
+        {
+          "frame": {
+            "functionName": "filter",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 24,
+          "inclusiveSamples": 25,
+          "selfIntervalUs": 29776,
+          "inclusiveIntervalUs": 30918,
+          "selfSamplePercent": 0.5484460694698354,
+          "inclusiveSamplePercent": 0.5712979890310786,
+          "selfIntervalPercent": 0.5624003555421915,
+          "inclusiveIntervalPercent": 0.5839701166259227
+        },
+        {
+          "frame": {
+            "functionName": "validateScopeTerminalReachability",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/graph-validation.ts",
+            "lineNumber": 176,
+            "columnNumber": 42
+          },
+          "selfSamples": 23,
+          "inclusiveSamples": 23,
+          "selfIntervalUs": 27657,
+          "inclusiveIntervalUs": 27657,
+          "selfSamplePercent": 0.5255941499085923,
+          "inclusiveSamplePercent": 0.5255941499085923,
+          "selfIntervalPercent": 0.5223773049849002,
+          "inclusiveIntervalPercent": 0.5223773049849002
+        },
+        {
+          "frame": {
+            "functionName": "getOwnPropertyDescriptors",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 23,
+          "inclusiveSamples": 23,
+          "selfIntervalUs": 28315,
+          "inclusiveIntervalUs": 28315,
+          "selfSamplePercent": 0.5255941499085923,
+          "inclusiveSamplePercent": 0.5255941499085923,
+          "selfIntervalPercent": 0.5348054160121289,
+          "inclusiveIntervalPercent": 0.5348054160121289
+        }
+      ],
+      "topInclusiveFrames": [
+        {
+          "frame": {
+            "functionName": "(root)",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 4376,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 5294449,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 100,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 100
+        },
+        {
+          "frame": {
+            "functionName": "processTicksAndRejections",
+            "url": "",
+            "lineNumber": 6,
+            "columnNumber": 38
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 4327,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 5190139,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 98.88025594149909,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 98.02982331116986
+        },
+        {
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 131,
+          "inclusiveSamples": 4326,
+          "selfIntervalUs": 160112,
+          "inclusiveIntervalUs": 5188886,
+          "selfSamplePercent": 2.993601462522852,
+          "inclusiveSamplePercent": 98.85740402193784,
+          "selfIntervalPercent": 3.0241484996833474,
+          "inclusiveIntervalPercent": 98.0061570146393
+        },
+        {
+          "frame": {
+            "functionName": "runTaskGraph",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+            "lineNumber": 50,
+            "columnNumber": 34
+          },
+          "selfSamples": 10,
+          "inclusiveSamples": 3596,
+          "selfIntervalUs": 11420,
+          "inclusiveIntervalUs": 4303311,
+          "selfSamplePercent": 0.22851919561243145,
+          "inclusiveSamplePercent": 82.17550274223035,
+          "selfIntervalPercent": 0.21569761083731281,
+          "inclusiveIntervalPercent": 81.2796761287152
+        },
+        {
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 1911,
+          "inclusiveSamples": 1911,
+          "selfIntervalUs": 2281086,
+          "inclusiveIntervalUs": 2281086,
+          "selfSamplePercent": 43.67001828153565,
+          "inclusiveSamplePercent": 43.67001828153565,
+          "selfIntervalPercent": 43.08448339005626,
+          "inclusiveIntervalPercent": 43.08448339005626
+        },
+        {
+          "frame": {
+            "functionName": "decideScheduler",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+            "lineNumber": 31,
+            "columnNumber": 31
+          },
+          "selfSamples": 3,
+          "inclusiveSamples": 1883,
+          "selfIntervalUs": 3570,
+          "inclusiveIntervalUs": 2251615,
+          "selfSamplePercent": 0.06855575868372943,
+          "inclusiveSamplePercent": 43.030164533820844,
+          "selfIntervalPercent": 0.06742911302007064,
+          "inclusiveIntervalPercent": 42.52784378506621
+        },
+        {
+          "frame": {
+            "functionName": "snapshotSchedulerState",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+            "lineNumber": 193,
+            "columnNumber": 47
+          },
+          "selfSamples": 32,
+          "inclusiveSamples": 1172,
+          "selfIntervalUs": 38153,
+          "inclusiveIntervalUs": 1403197,
+          "selfSamplePercent": 0.7312614259597806,
+          "inclusiveSamplePercent": 26.782449725776964,
+          "selfIntervalPercent": 0.7206226748052535,
+          "inclusiveIntervalPercent": 26.503173418045957
+        },
+        {
+          "frame": {
+            "functionName": "schedulerInspectionForCore",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+            "lineNumber": 79,
+            "columnNumber": 42
+          },
+          "selfSamples": 41,
+          "inclusiveSamples": 1140,
+          "selfIntervalUs": 49957,
+          "inclusiveIntervalUs": 1361567,
+          "selfSamplePercent": 0.9369287020109689,
+          "inclusiveSamplePercent": 26.051188299817184,
+          "selfIntervalPercent": 0.9435731650262379,
+          "inclusiveIntervalPercent": 25.716878186946367
+        },
+        {
+          "frame": {
+            "functionName": "decisionContext",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": 30,
+            "columnNumber": 31
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 708,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 849224,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 16.179159049360145,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 16.03989385864327
+        },
+        {
+          "frame": {
+            "functionName": "map",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 182,
+          "inclusiveSamples": 650,
+          "selfIntervalUs": 219948,
+          "inclusiveIntervalUs": 776578,
+          "selfSamplePercent": 4.159049360146252,
+          "inclusiveSamplePercent": 14.853747714808044,
+          "selfIntervalPercent": 4.154313319478571,
+          "inclusiveIntervalPercent": 14.667777515658381
+        },
+        {
+          "frame": {
+            "functionName": "summarizeSchedulerBlockers",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": 4,
+            "columnNumber": 42
+          },
+          "selfSamples": 65,
+          "inclusiveSamples": 528,
+          "selfIntervalUs": 77038,
+          "inclusiveIntervalUs": 630343,
+          "selfSamplePercent": 1.4853747714808043,
+          "inclusiveSamplePercent": 12.06581352833638,
+          "selfIntervalPercent": 1.4550711509356309,
+          "inclusiveIntervalPercent": 11.905733722243808
+        },
+        {
+          "frame": {
+            "functionName": "next",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 56,
+          "inclusiveSamples": 359,
+          "selfIntervalUs": 67017,
+          "inclusiveIntervalUs": 428970,
+          "selfSamplePercent": 1.2797074954296161,
+          "inclusiveSamplePercent": 8.203839122486288,
+          "selfIntervalPercent": 1.2657974418112252,
+          "inclusiveIntervalPercent": 8.102259555243615
+        },
+        {
+          "frame": {
+            "functionName": "decideAdmission",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+            "lineNumber": 31,
+            "columnNumber": 31
+          },
+          "selfSamples": 2,
+          "inclusiveSamples": 308,
+          "selfIntervalUs": 2331,
+          "inclusiveIntervalUs": 368996,
+          "selfSamplePercent": 0.04570383912248629,
+          "inclusiveSamplePercent": 7.038391224862888,
+          "selfIntervalPercent": 0.04402724438369319,
+          "inclusiveIntervalPercent": 6.969488231919884
+        },
+        {
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 306,
+          "inclusiveSamples": 306,
+          "selfIntervalUs": 365559,
+          "inclusiveIntervalUs": 365559,
+          "selfSamplePercent": 6.992687385740402,
+          "inclusiveSamplePercent": 6.992687385740402,
+          "selfIntervalPercent": 6.904571183894679,
+          "inclusiveIntervalPercent": 6.904571183894679
+        },
+        {
+          "frame": {
+            "functionName": "admissionCandidatesForCore",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+            "lineNumber": 227,
+            "columnNumber": 42
+          },
+          "selfSamples": 7,
+          "inclusiveSamples": 271,
+          "selfIntervalUs": 8313,
+          "inclusiveIntervalUs": 325282,
+          "selfSamplePercent": 0.15996343692870202,
+          "inclusiveSamplePercent": 6.192870201096892,
+          "selfIntervalPercent": 0.1570135060324502,
+          "inclusiveIntervalPercent": 6.143831019998493
+        },
+        {
+          "frame": {
+            "functionName": "measuredRun",
+            "url": "file:///tmp/vibe-check-r04-profile-F7GWnj/public-run-profile.ts",
+            "lineNumber": 183,
+            "columnNumber": 49
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 253,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 304974,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 5.781535648994516,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 5.760259471759951
+        },
+        {
+          "frame": {
+            "functionName": "(module)",
+            "url": "file:///tmp/vibe-check-r04-profile-F7GWnj/public-run-profile.ts",
+            "lineNumber": 4,
+            "columnNumber": 0
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 249,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 301092,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 5.690127970749543,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 5.686937394240647
+        },
+        {
+          "frame": {
+            "functionName": "run",
+            "url": "file:///workspace/vibe-check/src/project-run/run.ts",
+            "lineNumber": 27,
+            "columnNumber": 25
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 239,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 288531,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 5.461608775137112,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 5.449688910026332
+        },
+        {
+          "frame": {
+            "functionName": "measuredRun",
+            "url": "file:///tmp/vibe-check-r04-profile-F7GWnj/public-run-profile.ts",
+            "lineNumber": 183,
+            "columnNumber": 26
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 239,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 288531,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 5.461608775137112,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 5.449688910026332
+        },
+        {
+          "frame": {
+            "functionName": "executePreparedInvocation",
+            "url": "file:///workspace/vibe-check/src/project-run/invocation/execution.ts",
+            "lineNumber": 49,
+            "columnNumber": 38
+          },
+          "selfSamples": 1,
+          "inclusiveSamples": 220,
+          "selfIntervalUs": 1209,
+          "inclusiveIntervalUs": 265339,
+          "selfSamplePercent": 0.022851919561243144,
+          "inclusiveSamplePercent": 5.027422303473492,
+          "selfIntervalPercent": 0.022835237434528127,
+          "inclusiveIntervalPercent": 5.01164521558334
+        },
+        {
+          "frame": {
+            "functionName": "get",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 3505,
+            "columnNumber": 40
+          },
+          "selfSamples": 159,
+          "inclusiveSamples": 206,
+          "selfIntervalUs": 192557,
+          "inclusiveIntervalUs": 248685,
+          "selfSamplePercent": 3.63345521023766,
+          "inclusiveSamplePercent": 4.707495429616087,
+          "selfIntervalPercent": 3.6369601444834014,
+          "inclusiveIntervalPercent": 4.6970893477300475
+        },
+        {
+          "frame": {
+            "functionName": "Map",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 201,
+          "inclusiveSamples": 201,
+          "selfIntervalUs": 239686,
+          "inclusiveIntervalUs": 239686,
+          "selfSamplePercent": 4.593235831809872,
+          "inclusiveSamplePercent": 4.593235831809872,
+          "selfIntervalPercent": 4.5271188748819755,
+          "inclusiveIntervalPercent": 4.5271188748819755
+        },
+        {
+          "frame": {
+            "functionName": "executeValidatedRun",
+            "url": "file:///workspace/vibe-check/src/project-run/invocation/run.ts",
+            "lineNumber": 68,
+            "columnNumber": 22
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 190,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 229610,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 4.341864716636198,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 4.336806341887513
+        },
+        {
+          "frame": {
+            "functionName": "executeValidatedRun",
+            "url": "file:///workspace/vibe-check/src/project-run/invocation/run.ts",
+            "lineNumber": 63,
+            "columnNumber": 41
+          },
+          "selfSamples": 0,
+          "inclusiveSamples": 190,
+          "selfIntervalUs": 0,
+          "inclusiveIntervalUs": 229610,
+          "selfSamplePercent": 0,
+          "inclusiveSamplePercent": 4.341864716636198,
+          "selfIntervalPercent": 0,
+          "inclusiveIntervalPercent": 4.336806341887513
+        },
+        {
+          "frame": {
+            "functionName": "statusForStore",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-index.ts",
+            "lineNumber": 65,
+            "columnNumber": 30
+          },
+          "selfSamples": 3,
+          "inclusiveSamples": 188,
+          "selfIntervalUs": 3836,
+          "inclusiveIntervalUs": 227177,
+          "selfSamplePercent": 0.06855575868372943,
+          "inclusiveSamplePercent": 4.296160877513711,
+          "selfIntervalPercent": 0.0724532430098014,
+          "inclusiveIntervalPercent": 4.290852551417532
+        }
+      ],
+      "topSelfCallContexts": [
+        {
+          "nodeId": 479,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 707,
+          "selfIntervalUs": 845829,
+          "selfSamplePercent": 16.156307129798904,
+          "selfIntervalPercent": 15.975770094300653,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "snapshotSchedulerState",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+              "lineNumber": 193,
+              "columnNumber": 47
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 461,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 685,
+          "selfIntervalUs": 814452,
+          "selfSamplePercent": 15.653564899451554,
+          "selfIntervalPercent": 15.383130520286436,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "schedulerInspectionForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+              "lineNumber": 79,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 547,
+          "frame": {
+            "functionName": "Map",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 194,
+          "selfIntervalUs": 231757,
+          "selfSamplePercent": 4.43327239488117,
+          "selfIntervalPercent": 4.377358248233197,
+          "stackLeafToRoot": [
+            {
+              "functionName": "Map",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "summarizeSchedulerBlockers",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+              "lineNumber": 4,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decisionContext",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 30,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 533,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 151,
+          "selfIntervalUs": 178755,
+          "selfSamplePercent": 3.450639853747715,
+          "selfIntervalPercent": 3.3762720162192514,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "map",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "snapshotSchedulerState",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+              "lineNumber": 193,
+              "columnNumber": 47
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 491,
+          "frame": {
+            "functionName": "freeze",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 149,
+          "selfIntervalUs": 177804,
+          "selfSamplePercent": 3.4049360146252283,
+          "selfIntervalPercent": 3.358309807120628,
+          "stackLeafToRoot": [
+            {
+              "functionName": "freeze",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "map",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "schedulerInspectionForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+              "lineNumber": 79,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 493,
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 146,
+          "selfIntervalUs": 174571,
+          "selfSamplePercent": 3.3363802559414992,
+          "selfIntervalPercent": 3.297245851267998,
+          "stackLeafToRoot": [
+            {
+              "functionName": "arrayIteratorNextHelper",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "next",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "schedulerInspectionForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+              "lineNumber": 79,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 193,
+          "frame": {
+            "functionName": "",
+            "url": "",
+            "lineNumber": -1,
+            "columnNumber": -1
+          },
+          "selfSamples": 131,
+          "selfIntervalUs": 160112,
+          "selfSamplePercent": 2.993601462522852,
+          "selfIntervalPercent": 3.0241484996833474,
+          "stackLeafToRoot": [
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 502,
+          "frame": {
+            "functionName": "arrayIteratorNextHelper",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 129,
+          "selfIntervalUs": 154034,
+          "selfSamplePercent": 2.9478976234003658,
+          "selfIntervalPercent": 2.9093490181886725,
+          "stackLeafToRoot": [
+            {
+              "functionName": "arrayIteratorNextHelper",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "next",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "admissionCandidatesForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 227,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideAdmission",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 559,
+          "frame": {
+            "functionName": "effectiveMaxParallelFor",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+            "lineNumber": 50,
+            "columnNumber": 32
+          },
+          "selfSamples": 115,
+          "selfIntervalUs": 138615,
+          "selfSamplePercent": 2.6279707495429614,
+          "selfIntervalPercent": 2.618119468144844,
+          "stackLeafToRoot": [
+            {
+              "functionName": "effectiveMaxParallelFor",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 50,
+              "columnNumber": 32
+            },
+            {
+              "functionName": "capacityFor",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 42,
+              "columnNumber": 27
+            },
+            {
+              "functionName": "decisionContext",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 30,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 465,
+          "frame": {
+            "functionName": "some",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 107,
+          "selfIntervalUs": 128125,
+          "selfSamplePercent": 2.4451553930530165,
+          "selfIntervalPercent": 2.4199874245648605,
+          "stackLeafToRoot": [
+            {
+              "functionName": "some",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "hasUnsatisfiedRelation",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+              "lineNumber": 45,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "summarizeSchedulerBlockers",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+              "lineNumber": 4,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decisionContext",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 30,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 523,
+          "frame": {
+            "functionName": "performIteration",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 94,
+          "selfIntervalUs": 113337,
+          "selfSamplePercent": 2.1480804387568555,
+          "selfIntervalPercent": 2.1406760174665957,
+          "stackLeafToRoot": [
+            {
+              "functionName": "performIteration",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "snapshotSchedulerState",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/execution-state.ts",
+              "lineNumber": 193,
+              "columnNumber": 47
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 583,
+          "frame": {
+            "functionName": "get",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 3505,
+            "columnNumber": 40
+          },
+          "selfSamples": 82,
+          "selfIntervalUs": 100344,
+          "selfSamplePercent": 1.8738574040219378,
+          "selfIntervalPercent": 1.8952680439456495,
+          "stackLeafToRoot": [
+            {
+              "functionName": "get",
+              "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+              "lineNumber": 3505,
+              "columnNumber": 40
+            },
+            {
+              "functionName": "statusForStore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-index.ts",
+              "lineNumber": 65,
+              "columnNumber": 30
+            },
+            {
+              "functionName": "statusForSelection",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-index.ts",
+              "lineNumber": 58,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "statusForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 29,
+              "columnNumber": 29
+            },
+            {
+              "functionName": "schedulerInspectionForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/projection.ts",
+              "lineNumber": 79,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 514,
+          "frame": {
+            "functionName": "map",
+            "url": "",
+            "lineNumber": 0,
+            "columnNumber": 10
+          },
+          "selfSamples": 75,
+          "selfIntervalUs": 89258,
+          "selfSamplePercent": 1.7138939670932358,
+          "selfIntervalPercent": 1.6858789271555925,
+          "stackLeafToRoot": [
+            {
+              "functionName": "map",
+              "url": "",
+              "lineNumber": 0,
+              "columnNumber": 10
+            },
+            {
+              "functionName": "summarizeSchedulerBlockers",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+              "lineNumber": 4,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decisionContext",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 30,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 541,
+          "frame": {
+            "functionName": "get",
+            "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+            "lineNumber": 3505,
+            "columnNumber": 40
+          },
+          "selfSamples": 66,
+          "selfIntervalUs": 79652,
+          "selfSamplePercent": 1.5082266910420474,
+          "selfIntervalPercent": 1.504443616323436,
+          "stackLeafToRoot": [
+            {
+              "functionName": "get",
+              "url": "file:///workspace/vibe-check/node_modules/.pnpm/immutable@5.1.9/node_modules/immutable/dist/immutable.js",
+              "lineNumber": 3505,
+              "columnNumber": 40
+            },
+            {
+              "functionName": "statusForStore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-index.ts",
+              "lineNumber": 65,
+              "columnNumber": 30
+            },
+            {
+              "functionName": "statusForSelection",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-index.ts",
+              "lineNumber": 58,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "statusForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 29,
+              "columnNumber": 29
+            },
+            {
+              "functionName": "admissionCandidatesForCore",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/admission-core/selection-query.ts",
+              "lineNumber": 227,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decideAdmission",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-admission-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        },
+        {
+          "nodeId": 463,
+          "frame": {
+            "functionName": "summarizeSchedulerBlockers",
+            "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+            "lineNumber": 4,
+            "columnNumber": 42
+          },
+          "selfSamples": 65,
+          "selfIntervalUs": 77038,
+          "selfSamplePercent": 1.4853747714808043,
+          "selfIntervalPercent": 1.4550711509356309,
+          "stackLeafToRoot": [
+            {
+              "functionName": "summarizeSchedulerBlockers",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-blocker-summary.ts",
+              "lineNumber": 4,
+              "columnNumber": 42
+            },
+            {
+              "functionName": "decisionContext",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision-inspection.ts",
+              "lineNumber": 30,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "decideScheduler",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler-decision.ts",
+              "lineNumber": 31,
+              "columnNumber": 31
+            },
+            {
+              "functionName": "runTaskGraph",
+              "url": "file:///workspace/vibe-check/src/project-run/task-scheduler/scheduler.ts",
+              "lineNumber": 50,
+              "columnNumber": 34
+            },
+            {
+              "functionName": "",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            },
+            {
+              "functionName": "processTicksAndRejections",
+              "url": "",
+              "lineNumber": 6,
+              "columnNumber": 38
+            },
+            {
+              "functionName": "(root)",
+              "url": "",
+              "lineNumber": -1,
+              "columnNumber": -1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,636 @@
+{
+  "protocol": "public-run-r04-current-baseline-v1",
+  "observedAt": "2026-10-12T05:54:18.049Z",
+  "mode": "instrumented",
+  "shape": "independent",
+  "checkCount": 512,
+  "edgeCount": 0,
+  "sourceRoot": "/tmp/vibe-check-r04-profile-F7GWnj/instrumented",
+  "sourceManifestSha256": "fecf1efa4510ffba3caca0673d245930d997b8382cbebc263fe37fddcc35c81d",
+  "projectRoot": "/workspace/vibe-check",
+  "cwd": "/workspace/vibe-check",
+  "scheduler": "static/maxParallel=1",
+  "outputs": "all four disabled; no terminalEffects configured",
+  "timingScope": "complete await run(definition, same explicit projectRoot); import, defineConfig, reset, assertions, digest and IO excluded",
+  "stageOrder": [
+    "invocation-planning",
+    "admission-strategy-preparation",
+    "resolved-checks-validation",
+    "scheduler-preparation"
+  ],
+  "exclusions": "scheduler loop excludes graph preparation/state/setup/initial reconciliation; unobserved intervals remain unattributed",
+  "resultSignatureExclusions": [
+    "checkDurations[].durationMs (validated finite nonnegative)"
+  ],
+  "runtime": {
+    "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "versions": {
+      "node": "24.3.0",
+      "bun": "1.3.14",
+      "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+      "openssl": "1.1.0",
+      "llhttp": "9.3.0",
+      "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+      "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+      "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+      "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+      "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+      "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+      "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+      "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+      "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+      "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+      "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+      "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "v8": "13.6.233.10-node.18",
+      "uv": "1.48.0",
+      "napi": "10",
+      "icu": "75.1",
+      "unicode": "15.1",
+      "modules": "137"
+    },
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "hashes": {
+    "harness": "92074bdf0c5dcbe598fb2a6dfa2a831b08dee1679b5ac802e613a4fd667b2324",
+    "observer": "002f078e6eecaf967d741ba8322d792ac17a89210f6aacdcf023d7831f49624e",
+    "identityHelper": "e9966db6c90b18218d9872e930f5243370add92ff0a6c3d4accbccb4fab44387",
+    "pnpmLock": "11edc0c8cdb1649491dbf40397994a4dc2046772e31ec13437d1dc1ef4ce97ac",
+    "miseLock": "d849b5c6be22f885d6b5ecbaeb89054211b867ded4de4362859bda3b41e30a4e",
+    "package": "833b7cce6653c9644fe95f5ccf36755d9bd621ef321852affef49e8f6f425dc5"
+  },
+  "warmups": 3,
+  "samples": 9,
+  "iterations": 1,
+  "semanticDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+  "resultSignature": "6a9f2f601dcbcf83575e76a9465982e7f31e4739b0ff2eb3220f88a8a8c37794",
+  "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f",
+  "warmupSamples": [
+    {
+      "wallMs": 682.181388,
+      "stages": {
+        "planMs": [
+          0.8528929999999946,
+          0.5365859999999998,
+          0.5023630000000026,
+          0.4611760000000231
+        ],
+        "prepare": [
+          {
+            "inclusiveMs": 9.211265000000026,
+            "normalizeCatalogMs": 4.80840900000004,
+            "validateMs": 2.718016999999975,
+            "dtoFreezeMs": 1.6848390000000109
+          },
+          {
+            "inclusiveMs": 4.925505999999984,
+            "normalizeCatalogMs": 2.693351000000007,
+            "validateMs": 1.0396299999999883,
+            "dtoFreezeMs": 1.1925249999999892
+          },
+          {
+            "inclusiveMs": 4.538808000000017,
+            "normalizeCatalogMs": 2.480015000000037,
+            "validateMs": 0.9547729999999888,
+            "dtoFreezeMs": 1.1040199999999913
+          },
+          {
+            "inclusiveMs": 7.979478000000029,
+            "normalizeCatalogMs": 3.1004270000000247,
+            "validateMs": 1.1468800000000101,
+            "dtoFreezeMs": 3.732170999999994
+          }
+        ],
+        "schedulerStateSetupMs": [
+          9.33731899999998
+        ],
+        "schedulerLoopInclusiveMs": [
+          613.140337
+        ]
+      }
+    },
+    {
+      "wallMs": 599.453673,
+      "stages": {
+        "planMs": [
+          0.31425400000000536,
+          0.31819100000006983,
+          0.3457620000000361,
+          0.3544979999999214
+        ],
+        "prepare": [
+          {
+            "inclusiveMs": 3.2337049999999863,
+            "normalizeCatalogMs": 1.549317999999971,
+            "validateMs": 0.8888000000000602,
+            "dtoFreezeMs": 0.795586999999955
+          },
+          {
+            "inclusiveMs": 2.977890000000002,
+            "normalizeCatalogMs": 1.531704999999988,
+            "validateMs": 0.7536589999999705,
+            "dtoFreezeMs": 0.6925260000000435
+          },
+          {
+            "inclusiveMs": 3.652170999999953,
+            "normalizeCatalogMs": 1.4525469999999814,
+            "validateMs": 0.8046339999999645,
+            "dtoFreezeMs": 1.394990000000007
+          },
+          {
+            "inclusiveMs": 3.103072999999995,
+            "normalizeCatalogMs": 1.4607930000000806,
+            "validateMs": 0.9195979999999508,
+            "dtoFreezeMs": 0.7226819999999634
+          }
+        ],
+        "schedulerStateSetupMs": [
+          3.1817780000000084
+        ],
+        "schedulerLoopInclusiveMs": [
+          567.3933880000001
+        ]
+      }
+    },
+    {
+      "wallMs": 582.084781,
+      "stages": {
+        "planMs": [
+          0.3405319999999392,
+          0.2692700000000059,
+          0.3478660000000673,
+          0.3409529999998995
+        ],
+        "prepare": [
+          {
+            "inclusiveMs": 2.452774999999974,
+            "normalizeCatalogMs": 1.1057429999998476,
+            "validateMs": 0.7061020000001008,
+            "dtoFreezeMs": 0.6409300000000258
+          },
+          {
+            "inclusiveMs": 5.581574000000046,
+            "normalizeCatalogMs": 1.2047370000000228,
+            "validateMs": 2.0137939999999617,
+            "dtoFreezeMs": 2.3630430000000615
+          },
+          {
+            "inclusiveMs": 2.7177160000001095,
+            "normalizeCatalogMs": 1.3033000000000357,
+            "validateMs": 0.6941589999998996,
+            "dtoFreezeMs": 0.7202570000001742
+          },
+          {
+            "inclusiveMs": 2.7209230000000844,
+            "normalizeCatalogMs": 1.2786539999999604,
+            "validateMs": 0.7342340000000149,
+            "dtoFreezeMs": 0.708035000000109
+          }
+        ],
+        "schedulerStateSetupMs": [
+          2.6806480000000192
+        ],
+        "schedulerLoopInclusiveMs": [
+          554.2276109999998
+        ]
+      }
+    }
+  ],
+  "batches": [
+    {
+      "index": 0,
+      "runs": [
+        {
+          "wallMs": 567.0357089999998,
+          "stages": {
+            "planMs": [
+              0.3826410000001488,
+              0.3548789999999826,
+              0.4007040000001325,
+              0.3877700000002733
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 5.83771999999999,
+                "normalizeCatalogMs": 4.227730000000065,
+                "validateMs": 0.8803450000000339,
+                "dtoFreezeMs": 0.7296449999998913
+              },
+              {
+                "inclusiveMs": 2.6485280000001694,
+                "normalizeCatalogMs": 1.1798000000003412,
+                "validateMs": 0.7555229999998119,
+                "dtoFreezeMs": 0.7132050000000163
+              },
+              {
+                "inclusiveMs": 2.662593999999899,
+                "normalizeCatalogMs": 1.294202999999925,
+                "validateMs": 0.6951309999999467,
+                "dtoFreezeMs": 0.6732600000000275
+              },
+              {
+                "inclusiveMs": 2.5084179999998923,
+                "normalizeCatalogMs": 1.163340000000062,
+                "validateMs": 0.6840699999997923,
+                "dtoFreezeMs": 0.661008000000038
+              }
+            ],
+            "schedulerStateSetupMs": [
+              2.8003539999999703
+            ],
+            "schedulerLoopInclusiveMs": [
+              539.3112620000002
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "runs": [
+        {
+          "wallMs": 568.8554470000004,
+          "stages": {
+            "planMs": [
+              0.3849150000000918,
+              0.3402409999998781,
+              0.3186009999999442,
+              0.33625400000028094
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 2.9245310000001155,
+                "normalizeCatalogMs": 1.418344000000161,
+                "validateMs": 0.7576769999996031,
+                "dtoFreezeMs": 0.7485100000003513
+              },
+              {
+                "inclusiveMs": 2.5388749999997344,
+                "normalizeCatalogMs": 1.1960109999999986,
+                "validateMs": 0.688017999999829,
+                "dtoFreezeMs": 0.6548459999999068
+              },
+              {
+                "inclusiveMs": 2.797595000000001,
+                "normalizeCatalogMs": 1.2673329999997804,
+                "validateMs": 0.7620950000000448,
+                "dtoFreezeMs": 0.7681670000001759
+              },
+              {
+                "inclusiveMs": 2.923819000000094,
+                "normalizeCatalogMs": 1.4012219999999616,
+                "validateMs": 0.8013879999998608,
+                "dtoFreezeMs": 0.7212090000002718
+              }
+            ],
+            "schedulerStateSetupMs": [
+              2.5475900000001275
+            ],
+            "schedulerLoopInclusiveMs": [
+              541.7948959999999
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "runs": [
+        {
+          "wallMs": 586.1571370000001,
+          "stages": {
+            "planMs": [
+              0.30873399999973117,
+              0.3425569999999425,
+              0.2948270000001685,
+              0.3404219999997622
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 2.977027999999791,
+                "normalizeCatalogMs": 1.2669019999998454,
+                "validateMs": 0.9989749999999731,
+                "dtoFreezeMs": 0.7111509999999726
+              },
+              {
+                "inclusiveMs": 2.5299180000001797,
+                "normalizeCatalogMs": 1.1556760000003123,
+                "validateMs": 0.7298849999997401,
+                "dtoFreezeMs": 0.6443570000001273
+              },
+              {
+                "inclusiveMs": 2.4646670000001905,
+                "normalizeCatalogMs": 1.1225939999999355,
+                "validateMs": 0.6670090000002347,
+                "dtoFreezeMs": 0.6750640000000203
+              },
+              {
+                "inclusiveMs": 2.532152000000224,
+                "normalizeCatalogMs": 1.1923940000001494,
+                "validateMs": 0.6441059999997378,
+                "dtoFreezeMs": 0.6956520000003366
+              }
+            ],
+            "schedulerStateSetupMs": [
+              2.3284130000001824
+            ],
+            "schedulerLoopInclusiveMs": [
+              559.994878
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "runs": [
+        {
+          "wallMs": 592.082617,
+          "stages": {
+            "planMs": [
+              1.0469740000003185,
+              0.36739200000010896,
+              0.2984040000001187,
+              0.6507069999997839
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 4.0677740000000995,
+                "normalizeCatalogMs": 2.597573999999895,
+                "validateMs": 0.836533000000145,
+                "dtoFreezeMs": 0.6336670000000595
+              },
+              {
+                "inclusiveMs": 2.312865000000329,
+                "normalizeCatalogMs": 1.01418300000023,
+                "validateMs": 0.6540749999999207,
+                "dtoFreezeMs": 0.6446070000001782
+              },
+              {
+                "inclusiveMs": 2.3567870000001676,
+                "normalizeCatalogMs": 1.1304799999998068,
+                "validateMs": 0.6390660000001844,
+                "dtoFreezeMs": 0.5872410000001764
+              },
+              {
+                "inclusiveMs": 2.61830400000008,
+                "normalizeCatalogMs": 1.226720000000114,
+                "validateMs": 0.7212790000003224,
+                "dtoFreezeMs": 0.6703049999996438
+              }
+            ],
+            "schedulerStateSetupMs": [
+              2.4726419999997233
+            ],
+            "schedulerLoopInclusiveMs": [
+              566.3565440000002
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "runs": [
+        {
+          "wallMs": 578.5935730000001,
+          "stages": {
+            "planMs": [
+              0.3394109999999273,
+              0.2915820000007443,
+              0.2901380000002973,
+              0.3080420000005688
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 2.468152999999802,
+                "normalizeCatalogMs": 1.1072359999998298,
+                "validateMs": 0.6244699999997465,
+                "dtoFreezeMs": 0.7364470000002257
+              },
+              {
+                "inclusiveMs": 2.4566020000002027,
+                "normalizeCatalogMs": 1.1843890000000101,
+                "validateMs": 0.6401489999998375,
+                "dtoFreezeMs": 0.632064000000355
+              },
+              {
+                "inclusiveMs": 2.7232619999995222,
+                "normalizeCatalogMs": 1.253046999999242,
+                "validateMs": 0.6568990000005215,
+                "dtoFreezeMs": 0.8133159999997588
+              },
+              {
+                "inclusiveMs": 3.5940880000007382,
+                "normalizeCatalogMs": 2.0079720000003363,
+                "validateMs": 0.703577000000223,
+                "dtoFreezeMs": 0.8825390000001789
+              }
+            ],
+            "schedulerStateSetupMs": [
+              7.516990000000078
+            ],
+            "schedulerLoopInclusiveMs": [
+              546.8320240000003
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "runs": [
+        {
+          "wallMs": 590.612897,
+          "stages": {
+            "planMs": [
+              0.343246999999792,
+              0.322439000000486,
+              0.35984800000005635,
+              0.36986699999943085
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 2.4773199999999633,
+                "normalizeCatalogMs": 1.1348680000000968,
+                "validateMs": 0.6999889999997322,
+                "dtoFreezeMs": 0.6424630000001343
+              },
+              {
+                "inclusiveMs": 2.455880000000434,
+                "normalizeCatalogMs": 1.0620120000003226,
+                "validateMs": 0.6969739999994999,
+                "dtoFreezeMs": 0.6968940000006114
+              },
+              {
+                "inclusiveMs": 4.546814000000268,
+                "normalizeCatalogMs": 1.0047960000001694,
+                "validateMs": 2.868156000000454,
+                "dtoFreezeMs": 0.6738619999996445
+              },
+              {
+                "inclusiveMs": 2.502136000000064,
+                "normalizeCatalogMs": 1.0631540000003952,
+                "validateMs": 0.6827179999991131,
+                "dtoFreezeMs": 0.7562640000005558
+              }
+            ],
+            "schedulerStateSetupMs": [
+              2.3321109999997134
+            ],
+            "schedulerLoopInclusiveMs": [
+              563.870038
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "runs": [
+        {
+          "wallMs": 606.5050659999997,
+          "stages": {
+            "planMs": [
+              0.30384399999911693,
+              0.3402719999994588,
+              0.5572449999999662,
+              0.32757799999944837
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 2.3138669999998456,
+                "normalizeCatalogMs": 1.0670509999999922,
+                "validateMs": 0.6331960000006802,
+                "dtoFreezeMs": 0.6136199999991732
+              },
+              {
+                "inclusiveMs": 2.9055260000004637,
+                "normalizeCatalogMs": 1.0637150000002293,
+                "validateMs": 0.640730000000076,
+                "dtoFreezeMs": 1.2010810000001584
+              },
+              {
+                "inclusiveMs": 4.8162640000000465,
+                "normalizeCatalogMs": 3.469563000000562,
+                "validateMs": 0.6741619999993418,
+                "dtoFreezeMs": 0.6725390000001426
+              },
+              {
+                "inclusiveMs": 2.488390999999865,
+                "normalizeCatalogMs": 1.169702000000143,
+                "validateMs": 0.6978060000001278,
+                "dtoFreezeMs": 0.6208829999995942
+              }
+            ],
+            "schedulerStateSetupMs": [
+              2.1879930000004606
+            ],
+            "schedulerLoopInclusiveMs": [
+              580.0518439999996
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "runs": [
+        {
+          "wallMs": 622.4755439999999,
+          "stages": {
+            "planMs": [
+              0.33750699999927747,
+              0.33082500000000437,
+              0.3109169999997903,
+              0.35520999999971536
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 2.7249400000000605,
+                "normalizeCatalogMs": 1.2816100000000006,
+                "validateMs": 0.7707909999999174,
+                "dtoFreezeMs": 0.6725390000001426
+              },
+              {
+                "inclusiveMs": 5.323664999999892,
+                "normalizeCatalogMs": 3.9267409999993106,
+                "validateMs": 0.6866850000005797,
+                "dtoFreezeMs": 0.7102390000000014
+              },
+              {
+                "inclusiveMs": 2.5472609999997076,
+                "normalizeCatalogMs": 1.223602999999457,
+                "validateMs": 0.6876970000002984,
+                "dtoFreezeMs": 0.635960999999952
+              },
+              {
+                "inclusiveMs": 3.078668000000107,
+                "normalizeCatalogMs": 1.5087409999996453,
+                "validateMs": 0.8319350000001577,
+                "dtoFreezeMs": 0.737992000000304
+              }
+            ],
+            "schedulerStateSetupMs": [
+              3.0409469999995054
+            ],
+            "schedulerLoopInclusiveMs": [
+              592.2562259999995
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "runs": [
+        {
+          "wallMs": 608.9643120000001,
+          "stages": {
+            "planMs": [
+              0.346864000000096,
+              0.3214170000001104,
+              0.31931299999996554,
+              0.31431400000019494
+            ],
+            "prepare": [
+              {
+                "inclusiveMs": 2.5010950000005323,
+                "normalizeCatalogMs": 1.1728180000000066,
+                "validateMs": 0.6827979999998206,
+                "dtoFreezeMs": 0.6454790000007051
+              },
+              {
+                "inclusiveMs": 5.954745000000003,
+                "normalizeCatalogMs": 4.545638999999937,
+                "validateMs": 0.7492110000002867,
+                "dtoFreezeMs": 0.6598949999997785
+              },
+              {
+                "inclusiveMs": 2.5441940000000614,
+                "normalizeCatalogMs": 1.1917629999998098,
+                "validateMs": 0.6660570000003645,
+                "dtoFreezeMs": 0.686373999999887
+              },
+              {
+                "inclusiveMs": 2.7842069999996966,
+                "normalizeCatalogMs": 1.132582999999613,
+                "validateMs": 0.8705230000005031,
+                "dtoFreezeMs": 0.7811009999995804
+              }
+            ],
+            "schedulerStateSetupMs": [
+              3.4337720000003173
+            ],
+            "schedulerLoopInclusiveMs": [
+              579.9630889999999
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

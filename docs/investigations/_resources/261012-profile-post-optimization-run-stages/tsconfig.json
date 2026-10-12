@@ -1,0 +1,16 @@
+{
+  "extends": "/workspace/vibe-check/tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "typeRoots": [
+      "/workspace/vibe-check/node_modules/@types"
+    ]
+  },
+  "include": [
+    "./*.ts",
+    "./instrumented/src/project-run/check-execution/plan.ts",
+    "./instrumented/src/project-run/task-scheduler/graph.ts",
+    "./instrumented/src/project-run/task-scheduler/scheduler.ts"
+  ],
+  "exclude": []
+}

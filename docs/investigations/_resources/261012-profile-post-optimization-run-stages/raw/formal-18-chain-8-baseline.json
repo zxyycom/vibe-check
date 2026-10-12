@@ -1,0 +1,957 @@
+{
+  "protocol": "public-run-r04-current-baseline-v1",
+  "observedAt": "2026-10-12T05:54:35.012Z",
+  "mode": "baseline",
+  "shape": "chain",
+  "checkCount": 8,
+  "edgeCount": 7,
+  "sourceRoot": "/workspace/vibe-check",
+  "sourceManifestSha256": "817a47c1ecfb19f12f74d5bac7ff55743b97e7aa4153a3c3d2db56d236129f0f",
+  "projectRoot": "/workspace/vibe-check",
+  "cwd": "/workspace/vibe-check",
+  "scheduler": "static/maxParallel=1",
+  "outputs": "all four disabled; no terminalEffects configured",
+  "timingScope": "complete await run(definition, same explicit projectRoot); import, defineConfig, reset, assertions, digest and IO excluded",
+  "stageOrder": [
+    "invocation-planning",
+    "admission-strategy-preparation",
+    "resolved-checks-validation",
+    "scheduler-preparation"
+  ],
+  "exclusions": "scheduler loop excludes graph preparation/state/setup/initial reconciliation; unobserved intervals remain unattributed",
+  "resultSignatureExclusions": [
+    "checkDurations[].durationMs (validated finite nonnegative)"
+  ],
+  "runtime": {
+    "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "versions": {
+      "node": "24.3.0",
+      "bun": "1.3.14",
+      "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+      "openssl": "1.1.0",
+      "llhttp": "9.3.0",
+      "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+      "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+      "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+      "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+      "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+      "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+      "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+      "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+      "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+      "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+      "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+      "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "v8": "13.6.233.10-node.18",
+      "uv": "1.48.0",
+      "napi": "10",
+      "icu": "75.1",
+      "unicode": "15.1",
+      "modules": "137"
+    },
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "hashes": {
+    "harness": "92074bdf0c5dcbe598fb2a6dfa2a831b08dee1679b5ac802e613a4fd667b2324",
+    "observer": "002f078e6eecaf967d741ba8322d792ac17a89210f6aacdcf023d7831f49624e",
+    "identityHelper": "e9966db6c90b18218d9872e930f5243370add92ff0a6c3d4accbccb4fab44387",
+    "pnpmLock": "11edc0c8cdb1649491dbf40397994a4dc2046772e31ec13437d1dc1ef4ce97ac",
+    "miseLock": "d849b5c6be22f885d6b5ecbaeb89054211b867ded4de4362859bda3b41e30a4e",
+    "package": "833b7cce6653c9644fe95f5ccf36755d9bd621ef321852affef49e8f6f425dc5"
+  },
+  "warmups": 3,
+  "samples": 9,
+  "iterations": 10,
+  "semanticDigest": "d409f71f404414964b5a98e8cd6180107151ae0e07b6f0bbe5845bc909039ec5",
+  "resultSignature": "80bd40812321241a5e72443d06c3579d1c82ed0ddc121dce81eced9353fa1a05",
+  "declarativeFingerprint": "460b4925861826972062c439a758f1b0f4015a4702620fa6748536117ffce7ab",
+  "warmupSamples": [
+    {
+      "wallMs": 19.178413000000006,
+      "stages": {
+        "planMs": [],
+        "prepare": [],
+        "schedulerStateSetupMs": [],
+        "schedulerLoopInclusiveMs": []
+      }
+    },
+    {
+      "wallMs": 6.630521999999985,
+      "stages": {
+        "planMs": [],
+        "prepare": [],
+        "schedulerStateSetupMs": [],
+        "schedulerLoopInclusiveMs": []
+      }
+    },
+    {
+      "wallMs": 6.377161999999998,
+      "stages": {
+        "planMs": [],
+        "prepare": [],
+        "schedulerStateSetupMs": [],
+        "schedulerLoopInclusiveMs": []
+      }
+    }
+  ],
+  "batches": [
+    {
+      "index": 0,
+      "runs": [
+        {
+          "wallMs": 4.319932000000051,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 5.940390999999977,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 4.0167090000000485,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 3.4569890000000214,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.981696999999997,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.9665689999999927,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 3.769389999999987,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.8862490000000207,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.6807680000000005,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.8285419999999704,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 1,
+      "runs": [
+        {
+          "wallMs": 2.3597619999999893,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.868286000000012,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.537633000000028,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.809415999999999,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 3.0933839999999577,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.61785100000003,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 3.6285990000000083,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 6.670977999999991,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.854971999999975,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.7949330000000145,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "runs": [
+        {
+          "wallMs": 1.8109230000000025,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.8210510000000113,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.3526990000000296,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.8528699999999958,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.06792999999999,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.731014000000016,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.4113009999999804,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.4855080000000385,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.6232439999999997,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.601444000000015,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "runs": [
+        {
+          "wallMs": 3.049513000000047,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.7582250000000386,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.8108419999999796,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.609658999999965,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.4357360000000199,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3740619999999808,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.490788000000009,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.7367150000000038,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.056158000000039,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.8327429999999936,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "runs": [
+        {
+          "wallMs": 1.891190999999992,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.6755620000000135,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.0004940000000033,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.8248090000000161,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 4.290796999999998,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 2.0118739999999775,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.8287879999999745,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.7409130000000346,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.402334000000053,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.721537000000012,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "runs": [
+        {
+          "wallMs": 1.3147619999999733,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.5699650000000247,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.4838760000000093,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3636020000000144,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2359859999999685,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.6099800000000073,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.401602999999966,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.185701999999992,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2861479999999688,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3940089999999827,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "runs": [
+        {
+          "wallMs": 1.1791900000000055,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2420960000000036,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3077490000000012,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2467449999999758,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3930970000000116,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3051130000000057,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3704249999999547,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.8648330000000328,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.756751999999949,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.7707879999999818,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "runs": [
+        {
+          "wallMs": 1.4556529999999839,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.6406560000000354,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 3.686857000000032,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3319339999999897,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3318740000000275,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3238379999999665,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.1457080000000133,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2278499999999894,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.6027559999999994,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.362971000000016,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    },
+    {
+      "index": 8,
+      "runs": [
+        {
+          "wallMs": 1.2205369999999789,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2300940000000082,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2405640000000062,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2308659999999918,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2979299999999512,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2691460000000347,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.2543900000000008,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.387757000000022,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.3245089999999777,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        },
+        {
+          "wallMs": 1.5070279999999912,
+          "stages": {
+            "planMs": [],
+            "prepare": [],
+            "schedulerStateSetupMs": [],
+            "schedulerLoopInclusiveMs": []
+          }
+        }
+      ]
+    }
+  ]
+}

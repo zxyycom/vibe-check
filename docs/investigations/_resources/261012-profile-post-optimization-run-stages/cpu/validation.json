@@ -1,0 +1,10 @@
+{
+  "analyzer": "summarize-cpu.ts",
+  "scope": "Offline native-profile parser and current source-identity helper dependency. No new probe or runtime instrumentation.",
+  "types": {"command": "mise exec -- node node_modules/@typescript/native-preview/bin/tsgo.js --project /tmp/vibe-check-r04-profile-F7GWnj/cpu/tsconfig.json", "exitCode": 0, "result": "types.txt"},
+  "lint": {"command": "mise exec -- node_modules/.bin/oxlint --config /tmp/vibe-check-r04-profile-F7GWnj/cpu/lint.json --type-aware --no-ignore --deny-warnings --format=json --tsconfig /tmp/vibe-check-r04-profile-F7GWnj/cpu/tsconfig.json /tmp/vibe-check-r04-profile-F7GWnj/cpu/summarize-cpu.ts", "exitCode": 0, "rules": 127, "diagnostics": [], "policy": "Repository full implementation rules/options/plugins unchanged; implementation override file patterns alone mapped to analyzer", "exceptions": []},
+  "format": {"command": "mise exec -- node_modules/.bin/oxfmt --config .oxfmtrc.json --check /tmp/vibe-check-r04-profile-F7GWnj/cpu/summarize-cpu.ts", "exitCode": 0, "result": "format-result.txt"},
+  "run": {"command": "mise exec -- bun run /tmp/vibe-check-r04-profile-F7GWnj/cpu/summarize-cpu.ts", "exitCode": 0, "result": "summary.json"},
+  "samples": {"independent": 6947, "chain": 4376},
+  "boundary": "Entire process, one CPU-profile process per shape; descriptive captured stacks only. Not formal wall samples, exact CPU/allocations/peak-memory or optimization benefit."
+}

@@ -1,0 +1,136 @@
+{
+  "capturedAt": "2026-10-12T05:53:03.992Z",
+  "repositoryHead": "041037f61322fa1ecd279902805ec556aa2e0579",
+  "baseline": {
+    "sourceManifestSha256": "817a47c1ecfb19f12f74d5bac7ff55743b97e7aa4153a3c3d2db56d236129f0f",
+    "fileCount": 722
+  },
+  "instrumented": {
+    "sourceManifestSha256": "fecf1efa4510ffba3caca0673d245930d997b8382cbebc263fe37fddcc35c81d",
+    "fileCount": 722,
+    "changedPaths": [
+      {
+        "path": "src/project-run/check-execution/plan.ts",
+        "baselineSha256": "a5b9cfd620e0fc3d0e749e89b1db2203ace6063a433dceb8cf507fdd43caf532",
+        "instrumentedSha256": "3df3e781704e38701e937e3fba8e4d8ce403c2b0ea2a2b878de379ff5dca992b"
+      },
+      {
+        "path": "src/project-run/task-scheduler/graph.ts",
+        "baselineSha256": "79c64033702a54d9c4c54e2006407732a1fd4979345b4cb00ed31e8edccec5d1",
+        "instrumentedSha256": "b3c57f02bbd3c9bd0df4659a0dbebd1881037db8dd85ec4a1762e432918bdc08"
+      },
+      {
+        "path": "src/project-run/task-scheduler/scheduler.ts",
+        "baselineSha256": "73e543f4cc6507df13a9aa5c0e07c42a25b30e59054d07446b7ce3cf5606b8e4",
+        "instrumentedSha256": "4ccba398500bcfb821080ad368fccd9d79835d1c6cfa479ca19c544fe2773587"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "capture-identity.ts",
+      "sha256": "dcfb768ade634fbbc62b52ee9a0a4449d7fb1fdb929d5e6c5b730599f9210ffd"
+    },
+    {
+      "path": "instrument-copy.ts",
+      "sha256": "84c9ae133fa25f07f12d5b7ae59956c1f431957f5d28fae0a930e816fdfeafe2"
+    },
+    {
+      "path": "profiling-observer.ts",
+      "sha256": "002f078e6eecaf967d741ba8322d792ac17a89210f6aacdcf023d7831f49624e"
+    },
+    {
+      "path": "public-run-profile.ts",
+      "sha256": "92074bdf0c5dcbe598fb2a6dfa2a831b08dee1679b5ac802e613a4fd667b2324"
+    },
+    {
+      "path": "source-identity.ts",
+      "sha256": "e9966db6c90b18218d9872e930f5243370add92ff0a6c3d4accbccb4fab44387"
+    },
+    {
+      "path": "summarize-profile.ts",
+      "sha256": "a014e384a91af18d43aa04650549421d83cce9a6a7c1533c260a8469d1a76bbf"
+    },
+    {
+      "path": "validation-config.ts",
+      "sha256": "96f150d5b6e920395a43c77fe1ce8ec099187b812a116c4ee63c794313e36c2f"
+    }
+  ],
+  "policyAndLocks": [
+    {
+      "path": "package.json",
+      "sha256": "833b7cce6653c9644fe95f5ccf36755d9bd621ef321852affef49e8f6f425dc5"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "11edc0c8cdb1649491dbf40397994a4dc2046772e31ec13437d1dc1ef4ce97ac"
+    },
+    {
+      "path": "mise.lock",
+      "sha256": "d849b5c6be22f885d6b5ecbaeb89054211b867ded4de4362859bda3b41e30a4e"
+    },
+    {
+      "path": "mise.toml",
+      "sha256": "6e6996b26222e713a36770d9aa750babfbbf205da81eee94e408906178ebc512"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "b2db245caa28e930d8fb4c23b7e57175005c214adec08154289d95dfff866eb3"
+    },
+    {
+      "path": ".oxlintrc.json",
+      "sha256": "a08d110acadd93ff887c2ccba31c9ed10eb8e7f988e4c49cf3ffb026328981c3"
+    },
+    {
+      "path": ".oxfmtrc.json",
+      "sha256": "52f51d62ccf88006bb90c0021e2bd8715cdf2c1b45fde7d809d2ef3f9a3a2e22"
+    }
+  ],
+  "host": {
+    "hostname": "dev-container",
+    "platform": "linux",
+    "arch": "x64",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "totalMemoryBytes": 8327917568,
+    "logicalCpuCount": 6,
+    "cpuModels": [
+      "AMD Ryzen AI 7 H 450 w/ Radeon 860M"
+    ]
+  },
+  "runtime": {
+    "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+    "versions": {
+      "node": "24.3.0",
+      "bun": "1.3.14",
+      "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+      "openssl": "1.1.0",
+      "llhttp": "9.3.0",
+      "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+      "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+      "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+      "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+      "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+      "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+      "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+      "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+      "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+      "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+      "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+      "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+      "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "v8": "13.6.233.10-node.18",
+      "uv": "1.48.0",
+      "napi": "10",
+      "icu": "75.1",
+      "unicode": "15.1",
+      "modules": "137"
+    }
+  },
+  "executionContext": {
+    "cwd": "/workspace/vibe-check",
+    "projectRoot": "/workspace/vibe-check",
+    "changes": "not configured; no Product Git acquisition",
+    "dependencyPath": "/workspace/vibe-check/node_modules (same unmodified symlink target)"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "formalSampling": {
+    "approved": "Explicit main-thread exclusive-window authorization after method review",
+    "cwd": "/workspace/vibe-check",
+    "outerCommand": "timeout --signal=TERM --kill-after=5s 360s bash /tmp/vibe-check-r04-profile-F7GWnj/run-formal.sh",
+    "innerCommand": "timeout --signal=TERM --kill-after=5s 60s mise exec -- bun run /tmp/vibe-check-r04-profile-F7GWnj/public-run-profile.ts --mode <baseline|instrumented> --shape <independent|chain> --size <8|32|128|512> --warmups 3 --samples 9 --iterations <10|5|1|1>",
+    "processCount": 32,
+    "exitCode": 0,
+    "individualProcessExitEvidence": "Frozen set -euo pipefail runner emitted each of 32 Completed markers after successful command completion, then exit0; separate individual formal exit-code files not recorded",
+    "individualStderr": "All 32 formal process stderr files exactly empty; may consolidate this fact rather than archive empty files",
+    "runnerStderr": "exactly empty",
+    "summaryCommand": "mise exec -- bun run /tmp/vibe-check-r04-profile-F7GWnj/summarize-profile.ts",
+    "summaryExitCode": 0,
+    "summaryGuards": "32 observations, all eight workloads, correct four-mode order, two processes/variant, nine batches, size-specific iterations, all stage counts, runtime/options/source/harness/lock identities, stable cross-variant snapshot/full-duration-normalized signature and declarativeFingerprint",
+    "attemptOne": "Wrapper created formal-window-start/end metadata before preservation guard. Zero JSON sample processes and no formal process-order file existed. Guard exited1. On express main-thread authorization, original metadata/stdout/stderr/exit and before/after identities renamed to attempt1 names without deletion, script changes or overwritten samples. Full32process successful round then started with window-start/end names."
+  },
+  "cpuSampling": {
+    "approved": "Separate conditional CPU-only window after main stage summary, not part of formal wall/stage samples",
+    "cwd": "/workspace/vibe-check",
+    "outerWatchdog": "timeout --signal=TERM --kill-after=5s 150s bash -c <two sequential shape commands>",
+    "commands": [
+      "timeout --signal=TERM --kill-after=5s 60s mise exec -- bun --cpu-prof --cpu-prof-dir=/tmp/vibe-check-r04-profile-F7GWnj/cpu --cpu-prof-name=independent-512.cpuprofile run /tmp/vibe-check-r04-profile-F7GWnj/public-run-profile.ts --mode baseline --shape independent --size 512 --warmups 3 --samples 9 --iterations 1",
+      "timeout --signal=TERM --kill-after=5s 60s mise exec -- bun --cpu-prof --cpu-prof-dir=/tmp/vibe-check-r04-profile-F7GWnj/cpu --cpu-prof-name=chain-512.cpuprofile run /tmp/vibe-check-r04-profile-F7GWnj/public-run-profile.ts --mode baseline --shape chain --size 512 --warmups 3 --samples 9 --iterations 1"
+    ],
+    "processExitCodes": [0, 0],
+    "runnerExitCode": 0,
+    "profileInterval": "Bun1.3.14 default1000us, no override",
+    "scope": "Entire process includes imports/source hashing/defineConfig/warmups/assertions/digest/stdout, not Run-only CPU",
+    "offlineSummaryCommand": "mise exec -- bun run /tmp/vibe-check-r04-profile-F7GWnj/cpu/summarize-cpu.ts",
+    "offlineSummaryExitCode": 0,
+    "offlineReviewCorrection": "Removed four uncomputed inclusive fields from leaf-only topSelfCallContexts. Recomputed derived summary with identical primary metrics across both profiles; no resampling or change to main frozen scripts/formal raw. cpu/offline-review-correction.json records exact equality."
+  },
+  "validation": {
+    "mainTypesExitCode": 0,
+    "mainCompleteImplementationLintExitCode": 0,
+    "mainCompleteImplementationLintRules": 127,
+    "mainLintDiagnostics": [],
+    "mainOxfmtExitCode": 0,
+    "mainFiles": 10,
+    "cpuAnalyzerTypesExitCode": 0,
+    "cpuAnalyzerCompleteImplementationLintExitCode": 0,
+    "cpuAnalyzerCompleteImplementationLintRules": 127,
+    "cpuAnalyzerLintDiagnostics": [],
+    "cpuAnalyzerOxfmtExitCode": 0,
+    "lintExceptions": [],
+    "policyBoundary": "Copy full current implementation rules/options/plugins; change only override target file patterns. Strict project-derived compiler profile, no incremental write. No repository rule changes.",
+    "sourceRecipeExactReproduction": "All three final source modifications reproduced by recipe plus locked Oxfmt and cmp-equal",
+    "notRun": ["Repository Gate", "Dependency installation", "Production optimization", "Network", "Allocation/peak-memory profiling"]
+  },
+  "retention": "Main thread controls archival and exact cleanup. All raw measured samples and first0-sample failure materials currently retained. Empty formal stderr and redundant manifests/stdout summaries can be consolidated on archival audit. No cleanup by measuring agent."
+}

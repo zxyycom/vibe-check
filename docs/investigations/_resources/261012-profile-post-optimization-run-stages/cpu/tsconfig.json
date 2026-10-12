@@ -1,0 +1,13 @@
+{
+  "extends": "/workspace/vibe-check/tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "typeRoots": [
+      "/workspace/vibe-check/node_modules/@types"
+    ]
+  },
+  "include": [
+    "./summarize-cpu.ts"
+  ],
+  "exclude": []
+}

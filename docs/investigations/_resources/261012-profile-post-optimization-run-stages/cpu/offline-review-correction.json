@@ -1,0 +1,14 @@
+{
+  "change": "Remove four never-computed inclusive fields from leaf-only topSelfCallContexts; no runtime/profile or primary numbers changed",
+  "unchanged": [
+    "targets",
+    "r05ObservationUnion",
+    "graphPreparationUnion",
+    "all topSelf/InclusiveFrames",
+    "native profiles",
+    "all formal raw",
+    "root frozen scripts"
+  ],
+  "verification": "Exact JSON equality for both profile rows across all primary metrics; contexts now self/frame/stack only",
+  "resampled": false
+}

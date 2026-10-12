@@ -1,0 +1,3 @@
+{"copyRoot":"/tmp/vibe-check-r04-profile-F7GWnj/reproduction/instrumented","editedPaths":["src/project-run/check-execution/plan.ts","src/project-run/task-scheduler/graph.ts","src/project-run/task-scheduler/scheduler.ts"]}
+Finished in 1ms on 3 files using 4 threads.
+All three final instrumented source files cmp-equal after recipe + locked Oxfmt

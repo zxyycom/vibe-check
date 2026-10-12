@@ -1,0 +1,11 @@
+{
+  "status": "prepared-code-validation-passed",
+  "scope": "Seven one-off TypeScript files plus three instrumented source files; strict type dependency closure through current public API. No repository source, policy or dependency modified.",
+  "typecheck": {"command": "mise exec -- node node_modules/@typescript/native-preview/bin/tsgo.js --project /tmp/vibe-check-r04-profile-F7GWnj/tsconfig.json", "exitCode": 0, "stdout": "types.txt", "incremental": false, "extends": "/workspace/vibe-check/tsconfig.json"},
+  "lint": {"command": "mise exec -- node_modules/.bin/oxlint --config /tmp/vibe-check-r04-profile-F7GWnj/lint.json --type-aware --no-ignore --deny-warnings --format=json --tsconfig /tmp/vibe-check-r04-profile-F7GWnj/tsconfig.json <all seven root TS + three copy-src paths>", "exitCode": 0, "files": 10, "rules": 127, "diagnostics": [], "configuration": "Current complete .oxlintrc.json unchanged except two implementation overrides target the one-off TS/copy-source paths; test override unchanged", "exceptions": []},
+  "format": {"command": "mise exec -- node_modules/.bin/oxfmt --config .oxfmtrc.json --check <all seven root TS + three copy-src paths>", "exitCode": 0, "files": 10},
+  "shellSyntax": {"command": "bash -n /tmp/vibe-check-r04-profile-F7GWnj/run-formal.sh", "exitCode": 0},
+  "recipe": {"command": "fresh source copy in owned reproduction child; bun run copied instrument-copy.ts; locked Oxfmt; cmp three final files", "exitCode": 0, "details": "recipe-reproduction.txt"},
+  "smoke": {"methodOnly": true, "scenarios": ["independent N=8 baseline/instrumented", "chain N=128 baseline/instrumented"], "warmups": 1, "samples": 1, "iterations": 1, "counts": "every instrumented Run 4 plans / 4 prepares / 1 setup / 1 coarse loop", "factsDigestAndDurationNormalizedResultSignature": "both comparison pairs equal", "boundary": "Smoke predates final metadata-only sourceManifestSHA addition; exact harness version in each smoke. Not used as formal timing evidence."},
+  "notRun": ["Product or repository source optimization", "Repository Gate", "Dependency installation", "CPU/allocations/peak-memory profiling", "Standalone product dependency-boundary gate (copy-only imports intentionally reach the one-off observer)"]
+}

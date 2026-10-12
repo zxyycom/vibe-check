@@ -1,0 +1,9 @@
+dcfb768ade634fbbc62b52ee9a0a4449d7fb1fdb929d5e6c5b730599f9210ffd  /tmp/vibe-check-r04-profile-F7GWnj/capture-identity.ts
+84c9ae133fa25f07f12d5b7ae59956c1f431957f5d28fae0a930e816fdfeafe2  /tmp/vibe-check-r04-profile-F7GWnj/instrument-copy.ts
+002f078e6eecaf967d741ba8322d792ac17a89210f6aacdcf023d7831f49624e  /tmp/vibe-check-r04-profile-F7GWnj/profiling-observer.ts
+92074bdf0c5dcbe598fb2a6dfa2a831b08dee1679b5ac802e613a4fd667b2324  /tmp/vibe-check-r04-profile-F7GWnj/public-run-profile.ts
+e9966db6c90b18218d9872e930f5243370add92ff0a6c3d4accbccb4fab44387  /tmp/vibe-check-r04-profile-F7GWnj/source-identity.ts
+a014e384a91af18d43aa04650549421d83cce9a6a7c1533c260a8469d1a76bbf  /tmp/vibe-check-r04-profile-F7GWnj/summarize-profile.ts
+96f150d5b6e920395a43c77fe1ce8ec099187b812a116c4ee63c794313e36c2f  /tmp/vibe-check-r04-profile-F7GWnj/validation-config.ts
+a551e1082497a1d7352ae0135fc062770600dcba794a19543ca414b2297731bd  /tmp/vibe-check-r04-profile-F7GWnj/run-formal.sh
+2fe05431a9a415cba95ee9fe912f3b5d47891c0ad32a18577563c0b8b3b7a5f9  /tmp/vibe-check-r04-profile-F7GWnj/instrumented.patch

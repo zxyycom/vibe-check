@@ -1,0 +1,117 @@
+diff --git a/src/project-run/check-execution/plan.ts b/tmp/vibe-check-r04-profile-F7GWnj/instrumented/src/project-run/check-execution/plan.ts
+index 43369bae..6a2b5e4c 100644
+--- a/src/project-run/check-execution/plan.ts
++++ b/tmp/vibe-check-r04-profile-F7GWnj/instrumented/src/project-run/check-execution/plan.ts
+@@ -1,3 +1,4 @@
++import { observePlan } from "../../../../profiling-observer.ts";
+ import type { TaskGraph, TaskNode, TaskScope } from "../task-scheduler/graph.ts";
+ import type { NormalizedCheck } from "../../project-definition/project-definition.ts";
+ import {
+@@ -14,13 +15,16 @@ export function planStaticCheckGraph(
+   checks: readonly NormalizedCheck[],
+   resourceCapacities: ResourceUnitMapping = EMPTY_RESOURCE_UNIT_MAPPING
+ ): TaskGraph {
++  const profilingStartedAt = performance.now();
+   const tasks = checks.map(taskForCheck);
+   const scopes = checks.map(scopeForCheck);
+-  return Object.freeze({
++  const profilingGraph = Object.freeze({
+     resourceCapacities,
+     tasks: Object.freeze(tasks),
+     scopes: Object.freeze(scopes)
+   });
++  observePlan(profilingStartedAt, performance.now());
++  return profilingGraph;
+ }
+ 
+ function taskForCheck(check: NormalizedCheck): TaskNode {
+diff --git a/src/project-run/task-scheduler/graph.ts b/tmp/vibe-check-r04-profile-F7GWnj/instrumented/src/project-run/task-scheduler/graph.ts
+index 2138ab83..27923b51 100644
+--- a/src/project-run/task-scheduler/graph.ts
++++ b/tmp/vibe-check-r04-profile-F7GWnj/instrumented/src/project-run/task-scheduler/graph.ts
+@@ -1,3 +1,4 @@
++import { observePrepare } from "../../../../profiling-observer.ts";
+ import { validatePreparedTaskGraph } from "./graph-validation.ts";
+ import type { SchedulerGraphSnapshot } from "../../project-definition/project-definition.ts";
+ import { snapshotClosedRecord } from "../../data-boundary/closed-values.ts";
+@@ -78,6 +79,7 @@ export function validateTaskGraph(graph: unknown): void {
+ }
+ 
+ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): PlannedTaskGraph {
++  const profilingStartedAt = performance.now();
+   const data = record(graph, "task graph", TASK_GRAPH_KEYS);
+   const resourceCapacities = resourceMapping(
+     data.resourceCapacities,
+@@ -88,6 +90,7 @@ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): Plan
+   const taskById = new Map(tasks.map((task) => [task.id, task] as const));
+   const scopeById = new Map(scopes.map((scope) => [scope.id, scope] as const));
+ 
++  const profilingNormalizedAt = performance.now();
+   validatePreparedTaskGraph({
+     resourceCapacities,
+     rootMaxParallel,
+@@ -97,12 +100,20 @@ export function prepareTaskGraph(graph: unknown, rootMaxParallel?: number): Plan
+     tasks
+   });
+ 
+-  return Object.freeze({
++  const profilingValidatedAt = performance.now();
++  const profilingGraph = Object.freeze({
+     resourceCapacities,
+     schedulerGraphSnapshot: schedulerGraphSnapshot(tasks, scopes, resourceCapacities),
+     tasks: Object.freeze(tasks),
+     scopes: Object.freeze(scopes)
+   });
++  observePrepare(
++    profilingStartedAt,
++    profilingNormalizedAt,
++    profilingValidatedAt,
++    performance.now()
++  );
++  return profilingGraph;
+ }
+ 
+ function schedulerGraphSnapshot(
+diff --git a/src/project-run/task-scheduler/scheduler.ts b/tmp/vibe-check-r04-profile-F7GWnj/instrumented/src/project-run/task-scheduler/scheduler.ts
+index 71e44d07..186ec783 100644
+--- a/src/project-run/task-scheduler/scheduler.ts
++++ b/tmp/vibe-check-r04-profile-F7GWnj/instrumented/src/project-run/task-scheduler/scheduler.ts
+@@ -1,3 +1,7 @@
++import {
++  observeSchedulerStateSetup,
++  observeSchedulerLoop
++} from "../../../../profiling-observer.ts";
+ import type { AdmissionPolicyContext } from "../../project-definition/project-definition.ts";
+ import { prepareTaskGraph } from "./graph.ts";
+ import {
+@@ -50,7 +54,9 @@ export async function runTaskGraph<TResult>(
+   options: RunTaskGraphOptions<TResult>
+ ): Promise<TaskGraphRun<TResult>> {
+   const graph = prepareTaskGraph(options.graph, options.maxParallel);
++  const profilingSetupStartedAt = performance.now();
+   const state = createSchedulerState(graph, options);
++  observeSchedulerStateSetup(profilingSetupStartedAt, performance.now());
+   observeSchedulerGraph(state);
+   const measurementInput =
+     options.performanceDiagnostics ??
+@@ -74,6 +80,7 @@ export async function runTaskGraph<TResult>(
+   );
+   let trigger: SchedulerTrigger = Object.freeze({ kind: "execution-started" });
+ 
++  const profilingLoopStartedAt = performance.now();
+   while (true) {
+     let decision: SchedulerDecision;
+     try {
+@@ -255,7 +262,11 @@ export async function runTaskGraph<TResult>(
+         continue;
+       }
+       case "complete": {
+-        if (diagnostics === undefined) return buildTaskGraphRun(state);
++        if (diagnostics === undefined) {
++          const profilingRun = buildTaskGraphRun(state);
++          observeSchedulerLoop(profilingLoopStartedAt, performance.now());
++          return profilingRun;
++        }
+         const run = diagnostics.measureControlPath(() => buildTaskGraphRun(state));
+         const terminalMeasurement = await observeTerminalMeasurement({
+           diagnostics,
