@@ -1,0 +1,194 @@
+{
+  "command": "mise exec -- bun run check -- --all",
+  "startedAt": "2026-10-12T03:46:29.159Z",
+  "candidate": "0.0.0-local.33c633e98132",
+  "exitCode": 0,
+  "result": "passed",
+  "passed": 43,
+  "total": 43,
+  "checks": [
+    {
+      "checkId": "decision-records",
+      "status": "passed"
+    },
+    {
+      "checkId": "duplicate-detection",
+      "status": "passed"
+    },
+    {
+      "checkId": "file-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "format-check",
+      "status": "passed"
+    },
+    {
+      "checkId": "function-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "git-diff-whitespace",
+      "status": "passed"
+    },
+    {
+      "checkId": "lint-product",
+      "status": "passed"
+    },
+    {
+      "checkId": "lint-scripts",
+      "status": "passed"
+    },
+    {
+      "checkId": "markdown-link-validation",
+      "status": "passed"
+    },
+    {
+      "checkId": "markdown-lint",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-examples-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-json-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-links-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-schema-publication-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "materials-schema-validator",
+      "status": "passed"
+    },
+    {
+      "checkId": "prepared-external-package-consumer",
+      "status": "passed"
+    },
+    {
+      "checkId": "prepared-package-candidate",
+      "status": "passed"
+    },
+    {
+      "checkId": "test-evidence",
+      "status": "passed"
+    },
+    {
+      "checkId": "test-evidence-rule-tests",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-artifact",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-consumer-docs",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-consumer-runtime",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-consumer-types",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-package-supporting",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-duplicate-detection",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-file-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-function-metrics",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-json",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-markdown-links",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-runtime",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-secret-detection",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-product-supporting-checks",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-admission-workbench",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-layout",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-machine-artifacts",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-package-tools-boundary",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-project",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-project-selection",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-test-evidence",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-tooling",
+      "status": "passed"
+    },
+    {
+      "checkId": "tests-scripts-validation",
+      "status": "passed"
+    },
+    {
+      "checkId": "typecheck-product",
+      "status": "passed"
+    },
+    {
+      "checkId": "typecheck-scripts",
+      "status": "passed"
+    }
+  ],
+  "blockingFindings": [],
+  "gatePerformanceMessages": [
+    "[GATE] [INFO] project gate info [project-gate-performance-within-limit]: elapsed-to-initial-result 75008.0ms (candidate preparation 22370.6ms; adapter/setup 466.0ms; Product Run 52171.3ms) was within warning budget 90000.0ms",
+    "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 133088.2ms (not wall time); mean 3095.1ms (budget 2000.0ms); p95 9179.0ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: mean, p95; slowest Checks: tests-package-consumer-types=14576.7ms, function-metrics=9305.0ms, tests-scripts-layout=9179.0ms"
+  ],
+  "notes": [
+    "Selected exact excerpts from local machine run, Records and Gate transcript.",
+    "After semantic helper extraction and test relocation; no limits, waivers or selection changes.",
+    "Existing Check mean/P95 warning budgets were exceeded; warnings do not change passed result. This Gate is not a before/after performance experiment.",
+    "Formal report publication and final evidence resources are followed by separate documentation, Case, governance and whitespace validation."
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "observedAt": "2026-10-12T03:36:07.619Z",
+  "byteChecks": [
+    {
+      "size": 16,
+      "actualBytes": 799,
+      "actualSha256": "0966e731b7f1e72bd5ad56f12c1755652ac1f07bd4d086920fdd7768766ee37e",
+      "manifestBytes": 799,
+      "beforeRawScenarioBytes": 799,
+      "afterRawScenarioBytes": 799,
+      "beforeAfterFixtureManifestSha256Matches": true
+    },
+    {
+      "size": 4096,
+      "actualBytes": 204799,
+      "actualSha256": "8d15e8192e7d22cbfd5c4f33294edc18c2791e3e3febb90853ff0f80804d5e2b",
+      "manifestBytes": 204799,
+      "beforeRawScenarioBytes": 204799,
+      "afterRawScenarioBytes": 204799,
+      "beforeAfterFixtureManifestSha256Matches": true
+    }
+  ],
+  "note": "Earlier agent message stated221183 bytes for anchors4096; that was a transcription error. Actual fixture, manifest and both immutable raw scenarios all say204799 bytes with matching SHA. No historical sample was edited."
+}

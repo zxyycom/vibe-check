@@ -1,0 +1,80 @@
+{
+  "protocol": "check-priority-v1",
+  "measurements": [
+    {
+      "workload": "directory",
+      "size": 32,
+      "iterations": 10,
+      "samples": 9,
+      "medianMs": 1.8413047000000007,
+      "minMs": 1.7292381000000034,
+      "maxMs": 3.6220686,
+      "madMs": 0.09910740000000273,
+      "semanticDigest": "ebfb82807c1ba7858daaf8509a537ffb4b5b32944565840512b616350ba7f8f8"
+    },
+    {
+      "workload": "directory",
+      "size": 1024,
+      "iterations": 1,
+      "samples": 9,
+      "medianMs": 1223.4500239999998,
+      "minMs": 1151.7987410000005,
+      "maxMs": 1261.2258440000005,
+      "madMs": 25.390408999999636,
+      "semanticDigest": "11df618b505ff49cd0b8a4f22af333a9b2cd7b74b9a5e4ae803c5b8132e34755"
+    },
+    {
+      "workload": "anchors",
+      "size": 16,
+      "iterations": 1,
+      "samples": 9,
+      "medianMs": 6.886146999999994,
+      "minMs": 5.094274999999982,
+      "maxMs": 10.118950999999981,
+      "madMs": 1.3455940000000055,
+      "semanticDigest": "e5c84072c85b35ef54811e119a2f0d53b72859c69ad57ec593331dafe92371be"
+    },
+    {
+      "workload": "anchors",
+      "size": 4096,
+      "iterations": 1,
+      "samples": 9,
+      "medianMs": 771.8642970000001,
+      "minMs": 703.2322400000003,
+      "maxMs": 904.7353710000007,
+      "madMs": 68.6320569999998,
+      "semanticDigest": "8cf65484d94390f2f52f000f6cd0eb6ec92198c82f1cfa265b62763d3791e9b5"
+    },
+    {
+      "workload": "reminders",
+      "size": 4,
+      "iterations": 1,
+      "samples": 9,
+      "medianMs": 16.05770899999999,
+      "minMs": 15.824624999999969,
+      "maxMs": 18.575436000000025,
+      "madMs": 0.18165600000003224,
+      "semanticDigest": "9dca85d2b25e662c5299a2c600ebd60ce25b19c98aee20e23897089213aa5ecf"
+    },
+    {
+      "workload": "reminders",
+      "size": 32,
+      "iterations": 1,
+      "samples": 9,
+      "medianMs": 483.9342379999998,
+      "minMs": 460.1376699999996,
+      "maxMs": 492.0078719999992,
+      "madMs": 5.908236000000215,
+      "semanticDigest": "0f54c2085cc81f7fd1004e592046c822a40ce267ea1e4f167f0abe08077f0b50"
+    }
+  ],
+  "limitations": [
+    "K01 directory4096 pilot hit 20-second process deadline and produced no valid run sample; representative size reduced to1024 before protocol freeze",
+    "K01 full public call includes matcher/required filesystem/canonicalization, not only name lookup",
+    "K05 same-document last valid slug only; parser+file read included, no missing-anchor/cross-document timing claims",
+    "K06 real fixture Git read-only commands timed; fixture init/add/commit outside timing; no fakeGit",
+    "Three warmups and nine samples; directory32 uses10 per-sample calls; others1; no outliers removed/p95 estimated",
+    "Native Git Trace2 used only in independent count process; inherited GIT_* cleared and only owned argv count summary retained",
+    "directoryMapGetsInTargetEntry is all Map.get calls whose stack contains targetEntry, including pre-existing directory cache; it is not solely new name-index lookup"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "protocol": "broad-collection-control-v1",
+  "sourceIdentityFile": "check-priority-final-identity.json",
+  "beforeSourceIdentityFile": "check-priority-before-identity.json",
+  "harnessSha256": "771ecb09c7936cb7a23686d9cdbfd991c0371e856998d16321bcd54cbbca7585",
+  "before": {
+    "medianMs": 7.488467000000014,
+    "minMs": 5.5704450000000065,
+    "maxMs": 9.352538000000038,
+    "madMs": 0.7066910000000348
+  },
+  "final": {
+    "medianMs": 7.295657999999946,
+    "minMs": 5.801853999999992,
+    "maxMs": 11.256574,
+    "madMs": 0.7008319999999344
+  },
+  "changePercent": -2.5747459393233307,
+  "semanticDigestMatches": true,
+  "notes": [
+    "Single final before→after pair, N1024 **/*.ts,3warmups/9samples; no further repeats",
+    "Ranges/MAD reported; no product regression decision or benefit guarantee from this pair alone"
+  ]
+}

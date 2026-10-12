@@ -1,0 +1,3400 @@
+{
+  "protocol": "public-run-v1",
+  "label": "before",
+  "sourceIdentityFile": "public-run-before-identity.json",
+  "environmentBefore": {
+    "at": "2026-10-12T02:59:09.190Z",
+    "loadavg": [
+      0.32,
+      0.16,
+      0.1
+    ],
+    "memoryAvailableSnapshot": "MemTotal:        8132732 kB\nMemFree:         3725996 kB\nMemAvailable:    4718080 kB\nBuffers:           11032 kB\nCached:           869472 kB\nSwapCached:        42608 kB\nActive:           928220 kB\nInactive:        2625640 kB\nActive(anon):     403456 kB\nInactive(anon):  2273564 kB\nActive(file):     524764 kB\nInactive(file):   352076 kB\nUnevictable:           0 kB\nMlocked:               0 kB\nSwapTotal:       4194304 kB\nSwapFree:        3031208 kB\nDirty:               920 kB\nWriteback:             0 kB\nAnonPages:       2654740 kB\nMapped:           463636 kB\nShmem:              3740 kB\nKReclaimable:     311856 kB\nSlab:             428632 kB\nSReclaimable:     311856 kB\nSUnreclaim:       116776 kB\nKernelStack:       14120 kB\nPageTables:        87048 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     8260668 kB\nCommitted_AS:    8671636 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       41884 kB\nVmallocChunk:          0 kB\nPercpu:             3488 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:       60416 kB\nDirectMap2M:     5181440 kB\nDirectMap1G:    12582912 kB\n",
+    "cpuMax": "400000 100000",
+    "memoryMax": "6442450944",
+    "cpuStat": "usage_usec 27120442707\nuser_usec 16416399994\nsystem_usec 10704042712\nnice_usec 0\nnr_periods 1458687\nnr_throttled 15404\nthrottled_usec 1296774948\nnr_bursts 0\nburst_usec 0\n",
+    "platform": "linux",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "arch": "x64",
+    "logicalCpuCount": 6,
+    "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M"
+  },
+  "environmentAfter": {
+    "at": "2026-10-12T03:00:32.942Z",
+    "loadavg": [
+      1.01,
+      0.47,
+      0.22
+    ],
+    "memoryAvailableSnapshot": "MemTotal:        8132732 kB\nMemFree:         3688904 kB\nMemAvailable:    4702880 kB\nBuffers:           11160 kB\nCached:           891244 kB\nSwapCached:        42600 kB\nActive:           931884 kB\nInactive:        2640912 kB\nActive(anon):     403472 kB\nInactive(anon):  2270592 kB\nActive(file):     528412 kB\nInactive(file):   370320 kB\nUnevictable:           0 kB\nMlocked:               0 kB\nSwapTotal:       4194304 kB\nSwapFree:        3031224 kB\nDirty:              1012 kB\nWriteback:             0 kB\nAnonPages:       2651428 kB\nMapped:           464888 kB\nShmem:              3740 kB\nKReclaimable:     311856 kB\nSlab:             428708 kB\nSReclaimable:     311856 kB\nSUnreclaim:       116852 kB\nKernelStack:       14056 kB\nPageTables:        87692 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:     8260668 kB\nCommitted_AS:    8673064 kB\nVmallocTotal:   34359738367 kB\nVmallocUsed:       41852 kB\nVmallocChunk:          0 kB\nPercpu:             3488 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:         0 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:         0 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nBalloon:               0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:       60416 kB\nDirectMap2M:     5181440 kB\nDirectMap1G:    12582912 kB\n",
+    "cpuMax": "400000 100000",
+    "memoryMax": "6442450944",
+    "cpuStat": "usage_usec 27220650773\nuser_usec 16509720845\nsystem_usec 10710929928\nnice_usec 0\nnr_periods 1459525\nnr_throttled 15404\nthrottled_usec 1296774948\nnr_bursts 0\nburst_usec 0\n",
+    "platform": "linux",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "arch": "x64",
+    "logicalCpuCount": 6,
+    "cpuModel": "AMD Ryzen AI 7 H 450 w/ Radeon 860M"
+  },
+  "elapsedWallMs": 83752,
+  "measurements": [
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "independent",
+        "--size",
+        "1",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "20"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:09.632Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "independent",
+        "checkCount": 1,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 20,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "independent",
+            "--size",
+            "1",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "20"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 174813184,
+          "heapTotal": 46151680,
+          "heapUsed": 14790205,
+          "external": 6537412,
+          "arrayBuffers": 472626
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 586821,
+          "systemCPUTime": 135123,
+          "maxRSS": 170716,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 36081,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 1491,
+          "involuntaryContextSwitches": 13
+        },
+        "semanticDigest": "fa40a4ae8adc5b09143f63dbdc50d0c4c2eaf7c17a5fd7b59f08a7eda0523979",
+        "declarativeFingerprint": "e02e4ce653fc88d529e944473e9472d52c9179984a88ec34049ce47c3ea92329",
+        "warmupWallMs": [
+          12.036880999999966,
+          1.910378000000037,
+          1.8205899999999815
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              1.3606469999999717,
+              1.0863769999999704,
+              1.5492069999999671,
+              1.5126789999999914,
+              1.6173319999999762,
+              1.9574640000000159,
+              0.9007829999999899,
+              0.9233039999999733,
+              1.6788369999999873,
+              0.9914809999999648,
+              0.8391879999999787,
+              1.5990679999999884,
+              1.7785430000000133,
+              2.8739419999999996,
+              1.1754420000000323,
+              0.9068639999999846,
+              0.6006160000000023,
+              0.8181599999999776,
+              0.6742120000000114,
+              0.595245000000034
+            ],
+            "meanRunWallMs": 1.2719695499999915,
+            "batchIncludingValidationWallMs": 25.803777000000025
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              0.6628309999999829,
+              0.6397079999999846,
+              0.7623159999999984,
+              0.6005859999999643,
+              0.7323599999999715,
+              0.5714110000000119,
+              1.0990209999999934,
+              0.7644390000000385,
+              0.9971810000000119,
+              0.6823469999999929,
+              2.5434029999999552,
+              1.4783150000000091,
+              1.4858189999999922,
+              0.774107000000015,
+              0.6899510000000078,
+              0.719756000000018,
+              0.5734549999999672,
+              0.7752399999999966,
+              0.7299859999999967,
+              0.7617040000000088
+            ],
+            "meanRunWallMs": 0.9021967999999958,
+            "batchIncludingValidationWallMs": 18.37329699999998
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              0.8671469999999886,
+              0.8431449999999927,
+              0.7453740000000266,
+              0.6332659999999919,
+              0.6878170000000523,
+              0.7020129999999654,
+              0.6735209999999938,
+              0.757836999999995,
+              0.6267540000000054,
+              0.7009949999999776,
+              0.5579460000000154,
+              0.5783839999999714,
+              0.6666040000000066,
+              0.587460999999962,
+              0.49904700000001867,
+              1.7085529999999949,
+              0.7275209999999674,
+              0.6805229999999938,
+              4.090063999999984,
+              0.8314939999999638
+            ],
+            "meanRunWallMs": 0.9082732999999934,
+            "batchIncludingValidationWallMs": 18.418598999999972
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              0.5343420000000378,
+              0.5376080000000343,
+              0.5977399999999875,
+              0.6037009999999441,
+              0.7488400000000297,
+              1.02685699999995,
+              1.0522629999999822,
+              0.7905979999999886,
+              0.603020000000015,
+              0.5605109999999627,
+              0.6804539999999974,
+              0.7634570000000167,
+              0.5768209999999954,
+              0.6491649999999822,
+              0.5244739999999979,
+              0.4971830000000068,
+              0.5307549999999992,
+              0.574416000000042,
+              0.5151970000000006,
+              0.6131879999999796
+            ],
+            "meanRunWallMs": 0.6490294999999975,
+            "batchIncludingValidationWallMs": 13.244943999999975
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              0.5486179999999763,
+              0.42773399999998674,
+              0.49657200000001467,
+              0.47463099999998803,
+              0.42375599999996894,
+              0.49883599999998296,
+              0.3701770000000124,
+              0.5036949999999933,
+              0.4013350000000173,
+              0.4300079999999866,
+              0.4471110000000067,
+              0.5366970000000038,
+              0.6822669999999675,
+              0.692154999999957,
+              1.021066000000019,
+              0.71963599999998,
+              0.590186000000017,
+              0.8569509999999809,
+              0.4531210000000101,
+              0.5226410000000214
+            ],
+            "meanRunWallMs": 0.5548596499999945,
+            "batchIncludingValidationWallMs": 11.303519999999992
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              0.42969800000003033,
+              0.44824199999999337,
+              0.4062139999999772,
+              0.43030899999996564,
+              0.5214579999999955,
+              0.43958599999996295,
+              0.3367759999999862,
+              0.517851999999948,
+              0.4476109999999949,
+              0.4647630000000049,
+              0.40994100000000344,
+              0.45445399999999836,
+              0.46102600000000393,
+              0.42934700000000703,
+              0.6132790000000341,
+              0.5513629999999807,
+              0.51868300000001,
+              0.4703529999999887,
+              0.5027739999999881,
+              0.6102229999999622
+            ],
+            "meanRunWallMs": 0.4731975999999918,
+            "batchIncludingValidationWallMs": 9.636774000000003
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              0.8422170000000051,
+              0.4054329999999595,
+              0.3975489999999695,
+              0.5243509999999674,
+              0.4562970000000064,
+              0.4090400000000045,
+              0.4873450000000048,
+              0.5231509999999844,
+              0.4450069999999755,
+              0.5749969999999962,
+              0.44288199999999733,
+              0.5299239999999941,
+              0.6504080000000272,
+              0.5539479999999912,
+              0.5255660000000262,
+              0.6388460000000009,
+              0.5776319999999942,
+              0.42325599999998076,
+              0.5589879999999994,
+              0.4948990000000322
+            ],
+            "meanRunWallMs": 0.5230867999999959,
+            "batchIncludingValidationWallMs": 10.608779999999967
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              0.41806600000001026,
+              0.5243630000000508,
+              0.5687760000000139,
+              0.4391860000000065,
+              0.5948149999999828,
+              1.290585999999962,
+              0.6973949999999718,
+              1.4805069999999887,
+              0.7216300000000047,
+              0.6770569999999907,
+              0.53115600000001,
+              0.5681349999999838,
+              0.7648619999999937,
+              0.5485279999999761,
+              0.6409699999999816,
+              0.5550709999999981,
+              0.5650189999999498,
+              0.5123010000000363,
+              0.6214840000000095,
+              0.5240729999999871
+            ],
+            "meanRunWallMs": 0.6621989999999954,
+            "batchIncludingValidationWallMs": 13.429796999999951
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              0.6291780000000244,
+              0.5993730000000141,
+              0.42578100000002905,
+              0.6035210000000006,
+              0.7365379999999959,
+              0.5877509999999688,
+              0.3969579999999837,
+              0.5104979999999841,
+              0.38124799999997094,
+              0.4707339999999931,
+              0.4745810000000006,
+              0.46491299999996727,
+              0.3669709999999782,
+              0.35163299999999253,
+              0.7302409999999782,
+              0.5790049999999951,
+              0.5163489999999911,
+              0.5092750000000024,
+              0.44912400000004027,
+              0.36034899999998515
+            ],
+            "meanRunWallMs": 0.5072010499999948,
+            "batchIncludingValidationWallMs": 10.29709600000001
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "chain",
+        "--size",
+        "1",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "20"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:10.077Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "chain",
+        "checkCount": 1,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 20,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "chain",
+            "--size",
+            "1",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "20"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 166862848,
+          "heapTotal": 39169024,
+          "heapUsed": 15064113,
+          "external": 6647921,
+          "arrayBuffers": 472626
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 587625,
+          "systemCPUTime": 116691,
+          "maxRSS": 162952,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 34122,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 1537,
+          "involuntaryContextSwitches": 5
+        },
+        "semanticDigest": "fa40a4ae8adc5b09143f63dbdc50d0c4c2eaf7c17a5fd7b59f08a7eda0523979",
+        "declarativeFingerprint": "e02e4ce653fc88d529e944473e9472d52c9179984a88ec34049ce47c3ea92329",
+        "warmupWallMs": [
+          13.051895000000002,
+          1.9288219999999967,
+          1.6995960000000139
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              1.2677739999999744,
+              1.1419109999999932,
+              1.5094030000000203,
+              1.2853069999999889,
+              1.535572000000002,
+              2.0420119999999997,
+              0.9779149999999959,
+              0.9577879999999936,
+              1.4452840000000151,
+              0.9715240000000449,
+              0.6656459999999811,
+              1.0574740000000133,
+              1.4244860000000017,
+              2.376613999999961,
+              1.210807999999986,
+              0.9957990000000336,
+              0.6551770000000374,
+              0.8714979999999741,
+              0.8034120000000371,
+              0.5210879999999634
+            ],
+            "meanRunWallMs": 1.1858246000000008,
+            "batchIncludingValidationWallMs": 24.014031000000045
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              0.6331559999999854,
+              0.6811440000000175,
+              0.7318789999999922,
+              0.7131140000000187,
+              0.6563390000000027,
+              0.6139900000000011,
+              1.1391049999999723,
+              0.7473080000000323,
+              1.09162699999996,
+              0.6920149999999694,
+              2.0699839999999767,
+              0.9423999999999637,
+              1.6519490000000019,
+              0.7709120000000098,
+              0.7705089999999473,
+              0.8367329999999811,
+              0.6822869999999739,
+              0.7791070000000104,
+              0.7047289999999862,
+              0.7767929999999978
+            ],
+            "meanRunWallMs": 0.88425399999999,
+            "batchIncludingValidationWallMs": 18.002247999999952
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              0.6801629999999932,
+              0.7737169999999765,
+              1.2091660000000388,
+              0.7646199999999794,
+              0.9105709999999476,
+              0.884283000000039,
+              0.6016579999999863,
+              0.7047489999999925,
+              0.5856880000000046,
+              0.6547759999999698,
+              0.6309519999999793,
+              0.5101869999999735,
+              1.174853999999982,
+              0.9255489999999895,
+              0.664053000000024,
+              0.8260439999999676,
+              0.6756540000000086,
+              0.5672630000000254,
+              0.6629909999999768,
+              0.6264729999999759
+            ],
+            "meanRunWallMs": 0.7516705499999915,
+            "batchIncludingValidationWallMs": 15.232175999999981
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              0.6362219999999752,
+              0.5783840000000282,
+              0.6562489999999457,
+              0.8181389999999737,
+              0.9207100000000423,
+              0.7815009999999916,
+              0.8403210000000172,
+              0.722411999999963,
+              0.7060409999999706,
+              0.553167999999971,
+              0.7271999999999821,
+              0.7288829999999962,
+              0.5344430000000102,
+              1.0472520000000145,
+              0.6957920000000399,
+              0.6119669999999928,
+              0.6381850000000213,
+              0.6608380000000125,
+              0.6749540000000138,
+              0.7607419999999934
+            ],
+            "meanRunWallMs": 0.7146701499999978,
+            "batchIncludingValidationWallMs": 14.518979000000002
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              0.6814059999999813,
+              0.6090010000000348,
+              0.6686109999999985,
+              0.4933759999999552,
+              0.5613629999999716,
+              0.5315870000000018,
+              0.4583820000000287,
+              0.5033539999999448,
+              0.5355349999999817,
+              0.5219000000000165,
+              1.400891999999999,
+              0.7458349999999996,
+              5.083335999999974,
+              0.6829789999999889,
+              0.9490419999999631,
+              0.8563899999999762,
+              0.6762049999999817,
+              0.9318700000000035,
+              0.5832030000000259,
+              0.503385000000037
+            ],
+            "meanRunWallMs": 0.8988825999999932,
+            "batchIncludingValidationWallMs": 18.197977999999978
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              0.5312470000000076,
+              0.4180560000000355,
+              0.40546299999999746,
+              0.4385350000000017,
+              0.472266999999988,
+              0.40124499999996033,
+              0.35748399999999947,
+              0.4012549999999919,
+              0.42538999999999305,
+              0.5206269999999904,
+              0.38809099999997443,
+              0.31470500000000357,
+              0.3242620000000329,
+              0.3446700000000078,
+              0.5111090000000331,
+              0.4454770000000394,
+              0.7396669999999972,
+              0.69144399999999,
+              0.5336309999999571,
+              0.4928249999999821
+            ],
+            "meanRunWallMs": 0.4578724999999991,
+            "batchIncludingValidationWallMs": 9.33497699999998
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              0.53843999999998,
+              0.3822499999999991,
+              0.39862999999996873,
+              0.3767599999999902,
+              0.32178699999997207,
+              0.4702839999999924,
+              0.4485220000000254,
+              0.3587660000000028,
+              0.3587360000000217,
+              0.46544399999999087,
+              0.323551000000009,
+              0.4675079999999525,
+              0.5658900000000244,
+              0.48461000000003196,
+              0.4882769999999823,
+              0.3825899999999933,
+              0.3825899999999933,
+              0.3528049999999894,
+              0.535383999999965,
+              0.4324629999999843
+            ],
+            "meanRunWallMs": 0.42676434999999346,
+            "batchIncludingValidationWallMs": 8.701908000000003
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              0.4488129999999728,
+              0.3423559999999952,
+              0.39170799999999417,
+              0.38725900000002866,
+              0.567294000000004,
+              0.43112100000001874,
+              0.33340899999996054,
+              0.45135800000002746,
+              0.44094899999998916,
+              0.6081490000000258,
+              0.6756839999999897,
+              0.558386999999982,
+              0.6002839999999878,
+              0.44095900000002075,
+              0.6166049999999927,
+              0.5236919999999827,
+              0.5615430000000288,
+              0.4767659999999978,
+              0.4034390000000485,
+              0.4546940000000177
+            ],
+            "meanRunWallMs": 0.4857234500000033,
+            "batchIncludingValidationWallMs": 9.879885999999999
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              0.48756600000001526,
+              0.506890999999996,
+              0.34414800000001833,
+              0.4958710000000224,
+              0.4780169999999657,
+              0.3094350000000077,
+              0.44257100000004357,
+              0.2957200000000171,
+              0.37340299999999615,
+              0.348036000000036,
+              0.38013599999999315,
+              0.43216300000000274,
+              0.3886919999999918,
+              0.32305900000000065,
+              0.3916280000000256,
+              0.4115340000000174,
+              0.28924699999998893,
+              0.39019400000000815,
+              0.4039099999999962,
+              0.2807109999999966
+            ],
+            "meanRunWallMs": 0.38864660000000695,
+            "batchIncludingValidationWallMs": 7.904978000000028
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "independent",
+        "--size",
+        "8",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "20"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:10.746Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "independent",
+        "checkCount": 8,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 20,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "independent",
+            "--size",
+            "8",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "20"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 182075392,
+          "heapTotal": 48224256,
+          "heapUsed": 23503721,
+          "external": 14382762,
+          "arrayBuffers": 7591143
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 919621,
+          "systemCPUTime": 167575,
+          "maxRSS": 181212,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 39335,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 2056,
+          "involuntaryContextSwitches": 22
+        },
+        "semanticDigest": "d409f71f404414964b5a98e8cd6180107151ae0e07b6f0bbe5845bc909039ec5",
+        "declarativeFingerprint": "ba647691117cad4462120d2b847de0555e619e194d5d8606cd4b0be552af79a1",
+        "warmupWallMs": [
+          20.790284999999983,
+          6.868604999999974,
+          5.956611000000009
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              4.260646000000008,
+              6.076307999999983,
+              3.681184999999971,
+              3.503776999999957,
+              3.3125719999999887,
+              5.059754999999996,
+              3.2805610000000343,
+              4.072842999999978,
+              4.014581000000021,
+              2.949106000000029,
+              2.3884749999999713,
+              2.597623999999996,
+              2.6539379999999824,
+              3.7407569999999737,
+              2.9991790000000265,
+              3.263198999999986,
+              6.202081999999962,
+              2.91399100000001,
+              2.07190700000001,
+              1.7376969999999687
+            ],
+            "meanRunWallMs": 3.5390091499999925,
+            "batchIncludingValidationWallMs": 71.45213000000001
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              1.5537449999999922,
+              1.694797000000051,
+              2.0849919999999997,
+              1.9008099999999786,
+              2.0160230000000183,
+              2.861140999999975,
+              2.014319999999998,
+              1.7767499999999927,
+              1.9987110000000143,
+              1.5599259999999617,
+              2.9303520000000276,
+              1.9911069999999995,
+              2.2130300000000034,
+              1.7072809999999663,
+              1.7464519999999766,
+              1.6316600000000108,
+              1.9967080000000124,
+              2.0674789999999916,
+              2.196047999999962,
+              2.1303459999999745
+            ],
+            "meanRunWallMs": 2.0035838999999953,
+            "batchIncludingValidationWallMs": 40.537582999999984
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              2.254977999999994,
+              2.514368999999988,
+              5.144663000000037,
+              1.9329589999999826,
+              2.179957999999999,
+              2.3152389999999627,
+              2.6734139999999798,
+              2.2757159999999885,
+              1.937628000000018,
+              2.0398969999999963,
+              1.6805209999999988,
+              1.8438239999999837,
+              1.7826299999999833,
+              1.7498600000000124,
+              1.6497340000000236,
+              1.625317999999993,
+              1.4812310000000366,
+              1.3608469999999784,
+              1.6988240000000019,
+              1.5127489999999852
+            ],
+            "meanRunWallMs": 2.082717949999997,
+            "batchIncludingValidationWallMs": 42.06034199999999
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              1.4083350000000223,
+              1.7794949999999972,
+              1.5242300000000455,
+              1.65328999999997,
+              1.5827489999999784,
+              1.3700240000000008,
+              1.5570710000000076,
+              1.7431169999999838,
+              4.070998999999972,
+              1.9854270000000156,
+              1.5096840000000498,
+              2.458976000000007,
+              1.6117929999999774,
+              1.5686629999999582,
+              1.7088640000000055,
+              1.853552000000036,
+              1.4515650000000164,
+              1.5340889999999945,
+              1.6743089999999938,
+              1.6233840000000441
+            ],
+            "meanRunWallMs": 1.7834808000000038,
+            "batchIncludingValidationWallMs": 36.04924999999997
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              1.5926670000000058,
+              1.4609719999999697,
+              1.5353409999999599,
+              1.4867909999999824,
+              1.5351610000000164,
+              1.4742969999999787,
+              1.5526530000000207,
+              1.666003000000046,
+              1.6498430000000326,
+              1.6428510000000074,
+              1.7737450000000194,
+              1.654079999999965,
+              1.7717100000000414,
+              1.690589999999986,
+              1.7668309999999678,
+              4.08230199999997,
+              1.5216949999999656,
+              2.1127929999999537,
+              1.8401969999999892,
+              1.265058999999951
+            ],
+            "meanRunWallMs": 1.7537790499999915,
+            "batchIncludingValidationWallMs": 35.607380999999975
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              1.224012000000016,
+              1.6760429999999928,
+              1.3678199999999947,
+              1.631448999999975,
+              1.3707050000000436,
+              1.444691999999975,
+              1.6638899999999808,
+              1.5956229999999891,
+              1.749238000000048,
+              1.390512000000001,
+              1.248357999999996,
+              1.2812289999999962,
+              1.3949100000000385,
+              1.2478570000000104,
+              1.7738640000000032,
+              1.7871280000000525,
+              1.3472520000000259,
+              1.2858479999999872,
+              1.6870930000000044,
+              1.115701999999942
+            ],
+            "meanRunWallMs": 1.4641612500000036,
+            "batchIncludingValidationWallMs": 29.591017999999963
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              1.3060150000000021,
+              1.4253270000000384,
+              3.298053999999979,
+              1.6663039999999683,
+              1.3500169999999798,
+              1.5929080000000795,
+              1.3463500000000295,
+              1.8322120000000268,
+              1.3475619999999253,
+              1.2331899999999223,
+              1.1602850000000444,
+              1.2459330000000364,
+              1.593389000000002,
+              1.4189350000000331,
+              1.3089210000000548,
+              1.4839150000000245,
+              1.4934440000000677,
+              1.2122810000000754,
+              2.0300099999999475,
+              1.377157000000011
+            ],
+            "meanRunWallMs": 1.5361104500000125,
+            "batchIncludingValidationWallMs": 31.005133
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              1.0723610000000008,
+              1.441357000000039,
+              1.5494770000000244,
+              1.0763490000000502,
+              1.2905769999999848,
+              1.1428829999999834,
+              1.1327029999999922,
+              1.5074299999999994,
+              1.2941530000000512,
+              2.375930999999923,
+              3.5415460000000394,
+              1.1679090000000087,
+              1.11897799999997,
+              1.2022530000000415,
+              1.1944979999999532,
+              1.2052479999999832,
+              1.1776869999999917,
+              1.282982000000061,
+              1.4212989999999763,
+              1.5566089999999804
+            ],
+            "meanRunWallMs": 1.4376115000000027,
+            "batchIncludingValidationWallMs": 29.005788999999936
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              1.3430039999999508,
+              1.3374539999999797,
+              1.4469869999999219,
+              1.2741760000000113,
+              1.4160200000000032,
+              1.2145160000000033,
+              1.250631999999996,
+              1.1249090000000024,
+              1.318117999999913,
+              1.3333559999999807,
+              1.183296999999925,
+              1.4159989999999425,
+              1.2501709999999093,
+              1.132612999999992,
+              1.2145450000000437,
+              1.3638619999999264,
+              1.2380090000000337,
+              4.096167000000037,
+              1.3586430000000291,
+              1.4151279999999815
+            ],
+            "meanRunWallMs": 1.436380299999979,
+            "batchIncludingValidationWallMs": 29.005941000000007
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "chain",
+        "--size",
+        "8",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "20"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:11.409Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "chain",
+        "checkCount": 8,
+        "edgeCount": 7,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 20,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "chain",
+            "--size",
+            "8",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "20"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 186953728,
+          "heapTotal": 48150528,
+          "heapUsed": 23891583,
+          "external": 14806939,
+          "arrayBuffers": 7907550
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 918320,
+          "systemCPUTime": 161108,
+          "maxRSS": 183684,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 40262,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 2106,
+          "involuntaryContextSwitches": 17
+        },
+        "semanticDigest": "d409f71f404414964b5a98e8cd6180107151ae0e07b6f0bbe5845bc909039ec5",
+        "declarativeFingerprint": "460b4925861826972062c439a758f1b0f4015a4702620fa6748536117ffce7ab",
+        "warmupWallMs": [
+          20.745181000000002,
+          6.741377999999997,
+          6.401038000000028
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              4.456185000000005,
+              6.1449799999999755,
+              4.213302999999996,
+              3.7790069999999787,
+              3.0645509999999945,
+              2.508969000000036,
+              3.6313030000000026,
+              3.8762179999999944,
+              2.772779000000014,
+              3.458552999999995,
+              2.38250400000004,
+              3.921359000000052,
+              2.7967729999999733,
+              2.9351500000000215,
+              2.763621999999998,
+              7.493856000000051,
+              2.380549999999971,
+              2.618832999999995,
+              2.0424829999999474,
+              1.8196790000000078
+            ],
+            "meanRunWallMs": 3.4530328500000023,
+            "batchIncludingValidationWallMs": 69.70363000000003
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              2.066597999999999,
+              2.433448999999996,
+              2.244917999999984,
+              1.9791950000000043,
+              2.034206999999981,
+              2.0183079999999904,
+              1.6923620000000028,
+              1.6449150000000259,
+              2.186821000000009,
+              1.8681490000000167,
+              3.5432989999999904,
+              1.8032089999999812,
+              2.0006650000000263,
+              1.4317780000000084,
+              1.7301029999999855,
+              1.915046000000018,
+              2.9995700000000056,
+              2.568288999999993,
+              2.372986000000026,
+              2.276407000000006
+            ],
+            "meanRunWallMs": 2.1405137000000023,
+            "batchIncludingValidationWallMs": 43.30053400000003
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              2.030571000000009,
+              5.400519999999972,
+              2.931693999999993,
+              2.1054189999999835,
+              1.9743369999999913,
+              1.9808689999999842,
+              2.136848000000043,
+              2.3357770000000073,
+              3.2794190000000185,
+              2.1819419999999923,
+              1.6856400000000349,
+              2.479564000000039,
+              1.962823999999955,
+              1.645074999999963,
+              1.8955199999999763,
+              1.7289499999999975,
+              1.5849740000000452,
+              1.6955489999999713,
+              1.4555230000000279,
+              1.484786999999983
+            ],
+            "meanRunWallMs": 2.198790099999999,
+            "batchIncludingValidationWallMs": 44.49674799999997
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              1.3951509999999985,
+              1.662637000000018,
+              1.5576319999999555,
+              1.7756269999999859,
+              2.0050640000000044,
+              2.311271999999974,
+              1.711878000000013,
+              2.0348379999999793,
+              4.522746999999981,
+              1.5059060000000386,
+              1.6277130000000284,
+              1.3230270000000246,
+              1.5037419999999884,
+              1.4201869999999985,
+              1.5436169999999834,
+              1.6393939999999816,
+              1.4923009999999977,
+              1.5289789999999925,
+              1.6462470000000167,
+              1.4423880000000509
+            ],
+            "meanRunWallMs": 1.7825173500000004,
+            "batchIncludingValidationWallMs": 36.14710199999996
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              1.4025940000000219,
+              1.2403730000000337,
+              1.6331809999999791,
+              1.3106640000000311,
+              1.5454599999999914,
+              1.4444929999999658,
+              1.6088669999999752,
+              1.6194269999999733,
+              1.549036000000001,
+              1.8944280000000049,
+              1.7113780000000247,
+              1.7838179999999966,
+              1.689501000000007,
+              1.8265619999999672,
+              1.6939350000000104,
+              4.165447000000029,
+              1.5948210000000245,
+              1.6243259999999964,
+              1.4919909999999845,
+              1.6207650000000058
+            ],
+            "meanRunWallMs": 1.7225533500000012,
+            "batchIncludingValidationWallMs": 34.82615499999997
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              1.4788960000000202,
+              1.8019259999999804,
+              1.5126489999999535,
+              1.3623600000000238,
+              1.448108999999988,
+              1.3000240000000076,
+              1.2883019999999874,
+              1.3075079999999843,
+              1.2388900000000262,
+              1.2730739999999514,
+              1.5358519999999771,
+              1.4620050000000333,
+              1.310794000000044,
+              1.312486999999976,
+              1.4046480000000088,
+              1.4198660000000132,
+              1.2641370000000052,
+              1.225355000000036,
+              1.1610059999999294,
+              1.4010419999999613
+            ],
+            "meanRunWallMs": 1.3754464999999954,
+            "batchIncludingValidationWallMs": 27.775345999999956
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              1.4779740000000174,
+              1.3618579999999838,
+              3.18181299999992,
+              1.5626909999999725,
+              1.2102670000000444,
+              1.400229999999965,
+              1.1897789999999304,
+              1.549366999999961,
+              1.5238389999999526,
+              1.3646340000000237,
+              1.2303539999999202,
+              1.6054110000000037,
+              1.928199999999947,
+              1.405430000000024,
+              1.196582000000035,
+              1.382806999999957,
+              1.8000130000000354,
+              1.3207630000000563,
+              1.248689000000013,
+              1.6311790000000883
+            ],
+            "meanRunWallMs": 1.5285939999999925,
+            "batchIncludingValidationWallMs": 30.864597000000003
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              1.331421999999975,
+              1.2737859999999728,
+              2.349371000000019,
+              1.2794460000000072,
+              1.2444700000000921,
+              1.399819999999977,
+              1.1918039999999337,
+              1.357409999999959,
+              1.3985989999999902,
+              3.65428600000007,
+              1.2667920000000095,
+              2.135564000000045,
+              1.5634840000000167,
+              1.3778389999999945,
+              1.2464050000000952,
+              1.257084999999961,
+              1.289784999999938,
+              1.2833229999999958,
+              1.1698719999999412,
+              1.1518989999999576
+            ],
+            "meanRunWallMs": 1.5111230999999976,
+            "batchIncludingValidationWallMs": 30.480188999999996
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              1.1525800000000572,
+              1.3720280000000002,
+              1.3455679999999575,
+              1.7874369999999544,
+              1.6642309999999725,
+              1.4281519999999546,
+              1.3643030000000635,
+              1.238219000000072,
+              1.3623999999999796,
+              1.568983000000003,
+              1.276559999999904,
+              1.3357300000000123,
+              1.4068930000000819,
+              1.3365420000000086,
+              1.4337299999999686,
+              1.324188999999933,
+              3.1026749999999765,
+              1.3678499999999758,
+              1.0905749999999443,
+              1.1361200000000053
+            ],
+            "meanRunWallMs": 1.4547382499999912,
+            "batchIncludingValidationWallMs": 29.366940999999997
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "independent",
+        "--size",
+        "32",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:11.887Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "independent",
+        "checkCount": 32,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "independent",
+            "--size",
+            "32",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 179613696,
+          "heapTotal": 44375040,
+          "heapUsed": 18681930,
+          "external": 12283441,
+          "arrayBuffers": 6508740
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 630705,
+          "systemCPUTime": 127688,
+          "maxRSS": 175500,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 37616,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 1663,
+          "involuntaryContextSwitches": 9
+        },
+        "semanticDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+        "declarativeFingerprint": "83637b2a00ad847824132b610e4bdf0f7b651466724c4d7afacbc131e4562384",
+        "warmupWallMs": [
+          40.10692400000002,
+          19.90361999999999,
+          15.961397999999974
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              17.801085
+            ],
+            "meanRunWallMs": 17.801085,
+            "batchIncludingValidationWallMs": 17.870704999999987
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              12.718116000000009
+            ],
+            "meanRunWallMs": 12.718116000000009,
+            "batchIncludingValidationWallMs": 12.791952000000038
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              12.581682999999998
+            ],
+            "meanRunWallMs": 12.581682999999998,
+            "batchIncludingValidationWallMs": 12.659137999999984
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              13.005722999999989
+            ],
+            "meanRunWallMs": 13.005722999999989,
+            "batchIncludingValidationWallMs": 13.069381000000021
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              14.662226999999973
+            ],
+            "meanRunWallMs": 14.662226999999973,
+            "batchIncludingValidationWallMs": 14.718150999999978
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              10.249117000000012
+            ],
+            "meanRunWallMs": 10.249117000000012,
+            "batchIncludingValidationWallMs": 10.306995000000029
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              10.646278999999993
+            ],
+            "meanRunWallMs": 10.646278999999993,
+            "batchIncludingValidationWallMs": 10.736016000000006
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              9.397730999999965
+            ],
+            "meanRunWallMs": 9.397730999999965,
+            "batchIncludingValidationWallMs": 9.476898000000006
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              10.953530999999998
+            ],
+            "meanRunWallMs": 10.953530999999998,
+            "batchIncludingValidationWallMs": 11.051702000000034
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "chain",
+        "--size",
+        "32",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:12.347Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "chain",
+        "checkCount": 32,
+        "edgeCount": 31,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "chain",
+            "--size",
+            "32",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 177905664,
+          "heapTotal": 42957824,
+          "heapUsed": 19558249,
+          "external": 12732689,
+          "arrayBuffers": 6832752
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 553698,
+          "systemCPUTime": 170368,
+          "maxRSS": 174704,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 37123,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 1583,
+          "involuntaryContextSwitches": 8
+        },
+        "semanticDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+        "declarativeFingerprint": "1781f411068552ddc6458f39367fcda469fab513f558bfa1f42b412605e8bd3c",
+        "warmupWallMs": [
+          42.248278,
+          18.383876999999984,
+          14.861469
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              18.635436999999968
+            ],
+            "meanRunWallMs": 18.635436999999968,
+            "batchIncludingValidationWallMs": 18.722578999999996
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              10.937072999999998
+            ],
+            "meanRunWallMs": 10.937072999999998,
+            "batchIncludingValidationWallMs": 10.998468000000003
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              10.130085000000008
+            ],
+            "meanRunWallMs": 10.130085000000008,
+            "batchIncludingValidationWallMs": 10.193273000000033
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              9.736771000000033
+            ],
+            "meanRunWallMs": 9.736771000000033,
+            "batchIncludingValidationWallMs": 9.79299599999996
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              11.622740999999962
+            ],
+            "meanRunWallMs": 11.622740999999962,
+            "batchIncludingValidationWallMs": 11.674979000000008
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              13.135188999999968
+            ],
+            "meanRunWallMs": 13.135188999999968,
+            "batchIncludingValidationWallMs": 13.230525999999998
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              8.432990000000018
+            ],
+            "meanRunWallMs": 8.432990000000018,
+            "batchIncludingValidationWallMs": 8.516584000000023
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              8.825317000000041
+            ],
+            "meanRunWallMs": 8.825317000000041,
+            "batchIncludingValidationWallMs": 8.908612000000005
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              9.393492999999978
+            ],
+            "meanRunWallMs": 9.393492999999978,
+            "batchIncludingValidationWallMs": 9.772309000000007
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "independent",
+        "--size",
+        "64",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:13.071Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "independent",
+        "checkCount": 64,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "independent",
+            "--size",
+            "64",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 187240448,
+          "heapTotal": 45536256,
+          "heapUsed": 42485756,
+          "external": 31983671,
+          "arrayBuffers": 25146180
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 887945,
+          "systemCPUTime": 193733,
+          "maxRSS": 183468,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 41391,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 1847,
+          "involuntaryContextSwitches": 12
+        },
+        "semanticDigest": "f8c27fb3420190929aeae4cf6eb901ce058eaabdd05ed008bc038bdccf86c4c7",
+        "declarativeFingerprint": "ba6c0f96bb9cb0af6bef84a964f86348c0a008523272f161648e7a252bf66a59",
+        "warmupWallMs": [
+          76.886671,
+          39.19471600000003,
+          38.15330499999999
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              36.71953400000001
+            ],
+            "meanRunWallMs": 36.71953400000001,
+            "batchIncludingValidationWallMs": 36.851549000000034
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              31.767269999999996
+            ],
+            "meanRunWallMs": 31.767269999999996,
+            "batchIncludingValidationWallMs": 31.89173199999999
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              33.203484
+            ],
+            "meanRunWallMs": 33.203484,
+            "batchIncludingValidationWallMs": 33.319548999999995
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              33.92888199999999
+            ],
+            "meanRunWallMs": 33.92888199999999,
+            "batchIncludingValidationWallMs": 34.087778000000014
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              28.004711000000043
+            ],
+            "meanRunWallMs": 28.004711000000043,
+            "batchIncludingValidationWallMs": 28.129494000000022
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              31.939076999999997
+            ],
+            "meanRunWallMs": 31.939076999999997,
+            "batchIncludingValidationWallMs": 32.10350299999993
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              28.55224599999997
+            ],
+            "meanRunWallMs": 28.55224599999997,
+            "batchIncludingValidationWallMs": 28.715830000000096
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              32.10035199999993
+            ],
+            "meanRunWallMs": 32.10035199999993,
+            "batchIncludingValidationWallMs": 32.25944700000002
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              31.395218
+            ],
+            "meanRunWallMs": 31.395218,
+            "batchIncludingValidationWallMs": 31.502887999999984
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "chain",
+        "--size",
+        "64",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:13.741Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "chain",
+        "checkCount": 64,
+        "edgeCount": 63,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "chain",
+            "--size",
+            "64",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 182484992,
+          "heapTotal": 42936320,
+          "heapUsed": 44750414,
+          "external": 33540985,
+          "arrayBuffers": 26433648
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 836486,
+          "systemCPUTime": 157320,
+          "maxRSS": 179208,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 40336,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 1966,
+          "involuntaryContextSwitches": 12
+        },
+        "semanticDigest": "f8c27fb3420190929aeae4cf6eb901ce058eaabdd05ed008bc038bdccf86c4c7",
+        "declarativeFingerprint": "303a2c393602d7a446204bb7c3f457144dfd339f99f05f85db4c01506c283d6e",
+        "warmupWallMs": [
+          68.035933,
+          40.995367999999985,
+          31.416147000000024
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              27.004392999999993
+            ],
+            "meanRunWallMs": 27.004392999999993,
+            "batchIncludingValidationWallMs": 27.10824600000001
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              30.494835999999964
+            ],
+            "meanRunWallMs": 30.494835999999964,
+            "batchIncludingValidationWallMs": 30.678787999999997
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              24.694695000000024
+            ],
+            "meanRunWallMs": 24.694695000000024,
+            "batchIncludingValidationWallMs": 24.799128999999994
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              28.815758000000017
+            ],
+            "meanRunWallMs": 28.815758000000017,
+            "batchIncludingValidationWallMs": 29.008965999999987
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              24.221086000000014
+            ],
+            "meanRunWallMs": 24.221086000000014,
+            "batchIncludingValidationWallMs": 24.64412599999997
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              26.364562999999976
+            ],
+            "meanRunWallMs": 26.364562999999976,
+            "batchIncludingValidationWallMs": 26.547192999999936
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              24.003832999999986
+            ],
+            "meanRunWallMs": 24.003832999999986,
+            "batchIncludingValidationWallMs": 24.130899
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              26.187865999999985
+            ],
+            "meanRunWallMs": 26.187865999999985,
+            "batchIncludingValidationWallMs": 26.32270600000004
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              27.523429999999962
+            ],
+            "meanRunWallMs": 27.523429999999962,
+            "batchIncludingValidationWallMs": 27.640427000000045
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "independent",
+        "--size",
+        "128",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:15.594Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "independent",
+        "checkCount": 128,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "independent",
+            "--size",
+            "128",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 188551168,
+          "heapTotal": 46171136,
+          "heapUsed": 20874988,
+          "external": 13352131,
+          "arrayBuffers": 6843699
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 2177908,
+          "systemCPUTime": 287281,
+          "maxRSS": 204692,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 58385,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 3292,
+          "involuntaryContextSwitches": 50
+        },
+        "semanticDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+        "declarativeFingerprint": "adcf835cdab7bb3b9a2fb807250a8364b39e88dd6135b5a78f924aa02621d4ee",
+        "warmupWallMs": [
+          197.735711,
+          126.198397,
+          125.07902899999999
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              123.90652900000009
+            ],
+            "meanRunWallMs": 123.90652900000009,
+            "batchIncludingValidationWallMs": 124.157465
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              127.77770299999997
+            ],
+            "meanRunWallMs": 127.77770299999997,
+            "batchIncludingValidationWallMs": 128.05373499999996
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              134.02796999999998
+            ],
+            "meanRunWallMs": 134.02796999999998,
+            "batchIncludingValidationWallMs": 134.27451799999994
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              124.19911400000001
+            ],
+            "meanRunWallMs": 124.19911400000001,
+            "batchIncludingValidationWallMs": 124.50966099999982
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              129.6845679999999
+            ],
+            "meanRunWallMs": 129.6845679999999,
+            "batchIncludingValidationWallMs": 129.88392799999997
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              119.45125200000007
+            ],
+            "meanRunWallMs": 119.45125200000007,
+            "batchIncludingValidationWallMs": 119.61765100000002
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              122.91581399999995
+            ],
+            "meanRunWallMs": 122.91581399999995,
+            "batchIncludingValidationWallMs": 123.17209000000003
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              115.99529699999994
+            ],
+            "meanRunWallMs": 115.99529699999994,
+            "batchIncludingValidationWallMs": 116.14940200000001
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              118.70449399999984
+            ],
+            "meanRunWallMs": 118.70449399999984,
+            "batchIncludingValidationWallMs": 118.90817100000004
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "chain",
+        "--size",
+        "128",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:17.016Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "chain",
+        "checkCount": 128,
+        "edgeCount": 127,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "chain",
+            "--size",
+            "128",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 194650112,
+          "heapTotal": 44289024,
+          "heapUsed": 25540489,
+          "external": 16489665,
+          "arrayBuffers": 9478979
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 1697325,
+          "systemCPUTime": 290745,
+          "maxRSS": 207544,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 55893,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 2796,
+          "involuntaryContextSwitches": 8
+        },
+        "semanticDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+        "declarativeFingerprint": "671a8788d462f185c5379f7fada899447eeeac0291997653984c7194142dc4ac",
+        "warmupWallMs": [
+          158.99075100000002,
+          105.86879299999998,
+          96.49854100000005
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              93.11390499999993
+            ],
+            "meanRunWallMs": 93.11390499999993,
+            "batchIncludingValidationWallMs": 93.36110399999995
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              88.00353599999994
+            ],
+            "meanRunWallMs": 88.00353599999994,
+            "batchIncludingValidationWallMs": 88.26385000000005
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              94.24590799999999
+            ],
+            "meanRunWallMs": 94.24590799999999,
+            "batchIncludingValidationWallMs": 94.52351299999998
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              83.09292800000003
+            ],
+            "meanRunWallMs": 83.09292800000003,
+            "batchIncludingValidationWallMs": 83.40695099999994
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              85.58181699999989
+            ],
+            "meanRunWallMs": 85.58181699999989,
+            "batchIncludingValidationWallMs": 85.74402799999996
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              83.37718500000005
+            ],
+            "meanRunWallMs": 83.37718500000005,
+            "batchIncludingValidationWallMs": 83.58864800000015
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              79.57293299999992
+            ],
+            "meanRunWallMs": 79.57293299999992,
+            "batchIncludingValidationWallMs": 79.7730140000001
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              84.78125999999997
+            ],
+            "meanRunWallMs": 84.78125999999997,
+            "batchIncludingValidationWallMs": 84.96997099999999
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              80.436645
+            ],
+            "meanRunWallMs": 80.436645,
+            "batchIncludingValidationWallMs": 80.63649600000008
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "independent",
+        "--size",
+        "256",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:24.395Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "independent",
+        "checkCount": 256,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "independent",
+            "--size",
+            "256",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 186617856,
+          "heapTotal": 45549568,
+          "heapUsed": 20828799,
+          "external": 15047286,
+          "arrayBuffers": 9279261
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 7960117,
+          "systemCPUTime": 568008,
+          "maxRSS": 200600,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 107436,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 8157,
+          "involuntaryContextSwitches": 39
+        },
+        "semanticDigest": "76a6b2d72baa2b055fff2eca73ce0d72937afa44e4d3f9414f5cebe1d452e3c7",
+        "declarativeFingerprint": "f4153413a72b44bd17fe5d4a282c0d385fcac06871cbb4fa3bd218bebecbb693",
+        "warmupWallMs": [
+          641.364063,
+          597.937833,
+          568.843169
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              580.3067750000002
+            ],
+            "meanRunWallMs": 580.3067750000002,
+            "batchIncludingValidationWallMs": 580.8502440000002
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              577.725246
+            ],
+            "meanRunWallMs": 577.725246,
+            "batchIncludingValidationWallMs": 578.0723499999999
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              596.2795930000002
+            ],
+            "meanRunWallMs": 596.2795930000002,
+            "batchIncludingValidationWallMs": 596.6027730000001
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              592.3323969999997
+            ],
+            "meanRunWallMs": 592.3323969999997,
+            "batchIncludingValidationWallMs": 592.6724479999998
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              590.7504579999995
+            ],
+            "meanRunWallMs": 590.7504579999995,
+            "batchIncludingValidationWallMs": 591.0943360000001
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              605.1638949999997
+            ],
+            "meanRunWallMs": 605.1638949999997,
+            "batchIncludingValidationWallMs": 605.5633660000003
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              589.6129869999995
+            ],
+            "meanRunWallMs": 589.6129869999995,
+            "batchIncludingValidationWallMs": 589.982994
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              580.4412910000001
+            ],
+            "meanRunWallMs": 580.4412910000001,
+            "batchIncludingValidationWallMs": 580.8015799999994
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              565.1280340000003
+            ],
+            "meanRunWallMs": 565.1280340000003,
+            "batchIncludingValidationWallMs": 565.448539
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "chain",
+        "--size",
+        "256",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T02:59:28.819Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "chain",
+        "checkCount": 256,
+        "edgeCount": 255,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "chain",
+            "--size",
+            "256",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 186466304,
+          "heapTotal": 44170240,
+          "heapUsed": 30175610,
+          "external": 20267077,
+          "arrayBuffers": 13031796
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 4929413,
+          "systemCPUTime": 540645,
+          "maxRSS": 208036,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 78782,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 7022,
+          "involuntaryContextSwitches": 33
+        },
+        "semanticDigest": "76a6b2d72baa2b055fff2eca73ce0d72937afa44e4d3f9414f5cebe1d452e3c7",
+        "declarativeFingerprint": "428c5688faeb7ce0f6597ed63153f636352b0c69052dd4c26b9d2a6780dce57c",
+        "warmupWallMs": [
+          403.55755600000003,
+          382.837983,
+          345.725419
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              338.44963099999995
+            ],
+            "meanRunWallMs": 338.44963099999995,
+            "batchIncludingValidationWallMs": 338.8174939999999
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              333.56295
+            ],
+            "meanRunWallMs": 333.56295,
+            "batchIncludingValidationWallMs": 333.8788670000001
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              329.25685699999985
+            ],
+            "meanRunWallMs": 329.25685699999985,
+            "batchIncludingValidationWallMs": 329.5611620000002
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              327.3880959999997
+            ],
+            "meanRunWallMs": 327.3880959999997,
+            "batchIncludingValidationWallMs": 327.67690300000004
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              332.99003900000025
+            ],
+            "meanRunWallMs": 332.99003900000025,
+            "batchIncludingValidationWallMs": 333.31430100000034
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              335.5472800000002
+            ],
+            "meanRunWallMs": 335.5472800000002,
+            "batchIncludingValidationWallMs": 335.883695
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              327.5878150000003
+            ],
+            "meanRunWallMs": 327.5878150000003,
+            "batchIncludingValidationWallMs": 328.08189500000026
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              334.26245100000006
+            ],
+            "meanRunWallMs": 334.26245100000006,
+            "batchIncludingValidationWallMs": 334.665661
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              333.3067369999999
+            ],
+            "meanRunWallMs": 333.3067369999999,
+            "batchIncludingValidationWallMs": 333.67338800000016
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "independent",
+        "--size",
+        "512",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T03:00:12.568Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "independent",
+        "checkCount": 512,
+        "edgeCount": 0,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "independent",
+            "--size",
+            "512",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 201703424,
+          "heapTotal": 46675968,
+          "heapUsed": 31100956,
+          "external": 20612147,
+          "arrayBuffers": 14483293
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 44949893,
+          "systemCPUTime": 2270924,
+          "maxRSS": 196976,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 351113,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 31684,
+          "involuntaryContextSwitches": 232
+        },
+        "semanticDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+        "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f",
+        "warmupWallMs": [
+          3660.4375290000003,
+          3762.8149409999996,
+          3550.0887890000004
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              3543.7534590000014
+            ],
+            "meanRunWallMs": 3543.7534590000014,
+            "batchIncludingValidationWallMs": 3544.371437
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              3555.9359480000003
+            ],
+            "meanRunWallMs": 3555.9359480000003,
+            "batchIncludingValidationWallMs": 3556.62623
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              3494.042935999998
+            ],
+            "meanRunWallMs": 3494.042935999998,
+            "batchIncludingValidationWallMs": 3494.688435
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              3823.560078999999
+            ],
+            "meanRunWallMs": 3823.560078999999,
+            "batchIncludingValidationWallMs": 3824.4316069999986
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              3590.716186999998
+            ],
+            "meanRunWallMs": 3590.716186999998,
+            "batchIncludingValidationWallMs": 3591.315480000001
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              3496.2336030000006
+            ],
+            "meanRunWallMs": 3496.2336030000006,
+            "batchIncludingValidationWallMs": 3496.943263000001
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              3514.614215999998
+            ],
+            "meanRunWallMs": 3514.614215999998,
+            "batchIncludingValidationWallMs": 3515.1846350000014
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              3741.687512999997
+            ],
+            "meanRunWallMs": 3741.687512999997,
+            "batchIncludingValidationWallMs": 3742.3037879999974
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              3718.933259999998
+            ],
+            "meanRunWallMs": 3718.933259999998,
+            "batchIncludingValidationWallMs": 3719.596841999999
+          }
+        ]
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+        "--shape",
+        "chain",
+        "--size",
+        "512",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "public-run-v1",
+        "observedAt": "2026-10-12T03:00:32.928Z",
+        "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+        "shape": "chain",
+        "checkCount": 512,
+        "edgeCount": 511,
+        "maxParallel": 1,
+        "strategy": "default static",
+        "outputs": "all disabled",
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+            "--shape",
+            "chain",
+            "--size",
+            "512",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check"
+        },
+        "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "memoryAfter": {
+          "rss": 192626688,
+          "heapTotal": 44007424,
+          "heapUsed": 26860343,
+          "external": 16820341,
+          "arrayBuffers": 10176525
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 21817616,
+          "systemCPUTime": 1530004,
+          "maxRSS": 200444,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 260533,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 22638,
+          "involuntaryContextSwitches": 128
+        },
+        "semanticDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+        "declarativeFingerprint": "f063c3b7a18e80f717e2beac48a03f3753377366982cebbf4a498c2c586a6ad6",
+        "warmupWallMs": [
+          1744.039978,
+          1720.8450700000003,
+          1635.5060570000005
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "runWallMs": [
+              1673.3143419999997
+            ],
+            "meanRunWallMs": 1673.3143419999997,
+            "batchIncludingValidationWallMs": 1673.8311210000002
+          },
+          {
+            "index": 1,
+            "runWallMs": [
+              1557.8491919999997
+            ],
+            "meanRunWallMs": 1557.8491919999997,
+            "batchIncludingValidationWallMs": 1558.676880000001
+          },
+          {
+            "index": 2,
+            "runWallMs": [
+              1558.5328530000006
+            ],
+            "meanRunWallMs": 1558.5328530000006,
+            "batchIncludingValidationWallMs": 1559.0549019999999
+          },
+          {
+            "index": 3,
+            "runWallMs": [
+              1591.4141899999995
+            ],
+            "meanRunWallMs": 1591.4141899999995,
+            "batchIncludingValidationWallMs": 1594.4932690000005
+          },
+          {
+            "index": 4,
+            "runWallMs": [
+              1693.4353440000014
+            ],
+            "meanRunWallMs": 1693.4353440000014,
+            "batchIncludingValidationWallMs": 1694.0348479999993
+          },
+          {
+            "index": 5,
+            "runWallMs": [
+              1610.2222849999998
+            ],
+            "meanRunWallMs": 1610.2222849999998,
+            "batchIncludingValidationWallMs": 1610.8138940000008
+          },
+          {
+            "index": 6,
+            "runWallMs": [
+              1872.093482000002
+            ],
+            "meanRunWallMs": 1872.093482000002,
+            "batchIncludingValidationWallMs": 1872.9522060000018
+          },
+          {
+            "index": 7,
+            "runWallMs": [
+              1785.2159820000015
+            ],
+            "meanRunWallMs": 1785.2159820000015,
+            "batchIncludingValidationWallMs": 1785.8014489999987
+          },
+          {
+            "index": 8,
+            "runWallMs": [
+              1616.592638000002
+            ],
+            "meanRunWallMs": 1616.592638000002,
+            "batchIncludingValidationWallMs": 1617.2338889999992
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,417 @@
+{
+  "protocol": "public-run-v1",
+  "runtime": "Bun 1.3.14",
+  "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+  "measurements": [
+    {
+      "shape": "independent",
+      "n": 1,
+      "before": {
+        "medianMs": 0.6490294999999975,
+        "minMs": 0.4731975999999918,
+        "maxMs": 1.2719695499999915,
+        "madMs": 0.14182845000000266
+      },
+      "after": {
+        "medianMs": 0.5040925500000043,
+        "minMs": 0.4317069000000032,
+        "maxMs": 1.0745529500000046,
+        "madMs": 0.07238565000000108
+      },
+      "reductionPercent": 22.331334708205674,
+      "speedup": 1.2875205158258973,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 1,
+      "before": {
+        "medianMs": 0.7146701499999978,
+        "minMs": 0.38864660000000695,
+        "maxMs": 1.1858246000000008,
+        "madMs": 0.2289466999999945
+      },
+      "after": {
+        "medianMs": 0.5987694499999975,
+        "minMs": 0.35946149999999477,
+        "maxMs": 1.1209649500000112,
+        "madMs": 0.17005579999999154
+      },
+      "reductionPercent": 16.21736964948105,
+      "speedup": 1.193564818645976,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 8,
+      "before": {
+        "medianMs": 1.7537790499999915,
+        "minMs": 1.436380299999979,
+        "maxMs": 3.5390091499999925,
+        "madMs": 0.2896177999999878
+      },
+      "after": {
+        "medianMs": 1.432090699999992,
+        "minMs": 1.0173461999999915,
+        "maxMs": 2.8557390500000026,
+        "madMs": 0.24442494999999265
+      },
+      "reductionPercent": 18.342581410126947,
+      "speedup": 1.2246284749981278,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 8,
+      "before": {
+        "medianMs": 1.7225533500000012,
+        "minMs": 1.3754464999999954,
+        "maxMs": 3.4530328500000023,
+        "madMs": 0.26781510000000996
+      },
+      "after": {
+        "medianMs": 1.4370016000000079,
+        "minMs": 1.0144611499999996,
+        "maxMs": 3.052194100000007,
+        "madMs": 0.22695255000001002
+      },
+      "reductionPercent": 16.57723692563676,
+      "speedup": 1.1987135922465164,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 32,
+      "before": {
+        "medianMs": 12.581682999999998,
+        "minMs": 9.397730999999965,
+        "maxMs": 17.801085,
+        "madMs": 1.9354040000000055
+      },
+      "after": {
+        "medianMs": 8.979521000000034,
+        "minMs": 6.184835000000021,
+        "maxMs": 11.040521000000012,
+        "madMs": 1.9454510000000482
+      },
+      "reductionPercent": 28.630207898259442,
+      "speedup": 1.4011530236412333,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 32,
+      "before": {
+        "medianMs": 10.130085000000008,
+        "minMs": 8.432990000000018,
+        "maxMs": 18.635436999999968,
+        "madMs": 1.3047679999999673
+      },
+      "after": {
+        "medianMs": 7.962726000000032,
+        "minMs": 5.966838999999993,
+        "maxMs": 10.366219000000001,
+        "madMs": 0.9776279999999815
+      },
+      "reductionPercent": 21.39526963495345,
+      "speedup": 1.2721880672523413,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 64,
+      "before": {
+        "medianMs": 31.939076999999997,
+        "minMs": 28.004711000000043,
+        "maxMs": 36.71953400000001,
+        "madMs": 1.2644070000000056
+      },
+      "after": {
+        "medianMs": 17.389237000000037,
+        "minMs": 15.380690000000016,
+        "maxMs": 21.32574900000003,
+        "madMs": 1.1681750000000761
+      },
+      "reductionPercent": 45.55497956312251,
+      "speedup": 1.8367152624350298,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 64,
+      "before": {
+        "medianMs": 26.364562999999976,
+        "minMs": 24.003832999999986,
+        "maxMs": 30.494835999999964,
+        "madMs": 1.6698679999999513
+      },
+      "after": {
+        "medianMs": 14.895319000000029,
+        "minMs": 12.841142999999988,
+        "maxMs": 28.75557600000002,
+        "madMs": 1.898691000000042
+      },
+      "reductionPercent": 43.50249992764893,
+      "speedup": 1.7699898202918598,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 128,
+      "before": {
+        "medianMs": 123.90652900000009,
+        "minMs": 115.99529699999994,
+        "maxMs": 134.02796999999998,
+        "madMs": 4.455277000000024
+      },
+      "after": {
+        "medianMs": 49.84401500000001,
+        "minMs": 46.757097000000044,
+        "maxMs": 59.17440200000004,
+        "madMs": 2.840516999999977
+      },
+      "reductionPercent": 59.77289057947868,
+      "speedup": 2.485885797923784,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 128,
+      "before": {
+        "medianMs": 84.78125999999997,
+        "minMs": 79.57293299999992,
+        "maxMs": 94.24590799999999,
+        "madMs": 3.2222759999999653
+      },
+      "after": {
+        "medianMs": 36.428493,
+        "minMs": 31.75306599999999,
+        "maxMs": 43.284667999999954,
+        "madMs": 1.824997000000053
+      },
+      "reductionPercent": 57.0323760227201,
+      "speedup": 2.3273337164949415,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 256,
+      "before": {
+        "medianMs": 589.6129869999995,
+        "minMs": 565.1280340000003,
+        "maxMs": 605.1638949999997,
+        "madMs": 9.171695999999429
+      },
+      "after": {
+        "medianMs": 154.79087499999991,
+        "minMs": 148.383055,
+        "maxMs": 159.20219500000007,
+        "madMs": 1.8786979999999858
+      },
+      "reductionPercent": 73.74703773273569,
+      "speedup": 3.8090939598345175,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 256,
+      "before": {
+        "medianMs": 333.3067369999999,
+        "minMs": 327.3880959999997,
+        "maxMs": 338.44963099999995,
+        "madMs": 2.2405430000003435
+      },
+      "after": {
+        "medianMs": 101.92855999999995,
+        "minMs": 99.29381999999998,
+        "maxMs": 107.30274200000008,
+        "madMs": 1.6279299999998784
+      },
+      "reductionPercent": 69.41899197195045,
+      "speedup": 3.27000339257221,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 512,
+      "before": {
+        "medianMs": 3555.9359480000003,
+        "minMs": 3494.042935999998,
+        "maxMs": 3823.560078999999,
+        "madMs": 59.702344999999696
+      },
+      "after": {
+        "medianMs": 587.2951310000001,
+        "minMs": 581.034956,
+        "maxMs": 624.1149070000001,
+        "madMs": 6.2601750000001175
+      },
+      "reductionPercent": 83.48409140129989,
+      "speedup": 6.054768310347187,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 512,
+      "before": {
+        "medianMs": 1616.592638000002,
+        "minMs": 1557.8491919999997,
+        "maxMs": 1872.093482000002,
+        "madMs": 58.059785000001284
+      },
+      "after": {
+        "medianMs": 358.46258999999986,
+        "minMs": 346.0612369999999,
+        "maxMs": 370.89197199999944,
+        "madMs": 2.816882000000305
+      },
+      "reductionPercent": 77.8260409224999,
+      "speedup": 4.5097945590361395,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    }
+  ],
+  "interleaved": [
+    {
+      "shape": "independent",
+      "n": 1,
+      "before": {
+        "medianMs": 0.6114259499999974,
+        "minMs": 0.38786130000000013,
+        "maxMs": 1.2649564500000055,
+        "madMs": 0.2122038500000002
+      },
+      "after": {
+        "medianMs": 0.5803255000000064,
+        "minMs": 0.36174015000000564,
+        "maxMs": 1.0701603499999948,
+        "madMs": 0.18294129999999031
+      },
+      "reductionPercent": 5.086544004223437,
+      "speedup": 1.0535913896597526,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 1,
+      "before": {
+        "medianMs": 0.6548481000000038,
+        "minMs": 0.3581140500000089,
+        "maxMs": 1.1054722500000083,
+        "madMs": 0.1888918500000017
+      },
+      "after": {
+        "medianMs": 0.5191018999999983,
+        "minMs": 0.47058919999999205,
+        "maxMs": 1.01290805,
+        "madMs": 0.044273550000005435
+      },
+      "reductionPercent": 20.72941801312468,
+      "speedup": 1.2615020287924315,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 8,
+      "before": {
+        "medianMs": 1.7399290000000007,
+        "minMs": 1.4037020499999984,
+        "maxMs": 3.3396022500000044,
+        "madMs": 0.13160460000000285
+      },
+      "after": {
+        "medianMs": 1.4465976499999897,
+        "minMs": 1.2014448999999956,
+        "maxMs": 3.241732300000001,
+        "madMs": 0.21668474999999043
+      },
+      "reductionPercent": 16.85881148023919,
+      "speedup": 1.20277327977134,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 8,
+      "before": {
+        "medianMs": 1.9183497999999843,
+        "minMs": 1.5200822000000016,
+        "maxMs": 3.7844048000000017,
+        "madMs": 0.27466040000001635
+      },
+      "after": {
+        "medianMs": 1.9309909000000005,
+        "minMs": 1.4052902500000044,
+        "maxMs": 3.563647450000002,
+        "madMs": 0.07327744999999486
+      },
+      "reductionPercent": -0.6589569848010068,
+      "speedup": 0.9934535683207952,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "independent",
+      "n": 512,
+      "before": {
+        "medianMs": 3681.7365280000013,
+        "minMs": 3647.274867,
+        "maxMs": 3802.5054329999984,
+        "madMs": 34.461661000001186
+      },
+      "after": {
+        "medianMs": 630.3152850000001,
+        "minMs": 612.1002829999998,
+        "maxMs": 784.4410120000011,
+        "madMs": 18.215002000000368
+      },
+      "reductionPercent": 82.87994591121921,
+      "speedup": 5.841103040996381,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    },
+    {
+      "shape": "chain",
+      "n": 512,
+      "before": {
+        "medianMs": 1667.5220689999996,
+        "minMs": 1645.56063,
+        "maxMs": 2219.9377669999994,
+        "madMs": 16.85034799999903
+      },
+      "after": {
+        "medianMs": 467.2811019999999,
+        "minMs": 395.09928400000035,
+        "maxMs": 904.7030100000002,
+        "madMs": 28.724384999999984
+      },
+      "reductionPercent": 71.97751617882786,
+      "speedup": 3.568563038100351,
+      "semanticDigestMatches": true,
+      "declarativeFingerprintMatches": true
+    }
+  ],
+  "limitations": [
+    "Run-only warm-process wall time, not startup or defineConfig or actual consumer workload distribution",
+    "No timing gate or accepted latency budget",
+    "Nine sample medians/MAD, no outlier removal; p95 not estimated",
+    "Small N1/8 has substantial JIT/GC variation; interleaved chain N8 is +0.66%, within observed noise",
+    "Large N512 after primary/control differs, so conservatively report interleaved 82.88% independent /71.98% chain reductions rather than a guaranteed number",
+    "Source snapshot shares unchanged installed dependencies; baseline process lives outside repo to avoid test discovery"
+  ]
+}

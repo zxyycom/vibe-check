@@ -1,0 +1,23 @@
+{
+  "observedAt": "2026-10-12T03:52:03.286Z",
+  "sourceIdentityFile": "check-priority-final-identity.json",
+  "sourceManifestSha256": "b5336be5589ceb02b698e939b5aacafa16746d0a0ad1a9a081c07aa03ecd80bf",
+  "allFinalSourceHashesStableThroughCountersAndBroad": true,
+  "frozenBeforeHashesStable": true,
+  "fixtureManifestSha256": "26951049de91f724b5f53cc0eae8165c4a2219a255387713440afbb85417b43f",
+  "fixtureChecks": [
+    {
+      "size": 16,
+      "actualBytes": 799,
+      "actualSha256": "0966e731b7f1e72bd5ad56f12c1755652ac1f07bd4d086920fdd7768766ee37e",
+      "rawScenarioAndManifestMatch": true
+    },
+    {
+      "size": 4096,
+      "actualBytes": 204799,
+      "actualSha256": "8d15e8192e7d22cbfd5c4f33294edc18c2791e3e3febb90853ff0f80804d5e2b",
+      "rawScenarioAndManifestMatch": true
+    }
+  ],
+  "traceFilesRetained": false
+}

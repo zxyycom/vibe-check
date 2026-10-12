@@ -1,0 +1,9 @@
+{
+  "workload": "directory",
+  "size": 4096,
+  "outcome": "hard-timeout",
+  "timeoutSeconds": 20,
+  "exitCode": 124,
+  "partialTiming": false,
+  "note": "No sample emitted; representative size will be reduced before protocol freeze. No Product changes, no matcher optimization."
+}

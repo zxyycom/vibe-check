@@ -1,0 +1,25 @@
+{
+  "protocol": "broad-collection-control-v1",
+  "beforeSourceIdentityFile": "check-priority-before-identity.json",
+  "afterSourceIdentityFile": "check-priority-after-identity.json",
+  "before": {
+    "medianMs": 7.647280999999964,
+    "minMs": 6.0795100000000275,
+    "maxMs": 10.544509000000005,
+    "madMs": 0.46227000000004637
+  },
+  "after": {
+    "medianMs": 7.000500000000045,
+    "minMs": 6.253702999999973,
+    "maxMs": 14.003895,
+    "madMs": 0.48126899999994066
+  },
+  "changePercent": -8.45765965707187,
+  "harnessSha256": "771ecb09c7936cb7a23686d9cdbfd991c0371e856998d16321bcd54cbbca7585",
+  "semanticDigestMatches": true,
+  "notes": [
+    "One before-then-after process pair, nine samples and three warmups each",
+    "Full broad collection, not new name-index cost in isolation",
+    "No approved timing budget and no product regression decision based only on overlapping sample ranges"
+  ]
+}

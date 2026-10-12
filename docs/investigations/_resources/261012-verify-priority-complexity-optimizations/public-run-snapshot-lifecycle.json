@@ -1,0 +1,15 @@
+{
+  "updatedAt": "2026-10-12T03:02:24.326Z",
+  "beforeIdentityFile": "public-run-before-identity.json",
+  "originalRoot": "/workspace/vibe-check/tmp/public-run-before-b016767",
+  "currentRoot": "/tmp/vibe-public-run-before-b016767-DU9nzf",
+  "reason": "Bun test discovery scans ignored repo tmp: moved unchanged source tree outside repository",
+  "dependencySymlink": {
+    "path": "/tmp/vibe-public-run-before-b016767-DU9nzf/node_modules",
+    "target": "/workspace/vibe-check/node_modules",
+    "usage": "Read-only resolution; no dependencies copied/modified"
+  },
+  "sourceFilesVerified": 718,
+  "sourceManifestSha256": "c7de77b1f88801e88306e15efa9f8fa25c66dae8c783afada155cf0206492897",
+  "cleanup": "After before/after evidence closes, remove only this generated snapshot root and artifact note; raw evidence is retained"
+}

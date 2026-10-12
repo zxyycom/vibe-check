@@ -1,0 +1,254 @@
+{
+  "runtime": "Bun 1.3.14",
+  "timing": false,
+  "beforeSource": "b01676764100e81603c0d64749a1b56a66682337 frozen snapshot",
+  "afterSourceIdentityFile": "public-run-after-identity.json",
+  "probes": [
+    {
+      "path": "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/project-run-probe.ts",
+      "sha256": "5d2491dc18ca1fd0788a077feb7b639823154e9ed68e167d708915486f223cfc",
+      "copiedBaselineSha256": "5d2491dc18ca1fd0788a077feb7b639823154e9ed68e167d708915486f223cfc"
+    },
+    {
+      "path": "docs/investigations/_resources/261012-audit-checks-core-algorithmic-complexity/core-foundations-probe.ts",
+      "sha256": "139fe70fef126098ce5f7293523eca57cd3ab47017eeea529ad9f47e04034daf",
+      "copiedBaselineSha256": "139fe70fef126098ce5f7293523eca57cd3ab47017eeea529ad9f47e04034daf"
+    }
+  ],
+  "historicBaselineCountsMatchFrozenRun": true,
+  "historicBaselineCountsMatchFrozenCore": true,
+  "publicRun": [
+    {
+      "before": {
+        "inputKind": "public-chain",
+        "n": 16,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 1240,
+        "scopeFindPredicates": 272,
+        "graphStringifyCalls": 34,
+        "graphStringifiedCharacters": 127602,
+        "raceInputPromises": 16
+      },
+      "after": {
+        "inputKind": "public-chain",
+        "n": 16,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 3753,
+        "raceInputPromises": 16
+      }
+    },
+    {
+      "before": {
+        "inputKind": "public-chain",
+        "n": 32,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 10416,
+        "scopeFindPredicates": 1056,
+        "graphStringifyCalls": 66,
+        "graphStringifiedCharacters": 496914,
+        "raceInputPromises": 32
+      },
+      "after": {
+        "inputKind": "public-chain",
+        "n": 32,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 7529,
+        "raceInputPromises": 32
+      }
+    },
+    {
+      "before": {
+        "inputKind": "public-chain",
+        "n": 64,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 85344,
+        "scopeFindPredicates": 4160,
+        "graphStringifyCalls": 130,
+        "graphStringifiedCharacters": 1960530,
+        "raceInputPromises": 64
+      },
+      "after": {
+        "inputKind": "public-chain",
+        "n": 64,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 15081,
+        "raceInputPromises": 64
+      }
+    },
+    {
+      "before": {
+        "inputKind": "public-chain",
+        "n": 128,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 690880,
+        "scopeFindPredicates": 16512,
+        "graphStringifyCalls": 258,
+        "graphStringifiedCharacters": 7830816,
+        "raceInputPromises": 128
+      },
+      "after": {
+        "inputKind": "public-chain",
+        "n": 128,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 30352,
+        "raceInputPromises": 128
+      }
+    },
+    {
+      "before": {
+        "inputKind": "public-independent",
+        "n": 16,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 5712,
+        "graphStringifyCalls": 34,
+        "graphStringifiedCharacters": 123352,
+        "raceInputPromises": 16
+      },
+      "after": {
+        "inputKind": "public-independent",
+        "n": 16,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 3628,
+        "raceInputPromises": 16
+      }
+    },
+    {
+      "before": {
+        "inputKind": "public-independent",
+        "n": 32,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 44704,
+        "graphStringifyCalls": 66,
+        "graphStringifiedCharacters": 479160,
+        "raceInputPromises": 32
+      },
+      "after": {
+        "inputKind": "public-independent",
+        "n": 32,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 7260,
+        "raceInputPromises": 32
+      }
+    },
+    {
+      "before": {
+        "inputKind": "public-independent",
+        "n": 64,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 353600,
+        "graphStringifyCalls": 130,
+        "graphStringifiedCharacters": 1888120,
+        "raceInputPromises": 64
+      },
+      "after": {
+        "inputKind": "public-independent",
+        "n": 64,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 14524,
+        "raceInputPromises": 64
+      }
+    },
+    {
+      "before": {
+        "inputKind": "public-independent",
+        "n": 128,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 2812544,
+        "graphStringifyCalls": 258,
+        "graphStringifiedCharacters": 7531536,
+        "raceInputPromises": 128
+      },
+      "after": {
+        "inputKind": "public-independent",
+        "n": 128,
+        "graphDtoFreezes": 4,
+        "settlementFindPredicates": 0,
+        "scopeFindPredicates": 0,
+        "graphStringifyCalls": 1,
+        "graphStringifiedCharacters": 29192,
+        "raceInputPromises": 128
+      }
+    }
+  ],
+  "session": [
+    {
+      "before": {
+        "size": 8,
+        "findExamined": 36,
+        "knownIdSetEntries": 64
+      },
+      "after": {
+        "size": 8,
+        "findExamined": 0,
+        "knownIdSetEntries": 0
+      }
+    },
+    {
+      "before": {
+        "size": 16,
+        "findExamined": 136,
+        "knownIdSetEntries": 256
+      },
+      "after": {
+        "size": 16,
+        "findExamined": 0,
+        "knownIdSetEntries": 0
+      }
+    },
+    {
+      "before": {
+        "size": 32,
+        "findExamined": 528,
+        "knownIdSetEntries": 1024
+      },
+      "after": {
+        "size": 32,
+        "findExamined": 0,
+        "knownIdSetEntries": 0
+      }
+    },
+    {
+      "before": {
+        "size": 64,
+        "findExamined": 2080,
+        "knownIdSetEntries": 4096
+      },
+      "after": {
+        "size": 64,
+        "findExamined": 0,
+        "knownIdSetEntries": 0
+      }
+    }
+  ],
+  "interpretation": {
+    "R01": "Zero settlement find predicates is supported by source: invocation-boundary Map creation then Map.get dependency/observation lookup; pending scan and per-decision map construction remain, not O(N) full Run",
+    "R02": "Zero scope find predicates is supported by scopeForTask compiled.scopesById.get, taskSlotsById and taskActivatesScope, activeScopeIds Set.has; static per-decision candidate processing remains",
+    "R03": "Graph JSON detection does not rely on stack/name; unchanged detector recognizes tasks/scopes shape and sees exactly one stringify per invocation, graphFingerprintFor caches state.graphFingerprint",
+    "C02": "Probe creates session before installing find/Set wrappers: zero represents open/settle phase, not zero allocation total. Source shows constructor builds private Map and Set once; #slotFor uses Map.get and both settlement paths pass the stable Set. Set wrapper only counts array constructor inputs, so Map.keys iterator is not measured; bounded linear constructor cost is proved by source, not zero count"
+  }
+}

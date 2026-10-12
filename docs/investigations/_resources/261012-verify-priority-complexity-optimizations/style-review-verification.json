@@ -1,0 +1,486 @@
+{
+  "observedAt": "2026-10-12T04:46:26.073Z",
+  "purpose": "Post-implementation coding-style and AI-ready documentation review; not a new before/after timing experiment.",
+  "sourceIdentity": {
+    "measuredSourceManifest": "b5336be5589ceb02b698e939b5aacafa16746d0a0ad1a9a081c07aa03ecd80bf",
+    "reviewedSourceManifest": "817a47c1ecfb19f12f74d5bac7ff55743b97e7aa4153a3c3d2db56d236129f0f",
+    "algorithm": "SHA-256 of JSON.stringify(sorted {path,sha256} sources); the 722-member manifest is retained in check-priority-final-identity.json; apply these five replacements.",
+    "sourceCount": 722,
+    "sourceChanges": [
+      {
+        "path": "src/package-checks/maintenance-reminders/measurement-reuse.test.ts",
+        "measuredSha256": "f37760d2c66b62f406365d5390ae2cabb12cc9964fde9fe0d78e2081b531b01f",
+        "reviewedSha256": "30091590f5ce7c3018873368162bc650ee248c7814edab8a941553a25aec1ecd"
+      },
+      {
+        "path": "src/package-checks/maintenance-reminders/measurement.ts",
+        "measuredSha256": "77122b26a274355a80fe44cb20015d88213ab1d00e241ddeda46e011062f2778",
+        "reviewedSha256": "34a5f8fb42d6523b8b207e63b7374a0755894f32f96965c946a38ff6c76238ea"
+      },
+      {
+        "path": "src/package-checks/markdown-link-validation/local-resolver.test-support.ts",
+        "measuredSha256": "d4b511c2287e0312b3a69de1e61cc4f31e26da43197fa16fe09ef2277c8a2f37",
+        "reviewedSha256": "f20c4ee91ba93a6baf85b362ae43741ead5677f5594f8b4cc9cba35a4e238ada"
+      },
+      {
+        "path": "src/project-run/task-scheduler/scheduler-observation.ts",
+        "measuredSha256": "89e1078bf8aed988dfaa8cc953c819f831831d1599b4dcc77ec9e3db44c24f8a",
+        "reviewedSha256": "5f80420897b8d8de5fc0b63681adb89e0343940cce1b11ffd91b467e20e69d22"
+      },
+      {
+        "path": "src/project-run/task-scheduler/task-engine.graph-observation.test.ts",
+        "measuredSha256": "101da884c8201c1ec2ed0e42022aeef53dea16450311f7fba4a9adeffa02d153",
+        "reviewedSha256": "bf94a282e203528fb932b08615170417dc72498611e76767feba2ead97c81ca9"
+      }
+    ]
+  },
+  "historicalEvidence": {
+    "rawSampleJsonModified": false,
+    "historicalTimingAppliesTo": "The exact measured source and script identities, not the reviewed scripts or current source tree.",
+    "scripts": [
+      {
+        "name": "broad-collection-control.ts",
+        "measuredSha256": "771ecb09c7936cb7a23686d9cdbfd991c0371e856998d16321bcd54cbbca7585",
+        "reviewedSha256": "0f15107390becbb5ab959c99516e435350e614d0c851016d4afe2e19c3ab253a"
+      },
+      {
+        "name": "check-priority-benchmark.ts",
+        "measuredSha256": "0efa6462349e90f2ae0bbf0514b01a366265573b23d76dab774628757f0ca44a",
+        "reviewedSha256": "e0b0e137250044556bed0d38249077b5076843d8a9c1de2166d2f3835c2a78c2"
+      },
+      {
+        "name": "check-priority-fixtures.ts",
+        "measuredSha256": "8bc338e85b98286d61e2698d58d54ca06a83a9bfec44af6e7b583c9e3013c337",
+        "reviewedSha256": "e3af1ca5dec864824abb93f6b86d45a0009386751e29191c9b5667c9238d1298"
+      },
+      {
+        "name": "check-priority-operation-counts.ts",
+        "measuredSha256": "51e9c1a1daa00886f96fcfeb253c69df10015b5180df4bee4eb0a5d3d3cf374c",
+        "reviewedSha256": "64d12608d3048664cc46245079cb47148753917154e7fcb69c4e8118ef273026"
+      },
+      {
+        "name": "public-run-benchmark.ts",
+        "measuredSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+        "reviewedSha256": "51cc1ad2cf588fdc4793e07ea92646a04e87192fd054d09bdfe1196d9b67bc0d"
+      }
+    ],
+    "reviewOnlyDependency": {
+      "name": "benchmark-boundaries.ts",
+      "sha256": "97a3766027a20b539dbd47926e727e84a7697e50ef9580e8ad2f4aadc519334e"
+    },
+    "restoration": {
+      "patch": "restore-measured-scripts.patch",
+      "patchSha256": "b0487694ea07bc9b150d1af1cc88fa87c631693eadb6603e92113b1ab843cd6a",
+      "format": "Zero-context unified diff; avoids whitespace-only context lines in the staged patch artifact.",
+      "direction": "reviewed five scripts -> original measured five scripts",
+      "procedure": "Copy the five reviewed scripts into a new disposable directory, verify reviewed SHA-256, then apply patch --batch --fuzz=0 -p1 < the absolute patch path there; compare the restored files with measuredSha256. Do not apply in the workspace.",
+      "verified": "All five scripts independently restored and cmp-equal to pre-review backups. The zero-context version was reapplied in a separate disposable directory and verified byte-for-byte and against all five measured SHA-256 values.",
+      "newSupportRequiredByHistoricalScripts": false
+    }
+  },
+  "validation": {
+    "productTypecheck": {
+      "command": "mise exec -- bun run typecheck -- product",
+      "exitCode": 0
+    },
+    "productLint": {
+      "command": "mise exec -- bun run lint -- product",
+      "exitCode": 0
+    },
+    "format": {
+      "command": "mise exec -- bun run format -- check",
+      "files": 916,
+      "exitCode": 0
+    },
+    "behaviorTests": {
+      "command": "mise exec -- bun test src/check-settlement src/project-run/task-scheduler src/package-checks/project-files src/package-checks/markdown-link-validation src/package-checks/maintenance-reminders",
+      "files": 46,
+      "passed": 114,
+      "failed": 0,
+      "runtime": "Bun 1.3.14",
+      "exitCode": 0
+    },
+    "testEvidence": {
+      "command": "mise exec -- bun run test-evidence -- check --root .",
+      "entities": 704,
+      "cases": 176,
+      "topics": 15,
+      "exitCode": 0
+    },
+    "changes": {
+      "command": "mise exec -- bun run change-plan -- check-all changes",
+      "valid": 18,
+      "total": 18,
+      "exitCode": 0
+    },
+    "resourceTypecheck": {
+      "command": "mise exec -- node node_modules/@typescript/native-preview/bin/tsgo.js --project <temporary review profile>",
+      "profile": {
+        "extends": "/workspace/vibe-check/tsconfig.json",
+        "compilerOptions": {
+          "incremental": false,
+          "typeRoots": [
+            "/workspace/vibe-check/node_modules/@types"
+          ]
+        },
+        "include": [
+          "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/broad-collection-control.ts",
+          "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+          "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-fixtures.ts",
+          "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-operation-counts.ts",
+          "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+          "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/benchmark-boundaries.ts"
+        ],
+        "exclude": []
+      },
+      "exitCode": 0,
+      "scope": "Six resource TypeScript files plus their public type dependency closure; project strict profile, no additional noUnused compiler policy."
+    },
+    "resourceLint": {
+      "command": "mise exec -- node_modules/.bin/oxlint --config <temporary full-rule config> --type-aware --no-ignore --deny-warnings --format=json --tsconfig <temporary review profile> -D no-unused-vars -D typescript/no-explicit-any <six resources>",
+      "configSource": ".oxlintrc.json",
+      "configSha256": "a08d110acadd93ff887c2ccba31c9ed10eb8e7f988e4c49cf3ffb026328981c3",
+      "effectiveConfig": "Copy all current rules/options/plugins unchanged; map only the two src/scripts implementation override file lists to the six exact resource paths. Keep the test override unchanged. Configuration equivalence apart from file patterns was independently asserted; repository configuration was not changed.",
+      "result": {
+        "diagnostics": [],
+        "number_of_files": 6,
+        "number_of_rules": 127,
+        "threads_count": 4,
+        "start_time": 0.219507333
+      },
+      "exitCode": 0,
+      "localExceptions": {
+        "file": "check-priority-operation-counts.ts",
+        "count": 5,
+        "purpose": "Two native-method captures require an explicit receiver on every call; three Reflect.apply return bridges preserve the captured native generic contract.",
+        "scope": "Five exact next-line rule directives with adjacent receiver/return reasons; no temporary-code, whole-file or general boundary-validation exemption."
+      }
+    },
+    "resourceFormat": {
+      "runner": "Oxfmt --check <six resource paths>",
+      "files": 6,
+      "exitCode": 0
+    },
+    "resourceSmoke": {
+      "runtime": "Bun 1.3.14",
+      "scenarios": [
+        "fixture builder (eight directory/anchor/Git fixtures)",
+        "public Run independent N=8 and chain N=8: one warmup, one sample, one iteration",
+        "Check workloads directory N=32, anchors H=Q=16, reminders K=4/R=1: one warmup, one sample, one iteration",
+        "broad collection N=1024: three warmups, nine calls",
+        "operation-count probe: six configured workload/size observations"
+      ],
+      "fixtureComparison": "All eight content/history descriptors equal the measured manifest by directory key. Root, timestamp and manifest entry order differ; whole manifest byte equality is not claimed.",
+      "negativeCasesPassed": [
+        "malformed JSON",
+        "unsupported workload",
+        "malformed full Git commit ID",
+        "missing requested fixture",
+        "CLI size zero fails with nonzero exit and actionable diagnostic",
+        "JSON parse diagnostic preserves the original SyntaxError cause"
+      ],
+      "observedAt": "2026-10-12T04:45:32.672Z",
+      "operationComparison": "All six observations including semantic digests, operation counts and Git command/argument counts equal check-priority-final-operation-counts.json; only stack samples excluded.",
+      "operations": [
+        {
+          "workload": "directory",
+          "size": 32,
+          "semanticDigest": "ebfb82807c1ba7858daaf8509a537ffb4b5b32944565840512b616350ba7f8f8",
+          "directoryNameComparisons": 0,
+          "directoryMapGetsInTargetEntry": 64,
+          "headingSlugComparisons": 0,
+          "anchorSetHasCalls": 0,
+          "headingSetConstructions": 0,
+          "headingSetInputEntries": 0
+        },
+        {
+          "workload": "directory",
+          "size": 1024,
+          "semanticDigest": "11df618b505ff49cd0b8a4f22af333a9b2cd7b74b9a5e4ae803c5b8132e34755",
+          "directoryNameComparisons": 0,
+          "directoryMapGetsInTargetEntry": 2048,
+          "headingSlugComparisons": 0,
+          "anchorSetHasCalls": 0,
+          "headingSetConstructions": 0,
+          "headingSetInputEntries": 0
+        },
+        {
+          "workload": "anchors",
+          "size": 16,
+          "semanticDigest": "e5c84072c85b35ef54811e119a2f0d53b72859c69ad57ec593331dafe92371be",
+          "directoryNameComparisons": 0,
+          "directoryMapGetsInTargetEntry": 0,
+          "headingSlugComparisons": 0,
+          "anchorSetHasCalls": 16,
+          "headingSetConstructions": 1,
+          "headingSetInputEntries": 16
+        },
+        {
+          "workload": "anchors",
+          "size": 4096,
+          "semanticDigest": "8cf65484d94390f2f52f000f6cd0eb6ec92198c82f1cfa265b62763d3791e9b5",
+          "directoryNameComparisons": 0,
+          "directoryMapGetsInTargetEntry": 0,
+          "headingSlugComparisons": 0,
+          "anchorSetHasCalls": 4096,
+          "headingSetConstructions": 1,
+          "headingSetInputEntries": 4096
+        },
+        {
+          "workload": "reminders",
+          "size": 4,
+          "semanticDigest": "9dca85d2b25e662c5299a2c600ebd60ce25b19c98aee20e23897089213aa5ecf",
+          "directoryNameComparisons": 0,
+          "directoryMapGetsInTargetEntry": 0,
+          "headingSlugComparisons": 0,
+          "anchorSetHasCalls": 0,
+          "headingSetConstructions": 0,
+          "headingSetInputEntries": 0,
+          "git": {
+            "totalProcesses": 7,
+            "commandCounts": {
+              "rev-parse": 2,
+              "rev-list": 1,
+              "diff-tree": 4
+            }
+          }
+        },
+        {
+          "workload": "reminders",
+          "size": 32,
+          "semanticDigest": "0f54c2085cc81f7fd1004e592046c822a40ce267ea1e4f167f0abe08077f0b50",
+          "directoryNameComparisons": 0,
+          "directoryMapGetsInTargetEntry": 0,
+          "headingSlugComparisons": 0,
+          "anchorSetHasCalls": 0,
+          "headingSetConstructions": 0,
+          "headingSetInputEntries": 0,
+          "git": {
+            "totalProcesses": 35,
+            "commandCounts": {
+              "rev-parse": 2,
+              "rev-list": 1,
+              "diff-tree": 32
+            }
+          }
+        }
+      ],
+      "performanceConclusion": "None. Smoke timings are not retained as new performance evidence."
+    },
+    "fullGate": {
+      "command": "mise exec -- bun run check -- --all",
+      "candidate": "0.0.0-local.52746d5962d9",
+      "evidenceRoot": "/workspace/vibe-check/.log/project-gate/2026-10-12T04-47-00.772Z-1831790-f6bd35d7-348e-45a1-8dfb-f38fb6d622f0",
+      "exitCode": 0,
+      "passed": 43,
+      "total": 43,
+      "blockingFindings": 0,
+      "nonblockingRecords": 2,
+      "machineRunSha256": "7d1cd71d6c1eed6dc73a44ccfe272bca2751690cd6c6d9e3f8d0267abf4ee7a5",
+      "machineRecordsSha256": "dcdd912c85001e8a9434c170e64ab748d7af6fc762998f682561b8781d4a7a93",
+      "checks": [
+        {
+          "checkId": "decision-records",
+          "status": "passed"
+        },
+        {
+          "checkId": "duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "format-check",
+          "status": "passed"
+        },
+        {
+          "checkId": "function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "git-diff-whitespace",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "lint-scripts",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-link-validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "markdown-lint",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-examples-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-json-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-links-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-publication-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "materials-schema-validator",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-external-package-consumer",
+          "status": "passed"
+        },
+        {
+          "checkId": "prepared-package-candidate",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence",
+          "status": "passed"
+        },
+        {
+          "checkId": "test-evidence-rule-tests",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-artifact",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-docs",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-runtime",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-consumer-types",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-package-supporting",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-duplicate-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-file-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-function-metrics",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-json",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-markdown-links",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-runtime",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-secret-detection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-product-supporting-checks",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-admission-workbench",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-layout",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-machine-artifacts",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-package-tools-boundary",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-project-selection",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-test-evidence",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-tooling",
+          "status": "passed"
+        },
+        {
+          "checkId": "tests-scripts-validation",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-product",
+          "status": "passed"
+        },
+        {
+          "checkId": "typecheck-scripts",
+          "status": "passed"
+        }
+      ],
+      "performanceMessages": [
+        "[GATE] [INFO] project gate info [project-gate-performance-within-limit]: elapsed-to-initial-result 43136.3ms (candidate preparation 9622.0ms; adapter/setup 424.7ms; Product Run 33089.6ms) was within warning budget 90000.0ms",
+        "[GATE] [WARNING] project gate warning [project-gate-performance-check-durations]: executed Checks=43; cumulative execution 85261.4ms (not wall time); mean 1982.8ms (budget 2000.0ms); p95 5143.2ms (nearest-rank; budget 5000.0ms); exceeded Check warning budgets: p95; slowest Checks: tests-product-supporting-checks=5365.7ms, tests-package-artifact=5321.5ms, tests-scripts-package-tools-boundary=5143.2ms"
+      ],
+      "boundary": "Full Gate integration/package evidence for reviewed source; not a before/after timing comparison."
+    },
+    "documentValidation": {
+      "command": "mise exec -- bun run validate",
+      "exitCode": 0,
+      "strictJsonFiles": 234,
+      "schemas": 5,
+      "markdownFiles": 523,
+      "investigationReports": 69,
+      "fullIndexCurrent": true
+    }
+  },
+  "temporaryArtifacts": {
+    "state": "all four exact owned temporary roots removed after byte restoration, smoke, full Gate verification and staged patch review",
+    "ownedRoots": [
+      "/tmp/vibe-check-investigation-resource-originals.Xa7rsV",
+      "/tmp/vibe-check-style-verification.tofy5m",
+      "/tmp/vibe-check-k-fixtures-xKYRhc",
+      "/tmp/vibe-check-patch-review.We2NCy"
+    ],
+    "retainedFormalArtifacts": [
+      "restore-measured-scripts.patch",
+      "style-review-verification.json"
+    ],
+    "cleanedAt": "2026-10-12T04:53:33.000Z",
+    "absenceVerified": true
+  }
+}

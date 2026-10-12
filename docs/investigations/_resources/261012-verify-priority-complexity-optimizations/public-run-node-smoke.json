@@ -1,0 +1,109 @@
+{
+  "protocol": "public-run-v1",
+  "observedAt": "2026-10-12T02:58:19.838Z",
+  "timingScope": "await run(definition); root import, defineConfig, assertions, digest and JSON output excluded",
+  "shape": "independent",
+  "checkCount": 1,
+  "edgeCount": 0,
+  "maxParallel": 1,
+  "strategy": "default static",
+  "outputs": "all disabled",
+  "warmups": 1,
+  "sampleCount": 1,
+  "iterations": 1,
+  "runtime": {
+    "executable": "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node",
+    "versions": {
+      "node": "24.18.0",
+      "acorn": "8.16.0",
+      "ada": "3.4.4",
+      "amaro": "1.1.9",
+      "ares": "1.34.6",
+      "brotli": "1.2.0",
+      "cldr": "48.0",
+      "icu": "78.3",
+      "llhttp": "9.4.2",
+      "merve": "1.2.2",
+      "modules": "137",
+      "napi": "10",
+      "nbytes": "0.1.4",
+      "ncrypto": "0.0.1",
+      "nghttp2": "1.69.0",
+      "nghttp3": "",
+      "ngtcp2": "",
+      "openssl": "3.5.7",
+      "simdjson": "4.6.4",
+      "simdutf": "6.4.0",
+      "sqlite": "3.53.1",
+      "tz": "2026b",
+      "undici": "7.28.0",
+      "unicode": "17.0",
+      "uv": "1.52.1",
+      "uvwasi": "0.0.23",
+      "v8": "13.6.233.17-node.50",
+      "zlib": "1.3.1-e00f703",
+      "zstd": "1.5.7"
+    },
+    "platform": "linux",
+    "arch": "x64"
+  },
+  "invocation": {
+    "cwd": "/workspace/vibe-check",
+    "argv": [
+      "/home/dev/.local/share/mise/installs/node/24.18.0/bin/node",
+      "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/public-run-benchmark.ts",
+      "--shape",
+      "independent",
+      "--size",
+      "1",
+      "--warmups",
+      "1",
+      "--samples",
+      "1",
+      "--iterations",
+      "1"
+    ],
+    "sourceRoot": "/workspace/vibe-check"
+  },
+  "harnessSha256": "90bfe0888cf05fd39f0553ecb68f575ce422533caa2766b0cdb7571a65ad2368",
+  "memoryAfter": {
+    "rss": 156860416,
+    "heapTotal": 63680512,
+    "heapUsed": 45639000,
+    "external": 10248349,
+    "arrayBuffers": 1010109
+  },
+  "resourceUsageAfter": {
+    "userCPUTime": 948653,
+    "systemCPUTime": 293220,
+    "maxRSS": 153184,
+    "sharedMemorySize": 0,
+    "unsharedDataSize": 0,
+    "unsharedStackSize": 0,
+    "minorPageFault": 31544,
+    "majorPageFault": 31,
+    "swappedOut": 0,
+    "fsRead": 222848,
+    "fsWrite": 0,
+    "ipcSent": 0,
+    "ipcReceived": 0,
+    "signalsCount": 0,
+    "voluntaryContextSwitches": 2400,
+    "involuntaryContextSwitches": 5
+  },
+  "semanticDigest": "fa40a4ae8adc5b09143f63dbdc50d0c4c2eaf7c17a5fd7b59f08a7eda0523979",
+  "declarativeFingerprint": "e02e4ce653fc88d529e944473e9472d52c9179984a88ec34049ce47c3ea92329",
+  "warmupWallMs": [
+    12.445954999999913
+  ],
+  "samples": [
+    {
+      "index": 0,
+      "runWallMs": [
+        2.3519670000000588
+      ],
+      "meanRunWallMs": 2.3519670000000588,
+      "batchIncludingValidationWallMs": 2.3716329999999743
+    }
+  ]
+}

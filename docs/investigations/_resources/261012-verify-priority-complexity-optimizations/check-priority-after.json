@@ -1,0 +1,1349 @@
+{
+  "protocol": "check-priority-v1",
+  "label": "after",
+  "sourceIdentityFile": "check-priority-after-identity.json",
+  "environmentBefore": {
+    "at": "2026-10-12T03:33:49.275Z",
+    "loadavg": [
+      0.04,
+      0.15,
+      0.21
+    ],
+    "cpuMax": "400000 100000",
+    "memoryMax": "6442450944",
+    "cpuStat": "usage_usec 27594404347\nuser_usec 16784876639\nsystem_usec 10809527708\nnice_usec 0\nnr_periods 1479488\nnr_throttled 15420\nthrottled_usec 1296853562\nnr_bursts 0\nburst_usec 0\n",
+    "platform": "linux",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "logicalCpuCount": 6
+  },
+  "environmentAfter": {
+    "at": "2026-10-12T03:34:13.904Z",
+    "loadavg": [
+      0.67,
+      0.28,
+      0.25
+    ],
+    "cpuMax": "400000 100000",
+    "memoryMax": "6442450944",
+    "cpuStat": "usage_usec 27627138334\nuser_usec 16813537863\nsystem_usec 10813600471\nnice_usec 0\nnr_periods 1479734\nnr_throttled 15420\nthrottled_usec 1296853562\nnr_bursts 0\nburst_usec 0\n",
+    "platform": "linux",
+    "release": "6.18.33.2-microsoft-standard-WSL2",
+    "logicalCpuCount": 6
+  },
+  "elapsedWallMs": 24630,
+  "measurements": [
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+        "--workload",
+        "directory",
+        "--size",
+        "32",
+        "--fixture-root",
+        "/tmp/vibe-check-k-fixtures-yH6WLW",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "10"
+      ],
+      "observation": {
+        "protocol": "check-priority-v1",
+        "workload": "directory",
+        "size": 32,
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 10,
+        "observedAt": "2026-10-12T03:33:49.772Z",
+        "timingScope": "complete public collectProjectFiles synchronous call",
+        "scenario": {
+          "workload": "directory",
+          "size": 32,
+          "directory": "directory-32",
+          "fileCount": 32,
+          "bytesPerFile": 0,
+          "fileListSha256": "ebfb82807c1ba7858daaf8509a537ffb4b5b32944565840512b616350ba7f8f8",
+          "useDefaultExcludes": false,
+          "patterns": "all exact filenames"
+        },
+        "semanticDigest": "ebfb82807c1ba7858daaf8509a537ffb4b5b32944565840512b616350ba7f8f8",
+        "warmupWallMs": [
+          13.173152000000016,
+          6.062667999999974,
+          3.9945670000000177
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "operationWallMs": [
+              4.182686999999987,
+              4.05786999999998,
+              4.186914999999999,
+              4.51817299999999,
+              6.809495000000027,
+              2.716386,
+              2.162323000000015,
+              2.2387469999999894,
+              1.8495449999999778,
+              1.9565540000000397
+            ],
+            "meanOperationWallMs": 3.4678695000000004
+          },
+          {
+            "index": 1,
+            "operationWallMs": [
+              2.018408000000022,
+              1.977753000000007,
+              2.1909180000000106,
+              3.9170240000000263,
+              5.099028999999973,
+              2.040029000000004,
+              1.8279549999999745,
+              1.9740149999999517,
+              2.4938439999999673,
+              1.848924000000011
+            ],
+            "meanOperationWallMs": 2.538789899999995
+          },
+          {
+            "index": 2,
+            "operationWallMs": [
+              1.62746199999998,
+              1.7418839999999705,
+              1.7302229999999668,
+              1.6265600000000404,
+              3.487463000000048,
+              2.306201000000044,
+              1.5407209999999623,
+              1.6270039999999995,
+              1.646948000000009,
+              1.539056999999957
+            ],
+            "meanOperationWallMs": 1.8873522999999977
+          },
+          {
+            "index": 3,
+            "operationWallMs": [
+              2.1638489999999706,
+              1.79075499999999,
+              1.8318419999999946,
+              1.7995839999999816,
+              1.6660820000000172,
+              3.2512570000000096,
+              1.5981070000000273,
+              1.5419129999999655,
+              1.4927220000000148,
+              1.654141999999979
+            ],
+            "meanOperationWallMs": 1.879025299999995
+          },
+          {
+            "index": 4,
+            "operationWallMs": [
+              1.5115359999999782,
+              1.5018390000000181,
+              1.7758780000000343,
+              1.5163860000000113,
+              1.680831000000012,
+              3.3372170000000096,
+              1.530212000000006,
+              1.7272869999999898,
+              1.590613000000019,
+              1.725594000000001
+            ],
+            "meanOperationWallMs": 1.789739300000008
+          },
+          {
+            "index": 5,
+            "operationWallMs": [
+              1.8643020000000092,
+              1.673197000000016,
+              1.8779070000000502,
+              1.6025960000000055,
+              1.5417429999999968,
+              3.0912500000000023,
+              1.4745780000000082,
+              1.3931569999999738,
+              1.4253770000000259,
+              1.4816710000000057
+            ],
+            "meanOperationWallMs": 1.7425778000000094
+          },
+          {
+            "index": 6,
+            "operationWallMs": [
+              1.5564509999999814,
+              1.5956229999999891,
+              1.474659000000031,
+              1.4261979999999994,
+              1.5274670000000015,
+              3.3987109999999916,
+              1.592376999999999,
+              1.89989300000002,
+              1.562110999999959,
+              1.4365970000000061
+            ],
+            "meanOperationWallMs": 1.7470086999999979
+          },
+          {
+            "index": 7,
+            "operationWallMs": [
+              1.3711860000000229,
+              1.5310230000000047,
+              1.382947999999999,
+              1.4639590000000453,
+              1.442418000000032,
+              1.597345999999959,
+              3.6663930000000278,
+              1.689536999999973,
+              1.5720489999999927,
+              1.5644350000000031
+            ],
+            "meanOperationWallMs": 1.728129400000006
+          },
+          {
+            "index": 8,
+            "operationWallMs": [
+              1.4739680000000135,
+              1.3617280000000278,
+              1.6209699999999998,
+              1.6297759999999926,
+              1.539308999999946,
+              1.5164859999999862,
+              3.9162019999999984,
+              1.605641999999989,
+              1.5381669999999872,
+              1.4564039999999636
+            ],
+            "meanOperationWallMs": 1.7658651999999904
+          }
+        ],
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+            "--workload",
+            "directory",
+            "--size",
+            "32",
+            "--fixture-root",
+            "/tmp/vibe-check-k-fixtures-yH6WLW",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "10"
+          ],
+          "sourceRoot": "/workspace/vibe-check",
+          "fixtureRoot": "/tmp/vibe-check-k-fixtures-yH6WLW"
+        },
+        "harnessSha256": "0efa6462349e90f2ae0bbf0514b01a366265573b23d76dab774628757f0ca44a",
+        "fixtureManifestSha256": "26951049de91f724b5f53cc0eae8165c4a2219a255387713440afbb85417b43f",
+        "gitIsolation": "all inherited GIT_* cleared; system/global configs /dev/null; terminal prompt off; LC_ALL=C; trace off",
+        "memoryAfter": {
+          "rss": 185413632,
+          "heapTotal": 51508224,
+          "heapUsed": 14005453,
+          "external": 5034705,
+          "arrayBuffers": 784389
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 573056,
+          "systemCPUTime": 209088,
+          "maxRSS": 181068,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 39282,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 1714,
+          "involuntaryContextSwitches": 17
+        }
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+        "--workload",
+        "directory",
+        "--size",
+        "1024",
+        "--fixture-root",
+        "/tmp/vibe-check-k-fixtures-yH6WLW",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "check-priority-v1",
+        "workload": "directory",
+        "size": 1024,
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "observedAt": "2026-10-12T03:34:05.595Z",
+        "timingScope": "complete public collectProjectFiles synchronous call",
+        "scenario": {
+          "workload": "directory",
+          "size": 1024,
+          "directory": "directory-1024",
+          "fileCount": 1024,
+          "bytesPerFile": 0,
+          "fileListSha256": "11df618b505ff49cd0b8a4f22af333a9b2cd7b74b9a5e4ae803c5b8132e34755",
+          "useDefaultExcludes": false,
+          "patterns": "all exact filenames"
+        },
+        "semanticDigest": "11df618b505ff49cd0b8a4f22af333a9b2cd7b74b9a5e4ae803c5b8132e34755",
+        "warmupWallMs": [
+          1269.722921,
+          1265.6284119999998,
+          1264.6006939999997
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "operationWallMs": [
+              1235.4224759999997
+            ],
+            "meanOperationWallMs": 1235.4224759999997
+          },
+          {
+            "index": 1,
+            "operationWallMs": [
+              1232.017675
+            ],
+            "meanOperationWallMs": 1232.017675
+          },
+          {
+            "index": 2,
+            "operationWallMs": [
+              1250.2324330000001
+            ],
+            "meanOperationWallMs": 1250.2324330000001
+          },
+          {
+            "index": 3,
+            "operationWallMs": [
+              1329.541913
+            ],
+            "meanOperationWallMs": 1329.541913
+          },
+          {
+            "index": 4,
+            "operationWallMs": [
+              1400.250478
+            ],
+            "meanOperationWallMs": 1400.250478
+          },
+          {
+            "index": 5,
+            "operationWallMs": [
+              1301.8875860000007
+            ],
+            "meanOperationWallMs": 1301.8875860000007
+          },
+          {
+            "index": 6,
+            "operationWallMs": [
+              1307.8434280000001
+            ],
+            "meanOperationWallMs": 1307.8434280000001
+          },
+          {
+            "index": 7,
+            "operationWallMs": [
+              1345.716203
+            ],
+            "meanOperationWallMs": 1345.716203
+          },
+          {
+            "index": 8,
+            "operationWallMs": [
+              1321.5148559999998
+            ],
+            "meanOperationWallMs": 1321.5148559999998
+          }
+        ],
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+            "--workload",
+            "directory",
+            "--size",
+            "1024",
+            "--fixture-root",
+            "/tmp/vibe-check-k-fixtures-yH6WLW",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check",
+          "fixtureRoot": "/tmp/vibe-check-k-fixtures-yH6WLW"
+        },
+        "harnessSha256": "0efa6462349e90f2ae0bbf0514b01a366265573b23d76dab774628757f0ca44a",
+        "fixtureManifestSha256": "26951049de91f724b5f53cc0eae8165c4a2219a255387713440afbb85417b43f",
+        "gitIsolation": "all inherited GIT_* cleared; system/global configs /dev/null; terminal prompt off; LC_ALL=C; trace off",
+        "memoryAfter": {
+          "rss": 240644096,
+          "heapTotal": 107510784,
+          "heapUsed": 65662926,
+          "external": 10713791,
+          "arrayBuffers": 3196356
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 15644115,
+          "systemCPUTime": 1559575,
+          "maxRSS": 238780,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 78209,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 33965,
+          "involuntaryContextSwitches": 95
+        }
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+        "--workload",
+        "anchors",
+        "--size",
+        "16",
+        "--fixture-root",
+        "/tmp/vibe-check-k-fixtures-yH6WLW",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "check-priority-v1",
+        "workload": "anchors",
+        "size": 16,
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "observedAt": "2026-10-12T03:34:06.055Z",
+        "timingScope": "await public run(definition, { projectRoot }); Check/Definition creation excluded",
+        "scenario": {
+          "workload": "anchors",
+          "size": 16,
+          "directory": "anchors-16",
+          "sourceCount": 1,
+          "headings": 16,
+          "occurrences": 16,
+          "anchorKind": "same-document last valid slug",
+          "lastSlug": "heading-000015",
+          "bytes": 799,
+          "sourceSha256": "0966e731b7f1e72bd5ad56f12c1755652ac1f07bd4d086920fdd7768766ee37e",
+          "cache": "disabled",
+          "targetReadCount": 0,
+          "findings": 0
+        },
+        "semanticDigest": "e5c84072c85b35ef54811e119a2f0d53b72859c69ad57ec593331dafe92371be",
+        "warmupWallMs": [
+          45.46798100000001,
+          12.897494999999992,
+          10.257582000000014
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "operationWallMs": [
+              10.781832000000009
+            ],
+            "meanOperationWallMs": 10.781832000000009
+          },
+          {
+            "index": 1,
+            "operationWallMs": [
+              6.4465300000000525
+            ],
+            "meanOperationWallMs": 6.4465300000000525
+          },
+          {
+            "index": 2,
+            "operationWallMs": [
+              9.12934100000001
+            ],
+            "meanOperationWallMs": 9.12934100000001
+          },
+          {
+            "index": 3,
+            "operationWallMs": [
+              6.040802999999983
+            ],
+            "meanOperationWallMs": 6.040802999999983
+          },
+          {
+            "index": 4,
+            "operationWallMs": [
+              9.670112000000017
+            ],
+            "meanOperationWallMs": 9.670112000000017
+          },
+          {
+            "index": 5,
+            "operationWallMs": [
+              7.292623999999989
+            ],
+            "meanOperationWallMs": 7.292623999999989
+          },
+          {
+            "index": 6,
+            "operationWallMs": [
+              8.315330999999958
+            ],
+            "meanOperationWallMs": 8.315330999999958
+          },
+          {
+            "index": 7,
+            "operationWallMs": [
+              5.740951000000052
+            ],
+            "meanOperationWallMs": 5.740951000000052
+          },
+          {
+            "index": 8,
+            "operationWallMs": [
+              7.159934999999962
+            ],
+            "meanOperationWallMs": 7.159934999999962
+          }
+        ],
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+            "--workload",
+            "anchors",
+            "--size",
+            "16",
+            "--fixture-root",
+            "/tmp/vibe-check-k-fixtures-yH6WLW",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check",
+          "fixtureRoot": "/tmp/vibe-check-k-fixtures-yH6WLW"
+        },
+        "harnessSha256": "0efa6462349e90f2ae0bbf0514b01a366265573b23d76dab774628757f0ca44a",
+        "fixtureManifestSha256": "26951049de91f724b5f53cc0eae8165c4a2219a255387713440afbb85417b43f",
+        "gitIsolation": "all inherited GIT_* cleared; system/global configs /dev/null; terminal prompt off; LC_ALL=C; trace off",
+        "memoryAfter": {
+          "rss": 146862080,
+          "heapTotal": 22691840,
+          "heapUsed": 15350857,
+          "external": 5836776,
+          "arrayBuffers": 26292
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 536967,
+          "systemCPUTime": 157456,
+          "maxRSS": 143420,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 29173,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 2063,
+          "involuntaryContextSwitches": 6
+        }
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+        "--workload",
+        "anchors",
+        "--size",
+        "4096",
+        "--fixture-root",
+        "/tmp/vibe-check-k-fixtures-yH6WLW",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "check-priority-v1",
+        "workload": "anchors",
+        "size": 4096,
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "observedAt": "2026-10-12T03:34:12.263Z",
+        "timingScope": "await public run(definition, { projectRoot }); Check/Definition creation excluded",
+        "scenario": {
+          "workload": "anchors",
+          "size": 4096,
+          "directory": "anchors-4096",
+          "sourceCount": 1,
+          "headings": 4096,
+          "occurrences": 4096,
+          "anchorKind": "same-document last valid slug",
+          "lastSlug": "heading-004095",
+          "bytes": 204799,
+          "sourceSha256": "8d15e8192e7d22cbfd5c4f33294edc18c2791e3e3febb90853ff0f80804d5e2b",
+          "cache": "disabled",
+          "targetReadCount": 0,
+          "findings": 0
+        },
+        "semanticDigest": "8cf65484d94390f2f52f000f6cd0eb6ec92198c82f1cfa265b62763d3791e9b5",
+        "warmupWallMs": [
+          655.617922,
+          590.005003,
+          474.7589150000001
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "operationWallMs": [
+              489.604106
+            ],
+            "meanOperationWallMs": 489.604106
+          },
+          {
+            "index": 1,
+            "operationWallMs": [
+              404.2981960000002
+            ],
+            "meanOperationWallMs": 404.2981960000002
+          },
+          {
+            "index": 2,
+            "operationWallMs": [
+              474.73912100000007
+            ],
+            "meanOperationWallMs": 474.73912100000007
+          },
+          {
+            "index": 3,
+            "operationWallMs": [
+              463.67300000000023
+            ],
+            "meanOperationWallMs": 463.67300000000023
+          },
+          {
+            "index": 4,
+            "operationWallMs": [
+              428.49698700000044
+            ],
+            "meanOperationWallMs": 428.49698700000044
+          },
+          {
+            "index": 5,
+            "operationWallMs": [
+              462.8729120000007
+            ],
+            "meanOperationWallMs": 462.8729120000007
+          },
+          {
+            "index": 6,
+            "operationWallMs": [
+              439.2966919999999
+            ],
+            "meanOperationWallMs": 439.2966919999999
+          },
+          {
+            "index": 7,
+            "operationWallMs": [
+              495.08849499999997
+            ],
+            "meanOperationWallMs": 495.08849499999997
+          },
+          {
+            "index": 8,
+            "operationWallMs": [
+              508.65423999999985
+            ],
+            "meanOperationWallMs": 508.65423999999985
+          }
+        ],
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+            "--workload",
+            "anchors",
+            "--size",
+            "4096",
+            "--fixture-root",
+            "/tmp/vibe-check-k-fixtures-yH6WLW",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check",
+          "fixtureRoot": "/tmp/vibe-check-k-fixtures-yH6WLW"
+        },
+        "harnessSha256": "0efa6462349e90f2ae0bbf0514b01a366265573b23d76dab774628757f0ca44a",
+        "fixtureManifestSha256": "26951049de91f724b5f53cc0eae8165c4a2219a255387713440afbb85417b43f",
+        "gitIsolation": "all inherited GIT_* cleared; system/global configs /dev/null; terminal prompt off; LC_ALL=C; trace off",
+        "memoryAfter": {
+          "rss": 409767936,
+          "heapTotal": 217818112,
+          "heapUsed": 143519223,
+          "external": 6523613,
+          "arrayBuffers": 479
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 9580056,
+          "systemCPUTime": 872376,
+          "maxRSS": 411316,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 175299,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 8375,
+          "involuntaryContextSwitches": 109
+        }
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+        "--workload",
+        "reminders",
+        "--size",
+        "4",
+        "--fixture-root",
+        "/tmp/vibe-check-k-fixtures-yH6WLW",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "check-priority-v1",
+        "workload": "reminders",
+        "size": 4,
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "observedAt": "2026-10-12T03:34:12.804Z",
+        "timingScope": "await public run(definition, { projectRoot }); Check/Definition creation excluded",
+        "scenario": {
+          "workload": "reminders",
+          "size": 4,
+          "directory": "reminders-4",
+          "firstParentHistoryCount": 5,
+          "reminderCount": 1,
+          "baseCommit": "a4dbf0a0bdd2550a64094164b922c1dda754499f",
+          "headCommit": "17c907745700403bd8262db0f395dc7ef4acee0f",
+          "commits": [
+            "a4dbf0a0bdd2550a64094164b922c1dda754499f",
+            "65f0814388d0bd901fb8ff3c044affe0f6daef53",
+            "3461f15d93182ff8875b401305da55a5be35c758",
+            "034c60adc655bcf9caa4c59518b3050d12d49c22",
+            "17c907745700403bd8262db0f395dc7ef4acee0f"
+          ],
+          "changedLines": 4,
+          "commitCount": 4,
+          "sameBaseline": true,
+          "assessment": "clear",
+          "bytes": 53,
+          "sourceSha256": "25d41685be6b64c3a603e4b4b93517c8814b115440d1b20c76210ed3735c4065",
+          "fixedIdentity": "Benchmark Fixture <fixture@example.invalid>",
+          "fixedRootDate": "1700000000 +0000",
+          "historyConstruction": "root plus each successor appends exactly one line to history.txt; no merges"
+        },
+        "semanticDigest": "9dca85d2b25e662c5299a2c600ebd60ce25b19c98aee20e23897089213aa5ecf",
+        "warmupWallMs": [
+          38.60595100000003,
+          17.815972999999985,
+          16.453782999999987
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "operationWallMs": [
+              16.053990999999996
+            ],
+            "meanOperationWallMs": 16.053990999999996
+          },
+          {
+            "index": 1,
+            "operationWallMs": [
+              16.65982600000001
+            ],
+            "meanOperationWallMs": 16.65982600000001
+          },
+          {
+            "index": 2,
+            "operationWallMs": [
+              16.181610000000035
+            ],
+            "meanOperationWallMs": 16.181610000000035
+          },
+          {
+            "index": 3,
+            "operationWallMs": [
+              16.813200999999992
+            ],
+            "meanOperationWallMs": 16.813200999999992
+          },
+          {
+            "index": 4,
+            "operationWallMs": [
+              14.874361999999962
+            ],
+            "meanOperationWallMs": 14.874361999999962
+          },
+          {
+            "index": 5,
+            "operationWallMs": [
+              16.115024000000005
+            ],
+            "meanOperationWallMs": 16.115024000000005
+          },
+          {
+            "index": 6,
+            "operationWallMs": [
+              14.61024999999995
+            ],
+            "meanOperationWallMs": 14.61024999999995
+          },
+          {
+            "index": 7,
+            "operationWallMs": [
+              15.80679200000003
+            ],
+            "meanOperationWallMs": 15.80679200000003
+          },
+          {
+            "index": 8,
+            "operationWallMs": [
+              15.932164
+            ],
+            "meanOperationWallMs": 15.932164
+          }
+        ],
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+            "--workload",
+            "reminders",
+            "--size",
+            "4",
+            "--fixture-root",
+            "/tmp/vibe-check-k-fixtures-yH6WLW",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check",
+          "fixtureRoot": "/tmp/vibe-check-k-fixtures-yH6WLW"
+        },
+        "harnessSha256": "0efa6462349e90f2ae0bbf0514b01a366265573b23d76dab774628757f0ca44a",
+        "fixtureManifestSha256": "26951049de91f724b5f53cc0eae8165c4a2219a255387713440afbb85417b43f",
+        "gitIsolation": "all inherited GIT_* cleared; system/global configs /dev/null; terminal prompt off; LC_ALL=C; trace off",
+        "memoryAfter": {
+          "rss": 137105408,
+          "heapTotal": 16613376,
+          "heapUsed": 19723927,
+          "external": 10638214,
+          "arrayBuffers": 5471949
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 435860,
+          "systemCPUTime": 185644,
+          "maxRSS": 133892,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 26703,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 2269,
+          "involuntaryContextSwitches": 14
+        }
+      }
+    },
+    {
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "bun",
+        "run",
+        "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+        "--workload",
+        "reminders",
+        "--size",
+        "32",
+        "--fixture-root",
+        "/tmp/vibe-check-k-fixtures-yH6WLW",
+        "--warmups",
+        "3",
+        "--samples",
+        "9",
+        "--iterations",
+        "1"
+      ],
+      "observation": {
+        "protocol": "check-priority-v1",
+        "workload": "reminders",
+        "size": 32,
+        "warmups": 3,
+        "sampleCount": 9,
+        "iterations": 1,
+        "observedAt": "2026-10-12T03:34:13.892Z",
+        "timingScope": "await public run(definition, { projectRoot }); Check/Definition creation excluded",
+        "scenario": {
+          "workload": "reminders",
+          "size": 32,
+          "directory": "reminders-32",
+          "firstParentHistoryCount": 33,
+          "reminderCount": 8,
+          "baseCommit": "a4dbf0a0bdd2550a64094164b922c1dda754499f",
+          "headCommit": "ad6a8c8a7b510a14e72903d3565961d4223d667a",
+          "commits": [
+            "a4dbf0a0bdd2550a64094164b922c1dda754499f",
+            "65f0814388d0bd901fb8ff3c044affe0f6daef53",
+            "3461f15d93182ff8875b401305da55a5be35c758",
+            "034c60adc655bcf9caa4c59518b3050d12d49c22",
+            "17c907745700403bd8262db0f395dc7ef4acee0f",
+            "f35e344520498af1b80722911b3612e051de22a0",
+            "f679fcc90f686d87e6e689347626efe6a6208e5c",
+            "cc091fc855dbb527237c3a597713693894fb43da",
+            "5143de7e6a1ff565067ea7a3353983e4663a2f04",
+            "18ef9c9435d1cae78f2d6a24968a325f2497d151",
+            "02b3e4c578d8148a44233e4f7d2e300d204cdd99",
+            "25ff74b69dc69e55ed5ba74a0ff4a0e945bfd90d",
+            "2bf01cc7dea90e1416ceff00b02c9ee2f4d28d71",
+            "e6f8637fdcc8fb98070639db5bb0b3a65dc05173",
+            "f54e8d7efc984bdcc8a89c1e8ff3cac598c88d15",
+            "543cf7490108cf6c5099d702b6f478a0c4044118",
+            "34a84b29e6b15c0119da4cf6d2ed248335acb9d1",
+            "8ac21d6b98a9ca50824c674142078e7e9533247d",
+            "b9aa7b0811cd5c343a0167d8e391abb8d19366a2",
+            "707a0bab60d1af09704a6aad3b37b0e9f1f699ce",
+            "3cd5639ec6e3ac9e00fb384a814ffbf01f089b6e",
+            "faf3714d6b55efee07592c341dd125963dd46dba",
+            "006a5656cacf9a30b3d362f968746204cf0c4527",
+            "698b7ec7a64f702af28ec6319b94209f854fecc2",
+            "ac26c0e807b1efe16b32d7e1fd4a253cbfc80636",
+            "4553dbfd8c0ff62168f67e610c421693355dcf10",
+            "f41887c4276693c3e2ee24ece2f346f697ca36c1",
+            "50caec3c3e0d143112ac9d7d036407660497b0bb",
+            "83100e777dac631eba182eda3f3469bb1b289ca8",
+            "91457a1c783a85c8da78a78ffc26fe2ed52ccc60",
+            "f4b37b48e0dd1b5abc700c4ad90b35dc276fdaa9",
+            "ad8cd69342e2290357e72664f508ef8fe5f182ce",
+            "ad6a8c8a7b510a14e72903d3565961d4223d667a"
+          ],
+          "changedLines": 32,
+          "commitCount": 32,
+          "sameBaseline": true,
+          "assessment": "clear",
+          "bytes": 389,
+          "sourceSha256": "e0e47953d443bb33745e4147a4deaafc3388d158c482debeb000f3e7a40a0ed7",
+          "fixedIdentity": "Benchmark Fixture <fixture@example.invalid>",
+          "fixedRootDate": "1700000000 +0000",
+          "historyConstruction": "root plus each successor appends exactly one line to history.txt; no merges"
+        },
+        "semanticDigest": "0f54c2085cc81f7fd1004e592046c822a40ce267ea1e4f167f0abe08077f0b50",
+        "warmupWallMs": [
+          88.149688,
+          74.20438200000001,
+          66.28594599999997
+        ],
+        "samples": [
+          {
+            "index": 0,
+            "operationWallMs": [
+              65.47124699999995
+            ],
+            "meanOperationWallMs": 65.47124699999995
+          },
+          {
+            "index": 1,
+            "operationWallMs": [
+              66.08359299999995
+            ],
+            "meanOperationWallMs": 66.08359299999995
+          },
+          {
+            "index": 2,
+            "operationWallMs": [
+              64.62419299999999
+            ],
+            "meanOperationWallMs": 64.62419299999999
+          },
+          {
+            "index": 3,
+            "operationWallMs": [
+              61.562335000000076
+            ],
+            "meanOperationWallMs": 61.562335000000076
+          },
+          {
+            "index": 4,
+            "operationWallMs": [
+              64.116219
+            ],
+            "meanOperationWallMs": 64.116219
+          },
+          {
+            "index": 5,
+            "operationWallMs": [
+              65.065473
+            ],
+            "meanOperationWallMs": 65.065473
+          },
+          {
+            "index": 6,
+            "operationWallMs": [
+              62.739149999999995
+            ],
+            "meanOperationWallMs": 62.739149999999995
+          },
+          {
+            "index": 7,
+            "operationWallMs": [
+              66.15127999999993
+            ],
+            "meanOperationWallMs": 66.15127999999993
+          },
+          {
+            "index": 8,
+            "operationWallMs": [
+              63.566246999999976
+            ],
+            "meanOperationWallMs": 63.566246999999976
+          }
+        ],
+        "runtime": {
+          "executable": "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+          "versions": {
+            "node": "24.3.0",
+            "bun": "1.3.14",
+            "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+            "openssl": "1.1.0",
+            "llhttp": "9.3.0",
+            "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+            "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+            "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+            "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+            "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+            "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+            "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+            "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+            "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+            "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+            "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+            "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+            "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+            "v8": "13.6.233.10-node.18",
+            "uv": "1.48.0",
+            "napi": "10",
+            "icu": "75.1",
+            "unicode": "15.1",
+            "modules": "137"
+          },
+          "platform": "linux",
+          "arch": "x64"
+        },
+        "invocation": {
+          "cwd": "/workspace/vibe-check",
+          "argv": [
+            "/home/dev/.local/share/mise/installs/bun/1.3.14/bin/bun",
+            "/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-benchmark.ts",
+            "--workload",
+            "reminders",
+            "--size",
+            "32",
+            "--fixture-root",
+            "/tmp/vibe-check-k-fixtures-yH6WLW",
+            "--warmups",
+            "3",
+            "--samples",
+            "9",
+            "--iterations",
+            "1"
+          ],
+          "sourceRoot": "/workspace/vibe-check",
+          "fixtureRoot": "/tmp/vibe-check-k-fixtures-yH6WLW"
+        },
+        "harnessSha256": "0efa6462349e90f2ae0bbf0514b01a366265573b23d76dab774628757f0ca44a",
+        "fixtureManifestSha256": "26951049de91f724b5f53cc0eae8165c4a2219a255387713440afbb85417b43f",
+        "gitIsolation": "all inherited GIT_* cleared; system/global configs /dev/null; terminal prompt off; LC_ALL=C; trace off",
+        "memoryAfter": {
+          "rss": 155508736,
+          "heapTotal": 17505280,
+          "heapUsed": 44451590,
+          "external": 35119124,
+          "arrayBuffers": 27563885
+        },
+        "resourceUsageAfter": {
+          "userCPUTime": 599212,
+          "systemCPUTime": 250355,
+          "maxRSS": 151864,
+          "sharedMemorySize": 0,
+          "unsharedDataSize": 0,
+          "unsharedStackSize": 0,
+          "minorPageFault": 32926,
+          "majorPageFault": 0,
+          "swappedOut": 0,
+          "fsRead": 0,
+          "fsWrite": 0,
+          "ipcSent": 0,
+          "ipcReceived": 0,
+          "signalsCount": 0,
+          "voluntaryContextSwitches": 5213,
+          "involuntaryContextSwitches": 24
+        }
+      }
+    }
+  ]
+}

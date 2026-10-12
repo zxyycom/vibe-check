@@ -1,0 +1,177 @@
+{
+  "runtime": {
+    "bun": "1.3.14",
+    "nodeCompatibility": "24.3.0"
+  },
+  "method": "bounded operation counts, instrumented includes/find/Set and Proxy ownKeys; no elapsed-time claims",
+  "observations": {
+    "identifiers": [
+      {
+        "size": 8,
+        "identifiersExamined": 28
+      },
+      {
+        "size": 16,
+        "identifiersExamined": 120
+      },
+      {
+        "size": 32,
+        "identifiersExamined": 496
+      },
+      {
+        "size": 64,
+        "identifiersExamined": 2016
+      }
+    ],
+    "reasonIds": [
+      {
+        "size": 8,
+        "reasonIdsExamined": 31
+      },
+      {
+        "size": 16,
+        "reasonIdsExamined": 123
+      },
+      {
+        "size": 32,
+        "reasonIdsExamined": 499
+      },
+      {
+        "size": 64,
+        "reasonIdsExamined": 2019
+      }
+    ],
+    "dynamicKeys": [
+      {
+        "size": 8,
+        "dynamicKeysExamined": 36
+      },
+      {
+        "size": 16,
+        "dynamicKeysExamined": 136
+      },
+      {
+        "size": 32,
+        "dynamicKeysExamined": 528
+      },
+      {
+        "size": 64,
+        "dynamicKeysExamined": 2080
+      }
+    ],
+    "session": [
+      {
+        "size": 8,
+        "findExamined": 36,
+        "knownIdSetEntries": 64
+      },
+      {
+        "size": 16,
+        "findExamined": 136,
+        "knownIdSetEntries": 256
+      },
+      {
+        "size": 32,
+        "findExamined": 528,
+        "knownIdSetEntries": 1024
+      },
+      {
+        "size": 64,
+        "findExamined": 2080,
+        "knownIdSetEntries": 4096
+      }
+    ],
+    "criticalPath": [
+      {
+        "size": 8,
+        "edges": 0,
+        "predictionFindExamined": 36
+      },
+      {
+        "size": 16,
+        "edges": 0,
+        "predictionFindExamined": 136
+      },
+      {
+        "size": 32,
+        "edges": 0,
+        "predictionFindExamined": 528
+      },
+      {
+        "size": 64,
+        "edges": 0,
+        "predictionFindExamined": 2080
+      }
+    ],
+    "inheritedChain": [
+      {
+        "containers": 8,
+        "executableLeaves": 1,
+        "finalMutexIds": 8,
+        "inheritedSetEntries": 36
+      },
+      {
+        "containers": 16,
+        "executableLeaves": 1,
+        "finalMutexIds": 16,
+        "inheritedSetEntries": 136
+      },
+      {
+        "containers": 32,
+        "executableLeaves": 1,
+        "finalMutexIds": 32,
+        "inheritedSetEntries": 528
+      },
+      {
+        "containers": 64,
+        "executableLeaves": 1,
+        "finalMutexIds": 64,
+        "inheritedSetEntries": 2080
+      }
+    ],
+    "sharedCheckDag": [
+      {
+        "depth": 4,
+        "distinctNodes": 5,
+        "ownKeyCalls": 31
+      },
+      {
+        "depth": 6,
+        "distinctNodes": 7,
+        "ownKeyCalls": 127
+      },
+      {
+        "depth": 8,
+        "distinctNodes": 9,
+        "ownKeyCalls": 511
+      },
+      {
+        "depth": 10,
+        "distinctNodes": 11,
+        "ownKeyCalls": 2047
+      }
+    ],
+    "canonicalAliasExpansion": [
+      {
+        "depth": 4,
+        "distinctNodes": 5,
+        "expandedObjects": 31
+      },
+      {
+        "depth": 6,
+        "distinctNodes": 7,
+        "expandedObjects": 127
+      },
+      {
+        "depth": 8,
+        "distinctNodes": 9,
+        "expandedObjects": 511
+      },
+      {
+        "depth": 10,
+        "distinctNodes": 11,
+        "expandedObjects": 2047
+      }
+    ]
+  }
+}

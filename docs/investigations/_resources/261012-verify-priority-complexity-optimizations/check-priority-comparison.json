@@ -1,0 +1,265 @@
+{
+  "protocol": "check-priority-v1",
+  "runtime": "Bun1.3.14",
+  "beforeSourceIdentityFile": "check-priority-before-identity.json",
+  "afterSourceIdentityFile": "check-priority-after-identity.json",
+  "measurements": [
+    {
+      "workload": "directory",
+      "size": 32,
+      "before": {
+        "medianMs": 1.8413047000000007,
+        "minMs": 1.7292381000000034,
+        "maxMs": 3.6220686,
+        "madMs": 0.09910740000000273
+      },
+      "after": {
+        "medianMs": 1.789739300000008,
+        "minMs": 1.728129400000006,
+        "maxMs": 3.4678695000000004,
+        "madMs": 0.06160990000000188
+      },
+      "reductionPercent": 2.8004816367433794,
+      "speedup": 1.0288116822377384,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "directory",
+      "size": 1024,
+      "before": {
+        "medianMs": 1223.4500239999998,
+        "minMs": 1151.7987410000005,
+        "maxMs": 1261.2258440000005,
+        "madMs": 25.390408999999636
+      },
+      "after": {
+        "medianMs": 1307.8434280000001,
+        "minMs": 1232.017675,
+        "maxMs": 1400.250478,
+        "madMs": 37.87277499999982
+      },
+      "reductionPercent": -6.897985397399475,
+      "speedup": 0.9354713246301526,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 16,
+      "before": {
+        "medianMs": 6.886146999999994,
+        "minMs": 5.094274999999982,
+        "maxMs": 10.118950999999981,
+        "madMs": 1.3455940000000055
+      },
+      "after": {
+        "medianMs": 7.292623999999989,
+        "minMs": 5.740951000000052,
+        "maxMs": 10.781832000000009,
+        "madMs": 1.2518210000000067
+      },
+      "reductionPercent": -5.902821999007513,
+      "speedup": 0.9442619007918143,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 4096,
+      "before": {
+        "medianMs": 771.8642970000001,
+        "minMs": 703.2322400000003,
+        "maxMs": 904.7353710000007,
+        "madMs": 68.6320569999998
+      },
+      "after": {
+        "medianMs": 463.67300000000023,
+        "minMs": 404.2981960000002,
+        "maxMs": 508.65423999999985,
+        "madMs": 25.931105999999772
+      },
+      "reductionPercent": 39.92817107849721,
+      "speedup": 1.6646738045993614,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 4,
+      "before": {
+        "medianMs": 16.05770899999999,
+        "minMs": 15.824624999999969,
+        "maxMs": 18.575436000000025,
+        "madMs": 0.18165600000003224
+      },
+      "after": {
+        "medianMs": 16.053990999999996,
+        "minMs": 14.61024999999995,
+        "maxMs": 16.813200999999992,
+        "madMs": 0.24719899999996642
+      },
+      "reductionPercent": 0.02315398790694312,
+      "speedup": 1.000231593502201,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 32,
+      "before": {
+        "medianMs": 483.9342379999998,
+        "minMs": 460.1376699999996,
+        "maxMs": 492.0078719999992,
+        "madMs": 5.908236000000215
+      },
+      "after": {
+        "medianMs": 64.62419299999999,
+        "minMs": 61.562335000000076,
+        "maxMs": 66.15127999999993,
+        "madMs": 1.0579460000000154
+      },
+      "reductionPercent": 86.64607958571429,
+      "speedup": 7.488437619638823,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    }
+  ],
+  "interleaved": [
+    {
+      "workload": "directory",
+      "size": 32,
+      "before": {
+        "medianMs": 1.8282770000000028,
+        "minMs": 1.4047735999999986,
+        "maxMs": 3.1551539000000104,
+        "madMs": 0.1088281999999936
+      },
+      "after": {
+        "medianMs": 1.8714944000000002,
+        "minMs": 1.5436797000000013,
+        "maxMs": 3.2747053000000053,
+        "madMs": 0.13649710000000814
+      },
+      "reductionPercent": -2.363832176415137,
+      "speedup": 0.9769075451147503,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "directory",
+      "size": 1024,
+      "before": {
+        "medianMs": 1227.7805450000014,
+        "minMs": 1175.05305,
+        "maxMs": 1286.809733,
+        "madMs": 33.4116099999992
+      },
+      "after": {
+        "medianMs": 1257.0679650000002,
+        "minMs": 1180.9043420000003,
+        "maxMs": 1281.370307000001,
+        "madMs": 24.302342000000863
+      },
+      "reductionPercent": -2.3853953476676626,
+      "speedup": 0.9767018006858533,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 16,
+      "before": {
+        "medianMs": 6.833050000000014,
+        "minMs": 6.2011249999999905,
+        "maxMs": 9.965274999999963,
+        "madMs": 0.6319250000000238
+      },
+      "after": {
+        "medianMs": 6.660858000000019,
+        "minMs": 5.719763999999998,
+        "maxMs": 10.610254999999995,
+        "madMs": 0.941094000000021
+      },
+      "reductionPercent": 2.5199874141122236,
+      "speedup": 1.0258513242588259,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 4096,
+      "before": {
+        "medianMs": 915.8300180000006,
+        "minMs": 868.6921419999999,
+        "maxMs": 970.43437,
+        "madMs": 13.133089000000382
+      },
+      "after": {
+        "medianMs": 607.023287,
+        "minMs": 576.3696010000003,
+        "maxMs": 659.2741999999998,
+        "madMs": 22.578865000000405
+      },
+      "reductionPercent": 33.71878240837487,
+      "speedup": 1.5087230384952277,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 4,
+      "before": {
+        "medianMs": 18.39713499999999,
+        "minMs": 16.11947299999997,
+        "maxMs": 21.34248599999995,
+        "madMs": 0.6792080000000169
+      },
+      "after": {
+        "medianMs": 18.16288800000001,
+        "minMs": 15.947347999999977,
+        "maxMs": 21.563787999999988,
+        "madMs": 1.3706469999999626
+      },
+      "reductionPercent": 1.273279779704728,
+      "speedup": 1.0128970128539019,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 32,
+      "before": {
+        "medianMs": 513.9622410000002,
+        "minMs": 493.649351,
+        "maxMs": 539.7262929999997,
+        "madMs": 11.286659000000327
+      },
+      "after": {
+        "medianMs": 69.82125400000007,
+        "minMs": 68.31629399999997,
+        "maxMs": 74.41801299999997,
+        "madMs": 1.2429840000000922
+      },
+      "reductionPercent": 86.41510048206051,
+      "speedup": 7.361114439451341,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    }
+  ],
+  "findings": {
+    "K01": "Target name scans removed; full exact-pattern wall time did not improve. Primary median+6.90%, interleaved+2.39% with overlapping ranges. Matcher/FS/canonicalization remain; no expansion of optimization scope.",
+    "K05": "Same-document last-valid 4096 anchors: primary39.93% reduction, interleaved33.72%; parser/read remain; no missing/cross-document latency claim.",
+    "K06": "Real33-commit history/8same-base reminders: primary86.65% reduction, interleaved86.42%; warm Git filesystem cache; no fakeGit timing.",
+    "small": "All small-size before/after ranges overlap; no distinguishable regression conclusion.",
+    "broad": "Independent broadglob1024 sanity has overlapping before/after ranges and no observed distinguishable regression; one process pair is not an improvement guarantee."
+  },
+  "limitations": [
+    "K-before already includes first-batch framework changes; compare only within K, never mix with b016 public Run baseline",
+    "Full public paths, root import/fixture generation/Check construction/verification excluded",
+    "No accepted timing budget or required timing gate, no p95 estimated or outliers removed",
+    "Source identity includes formatting-only changes to first-batch Run modules, not separate framework optimization",
+    "Counters in independent processes; detector zeros need source correlation; successful workload does not prove failure/cancel behavior",
+    "Original221183-byte message was a transcription error; actual204799-byte fixture and immutable raw scenarios match; see consistency resource"
+  ]
+}

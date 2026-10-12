@@ -1,0 +1,46 @@
+{
+  "protocol": "priority-optimization-temporary-cleanup-v1",
+  "authorizedAfter": "Independent evidence audit confirmed final source/frozen K-before/fixtures/twelve final control rows/counts; no further timing required",
+  "startedAt": "2026-10-12T03:56:57.687Z",
+  "completedAt": "2026-10-12T03:56:57.820Z",
+  "exactTargets": [
+    "/tmp/vibe-public-run-before-b016767-DU9nzf",
+    "/tmp/vibe-check-k-before-6Ta1QG",
+    "/tmp/vibe-check-k-fixtures-yH6WLW",
+    "/workspace/vibe-check/tmp/public-run-before-b016767.artifact-note.md",
+    "/workspace/vibe-check/tmp/check-priority-baseline.artifact-note.md",
+    "/workspace/vibe-check/tmp/check-priority-before-snapshot-root.txt",
+    "/workspace/vibe-check/tmp/check-priority-fixture-root.txt"
+  ],
+  "preRemovalVerification": {
+    "sourceRoots": "ordinary owned directories, exact expected top-level members; each718 source SHA verified against formal identity",
+    "fixtureRoot": "ordinary owned directory; manifest SHA and fixture names/counts/Markdown/history contentSHA verified",
+    "auxiliaryFiles": "plain owned files with lifecycle markers/exact root pointers",
+    "copiedProbes": "only original two operation probes under public frozen tree"
+  },
+  "symlinks": [
+    {
+      "path": "/tmp/vibe-public-run-before-b016767-DU9nzf/node_modules",
+      "target": "/workspace/vibe-check/node_modules",
+      "action": "unlink-only; target not followed"
+    },
+    {
+      "path": "/tmp/vibe-check-k-before-6Ta1QG/node_modules",
+      "target": "/workspace/vibe-check/node_modules",
+      "action": "unlink-only; target not followed"
+    }
+  ],
+  "results": {
+    "allExactTargetsAbsent": true,
+    "historicalResourceFilesUnchanged": 58,
+    "workspaceNodeModulesTargetIdentityUnchanged": true,
+    "workspaceGitIndexUnchanged": true,
+    "ambientTmpUntouched": true
+  },
+  "restoration": {
+    "publicBefore": "Recover src at b01676764100e81603c0d64749a1b56a66682337, verify public-run-before-identity.json member SHA and locks, use unchanged public-run-benchmark.ts; frozen source and installed dependencies were not archival deliverables",
+    "kBefore": "Recover same HEAD plus check-priority-before-identity.json srcDiff, verify memberSHA/locks; do not use current source as before",
+    "fixtures": "Recreate with check-priority-fixtures.ts in a newly owned/tmp root; fixed files/Git history hashes specified by check-priority-fixture-manifest.json. New absolute root/createdAt makes regenerated manifestSHA different; record identity rather than pretending it is the deleted manifest",
+    "boundary": "Cleanup does not delete formal raw/probes/handoff/identity or install dependencies; exact former/tmp paths no longer support direct --source-root/--fixture-root invocation"
+  }
+}

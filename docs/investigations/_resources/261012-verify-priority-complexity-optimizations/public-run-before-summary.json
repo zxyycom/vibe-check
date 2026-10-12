@@ -1,0 +1,179 @@
+{
+  "statistic": "Median of 9 sample means; N=1/8 use 20 serial run wall samples per mean; others 1; no outliers discarded",
+  "notes": [
+    "Warmup is 3 serial run calls, not process startup or import measurement",
+    "Small-scale samples show JIT/GC variation; do not label percent-scale small changes as regression without follow-up",
+    "Observation only, no timing gate or approved latency budget",
+    "All observations Bun1.3.14; Node24.18.0 has separate N=1 smoke only"
+  ],
+  "measurements": [
+    {
+      "shape": "independent",
+      "n": 1,
+      "iterations": 20,
+      "sampleCount": 9,
+      "medianMs": 0.6490294999999975,
+      "minMs": 0.4731975999999918,
+      "maxMs": 1.2719695499999915,
+      "madMs": 0.14182845000000266,
+      "semanticDigest": "fa40a4ae8adc5b09143f63dbdc50d0c4c2eaf7c17a5fd7b59f08a7eda0523979",
+      "declarativeFingerprint": "e02e4ce653fc88d529e944473e9472d52c9179984a88ec34049ce47c3ea92329"
+    },
+    {
+      "shape": "chain",
+      "n": 1,
+      "iterations": 20,
+      "sampleCount": 9,
+      "medianMs": 0.7146701499999978,
+      "minMs": 0.38864660000000695,
+      "maxMs": 1.1858246000000008,
+      "madMs": 0.2289466999999945,
+      "semanticDigest": "fa40a4ae8adc5b09143f63dbdc50d0c4c2eaf7c17a5fd7b59f08a7eda0523979",
+      "declarativeFingerprint": "e02e4ce653fc88d529e944473e9472d52c9179984a88ec34049ce47c3ea92329"
+    },
+    {
+      "shape": "independent",
+      "n": 8,
+      "iterations": 20,
+      "sampleCount": 9,
+      "medianMs": 1.7537790499999915,
+      "minMs": 1.436380299999979,
+      "maxMs": 3.5390091499999925,
+      "madMs": 0.2896177999999878,
+      "semanticDigest": "d409f71f404414964b5a98e8cd6180107151ae0e07b6f0bbe5845bc909039ec5",
+      "declarativeFingerprint": "ba647691117cad4462120d2b847de0555e619e194d5d8606cd4b0be552af79a1"
+    },
+    {
+      "shape": "chain",
+      "n": 8,
+      "iterations": 20,
+      "sampleCount": 9,
+      "medianMs": 1.7225533500000012,
+      "minMs": 1.3754464999999954,
+      "maxMs": 3.4530328500000023,
+      "madMs": 0.26781510000000996,
+      "semanticDigest": "d409f71f404414964b5a98e8cd6180107151ae0e07b6f0bbe5845bc909039ec5",
+      "declarativeFingerprint": "460b4925861826972062c439a758f1b0f4015a4702620fa6748536117ffce7ab"
+    },
+    {
+      "shape": "independent",
+      "n": 32,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 12.581682999999998,
+      "minMs": 9.397730999999965,
+      "maxMs": 17.801085,
+      "madMs": 1.9354040000000055,
+      "semanticDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+      "declarativeFingerprint": "83637b2a00ad847824132b610e4bdf0f7b651466724c4d7afacbc131e4562384"
+    },
+    {
+      "shape": "chain",
+      "n": 32,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 10.130085000000008,
+      "minMs": 8.432990000000018,
+      "maxMs": 18.635436999999968,
+      "madMs": 1.3047679999999673,
+      "semanticDigest": "3c6b0f2b3b99944dee823730b1c729a7e7aec8fe2471659fc35f85aca1f72e48",
+      "declarativeFingerprint": "1781f411068552ddc6458f39367fcda469fab513f558bfa1f42b412605e8bd3c"
+    },
+    {
+      "shape": "independent",
+      "n": 64,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 31.939076999999997,
+      "minMs": 28.004711000000043,
+      "maxMs": 36.71953400000001,
+      "madMs": 1.2644070000000056,
+      "semanticDigest": "f8c27fb3420190929aeae4cf6eb901ce058eaabdd05ed008bc038bdccf86c4c7",
+      "declarativeFingerprint": "ba6c0f96bb9cb0af6bef84a964f86348c0a008523272f161648e7a252bf66a59"
+    },
+    {
+      "shape": "chain",
+      "n": 64,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 26.364562999999976,
+      "minMs": 24.003832999999986,
+      "maxMs": 30.494835999999964,
+      "madMs": 1.6698679999999513,
+      "semanticDigest": "f8c27fb3420190929aeae4cf6eb901ce058eaabdd05ed008bc038bdccf86c4c7",
+      "declarativeFingerprint": "303a2c393602d7a446204bb7c3f457144dfd339f99f05f85db4c01506c283d6e"
+    },
+    {
+      "shape": "independent",
+      "n": 128,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 123.90652900000009,
+      "minMs": 115.99529699999994,
+      "maxMs": 134.02796999999998,
+      "madMs": 4.455277000000024,
+      "semanticDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+      "declarativeFingerprint": "adcf835cdab7bb3b9a2fb807250a8364b39e88dd6135b5a78f924aa02621d4ee"
+    },
+    {
+      "shape": "chain",
+      "n": 128,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 84.78125999999997,
+      "minMs": 79.57293299999992,
+      "maxMs": 94.24590799999999,
+      "madMs": 3.2222759999999653,
+      "semanticDigest": "bb258c600bd9d947e12e4ed34f5259b33dc23af41d27a935c898fb6ab1ba1600",
+      "declarativeFingerprint": "671a8788d462f185c5379f7fada899447eeeac0291997653984c7194142dc4ac"
+    },
+    {
+      "shape": "independent",
+      "n": 256,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 589.6129869999995,
+      "minMs": 565.1280340000003,
+      "maxMs": 605.1638949999997,
+      "madMs": 9.171695999999429,
+      "semanticDigest": "76a6b2d72baa2b055fff2eca73ce0d72937afa44e4d3f9414f5cebe1d452e3c7",
+      "declarativeFingerprint": "f4153413a72b44bd17fe5d4a282c0d385fcac06871cbb4fa3bd218bebecbb693"
+    },
+    {
+      "shape": "chain",
+      "n": 256,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 333.3067369999999,
+      "minMs": 327.3880959999997,
+      "maxMs": 338.44963099999995,
+      "madMs": 2.2405430000003435,
+      "semanticDigest": "76a6b2d72baa2b055fff2eca73ce0d72937afa44e4d3f9414f5cebe1d452e3c7",
+      "declarativeFingerprint": "428c5688faeb7ce0f6597ed63153f636352b0c69052dd4c26b9d2a6780dce57c"
+    },
+    {
+      "shape": "independent",
+      "n": 512,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 3555.9359480000003,
+      "minMs": 3494.042935999998,
+      "maxMs": 3823.560078999999,
+      "madMs": 59.702344999999696,
+      "semanticDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+      "declarativeFingerprint": "be2ee6380a672b6940c5ba1f5c651ff37e553bc77f68500743b2b6708ea8f86f"
+    },
+    {
+      "shape": "chain",
+      "n": 512,
+      "iterations": 1,
+      "sampleCount": 9,
+      "medianMs": 1616.592638000002,
+      "minMs": 1557.8491919999997,
+      "maxMs": 1872.093482000002,
+      "madMs": 58.059785000001284,
+      "semanticDigest": "d6b6ff2f37f970a4f1a3c09516518dace957ca433ba928a0eb5357200ecfe32c",
+      "declarativeFingerprint": "f063c3b7a18e80f717e2beac48a03f3753377366982cebbf4a498c2c586a6ad6"
+    }
+  ]
+}

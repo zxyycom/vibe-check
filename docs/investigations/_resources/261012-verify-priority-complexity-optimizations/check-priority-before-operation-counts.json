@@ -1,0 +1,636 @@
+{
+  "protocol": "check-priority-operation-counts-v1",
+  "timing": false,
+  "observedAt": "2026-10-12T03:21:49.197Z",
+  "runtime": {
+    "node": "24.3.0",
+    "bun": "1.3.14",
+    "boringssl": "0c5fce43b7ed5eb6001487ee48ac65766f5ddcd1",
+    "openssl": "1.1.0",
+    "llhttp": "9.3.0",
+    "libarchive": "ded82291ab41d5e355831b96b0e1ff49e24d8939",
+    "mimalloc": "f15aecb94fc8096008bf87b90c53ed682026914a",
+    "picohttpparser": "066d2b1e9ab820703db0837a7255d92d30f0c9f5",
+    "uwebsockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+    "webkit": "5488984d20e0dbfe4be2c3ba8fb18eb81a5e0e8b",
+    "zig": "04e7f6ac1e009525bc00934f20199c68f04e0a24",
+    "zlib": "12731092979c6d07f42da27da673a9f6c7b13586",
+    "tinycc": "12882eee073cfe5c7621bcfadf679e1372d4537b",
+    "lolhtml": "77127cd2b8545998756e8d64e36ee2313c4bb312",
+    "ares": "3ac47ee46edd8ea40370222f91613fc16c434853",
+    "libdeflate": "c8c56a20f8f621e6a966b716b31f1dedab6a41e3",
+    "usockets": "0d9b296af33f2b851fcbf4df3e9ec89751734ba4",
+    "lshpack": "8905c024b6d052f083a3d11d0a169b3c2735c8a1",
+    "zstd": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+    "v8": "13.6.233.10-node.18",
+    "uv": "1.48.0",
+    "napi": "10",
+    "icu": "75.1",
+    "unicode": "15.1",
+    "modules": "137"
+  },
+  "sourceRoot": "/workspace/vibe-check",
+  "fixtureRoot": "/tmp/vibe-check-k-fixtures-yH6WLW",
+  "probeSha256": "51e9c1a1daa00886f96fcfeb253c69df10015b5180df4bee4eb0a5d3d3cf374c",
+  "note": "Predicate spelling/stack detectors need current source correlation; new-path counts are not time or total algorithmic work",
+  "observations": [
+    {
+      "workload": "directory",
+      "size": 32,
+      "semanticDigest": "ebfb82807c1ba7858daaf8509a537ffb4b5b32944565840512b616350ba7f8f8",
+      "directoryNameComparisons": 1024,
+      "directoryMapGetsInTargetEntry": 32,
+      "headingSlugComparisons": 0,
+      "anchorSetHasCalls": 0,
+      "headingSetConstructions": 0,
+      "headingSetInputEntries": 0,
+      "counterSamples": {
+        "targetEntry": "Error\n    at <anonymous> (/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-operation-counts.ts:76:27)\n    at readEntries (/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts:138:37)\n    at targetEntry (/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts:98:29)\n    at lstatSync (/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts:58:18)\n    at read (/workspace/vibe-check/node_modules/.pnpm/@nodelib+fs.stat@2.0.5/node_modules/@nodelib/fs.stat/out/providers/sync.js:5:31)\n    at _getEntry (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/readers/sync.js:29:32)\n    at static (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/readers/sync.js:19:32)\n    at read (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/providers/sync.js:13:30)\n    at map (native:1:11)\n    at sync (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js:23:23)",
+        "anchorResolution": ""
+      }
+    },
+    {
+      "workload": "directory",
+      "size": 1024,
+      "semanticDigest": "11df618b505ff49cd0b8a4f22af333a9b2cd7b74b9a5e4ae803c5b8132e34755",
+      "directoryNameComparisons": 1048576,
+      "directoryMapGetsInTargetEntry": 1024,
+      "headingSlugComparisons": 0,
+      "anchorSetHasCalls": 0,
+      "headingSetConstructions": 0,
+      "headingSetInputEntries": 0,
+      "counterSamples": {
+        "targetEntry": "Error\n    at <anonymous> (/workspace/vibe-check/docs/investigations/_resources/261012-verify-priority-complexity-optimizations/check-priority-operation-counts.ts:76:27)\n    at readEntries (/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts:138:37)\n    at targetEntry (/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts:98:29)\n    at lstatSync (/workspace/vibe-check/src/package-checks/project-files/filesystem-collection.ts:58:18)\n    at read (/workspace/vibe-check/node_modules/.pnpm/@nodelib+fs.stat@2.0.5/node_modules/@nodelib/fs.stat/out/providers/sync.js:5:31)\n    at _getEntry (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/readers/sync.js:29:32)\n    at static (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/readers/sync.js:19:32)\n    at read (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/providers/sync.js:13:30)\n    at map (native:1:11)\n    at sync (/workspace/vibe-check/node_modules/.pnpm/fast-glob@3.3.3/node_modules/fast-glob/out/index.js:23:23)",
+        "anchorResolution": ""
+      }
+    },
+    {
+      "workload": "anchors",
+      "size": 16,
+      "semanticDigest": "e5c84072c85b35ef54811e119a2f0d53b72859c69ad57ec593331dafe92371be",
+      "directoryNameComparisons": 1,
+      "directoryMapGetsInTargetEntry": 0,
+      "headingSlugComparisons": 256,
+      "anchorSetHasCalls": 0,
+      "headingSetConstructions": 0,
+      "headingSetInputEntries": 0,
+      "counterSamples": {
+        "targetEntry": "",
+        "anchorResolution": ""
+      }
+    },
+    {
+      "workload": "anchors",
+      "size": 4096,
+      "semanticDigest": "8cf65484d94390f2f52f000f6cd0eb6ec92198c82f1cfa265b62763d3791e9b5",
+      "directoryNameComparisons": 1,
+      "directoryMapGetsInTargetEntry": 0,
+      "headingSlugComparisons": 16777216,
+      "anchorSetHasCalls": 0,
+      "headingSetConstructions": 0,
+      "headingSetInputEntries": 0,
+      "counterSamples": {
+        "targetEntry": "",
+        "anchorResolution": ""
+      }
+    },
+    {
+      "workload": "reminders",
+      "size": 4,
+      "semanticDigest": "9dca85d2b25e662c5299a2c600ebd60ce25b19c98aee20e23897089213aa5ecf",
+      "directoryNameComparisons": 0,
+      "directoryMapGetsInTargetEntry": 0,
+      "headingSlugComparisons": 0,
+      "anchorSetHasCalls": 0,
+      "headingSetConstructions": 0,
+      "headingSetInputEntries": 0,
+      "counterSamples": {
+        "targetEntry": "",
+        "anchorResolution": ""
+      },
+      "git": {
+        "totalProcesses": 7,
+        "commandCounts": {
+          "rev-parse": 2,
+          "rev-list": 1,
+          "diff-tree": 4
+        },
+        "uniqueArgumentCounts": [
+          {
+            "argv": [
+              "git",
+              "rev-parse",
+              "--verify",
+              "HEAD^{commit}"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "rev-list",
+              "--first-parent",
+              "HEAD"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "rev-parse",
+              "--verify",
+              "a4dbf0a0bdd2550a64094164b922c1dda754499f^{commit}"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "17c907745700403bd8262db0f395dc7ef4acee0f^",
+              "17c907745700403bd8262db0f395dc7ef4acee0f"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "034c60adc655bcf9caa4c59518b3050d12d49c22^",
+              "034c60adc655bcf9caa4c59518b3050d12d49c22"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "3461f15d93182ff8875b401305da55a5be35c758^",
+              "3461f15d93182ff8875b401305da55a5be35c758"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "65f0814388d0bd901fb8ff3c044affe0f6daef53^",
+              "65f0814388d0bd901fb8ff3c044affe0f6daef53"
+            ],
+            "count": 1
+          }
+        ],
+        "method": "Real Git native Trace2 start events; trace only this separate count process; raw trace removed"
+      }
+    },
+    {
+      "workload": "reminders",
+      "size": 32,
+      "semanticDigest": "0f54c2085cc81f7fd1004e592046c822a40ce267ea1e4f167f0abe08077f0b50",
+      "directoryNameComparisons": 0,
+      "directoryMapGetsInTargetEntry": 0,
+      "headingSlugComparisons": 0,
+      "anchorSetHasCalls": 0,
+      "headingSetConstructions": 0,
+      "headingSetInputEntries": 0,
+      "counterSamples": {
+        "targetEntry": "",
+        "anchorResolution": ""
+      },
+      "git": {
+        "totalProcesses": 266,
+        "commandCounts": {
+          "rev-parse": 9,
+          "rev-list": 1,
+          "diff-tree": 256
+        },
+        "uniqueArgumentCounts": [
+          {
+            "argv": [
+              "git",
+              "rev-parse",
+              "--verify",
+              "HEAD^{commit}"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "rev-list",
+              "--first-parent",
+              "HEAD"
+            ],
+            "count": 1
+          },
+          {
+            "argv": [
+              "git",
+              "rev-parse",
+              "--verify",
+              "a4dbf0a0bdd2550a64094164b922c1dda754499f^{commit}"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "ad6a8c8a7b510a14e72903d3565961d4223d667a^",
+              "ad6a8c8a7b510a14e72903d3565961d4223d667a"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "ad8cd69342e2290357e72664f508ef8fe5f182ce^",
+              "ad8cd69342e2290357e72664f508ef8fe5f182ce"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "f4b37b48e0dd1b5abc700c4ad90b35dc276fdaa9^",
+              "f4b37b48e0dd1b5abc700c4ad90b35dc276fdaa9"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "91457a1c783a85c8da78a78ffc26fe2ed52ccc60^",
+              "91457a1c783a85c8da78a78ffc26fe2ed52ccc60"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "83100e777dac631eba182eda3f3469bb1b289ca8^",
+              "83100e777dac631eba182eda3f3469bb1b289ca8"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "50caec3c3e0d143112ac9d7d036407660497b0bb^",
+              "50caec3c3e0d143112ac9d7d036407660497b0bb"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "f41887c4276693c3e2ee24ece2f346f697ca36c1^",
+              "f41887c4276693c3e2ee24ece2f346f697ca36c1"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "4553dbfd8c0ff62168f67e610c421693355dcf10^",
+              "4553dbfd8c0ff62168f67e610c421693355dcf10"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "ac26c0e807b1efe16b32d7e1fd4a253cbfc80636^",
+              "ac26c0e807b1efe16b32d7e1fd4a253cbfc80636"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "698b7ec7a64f702af28ec6319b94209f854fecc2^",
+              "698b7ec7a64f702af28ec6319b94209f854fecc2"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "006a5656cacf9a30b3d362f968746204cf0c4527^",
+              "006a5656cacf9a30b3d362f968746204cf0c4527"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "faf3714d6b55efee07592c341dd125963dd46dba^",
+              "faf3714d6b55efee07592c341dd125963dd46dba"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "3cd5639ec6e3ac9e00fb384a814ffbf01f089b6e^",
+              "3cd5639ec6e3ac9e00fb384a814ffbf01f089b6e"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "707a0bab60d1af09704a6aad3b37b0e9f1f699ce^",
+              "707a0bab60d1af09704a6aad3b37b0e9f1f699ce"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "b9aa7b0811cd5c343a0167d8e391abb8d19366a2^",
+              "b9aa7b0811cd5c343a0167d8e391abb8d19366a2"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "8ac21d6b98a9ca50824c674142078e7e9533247d^",
+              "8ac21d6b98a9ca50824c674142078e7e9533247d"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "34a84b29e6b15c0119da4cf6d2ed248335acb9d1^",
+              "34a84b29e6b15c0119da4cf6d2ed248335acb9d1"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "543cf7490108cf6c5099d702b6f478a0c4044118^",
+              "543cf7490108cf6c5099d702b6f478a0c4044118"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "f54e8d7efc984bdcc8a89c1e8ff3cac598c88d15^",
+              "f54e8d7efc984bdcc8a89c1e8ff3cac598c88d15"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "e6f8637fdcc8fb98070639db5bb0b3a65dc05173^",
+              "e6f8637fdcc8fb98070639db5bb0b3a65dc05173"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "2bf01cc7dea90e1416ceff00b02c9ee2f4d28d71^",
+              "2bf01cc7dea90e1416ceff00b02c9ee2f4d28d71"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "25ff74b69dc69e55ed5ba74a0ff4a0e945bfd90d^",
+              "25ff74b69dc69e55ed5ba74a0ff4a0e945bfd90d"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "02b3e4c578d8148a44233e4f7d2e300d204cdd99^",
+              "02b3e4c578d8148a44233e4f7d2e300d204cdd99"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "18ef9c9435d1cae78f2d6a24968a325f2497d151^",
+              "18ef9c9435d1cae78f2d6a24968a325f2497d151"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "5143de7e6a1ff565067ea7a3353983e4663a2f04^",
+              "5143de7e6a1ff565067ea7a3353983e4663a2f04"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "cc091fc855dbb527237c3a597713693894fb43da^",
+              "cc091fc855dbb527237c3a597713693894fb43da"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "f679fcc90f686d87e6e689347626efe6a6208e5c^",
+              "f679fcc90f686d87e6e689347626efe6a6208e5c"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "f35e344520498af1b80722911b3612e051de22a0^",
+              "f35e344520498af1b80722911b3612e051de22a0"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "17c907745700403bd8262db0f395dc7ef4acee0f^",
+              "17c907745700403bd8262db0f395dc7ef4acee0f"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "034c60adc655bcf9caa4c59518b3050d12d49c22^",
+              "034c60adc655bcf9caa4c59518b3050d12d49c22"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "3461f15d93182ff8875b401305da55a5be35c758^",
+              "3461f15d93182ff8875b401305da55a5be35c758"
+            ],
+            "count": 8
+          },
+          {
+            "argv": [
+              "git",
+              "diff-tree",
+              "--no-commit-id",
+              "--numstat",
+              "-r",
+              "65f0814388d0bd901fb8ff3c044affe0f6daef53^",
+              "65f0814388d0bd901fb8ff3c044affe0f6daef53"
+            ],
+            "count": 8
+          }
+        ],
+        "method": "Real Git native Trace2 start events; trace only this separate count process; raw trace removed"
+      }
+    }
+  ]
+}

@@ -1,0 +1,268 @@
+{
+  "protocol": "check-priority-v1",
+  "runtime": "Bun1.3.14",
+  "deliverySourceIdentityFile": "check-priority-final-identity.json",
+  "beforeSourceIdentityFile": "check-priority-before-identity.json",
+  "previousAfterStatus": "Historical intermediate tree: initial full Gate had K01/K06 function complexity blockers; do not use its timing for final delivery claims",
+  "finalization": "K01 validatedDirectoryEntry helper, K06 measuredCommitPrefix helper with an extra async continuation; K05/Run production functionality unchanged; tests migrated; no first-batch publicRun repeat",
+  "measurements": [
+    {
+      "workload": "directory",
+      "size": 32,
+      "before": {
+        "medianMs": 1.8413047000000007,
+        "minMs": 1.7292381000000034,
+        "maxMs": 3.6220686,
+        "madMs": 0.09910740000000273
+      },
+      "final": {
+        "medianMs": 1.9316930000000014,
+        "minMs": 1.351657999999992,
+        "maxMs": 3.191019999999992,
+        "madMs": 0.24106580000000122
+      },
+      "reductionPercent": -4.908926806084879,
+      "speedup": 0.9532077302138586,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "directory",
+      "size": 1024,
+      "before": {
+        "medianMs": 1223.4500239999998,
+        "minMs": 1151.7987410000005,
+        "maxMs": 1261.2258440000005,
+        "madMs": 25.390408999999636
+      },
+      "final": {
+        "medianMs": 1243.4572430000007,
+        "minMs": 1165.1161509999993,
+        "maxMs": 1339.6312280000002,
+        "madMs": 29.039716999999655
+      },
+      "reductionPercent": -1.635311504967607,
+      "speedup": 0.9839100064657382,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 16,
+      "before": {
+        "medianMs": 6.886146999999994,
+        "minMs": 5.094274999999982,
+        "maxMs": 10.118950999999981,
+        "madMs": 1.3455940000000055
+      },
+      "final": {
+        "medianMs": 9.325092999999981,
+        "minMs": 5.689836000000014,
+        "maxMs": 11.09096199999999,
+        "madMs": 1.7658690000000092
+      },
+      "reductionPercent": -35.418151834400135,
+      "speedup": 0.7384534395528289,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 4096,
+      "before": {
+        "medianMs": 771.8642970000001,
+        "minMs": 703.2322400000003,
+        "maxMs": 904.7353710000007,
+        "madMs": 68.6320569999998
+      },
+      "final": {
+        "medianMs": 602.2439789999999,
+        "minMs": 566.4013290000003,
+        "maxMs": 652.9485989999994,
+        "madMs": 10.596032999999807
+      },
+      "reductionPercent": 21.975406643274265,
+      "speedup": 1.2816471794066708,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 4,
+      "before": {
+        "medianMs": 16.05770899999999,
+        "minMs": 15.824624999999969,
+        "maxMs": 18.575436000000025,
+        "madMs": 0.18165600000003224
+      },
+      "final": {
+        "medianMs": 23.116524000000027,
+        "minMs": 20.24789099999998,
+        "maxMs": 28.380991999999992,
+        "madMs": 1.345593000000008
+      },
+      "reductionPercent": -43.959041728804806,
+      "speedup": 0.6946420231692261,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 32,
+      "before": {
+        "medianMs": 483.9342379999998,
+        "minMs": 460.1376699999996,
+        "maxMs": 492.0078719999992,
+        "madMs": 5.908236000000215
+      },
+      "final": {
+        "medianMs": 66.19998700000008,
+        "minMs": 63.77269799999999,
+        "maxMs": 70.78625899999997,
+        "madMs": 1.7254970000001322
+      },
+      "reductionPercent": 86.32045807017272,
+      "speedup": 7.310186299583401,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    }
+  ],
+  "interleaved": [
+    {
+      "workload": "directory",
+      "size": 32,
+      "before": {
+        "medianMs": 1.7559064999999976,
+        "minMs": 1.5801443000000006,
+        "maxMs": 3.2664695999999935,
+        "madMs": 0.07028540000001149
+      },
+      "final": {
+        "medianMs": 1.7762247999999885,
+        "minMs": 1.623954200000003,
+        "maxMs": 3.6636724999999983,
+        "madMs": 0.10689609999998306
+      },
+      "reductionPercent": -1.157140200801754,
+      "speedup": 0.9885609636798276,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "directory",
+      "size": 1024,
+      "before": {
+        "medianMs": 2412.1901159999998,
+        "minMs": 1264.2013820000002,
+        "maxMs": 3446.163764000001,
+        "madMs": 196.0584859999999
+      },
+      "final": {
+        "medianMs": 1866.5484620000007,
+        "minMs": 1306.6961179999998,
+        "maxMs": 2361.2321379999994,
+        "madMs": 109.16012799999771
+      },
+      "reductionPercent": 22.620176178518058,
+      "speedup": 1.2923265401935216,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 16,
+      "before": {
+        "medianMs": 9.076048000000014,
+        "minMs": 5.791383999999994,
+        "maxMs": 11.322992,
+        "madMs": 1.879365000000007
+      },
+      "final": {
+        "medianMs": 8.866354000000001,
+        "minMs": 6.114743999999973,
+        "maxMs": 10.437187999999992,
+        "madMs": 1.4289380000000165
+      },
+      "reductionPercent": 2.3104108748654983,
+      "speedup": 1.0236505332406098,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "anchors",
+      "size": 4096,
+      "before": {
+        "medianMs": 800.6289830000001,
+        "minMs": 734.789256,
+        "maxMs": 919.0588680000001,
+        "madMs": 53.7549140000001
+      },
+      "final": {
+        "medianMs": 636.5010279999997,
+        "minMs": 587.3543520000003,
+        "maxMs": 707.300913,
+        "madMs": 26.325227000000268
+      },
+      "reductionPercent": 20.49987678250219,
+      "speedup": 1.2578596856563136,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 4,
+      "before": {
+        "medianMs": 15.408051999999998,
+        "minMs": 15.06982099999999,
+        "maxMs": 18.318741999999986,
+        "madMs": 0.3382310000000075
+      },
+      "final": {
+        "medianMs": 16.380201,
+        "minMs": 15.589460000000031,
+        "maxMs": 17.181641000000013,
+        "madMs": 0.5334980000000087
+      },
+      "reductionPercent": -6.309356951806766,
+      "speedup": 0.9406509724758566,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    },
+    {
+      "workload": "reminders",
+      "size": 32,
+      "before": {
+        "medianMs": 517.892985,
+        "minMs": 453.09181199999966,
+        "maxMs": 631.337743,
+        "madMs": 48.25116200000002
+      },
+      "final": {
+        "medianMs": 68.98052100000007,
+        "minMs": 66.07166500000005,
+        "maxMs": 75.21647000000007,
+        "madMs": 2.4287129999999024
+      },
+      "reductionPercent": 86.68054540263756,
+      "speedup": 7.5078149235782,
+      "semanticDigestMatches": true,
+      "harnessAndFixtureIdentityMatches": true
+    }
+  ],
+  "broadComparisonFile": "check-priority-final-broad-comparison.json",
+  "findings": {
+    "K01": "Original directory name scans eliminated, but full exact-pattern wall benefit remains unproven. Primary+1.64%; control apparent benefit22.62% has very wide overlapping ranges and is not robust attribution.",
+    "K05": "Final H=Q4096 same-document last-valid anchors: primary21.97% reduction, interleaved20.50%; bounded scenario only. Use final rather than intermediate33.72% result.",
+    "K06": "Final real Git32successors/8same-base reminders: primary86.32% reduction, interleaved86.68%; the extra continuation is included in final public timing.",
+    "small": "Primary small anchors/reminders were slower than earlier-window before, but same-window small controls overlap ranges and reverse/attenuate direction. No deterministic regression or no-regression guarantee; preserve all raw values.",
+    "broad": "See final broad range/MAD; one pair is observation, not an improvement guarantee."
+  },
+  "limitations": [
+    "Exactly one bounded final run, no repeated controls to cherry-pick timing",
+    "Same frozen K-before tree/harness/fixture/locks, final source checked through counts/broad; shared host noise remains",
+    "K-before includes first-batch framework changes; K-final does not reattribute originalRun benefit",
+    "Median/min/max/MAD retained; no outliers removed, no p95 or accepted latency budget/timing gate",
+    "Independent instrumentation counts not mixed into wall timers",
+    "Success fixture cannot prove failure retry/cancellation/overflow; owner tests handle those semantics"
+  ]
+}
